@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, Input, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Input, Popover, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
 import { WORKSHEET_BTN_OPTION_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/customBtn/config';
 import CustomBtnMoreOption from './CustomBtnMoreOption';
+
+const RANGE_POPOVER_AUTO_ADJUST_OVERFLOW = { adjustX: true, adjustY: true, shiftY: true };
 
 export default function BtnTd(props) {
   const input = useRef(null);
@@ -154,7 +155,7 @@ export default function BtnTd(props) {
         {isRename ? (
           <Input
             className="flex"
-            manualRef={input}
+            ref={input}
             defaultValue={it.name}
             onBlur={e => {
               const newName = _.trim(e.target.value);
@@ -217,22 +218,21 @@ export default function BtnTd(props) {
       </div>
 
       <div className="activeCon mRight8 w120px">
-        <Trigger
-          popupVisible={showDropOption}
-          action={isDisabled ? [] : ['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          getPopupContainer={() => document.body}
-          onPopupVisibleChange={showDropOption => {
+        <Popover
+          open={showDropOption}
+          onOpenChange={showDropOption => {
             if (isDisabled) {
               return;
             }
 
             setState({ showDropOption, templateId: showDropOption ? it.btnId : '' });
           }}
-          popup={
+          trigger={isDisabled ? [] : 'click'}
+          placement="bottomLeft"
+          destroyOnHidden
+          autoAdjustOverflow={RANGE_POPOVER_AUTO_ADJUST_OVERFLOW}
+          noPadding
+          content={
             <BtnRangeDrop
               onClose={() => {
                 setState({ showDropOption: false });
@@ -265,7 +265,7 @@ export default function BtnTd(props) {
           }
         >
           <span className={cx('Bold', { Hand: !isDisabled })}>{_l('使用范围')}</span>
-        </Trigger>
+        </Popover>
         <span
           className={cx('mLeft20 Bold', { Hand: !isDisabled })}
           onClick={() => {

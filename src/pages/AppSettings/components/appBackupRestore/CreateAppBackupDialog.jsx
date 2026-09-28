@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox, Dialog, LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 
 const CreateBackupCon = styled.div`
@@ -38,53 +38,6 @@ const CreateBackupCon = styled.div`
   }
 `;
 
-const Footer = styled.div`
-  font-size: 14px;
-  line-height: 36px;
-  min-height: 36px;
-  span {
-    font-size: 14px;
-    line-height: 36px;
-    min-height: 36px;
-    display: inline-block;
-    box-sizing: border-box;
-    text-shadow: none;
-    border: none;
-    outline: none;
-    border-radius: 3px;
-    color: var(--color-white);
-    vertical-align: middle;
-    cursor: pointer;
-    width: 92px;
-    text-align: center;
-  }
-  .cancelBtn {
-    color: var(--color-text-tertiary);
-  }
-  .cancelBtn:hover {
-    color: var(--color-primary);
-  }
-  .disabledConfirmBtn {
-    color: var(--color-white);
-    background: var(--color-text-disabled);
-  }
-  .confirmBtn {
-    background: var(--color-primary);
-    cursor: pointer;
-  }
-  .confirmBtn:hover {
-    background-color: var(--color-link-hover);
-  }
-  .disabledBtn {
-    cursor: not-allowed;
-    background-color: var(--color-text-disabled);
-    color: var(--color-white);
-    &:hover {
-      background-color: var(--color-text-disabled);
-    }
-  }
-`;
-
 export default function CreateBackupModal(props) {
   const { appId, projectId, appName, data = {}, getList = () => {} } = props;
   const [validLimit, setValidLimit] = useState(0);
@@ -95,23 +48,26 @@ export default function CreateBackupModal(props) {
 
   useEffect(() => {
     if (!appId) return;
-    getBackupCount();
-    getAppSupportInfo();
-  }, [appId]);
 
-  const getBackupCount = () => {
+    let cancelled = false;
+
     appManagementAjax.getValidBackupFileInfo({ appId, projectId }).then(res => {
+      if (cancelled) return;
+
       setCountLoading(false);
       setValidLimit(res.validLimit);
       setCurrentValid(res.currentValid);
     });
-  };
-
-  const getAppSupportInfo = () => {
     appManagementAjax.getAppSupportInfo({ appId }).then(res => {
-      setCountInfo(res);
+      if (!cancelled) {
+        setCountInfo(res);
+      }
     });
-  };
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appId, projectId]);
 
   const onOk = () => {
     if (!countInfo.appItemTotal) return;
@@ -140,27 +96,17 @@ export default function CreateBackupModal(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('备份')}
-      visible={true}
+      open
       width={580}
       onCancel={() => props.closeDialog()}
       className="createIndexDialog"
-      overlayClosable={false}
-      okText={_l('备份')}
-      footer={
-        <Footer className="flexRow">
-          <div className="textTertiary flex TxtLeft Font13">
-            {validLimit !== -1 ? _l('已备份:%0', `${currentValid}/${validLimit}`) : ''}
-          </div>
-          <span className="cancelBtn" onClick={props.closeDialog}>
-            {_l('取消')}
-          </span>
-          <span className={cx('confirmBtn', { disabledBtn: !countInfo.appItemTotal })} type="primary" onClick={onOk}>
-            {_l('确认')}
-          </span>
-        </Footer>
-      }
+      mask={{ closable: false }}
+      okText={_l('确认')}
+      okDisabled={!countInfo.appItemTotal}
+      keyboard
+      onOk={onOk}
     >
       {countLoading ? (
         <CreateBackupCon className="emptyWrap">
@@ -178,17 +124,17 @@ export default function CreateBackupModal(props) {
               <div className="textTertiary Font12 mTop3">{_l('共有 %0 个应用项', countInfo.appItemTotal)}</div>
             </div>
           </div>
-          {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
-            md.global.SysSettings.enableBackupWorksheetData) && (
+          {(window.platformENV.isHap || md.global.SysSettings.enableBackupWorksheetData) && (
             <Fragment>
               <div className="flexRow alignItemsCenter">
                 <Checkbox
-                  text={_l('同时备份数据')}
                   checked={containData}
-                  onClick={checked => {
-                    setContainData(!checked);
+                  onChange={event => {
+                    setContainData(event.target.checked);
                   }}
-                />
+                >
+                  {_l('同时备份数据')}
+                </Checkbox>
               </div>
 
               <div className="Font12 textTertiary pLeft24">{_l('预计共有 %0 行记录', countInfo.rowTotal)}</div>
@@ -217,6 +163,9 @@ export default function CreateBackupModal(props) {
           )}
         </CreateBackupCon>
       )}
-    </Dialog>
+      {validLimit !== -1 && (
+        <div className="textTertiary TxtLeft Font13 mTop20">{_l('已备份:%0', `${currentValid}/${validLimit}`)}</div>
+      )}
+    </Modal>
   );
 }

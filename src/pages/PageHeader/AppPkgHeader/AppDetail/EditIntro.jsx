@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { bool, func, string } from 'prop-types';
-import { compareProps } from '../../util';
+import { compareProps } from 'src/utils/domain/app/model';
 import Editor from './EditorDiaLogContent';
 import './index.less';
 
@@ -37,7 +37,10 @@ export default class AppIntro extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const props = this.props || {};
     const state = this.state || {};
-    return compareProps(props, nextProps, ['description', 'isEditing']) || nextState.isEditing !== state.isEditing;
+    return (
+      compareProps(props, nextProps, ['description', 'isEditing', 'showRemark']) ||
+      nextState.isEditing !== state.isEditing
+    );
   }
 
   handleSave = val => {
@@ -60,6 +63,7 @@ export default class AppIntro extends Component {
       minHeight,
       maxHeight,
       data,
+      showRemark,
     } = this.props;
     const { isEditing } = this.state;
     return (
@@ -69,6 +73,7 @@ export default class AppIntro extends Component {
         summary={summary}
         resume={resume}
         remark={remark}
+        showRemark={showRemark}
         isEditing={isEditing}
         permissionType={permissionType}
         changeEditState={isEditing => {

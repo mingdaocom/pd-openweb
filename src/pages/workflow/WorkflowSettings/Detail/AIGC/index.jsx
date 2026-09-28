@@ -1,6 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import Remarkable from 'remarkable';
-import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -8,10 +6,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import filterXss from 'xss';
-import { Dialog, Dropdown, LoadDiv, ScrollView, Support, Switch } from 'ming-ui';
+import { LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Modal, Select, Switch } from 'ming-ui/antd-components';
+import Remarkable, { escapeHtml, replaceEntities } from 'ming-ui/components/Remarkable';
 import flowNode from '../../../api/flowNode';
-import { pathCompletion } from 'src/utils/common';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID } from '../../enum';
 import { formatTestParameters, getIcons } from '../../utils';
 import {
@@ -218,7 +218,12 @@ export default class AIGC extends Component {
             className="mRight10"
             checked={data.moreSetting}
             size="small"
-            onClick={() => this.updateSource({ moreSetting: !data.moreSetting })}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return this.updateSource({
+                moreSetting: !data.moreSetting,
+              });
+            }}
           />
           {_l('更多设置')}
         </div>
@@ -269,9 +274,9 @@ export default class AIGC extends Component {
         )}
 
         {templateKey && (
-          <Dialog
+          <Modal
             className="workflowDialogBox"
-            visible
+            open
             width={400}
             title={templateKey === 'promptTemplate' ? _l('提示词模板') : _l('系统消息模板')}
             onOk={() => {
@@ -280,16 +285,15 @@ export default class AIGC extends Component {
             }}
             onCancel={() => this.setState({ templateKey: '' })}
           >
-            <Dropdown
+            <Select
               className="flowDropdown w100"
-              menuClass="w100"
-              data={Object.keys(data[templateKey] || {}).map(key => ({ text: key, value: data[templateKey][key] }))}
-              value={templateValue}
-              border
-              openSearch
+              options={Object.keys(data[templateKey] || {}).map(key => ({ label: key, value: data[templateKey][key] }))}
+              value={templateValue || undefined}
+              showSearch
+              optionFilterProp="label"
               onChange={templateValue => this.setState({ templateValue })}
             />
-          </Dialog>
+          </Modal>
         )}
 
         {showTestDialog && (
@@ -467,10 +471,10 @@ export default class AIGC extends Component {
 
     md.renderer.rules.link_open = function (tokens, idx) {
       const title = tokens[idx].title ? ' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"' : '';
-      return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
+      return '<a target="_blank" rel="noopener noreferrer" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
     };
 
-    return filterXss(md.render(text));
+    return sanitizePostMessageHtml(md.render(text));
   };
 
   render() {

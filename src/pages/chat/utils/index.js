@@ -1,10 +1,14 @@
 import _ from 'lodash';
 import moment from 'moment';
-import Emotion from 'src/components/emotion/emotion';
+import parseEmotion from 'src/components/emotion/parseEmotion';
 import { INBOXTYPES } from 'src/pages/chat/components/Inbox/constants';
-import { htmlDecodeReg, pathCompletion } from 'src/utils/common';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { htmlDecodeReg } from 'src/utils/core/string';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import Constant from './constant';
+import { tagConvert, toLink } from './messageContent';
+
+export { tagConvert, toLink } from './messageContent';
 
 export const formatMsgDate = (dateStr, isHourMinute = true) => {
   const dateTime = moment(dateStr);
@@ -394,39 +398,11 @@ export const cardDisposeName = card => {
 };
 
 /**
- * 链接转化,将字符串中的链接转化为成a 标签
- * @param {*} str
- */
-export const toLink = str => {
-  // url前面加一个空格
-  // str = str.replace(/(http|https|ftp):\/\//ig, ' $1://');
-  const urlReg = /((http|https|ftp):\/\/|w{1,3}\.)[^\s|<|\u4E00-\u9FA5]+/gi;
-  // var urlReg = /((http|https|ftp):\/\/|www)[^\s\|<\|\u4E00-\u9FA5]*[^(http|https|ftp:\/\/)]/ig;
-  return str.replace(urlReg, m => {
-    let _href = m;
-
-    if (m.match(/^w{1,3}/)) {
-      _href = 'http://' + m;
-    }
-
-    return '<a class="convertLink" target="_blank" href="' + _href + '">' + m.replace('&', '&amp;') + '</a>';
-  });
-};
-
-/**
- * 标签转化
- * @param {*} msg
- */
-export const tagConvert = msg => {
-  return msg.replace(/</g, '&lt').replace(/>/g, '&gt;');
-};
-
-/**
  * 解析消息中的文本
  * @param {*} message
  */
 export const messageContentParser = message => {
-  return Emotion.parse(toLink(tagConvert(message)).replace(/\n/g, '<br>').replace(/\s{2}/g, ' &nbsp;'));
+  return parseEmotion(toLink(tagConvert(message)).replace(/\n/g, '<br>').replace(/\s{2}/g, ' &nbsp;'));
 };
 
 /**

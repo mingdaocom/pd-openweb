@@ -33,9 +33,9 @@ export const typeOptionList = [
 ];
 
 export const enableOptionList = [
-  { text: _l('全部'), value: 2 },
-  { text: _l('已启用'), value: 1 },
-  { text: _l('未启用'), value: 0 },
+  { label: _l('全部'), value: 2 },
+  { label: _l('已启用'), value: 1 },
+  { label: _l('未启用'), value: 0 },
 ];
 
 export const tabList = [
@@ -65,6 +65,7 @@ export const viewDetailTabList = {
     myPlugin: [
       { text: _l('发布历史'), value: 'publishHistory' },
       { text: _l('使用明细'), value: 'usageDetail' },
+      { text: _l('导出历史'), value: 'exportHistory' },
     ],
   },
 };

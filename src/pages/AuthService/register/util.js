@@ -2,9 +2,11 @@ import _ from 'lodash';
 import registerApi from 'src/api/register';
 import { AccountNextActions, ActionResult } from 'src/pages/AuthService/config';
 import { registerSuc } from 'src/pages/AuthService/util';
-import { encrypt, getRequest, pathCompletion } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
-import { setPssId } from 'src/utils/pssId';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { mdAppResponse } from 'src/utils/services/project';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { InviteFromType } from '../config';
 
 export const getTitle = () => {
@@ -23,7 +25,11 @@ export const getTitle = () => {
       break;
   }
 
-  return str;
+  if (window.platformENV.isOverseas || window.platformENV.isLocal) {
+    return str;
+  }
+
+  return str + ' - ' + _l('明道云') + ' | ' + _l('APaaS平台、零代码、hpaPaaS、iPaaS、BaaS、快速开发工具、中台应用');
 };
 
 export const getDes = authInfo => {
@@ -65,15 +71,15 @@ export const getDepartmentInfo = props => {
         });
   let workSitesN =
     workSites.length <= 0
-      ? [{ value: 'null', text: _l('暂无工作地点') }]
+      ? [{ value: 'null', label: _l('暂无工作地点') }]
       : _.map(workSites, item => {
-          return { value: item.workSiteId, text: item.workSiteName };
+          return { value: item.workSiteId, label: item.workSiteName };
         });
   let jobsN =
     jobs.length <= 0
-      ? [{ value: 'null', text: _l('暂无职位') }]
+      ? [{ value: 'null', label: _l('暂无职位') }]
       : _.map(jobs, item => {
-          return { value: item.jobId, text: item.jobName };
+          return { value: item.jobId, label: item.jobName };
         });
   return { departmentsArr: departmentsN, workSitesArr: workSitesN, jobsArr: jobsN };
 };

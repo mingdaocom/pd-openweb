@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { isSheetDisplay } from '../../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
 import SelectFields from '../../CustomEvent/CustomAction/SelectFields';
 
 export default function SetHiddenControls(props) {
@@ -33,19 +33,24 @@ export default function SetHiddenControls(props) {
     <Fragment>
       <div className="labelWrap">
         <Checkbox
-          size="small"
-          text={_l('返回隐藏的字段')}
           checked={checked}
-          onClick={checked => {
-            if (checked) {
+          onChange={event => {
+            if (!event.target.checked) {
               setChecked(false);
-              onChange(handleAdvancedSettingChange(data, { additionalids: '' }));
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  additionalids: '',
+                }),
+              );
               return;
             }
 
             setChecked(true);
           }}
-        />
+          size="small"
+        >
+          {_l('返回隐藏的字段')}
+        </Checkbox>
       </div>
       {checked && (
         <SelectFields

@@ -5,6 +5,7 @@
   color: var(--color-text-primary);
   background-color: var(--card-bg-color);
   padding: 0;
+  border-radius: 8px;
   margin: 14px 0 14px 0 !important;
   overflow: visible !important;
 }
@@ -35,6 +36,7 @@
 .postCard .postContent .postContentBodyContainer {
   position: relative;
   overflow: hidden;
+  padding-bottom: 5px;
 }
 
 .postCard .postContent .postContentBody {
@@ -94,8 +96,11 @@
 
 .postCard .postContent .showMore,
 .postCard .postContent .hideMore {
-  display: block;
+  display: flex;
+  justify-content: flex-start;
   width: 100%;
+  height: 28px;
+  padding: 0;
   background: var(--card-bg-color);
 }
 
@@ -104,12 +109,6 @@
 .rPostItem .hideMore,
 .rPostItem .showMore {
   background: var(--color-background-tertiary) !important;
-}
-
-.postCard .postContent .showMore {
-  opacity: 1;
-  position: absolute;
-  top: 309px;
 }
 
 .postCard .rPostItemTriangle {
@@ -139,7 +138,7 @@
 }
 
 .postCard .rPostItem .postFooter {
-  padding-bottom: 0;
+  padding-bottom: 10px;
 }
 
 .linkContent {
@@ -152,20 +151,11 @@
   vertical-align: middle;
 }
 
-.voteOptionMemberList {
-  width: 100%;
-  overflow: hidden;
-}
-
 .postCard .postOperator {
   position: absolute;
   cursor: default;
   top: 0;
   right: 0;
-}
-
-.postCard .mdEmotion {
-  z-index: 2;
 }
 
 .postOperatorListBtn {
@@ -182,33 +172,8 @@
   overflow: hidden;
 }
 
-.postOperatorListContainer > .Menu {
-  left: auto !important;
-  right: 0px;
-}
-
-.postOperatorList {
-  position: absolute;
-  /*width: auto;*/
-  width: 180px;
-  right: 20px;
-  background: var(--color-background-primary);
-  z-index: 100;
-  border-radius: 3px;
-  padding: 6px 0;
-}
-
 .postOperatorListContainer:hover .postOperatorListBtn {
   color: var(--color-text-tertiary) !important;
-}
-
-.postOperatorList li {
-  cursor: pointer;
-  background: var(--color-background-primary);
-  padding: 0px 12px;
-  height: 32px;
-  line-height: 32px;
-  font-size: 12px;
 }
 
 .postOperatorFavBtn {
@@ -226,7 +191,7 @@
 .postCard .postFooter {
   margin-left: 61px;
   margin-top: 20px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   font-size: 13px;
 }
 
@@ -242,11 +207,18 @@
 }
 
 .postCard .postFooter .postActionIcon {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 18px;
   height: 18px;
   border-right: 1px solid;
   padding: 0 12px;
+}
+
+.postCard .postFooter .actions {
+  display: flex;
+  align-items: center;
 }
 
 .postCard .postFooter .postActionIcon:last-child {
@@ -318,17 +290,6 @@
   text-decoration: none;
 }
 
-.postOperatorList .parent {
-  background-image: url(../../images/check_to.gif);
-  background-position: 165px center;
-  background-repeat: no-repeat;
-  position: relative;
-}
-
-.postOperatorList .parent:hover {
-  background-image: url(../../images/check_to2.gif);
-}
-
 .moreOperateDiv_child {
   background-color: var(--color-background-primary);
   border: 1px solid var(--color-border-primary);
@@ -353,7 +314,7 @@
   background: var(--card-reply-bg-color);
   margin: 0 -20px 0 -15px;
   padding: 20px 20px 20px 22px;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 8px 8px;
   /*width:100%;
   height:100%;*/
   /*border:1px solid red;*/
@@ -363,7 +324,11 @@
   height: 100%;
   background-color: var(--color-background-card);
   border: 1px solid var(--color-border-primary);
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+.postCard .UploadFiles-header {
+  border-radius: 6px;
 }
 
 .replyFrameFocus {
@@ -433,7 +398,7 @@
   padding: 3px;
   background-color: var(--color-background-card);
   min-height: 26px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .postCard .postCommentBox .commentBoxTextarea {
@@ -504,7 +469,7 @@
   background: var(--card-reply-bg-color);
   padding: 0 20px 0 71px;
   font-size: 12px;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 8px 8px;
 }
 
 .postCard .commentListContainer .likedUsers {
@@ -554,7 +519,7 @@
 }
 
 .postCard .commentList .commentContainer .postCommentBox {
-  padding-left: 80px;
+  padding-left: 65px;
   padding-top: 0px;
   font-size: 13px;
 }

@@ -1,6 +1,7 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
 import { get, isArray } from 'lodash';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BgIconButton } from 'ming-ui';
@@ -8,15 +9,16 @@ import { Tooltip } from 'ming-ui/antd-components';
 import agentApi from 'src/api/agent';
 import mingoWordmark from 'src/pages/mingo/common/images/mingo-logo.png';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { SpeechSynthesizer } from 'src/utils/audio';
-import { emitter } from 'src/utils/common';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { SpeechSynthesizer } from 'src/utils/platform/browser/audio';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { buildFormFieldsControls } from 'src/utils/services/ai/formFields';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip, MINGO_TASK_TYPE } from '../../ChatBot/enum';
-import { buildFormFieldsControls, cancelStream, resolveStreamError } from '../../ChatBot/utils';
+import { cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import RecordControlDataSelector from './RecordControlDataSelector';
 
 const MingoContentWrap = styled.div`
@@ -167,10 +169,14 @@ function MingoContent(props, ref) {
             ...agentParams,
             sessionId: cache.current.sessionId,
             projectId: window.appInfo?.projectId,
+            // appId 为该 agent 的必传参数（缺失服务端直接拒绝），同时决定扣费流水归属哪个应用
+            appId: appId || window.appInfo?.id,
             forceReroute: false,
             context: {
               formFields: JSON.stringify(formFieldsControls),
-              ...(cache.current.isSmartFill ? { systemInfo } : {}),
+              ...(cache.current.isSmartFill
+                ? { systemInfo, currentTime: moment().format('YYYY-MM-DD HH:mm:ss dddd') }
+                : {}),
               userLanguage: window.getCurrentLang() || 'zh-Hans',
             },
           },

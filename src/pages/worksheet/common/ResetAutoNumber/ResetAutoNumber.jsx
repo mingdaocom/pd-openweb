@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Input, Popover } from 'antd';
+import React, { useRef, useState } from 'react';
 import { filter, get, pick } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Input, Modal, Popover } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 
 const ResetContent = styled.div`
@@ -52,10 +52,14 @@ export default function ResetAutoNumber(props) {
   const [activeIndex, setIndex] = useState(-1);
   const [initNum, setNum] = useState(1);
   const [startNum, setStartNum] = useState(1);
+  const requestPending = useRef(false);
 
   const handleReset = controlId => {
+    if (requestPending.current) return;
+
     setIndex(-1);
-    worksheetAjax
+    requestPending.current = true;
+    return worksheetAjax
       .resetControlIncrease({
         ...pick(worksheetInfo, ['appId', 'worksheetId']),
         controlId,
@@ -64,11 +68,14 @@ export default function ResetAutoNumber(props) {
       .then(res => {
         alert(res ? _l('重置成功') : _l('重置失败'));
         setNum(1);
+      })
+      .finally(() => {
+        requestPending.current = false;
       });
   };
 
   return (
-    <Dialog style={{ width: '480px' }} visible={true} title={_l('重置自动编号')} footer={null} onCancel={onHide}>
+    <Modal width={480} open title={_l('重置自动编号')} mask={{ closable: true }} keyboard onCancel={onHide}>
       <ResetWrap>
         <div className="intro">{_l('指定下一条记录的编号，之后的编号将在此基础上递增。之前的记录编号不变。')}</div>
         <div className="controls">
@@ -84,17 +91,18 @@ export default function ResetAutoNumber(props) {
                     <span>{controlName}</span>
                   </div>
                   <Popover
+                    arrow={true}
                     placement="bottomRight"
                     align={{ offset: [24] }}
-                    visible={activeIndex === index}
-                    onVisibleChange={visible => {
+                    open={activeIndex === index}
+                    onOpenChange={visible => {
                       setIndex(visible ? index : -1);
                       const startValue = visible ? _.padStart(start, length, '0') : 1;
                       setNum(startValue);
                       setStartNum(startValue);
                     }}
                     trigger="click"
-                    overlayClassName={'resetReconfirm'}
+                    classNames={{ root: 'resetReconfirm' }}
                     title={null}
                     content={
                       <ResetContent>
@@ -122,8 +130,8 @@ export default function ResetAutoNumber(props) {
                         </div>
                         <div className="footerBtn">
                           <Button
-                            type="link"
-                            size="small"
+                            color="primary"
+                            variant="link"
                             onClick={() => {
                               setIndex(-1);
                               setNum(1);
@@ -152,6 +160,6 @@ export default function ResetAutoNumber(props) {
           })}
         </div>
       </ResetWrap>
-    </Dialog>
+    </Modal>
   );
 }

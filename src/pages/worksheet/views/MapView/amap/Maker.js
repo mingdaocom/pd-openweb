@@ -1,9 +1,9 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { getAMapPixel, isFun, toCapitalString } from './utils/common';
 import log from './utils/log';
-import { MarkerAllProps, MarkerConfigurableProps, renderMarkerComponent } from './utils/markerUtils';
+import { MarkerAllProps, MarkerConfigurableProps } from './utils/markerUtils';
 
 class Marker extends React.Component {
   static propTypes = {
@@ -46,11 +46,7 @@ class Marker extends React.Component {
     const events = this.exposeMarkerInstance(props);
     events && this.bindMarkerEvents(events);
 
-    this.marker.render = (function (marker) {
-      return function (component) {
-        renderMarkerComponent(component, marker);
-      };
-    })(this.marker);
+    this.marker.render = component => this.renderComponent(component);
 
     this.setMarkerLayout(props);
   }
@@ -83,6 +79,20 @@ class Marker extends React.Component {
     this.marker.setContent(this.contentWrapper);
   }
 
+  renderComponent(component) {
+    const child = isFun(component) ? component(this.marker.getExtData()) : component;
+    this.renderChildren(child);
+  }
+
+  renderChildren(children) {
+    // 同一标记复用 Root，让卡片更新和移除时能正常执行 effect 清理。
+    if (!this.contentRoot) {
+      this.contentRoot = createRoot(this.marker.getContent());
+    }
+
+    this.contentRoot.render(<div>{children}</div>);
+  }
+
   setChildComponent(props) {
     if (this.contentWrapper) {
       if ('className' in props && props.className) {
@@ -91,16 +101,18 @@ class Marker extends React.Component {
       }
 
       if ('render' in props) {
-        renderMarkerComponent(props.render, this.marker);
+        this.renderComponent(props.render);
       } else if ('children' in props) {
         const child = props.children;
         const childType = typeof child;
 
         if (childType !== 'undefined' && this.contentWrapper) {
-          const root = createRoot(this.contentWrapper);
-
-          root.render(<div>{child}</div>);
+          this.renderChildren(child);
+        } else if (this.contentRoot) {
+          this.renderChildren(null);
         }
+      } else if (this.contentRoot) {
+        this.renderChildren(null);
       }
     }
   }
@@ -180,6 +192,11 @@ class Marker extends React.Component {
   }
 
   componentWillUnmount() {
+    const root = this.contentRoot;
+    this.contentRoot = null;
+    // 独立 Root 在父树提交结束后卸载，避免 React 嵌套同步卸载。
+    if (root) queueMicrotask(() => root.unmount());
+    if (!this.marker) return;
     this.marker.hide();
     this.map.remove(this.marker);
     delete this.marker;

@@ -1,13 +1,14 @@
 import React, { Component, Fragment, lazy, Suspense } from 'react';
-import { Checkbox, Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Dialog, Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, VerifyPasswordInput } from 'ming-ui';
+import { Button, Checkbox, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ArchivedList from 'src/components/ArchivedList';
-import verifyPassword from 'src/components/verifyPassword';
-import { pathCompletion } from 'src/utils/common';
+import Signature from 'src/components/Signature';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Card from './Card';
 import { getStateParam, TABS } from './config';
 import { getTodoCount } from './Entry';
@@ -15,8 +16,22 @@ import FilterConTent from './Filter';
 import FilterNav from './Filter/FilterNav';
 import FilterTrigger from './Filter/FilterTrigger';
 import Sort from './Filter/Sort';
+import { getValidApproveCards } from './selection';
 import TodoEntrust from './TodoEntrust';
 import './index.less';
+
+const SELECT_ALL_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 13, paddingInlineEnd: 0 },
+};
+
+const formatDoneTypeCount = (data = {}) => {
+  const { 3: type3Count = 0, 4: type4Count = 0, ...rest } = data || {};
+
+  return {
+    ...rest,
+    '-1': type3Count + type4Count,
+  };
+};
 
 const SECOND_TABS = {
   [TABS.COMPLETE]: [
@@ -104,6 +119,7 @@ export default class MyProcess extends Component {
       countData: {},
       approveType: null,
       encryptType: null,
+      doneTypeCount: {},
       rejectVisible: false,
       passVisible: false,
       archivedItem: {},
@@ -132,13 +148,9 @@ export default class MyProcess extends Component {
     this.removeEscEvent();
   }
 
-  updateCountData(countData) {
-    const { visible, stateTab } = this.state;
+  updateCountData(countData, { refreshFilter = false } = {}) {
+    const { stateTab } = this.state;
     const { updateCountData } = this.props;
-    this.setState({
-      countData,
-    });
-    updateCountData(countData);
     const tabCountMap = {
       [TABS.WAITING_APPROVE]: countData.waitingApproval,
       [TABS.WAITING_FILL]: countData.waitingWrite,
@@ -147,16 +159,18 @@ export default class MyProcess extends Component {
     };
     const count = tabCountMap[stateTab];
 
-    if (visible && count <= 0) {
-      this.setState({
-        visible: false,
-      });
-      return;
-    }
-
-    if (visible && this.filterEl) {
-      this.filterEl.getTodoListFilter();
-    }
+    this.setState(
+      {
+        countData,
+        ...(count <= 0 ? { visible: false } : {}),
+      },
+      () => {
+        if (refreshFilter && this.state.visible && this.filterEl) {
+          this.filterEl.getTodoListFilter();
+        }
+      },
+    );
+    updateCountData(countData);
   }
 
   bindEscEvent = () => {
@@ -169,7 +183,7 @@ export default class MyProcess extends Component {
       _.isEmpty(selectCard) && this.props.onCancel();
     }
   };
-  getTodoList = () => {
+  getTodoList = (shouldFetchDoneTypeCount = false) => {
     const { loading, isMore } = this.state;
 
     if (loading || !isMore) {
@@ -184,7 +198,7 @@ export default class MyProcess extends Component {
       this.request.abort();
     }
 
-    const { pageIndex, pageSize, list, stateTab, filter, archivedItem } = this.state;
+    const { pageIndex, pageSize, stateTab, filter, archivedItem } = this.state;
     const param = {
       pageSize,
       pageIndex,
@@ -199,22 +213,42 @@ export default class MyProcess extends Component {
       param.archivedId = archivedItem.id;
     }
 
+    let requestParam = param;
+
     if (filter && filter.resultType) {
       const resultType = param.resultType;
       delete param.resultType;
-      this.request = instanceVersion.getTodoList({ ...param, type: resultType });
+      requestParam = { ...param, type: resultType };
     } else {
       delete param.resultType;
-      this.request = instanceVersion.getTodoList(param);
     }
 
-    this.request.then(result => {
-      this.setState({
-        list: list.concat(result),
-        isLoading: false,
-        loading: false,
-        pageIndex: pageIndex + 1,
-        isMore: result.length === pageSize,
+    const shouldUpdateDoneTypeCount = stateTab === TABS.COMPLETE && (shouldFetchDoneTypeCount || pageIndex === 1);
+    const doneTypeCountRequest = shouldUpdateDoneTypeCount
+      ? instanceVersion.getDoneTypeCount(requestParam).then(
+          data => formatDoneTypeCount(data),
+          () => this.state.doneTypeCount,
+        )
+      : Promise.resolve(this.state.doneTypeCount);
+    const todoListRequest = instanceVersion.getTodoList(requestParam);
+
+    this.request = todoListRequest;
+
+    Promise.all([todoListRequest, doneTypeCountRequest]).then(([result, doneTypeCount]) => {
+      if (this.request !== todoListRequest) return;
+
+      this.setState(({ list: currentList, approveCards }) => {
+        const newList = currentList.concat(result);
+
+        return {
+          list: newList,
+          approveCards: getValidApproveCards(approveCards, newList),
+          isLoading: false,
+          loading: false,
+          pageIndex: pageIndex + 1,
+          isMore: result.length === pageSize,
+          doneTypeCount,
+        };
       });
     });
   };
@@ -229,6 +263,7 @@ export default class MyProcess extends Component {
         pageIndex: 1,
         isMore: true,
         list: [],
+        approveCards: [],
         filter: _.isEmpty(archivedItem)
           ? isSame
             ? filter
@@ -243,7 +278,7 @@ export default class MyProcess extends Component {
     getTodoCount({
       archivedId: archivedItem.id,
     }).then(countData => {
-      this.updateCountData(countData);
+      this.updateCountData(countData, { refreshFilter: isSame });
     });
   };
   handleScroll = () => {
@@ -281,6 +316,7 @@ export default class MyProcess extends Component {
         alert(_l('操作成功'));
         this.setState({
           list: [],
+          approveCards: [],
           isMore: false,
           isResetFilter: true,
           visible: false,
@@ -299,12 +335,16 @@ export default class MyProcess extends Component {
     const newList = list.filter(n => n.workId !== item?.workId);
     this.setState({
       list: newList,
+      approveCards: getValidApproveCards(this.state.approveCards, newList),
       visible: newList.length ? visible : false,
     });
-    this.updateCountData({ ...countData, waitingExamine: waitingExamine - 1, myProcessCount: myProcessCount - 1 });
+    this.updateCountData(
+      { ...countData, waitingExamine: waitingExamine - 1, myProcessCount: myProcessCount - 1 },
+      { refreshFilter: true },
+    );
   };
   hanndleApprove = (approveType, batchType) => {
-    const { approveCards } = this.state;
+    const approveCards = getValidApproveCards(this.state.approveCards, this.state.list);
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
@@ -328,9 +368,15 @@ export default class MyProcess extends Component {
   };
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const { approveCards } = this.state;
+    const approveCards = getValidApproveCards(this.state.approveCards, this.state.list);
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
+
+    if (!cards.length) {
+      alert(_l('请先勾选需要处理的审批'), 3);
+      return;
+    }
+
     const selects = cards.map(({ id, workId, flowNode }) => {
       const data = {
         id,
@@ -375,9 +421,6 @@ export default class MyProcess extends Component {
             rejectLoading: false,
           });
           this.handleChangeTab(TABS.WAITING_APPROVE);
-          getTodoCount().then(countData => {
-            this.updateCountData(countData);
-          });
         };
 
         if (!success.length && !fail.length) {
@@ -390,10 +433,10 @@ export default class MyProcess extends Component {
           return;
         }
 
-        Dialog.confirm({
+        Modal.confirm({
           width: 480,
-          title: <span className="bold">{_l('批量审批结果')}</span>,
-          description: (
+          title: _l('批量审批结果'),
+          content: (
             <div>
               {success.length && !fail.length ? (
                 <div className="flexColumn alignItemsCenter justifyContentCenter mTop20">
@@ -473,12 +516,10 @@ export default class MyProcess extends Component {
                           >
                             {fail.map(key => {
                               const [id, workId] = key.split(',');
-
                               const card = _.find(cards, {
                                 id,
                                 workId,
                               });
-
                               return card ? (
                                 <div className="textPrimary Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
                               ) : null;
@@ -492,18 +533,21 @@ export default class MyProcess extends Component {
               )}
             </div>
           ),
-          noFooter: true,
+          footer: null,
           onCancel: callBack,
         });
       });
   };
   handleSave = item => {
-    const { list } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingWrite, waitingApproval, waitingDispose, myProcessCount } = countData;
-    const newList = list.filter(n => n.workId !== item.workId);
-    this.setState({
-      list: newList,
+    this.setState(({ list, approveCards }) => {
+      const newList = list.filter(n => n.workId !== item.workId);
+
+      return {
+        list: newList,
+        approveCards: getValidApproveCards(approveCards, newList),
+      };
     });
     let param = null;
 
@@ -519,12 +563,15 @@ export default class MyProcess extends Component {
       };
     }
 
-    this.updateCountData({
-      ...countData,
-      ...param,
-      waitingDispose: waitingDispose - 1,
-      myProcessCount: myProcessCount - 1,
-    });
+    this.updateCountData(
+      {
+        ...countData,
+        ...param,
+        waitingDispose: waitingDispose - 1,
+        myProcessCount: myProcessCount - 1,
+      },
+      { refreshFilter: true },
+    );
   };
   renderHeader = () => {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
@@ -541,12 +588,7 @@ export default class MyProcess extends Component {
             className={cx('item bold ellipsis', {
               active: stateTab === TABS.WAITING_APPROVE,
             })}
-            onClick={() => {
-              this.setState({
-                approveCards: [],
-              });
-              this.handleChangeTab(TABS.WAITING_APPROVE);
-            }}
+            onClick={() => this.handleChangeTab(TABS.WAITING_APPROVE)}
           >
             <span>{_l('审批')}</span>
             {waitingApproval > 0 ? <span className="processCount darkRed">{waitingApproval}</span> : null}
@@ -608,6 +650,7 @@ export default class MyProcess extends Component {
                   isMore: true,
                   pageIndex: 1,
                   list: [],
+                  approveCards: [],
                   filter: { ...filter, startDate: archivedItem.start, endDate: archivedItem.end },
                 },
                 this.getTodoList,
@@ -615,7 +658,7 @@ export default class MyProcess extends Component {
               getTodoCount({
                 archivedId: archivedItem.id,
               }).then(countData => {
-                this.updateCountData(countData);
+                this.updateCountData(countData, { refreshFilter: true });
               });
             }}
             customRender={() => {
@@ -694,7 +737,8 @@ export default class MyProcess extends Component {
   }
 
   renderFilter() {
-    const { stateTab, visible, filter, approveCards, list } = this.state;
+    const { stateTab, visible, filter, approveCards: selectedApproveCards, list } = this.state;
+    const approveCards = getValidApproveCards(selectedApproveCards, list);
     const { approveLoading, rejectLoading } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval } = countData;
@@ -729,6 +773,7 @@ export default class MyProcess extends Component {
                 isMore: true,
                 loading: false,
                 list: [],
+                approveCards: [],
                 filter: { ...filter, isAsc: value },
               },
               this.getTodoList,
@@ -741,8 +786,13 @@ export default class MyProcess extends Component {
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
       const isApprove = TABS.WAITING_APPROVE === stateTab;
       const { passVisible, rejectVisible } = this.state;
-      const allowApproveList = list.filter(c => _.get(c, 'flowNode.batchApprove'));
+      const allowApproveList = getValidApproveCards(list, list);
       const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
+      const approveCardWorkIds = new Set(approveCards.map(item => item.workId));
+      const isAllApproveCardsSelected =
+        !!allowApproveList.length &&
+        allowApproveList.length === approveCards.length &&
+        allowApproveList.every(item => approveCardWorkIds.has(item.workId));
       return (
         <div
           className={cx('filterWrapper', {
@@ -757,8 +807,10 @@ export default class MyProcess extends Component {
             <div className="valignWrapper Font14">
               <div className="valignWrapper mTop2">
                 <Checkbox
-                  checked={allowApproveList.length && allowApproveList.length === approveCards.length}
+                  className="mRight5"
+                  checked={isAllApproveCardsSelected}
                   disabled={!allowApproveList.length}
+                  styles={SELECT_ALL_CHECKBOX_STYLES}
                   onChange={e => {
                     const { checked } = e.target;
 
@@ -777,25 +829,26 @@ export default class MyProcess extends Component {
                       });
                     }
                   }}
-                />
-                <div className="valignWrapper mLeft5 mRight5">
-                  {_l('全选')}
-                  {approveCards.length
-                    ? _l('（已选择%0/%1条）', approveCards.length, list.length)
-                    : list.length !== waitingApproval && _l('（已加载%0条）', list.length)}
-                </div>
+                >
+                  <span className="valignWrapper">
+                    {_l('全选')}
+                    {approveCards.length
+                      ? _l('（已选择%0/%1条）', approveCards.length, list.length)
+                      : list.length !== waitingApproval && _l('（已加载%0条）', list.length)}
+                  </span>
+                </Checkbox>
               </div>
               <Popover
-                overlayClassName="myProcessApproveOverlay"
-                overlayStyle={{
-                  width: 320,
-                  maxWidth: 320,
+                styles={{
+                  root: {
+                    width: 320,
+                    maxWidth: 320,
+                  },
                 }}
                 align={{
-                  offset: [40, -5],
+                  offset: [40, 5],
                 }}
                 placement="bottomRight"
-                arrowPointAtCenter={true}
                 trigger={['click']}
                 color="#FFF"
                 content={
@@ -808,8 +861,8 @@ export default class MyProcess extends Component {
                       }}
                     >
                       <Button
-                        type="link"
-                        size="small"
+                        color="primary"
+                        variant="link"
                         onClick={() => {
                           $('.passApprove').click();
                         }}
@@ -817,8 +870,8 @@ export default class MyProcess extends Component {
                         {_l('取消')}
                       </Button>
                       <Button
-                        type="success"
-                        size="small"
+                        color="var(--color-success)"
+                        variant="solid"
                         onClick={() => {
                           if (_.isEmpty(approveCards)) {
                             alert(_l('请先勾选需要处理的审批'), 3);
@@ -834,8 +887,8 @@ export default class MyProcess extends Component {
                     </div>
                   </div>
                 }
-                visible={passVisible}
-                onVisibleChange={passVisible => {
+                open={passVisible}
+                onOpenChange={passVisible => {
                   if (approveLoading || rejectLoading) return;
 
                   if (_.isEmpty(approveCards)) {
@@ -923,13 +976,14 @@ export default class MyProcess extends Component {
     }
 
     if (stateTab === TABS.COMPLETE) {
-      const { filter } = this.state;
+      const { filter, doneTypeCount } = this.state;
       return (
         <Fragment>
           <div className="filterWrapper">
             {renderFilterTrigger()}
             <FilterNav
               data={SECOND_TABS[TABS.COMPLETE]}
+              doneTypeCount={doneTypeCount}
               checked={filter}
               onChange={value => {
                 const { filter } = this.state;
@@ -939,9 +993,10 @@ export default class MyProcess extends Component {
                     isMore: true,
                     loading: false,
                     list: [],
+                    approveCards: [],
                     filter: { ...filter, ...value },
                   },
-                  this.getTodoList,
+                  () => this.getTodoList(true),
                 );
               }}
             />
@@ -956,13 +1011,14 @@ export default class MyProcess extends Component {
     const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
+    const validApproveCards = getValidApproveCards(this.state.approveCards, this.state.list);
     const approveCards =
-      type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
+      type === 4 ? validApproveCards : validApproveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         width={650}
         title={type === 4 ? _l('通过审批') : _l('否决审批')}
         onOk={() => {
@@ -972,6 +1028,8 @@ export default class MyProcess extends Component {
           }
 
           const submitFun = () => {
+            this.verifyInfo = undefined;
+
             if (signatureApproveCards.length) {
               this.signature.saveSignature(signature => {
                 this.handleBatchApprove(signature, this.state.approveType);
@@ -990,13 +1048,17 @@ export default class MyProcess extends Component {
           };
 
           if (encryptCard.length) {
-            if (!this.password || !this.password.trim()) {
-              alert(_l('请输入密码'), 3);
+            const verifyInfo = this.verifyInfo || {};
+            const error = getVerifyValueError(verifyInfo);
+
+            if (error) {
+              alert(error, 3);
               return;
             }
 
             verifyPassword({
-              password: this.password,
+              ...verifyInfo,
+              showVerifyType: true,
               closeImageValidation: true,
               success: submitFun,
             });
@@ -1009,14 +1071,14 @@ export default class MyProcess extends Component {
             approveType: null,
             encryptType: null,
           });
-          this.password = undefined;
+          this.verifyInfo = undefined;
         }}
       >
         <div className="textSecondary Font14 mBottom10">
           {_l('其中')}
           {!!signatureApproveCards.length && _l('%0个事项需要签名', signatureApproveCards.length)}
           {!!(signatureApproveCards.length && encryptCard.length) && '，'}
-          {!!encryptCard.length && _l('%0个事项需要验证登录密码', encryptCard.length)}
+          {!!encryptCard.length && _l('%0个事项需要安全验证', encryptCard.length)}
         </div>
         {!!signatureApproveCards.length && (
           <Fragment>
@@ -1035,24 +1097,26 @@ export default class MyProcess extends Component {
             <VerifyPasswordInput
               showSubTitle={false}
               isRequired={true}
+              showVerifyType={true}
               allowNoVerify={false}
-              onChange={({ password }) => {
-                if (password !== undefined) this.password = password;
+              onChange={verifyInfo => {
+                this.verifyInfo = verifyInfo;
               }}
             />
           </div>
         )}
-      </Dialog>
+      </Modal>
     );
   }
 
   renderRejectDialog() {
-    const { approveCards, filter, stateTab } = this.state;
+    const { filter, stateTab } = this.state;
+    const approveCards = getValidApproveCards(this.state.approveCards, this.state.list);
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const noRejectCards = approveCards.filter(c => !('5' in _.get(c, 'flowNode.btnMap')));
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         width={860}
         title={_l('有%0个可拒绝的审批事项', rejectCards.length)}
         onOk={() => {
@@ -1062,7 +1126,7 @@ export default class MyProcess extends Component {
           });
         }}
         okText={_l('拒绝')}
-        buttonType="danger"
+        okButtonProps={{ danger: true }}
         onCancel={() =>
           this.setState({
             rejectVisible: false,
@@ -1105,12 +1169,13 @@ export default class MyProcess extends Component {
             ))}
           </Fragment>
         )}
-      </Dialog>
+      </Modal>
     );
   }
 
   renderContent() {
-    const { list, stateTab, loading, filter, approveCards } = this.state;
+    const { list, stateTab, loading, filter } = this.state;
+    const approveCards = getValidApproveCards(this.state.approveCards, list);
 
     if (!loading && _.isEmpty(list)) {
       return <div className="content">{this.renderWithoutData()}</div>;
@@ -1139,16 +1204,14 @@ export default class MyProcess extends Component {
                 });
               }}
               onAddApproveRecord={item => {
-                const { approveCards } = this.state;
-                this.setState({
-                  approveCards: approveCards.concat(item),
-                });
+                this.setState(({ approveCards, list }) => ({
+                  approveCards: getValidApproveCards(approveCards.concat(item), list),
+                }));
               }}
               onRemoveApproveRecord={workId => {
-                const { approveCards } = this.state;
-                this.setState({
+                this.setState(({ approveCards }) => ({
                   approveCards: approveCards.filter(item => item.workId !== workId),
-                });
+                }));
               }}
             />
           ))}
@@ -1192,6 +1255,7 @@ export default class MyProcess extends Component {
                   pageIndex: 1,
                   isMore: true,
                   list: [],
+                  approveCards: [],
                   archivedItem: { ...archivedItem, start: data.startDate, end: data.endDate },
                   filter: { ...filter, ...data },
                 },
@@ -1215,7 +1279,7 @@ export default class MyProcess extends Component {
                   approveCards: [],
                   filter: isSampleFilter ? data : { ...filter, ...data },
                 },
-                this.getTodoList,
+                () => this.getTodoList(true),
               );
             }}
             ref={el => {
@@ -1240,12 +1304,13 @@ export default class MyProcess extends Component {
                           isMore: true,
                           pageIndex: 1,
                           list: [],
+                          approveCards: [],
                           filter: { ...filter, startDate: archivedItem.start, endDate: archivedItem.end },
                         },
                         this.getTodoList,
                       );
                       getTodoCount().then(countData => {
-                        this.updateCountData(countData);
+                        this.updateCountData(countData, { refreshFilter: true });
                       });
                     }}
                     customRender={() => <Fragment />}
@@ -1284,16 +1349,19 @@ export default class MyProcess extends Component {
                 }
 
                 if (stateTab === TABS.MY_SPONSOR || stateTab === TABS.COMPLETE) {
-                  const { list } = this.state;
-                  const newList = list.filter(n => n.workId !== selectCard.workId);
-                  this.setState({
-                    list: newList,
+                  this.setState(({ list, approveCards }) => {
+                    const newList = list.filter(n => n.workId !== selectCard.workId);
+
+                    return {
+                      list: newList,
+                      approveCards: getValidApproveCards(approveCards, newList),
+                    };
                   });
 
                   if (stateTab === TABS.MY_SPONSOR) {
                     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
                     const { mySponsor } = countData;
-                    this.updateCountData({ ...countData, mySponsor: mySponsor - 1 });
+                    this.updateCountData({ ...countData, mySponsor: mySponsor - 1 }, { refreshFilter: true });
                   }
                 }
 

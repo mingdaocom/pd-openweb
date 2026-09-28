@@ -4,26 +4,20 @@ import _, { filter, find, findIndex, isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { getSortData } from 'src/utils/control';
-import { ALL_SYS } from '../../config/widget';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { dealControlData, resortControlByColRow } from 'src/utils/domain/control/editorLayout';
+import { getControlsSorts, getDefaultShowControls } from 'src/utils/domain/control/editorSetting';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { getSortData } from 'src/utils/domain/control/sort';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { canAsUniqueWidget } from 'src/utils/domain/control/style';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
 import { EditInfo, SettingItem } from '../../styled';
-import {
-  dealControlData,
-  formatSearchConfigs,
-  getAdvanceSetting,
-  isSheetDisplay,
-  resortControlByColRow,
-} from '../../util';
-import {
-  canAsUniqueWidget,
-  getControlsSorts,
-  getDefaultShowControls,
-  handleAdvancedSettingChange,
-} from '../../util/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import RelateDetailInfo from '../components/RelateDetailInfo';
 import AddSubList from '../components/sublist/AddSubList';
@@ -31,20 +25,21 @@ import ConfigureControls from '../components/sublist/ConfigureControls';
 import Sort from '../components/sublist/Sort';
 import WidgetVerify from '../components/WidgetVerify';
 
+const SUB_LIST_SORT_OPTIONS = [
+  { label: _l('按设置的排序'), value: '2' },
+  { label: _l('拖拽排序'), value: '1' },
+];
+
 const SettingModelWrap = styled.div`
   .transferToRelate {
     position: absolute;
     top: 0;
     right: 0;
   }
-  .targetEle .Dropdown--input {
+  .targetEle .uniqueControlsPreview {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid var(--color-border-tertiary);
-    line-height: 34px;
-    padding: 0 12px;
-    border-radius: 3px;
   }
   .globalDetail {
     width: 100%;
@@ -52,6 +47,12 @@ const SettingModelWrap = styled.div`
     background: var(--color-background-secondary);
     line-height: 1.5;
     padding: 8px 12px;
+  }
+  .subListSortSelect {
+    width: 100%;
+  }
+  .subListSortInput {
+    margin-top: 12px;
   }
 `;
 
@@ -68,6 +69,14 @@ export default function SubListSetting(props) {
   });
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
   const uniqueControls = getAdvanceSetting(data, 'uniquecontrols') || [];
+  const { rcsorttype = '2', layercontrolid } = getAdvanceSetting(data);
+  const [isHiddenOtherViewRecord] = (data.strDefault || '000').split('');
+  const isAccessByUserPermission = !!+isHiddenOtherViewRecord;
+  const sortType = rcsorttype || '2';
+  const sortOptions = SUB_LIST_SORT_OPTIONS.map(option => ({
+    ...option,
+    disabled: option.value === '1' && (isAccessByUserPermission || !!layercontrolid),
+  }));
 
   const filterSysRelate = relationControls.filter(i => !_.includes(ALL_SYS, i.controlId));
 
@@ -98,7 +107,7 @@ export default function SubListSetting(props) {
     if (dataSource && !dataSource.includes('-')) {
       window.clearLocalDataTime({
         requestData: { worksheetId: dataSource },
-        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
       });
     }
   };
@@ -339,9 +348,8 @@ export default function SubListSetting(props) {
     }
 
     return (
-      <div className="Dropdown--input Dropdown--border Hand">
+      <div className="uniqueControlsPreview Hand">
         <span className="breakAll">{textArr}</span>
-        <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
       </div>
     );
   };
@@ -400,26 +408,55 @@ export default function SubListSetting(props) {
 
       {relationControls.length > 0 && (
         <SettingItem>
-          <div className="settingItemTitle">{_l('排序')}</div>
-          <EditInfo className="pointer subListSortInput" onClick={() => setConfig({ sortVisible: true })}>
-            <div className="overflow_ellipsis textPrimary">
-              {sorts.length > 0
-                ? sorts.reduce((p, item) => {
-                    const sortsRelationControls = relationControls
-                      .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
-                      .concat(SYSTEM_CONTROLS);
-                    const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
-                    const flag = item.isAsc === true ? 2 : 1;
-                    const { text } = getSortData(control.type, control).find(item => item.value === flag);
-                    const value = control.controlId ? `${control.controlName}：${text}` : '';
-                    return p ? `${p}；${value}` : value;
-                  }, '')
-                : _l('创建时间-最旧的在前')}
-            </div>
-            <div className="edit">
-              <i className="icon-edit"></i>
-            </div>
-          </EditInfo>
+          <div className="settingItemTitle">
+            {_l('排序')}
+            {rcsorttype === '1' && (
+              <Tooltip
+                placement="bottom"
+                title={_l(
+                  '设置拖拽排序后，当子记录数量小于等于 200 条时生效。启用“按用户权限访问”时不支持拖拽排序。不同用户可见的子记录不同，启用后会出现排序错乱。',
+                )}
+              >
+                <i className="icon-help tipsIcon textTertiary Font16 pointer" />
+              </Tooltip>
+            )}
+          </div>
+          <Select
+            className="subListSortSelect"
+            value={sortType}
+            options={sortOptions}
+            onChange={value => {
+              if (value === sortType) return;
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  rcsorttype: value,
+                  sorts: '[]',
+                }),
+              );
+              if (value === '2') setConfig({ sortVisible: true });
+            }}
+          />
+          {sortType === '2' && (
+            <EditInfo className="pointer subListSortInput" onClick={() => setConfig({ sortVisible: true })}>
+              <div className="overflow_ellipsis textPrimary">
+                {sorts.length > 0
+                  ? sorts.reduce((p, item) => {
+                      const sortsRelationControls = relationControls
+                        .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
+                        .concat(SYSTEM_CONTROLS);
+                      const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
+                      const flag = item.isAsc === true ? 2 : 1;
+                      const { text } = getSortData(control.type, control).find(item => item.value === flag);
+                      const value = control.controlId ? `${control.controlName}：${text}` : '';
+                      return p ? `${p}；${value}` : value;
+                    }, '')
+                  : _l('创建时间-最旧的在前')}
+              </div>
+              <div className="edit">
+                <i className="icon-edit"></i>
+              </div>
+            </EditInfo>
+          )}
           {sortVisible && (
             <Sort {...props} controls={relationControls} onClose={() => setConfig({ sortVisible: false })} />
           )}

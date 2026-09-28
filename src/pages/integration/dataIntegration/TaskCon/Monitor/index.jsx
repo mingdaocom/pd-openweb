@@ -5,8 +5,8 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import LogAjax from 'src/pages/integration/api/log.js';
 import MonitorAjax from 'src/pages/integration/api/monitor.js';
 
@@ -265,10 +265,10 @@ function Monitor(props) {
   };
 
   const dateArr = [
-    { text: _l('最近1小时'), value: 1 },
-    { text: _l('最近1天'), value: 2 },
-    { text: _l('最近1个月'), value: 3 },
-    { text: _l('最近6个月'), value: 4 },
+    { label: _l('最近1小时'), value: 1 },
+    { label: _l('最近1天'), value: 2 },
+    { label: _l('最近1个月'), value: 3 },
+    { label: _l('最近6个月'), value: 4 },
   ];
   const isDark = window.themeMode === 'dark';
 
@@ -381,12 +381,10 @@ function Monitor(props) {
                 <Icon className="mLeft5 textDisabled" type="info" />
               </Tooltip>
             </span>
-            <Dropdown
+            <Select
               className="timeDrop mLeft20"
-              menuStyle={{ width: '100%' }}
-              data={dateArr}
               value={showDate}
-              border
+              options={dateArr}
               onChange={value => {
                 setState({ showDate: value });
                 getHistory(value);
@@ -476,8 +474,10 @@ function Monitor(props) {
             </div>
           </div>
           {showErr && (
-            <Dialog
-              visible
+            <Modal
+              open
+              mask={{ closable: true }}
+              keyboard
               title={
                 <span>
                   {_l('报错信息')}
@@ -493,7 +493,7 @@ function Monitor(props) {
               }
               width={680}
               className="connectorErrorDialog"
-              showCancel={false}
+              cancelButtonProps={{ style: { display: 'none' } }}
               okText={_l('关闭')}
               onOk={() => {
                 setState({ showErr: false });
@@ -503,7 +503,7 @@ function Monitor(props) {
               }}
             >
               {!!errorDetail && <div className="errorInfo">{errorDetail}</div>}
-            </Dialog>
+            </Modal>
           )}
         </WrapCon>
       </Con>

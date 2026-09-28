@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Tree } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView, SvgIcon } from 'ming-ui';
-import { getTranslateInfo } from 'src/utils/app';
+import { ConfigProvider, Input } from 'ming-ui/antd-components';
+import { Tree } from 'src/ming-ui/antd-components/AsyncAntd';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const Wrap = styled.div`
   width: 260px;
@@ -34,12 +35,13 @@ const Wrap = styled.div`
     padding-left: 10px;
   }
 
-  .ant-tree {
-    .ant-tree-switcher-leaf-line::after {
-      top: 4px;
+  .hap-tree {
+    .hap-tree-treenode {
+      margin-bottom: 0;
     }
-    .ant-tree-treenode-leaf-last .ant-tree-switcher-leaf-line::before {
-      height: 18px !important;
+    .hap-tree-switcher-line-icon {
+      position: relative;
+      z-index: 1;
     }
     .anticon-plus-square,
     .anticon-minus-square {
@@ -52,7 +54,7 @@ const Wrap = styled.div`
         }
       }
     }
-    .ant-tree-node-content-wrapper.ant-tree-node-selected {
+    .hap-tree-node-content-wrapper.hap-tree-node-selected {
       .icon {
         color: var(--color-primary) !important;
       }
@@ -63,30 +65,24 @@ const Wrap = styled.div`
       color: var(--color-primary);
       background-color: var(--color-primary-transparent);
     }
-    .ant-tree-title {
+    .hap-tree-title {
       width: inherit;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .ant-tree-treenode,
-    .ant-tree-node-content-wrapper {
+    .hap-tree-treenode,
+    .hap-tree-node-content-wrapper {
       width: 100%;
       border-radius: 4px;
       overflow: hidden;
     }
-    .ant-tree-switcher,
-    .ant-tree-node-content-wrapper,
-    .ant-tree-node-content-wrapper .ant-tree-iconEle {
-      line-height: 36px;
-    }
-    .ant-tree-node-content-wrapper,
-    .ant-tree-node-content-wrapper .ant-tree-iconEle {
+    .hap-tree-node-content-wrapper,
+    .hap-tree-node-content-wrapper .hap-tree-iconEle {
       display: flex;
       align-items: center;
-      min-height: 36px;
     }
-    .ant-tree-node-content-wrapper .ant-tree-iconEle:empty {
+    .hap-tree-node-content-wrapper .hap-tree-iconEle:empty {
       display: none !important;
     }
   }
@@ -137,6 +133,10 @@ const customPageConfig = [
     type: 'pageRichText',
   },
   {
+    title: _l('分段'),
+    type: 'pageSubsection',
+  },
+  {
     title: _l('标签页'),
     type: 'pageTabs',
   },
@@ -146,7 +146,7 @@ const customPageConfig = [
   },
 ];
 
-const getTreeData = (appId, { sections, collections, workflows, searchValue }) => {
+const getTreeData = (appId, { sections, collections, workflows, searchValue, isExternalPortalEnabled }) => {
   const getChildren = (appItem, childSections = []) => {
     if (appItem.type === 0) {
       const res = sheetConfig.map(item => {
@@ -296,21 +296,26 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
           title: _l('常规角色'),
           type: 'appRole',
         },
-        {
+        isExternalPortalEnabled && {
           key: 'externalPortalRole',
           title: _l('外部门户角色'),
           type: 'externalPortalRole',
         },
-      ],
+      ].filter(Boolean),
     },
-  ];
+    isExternalPortalEnabled && {
+      key: 'portal',
+      title: _l('外部门户'),
+      type: 'externalPortal',
+    },
+  ].filter(Boolean);
   return appEntrance;
 };
 
 const getExpandedKeys = treeData => {
   return _.flatten(
     treeData.map(item => {
-      const childrenKey = item.children.map(n => n.key);
+      const childrenKey = (item.children || []).map(n => n.key);
       return [item.key].concat(childrenKey);
     }),
   );
@@ -320,26 +325,32 @@ export default function Nav(props) {
   const { style, app } = props;
   const { expandedKeys, setExpandedKeys } = props;
   const { selectedKeys, onSelectedKeys } = props;
-  const { name, iconUrl, sections, collections = [], workflows = [] } = app;
+  const { name, iconUrl, sections, collections = [], workflows = [], portalConfig = {} } = app;
   const [searchValue, setSearchValue] = useState('');
-  const treeData = getTreeData(app.id, {
-    sections,
-    collections,
-    workflows,
-    searchValue: searchValue.toLocaleLowerCase(),
-  });
+  const treeData = useMemo(
+    () =>
+      getTreeData(app.id, {
+        sections,
+        collections,
+        workflows,
+        searchValue: searchValue.toLocaleLowerCase(),
+        isExternalPortalEnabled: portalConfig.isEnable,
+      }),
+    [app.id, sections, collections, workflows, searchValue, portalConfig.isEnable],
+  );
 
   useEffect(() => {
     if (searchValue) {
       setExpandedKeys(getExpandedKeys(treeData));
     }
-  }, [searchValue]);
+  }, [searchValue, setExpandedKeys, treeData]);
 
   return (
     <Wrap className="flexColumn" style={style}>
       <div className="searchWrap flexRow alignItemsCenter pLeft5 mBottom10">
         <Icon className="textTertiary Font20 mRight5" icon="search" />
-        <input
+        <Input
+          variant="borderless"
           placeholder={_l('搜索')}
           className="flex"
           value={searchValue}
@@ -362,17 +373,27 @@ export default function Nav(props) {
           <span className="Font13 mLeft5 ellipsis">{getTranslateInfo(app.id, null, app.id).name || name}</span>
         </div>
         <ScrollView className="flex mTop10 navScroll">
-          <Tree
-            showLine={{ showLeafIcon: false }}
-            showIcon={true}
-            expandedKeys={expandedKeys}
-            onExpand={expandedKeys => {
-              setExpandedKeys(expandedKeys);
+          <ConfigProvider
+            theme={{
+              components: {
+                Tree: {
+                  titleHeight: 36,
+                },
+              },
             }}
-            selectedKeys={selectedKeys}
-            onSelect={onSelectedKeys}
-            treeData={treeData}
-          />
+          >
+            <Tree
+              showLine={{ showLeafIcon: false }}
+              showIcon={true}
+              expandedKeys={expandedKeys}
+              onExpand={expandedKeys => {
+                setExpandedKeys(expandedKeys);
+              }}
+              selectedKeys={selectedKeys}
+              onSelect={onSelectedKeys}
+              treeData={treeData}
+            />
+          </ConfigProvider>
         </ScrollView>
       </div>
     </Wrap>

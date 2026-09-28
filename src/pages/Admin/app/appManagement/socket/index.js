@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { antNotification } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
+import { Notification } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 const TYPES = {
   1: _l('应用结构'),
@@ -40,7 +40,7 @@ export default () => {
       duration = 5;
     }
 
-    antNotification[action]({
+    Notification[action]({
       key: id,
       duration,
       message,
@@ -49,7 +49,7 @@ export default () => {
       btnText: state === 2 ? _l('立即下载') : '',
       onBtnClick: () => {
         window.open(`${__api_server__.main}Download/AppFile?sourceId=${id}`);
-        antNotification.close(id);
+        Notification.close(id);
       },
     });
   });
@@ -78,7 +78,7 @@ export default () => {
       duration = 5;
     }
 
-    antNotification[action]({
+    Notification[action]({
       key: id,
       duration,
       message,
@@ -87,7 +87,7 @@ export default () => {
       btnText: state === 5 && apps.length === 1 ? _l('打开应用') : '',
       onBtnClick: () => {
         navigateTo(`/app/${_.get(apps[0], 'appId')}`);
-        antNotification.close(id);
+        Notification.close(id);
       },
     });
   });

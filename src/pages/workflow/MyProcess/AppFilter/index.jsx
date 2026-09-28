@@ -1,233 +1,207 @@
-import React, { Component, Fragment } from 'react';
-import { Dropdown, Select } from 'antd';
-import api from 'api/homeApp';
-import cx from 'classnames';
+import React, { Component } from 'react';
 import _ from 'lodash';
-import { SvgIcon } from 'ming-ui';
+import { LoadDiv, SvgIcon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import processVersionApi from '../../api/processVersion';
-import { TYPES } from '../../WorkflowList/utils';
-import 'rc-trigger/assets/index.css';
+import homeAppApi from 'src/api/homeApp';
 import './index.less';
+
+const formatAppOptions = projects =>
+  projects.map(project => ({
+    label: project.projectName,
+    options: (project.projectApps || []).map(app => ({
+      label: app.name,
+      value: app.id,
+      app,
+    })),
+  }));
+
+const renderAppOption = ({ data }) => (
+  <div className="flexRow alignItemsCenter">
+    <div
+      className="appFilterIcon flexRow alignItemsCenter justifyContentCenter"
+      style={{ backgroundColor: data.app.iconColor }}
+    >
+      <SvgIcon url={data.app.iconUrl} fill="#fff" size={20} addClassName="mTop2" />
+    </div>
+    <span className="flex ellipsis">{data.label}</span>
+  </div>
+);
 
 export default class AppFilter extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      apps: [],
-      app: {},
-      menuVisible: false,
-      searchValue: '',
-      processList: [],
-      processType: undefined,
-      processId: undefined,
+      appOptions: [],
+      processGroups: [],
+      processLoading: false,
     };
   }
   componentDidMount() {
-    api.getAllHomeApp().then(data => {
-      this.setState({
-        dataSource: data.validProject,
-        apps: data.validProject,
-      });
-    });
+    this.getAppOptions();
+    this.loadAppResources(this.props.apkId);
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (this.props.apkId !== prevProps.apkId && _.isEmpty(this.props.apkId)) {
+    if (this.props.apkId !== prevProps.apkId) {
+      this.loadAppResources(this.props.apkId);
+    }
+  }
+  componentWillUnmount() {
+    this.appOptionsRequest?.abort?.();
+    this.appOptionsRequest = null;
+    this.processListRequest?.abort?.();
+    this.processListRequest = null;
+  }
+
+  getAppOptions() {
+    const request = homeAppApi.getAllHomeApp();
+    this.appOptionsRequest = request;
+
+    request.then(
+      data => {
+        if (this.appOptionsRequest !== request) return;
+        this.appOptionsRequest = null;
         this.setState({
-          processList: [],
-          processType: undefined,
-          processId: undefined,
+          appOptions: formatAppOptions(data.validProject || []),
         });
-      }
-    }
-  }
-  getWorkFlowList() {
-    const { app, processType } = this.state;
-    let request = null;
-
-    if (processType) {
-      request = processVersionApi.list;
-    } else {
-      request = processVersionApi.listAll;
-    }
-
-    request({
-      relationId: app.id,
-      processListType: processType || undefined,
-    }).then(data => {
-      this.setState({
-        processList: _.flatten(data.map(n => n.processList)),
-      });
-    });
-  }
-  handleSelection = app => {
-    this.setState(
-      {
-        app,
-        menuVisible: false,
-        processId: undefined,
-        processList: [],
       },
       () => {
-        this.props.onChange(app.id, this.state.processId);
+        if (this.appOptionsRequest === request) {
+          this.appOptionsRequest = null;
+        }
       },
     );
-  };
-  handleSearch = () => {
-    const { dataSource, searchValue } = this.state;
-    const apps = _.cloneDeep(dataSource);
-    apps.forEach(item => {
-      item.projectApps = (item.projectApps || []).filter(app =>
-        _.includes(app.name.toLowerCase(), searchValue.toLowerCase()),
-      );
-    });
+  }
+  loadAppResources(apkId) {
+    this.processListRequest?.abort?.();
+    this.processListRequest = null;
+
     this.setState({
-      apps: apps.filter(item => item.projectApps.length),
+      processGroups: [],
+      processLoading: !!apkId,
     });
-  };
-  renderAppList(apps) {
-    const { app } = this.state;
-    return (
-      <Fragment>
-        {apps
-          .filter(app => app.permissionType >= 100)
-          .map(item => (
-            <div
-              className={cx('appWrapper valignWrapper', { active: item.id === app.id })}
-              key={item.id}
-              onClick={() => {
-                this.handleSelection(item);
-              }}
-            >
-              <div className="valignWrapper iconWrqaper" style={{ backgroundColor: item.iconColor }}>
-                <SvgIcon url={item.iconUrl} fill="#fff" size={20} addClassName="mTop2" />
-              </div>
-              <span className="flex overflow_ellipsis">{item.name}</span>
-            </div>
-          ))}
-      </Fragment>
+
+    if (!apkId) return;
+
+    this.getWorkflowList(apkId);
+  }
+  getWorkflowList(apkId) {
+    const request = processVersionApi.listAll({ relationId: apkId });
+    this.processListRequest = request;
+
+    request.then(
+      data => {
+        if (this.processListRequest !== request) return;
+        this.processListRequest = null;
+        this.setState({
+          processGroups: data || [],
+          processLoading: false,
+        });
+      },
+      () => {
+        if (this.processListRequest !== request) return;
+        this.processListRequest = null;
+        this.setState({
+          processGroups: [],
+          processLoading: false,
+        });
+      },
     );
   }
-  renderProjectList() {
-    const { apps, searchValue } = this.state;
-    const selectAppTriggerEl = document.querySelector('.selectAppTrigger');
-    const height = selectAppTriggerEl
-      ? document.body.clientHeight - selectAppTriggerEl.offsetTop - selectAppTriggerEl.clientHeight - 20
-      : undefined;
+  handleAppChange = apkId => {
+    this.props.onChange({ apkId: apkId || '', worksheetId: '', processId: '' });
+  };
+  handleWorksheetChange = worksheetId => {
+    const { apkId } = this.props;
+    this.props.onChange({
+      apkId,
+      worksheetId: worksheetId || '',
+      processId: '',
+    });
+  };
+  handleProcessChange = processId => {
+    const { apkId, worksheetId } = this.props;
+    this.props.onChange({ apkId, worksheetId, processId: processId || '' });
+  };
+  renderWorksheetList() {
+    const { processGroups, processLoading } = this.state;
+    const { worksheetId } = this.props;
+    const worksheetList = _.uniqBy(
+      processGroups.map(item => ({ value: item.groupId, label: item.groupName })),
+      'value',
+    );
+
     return (
-      <div className="appFilterWrapper" style={{ maxHeight: height }}>
-        <div className="searchWrapper valignWrapper">
-          <input
-            autoFocus
-            value={searchValue}
-            className="flex"
-            type="text"
-            placeholder={_l('搜索应用名称')}
-            onChange={event => {
-              this.setState(
-                {
-                  searchValue: event.target.value.trim(),
-                },
-                _.debounce(this.handleSearch),
-              );
-            }}
-          />
-          <Icon icon="search" className="textSecondary Font20" />
-        </div>
-        {apps.map(item => (
-          <div className={cx('appListWrapper', { hide: !item.projectApps.length })} key={item.projectId}>
-            <div className="textSecondary Font13 pBottom5 projectName">{item.projectName}</div>
-            {this.renderAppList(item.projectApps)}
-          </div>
-        ))}
-        {apps.length ? null : (
-          <div className="pTop100 pBottom100 TxtCenter Font17 textTertiary">{_l('暂无应用搜索结果')}</div>
-        )}
-      </div>
+      <Select
+        allowClear
+        showPopupSearch
+        value={worksheetId || undefined}
+        placeholder={_l('请选择工作表')}
+        className="w100 mTop16"
+        loading={processLoading}
+        optionFilterProp="label"
+        notFoundContent={processLoading ? <LoadDiv size="small" /> : _l('暂无数据')}
+        options={worksheetList}
+        onChange={this.handleWorksheetChange}
+      />
     );
   }
   renderWorkflowList() {
-    const { app, processType, processId, processList } = this.state;
+    const { processGroups, processLoading } = this.state;
+    const { worksheetId, processId } = this.props;
+    const processList = _.flatten(
+      processGroups.filter(item => !worksheetId || item.groupId === worksheetId).map(item => item.processList || []),
+    );
+
     return (
       <div className="mTop16">
         <Select
-          value={processType}
-          placeholder={_l('请选择流程类型')}
-          className="w100 selectWrapper selectProcessTypeWrapper"
-          suffixIcon={<Icon icon="expand_more" className="textSecondary Font20" />}
-          onChange={value => {
-            this.setState(
-              {
-                processType: value,
-                processId: undefined,
-              },
-              () => {
-                this.getWorkFlowList();
-              },
-            );
-          }}
-        >
-          {TYPES.map(item => (
-            <Select.Option className="processOptionWrapper" value={item.value}>
-              <div className="flexRow valignWrapper">
-                <i className={`icon ${item.icon} textTertiary Font18 mRight5`} />
-                {item.text}
-              </div>
-            </Select.Option>
-          ))}
-        </Select>
-        <Select
-          value={processId}
+          allowClear
+          showPopupSearch
+          optionFilterProp="label"
+          value={processId || undefined}
           placeholder={_l('请选择流程')}
-          notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无数据')}</div>}
-          className="w100 selectWrapper mTop16"
+          loading={processLoading}
+          notFoundContent={
+            processLoading ? (
+              <LoadDiv size="small" />
+            ) : (
+              <div className="valignWrapper textTertiary">{_l('暂无数据')}</div>
+            )
+          }
+          className="w100"
           suffixIcon={<Icon icon="expand_more" className="textSecondary Font20" />}
-          onChange={value => {
-            this.setState({ processId: value });
-            this.props.onChange(app.id, value);
-          }}
-        >
-          {processList.map(item => (
-            <Select.Option className="processOptionWrapper" value={item.id}>
-              {item.name}
-            </Select.Option>
-          ))}
-        </Select>
+          onChange={this.handleProcessChange}
+          options={processList.map(item => ({
+            value: item.id,
+            label: item.name,
+          }))}
+        />
       </div>
     );
   }
   render() {
-    const { app, menuVisible } = this.state;
+    const { appOptions } = this.state;
     const { apkId } = this.props;
+
     return (
       <div>
         <div className="Font13 mBottom10">{_l('应用')}</div>
-        <Dropdown
-          overlay={this.renderProjectList()}
-          trigger={['click']}
-          visible={menuVisible}
-          onVisibleChange={menuVisible => {
-            this.setState({ menuVisible });
-            if (menuVisible) {
-              setTimeout(() => {
-                const input = document.querySelector('.appFilterWrapper .searchWrapper input');
-                input && input.focus();
-              }, 200);
-            }
-          }}
-        >
-          <div className={cx('itemWrapper valignWrapper pointer selectAppTrigger', { active: menuVisible })}>
-            {apkId && app.id ? (
-              <div className="flex ellipsis">{app.name}</div>
-            ) : (
-              <div className="flex textPlaceholder">{_l('请选择')}</div>
-            )}
-            <Icon icon="expand_more" className="textSecondary Font20" />
-          </div>
-        </Dropdown>
-        {app.id && this.renderWorkflowList()}
+        <Select
+          allowClear
+          className="w100"
+          showPopupSearch
+          optionFilterProp="label"
+          value={apkId || undefined}
+          options={appOptions}
+          optionRender={renderAppOption}
+          notFoundContent={_l('暂无应用搜索结果')}
+          onChange={this.handleAppChange}
+        />
+        {apkId && this.renderWorksheetList()}
+        {apkId && this.renderWorkflowList()}
       </div>
     );
   }

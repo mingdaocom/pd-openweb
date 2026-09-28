@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import copy from 'copy-to-clipboard';
-import Trigger from 'rc-trigger';
+import { Popover } from 'ming-ui/antd-components';
 import privateRequest from 'src/api/private';
 import mobile from 'src/pages/appInstallSetting/images/mobile.png';
 import pc from 'src/pages/appInstallSetting/images/pc.png';
@@ -44,21 +44,18 @@ export default class AppInstallSetting extends Component {
           >
             {_l('复制')}
           </span>
-          <Trigger
-            action={['click']}
-            popup={
-              <div className="card z-depth-2 pAll15">
+          <Popover
+            noPadding
+            trigger="click"
+            content={
+              <div className="pAll15">
                 <img style={{ width: 300 }} src={qrCodeUrl} />
               </div>
             }
-            popupAlign={{
-              offset: [0, 7],
-              points: ['tc', 'bc'],
-              overflow: { adjustX: 1, adjustY: 2 },
-            }}
+            placement="bottom"
           >
             <span className="scanCode">{_l('扫描二维码填写')}</span>
-          </Trigger>
+          </Popover>
         </div>
       </div>
     );

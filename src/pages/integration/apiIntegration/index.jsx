@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import loadScript from 'load-script';
-import _ from 'lodash';
 import bg from 'staticfiles/images/query.png';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
 import autoSize from 'ming-ui/components/AutoSize';
-import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission, hasPermission } from 'src/utils/services/security/permission';
 import CustomLibrary from './CustomLibrary';
 
 const Wrap = styled.div`
@@ -79,10 +78,8 @@ function APILibraryCon(props) {
   const { currentProjectId, match = { params: {} }, myPermissions } = props;
 
   const hasAPIIntegrationAuth =
-    _.get(
-      _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
-      'allowAPIIntegration',
-    ) || hasPermission(myPermissions, [PERMISSION_ENUM.CREATE_API_CONNECT, PERMISSION_ENUM.MANAGE_API_CONNECTS]);
+    hasFeaturePermission(currentProjectId, FEATURE_PERMISSION.API_INTEGRATION) ||
+    hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_API_CONNECTS);
 
   const hideIntegrationLibrary = md.global.SysSettings.hideIntegrationLibrary || !hasAPIIntegrationAuth;
 
@@ -107,12 +104,11 @@ function APILibraryCon(props) {
         },
         manageAllConnects: hasPermission(myPermissions, [PERMISSION_ENUM.MANAGE_API_CONNECTS]),
         currentProjectId: currentProjectId,
-        getUrl:
-          !window.platformENV.isLocal && !window.platformENV.isOverseas
-            ? __api_server__.integration || md.global.Config.IntegrationAPIUrl
-            : window.platformENV.isOverseas
-              ? 'https://pd.nocoly.com/api/integration'
-              : 'https://pd.mingdao.com/integration',
+        getUrl: window.platformENV.isHap
+          ? __api_server__.integration || md.global.Config.IntegrationAPIUrl
+          : window.platformENV.isOverseas
+            ? 'https://pd.nocoly.com/api/integration'
+            : 'https://pd.mingdao.com/integration',
         installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
       });
   };

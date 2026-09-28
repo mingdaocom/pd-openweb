@@ -2,12 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useMeasure } from 'react-use';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Input, SvgIcon } from 'ming-ui';
+import { SvgIcon } from 'ming-ui';
+import { Input, Popover } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { MINGO_TASK_STATUS } from 'src/components/Mingo/ChatBot/enum';
-import { emitter } from 'src/utils/common';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 const Con = styled.div`
   padding: 12px;
@@ -75,9 +76,6 @@ const Con = styled.div`
 
 const IconSelector = styled.div`
   padding: 10px;
-  border-radius: 3px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
   .title {
     font-size: 12px;
     color: var(--color-text-tertiary);
@@ -97,8 +95,8 @@ const IconSelector = styled.div`
         background: var(--color-background-hover);
       }
       &.active {
-        color: #732ED1
-        background: #732ED112;
+        color: #732ed1;
+        background: #732ed112;
       }
     }
   }
@@ -134,10 +132,10 @@ export default function MingoEditWorksheetInfo({
           <div className="label">{_l('名称')}</div>
           <div className="content">
             <Input
-              className="w100 Font14"
+              className="w100"
               value={worksheetName}
-              onChange={value => {
-                setWorksheetName(value);
+              onChange={event => {
+                setWorksheetName(event.target.value);
               }}
               onBlur={() => {
                 //
@@ -146,12 +144,13 @@ export default function MingoEditWorksheetInfo({
           </div>
           <div className="label">{_l('图标')}</div>
           <div className="content">
-            <Trigger
-              action={['click']}
-              popupVisible={popupVisible}
-              onPopupVisibleChange={setPopupVisible}
-              destroyPopupOnHide
-              popup={
+            <Popover
+              noPadding
+              trigger="click"
+              open={popupVisible}
+              onOpenChange={setPopupVisible}
+              destroyOnHidden
+              content={
                 <IconSelector style={{ width: width }}>
                   <div className="title">{_l('AI推荐')}</div>
                   <div className="iconList t-flex t-flex-row t-flex-wrap">
@@ -166,7 +165,7 @@ export default function MingoEditWorksheetInfo({
                         }}
                       >
                         <SvgIcon
-                          url={`https://fp1.mingdaoyun.cn/customIcon/${icon.fileName}.svg`}
+                          url={getCustomIconUrl(icon.fileName)}
                           size={22}
                           fill={selectedIconName === icon.fileName ? '#732ED1' : 'var(--color-text-secondary)'}
                         />
@@ -175,20 +174,17 @@ export default function MingoEditWorksheetInfo({
                   </div>
                 </IconSelector>
               }
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 2],
-              }}
+              placement="bottomLeft"
             >
               <div className="icon-select-trigger">
                 <SvgIcon
-                  url={`https://fp1.mingdaoyun.cn/customIcon/${selectedIconName}.svg`}
+                  url={getCustomIconUrl(selectedIconName)}
                   fill={selectedIconName === selectedIconName ? '#732ED1' : 'var(--color-text-secondary)'}
                   size={22}
                 />
                 <i className="icon icon-arrow-down-border textTertiary Font15"></i>
               </div>
-            </Trigger>
+            </Popover>
           </div>
           <div
             className="generate-worksheet-controls"
@@ -226,11 +222,7 @@ export default function MingoEditWorksheetInfo({
         <Fragment>
           <div className="t-flex t-flex-row t-items-center t-space-between">
             <div className="iconCon">
-              <SvgIcon
-                url={`https://fp1.mingdaoyun.cn/customIcon/${selectedIconName}.svg`}
-                fill={'#732ED1'}
-                size={22}
-              />
+              <SvgIcon url={getCustomIconUrl(selectedIconName)} fill={'#732ED1'} size={22} />
             </div>
             <span className="worksheetName">{worksheetName}</span>
           </div>

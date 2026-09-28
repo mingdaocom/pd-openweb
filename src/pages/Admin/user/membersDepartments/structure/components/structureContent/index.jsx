@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog } from 'ming-ui';
+import { Button, Checkbox, Modal } from 'ming-ui/antd-components';
 import RoleController from 'src/api/role';
 import addFriends from 'src/components/addFriends';
 import { checkCertification } from 'src/components/checkCertification';
@@ -101,9 +101,9 @@ class StructureContent extends Component {
   reInvite = () => {
     const { selectedAccountIds } = this.props;
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('重新邀请'),
-      description: (
+      content: (
         <div className="textPrimary">
           {_l('您共勾选了')} <span className="colorPrimary"> {selectedAccountIds.length} </span> {_l('个用户')}
         </div>
@@ -119,10 +119,12 @@ class StructureContent extends Component {
   cancelAndRemove = () => {
     const { selectedAccountIds, projectId } = this.props;
 
-    Dialog.confirm({
-      title: _l('取消邀请并移除'),
-      buttonType: 'danger',
-      description: (
+    Modal.confirm({
+      title: <span className="textError">{_l('取消邀请并移除')}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: (
         <div className="textPrimary">
           {_l('您共勾选了')} <span className="colorPrimary"> {selectedAccountIds.length} </span>
           {_l('个成员，是否确认取消邀请勾选用户?')}
@@ -161,6 +163,7 @@ class StructureContent extends Component {
       removeUserFromSet = () => {},
       authority = [],
     } = this.props;
+    const isActionDisabled = _.isEmpty(selectedAccountIds);
     let { batchEditVisible, batchResetPasswordVisible, openChangeUserInfoDrawer } = this.state;
     return (
       <Fragment>
@@ -175,10 +178,11 @@ class StructureContent extends Component {
             {this.renderUserCount()}
             {(typeCursor === 0 || typeCursor === 1) && !departmentId && (
               <Checkbox
-                className="InlineBlock textTertiary Font12 TxtMiddle LineHeight24 noDepartment"
+                className="textTertiary Font12 TxtMiddle LineHeight24 noDepartment"
                 defaultChecked={typeCursor === 1}
                 checked={noDepartmentUsers}
-                onClick={checked => {
+                onChange={event => {
+                  const checked = !event.target.checked;
                   this.props.updateNoDepartmentUsers(!checked);
                   this.props.updateCursor('');
                   if (checked) {
@@ -201,24 +205,22 @@ class StructureContent extends Component {
           <div className="actList flexRow">
             {typeCursor === 0 || typeCursor === 1 || departmentId ? (
               <Fragment>
-                <div
-                  className="actBtn primaryBtn"
+                <Button
+                  type="primary"
+                  className="mRight8"
                   onClick={() => checkCertification({ projectId, checkSuccess: this.addUser })}
                 >
                   {_l('添加成员')}
-                </div>
-                <div className="actBtn" onClick={this.inviteMore}>
+                </Button>
+                <Button className="mRight8" onClick={this.inviteMore}>
                   {_l('更多邀请')}
-                </div>
-                <div className="actBtn" onClick={this.exportInAndOut}>
+                </Button>
+                <Button className="mRight8" onClick={this.exportInAndOut}>
                   {_l('导入 / 导出 / 修改')}
-                </div>
-                <div
-                  className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
-                  onClick={_.isEmpty(selectedAccountIds) ? () => {} : this.batchEdit}
-                >
+                </Button>
+                <Button className="mRight8" disabled={isActionDisabled} onClick={this.batchEdit}>
                   {_l('编辑')}
-                </div>
+                </Button>
                 <BatchResign
                   projectId={projectId}
                   selectedAccountIds={selectedAccountIds}
@@ -228,22 +230,16 @@ class StructureContent extends Component {
               </Fragment>
             ) : typeCursor === 2 ? (
               <Fragment>
-                <div
-                  className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
-                  onClick={
-                    _.isEmpty(selectedAccountIds)
-                      ? () => {}
-                      : () => checkCertification({ projectId, checkSuccess: this.reInvite })
-                  }
+                <Button
+                  className="mRight8"
+                  disabled={isActionDisabled}
+                  onClick={() => checkCertification({ projectId, checkSuccess: this.reInvite })}
                 >
                   {_l('重新邀请')}
-                </div>
-                <div
-                  className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
-                  onClick={_.isEmpty(selectedAccountIds) ? () => {} : this.cancelAndRemove}
-                >
+                </Button>
+                <Button className="mRight8" disabled={isActionDisabled} onClick={this.cancelAndRemove}>
                   {_l('取消邀请并移除')}
-                </div>
+                </Button>
               </Fragment>
             ) : (
               ''

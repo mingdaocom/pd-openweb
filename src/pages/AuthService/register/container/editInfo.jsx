@@ -3,23 +3,26 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import account from 'src/api/account';
 import RegisterController from 'src/api/register';
 import DepDropDown from 'src/pages/AuthService/components/DepDropDown.jsx';
 import { ActionResult } from 'src/pages/AuthService/config.js';
 import { getDepartmentInfo } from 'src/pages/AuthService/register/util.js';
 import { getMingoAnonymousReturnUrl, registerSuc } from 'src/pages/AuthService/util.js';
-import { encrypt, getRequest, pathCompletion } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { mdAppResponse } from 'src/utils/services/project';
+import { encrypt } from 'src/utils/services/security/encryption';
 
 const Wrap = styled.div`
-  .Dropdown--placeholder,
-  .ant-select-selection-placeholder,
-  .ant-select-selection-item {
-    line-height: 48px !important;
+  .hap-select {
+    --hap-select-height: 48px;
   }
 `;
+
+const getFieldStatus = (warnList, key) => (warnList.some(item => item.tipDom === key) ? 'error' : undefined);
 
 export default function (props) {
   const { onChange } = props;
@@ -199,7 +202,7 @@ export default function (props) {
           msg: _l('您已成功加入该组织'),
           onClose: function () {
             setState({ loading: false });
-            location.href = pathCompletion('/personal?type=enterprise');
+            location.href = pathCompletion('/dashboard');
             if (window.isMingDaoApp) {
               mdAppResponse({
                 sessionId: 'register',
@@ -293,6 +296,7 @@ export default function (props) {
               <div>
                 <DepDropDown
                   {...props}
+                  status={getFieldStatus(warnList, 'departmentId')}
                   onBlur={() => setState({ focusDiv: '' })}
                   onFocus={() => setState({ focusDiv: 'departmentId' })}
                   onChange={value => {
@@ -309,8 +313,9 @@ export default function (props) {
           {isMustJob && (
             <div className={cx('mesDiv hasValue', renderClassName('jobId', jobId))}>
               <div>
-                <Dropdown
-                  showItemTitle
+                <Select
+                  className="w100"
+                  status={getFieldStatus(warnList, 'jobId')}
                   value={jobId || undefined}
                   onBlur={() => setState({ focusDiv: '' })}
                   onFocus={() => setState({ focusDiv: 'jobId' })}
@@ -318,7 +323,7 @@ export default function (props) {
                     updateCompany({ jobId: value });
                     setState({ warnList: _.filter(warnList, it => it.tipDom !== 'jobId') });
                   }}
-                  data={jobsArr}
+                  options={jobsArr}
                 />
               </div>
               <div className="title">{_l('职位')}</div>
@@ -329,8 +334,9 @@ export default function (props) {
           {isMustWorkSite && (
             <div className={cx('mesDiv hasValue', renderClassName('workSiteId', workSiteId))}>
               <div>
-                <Dropdown
-                  showItemTitle
+                <Select
+                  className="w100"
+                  status={getFieldStatus(warnList, 'workSiteId')}
                   value={workSiteId || undefined}
                   onBlur={() => setState({ focusDiv: '' })}
                   onFocus={() => setState({ focusDiv: 'workSiteId' })}
@@ -338,7 +344,7 @@ export default function (props) {
                     updateCompany({ workSiteId: value });
                     setState({ warnList: _.filter(warnList, it => it.tipDom !== 'workSiteId') });
                   }}
-                  data={workSitesArr}
+                  options={workSitesArr}
                 />
               </div>
               <div className="title">{_l('工作地点')}</div>

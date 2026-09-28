@@ -1,24 +1,17 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Dialog, LoadDiv, UserHead, VerifyPasswordConfirm } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Flex, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import { downloadFile } from 'src/pages/Admin/util';
-import { getRequest, pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
-
-const DialogWrap = styled(Dialog)`
-  .mui-dialog-body {
-    min-height: 0;
-    overflow: hidden !important;
-  }
-`;
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 
 const DialogContent = styled.div`
   font-size: 13px;
@@ -236,9 +229,9 @@ export default function ViewInactive({ projectId }) {
   }, []);
 
   const renderConfirmDialog = () => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('查询非活跃成员'),
-      description: (
+      content: (
         <span>
           {_l('查询最近 7 天，组织中未发生应用访问、记录创建或附件上传的成员，每天仅可')}
           <span className="bold">{_l('查询执行')}</span>
@@ -271,25 +264,17 @@ export default function ViewInactive({ projectId }) {
         {_l('查询非活跃成员')}
       </div>
 
-      <DialogWrap
+      <Modal
         width={1000}
-        visible={inactiveDialogVisible}
+        open={inactiveDialogVisible}
+        mask={{ closable: true }}
+        keyboard
+        styles={{ body: { minHeight: 0, overflow: 'hidden' } }}
         title={
-          <div className="flexRow alignItemsCenter pRight10">
-            <div className="">{_l('查询非活跃成员')}</div>
-            <div className="flex"></div>
-            <div className="colorPrimary Hand Font14 Normal" onClick={renderConfirmDialog}>
-              {_l('重新查询')}
-            </div>
-            <Button
-              type="primary"
-              className="mLeft30 pLeft24 pRight24 minWidth0"
-              disabled={exportLoading || loading}
-              onClick={handleExport}
-            >
-              {_l('导出')}
-            </Button>
-          </div>
+          <Flex gap="small" align="center">
+            {_l('查询非活跃成员')}
+            <div className="textSecondary Font13">{_l('当前列表为 %0 之前的数据', queryDate)}</div>
+          </Flex>
         }
         footer={null}
         onCancel={() => setState({ inactiveDialogVisible: false, userInfo: [], pageIndex: 1, dayRange: 0 })}
@@ -310,7 +295,7 @@ export default function ViewInactive({ projectId }) {
               onChange={value => setState({ dayRange: value, pageIndex: 1 })}
             />
             <SelectUser
-              className="userSelect mdAntSelect"
+              className="userSelect"
               style={{ width: '200px' }}
               projectId={projectId}
               userInfo={userInfo}
@@ -323,7 +308,19 @@ export default function ViewInactive({ projectId }) {
               }}
             />
             <div className="flex"></div>
-            <div className="textSecondary">{_l('当前列表为 %0 之前的数据', queryDate)}</div>
+            <Flex gap="small" align="center">
+              <div className="colorPrimary Hand Font14 Normal" onClick={renderConfirmDialog}>
+                {_l('重新查询')}
+              </div>
+              <Button
+                type="primary"
+                className="mLeft30 pLeft24 pRight24"
+                disabled={exportLoading || loading}
+                onClick={handleExport}
+              >
+                {_l('导出')}
+              </Button>
+            </Flex>
           </div>
           <div className="description">
             {_.includes([0, 1, 2], dayRange)
@@ -366,7 +363,7 @@ export default function ViewInactive({ projectId }) {
             />
           )}
         </DialogContent>
-      </DialogWrap>
+      </Modal>
     </Fragment>
   );
 }

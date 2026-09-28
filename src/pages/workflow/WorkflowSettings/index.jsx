@@ -5,11 +5,13 @@ import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import processVersion from '../api/processVersion';
-import { pathCompletion } from 'src/utils/common';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { clearSource, getFlowInfo, getProcessById } from '../redux/actions';
 import EditFlow from './EditFlow';
 import Header from './Header';
 import History from './History';
+import PreviewAttachmentsContext from './PreviewAttachmentsContext';
 import ProcessConfig from './ProcessConfig';
 import WorkflowInfo from './WorkflowInfo';
 
@@ -149,4 +151,15 @@ class WorkflowSettings extends Component {
   }
 }
 
-export default connect(state => state.workflow)(WorkflowSettings);
+const ConnectedWorkflowSettings = connect(state => state.workflow)(WorkflowSettings);
+
+export default function WorkflowSettingsWithPreviewAttachments(props) {
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
+
+  return (
+    <PreviewAttachmentsContext.Provider value={openPreviewAttachments}>
+      {previewAttachmentsHolder}
+      <ConnectedWorkflowSettings {...props} />
+    </PreviewAttachmentsContext.Provider>
+  );
+}

@@ -12,6 +12,7 @@ import RefreshData from './RefreshData';
 import Refund from './Refund';
 import RelationFields from './RelationFields';
 import UpdateGlobalVariable from './UpdateGlobalVariable';
+import UpdateRecordFollowers, { getFollowerFields } from './UpdateRecordFollowers';
 import UpdateSheetRecord from './UpdateSheetRecord';
 
 export default class Action extends Component {
@@ -83,12 +84,24 @@ export default class Action extends Component {
 
         if (result.appType === APP_TYPE.INVOICE) {
           result.fields.forEach(field => {
+            if (result.actionId === ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY && field.fieldId === 'invoiceSpecialMark') {
+              field.fieldValue = '4';
+            }
+
+            if (result.actionId === ACTION_ID.SEND_EMAIL && field.fieldId === 'redReason' && !field.fieldValue) {
+              field.fieldValue = '1';
+            }
+
             const control = _.find(result.controls, o => o.controlId === field.fieldId);
 
             if (!field.dataSource && control.dataSource) {
               field.dataSource = control.dataSource;
             }
           });
+        }
+
+        if (result.actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS && !(result.fields || []).length) {
+          result.fields = getFollowerFields(result.controls);
         }
 
         this.setState({ data: result, cacheKey: +new Date() }, () => {
@@ -177,8 +190,23 @@ export default class Action extends Component {
       return;
     }
 
+    if (actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS) {
+      const followerField = (fields || [])[0] || {};
+      const followers = safeParse(followerField.fieldValue || '[]', 'array');
+
+      if (!followerField.fieldValueId && !followerField.nodeId && !followers.length) {
+        alert(_l('关注者不能为空'), 2);
+        return;
+      }
+    }
+
     // 新增验证必填项
-    if (_.includes([ACTION_ID.ADD, ACTION_ID.CREATE_FILE], actionId)) {
+    if (
+      _.includes(
+        [ACTION_ID.ADD, ACTION_ID.CREATE_FILE, ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY, ACTION_ID.SEND_EMAIL],
+        actionId,
+      )
+    ) {
       controls.forEach(item => {
         if (
           item.type === 10000008 &&
@@ -296,8 +324,13 @@ export default class Action extends Component {
       return <CreateCalendar key={cacheKey} {...this.props} data={data} updateSource={this.updateSource} />;
     }
 
-    // 新增工作表记录 || 创建任务 || 邀请外部用户 || 电子开票类目 || 电子开票明细
-    if (_.includes([ACTION_ID.ADD, ACTION_ID.CREATE_FILE], data.actionId)) {
+    // 新增工作表记录 || 创建任务 || 邀请外部用户 || 电子开票类目 || 电子开票明细 || 电子开票特殊行业 || 电子开票发票冲红
+    if (
+      _.includes(
+        [ACTION_ID.ADD, ACTION_ID.CREATE_FILE, ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY, ACTION_ID.SEND_EMAIL],
+        data.actionId,
+      )
+    ) {
       return (
         <CreateRecordAndTask
           key={cacheKey}
@@ -315,6 +348,18 @@ export default class Action extends Component {
      */
     if (data.appType === APP_TYPE.GLOBAL_VARIABLE) {
       return <UpdateGlobalVariable {...this.props} data={data} updateSource={this.updateSource} />;
+    }
+
+    // 更新记录关注者
+    if (data.actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS) {
+      return (
+        <UpdateRecordFollowers
+          {...this.props}
+          data={data}
+          SelectNodeObjectChange={this.SelectNodeObjectChange}
+          updateSource={this.updateSource}
+        />
+      );
     }
 
     // 修改工作表记录 || 更新外部用户信息
@@ -389,32 +434,30 @@ export default class Action extends Component {
   SelectNodeObjectChange = (selectNodeId, addFields) => {
     const { data } = this.state;
     const selectNodeObj = _.find(data.flowNodeList, item => item.nodeId === selectNodeId);
+    const source = { selectNodeId, selectNodeObj };
 
-    this.updateSource(
-      {
-        selectNodeId,
-        selectNodeObj,
-        controls: [],
-        fields: addFields
-          ? [
-              {
-                fieldId: '',
-                type: 0,
-                fieldValue: '',
-                fieldValueId: '',
-                nodeId: '',
-              },
-            ]
-          : data.actionId === ACTION_ID.REFUND
-            ? data.fields
-            : [],
-      },
-      () => {
-        if (data.actionId !== ACTION_ID.DELETE) {
-          this.getAppTemplateControls(selectNodeId, selectNodeObj.appId);
-        }
-      },
-    );
+    if (data.actionId !== ACTION_ID.UPDATE_RECORD_FOLLOWERS) {
+      source.controls = [];
+      source.fields = addFields
+        ? [
+            {
+              fieldId: '',
+              type: 0,
+              fieldValue: '',
+              fieldValueId: '',
+              nodeId: '',
+            },
+          ]
+        : data.actionId === ACTION_ID.REFUND
+          ? data.fields
+          : [];
+    }
+
+    this.updateSource(source, () => {
+      if (!_.includes([ACTION_ID.DELETE, ACTION_ID.UPDATE_RECORD_FOLLOWERS], data.actionId)) {
+        this.getAppTemplateControls(selectNodeId, selectNodeObj.appId);
+      }
+    });
   };
 
   /**
@@ -449,16 +492,26 @@ export default class Action extends Component {
   render() {
     const { selectNodeType } = this.props;
     const { data } = this.state;
-    const bgClassName = _.includes(
-      [APP_TYPE.INVOICE, APP_TYPE.REFUND, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE],
-      data.appType,
-    )
+    const isBlueAsh =
+      _.includes([APP_TYPE.INVOICE, APP_TYPE.REFUND, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType) ||
+      data.actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS;
+    const bgClassName = isBlueAsh
       ? 'BGBlueAsh'
       : data.appType === APP_TYPE.TASK || data.actionId === ACTION_ID.REFRESH_SINGLE_DATA
         ? 'BGGreen'
         : data.appType === APP_TYPE.CALENDAR
           ? 'BGRed'
           : 'BGYellow';
+    const isCorrect =
+      ((data.actionId === ACTION_ID.ADD && data.appId) ||
+        ((_.includes(
+          [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFUND, ACTION_ID.RELATION],
+          data.actionId,
+        ) ||
+          data.actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS) &&
+          data.selectNodeId) ||
+        _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.INVOICE], data.appType)) &&
+      !_.isEqual(data, this.cacheResult);
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -478,20 +531,7 @@ export default class Action extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter
-          {...this.props}
-          isCorrect={
-            ((data.actionId === ACTION_ID.ADD && data.appId) ||
-              (_.includes(
-                [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFUND, ACTION_ID.RELATION],
-                data.actionId,
-              ) &&
-                data.selectNodeId) ||
-              _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.INVOICE], data.appType)) &&
-            !_.isEqual(data, this.cacheResult)
-          }
-          onSave={this.onSave}
-        />
+        <DetailFooter {...this.props} isCorrect={isCorrect} onSave={this.onSave} />
       </Fragment>
     );
   }

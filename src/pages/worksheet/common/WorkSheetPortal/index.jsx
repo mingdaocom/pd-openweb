@@ -10,8 +10,9 @@ import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import WorksheetEmpty from 'worksheet/common/WorksheetEmpty/WorksheetEmpty';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { canEditApp } from 'src/utils/domain/permission/app';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import CreateAppItem from '../WorkSheetLeft/CreateAppItem';
 import Drag from '../WorkSheetLeft/Drag';
 import MoreOperation from '../WorkSheetLeft/MoreOperation';
@@ -51,8 +52,8 @@ const WorkSheetPortal = props => {
       .then(() => {
         sheetListActions.updateSheetListAppItem(id, { workSheetName, edit: false });
       })
-      .catch(() => {
-        alert(_l('修改分组名称失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('修改分组名称失败'), 2);
       });
   };
 

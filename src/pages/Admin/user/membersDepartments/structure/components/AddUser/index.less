@@ -61,9 +61,6 @@
     width: 100%;
     position: relative;
     margin-bottom: 20px;
-    input:focus::-webkit-contacts-auto-fill-button {
-      opacity: 0;
-    }
     &.isAllJobs {
       padding: 12px;
       border-radius: 4px;
@@ -75,29 +72,6 @@
   }
   .formControl {
     width: 100%;
-    height: 34px;
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: 3px;
-    box-sizing: border-box;
-    display: inline-block;
-    padding: 6px 12px;
-    &:hover {
-      border-color: var(--color-text-disabled);
-    }
-    &:focus {
-      border-color: var(--color-primary);
-    }
-    &.error {
-      border-color: #f00 !important;
-    }
-    &.disabled {
-      background-color: var(--color-background-secondary);
-      border: 1px solid var(--color-background-secondary);
-    }
-    &.phoneNumberEditWrapper {
-      display: flex;
-      padding: 0;
-    }
   }
   .status {
     width: 66px;
@@ -135,10 +109,7 @@
       width: 28px;
     }
   }
-  .iti--allow-dropdown {
-    width: 100%;
-  }
-  .ming.Radio {
+  .ant-radio-wrapper {
     margin-right: 66px;
   }
   .itemSpan {
@@ -165,92 +136,6 @@
     }
     &.disabled {
       background: var(--color-background-secondary);
-    }
-  }
-  .ant-select-focused {
-    border-color: none;
-  }
-  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border: 1px solid var(--color-border-tertiary);
-  }
-  .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
-    border-color: var(--color-text-disabled);
-  }
-  .formInfoWrap .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border: 1px solid var(--color-background-secondary);
-  }
-}
-
-.btnGroups {
-  margin: 25px 24px 20px;
-  font-size: 14px;
-  span,
-  a {
-    display: inline-block;
-    height: 36px;
-    line-height: 34px;
-    padding: 0 24px;
-    border-radius: 3px;
-    vertical-align: middle;
-  }
-  .cancelBtn {
-    border: 1px solid var(--color-border-secondary);
-    width: unset;
-  }
-  .cancelBtn:hover {
-    cursor: pointer;
-    background-color: var(--color-border-secondary);
-  }
-  .addContinueBtn {
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
-  }
-  .addContinueBtn:hover {
-    border: 1px solid var(--color-link-hover);
-    color: var(--color-link-hover);
-  }
-  .addBtn {
-    border: 1px solid var(--color-primary);
-    background-color: var(--color-primary);
-    color: var(--color-white);
-  }
-  .addBtn:hover {
-    border: 1px solid var(--color-link-hover);
-    background-color: var(--color-link-hover);
-    color: var(--color-white);
-  }
-  .addContinueBtn,
-  .addBtn {
-    &[disabled] {
-      cursor: not-allowed;
-    }
-  }
-  .disabledBtn {
-    background-color: var(--color-text-tertiary);
-    border-color: var(--color-text-tertiary);
-    cursor: not-allowed;
-    &:hover {
-      background-color: var(--color-text-tertiary);
-      border-color: var(--color-text-tertiary);
-    }
-  }
-  .resign {
-    border: 1px solid var(--color-border-secondary);
-    height: 36px;
-    line-height: 34px;
-    padding: 0 24px;
-    border-radius: 3px;
-    vertical-align: middle;
-    &:hover {
-      border: 1px solid var(--color-error);
-      color: var(--color-error);
-    }
-  }
-  .normalBtn {
-    border: 1px solid var(--color-border-secondary);
-    &:hover {
-      border: 1px solid var(--color-primary);
-      color: var(--color-primary);
     }
   }
 }

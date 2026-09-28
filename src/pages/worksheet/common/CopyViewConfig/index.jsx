@@ -1,15 +1,15 @@
 import React, { useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Input, Radio, SvgIcon } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
-import { getTranslateInfo } from 'src/utils/app';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
 import {
   COPY_CONFIGS,
   COPY_CONFIGS_BY_GROUP,
@@ -21,9 +21,8 @@ import {
 
 const ContentWrap = styled.div`
   display: flex;
-  flex-direction: ${props => (props.isCopyFrom ? 'column' : 'column-reverse')};
+  flex-direction: ${props => (props.$isCopyFrom ? 'column' : 'column-reverse')};
   gap: 24px;
-  padding: 0 24px;
   margin-bottom: 14px;
   .SelectWrap {
     position: relative;
@@ -34,29 +33,23 @@ const ContentWrap = styled.div`
     }
   }
   .selectViewCon {
-    .ant-select-selector {
-      height: 36px !important;
-      input {
-        height: 34px !important;
-      }
-    }
-    .ant-select-selection-placeholder,
-    .ant-select-selection-item > div {
+    .hap-select-selection-placeholder,
+    .hap-select-selection-item > div {
       line-height: 34px !important;
     }
-    &.ant-select-multiple .ant-select-selection-item {
+    &.hap-select-multiple .hap-select-selection-item {
       border-radius: 13px !important;
       align-items: center !important;
       background: var(--color-background-secondary) !important;
       border: none !important;
       padding: 0 10px;
-      .ant-select-selection-item-remove {
+      .hap-select-selection-item-remove {
         margin-left: 8px;
       }
     }
   }
   .selectTypeRadio {
-    .Radio-box {
+    .ant-radio-inner {
       margin-right: 10px !important;
     }
   }
@@ -69,10 +62,6 @@ const SearchCon = styled.div`
   padding: 0 12px;
   border-bottom: 1px solid var(--color-border-primary);
   margin-bottom: 6px;
-  input {
-    flex: 1;
-    border: none !important;
-  }
 `;
 
 const EmptyWrap = styled.div`
@@ -92,12 +81,12 @@ const SelectItem = styled.div`
   }
 `;
 
-const DialogWrap = styled(Dialog)`
-  .mui-dialog-header {
+const DialogWrap = styled(Modal)`
+  .hap-modal-header {
     border-bottom: 1px solid var(--color-border-secondary) !important;
   }
-  .mui-dialog-body {
-    padding: 16px 0 22px !important;
+  .hap-modal-body {
+    padding-top: 16px;
   }
 `;
 
@@ -123,21 +112,24 @@ const getFilters = filterView => {
       return filterList;
   }
 };
+
 const isFilterCardSet = (view1, view2) => {
   return (
     ([3, 1, 6, 2].includes(view1.viewType) && [5, 4, 8].includes(view2.viewType)) ||
     ([3, 1, 6, 2].includes(view2.viewType) && [5, 4, 8].includes(view1.viewType))
   );
 };
+
 const renderSelectViews = list => {
   return list.map(item => {
     const isCustomize = VIEW_DISPLAY_TYPE[item.viewType] === 'customize';
     const isManageView = item.worksheetId === item.viewId;
     const viewInfo = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[item.viewType]) || {};
 
-    return (
-      <Select.Option key={`select-view-item-${item.viewId}`} value={item.viewId}>
-        <SelectItem className="valignWrapper">
+    return {
+      value: item.viewId,
+      label: (
+        <SelectItem className="valignWrapper" key={`select-view-item-${item.viewId}`}>
           {isCustomize ? (
             <SvgIcon
               url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
@@ -151,8 +143,8 @@ const renderSelectViews = list => {
             {item.name || (isManageView ? _l('数据管理') : _l('未命名'))}
           </span>
         </SelectItem>
-      </Select.Option>
-    );
+      ),
+    };
   });
 };
 
@@ -257,11 +249,19 @@ export default function CopyViewConfig(props) {
             {VIEW_TYPE_OPTIONS.map((l, i) => (
               <Radio
                 key={`selectViewWrap-${l.value}`}
-                className={cx('selectTypeRadio', { mRight36: i === 0 })}
-                text={l.text}
+                className={cx('selectTypeRadio', {
+                  mRight36: i === 0,
+                })}
                 checked={viewType === l.value}
-                onClick={() => setState({ viewType: l.value })}
-              />
+                onChange={() =>
+                  setState({
+                    viewType: l.value,
+                  })
+                }
+                title={l.text}
+              >
+                {l.text}
+              </Radio>
             ))}
           </div>
         )}
@@ -273,21 +273,20 @@ export default function CopyViewConfig(props) {
               value={selectViewId}
               showSearch={false}
               ref={inputRef}
-              dropdownMatchSelectWidth={false}
+              popupMatchSelectWidth={false}
               className="w100 selectViewCon"
               placeholder={_l('请选择')}
               mode={isCopyFrom ? '' : 'multiple'}
               suffixIcon={<Icon icon="expand_more" className="Font18 textTertiary" />}
-              dropdownStyle={{ width: 512 }}
-              dropdownRender={menu => (
+              popupRender={menu => (
                 <div style={{ width: 512 }}>
                   <SearchCon className="searchCon">
-                    <Icon icon="search" className="Font16 textPrimary" />
                     <Input
-                      className="textPrimary"
+                      variant="borderless"
+                      prefix={<Icon icon="search" className="Font16 textPrimary" />}
                       value={keywords}
                       placeholder={_l('搜索')}
-                      onChange={value => setState({ keywords: value })}
+                      onChange={event => setState({ keywords: event.target.value })}
                       onKeyDown={e => e.stopPropagation()}
                     />
                   </SearchCon>
@@ -301,15 +300,15 @@ export default function CopyViewConfig(props) {
                 </div>
               )}
               onChange={onChangeSelectViews}
-            >
-              {renderSelectViews(selected.sameType.filter(filterFun))}
-              {!_.isEmpty(others) && (
-                <Select.Option disabled>
-                  <div className="Font13 textSecondary">{_l('其他视图')}</div>
-                </Select.Option>
-              )}
-              {renderSelectViews(others)}
-            </Select>
+              options={[
+                ...renderSelectViews(selected.sameType.filter(filterFun)),
+                !_.isEmpty(others) && {
+                  disabled: true,
+                  label: <div className="Font13 textSecondary">{_l('其他视图')}</div>,
+                },
+                ...renderSelectViews(others),
+              ].filter(Boolean)}
+            />
             {!isCopyFrom && <Icon icon="expand_more" className="Font18 textTertiary expandIcon" />}
           </div>
         )}
@@ -337,22 +336,23 @@ export default function CopyViewConfig(props) {
                       return (
                         <div className="valignWrapper mBottom12">
                           <Checkbox
-                            text={
+                            disabled={disabledBtn}
+                            checked={selectConfigs.includes(l.key)}
+                            onChange={event =>
+                              setState({
+                                selectConfigs: !event.target.checked
+                                  ? selectConfigs.filter(m => m !== l.key)
+                                  : selectConfigs.concat(l.key),
+                              })
+                            }
+                          >
+                            {
                               <div className="inlineFlexRow alignItemsCenter mTop2">
                                 <Icon icon={l.icon} className="Font20 mLeft4 mRight8 textTertiary" />
                                 <span className="textPrimary Font13">{l.label}</span>
                               </div>
                             }
-                            disabled={disabledBtn}
-                            checked={selectConfigs.includes(l.key)}
-                            onClick={value =>
-                              setState({
-                                selectConfigs: value
-                                  ? selectConfigs.filter(m => m !== l.key)
-                                  : selectConfigs.concat(l.key),
-                              })
-                            }
-                          />
+                          </Checkbox>
                         </div>
                       );
                     })}
@@ -386,14 +386,17 @@ export default function CopyViewConfig(props) {
   return (
     <DialogWrap
       width={560}
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={TITLE_ENUM[type]}
-      okDisabled={(_.isEmpty(selectViewId) && viewType !== 0) || _.isEmpty(selectConfigs) || saveLoading}
+      okDisabled={(_.isEmpty(selectViewId) && viewType !== 0) || _.isEmpty(selectConfigs)}
+      confirmLoading={saveLoading}
       okText={saveLoading ? _l('保存中...') : _l('确定')}
       onOk={onSave}
       onCancel={onClose}
     >
-      <ContentWrap isCopyFrom={isCopyFrom}>
+      <ContentWrap $isCopyFrom={isCopyFrom}>
         {renderSelectView()}
         {renderConfig()}
       </ContentWrap>
@@ -411,4 +414,6 @@ CopyViewConfig.propTypes = {
   updateViews: PropTypes.func, // 更新所有视图
 };
 
-export const copyViewConfig = props => functionWrap(CopyViewConfig, props);
+export function useCopyViewConfig() {
+  return useFunctionWrapComponent(CopyViewConfig);
+}

@@ -69,16 +69,17 @@
 
       .attachmentFiles {
         padding: 0;
+        display: flex;
         flex-wrap: nowrap;
+        justify-content: flex-start;
         overflow: initial;
         margin-left: 10px;
         .fileWrapper {
+          width: var(--attachment-file-width);
+          flex: none;
           height: 80px;
           overflow: initial;
           margin: 0 10px 0 0;
-        }
-        .fileEmpty {
-          display: none;
         }
       }
     }

@@ -5,7 +5,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, LoadDiv, PriceTip, QiniuUpload } from 'ming-ui';
+import { Icon, LoadDiv, PriceTip, QiniuUpload } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import * as actions from '../redux/actions';
 
@@ -96,12 +97,14 @@ function AddUserDialog(props) {
   };
 
   return (
-    <Dialog
-      className=""
-      width="580"
-      visible={show}
-      title={<span className="Font17 Bold">{_l('邀请用户')}</span>}
-      okText={loading ? _l('确认邀请...') : _l('确认邀请')}
+    <Modal
+      width={580}
+      open={show}
+      title={_l('邀请用户')}
+      okText={_l('确认邀请')}
+      confirmLoading={loading}
+      mask={{ closable: true }}
+      keyboard
       onCancel={() => {
         setAddUserDialog(false);
       }}
@@ -143,13 +146,14 @@ function AddUserDialog(props) {
             </div>
             <div className="flexRow alignItemsCenter mTop10">
               <Checkbox
-                className="TxtCenter InlineBlock Hand textSecondary"
-                text={_l('邀请用户并发送短信/邮箱')}
+                className="TxtCenter Hand textSecondary"
                 checked={isSendMsgs}
-                onClick={() => {
+                onChange={() => {
                   setIsSend(!isSendMsgs);
                 }}
-              />
+              >
+                {_l('邀请用户并发送短信/邮箱')}
+              </Checkbox>
               {window.platformENV.isPlatform && <PriceTip />}
             </div>
           </React.Fragment>
@@ -193,14 +197,14 @@ function AddUserDialog(props) {
               ) : (
                 <React.Fragment>
                   <Icon className="Font18 TxtMiddle mRight6" type="cloud_upload" />
-                  <span className=""> {_l('从Excel导入数据')}</span>
+                  <span> {_l('从Excel导入数据')}</span>
                 </React.Fragment>
               )}
             </QiniuUpload>
           </React.Fragment>
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }
 

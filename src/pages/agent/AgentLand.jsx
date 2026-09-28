@@ -2,15 +2,22 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
-import { GlobalStoreProvider } from 'src/common/GlobalStore';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
+import { initEscClose } from 'src/common/entries/globalEvents';
+import { GlobalStoreProvider } from 'src/common/providers/GlobalStore';
 import Agent from 'src/components/Agent';
-import { AGENT_HEADER_EVENT, readField, stringValue } from 'src/components/Agent/agentService';
+import { AGENT_HEADER_EVENT } from 'src/components/Agent/agentService';
 import { claimAnonymousSession, peekAnonHandoff } from 'src/components/Agent/anonymous';
+import { buildSessionShareProps } from 'src/components/Agent/sessionShare';
+import { readField, stringValue } from 'src/components/Agent/valueUtils';
 import MingoWelcome from 'src/components/Mingo/ChatBot/components/MingoWelcome';
 import mingoLogo from 'src/pages/mingo/common/images/mingo-logo.png';
 import MingoBuilderEmptyState, { useMingoAppBuilderVisible } from 'src/pages/mingo/common/MingoBuilderEmptyState';
-import { emitter, pathCompletion } from 'src/utils/common';
+import Share from 'src/pages/worksheet/components/Share';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getAccountPersonalUrl, pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import HistorySide, { ExpandIcon } from './HistorySide';
 
 const Con = styled.div`
@@ -64,6 +71,37 @@ const WelcomePane = styled.div`
   }
 `;
 
+// 右上角标题栏操作：分享 + 用户头像（落地页无全局 header，浮在对话区右上）
+const TopActions = styled.div`
+  position: absolute;
+  top: 0;
+  right: 20px;
+  z-index: 2;
+  height: 50px;
+  gap: 14px;
+  .shareIcon {
+    font-size: 20px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    &:hover {
+      color: var(--color-text-title);
+    }
+  }
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid var(--color-border-secondary);
+    cursor: pointer;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+`;
+
 const OrgList = styled.ul`
   margin: 0;
   padding: 0;
@@ -91,9 +129,6 @@ if (hideHeader) {
 function getQueryValue(key) {
   return new URL(location.href).searchParams.get(key) || '';
 }
-
-// 嵌入态：落地页被外部 iframe 嵌入时带 ?embed=1，用于收敛展示（如 welcomeLogo 限高）
-const isEmbed = getQueryValue('embed') === '1';
 
 function getAccountProjects() {
   return (window.md && md.global && md.global.Account && md.global.Account.projects) || [];
@@ -126,13 +161,15 @@ function setInitialPromptPayload({ text, attachments, handoffKey }) {
 function showOrgPicker(projects, onSelect) {
   let close;
 
-  close = Dialog.confirm({
+  close = Modal.confirm({
     title: _l('选择组织'),
     width: 480,
-    noFooter: true,
+    footer: null,
     closable: false,
-    overlayClosable: false,
-    children: (
+    mask: {
+      closable: false,
+    },
+    content: (
       <OrgList>
         {projects.map(p => (
           <OrgItem
@@ -147,7 +184,7 @@ function showOrgPicker(projects, onSelect) {
         ))}
       </OrgList>
     ),
-  });
+  }).destroy;
 
   return close;
 }
@@ -187,9 +224,17 @@ const AgentLand = withRouter(props => {
   // 是否已进入对话：新会话先展示 MingoWelcome 首页，首页提交（写 window.mingoInitialMessage）后置 true，
   // 切到 Agent 对话视图（Agent 挂载时自动发起一轮）。新建 / 切换会话由 mountSession 复位。
   const [chatStarted, setChatStarted] = useState(false);
+  const [shareVisible, setShareVisible] = useState(false);
+  // 当前会话默认标题（首条用户消息，由 ChatPanel 广播 SESSION_ACTIVE 带来 / 选择历史时取 item.title）：
+  // 供右上角「分享」弹窗标题默认值
+  const [activeSessionTitle, setActiveSessionTitle] = useState('');
 
   // 已识别的实时会话 id：区分「会话内 URL 回写」与「外部导航（点击历史 / 浏览器前进后退）」
   const liveSessionRef = useRef(urlSessionId);
+  // 已确认在左栏列表里的会话 id：URL 直接进入（/mingo/chat/:id）与点历史选中的会话本就在列表中，
+  // 新会话则在首轮落库后加入。用于把左栏刷新收敛到「会话首次落库」这一次，
+  // 避免同一会话每轮对话都整拉一次列表。
+  const listedSessionsRef = useRef(new Set(urlSessionId ? [urlSessionId] : []));
   // 待挂载会话 id：render 阶段写入全局，供 ChatPanel 挂载时 loadSession（必须早于子组件 effect）
   const pendingMountRef = useRef(urlSessionId);
   const initialHistoryRef = useRef(history);
@@ -210,6 +255,8 @@ const AgentLand = withRouter(props => {
   const mountSession = useCallback(sessionId => {
     pendingMountRef.current = sessionId || '';
     liveSessionRef.current = sessionId || '';
+    // 显式选中的是已有会话（新建传空 id 除外）：它已在左栏列表里，后续广播不必再刷新列表
+    if (sessionId) listedSessionsRef.current.add(sessionId);
     setOfficialLanding(false);
     setInitialBuilderEmptyVisible(false);
     setOfficialBuilderReady(false);
@@ -217,6 +264,7 @@ const AgentLand = withRouter(props => {
     setEntryProjectId('');
     setAutoOpenBuilderSessionId('');
     setActiveSessionId(sessionId || '');
+    setActiveSessionTitle(''); // 切换会话先清空标题，随后由 SESSION_ACTIVE / 选择项回填
     // 选中具体会话即进对话视图；新建（空 id）则回到 MingoWelcome 首页
     setChatStarted(!!sessionId);
     setMountToken(token => token + 1);
@@ -231,6 +279,9 @@ const AgentLand = withRouter(props => {
     // PreviewFrame / navigateTo 的 SPA 跳转依赖 window.reactRouterHistory
     window.reactRouterHistory = initialHistoryRef.current;
     document.title = _l('Mingo');
+    // /mingo 是独立入口，不走主 app 的 globalEvents；弹窗（分享 / 重命名 / 对话历史）的 Esc 关闭
+    // 依赖 window.closeFns + 全局 keydown，这里单独接入（不接管站内 a 标签点击，避免独立页跳转被 push 回本页）
+    initEscClose();
   }, []);
 
   useEffect(() => {
@@ -304,12 +355,16 @@ const AgentLand = withRouter(props => {
       const creatableProjects = getCreatableProjects();
 
       if (!creatableProjects.length) {
-        closeDialog = Dialog.confirm({
+        closeDialog = Modal.confirm({
           title: _l('无创建应用权限'),
-          description: _l('您当前所在的组织均没有创建应用的权限，请联系组织管理员。'),
-          removeCancelBtn: true,
+          content: _l('您当前所在的组织均没有创建应用的权限，请联系组织管理员。'),
+          cancelButtonProps: {
+            style: {
+              display: 'none',
+            },
+          },
           onOk: goBlank,
-        });
+        }).destroy;
         return;
       }
 
@@ -376,7 +431,7 @@ const AgentLand = withRouter(props => {
         history.replace(pathCompletion(`/mingo/chat/${encodeURIComponent(claimedSessionId)}`, { hasDomain: false }));
       } catch (err) {
         console.error('[agent-land] claim anonymous session failed', err);
-        alert(_l('网络繁忙，请稍后再试'), 2);
+        alertIfNotUnauthorized(err, _l('网络繁忙，请稍后再试'), 2);
         goBlank();
         return;
       } finally {
@@ -395,12 +450,16 @@ const AgentLand = withRouter(props => {
       }
 
       if (!creatableProjects.length) {
-        closeDialog = Dialog.confirm({
+        closeDialog = Modal.confirm({
           title: _l('无创建应用权限'),
-          description: _l('您当前所在的组织均没有创建应用的权限，请联系组织管理员。'),
-          removeCancelBtn: true,
+          content: _l('您当前所在的组织均没有创建应用的权限，请联系组织管理员。'),
+          cancelButtonProps: {
+            style: {
+              display: 'none',
+            },
+          },
           onOk: goBlank,
-        });
+        }).destroy;
         return;
       }
 
@@ -455,6 +514,7 @@ const AgentLand = withRouter(props => {
             sideVisibleBeforeBuilderRef.current = prev;
             collapsedByBuilderRef.current = true;
           }
+
           return false;
         });
         emitter.emit(AGENT_HEADER_EVENT.SIDEBAR_STATE, { visible: false });
@@ -483,17 +543,25 @@ const AgentLand = withRouter(props => {
 
   // ChatPanel 广播会话激活：新会话则回写 URL（history.replace 不触发重挂载）+ 高亮，并刷新左栏
   useEffect(() => {
-    const onSessionActive = ({ sessionId } = {}) => {
+    const onSessionActive = ({ sessionId, title, persisted } = {}) => {
       if (!sessionId) return;
+      if (title !== undefined) setActiveSessionTitle(title || '');
       if (sessionId !== liveSessionRef.current) {
         liveSessionRef.current = sessionId;
         pendingMountRef.current = sessionId;
+        // activeSessionId 即 HistorySide 的 currentSessionId，只驱动左栏高亮；
+        // 左栏整拉只认下面的 historyRefresh，避免切换会话把已翻的页丢掉
         setActiveSessionId(sessionId);
         history.replace(pathCompletion(`/mingo/chat/${sessionId}`, { hasDomain: false }));
       }
 
       setAutoOpenBuilderSessionId(current => (current === sessionId ? '' : current));
-      setHistoryRefresh(n => n + 1);
+      // 只在会话「首次落库」时刷新左栏：新会话要等首轮结束才会出现在列表里。
+      // 已在列表中的会话（点历史 / URL 进入 / 该会话后续每一轮）列表内容不变，不再整拉一次
+      if (persisted && !listedSessionsRef.current.has(sessionId)) {
+        listedSessionsRef.current.add(sessionId);
+        setHistoryRefresh(n => n + 1);
+      }
     };
 
     emitter.on(AGENT_HEADER_EVENT.SESSION_ACTIVE, onSessionActive);
@@ -526,6 +594,7 @@ const AgentLand = withRouter(props => {
 
       if (!sessionId || sessionId === activeSessionId) return;
       mountSession(sessionId);
+      setActiveSessionTitle((session && session.title) || ''); // 选择项自带标题，立即回填（SESSION_ACTIVE 再兜底）
       history.push(pathCompletion(`/mingo/chat/${sessionId}`, { hasDomain: false }));
     },
     [activeSessionId, history, mountSession],
@@ -540,7 +609,7 @@ const AgentLand = withRouter(props => {
     <Con className="t-flex t-flex-col">
       <div className="t-flex-1 t-flex t-flex-row t-overflow-hidden Relative">
         {/* 左栏收起：左上角浮出「展开按钮 + mingo logo」（已无全局 header，logo 收进左栏/此处）。
-            搭建/预览（builderVisible）三栏态下，展开 icon 改由 AppBuilder 中栏左上角承载，这里不再浮出，避免重复。 */}
+             搭建/预览（builderVisible）三栏态下，展开 icon 改由 AppBuilder 中栏左上角承载，这里不再浮出，避免重复。 */}
         {!isSmallMode && expandIconVisible && !builderVisible && (
           <CollapsedBar className="t-flex t-items-center">
             <ExpandIcon className="t-flex t-items-center t-justify-center" onClick={() => setSideVisible(true)}>
@@ -563,6 +632,23 @@ const AgentLand = withRouter(props => {
           />
         )}
         <ChatPane id="containerWrapper" className="t-flex-1" ref={chatPaneRef}>
+          {/* 搭建/预览三栏态由 AppBuilder 自带头部，这里不再浮出，避免与中栏操作重叠 */}
+          {!isSmallMode && !builderVisible && (
+            <TopActions className="t-flex t-items-center">
+              {!!activeSessionId && (
+                <Tooltip title={_l('分享')}>
+                  <i className="icon icon-share shareIcon" onClick={() => setShareVisible(true)} />
+                </Tooltip>
+              )}
+              {!!md?.global?.Account?.avatar && (
+                <Tooltip title={md?.global?.Account?.fullname}>
+                  <div className="userAvatar" onClick={() => (location.href = getAccountPersonalUrl())}>
+                    <img src={md.global.Account.avatar} alt="avatar" />
+                  </div>
+                </Tooltip>
+              )}
+            </TopActions>
+          )}
           {showOfficialBuilderEmptyState && <MingoBuilderEmptyState rightOffset={BUILDER_EMPTY_RIGHT_OFFSET} />}
           {/* 落地页挂载即聚焦输入框（仅此场景，抽屉 / 官网 embed 不强制）；切换会话重挂载亦会重新聚焦 */}
           {/* contentTopInset：落地页无全局 header，消息区顶部补留白避免首条消息贴顶 */}
@@ -574,7 +660,7 @@ const AgentLand = withRouter(props => {
             <WelcomePane>
               <div className="welcomeInner">
                 <GlobalStoreProvider>
-                  <MingoWelcome onStartTask={handleWelcomeStartTask} landing embed={isEmbed} />
+                  <MingoWelcome onStartTask={handleWelcomeStartTask} landing />
                 </GlobalStoreProvider>
               </div>
             </WelcomePane>
@@ -585,8 +671,6 @@ const AgentLand = withRouter(props => {
                 autoFocus: true,
                 contentTopInset: true,
                 disableSessionRestore: true,
-                // 嵌入态（?embed=1）：钉住 help-agent 并关掉自动路由，对话只走帮助答疑
-                agentName: isEmbed ? 'help-agent' : undefined,
                 autoOpenInitialBuilder:
                   !!autoOpenBuilderSessionId && pendingMountRef.current === autoOpenBuilderSessionId,
                 initialSessionId: entrySessionId || undefined,
@@ -598,6 +682,16 @@ const AgentLand = withRouter(props => {
           )}
         </ChatPane>
       </div>
+      {shareVisible && (
+        <Share
+          {...buildSessionShareProps({
+            sessionId: activeSessionId,
+            title: activeSessionTitle,
+            projectId: entryProjectId || undefined,
+          })}
+          onClose={() => setShareVisible(false)}
+        />
+      )}
     </Con>
   );
 });

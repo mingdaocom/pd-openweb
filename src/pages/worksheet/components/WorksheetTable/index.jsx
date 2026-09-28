@@ -3,19 +3,23 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _, { get, noop } from 'lodash';
 import styled from 'styled-components';
-import { FixedTable } from 'ming-ui';
+import { ConfigProvider } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
 import worksheetApi from 'src/api/worksheet';
 import DragMask from 'worksheet/common/DragMask';
-import { SHEET_VIEW_HIDDEN_TYPES, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import { useRefStore } from 'worksheet/hooks';
 import useVerticalTableWidth from 'worksheet/hooks/userVerticalTableWidth';
 import useTableWidth from 'worksheet/hooks/useTableWidth';
-import { emitter } from 'src/utils/common';
-import { getScrollBarWidth } from 'src/utils/common';
-import { getControlStyles } from 'src/utils/control';
-import { filterEmptyChildTableRows, getRecordControlStyles } from 'src/utils/record';
-import { checkRulesErrorOfRowControl } from 'src/utils/rule';
+import { checkRulesErrorOfRowControl } from 'src/components/Form/core/formUtils/checkRulesError';
+import { FORM_THEME } from 'src/components/Form/formTheme';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
+import { getControlStyles } from 'src/utils/domain/control/style';
+import { SHEET_VIEW_HIDDEN_TYPES, WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { getRecordControlStyles } from 'src/utils/domain/worksheet/record';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getScrollBarWidth } from 'src/utils/platform/browser/dom';
+import FixedTable from '../FixedTable';
 import { Cell, NoRecords, NoSearch } from './components';
 import { checkCellFullVisible, getRulePermissions, getTableHeadHeight, handleLifeEffect } from './util';
 import './style.less';
@@ -23,6 +27,34 @@ import './style.less';
 const StyledFixedTable = styled(FixedTable)`
   font-size: 13px;
   user-select: text !important;
+  -webkit-user-select: text !important;
+  --form-control-disabled-bg: transparent;
+  --form-control-disabled-border: transparent;
+  --form-control-disabled-text: currentColor;
+
+  /* 仅重置 Ant Design 写入的禁用光标，保留子元素自定义 cursor */
+  .hap-input.hap-input-disabled,
+  .hap-input-affix-wrapper.hap-input-affix-wrapper-disabled,
+  .hap-select.hap-select-disabled,
+  .hap-picker.hap-picker-disabled {
+    cursor: auto;
+  }
+
+  .hap-input-affix-wrapper-disabled input,
+  .hap-input-affix-wrapper-disabled textarea,
+  .hap-input-affix-wrapper-disabled .hap-input-password-icon,
+  .hap-select-disabled .hap-select-selection-item,
+  .hap-picker-disabled input,
+  .hap-picker-disabled .hap-picker-selection-item,
+  .hap-picker-disabled .hap-picker-separator {
+    cursor: inherit;
+  }
+
+  /* 禁用 Select 的搜索框不参与命中，让选中项文本可以拖拽选择 */
+  .hap-select-disabled input {
+    z-index: -1;
+    cursor: inherit;
+  }
   .colorTag {
     position: absolute;
     width: 4px;
@@ -64,6 +96,11 @@ const StyledFixedTable = styled(FixedTable)`
       .editIcon {
         background-color: var(--color-primary-transparent-light) !important;
       }
+      /* 关联记录下拉的箭头容器和单元格底色都是这层半透明蓝，叠在一起箭头那块会明显更深，
+         这里让它直接透出单元格底色 */
+      &.cellRelateRecordDropdown .editIcon {
+        background-color: transparent !important;
+      }
     }
     &.grayHover:not(.cellControlErrorStatus):not(.control-operates):not(.placeholder):not(.treeNode) {
       box-shadow: inset 0 0 0 1px var(--color-background-overlay-light) !important;
@@ -99,8 +136,8 @@ const StyledFixedTable = styled(FixedTable)`
     white-space: nowrap;
     overflow: hidden;
   }
-  ${({ controlStyles }) => controlStyles || ''}
-  ${({ recordControlStyles }) => recordControlStyles || ''}
+  ${({ $controlStyles }) => $controlStyles || ''}
+  ${({ $recordControlStyles }) => $recordControlStyles || ''}
   &.isChangeColumnWidth {
     * {
       user-select: none !important;
@@ -157,6 +194,17 @@ const StyledFixedTable = styled(FixedTable)`
   }
 `;
 
+const ThemedFixedTable = forwardRef((props, ref) => (
+  <ConfigProvider theme={FORM_THEME}>
+    <StyledFixedTable {...props} ref={ref} />
+  </ConfigProvider>
+));
+
+ThemedFixedTable.displayName = 'ThemedFixedTable';
+
+// 单元格聚焦时为接管输入法（IME）输入而动态插入的隐藏 input 的标记类名
+const FOCUS_IME_INPUT_CLASS = 'cellFocusImeInput';
+
 /**
  * 取消选择页面中选中的文字
  */
@@ -176,6 +224,7 @@ export function clearSelection() {
 }
 
 function WorksheetTable(props, ref) {
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
   const {
     isTreeTableView,
     treeTableViewData,
@@ -193,6 +242,7 @@ function WorksheetTable(props, ref) {
     viewId,
     tableType,
     triggerClickImmediate,
+    clickEnterEditing,
     showGenDataFromMingo,
     className,
     noRenderEmpty,
@@ -495,8 +545,13 @@ function WorksheetTable(props, ref) {
 
   function focusCell(newIndex, { noTriggerHandFocusCell = false } = {}) {
     setCache('focusIndex', newIndex > 0 ? newIndex : undefined);
-    // 记录当前是否有单元格处于聚焦选中态，供全局 paste 守卫判断（避免选中单元格时粘贴呼出 AI 创建记录）
-    window.cellisfocus = newIndex > 0;
+
+    // 记录当前是否有单元格处于聚焦选中态，供全局 paste 守卫判断（避免选中单元格时粘贴呼出 AI 创建记录）。
+    // 取消聚焦时，焦点可能已经被另一个表格接管，此时不能把它写下的标记覆盖掉。
+    if (newIndex > 0 || !window.activeTableId || window.activeTableId === tableId) {
+      window.cellisfocus = newIndex > 0;
+    }
+
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
 
     if (!tableDom) {
@@ -507,14 +562,12 @@ function WorksheetTable(props, ref) {
       ele.classList.remove('focus');
       ele.classList.remove('highlight');
       ele.classList.remove('rowHadFocus');
-      const input = ele.querySelector('input');
+      // 只清理下方为接管输入法而插入的隐藏 input；
+      // 不能用 querySelector('input') 深度查找，否则会命中单元格内组件自身的 input（如 checkbox）并误删
+      const input = ele.querySelector(`:scope > input.${FOCUS_IME_INPUT_CLASS}`);
 
       if (input) {
-        try {
-          ele.removeChild(input);
-        } catch (err) {
-          console.log(err);
-        }
+        input.remove();
       }
     });
     window[`activeRowIndex-${tableId}`] = -10000;
@@ -551,8 +604,9 @@ function WorksheetTable(props, ref) {
       focusElement.classList.add('focus');
       if (focusElement.classList.contains('focusInput')) {
         const input = document.createElement('input');
-        input.className = 'body';
-        input.style = 'position: absolute; left: 0px; top: -40px;';
+        input.className = `body ${FOCUS_IME_INPUT_CLASS}`;
+        // 保留真实尺寸和可聚焦能力供中文输入法触发 composition 事件，仅隐藏视觉并避免遮挡相邻单元格交互。
+        input.style = 'position: absolute; left: 0px; top: -40px; opacity: 0; pointer-events: none;';
         focusElement.appendChild(input);
         input.addEventListener('compositionend', e => {
           setTimeout(() => {
@@ -595,7 +649,7 @@ function WorksheetTable(props, ref) {
           e.target &&
           e.target.tagName.toLowerCase() !== 'body' &&
           !e.target.classList.contains('body') &&
-          !e.target.classList.contains('mdModalWrap') &&
+          !e.target.classList.contains('hap-modal-wrap') &&
           !e.target.classList.contains('scrollViewContainer') &&
           !e.target.classList.contains('scroll-viewport'))) &&
       !(_.includes([26, 27], get(cell, 'props.cell.type')) && e.key !== 'Enter')
@@ -848,12 +902,13 @@ function WorksheetTable(props, ref) {
   const recordControlStyles = showControlStyle && getRecordControlStyles(ruleControlAdvancedSettings);
   return (
     <React.Fragment>
+      {addRecordHolder}
       {maskVisible && <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />}
-      <StyledFixedTable
+      <ThemedFixedTable
         isGroupTableView={isGroupTableView}
         isSubList={isSubList}
-        controlStyles={controlStyles}
-        recordControlStyles={recordControlStyles}
+        $controlStyles={controlStyles}
+        $recordControlStyles={recordControlStyles}
         disablePanVertical={disablePanVertical}
         noRenderEmpty={noRenderEmpty}
         loading={loading}
@@ -867,6 +922,7 @@ function WorksheetTable(props, ref) {
           isChangeColumnWidth,
           xIsScroll,
           direction,
+          lineEditable: !readonly && lineEditable,
         })}
         width={width}
         height={tableHeight}
@@ -892,6 +948,7 @@ function WorksheetTable(props, ref) {
           columnStyles,
           direction,
           triggerClickImmediate,
+          clickEnterEditing,
           chatButton,
           masterRecord,
           isTreeTableView,
@@ -937,6 +994,7 @@ function WorksheetTable(props, ref) {
           rows: data,
           headTitleCenter, // 列头垂直居中
           cellProps,
+          openAddRecord,
           // functions
           clearCellError,
           inView,
@@ -1062,6 +1120,7 @@ function WorksheetTable(props, ref) {
         tableFooter={tableFooter}
         renderCompInMainCenter={renderCompInMainCenter}
       />
+
       {!data.length && showSearchEmpty && keyWords && (
         <NoSearch keyWords={keyWords} columnHeadHeight={columnHeadHeight} />
       )}

@@ -2,7 +2,8 @@
 import chatController from 'src/api/chat';
 import groupController from 'src/api/group';
 import taskCenterController from 'src/api/taskCenter';
-import createTask from 'src/components/createTask/load';
+
+const createCanceledError = () => Object.assign(new Error('Destination creation canceled'), { canceled: true });
 
 export function _getMyTaskList(params) {
   return new Promise((resolve, reject) => {
@@ -57,28 +58,38 @@ export function _convertToOtherAttachment(params) {
   });
 }
 
-export function createNewTask() {
+export function createNewTask(openCreateTask) {
   return new Promise((resolve, reject) => {
-    createTask({
+    openCreateTask({
       relationCallback: function (result) {
         resolve({
           taskID: result.taskID,
           taskName: result.taskName,
         });
       },
-    }).catch(reject);
+      onClose: () => reject(createCanceledError()),
+    });
   });
 }
 
 export function createNewChat() {
   return new Promise((resolve, reject) => {
+    let selectionSubmitted = false;
+
     dialogSelectUser({
       sourceId: 0,
       fromType: 0,
       showMoreInvite: false,
+      onCancel: () => {
+        if (!selectionSubmitted) {
+          reject(createCanceledError());
+        }
+      },
       SelectUserSettings: {
         filterAccountIds: [md.global.Account.accountId],
         callback: function (data) {
+          selectionSubmitted = true;
+
           if (data.length > 1) {
             groupController
               .addDiscussionGroup({

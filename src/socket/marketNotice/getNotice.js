@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import displayMarketNotice from './displayMarketNotice';
 import displaySysNotice from './displaySysNotice';
-import '../index.less';
+import './index.less';
 
 export default function getNotice() {
   const { accountId } = get(md, ['global', 'Account']);

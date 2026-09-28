@@ -1,20 +1,13 @@
 import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-`;
-
-const MenuCon = styled.div`
-  > .Menu {
-    position: relative !important;
-  }
 `;
 
 export const Button = styled.div`
@@ -89,34 +82,22 @@ const GenericDropdownButton = ({ buttonText, icon, dropdownItems, onClick, disab
 
   return (
     <Con ref={conRef}>
-      <Trigger
-        zIndex={999}
-        popupVisible={menuVisible}
-        actions={['click']}
+      <Dropdown
+        open={menuVisible}
+        trigger={['click']}
+        placement="bottomLeft"
         getPopupContainer={() => conRef.current}
-        onPopupVisibleChange={setMenuVisible}
-        popup={
-          <MenuCon>
-            <Menu
-              style={{ top: 0 }}
-              onClickAwayExceptions={['.dropdownButtonIcon']}
-              onClickAway={() => setMenuVisible(false)}
-            >
-              {dropdownItems &&
-                dropdownItems.map((item, index) => (
-                  <MenuItem key={index} onClick={item.onClick}>
-                    {item.text}
-                  </MenuItem>
-                ))}
-            </Menu>
-          </MenuCon>
-        }
-        popupClassName="filterTrigger"
-        destroyPopupOnHide
-        popupAlign={{
-          offset: [0, 4],
-          points: ['tl', 'bl'],
-          overflow: { adjustY: true },
+        onOpenChange={open => {
+          if (!open) {
+            setMenuVisible(false);
+          }
+        }}
+        menu={{
+          items: (dropdownItems || []).map((item, index) => ({
+            key: index,
+            label: item.text,
+            onClick: item.onClick,
+          })),
         }}
       >
         <Button className={cx(className, { disabled })} onClick={!disabled ? onClick : undefined}>
@@ -136,7 +117,7 @@ const GenericDropdownButton = ({ buttonText, icon, dropdownItems, onClick, disab
             </DropIcon>
           )}
         </Button>
-      </Trigger>
+      </Dropdown>
     </Con>
   );
 };

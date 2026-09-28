@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import Remarkable from 'remarkable';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import Remarkable from 'ming-ui/components/Remarkable';
 import { MarkdownWithCSS } from './ChatBot/MarkdownWithCSS';
 import { Icon, IconButton } from './styled';
 
@@ -85,7 +85,7 @@ export default function DevelopGuide() {
   return (
     <Fragment>
       {visible && (
-        <Modal title={_l('开发指南')} visible width={800} showConfirm={false} onCancel={() => setVisible(false)}>
+        <Modal title={_l('开发指南')} open width={800} showConfirm={false} onCancel={() => setVisible(false)}>
           <Con>
             <MarkdownWithCSS
               dangerouslySetInnerHTML={{
@@ -96,7 +96,7 @@ export default function DevelopGuide() {
         </Modal>
       )}
       <IconButton className="mLeft15" onClick={() => setVisible(true)}>
-        <Icon className="icon icon-help" color="var(--color-text-tertiary)" />
+        <Icon className="icon icon-help" $color="var(--color-text-tertiary)" />
         <span className="text">{_l('开发指南')} </span>
       </IconButton>
     </Fragment>

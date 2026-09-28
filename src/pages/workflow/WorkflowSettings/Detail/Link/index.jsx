@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import worksheet from 'src/api/worksheet';
 import { ACTION_ID } from '../../enum';
@@ -168,9 +168,8 @@ export default class Link extends Component {
     const { selectNodeType } = this.props;
     const { data } = this.state;
     const views = this.state.views.map(o => ({
-      text: o.name,
+      label: o.name,
       value: o.viewId,
-      className: data.viewId === o.viewId ? 'colorPrimary' : '',
     }));
     const selectView = _.find(views, o => o.value === data.viewId);
 
@@ -223,10 +222,12 @@ export default class Link extends Component {
             <Fragment key={item.value}>
               <div className="mTop15" style={{ width: data.actionId === ACTION_ID.RECORD_LINK_PAY ? 'auto' : 160 }}>
                 <Radio
-                  text={item.text}
                   checked={data.linkType === item.value}
-                  onClick={() => this.switchLinkType(item.value)}
-                />
+                  onChange={() => this.switchLinkType(item.value)}
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               </div>
               {item.desc && <div className="mTop5 textSecondary mLeft30 Font12">{item.desc}</div>}
             </Fragment>
@@ -236,22 +237,20 @@ export default class Link extends Component {
         {data.linkType === 5 ? (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('视图')}</div>
-            <Dropdown
+            <Select
               className={cx('flowDropdown mTop10', {
                 'errorBorder errorBG': data.viewId && !!views.length && !selectView,
               })}
-              isAppendToBody
               disabled={!data.selectNodeId}
-              data={views}
+              options={views}
               value={data.viewId}
-              renderTitle={
+              labelRender={
                 !data.viewId || !views.length
                   ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : data.viewId && !selectView
                     ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
-                    : () => <span>{selectView.text}</span>
+                    : () => <span>{selectView.label}</span>
               }
-              border
               onChange={viewId => this.updateSource({ viewId })}
             />
           </Fragment>
@@ -288,9 +287,8 @@ export default class Link extends Component {
           <Fragment>
             <div className="mTop20 bold">{_l('密码')}</div>
             <div className="flexRow mTop10">
-              <input
-                type="text"
-                className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+              <Input
+                className="flex"
                 defaultValue={data.password}
                 maxLength={8}
                 onChange={evt => {
@@ -311,21 +309,27 @@ export default class Link extends Component {
             <div className="mTop20">
               <Checkbox
                 className="InlineFlex bold"
-                text={_l('设置链接有效期')}
                 checked={data.time.enable}
-                onClick={checked => {
-                  const parameter = { enable: !checked };
+                onChange={event => {
+                  const parameter = {
+                    enable: event.target.checked,
+                  }; // 初始化
 
-                  // 初始化
                   if (!data.type) {
                     parameter.type = 1;
-                    parameter.executeTime = { fieldValue: '1' };
+                    parameter.executeTime = {
+                      fieldValue: '1',
+                    };
                     parameter.unit = 3;
                   }
 
-                  this.updateSource({ time: Object.assign({}, data.time, parameter) });
+                  this.updateSource({
+                    time: Object.assign({}, data.time, parameter),
+                  });
                 }}
-              />
+              >
+                {_l('设置链接有效期')}
+              </Checkbox>
             </div>
           </Fragment>
         )}
@@ -339,18 +343,22 @@ export default class Link extends Component {
               ].map(item => (
                 <div key={item.value} style={{ width: 160 }}>
                   <Radio
-                    text={item.text}
                     checked={data.time.type === item.value}
-                    onClick={() =>
+                    onChange={() =>
                       this.updateSource({
                         time: Object.assign({}, data.time, {
                           type: item.value,
-                          executeTime: { fieldValue: item.value === 1 ? '1' : '' },
+                          executeTime: {
+                            fieldValue: item.value === 1 ? '1' : '',
+                          },
                           unit: item.value === 1 ? 3 : undefined,
                         }),
                       })
                     }
-                  />
+                    title={item.text}
+                  >
+                    {item.text}
+                  </Radio>
                 </div>
               ))}
             </div>
@@ -370,10 +378,16 @@ export default class Link extends Component {
           <div className="mTop15">
             <Checkbox
               className="InlineFlex bold"
-              text={_l('提交后允许查看/修改')}
               checked={data.submitType !== 0}
-              onClick={checked => this.updateSource({ submitType: checked ? 0 : 1, modifyTime: -1 })}
-            />
+              onChange={event =>
+                this.updateSource({
+                  submitType: !event.target.checked ? 0 : 1,
+                  modifyTime: -1,
+                })
+              }
+            >
+              {_l('提交后允许查看/修改')}
+            </Checkbox>
           </div>
         )}
 
@@ -387,23 +401,29 @@ export default class Link extends Component {
                 ].map(item => (
                   <div key={item.value} style={{ width: 160 }}>
                     <Radio
-                      text={item.text}
                       checked={data.submitType === item.value}
-                      onClick={() => this.updateSource({ submitType: item.value, modifyTime: -1 })}
-                    />
+                      onChange={() =>
+                        this.updateSource({
+                          submitType: item.value,
+                          modifyTime: -1,
+                        })
+                      }
+                      title={item.text}
+                    >
+                      {item.text}
+                    </Radio>
                   </div>
                 ))}
               </div>
               {data.submitType === 2 && (
                 <div className="mTop10 flexRow alignItemsCenter">
-                  <Dropdown
+                  <Select
                     className="flex flowDropdown"
-                    data={[
-                      { text: _l('始终允许修改'), value: true },
-                      { text: _l('一段时间内可修改'), value: false },
+                    options={[
+                      { label: _l('始终允许修改'), value: true },
+                      { label: _l('一段时间内可修改'), value: false },
                     ]}
                     value={data.modifyTime === -1}
-                    border
                     onChange={modify => this.updateSource({ modifyTime: modify ? -1 : 24 })}
                   />
                   {data.modifyTime !== -1 && (

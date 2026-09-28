@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import Checkbox from 'ming-ui/components/Checkbox';
+import { Checkbox } from 'ming-ui/antd-components';
 import API from '../api';
 import ContactList from '../components/ContactList';
 import ListSearchBar from '../components/ListSearchBar';
@@ -142,7 +142,12 @@ export default class Contacts extends React.Component {
     const { isFilterOther } = this.state;
     return (
       <div className="pBottom2 pTop10 pLeft15 textSecondary">
-        <Checkbox checked={isFilterOther} text={_l('不显示其他协作关系')} onClick={this.changeFilter} />
+        <Checkbox
+          checked={isFilterOther}
+          onChange={event => this.changeFilter(!event.target.checked, undefined, event)}
+        >
+          {_l('不显示其他协作关系')}
+        </Checkbox>
       </div>
     );
   }

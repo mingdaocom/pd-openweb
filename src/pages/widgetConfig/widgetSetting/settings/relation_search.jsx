@@ -3,35 +3,40 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Popover, Radio, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { pathCompletion } from 'src/utils/common';
-import { getSortData } from 'src/utils/control';
-import { SUPPORT_RELATE_SEARCH } from '../../config';
-import { WHOLE_SIZE } from '../../config/Drag';
-import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
-import { SYSTEM_CONTROL } from '../../config/widget';
-import { AnimationWrap, EditInfo, SettingItem } from '../../styled';
-import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, toEditWidgetPage } from '../../util';
-import { getAdvanceSetting, getControlsSorts, handleAdvancedSettingChange } from '../../util/setting';
-import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { SUPPORT_RELATE_SEARCH } from 'src/utils/domain/control/config';
+import { getControlsSorts } from 'src/utils/domain/control/editorSetting';
+import { filterSysControls, formatControlsToDropdown, getFilterRelateControls } from 'src/utils/domain/control/filters';
+import { WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { COVER_FILL_TYPES, RELATION_SEARCH_DISPLAY } from 'src/utils/domain/control/setting';
+import { getSortData } from 'src/utils/domain/control/sort';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { EditInfo, SettingItem } from '../../styled';
+import { RelateSearchWorksheet, useRelateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
 
-const FILL_TYPES = [
-  { text: _l('填满'), value: '0' },
-  { text: _l('完整显示'), value: '1' },
+const getSearchResultTypeOptions = () => [
+  { label: _l('单条记录'), value: 1 },
+  { label: _l('多条记录'), value: 2 },
 ];
 
-const SEARCH_RESULT_TYPES = [
-  { text: _l('单条记录'), value: 1 },
-  { text: _l('多条记录'), value: 2 },
-];
+const RELATION_SEARCH_OPTIONS = RELATION_SEARCH_DISPLAY.filter(i => !i.disabled).map(({ text: label, ...option }) => ({
+  ...option,
+  label,
+}));
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const RelateSheetWrap = styled.div`
   .filterBtn {
@@ -46,12 +51,9 @@ const RelateSheetCover = styled.div`
   display: flex;
   .sortColumnWrap {
     flex: 1;
-    .Dropdown--input {
-      ${props => (props.hideCover ? 'border-radius: 3px;' : 'border-right: none;border-radius: 3px 0px 0px 3px;')};
-    }
   }
   .relateCoverSetting {
-    ${props => (props.hideCover ? 'display: none;' : '')}
+    ${props => (props.$hideCover ? 'display: none;' : '')}
     width: 36px;
     height: 36px;
     border-radius: 0px 3px 3px 0px;
@@ -74,32 +76,24 @@ const CoverWrap = styled.div`
   width: 308px;
   max-height: 350px;
   overflow-x: hidden;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.1608);
   padding: 16px;
   .coverTitle {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .coverType {
-    display: Inline-block;
-    border-radius: 3px 0px 0px 3px;
-    border: 1px solid var(--color-border-primary);
-    padding: 6px 18px;
-    color: var(--color-text-secondary);
-    &.active {
-      color: var(--color-primary);
-      border-color: var(--color-primary);
-    }
-    &:last-child {
-      border-radius: 0px 3px 3px 0px;
-    }
-  }
 `;
 
-export default function RelationSearch(props) {
-  let { data, onChange, allControls, globalSheetInfo, deleteWidget, status: { saveIndex } = {} } = props;
+function RelationSearch(props) {
+  let {
+    data,
+    onChange,
+    allControls,
+    globalSheetInfo,
+    deleteWidget,
+    status: { saveIndex } = {},
+    openRelateSearchWorksheet,
+  } = props;
   const {
     controlId,
     enumDefault = 1,
@@ -202,32 +196,34 @@ export default function RelationSearch(props) {
             </span>
           )}
         </div>
-        <div className="textTertiary mTop10">{_l('选择作为封面图片的附件字段')}</div>
-        <RadioGroup
-          radioItemClassName="mTop10"
+        <div className="textTertiary mTop10 mBottom8">{_l('选择作为封面图片的附件字段')}</div>
+        <Radio.Group
           disabled={!dataSource}
-          checkedValue={coverCid}
-          data={filterControls
-            .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
-            .map(c => ({
-              text: c.controlName,
-              value: c.controlId,
-            }))}
+          value={coverCid}
+          options={(
+            filterControls
+              .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
+              .map(c => ({
+                text: c.controlName,
+                value: c.controlId,
+              })) || []
+          ).map(({ text, ...option }) => ({ ...option, label: text }))}
           vertical={true}
-          onChange={value => onChange({ coverCid: value })}
+          onChange={event =>
+            onChange({
+              coverCid: event.target.value,
+            })
+          }
         />
         <div className="flexCenter mTop20">
           <span className="textSecondary mRight20">{_l('填充方式')}</span>
-          {FILL_TYPES.map(item => {
-            return (
-              <span
-                className={cx('coverType Hand', { active: item.value === covertype })}
-                onClick={() => onChange(handleAdvancedSettingChange(data, { covertype: item.value }))}
-              >
-                {item.text}
-              </span>
-            );
-          })}
+          <Segmented
+            block
+            className="flex"
+            value={covertype}
+            options={COVER_FILL_TYPES.map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={value => onChange(handleAdvancedSettingChange(data, { covertype: value }))}
+          />
         </div>
       </CoverWrap>
     );
@@ -268,10 +264,10 @@ export default function RelationSearch(props) {
             <div className="settingItemTitle">{_l('查询表')}</div>
             <EditInfo
               className={cx('pointer', { borderError: isDeleteWorksheet })}
-              onClick={() => relateSearchWorksheet(relateSearchPara)}
+              onClick={() => openRelateSearchWorksheet(relateSearchPara)}
             >
               {isDeleteWorksheet ? (
-                <div className="Red">{_l('查询表已删除')}</div>
+                <DeletedSourceMessage worksheetId={dataSource} />
               ) : (
                 <div className="overflow_ellipsis textPrimary flexCenter">
                   {querytype === '1' && (
@@ -325,7 +321,7 @@ export default function RelationSearch(props) {
                       ...SYSTEM_CONTROL,
                     ])}
                     editFn={() =>
-                      relateSearchWorksheet({
+                      openRelateSearchWorksheet({
                         relateType: 'filter',
                         data,
                         globalSheetInfo,
@@ -380,52 +376,48 @@ export default function RelationSearch(props) {
 
       <SettingItem>
         <div className="settingItemTitle">{_l('显示查询结果')}</div>
-        <AnimationWrap>
-          {SEARCH_RESULT_TYPES.map(({ text, value }) => (
-            <div
-              className={cx('animaItem', { active: enumDefault === value })}
-              onClick={() => {
-                let nextData = { ...data, enumDefault: value };
+        <Segmented
+          block
+          value={enumDefault}
+          options={getSearchResultTypeOptions()}
+          onChange={value => {
+            const nextData = { ...data, enumDefault: value };
 
-                if (value === 1) {
-                  const clearAds = {
-                    showtype: '',
-                    showtitleid: '',
-                    maxcount: '',
-                    allowlink: '0',
-                    openview: '',
-                  };
-                  onChange({
-                    ...handleAdvancedSettingChange(nextData, { ...clearAds }),
-                    strDefault: '000',
-                    enumDefault2: 1,
-                    coverCid: '',
-                  });
-                  return;
-                }
+            if (value === 1) {
+              const clearAds = {
+                showtype: '',
+                showtitleid: '',
+                maxcount: '',
+                allowlink: '0',
+                openview: '',
+              };
+              onChange({
+                ...handleAdvancedSettingChange(nextData, { ...clearAds }),
+                strDefault: '000',
+                enumDefault2: 1,
+                coverCid: '',
+              });
+              return;
+            }
 
-                onChange({
-                  ...handleAdvancedSettingChange(nextData, {
-                    showtype: '5',
-                    allowlink: querytype === '1' ? '0' : '1',
-                  }),
-                  size: WHOLE_SIZE,
-                });
-              }}
-            >
-              {text}
-            </div>
-          ))}
-        </AnimationWrap>
+            onChange({
+              ...handleAdvancedSettingChange(nextData, {
+                showtype: '5',
+                allowlink: querytype === '1' ? '0' : '1',
+              }),
+              size: WHOLE_SIZE,
+            });
+          }}
+        />
       </SettingItem>
 
-      <SettingItem hide={enumDefault === 1}>
+      <SettingItem $hide={enumDefault === 1}>
         <div className="settingItemTitle">{_l('记录显示方式')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           value={showtype}
-          data={RELATION_SEARCH_DISPLAY.filter(i => !i.disabled)}
-          renderTitle={() =>
+          options={RELATION_SEARCH_OPTIONS}
+          labelRender={() =>
             _.get(
               _.find(RELATION_SEARCH_DISPLAY, r => r.value === showtype),
               'text',
@@ -448,11 +440,12 @@ export default function RelationSearch(props) {
       {!isSheetDisplay() && enumDefault === 2 && (
         <SettingItem>
           <div className="settingItemTitle">{_l('标题字段')}</div>
-          <Dropdown
-            border
-            cancelAble
+          <Select
+            className="w100"
+            allowClear
             value={showTitleDelete ? undefined : showtitleid || undefined}
-            data={formatControlsToDropdown(setTitleControls)}
+            options={formatControlsToDropdown(setTitleControls)}
+            fieldNames={SELECT_FIELD_NAMES}
             placeholder={showTitleDelete ? <span className="Red">{_l('已删除')}</span> : _l('默认使用记录标题')}
             onChange={value => onChange(handleAdvancedSettingChange(data, { showtitleid: value }))}
           />
@@ -461,7 +454,7 @@ export default function RelationSearch(props) {
       {((showtype !== '3' && enumDefault === 2) || enumDefault === 1) && (
         <SettingItem>
           <div className="settingItemTitle mBottom8">{enumDefault === 1 ? _l('显示指定字段') : _l('显示字段')}</div>
-          <RelateSheetCover hideCover={enumDefault === 1 || querytype === '1' || isSheetDisplay()}>
+          <RelateSheetCover $hideCover={enumDefault === 1 || querytype === '1' || isSheetDisplay()}>
             <SortColumns
               sortAutoChange
               isShowColumns
@@ -488,28 +481,25 @@ export default function RelationSearch(props) {
               }}
             />
             {!isSheetDisplay() && (
-              <Trigger
-                popup={renderCover}
-                action={['click']}
-                popupAlign={{
-                  points: ['tr', 'br'],
-                  offset: [0, 2],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                getPopupContainer={() => document.body}
-              >
-                <Tooltip title={_l('设置封面')} placement="bottom">
+              <Tooltip title={_l('设置封面')} placement="bottom">
+                <Popover
+                  noPadding
+                  content={renderCover}
+                  trigger="click"
+                  placement="bottomRight"
+                  getPopupContainer={() => document.body}
+                >
                   <div className="relateCoverSetting">
                     <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverCid })}></span>
                   </div>
-                </Tooltip>
-              </Trigger>
+                </Popover>
+              </Tooltip>
             )}
           </RelateSheetCover>
         </SettingItem>
       )}
 
-      <SettingItem hide={enumDefault === 1}>
+      <SettingItem $hide={enumDefault === 1}>
         <div className="settingItemTitle">{_l('查询数量')}</div>
         <div className="labelWrap flexCenter">
           <InputValue
@@ -535,3 +525,7 @@ export default function RelationSearch(props) {
     </RelateSheetWrap>
   );
 }
+
+export default withOpeners(RelationSearch, {
+  openRelateSearchWorksheet: useRelateSearchWorksheet,
+});

@@ -1,134 +1,48 @@
-import React, { useState } from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
+import React from 'react';
+import { Button, Dropdown, Space } from 'ming-ui/antd-components';
 
-const Con = styled.div`
-  display: flex;
-  flex-direction: row;
-  height: 32px;
-  background: var(--color-background-primary);
-  border-radius: 16px;
-  border: 1px solid var(--color-border-secondary);
-  color: var(--color-text-secondary);
-  font-weight: bold;
-  font-size: 13px;
-  user-select: none;
-  .content {
-    flex: 1;
-    line-height: 30px;
-    padding: 0 16px;
-  }
-  &:not(.disabled) {
-    .content {
-      cursor: pointer;
-    }
-    &:hover {
-      color: var(--color-primary);
-      border-color: var(--color-primary);
-    }
-  }
-  &.disabled {
-    .content {
-      cursor: not-allowed;
-      color: var(--color-text-placeholder);
-    }
-  }
-  &.hasDownList {
-    .content {
-      padding-right: 8px;
-    }
-  }
-`;
-
-const DropdownIcon = styled.div`
-  position: relative;
-  display: inline-block;
-  padding: 0 12px 0 8px;
-  cursor: pointer;
-  text-align: center;
-  line-height: 30px;
-  .icon {
-    font-size: 12px;
-    color: var(--color-text-secondary);
-  }
-  &::before {
-    content: '';
-    height: 13px;
-    position: absolute;
-    left: 0px;
-    top: 8.5px;
-    border-left: 1px solid var(--color-border-secondary);
-  }
-  &:hover {
-    .icon {
-      color: var(--color-primary);
-    }
-  }
-`;
+const SAVE_OPTIONS_TRIGGER = ['click'];
 
 export default function SaveButton(props) {
   const { disabled, downList, onClick } = props;
-  const [popupVisible, setPopupVisible] = useState();
-  const hasDownList = _.isArray(downList) && !_.isEmpty(downList);
-  const content = (
-    <Con className={cx({ hasDownList, disabled })}>
-      <div className="content" onClick={!disabled && onClick}>
-        {_l('保存')}
-      </div>
-      {hasDownList && (
-        <DropdownIcon onClick={() => setPopupVisible(true)}>
-          <i className="icon icon-arrow-down"></i>
-        </DropdownIcon>
-      )}
-    </Con>
-  );
+  const hasDownList = Array.isArray(downList) && downList.length > 0;
+  const menuItems = hasDownList
+    ? downList.map((item, index) => ({
+        key: index,
+        label: item.name,
+        disabled: item.disabled,
+        onClick: () => item.onClick(),
+      }))
+    : [];
 
-  if (hasDownList) {
-    return (
-      <Trigger
-        action={['click']}
-        popupVisible={popupVisible}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 4],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
-        popup={
-          <Menu className="Relative" style={{ width: 'auto' }}>
-            {downList.map((item, i) => (
-              <MenuItem
-                key={i}
-                disabled={item.disabled}
-                onClick={() => {
-                  if (item.disabled) {
-                    return;
-                  }
-
-                  item.onClick();
-                  setPopupVisible(false);
-                }}
-              >
-                {item.name}
-              </MenuItem>
-            ))}
-          </Menu>
-        }
-        onPopupVisibleChange={newVisible => {
-          if (!newVisible) {
-            setPopupVisible(false);
-          }
-        }}
+  return (
+    <Space.Compact>
+      <Button
+        style={{ '--hap-control-height': '32px' }}
+        shape="round"
+        className="Bold Font13"
+        disabled={disabled}
+        onClick={onClick}
       >
-        {content}
-      </Trigger>
-    );
-  }
-
-  return content;
+        {_l('保存')}
+      </Button>
+      {hasDownList && (
+        <Dropdown
+          disabled={disabled}
+          trigger={SAVE_OPTIONS_TRIGGER}
+          placement="bottomRight"
+          menu={{ items: menuItems }}
+        >
+          <Button
+            style={{ '--hap-control-height': '32px' }}
+            shape="round"
+            className="Font13"
+            disabled={disabled}
+            aria-label={_l('更多保存选项')}
+            icon={<i className="icon icon-arrow-down" />}
+          />
+        </Dropdown>
+      )}
+    </Space.Compact>
+  );
 }

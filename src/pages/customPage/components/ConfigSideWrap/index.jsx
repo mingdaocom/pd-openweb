@@ -48,9 +48,13 @@ const Wrap = styled.div`
     height: 28px;
     border-radius: 4px;
     border: 1px solid var(--color-border-tertiary);
+    transition: border 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
+    &:hover {
+      border-color: var(--color-primary);
+    }
   }
   .colorWrap.active {
     border-color: var(--color-border-tertiary);
@@ -108,6 +112,8 @@ const Wrap = styled.div`
     background-color: var(--color-border-tertiary);
   }
   .selectChartColor {
+    height: 40px;
+    box-sizing: border-box;
     padding: 8px;
     border-radius: 4px;
     border: 1px solid var(--color-border-primary);
@@ -120,6 +126,9 @@ const Wrap = styled.div`
       margin-left: 7px;
     }
   }
+  .selectTitleSelect {
+    --hap-select-height: 40px;
+  }
   .label {
     width: 70px;
     margin-right: 20px;
@@ -128,113 +137,13 @@ const Wrap = styled.div`
   .icon-trash:hover {
     color: var(--color-error) !important;
   }
-  .typeSelect {
-    font-size: 13px;
-    border-radius: 3px;
-    width: max-content;
-    padding: 3px;
-    background-color: var(--color-background-secondary);
-    > div {
-      height: 25px;
-      line-height: 25px;
-      padding: 0 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .active {
-      color: var(--color-primary) !important;
-      border-radius: 3px;
-      font-weight: bold;
-      background-color: var(--color-background-card);
-    }
-  }
-  .pageSelect {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-      .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
-    .ant-select-selector {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    &.selectTitleSelect {
-      .ant-select-selector,
-      .ant-select-selection-item {
-        height: 42px;
-        line-height: 40px;
-      }
-    }
-    .ant-select-selector,
-    .ant-select-selection-item {
-      height: 32px;
-      line-height: 30px;
-    }
-    .ant-select-arrow {
-      width: auto;
-      height: auto;
-      top: 40%;
-    }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
-    .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
-      opacity: 1;
-      font-size: 13px;
-    }
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
-      color: inherit;
-    }
-  }
-
-  .pageInput {
-    &.ant-input-affix-wrapper {
-      padding: 0 0 0 11px;
-      .ant-input {
-        height: 30px;
-      }
-    }
-    &.ant-input-affix-wrapper:hover,
-    &:hover {
-      border-color: var(--color-primary) !important;
-    }
-    &.ant-input-affix-wrapper,
-    &.ant-input-affix-wrapper-focused,
-    & {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-input-suffix {
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 0 4px 4px 0;
-      border-left: 1px solid var(--color-border-primary);
-    }
-    .icon-expand_less,
-    .icon-expand_more {
-      line-height: 10px;
-    }
-    &.ant-picker-range .ant-picker-input > input {
-      font-size: 13px;
-    }
-  }
-
-  .countInput {
-    .disabled {
-      color: var(--color-border-primary);
-    }
-    .ant-input-suffix {
-      width: 38px !important;
-    }
-  }
 `;
 
 export { defaultConfig };
 
 export default props => {
   const { adjustScreen, className, urlParams = [] } = props;
-  const { onClose, updatePageInfo, updateModified = _.noop } = props;
+  const { imageUrl, previewUrl, onClose, updatePageInfo, updateModified = _.noop } = props;
   const { appPkg } = store.getState();
   const { iconColor } = appPkg;
   const lightColor = generate(iconColor)[0];
@@ -254,6 +163,19 @@ export default props => {
     }
 
     updatePageInfo(params);
+  };
+
+  const handleChangeImage = (imageData, styleData = {}) => {
+    const isRemoveImage = !imageData.imageUrl && !imageData.previewUrl;
+    updateModified(true);
+    updatePageInfo({
+      ...imageData,
+      config: {
+        ...config,
+        ...styleData,
+        ...(isRemoveImage ? { bgStyleValue: '' } : {}),
+      },
+    });
   };
 
   const themeColors = [
@@ -288,7 +210,15 @@ export default props => {
       }}
     >
       <Wrap>
-        <BgConfig appPkg={appPkg} themeColors={themeColors} config={config} handleChangeConfig={handleChangeConfig} />
+        <BgConfig
+          appPkg={appPkg}
+          themeColors={themeColors}
+          config={config}
+          imageUrl={imageUrl}
+          previewUrl={previewUrl}
+          handleChangeConfig={handleChangeConfig}
+          handleChangeImage={handleChangeImage}
+        />
         <div className="line mTop20 mBottom20" />
         <ChartColorConfig
           appPkg={appPkg}

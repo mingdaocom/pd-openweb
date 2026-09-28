@@ -46,17 +46,20 @@ export const Wrap = styled.div`
   .title {
     font-weight: 600;
   }
-  .ming.Radio {
-    flex: 1;
+  .hap-radio-group {
+    display: flex;
   }
-
+  .hap-radio-wrapper {
+    flex: 1;
+    margin-inline-end: 0;
+  }
   .paramControlDropdown {
     height: auto;
     min-height: 36px;
     .itemT {
       background: var(--color-background-secondary);
       border-radius: 4px 4px 4px 4px;
-      padding: 3px 8px 3px 10px;
+      padding-inline: 10px 8px;
       border: 1px solid var(--color-border-secondary);
       i {
         color: var(--color-text-tertiary);
@@ -65,22 +68,7 @@ export const Wrap = styled.div`
         }
       }
     }
-    .Dropdown--border,
-    .dropdownTrigger .Dropdown--border {
-      min-height: 36px !important;
-      height: auto !important;
-    }
-    .Dropdown--input .value {
-      display: flex !important;
-      & > div {
-        flex: 1 !important;
-        display: flex !important;
-        flex-flow: row wrap !important;
-        gap: 5px;
-      }
-    }
   }
-  .ming.Input,
   .Textarea {
     font-size: 13px;
     border: 1px solid var(--color-border-primary);

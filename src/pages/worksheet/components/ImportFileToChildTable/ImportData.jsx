@@ -4,17 +4,15 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Button, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Select, Tooltip } from 'ming-ui/antd-components';
 import UploadFile from 'worksheet/components/DialogImportExcelCreate/DialogUpload/UploadFile';
 import { usePasteText } from 'worksheet/hooks';
-import { getWithToken } from 'src/utils/common';
-import { isKeyBoardInputChar } from 'src/utils/common';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
+import { getWithToken } from 'src/utils/services/request/authenticated';
 import PreviewTable from './PreviewTable';
 
 // ctrl Z 撤销最多支持次数
 const CACHE_STACK_LENGTH = 20;
-
 const Tabs = [
   { name: _l('Excel导入'), value: 0 },
   { name: _l('粘贴导入'), value: 1 },
@@ -275,7 +273,7 @@ function PasteEdit(props) {
         console.error(err);
       }
     },
-    [data, splitCharType],
+    [controls.length, data, splitCharType],
   );
   usePasteText(
     text => {
@@ -377,29 +375,28 @@ function PasteEdit(props) {
         </div>
         <div className="right">
           {_l('分隔符')}
-          <Dropdown
+          <Select
             className="splitCharDorpDown"
-            border
             value={splitCharType}
-            data={[
+            options={[
               {
-                text: 'Tab',
+                label: 'Tab',
                 value: 1,
               },
               {
-                text: _l('分号(:)'),
+                label: _l('分号(:)'),
                 value: 2,
               },
               {
-                text: _l('竖线(|)'),
+                label: _l('竖线(|)'),
                 value: 3,
               },
               {
-                text: _l('逗号(,)'),
+                label: _l('逗号(,)'),
                 value: 4,
               },
               {
-                text: _l('空格'),
+                label: _l('空格'),
                 value: 5,
               },
             ]}

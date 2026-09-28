@@ -1,21 +1,21 @@
 import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
 import { setRecordDragging } from 'worksheet/views/GunterView/scrollState';
 import { percentageToTime, timeToPercentage } from 'worksheet/views/GunterView/util';
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard';
-import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
-import { browserIsMobile } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
-import { sortControlByIds } from 'src/utils/control';
-import { getRecordColorConfig } from 'src/utils/record';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { sortControlByIds } from 'src/utils/domain/control/sort';
+import { getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { renderTitleByViewtitle } from 'src/utils/services/worksheet/view';
 
 const isMobile = browserIsMobile();
 
@@ -625,6 +625,7 @@ let RowBlock = class RowBlock extends Component {
       <EditableCard
         type="board"
         showNull={true}
+        worksheetInfo={worksheetInfo}
         hoverShowAll={true}
         canDrag={false}
         data={{
@@ -725,15 +726,18 @@ let RowBlock = class RowBlock extends Component {
     const dragDisable = disable || startDisable || endDisable;
     return (
       <Popover
-        zIndex={1000}
+        arrow={true}
+        destroyOnHidden={false}
         title={undefined}
         content={this.renderPopoverContent()}
-        overlayClassName="gunterPopoverWrap"
+        classNames={{ root: 'gunterPopoverWrap' }}
+        noPadding
+        styles={{ container: { maxHeight: 600, overflowY: 'auto' } }}
         align={{
           offset: [isMilepost ? 15 : tooltipLeft, 0],
         }}
-        visible={isMobile ? false : tooltipVisible}
-        onVisibleChange={tooltipVisible => {
+        open={isMobile ? false : tooltipVisible}
+        onOpenChange={tooltipVisible => {
           this.setState({
             tooltipVisible,
           });

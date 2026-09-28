@@ -320,6 +320,15 @@ const featureData = [
     value3: 'basicPng',
   },
   {
+    className: 'printCountLimit',
+    name: _l('打印模板次数限制'),
+    dataTip: '',
+    value0: 'basicNo',
+    value1: 'basicNo',
+    value2: 'basicPng',
+    value3: 'basicPng',
+  },
+  {
     className: 'wordPrint',
     name: _l('Word、Excel打印模板'),
     dataTip: _l('通过上传 Word 和 Excel 模板自由定义记录打印的样式'),

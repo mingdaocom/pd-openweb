@@ -99,6 +99,8 @@ function Send(
   const sendButtonsRef = useRef(null);
   const isComposingRef = useRef(false);
   const compositionEndTimeRef = useRef(0);
+  // 识别结果同时存一份 ref：onStop 与 onRecognize 可能落在同一批次，读 state 会拿到旧值
+  const recordingTextRef = useRef('');
   const handSend = useCallback(
     (forceValue = '') => {
       onSend(forceValue || value, { files });
@@ -255,6 +257,8 @@ function Send(
           uploadPermission={uploadPermission}
           onBeginRecord={() => {
             cache.current.isRecording = true;
+            // 每轮录音开始时重置识别缓存，避免上一轮的残留文本被拼进这一轮
+            recordingTextRef.current = '';
             setIsRecording(true);
           }}
           onSend={() => {
@@ -268,6 +272,7 @@ function Send(
             sendTextAreaRef.current.focus();
           }}
           onRecognize={text => {
+            recordingTextRef.current = text;
             setRecordingText(text);
           }}
           onStop={({ sendAfterStop } = {}) => {
@@ -275,17 +280,23 @@ function Send(
               return;
             }
 
-            setRecordingText(oldText => {
-              setValue(value + oldText);
-              setIsRecording(false);
-              cache.current.isRecording = false;
-              if (sendAfterStop) {
-                handSend(value + oldText);
-              }
+            // 防重入标志必须同步置掉。原先它和 handSend 一起写在 setRecordingText 的 updater 内，
+            // updater 要等到渲染阶段才执行，同一批次里第二次 onStop 读到的 isRecording 仍是 true，
+            // 于是 handSend 跑两次；第二次拼出空串提交，又把第一次在途的流式请求 abort 掉。
+            cache.current.isRecording = false;
 
-              sendTextAreaRef.current.focus();
-              return '';
-            });
+            const nextValue = value + recordingTextRef.current;
+
+            recordingTextRef.current = '';
+            setRecordingText('');
+            setIsRecording(false);
+            setValue(nextValue);
+
+            if (sendAfterStop) {
+              handSend(nextValue);
+            }
+
+            sendTextAreaRef.current?.focus();
           }}
           setAutoPlay={setAutoPlay}
           rightButtons={rightButtons}

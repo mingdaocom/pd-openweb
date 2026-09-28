@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import worksheetApi from 'src/api/worksheet';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import DefCom from 'worksheet/common/ViewConfig/components/fastFilter/Edit/DefCom';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { formatFilterValues } from 'src/utils/services/worksheet/quickFilter';
 
 const transitionTypes = [
   WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
@@ -98,31 +98,32 @@ function FilterDefaultValue(props) {
           }
         }}
       />
+
       {/*
-      <div className={cx({ bgPrimary: direction != 1 })}>
-        <Inputs
-          projectId={projectId}
-          appId={id}
-          advancedSetting={{
-            ...advancedSetting,
-            navfilters: advancedSetting.showNavfilters ? advancedSetting.showNavfilters : advancedSetting.navfilters,
-          }}
-          control={firstControlData}
-          filterType={filterType}
-          dateRangeType={dateRangeType}
-          {...defsource}
-          onChange={(change = {}, { forceUpdate } = {}) => {
-            const data = {
-              ...defsource,
-              ...change,
-            };
-            setFilter({
-              ..._.pick(data, 'dateRange', 'value', 'values', 'minValue', 'maxValue', 'filterType'),
-            });
-          }}
-        />
-      </div>
-      */}
+        <div className={cx({ bgPrimary: direction != 1 })}>
+         <Inputs
+           projectId={projectId}
+           appId={id}
+           advancedSetting={{
+             ...advancedSetting,
+             navfilters: advancedSetting.showNavfilters ? advancedSetting.showNavfilters : advancedSetting.navfilters,
+           }}
+           control={firstControlData}
+           filterType={filterType}
+           dateRangeType={dateRangeType}
+           {...defsource}
+           onChange={(change = {}, { forceUpdate } = {}) => {
+             const data = {
+               ...defsource,
+               ...change,
+             };
+             setFilter({
+               ..._.pick(data, 'dateRange', 'value', 'values', 'minValue', 'maxValue', 'filterType'),
+             });
+           }}
+         />
+        </div>
+        */}
     </Fragment>
   );
 }

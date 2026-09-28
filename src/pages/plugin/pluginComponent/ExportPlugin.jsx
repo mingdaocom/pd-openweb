@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import { DatePicker } from 'antd';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Input, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { generateRandomPassword } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Checkbox, DatePicker, Input, Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { generateRandomPassword } from 'src/utils/core/string';
 import { API_EXTENDS, pluginApiConfig } from '../config';
 
 const FormItem = styled.div`
@@ -34,11 +29,6 @@ const FormItem = styled.div`
   }
   input {
     width: 100%;
-    font-size: 13px !important;
-    &.notEditPwd {
-      background: var(--color-background-secondary);
-      border: none;
-    }
   }
   .pwdOperate {
     min-width: 82px;
@@ -48,14 +38,14 @@ const FormItem = styled.div`
     margin-top: 5px;
   }
 
-  .ant-picker {
+  .hap-picker {
     width: 100%;
     height: 36px;
     transition: none;
     border-color: var(--color-border-tertiary);
     border-radius: 3px;
     box-shadow: none;
-    .ant-picker-input {
+    .hap-picker-input {
       input {
         font-size: 13px !important;
       }
@@ -63,7 +53,7 @@ const FormItem = styled.div`
     &:hover {
       border-color: var(--color-text-disabled);
     }
-    &.ant-picker-focused {
+    &.hap-picker-focused {
       border-color: var(--color-primary);
     }
   }
@@ -72,7 +62,7 @@ const FormItem = styled.div`
   }
 `;
 
-const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+const PROJECTS_TEXTAREA_STYLE = { minHeight: 100 };
 
 function ExportPlugin(props) {
   const { onClose, pluginId, releaseId, source, onExportSuccess, pluginType } = props;
@@ -81,8 +71,6 @@ function ExportPlugin(props) {
   const [isPwdError, setIsPwdError] = useState(false);
   const [pwdEditing, setPwdEditing] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const locale = locales[md.global.Account.lang] || localeEn;
-
   const pluginApi = pluginApiConfig[pluginType];
 
   const onExport = () => {
@@ -113,22 +101,23 @@ function ExportPlugin(props) {
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={580}
       title={_l('导出插件')}
-      description={_l('将插件导出为 .mdye 格式，可以导入到其他组织使用')}
       okText={exporting ? _l('导出中...') : _l('导出')}
-      okDisabled={(checkSecretKey && !data.password) || exporting}
+      okDisabled={checkSecretKey && !data.password}
+      confirmLoading={exporting}
       onOk={onExport}
       onCancel={onClose}
     >
+      <div className="textSecondary mBottom16">{_l('将插件导出为 .mdye 格式，可以导入到其他组织使用')}</div>
       <FormItem className="fitContent">
-        <Checkbox
-          text={_l('导入时校验授权密钥')}
-          checked={checkSecretKey}
-          onClick={checked => setCheckSecretKey(!checked)}
-        />
+        <Checkbox checked={checkSecretKey} onChange={event => setCheckSecretKey(event.target.checked)}>
+          {_l('导入时校验授权密钥')}
+        </Checkbox>
       </FormItem>
       {checkSecretKey && (
         <React.Fragment>
@@ -140,10 +129,10 @@ function ExportPlugin(props) {
               </div>
               <div className="flexRow alignItemsCenter">
                 <Input
-                  className={!pwdEditing && data.password ? 'notEditPwd' : ''}
+                  variant={!pwdEditing && data.password ? 'filled' : 'outlined'}
                   placeholder={_l('输入密码')}
                   value={data.password}
-                  onChange={password => setData({ password })}
+                  onChange={event => setData({ password: event.target.value })}
                   onFocus={() => setPwdEditing(true)}
                   onBlur={e => {
                     if (!e.target.value) return;
@@ -187,7 +176,6 @@ function ExportPlugin(props) {
                 </Tooltip>
               </div>
               <DatePicker
-                locale={locale}
                 placeholder={_l('请选择授权到期时间')}
                 showNow={false}
                 allowClear={true}
@@ -206,11 +194,13 @@ function ExportPlugin(props) {
                 <Icon icon="info_outline" />
               </Tooltip>
             </div>
-            <Textarea
+            <Input.TextArea
+              autoSize
               className="Font13"
               placeholder={_l('组织编号格式') + '：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n' + _l('一行一个，最多10个')}
-              minHeight={100}
-              onChange={values => {
+              style={PROJECTS_TEXTAREA_STYLE}
+              onChange={event => {
+                const values = event.target.value;
                 setData({
                   projects: values
                     .split(/[\r\n]/)
@@ -222,8 +212,10 @@ function ExportPlugin(props) {
           </FormItem>
         </React.Fragment>
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => functionWrap(ExportPlugin, { ...props });
+export function useExportPlugin() {
+  return useFunctionWrapComponent(ExportPlugin);
+}

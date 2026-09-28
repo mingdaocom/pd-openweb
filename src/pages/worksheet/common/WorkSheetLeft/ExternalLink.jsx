@@ -1,16 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, RadioGroup, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, TagTextarea } from 'ming-ui';
+import { Checkbox, Dropdown, Modal, Radio, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { LINK_PARA_FIELDS } from 'src/pages/customPage/config';
 import { updatePageInfo } from 'src/pages/customPage/redux/action';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import { DropdownContent } from 'src/pages/widgetConfig/styled';
 import store from 'src/redux/configureStore';
 
 const ControlTag = styled.div`
@@ -35,6 +33,9 @@ const TagTextareaWrap = styled.div`
     color: var(--color-text-tertiary) !important;
     padding-left: 10px !important;
   }
+  .hap-dropdown-trigger {
+    height: fit-content;
+  }
   .iconWrap {
     border: 1px solid var(--color-border-tertiary);
     padding: 5px;
@@ -51,9 +52,24 @@ const TagTextareaWrap = styled.div`
   }
 `;
 
-const RadioGroupWrap = styled(RadioGroup)`
-  .ming.Radio {
+const RadioGroupWrap = styled(Radio.Group)`
+  .ant-radio-wrapper {
     margin-right: 60px;
+  }
+  .hap-radio-wrapper {
+    align-items: center;
+  }
+  .hap-radio-inner {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const OptionCheckbox = styled(Checkbox)`
+  align-items: center;
+  .hap-checkbox-inner {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -91,15 +107,17 @@ export const EditExternalLink = props => {
   };
 
   return (
-    <Dialog visible title={_l('编辑外部链接')} width={580} onOk={handleSave} onCancel={onCancel}>
-      <ExternalLink
-        urlTemplate={appItem.urlTemplate}
-        configuration={appItem.configuration}
-        onChange={data => {
-          setData(data);
-        }}
-      />
-    </Dialog>
+    <Modal
+      open
+      title={_l('编辑外部链接')}
+      width={580}
+      mask={{ closable: true }}
+      keyboard
+      onOk={handleSave}
+      onCancel={onCancel}
+    >
+      <ExternalLink urlTemplate={appItem.urlTemplate} configuration={appItem.configuration} onChange={setData} />
+    </Modal>
   );
 };
 
@@ -130,7 +148,7 @@ const ExternalLink = props => {
       },
       urlTemplate,
     });
-  }, [customPageType, openType, hideHeaderBar, urlTemplate]);
+  }, [customPageType, openType, hideHeaderBar, urlTemplate, onChange]);
 
   const handleChange = (err, value) => {
     if (err) {
@@ -144,18 +162,18 @@ const ExternalLink = props => {
     <Fragment>
       {!configuration.customPageType && (
         <Fragment>
-          <div className="flexRow alignItemsCenter mTop24 mBottom6">
-            <div style={{ width: 75 }}>{_l('类型')}</div>
+          <div className="mTop24">
+            <div className="mBottom10">{_l('类型')}</div>
             <RadioGroupWrap
-              data={[
-                { value: '1', text: _l('画布') },
-                { value: '2', text: _l('外部链接') },
+              options={[
+                { value: '1', label: _l('画布') },
+                { value: '2', label: _l('外部链接') },
               ]}
-              checkedValue={customPageType}
-              onChange={value => setCustomPageType(value)}
+              value={customPageType}
+              onChange={event => setCustomPageType(event.target.value)}
             />
           </div>
-          <div className="textTertiary" style={{ marginLeft: 75 }}>
+          <div className="textTertiary mTop6">
             {customPageType === '1' && _l('创建一个画布页面，在页面中添加统计报表、按钮、视图等组件')}
             {customPageType === '2' && _l('将一个已有外部链接作为页面')}
           </div>
@@ -163,9 +181,9 @@ const ExternalLink = props => {
       )}
       {customPageType === '2' && (
         <Fragment>
-          <div className="flexRow mTop24">
-            <div style={{ width: 75 }}>{_l('链接')}</div>
-            <TagTextareaWrap className="flexRow flex">
+          <div>
+            <div className="mBottom10">{_l('链接')}</div>
+            <TagTextareaWrap className="flexRow w100">
               <TagTextarea
                 className="flex"
                 placeholder={_l('请输入完整链接，以 http:// 或 https:// 开头')}
@@ -181,61 +199,55 @@ const ExternalLink = props => {
               <Dropdown
                 trigger="click"
                 placement="bottomRight"
-                overlay={
-                  <DropdownContent style={{ width: '180px' }}>
-                    {LINK_PARA_FIELDS.map(({ type, title, fields }) => {
-                      return (
-                        <Fragment key={type}>
-                          <div className="title">{title}</div>
-                          {fields.map(({ text, value }) => (
-                            <div
-                              key={value}
-                              className="item"
-                              onClick={() => {
-                                ref.insertColumnTag(value);
-                              }}
-                            >
-                              {text}
-                            </div>
-                          ))}
-                        </Fragment>
-                      );
-                    })}
-                  </DropdownContent>
-                }
+                menu={{
+                  style: { minWidth: 180 },
+                  items: LINK_PARA_FIELDS.map(({ type, title, fields }) => ({
+                    type: 'group',
+                    key: type,
+                    label: title,
+                    children: fields.map(({ text, value }) => ({
+                      key: `${type}-${value}`,
+                      label: text,
+                      onClick: () => {
+                        ref.insertColumnTag(value);
+                      },
+                    })),
+                  })),
+                }}
               >
-                <Tooltip title={_l('使用动态参数')} placement="bottom">
-                  <div className="iconWrap Font17 pointer">
-                    <Icon className="textTertiary" icon="workflow_other" />
-                  </div>
-                </Tooltip>
+                <div>
+                  <Tooltip title={_l('使用动态参数')} placement="bottom">
+                    <div className="iconWrap Font17 pointer">
+                      <Icon className="textTertiary" icon="workflow_other" />
+                    </div>
+                  </Tooltip>
+                </div>
               </Dropdown>
             </TagTextareaWrap>
           </div>
-          <div className="flexRow alignItemsCenter mTop24 mBottom16">
-            <div style={{ width: 75 }}>{_l('打开方式')}</div>
+          <div className="mTop24 mBottom16">
+            <div className="mBottom10">{_l('打开方式')}</div>
             <RadioGroupWrap
-              data={[
+              options={[
                 {
                   value: '1',
-                  text: _l('嵌入页面'),
-                  disableTitle: true,
+                  label: _l('嵌入页面'),
                 },
-                { value: '2', text: _l('新窗口打开'), disableTitle: true },
+                { value: '2', label: _l('新窗口打开') },
               ]}
-              checkedValue={openType}
-              onChange={value => setOpenType(value)}
+              value={openType}
+              onChange={event => setOpenType(event.target.value)}
             />
           </div>
-          <Checkbox
-            style={{ marginLeft: 75 }}
+          <OptionCheckbox
             className={cx({ Visibility: openType === '2' })}
-            text={<span>{_l('隐藏标题栏')}</span>}
             checked={hideHeaderBar === '1'}
-            onClick={() => {
+            onChange={() => {
               setHideHeaderBar(hideHeaderBar === '0' ? '1' : '0');
             }}
-          />
+          >
+            {<span>{_l('隐藏标题栏')}</span>}
+          </OptionCheckbox>
         </Fragment>
       )}
     </Fragment>

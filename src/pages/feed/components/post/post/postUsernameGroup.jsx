@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { UserCard, UserName } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 /**
  * 动态发布者姓名和发布到的群组

@@ -3,13 +3,15 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4, validate } from 'uuid';
-import { Checkbox, Dialog, Dropdown, Radio, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import homeAppAjax from 'src/api/homeApp';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { FIELD_TYPE_LIST } from '../../enum';
 import { checkJSON } from '../../utils';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const ARRAY_EXAMPLE_TEXTAREA_STYLE = { minHeight: 100, maxHeight: 250, paddingTop: 7, paddingBottom: 7 };
 
 const GenerateJSONBox = styled.textarea`
   padding: 12px;
@@ -87,74 +89,80 @@ const openPage = ({ processId, type }) => {
 
 // 导入生成参数
 const generateJSON = (data, updateSource) => {
-  Dialog.confirm({
-    type: 'scroll',
+  Modal.confirm({
     width: 640,
     title: _l('从JSON示例生成'),
-    description: <GenerateJSONBox id="generateJSON" />,
+    content: <GenerateJSONBox id="generateJSON" />,
     okText: _l('导入'),
     onOk: () => {
       return new Promise((resolve, reject) => {
         const json = document.getElementById('generateJSON').value.trim();
 
         if (checkJSON(json)) {
-          flowNode.jsonToControls({ json }).then(controls => {
-            const newControls = _.cloneDeep(data.controls);
+          flowNode
+            .jsonToControls({
+              json,
+            })
+            .then(controls => {
+              const newControls = _.cloneDeep(data.controls);
 
-            const generationOptions = ({ item, dataSource = '' }) => {
-              return {
-                controlId: uuidv4(),
-                dataSource,
-                jsonPath: item.jsonPath,
-                controlName:
-                  !dataSource && _.find(newControls, o => o.controlName === item.controlName)
-                    ? item.controlName +
-                      Math.floor(Math.random() * 10000)
-                        .toString()
-                        .padStart(4, '0')
-                    : item.controlName,
-                type: item.type,
-                alias: item.controlName,
-                required: item.required,
-                desc: '',
-                workflowDefaultValue: '',
-                attribute: 0,
+              const generationOptions = ({ item, dataSource = '' }) => {
+                return {
+                  controlId: uuidv4(),
+                  dataSource,
+                  jsonPath: item.jsonPath,
+                  controlName:
+                    !dataSource && _.find(newControls, o => o.controlName === item.controlName)
+                      ? item.controlName +
+                        Math.floor(Math.random() * 10000)
+                          .toString()
+                          .padStart(4, '0')
+                      : item.controlName,
+                  type: item.type,
+                  alias: item.controlName,
+                  required: item.required,
+                  desc: '',
+                  workflowDefaultValue: '',
+                  attribute: 0,
+                };
               };
-            };
 
-            controls
-              .filter(item => item.type === 10000007)
-              .map(item => {
-                controls.push({
-                  ...item,
-                  type: 2,
-                  controlName: 'string',
-                  value: '',
-                  jsonPath: '@',
-                  dataSource: item.jsonPath,
+              controls
+                .filter(item => item.type === 10000007)
+                .map(item => {
+                  controls.push({
+                    ...item,
+                    type: 2,
+                    controlName: 'string',
+                    value: '',
+                    jsonPath: '@',
+                    dataSource: item.jsonPath,
+                  });
                 });
+              controls
+                .filter(item => !item.dataSource)
+                .forEach(item => {
+                  newControls.push(
+                    generationOptions({
+                      item,
+                    }),
+                  );
+                });
+              controls
+                .filter(item => item.dataSource)
+                .forEach(item => {
+                  newControls.push(
+                    generationOptions({
+                      item,
+                      dataSource: _.find(newControls, o => o.jsonPath === item.dataSource).controlId,
+                    }),
+                  );
+                });
+              updateSource({
+                controls: newControls,
               });
-
-            controls
-              .filter(item => !item.dataSource)
-              .forEach(item => {
-                newControls.push(generationOptions({ item }));
-              });
-
-            controls
-              .filter(item => item.dataSource)
-              .forEach(item => {
-                newControls.push(
-                  generationOptions({
-                    item,
-                    dataSource: _.find(newControls, o => o.jsonPath === item.dataSource).controlId,
-                  }),
-                );
-              });
-
-            updateSource({ controls: newControls });
-            resolve();
-          });
+              resolve();
+            });
         } else {
           alert(_l('JSON格式有错误'), 2);
           reject(true);
@@ -256,20 +264,19 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
   const renderControlType = item => {
     return (
-      <Dropdown
+      <Select
         className="flowDropdown w100"
-        menuClass="w100"
-        maxHeight={250}
-        data={FIELD_TYPE_LIST.filter(
+        listHeight={250}
+        options={FIELD_TYPE_LIST.filter(
           o =>
             (_.includes([2, 6, 9, 14, 16, 26, 27, 36, 48, 10000007, 10000008], o.value) ||
               (isPlugin && o.value === 22)) &&
             (!item.dataSource || (item.dataSource && _.includes([2, 6, 16, 26, 27, 36, 48, 10000007], o.value))) &&
             !(isPlugin && _.includes([26, 27, 48], o.value)),
         )}
+        fieldNames={SELECT_FIELD_NAMES}
         value={item.type}
-        renderTitle={() => <span>{(FIELD_TYPE_LIST.find(o => o.value === item.type) || {}).text || _l('文本')}</span>}
-        border
+        labelRender={() => <span>{(FIELD_TYPE_LIST.find(o => o.value === item.type) || {}).text || _l('文本')}</span>}
         disabled={!validate(item.controlId)}
         onChange={type => updateControls('type', type, item)}
       />
@@ -278,9 +285,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
   const renderControlName = item => {
     return (
-      <input
-        type="text"
-        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+      <Input
+        className="flex"
         placeholder={_l('字段名（必填）')}
         value={item.controlName}
         maxLength={64}
@@ -292,9 +298,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
   const renderControlAlias = item => {
     return (
-      <input
-        type="text"
-        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+      <Input
+        className="flex"
         placeholder={item.dataSource ? _l('参数名（必填）') : _l('参数名')}
         value={item.alias}
         onChange={e => updateControls('alias', e.target.value, item)}
@@ -313,9 +318,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
   const renderControlDesc = item => {
     return (
-      <input
-        type="text"
-        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+      <Input
+        className="flex"
         placeholder={_l('说明')}
         value={item.desc}
         onChange={evt => updateControls('desc', evt.target.value, item)}
@@ -327,12 +331,13 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
   const renderControlRequired = (item, showText) => {
     return (
       <Checkbox
-        className="InlineBlock Font12 TxtMiddle LineHeight20"
-        text={showText ? _l('必填') : ''}
+        className="Font12 TxtMiddle LineHeight20"
         disabled={item.type === 22}
         checked={item.required}
-        onClick={checked => updateControls('required', !checked, item)}
-      />
+        onChange={event => updateControls('required', event.target.checked, item)}
+      >
+        {showText ? _l('必填') : ''}
+      </Checkbox>
     );
   };
 
@@ -497,23 +502,30 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       </div>
 
       {!!selectControlId && (
-        <Dialog
+        <Modal
           className="workflowDialogBox"
-          style={{ overflow: 'initial' }}
-          overlayClosable={false}
+          mask={{ closable: false }}
           width={800}
-          type="scroll"
-          visible
+          open
           title={FIELD_TYPE_LIST.find(o => o.value === selectItem.type).text}
-          cancelText={_l('提交并继续创建')}
-          handleClose={() => {
+          footer={(_, { OkBtn }) => (
+            <Fragment>
+              <Button
+                type="text"
+                onClick={() => {
+                  checkSourceCorrect() && addParameters(selectItem);
+                }}
+              >
+                {_l('提交并继续创建')}
+              </Button>
+              <OkBtn />
+            </Fragment>
+          )}
+          onCancel={() => {
             updateSource({
               controls: data.controls.map(item => (item.controlId === selectControlId ? cacheItem : item)),
             });
             setControlId('');
-          }}
-          onCancel={() => {
-            checkSourceCorrect() && addParameters(selectItem);
           }}
           onOk={() => {
             checkSourceCorrect() && setControlId('');
@@ -550,17 +562,15 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
               <div className="mTop20 bold">{_l('选项')}</div>
               {selectItem.options.map((o, index) => (
                 <div className="mTop10 flexRow alignItemsCenter" key={index}>
-                  <input
-                    type="text"
-                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex mRight10"
+                  <Input
+                    className="flex mRight10"
                     placeholder={_l('选项名')}
                     value={o.value}
                     onChange={e => updateOptions('value', e.target.value, selectItem, index)}
                     onBlur={e => updateOptions('value', e.target.value.trim(), selectItem, index, true)}
                   />
-                  <input
-                    type="text"
-                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                  <Input
+                    className="flex"
                     placeholder={_l('选项值')}
                     value={o.key}
                     onChange={evt => updateOptions('key', evt.target.value, selectItem, index)}
@@ -593,9 +603,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             <Fragment>
               <div className="mTop20">{_l('检查项')}</div>
               <div className="mTop10 flexRow">
-                <input
-                  type="text"
-                  className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                <Input
+                  className="flex"
                   placeholder={_l('内容')}
                   value={selectItem.hint}
                   onChange={evt => updateControls('hint', evt.target.value, selectItem)}
@@ -611,9 +620,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
               <div className="mTop20 bold">{_l('默认值')}</div>
               <div className="mTop10 flexRow">
                 {isIntegration ? (
-                  <input
-                    type="text"
-                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                  <Input
+                    className="flex"
                     placeholder={PLACEHOLDER[selectItem.type]}
                     value={selectItem.workflowDefaultValue}
                     onChange={e => updateControls('workflowDefaultValue', e.target.value, selectItem)}
@@ -622,9 +630,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                 ) : (
                   <Fragment>
                     {_.includes([2, 6, 16], selectItem.type) && (
-                      <input
-                        type="text"
-                        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                      <Input
+                        className="flex"
                         placeholder={PLACEHOLDER['2']}
                         value={defaultValue}
                         onChange={e => updateControlAdvancedSettingDefaultValue(e.target.value)}
@@ -633,28 +640,23 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                     )}
 
                     {selectItem.type === 9 && (
-                      <Dropdown
+                      <Select
+                        allowClear
                         className="flowDropdown w100"
-                        menuClass="w100"
-                        data={(defaultValue ? [{ text: _l('清除'), value: '' }] : []).concat(
-                          selectItem.options.map(o => ({ text: o.value, value: o.key })),
-                        )}
+                        options={selectItem.options.map(o => ({ label: o.value, value: o.key }))}
                         value={defaultValue || undefined}
-                        border
-                        onChange={value => updateControlAdvancedSettingDefaultValue(value)}
+                        onChange={value => updateControlAdvancedSettingDefaultValue(value || '')}
                       />
                     )}
 
                     {selectItem.type === 36 && (
-                      <Dropdown
+                      <Select
                         className="flowDropdown w100"
-                        menuClass="w100"
-                        data={[
-                          { text: _l('选中'), value: '1' },
-                          { text: _l('不选中'), value: '0' },
+                        options={[
+                          { label: _l('选中'), value: '1' },
+                          { label: _l('不选中'), value: '0' },
                         ]}
                         value={defaultValue || undefined}
-                        border
                         onChange={value => updateControlAdvancedSettingDefaultValue(value)}
                       />
                     )}
@@ -682,9 +684,15 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                       <Radio
                         key={item.value}
                         checked={item.value === (_.get(selectItem, 'advancedSetting.showtype') || '0')}
-                        text={item.text}
-                        onClick={() => updateControlAdvancedSetting({ showtype: item.value })}
-                      />
+                        onChange={() =>
+                          updateControlAdvancedSetting({
+                            showtype: item.value,
+                          })
+                        }
+                        title={item.text}
+                      >
+                        {item.text}
+                      </Radio>
                     </div>
                   );
                 })}
@@ -705,9 +713,15 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                       <Radio
                         key={item.value}
                         checked={item.value === (_.get(selectItem, 'advancedSetting.direction') || '2')}
-                        text={item.text}
-                        onClick={() => updateControlAdvancedSetting({ direction: item.value })}
-                      />
+                        onChange={() =>
+                          updateControlAdvancedSetting({
+                            direction: item.value,
+                          })
+                        }
+                        title={item.text}
+                      >
+                        {item.text}
+                      </Radio>
                     </div>
                   );
                 })}
@@ -719,14 +733,13 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             <Fragment>
               <div className="mTop20 bold">{_l('数组结构（请给出一个范例）')}</div>
               <div className="mTop10">
-                <Textarea
+                <Input.TextArea
+                  autoSize
                   className="mTop10 Font13"
-                  maxHeight={250}
-                  minHeight={100}
                   disabled={!validate(selectItem.controlId)}
-                  style={{ paddingTop: 7, paddingBottom: 7 }}
+                  style={ARRAY_EXAMPLE_TEXTAREA_STYLE}
                   value={selectItem.value}
-                  onChange={value => updateControls('value', value, selectItem)}
+                  onChange={event => updateControls('value', event.target.value, selectItem)}
                 />
               </div>
             </Fragment>
@@ -740,26 +753,27 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                 <Fragment>
                   <div className="mTop10">
                     <Checkbox
-                      className="InlineBlock Font12 TxtMiddle LineHeight20"
-                      text={_l('作为标题字段')}
+                      className="Font12 TxtMiddle LineHeight20"
                       checked={selectItem.attribute === 1}
-                      onClick={() => {
+                      onChange={() => {
                         let controls = [].concat(data.controls).map(o => {
                           o.attribute = o.controlId === selectItem.controlId ? (selectItem.attribute ? 0 : 1) : 0;
-
                           return o;
                         });
-
-                        updateSource({ controls });
+                        updateSource({
+                          controls,
+                        });
                       }}
-                    />
+                    >
+                      {_l('作为标题字段')}
+                    </Checkbox>
                   </div>
                   <div className="mTop5 textSecondary mLeft25">{_l('在查看执行历史时，使用此字段作为数据标题')}</div>
                 </Fragment>
               )}
             </Fragment>
           )}
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

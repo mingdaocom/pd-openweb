@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, shape, string } from 'prop-types';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
-import { Dialog, ScrollView, SortableList } from 'ming-ui';
+import { ScrollView, SortableList } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
-import { getPathWithoutSubPath } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { hasPermission } from 'src/utils/services/security/permission';
 import EditGroup from './EditGroup';
 import GroupItem from './GroupItem';
 import GroupsSkeleton from './GroupsSkeleton';
@@ -162,10 +163,12 @@ export default function Groups(props) {
     const { id, name, isMarked, groupType } = item;
 
     const onDelete = (deleteId, groupType) => {
-      Dialog.confirm({
-        title: _l('删除分组"%0"', name),
-        description: _l('仅删除分组，分组下的应用不会被删除'),
-        buttonType: 'danger',
+      Modal.confirm({
+        title: <span className="textError">{_l('删除分组"%0"', name)}</span>,
+        content: _l('仅删除分组，分组下的应用不会被删除'),
+        okButtonProps: {
+          danger: true,
+        },
         onOk: () => {
           actions.deleteGroup({
             id: deleteId,
@@ -175,9 +178,11 @@ export default function Groups(props) {
               if (!err) {
                 if (activeGroupId === deleteId) {
                   navigateTo('/app/my', false, true);
-                  actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
+                  actions.loadAppAndGroups({
+                    projectId,
+                    noGroupsLoading: true,
+                  });
                 }
-
                 alert(_l('删除分组成功'));
               } else {
                 alert(_l('删除分组失败'), 3);

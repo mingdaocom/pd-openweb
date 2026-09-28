@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
-import { emitter } from 'src/utils/common';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 
 function PreferenceTime(props) {
   const { value, type = 1, className = '' } = props;

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import formAjax from 'src/api/form';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { getDisabledControls, getNewControlColRow } from '../../utils';
 
 function changeKeyToServer(value) {
@@ -69,8 +70,8 @@ function updateBaseConfig(dispatch, getState, value, cb) {
         cb(worksheetId);
       }
     })
-    .catch(() => {
-      alert(_l('保存失败'), 3);
+    .catch(_requestError => {
+      alertIfNotUnauthorized(_requestError, _l('保存失败'), 3);
     });
 }
 
@@ -112,8 +113,8 @@ export function addWorksheetControl(controlName, cb = () => {}) {
         dispatch(hideControl(data.controlId));
         cb(data);
       })
-      .catch(() => {
-        alert(_l('添加文本字段失败'), 3);
+      .catch(_requestError3 => {
+        alertIfNotUnauthorized(_requestError3, _l('添加文本字段失败'), 3);
       });
   };
 }
@@ -288,8 +289,8 @@ export function resetControls() {
           dispatch(getDispatchData(data.info));
         }
       })
-      .catch(() => {
-        alert(_l('重置失败'), 2);
+      .catch(_requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('重置失败'), 2);
       });
   };
 }

@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, Radio } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import SelectAppDialog from 'mobile/components/SelectAppDialog/index.js';
 import SelectUser from 'mobile/components/SelectUser';
@@ -383,15 +384,17 @@ export default function DelegationConfigModal(props) {
               return (
                 <div key={item.value} className="mBottom15">
                   <Radio
-                    text={item.label}
                     checked={item.value === scope}
-                    onClick={() => {
+                    onChange={() => {
                       setScope(item.value);
                       if (item.value === 2) {
                         setShowAppDialog(true);
                       }
                     }}
-                  />
+                    title={item.label}
+                  >
+                    {item.label}
+                  </Radio>
                 </div>
               );
             })}

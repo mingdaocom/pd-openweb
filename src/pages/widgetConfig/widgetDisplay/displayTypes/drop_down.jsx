@@ -2,9 +2,10 @@ import React from 'react';
 import cx from 'classnames';
 import _, { head } from 'lodash';
 import { Steps } from 'ming-ui';
-import { isLightColor } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getOptions } from 'src/utils/domain/control/options';
+import { isLightColor } from 'src/utils/domain/control/style';
 import { CommonDisplay, OptionWrap } from '../../styled';
-import { getAdvanceSetting, getOptions } from '../../util/setting';
 
 export default function Dropdown({ data }) {
   const { enumDefault2, hint } = data;
@@ -27,7 +28,7 @@ export default function Dropdown({ data }) {
             withoutColor: enumDefault2 !== 1,
             horizontal: direction !== '1',
           })}
-          color={color}
+          $color={color}
         >
           {value}
         </OptionWrap>

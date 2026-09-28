@@ -8,16 +8,19 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import styled from 'styled-components';
-import { LoadDiv, WaterMark } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import homeAppApi from 'src/api/homeApp';
 import DragMask from 'worksheet/common/DragMask';
 import UnNormal from 'worksheet/views/components/UnNormal';
+import { updateGlobalStoreForMingo } from 'src/common/runtime/mingoStore';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
-import { browserIsMobile, updateGlobalStoreForMingo } from 'src/utils/common';
-import { findSheet, getSheetListFirstId, moveSheetCache } from 'src/utils/worksheet';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { findSheet, getSheetListFirstId } from 'src/utils/domain/worksheet/helpers';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { moveSheetCache } from 'src/utils/platform/storage/worksheet';
 import Sheet from './common/Sheet';
 import WorksheetEmpty from './common/WorksheetEmpty';
 import WorkSheetLeft from './common/WorkSheetLeft';
@@ -26,10 +29,10 @@ import { updateBase, updateWorksheetLoading } from './redux/actions';
 import './worksheet.less';
 
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 12;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -319,7 +322,11 @@ class WorkSheet extends Component {
     }
   }
   shouldComponentUpdate(nextProps) {
-    return nextProps.sheetListLoading !== this.props.sheetListLoading || !/\/app\/[\w-]+$/.test(location.pathname);
+    return (
+      nextProps.appPkg.id !== this.props.appPkg.id ||
+      nextProps.sheetListLoading !== this.props.sheetListLoading ||
+      !/\/app\/[\w-]+$/.test(location.pathname)
+    );
   }
   componentWillUnmount() {
     const { updateWorksheetLoading } = this.props;
@@ -426,6 +433,11 @@ class WorkSheet extends Component {
       appId = md.global.Account.appId;
     }
 
+    // AppDetail 在应用语言包加载完成后才同步 id，避免工作表先按原文初始化。
+    if (appPkg.id !== appId) {
+      return <LoadDiv size="big" className="mTop32" />;
+    }
+
     const currentSheet = findSheet(worksheetId, sheetList) || {};
 
     return (
@@ -434,7 +446,7 @@ class WorkSheet extends Component {
           filter={e => _.includes(['/'], e.key)}
           fn={e => {
             if (
-              document.querySelector('.mdModalWrap') ||
+              document.querySelector('.hap-modal-wrap') ||
               _.includes(['input', 'textarea'], (_.get(e, 'target.tagName') || '').toLowerCase())
             ) {
               return;
@@ -465,7 +477,7 @@ class WorkSheet extends Component {
               )}
               {sheetListIsUnfold && (
                 <Drag
-                  left={navWidth}
+                  $left={navWidth}
                   className="appNavWidthDrag"
                   onMouseDown={() => {
                     this.setState({ dragMaskVisible: true });

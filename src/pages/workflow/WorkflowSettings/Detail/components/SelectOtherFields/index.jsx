@@ -2,16 +2,16 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Menu, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowNode from '../../../../api/flowNode';
-import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
+import { useSelectGlobalVar } from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import { APP_TYPE, GLOBAL_VARIABLE, NODE_TYPE } from '../../../enum';
 import { getControlTypeName } from '../../../utils';
 import ActionFields from '../ActionFields';
 import './index.less';
 
-export default class SelectOtherFields extends Component {
+class SelectOtherFields extends Component {
   static propTypes = {
     isFilter: PropTypes.bool,
     sourceNodeId: PropTypes.string,
@@ -161,36 +161,40 @@ export default class SelectOtherFields extends Component {
     }
 
     return (
-      <ul className="flowDetailUserList">
-        <MenuItem
-          icon={<i className="icon-global_variable" />}
-          onClick={() => {
-            SelectGlobalVar({
-              projectId,
-              appId: relationId,
-              filterTypes,
-              onOk: ({ id, controlType, name, sourceType }) => {
-                handleFieldClick({
-                  nodeId: GLOBAL_VARIABLE,
-                  fieldValueId: id,
-                  nodeName: _l('全局变量'),
-                  fieldValueName: name,
-                  fieldValue: item.type === 26 || item.type === 27 ? '[]' : '',
-                  fieldValueType: controlType,
-                  nodeTypeId: NODE_TYPE.SYSTEM,
-                  appType: APP_TYPE.GLOBAL_VARIABLE,
-                  actionId: '',
-                  isSourceApp: false,
-                  sourceType,
-                });
-              },
-            });
-            closeLayer();
-          }}
-        >
-          {_l('全局变量')}
-        </MenuItem>
-      </ul>
+      <Menu
+        className="flowDetailUserList"
+        selectable={false}
+        items={[
+          {
+            key: 'globalVariable',
+            icon: <i className="icon-global_variable Font18 textTertiary" />,
+            label: _l('全局变量'),
+            onClick: () => {
+              this.props.openSelectGlobalVar({
+                projectId,
+                appId: relationId,
+                filterTypes,
+                onOk: ({ id, controlType, name, sourceType }) => {
+                  handleFieldClick({
+                    nodeId: GLOBAL_VARIABLE,
+                    fieldValueId: id,
+                    nodeName: _l('全局变量'),
+                    fieldValueName: name,
+                    fieldValue: item.type === 26 || item.type === 27 ? '[]' : '',
+                    fieldValueType: controlType,
+                    nodeTypeId: NODE_TYPE.SYSTEM,
+                    appType: APP_TYPE.GLOBAL_VARIABLE,
+                    actionId: '',
+                    isSourceApp: false,
+                    sourceType,
+                  });
+                },
+              });
+              closeLayer();
+            },
+          },
+        ]}
+      />
     );
   }
 
@@ -255,29 +259,33 @@ export default class SelectOtherFields extends Component {
     const { item, disabledInterface, closeLayer } = this.props;
 
     return (
-      <ul className={cx('flowDetailUserList clearAllFields', { BorderTopGrayC: !disabledInterface })}>
-        <MenuItem
-          icon={<i className="icon-workflow_empty" />}
-          onClick={() => {
-            this.props.handleFieldClick({
-              fieldValue: item.type === 26 || item.type === 27 ? '[]' : '',
-              nodeId: '',
-              fieldValueId: '',
-              nodeName: '',
-              fieldValueName: '',
-              fieldValueType: '',
-              nodeTypeId: null,
-              appType: null,
-              actionId: '',
-              isSourceApp: '',
-              isClear: true,
-            });
-            closeLayer();
-          }}
-        >
-          {_l('清空')}
-        </MenuItem>
-      </ul>
+      <Menu
+        className={cx('flowDetailUserList clearAllFields', { BorderTopGrayC: !disabledInterface })}
+        selectable={false}
+        items={[
+          {
+            key: 'clear',
+            icon: <i className="icon-workflow_empty Font18" />,
+            label: _l('清空'),
+            onClick: () => {
+              this.props.handleFieldClick({
+                fieldValue: item.type === 26 || item.type === 27 ? '[]' : '',
+                nodeId: '',
+                fieldValueId: '',
+                nodeName: '',
+                fieldValueName: '',
+                fieldValueType: '',
+                nodeTypeId: null,
+                appType: null,
+                actionId: '',
+                isSourceApp: '',
+                isClear: true,
+              });
+              closeLayer();
+            },
+          },
+        ]}
+      />
     );
   }
 
@@ -308,3 +316,7 @@ export default class SelectOtherFields extends Component {
     );
   }
 }
+
+export default withOpeners(SelectOtherFields, {
+  openSelectGlobalVar: useSelectGlobalVar,
+});

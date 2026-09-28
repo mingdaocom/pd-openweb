@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
@@ -6,11 +6,13 @@ import styled from 'styled-components';
 import { LoadDiv, SvgIcon } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
-import preall from 'src/common/preall';
+import globalEvents from 'src/common/entries/globalEvents';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import globalEvents from 'src/router/globalEvents';
-import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/services/app';
 import ViewSahre from './ViewSahre';
 
 const Wrap = styled.div`
@@ -53,7 +55,11 @@ const Wrap = styled.div`
 `;
 
 const renderSource = () => {
-  return null;
+  if (window.platformENV.isOverseas || window.platformENV.isLocal) {
+    return null;
+  }
+
+  return <CreateByMingDaoYun className="mLeft6" />;
 };
 
 const Entry = () => {
@@ -62,6 +68,38 @@ const Entry = () => {
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
   const [errorCode, setErrorCode] = useState(null);
+
+  const getShareInfoByShareId = useCallback(
+    data => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
+          const clientId = _.get(result, 'data.clientId');
+          window.clientId = clientId;
+          clientId && sessionStorage.setItem(shareId, clientId);
+          if (result.resultCode === 1) {
+            const { appId, projectId, worksheetId, viewId, appName, worksheetName, viewName } = result.data;
+            const lang = await shareGetAppLangDetail({
+              projectId,
+              appId,
+            });
+
+            if (lang) {
+              window.appInfo = { id: appId };
+              result.data.appName = getTranslateInfo(appId, null, appId).name || appName;
+              result.data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || worksheetName;
+              result.data.viewName = getTranslateInfo(appId, null, viewId).name || viewName;
+            }
+          }
+
+          resolve(result);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    },
+    [shareId],
+  );
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
@@ -88,36 +126,7 @@ const Entry = () => {
         setErrorCode(err.errorCode);
       });
     globalEvents();
-  }, []);
-
-  const getShareInfoByShareId = data => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
-        const clientId = _.get(result, 'data.clientId');
-        window.clientId = clientId;
-        clientId && sessionStorage.setItem(shareId, clientId);
-        if (result.resultCode === 1) {
-          const { appId, projectId, worksheetId, viewId, appName, worksheetName, viewName } = result.data;
-          const lang = await shareGetAppLangDetail({
-            projectId,
-            appId,
-          });
-
-          if (lang) {
-            window.appInfo = { id: appId };
-            result.data.appName = getTranslateInfo(appId, null, appId).name || appName;
-            result.data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || worksheetName;
-            result.data.viewName = getTranslateInfo(appId, null, viewId).name || viewName;
-          }
-        }
-
-        resolve(result);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  };
+  }, [getShareInfoByShareId, shareId]);
 
   if (loading) {
     return (
@@ -203,4 +212,8 @@ const Entry = () => {
 
 const root = createRoot(document.getElementById('app'));
 
-root.render(<Entry />);
+root.render(
+  <AntdThemeProvider>
+    <Entry />
+  </AntdThemeProvider>,
+);

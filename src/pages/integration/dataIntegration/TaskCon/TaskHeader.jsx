@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, Input } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import { taskTabList } from 'src/pages/integration/config.js';
 import 'src/pages/workflow/components/Switch/index.less';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 
 const STATUS2TEXT = {
   active: _l('运行中'),
@@ -21,13 +22,13 @@ const Wrap = styled.div`
   align-items: center;
   background: var(--color-background-primary);
   z-index: 1;
-  .back{
+  .back {
     cursor: pointer;
     margin-right: 15px;
     width: 20px;
     display: block;
-    color: var(--color-text-secondary)
-    &:hover{
+    color: var(--color-text-secondary);
+    &:hover {
       color: var(--color-primary);
     }
   }
@@ -45,7 +46,8 @@ const Wrap = styled.div`
       font-weight: 400;
       color: var(--color-text-tertiary);
       line-height: 54px;
-      &.isCur,&:hover {
+      &.isCur,
+      &:hover {
         font-weight: 600;
         color: var(--color-primary);
         border-bottom: 3px solid var(--color-primary);
@@ -63,23 +65,25 @@ const Wrap = styled.div`
     border-radius: 3px;
     text-align: center;
     font-weight: 600;
-    &:hover{
+    &:hover {
       background: var(--color-primary);
-      color:#fff;
+      color: #fff;
     }
   }
-  .disable,.disable:hover {
+  .disable,
+  .disable:hover {
     background: var(--color-text-disabled);
-    background-color: var(--color-text-disabled)!important;
+    background-color: var(--color-text-disabled) !important;
     border: 1px solid var(--color-text-disabled);
     border-color: var(--color-text-disabled);
-    cursor: not-allowed!important;
-    color:#fff;
+    cursor: not-allowed !important;
+    color: #fff;
   }
-  .workflowStatusWrap{
-    .disable,.disable:hover {
-      .iconWrap .workflowSwitchIcon-active{
-        color:var(--color-text-disabled)!important;
+  .workflowStatusWrap {
+    .disable,
+    .disable:hover {
+      .iconWrap .workflowSwitchIcon-active {
+        color: var(--color-text-disabled) !important;
       }
     }
   }
@@ -100,7 +104,7 @@ export default function Header(props) {
       title: props.title || _l('数据同步任务'),
       status: taskStatus === 'RUNNING' ? 'active' : 'close',
     });
-  }, [props]);
+  }, [props, setState]);
   return (
     <Wrap className="alignItemsCenter flexRow">
       <div className="flex flexRow alignItemsCenter">
@@ -172,7 +176,7 @@ export default function Header(props) {
       <div
         className="flex flexRow"
         style={{
-          'justify-content': 'flex-end',
+          justifyContent: 'flex-end',
         }}
       >
         {(isNew || isUpdate) && (

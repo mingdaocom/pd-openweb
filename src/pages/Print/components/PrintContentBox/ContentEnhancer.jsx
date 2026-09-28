@@ -99,9 +99,10 @@ const ContentEnhancer = props => {
     setAttributeName(currentAttributeName);
 
     if (from === fromType.PRINT && printType !== 'flow' && rowIds.length === 1) {
+      const documentAttributeName = currentAttributeName || _l('未命名');
       document.title = printId
-        ? `${printData.name}-${currentAttributeName}`
-        : `${_l('系统打印')}-${currentAttributeName}`;
+        ? `${printData.name}-${documentAttributeName}`
+        : `${_l('系统打印')}-${documentAttributeName}`;
     }
 
     // 新建、编辑模版 或者 有approvalIds才执行

@@ -1,34 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
+import { Button } from 'ming-ui/antd-components';
 import SelectStartOrEnd from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEnd';
 import SelectStartOrEndGroups from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEndGroups';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { isIllegal, isIllegalFormat } from 'src/pages/worksheet/views/CalendarView/util';
-import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
-import { getTimeControls } from '../CalendarView/util';
-
-const BtnForSure = styled.div`
-   {
-    padding: 0 32px;
-    line-height: 36px;
-    height: 36px;
-    color: var(--color-white);
-    background-color: var(--color-primary);
-    border-radius: 4px;
-    outline: none;
-    cursor: pointer;
-    border: 1px solid transparent;
-    margin-top: 32px;
-    box-sizing: border-box;
-    display: inline-block;
-    &.isUnAb {
-      background-color: var(--color-primary-light);
-      cursor: not-allowed;
-    }
-  }
-`;
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { isIllegal, isIllegalFormat } from 'src/utils/services/worksheet/calendar';
+import { getTimeControls } from 'src/utils/services/worksheet/calendar';
 
 export default function SelectFieldForStartOrEnd(props) {
   const {
@@ -164,10 +143,11 @@ export default function SelectFieldForStartOrEnd(props) {
           }}
         />
       )}
-      <BtnForSure
-        className={cx({
-          isUnAb: isUnAb,
-        })}
+      <Button
+        type="primary"
+        wide
+        disabled={isUnAb}
+        className="mTop32"
         onClick={() => {
           if (isUnAb) {
             return;
@@ -181,7 +161,7 @@ export default function SelectFieldForStartOrEnd(props) {
         }}
       >
         {_l('确认')}
-      </BtnForSure>
+      </Button>
     </React.Fragment>
   );
 }

@@ -3,33 +3,15 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, RadioGroup, Switch } from 'ming-ui';
-import { getSwitchItemNames } from 'src/utils/control';
+import { Checkbox, Radio, Switch } from 'ming-ui/antd-components';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
 
 const CheckWidgetWrap = styled.div`
   display: flex;
   align-items: center;
   line-height: 1.5;
 
-  .Checkbox {
-    display: flex !important;
-    align-items: center;
-    white-space: pre-wrap;
-    word-break: break-all;
-
-    &-box {
-      flex-shrink: 0;
-    }
-
-    &--disabled {
-      ${props => (props.formDisabled ? 'color: inherit !important;' : '')}
-    }
-  }
-  .ming.Checkbox.Checkbox--disabled .Checkbox-box {
-    background-color: var(--color-background-disabled);
-  }
-
-  .Radio {
+  .ant-radio-wrapper {
     display: flex;
     align-items: center;
     margin-top: 6px;
@@ -66,7 +48,10 @@ const CheckWidget = props => {
           <Switch
             disabled={disabled}
             checked={isChecked}
-            onClick={onChange}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return onChange(!checked, event);
+            }}
             size={switchSize || 'default'}
             className={cx({ mobileFormSwitchDisabled: disabled })}
           />
@@ -84,25 +69,32 @@ const CheckWidget = props => {
       }
 
       return (
-        <RadioGroup
+        <Radio.Group
           size="middle"
           disabled={disabled}
-          checkedValue={`${value}`}
-          data={itemnames.map(item => ({ text: item.value, value: item.key }))}
-          onChange={type => onChange(type !== '1')}
+          value={`${value}`}
+          options={(itemnames.map(item => ({ text: item.value, value: item.key })) || []).map(
+            ({ text, ...option }) => ({ ...option, label: text }),
+          )}
+          onChange={event => onChange(event.target.value !== '1')}
         />
       );
     }
 
     return (
-      <Checkbox disabled={disabled} checked={isChecked} onClick={onChange} size={switchSize || 'default'}>
+      <Checkbox
+        disabled={disabled}
+        checked={isChecked}
+        onChange={event => onChange(!event.target.checked, undefined, event)}
+        size={switchSize || 'default'}
+      >
         {hint}
       </Checkbox>
     );
   };
 
   return (
-    <CheckWidgetWrap formDisabled={formDisabled} className="controlMinHeight">
+    <CheckWidgetWrap $formDisabled={formDisabled} className="controlMinHeight">
       {renderContent()}
     </CheckWidgetWrap>
   );

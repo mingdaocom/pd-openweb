@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import { func, shape } from 'prop-types';
 import styled from 'styled-components';
-import { Radio, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Drawer, Radio, Switch, Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/components/Basics';
 
 const BaseBtnCon = styled(FlexCenter)`
@@ -43,27 +41,19 @@ const ConfigItem = styled.div`
   }
 `;
 
-const CustomDrawer = styled(Drawer)`
-  .ant-drawer-header {
-    border-bottom: 1px solid var(--color-border-secondary);
+const CustomDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-header {
     padding: 12px 24px;
   }
-  .ant-drawer-header-title {
-    flex-direction: row-reverse;
-    .ant-drawer-close {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 0;
-      &:hover {
-        background: var(--color-background-hover);
-        color: var(--color-text-title);
-      }
-    }
-  }
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: -8px 8px 24px rgba(0, 0, 0, 0.16) !important;
-    .ant-drawer-body {
+    .hap-drawer-body {
       padding: 0 24px;
     }
   }
@@ -108,11 +98,11 @@ export default function HomeSetting(props) {
         </BaseBtnCon>
       </Tooltip>
       <CustomDrawer
-        maskStyle={{ backgroundColor: 'transparent' }}
+        styles={{ mask: { backgroundColor: 'transparent' } }}
         width={360}
         title={_l('自定义')}
         placement="right"
-        visible={customDrawerVisible}
+        open={customDrawerVisible}
         closeIcon={<i className="icon-close Font20" />}
         onClose={() => setCustomDrawerVisible(false)}
       >
@@ -132,7 +122,9 @@ export default function HomeSetting(props) {
           <div className="bold mBottom6">{_l('星标应用')}</div>
           {config.starApp.map((item, i) => (
             <div className="radioItem" onClick={() => handleUpdate('markedAppDisplay', item.value)}>
-              <Radio {...item} size="small" checked={setting.markedAppDisplay === item.value} />
+              <Radio value={item.value} size="small" checked={setting.markedAppDisplay === item.value}>
+                {item.text}
+              </Radio>
             </div>
           ))}
         </ConfigItem>
@@ -142,7 +134,9 @@ export default function HomeSetting(props) {
           <div className="bold mBottom6">{_l('星标分组')}</div>
           {config.starAppGroup.map((item, i) => (
             <div key={i} className="radioItem" onClick={() => handleUpdate('displayType', item.value)}>
-              <Radio {...item} size="small" checked={setting.displayType === item.value} />
+              <Radio value={item.value} size="small" checked={setting.displayType === item.value}>
+                {item.text}
+              </Radio>
             </div>
           ))}
         </ConfigItem>
@@ -158,7 +152,10 @@ export default function HomeSetting(props) {
             <Switch
               size="small"
               checked={setting.isAllAndProject}
-              onClick={() => handleUpdate('isAllAndProject', !setting.isAllAndProject)}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return handleUpdate('isAllAndProject', !setting.isAllAndProject);
+              }}
             />
           </div>
         </ConfigItem>
@@ -173,7 +170,10 @@ export default function HomeSetting(props) {
             <Switch
               size="small"
               checked={setting.exDisplay}
-              onClick={() => handleUpdate('exDisplay', !setting.exDisplay)}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return handleUpdate('exDisplay', !setting.exDisplay);
+              }}
             />
           </div>
         </ConfigItem>

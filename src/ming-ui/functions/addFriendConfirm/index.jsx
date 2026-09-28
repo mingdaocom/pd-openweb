@@ -1,19 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useRef } from 'react';
 import _ from 'lodash';
-import { Dialog, FunctionWrap, Input, Textarea } from 'ming-ui';
+import { FunctionWrap } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import addressBookController from 'src/api/addressBook';
 import userController from 'src/api/user';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './css/style.css';
 
-const handleClose = () => {
-  $('.addFriendConfirm').parent().remove();
-};
-
 function AddFriendConfirm(props) {
-  const { accountId, callback } = props;
+  const { accountId, callback, onClose } = props;
   const [data, setData] = useState(null);
   const contentRef = useRef();
+  const handleClose = () => onClose();
 
   useEffect(() => {
     userController
@@ -62,8 +61,8 @@ function AddFriendConfirm(props) {
 
         handleClose();
       })
-      .catch(function () {
-        alert(_l('发送失败'), 2);
+      .catch(function (_requestError) {
+        alertIfNotUnauthorized(_requestError, _l('发送失败'), 2);
         handleClose();
       });
   };
@@ -71,13 +70,15 @@ function AddFriendConfirm(props) {
   if (!data) return null;
 
   return (
-    <Dialog
-      visible
-      dialogClasses="addFriendConfirm"
+    <Modal
+      open
+      className="addFriendConfirm"
+      width={480}
       title={_l('添加为好友')}
       okDisabled={!data.companyName || !data.profession}
+      mask={{ closable: true }}
       onOk={save}
-      onCancel={handleClose}
+      onCancel={() => handleClose()}
     >
       <div className="recBox clearfix" ref={contentRef}>
         {!data.showExtraInput ? (
@@ -89,28 +90,30 @@ function AddFriendConfirm(props) {
           <Fragment>
             <div>
               <Input
-                className="inputControl borderColorPrimary w100"
+                className="w100 mTop12"
+                size="large"
                 placeholder={_l('组织（必填）')}
                 value={data.companyName}
                 data-type="company"
-                onChange={value => {
+                onChange={event => {
                   setData({
                     ...data,
-                    companyName: _.trim(value),
+                    companyName: _.trim(event.target.value),
                   });
                 }}
               />
             </div>
             <div>
               <Input
-                className="inputControl borderColorPrimary w100"
+                className="w100 mTop12"
+                size="large"
                 placeholder={_l('职位（必填）')}
                 value={data.profession}
                 data-type="profession"
-                onChange={value => {
+                onChange={event => {
                   setData({
                     ...data,
-                    profession: _.trim(value),
+                    profession: _.trim(event.target.value),
                   });
                 }}
               />
@@ -118,19 +121,20 @@ function AddFriendConfirm(props) {
           </Fragment>
         )}
         <div>
-          <Textarea
+          <Input.TextArea
+            autoSize
             className="inputControl applyMsg borderColorPrimary"
             defaultValue={data.message || _l('我是%0', md.global.Account.fullname)}
-            onChange={value => {
+            onChange={event => {
               setData({
                 ...data,
-                message: value,
+                message: event.target.value,
               });
             }}
           />
         </div>
       </div>
-    </Dialog>
+    </Modal>
   );
 }
 

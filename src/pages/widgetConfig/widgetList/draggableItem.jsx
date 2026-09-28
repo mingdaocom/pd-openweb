@@ -4,14 +4,24 @@ import { useDrag } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { checkWidgetMaxNumErr } from 'src/utils/domain/control/metadata';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType, WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { DRAG_ITEMS } from '../config/Drag';
-import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
-import { checkWidgetMaxNumErr, enumWidgetType } from '../util';
-import addTabWidget from './addTabWidget';
+import { useAddTabWidget } from './addTabWidget';
 
-export default function DraggableItem(props) {
-  const { item, addWidget, allControls, setStyleInfo, styleInfo: { info = {} } = {}, globalSheetInfo } = props;
+function DraggableItem(props) {
+  const {
+    item,
+    addWidget,
+    allControls,
+    setStyleInfo,
+    styleInfo: { info = {} } = {},
+    globalSheetInfo,
+    openAddTabWidget,
+  } = props;
   const { widgetName, icon, enumType, featureType } = item;
   const isCustomWidget = enumType === 'CUSTOM';
 
@@ -30,7 +40,7 @@ export default function DraggableItem(props) {
     const needGuide = !_.find(allControls, i => i.type === 52) && _.get(data, 'type') === 52;
 
     if (needGuide) {
-      addTabWidget({
+      openAddTabWidget({
         tabposition: info.tabposition,
         handleOk: (tempPosition, onClose) => {
           const callback = () => {
@@ -90,3 +100,7 @@ export default function DraggableItem(props) {
     </li>
   );
 }
+
+export default withOpeners(DraggableItem, {
+  openAddTabWidget: useAddTabWidget,
+});

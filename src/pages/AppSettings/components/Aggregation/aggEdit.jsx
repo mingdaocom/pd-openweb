@@ -5,10 +5,10 @@ import _ from 'lodash';
 import { FullScreenCurtain } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Info from 'src/pages/AppSettings/components/Aggregation/components/Info';
-import { navigateTo } from 'src/router/navigateTo';
-import { setFavicon } from 'src/utils/app';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { setFavicon } from 'src/utils/services/app';
+import { getFeatureStatus } from 'src/utils/services/project';
 
 export default function AggregationEdit(props) {
   const { appId, aggTableId } = _.get(props, 'match.params');

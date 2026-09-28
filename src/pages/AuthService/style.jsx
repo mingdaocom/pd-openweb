@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 export const WrapCom = styled.div`
   .mHeight100 {
@@ -45,7 +45,6 @@ export const WrapCom = styled.div`
         top: 36px;
         right: 40px;
         z-index: 2;
-        gap: 4px;
         .iconCon {
           font-size: 16px;
         }
@@ -53,17 +52,6 @@ export const WrapCom = styled.div`
         .iconCon,
         .icon-arrow-down-border {
           color: var(--color-text-secondary);
-        }
-        .ming.Dropdown {
-          line-height: 20px;
-          .Dropdown--input {
-            min-height: 20px;
-            padding: 0;
-            background: transparent;
-          }
-          .value {
-            max-width: none;
-          }
         }
       }
       .loadingLine {

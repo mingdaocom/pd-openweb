@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { LoadDiv } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const isMobile = browserIsMobile();
 const LoadableMobileSingleView = lazy(() => import('mobile/components/SingleView'));

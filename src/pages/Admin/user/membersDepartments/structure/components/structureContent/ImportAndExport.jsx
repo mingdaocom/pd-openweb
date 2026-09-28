@@ -4,47 +4,42 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import styled from 'styled-components';
 import { Icon, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Segmented } from 'ming-ui/antd-components';
 import { captcha, dialogSelectDept } from 'ming-ui/functions';
 import importUser from 'src/api/importUser';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../../../config';
 import { downloadFile } from '../../../../../util';
 import * as actions from '../../actions/entities';
 import ImportResulFailtDetail from './ImportResulFailtDetail';
 import UploadFile from './UploadFile';
 
-const ImportBtn = styled.div`
-  background: var(--color-link-hover);
-  border-radius: 32px;
-  color: var(--color-white);
-  height: 36px;
-  line-height: 36px;
-  margin: 44px auto 24px;
-  text-align: center;
-  width: 193px;
-  cursor: ${props => (props.notAllowed ? 'not-allowed' : 'pointer')};
-`;
+const SEGMENTED_STYLE = { width: 260, margin: '0 auto 34px' };
+const IMPORT_BUTTON_STYLE = { display: 'block', width: 193, margin: '44px auto 24px' };
+const getTabOptions = () => [
+  { value: 'import', label: _l('导入新成员') },
+  { value: 'export', label: _l('导出 / 修改') },
+];
 
-const userTemplatePaths = window.platformENV.isPlatform
-  ? {
-      0: '/staticfiles/template/userImportTemplate/成员导入模板.xlsx',
-      1: '/staticfiles/template/userImportTemplate/User Import Template.xlsx',
-      2: '/staticfiles/template/userImportTemplate/メンバーインポートテンプレート.xlsx',
-      3: '/staticfiles/template/userImportTemplate/成員導入模板.xlsx',
-      4: '/staticfiles/template/userImportTemplate/แม่แบบนำเข้าผู้ใช้.xlsx',
-      5: '/staticfiles/template/userImportTemplate/Templat Import Pengguna.xlsx',
-    }
-  : {
-      0: '/staticfiles/template/private/成员导入模板.xlsx',
-      1: '/staticfiles/template/private/User Import Template.xlsx',
-      2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
-      3: '/staticfiles/template/private/成員導入模板.xlsx',
-      4: '/staticfiles/template/private/แม่แบบการนำเข้าผู้ใช้งาน.xlsx',
-      5: '/staticfiles/template/private/Templat Import Pengguna.xlsx',
-    };
-
+const getUserTemplatePaths = () =>
+  window.platformENV.isPlatform
+    ? {
+        0: '/staticfiles/template/userImportTemplate/成员导入模板.xlsx',
+        1: '/staticfiles/template/userImportTemplate/User Import Template.xlsx',
+        2: '/staticfiles/template/userImportTemplate/メンバーインポートテンプレート.xlsx',
+        3: '/staticfiles/template/userImportTemplate/成員導入模板.xlsx',
+        4: '/staticfiles/template/userImportTemplate/แม่แบบนำเข้าผู้ใช้.xlsx',
+        5: '/staticfiles/template/userImportTemplate/Templat Import Pengguna.xlsx',
+      }
+    : {
+        0: '/staticfiles/template/private/成员导入模板.xlsx',
+        1: '/staticfiles/template/private/User Import Template.xlsx',
+        2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
+        3: '/staticfiles/template/private/成員導入模板.xlsx',
+        4: '/staticfiles/template/private/แม่แบบการนำเข้าผู้ใช้งาน.xlsx',
+        5: '/staticfiles/template/private/Templat Import Pengguna.xlsx',
+      };
 class ImportAndExport extends Component {
   constructor(props) {
     super(props);
@@ -141,6 +136,8 @@ class ImportAndExport extends Component {
     this.setState({ fileName, fileUrl });
   };
   importFile = () => {
+    if (this.state.importFileLoading) return;
+
     this.setState({ importFileLoading: true });
     let { currentTab, fileName } = this.state;
     const _this = this;
@@ -206,9 +203,16 @@ class ImportAndExport extends Component {
             <span className="Font20 mRight10 mBottom2 icon-new_excel color_gr TxtMiddle" />
             <span className="Font17">{_l('导入模板')}</span>
           </div>
-          <a className="Font16 downloadBtn" href={userTemplatePaths[getCurrentLangCode()]} target="_blank">
+          <Button
+            type="link"
+            shape="round"
+            className="Font16 Bold"
+            href={getUserTemplatePaths()[getCurrentLangCode()]}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {_l('下载')}
-          </a>
+          </Button>
         </div>
         <div className="serialTitle mTop30">{_l('2.上传完善后的表格')}</div>
         {this.renderUpload('import')}
@@ -227,9 +231,9 @@ class ImportAndExport extends Component {
             <span className="Font20 mRight10 mBottom2 icon-supervisor_account colorPrimary TxtMiddle" />
             {_l('成员列表')}
           </div>
-          <div className="exportBtn " onClick={this.exportFile}>
+          <Button color="primary" variant="outlined" shape="round" className="mTop10" onClick={this.exportFile}>
             {_l('导出')}
-          </div>
+          </Button>
         </div>
         <div className="textSecondary mBottom16">{_l('如果需要修改成员信息，可在本地编辑后，上传表格完成修改')}</div>
         {this.renderUpload('export')}
@@ -269,26 +273,25 @@ class ImportAndExport extends Component {
         </div>
         {!isShowFailList && (
           <div className="exportContent">
-            <div className="tabs">
-              <div
-                className={cx('tabItem', { activeTab: currentTab === 'import' })}
-                onClick={() => this.changeTab('import')}
-              >
-                {_l('导入新成员')}
-              </div>
-              <div
-                className={cx('tabItem', { activeTab: currentTab === 'export' })}
-                onClick={() => this.changeTab('export')}
-              >
-                {_l('导出 / 修改')}
-              </div>
-            </div>
+            <Segmented
+              block
+              style={SEGMENTED_STYLE}
+              value={currentTab}
+              options={getTabOptions()}
+              onChange={this.changeTab}
+            />
             {currentTab === 'import' && this.renderImport()}
             {currentTab === 'export' && this.renderExport()}
             {fileName ? (
-              <ImportBtn notAllowed={importFileLoading} onClick={importFileLoading ? () => {} : this.importFile}>
+              <Button
+                type="primary"
+                shape="round"
+                style={IMPORT_BUTTON_STYLE}
+                loading={importFileLoading}
+                onClick={this.importFile}
+              >
                 {importFileLoading ? _l('正在导入...') : _l('导入')}
-              </ImportBtn>
+              </Button>
             ) : (
               ''
             )}

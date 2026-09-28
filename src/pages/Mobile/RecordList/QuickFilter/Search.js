@@ -1,14 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/utils';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { validate } from './utils';
 import './index.less';
 
 const SearchRowsWrapper = styled.div`
@@ -17,15 +14,6 @@ const SearchRowsWrapper = styled.div`
   padding: 2px 3px 2px 10px;
   input {
     height: 32px;
-  }
-  .cuttingLine {
-    height: 16px;
-    width: 1px;
-    margin: 0 12px 0 10px;
-    background-color: var(--color-text-disabled);
-  }
-  .mobileQuickFilterTrigger {
-    max-width: 35%;
   }
   form {
     padding: 0 5px;
@@ -39,111 +27,35 @@ const SearchRowsWrapper = styled.div`
   }
 `;
 
-const Mask = styled.div`
-  width: 100%;
-  height: 100%;
-  background: #00000030;
-  position: fixed;
-  top: 0;
-  left: 0;
-`;
-
 class Search extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      visible: false,
-      filterIndex: 0,
-    };
-  }
+  searchTimer = null;
+
   componentWillUnmount() {
-    this.props.updateFilters({ keyWords: '', quickFilterKeyWords: '', requestParams: {} });
+    clearTimeout(this.searchTimer);
+    this.props.updateFilters({ keyWords: '', requestParams: {} });
   }
-  handleVisibleChange = () => {
-    const { visible } = this.state;
-    this.setState({
-      visible: !visible,
+
+  handleSearch = (keyWords = this.props.filters.keyWords) => {
+    if (keyWords !== this.props.filters.keyWords) {
+      this.props.updateFilters({ keyWords });
+    }
+
+    this.props.changePageIndex(1);
+  };
+
+  scheduleSearch = input => {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.handleSearch(input.value);
     });
   };
-  handleSearch = () => {
-    const { filterIndex } = this.state;
-    const { filters, textFilters, updateQuickFilter } = this.props;
 
-    if (textFilters.length) {
-      // 快速搜索
-      const quickFilter = [textFilters[filterIndex]]
-        .map(filter => ({
-          ...filter,
-          filterType: filter.filterType || 1,
-          spliceType: filter.spliceType || 1,
-          values: filters.quickFilterKeyWords.split(' '),
-        }))
-        .filter(validate)
-        .map(conditionAdapter);
-      updateQuickFilter(formatQuickFilter(quickFilter));
-    } else {
-      // 普通搜索
-      this.props.changePageIndex(1);
-    }
-  };
-  renderPopup() {
-    const { filterIndex } = this.state;
-    const { textFilters } = this.props;
-    return (
-      <Fragment>
-        <Mask onClick={this.handleVisibleChange}></Mask>
-        <div style={{ width: document.body.clientWidth }} className="pLeft10 pRight10">
-          <div className="bgPrimary card pLeft15 pRight15 pTop10 pBottom10">
-            {textFilters.map((item, index) => (
-              <div
-                key={item.control.controlId}
-                style={{ color: index === filterIndex ? 'var(--color-primary)' : null }}
-                className="pTop5 pBottom5 Font14 ellipsis"
-                onClick={() => {
-                  this.setState({
-                    filterIndex: index,
-                    visible: false,
-                  });
-                }}
-              >
-                {item.control.controlName}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Fragment>
-    );
-  }
   render() {
-    const { filterIndex } = this.state;
-    const { updateFilters, updateQuickFilter, filters, sheetView, textFilters, viewType, base, inputPlaceholder } =
-      this.props;
-    const searchValue = textFilters.length ? filters.quickFilterKeyWords : filters.keyWords;
+    const { updateFilters, filters, sheetView, viewType, base, inputPlaceholder } = this.props;
+    const searchValue = filters.keyWords;
     const { ignorecase } = filters.requestParams || {};
     return (
       <SearchRowsWrapper className="search flex flexRow valignWrapper">
-        {!_.isEmpty(textFilters) && (
-          <Trigger
-            placement="bottom"
-            action={['click']}
-            popupClassName="moibleFilterPopup"
-            popupVisible={this.state.visible}
-            onPopupVisibleChange={this.handleVisibleChange}
-            popup={this.renderPopup()}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [-20, 10],
-            }}
-          >
-            <div className="flexRow valignWrapper mobileQuickFilterTrigger">
-              <span className="Font14 mLeft5 mRight5 ellipsis">
-                {textFilters[filterIndex] && textFilters[filterIndex].control.controlName}
-              </span>
-              <Icon className="Font12 textSecondary" icon="arrow-down" />
-              <div className="cuttingLine"></div>
-            </div>
-          </Trigger>
-        )}
         <div className="flexRow valignWrapper flex">
           <Icon icon="h5_search" className="textTertiary Font17" />
           <form
@@ -151,10 +63,13 @@ class Search extends Component {
             className="flex"
             onSubmit={e => {
               e.preventDefault();
+              this.scheduleSearch(e.currentTarget.elements.searchKeywords);
             }}
           >
             <input
+              name="searchKeywords"
               type="search"
+              enterKeyHint="search"
               className="pAll0 Border0 w100"
               placeholder={
                 inputPlaceholder
@@ -167,19 +82,13 @@ class Search extends Component {
               onChange={e => {
                 const { value } = e.target;
 
-                if (textFilters.length) {
-                  updateFilters({ quickFilterKeyWords: value });
-                } else {
-                  updateFilters({ keyWords: value });
-                  if (_.isEmpty(value)) {
-                    this.handleSearch();
-                  }
+                updateFilters({ keyWords: value });
+                if (_.isEmpty(value)) {
+                  this.handleSearch(value);
                 }
               }}
-              onKeyDown={event => {
-                if (event.which === 13) {
-                  this.handleSearch();
-                }
+              onCompositionEnd={event => {
+                this.scheduleSearch(event.currentTarget);
               }}
             />
           </form>
@@ -189,13 +98,8 @@ class Search extends Component {
               className="textDisabled Font16 mRight6"
               icon="workflow_cancel"
               onClick={() => {
-                if (textFilters.length) {
-                  updateFilters({ quickFilterKeyWords: '' });
-                  updateQuickFilter([]);
-                } else {
-                  updateFilters({ keyWords: '' });
-                  this.props.changePageIndex(1);
-                }
+                updateFilters({ keyWords: '' });
+                this.props.changePageIndex(1);
               }}
             />
           )}
@@ -233,9 +137,5 @@ export default connect(
     sheetView: state.mobile.sheetView,
     base: state.mobile.base,
   }),
-  dispatch =>
-    bindActionCreators(
-      _.pick(actions, ['updateFilters', 'resetSheetView', 'changePageIndex', 'updateQuickFilter']),
-      dispatch,
-    ),
+  dispatch => bindActionCreators(_.pick(actions, ['updateFilters', 'changePageIndex']), dispatch),
 )(Search);

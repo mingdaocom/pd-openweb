@@ -1,17 +1,16 @@
 import React, { Fragment, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse } from 'antd';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
-import { Dropdown, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Dropdown, Input, Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getTextById } from 'src/pages/FormSet/components/columnRules/config.js';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { getFilterControls } from '../../util/data';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { getFilterControls } from '../apiSchema';
 import EventOptions from '../components/CustomEvent/components/EventOptions';
 import MoreOptions from '../components/CustomEvent/components/MoreOptions';
 import {
@@ -35,7 +34,8 @@ import DynamicText from '../components/DynamicDefaultValue/components/DynamicTex
 import WidgetWarning from '../components/WidgetBase/WidgetWarning';
 import { SettingCollapseWrap } from './styled';
 
-const { Panel } = Collapse;
+const FILTER_SPLICE_OPTIONS = FILTER_SPLICE_TYPE.map(({ text: label, ...option }) => ({ ...option, label }));
+const FILTER_SPLICE_SELECT_STYLE = { width: 60 };
 
 const renderDefaultFilter = showSplice => {
   return (
@@ -44,7 +44,14 @@ const renderDefaultFilter = showSplice => {
       {showSplice && (
         <SpliceWrap>
           <div className="spliceLine"></div>
-          <Dropdown isAppendToBody disabled={true} data={FILTER_SPLICE_TYPE} value={SPLICE_TYPE_ENUM.AND} />
+          <Select
+            style={FILTER_SPLICE_SELECT_STYLE}
+            size="small"
+            variant="borderless"
+            disabled
+            options={FILTER_SPLICE_OPTIONS}
+            value={SPLICE_TYPE_ENUM.AND}
+          />
         </SpliceWrap>
       )}
     </Fragment>
@@ -148,7 +155,7 @@ export default function CustomEvent(props) {
         <EventOptions {...props} eventKey="filters" eventId={item.eventId} index={curIndex} />
         <IconWrap
           className="icon-trash mLeft12"
-          type="danger"
+          $type="danger"
           onClick={e => {
             e.stopPropagation();
             const newCustomEvent = customEvent.filter(i => i.eventId !== item.eventId);
@@ -176,7 +183,15 @@ export default function CustomEvent(props) {
         currentControl = _.find(allControls, a => a.controlId === controlId);
       }
 
-      return <DynamicText {...props} dynamicValue={dynamicValue} data={currentControl} controls={allControls} />;
+      return (
+        <DynamicText
+          {...props}
+          dynamicValue={dynamicValue}
+          data={currentControl}
+          controls={allControls}
+          from={DYNAMIC_FROM_MODE.CUSTOM_EVENT}
+        />
+      );
     };
 
     switch (actionType) {
@@ -399,7 +414,7 @@ export default function CustomEvent(props) {
           const hasFilters = filters.length > 0;
 
           return (
-            <EventActionWrap eventColor={color} bgColor={bgColor}>
+            <EventActionWrap $eventColor={color} $bgColor={bgColor}>
               {isClose ? null : <div className="eventLine" />}
               <div className="eventHeader">
                 <div
@@ -425,8 +440,9 @@ export default function CustomEvent(props) {
                   </div>
                   <span className="titleEvent">{index ? _l('否则如果') : _l('如果')}</span>
                   {focusKey === eventActionKey ? (
-                    <input
+                    <Input
                       className="customEventInput"
+                      variant="underlined"
                       value={eventName}
                       autoFocus
                       onFocus={e => {
@@ -486,10 +502,12 @@ export default function CustomEvent(props) {
                       {filterIndex < filters.length - 1 && (
                         <SpliceWrap>
                           <div className="spliceLine"></div>
-                          <Dropdown
-                            isAppendToBody
-                            disabled={filterIndex}
-                            data={FILTER_SPLICE_TYPE}
+                          <Select
+                            style={FILTER_SPLICE_SELECT_STYLE}
+                            size="small"
+                            variant="borderless"
+                            disabled={!!filterIndex}
+                            options={FILTER_SPLICE_OPTIONS}
                             value={_.get(filters[filterIndex], 'spliceType')}
                             onChange={value => handleSplice({ eventId, index, value })}
                           />
@@ -541,48 +559,39 @@ export default function CustomEvent(props) {
    */
   const renderAddEvent = () => {
     const disabled = !FILTER_EVENT_DISPLAY.length;
-    const menu = (
-      <Menu style={{ width: 310, position: 'relative' }}>
-        {dealEventDisplay(data, FILTER_EVENT_DISPLAY).map(item => (
-          <MenuItem
-            onClick={() => {
-              setVisible(false);
-              const newCustomEvent = customEvent.concat([
-                {
-                  eventId: uuidv4(),
-                  eventType: item.value,
-                  eventActions: [{ eventName: _l('满足条件1'), filters: [], actions: [] }],
-                },
-              ]);
-              onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) }));
-            }}
-          >
-            {item.text}
-          </MenuItem>
-        ))}
-      </Menu>
-    );
+    const items = dealEventDisplay(data, FILTER_EVENT_DISPLAY).map(item => ({
+      key: item.value,
+      label: item.text,
+      onClick: () => {
+        setVisible(false);
+        const newCustomEvent = customEvent.concat([
+          {
+            eventId: uuidv4(),
+            eventType: item.value,
+            eventActions: [{ eventName: _l('满足条件1'), filters: [], actions: [] }],
+          },
+        ]);
+        onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) }));
+      },
+    }));
     return (
-      <Trigger
-        popup={menu}
-        popupVisible={visible}
-        onPopupVisibleChange={visible => {
+      <Dropdown
+        open={visible}
+        onOpenChange={visible => {
           if (disabled) return;
           setVisible(visible);
         }}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 5],
-          overflow: { adjustX: true, adjustY: true },
-        }}
+        disabled={disabled}
+        trigger={['click']}
+        placement="bottomLeft"
         getPopupContainer={() => document.body}
+        menu={{ items, style: { width: 310 } }}
       >
-        <AddEventWrap disabled={disabled}>
+        <AddEventWrap $disabled={disabled}>
           <Icon icon="add" />
           {_l('事件')}
         </AddEventWrap>
-      </Trigger>
+      </Dropdown>
     );
   };
 
@@ -593,16 +602,13 @@ export default function CustomEvent(props) {
           bordered={false}
           activeKey={expandKeys}
           expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+          items={customEvent.map(item => ({
+            key: item.eventType,
+            label: renderHeader(item),
+            children: renderContent(item),
+          }))}
           onChange={value => setExpandKeys(value)}
-        >
-          {customEvent.map(item => {
-            return (
-              <Panel header={renderHeader(item)} key={item.eventType}>
-                {renderContent(item)}
-              </Panel>
-            );
-          })}
-        </SettingCollapseWrap>
+        />
       ) : (
         <WidgetWarning type="event" />
       )}

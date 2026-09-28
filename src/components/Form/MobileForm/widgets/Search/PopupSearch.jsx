@@ -1,17 +1,19 @@
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, PopupWrapper } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import './index.less';
 
-const MobileSearch = props => {
+const PopupSearch = props => {
   const { enumDefault, controlName, value, loading, advancedSetting = {}, disabled, hint, formDisabled } = props;
   const { itemtitle = '', clicksearch, searchfirst, min = '0' } = advancedSetting;
   const optionData = (props.optionData || []).map((it, index) => ({ ...it, index }));
+  const isManualSearch = enumDefault === 2 && clicksearch === '0';
 
-  const searchInput = useRef(null);
-  const isOnComposition = useRef(false);
+  const searchRef = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [keywords, setKeywords] = useState('');
   const [mobileSearchResult, setMobileSearchResult] = useState([]);
 
   const searchRealTime = value => {
@@ -24,10 +26,9 @@ const MobileSearch = props => {
   };
 
   const renderList = () => {
-    let mobileOptionData =
-      searchInput.current && searchInput.current.value && enumDefault === 1 ? mobileSearchResult : optionData;
+    let mobileOptionData = keywords && enumDefault === 1 ? mobileSearchResult : optionData;
 
-    return _.get(searchInput.current || {}, 'value') && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
+    return keywords && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
       <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
         <Icon icon="h5_search" className="Font50" />
         <div className="textDisabled Font17 Bold mTop40">{_l('没有搜索结果')}</div>
@@ -40,6 +41,7 @@ const MobileSearch = props => {
               key={i}
               className="flexRow searchItem alignItemsCenter"
               onClick={() => {
+                resetSearch();
                 setVisible(false);
                 props.onChange(item[itemtitle]);
                 props.handleSelect({
@@ -58,10 +60,25 @@ const MobileSearch = props => {
   };
 
   useEffect(() => {
-    if (enumDefault === 2) {
-      searchInput.current && searchInput.current.focus();
+    if (visible && enumDefault === 2) searchRef.current?.focus();
+  }, [visible, enumDefault]);
+
+  const resetSearch = () => {
+    setKeywords('');
+    props.cancelSearch();
+  };
+
+  const handleKeywordSearch = value => {
+    const trimmedValue = value.trim();
+    setKeywords(trimmedValue);
+
+    if (isManualSearch) {
+      if (trimmedValue.length >= parseInt(min)) props.handleSearch(trimmedValue);
+      return;
     }
-  }, [enumDefault]);
+
+    searchRealTime(trimmedValue);
+  };
 
   return (
     <Fragment>
@@ -88,67 +105,23 @@ const MobileSearch = props => {
         title={controlName}
         onClose={() => {
           setVisible(false);
-          if (searchInput.current) {
-            searchInput.current.value = '';
-          }
+          resetSearch();
         }}
         onClear={() => {
           setVisible(false);
-          if (searchInput.current) {
-            searchInput.current.value = '';
-          }
-
+          resetSearch();
           props.onChange();
         }}
       >
         <div className="searchListModals">
-          {enumDefault === 2 && clicksearch === '0' ? (
-            <div className="searchBox bgTertiary selectSearchBox">
-              <input
-                ref={searchInput}
-                type="text"
-                className="cursorText flex textPrimary"
-                placeholder={hint || _l('请选择')}
-              />
-              <div
-                className="searchBtn"
-                onClick={() => {
-                  if (searchInput.current.value.length < parseInt(min)) return;
-                  props.handleSearch(searchInput.current.value);
-                }}
-              >
-                <Icon icon="search" className="Font18 textSecondary" />
-              </div>
-            </div>
-          ) : (
-            <div className="searchBox bgTertiary">
-              <Icon icon="search" className="searchIcon Font20 textSecondary" />
-              <input
-                type="text"
-                className="cursorText textPrimary"
-                placeholder={hint || _l('请选择')}
-                ref={searchInput}
-                onChange={() => {
-                  const value = searchInput.current.value.trim();
-                  // if (!value) {
-                  //   props.clearData();
-                  //   return;
-                  // }
-                  if (isOnComposition.current) return;
-                  searchRealTime(value);
-                }}
-                onCompositionStart={() => (isOnComposition.current = true)}
-                onCompositionEnd={event => {
-                  const value = searchInput.current.value.trim();
-
-                  if (event.type === 'compositionend') {
-                    isOnComposition.current = false;
-                  }
-
-                  searchRealTime(value);
-                }}
-              />
-            </div>
+          {visible && (
+            <MobileSearch
+              ref={searchRef}
+              placeholder={hint || _l('请选择')}
+              searchMode={isManualSearch ? 'manual' : 'realtime'}
+              disabled={loading}
+              onSearch={handleKeywordSearch}
+            />
           )}
           {loading ? (
             <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
@@ -163,4 +136,4 @@ const MobileSearch = props => {
   );
 };
 
-export default memo(MobileSearch);
+export default memo(PopupSearch);

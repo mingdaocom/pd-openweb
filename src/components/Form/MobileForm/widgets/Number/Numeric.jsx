@@ -3,16 +3,16 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { accAdd, accDiv, accMul, accSub } from 'src/utils/common';
-import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
-import { ADD_EVENT_ENUM } from '../../../core/enum';
+import { accAdd, accDiv, accMul, accSub } from 'src/utils/core/arithmetic';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/domain/control/number';
 import ClearValueIcon, { CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
 import { FIELD_SIZE_OPTIONS } from '../../tools/config';
 import { fixWeixinInputBlurScroll } from '../../tools/utils';
 
 const NumWrap = styled.span`
-  ${props => (props.isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
+  ${props => (props.$isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
   position: relative;
   .maskIcon {
     right: 0px !important;
@@ -23,8 +23,8 @@ const MobileAction = styled.div`
   width: 36px;
   text-align: center;
   cursor: pointer;
-  margin-right: ${props => (props.type === 'subtract' ? '6px' : 0)};
-  margin-left: ${props => (props.type === 'add' ? '6px' : 0)};
+  margin-right: ${props => (props.$type === 'subtract' ? '6px' : 0)};
+  margin-left: ${props => (props.$type === 'add' ? '6px' : 0)};
   border: 1px solid var(--color-border-primary);
   .icon {
     color: var(--color-primary);
@@ -126,18 +126,17 @@ const Numeric = props => {
   ).current;
 
   const onChange = (event, tempValue) => {
-    let resValue =
-      tempValue ||
-      event.target.value
-        .replace(/[^-\d.]/g, '')
-        .replace(/^\.$/g, '')
-        .replace(/^-/, '$#$')
-        .replace(/-/g, '')
-        .replace('$#$', '-')
-        .replace(/^-\./, '-')
-        .replace('.', '$#$')
-        .replace(/\./g, '')
-        .replace('$#$', '.');
+    const inputValue = tempValue === undefined ? event.target.value : tempValue;
+    let resValue = inputValue
+      .replace(/[^-\d.]/g, '')
+      .replace(/^\.$/g, '')
+      .replace(/^-/, '$#$')
+      .replace(/-/g, '')
+      .replace('$#$', '-')
+      .replace(/^-\./, '-')
+      .replace('.', '$#$')
+      .replace(/\./g, '')
+      .replace('$#$', '.');
 
     if (resValue === '.') {
       resValue = '';
@@ -208,7 +207,7 @@ const Numeric = props => {
     return (
       <MobileAction
         className="controlValueHeight"
-        type={type}
+        $type={type}
         onClick={() => handleControl(type === 'subtract' ? 'subtract' : 'add')}
       >
         <i className={`icon icon-${type === 'subtract' ? 'minus' : 'add1'}`} />
@@ -260,7 +259,7 @@ const Numeric = props => {
           )}
 
           <NumWrap
-            isMaskReadonly={isMaskReadonly}
+            $isMaskReadonly={isMaskReadonly}
             className={cx('ellipsis', {
               textDisabled: !isEffective(),
             })}
@@ -278,8 +277,8 @@ const Numeric = props => {
         </div>
         {!disabled && (
           <input
-            type="text"
-            inputmode="decimal"
+            type="number"
+            step="any"
             className="customFormControlBox"
             style={{ paddingRight: suffix ? 32 : 12 }}
             ref={inputRef}
@@ -288,6 +287,13 @@ const Numeric = props => {
             maxLength={16}
             onFocus={onFocus}
             onBlur={onBlur}
+            onBeforeInput={event => {
+              const data = event.nativeEvent.data;
+
+              if (data && !/^[\d.-]+$/.test(data)) {
+                event.preventDefault();
+              }
+            }}
             onChange={onChange}
             onKeyDown={e => {
               if (isStepNumber && _.includes([38, 40], e.keyCode)) {

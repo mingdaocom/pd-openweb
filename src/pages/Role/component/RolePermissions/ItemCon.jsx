@@ -4,7 +4,7 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 export default class Con extends React.Component {
   render() {

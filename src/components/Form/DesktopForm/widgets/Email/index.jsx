@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const EmailWrap = styled.div`
@@ -12,7 +12,7 @@ const EmailWrap = styled.div`
   left: 0;
   top: 0;
   right: 0;
-  z-index: ${props => (props.isEditing ? 2 : -1)};
+  z-index: ${props => (props.$isEditing ? 2 : -1)};
 `;
 
 const Email = props => {
@@ -116,7 +116,7 @@ const Email = props => {
           {renderMaskContent()}
         </span>
       </div>
-      <EmailWrap isEditing={isEditing}>
+      <EmailWrap $isEditing={isEditing}>
         <input
           type="text"
           className={cx('customFormControlBox', { controlDisabled: disabled })}

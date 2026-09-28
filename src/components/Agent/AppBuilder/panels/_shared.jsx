@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import { useAgentBus } from '../../agentBus';
 import { ChatStateContext } from '../index';
 
@@ -104,46 +104,6 @@ export const TagIcon = styled(Icon)`
   font-size: 14px !important;
   color: var(--color-text-tertiary);
 `;
-
-// Parse compact strings like "名称(Type)" or "名称(Relation→目标表)"
-export function parseCompactStr(str) {
-  if (typeof str !== 'string') return { name: String(str || ''), type: '' };
-  const m = str.match(/^(.+?)\(([^)]+)\)$/);
-  if (!m) return { name: str, type: '' };
-  return { name: m[1].trim(), type: m[2].trim() };
-}
-
-// 列表型紧凑字段（fields / views / charts / components）兼容两种产出：
-// 1) 数组：["客户名称(Text)", "客户分类(Relation:客户分类)"] —— 原样返回；
-// 2) 逗号分隔字符串："客户名称(Text), 客户分类(Relation:客户分类)" —— 按"括号深度为 0 的逗号"切分，
-//    避免类型里的逗号（如未来出现）被误切。两种都交给 parseCompactStr 逐项解析。
-export function parseCompactList(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value !== 'string') return [];
-
-  const out = [];
-  let depth = 0;
-  let cur = '';
-
-  for (const ch of value) {
-    if (ch === '(') depth += 1;
-    else if (ch === ')') depth = Math.max(0, depth - 1);
-
-    if (ch === ',' && depth === 0) {
-      const token = cur.trim();
-
-      if (token) out.push(token);
-      cur = '';
-    } else {
-      cur += ch;
-    }
-  }
-
-  const last = cur.trim();
-
-  if (last) out.push(last);
-  return out;
-}
 
 export const SectionDivider = styled.div`
   margin-top: 12px;
@@ -265,10 +225,6 @@ const EditIconButton = styled.button`
 const PopoverWrap = styled.div`
   width: 450px;
   padding: 16px;
-  border-radius: 8px;
-  background: var(--color-background-card);
-  border: 1px solid var(--color-border-secondary);
-  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -410,16 +366,14 @@ export function CardEditButton({ moduleLabel, cardName }) {
   }
 
   return (
-    <Trigger
-      action={['click']}
-      popupVisible={open}
-      onPopupVisibleChange={setOpen}
-      // rc-trigger 默认未给弹层加 position:absolute（项目未引入其内置样式），
-      // dom-align 会回退成 position:relative 导致弹层贴到容器左缘，这里显式指定
-      popupStyle={{ position: 'absolute', zIndex: 1051 }}
-      popupAlign={{ points: ['tr', 'br'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-      destroyPopupOnHide
-      popup={
+    <Popover
+      noPadding
+      trigger="click"
+      open={open}
+      onOpenChange={setOpen}
+      placement="bottomRight"
+      destroyOnHidden
+      content={
         <CardEditPopover
           moduleLabel={moduleLabel}
           cardName={cardName}
@@ -436,6 +390,6 @@ export function CardEditButton({ moduleLabel, cardName }) {
       >
         <Icon icon={editIcon} />
       </EditIconButton>
-    </Trigger>
+    </Popover>
   );
 }

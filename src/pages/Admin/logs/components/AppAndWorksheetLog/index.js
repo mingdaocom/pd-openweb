@@ -4,26 +4,26 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import filterXss from 'xss';
-import { Button, Icon, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Icon, UserHead, UserName } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import downloadAjax from 'src/api/download';
 import openAuthorAjax from 'src/api/openAuthor';
 import sheetAjax from 'src/api/worksheet';
 import ArchivedList from 'src/components/ArchivedList';
-import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { getRequest } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import { VersionProductType } from 'src/utils/enum';
-import { dateConvertToUserZone, getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import PageTableCon from '../../../components/PageTableCon';
 import SearchWrap from '../../../components/SearchWrap';
 import {
@@ -166,9 +166,10 @@ export default class AppAndWorksheetLog extends Component {
       disabledExportBtn: false,
       isAuthority: true, // 是否有权限（应用： 管理员、运营者，后台超级管理员）
       showWorksheetLog: !!oldsheetlog,
-      activeDateRange: [],
       integrationAppList: [],
+      searchResetKey: 0,
     };
+    this.activeDateRange = [];
 
     this.columns = columns
       .map(item => {
@@ -375,7 +376,6 @@ export default class AppAndWorksheetLog extends Component {
       worksheetList,
       isMoreApp,
       archivedItem = {},
-      activeDateRange = [],
       integrationAppList = [],
     } = this.state;
     const {
@@ -425,22 +425,24 @@ export default class AppAndWorksheetLog extends Component {
             type: 'antdRangePicker',
             label: _l('操作时间'),
             placeholder: [_l('最近30天'), _l('至今')],
-            defaultPickerValue: _.isEmpty(archivedItem)
-              ? []
-              : [moment(archivedItem.start, 'YYYY-MM-DD').subtract(30, 'days'), moment(archivedItem.end, 'YYYY-MM-DD')],
             format: 'YYYY-MM-DD',
             value: !_.isEmpty(dateTimeRange) ? [dateTimeRange.startDate, dateTimeRange.endDate] : [],
+            onOpenChange: open => {
+              if (open) {
+                this.activeDateRange = [];
+              }
+            },
             onCalendarChange: val => {
-              this.setState({ activeDateRange: val });
+              this.activeDateRange = val || [];
             },
             disabledDate: current => {
               if (window.platformENV.isOverseas || window.platformENV.isLocal) {
-                if (!activeDateRange) {
+                if (!this.activeDateRange.length) {
                   return false;
                 }
 
-                const tooLate = activeDateRange[0] && current.diff(activeDateRange[0], 'months') > 5;
-                const tooEarly = activeDateRange[1] && activeDateRange[1].diff(current, 'months') > 5;
+                const tooLate = this.activeDateRange[0] && current.diff(this.activeDateRange[0], 'months') > 5;
+                const tooEarly = this.activeDateRange[1] && this.activeDateRange[1].diff(current, 'months') > 5;
                 return !!tooEarly || !!tooLate;
               }
 
@@ -451,8 +453,20 @@ export default class AppAndWorksheetLog extends Component {
         key: 'selectUserInfo',
         type: 'selectUser',
         label: _l('用户'),
+        containExternalUser: true,
+        appId,
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
+      ...(this.columns.some(item => item.dataIndex === 'ip')
+        ? [
+            {
+              key: 'ip',
+              type: 'input',
+              label: 'IP',
+              placeholder: _l('请输入IP'),
+            },
+          ]
+        : []),
       {
         key: 'appIds',
         type: 'select',
@@ -508,7 +522,8 @@ export default class AppAndWorksheetLog extends Component {
           );
         },
         notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
-        maxTagCount: 'responsive',
+        maxTagCount: 1,
+        maxTagTextLength: 8,
       },
       {
         key: 'modules',
@@ -532,7 +547,7 @@ export default class AppAndWorksheetLog extends Component {
         value: operationTypes,
         mode: 'multiple',
         maxTagCount: 'responsive',
-        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
+        filterOption: (inputValue, option) => String(option.label).toLowerCase().includes(inputValue.toLowerCase()),
       },
       {
         key: 'operationSource',
@@ -548,7 +563,7 @@ export default class AppAndWorksheetLog extends Component {
           { value: 5, label: 'HAP-CLI' },
         ],
         value: operationSource,
-        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
+        filterOption: (inputValue, option) => String(option.label).toLowerCase().includes(inputValue.toLowerCase()),
       },
       {
         key: 'integrationApp',
@@ -564,8 +579,8 @@ export default class AppAndWorksheetLog extends Component {
         ],
         value: integrationApp,
         loading: this.state.LoadingIntegrationApp,
-        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
-        onDropdownVisibleChange: visible => {
+        filterOption: (inputValue, option) => String(option.label).toLowerCase().includes(inputValue.toLowerCase()),
+        onOpenChange: visible => {
           if (visible) {
             if (integrationAppList.length) {
               return;
@@ -621,6 +636,7 @@ export default class AppAndWorksheetLog extends Component {
       archiveDate,
       operationSource,
       integrationApp,
+      ip,
     } = searchValues;
     const { startDate, endDate } = dateTimeRange;
 
@@ -652,6 +668,7 @@ export default class AppAndWorksheetLog extends Component {
       archivedId: archivedItem.id,
       souceType: operationSource || 0,
       sourceIds: integrationApp,
+      ip: _.trim(ip) || undefined,
     })
       .then(res => {
         if (res.resultCode === 7) {
@@ -698,6 +715,7 @@ export default class AppAndWorksheetLog extends Component {
       archiveDate,
       operationSource,
       integrationApp,
+      ip,
     } = searchValues;
     const { startDate, endDate } = dateTimeRange;
 
@@ -727,6 +745,7 @@ export default class AppAndWorksheetLog extends Component {
       archivedId: archivedItem.id,
       souceType: operationSource || 0,
       sourceIds: integrationApp,
+      ip: _.trim(ip) || undefined,
     };
 
     downloadAjax
@@ -734,11 +753,14 @@ export default class AppAndWorksheetLog extends Component {
       .then(res => {
         this.setState({ disabledExportBtn: false });
         if (!res) {
-          Confirm({
+          Modal.confirm({
             title: _l('数据导出超过100,000行，本次仅导出前100,000行记录'),
             okText: _l('导出'),
             onOk: () => {
-              downloadAjax.exportGlobalLogs({ ...params, confirmExport: true });
+              downloadAjax.exportGlobalLogs({
+                ...params,
+                confirmExport: true,
+              });
             },
           });
         }
@@ -785,6 +807,7 @@ export default class AppAndWorksheetLog extends Component {
       loadingControlDetails,
       showWorksheetLog,
       archivedItem = {},
+      searchResetKey,
     } = this.state;
     const { appIds = [], worksheetIds = [] } = searchValues;
     const glFeatureType = getFeatureStatus(projectId, VersionProductType.glabalLog);
@@ -810,7 +833,7 @@ export default class AppAndWorksheetLog extends Component {
       );
     }
 
-    let keepFilters = ['dateTimeRange', 'selectUserInfo', 'appIds', 'worksheetIds'].filter(item =>
+    let keepFilters = ['dateTimeRange', 'selectUserInfo', 'appIds', 'worksheetIds', 'ip'].filter(item =>
       appId ? item !== 'appIds' : true,
     );
 
@@ -883,7 +906,9 @@ export default class AppAndWorksheetLog extends Component {
             />
             <i
               className="icon-task-later textTertiary hoverText mRight26 Font17 mLeft26"
-              onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
+              onClick={() =>
+                this.setState({ searchValues: {}, pageIndex: 1, searchResetKey: searchResetKey + 1 }, this.getLogList)
+              }
             />
             <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
               <Button
@@ -920,12 +945,18 @@ export default class AppAndWorksheetLog extends Component {
                 <Icon
                   icon="cancel"
                   className="Font20 mLeft10 textTertiary hoverColorPrimary pointer"
-                  onClick={() => this.setState({ archivedItem: {}, searchValues: {} }, this.getLogList)}
+                  onClick={() =>
+                    this.setState(
+                      { archivedItem: {}, searchValues: {}, searchResetKey: searchResetKey + 1 },
+                      this.getLogList,
+                    )
+                  }
                 />
               </Box>
             )}
             <div ref={ele => (this.seatchWrap = ele)}>
               <SearchWrap
+                key={searchResetKey}
                 projectId={projectId}
                 searchList={this.getConditions()}
                 searchValues={searchValues}

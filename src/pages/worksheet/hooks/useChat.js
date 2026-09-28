@@ -1,6 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { createParser } from 'eventsource-parser';
-import { find, findIndex, findLast, get, includes, isArray, isEmpty, last } from 'lodash';
+import { findIndex, findLast, get, includes, isArray, isEmpty, last } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 function useChat({
@@ -11,7 +11,6 @@ function useChat({
   onMessagePipe = () => {},
   onMessageDone = () => {},
   onFirstMessageJSONDone = () => {},
-  batchDeleteMessage = () => {},
   onError = () => {},
   onEvent = () => {},
 }) {
@@ -113,6 +112,41 @@ function useChat({
             onError(safeParse(event.data).message, event.data);
           }
 
+          // 推理过程（思维链）：后端通过 `event:reasoning` 单独下发，choices[].delta.content 为推理文本增量。
+          // 作为一种有序 part（type: 'reasoning'）并入 content，与 text / tool_calls 按到达顺序交错——
+          // 从而支持「推理→文本→工具」多轮循环时每轮推理各自成段、可分别折叠。增量并入尾部 reasoning part，
+          // 尾部不是 reasoning（已被文本/工具打断）则新起一段。不触发 onMessagePipe（避免推理被朗读/清状态）。
+          // 其余 bot 后端不发此事件，逻辑天然无副作用。
+          if (event.event === 'reasoning') {
+            if (noUpdateMessages) return;
+            const reasoningData = safeParse(event.data);
+            const reasoningDelta = get(reasoningData, 'choices.0.delta.content') || '';
+
+            if (!reasoningDelta) return;
+
+            setMessages(prev => {
+              const lastMessage = prev[prev.length - 1];
+
+              if (!lastMessage || lastMessage.role !== 'assistant') return prev;
+
+              const parts =
+                typeof lastMessage.content === 'string'
+                  ? lastMessage.content
+                    ? [{ type: 'text', text: lastMessage.content }]
+                    : []
+                  : [...(lastMessage.content || [])];
+              const lastPart = parts[parts.length - 1];
+              const nextParts =
+                lastPart && lastPart.type === 'reasoning'
+                  ? [...parts.slice(0, -1), { ...lastPart, text: (lastPart.text || '') + reasoningDelta }]
+                  : [...parts, { type: 'reasoning', text: reasoningDelta }];
+              const newMessages = [...prev.slice(0, -1), { ...lastMessage, content: nextParts }];
+              cache.current.messages = newMessages;
+              return newMessages;
+            });
+            return;
+          }
+
           try {
             // const data = JSON.parse(event.data);
             let data;
@@ -157,7 +191,10 @@ function useChat({
                 let lastMessage = prev[prev.length - 1];
                 const prevMessage = prev[prev.length - 2];
 
-                if (prevMessage && data.instanceId) {
+                // 首次发送时 instanceId 即提问落库后的消息 id，用来回填本地提问的 uuid。重新生成（prevUserMessageId）
+                // 与工具确认续跑（toolMessageId）沿用已落库的提问，而重新生成会另起 instanceId，再回填会把提问 id
+                // 改成不存在的消息 id，按提问 id 分享时报「用户消息不存在」
+                if (prevMessage && data.instanceId && !prevUserMessageId && !toolMessageId) {
                   prevMessage.id = data.instanceId;
                   prevMessage.modelMessageId = data.instanceId;
                 }
@@ -202,33 +239,38 @@ function useChat({
                 //   ...lastMessage,
                 //   codeIsClosed: ((lastTextContent + messageContent).match(/```/g) || []).length % 2 === 0,
                 // };
-                if (typeof lastMessage.content === 'string') {
-                  lastMessage.content = lastMessage.content + messageContent;
-                } else if (isArray(lastMessage.content)) {
-                  if (lastMessage.content.slice(-1)[0]?.type !== 'text') {
-                    lastMessage.content = [
-                      ...lastMessage.content,
-                      {
-                        type: 'text',
-                        text: messageContent,
-                      },
-                    ];
-                  } else {
-                    lastMessage.content = [
-                      ...lastMessage.content.slice(0, -1),
-                      {
-                        type: 'text',
-                        text: (lastMessage.content.slice(-1)[0]?.text || '') + messageContent,
-                      },
-                    ];
+                // 空增量（如推理阶段穿插的 content:null 事件）不落地为 text，否则会在 reasoning part 之间
+                // 插入空 text，割裂同一轮推理并产生空节点；仅在有实际内容时才更新 content 与 codeIsClosed。
+                if (messageContent) {
+                  if (typeof lastMessage.content === 'string') {
+                    lastMessage.content = lastMessage.content + messageContent;
+                  } else if (isArray(lastMessage.content)) {
+                    if (lastMessage.content.slice(-1)[0]?.type !== 'text') {
+                      lastMessage.content = [
+                        ...lastMessage.content,
+                        {
+                          type: 'text',
+                          text: messageContent,
+                        },
+                      ];
+                    } else {
+                      lastMessage.content = [
+                        ...lastMessage.content.slice(0, -1),
+                        {
+                          type: 'text',
+                          text: (lastMessage.content.slice(-1)[0]?.text || '') + messageContent,
+                        },
+                      ];
+                    }
                   }
+
+                  const lastTextContent =
+                    typeof lastMessage.content === 'string'
+                      ? lastMessage.content
+                      : findLast(lastMessage.content, m => m.type === 'text')?.text;
+                  lastMessage.codeIsClosed = ((lastTextContent || '').match(/```/g) || []).length % 2 === 0;
                 }
 
-                const lastTextContent =
-                  typeof lastMessage.content === 'string'
-                    ? lastMessage.content
-                    : findLast(lastMessage.content, m => m.type === 'text')?.text;
-                lastMessage.codeIsClosed = (lastTextContent.match(/```/g) || []).length % 2 === 0;
                 const newMessages = [
                   ...prev.slice(0, -1),
                   {
@@ -310,7 +352,19 @@ function useChat({
       attachments,
     } = {},
   ) => {
-    if (!content.trim() && !isEmpty(images) && !allowEmpty && !isEmpty(fileIds)) return;
+    // 只有文字、图片、附件全空时才算空提交。原先四个条件用 && 串联（要求"没文字但同时带了图片和文件"），
+    // 调用方基本不传 images，条件恒为 false，等于没有护栏；空提交会往下走到 abortRequest()，
+    // 把上一条正在流式返回的回答一起中止掉。
+    if (
+      !content.trim() &&
+      isEmpty(images) &&
+      isEmpty(fileIds) &&
+      isEmpty(media) &&
+      isEmpty(attachments) &&
+      !allowEmpty
+    ) {
+      return;
+    }
 
     let agentParams = { message: content };
 
@@ -375,8 +429,6 @@ function useChat({
 
         if (fromMessageIndex !== -1) {
           oldMessages = oldMessages.slice(0, fromMessageIndex);
-          const needDeleteMessageIds = prev.filter(item => !find(oldMessages, { id: item.id })).map(item => item.id);
-          batchDeleteMessage(needDeleteMessageIds);
         }
       }
 

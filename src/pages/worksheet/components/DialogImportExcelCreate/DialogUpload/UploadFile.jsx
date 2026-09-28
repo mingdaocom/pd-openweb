@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Progress } from 'antd';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Progress } from 'ming-ui/antd-components';
 import createUploader from 'src/library/plupload/createUploader';
-import { formatFileSize } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 const UploadWrap = styled.div`
   height: 340px;
@@ -98,9 +98,9 @@ export default class UploadFile extends Component {
         <div className="Font14">{file.name}</div>
         <Progress
           style={{ width: 196, marginLeft: '36px' }}
-          trailColor="var(--color-border-secondary)"
+          railColor="var(--color-border-secondary)"
           strokeColor="#1677ff"
-          strokeWidth={8}
+          size={[-1, 8]}
           percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
         />
         <div className="textTertiary">{formatFileSize(file.size)}</div>

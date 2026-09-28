@@ -1,16 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectApiPackage from 'src/pages/workflow/components/SelectApiPackage';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { hasPermission } from 'src/utils/services/security/permission';
 import Apply from './Apply';
 import AuthorizationList from './AuthorizationList';
 
 const minWidth = 325;
+const SEARCH_INPUT_STYLE = { width: 220 };
 
 const ApplyBtn = styled.div`
   height: 36px;
@@ -32,31 +34,6 @@ const ApplyBtn = styled.div`
     align-items: center;
     justify-content: center;
     margin-left: 5px;
-  }
-`;
-
-const SearchBox = styled.div`
-  width: 220px;
-  height: 36px;
-  border-radius: 36px;
-  background-color: var(--color-background-card);
-  padding-left: 10px;
-  overflow: hidden;
-  input {
-    flex: 1;
-    border: none;
-    margin-left: 2px;
-    background-color: inherit;
-  }
-  .searchClear {
-    cursor: pointer;
-    width: 28px;
-    height: 28px;
-    border-radius: 28px;
-    margin-right: 2px;
-    &:hover {
-      background: var(--color-background-hover);
-    }
   }
 `;
 
@@ -159,7 +136,6 @@ let ajaxRequest = null;
 
 export default function CustomLibrary(props) {
   const { width, currentProjectId, loadMore, setHasMore, myPermissions } = props;
-  const keywordsRef = useRef(null);
   const [addAPIDialogVisible, setAddAPIDialogVisible] = useState(false);
   const [applyDialog, setApplyDialog] = useSetState({ visible: false });
   const [authListVisible, setAuthListVisible] = useState(false);
@@ -167,6 +143,7 @@ export default function CustomLibrary(props) {
   const [list, setList] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [keywords, setKeywords] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [loading, setLoading] = useState(true);
   const columnSize = Math.floor((width - 76) / minWidth);
   const hasManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_API_CONNECTS);
@@ -252,11 +229,16 @@ export default function CustomLibrary(props) {
       });
   };
 
-  // 搜索
-  const onChange = _.debounce(keyword => {
-    setPageIndex(1);
-    setKeywords(keyword);
-  }, 500);
+  const handleSearch = useMemo(
+    () =>
+      _.debounce(keyword => {
+        setPageIndex(1);
+        setKeywords(keyword);
+      }, 500),
+    [],
+  );
+
+  useEffect(() => () => handleSearch.cancel(), [handleSearch]);
 
   return (
     <Fragment>
@@ -270,27 +252,30 @@ export default function CustomLibrary(props) {
           {!!applyCount && <div className="applyNumber">{applyCount}</div>}
         </ApplyBtn>
 
-        <SearchBox className="flexRow alignItemsCenter mLeft20">
-          <Icon type="search" className="Font18 textTertiary" />
-          <input
-            type="text"
-            ref={keywordsRef}
-            placeholder={_l('搜索连接')}
-            onChange={e => onChange(e.target.value.trim())}
-          />
-          {keywords && (
-            <div
-              className="searchClear flexRow alignItemsCenter justifyContentCenter"
-              onClick={() => {
-                keywordsRef.current.value = '';
-                setPageIndex(1);
-                setKeywords('');
-              }}
-            >
-              <Icon type="cancel" className="textTertiary Font16" />
-            </div>
-          )}
-        </SearchBox>
+        <Input
+          allowClear
+          radius
+          variant="filled"
+          className="mLeft20"
+          placeholder={_l('搜索连接')}
+          prefix={<Icon type="search" className="Font18 textTertiary" />}
+          style={SEARCH_INPUT_STYLE}
+          value={searchValue}
+          onChange={event => {
+            const nextValue = event.target.value;
+            const nextKeyword = nextValue.trim();
+
+            setSearchValue(nextValue);
+            if (!nextKeyword) {
+              handleSearch.cancel();
+              setPageIndex(1);
+              setKeywords('');
+              return;
+            }
+
+            handleSearch(nextKeyword);
+          }}
+        />
       </div>
 
       <Content className="flexRow">

@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { RELATION_TYPE } from '../../enum';
 import {
   CustomTextarea,
@@ -229,9 +229,8 @@ export default class Template extends Component {
     const { data, cacheKey, detailType } = this.state;
     const appList = data.appList.map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
-        className: item.id === data.appId ? 'colorPrimary' : '',
       };
     });
     const selectAppItem = _.find(appList, item => item.value === data.appId);
@@ -250,16 +249,16 @@ export default class Template extends Component {
             <i className="Font16 icon-info mLeft5 textTertiary" />
           </Tooltip>
         </div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={appList}
+          options={appList}
           value={data.appId || undefined}
-          renderTitle={
+          labelRender={
             data.appId && !selectAppItem ? () => <span className="errorColor">{_l('模板已删除')}</span> : undefined
           }
-          border
-          openSearch
-          noData={_l('服务号未添加消息模板')}
+          showSearch
+          optionFilterProp="label"
+          notFoundContent={_l('服务号未添加消息模板')}
           placeholder={_l('搜索模板')}
           onChange={appId => this.getNodeDetail(this.props, appId)}
         />
@@ -274,7 +273,7 @@ export default class Template extends Component {
               {data.appId && !selectAppItem ? (
                 <span className="errorColor">{_l('模板已删除')}</span>
               ) : (
-                selectAppItem?.text
+                selectAppItem?.label
               )}
             </div>
 
@@ -310,13 +309,23 @@ export default class Template extends Component {
               {list.map((item, i) => (
                 <div className="flex" key={i}>
                   <Radio
-                    text={item.text}
                     checked={item.value === detailType}
-                    onClick={() => {
-                      this.setState({ detailType: item.value });
-                      this.updateSource({ templateNode: { url: '', appId: '', pagePath: '' } });
+                    onChange={() => {
+                      this.setState({
+                        detailType: item.value,
+                      });
+                      this.updateSource({
+                        templateNode: {
+                          url: '',
+                          appId: '',
+                          pagePath: '',
+                        },
+                      });
                     }}
-                  />
+                    title={item.text}
+                  >
+                    {item.text}
+                  </Radio>
                 </div>
               ))}
             </div>

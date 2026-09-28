@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { CommonDisplay } from '../../styled';
-import { getAdvanceSetting } from '../../util';
 
 export default function Text({ data }) {
   const { hint, enumDefault } = data;

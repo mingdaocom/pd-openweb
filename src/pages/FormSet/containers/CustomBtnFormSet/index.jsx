@@ -3,16 +3,20 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import 'src/pages/FormSet/containers/Print/style.less';
-import { refreshBtnData } from 'src/pages/FormSet/util';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { refreshBtnData } from 'src/utils/domain/worksheet/customButton';
+import { getFeatureStatus } from 'src/utils/services/project';
 import TrashDialog from '../../components/Trash';
 import Header from './Header';
 import List from './List';
 import SearchBox from './SearchBox';
 import { Con } from './style';
+
+export function shouldShowSearchBox(btnList, searchKeywords) {
+  return Boolean(btnList.length || _.trim(searchKeywords));
+}
 
 function CustomBtnFormSet(props) {
   const { worksheetId, worksheetControls, worksheetInfo } = props;
@@ -99,7 +103,9 @@ function CustomBtnFormSet(props) {
                 });
               }}
             />
-            <SearchBox value={searchKeywords} onChange={searchKeywords => setState({ searchKeywords })} />
+            {shouldShowSearchBox(btnList, searchKeywords) && (
+              <SearchBox value={searchKeywords} onChange={searchKeywords => setState({ searchKeywords })} />
+            )}
             <List
               btnList={btnList}
               getSheetBtns={getSheetBtns}

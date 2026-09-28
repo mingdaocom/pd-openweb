@@ -58,6 +58,9 @@ function tableState(
     case 'RESET':
       return {
         ...initialTableState,
+        // initialTableState 的 pageSize 是模块加载时的快照，运行时改过的每页行数要沿用当前值，
+        // 否则刷新表格会把它退回打开页面时的旧值
+        pageSize: state.pageSize || initialTableState.pageSize,
         sheetColumnWidths: state.sheetColumnWidths,
         ...(action.doNotClearKeywords ? { keywords: state.keywords } : {}),
       };
@@ -74,6 +77,7 @@ function tableState(
     case 'DELETE_ALL':
       return {
         ...initialTableState,
+        pageSize: state.pageSize || initialTableState.pageSize,
       };
     default:
       return state;
@@ -136,6 +140,7 @@ function changes(state = cloneDeep(initialChanges), action) {
       };
     case 'CANCEL_CHANGE':
     case 'RESET':
+    case 'CLEAR_CHANGES':
       return cloneDeep(initialChanges);
     default:
       return state;

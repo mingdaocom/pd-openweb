@@ -1,65 +1,63 @@
-import React, { Fragment, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { find, get, includes, isEmpty } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
-import CustomButtonsWithAutoWidth from 'worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth.jsx';
-import { handleSystemPrintRecord, handleTemplateRecordPrint } from 'worksheet/common/recordInfo/RecordForm/PrintList';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
+import { useGeneratePdf } from 'worksheet/common/PrintQrBarCode/GeneratingPdf';
+import CustomButtonsWithAutoWidth, {
+  decorateOperatesButton,
+} from 'worksheet/common/recordInfo/RecordForm/CustomButtons/CustomButtonsAutoWidth.jsx';
+import {
+  handleSystemPrintRecord,
+  handleTemplateRecordPrint,
+  precheckTemplatePrint,
+} from 'worksheet/common/recordInfo/RecordForm/RecordPrint/recordPrintActions';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import { handleCopyRecord, handleDeleteRecord, handleShareRecord } from 'worksheet/components/RecordOperate';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperatesButtons,
-  getSheetOperatesButtonsStyle,
-} from 'src/utils/worksheet';
+import { useShareDialog } from 'worksheet/components/Share';
+import { PRINT_TYPE } from 'src/pages/Print/core/config';
+import { getSheetOperatesButtons, getSheetOperatesButtonsStyle } from 'src/utils/domain/worksheet/helpers';
 
 const CardWrapper = styled.div`
   height: 48px;
   display: flex;
   align-items: center;
-  ${({ btnStyle }) =>
-    btnStyle === 'icon' &&
+  /* 留白挂在外层，让内部按 autoSize 量到的宽度就是按钮可用宽度 */
+  padding: 0 14px;
+  ${({ $btnStyle }) =>
+    $btnStyle === 'icon' &&
     `
     margin: 0 -14px;
   `}
   .customButtonsCon {
     justify-content: center;
-    padding: 0 14px;
     height: 100%;
     > * {
-      max-width: ${({ maxWidth }) => maxWidth}px !important;
-    }
-    .recordCustomButton.ming.Button .content {
-      z-index: auto;
+      /* 等分宽度由 CustomButtonsAutoWidth 按真正渲染出来的按钮数量下发 */
+      max-width: var(--operates-card-item-max-width, none) !important;
     }
     > span,
     .operates-icon {
       flex: 1;
-      button.ming.Button.isOperates {
+      button.recordCustomButton.isOperates {
         width: 100% !important;
         text-align: center;
         display: flex !important;
         justify-content: center;
       }
-      .ming.Button.isOperates.operates-icon {
+      .recordCustomButton.isOperates.operates-icon {
         height: 20px !important;
-        min-height: 20px !important;
         border-radius: 0 !important;
-        line-height: 20px !important;
-        .content {
-          height: 20px !important;
-          justify-content: center;
-          span,
-          i {
-            height: 18px !important;
-            line-height: 18px !important;
-          }
+        .hap-btn-icon {
+          height: 18px !important;
+          line-height: 18px !important;
         }
       }
     }
-    ${({ btnStyle }) =>
-      includes(['text', 'icon'], btnStyle) &&
+    ${({ $btnStyle }) =>
+      includes(['text', 'icon'], $btnStyle) &&
       `
       > span {
         border-right: 1px solid var(--color-border-secondary) !important;
@@ -69,8 +67,8 @@ const CardWrapper = styled.div`
       width: 40px;
     }
     &:not(.showMore) {
-      ${({ btnStyle }) =>
-        includes(['text', 'icon'], btnStyle) &&
+      ${({ $btnStyle }) =>
+        includes(['text', 'icon'], $btnStyle) &&
         `
       > span:last-child {
         border-right: none !important;
@@ -99,9 +97,8 @@ export default function OperateButtons({
   const { isCharge, appId, projectId, worksheetId, view, sheetButtons, printList, sheetSwitchPermit, controls } =
     context || {};
   const [btnDisable, setBtnDisable] = useState({});
-  const conRef = useRef();
-  const [width, setWidth] = useState(0);
-  const [loading, setLoading] = useState(isInCard);
+  const { open: openGeneratePdf, holder: generatePdfHolder } = useGeneratePdf();
+  const { open: openShareDialog, holder: shareDialogHolder } = useShareDialog();
   const viewId = view?.viewId;
   let buttons = getSheetOperatesButtons(view, {
     buttons: sheetButtons,
@@ -123,19 +120,7 @@ export default function OperateButtons({
 
   const operatesButtonsStyle = getSheetOperatesButtonsStyle(view);
   const { visibleNum, primaryNum, style, showIcon } = operatesButtonsStyle;
-  const showMore = visibleNum < buttons.length;
   const Wrapper = isInCard ? CardWrapper : Fragment;
-  const visibleButtons = buttons.slice(0, visibleNum);
-  useLayoutEffect(() => {
-    if (loading && isInCard && conRef.current) {
-      setTimeout(() => {
-        if (conRef.current) {
-          setWidth(conRef.current.clientWidth);
-          setLoading(false);
-        }
-      }, 0);
-    }
-  });
   // resetFlag 由外部在流程执行结束后递增：像「界面推送」这类不写记录的流程执行完后 utime 不变，
   // 只靠行数据变化无法解除点击后的置灰状态。
   useEffect(() => {
@@ -154,133 +139,139 @@ export default function OperateButtons({
     <Wrapper
       {...(isInCard
         ? {
-            ref: conRef,
-            className: showMore,
-            btnStyle: style,
-            maxWidth: Math.floor(
-              (width - 28 - (showMore ? 32 : 0) - 6 * (visibleButtons.length + (showMore ? 1 : 0) - 1)) /
-                visibleButtons.length,
-            ),
+            $btnStyle: style,
             onClick: e => e.stopPropagation(),
           }
         : {})}
     >
-      {!loading && (
-        <CustomButtonsWithAutoWidth
-          rowHeight={rowHeight}
-          type="button"
-          isOperates
-          isInCard={isInCard}
-          isCharge={isCharge}
-          projectId={projectId}
-          appId={appId}
-          viewId={viewId}
-          isRecordLock={row.sys_lock}
-          entityName={entityName}
-          worksheetId={worksheetId}
-          recordId={recordId}
-          onUpdateRow={onUpdateRow}
-          buttons={buttons.map((button, index) => ({
-            ...button,
-            icon: button.icon || (style === 'icon' ? 'custom_actions' : ''),
-            color: button.color === 'transparent' ? 'var(--color-primary)' : button.color,
-            style,
-            showIcon,
-            showAsPrimary: style === 'standard' && index < primaryNum,
-            className: ['operates-' + style, 'operates-showIcon-' + showIcon].join(' '),
-            ...(button.type !== 'custom_button' &&
-              button.type !== 'group_ref' && {
-                onClick: () => {
-                  if (window.isPublicApp) {
-                    alert(_l('预览模式下，不能操作'), 3);
+      {generatePdfHolder}
+      {shareDialogHolder}
+      <CustomButtonsWithAutoWidth
+        rowHeight={rowHeight}
+        type="button"
+        isOperates
+        isInCard={isInCard}
+        isCharge={isCharge}
+        projectId={projectId}
+        appId={appId}
+        viewId={viewId}
+        isRecordLock={row.sys_lock}
+        entityName={entityName}
+        worksheetId={worksheetId}
+        recordId={recordId}
+        onUpdateRow={onUpdateRow}
+        buttons={buttons.map((button, index) => ({
+          ...decorateOperatesButton(button, { style, showIcon }),
+          color: button.color === 'transparent' ? 'var(--color-primary)' : button.color,
+          showAsPrimary: style === 'standard' && index < primaryNum,
+          className: ['operates-' + style, 'operates-showIcon-' + showIcon].join(' '),
+          ...(button.type !== 'custom_button' &&
+            button.type !== 'group_ref' && {
+              onClick: () => {
+                if (window.isPublicApp) {
+                  alert(_l('预览模式下，不能操作'), 3);
+                  return;
+                }
+
+                if (button.type === 'copy') {
+                  handleCopyRecord({
+                    worksheetId,
+                    viewId,
+                    recordId,
+                    onCopySuccess,
+                  });
+                } else if (button.type === 'delete') {
+                  if (row.sys_lock) {
+                    alert(_l('%0已锁定', entityName), 3);
                     return;
                   }
 
-                  if (button.type === 'copy') {
-                    handleCopyRecord({
-                      worksheetId,
+                  handleDeleteRecord({
+                    worksheetId,
+                    recordId,
+                    // onDelete,
+                    onDeleteSuccess,
+                  });
+                } else if (button.type === 'share') {
+                  handleShareRecord({
+                    isCharge,
+                    appId,
+                    worksheetId,
+                    viewId,
+                    recordId,
+                    sheetSwitchPermit,
+                    openShareDialog,
+                  });
+                } else if (button.type === 'sysprint') {
+                  handleSystemPrintRecord({
+                    worksheetId,
+                    viewId,
+                    appId,
+                    projectId,
+                    recordId,
+                    rowIds: [recordId],
+                  });
+                } else if (button.type === 'print') {
+                  worksheetAjax
+                    .getPrintList({
                       viewId,
-                      recordId,
-                      onCopySuccess,
-                    });
-                  } else if (button.type === 'delete') {
-                    if (row.sys_lock) {
-                      alert(_l('%0已锁定', entityName), 3);
-                      return;
-                    }
-
-                    handleDeleteRecord({
                       worksheetId,
-                      recordId,
-                      // onDelete,
-                      onDeleteSuccess,
-                    });
-                  } else if (button.type === 'share') {
-                    handleShareRecord({
-                      isCharge,
-                      appId,
-                      worksheetId,
-                      viewId,
-                      recordId,
-                      sheetSwitchPermit,
-                    });
-                  } else if (button.type === 'sysprint') {
-                    handleSystemPrintRecord({
-                      worksheetId,
-                      viewId,
-                      appId,
-                      projectId,
-                      recordId,
-                      rowIds: [recordId],
-                    });
-                  } else if (button.type === 'print') {
-                    worksheetAjax
-                      .getPrintList({
-                        viewId,
-                        worksheetId,
-                        rowIds: [recordId].filter(Boolean),
-                      })
-                      .then(templates => {
-                        if (find(templates, template => template.id === button.printItem.id && !template.disabled)) {
-                          handleTemplateRecordPrint({
-                            worksheetId,
-                            viewId,
-                            recordId,
-                            appId,
+                      rowIds: [recordId].filter(Boolean),
+                    })
+                    .then(async templates => {
+                      if (find(templates, template => template.id === button.printItem.id && !template.disabled)) {
+                        const isAllowed =
+                          button.printItem.type === PRINT_TYPE.CLOUD_PRINT ||
+                          (await precheckTemplatePrint({
                             projectId,
-                            template: button.printItem,
-                            attriData: controls
-                              .filter(o => o.attribute === 1)
-                              .map(o => ({
-                                ...o,
-                                value: get(row, o.controlId),
-                              })),
-                            updatePrintStatus: ({ printLoading }) =>
-                              setBtnDisable(old => ({ ...old, [button.btnId]: printLoading })),
-                          });
-                        } else {
-                          alert(_l('无法打印“%0”', button.printItem.name), 3);
-                          setBtnDisable(old => ({ ...old, [button.printItem.id]: true }));
+                            worksheetId,
+                            printId: button.printItem.id,
+                            rowIds: [recordId],
+                          }));
+
+                        if (!isAllowed) {
+                          return;
                         }
-                      });
-                  }
-                },
-              }),
-          }))}
-          btnDisable={btnDisable}
-          onButtonClick={btnId => {
-            setBtnDisable(old => ({ ...old, [btnId]: true }));
-          }}
-          onButtonTriggerFail={btnId => {
-            // 只释放本次点击态，能不能点仍由服务端返回的执行条件（button.disabled）决定，
-            // 所以这里同时重取该行按钮的执行条件，避免解除点击态后停留在过期的可执行状态。
-            setBtnDisable(old => _.omit(old, [btnId]));
-            onRefreshButtonStatus(recordId);
-          }}
-          sheetSwitchPermit={sheetSwitchPermit}
-          visibleNum={visibleNum}
-        />
-      )}
+
+                        handleTemplateRecordPrint({
+                          worksheetId,
+                          viewId,
+                          recordId,
+                          appId,
+                          projectId,
+                          openGeneratePdf,
+                          template: button.printItem,
+                          attriData: controls
+                            .filter(o => o.attribute === 1)
+                            .map(o => ({
+                              ...o,
+                              value: get(row, o.controlId),
+                            })),
+                          updatePrintStatus: ({ printLoading }) =>
+                            setBtnDisable(old => ({ ...old, [button.btnId]: printLoading })),
+                        });
+                      } else {
+                        alert(_l('无法打印“%0”', button.printItem.name), 3);
+                        setBtnDisable(old => ({ ...old, [button.printItem.id]: true }));
+                      }
+                    });
+                }
+              },
+            }),
+        }))}
+        btnDisable={btnDisable}
+        onButtonClick={btnId => {
+          setBtnDisable(old => ({ ...old, [btnId]: true }));
+        }}
+        onButtonTriggerFail={btnId => {
+          // 只释放本次点击态，能不能点仍由服务端返回的执行条件（button.disabled）决定，
+          // 所以这里同时重取该行按钮的执行条件，避免解除点击态后停留在过期的可执行状态。
+          setBtnDisable(old => _.omit(old, [btnId]));
+          onRefreshButtonStatus(recordId);
+        }}
+        sheetSwitchPermit={sheetSwitchPermit}
+        visibleNum={visibleNum}
+      />
     </Wrapper>
   );
 }

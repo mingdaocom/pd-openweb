@@ -3,25 +3,28 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Checkbox, Dialog, Input, Menu, MenuItem, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { UserHead } from 'ming-ui';
+import { Checkbox, Dropdown, Input, Modal, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import departmentController from 'src/api/department';
 import userController from 'src/api/user';
 import { checkCertification } from 'src/components/checkCertification';
-import { hasPermission } from 'src/components/checkPermission';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import TodoEntrustModal from 'src/pages/workflow/MyProcess/TodoEntrust/TodoEntrustModal';
-import { encrypt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { encrypt } from 'src/utils/services/security/encryption';
+import { hasPermission } from 'src/utils/services/security/permission';
 import * as currentActions from '../../actions/current';
 import * as entitiesActions from '../../actions/entities';
-import { handoverDialog } from '../HandoverDialog';
-import { refuseUserJoinFunc } from '../refuseUserJoinDia';
+import { useHandoverDialog } from '../HandoverDialog';
+import { useRefuseUserJoinDialog } from '../refuseUserJoinDia';
 import './userItem.less';
+
+const TABLE_CHECKBOX_STYLES = {
+  icon: { marginTop: -2 },
+};
 
 class UserItem extends Component {
   constructor(props) {
@@ -35,6 +38,7 @@ class UserItem extends Component {
       password: '',
       isTopUp: props.user.displayOrder > 0,
     };
+    this.requestPending = false;
   }
 
   updateFullDepartmentInfo = (projectId, departmentIds) => {
@@ -155,17 +159,11 @@ class UserItem extends Component {
     };
   }
 
-  clickEvent = e => {
-    e.stopPropagation();
-    this.setState({ optListVisible: !this.state.optListVisible });
-  };
-
   // 拒绝
-  handleRefuseClick = e => {
+  handleRefuseClick = () => {
     const { accountId, projectId } = this.props;
 
-    this.clickEvent(e);
-    refuseUserJoinFunc({
+    this.props.openRefuseUserJoinDialog({
       projectId,
       accountIds: [accountId],
       callback: () => {
@@ -176,35 +174,30 @@ class UserItem extends Component {
   };
 
   // 重新审批
-  handleApprovalClick = e => {
-    this.clickEvent(e);
+  handleApprovalClick = () => {
     this.props.clickRow();
   };
 
   // 编辑
-  handleEditUserClick = e => {
-    this.clickEvent(e);
+  handleEditUserClick = () => {
     this.props.clickRow();
   };
 
   // 交接工作
-  handleTransfer = e => {
-    this.clickEvent(e);
+  handleTransfer = () => {
     this.setState({ showWorkHandover: true });
   };
 
   // 待办委托
-  handleDelegate = e => {
-    this.clickEvent(e);
+  handleDelegate = () => {
     this.setState({ showDelegate: true });
   };
 
   // 离职
-  handleRemoveUserClick = e => {
+  handleRemoveUserClick = () => {
     const { accountId, projectId, user, departmentId, typeCursor } = this.props;
 
-    this.clickEvent(e);
-    handoverDialog({
+    this.props.openHandoverDialog({
       accountId,
       projectId,
       user: { ...user },
@@ -224,11 +217,9 @@ class UserItem extends Component {
   };
 
   // 设为/取消部门负责人
-  setAndCancelCharge = e => {
+  setAndCancelCharge = () => {
     let { typeCursor, projectId, departmentId, user = {}, departments } = this.props;
     const department = _.find(departments, d => d.departmentId === departmentId);
-
-    this.clickEvent(e);
 
     if (department && department.disabled) {
       alert(user.isDepartmentChargeUser ? _l('已停用，无法取消部门负责人') : _l('已停用，无法设置部门负责人'), 3);
@@ -252,21 +243,19 @@ class UserItem extends Component {
   };
 
   // 重新邀请
-  inviteAgain = e => {
+  inviteAgain = () => {
     const { user = {} } = this.props;
 
-    this.clickEvent(e);
     this.props.fetchReInvite([user.accountId]);
   };
   // 取消邀请并移除
-  cancelInviteAndRemove = e => {
+  cancelInviteAndRemove = () => {
     const { projectId, user = {} } = this.props;
 
-    this.clickEvent(e);
-    Confirm({
+    Modal.confirm({
       className: 'deleteNodeConfirm',
-      title: _l('确认取消邀请该用户吗'),
-      description: '',
+      title: <span className="textError">{_l('确认取消邀请该用户吗')}</span>,
+      content: '',
       okText: _l('确定'),
       onOk: () =>
         this.props.fetchCancelImportUser([user.accountId], () => {
@@ -277,8 +266,7 @@ class UserItem extends Component {
   };
 
   // 重置密码
-  handleResetPasswordClick = e => {
-    this.clickEvent(e);
+  handleResetPasswordClick = () => {
     this.setState({ resetPasswordShowDialog: !this.state.resetPasswordShowDialog });
   };
 
@@ -293,32 +281,36 @@ class UserItem extends Component {
     }
 
     return (
-      <Dialog
+      <Modal
         title={_l('重置密码')}
+        mask={{ closable: true }}
+        keyboard
         okText={_l('保存')}
         cancelText={_l('取消')}
         onCancel={() => {
           this.setState({ resetPasswordShowDialog: false });
         }}
         onOk={this.handleSavePassWord}
-        visible={this.state.resetPasswordShowDialog}
+        open={this.state.resetPasswordShowDialog}
       >
         <div className="Font15 textPrimary mTop20 mBottom10">{_l('请输入新密码')}</div>
         <Input
           className="w100"
           type="password"
-          autocomplete="new-password"
+          autoComplete="new-password"
           value={this.state.password}
           placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-          onChange={value => {
-            this.setState({ password: value });
+          onChange={e => {
+            this.setState({ password: e.target.value });
           }}
         />
-      </Dialog>
+      </Modal>
     );
   };
 
   handleSavePassWord = () => {
+    if (this.requestPending) return;
+
     const { accountId, projectId } = this.props;
     const { password } = this.state;
     const { md = {} } = window;
@@ -329,12 +321,13 @@ class UserItem extends Component {
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
-    } else if (!RegExpValidator.isPasswordValid(password)) {
+    } else if (!isPasswordValid(password)) {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
 
-    userController
+    this.requestPending = true;
+    return userController
       .resetPassword({
         projectId,
         accountId,
@@ -347,15 +340,16 @@ class UserItem extends Component {
         } else {
           alert(_l('修改失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
-  handleTopUp = e => {
+  handleTopUp = () => {
     const { accountId, projectId, departmentId, typeCursor } = this.props;
     const { isTopUp } = this.state;
     const promiseFun = !isTopUp ? departmentController.setTopDisplayOrder : departmentController.cancelTopDisplayOrder;
-
-    this.clickEvent(e);
 
     promiseFun({
       projectId,
@@ -372,75 +366,82 @@ class UserItem extends Component {
     });
   };
 
-  handleSort = e => {
-    this.clickEvent(e);
+  handleSort = () => {
     this.props.handleSortTopUp();
   };
 
-  renderAction = () => {
-    const { user, typeCursor, departmentId, authority = [], projectId } = this.props;
+  getActionItems = () => {
+    const { user, typeCursor, departmentId, authority = [] } = this.props;
     const { isTopUp } = this.state;
 
-    return _.includes([0, 1], typeCursor) ? (
-      <Menu className="userOptList">
-        <MenuItem onClick={this.handleEditUserClick}> {_l('编辑')}</MenuItem>
-        {!!departmentId && (
-          <Fragment>
-            <MenuItem onClick={this.handleTopUp}>{isTopUp ? _l('取消置顶') : _l('置顶')}</MenuItem>
-            {isTopUp && <MenuItem onClick={this.handleSort}>{_l('排序')}</MenuItem>}
-          </Fragment>
-        )}
+    if (_.includes([0, 1], typeCursor)) {
+      return [
+        { key: 'edit', label: _l('编辑') },
+        ...(departmentId
+          ? [
+              { key: 'topUp', label: isTopUp ? _l('取消置顶') : _l('置顶') },
+              ...(isTopUp ? [{ key: 'sort', label: _l('排序') }] : []),
+            ]
+          : []),
+        ...(!window.platformENV.isPlatform ? [{ key: 'resetPassword', label: _l('重置密码') }] : []),
+        ...(departmentId
+          ? [
+              {
+                key: 'departmentCharge',
+                label: user.isDepartmentChargeUser ? _l('取消部门负责人') : _l('设为部门负责人'),
+              },
+            ]
+          : []),
+        ...(hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE)
+          ? [
+              { key: 'transfer', label: _l('交接工作') },
+              { key: 'delegate', label: _l('待办委托') },
+            ]
+          : []),
+        ...(user.accountId !== md.global.Account.accountId ? [{ key: 'remove', danger: true, label: _l('离职') }] : []),
+      ];
+    }
 
-        {!window.platformENV.isPlatform && (
-          <MenuItem onClick={this.handleResetPasswordClick}> {_l('重置密码')}</MenuItem>
-        )}
-        {departmentId && !user.isDepartmentChargeUser && (
-          <MenuItem onClick={this.setAndCancelCharge}>{_l('设为部门负责人')}</MenuItem>
-        )}
-        {departmentId && user.isDepartmentChargeUser && (
-          <MenuItem onClick={this.setAndCancelCharge}>{_l('取消部门负责人')}</MenuItem>
-        )}
-        {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
-          <Fragment>
-            <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
-            <MenuItem onClick={this.handleDelegate}> {_l('待办委托')}</MenuItem>
-          </Fragment>
-        )}
-        {user.accountId !== md.global.Account.accountId && (
-          <MenuItem className="leaveText" onClick={this.handleRemoveUserClick}>
-            {_l('离职')}
-          </MenuItem>
-        )}
-      </Menu>
-    ) : typeCursor === 2 ? (
-      <Menu className="userOptList">
-        <MenuItem
-          onClick={e => {
-            e.stopPropagation();
-            this.setState({ optListVisible: false });
-            checkCertification({ projectId, checkSuccess: this.inviteAgain.bind(this, e) });
-          }}
-        >
-          {_l('重新邀请')}
-        </MenuItem>
-        <MenuItem onClick={this.cancelInviteAndRemove}>{_l('取消邀请并移除')}</MenuItem>
-      </Menu>
-    ) : _.includes([2, 3], user.status) ? (
-      <Menu className="userOptList">
-        <MenuItem
-          onClick={e => {
-            e.stopPropagation();
-            this.setState({ optListVisible: false });
-            checkCertification({ projectId, checkSuccess: this.handleApprovalClick.bind(this, e) });
-          }}
-        >
-          {user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('批准加入') : ''}
-        </MenuItem>
-        {user.status == 3 && <MenuItem onClick={this.handleRefuseClick}>{_l('拒绝加入')}</MenuItem>}
-      </Menu>
-    ) : (
-      <Fragment></Fragment>
-    );
+    if (typeCursor === 2) {
+      return [
+        { key: 'inviteAgain', label: _l('重新邀请') },
+        { key: 'cancelInvite', label: _l('取消邀请并移除') },
+      ];
+    }
+
+    if (_.includes([2, 3], user.status)) {
+      return [
+        {
+          key: 'approval',
+          label: user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('批准加入') : '',
+        },
+        ...(user.status == 3 ? [{ key: 'refuse', label: _l('拒绝加入') }] : []),
+      ];
+    }
+
+    return [];
+  };
+
+  handleActionClick = ({ key, domEvent }) => {
+    const { projectId } = this.props;
+    const actionHandlers = {
+      edit: this.handleEditUserClick,
+      topUp: this.handleTopUp,
+      sort: this.handleSort,
+      resetPassword: this.handleResetPasswordClick,
+      departmentCharge: this.setAndCancelCharge,
+      transfer: this.handleTransfer,
+      delegate: this.handleDelegate,
+      remove: this.handleRemoveUserClick,
+      inviteAgain: () => checkCertification({ projectId, checkSuccess: this.inviteAgain }),
+      cancelInvite: this.cancelInviteAndRemove,
+      approval: () => checkCertification({ projectId, checkSuccess: this.handleApprovalClick }),
+      refuse: this.handleRefuseClick,
+    };
+
+    domEvent.stopPropagation();
+    this.setState({ optListVisible: false });
+    actionHandlers[key]?.();
   };
 
   render() {
@@ -487,10 +488,12 @@ class UserItem extends Component {
           >
             <Checkbox
               key={`checkBox-${user.accountId}`}
-              className="TxtMiddle InlineBlock"
+              className="TxtMiddle"
               checked={isChecked}
-              onClick={(checked, id, e) => {
-                e.stopPropagation();
+              styles={TABLE_CHECKBOX_STYLES}
+              onClick={event => event.stopPropagation()}
+              onChange={event => {
+                event.stopPropagation();
                 this.handleCheckbox(isChecked, user.accountId);
               }}
             />
@@ -609,21 +612,21 @@ class UserItem extends Component {
           )}
 
           <td className="actTh">
-            <Trigger
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [-20, 0],
-                overflow: { adjustX: true, adjustY: true },
+            <Dropdown
+              placement="bottomRight"
+              trigger={['click']}
+              open={optListVisible}
+              onOpenChange={optListVisible => this.setState({ optListVisible })}
+              menu={{
+                items: this.getActionItems(),
+                onClick: this.handleActionClick,
+                style: { minWidth: 120 },
               }}
-              popupVisible={optListVisible}
-              onPopupVisibleChange={optListVisible => this.setState({ optListVisible })}
-              popup={this.renderAction}
             >
               <span className="Hand" onClick={e => e.stopPropagation()}>
                 <span className="icon-moreop TxtMiddle Font18 textTertiary" />
               </span>
-            </Trigger>
+            </Dropdown>
           </td>
         </tr>
         {this.renderResetPasswordInfo()}
@@ -672,4 +675,7 @@ const connectedUserItem = connect(mapStateToProps, dispatch =>
   bindActionCreators({ ...entitiesActions, ...currentActions }, dispatch),
 )(UserItem);
 
-export default connectedUserItem;
+export default withOpeners(connectedUserItem, {
+  openRefuseUserJoinDialog: useRefuseUserJoinDialog,
+  openHandoverDialog: useHandoverDialog,
+});

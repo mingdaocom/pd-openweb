@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import { errorMessage } from '../../utils/utils';
 import CreateFolder from '../createFolder/createFolder';
@@ -87,9 +87,9 @@ export default class FolderTemplate extends Component {
   delTemplate(templateId, evt) {
     evt.stopPropagation();
 
-    Dialog.confirm({
-      title: _l('您确定要删除当前模板吗？'),
-      children: <div>{_l('模板被删除后，将无法恢复')}</div>,
+    Modal.confirm({
+      title: <span className="textError">{_l('您确定要删除当前模板吗？')}</span>,
+      content: <div>{_l('模板被删除后，将无法恢复')}</div>,
       okText: _l('删除'),
       onOk: () => {
         ajaxRequest
@@ -101,7 +101,9 @@ export default class FolderTemplate extends Component {
               alert(_l('删除成功'));
               const templates = this.state.templates;
               _.remove(templates, template => template.templateId === templateId);
-              this.setState({ templates });
+              this.setState({
+                templates,
+              });
             } else {
               errorMessage(source.error);
             }
@@ -124,12 +126,14 @@ export default class FolderTemplate extends Component {
     };
 
     return (
-      <Dialog
+      <Modal
         className="folderTemplate"
-        visible
-        width={templateType.length === 1 ? 615 : 760}
+        open
+        mask={{ closable: true }}
+        keyboard
+        width={800}
         title={_l('新建项目')}
-        showFooter={false}
+        footer={null}
         onCancel={this.props.onClose}
       >
         {templateType.length === 0 ? (
@@ -217,7 +221,7 @@ export default class FolderTemplate extends Component {
             }}
           />
         ) : undefined}
-      </Dialog>
+      </Modal>
     );
   }
 }

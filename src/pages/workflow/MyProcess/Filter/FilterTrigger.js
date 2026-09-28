@@ -2,11 +2,9 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { TABS } from '../config';
 
 export default class Filter extends Component {
   getFilterLength = () => {
-    const { stateTab } = this.props;
     const filter = {
       ...this.props.filter,
       isAsc: undefined,
@@ -18,11 +16,6 @@ export default class Filter extends Component {
       delete filter.resultType;
     } else {
       return 0;
-    }
-
-    if (stateTab !== TABS.COMPLETE) {
-      delete filter.startDate;
-      delete filter.endDate;
     }
 
     return _.toArray(filter).filter(item => item).length;

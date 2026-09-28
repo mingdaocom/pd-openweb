@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Drawer } from 'antd';
 import styled from 'styled-components';
-import { SvgIcon, Textarea } from 'ming-ui';
+import { SvgIcon } from 'ming-ui';
+import { Drawer, Input } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import { updateProcess } from '../../redux/actions';
 import { DetailFooter } from '../Detail/components';
 import './index.less';
+
+const EXPLAIN_TEXTAREA_STYLE = { minHeight: 100, maxHeight: 300 };
 
 const PluginIcon = styled.div`
   width: 36px;
@@ -85,7 +87,14 @@ class WorkflowInfo extends Component {
     const { explain, name, iconColor, iconName } = this.state;
 
     return (
-      <Drawer placement="right" visible={visible} closable={false} mask={false} bodyStyle={{ padding: 0 }} width={800}>
+      <Drawer
+        placement="right"
+        open={visible}
+        closable={false}
+        mask={false}
+        size={800}
+        styles={{ body: { padding: 0 } }}
+      >
         <div className="workflowInfo flexColumn h100">
           <div className="Font17 bold flexRow alignItemsCenter pLeft24 pRight24" style={{ height: 55 }}>
             <div className="flex">{_l('基本信息')}</div>
@@ -94,10 +103,8 @@ class WorkflowInfo extends Component {
           <div className="flex mLeft24 mRight24">
             <div className="bold">{_l('名称')}</div>
             <div className="mTop10">
-              <input
-                type="text"
+              <Input
                 ref={name => (this.name = name)}
-                className="hoverBorderColorPrimary borderColorPrimary"
                 maxLength={30}
                 autoFocus
                 value={name}
@@ -130,13 +137,13 @@ class WorkflowInfo extends Component {
               </div>
             )}
             <div className="mTop15 bold mBottom10">{_l('说明')}</div>
-            <Textarea
-              minHeight={100}
-              maxHeight={300}
+            <Input.TextArea
+              autoSize
+              style={EXPLAIN_TEXTAREA_STYLE}
               maxLength={10000}
               name="explain"
               value={explain}
-              onChange={explain => this.setState({ explain })}
+              onChange={event => this.setState({ explain: event.target.value })}
             />
           </div>
           <DetailFooter {...this.props} isCorrect={!!name.trim()} onSave={this.onOk} closeDetail={onClose} />

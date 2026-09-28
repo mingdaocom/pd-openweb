@@ -3,9 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
-import { getEnumType } from '../../util';
+import { getEnumType } from 'src/utils/domain/customPage/model';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
 import Image from '../editWidget/Image';
 import RichText from '../editWidget/richText';
 import Subsection from '../editWidget/subsection';
@@ -47,6 +47,9 @@ const WidgetContent = styled.div`
   &.carousel,
   &.filter {
     padding: 0 !important;
+  }
+  &.view {
+    overflow: hidden;
   }
   &.filter {
     align-items: center;
@@ -121,7 +124,7 @@ const WidgetContent = styled.div`
 
 const WidgetDisplay = forwardRef((props, $cardRef) => {
   const { layoutType, isFullscreen, editable, ids, projectId, widget, editingWidget, isCharge, ...rest } = props;
-  const { type, param = [], value, needUpdate, button, name, config = {} } = widget;
+  const { type, param = [], value, needUpdate, button, name, config = {}, componentConfig = {} } = widget;
   const { worksheetId, appId } = ids;
   const componentType = getEnumType(type);
   const ref = useRef(null);
@@ -195,6 +198,11 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         );
       }
 
+      const isCurrentAppView = appId === widget.apkId;
+      const appPermissions = isCurrentAppView
+        ? { isCharge, isLock: rest.isLock, permissionType: rest.permissionType }
+        : { isCharge: false };
+
       return (
         editingWidget.viewId !== widget.viewId && (
           <Suspense fallback={<LazyDisplayFallback />}>
@@ -203,12 +211,13 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
               layoutType={layoutType}
               className={cx({ disableSingleView: editable })}
               appId={ids.appId}
+              appPermissions={appPermissions}
               setting={{
                 ...widget,
                 config: {
                   ...widget.config,
                   refresh: _.get(rest.config, 'refresh'),
-                  printCharge: appId === widget.apkId ? isCharge : false,
+                  printCharge: isCurrentAppView ? isCharge : false,
                 },
               }}
             />
@@ -281,7 +290,19 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     }
 
     if (componentType === 'subsection') {
-      return <Subsection editable={editable} widget={widget} />;
+      const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
+      const translatedWidget =
+        editable || !translateInfo.name
+          ? widget
+          : {
+              ...widget,
+              componentConfig: {
+                ...componentConfig,
+                name: translateInfo.name,
+              },
+            };
+
+      return <Subsection editable={editable} widget={translatedWidget} />;
     }
   };
 

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import externalPortalApi from 'src/api/externalPortal';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
 
@@ -120,7 +120,8 @@ export default function ExternalPortalRole(props) {
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
-          <input
+          <Input
+            variant="borderless"
             placeholder={_l('角色')}
             className="flex"
             value={searchValue}

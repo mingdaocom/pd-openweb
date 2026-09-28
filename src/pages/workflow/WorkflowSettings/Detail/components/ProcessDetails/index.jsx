@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { OPERATION_TYPE } from '../../../enum';
 import SingleControlValue from '../SingleControlValue';
 
@@ -10,7 +10,7 @@ export default props => {
   const fieldId = ((data.fields || [])[0] || {}).fieldId || '';
   const item = data.controls.find(({ controlId }) => controlId === fieldId);
   const list = data.controls.map(({ controlId, controlName, sourceEntityName }) => ({
-    text: (
+    label: (
       <span>
         {controlName}
         <span className="textSecondary">（{_l('关联表“%0”', sourceEntityName)}）</span>
@@ -20,27 +20,21 @@ export default props => {
   }));
   const detailSource = (data.flowNodeMap || {})[OPERATION_TYPE.GET_OPERATION] || {};
 
-  if (fieldId) {
-    list.unshift({
-      text: _l('清除选择'),
-      value: '',
-    });
-  }
-
   return (
     <Fragment>
       <div className="Font13 mTop20 bold">{_l('更新流程操作明细（每个节点完成后）')}</div>
       <div className="Font13 textSecondary mTop10">
         {_l('选择一个子表或关联表，系统将于每个节点完成后，自动同步本流程的各人工节点的操作明细至该表')}
       </div>
-      <Dropdown
+      <Select
+        allowClear
         className={cx('flowDropdown mTop10', { 'errorBorder errorBG': fieldId && !item })}
-        data={list}
-        value={fieldId}
-        renderTitle={
+        options={list}
+        value={fieldId || undefined}
+        labelRender={
           !fieldId
-            ? () => <span className="textPlaceholder">{_l('请选择')}</span>
-            : fieldId && !item
+            ? undefined
+            : !item
               ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
               : () => (
                   <span>
@@ -49,7 +43,6 @@ export default props => {
                   </span>
                 )
         }
-        border
         onChange={fieldId =>
           fieldId
             ? getNodeDetail({ fields: [{ fieldId }] })

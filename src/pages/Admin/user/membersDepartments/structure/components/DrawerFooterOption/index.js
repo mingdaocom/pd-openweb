@@ -1,5 +1,7 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
+import { Button } from 'ming-ui/antd-components';
+
+const FOOTER_STYLE = { margin: '25px 24px 20px' };
 
 export default function DrawerFooterOption(props) {
   const {
@@ -18,92 +20,73 @@ export default function DrawerFooterOption(props) {
   return (
     <Fragment>
       {(typeCursor === 0 || typeCursor === 1) && actType === 'add' && (
-        <div className="btnGroups">
-          <a
-            className="btnBootstrap addBtn"
-            href="javascript:void(0);"
-            disabled={isUploading}
-            onMouseDown={() => handleSubmit()}
-          >
+        <div style={FOOTER_STYLE}>
+          <Button type="primary" disabled={isUploading} onMouseDown={() => handleSubmit()}>
             {_l('添加')}
-          </a>
-          <a
-            className="btnBootstrap mLeft8 addContinueBtn"
-            href="javascript:void(0);"
+          </Button>
+          <Button
+            color="primary"
+            variant="outlined"
+            className="mLeft8"
             disabled={isUploading}
             onMouseDown={() => handleSubmit(true)}
           >
             {_l('继续添加')}
-          </a>
-          <span
-            className="Hand cancelBtn mLeft8"
+          </Button>
+          <Button
+            color="default"
+            variant="text"
+            className="mLeft8"
             onClick={() => {
               onClose(true);
             }}
           >
             {_l('取消')}
-          </span>
+          </Button>
         </div>
       )}
       {(typeCursor === 0 || typeCursor === 1) && actType !== 'add' && (
-        <div className="btnGroups flexRow">
-          <div className="flex">
-            <a
-              className={cx('btnBootstrap addBtn', { disabledBtn: isUploading })}
-              href="javascript:void(0);"
-              disabled={isUploading}
-              onClick={() => {
-                if (isUploading) {
-                  return;
-                }
-
-                saveFn();
-              }}
-            >
-              {_l('保存')}
-            </a>
-            <span
-              className="Hand cancelBtn mLeft8"
-              onClick={() => {
-                onClose(true);
-              }}
-            >
-              {_l('取消')}
-            </span>
-          </div>
+        <div style={FOOTER_STYLE}>
+          <Button type="primary" disabled={isUploading} onClick={saveFn}>
+            {_l('保存')}
+          </Button>
+          <Button
+            color="default"
+            variant="text"
+            className="mLeft8"
+            onClick={() => {
+              onClose(true);
+            }}
+          >
+            {_l('取消')}
+          </Button>
         </div>
       )}
       {typeCursor === 2 && (
-        <div className="btnGroups flexRow">
-          <div className="flex">
-            <a
-              className="btnBootstrap addBtn"
-              href="javascript:void(0);"
-              onClick={() => props.fetchReInvite([accountId], onClose)}
-            >
-              {_l('重新邀请')}
-            </a>
-            <span className="Hand cancelBtn mLeft8" onClick={onClose}>
-              {_l('取消')}
-            </span>
-          </div>
+        <div style={FOOTER_STYLE}>
+          <Button type="primary" onClick={() => props.fetchReInvite([accountId], onClose)}>
+            {_l('重新邀请')}
+          </Button>
+          <Button color="default" variant="text" className="mLeft8" onClick={onClose}>
+            {_l('取消')}
+          </Button>
         </div>
       )}
       {typeCursor === 3 && (
-        <div className="btnGroups flexRow">
-          <div className="flex">
-            <span className={cx('btnBootstrap addBtn', { disabledBtn: agreeLoading })} onClick={props.agreeJoin}>
-              {agreeLoading ? _l('处理中...') : _l('批准加入')}
-            </span>
-            <span
-              className="Hand cancelBtn mLeft8"
-              onClick={() => {
-                onClose(true);
-              }}
-            >
-              {_l('取消')}
-            </span>
-          </div>
+        <div style={FOOTER_STYLE}>
+          <Button type="primary" loading={agreeLoading} onClick={props.agreeJoin}>
+            {agreeLoading ? _l('处理中...') : _l('批准加入')}
+          </Button>
+          <Button
+            color="default"
+            variant="text"
+            className="mLeft8"
+            onClick={() => {
+              onClose(true);
+            }}
+          >
+            {_l('取消')}
+          </Button>
         </div>
       )}
     </Fragment>

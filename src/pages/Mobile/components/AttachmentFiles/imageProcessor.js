@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { transferValue } from 'src/utils/domain/control/value';
 
 const WATERMARK_TEXT_LIMIT = 200;
 const IMAGE_COMPRESS_MAX_SIDE = 2048;

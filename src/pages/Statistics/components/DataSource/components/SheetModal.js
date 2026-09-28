@@ -1,41 +1,35 @@
 import React, { Component, Fragment } from 'react';
-import { Button, ConfigProvider, Modal, Select, Tabs } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Button, Input, Modal, Select, Tabs } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
-import { getTranslateInfo } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getFeatureStatus } from 'src/utils/services/project';
 
 const Wrap = styled.div`
-  .ant-tabs-nav {
+  .hap-tabs-nav {
     margin-bottom: 0 !important;
     &::before {
       border-bottom: none !important;
     }
-    .ant-tabs-tab-active .ant-tabs-tab-btn {
+    .hap-tabs-tab-active .hap-tabs-tab-btn {
       font-weight: bold;
     }
   }
-  .ant-tabs-content {
+  .hap-tabs-content {
     border: 1px solid var(--color-border-primary);
     border-radius: 4px;
   }
   .searchWrap {
-    padding: 12px 10px;
+    padding: 2px 10px;
     border-bottom: 1px solid var(--color-border-secondary);
-    input {
-      border: none;
-      &::placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
   }
   .workSheetListWrap {
     padding: 6px 0;
@@ -114,7 +108,7 @@ export default class SheetModal extends Component {
       .then(data => {
         this.setState({
           myApps: data.map(app => ({
-            text: appId === app.appId ? `${app.appName} (${_l('本应用')})` : app.appName,
+            label: appId === app.appId ? `${app.appName} (${_l('本应用')})` : app.appName,
             value: app.appId,
           })),
         });
@@ -261,10 +255,10 @@ export default class SheetModal extends Component {
     return (
       <div className="searchWrap flexRow alignItemsCenter">
         <Icon className="Font18 textTertiary mRight3" icon="search" />
-        <input
+        <Input
+          variant="borderless"
           className="w100"
           placeholder={_l('搜索')}
-          type="text"
           value={searchValue}
           onChange={e => this.setState({ searchValue: e.target.value })}
         />
@@ -291,16 +285,15 @@ export default class SheetModal extends Component {
         {sourceType ? (
           <Fragment>
             <div className="mBottom10">{_l('应用')}</div>
-            <Dropdown
-              isAppendToBody
-              border
-              openSearch
+            <Select
+              showPopupSearch
               className="w100"
-              menuClass="statisticsSelectWorksheetDropdownMenu"
+              classNames={{ popup: { root: 'statisticsSelectWorksheetDropdownMenu' } }}
               placeholder={_l('请选择你作为管理员或开发者的应用')}
-              noData={_l('没有可选的应用')}
+              notFoundContent={_l('没有可选的应用')}
               defaultValue={appId}
-              data={myApps}
+              optionFilterProp="label"
+              options={myApps}
               onChange={value => {
                 this.setState({ appId: value, sheets: [], aggregationSheets: [] });
                 if (activeKey === 'workSheet') {
@@ -324,58 +317,73 @@ export default class SheetModal extends Component {
                   this.setState({ activeKey: key, searchValue: '' });
                 }}
                 centered={true}
-              >
-                <Tabs.TabPane tab={_l('工作表')} key="workSheet">
-                  {this.renderSearch()}
-                  {sheetsLoading ? (
-                    <LoadDiv className="mTop10 mBottom10" />
-                  ) : (
-                    <div className="workSheetListWrap">
-                      {sheets
-                        .filter(item => item.workSheetName.includes(searchValue))
-                        .map(item => this.renderWorkSheetItem(item))}
-                    </div>
-                  )}
-                </Tabs.TabPane>
-                {!this.hideAggregation && (
-                  <Tabs.TabPane tab={_l('聚合表')} key="polymerizationSheet">
-                    {this.renderSearch()}
-                    {aggregationSheetsLoading ? (
-                      <LoadDiv className="mTop10 mBottom10" />
-                    ) : (
-                      <div className="workSheetListWrap">
-                        {aggregationSheets.length ? (
-                          aggregationSheets
-                            .filter(item => (item.name || '').includes(searchValue))
-                            .map(item => this.renderAggregationSheetItem(item))
+                items={[
+                  {
+                    key: 'workSheet',
+                    label: _l('工作表'),
+                    children: (
+                      <Fragment>
+                        {this.renderSearch()}
+                        {sheetsLoading ? (
+                          <LoadDiv className="mTop10 mBottom10" />
                         ) : (
-                          <div className="flexColumn alignItemsCenter justifyContentCenter h100">
-                            <div className="iconWrap flexRow alignItemsCenter justifyContentCenter">
-                              <Icon className="Font50 textTertiary" icon="aggregate_table" />
-                            </div>
-                            <span className="Font14 textTertiary mTop20 mBottom24">
-                              {_l('将表单或多表数据预处理为聚合数据')}
-                            </span>
-                            {getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
-                              <ConfigProvider autoInsertSpaceInButton={false}>
-                                <Button
-                                  type="primary"
-                                  onClick={() => {
-                                    window.open(pathCompletion(`/app/${this.state.appId}/settings/aggregations`));
-                                  }}
-                                  style={{ borderRadius: 20 }}
-                                >
-                                  {_l('创建')}
-                                </Button>
-                              </ConfigProvider>
-                            )}
+                          <div className="workSheetListWrap">
+                            {sheets
+                              .filter(item => (item.workSheetName || '').includes(searchValue))
+                              .map(item => this.renderWorkSheetItem(item))}
                           </div>
                         )}
-                      </div>
-                    )}
-                  </Tabs.TabPane>
-                )}
-              </Tabs>
+                      </Fragment>
+                    ),
+                  },
+                  ...(!this.hideAggregation
+                    ? [
+                        {
+                          key: 'polymerizationSheet',
+                          label: _l('聚合表'),
+                          children: (
+                            <Fragment>
+                              {this.renderSearch()}
+                              {aggregationSheetsLoading ? (
+                                <LoadDiv className="mTop10 mBottom10" />
+                              ) : (
+                                <div className="workSheetListWrap">
+                                  {aggregationSheets.length ? (
+                                    aggregationSheets
+                                      .filter(item => (item.name || '').includes(searchValue))
+                                      .map(item => this.renderAggregationSheetItem(item))
+                                  ) : (
+                                    <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+                                      <div className="iconWrap flexRow alignItemsCenter justifyContentCenter">
+                                        <Icon className="Font50 textTertiary" icon="aggregate_table" />
+                                      </div>
+                                      <span className="Font14 textTertiary mTop20 mBottom24">
+                                        {_l('将表单或多表数据预处理为聚合数据')}
+                                      </span>
+                                      {getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
+                                        <Button
+                                          type="primary"
+                                          onClick={() => {
+                                            window.open(
+                                              pathCompletion(`/app/${this.state.appId}/settings/aggregations`),
+                                            );
+                                          }}
+                                          style={{ borderRadius: 20 }}
+                                        >
+                                          {_l('创建')}
+                                        </Button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </Fragment>
+                          ),
+                        },
+                      ]
+                    : []),
+                ]}
+              />
             </Wrap>
           </Fragment>
         ) : (
@@ -383,86 +391,86 @@ export default class SheetModal extends Component {
             <Fragment>
               <div className="mBottom10">{_l('视图')}</div>
               <Select
-                className="chartSelect w100"
+                className="w100"
                 value={viewId || null}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={[
+                  ...(!ownerId
+                    ? [
+                        {
+                          value: null,
+                          label: _l('所有记录'),
+                        },
+                      ]
+                    : []),
+                  ...(views || [])
+                    .filter(view => view.worksheetId !== view.viewId)
+                    .map(item => ({
+                      value: item.viewId,
+                      label: getTranslateInfo(appId, null, item.viewId).name || item.name,
+                    })),
+                ]}
                 onChange={viewId => {
                   this.setState({ viewId });
                 }}
-              >
-                {!ownerId && (
-                  <Select.Option className="selectOptionWrapper" value={null}>
-                    {_l('所有记录')}
-                  </Select.Option>
-                )}
-                {(views || [])
-                  .filter(view => view.worksheetId !== view.viewId)
-                  .map(item => (
-                    <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
-                      {getTranslateInfo(appId, null, item.viewId).name || item.name}
-                    </Select.Option>
-                  ))}
-              </Select>
+              />
             </Fragment>
           )
         )}
       </div>
     );
   }
-  renderFooter() {
+  renderSourceActions() {
     const { appId, sourceType, projectId } = this.props;
     const { newWorksheetId, sheets, viewId, viewsData, activeKey } = this.state;
     const { views = [], loading } = viewsData[newWorksheetId] || {};
+    const showViewSelector =
+      sourceType && newWorksheetId && _.find(sheets, { workSheetId: newWorksheetId }) && activeKey === 'workSheet';
+    const showCreateAggregation =
+      activeKey === 'polymerizationSheet' && getFeatureStatus(projectId, VersionProductType.aggregation) == '1';
+
+    if (!showViewSelector && !showCreateAggregation) return null;
+
     return (
-      <div className="mTop20 mBottom10 pLeft8 pRight8 flexRow">
-        <div className="flexRow flex alignItemsCenter">
-          {sourceType &&
-            newWorksheetId &&
-            _.find(sheets, { workSheetId: newWorksheetId }) &&
-            activeKey === 'workSheet' &&
-            (loading ? (
-              <LoadDiv className="mLeft0" size="small" />
-            ) : (
-              <Fragment>
-                <div className="mRight10">{_l('视图')}</div>
-                <Select
-                  className="chartSelect leftAlign"
-                  style={{ width: 200 }}
-                  value={viewId || null}
-                  suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-                  onChange={viewId => {
-                    this.setState({ viewId });
-                  }}
-                >
-                  <Select.Option className="selectOptionWrapper" value={null}>
-                    {_l('所有记录')}
-                  </Select.Option>
-                  {(views || [])
+      <div className="flexRow alignItemsCenter">
+        {showViewSelector &&
+          (loading ? (
+            <LoadDiv className="mLeft0" size="small" />
+          ) : (
+            <Fragment>
+              <div className="mRight10">{_l('视图')}</div>
+              <Select
+                className="leftAlign"
+                style={{ width: 200 }}
+                value={viewId || null}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={[
+                  {
+                    value: null,
+                    label: _l('所有记录'),
+                  },
+                  ...(views || [])
                     .filter(view => view.worksheetId !== view.viewId)
-                    .map(item => (
-                      <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
-                        {getTranslateInfo(appId, null, item.viewId).name || item.name}
-                      </Select.Option>
-                    ))}
-                </Select>
-              </Fragment>
-            ))}
-          {activeKey === 'polymerizationSheet' &&
-            getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
-              <div
-                className="flexRow alignItemsCenter colorPrimary pointer"
-                onClick={() => window.open(pathCompletion(`/app/${this.state.appId}/settings/aggregations`))}
-              >
-                <Icon icon="add" className="mRight2" />
-                {_l('新建聚合表')}
-              </div>
-            )}
-        </div>
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button type="primary" onClick={this.handleSave}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
+                    .map(item => ({
+                      value: item.viewId,
+                      label: getTranslateInfo(appId, null, item.viewId).name || item.name,
+                    })),
+                ]}
+                onChange={viewId => {
+                  this.setState({ viewId });
+                }}
+              />
+            </Fragment>
+          ))}
+        {showCreateAggregation && (
+          <div
+            className="flexRow alignItemsCenter colorPrimary pointer"
+            onClick={() => window.open(pathCompletion(`/app/${this.state.appId}/settings/aggregations`))}
+          >
+            <Icon icon="add" className="mRight2" />
+            {_l('新建聚合表')}
+          </div>
+        )}
       </div>
     );
   }
@@ -473,11 +481,11 @@ export default class SheetModal extends Component {
         title={_l('数据源')}
         width={640}
         className="chartModal chartSheetModal"
-        visible={dialogVisible}
+        open={dialogVisible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font24 pointer textTertiary" />}
-        footer={this.renderFooter()}
+        footerLeftElement={this.renderSourceActions()}
+        onOk={this.handleSave}
         onCancel={() => {
           this.props.onChangeDialogVisible(false);
         }}

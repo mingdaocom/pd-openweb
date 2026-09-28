@@ -1,44 +1,36 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { ConfigProvider, Empty, Select, Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Button, Icon, UserHead } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Icon, UserHead } from 'ming-ui';
+import { Button, ConfigProvider, Dropdown, Empty, Modal, Select } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import resourceApi from 'src/pages/workflow/api/resource';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import Search from 'src/pages/workflow/components/Search';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import IsAppAdmin from '../../../components/IsAppAdmin';
 import PaginationWrap from '../../../components/PaginationWrap';
 import AddWorkflowDialog from '../component/AddWorkflowDialog';
+import HistoryWorkflowTable from '../component/HistoryWorkflowTable';
 import MoveWorkflowDialog from '../component/MoveWorkflowDialog';
+import WorkflowConflictDialog from '../component/WorkflowConflictDialog';
 import { COMPUTING_INSTANCE_STATUS, TYPE_LIST } from '../config';
+import {
+  canShowComputingInstanceHistory,
+  checkHistoryWorkflowConflicts,
+  getAllHistoryWorkflowIds,
+  getHistoryWorkflowMoveIds,
+  getHistoryWorkflowRequestParams,
+  isComputingInstanceExpired,
+  isHistoryComputingRoute,
+  normalizeHistoryWorkflowResult,
+} from '../historyWorkflow';
 import '../index.less';
-
-const ActionOpWrap = styled.ul`
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px 3px 3px 3px;
-  width: 160px;
-  font-size: 13px;
-  color: var(--color-text-title);
-  padding: 4px 0;
-  li {
-    line-height: 36px;
-    padding: 0 24px;
-    cursor: pointer;
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-`;
 
 const PAGE_SIZE = 10;
 
@@ -47,7 +39,8 @@ const renderEmpty = () => {
 };
 
 function ExplanDetail(props) {
-  const { projectId, id, history } = props;
+  const { projectId, id, history, location } = props;
+  const isHistoryMode = isHistoryComputingRoute(location.search);
 
   const [workflowData, setWorkflowData] = useState({
     count: 0,
@@ -69,53 +62,95 @@ function ExplanDetail(props) {
   const [addWorkflowDialog, setAddWorkflowDialog] = useState({
     visible: false,
   });
+  const [historyConflictDialog, setHistoryConflictDialog] = useState({
+    visible: false,
+    list: [],
+    checked: [],
+    workflowIds: [],
+    targetResourceId: '',
+  });
   const [explanInfo, setExplanInfo] = useState(undefined);
+  const [historyIdsLoading, setHistoryIdsLoading] = useState(false);
+  const [historyMoveSubmitting, setHistoryMoveSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const historyMovePending = useRef(false);
+  const historyWorkflowCount = (explanInfo || {}).workflowCount || 0;
+  const showHistoryInfo = canShowComputingInstanceHistory(isHistoryMode, explanInfo);
+  const showHistoryWorkflowActions = showHistoryInfo && historyWorkflowCount > 0;
+  const historyWorkflowActionDisabled = historyIdsLoading || historyMoveSubmitting || historyConflictDialog.visible;
+  const isServiceExpired = isComputingInstanceExpired((explanInfo || {}).expirationDatetime);
+  const resourceId = (explanInfo || {}).resourceId;
+  const managementResourceId = isHistoryMode ? undefined : resourceId;
+  const handleSearchChange = useMemo(
+    () =>
+      _.debounce(value => {
+        setLoading(true);
+        setFilters(currentFilters => ({
+          ...currentFilters,
+          pageIndex: 1,
+          search: value,
+        }));
+      }, 500),
+    [setFilters, setLoading],
+  );
 
-  useState(() => {
-    projectAjax
-      .getComputingInstanceDetail({
-        projectId: projectId,
-        id: id,
+  const getProcessList = useCallback(() => {
+    if (!isHistoryMode && !managementResourceId) return Promise.resolve();
+
+    const request = isHistoryMode
+      ? projectAjax
+          .getComputingInstanceHistoryWorkflows(
+            getHistoryWorkflowRequestParams({ projectId, id, filters, pageSize: PAGE_SIZE }),
+          )
+          .then(normalizeHistoryWorkflowResult)
+      : Promise.all([
+          resourceApi.getProcessList({
+            keyword: filters.search,
+            pageIndex: filters.pageIndex,
+            pageSize: PAGE_SIZE,
+            resourceId: managementResourceId,
+            apkId: filters.apkId,
+            processListType: filters.workflowType,
+          }),
+          resourceApi.getCountByResourceId({
+            keyword: filters.search,
+            resourceId: managementResourceId,
+            apkId: filters.apkId,
+            processListType: filters.workflowType,
+          }),
+        ]).then(([list, count]) => ({ list, count }));
+
+    return request
+      .then(result => {
+        setWorkflowData({ list: result.list, count: result.count });
+        if (isHistoryMode && result.instance) {
+          setExplanInfo(result.instance);
+        }
       })
-      .then(res => {
-        setExplanInfo(res);
-        getProcessList(res.resourceId);
-      });
-  }, [id]);
+      .finally(() => setLoading(false));
+  }, [filters, id, isHistoryMode, managementResourceId, projectId, setExplanInfo, setLoading, setWorkflowData]);
+
+  useEffect(() => {
+    if (isHistoryMode) return undefined;
+
+    let mounted = true;
+
+    projectAjax.getComputingInstanceDetail({ projectId, id }).then(res => {
+      if (!mounted) return;
+
+      setExplanInfo(res);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [id, isHistoryMode, projectId]);
 
   useEffect(() => {
     getProcessList();
-  }, [filters.search, filters.pageIndex, filters.apkId, filters.workflowType]);
+  }, [getProcessList]);
 
-  const getProcessList = resourceId => {
-    setLoading(true);
-    let _resourceId = resourceId || (explanInfo || {}).resourceId;
-    if (!_resourceId) return;
-    let promiseList = Promise.all([
-      resourceApi.getProcessList({
-        keyword: filters.search,
-        pageIndex: filters.pageIndex,
-        pageSize: PAGE_SIZE,
-        resourceId: _resourceId,
-        apkId: filters.apkId,
-        processListType: filters.workflowType,
-      }),
-      resourceApi.getCountByResourceId({
-        keyword: filters.search,
-        resourceId: _resourceId,
-        apkId: filters.apkId,
-        processListType: filters.workflowType,
-      }),
-    ]);
-    promiseList.then(([res, count]) => {
-      setLoading(false);
-      setWorkflowData({
-        list: res,
-        count: count,
-      });
-    });
-  };
+  useEffect(() => () => handleSearchChange.cancel(), [handleSearchChange]);
 
   const getAppList = () => {
     const keyword = '';
@@ -135,27 +170,140 @@ function ExplanDetail(props) {
             value: item.appId,
           };
         });
-        setAppList(appList.concat(newAppList));
+        setAppList(currentList => currentList.concat(newAppList));
       });
   };
 
-  const removeWorkflow = (ids, targetResourceId) => {
-    if (!ids || ids.length === 0) return;
+  const removeWorkflow = (ids, targetResourceId, options = {}) => {
+    if (!ids || ids.length === 0) return Promise.resolve();
 
-    resourceApi
-      .moveProcess({
-        moveToResourceId: targetResourceId || '',
-        processIds: ids,
-        resourceId: (explanInfo || {}).resourceId,
-        companyId: projectId,
+    const { showSuccess = true } = options;
+
+    const request = isHistoryMode
+      ? projectAjax.moveComputingInstanceHistoryWorkflows({
+          projectId,
+          id,
+          targetResourceId,
+          workflowIds: ids,
+        })
+      : resourceApi.moveProcess({
+          moveToResourceId: targetResourceId || '',
+          processIds: ids,
+          resourceId: (explanInfo || {}).resourceId,
+          companyId: projectId,
+        });
+
+    return request.then(res => {
+      if (res) {
+        showSuccess && alert(_l('移动成功'));
+
+        setLoading(true);
+        getProcessList();
+      } else {
+        alert(_l('移动失败'), 2);
+      }
+
+      return res;
+    });
+  };
+
+  const openHistoryWorkflowDialog = () => {
+    if (historyWorkflowActionDisabled || historyMovePending.current || historyWorkflowCount === 0) return;
+
+    setHistoryIdsLoading(true);
+    getAllHistoryWorkflowIds({
+      request: params => projectAjax.getComputingInstanceHistoryWorkflows(params),
+      projectId,
+      id,
+    })
+      .then(workflowIds => {
+        if (!workflowIds.length) {
+          alert(_l('暂无可添加的历史工作流'), 3);
+          return;
+        }
+
+        setMoveWorkflowDialog({
+          visible: true,
+          ids: workflowIds,
+          isHistory: true,
+        });
       })
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('获取历史工作流失败'), 2))
+      .finally(() => setHistoryIdsLoading(false));
+  };
+
+  const resetHistoryConflictDialog = () => {
+    setHistoryConflictDialog({
+      visible: false,
+      list: [],
+      checked: [],
+      workflowIds: [],
+      targetResourceId: '',
+    });
+  };
+
+  const prepareHistoryWorkflowMove = (workflowIds, targetResourceId) => {
+    if (historyMovePending.current) return;
+
+    historyMovePending.current = true;
+    setHistoryMoveSubmitting(true);
+    return checkHistoryWorkflowConflicts({
+      request: params => projectAjax.checkMoveComputingInstanceHistoryWorkflows(params),
+      projectId,
+      id,
+      targetResourceId,
+      workflowIds,
+    })
+      .then(
+        conflicts => {
+          if (!conflicts.length) {
+            return removeWorkflow(workflowIds, targetResourceId);
+          }
+
+          setHistoryConflictDialog({
+            visible: true,
+            list: conflicts,
+            checked: conflicts.map(item => item.id),
+            workflowIds,
+            targetResourceId,
+          });
+        },
+        _requestError2 => alertIfNotUnauthorized(_requestError2, _l('检查工作流冲突失败'), 2),
+      )
+      .finally(() => {
+        historyMovePending.current = false;
+        setHistoryMoveSubmitting(false);
+      });
+  };
+
+  const submitHistoryWorkflowMove = checkedConflictIds => {
+    if (historyMovePending.current) return;
+
+    const conflictIds = historyConflictDialog.list.map(item => item.id);
+    const workflowIds = getHistoryWorkflowMoveIds({
+      workflowIds: historyConflictDialog.workflowIds,
+      conflictIds,
+      checkedConflictIds,
+    });
+
+    if (!workflowIds.length) {
+      resetHistoryConflictDialog();
+      return;
+    }
+
+    historyMovePending.current = true;
+    setHistoryMoveSubmitting(true);
+    return removeWorkflow(workflowIds, historyConflictDialog.targetResourceId, {
+      showSuccess: checkedConflictIds.length > 0,
+    })
       .then(res => {
         if (res) {
-          alert(_l('移动成功'));
-          getProcessList();
-        } else {
-          alert(_l('移动失败'), 2);
+          resetHistoryConflictDialog();
         }
+      })
+      .finally(() => {
+        historyMovePending.current = false;
+        setHistoryMoveSubmitting(false);
       });
   };
 
@@ -212,10 +360,10 @@ function ExplanDetail(props) {
           <div className="flexRow textSecondary">
             <UserHead
               size={28}
-              user={{ userHead: record.createBy.avatar, accountId: record.createBy.accountId }}
+              user={{ userHead: record?.createBy?.avatar, accountId: record?.createBy?.accountId }}
               projectId={projectId}
             />
-            <div className="mLeft12 ellipsis flex LineHeight28">{record.createBy.fullName}</div>
+            <div className="mLeft12 ellipsis flex LineHeight28">{record?.createBy?.fullName || '_'}</div>
           </div>
         );
       },
@@ -226,37 +374,38 @@ function ExplanDetail(props) {
       dataIndex: 'id',
       render: (value, record, index) => {
         return (
-          <Trigger
-            popupVisible={actionOp === index}
-            onPopupVisibleChange={visible => setActionOp(visible ? index : -1)}
-            action={['click']}
-            popup={
-              <ActionOpWrap>
-                <li
-                  onClick={() => {
+          <Dropdown
+            open={actionOp === index}
+            onOpenChange={visible => setActionOp(visible ? index : -1)}
+            trigger={['click']}
+            menu={{
+              items: [
+                {
+                  key: 'move',
+                  label: _l('移动到'),
+                  onClick: () => {
                     setActionOp(-1);
                     setMoveWorkflowDialog({
                       visible: true,
                       ids: [record.id],
                     });
-                  }}
-                >
-                  {_l('移动到')}
-                </li>
-                <li
-                  onClick={() => {
+                  },
+                },
+                {
+                  key: 'remove',
+                  label: _l('移出'),
+                  danger: true,
+                  onClick: () => {
                     setActionOp(-1);
                     removeWorkflow([record.id]);
-                  }}
-                >
-                  {_l('移出')}
-                </li>
-              </ActionOpWrap>
-            }
-            popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
+                  },
+                },
+              ],
+              style: { minWidth: 160 },
+            }}
           >
             <Icon icon="moreop" className="Font18 textTertiary hoverColorPrimaryLight Hand" />
-          </Trigger>
+          </Dropdown>
         );
       },
     },
@@ -271,13 +420,39 @@ function ExplanDetail(props) {
           {explanInfo && `${explanInfo.name}（${explanInfo.resourceId}）`}
         </span>
         <span className="flex"></span>
-        {explanInfo && moment(explanInfo.expirationDatetime).add(1, 'd').isBefore(new Date()) && (
+        {isServiceExpired && (
           <span className="" style={{ color: 'var(--color-error)' }}>
             {_l('服务已过期')}
           </span>
         )}
       </div>
       <div className="explanDetailContent flex">
+        {showHistoryInfo && (
+          <div className="historyWorkflowNotice flexRow alignItemsCenter">
+            <Icon icon="info_outline" className="Font18 mRight10" />
+            <span className="bold">
+              {_l(
+                '本专属算力已于 %0 到期',
+                (explanInfo || {}).expirationDatetime
+                  ? moment(explanInfo.expirationDatetime).format(_l('YYYY-MM-DD'))
+                  : '_',
+              )}
+              {showHistoryWorkflowActions &&
+                _l('，以下 %0 条工作流为到期前的历史记录，已自动释放。', historyWorkflowCount)}
+            </span>
+            {showHistoryWorkflowActions && (
+              <Fragment>
+                <span className="flex" />
+                <span
+                  className={cx('addHistoryWorkflow', { disabled: historyWorkflowActionDisabled })}
+                  onClick={openHistoryWorkflowDialog}
+                >
+                  {_l('添加到其他算力')}
+                </span>
+              </Fragment>
+            )}
+          </div>
+        )}
         <div className="actionCon flexRow">
           <Select
             className="selectItem"
@@ -293,111 +468,118 @@ function ExplanDetail(props) {
             }
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
-            onSearch={_.debounce(val => this.setState({ keyword: val }, () => getAppList()), 500)}
-            onChange={value =>
-              setFilters({
-                ...filters,
+            onChange={value => {
+              setLoading(true);
+              setFilters(currentFilters => ({
+                ...currentFilters,
                 apkId: value,
-              })
-            }
+                pageIndex: 1,
+              }));
+            }}
           />
           <Select
             className="selectItem"
             defaultValue={filters.workflowType}
             options={TYPE_LIST}
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
-            onChange={value =>
-              setFilters({
-                ...filters,
+            onChange={value => {
+              setLoading(true);
+              setFilters(currentFilters => ({
+                ...currentFilters,
                 workflowType: value,
-              })
-            }
-          />
-          <Search
-            placeholder={_l('工作流名称')}
-            handleChange={_.debounce(value => {
-              setFilters({
-                ...filters,
                 pageIndex: 1,
-                search: value,
-              });
-            }, 500)}
+              }));
+            }}
           />
+          <Search placeholder={_l('工作流名称')} handleChange={handleSearchChange} />
           <div className="flex"></div>
-          <span
-            className={cx('actionBtn mRight20', { disabled: selectKeys.length === 0 })}
-            onClick={() => {
-              if (selectKeys.length === 0) return;
-              setMoveWorkflowDialog({
-                ...workflowData,
-                visible: true,
-                ids: selectKeys,
-              });
-            }}
-          >
-            {_l('移动到')}
-          </span>
-          <span
-            className={cx('actionBtn mRight20', { disabled: selectKeys.length === 0 })}
-            onClick={() => {
-              if (selectKeys.length === 0) return;
-              Confirm({
-                className: '',
-                title: selectKeys.length === 1 ? _l('移出工作流') : _l('移出%0个工作流', selectKeys.length),
-                okText: _l('移出'),
-                buttonType: 'danger',
-                cancelText: _l('取消'),
-                onOk: () => {
-                  removeWorkflow(selectKeys);
-                },
-              });
-            }}
-          >
-            {_l('移出')}
-          </span>
-          <Button
-            type="primary"
-            icon="add"
-            className="addBtn"
-            size="small"
-            disabled={explanInfo && explanInfo.status !== COMPUTING_INSTANCE_STATUS.Running}
-            onClick={() => {
-              setAddWorkflowDialog({
-                visible: true,
-              });
-            }}
-          >
-            {_l('工作流')}
-          </Button>
+          {!isHistoryMode && (
+            <Fragment>
+              <Button
+                className="mRight20"
+                disabled={selectKeys.length === 0}
+                onClick={() => {
+                  setMoveWorkflowDialog({
+                    ...workflowData,
+                    visible: true,
+                    ids: selectKeys,
+                  });
+                }}
+              >
+                {_l('移动到')}
+              </Button>
+              <Button
+                className="mRight20"
+                disabled={selectKeys.length === 0}
+                onClick={() => {
+                  Modal.confirm({
+                    className: '',
+                    title: (
+                      <span className="textError">
+                        {selectKeys.length === 1 ? _l('移出工作流') : _l('移出%0个工作流', selectKeys.length)}
+                      </span>
+                    ),
+                    okText: _l('移出'),
+                    okButtonProps: {
+                      danger: true,
+                    },
+                    cancelText: _l('取消'),
+                    onOk: () => {
+                      removeWorkflow(selectKeys);
+                    },
+                  });
+                }}
+              >
+                {_l('移出')}
+              </Button>
+              <Button
+                type="primary"
+                icon={<Icon icon="add" />}
+                disabled={explanInfo && explanInfo.status !== COMPUTING_INSTANCE_STATUS.Running}
+                onClick={() => {
+                  setAddWorkflowDialog({
+                    visible: true,
+                  });
+                }}
+              >
+                {_l('工作流')}
+              </Button>
+            </Fragment>
+          )}
         </div>
         <div className="listCon flex">
-          <ConfigProvider renderEmpty={renderEmpty}>
-            <Table
-              loading={loading}
-              className="workflowTable"
-              rowClassName="workflowTableTitleRow"
-              rowSelection={{
-                selectedRowKeys: selectKeys,
-                onChange: value => {
-                  setSelectKeys(value);
-                },
-              }}
-              columns={COLUMNS}
-              dataSource={workflowData.list}
-              rowKey={record => record.id}
-              pagination={false}
-            />
-          </ConfigProvider>
+          {isHistoryMode ? (
+            <HistoryWorkflowTable loading={loading} list={workflowData.list} projectId={projectId} />
+          ) : (
+            <ConfigProvider renderEmpty={renderEmpty}>
+              <Table
+                loading={loading}
+                className="workflowTable"
+                rowClassName="workflowTableTitleRow"
+                rowSelection={{
+                  selectedRowKeys: selectKeys,
+                  onChange: value => {
+                    setSelectKeys(value);
+                  },
+                }}
+                columns={COLUMNS}
+                dataSource={workflowData.list}
+                rowKey={record => record.id}
+                pagination={false}
+              />
+            </ConfigProvider>
+          )}
         </div>
         <PaginationWrap
           total={workflowData.count}
           pageIndex={filters.pageIndex}
           pageSize={PAGE_SIZE}
           onChange={index => {
-            setFilters({
-              ...filters,
+            setLoading(true);
+            setFilters(currentFilters => ({
+              ...currentFilters,
               pageIndex: index,
-            });
+            }));
           }}
         />
       </div>
@@ -406,12 +588,23 @@ function ExplanDetail(props) {
           visible={moveWorkflowDialog.visible}
           projectId={projectId}
           sourceResourceId={explanInfo.resourceId}
+          title={
+            moveWorkflowDialog.isHistory
+              ? _l('将 %0 个历史工作流添加到其他专属算力', moveWorkflowDialog.ids.length)
+              : undefined
+          }
+          okText={moveWorkflowDialog.isHistory ? _l('确认') : undefined}
           onOk={value => {
+            const { isHistory, ids: workflowIds = [] } = moveWorkflowDialog;
             setMoveWorkflowDialog({
-              ...moveWorkflowDialog,
               visible: false,
+              ids: [],
             });
-            removeWorkflow(moveWorkflowDialog.ids, value);
+            if (isHistory) {
+              prepareHistoryWorkflowMove(workflowIds, value);
+            } else {
+              removeWorkflow(workflowIds, value);
+            }
           }}
           onCancel={() => {
             setMoveWorkflowDialog({
@@ -421,6 +614,19 @@ function ExplanDetail(props) {
           }}
         />
       )}
+      <WorkflowConflictDialog
+        visible={historyConflictDialog.visible}
+        list={historyConflictDialog.list}
+        totalCount={historyConflictDialog.workflowIds.length}
+        checked={historyConflictDialog.checked}
+        submitting={historyMoveSubmitting}
+        onCheckedChange={checked => setHistoryConflictDialog({ ...historyConflictDialog, checked })}
+        onMove={() => {
+          if (!historyConflictDialog.checked.length) return;
+          submitHistoryWorkflowMove(historyConflictDialog.checked);
+        }}
+        onNotMove={() => submitHistoryWorkflowMove([])}
+      />
       {explanInfo && addWorkflowDialog.visible && (
         <AddWorkflowDialog
           projectId={projectId}
@@ -430,6 +636,7 @@ function ExplanDetail(props) {
             setAddWorkflowDialog({
               visible: false,
             });
+            setLoading(true);
             getProcessList();
           }}
           onCancel={() => {

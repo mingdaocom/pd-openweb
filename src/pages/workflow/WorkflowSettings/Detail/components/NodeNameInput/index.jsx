@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Input } from 'ming-ui/antd-components';
 
 export default class NodeNameInput extends Component {
   cacheName = '';
@@ -7,8 +8,8 @@ export default class NodeNameInput extends Component {
     const { name, disabled, updateSource } = this.props;
 
     return (
-      <input
-        type="text"
+      <Input
+        variant="borderless"
         className="flex"
         disabled={disabled}
         value={name}

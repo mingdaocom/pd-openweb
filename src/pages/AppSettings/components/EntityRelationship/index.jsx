@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Export } from '@antv/x6-plugin-export';
 import { Scroller } from '@antv/x6-plugin-scroller';
-import { register } from '@antv/x6-react-shape';
+import { Portal, register } from '@antv/x6-react-shape';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import { EditingBar } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
-import { getTranslateInfo } from 'src/utils/app';
-import { controlState } from 'src/utils/control';
+import { controlState } from 'src/utils/domain/control/state';
+import { getTranslateInfo } from 'src/utils/services/app';
 import AppSettingHeader from '../AppSettingHeader';
 import CustomErNode from './component/CustomErNode';
 import Search from './component/Search';
@@ -21,6 +21,7 @@ import './index.less';
 
 const loadGraph = () => import('@antv/x6');
 const loadLayout = () => import('@antv/layout');
+const X6ReactPortalProvider = Portal.getProvider();
 
 register({
   shape: 'custom-er-node',
@@ -542,7 +543,9 @@ function EntityRelationship(props) {
           <Icon icon="circle_three" className="textDisabled" />
         </span>
         <div className="mBottom24 textTertiary Font17">{_l('暂未添加工作表')}</div>
-        <Button onClick={() => setCreateNewVisible(true)}>{_l('新建工作表')}</Button>
+        <Button type="primary" onClick={() => setCreateNewVisible(true)}>
+          {_l('新建工作表')}
+        </Button>
       </div>
     );
   };
@@ -565,6 +568,7 @@ function EntityRelationship(props) {
 
   return (
     <div className="w100 h100 relative">
+      <X6ReactPortalProvider />
       {loading && (
         <div className="LoadBox">
           <LoadDiv />
@@ -594,40 +598,54 @@ function EntityRelationship(props) {
 
       <div className="quickActions-relationship">
         <span className="Font13 textPrimary percent">{`${Math.round(percent * 100)}%`}</span>
-        <Icon
-          icon="minus"
-          className="textSecondary Font19 Hand hoverColorPrimary mRight20"
+        <Button
+          className="mRight20"
+          color="default"
+          variant="text"
+          size="small"
+          icon={<Icon icon="minus" />}
           onClick={() => setGraphZoom(false)}
         />
-        <Icon
-          icon="add1"
-          className="textSecondary Font19 Hand mRight20 hoverColorPrimary "
+        <Button
+          className="mRight20"
+          color="default"
+          variant="text"
+          size="small"
+          icon={<Icon icon="add1" />}
           onClick={() => setGraphZoom(true)}
         />
         <Tooltip title={_l('适合画布(cmd+0)')}>
-          <Icon
-            icon="full_screen"
-            className="textSecondary Font20 Hand mRight20 hoverColorPrimary"
+          <Button
+            className="mRight20"
+            color="default"
+            variant="text"
+            size="small"
+            icon={<Icon icon="full_screen" />}
             onClick={() => onFitRect()}
           />
         </Tooltip>
         <Tooltip title={_l('等比显示')}>
-          <Icon
-            icon="enlarge"
-            className="textSecondary restore Hand Font20 hoverColorPrimary mRight20"
+          <Button
+            className="mRight20"
+            color="default"
+            variant="text"
+            size="small"
+            icon={<Icon icon="enlarge" />}
             onClick={onRestore}
           />
         </Tooltip>
         <Tooltip title={_l('显示全部字段')}>
-          <Icon
-            icon="expand_all"
-            className="textSecondary restore Hand Font20 hoverColorPrimary"
+          <Button
+            color="default"
+            variant="text"
+            size="small"
+            icon={<Icon icon="expand_all" />}
             onClick={showAllItemsForAllControls}
           />
         </Tooltip>
         <span className="splintLint"></span>
         <Tooltip title={_l('导出为图片')}>
-          <Icon icon="download" className="textSecondary Font16 Hand hoverColorPrimary" onClick={onExport} />
+          <Button color="default" variant="text" size="small" icon={<Icon icon="download" />} onClick={onExport} />
         </Tooltip>
       </div>
 

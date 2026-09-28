@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 const WithoutFidldItem = props => {
   const { disable = false, allowInput, inputValue, onChnageInputValue } = props;

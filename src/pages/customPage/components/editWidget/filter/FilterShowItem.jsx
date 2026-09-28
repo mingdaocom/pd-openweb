@@ -1,15 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
 import { EditInfo } from 'src/pages/widgetConfig/styled';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
 
 const SHOW_ITEMS = [
   { text: _l('全部'), value: '1' },
@@ -62,11 +62,19 @@ function FilterShowItem(props) {
         <div className="flex Font13 bold">{_l('显示项')}</div>
       </div>
       <Select
-        className="customPageSelect mBottom8 w100"
+        className="mBottom8 w100"
         value={navshow}
         suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
         placeholder={_l('请选择筛选字段')}
         getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
+        options={filterShowItem(control).map(data => ({
+          value: data.value,
+          label: (
+            <div className="valignWrapper h100 w100">
+              <span className="mLeft5 Font13 ellipsis">{data.text}</span>
+            </div>
+          ),
+        }))}
         onSelect={value => {
           onChangeAdvancedSetting({
             navshow: value,
@@ -77,15 +85,7 @@ function FilterShowItem(props) {
             setFilterVisible(true);
           }
         }}
-      >
-        {filterShowItem(control).map(data => (
-          <Select.Option className="selectOptionWrapper" key={data.value} value={data.value}>
-            <div className="valignWrapper h100 w100">
-              <span className="mLeft5 Font13 ellipsis">{data.text}</span>
-            </div>
-          </Select.Option>
-        ))}
-      </Select>
+      />
       {navshow === '2' && (
         <div className="bgPrimary">
           <EditInfo className="pointer flexRow" onClick={() => setShowCustomVisible(true)}>

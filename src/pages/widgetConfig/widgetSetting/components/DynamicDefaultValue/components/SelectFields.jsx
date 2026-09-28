@@ -2,14 +2,18 @@ import React, { Component } from 'react';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
+import { Checkbox, Divider, Input, Menu } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
-import { SYSTEM_CONTROL, SYSTEM_PERSON_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../../../config/widget';
-import { getIconByType } from '../../../../util';
-import { DYNAMIC_FROM_MODE } from '../config';
-import { filterControls, getControls, getOtherSelectField } from '../util';
+import { filterControls, getControls, getOtherSelectField } from 'src/utils/domain/control/dynamicValue';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import {
+  SYS_CONTROLS,
+  SYSTEM_CONTROL,
+  SYSTEM_PERSON_CONTROL,
+  WORKFLOW_SYSTEM_CONTROL,
+} from 'src/utils/domain/control/widget';
 
 const Empty = styled.div`
   color: var(--color-text-tertiary);
@@ -201,15 +205,74 @@ let SelectFields = class SelectFields extends Component {
     }, 0);
   };
 
+  getFieldMenuItems = (recordId, list) => {
+    const { data, dynamicValue, onClick } = this.props;
+
+    return list.map(({ type, controlName, controlId, id, isEqualSource }) => {
+      const ids = {
+        type,
+        relateSheetControlId: recordId === 'current' ? '' : recordId,
+        fieldId: controlId || id,
+      };
+      const key = `${recordId}-${ids.fieldId}`;
+
+      if (this.isMultiUser(data)) {
+        return {
+          key,
+          className: 'overflow_ellipsis',
+          label: (
+            <Checkbox
+              checked={_.some(dynamicValue, item => item.cid === ids.fieldId && item.rcid === ids.relateSheetControlId)}
+              onChange={event => {
+                this.handleMultiUserClick({
+                  checked: event.target.checked,
+                  ...ids,
+                  isAsync: data.type === 27 && type === 26,
+                });
+              }}
+              size="small"
+            >
+              <i className={`icon-${getIconByType(type)} textTertiary Font16`}></i>
+              <span className="overflow_ellipsis">{controlName}</span>
+            </Checkbox>
+          ),
+        };
+      }
+
+      return {
+        key,
+        className: 'overflow_ellipsis',
+        icon: <i className={`icon-${getIconByType(type)} textTertiary Font16`}></i>,
+        label: (
+          <React.Fragment>
+            <span className="overflow_ellipsis">{controlName}</span>
+            {isEqualSource && <span className="textTertiary">（{_l('相同选项集')}）</span>}
+          </React.Fragment>
+        ),
+        onClick: () => onClick(ids),
+      };
+    });
+  };
+
+  getOtherMenuItems = list => {
+    return list.map(({ text, id }) => ({
+      key: `other-${id}`,
+      className: 'overflow_ellipsis',
+      label: <span className="overflow_ellipsis">{text}</span>,
+      onClick: () => this.props.onClick({ fieldId: id }),
+    }));
+  };
+
   render() {
     const { searchValue } = this.state;
-    const { onClick, data, dynamicValue, from, hideRelateSheetHeader } = this.props;
+    const { data, from, hideRelateSheetHeader, $dropdownPopup } = this.props;
     const otherList = getOtherSelectField(data, searchValue);
     const { sheetList, filteredList } = this.filterFieldList();
     const filteredControlCount = this.getControlCount(filteredList) + this.getOtherCount(otherList);
     return (
       <SelectFieldsWrap
-        limitWidth={
+        $dropdownPopup={$dropdownPopup}
+        $limitWidth={
           !_.includes(
             [
               DYNAMIC_FROM_MODE.CUSTOM_EVENT,
@@ -222,84 +285,40 @@ let SelectFields = class SelectFields extends Component {
           )
         }
       >
-        <div className="search">
-          <i className="icon-search textTertiary" />
-          <input value={searchValue} onChange={this.handleChange} placeholder={_l('搜索字段')} autoFocus></input>
-        </div>
+        <Input
+          className="w100"
+          variant="borderless"
+          prefix={<i className="icon-search textTertiary Font18" />}
+          value={searchValue}
+          onChange={this.handleChange}
+          placeholder={_l('搜索字段')}
+          autoFocus
+        />
+        <Divider className="mTop5 mBottom5" />
         <div className="fieldsWrap">
           {sheetList.map(({ id: recordId, name }) => {
             const list = filteredList[recordId];
             return list && list.length > 0 ? (
-              <ul className="relateSheetList">
+              <ul key={recordId} className="relateSheetList">
                 <li>
                   {!hideRelateSheetHeader && (
                     <div className="title">
                       <span>{name}</span>
                     </div>
                   )}
-                  <ul className="fieldList">
-                    {list.map(({ type, controlName, controlId, id, isEqualSource }) => {
-                      const ids = {
-                        type,
-                        relateSheetControlId: recordId === 'current' ? '' : recordId,
-                        fieldId: controlId || id,
-                      };
-                      return this.isMultiUser(data) ? (
-                        <li className="overflow_ellipsis">
-                          <Checkbox
-                            size="small"
-                            checked={_.some(
-                              dynamicValue,
-                              item => item.cid === ids.fieldId && item.rcid === ids.relateSheetControlId,
-                            )}
-                            onClick={checked => {
-                              this.handleMultiUserClick({
-                                checked: !checked,
-                                ...ids,
-                                isAsync: data.type === 27 && type === 26,
-                              });
-                            }}
-                          >
-                            <i className={`icon-${getIconByType(type)}`}></i>
-                            <span className="overflow_ellipsis">{controlName}</span>
-                          </Checkbox>
-                        </li>
-                      ) : (
-                        <li className="overflow_ellipsis" onClick={() => onClick(ids)}>
-                          <i className={`icon-${getIconByType(type)}`}></i>
-                          <span className="overflow_ellipsis">{controlName}</span>
-                          {isEqualSource && <span className="textTertiary">（{_l('相同选项集')}）</span>}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <Menu selectable={false} items={this.getFieldMenuItems(recordId, list)} />
                 </li>
               </ul>
             ) : null;
           })}
-          {otherList.map(({ list, name }) => {
+          {otherList.map(({ list, name }, index) => {
             return list.length > 0 ? (
-              <ul className="relateSheetList">
+              <ul key={`${name}-${index}`} className="relateSheetList">
                 <li>
                   <div className="title">
                     <span>{name}</span>
                   </div>
-                  <ul className="fieldList">
-                    {list.map(({ text, id }) => {
-                      return (
-                        <li
-                          className="overflow_ellipsis"
-                          onClick={() =>
-                            onClick({
-                              fieldId: id,
-                            })
-                          }
-                        >
-                          <span className="overflow_ellipsis">{text}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <Menu selectable={false} items={this.getOtherMenuItems(list)} />
                 </li>
               </ul>
             ) : null;

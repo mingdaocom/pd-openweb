@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
+import { Input } from 'antd-mobile';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 
 const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
-  border: none !important;
-  background-color: var(--color-background-secondary);
+  background: var(--color-background-secondary);
+  padding: 6px 10px;
+  input {
+    text-align: center;
+    font-size: 13px;
+  }
+`;
+const InputTrigger = styled.div`
+  width: 100%;
 `;
 
 export default props => {
@@ -18,16 +25,12 @@ export default props => {
   const [endDateVisible, setEndDateVisible] = useState(false);
   return (
     <div className="flexColumn mBottom20">
-      <div className="Font14 bold mBottom15">{_l('时间')}</div>
+      <div className="Font14 bold mBottom15">{_l('时间范围')}</div>
       <div className="flexRow">
         <div className="flex">
-          <InputCon
-            readOnly
-            className="centerAlign"
-            value={startDate || ''}
-            placeholder={_l('开始日期')}
-            onClick={() => setStartDateVisible(true)}
-          />
+          <InputTrigger onClick={() => setStartDateVisible(true)}>
+            <InputCon readOnly className="centerAlign" value={startDate || ''} placeholder={_l('开始日期')} />
+          </InputTrigger>
           {startDateVisible && (
             <MobileDatePicker
               customHeader={_l('开始日期')}
@@ -48,13 +51,9 @@ export default props => {
         </div>
         <div className="flexRow valignWrapper mLeft7 mRight7">-</div>
         <div className="flex">
-          <InputCon
-            readOnly
-            className="centerAlign"
-            value={endDate || ''}
-            placeholder={_l('结束日期')}
-            onClick={() => setEndDateVisible(true)}
-          />
+          <InputTrigger onClick={() => setEndDateVisible(true)}>
+            <InputCon readOnly className="centerAlign" value={endDate || ''} placeholder={_l('结束日期')} />
+          </InputTrigger>
           {endDateVisible && (
             <MobileDatePicker
               customHeader={_l('结束日期')}

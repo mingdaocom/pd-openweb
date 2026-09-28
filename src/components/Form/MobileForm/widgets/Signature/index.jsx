@@ -1,19 +1,22 @@
-import React, { Fragment, memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Popup } from 'antd-mobile';
 import axios from 'axios';
 import _ from 'lodash';
 import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import accountSettingAjax from 'src/api/accountSetting';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getToken } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
-import 'rc-trigger/assets/index.css';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { getToken } from 'src/utils/services/request/authenticated';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { getViewportSize } from '../../tools/viewport';
 
 const Footer = styled.div`
   display: flex;
-  justify-content: ${props => (props.canUseLast ? 'space-between;' : 'flex-end;')};
+  justify-content: ${props => (props.$canUseLast ? 'space-between;' : 'flex-end;')};
   align-items: center;
   padding: 11px 20px;
   border-top: 1px solid var(--color-border-primary);
@@ -111,22 +114,11 @@ const HorizontalSignatureContent = styled.div`
   flex-direction: column;
   transform: rotate(90deg);
   transform-origin: top left;
-  height: ${props => `${props.height}px`};
-  width: ${props => `${props.width}px`};
-  left: ${props => `${props.height}px`};
+  height: ${props => `${props.$height}px`};
+  width: ${props => `${props.$width}px`};
+  left: ${props => `${props.$height}px`};
   background: var(--color-background-card);
 `;
-
-const getViewportSize = () => {
-  const viewport = window.visualViewport;
-
-  return {
-    width: Math.round((viewport && viewport.width) || window.innerWidth || document.documentElement.clientWidth),
-    height: Math.round((viewport && viewport.height) || window.innerHeight || document.documentElement.clientHeight),
-    offsetTop: Math.round((viewport && viewport.offsetTop) || 0),
-    offsetLeft: Math.round((viewport && viewport.offsetLeft) || 0),
-  };
-};
 
 const getIsViewportLandscape = () => {
   const { width, height } = getViewportSize();
@@ -149,6 +141,7 @@ const getOffsetToParent = (element, parent) => {
 };
 
 const Signature = props => {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const {
     flag,
     value,
@@ -171,6 +164,7 @@ const Signature = props => {
   const restoringSignatureRef = useRef(false);
   const initCanvasRef = useRef(null);
   const [isEdit, setIsEdit] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [isLandscape, setIsLandscape] = useState(
     typeof window === 'undefined' ? false : window.innerWidth > window.innerHeight,
@@ -355,10 +349,12 @@ const Signature = props => {
     setViewportSize(getViewportSize());
   };
 
-  const saveSignature = event => {
+  const saveSignature = async event => {
     if (event) {
       event.stopPropagation();
     }
+
+    if (saving) return;
 
     if (lastInfo) {
       setPopupVisible(false);
@@ -377,51 +373,51 @@ const Signature = props => {
       return alert(_l('请先完成签名'), 2);
     }
 
-    getToken([{ bucket: 4, ext: '.png' }], 10, {
-      projectId,
-      appId,
-      worksheetId,
-    }).then(res => {
+    setSaving(true);
+    try {
+      const res = await getToken([{ bucket: 4, ext: '.png' }], 10, {
+        projectId,
+        appId,
+        worksheetId,
+      });
+
       if (res.error) {
         alert(res.error);
-      } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${btoa(res[0].key)}`;
-        axios
-          .post(url, data.split(',')[1], {
-            headers: {
-              'Content-Type': 'application/octet-stream',
-              Authorization: `UpToken ${res[0].uptoken}`,
-            },
-          })
-          .then(() => {
-            setPopupVisible(false);
-            resetSignaturePopupState();
-
-            if (window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) {
-              props.onChange(res[0].url);
-            } else {
-              accountSettingAjax.editSign({ url: res[0].url }).then(result => {
-                if (result) {
-                  props.onChange(res[0].url);
-                }
-              });
-            }
-          })
-          .catch(error => {
-            console.log(error);
-            alert(_l('保存失败!'), 2);
-          });
+        return;
       }
-    });
+
+      const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${btoa(res[0].key)}`;
+      await axios.post(url, data.split(',')[1], {
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          Authorization: `UpToken ${res[0].uptoken}`,
+        },
+      });
+      setPopupVisible(false);
+      resetSignaturePopupState();
+
+      if (window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) {
+        props.onChange(res[0].url);
+      } else {
+        const result = await accountSettingAjax.editSign({ url: res[0].url });
+
+        if (result) {
+          props.onChange(res[0].url);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      alertIfNotUnauthorized(error, _l('保存失败!'), 2);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const useLastSignature = () => {
     accountSettingAjax.getSign().then(res => {
       if (!res.url) return alert(_l('暂无签名记录'), 3);
-      setIsEdit(true);
-      signatureDataUrlRef.current = '';
-      restoringSignatureRef.current = false;
-      setLastInfo(res);
+      props.onChange(res.url);
+      closePopup();
     });
   };
 
@@ -453,7 +449,7 @@ const Signature = props => {
     e.nativeEvent.stopImmediatePropagation();
 
     compatibleMDJS('previewSignature', { url: value }, () => {
-      previewAttachments({
+      openPreviewAttachments({
         attachments: [
           {
             previewType: 1,
@@ -494,7 +490,7 @@ const Signature = props => {
       uselast === '1' && !(window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord'));
 
     return (
-      <Footer canUseLast={canUseLast}>
+      <Footer $canUseLast={canUseLast}>
         {canUseLast && (
           <div className="lastSignature" onClick={useLastSignature}>
             {_l('使用上次签名')}
@@ -506,7 +502,7 @@ const Signature = props => {
               {_l('清除')}
             </div>
           )}
-          <Button disabled={!isEdit} onClick={saveSignature} size="small">
+          <Button type="primary" loading={saving} disabled={!isEdit} onClick={saveSignature}>
             {_l('确认')}
           </Button>
         </div>
@@ -571,8 +567,8 @@ const Signature = props => {
           {isRotateLandscape ? (
             <HorizontalSignatureContent
               ref={signatureContentRef}
-              height={viewportSize.width}
-              width={viewportSize.height}
+              $height={viewportSize.width}
+              $width={viewportSize.height}
             >
               {signatureContent}
             </HorizontalSignatureContent>

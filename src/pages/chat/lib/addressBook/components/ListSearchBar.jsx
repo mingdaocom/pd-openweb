@@ -1,14 +1,16 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Input, Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import { dialogSelectUser } from 'ming-ui/functions';
 import InviteController from 'src/api/invitation';
 import addFriends from 'src/components/addFriends';
 import AddFriends from 'src/components/addFriends';
 import createGroup from 'src/pages/Group/createGroup/load';
-import { existAccountHint } from 'src/utils/inviteCommon';
+import { existAccountHint } from 'src/utils/services/inviteCommon';
+
+const SEARCH_INPUT_STYLE = { borderRadius: 17 };
 
 export default class SearchBar extends React.Component {
   constructor(props) {
@@ -88,10 +90,10 @@ export default class SearchBar extends React.Component {
     return (
       <div className="contacts-search">
         <div className="contacts-search-wrapper">
-          <Icon icon="search" className="Font18 textTertiary mTop1" />
-          <input
-            type="text"
+          <Input
+            style={SEARCH_INPUT_STYLE}
             className="contacts-search-input"
+            prefix={<Icon icon="search" className="Font18 textTertiary" />}
             placeholder={_l('搜索')}
             onChange={this.searchHandler}
             value={this.state.value}

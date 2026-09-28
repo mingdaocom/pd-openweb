@@ -1,9 +1,8 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import { Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
-import pathCompletion from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './less/printTask.less';
 
 export default class PrintTask extends Component {
@@ -69,9 +68,11 @@ export default class PrintTask extends Component {
 
   render() {
     return (
-      <Dialog
-        visible
-        dialogClasses="printTaskDialog"
+      <Modal
+        open
+        rootClassName="printTaskDialog"
+        mask={{ closable: true }}
+        keyboard
         title={_l('选择您需要打印的部分')}
         okText={_l('预览')}
         onOk={() => this.submit()}
@@ -122,7 +123,7 @@ export default class PrintTask extends Component {
             );
           })}
         </ul>
-      </Dialog>
+      </Modal>
     );
   }
 }

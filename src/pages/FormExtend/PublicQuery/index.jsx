@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Skeleton, Switch } from 'ming-ui';
+import { Button, Skeleton, Switch } from 'ming-ui/antd-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { checkCertification } from 'src/components/checkCertification';
@@ -13,20 +13,22 @@ export default function PublicQuery(props) {
   const [queryInfo, setQueryInfo] = useState({});
   const [configVisible, setConfigVisible] = useState();
   const enabled = queryInfo.visibleType === VISIBLE_TYPE.PUBLIC;
-
   useEffect(() => {
-    publicWorksheetAjax.getPublicQuery({ worksheetId }).then(data => {
-      if (!data.title) {
-        data.title = _l('查询%0', worksheetInfo.name);
-      }
+    publicWorksheetAjax
+      .getPublicQuery({
+        worksheetId,
+      })
+      .then(data => {
+        if (!data.title) {
+          data.title = _l('查询%0', worksheetInfo.name);
+        }
 
-      data.queryControlIds = (data.queryControlIds || []).filter(cid =>
-        _.find(worksheetInfo.template.controls, c => c.controlId === cid),
-      );
-      setQueryInfo(data);
-    });
+        data.queryControlIds = (data.queryControlIds || []).filter(cid =>
+          _.find(worksheetInfo.template.controls, c => c.controlId === cid),
+        );
+        setQueryInfo(data);
+      });
   }, []);
-
   const onSwitchChange = () => {
     const newVisibleType = queryInfo.visibleType === VISIBLE_TYPE.PUBLIC ? VISIBLE_TYPE.CLOSE : VISIBLE_TYPE.PUBLIC;
     newVisibleType === VISIBLE_TYPE.PUBLIC
@@ -34,27 +36,53 @@ export default function PublicQuery(props) {
           projectId,
           authType: 2,
           checkSuccess: () => {
-            publicWorksheetAjax.editPublicQueryState({ worksheetId, visibleType: newVisibleType }).then(url => {
-              setQueryInfo({ ...queryInfo, url, visibleType: newVisibleType });
-              setConfigVisible(true);
-            });
+            publicWorksheetAjax
+              .editPublicQueryState({
+                worksheetId,
+                visibleType: newVisibleType,
+              })
+              .then(url => {
+                setQueryInfo({
+                  ...queryInfo,
+                  url,
+                  visibleType: newVisibleType,
+                });
+                setConfigVisible(true);
+              });
           },
         })
-      : publicWorksheetAjax.editPublicQueryState({ worksheetId, visibleType: newVisibleType }).then(url => {
-          setQueryInfo({ ...queryInfo, url, visibleType: newVisibleType });
-        });
+      : publicWorksheetAjax
+          .editPublicQueryState({
+            worksheetId,
+            visibleType: newVisibleType,
+          })
+          .then(url => {
+            setQueryInfo({
+              ...queryInfo,
+              url,
+              visibleType: newVisibleType,
+            });
+          });
   };
 
   if (_.isEmpty(queryInfo)) {
     return (
       <div class="publicWorksheetEnablePanel">
-        <div style={{ padding: 10 }}>
+        <div
+          style={{
+            padding: 10,
+          }}
+        >
           <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['40%', '60%', '80%']}
+            className="pAll20"
+            style={{
+              flex: 1,
+            }}
             active
-            itemStyle={{ marginBottom: '10px' }}
+            paragraph={{
+              rows: 3,
+              width: ['40%', '60%', '80%'],
+            }}
           />
         </div>
       </div>
@@ -65,7 +93,15 @@ export default function PublicQuery(props) {
     <div class="publicWorksheetEnablePanel">
       <div className="flexRow alignItemsCenter">
         <h1 className="flex">{_l('公开查询')}</h1>
-        <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
+        <Switch
+          size="small"
+          className="publishSwitch"
+          checked={enabled}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return onSwitchChange(!checked, event);
+          }}
+        />
         <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
       </div>
 
@@ -80,14 +116,25 @@ export default function PublicQuery(props) {
             copyShowText
             className="mainShareUrl mTop15 mBottom20"
             url={queryInfo.url}
-            customBtns={[{ tip: _l('打开'), icon: 'launch', onClick: () => window.open(queryInfo.url) }]}
+            customBtns={[
+              {
+                tip: _l('打开'),
+                icon: 'launch',
+                onClick: () => window.open(queryInfo.url),
+              },
+            ]}
           />
-          <Button onClick={() => setConfigVisible(true)}>{_l('查询设置')}</Button>
+          <Button type="primary" onClick={() => setConfigVisible(true)}>
+            {_l('查询设置')}
+          </Button>
         </React.Fragment>
       )}
       {configVisible && (
         <QueryConfigDialog
-          queryInfo={{ ...queryInfo, worksheet: worksheetInfo }}
+          queryInfo={{
+            ...queryInfo,
+            worksheet: worksheetInfo,
+          }}
           onClose={() => setConfigVisible(false)}
           onSuccess={data => setQueryInfo(data)}
         />

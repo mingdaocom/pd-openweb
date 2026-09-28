@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import { getTranslateInfo } from 'src/utils/app';
+import { Popover } from 'ming-ui/antd-components';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { formatAggConfig, getAggFuncTypes, getNodeInfo, getRuleAlias, isDelStatus, updateConfig } from '../util';
 import { AGG_CONTROL_MAX } from './../config';
 import CalculationDialog from './CalculationDialog';
@@ -197,18 +197,18 @@ export default function AddAggregation(props) {
           <span className={cx('mTop16 Bold alignItemsCenter flexRow textDisabled')}>{_l('加载中...')}</span>
         </span>
       ) : (
-        <Trigger
-          action={['click']}
+        <Popover
+          noPadding
+          trigger="click"
           getPopupContainer={() => document.body}
           key={`ChooseControlsForAggregation_${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).length}_${showList}`}
-          popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-          popupVisible={showList}
-          onPopupVisibleChange={showList => setState({ showList })}
-          popupClassName="aggregationChooseControlTriggerWrap"
-          popup={renderPopup()}
+          placement="bottomLeft"
+          open={showList}
+          onOpenChange={showList => setState({ showList })}
+          content={renderPopup()}
         >
           {renderAddAgg()}
-        </Trigger>
+        </Popover>
       )}
       {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0 &&
         (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length > 0 &&

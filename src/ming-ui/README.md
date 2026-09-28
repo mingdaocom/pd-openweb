@@ -10,13 +10,15 @@ Ming-UI 组件通过 `ming-ui` 路径导入：
 
 ```javascript
 // 导入单个组件
-import { Button, Checkbox, Icon } from 'ming-ui';
+import { Checkbox, Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 // 导入多个组件
-import { Button, Checkbox, Icon, Input, Dialog } from 'ming-ui';
+import { Checkbox, Icon, Input } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 // 导入 antd-components
-import { Tooltip } from 'ming-ui/antd-components';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 
 // 导入 functions
 import dialogSelectUser from 'ming-ui/functions/dialogSelectUser';
@@ -31,7 +33,8 @@ import dialogSelectUser from 'ming-ui/functions/dialogSelectUser';
 #### 基本用法
 
 ```jsx
-import { Button } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 function App() {
   return (
@@ -39,10 +42,8 @@ function App() {
       <Button type="primary" onClick={() => alert('点击了按钮')}>
         主要按钮
       </Button>
-      <Button type="ghostgray" onClick={() => console.log('取消')}>
-        取消
-      </Button>
-      <Button type="success" icon="share" onClick={handleShare}>
+      <Button onClick={() => console.log('取消')}>取消</Button>
+      <Button color="var(--color-success)" variant="solid" icon={<Icon icon="share" />} onClick={handleShare}>
         分享
       </Button>
     </div>
@@ -52,28 +53,30 @@ function App() {
 
 #### API
 
-| 属性      | 说明         | 类型                                                                                                     | 默认值      |
-| --------- | ------------ | -------------------------------------------------------------------------------------------------------- | ----------- |
-| type      | 按钮类型     | `'primary' \| 'secondary' \| 'success' \| 'danger' \| 'ghost' \| 'link' \| 'ghostgray' \| 'danger-gray'` | `'primary'` |
-| size      | 按钮尺寸     | `'tiny' \| 'small' \| 'medium' \| 'large' \| 'mdnormal' \| 'mdbig'`                                      | `'medium'`  |
-| icon      | 图标名称     | `string`                                                                                                 | -           |
-| disabled  | 是否禁用     | `boolean`                                                                                                | `false`     |
-| loading   | 是否加载中   | `boolean`                                                                                                | `false`     |
-| onClick   | 点击回调     | `function`                                                                                               | -           |
-| fullWidth | 是否撑满容器 | `boolean`                                                                                                | `false`     |
-| radius    | 是否圆角     | `boolean`                                                                                                | `false`     |
-| children  | 按钮内容     | `ReactNode`                                                                                              | -           |
+| 属性     | 说明                      | 类型                                                                | 默认值      |
+| -------- | ------------------------- | ------------------------------------------------------------------- | ----------- |
+| type     | 主按钮类型                | `'primary' \| 'default' \| 'dashed' \| 'text' \| 'link'`            | `'default'` |
+| color    | Ant 预设色或任意 CSS 颜色 | `string`                                                            | -           |
+| variant  | 按钮变体                  | `'outlined' \| 'dashed' \| 'solid' \| 'filled' \| 'text' \| 'link'` | -           |
+| size     | 按钮尺寸                  | `'small' \| 'middle' \| 'large'`                                    | `'middle'`  |
+| icon     | 按钮图标                  | `ReactNode`                                                         | -           |
+| disabled | 是否禁用                  | `boolean`                                                           | `false`     |
+| loading  | 是否加载中                | `boolean`                                                           | `false`     |
+| onClick  | 点击回调                  | `function`                                                          | -           |
+| block    | 是否撑满容器              | `boolean`                                                           | `false`     |
+| shape    | 按钮形状                  | `'default' \| 'circle' \| 'round'`                                  | `'default'` |
+| children | 按钮内容                  | `ReactNode`                                                         | -           |
 
 #### 按钮类型示例
 
 ```jsx
 <Button type="primary">主要按钮</Button>
-<Button type="secondary">次要按钮</Button>
-<Button type="success">成功按钮</Button>
-<Button type="danger">危险按钮</Button>
-<Button type="ghost">幽灵按钮</Button>
-<Button type="ghostgray">灰色幽灵按钮</Button>
-<Button type="link">链接按钮</Button>
+<Button color="default" variant="filled">次要按钮</Button>
+<Button color="var(--color-success)" variant="solid">成功按钮</Button>
+<Button color="danger" variant="solid">危险按钮</Button>
+<Button color="primary" variant="outlined">幽灵按钮</Button>
+<Button>默认按钮</Button>
+<Button color="primary" variant="link">链接按钮</Button>
 ```
 
 ---
@@ -220,15 +223,9 @@ function App() {
 | type         | 输入类型           | `string`               | `'text'`    |
 | className    | 自定义类名         | `string`               | -           |
 
-#### 数字输入框
-
-```jsx
-<Input.NumberInput value={number} onChange={val => setNumber(val)} placeholder="请输入数字" />
-```
-
 ---
 
-### Dialog 对话框
+### Modal 对话框
 
 对话框组件用于显示模态对话框。
 
@@ -236,7 +233,7 @@ function App() {
 
 ```jsx
 import { useState } from 'react';
-import { Dialog } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 
 function App() {
   const [visible, setVisible] = useState(false);
@@ -244,16 +241,17 @@ function App() {
   return (
     <>
       <Button onClick={() => setVisible(true)}>打开对话框</Button>
-      <Dialog
-        visible={visible}
+      <Modal
+        open={visible}
         title="提示"
-        description="这是一个对话框"
         onOk={() => {
           console.log('确认');
           setVisible(false);
         }}
         onCancel={() => setVisible(false)}
-      />
+      >
+        这是一个对话框
+      </Modal>
     </>
   );
 }
@@ -261,38 +259,32 @@ function App() {
 
 #### API
 
-| 属性        | 说明             | 类型                              | 默认值   |
-| ----------- | ---------------- | --------------------------------- | -------- |
-| visible     | 是否显示         | `boolean`                         | `false`  |
-| title       | 标题             | `ReactNode`                       | -        |
-| description | 描述内容         | `string \| array \| ReactElement` | -        |
-| onOk        | 确认回调         | `function`                        | -        |
-| onCancel    | 取消回调         | `function`                        | -        |
-| okText      | 确认按钮文本     | `string \| ReactElement`          | `'确定'` |
-| cancelText  | 取消按钮文本     | `string \| ReactElement`          | `'取消'` |
-| okDisabled  | 确认按钮是否禁用 | `boolean`                         | `false`  |
-| confirm     | 确认类型         | `'success' \| 'danger'`           | -        |
-| footer      | 自定义底部       | `ReactNode`                       | -        |
-| className   | 自定义类名       | `string`                          | -        |
+| 属性               | 说明                 | 类型                     | 默认值   |
+| ------------------ | -------------------- | ------------------------ | -------- |
+| open               | 是否显示             | `boolean`                | `false`  |
+| title              | 标题                 | `ReactNode`              | -        |
+| onOk               | 确认回调             | `function`               | -        |
+| onCancel           | 取消回调             | `function`               | -        |
+| okText             | 确认按钮文本         | `string \| ReactElement` | `'确定'` |
+| cancelText         | 取消按钮文本         | `string \| ReactElement` | `'取消'` |
+| okDisabled         | 确认按钮是否禁用     | `boolean`                | `false`  |
+| footer             | 自定义底部           | `ReactNode`              | -        |
+| footerLeftElement  | 默认底部左侧内容     | `ReactNode \| function`  | -        |
+| iconButtons        | 标题栏图标按钮       | `array`                  | `[]`     |
+| headerRightElement | 标题栏右侧自定义内容 | `ReactNode`              | -        |
+| className          | 自定义类名           | `string`                 | -        |
 
 #### 确认对话框
 
 ```jsx
-// 使用静态方法
-Dialog.confirm({
+import { Modal } from 'ming-ui/antd-components';
+
+Modal.confirm({
   title: '确认删除',
-  description: '确定要删除此项吗？',
+  content: '确定要删除此项吗？',
   onOk: () => {
     console.log('确认删除');
   },
-});
-
-// 使用 Promise 方式
-Dialog.promise({
-  title: '处理中',
-  description: '正在处理，请稍候...',
-}).then(() => {
-  console.log('处理完成');
 });
 ```
 
@@ -355,28 +347,28 @@ function App() {
 ### DatePicker 日期选择器
 
 ```jsx
-import DatePicker from 'ming-ui/components/DatePicker';
+import { DatePicker } from 'ming-ui/antd-components';
 
 function App() {
   const [date, setDate] = useState(null);
 
-  return <DatePicker value={date} onChange={date => setDate(date)} />;
+  return <DatePicker value={date} onChange={setDate} />;
 }
 ```
 
 ### Radio 单选框
 
 ```jsx
-import { Radio, RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 
 function App() {
   const [value, setValue] = useState('option1');
 
   return (
-    <RadioGroup value={value} onChange={setValue}>
+    <Radio.Group value={value} onChange={event => setValue(event.target.value)}>
       <Radio value="option1">选项1</Radio>
       <Radio value="option2">选项2</Radio>
-    </RadioGroup>
+    </Radio.Group>
   );
 }
 ```
@@ -384,7 +376,7 @@ function App() {
 ### Switch 开关
 
 ```jsx
-import { Switch } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 
 function App() {
   const [checked, setChecked] = useState(false);
@@ -396,16 +388,16 @@ function App() {
 ### Dropdown 下拉菜单
 
 ```jsx
-import { Dropdown } from 'ming-ui';
+import { Button, Dropdown } from 'ming-ui/antd-components';
 
 function App() {
   const menuItems = [
-    { text: '选项1', value: '1' },
-    { text: '选项2', value: '2' },
+    { label: '选项1', key: '1' },
+    { label: '选项2', key: '2' },
   ];
 
   return (
-    <Dropdown data={menuItems} onClick={item => console.log(item)}>
+    <Dropdown menu={{ items: menuItems, onClick: ({ key }) => console.log(key) }}>
       <Button>打开菜单</Button>
     </Dropdown>
   );
@@ -433,8 +425,6 @@ async function handleSelectUser() {
 ### alert 提示
 
 ```jsx
-import alert from 'ming-ui/functions/alert';
-
 alert('这是一条提示信息');
 ```
 
@@ -484,7 +474,8 @@ alert('这是一条提示信息');
 
 ```jsx
 import React, { useState } from 'react';
-import { Button, Checkbox, Dialog, Input } from 'ming-ui';
+import { Checkbox, Input } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 
 function FormExample() {
   const [formData, setFormData] = useState({
@@ -496,9 +487,9 @@ function FormExample() {
 
   const handleSubmit = () => {
     if (!formData.name || !formData.email) {
-      Dialog.confirm({
+      Modal.confirm({
         title: '提示',
-        description: '请填写完整信息',
+        content: '请填写完整信息',
       });
       return;
     }
@@ -540,7 +531,8 @@ function FormExample() {
 
 ```jsx
 import React, { useState } from 'react';
-import { Button, Checkbox, Icon } from 'ming-ui';
+import { Checkbox, Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 function ListExample() {
   const [selectedCount, setSelectedCount] = useState(0);
@@ -559,15 +551,13 @@ function ListExample() {
         <span className="Font13 textPrimary">已选择 {selectedCount} 项</span>
       </div>
       <div className="flexRow alignItemsCenter">
-        <Button type="ghostgray" size="medium" onClick={() => console.log('取消')} className="Font14">
-          取消
-        </Button>
+        <Button onClick={() => console.log('取消')}>取消</Button>
         <Button
-          type="success"
-          size="medium"
-          icon="share"
+          color="var(--color-success)"
+          variant="solid"
+          icon={<Icon icon="share" />}
           onClick={() => console.log('分享')}
-          className="Font14 mLeft12"
+          className="mLeft12"
         >
           分享
         </Button>

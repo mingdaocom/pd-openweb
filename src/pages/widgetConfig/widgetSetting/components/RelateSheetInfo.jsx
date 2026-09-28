@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import { RelateDetail } from 'src/pages/widgetConfig/styled';
-import { toEditWidgetPage } from '../../util';
 
 export default function RelateSheetInfo({ name, id }) {
   return (

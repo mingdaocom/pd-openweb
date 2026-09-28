@@ -1,134 +1,73 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import _ from 'lodash';
-import { arrayOf, func, string } from 'prop-types';
-import styled from 'styled-components';
-import { quickSelectRole } from 'ming-ui/functions';
-import { BaseSelectedItem } from './Styles';
-
-const Con = styled.div`
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-  line-height: 32px;
-  border: 1px solid var(--color-border-primary);
-  border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
-  .clearIcon {
-    display: none;
-  }
-  &:hover {
-    .clearIcon {
-      display: inline-block;
-    }
-  }
-  ${({ isEmpty }) => (!isEmpty ? '&:hover { .downIcon { display: none;} }' : '')}
-`;
-
-const DepartmentsCon = styled.div`
-  cursor: pointer;
-  flex: 1;
-  overflow: hidden;
-  font-size: 13px;
-  min-height: 32px;
-  padding: 0 0 0 10px;
-`;
-
-const DepartmentsText = styled.div`
-  font-size: 13px;
-  color: var(--color-text-title);
-`;
-
-const Icon = styled.i`
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  margin-right: 8px;
-`;
-
-const Empty = styled.span`
-  color: var(--color-text-disabled);
-`;
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import { Select } from 'ming-ui/antd-components';
+import { RoleSelectPopover } from 'ming-ui/functions/quickSelectRole';
 
 export default function Departments(props) {
   const { values = [], projectId, isMultiple, onChange = () => {} } = props;
-  const [active, setActive] = useState();
   const valueRef = useRef();
+  const options = values.map(value => ({ label: value.organizeName, value: value.organizeId }));
+  const selectedValue = isMultiple ? values.map(value => value.organizeId) : values[0]?.organizeId;
 
   useEffect(() => {
     valueRef.current = values;
   }, [values]);
 
   return (
-    <Con
-      isEmpty={!values.length}
-      active={active}
-      onClick={e => {
-        if (md.global.Account.isPortal && !find(md.global.Account.projects, item => item.projectId === projectId)) {
+    <RoleSelectPopover
+      projectId={projectId}
+      showCurrentOrgRole
+      showCompanyName
+      unique={!isMultiple}
+      value={values}
+      onOpenChange={visible => {
+        if (
+          visible &&
+          md.global.Account.isPortal &&
+          !_.find(md.global.Account.projects, item => item.projectId === projectId)
+        ) {
           alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
+          return false;
+        }
+      }}
+      onSave={(data, isCancel = false) => {
+        if (!data.length) {
           return;
         }
 
-        setActive(true);
-        quickSelectRole(e.target, {
-          projectId,
-          showCurrentOrgRole: true,
-          showCompanyName: true,
-          unique: !isMultiple,
-          value: values,
-          onSave: (data, isCancel = false) => {
-            if (!data.length) {
-              return;
-            }
-
-            setActive(false);
-            onChange({
-              values: isMultiple
-                ? isCancel
-                  ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
-                  : _.uniqBy([...valueRef.current, ...data], 'organizeId')
-                : data,
-            });
-          },
+        onChange({
+          values: isMultiple
+            ? isCancel
+              ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
+              : _.uniqBy([...valueRef.current, ...data], 'organizeId')
+            : data,
         });
       }}
     >
-      <DepartmentsCon>
-        {!values.length && <Empty>{_l('请选择')}</Empty>}
-        {!isMultiple && !!values.length && (
-          <DepartmentsText className="departmentsText ellipsis" title={values[0].organizeName}>
-            {values[0].organizeName}
-          </DepartmentsText>
-        )}
-        {isMultiple &&
-          values.map((v, i) => (
-            <BaseSelectedItem key={i}>
-              <span className="name ellipsis">{v.organizeName}</span>
-              <i
-                className="icon icon-delete textTertiary Font10 Hand"
-                onClick={e => {
-                  e.stopPropagation();
-                  onChange({ values: values.filter(d => d.organizeId !== v.organizeId) });
-                }}
-              />
-            </BaseSelectedItem>
-          ))}
-      </DepartmentsCon>
-      <Icon className="icon icon-arrow-down-border downIcon" />
-      {!!values.length && (
-        <Icon
-          className="icon icon-cancel clearIcon"
-          onClick={e => {
-            onChange({ values: [] });
-            e.stopPropagation();
-          }}
-        />
-      )}
-    </Con>
+      <Select
+        className="w100"
+        mode={isMultiple ? 'multiple' : undefined}
+        open={false}
+        showSearch={false}
+        allowClear
+        options={options}
+        value={selectedValue}
+        onClear={() => onChange({ values: [] })}
+        onDeselect={organizeId => onChange({ values: values.filter(value => value.organizeId !== organizeId) })}
+      />
+    </RoleSelectPopover>
   );
 }
 
 Departments.propTypes = {
+  isMultiple: bool,
   projectId: string,
-  values: arrayOf(string),
+  values: arrayOf(
+    shape({
+      organizeId: string,
+      organizeName: string,
+    }),
+  ),
   onChange: func,
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, Input, Popover } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
+import { Checkbox, Input, Popover, Segmented } from 'ming-ui/antd-components';
 import { TabsSettingPopover } from './styled.js';
 
 const Content = props => {
@@ -98,20 +97,16 @@ const Content = props => {
       {['analysis'].includes(widgetType) && (
         <div className="flexRow valignWrapper mTop15 mBottom10">
           <div className="bold mRight10">{_l('显示方式')}</div>
-          <div className="typeSelect flex flexRow valignWrapper">
-            <div
-              className={cx('centerAlign flex pointer textSecondary', { active: showType === 1 })}
-              onClick={() => handleChangeConfig({ showType: 1 })}
-            >
-              {_l('透明')}
-            </div>
-            <div
-              className={cx('centerAlign flex pointer textSecondary', { active: showType === 2 })}
-              onClick={() => handleChangeConfig({ showType: 2 })}
-            >
-              {_l('卡片')}
-            </div>
-          </div>
+          <Segmented
+            block
+            className="flex"
+            options={[
+              { label: _l('透明'), value: 1 },
+              { label: _l('卡片'), value: 2 },
+            ]}
+            value={showType}
+            onChange={value => handleChangeConfig({ showType: value })}
+          />
         </div>
       )}
     </TabsSettingPopover>
@@ -126,20 +121,20 @@ export default props => {
 
   return (
     <Popover
-      zIndex={1000}
       placement="rightTop"
-      overlayClassName="tabsSettingPopover"
-      arrowPointAtCenter={true}
-      // destroyTooltipOnHide={true}
+      classNames={{ root: 'tabsSettingPopover' }}
+      arrow={{ pointAtCenter: true }}
       mouseLeaveDelay={0.3}
-      overlayInnerStyle={{
-        padding: 24,
+      styles={{
+        body: {
+          padding: 24,
+        },
       }}
       align={{
-        offset: [-5, -20],
+        offset: [5, -20],
       }}
-      visible={popoverVisible}
-      onVisibleChange={visible => {
+      open={popoverVisible}
+      onOpenChange={visible => {
         if (isEdit) return;
         setPopoverVisible(visible);
       }}

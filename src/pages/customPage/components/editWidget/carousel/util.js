@@ -1,4 +1,4 @@
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 export function getUrlList(text = '') {
   const array = text.replace(/\n/, ' ').split(' ');

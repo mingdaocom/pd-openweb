@@ -1,33 +1,40 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
-import { Dialog, FunctionWrap } from 'ming-ui';
-import { GlobalStoreProvider } from 'src/common/GlobalStore';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { GlobalStoreProvider } from 'src/common/providers/GlobalStore';
 import store from 'src/redux/configureStore';
 
-export default function dialogEditWorksheet(props) {
+const EDIT_WORKSHEET_MODAL_STYLES = {
+  container: { padding: 0, overflow: 'hidden' },
+};
+
+const WidgetConfig = lazy(() => import('../index'));
+
+function EditWorksheetDialog(props) {
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
 
-  import('../index').then(module => {
-    const Container = module.default;
-
-    const Content = contentProps => (
-      <Dialog
-        width={width}
-        className="DialogWidgetConfig"
-        overlayClosable={false}
-        visible
-        type="fixed"
-        title={null}
-        footer={null}
-      >
+  return (
+    <Modal
+      width={width}
+      className="DialogWidgetConfig"
+      styles={EDIT_WORKSHEET_MODAL_STYLES}
+      mask={{ closable: false }}
+      closable={false}
+      open
+      type="fixed"
+    >
+      <Suspense fallback={null}>
         <Provider store={store}>
           <GlobalStoreProvider>
-            <Container {...contentProps} isDialog handleClose={() => contentProps.onClose()} />
+            <WidgetConfig {...props} isDialog handleClose={() => props.onClose()} />
           </GlobalStoreProvider>
         </Provider>
-      </Dialog>
-    );
+      </Suspense>
+    </Modal>
+  );
+}
 
-    FunctionWrap(Content, { ...props });
-  });
+export default function useEditWorksheetDialog() {
+  return useFunctionWrapComponent(EditWorksheetDialog);
 }

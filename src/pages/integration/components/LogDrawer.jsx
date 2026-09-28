@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { ConfigProvider, Drawer, Table } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv } from 'ming-ui';
-import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
+import { Icon, LoadDiv } from 'ming-ui';
+import { ConfigProvider, DatePicker, Drawer, Select } from 'ming-ui/antd-components';
 import Oauth2Ajax from 'src/pages/workflow/api/oauth2';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import LogDialog from 'src/pages/integration/apiIntegration/ConnectWrap/content/TokenLog/LogDialog';
 import { TableWrap } from 'src/pages/integration/apiIntegration/style';
+
+const isCompleteDateRange = range =>
+  Array.isArray(range) && range.length === 2 && range.every(date => moment.isMoment(date) && date.isValid());
 
 const Wrap = styled.div`
   background: var(--color-background-primary);
@@ -37,7 +40,7 @@ const Wrap = styled.div`
       margin: 80px auto 0;
     }
   }
-  .ant-table {
+  .hap-table {
     tr {
       display: flex;
     }
@@ -121,19 +124,8 @@ const Wrap = styled.div`
     }
   }
   .filterTimeRange {
-    width: 300;
-    height: 36px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    width: 300px;
     min-width: 170px;
-    padding: 5px 8px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    &:hover {
-      border: 1px solid var(--color-primary);
-    }
   }
   .dropSearchType,
   .statusDropdown {
@@ -310,34 +302,26 @@ export default function (props) {
     }
   };
 
-  const formatTime = time => time.map(item => item && moment(item).format('YYYY/MM/DD HH:mm'));
-
-  const renderTimePlaceholder = () => {
-    const [startTime, endTime] = formatTime(time);
-    if (!startTime && !endTime) return <span className="placeholder">{_l('筛选时间范围')}</span>;
-    return `${startTime} ~ ${endTime}`;
-  };
-
   return (
     <Drawer
       onClose={onClose}
-      visible={showRefreshLog}
+      open={showRefreshLog}
       placement="right"
-      className="asdasd"
+      rootClassName="asdasd"
       closable={false}
       mask={false}
-      bodyStyle={{ padding: 0 }}
-      width={800}
+      size={800}
       title={
         <div className="flexRow">
           <span className="flex">{_l('查看日志')}</span>
           <Icon icon="close" className=" Font20 textTertiary Hand" onClick={onClose} />
         </div>
       }
+      styles={{ body: { padding: 0 } }}
     >
       <Wrap className="213 h100">
         <div className="flexRow mTop12">
-          <Dropdown
+          <Select
             value={status}
             className="statusDropdown mLeft10 Width200"
             onChange={value => {
@@ -349,37 +333,35 @@ export default function (props) {
                 });
               }
             }}
-            border
-            isAppendToBody
-            data={[
+            options={[
               {
-                text: _l('全部状态'),
+                label: _l('全部状态'),
                 value: '',
               },
               {
-                text: _l('完成'),
+                label: _l('完成'),
                 value: 1,
               },
               {
-                text: _l('失败'),
+                label: _l('失败'),
                 value: 0,
               },
             ]}
           />
-          <DateRangePicker
-            mode="datetime"
-            timeMode="minute"
-            placeholder={_l('筛选时间范围')}
-            min={moment().add(-6, 'M')}
-            selectedValue={time}
-            children={
-              <div className="filterTimeRange mLeft10">
-                <div className="timeContent">{renderTimePlaceholder()}</div>
-                <Icon icon="bellSchedule" className="textTertiary Font18" />
-              </div>
-            }
-            onOk={time => setState({ time, pageIndex: 1, isAll: false })}
-            onClear={() => setState({ time: ['', ''], pageIndex: 1, isAll: false })}
+          <DatePicker.RangePicker
+            allowClear
+            className="filterTimeRange mLeft10"
+            disabledDate={current => current && current.isBefore(moment().subtract(6, 'months'), 'day')}
+            format="YYYY/MM/DD HH:mm"
+            inputReadOnly
+            needConfirm
+            placeholder={[_l('开始时间'), _l('结束时间')]}
+            showNow={false}
+            showTime={{ format: 'HH:mm' }}
+            value={isCompleteDateRange(time) ? time : null}
+            onChange={range => {
+              setState({ time: isCompleteDateRange(range) ? range : ['', ''], pageIndex: 1, isAll: false });
+            }}
           />
         </div>
         {renderCon()}

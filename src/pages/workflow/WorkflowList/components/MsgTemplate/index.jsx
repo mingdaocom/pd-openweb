@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func } from 'prop-types';
-import { Checkbox, Dialog, Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import EmptyStatus from '../../components/Empty';
 import './index.less';
 
@@ -97,17 +98,19 @@ export default class MsgTemplate extends Component {
   delTemplate = () => {
     const _this = this;
     const { messageTemplateIds = [] } = this.state;
-    Dialog.confirm({
+    Modal.confirm({
       width: 550,
-      title: _l('您确认删除模板?'),
-      description: (
+      title: <span className="textError">{_l('您确认删除模板?')}</span>,
+      content: (
         <span className="textPrimary">
           {_l('删除后，工作流中新添加的短信节点将不能在选到此模板，之前已使用此模板的节点不受影响')}
         </span>
       ),
       onOk: () => {
         _this.handleDelete(messageTemplateIds);
-        this.setState({ messageTemplateIds: [] });
+        this.setState({
+          messageTemplateIds: [],
+        });
       },
     });
   };
@@ -116,7 +119,7 @@ export default class MsgTemplate extends Component {
     let { messageTemplateIds = [], isAsc, data } = this.state;
     return (
       <div className="workflowMsgTemplateDialogWrap">
-        <Dialog
+        <Modal
           title={
             <div className="flexRow templateTitle">
               <div>{_l('短信模版')}</div>
@@ -131,8 +134,10 @@ export default class MsgTemplate extends Component {
             </div>
           }
           className="workflowMsgTemplateDialog"
-          visible
+          open
+          width={800}
           footer={null}
+          styles={{ container: { height: '80%' }, body: { overflow: 'hidden' } }}
           onCancel={closeLayer}
         >
           {data.length ? (
@@ -167,16 +172,18 @@ export default class MsgTemplate extends Component {
                       <Checkbox
                         disabled={template.status === 0}
                         checked={_.includes(messageTemplateIds, template.id)}
-                        onClick={checked => {
+                        onChange={event => {
                           let copyCheckedIds = [...messageTemplateIds];
 
-                          if (!checked) {
+                          if (event.target.checked) {
                             copyCheckedIds.push(template.id);
                           } else {
                             copyCheckedIds = copyCheckedIds.filter(item => item !== template.id);
                           }
 
-                          this.setState({ messageTemplateIds: copyCheckedIds });
+                          this.setState({
+                            messageTemplateIds: copyCheckedIds,
+                          });
                         }}
                       />
                       <div className="content flex">
@@ -196,7 +203,7 @@ export default class MsgTemplate extends Component {
               <div className="moreTips textSecondary mTop12">{_l('短信模版可在编辑短信节点时创建')}</div>
             </EmptyStatus>
           )}
-        </Dialog>
+        </Modal>
       </div>
     );
   }

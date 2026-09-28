@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import ConnectAvator from './ConnectAvator';
 
 const Wrap = styled.div(
-  ({ w }) => `
-  width: ${w < 320 ? 320 : w}px;
+  ({ $w }) => `
+  width: ${$w < 320 ? 320 : $w}px;
   // height: 220px;
   background: var(--color-background-primary);
   border: 1px solid var(--color-border-secondary);
@@ -61,7 +61,7 @@ function Card(props) {
   let n = Math.floor(props.w / (320 + 24)) < 1 ? 1 : Math.floor(props.w / (320 + 24)); //一行几个
   return (
     <Wrap
-      w={Math.floor((props.w - 24 * (n - 1)) / n)}
+      $w={Math.floor((props.w - 24 * (n - 1)) / n)}
       className={cx('InlineBlock', {
         mMargin: props.i % n === 0,
       })}

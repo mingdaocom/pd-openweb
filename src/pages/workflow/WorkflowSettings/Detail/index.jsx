@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import { Drawer } from 'ming-ui/antd-components';
 import { updateNodeData } from '../../redux/actions';
 import { NODE_TYPE } from '../enum';
 import nodeModules from './nodeModules';
@@ -71,22 +71,22 @@ class Detail extends Component {
     const { selectNodeId, selectNodeType, flowInfo, instanceId } = this.props;
     const NodeComponent = nodeModules[selectNodeType];
 
-    // 分支
-    if (selectNodeType === NODE_TYPE.BRANCH_ITEM) {
+    // 分支、跳转
+    if (selectNodeType === NODE_TYPE.BRANCH_ITEM || selectNodeType === NODE_TYPE.GOTO) {
       return <NodeComponent updateNodeData={this.updateNodeData} {...this.props} />;
     }
 
     return (
       <Drawer
         placement="right"
-        className="Absolute"
-        visible={!!selectNodeId}
+        rootClassName="Absolute"
+        open={!!selectNodeId}
         closable={false}
         mask={false}
         getContainer={false}
-        bodyStyle={{ padding: 0 }}
-        style={{ zIndex: 9 }}
-        width={800}
+        rootStyle={{ zIndex: 9 }}
+        size={800}
+        styles={{ body: { padding: 0 } }}
       >
         <div className="workflowSettings h100">
           <div

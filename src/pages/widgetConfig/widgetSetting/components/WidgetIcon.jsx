@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import DropdownWrapper from 'worksheet/components/DropdownWrapper';
-import { DISPLAY_ICON } from '../../config/score';
+import { Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DISPLAY_ICON } from 'src/utils/domain/control/score';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+
+const ICON_OPTIONS = DISPLAY_ICON.map(item => ({ value: item.name, label: item.name }));
+const SELECT_STYLES = {
+  root: { width: '100%', height: 36 },
+  popup: { root: { padding: 0 } },
+};
+const renderIconLabel = ({ value }) => <Icon icon={value} className="Font22 textTertiary" />;
 
 const WidgetIconStyle = styled.div`
+  width: 310px;
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   padding: 12px;
@@ -37,49 +46,42 @@ const WidgetIconStyle = styled.div`
   }
 `;
 
-const DropdownInput = styled.div`
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--color-border-tertiary);
-  height: 36px;
-  padding: 0 12px;
-  box-sizing: border-box;
-  border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-`;
-
 export default function WidgetIcon({ data, onChange }) {
   const { itemicon } = getAdvanceSetting(data);
+  const [open, setOpen] = useState(false);
+
+  const handleSelect = icon => {
+    onChange(handleAdvancedSettingChange(data, { itemicon: icon }));
+    setOpen(false);
+  };
 
   return (
     <SettingItem>
       <div className="settingItemTitle">{_l('样式')}</div>
-      <DropdownWrapper
-        downElement={
+      <Select
+        value={itemicon}
+        open={open}
+        onOpenChange={setOpen}
+        placement="bottomLeft"
+        options={ICON_OPTIONS}
+        labelRender={renderIconLabel}
+        showSearch={false}
+        popupMatchSelectWidth={false}
+        styles={SELECT_STYLES}
+        popupRender={() => (
           <WidgetIconStyle>
-            {DISPLAY_ICON.map(item => {
-              return (
-                <div
-                  className={cx('icon_item', { active: itemicon === item.name })}
-                  onClick={() => {
-                    onChange(handleAdvancedSettingChange(data, { itemicon: item.name }));
-                  }}
-                >
-                  <Icon icon={item.name} />
-                </div>
-              );
-            })}
+            {DISPLAY_ICON.map(item => (
+              <div
+                key={item.name}
+                className={cx('icon_item', { active: itemicon === item.name })}
+                onClick={() => handleSelect(item.name)}
+              >
+                <Icon icon={item.name} />
+              </div>
+            ))}
           </WidgetIconStyle>
-        }
-      >
-        <DropdownInput>
-          <Icon icon={itemicon} className="Font22 textTertiary" />
-          <span className="icon-arrow-down-border mLeft8 textTertiary" />
-        </DropdownInput>
-      </DropdownWrapper>
+        )}
+      />
     </SettingItem>
   );
 }

@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { Skeleton } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, ScrollView } from 'ming-ui';
+import { ScrollView } from 'ming-ui';
+import { Checkbox, Skeleton } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import CommonAjax from 'src/api/addressBook';
 import homeAppAjax from 'src/api/homeApp';
 import smartSearchCtrl from 'src/api/smartSearch';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import AppList from '../components/AppList';
 import FilterPosition from '../components/FilterPosition';
 import GlobalSearchEmpty from '../components/GlobalSearchEmpty';
@@ -347,7 +348,7 @@ export default class GlobalSearchAllContent extends Component {
       onlyTitle,
       filterCount,
     } = this.state;
-    const { allowSuperSearch } = getCurrentProject(appProjectId);
+    const allowSuperSearch = hasFeaturePermission(appProjectId, FEATURE_PERMISSION.SUPER_SEARCH);
 
     if (leftLoading || loadAppData) {
       return (
@@ -462,15 +463,23 @@ export default class GlobalSearchAllContent extends Component {
                         }
                       />
                       <Checkbox
-                        text={_l('只搜索记录标题')}
                         className="textTertiary"
                         checked={onlyTitle}
-                        onClick={() => {
-                          this.setState({ onlyTitle: !onlyTitle, loadAppData: true }, () =>
-                            this.getAppData({ type: 8 }),
+                        onChange={() => {
+                          this.setState(
+                            {
+                              onlyTitle: !onlyTitle,
+                              loadAppData: true,
+                            },
+                            () =>
+                              this.getAppData({
+                                type: 8,
+                              }),
                           );
                         }}
-                      />
+                      >
+                        {_l('只搜索记录标题')}
+                      </Checkbox>
                     </div>,
                   ]
                 : [
@@ -487,15 +496,23 @@ export default class GlobalSearchAllContent extends Component {
                         }
                       />
                       <Checkbox
-                        text={_l('只搜索记录标题')}
                         className="textTertiary"
                         checked={onlyTitle}
-                        onClick={() => {
-                          this.setState({ onlyTitle: !onlyTitle, loadAppData: true }, () =>
-                            this.getAppData({ type: 8 }),
+                        onChange={() => {
+                          this.setState(
+                            {
+                              onlyTitle: !onlyTitle,
+                              loadAppData: true,
+                            },
+                            () =>
+                              this.getAppData({
+                                type: 8,
+                              }),
                           );
                         }}
-                      />
+                      >
+                        {_l('只搜索记录标题')}
+                      </Checkbox>
                     </div>,
                   ]
             }

@@ -1,9 +1,9 @@
 import React, { useLayoutEffect } from 'react';
-import { createRoot } from 'react-dom/client';
 import _, { get, identity, isEmpty } from 'lodash';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { emitter } from 'src/utils/common';
-import { checkTypeSupportForFunction } from 'src/utils/control';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { checkTypeSupportForFunction } from 'src/utils/domain/control/type';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { functions } from '../enum';
 import setCloseBrackets from '../lib/closebrackets';
 import setJavascriptMode from '../lib/javascript';
@@ -119,6 +119,7 @@ export default class Function {
       type = 'mdfunction',
       getControlName = () => {},
       controls = [],
+      selectableControls,
       renderTag,
       onChange = () => {},
       insertTagToEditor = () => {},
@@ -169,6 +170,8 @@ export default class Function {
     this.type = type;
     this.getControlName = getControlName;
     this.controls = controls;
+    // 可供输入提示选择的字段，未传时与 controls 一致；存量表达式仍按 controls 解析展示
+    this.selectableControls = selectableControls || controls;
     this.renderTag = renderTag;
     this.onChange = onChange;
     this.insertTagToEditor = insertTagToEditor;
@@ -279,7 +282,7 @@ export default class Function {
   }
   showHint() {
     const editor = this.editor;
-    const controls = this.controls;
+    const controls = this.selectableControls;
     const insertTagToEditor = this.insertTagToEditor;
     const CodeMirror = this.CodeMirror;
 

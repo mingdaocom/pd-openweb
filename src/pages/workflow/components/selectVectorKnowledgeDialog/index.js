@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Dialog, Dropdown, FunctionWrap, LoadDiv, MultipleDropdown } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Button, Modal, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import ajaxRequest from 'src/api/appManagement';
 import knowledgeAjax from 'src/pages/AppSettings/components/Knowledge/api/knowledge';
 import '../SelectUsersFromApp/index.less';
@@ -50,8 +52,8 @@ class SelectVectorKnowledge extends Component {
       result = result.map(({ appId, appName }) => {
         return {
           value: appId,
-          text: selectAppId === appId ? appName + _l('（本应用）') : appName,
-          label: appName,
+          label: selectAppId === appId ? appName + _l('（本应用）') : appName,
+          name: appName,
         };
       });
 
@@ -85,7 +87,7 @@ class SelectVectorKnowledge extends Component {
    */
   onOk = () => {
     const { selectAppId, selectKnowledgeIds, appList, knowledgeList } = this.state;
-    const appName = appList.find(item => item.value === selectAppId).label;
+    const appName = appList.find(item => item.value === selectAppId).name;
     const list = selectKnowledgeIds.map(id => {
       const singleRole = knowledgeList.find(item => item.value === id);
       return {
@@ -104,22 +106,20 @@ class SelectVectorKnowledge extends Component {
   renderContent() {
     const { onCancel } = this.props;
     const { selectAppId, selectKnowledgeIds, appList, knowledgeList } = this.state;
-    const label = selectKnowledgeIds.map(id => knowledgeList.find(item => item.value === id).label);
 
     return (
       <Fragment>
         <div className="formItem flexRow mTop10">
           <div className="label">{_l('应用')}</div>
           <div className="content">
-            <Dropdown
-              isAppendToBody
-              border
-              openSearch
+            <Select
+              showSearch
+              optionFilterProp="label"
               className="w100"
               placeholder={_l('请选择')}
-              noData={_l('没有可选的应用')}
-              value={selectAppId}
-              data={appList}
+              notFoundContent={_l('没有可选的应用')}
+              value={selectAppId || undefined}
+              options={appList}
               onChange={id => {
                 this.setState({ selectAppId: id, selectKnowledgeIds: [] });
                 this.getKnowledgeByApp(id);
@@ -130,25 +130,25 @@ class SelectVectorKnowledge extends Component {
         <div className="formItem flexRow mTop15">
           <div className="label">{_l('知识库')}</div>
           <div className="content">
-            <MultipleDropdown
-              className={label.length ? '' : 'noSelectRoles'}
+            <Select
+              className="w100"
+              mode="multiple"
               value={selectKnowledgeIds}
               options={knowledgeList}
-              multipleSelect
-              label={label.length ? label.join('、') : _l('选择知识库')}
-              multipleLevel={false}
-              multipleHideDropdownNav
-              filter
-              filterHint={_l('搜索')}
-              onChange={(evt, ids) => this.setState({ selectKnowledgeIds: ids })}
+              placeholder={_l('选择知识库')}
+              notFoundContent={_l('没有可选的知识库')}
+              showSearch
+              optionFilterProp="label"
+              maxTagCount="responsive"
+              onChange={selectKnowledgeIds => this.setState({ selectKnowledgeIds })}
             />
           </div>
         </div>
         <div className="btns TxtRight mTop20">
-          <Button type="link" onClick={onCancel}>
+          <Button color="primary" variant="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
-          <Button disabled={!selectAppId || !selectKnowledgeIds.length} onClick={this.onOk}>
+          <Button type="primary" disabled={!selectAppId || !selectKnowledgeIds.length} onClick={this.onOk}>
             {_l('确定')}
           </Button>
         </div>
@@ -160,17 +160,19 @@ class SelectVectorKnowledge extends Component {
     const { appList } = this.state;
 
     return (
-      <Dialog
+      <Modal
         className="selectUserFromAppDialog"
-        visible
+        open
         title={_l('选择应用下的知识库')}
         footer={null}
         onCancel={this.props.onCancel}
       >
         {appList === null ? <LoadDiv /> : this.renderContent()}
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export default props => FunctionWrap(SelectVectorKnowledge, { ...props });
+export function useSelectVectorKnowledge() {
+  return useFunctionWrapComponent(SelectVectorKnowledge);
+}

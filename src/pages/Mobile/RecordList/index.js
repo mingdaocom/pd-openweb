@@ -5,18 +5,19 @@ import { bindActionCreators } from 'redux';
 import { SpinLoading, Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { WaterMark } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import DocumentTitle from 'mobile/components/DocumentTitle';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
-import { getShowViews } from 'src/pages/worksheet/views/util';
-import { getRequest, pathCompletion } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { mdAppResponse } from 'src/utils/services/project';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 import AppPermissions from '../components/AppPermissions';
 import Back from '../components/Back';
 import SlideGroupFilter from './GroupFilter/SlideGroupFilter';
@@ -253,6 +254,7 @@ let RecordList = class RecordList extends Component {
           className={cx('flexColumn h100', {
             portalWrapHeight: md.global.Account.isPortal && appNaviStyle === 2,
           })}
+          style={{ '--mobile-record-action-bottom': `${recordActionWrapBottom}px` }}
         >
           <DocumentTitle title={name} />
           {!batchOptVisible && (

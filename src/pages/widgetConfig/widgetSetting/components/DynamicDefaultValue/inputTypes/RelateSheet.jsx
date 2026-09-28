@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import { getCurrentValue } from 'src/components/Form/core/formUtils';
-import { selectRecords } from 'src/components/SelectRecords';
+import { useSelectRecords } from 'src/components/SelectRecords';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 
-export default class RelateSheet extends Component {
+class RelateSheet extends Component {
   static propTypes = {
     onDynamicValueChange: func,
+    openSelectRecords: func,
     dynamicValue: arrayOf(shape({ cid: string, rcid: string, staticValue: string })),
   };
   static defaultProps = {
@@ -32,7 +34,7 @@ export default class RelateSheet extends Component {
 
       return total;
     }, []);
-    selectRecords({
+    this.props.openSelectRecords({
       control: {
         ...data,
       },
@@ -101,3 +103,7 @@ export default class RelateSheet extends Component {
     );
   }
 }
+
+export default withOpeners(RelateSheet, {
+  openSelectRecords: useSelectRecords,
+});

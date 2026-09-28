@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 import { get, head } from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, RadioGroup, Switch as SwitchComponent } from 'ming-ui';
-import { getSwitchItemNames } from 'src/utils/control';
-import { getAdvanceSetting } from '../../util';
+import { Checkbox, Radio, Switch as SwitchComponent } from 'ming-ui/antd-components';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
+
+const DISPLAY_ROW_CHECKBOX_STYLES = { icon: { marginTop: 6 } };
 
 const Con = styled.div`
   display: flex;
   align-items: center;
-  .RadioGroup {
+  .ant-radio-group {
     width: 100%;
     flex-wrap: nowrap;
     label {
@@ -21,14 +23,6 @@ const Con = styled.div`
       text-overflow: ellipsis;
     }
   }
-  .Checkbox {
-    display: flex;
-    white-space: normal !important;
-    .Checkbox-box {
-      flex-shrink: 0;
-      ${props => (props.displayRow ? 'margin-top: 6px;' : '')};
-    }
-  }
 `;
 
 export default function Switch({ data, displayRow }) {
@@ -39,7 +33,8 @@ export default function Switch({ data, displayRow }) {
 
   useEffect(() => {
     if (showtype === '2') {
-      $('.mobileFormSwitchDisabled label') && $('.mobileFormSwitchDisabled label').removeClass('Radio--disabled');
+      $('.mobileFormSwitchDisabled label') &&
+        $('.mobileFormSwitchDisabled label').removeClass('ant-radio-wrapper-disabled');
     }
   }, [showtype]);
 
@@ -56,20 +51,24 @@ export default function Switch({ data, displayRow }) {
   if (showtype === '2') {
     return (
       <Con>
-        <RadioGroup
+        <Radio.Group
           className="mobileFormSwitchDisabled"
           size="middle"
           disabled={true}
-          checkedValue={get(head(defaultValue), 'staticValue')}
-          data={itemnames.map(item => ({ text: item.value, value: item.key }))}
+          value={get(head(defaultValue), 'staticValue')}
+          options={(itemnames.map(item => ({ text: item.value, value: item.key })) || []).map(
+            ({ text, ...option }) => ({ ...option, label: text }),
+          )}
         />
       </Con>
     );
   }
 
   return (
-    <Con displayRow={displayRow}>
-      <Checkbox checked={isChecked}>{data.hint || ''}</Checkbox>
+    <Con $displayRow={displayRow}>
+      <Checkbox checked={isChecked} styles={displayRow ? DISPLAY_ROW_CHECKBOX_STYLES : undefined}>
+        {data.hint || ''}
+      </Checkbox>
     </Con>
   );
 }

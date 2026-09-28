@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, MdLink } from 'ming-ui';
+import { Button, Input, Popover, Switch, Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import CancelIntegration from '../components/CancelIntegration';
 import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
@@ -171,11 +170,12 @@ export default class FeiShu extends React.Component {
           <span className="inputTitle">{`${name}：`}</span>
           <Popover
             title={null}
-            arrowPointAtCenter={true}
+            arrow={{ pointAtCenter: true }}
             placement="bottomLeft"
-            overlayClassName="workwxPopoverWrapper"
+            classNames={{ root: 'workwxPopoverWrapper' }}
+            noPadding
             content={
-              <span className="card Relative overflowHidden">
+              <span className="Relative overflowHidden">
                 <img width={600} src={fsImg} />
               </span>
             }
@@ -186,7 +186,7 @@ export default class FeiShu extends React.Component {
         <div className="Relative InlineBlock inputDiv clearfix">
           {this.state.canEditInfo ? (
             <React.Fragment>
-              <input
+              <Input
                 type="text"
                 className="inputBox"
                 onChange={e => {
@@ -201,20 +201,22 @@ export default class FeiShu extends React.Component {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <input
+              <Input
                 type="text"
                 className="inputBox"
                 readOnly
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
-              />
-              <Icon
-                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'visibility'}
-                className="textTertiary Font18 isShowIcon"
-                onClick={() => {
-                  this.setState({
-                    [`isShow${strId}`]: !this.state[`isShow${strId}`],
-                  });
-                }}
+                suffix={
+                  <Icon
+                    icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'visibility'}
+                    className="textTertiary Font18 Hand hoverColorPrimary"
+                    onClick={() => {
+                      this.setState({
+                        [`isShow${strId}`]: !this.state[`isShow${strId}`],
+                      });
+                    }}
+                  />
+                }
               />
             </React.Fragment>
           )}
@@ -276,7 +278,7 @@ export default class FeiShu extends React.Component {
             <span className="Font13 textSecondary Right closeDing">
               <Tooltip
                 title={
-                  !window.platformENV.isOverseas && !window.platformENV.isLocal
+                  window.platformENV.isHap
                     ? isLark
                       ? _l('关闭Lark集成后，无法再从Lark处进入明道云应用')
                       : _l('关闭飞书集成后，无法再从飞书处进入明道云应用')
@@ -289,7 +291,12 @@ export default class FeiShu extends React.Component {
                 <span className="mLeft10 switchBtn">
                   <Switch
                     checked={!this.state.isCloseDing}
-                    onClick={checked => this.editFeishuProjectSettingStatus({ tag: checked ? 2 : 1 })}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return this.editFeishuProjectSettingStatus({
+                        tag: !checked ? 2 : 1,
+                      });
+                    }}
                   />
                 </span>
               </Tooltip>
@@ -310,8 +317,8 @@ export default class FeiShu extends React.Component {
               <div className="TxtRight mTop30">
                 {!this.state.canEditInfo ? (
                   <Button
-                    type="primary"
-                    className="editInfo"
+                    color="default"
+                    variant="filled"
                     onClick={() => {
                       this.setState({
                         canEditInfo: true,
@@ -324,7 +331,6 @@ export default class FeiShu extends React.Component {
                 ) : (
                   <Button
                     type="primary"
-                    className="saveInfo"
                     disabled={!AppId || !AppSecret}
                     onClick={() => {
                       checkClearIntergrationData({

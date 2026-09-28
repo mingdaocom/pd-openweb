@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { dialogSelectUser } from 'ming-ui/functions';
 import AppAjax from 'src/api/appManagement';
@@ -12,9 +11,9 @@ import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { ROLE_CONFIG } from 'src/pages/Role/config';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { WrapCon, WrapContext, WrapHeader } from 'src/pages/Role/style';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import OthersCon from './OthersCon';
 import RoleCon from './RoleCon';
 import UserCon from './UserCon';
@@ -241,11 +240,12 @@ class Con extends React.Component {
                     <span>
                       <Checkbox
                         className=""
-                        size="small"
                         checked={notify}
-                        onClick={this.updateAppRoleNotify}
-                        text={_l('发送通知')}
-                      />
+                        onChange={event => this.updateAppRoleNotify(!event.target.checked, undefined, event)}
+                        size="small"
+                      >
+                        {_l('发送通知')}
+                      </Checkbox>
                     </span>
                   </Tooltip>
                   <Tooltip
@@ -259,11 +259,12 @@ class Con extends React.Component {
                     <span>
                       <Checkbox
                         className="mLeft25"
-                        size="small"
                         checked={rolesVisibleConfig !== ROLE_CONFIG.REFUSE}
-                        onClick={this.handleSwitchRolesDisplay}
-                        text={_l('允许查看')}
-                      />
+                        onChange={event => this.handleSwitchRolesDisplay(!event.target.checked, undefined, event)}
+                        size="small"
+                      >
+                        {_l('允许查看')}
+                      </Checkbox>
                     </span>
                   </Tooltip>
                 </div>
@@ -280,10 +281,7 @@ class Con extends React.Component {
                     onAction={() => {
                       this.transferApp();
                     }}
-                    popupAlign={{
-                      points: ['tr', 'br'],
-                      offset: [-180, 0],
-                    }}
+                    placement="bottomRight"
                   />
                 </div>
               )}

@@ -5,13 +5,14 @@ import moment from 'moment';
 import { bool, func, number, string } from 'prop-types';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import api from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';
 import process from '../../api/process';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { APP_TYPE, OPERATION_TYPE } from '../enum';
 import HistoryStatus from './components/HistoryStatus';
-import logDialog from './components/logDialog';
+import { useWorkflowLogDialog } from './components/logDialog';
 import NodeIcon from './components/NodeIcon';
 import {
   ACTION_TYPE,
@@ -23,7 +24,7 @@ import {
   STATUS2COLOR,
 } from './config';
 
-export default class HistoryDetail extends Component {
+class HistoryDetail extends Component {
   static propTypes = {
     isPlugin: bool,
     id: string,
@@ -114,20 +115,28 @@ export default class HistoryDetail extends Component {
     }
 
     const { type, appType } = flowNode;
-    const names = workItems.map(item => {
-      const { workItemAccount, workItemLog } = item;
+    const names = workItems
+      .filter(item => !_.includes([0, 3, 4], type) || item.type !== 5)
+      .map(item => {
+        const { workItemAccount, workItemLog } = item;
 
-      if (workItemLog && workItemAccount) {
-        return { name: workItemAccount.fullName, action: workItemLog.action, target: workItemLog.actionTargetName };
-      }
+        if (workItemLog && workItemAccount) {
+          return { name: workItemAccount.fullName, action: workItemLog.action, target: workItemLog.actionTargetName };
+        }
 
-      if (workItemAccount) {
-        return {
-          name:
-            type === 0 && workItemAccount.accountId === 'user-undefined' ? _l('发起人为空') : workItemAccount.fullName,
-        };
-      }
-    });
+        if (workItemAccount) {
+          return {
+            name:
+              type === 0 && workItemAccount.accountId === 'user-undefined'
+                ? _l('发起人为空')
+                : workItemAccount.fullName,
+          };
+        }
+      })
+      .filter(Boolean);
+    const ccNames = _.includes([0, 3, 4], type)
+      ? workItems.filter(item => item.type === 5 && item.workItemAccount).map(item => item.workItemAccount.fullName)
+      : [];
 
     const isApproval = appType === 9 && type === 0;
     const ERROR_LABELS = {
@@ -161,18 +170,29 @@ export default class HistoryDetail extends Component {
         <div className="personDetail flex textSecondary flexRow">
           {(_.includes([0, 3, 4, 5, 27], type) || isApproval) && (
             <Fragment>
-              <div className="personInfo inlineFlexRow">
-                <span>
-                  {isApproval ? _l('发起人：') : type === 0 ? _l('触发者：') : _l('%0人：', NODE_TYPE[type].text)}
-                </span>
-                {names.map(
-                  (item, index) =>
-                    item && (
-                      <span className={cx({ overrule: item.action === 5 })} key={index}>
-                        {item.name}
-                        {index < names.length - 1 && '、'}
+              <div className="personInfo flex">
+                <div className="personInfoLine">
+                  <span>
+                    {isApproval ? _l('发起人：') : type === 0 ? _l('触发者：') : _l('%0人：', NODE_TYPE[type].text)}
+                  </span>
+                  {names.map((item, index) => (
+                    <span className={cx({ overrule: item.action === 5 })} key={index}>
+                      {item.name}
+                      {index < names.length - 1 && '、'}
+                    </span>
+                  ))}
+                </div>
+
+                {!!ccNames.length && (
+                  <div className="personInfoLine">
+                    <span>{_l('抄送人：')}</span>
+                    {ccNames.map((name, index) => (
+                      <span key={index}>
+                        {name}
+                        {index < ccNames.length - 1 && '、'}
                       </span>
-                    ),
+                    ))}
+                  </div>
                 )}
 
                 {scheduleActions && !!scheduleActions.length && (
@@ -266,7 +286,9 @@ export default class HistoryDetail extends Component {
     return (
       <span
         className="colorPrimary hoverColorPrimaryDark pointer"
-        onClick={() => logDialog({ processId: processInfo.id, nodeId: flowNode.id, instanceId: id })}
+        onClick={() =>
+          this.props.openWorkflowLogDialog({ processId: processInfo.id, nodeId: flowNode.id, instanceId: id })
+        }
       >
         {_l('查看详情')}
       </span>
@@ -489,8 +511,10 @@ export default class HistoryDetail extends Component {
                                   (_.find(flowNode.flows, o => o.id === flowNode.flowIds?.[0]) || {}).resultTypeId ||
                                     resultTypeId
                                 ]
-                              : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds?.[0]) || {})
-                                  .name || _l('分支')}
+                              : (
+                                  _.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds?.[0]) ||
+                                  {}
+                                ).name || _l('分支')}
                           {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}
                         </div>
                         {alias && <div className="textSecondary Font13 ellipsis">{_l('别名：%0', alias)}</div>}
@@ -536,3 +560,7 @@ export default class HistoryDetail extends Component {
     );
   }
 }
+
+export default withOpeners(HistoryDetail, {
+  openWorkflowLogDialog: useWorkflowLogDialog,
+});

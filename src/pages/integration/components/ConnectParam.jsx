@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Icon, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support } from 'ming-ui';
+import { Button, Checkbox, Input, Tooltip } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { formatStr } from 'src/pages/integration/config.js';
 import { CardTopWrap } from '../apiIntegration/style';
@@ -96,14 +96,8 @@ const Wrap = styled.div`
           border-radius: 3px;
           overflow: hidden;
           input {
-            border: none;
             width: 100%;
             height: 100%;
-            &:-ms-input-placeholder,
-            &::-ms-input-placeholder,
-            &::placeholder {
-              color: var(--color-text-tertiary) !important;
-            }
             background: transparent;
           }
           &.disable {
@@ -115,24 +109,6 @@ const Wrap = styled.div`
           }
         }
       }
-      .saveBtn {
-        margin: 24px auto 0px;
-        padding: 11px 50px;
-        background: rgb(33, 150, 243);
-        color: var(--color-white);
-        line-height: 1em;
-        border-radius: 30px;
-        &:hover {
-          background: var(--color-link-hover);
-        }
-      }
-    }
-  }
-  .btn {
-    &.disable {
-      background: var(--color-background-secondary);
-      color: var(--color-text-disabled);
-      border: 1px solid var(--color-text-disabled);
     }
   }
 `;
@@ -150,6 +126,8 @@ const getDefaultParameters = () => {
 
 //连接参数设置
 function ConnectParam(props) {
+  const requestPending = useRef(false);
+  const [saving, setSaving] = useState(false);
   const [{ node, isEdit, controls, nodeControls }, setState] = useSetState({
     node: props.node,
     isEdit: false,
@@ -182,6 +160,8 @@ function ConnectParam(props) {
 
   //保存参数
   const update = () => {
+    if (requestPending.current) return;
+
     let controlData = controls
       .filter(o => !!o.controlName)
       .map(o => {
@@ -193,7 +173,9 @@ function ConnectParam(props) {
       return;
     }
 
-    flowNodeAjax
+    requestPending.current = true;
+    setSaving(true);
+    return flowNodeAjax
       .saveNode(
         {
           processId: props.id,
@@ -210,6 +192,10 @@ function ConnectParam(props) {
           isEdit: false,
         });
         getParam();
+      })
+      .finally(() => {
+        requestPending.current = false;
+        setSaving(false);
       });
   };
 
@@ -219,8 +205,8 @@ function ConnectParam(props) {
   const inputRender = (o, key) => {
     if (isEdit) {
       return (
-        <input
-          type="text"
+        <Input
+          variant="borderless"
           className={cx('textPrimary')}
           placeholder={_l('请输入')}
           defaultValue={o[key]}
@@ -272,15 +258,14 @@ function ConnectParam(props) {
           </p>
         </div>
         {!isEdit && props.canEdit && (
-          <div
-            className={cx('btn Hand', {
-              disable: isParamSchemaLocked && controls.length <= 0,
-            })}
+          <Button
+            color="primary"
+            disabled={isParamSchemaLocked && controls.length <= 0}
+            shape="round"
+            size="small"
+            variant="outlined"
+            wide
             onClick={() => {
-              if (isParamSchemaLocked && controls.length <= 0) {
-                return;
-              }
-
               setState({
                 isEdit: true,
                 controls:
@@ -300,7 +285,7 @@ function ConnectParam(props) {
             }}
           >
             {controls.length <= 0 ? _l('开始配置') : _l('编辑')}
-          </div>
+          </Button>
         )}
       </CardTopWrap>
       {(controls.length > 0 || isEdit) && (
@@ -336,20 +321,23 @@ function ConnectParam(props) {
                   {isEdit ? (
                     <Checkbox
                       className="mLeft5 flex TxtMiddle"
-                      size="small"
                       checked={o.required}
                       disabled={isParamSchemaLocked}
-                      onClick={() => {
+                      onChange={() => {
                         setState({
                           controls: controls.map(item => {
                             if (item.controlId === o.controlId) {
-                              return { ...item, required: !o.required };
+                              return {
+                                ...item,
+                                required: !o.required,
+                              };
                             } else {
                               return item;
                             }
                           }),
                         });
                       }}
+                      size="small"
                     />
                   ) : o.required ? (
                     <span className="textSecondary">{_l('必填')}</span>
@@ -361,20 +349,23 @@ function ConnectParam(props) {
                   <div className="option flexRow">
                     <Checkbox
                       className="mLeft5 flex TxtMiddle"
-                      size="small"
                       checked={o.hide}
                       disabled={disabled} //设置成隐藏后，不可设置成不隐藏
-                      onClick={() => {
+                      onChange={() => {
                         setState({
                           controls: controls.map(item => {
                             if (item.controlId === o.controlId) {
-                              return { ...item, hide: !o.hide };
+                              return {
+                                ...item,
+                                hide: !o.hide,
+                              };
                             } else {
                               return item;
                             }
                           }),
                         });
                       }}
+                      size="small"
                     />
                     {!isParamSchemaLocked && (
                       <Icon
@@ -407,14 +398,17 @@ function ConnectParam(props) {
                 </div>
               )}
               <div className="TxtCenter">
-                <div
-                  className="saveBtn Bold InlineBlock Hand"
-                  onClick={() => {
-                    update();
-                  }}
+                <Button
+                  className="mTop24"
+                  color="primary"
+                  loading={saving}
+                  shape="round"
+                  variant="solid"
+                  wide
+                  onClick={update}
                 >
                   {_l('保存并继续')}
-                </div>
+                </Button>
               </div>
             </React.Fragment>
           )}

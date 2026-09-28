@@ -15,7 +15,7 @@ const ColorBox = styled.div`
   .boxBg {
     flex: 1;
     border-radius: 3px;
-    background: ${props => props.background};
+    background: ${props => props.$background};
   }
   .iconBox {
     padding: 4px;
@@ -45,7 +45,7 @@ export default function ColorSetting(props) {
       value={value}
       onChange={value => onChange(value)}
     >
-      <ColorBox background={value}>
+      <ColorBox $background={value}>
         <div className="boxBg"></div>
         {value && value.toLowerCase().includes(defaultValue) ? (
           <span className="icon-arrow-down-border iconBox"></span>

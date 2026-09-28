@@ -1,15 +1,46 @@
 import update from 'immutability-helper';
 import _, { get, isEmpty, isFunction } from 'lodash';
 import sheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
-import { formatQuickFilter } from 'src/utils/filter';
-import { getCurrentView } from '../util';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { dealData, getCurrentView, getParaIds } from '../util';
 import { updateNavGroup } from './navFilter.js';
-import { dealData, getHierarchyViewIds, getItemByRowId, getParaIds } from './util';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
 let hierarchyPromiseObj;
 let hierarchyPromiseViewIds = [];
+
+/** 根据层级路径获取当前层级接口所需的工作表和视图 ID。 */
+const getHierarchyViewIds = (worksheet, path = []) => {
+  const { appId, worksheetId, viewId } = _.get(worksheet, 'base');
+  const { childType, viewControls } = getCurrentView(worksheet);
+
+  if (childType === 2 && path.length > 0) {
+    const currentSheet = viewControls[path.length - 1];
+    return { appId, worksheetId: currentSheet.worksheetId };
+  }
+
+  return { appId, worksheetId, viewId };
+};
+
+/** 在层级树中递归查找指定 rowId 的节点。 */
+function getItemByRowId(rowId = null, data = []) {
+  if (!rowId) return;
+
+  const treeFind = tree => {
+    for (const item of tree) {
+      if (item.rowId === rowId) return item;
+      if (item.children && item.children.length > 0) {
+        const result = treeFind(item.children);
+        if (result) return result;
+      }
+    }
+
+    return null;
+  };
+
+  return treeFind(data);
+}
 
 const getTotalDataIds = (hierarchyViewData = {}, total = 0) => {
   let totalIds = [];

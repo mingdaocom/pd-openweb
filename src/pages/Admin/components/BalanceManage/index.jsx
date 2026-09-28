@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import AIServiceAjax from 'src/api/aIService';
 import ProjectAjax from 'src/api/projectSetting';
 
@@ -164,8 +164,15 @@ export default function BalanceManage(props) {
   );
 
   return (
-    <Dialog width={640} visible={visible} footer={null} title={_l('信用点余额使用管理')} handleClose={onClose}>
-      <ContentWrap className="">
+    <Modal
+      width={640}
+      open={visible}
+      title={_l('信用点余额使用管理')}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onClose}
+    >
+      <ContentWrap>
         {configs.map(item => (
           <div className="item" key={`balanceManage-item-${item.key}`}>
             <div className="leftCon">
@@ -176,7 +183,7 @@ export default function BalanceManage(props) {
                   <Tooltip
                     title={
                       <div>
-                        <div>{_l('Mingo搭建—AI搭建应用、创建工作表、填充示例数据、优化名称和图标、填写记录')}</div>
+                        <div>{_l('Mingo搭建—应用规划与搭建、创建工作表、创建记录、优化名称和图标、生成示例数据')}</div>
                         <div className="mTop12">{_l('Mingo查询—使用Mingo查询应用数据')}</div>
                         <div className="mTop12">{_l('使用帮助问答不扣费')}</div>
                       </div>
@@ -191,12 +198,18 @@ export default function BalanceManage(props) {
             </div>
             {item.hasSwitch && (
               <div className="rightCon">
-                <Switch checked={value[item.key]} onClick={() => handleSwitch(item)} />
+                <Switch
+                  checked={value[item.key]}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return handleSwitch(item);
+                  }}
+                />
               </div>
             )}
           </div>
         ))}
       </ContentWrap>
-    </Dialog>
+    </Modal>
   );
 }

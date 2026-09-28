@@ -1,16 +1,17 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, UserHead } from 'ming-ui';
+import { Icon, LoadDiv, UserHead } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectJob, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import AppAjax from 'src/api/appManagement';
 import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import { getColor, getIcon, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { WrapTableCon } from 'src/pages/Role/style';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getTranslateInfo } from 'src/utils/app';
-import { getCurrentProject } from 'src/utils/project';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getCurrentProject } from 'src/utils/services/project';
 import Apply from './Apply';
 import Outsourcing from './Outsourcing';
 import User from './User';
@@ -185,7 +186,7 @@ export default class UserListCon extends React.Component {
     const { outsourcing = {}, userList = [] } = appRole;
     const { memberModels = [] } = outsourcing;
     let data = [...memberModels, ...userList].find(o => o.id === userIds[0].split('_')[0]);
-    Dialog.confirm({
+    Modal.confirm({
       title: (
         <span className="WordBreak">
           {userIds.length > 1
@@ -194,7 +195,6 @@ export default class UserListCon extends React.Component {
         </span>
       ),
       closable: false,
-      anim: false,
       onOk: () => {
         let selectMember = this.setData();
         AppAjax.batchMemberQuitApp({
@@ -214,10 +214,9 @@ export default class UserListCon extends React.Component {
     const { outsourcing = {}, userList = [] } = appRole;
     const { memberModels = [] } = outsourcing;
     let data = [...memberModels, ...userList].find(o => o.id === userIds[0].split('_')[0]);
-    Dialog.confirm({
+    Modal.confirm({
       title: userIds.length > 1 ? _l('你确认移出%0个用户吗？', userIds.length) : _l('你确认将“%0”移出吗？', data.name),
       closable: false,
-      anim: false,
       onOk: () => {
         const {
           selectAll,

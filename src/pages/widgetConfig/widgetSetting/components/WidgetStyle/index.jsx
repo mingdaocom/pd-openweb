@@ -1,5 +1,5 @@
 import React from 'react';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
 import RelateStyle from './RelateStyle';
 import SubListStyle from './SubListStyle';
 

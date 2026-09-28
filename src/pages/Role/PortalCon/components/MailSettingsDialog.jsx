@@ -1,47 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import React, { useState } from 'react';
+import { Input, Modal } from 'ming-ui/antd-components';
 
 const { TextArea } = Input;
-
-const Wrap = styled.div`
-  .line {
-    border: 1px solid #000000;
-    opacity: 0.08;
-  }
-`;
 
 export default function Con(props) {
   const { onCancel, onChangePortalSet } = props;
   const { portalSetModel = {} } = props.portalSet;
   const { defaultApprovedEmail, defaultRefusedEmail, defaultInviteEmail } = portalSetModel;
-  const [approvedEmail, setapprovedEmail] = useState({});
-  const [refusedEmail, setrefusedEmail] = useState({});
-  const [inviteEmail, setinviteEmail] = useState({});
-  const [portalSet, setPortalSet] = useState({});
-  useEffect(() => {
-    let { portalSet = {} } = props;
-    let { portalSetModel = {} } = portalSet;
-    setapprovedEmail(portalSetModel.approvedEmail);
-    setrefusedEmail(portalSetModel.refusedEmail);
-    setinviteEmail(portalSetModel.inviteEmail);
-    setPortalSet(portalSet);
-  }, [props]);
+  const [approvedEmail, setapprovedEmail] = useState(portalSetModel.approvedEmail || {});
+  const [refusedEmail, setrefusedEmail] = useState(portalSetModel.refusedEmail || {});
+  const [inviteEmail, setinviteEmail] = useState(portalSetModel.inviteEmail || {});
 
   return (
-    <Dialog
+    <Modal
       title={_l('邮件通知内容设置')}
-      className={cx('')}
       width={640}
-      headerClass=""
-      bodyClass=""
       okText={_l('保存')}
       cancelText={_l('取消')}
       onCancel={onCancel}
       onOk={() => {
-        let { portalSetModel = {} } = portalSet;
         onChangePortalSet({
           portalSetModel: {
             ...portalSetModel,
@@ -61,10 +38,9 @@ export default function Con(props) {
         });
         onCancel();
       }}
-      visible={true}
-      updateTrigger="false"
+      open
     >
-      <Wrap>
+      <div>
         <p className="Font16 Bold mBottom0 mTop16">
           <span className="Green">{_l('审核通过')}</span>
         </p>
@@ -194,7 +170,7 @@ export default function Con(props) {
           }}
           className="Block mTop10"
         />
-      </Wrap>
-    </Dialog>
+      </div>
+    </Modal>
   );
 }

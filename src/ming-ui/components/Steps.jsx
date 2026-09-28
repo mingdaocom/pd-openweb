@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { bool, func, number, oneOfType, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const isMobile = browserIsMobile();
 
@@ -22,7 +22,7 @@ const VerticalCon = styled.div`
   padding-bottom: 7px;
   display: flex;
   flex-direction: column;
-  ${({ isMobile }) => (isMobile ? 'padding-left: 0px;' : '')}
+  ${({ $isMobile }) => ($isMobile ? 'padding-left: 0px;' : '')}
 `;
 const PortraitCon = styled.div`
   flex: 1;
@@ -32,7 +32,7 @@ const PortraitCon = styled.div`
   padding-bottom: 7px;
   display: flex;
   flex-direction: row;
-  ${({ isMobile }) => (isMobile ? 'padding-left: 0px;' : '')}
+  ${({ $isMobile }) => ($isMobile ? 'padding-left: 0px;' : '')}
 `;
 const PortraitDrag = styled.div`
   width: 6px;
@@ -44,7 +44,7 @@ const PortraitDrag = styled.div`
   width: 14px;
   height: 14px;
   border-radius: 10px;
-  border: 2px solid ${({ color }) => color};
+  border: 2px solid ${({ $color }) => $color};
   z-index: 2;
   margin-left: -4px;
   &::before,
@@ -88,7 +88,7 @@ const Drag = styled.span`
   width: 14px;
   height: 14px;
   border-radius: 10px;
-  border: 2px solid ${({ color }) => color};
+  border: 2px solid ${({ $color }) => $color};
   z-index: 2;
   &::before,
   &::after {
@@ -102,7 +102,7 @@ const ScalePoint = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 8px;
-  border: 2px solid ${({ color }) => color};
+  border: 2px solid ${({ $color }) => $color};
 `;
 const PortraitScalePoint = styled.span`
   background: var(--color-white);
@@ -110,7 +110,7 @@ const PortraitScalePoint = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 8px;
-  border: 2px solid ${({ color }) => color};
+  border: 2px solid ${({ $color }) => $color};
 `;
 
 const ScaleBox = styled.div`
@@ -120,13 +120,13 @@ const ScaleBox = styled.div`
   margin-top: -10px;
   padding: 0 4px;
   .pointContent {
-    width: ${({ total }) => `${total}%`};
+    width: ${({ $total }) => `${$total}%`};
     display: flex;
     align-items: center;
-    cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')}};
+    cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')}};
     .pointItem {
       flex: 1;
-      line-height: ${({ isMobile }) => (isMobile ? '12px' : '13px')} !important;
+      line-height: ${({ $isMobile }) => ($isMobile ? '12px' : '13px')} !important;
       text-align: center;
       transform: translateX(-50%);
       .pointCon {
@@ -138,7 +138,7 @@ const ScaleBox = styled.div`
     }
   }
   .scaleContent {
-    width: ${({ total }) => `${total}%`};
+    width: ${({ $total }) => `${$total}%`};
     display: flex;
     .contentItem {
       flex: 1;
@@ -191,12 +191,12 @@ const PortraitScaleBox = styled.div`
   padding: 0 4px;
   .portraitPointContent {
     width: 6px;
-    height: ${({ total }) => `${total}%`};
+    height: ${({ $total }) => `${$total}%`};
     margin-left: 0px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')}};
+    cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')}};
     .portraitPointItem {
       flex: 1;
       line-height: 14px;
@@ -245,7 +245,7 @@ const PortraitScaleBox = styled.div`
 
 const SelectedOption = styled.span`
   margin-left: 4px;
-  ${({ disabled }) => (disabled ? 'color: rgba(0,0,0,.3);' : '')}
+  ${({ $disabled }) => ($disabled ? 'color: rgba(0,0,0,.3);' : '')}
 `;
 
 export default function Steps(props) {
@@ -294,7 +294,6 @@ export default function Steps(props) {
       <Con
         className={className}
         style={style}
-        isMobile={isMobile}
         onClick={
           disabled
             ? _.noop
@@ -304,7 +303,7 @@ export default function Steps(props) {
               }
         }
       >
-        <PortraitCon>
+        <PortraitCon $isMobile={isMobile}>
           <PortraitBar ref={barRef}>
             <PortraitContent style={{ height: `${width}%`, backgroundColor: currentColor }} />
             {(!disabled || from === 'recordInfo') && (
@@ -312,13 +311,13 @@ export default function Steps(props) {
                 title={showTip && !_.isUndefined(currentValue) ? _.get(filterOptions[currentValue], 'value') : ''}
                 placement={tipDirection || 'top'}
               >
-                <PortraitDrag color={currentColor} style={{ top: `calc(${width}% - 7px)` }} />
+                <PortraitDrag $color={currentColor} style={{ top: `calc(${width}% - 7px)` }} />
               </Tooltip>
             )}
           </PortraitBar>
           <PortraitScaleBox
-            total={scaleTotal}
-            disabled={disabled}
+            $total={scaleTotal}
+            $disabled={disabled}
             onClick={e => {
               if (disabled) return;
               const { top, height } = barRef.current.getBoundingClientRect();
@@ -352,7 +351,7 @@ export default function Steps(props) {
                     >
                       <PortraitScalePoint
                         key={option.key}
-                        color={index <= currentValue ? currentColor : 'var(--color-border-secondary)'}
+                        $color={index <= currentValue ? currentColor : 'var(--color-border-secondary)'}
                         onClick={
                           disabled
                             ? _.noop
@@ -397,7 +396,6 @@ export default function Steps(props) {
     <Con
       className={className}
       style={style}
-      isMobile={isMobile}
       onClick={
         disabled
           ? _.noop
@@ -407,7 +405,7 @@ export default function Steps(props) {
             }
       }
     >
-      <VerticalCon>
+      <VerticalCon $isMobile={isMobile}>
         <Bar ref={barRef}>
           <Content style={{ width: `${width}%`, backgroundColor: currentColor }} />
           {(!disabled || from === 'recordInfo') && !_.isUndefined(currentValue) && (
@@ -421,7 +419,7 @@ export default function Steps(props) {
               align={{ offset: [0, -2] }}
             >
               <Drag
-                color={currentColor}
+                $color={currentColor}
                 onClick={() => {
                   // 选项第一个无法选中，点击元素被覆盖
                   if (!value && !disabled) {
@@ -440,9 +438,9 @@ export default function Steps(props) {
         </Bar>
         <ScaleBox
           className={isSingleOption ? 'singleOption' : undefined}
-          total={scaleTotal}
-          disabled={disabled}
-          isMobile={isMobile}
+          $total={scaleTotal}
+          $disabled={disabled}
+          $isMobile={isMobile}
           onClick={e => {
             if (disabled) return;
             const { left, width } = barRef.current.getBoundingClientRect();
@@ -488,7 +486,7 @@ export default function Steps(props) {
                     >
                       <ScalePoint
                         key={option.key}
-                        color={index <= currentValue ? currentColor : 'var(--color-border-secondary)'}
+                        $color={index <= currentValue ? currentColor : 'var(--color-border-secondary)'}
                       />
                     </div>
                   </Tooltip>

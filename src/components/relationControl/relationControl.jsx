@@ -3,13 +3,28 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { DatePicker, LoadDiv, UserHead } from 'ming-ui';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import { LoadDiv, UserHead } from 'ming-ui';
+import { DatePicker, Menu, Modal } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/form';
-import { getClassNameByExt } from 'src/utils/common';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
 import './less/relationControl.less';
 
-const defaultArr = [
+const RELATION_MODAL_STYLES = {
+  container: { padding: 0 },
+  body: { padding: 0 },
+};
+const MENU_ICON_STYLE = { fontSize: 16 };
+const RELATION_MENU_STYLES = {
+  item: { height: 48, lineHeight: '48px' },
+  itemIcon: MENU_ICON_STYLE,
+};
+const RELATION_TYPE_MENU_STYLES = {
+  root: { background: 'transparent', borderInlineEnd: 0, marginTop: 15 },
+  item: { width: '100%', height: 48, lineHeight: '48px', margin: 0, paddingInline: 20, borderRadius: 0 },
+  itemIcon: MENU_ICON_STYLE,
+};
+
+const getDefaultArr = () => [
   {
     name: _l('任务'),
     icon: 'icon-task-responsible',
@@ -46,7 +61,8 @@ export default class RelationControl extends Component {
     sourceId: PropTypes.string,
     sourceType: PropTypes.string, // 后端过滤用 1：任务 2：审批
     types: PropTypes.array, // 类型 默认全部 可多选 例如：[1, 2, 3]
-    onSubmit: PropTypes.func, // 回调方法  item：当前选择的item
+    multiple: PropTypes.bool,
+    onSubmit: PropTypes.func, // 回调方法  item：当前选择的item；多选时为 items 数组
     onCancel: PropTypes.func,
 
     ajaxPost: PropTypes.func,
@@ -57,6 +73,7 @@ export default class RelationControl extends Component {
     title: '',
     createDisable: false,
     types: [],
+    multiple: false,
     sourceId: '',
     sourceType: '',
     onSubmit: () => {},
@@ -79,6 +96,7 @@ export default class RelationControl extends Component {
       listMore: false,
       repeatMore: false,
       item: null,
+      items: [],
       keywords: '',
       ajaxRequestComplete: false,
     };
@@ -165,14 +183,14 @@ export default class RelationControl extends Component {
     let typeArr = [];
 
     types.forEach(type => {
-      defaultArr.forEach(item => {
+      getDefaultArr().forEach(item => {
         if (item.value === type) {
           typeArr.push(item);
         }
       });
     });
 
-    let newTypeArr = typeArr.length ? typeArr : defaultArr;
+    let newTypeArr = typeArr.length ? typeArr : getDefaultArr();
 
     if (!md.global.Account.hrVisible) {
       _.remove(newTypeArr, o => o.value === 5);
@@ -236,8 +254,10 @@ export default class RelationControl extends Component {
    * 确定
    */
   save() {
-    if (this.state.item !== null) {
-      this.props.onSubmit(this.state.item);
+    const value = this.props.multiple ? this.state.items : this.state.item;
+
+    if ((this.props.multiple && value.length) || (!this.props.multiple && value !== null)) {
+      this.props.onSubmit(value);
       this.setState({ visible: false });
     }
   }
@@ -254,25 +274,21 @@ export default class RelationControl extends Component {
   /**
    * render item
    */
-  renderItem(item, i) {
-    const currentType = _.find(defaultArr, { value: this.state.selectIndex }) || {};
+  renderItem(item) {
+    const currentType = _.find(getDefaultArr(), { value: this.state.selectIndex }) || {};
+    const isSelected = this.props.multiple
+      ? this.state.items.some(selectedItem => this.getItemKey(selectedItem) === this.getItemKey(item))
+      : this.state.item && this.getItemKey(this.state.item) === this.getItemKey(item);
+    const iconClassName = item.type === 4 ? `${getClassNameByExt(item.ext1)} relationControlIcon` : currentType.icon;
 
-    return (
-      <li
-        key={i}
-        className={cx('relative', {
-          bgColorPrimary: this.state.item && this.state.item.sid === item.sid && this.state.item.sidext === item.sidext,
-        })}
-        onClick={() => this.setState({ item })}
-      >
-        <div className="flexRow relationControlItem">
-          <i className={item.type === 4 ? getClassNameByExt(item.ext1) + ' relationControlIcon' : currentType.icon} />
-          <span className={cx('overflow_ellipsis', { flex: item.type !== 4 })}>{item.name}</span>
-
+    return {
+      key: this.getItemKey(item),
+      icon: <i className={cx(iconClassName, { textTertiary: !isSelected })} />,
+      label: <span className="overflow_ellipsis">{item.name}</span>,
+      extra: (
+        <div className="flexRow alignItemsCenter" style={{ lineHeight: 'normal' }}>
           {item.type !== 1 && item.ext1 ? (
-            <span className={item.type === 4 ? '' : 'mLeft20'}>
-              {item.type === 3 || item.type === 7 ? moment(item.ext1).format('YYYY-MM-DD HH:mm') : item.ext1}
-            </span>
+            <span>{item.type === 3 || item.type === 7 ? moment(item.ext1).format('YYYY-MM-DD HH:mm') : item.ext1}</span>
           ) : undefined}
 
           {item.ext2 ? (
@@ -281,9 +297,8 @@ export default class RelationControl extends Component {
             </span>
           ) : undefined}
 
-          {item.type === 4 ? <span className="flex" /> : undefined}
           <UserHead
-            className="circle userAvarar"
+            className="circle mLeft20"
             user={{
               userHead: item.avatar,
               accountId: item.accountId,
@@ -291,8 +306,24 @@ export default class RelationControl extends Component {
             size={24}
           />
         </div>
-      </li>
-    );
+      ),
+      onClick: () => {
+        if (!this.props.multiple) {
+          this.setState({ item });
+          return;
+        }
+
+        this.setState(({ items }) => ({
+          items: isSelected
+            ? items.filter(selectedItem => this.getItemKey(selectedItem) !== this.getItemKey(item))
+            : items.concat(item),
+        }));
+      },
+    };
+  }
+
+  getItemKey(item) {
+    return `${item.type ?? this.state.selectIndex}-${item.sid}-${item.sidext ?? ''}`;
   }
 
   /**
@@ -311,6 +342,8 @@ export default class RelationControl extends Component {
    * 选择时间段
    */
   selectTime = result => {
+    if (!Array.isArray(result) || !result[0] || !result[1]) return;
+
     const sid = this.state.treeLeft.split('|')[0];
     const treeLeft = `${sid}|${result[0].format('YYYY-MM-DD')}|${result[1].format('YYYY-MM-DD')}`;
     this.setState({ treeLeft, item: null }, () => {
@@ -326,40 +359,93 @@ export default class RelationControl extends Component {
     }
 
     const dialogOpts = {
-      overlayClosable: false,
-      visible: this.state.visible,
+      open: this.state.visible,
       width: window.innerWidth - 52 * 2 > 1600 ? 1600 : window.innerWidth - 52 * 2,
       type: 'fixed',
+      title: null,
+      footer: null,
+      closable: false,
+      mask: { closable: false },
+      styles: RELATION_MODAL_STYLES,
     };
     const repeatDialogOpts = {
-      overlayClosable: false,
-      visible: this.state.repeatVisible,
+      open: this.state.repeatVisible,
       width: 600,
       type: 'fixed',
+      title: null,
+      footer: null,
+      closable: false,
+      mask: { closable: false },
+      styles: RELATION_MODAL_STYLES,
     };
-    const currentType = _.find(defaultArr, { value: this.state.selectIndex }) || {};
+    const currentType = _.find(getDefaultArr(), { value: this.state.selectIndex }) || {};
     const treeLeftArr = this.state.treeLeft.split('|');
+    const selectedKeys = this.props.multiple
+      ? this.state.items.map(item => this.getItemKey(item))
+      : this.state.item
+        ? [this.getItemKey(this.state.item)]
+        : [];
+    const typeMenuItems =
+      types.length === 1
+        ? []
+        : this.returnTypes(types).map(item => ({
+            key: String(item.value),
+            icon: <i className={cx(item.icon, { textTertiary: this.state.selectIndex !== item.value })} />,
+            label: item.name,
+            onClick: () => this.switchType(item.value),
+          }));
+    const menuItems = [
+      ...this.state.repeatList.map(item => ({
+        key: `repeat-${this.getItemKey(item)}`,
+        icon: <i className="icon-restore2 textTertiary" />,
+        label: <span className="overflow_ellipsis">{_l('【重复日程】') + item.name}</span>,
+        extra: (
+          <UserHead
+            className="circle"
+            user={{
+              userHead: item.avatar,
+              accountId: item.accountId,
+            }}
+            size={24}
+          />
+        ),
+        onClick: () => this.repeatDialog(item),
+      })),
+      ...(this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.repeatMore
+        ? [
+            {
+              key: 'repeat-more',
+              label: <span className="colorPrimary">{_l('查看更多')}</span>,
+              onClick: () => this.getRelationSources(6, this.state.repeatPage + 1),
+            },
+          ]
+        : []),
+      ...this.state.list.map(item => this.renderItem(item)),
+      ...(this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.listMore
+        ? [
+            {
+              key: 'list-more',
+              label: <span className="colorPrimary">{_l('查看更多')}</span>,
+              onClick: () => this.getRelationSources(3, this.state.listPage + 1),
+            },
+          ]
+        : []),
+    ];
+    const repeatMenuItems = this.state.singleRepeatList.map(item => this.renderItem(item));
 
     return (
-      <DialogBase {...dialogOpts}>
+      <Modal {...dialogOpts}>
         <div className="flexRow relationControlBox">
           {types.length === 1 ? undefined : (
             <div className="relationControlBar">
               <div className="relationControlTypeName">{this.props.title}</div>
-              <ul className="relationControlType">
-                {this.returnTypes(types).map((item, i) => {
-                  return (
-                    <li
-                      key={i}
-                      onClick={() => this.switchType(item.value)}
-                      className={cx({ active: this.state.selectIndex === item.value })}
-                    >
-                      <i className={item.icon} />
-                      {item.name}
-                    </li>
-                  );
-                })}
-              </ul>
+              <Menu
+                className="relationControlType"
+                mode="inline"
+                styles={RELATION_TYPE_MENU_STYLES}
+                items={typeMenuItems}
+                selectedKeys={[String(this.state.selectIndex)]}
+              />
             </div>
           )}
 
@@ -379,73 +465,36 @@ export default class RelationControl extends Component {
               <div className="relationControlSort">{currentType.sortText}</div>
             )}
 
-            <ul className="flex relationControlList">
-              {!this.state.ajaxRequestComplete ? <LoadDiv /> : undefined}
-
-              {this.state.ajaxRequestComplete &&
-              !this.state.list.length &&
-              !this.state.repeatList.length &&
-              this.state.keywords ? (
-                <div className="relationControNull">
-                  <div className="relationControNullIcon">
-                    <i className="icon-search" />
-                  </div>
-                  {_l('搜索无结果')}
-                </div>
-              ) : undefined}
-
-              {this.state.ajaxRequestComplete &&
-              !this.state.list.length &&
-              !this.state.repeatList.length &&
-              !this.state.keywords ? (
-                <div className="relationControNull">
-                  <div className="relationControNull" />
-                  {_l('暂无列表')}
-                </div>
-              ) : undefined}
-
-              {this.state.repeatList.map((item, i) => {
-                return (
-                  <li key={i} className="relative" onClick={() => this.repeatDialog(item)}>
-                    <div className="flexRow relationControlItem">
-                      <i className="icon-restore2" />
-                      <span className="overflow_ellipsis flex">{_l('【重复日程】') + item.name}</span>
-                      <UserHead
-                        className="circle userAvarar"
-                        user={{
-                          userHead: item.avatar,
-                          accountId: item.accountId,
-                        }}
-                        size={24}
-                      />
+            {!this.state.ajaxRequestComplete ? (
+              <div className="flex relationControlList">
+                <LoadDiv />
+              </div>
+            ) : !this.state.list.length && !this.state.repeatList.length ? (
+              <div className="flex relationControlList">
+                {this.state.keywords ? (
+                  <div className="relationControNull">
+                    <div className="relationControNullIcon">
+                      <i className="icon-search" />
                     </div>
-                  </li>
-                );
-              })}
-
-              {this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.repeatMore ? (
-                <div>
-                  <span
-                    className="listMore colorPrimary"
-                    onClick={() => this.getRelationSources(6, this.state.repeatPage + 1)}
-                  >
-                    {_l('查看更多')}
-                  </span>
-                </div>
-              ) : undefined}
-              {this.state.list.map((item, i) => this.renderItem(item, i))}
-
-              {this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.listMore ? (
-                <div>
-                  <span
-                    className="listMore colorPrimary"
-                    onClick={() => this.getRelationSources(3, this.state.listPage + 1)}
-                  >
-                    {_l('查看更多')}
-                  </span>
-                </div>
-              ) : undefined}
-            </ul>
+                    {_l('搜索无结果')}
+                  </div>
+                ) : (
+                  <div className="relationControNull">
+                    <div className="relationControNull" />
+                    {_l('暂无列表')}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Menu
+                className="flex relationControlList"
+                mode="inline"
+                styles={RELATION_MENU_STYLES}
+                items={menuItems}
+                multiple={this.props.multiple}
+                selectedKeys={selectedKeys}
+              />
+            )}
             <div className="relationControlFooter">
               <span
                 className="relationControlCancel colorPrimary"
@@ -456,7 +505,9 @@ export default class RelationControl extends Component {
                 {_l('取消')}
               </span>
               <span
-                className={cx('relationControlSave bgColorPrimary', { relationDisable: this.state.item === null })}
+                className={cx('relationControlSave bgColorPrimary', {
+                  relationDisable: this.props.multiple ? !this.state.items.length : this.state.item === null,
+                })}
                 onClick={() => this.save()}
               >
                 {_l('确定')}
@@ -466,7 +517,7 @@ export default class RelationControl extends Component {
         </div>
 
         {this.state.repeatVisible ? (
-          <DialogBase {...repeatDialogOpts}>
+          <Modal {...repeatDialogOpts}>
             <div className="flexColumn relationControlBox relative">
               <i
                 className="icon-delete relationControlClose colorPrimary"
@@ -477,29 +528,29 @@ export default class RelationControl extends Component {
               </div>
               <div className="listDate">
                 <DatePicker.RangePicker
-                  className="hoverColorPrimary"
-                  onOk={this.selectTime}
                   allowClear={false}
-                  selectedValue={[moment(treeLeftArr[1]), moment(treeLeftArr[2])]}
-                >
-                  <span>
-                    {moment(treeLeftArr[1]).format('YYYY-MM-DD')}
-                    <i className="icon-arrow-down-border mLeft5 Font14 listDateGray" />
-                    <span className="mLeft10 mRight10 listDateGray">{_l('至')}</span>
-                    {moment(treeLeftArr[2]).format('YYYY-MM-DD')}
-                    <i className="icon-arrow-down-border mLeft5 Font14 listDateGray" />
-                  </span>
-                </DatePicker.RangePicker>
+                  format="YYYY-MM-DD"
+                  value={[moment(treeLeftArr[1]), moment(treeLeftArr[2])]}
+                  onChange={this.selectTime}
+                />
               </div>
-              <ul className="flex relationControlList">
-                {this.state.ajaxRequestComplete && !this.state.singleRepeatList.length ? (
+              {!this.state.singleRepeatList.length ? (
+                <div className="flex relationControlList">
                   <div className="relationControNull">
                     <div className="relationControNull" />
                     {_l('暂无列表')}
                   </div>
-                ) : undefined}
-                {this.state.singleRepeatList.map((item, i) => this.renderItem(item, i))}
-              </ul>
+                </div>
+              ) : (
+                <Menu
+                  className="flex relationControlList"
+                  mode="inline"
+                  styles={RELATION_MENU_STYLES}
+                  items={repeatMenuItems}
+                  multiple={this.props.multiple}
+                  selectedKeys={selectedKeys}
+                />
+              )}
               <div className="relationControlFooter">
                 <span
                   className="relationControlCancel colorPrimary"
@@ -508,16 +559,18 @@ export default class RelationControl extends Component {
                   {_l('取消')}
                 </span>
                 <span
-                  className={cx('relationControlSave bgColorPrimary', { relationDisable: this.state.item === null })}
+                  className={cx('relationControlSave bgColorPrimary', {
+                    relationDisable: this.props.multiple ? !this.state.items.length : this.state.item === null,
+                  })}
                   onClick={() => this.save()}
                 >
                   {_l('确定')}
                 </span>
               </div>
             </div>
-          </DialogBase>
+          </Modal>
         ) : undefined}
-      </DialogBase>
+      </Modal>
     );
   }
 }

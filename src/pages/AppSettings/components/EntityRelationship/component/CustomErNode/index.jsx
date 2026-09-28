@@ -1,41 +1,25 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import dialogEditWorksheet from 'src/pages/widgetConfig/components/dialogEditWorksheet';
-import { DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference/index';
-import { getTranslateInfo } from 'src/utils/app';
-import { controlState } from 'src/utils/control';
+import useEditWorksheetDialog from 'src/pages/widgetConfig/components/dialogEditWorksheet';
+import { useWorksheetReferenceDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference/index';
+import { controlState } from 'src/utils/domain/control/state';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { iconSvg } from '../../config';
 import { HIDE_FIELDS, LINE_HEIGHT, NODE_WIDTH } from '../../utils';
 import './index.less';
 
 const TIPS = [_l('焦点'), _l('编辑表单')];
 
-const Menu = styled.ul`
-  width: 160px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 20px 1px rgba(0, 0, 0, 0.16);
-  border-radius: 2px;
-  padding: 6px 0;
-  li {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 20px;
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-`;
-
 export default function CustomErNode(props) {
   const { node } = props;
+  const { open: openEditWorksheetDialog, holder: editWorksheetDialogHolder } = useEditWorksheetDialog();
+  const { open: openWorksheetReferenceDialog, holder: worksheetReferenceDialogHolder } = useWorksheetReferenceDialog();
 
   const data = _.get(node, 'store.data.data');
   const {
@@ -87,7 +71,7 @@ export default function CustomErNode(props) {
 
   const openEdit = () => {
     setVisible(false);
-    dialogEditWorksheet({
+    openEditWorksheetDialog({
       worksheetId: item.worksheetId,
       onClose,
     });
@@ -95,7 +79,7 @@ export default function CustomErNode(props) {
 
   const openRelation = () => {
     setVisible(false);
-    renderDialog({
+    openWorksheetReferenceDialog({
       globalSheetInfo: {
         appId,
         worksheetId: item.worksheetId,
@@ -108,30 +92,24 @@ export default function CustomErNode(props) {
 
   const renderMoreOp = () => {
     return (
-      <Trigger
-        popupVisible={visible}
-        onPopupVisibleChange={value => setVisible(value)}
-        action={['click']}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        open={visible}
+        onOpenChange={setVisible}
+        trigger={['click']}
+        placement="bottomRight"
+        menu={{
+          items: [
+            { key: 'edit', label: _l('编辑表单'), onClick: openEdit },
+            { key: 'relation', label: _l('查看引用'), onClick: openRelation },
+          ],
+
+          style: { width: 160 },
         }}
-        popup={() => (
-          <Menu style={{ boxShadow: 'var(--shadow-lg)' }}>
-            <li className="overflow_ellipsis Hand" onClick={openEdit}>
-              {_l('编辑表单')}
-            </li>
-            <li className="overflow_ellipsis Hand" onClick={openRelation}>
-              {_l('查看引用')}
-            </li>
-          </Menu>
-        )}
       >
         <span className="textTertiary hoverColorPrimary Hand">
           <Icon icon="more_horiz" className="Font14 hoverColorPrimary" />
         </span>
-      </Trigger>
+      </Dropdown>
     );
   };
 
@@ -192,6 +170,8 @@ export default function CustomErNode(props) {
           </div>
         );
       })}
+      {editWorksheetDialogHolder}
+      {worksheetReferenceDialogHolder}
       <div
         className={cx('count Font12 textTertiary', { pointer: hasMoreControls })}
         style={{ height: height || 32, lineHeight: `${height || 32}px` }}

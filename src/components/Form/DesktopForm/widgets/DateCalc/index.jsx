@@ -3,10 +3,11 @@ import cx from 'classnames';
 import { includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';
-import { formatFormulaDate, formatStrZero, toFixed } from 'src/utils/control';
-import { getDateToEn, getShowFormat } from 'src/utils/controlCommon';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { formatFormulaDate } from 'src/utils/domain/control/date';
+import { getDateToEn, getShowFormat } from 'src/utils/domain/control/date';
+import { formatStrZero, toFixed } from 'src/utils/domain/control/number';
+import { UNIT_TO_TEXT } from 'src/utils/domain/control/setting';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 
 const DateCalc = ({ value, enumDefault, unit, advancedSetting, dot }) => {
   let content;

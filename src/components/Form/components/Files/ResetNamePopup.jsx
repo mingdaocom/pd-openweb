@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Input } from 'antd';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Button, Input, Popover } from 'ming-ui/antd-components';
 
 const ResetNameWrap = styled.div`
   width: 230px;
-  border-radius: 4px;
   .btns {
     justify-content: flex-end;
   }
@@ -30,10 +28,11 @@ export default props => {
   }, [isEdit]);
 
   return (
-    <Trigger
-      action={['click']}
-      popup={
-        <ResetNameWrap className="card pAll10">
+    <Popover
+      noPadding
+      trigger="click"
+      content={
+        <ResetNameWrap className="pAll10">
           <Input.TextArea
             ref={ref}
             autoFocus
@@ -66,16 +65,12 @@ export default props => {
           </div>
         </ResetNameWrap>
       }
-      popupVisible={isEdit}
-      onPopupVisibleChange={visible => setIsEdit && setIsEdit(visible)}
-      popupAlign={{
-        points: ['tc', 'bc'],
-        offset: [0, 10],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      destroyPopupOnHide={true}
+      open={isEdit}
+      onOpenChange={visible => setIsEdit && setIsEdit(visible)}
+      placement="bottom"
+      destroyOnHidden={true}
     >
       {props.children}
-    </Trigger>
+    </Popover>
   );
 };

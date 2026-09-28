@@ -1,223 +1,13 @@
 .RelateRecordDropdown {
-  --selected-item-bg: rgba(0, 100, 240, 0.08);
-  [data-theme='dark'] & {
-    --selected-item-bg: rgba(22, 119, 255, 0.08);
-  }
-  &-selected {
+  .hap-select:not(.hap-select-focused) .RelateRecordDropdown-recordLabel.clickable {
     position: relative;
+    z-index: 1;
     cursor: pointer;
-    min-height: 36px;
-    background: var(--color-background-secondary);
-    border-radius: 4px;
-    padding-right: 30px;
-    border: 1px solid transparent;
-    display: flex;
-    flex-wrap: wrap;
-    .clearIcon,
-    .selectDialogIcon,
-    .dropIcon {
-      position: absolute;
-      right: 0;
-      top: 0;
-      font-size: 14px;
-      color: var(--color-text-tertiary);
-      margin: 11px;
-    }
-    .selectDialogIcon.clearVisible {
-      right: 20px;
-    }
-    .clearIcon {
-      display: none;
-    }
-    .placeholder {
-      position: absolute !important;
-      // padding: 0 30px 0 10px;
-      // max-width: 100%;
-      // display: inline-block;
-      // line-height: 34px;
-      // color: var(--color-text-title);
-    }
-    .normalSelectedItem {
-      padding-left: 10px;
-      position: relative;
-      display: inline-block;
-      // max-width: calc(~'100% - 30px');
-      line-height: 34px;
-      color: var(--color-text-primary);
-      &.active {
-        padding-right: 30px !important;
-      }
-      &.multiple {
-        position: relative;
-        padding-right: 8px;
-        &:not(.isEnd)::after {
-          position: absolute;
-          right: 0;
-          content: ',';
-        }
-        &:hover::after {
-          position: absolute;
-          content: '⬈';
-          top: -4px;
-        }
-      }
-    }
-    .itemContainer {
-      max-width: calc(~'100% - 30px');
-    }
-    .activeSelectedItem {
-      position: relative;
-      display: inline-block;
-      margin: 6px 0 0 6px;
-      line-height: 24px;
-      padding: 0 10px;
-      background-color: var(--selected-item-bg);
-      color: var(--color-text-title);
-      border-radius: 3px;
-      .name {
-        max-width: 100%;
-      }
-      &.active.allowRemove {
-        padding-right: 24px !important;
-      }
-      &.active {
-        background-color: var(--color-border-secondary);
-      }
-    }
-    .normalSelectedItem,
-    .activeSelectedItem {
-      max-width: 100%;
-      .icon-close {
-        cursor: pointer;
-        position: absolute;
-        right: 4px;
-        top: 4px;
-        color: var(--color-text-tertiary);
-        font-size: 16px;
-        &:hover {
-          color: var(--color-text-secondary);
-        }
-      }
-    }
-    .addBtn {
-      width: 24px;
-      padding: 0 !important;
-      margin: 6px !important;
-      text-align: center;
-      .icon {
-        font-size: 14px;
-        color: var(--color-text-secondary);
-      }
-    }
-    &.readonly {
-      background: transparent;
-      .normalSelectedItem:first-child {
-        padding-left: 0px;
-      }
-    }
-    &.allowOpenRecord:not(.sheetview):not(.active) {
-      .normalSelectedItem,
-      .activeSelectedItem {
-        cursor: pointer;
-        color: var(--color-link);
-        &:hover {
-          color: var(--color-link-hover);
-        }
-      }
-    }
-    &.free {
-      background-color: var(--color-background-primary) !important;
-    }
-    &.sheetview:not(.active) {
-      padding-left: 0px;
-    }
-    &.sheetview {
-      border: none;
-      background-color: transparent;
-      border-color: transparent !important;
-      padding-right: 0px;
-      .normalSelectedItem:not(.addBtn),
-      .activeSelectedItem:not(.addBtn) {
-        .itemContainer {
-          max-width: calc(~'100% - 13px');
-        }
-        cursor: default;
-      }
-      .dropIcon {
-        display: none;
-      }
-      &:not(.active) .normalSelectedItem,
-      .activeSelectedItem {
-        line-height: 21px;
-        background-color: var(--selected-item-bg);
-        border-radius: 3px;
-        padding: 0 10px;
-        margin: 6px 0 0 6px;
-        .icon-close {
-          top: 2px;
-        }
-        &.showMoreBtn {
-          padding: 0 6px;
-          i {
-            transform: translateY(2px);
-            display: inline-block;
-          }
-        }
-      }
-      &.allowOpenRecord {
-        &:not(.active) .normalSelectedItem,
-        .activeSelectedItem:not(.addBtn) {
-          cursor: pointer;
-          &:hover {
-            color: var(--color-primary);
-            background-color: rgba(33, 150, 243, 0.16);
-          }
-        }
-      }
-    }
-    &.mobile {
-      .dropIcon {
-        margin-right: 8px !important;
-        font-size: 16px;
-        color: var(--color-text-disabled);
-      }
-    }
-    &.active {
-      border-color: var(--color-primary);
-      background-color: var(--color-background-primary) !important;
-      .dropIcon {
-        display: none !important;
-      }
-      .clearIcon {
-        display: inline-block !important;
-      }
-      .placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
-    &:not(.sheetview).emptyRecord {
-      .dropIcon {
-        display: inline-block !important;
-      }
-    }
-    &:not(.emptyRecord):hover {
-      .dropIcon {
-        display: none !important;
-      }
-      .clearIcon {
-        display: inline-block !important;
-      }
-    }
-    &.showDialogSelect:not(.emptyRecord) {
-      padding-right: 50px;
-    }
+    color: var(--color-link);
   }
 }
 
 .RelateRecordList {
-  border-radius: 3px;
-  background-color: var(--color-background-primary);
-  box-shadow: var(--shadow-lg);
   div.listCon {
     padding: 6px 0;
   }
@@ -243,7 +33,7 @@
     height: 36px;
     cursor: pointer;
     padding: 0 12px;
-    margin: 6px 0;
+    margin-top: 6px;
     font-size: 14px;
     color: var(--color-primary);
     line-height: 36px;
@@ -278,23 +68,34 @@
       border-bottom: 1px solid var(--color-border-primary);
     }
   }
-  &.big {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  // 分割线画在相邻两项之间，避免只有一条记录（或末条）时底部多出一条线
+  &.big + &.big {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
   }
   &.selected {
-    background-color: var(--color-primary-transparent);
+    background-color: var(--color-primary-transparent) !important;
   }
   &.hover,
   &:hover {
     background-color: var(--color-background-hover);
   }
+  // 字段多时整体按行换行展示，保证内容尽量看全；单个字段仍是单行省略（见 &-control），
+  // 不会因为某个超长字段撑破卡片
+  &-controls {
+    margin-left: -7px;
+    overflow: hidden;
+  }
   &-control {
     display: inline-block;
+    vertical-align: top;
+    max-width: 100%;
     height: 1.2em !important;
     line-height: 1em;
     color: var(--color-text-secondary);
     padding: 0px 7px;
-    word-break: break-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:not(:last-child) {
       border-right: 1px solid var(--color-text-tertiary);
     }
@@ -318,44 +119,5 @@
     -webkit-line-clamp: 2;
     /*! autoprefixer: off */
     -webkit-box-orient: vertical;
-  }
-}
-
-.relateRecordDropdownPopup.isQuickFilter {
-  .RelateRecordDropdown-selected {
-    min-height: 30px;
-    .normalSelectedItem {
-      line-height: 28px !important;
-    }
-    input {
-      line-height: 28px !important;
-    }
-    .selectDialogIcon {
-      margin: 8px;
-    }
-    &.isDark {
-      background-color: transparent !important;
-    }
-  }
-}
-.relateRecordDropdownPopup.small {
-  .RelateRecordDropdown-selected {
-    .clearIcon,
-    .dropIcon {
-      margin: 8px;
-    }
-  }
-}
-
-.relateRecordDropdownPopup.isQuickFilter {
-  .RelateRecordDropdown-selected {
-    .activeSelectedItem {
-      margin-top: 4px !important;
-      margin-bottom: 3px !important;
-    }
-    .clearIcon,
-    .dropIcon {
-      margin: 8px;
-    }
   }
 }

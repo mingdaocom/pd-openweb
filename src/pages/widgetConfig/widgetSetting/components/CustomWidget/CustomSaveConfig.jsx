@@ -1,41 +1,38 @@
 import React, { Fragment, useState } from 'react';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType, getIconByType } from 'src/pages/widgetConfig/util';
-import { WHOLE_SIZE } from '../../../config/Drag';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import { SettingItem } from '../../../styled';
 import ConfigRelate from '../relateSheet/ConfigRelate';
 
-const SaveWrap = styled(Dropdown)`
-  .Item-content {
-    display: flex;
-    align-items: center;
-    .itemText {
-      padding-left: 16px;
-    }
-    i {
-      font-size: 16px !important;
-      margin-right: 10px;
-    }
-  }
-`;
-
 const SAVE_TYPES = [2, 6, 15, 46, 9, 10, 29];
 
-const getDropData = () => {
-  return SAVE_TYPES.map(type => {
-    const ENUM_TYPE = enumWidgetType[type];
-    const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
-    return {
-      text: info.widgetName,
-      iconName: getIconByType(type),
-      value: type,
-    };
-  });
-};
+const SAVE_TYPE_OPTIONS = SAVE_TYPES.map(type => {
+  const ENUM_TYPE = enumWidgetType[type];
+  const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
+  return {
+    label: info.widgetName,
+    icon: getIconByType(type),
+    value: type,
+  };
+});
+
+const renderSaveTypeContent = option =>
+  option ? (
+    <div className="flexCenter">
+      <Icon icon={option.icon} className="Font16 mRight6 textTertiary" />
+      <span className="flex">{option.label}</span>
+    </div>
+  ) : null;
+
+const renderSaveTypeOption = ({ data: option }) => renderSaveTypeContent(option);
+
+const renderSaveTypeLabel = ({ value }) => renderSaveTypeContent(_.find(SAVE_TYPE_OPTIONS, { value }));
 
 export default function CustomSaveConfig(props) {
   const { saveType = 2, globalSheetInfo = {}, setState } = props;
@@ -45,19 +42,12 @@ export default function CustomSaveConfig(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('存储类型')}</div>
-        <SaveWrap
-          border
-          showItemTitle={false}
-          data={getDropData()}
+        <Select
+          className="w100"
+          options={SAVE_TYPE_OPTIONS}
           value={saveType}
-          renderTitle={data => {
-            return (
-              <div className="flexCenter">
-                <Icon icon={data.iconName} className="Font16 mRight6 textTertiary" />
-                <span className="flex">{data.text}</span>
-              </div>
-            );
-          }}
+          optionRender={renderSaveTypeOption}
+          labelRender={renderSaveTypeLabel}
           onChange={value => {
             if (value === saveType) return;
             if (value === 29) {

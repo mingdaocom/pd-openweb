@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, Radio, Support } from 'ming-ui';
+import { LoadDiv, Support } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const ListWrapper = styled.div`
   min-height: 200px;
@@ -12,11 +13,11 @@ const ListWrapper = styled.div`
   .empty {
     height: 200px;
   }
-  .ming.Radio {
+  .ant-radio-wrapper {
     display: flex;
     align-items: center;
     width: 100%;
-    .Radio-text {
+    .ant-radio-label {
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -77,8 +78,10 @@ export default function SmsSignSet(props) {
       )}
 
       {visible && (
-        <Dialog
-          visible
+        <Modal
+          open
+          mask={{ closable: true }}
+          keyboard
           width={600}
           title={_l('设置短信签名')}
           onCancel={() => setVisible(false)}
@@ -100,7 +103,7 @@ export default function SmsSignSet(props) {
             <LoadDiv className="mTop10" />
           ) : (
             <Fragment>
-              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+              {window.platformENV.isHap && (
                 <Fragment>
                   <div className="textSecondary">
                     {_l(
@@ -145,10 +148,12 @@ export default function SmsSignSet(props) {
                     return (
                       <div className="mTop16" key={item.id}>
                         <Radio
-                          text={text}
                           checked={signature === item.signName}
-                          onClick={() => setSignature(item.signName)}
-                        />
+                          onChange={() => setSignature(item.signName)}
+                          title={text}
+                        >
+                          {text}
+                        </Radio>
                         {!window.platformENV.isOverseas &&
                           !window.platformENV.isLocal &&
                           item.id === 1 &&
@@ -174,7 +179,7 @@ export default function SmsSignSet(props) {
               </ListWrapper>
             </Fragment>
           )}
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

@@ -7,10 +7,10 @@ import appManagementController from 'src/api/appManagement';
 import loginController from 'src/api/login';
 import privateSysSetting from 'src/api/privateSysSetting';
 import projectApi from 'src/api/project';
-import ChangeLang from 'src/components/ChangeLang';
+import ChangeLang from 'src/pages/AuthService/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
-import { getRequest } from 'src/utils/sso';
+import { getRequest } from 'src/utils/services/auth/sso';
 import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
@@ -21,11 +21,12 @@ import { loginCallback, ssoLogin } from './util';
 
 export default function Login() {
   const request = getRequest();
+  const isPrivateDeployment = window.platformENV.isOverseas || window.platformENV.isLocal;
   const [state, setState] = useSetState({
     modeType: 1, // 1:手机号邮箱 2:用户名登录 其他:不使用账户登录方式
     verifyType: request.loginModeType === 'verify' ? 'verifyCode' : 'password', //验证方式 'passWord' 密码 'verifyCode' 验证码
     step: '', //verifyCode 验证码 默认账户
-    isNetwork: location.href.indexOf('network') >= 0 || window.platformENV.isOverseas || window.platformENV.isLocal,
+    isNetwork: location.href.indexOf('network') >= 0 || isPrivateDeployment,
     hideOther:
       window.isMiniProgram || // 小程序隐藏第三方登录入口
       !!request.unionId || //第三方
@@ -38,7 +39,9 @@ export default function Login() {
     intergrationScanEnabled: false, //开启企业微信扫码登录
     linkInvite: '',
     companyName: '',
-    title: _l('登录'),
+    title: !isPrivateDeployment
+      ? _l('登录 - 明道云 | APaaS平台、零代码、hpaPaaS、iPaaS、BaaS、快速开发工具、中台应用')
+      : _l('登录'),
     loadProjectName: false,
     projectNameLang: '', // 组织简称多语言翻译
     verifyResult: '',
@@ -64,9 +67,9 @@ export default function Login() {
 
   const onInit = () => {
     const request = getRequest();
-    const accountWebUrl = _.get(window, 'md.global.Config.AccountUrl');
+    const accountWebUrl = _.get(window, 'md.global.Config.AccountWebUrl');
 
-    if (_.get(window, 'md.global.SysSettings.initialized') === false && accountWebUrl) {
+    if (isPrivateDeployment && _.get(window, 'md.global.SysSettings.initialized') === false && accountWebUrl) {
       location.href = `${accountWebUrl}createPlatformAdmin`;
       return;
     }
@@ -121,22 +124,31 @@ export default function Login() {
         param = { ...param, account, projectId };
       }
 
-      loginController.mDAccountAutoLogin({ ...param, regFrom: request.s }).then(data => {
-        const { projectId, modeType, isNetwork } = state;
+      loginController.mDAccountAutoLogin({ ...param, regFrom: request.s }).then(
+        data => {
+          const { projectId, modeType, isNetwork } = state;
 
-        //自动登录失败后，直接进入到登录界面
-        if (data.accountResult !== 1) {
-          setState({ loading: false });
-          console.log(ua, data);
-          return;
-        }
+          //自动登录失败后，清理缓存并完整初始化登录页
+          if (data.accountResult !== 1) {
+            window.localStorage.removeItem('LoginCheckList');
+            initLoginPage();
+            console.log(ua, data);
+            return;
+          }
 
-        loginCallback({
-          data: { ...data, projectId, modeType, isNetwork },
-          onChange: data => setState(data),
-        });
-      });
+          loginCallback({
+            data: { ...data, projectId, modeType, isNetwork },
+            onChange: data => setState(data),
+          });
+        },
+        //请求异常时保留自动登录缓存，允许手动登录
+        initLoginPage,
+      );
     } else {
+      initLoginPage();
+    }
+
+    function initLoginPage() {
       //进入登录流程  回填上次缓存的账号信息
       const loginName = window.localStorage.getItem('LoginName');
       const loginLDAPName = window.localStorage.getItem('LoginLDAPName');
@@ -169,7 +181,6 @@ export default function Login() {
         projectId: request.projectId || request.projectid || '', //'167046ff-fe94-4d7d-8a5e-b9148be9c13f', //
       })
       .then(async (res = {}) => {
-
         //request.loginMode === 'systemLogin' 指定平台账号登录方式
         if (request.loginMode === 'systemLogin') {
           res.openLDAP = false;
@@ -178,8 +189,8 @@ export default function Login() {
 
         let googleSsoSet;
 
-        if ((window.platformENV.isOverseas || window.platformENV.isLocal) && !request.projectId) {
-          googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
+        if (isPrivateDeployment && !request.projectId) {
+          googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({}).catch(() => undefined);
         }
 
         setState({
@@ -207,20 +218,24 @@ export default function Login() {
         } else {
           setState({ loading: false });
         }
-      });
+      })
+      .catch(() => setState({ loading: false }));
   };
 
   //网络名称多语言
   const getProjectLang = projectId => {
-    appManagementController.getProjectLang({ projectId }).then(res => {
-      setState({
-        loading: false,
-        projectNameLang: _.get(
-          _.find(res, o => o.langType === getCurrentLangCode()),
-          'data[0].value',
-        ),
-      });
-    });
+    appManagementController
+      .getProjectLang({ projectId })
+      .then(res => {
+        setState({
+          loading: false,
+          projectNameLang: _.get(
+            _.find(res, o => o.langType === getCurrentLangCode()),
+            'data[0].value',
+          ),
+        });
+      })
+      .catch(() => setState({ loading: false, projectNameLang: '' }));
   };
 
   return (

@@ -54,10 +54,18 @@ export const orderTypeText = {
   AppBillAutoPay: _l('应用账单(自动支付)'), // 应用账单(自动支付)
   AppReturnMoney: _l('应用账单(归还扣款)'), // 应用账单(归还扣款)
   DayPackage: _l('天数包'), // 天数包
-  OAPackage: _l('OA'), // OA
-  UpgradeEnterpriseAndOA: _l('升级到标准版+OA'), // 升级到标准版+OA
-  ApprovePackage: _l('购买审批'), // 购买审批
-  EnterpriseAndApprove: _l('标准版+审批'), // 标准版+审批
+  get OAPackage() {
+    return window.platformENV.isHap ? _l('明道云OA') : _l('OA');
+  },
+  get UpgradeEnterpriseAndOA() {
+    return window.platformENV.isHap ? _l('升级到明道云标准版+OA') : _l('升级到标准版+OA');
+  },
+  get ApprovePackage() {
+    return window.platformENV.isHap ? _l('购买明道云审批') : _l('购买审批');
+  },
+  get EnterpriseAndApprove() {
+    return window.platformENV.isHap ? _l('明道云标准版+审批') : _l('标准版+审批');
+  },
   Enterprise: _l('专业版'), // 专业版
   Ultimate: _l('旗舰版'), // 旗舰版
   EMAIL: _l('邮件发送'), // 邮件发送
@@ -130,11 +138,21 @@ export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29, 31, 30, 32, 33, 36, 
 
 // 支付记录类型
 export const orderRecordPaidTypeDropdownData = [{ value: 0, text: _l('全部') }].concat(
-  PAID_RECORD_TYPE.map(item => ({ value: item, text: orderTypeText[orderRecordType[item]] })),
+  PAID_RECORD_TYPE.map(item => ({
+    value: item,
+    get text() {
+      return orderTypeText[orderRecordType[item]];
+    },
+  })),
 );
 // 扣费记录类型
 export const orderRecordRechargeTypeDropdownData = [{ value: 0, text: _l('全部') }].concat(
-  RECHARGE_RECORD_TYPE.map(item => ({ value: item, text: orderTypeText[orderRecordType[item]] })),
+  RECHARGE_RECORD_TYPE.map(item => ({
+    value: item,
+    get text() {
+      return orderTypeText[orderRecordType[item]];
+    },
+  })),
 );
 
 export const invoiceConfig = [

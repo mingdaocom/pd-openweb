@@ -1,12 +1,13 @@
 import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import { Dropdown, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { CALC_TYPE, OUTPUT_FORMULA_DATE } from '../../config/setting';
+import { TagTextarea } from 'ming-ui';
+import { Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getFormulaControls } from 'src/utils/domain/control/controlSelection';
+import { getControlByControlId } from 'src/utils/domain/control/filters';
+import { parseDataSource } from 'src/utils/domain/control/metadata';
+import { CALC_TYPE, OUTPUT_FORMULA_DATE } from 'src/utils/domain/control/setting';
 import { ControlTag, SettingItem } from '../../styled';
-import { getAdvanceSetting, getControlByControlId, parseDataSource } from '../../util';
-import { getFormulaControls } from '../../util/data';
-import { handleAdvancedSettingChange } from '../../util/setting';
 import DynamicSelectDateControl from '../components/DynamicSelectDateControl';
 import InputSuffix from '../components/formula/InputSuffix';
 import SwitchType from '../components/formula/SwitchType';
@@ -15,9 +16,11 @@ import PointerConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
 import SelectControl from '../components/SelectControl';
 
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
 const FORMAT_TYPE = [
-  { text: _l('开始日期 00:00，结束日期 24:00'), value: '1' },
-  { text: _l('开始日期 00:00，结束日期 00:00'), value: '0' },
+  { label: _l('开始日期 00:00，结束日期 24:00'), value: '1' },
+  { label: _l('开始日期 00:00，结束日期 00:00'), value: '0' },
 ];
 
 export default function FormulaDate(props) {
@@ -59,10 +62,10 @@ export default function FormulaDate(props) {
           <SettingItem>
             <div className="settingItemTitle">{_l('格式化')}</div>
             <div className="subTitle Font12 textTertiary">{_l('参与计算的日期未设置时间时，格式化方式为:')}</div>
-            <Dropdown
-              border
+            <Select
+              className="w100"
               value={strDefault}
-              data={FORMAT_TYPE}
+              options={FORMAT_TYPE}
               onChange={value => onChange({ strDefault: value })}
             />
           </SettingItem>
@@ -169,7 +172,13 @@ export default function FormulaDate(props) {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('输出格式')}</div>
-            <Dropdown border value={unit || '3'} data={saveData} onChange={value => onChange({ unit: value })} />
+            <Select
+              className="w100"
+              value={unit || '3'}
+              options={saveData}
+              fieldNames={SELECT_FIELD_NAMES}
+              onChange={value => onChange({ unit: value })}
+            />
           </SettingItem>
         </Fragment>
       );
@@ -185,10 +194,11 @@ export default function FormulaDate(props) {
       <SwitchType {...props} />
       {!isSaved && (
         <SettingItem>
-          <Dropdown
-            border
+          <Select
+            className="w100"
             value={enumDefault}
-            data={CALC_TYPE}
+            options={CALC_TYPE}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => {
               if (value === enumDefault) return;
               if (value === 3) {

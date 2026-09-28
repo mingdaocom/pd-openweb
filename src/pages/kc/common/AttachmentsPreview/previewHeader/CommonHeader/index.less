@@ -62,26 +62,6 @@
       display: inline;
     }
   }
-  .historyPanel {
-    .newVersionFile {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      &:hover ~ span {
-        color: var(--color-white);
-      }
-    }
-    .mingPopup {
-      // padding: 5px;
-      color: var(--color-text-title);
-      .MdLoader {
-        margin: 10px auto;
-      }
-    }
-  }
   .setWPSPreview {
     height: 36px;
     white-space: nowrap;
@@ -130,60 +110,13 @@
       }
     }
   }
-  .versionListCon {
-    padding: 8px 20px;
-  }
-  .versionList {
-    overflow: hidden;
-    color: var(--color-text-tertiary);
-    font-size: 12px;
-    user-select: text;
-    .versionItem {
-      line-height: 40px;
-      border-top: 1px dashed var(--color-border-tertiary);
-      margin-top: -1px;
-      display: flex;
-      &.active {
-        color: #06c;
-      }
-      .name {
-        display: inline-block;
-        width: 80px;
-      }
-      .updater {
-        display: inline-block;
-        width: 50px;
-      }
-      .createTime {
-        flex: 1;
-      }
-      .updateTime {
-        display: inline-block;
-        width: 120px;
-      }
-      .historyBtn {
-        float: right;
-        margin-left: 3px;
-        margin-right: 3px;
-        width: 14px;
-        height: 40px;
-        i {
-          font-size: 14px;
-          cursor: pointer;
-          color: var(--color-primary-light);
-        }
-      }
-    }
-  }
   .split {
     width: 1px;
     height: 1em;
     background-color: rgba(255, 255, 255, 0.8);
     margin: 20px 10px;
   }
-  .historyVersion,
   .more,
-  .historyPanel,
   .saveTo,
   .delete,
   .close,
@@ -256,7 +189,6 @@
       }
     }
   }
-  .historyPanel,
   .saveTo,
   .more {
     position: relative;
@@ -284,8 +216,7 @@
   &.previewHeader {
     .saveTo,
     .shareNode,
-    .more,
-    .historyPanel {
+    .more {
       display: none !important;
     }
     .fileName {

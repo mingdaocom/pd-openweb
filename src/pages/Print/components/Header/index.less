@@ -57,13 +57,8 @@
         color: var(--color-text-title);
       }
     }
-    .ming.Dropdown .Dropdown--input,
-    .dropdownTrigger .Dropdown--input {
-      padding: 0;
-    }
-    .saveButton,
     .printButton {
-      padding: 0 29px;
+      padding: 0 16px;
       height: 32px;
       line-height: 32px;
       background: var(--color-primary) 0% 0% no-repeat padding-box;
@@ -73,32 +68,34 @@
         background: var(--color-primary);
       }
     }
-    .printButton {
-      padding: 0 16px;
-    }
     .exportForWord:hover {
       color: var(--color-primary) !important;
       i {
         color: var(--color-primary) !important;
       }
     }
-    input {
-      border: 0px;
-    }
     .tepName {
       height: 30px;
       line-height: 30px;
-      border-bottom: 1px dashed var(--color-text-secondary);
       margin-left: 12px;
       font-size: 17px;
-      // padding: 0 10px;
+      border-bottom: 1px dashed var(--color-text-secondary);
       &.noName,
       &::placeholder {
         color: var(--color-text-tertiary);
       }
       &:focus {
         border-bottom: 1px solid var(--color-primary);
+        box-shadow: none;
       }
+    }
+    input.tepName {
+      width: 200px;
+      min-width: 0;
+      flex: 0 1 200px;
+      padding: 0 2px;
+      border: 0;
+      border-bottom: 1px dashed var(--color-text-secondary);
     }
     .saveForDocx {
       &:hover {
@@ -109,22 +106,6 @@
       height: 50px;
       vertical-align: top;
       line-height: 50px;
-      .ming.Switch {
-        .dot {
-          width: 11px !important;
-          height: 11px !important;
-          top: 1px !important;
-        }
-        &--on {
-          background: var(--color-primary) !important;
-          .dot {
-            left: 13px !important;
-          }
-        }
-        &--off {
-          background: var(--color-text-disabled) !important;
-        }
-      }
       label {
         margin-right: 10px;
         vertical-align: middle;
@@ -151,6 +132,15 @@
       align-items: center;
       min-width: 0;
       flex: 1;
+      &.hasPageIndicator {
+        max-width: calc(50% - 60px);
+        flex: 0 1 calc(50% - 60px);
+      }
+    }
+    .previewTitle {
+      width: 0;
+      min-width: 0;
+      flex: 1;
     }
     .headerActions {
       display: flex;
@@ -168,7 +158,9 @@
       gap: 8px 0;
       .headerTitleRow {
         width: 100%;
+        max-width: none;
         min-height: 28px;
+        flex: 1;
       }
       .headerActions {
         width: 100%;
@@ -183,7 +175,6 @@
         font-size: 13px;
         color: var(--color-text-secondary);
       }
-      .saveButton,
       .printButton,
       .btn {
         height: 32px;

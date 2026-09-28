@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import { socketInit } from 'src/socket';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils/';

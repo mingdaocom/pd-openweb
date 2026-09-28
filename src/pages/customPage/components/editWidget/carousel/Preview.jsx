@@ -1,8 +1,6 @@
 import React from 'react';
-import { Divider } from 'antd';
-import cx from 'classnames';
 import styled from 'styled-components';
-import SelectCount from 'src/pages/customPage/components/editWidget/button/SelectCount';
+import { Divider, Segmented, Select } from 'ming-ui/antd-components';
 import Carousel from './Carousel';
 
 const Wrap = styled.div`
@@ -20,16 +18,26 @@ const Wrap = styled.div`
   }
 `;
 
-const ANIMATION_TYPE = [
+const getAnimationTypeOptions = () => [
   {
     value: 'scrollx',
-    text: _l('滚动'),
+    label: _l('滚动'),
   },
   {
     value: 'fade',
-    text: _l('淡入淡出'),
+    label: _l('淡入淡出'),
   },
 ];
+
+const getAutoplaySpeedOptions = () => [
+  { value: false, label: _l('关闭') },
+  ...Array.from({ length: 8 }, (_, index) => ({
+    value: index + 1,
+    label: _l('%0秒', index + 1),
+  })),
+];
+
+const AUTOPLAY_SELECT_STYLE = { minWidth: 70 };
 
 export default function Preview(props) {
   const { componentConfig, config, setConfig } = props;
@@ -37,27 +45,19 @@ export default function Preview(props) {
     <Wrap className="flexColumn">
       <div className="flexRow valignWrapper header">
         <div className="Font13 overflow_ellipsis mRight10">{_l('样式')}</div>
-        <div className="btnStyle mRight20">
-          {ANIMATION_TYPE.map(({ value, text }) => (
-            <div
-              className={cx('item', { active: value === config.effect })}
-              key={value}
-              onClick={() => {
-                setConfig({ effect: value });
-              }}
-            >
-              <div className="ellipsis Font14">{text}</div>
-            </div>
-          ))}
-        </div>
+        <Segmented
+          className="bgDisabled mRight20"
+          value={config.effect}
+          options={getAnimationTypeOptions()}
+          onChange={value => {
+            setConfig({ effect: value });
+          }}
+        />
         <div className="Font13 overflow_ellipsis mRight10">{_l('间隔')}</div>
-        <SelectCount
-          maxCount={8}
-          minCount={1}
-          count={config.autoplaySpeed}
-          needCloseSelect={true}
-          suffix={_l('秒')}
-          mode="select"
+        <Select
+          style={AUTOPLAY_SELECT_STYLE}
+          value={config.autoplaySpeed}
+          options={getAutoplaySpeedOptions()}
           onChange={value => {
             setConfig({ autoplaySpeed: value });
           }}

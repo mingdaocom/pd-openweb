@@ -1,6 +1,6 @@
 import React from 'react';
-import { Radio } from 'antd';
-import { MULTI_SELECT_FILTER_TYPE } from '../util';
+import { Radio } from 'ming-ui/antd-components';
+import { MULTI_SELECT_FILTER_TYPE } from 'src/utils/domain/worksheet/fastFilter';
 
 export default function ShowTypeCom(props) {
   const { updateViewSet, data = {}, advancedSetting = {}, dataType } = props;
@@ -8,6 +8,7 @@ export default function ShowTypeCom(props) {
     <React.Fragment>
       <div className="title">{data.txt}</div>
       <Radio.Group
+        className="mTop8"
         onChange={e => {
           //  筛选方式默认等于 多选类型的字段
           if (data.key === 'allowitem' && e.target.value === 1 && MULTI_SELECT_FILTER_TYPE.keys.includes(dataType)) {

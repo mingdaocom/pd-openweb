@@ -1,19 +1,19 @@
 import React, { useRef, useState } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
+import { Input } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
-import { EditOptionDialog, SettingItem } from '../../../styled';
-import { checkOptionsRepeat } from '../../../util';
-import { getDefaultOptions } from '../../../util/setting';
+import { checkOptionsRepeat } from 'src/utils/domain/control/options';
+import { getDefaultOptions } from 'src/utils/domain/control/options';
+import { EditOptionModal, SettingItem } from '../../../styled';
 import MoreOption from './MoreOption';
 import Options from './Options';
 
 export default function EditOptionList(props) {
   const { onOk, options = [], globalSheetInfo = {}, onCancel, ...rest } = props;
   const appId = props.appId || globalSheetInfo.appId;
-  const $ref = useRef(null);
   const optionsRef = useRef(null);
+  const requestPending = useRef(false);
   const [name, setName] = useState(props.name);
   const [data, setData] = useState(_.isEmpty(options) ? getDefaultOptions() : options);
   const [colorful, setColorful] = useState(props.colorful);
@@ -21,6 +21,8 @@ export default function EditOptionList(props) {
   const [quoteVisible, setQuoteVisible] = useState(false);
 
   const handleOk = () => {
+    if (requestPending.current) return;
+
     if (!name) {
       alert(_l('选项集标题不能为空'), 3);
       return;
@@ -33,13 +35,19 @@ export default function EditOptionList(props) {
       return;
     }
 
-    worksheetAjax.saveOptionsCollection({ appId, ...nextData }).then(({ code, data, msg }) => {
-      if (code === 1) {
-        onOk(_.isEmpty(data) ? nextData : data);
-      } else {
-        alert(msg);
-      }
-    });
+    requestPending.current = true;
+    return worksheetAjax
+      .saveOptionsCollection({ appId, ...nextData })
+      .then(({ code, data, msg }) => {
+        if (code === 1) {
+          onOk(_.isEmpty(data) ? nextData : data);
+        } else {
+          alert(msg);
+        }
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   const getOptionCount = () => {
@@ -51,17 +59,17 @@ export default function EditOptionList(props) {
   };
 
   return (
-    <EditOptionDialog
-      ref={$ref}
-      visible
-      bodyClass="editOptionDialog"
+    <EditOptionModal
+      open
+      width={480}
       title={_.isEmpty(options) ? _l('新建选项集') : _l('编辑选项集')}
       okText={_l('保存')}
-      overlayClosable={false}
+      mask={{ closable: false }}
+      keyboard
       onCancel={onCancel}
       onOk={handleOk}
     >
-      <SettingItem className="pLeft24 pRight24 mTop0">
+      <SettingItem className="mTop0">
         <div className="settingItemTitle flexRow">
           <div className="flex">{_l('名称')}</div>
           {!_.isEmpty(options) && (
@@ -72,7 +80,7 @@ export default function EditOptionList(props) {
         </div>
         <Input value={name} placeholder={_l('选项集')} onChange={e => setName(e.target.value)} />
       </SettingItem>
-      <SettingItem className="pLeft24 pRight24">
+      <SettingItem>
         <div className="settingItemTitle">{_l('选项（ %0 ）', getOptionCount())}</div>
         <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
           <div className="flexCenter">
@@ -124,6 +132,6 @@ export default function EditOptionList(props) {
           onCancel={() => setQuoteVisible(false)}
         />
       )}
-    </EditOptionDialog>
+    </EditOptionModal>
   );
 }

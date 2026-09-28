@@ -16,23 +16,6 @@ export const Con = styled.div`
   }
   .title {
     width: 100%;
-    padding: 0px 9px;
-    line-height: 36px;
-    border-radius: 3px;
-    border: 1px solid var(--color-border-primary);
-    box-sizing: border-box;
-    &:-ms-input-placeholder {
-      color: var(--color-text-tertiary) !important;
-    }
-    &::-ms-input-placeholder {
-      color: var(--color-text-tertiary);
-    }
-    &::placeholder {
-      color: var(--color-text-tertiary);
-    }
-    &:focus {
-      border: 1px solid var(--color-primary);
-    }
   }
   .con {
     width: 100%;
@@ -43,34 +26,11 @@ export const Con = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    .ming.Dropdown {
-      .Dropdown--input {
-        padding-left: 0px;
-      }
-      .currentMenu {
-        color: var(--color-primary);
-      }
-    }
-    .ming.MenuItem .Item-content:not(.disabled):hover {
-      background-color: var(--color-background-secondary) !important;
-      color: var(--color-text-title) !important;
-    }
-
-    .btnCon {
+    .buttonPreviewCon {
       width: 180px;
       margin-right: 34px;
-      & > div {
-        height: 32px;
-      }
-      .btnStr {
-        color: var(--color-white);
-        line-height: 32px;
-        min-height: 32px;
-        padding: 0 20px;
-        background: var(--color-primary);
-        border-radius: 4px;
+      .submitButtonPreview {
         max-width: 155px;
-        box-sizing: border-box;
       }
       i {
         color: var(--color-text-disabled);
@@ -86,18 +46,9 @@ export const Con = styled.div`
         opacity: 1;
       }
     }
-    &.nextBtn {
-      .btnCon {
-        .btnStr {
-          background: var(--color-background-primary);
-          border: 1px solid var(--color-border-secondary);
-          color: var(--color-text-title);
-        }
-      }
-      &.noAction {
-        opacity: 0.5;
-        position: relative;
-      }
+    &.nextBtn.noAction {
+      opacity: 0.5;
+      position: relative;
     }
     .cover {
       position: absolute;
@@ -128,15 +79,12 @@ export const Con = styled.div`
     }
   }
   .autoreserveCon {
-    .Radio {
+    .hap-radio-wrapper {
       margin-top: 12px;
     }
   }
   .w200 {
     width: 200px;
-  }
-  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-radius: 3px;
   }
   .act {
     flex-shrink: 0;
@@ -165,20 +113,6 @@ export const Con = styled.div`
         }
       }
     }
-    .Dropdown--border,
-    .dropdownTrigger .Dropdown--border {
-      min-height: 36px !important;
-      height: auto !important;
-    }
-    .Dropdown--input .value {
-      display: flex !important;
-      & > div {
-        flex: 1 !important;
-        display: flex !important;
-        flex-flow: row wrap !important;
-        gap: 5px;
-      }
-    }
   }
 `;
 export const Wrap = styled.div`
@@ -192,75 +126,66 @@ export const Wrap = styled.div`
   }
   .btnName {
     width: 100%;
-    line-height: 36px;
-    border-radius: 3px;
-    border: 1px solid var(--color-border-primary);
-    padding: 0 12px;
-    &:focus {
-      border: 1px solid var(--color-primary);
-    }
   }
 `;
 export const WrapTxt = styled.div`
-   {
-    width: 100%;
-    background: var(--color-background-secondary);
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    padding: 16px;
-    box-sizing: border-box;
+  width: 100%;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 3px;
+  padding: 16px;
+  box-sizing: border-box;
+  color: var(--color-text-title);
+  margin-top: 12px;
+  display: flex;
+  &.createCon {
+    background: var(--color-background-primary);
+    display: block;
+  }
+
+  .txtFilter {
+    flex-shrink: 0;
+    min-width: 0;
+    flex: 1;
+    font-size: 13px;
     color: var(--color-text-title);
-    margin-top: 12px;
-    display: flex;
-    &.createCon {
-      background: var(--color-background-primary);
-      display: block;
-    }
+    line-height: 24px;
 
-    .txtFilter {
-      flex-shrink: 0;
-      min-width: 0;
-      flex: 1;
-      font-size: 13px;
-      color: var(--color-text-title);
-      line-height: 24px;
+    p {
+      line-height: 22px;
+      padding: 0;
+      margin: 0;
+      display: flex;
 
-      p {
+      .titleTxt {
+        width: 100px;
+        font-size: 13px;
         line-height: 22px;
-        padding: 0;
-        margin: 0;
-        display: flex;
+        display: inline-block;
+        min-width: 0;
+        flex-shrink: 0;
+      }
 
-        .titleTxt {
-          width: 100px;
-          font-size: 13px;
-          line-height: 22px;
-          display: inline-block;
-          min-width: 0;
-          flex-shrink: 0;
-        }
-
-        .txt {
-          flex: 1;
-          font-weight: 500;
-          font-size: 13px;
-          min-width: 0;
-          flex-shrink: 0;
-        }
+      .txt {
+        flex: 1;
+        font-weight: 500;
+        font-size: 13px;
+        min-width: 0;
+        flex-shrink: 0;
       }
     }
+  }
 
-    .editFilter {
-      width: 20px;
+  .editFilter {
+    width: 20px;
 
-      &:hover {
-        color: var(--color-primary) !important;
-      }
+    &:hover {
+      color: var(--color-primary) !important;
     }
+  }
 
-    .editWorkflow {
-      width: auto;
-      color: var(--color-primary);
-    }
+  .editWorkflow {
+    width: auto;
+    color: var(--color-primary);
   }
 `;

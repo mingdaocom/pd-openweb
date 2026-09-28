@@ -2,11 +2,13 @@
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ajaxRequest from 'src/api/taskCenter';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { downloadFile, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { downloadFile } from 'src/utils/platform/browser/download';
 import config from '../../config/config';
 import { attachmentSwitch } from '../../redux/actions';
 import { errorMessage, setStateToStorage } from '../../utils/utils';
@@ -14,13 +16,6 @@ import TaskDetail from '../taskDetail/taskDetail';
 import './attachment.less';
 
 const attachmentSettings = {
-  dialog:
-    '<ul id="attachmentOperation" class="boxShadow5"><li data-type="share" class="bgColorPrimary">' +
-    _l('分享') +
-    '</li><li data-type="download" class="bgColorPrimary">' +
-    _l('下载') +
-    '</li></ul>',
-  itemData: null,
   ajaxPost: false,
 };
 
@@ -34,91 +29,12 @@ class Attachment extends Component {
       dataSource: [],
       openTaskDetail: false,
       taskId: '',
+      openOperationId: '',
     };
   }
 
   componentDidMount() {
     this.getFolderFiles();
-
-    const $taskList = $('#taskList');
-
-    // 更多操作
-    $taskList.on(
-      'click',
-      '.taskAttachmentListBox .attachmentListOperation, .taskThumbnail .taskThumbnailOperation',
-      function (event) {
-        const $this = $(this);
-
-        if ($this.hasClass('operationActive')) {
-          $this.removeClass('operationActive');
-          $('#attachmentOperation').addClass('Hidden');
-          return false;
-        }
-
-        $('.operationActive').removeClass('operationActive');
-
-        let left = $this.offset().left;
-        let top = $this.offset().top;
-
-        top = top + 100 > $(window).height() ? top - 75 : top + 25;
-        left = left + 105 > $(window).width() ? left - 90 : left - 20;
-
-        $this.addClass('operationActive');
-        attachmentSettings.itemData = $this.data('source');
-
-        if ($('#attachmentOperation').length > 0) {
-          $('#attachmentOperation').removeClass('Hidden');
-        } else {
-          $('body').append(attachmentSettings.dialog);
-        }
-
-        $('#attachmentOperation').css({ left, top });
-        event.stopPropagation();
-      },
-    );
-
-    // 绑定操作
-    $('body').on('click.taskAttchment', '#attachmentOperation li', function () {
-      if ($(this).attr('data-type') === 'download') {
-        if (attachmentSettings.itemData.allowDown === 'ok' && attachmentSettings.itemData.downloadUrl) {
-          window.open(downloadFile(attachmentSettings.itemData.downloadUrl));
-        } else {
-          alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
-        }
-      } else {
-        const source = attachmentSettings.itemData;
-        import('src/components/shareAttachment/shareAttachment').then(share => {
-          share.default({
-            attachmentType: source.refId ? 2 : 1,
-            id: source.refId ? source.refId : source.fileID,
-            name: source.originalFilename,
-            ext: source.ext.replace('.', ''),
-            size: source.filesize,
-            imgSrc: source.attachmentType === 1 ? source.middlePath + source.middleName.split('?')[0] : '',
-          });
-        });
-      }
-
-      // 隐藏操作层
-      $(this).parent().addClass('Hidden');
-      $('.operationActive').removeClass('operationActive');
-    });
-
-    $(document).on('click', event => {
-      const $target = $(event.target);
-
-      const $operation = $('#attachmentOperation');
-
-      if (
-        $operation.length &&
-        $operation.is(':visible') &&
-        !$target.closest('#attachmentOperation').length &&
-        !$target.is($('.operationActive'))
-      ) {
-        $operation.addClass('Hidden');
-        $('.operationActive').removeClass('operationActive');
-      }
-    });
   }
 
   componentDidUpdate(prevProps) {
@@ -152,7 +68,8 @@ class Attachment extends Component {
 
     $('#taskList')
       .find('.taskAttachmentScroll')
-      .on('scroll', function () {
+      .off('scroll.attachment')
+      .on('scroll.attachment', function () {
         // 项目文件滚动
         if (!attachmentSettings.ajaxPost && that.state.isMore) {
           const $this = $(this);
@@ -177,7 +94,7 @@ class Attachment extends Component {
   }
 
   componentWillUnmount() {
-    $('body').off('.taskAttchment');
+    $('#taskList').find('.taskAttachmentScroll').off('scroll.attachment');
   }
 
   /**
@@ -251,17 +168,75 @@ class Attachment extends Component {
     );
   }
 
+  getAttachmentOperationId(item) {
+    return item.refId || item.fileID || item.downloadUrl || item.originalFilename;
+  }
+
+  handleAttachmentOperation(item, key) {
+    this.setState({ openOperationId: '' });
+
+    if (key === 'download') {
+      if (item.allowDown === 'ok' && item.downloadUrl) {
+        window.open(downloadFile(item.downloadUrl));
+      } else {
+        alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
+      }
+
+      return;
+    }
+
+    import('src/components/shareAttachment/shareAttachment').then(share => {
+      share.default({
+        attachmentType: item.refId ? 2 : 1,
+        id: item.refId || item.fileID,
+        name: item.originalFilename,
+        ext: item.ext.replace('.', ''),
+        size: item.filesize,
+        imgSrc: item.attachmentType === 1 ? item.middlePath + item.middleName.split('?')[0] : '',
+      });
+    });
+  }
+
+  renderAttachmentOperation(item, className) {
+    const operationId = this.getAttachmentOperationId(item);
+
+    return (
+      <Dropdown
+        trigger={['click']}
+        placement="bottomRight"
+        open={this.state.openOperationId === operationId}
+        onOpenChange={open => this.setState({ openOperationId: open ? operationId : '' })}
+        menu={{
+          items: [
+            { key: 'share', label: _l('分享') },
+            { key: 'download', label: _l('下载') },
+          ],
+          onClick: ({ key, domEvent }) => {
+            domEvent.stopPropagation();
+            this.handleAttachmentOperation(item, key);
+          },
+        }}
+      >
+        <span
+          className={cx(className, { operationActive: this.state.openOperationId === operationId })}
+          onClick={event => event.stopPropagation()}
+        />
+      </Dropdown>
+    );
+  }
+
   /**
    * 列表视图
    */
   renderList() {
     const { dataSource } = this.state;
 
-    const renderItem = (item, i) => {
+    const renderItem = item => {
       const extClass = getClassNameByExt(item.ext);
+      const itemKey = this.getAttachmentOperationId(item);
 
       return (
-        <li className="flexRow" key={i} onClick={this.showDetail.bind(this, item)}>
+        <li className="flexRow" key={itemKey} onClick={this.showDetail.bind(this, item)}>
           <span className="attachmentName flex relative">
             <div className="attachmentNameBox flexRow">
               <span className="attachmentImg">
@@ -286,10 +261,7 @@ class Attachment extends Component {
           <span className="attachmentDate">{createTimeSpan(item.createTime)}</span>
           <span className="attachmentPerson">
             <img src={item.createUserAvatar} className="taskFolderAvatar pointer" data-accountid={item.accountId} />
-            <span
-              className="icon-more_horiz attachmentListOperation Font16 colorPrimary"
-              data-source={JSON.stringify(item)}
-            />
+            {this.renderAttachmentOperation(item, 'icon-more_horiz attachmentListOperation Font16 colorPrimary')}
           </span>
         </li>
       );
@@ -319,11 +291,12 @@ class Attachment extends Component {
   renderThumbnail() {
     const { dataSource } = this.state;
 
-    const renderItem = (item, i) => {
+    const renderItem = item => {
       const extClass = getClassNameByExt(item.ext);
+      const itemKey = this.getAttachmentOperationId(item);
 
       return (
-        <li className="boxSizing" onClick={this.showDetail.bind(this, item)} key={i}>
+        <li className="boxSizing" onClick={this.showDetail.bind(this, item)} key={itemKey}>
           <div className="taskThumbnailBox boxSizing boderRadAll_3 animatedFast">
             <div className="taskThumbnailImg">
               {(extClass.indexOf('img') >= 0 && !(item.refId && !item.shareUrl)) ||
@@ -349,10 +322,7 @@ class Attachment extends Component {
               >
                 {item.isFolder ? '-' : item.taskName}
               </div>
-              <span
-                className="icon-more_horiz taskThumbnailOperation Font16 colorPrimary"
-                data-source={JSON.stringify(item)}
-              />
+              {this.renderAttachmentOperation(item, 'icon-more_horiz taskThumbnailOperation Font16 colorPrimary')}
             </div>
           </div>
         </li>

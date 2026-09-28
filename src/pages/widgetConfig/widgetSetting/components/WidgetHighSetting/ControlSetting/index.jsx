@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import AttachmentConfig from './AttachmentConfig';
 import CascaderConfig from './CascaderConfig';
 import DateConfig from './DateConfig';
@@ -58,9 +57,15 @@ export default function WidgetConfig(props) {
         {_.includes([2, 32, 53], type) && (
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={analysislink === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { analysislink: checked ? '0' : '1' }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    analysislink: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
             >
               <span>{_l('解析链接')}</span>
             </Checkbox>
@@ -69,9 +74,15 @@ export default function WidgetConfig(props) {
         {!(type === 2 && enumDefault === 3) && (
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={sorttype === 'zh'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { sorttype: checked ? 'en' : 'zh' }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    sorttype: !event.target.checked ? 'en' : 'zh',
+                  }),
+                )
+              }
+              size="small"
             >
               <span>{_l('支持拼音排序')}</span>
               <Tooltip
@@ -89,9 +100,15 @@ export default function WidgetConfig(props) {
         {type === 33 && (
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={usetimezone === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { usetimezone: checked ? '0' : '1' }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    usetimezone: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
             >
               <span>{_l('按应用时区拼接')}</span>
               <Tooltip
@@ -119,32 +136,47 @@ export default function WidgetConfig(props) {
         <div className="labelWrap">
           <Checkbox
             checked={Boolean(enumDefault)}
+            onChange={event =>
+              onChange({
+                enumDefault: +event.target.checked,
+              })
+            }
             size={'small'}
-            text={_l('显示地图')}
-            onClick={checked => onChange({ enumDefault: +!checked })}
-          />
+          >
+            {_l('显示地图')}
+          </Checkbox>
         </div>
         {(strDefault || '00')[0] !== '1' && (
           <Fragment>
             <div className="labelWrap">
               <Checkbox
                 checked={showxy === '1'}
-                size={'small'}
-                text={_l('显示经纬度')}
-                onClick={checked => {
-                  onChange(handleAdvancedSettingChange(data, { showxy: checked ? '0' : '1' }));
+                onChange={event => {
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      showxy: !event.target.checked ? '0' : '1',
+                    }),
+                  );
                 }}
-              />
+                size={'small'}
+              >
+                {_l('显示经纬度')}
+              </Checkbox>
             </div>
             <div className="labelWrap">
               <Checkbox
                 checked={allowcustom === '1'}
-                size={'small'}
-                text={_l('允许输入自定义位置')}
-                onClick={checked => {
-                  onChange(handleAdvancedSettingChange(data, { allowcustom: checked ? '0' : '1' }));
+                onChange={event => {
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      allowcustom: !event.target.checked ? '0' : '1',
+                    }),
+                  );
                 }}
-              />
+                size={'small'}
+              >
+                {_l('允许输入自定义位置')}
+              </Checkbox>
             </div>
           </Fragment>
         )}
@@ -157,9 +189,15 @@ export default function WidgetConfig(props) {
     return (
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={anylevel === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { anylevel: checked ? '0' : '1' }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                anylevel: !event.target.checked ? '0' : '1',
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('必须选择到最后一级')}</span>
         </Checkbox>
@@ -172,9 +210,15 @@ export default function WidgetConfig(props) {
     return (
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={uselast === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { uselast: String(+!checked) }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                uselast: String(+event.target.checked),
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('允许使用上次的签名')}</span>
         </Checkbox>
@@ -189,26 +233,33 @@ export default function WidgetConfig(props) {
           <div className="labelWrap">
             <Checkbox
               className="checkboxWrap"
-              onClick={checked => {
-                onChange({ noticeItem: Number(!checked) });
+              onChange={event => {
+                onChange({
+                  noticeItem: Number(event.target.checked),
+                });
               }}
               checked={noticeItem === 1}
-              text={_l('加入时收到通知')}
               size="small"
-            />
+            >
+              {_l('加入时收到通知')}
+            </Checkbox>
           </div>
         )}
         {checkusertype !== '1' && (
           <div className="labelWrap">
             <Checkbox
               className="checkboxWrap"
-              onClick={checked => {
-                onChange(handleAdvancedSettingChange(data, { checkusertype: String(+!checked) }));
+              onChange={event => {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    checkusertype: String(+event.target.checked),
+                  }),
+                );
               }}
-              text={_l('仅按成员类型赋值')}
               checked={checkusertype === '1'}
               size="small"
             >
+              {_l('仅按成员类型赋值')}
               <Tooltip
                 placement="bottom"
                 title={
@@ -232,18 +283,30 @@ export default function WidgetConfig(props) {
       <Fragment>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={allpath === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allpath: String(+!checked) }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allpath: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('显示部门路径')}</span>
           </Checkbox>
         </div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={showdelete === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { showdelete: String(+!checked) }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  showdelete: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('显示已删除')}</span>
             <Tooltip placement="bottom" title={_l('勾选时，组织中被删除的部门显示为“已删除”，否则不显示')}>

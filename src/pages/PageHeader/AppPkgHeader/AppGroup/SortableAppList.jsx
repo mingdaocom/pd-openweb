@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { SortableList } from 'ming-ui';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import SortableAppItem from './SortableAppItem';
 
 export default ClickAway.wrap(({ items, onScroll, ...rest }) => (

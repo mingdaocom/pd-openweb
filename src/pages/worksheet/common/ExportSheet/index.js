@@ -1,4 +1,7 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import ExportSheet from './ExportSheet';
 
-export default props => functionWrap(ExportSheet, { ...props });
+export default ExportSheet;
+export function useExportSheet() {
+  return useFunctionWrapComponent(ExportSheet);
+}

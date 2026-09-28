@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { MenuItem } from 'ming-ui';
+import { Divider, Input, Menu } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectJob, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import flowNode from '../../../../api/flowNode';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE } from '../../../enum';
 import { getControlTypeName } from '../../../utils';
@@ -75,46 +75,63 @@ export default class SelectUserDropDown extends Component {
    */
   header() {
     const { specialType, onlyNodeRole } = this.props;
+    const menuItems = [
+      {
+        key: 'members',
+        icon: <i className="icon-account_circle Font18 textTertiary" />,
+        label: _l('通讯录'),
+        onClick: ({ domEvent }) => this.addMembers(domEvent),
+      },
+      {
+        key: 'department',
+        icon: <i className="icon-department Font18 textTertiary" />,
+        label: _l('部门'),
+        onClick: ({ domEvent }) => this.addDepartment(domEvent),
+      },
+      {
+        key: 'orgRole',
+        icon: <i className="icon-user Font18 textTertiary" />,
+        label: _l('组织角色'),
+        onClick: ({ domEvent }) => this.addOrgRole(domEvent),
+      },
+      {
+        key: 'job',
+        icon: <i className="icon-limit-principal Font18 textTertiary" />,
+        label: _l('职位'),
+        onClick: ({ domEvent }) => this.addJob(domEvent),
+      },
+      {
+        key: 'appRole',
+        icon: <i className="icon-group Font18 textTertiary" />,
+        label: _l('应用角色'),
+        onClick: ({ domEvent }) => {
+          domEvent.stopPropagation();
+          this.setState({ showSelectAppUserDialog: true });
+        },
+      },
+    ];
 
     return (
-      <ul className="flowDetailUserList">
+      <div className="flowDetailUserList">
         {(specialType === 3 || specialType === 5) && (
-          <div className="explainHeader flexRow">
-            <i className={cx('textSecondary', specialType === 3 ? 'icon-phone' : 'icon-mailbox')} />
-            <input
-              type="text"
-              className="w100 textPrimary"
-              autoFocus
-              placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
-              onClick={evt => evt.stopPropagation()}
-              onKeyDown={this.addTelAndEmail}
-            />
-          </div>
-        )}
-
-        {onlyNodeRole ? null : (
           <Fragment>
-            <MenuItem icon={<i className="icon-account_circle" />} onClick={this.addMembers}>
-              {_l('通讯录')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-department" />} onClick={this.addDepartment}>
-              {_l('部门')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-user" />} onClick={this.addOrgRole}>
-              {_l('组织角色')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
-              {_l('职位')}
-            </MenuItem>
-            <MenuItem
-              icon={<i className="icon-group" />}
-              onClick={() => this.setState({ showSelectAppUserDialog: true })}
-            >
-              {_l('应用角色')}
-            </MenuItem>
+            <div className="explainHeader flexRow">
+              <Input
+                className="w100"
+                variant="borderless"
+                autoFocus
+                prefix={<i className={cx('textSecondary', specialType === 3 ? 'icon-phone' : 'icon-mailbox')} />}
+                placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
+                onClick={evt => evt.stopPropagation()}
+                onKeyDown={this.addTelAndEmail}
+              />
+            </div>
+            <Divider className="mTop3 mBottom3" />
           </Fragment>
         )}
-      </ul>
+
+        {!onlyNodeRole && <Menu selectable={false} items={menuItems} />}
+      </div>
     );
   }
 

@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js';
-import { pathCompletion } from 'src/utils/common';
-import { getPssId, setPssId } from 'src/utils/pssId';
+import { getPssId, setPssId } from 'src/utils/platform/auth/pssId';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import {
   addOtherParam,
   ajax,
@@ -11,10 +11,16 @@ import {
   getGlobalMeta,
   getRequest,
   login,
-} from 'src/utils/sso';
+} from 'src/utils/services/auth/sso';
 
 const { code = '', state = '', url, p, appscheme, ...otherParam } = getRequest();
 const isMobile = browserIsMobile();
+const MICROSOFT_CODE_VERIFIER_COOKIE = 'microsoft_code_verifier';
+const MICROSOFT_LOGIN_TYPE_COOKIE = 'microsoft_login_type';
+const MICROSOFT_LOGIN_TYPE = {
+  app: 'app',
+  myApps: 'myApps',
+};
 
 function generateCodeVerifier() {
   const randomBytes = CryptoJS.lib.WordArray.random(32);
@@ -58,15 +64,28 @@ if (code) {
     loginSuccess(url, appschemeFromState);
   } else {
     // 获取 code_verifier
-    const code_verifier = window.getCookie('microsoft_code_verifier');
-    window.delCookie('microsoft_code_verifier');
+    const code_verifier = window.getCookie(MICROSOFT_CODE_VERIFIER_COOKIE);
+    const loginType = window.getCookie(MICROSOFT_LOGIN_TYPE_COOKIE);
+    window.delCookie(MICROSOFT_CODE_VERIFIER_COOKIE);
+    window.delCookie(MICROSOFT_LOGIN_TYPE_COOKIE);
+    const data =
+      loginType === MICROSOFT_LOGIN_TYPE.myApps
+        ? {
+            code,
+            codeVerifier: code_verifier,
+          }
+        : {
+            code,
+            state: originalState,
+            codeVerifier: code_verifier,
+          };
     ajax.post({
-      url: __api_server__.main + 'Login/WorkMicrosoftLoginByApp',
-      data: {
-        code,
-        state: originalState,
-        codeVerifier: code_verifier,
-      },
+      url:
+        __api_server__.main +
+        (loginType === MICROSOFT_LOGIN_TYPE.myApps
+          ? 'Login/WorkMicrosoftMyAppsLogin'
+          : 'Login/WorkMicrosoftLoginByApp'),
+      data,
       async: true,
       success: result => {
         const { accountResult, sessionId } = result.data;
@@ -99,18 +118,17 @@ if (code) {
   if (checkLogin()) {
     loginSuccess(newUrl, appscheme);
   } else {
-    const hosts = location.host.split('.');
-    const projectId = p || hosts[0];
+    const projectId = p;
+    const loginType = projectId ? MICROSOFT_LOGIN_TYPE.app : MICROSOFT_LOGIN_TYPE.myApps;
     ajax.post({
       url: __api_server__.main + 'Login/GetWorkMicrosoftInfo',
-      data: {
-        projectId,
-      },
+      data: projectId ? { projectId } : {},
       async: true,
       success: result => {
         const { clientId, tenantId, state } = result.data;
         const code_verifier = generateCodeVerifier();
-        window.setCookie('microsoft_code_verifier', code_verifier);
+        window.setCookie(MICROSOFT_CODE_VERIFIER_COOKIE, code_verifier);
+        window.setCookie(MICROSOFT_LOGIN_TYPE_COOKIE, loginType);
         const state_appscheme = appscheme ? `${state}_appscheme_${appscheme}` : `${state}`;
         const code_challenge = generateCodeChallenge(code_verifier);
         const isDevelopment =
@@ -124,7 +142,9 @@ if (code) {
             localHasDomain: true,
           },
         );
-        const authUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirect_uri}&response_mode=query&scope=openid&state=${state_appscheme}&code_challenge=${code_challenge}&code_challenge_method=S256`;
+        const authTenantId = loginType === MICROSOFT_LOGIN_TYPE.myApps ? 'organizations' : tenantId;
+        const scope = loginType === MICROSOFT_LOGIN_TYPE.myApps ? 'openid%20profile%20email' : 'openid';
+        const authUrl = `https://login.microsoftonline.com/${authTenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirect_uri}&response_mode=query&scope=${scope}&state=${state_appscheme}&code_challenge=${code_challenge}&code_challenge_method=S256`;
         location.href = authUrl;
       },
       error: login,

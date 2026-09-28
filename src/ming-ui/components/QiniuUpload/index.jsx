@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import createUploader from 'src/library/plupload/createUploader';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 export default class QiniuUpload extends React.Component {
   static propTypes = {

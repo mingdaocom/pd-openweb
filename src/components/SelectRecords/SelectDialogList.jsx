@@ -2,9 +2,10 @@ import React from 'react';
 import cx from 'classnames';
 import { find, get } from 'lodash';
 import styled from 'styled-components';
-import { ScrollView, Skeleton } from 'ming-ui';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { ScrollView } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 const ListCon = styled.div`
   flex: 1;
@@ -17,7 +18,6 @@ const ListCon = styled.div`
     margin-bottom: 20px;
   }
 `;
-
 const ListScroll = styled(ScrollView)`
   flex: 1;
   overflow: auto;
@@ -25,7 +25,6 @@ const ListScroll = styled(ScrollView)`
     padding: 0 24px !important;
   }
 `;
-
 const ListItemCon = styled.div`
   height: 40px;
   padding: 0 16px;
@@ -68,7 +67,6 @@ const ListItemCon = styled.div`
     color: inherit;
   }
 `;
-
 const LoadMoreTip = styled.div`
   height: 40px;
   display: flex;
@@ -77,7 +75,6 @@ const LoadMoreTip = styled.div`
   font-size: 12px;
   color: var(--color-text-tertiary);
 `;
-
 const EmptyCon = styled.div`
   height: 100%;
   display: flex;
@@ -88,7 +85,6 @@ const EmptyCon = styled.div`
   font-size: 14px;
   padding: 24px;
 `;
-
 function getCoverUrl(record, coverControl) {
   if (!coverControl) return '';
   const v = record[coverControl.controlId];
@@ -103,11 +99,9 @@ function getCoverUrl(record, coverControl) {
       return '';
     }
   }
-
   if (typeof v === 'object' && v !== null && v.url) return v.url;
   return '';
 }
-
 function ListItem({ record, control, coverControl, multiple, selected, onSelect, onOpenRecord, noMaskTitle }) {
   // 有些接口会直接返回已渲染的 name（可能是掩码后的展示值）
   // 解码后希望走 renderText + noMask 展示明文，因此在 noMask 时临时屏蔽 name。
@@ -118,9 +112,11 @@ function ListItem({ record, control, coverControl, multiple, selected, onSelect,
           name: '',
         }
       : record;
-  const title = getTitleTextFromRelateControl(control, titleData, { noMask: noMaskTitle }) || _l('未命名');
+  const title =
+    getTitleTextFromRelateControl(control, titleData, {
+      noMask: noMaskTitle,
+    }) || _l('未命名');
   const coverUrl = getCoverUrl(record, coverControl);
-
   const handleClick = () => {
     if (multiple) {
       onSelect(record.rowid);
@@ -128,10 +124,11 @@ function ListItem({ record, control, coverControl, multiple, selected, onSelect,
       onSelect(record.rowid);
     }
   };
-
   return (
     <ListItemCon
-      className={cx({ selected })}
+      className={cx({
+        selected,
+      })}
       onClick={handleClick}
       onDoubleClick={() => onOpenRecord && onOpenRecord(record)}
     >
@@ -143,7 +140,6 @@ function ListItem({ record, control, coverControl, multiple, selected, onSelect,
     </ListItemCon>
   );
 }
-
 export default function SelectDialogList({
   loading,
   records = [],
@@ -162,25 +158,35 @@ export default function SelectDialogList({
   emptyText,
   recordsLoading,
 }) {
-  const coverControl = get(control, 'coverCid') && find(controls, { controlId: get(control, 'coverCid') });
+  const coverControl =
+    get(control, 'coverCid') &&
+    find(controls, {
+      controlId: get(control, 'coverCid'),
+    });
   const displayRecords = records.filter(r => !needHideRowIds.includes(r.rowid));
-
   if (loading) {
     return (
       <ListCon>
         <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['30%', '40%', '90%', '60%']}
+          className="pAll20"
+          style={{
+            flex: 1,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['30%', '40%', '90%', '60%'],
+          }}
         />
       </ListCon>
     );
   }
-
   return (
-    <ListCon className={cx({ isMultiple: multiple })}>
+    <ListCon
+      className={cx({
+        isMultiple: multiple,
+      })}
+    >
       <ListScroll onScrollEnd={loadMore}>
         {displayRecords.length === 0 && !recordsLoading ? (
           <EmptyCon>

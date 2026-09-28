@@ -5,17 +5,17 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { addBehaviorLog } from 'src/utils/project';
+import { transferValue } from 'src/utils/domain/control/value';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { addBehaviorLog } from 'src/utils/services/project';
 import Drag from './Drag';
 import MoreOperation from './MoreOperation';
 
 const Wrap = styled.div`
   &.active .name::before {
-    background-color: ${props => props.iconColor} !important;
+    background-color: ${props => props.$iconColor} !important;
   }
 `;
 
@@ -188,7 +188,7 @@ export default class WorkSheetItem extends Component {
             style={{
               backgroundColor: isActive && this.bgColor(),
             }}
-            iconColor={['black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
+            $iconColor={['black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
             className={cx('workSheetItem flexRow Relative', className, `workSheetItem-${workSheetId}`, {
               active: isActive,
             })}

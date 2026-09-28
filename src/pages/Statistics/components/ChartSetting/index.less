@@ -1,7 +1,7 @@
 .chartSetting {
   padding-top: 16px;
-  .ant-checkbox-input,
-  .ant-radio-input {
+  .hap-checkbox-input,
+  .hap-radio-input {
     position: absolute;
   }
   .fieldWrapper {
@@ -15,6 +15,12 @@
       background-color: var(--color-background-secondary);
       &.disabled {
         background-color: var(--color-border-secondary);
+      }
+      .icon-close,
+      .icon-arrow-down-border {
+        &:hover {
+          color: var(--color-primary) !important;
+        }
       }
     }
     .withoutFidldItem {
@@ -67,15 +73,5 @@
     border-radius: 4px;
     line-height: normal;
     cursor: pointer;
-  }
-}
-
-.chartControlMenu {
-  width: 200px;
-  .ant-dropdown-menu-submenu-title {
-    padding-left: 30px;
-  }
-  .icon-done {
-    color: var(--color-primary);
   }
 }

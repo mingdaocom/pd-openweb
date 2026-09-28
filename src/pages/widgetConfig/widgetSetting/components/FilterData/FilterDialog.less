@@ -27,20 +27,8 @@
           min-width: 0;
           margin-right: 0px;
         }
-        .ant-select-arrow {
+        .hap-select-arrow {
           margin-top: -8px !important;
-        }
-        .ant-select-selector {
-          border-color: var(--color-border-secondary);
-          height: 36px;
-          border-radius: 4px;
-          box-shadow: none !important;
-          .ant-select-selection-search-input {
-            height: 34px;
-          }
-          .ant-select-selection-item {
-            line-height: 34px;
-          }
         }
       }
       .conditionValue {
@@ -68,7 +56,6 @@
         top: 50%;
       }
 
-      .Dropdown,
       .relationType {
         width: 50px;
         background: var(--color-background-primary);
@@ -83,13 +70,6 @@
         line-height: 30px;
       }
 
-      .Dropdown--input {
-        text-align: left;
-        width: 52px;
-        box-sizing: border-box;
-        line-height: 18px;
-      }
-
       .line {
         width: 100%;
         display: block;
@@ -101,7 +81,7 @@
     }
   }
 
-  .mui-dialog-body {
+  .hap-modal-body {
     overflow: initial !important;
   }
 
@@ -111,18 +91,6 @@
     &::-webkit-input-placeholder {
       color: var(--color-text-disabled);
     }
-  }
-}
-.dynamicSelectDropdown {
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    font-weight: normal !important;
-    color: var(--color-white) !important;
-    background-color: var(--color-primary) !important;
-  }
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-  &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-    .ant-select-selector {
-    border-color: var(--color-primary) !important;
   }
 }
 

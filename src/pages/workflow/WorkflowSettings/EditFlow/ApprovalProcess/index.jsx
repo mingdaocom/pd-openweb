@@ -4,9 +4,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { CreateNode, SimplifyNode } from '../components';
-import 'rc-trigger/assets/index.css';
 
 const ApprovalProcessBox = styled.div`
   min-width: 309px;
@@ -51,9 +50,6 @@ const ApprovalProcessBox = styled.div`
   .icon-custom_add_circle {
     background: var(--color-border-secondary) !important;
   }
-  .Menu.List {
-    margin-top: -6px !important;
-  }
 `;
 
 const Box = styled.div`
@@ -86,6 +82,7 @@ const Box = styled.div`
     background: #4158db;
     &:hover {
       background-color: #122ec9;
+      color: var(--color-white);
     }
   }
   .icon-launch {
@@ -166,8 +163,8 @@ export default props => {
                   <Icon type="arrow-up-border" />
                 </span>
               )}
-              overlayClassName="workflowBranchTips"
-              overlayStyle={{ width: 34 }}
+              classNames={{ root: 'workflowBranchTips' }}
+              styles={{ root: { width: 34 } }}
               align={{ offset: [0, -20] }}
               placement="rightTop"
             >

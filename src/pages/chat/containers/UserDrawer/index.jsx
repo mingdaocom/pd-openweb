@@ -1,21 +1,24 @@
-import React from 'react';
-import { Popover } from 'antd';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import localForage from 'localforage';
 import _ from 'lodash';
 import { Icon, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import accountSettingApi from 'src/api/accountSetting';
 import loginApi from 'src/api/login';
-import { dialogKeyboardShortcuts } from 'src/pages/chat/components/KeyboardShortcuts';
+import { useKeyboardShortcutsDialog } from 'src/pages/chat/components/KeyboardShortcuts';
 import MyStatus from 'src/pages/chat/components/MyStatus';
+import { getHasProjectAdminAuth } from 'src/pages/chat/containers/SettingDrawer/enterprise/modules/enterpriseCardUtils';
 import Avatar from 'src/pages/PageHeader/components/Avatar';
-import { navigateTo } from 'src/router/navigateTo';
-import { navigateToLogin } from 'src/router/navigateTo';
-import { getAppFeaturesVisible, pathCompletion } from 'src/utils/common';
-import { removePssId } from 'src/utils/pssId';
+import { navigateToLogin } from 'src/router/navigation/navigateTo';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { removePssId } from 'src/utils/platform/auth/pssId';
+import { getAccountPersonalUrl, pathCompletion } from 'src/utils/platform/navigation/path';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
+import { getCurrentProject } from 'src/utils/services/project';
 import { PopoverWrap, Wrap } from '../ChatList/Avatar/styled';
 import renderHelpPopover from './Help';
+import code from './images/code.jpg';
 import ThemeMode from './ThemeMode';
 
 const renderLanguagePopover = () => {
@@ -47,32 +50,6 @@ const renderLanguagePopover = () => {
   );
 };
 
-const renderProjectsPopover = props => {
-  return (
-    <PopoverWrap style={{ maxHeight: 600, overflowY: 'auto' }}>
-      {_.map(md.global.Account.projects, project => {
-        const isFree = project.licenseType === 0; // 免费版
-        const isTrial = project.licenseType === 2; // 试用版
-        return (
-          <div
-            className="itemWrap flexRow alignItemsCenter pointer"
-            key={project.projectId}
-            onClick={() => {
-              navigateTo(`/admin/home/${project.projectId}`);
-              props.onClose();
-            }}
-          >
-            <div className="flex ellipsis">{project.companyName}</div>
-            <div className={cx('Font12 mLeft10 textTertiary Normal', { trial: isTrial, free: isFree })}>
-              {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(project, 'version.name')}
-            </div>
-          </div>
-        );
-      })}
-    </PopoverWrap>
-  );
-};
-
 const logout = () => {
   window.currentLeave = true;
   loginApi.loginOut().then(data => {
@@ -86,16 +63,26 @@ const logout = () => {
 };
 
 export default props => {
-  const { onClose, onChangeSettingDrawerVisible } = props;
-
+  const { open: openKeyboardShortcutsDialog, holder: keyboardShortcutsDialogHolder } = useKeyboardShortcutsDialog();
+  const { currentProjectId, onClose, onChangeSettingDrawerVisible, onOpenOrganizationDrawer } = props;
+  const [showDialog, setShowDialog] = useState(false);
+  const [helpPopoverVisible, setHelpPopoverVisible] = useState(false);
   const { Account } = md.global;
-  const projectLength = Account.projects.length;
-  const { ss } = getAppFeaturesVisible();
+  const { ss, tr } = getAppFeaturesVisible();
+  const sandboxEnvironment = isSandboxEnvironment();
+  const currentProject = getCurrentProject(currentProjectId);
+  const canManageCurrentProject = !!(
+    tr &&
+    currentProject.projectId &&
+    currentProject.projectId !== 'external' &&
+    getHasProjectAdminAuth(currentProject)
+  );
 
-  const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
-
+  const showHDP =
+    !sandboxEnvironment && md.global.Config.HDPUrl && (window.platformENV.isHap ? true : md.global.Config.EnableHDP);
   return (
     <Wrap className="flexColumn h100">
+      {keyboardShortcutsDialogHolder}
       <div className="header flexColumn pBottom20">
         <div className="flexRow alignItemsCenter justifyContentRight horizontalPadding mTop20">
           <Icon icon="close" className="Font20 pointer textSecondary" onClick={() => onClose()} />
@@ -105,79 +92,74 @@ export default props => {
             src={Account.avatar}
             size={72}
             onClick={() => {
-              window.open(pathCompletion('/personal?type=information'));
+              window.open(getAccountPersonalUrl());
               onClose();
             }}
           />
-          <div className="Font18 bold mTop12">{Account.fullname}</div>
-          <div className="Font14 mTop8">{Account.mobilePhone || Account.email}</div>
           <div
-            className="colorPrimary Font14 mTop10 pointer bold myAccount"
-            onClick={() => {
-              if (md.global.Account.isSSO || window.isDingTalk) {
-                location.href = pathCompletion('/personal?type=information');
-              } else {
-                window.open(pathCompletion('/personal?type=information'));
-              }
-
-              onClose();
-            }}
+            className="w100 borderBox pLeft20 pRight20 TxtCenter WordBreak Font18 bold mTop12"
+            title={Account.fullname}
           >
-            {_l('管理我的账户')}
+            {Account.fullname}
           </div>
-          <MyStatus />
+          <div className="Font14 mTop8">{Account.mobilePhone || Account.email}</div>
+          {!sandboxEnvironment && (
+            <>
+              <div
+                className="colorPrimary Font14 mTop10 pointer bold myAccount"
+                onClick={() => {
+                  if (md.global.Account.isSSO || window.isDingTalk) {
+                    location.href = getAccountPersonalUrl();
+                  } else {
+                    window.open(getAccountPersonalUrl());
+                  }
+
+                  onClose();
+                }}
+              >
+                {_l('管理我的账户')}
+              </div>
+              <MyStatus />
+            </>
+          )}
         </div>
       </div>
       <div className="content flex">
         <div className="divider" />
-        {projectLength ? (
-          projectLength === 1 ? (
-            <div
-              className="flexRow alignItemsCenter pointer itemWrap mTop10"
-              onClick={() => {
-                navigateTo(`/admin/home/${Account.projects[0].projectId}`);
-                onClose();
-              }}
-            >
-              <Icon className="textTertiary Font22" icon="business" />
-              <div className="flex mLeft15">{_l('组织管理')}</div>
-            </div>
-          ) : (
-            <Popover
-              title={null}
-              placement="leftTop"
-              overlayClassName="userConfigPopover"
-              overlayStyle={{ padding: 0 }}
-              content={renderProjectsPopover(props)}
-              getPopupContainer={() => document.querySelector('.userDrawerWrap')}
-            >
-              <div className="flexRow alignItemsCenter pointer itemWrap mTop10">
-                <Icon className="textTertiary Font22" icon="business" />
-                <div className="flex mLeft15">{_l('组织管理')}</div>
-                <Icon className="textTertiary Font12" icon="arrow-right" />
-              </div>
-            </Popover>
-          )
-        ) : (
+        {!sandboxEnvironment && (
           <div
             className="flexRow alignItemsCenter pointer itemWrap mTop10"
             onClick={() => {
-              navigateTo('/personal?type=enterprise');
+              onOpenOrganizationDrawer?.();
               onClose();
             }}
           >
-            <Icon className="textTertiary Font22" icon="organization_add" />
-            <div className="flex mLeft15">{canCreateProject ? _l('创建组织') : _l('组织管理')}</div>
+            <Icon className="textTertiary Font22" icon="business" />
+            <div className="flex mLeft15">{_l('我的组织')}</div>
+            {canManageCurrentProject && (
+              <Tooltip title={_l('进入%0的组织管理', currentProject.companyName)} placement="top">
+                <Icon
+                  className="textTertiary Font20 mLeft8"
+                  icon="organization_in"
+                  onClick={event => {
+                    event.stopPropagation();
+                    window.location.href = pathCompletion(`/admin/home/${currentProject.projectId}`);
+                  }}
+                />
+              </Tooltip>
+            )}
           </div>
         )}
         <Popover
+          arrow={true}
           title={null}
           placement="leftTop"
-          overlayClassName="userConfigPopover"
-          overlayStyle={{ padding: 0 }}
+          align={{ offset: [-5, 0] }}
+          classNames={{ root: 'userConfigPopover' }}
+          styles={{ container: { padding: '5px 0' } }}
           content={renderLanguagePopover()}
         >
-          <div className="flexRow alignItemsCenter pointer itemWrap">
+          <div className={cx('flexRow alignItemsCenter pointer itemWrap', { mTop10: sandboxEnvironment })}>
             <Icon className="textTertiary Font22" icon="language" />
             <div className="flex mLeft15">{_l('语言')}</div>
             <Icon className="textTertiary Font12" icon="arrow-right" />
@@ -203,6 +185,16 @@ export default props => {
         <div
           className="flexRow alignItemsCenter pointer itemWrap"
           onClick={() => {
+            onChangeSettingDrawerVisible(true, 'auth');
+            onClose();
+          }}
+        >
+          <Icon className="textTertiary Font22" icon="key1" />
+          <div className="flex mLeft15">{_l('授权与访问')}</div>
+        </div>
+        <div
+          className="flexRow alignItemsCenter pointer itemWrap"
+          onClick={() => {
             onChangeSettingDrawerVisible(true, 'base');
             onClose();
           }}
@@ -213,18 +205,23 @@ export default props => {
         <div className="divider mTop10 mBottom10" />
         {ss &&
           !md.global.SysSettings.hideHelpTip &&
-          (window.platformENV.isOverseas ? (
+          (window.platformENV.isOverseas || window.platformENV.isPlatform ? (
             <Popover
+              arrow={true}
               title={null}
               placement="leftTop"
-              overlayClassName="userConfigPopover"
-              overlayStyle={{ padding: 0 }}
-              content={renderHelpPopover(props)}
+              align={{ offset: [-5, 0] }}
+              classNames={{ root: 'userConfigPopover' }}
+              noPadding
+              styles={{ body: { padding: '5px 0' } }}
+              open={helpPopoverVisible}
+              onOpenChange={setHelpPopoverVisible}
+              content={renderHelpPopover({ ...props, onCloseHelpPopover: () => setHelpPopoverVisible(false) })}
             >
               <div className="flexRow alignItemsCenter pointer itemWrap">
                 <Icon className="textTertiary Font22" icon="help" />
                 <div className="flex mLeft15">{_l('帮助')}</div>
-                <Icon className="Gray_9e Font12" icon="arrow-right" />
+                <Icon className="textTertiary Font12" icon="arrow-right" />
               </div>
             </Popover>
           ) : (
@@ -235,28 +232,62 @@ export default props => {
               </div>
             </Support>
           ))}
-        <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => dialogKeyboardShortcuts()}>
+        <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => openKeyboardShortcutsDialog()}>
           <Icon className="textTertiary Font22" icon="keyboard" />
           <div className="flex mLeft15">{_l('快捷键')}</div>
           <Tooltip title={_l('快捷键')} placement="bottom">
             <div className="textSecondary shortcutKey">K</div>
           </Tooltip>
         </div>
-        {!md.global.SysSettings.hideDownloadApp && (
+        {!md.global.SysSettings.hideDownloadApp && !window.platformENV.isHap && (
           <div
             className="flexRow alignItemsCenter pointer itemWrap"
             onClick={() => {
-              window.open(pathCompletion('/appInstallSetting'));
+              window.open(pathCompletion(window.platformENV.isLocal ? '/appInstallSetting' : '/download'));
             }}
           >
             <Icon className="textTertiary Font18" icon="phonelink" />
             <div className="flex mLeft15">{_l('下载客户端')}</div>
           </div>
         )}
-        {((md.global.Config.HDPUrl && md.global.Config.EnableHDP) || md.global.Account.superAdmin) && (
-          <div className="divider mTop10 mBottom10" />
+        {window.platformENV.isHap && (
+          <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => setShowDialog(true)}>
+            <Icon className="textTertiary Font22" icon="wechat" />
+            <div className="flex mLeft15">{_l('微信公众号')}</div>
+          </div>
         )}
-        {md.global.Config.HDPUrl && md.global.Config.EnableHDP && (
+        {showDialog && (
+          <Modal
+            open
+            mask={{ closable: true }}
+            keyboard
+            title={_l('关注明道云公众号')}
+            width={400}
+            footer={null}
+            onCancel={() => setShowDialog(false)}
+          >
+            <div className="flexRow alignItemsCenter">
+              <div className="flexColumn justifyContentCenter" style={{ width: 100, height: 100 }}>
+                <img src={code} />
+              </div>
+              <div className="flex">{_l('用微信【扫一扫】二维码')}</div>
+            </div>
+          </Modal>
+        )}
+        {window.platformENV.isHap && (
+          <div
+            className="flexRow alignItemsCenter pointer itemWrap"
+            onClick={() => {
+              window.open('https://www.mingdao.com/affiliate');
+            }}
+          >
+            <Icon className="textTertiary Font22" icon="military_tech" />
+            <div className="flex mLeft15">{_l('推广奖励')}</div>
+          </div>
+        )}
+
+        {(showHDP || md.global.Account.superAdmin) && <div className="divider mTop10 mBottom10" />}
+        {showHDP && (
           <div
             className="flexRow alignItemsCenter pointer itemWrap"
             onClick={() => {

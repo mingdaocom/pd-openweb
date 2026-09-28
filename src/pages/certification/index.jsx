@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
-import { Form, Popover } from 'antd';
 import { createParser } from 'eventsource-parser';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Avatar, Button, Icon, LoadDiv, Qr } from 'ming-ui';
+import { Avatar, Icon, LoadDiv, Qr } from 'ming-ui';
+import { Button, Form, Popover } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification';
 import sseAjax from 'src/api/sse';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import HelpCollection from 'src/pages/PageHeader/components/CommonUserHandle/HelpCollection';
-import { getRequest, pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 import EnterpriseForm from './components/EnterpriseForm';
 import { CERT_PAGE_TITLE, CERT_STATUS, ENTERPRISE_TYPE, RESULT_TYPES, SOURCE_TYPE, TYPES } from './constant';
 import developerGroupImg from './images/developer-group.png';
@@ -168,6 +168,7 @@ export default function Certification(props) {
   const [controller, setController] = useState(null);
 
   const [form] = Form.useForm();
+  const isMingdaoSaas = window.platformENV.isHap;
 
   const currentProject = projectId ? getCurrentProject(projectId) || {} : {};
 
@@ -330,7 +331,7 @@ export default function Certification(props) {
 
   return (
     <Wrapper>
-      <DocumentTitle title={CERT_PAGE_TITLE[currentPage] || _l('认证')} />
+      <DocumentTitle title={CERT_PAGE_TITLE[currentPage] || (isMingdaoSaas ? _l('认证 - 明道云HAP') : _l('认证'))} />
       <div className="headerBar">
         <div
           className="backBtn flexRow alignItemsCenter pointer h100"
@@ -352,22 +353,20 @@ export default function Certification(props) {
         </div>
         <div className="flex" />
         {!md.global.SysSettings.hideHelpTip && (
-          <Trigger
-            action={['click']}
-            popupVisible={helpVisible}
-            onPopupVisibleChange={visible => setHelpVisible(visible)}
-            popup={<HelpCollection hapAIPosition="top" updatePopupVisible={visible => setHelpVisible(visible)} />}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [40, 9],
-              overflow: { adjustX: true, adjustY: true },
-            }}
+          <Popover
+            noPadding
+            trigger="click"
+            open={helpVisible}
+            onOpenChange={setHelpVisible}
+            content={<HelpCollection hapAIPosition="top" updatePopupVisible={visible => setHelpVisible(visible)} />}
+            placement="bottomRight"
+            align={{ offset: [40, 9] }}
           >
             <div className="helpWrap" onClick={() => setHelpVisible(true)}>
               <Icon icon="help" className="Font20 textSecondary TxtMiddle" />
               <span className="textSecondary mLeft5 TxtMiddle">{_l('帮助')}</span>
             </div>
-          </Trigger>
+          </Popover>
         )}
 
         <Avatar src={md.global.Account.avatar} size={30} />
@@ -410,7 +409,7 @@ export default function Certification(props) {
                 </div>
                 <EnterpriseForm form={form} formData={formData} setFormData={setFormData} />
                 <div className="flexRow justifyContentCenter mTop56 mBottom32">
-                  <Button loading={submitLoading} onClick={onSubmit}>
+                  <Button type="primary" loading={submitLoading} onClick={onSubmit}>
                     {_l('提交')}
                   </Button>
                 </div>
@@ -479,7 +478,7 @@ export default function Certification(props) {
                 )}
 
                 {certSource === 'market' && (
-                  <Popover placement="right" content={<img src={developerGroupImg} width={260} />}>
+                  <Popover arrow={true} placement="right" content={<img src={developerGroupImg} width={260} />}>
                     <div className="mTop16 colorPrimary pointer">{_l('开发者交流群')}</div>
                   </Popover>
                 )}

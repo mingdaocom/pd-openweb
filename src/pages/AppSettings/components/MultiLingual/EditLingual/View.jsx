@@ -1,32 +1,49 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
 
 export default function View(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
-  const [loading, setLoading] = useState(true);
-  const [sheetInfo, setSheetInfo] = useState({});
+  const [sheetData, setSheetData] = useState({
+    worksheetId: selectNode.workSheetId,
+    loading: true,
+    sheetInfo: {},
+  });
   const [searchValue, setSearchValue] = useState('');
   const scrollViewRef = useRef();
+  const loading = sheetData.worksheetId !== selectNode.workSheetId || sheetData.loading;
+  const sheetInfo = sheetData.worksheetId === selectNode.workSheetId ? sheetData.sheetInfo : {};
 
   useEffect(() => {
-    setLoading(true);
+    let disposed = false;
+
     sheetApi
       .getWorksheetInfo({
         worksheetId: selectNode.workSheetId,
         getViews: true,
       })
       .then(data => {
-        setLoading(false);
-        setSheetInfo(data);
+        if (disposed) {
+          return;
+        }
+
+        setSheetData({
+          worksheetId: selectNode.workSheetId,
+          loading: false,
+          sheetInfo: data,
+        });
       });
-  }, [selectNode.key]);
+
+    return () => {
+      disposed = true;
+    };
+  }, [selectNode.workSheetId]);
 
   if (loading) {
     return (
@@ -68,6 +85,8 @@ export default function View(props) {
 
   const renderContent = item => {
     const data = _.find(translateData, { correlationId: item.viewId }) || {};
+    const detailgroup = safeParse(_.get(item, 'advancedSetting.detailgroup'), 'array');
+    const listgroup = safeParse(_.get(item, 'advancedSetting.listgroup'), 'array');
     const translateInfo = data.data || {};
     const comparisonLangInfo = getTranslateInfo(app.id, null, item.viewId, comparisonLangData);
 
@@ -98,6 +117,52 @@ export default function View(props) {
           />
           <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
         </div>
+        {!!detailgroup.length && (
+          <div className="flexRow nodeItem">
+            <div className="Font13 mRight20 label">{_l('详情操作按钮分组名称')}</div>
+            <div className="flex">
+              {detailgroup
+                .filter(item => item.name)
+                .map(item => (
+                  <div className="flexRow alignItemsCenter mBottom15" key={item.id}>
+                    <Input
+                      className="flex mRight20"
+                      value={comparisonLangId ? comparisonLangInfo[item.id] : item.name}
+                      disabled={true}
+                    />
+                    <EditInput
+                      className="flex"
+                      value={translateInfo[item.id]}
+                      onChange={value => handleSave({ [item.id]: value })}
+                    />
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+        {item.viewType === 0 && !!listgroup.length && (
+          <div className="flexRow nodeItem">
+            <div className="Font13 mRight20 label">{_l('批量操作按钮分组名称')}</div>
+            <div className="flex">
+              {listgroup
+                .filter(item => item.name)
+                .map(item => (
+                  <div className="flexRow alignItemsCenter mBottom15" key={item.id}>
+                    <Input
+                      className="flex mRight20"
+                      value={comparisonLangId ? comparisonLangInfo[item.id] : item.name}
+                      disabled={true}
+                    />
+                    <EditInput
+                      className="flex"
+                      value={translateInfo[item.id]}
+                      onChange={value => handleSave({ [item.id]: value })}
+                    />
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -107,7 +172,8 @@ export default function View(props) {
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
-          <input
+          <Input
+            variant="borderless"
             placeholder={_l('视图')}
             className="flex"
             value={searchValue}

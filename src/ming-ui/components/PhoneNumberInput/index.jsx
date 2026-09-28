@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Input } from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import DialCodeSelectInstance from './DialCodeSelect';
-import { formatPhoneDisplay, parseFullNumberInput, parsePhoneValue } from './DialCodeSelect/utils';
+import { Input, Popover } from 'ming-ui/antd-components';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import DialCodePanel from './DialCodeSelect/DialCodePanel';
+import { buildCountryOptions, formatPhoneDisplay, parseFullNumberInput, parsePhoneValue } from './DialCodeSelect/utils';
 
 const Wrap = styled.div`
   position: relative;
@@ -16,27 +16,28 @@ const Wrap = styled.div`
   height: 100%;
   min-height: 36px;
   border: ${props =>
-    props.disabled
+    props.$disabled
       ? 'none'
-      : props.isEditing
+      : props.$isEditing
         ? '1px solid var(--color-primary) !important'
         : '1px solid var(--color-border-primary)'};
-  background-color: ${props => (props.isEditing ? 'var(--color-background-primary)' : 'var(--color-background-input)')};
+  background-color: ${props =>
+    props.$isEditing ? 'var(--color-background-primary)' : 'var(--color-background-input)'};
   border-radius: 4px;
-  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
   box-sizing: border-box;
   &:hover {
     border-color: var(--color-text-placeholder);
   }
 
-  .ant-input {
+  .hap-input {
     height: auto !important;
     min-height: calc(100% - 2px);
     padding: 0 12px !important;
     border: none !important;
     box-shadow: none !important;
     background-color: unset !important;
-    &.ant-input-disabled {
+    &.hap-input-disabled {
       background-color: unset !important;
     }
   }
@@ -63,8 +64,8 @@ const Wrap = styled.div`
     display: flex;
     align-items: center;
     gap: 4px;
-    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
-    pointer-events: ${props => (props.disabled ? 'none' : 'auto')};
+    cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
+    pointer-events: ${props => (props.$disabled ? 'none' : 'auto')};
     user-select: none;
   }
   .arrowIcon {
@@ -74,6 +75,11 @@ const Wrap = styled.div`
 `;
 
 const DEFAULT_CONTROL = {};
+const DIAL_CODE_POPOVER_STYLES = {
+  container: {
+    overflow: 'hidden',
+  },
+};
 
 export default function PhoneNumberInput({
   control = DEFAULT_CONTROL,
@@ -87,25 +93,26 @@ export default function PhoneNumberInput({
   className,
   inputClassName,
   isCell = false,
+  getPopupContainer,
 }) {
   const [code, setCode] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [numberValue, setNumberValue] = useState('');
+  const [dialCodeOpen, setDialCodeOpen] = useState(false);
   const inputRef = useRef(null);
-  const dialCodeRef = useRef(null);
-  const countryTriggerRef = useRef(null);
-  const handleCodeClickRef = useRef(() => {});
+  const codeRef = useRef('');
   const isSelectingCountryRef = useRef(false);
   const selectingTimerRef = useRef(null);
 
   const { value = '', hint, enumDefault, disabled, advancedSetting = {} } = control;
 
-  const preferredCountries = safeParse(advancedSetting.commcountries || '[]', 'array');
-  const onlyCountries = safeParse(advancedSetting.allowcountries || '[]', 'array');
+  const preferredCountriesSetting = advancedSetting.commcountries || '[]';
+  const onlyCountriesSetting = advancedSetting.allowcountries || '[]';
+  const preferredCountries = useMemo(() => safeParse(preferredCountriesSetting, 'array'), [preferredCountriesSetting]);
+  const onlyCountries = useMemo(() => safeParse(onlyCountriesSetting, 'array'), [onlyCountriesSetting]);
   const locale = getCookie('i18n_langtag') || 'zh-CN';
-  const hiddenCountry = useMemo(() => {
-    return enumDefault === 1;
-  }, [enumDefault]);
+  const hiddenCountry = enumDefault === 1;
+  const editing = isEditing || isFocused;
 
   const defaultCountry = useMemo(() => {
     const initialCountry = _.get(md, 'global.Config.DefaultRegion') || 'cn';
@@ -115,9 +122,14 @@ export default function PhoneNumberInput({
     return defaultArea.toUpperCase();
   }, [advancedSetting.defaultarea]);
 
+  const countryOptions = useMemo(
+    () => buildCountryOptions({ preferredCountries, onlyCountries, locale }),
+    [preferredCountries, onlyCountries, locale],
+  );
+
   const showValue = useMemo(() => {
-    return isEditing ? numberValue : formatPhoneDisplay(value, numberValue);
-  }, [numberValue, isEditing, value]);
+    return editing ? numberValue : formatPhoneDisplay(value, numberValue);
+  }, [numberValue, editing, value]);
 
   const emitIfChanged = nextValue => {
     if (nextValue !== value) {
@@ -135,24 +147,29 @@ export default function PhoneNumberInput({
     return normalizedNumber ? `${nextCode}${normalizedNumber}` : '';
   };
 
-  const handleCodeClick = useCallback(
-    nextCode => {
-      isSelectingCountryRef.current = true;
-      setCode(nextCode);
-      setIsEditing(true);
+  const resetSelectingCountry = delay => {
+    if (selectingTimerRef.current) {
+      clearTimeout(selectingTimerRef.current);
+    }
 
-      if (numberValue) {
-        emitIfChanged(getNumberValue({ nextCode }));
-      }
+    selectingTimerRef.current = setTimeout(() => {
+      isSelectingCountryRef.current = false;
+    }, delay);
+  };
 
-      setTimeout(() => {
-        isSelectingCountryRef.current = false;
-      }, 0);
-    },
-    [numberValue, emitIfChanged, getNumberValue],
-  );
+  const handleCodeClick = nextCode => {
+    isSelectingCountryRef.current = true;
+    setDialCodeOpen(false);
+    codeRef.current = nextCode;
+    setCode(nextCode);
+    setIsEditing(true);
 
-  handleCodeClickRef.current = handleCodeClick;
+    if (numberValue) {
+      emitIfChanged(getNumberValue({ nextCode }));
+    }
+
+    resetSelectingCountry(0);
+  };
 
   useEffect(() => {
     return () => {
@@ -163,40 +180,11 @@ export default function PhoneNumberInput({
   }, []);
 
   useEffect(() => {
-    if (hiddenCountry || !countryTriggerRef.current) return;
-
-    const instance = new DialCodeSelectInstance({
-      dom: countryTriggerRef.current,
-      value,
-      defaultCountry,
-      preferredCountries,
-      onlyCountries,
-      locale,
-      onSelectCode: nextCode => handleCodeClickRef.current(nextCode),
-    });
-
-    dialCodeRef.current = instance;
-    setCode(prevCode => prevCode || instance.getSelectedCountryData(value).code || '');
-
-    return () => {
-      instance._destroy && instance._destroy();
-      if (dialCodeRef.current === instance) {
-        dialCodeRef.current = null;
-      }
-    };
-  }, [hiddenCountry, defaultCountry, preferredCountries, onlyCountries, locale]);
-
-  useEffect(() => {
-    if (!dialCodeRef.current) return;
-    dialCodeRef.current.value = value;
-    dialCodeRef.current.code = code;
-  }, [value, code]);
-
-  useEffect(() => {
     if (isSelectingCountryRef.current) return;
 
-    const parsed = parsePhoneValue({ value, defaultCountry, code });
+    const parsed = parsePhoneValue({ value, defaultCountry, code: codeRef.current });
 
+    codeRef.current = parsed.code;
     setCode(prevCode => (parsed.code !== prevCode ? parsed.code : prevCode));
     setNumberValue(prevNumberValue => {
       const nextNumberValue = parsed.numberValue || '';
@@ -205,50 +193,74 @@ export default function PhoneNumberInput({
   }, [value, defaultCountry]);
 
   useEffect(() => {
-    if (isFocused) {
-      setIsEditing(true);
-    }
-  }, [isFocused]);
-
-  useEffect(() => {
-    if (isEditing) {
+    if (editing) {
       setTimeout(() => {
         inputRef.current && inputRef.current.focus();
       }, 0);
     }
-  }, [isEditing]);
+  }, [editing]);
 
   return (
-    <Wrap isEditing={isEditing} className={className} disabled={disabled}>
+    <Wrap $isEditing={editing} className={className} $disabled={disabled}>
       {!hiddenCountry && (
         <div className="dialCodeRoot">
-          <div
-            className="countryTrigger"
-            ref={countryTriggerRef}
-            role="button"
-            tabIndex={disabled ? -1 : 0}
-            onMouseDown={e => {
-              isSelectingCountryRef.current = true;
-
-              if (selectingTimerRef.current) {
-                clearTimeout(selectingTimerRef.current);
-              }
-
-              selectingTimerRef.current = setTimeout(() => {
-                isSelectingCountryRef.current = false;
-              }, 300);
-
-              if (isCell) {
-                e.preventDefault();
+          <Popover
+            content={
+              <DialCodePanel
+                inPopover
+                countryOptions={countryOptions}
+                code={code}
+                preferredCountries={preferredCountries}
+                locale={locale}
+                onSelectCode={handleCodeClick}
+                onClose={() => setDialCodeOpen(false)}
+              />
+            }
+            open={!disabled && dialCodeOpen}
+            getPopupContainer={getPopupContainer}
+            placement="bottomLeft"
+            noPadding
+            styles={DIAL_CODE_POPOVER_STYLES}
+            trigger="click"
+            onOpenChange={open => {
+              if (!disabled) {
+                setDialCodeOpen(open);
               }
             }}
           >
-            <span className="dialCode flex">{code}</span>
-            <Icon icon="arrow-down" className="arrowIcon" />
-          </div>
+            <div
+              className="countryTrigger"
+              role="button"
+              tabIndex={disabled ? -1 : 0}
+              aria-expanded={!disabled && dialCodeOpen}
+              aria-haspopup="dialog"
+              onKeyDown={e => {
+                if (e.key === 'Escape') {
+                  setDialCodeOpen(false);
+                  return;
+                }
+
+                if (!['Enter', ' '].includes(e.key) || disabled) return;
+
+                e.preventDefault();
+                setDialCodeOpen(open => !open);
+              }}
+              onMouseDown={e => {
+                isSelectingCountryRef.current = true;
+                resetSelectingCountry(300);
+
+                if (isCell) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <span className="dialCode flex">{code}</span>
+              <Icon icon="arrow-down" className="arrowIcon" />
+            </div>
+          </Popover>
         </div>
       )}
-      {showMask && !isEditing && numberValue ? (
+      {showMask && !editing && numberValue ? (
         <div
           className="maskPhoneContent overflowHidden PhoneNumberInput"
           onClick={e => {
@@ -264,7 +276,7 @@ export default function PhoneNumberInput({
       ) : (
         <Input
           disabled={disabled}
-          className={cx(inputClassName, { PhoneNumberInput: !isEditing })}
+          className={cx(inputClassName, { PhoneNumberInput: !editing })}
           value={showValue}
           placeholder={hint}
           ref={inputRef}
@@ -275,10 +287,7 @@ export default function PhoneNumberInput({
           onBlur={e => {
             const target = e.relatedTarget || document.activeElement;
             const isDialCodeInteraction =
-              isCell &&
-              (isSelectingCountryRef.current ||
-                dialCodeRef.current?.isOpen ||
-                !!target?.closest?.('.mdPhoneDialCodePanel'));
+              isCell && (isSelectingCountryRef.current || dialCodeOpen || !!target?.closest?.('.mdPhoneDialCodePanel'));
 
             if (isDialCodeInteraction) {
               return;
@@ -304,6 +313,7 @@ export default function PhoneNumberInput({
               const nextNumber = parsed.numberValue || '';
 
               if (nextCode !== code) {
+                codeRef.current = nextCode;
                 setCode(nextCode);
               }
 
@@ -332,4 +342,5 @@ PhoneNumberInput.propTypes = {
   className: PropTypes.string,
   inputClassName: PropTypes.string,
   isCell: PropTypes.bool,
+  getPopupContainer: PropTypes.func,
 };

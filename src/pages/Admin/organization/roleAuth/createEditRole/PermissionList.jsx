@@ -1,27 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { filterVisiblePermissions, PARENT_PERMISSION_IDS } from '../utils';
 
 const PermissionListWrapper = styled.div`
-  .Checkbox {
-    span {
-      font-size: 14px !important;
-    }
-    &.rootCheckbox {
-      span {
-        font-weight: bold;
-        font-size: 15px !important;
-      }
-    }
-  }
-
   .marginLeft22 {
     margin-left: 22px;
   }
@@ -38,6 +27,11 @@ const PermissionListWrapper = styled.div`
 export default function PermissionList(props) {
   const { permissions, selectedIds = [], onChangePermission, canEdit = true, projectId } = props;
   const [foldedId, setFoldedId] = useState([]);
+  const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
+  const visiblePermissions = useMemo(
+    () => filterVisiblePermissions(permissions, featureType),
+    [featureType, permissions],
+  );
 
   const getAllChildIds = permission => {
     const subPermissions = permission.subPermission || [];
@@ -55,7 +49,7 @@ export default function PermissionList(props) {
     for (let item of permissions) {
       if (item.permissionId === targetPermissionId) {
         return parents; // 找到目标节点，返回当前父节点列表
-      } else if (item.subPermission.length > 0) {
+      } else if ((item.subPermission || []).length > 0) {
         // 复制当前父节点列表，添加当前节点的 permissionId
         const newParents = [...parents, item];
         // 递归搜索子节点
@@ -76,33 +70,12 @@ export default function PermissionList(props) {
       const hasChildren = !!(item.subPermission || []).length;
       const checked = selectedIds.includes(item.permissionId);
 
-      // 商户服务功能授权
-      const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
-      if (!featureType && item.permissionId === 16000) return null;
-
-      // 私有部署非平台版无账务
-      if (item.permissionId === 13300 && !window.platformENV.isPlatform) return null;
-
-      if (
-        (item.permissionId === 19500 && md.global.SysSettings.hidePlugin) ||
-        (_.includes([19100, 19300], item.permissionId) && md.global.SysSettings.hideIntegration) ||
-        (item.permissionId === 19000 && md.global.SysSettings.hideIntegration && md.global.SysSettings.hidePlugin)
-      )
-        return null;
-
-      if (
-        (item.permissionId === 19500 && md.global.SysSettings.hidePlugin) ||
-        (_.includes([19100, 19300], item.permissionId) && md.global.SysSettings.hideIntegration) ||
-        (item.permissionId === 19000 && md.global.SysSettings.hideIntegration && md.global.SysSettings.hidePlugin)
-      )
-        return null;
-
       const onCheck = () => {
-        const parents = findParentsByPermissionId(permissions, item.permissionId);
+        const parents = findParentsByPermissionId(visiblePermissions, item.permissionId);
         const parentIds = parents.map(item => item.permissionId);
         const childIds = hasChildren ? getAllChildIds(item) : [];
 
-        if (featureType === '2' && item.permissionId === 16000) {
+        if (featureType === '2' && item.permissionId === PARENT_PERMISSION_IDS.PAYMENT_AND_INVOICE) {
           buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
           return;
         }
@@ -159,11 +132,12 @@ export default function PermissionList(props) {
             )}
             {canEdit ? (
               <Checkbox
-                text={item.permissionName}
                 className={cx({ rootCheckbox: deep === 1 })}
                 checked={checked}
-                onClick={onCheck}
-              />
+                onChange={event => onCheck(!event.target.checked, undefined, event)}
+              >
+                {item.permissionName}
+              </Checkbox>
             ) : (
               <span className={cx({ 'Font15 bold': deep === 1 })}>{item.permissionName}</span>
             )}
@@ -185,5 +159,5 @@ export default function PermissionList(props) {
     });
   };
 
-  return <PermissionListWrapper>{renderPermissions(permissions)}</PermissionListWrapper>;
+  return <PermissionListWrapper>{renderPermissions(visiblePermissions)}</PermissionListWrapper>;
 }

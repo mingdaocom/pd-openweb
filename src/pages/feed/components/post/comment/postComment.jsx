@@ -2,10 +2,11 @@
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import { Dialog, UserHead } from 'ming-ui';
-import { checkPermission } from 'src/components/checkPermission';
+import { UserHead } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import UploadFiles from 'src/components/UploadFiles';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { checkPermission } from 'src/utils/services/security/permission';
 import { removeComment } from '../../../redux/postActions';
 import PostFooter from '../post/postFooter';
 import PostMain from '../post/postMain';
@@ -71,10 +72,11 @@ class PostComment extends React.Component {
 
   handleRemoveComment = () => {
     const { commentItem, dispatch } = this.props;
-    Dialog.confirm({
+    Modal.confirm({
       width: 420,
       title: _l('确认删除此条回复') + '?',
-      buttonType: 'primary',
+      okText: _l('确定'),
+      okButtonProps: { danger: true },
       onOk: () => {
         this.clearCommentBox();
         dispatch(removeComment(commentItem.postID, commentItem.commentID));

@@ -30,20 +30,7 @@ export const Wrap = styled.div`
       width: 400px;
     }
 
-    .subCheckbox :global(.Checkbox-box) {
-      margin-right: 10px !important;
-    }
-
     .actionListCon {
-      :global(.ming.Checkbox) {
-        display: inline-flex;
-        align-items: center;
-        line-height: 1;
-      }
-      :global(.ming.Checkbox .Checkbox-box) {
-        flex-shrink: 0;
-        align-self: center;
-      }
       :global(.ming.Icon) {
         display: inline-flex;
         align-items: center;

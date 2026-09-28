@@ -1,50 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Menu, Radio, Support } from 'ming-ui';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Button, Dropdown, Radio } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPENODE } from 'src/pages/integration/config';
 import CodeSnippet from 'src/pages/workflow/components/CodeSnippet/index.jsx';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import { CardTopWrap } from '../style';
-import { ActWrap, RedMenuItemWrap } from '../style';
+import { ActWrap } from '../style';
 
 const Wrap = styled.div`
   p {
     margin: 0;
   }
-  .btn {
-    margin-right: 0px;
-  }
   background: var(--color-background-primary);
-  // border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
-  max-width: ${props => `${props.maxW || '800px'}`};
+  max-width: ${props => `${props.$maxW || '800px'}`};
   .Green_right {
     color: var(--color-success);
   }
   .con {
     padding: 24px;
     border-top: 1px solid var(--color-border-secondary);
-    .chooseTypeCon {
-    }
-    .btn {
-      margin: 40px auto 0;
-      padding: 11px 50px;
-      background: var(--color-primary);
-      color: var(--color-white);
-      line-height: 1em;
-      border-radius: 30px;
-      &.disabled {
-        opacity: 0.5;
-      }
-      &:hover {
-        background: var(--color-link-hover);
-      }
-    }
   }
   .workflowSettings {
     position: fixed;
@@ -98,6 +78,8 @@ export default function Item(props) {
     showCodeSnippetDialog: false,
   });
   const [actionId, setActionId] = useState(_.get(props, 'nodeInfo.actionId') || '102');
+  const requestPending = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
     props.isNew
       ? setState({
@@ -141,8 +123,12 @@ export default function Item(props) {
   }
 
   const addNode = (id = actionId, appId) => {
+    if (requestPending.current) return;
+
     let typeInfo = TYPENODE.find(o => o.actionId === id) || {};
-    flowNodeAjax
+    requestPending.current = true;
+    setSubmitting(true);
+    return flowNodeAjax
       .add(
         {
           processId: info.id,
@@ -156,6 +142,10 @@ export default function Item(props) {
       )
       .then(() => {
         props.hasChange();
+      })
+      .finally(() => {
+        requestPending.current = false;
+        setSubmitting(false);
       });
   };
 
@@ -175,9 +165,8 @@ export default function Item(props) {
                 <span className="chooseTypeCon">
                   <Radio
                     className=""
-                    text={o.txt}
                     checked={actionId === o.actionId}
-                    onClick={() => {
+                    onChange={() => {
                       if (o.key === 'codeSnippet') {
                         setState({
                           showCodeSnippetDialog: true,
@@ -186,7 +175,10 @@ export default function Item(props) {
                         setActionId(o.actionId);
                       }
                     }}
-                  />
+                    title={o.txt}
+                  >
+                    {o.txt}
+                  </Radio>
                 </span>
               );
             })}
@@ -201,7 +193,7 @@ export default function Item(props) {
               {_l('取消')}
             </span>
             <span
-              className={cx('btnCon Hand Bold mLeft20')}
+              className={cx('btnCon Hand Bold mLeft20', { disabled: submitting })}
               onClick={() => {
                 addNode(actionId);
               }}
@@ -227,7 +219,7 @@ export default function Item(props) {
 
   return (
     <div className="flexColumn">
-      <Wrap className={cx(props.className, 'w100 divCenter')} maxW={props.maxW}>
+      <Wrap className={cx(props.className, 'w100 divCenter')} $maxW={props.maxW}>
         <CardTopWrap className="flexRow flex">
           <div className={cx('iconCon TxtCenter')}>
             {renderTips()}
@@ -245,8 +237,12 @@ export default function Item(props) {
           {/* 安装的连接 api 不支持编辑，只读显示 */}
           {props.canEdit && !props.isNew && (
             <React.Fragment>
-              <div
-                className="btn Hand"
+              <Button
+                wide
+                color="primary"
+                shape="round"
+                size="small"
+                variant="outlined"
                 onClick={() =>
                   setState({
                     showEdit: true,
@@ -254,37 +250,31 @@ export default function Item(props) {
                 }
               >
                 {_l('编辑')}
-              </div>
-              <Trigger
-                action={['click']}
-                popup={
-                  <Menu>
-                    <RedMenuItemWrap
-                      icon={<Icon icon="trash" className="Font17 mLeft5" />}
-                      onClick={() => {
-                        setState({
-                          showMenu: false,
-                        });
-                        delNode();
-                      }}
-                    >
-                      <span>{_l('删除')}</span>
-                    </RedMenuItemWrap>
-                  </Menu>
-                }
-                popupClassName={cx('dropdownTrigger')}
-                popupVisible={showMenu}
-                onPopupVisibleChange={visible => {
+              </Button>
+              <Dropdown
+                trigger={['click']}
+                placement="bottomLeft"
+                open={showMenu}
+                onOpenChange={visible => {
                   setState({
                     showMenu: visible,
                   });
                 }}
-                popupAlign={{
-                  points: ['tl', 'bl'],
-                  overflow: {
-                    adjustX: true,
-                    adjustY: true,
-                  },
+                menu={{
+                  items: [
+                    {
+                      key: 'delete',
+                      danger: true,
+                      icon: <Icon icon="trash" className="Font17" />,
+                      label: _l('删除'),
+                      onClick: () => {
+                        setState({
+                          showMenu: false,
+                        });
+                        delNode();
+                      },
+                    },
+                  ],
                 }}
               >
                 <ActWrap
@@ -297,7 +287,7 @@ export default function Item(props) {
                 >
                   <i className={'icon-more_horiz Font22 TxtMiddle textTertiary'} />
                 </ActWrap>
-              </Trigger>
+              </Dropdown>
             </React.Fragment>
           )}
         </CardTopWrap>

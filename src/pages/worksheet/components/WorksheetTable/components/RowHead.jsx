@@ -3,18 +3,15 @@ import cx from 'classnames';
 import { find, get, isEmpty } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { Checkbox, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
-import { VIEW_CONFIG_RECORD_CLICK_ACTION } from 'worksheet/constants/enum';
-import { getHighAuthControls } from 'src/utils/control';
-import { handleRowData } from 'src/utils/record';
+import { getHighAuthControls } from 'src/utils/domain/control/state';
+import { VIEW_CONFIG_RECORD_CLICK_ACTION } from 'src/utils/domain/worksheet/constants';
+import { handleRowData } from 'src/utils/services/worksheet/record';
 
 const Con = styled.div`
   user-select: none;
@@ -37,24 +34,19 @@ const Con = styled.div`
     visibility: hidden;
   }
   .checkbox {
-    margin-top: 5px;
     display: none;
-    .Checkbox-box {
-      margin: 0px;
-    }
   }
   .openRecord {
     visibility: hidden;
   }
   .topCheckbox {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     text-align: center;
     .checkboxCon {
       position: relative;
       display: inline-block;
-      .Checkbox-box {
-        margin: 0px;
-      }
     }
   }
   .number {
@@ -173,6 +165,7 @@ export default function RowHead(props) {
     setHighLight = () => {},
     refreshWorksheetControls = () => {},
     onOpenRecord = () => {},
+    openAddRecord,
     printCharge,
   } = props;
   let { className } = props;
@@ -182,7 +175,7 @@ export default function RowHead(props) {
   const selected =
     canSelectAll && allWorksheetIsSelected ? !_.includes(selectedIds, row.rowid) : _.includes(selectedIds, row.rowid);
   const recordOperateVisible = showOperate && !readonly && !isTrash && !isDraftTable;
-  const dataLength = data.filter(r => r.rowid !== 'groupTitle').length;
+  const dataLength = data.filter(r => r.rowid !== 'groupTitle' && r.rowid !== 'loadGroupMore').length;
 
   function handleCheckAll(force) {
     if (canSelectAll && allWorksheetIsSelected) {
@@ -207,9 +200,6 @@ export default function RowHead(props) {
 
   return (
     <Con
-      tableType={tableType}
-      rowHeadOnlyNum={rowHeadOnlyNum}
-      showOperate={showOperate}
       className={cx(className, 'flexRow noRightBorder', {
         selected,
         hideNumber: !showNumber,
@@ -218,7 +208,6 @@ export default function RowHead(props) {
         showCheckbox: !readonly && hasBatch,
       })}
       style={style}
-      readonly={readonly || !hasBatch}
       onClick={e => {
         if (e.target.classList.contains('control-rowHead')) {
           onOpenRecord();
@@ -249,14 +238,12 @@ export default function RowHead(props) {
               allowCopy={allowAdd && row.allowedit}
               allowEdit={row.allowedit}
               allowDelete={row.allowdelete}
-              allowRecreate={allowAdd}
+              allowRecreate={allowAdd && _.isFunction(openAddRecord)}
               isAdmin={worksheetInfo.roleType === 2}
               entityName={worksheetInfo.entityName}
+              printCountEnabled={_.get(worksheetInfo, 'advancedSetting.print_count_enabled') === '1'}
               sheetSwitchPermit={sheetSwitchPermit}
-              popupAlign={{
-                offset: [0, 4],
-                points: ['tl', 'bl'],
-              }}
+              placement="bottomLeft"
               isRecordLock={row.sys_lock}
               updateRecordLock={() => {
                 updateRecordLockStatus(
@@ -326,7 +313,7 @@ export default function RowHead(props) {
                     worksheetInfo.rules = [];
                   }
 
-                  addRecord({
+                  openAddRecord({
                     worksheetId,
                     appId,
                     viewId,
@@ -355,8 +342,7 @@ export default function RowHead(props) {
                 <div className="checkbox">
                   <Checkbox
                     checked={selected}
-                    size="small"
-                    onClick={() => {
+                    onChange={() => {
                       if (selectedIds.indexOf(row.rowid) > -1) {
                         onSelect(
                           selectedIds.filter(s => s !== row.rowid),
@@ -366,6 +352,7 @@ export default function RowHead(props) {
                         onSelect(_.uniqBy(selectedIds.concat(row.rowid)), row.rowid);
                       }
                     }}
+                    size="small"
                   />
                 </div>
               )}
@@ -385,60 +372,57 @@ export default function RowHead(props) {
           )}
           <div className="topCheckbox" style={{ right: tableType === 'classic' ? 46 : 30, width: numberWidth }}>
             {hasBatch && (
-              <div className="checkboxCon mTop3">
+              <div className="checkboxCon">
                 <Checkbox
-                  size="small"
-                  clearselected={!!(dataLength && selectedIds.length && selectedIds.length !== dataLength)}
+                  indeterminate={!!(dataLength && selectedIds.length && selectedIds.length !== dataLength)}
                   disabled={!dataLength}
                   checked={
                     canSelectAll && allWorksheetIsSelected
                       ? !selectedIds.length
                       : !!dataLength && selectedIds.length === dataLength
                   }
-                  onClick={(checked, value, e) => {
-                    e.stopPropagation();
+                  onChange={event => {
+                    event.stopPropagation();
                     handleCheckAll();
                   }}
+                  size="small"
                 />
                 {canSelectAll && (
-                  <Trigger
-                    popupVisible={selectAllPanelVisible}
-                    onPopupVisibleChange={visible => {
+                  <Dropdown
+                    open={selectAllPanelVisible}
+                    onOpenChange={visible => {
                       setSelectAllPanelVisible(visible);
                     }}
-                    popupAlign={{
-                      points: ['tl', 'bl'],
-                      offset: [2, 10],
-                    }}
-                    action={['hover']}
-                    popup={
-                      <Menu>
-                        <MenuItem
-                          onClick={e => {
-                            e.stopPropagation();
+                    placement="bottomLeft"
+                    trigger={['hover']}
+                    menu={{
+                      items: [
+                        {
+                          key: 'selectAll',
+                          label: _l('选择所有'),
+                          onClick: ({ domEvent }) => {
+                            domEvent.stopPropagation();
                             setSelectAllPanelVisible(false);
                             onSelectAllWorksheet(true);
-                          }}
-                        >
-                          {_l('选择所有')}
-                        </MenuItem>
-                        <MenuItem
-                          onClick={e => {
-                            e.stopPropagation();
+                          },
+                        },
+                        {
+                          key: 'reverse',
+                          label: _l('反选本页'),
+                          onClick: ({ domEvent }) => {
+                            domEvent.stopPropagation();
                             setSelectAllPanelVisible(false);
                             onReverseSelect();
-                          }}
-                        >
-                          {_l('反选本页')}
-                        </MenuItem>
-                      </Menu>
-                    }
+                          },
+                        },
+                      ],
+                    }}
                   >
                     <i
                       className="icon icon-expand_more Hand Font20 showMore"
                       style={{ position: 'absolute', top: 2, right: -22 }}
                     ></i>
-                  </Trigger>
+                  </Dropdown>
                 )}
               </div>
             )}
@@ -500,4 +484,5 @@ RowHead.propTypes = {
   handleAddSheetRow: PropTypes.func,
   setHighLight: PropTypes.func,
   refreshWorksheetControls: PropTypes.func,
+  openAddRecord: PropTypes.func,
 };

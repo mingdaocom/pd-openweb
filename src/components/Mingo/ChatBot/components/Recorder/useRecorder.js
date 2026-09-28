@@ -37,6 +37,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
   const volumeCheckIntervalRef = useRef(null);
   const recordTimeIntervalRef = useRef(null);
   const recordStartTimeRef = useRef(null);
+  const mountedRef = useRef(true);
   const cache = useRef({});
 
   const isDebug = false;
@@ -212,6 +213,16 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         });
+
+        if (!mountedRef.current) {
+          stream.getTracks().forEach(track => track.stop());
+          if (audioCtx.state !== 'closed') {
+            audioCtx.close().catch(() => {});
+          }
+
+          return;
+        }
+
         setMediaStream(stream);
 
         // 创建音量分析器
@@ -232,6 +243,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
         };
 
         recorderRef.current.OnError = err => {
+          if (!mountedRef.current) return;
           console.error('OnError:', err);
           onError(err);
           stop();
@@ -243,7 +255,14 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
           speechRecognizerRef.current = new window.SpeechRecognizer(params);
         }
 
+        const speechRecognizer = speechRecognizerRef.current;
+
         speechRecognizerRef.current.OnRecognitionStart = () => {
+          if (!mountedRef.current) {
+            speechRecognizer.stop();
+            return;
+          }
+
           isCanSendDataRef.current = true;
           isCanStopRef.current = true;
           setStatus('recording');
@@ -274,12 +293,14 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
         };
 
         speechRecognizerRef.current.OnError = () => {
+          if (!mountedRef.current) return;
           setStatus('error');
           stop();
         };
 
         speechRecognizerRef.current.start();
       } catch (error) {
+        if (!mountedRef.current) return;
         console.log(error);
         alert(_l('开启麦克风权限失败，权限设置了不允许或您的设备不支持该功能'), 3);
         setStatus('error');
@@ -291,7 +312,10 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
   }, []);
   // 组件卸载时清理资源
   useEffect(() => {
+    mountedRef.current = true;
+
     return () => {
+      mountedRef.current = false;
       // 强制停止所有录音相关资源
       stop();
     };

@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getTitleControlId } from 'src/components/Form/core/utils';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
-import { browserIsMobile } from 'src/utils/common';
-import { getRecordCardStyle, getTitleTextFromRelateControl } from 'src/utils/control';
+import { getTitleControlId } from 'src/utils/domain/control/display';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { getRecordCardStyle } from 'src/utils/domain/control/style';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { CardButton } from '../Basics';
 import CardCellControls from './CardCellControls';
 
 const Con = styled.div`
-  ${({ isMobile }) => (isMobile ? 'margin-bottom:10px' : 'display: inline-flex;')}
+  ${({ $isMobile }) => ($isMobile ? 'margin-bottom:10px' : 'display: inline-flex;')}
   position: relative;
   border-radius: 3px;
   background-color: var(--color-background-primary);
@@ -23,7 +25,7 @@ const Con = styled.div`
     display: flex;
     top: -11px;
     right: -11px;
-    ${({ isMobile }) => (isMobile ? 'top: -16px;right: -16px;' : '')}
+    ${({ $isMobile }) => ($isMobile ? 'top: -16px;right: -16px;' : '')}
     visibility: hidden;
     z-index: 2;
   }
@@ -46,7 +48,7 @@ const Con = styled.div`
     box-shadow:
       rgba(0, 0, 0, 0.12) 0px 4px 12px 0px,
       rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
-    ${({ isMobile }) => (isMobile ? ' box-shadow:unset' : '')};
+    ${({ $isMobile }) => ($isMobile ? ' box-shadow:unset' : '')};
   }
   &:hover {
     .hoverShow {
@@ -73,7 +75,7 @@ const Title = styled.div`
   /* autoprefixer: off */
   -webkit-box-orient: vertical;
   /* autoprefixer: on */
-  ${({ titleStyle }) => titleStyle}
+  ${({ $titleStyle }) => $titleStyle}
 `;
 
 const ControlCon = styled.div`
@@ -81,7 +83,7 @@ const ControlCon = styled.div`
   flex: 1;
   padding: 12px 16px;
   overflow: hidden;
-  flex-direction: ${({ small }) => (small ? 'column' : 'row')};
+  flex-direction: ${({ $small }) => ($small ? 'column' : 'row')};
   .cover {
     width: 80px;
     height: 80px;
@@ -89,7 +91,7 @@ const ControlCon = styled.div`
     border-radius: 3px;
     object-fit: contain;
     border: 1px solid var(--color-border-secondary);
-    ${({ small }) => (small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
+    ${({ $small }) => ($small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
   }
 `;
 
@@ -102,6 +104,7 @@ function click(func) {
 }
 
 export default function RecordCoverCard(props) {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const {
     className,
     hideTitle,
@@ -156,7 +159,7 @@ export default function RecordCoverCard(props) {
       src={cover}
       onClick={e => {
         e.stopPropagation();
-        previewAttachments(
+        openPreviewAttachments(
           transformQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
             disableDownload: true,
             ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
@@ -167,16 +170,21 @@ export default function RecordCoverCard(props) {
   );
   return (
     <Con
-      onClick={onClick}
+      onClick={(...args) => {
+        if (!args[0]?.target?.closest('.recordCoverCard')) {
+          return;
+        }
+
+        onClick?.(...args);
+      }}
       style={{
         ...style,
         backgroundColor: get(recordCardStyle, 'cardStyle.backgroundColor') || 'var(--color-background-card)',
         borderColor: get(recordCardStyle, 'cardStyle.borderColor') || 'var(--color-border-secondary)',
         ...(fullShowCard ? { width: '100%' } : {}),
       }}
-      className={cx(className, allowlink !== '0' && 'Hand')}
-      canView={allowlink !== '0'}
-      isMobile={isMobile}
+      className={cx(className, 'recordCoverCard', allowlink !== '0' && 'Hand')}
+      $isMobile={isMobile}
     >
       {!disabled && !showAddAsDropdown && (
         <div className="operateButton">
@@ -186,7 +194,7 @@ export default function RecordCoverCard(props) {
                 className="mRight8"
                 style={isMobile ? { visibility: 'visible' } : {}}
                 onClick={click(onReplaceRecord)}
-                isMobile={isMobile}
+                $isMobile={isMobile}
               >
                 <i className="icon icon-swap_horiz"></i>
               </CardButton>
@@ -196,7 +204,7 @@ export default function RecordCoverCard(props) {
             className={isMobile ? '' : 'red'}
             style={isMobile ? { visibility: 'visible' } : {}}
             onClick={click(onDelete)}
-            isMobile={isMobile}
+            $isMobile={isMobile}
           >
             <i className="icon icon-close"></i>
           </CardButton>
@@ -206,7 +214,7 @@ export default function RecordCoverCard(props) {
         style={{
           ...(controls.length ? { paddingBottom: 10 } : {}),
         }}
-        small={containerWidth < 420}
+        $small={containerWidth < 420}
       >
         {coverComp}
         {DragHandle && (
@@ -225,7 +233,7 @@ export default function RecordCoverCard(props) {
                 lineHeight:
                   Math.floor(get(recordCardStyle, 'recordTitleStyle.size', '14px').replace(/[^\d]/g, '') * 1.3) + 'px',
               }}
-              titleStyle={get(recordCardStyle, 'recordTitleStyle.valueStyle', {})}
+              $titleStyle={get(recordCardStyle, 'recordTitleStyle.valueStyle', {})}
             >
               {title}
               {titleMasked && !forceShowFullValue && (

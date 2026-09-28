@@ -5,45 +5,21 @@ import moment from 'moment';
 import nzh from 'nzh';
 import PropTypes from 'prop-types';
 import filterXss from 'xss';
-import Dropdown from 'ming-ui/components/Dropdown';
+import { Select } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import RadioGroup from 'ming-ui/components/RadioGroup';
-import projectAjax from 'src/api/projectSetting';
 import postAjax from 'src/api/taskCenter';
-import sheetAjax from 'src/api/worksheet';
-import { accAdd, accDiv, accMul, htmlDecodeReg, pathCompletion } from 'src/utils/common';
-import { formatFormulaDate, renderText as renderCellText } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { accAdd, accDiv, accMul } from 'src/utils/core/arithmetic';
+import { htmlDecodeReg } from 'src/utils/core/string';
+import { formatFormulaDate } from 'src/utils/domain/control/date';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import model from './model';
 import PrintOptDialog from './PrintOptDialog';
 import './index.less';
 
 const nzhCn = nzh.cn;
 const { task } = model;
-
-const systemControl = [
-  {
-    controlId: 'ownerid',
-    controlName: _l('拥有者'),
-    type: 26,
-  },
-  {
-    controlId: 'caid',
-    controlName: _l('创建人'),
-    type: 26,
-  },
-  {
-    controlId: 'ctime',
-    controlName: _l('创建时间'),
-    type: 16,
-  },
-  {
-    controlId: 'utime',
-    controlName: _l('最近修改时间'),
-    type: 16,
-  },
-];
 
 const allocationTask = result => {
   return task.map(item => {
@@ -75,136 +51,26 @@ export default class Print extends Component {
     this.state = {
       reqId: params.typeId,
       type: params.printType,
-      processOption: window.localStorage.getItem('hrPrintProcessOption') || 'all',
-      configOptions: {
-        showWorkflowQrCode: true,
-      },
-      formDetail: {},
-      workList: [],
       controls: [], // 打印筛选后要打印的表单控件
-      signatureControls: [], // 签名控件
       formControls: [], // 表单明细内容
       logo: '',
       detailsType: 2, // 明细的显示方式：1纵向，2横向
       showPrintDialog: false, // 显隐设置弹层
       controlOption: 'all',
       reqInfo: {}, // 表单控件内容
-      reqWorks: {}, // 表单审批流程内容
       printCheckAll: true, // 打印选项弹层是否全选
       fontSize: 14,
-      appId: window.location.search.slice(1).split('&&')[0],
-      viewId: window.location.search.slice(1).split('&&')[1],
-      worksheetId: window.location.search.slice(1).split('&&')[2],
-      projectId: window.location.search.slice(1).split('&&')[3],
-      workSheetGetType: window.location.search.slice(1).split('&&')[4] || 1,
-      sheetInfo: {}, // 工作表记录详情
-      rowInfo: [], // 工作表记录打印控件
       task: [],
-      workflow: [],
     };
   }
   componentDidMount = () => {
     const { params } = this.props.match;
 
-    if (params.printType === 'worksheet') {
-      this.initWorksheet();
-    } else if (params.printType === 'task') {
+    if (params.printType === 'task') {
       this.initTask();
     }
   };
-  initWorksheet() {
-    document.title = _l('记录打印') + ' - ' + _l('工作表');
-    const sheetArgs = {
-      worksheetId: this.state.worksheetId,
-      getTemplate: false,
-    };
-    const rowInfoArgs = {
-      rowId: this.state.reqId,
-      appId: this.state.appId,
-      viewId: this.state.viewId,
-      worksheetId: this.state.worksheetId,
-      getType: this.state.workSheetGetType,
-    };
-    const logoAjax =
-      this.state.projectId && !!_.find(md.global.Account.projects, item => item.projectId === this.state.projectId)
-        ? projectAjax.getSysColor({ projectId: this.state.projectId })
-        : Promise.resolve({ logo: md.global.Config.Logo });
-    Promise.all([sheetAjax.getWorksheetInfo(sheetArgs), sheetAjax.getRowByID(rowInfoArgs), logoAjax]).then(
-      ([sheetInfo, rowInfo, logo]) => {
-        const signatureControls = rowInfo.receiveControls.filter(item => item.type === 42);
-        rowInfo.receiveControls = rowInfo.receiveControls.filter(item => item.type !== 42);
-        const controlData = _.groupBy(rowInfo.receiveControls, item => item.row);
-        const titleControl = _.find(rowInfo.receiveControls, control => control.attribute === 1);
-        const relateRecordControls = rowInfo.receiveControls.filter(
-          control => control.type === 29 && control.enumDefault === 2,
-        );
-        relateRecordControls.forEach(control =>
-          this.loadRowRelationRows({
-            appId: this.state.appId,
-            worksheetId: this.state.worksheetId,
-            rowId: this.state.reqId,
-            control,
-          }),
-        );
-        this.setState({
-          logo: logo.logo,
-          rowInfo: { controls: rowInfo.receiveControls, shortUrl: rowInfo.shortUrl },
-          printTitle: titleControl ? renderCellText(titleControl) || _l('未命名') : _l('未命名'),
-          controls: controlData,
-          signatureControls,
-          sheetInfo: {
-            name: sheetInfo.name,
-            ownerAccount: rowInfo.ownerAccount,
-            updateTime: rowInfo.updateTime,
-          },
-          reqInfo: {
-            title: rowInfo.titleName,
-          },
-          relateRecords: {},
-        });
-        this.loadWorksheetShortUrl(this.state.appId, rowInfoArgs.worksheetId, this.state.viewId, rowInfoArgs.rowId);
-      },
-    );
-  }
 
-  loadRowRelationRows = args => {
-    const { appId, worksheetId, rowId, control } = args;
-    sheetAjax
-      .getRowRelationRows({
-        appId,
-        worksheetId,
-        rowId,
-        controlId: control.controlId,
-        pageIndex: 1,
-        pageSize: 100000,
-        getWorksheet: true,
-      })
-      .then(data => {
-        const newRelateRecords = Object.assign({}, this.state.relateRecords);
-        newRelateRecords[control.controlId] = data;
-        this.setState({
-          relateRecords: newRelateRecords,
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-  loadWorksheetShortUrl(appId, worksheetId, viewId, rowId) {
-    sheetAjax
-      .getWorksheetShareUrl({
-        worksheetId,
-        appId,
-        viewId,
-        rowId,
-        objectType: 2,
-      })
-      .then(shareUrl => {
-        this.setState({
-          rowInfo: Object.assign({}, this.state.rowInfo, { shortUrl: shareUrl }),
-        });
-      });
-  }
   initTask() {
     document.title = _l('任务打印');
     postAjax
@@ -230,6 +96,7 @@ export default class Print extends Component {
         });
       });
   }
+
   componentDidUpdate = function () {
     $('#container, .AppHr form').addClass('hrApprovalBox');
     $('html.AppHr').addClass('hrApprovalAppHr');
@@ -335,10 +202,6 @@ export default class Print extends Component {
       }
 
       case 14:
-        if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
-          return this.renderRecordAttachments(value, item.isRelateMultipleSheet);
-        }
-
         return value
           ? JSON.parse(value)
               .map(item => item.originalFilename)
@@ -350,21 +213,7 @@ export default class Print extends Component {
         if (value) {
           let newValue = '';
 
-          if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
-            try {
-              newValue =
-                JSON.parse(value).filter(item => item).length > 0
-                  ? JSON.parse(value).map(item => {
-                      return item ? moment(item).format('x') : '';
-                    })
-                  : '';
-            } catch (error) {
-              console.log(error);
-              newValue = value;
-            }
-          } else {
-            newValue = value.split(',');
-          }
+          newValue = value.split(',');
 
           const days = moment(new Date(Number(newValue[1]))).diff(moment(new Date(Number(newValue[0]))), 'days') + 1; // 时间差
 
@@ -390,21 +239,7 @@ export default class Print extends Component {
         if (value) {
           let newValue = '';
 
-          if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
-            try {
-              newValue =
-                JSON.parse(value).filter(item => item).length > 0
-                  ? JSON.parse(value).map(item => {
-                      return item ? moment(item).format('x') : '';
-                    })
-                  : '';
-            } catch (error) {
-              console.log(error);
-              newValue = value;
-            }
-          } else {
-            newValue = value.split(',');
-          }
+          newValue = value.split(',');
 
           const timeDifference = Number(newValue[1]) - Number(newValue[0]); // 时间差
           // const days = Math.floor(timeDifference / (24 * 3600 * 1000)); // 时间差转化成天数
@@ -413,23 +248,6 @@ export default class Print extends Component {
 
           if (item.enumDefault2 === 1) {
             showContent = `    ${_l('时长')}: ${_l('%0小时', hours)}`;
-            if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
-              const time = Number(newValue[1]) - Number(newValue[0]);
-              // 计算出相差天数
-              const days = Math.floor(time / (24 * 3600 * 1000));
-              // 计算出小时数
-              const leave1 = time % (24 * 3600 * 1000);
-              // 计算天数后剩余的毫秒数
-              const hours = Math.floor(leave1 / (3600 * 1000));
-              // 计算相差分钟数
-              const leave2 = leave1 % (3600 * 1000);
-              // 计算小时数后剩余的毫秒数
-              const minutes = Math.floor(leave2 / (60 * 1000));
-
-              showContent = `    ${_l('时长')}: ${days > 0 ? _l('%0天', days) : ''} ${
-                hours > 0 ? _l('%0小时', hours) : ''
-              } ${minutes > 0 ? _l('%0分钟', minutes) : ''} `;
-            }
           }
 
           return value && newValue
@@ -486,13 +304,7 @@ export default class Print extends Component {
       }
 
       case 26:
-        return value
-          ? this.state.type === 'worksheet' || this.state.type === 'workflow'
-            ? JSON.parse(value)
-                .map(item => item.fullname)
-                .join(',')
-            : JSON.parse(value).fullname
-          : '';
+        return value ? JSON.parse(value).fullname : '';
       case 27:
         return value
           ? _.isArray(JSON.parse(value))
@@ -522,17 +334,11 @@ export default class Print extends Component {
             )
             .join('，');
         } else {
-          const { relateRecords } = this.state;
-
-          if (relateRecords && relateRecords[item.controlId]) {
-            return this.renderTable(relateRecords[item.controlId], item);
-          } else {
-            return (
-              <div className="textCenter">
-                <LoadDiv />
-              </div>
-            );
-          }
+          return (
+            <div className="textCenter">
+              <LoadDiv />
+            </div>
+          );
         }
 
       case 30: {
@@ -580,125 +386,7 @@ export default class Print extends Component {
         break;
     }
   };
-  renderRecordAttachments(value, isRelateMultipleSheet) {
-    let attachments;
 
-    try {
-      attachments = JSON.parse(value);
-    } catch (err) {
-      console.log(err);
-      return <span className="mBottom5 InlineBlock" dangerouslySetInnerHTML={{ __html: '&nbsp;' }}></span>;
-    }
-
-    const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
-    const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
-    return (
-      <div className={cx('recordAttachments', { isMultiple: isRelateMultipleSheet })}>
-        {!!pictureAttachments.length && (
-          <div className={cx('recordAttachmentPictures', { bottomNoLine: !otherAttachments.length })}>
-            {[
-              ...new Array(
-                isRelateMultipleSheet ? pictureAttachments.length : Math.ceil(pictureAttachments.length / 2) * 2,
-              ),
-            ].map((a, index) => (
-              <div className="pictureAttachment">
-                {pictureAttachments[index] && (
-                  <div className="imgCon">
-                    <img
-                      src={
-                        pictureAttachments[index].previewUrl.slice(
-                          0,
-                          pictureAttachments[index].previewUrl.indexOf('?'),
-                        ) + '?imageMogr2/auto-orient/thumbnail/1200x600/q/90'
-                      }
-                      alt=""
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-        {isRelateMultipleSheet ? (
-          <div className="recordAttachmentPictures">
-            {otherAttachments.map(item => (
-              <div className="pictureAttachment onlyText">
-                <p className="imageAttachmentName ellipsis"> {item.originalFilename + item.ext} </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="otherAttachments mTop4">
-            <div className="pictureAttachment">
-              {otherAttachments.map(item => item.originalFilename + item.ext).join(', ')}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-  renderTable(relateRecord, control) {
-    const { detailsType } = this.state;
-    const controls = control.showControls
-      .map(controlId => _.find(relateRecord.template.controls.concat(systemControl), c => c.controlId === controlId))
-      .filter(c => c && !((c.type === 29 && c.enumDefault === 2) || c.type === 41));
-    return detailsType === 2 ? (
-      <table className="detailsTable" style={{ tableLayout: 'fixed' }} cellpadding="0" cellspacing="0">
-        <tr>
-          {[<td width="20"></td>].concat(
-            controls.map(c => <th style={c.type === 14 ? { width: 200 } : {}}>{c.controlName || ''}</th>),
-          )}
-        </tr>
-        {relateRecord.data.map((item, i) => (
-          <tr>
-            {[<td> {i + 1} </td>].concat(
-              controls.map(c => (
-                <td className="textPreLine">
-                  {this.getShowContent(Object.assign({}, c, { value: item[c.controlId], isRelateMultipleSheet: true }))}
-                </td>
-              )),
-            )}
-          </tr>
-        ))}
-      </table>
-    ) : (
-      <div className="verticalLayout">
-        {relateRecord.data.map((item, i) => (
-          <table className="detailItem" cellpadding="0" cellspacing="0" style={{ tableLayout: 'fixed' }}>
-            {_.chunk(controls, 4).map((rowData, rowIndex) => (
-              <tr className="detailItemControlRow">
-                {rowIndex === 0 && (
-                  <td
-                    rowSpan={Math.ceil(controls.length / 4)}
-                    width="30"
-                    className="detailRowItem verticalLayoutRowNum"
-                  >
-                    {i + 1}
-                  </td>
-                )}
-                {[...new Array(4)].map((c, colIndex) => (
-                  <td className="detailRowItem">
-                    <span className="Bold TxtMiddle mLeft10">
-                      {rowData[colIndex] && (rowData[colIndex].controlName || '')}
-                    </span>
-                    <span className="detailValue TxtMiddle mLeft20">
-                      {rowData[colIndex] &&
-                        this.getShowContent(
-                          Object.assign({}, rowData[colIndex], {
-                            value: item[rowData[colIndex].controlId],
-                            isRelateMultipleSheet: true,
-                          }),
-                        )}
-                    </span>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </table>
-        ))}
-      </div>
-    );
-  }
   getEvaluateValue = function (controls, mapControl) {
     const controlId = mapControl.controlId;
     const evaluateType = mapControl.enumDefault2;
@@ -784,14 +472,8 @@ export default class Print extends Component {
 
     this.setState({ showPrintDialog: true, printCheckAll: this.state.printCheckAll, controlOption });
   }.bind(this);
-  changePrintVisible = function (processOption, printCheckAll, controlOption, options) {
-    let controls = [];
-
-    if (this.state.type === 'worksheet') {
-      controls = this.state.rowInfo.controls;
-    } else {
-      controls = this.state.reqInfo.controls;
-    }
+  changePrintVisible = function (printCheckAll, controlOption) {
+    let controls = this.state.reqInfo.controls;
 
     const formDetailEvaluate = [];
     // 单独把统计的打印放到一个数组
@@ -832,67 +514,11 @@ export default class Print extends Component {
 
     const controlData = _.groupBy(controls, 'row');
 
-    if (this.state.type === 'worksheet' || this.state.type === 'task' || this.state.type === 'workflow') {
+    if (this.state.type === 'task') {
       this.setState({
         showPrintDialog: false,
-        configOptions: Object.assign({}, this.state.configOptions, options),
         controlOption,
         printCheckAll,
-        controls: controlData,
-      });
-    } else if (this.state.type === 'hr') {
-      this.state.reqWorks.manageList.forEach(manageItem => {
-        manageItem.workType = 2;
-      });
-      const newWorkList = _.cloneDeep(this.state.reqWorks);
-
-      if (processOption === 'some') {
-        newWorkList.taskList.forEach(taskItem => {
-          if (taskItem.countersignType) {
-            taskItem.workItems.forEach(countersignItem => {
-              countersignItem.workItemLogList = countersignItem.workItemLogList.filter(
-                countersignWorkItem =>
-                  countersignWorkItem.action === 4 ||
-                  countersignWorkItem.action === 5 ||
-                  countersignWorkItem.action === 8 ||
-                  countersignWorkItem.action === 16 ||
-                  countersignWorkItem.action === 17 ||
-                  countersignWorkItem.action === 18,
-              );
-            });
-          } else {
-            taskItem.workItemLogList = taskItem.workItemLogList.filter(
-              item =>
-                item.action === 4 ||
-                item.action === 5 ||
-                item.action === 8 ||
-                item.action === 16 ||
-                item.action === 17 ||
-                item.action === 18,
-            );
-          }
-        });
-        newWorkList.manageList.forEach(manageItem => {
-          manageItem.workItemLogList = manageItem.workItemLogList.filter(
-            item =>
-              item.action === 12 ||
-              item.action === 14 ||
-              item.action === 15 ||
-              item.action === 20 ||
-              item.action === 21,
-          );
-        });
-      }
-
-      const workList = newWorkList.taskList.concat(newWorkList.manageList);
-      this.setState({
-        showPrintDialog: false,
-        processOption,
-        controlOption,
-        printCheckAll,
-        taskList: processOption === 'no' ? [] : newWorkList.taskList,
-        manageList: processOption === 'no' ? [] : newWorkList.manageList,
-        printWorkList: workList,
         controls: controlData,
       });
     }
@@ -911,23 +537,7 @@ export default class Print extends Component {
         return _l('乘积');
     }
   };
-  beforeControlIsDetail = function (key) {
-    const { type } = this.state;
 
-    if (type !== 'hr') {
-      return false;
-    }
-
-    if (this.state.controls[Number(key) - 1]) {
-      if (this.state.controls[Number(key) - 1][0].type === 0) {
-        return true;
-      }
-
-      return false;
-    } else if (Number(key) - 1 >= 0) {
-      return this.beforeControlIsDetail(Number(key) - 1);
-    }
-  }.bind(this);
   renderTaskItem(name, value, key, classname) {
     return (
       <tr className="row clearfix Relative notDetails" key={key}>
@@ -1009,10 +619,10 @@ export default class Print extends Component {
       </div>
     );
   }
+
   renderControls() {
     const colSpan =
       Object.keys(this.state.controls).filter(item => this.state.controls[item].length > 1).length > 0 ? 2 : 1;
-    const { params } = this.props.match;
     return (
       <table
         className="formDetail"
@@ -1022,16 +632,6 @@ export default class Print extends Component {
         style={{ fontSize: this.state.fontSize }}
       >
         <tbody>
-          {params.printType === 'hr' && (
-            <tr className="row clearfix Relative notDetails">
-              <td className="noHalf rowItem BorderRight0" colSpan={colSpan}>
-                <span className="controlName TxtMiddle">{_l('标题')}</span>
-                <span className="controlValue TxtMiddle" style={{ width: 'calc(100% - 105px)' }}>
-                  {this.state.reqInfo.reqTitle}
-                </span>
-              </td>
-            </tr>
-          )}
           {Object.keys(this.state.controls).map(key => {
             const controlItem = this.state.controls[key];
 
@@ -1039,19 +639,9 @@ export default class Print extends Component {
               if (controlItem[0].type === 0 && !controlItem[0].printHide) {
                 if (this.state.detailsType === 2) {
                   return (
-                    <tr
-                      key={key}
-                      className={cx(
-                        'details row clearfix',
-                        key !== '0' && this.beforeControlIsDetail(key) && 'borderTop0',
-                      )}
-                    >
+                    <tr key={key} className="details row clearfix">
                       <td className="rowItem detailsRowItem" colSpan={colSpan}>
-                        <div
-                          className={cx('detailsName Bold', key !== '0' && this.beforeControlIsDetail(key) && 'mTop0')}
-                        >
-                          {controlItem[0].controlName}
-                        </div>
+                        <div className={'detailsName Bold'}>{controlItem[0].controlName}</div>
                         <table className="detailsTable" cellPadding="0" cellSpacing="0">
                           <tbody>
                             <tr>
@@ -1205,19 +795,9 @@ export default class Print extends Component {
                 }
 
                 return (
-                  <tr
-                    key={key}
-                    className={cx(
-                      'details row clearfix',
-                      key !== '0' && this.beforeControlIsDetail(key) && 'borderTop0',
-                    )}
-                  >
+                  <tr key={key} className="details row clearfix">
                     <td className="rowItem detailsRowItem" colSpan={colSpan}>
-                      <div
-                        className={cx('detailsName Bold', key !== '0' && this.beforeControlIsDetail(key) && 'mTop0')}
-                      >
-                        {controlItem[0].controlName}
-                      </div>
+                      <div className={'detailsName Bold'}>{controlItem[0].controlName}</div>
                       {(() => {
                         if (controlItem[0].printDetailType === 1 || controlItem[0].printDetailType === 2) {
                           return this.state.formControls
@@ -1407,19 +987,9 @@ export default class Print extends Component {
                 );
               } else if (controlItem[0].type === 29 && controlItem[0].enumDefault === 2) {
                 return (
-                  <tr
-                    key={key}
-                    className={cx(
-                      'details row clearfix',
-                      key !== '0' && this.beforeControlIsDetail(key) && 'borderTop0',
-                    )}
-                  >
+                  <tr key={key} className="details row clearfix">
                     <td className="rowItem detailsRowItem" colSpan={colSpan}>
-                      <div
-                        className={cx('detailsName Bold', key !== '0' && this.beforeControlIsDetail(key) && 'mTop0')}
-                      >
-                        {controlItem[0].controlName}
-                      </div>
+                      <div className={'detailsName Bold'}>{controlItem[0].controlName}</div>
                       {this.getShowContent(controlItem[0])}
                     </td>
                   </tr>
@@ -1434,10 +1004,7 @@ export default class Print extends Component {
                     <tr key={'dataTime' + dataIndex} className="row clearfix Relative notDetails">
                       <td
                         style={{
-                          borderTopColor:
-                            key !== '0' && dataIndex === 0 && this.beforeControlIsDetail(key)
-                              ? 'var(--color-text-title)'
-                              : 'var(--color-text-disabled)',
+                          borderTopColor: 'var(--color-text-disabled)',
                         }}
                         className="noHalf rowItem BorderRight0"
                         colSpan={colSpan}
@@ -1458,10 +1025,7 @@ export default class Print extends Component {
                   >
                     <td
                       style={{
-                        borderTopColor:
-                          key !== '0' && this.beforeControlIsDetail(key)
-                            ? 'var(--color-text-title)'
-                            : 'var(--color-text-disabled)',
+                        borderTopColor: 'var(--color-text-disabled)',
                       }}
                       className="noHalf rowItem BorderRight0"
                       colSpan={colSpan}
@@ -1483,40 +1047,7 @@ export default class Print extends Component {
                   </tr>
                 );
               } else if (controlItem[0].type === 14 && !controlItem[0].printHide) {
-                return this.state.type === 'worksheet' || this.state.type === 'workflow' ? (
-                  <tr
-                    key={key}
-                    className={cx('row clearfix Relative notDetails', controlItem[0].type === 10010 && 'remarks')}
-                  >
-                    <td
-                      style={{
-                        borderTopColor:
-                          key !== '0' && this.beforeControlIsDetail(key)
-                            ? 'var(--color-text-title)'
-                            : 'var(--color-text-disabled)',
-                        paddingLeft: 105,
-                      }}
-                      className="noHalf rowItem BorderRight0 pLeft0"
-                      colSpan={colSpan}
-                    >
-                      <span
-                        className="controlName TxtMiddle Left"
-                        style={{
-                          top: 6,
-                          left: 0,
-                        }}
-                      >
-                        {controlItem[0].controlName}
-                      </span>
-                      <span
-                        className={cx('controlValue TxtMiddle Block', controlItem[0].type === 2 && 'textPreLine')}
-                        style={{ width: '100%' }}
-                      >
-                        {this.getShowContent(controlItem[0])}
-                      </span>
-                    </td>
-                  </tr>
-                ) : null;
+                return null;
               } else if (!controlItem[0].printHide) {
                 return (
                   <tr
@@ -1525,12 +1056,7 @@ export default class Print extends Component {
                   >
                     <td
                       style={{
-                        borderTopColor:
-                          key !== '0' && this.beforeControlIsDetail(key)
-                            ? 'var(--color-text-title)'
-                            : this.state.type !== 'hr' && key === '0'
-                              ? 'var(--color-text-title)'
-                              : 'var(--color-text-disabled)',
+                        borderTopColor: key === '0' ? 'var(--color-text-title)' : 'var(--color-text-disabled)',
                       }}
                       className="noHalf rowItem BorderRight0"
                       colSpan={colSpan}
@@ -1559,10 +1085,7 @@ export default class Print extends Component {
                   {!controlItem.filter(rowChildren => rowChildren.col === 0)[0].printHide && (
                     <td
                       style={{
-                        borderTopColor:
-                          key !== '0' && this.beforeControlIsDetail(key)
-                            ? 'var(--color-text-title)'
-                            : 'var(--color-text-disabled)',
+                        borderTopColor: 'var(--color-text-disabled)',
                       }}
                       className="half rowItem"
                     >
@@ -1582,10 +1105,7 @@ export default class Print extends Component {
                     : controlItem.filter(rowChildren => rowChildren.col === 0)[1].printHide) && (
                     <td
                       style={{
-                        borderTopColor:
-                          key !== '0' && this.beforeControlIsDetail(key)
-                            ? 'var(--color-text-title)'
-                            : 'var(--color-text-disabled)',
+                        borderTopColor: 'var(--color-text-disabled)',
                       }}
                       className="half rowItem Relative"
                     >
@@ -1616,13 +1136,8 @@ export default class Print extends Component {
   }
   render() {
     const { params } = this.props.match;
-    const { task, configOptions, rowInfo } = this.state;
-    let { logo } = this.state;
+    const { task, logo } = this.state;
     const code = task.filter(item => item.key === 'code')[0] || {};
-
-    if (this.state.worksheetId && configOptions.showWorkflowQrCode && rowInfo && rowInfo.shortUrl) {
-      logo = md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + rowInfo.shortUrl;
-    }
 
     setInterval(() => {
       if ($('.kf5-support-chat, #containerBg, #topBarContainer').length > 0) {
@@ -1635,27 +1150,17 @@ export default class Print extends Component {
           <PrintOptDialog
             visible={this.state.showPrintDialog}
             changePrintVisible={this.changePrintVisible}
-            options={{
-              showWorkflowQrCode: configOptions.showWorkflowQrCode,
-            }}
             hidePrintOptDialog={() => {
               this.setState({ showPrintDialog: false });
             }}
-            reqInfo={this.state.worksheetId ? this.state.rowInfo : this.state.reqInfo}
+            reqInfo={this.state.reqInfo}
             controlOption={this.state.controlOption}
             printCheckAll={this.state.printCheckAll}
-            worksheetId={this.state.worksheetId}
             type={params.printType}
             task={_.cloneDeep(this.state.task)}
             onUpdateTask={newTask => {
               this.setState({
                 task: newTask,
-              });
-            }}
-            workflow={_.cloneDeep(this.state.workflow)}
-            onUpdateWorkflow={newWorkflow => {
-              this.setState({
-                workflow: newWorkflow,
               });
             }}
           />
@@ -1666,42 +1171,19 @@ export default class Print extends Component {
               <Icon icon="visibility" className="textTertiary font14 mRight8 InlineBlock TxtMiddle" />
               <span className="TxtMiddle">{_l('设置打印内容显隐')}</span>
             </span>
-            {(params.printType === 'hr' || params.printType === 'worksheet') && (
-              <span className="TxtMiddle InlineBlock mRight60">
-                <span className="TxtMiddle">{_l('明细显示方式：')}</span>
-                <RadioGroup
-                  className="TxtMiddle InlineBlock"
-                  data={[
-                    {
-                      text: _l('纵向(单条明细)'),
-                      value: 1,
-                    },
-                    {
-                      text: _l('横向(列表)'),
-                      value: 2,
-                    },
-                  ]}
-                  size="small"
-                  checkedValue={this.state.detailsType}
-                  onChange={value => {
-                    this.setState({ detailsType: value });
-                  }}
-                />
-              </span>
-            )}
             <span className="TxtMiddle InlineBlock mRight60">
               <span className="TxtMiddle">{_l('文字大小：')}</span>
-              <Dropdown
+              <Select
                 style={{ width: 140 }}
-                menuStyle={{ width: 140 }}
+                variant="borderless"
                 value={this.state.fontSize || 14}
                 onChange={value => {
                   this.setState({ fontSize: value });
                 }}
-                data={[
-                  { text: _l('标准'), value: 14 },
-                  { text: _l('中'), value: 16 },
-                  { text: _l('大'), value: 18 },
+                options={[
+                  { label: _l('标准'), value: 14 },
+                  { label: _l('中'), value: 16 },
+                  { label: _l('大'), value: 18 },
                 ]}
               />
             </span>
@@ -1717,50 +1199,25 @@ export default class Print extends Component {
             </div>
           </div>
         </div>
-        {(!this.state.reqInfo && !this.state.temControl) ||
-        (params.printType === 'hr' && this.state.workList.length <= 0) ? (
+        {!this.state.reqInfo && !this.state.temControl ? (
           <LoadDiv className="mTop64" />
         ) : (
           <div className="printContent clearfix pTop20" id="printContent">
             <div className="titleContent clearfix mBottom32">
               <div className="title TxtLeft mTop5">
-                <span className="font24 reqTitle mBottom5">{this.state.printTitle || this.state.reqInfo.title}</span>
+                <span className="font24 reqTitle mBottom5">{this.state.reqInfo.title}</span>
                 <span className="font15 reqNo" title={this.state.reqInfo.reqNo}>
-                  {params.printType === 'hr' && _l('单据编号：')}
-                  {(params.printType === 'hr' || params.printType === 'task' || params.printType === 'workflow') &&
-                    this.state.reqInfo.reqNo}
-                  {params.printType === 'worksheet' && this.state.sheetInfo.name}
+                  {this.state.reqInfo.reqNo}
                 </span>
               </div>
-              <div className="logo" style={{ display: params.printType === 'task' ? (code.show ? '' : 'none') : '' }}>
-                <img
-                  className="img"
-                  src={logo}
-                  alt=""
-                  style={{
-                    height:
-                      params.printType === 'task' ||
-                      (params.printType === 'worksheet' && configOptions.showWorkflowQrCode)
-                        ? 100
-                        : 60,
-                  }}
-                />
+              <div className="logo" style={{ display: code.show ? '' : 'none' }}>
+                <img className="img" src={logo} alt="" style={{ height: 100 }} />
               </div>
             </div>
             {params.printType === 'task' && this.renderTaskHeader()}
             {_.isEmpty(this.state.controls) ? undefined : this.renderControls()}
             {params.printType === 'task' && this.state.task.length && this.renderTaskInventory()}
             {params.printType === 'task' && this.state.task.length && this.renderTaskSubTask()}
-            {this.state.signatureControls.length ? (
-              <div className="flexRow pTop30 pBottom30 signatureContentWrapper">
-                {this.state.signatureControls.map(item => (
-                  <div key={item.controlId}>
-                    <div className="bold">{item.controlName}</div>
-                    <img className="mTop10" src={item.value} />
-                  </div>
-                ))}
-              </div>
-            ) : null}
             <div className="clearfix createBy Font14 mTop15">
               <span className="mBottom10 Right">
                 {_l('打印时间：')}

@@ -79,55 +79,6 @@ export const HomePageWrap = styled.div`
         gap: 10px;
         flex-wrap: wrap;
       }
-      .greenBtn {
-        padding: 6px 21px;
-        font-size: 14px;
-        color: var(--color-white);
-        border-radius: 16px;
-        background: var(--color-success);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        img {
-          width: 20px;
-          height: 20px;
-        }
-        &:hover {
-          color: var(--color-white);
-          background: var(--color-success-hover);
-        }
-      }
-      .blueBtn {
-        padding: 6px 21px;
-        font-size: 14px;
-        color: var(--color-white) !important;
-        border-radius: 16px;
-        background: var(--color-primary);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        img {
-          width: 20px;
-          height: 20px;
-        }
-        &:hover {
-          color: var(--color-white);
-          background: var(--color-link-hover);
-        }
-      }
-      .whiteBtn {
-        padding: 6px 16px;
-        font-size: 14px;
-        color: var(--color-text-primary);
-        border-radius: 16px;
-        border: 1px solid var(--color-border-primary);
-        cursor: pointer;
-        &:hover {
-          color: var(--color-link-hover);
-          border: 1px solid var(--color-link-hover);
-          cursor: pointer;
-        }
-      }
       .trialTag {
         padding: 4px 8px;
         background: var(--color-warning-bg);
@@ -316,32 +267,6 @@ export const HomePageWrap = styled.div`
     margin: 24px 0 16px 0;
     font-size: 16px;
     line-height: 16px;
-  }
-
-  .purchaseUser,
-  .recharge {
-    padding: 6px 16px;
-    transition: background-color 0.25s;
-    background: rgba(18, 148, 247, 0.1);
-    font-weight: 600;
-    color: rgba(18, 148, 247);
-    border-radius: 16px;
-    cursor: pointer;
-    order: 2;
-    font-size: 14px;
-    &:hover {
-      background: rgba(18, 148, 247, 0.2);
-    }
-  }
-  .trialAuthenticate {
-    background-color: var(--color-warning-bg);
-    color: var(--color-text-title);
-    &:hover {
-      background-color: var(--color-warning-bg);
-    }
-    .icon-gift {
-      color: var(--color-warning);
-    }
   }
 
   .inviteUserWrap {
@@ -711,20 +636,4 @@ export const TitleWrap = styled.div`
   font-weight: bold;
   font-size: 16px;
   color: var(--color-text-primary);
-  .titleBtn {
-    padding: 0 16px;
-    height: 32px;
-    background: var(--color-background-primary);
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 32px;
-    border-radius: 3px;
-    cursor: pointer;
-    border: 1px solid var(--color-border-primary);
-    &:hover {
-      color: var(--color-link-hover);
-      border: 1px solid var(--color-link-hover);
-      cursor: pointer;
-    }
-  }
 `;

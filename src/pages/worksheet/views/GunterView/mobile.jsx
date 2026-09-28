@@ -4,10 +4,10 @@ import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import ViewErrorPage from 'mobile/RecordList/View/components/ViewErrorPage';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
 import * as actions from 'src/pages/worksheet/redux/actions';
-import { getRequest } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SYS } from 'src/utils/domain/control/widget';
+import { getRequest } from 'src/utils/platform/browser/device';
 import Gunter from './index.jsx';
 import { isGunterGroupMultiSelectControl } from './util';
 

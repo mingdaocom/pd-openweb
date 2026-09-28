@@ -4,7 +4,7 @@ import _ from 'lodash';
 import filterXss from 'xss';
 import { Icon, LoadDiv } from 'ming-ui';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import { completeAdminLogLinks } from '../utils';
 import './style.less';
 

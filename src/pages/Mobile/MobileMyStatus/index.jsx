@@ -3,13 +3,12 @@ import { useSetState } from 'react-use';
 import { Button, Popup } from 'antd-mobile';
 import _ from 'lodash';
 import moment from 'moment';
-import filterXss from 'xss';
-import { Icon, Input } from 'ming-ui';
+import { Icon, PersonalStatus } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
+import PersonalStatusIcon from 'ming-ui/components/PersonalStatus/PersonalStatusIcon';
 import personalStyleApi from 'src/api/personalStyle';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 import { dateOptions, defaultStatusInfo } from 'src/pages/chat/components/MyStatus/config';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
 import './index.less';
 
 export default function MobileMyStatus() {
@@ -156,10 +155,7 @@ export default function MobileMyStatus() {
                   className={`statusItem ${item.statusId === currentStatusId ? 'active' : ''}`}
                   onClick={() => setData({ currentStatusId: item.statusId })}
                 >
-                  <div
-                    className="emojiWrap"
-                    dangerouslySetInnerHTML={{ __html: filterXss(createLinksForMessage({ message: item.icon }), {}) }}
-                  ></div>
+                  <PersonalStatusIcon className="emojiWrap" icon={item.icon} />
                   <div className="remark bold w100 ellipsis TxtCenter">{item.remark}</div>
                 </div>
               );
@@ -191,12 +187,7 @@ export default function MobileMyStatus() {
         </div>
         <div className="statusListWrap edit">
           <div className="statusItem">
-            <div
-              className="emojiWrap"
-              dangerouslySetInnerHTML={{
-                __html: filterXss(createLinksForMessage({ message: onStatusOption.icon }), {}),
-              }}
-            ></div>
+            <PersonalStatusIcon className="emojiWrap" icon={onStatusOption.icon} />
             <div className="remark bold Font17 w100 ellipsis TxtCenter">{onStatusOption.remark}</div>
           </div>
         </div>
@@ -205,7 +196,7 @@ export default function MobileMyStatus() {
           <Input
             className={`w100 mBottom10 ${!onStatusOption.remark ? 'error' : ''}`}
             value={onStatusOption.remark}
-            onChange={e => setData({ onStatusOption: { ...onStatusOption, remark: e } })}
+            onChange={event => setData({ onStatusOption: { ...onStatusOption, remark: event.target.value } })}
           />
           <div className="bold Font14 mBottom10">{_l('持续时间')}</div>
           <div className="durationWrap">

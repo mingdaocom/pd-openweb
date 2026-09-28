@@ -61,11 +61,11 @@ export const FILLLIMIT_TYPE = {
 };
 
 export const FFILLLIMIT_OPTIONS = [
-  { text: _l('指定次数'), value: FILLLIMIT_TYPE.SPECIFIEDTIMES },
-  { text: _l('每天'), value: FILLLIMIT_TYPE.DAY },
-  { text: _l('每周'), value: FILLLIMIT_TYPE.WEEK },
-  { text: _l('每月'), value: FILLLIMIT_TYPE.MONTH },
-  { text: _l('每年'), value: FILLLIMIT_TYPE.YEAR },
+  { label: _l('指定次数'), value: FILLLIMIT_TYPE.SPECIFIEDTIMES },
+  { label: _l('每天'), value: FILLLIMIT_TYPE.DAY },
+  { label: _l('每周'), value: FILLLIMIT_TYPE.WEEK },
+  { label: _l('每月'), value: FILLLIMIT_TYPE.MONTH },
+  { label: _l('每年'), value: FILLLIMIT_TYPE.YEAR },
 ];
 
 export const PUBLISH_CONFIG_TABS = [
@@ -87,9 +87,9 @@ export const FILL_OBJECT = {
 };
 
 export const FILL_OBJECT_OPTIONS = [
-  { text: _l('所有人'), value: FILL_OBJECT.ALL },
-  { text: _l('平台用户'), value: FILL_OBJECT.PLATFORM },
-  { text: _l('本组织用户'), value: FILL_OBJECT.ORGANIZATION },
+  { text: _l('公开'), value: FILL_OBJECT.ALL, tip: _l('获得链接的所有人均可填写') },
+  { text: _l('平台用户'), value: FILL_OBJECT.PLATFORM, tip: _l('仅平台用户登录后可填写') },
+  { text: _l('组织内成员'), value: FILL_OBJECT.ORGANIZATION, tip: _l('仅组织成员登录后可填写') },
 ];
 
 export const TIME_TYPE = {
@@ -112,24 +112,24 @@ export const TIME_PERIOD_TYPE = {
 
 export const TIME_PERIOD_OPTIONS = {
   month: [
-    { text: _l('每月'), value: TIME_PERIOD_TYPE.MONTHLY },
-    { text: _l('指定月份'), value: TIME_PERIOD_TYPE.SPECIFY_MONTH },
-    { text: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH },
+    { label: _l('每月'), value: TIME_PERIOD_TYPE.MONTHLY },
+    { label: _l('指定月份'), value: TIME_PERIOD_TYPE.SPECIFY_MONTH },
+    { label: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH },
   ],
   day: [
-    { text: _l('每天'), value: TIME_PERIOD_TYPE.DAILY },
-    { text: _l('指定日期'), value: TIME_PERIOD_TYPE.SPECIFY_DAY },
-    { text: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY },
-    { text: _l('每周'), value: TIME_PERIOD_TYPE.WEEKLY },
+    { label: _l('每天'), value: TIME_PERIOD_TYPE.DAILY },
+    { label: _l('指定日期'), value: TIME_PERIOD_TYPE.SPECIFY_DAY },
+    { label: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY },
+    { label: _l('每周'), value: TIME_PERIOD_TYPE.WEEKLY },
   ],
   hour: [
-    { text: _l('不限'), value: TIME_PERIOD_TYPE.UNLIMITED },
-    { text: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR },
+    { label: _l('不限'), value: TIME_PERIOD_TYPE.UNLIMITED },
+    { label: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR },
   ],
 };
 
-export const COLLECT_WAY_OPTIONS = [
-  // { text: _l('平台官方微信服务号'), value: 1 },
+export const getCollectWayOptions = () => [
+  ...(window.platformENV.isHap ? [{ text: _l('平台官方微信服务号'), value: 1 }] : []),
   { text: _l('组织的微信认证服务号'), value: 2 },
 ];
 
@@ -166,18 +166,18 @@ export const WECHAT_MAPPING_SOURCE_FIELDS = [
 ];
 
 export const MONTHS = [
-  { text: _l('1月'), value: 1 },
-  { text: _l('2月'), value: 2 },
-  { text: _l('3月'), value: 3 },
-  { text: _l('4月'), value: 4 },
-  { text: _l('5月'), value: 5 },
-  { text: _l('6月'), value: 6 },
-  { text: _l('7月'), value: 7 },
-  { text: _l('8月'), value: 8 },
-  { text: _l('9月'), value: 9 },
-  { text: _l('10月'), value: 10 },
-  { text: _l('11月'), value: 11 },
-  { text: _l('12月'), value: 12 },
+  { label: _l('1月'), value: 1 },
+  { label: _l('2月'), value: 2 },
+  { label: _l('3月'), value: 3 },
+  { label: _l('4月'), value: 4 },
+  { label: _l('5月'), value: 5 },
+  { label: _l('6月'), value: 6 },
+  { label: _l('7月'), value: 7 },
+  { label: _l('8月'), value: 8 },
+  { label: _l('9月'), value: 9 },
+  { label: _l('10月'), value: 10 },
+  { label: _l('11月'), value: 11 },
+  { label: _l('12月'), value: 12 },
 ];
 
 export const NAV_NAME = {
@@ -228,7 +228,7 @@ export const DISPLAY_CONTENT_OPTIONS = [
 ];
 
 export const BUTTON_POSITION_OPTIONS = [
-  { text: _l('左'), value: 'left' },
-  { text: _l('中'), value: 'center' },
-  { text: _l('右'), value: 'right' },
+  { label: _l('左'), value: 'left' },
+  { label: _l('中'), value: 'center' },
+  { label: _l('右'), value: 'right' },
 ];

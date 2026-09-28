@@ -1,9 +1,9 @@
 import React from 'react';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { MSGTYPES } from '../../constants';
 import { formatInboxItem } from '../../util';
 import BaseMessageComponent from '../baseComponent/messageContent';
-import { pathCompletion } from 'src/utils/common';
 
 /**
  * 动态提到我的

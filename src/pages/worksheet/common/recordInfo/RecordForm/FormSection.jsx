@@ -5,14 +5,14 @@ import { Icon, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { renderTabs } from 'src/components/Form/components/SectionTableNav';
 import { FROM } from 'src/components/Form/core/config';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const FormSectionWrap = styled.div`
-  width: ${props => (props.isUnfold ? '220px' : '55px')};
+  width: ${props => (props.$isUnfold ? '220px' : '55px')};
   height: inherit;
   flex-shrink: 0;
   ${props =>
-    props.isFixedRight
+    props.$isFixedRight
       ? 'border-left: 1px solid var(--color-border-primary);'
       : 'border-right: 1px solid var(--color-border-primary);'}
   display: flex;
@@ -26,8 +26,8 @@ const FormSectionWrap = styled.div`
   }
   .sectionTabItem {
     line-height: 50px;
-    ${props => (props.isUnfold ? '' : 'flex-direction:column;min-height: 50px;justify-content: center;')}
-    ${props => (props.isFixedRight ? 'flex-direction: row-reverse;' : '')}
+    ${props => (props.$isUnfold ? '' : 'flex-direction:column;min-height: 50px;justify-content: center;')}
+    ${props => (props.$isFixedRight ? 'flex-direction: row-reverse;' : '')}
     &.active {
       color: var(--color-primary);
       .icon {
@@ -35,7 +35,7 @@ const FormSectionWrap = styled.div`
       }
     }
     &.active:before {
-      ${props => (props.isFixedRight ? '' : 'margin-left: calc(100% - 3px);')}
+      ${props => (props.$isFixedRight ? '' : 'margin-left: calc(100% - 3px);')}
       top: 20%;
       width: 3px;
       height: 60%;
@@ -44,20 +44,20 @@ const FormSectionWrap = styled.div`
       background-color: var(--color-primary);
     }
     & > span.ellipsis {
-      display: ${props => (props.isUnfold ? 'inline-block;' : 'none')};
+      display: ${props => (props.$isUnfold ? 'inline-block;' : 'none')};
     }
     & > span:first-child {
-      margin-right: ${props => (props.isUnfold ? '' : '0px')};
+      margin-right: ${props => (props.$isUnfold ? '' : '0px')};
     }
     & > div {
       ${props =>
-        props.isUnfold
+        props.$isUnfold
           ? 'width: 24px;text-align: right;margin: 0 0 0 auto;'
           : 'font-size: 12px;margin:4px 0 0 0;line-height: 13px'}
     }
   }
   .expandIcon {
-    margin: 6px auto 6px ${props => (props.isUnfold ? '16px' : 'auto')};
+    margin: 6px auto 6px ${props => (props.$isUnfold ? '16px' : 'auto')};
     width: 28px;
     height: 28px;
     display: flex;
@@ -65,8 +65,10 @@ const FormSectionWrap = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 3px;
+    color: var(--color-text-tertiary);
     &:hover {
       background: var(--color-background-hover);
+      color: var(--color-primary);
     }
   }
 `;
@@ -132,13 +134,13 @@ function FormSection(props, ref) {
   };
 
   return (
-    <FormSectionWrap className="formSection" isFixedRight={widgetStyle.tabposition === '4'} isUnfold={isUnfold}>
+    <FormSectionWrap className="formSection" $isFixedRight={widgetStyle.tabposition === '4'} $isUnfold={isUnfold}>
       {showIcon === '1' && (
         <div className="expandIcon">
           <Tooltip title={isUnfold ? _l('收起') : _l('展开')} placement="right">
             <Icon
               icon={isUnfold ? (widgetStyle.tabposition === '4' ? 'menu_right' : 'menu_left') : 'menu'}
-              className="Font20 textTertiary pointer"
+              className="Font20 pointer"
               onClick={() => {
                 setUnfold(!isUnfold);
                 safeLocalStorageSetItem(

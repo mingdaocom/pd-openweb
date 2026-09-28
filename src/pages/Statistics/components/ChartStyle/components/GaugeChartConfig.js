@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Button, Checkbox, Collapse, ConfigProvider, Input, Modal, Radio, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Input, Modal, Radio, Switch, Tooltip } from 'ming-ui/antd-components';
 import { getChartColors } from 'statistics/Charts/common';
 import { replaceColor } from 'statistics/Charts/GaugeChart';
-import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import { SYS_CHART_COLORS } from 'src/utils/domain/project/colors';
 import RuleColor from './Color/RuleColor';
 
 const colors = SYS_CHART_COLORS[0].colors;
@@ -68,8 +67,35 @@ const SectionColorConfigModal = props => {
 
   const sortSectionColors = () => {
     changeSectionColorConfig({
-      sectionColors: sectionColors.sort((a, b) => b.value - a.value),
+      sectionColors: [...sectionColors].sort((a, b) => b.value - a.value),
     });
+  };
+
+  const handleSave = () => {
+    const filterSectionColors = sectionColors.filter((item, index) => {
+      const next = sectionColors[index + 1] || {};
+      return item.value >= next.value || _.isUndefined(next.value);
+    });
+
+    if (filterSectionColors.length !== sectionColors.length) {
+      alert(_l('当前值请按从大到小填写'), 3);
+      return;
+    }
+
+    if (sectionColors.filter(item => !item.value).length) {
+      alert(_l('当输入大于0的值'), 3);
+      return;
+    }
+
+    const values = sectionColors.map(n => n.value);
+
+    if (_.uniq(values).length !== values.length) {
+      alert(_l('不允许配置相同值'), 3);
+      return;
+    }
+
+    onChangeStyle({ sectionColorConfig: data });
+    onCancel();
   };
 
   return (
@@ -77,50 +103,10 @@ const SectionColorConfigModal = props => {
       title={_l('区间颜色')}
       width={680}
       className="chartModal"
-      visible={visible}
+      open={visible}
       centered={true}
-      destroyOnClose={true}
       closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-      footer={
-        <div className="mTop20 mBottom10 pRight8">
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button type="link" onClick={onCancel}>
-              {_l('取消')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                const filterSectionColors = sectionColors.filter((item, index) => {
-                  const next = sectionColors[index + 1] || {};
-                  return item.value >= next.value || _.isUndefined(next.value);
-                });
-
-                if (filterSectionColors.length !== sectionColors.length) {
-                  alert(_l('当前值请按从大到小填写'), 3);
-                  return;
-                }
-
-                if (sectionColors.filter(item => !item.value).length) {
-                  alert(_l('当输入大于0的值'), 3);
-                  return;
-                }
-
-                const values = sectionColors.map(n => n.value);
-
-                if (_.uniq(values).length !== values.length) {
-                  alert(_l('不允许配置相同值'), 3);
-                  return;
-                }
-
-                onChangeStyle({ sectionColorConfig: data });
-                onCancel();
-              }}
-            >
-              {_l('确认')}
-            </Button>
-          </ConfigProvider>
-        </div>
-      }
+      onOk={handleSave}
       onCancel={onCancel}
     >
       <div className="Font13">
@@ -154,7 +140,6 @@ const SectionColorConfigModal = props => {
             <div className="mRight10">{_l('区间个数')}</div>
             <Input
               style={{ width: 100 }}
-              className="chartInput"
               value={quantity}
               // placeholder={}
               onChange={event => {
@@ -254,7 +239,7 @@ const SectionColorConfigModal = props => {
             <Input
               disabled={type === 1}
               style={{ width: 180 }}
-              className="chartInput textPrimary"
+              className="textPrimary"
               value={data.value}
               onChange={event => {
                 const v = event.target.value.replace(/[^0-9]+/g, '');
@@ -477,11 +462,11 @@ const GaugeColor = props => {
 };
 
 export function gaugeColorPanelGenerator(props) {
-  return (
-    <Collapse.Panel key="gaugeColor" header={_l('仪表盘')} {...props}>
-      <GaugeColor {...props} />
-    </Collapse.Panel>
-  );
+  return {
+    key: 'gaugeColor',
+    label: _l('仪表盘'),
+    children: <GaugeColor {...props} />,
+  };
 }
 
 export function scalePanelGenerator(props) {
@@ -491,87 +476,87 @@ export function scalePanelGenerator(props) {
   const isNumberScale = _.isUndefined(style.isNumberScale) ? scaleType === 1 : style.isNumberScale;
   const isProgressScale = _.isUndefined(style.isProgressScale) ? scaleType === 2 : style.isProgressScale;
   const applySectionScale = style.applySectionScale;
-  return (
-    <Collapse.Panel
-      key="scale"
-      header={_l('刻度')}
-      className={cx({ collapsible: !scaleType })}
-      {...collapseProps}
-      extra={
-        <Switch
-          size="small"
-          checked={!!scaleType}
-          onClick={(checked, event) => {
-            event.stopPropagation();
-          }}
-          onChange={checked => {
-            onChangeStyle({
-              scaleType: checked ? 1 : null,
-              isNumberScale: checked,
-              isProgressScale: checked,
-            });
-          }}
-        />
-      }
-    >
-      <div className="flexRow valignWrapper mBottom13">
-        <Checkbox
-          checked={isNumberScale}
-          onChange={() => {
-            onChangeStyle({ isNumberScale: event.target.checked });
-          }}
-        >
-          {_l('显示数值')}
-        </Checkbox>
-      </div>
-      <div className="flexRow valignWrapper mBottom13">
-        <Checkbox
-          checked={isProgressScale}
-          onChange={() => {
-            onChangeStyle({ isProgressScale: event.target.checked });
-          }}
-        >
-          {_l('显示百分比')}
-        </Checkbox>
-      </div>
-      {style.gaugeColorType === 2 && (
+  return {
+    key: 'scale',
+    label: _l('刻度'),
+    className: cx({ collapsible: !scaleType }),
+    ...collapseProps,
+    extra: (
+      <Switch
+        size="small"
+        checked={!!scaleType}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+        }}
+        onChange={checked => {
+          onChangeStyle({
+            scaleType: checked ? 1 : null,
+            isNumberScale: checked,
+            isProgressScale: checked,
+          });
+        }}
+      />
+    ),
+    children: (
+      <React.Fragment>
         <div className="flexRow valignWrapper mBottom13">
           <Checkbox
-            checked={applySectionScale}
-            onChange={() => {
-              onChangeStyle({ applySectionScale: event.target.checked });
+            checked={isNumberScale}
+            onChange={event => {
+              onChangeStyle({ isNumberScale: event.target.checked });
             }}
           >
-            {_l('按照区间显示')}
+            {_l('显示数值')}
           </Checkbox>
         </div>
-      )}
-    </Collapse.Panel>
-  );
+        <div className="flexRow valignWrapper mBottom13">
+          <Checkbox
+            checked={isProgressScale}
+            onChange={event => {
+              onChangeStyle({ isProgressScale: event.target.checked });
+            }}
+          >
+            {_l('显示百分比')}
+          </Checkbox>
+        </div>
+        {style.gaugeColorType === 2 && (
+          <div className="flexRow valignWrapper mBottom13">
+            <Checkbox
+              checked={applySectionScale}
+              onChange={event => {
+                onChangeStyle({ applySectionScale: event.target.checked });
+              }}
+            >
+              {_l('按照区间显示')}
+            </Checkbox>
+          </div>
+        )}
+      </React.Fragment>
+    ),
+  };
 }
 
 export function indicatorPanelGenerator(props) {
   const { currentReport, onChangeStyle, ...collapseProps } = props;
   const { style } = currentReport;
   const indicatorVisible = _.isUndefined(style.indicatorVisible) ? true : style.indicatorVisible;
-  return (
-    <Collapse.Panel
-      key="indicator"
-      header={_l('指针')}
-      className="hideArrowIcon"
-      {...collapseProps}
-      extra={
-        <Switch
-          size="small"
-          checked={indicatorVisible}
-          onClick={(checked, event) => {
-            event.stopPropagation();
-          }}
-          onChange={checked => {
-            onChangeStyle({ indicatorVisible: checked });
-          }}
-        />
-      }
-    ></Collapse.Panel>
-  );
+  return {
+    key: 'indicator',
+    label: _l('指针'),
+    className: 'hideArrowIcon',
+    ...collapseProps,
+    extra: (
+      <Switch
+        size="small"
+        checked={indicatorVisible}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+        }}
+        onChange={checked => {
+          onChangeStyle({ indicatorVisible: checked });
+        }}
+      />
+    ),
+    children: null,
+  };
 }

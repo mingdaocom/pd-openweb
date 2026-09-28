@@ -1,12 +1,11 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import PublicThirdPartyApp from './components/PublicThirdPartyApp';
 import SelfBuiltThirdPartyApp from './components/SelfBuiltThirdPartyApp';
-import './index.less';
 
 const TABS = [
   { key: 'public', label: _l('平台级') },
@@ -31,7 +30,7 @@ export default function ThirdpartyApp(props) {
     <div className="orgManagementWrap">
       <AdminTitle prefix={_l('集成 - 第三方应用')} />
       <div className="orgManagementHeader">
-        {!window.platformENV.isLocal && !window.platformENV.isOverseas ? (
+        {window.platformENV.isHap ? (
           <div>{_l('平台级')}</div>
         ) : (
           <div className="tabBox">
@@ -51,20 +50,21 @@ export default function ThirdpartyApp(props) {
         )}
         <div className="flex"></div>
         <div>
-          {(currentTab === 'public' || (!window.platformENV.isLocal && !window.platformENV.isOverseas)) &&
-            publicIsEnabled && (
-              <Button
-                onClick={() => {
-                  publicThirdPartyAppRef &&
-                    publicThirdPartyAppRef.current &&
-                    publicThirdPartyAppRef.current.handleClose();
-                }}
-              >
-                {_l('关闭集成')}
-              </Button>
-            )}
+          {(currentTab === 'public' || window.platformENV.isHap) && publicIsEnabled && (
+            <Button
+              type="primary"
+              onClick={() => {
+                publicThirdPartyAppRef &&
+                  publicThirdPartyAppRef.current &&
+                  publicThirdPartyAppRef.current.handleClose();
+              }}
+            >
+              {_l('关闭集成')}
+            </Button>
+          )}
           {currentTab === 'self_built' && (
             <Button
+              type="primary"
               onClick={() =>
                 selfBuiltThirdPartyAppRef &&
                 selfBuiltThirdPartyAppRef.current &&

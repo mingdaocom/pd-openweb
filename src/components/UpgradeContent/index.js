@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 
 const UpgradeContentWrap = styled.div`
   display: flex;
@@ -49,7 +49,6 @@ const IconWrap = styled.div`
   background: var(--color-background-secondary);
   border-radius: 50%;
 `;
-
 const STATUS_INFO = {
   4: {
     text: _l('应用正在升级中...'),
@@ -70,33 +69,40 @@ const STATUS_INFO = {
     desc: _l('该应用正在迁移数据库，暂停访问'),
   },
 };
-
 export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobile }) {
   const { currentPcNaviStyle, appStatus } = appPkg;
   const icon = STATUS_INFO[appStatus].icon || 'icon-unarchive';
-
   if (isMobile) {
     return (
       <MobileWrap>
         <IconWrap>
-          <i className={cx('Font48', icon)} style={{ color: STATUS_INFO[appStatus].color }} />
+          <i
+            className={cx('Font48', icon)}
+            style={{
+              color: STATUS_INFO[appStatus].color,
+            }}
+          />
         </IconWrap>
         <div className="textDisabled Font17 mTop20">{STATUS_INFO[appStatus].text}</div>
         {!!STATUS_INFO[appStatus].desc && <div className="textTertiary mTop10">{STATUS_INFO[appStatus].desc}</div>}
       </MobileWrap>
     );
   }
-
   return (
     <UpgradeContentWrap>
       {showLeftSkeleton && currentPcNaviStyle !== 1 && (
         <div className="unusualSkeletonWrap">
-          <Skeleton active={false} />
+          <Skeleton className="pAll20" active={false} />
         </div>
       )}
       <div className="unusualContent">
         <div className="imgWrap mBottom14">
-          <i className={cx('Font56', icon)} style={{ color: STATUS_INFO[appStatus].color }} />
+          <i
+            className={cx('Font56', icon)}
+            style={{
+              color: STATUS_INFO[appStatus].color,
+            }}
+          />
         </div>
         <div className="Font17 bold">{STATUS_INFO[appStatus].text}</div>
         {!!STATUS_INFO[appStatus].desc && (

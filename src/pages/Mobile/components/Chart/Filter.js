@@ -3,8 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
-import { reportTypes } from 'statistics/Charts/common';
+import { Input } from 'ming-ui/antd-components';
 import { isTimeControl } from 'statistics/common/controlUtils';
 import {
   dropdownDayData,
@@ -14,14 +13,13 @@ import {
   timeGatherParticle,
 } from 'statistics/common/timeUtils';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21];
 
-const InputCon = styled(Input)`
+const InputCon = styled(Input).attrs({ variant: 'filled' })`
   width: 100%;
   border-radius: 18px !important;
-  border: none !important;
-  background-color: var(--color-background-secondary);
 `;
 
 function Group(props) {

@@ -1,17 +1,16 @@
 import React from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Select, Tooltip } from 'ming-ui/antd-components';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import {
   ACTION_LIST,
   ALL_OPERATION_TYPE_DATA,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import DestEdit from './Dest';
 
 const WrapCon = styled.div`
@@ -84,25 +83,6 @@ const WrapCon = styled.div`
         &.isNull {
           background: var(--color-background-secondary) !important;
         }
-        &.secondD {
-          .ming.Dropdown,
-          .dropdownTrigger {
-            width: 100%;
-            vertical-align: middle;
-          }
-          .ming.Dropdown .Dropdown--input,
-          .dropdownTrigger .Dropdown--input {
-            padding-left: 0;
-          }
-          .ming.Dropdown .Dropdown--border,
-          .dropdownTrigger .Dropdown--border,
-          .ming.Dropdown .Dropdown--border:hover,
-          .dropdownTrigger .Dropdown--border:hover,
-          .ming.Dropdown .Dropdown--border.active,
-          .dropdownTrigger .Dropdown--border.active {
-            border-color: transparent;
-          }
-        }
       }
     }
   }
@@ -138,17 +118,20 @@ export default function SlideLayerTem(props) {
         <div className="header flexRow alignItemsCenter">
           <div className="itemBox itemBoxCheck">
             <Checkbox
-              className="TxtMiddle InlineBlock mRight0 checked_selected checkBox "
+              className="TxtMiddle mRight0 checked_selected checkBox "
               checked={isAll && !hasUnsupportedFields}
-              clearselected={isNotAll || (isAll && hasUnsupportedFields)}
-              onClick={() => {
+              indeterminate={isNotAll || (isAll && hasUnsupportedFields)}
+              onChange={() => {
                 cb({
                   fields: fields.map(o => {
                     if ([22].includes(o.mdType)) {
                       return o;
                     }
 
-                    return { ...o, isCheck: !isAll };
+                    return {
+                      ...o,
+                      isCheck: !isAll,
+                    };
                   }),
                 });
               }}
@@ -180,14 +163,17 @@ export default function SlideLayerTem(props) {
               )}
               <div className="itemBox itemBoxCheck">
                 <Checkbox
-                  className="TxtMiddle InlineBlock mRight0 checked_selected checkBox "
+                  className="TxtMiddle mRight0 checked_selected checkBox "
                   checked={item.isCheck && !isNotSupport}
                   disabled={item.isErr || isNotSupport}
-                  onClick={() => {
+                  onChange={() => {
                     cb({
                       fields: fields.map(o => {
                         if (o.id === item.id) {
-                          return { ...o, isCheck: !item.isCheck };
+                          return {
+                            ...o,
+                            isCheck: !item.isCheck,
+                          };
                         } else {
                           return o;
                         }
@@ -244,7 +230,8 @@ export default function SlideLayerTem(props) {
                   placeholder={_l('请输入')}
                   value={item.alias}
                   disabled={!!item.isFakePk && !item.isUniquePk}
-                  onChange={value => {
+                  onChange={event => {
+                    const value = event.target.value;
                     cb({
                       fields: fields.map(o => {
                         if (o.id === item.id) {
@@ -283,10 +270,10 @@ export default function SlideLayerTem(props) {
         <div className="header flexRow alignItemsCenter">
           <div className="itemBox itemBoxCheck">
             <Checkbox
-              className="TxtMiddle InlineBlock mRight0 checked_selected checkBox "
+              className="TxtMiddle mRight0 checked_selected checkBox "
               checked={isAll}
-              clearselected={isNotAll}
-              onClick={() => {
+              indeterminate={isNotAll}
+              onChange={() => {
                 onChangeNodeConfig({
                   config: {
                     ...(_.get(node, ['nodeConfig', 'config']) || {}),
@@ -317,9 +304,9 @@ export default function SlideLayerTem(props) {
             <div className="tableCon flexRow alignItemsCenter">
               <div className="itemBox itemBoxCheck">
                 <Checkbox
-                  className="TxtMiddle InlineBlock mRight0 checked_selected checkBox "
+                  className="TxtMiddle mRight0 checked_selected checkBox "
                   checked={field.isCheck}
-                  onClick={() => {
+                  onChange={() => {
                     onChangeNodeConfig({
                       config: {
                         ...(_.get(node, ['nodeConfig', 'config']) || {}),

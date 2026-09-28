@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import alreadyDelete from 'src/pages/worksheet/assets/alreadyDelete.png';
@@ -98,7 +98,7 @@ const UnNormal = props => {
         <img src={src} />
         <p className="unNormalText" dangerouslySetInnerHTML={{ __html: text }}></p>
         {renderRefresh && (
-          <Button className="mTop25" onClick={() => location.reload()}>
+          <Button type="primary" className="mTop25" onClick={() => location.reload()}>
             {_l('刷新')}
           </Button>
         )}

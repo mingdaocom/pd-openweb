@@ -1,31 +1,52 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
 import _, { get, isFunction } from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import { deleteAttachmentOfControl } from 'worksheet/api';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { downloadAttachmentById, openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import { checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
-import { FROM } from './enum';
+import { formatFileSize } from 'src/utils/core/file';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/services/project';
+
+const getDefaultPopupContainer = () => document.body;
+
+/** 显示文件名时的附件行高，与 fileHeight 保持一致 */
+const ATTACHMENT_NAME_LINE_HEIGHT = 24;
+const ATTACHMENT_COLUMN_GAP = 4;
+const ATTACHMENT_ROW_GAP = 3;
+/** 单元格上下内边距，见 CellControls.less 的 .control-14 */
+const ATTACHMENT_CELL_PADDING_HEIGHT = 10;
+
+/** 单元格可容纳的完整附件行数；只有显示文件名时附件高度才恒定，才谈得上多行 */
+function getAttachmentMaxLines({ showFileValue, rowHeight }) {
+  if (showFileValue !== '1') return 1;
+
+  const contentHeight = rowHeight - ATTACHMENT_CELL_PADDING_HEIGHT;
+  const lines = Math.floor((contentHeight + ATTACHMENT_ROW_GAP) / (ATTACHMENT_NAME_LINE_HEIGHT + ATTACHMENT_ROW_GAP));
+
+  return Math.max(1, lines);
+}
 
 const Con = styled.div`
   &:hover {
     .CutCon {
       margin-right: 34px;
     }
-    ${({ tableType }) =>
-      tableType !== 'classic'
+    ${({ $tableType }) =>
+      $tableType !== 'classic'
         ? `.OperateIcon {
       display: inline-block;
     }`
@@ -41,6 +62,23 @@ const Con = styled.div`
 const CutCon = styled.div`
   overflow: hidden;
   white-space: nowrap;
+  /* 显示文件名时附件高度恒为 24px，行高调大后多出来的空间用于换行展示更多附件 */
+  ${({ $maxLines, $lineHeight }) =>
+    $maxLines > 1 &&
+    `
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    white-space: normal;
+    column-gap: ${ATTACHMENT_COLUMN_GAP}px;
+    row-gap: ${ATTACHMENT_ROW_GAP}px;
+    /* 按整行数封顶，避免最后一行被裁成半截 */
+    max-height: ${$maxLines * $lineHeight + ($maxLines - 1) * ATTACHMENT_ROW_GAP}px;
+    .AttachmentCon {
+      margin-right: 0;
+      margin-bottom: 0;
+    }
+  `}
 `;
 
 const EditingCon = styled.div`
@@ -137,12 +175,7 @@ const OperateIcon = styled.div`
 `;
 
 const HoverPreviewPanelCon = styled.div`
-  text-align: center;
   width: 240px;
-  box-shadow: var(--shadow-lg);
-  border-radius: 6px;
-  background-color: var(--color-background-card);
-  overflow: hidden;
   .fileDetail {
     text-align: left;
     font-size: 13px;
@@ -179,7 +212,6 @@ const HoverPreviewPanelCon = styled.div`
 `;
 
 const ImageCoverCon = styled.div`
-  background-color: var(--color-background-secondary);
   height: 160px;
   display: flex;
   justify-content: center;
@@ -307,6 +339,7 @@ function previewAttachment({
   masterRecordId,
   masterControlId,
   sourceControlId,
+  openPreviewAttachments = previewAttachments,
 }) {
   const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
   let hideFunctions = ['editFileName', 'saveToKnowlege'];
@@ -343,7 +376,7 @@ function previewAttachment({
       download: allowDownload === '1' && (!!_.get(window, 'shareState.shareId') || recordAttachmentSwitch),
     },
     () => {
-      previewAttachments(
+      openPreviewAttachments(
         {
           index: index || 0,
           fromType: 4,
@@ -579,7 +612,6 @@ function Attachment(props) {
     editable,
     index,
     viewId,
-    row = {},
     cell,
     cellInfo,
     cellWidth,
@@ -590,6 +622,7 @@ function Attachment(props) {
     onUpdate,
     deleteLocalAttachment,
     projectId,
+    openPreviewAttachments,
   } = props;
   const { appId, recordId, worksheetId, from, masterData = () => {} } = cellInfo;
   const { attachment } = props;
@@ -609,7 +642,8 @@ function Attachment(props) {
   const handleClick = e => {
     e.stopPropagation();
 
-    if (row.fakeCreatedAt) {
+    // 缩略图加载失败，单元格已经切到托底图标，此时这个附件取不到图，再点开也只会是个空预览层
+    if (imageLoadErrorKey === attachmentPreviewKey) {
       return;
     }
 
@@ -679,6 +713,7 @@ function Attachment(props) {
         masterRecordId: _.get(currentMasterData, 'recordId'),
         masterControlId: _.get(currentMasterData, 'controlId'),
         sourceControlId: cell.sourceControlId,
+        openPreviewAttachments,
       });
     }, 300);
   };
@@ -714,9 +749,9 @@ function Attachment(props) {
   }, []);
 
   return (
-    <Trigger
-      action={browserIsMobile() ? [] : ['hover']}
-      popup={
+    <Popover
+      trigger={browserIsMobile() ? [] : 'hover'}
+      content={
         <HoverPreviewPanel
           isPicture={isPicture}
           shouldUseOriginalPreviewUrl={shouldUseOriginalPreviewUrl}
@@ -734,17 +769,10 @@ function Attachment(props) {
           projectId={projectId}
         />
       }
-      getPopupContainer={() => document.body}
-      destroyPopupOnHide
+      getPopupContainer={getDefaultPopupContainer}
       mouseEnterDelay={0.4}
-      popupAlign={{
-        points: ['tl', 'bl'],
-        offset: [0, 4],
-        overflow: {
-          adjustY: true,
-          adjustX: true,
-        },
-      }}
+      placement="bottomLeft"
+      noPadding
     >
       <AttachmentCon
         className="AttachmentCon"
@@ -774,7 +802,7 @@ function Attachment(props) {
           </AttachmentDocFileName>
         )}
       </AttachmentCon>
-    </Trigger>
+    </Popover>
   );
 }
 
@@ -793,10 +821,8 @@ function CellAttachments(props, sourceRef) {
     sheetSwitchPermit,
     isediting,
     columnStyle,
-    row = {},
     cell = {},
     rowHeight = 34,
-    popupContainer,
     onClick,
     updateEditingStatus,
     updateCell,
@@ -805,6 +831,7 @@ function CellAttachments(props, sourceRef) {
   } = props;
   let { editable } = props;
   const { value, strDefault = '', advancedSetting = {}, enumDefault } = cell;
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const showShape =
     {
       4: 'rect',
@@ -847,8 +874,9 @@ function CellAttachments(props, sourceRef) {
   const showFileName =
     (from === FROM.COMMON && showFileValue === '1') ||
     (from === FROM.CARD && attachments.length === 1 && !RegExpValidator.fileIsPicture(attachments[0].ext));
-  const fileHeight = showFileValue === '1' ? 24 : rowHeight - 10;
+  const fileHeight = showFileValue === '1' ? ATTACHMENT_NAME_LINE_HEIGHT : rowHeight - ATTACHMENT_CELL_PADDING_HEIGHT;
   const fileWidth = (fileHeight * 21) / 24;
+  const maxLines = getAttachmentMaxLines({ showFileValue, rowHeight });
   useImperativeHandle(sourceRef, () => ({
     handleTableKeyDown(e) {
       switch (e.key) {
@@ -916,6 +944,14 @@ function CellAttachments(props, sourceRef) {
     setTemporaryKnowledgeAtts([]);
   }
 
+  function handleOpenRecord(e) {
+    if (e.target.closest('.attachmentUploadAdd')) return;
+
+    updateEditingStatus(false);
+    setUploadFileVisible(true);
+    onClick(e);
+  }
+
   const attachmentsComp = attachments.map((attachment, index) => (
     <Attachment
       showShape={showShape}
@@ -924,9 +960,7 @@ function CellAttachments(props, sourceRef) {
       isTrash={isTrash}
       isSubList={isSubList}
       editable={editable}
-      row={row}
       cell={cell}
-      popupContainer={popupContainer}
       attachment={attachment}
       cellWidth={style.width - 12}
       fileHeight={fileHeight}
@@ -937,6 +971,7 @@ function CellAttachments(props, sourceRef) {
       sheetSwitchPermit={sheetSwitchPermit}
       viewId={viewId}
       projectId={projectId}
+      openPreviewAttachments={openPreviewAttachments}
       onUpdate={valueStr => {
         setAttachments(parseValue(valueStr));
       }}
@@ -947,8 +982,9 @@ function CellAttachments(props, sourceRef) {
   ));
 
   if (isediting && allowupload === '1') {
-    const popContent = (
+    return (
       <UploadFilesTrigger
+        getPopupContainer={() => document.body}
         specialFilter={target => ref.current.contains(target)}
         allowUploadFileFromMobile
         appId={appId}
@@ -976,7 +1012,6 @@ function CellAttachments(props, sourceRef) {
         onKcAttachmentDataUpdate={res => {
           setTemporaryKnowledgeAtts(res);
         }}
-        getPopupContainer={() => document.body}
         onCancel={() => {
           setUploadFileVisible(false);
         }}
@@ -1003,10 +1038,11 @@ function CellAttachments(props, sourceRef) {
           );
         }}
       >
-        <EditingCon ref={ref} style={{ width: style.width, minHeight: style.height }}>
+        <EditingCon ref={ref} className={className} style={style} onClick={handleOpenRecord}>
           {attachmentsComp}
           {allowupload === '1' && (
             <Add
+              className="attachmentUploadAdd"
               style={{ width: fileWidth, height: fileHeight, lineHeight: fileHeight - 2 + 'px' }}
               onClick={() => setUploadFileVisible(true)}
             >
@@ -1016,33 +1052,20 @@ function CellAttachments(props, sourceRef) {
         </EditingCon>
       </UploadFilesTrigger>
     );
-    return (
-      <Trigger
-        zIndex={99}
-        popup={popContent}
-        getPopupContainer={popupContainer}
-        popupClassName="filterTrigger"
-        popupVisible={isediting}
-        destroyPopupOnHide
-        popupAlign={{
-          points: ['tl', 'tl'],
-          overflow: { adjustY: true },
-        }}
-      >
-        <div className={className} style={style} onClick={onClick} />
-      </Trigger>
-    );
   }
 
   return (
     <Con
       className={cx(className, { canedit: editable })}
-      tableType={tableType}
+      $tableType={tableType}
       style={style}
       onClick={allowupload === '1' ? onClick : undefined}
     >
-      {/* 任意行高恒定单行展示：缩略图撑满行高，超出列宽部分由右侧遮盖裁剪，不换行 */}
-      <CutCon className="CutCon">{attachmentsComp}</CutCon>
+      {/* 不显示文件名时缩略图撑满行高，恒定单行、超出列宽部分由右侧遮盖裁剪；
+          显示文件名时附件高度恒定，行高够则按整行数换行 */}
+      <CutCon className="CutCon" $maxLines={maxLines} $lineHeight={fileHeight}>
+        {attachmentsComp}
+      </CutCon>
       {editable && allowupload === '1' && (
         <OperateIcon className="OperateIcon">
           <i
@@ -1068,6 +1091,7 @@ CellAttachments.propTypes = {
   popupContainer: func,
   onClick: func,
   updateEditingStatus: func,
+  openPreviewAttachments: func,
 };
 
 export default forwardRef(CellAttachments);

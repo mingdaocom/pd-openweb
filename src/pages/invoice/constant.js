@@ -1,16 +1,16 @@
 export const INVOICE_TYPE_OPTIONS = [
-  { text: _l('数电普票'), value: 2 },
-  { text: _l('数电专票'), value: 1 },
+  { label: _l('数电普票'), value: 2 },
+  { label: _l('数电专票'), value: 1 },
 ];
 
 export const RADIO_DATA = {
   invoiceOutputType: [
-    { text: _l('企业'), value: 1 },
-    { text: _l('个人'), value: 2 },
+    { label: _l('企业'), value: 1 },
+    { label: _l('个人'), value: 2 },
   ],
   contentType: [
-    { text: _l('按类目汇总'), value: 1 },
-    { text: _l('明细（开发中）'), value: 2, disabled: true },
+    { label: _l('按类目汇总'), value: 1 },
+    { label: _l('明细（开发中）'), value: 2, disabled: true },
   ],
   invoiceType: INVOICE_TYPE_OPTIONS,
 };

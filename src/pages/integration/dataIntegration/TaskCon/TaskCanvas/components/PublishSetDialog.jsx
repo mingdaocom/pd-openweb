@@ -2,21 +2,13 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, VerifyPasswordInput } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import verifyPassword from 'src/components/verifyPassword';
+import { Icon, VerifyPasswordInput } from 'ming-ui';
+import { Checkbox, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const Wrap = styled.div`
-  .ming.Dropdown,
-  .dropdownTrigger {
-    min-width: 300px;
-    max-width: 100%;
-  }
-  .ming.Item .Item-content .itemText {
-    padding-left: 10px;
-  }
   .verifyPasswordWrap {
     .verifyPasswordTitle {
       font-size: 14px !important;
@@ -42,14 +34,18 @@ export default function PublishSetDialog(props) {
         : {},
       loading: false,
     });
+  const controlOptions = props.controls.map(control => ({
+    label: control.alias || control.name,
+    icon: getIconByType(control.mdType, false),
+    value: control.id,
+  }));
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       title={<span className="bold">{_l('更新发布')}</span>}
       width={552}
       className="publishSetDialog"
-      showCancel={true}
       okText={loading ? _l('更新发布...') : _l('更新发布')}
       onOk={() => {
         isCleanDestTableData
@@ -81,15 +77,12 @@ export default function PublishSetDialog(props) {
         <p className="mBottom12 textTertiary">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
         <div className="">
           <div className="">{_l('在同步时，依据目标字段')}</div>
-          <Dropdown
-            isAppendToBody
-            cancelAble
+          <Select
+            allowClear
             className="controlDrop mTop10"
-            menuStyle={{ width: '100%' }}
-            data={props.controls.map(o => {
-              return { text: o.alias || o.name, icon: getIconByType(o.mdType, false), value: o.id };
-            })}
-            renderTitle={() => {
+            classNames={{ popup: { root: 'dropWorksheetIntegration' } }}
+            options={controlOptions}
+            labelRender={() => {
               const info = props.controls.find(o => o.id === value) || {};
               return (
                 <React.Fragment>
@@ -97,27 +90,26 @@ export default function PublishSetDialog(props) {
                 </React.Fragment>
               );
             }}
-            renderItem={o => {
-              return <span className="mLeft10">{o.text}</span>;
-            }}
-            menuClass={'dropWorksheetIntegration'}
+            optionRender={({ data }) => (
+              <span>
+                <Icon className="textTertiary mRight10" icon={data.icon} />
+                {data.label}
+              </span>
+            )}
             value={value}
-            border
             onChange={value => {
               setState({ value, fieldForIdentifyDuplicate: props.controls.find(o => o.id === value) || {} });
             }}
           />
           <div className="mTop10">{_l('识别重复，并')}</div>
           <div className="flexRow alignItemsCenter mTop10">
-            <Dropdown
+            <Select
               className="controlDrop"
-              menuStyle={{ width: '100%' }}
-              data={[
-                { text: _l('跳过'), value: 'SKIP' },
-                { text: _l('覆盖'), value: 'OVERWRITE' },
+              options={[
+                { label: _l('跳过'), value: 'SKIP' },
+                { label: _l('覆盖'), value: 'OVERWRITE' },
               ]}
               value={writeMode}
-              border
               onChange={writeMode => {
                 setState({ writeMode });
               }}
@@ -130,15 +122,16 @@ export default function PublishSetDialog(props) {
         <h5 className="Bold mTop25 Font14">{_l('其他配置')}</h5>
         <div className="">
           <Checkbox
-            size="small"
             checked={isCleanDestTableData}
-            onClick={() => {
+            onChange={() => {
               setState({
                 isCleanDestTableData: !isCleanDestTableData,
               });
             }}
-            text={_l('在本次同步数据之前，彻底清空目标表数据')}
-          />
+            size="small"
+          >
+            {_l('在本次同步数据之前，彻底清空目标表数据')}
+          </Checkbox>
         </div>
         {isCleanDestTableData && (
           <VerifyPasswordInput
@@ -153,6 +146,6 @@ export default function PublishSetDialog(props) {
           />
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -2,8 +2,8 @@ import _ from 'lodash';
 import { mdNotification } from 'ming-ui/functions';
 import process from 'src/pages/workflow/api/process';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import { emitter } from 'src/utils/common';
-import { equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'src/utils/platform/storage/local';
 import workflowHistory from './workflowHistory';
 import './index.less';
 

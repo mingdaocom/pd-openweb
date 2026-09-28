@@ -3,15 +3,15 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
 import GroupByControl from 'mobile/components/GroupByControl';
-import { dealBoardViewData } from 'worksheet/views/BoardView/util';
-import { getCardWidth } from 'src/utils/worksheet';
+import { getCardWidth } from 'src/pages/worksheet/common/ViewConfig/getCardWidth';
+import { dealBoardViewData } from 'src/utils/services/worksheet/board';
 import RecordList from './RecordList';
 import './index.less';
 
 const GroupBoardWrap = styled.div`
   .groupHeaderItemWrap,
   .commonGroupItemWrap {
-    width: ${props => `${props.width}px`};
+    width: ${props => `${props.$width}px`};
   }
 `;
 
@@ -118,7 +118,7 @@ const CommonBoard = props => {
   return (
     <GroupBoardWrap
       className="mobileCommonBoardWrap"
-      width={view?.advancedSetting?.cardwidth ? getCardWidth(view) : 280}
+      $width={view?.advancedSetting?.cardwidth ? getCardWidth(view) : 280}
     >
       <ScrollView
         className="commonBoardScroll"

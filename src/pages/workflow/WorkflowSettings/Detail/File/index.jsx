@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, LoadDiv, PriceTip, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, PriceTip, ScrollView } from 'ming-ui';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { CustomTextarea, DetailFooter, DetailHeader, SelectNodeObject } from '../components';
 
@@ -120,9 +120,8 @@ export default class File extends Component {
     const { data } = this.state;
     const appList = data.appList.map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
-        className: item.id === data.appId ? 'colorPrimary' : '',
       };
     });
     const selectAppItem = appList.find(item => item.value === data.appId);
@@ -149,20 +148,20 @@ export default class File extends Component {
         <div className="Font13 textSecondary mTop5">
           {_l('仅支持选择自定义打印模板（Word 或 Excel），暂不支持使用系统模板')}
         </div>
-        <Dropdown
+        <Select
           className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
-          data={appList}
+          options={appList}
           value={data.appId}
-          renderTitle={
+          labelRender={
             !data.appId
               ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.appId && !selectAppItem
                 ? () => <span className="errorColor">{_l('模板已删除')}</span>
-                : () => <span>{selectAppItem.text}</span>
+                : () => <span>{selectAppItem.label}</span>
           }
-          border
-          openSearch
-          noData={_l('暂无打印模板')}
+          showSearch
+          optionFilterProp="label"
+          notFoundContent={_l('暂无打印模板')}
           onChange={appId => this.updateSource({ appId })}
         />
 
@@ -183,7 +182,7 @@ export default class File extends Component {
           updateSource={this.updateSource}
         />
 
-        <div className="Font13 mTop20 bold">
+        <div className="Font13 mTop20 bold flexRow alignItemsCenter">
           {_l('其他')}
           <Tooltip title={_l('系统默认会生成 Word/Excel 文件，生成的文件后续流程节点可直接使用')}>
             <Icon className="Font14 textTertiary mLeft5" icon="info" />
@@ -192,11 +191,16 @@ export default class File extends Component {
         <div className="mTop10 flexRow">
           <Checkbox
             className="InlineFlex"
-            text={_l('同时生成PDF文件')}
             checked={data.pdf}
             disabled={!data.wpsConfig}
-            onClick={checked => this.updateSource({ pdf: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                pdf: event.target.checked,
+              })
+            }
+          >
+            {_l('同时生成PDF文件')}
+          </Checkbox>
         </div>
         {!data.wpsConfig && <div className="mTop5 textSecondary">{_l('未配置 PDF 转换服务')}</div>}
         {window.platformENV.isPlatform && data.pdf && (

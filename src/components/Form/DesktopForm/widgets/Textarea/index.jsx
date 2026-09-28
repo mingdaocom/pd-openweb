@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Linkify, Textarea } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
 import TextMarkdown from '../../../components/TextMarkdown';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
@@ -13,12 +13,12 @@ const TextareaWrap = styled.div`
   width: 100%;
   .customFormControlBox {
     padding: 6px 12px !important;
-    ${props => (props.isEditing ? 'display: none;' : '')}
-    ${props => (props.isSingleLine ? '' : 'line-height: 1.5;')}
+    ${props => (props.$isEditing ? 'display: none;' : '')}
+    ${props => (props.$isSingleLine ? '' : 'line-height: 1.5;')}
     ${props =>
-      props.disabled
+      props.$disabled
         ? 'padding: 6px 0px !important;'
-        : props.showMaskValue || props.hint
+        : props.$showMaskValue || props.$hint
           ? ''
           : 'position: absolute;top: 0;right: 0;left: 0;bottom: 0;z-index: 1;pointer-events: none; padding: 6px 12px !important;'}
     span a {
@@ -26,8 +26,9 @@ const TextareaWrap = styled.div`
     }
   }
   .customFormTextarea {
-    ${props => (props.disabled || ((props.showMaskValue || props.hint) && !props.isEditing) ? 'display: none;' : '')}
-    ${props => (props.isEditing ? '' : 'border-color: transparent !important;color: transparent;')}
+    ${props =>
+      props.$disabled || ((props.$showMaskValue || props.$hint) && !props.$isEditing) ? 'display: none;' : ''}
+    ${props => (props.$isEditing ? '' : 'border-color: transparent !important;color: transparent;')}
   }
 `;
 
@@ -104,22 +105,29 @@ const Text = props => {
         textRef.current && textRef.current.removeEventListener('scroll', syncScroll);
       };
     }
-  }, []);
+  }, [enumDefault, syncScroll]);
 
   useEffect(() => {
-    if (textRef.current) {
-      textRef.current.value = getEditValue();
-      if (!isEditing) {
-        setTimeout(() => {
-          if ($(textRef.current).outerHeight() !== $(boxRef.current).outerHeight()) {
-            $(textRef.current).css('height', $(boxRef.current).outerHeight());
+    const textarea = textRef.current;
+
+    if (textarea) {
+      textarea.value = getEditValue();
+
+      if (disabled) {
+        const syncHeightTimer = setTimeout(() => {
+          const box = boxRef.current;
+
+          if (box && $(textarea).outerHeight() !== $(box).outerHeight()) {
+            $(textarea).css('height', $(box).outerHeight());
           }
         }, 0);
-      } else {
-        $(textRef.current).trigger('input');
+
+        return () => clearTimeout(syncHeightTimer);
       }
+
+      $(textarea).trigger('input');
     }
-  }, [value, recordId, isEditing]);
+  }, [disabled, getEditValue, isEditing, recordId]);
 
   useEffect(() => {
     if (isEditing) {
@@ -223,11 +231,11 @@ const Text = props => {
   return (
     <TextareaWrap
       id={`textareaPointEvents-${controlId}`}
-      isEditing={isEditing}
-      isSingleLine={isSingleLine}
-      disabled={disabled}
-      showMaskValue={showMaskValue}
-      hint={!value && hint}
+      $isEditing={isEditing}
+      $isSingleLine={isSingleLine}
+      $disabled={disabled}
+      $showMaskValue={showMaskValue}
+      $hint={!value && hint}
     >
       <div
         className={cx(

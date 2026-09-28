@@ -6,9 +6,9 @@ import styled from 'styled-components';
 import { BgIconButton } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import mingoAjax from 'src/api/mingo';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
 import chatbotApi from 'src/pages/workflow/apiV2/chatbot';
-import { compatibleMDJS } from 'src/utils/project';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
+import { compatibleMDJS } from 'src/utils/services/project';
 import Recorder from './Recorder';
 import UploadFiles from './UploadFiles';
 

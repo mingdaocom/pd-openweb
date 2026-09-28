@@ -1,36 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import Button from '../../../Button';
-
-const FilterData = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 2px 6px;
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  border: 1px solid transparent;
-  border-radius: 3px;
-  white-space: nowrap;
-  cursor: pointer;
-  .icon {
-    margin-right: 5px;
-    font-size: 18px;
-  }
-  &.active {
-    color: var(--color-primary);
-    border-color: var(--color-primary);
-  }
-  &.noFilter {
-    &:hover {
-      background-color: var(--color-background-tertiary);
-    }
-  }
-`;
 
 const FilterConfigWrapper = styled.div`
   flex: 1;
@@ -49,14 +23,6 @@ const FilterConfigWrapper = styled.div`
   }
 `;
 
-const Footer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
-  margin-top: 20px;
-`;
-
 const FieldConditions = props => {
   const {
     appId,
@@ -69,7 +35,7 @@ const FieldConditions = props => {
     setDelayOpenFilter,
     onSave,
   } = props;
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState(filterConditions);
   const [hasInvalidConditions, setHasInvalidConditions] = useState(false);
 
   const handleFilterDataClick = e => {
@@ -80,31 +46,51 @@ const FieldConditions = props => {
       return;
     }
 
+    setFilter(filterConditions);
+    setHasInvalidConditions(false);
     setVisible(true);
   };
 
-  useEffect(() => {
-    if (visible) {
-      setFilter(filterConditions);
+  const handleCancel = () => {
+    setFilter(filterConditions);
+    setHasInvalidConditions(false);
+    setVisible(false);
+  };
+
+  const handleSave = () => {
+    if (hasInvalidConditions && filter?.length) {
+      alert(_l('请完善过滤条件'), 3);
+      return;
     }
-  }, [visible]);
+
+    onSave({
+      filter: (filter || []).filter(item => !item.isGroup || item.groupFilters?.length),
+      worksheetId: worksheetInfo.worksheetId,
+    });
+    setVisible(false);
+  };
 
   return (
     <Fragment>
-      <FilterData className={`${filterConditions?.length ? 'active' : 'noFilter'}`} onClick={handleFilterDataClick}>
-        <Icon icon="filter" className="icon" />
+      <Button
+        size="small"
+        color={filterConditions?.length ? 'primary' : 'default'}
+        variant={filterConditions?.length ? 'outlined' : 'text'}
+        icon={<Icon icon="filter" />}
+        onClick={handleFilterDataClick}
+      >
         {_l('数据过滤')}
-      </FilterData>
+      </Button>
       {visible && (
-        <Dialog
-          visible
+        <Modal
+          open
           width={800}
           className="fieldConditionsDialog"
-          showFooter={false}
-          title={<span className="Font18">{_l('配置 “%0” 数据过滤条件', worksheetInfo.name)}</span>}
-          onCancel={() => {
-            setVisible(false);
-          }}
+          title={_l('配置 “%0” 数据过滤条件', worksheetInfo.name)}
+          okText={_l('保存')}
+          keyboard
+          onCancel={handleCancel}
+          onOk={handleSave}
         >
           <FilterConfigWrapper>
             <div className="tips">
@@ -133,30 +119,7 @@ const FieldConditions = props => {
               </div>
             </ScrollView>
           </FilterConfigWrapper>
-
-          <Footer>
-            <Button type="text" onClick={() => setVisible(false)}>
-              {_l('取消')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                if (hasInvalidConditions && filter?.length) {
-                  alert(_l('请完善过滤条件'), 3);
-                  return;
-                }
-
-                onSave({
-                  filter: filter.filter(item => !item.isGroup || item.groupFilters?.length),
-                  worksheetId: worksheetInfo.worksheetId,
-                });
-                setVisible(false);
-              }}
-            >
-              {_l('保存')}
-            </Button>
-          </Footer>
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

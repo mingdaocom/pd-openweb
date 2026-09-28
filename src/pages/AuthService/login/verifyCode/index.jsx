@@ -4,10 +4,11 @@ import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';
-import { maskValue } from 'src/pages/Admin/security/account/utils';
-import { browserIsMobile, getRequest } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
-import { removePssId } from 'src/utils/pssId';
+import { maskValue } from 'src/utils/domain/account/profile';
+import { removePssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { encrypt } from 'src/utils/services/security/encryption';
 import OtpInput from '../../components/Inputs/OtpInput';
 import { CodeTypeEnum } from '../../config.js';
 import { TwofactorType } from '../../twofactor/config';
@@ -89,7 +90,10 @@ export default function (props) {
       .catch(error => {
         setState({ hasSend: false }); // 接口调用失败，不显示文案
         otpInputRef.current?.resetSending(); // 重置发送状态，允许重新发送
-        alert(_l('验证码发送失败'), 3);
+        if (!error?.errorMessage) {
+          alertIfNotUnauthorized(error, _l('验证码发送失败'), 3);
+        }
+
         console.log(error);
       });
   };

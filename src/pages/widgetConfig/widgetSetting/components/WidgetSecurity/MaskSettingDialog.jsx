@@ -2,12 +2,12 @@ import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Input, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
-import { dealMaskValue } from './util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/utils/domain/control/setting';
 
 const DEFAULT_MASK_OPTIONS = [
   {
@@ -28,19 +28,19 @@ const Setting_Config = [
     errKey: 'mdErr',
     data: [
       {
-        text: _l('不显示'),
+        label: _l('不显示'),
         value: '0',
       },
       {
-        text: _l('指定字数'),
+        label: _l('指定字数'),
         value: '1',
       },
       {
-        text: _l('指定字符之前的字'),
+        label: _l('指定字符之前的字'),
         value: '2',
       },
       {
-        text: _l('指定字符和之前的字'),
+        label: _l('指定字符和之前的字'),
         value: '3',
       },
     ],
@@ -52,19 +52,19 @@ const Setting_Config = [
     errKey: 'meErr',
     data: [
       {
-        text: _l('不显示'),
+        label: _l('不显示'),
         value: '0',
       },
       {
-        text: _l('指定字数'),
+        label: _l('指定字数'),
         value: '1',
       },
       {
-        text: _l('指定字符之后的字'),
+        label: _l('指定字符之后的字'),
         value: '2',
       },
       {
-        text: _l('指定字符和之后的字'),
+        label: _l('指定字符和之后的字'),
         value: '3',
       },
     ],
@@ -79,10 +79,6 @@ const SelectItem = styled.div`
   }
   .title {
     margin-bottom: 6px;
-  }
-  .Dropdown--input {
-    padding: 5px 8px 5px 12px !important;
-    border-color: var(--color-border-primary) !important;
   }
   .opBtn {
     width: 70px;
@@ -100,19 +96,9 @@ const SelectItem = styled.div`
     }
   }
   .inputBox {
-    border: 1px solid var(--color-border-primary) !important;
     height: 36px;
     border-radius: 4px;
     padding: 0px 12px;
-    &::placeholder {
-      color: var(--color-text-disabled);
-    }
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-    &.err {
-      border-color: var(--color-error);
-    }
   }
   .Width100 {
     width: 100px;
@@ -141,6 +127,7 @@ const originErr = {
   meErr: false,
   mlErr: false,
 };
+
 const renderShowValue = (item = {}) => {
   const selectValue = _.find(DISPLAY_MASK, i => i.value === item.value) || {};
   return (
@@ -152,6 +139,11 @@ const renderShowValue = (item = {}) => {
     </span>
   );
 };
+
+const MASK_TYPE_OPTIONS = [
+  ...DISPLAY_MASK.map(item => ({ label: renderShowValue(item), value: item.value })),
+  ...CUSTOM_DISPLAY.map(item => ({ label: item.text, value: item.value })),
+];
 
 export default function MaskSettingDialog(props) {
   const { data = {}, onCancel, onChange } = props;
@@ -187,12 +179,13 @@ export default function MaskSettingDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={640}
-      visible={true}
+      open={true}
+      keyboard
       title={_l('掩码设置')}
       onCancel={onCancel}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         if (_.includes(['1', '2', '3'], detail.maskbegin) && (!detail.mdchar || err.mdErr)) {
           setErr({ mdErr: true });
@@ -215,14 +208,11 @@ export default function MaskSettingDialog(props) {
     >
       <SelectItem>
         <div className="title Bold">{_l('掩码规则')}</div>
-        <Dropdown
-          border
-          isAppendToBody
+        <Select
           className="w100"
-          maxHeight={385}
+          listHeight={385}
           value={masktype}
-          renderTitle={(i = {}) => i.text}
-          data={[DISPLAY_MASK.map(item => ({ text: renderShowValue(item), value: item.value }))].concat(CUSTOM_DISPLAY)}
+          options={MASK_TYPE_OPTIONS}
           onChange={value => {
             setDetail({ masktype: value });
             setTestInfo({ text: '', status: false });
@@ -237,11 +227,14 @@ export default function MaskSettingDialog(props) {
 
           <div className="flexCenter mTop12">
             <span className="Width100 mRight10">{_l('基础规则')}</span>
-            <RadioGroup
-              data={DEFAULT_MASK_OPTIONS}
-              checkedValue={defaultmask}
-              radioItemClassName="mRight80"
-              onChange={value => setDetail({ defaultmask: value })}
+            <Radio.Group
+              options={(DEFAULT_MASK_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              value={defaultmask}
+              onChange={event =>
+                setDetail({
+                  defaultmask: event.target.value,
+                })
+              }
             />
           </div>
 
@@ -253,16 +246,10 @@ export default function MaskSettingDialog(props) {
                 return (
                   <div className="flexCenter mTop12">
                     <span className="InlineBlock Width100 mRight10">{text}</span>
-                    <Dropdown
+                    <Select
                       className="Width200"
-                      border
-                      isAppendToBody
-                      showItemTitle
                       value={dropValue}
-                      renderTitle={value => {
-                        return <span title={value.text}>{value.text}</span>;
-                      }}
-                      data={data}
+                      options={data}
                       onChange={value => {
                         setDetail({ [dropdownKey]: value, [inputKey]: '' });
                         setErr({ [errKey]: false });
@@ -270,9 +257,9 @@ export default function MaskSettingDialog(props) {
                     />
                     {dropValue === '1' && (
                       <Fragment>
-                        <span className="mLeft20 flex">{_l('字数')}</span>
+                        <span className="mLeft20 mRight20">{_l('字数')}</span>
                         <InputValue
-                          className="inputBox"
+                          className="inputBox flex"
                           type={2}
                           placeholder={_l('请输入字数')}
                           value={inputValue}
@@ -285,14 +272,14 @@ export default function MaskSettingDialog(props) {
                     )}
                     {_.includes(['2', '3'], dropValue) && (
                       <Fragment>
-                        <span className="mLeft20 flex">{_l('字符')}</span>
+                        <span className="mLeft20 mRight20">{_l('字符')}</span>
                         <Input
-                          className="inputBox"
+                          className="inputBox flex"
                           placeholder={_l('请输入字符')}
                           value={inputValue}
-                          onChange={value => {
-                            setDetail({ [inputKey]: value });
-                            setErr({ meErr: !value });
+                          onChange={event => {
+                            setDetail({ [inputKey]: event.target.value });
+                            setErr({ meErr: !event.target.value });
                           }}
                         />
                       </Fragment>
@@ -307,7 +294,7 @@ export default function MaskSettingDialog(props) {
                   className="flex inputBox"
                   placeholder={_l('按顺序输入显示的字符，多个使用,隔开。如：a,b,c')}
                   value={maskmid}
-                  onChange={value => setDetail({ maskmid: value })}
+                  onChange={event => setDetail({ maskmid: event.target.value })}
                 />
               </div>
             </Fragment>
@@ -326,22 +313,29 @@ export default function MaskSettingDialog(props) {
               className="flex inputBox"
               placeholder={_l('输入隐藏的字符，多个使用,隔开。如：a,b,c')}
               value={maskwords}
-              onChange={value => setDetail({ maskwords: value })}
+              onChange={event => setDetail({ maskwords: event.target.value })}
             />
           </div>
 
-          <div className="flexCenter mTop12 LineHeight36">
+          <div className="flexCenter mTop12 Height36 LineHeight36">
             <Checkbox
               className="mRight12"
-              size="small"
               checked={testInfo.visible}
-              onClick={checked => {
-                setDetail({ masklen: checked ? '' : '3' });
-                setTestInfo({ visible: !checked });
+              onChange={event => {
+                const checked = !event.target.checked;
+                setDetail({
+                  masklen: checked ? '' : '3',
+                });
+                setTestInfo({
+                  visible: !checked,
+                });
                 if (checked) {
-                  setErr({ mlErr: false });
+                  setErr({
+                    mlErr: false,
+                  });
                 }
               }}
+              size="small"
             >
               <span style={{ marginRight: '4px' }}>{_l('虚拟掩码长度')}</span>
               <Tooltip
@@ -378,13 +372,13 @@ export default function MaskSettingDialog(props) {
             placeholder={_l('试一试掩盖效果')}
             disabled={testInfo.status}
             value={testInfo.status ? testInfo.maskText : testInfo.text}
-            onChange={value => setTestInfo({ text: value })}
+            onChange={event => setTestInfo({ text: event.target.value })}
           />
           <div className="opBtn" onClick={handleTest}>
             {testInfo.status ? _l('解码') : _l('掩盖')}
           </div>
         </div>
       </SelectItem>
-    </Dialog>
+    </Modal>
   );
 }

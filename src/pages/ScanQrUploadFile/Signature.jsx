@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Signature } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import attachmentAjax from 'src/api/attachment';
-import { browserIsMobile } from 'src/utils/common';
+import Signature from 'src/components/Signature';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const SignatureWrap = styled.div`
   width: 100%;
@@ -29,20 +30,24 @@ const Footer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  .Button {
-    flex: 1;
-    border-radius: 44px;
-    height: 44px;
-  }
 `;
 
 const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) => {
   const signatureRef = useRef();
   const wrapRef = useRef();
+  const uploadingRef = useRef(false);
+  const mountedRef = useRef(true);
   const [isUploading, setIsUploading] = useState(false);
   const [started, setStarted] = useState(false);
   const [hideCanvas, setHideCanvas] = useState(false);
   const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // 阻止整个签名区域（含 padding）左滑触发 iOS 浏览器返回手势（仅 H5 环境）
   useEffect(() => {
@@ -108,7 +113,7 @@ const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) =>
       </Content>
       <Footer>
         <Button
-          type="ghostgray"
+          className="flex"
           disabled={disabled || !started || isUploading}
           onClick={() => {
             signatureRef.current.clear();
@@ -119,10 +124,15 @@ const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) =>
         </Button>
         <Button
           type="primary"
-          disabled={disabled || !started || isUploading}
+          className="flex"
+          loading={isUploading}
+          disabled={disabled || !started}
           onClick={() => {
             signatureRef.current.saveSignature(
               ({ url }) => {
+                if (uploadingRef.current) return;
+
+                uploadingRef.current = true;
                 setIsUploading(true);
                 attachmentAjax
                   .addScanAttachments({
@@ -136,10 +146,17 @@ const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) =>
                     ...omit(scanInfo, ['control']),
                   })
                   .then(res => {
-                    if (res.excuteResult) {
-                      onComplete();
-                      alert(_l('上传成功'));
-                    }
+                    return res.excuteResult;
+                  })
+                  .finally(() => {
+                    uploadingRef.current = false;
+                    if (mountedRef.current) setIsUploading(false);
+                  })
+                  .then(isSuccess => {
+                    if (!isSuccess) return;
+
+                    onComplete();
+                    alert(_l('上传成功'));
                   });
               },
               {

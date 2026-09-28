@@ -1,7 +1,7 @@
 .navigationConfig {
   .title,
   .content,
-  .ant-tabs-nav {
+  .hap-tabs-nav {
     padding: 0 24px;
   }
   .firstGroup {
@@ -70,14 +70,14 @@
     border-bottom: none;
   }
   .mobileNavRadio {
-    .ming.Radio {
+    .ant-radio-wrapper {
       margin-right: 56px;
     }
   }
 }
 
 .customAppNavSelect {
-  &.ant-select-multiple .ant-select-selection-item {
+  &.hap-select-multiple .hap-select-selection-item {
     background: #d8eeff;
     border-radius: 15px;
     border: 1px solid var(--color-primary-transparent);
@@ -86,17 +86,7 @@
     margin-left: 4px;
     margin-right: 4px;
   }
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    padding: 3px 24px 3px 10px;
-    border: 1px solid var(--color-border-secondary);
-    box-shadow: none !important;
-  }
-  &.ant-select-open .ant-select-selector {
-    border-color: var(--color-primary) !important;
-    box-shadow: none !important;
-    background-color: var(--color-background-primary) !important;
-  }
-  .ant-select-selection-item-content {
+  .hap-select-selection-item-content {
     margin-right: 0 !important;
   }
 }
@@ -108,9 +98,6 @@
     height: 40px;
     margin: 0 6px;
     box-sizing: border-box;
-    input {
-      border: none;
-    }
   }
   .line {
     height: 1px;

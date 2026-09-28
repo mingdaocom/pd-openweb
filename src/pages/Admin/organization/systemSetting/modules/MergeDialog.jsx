@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { Radio } from 'antd';
-import { Dialog } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import workSiteController from 'src/api/workSite';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export default class MergeDialog extends Component {
   constructor() {
     super();
     this.state = {
       toMergerIds: '',
+      merging: false,
     };
+    this.mergeRequestPending = false;
   }
 
   onChange(e) {
@@ -16,6 +18,8 @@ export default class MergeDialog extends Component {
   }
 
   handleSave() {
+    if (this.mergeRequestPending) return;
+
     const reqData = {
       workSiteId: this.state.toMergerIds,
       toMergerIds: this.props.selectedRowKeys,
@@ -23,31 +27,43 @@ export default class MergeDialog extends Component {
     };
     if (this.state.toMergerIds) {
       if (confirm(_l('确认合并所选择的工作地点？'))) {
-        workSiteController.mergeWorkSites(reqData).then(data => {
-          if (data) {
-            alert(_l('合并成功'), 1);
-            this.setState({
-              toMergerIds: '',
-            });
-            this.props.closeMergeDialog(true);
-          } else {
-            alert(_l('合并失败'), 2);
-          }
-        });
+        this.mergeRequestPending = true;
+        this.setState({ merging: true });
+        return workSiteController
+          .mergeWorkSites(reqData)
+          .then(data => {
+            if (data) {
+              alert(_l('合并成功'), 1);
+              this.setState({
+                toMergerIds: '',
+              });
+              this.props.closeMergeDialog(true);
+            } else {
+              alert(_l('合并失败'), 2);
+            }
+          })
+          .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('合并失败'), 2))
+          .finally(() => {
+            this.mergeRequestPending = false;
+            this.setState({ merging: false });
+          });
       }
     } else alert(_l('请选择合并到哪个工作地点'), 3);
   }
 
   render() {
     const { options = [] } = this.props;
+    const { merging } = this.state;
     return (
-      <Dialog
-        visible={this.props.visible}
+      <Modal
+        open={this.props.visible}
         title={_l('合并工作地点')}
         cancelText={_l('取消')}
         okText={_l('确定')}
-        width="413"
-        overlayClosable={false}
+        confirmLoading={merging}
+        width={413}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => {
           this.props.closeMergeDialog();
         }}
@@ -65,7 +81,7 @@ export default class MergeDialog extends Component {
             })}
           </Radio.Group>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

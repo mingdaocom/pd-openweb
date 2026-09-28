@@ -3,7 +3,7 @@ import cx from 'classnames';
 import moment from 'moment';
 import Icon from 'ming-ui/components/Icon';
 import Commenter from 'src/components/comment/commenter';
-import { htmlDecodeReg } from 'src/utils/common';
+import { htmlDecodeReg } from 'src/utils/core/string';
 
 const getCalendarAtData = ({ createUser, members = [] }) => {
   const creator = members.find(member => member.accountID === createUser);

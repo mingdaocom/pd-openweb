@@ -4,12 +4,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, PriceTip } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import smsApi from 'src/api/sms';
 import SmsSignSet from 'src/components/SmsSignSet';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const Wrap = styled.div`
   .warnTxt {
@@ -49,29 +49,6 @@ const Wrap = styled.div`
     border-radius: 3px;
     height: 90px;
     resize: none;
-  }
-  .ant-input:focus,
-  .ant-input-focused {
-    box-shadow: none;
-    border: 1px solid var(--color-primary);
-  }
-  .sysBtn {
-    line-height: 34px;
-    background: var(--color-background-secondary);
-    border-radius: 4px;
-    color: var(--color-primary);
-    padding: 0 12px;
-    display: inline-block;
-    cursor: pointer;
-    margin-top: 14px;
-    font-weight: 500;
-    i {
-      display: inline-block;
-      vertical-align: middle;
-    }
-    &:hover {
-      color: var(--color-link-hover) !important;
-    }
   }
   .line {
     height: 0px;
@@ -189,9 +166,15 @@ export default function TextMessage(props) {
             </Fragment>
 
             <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('短信内容')}</h6>
-            <div className="sysBtn flexRow alignItemsCenter" onClick={() => setState({ showTelDialog: true })}>
-              <Icon icon="textsms" className="Font18 mRight6" /> {_l('短信设置')}
-            </div>
+            <Button
+              color="primary"
+              variant="filled"
+              className="mTop14"
+              icon={<Icon icon="textsms" className="Font18" />}
+              onClick={() => setState({ showTelDialog: true })}
+            >
+              {_l('短信设置')}
+            </Button>
             <div className="line mTop24"></div>
           </>
         )}
@@ -234,9 +217,15 @@ export default function TextMessage(props) {
         />
 
         <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('内容')}</h6>
-        <div className="sysBtn flexRow alignItemsCenter" onClick={() => setState({ showEmailDialog: true })}>
-          <Icon icon="email" className="Font18 mRight6" style={{ marginTop: -3 }} /> {_l('邮件设置')}
-        </div>
+        <Button
+          color="primary"
+          variant="filled"
+          className="mTop14"
+          icon={<Icon icon="email" className="Font18" />}
+          onClick={() => setState({ showEmailDialog: true })}
+        >
+          {_l('邮件设置')}
+        </Button>
       </div>
 
       {showTelDialog && (

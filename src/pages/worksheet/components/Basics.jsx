@@ -23,43 +23,43 @@ const numberToPx = number => (number ? `${number}px` : '');
 
 // 基础形状
 export const Circle = styled.div(
-  ({ width = 20 }) => `
+  ({ $width = 20 }) => `
   display: inline-block;
-  width: ${width}px;
-  height: ${width}px;
-  border-radius: ${width / 2}px;
+  width: ${$width}px;
+  height: ${$width}px;
+  border-radius: ${$width / 2}px;
 `,
 );
 export const CustomButton = styled.div(
   ({
-    fontSize = 13,
-    height = 36,
-    borderRadius = 3,
-    padding = '0 16px',
-    bg = 'var(--color-background-secondary)',
-    color = 'var(--color-text-secondary)',
-    hoverBg,
-    hoverColor,
+    $fontSize = 13,
+    $height = 36,
+    $borderRadius = 3,
+    $padding = '0 16px',
+    $bg = 'var(--color-background-secondary)',
+    $color = 'var(--color-text-secondary)',
+    $hoverBg,
+    $hoverColor,
   }) => `
   cursor: pointer;
-  font-size: ${fontSize}px;
-  height: ${height}px;
-  line-height: ${height}px;
-  border-radius: ${borderRadius}px;
-  padding: ${padding};
-  background-color: ${bg};
-  color: ${color};
+  font-size: ${$fontSize}px;
+  height: ${$height}px;
+  line-height: ${$height}px;
+  border-radius: ${$borderRadius}px;
+  padding: ${$padding};
+  background-color: ${$bg};
+  color: ${$color};
   &:hover {
-    background-color: ${hoverBg || bg};
-    color: ${hoverColor || color};
+    background-color: ${$hoverBg || $bg};
+    color: ${$hoverColor || $color};
   }
 `,
 );
 
 // html 元素
 export const Hr = styled.div(
-  ({ color = 'var(--color-border-primary)', margin = '20px 0' }) =>
-    `border: none; border-top: 1px solid ${color}; margin: ${margin};`,
+  ({ $color = 'var(--color-border-primary)', $margin = '20px 0' }) =>
+    `border: none; border-top: 1px solid ${$color}; margin: ${$margin};`,
 );
 const H = styled.div`
   color: var(--color-text-title);
@@ -100,10 +100,10 @@ export const Tipbd = styled.div`
   font-size: 13px;
 `;
 export const TipBlock = styled.div(
-  ({ color = 'var(--color-text-tertiary)', bgcolor = 'var(--color-background-tertiary)' }) => `
-  color: ${color};
+  ({ $color = 'var(--color-text-tertiary)', $bgcolor = 'var(--color-background-tertiary)' }) => `
+  color: ${$color};
   font-size: 13px;
-  background-color: ${bgcolor};
+  background-color: ${$bgcolor};
   padding: 12px;
 `,
 );
@@ -134,22 +134,22 @@ export const Textarea = styled.textarea`
 `;
 
 export const Absolute = styled.div(
-  ({ top, bottom, left, right }) => `
+  ({ $top, $bottom, $left, $right }) => `
   position: absolute;
-  top: ${numberToPx(top)};
-  bottom: ${numberToPx(bottom)};
-  left: ${numberToPx(left)};
-  right: ${numberToPx(right)};
+  top: ${numberToPx($top)};
+  bottom: ${numberToPx($bottom)};
+  left: ${numberToPx($left)};
+  right: ${numberToPx($right)};
 `,
 );
 
 export const Fixed = styled.div(
-  ({ top, bottom, left, right }) => `
+  ({ $top, $bottom, $left, $right }) => `
   position: fixed;
-  top: ${numberToPx(top)};
-  bottom: ${numberToPx(bottom)};
-  left: ${numberToPx(left)};
-  right: ${numberToPx(right)};
+  top: ${numberToPx($top)};
+  bottom: ${numberToPx($bottom)};
+  left: ${numberToPx($left)};
+  right: ${numberToPx($right)};
 `,
 );
 
@@ -170,7 +170,7 @@ export const BlackBtn = styled.span`
     font-size: 18px;
     margin-right: 6px;
   }
-  :hover {
+  &:hover {
     background-color: rgba(0, 0, 0, 0.25);
   }
 `;
@@ -217,10 +217,10 @@ export const CardButton = styled.span`
   align-items: center;
   justify-content: center;
   border: 1px solid var(--color-background-secondary);
-  ${({ isMobile }) => (isMobile ? 'width: 32px;height: 32px;font-size: 18px;' : '')}
+  ${({ $isMobile }) => ($isMobile ? 'width: 32px;height: 32px;font-size: 18px;' : '')}
   &:hover {
-    ${({ isMobile }) =>
-      !isMobile ? ' color: var(--color-text-title); box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);' : ''}
+    ${({ $isMobile }) =>
+      !$isMobile ? ' color: var(--color-text-title); box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);' : ''}
   }
   &.red:hover {
     color: var(--color-error);

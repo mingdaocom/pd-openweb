@@ -3,11 +3,12 @@ import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, VerifyPasswordInput } from 'ming-ui';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import instanceApi from 'src/pages/workflow/api/instance';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
-import verifyPassword from 'src/components/verifyPassword';
 import { ACTION_LIST, ACTION_TO_METHOD, MOBILE_OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config';
 import { canDirectSubmitApproveAction } from 'src/pages/workflow/components/ExecDialog/utils';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
 import OtherAction from '../OtherAction';
 import './index.less';
 
@@ -34,6 +35,7 @@ export default class Footer extends Component {
   }
 
   writeVerifyPassword = removeNoneVerification => {
+    this.verifyInfo = undefined;
     this.actionVerifyPasswordHandler = ActionSheet.show({
       actions: [],
       extra: (
@@ -43,16 +45,17 @@ export default class Footer extends Component {
             autoFocus={true}
             showSubTitle={false}
             isRequired={true}
+            showVerifyType={true}
             allowNoVerify={!removeNoneVerification}
-            onChange={({ password, isNoneVerification }) => {
-              if (password !== undefined) this.password = password;
-              if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+            onChange={verifyInfo => {
+              this.verifyInfo = verifyInfo;
             }}
           />
           <div className="flexRow btnsWrapper mTop20 pAll0 Border0 ">
             <Button
               className="Font13 flex bold textSecondary mRight10"
               onClick={() => {
+                this.verifyInfo = undefined;
                 this.actionVerifyPasswordHandler.close();
               }}
             >
@@ -62,16 +65,20 @@ export default class Footer extends Component {
               className="Font13 flex bold"
               color="primary"
               onClick={() => {
-                if (!this.password || !this.password.trim()) {
-                  alert(_l('请输入密码'), 3);
+                const verifyInfo = this.verifyInfo || {};
+                const error = getVerifyValueError(verifyInfo);
+
+                if (error) {
+                  alert(error, 3);
                   return;
                 }
 
                 verifyPassword({
-                  password: this.password,
+                  ...verifyInfo,
+                  showVerifyType: true,
                   closeImageValidation: true,
-                  isNoneVerification: this.isNoneVerification,
                   success: () => {
+                    this.verifyInfo = undefined;
                     this.request('submit');
                     this.actionVerifyPasswordHandler.close();
                   },
@@ -84,6 +91,7 @@ export default class Footer extends Component {
         </div>
       ),
       onAction: () => {
+        this.verifyInfo = undefined;
         this.actionVerifyPasswordHandler.close();
       },
     });
@@ -122,7 +130,7 @@ export default class Footer extends Component {
      * 撤回
      */
     if (id === 'revoke') {
-      this.request('revoke');
+      this.setState({ action: id, otherActionVisible: true });
       return;
     }
 
@@ -170,7 +178,7 @@ export default class Footer extends Component {
     } else {
       onSubmit({
         noSave: true,
-        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], id),
+        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after', 'revoke', 'taskRevoke'], id),
         callback: err => {
           if (!err) {
             openOperatorDialog();
@@ -180,9 +188,10 @@ export default class Footer extends Component {
     }
   };
   request = (action, restPara = {}, noSave = false) => {
-    const { instanceId, workId, onSave = _.noop, onClose = _.noop, onSubmit } = this.props;
+    const { instanceId, workId, onSave = _.noop, onClose = _.noop, onSubmit, onRefresh = _.noop } = this.props;
     const { isRequest } = this.state;
     const isStash = restPara.operationType === 13;
+    const keepDialogOpen = _.includes([11, 13, 18], restPara.operationType);
 
     const saveFunction = ({ error, logId }) => {
       if (error && error !== 'empty') {
@@ -193,20 +202,27 @@ export default class Footer extends Component {
           workId: restPara.operationType === 18 ? '' : workId,
           logId,
           ...restPara,
-        }).then(() => {
-          if (_.includes([13, 18], restPara.operationType)) {
-            if (isStash) {
-              alert(_l('保存成功'));
-              this.setState({ isRequest: false });
+        })
+          .then(() => {
+            if (keepDialogOpen) {
+              if (isStash) {
+                alert(_l('保存成功'));
+                this.setState({ isRequest: false });
+              } else if (restPara.operationType === 18) {
+                this.setState({ isRequest: false, isUrged: true });
+              } else {
+                onRefresh();
+                this.setState({ isRequest: false });
+              }
             } else {
-              this.setState({ isRequest: false, isUrged: true });
+              this.setState({ isRequest: false });
+              onSave();
+              onClose({ id: instanceId, workId });
             }
-          } else {
+          })
+          .catch(() => {
             this.setState({ isRequest: false });
-            onSave();
-            onClose({ id: instanceId, workId });
-          }
-        });
+          });
       }
     };
 
@@ -285,9 +301,16 @@ export default class Footer extends Component {
     }
 
     /**
-     * 审批人撤回
+     * 添加抄送人
      */
-    if (action === 'taskRevoke') {
+    if (action === 'addCC') {
+      this.request('operation', { opinion: content, forwardAccountId, operationType: 11 }, true);
+    }
+
+    /**
+     * 发起人、审批人撤回
+     */
+    if (_.includes(['revoke', 'taskRevoke'], action)) {
       this.request(ACTION_TO_METHOD[action], { opinion: content, backNodeId, files }, true);
     }
 

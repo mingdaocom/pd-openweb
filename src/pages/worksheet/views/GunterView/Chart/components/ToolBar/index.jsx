@@ -1,36 +1,31 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Select } from 'antd';
 import { ActionSheet } from 'antd-mobile';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIODS } from 'worksheet/views/GunterView/config';
-import { getSearchData } from 'worksheet/views/util';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getSearchData } from 'src/utils/services/worksheet/view';
 import Zoom from './Zoom';
-import './index.less';
 
 const ToolBarWrap = styled.div(
-  ({ isMobile }) => `
+  ({ $isMobile }) => `
   position: absolute;
   bottom: 20px;
-  left: ${isMobile ? '16px' : 'auto'};
-  right:  ${isMobile ? 'auto' : '20px'};
+  left: ${$isMobile ? '16px' : 'auto'};
+  right:  ${$isMobile ? 'auto' : '20px'};
   background-color: var(--color-background-card);
   border-radius: 26px;
-  height: ${isMobile ? '40px' : '44px'};
-  padding:${isMobile ? '0 18px' : '0 22px 0 16px'};
+  height: ${$isMobile ? '40px' : '44px'};
+  padding:${$isMobile ? '0 18px' : '0 22px 0 16px'};
   z-index: 10;
   box-shadow: var(--shadow-lg);
-  .ant-select-selector {
-    border: none !important;
-  }
   .icon-download:hover {
     color: var(--color-primary) !important;
   }
@@ -41,33 +36,7 @@ const ToolBarWrap = styled.div(
   }
 `,
 );
-const SelectWrap = styled(Select)`
-  width: 85px;
-  .ant-select-selector {
-    padding-left: 0 !important;
-  }
-  .ant-select-selection-item {
-    text-align: center;
-    padding-right: 11px !important;
-  }
-  &.ant-select-single.ant-select-open .ant-select-selection-item {
-    color: inherit;
-  }
-  .ant-select-selection-search-input {
-    display: none;
-  }
-  &:hover {
-    .icon-arrow-down {
-      color: var(--color-primary) !important;
-    }
-  }
-  &.mobile {
-    width: 60px;
-    .ant-select-selector {
-      padding-left: 0 !important;
-    }
-  }
-`;
+
 let ToolBar = class ToolBar extends Component {
   constructor(props) {
     super(props);
@@ -80,25 +49,29 @@ let ToolBar = class ToolBar extends Component {
   renderPeriodSelect() {
     const { periodType, changeViewType, isMobile } = this.props;
     return (
-      <SelectWrap
-        className={cx({
-          mobile: isMobile,
-        })}
+      <Select
+        styles={{
+          root: {
+            width: isMobile ? 60 : 85,
+          },
+          popup: {
+            root: {
+              width: 120,
+            },
+          },
+        }}
         suffixIcon={<Icon className="Font12 textTertiary" icon="arrow-down" />}
         defaultActiveFirstOption={false}
         defaultOpen={false}
-        dropdownClassName="gunterToolBarSelectWrapper"
         value={periodType}
-        bordered={false}
+        variant="borderless"
         virtual={false}
         onChange={changeViewType}
-      >
-        {PERIODS.map(item => (
-          <Select.Option key={item.value} value={item.value} className="gunterToolBarSelectOptionWrapper">
-            {item.name}
-          </Select.Option>
-        ))}
-      </SelectWrap>
+        options={PERIODS.map(item => ({
+          value: item.value,
+          label: item.name,
+        }))}
+      />
     );
   }
 
@@ -129,7 +102,7 @@ let ToolBar = class ToolBar extends Component {
     const { searchData, isMobile, mobileViewType, periodType } = this.props;
     const isMobileSingleView = mobileViewType == 'single';
     return (
-      <ToolBarWrap isMobile={isMobile} className="flexRow valignWrapper toolBarWrap">
+      <ToolBarWrap $isMobile={isMobile} className="flexRow valignWrapper toolBarWrap">
         {isMobile ? (
           <div onClick={this.changeMobileViewType}>
             {(_.find(PERIODS, v => v.value === periodType) || {}).name || _l('展开')}
@@ -143,7 +116,7 @@ let ToolBar = class ToolBar extends Component {
         {isMobile && <div className="line"></div>}
         {isMobile && (
           <SearchRecord
-            overlayClassName={isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'}
+            popupClassName={isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'}
             queryKey={searchData.queryKey}
             data={searchData.data}
             onSearch={record => {

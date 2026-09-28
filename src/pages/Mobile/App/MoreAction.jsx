@@ -8,8 +8,8 @@ import accountSettingApi from 'src/api/accountSetting';
 import appManagementApi from 'src/api/appManagement';
 import fixedDataApi from 'src/api/fixedData';
 import homeApi from 'src/api/homeApp';
-import { getSystemLangKey } from 'src/common/langConfig';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { getSystemLangKey } from 'src/utils/platform/i18n/langConfig';
 
 const ModalWrap = styled(Popup)`
   &.appMoreActionWrap {

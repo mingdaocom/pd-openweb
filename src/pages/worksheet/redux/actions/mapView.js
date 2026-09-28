@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
-import { formatQuickFilter } from 'src/utils/filter';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import { getCurrentView } from '../util';
 
 const mapViewRequest = {};

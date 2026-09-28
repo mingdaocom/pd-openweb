@@ -4,8 +4,8 @@ import { useDragLayer } from 'react-dnd-latest';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
 import { DRAG_ITEMS } from '../config/Drag';
-import { DEFAULT_CONFIG } from '../config/widget';
 
 const ItemLayer = styled.div`
   position: fixed;

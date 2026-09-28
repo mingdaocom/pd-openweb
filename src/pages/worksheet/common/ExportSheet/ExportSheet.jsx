@@ -1,17 +1,21 @@
 ﻿import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, RadioGroup, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getIconByType } from 'src/pages/widgetConfig/util/index.js';
-import { getFilledRequestParams } from 'src/utils/common';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import './ExportSheet.less';
 
+const EXPORT_SHEET_MODAL_STYLES = {
+  body: { display: 'flex', flexBasis: 800 },
+  container: { padding: 0 },
+};
 export default class ExportSheet extends Component {
   static propTypes = {
     allCount: PropTypes.number,
@@ -59,6 +63,7 @@ export default class ExportSheet extends Component {
       columnSearchWord: '', // 字段实时搜索
       speed: false, // 加速导出
       isNumber: true, // 导出数值类型
+      exportScore: false, // 同时导出选项分值
       previewed: true,
       exportId: false,
       exportJob: false,
@@ -117,6 +122,7 @@ export default class ExportSheet extends Component {
         columnsSelected,
         exportRelationalSheet,
         isNumber: res.isNumber || false,
+        exportScore: res.exportScore || false,
         previewed: res.previewed || false,
         exportId: res.exportId || exportId,
         exportJob: res.exportJob || exportJob,
@@ -222,8 +228,18 @@ export default class ExportSheet extends Component {
       filtersGroup = [],
       sortControls,
     } = this.props;
-    const { columnsSelected, isStatistics, type, speed, isNumber, previewed, exportId, exportJob, orderType } =
-      this.state;
+    const {
+      columnsSelected,
+      isStatistics,
+      type,
+      speed,
+      isNumber,
+      exportScore,
+      previewed,
+      exportId,
+      exportJob,
+      orderType,
+    } = this.state;
 
     // 获取Token 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
     const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 3 });
@@ -253,6 +269,7 @@ export default class ExportSheet extends Component {
         .concat(filtersGroup)
         .map(f =>
           _.pick(f, [
+            'advancedSetting',
             'controlId',
             'dataType',
             'spliceType',
@@ -267,6 +284,7 @@ export default class ExportSheet extends Component {
       navGroupFilters,
       speed,
       isNumber,
+      exportScore,
       sortRelationCids: speed ? [] : exportControlsId,
       previewed,
       exportId,
@@ -352,24 +370,29 @@ export default class ExportSheet extends Component {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('保存导出配置'),
-      description: (
+      content: (
         <div className="Font14">
           <div className="textSecondary">
             {_l('将当前导出配置保存为默认导出方式供所有用户使用，会保存已选字段（导出所有字段）、其他、以及导出格式')}
           </div>
           <Checkbox
             className="mTop20 textPrimary"
-            text={_l('不允许用户修改默认配置')}
             defaultChecked={this.state.initEdited}
-            onClick={checked => this.setState({ initEdited: checked })}
-          />
+            onChange={event =>
+              this.setState({
+                initEdited: event.target.checked,
+              })
+            }
+          >
+            {_l('不允许用户修改默认配置')}
+          </Checkbox>
         </div>
       ),
       onOk: () => {
         const { worksheetId, exportView } = this.props;
-        const { type, isStatistics, initEdited, isNumber, previewed, exportId, exportJob } = this.state;
+        const { type, isStatistics, initEdited, isNumber, exportScore, previewed, exportId, exportJob } = this.state;
         const args = {
           type,
           controlIds: exportControlsId,
@@ -379,11 +402,11 @@ export default class ExportSheet extends Component {
           worksheetId,
           viewId: exportView.viewId,
           isNumber,
+          exportScore,
           previewed,
           exportId,
           exportJob,
         };
-
         worksheetAjax.saveExportConfig(args).then(() => {
           alert(_l('保存成功'));
         });
@@ -403,6 +426,7 @@ export default class ExportSheet extends Component {
       edited,
       speed,
       isNumber,
+      exportScore,
       previewed,
       exportId,
       exportJob,
@@ -435,7 +459,15 @@ export default class ExportSheet extends Component {
     );
 
     return (
-      <Dialog className="exportSheet" visible anim={false} width={960} footer={null} onCancel={onClose}>
+      <Modal
+        className="exportSheet"
+        open
+        width={960}
+        styles={EXPORT_SHEET_MODAL_STYLES}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onClose}
+      >
         <div className="flexRow flex">
           <div className="flex flexColumn">
             <div className="Font17 bold mLeft24 mTop20">
@@ -445,27 +477,30 @@ export default class ExportSheet extends Component {
             </div>
             <div className="search_container">
               {/** 是否全选 */}
-              <Checkbox
-                text={_l('导出字段')}
-                className="bold Font14"
-                disabled={edited}
-                checked={selectAllColumnIds}
-                onClick={() => this.selectAllColumnId()}
-              >
-                {/** 字段数量统计 */}
-                <span className="Font14 mLeft5 textTertiary">
-                  ({columnsSelectedNum.length}/{columnsShow.length})
-                </span>
-              </Checkbox>
+              <div className="mBottom10">
+                <Checkbox
+                  className="bold Font14"
+                  disabled={edited}
+                  checked={selectAllColumnIds}
+                  onChange={() => this.selectAllColumnId()}
+                >
+                  {_l('导出字段')}
+                  {/** 字段数量统计 */}
+                  <span className="Font14 mLeft5 textTertiary">
+                    ({columnsSelectedNum.length}/{columnsShow.length})
+                  </span>
+                </Checkbox>
+              </div>
 
               {/** 字段搜索框 */}
-              <div className="search_input">
-                <i className="icon-search textTertiary Font16" />
-                <input
-                  placeholder={_l('搜索')}
-                  onChange={e => this.setState({ columnSearchWord: e.target.value || '' })}
-                />
-              </div>
+              <Input
+                className="search_input"
+                radius
+                variant="filled"
+                prefix={<i className="icon-search textTertiary Font16" />}
+                placeholder={_l('搜索')}
+                onChange={e => this.setState({ columnSearchWord: e.target.value || '' })}
+              />
             </div>
 
             {loading ? (
@@ -475,9 +510,12 @@ export default class ExportSheet extends Component {
             ) : (
               <ScrollView className="flex" style={{ paddingLeft: 52 }}>
                 {this.sortControls(list).map(column => (
-                  <Checkbox
-                    key={column.controlId}
-                    text={
+                  <div className="mBottom10" key={column.controlId}>
+                    <Checkbox
+                      disabled={edited}
+                      checked={!!columnsSelected[column.controlId]}
+                      onChange={() => this.chooseColumnId(column)}
+                    >
                       <Fragment>
                         <i className={`Font16 textTertiary mRight5 icon-${getIconByType(column.type)}`}></i>
                         {column.controlName || ''}
@@ -485,11 +523,8 @@ export default class ExportSheet extends Component {
                           <Icon type="workflow_hide" className="Font14 textTertiary mLeft5" />
                         )}
                       </Fragment>
-                    }
-                    disabled={edited}
-                    checked={!!columnsSelected[column.controlId]}
-                    onClick={() => this.chooseColumnId(column)}
-                  />
+                    </Checkbox>
+                  </div>
                 ))}
               </ScrollView>
             )}
@@ -499,14 +534,12 @@ export default class ExportSheet extends Component {
               {allCount > 1000 && !selectRowIds.length && (
                 <div className="pRight24 mBottom20">
                   <div className="Font14 bold">{_l('排序')}</div>
-                  <Dropdown
+                  <Select
                     className="mTop10 w100 bgPrimary"
-                    menuClass="w100"
-                    border
                     value={orderType}
-                    data={[
-                      { text: _l('创建时间-旧的在前'), value: 0 },
-                      { text: _l('创建时间-新的在前'), value: 1 },
+                    options={[
+                      { label: _l('创建时间-旧的在前'), value: 0 },
+                      { label: _l('创建时间-新的在前'), value: 1 },
                     ]}
                     onChange={orderType => this.setState({ orderType })}
                   />
@@ -515,23 +548,35 @@ export default class ExportSheet extends Component {
               )}
 
               <div className="Font14 bold mBottom10">{_l('导出格式')}</div>
-              <RadioGroup
+              <Radio.Group
                 className="Font14"
-                data={[
+                options={[
                   { text: _l('excel'), value: 0 },
                   { text: _l('csv'), value: 1 },
-                ]}
-                checkedValue={type}
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                value={type}
                 disabled={edited}
-                onChange={type => this.setState({ type })}
+                onChange={event =>
+                  this.setState({
+                    type: event.target.value,
+                  })
+                }
               />
 
               <div className="Font14 bold mTop20 mBottom10">{_l('导出设置')}</div>
 
               {type === 0 && (
                 <Fragment>
-                  <Checkbox
-                    text={
+                  <div className="mBottom10">
+                    <Checkbox
+                      checked={previewed}
+                      disabled={edited}
+                      onChange={() =>
+                        this.setState({
+                          previewed: !previewed,
+                        })
+                      }
+                    >
                       <span>
                         {_l('附件字段生成预览链接')}
                         <Tooltip
@@ -542,14 +587,19 @@ export default class ExportSheet extends Component {
                           <i className="icon-info mLeft5 Font16 textTertiary"></i>
                         </Tooltip>
                       </span>
-                    }
-                    checked={previewed}
-                    disabled={edited}
-                    onClick={() => this.setState({ previewed: !previewed })}
-                  />
+                    </Checkbox>
+                  </div>
 
-                  <Checkbox
-                    text={
+                  <div className="mBottom10">
+                    <Checkbox
+                      checked={isNumber}
+                      disabled={edited}
+                      onChange={() =>
+                        this.setState({
+                          isNumber: !isNumber,
+                        })
+                      }
+                    >
                       <span>
                         {_l('导出 Excel 数值格式')}
                         <Tooltip
@@ -560,44 +610,87 @@ export default class ExportSheet extends Component {
                           <i className="icon-info mLeft5 Font16 textTertiary"></i>
                         </Tooltip>
                       </span>
-                    }
-                    checked={isNumber}
-                    disabled={edited}
-                    onClick={() => this.setState({ isNumber: !isNumber })}
-                  />
+                    </Checkbox>
+                  </div>
+
+                  <div className="mBottom10">
+                    <Checkbox
+                      checked={exportScore}
+                      disabled={edited}
+                      onChange={() =>
+                        this.setState({
+                          exportScore: !exportScore,
+                        })
+                      }
+                    >
+                      <span>
+                        {_l('同时导出选项分值')}
+                        <Tooltip title={_l('为赋予分值的单选、多选字段额外导出一列分值')}>
+                          <i className="icon-info mLeft5 Font16 textTertiary"></i>
+                        </Tooltip>
+                      </span>
+                    </Checkbox>
+                  </div>
 
                   {!hideStatistics && (
-                    <Checkbox
-                      text={_l('列统计结果')}
-                      disabled={edited}
-                      checked={isStatistics}
-                      onClick={() => this.setState({ isStatistics: !isStatistics })}
-                    />
+                    <div className="mBottom10">
+                      <Checkbox
+                        disabled={edited}
+                        checked={isStatistics}
+                        onChange={() =>
+                          this.setState({
+                            isStatistics: !isStatistics,
+                          })
+                        }
+                      >
+                        {_l('列统计结果')}
+                      </Checkbox>
+                    </div>
                   )}
                 </Fragment>
               )}
 
-              <Checkbox
-                text={_l('同时导出数据ID')}
-                checked={exportId}
-                disabled={edited}
-                onClick={() => this.setState({ exportId: !exportId })}
-              />
+              <div className="mBottom10">
+                <Checkbox
+                  checked={exportId}
+                  disabled={edited}
+                  onChange={() =>
+                    this.setState({
+                      exportId: !exportId,
+                    })
+                  }
+                >
+                  {_l('同时导出数据ID')}
+                </Checkbox>
+              </div>
               <div className="textTertiary exportSheetDesc">
                 {_l('为关联记录、级联选择、成员、部门等字段额外导出一列ID，便于后续按 ID 精确匹配导入数据')}
               </div>
 
-              <Checkbox
-                size="small"
-                text={_l('导出成员工号')}
-                checked={exportJob}
-                disabled={edited}
-                onClick={() => this.setState({ exportJob: !exportJob })}
-              />
+              <div className="mBottom10">
+                <Checkbox
+                  checked={exportJob}
+                  disabled={edited}
+                  onChange={() =>
+                    this.setState({
+                      exportJob: !exportJob,
+                    })
+                  }
+                >
+                  {_l('导出成员工号')}
+                </Checkbox>
+              </div>
               <div className="textTertiary exportSheetDesc">{_l('为成员字段额外导出一列工号')}</div>
 
-              <Checkbox
-                text={
+              <div className="mBottom10">
+                <Checkbox
+                  checked={speed}
+                  onChange={() =>
+                    this.setState({
+                      speed: !speed,
+                    })
+                  }
+                >
                   <span>
                     {_l('加速导出（可能已不是最新数据）')}
                     <Tooltip
@@ -616,18 +709,30 @@ export default class ExportSheet extends Component {
                       <i className="icon-info mLeft5 Font16 textTertiary"></i>
                     </Tooltip>
                   </span>
-                }
-                checked={speed}
-                onClick={() => this.setState({ speed: !speed })}
-              />
+                </Checkbox>
+              </div>
               <div className="textTertiary exportSheetDesc">
                 {_l('优化大数据量导出速度，部分字段会直接使用冗余保存的值')}
               </div>
 
               {type === 0 && !!exportMoreRecord.length && (
                 <Fragment>
-                  <Checkbox
-                    text={
+                  <div className="mBottom10">
+                    <Checkbox
+                      checked={exportRelationalSheet}
+                      disabled={edited}
+                      onChange={() => {
+                        // 默认全选导出所有关联表
+                        const { columnsSelected, exportRelationalSheet } = this.state;
+                        exportMoreRecord.forEach(
+                          column => (columnsSelected[column.controlId] = !exportRelationalSheet),
+                        );
+                        this.setState({
+                          exportRelationalSheet: !exportRelationalSheet,
+                          columnsSelected,
+                        });
+                      }}
+                    >
                       <span>
                         {_l('在新的 Sheet 导出关联记录')}
                         <Tooltip
@@ -644,17 +749,8 @@ export default class ExportSheet extends Component {
                           <i className="icon-info mLeft5 Font16 textTertiary"></i>
                         </Tooltip>
                       </span>
-                    }
-                    checked={exportRelationalSheet}
-                    disabled={edited}
-                    onClick={() => {
-                      // 默认全选导出所有关联表
-                      const { columnsSelected, exportRelationalSheet } = this.state;
-
-                      exportMoreRecord.forEach(column => (columnsSelected[column.controlId] = !exportRelationalSheet));
-                      this.setState({ exportRelationalSheet: !exportRelationalSheet, columnsSelected });
-                    }}
-                  />
+                    </Checkbox>
+                  </div>
                   <div className="textTertiary exportSheetDesc">
                     {_l('在新的sheet中导出关联记录（表格、标签页表格），适合对关联数据做进一步分析')}
                   </div>
@@ -663,13 +759,15 @@ export default class ExportSheet extends Component {
                     exportMoreRecord.map(column => (
                       <div className="flexRow">
                         <div className="flex mLeft25">
-                          <Checkbox
-                            key={column.controlId}
-                            disabled={edited}
-                            text={column.controlName || ''}
-                            checked={!!columnsSelected[column.controlId]}
-                            onClick={() => this.chooseColumnId(column)}
-                          />
+                          <div className="mBottom10" key={column.controlId}>
+                            <Checkbox
+                              disabled={edited}
+                              checked={!!columnsSelected[column.controlId]}
+                              onChange={() => this.chooseColumnId(column)}
+                            >
+                              {column.controlName || ''}
+                            </Checkbox>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -684,13 +782,13 @@ export default class ExportSheet extends Component {
                 </span>
               )}
               <div className="flex" />
-              <Button disabled={loading} onClick={this.exportExcel}>
+              <Button type="primary" loading={loading} onClick={this.exportExcel}>
                 {_l('导出')}
               </Button>
             </div>
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

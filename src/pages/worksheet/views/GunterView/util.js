@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
-import { browserIsMobile } from 'src/utils/common';
+import { SYS } from 'src/utils/domain/control/widget';
+import { sortDataByCustomItems } from 'src/utils/domain/worksheet/groupSort';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { PERIOD_TYPE, PERIODS } from './config';
 
 /**

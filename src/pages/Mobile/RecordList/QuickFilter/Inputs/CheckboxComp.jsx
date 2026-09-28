@@ -1,7 +1,7 @@
 import React from 'react';
 import { func, number, shape } from 'prop-types';
-import { Checkbox } from 'ming-ui';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { Checkbox } from 'ming-ui/antd-components';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import { Option } from './Options';
 
 export default function CheckboxComp(props) {
@@ -11,9 +11,8 @@ export default function CheckboxComp(props) {
       <div className="ellipsis Font14 bold mBottom15 controlName">{control.controlName}</div>
       <Option>
         <Checkbox
-          text={_l('未选中')}
           checked={filterType === FILTER_CONDITION_TYPE.NE}
-          onClick={() => {
+          onChange={() => {
             if (filterType === FILTER_CONDITION_TYPE.NE) {
               onRemove();
             } else {
@@ -23,13 +22,14 @@ export default function CheckboxComp(props) {
               });
             }
           }}
-        />
+        >
+          {_l('未选中')}
+        </Checkbox>
       </Option>
       <Option>
         <Checkbox
-          text={_l('已选中')}
           checked={filterType === FILTER_CONDITION_TYPE.EQ}
-          onClick={() => {
+          onChange={() => {
             if (filterType === FILTER_CONDITION_TYPE.EQ) {
               onRemove();
             } else {
@@ -39,7 +39,9 @@ export default function CheckboxComp(props) {
               });
             }
           }}
-        />
+        >
+          {_l('已选中')}
+        </Checkbox>
       </Option>
     </div>
   );

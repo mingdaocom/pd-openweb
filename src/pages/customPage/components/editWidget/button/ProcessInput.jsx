@@ -4,14 +4,11 @@ import styled from 'styled-components';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
 
 const ProcessWrap = styled.div`
-  .Menu.List {
-    max-height: max-content;
-  }
   .selectOtherFieldContainer {
-    ${props => (props.hideDynamicValue ? 'display: none;' : '')}
+    ${props => (props.$hideDynamicValue ? 'display: none;' : '')}
   }
   .defaultOptionsWrap {
-    ${props => (props.hideDynamicValue ? 'margin-right: 0;' : '')}
+    ${props => (props.$hideDynamicValue ? 'margin-right: 0;' : '')}
     background: var(--color-background-primary)
   }
   .CodeMirror {
@@ -24,7 +21,7 @@ export default function ProcessInput(props) {
   const { value = [], type, enumDefault } = inputData;
   const hideDynamicValue = _.includes([6, 9, 14, 36], type);
   return (
-    <ProcessWrap className="settingItem" hideDynamicValue={hideDynamicValue}>
+    <ProcessWrap className="settingItem" $hideDynamicValue={hideDynamicValue}>
       <div className="settingTitle Normal">
         {item.text}
         {item.required && <i className="Red">*</i>}

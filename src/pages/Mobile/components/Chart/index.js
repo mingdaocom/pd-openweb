@@ -6,14 +6,14 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import reportApi from 'statistics/api/report';
-import { reportTypes } from 'statistics/Charts/common';
 import VerificationDataLength from 'statistics/Charts/VerificationDataLength';
 import { isOptionControl } from 'statistics/common/controlUtils';
 import { Abnormal, WithoutData } from 'statistics/components/ChartStatus';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { getTranslateInfo } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
 import './index.less';
 
 const Content = styled.div`

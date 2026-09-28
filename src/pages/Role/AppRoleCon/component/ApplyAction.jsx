@@ -1,131 +1,44 @@
 import React, { PureComponent } from 'react';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 
-const Wrap = styled.div`
-  .search {
-    .conSearch {
-      width: auto;
-      background: var(--color-background-primary);
-      border-bottom: 1px solid var(--color-border-primary);
-      border-radius: 0;
-    }
-  }
-  .conListD {
-    max-height: 300px;
-    overflow: auto;
-  }
-`;
-const builtinPlacements = {
-  topLeft: {
-    points: ['bl', 'tl'],
-  },
-  bottomLeft: {
-    points: ['tl', 'bl'],
-  },
-};
 export default class ApplyAction extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       popupVisible: false,
-      keyWords: '',
-      roles: [],
     };
-  }
-
-  componentDidMount() {
-    this.setState({
-      roles: this.props.roles,
-    });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (!_.isEqual(prevProps.roles, this.props.roles)) {
-        this.setState({
-          roles: this.props.roles,
-        });
-      }
-    }
-  }
-
-  renderPopup() {
-    const { onChange, placeholder } = this.props;
-    const { keyWords, roles } = this.state;
-    return (
-      <Wrap>
-        <Menu style={{ position: 'static' }}>
-          <div className="search InlineBlock w100">
-            <SearchInput
-              className="conSearch"
-              placeholder={placeholder || _l('搜索角色名称')}
-              value={keyWords}
-              onChange={keyWords => {
-                this.setState({
-                  roles: this.props.roles.filter(
-                    o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0,
-                  ),
-                });
-              }}
-            />
-          </div>
-          <div className="conListD">
-            {roles.length <= 0 && <p className="textSecondary mTop20 TxtCenter">{_l('暂无相关数据')}</p>}
-            {_.map(roles, role => {
-              return (
-                <MenuItem
-                  key={role.roleId}
-                  onClick={() => {
-                    onChange(role);
-                    this.setState({
-                      popupVisible: false,
-                    });
-                  }}
-                >
-                  {role.name}
-                </MenuItem>
-              );
-            })}
-          </div>
-        </Menu>
-      </Wrap>
-    );
   }
 
   render() {
-    const { getPopupContainer } = this.props;
-    const triggerProps = {
-      popupClassName: 'Normal',
-      action: ['click'],
-      popup: this.renderPopup(),
-      builtinPlacements,
-      popupPlacement: 'bottomLeft',
-      popupVisible: this.state.popupVisible,
-      onPopupVisibleChange: visible => {
-        this.setState({
-          popupVisible: visible,
-        });
-      },
-      popupAlign: {
-        offset: [0, 5],
-        overflow: {
-          adjustX: 1,
-          adjustY: 1,
-        },
-      },
-      getPopupContainer,
-    };
+    const { getPopupContainer, onChange, roles = [] } = this.props;
+    const { popupVisible } = this.state;
 
     return (
-      <Trigger {...triggerProps}>
+      <Dropdown
+        trigger={['click']}
+        showPopupSearch
+        notFoundContent={_l('暂无相关数据')}
+        menu={{
+          items: roles.map(role => ({
+            key: role.roleId,
+            label: role.name,
+            onClick: () => {
+              onChange(role);
+              this.setState({ popupVisible: false });
+            },
+          })),
+          style: { maxHeight: 300, overflow: 'auto' },
+        }}
+        placement="bottomLeft"
+        open={popupVisible}
+        onOpenChange={popupVisible => this.setState({ popupVisible })}
+        getPopupContainer={getPopupContainer}
+      >
         <span
           className="colorPrimary hoverColorPrimaryDark Hand"
           onClick={() => {
-            if (!this.state.popupVisible) {
+            if (!popupVisible) {
               this.setState({
                 popupVisible: true,
               });
@@ -141,7 +54,7 @@ export default class ApplyAction extends PureComponent {
             </span>
           )}
         </span>
-      </Trigger>
+      </Dropdown>
     );
   }
 }

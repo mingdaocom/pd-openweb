@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
-import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../../components';
 import { DynamicValueInputWrap } from '../../styled';
 import CustomDefaultValue from './CustomDefaultValue';

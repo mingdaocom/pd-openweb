@@ -1,12 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { TimePicker } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { Checkbox, CityPicker, Dropdown, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { CityPicker } from 'ming-ui';
+import { Checkbox, DatePicker, Select, TimePicker, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
 import {
@@ -20,7 +18,15 @@ import {
 import ActionFields from '../ActionFields';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
-import TagInput from '../TagInput';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const DATE_PICKER_MODE = { 3: 'date', 4: 'month', 5: 'year' };
+const DATE_TIME_PICKER_CONFIG = {
+  hour: { format: 'HH' },
+  minute: { format: 'HH:mm' },
+  second: { format: 'HH:mm:ss' },
+};
+const DATE_PICKER_SUFFIX_ICON = <i className="icon-bellSchedule Font14 textSecondary" />;
 
 export default class Condition extends Component {
   static propTypes = {
@@ -73,6 +79,7 @@ export default class Condition extends Component {
       controlsData: this.getFieldData(props.controls || []),
       search: undefined,
       keywords: '',
+      tagSearchValues: {},
     };
     this.cityPickerSearchRef = React.createRef();
   }
@@ -202,7 +209,7 @@ export default class Condition extends Component {
         }
 
         return {
-          text: getFilterText(single || {}, id),
+          label: getFilterText(single || {}, id),
           value: id,
         };
       });
@@ -212,9 +219,9 @@ export default class Condition extends Component {
 
     // 处理老的日期条件
     if (typeof conditionIndex === 'number') {
-      conditionData[conditionIndex].text = conditionData[conditionIndex].text + `（新版比较到时间）`;
+      conditionData[conditionIndex].label = conditionData[conditionIndex].label + `（新版比较到时间）`;
       conditionData.splice(conditionIndex, 0, {
-        text: CONDITION_TYPE[item.conditionId] + `（旧版比较到日期）`,
+        label: CONDITION_TYPE[item.conditionId] + `（旧版比较到日期）`,
         value: item.conditionId,
         disabled: true,
       });
@@ -242,16 +249,13 @@ export default class Condition extends Component {
         {this.renderControls(item, i, j)}
 
         <div className="mTop10 flexRow alignItemsCenter">
-          <Dropdown
+          <Select
             className={cx('flowDropdown fixedHeight Width200')}
-            isAppendToBody
-            menuClass="flowTriggerDropdown"
-            data={conditionData}
+            options={conditionData}
             value={item.conditionId || undefined}
-            border
             placeholder={_l('请选择')}
             disabled={!item.filedId}
-            renderTitle={() =>
+            labelRender={() =>
               item.conditionId && (
                 <span>
                   {getFilterText(single || {}, item.conditionId) + (typeof conditionIndex === 'number' ? '*' : '')}
@@ -261,25 +265,40 @@ export default class Condition extends Component {
             onChange={conditionId => this.switchCondition(conditionId, i, j)}
           />
           <div className="flex"></div>
+          {_.includes([1, 2, 5, 7, 32, 33], item.filedTypeId) &&
+            _.includes(['3', '4', '5', '6', '44', '45'], item.conditionId) && (
+              <Checkbox
+                className="mLeft15"
+                checked={
+                  item.ignoreCase === 1 || (_.isNil(item.ignoreCase) && _.includes(['3', '4'], item.conditionId))
+                }
+                onChange={event => this.switchFilterCondition('ignoreCase', event.target.checked ? 1 : 0, i, j)}
+              >
+                {_l('区分大小写')}
+              </Checkbox>
+            )}
           {item.conditionId &&
             openNewFilter &&
             !_.includes(['7', '8', '31', '32'], item.conditionId) &&
             item.conditionValues[0] &&
             item.conditionValues[0].controlId && (
               <Checkbox
-                text={_l('条件异常时忽略')}
+                className="mLeft15"
                 checked={item.ignoreEmpty === 1}
-                onClick={checked => this.switchFilterCondition('ignoreEmpty', checked ? 0 : 1, i, j)}
-              />
+                onChange={event => this.switchFilterCondition('ignoreEmpty', event.target.checked ? 1 : 0, i, j)}
+              >
+                {_l('条件异常时忽略')}
+              </Checkbox>
             )}
 
           {allowEmptyIgnore && item.conditionId && checkConditionAllowEmpty(item.filedTypeId, item.conditionId) && (
             <Checkbox
               className="mLeft15"
-              text={_l('值为空时忽略')}
               checked={item.ignoreValueEmpty === 1}
-              onClick={checked => this.switchFilterCondition('ignoreValueEmpty', checked ? 0 : 1, i, j)}
-            />
+              onChange={event => this.switchFilterCondition('ignoreValueEmpty', event.target.checked ? 1 : 0, i, j)}
+            >
+              {_l('值为空时忽略')}
+            </Checkbox>
           )}
         </div>
         <div className="mTop10 relative flexRow">
@@ -354,16 +373,16 @@ export default class Condition extends Component {
       <div className="relative">
         {isNodeHeader ? (
           <div
-            className="ming Dropdown pointer flowDropdown flowDropdownBorder"
+            className="triggerConditionFieldSelect pointer flowDropdown"
             onClick={event => {
               if (window.getSelection().toString()) return;
-              if ($(event.target).closest('.ant-tooltip').length) return;
+              if ($(event.target).closest('.hap-tooltip').length) return;
 
               this.setState({ showControlsIndex: `${i}-${j}` });
             }}
           >
-            <div className="Dropdown--input Dropdown--border">
-              <span className="value">
+            <div className="triggerConditionFieldSelectInput">
+              <span className="triggerConditionFieldSelectValue">
                 {item.filedId ? (
                   <Tag
                     className="flowDetailConditionTag"
@@ -383,16 +402,15 @@ export default class Condition extends Component {
             </div>
           </div>
         ) : (
-          <Dropdown
+          <Select
             className="flowDropdown"
-            isAppendToBody
-            data={controlsData}
-            value={item.filedId}
-            border
-            openSearch
+            options={controlsData}
+            fieldNames={SELECT_FIELD_NAMES}
+            value={item.filedId || undefined}
+            showSearch
+            optionFilterProp="searchText"
             placeholder={_l('请选择')}
-            disabledClickElement=".ant-tooltip"
-            renderTitle={() =>
+            labelRender={() =>
               item.filedId &&
               this.renderTitle({ type: item.filedTypeId, controlName: item.filedValue, controlId: item.filedId })
             }
@@ -468,6 +486,7 @@ export default class Condition extends Component {
       enumDefault: single.type === 24 ? single.enumDefault2 : single.enumDefault,
       conditionId: (getConditionList(single.type, single.enumDefault) || {}).defaultConditionId,
       conditionValues: [],
+      ignoreCase: 0,
       sourceType,
     };
 
@@ -488,6 +507,21 @@ export default class Condition extends Component {
     }
 
     updateSource(data);
+  };
+
+  updateTagSearchValue = (key, value) => {
+    this.setState(prevState => ({
+      tagSearchValues: { ...prevState.tagSearchValues, [key]: value },
+    }));
+  };
+
+  createConditionTag = ({ value, values, i, j, searchKey }) => {
+    const val = value.trim();
+
+    this.updateTagSearchValue(searchKey, '');
+    if (val && !values.includes(val)) {
+      this.updateConditionValue({ value: val, i, j });
+    }
   };
 
   onFetchData = _.debounce(keywords => {
@@ -522,17 +556,26 @@ export default class Condition extends Component {
       filedTypeId === 33 ||
       filedTypeId === 50
     ) {
+      const values = conditionValues.map(obj => obj.value);
+      const tagSearchKey = `${i}-${j}`;
+      const tagSearchValue = this.state.tagSearchValues[tagSearchKey] || '';
+
       return (
         <div className="flex relative flexRow">
           {conditionValues[0] && conditionValues[0].controlId ? (
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
-            <TagInput
-              disable={_.includes(['9', '10', '33', '34', '43'], item.conditionId) && filedTypeId === 29}
-              className="flex clearBorderRadius"
-              tags={conditionValues.map(obj => obj.value)}
-              createTag={val => this.updateConditionValue({ value: val, i, j })}
-              delTag={val => this.updateConditionValue({ value: val, i, j })}
+            <Select
+              className="flowDropdown flowDropdownMoreSelect flex clearBorderRadius"
+              mode="tags"
+              open={false}
+              value={values}
+              searchValue={tagSearchValue}
+              disabled={_.includes(['9', '10', '33', '34', '43'], item.conditionId) && filedTypeId === 29}
+              onSearch={value => this.updateTagSearchValue(tagSearchKey, value)}
+              onSelect={value => this.createConditionTag({ value, values, i, j, searchKey: tagSearchKey })}
+              onDeselect={value => this.updateConditionValue({ value, i, j })}
+              onBlur={() => this.createConditionTag({ value: tagSearchValue, values, i, j, searchKey: tagSearchKey })}
             />
           )}
 
@@ -604,6 +647,11 @@ export default class Condition extends Component {
       const { controls } = this.props;
       let options;
       let data;
+      const isSingle = _.includes(['9', '10'], item.conditionId) && _.includes([9, 11], filedTypeId);
+      const validConditionValues = this.getValidConditionValues(conditionValues);
+      const selectedKeys = validConditionValues
+        .map(this.getConditionItemKey)
+        .filter(value => !_.isUndefined(value) && !_.isNull(value));
 
       if (!conditionValues[0] || !conditionValues[0].controlId) {
         if (isNodeHeader) {
@@ -617,13 +665,10 @@ export default class Condition extends Component {
         }
 
         options = options || [];
-        data = options.map(opts => {
-          return {
-            text: opts.value,
-            value: opts.key,
-            disabled: !!_.find(conditionValues, obj => this.getConditionItemKey(obj) === opts.key),
-          };
-        });
+        data = _.uniqBy(options.concat(validConditionValues.map(item => item.value)), 'key').map(opts => ({
+          label: opts.value,
+          value: opts.key,
+        }));
       }
 
       return (
@@ -631,15 +676,15 @@ export default class Condition extends Component {
           {conditionValues[0] && conditionValues[0].controlId ? (
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
-            <Dropdown
-              className="flowDropdown flex flowDropdownTags clearBorderRadius"
-              isAppendToBody
-              data={data}
-              value=""
+            <Select
+              className="flowDropdown flex clearBorderRadius"
+              mode={isSingle ? undefined : 'multiple'}
+              options={data}
+              value={isSingle ? selectedKeys[0] : selectedKeys}
               placeholder={_l('请选择')}
-              border
-              openSearch
-              onChange={key => {
+              showSearch
+              optionFilterProp="label"
+              onSelect={key => {
                 const selectedOption = _.find(options, opts => opts.key === key);
                 if (!selectedOption) return;
 
@@ -647,10 +692,10 @@ export default class Condition extends Component {
                   value: selectedOption,
                   i,
                   j,
-                  isSingle: _.includes(['9', '10'], item.conditionId) && _.includes([9, 11], filedTypeId),
+                  isSingle,
                 });
               }}
-              renderTitle={() => this.renderDropdownTagList(conditionValues, i, j)}
+              onDeselect={key => this.updateConditionValue({ value: key, i, j })}
             />
           )}
 
@@ -662,7 +707,6 @@ export default class Condition extends Component {
     // 日期 || 日期时间
     if (filedTypeId === 15 || filedTypeId === 16) {
       const showType = _.get(currentControl || {}, 'advancedSetting.showtype');
-      const mode = { 3: 'date', 4: 'month', 5: 'year' };
       const dateList = [];
       const showTimePicker = filedTypeId === 16 && !_.includes(['9', '10'], item.conditionId);
       const timeMode =
@@ -706,16 +750,16 @@ export default class Condition extends Component {
               {conditionValues[0] && conditionValues[0].controlId ? (
                 this.renderSelectFieldsValue(conditionValues[0], i, j)
               ) : (
-                <Dropdown
+                <Select
                   className="flowDropdown flex clearBorderRadius"
-                  data={dateList}
+                  options={_.flatten(dateList)}
+                  fieldNames={SELECT_FIELD_NAMES}
                   value={
                     conditionValues[0] && conditionValues[0].type !== undefined
                       ? conditionValues[0].type || execType
                       : undefined
                   }
-                  border
-                  renderTitle={
+                  labelRender={
                     !conditionValues[0] || conditionValues[0].type === undefined
                       ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                       : () => (
@@ -739,21 +783,23 @@ export default class Condition extends Component {
 
             {conditionValues[0] && (conditionValues[0].type === 20 || execType === 20) && (
               <div className="mTop10 triggerConditionNum triggerConditionDate borderColorPrimary">
-                <DateTime
-                  selectedValue={
-                    conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
-                  }
-                  mode={mode[showType]}
-                  timePicker={showTimePicker}
-                  timeMode={timeMode}
+                <DatePicker
                   allowClear={false}
-                  onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j })}
-                >
-                  {conditionValues[0] && conditionValues[0].value
-                    ? moment(conditionValues[0].value).format(formatString)
-                    : ''}
-                  <i className="icon-bellSchedule Font14 textSecondary" />
-                </DateTime>
+                  className="triggerConditionDatePicker"
+                  format={formatString}
+                  inputReadOnly
+                  needConfirm
+                  picker={DATE_PICKER_MODE[showType] || 'date'}
+                  placeholder=""
+                  showNow={false}
+                  showTime={showTimePicker ? DATE_TIME_PICKER_CONFIG[timeMode] : false}
+                  suffixIcon={DATE_PICKER_SUFFIX_ICON}
+                  value={conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null}
+                  variant="borderless"
+                  onChange={value =>
+                    value && this.updateConditionDateValue({ value: value.format(formatString), i, j })
+                  }
+                />
               </div>
             )}
           </div>
@@ -767,21 +813,23 @@ export default class Condition extends Component {
               this.renderSelectFieldsValue(conditionValues[0], i, j)
             ) : (
               <div className="flex triggerConditionNum triggerConditionDate borderColorPrimary clearBorderRadius">
-                <DateTime
-                  selectedValue={
-                    conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
-                  }
-                  mode={mode[showType]}
-                  timePicker={showTimePicker}
-                  timeMode={timeMode}
+                <DatePicker
                   allowClear={false}
-                  onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j })}
-                >
-                  {conditionValues[0] && conditionValues[0].value
-                    ? moment(conditionValues[0].value).format(formatString)
-                    : ''}
-                  <i className="icon-bellSchedule Font14 textSecondary" />
-                </DateTime>
+                  className="triggerConditionDatePicker"
+                  format={formatString}
+                  inputReadOnly
+                  needConfirm
+                  picker={DATE_PICKER_MODE[showType] || 'date'}
+                  placeholder=""
+                  showNow={false}
+                  showTime={showTimePicker ? DATE_TIME_PICKER_CONFIG[timeMode] : false}
+                  suffixIcon={DATE_PICKER_SUFFIX_ICON}
+                  value={conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null}
+                  variant="borderless"
+                  onChange={value =>
+                    value && this.updateConditionDateValue({ value: value.format(formatString), i, j })
+                  }
+                />
               </div>
             )}
             {this.renderOtherFields(item, i, j)}
@@ -794,21 +842,23 @@ export default class Condition extends Component {
                 this.renderSelectFieldsValue(conditionValues[1], i, j, true)
               ) : (
                 <div className="flex triggerConditionNum triggerConditionDate borderColorPrimary clearBorderRadius">
-                  <DateTime
-                    selectedValue={
-                      conditionValues[1] && conditionValues[1].value ? moment(conditionValues[1].value) : null
-                    }
-                    mode={mode[showType]}
-                    timePicker={showTimePicker}
-                    timeMode={timeMode}
+                  <DatePicker
                     allowClear={false}
-                    onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j, second: true })}
-                  >
-                    {conditionValues[1] && conditionValues[1].value
-                      ? moment(conditionValues[1].value).format(formatString)
-                      : ''}
-                    <i className="icon-bellSchedule Font14 textSecondary" />
-                  </DateTime>
+                    className="triggerConditionDatePicker"
+                    format={formatString}
+                    inputReadOnly
+                    needConfirm
+                    picker={DATE_PICKER_MODE[showType] || 'date'}
+                    placeholder=""
+                    showNow={false}
+                    showTime={showTimePicker ? DATE_TIME_PICKER_CONFIG[timeMode] : false}
+                    suffixIcon={DATE_PICKER_SUFFIX_ICON}
+                    value={conditionValues[1] && conditionValues[1].value ? moment(conditionValues[1].value) : null}
+                    variant="borderless"
+                    onChange={value =>
+                      value && this.updateConditionDateValue({ value: value.format(formatString), i, j, second: true })
+                    }
+                  />
                 </div>
               )}
               {this.renderOtherFields(item, i, j, true)}
@@ -821,69 +871,49 @@ export default class Condition extends Component {
     // 地区
     if (filedTypeId === 19 || filedTypeId === 23 || filedTypeId === 24) {
       const level = filedTypeId === 19 ? 1 : filedTypeId === 23 ? 2 : 3;
+      const validConditionValues = this.getValidConditionValues(conditionValues);
       return (
         <div className="flex relative flexRow">
           {conditionValues[0] && conditionValues[0].controlId ? (
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
-            <div
-              className={cx('flex triggerConditionNum triggerConditionList borderColorPrimary clearBorderRadius', {
-                pTop2: conditionValues.length,
-              })}
-              onClick={() => this.cityPickerSearchRef.current.focus()}
+            <CityPicker
+              className="flex"
+              search={keywords}
+              chooserange={_.get(currentControl || {}, 'advancedSetting.chooserange')}
+              commcountries={_.get(currentControl || {}, 'advancedSetting.commcountries')}
+              hasContentContainer={false}
+              level={enumDefault}
+              projectId={this.props.projectId}
+              callback={citys => {
+                search && this.setState({ search: '', keywords: '' });
+                this.cacheCityPickerData = citys;
+                level === citys.length && this.updateConditionValue({ value: citys, i, j });
+              }}
+              handleClose={() =>
+                this.cacheCityPickerData.length && this.updateConditionValue({ value: this.cacheCityPickerData, i, j })
+              }
             >
-              <CityPicker
-                search={keywords}
-                chooserange={_.get(currentControl || {}, 'advancedSetting.chooserange')}
-                commcountries={_.get(currentControl || {}, 'advancedSetting.commcountries')}
-                level={enumDefault}
-                projectId={this.props.projectId}
-                callback={citys => {
-                  search && this.setState({ search: '', keywords: '' });
-                  this.cacheCityPickerData = citys;
-                  level === citys.length && this.updateConditionValue({ value: citys, i, j });
+              <Select
+                autoClearSearchValue={false}
+                className="flowDropdown flowDropdownMoreSelect flex clearBorderRadius"
+                mode="multiple"
+                open={false}
+                options={validConditionValues.map(item => ({ label: item.value.value, value: item.value.key }))}
+                placeholder={_l('选择地区')}
+                ref={this.cityPickerSearchRef}
+                searchValue={search || ''}
+                value={validConditionValues.map(this.getConditionItemKey)}
+                onSearch={value => {
+                  this.setState({ search: value });
+                  this.onFetchData(value);
                 }}
-                handleClose={() =>
-                  this.cacheCityPickerData.length &&
-                  this.updateConditionValue({ value: this.cacheCityPickerData, i, j })
-                }
-              >
-                <ul className="pLeft6 tagWrap">
-                  {conditionValues.map((list, index) => {
-                    return (
-                      <li key={index} className="tagItem flexRow">
-                        <span className="tag" title={list.value.value}>
-                          {list.value.value}
-                        </span>
-                        <span
-                          className="delTag"
-                          onClick={e => {
-                            e.stopPropagation();
-                            this.cacheCityPickerData = [];
-                            this.updateConditionValue({ value: list.value.key, i, j });
-                          }}
-                        >
-                          <Icon icon="close" className="pointer" />
-                        </span>
-                      </li>
-                    );
-                  })}
-                  <div className="CityPicker-input-tagSearchBox">
-                    <Input
-                      className="CityPicker-input-textCon CityPicker-input-tagSearch"
-                      placeholder={!conditionValues.length ? _l('选择地区') : ''}
-                      value={search}
-                      manualRef={this.cityPickerSearchRef}
-                      onChange={value => {
-                        this.setState({ search: value });
-                        this.onFetchData(value);
-                      }}
-                    />
-                    <label className="CityPicker-input-box_label">{search}</label>
-                  </div>
-                </ul>
-              </CityPicker>
-            </div>
+                onDeselect={key => {
+                  this.cacheCityPickerData = [];
+                  this.updateConditionValue({ value: key, i, j });
+                }}
+              />
+            </CityPicker>
           )}
 
           {this.renderOtherFields(item, i, j)}
@@ -893,15 +923,27 @@ export default class Condition extends Component {
 
     // 人员 || 部门 || 组织角色
     if (filedTypeId === 26 || filedTypeId === 27 || filedTypeId === 48 || filedTypeId === 10000001) {
+      const validConditionValues = this.getValidConditionValues(conditionValues);
+
       return (
         <div className="flex relative flexRow">
           {conditionValues[0] && conditionValues[0].controlId ? (
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
-            <div
-              className={cx('flex triggerConditionNum triggerConditionList borderColorPrimary clearBorderRadius', {
-                pTop2: conditionValues.length,
-              })}
+            <Select
+              className="flowDropdown flex clearBorderRadius"
+              mode="multiple"
+              open={false}
+              showSearch={false}
+              options={validConditionValues.map(item => ({ label: item.value.value, value: item.value.key }))}
+              value={validConditionValues.map(this.getConditionItemKey)}
+              placeholder={
+                _.includes([26, 10000001], filedTypeId)
+                  ? _l('请选择人员')
+                  : filedTypeId === 27
+                    ? _l('请选择部门')
+                    : _l('请选择组织角色')
+              }
               onClick={evt => {
                 if (_.includes([26, 10000001], filedTypeId)) {
                   this.selectUser(
@@ -927,38 +969,8 @@ export default class Condition extends Component {
                   );
                 }
               }}
-            >
-              {!conditionValues.length ? (
-                <div className="textDisabled pLeft10 pRight10">
-                  {_.includes([26, 10000001], filedTypeId)
-                    ? _l('请选择人员')
-                    : filedTypeId === 27
-                      ? _l('请选择部门')
-                      : _l('请选择组织角色')}
-                </div>
-              ) : (
-                <ul className="pLeft6 tagWrap">
-                  {conditionValues.map((list, index) => {
-                    return (
-                      <li key={index} className="tagItem flexRow">
-                        <span className="tag" title={list.value.value}>
-                          {list.value.value}
-                        </span>
-                        <span
-                          className="delTag"
-                          onClick={e => {
-                            e.stopPropagation();
-                            this.updateConditionValue({ value: list.value.key, i, j });
-                          }}
-                        >
-                          <Icon icon="close" className="pointer" />
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+              onDeselect={key => this.updateConditionValue({ value: key, i, j })}
+            />
           )}
 
           {this.renderOtherFields(item, i, j)}
@@ -980,7 +992,7 @@ export default class Condition extends Component {
                 <TimePicker
                   className="triggerConditionTime"
                   showNow={false}
-                  bordered={false}
+                  variant="borderless"
                   allowClear={false}
                   suffixIcon={<i className="icon-access_time Font14 textSecondary" />}
                   inputReadOnly
@@ -1006,7 +1018,7 @@ export default class Condition extends Component {
                   <TimePicker
                     className="triggerConditionTime"
                     showNow={false}
-                    bordered={false}
+                    variant="borderless"
                     allowClear={false}
                     suffixIcon={<i className="icon-access_time Font14 textSecondary" />}
                     inputReadOnly
@@ -1056,42 +1068,6 @@ export default class Condition extends Component {
       this.updateConditionValue({ value: num, i, j, second });
     }
   };
-
-  /**
-   * 渲染标签式下拉选择
-   */
-  renderDropdownTagList(conditionValues, i, j) {
-    const validConditionValues = this.getValidConditionValues(conditionValues);
-
-    return (
-      <div className="flex triggerConditionNum triggerConditionDropdown">
-        {!validConditionValues.length ? (
-          <div className="textDisabled pLeft10 pRight10">{_l('请选择')}</div>
-        ) : (
-          <ul className="pLeft6 tagWrap">
-            {validConditionValues.map((list, index) => {
-              return (
-                <li key={index} className="tagItem flexRow">
-                  <span className="tag ellipsis" title={list.value.value}>
-                    {list.value.value}
-                  </span>
-                  <span
-                    className="delTag"
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.updateConditionValue({ value: list.value.key, i, j });
-                    }}
-                  >
-                    <Icon icon="close" className="pointer" />
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    );
-  }
 
   /**
    * 成员选择

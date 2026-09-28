@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox, Dropdown, LoadDiv, RadioGroup, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Radio, Select } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { formatTestParameters } from '../../utils';
@@ -13,6 +14,8 @@ import {
   SingleControlValue,
   TestParameter,
 } from '../components';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default class Authentication extends Component {
   constructor(props) {
@@ -281,12 +284,12 @@ export default class Authentication extends Component {
           return (
             <Fragment>
               <div className="flexRow">
-                <Dropdown
+                <Select
                   className="flowDropdown mRight10 mTop10"
                   style={{ width: 115 }}
-                  data={METHODS_TYPE.filter(o => !o.disabled)}
+                  options={METHODS_TYPE.filter(o => !o.disabled)}
+                  fieldNames={SELECT_FIELD_NAMES}
                   value={item.method === 4 ? 14 : item.method}
-                  border
                   onChange={method => this.updateAjaxParameter({ method: method }, i)}
                 />
                 <div className="flex minWidth0">
@@ -352,12 +355,10 @@ export default class Authentication extends Component {
               {_l('系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新')}
             </div>
             <div className="mTop15 flexRow alignItemsCenter">
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+              <Input
                 style={{ width: 115 }}
                 ref={refreshTime => {
-                  this.refreshTime = refreshTime;
+                  this.refreshTime = refreshTime?.input;
                 }}
                 defaultValue={data.expireAfterSeconds}
                 onKeyUp={evt => this.checkNumberControl(evt)}
@@ -398,15 +399,20 @@ export default class Authentication extends Component {
       <Fragment>
         {key === 'Body' && (
           <div className="mTop15">
-            <RadioGroup
+            <Radio.Group
               className="Font12"
-              data={[
-                // { text: 'none', value: 0, checked: item.contentType === 0 },
-                { text: 'x-www-form-urlencoded', value: 1, checked: item.contentType === 1 },
-                { text: 'raw(JSON)', value: 2, checked: item.contentType === 2 },
-              ]}
-              onChange={value => {
-                const newObj = { contentType: value };
+              value={item.contentType}
+              options={[
+                // { text: 'none', value: 0 },
+                { text: 'x-www-form-urlencoded', value: 1 },
+                { text: 'raw(JSON)', value: 2 },
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event => {
+                const value = event.target.value;
+
+                const newObj = {
+                  contentType: value,
+                };
 
                 if (value === 0) {
                   newObj.formControls = [];
@@ -622,39 +628,50 @@ export default class Authentication extends Component {
       <Fragment>
         <div className="Font13 mTop25">
           <Checkbox
-            className="InlineBlock bold"
-            text={_l('配置 Access Token 刷新条件')}
+            className="bold"
             checked={!!refreshType}
-            onClick={checked =>
+            onChange={event =>
               this.updateAjaxParameter(
-                checked ? { retryControls: [] } : { retryControls: [{ type: 10001, name: '', value: '' }] },
+                !event.target.checked
+                  ? {
+                      retryControls: [],
+                    }
+                  : {
+                      retryControls: [
+                        {
+                          type: 10001,
+                          name: '',
+                          value: '',
+                        },
+                      ],
+                    },
                 this.testIndex,
               )
             }
-          />
+          >
+            {_l('配置 Access Token 刷新条件')}
+          </Checkbox>
         </div>
         <div className="Font13 mTop5 textSecondary">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
 
         {!!(data.webHookNodes[this.testIndex].retryControls || []).length && (
           <div className="flexRow mTop10">
-            <Dropdown
+            <Select
               className="flowDropdown mRight10"
               style={{ width: 115 }}
-              data={[
-                { text: _l('状态码'), value: 10001 },
-                { text: _l('错误码'), value: 10002 },
+              options={[
+                { label: _l('状态码'), value: 10001 },
+                { label: _l('错误码'), value: 10002 },
               ]}
               value={refreshType}
-              border
               onChange={value =>
                 this.updateAjaxParameter({ retryControls: [{ type: value, name: '', value: '' }] }, this.testIndex)
               }
             />
 
             {refreshType === 10002 && (
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+              <Input
+                className="mRight10"
                 style={{ width: 180 }}
                 placeholder={_l('请输入错误码字段名称，如 code')}
                 value={refreshName}
@@ -663,9 +680,8 @@ export default class Authentication extends Component {
               />
             )}
 
-            <input
-              type="text"
-              className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+            <Input
+              className="flex"
               placeholder={
                 refreshType === 10001
                   ? _l('请输入指定刷新 token 的 HTTP 状态码，如：400,401(多个状态码用英文逗号隔开)')

@@ -2,10 +2,13 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import doT from 'dot';
 import _ from 'lodash';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import ajax from 'src/api/kc';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { getClassNameByExt, htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import nodeTpl from './tpl/nodeTpl.html';
 import rootTpl from './tpl/rootTpl.html';
 import '../layerMain.css';
@@ -99,16 +102,20 @@ $.extend(FolderSelect.prototype, {
     var folderSelect = this;
     var settings = folderSelect.settings;
 
-    settings.dialog = null;
-    Dialog.confirm({
-      dialogClasses: 'folderSelectDialog',
+    settings.dialog = Modal.confirm({
+      wrapClassName: 'folderSelectDialog',
       width: 500,
       zIndex: settings.zIndex,
       title: settings.dialogTitle,
-      children: (
+      content: (
         <div className="folderContent">
           <div className="folderUrl flexRow">
-            <div className="positionUrl flexRow flex" style={{ minWidth: 0 }}>
+            <div
+              className="positionUrl flexRow flex"
+              style={{
+                minWidth: 0,
+              }}
+            >
               <span className="levelName colorPrimary startTag">{_l('全部文件')}</span>
             </div>
             <div className="operation">
@@ -119,7 +126,12 @@ $.extend(FolderSelect.prototype, {
               <span className="createFolder icon-createFolder"></span>
             </div>
           </div>
-          <div className="folderNode" dangerouslySetInnerHTML={{ __html: loading }}></div>
+          <div
+            className="folderNode"
+            dangerouslySetInnerHTML={{
+              __html: loading,
+            }}
+          ></div>
           <div className="selectedHint">
             <div className="selectedItem Hidden">
               {_l('已选中')}
@@ -156,14 +168,16 @@ $.extend(FolderSelect.prototype, {
             }
           }
         });
-
         if (selectedNode && selectedNode.length) {
           if (settings.isFolderNode == SELECT_TYPE.FOLDER) {
             //是否是根目录文件
             if (isRoot) {
               if (isRoot == PICK_TYPE.MYFILE) {
                 resultType = PICK_TYPE.MYFILE;
-                resultNode = { id: null, name: _l('我的文件') };
+                resultNode = {
+                  id: null,
+                  name: _l('我的文件'),
+                };
               } else {
                 resultType = PICK_TYPE.ROOT;
                 resultNode = selectedNode[0];
@@ -172,7 +186,6 @@ $.extend(FolderSelect.prototype, {
                   throw msg;
                 });
               }
-
               settings.rootFolder = {
                 id: selectedNode[0].id,
                 projectId: selectedNode[0].projectId,
@@ -181,7 +194,6 @@ $.extend(FolderSelect.prototype, {
               resultType = PICK_TYPE.CHILDNODE;
               resultNode = selectedNode[0];
             }
-
             folderSelect.settings.currentFolder = {
               node: {
                 id: resultNode.id,
@@ -194,14 +206,16 @@ $.extend(FolderSelect.prototype, {
           } else if (settings.isFolderNode == SELECT_TYPE.FILE) {
             if (isRoot) {
               isRoot == PICK_TYPE.MYFILE
-                ? folderSelect.getNodeList(PICK_TYPE.MYFILE, { id: null, name: _l('我的文件') })
+                ? folderSelect.getNodeList(PICK_TYPE.MYFILE, {
+                    id: null,
+                    name: _l('我的文件'),
+                  })
                 : folderSelect.getNodeList(PICK_TYPE.ROOT, selectedNode[0]);
               return true;
             } else {
               resultNode = selectedNode.filter(function (node) {
                 return node && node.type == NODE_TYPE.FILE;
               });
-
               if (resultNode && resultNode.length > 0) {
                 resultType = PICK_TYPE.CHILDNODE;
               } else {
@@ -212,16 +226,17 @@ $.extend(FolderSelect.prototype, {
               }
             }
           }
-
           if (resultType && !getNodeAjax) {
-            var resObj = { type: parseInt(resultType), node: resultNode };
+            var resObj = {
+              type: parseInt(resultType),
+              node: resultNode,
+            };
             if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
               var currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
               resObj = $.extend(resObj, {
                 rootName: currentRoot.name,
               });
             }
-
             folderSelect.savePos(resObj);
             folderSelect.savePos(resObj, true);
             settings.resolve(resObj);
@@ -241,7 +256,6 @@ $.extend(FolderSelect.prototype, {
           //无选择项时 是否要返回当前路径
           var $lastNode = $folderContent.find('.folderUrl .levelName:last');
           var appointRootId = settings.appointRoot ? settings.appointRoot.id : '';
-
           if (
             settings.isFolderNode == SELECT_TYPE.FOLDER &&
             ((!$lastNode.hasClass('startTag') && !settings.appointRoot) || (settings.appointRoot && appointRootId))
@@ -250,29 +264,39 @@ $.extend(FolderSelect.prototype, {
               let currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
               resultType = PICK_TYPE.CHILDNODE;
               getNodeAjax = true;
-              var nodeData = await ajax.getNodeDetail({ path: $lastNode.data('path') });
+              var nodeData = await ajax.getNodeDetail({
+                path: $lastNode.data('path'),
+              });
               if (!nodeData) {
                 throw new Error();
               }
-
-              let resObj = { type: parseInt(resultType), node: nodeData };
-
+              let resObj = {
+                type: parseInt(resultType),
+                node: nodeData,
+              };
               if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
                 resObj = $.extend(resObj, {
                   rootName: currentRoot.name,
                 });
               }
-
               folderSelect.savePos(resObj);
               folderSelect.savePos(resObj, true);
               settings.resolve(resObj);
               return false;
             } else {
               resultType = settings.rootType;
-              resultNode = $lastNode.hasClass('myRoot') ? { id: null, name: _l('我的文件') } : $lastNode.data('root');
+              resultNode = $lastNode.hasClass('myRoot')
+                ? {
+                    id: null,
+                    name: _l('我的文件'),
+                  }
+                : $lastNode.data('root');
               folderSelect.savePos(resObj);
               folderSelect.savePos(resObj, true);
-              settings.resolve({ type: parseInt(resultType), node: resultNode });
+              settings.resolve({
+                type: parseInt(resultType),
+                node: resultNode,
+              });
               return false;
             }
           } else {
@@ -289,12 +313,9 @@ $.extend(FolderSelect.prototype, {
         }
       },
       onCancel: () => {
+        $(window).unbind('click.folderSelectDialog_sharePermision');
         settings.reject();
         return true;
-      },
-      handleClose: () => {
-        $(window).unbind('click.folderSelectDialog_sharePermision');
-        $('.folderSelectDialog').parent().remove();
       },
     });
 
@@ -446,8 +467,8 @@ $.extend(FolderSelect.prototype, {
                     );
                   $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
                 })
-                .catch(function () {
-                  alert(_l('操作失败, 请稍后重试'), 3);
+                .catch(function (_requestError) {
+                  alertIfNotUnauthorized(_requestError, _l('操作失败, 请稍后重试'), 3);
                 });
             },
           },
@@ -1065,7 +1086,7 @@ $.extend(FolderSelect.prototype, {
               if (rootData && rootData.type == NODE_TYPE.FILE && settings.isFolderNode == SELECT_TYPE.FILE) {
                 settings.resolve({ type: parseInt(PICK_TYPE.CHILDNODE), node: [rootData] });
                 folderSelect.savePos();
-                $('.folderSelectDialog').parent().remove();
+                settings.dialog.destroy();
               } else {
                 folderSelect.getNodeList(null, rootData);
               }
@@ -1193,8 +1214,8 @@ $.extend(FolderSelect.prototype, {
           .show();
         $this.remove();
       })
-      .catch(function () {
-        alert(_l('创建失败'), 2);
+      .catch(function (_requestError2) {
+        alertIfNotUnauthorized(_requestError2, _l('创建失败'), 2);
         $this.closest('li.addNewFolder').fadeOut();
       });
   }, 1000),

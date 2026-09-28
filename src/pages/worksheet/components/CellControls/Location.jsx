@@ -2,8 +2,8 @@ import React, { forwardRef, useImperativeHandle } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import MDMap from 'ming-ui/components/amap/MDMap';
-import { browserIsMobile } from 'src/utils/common';
-import { isKeyBoardInputChar } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
 import EditableCellCon from '../EditableCellCon';
 
 function Location(props, ref) {

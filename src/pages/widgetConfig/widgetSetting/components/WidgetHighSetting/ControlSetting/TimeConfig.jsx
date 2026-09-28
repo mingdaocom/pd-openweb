@@ -1,22 +1,12 @@
 import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DropdownContent, DropdownPlaceholder } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Checkbox, Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DropdownPlaceholder } from '../../../../styled';
 import TimeInput from '../../DynamicDefaultValue/inputTypes/TimeInput.jsx';
 
 const INTERVAL = [1, 5, 10, 15, 30, 60];
-
-const IntervalWrap = styled(DropdownContent)`
-  .item {
-    line-height: 36px;
-    padding: 0 16px;
-  }
-`;
 
 function StartEndTime(props) {
   const { data, onChange, allControls } = props;
@@ -31,9 +21,15 @@ function StartEndTime(props) {
     <Fragment>
       <div className={cx('labelWrap', { mBottom8: min })}>
         <Checkbox
-          size="small"
           checked={min}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { min: checked ? '' : JSON.stringify([]) }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                min: !event.target.checked ? '' : JSON.stringify([]),
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('起始时间')}</span>
         </Checkbox>
@@ -49,9 +45,15 @@ function StartEndTime(props) {
       )}
       <div className={cx('labelWrap', { mTop8: min, mBottom8: max })}>
         <Checkbox
-          size="small"
           checked={max}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { max: checked ? '' : JSON.stringify([]) }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                max: !event.target.checked ? '' : JSON.stringify([]),
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('结束时间')}</span>
         </Checkbox>
@@ -79,9 +81,15 @@ export default function TimeConfig(props) {
     <Fragment>
       <div className={'labelWrap'}>
         <Checkbox
-          size="small"
           checked={!!timeinterval}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { timeinterval: checked ? '' : '1' }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                timeinterval: !event.target.checked ? '' : '1',
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('预设分钟间隔')}</span>
           <Tooltip
@@ -96,24 +104,18 @@ export default function TimeConfig(props) {
         <Dropdown
           trigger={'click'}
           className="mTop8 mBottom8"
-          visible={timeIntervalVisible}
-          onVisibleChange={v => setVisible({ timeIntervalVisible: v })}
-          overlay={
-            <IntervalWrap>
-              {INTERVAL.map(v => (
-                <div
-                  key={v}
-                  className="item"
-                  onClick={() => {
-                    onChange(handleAdvancedSettingChange(data, { timeinterval: String(v) }));
-                    setVisible({ timeIntervalVisible: false });
-                  }}
-                >
-                  {_l('%0分钟', v)}
-                </div>
-              ))}
-            </IntervalWrap>
-          }
+          open={timeIntervalVisible}
+          onOpenChange={v => setVisible({ timeIntervalVisible: v })}
+          menu={{
+            items: INTERVAL.map(v => ({
+              key: v,
+              label: _l('%0分钟', v),
+              onClick: () => {
+                onChange(handleAdvancedSettingChange(data, { timeinterval: String(v) }));
+                setVisible({ timeIntervalVisible: false });
+              },
+            })),
+          }}
         >
           <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="var(--color-text-primary)">
             {_l('%0分钟', timeinterval)}

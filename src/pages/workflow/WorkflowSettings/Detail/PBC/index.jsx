@@ -3,15 +3,17 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4, validate } from 'uuid';
-import { Checkbox, Dialog, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import appManagement from 'src/api/appManagement';
-import { pathCompletion } from 'src/utils/common';
-import selectPBPDialog from '../../../components/selectPBPDialog';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { useSelectPBPDialog } from '../../../components/selectPBPDialog';
 import { ACTION_ID, FIELD_TYPE_LIST, RELATION_TYPE } from '../../enum';
 import {
+  AppSelectTitle,
   DetailFooter,
   DetailHeader,
   ProcessParameters,
@@ -22,6 +24,8 @@ import {
   TransferTriggerUser,
 } from '../components';
 
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
 const Header = styled.div`
   .w180 {
     width: 180px;
@@ -31,7 +35,7 @@ const Header = styled.div`
   }
 `;
 
-export default class PBC extends Component {
+class PBC extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,6 +45,7 @@ export default class PBC extends Component {
       selectFieldId: '',
       cacheKey: +new Date(),
     };
+    this.requestPending = false;
   }
 
   cacheItem = {};
@@ -272,13 +277,11 @@ export default class PBC extends Component {
         </div>
 
         {!!selectFieldId && (
-          <Dialog
+          <Modal
             className="workflowDialogBox workflowSettings"
-            style={{ overflow: 'initial' }}
-            overlayClosable={false}
-            type="scroll"
-            visible
-            bodyClass="workflowDetail"
+            mask={{ closable: false }}
+            open
+            classNames={{ body: 'workflowDetail' }}
             title={FIELD_TYPE_LIST.find(o => o.value === selectItem.type).text}
             onCancel={() => {
               this.updateSource({
@@ -313,9 +316,8 @@ export default class PBC extends Component {
 
             <div className="mTop20 bold">{_l('参数名')}</div>
             <div className="mTop10 flexRow">
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+              <Input
+                className="flex"
                 placeholder={_l('参数名')}
                 value={selectItem.alias}
                 onChange={e => this.updateExportFields('alias', e.target.value, selectItem)}
@@ -336,9 +338,8 @@ export default class PBC extends Component {
 
             <div className="mTop20 bold">{_l('参数说明')}</div>
             <div className="mTop10 flexRow">
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+              <Input
+                className="flex"
                 placeholder={_l('参数说明')}
                 value={selectItem.desc}
                 onChange={evt => this.updateExportFields('desc', evt.target.value, selectItem)}
@@ -346,7 +347,7 @@ export default class PBC extends Component {
               />
             </div>
             <div className="mTop5 textSecondary">{_l('启用平台API能力时，在API文档中作为输出参数的说明')}</div>
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );
@@ -359,18 +360,17 @@ export default class PBC extends Component {
     const { isPlugin } = this.props;
 
     return (
-      <Dropdown
+      <Select
         className="flowDropdown w100"
-        menuClass="w100"
-        data={FIELD_TYPE_LIST.filter(
+        options={FIELD_TYPE_LIST.filter(
           o =>
             _.includes([2, 6, 16, 26, 27, 48, 10000007, 10000008], o.value) &&
             (!item.dataSource || (item.dataSource && o.value !== 10000008)) &&
             !(isPlugin && _.includes([26, 27, 48], o.value)),
         )}
+        fieldNames={SELECT_FIELD_NAMES}
         value={item.type}
-        renderTitle={() => <span>{FIELD_TYPE_LIST.find(o => o.value === item.type).text}</span>}
-        border
+        labelRender={() => <span>{FIELD_TYPE_LIST.find(o => o.value === item.type).text}</span>}
         disabled={!validate(item.fieldId)}
         onChange={type => this.updateExportFields('type', type, item)}
       />
@@ -382,9 +382,8 @@ export default class PBC extends Component {
    */
   renderFieldName = item => {
     return (
-      <input
-        type="text"
-        className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+      <Input
+        className="flex"
         placeholder={_l('字段名（必填）')}
         value={item.fieldName}
         maxLength={64}
@@ -642,16 +641,22 @@ export default class PBC extends Component {
               return (
                 <div key={index} className="mTop10">
                   <Radio
-                    text={item.text}
                     checked={item.value === data.executeType || (item.value === 1 && data.executeType === 2)}
-                    onClick={() =>
+                    onChange={() =>
                       this.updateSource({
                         executeType: item.value,
                         selectNodeId: '',
-                        number: Object.assign({}, data.number, { fieldControlId: '', fieldNodeId: '', fieldValue: '' }),
+                        number: Object.assign({}, data.number, {
+                          fieldControlId: '',
+                          fieldNodeId: '',
+                          fieldValue: '',
+                        }),
                       })
                     }
-                  />
+                    title={item.text}
+                  >
+                    {item.text}
+                  </Radio>
                 </div>
               );
             })}
@@ -665,10 +670,16 @@ export default class PBC extends Component {
                   return (
                     <div className="mTop15" key={i}>
                       <Radio
-                        text={item.text}
                         checked={data.executeType === item.value}
-                        onClick={() => this.updateSource({ executeType: item.value })}
-                      />
+                        onChange={() =>
+                          this.updateSource({
+                            executeType: item.value,
+                          })
+                        }
+                        title={item.text}
+                      >
+                        {item.text}
+                      </Radio>
                       <div className="mTop10 mLeft30 textSecondary">{item.desc}</div>
                     </div>
                   );
@@ -679,10 +690,15 @@ export default class PBC extends Component {
             <div className="mTop20">
               <Checkbox
                 className="bold"
-                text={_l('业务流程执行完毕后，再开始下一个节点')}
                 checked={data.nextExecute}
-                onClick={checked => this.updateSource({ nextExecute: !checked })}
-              />
+                onChange={event =>
+                  this.updateSource({
+                    nextExecute: event.target.checked,
+                  })
+                }
+              >
+                {_l('业务流程执行完毕后，再开始下一个节点')}
+              </Checkbox>
             </div>
             <div className="mLeft25 mTop5 textSecondary">
               {_l('勾选后，将等待业务流程执行完毕。如果执行方式为“执行单次”，则之后节点还可使用业务流程的输出参数')}
@@ -738,44 +754,32 @@ export default class PBC extends Component {
       .filter(item => !item.otherApkId)
       .map(item => {
         return {
-          text: item.name,
+          label: item.name,
           value: item.id,
-          className: item.id === data.appId ? 'colorPrimary' : '',
         };
       });
     const otherPBC = [
       {
-        text: _l('其它应用下的封装业务流程'),
+        label: _l('其它应用下的封装业务流程'),
         value: 'other',
         className: 'textSecondary',
       },
     ];
 
     return (
-      <Dropdown
+      <Select
         className="flowDropdown mTop10"
-        data={[appList, otherPBC]}
+        options={appList.concat(otherPBC)}
         value={data.appId}
-        renderTitle={
-          !data.appId
-            ? () => <span className="textPlaceholder">{_l('请选择')}</span>
-            : data.appId && !selectAppItem
-              ? () => <span className="errorColor">{_l('业务流程无效或已删除')}</span>
-              : () => (
-                  <Fragment>
-                    <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && (
-                      <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
-                    )}
-                  </Fragment>
-                )
-        }
-        border
-        openSearch
-        noData={_l('暂无业务流程，请先在应用里创建')}
+        labelRender={() => (
+          <AppSelectTitle data={data} selectAppItem={selectAppItem} invalidText={_l('业务流程无效或已删除')} />
+        )}
+        showSearch
+        optionFilterProp="label"
+        notFoundContent={_l('暂无业务流程，请先在应用里创建')}
         onChange={appId => {
           if (appId === 'other') {
-            selectPBPDialog({
+            this.props.openSelectPBPDialog({
               appId: this.props.relationId,
               companyId: this.props.companyId,
               onOk: ({ selectPBCId }) => this.getNodeDetail(this.props, { appId: selectPBCId }),
@@ -794,17 +798,16 @@ export default class PBC extends Component {
   renderExecCount() {
     const { data, execCountType } = this.state;
     const EXEC_COUNT = [
-      { text: _l('依据字段值'), value: 1 },
-      { text: _l('依据多条数据对象的数据量'), value: 2 },
+      { label: _l('依据字段值'), value: 1 },
+      { label: _l('依据多条数据对象的数据量'), value: 2 },
     ];
 
     return (
       <Fragment>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={EXEC_COUNT}
+          options={EXEC_COUNT}
           value={execCountType}
-          border
           onChange={execCountType => {
             this.updateSource({
               selectNodeId: '',
@@ -848,9 +851,12 @@ export default class PBC extends Component {
    * 新建封装业务流程
    */
   createNewPBPFlow = () => {
+    if (this.requestPending) return;
+
     const { relationId, closeDetail } = this.props;
 
-    process
+    this.requestPending = true;
+    return process
       .addProcess({
         companyId: '',
         relationId,
@@ -862,6 +868,9 @@ export default class PBC extends Component {
         appManagement.addWorkflow({ projectId: res.companyId, name: _l('未命名业务流程') });
         window.open(pathCompletion(`/workflowedit/${res.id}`));
         closeDetail();
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
@@ -914,3 +923,7 @@ export default class PBC extends Component {
     );
   }
 }
+
+export default withOpeners(PBC, {
+  openSelectPBPDialog: useSelectPBPDialog,
+});

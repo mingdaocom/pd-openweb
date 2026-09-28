@@ -43,7 +43,6 @@ export default class WorkSheetCommenter extends Component {
         rowId,
         title: typeof title === 'string' ? title : '',
       }),
-      relatedLeftSpace: -60,
       mentionsOptions: { isAtAll: !!rowId, getPopupMaxHeight: () => _.get(this.commentRef, 'current.offsetTop') || 0 },
       selectGroupOptions: { position: 'top' },
       storageId: id,

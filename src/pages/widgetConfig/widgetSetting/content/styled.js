@@ -1,21 +1,22 @@
-import { Collapse, Drawer } from 'antd';
+import React from 'react';
 import styled from 'styled-components';
+import { Collapse, Drawer } from 'ming-ui/antd-components';
 
 export const SettingCollapseWrap = styled(Collapse)`
-  &.ant-collapse {
+  &.hap-collapse {
     font-size: unset;
-    background-color: ${props => props.contentBg || 'var(--color-background-primary)'} !important;
-    .ant-collapse-item {
+    background-color: ${props => props.$contentBg || 'var(--color-background-primary)'} !important;
+    .hap-collapse-item {
       border-bottom: 1px solid var(--color-border-primary) !important;
       &:last-child {
         border-bottom: none !important;
       }
-      .ant-collapse-content {
+      .hap-collapse-content {
         color: var(--color-text-primary) !important;
       }
     }
-    .ant-collapse-item > .ant-collapse-header {
-      padding: ${props => `${props.headerPadding || 20}px 0 !important`};
+    .hap-collapse-item > .hap-collapse-header {
+      padding: ${props => `${props.$headerPadding || 20}px 0 !important`};
       font-size: 15px !important;
       color: var(--color-text-primary) !important;
       font-weight: bold;
@@ -31,7 +32,7 @@ export const SettingCollapseWrap = styled(Collapse)`
         padding: 3px;
       }
     }
-    .ant-collapse-content-box {
+    .hap-collapse-body {
       padding: 0 0 24px 0 !important;
       & > div:first-child {
         margin-top: 0 !important;
@@ -46,13 +47,19 @@ export const SettingCollapseWrap = styled(Collapse)`
   }
 `;
 
-export const DrawerWrap = styled(Drawer)`
+export const DrawerWrap = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
   position: absolute !important;
   padding-top: 50px !important;
-  .ant-drawer-header {
+  .hap-drawer-header {
     display: none;
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 0 !important;
     font-size: unset !important;
   }

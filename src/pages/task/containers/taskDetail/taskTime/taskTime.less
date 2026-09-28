@@ -114,8 +114,32 @@
         border-bottom: 1px solid var(--color-error);
       }
     }
-    .mui-datetime-base {
-      line-height: 22px;
+    .taskTimeDatePicker {
+      min-width: 100px;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: inherit;
+      .hap-picker-input > input {
+        width: auto;
+        min-width: 0;
+        color: inherit;
+        font-size: inherit;
+        line-height: 22px;
+        cursor: pointer;
+        field-sizing: content;
+        &::placeholder {
+          color: inherit;
+          opacity: 1;
+        }
+      }
+      &.hap-picker-disabled {
+        background: transparent;
+        .hap-picker-input > input {
+          color: inherit;
+          cursor: default;
+        }
+      }
     }
   }
 }

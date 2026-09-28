@@ -1,17 +1,17 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Avatar, Dialog, Dropdown, Icon, Input, Radio, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Avatar, Icon } from 'ming-ui';
+import { Input, Modal, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectDept } from 'ming-ui/functions';
 import groupAjax from 'src/api/group';
-import { checkPermission } from 'src/components/checkPermission';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getStringBytes } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { getStringBytes } from 'src/utils/core/string';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getCurrentProject } from 'src/utils/services/project';
+import { checkPermission } from 'src/utils/services/security/permission';
 import SelectAvatarTrigger from './SelectAvatarTrigger';
 
 const ContentWrap = styled.div`
@@ -23,21 +23,21 @@ const ContentWrap = styled.div`
       align-items: flex-start;
     }
     .label {
-      font-size: 13px;
-      color: var(--color-text-title);
+      font-size: 14px;
+      color: var(--color-text-tertiary);
       width: 20%;
-      font-weight: 600;
+      font-weight: normal;
+      padding-right: 16px;
+      box-sizing: border-box;
     }
     .content {
       flex: 1;
       width: 80%;
     }
   }
-`;
-
-const CreateDialog = styled(Dialog)`
-  .mui-dialog-header {
-    padding: 24px !important;
+  .otherSetting {
+    display: flex;
+    align-items: center;
   }
 `;
 
@@ -52,15 +52,33 @@ const GROUP_TYPES = [
   },
 ];
 
+function ExpireDialogHolder({ orgId, setGroupState }) {
+  const [modal, modalContextHolder] = Modal.useModal();
+  const lastOrgIdRef = useRef(orgId);
+
+  useEffect(() => {
+    expireDialogAsync(orgId, { modal })
+      .then(() => {
+        lastOrgIdRef.current = orgId;
+        setGroupState({ disabledCreate: false });
+      })
+      .catch(() => {
+        setGroupState({ disabledCreate: true, orgId: lastOrgIdRef.current });
+      });
+  }, [modal, orgId, setGroupState]);
+
+  return modalContextHolder;
+}
+
 function CreateGroup(props) {
   const { visible, projectId, onClose, callback } = props;
+  const [modal, modalContextHolder] = Modal.useModal();
   const currentProject = projectId ? { projectId } : getCurrentProject(localStorage.getItem('currentProjectId'));
   const [
     {
       type,
       name,
       orgId,
-      lastOrgId,
       avatar,
       isApproval,
       isOfficial,
@@ -75,7 +93,6 @@ function CreateGroup(props) {
     type: 0,
     name: undefined,
     orgId: currentProject.projectId,
-    lastOrgId: currentProject.projectId,
     avatar: undefined,
     isApproval: true,
     isOfficial: false,
@@ -85,29 +102,13 @@ function CreateGroup(props) {
     avatarName: undefined,
     createLoading: false,
   });
-
   useEffect(() => {
-    checkIsProjectAdmin();
-    disableBtn();
-  }, [orgId]);
-
-  const disableBtn = () => {
-    expireDialogAsync(orgId)
-      .then(() => {
-        setState({ disabledCreate: false, lastOrgId: orgId });
-      })
-      .catch(() => {
-        setState({ disabledCreate: true, orgId: lastOrgId });
-      });
-  };
-
-  const checkIsProjectAdmin = () => {
     if (orgId) {
       setState({ hideOfficial: !checkPermission(orgId, PERMISSION_ENUM.GROUP_MANAGE) });
     } else {
       setState({ hideOfficial: true });
     }
-  };
+  }, [orgId, setState]);
 
   const onCreate = () => {
     if (!name) return alert(_l('群组名称不能为空'), 3);
@@ -141,6 +142,7 @@ function CreateGroup(props) {
     if (!orgId) return;
 
     dialogSelectDept({
+      modal,
       projectId: orgId,
       unique: true,
       selectFn: data => setState({ department: data[0], isOfficial: !_.isEmpty(data[0]) }),
@@ -155,8 +157,17 @@ function CreateGroup(props) {
   const renderOther = () => {
     return (
       <Fragment>
-        <div className="mBottom24">
-          <Switch checked={isApproval} onClick={() => setState({ isApproval: !isApproval })} size="small" />
+        <div className="otherSetting mBottom24">
+          <Switch
+            checked={isApproval}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return setState({
+                isApproval: !isApproval,
+              });
+            }}
+            size="small"
+          />
           <span className="Font13 textPrimary mLeft8">{_l('新成员加入需要管理员验证')}</span>
           <Tooltip title={_l('仅对主动申请加入和通过链接邀请的用户生效')}>
             <Icon icon="info_outline" className="mLeft4 textDisabled Font16" />
@@ -166,10 +177,15 @@ function CreateGroup(props) {
           <div>
             <Switch
               checked={isOfficial}
-              onClick={() => {
-                setState({ isOfficial: !isOfficial });
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                setState({
+                  isOfficial: !isOfficial,
+                });
                 if (isOfficial) {
-                  setState({ department: undefined });
+                  setState({
+                    department: undefined,
+                  });
                 } else {
                   onSelectDept();
                 }
@@ -208,15 +224,13 @@ function CreateGroup(props) {
   };
 
   const renderOrg = () => {
-    const projects = _.get(md, 'global.Account.projects', []).map(l => ({ value: l.projectId, text: l.companyName }));
+    const projects = _.get(md, 'global.Account.projects', []).map(l => ({ value: l.projectId, label: l.companyName }));
 
     return (
-      <Dropdown
-        border
-        isAppendToBody
+      <Select
         className="w100"
         value={orgId}
-        data={projects}
+        options={projects}
         onChange={val => orgId !== val && setState({ orgId: val, department: undefined })}
       />
     );
@@ -227,29 +241,36 @@ function CreateGroup(props) {
       <Fragment>
         {GROUP_TYPES.map(l => (
           <Radio
-            text={l.label}
             value={l.value}
             checked={type === l.value}
-            onClick={() => setState({ type: l.value })}
-          />
+            onChange={() =>
+              setState({
+                type: l.value,
+              })
+            }
+            title={l.label}
+          >
+            {l.label}
+          </Radio>
         ))}
       </Fragment>
     );
   };
 
-  if (disabledCreate) {
-    return null;
-  }
-
   return (
-    <CreateDialog
-      visible={visible}
+    <Modal
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       width={540}
       title={_l('创建群组')}
-      okDisabled={(type === 0 && disabledCreate) || createLoading}
+      okDisabled={type === 0 && disabledCreate}
+      confirmLoading={createLoading}
       onOk={onCreate}
       onCancel={onClose}
     >
+      <ExpireDialogHolder orgId={orgId} setGroupState={setState} />
+      {modalContextHolder}
       <ContentWrap>
         {!projectId && (
           <div className="group">
@@ -278,7 +299,7 @@ function CreateGroup(props) {
               className="w100"
               autoFocus
               value={name}
-              onChange={value => setState({ name: value })}
+              onChange={event => setState({ name: event.target.value })}
               placeholder={_l('群名称（必填）')}
             />
           </div>
@@ -292,7 +313,7 @@ function CreateGroup(props) {
           <div className="content">{renderOther()}</div>
         </div>
       </ContentWrap>
-    </CreateDialog>
+    </Modal>
   );
 }
 

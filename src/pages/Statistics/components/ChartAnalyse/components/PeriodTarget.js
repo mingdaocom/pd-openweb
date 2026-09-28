@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input } from 'antd';
+import { Input } from 'ming-ui/antd-components';
 
 export default class PeriodTarget extends Component {
   constructor(props) {
@@ -19,7 +19,7 @@ export default class PeriodTarget extends Component {
           {_l('这一个旧的功能，目前已经被的辅助线功能所代替。新创建的图表已不再包含此配置。')}
         </div>
         <Input
-          className="chartInput w100"
+          className="w100"
           value={displaySetup.lifecycleValue ? displaySetup.lifecycleValue.toString() : ''}
           onChange={event => {
             this.handleUpdateLifecycleValue(event.target.value);

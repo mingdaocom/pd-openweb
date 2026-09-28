@@ -3,12 +3,13 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
-import { isSheetDisplay } from '../../../../../widgetConfig/util';
-import { API_ENUM_TO_TYPE, DEFAULT_COLUMNS, FILTER_CONDITION_TYPE } from '../../enum';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { ROW_ID_CONTROL } from 'src/utils/domain/control/widget';
+import { API_ENUM_TO_TYPE, DEFAULT_COLUMNS, FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { relateDy } from 'src/utils/domain/worksheet/filterDynamic';
 
 let RelateBox = class RelateBox extends Component {
   static propTypes = {
@@ -153,10 +154,9 @@ let RelateBox = class RelateBox extends Component {
             {showResult ? (
               <React.Fragment>
                 <div className="searchInput">
-                  <Icon icon={'h5_search'} className="textTertiary searchIcon Font16" />
-                  <input
-                    type="text"
-                    className=""
+                  <Input
+                    variant="borderless"
+                    prefix={<Icon icon="h5_search" className="textTertiary Font16" />}
                     placeholder={_l('搜索字段')}
                     value={keywords}
                     onChange={e => {

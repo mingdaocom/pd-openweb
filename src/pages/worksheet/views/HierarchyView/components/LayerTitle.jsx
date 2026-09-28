@@ -4,7 +4,7 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
 
 const ItemTitle = styled.ul`
@@ -12,22 +12,12 @@ const ItemTitle = styled.ul`
   display: flex;
   margin-bottom: 4px;
   transform-origin: left;
-  transform: ${props => (props.scale ? `scale(${props.scale / 100})` : 'scale(1)')};
+  transform: ${props => (props.$scale ? `scale(${props.$scale / 100})` : 'scale(1)')};
   li {
     flex-basis: 280px;
     flex-shrink: 0;
-    margin-left: ${props => (props.isStraightLine ? '100px' : '120px')};
+    margin-left: ${props => (props.$isStraightLine ? '100px' : '120px')};
     font-size: 14px;
-    .ming.Input {
-      border: none;
-      padding-left: 0;
-      height: 28px;
-      border-bottom: 2px solid var(--color-primary);
-      background-color: transparent;
-      font-size: 14px;
-      border-radius: 0;
-      font-weight: bold;
-    }
     span {
       display: inline-block;
       max-width: 260px;
@@ -50,16 +40,18 @@ export default function LayerTitle({
   const [{ titles }, setNames] = useSetState({ titles: layersName });
   const context = useContext(SheetContext);
   return (
-    <ItemTitle scale={scale} isStraightLine={isStraightLine}>
+    <ItemTitle $scale={scale} $isStraightLine={isStraightLine}>
       {Array.from({ length: layerLength }).map((item, index) => {
         const value = titles[index];
         return (
           <li key={index}>
             {activeIndex === index ? (
               <Input
+                variant="underlined"
                 value={value}
                 autoFocus
-                onChange={value => {
+                onChange={event => {
+                  const value = event.target.value;
                   // 将生成数组里面的empty填充为空字符串
                   const startIndex = _.findIndex(titles, item => !item);
                   const endIndex = _.findIndex(titles, item => item);

@@ -1,43 +1,35 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Input, LoadDiv, RadioGroup, SvgIcon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, SvgIcon, UserHead } from 'ming-ui';
+import { Button, Drawer, Input, Radio, Tooltip } from 'ming-ui/antd-components';
 import aiModelAuthAjax from 'src/api/dataLimit.js';
 import dialogSelectApp from 'src/ming-ui/functions/dialogSelectApp';
-import selectAIModelDialog from 'src/pages/workflow/components/selectAIModelDialog';
+import { useSelectAIModelDialog } from 'src/pages/workflow/components/selectAIModelDialog';
 
-const DrawerWrap = styled(Drawer)`
-  .ant-drawer-content-wrapper {
+const DrawerWrap = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-content-wrapper {
     box-shadow: -7px 0px 6px 1px rgba(0, 0, 0, 0.08);
   }
-  .ant-drawer-header {
-    border-bottom: 1px solid var(--color-border-secondary);
+  .hap-drawer-header {
     padding: 20px 24px;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-title {
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .ant-drawer-close {
-        padding: 0;
-        margin-top: -2px;
-        margin-right: 0;
-      }
-    }
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 24px;
     overflow-y: auto;
   }
-  .ant-drawer-footer {
+  .hap-drawer-footer {
     border: none;
     padding: 16px 24px;
   }
-  .Radio {
+  .ant-radio-wrapper {
     margin-right: 26px !important;
   }
 `;
@@ -266,6 +258,7 @@ function getRuleSnapshot(data) {
 export default function EditRuleDrawer(props) {
   const { visible, actionType, actionRecord = {}, projectId, onClose, onSave } = props;
   const isEdit = actionType === 'edit';
+  const { open: openSelectAIModelDialog, holder: selectAIModelDialogHolder } = useSelectAIModelDialog();
 
   const [state, setState] = useSetState({
     name: '',
@@ -328,7 +321,7 @@ export default function EditRuleDrawer(props) {
   }, [visible, actionType, actionRecord.id]);
 
   const handleAddModel = () => {
-    selectAIModelDialog({
+    openSelectAIModelDialog({
       isMultiple: true,
       selectedModels: models,
       onOk: selected => {
@@ -386,20 +379,20 @@ export default function EditRuleDrawer(props) {
     <DrawerWrap
       title={title}
       width={660}
-      visible={visible}
+      open={visible}
       onClose={onClose}
-      destroyOnClose
       footer={
         <div className="flexRow">
           <Button type="primary" disabled={saveDisabled} onClick={handleSave}>
             {saveLoading ? _l('保存中...') : _l('保存')}
           </Button>
-          <Button type="link" onClick={onClose}>
+          <Button color="primary" variant="link" onClick={onClose}>
             {_l('取消')}
           </Button>
         </div>
       }
     >
+      {selectAIModelDialogHolder}
       {detailLoading ? (
         <LoadDiv className="mTop40" />
       ) : (
@@ -411,7 +404,7 @@ export default function EditRuleDrawer(props) {
               value={name}
               className="w100"
               placeholder={_l('请输入规则名称')}
-              onChange={val => setState({ name: val })}
+              onChange={e => setState({ name: e.target.value })}
             />
           </div>
 
@@ -419,12 +412,15 @@ export default function EditRuleDrawer(props) {
           <div className="mBottom24">
             <SectionTitle className="mBottom5">{_l('可用模型范围')}</SectionTitle>
             <div className="mBottom12">{_l('指的是本规则授权哪些模型；未被任何生效规则授权的模型不可用。')}</div>
-            <RadioGroup
+            <Radio.Group
               size="middle"
-              checkedValue={modelScope}
-              data={MODEL_SCOPE_OPTIONS}
-              onChange={val => setState({ modelScope: val })}
-              disableTitle
+              value={modelScope}
+              options={(MODEL_SCOPE_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
+                setState({
+                  modelScope: event.target.value,
+                })
+              }
             />
             {modelScope === 'specific' && (
               <div className="mTop12">
@@ -467,12 +463,15 @@ export default function EditRuleDrawer(props) {
             <div className="mBottom12">
               {_l('指的是哪些应用可使用本规则内的模型；未被任何生效规则授权的应用不可使用 AI 模型。')}
             </div>
-            <RadioGroup
+            <Radio.Group
               size="middle"
-              checkedValue={appScope}
-              data={APP_SCOPE_OPTIONS}
-              onChange={val => setState({ appScope: val })}
-              disableTitle
+              value={appScope}
+              options={(APP_SCOPE_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
+                setState({
+                  appScope: event.target.value,
+                })
+              }
             />
             {appScope === 'specific' && (
               <div className="mTop12">

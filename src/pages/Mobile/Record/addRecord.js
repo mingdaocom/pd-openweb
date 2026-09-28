@@ -2,16 +2,16 @@ import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
 import State from 'mobile/RecordList/State/index.js';
 import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import successPng from 'src/pages/NewRecord/success.png';
-import { getRequest } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import AppPermissions from '../components/AppPermissions';
 
 const STATUS = {
@@ -82,6 +82,7 @@ class AddRecord extends Component {
     const { params = {} } = this.props.match || {};
     const { appId, worksheetId, viewId, defaultFormData = {}, defaultFormDataEditable } = this.props;
     const { loading, worksheetInfo, writeControls, status } = this.state;
+    const { customPageButton, customPageButtonName } = getRequest();
 
     return (
       <div className="h100" style={{ backgroundColor: 'var(--color-background-primary)' }}>
@@ -92,7 +93,7 @@ class AddRecord extends Component {
         ) : worksheetInfo.resultCode !== 1 ? (
           <State type="sheet" />
         ) : (
-          <div className="h100 pTop20">
+          <div className="h100">
             {status !== STATUS.NORMAL && (
               <Fragment>
                 {status === STATUS.ERROR && _l('您没有新建记录权限，请联系该应用管理员')}
@@ -102,10 +103,13 @@ class AddRecord extends Component {
                     <span className="status">{_l('创建成功')}</span>
                     <div>
                       {_.get(worksheetInfo, 'advancedSetting.continueBtnVisible') && (
-                        <Button onClick={() => this.setState({ status: STATUS.NORMAL })}>{_l('继续创建')}</Button>
+                        <Button type="primary" onClick={() => this.setState({ status: STATUS.NORMAL })}>
+                          {_l('继续创建')}
+                        </Button>
                       )}
                       <Button
-                        type="ghost"
+                        color="primary"
+                        variant="outlined"
                         className="mLeft10"
                         onClick={() => {
                           homeAppApi
@@ -134,8 +138,12 @@ class AddRecord extends Component {
                 viewId={params.viewId || viewId}
                 worksheetInfo={worksheetInfo}
                 writeControls={writeControls}
+                title={customPageButton === '1' ? customPageButtonName : undefined}
+                entityName={worksheetInfo.entityName}
                 addType={2}
                 notDialog={true}
+                showHeader
+                hideHeaderDraft
                 changeWorksheetStatusCode={() => this.setState({ status: STATUS.ERROR })}
                 onAdd={(data, { continueAdd }) => {
                   if (!continueAdd) {

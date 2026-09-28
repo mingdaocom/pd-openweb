@@ -1,9 +1,8 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { RadioGroup } from 'ming-ui';
+import { Dropdown, Radio, Select } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { Button } from 'worksheet/styled';
 import { InfoWrap, SettingItem } from 'src/pages/widgetConfig/styled';
@@ -12,6 +11,7 @@ const RELATE_TYPE = [
   { text: _l('本表关联'), value: 0 },
   { text: _l('多表关联'), value: 1 },
 ];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 const VerifyButton = styled(Button)`
   margin-top: 12px;
 `;
@@ -77,34 +77,39 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
     });
   };
 
-  const renderRelate = () => {
-    return (
-      <Menu>
-        {selectableControls.map(item => {
-          const { appId, controlId, dataSource, controlName } = item;
-          return (
-            <Menu.Item
-              key={controlId}
-              onClick={() => {
-                setRelate({ multiRelate: multiRelate.concat(item) });
-                getNextGradeControls({ worksheetId: dataSource, appId });
-              }}
-            >
-              <i className="icon-close"></i>
-              <span className="controlName">{controlName}</span>
-              <span>{_l('工作表: %0', selectableSheet.name)}</span>
-            </Menu.Item>
-          );
-        })}
-      </Menu>
-    );
-  };
+  const getRelateMenuItems = () =>
+    selectableControls.map(item => {
+      const { appId, controlId, dataSource, controlName } = item;
+
+      return {
+        key: controlId,
+        onClick: () => {
+          setRelate({ multiRelate: multiRelate.concat(item) });
+          getNextGradeControls({ worksheetId: dataSource, appId });
+        },
+        label: (
+          <React.Fragment>
+            <i className="icon-close"></i>
+            <span className="controlName">{controlName}</span>
+            <span>{_l('工作表: %0', selectableSheet.name)}</span>
+          </React.Fragment>
+        ),
+      };
+    });
 
   return (
     <HierarchyViewConfigWrap>
       <SettingItem>
         <div className="settingItemTitle">{_l('层级结构关系')}</div>
-        <RadioGroup data={RELATE_TYPE} checkedValue={relateType} onChange={value => setRelate({ relateType: value })} />
+        <Radio.Group
+          options={(RELATE_TYPE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={relateType}
+          onChange={event =>
+            setRelate({
+              relateType: event.target.value,
+            })
+          }
+        />
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">
@@ -113,10 +118,11 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
         {relateType === 0 ? (
           <div className="currentSheetRelate">
             {fields.length > 0 ? (
-              <Dropdown
+              <Select
                 placeholder={_l('选择')}
-                value={currentRelate}
-                data={fields}
+                value={currentRelate || undefined}
+                options={fields}
+                fieldNames={SELECT_FIELD_NAMES}
                 onChange={value => setRelate({ currentRelate: value })}
               />
             ) : (
@@ -148,7 +154,7 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
               </li>
             ))}
             {selectableControls.length > 0 && (
-              <Dropdown trigger={['click']} overlay={renderRelate()} placement="bottomLeft">
+              <Dropdown trigger={['click']} placement="bottomLeft" menu={{ items: getRelateMenuItems() }}>
                 <li className="addRelate">
                   <i className="icon-add"></i>
                   <span>{_l('下一级关联')}</span>

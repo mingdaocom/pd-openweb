@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
@@ -333,16 +333,18 @@ export default class Write extends Component {
                   <div className="Font13 mTop20 bold">{_l('填写人操作')}</div>
                   <Checkbox
                     className="mTop15 flexRow"
-                    text={_l('暂存')}
                     checked={_.includes(data.operationTypeList, 13)}
-                    onClick={checked => this.switchWriteSettings(!checked, 13)}
-                  />
+                    onChange={event => this.switchWriteSettings(event.target.checked, 13)}
+                  >
+                    {_l('暂存')}
+                  </Checkbox>
                   <Checkbox
                     className="mTop15 flexRow"
-                    text={_l('转交他人填写')}
                     checked={_.includes(data.operationTypeList, 10)}
-                    onClick={checked => this.switchWriteSettings(!checked, 10)}
-                  />
+                    onChange={event => this.switchWriteSettings(event.target.checked, 10)}
+                  >
+                    {_l('转交他人填写')}
+                  </Checkbox>
                   {_.includes(data.operationTypeList, 10) && (
                     <UserRange
                       {...this.props}
@@ -370,10 +372,19 @@ export default class Write extends Component {
                   <div className="Font13 mTop25 bold">{_l('安全')}</div>
                   <Checkbox
                     className="mTop15 flexRow alignItemsCenter"
-                    text={
+                    checked={data.encrypt}
+                    onChange={event =>
+                      this.updateSource({
+                        encrypt: event.target.checked,
+                      })
+                    }
+                  >
+                    {
                       <span>
-                        {_l('登录密码验证')}
-                        <Tooltip title={_l('启用后，用户输入登录密码后才可进行提交')}>
+                        {_l('启用安全验证')}
+                        <Tooltip
+                          title={_l('开启后，执行该操作时需完成身份校验，验证方式以操作人个人账户的安全设置为准。')}
+                        >
                           <Icon
                             className="Font16 textTertiary mLeft5"
                             style={{ verticalAlign: 'text-bottom' }}
@@ -382,9 +393,7 @@ export default class Write extends Component {
                         </Tooltip>
                       </span>
                     }
-                    checked={data.encrypt}
-                    onClick={checked => this.updateSource({ encrypt: !checked })}
-                  />
+                  </Checkbox>
 
                   <div className="Font13 bold mTop25">{_l('填写说明')}</div>
                   <CustomTextarea
@@ -422,12 +431,17 @@ export default class Write extends Component {
                   />
                   <Checkbox
                     className="mTop15 flexRow"
-                    text={<span>{_l('开启限时处理')}</span>}
                     checked={(data.schedule || {}).enable}
-                    onClick={checked =>
-                      this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
+                    onChange={event =>
+                      this.updateSource({
+                        schedule: Object.assign({}, data.schedule, {
+                          enable: event.target.checked,
+                        }),
+                      })
                     }
-                  />
+                  >
+                    {<span>{_l('开启限时处理')}</span>}
+                  </Checkbox>
                   <Schedule
                     {...this.props}
                     schedule={data.schedule}

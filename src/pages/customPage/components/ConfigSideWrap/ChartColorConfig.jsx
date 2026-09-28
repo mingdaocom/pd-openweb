@@ -1,21 +1,20 @@
 import React, { Fragment, useState } from 'react';
-import { Input, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ColorPicker, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getPorjectChartColors } from 'statistics/Charts/common';
+import { InputNumber, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
 import BaseColor from 'statistics/components/ChartStyle/components/Color/BaseColor';
-import { replaceColor } from 'src/pages/customPage/util';
+import { replaceColor } from 'src/utils/domain/customPage/model';
+import { getProjectChartColors } from 'src/utils/services/project';
 import { defaultTitleStyles, replaceTitleColor } from './util';
 
 const TemplateTitleWrap = styled.div`
   flex: 2;
   border-radius: 3px;
-  padding: 0 5px;
-  height: 32px;
-  display: flex
+  padding: 0 5px 0 8px;
+  height: 30px;
+  display: flex;
   align-items: center;
 `;
 
@@ -55,7 +54,7 @@ export default props => {
 
   const getColorConfig = () => {
     const { colorType, colorGroupId, customColors, personColor } = chartColor || {};
-    const chartColors = getPorjectChartColors(appPkg.projectId);
+    const chartColors = getProjectChartColors(appPkg.projectId);
     const defaultConfig = { name: _l('未配置'), showColors: [] };
 
     if (!config.chartColor) {
@@ -258,35 +257,18 @@ export default props => {
           >
             <div className="colorWrap" style={{ backgroundColor: color }}></div>
           </ColorPicker>
-          <Input
-            className="pageInput countInput mRight10"
+          <InputNumber
+            className="mRight10"
             style={{ width: 100 }}
-            value={`${titleStyles.fontSize || 15} px`}
-            readOnly={true}
-            suffix={
-              <div className="flexColumn">
-                <Icon
-                  icon="expand_less"
-                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 32 ? 'disabled' : 'textTertiary')}
-                  onClick={() => {
-                    let value = Number(titleStyles.fontSize) + 1;
-                    handleChange({
-                      fontSize: titleStyles.fontSize === 32 ? 32 : value,
-                    });
-                  }}
-                />
-                <Icon
-                  icon="expand_more"
-                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 13 ? 'disabled' : 'textTertiary')}
-                  onClick={() => {
-                    let value = Number(titleStyles.fontSize) - 1;
-                    handleChange({
-                      fontSize: titleStyles.fontSize === 13 ? 13 : value,
-                    });
-                  }}
-                />
-              </div>
-            }
+            min={13}
+            max={32}
+            value={titleStyles.fontSize || 15}
+            formatter={value => `${value} px`}
+            parser={value => (value || '').replace(/\s?px/g, '')}
+            onChange={value => {
+              if (value === null) return;
+              handleChange({ fontSize: value });
+            }}
           />
           <div
             className="colorWrap"
@@ -308,32 +290,14 @@ export default props => {
           >
             <Icon icon="format_italic" className={cx('Font20 mTop2', { colorPrimary: titleStyles.fontItalic })} />
           </div>
-          <div className="typeSelect flexRow valignWrapper">
-            <div
-              className={cx('centerAlign pointer textSecondary pLeft10 pRight10', {
-                active: titleStyles.textAlign === 'left',
-              })}
-              onClick={() => {
-                handleChange({
-                  textAlign: 'left',
-                });
-              }}
-            >
-              <Icon icon="format_align_left" className="Font18" />
-            </div>
-            <div
-              className={cx('centerAlign pointer textSecondary pLeft10 pRight10', {
-                active: titleStyles.textAlign === 'center',
-              })}
-              onClick={() => {
-                handleChange({
-                  textAlign: 'center',
-                });
-              }}
-            >
-              <Icon icon="format_align_center" className="Font18" />
-            </div>
-          </div>
+          <Segmented
+            options={[
+              { icon: <Icon icon="format_align_left" className="Font18" />, value: 'left' },
+              { icon: <Icon icon="format_align_center" className="Font18" />, value: 'center' },
+            ]}
+            value={titleStyles.textAlign}
+            onChange={textAlign => handleChange({ textAlign })}
+          />
         </div>
       </div>
     );
@@ -408,17 +372,12 @@ export default props => {
         <div className="textSecondary Font13 bold mRight10 label">{_l('标题栏样式')}</div>
         <div className="flexRow alignItemsCenter flex">
           <Select
-            className="pageSelect selectTitleSelect w100"
+            className="selectTitleSelect w100"
             value={config.titleStyle || 0}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-            onChange={value => {
-              handleChangeConfig({
-                titleStyle: value,
-              });
-            }}
-          >
-            {titleStyles.map(data => (
-              <Select.Option className="selectTitleOptionWrapper" value={data.value}>
+            options={titleStyles.map(data => ({
+              value: data.value,
+              label: (
                 <div className="flexRow alignItemsCenter">
                   <TemplateTitleWrap className="Relative" style={getBgColor(data.value)}>
                     {_l('标题')}
@@ -436,9 +395,14 @@ export default props => {
                   </TemplateTitleWrap>
                   <div className="flex TxtRight pRight5">{data.name}</div>
                 </div>
-              </Select.Option>
-            ))}
-          </Select>
+              ),
+            }))}
+            onChange={value => {
+              handleChangeConfig({
+                titleStyle: value,
+              });
+            }}
+          />
         </div>
       </div>
       {renderTitleStylesConfig()}

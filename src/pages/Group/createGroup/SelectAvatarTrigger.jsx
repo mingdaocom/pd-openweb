@@ -1,18 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import groupAjax from 'src/api/group';
 
 const PopupWrap = styled.div`
-  background: var(--color-background-primary);
-  border-radius: 4px;
   text-align: left;
   width: 400px;
-  box-shadow:
-    0 5px 11px 0 rgba(0, 0, 0, 0.12),
-    0 4px 15px 0 rgba(0, 0, 0, 0.1);
 
   .settingPictureLayerTitle {
     font-size: 13px;
@@ -54,6 +49,7 @@ const PopupWrap = styled.div`
 
 export default function SelectAvatarTrigger(props) {
   const { children, onChange } = props;
+  const uploaderRef = useRef(null);
 
   const [{ avatarSelect, loading, visible }, setState] = useSetState({
     avatarSelect: {},
@@ -64,14 +60,22 @@ export default function SelectAvatarTrigger(props) {
   useEffect(() => {
     if (avatarSelect.basePath || !visible) return;
 
-    getGroupAvatarSelectList();
-  }, [visible]);
-
-  const getGroupAvatarSelectList = () => {
     groupAjax.getGroupAvatarSelectList().then(res => {
       setState({ avatarSelect: res });
     });
-  };
+  }, [avatarSelect.basePath, setState, visible]);
+
+  const refreshUploader = useCallback(() => {
+    uploaderRef.current?.uploader?.refresh();
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    // Popover 动画和头像列表异步渲染都会改变入口位置，需要同步 plupload 的透明文件选择层。
+    const animationFrame = requestAnimationFrame(refreshUploader);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [avatarSelect.basePath, refreshUploader, visible]);
 
   const renderPopup = () => {
     return (
@@ -93,6 +97,7 @@ export default function SelectAvatarTrigger(props) {
           <LoadDiv />
         )}
         <QiniuUpload
+          ref={uploaderRef}
           options={{
             multi_selection: false,
             filters: {
@@ -135,19 +140,16 @@ export default function SelectAvatarTrigger(props) {
   };
 
   return (
-    <Trigger
-      action={['click']}
-      zIndex={1000}
-      popupVisible={visible}
-      onPopupVisibleChange={value => setState({ visible: value })}
-      popupAlign={{
-        points: ['tl', 'bl'],
-        offset: [-200, 10],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      popup={renderPopup()}
+    <Popover
+      noPadding
+      trigger="click"
+      open={visible}
+      onOpenChange={value => setState({ visible: value })}
+      afterOpenChange={value => value && refreshUploader()}
+      placement="bottom"
+      content={renderPopup()}
     >
       {children || <span>{_l('修改')}</span>}
-    </Trigger>
+    </Popover>
   );
 }

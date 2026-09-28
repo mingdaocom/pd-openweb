@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ActionSheet, Dialog, Input, SpinLoading } from 'antd-mobile';
+import { ActionSheet, Input, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import Back from '../../components/Back';
 import * as actions from './redux/actions';
@@ -87,7 +88,7 @@ class ApplyList extends React.Component {
                         <span
                           className="InlineBlock toBeBtn rejectBtn"
                           onClick={() => {
-                            Dialog.confirm({
+                            Modal.confirm({
                               title: _l('拒绝'),
                               content: (
                                 <div className="TxtCenter">
@@ -103,8 +104,8 @@ class ApplyList extends React.Component {
                                 </div>
                               ),
                               cancelText: _l('取消'),
-                              confirmText: _l('确认'),
-                              onConfirm: () => {
+                              okText: _l('确认'),
+                              onOk: () => {
                                 const el = document.querySelector('.rejectConfirmInput input');
                                 this.props.dispatch(
                                   actions.editAppApplyStatus({

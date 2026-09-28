@@ -3,12 +3,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import filterXSS from 'xss';
-import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, MultipleDropdown, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Modal, Popover, Select, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import DropDownItem from './DropDownItem';
 import './index.less';
 
@@ -16,6 +16,8 @@ const recordObj = {
   label: _l('记录ID'),
   value: 'rowid',
 };
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const ERROR_SKIP_POPOVER_STYLES = { container: { width: 440 } };
 
 const handleEnumText = {
   1: _l('跳过'),
@@ -442,7 +444,7 @@ export default class ConfigControl extends Component {
     };
 
     // 表格列选择下拉框的值
-    const dropDownData = [{ text: _l('请选择'), value: '', previewContent: '' }];
+    const dropDownData = [];
 
     for (const item of selectRow.cells || []) {
       const nextRow = _.find(sheetRows, rowItem => rowItem.rowNumber === selectRowNumber + 1);
@@ -539,9 +541,9 @@ export default class ConfigControl extends Component {
         }</span>`;
       }
 
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('数据导入确认'),
-        description: (
+        content: (
           <div className="Font14">
             <div
               className="mBottom10 textSecondary"
@@ -674,9 +676,9 @@ export default class ConfigControl extends Component {
   saveConfig = () => {
     const { worksheetId } = this.props;
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('保存导入配置'),
-      description: (
+      content: (
         <div className="Font14">
           <div className="textSecondary WordBreak">
             {_l(
@@ -685,10 +687,15 @@ export default class ConfigControl extends Component {
           </div>
           <Checkbox
             className="mTop20 textPrimary"
-            text={_l('不允许用户修改默认配置')}
             defaultChecked={this.state.edited}
-            onClick={checked => this.setState({ edited: checked })}
-          />
+            onChange={event =>
+              this.setState({
+                edited: event.target.checked,
+              })
+            }
+          >
+            {_l('不允许用户修改默认配置')}
+          </Checkbox>
         </div>
       ),
       onOk: () => {
@@ -713,7 +720,6 @@ export default class ConfigControl extends Component {
             configsFilter.push({
               controlId: ControlId,
               isAddOption,
-
               // 是否为成员、部门字段
               sourceConfig: _.includes([26, 27], controlItem.type)
                 ? {
@@ -735,10 +741,11 @@ export default class ConfigControl extends Component {
           accountId: md.global.Account.accountId,
           errorSkip,
         };
-
         window
           .mdyAPI('', '', requestData, {
-            ajaxOptions: { url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/SaveConfig` },
+            ajaxOptions: {
+              url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/SaveConfig`,
+            },
             customParseResponse: true,
           })
           .then(res => {
@@ -761,9 +768,9 @@ export default class ConfigControl extends Component {
     const controlMappingFilter = controlMapping.filter(item => item.ColumnNum) || [];
     const skipSize = errorSkip.filter(item => item.value).length;
     const list = [
-      { text: _l('跳过'), value: 1 },
-      { text: _l('覆盖'), value: 2 },
-      { text: _l('仅更新，不新增记录'), value: 3 },
+      { label: _l('跳过'), value: 1 },
+      { label: _l('覆盖'), value: 2 },
+      { label: _l('仅更新，不新增记录'), value: 3 },
     ];
     const ERROR_SKIP = {
       1: { text: _l('必填'), desc: _l('为空') },
@@ -781,45 +788,59 @@ export default class ConfigControl extends Component {
           <div className="flexRow minHeight36" style={{ alignItems: 'center' }}>
             {(!repeatRecord && !isCharge && edited) || isFromRelateRecord ? null : (
               <Checkbox
-                text={_l('识别重复记录')}
                 checked={repeatRecord}
                 disabled={!isCharge && edited}
-                onClick={checked => {
+                onChange={event => {
+                  const checked = !event.target.checked;
+
                   if (fieldsList.length) {
-                    this.setState({ repeatRecord: !checked, showStar: !checked ? repeatConfig.controlIds : [] });
+                    this.setState({
+                      repeatRecord: !checked,
+                      showStar: !checked ? repeatConfig.controlIds : [],
+                    });
                   } else {
                     alert(_l('不存在有效的依据字段'), 2);
                   }
                 }}
-              />
+              >
+                {_l('识别重复记录')}
+              </Checkbox>
             )}
 
             {repeatRecord && (
               <Fragment>
-                <Dropdown
-                  className="mLeft8 repeatConfigDropdown"
-                  data={list}
+                <Select
+                  className="mLeft8"
+                  style={{ width: 100 }}
+                  placement="topLeft"
+                  popupMatchSelectWidth={180}
+                  options={list}
                   value={repeatConfig.handleEnum}
                   disabled={!isCharge && edited}
-                  border
                   onChange={handleEnum =>
                     this.setState({ repeatConfig: Object.assign({}, repeatConfig, { handleEnum }) })
                   }
                 />
                 <div className="mLeft8 textPrimary">{_l('依据字段')}</div>
 
-                <MultipleDropdown
-                  className="mLeft8 repeatConfigDropdown"
+                <Select
+                  className="mLeft8"
+                  style={{ width: 240 }}
+                  mode="multiple"
                   value={repeatConfig.controlIds}
                   options={fieldsList}
                   disabled={!isCharge && edited}
-                  multipleSelect
-                  label={this.renderRepeatField()}
-                  multipleLevel={false}
-                  multipleHideDropdownNav
-                  maxSelectNum={5}
-                  filter
-                  onChange={(e, controlIds) => {
+                  placement="topLeft"
+                  placeholder={_l('请选择')}
+                  notFoundContent={_l('暂无可选字段')}
+                  showPopupSearch
+                  optionFilterProp="label"
+                  maxCount={5}
+                  maxTagCount="responsive"
+                  labelRender={({ value }) =>
+                    _.find(fieldsList, item => item.value === value)?.label || _l('无权限或已删除')
+                  }
+                  onChange={controlIds => {
                     this.setState({
                       repeatConfig: Object.assign({}, repeatConfig, {
                         controlIds,
@@ -847,19 +868,20 @@ export default class ConfigControl extends Component {
             {!skipSize && !isCharge && edited ? null : (
               <Fragment>
                 <Checkbox
-                  text={_l('跳过错误数据')}
                   disabled={!isCharge && edited}
                   checked={!!skipSize}
-                  onClick={checked =>
-                    this.setState({
+                  onChange={event => {
+                    const checked = !event.target.checked;
+                    return this.setState({
                       errorSkip: errorSkip.map(item => {
                         item.value = !checked;
-
                         return item;
                       }),
-                    })
-                  }
-                />
+                    });
+                  }}
+                >
+                  {_l('跳过错误数据')}
+                </Checkbox>
                 <Tooltip
                   title={
                     <span>
@@ -870,38 +892,44 @@ export default class ConfigControl extends Component {
                   <i className="icon-help textTertiary Font16 mLeft5" />
                 </Tooltip>
                 {!!skipSize && (
-                  <div
-                    className="mLeft5 relative colorPrimary hoverColorPrimaryDark pointer"
-                    onClick={() => (isCharge || !edited) && this.setState({ showErrorSkip: true })}
-                  >
-                    {skipSize === errorSkip.length ? _l('全部') : `(${skipSize}/${errorSkip.length})`}
-                    {showErrorSkip && (
-                      <Menu className="errorSkipDialog" onClickAway={() => this.setState({ showErrorSkip: false })}>
+                  <Popover
+                    open={showErrorSkip}
+                    trigger="click"
+                    placement="topLeft"
+                    styles={ERROR_SKIP_POPOVER_STYLES}
+                    onOpenChange={open => {
+                      if (!open || isCharge || !edited) {
+                        this.setState({ showErrorSkip: open });
+                      }
+                    }}
+                    content={
+                      <div>
                         <div className="Font14 bold">{_l('设置')}</div>
                         <div className="mTop5">{_l('当数据中存在以下所选错误时，将放弃此行数据导入')}</div>
                         <div className="flexRow mTop10" style={{ alignItems: 'center' }}>
                           <Checkbox
-                            text={_l('全选') + `（${skipSize}/${errorSkip.length}）`}
                             checked={!!skipSize}
-                            clearselected={!!skipSize && skipSize !== errorSkip.length}
-                            onClick={checked =>
-                              this.setState({
+                            indeterminate={!!skipSize && skipSize !== errorSkip.length}
+                            onChange={event => {
+                              const checked = !event.target.checked;
+                              return this.setState({
                                 errorSkip: errorSkip.map(item => {
                                   item.value = !checked;
-
                                   return item;
                                 }),
-                              })
-                            }
-                          />
+                              });
+                            }}
+                          >
+                            {_l('全选') + `（${skipSize}/${errorSkip.length}）`}
+                          </Checkbox>
                         </div>
                         {errorSkip.map(o => (
                           <div key={o.key} className="flexRow mTop10" style={{ alignItems: 'center' }}>
                             <Checkbox
-                              text={ERROR_SKIP[o.key].text}
                               checked={o.value}
-                              onClick={checked =>
-                                this.setState({
+                              onChange={event => {
+                                const checked = !event.target.checked;
+                                return this.setState({
                                   errorSkip: errorSkip.map(item => {
                                     if (item.key === o.key) {
                                       item.value = !checked;
@@ -909,26 +937,37 @@ export default class ConfigControl extends Component {
 
                                     return item;
                                   }),
-                                })
-                              }
-                            />
+                                });
+                              }}
+                            >
+                              {ERROR_SKIP[o.key].text}
+                            </Checkbox>
                             <div className="mLeft20 textTertiary">{ERROR_SKIP[o.key].desc}</div>
                           </div>
                         ))}
-                      </Menu>
-                    )}
-                  </div>
+                      </div>
+                    }
+                  >
+                    <div className="mLeft5 colorPrimary hoverColorPrimaryDark pointer">
+                      {skipSize === errorSkip.length ? _l('全部') : `(${skipSize}/${errorSkip.length})`}
+                    </div>
+                  </Popover>
                 )}
               </Fragment>
             )}
             {!tigger && !isCharge && edited ? null : (
               <Checkbox
                 className={!skipSize && !isCharge && edited ? '' : 'mLeft20'}
-                text={_l('触发工作流')}
                 disabled={!isCharge && edited}
                 checked={tigger}
-                onClick={checked => this.setState({ tigger: !checked })}
-              />
+                onChange={event =>
+                  this.setState({
+                    tigger: event.target.checked,
+                  })
+                }
+              >
+                {_l('触发工作流')}
+              </Checkbox>
             )}
 
             {isCharge && (
@@ -947,11 +986,11 @@ export default class ConfigControl extends Component {
         <div className="flexColumn">
           <div className="flex" />
           <div className="flexRow">
-            <Button className="mRight16" size="medium" type="secondary" onClick={onPrevious}>
+            <Button color="default" variant="filled" className="mRight16" onClick={onPrevious}>
               {_l('上一步')}
             </Button>
             <Button
-              size="medium"
+              type="primary"
               disabled={!controlMappingFilter.length}
               onClick={() => this.beginImport(controlMappingFilter)}
             >
@@ -1000,12 +1039,14 @@ export default class ConfigControl extends Component {
           <div className="textTertiary mLeft5">{_l('匹配：')}</div>
 
           {/** 匹配字段选择下拉框 */}
-          <Dropdown
+          <Select
+            variant="borderless"
             disabled={isHiddenConfig}
-            menuStyle={{ width: 180 }}
-            data={controls}
-            value={controlItem.matchId || null}
-            isAppendToBody
+            style={{ width: 120 }}
+            popupMatchSelectWidth={180}
+            options={controls}
+            fieldNames={SELECT_FIELD_NAMES}
+            value={controlItem.matchId || undefined}
             onChange={controlId => {
               // 修改映射字段
               const newControlMapping = [...controlMapping];
@@ -1023,13 +1064,10 @@ export default class ConfigControl extends Component {
     else if (_.includes([29, 35], controlItem.type) && relateSource[worksheetId]) {
       const { controls } = relateSource[worksheetId];
 
-      let currentItem = selectItem.sourceConfig.controlId;
-      const defaultItem = controls.find(item => item.attribute) || {};
+      const defaultItem = controls.find(item => item.attribute == 1) || {};
       const currentSourceConfig =
         (_.find(controlMapping, o => o.ControlId === controlItem.controlId) || {}).sourceConfig || {};
-
-      if (!currentItem && defaultItem.value) currentItem = defaultItem.value;
-      else if (currentItem !== '') currentItem = null;
+      const currentMatchControlId = currentSourceConfig.controlId || defaultItem.value;
       return (
         <div className="flexRow relateBox">
           <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
@@ -1055,19 +1093,20 @@ export default class ConfigControl extends Component {
           <div className="textTertiary mLeft5">{_l('匹配：')}</div>
 
           {/** 匹配字段选择下拉框 */}
-          <Dropdown
+          <Select
             disabled={isHiddenConfig}
-            menuStyle={{ width: 180 }}
-            data={controls}
-            value={currentSourceConfig.controlId}
-            renderTitle={
-              !currentSourceConfig.controlId
-                ? () => <span className="textTertiary">{_l('请选择')}</span>
-                : currentSourceConfig.controlId && !_.find(controls, o => o.value === currentSourceConfig.controlId)
-                  ? () => <span className="repeatConfigError">{_l('无权限或已删除')}</span>
-                  : () => <span>{_.find(controls, o => o.value === currentSourceConfig.controlId).text}</span>
+            style={{ width: 120 }}
+            popupMatchSelectWidth={180}
+            options={controls}
+            fieldNames={SELECT_FIELD_NAMES}
+            value={currentMatchControlId || undefined}
+            labelRender={({ label }) =>
+              currentMatchControlId && !_.find(controls, o => o.value === currentMatchControlId) ? (
+                <span className="repeatConfigError">{_l('无权限或已删除')}</span>
+              ) : (
+                label
+              )
             }
-            isAppendToBody
             onChange={controlId => {
               // 修改映射字段
               const newControlMapping = [...controlMapping];
@@ -1094,19 +1133,6 @@ export default class ConfigControl extends Component {
     return notSupport;
   }
 
-  /**
-   * 渲染依据字段
-   */
-  renderRepeatField() {
-    const { repeatConfig, fieldsList } = this.state;
-
-    if (!repeatConfig.controlIds?.length) return _l('请选择');
-
-    return repeatConfig.controlIds
-      .map(controlId => _.find(fieldsList, o => o.value === controlId)?.label || _l('无权限或已删除'))
-      .join('、');
-  }
-
   render() {
     const { onCancel, isCharge } = this.props;
     const {
@@ -1122,14 +1148,15 @@ export default class ConfigControl extends Component {
     } = this.state;
     const isHiddenConfig = edited && !isCharge;
     return (
-      <Dialog
-        className="workConfigControl"
-        visible={true}
-        width="960"
+      <Modal
+        rootClassName="workConfigControl"
+        open
+        mask={{ closable: false }}
+        keyboard
+        width={960}
+        styles={{ container: { height: 560 } }}
         title={_l('数据导入 - 建立映射（3/3）')}
         footer={null}
-        anim={false}
-        overlayClosable={false}
         onCancel={onCancel}
       >
         <div className="flexColumn h100">
@@ -1160,7 +1187,7 @@ export default class ConfigControl extends Component {
                     return (
                       <div className="flexRow mBottom6" key={index}>
                         {/** 左侧 */}
-                        <div className="excelControls flex">
+                        <div className="excelControls flex minWidth0">
                           {!notSupport && (
                             <DropDownItem
                               key={index}
@@ -1181,7 +1208,7 @@ export default class ConfigControl extends Component {
                                 control.ColumnName = dataItem.text || '';
 
                                 // 解析选项名称
-                                const dataItemArr = dataItem.text.split('-');
+                                const dataItemArr = (dataItem.text || '').split('-');
                                 const dataItemName = dataItemArr[dataItemArr.length - 1].toLowerCase();
 
                                 // 匹配人员、部门字段
@@ -1270,22 +1297,25 @@ export default class ConfigControl extends Component {
                                   </Tooltip>
                                   <span className="textSecondary mRight8 mLeft5">{_l('添加选项')}</span>
                                   <Checkbox
-                                    text=""
                                     checked={
                                       !!controlMapping.find(item => item.ControlId === controlItem.controlId)
                                         .isAddOption
                                     }
-                                    onClick={checked => {
+                                    onChange={event => {
+                                      const checked = !event.target.checked;
                                       const newMapping = _.cloneDeep(controlMapping);
                                       newMapping.forEach(item => {
                                         if (item.ControlId === controlItem.controlId) {
                                           item.isAddOption = !checked;
                                         }
                                       });
-
-                                      this.setState({ controlMapping: newMapping });
+                                      this.setState({
+                                        controlMapping: newMapping,
+                                      });
                                     }}
-                                  />
+                                  >
+                                    {''}
+                                  </Checkbox>
                                 </Fragment>
                               )}
 
@@ -1309,7 +1339,7 @@ export default class ConfigControl extends Component {
           </div>
           {!loading && this.renderFooter()}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

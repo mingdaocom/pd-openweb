@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Dialog, Input, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Input, Modal, Popover } from 'ming-ui/antd-components';
 import marketplaceApi from 'src/api/marketplace';
 import marketplacePaymentApi from 'src/api/marketplacePayment';
 import './index.less';
@@ -82,18 +82,18 @@ export default function ProductLicenseInfo(props) {
 
   return (
     <React.Fragment>
-      <Trigger
-        action={['hover']}
-        popupAlign={{
+      <Popover
+        noPadding
+        trigger="hover"
+        align={{
           overflow: { adjustX: true, adjustY: true },
           points: ['tr', 'br'],
           offset: [5, -50],
           ...popupAlign,
         }}
-        popupClassName="licensePopup"
-        popup={
+        content={
           <div
-            className="Menu ming flexColumn pAll20 appLicenseWrap"
+            className="flexColumn pAll20 appLicenseWrap"
             style={{ minWidth: 300 }}
             onClick={e => e.stopPropagation()}
           >
@@ -153,14 +153,15 @@ export default function ProductLicenseInfo(props) {
         }
       >
         {children}
-      </Trigger>
+      </Popover>
       {updateSocketVisible && (
-        <Dialog
-          visible={true}
+        <Modal
+          open
+          mask={{ closable: false }}
+          keyboard
           width={480}
           title={_l('更新密钥')}
-          showCancel={false}
-          overlayClosable={false}
+          cancelButtonProps={{ style: { display: 'none' } }}
           onCancel={() => {
             setUpdateSocketVisible(false);
             setSocket('');
@@ -172,9 +173,9 @@ export default function ProductLicenseInfo(props) {
             className="w100"
             placeholder={_l('通过填入密钥更新授权信息，密钥可在应用详情中查看')}
             value={socket}
-            onChange={socket => setSocket(socket)}
+            onChange={event => setSocket(event.target.value)}
           />
-        </Dialog>
+        </Modal>
       )}
     </React.Fragment>
   );

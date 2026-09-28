@@ -1,5 +1,9 @@
 .workSheetRecordInfo {
   box-shadow: var(--shadow-xl);
+  .hap-modal-close {
+    z-index: 9;
+    transform: translate(-4px, -1px);
+  }
   .ck-sticky-panel__content_sticky {
     top: 55px !important;
   }
@@ -219,7 +223,8 @@
       }
 
       .recordInfoInfo {
-        min-width: 400px;
+        // 与 RecordInfo.jsx 的 SIDE_MIN_WIDTH 对齐
+        min-width: 320px;
         &:not(.flex) {
           width: 500px;
         }
@@ -296,67 +301,14 @@
       }
     }
   }
-
-  // dialog
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-  }
 }
 
 // 自定义按钮
-.recordCustomButton.ming.Button {
-  position: relative;
+.recordCustomButton {
   overflow: hidden;
   font-weight: bold;
-  padding: 0 16px !important;
-  height: 34px !important;
-  min-width: 72px;
-  line-height: 32px !important;
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  transition: none;
   vertical-align: middle;
-  display: inline-block;
-
-  .content {
-    position: relative;
-    z-index: 2;
-    display: flex;
-
-    i {
-      line-height: 32px;
-      width: 20px;
-    }
-
-    span {
-      flex: 1;
-      display: inline;
-      line-height: 32px;
-      text-align: left;
-    }
-  }
-
-  .icon:not(svg) {
-    font-size: 18px;
-    margin-right: 4px;
-  }
-
-  &:not(:disabled):hover::before {
-    content: ' ';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  &.transparentButton:not(:disabled):hover::before {
-    background-color: rgba(0, 0, 0, 0.02);
-  }
-  &.Button--disabled {
+  &:disabled {
     color: rgba(117, 117, 117, 0.5) !important;
     background-color: var(--color-border-secondary) !important;
     border-color: var(--color-border-secondary) !important;
@@ -364,13 +316,8 @@
 }
 
 .customButtonConfirm {
-  .mui-dialog-default-title {
+  .hap-modal-title {
     line-height: 1.3em;
-  }
-}
-.customButtonConfirmDialog {
-  .mui-dialog-body {
-    overflow: initial !important;
   }
 }
 
@@ -381,57 +328,5 @@
 
   to {
     transform: rotate(360deg);
-  }
-}
-
-.DropdownPrintTrigger {
-  width: 280px;
-  background: var(--color-background-card) 0% 0% no-repeat padding-box;
-  box-shadow: 0px 4px 16px #0000003d;
-  border-radius: 3px;
-  padding: 6px 0;
-  .tempList {
-    max-height: 400px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--color-border-secondary);
-    overflow: auto;
-    .ming.Item .Item-content .fileIcon {
-      width: 13px;
-      height: 15px;
-      position: absolute;
-      margin-top: 10px;
-      left: 16px;
-    }
-    .ming.Item .Item-content .detail {
-      position: absolute;
-      right: 16px;
-      color: var(--color-text-tertiary);
-      font-size: 12px;
-      .downloadIcon {
-        left: auto !important;
-        right: 0;
-        width: 28px;
-        height: 28px;
-        text-align: center;
-        line-height: 28px;
-      }
-    }
-    .ming.Item .Item-content .templateName {
-      display: inline-block;
-      max-width: 142px;
-    }
-    .ming.Item .Item-content .Icon {
-      left: 13px;
-    }
-    .ming.Item .Item-content {
-      padding-left: 44px;
-    }
-    &.noDefaultPrint {
-      padding-bottom: 0;
-      border-bottom: 0px;
-    }
-  }
-  .defaultPrint {
-    padding-top: 2px;
   }
 }

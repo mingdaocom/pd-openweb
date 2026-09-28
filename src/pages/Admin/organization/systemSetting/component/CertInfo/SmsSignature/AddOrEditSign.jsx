@@ -1,8 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Form } from 'antd';
 import styled from 'styled-components';
-import { Dialog, Dropdown, FunctionWrap, Input, RadioGroup, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Form, Input, Modal, Radio, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import certificationApi from 'src/api/certification';
 import EnterpriseForm from 'src/pages/certification/components/EnterpriseForm';
 import UploadCertificate from 'src/pages/certification/components/EnterpriseForm/UploadCertificate';
@@ -58,7 +59,7 @@ function AddOrEditSign(props) {
     certificationApi.getListCertInfo({ projectId }).then(res => {
       if (res) {
         const list = (res || []).map(item => ({
-          text: item.authType === 1 ? item.personalInfo.fullName : item.enterpriseInfo.companyName,
+          label: item.authType === 1 ? item.personalInfo.fullName : item.enterpriseInfo.companyName,
           value: item.id,
         }));
         setCerOptionList(list);
@@ -162,32 +163,27 @@ function AddOrEditSign(props) {
             onChange={value => setAttachments({ contactCardBack: value })}
           />
         </div>
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && <div className="divider" />}
+        {window.platformENV.isHap && <div className="divider" />}
       </Fragment>
     );
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       title={signInfo.id ? _l('编辑签名') : _l('添加签名')}
       width={800}
       onCancel={onCancel}
       onOk={onOk}
-      okDisabled={saveLoading}
+      confirmLoading={saveLoading}
     >
       <Wrapper>
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        {window.platformENV.isHap && (
           <div className="formItem">
             <div className="labelText">{_l('选择已认证主体')}</div>
-            <Dropdown
-              border
-              isAppendToBody
-              className="w100"
-              data={cerOptionList}
-              value={certId}
-              onChange={value => setCertId(value)}
-            />
+            <Select className="w100" options={cerOptionList} value={certId} onChange={setCertId} />
           </div>
         )}
 
@@ -195,13 +191,13 @@ function AddOrEditSign(props) {
           <Fragment>
             <div className="formItem">
               <div className="textSecondary bold mTop24 mBottom12">{_l('签名来源')}</div>
-              <RadioGroup
-                data={[
+              <Radio.Group
+                options={[
                   { text: _l('公司名称'), value: 1 },
                   { text: _l('商标'), value: 2 },
-                ]}
-                checkedValue={signSource}
-                onChange={value => setSignSource(value)}
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                value={signSource}
+                onChange={event => setSignSource(event.target.value)}
               />
             </div>
             {signSource === 2 && (
@@ -216,7 +212,7 @@ function AddOrEditSign(props) {
           </Fragment>
         )}
 
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && <Fragment>{renderContactIdCard()}</Fragment>}
+        {window.platformENV.isHap && <Fragment>{renderContactIdCard()}</Fragment>}
 
         <div className="formItem">
           <div className="labelText">{_l('短信签名')}</div>
@@ -225,7 +221,7 @@ function AddOrEditSign(props) {
             placeholder={_l('请输入短信签名')}
             maxLength={50}
             value={signName}
-            onChange={value => setSignName(value)}
+            onChange={e => setSignName(e.target.value)}
           />
           <div className="mTop16 textTertiary LineHeight20">
             {window.platformENV.isPlatform ? (
@@ -235,7 +231,7 @@ function AddOrEditSign(props) {
                     '请使用企业简称或注册商标作为短信签名；提交后需运营商审核，预计 5-10 个工作日，审核通过前该签名不可使用；签名需不少于 2 个字符且不得包含特殊符号。',
                   )}
                 </span>
-                {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+                {window.platformENV.isHap && (
                   <Support
                     type={3}
                     href="https://help.mingdao.com/workflow/sms-failure/#%E7%AD%BE%E5%90%8D%E6%9D%A5%E6%BA%90%E5%92%8C%E8%A7%84%E8%8C%83"
@@ -261,8 +257,10 @@ function AddOrEditSign(props) {
           </Fragment>
         )}
       </Wrapper>
-    </Dialog>
+    </Modal>
   );
 }
 
-export const AddOrEditSignDialog = props => FunctionWrap(AddOrEditSign, { ...props });
+export function useAddOrEditSignDialog() {
+  return useFunctionWrapComponent(AddOrEditSign);
+}

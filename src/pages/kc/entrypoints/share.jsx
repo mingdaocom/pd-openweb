@@ -1,5 +1,5 @@
 import qs from 'query-string';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import renderPc from '../entrypoints/sharePc';
 import render from '../shareMobile';
 

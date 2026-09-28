@@ -12,20 +12,6 @@
   background-color: var(--color-background-primary);
   box-shadow: var(--shadow-xl);
   z-index: 12;
-  .Dropdown {
-    .Menu.List {
-      margin-top: 3px;
-    }
-  }
-  .ming.Dropdown,
-  .dropdownTrigger {
-    &.disabled {
-      .Dropdown--input {
-        background-color: var(--color-background-secondary);
-      }
-    }
-  }
-
   hr {
     border: none;
     border-top: 1px solid var(--color-border-secondary);
@@ -38,21 +24,17 @@
     height: 100%;
   }
 
-  .allCanSelectFields {
-    border-radius: 4px;
-
-    .Item-content {
-      padding-left: 32px !important;
-    }
-  }
-
   .dropdownSelectFields {
     font-weight: 500;
-    border-radius: 4px;
+  }
 
-    .Item-content {
-      padding-left: 32px !important;
-    }
+  .viewConfigSwitchRow {
+    min-height: 28px;
+  }
+
+  // Radio 圆圈与文字的间距（antd 默认 8px）
+  .hap-radio-wrapper > .hap-radio + * {
+    padding-inline-start: 12px;
   }
 
   .dataSettingTitle {
@@ -61,13 +43,6 @@
   }
 
   .commonConfigItem {
-    .checkBlock {
-      .block {
-        width: 25%;
-        text-align: center;
-      }
-    }
-
     ul.cardUl {
       > li {
         color: var(--color-text-disabled);
@@ -139,7 +114,9 @@
       font-size: 20px;
       color: var(--color-text-tertiary);
       margin: 0 4px;
-      line-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         color: var(--color-primary);
@@ -253,18 +230,18 @@
     }
 
     .dataSetting {
-      .Radio-box {
+      .hap-radio-inner {
         width: 16px;
         height: 16px;
 
-        .Radio-box-round {
+        &::after {
           width: 10px;
           height: 10px;
         }
       }
 
-      .Radio:not(.checked) {
-        .Radio-box-round {
+      .hap-radio-wrapper:not(.hap-radio-wrapper-checked) {
+        .hap-radio-inner::after {
           width: 0 !important;
           height: 0 !important;
         }
@@ -287,32 +264,9 @@
         height: 100%;
         padding: 0;
       }
-      .sortColumnWrap .Dropdown--input {
-        padding: 0 10px 0 12px;
-        border-color: var(--color-border-primary);
-      }
-
       .viewSetText {
         font-size: 12px;
         margin-bottom: 0px;
-      }
-
-      .dropAbstract {
-        &.placeholder {
-          .value {
-            color: var(--color-text-disabled);
-          }
-        }
-
-        .ming.Item .Item-content .Icon {
-          left: 16px;
-        }
-
-        ul {
-          .itemText {
-            padding-left: 20px;
-          }
-        }
       }
     }
 
@@ -321,10 +275,6 @@
       font-size: 16px;
       color: var(--color-text-title);
       font-weight: bold;
-    }
-
-    .ming.Menu {
-      width: 100%;
     }
 
     .more {
@@ -352,23 +302,6 @@
     .targetEle,
     .aroundList {
       width: 100%;
-    }
-  }
-
-  .filterColumns {
-    .Item-content .icon {
-      color: var(--color-text-tertiary);
-    }
-
-    [type='hr'] {
-      border-top: 1px solid var(--color-border-primary);
-      margin-top: 5px;
-      padding-top: 5px;
-      margin-bottom: 5px;
-    }
-
-    .Item-content {
-      padding: 0 30px !important;
     }
   }
 
@@ -424,17 +357,6 @@
     }
   }
 
-  .filtersDropdown {
-    [type='1']:nth-child(1) {
-      border-top: 1px solid var(--color-border-tertiary);
-
-      .Item-content {
-        padding-top: 5px;
-        padding-bottom: 5px;
-      }
-    }
-  }
-
   &-enter {
     right: -@containerWidth;
   }
@@ -451,18 +373,6 @@
   &-leave&-leave-active {
     right: -@containerWidth;
     transition: right @transitionTime;
-  }
-
-  .ant-switch-small {
-    min-width: 24px;
-    height: 12px;
-    line-height: 12px;
-
-    &:after {
-      width: 10px;
-      height: 10px;
-      top: 0;
-    }
   }
 }
 
@@ -489,7 +399,9 @@
     font-size: 20px;
     color: var(--color-text-tertiary);
     margin: 0 4px;
-    line-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     &:hover {
       color: var(--color-primary);
     }

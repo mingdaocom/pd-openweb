@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import smartSearchAjax from 'src/api/smartSearch';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import store from 'src/redux/configureStore';
-import { pathCompletion } from 'src/utils/common';
-import { renderText } from 'src/utils/control';
-import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { renderText } from 'src/utils/domain/control/display';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { transferExternalLinkUrl } from 'src/utils/services/appCenter';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import { GLOBAL_SEARCH_LIST_SETTING, SEARCH_APP_ITEM_TYPE } from '../enum';
 import { getAppResultCodeText } from '../utils';
 import TextHeightLine from './TextHeightLine';
@@ -142,25 +143,6 @@ const Box = styled.div`
   }
 `;
 
-const MoreOperateMenu = styled.ul`
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px 3px 3px 3px;
-  width: 160px;
-  font-size: 13px;
-  color: var(--color-text-title);
-  padding: 4px 0;
-  li {
-    line-height: 36px;
-    padding: 0 24px;
-    cursor: pointer;
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-`;
-
 export default function AppList(props) {
   const {
     data = {},
@@ -183,9 +165,9 @@ export default function AppList(props) {
     appId,
     viewName = true,
     loadMore = false,
-    getNextPage = () => { },
+    getNextPage = () => {},
     currentProjectId,
-    update = () => { },
+    update = () => {},
   } = props;
 
   const settingInfo = GLOBAL_SEARCH_LIST_SETTING[dataKey];
@@ -224,9 +206,9 @@ export default function AppList(props) {
         ...l,
         value: l.value
           ? l.value
-            .split('|')
-            .filter(text => text.includes(searchKeyword))
-            .join(' ')
+              .split('|')
+              .filter(text => text.includes(searchKeyword))
+              .join(' ')
           : '',
       };
     });
@@ -382,7 +364,7 @@ export default function AppList(props) {
     const needUpdate =
       dataKey === 'record' && getFeatureStatus(currentProjectId, VersionProductType.globalSearch) !== '1';
 
-    const { allowSuperSearch } = getCurrentProject(currentProjectId);
+    const allowSuperSearch = hasFeaturePermission(currentProjectId, FEATURE_PERMISSION.SUPER_SEARCH);
 
     if (dataKey === 'record' && !allowSuperSearch) {
       return <div className="noData">{_l('“%0”功能不可用', currentProjectName)}</div>;
@@ -393,8 +375,9 @@ export default function AppList(props) {
     }
 
     return (
-      <div className="noData">{`${dataKey === 'app' ? _l('没有搜索到相关应用和应用项') : _l('没有搜索到相关记录')
-        }，${_l('可尝试更换关键字搜索')}`}</div>
+      <div className="noData">{`${
+        dataKey === 'app' ? _l('没有搜索到相关应用和应用项') : _l('没有搜索到相关记录')
+      }，${_l('可尝试更换关键字搜索')}`}</div>
     );
   };
 
@@ -424,9 +407,9 @@ export default function AppList(props) {
                     background:
                       dataKey === 'record'
                         ? `rgba(${parseInt(item.color.slice(1, 3), 16)}, ${parseInt(
-                          item.color.slice(3, 5),
-                          16,
-                        )}, ${parseInt(item.color.slice(5), 16)}, 0.06)`
+                            item.color.slice(3, 5),
+                            16,
+                          )}, ${parseInt(item.color.slice(5), 16)}, 0.06)`
                         : item.itemType === 3
                           ? item.color
                           : 'rgba(178, 178, 178, 0.14)',
@@ -478,29 +461,31 @@ export default function AppList(props) {
                 </div>
                 {dataKey === 'record' && (
                   <div class="moreActionMask" onClick={e => e.stopPropagation()}>
-                    <Trigger
-                      popupVisible={optionVisibleId === item.rowId}
-                      action={['click']}
-                      popupAlign={{ points: ['tr', 'br'] }}
-                      onPopupVisibleChange={visible => setOptionVisibleId(visible ? item.rowId : -1)}
-                      mask={true}
-                      popup={
-                        <MoreOperateMenu>
-                          {viewName && (
-                            <li key="MoreOperateMenu-list-0" onClick={() => setFilter(item, true)}>
-                              {_l('不再搜索此应用')}
-                            </li>
-                          )}
-                          <li key="MoreOperateMenu-list-1" onClick={() => setFilter(item)}>
-                            {_l('不再搜索此表')}
-                          </li>
-                        </MoreOperateMenu>
-                      }
+                    <Dropdown
+                      open={optionVisibleId === item.rowId}
+                      trigger={['click']}
+                      placement="bottomRight"
+                      onOpenChange={visible => setOptionVisibleId(visible ? item.rowId : -1)}
+                      menu={{
+                        style: { width: 160 },
+                        items: [
+                          viewName && {
+                            key: 'excludeApp',
+                            label: _l('不再搜索此应用'),
+                            onClick: () => setFilter(item, true),
+                          },
+                          {
+                            key: 'excludeWorksheet',
+                            label: _l('不再搜索此表'),
+                            onClick: () => setFilter(item),
+                          },
+                        ].filter(Boolean),
+                      }}
                     >
                       <div className="moreAction">
                         <Icon icon="moreop" className="Font18 textTertiary" />
                       </div>
-                    </Trigger>
+                    </Dropdown>
                   </div>
                 )}
               </li>

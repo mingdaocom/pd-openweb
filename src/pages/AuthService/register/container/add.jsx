@@ -5,8 +5,9 @@ import styled from 'styled-components';
 import { Support } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import RegisterController from 'src/api/register';
-import { pathCompletion } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { mdAppResponse } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const Wrap = styled.div`
   min-height: 400px;
@@ -86,7 +87,7 @@ export default function (props) {
                   });
                 }
 
-                location.href = pathCompletion('/personal?type=enterprise');
+                location.href = pathCompletion('/dashboard');
               },
             });
           } else {
@@ -94,8 +95,11 @@ export default function (props) {
           }
         }
       })
-      .catch(() => {
-        alert(_l('操作失败'), 3);
+      .catch(error => {
+        if (!error?.errorMessage) {
+          alertIfNotUnauthorized(error, _l('操作失败'), 3);
+        }
+
         setState({ loading: false });
       });
   };

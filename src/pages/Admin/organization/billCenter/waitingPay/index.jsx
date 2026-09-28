@@ -1,13 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Checkbox, Modal } from 'ming-ui/antd-components';
 import orderController from 'src/api/order';
-import { checkPermission } from 'src/components/checkPermission';
 import { payDialogFunc } from 'src/components/pay/payDialog';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { addToken, encrypt, getRequest, pathCompletion } from 'src/utils/common';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { addToken } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { encrypt } from 'src/utils/services/security/encryption';
+import { checkPermission } from 'src/utils/services/security/permission';
 import Config from '../../../config';
 import billCommon from '../common';
 import './style.less';
@@ -81,11 +84,11 @@ export default class WaitingPay extends Component {
     const { currRecordObj = {} } = this.state;
     const { price } = currRecordObj;
 
-    Config.AdminController.getHidBalance({
+    return Config.AdminController.getHidBalance({
       projectId: Config.projectId,
     }).then(balance => {
       const balanceNotEnough = parseFloat(price) > parseFloat(balance);
-      this.setState({ balance: parseFloat(balance) || 0, balanceNotEnough });
+      this.setState({ balance: parseFloat(balance) || 0, balanceNotEnough, loading: false });
     });
   };
 
@@ -137,11 +140,19 @@ export default class WaitingPay extends Component {
 
     //payStyle默认第一项
     const firstItem = temp.length > 0 ? temp[0]?.id : '';
-    this.setState({
-      payStyleArr: temp,
-      payStyle: firstItem,
-      loading: false,
-    });
+    const isBalancePay = firstItem === 'balancePay';
+    this.setState(
+      {
+        payStyleArr: temp,
+        payStyle: firstItem,
+        loading: isBalancePay,
+      },
+      () => {
+        if (isBalancePay) {
+          this.getHidBalance();
+        }
+      },
+    );
   }
 
   renderTitle() {
@@ -244,10 +255,13 @@ export default class WaitingPay extends Component {
         onOk: password => this.setState({ password }, this.balancePay),
       });
     } else if (this.state.payStyle == 'wechartPay') {
-      if (confirm(_l('确定以【微信支付】方式进行本次付款？'))) {
-        window.open(pathCompletion(`/wechatPay/${Config.projectId}/${orderId}`));
-        payDialogFunc({ url: request.ReturnUrl || pathCompletion(`/admin/billinfo/${Config.projectId}`) });
-      }
+      Modal.confirm({
+        title: _l('确定以【微信支付】方式进行本次付款？'),
+        onOk: () => {
+          window.open(pathCompletion(`/wechatPay/${Config.projectId}/${orderId}`));
+          payDialogFunc({ url: request.ReturnUrl || pathCompletion(`/admin/billinfo/${Config.projectId}`) });
+        },
+      });
     } else if (this.state.payStyle == 'aliPay') {
       this.aliPay();
     }
@@ -258,64 +272,83 @@ export default class WaitingPay extends Component {
     window.open(
       addToken(
         md.global.Config.AjaxApiUrl +
-        'download/downloadBankInfo?projectId=' +
-        Config.projectId +
-        '&orderId=' +
-        orderId +
-        '&sendEmail=' +
-        this.state.needEmail,
+          'download/downloadBankInfo?projectId=' +
+          Config.projectId +
+          '&orderId=' +
+          orderId +
+          '&sendEmail=' +
+          this.state.needEmail,
       ),
     );
   }
 
   //信用点支付
   balancePay = () => {
-    if (confirm(_l('确定以【信用点付款】方式进行本次付款？'))) {
-      this.setState({ isPay: true });
-      alert({ msg: _l('正在提交，请稍候...'), duration: 0, key: 'pay' });
-      orderController
-        .balancePayOrder({
-          projectId: Config.projectId,
-          orderId,
-          password: encrypt(this.state.password),
-        })
-        .then(data => {
-          if (data.isSuccess) {
-            alert({
-              msg: _l('付款成功'),
-              key: 'pay',
-              duration: 1000,
-              onClose: () => this.backNavigate(),
-            });
+    Modal.confirm({
+      title: _l('确定以【信用点付款】方式进行本次付款？'),
+      onOk: this.submitBalancePay,
+    });
+  };
+
+  submitBalancePay = () => {
+    if (this.balancePayPending) return false;
+
+    this.balancePayPending = true;
+    this.setState({ isPay: true });
+    alert({ msg: _l('正在提交，请稍候...'), duration: 0, key: 'pay' });
+    return orderController
+      .balancePayOrder({
+        projectId: Config.projectId,
+        orderId,
+        password: encrypt(this.state.password),
+      })
+      .then(data => {
+        if (data.isSuccess) {
+          alert({
+            msg: _l('付款成功'),
+            key: 'pay',
+            duration: 1000,
+            onClose: () => this.backNavigate(),
+          });
+        } else {
+          this.balancePayPending = false;
+          this.setState({ isPay: false });
+          if (data.validateResult == 2) {
+            alert({ msg: _l('密码错误'), type: 3, key: 'pay' });
+          } else if (data.validateResult == 3) {
+            alert({ msg: _l('信用点不足'), type: 3, key: 'pay' });
           } else {
-            this.setState({ isPay: false });
-            if (data.validateResult == 2) {
-              alert({ msg: _l('密码错误'), type: 3, key: 'pay' });
-            } else if (data.validateResult == 3) {
-              alert({ msg: _l('信用点不足'), type: 3, key: 'pay' });
-            } else {
-              alert({ msg: _l('操作失败'), type: 2, key: 'pay' });
-            }
+            alert({ msg: _l('操作失败'), type: 2, key: 'pay' });
           }
-        });
-    }
+        }
+      })
+      .catch(error => {
+        this.balancePayPending = false;
+        this.setState({ isPay: false });
+        throw error;
+      });
   };
 
   //支付宝
   aliPay() {
     const request = getRequest();
 
-    if (confirm(_l('确定以【支付宝付款】方式进行本次付款？'))) {
-      window.open(
-        addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId),
-      );
-      payDialogFunc({ url: request.ReturnUrl || pathCompletion(`/admin/billinfo/${Config.projectId}`) });
-      //操作日志
-      orderController.addThreePartPayOrderLog({
-        projectId: Config.projectId,
-        orderId,
-      });
-    }
+    Modal.confirm({
+      title: _l('确定以【支付宝付款】方式进行本次付款？'),
+      onOk: () => {
+        window.open(
+          addToken(
+            md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId,
+          ),
+        );
+        payDialogFunc({ url: request.ReturnUrl || pathCompletion(`/admin/billinfo/${Config.projectId}`) });
+        //操作日志
+        orderController.addThreePartPayOrderLog({
+          projectId: Config.projectId,
+          orderId,
+        });
+      },
+    });
   }
 
   render() {
@@ -358,9 +391,15 @@ export default class WaitingPay extends Component {
             <div className={cx('warpShowBankAcountInfo', { Hidden: payStyle !== 'balancePay' })}>
               {balanceNotEnough ? (
                 <span className="Block Red mTop15">
-                  {_l('对不起，您的余额不足！')}
-                  {/* <a href={`/admin/valueaddservice/${Config.projectId}`}> {_l('前去充值')} </a>
-                  {_l('或使用其他支付方式')} */}
+                  {window.platformENV.isHap ? (
+                    <Fragment>
+                      {_l('对不起，您的信用点不足！请')}
+                      <a href={pathCompletion(`/admin/valueaddservice/${Config.projectId}`)}> {_l('前去充值')} </a>
+                      {_l('或使用其他支付方式')}
+                    </Fragment>
+                  ) : (
+                    _l('对不起，您的余额不足！')
+                  )}
                 </span>
               ) : (
                 ''
@@ -381,8 +420,8 @@ export default class WaitingPay extends Component {
           <div className="mTop40 flexRow alignItemsCenter">
             <Button
               type="primary"
+              shape="round"
               disabled={(payStyle === 'balancePay' && balanceNotEnough) || isPay}
-              className="nextBtn"
               onClick={() => this.handlePay()}
             >
               {payStyle === 'bankPay' ? _l('保存付款信息') : _l('立即支付')}

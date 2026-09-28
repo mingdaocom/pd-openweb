@@ -5,10 +5,12 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
-import MobilePopup from 'ming-ui/components/MobilePopup';
+import { MobilePopup } from 'ming-ui/antd-mobile-components';
 import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
+import { canUseMingoOtherAssistant } from 'src/components/Mingo/permission';
 import MobileDraft from 'src/pages/Mobile/MobileDraft';
-import { getRequest, removeTempRecordValueFromLocal } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { removeTempRecordValueFromLocal } from 'src/utils/services/cache/record';
 import AdvancedSettingHandler from '../AdvancedSettingHandler';
 import NewRecordContent from '../NewRecordContent';
 import CompositeInput from './components/CompositeInput';
@@ -27,9 +29,12 @@ const ModalWrap = styled(MobilePopup)`
   .mobileNewRecord {
     -webkit-overflow-scrolling: touch;
   }
-  .mingoCreateIcon {
-    width: 24px;
-  }
+`;
+
+const MingoCreateIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 `;
 
 const BtnsWrap = styled.div`
@@ -89,6 +94,8 @@ function NewRecord(props) {
     customButtonConfirm,
     isDraft,
     projectId,
+    showHeader = false,
+    hideHeaderDraft = false,
     ...rest
   } = props;
   const { appId, worksheetId, worksheetInfo = {} } = rest;
@@ -124,7 +131,7 @@ function NewRecord(props) {
   const showMingoCreate =
     !window.isPublicApp &&
     !md.global.Account.isPortal &&
-    !md.global.SysSettings.hideAIBasicFun &&
+    canUseMingoOtherAssistant(_.get(worksheetInfo, 'projectId')) &&
     !_.isEmpty(worksheetInfo) &&
     String(_.get(worksheetInfo, 'advancedSetting.aifillin')) !== '1';
   const { offlineUpload } = getRequest();
@@ -388,7 +395,7 @@ function NewRecord(props) {
       <div className="title Font18 textPrimary flex bold leftAlign ellipsis">
         {advancedSetting.title || props.title || (props.entityName && _l('创建%0', props.entityName))}
       </div>
-      {showDraftList && (
+      {showDraftList && !hideHeaderDraft && (
         <MobileDraft
           appId={appId}
           worksheetId={props.worksheetId || worksheetInfo.worksheetId}
@@ -400,7 +407,7 @@ function NewRecord(props) {
       )}
       {showMingoCreate && (
         <Fragment>
-          <img
+          <MingoCreateIcon
             className="mingoCreateIcon"
             style={{ marginRight: window.isMingDaoApp ? 13 : 20 }}
             src={mingoCreateIcon}
@@ -431,7 +438,9 @@ function NewRecord(props) {
           </VoiceProvider>
         </Fragment>
       )}
-      {!window.isMingDaoApp && <i className="icon icon-cancel textTertiary Font22" onClick={hideNewRecordModal}></i>}
+      {!window.isMingDaoApp && !notDialog && (
+        <i className="icon icon-cancel textTertiary Font22" onClick={hideNewRecordModal}></i>
+      )}
     </div>
   );
   const content = (
@@ -492,7 +501,7 @@ function NewRecord(props) {
         </LoadingMask>
       )}
       <div className="flexColumn leftAlign h100 bgPrimary">
-        {notDialog ? null : header}
+        {!notDialog || showHeader ? header : null}
         <ScrollView options={{ overflow: { x: 'hidden' } }}>
           <div className="h100">{content}</div>
         </ScrollView>

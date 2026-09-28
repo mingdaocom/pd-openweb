@@ -5,22 +5,22 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { ADD_EVENT_ENUM } from '../../../core/enum';
-import { isPublicLink } from '../../../core/utils';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
 
 const EmbedWrap = styled.div`
   width: 100%;
-  ${props => (props.isMobileView ? `height: ${props.height}px;` : '')}
+  ${props => (props.$isMobileView ? `height: ${props.$height}px;` : '')}
   .embedContainer {
     width: 100%;
     border: 1px solid var(--color-border-primary);
     border-radius: 4px;
-    ${props => (props.viewType === VIEW_DISPLAY_TYPE.sheet && !isPublicLink() ? '' : `height: ${props.height}px;`)}
+    ${props => (props.$viewType === VIEW_DISPLAY_TYPE.sheet && !isPublicLink() ? '' : `height: ${props.$height}px;`)}
     ${props =>
-      props.isMobileView ? `height: ${props.height}px;position: absolute; transform: translate(0px, 0px);` : ''}
+      props.$isMobileView ? `height: ${props.$height}px;position: absolute; transform: translate(0px, 0px);` : ''}
     &.chartPadding {
       padding: 8px 16px 16px;
       position: relative;
@@ -30,7 +30,7 @@ const EmbedWrap = styled.div`
       display: none !important;
     }
     .toolBarWrap {
-      ${props => (props.isMobileView ? 'left: 12px!important; margin-left: 0; width: 200px;' : '')}
+      ${props => (props.$isMobileView ? 'left: 12px!important; margin-left: 0; width: 200px;' : '')}
     }
     .fixedTabs {
       display: none;
@@ -48,7 +48,7 @@ const EmbedWrap = styled.div`
     .SingleViewHeader {
       .searchInputComp {
         ${props =>
-          _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.viewType)
+          _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.$viewType)
             ? {
                 display: 'none;',
               }
@@ -58,7 +58,7 @@ const EmbedWrap = styled.div`
   }
 `;
 const LoadableChartContent = lazy(() => import('mobile/CustomPage/ChartContent'));
-const LoadableEmbedPreview = lazy(() => import('./EmbedPreview'));
+const LoadableEmbedPreview = lazy(() => import('../../../widgets/Embed/EmbedPreview'));
 
 const Embed = props => {
   const {
@@ -308,7 +308,7 @@ const Embed = props => {
   };
 
   return (
-    <EmbedWrap height={height || 400} viewType={viewType} isMobileView={enumDefault === 3}>
+    <EmbedWrap $height={height || 400} $viewType={viewType} $isMobileView={enumDefault === 3}>
       {getContent()}
     </EmbedWrap>
   );

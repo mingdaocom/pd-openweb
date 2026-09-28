@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, Dialog, Input, RadioGroup } from 'ming-ui';
+import { Input, Modal, Radio } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import { invoiceConfig, newInvoiceConfig } from './config';
 
@@ -39,13 +39,10 @@ const InvoiceContentWrap = styled.div`
   overflow: auto;
 `;
 
-const SaveInvoice = styled.div`
-  text-align: right;
-`;
-
 export default function InvoiceSetting(props) {
   const { projectId, onClose } = props;
   const [data, setData] = useSetState({});
+  const requestPending = useRef(false);
 
   useEffect(() => {
     projectAjax.getProjectFinance({ projectId }).then(data => {
@@ -55,12 +52,16 @@ export default function InvoiceSetting(props) {
 
   const saveSetting = () => {
     const saveApi = () => {
-      projectAjax
+      if (requestPending.current) return;
+
+      requestPending.current = true;
+      return projectAjax
         .updateProjectFinance({ projectId, ...data, invoiceType: data.invoiceType || 1 })
         .then(() => {
           alert(_l('保存成功'));
         })
         .finally(() => {
+          requestPending.current = false;
           onClose();
         });
     };
@@ -89,23 +90,19 @@ export default function InvoiceSetting(props) {
 
     if (!isFieldFill) return;
 
-    saveApi();
+    return saveApi();
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={480}
       title={<div className="Font17">{_l('发票设置')}</div>}
-      style={{ maxHeight: '80%', overflow: 'auto', paddingBottom: 0 }}
       onCancel={onClose}
-      footer={
-        <SaveInvoice>
-          <Button style={{ borderRadius: '16px' }} onClick={saveSetting}>
-            {_l('保存')}
-          </Button>
-        </SaveInvoice>
-      }
+      onOk={saveSetting}
+      okText={_l('保存')}
     >
       <InvoiceContentWrap>
         <InvoiceSettingWrap>
@@ -119,7 +116,7 @@ export default function InvoiceSetting(props) {
                 </div>
                 <Input
                   value={data[key]}
-                  onChange={value => setData({ [key]: value })}
+                  onChange={e => setData({ [key]: e.target.value })}
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
@@ -134,14 +131,18 @@ export default function InvoiceSetting(props) {
             );
           })}
         </InvoiceSettingWrap>
-        <RadioGroup
+        <Radio.Group
           style={{ marginTop: '16px' }}
-          data={[
+          options={[
             { value: 1, text: _l('普票') },
             { value: 2, text: _l('增票') },
-          ]}
-          checkedValue={data.invoiceType || 1}
-          onChange={value => setData({ invoiceType: value })}
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={data.invoiceType || 1}
+          onChange={event =>
+            setData({
+              invoiceType: event.target.value,
+            })
+          }
         />
 
         <InvoiceSettingWrap className={cx('newInvoiceConfig', { expanded: data.invoiceType === 2 })}>
@@ -155,7 +156,7 @@ export default function InvoiceSetting(props) {
                 </div>
                 <Input
                   value={data[key]}
-                  onChange={value => setData({ [key]: value })}
+                  onChange={e => setData({ [key]: e.target.value })}
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
@@ -171,6 +172,6 @@ export default function InvoiceSetting(props) {
           })}
         </InvoiceSettingWrap>
       </InvoiceContentWrap>
-    </Dialog>
+    </Modal>
   );
 }

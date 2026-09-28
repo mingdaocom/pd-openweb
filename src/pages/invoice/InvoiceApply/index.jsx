@@ -2,11 +2,14 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import { Popup } from 'antd-mobile';
 import { match } from 'path-to-regexp';
-import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import paymentApi from 'src/api/payment';
 import userApi from 'src/api/user';
-import { browserIsMobile, getPathWithoutSubPath } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 import { INVOICE_STATUS } from '../constant';
 import InvoiceStatus from '../InvoiceStatus';
 import Apply from './Apply';
@@ -54,11 +57,11 @@ const InvoiceApply = props => {
         <LoadDiv />
       </div>
     ) : !isMobile ? (
-      <Dialog visible width={800} footer={null}>
+      <Modal open width={800}>
         <div className="Height80 flexRow alignItemsCenter">
           <LoadDiv />
         </div>
-      </Dialog>
+      </Modal>
     ) : (
       <Popup position="bottom" className="mobileModal topRadius" visible>
         <div className="flexRow alignItemsCenter" style={{ height: 200 }}>
@@ -115,4 +118,6 @@ const InvoiceApply = props => {
 
 export default InvoiceApply;
 
-export const InvoiceApplyDialog = props => FunctionWrap(InvoiceApply, { ...props });
+export function useInvoiceApplyDialog() {
+  return useFunctionWrapComponent(InvoiceApply);
+}

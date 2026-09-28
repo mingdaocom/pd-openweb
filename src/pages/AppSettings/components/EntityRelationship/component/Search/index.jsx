@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const Wrap = styled.div`
   position: relative;
@@ -12,7 +12,6 @@ const Wrap = styled.div`
     width: 180px;
     height: 36px;
     box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.16);
-    border-radius: 22px;
     border: none;
   }
   .optionList {
@@ -69,6 +68,7 @@ function Search(props) {
   return (
     <Wrap className={className}>
       <Input
+        radius
         className="searchWorksheet Font14"
         size="large"
         prefix={<Icon icon="search" className="textTertiary Font18" />}

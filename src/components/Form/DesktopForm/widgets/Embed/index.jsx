@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { isPublicLink } from '../../../core/utils';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
 
 const EmbedWrap = styled.div`
   width: 100%;
@@ -15,7 +15,7 @@ const EmbedWrap = styled.div`
     width: 100%;
     border: 1px solid var(--color-border-primary);
     border-radius: 4px;
-    ${props => (props.viewType === VIEW_DISPLAY_TYPE.sheet && !isPublicLink() ? '' : `height: ${props.height}px;`)}
+    ${props => (props.$viewType === VIEW_DISPLAY_TYPE.sheet && !isPublicLink() ? '' : `height: ${props.$height}px;`)}
     &.chartPadding {
       padding: 8px 16px 16px;
       position: relative;
@@ -41,7 +41,7 @@ const EmbedWrap = styled.div`
     .SingleViewHeader {
       .searchInputComp {
         ${props =>
-          _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.viewType)
+          _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.$viewType)
             ? {
                 display: 'none;',
               }
@@ -51,7 +51,7 @@ const EmbedWrap = styled.div`
   }
 `;
 const LoadableChart = lazy(() => import('statistics/Card'));
-const LoadableEmbedPreview = lazy(() => import('./EmbedPreview'));
+const LoadableEmbedPreview = lazy(() => import('../../../widgets/Embed/EmbedPreview'));
 
 const Embed = props => {
   const {
@@ -195,6 +195,7 @@ const Embed = props => {
           if (iframeRef.current) {
             iframeRef.current.src = tmpUrl;
           }
+
           clearTimeout(_t);
         }, 300);
       } else {
@@ -308,7 +309,7 @@ const Embed = props => {
   };
 
   return (
-    <EmbedWrap height={height || 400} viewType={viewType}>
+    <EmbedWrap $height={height || 400} $viewType={viewType}>
       {getContent()}
     </EmbedWrap>
   );

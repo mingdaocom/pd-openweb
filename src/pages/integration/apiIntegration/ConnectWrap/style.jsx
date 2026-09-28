@@ -14,7 +14,7 @@ export const ConnetWrap = styled.div`
     gap: 10px;
   }
   .chooseTypeCon {
-    .Radio-text {
+    .ant-radio-label {
       font-weight: 600;
     }
   }

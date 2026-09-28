@@ -2,7 +2,7 @@ import React from 'react';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 import { QuickFilter } from 'mobile/RecordList/QuickFilter';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 function formatSearchFilters(filters = [], controls = []) {
   return filters.map(f => {

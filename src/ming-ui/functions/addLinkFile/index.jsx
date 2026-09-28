@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
-import { Dialog, FunctionWrap, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { FunctionWrap, Icon } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import LinkImg from './image/link.png';
 import './index.less';
 
@@ -14,6 +14,7 @@ const validate = str => {
 
   return true;
 };
+
 const validateUrl = url => {
   if (!url.match('://') && !url.match(/^mailto:/)) {
     return true;
@@ -24,14 +25,12 @@ const validateUrl = url => {
   alert(_l('当前只支持 http:// 和 https:// 开头的链接'), 3);
   return false;
 };
-const handleClose = () => {
-  $('.addLinkFileDialog').parent().remove();
-};
 
 function AddLinkFile(props) {
-  const { isEdit, showTitleTip = true, data = {}, callback } = props;
+  const { isEdit, showTitleTip = true, data = {}, callback, onClose } = props;
   const [name, setName] = useState(data.name);
   const [link, setLink] = useState(data.originLinkUrl);
+  const handleClose = () => onClose();
 
   const save = () => {
     if (name === '') {
@@ -63,11 +62,12 @@ function AddLinkFile(props) {
   };
 
   return (
-    <Dialog
-      visible
-      dialogClasses="addLinkFileDialog"
+    <Modal
+      open
+      className="addLinkFileDialog"
       width={540}
       okText={isEdit ? _l('保存') : _l('创建')}
+      mask={{ closable: true }}
       title={
         <Fragment>
           <div className="titleCon">
@@ -81,45 +81,43 @@ function AddLinkFile(props) {
               </Tooltip>
             )}
           </div>
-          <div className="HeaderImgCon">
-            <img src={LinkImg} />
-          </div>
         </Fragment>
       }
       onOk={save}
-      onCancel={handleClose}
+      onCancel={() => handleClose()}
     >
-      <div>
-        <div className="linkItem mTop24">
-          <div className="itemLabel">{_l('文件名')}</div>
-          <div className="itemContent">
-            <Input
-              className="w100 addLinkInput"
-              placeholder={_l('在下方贴入链接，自动读取标题')}
-              value={name}
-              onChange={value => setName(value)}
-            />
-          </div>
-        </div>
-        <div className="linkItem mTop24">
-          <div className="itemLabel">{_l('链接')}</div>
-          <div className="itemContent">
-            <Input
-              className="w100 addLinkInput"
-              placeholder="http://"
-              value={link}
-              onChange={value => setLink(value)}
-              onMouseUp={evt => {
-                var target = evt.target;
-                if (target.selectionEnd - target.selectionStart === 0) {
-                  target.select();
-                }
-              }}
-            />
-          </div>
+      <div className="HeaderImgCon">
+        <img src={LinkImg} />
+      </div>
+      <div className="linkItem mTop24">
+        <div className="itemLabel">{_l('文件名')}</div>
+        <div className="itemContent">
+          <Input
+            className="w100 addLinkInput"
+            placeholder={_l('在下方贴入链接，自动读取标题')}
+            value={name}
+            onChange={event => setName(event.target.value)}
+          />
         </div>
       </div>
-    </Dialog>
+      <div className="linkItem mTop24">
+        <div className="itemLabel">{_l('链接')}</div>
+        <div className="itemContent">
+          <Input
+            className="w100 addLinkInput"
+            placeholder="http://"
+            value={link}
+            onChange={event => setLink(event.target.value)}
+            onMouseUp={evt => {
+              var target = evt.target;
+              if (target.selectionEnd - target.selectionStart === 0) {
+                target.select();
+              }
+            }}
+          />
+        </div>
+      </div>
+    </Modal>
   );
 }
 

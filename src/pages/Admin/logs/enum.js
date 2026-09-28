@@ -1,16 +1,4 @@
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-
-export const searchDateList = [
-  { value: 0, label: _l('今天') },
-  { value: 1, label: _l('昨天') },
-  { value: 2, label: _l('本周') },
-  { value: 3, label: _l('上周') },
-  { value: 4, label: _l('本月') },
-  { value: 5, label: _l('上月') },
-  { value: 6, label: _l('最近7天') },
-  { value: 7, label: _l('最近30天') },
-  { value: 8, label: _l('半年') },
-];
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
 
 export const TAB_LIST = [
   { tab: 0, tabName: _l('全部') },
@@ -54,6 +42,7 @@ export const OPERATE_LIST = [
   { value: 19, label: _l('关闭') },
   { value: 20, label: _l('发布') },
   { value: 21, label: _l('导入') },
+  { value: 22, label: _l('重置打印次数') },
   // { value: 13, label: _l('附件预览') },
 ];
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export default class DetailDialog extends Component {
   constructor(props) {

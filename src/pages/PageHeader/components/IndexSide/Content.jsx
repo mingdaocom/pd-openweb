@@ -2,21 +2,55 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import api from 'api/homeApp';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import { Icon, Skeleton } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
+import { Icon } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import SideAppGroup from './SideAppGroup';
 import './index.less';
 
 const NATIVE_MODULES = [
-  { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#1677ff', href: '/feed', key: 1 },
-  { id: 'task', icon: 'task_basic_application', text: _l('任务'), color: '#3cca8f', href: '/apps/task', key: 2 },
-  { id: 'calendar', icon: 'sidebar_calendar', text: _l('日程'), color: '#ff6d6c', href: '/apps/calendar/home', key: 3 },
-  { id: 'knowledge', icon: 'sidebar_knowledge', text: _l('文件'), color: '#F89803', href: '/apps/kc', key: 4 },
-  { id: 'hr', icon: 'hr_home', text: _l('人事'), color: '#607D8B', href: '/hr', key: 5 },
+  {
+    id: 'feed',
+    icon: 'dynamic-empty',
+    text: _l('动态'),
+    color: '#1677ff',
+    href: '/feed',
+    key: 1,
+  },
+  {
+    id: 'task',
+    icon: 'task_basic_application',
+    text: _l('任务'),
+    color: '#3cca8f',
+    href: '/apps/task',
+    key: 2,
+  },
+  {
+    id: 'calendar',
+    icon: 'sidebar_calendar',
+    text: _l('日程'),
+    color: '#ff6d6c',
+    href: '/apps/calendar/home',
+    key: 3,
+  },
+  {
+    id: 'knowledge',
+    icon: 'sidebar_knowledge',
+    text: _l('文件'),
+    color: '#F89803',
+    href: '/apps/kc',
+    key: 4,
+  },
+  {
+    id: 'hr',
+    icon: 'hr_home',
+    text: _l('人事'),
+    color: '#607D8B',
+    href: '/hr',
+    key: 5,
+  },
 ];
-
 const GROUP_TYPES = ['validProject', 'expireProject', 'externalApps', 'aloneApps'];
-
 export default function SideContent(props) {
   const { posX, visible, onClose } = props;
   const [value, setValue] = useState('');
@@ -24,11 +58,12 @@ export default function SideContent(props) {
   const [data, setData] = useState([]);
   const [expandKeys, setExpandKeys] = useState([]);
   const inputRef = useRef(null);
-
   const getData = () => {
     setLoading(true);
     api
-      .getAllHomeApp({ containsLinks: true })
+      .getAllHomeApp({
+        containsLinks: true,
+      })
       .then(res => {
         setData(res);
       })
@@ -36,15 +71,12 @@ export default function SideContent(props) {
         setLoading(false);
       });
   };
-
   useEffect(() => {
     if (visible && !loading && isEmpty(data)) {
       getData();
     }
-
     visible && inputRef && inputRef.current && inputRef.current.focus();
   }, [visible]);
-
   useEffect(() => {
     if (!isEmpty(data)) {
       const keys = getStorageKeys().filter(key => {
@@ -54,7 +86,6 @@ export default function SideContent(props) {
       setExpandKeys(keys);
     }
   }, [data]);
-
   const getFilterData = () => {
     const temp = _.cloneDeep(_.pick(data, GROUP_TYPES.concat('markedApps')));
     _.keys(temp).forEach(key => {
@@ -82,24 +113,19 @@ export default function SideContent(props) {
     });
     return temp;
   };
-
   const getStorageKeys = () => {
     let keys = [];
     const allTypes = ['markedApps'].concat(GROUP_TYPES);
-
     allTypes.forEach(type => {
       const group = _.get(getFilterData(), type) || [];
-
       if (group.length) {
         ['markedApps', 'externalApps', 'aloneApps'].includes(type)
           ? keys.push(`${type}/@INIT`)
           : group.forEach(({ projectId, projectApps }) => !!projectApps.length && keys.push(`${type}/${projectId}`));
       }
     });
-
     return keys;
   };
-
   const onExpandCollapse = key => {
     if (key) {
       const isExpand = expandKeys.includes(key);
@@ -113,7 +139,6 @@ export default function SideContent(props) {
       });
     }
   };
-
   const handleMarkApp = para => {
     api.markApp(para).then(res => {
       if (res) {
@@ -121,7 +146,6 @@ export default function SideContent(props) {
       }
     });
   };
-
   const renderAppGroups = () => {
     const markedApps = _.get(getFilterData(), 'markedApps') || [];
     const propsAndMethods = {
@@ -131,7 +155,6 @@ export default function SideContent(props) {
       expandKeys,
       onExpandCollapse,
     };
-
     if (
       !markedApps.length &&
       !GROUP_TYPES.filter(type => {
@@ -143,7 +166,6 @@ export default function SideContent(props) {
     ) {
       return <div className="TxtCenter mTop16 textSecondary">{_l('无搜索结果')}</div>;
     }
-
     return (
       <Fragment>
         {markedApps && markedApps.length > 0 && (
@@ -170,7 +192,6 @@ export default function SideContent(props) {
       </Fragment>
     );
   };
-
   return (
     <Fragment>
       <div className="inputWrap">
@@ -200,7 +221,13 @@ export default function SideContent(props) {
               item.id === 'hr' ? window.open(item.href) : navigateTo(item.href);
             }}
           >
-            <Icon icon={item.icon} className="Font20" style={{ color: item.color }} />
+            <Icon
+              icon={item.icon}
+              className="Font20"
+              style={{
+                color: item.color,
+              }}
+            />
             <div className="textTertiary mTop5">{item.text}</div>
           </div>
         ))}
@@ -211,9 +238,23 @@ export default function SideContent(props) {
       </div>
 
       {loading && posX !== 0 ? (
-        <Skeleton active widths={['60%', '30%', '40%', '60%', '30%', '40%', '60%', '30%', '40%']} />
+        <Skeleton
+          className="pAll20"
+          active
+          paragraph={{
+            rows: 9,
+            width: ['60%', '30%', '40%', '60%', '30%', '40%', '60%', '30%', '40%'],
+          }}
+        />
       ) : (
-        <div style={{ height: '100%', overflowY: 'auto' }}>{renderAppGroups()}</div>
+        <div
+          style={{
+            height: '100%',
+            overflowY: 'auto',
+          }}
+        >
+          {renderAppGroups()}
+        </div>
       )}
     </Fragment>
   );

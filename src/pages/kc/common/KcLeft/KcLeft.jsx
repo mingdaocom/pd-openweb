@@ -7,17 +7,41 @@ import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import { Dialog, Icon, Input, Item, List, Menu, MenuItem, ScrollView, Splitter } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { Divider, Dropdown, Input, Menu, Modal, Tooltip } from 'ming-ui/antd-components';
 import service from '../../api/service';
 import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { PICK_TYPE, ROOT_FILTER_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import * as kcActions from '../../redux/actions/kcAction';
 import { getRootByPath, humanFileSize, shallowEqual } from '../../utils';
 import { addNewRoot, editRoot, removeRoot } from './rootHandler';
 import { getRootLog } from './rootLog';
 import './KcLeft.less';
+
+const SEARCH_INPUT_STYLE = { display: 'flex', width: 220, margin: '6px auto' };
+
+const NavMenu = ({ className, items }) => (
+  <Menu
+    items={items}
+    selectable={false}
+    mode="vertical"
+    className={className}
+    styles={{
+      root: { border: 0 },
+      item: { '--hap-menu-item-height': '40px', margin: 0, width: '100%', borderRadius: 0 },
+      itemIcon: { width: 16, fontSize: 16, textAlign: 'center' },
+      itemContent: { flex: 1, minWidth: 0, marginLeft: 15 },
+    }}
+  />
+);
+
+NavMenu.propTypes = {
+  className: PropTypes.string,
+  items: PropTypes.arrayOf(PropTypes.object),
+};
+
+const stopMenuPropagation = ({ domEvent }) => domEvent.stopPropagation();
 
 class KcLeft extends Component {
   static propTypes = {
@@ -68,11 +92,9 @@ class KcLeft extends Component {
       selectOptions: false,
       folderSetting: '',
       settingsOption: '',
-      offset: Immutable.Map({}),
       upgradeOffset: null,
       upgradeHint: false,
       filterType: ROOT_FILTER_TYPE.ALL,
-      isCreator: false,
       isHover: false,
       isClick: false,
     };
@@ -194,10 +216,6 @@ class KcLeft extends Component {
     });
   };
 
-  handleSelectFile = () => {
-    this.setState({ selectOptions: !this.state.selectOptions });
-  };
-
   filterRoots = filterType => {
     if (filterType === this.state.filterType && filterType !== ROOT_FILTER_TYPE.ALL) {
       return;
@@ -224,6 +242,12 @@ class KcLeft extends Component {
       evt.stopPropagation();
     }
   };
+
+  clearSearch = () => {
+    const { baseUrl, path } = this.props;
+    navigateTo(encodeURI(`${baseUrl}/${path}`));
+  };
+
   /** 获取搜索框 placeholder 文案*/
   updateSearchName = () => {
     const { currentFolder, currentRoot } = this.props;
@@ -327,38 +351,185 @@ class KcLeft extends Component {
     });
   };
 
-  handleRootSettings = (rootItem, event) => {
-    let creator = false;
-    const $target = $(event.target);
+  getRootSettingItems = root => {
+    const isCreator = _.some(
+      root.members,
+      member => member.permission === 1 && member.accountId === md.global.Account.accountId,
+    );
 
-    if (rootItem) {
-      for (let i = 0; i < rootItem.members.length; i++) {
-        const member = rootItem.members[i];
+    return [
+      {
+        key: 'star',
+        icon: <Icon icon="task-star" />,
+        label: root.isStared ? _l('取消标星') : _l('标星'),
+        onClick: () => this.handleStarRoot(root),
+      },
+      {
+        key: 'share',
+        icon: <Icon icon="group" />,
+        label: _l('共享设置'),
+        onClick: () => this.handleEditRoot(root.id),
+      },
+      {
+        key: 'log',
+        icon: <Icon icon="knowledge-log" />,
+        label: _l('文件夹日志'),
+        onClick: () => {
+          getRootLog(root.name, root.id);
+          this.setState({ settingsOption: '', isClick: false });
+        },
+      },
+      {
+        key: 'recycle',
+        icon: <Icon icon="knowledge-recycle" />,
+        label: _l('回收站'),
+        onClick: () => {
+          navigateTo('/apps/kc/recycled/' + root.id);
+          this.setState({ settingsOption: '' });
+        },
+      },
+      {
+        key: 'remove',
+        icon: <Icon icon={isCreator ? 'trash' : 'groupExit'} />,
+        danger: true,
+        label: isCreator ? _l('删除文件夹') : _l('退出文件夹'),
+        onClick: () => this.handleRemoveRoot(root, isCreator, false),
+      },
+    ];
+  };
 
-        if (member.permission === 1) {
-          if (member.accountId === md.global.Account.accountId) {
-            creator = true;
-            break;
-          }
-        }
-      }
+  getMyFolderSettingItems = () => [
+    {
+      key: 'log',
+      icon: <Icon icon="knowledge-log" />,
+      label: _l('文件夹日志'),
+      onClick: () => {
+        getRootLog(_l('我的文件'), PICK_TYPE.MY);
+        this.setState({ settingsOption: '', isClick: false });
+      },
+    },
+    {
+      key: 'recycle',
+      icon: <Icon icon="knowledge-recycle" />,
+      label: _l('回收站'),
+      onClick: () => {
+        navigateTo('/apps/kc/recycled/my');
+        this.setState({ isClick: false, isHover: false });
+      },
+    },
+  ];
+
+  getRootFilterItems = () => [
+    { key: ROOT_FILTER_TYPE.ALL, label: _l('全部共享文件夹') },
+    { key: ROOT_FILTER_TYPE.OWN, label: _l('我拥有的') },
+    { key: ROOT_FILTER_TYPE.JOIN, label: _l('我加入的') },
+  ];
+
+  getProjectRootItems = (projectRoots, isFolded) => {
+    if (!projectRoots.length) {
+      return this.state.noneProjects
+        ? [
+            {
+              key: 'addRoot',
+              className: 'nullData textSecondary',
+              disabled: true,
+              label: (
+                <span>
+                  {_l('点击 " + " 号，创建共享文件夹')}
+                  <i className="icon-restart arrow textTertiary" />
+                </span>
+              ),
+            },
+          ]
+        : [];
     }
 
-    this.setState(
+    return _.map(projectRoots, root => {
+      const isActive = this.checkRootIsActive(root.id);
+
+      return {
+        key: root.id,
+        icon: <Icon icon={isActive ? 'folder-open' : 'task-folder-solid'} className="Font16 textTertiary" />,
+        className: cx('folderItem ani500 fadeIn', {
+          bgColorPrimaryTransparent: isActive,
+          folded: isFolded,
+        }),
+        'data-rootid': root.id,
+        label: (
+          <span>
+            <span className="folderListName ellipsis textPrimary">{root.name}</span>
+            {(this.state.folderSetting === root.id || this.state.settingsOption === root.id) && (
+              <Dropdown
+                trigger={['click']}
+                open={this.state.settingsOption === root.id}
+                placement="bottomLeft"
+                menu={{ items: this.getRootSettingItems(root), onClick: stopMenuPropagation }}
+                onOpenChange={open => this.setState({ settingsOption: open ? root.id : '' })}
+              >
+                <span
+                  className="folderSetting icon-settings textTertiary hoverTextSecondary"
+                  onClick={event => event.stopPropagation()}
+                />
+              </Dropdown>
+            )}
+            {root.isStared && this.state.settingsOption !== root.id && this.state.folderSetting !== root.id ? (
+              <span className="isStared icon-task-star" />
+            ) : undefined}
+          </span>
+        ),
+        onClick: () => navigateTo(`/apps/kc/${root.id}`),
+        onMouseEnter: () => this.setState({ folderSetting: root.id }),
+        onMouseLeave: () => this.setState({ folderSetting: '' }),
+      };
+    });
+  };
+
+  getTypeMenuItems = () => {
+    const type = this.getType();
+
+    return [
       {
-        settingsOption: rootItem.id,
-        offset: this.state.offset.merge($target.offset()),
-        isCreator: creator,
+        key: 'my',
+        icon: <Icon icon="attachment" className="textSecondary hoverColorPrimary" />,
+        className: cx('myFileNav', { bgColorPrimaryTransparent: type === PICK_TYPE.MY }),
+        label: (
+          <>
+            <span className="textPrimary Font13">{_l('我的文件')}</span>
+            {(this.state.isHover || this.state.isClick) && (
+              <Dropdown
+                trigger={['click']}
+                open={this.state.isClick}
+                placement="bottomLeft"
+                menu={{ items: this.getMyFolderSettingItems(), onClick: stopMenuPropagation }}
+                onOpenChange={isClick => this.setState({ isClick })}
+              >
+                <span
+                  className="myFolderSetting icon-settings textTertiary hoverTextSecondary"
+                  onClick={event => event.stopPropagation()}
+                />
+              </Dropdown>
+            )}
+          </>
+        ),
+        onClick: () => navigateTo('/apps/kc/my'),
+        onMouseEnter: () => this.setState({ isHover: true }),
+        onMouseLeave: () => this.setState({ isHover: false }),
       },
-      () => {
-        if ($target.offset().top + 20 + $target.find('.settingsLayer').height() > $(window).height()) {
-          const offset = this.state.offset;
-          const newOffset = offset.set('top', $target.offset().top - 20 - $target.find('.settingsLayer').height());
-          this.setState({ offset: newOffset });
-        }
+      {
+        key: 'recent',
+        icon: <Icon icon="access_time" className="textSecondary hoverColorPrimary" />,
+        className: cx({ bgColorPrimaryTransparent: type === PICK_TYPE.RECENT }),
+        label: <span className="textPrimary Font13">{_l('最近使用')}</span>,
+        onClick: () => navigateTo('/apps/kc/recent'),
       },
-    );
-    event.stopPropagation();
+      {
+        key: 'stared',
+        icon: <Icon icon="task-star" className="textSecondary hoverColorPrimary" />,
+        className: cx({ bgColorPrimaryTransparent: type === PICK_TYPE.STARED }),
+        label: <span className="textPrimary Font13">{_l('星标文件')}</span>,
+        onClick: () => navigateTo('/apps/kc/stared'),
+      },
+    ];
   };
 
   /** 对 rootList 的修改应用到页面上 */
@@ -376,11 +547,12 @@ class KcLeft extends Component {
   usageDialog = usage => {
     const percent = (usage.used / usage.total) * 100;
 
-    Dialog.confirm({
+    Modal.confirm({
       width: 410,
       className: 'kcDialogBox',
       title: _l('使用详情'),
-      children: (
+      styles: { body: { overflow: 'hidden' } },
+      content: (
         <div class="usageList">
           <span>
             {_l('本月上传流量已用')}
@@ -398,13 +570,11 @@ class KcLeft extends Component {
             </Tooltip>
           </span>
           <span class="usageSize">
-            {`${humanFileSize(usage.used)} (${(percent > 100 ? 100 : percent).toFixed(2)}%)/${humanFileSize(
-              usage.total,
-            )}`}
+            {`${humanFileSize(usage.used)} (${(percent > 100 ? 100 : percent).toFixed(2)}%)/${humanFileSize(usage.total)}`}
           </span>
         </div>
       ),
-      noFooter: true,
+      footer: null,
     });
   };
 
@@ -471,133 +641,34 @@ class KcLeft extends Component {
     const rootListComp =
       !isFolded &&
       (this.state.loadingProjects.includes(projectId) ? undefined : (
-        <List
+        <NavMenu
           className={cx('folderListOfProject', {
             noneProjects: this.state.noneProjects,
             expire: project && project.licenseType === 0,
           })}
-        >
-          {!projectRoots.length
-            ? this.state.noneProjects && (
-                <li className="nullData textSecondary">
-                  <span>
-                    {_l('点击 " + " 号，创建共享文件夹')}
-                    <i className="icon-restart arrow textTertiary" />
-                  </span>
-                </li>
-              )
-            : _.map(projectRoots, root => (
-                <Item
-                  key={root.id}
-                  className={cx('folderItem ani500 fadeIn hoverBgTertiary', {
-                    bgColorPrimaryTransparent: this.checkRootIsActive(root.id),
-                    folded: isFolded,
-                  })}
-                  onClick={() => {
-                    navigateTo(`/apps/kc/${root.id}`);
-                  }}
-                  data-rootid={root.id}
-                  onMouseEnter={() => {
-                    this.setState({ folderSetting: root.id }); /* this.props.setHoveredItem(root, PICK_TYPE.ROOT);*/
-                  }}
-                  onMouseLeave={() => {
-                    this.setState({ folderSetting: '' }); /* this.props.setHoveredItem(null, null);*/
-                  }}
-                >
-                  <span
-                    className={cx(
-                      'textTertiary folderListIcon',
-                      this.checkRootIsActive(root.id) ? 'icon-folder-open' : 'icon-task-folder-solid',
-                    )}
-                  />
-                  <span>
-                    <span className="folderListName ellipsis textPrimary">{root.name}</span>
-                    {(this.state.folderSetting === root.id || this.state.settingsOption === root.id) && (
-                      <span
-                        className="folderSetting icon-settings textTertiary hoverTextSecondary"
-                        onClick={event => this.handleRootSettings(root, event)}
-                      >
-                        {this.state.settingsOption === root.id ? (
-                          <Menu
-                            className={cx('settingsLayer')}
-                            onClickAway={() => {
-                              this.setState({ settingsOption: '' });
-                            }}
-                            onClick={evt => evt.stopPropagation()}
-                            style={{ left: this.state.offset.get('left') - 16, top: this.state.offset.get('top') + 24 }}
-                          >
-                            <MenuItem
-                              icon={<Icon icon="task-star" />}
-                              className="settingItem hoverColorPrimary"
-                              onClick={() => this.handleStarRoot(root)}
-                            >
-                              {root.isStared ? _l('取消标星') : _l('标星')}
-                            </MenuItem>
-                            <MenuItem
-                              icon={<Icon icon="group" />}
-                              className="settingItem hoverColorPrimary"
-                              onClick={() => this.handleEditRoot(root.id)}
-                            >
-                              {_l('共享设置')}
-                            </MenuItem>
-                            <MenuItem
-                              icon={<Icon icon="knowledge-log" />}
-                              className="settingItem hoverColorPrimary"
-                              onClick={() => {
-                                getRootLog(root.name, root.id);
-                                this.setState({ settingsOption: '', isClick: false });
-                              }}
-                            >
-                              {_l('文件夹日志')}
-                            </MenuItem>
-                            <MenuItem
-                              icon={<Icon icon="knowledge-recycle" />}
-                              className="settingItem hoverColorPrimary"
-                              onClick={() => {
-                                navigateTo('/apps/kc/recycled/' + root.id);
-                                this.setState({ settingsOption: '' });
-                              }}
-                            >
-                              {_l('回收站')}
-                            </MenuItem>
-                            <MenuItem
-                              icon={<Icon icon={cx(this.state.isCreator ? 'trash' : 'groupExit')} />}
-                              className="settingItem hoverColorPrimary"
-                              onClick={() => this.handleRemoveRoot(root, this.state.isCreator, false)}
-                            >
-                              {this.state.isCreator ? _l('删除文件夹') : _l('退出文件夹')}
-                            </MenuItem>
-                          </Menu>
-                        ) : undefined}
-                      </span>
-                    )}
-                    {root.isStared && this.state.settingsOption !== root.id && this.state.folderSetting !== root.id ? (
-                      <span className="isStared icon-task-star" />
-                    ) : undefined}
-                  </span>
-                </Item>
-              ))}
-        </List>
+          items={this.getProjectRootItems(projectRoots, isFolded)}
+        />
       ));
     return (
       <div className="folderProjectItem" key={projectId}>
         {companyNameComp}
         {!isFolded && (projectRoots.length > 10 || keywords) && (
-          <div className="rootSearch">
-            <i className="icon-search" />
-            <Input
-              placeholder={_l('搜索文件夹名称')}
-              value={keywords}
-              onChange={value => {
-                this.setState({
-                  projectRootKeywords: {
-                    ...projectRootKeywords,
-                    [projectId || 'my']: value.trim(),
-                  },
-                });
-              }}
-            />
-          </div>
+          <Input
+            className="rootSearch"
+            radius
+            variant="filled"
+            prefix={<i className="icon-search" />}
+            placeholder={_l('搜索文件夹名称')}
+            value={keywords}
+            onChange={event => {
+              this.setState({
+                projectRootKeywords: {
+                  ...projectRootKeywords,
+                  [projectId || 'my']: event.target.value.trim(),
+                },
+              });
+            }}
+          />
         )}
         {!isFolded && keywords && !projectRoots.length && (
           <div className="textTertiary TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
@@ -609,23 +680,6 @@ class KcLeft extends Component {
 
   render() {
     const { searchName, keywords } = this.state;
-
-    const selectOptions = this.state.selectOptions && (
-      <Menu className="optionsLayer" onClickAway={() => this.setState({ selectOptions: false })}>
-        <MenuItem
-          className="allFolder ellipsis hoverColorPrimary"
-          onClick={() => this.filterRoots(ROOT_FILTER_TYPE.ALL)}
-        >
-          {_l('全部共享文件夹')}
-        </MenuItem>
-        <MenuItem className="myCreateRoot hoverColorPrimary" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.OWN)}>
-          {_l('我拥有的')}
-        </MenuItem>
-        <MenuItem className="myAddFolder hoverColorPrimary" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.JOIN)}>
-          {_l('我加入的')}
-        </MenuItem>
-      </Menu>
-    );
 
     let filterRoots;
     let selectName;
@@ -653,102 +707,42 @@ class KcLeft extends Component {
         <MDLeftNav className="yunFileNav bgPrimary snowFixedContainer">
           <div className="flexColumn">
             <div className="fileMenuTop">
-              <div
-                className={cx(
-                  'fileSearch Relative boderRadAll_5',
-                  this.state.focusSearch ? 'borderColorPrimary' : 'borderSecondary',
-                )}
-              >
-                <span className="icon-search btnFileSearch textSecondary" title={_l('搜索')} />
-                <input
-                  type="text"
-                  id="smartSearchFile"
-                  className="fileSearchBox boxSizing textSecondary"
-                  value={keywords}
-                  placeholder={searchName}
-                  onKeyDown={this.searchNodes}
-                  onChange={evt => this.setState({ keywords: evt.target.value })}
-                  onFocus={() => this.setState({ focusSearch: true })}
-                  onBlur={() => this.setState({ focusSearch: false })}
-                />
-              </div>
-              <List className="typeList">
-                <Item
-                  icon={<Icon icon="attachment" className="textSecondary hoverColorPrimary LineHeight40" />}
-                  onClick={() => navigateTo('/apps/kc/my')}
-                  className={cx('hoverBgTertiary myFileNav', {
-                    bgColorPrimaryTransparent: this.getType() === PICK_TYPE.MY,
-                  })}
-                  onMouseOver={() => this.setState({ isHover: true })}
-                  onMouseLeave={() => this.setState({ isHover: false })}
-                >
-                  <span className="textPrimary Font13">{_l('我的文件')}</span>
-                  {this.state.isHover || this.state.isClick ? (
-                    <span
-                      className="myFolderSetting icon-settings textTertiary hoverTextSecondary"
-                      onClick={evt => {
-                        this.setState({ isClick: true });
-                        evt.stopPropagation();
-                      }}
-                    >
-                      {this.state.isClick ? (
-                        <Menu
-                          className="settingsLayer"
-                          onClickAway={() => this.setState({ isClick: false })}
-                          onClick={evt => evt.stopPropagation()}
-                        >
-                          <MenuItem
-                            icon={<Icon icon="knowledge-log" />}
-                            className="settingItem hoverColorPrimary"
-                            onClick={() => {
-                              getRootLog(_l('我的文件'), PICK_TYPE.MY);
-                              this.setState({ settingsOption: '', isClick: false });
-                            }}
-                          >
-                            {_l('文件夹日志')}
-                          </MenuItem>
-                          <MenuItem
-                            icon={<Icon icon="knowledge-recycle" />}
-                            className="settingItem hoverColorPrimary"
-                            onClick={() => {
-                              navigateTo('/apps/kc/recycled/my');
-                              this.setState({ isClick: false, isHover: false });
-                            }}
-                          >
-                            {_l('回收站')}
-                          </MenuItem>
-                        </Menu>
-                      ) : (
-                        ''
-                      )}
-                    </span>
-                  ) : (
-                    ''
-                  )}
-                </Item>
-                <Item
-                  icon={<Icon icon="access_time" className="textSecondary hoverColorPrimary LineHeight40" />}
-                  onClick={() => navigateTo('/apps/kc/recent')}
-                  className={cx('hoverBgTertiary', { bgColorPrimaryTransparent: this.getType() === PICK_TYPE.RECENT })}
-                >
-                  <span className="textPrimary Font13">{_l('最近使用')}</span>
-                </Item>
-                <Item
-                  icon={<Icon icon="task-star" className="textSecondary hoverColorPrimary LineHeight40" />}
-                  onClick={() => navigateTo('/apps/kc/stared')}
-                  className={cx('hoverBgTertiary', { bgColorPrimaryTransparent: this.getType() === PICK_TYPE.STARED })}
-                >
-                  <span className="textPrimary Font13">{_l('星标文件')}</span>
-                </Item>
-              </List>
+              <Input
+                allowClear
+                variant="underlined"
+                id="smartSearchFile"
+                value={keywords}
+                prefix={<i className="icon-search textSecondary" title={_l('搜索')} />}
+                placeholder={searchName}
+                style={SEARCH_INPUT_STYLE}
+                onKeyDown={this.searchNodes}
+                onClear={this.clearSearch}
+                onChange={evt => this.setState({ keywords: evt.target.value })}
+              />
+              <NavMenu className="typeList" items={this.getTypeMenuItems()} />
             </div>
-            <Splitter className="fileHr" />
+            <Divider className="fileHr" />
             <div className="folderHeader">
-              <span className="folderCheckedType left" onClick={this.handleSelectFile}>
-                <span className="selectOptions textTertiary">{selectName}</span>
-                <i className="icon-arrow-down font10 iconArrowDown textSecondary" />
-                {selectOptions}
-              </span>
+              <Dropdown
+                trigger={['click']}
+                open={this.state.selectOptions}
+                placement="bottomLeft"
+                menu={{
+                  items: this.getRootFilterItems(),
+                  style: { minWidth: 116 },
+                  onClick: ({ key, domEvent }) => {
+                    domEvent.stopPropagation();
+                    this.setState({ selectOptions: false });
+                    this.filterRoots(Number(key));
+                  },
+                }}
+                onOpenChange={selectOptions => this.setState({ selectOptions })}
+              >
+                <span className="folderCheckedType left">
+                  <span className="selectOptions textTertiary">{selectName}</span>
+                  <i className="icon-arrow-down font10 iconArrowDown textSecondary" />
+                </span>
+              </Dropdown>
               <span className="addNewFolder right">
                 <span className="textSecondary hoverTextPrimary" onClick={this.handleAddNewRoot}>
                   +

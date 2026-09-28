@@ -3,10 +3,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import DialogRelationControl from 'src/components/relationControl/relationControl';
-import { getRelationText } from 'src/pages/widgetConfig/util/index';
+import { getRelationText } from 'src/utils/domain/control/metadata';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 import List from './List';
+
+export const mergeRelationItems = (list, items) =>
+  _.uniqBy(list.concat(items), item => `${item.type}-${item.sid}-${item.sidext || ''}`);
 
 const Relation = props => {
   const { from, disabled, value, enumDefault, formItemId, onChange } = props;
@@ -53,11 +57,10 @@ const Relation = props => {
     onChange(JSON.stringify(list));
   };
 
-  const onDialogPick = item => {
+  const onDialogPick = items => {
     const list = _.cloneDeep(JSON.parse(value || '[]'));
-
-    list.push(item);
-    onChange(JSON.stringify(list));
+    const pickedItems = Array.isArray(items) ? items : [items];
+    onChange(JSON.stringify(mergeRelationItems(list, pickedItems)));
     setDialogVisible(false);
   };
 
@@ -70,10 +73,15 @@ const Relation = props => {
   return (
     <div className={cx({ controlDisabled: disabled })} style={{ height: 'auto' }}>
       {!disabled && (
-        <button className="customFormRelationBtn pointer" onClick={handleAdd}>
-          <Icon icon="plus" className="mRight5 textTertiary Font16" />
+        <Button
+          className="relationControlAddButton"
+          color="default"
+          variant="textBordered"
+          icon={<Icon icon="plus" className="Font16" />}
+          onClick={handleAdd}
+        >
           <span>{text}</span>
-        </button>
+        </Button>
       )}
 
       <List data={JSON.parse(value || '[]')} from={from} disabled={disabled} onDelete={itemOnDelete} />
@@ -82,6 +90,7 @@ const Relation = props => {
         <DialogRelationControl
           title={''}
           types={finalEnumDefault === 0 ? [] : [finalEnumDefault]}
+          multiple
           onCancel={() => setDialogVisible(false)}
           onSubmit={onDialogPick}
         />

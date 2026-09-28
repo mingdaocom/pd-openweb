@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Qr as QrComp } from 'ming-ui';
 
 const Con = styled.div(
-  ({ width }) =>
-    `position: relative; z-index: 1; width: ${width}px; border-radius: 4px; background-color: var(--color-background-primary); padding: 10px; box-sizing: border-box; box-shadow: 0px 3px 8px #0000004D;`,
+  ({ $width }) =>
+    `position: relative; z-index: 1; width: ${$width}px; border-radius: 4px; background-color: var(--color-background-primary); padding: 10px; box-sizing: border-box; box-shadow: 0px 3px 8px #0000004D;`,
 );
 const Tip = styled.div`
   text-align: center;
@@ -15,14 +15,14 @@ const Tip = styled.div`
   margin: 8px 0 -2px;
 `;
 const Bulge = styled.span(
-  ({ width }) => `
+  ({ $width }) => `
   position: absolute;
-  top: -${width}px;
+  top: -${$width}px;
   left: 50%;
-  margin-left: -${width / 2}px;
+  margin-left: -${$width / 2}px;
   width: 0px;
   height: 0px;
-  border: ${width / 2}px solid transparent;
+  border: ${$width / 2}px solid transparent;
   border-bottom-color: var(--color-background-primary);
 `,
 );
@@ -31,8 +31,8 @@ export default function Qr(props) {
   const { url, bulge = true, width = 160 } = props;
 
   return (
-    <Con width={width}>
-      {bulge && <Bulge width={24} />}
+    <Con $width={width}>
+      {bulge && <Bulge $width={24} />}
       {url && (
         <QrComp content={url} width={width - 24} height={width - 24} alt="" style={{ verticalAlign: 'bottom' }} />
       )}

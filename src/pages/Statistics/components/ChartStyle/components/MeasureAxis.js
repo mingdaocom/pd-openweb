@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Input } from 'antd';
+import { Input } from 'ming-ui/antd-components';
 
 export default class MeasureAxis extends Component {
   constructor(props) {
@@ -15,7 +15,6 @@ export default class MeasureAxis extends Component {
           <div className="mRight8">{_l('最小值')}</div>
           <div className="flex">
             <Input
-              className="chartInput"
               placeholder={_l('自动')}
               defaultValue={ydisplay.minValue}
               onBlur={event => {
@@ -33,7 +32,6 @@ export default class MeasureAxis extends Component {
           <div className="mRight8">{_l('最大值')}</div>
           <div className="flex">
             <Input
-              className="chartInput"
               placeholder={_l('自动')}
               defaultValue={ydisplay.maxValue}
               onBlur={event => {

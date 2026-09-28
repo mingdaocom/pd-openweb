@@ -1,6 +1,7 @@
 import React, { Fragment, memo, useState } from 'react';
 import styled from 'styled-components';
-import { Icon, PopupWrapper, SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 
 const GroupButtonInCard = styled.div`
   flex: 1;
@@ -13,7 +14,7 @@ const GroupButtonInCard = styled.div`
   height: 32px;
   border-radius: 3px;
   color: var(--color-text-primary);
-  ${props => props.disabled && 'opacity: 0.5;'}
+  ${props => props.$disabled && 'opacity: 0.5;'}
   &.operates-standard {
     background: var(--color-background-primary);
     border: 1px solid var(--color-border-primary);
@@ -48,7 +49,7 @@ const GroupButtonInPopup = styled.div`
   display: flex;
   align-items: center;
   height: 50px;
-  ${props => props.disabled && 'opacity: 0.5;'}
+  ${props => props.$disabled && 'opacity: 0.5;'}
   .icon {
     font-size: 20px;
   }

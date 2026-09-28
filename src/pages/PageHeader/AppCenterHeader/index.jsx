@@ -1,15 +1,16 @@
-﻿import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, ScrollView } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
-import { emitter, pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 import CommonUserHandle from '../components/CommonUserHandle';
 import GlobalSearch from '../components/GlobalSearch';
 
@@ -62,60 +63,10 @@ const Flex = styled.div`
   flex: 1;
 `;
 
-const ProjectsMenuCon = styled.div`
-  width: 400px;
-  background: var(--color-background-card);
-  border-radius: 3px;
-  padding-bottom: 5px;
-  box-shadow: var(--shadow-lg);
-`;
-
-const ProjectsMenu = styled.div`
-  padding-top: 5px;
-  width: 400px;
-`;
-
-const ProjectItem = styled.div`
-  cursor: pointer;
-  padding: 0 20px;
-  font-size: 15px;
-  font-weight: 500;
-  height: 40px;
-  line-height: 40px;
-  &.active {
-    color: var(--color-primary);
-    background: rgb(33, 150, 243, 0.08);
-  }
-  &:not(.active):hover {
-    background: var(--color-background-hover);
-  }
-
-  .trial {
-    color: var(--color-warning) !important;
-  }
-  .free {
-    color: var(--color-success) !important;
-  }
-`;
-
-const ScrollCon = styled(ScrollView)`
-  height: ${({ height }) => height}px !important;
-`;
-
-const Hr = styled.div`
-  height: 0px;
-  border-top: 1px solid var(--color-border-secondary);
-  margin: 5px 0;
-`;
-
-const NewMenuItem = styled(MenuItem)`
-  &.ming.Item.MenuItem .Item-content {
-    &:not(.disabled):hover {
-      color: inherit !important;
-      background-color: var(--color-background-hover) !important;
-    }
-  }
-`;
+const ACTIVE_PROJECT_MENU_ITEM_STYLE = {
+  color: 'var(--color-primary)',
+  background: 'var(--color-primary-transparent)',
+};
 
 const DashboardSearch = styled.div`
   width: 267px;
@@ -161,23 +112,21 @@ const UpgradeWrap = styled.div`
 function AppCenterHeader(props) {
   const projectId = _.get(props, 'match.params.projectId');
   const projects = md.global.Account.projects;
-  const createRef = useRef();
-  const [currentProject, setCurrentProject] = useState(
-    getCurrentProject(projectId || localStorage.getItem('currentProjectId')),
-  );
+  const [currentProject, setCurrentProject] = useState(() => {
+    const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+
+    if (!_.isEmpty(project)) return project;
+
+    return projects[0]?.projectId ? projects[0] : { companyName: _l('外部协作'), projectId: 'external' };
+  });
 
   useEffect(() => {
     const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
 
-    if (_.isEmpty(project)) {
-      if (projects[0] && projects[0].projectId) {
-        setCurrentProject(projects[0]);
-        safeLocalStorageSetItem('currentProjectId', projects[0].projectId);
-      } else {
-        setCurrentProject({ companyName: _l('外部协作'), projectId: 'external' });
-      }
+    if (_.isEmpty(project) && projects[0]?.projectId) {
+      safeLocalStorageSetItem('currentProjectId', projects[0].projectId);
     }
-  }, []);
+  }, [projectId, projects]);
 
   // 跟随外部组织切换（右侧 Mingo 等同样 emit CHANGE_CURRENT_PROJECT）：更新头部选中组织，保持两边一致
   useEffect(() => {
@@ -188,48 +137,85 @@ function AppCenterHeader(props) {
     emitter.addListener('CHANGE_CURRENT_PROJECT', onChangeProject);
     return () => emitter.removeListener('CHANGE_CURRENT_PROJECT', onChangeProject);
   }, []);
-  const [popupVisible, setPopupVisible] = useState();
-  let menuContent = (
-    <ProjectsMenu>
-      {[
-        ...projects,
-        {
-          companyName: _l('外部协作'),
-          projectId: 'external',
-        },
-      ].map((project, i) => {
-        const isFree = project.licenseType === 0; // 免费版
-        const isTrial = project.licenseType === 2; // 试用版
-
-        return (
-          <ProjectItem
-            key={i}
-            className={cx('flexRow', { active: currentProject && currentProject.projectId === project.projectId })}
-            onClick={() => {
-              setPopupVisible(false);
-              setCurrentProject(project);
-              if (project.projectId !== 'external') {
-                safeLocalStorageSetItem('currentProjectId', project.projectId);
-              }
-
-              emitter.emit('CHANGE_CURRENT_PROJECT', project);
-            }}
-          >
-            <div className="flex ellipsis"> {project.companyName}</div>
-            <div className={cx('Font12 mLeft10 textTertiary Normal', { trial: isTrial, free: isFree })}>
-              {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(project, 'version.name')}
-            </div>
-          </ProjectItem>
-        );
-      })}
-    </ProjectsMenu>
-  );
-
-  if (projects.length > Math.ceil((window.innerHeight - 160) / 40)) {
-    menuContent = <ScrollCon height={Math.ceil((window.innerHeight - 160) / 40) * 40}>{menuContent}</ScrollCon>;
-  }
-
+  const [popupVisible, setPopupVisible] = useState(false);
   const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
+  const projectOptions = [
+    ...projects,
+    {
+      companyName: _l('外部协作'),
+      projectId: 'external',
+    },
+  ];
+  const projectMenuItems = projectOptions
+    .map(project => {
+      const isFree = project.licenseType === 0;
+      const isTrial = project.licenseType === 2;
+      const isActive = currentProject.projectId === project.projectId;
+
+      return {
+        key: `project:${project.projectId}`,
+        label: <span className="Font15 bold">{project.companyName}</span>,
+        extra: (
+          <span
+            className={cx('Font12 Normal', { textTertiary: !isTrial && !isFree })}
+            style={{ color: isFree ? 'var(--color-success)' : isTrial ? 'var(--color-warning)' : undefined }}
+          >
+            {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(project, 'version.name')}
+          </span>
+        ),
+        style: {
+          ...(isActive ? ACTIVE_PROJECT_MENU_ITEM_STYLE : {}),
+        },
+      };
+    })
+    .concat([
+      { type: 'divider' },
+      canCreateProject
+        ? {
+            key: 'createProject',
+            label: (
+              <span className="colorPrimary">
+                <i className="icon icon-add colorPrimary Font16 mRight6" />
+                <span className="Font15">{_l('加入/创建组织')}</span>
+              </span>
+            ),
+            popupStyle: { width: 180 },
+            children: [
+              { key: 'joinProject', label: _l('加入组织') },
+              { key: 'createOrganization', label: _l('创建组织') },
+            ],
+          }
+        : {
+            key: 'joinProject',
+            label: (
+              <span className="colorPrimary">
+                <i className="icon icon-add colorPrimary Font16 mRight6" />
+                <span className="Font15">{_l('加入组织')}</span>
+              </span>
+            ),
+          },
+    ]);
+
+  const handleProjectMenuClick = ({ key }) => {
+    setPopupVisible(false);
+
+    if (key === 'joinProject') {
+      window.open(pathCompletion('/enterpriseRegister?type=add'));
+    } else if (key === 'createOrganization') {
+      window.open(pathCompletion('/enterpriseRegister?type=create'));
+    } else if (key.startsWith('project:')) {
+      const project = _.find(projectOptions, item => `project:${item.projectId}` === key);
+
+      if (!project) return;
+
+      setCurrentProject(project);
+      if (project.projectId !== 'external') {
+        safeLocalStorageSetItem('currentProjectId', project.projectId);
+      }
+
+      emitter.emit('CHANGE_CURRENT_PROJECT', project);
+    }
+  };
 
   const handleUpgrade = () => {
     const isTrial = currentProject.licenseType == 2;
@@ -251,58 +237,24 @@ function AppCenterHeader(props) {
       <Con className="appCenterHeader">
         <div className="flex flexRow">
           {currentProject && (
-            <Trigger
-              popupVisible={popupVisible}
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 4],
+            <Dropdown
+              open={popupVisible}
+              trigger={['click']}
+              placement="bottomLeft"
+              align={{ offset: [0, 4] }}
+              menu={{
+                items: projectMenuItems,
+                expandIcon: null,
+                selectable: true,
+                selectedKeys: [`project:${currentProject.projectId}`],
+                style: {
+                  width: 400,
+                  maxHeight: Math.max(window.innerHeight - 110, 200),
+                  overflowY: 'auto',
+                },
+                onClick: handleProjectMenuClick,
               }}
-              popup={
-                <ProjectsMenuCon>
-                  {menuContent}
-                  <Hr />
-                  {canCreateProject ? (
-                    <Trigger
-                      action={['hover']}
-                      popupAlign={{
-                        points: ['bl', 'br'],
-                        offset: [2, 5],
-                      }}
-                      popup={
-                        <Menu className="Relative">
-                          <NewMenuItem onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'))}>
-                            {_l('加入组织')}
-                          </NewMenuItem>
-                          <NewMenuItem onClick={() => window.open(pathCompletion('/enterpriseRegister?type=create'))}>
-                            {_l('创建组织')}
-                          </NewMenuItem>
-                        </Menu>
-                      }
-                      getPopupContainer={() => createRef.current}
-                      destroyPopupOnHide
-                    >
-                      <div ref={createRef}>
-                        <NewMenuItem className="colorPrimary">
-                          <i className="icon icon-add colorPrimary Font16 mRight6"></i>
-                          <span className="Font15">{_l('加入/创建组织')}</span>
-                        </NewMenuItem>
-                      </div>
-                    </Trigger>
-                  ) : (
-                    <div ref={createRef}>
-                      <NewMenuItem
-                        className="colorPrimary"
-                        onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'))}
-                      >
-                        <i className="icon icon-add colorPrimary Font16 mRight6"></i>
-                        <span className="Font15">{_l('加入组织')}</span>
-                      </NewMenuItem>
-                    </div>
-                  )}
-                </ProjectsMenuCon>
-              }
-              onPopupVisibleChange={setPopupVisible}
+              onOpenChange={setPopupVisible}
             >
               <ProjectSwitch className="Font17 bold Hand" title={window.isMDClient ? location.origin : ''}>
                 <div className="companyName ellipsis">
@@ -311,7 +263,7 @@ function AppCenterHeader(props) {
                 </div>
                 <i className="switchIcon icon icon-arrow-down-border"></i>
               </ProjectSwitch>
-            </Trigger>
+            </Dropdown>
           )}
           {_.includes([0, 2], currentProject.licenseType) && (
             <UpgradeWrap className="flexCenter mLeft8">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { formatElapsedDuration } from 'src/utils/domain/shared/time';
 import { IconChevronDown, IconChevronRight } from './icons';
 import { MarkdownText } from './MarkdownText';
 import { Reasoning } from './Reasoning';
@@ -45,23 +46,12 @@ const Content = styled.div`
   color: ${colors.text};
 `;
 
-function formatDuration(ms) {
-  if (!ms || ms < 0) return '';
-  // 有测得耗时但不足 1 秒时按 1 秒计，避免出现无意义的「0秒」
-  const sec = Math.max(1, Math.floor(ms / 1000));
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-
-  if (m > 0) return _l('%0分%1秒', m, s);
-  return _l('%0秒', s);
-}
-
 // 工作阶段：<workEnd /> 之前的所有部件折叠成「已工作」，点击展开。items 为有序子部件，
 // reasoning 嵌成可再次展开的「已思考」折叠块（限高、用切分时算好的真实时长），text 为正文叙述，
 // 一并缩进收纳在「已工作」里。时长由流式层捕获的 startedAt / finishedAt 计算（组件出现时该阶段已结束）。
 export function WorkPhase({ items = [], startedAt, finishedAt, defaultOpen = false, className }) {
   const [open, setOpen] = useState(defaultOpen);
-  const duration = startedAt && finishedAt ? formatDuration(finishedAt - startedAt) : '';
+  const duration = startedAt && finishedAt ? formatElapsedDuration(finishedAt - startedAt) : '';
 
   return (
     <Root className={className} $open={open}>

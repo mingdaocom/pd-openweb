@@ -1,8 +1,9 @@
-import React, { Fragment, useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Input, LoadDiv, Menu, MenuItem, RadioGroup } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Dropdown, Input, Radio, Select } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import { INVOICE_TYPE_OPTIONS, RADIO_DATA } from '../constant';
 
@@ -35,47 +36,6 @@ const Wrapper = styled.div`
       padding-right: 10px;
       color: var(--color-text-secondary);
       position: relative;
-    }
-    input {
-      border-color: var(--color-border-primary);
-      font-size: 13px;
-      &::placeholder {
-        color: var(--color-text-disabled);
-      }
-      &:disabled {
-        background-color: var(--color-background-secondary);
-        border-color: var(--color-background-secondary);
-        &:hover {
-          border-color: var(--color-background-secondary);
-        }
-      }
-    }
-    .titleSearchInput {
-      position: relative;
-      .icon-search {
-        position: absolute;
-        left: 8px;
-        top: 10px;
-      }
-
-      &.isEnterPrise {
-        input {
-          padding-left: 32px;
-        }
-      }
-
-      .titleMenuWrap {
-        right: 0;
-        width: auto;
-        max-height: 170px;
-        overflow: auto;
-        .emptyText {
-          height: 36px;
-          line-height: 36px;
-          padding: 0 16px;
-          color: var(--color-text-secondary);
-        }
-      }
     }
   }
 
@@ -110,31 +70,37 @@ export default function InvoiceForm(props) {
 
   const isConfirmOrTest = ['confirm', 'test'].includes(type);
 
-  const getTitleList = keyword => {
-    setListLoading(true);
-    merchantInvoiceApi
-      .companySearch({ keyword, orderId })
-      .then(res => {
-        const list = res.map(item => ({ text: item.companyName, value: item.taxNo }));
-        setTitleList(list);
-        setListLoading(false);
-      })
-      .catch(() => {
-        setListLoading(false);
-      });
-  };
-
-  const debouncedGetTitleList = useCallback(
-    _.debounce(value => {
-      if (value) {
-        setShowTitleList(true);
-        getTitleList(value);
-      } else {
-        setShowTitleList(false);
-      }
-    }, 500),
-    [],
+  const getTitleList = useCallback(
+    keyword => {
+      setListLoading(true);
+      merchantInvoiceApi
+        .companySearch({ keyword, orderId })
+        .then(res => {
+          const list = res.map(item => ({ text: item.companyName, value: item.taxNo }));
+          setTitleList(list);
+          setListLoading(false);
+        })
+        .catch(() => {
+          setListLoading(false);
+        });
+    },
+    [orderId],
   );
+
+  const debouncedGetTitleList = useMemo(
+    () =>
+      _.debounce(value => {
+        if (value) {
+          setShowTitleList(true);
+          getTitleList(value);
+        } else {
+          setShowTitleList(false);
+        }
+      }, 500),
+    [getTitleList],
+  );
+
+  useEffect(() => () => debouncedGetTitleList.cancel(), [debouncedGetTitleList]);
 
   const renderFieldComponent = key => {
     if (isConfirmOrTest && !(type === 'test' && key === 'email')) {
@@ -142,15 +108,13 @@ export default function InvoiceForm(props) {
         case 'invoiceOutputType':
         case 'contentType':
         case 'invoiceType':
-          return <div className="flex">{RADIO_DATA[key].find(item => item.value === formData[key])?.text}</div>;
+          return <div className="flex">{RADIO_DATA[key].find(item => item.value === formData[key])?.label}</div>;
         case 'productId':
           return (
-            <Dropdown
-              border
-              isAppendToBody
+            <Select
               className="flex"
               value={formData[key]}
-              data={productList}
+              options={productList}
               onChange={value => setFormData({ [key]: value })}
             />
           );
@@ -163,10 +127,12 @@ export default function InvoiceForm(props) {
       case 'invoiceOutputType':
       case 'contentType':
         return (
-          <RadioGroup
-            checkedValue={formData[key]}
-            data={RADIO_DATA[key]}
-            onChange={value => {
+          <Radio.Group
+            value={formData[key]}
+            options={RADIO_DATA[key]}
+            onChange={event => {
+              const value = event.target.value;
+
               setFormData({
                 [key]: value,
                 invoiceTitle: value === 2 ? _.get(md, 'global.Account.fullname') || '' : '',
@@ -177,53 +143,57 @@ export default function InvoiceForm(props) {
         );
       case 'invoiceType':
         return (
-          <Dropdown
-            border
-            isAppendToBody
+          <Select
             className="flex"
             value={formData[key]}
-            data={INVOICE_TYPE_OPTIONS}
+            options={INVOICE_TYPE_OPTIONS}
             onChange={value => setFormData({ [key]: value })}
           />
         );
-      case 'invoiceTitle':
+      case 'invoiceTitle': {
         const isEnterPrise = formData.invoiceOutputType === 1;
+        const titleMenuItems = listLoading
+          ? [{ key: 'loading', disabled: true, label: <LoadDiv className="mTop10 mBottom10" /> }]
+          : titleList.length
+            ? titleList.map((item, index) => ({
+                key: item.value || `${item.text}-${index}`,
+                label: item.text,
+                onClick: () => {
+                  setFormData({ invoiceTitle: item.text, taxPayerNo: item.value });
+                  setShowTitleList(false);
+                },
+              }))
+            : [{ key: 'empty', disabled: true, label: _l('没有搜索到该企业') }];
+
         return (
-          <div className={cx('flex titleSearchInput', { isEnterPrise })}>
-            {isEnterPrise && <Icon icon="search" className="Font16 textTertiary" />}
-            <Input
-              className="w100"
-              placeholder={_l('请输入发票抬头')}
-              value={formData.invoiceTitle}
-              onChange={value => {
-                setFormData({ invoiceTitle: value });
-                isEnterPrise && debouncedGetTitleList(value);
+          <div className="flex">
+            <Dropdown
+              trigger={['click']}
+              open={showTitleList}
+              placement="bottomLeft"
+              menu={{ items: titleMenuItems, style: { maxHeight: 170, overflowY: 'auto' } }}
+              onOpenChange={open => {
+                if (!open) {
+                  setShowTitleList(false);
+                }
               }}
-            />
-            {showTitleList && (
-              <Menu className="titleMenuWrap" onClickAway={() => setShowTitleList(false)}>
-                {listLoading ? (
-                  <LoadDiv className="mTop10" />
-                ) : (
-                  <Fragment>
-                    {!titleList.length && <div className="emptyText">{_l('没有搜索到该企业')}</div>}
-                    {titleList.map((item, i) => (
-                      <MenuItem
-                        key={i}
-                        onMouseDown={() => {
-                          setFormData({ invoiceTitle: item.text, taxPayerNo: item.value });
-                          setShowTitleList(false);
-                        }}
-                      >
-                        {item.text}
-                      </MenuItem>
-                    ))}
-                  </Fragment>
-                )}
-              </Menu>
-            )}
+            >
+              <Input
+                className="w100"
+                prefix={isEnterPrise ? <Icon icon="search" className="Font16 textTertiary" /> : null}
+                placeholder={_l('请输入发票抬头')}
+                value={formData.invoiceTitle}
+                onChange={event => {
+                  const value = event.target.value;
+                  setFormData({ invoiceTitle: value });
+                  isEnterPrise && debouncedGetTitleList(value);
+                }}
+              />
+            </Dropdown>
           </div>
         );
+      }
+
       default:
         return (
           <div className="flex">
@@ -232,7 +202,7 @@ export default function InvoiceForm(props) {
               placeholder={key === 'taxPayerNo' ? '' : _l('请输入')}
               value={formData[key]}
               disabled={key === 'taxPayerNo'}
-              onChange={value => setFormData({ [key]: value })}
+              onChange={event => setFormData({ [key]: event.target.value })}
             />
           </div>
         );

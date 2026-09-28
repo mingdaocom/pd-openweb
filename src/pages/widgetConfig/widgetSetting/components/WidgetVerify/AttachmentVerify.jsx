@@ -1,9 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox, Input, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import AttachmentConfig from '../AttachmentConfig';
 import TextVerify from './TextVerify';
 
@@ -22,9 +20,15 @@ export default function AttachmentVerify(props) {
     <Fragment>
       <div className={cx('labelWrap', { mBottom8: maxcount })}>
         <Checkbox
-          size="small"
           checked={!!maxcount}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { maxcount: checked ? '' : 1 }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                maxcount: !event.target.checked ? '' : 1,
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('限制文件数量')}</span>
         </Checkbox>
@@ -33,12 +37,17 @@ export default function AttachmentVerify(props) {
 
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={visible}
-          onClick={checked => {
+          onChange={event => {
+            const checked = !event.target.checked;
             setVisible(!checked);
-            onChange(handleAdvancedSettingChange(data, { max: checked ? '' : 1 }));
+            onChange(
+              handleAdvancedSettingChange(data, {
+                max: checked ? '' : 1,
+              }),
+            );
           }}
+          size="small"
         >
           <span style={{ marginRight: '4px' }}>{_l('限制单个文件大小')}</span>
           <Tooltip

@@ -1,11 +1,12 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import { UserHead } from 'ming-ui';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
+import TaskDateRangePicker from 'src/pages/task/components/TaskDateRangePicker';
 import { addTask } from 'src/pages/task/redux/actions';
 import Store from 'src/redux/configureStore';
 import { checkIsProject, errorMessage } from '../../utils/utils';
@@ -75,8 +76,12 @@ class QuickCreateTask {
             }}
             size={26}
             operation={
-              <span
-                className="quickCreateBtn colorPrimary"
+              <Button
+                block
+                className="quickCreateBtn"
+                ellipsis
+                color="primary"
+                variant="outlined"
                 onClick={() => {
                   dialogSelectUser({
                     sourceId: _this.settings.folderId,
@@ -95,7 +100,7 @@ class QuickCreateTask {
                 }}
               >
                 {_l('将任务托付给他人')}
-              </span>
+              </Button>
             }
           />,
         );
@@ -120,12 +125,8 @@ class QuickCreateTask {
       const root = createRoot($createSingleDate[0]);
 
       root.render(
-        <DateTimeRange
+        <TaskDateRangePicker
           selectedValue={[defaultStart, defaultEnd]}
-          mode="task"
-          timePicker
-          separator={_l('至')}
-          timeMode="hour"
           placeholder={_l('未指定起止时间')}
           onOk={selectedValue => {
             let [start, end] = selectedValue;
@@ -140,16 +141,7 @@ class QuickCreateTask {
             $createSingleDate.data('start', start);
             $createSingleDate.data('end', end);
           }}
-          onClear={() => {
-            delete $createSingleDate.data().start;
-            delete $createSingleDate.data().end;
-
-            root.unmount();
-            bindDate();
-          }}
-        >
-          <span class="icon-bellSchedule"></span>
-        </DateTimeRange>,
+        />,
       );
     };
 
@@ -263,7 +255,7 @@ class QuickCreateTask {
         }
 
         // 日历层
-        if ($target.closest('.PositionContainer-wrapper').length > 0) {
+        if ($target.closest('.hap-picker-dropdown').length > 0) {
           return;
         }
 

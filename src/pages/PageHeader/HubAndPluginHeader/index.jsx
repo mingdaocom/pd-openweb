@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import CommonUserHandle from '../components/CommonUserHandle';
 import IndexSide from '../components/IndexSide';
 import SwitchProject from '../components/SwitchProject';

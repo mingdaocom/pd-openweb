@@ -4,14 +4,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import registerAjax from 'src/api/register';
-import ChangeLang from 'src/components/ChangeLang';
+import ChangeLang from 'src/pages/AuthService/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import Header from 'src/pages/AuthService/components/Header.jsx';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { WrapCom } from '../style';
 
 let request = getRequest();
@@ -78,7 +78,7 @@ export default class ResetPassword extends React.Component {
   };
 
   isPasswordRule = str => {
-    return RegExpValidator.isPasswordValid(str, this.state.passwordRegex);
+    return isPasswordValid(str, this.state.passwordRegex);
   };
 
   // 验证密码

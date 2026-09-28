@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import Input from 'src/pages/worksheet/common/CreateCustomBtn/components/Inputs';
 import { DEF_R_TYPES, DEF_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 
 const AddButton = styled.div`
   display: inline-flex;
@@ -27,13 +26,6 @@ const AddButton = styled.div`
 `;
 
 const SortColumnsWrap = styled.div`
-  width: 300px;
-  box-shadow: var(--shadow-sm);
-  background: var(--color-background-card);
-  border-radius: 3px;
-  .searchBar {
-    padding: 0 10px;
-  }
   .sortColumnWrap {
     margin-top: 2px !important;
     padding: 6px 0;
@@ -46,6 +38,12 @@ const SortColumnsWrap = styled.div`
     max-height: 360px !important;
   }
 `;
+
+const POPOVER_STYLES = {
+  container: {
+    width: 300,
+  },
+};
 
 const DefaultValueInputWrap = styled.div`
   width: 100%;
@@ -84,17 +82,17 @@ const DefaultValueInputWrap = styled.div`
     .CityPicker-input-container input {
       border-radius: 4px !important;
     }
-    .ant-input {
+    .hap-input {
       width: calc(100%) !important;
       border-radius: 4px !important;
-      &:hover {
-        border-color: var(--color-border-tertiary) !important;
-      }
     }
-    .ant-input:focus,
-    .ant-input-focused {
-      border-color: var(--color-primary) !important;
-      box-shadow: none !important;
+    .defaultOptionsWrap {
+      width: calc(100%) !important;
+      margin-right: 0;
+      border-radius: 4px !important;
+    }
+    .hap-dropdown-trigger:not(.defaultOptionsWrap) > div:first-child {
+      border-radius: 4px !important;
     }
     .selectOtherFieldContainer {
       display: none;
@@ -112,6 +110,18 @@ function DefaultValue(props) {
   const { temporaryWriteControls = [], isEmptyWriteControls } = config || {};
   const [showControls, setShowControls] = useState(temporaryWriteControls.map(c => c.controlId));
 
+  const changeTemporaryWriteControls = useCallback(
+    writeControls => {
+      onChangeConfig({
+        ...config,
+        controls,
+        temporaryWriteControls: writeControls,
+        isEmptyWriteControls: writeControls.length ? undefined : true,
+      });
+    },
+    [config, controls, onChangeConfig],
+  );
+
   useEffect(() => {
     if (btnId && _.isEmpty(temporaryWriteControls) && !isEmptyWriteControls) {
       sheetApi
@@ -126,16 +136,7 @@ function DefaultValue(props) {
           setShowControls(writeControls.map(c => c.controlId));
         });
     }
-  }, [btnId]);
-
-  const changeTemporaryWriteControls = writeControls => {
-    onChangeConfig({
-      ...config,
-      controls,
-      temporaryWriteControls: writeControls,
-      isEmptyWriteControls: writeControls.length ? undefined : true,
-    });
-  };
+  }, [appId, btnId, changeTemporaryWriteControls, isEmptyWriteControls, temporaryWriteControls, worksheetId]);
 
   const defaultValueInput = data => {
     const control = _.find(controls, { controlId: data.controlId });
@@ -224,7 +225,7 @@ function DefaultValue(props) {
             />
           </DefaultValueInputWrap>
           <Icon
-            className="Font18 textTertiary pointer mLeft5"
+            className="Font18 textTertiary pointer mLeft5 hoverTextError"
             icon="delete_12"
             onClick={() => {
               const writeControls = temporaryWriteControls.filter(c => c.controlId !== control.controlId);
@@ -246,17 +247,14 @@ function DefaultValue(props) {
         </Tooltip>
       </div>
       {temporaryWriteControls.map(control => defaultValueInput(control))}
-      <Trigger
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
+      <Popover
+        trigger="click"
+        placement="bottomLeft"
+        destroyOnHidden={false}
+        noPadding
+        styles={POPOVER_STYLES}
         getPopupContainer={() => document.querySelector('.editWidgetDialogWrap .settingsBox')}
-        popup={
+        content={
           <SortColumnsWrap>
             <SortColumns
               layout={2}
@@ -302,7 +300,7 @@ function DefaultValue(props) {
           <Icon className="Font17" icon="add" />
           <span className="bold">{_l('字段默认值')}</span>
         </AddButton>
-      </Trigger>
+      </Popover>
     </div>
   );
 }

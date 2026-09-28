@@ -4,20 +4,24 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, Input, LoadDiv, ScrollView, SvgIcon, TagTextarea } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SvgIcon, TagTextarea } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import appManagementApi from 'src/api/appManagement';
-import { navigateToView } from 'src/pages/widgetConfig/util/data';
+import { navigateToView } from 'src/pages/widgetConfig/navigation';
 import Search from 'src/pages/workflow/components/Search';
-import { pathCompletion } from 'src/utils/common';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, viewDetailTabList } from '../config';
 import { getPluginOperateText } from '../util';
 import DebugEnv from './DebugEnv';
 import DetailList from './DetailList';
-import ImportPlugin from './ImportPlugin';
+import { useImportPlugin } from './ImportPlugin';
 import PublishVersion from './PublishVersion';
+import { getPluginUpdateRequestKey } from './requestKey';
+
+const CREATE_REQUEST_KEY = 'create';
 
 const ConfigWrapper = styled.div`
   display: flex;
@@ -62,10 +66,6 @@ const ConfigWrapper = styled.div`
       padding: 12px 24px;
       .workflowSearchWrap {
         width: 220px;
-        input {
-          width: 100%;
-          border-radius: 3px;
-        }
       }
     }
   }
@@ -104,9 +104,7 @@ const ConfigWrapper = styled.div`
     }
     .nameInput {
       width: 100%;
-      font-size: 20px;
       font-weight: bold;
-      border: none;
       padding: 0;
     }
 
@@ -181,12 +179,18 @@ const ConfigWrapper = styled.div`
           border: 1px solid var(--color-link-hover);
         }
       }
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+        pointer-events: none;
+      }
     }
   }
 `;
 
 //视图插件详情 侧拉层
 function PluginConfig(props) {
+  const requestPending = useRef(new Set());
   const { belongType, configType, pluginId, projectId, onClose, onUpdateSuccess, hasManagePluginAuth, pluginType } =
     props;
   const [detailData, setDetailData] = useSetState({
@@ -202,6 +206,7 @@ function PluginConfig(props) {
   const [defaultEnvList, setDefaultEnvList] = useState([{ isEdit: true }]);
   const [defaultConfiguration, setDefaultConfiguration] = useSetState({ debugConfiguration: {}, configuration: {} });
   const [detailLoading, setDetailLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [fetchListState, setFetchListState] = useSetState({
     loading: false,
     pageIndex: 1,
@@ -220,6 +225,7 @@ function PluginConfig(props) {
     configType === pluginConfigType.create ? pluginConfigType.debugEnv : configType,
   );
   const [publishVisible, setPublishVisible] = useState(false);
+  const { open: openImportPlugin, holder: importPluginHolder } = useImportPlugin();
   const inputRef = useRef();
   const textareaRef = useRef();
   const source = belongType === 'myPlugin' ? 0 : 1;
@@ -320,7 +326,7 @@ function PluginConfig(props) {
       if (res) {
         const list = res.map(item => {
           return {
-            text: item.appName,
+            label: item.appName,
             value: item.appId,
           };
         });
@@ -337,6 +343,8 @@ function PluginConfig(props) {
   };
 
   const onCreate = () => {
+    if (requestPending.current.has(CREATE_REQUEST_KEY)) return;
+
     if (!detailData.debugEnvironments[0].appId) {
       alert(_l('请选择应用'), 3);
       return;
@@ -347,7 +355,9 @@ function PluginConfig(props) {
       return;
     }
 
-    pluginApi
+    requestPending.current.add(CREATE_REQUEST_KEY);
+    setCreating(true);
+    return pluginApi
       .create(
         {
           projectId,
@@ -366,21 +376,36 @@ function PluginConfig(props) {
           onClose();
           const { worksheetId, viewId } = res.debugEnvironments[0] || {};
           navigateToView(worksheetId, viewId);
+        } else {
+          alert(_l('插件创建失败'), 2);
         }
+      })
+      .finally(() => {
+        requestPending.current.delete(CREATE_REQUEST_KEY);
+        setCreating(false);
       });
   };
 
   const onUpdate = (updateObj = {}, cb = () => {}, errorText) => {
-    pluginApi.edit({ projectId, id: pluginId, source, ...updateObj }, API_EXTENDS).then(res => {
-      if (res) {
-        onUpdateSuccess(pluginId, updateObj);
-        const newDevEnvs = res.debugEnvironments || [];
-        cb && cb(newDevEnvs[newDevEnvs.length - 1] || {});
-        setDefaultEnvList(newDevEnvs);
-      } else {
-        alert(errorText || _l('更新失败'), 2);
-      }
-    });
+    const requestKey = getPluginUpdateRequestKey(updateObj);
+    if (requestPending.current.has(requestKey)) return;
+
+    requestPending.current.add(requestKey);
+    return pluginApi
+      .edit({ projectId, id: pluginId, source, ...updateObj }, API_EXTENDS)
+      .then(res => {
+        if (res) {
+          onUpdateSuccess(pluginId, updateObj);
+          const newDevEnvs = res.debugEnvironments || [];
+          cb && cb(newDevEnvs[newDevEnvs.length - 1] || {});
+          setDefaultEnvList(newDevEnvs);
+        } else {
+          alert(errorText || _l('更新失败'), 2);
+        }
+      })
+      .finally(() => {
+        requestPending.current.delete(requestKey);
+      });
   };
 
   const onFooterClick = () => {
@@ -388,7 +413,7 @@ function PluginConfig(props) {
       window.open(pathCompletion(`/workflowplugin/${pluginId}`));
     } else {
       if (configType === pluginConfigType.create) {
-        onCreate();
+        return onCreate();
       } else {
         const configStr =
           typeof detailData.configuration === 'string'
@@ -598,6 +623,7 @@ function PluginConfig(props) {
 
   return (
     <ConfigWrapper>
+      {importPluginHolder}
       <Icon icon="close" className="closeIcon" onClick={onClose} />
 
       {detailLoading ? (
@@ -629,12 +655,13 @@ function PluginConfig(props) {
                 ) : (
                   <React.Fragment>
                     <Input
-                      manualRef={inputRef}
+                      ref={inputRef}
                       className="nameInput"
+                      variant="borderless"
                       value={detailData.name}
                       placeholder={_l('添加插件名称')}
                       maxLength={20}
-                      onChange={name => setDetailData({ ...detailData, name })}
+                      onChange={event => setDetailData({ ...detailData, name: event.target.value })}
                       onBlur={e => {
                         const updateObj = { name: !e.target.value.trim() ? _l('未命名插件') : e.target.value.trim() };
 
@@ -682,7 +709,7 @@ function PluginConfig(props) {
                       className="versionPublishBtn"
                       onClick={() =>
                         [2, 3].includes(detailData.source)
-                          ? ImportPlugin({
+                          ? openImportPlugin({
                               projectId,
                               pluginType,
                               pluginId,
@@ -731,11 +758,13 @@ function PluginConfig(props) {
         (pluginType === PLUGIN_TYPE.WORKFLOW && belongType === 'myPlugin' && !fetchListState.loading)) && (
         <div className="configFooter">
           <div className="flexRow">
-            <div className="footerBtn save" onClick={onFooterClick}>
+            <div className={cx('footerBtn save', { disabled: creating })} onClick={onFooterClick}>
               {pluginType === PLUGIN_TYPE.WORKFLOW
                 ? _l('编辑')
                 : configType === pluginConfigType.create
-                  ? _l('创建插件')
+                  ? creating
+                    ? _l('创建中...')
+                    : _l('创建插件')
                   : _l('更新配置')}
             </div>
             {currentTab === pluginConfigType.paramSetting && (

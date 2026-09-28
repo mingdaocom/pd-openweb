@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import _ from 'lodash';
-import { Dialog, Dropdown, FunctionWrap, Icon } from 'ming-ui';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { browserIsMobile } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getCurrentProject } from 'src/utils/services/project';
+import { checkPermission } from 'src/utils/services/security/permission';
 import GeneralSelect from './GeneralSelect';
 import NoData from './GeneralSelect/NoData';
 import './index.less';
@@ -15,6 +16,40 @@ const dataRangeTypes = {
   friend: 1,
   project: 2,
 };
+const getDefaultSelectUserSettings = () => ({
+  includeMySelf: true,
+  includeUndefinedAndMySelf: false,
+  includeSystemField: false,
+  filterSystemAccountId: [],
+  projectId: '',
+  filterProjectId: '',
+  filterAll: false,
+  filterFriend: false,
+  filterAccountIds: [],
+  prefixAccountIds: [],
+  filterOtherProject: false,
+  dataRange: 0,
+  unique: false,
+  selectedAccountIds: [],
+  hideOftenUsers: false,
+  hideManageOftenUsers: false,
+  callback: function () {},
+});
+
+const getSelectUserOptions = (options = {}) => ({
+  ...options,
+  SelectUserSettings: {
+    ...getDefaultSelectUserSettings(),
+    ...options.SelectUserSettings,
+  },
+});
+
+const getDialogProps = (options = {}) => ({
+  width: 640,
+  zIndex: options.zIndex,
+  className: browserIsMobile() ? 'mobileSelectUser' : '',
+  mask: { closable: options.overlayClosable === true },
+});
 
 class DialogSelectUser extends Component {
   constructor(props) {
@@ -117,7 +152,7 @@ class DialogSelectUser extends Component {
     }
 
     this.getSettings(list);
-    this.setState({ list }, this.focusSearchInput);
+    this.setState({ list });
   };
 
   /**
@@ -127,28 +162,40 @@ class DialogSelectUser extends Component {
     const { SelectUserSettings = {} } = this.props;
     const { dataRange, projectId, list = [], currentProject } = this.state;
     const curValue = projectId && currentProject ? projectId : dataRange;
+    const currentItem = _.find(list, item => item.value === curValue);
 
     return (
       <div className="dialogSelectTitleContainer">
         <Icon icon="topbar-addressList" className="Font16 colorPrimary" />
         <Dropdown
-          data={list}
-          value={curValue}
-          maxHeight={500}
-          currentItemClass="selectMenuItem"
           disabled={SelectUserSettings.filterOtherProject}
-          onChange={value => {
-            if (value === curValue) return;
-            const isProjectId = !_.includes([dataRangeTypes.all, dataRangeTypes.friend], value);
-            this.setState(
-              {
+          trigger={['click']}
+          menu={{
+            items: list.map(item => ({ key: String(item.value), label: item.text })),
+            selectable: true,
+            selectedKeys: [String(curValue)],
+            style: { width: 300, maxHeight: 500, overflowY: 'auto', overflowX: 'hidden' },
+            onClick: ({ key }) => {
+              const item = _.find(list, option => String(option.value) === key);
+              const value = item?.value;
+
+              if (!item || value === curValue) return;
+
+              const isProjectId = !_.includes([dataRangeTypes.all, dataRangeTypes.friend], value);
+              this.setState({
                 dataRange: isProjectId ? dataRangeTypes.project : value,
                 projectId: isProjectId ? (_.find(md.global.Account.projects, { projectId: value }) ? value : '') : '',
-              },
-              this.focusSearchInput,
-            );
+              });
+            },
           }}
-        />
+        >
+          <span className="dialogSelectDropdownTrigger">
+            <span className="value overflow_ellipsis">{currentItem?.text || _l('请选择')}</span>
+            {!SelectUserSettings.filterOtherProject && (
+              <Icon icon="arrow-down-border" className="mLeft8 textTertiary" />
+            )}
+          </span>
+        </Dropdown>
       </div>
     );
   };
@@ -233,18 +280,11 @@ class DialogSelectUser extends Component {
   };
 
   render() {
-    const { dialogProps, visible } = this.props;
     const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+
     return (
-      <Dialog
-        {...dialogProps}
-        visible={visible}
-        title={this.renderHeader()}
-        footer={null}
-        onCancel={this.props.onCancel}
-        type="scroll"
-        maxHeight={windowHeight - 70}
-      >
+      <React.Fragment>
+        <div className="dialogSelectUserInfoTitle mBottom10">{this.renderHeader()}</div>
         <div
           className="dialogSelectUserContainer"
           id="dialogBoxSelectUser"
@@ -252,47 +292,46 @@ class DialogSelectUser extends Component {
         >
           {this.renderContent()}
         </div>
-      </Dialog>
+      </React.Fragment>
     );
   }
 }
 
-export default function dialogSelectUser(opts) {
-  let DEFAULTS = {
-    SelectUserSettings: {
-      includeMySelf: true, // 包含我自己
-      includeUndefinedAndMySelf: false,
-      includeSystemField: false,
-      filterSystemAccountId: [],
-      projectId: '', // 默认取哪个网络的用户 为空则表示默认加载全部
-      filterProjectId: '', // 过滤哪个网络的用户
-      filterAll: false, // 过滤全部
-      filterFriend: false, // 是否过滤好友
-      filterAccountIds: [], // 过滤指定的用户
-      prefixAccountIds: [], // 指定置顶的用户
-      filterOtherProject: false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
-      dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
-      unique: false, // 是否只可以选一个
-      selectedAccountIds: [], // 已选择的用户
-      hideOftenUsers: false, // 是否隐藏最常协作
-      hideManageOftenUsers: false, // 是否隐藏管理最常协作人员
-      callback: function () {},
+export function dialogSelectUser(options = {}) {
+  const selectUserOptions = getSelectUserOptions(options);
+  const dialogProps = getDialogProps(options);
+  const dialogRef = createRef();
+  let modal;
+  const handlePopState = () => modal.destroy();
+
+  const handleCancel = (...args) => {
+    modal.destroy();
+
+    if (_.isFunction(options.onCancel)) {
+      options.onCancel(...args);
+    }
+  };
+
+  modal = Modal.info({
+    ...dialogProps,
+    afterOpenChange: open => {
+      if (open) dialogRef.current?.focusSearchInput();
     },
-  };
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    footer: null,
+    title: null,
+    content: <DialogSelectUser {...selectUserOptions} ref={dialogRef} onCancel={handleCancel} />,
+    onCancel: () => {
+      if (_.isFunction(options.onCancel)) {
+        options.onCancel();
+      }
+    },
+  });
 
-  if (opts.SelectUserSettings) {
-    opts.SelectUserSettings = _.extend(DEFAULTS.SelectUserSettings, opts.SelectUserSettings);
-  }
+  window.addEventListener('popstate', handlePopState);
 
-  const options = _.extend({}, DEFAULTS, opts);
-
-  const dialogProps = {
-    width: 640,
-    oneScreen: false,
-    oneScreenGap: 240,
-    className: browserIsMobile() ? 'mobileSelectUser' : '',
-    overlayClosable: opts.overlayClosable,
-  };
-
-  FunctionWrap(DialogSelectUser, { ...options, dialogProps });
+  return modal;
 }
+
+export default dialogSelectUser;

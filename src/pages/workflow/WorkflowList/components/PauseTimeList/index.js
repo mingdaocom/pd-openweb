@@ -1,38 +1,14 @@
-import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
+import React from 'react';
+import { Dropdown } from 'ming-ui/antd-components';
 
-const PauseTimeListCon = styled.div`
-  background: var(--color-background-primary);
-  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.16);
-  width: 240px;
-  padding: 6px 0;
-  .runDateItem {
-    line-height: 32px;
-    color: var(--color-text-title);
-    padding: 0 24px;
-    .pause {
-      color: var(--color-error);
-    }
-    .recover {
-      color: var(--color-success);
-    }
-    &:hover {
-      .pause {
-        color: var(--color-white);
-      }
-      .recover {
-        color: var(--color-white);
-      }
-    }
-  }
-  .runDateItem:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-  }
-`;
+const NOOP = () => {};
 
-const runDateList = [
+const EMPTY_ITEM = {};
+const MENU_STYLE = { minWidth: 240 };
+const PAUSE_LABEL_STYLE = { color: 'var(--color-error)' };
+const RECOVER_LABEL_STYLE = { color: 'var(--color-success)' };
+
+const getRunDateOptions = () => [
   { value: 0, label: _l('直到手动恢复') },
   { value: 1, label: _l('暂停1小时') },
   { value: 2, label: _l('暂停2小时') },
@@ -42,60 +18,53 @@ const runDateList = [
   { value: 6, label: _l('暂停6小时') },
 ];
 
+export const getPauseTimeItems = waiting =>
+  getRunDateOptions().map(({ value, label }) => {
+    if (value === 0) {
+      return {
+        key: String(value),
+        label: waiting ? (
+          <span style={RECOVER_LABEL_STYLE}>{_l('恢复消费')}</span>
+        ) : (
+          <span>
+            <span style={PAUSE_LABEL_STYLE}>{_l('暂停')}</span>
+            {` （${label}）`}
+          </span>
+        ),
+      };
+    }
+
+    return {
+      key: String(value),
+      label: waiting ? _l('继续') + label : label,
+    };
+  });
+
 export default function PauseTimeList(props) {
-  const { changeOperation = () => {}, clickRecover = () => {}, item = {} } = props;
+  const { changeOperation = NOOP, clickRecover = NOOP, item = EMPTY_ITEM } = props;
   const { waiting } = item;
-  const [visible, setVisible] = useState(false);
 
   return (
-    <Trigger
+    <Dropdown
       getPopupContainer={props.getPopupContainer}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        setVisible(visible);
-      }}
-      popup={() => (
-        <PauseTimeListCon className="pauseTimeListCon">
-          {runDateList.map(v => (
-            <div
-              className="runDateItem Font13 Hand"
-              key={v.value}
-              onClick={() => {
-                setVisible(false);
-                if (v.value === 0 && waiting) {
-                  clickRecover(item);
-                  return;
-                }
+      menu={{
+        items: getPauseTimeItems(waiting),
+        style: MENU_STYLE,
+        onClick: ({ key }) => {
+          const value = Number(key);
 
-                changeOperation(item, v.value);
-              }}
-            >
-              {v.value === 0 ? (
-                !waiting ? (
-                  <span>
-                    <span className="pause">{_l('暂停')}</span>
-                    {` （${v.label}）`}
-                  </span>
-                ) : (
-                  <span className="recover">{_l('恢复消费')}</span>
-                )
-              ) : !waiting ? (
-                v.label
-              ) : (
-                _l('继续') + v.label
-              )}
-            </div>
-          ))}
-        </PauseTimeListCon>
-      )}
-      action={['click']}
-      popupAlign={{
-        points: ['tc', 'bc'],
-        offset: [5, 5],
-        overflow: { adjustX: true, adjustY: true },
+          if (value === 0 && waiting) {
+            clickRecover(item);
+            return;
+          }
+
+          changeOperation(item, value);
+        },
       }}
+      trigger={['click']}
+      placement="bottomLeft"
     >
-      <span onClick={() => setVisible(true)}>{props.children}</span>
-    </Trigger>
+      <span>{props.children}</span>
+    </Dropdown>
   );
 }

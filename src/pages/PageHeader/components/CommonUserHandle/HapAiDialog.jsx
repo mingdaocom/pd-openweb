@@ -1,18 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
+import { Modal } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
-const DialogWrap = styled(Dialog)`
+const ModalWrap = styled(Modal)`
   position: fixed !important;
   bottom: 10px;
   right: 60px;
   height: 667px !important;
   z-index: 1000;
   border-radius: 12px !important;
-  .mui-dialog-header {
-    display: none !important;
-  }
   .mask {
     position: absolute;
     right: 0;
@@ -21,7 +18,7 @@ const DialogWrap = styled(Dialog)`
     height: 45px;
     background-color: var(--color-background-secondary);
   }
-  .mui-dialog-close-btn {
+  .hap-modal-close {
     top: 10px !important;
     margin-right: 6px;
     .Icon {
@@ -30,11 +27,6 @@ const DialogWrap = styled(Dialog)`
         color: var(--color-primary) !important;
       }
     }
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    overflow: hidden !important;
-    /* background-color: var(--color-background-secondary) !important; */
   }
   .aiWrap {
     width: 100%;
@@ -51,26 +43,27 @@ export default function HapAiDialog({ visible, onCancel = () => {} }) {
     const iframe = iframeRef.current;
 
     if (iframe) {
-      iframe.addEventListener('load', () => setIframeLoaded(true));
+      const handleLoad = () => setIframeLoaded(true);
+      iframe.addEventListener('load', handleLoad);
       return () => {
-        if (iframeRef.current) {
-          iframeRef.current.src = '';
-        }
+        iframe.src = '';
 
-        iframe.removeEventListener('load', () => setIframeLoaded(false));
+        iframe.removeEventListener('load', handleLoad);
       };
     }
   }, [visible]);
 
   return (
-    <DialogWrap
-      dialogClasses="hapAiDialog"
+    <ModalWrap
+      rootClassName="hapAiDialog"
       width={375}
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       footer={null}
-      title=""
-      overlayClosable={false}
+      title={null}
+      mask={{ closable: false }}
+      keyboard
+      styles={{ header: { display: 'none' }, body: { padding: 0, overflow: 'hidden' }, container: { padding: 0 } }}
     >
       {iframeLoaded && <div className="mask"></div>}
       {window.platformENV.isOverseas ? (
@@ -82,6 +75,6 @@ export default function HapAiDialog({ visible, onCancel = () => {} }) {
       ) : (
         <iframe ref={iframeRef} className="aiWrap" src={pathCompletion('/hapai')}></iframe>
       )}
-    </DialogWrap>
+    </ModalWrap>
   );
 }

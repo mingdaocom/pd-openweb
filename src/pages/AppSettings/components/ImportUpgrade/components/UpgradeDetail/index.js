@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Button, Drawer } from 'ming-ui/antd-components';
 import { UPGRADE_DETAIL_TYPE_LIST } from '../../../../config';
 import UpgradeItemWrap from '../UpgradeItemWrap';
 
@@ -67,12 +67,14 @@ export default class UpgradeDetail extends Component {
         title={_l('更新详情')}
         placement="right"
         onClose={onClose}
-        visible={visible}
+        open={visible}
         closable={false}
-        maskClosable={false}
-        headerStyle={{}}
-        width={520}
-        extra={<i className="icon-close Font20 Hand textTertiary" onClick={onClose} />}
+        mask={{ closable: false }}
+        size={520}
+        extra={
+          <Button color="default" variant="text" size="small" icon={<i className="icon-close" />} onClick={onClose} />
+        }
+        styles={{ header: {} }}
       >
         <TabWrap className="flexRow">
           {[

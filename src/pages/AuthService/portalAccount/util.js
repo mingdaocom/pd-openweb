@@ -1,7 +1,8 @@
 ﻿import _ from 'lodash';
 import externalPortalAjax from 'src/api/externalPortal';
-import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
-import { setPssId } from 'src/utils/pssId';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export const urlList = [
   'app/',

@@ -45,17 +45,6 @@
     }
   }
 
-  .applyBtn {
-    background: var(--color-primary) !important;
-    width: 120px;
-    height: 44px;
-    line-height: 44px;
-
-    &:hover {
-      background: var(--color-link-hover) !important;
-    }
-  }
-
   .stepTitle {
     margin: 0;
     padding: 0;
@@ -115,53 +104,10 @@
       .inputDiv {
         flex: 1;
 
-        .isShowIcon {
-          cursor: pointer;
-          position: absolute;
-          right: 12px;
-          top: 9px;
-          z-index: 1;
-
-          &:hover {
-            color: var(--color-primary) !important;
-          }
-        }
-
         .inputBox {
           width: 100%;
-          line-height: 36px;
-          height: 36px;
-          background-color: var(--color-background-primary);
-          border-radius: 3px;
-          padding-left: 10px;
-          border: 1px solid var(--color-border-primary);
-          padding-right: 40px;
-          box-sizing: border-box;
         }
       }
-    }
-  }
-
-  .editInfo {
-    width: 90px;
-    height: 36px;
-    border-radius: 2px;
-    background: var(--color-background-disabled) !important;
-    color: var(--color-primary) !important;
-
-    &:hover {
-      background: var(--color-border-secondary) !important;
-    }
-  }
-
-  .saveInfo {
-    width: 90px;
-    height: 36px;
-    border-radius: 2px;
-    background: var(--color-primary) !important;
-
-    &:hover {
-      background: var(--color-link-hover) !important;
     }
   }
 
@@ -173,29 +119,13 @@
       line-height: 36px;
     }
 
-    .syncBtn {
-      width: 90px;
-      height: 36px;
-      border-radius: 2px;
-      background: var(--color-primary) !important;
-
-      &:hover {
-        background: var(--color-link-hover) !important;
-      }
-    }
-
     .isNO {
       cursor: default;
       opacity: 0.5;
 
       &:hover {
         opacity: 0.5;
-        background: var(--color-primary) !important;
       }
     }
   }
-}
-
-.welinkPopoverWrapper .ant-popover-inner-content {
-  padding: 0;
 }

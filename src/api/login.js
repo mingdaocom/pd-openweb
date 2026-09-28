@@ -345,4 +345,16 @@ export default {
   workMicrosoftLoginByApp: function (args, options = {}) {
     return mdyAPI('Login', 'WorkMicrosoftLoginByApp', args, options);
   },
+  /**
+   * Microsoft My Apps 集成登录。
+   * @param {Object} args 请求参数
+   * @param {string} args.code 授权码。
+   * @param {string} args.codeVerifier Code 验证器。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  workMicrosoftMyAppsLogin: function (args, options = {}) {
+    return mdyAPI('Login', 'WorkMicrosoftMyAppsLogin', args, options);
+  },
 };

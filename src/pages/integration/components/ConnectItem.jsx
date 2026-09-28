@@ -5,8 +5,8 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Item from 'src/pages/integration/apiIntegration/APIWrap/Item.jsx';
 import { WrapBtn } from 'src/pages/integration/apiIntegration/style.js';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { Wrap } from './style';
 
 function AddNode(props) {

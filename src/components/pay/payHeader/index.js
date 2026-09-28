@@ -2,7 +2,7 @@
 import mdImg from 'staticfiles/images/mingdao.png';
 import styled from 'styled-components';
 import projectSettingController from 'src/api/projectSetting';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const PayHeaderWrap = styled.div`
   position: fixed;

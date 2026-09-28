@@ -1,12 +1,10 @@
 import React from 'react';
-import { Checkbox, Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { isLightColor } from 'src/pages/customPage/util';
+import { Checkbox, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
 import store from 'src/redux/configureStore';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
 import { defaultPivotTableStyle } from '../../../enum';
 
 const ColorBlock = styled.div`
@@ -97,14 +95,43 @@ const PreinstallStyle = props => {
     );
   };
 
+  const selectedPreset =
+    pivotTableStyle.columnBgColor === 'themeColor' && pivotTableStyle.lineBgColor === 'themeColor'
+      ? 'theme'
+      : styles.find(item => Object.keys(item.config).every(key => pivotTableStyle[key] === item.config[key]))?.value;
+
   return (
     <div className="mBottom16">
       <div className="mBottom10">{_l('预设样式')}</div>
-      <div className="chartTypeSelect flexRow valignWrapper">
-        <div
-          title={_l('主题')}
-          className="flex centerAlign pointer textSecondary"
-          onClick={() => {
+      <Segmented
+        block
+        className="bgDisabled"
+        value={selectedPreset ?? ''}
+        styles={{
+          label: { padding: 0 },
+        }}
+        options={[
+          {
+            value: 'theme',
+            label: (
+              <span className="flexRow valignWrapper" title={_l('主题')}>
+                <ColorBlock style={{ backgroundColor: iconColor }} />
+                <span className="ellipsis">{_l('主题')}</span>
+              </span>
+            ),
+          },
+          ...styles.map(item => ({
+            value: item.value,
+            label: (
+              <span className="flexRow valignWrapper" title={item.name}>
+                <ColorBlock style={{ backgroundColor: item.color }} />
+                <span className="ellipsis">{item.name}</span>
+              </span>
+            ),
+          })),
+        ]}
+        onChange={value => {
+          if (value === 'theme') {
             const isLight = isLightColor(iconColor);
             handleChangePivotTableStyle({
               columnTextColor: isLight ? '#757575' : '#fff',
@@ -112,25 +139,12 @@ const PreinstallStyle = props => {
               lineTextColor: isLight ? '#151515' : '#fff',
               lineBgColor: 'themeColor',
             });
-          }}
-        >
-          <ColorBlock style={{ backgroundColor: iconColor }}></ColorBlock>
-          <span className="ellipsis">{_l('主题')}</span>
-        </div>
-        {styles.map(item => (
-          <div
-            key={item.value}
-            title={item.name}
-            className="flex centerAlign pointer textSecondary"
-            onClick={() => {
-              handleChangePivotTableStyle(item.config);
-            }}
-          >
-            <ColorBlock style={{ backgroundColor: item.color }}></ColorBlock>
-            <span className="ellipsis">{item.name}</span>
-          </div>
-        ))}
-      </div>
+            return;
+          }
+
+          handleChangePivotTableStyle(styles.find(item => item.value === value).config);
+        }}
+      />
       <div className="mBottom10 mTop16 flexRow valignWrapper">
         {_l('列宽模式')}
         <Tooltip
@@ -144,45 +158,47 @@ const PreinstallStyle = props => {
               <div>{_l('列宽按百分比，在所有尺寸下始终完整显示所有列，适合列数较少的情况')}</div>
             </div>
           }
-          overlayInnerStyle={{
-            width: 300,
+          styles={{
+            body: {
+              width: 300,
+            },
           }}
           placement="bottomRight"
-          arrowPointAtCenter
+          arrow={{ pointAtCenter: true }}
         >
           <Icon className="mLeft10 textTertiary Font16 pointer" icon="info" />
         </Tooltip>
       </div>
       <div className="mBottom5">{_l('PC')}</div>
-      <div className="chartTypeSelect flexRow valignWrapper">
-        {widthModels.map(item => (
-          <div
-            key={item.value}
-            title={item.name}
-            className={cx('flex centerAlign pointer textSecondary', { active: pcWidthModel === item.value })}
-            onClick={() => {
-              onChangeStyle({ pcWidthModel: item.value }, true);
-            }}
-          >
-            <span className="ellipsis">{item.name}</span>
-          </div>
-        ))}
-      </div>
+      <Segmented
+        block
+        className="bgDisabled"
+        value={pcWidthModel}
+        options={widthModels.map(item => ({
+          value: item.value,
+          label: (
+            <span className="ellipsis" title={item.name}>
+              {item.name}
+            </span>
+          ),
+        }))}
+        onChange={value => onChangeStyle({ pcWidthModel: value }, true)}
+      />
       <div className="mBottom5 mTop10">{_l('移动')}</div>
-      <div className="chartTypeSelect flexRow valignWrapper">
-        {widthModels.map(item => (
-          <div
-            key={item.value}
-            title={item.name}
-            className={cx('flex centerAlign pointer textSecondary', { active: mobileWidthModel === item.value })}
-            onClick={() => {
-              onChangeStyle({ mobileWidthModel: item.value });
-            }}
-          >
-            <span className="ellipsis">{item.name}</span>
-          </div>
-        ))}
-      </div>
+      <Segmented
+        block
+        className="bgDisabled"
+        value={mobileWidthModel}
+        options={widthModels.map(item => ({
+          value: item.value,
+          label: (
+            <span className="ellipsis" title={item.name}>
+              {item.name}
+            </span>
+          ),
+        }))}
+        onChange={value => onChangeStyle({ mobileWidthModel: value })}
+      />
       <div className="flexRow valignWrapper mTop16">
         <Checkbox
           className="mLeft0"
@@ -199,19 +215,16 @@ const PreinstallStyle = props => {
           <div className="mRight10">{_l('默认')}</div>
           <Select
             style={{ width: 100 }}
-            className="chartSelect"
             value={paginationSize}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            options={[20, 25, 30, 50, 100].map(page => ({
+              value: page,
+              label: page,
+            }))}
             onChange={value => {
               onChangeStyle({ paginationSize: value });
             }}
-          >
-            {[20, 25, 30, 50, 100].map(page => (
-              <Select.Option className="selectOptionWrapper" key={page} value={page}>
-                {page}
-              </Select.Option>
-            ))}
-          </Select>
+          />
           <div className="mLeft10">{_l('条/页')}</div>
         </div>
       )}

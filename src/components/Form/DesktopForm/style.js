@@ -3,119 +3,101 @@ import styled from 'styled-components';
 
 export const CustomFormItemControlWrap = styled.div`
   &.customFormItemControl {
-    ${props => (props.isShowRefreshBtn ? 'padding-right: 19px;' : '')}
+    ${props => (props.$isShowRefreshBtn ? 'padding-right: 19px;' : '')}
   }
   .customFormTextarea {
-    ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
-    line-height: ${props => (props.isTextArea ? '1.5 !important' : `${props.height - 14}px !important`)};
+    ${props => (props.$size ? `font-size: ${props.$size} !important;` : '')}
+    line-height: ${props => (props.$isTextArea ? '1.5 !important' : `${props.$height - 14}px !important`)};
   }
   .customFormControlBox {
     ${props => {
-      if (!props.isTextArea && props.height) {
-        const paddingValue = _.includes([15, 16, 19, 23, 24, 42, 46], props.type) ? 0 : 6;
-        return `height: min-content !important;min-height:${props.height}px !important;line-height:${
-          props.height - 14
+      if (!props.$isTextArea && props.$height) {
+        const paddingValue = _.includes([15, 16, 19, 23, 24, 42, 46], props.$type) ? 0 : 6;
+        return `height: min-content !important;min-height:${props.$height}px !important;line-height:${
+          props.$height - 14
         }px !important;padding-top: ${paddingValue}px !important;padding-bottom: ${paddingValue}px !important;`;
       }
     }}
-    ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
-  ${props => (_.includes([25, 31, 32, 33, 37, 38, 53], props.type) ? props.valueStyle : '')}
+    ${props => (props.$size ? `font-size: ${props.$size} !important;` : '')}
+  ${props => (_.includes([25, 31, 32, 33, 37, 38, 53], props.$type) ? props.$valueStyle : '')}
   & > span:first-child {
-      ${props => (_.includes([2, 4, 5, 6, 7, 8, 15, 16], props.type) ? props.valueStyle : '')}
+      ${props => (_.includes([2, 4, 5, 6, 7, 8, 15, 16], props.$type) ? props.$valueStyle : '')}
     }
     &.customFormControlTelPhone {
-      ${props => props.valueStyle}
-      -webkit-text-fill-color: ${props => (props.valueStyle ? 'unset' : 'var(--color-text-primary)')}
+      ${props => props.$valueStyle}
+      -webkit-text-fill-color: ${props => (props.$valueStyle ? 'unset' : 'var(--color-text-primary)')}
     }
-    .ant-picker-input > input {
-      ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+    .hap-picker-input > input {
+      ${props => (props.$size ? `font-size: ${props.$size} !important;` : '')}
     }
-    &:not(.ant-picker-focused) .ant-picker-input > input {
-      ${props => (_.includes([15, 16, 46], props.type) ? props.valueStyle : '')}
+    &:not(.hap-picker-focused) .hap-picker-input > input {
+      ${props => (_.includes([15, 16, 46], props.$type) ? props.$valueStyle : '')}
     }
     .PhoneNumberInput {
-      ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
-      ${props => props.valueStyle || ''}
+      ${props => (props.$size ? `font-size: ${props.$size} !important;` : '')}
+      ${props => props.$valueStyle || ''}
     }
   }
 
   .numberControlBox {
-    min-height: ${props => `${props.height || 36}px`};
+    min-height: ${props => `${props.$height || 36}px`};
     .iconWrap {
-      height: ${props => `${(props.height || 36) * 0.4}px`};
+      height: ${props => `${(props.$height || 36) * 0.4}px`};
       &:hover {
-        height: ${props => `${(props.height || 36) * 0.6}px`};
+        height: ${props => `${(props.$height || 36) * 0.6}px`};
       }
     }
   }
 
   .CityPicker-input-container {
     .CityPicker-input-textCon {
-      ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+      ${props => (props.$size ? `font-size: ${props.$size} !important;` : '')}
     }
     &:not(.editable) .CityPicker-input-textCon {
-      ${props => props.valueStyle}
-    }
-  }
-
-  .customCascader {
-    .cascader-input:not(.focused):not(.disabled) {
-      .cascader-search-input {
-        ${props => (!props.isCreated ? 'background-color: transparent !important;' : '')}
-      }
-      ${props =>
-        !props.isCreated
-          ? 'border-color: var(--color-background-secondary);background-color: var(--color-background-secondary);'
-          : ''}
-      &:hover {
-        ${props =>
-          !props.isCreated
-            ? 'border-color: var(--color-background-secondary) !important;background-color: var(--color-background-secondary) !important;'
-            : ''}
-      }
+      ${props => props.$valueStyle}
     }
   }
 `;
 
 export const ControlLabel = styled.div`
-  ${({ displayRow, titlewidth_pc = '100' }) => {
-    if (displayRow) {
-      return `width:${titlewidth_pc}px !important;`;
+  ${({ $displayRow, $titlewidth_pc = '100' }) => {
+    if ($displayRow) {
+      return `width:${$titlewidth_pc}px !important;`;
     }
   }}
-  ${({ hasContent, displayRow, titlewidth_pc }) => {
-    if (displayRow && hasContent) {
-      return titlewidth_pc === '0' ? 'width: auto !important;padding-right: 10px;' : 'padding-right: 10px;';
+  ${({ $hasContent, $displayRow, $titlewidth_pc }) => {
+    if ($displayRow && $hasContent) {
+      return $titlewidth_pc === '0' ? 'width: auto !important;padding-right: 10px;' : 'padding-right: 10px;';
     }
   }}
-${({ displayRow }) => (displayRow ? 'padding-top: 6px !important;padding-bottom: 6px !important;' : '')}
-line-height: ${({ titlesize }) => {
-    const valueHeight = titlesize !== '0' ? (parseInt(titlesize) - 1) * 2 + 40 : 36;
+${({ $displayRow }) => ($displayRow ? 'padding-top: 6px !important;padding-bottom: 6px !important;' : '')}
+line-height: ${({ $titlesize }) => {
+    const valueHeight = $titlesize !== '0' ? (parseInt($titlesize) - 1) * 2 + 40 : 36;
     return `${valueHeight - 12}px !important`;
-  }}
-${({ item, showTitle }) =>
-    item.type === 34 && showTitle ? 'maxWidth: calc(100% - 140px);margin-top:20px;' : 'min-height: 0px !important;'}
-.controlLabelName {
-    ${({ displayRow, align_pc = '1', showTitle }) => {
-      if (displayRow) {
-        if (!showTitle) {
+  }};
+  ${({ $item, $showTitle }) =>
+    $item.type === 34 && $showTitle ? 'maxWidth: calc(100% - 140px);margin-top:20px;' : 'min-height: 0px !important;'}
+  .controlLabelName {
+    ${({ $displayRow, $align_pc = '1', $showTitle }) => {
+      if ($displayRow) {
+        if (!$showTitle) {
           return 'display: none;';
         }
 
-        return align_pc === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
+        return $align_pc === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
       } else {
-        if (!showTitle) {
+        if (!$showTitle) {
           return 'visibility: hidden;';
         }
       }
     }}
-    font-size: ${props => props.titleSize} !important;
-    color: ${props => props.titleColor} !important;
-    ${props => props.titleStyle || ''};
+    font-size: ${props => props.$titleSize} !important;
+    color: ${props => props.$titleColor} !important;
+    ${props => props.$titleStyle || ''};
   }
   .requiredBtnBox .customFormItemLoading {
-    line-height: ${({ titlesize }) => {
-      const valueHeight = titlesize !== '0' ? (parseInt(titlesize) - 1) * 2 + 40 : 36;
+    line-height: ${({ $titlesize }) => {
+      const valueHeight = $titlesize !== '0' ? (parseInt($titlesize) - 1) * 2 + 40 : 36;
       return `${valueHeight - 12}px !important`;
     }};
   }

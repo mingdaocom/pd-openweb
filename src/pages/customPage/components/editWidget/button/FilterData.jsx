@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Checkbox } from 'antd';
-import { Dialog } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
@@ -52,8 +51,10 @@ export default function FilterData(props) {
       >
         {_l('筛选')}
       </Checkbox>
-      <Dialog
-        visible={visible}
+      <Modal
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={_l('筛选')}
         okText={_l('确定')}
         cancelText={_l('取消')}
@@ -90,9 +91,15 @@ export default function FilterData(props) {
             setFilter(conditions);
           }}
         />
-      </Dialog>
+      </Modal>
       {isFilter && (
-        <FilterItemTexts filterItemTexts={filterItemTexts} loading={false} editFn={() => setVisible(true)} />
+        <FilterItemTexts
+          filterItemTexts={filterItemTexts}
+          filters={filterConditions}
+          controls={controls}
+          loading={false}
+          editFn={() => setVisible(true)}
+        />
       )}
     </Fragment>
   );

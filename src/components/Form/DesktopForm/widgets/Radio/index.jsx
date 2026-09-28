@@ -3,18 +3,28 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { isLightColor } from 'src/utils/control';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
-import { getCheckAndOther } from '../../../core/utils';
 import OtherInput from '../Checkbox/OtherInput';
 
 const RadioWidgetWrapper = styled.div`
-  .RadioGroupCon > div:nth-child(${props => props.activeIndex}) {
-    .Radio-box {
+  .radioOption,
+  .radioOptionContent,
+  .hap-radio-wrapper,
+  .hap-radio-label {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .hap-radio-label {
+    overflow: hidden;
+  }
+  .RadioGroupCon > div:nth-child(${props => props.$activeIndex}) {
+    .ant-radio-inner {
       ${props =>
-        props.activeIndex
+        props.$activeIndex
           ? `outline: 3px solid var(--color-primary-focus-outer);
           outline-offset: 1px;
           transition:
@@ -22,6 +32,10 @@ const RadioWidgetWrapper = styled.div`
             outline 0s;`
           : ''}
     }
+  }
+  .hap-radio-wrapper {
+    margin-right: 20px;
+    margin-bottom: 10px;
   }
 `;
 
@@ -69,7 +83,7 @@ const RadioWidget = props => {
           break;
         case 'Enter':
           setActiveIndex(prevIndex => {
-            const optionElements = radioRef.current.querySelectorAll('.ming.Radio');
+            const optionElements = radioRef.current.querySelectorAll('.ant-radio-wrapper');
             const options = [...optionElements];
             const activeElement = options[prevIndex - 1];
 
@@ -106,6 +120,7 @@ const RadioWidget = props => {
       <span
         className={cx(
           'ellipsis customRadioItem',
+          { textPrimary: disabled && enumDefault2 !== 1 },
           { textWhite: enumDefault2 === 1 && !isLightColor(item.color) },
           { textBlack: enumDefault2 === 1 && isLightColor(item.color) },
           { 'pLeft12 pRight12': enumDefault2 === 1 || checkIds.length > 1 },
@@ -140,7 +155,7 @@ const RadioWidget = props => {
       )}
       style={{ height: 'auto' }}
       onClick={onConClick}
-      activeIndex={activeIndex}
+      $activeIndex={activeIndex}
     >
       <div className={`ming RadioGroup2 ${className || ''}`}>
         <div
@@ -150,19 +165,28 @@ const RadioWidget = props => {
           })}
         >
           {displayOptions.map((item, index) => {
+            const checked = _.includes(checkIds, item.key);
+
             return (
               <Fragment key={index}>
-                <div className="flexColumn" style={direction === '0' ? { width: getItemWidth(displayOptions) } : {}}>
-                  <div className="flexColumn" style={direction === '0' ? { width: `${width}px` } : {}}>
+                <div
+                  className="flexColumn radioOption"
+                  style={direction === '0' ? { width: getItemWidth(displayOptions) } : {}}
+                >
+                  <div
+                    className="flexColumn radioOptionContent"
+                    style={direction === '0' ? { width: `${width}px` } : {}}
+                  >
                     <Radio
-                      needDefaultUpdate
+                      styles={{ root: { opacity: 1 } }}
                       disabled={disabled}
-                      text={renderList(item, checkIds)}
                       value={item.key}
-                      checked={_.includes(checkIds, item.key)}
+                      checked={checked}
                       title={item.value}
-                      onClick={handleChange}
-                    />
+                      onClick={() => !disabled && handleChange(item.key)}
+                    >
+                      {renderList(item, checkIds)}
+                    </Radio>
                   </div>
                 </div>
                 {item.key === 'other' && (

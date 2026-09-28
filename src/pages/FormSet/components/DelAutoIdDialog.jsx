@@ -1,80 +1,85 @@
-import React, { useState } from 'react';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { Button, Dialog, LoadDiv } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/process';
-
-const Wrap = styled.div``;
 
 export default function DelDialog(props) {
   const { show, onClose, worksheetId, companyId, delCallback } = props;
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [hasCheck, setHasCheck] = useState(false);
   const [list, setList] = useState([]);
+  const checkingRef = useRef(false);
+  const deletingRef = useRef(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const checkAutoID = () => {
-    if (loading) {
-      true;
-    }
+    if (checkingRef.current) return;
 
+    checkingRef.current = true;
     setLoading(true);
-    processAjax
+    return processAjax
       .getProcessByControlId({
         controlId: 'autoid',
         appId: worksheetId,
         companyId,
       })
       .then(res => {
+        if (!mountedRef.current) return;
+
         setList(res);
-        setLoading(false);
         setHasCheck(true);
+      })
+      .finally(() => {
+        checkingRef.current = false;
+        if (mountedRef.current) setLoading(false);
       });
   };
 
   const delAutoID = () => {
-    worksheetAjax.deleteWorksheetAutoID({ worksheetId }).then((res = {}) => {
-      if (res.data) {
-        alert(_l('删除成功'));
-        delCallback();
-      } else {
-        alert(_l('删除失败，请稍后再试！'), 2);
-      }
+    if (deletingRef.current) return;
 
-      onClose();
-    });
+    deletingRef.current = true;
+    setDeleting(true);
+    return worksheetAjax
+      .deleteWorksheetAutoID({ worksheetId })
+      .then((res = {}) => {
+        if (res.data) {
+          alert(_l('删除成功'));
+          delCallback();
+        } else {
+          alert(_l('删除失败，请稍后再试！'), 2);
+        }
+      })
+      .finally(() => {
+        deletingRef.current = false;
+        if (mountedRef.current) setDeleting(false);
+      })
+      .then(() => onClose());
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('删除系统编号字段')}
-      className={cx('delDialog')}
+      className="delDialog"
       onCancel={onClose}
-      visible={show}
-      footer={
-        <div>
-          <Button
-            className="check"
-            type="ghostgray"
-            onClick={() => {
-              checkAutoID();
-            }}
-          >
-            {_l('检查')}
-          </Button>
-          <Button
-            className="onSur"
-            type="danger"
-            onClick={() => {
-              delAutoID();
-            }}
-          >
-            {_l('删除')}
-          </Button>
-        </div>
-      }
+      open={show}
+      cancelText={_l('检查')}
+      cancelButtonProps={{ className: 'check', disabled: deleting, onClick: checkAutoID }}
+      okText={_l('删除')}
+      okButtonProps={{ className: 'onSur', danger: true }}
+      confirmLoading={deleting}
+      onOk={delAutoID}
     >
-      <Wrap>
+      <div>
         <p className="">
           {loading && <LoadDiv size="small" className="InlineBlock mRight10" />}
           {!hasCheck
@@ -91,7 +96,7 @@ export default function DelDialog(props) {
           hasCheck &&
           list.map(o => {
             return (
-              <div className="mBottom6">
+              <div className="mBottom6" key={o.id || o.processId || o.name}>
                 <span className="colorPrimary">{o.name}</span>
                 {(o.flowNodes || []).length > 0 && (
                   <span className="">{` (  ${(o.flowNodes || []).map(item => item.name).join(',')} ) `}</span>
@@ -99,7 +104,7 @@ export default function DelDialog(props) {
               </div>
             );
           })}
-      </Wrap>
-    </Dialog>
+      </div>
+    </Modal>
   );
 }

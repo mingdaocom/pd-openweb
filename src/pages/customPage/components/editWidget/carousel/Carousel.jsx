@@ -1,24 +1,28 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Carousel } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { BarCode, Icon, LoadDiv, Qr } from 'ming-ui';
+import { Carousel } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import homeAppAjax from 'src/api/homeApp';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { getBarCodeValue } from 'src/components/Form/core/utils';
-import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
+import { transformQiniuUrl, usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import { getBarCodeValue } from 'src/utils/domain/control/barCode';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { getUrlList } from './util';
 
 const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-dots li {
     width: 10px;
     height: 10px;
+    &::after {
+      display: none;
+    }
     button {
       width: 100%;
       height: 100%;
@@ -120,9 +124,11 @@ const CarouselComponent = styled(Carousel)`
     overflow: hidden;
     align-items: center;
     justify-content: center;
-    margin-top: -24px;
     background-color: rgb(51 51 51 / 40%);
     display: none !important;
+    &::after {
+      display: none;
+    }
     &:hover {
       background-color: rgb(51 51 51 / 60%);
       .icon {
@@ -188,6 +194,7 @@ const renderLoading = () => {
 };
 
 export default function CarouselPreview(props) {
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
   const { componentConfig = {}, config = {}, customPageConfig = {}, editable } = props;
   const [loading, setLoading] = useState(true);
   const [imageData, setImageData] = useState([]);
@@ -338,7 +345,7 @@ export default function CarouselPreview(props) {
           hideFunctions.push('download');
         }
 
-        previewAttachments({
+        openPreviewAttachments({
           index: currentIndex,
           attachments: imageData,
           callFrom: 'player',
@@ -349,7 +356,7 @@ export default function CarouselPreview(props) {
 
       if (imageControl.type === 47) {
         const img = contentRef.current.querySelector('.slick-list .slick-active img');
-        previewAttachments(
+        openPreviewAttachments(
           transformQiniuUrl(img.src, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }),
         );
       }
@@ -494,6 +501,7 @@ export default function CarouselPreview(props) {
 
   return (
     <div className="w100 h100" ref={contentRef}>
+      {previewAttachmentsHolder}
       {loading ? renderLoading() : imageData.length ? renderContent() : renderEmptyContent()}
     </div>
   );

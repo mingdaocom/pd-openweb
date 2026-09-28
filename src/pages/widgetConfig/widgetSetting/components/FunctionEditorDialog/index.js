@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useRef } from 'react';
 import { func } from 'prop-types';
-import { Dialog, Modal } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 
 const LoadableFunction = lazy(() => import('./Func'));
 
@@ -29,12 +29,11 @@ export default function FunctionEditorDialog(props) {
 
   return (
     <Modal
-      visible
+      open
       verticalAlign="bottom"
-      closeSize={50}
       onCancel={() => {
         if (cache.current.changed) {
-          Dialog.confirm({
+          Modal.confirm({
             title: _l('是否保存对函数的更改'),
             onOk: () => editor.current.handleSave(),
             onCancel: onClose,
@@ -46,11 +45,16 @@ export default function FunctionEditorDialog(props) {
       style={{
         minWidth: width,
       }}
-      bodyStyle={{
-        padding: 0,
-        position: 'relative',
-        height,
-        flex: 'none',
+      styles={{
+        container: {
+          padding: 0,
+        },
+        body: {
+          padding: 0,
+          position: 'relative',
+          height,
+          flex: 'none',
+        },
       }}
     >
       <Suspense fallback={null}>

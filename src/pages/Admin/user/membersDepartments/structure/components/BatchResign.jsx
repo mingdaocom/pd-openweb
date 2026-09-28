@@ -1,25 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
-import styled, { createGlobalStyle } from 'styled-components';
-import { antNotification, Checkbox, Dialog, Textarea, UserHead } from 'ming-ui';
+import styled from 'styled-components';
+import { UserHead } from 'ming-ui';
+import { Button, Checkbox, Dropdown, Input, Modal, Notification } from 'ming-ui/antd-components';
 import userAjax from 'src/api/user';
 
-const BatchResignDialogStyle = createGlobalStyle`
-  .batchResignByIdDialog {
-    overflow: hidden;
-    .mui-dialog-body {
-      min-height: 0;
-    }
-  }
-`;
-
-const AccountIdsTextarea = styled(Textarea)`
-  min-height: 350px !important;
-  &:focus {
-    border-color: var(--color-primary);
-  }
-`;
+const ACCOUNT_IDS_TEXTAREA_AUTO_SIZE = { minRows: 15, maxRows: 15 };
 
 const UserList = styled.div`
   min-height: 350px;
@@ -39,21 +25,14 @@ const UserItem = styled.div`
   box-sizing: border-box;
 `;
 
+const SELECT_ALL_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 20, paddingInlineEnd: 0 },
+};
+
 const FailedAccountIdItem = styled.div`
   line-height: 20px;
   word-break: break-all;
   color: var(--color-text-primary);
-`;
-
-const MenuWrap = styled(Menu)`
-  padding: 6px 0;
-  box-sizing: border-box;
-  .ant-dropdown-menu-item {
-    padding: 7px 12px !important;
-  }
-  .ant-dropdown-menu-item-disabled {
-    color: var(--color-text-tertiary) !important;
-  }
 `;
 
 export default class BatchResign extends Component {
@@ -77,7 +56,7 @@ export default class BatchResign extends Component {
     } else if (res.result === 3) {
       let users = (res.failedNames || []).map(u => `"${u}"`).join('、');
 
-      antNotification['error']({
+      Notification['error']({
         className: 'removeUserErr',
         key: 'removeUserErr',
         duration: 5,
@@ -102,10 +81,12 @@ export default class BatchResign extends Component {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('批量离职'),
-      buttonType: 'danger',
-      description: (
+      okButtonProps: {
+        danger: true,
+      },
+      content: (
         <div className="textPrimary">
           {_l('您共勾选了')}
           <span className="colorPrimary"> {selectedAccountIds.length} </span>
@@ -240,11 +221,11 @@ export default class BatchResign extends Component {
   viewFailedAccountIds = () => {
     const { failedAccountIds } = this.state;
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('%0个ID解析失败', failedAccountIds.length),
       width: 520,
-      noFooter: true,
-      children: (
+      footer: null,
+      content: (
         <div>
           {failedAccountIds.map((accountId, index) => {
             return <FailedAccountIdItem key={`${accountId}-${index}`}>{accountId}</FailedAccountIdItem>;
@@ -254,19 +235,22 @@ export default class BatchResign extends Component {
     });
   };
 
-  renderMenu = () => {
+  getMenuItems = () => {
     const { selectedAccountIds = [] } = this.props;
 
-    return (
-      <MenuWrap>
-        <Menu.Item key="batchResign" disabled={_.isEmpty(selectedAccountIds)} onClick={this.batchResign}>
-          {_l('批量离职')}
-        </Menu.Item>
-        <Menu.Item key="batchResignById" onClick={this.openByIdDialog}>
-          {_l('按 ID 批量离职')}
-        </Menu.Item>
-      </MenuWrap>
-    );
+    return [
+      {
+        key: 'batchResign',
+        disabled: _.isEmpty(selectedAccountIds),
+        label: _l('批量离职'),
+        onClick: this.batchResign,
+      },
+      {
+        key: 'batchResignById',
+        label: _l('按 ID 批量离职'),
+        onClick: this.openByIdDialog,
+      },
+    ];
   };
 
   renderByIdDialog = () => {
@@ -277,15 +261,19 @@ export default class BatchResign extends Component {
     const checkedAll = !_.isEmpty(users) && selectedAccountIds.length === users.length;
 
     return (
-      <Dialog
+      <Modal
         width={660}
         className="batchResignByIdDialog"
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
+        styles={{ body: { minHeight: 0 } }}
         title={_l('按 ID 批量离职')}
         okText={isInputStep ? _l('下一步') : _l('离职(%0)', selectedAccountIds.length)}
         cancelText={_l('取消')}
-        buttonType={isInputStep ? 'primary' : 'danger'}
-        okDisabled={loading || (isInputStep ? _.isEmpty(inputAccountIds) : _.isEmpty(selectedAccountIds))}
+        okButtonProps={{ danger: !isInputStep }}
+        okDisabled={isInputStep ? _.isEmpty(inputAccountIds) : _.isEmpty(selectedAccountIds)}
+        confirmLoading={loading}
         onCancel={this.closeByIdDialog}
         onOk={isInputStep ? this.getUsersByIds : this.removeUsersByIds}
       >
@@ -294,7 +282,12 @@ export default class BatchResign extends Component {
             <div className="textSecondary mBottom12">
               {_l('请输入需要办理离职的成员 ID，每行输入一个。最多批量离职50个成员')}
             </div>
-            <AccountIdsTextarea isFocus value={accountIdText} onChange={val => this.setState({ accountIdText: val })} />
+            <Input.TextArea
+              autoFocus
+              autoSize={ACCOUNT_IDS_TEXTAREA_AUTO_SIZE}
+              value={accountIdText}
+              onChange={event => this.setState({ accountIdText: event.target.value })}
+            />
           </Fragment>
         ) : (
           <Fragment>
@@ -314,13 +307,15 @@ export default class BatchResign extends Component {
               <UserItem>
                 <Checkbox
                   checked={checkedAll}
-                  onClick={checked => {
+                  styles={SELECT_ALL_CHECKBOX_STYLES}
+                  onChange={event => {
                     this.setState({
-                      selectedAccountIds: checked ? [] : users.map(user => user.accountId),
+                      selectedAccountIds: !event.target.checked ? [] : users.map(user => user.accountId),
                     });
                   }}
-                />
-                <span className="mLeft12">{_l('全选')}</span>
+                >
+                  {_l('全选')}
+                </Checkbox>
               </UserItem>
               {users.map(user => {
                 const checked = _.includes(selectedAccountIds, user.accountId);
@@ -329,7 +324,7 @@ export default class BatchResign extends Component {
                   <UserItem key={user.accountId}>
                     <Checkbox
                       checked={checked}
-                      onClick={() => {
+                      onChange={() => {
                         this.setState({
                           selectedAccountIds: checked
                             ? selectedAccountIds.filter(accountId => accountId !== user.accountId)
@@ -355,19 +350,23 @@ export default class BatchResign extends Component {
             </UserList>
           </Fragment>
         )}
-      </Dialog>
+      </Modal>
     );
   };
 
   render() {
     return (
       <Fragment>
-        <BatchResignDialogStyle />
-        <Dropdown trigger={['click']} overlay={this.renderMenu()}>
-          <div className="actBtn">
+        <Dropdown
+          trigger={['click']}
+          menu={{
+            items: this.getMenuItems(),
+            style: { padding: '6px 0' },
+          }}
+        >
+          <Button className="mRight8" icon={<span className="icon-arrow-down-border Font12" />} iconPlacement="end">
             {_l('离职')}
-            <span className="icon-arrow-down-border Font12 mLeft6" />
-          </div>
+          </Button>
         </Dropdown>
         {this.state.visible && this.renderByIdDialog()}
       </Fragment>

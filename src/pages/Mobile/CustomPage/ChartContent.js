@@ -8,12 +8,12 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import report from 'statistics/api/report';
-import { reportTypes } from 'statistics/Charts/common';
 import { version } from 'statistics/common/reportConfigUtils';
 import { fillValueMap } from 'statistics/common/reportDataUtils';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
-import { formatLinkageFiltersGroup } from 'src/pages/customPage/util';
-import { getFilledRequestParams } from 'src/utils/common';
+import { formatLinkageFiltersGroup } from 'src/utils/domain/customPage/linkage';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import Chart from '../components/Chart';
 import ChartFilter from '../components/Chart/Filter';
 import ChartSort from '../components/Chart/Sort';
@@ -50,9 +50,9 @@ const HorizontalChartContent = styled.div`
   flex-direction: column;
   transform: rotate(90deg);
   transform-origin: top left;
-  height: ${props => `${props.height}px`};
-  width: ${props => `${props.width}px`};
-  left: ${props => `${props.height}px`};
+  height: ${props => `${props.$height}px`};
+  width: ${props => `${props.$width}px`};
+  left: ${props => `${props.$height}px`};
   .count {
     color: var(--color-text-title);
     font-weight: 500;
@@ -281,8 +281,8 @@ function ChartComponent(props) {
       >
         {zoomVisible ? (
           <HorizontalChartContent
-            height={document.documentElement.clientWidth}
-            width={document.documentElement.clientHeight / 2}
+            $height={document.documentElement.clientWidth}
+            $width={document.documentElement.clientHeight / 2}
           >
             <ModalContent className="leftAlign flexColumn h100">{DialogContent()}</ModalContent>
           </HorizontalChartContent>
@@ -293,8 +293,8 @@ function ChartComponent(props) {
       <Popup visible={zoomVisible} onClose={handleOpenZoomModal} className="h100" position="left">
         <HorizontalChartContent
           className="leftAlign pAll20"
-          height={document.documentElement.clientWidth}
-          width={document.documentElement.clientHeight}
+          $height={document.documentElement.clientWidth}
+          $width={document.documentElement.clientHeight}
         >
           {zoomVisible && (
             <Chart
@@ -342,22 +342,66 @@ function ChartContent(props) {
 
     const chart = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
 
+    let observer;
+    let scrollContainers = [];
+
+    const showChart = () => {
+      setVisible(true);
+      observer && observer.disconnect();
+      scrollContainers.forEach(container => container.removeEventListener('scroll', checkVisible));
+      scrollContainers = [];
+    };
+
     const checkVisible = () => {
       if (!chart) {
-        setVisible(true);
+        showChart();
         return;
       }
 
-      if (!visible) {
-        const pageRect = customPageContent.getBoundingClientRect();
-        const rect = chart.getBoundingClientRect();
-        const value = rect.top <= pageRect.bottom;
-        value && setVisible(true);
-      }
+      const rect = chart.getBoundingClientRect();
+      const isVisible = scrollContainers.every(container => {
+        const containerRect = container.getBoundingClientRect();
+        return rect.top <= containerRect.bottom && rect.bottom >= containerRect.top;
+      });
+
+      isVisible && showChart();
     };
 
-    customPageContent.addEventListener('scroll', checkVisible, false);
-    checkVisible();
+    if (chart) {
+      if (window.IntersectionObserver) {
+        observer = new window.IntersectionObserver(
+          entries => {
+            entries.some(entry => entry.isIntersecting) && showChart();
+          },
+          { root: customPageContent },
+        );
+        observer.observe(chart);
+      } else {
+        let parent = chart.parentElement;
+
+        while (parent) {
+          if (['auto', 'scroll'].includes(window.getComputedStyle(parent).overflowY)) {
+            scrollContainers.push(parent);
+          }
+
+          if (parent === customPageContent) {
+            break;
+          }
+
+          parent = parent.parentElement;
+        }
+
+        if (!scrollContainers.includes(customPageContent)) {
+          scrollContainers.push(customPageContent);
+        }
+
+        scrollContainers.forEach(container => container.addEventListener('scroll', checkVisible, false));
+        checkVisible();
+      }
+    } else {
+      showChart();
+    }
+
     if (columnWidthConfig) {
       sessionStorage.setItem(`pivotTableColumnWidthConfig-${widget.value}`, columnWidthConfig);
     }
@@ -370,7 +414,8 @@ function ChartContent(props) {
     };
 
     return () => {
-      customPageContent.removeEventListener('scroll', checkVisible, false);
+      observer && observer.disconnect();
+      scrollContainers.forEach(container => container.removeEventListener('scroll', checkVisible));
       delete window[`refresh-${objectId}`];
     };
   }, []);

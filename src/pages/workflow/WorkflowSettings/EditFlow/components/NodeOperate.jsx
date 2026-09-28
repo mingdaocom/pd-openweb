@@ -1,22 +1,21 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { AILoading, Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { AILoading, Icon } from 'ming-ui';
+import { Dropdown, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowNode from '../../../api/flowNode';
 import { NODE_TYPE } from '../../enum';
-import logDialog from '../../History/components/logDialog';
+import { useWorkflowLogDialog } from '../../History/components/logDialog';
 import CopyNode from './CopyNode';
-import 'rc-trigger/assets/index.css';
 
 const ClickAwayable = ClickAway;
 const Box = styled.span`
-  color: ${props => (props.isBranch ? 'var(--color-text-secondary)' : 'rgba(255, 255, 255, 0.8)')};
+  color: ${props => (props.$isBranch ? 'var(--color-text-secondary)' : 'rgba(255, 255, 255, 0.8)')};
   &:hover {
-    color: ${props => (props.isBranch ? 'var(--color-primary)' : '#fff')};
+    color: ${props => (props.$isBranch ? 'var(--color-primary)' : '#fff')};
   }
 `;
 
@@ -50,7 +49,7 @@ const TestResultBox = styled.div`
   }
 `;
 
-export default class NodeOperate extends Component {
+class NodeOperate extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -123,12 +122,12 @@ export default class NodeOperate extends Component {
    */
   renderNodeDescribe() {
     const { item, isRelease } = this.props;
+    const isBranchNode = _.includes([NODE_TYPE.BRANCH_ITEM, NODE_TYPE.GOTO], item.typeId);
 
     return (
       <Tooltip
-        className="workflowNotes"
         placement="bottom"
-        arrowPointAtCenter={true}
+        arrow={{ pointAtCenter: true }}
         title={
           <Fragment>
             {item.alias && <div>{_l('别名：%0', item.alias)}</div>}
@@ -137,8 +136,8 @@ export default class NodeOperate extends Component {
         }
       >
         <Box
-          className="Font15 pointer icon-info"
-          isBranch={item.typeId === NODE_TYPE.BRANCH_ITEM}
+          className="Font15 pointer icon-info workflowNotes"
+          $isBranch={isBranchNode}
           onMouseDown={e => {
             e.stopPropagation();
             !isRelease && this.addNodeDescribe();
@@ -154,11 +153,11 @@ export default class NodeOperate extends Component {
   addNodeDescribe = () => {
     const { processId, item, updateNodeDesc } = this.props;
 
-    Dialog.confirm({
+    Modal.confirm({
       className: 'processNodeBox',
       title: _l('节点别名和说明'),
       width: 540,
-      description: (
+      content: (
         <Fragment>
           <div className="textPrimary">{_l('别名')}</div>
           <div className="mTop5 textSecondary Font12">
@@ -171,16 +170,14 @@ export default class NodeOperate extends Component {
               {_l('非法字符')}
               <i className="processNodeErrorArrow" />
             </div>
-            <input
-              type="text"
+            <Input
               id="processNodeAlias"
-              className="processNodeAlias mTop10"
+              className="mTop10"
               placeholder={_l('请输入别名')}
               defaultValue={item.alias}
               maxLength={64}
               onChange={e => {
                 const alias = e.target.value.trim();
-
                 $('.processNodeBox .processNodeErrorMessage').toggleClass(
                   'Hidden',
                   !(alias && !/^[a-zA-Z]{1}\w*$/.test(alias)),
@@ -208,16 +205,23 @@ export default class NodeOperate extends Component {
             alert(_l('请输入正确的别名'), 2);
             reject(true);
           } else {
-            flowNode.nodeDesc({ processId, nodeId: item.id, alias, desc }).then(result => {
-              if (result) {
-                updateNodeDesc(processId, item.id, alias, desc);
-                resolve();
-              } else {
-                document.getElementById('processNodeAlias').value = '';
-                alert(_l('该别名已存在'), 2);
-                reject(true);
-              }
-            });
+            flowNode
+              .nodeDesc({
+                processId,
+                nodeId: item.id,
+                alias,
+                desc,
+              })
+              .then(result => {
+                if (result) {
+                  updateNodeDesc(processId, item.id, alias, desc);
+                  resolve();
+                } else {
+                  document.getElementById('processNodeAlias').value = '';
+                  alert(_l('该别名已存在'), 2);
+                  reject(true);
+                }
+              });
           }
         });
       },
@@ -239,7 +243,11 @@ export default class NodeOperate extends Component {
         onClickAway={() => this.setState({ showDelete: false })}
         onClick={e => e.stopPropagation()}
       >
-        <div className={cx('TxtCenter Font15', { mTop10: item.typeId !== NODE_TYPE.BRANCH_ITEM })}>
+        <div
+          className={cx('TxtCenter Font15', {
+            mTop10: item.typeId !== NODE_TYPE.BRANCH_ITEM && item.typeId !== NODE_TYPE.GOTO,
+          })}
+        >
           {item.typeId === NODE_TYPE.BRANCH_ITEM ? _l('同时删除分支下所有节点') : _l('确定删除此节点？')}
         </div>
         <div className="flexRow Font13 mTop10">
@@ -274,30 +282,64 @@ export default class NodeOperate extends Component {
    * 渲染更多操作
    */
   renderMoreOperate() {
-    const { item } = this.props;
+    const { item, flowIds = [] } = this.props;
     const { showOperate } = this.state;
+    const isBranchNode = _.includes([NODE_TYPE.BRANCH_ITEM, NODE_TYPE.GOTO], item.typeId);
+    const branchItemIndex = isBranchNode ? _.findIndex(flowIds, id => id === item.id) : -1;
 
     return (
       <span className="workflowOperate" onMouseDown={e => e.stopPropagation()}>
-        <Trigger
-          popupVisible={showOperate}
-          action={['click']}
-          popup={showOperate ? this.renderOperateList() : <div />}
-          popupAlign={{ points: ['tr', 'br'] }}
-          onPopupVisibleChange={showOperate => this.setState({ showOperate })}
+        <Dropdown
+          open={showOperate}
+          trigger={['click']}
+          placement="bottomRight"
+          menu={{ items: this.getOperateItems(), style: { boxShadow: 'none' } }}
+          popupRender={menu => (
+            <div className="flowNodeOperateList" onMouseDown={e => e.stopPropagation()}>
+              {menu}
+              {item.typeId === NODE_TYPE.BRANCH_ITEM && (
+                <Fragment>
+                  <div className="textSecondary flowNodeOperateMove">{_l('移动')}</div>
+                  <div className="flowNodeOperateMoveBtn flexRow">
+                    <div className={cx('pAll3 flexRow', { disabled: branchItemIndex === 0 })}>
+                      <Tooltip placement="bottom" title={branchItemIndex === 0 ? '' : _l('移至最左')}>
+                        <Icon icon="leftmost" onClick={() => this.updateBranchSort(1)} />
+                      </Tooltip>
+                      <Tooltip placement="bottom" title={branchItemIndex === 0 ? '' : _l('左移一位')}>
+                        <Icon icon="left" onClick={() => this.updateBranchSort(2)} />
+                      </Tooltip>
+                    </div>
+                    <div className="flowNodeOperateMoveLine" />
+                    <div
+                      className={cx('pAll3 flexRow', {
+                        disabled: branchItemIndex === flowIds.length - 1,
+                      })}
+                    >
+                      <Tooltip placement="bottom" title={branchItemIndex === flowIds.length - 1 ? '' : _l('右移一位')}>
+                        <Icon icon="right" onClick={() => this.updateBranchSort(3)} />
+                      </Tooltip>
+                      <Tooltip placement="bottom" title={branchItemIndex === flowIds.length - 1 ? '' : _l('移至最右')}>
+                        <Icon icon="rightmost" onClick={() => this.updateBranchSort(4)} />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </Fragment>
+              )}
+            </div>
+          )}
+          onOpenChange={showOperate => this.setState({ showOperate })}
         >
-          <Box className="Font18 pointer icon-more_horiz" isBranch={item.typeId === NODE_TYPE.BRANCH_ITEM} />
-        </Trigger>
+          <Box className="Font18 pointer icon-more_horiz" $isBranch={isBranchNode} />
+        </Dropdown>
       </span>
     );
   }
 
   /**
-   * 渲染操作列表
+   * 获取操作列表
    */
-  renderOperateList = () => {
-    const { item, copyBranchNode, noDelete, flowIds } = this.props;
-    let branchItemIndex = 0;
+  getOperateItems = () => {
+    const { item, copyBranchNode, noDelete } = this.props;
     const list = [
       { text: _l('修改名称'), icon: 'edit', events: () => this.setState({ isEdit: true }) },
       { text: _l('编辑节点别名和说明'), icon: 'info', events: () => this.addNodeDescribe() },
@@ -307,7 +349,7 @@ export default class NodeOperate extends Component {
         text: _l('删除'),
         icon: 'trash',
         events: () => this.setState({ showDelete: true }),
-        className: 'flowNodeDel',
+        danger: true,
       },
     ];
 
@@ -321,58 +363,17 @@ export default class NodeOperate extends Component {
       _.remove(list, (o, index) => _.includes([2, 3], index));
     }
 
-    // 当前分支节点的位置
-    if (item.typeId === NODE_TYPE.BRANCH_ITEM) {
-      branchItemIndex = _.findIndex(flowIds, o => o === item.id);
-    }
-
-    return (
-      <div className="flowNodeOperateList">
-        <ul>
-          {list.map((item, index) => (
-            <li
-              key={index}
-              className={cx(item.className)}
-              onClick={() => {
-                item.events();
-                this.setState({ showOperate: false });
-              }}
-            >
-              <Icon icon={item.icon} />
-              {item.text}
-            </li>
-          ))}
-        </ul>
-        {item.typeId === NODE_TYPE.BRANCH_ITEM && (
-          <Fragment>
-            <div className="textSecondary flowNodeOperateMove">{_l('移动')}</div>
-            <div className="flowNodeOperateMoveBtn flexRow">
-              <div className={cx('pAll3 flexRow', { disabled: branchItemIndex === 0 })}>
-                <Tooltip placement="bottom" title={branchItemIndex === 0 ? '' : _l('移至最左')}>
-                  <Icon icon="leftmost" onClick={() => this.updateBranchSort(1)} />
-                </Tooltip>
-                <Tooltip placement="bottom" title={branchItemIndex === 0 ? '' : _l('左移一位')}>
-                  <Icon icon="left" onClick={() => this.updateBranchSort(2)} />
-                </Tooltip>
-              </div>
-              <div className="flowNodeOperateMoveLine" />
-              <div
-                className={cx('pAll3 flexRow', {
-                  disabled: branchItemIndex === flowIds.length - 1,
-                })}
-              >
-                <Tooltip placement="bottom" title={branchItemIndex === flowIds.length - 1 ? '' : _l('右移一位')}>
-                  <Icon icon="right" onClick={() => this.updateBranchSort(3)} />
-                </Tooltip>
-                <Tooltip placement="bottom" title={branchItemIndex === flowIds.length - 1 ? '' : _l('移至最右')}>
-                  <Icon icon="rightmost" onClick={() => this.updateBranchSort(4)} />
-                </Tooltip>
-              </div>
-            </div>
-          </Fragment>
-        )}
-      </div>
-    );
+    return list.map((operate, index) => ({
+      key: String(index),
+      label: operate.text,
+      icon: <Icon icon={operate.icon} />,
+      danger: operate.danger,
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        operate.events();
+        this.setState({ showOperate: false });
+      },
+    }));
   };
 
   /**
@@ -437,7 +438,7 @@ export default class NodeOperate extends Component {
                   evt.stopPropagation();
 
                   if (item.typeId === NODE_TYPE.AGENT) {
-                    logDialog({ processId, nodeId: item.id, instanceId });
+                    this.props.openWorkflowLogDialog({ processId, nodeId: item.id, instanceId });
                   } else if (isNestedProcess) {
                     openDetail(item.triggerId, item.triggerNodeId, NODE_TYPE.APPROVAL_PROCESS, instanceId);
                   } else {
@@ -454,10 +455,11 @@ export default class NodeOperate extends Component {
 
   render() {
     const { item, nodeClassName, noCopy, nodeStyle = {} } = this.props;
+    const isBranchNode = _.includes([NODE_TYPE.BRANCH_ITEM, NODE_TYPE.GOTO], item.typeId);
 
     return (
       <Fragment>
-        {item.typeId === NODE_TYPE.BRANCH_ITEM ? (
+        {isBranchNode ? (
           <Fragment>
             {this.renderNodeName()}
             <span className="flex" />
@@ -481,3 +483,7 @@ export default class NodeOperate extends Component {
     );
   }
 }
+
+export default withOpeners(NodeOperate, {
+  openWorkflowLogDialog: useWorkflowLogDialog,
+});

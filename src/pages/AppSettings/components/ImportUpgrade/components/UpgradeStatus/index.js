@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, Skeleton, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Skeleton, Tooltip } from 'ming-ui/antd-components';
 import UpgradeContent from 'src/components/UpgradeContent';
 import CommonUserHandle from 'src/pages/PageHeader/components/CommonUserHandle';
 import HomepageIcon from 'src/pages/PageHeader/components/HomepageIcon';
@@ -18,7 +18,7 @@ const Wrap = styled.div`
   z-index: 1000;
   overflow: auto;
   .homepageIconWrap {
-    isplay: flex;
+    display: flex;
     align-items: center;
     padding: 8px;
     background: rgba(0, 0, 0, 0.1);
@@ -41,7 +41,7 @@ const Wrap = styled.div`
     color: var(--color-white);
   }
   .appIconWrap {
-    idth: 30px;
+    width: 30px;
     height: 30px;
     border-radius: 4px;
     flex-shrink: 0;
@@ -126,7 +126,7 @@ const Wrap = styled.div`
       display: flex;
       flex-direction: column;
     }
-    .loadingSkeleton {
+    .hap-skeleton {
       opacity: 0.8;
       background-color: transparent;
     }
@@ -139,7 +139,6 @@ const Wrap = styled.div`
     }
   }
 `;
-
 export default class UpgradeStatus extends Component {
   constructor(props) {
     super(props);
@@ -148,10 +147,11 @@ export default class UpgradeStatus extends Component {
   changeIndexVisible = (visible = true) => {
     this.timer = setTimeout(() => {
       if (window.disabledSideButton) return;
-      this.setState({ indexSideVisible: visible });
+      this.setState({
+        indexSideVisible: visible,
+      });
     }, 100);
   };
-
   renderHomepageIconWrap = () => {
     return (
       <div
@@ -194,23 +194,27 @@ export default class UpgradeStatus extends Component {
       </Fragment>
     );
   };
-
   renderAppInfoWrap = () => {
     const { appPkg = {} } = this.props;
     const { pcNaviStyle, appStatus } = appPkg;
-
     if (pcNaviStyle === 1) {
       const renderContent = ({ count, waitingExamine }, onClick) => {
         if (appStatus === 4) {
           return (
-            <div className="flexRow alignItemsCenter pointer backlogWrap" style={{ color: 'var(--color-white)' }}></div>
+            <div
+              className="flexRow alignItemsCenter pointer backlogWrap"
+              style={{
+                color: 'var(--color-white)',
+              }}
+            ></div>
           );
         }
-
         return (
           <div
             className="flexRow alignItemsCenter pointer backlogWrap"
-            style={{ color: 'var(--color-white)' }}
+            style={{
+              color: 'var(--color-white)',
+            }}
             onClick={onClick}
           >
             <Icon icon="task_alt" className="Font18" />
@@ -220,7 +224,6 @@ export default class UpgradeStatus extends Component {
           </div>
         );
       };
-
       return (
         <div className="appInfoWrap flexColumn pLeft10 pRight10 mBottom8">
           <div className="flexRow alignItemsCenter pTop10">
@@ -239,11 +242,9 @@ export default class UpgradeStatus extends Component {
       );
     }
   };
-
   renderHeader = () => {
     const { appPkg } = this.props;
     const { pcNaviStyle, themeType, navColor } = appPkg;
-
     return (
       <div
         className={cx('appPkgHeaderWrap', themeType)}
@@ -255,29 +256,31 @@ export default class UpgradeStatus extends Component {
         {this.renderAppInfoWrap()}
         {pcNaviStyle === 1 && (
           <div className="LeftAppGroupWrap w100 flex">
-            <Skeleton active={false} />
+            <Skeleton className="pAll20" active={false} />
           </div>
         )}
         <CommonUserHandle type="appPkg" {...appPkg} />
       </div>
     );
   };
-
   render() {
     const { appPkg } = this.props;
     const { pcNaviStyle } = appPkg;
-
     if (pcNaviStyle === 1) {
       return (
         <Wrap className="leftWrap flexRow">
           {this.renderHeader()}
-          <div className="flex" style={{ background: 'var(--color-background-secondary)' }}>
+          <div
+            className="flex"
+            style={{
+              background: 'var(--color-background-secondary)',
+            }}
+          >
             <UpgradeContent appPkg={appPkg} showLeftSkeleton={false} />
           </div>
         </Wrap>
       );
     }
-
     return (
       <Wrap className="flexColumn commonWrap">
         {this.renderHeader()}

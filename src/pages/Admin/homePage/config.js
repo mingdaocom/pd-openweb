@@ -1,4 +1,4 @@
-export const QUICK_ENTRY_CONFIG = [
+export const getQuickEntryConfig = () => [
   {
     icon: 'people_5',
     color: '#00CB80',
@@ -34,26 +34,32 @@ export const QUICK_ENTRY_CONFIG = [
     explain: _l('可以上传组织 logo'),
     action: 'completeInfo',
   },
-  // {
-  //   icon: 'laptop_mac',
-  //   color: '#1677ff',
-  //   title: _l('客户端安装'),
-  //   explain: _l('为成员安装客户端'),
-  //   action: 'installDesktop',
-  // },
-  // {
-  //   icon: 'task_custom_phone_android',
-  //   color: '#1FCB80',
-  //   title: _l('App 安装'),
-  //   explain: _l('为成员安装 App'),
-  //   action: 'installApp',
-  // },
+  ...(window.platformENV.isHap
+    ? [
+        {
+          icon: 'laptop_mac',
+          color: '#1677ff',
+          title: _l('客户端安装'),
+          explain: _l('为成员安装客户端'),
+          action: 'installDesktop',
+        },
+        {
+          icon: 'task_custom_phone_android',
+          color: '#1FCB80',
+          title: _l('App 安装'),
+          explain: _l('为成员安装 App'),
+          action: 'installApp',
+        },
+      ]
+    : []),
 ];
 
 export const UPLOAD_COUNT = [
   {
     key: 'effectiveApkCount',
-    limit: 'limitApkCount',
+    get limit() {
+      return window.platformENV.isHap ? undefined : 'limitApkCount';
+    },
     text: _l('应用数'),
     unit: _l('个'),
     link: 'app',

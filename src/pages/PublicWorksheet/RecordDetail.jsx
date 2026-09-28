@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const RecordCon = styled.div`
   display: flex;
@@ -24,7 +24,7 @@ const RecordCon = styled.div`
     min-height: 0;
     box-shadow: none;
 
-    .ant-pro-layout-watermark-wrapper {
+    .hap-pro-layout-watermark-wrapper {
       position: unset !important;
     }
     .recordHeader {
@@ -55,7 +55,7 @@ export default function RecordDetail(props) {
       updateSuccess={(recordIds, data) => onRefreshList(recordIds[0], data)}
     />
   ) : (
-    <Modal visible type="fixed" bodyStyle={{ padding: '0' }} width={1100} onCancel={onClose}>
+    <Modal open type="fixed" styles={{ body: { padding: '0' } }} width={1100} onCancel={onClose}>
       <RecordCon>
         <div className="recordDetailHeader">{isEdit ? _l('修改记录') : _l('查看记录')}</div>
         <RecordInfoWrapper

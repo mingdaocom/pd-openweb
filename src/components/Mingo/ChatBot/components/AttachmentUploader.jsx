@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
-import { compatibleMDJS } from 'src/utils/project';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
+import { compatibleMDJS } from 'src/utils/services/project';
 import UploadFiles from './UploadFiles';
 
 const DEFAULT_APP_UPLOAD_FORMATS = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx'];
-const APP_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic'];
+const APP_IMAGE_MIME_TYPES = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+  heic: 'image/heic',
+};
+const SHOW_FILES_AND_APPS = 1;
 
 export function getAppUploadFormats(allowMimeTypes = []) {
   const formats = allowMimeTypes
@@ -15,12 +23,25 @@ export function getAppUploadFormats(allowMimeTypes = []) {
   return formats.length ? [...new Set(formats)] : DEFAULT_APP_UPLOAD_FORMATS;
 }
 
-function getAppFileType(file = {}) {
-  const extension = String(file.fileExt || '')
+function getAppFileExtension(file = {}) {
+  return String(file.fileExt || '')
+    .trim()
     .replace(/^\./, '')
     .toLowerCase();
+}
 
-  return APP_IMAGE_EXTENSIONS.includes(extension) ? 'image' : file.type;
+function getAppFileName(file = {}) {
+  const name = String(file.originalFileName || file.fileName || '');
+  const extension = getAppFileExtension(file);
+
+  if (!extension || name.toLowerCase().endsWith(`.${extension}`)) return name;
+  return `${name}.${extension}`;
+}
+
+function getAppFileType(file = {}) {
+  const extension = getAppFileExtension(file);
+
+  return APP_IMAGE_MIME_TYPES[extension] || file.type;
 }
 
 function normalizeAppFile(file = {}) {
@@ -28,7 +49,7 @@ function normalizeAppFile(file = {}) {
     ...file,
     id: file.fileID,
     size: file.fileSize,
-    name: file.originalFileName,
+    name: getAppFileName(file),
     type: getAppFileType(file),
   };
 
@@ -61,26 +82,33 @@ function updateUploadedFiles(files, sessionId, completed = []) {
   return nextFiles;
 }
 
-export default function AttachmentUploader({
-  disabled,
-  files = [],
-  tokenType,
-  maxFilesLength = 5,
-  allowMimeTypes,
-  allowMultiSelection = true,
-  dropElementId,
-  onChange = () => {},
-  onAfterAdd = () => {},
-  children,
-}) {
+function AttachmentUploader(
+  {
+    disabled,
+    files = [],
+    tokenType,
+    maxFilesLength = 5,
+    allowMimeTypes,
+    allowMultiSelection = true,
+    cameraOnly = false,
+    dropElementId,
+    onChange = () => {},
+    onAfterAdd = () => {},
+    onChooseApp,
+    children,
+  },
+  ref,
+) {
+  const uploaderRef = useRef(null);
   const [uploadSessionId, setUploadSessionId] = useState('');
+  const canChooseApp = window.isMingDaoApp && !cameraOnly && typeof onChooseApp === 'function';
 
-  const handleAppChooseFile = () => {
+  const handleAppChooseFile = useCallback(() => {
     if (disabled) return;
 
     const remainingCount = maxFilesLength - files.length;
 
-    if (remainingCount <= 0) {
+    if (remainingCount <= 0 && !canChooseApp) {
       alert(_l('最多上传%0个文件', maxFilesLength), 2);
       return;
     }
@@ -88,12 +116,24 @@ export default function AttachmentUploader({
     compatibleMDJS('chooseImage', {
       sessionId: uploadSessionId,
       knowledge: false,
-      count: allowMultiSelection ? remainingCount : 1,
+      showAppList: canChooseApp ? SHOW_FILES_AND_APPS : 0,
+      count: cameraOnly || !allowMultiSelection ? 1 : Math.max(remainingCount, 1),
       format: getAppUploadFormats(allowMimeTypes),
+      sourceType: cameraOnly ? ['camera'] : undefined,
       success: res => {
-        const { sessionId, completed = [], error, uploading } = res || {};
+        const { sessionId, completed = [], error, uploading, app } = res || {};
 
         if (sessionId) setUploadSessionId(sessionId);
+        if (app && canChooseApp) {
+          onChooseApp(app);
+          onAfterAdd();
+          return;
+        }
+
+        if ((completed.length || sessionId) && remainingCount <= 0) {
+          alert(_l('最多上传%0个文件', maxFilesLength), 2);
+          return;
+        }
 
         if (completed.length) {
           onChange(prev => updateUploadedFiles(prev, sessionId, completed));
@@ -116,7 +156,27 @@ export default function AttachmentUploader({
       },
       cancel: () => {},
     });
-  };
+  }, [
+    allowMimeTypes,
+    allowMultiSelection,
+    canChooseApp,
+    cameraOnly,
+    disabled,
+    files.length,
+    maxFilesLength,
+    onAfterAdd,
+    onChooseApp,
+    onChange,
+    uploadSessionId,
+  ]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      open: () => (window.isMingDaoApp ? handleAppChooseFile() : uploaderRef.current?.open()),
+    }),
+    [handleAppChooseFile],
+  );
 
   if (window.isMingDaoApp) {
     return (
@@ -128,12 +188,14 @@ export default function AttachmentUploader({
 
   return (
     <UploadFiles
+      ref={uploaderRef}
       disabled={disabled}
       tokenType={tokenType}
       maxFilesLength={maxFilesLength}
       existingFiles={files}
       allowMimeTypes={allowMimeTypes}
-      allowMultiSelection={allowMultiSelection}
+      allowMultiSelection={cameraOnly ? false : allowMultiSelection}
+      capture={cameraOnly}
       dropElementId={dropElementId}
       onAdd={(_up, added) => {
         onChange(prev => [
@@ -172,3 +234,5 @@ export default function AttachmentUploader({
     </UploadFiles>
   );
 }
+
+export default forwardRef(AttachmentUploader);

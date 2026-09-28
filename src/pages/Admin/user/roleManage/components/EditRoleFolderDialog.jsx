@@ -1,17 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import organizeAjax from 'src/api/organize.js';
-
-const Wrap = styled.div`
-  .roleFolderName {
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: 3px;
-    padding: 0 5px;
-    height: 36px;
-    line-height: 36px;
-  }
-`;
 
 function EditRoleFolderDialog(props) {
   const { visible, info, projectId, refresh, onClose } = props;
@@ -52,25 +41,25 @@ function EditRoleFolderDialog(props) {
   };
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
       title={info.id ? _l('编辑角色组') : _l('添加角色组')}
       okText={info.id ? _l('保存') : _l('添加')}
       onCancel={onClose}
       onOk={onOk}
     >
-      <Wrap>
-        <div className="Font14 mBottom13 mTop20">{_l('名称')}</div>
-        <input
+      <div>
+        <div className="Font14 mBottom13">{_l('名称')}</div>
+        <Input
           type="text"
           value={name}
-          maxlength="64"
+          maxLength={64}
           autoFocus
           className="roleFolderName TxtBottom w100"
           onChange={e => setName(e.target.value || '')}
         />
-      </Wrap>
-    </Dialog>
+      </div>
+    </Modal>
   );
 }
 

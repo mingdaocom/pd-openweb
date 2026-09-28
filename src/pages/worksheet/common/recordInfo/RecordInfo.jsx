@@ -1,32 +1,34 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import _, { find, get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Dialog, EditingBar, WaterMark } from 'ming-ui';
+import { EditingBar } from 'ming-ui';
+import { Button, Modal, WaterMark } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import externalPortalAjax from 'src/api/externalPortal';
 import paymentAjax from 'src/api/payment.js';
 import worksheetAjax from 'src/api/worksheet';
 import DragCore from 'worksheet/common/DragCore';
 import DragMask from 'worksheet/common/DragMask';
-import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { checkRuleLocked } from 'src/components/Form/core/formUtils';
-import { isPublicLink } from 'src/components/Form/core/utils';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { openPreviewAttachments as openPreviewAttachmentsWith } from 'src/components/previewAttachments/previewAttachments';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
-import { getTranslateInfo } from 'src/utils/app';
-import {
-  emitter,
-  getRowGetType,
-  KVGet,
-  removeTempRecordValueFromLocal,
-  saveTempRecordValueToLocal,
-} from 'src/utils/common';
-import { getTitleTextFromControls, isRelateRecordTableControl, updateOptionsOfControls } from 'src/utils/control';
-import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
-import { getRecordTempValue } from 'src/utils/record';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { updateOptionsOfControls } from 'src/utils/domain/control/options';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getRecordTempValue } from 'src/utils/domain/worksheet/record';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { KVGet, removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/services/cache/record';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { getRowGetType } from 'src/utils/services/worksheet/access';
 import SheetContext from '../Sheet/SheetContext';
 import { deleteRecord, handleSubmitDraft, loadRecord, RecordApi, updateRecord, updateRecordLockStatus } from './crtl';
 import RecordEditLock from './RecordEditLock';
@@ -36,7 +38,8 @@ import RecordInfoContext from './RecordInfoContext';
 import RecordInfoRight from './RecordInfoRight';
 import './RecordInfo.less';
 
-const SIDE_MIN_WIDTH = 200 + 226;
+// 右侧面板统一最小宽度
+const SIDE_MIN_WIDTH = 320;
 
 const Drag = styled(DragCore)`
   z-index: 11;
@@ -60,6 +63,17 @@ const LoadMask = styled.div`
   z-index: 2;
 `;
 
+// 空格在这些元素上有原生语义（输入空格、激活按钮、展开下拉），不能拦截
+const INTERACTIVE_TARGET_SELECTOR =
+  'input, textarea, select, button, a, [contenteditable="true"], [role="button"], [role="textbox"], [role="combobox"]';
+
+function isInteractiveTarget(target) {
+  if (!target || !target.tagName) return false;
+  if (target.isContentEditable) return true;
+
+  return !!(target.closest && target.closest(INTERACTIVE_TARGET_SELECTOR));
+}
+
 function getSideVisible(from) {
   if (from === RECORD_INFO_FROM.DRAFT) {
     return false;
@@ -72,12 +86,65 @@ function getSideVisible(from) {
   }
 }
 
-export default class RecordInfo extends Component {
+function getRecordInfoRightConfig({
+  payConfig = {},
+  isSubList,
+  sheetSwitchPermit,
+  viewId,
+  workflow,
+  approved,
+  allowExAccountDiscuss,
+  isPortal,
+  isPublicChatbot,
+}) {
+  const hiddenTabs = [];
+  const noApproved =
+    !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) || (isPortal && !approved);
+
+  if (!payConfig.rowDetailIsShowOrder) {
+    hiddenTabs.push('pay');
+  }
+
+  if (isSubList || !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)) {
+    hiddenTabs.push('discuss', 'files');
+  }
+
+  if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
+    hiddenTabs.push('logs');
+  }
+
+  if (noApproved || workflow) {
+    hiddenTabs.push('approval');
+  }
+
+  if (!workflow) {
+    hiddenTabs.push('workflow');
+  }
+
+  if (isPortal || isPublicChatbot) {
+    hiddenTabs.push('files');
+    if (!allowExAccountDiscuss) {
+      hiddenTabs.push('discuss');
+    }
+  }
+
+  const uniqueHiddenTabs = [...new Set(hiddenTabs)];
+
+  return {
+    hiddenTabs: uniqueHiddenTabs,
+    visible: uniqueHiddenTabs.length < 6,
+  };
+}
+
+class RecordInfo extends Component {
   static propTypes = {
     width: PropTypes.number,
     visible: PropTypes.bool,
     isCharge: PropTypes.bool,
     allowAdd: PropTypes.bool,
+    defaultSideVisible: PropTypes.bool,
+    onSideVisibleChange: PropTypes.func,
+    disableSideVisibleCache: PropTypes.bool,
     isOpenNewAddedRecord: PropTypes.bool,
     notDialog: PropTypes.bool,
     showPrevNext: PropTypes.bool,
@@ -111,6 +178,7 @@ export default class RecordInfo extends Component {
     updateDraftList: PropTypes.func, // 更新草稿列表
     addNewRecord: PropTypes.func, // 草稿提交后更新记录列表
     isRelateRecord: PropTypes.bool, // 是否是关联表记录
+    modal: PropTypes.shape({ confirm: PropTypes.func }),
   };
   static defaultProps = {
     showPrevNext: false,
@@ -127,10 +195,13 @@ export default class RecordInfo extends Component {
   static contextType = SheetContext;
   constructor(props) {
     super(props);
+    const sideVisible = _.isBoolean(props.defaultSideVisible) ? props.defaultSideVisible : getSideVisible(props.from);
+
     this.state = {
       loading: true,
       submitLoading: false,
       isSettingTempData: false,
+      formSectionWidth: 0,
       sideWidth: this.getSideWidth(),
       recordinfo: {},
       tempFormData: [],
@@ -141,7 +212,7 @@ export default class RecordInfo extends Component {
       viewId: props.viewId,
       recordId: props.recordId,
       abnormal: false, // 异常
-      sideVisible: getSideVisible(props.from),
+      sideVisible,
       currentIndex: _.findIndex(props.currentSheetRows, item => {
         return _.get(item, 'rowid') === props.recordId;
       }),
@@ -157,6 +228,7 @@ export default class RecordInfo extends Component {
       editLockedUser: null,
       isRecordLock: false, // 记录锁定
     };
+    this.currentPropsRecordId = props.recordId;
     this.hadWaterMark = window.hadWaterMark;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
     this.refreshEvents = {};
@@ -177,12 +249,14 @@ export default class RecordInfo extends Component {
         this.setState({
           loading: true,
           recordId: this.props.recordId,
+          discussCount: this.props.recordId !== prevProps.recordId ? 0 : this.state.discussCount,
           abnormal: false,
           currentIndex: _.findIndex(prevProps.currentSheetRows, item => {
             return _.get(item, 'rowid') === this.props.recordId;
           }),
         });
         this.loadRecord({
+          needReLoadSheetSwitch: this.props.worksheetId !== this.state.worksheetId,
           recordId: this.props.recordId,
           props: this.props,
         });
@@ -199,6 +273,11 @@ export default class RecordInfo extends Component {
         changes.viewId = this.props.viewId;
       }
 
+      if (this.props.viewId !== prevProps.viewId && _.isBoolean(this.props.defaultSideVisible)) {
+        changes.sideVisible = this.props.defaultSideVisible;
+        changes.hideRight = undefined;
+      }
+
       if (this.props.appId !== this.state.appId) {
         changes.appId = this.props.appId;
       }
@@ -206,6 +285,8 @@ export default class RecordInfo extends Component {
       if (!_.isEmpty(changes)) {
         this.setState(changes);
       }
+
+      this.currentPropsRecordId = this.props.recordId;
     }
   }
 
@@ -355,7 +436,6 @@ export default class RecordInfo extends Component {
       return 400;
     }
 
-    // SIDE_MIN_WIDTH
     return sideWidth;
   }
 
@@ -407,7 +487,11 @@ export default class RecordInfo extends Component {
       isRelateRecord,
       onError = _.noop,
       notDialog,
+      disableAutoClose,
     } = props || this.props;
+    // 记录落地页本身就是整页 URL，关掉只剩空白，一直是渲染异常态而非关闭；
+    // disableAutoClose 让没有列表上下文的入口（如聊天正文里的记录链接）沿用同样的处理
+    const keepOpenWhenUnavailable = from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND || disableAutoClose;
     let { sheetSwitchPermit } = this.state;
     const { isPublicShare } = this;
     const { tempFormData } = this.state;
@@ -498,7 +582,7 @@ export default class RecordInfo extends Component {
 
       if (_.isBoolean(closeWhenNotViewData) && closeWhenNotViewData && viewId && !data.isViewData) {
         hideRows([recordId]);
-        if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {
+        if (!keepOpenWhenUnavailable) {
           hideRecordInfo(recordId);
           return;
         }
@@ -513,6 +597,7 @@ export default class RecordInfo extends Component {
         this.recordEditLock = new RecordEditLock({
           worksheetId,
           recordId,
+          openFunctionWrap: this.props.openFunctionWrap,
           rowEditLock: safeParse(_.get(data, 'advancedSetting.roweditlock')) || {},
           updateLockedUser: userInfo => this.setState({ editLockedUser: userInfo }),
           onLockCallBack: () => this.handleCancelChange(),
@@ -569,15 +654,12 @@ export default class RecordInfo extends Component {
       }
 
       if (res.resultCode === 4) {
-        if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {
-          hideRecordInfo();
-          return;
-        }
-
         this.setState({
           abnormal: true,
           loading: false,
-          recordinfo: res || {},
+          // GetRowDetail 使用 4 表示当前入口无法取得记录详情，复用现有无权限态，
+          // 保留详情容器，避免 Modal 在请求结束后无提示消失
+          recordinfo: { ...res, resultCode: 7 },
           refreshBtnNeedLoading: false,
         });
         return;
@@ -628,7 +710,7 @@ export default class RecordInfo extends Component {
       alert(_l('删除成功'));
     } catch (err) {
       console.log(err);
-      alert(_l('删除失败'), 2);
+      alertIfNotUnauthorized(err, _l('删除失败'), 2);
     }
   };
 
@@ -681,6 +763,7 @@ export default class RecordInfo extends Component {
     this.setState({
       recordId: newRecordId,
       currentIndex: newIndex,
+      discussCount: 0,
       ...(worksheetId ? { appId, viewId, worksheetId } : {}),
     });
   };
@@ -721,15 +804,17 @@ export default class RecordInfo extends Component {
     // 嵌入视图不支持上下页快捷操作
     if (get(this.context, 'config.fromEmbed')) return;
 
-    if (
-      tableType === 'classic' &&
-      e.key === ' ' &&
-      e.target.tagName.toLowerCase() === 'body' &&
-      !this.con.querySelector('.cell.focus')
-    ) {
-      this.handleCancel();
+    if (e.key === ' ' && !isInteractiveTarget(e.target) && !(this.con && this.con.querySelector('.cell.focus'))) {
+      // 弹层内点击后焦点会落到 antd Modal 的面板（带 tabIndex=-1），此时空格会触发浏览器默认翻页，
+      // 把弹层或整页滚走（如公开查询页 body 可滚动），先统一拦掉默认行为
       e.preventDefault();
-      e.stopPropagation();
+
+      // 经典表格下焦点仍在 body 时，保持原有的「空格关闭记录详情」快捷操作
+      if (tableType === 'classic' && e.target.tagName.toLowerCase() === 'body') {
+        this.handleCancel();
+        e.stopPropagation();
+      }
+
       return;
     }
 
@@ -784,10 +869,16 @@ export default class RecordInfo extends Component {
     return (
       <React.Fragment>
         {showCloseDialog && (
-          <Dialog
-            visible={showCloseDialog}
-            title={<span className="Red">{_l('您有未保存的修改，确定要离开此页吗？')}</span>}
-            description={_l('如果不保存，修改的内容将会丢失')}
+          <Modal
+            open={showCloseDialog}
+            mask={{ closable: true }}
+            keyboard
+            title={
+              <React.Fragment>
+                <div className="Red">{_l('您有未保存的修改，确定要离开此页吗？')}</div>
+                <div className="Font13 Normal textSecondary mTop8">{_l('如果不保存，修改的内容将会丢失')}</div>
+              </React.Fragment>
+            }
             onCancel={() => {
               this.setState({ showCloseDialog: false });
             }}
@@ -1020,10 +1111,14 @@ export default class RecordInfo extends Component {
             });
           }
 
-          this.refreshAsyncLoadControl();
+          // 必须先 reset 落撤销基线，再触发控件刷新：refreshAsyncLoadControl 会让内嵌关联表格
+          // refresh()，同步 RESET 把 tableState.count 清零后才异步拉数，若此时才 reset，
+          // 基线快照会存成 count:0，之后再编辑点取消会恢复出「共0行」
           if (get(this, 'recordform.current.dataFormat.callStore')) {
             this.recordform.current.dataFormat.callStore('reset');
           }
+
+          this.refreshAsyncLoadControl();
 
           if (viewId && !resdata.isviewdata) {
             hideRows([recordId]);
@@ -1169,6 +1264,8 @@ export default class RecordInfo extends Component {
     });
   };
 
+  openPreviewAttachments = (...args) => openPreviewAttachmentsWith(this.props.openFunctionWrap, ...args);
+
   handleUnMask = () => {
     this.setState({ forceShowFullValue: true });
   };
@@ -1180,25 +1277,40 @@ export default class RecordInfo extends Component {
 
   // 提交草稿
   submitDraft = () => {
-    const { worksheetInfo } = this.props;
+    const { worksheetInfo, modal } = this.props;
 
     const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
 
     if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
-      Dialog.confirm({
+      modal.confirm({
         title: <div className="breakAll">{doubleConfirm.confirmMsg}</div>,
-        description: doubleConfirm.confirmContent,
+        content: doubleConfirm.confirmContent,
         okText: (
-          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
+          <div
+            className="InlineBlock ellipsis"
+            style={{
+              maxWidth: 100,
+            }}
+          >
             {doubleConfirm.sureName}
           </div>
         ),
+
         cancelText: (
-          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
+          <div
+            className="InlineBlock ellipsis"
+            style={{
+              maxWidth: 100,
+            }}
+          >
             {doubleConfirm.cancelName}
           </div>
         ),
-        onOk: () => this.onSubmit({ draftType: 'submit' }),
+
+        onOk: () =>
+          this.onSubmit({
+            draftType: 'submit',
+          }),
       });
 
       return;
@@ -1236,6 +1348,9 @@ export default class RecordInfo extends Component {
       worksheetInfo = {},
       printCharge,
       setModalRightComp = () => {},
+      onSideVisibleChange,
+      disableSideVisibleCache,
+      isWorksheetRowLand,
     } = this.props;
     const {
       loading,
@@ -1282,6 +1397,9 @@ export default class RecordInfo extends Component {
     // 关联表格等入口 openRecordInfo 只传 viewId、不传 view 对象，props.view 为空会丢失分组等视图配置；
     // 回退到 getRowDetail 响应里的 view（后端按 viewId 返回，含 navGroup 等分组信息）。
     const view = _.isEmpty(this.props.view) ? recordinfo.view || {} : this.props.view;
+    const currentViewId = _.get(view, 'viewId') || viewId;
+    const currentDiscussCount =
+      this.props.recordId && this.props.recordId !== this.currentPropsRecordId ? 0 : discussCount;
 
     const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData, recordId);
     let { width } = this.props;
@@ -1307,7 +1425,7 @@ export default class RecordInfo extends Component {
       appId: recordinfo?.appId || appId,
       worksheetId,
       appSectionId,
-      viewId,
+      viewId: currentViewId,
       recordId,
       instanceId,
       workId,
@@ -1340,7 +1458,22 @@ export default class RecordInfo extends Component {
       return <span />;
     }
 
-    const formWidth = width - (sideVisible ? sideWidth : 0) - formSectionWidth;
+    const { hiddenTabs: recordInfoRightHiddenTabs, visible: recordInfoRightVisible } = getRecordInfoRightConfig({
+      payConfig,
+      isSubList,
+      sheetSwitchPermit,
+      viewId: currentViewId,
+      workflow,
+      approved,
+      allowExAccountDiscuss,
+      isPortal: md.global.Account.isPortal,
+      isPublicChatbot: _.get(window, 'shareState.isPublicChatbot'),
+    });
+    const showRecordInfoRight = !abnormal && recordInfoRightVisible;
+    const rightPanelVisible = sideVisible && showRecordInfoRight;
+    // 缓存宽度可能来自历史版本，渲染前统一按最小宽度兜底
+    const currentSideWidth = Math.max(sideWidth, SIDE_MIN_WIDTH);
+    const formWidth = width - (rightPanelVisible ? currentSideWidth : 0) - formSectionWidth;
     const isDraft = from === RECORD_INFO_FROM.DRAFT && !isRelateRecord;
     const hideStep = sheetSwitchPermit?.find(o => o.type === permitList.approveDetailsSwitch)?.displayFlowChart === 1;
     const ignoreLock =
@@ -1373,6 +1506,7 @@ export default class RecordInfo extends Component {
               updateWorksheetControls(newControls);
             },
             recordBaseInfo: recordbase,
+            openPreviewAttachments: this.openPreviewAttachments,
           }}
         >
           {this.renderDialogs()}
@@ -1381,7 +1515,7 @@ export default class RecordInfo extends Component {
               didMountTimestamp={didMountTimestamp}
               okDisabled={!iseditting}
               loading={submitLoading}
-              style={{ left: formSectionWidth, width: width - formSectionWidth - (sideVisible ? sideWidth : 0) }}
+              style={{ left: formSectionWidth, width: width - formSectionWidth - (sideVisible ? currentSideWidth : 0) }}
               visible={iseditting}
               defaultTop={-50}
               visibleTop={8}
@@ -1405,7 +1539,7 @@ export default class RecordInfo extends Component {
           {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && from !== RECORD_INFO_FROM.DRAFT && (
             <EditingBar
               loading={submitLoading}
-              style={{ left: formSectionWidth, width: width - formSectionWidth - (sideVisible ? sideWidth : 0) }}
+              style={{ left: formSectionWidth, width: width - formSectionWidth - (sideVisible ? currentSideWidth : 0) }}
               visible={!!restoreVisible}
               defaultTop={-50}
               visibleTop={8}
@@ -1445,15 +1579,16 @@ export default class RecordInfo extends Component {
                   worksheetInfo={worksheetInfo}
                   from={from}
                   isRecordLock={isRecordLock}
-                  sideBarBtnVisible={recordinfo.resultCode === 1}
+                  sideBarBtnVisible={recordinfo.resultCode === 1 && showRecordInfoRight}
                   isOpenNewAddedRecord={isOpenNewAddedRecord}
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
                   payConfig={payConfig}
+                  discussCount={currentDiscussCount}
                   approved={approved}
                   loading={loading}
                   view={view}
-                  viewId={viewId}
+                  viewId={currentViewId}
                   isDraft={isDraft || this.props.isDraft || get(this.context, 'config.isDraft')}
                   renderHeader={
                     isDraft
@@ -1461,7 +1596,7 @@ export default class RecordInfo extends Component {
                           <div className="flex flexRow w100 alignItemsCenter">
                             <div className="flex Font17 bold pLeft15">{_l('编辑草稿')}</div>
                             {!((from !== RECORD_INFO_FROM.WORKFLOW || viewId) && !hideEditingBar && iseditting) && (
-                              <Button className="mRight12" onClick={this.submitDraft}>
+                              <Button type="primary" className="mRight12" onClick={this.submitDraft}>
                                 {_.get(worksheetInfo, 'advancedSetting.sub') || _l('提交')}
                               </Button>
                             )}
@@ -1488,10 +1623,16 @@ export default class RecordInfo extends Component {
                   hideRecordInfo={hideRecordInfo}
                   reloadRecord={() => this.handleRefresh({ doNotResetPageIndex: true, reloadDiscuss: false })}
                   onSideIconClick={() => {
-                    safeLocalStorageSetItem(
-                      from !== RECORD_INFO_FROM.WORKFLOW ? 'recordInfoSideVisible' : 'recordInfoOfWorkflowSideVisible',
-                      sideVisible ? '' : 'true',
-                    );
+                    if (!disableSideVisibleCache) {
+                      safeLocalStorageSetItem(
+                        from !== RECORD_INFO_FROM.WORKFLOW
+                          ? 'recordInfoSideVisible'
+                          : 'recordInfoOfWorkflowSideVisible',
+                        sideVisible ? '' : 'true',
+                      );
+                    }
+
+                    onSideVisibleChange?.(!sideVisible);
                     this.setState({ sideVisible: !sideVisible, hideRight: sideVisible });
                   }}
                   onCancel={this.handleCancel}
@@ -1526,6 +1667,7 @@ export default class RecordInfo extends Component {
                     this.setState({
                       recordId: row.rowid,
                       currentIndex: currentIndex + 1,
+                      discussCount: 0,
                     });
                     if (_.isFunction(handleAddSheetRow)) {
                       handleAddSheetRow(row, afterRowId);
@@ -1533,6 +1675,10 @@ export default class RecordInfo extends Component {
                   }}
                   customBtnTriggerCb={customBtnTriggerCb}
                   updateDiscussCount={count => {
+                    if (this.state.discussCount === count) {
+                      return;
+                    }
+
                     this.setState({
                       discussCount: count,
                     });
@@ -1706,7 +1852,8 @@ export default class RecordInfo extends Component {
                   this.setState({ formSectionWidth: sectionWidth });
                 }}
               />
-              {sideVisible && (
+
+              {rightPanelVisible && (
                 <Drag
                   setRef={drag => (this.drag = drag)}
                   onDrag={() => {
@@ -1733,7 +1880,7 @@ export default class RecordInfo extends Component {
                   }}
                 />
               )}
-              {!abnormal && (sideVisible || typeof hideRight !== 'undefined') && (
+              {showRecordInfoRight && (sideVisible || typeof hideRight !== 'undefined') && (
                 <RecordInfoRight
                   workflowStatus={
                     workflowStatus ||
@@ -1742,17 +1889,17 @@ export default class RecordInfo extends Component {
                       'value',
                     )
                   }
-                  discussCount={discussCount}
+                  discussCount={currentDiscussCount}
                   isCharge={isCharge}
                   loading={loading}
                   isOpenNewAddedRecord={isOpenNewAddedRecord}
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
-                  payConfig={payConfig}
+                  hiddenTabs={recordInfoRightHiddenTabs}
                   approved={approved}
                   isHide={hideRight}
                   className={cx({ hide: hideRight })}
-                  style={{ width: sideWidth }}
+                  style={{ width: currentSideWidth }}
                   recordbase={recordbase}
                   workflow={
                     workflow
@@ -1773,11 +1920,12 @@ export default class RecordInfo extends Component {
                       formWidth={formWidth}
                       appId={appId}
                       controls={recordinfo.formData}
+                      isWorksheetRowLand={isWorksheetRowLand}
+                      isDetailView={notDialog && view.viewType === 6}
                       reloadRecord={() => this.handleRefresh({ doNotResetPageIndex: true, reloadDiscuss: false })}
                       hideStep={hideStep}
                     />
                   }
-                  sheetSwitchPermit={sheetSwitchPermit}
                   projectId={this.props.projectId || recordinfo.projectId}
                   controls={controls}
                   worksheetOperationLogPermission={worksheetInfo?.worksheetOperationLogPermission}
@@ -1793,6 +1941,16 @@ export default class RecordInfo extends Component {
                     }
                   })}
                   updatePayConfig={() => this.getPayConfig(recordId, true)}
+                  updateDiscussCount={count => {
+                    // 右栏主动刷新计数后同步回父级，折叠侧边栏时继续使用最新数量。
+                    if (this.state.discussCount === count) {
+                      return;
+                    }
+
+                    this.setState({
+                      discussCount: count,
+                    });
+                  }}
                 />
               )}
             </div>
@@ -1802,3 +1960,16 @@ export default class RecordInfo extends Component {
     );
   }
 }
+
+const RecordInfoWithModal = React.forwardRef(function RecordInfoWithModal(props, ref) {
+  const [modal, contextHolder] = Modal.useModal();
+
+  return (
+    <React.Fragment>
+      {contextHolder}
+      <RecordInfo {...props} ref={ref} modal={modal} />
+    </React.Fragment>
+  );
+});
+
+export default withOpeners(RecordInfoWithModal);

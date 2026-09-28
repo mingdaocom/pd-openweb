@@ -1,6 +1,5 @@
 import appManagementApi from 'src/api/appManagement';
-
-const CUSTOM_ICON_BASE = 'https://fp1.mingdaoyun.cn/customIcon/';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
 
 const getEffectiveIconName = (iconName, lineStyle) => {
   if (!iconName) return undefined;
@@ -77,7 +76,7 @@ export function buildSheetListUpdates(params) {
       id: c.id,
       workSheetName: c.name,
       icon: c.icon,
-      iconUrl: c.icon ? `${CUSTOM_ICON_BASE}${c.icon}.svg` : undefined,
+      iconUrl: getCustomIconUrl(c.icon),
     }));
 }
 

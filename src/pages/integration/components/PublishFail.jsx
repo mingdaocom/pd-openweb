@@ -1,38 +1,31 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 
-const EditShowNameCon = styled.div`
-  .title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-`;
+const DANGER_OK_BUTTON_PROPS = { danger: true };
 
 export default function PublishFail(props) {
   const { name, onCancel, toNode, errorMsgList = [] } = props;
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       title={<span className="Red">{_l('数据同步“%0”发布失败', name)}</span>}
       onCancel={onCancel}
       okText={_l('前往修改')}
-      buttonType="danger"
+      okButtonProps={DANGER_OK_BUTTON_PROPS}
       onOk={id => {
         toNode(id);
       }}
     >
-      <EditShowNameCon>
-        {errorMsgList.map(o => {
+      <div>
+        {errorMsgList.map((o, index) => {
           return (
-            <div className="mTop16">
+            <div className="mTop16" key={index}>
               <i className="icon-report Font18 Red TxtMiddle"></i>{' '}
               <span className="TxtMiddle textSecondary mLeft8 Font14">{o}</span>
             </div>
           );
         })}
-      </EditShowNameCon>
-    </Dialog>
+      </div>
+    </Modal>
   );
 }

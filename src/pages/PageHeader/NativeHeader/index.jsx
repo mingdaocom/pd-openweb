@@ -4,13 +4,13 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { string } from 'prop-types';
 import { Icon } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { compareProps } from 'src/utils/domain/app/model';
 import CommonUserHandle from '../components/CommonUserHandle';
 import CoordinationIcon from '../components/CoordinationIcon';
 import HomepageIcon from '../components/HomepageIcon';
 import IndexSide from '../components/IndexSide';
 import { NATIVE_MODULES } from '../config';
-import { compareProps } from '../util';
 import './index.less';
 
 export default class NativeHeader extends Component {

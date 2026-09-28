@@ -14,18 +14,26 @@ export const viewTypeConfig = [
   { type: 'PluginSettings', name: _l('插件设置'), icon: 'configure' },
   { type: 'DebugConfig', name: _l('开发调试'), icon: 'worksheet_API' },
   { type: 'ParameterSet', name: _l('参数映射'), icon: 'view_eye' },
+  { type: 'FieldDeclaration', name: _l('字段声明'), icon: 'tune_new' },
   { type: 'Submit', name: _l('提交%05036'), icon: 'airplane' },
   { type: 'CardSet', name: _l('卡片设置'), icon: 'card' },
   { type: 'TableSet', name: _l('表格设置'), icon: 'table' },
   { type: 'EnvParams', name: _l('环境参数'), icon: 'table' },
 ];
-export const viewTypeCustomList = ['PluginSettings', 'DebugConfig', 'ParameterSet', 'Submit'];
+export const viewTypeCustomList = ['PluginSettings', 'DebugConfig', 'ParameterSet', 'FieldDeclaration', 'Submit'];
 export const viewTypeGroup = [
   { name: 'base', list: ['Setting', 'Show', 'GroupSet'] },
   { name: 'set', list: ['Filter', 'Sort', 'RecordColor', 'Controls'] },
   { name: 'action', list: ['ActionSet', 'FastFilter', 'NavGroup'] },
   { name: 'other', list: ['MobileSet', 'urlParams'] },
 ];
+
+// 视图配置字段选择器通用排除类型：分段、备注、OCR、嵌入、查询按钮、关联查询。
+export const VIEW_CONFIG_EXCLUDED_CONTROL_TYPES = [22, 10010, 43, 45, 49, 51];
+
+// 部分列表字段/移动端字段配置还需要排除标签页，避免把布局分组当作返回字段。
+export const VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION = [...VIEW_CONFIG_EXCLUDED_CONTROL_TYPES, 52];
+
 export const baseSetList = {
   sheet: ['Setting', 'Show', 'GroupSet'],
   board: ['Setting', 'CardSet', 'GroupSet'],

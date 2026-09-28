@@ -118,8 +118,11 @@ export function useDailyBuildSuggestions(projectId, enabled = true) {
         return;
       }
 
-      // 命中内存缓存：不再请求接口，直接复用缓存列表并按游标顺延一组（每次打开仍换一组）。页面刷新后缓存已清空，自然重拉。
-      if (!isReload) {
+      if (isReload) {
+        // 手动刷新（首页「试一试」的刷新按钮）：先丢掉缓存再重拉，避免本次请求失败后仍留着旧缓存（下次打开又拿到刷新前的那一组）
+        sessionCache.delete(projectId);
+      } else {
+        // 命中内存缓存：不再请求接口，直接复用缓存列表并按游标顺延一组（每次打开仍换一组）。页面刷新后缓存已清空，自然重拉。
         const cached = sessionCache.get(projectId);
 
         if (cached) {

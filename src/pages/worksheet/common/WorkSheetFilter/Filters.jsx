@@ -1,23 +1,21 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Skeleton } from 'ming-ui';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { Segmented, Select, Skeleton } from 'ming-ui/antd-components';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { filterUnavailableConditions, getDefaultCondition } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
 import Empty from './components/Empty';
 import FilterDetail from './components/FilterDetail';
 import SavedFilters from './components/SavedFilters';
-import { CONTROL_FILTER_WHITELIST } from './enum';
 import { formatForSave } from './model';
-import { filterUnavailableConditions, getDefaultCondition, redefineComplexControl } from './util';
 
 const Con = styled.div`
   width: 480px;
-  border-radius: 4px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
   padding: 16px 0 0;
   .queryTypeSelectWrapper {
     margin-top: 12px;
@@ -28,12 +26,6 @@ const Con = styled.div`
       font-size: 13px;
       color: var(--color-text-tertiary);
     }
-    .Dropdown {
-      margin-top: -1px;
-      .Dropdown--input {
-        padding-left: 8px;
-      }
-    }
     .clearButton {
       font-size: 13px;
       cursor: pointer;
@@ -41,48 +33,41 @@ const Con = styled.div`
   }
 `;
 
-const SwitchTab = styled.div`
-  margin-bottom: 28px;
-  padding: 4px;
-  font-weight: bold;
-  background: var(--color-border-secondary);
-  margin: 0 auto;
-  border-radius: 32px;
-  width: 187px;
-  > span {
-    cursor: pointer;
-    height: 24px;
-    line-height: 24px;
-    border-radius: 24px;
-    color: var(--color-text-secondary);
-    width: 50%;
-    text-align: center;
-    display: inline-block;
-    &.active {
-      color: var(--color-primary);
-      background: var(--color-background-primary);
-    }
-    &:hover {
-      color: var(--color-primary);
-    }
-  }
-`;
-
+const FILTER_TABS_STYLE = {
+  width: 188,
+  margin: '0 auto',
+  padding: 4,
+  '--hap-segmented-track-bg': 'var(--color-background-disabled)',
+  '--hap-segmented-item-hover-bg': 'var(--color-background-disabled)',
+  '--hap-segmented-item-active-bg': 'var(--color-background-disabled)',
+};
 const NEW_FILTER_QUERY_TYPE = {
   IMMEDIATELY: 1,
   CLICK: 2,
 };
-
-const tabs = [
+const QUERY_TYPE_OPTIONS = [
   {
-    name: _l('新的筛选'),
-    type: 1,
+    label: _l('即时生效'),
+    value: NEW_FILTER_QUERY_TYPE.IMMEDIATELY,
   },
   {
-    name: _l('已保存'),
-    type: 2,
+    label: _l('点击查询后生效'),
+    value: NEW_FILTER_QUERY_TYPE.CLICK,
   },
 ];
+
+function getFilterTabOptions() {
+  return [
+    {
+      label: _l('新的筛选'),
+      value: 1,
+    },
+    {
+      label: _l('已保存'),
+      value: 2,
+    },
+  ];
+}
 
 function Filters(props, ref) {
   const {
@@ -105,7 +90,12 @@ function Filters(props, ref) {
   } = props;
   const conRef = useRef();
   const cache = useRef({});
-  const base = { projectId, appId, worksheetId, isCharge };
+  const base = {
+    projectId,
+    appId,
+    worksheetId,
+    isCharge,
+  };
   const filterWhiteKeys = _.flatten(
     Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
   );
@@ -205,6 +195,7 @@ function Filters(props, ref) {
       }
     });
   }, []);
+
   useEffect(() => {
     if (
       state.editingFilter &&
@@ -214,9 +205,11 @@ function Filters(props, ref) {
       cache.current.queryFlag = queryFlag;
     }
   }, [state.editingFilterVersion, queryFlag]);
+
   useEffect(() => {
     setQueryButtonDisabled(false);
   }, [state.editingFilterVersion]);
+
   useEffect(() => {
     if (
       isNewEditing &&
@@ -226,9 +219,9 @@ function Filters(props, ref) {
     ) {
       filterWorksheet(state.editingFilter);
     }
-
     cache.current.editingFilter = state.editingFilter;
   }, [state.editingFilter]);
+
   useEffect(() => {
     if (popupVisible && state.editingFilter) {
       const filteredConditions = filterUnavailableConditions(
@@ -252,6 +245,7 @@ function Filters(props, ref) {
       setActiveTab(1);
     }
   }, [popupVisible]);
+
   useImperativeHandle(ref, () => ({
     addFilterByControl: control => {
       cache.current.callFromColumn = true;
@@ -260,39 +254,47 @@ function Filters(props, ref) {
       if (isNewEditing) {
         addCondition(newControl, editingFilter.conditionsGroups.length - 1);
       } else {
-        addFilter({ defaultCondition: getDefaultCondition(newControl) });
+        addFilter({
+          defaultCondition: getDefaultCondition(newControl),
+        });
       }
     },
   }));
+
   useEffect(() => {
     if (!loading && String(activeTab) === '2' && !filters.length) {
       setActiveTab(1);
     }
   }, [loading]);
+
   return (
     <Con ref={conRef} style={style}>
       {!isSavedEditing && showSavedFilters && (
-        <SwitchTab>
-          {tabs.map(tab => (
-            <span
-              className={activeTab === tab.type ? 'active' : ''}
-              onClick={() => {
-                updateActiveTab(tab.type);
-              }}
-            >
-              {tab.name}
-            </span>
-          ))}
-        </SwitchTab>
+        <Segmented
+          block
+          shape="round"
+          value={activeTab}
+          options={getFilterTabOptions()}
+          style={FILTER_TABS_STYLE}
+          onChange={updateActiveTab}
+        />
       )}
       {loading ? (
-        <div style={{ padding: 10 }}>
+        <div
+          style={{
+            padding: 10,
+          }}
+        >
           <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['30%', '40%', '90%', '60%']}
+            className="pAll20"
+            style={{
+              flex: 1,
+            }}
             active
-            itemStyle={{ marginBottom: '10px' }}
+            paragraph={{
+              rows: 4,
+              width: ['30%', '40%', '90%', '60%'],
+            }}
           />
         </div>
       ) : (
@@ -302,18 +304,13 @@ function Filters(props, ref) {
               {conditionsIsEmpty === false && (
                 <div className="queryTypeSelectWrapper">
                   <div className="label">{_l('筛选模式:')}</div>
-                  <Dropdown
+                  <Select
                     value={queryType}
-                    data={[
-                      {
-                        text: _l('即时生效'),
-                        value: NEW_FILTER_QUERY_TYPE.IMMEDIATELY,
-                      },
-                      {
-                        text: _l('点击查询后生效'),
-                        value: NEW_FILTER_QUERY_TYPE.CLICK,
-                      },
-                    ]}
+                    options={QUERY_TYPE_OPTIONS}
+                    popupMatchSelectWidth={false}
+                    showSearch={false}
+                    size="small"
+                    variant="borderless"
                     onChange={value => {
                       setQueryType(value);
                       if (value === NEW_FILTER_QUERY_TYPE.IMMEDIATELY) {
@@ -357,16 +354,9 @@ function Filters(props, ref) {
                   controls={filterAddConditionControls(controls)}
                   onAdd={selectedControl => {
                     const defaultCondition = getDefaultCondition(selectedControl);
-                    setTimeout(() => {
-                      const dom = document.querySelector(
-                        '.keyStr_' + defaultCondition.keyStr + ' .ant-select-selector',
-                      );
-
-                      if (dom) {
-                        dom.click();
-                      }
-                    }, 100);
-                    addFilter({ defaultCondition });
+                    addFilter({
+                      defaultCondition,
+                    });
                   }}
                 />
               )}
@@ -396,14 +386,31 @@ function Filters(props, ref) {
                       handleTriggerFilter(filter);
                     }
                   }}
-                  onCopy={filter => copyFilter({ appId, worksheetId, filter, isCharge })}
+                  onCopy={filter =>
+                    copyFilter({
+                      appId,
+                      worksheetId,
+                      filter,
+                      isCharge,
+                    })
+                  }
                   onDelete={filter => {
-                    deleteFilter({ appId, filter });
+                    deleteFilter({
+                      appId,
+                      filter,
+                    });
                     if (activeFilter && activeFilter.id === filter.id) {
                       handleTriggerFilter(undefined);
                     }
                   }}
-                  onToggleFilterType={filter => toggleFilterType({ appId, worksheetId, filter, isCharge })}
+                  onToggleFilterType={filter =>
+                    toggleFilterType({
+                      appId,
+                      worksheetId,
+                      filter,
+                      isCharge,
+                    })
+                  }
                   onHideFilterPopup={onHideFilterPopup}
                   onSortEnd={sortedIds => {
                     sortFilters(appId, worksheetId, sortedIds);
@@ -424,12 +431,10 @@ function Filters(props, ref) {
                   onBack={needSetOriginFilter => {
                     if (needSetOriginFilter) {
                       const originFilter = _.find(filters, f => f.id === editingFilter.id);
-
                       if (originFilter) {
                         handleTriggerFilter(originFilter);
                       }
                     }
-
                     editFilter(undefined);
                   }}
                   handleTriggerFilter={handleTriggerFilter}
@@ -444,5 +449,4 @@ function Filters(props, ref) {
     </Con>
   );
 }
-
 export default forwardRef(Filters);

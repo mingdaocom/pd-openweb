@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { CustomTextarea } from '../components';
 
 const Preview = styled.div`
@@ -38,13 +38,11 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       width={640}
       className="workflowDialogBox workflowSettings"
-      style={{ overflow: 'initial' }}
-      overlayClosable={false}
-      type="scroll"
+      mask={{ closable: false }}
       title={_l('通知设置')}
       onOk={() => {
         updateSource({ [selectMsgKey]: selectMsg.trim() });
@@ -83,6 +81,6 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
           <div className="mTop15 textSecondary">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
         </div>
       </Preview>
-    </Dialog>
+    </Modal>
   );
 };

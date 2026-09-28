@@ -3,11 +3,11 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, LoadDiv, Qr } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, Qr } from 'ming-ui';
+import { Button, Checkbox, Tooltip } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment';
 import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
-import { Step, StepsWrap } from 'src/pages/Admin/pay/components/StepsWrap';
+import { StepsWrap } from 'src/pages/Admin/pay/components/StepsWrap';
 import aliQrCode from 'src/pages/Admin/pay/images/aliQrCode.png';
 import wechatQrCode from 'src/pages/Admin/pay/images/wechatQrCode.png';
 import { STEPS } from '../../config';
@@ -35,6 +35,15 @@ const IconWrap = styled.div`
     background: var(--color-primary);
   }
 `;
+
+const PAYMENT_CHECKBOX_STYLES = {
+  label: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    paddingInlineStart: 14,
+    paddingInlineEnd: 0,
+  },
+};
 
 const Erweima = styled.div`
   width: 200px;
@@ -73,12 +82,14 @@ export default class CreateJxqfMerchant extends Component {
       merchantId: (props.currentMerchantInfo || {}).id,
       merchantStatus: (props.currentMerchantInfo || {}).status,
       loading: false,
+      submitting: false,
       merchant: {},
       weChatServiceAccounts: [], // 微信服务号列表
       currentWeChatServiceAccount: { appId: _.get(props, 'currentMerchantInfo.merchantPayConfigInfo.appId') }, // 当前选中的服务号
     };
     this.timeInterval = null;
     this.promise = null;
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -190,6 +201,8 @@ export default class CreateJxqfMerchant extends Component {
 
   // 创建商户
   createMerchant = () => {
+    if (this.requestPending) return;
+
     const { projectId, merchantPaymentChannel, updateCurrentMerchant = () => {} } = this.props;
     const {
       aliPayStatus,
@@ -207,7 +220,9 @@ export default class CreateJxqfMerchant extends Component {
     }
 
     if (isNewCreate) {
-      paymentAjax
+      this.requestPending = true;
+      this.setState({ submitting: true });
+      return paymentAjax
         .createMerchant({
           projectId,
           aliPayStatus: aliPayStatus ? 1 : 0,
@@ -229,6 +244,10 @@ export default class CreateJxqfMerchant extends Component {
               () => this.getMerchant({ isPoll: true }),
             );
           }
+        })
+        .finally(() => {
+          this.requestPending = false;
+          this.setState({ submitting: false });
         });
     } else {
       const successCallback = () => {
@@ -261,7 +280,9 @@ export default class CreateJxqfMerchant extends Component {
         return;
       }
 
-      paymentAjax
+      this.requestPending = true;
+      this.setState({ submitting: true });
+      return paymentAjax
         .editMerchantPayStatus({
           merchantId,
           projectId,
@@ -275,6 +296,10 @@ export default class CreateJxqfMerchant extends Component {
           if (res) {
             successCallback();
           }
+        })
+        .finally(() => {
+          this.requestPending = false;
+          this.setState({ submitting: false });
         });
     }
   };
@@ -291,6 +316,7 @@ export default class CreateJxqfMerchant extends Component {
       merchantStatus,
       weChatServiceAccounts,
       currentWeChatServiceAccount,
+      submitting,
     } = this.state;
     const { publicFormUrl, signUrl } = merchant;
     const description = (_.find(STEPS, (item, index) => step === index) || {}).description;
@@ -323,39 +349,31 @@ export default class CreateJxqfMerchant extends Component {
                 this.pollGetMerchantStatus({ merchantId, merchantNo: merchant.merchantNo });
               }
             }}
-          >
-            {STEPS.map((item, index) => {
-              return (
-                <Step
-                  className={cx({
-                    customTail:
-                      (merchantStatus === 0 && index === 1) || (_.includes([1, 2], merchantStatus) && index === 2),
-                  })}
-                  key={index}
-                  title={item.title}
-                  disabled={
-                    (merchantStatus === 0 && _.includes([2, 3], index)) ||
-                    (_.includes([1, 2], merchantStatus) && _.includes([1, 3], index)) ||
-                    (merchantStatus === 3 && _.includes([1, 2], index)) ||
-                    (createStep === 0 && !merchantId)
-                      ? true
-                      : false
-                  }
-                  status={
-                    createStep === 0 && !merchantId && index === 0
-                      ? ''
-                      : (merchantStatus === 0 && _.includes([0, 1], index)) ||
-                          (_.includes([1, 2], merchantStatus) && _.includes([0, 1, 2], index)) ||
-                          merchantStatus === 3
-                        ? step !== index
-                          ? 'finish'
-                          : ''
-                        : 'wait'
-                  }
-                ></Step>
-              );
-            })}
-          </StepsWrap>
+            items={STEPS.map((item, index) => ({
+              className: cx({
+                customTail:
+                  (merchantStatus === 0 && index === 1) || (_.includes([1, 2], merchantStatus) && index === 2),
+              }),
+              title: item.title,
+              disabled:
+                (merchantStatus === 0 && _.includes([2, 3], index)) ||
+                (_.includes([1, 2], merchantStatus) && _.includes([1, 3], index)) ||
+                (merchantStatus === 3 && _.includes([1, 2], index)) ||
+                (createStep === 0 && !merchantId)
+                  ? true
+                  : false,
+              status:
+                createStep === 0 && !merchantId && index === 0
+                  ? ''
+                  : (merchantStatus === 0 && _.includes([0, 1], index)) ||
+                      (_.includes([1, 2], merchantStatus) && _.includes([0, 1, 2], index)) ||
+                      merchantStatus === 3
+                    ? step !== index
+                      ? 'finish'
+                      : ''
+                    : 'wait',
+            }))}
+          />
           <DivideLine />
           <div className="flex">
             <Description>
@@ -388,26 +406,36 @@ export default class CreateJxqfMerchant extends Component {
                 <div className="Font17 bold mBottom24">{_l('选择支付渠道')}</div>
                 <div className="flexRow alignItemsCenter mBottom20">
                   <Checkbox
-                    className="mRight6"
                     checked={aliPayStatus}
-                    onClick={checked => this.setState({ aliPayStatus: checked ? 0 : 1 })}
-                  />
-                  <IconWrap className="aliBgColor">
-                    <Icon icon="order-alipay" className="Font24" />
-                  </IconWrap>
-                  <span className="Font15">{_l('支付宝')}</span>
+                    styles={PAYMENT_CHECKBOX_STYLES}
+                    onChange={event =>
+                      this.setState({
+                        aliPayStatus: !event.target.checked ? 0 : 1,
+                      })
+                    }
+                  >
+                    <IconWrap as="span" className="aliBgColor">
+                      <Icon icon="order-alipay" className="Font24" />
+                    </IconWrap>
+                    <span className="Font15">{_l('支付宝')}</span>
+                  </Checkbox>
                 </div>
                 <div className="flexRow alignItemsCenter mBottom10">
                   <Checkbox
-                    className="mRight6"
                     disabled={!currentWeChatServiceAccount?.appId || _.isEmpty(weChatServiceAccounts)}
                     checked={wechatPayStatus}
-                    onClick={checked => this.setState({ wechatPayStatus: checked ? 0 : 1 })}
-                  />
-                  <IconWrap className="wechatBgColor">
-                    <Icon icon="wechat_pay" className="Font24" />
-                  </IconWrap>
-                  <span className="Font15">{_l('微信')}</span>
+                    styles={PAYMENT_CHECKBOX_STYLES}
+                    onChange={event =>
+                      this.setState({
+                        wechatPayStatus: !event.target.checked ? 0 : 1,
+                      })
+                    }
+                  >
+                    <IconWrap as="span" className="wechatBgColor">
+                      <Icon icon="wechat_pay" className="Font24" />
+                    </IconWrap>
+                    <span className="Font15">{_l('微信')}</span>
+                  </Checkbox>
                   <Tooltip title={_l('微信服务号主体必须与创建商户的主体一致')}>
                     <Icon icon="info" className="textTertiary mLeft6 Font16" />
                   </Tooltip>
@@ -432,7 +460,8 @@ export default class CreateJxqfMerchant extends Component {
                 <Button
                   type="primary"
                   className="mTop20"
-                  radius
+                  shape="round"
+                  loading={submitting}
                   onClick={this.createMerchant}
                   style={{ borderRadius: '3px' }}
                 >
@@ -481,8 +510,14 @@ export default class CreateJxqfMerchant extends Component {
                         </Tooltip>
                       )}
                     </div>
-                    <Button className="pLeft24 pRight24" onClick={() => window.open(signUrl)}>
-                      {_l('前往中投支付')} <i className="icon icon-arrow_forward mLeft2" />
+                    <Button
+                      type="primary"
+                      className="pLeft24 pRight24"
+                      icon={<i className="icon icon-arrow_forward" />}
+                      iconPlacement="end"
+                      onClick={() => window.open(signUrl)}
+                    >
+                      {_l('前往中投支付')}
                     </Button>
                   </Fragment>
                 )}

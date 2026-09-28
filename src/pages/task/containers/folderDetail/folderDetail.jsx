@@ -2,16 +2,18 @@
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, RichText, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { RichText, ScrollView, UserHead } from 'ming-ui';
+import { Button, Flex, Modal, Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import ajaxRequest from 'src/api/taskCenter';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
-import { htmlEncodeReg } from 'src/utils/common';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+import { htmlEncodeReg } from 'src/utils/core/string';
 import editFolder from '../../components/editFolder/editFolder';
 import { clearFolderTip } from '../../redux/actions';
 import { checkIsProject, errorMessage } from '../../utils/utils';
@@ -175,9 +177,16 @@ class FolderDetail extends Component {
   renderFolderCharge() {
     const { data } = this.state;
     const operation = (
-      <span className="folderDetailOpBtn updateFolderCharge colorPrimary" onClick={this.updateFolderChargeEvents}>
+      <Button
+        block
+        className="folderDetailOpBtn updateFolderCharge"
+        ellipsis
+        color="primary"
+        variant="outlined"
+        onClick={this.updateFolderChargeEvents}
+      >
         {_l('项目托付给他人')}
-      </span>
+      </Button>
     );
     return (
       <li>
@@ -228,43 +237,61 @@ class FolderDetail extends Component {
 
       if (data.chargeUser.accountID === md.global.Account.accountId) {
         return (
-          <Fragment>
-            <span
-              className="folderDetailOpBtn updateFolderChargeFix borderRight colorPrimary"
+          <Flex className="w100" align="center" gap={5}>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderChargeFix"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.clickEvents('updateFolderChargeFix', accountID, avatar, fullName)}
             >
               {_l('设为负责人')}
-            </span>
-            <span
-              className="folderDetailOpBtn updateFolderMember borderRight colorPrimary"
+            </Button>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderMember"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.clickEvents('updateFolderMember', accountID, avatar, fullName)}
             >
               {_l('设为成员')}
-            </span>
-            <span
-              className="folderDetailOpBtn updateFolderLeave fixWidth colorPrimary"
+            </Button>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderLeave"
+              danger
+              ellipsis
               onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
             >
               {_l('移出')}
-            </span>
-          </Fragment>
+            </Button>
+          </Flex>
         );
       } else if (data.isAdmin) {
         return (
-          <Fragment>
-            <span
-              className="folderDetailOpBtn updateFolderMember borderRight colorPrimary"
+          <Flex className="w100" align="center" gap={5}>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderMember"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.clickEvents('updateFolderMember', accountID, avatar, fullName)}
             >
               {_l('设为成员')}
-            </span>
-            <span
-              className="folderDetailOpBtn updateFolderLeave colorPrimary"
+            </Button>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderLeave"
+              ellipsis
+              danger
               onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
             >
               {accountID === md.global.Account.accountId ? _l('退出') : _l('移出')}
-            </span>
-          </Fragment>
+            </Button>
+          </Flex>
         );
       }
 
@@ -292,10 +319,9 @@ class FolderDetail extends Component {
         {data.isAdmin && (
           <Tooltip title={_l('添加项目管理员')}>
             <span>
-              <i
-                className="icon-task-add-member-circle pointer colorPrimary"
-                onClick={evt => this.addFolderMembersEvents(evt, true)}
-              />
+              <UserSelectPopover {...this.getFolderMemberSelectProps(true)}>
+                <i className="icon-task-add-member-circle pointer colorPrimary" />
+              </UserSelectPopover>
             </span>
           </Tooltip>
         )}
@@ -314,63 +340,86 @@ class FolderDetail extends Component {
 
       if (isApply && data.isAdmin) {
         return (
-          <Fragment>
-            <span
-              className="folderDetailOpBtn updateFolderApplyAdmin borderRight colorPrimary"
+          <Flex className="w100" align="center" gap={5}>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderApplyAdmin"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.clickEvents('updateFolderApplyAdmin', accountID, avatar, fullName)}
             >
               {_l('设为管理员')}
-            </span>
-            <span
-              className="folderDetailOpBtn updateFolderApplyMember borderRight colorPrimary"
+            </Button>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderApplyMember"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.clickEvents('updateFolderApplyMember', accountID, avatar, fullName)}
             >
               {_l('设为成员')}
-            </span>
-            <span
-              className="folderDetailOpBtn updateFolderRefuse fixWidth colorPrimary"
+            </Button>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderRefuse"
+              ellipsis
+              danger
               onClick={() => this.clickEvents('updateFolderRefuse', accountID, avatar, fullName)}
             >
               {_l('拒绝')}
-            </span>
-          </Fragment>
+            </Button>
+          </Flex>
         );
       } else if (data.isAdmin) {
         // 负责人多一个设为负责人操作项
         return (
-          <Fragment>
+          <Flex className="w100" align="center" gap={5}>
             {data.chargeUser.accountID === md.global.Account.accountId && (
-              <span
-                className="folderDetailOpBtn updateFolderChargeFix borderRight colorPrimary"
+              <Button
+                block
+                className="folderDetailOpBtn updateFolderChargeFix"
+                ellipsis
+                color="primary"
+                variant="outlined"
                 onClick={() => this.clickEvents('updateFolderChargeFix', accountID, avatar, fullName)}
               >
                 {_l('设为负责人')}
-              </span>
+              </Button>
             )}
-            <span
-              className="folderDetailOpBtn updateFolderAdmin borderRight colorPrimary"
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderAdmin"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.clickEvents('updateFolderAdmin', accountID, avatar, fullName)}
             >
               {_l('设为管理员')}
-            </span>
-            <span
-              className={cx('folderDetailOpBtn updateFolderLeave colorPrimary', {
-                fixWidth: data.chargeUser.accountID === md.global.Account.accountId,
-              })}
+            </Button>
+            <Button
+              block
+              className="folderDetailOpBtn updateFolderLeave"
+              danger
+              ellipsis
               onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
             >
               {_l('移出')}
-            </span>
-          </Fragment>
+            </Button>
+          </Flex>
         );
       } else if (accountID === md.global.Account.accountId) {
         return (
-          <span
-            className="folderDetailOpBtn updateFolderLeave colorPrimary"
+          <Button
+            block
+            className="folderDetailOpBtn updateFolderLeave"
+            danger
+            ellipsis
             onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
           >
             {_l('退出')}
-          </span>
+          </Button>
         );
       }
     };
@@ -415,10 +464,9 @@ class FolderDetail extends Component {
         {data.isAdmin && (
           <Tooltip title={_l('添加项目成员')}>
             <span>
-              <i
-                className="icon-task-add-member-circle pointer colorPrimary"
-                onClick={evt => this.addFolderMembersEvents(evt, false)}
-              />
+              <UserSelectPopover {...this.getFolderMemberSelectProps(false)}>
+                <i className="icon-task-add-member-circle pointer colorPrimary" />
+              </UserSelectPopover>
             </span>
           </Tooltip>
         )}
@@ -504,14 +552,10 @@ class FolderDetail extends Component {
   /**
    * 添加项目人员事件
    */
-  addFolderMembersEvents(evt, isAdmin) {
+  getFolderMemberSelectProps(isAdmin) {
     const { data } = this.state;
     const { folderId, projectId } = this.props.taskConfig;
     let existsIds = [];
-
-    const callback = users => {
-      this.addFolderMembers(users, isAdmin);
-    };
 
     existsIds = existsIds.concat(data.admins.map(item => item.accountID));
 
@@ -519,7 +563,7 @@ class FolderDetail extends Component {
       existsIds = existsIds.concat(data.ordinaryMembers.map(item => item.accountID));
     }
 
-    quickSelectUser(evt.target, {
+    return {
       sourceId: folderId,
       projectId,
       fromType: 6,
@@ -529,22 +573,36 @@ class FolderDetail extends Component {
         filterAccountIds: [data.chargeUser.accountID],
         selectedAccountIds: existsIds,
         projectId: checkIsProject(projectId) ? projectId : '',
-        callback,
+        callback: users => this.addFolderMembers(users, isAdmin),
       },
-      selectCb: callback,
-    });
+      onSelect: users => this.addFolderMembers(users, isAdmin),
+    };
   }
 
   /**
    * 更改项目负责人
    */
   updateFolderCharge(accountId, avatar, fullname) {
-    Dialog.confirm({
-      dialogClasses: 'updateFolderCharge',
+    Modal.confirm({
+      wrapClassName: 'updateFolderCharge',
+      okButtonProps: { danger: true },
       closable: false,
-      title: <div style={{ color: 'var(--color-error)' }}>{_l('将项目负责人移交给“%0”', fullname)}</div>,
-      children: (
-        <div className="Font14" style={{ color: 'var(--color-text-tertiary)' }}>
+      title: (
+        <div
+          style={{
+            color: 'var(--color-error)',
+          }}
+        >
+          {_l('将项目负责人移交给“%0”', fullname)}
+        </div>
+      ),
+      content: (
+        <div
+          className="Font14"
+          style={{
+            color: 'var(--color-text-tertiary)',
+          }}
+        >
           {_l('如果您移交后，将无法把自己重新设为该项目的负责人')}
         </div>
       ),
@@ -559,17 +617,15 @@ class FolderDetail extends Component {
             if (source.status) {
               const data = _.cloneDeep(this.state.data);
               const oldCharge = _.cloneDeep(data.chargeUser);
-
               data.chargeUser.accountID = accountId;
               data.chargeUser.avatar = avatar;
               data.chargeUser.fullName = fullname;
-
               data.admins.push(oldCharge);
-
               _.remove(data.ordinaryMembers, item => item.accountID === accountId);
               _.remove(data.applyMembers, item => item.accountID === accountId);
-
-              this.setState({ data });
+              this.setState({
+                data,
+              });
 
               // 左边列表更新
               const $navLi = $('.folderList .commFolder').filter('[data-id=' + this.props.taskConfig.folderId + ']');
@@ -645,9 +701,9 @@ class FolderDetail extends Component {
       msg = _l('确定退出该项目？');
     }
 
-    Dialog.confirm({
-      title: '',
-      description: msg,
+    Modal.confirm({
+      title: <span className="textError">{msg}</span>,
+      okButtonProps: { danger: true },
       onOk: () => {
         ajaxRequest
           .removeFolderMember({
@@ -659,7 +715,6 @@ class FolderDetail extends Component {
             if (source.status) {
               if (accountId === md.global.Account.accountId) {
                 alert(_l('退出成功'));
-
                 if (location.href.indexOf('application') > -1) {
                   location.reload();
                 } else {
@@ -670,7 +725,9 @@ class FolderDetail extends Component {
                 const data = _.cloneDeep(that.state.data);
                 _.remove(data.admins, item => item.accountID === accountId);
                 _.remove(data.ordinaryMembers, item => item.accountID === accountId);
-                that.setState({ data });
+                that.setState({
+                  data,
+                });
                 alert(_l('移除成功'));
               }
             } else {
@@ -722,9 +779,10 @@ class FolderDetail extends Component {
   refuseFolderMember(accountId) {
     const that = this;
 
-    Dialog.confirm({
-      title: '',
-      description: _l('确认拒绝该成员？'),
+    Modal.confirm({
+      title: _l('拒绝成员'),
+      okButtonProps: { danger: true },
+      content: _l('确认拒绝该成员？'),
       onOk: () => {
         ajaxRequest
           .refuseFolderMember({
@@ -735,7 +793,9 @@ class FolderDetail extends Component {
             if (source.status) {
               const data = _.cloneDeep(that.state.data);
               _.remove(data.applyMembers, item => item.accountID === accountId);
-              that.setState({ data });
+              that.setState({
+                data,
+              });
             } else {
               errorMessage(source.error);
             }
@@ -811,6 +871,7 @@ class FolderDetail extends Component {
       folderId,
       visibility: data.visibility,
       selectGroup: data.groupInfo.map(item => item.groupID).join(','),
+      groupInfo: data.groupInfo,
       callback: folderObj => {
         data.visibility = folderObj.visibility;
         data.groupInfo = folderObj.groupInfo || [];
@@ -930,7 +991,7 @@ class FolderDetail extends Component {
     return (
       <div key={i} className="projectLogs boxSizing">
         <i className={cx('logsType', this.returnIcons(log.type))} />
-        <div dangerouslySetInnerHTML={{ __html: log.msg }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizePostMessageHtml(log.msg) }} />
         <span className="logsTime">{createTimeSpan(log.createTime)}</span>
       </div>
     );

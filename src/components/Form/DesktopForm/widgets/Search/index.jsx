@@ -1,45 +1,31 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Select } from 'antd';
+import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Select } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
 import {
   clearValue,
   dealAuthAccount,
   getParamsByConfigs,
+  getSearchMappingControl,
   getShowValue,
   handleUpdateApi,
 } from '../../../core/searchUtils';
 import './index.less';
 
-const SearchBtn = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  max-width: ${props => props.maxWidth || '320px'};
-  width: 100%;
-  height: 36px;
-  border: 1px solid ${props => props?.buttonStyle?.bordercolor || 'var(--color-border-primary)'};
-  border-radius: 3px;
-  padding: 0 16px;
-  background: ${props => props?.buttonStyle?.background || 'var(--color-background-primary)'};
-  color: var(--color-text-primary);
-  font-size: 13px;
-  &:hover {
-    background: ${props => props?.buttonStyle?.background || 'var(--color-background-hover)'};
-  }
-  .successIcon {
-    color: var(--color-success);
-    font-size: 18px;
-    vertical-align: text-bottom;
-  }
-`;
+const getSearchButtonStyle = (background, borderColor, maxWidth) => {
+  return {
+    maxWidth,
+    width: '100%',
+    ...(background ? { color: new TinyColor(background).isDark() ? 'var(--color-white)' : 'var(--color-black)' } : {}),
+    ...(borderColor ? { borderColor } : {}),
+  };
+};
 
 const Search = props => {
   const {
@@ -62,6 +48,7 @@ const Search = props => {
     recordId,
     onChange,
     isCell,
+    isFormDetail,
   } = props;
   const {
     requestmap,
@@ -180,10 +167,9 @@ const Search = props => {
     const responseMap = safeParse(responsemap || '[]');
     let rowData = {};
 
-    const newValue = getOptions().filter((i, idx) => `${idx}` === item.key);
     responseMap.map(i => {
       if (!i.subid && _.isUndefined(data[i.cid])) {
-        rowData[i.cid] = clearValue((newValue[0] || {})[i.id]);
+        rowData[i.cid] = clearValue(item[i.id]);
       }
     });
 
@@ -194,11 +180,8 @@ const Search = props => {
     return safeParse((data || {})[itemsource] || '[]');
   }, [itemsource, data]);
 
-  const getMappingItem = i => {
-    const responseMap = safeParse(responsemap || '[]');
-    const curMap = _.find(responseMap, re => re.id === i && !re.pid && !re.subid);
-    return curMap ? _.find(formData, c => c.controlId === curMap.cid) : '';
-  };
+  const responseMap = safeParse(responsemap || '[]');
+  const getMappingItem = id => getSearchMappingControl(responseMap, formData, id);
 
   const renderList = item => {
     const itemDesc = safeParse(itemdesc || '[]');
@@ -260,7 +243,7 @@ const Search = props => {
       if (boxRef.current) {
         setTimeout(() => {
           try {
-            boxRef.current.querySelector('.ant-select-selection-search-input').focus();
+            boxRef.current.querySelector('.hap-select-selection-search-input').focus();
           } catch (err) {
             console.log(err);
           }
@@ -270,24 +253,21 @@ const Search = props => {
   }, [defaultSelectProps.open]);
 
   if (type === 49) {
+    const { background, bordercolor } = safeParse(advancedSetting.cardstyle || '{}', 'object') || {};
+
     return (
-      <SearchBtn
-        buttonStyle={JSON.parse(advancedSetting.cardstyle || '{}')}
-        onClick={() => {
-          if (loading) return;
-          handleSearch();
-        }}
-        maxWidth={hint.length <= 2 ? '120px' : '320px'}
+      <Button
+        className="customApiSearchButton"
+        color={background || 'default'}
+        variant={background ? 'solid' : 'textBordered'}
+        disabled={disabled}
+        loading={loading}
+        style={getSearchButtonStyle(background, bordercolor, hint.length <= 2 ? 120 : 320)}
+        icon={isSuccess ? <i className="icon-done successIcon" /> : undefined}
+        onClick={handleSearch}
       >
-        {loading ? (
-          <LoadDiv size="small" />
-        ) : (
-          <span className="TxtCenter flex overflow_ellipsis">
-            {isSuccess && <i className="icon-done successIcon"></i>}
-            <span className="Bold"> {hint || _l('查询')}</span>
-          </span>
-        )}
-      </SearchBtn>
+        <span className="Bold overflow_ellipsis">{hint || _l('查询')}</span>
+      </Button>
     );
   }
 
@@ -304,7 +284,7 @@ const Search = props => {
       filterOption: (inputValue, option) => {
         return `${option.label}`.indexOf(inputValue) > -1;
       },
-      onDropdownVisibleChange: open => {
+      onOpenChange: open => {
         updateKeywords('');
         open ? handleSearch() : searchRef.current.blur();
         onVisibleChange(open);
@@ -331,14 +311,26 @@ const Search = props => {
           handleSearch();
         }
       },
-      onDropdownVisibleChange: open => {
+      onOpenChange: open => {
         // 预加载
         if (searchfirst === '1' && open) {
           handleSearch();
         }
+
+        onVisibleChange(open);
       },
     };
   }
+
+  const selectOptions = optionData.map((item, index) => {
+    const label = getShowValue(getMappingItem(itemtitle), item[itemtitle]);
+
+    return {
+      value: index,
+      label,
+      item,
+    };
+  });
 
   return (
     <div ref={boxRef}>
@@ -346,8 +338,12 @@ const Search = props => {
         ref={searchRef}
         open={open}
         getPopupContainer={() => (isCell ? document.body : boxRef.current)}
-        dropdownClassName={dropdownClassName}
-        className={cx('w100 customAntSelect', { customApiSelect: isSelectBtn, customSelectIcon: enumDefault === 2 })}
+        classNames={{ popup: { root: dropdownClassName } }}
+        className={cx('w100 customAntSelect', {
+          customApiSelect: isSelectBtn,
+          customApiSelectFilled: isSelectBtn && isFormDetail,
+          customSelectIcon: enumDefault === 2,
+        })}
         disabled={disabled}
         allowClear={value}
         listHeight={320}
@@ -358,6 +354,9 @@ const Search = props => {
         showSearch={true}
         suffixIcon={suffixIcon}
         {...{ ...defaultSelectProps, ...selectProps }}
+        variant={isFormDetail ? 'filled' : 'outlined'}
+        options={selectOptions}
+        optionRender={({ data }) => renderList(data.item)}
         notFoundContent={
           // 搜索框不打开时
           loading ? (
@@ -366,7 +365,7 @@ const Search = props => {
             <span className="textTertiary">{_l('没有返回结果')}</span>
           ) : null
         }
-        onSelect={(value, option) => handleSelect(option)}
+        onSelect={(value, option) => handleSelect(option.item)}
         onChange={(value, option) => {
           // keywords判断是为了直接点击删除
           if (_.get(option, 'label') || !keywords.length) {
@@ -381,16 +380,7 @@ const Search = props => {
           updateKeywords('');
           onVisibleChange(false);
         }}
-      >
-        {optionData.map((item, index) => {
-          const label = getShowValue(getMappingItem(itemtitle), item[itemtitle]);
-          return (
-            <Select.Option key={index} value={index} label={label}>
-              {renderList(item)}
-            </Select.Option>
-          );
-        })}
-      </Select>
+      />
     </div>
   );
 };

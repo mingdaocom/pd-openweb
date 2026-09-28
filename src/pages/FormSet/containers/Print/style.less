@@ -20,91 +20,30 @@
 
   .topBoxText {
     display: flex;
+    margin-top: 32px;
 
     .textCon {
       flex: 1;
     }
 
-    .add {
-      padding: 0 16px;
-      line-height: 38px;
-      height: 38px;
-      background: var(--color-primary) 0% 0% no-repeat padding-box;
-      border-radius: 32px;
-      text-align: center;
-      font-size: 13px;
-      letter-spacing: 0px;
-      color: var(--color-white);
-      cursor: pointer;
+    .desc {
+      margin-bottom: 2em;
+    }
+  }
 
-      &:hover {
-        background: var(--color-primary);
-      }
+  .printSettingSection {
+    margin-top: 24px;
 
-      .actDia {
-        position: absolute;
-        width: 220px;
-        background: var(--color-background-primary) 0% 0% no-repeat padding-box;
-        box-shadow: 0px 4px 16px #0000003d;
-        border-radius: 3px;
-        padding: 6px 0;
-        right: 0;
-        top: 99%;
-        text-align: left;
-
-        li {
-          padding: 0 18px;
-          height: 36px;
-          line-height: 36px;
-          font-weight: normal;
-
-          .icon {
-            color: var(--color-text-tertiary);
-            margin-right: 15px;
-            font-size: 18px;
-            vertical-align: middle;
-          }
-
-          &:hover {
-            background-color: var(--color-primary);
-            color: var(--color-white);
-
-            .icon {
-              color: var(--color-white);
-            }
-          }
-
-          .upNew {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            line-height: 15px;
-            background-color: #ffa90e;
-            color: var(--color-white);
-            text-align: center;
-
-            .icon {
-              font-size: 7px;
-              color: var(--color-white) !important;
-              position: absolute;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
-            }
-          }
-        }
-      }
+    .printCountSettingCard {
+      margin-top: 12px;
     }
   }
 
   .noData {
+    flex: 1;
     margin: 0 auto;
     text-align: center;
     color: var(--color-text-tertiary);
-    height: 100%;
     padding-top: 200px;
     font-size: 15px;
 
@@ -176,7 +115,7 @@
     margin-top: 3px;
     margin-right: -32px;
     width: 100%;
-    height: calc(~'100% - 68px');
+    min-height: 0;
 
     .printTemTi {
       color: var(--color-text-secondary);
@@ -241,10 +180,6 @@
           margin: 7px 0;
           border: 1px solid var(--color-primary);
         }
-
-        .moreActive {
-          line-height: 40px;
-        }
       }
 
       .con {
@@ -295,42 +230,6 @@
           font-size: 12px;
           color: var(--color-text-secondary);
           margin-top: 6px;
-        }
-      }
-
-      .moreOptionTrigger {
-        top: 30px;
-        right: 7px;
-        position: absolute;
-        padding: 6px 0;
-        background: var(--color-background-card);
-        box-shadow: var(--shadow-lg);
-        border-radius: 2px;
-        z-index: 1;
-        text-align: left;
-
-        li {
-          min-width: 140px;
-          width: max-content;
-          height: 36px;
-          line-height: 36px;
-          padding: 0 20px;
-          box-sizing: border-box;
-          color: var(--color-text-title);
-          cursor: pointer;
-
-          &:hover {
-            background: var(--color-background-hover);
-          }
-
-          &.red {
-            color: var(--color-error);
-
-            &:hover {
-              background: red;
-              color: var(--color-white);
-            }
-          }
         }
       }
     }
@@ -386,6 +285,13 @@
       .views {
         padding: 10px 0;
       }
+      .printCountLimit {
+        flex-shrink: 0;
+
+        .unlimited {
+          color: var(--color-text-disabled);
+        }
+      }
       .activeCon {
         display: flex;
         justify-content: space-between;
@@ -399,80 +305,6 @@
           }
         }
       }
-      .more {
-        position: relative;
-      }
-      &:last-child {
-        .moreOptionTrigger {
-          bottom: 30px;
-          top: auto;
-        }
-      }
-      &:first-child,
-      &:nth-child(2) {
-        .moreOptionTrigger {
-          bottom: auto !important;
-          top: 30px !important;
-        }
-      }
-      .moreOptionTrigger {
-        top: 30px;
-        right: 7px;
-        position: absolute;
-        padding: 8px 0;
-        background: var(--color-background-primary);
-        box-shadow: 0px 4px 16px #0000003d;
-        border-radius: 4px;
-        z-index: 1;
-        text-align: left;
-
-        li {
-          min-width: 200px;
-          width: max-content;
-          height: 44px;
-          line-height: 44px;
-          padding: 0 24px 0 20px;
-          box-sizing: border-box;
-          color: var(--color-text-title);
-          cursor: pointer;
-
-          &.disabled {
-            color: var(--color-text-disabled);
-            cursor: not-allowed;
-            .icon {
-              color: var(--color-text-disabled) !important;
-            }
-          }
-
-          &.moreOptionDivider {
-            min-width: 100%;
-            width: 100%;
-            height: 1px;
-            padding: 0;
-            margin: 8px 0;
-            background: var(--color-border-secondary);
-            cursor: default;
-
-            &:hover {
-              background: var(--color-border-secondary);
-            }
-          }
-
-          &:hover {
-            background: var(--color-background-secondary);
-            // color: var(--color-white);
-          }
-
-          &.red {
-            color: var(--color-error);
-
-            &:hover {
-              background: red;
-              color: var(--color-white);
-            }
-          }
-        }
-      }
       .views .viewsBox {
         width: fit-content;
         max-width: 100%;
@@ -480,6 +312,11 @@
     }
     .printTemplatesList-header,
     .printTemplatesList-tr {
+      .printCountLimit {
+        flex-shrink: 0;
+        margin-right: 80px;
+      }
+
       .w120px {
         width: 120px;
       }
@@ -503,18 +340,6 @@
 }
 
 .printTempDrawer {
-  .ant-drawer-header {
-    border-bottom: none;
-  }
-
-  .ant-drawer-header-title {
-    flex-direction: row-reverse;
-
-    .ant-drawer-close {
-      margin-right: 0;
-    }
-  }
-
   .printTempDrawerListTitle {
     font-size: 13px;
     line-height: 1em;
@@ -610,9 +435,6 @@
       }
     }
   }
-  .more {
-    position: relative;
-  }
 
   .topBox {
     border-radius: 3px 3px 0px 0px;
@@ -656,11 +478,6 @@
       color: var(--color-text-title);
       margin: 7px 0;
       border: 1px solid var(--color-primary);
-    }
-
-    .moreActive {
-      line-height: 40px;
-      margin-left: 6px;
     }
   }
 
@@ -713,65 +530,6 @@
       font-size: 12px;
       color: var(--color-text-secondary);
       margin-top: 6px;
-    }
-  }
-
-  .moreOptionTrigger {
-    top: 30px;
-    right: 7px;
-    position: absolute;
-    padding: 8px 0;
-    background: var(--color-background-primary);
-    box-shadow: 0px 4px 16px #0000003d;
-    border-radius: 4px;
-    z-index: 1;
-    text-align: left;
-
-    li {
-      min-width: 200px;
-      width: max-content;
-      height: 44px;
-      line-height: 44px;
-      padding: 0 24px 0 20px;
-      box-sizing: border-box;
-      color: var(--color-text-title);
-      cursor: pointer;
-
-      &.disabled {
-        color: var(--color-text-disabled);
-        cursor: not-allowed;
-        .icon {
-          color: var(--color-text-disabled) !important;
-        }
-      }
-
-      &.moreOptionDivider {
-        min-width: 100%;
-        width: 100%;
-        height: 1px;
-        padding: 0;
-        margin: 8px 0;
-        background: var(--color-border-secondary);
-        cursor: default;
-
-        &:hover {
-          background: var(--color-border-secondary);
-        }
-      }
-
-      &:hover {
-        background: var(--color-background-secondary);
-        // color: var(--color-white);
-      }
-
-      &.red {
-        color: var(--color-error);
-
-        &:hover {
-          background: red;
-          color: var(--color-white);
-        }
-      }
     }
   }
 

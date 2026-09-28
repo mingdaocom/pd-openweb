@@ -3,43 +3,40 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, RadioGroup, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { Popover, Radio, Segmented, Select, Switch, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { getSortData } from 'src/utils/control';
-import { SUPPORT_RELATE_SEARCH } from '../../config';
-import { WHOLE_SIZE } from '../../config/Drag';
-import { COVER_FILL_TYPES, RELATE_SORT_DISPLAY } from '../../config/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { SUPPORT_RELATE_SEARCH } from 'src/utils/domain/control/config';
+import { isFullLineControl } from 'src/utils/domain/control/editorLayout';
+import { getControlsSorts, getDisplayType, updateConfig } from 'src/utils/domain/control/editorSetting';
+import { filterSysControls, formatControlsToDropdown, getFilterRelateControls } from 'src/utils/domain/control/filters';
+import { getPathById, WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { COVER_FILL_TYPES, RELATE_SORT_DISPLAY } from 'src/utils/domain/control/setting';
+import { getSortData } from 'src/utils/domain/control/sort';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
 import { useSheetInfo } from '../../hooks';
-import { AnimationWrap, CoverWrap, EditInfo, SettingItem } from '../../styled';
-import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, isCustomWidget } from '../../util';
-import {
-  getAdvanceSetting,
-  getControlsSorts,
-  getDisplayType,
-  handleAdvancedSettingChange,
-  updateConfig,
-} from '../../util/setting';
-import { getPathById, isFullLineControl } from '../../util/widgets';
+import { CoverWrap, EditInfo, SettingItem } from '../../styled';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import RelateDetailInfo from '../components/RelateDetailInfo';
 import ConfigRelate from '../components/relateSheet/ConfigRelate';
-import openSelectConfig from '../components/relateSheet/selectConfig';
+import { useSelectConfig } from '../components/relateSheet/selectConfig';
 import WidgetVerify from '../components/WidgetVerify';
 
-const DISPLAY_COUNT = [
-  { text: _l('单条'), value: 1 },
-  { text: _l('多条'), value: 2 },
+const getDisplayCountOptions = () => [
+  { label: _l('单条'), value: 1 },
+  { label: _l('多条'), value: 2 },
 ];
 
-const DISPLAY_CHOOSE = [
-  { text: _l('下拉框'), value: '3' },
-  { text: _l('弹层'), value: '1' },
+const getDisplayChooseOptions = () => [
+  { label: _l('下拉框'), value: '3' },
+  { label: _l('弹层'), value: '1' },
 ];
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const RelateSheetWrap = styled.div`
   .filterBtn {
@@ -64,9 +61,15 @@ const RelateSheetCover = styled.div`
   display: flex;
   .sortColumnWrap {
     flex: 1;
-    .Dropdown--input {
-      ${props => (props.hideCover ? 'border-radius: 3px;' : 'border-right: none;border-radius: 3px 0px 0px 3px;')};
-    }
+    ${props =>
+      props.$hasCover &&
+      `
+        .hap-select {
+          background: transparent !important;
+          border-right: none !important;
+          border-radius: 3px 0 0 3px !important;
+        }
+      `}
   }
   .relateCoverSetting {
     width: 36px;
@@ -105,7 +108,7 @@ const SettingConfigWrap = styled.div`
   }
 `;
 
-export default function RelateSheet(props) {
+function RelateSheet(props) {
   let {
     from,
     data,
@@ -116,6 +119,7 @@ export default function RelateSheet(props) {
     status: { saveIndex = 0 } = {},
     fromPortal,
     widgets = [],
+    openSelectConfig,
   } = props;
   const { worksheetId: sourceId } = globalSheetInfo;
   const {
@@ -223,6 +227,11 @@ export default function RelateSheet(props) {
   const filterControls = getFilterRelateControls({ controls: relationControls, showControls, data });
   const titleControl = _.find(filterControls, item => item.attribute === 1);
   const RELATION_SHEET_DISPLAY = getDisplayType({ from, type: enumDefault });
+  const relationSheetDisplayOptions = (
+    fromPortal
+      ? RELATION_SHEET_DISPLAY.filter(i => !i.disabled && i.value === '1')
+      : RELATION_SHEET_DISPLAY.filter(i => !i.disabled)
+  ).map(({ text: label, ...option }) => ({ ...option, label }));
   const setTitleControls = filterSysControls(filterControls).filter(i => _.includes(SUPPORT_RELATE_SEARCH, i.type));
   const showTitleDelete = showtitleid && !_.find(setTitleControls, s => s.controlId === showtitleid);
 
@@ -282,52 +291,58 @@ export default function RelateSheet(props) {
               </span>
             )}
           </div>
-          <div className="textTertiary mTop10">{_l('选择作为封面图片的附件字段')}</div>
-          <RadioGroup
-            radioItemClassName="mTop10"
+          <div className="textTertiary mTop10 mBottom8">{_l('选择作为封面图片的附件字段')}</div>
+          <Radio.Group
             disabled={!dataSource}
-            checkedValue={coverId}
-            data={filterControls
-              .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
-              .map(c => ({
-                text: c.controlName,
-                value: c.controlId,
-              }))}
+            value={coverId}
+            options={(
+              filterControls
+                .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
+                .map(c => ({
+                  text: c.controlName,
+                  value: c.controlId,
+                })) || []
+            ).map(({ text, ...option }) => ({ ...option, label: text }))}
             vertical={true}
-            onChange={value => {
+            onChange={event => {
+              const value = event.target.value;
+
               if (isExtra) {
-                onChange(handleAdvancedSettingChange(data, { choosecoverid: value }));
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    choosecoverid: value,
+                  }),
+                );
                 return;
               }
 
-              onChange({ coverCid: value });
+              onChange({
+                coverCid: value,
+              });
             }}
           />
           <div className="flexCenter mTop20">
             <span className="textSecondary mRight20">{_l('填充方式')}</span>
-            {COVER_FILL_TYPES.map(item => {
-              return (
-                <span
-                  className={cx('coverType Hand', { active: item.value === coverType })}
-                  onClick={() => onChange(handleAdvancedSettingChange(data, { [typeKey]: item.value }))}
-                >
-                  {item.text}
-                </span>
-              );
-            })}
+            <Segmented
+              block
+              className="flex"
+              value={coverType}
+              options={COVER_FILL_TYPES.map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={value => onChange(handleAdvancedSettingChange(data, { [typeKey]: value }))}
+            />
           </div>
         </CoverWrap>
       );
     };
 
     return (
-      <SettingItem hide={isCustomWidget(data)}>
+      <SettingItem $hide={isCustomWidget(data)}>
         {!hideTitle && (
           <div className="settingItemTitle mBottom8">
             <span>{_l('关联后显示的字段')}</span>
           </div>
         )}
-        <RelateSheetCover hideCover={isSheetDisplay()}>
+        <RelateSheetCover $hasCover={!isSheetDisplay()}>
           <SortColumns
             sortAutoChange
             isShowColumns
@@ -364,22 +379,19 @@ export default function RelateSheet(props) {
             }}
           />
           {!isSheetDisplay() && (
-            <Trigger
-              popup={renderCover}
-              action={['click']}
-              popupAlign={{
-                points: ['tr', 'br'],
-                offset: [0, 2],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              getPopupContainer={() => document.body}
-            >
-              <Tooltip title={_l('设置封面')} placement="bottom">
+            <Tooltip title={_l('设置封面')} placement="bottom">
+              <Popover
+                noPadding
+                content={renderCover}
+                trigger="click"
+                placement="bottomRight"
+                getPopupContainer={() => document.body}
+              >
                 <div className="relateCoverSetting">
                   <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverId })}></span>
                 </div>
-              </Tooltip>
-            </Trigger>
+              </Popover>
+            </Tooltip>
           )}
         </RelateSheetCover>
       </SettingItem>
@@ -423,88 +435,74 @@ export default function RelateSheet(props) {
       )}
       <SettingItem>
         <div className="settingItemTitle">{_l('关联记录数量')}</div>
-        <AnimationWrap>
-          {DISPLAY_COUNT.map(({ text, value }) => (
-            <div
-              className={cx('animaItem', { active: enumDefault === value })}
-              onClick={() => {
-                if (value === 1) {
-                  let nextData = { ...data, enumDefault: 1 };
+        <Segmented
+          block
+          value={enumDefault}
+          options={getDisplayCountOptions()}
+          onChange={value => {
+            if (value === 1) {
+              let nextData = { ...data, enumDefault: 1 };
 
-                  // 从关联多条列表切换到关联单条自动切换为单条卡片
-                  if (isSheetDisplay()) {
-                    nextData = handleAdvancedSettingChange(nextData, { showtype: '1', choosetype: '1' });
-                  }
+              // 从关联多条列表切换到关联单条自动切换为单条卡片
+              if (isSheetDisplay()) {
+                nextData = handleAdvancedSettingChange(nextData, { showtype: '1', choosetype: '1' });
+              }
 
-                  // 关联单条不支持一下操作
-                  nextData = handleAdvancedSettingChange(nextData, {
-                    sorts: '',
-                    allowcancel: '1',
-                    choosesorts: '',
-                    ...(layercontrolid ? { layercontrolid: '' } : {}),
-                  });
-                  onChange(nextData);
-                  return;
-                }
+              // 关联单条不支持一下操作
+              nextData = handleAdvancedSettingChange(nextData, {
+                sorts: '',
+                allowcancel: '1',
+                choosesorts: '',
+                ...(layercontrolid ? { layercontrolid: '' } : {}),
+              });
+              onChange(nextData);
+              return;
+            }
 
-                // 多条清掉不允许重复配置
-                onChange({
-                  ...handleAdvancedSettingChange(data, { choosetype: '2' }),
-                  enumDefault: value,
-                  unique: false,
-                });
-              }}
-            >
-              {text}
-            </div>
-          ))}
-        </AnimationWrap>
+            // 多条清掉不允许重复配置
+            onChange({
+              ...handleAdvancedSettingChange(data, { choosetype: '2' }),
+              enumDefault: value,
+              unique: false,
+            });
+          }}
+        />
       </SettingItem>
-      <SettingItem hide={isCustomWidget(data) || (fromPortal && enumDefault === 1)}>
+      <SettingItem $hide={isCustomWidget(data) || (fromPortal && enumDefault === 1)}>
         <div className="settingItemTitle">{enumDefault === 1 ? _l('记录选择方式') : _l('记录显示方式')}</div>
         {enumDefault === 1 ? (
-          <AnimationWrap>
-            {DISPLAY_CHOOSE.map(({ text, value }) => (
-              <div
-                className={cx('animaItem', { active: showtype === value })}
-                onClick={() => {
-                  if (value !== showtype) {
-                    const nextData = {
-                      ...handleAdvancedSettingChange(data, {
-                        sorts: '',
-                        resultfilters: '',
-                        layercontrolid: '',
-                        showtype: value,
-                        chooseshowids: value === '3' ? JSON.stringify(showControls) : '',
-                        ddset: '0',
-                        ...(value !== '3' && openfastfilters === '0' ? { openfastfilters: '1' } : {}),
-                        ...(value === '3' && chooselisttype === '2' ? { chooselisttype: '1' } : {}),
-                      }),
-                      strDefault: updateConfig({
-                        config: strDefault,
-                        value: 0,
-                        index: 0,
-                      }),
-                      showControls: value === '3' ? [] : chooseshowIds,
-                    };
-                    onChange(nextData);
-                  }
-                }}
-              >
-                {text}
-              </div>
-            ))}
-          </AnimationWrap>
-        ) : (
-          <Dropdown
-            border
+          <Segmented
+            block
             value={showtype}
-            data={
-              fromPortal
-                ? RELATION_SHEET_DISPLAY.filter(i => !i.disabled && i.value === '1')
-                : RELATION_SHEET_DISPLAY.filter(i => !i.disabled)
-            }
-            renderTitle={() =>
+            options={getDisplayChooseOptions()}
+            onChange={value => {
+              const nextData = {
+                ...handleAdvancedSettingChange(data, {
+                  sorts: '',
+                  resultfilters: '',
+                  layercontrolid: '',
+                  showtype: value,
+                  chooseshowids: value === '3' ? JSON.stringify(showControls) : '',
+                  ddset: '0',
+                  ...(value !== '3' && openfastfilters === '0' ? { openfastfilters: '1' } : {}),
+                  ...(value === '3' && chooselisttype === '2' ? { chooselisttype: '1' } : {}),
+                }),
+                strDefault: updateConfig({
+                  config: strDefault,
+                  value: 0,
+                  index: 0,
+                }),
+                showControls: value === '3' ? [] : chooseshowIds,
+              };
+              onChange(nextData);
+            }}
+          />
+        ) : (
+          <Select
+            className="w100"
+            value={showtype}
+            options={relationSheetDisplayOptions}
+            labelRender={() =>
               _.get(
                 _.find(RELATION_SHEET_DISPLAY, r => r.value === showtype),
                 'text',
@@ -581,11 +579,12 @@ export default function RelateSheet(props) {
       {!isSheetDisplay() && (
         <SettingItem>
           <div className="settingItemTitle">{_l('标题字段')}</div>
-          <Dropdown
-            border
-            cancelAble
+          <Select
+            className="w100"
+            allowClear
             value={showTitleDelete ? undefined : showtitleid || undefined}
-            data={formatControlsToDropdown(setTitleControls)}
+            options={formatControlsToDropdown(setTitleControls)}
+            fieldNames={SELECT_FIELD_NAMES}
             placeholder={showTitleDelete ? <span className="Red">{_l('已删除')}</span> : _l('默认使用记录标题')}
             onChange={value => onChange(handleAdvancedSettingChange(data, { showtitleid: value }))}
           />
@@ -664,15 +663,23 @@ export default function RelateSheet(props) {
                 <Switch
                   size="small"
                   checked={allowdrag === '1'}
-                  onClick={checked => onChange(handleAdvancedSettingChange(data, { allowdrag: String(+!checked) }))}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return onChange(
+                      handleAdvancedSettingChange(data, {
+                        allowdrag: String(+!!checked),
+                      }),
+                    );
+                  }}
                 />
               </span>
             )}
           </div>
-          <Dropdown
-            border
+          <Select
+            className="w100"
             value={rcsorttype || undefined}
-            data={getRelateSortDisplay()}
+            options={getRelateSortDisplay()}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => {
               if (value === rcsorttype) return;
               onChange(handleAdvancedSettingChange(data, { rcsorttype: value, sorts: '', allowdrag: '0' }));
@@ -727,3 +734,7 @@ export default function RelateSheet(props) {
     </RelateSheetWrap>
   );
 }
+
+export default withOpeners(RelateSheet, {
+  openSelectConfig: useSelectConfig,
+});

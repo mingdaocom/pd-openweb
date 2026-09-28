@@ -3,17 +3,18 @@ import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, number, string } from 'prop-types';
-import { Dialog, FunctionWrap, Icon, IconTabs, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import AppNavStyle from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
-import { getThemeColors } from 'src/utils/project';
+import { Icon, IconTabs } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
+import { getThemeColors } from 'src/utils/services/project';
 import dialogSelectColor from '../dialogSelectColor';
+import AppNavStyle from './AppNavStyle';
 import './index.less';
 
 const DEFAULT_COLOR = '#1677ff';
 const NAME_MAX_LENGTH = 100;
+const MODAL_STYLES = { mask: { backgroundColor: 'rgba(0, 0, 0, 0.1)' } };
 
-class SelectIcon extends Component {
+export class SelectIcon extends Component {
   static propTypes = {
     projectId: string,
     className: string,
@@ -57,9 +58,11 @@ class SelectIcon extends Component {
   }
 
   componentDidMount() {
-    if (this.$nameRef.current) {
-      this.$nameRef.current.focus();
-      this.$nameRef.current.select();
+    const nameInput = this.getNameInput();
+
+    if (nameInput) {
+      nameInput.focus();
+      nameInput.select();
     }
   }
 
@@ -68,6 +71,8 @@ class SelectIcon extends Component {
     // 取消防抖函数，避免内存泄漏
     this.debouncedModifyName?.cancel();
   }
+
+  getNameInput = () => this.$nameRef.current?.input || this.$nameRef.current;
 
   getNavColorList(iconColor) {
     const lightColor = generate(iconColor)[0];
@@ -83,8 +88,7 @@ class SelectIcon extends Component {
   };
 
   dataChange = () => {
-    const { current } = this.$nameRef;
-    const { value = '' } = current || {};
+    const { value = '' } = this.getNameInput() || {};
     const { icon, iconColor, navColor } = this.state;
 
     if (value) {
@@ -202,82 +206,113 @@ class SelectIcon extends Component {
     const { projectId, className, hideInput, hideColor, onClearIcon, onCancel, showNavigationConfig } = this.props;
     const colorList = getThemeColors(projectId);
     const { iconColor, navColor, name } = this.state;
-    const dialogTitle = showNavigationConfig ? _l('应用名称和外观') : hideInput ? _l('修改图标') : _l('修改名称和图标');
 
     return (
-      <Dialog
-        dialogClasses="selectIconDialogContainer"
-        visible
-        width={hideColor || !colorList.length ? 570 : 960}
-        title={dialogTitle}
-        onCancel={onCancel}
-        buttonType="ghost"
-        footer={null}
-      >
-        <div className={cx('selectIconWrap', className)}>
-          {!hideInput && (
-            <Input
-              className="w100"
-              manualRef={this.$nameRef}
-              maxLength={NAME_MAX_LENGTH}
-              value={name}
-              onFocus={() => this.$nameRef.current.select()}
-              onChange={value => {
-                this.setState({ name: value || '' });
-                this.debouncedModifyName(value);
-              }}
-              onKeyDown={e => e.key === 'Enter' && onCancel()}
-            />
-          )}
-          <div className={`flexRow ${hideInput ? 'mTop8' : 'mTop18'}`}>
-            {!hideColor && (
-              <div className="flexColumn mTop6 pRight60">
-                {!!colorList.length && (
-                  <Fragment>
-                    <div className="bold">{_l('主题色')}</div>
-                    <ul className="colorsWrap">
-                      {colorList.map(item => (
-                        <Tooltip key={item} placement="bottom">
-                          <li
-                            className={cx({ noHover: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}
-                            style={{ backgroundColor: item }}
-                            onClick={() => this.handleSelectColor(item)}
-                          >
-                            {item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() && (
-                              <Icon icon="hr_ok" className="textWhite Font16" />
-                            )}
-                          </li>
-                        </Tooltip>
-                      ))}
-                    </ul>
-                    {this.renderCustomColor(iconColor)}
-                  </Fragment>
-                )}
-                {navColor && this.renderNavigationColor(iconColor)}
-                {showNavigationConfig && this.renderNavigateType()}
-              </div>
-            )}
+      <div className={cx('selectIconWrap', className)}>
+        {!hideInput && (
+          <Input
+            className="w100"
+            maxLength={NAME_MAX_LENGTH}
+            ref={this.$nameRef}
+            value={name || ''}
+            onFocus={event => event.target.select()}
+            onChange={event => {
+              const value = event.target.value;
 
-            <div className="flex relative minWidth0">
-              <IconTabs
-                handleClick={this.handleClick}
-                {..._.pick(this.state, ['iconColor', 'icon', 'lightColor', 'navColor'])}
-                {..._.pick(this.props, ['hideCustom', 'projectId'])}
-                onClearIcon={
-                  onClearIcon
-                    ? () => {
-                        this.setState({ icon: '' });
-                        onClearIcon();
-                      }
-                    : null
-                }
-              />
+              this.setState({ name: value || '' });
+              this.debouncedModifyName(value);
+            }}
+            onKeyDown={event => event.key === 'Enter' && onCancel()}
+          />
+        )}
+        <div className={`flexRow ${hideInput ? 'mTop8' : 'mTop18'}`}>
+          {!hideColor && (
+            <div className="flexColumn mTop6 pRight60">
+              {!!colorList.length && (
+                <Fragment>
+                  <div className="bold">{_l('主题色')}</div>
+                  <ul className="colorsWrap">
+                    {colorList.map(item => (
+                      <Tooltip key={item} placement="bottom">
+                        <li
+                          className={cx({ noHover: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}
+                          style={{ backgroundColor: item }}
+                          onClick={() => this.handleSelectColor(item)}
+                        >
+                          {item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() && (
+                            <Icon icon="hr_ok" className="textWhite Font16" />
+                          )}
+                        </li>
+                      </Tooltip>
+                    ))}
+                  </ul>
+                  {this.renderCustomColor(iconColor)}
+                </Fragment>
+              )}
+              {navColor && this.renderNavigationColor(iconColor)}
+              {showNavigationConfig && this.renderNavigateType()}
             </div>
+          )}
+
+          <div className="flex relative minWidth0">
+            <IconTabs
+              handleClick={this.handleClick}
+              {..._.pick(this.state, ['iconColor', 'icon', 'lightColor', 'navColor'])}
+              {..._.pick(this.props, ['hideCustom', 'projectId'])}
+              onClearIcon={
+                onClearIcon
+                  ? () => {
+                      this.setState({ icon: '' });
+                      onClearIcon();
+                    }
+                  : null
+              }
+            />
           </div>
         </div>
-      </Dialog>
+      </div>
     );
   }
 }
 
-export default props => FunctionWrap(SelectIcon, { ...props });
+export function dialogSelectIcon(options = {}) {
+  let modal;
+  const colorList = getThemeColors(options.projectId);
+  const title = options.showNavigationConfig
+    ? _l('应用名称和外观')
+    : options.hideInput
+      ? _l('修改图标')
+      : _l('修改名称和图标');
+  const handlePopState = () => modal.destroy();
+
+  const handleCancel = () => {
+    if (_.isFunction(options.onCancel)) {
+      options.onCancel();
+    }
+  };
+
+  const handleContentCancel = () => {
+    modal.destroy();
+    handleCancel();
+  };
+
+  modal = Modal.info({
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    className: 'selectIconDialog',
+    content: <SelectIcon {...options} onCancel={handleContentCancel} />,
+    footer: null,
+    mask: { closable: options.overlayClosable !== false },
+    onCancel: handleCancel,
+    styles: MODAL_STYLES,
+    title,
+    width: options.hideColor || !colorList.length ? 570 : 960,
+    zIndex: options.zIndex,
+  });
+
+  window.addEventListener('popstate', handlePopState);
+
+  return modal;
+}
+
+export default dialogSelectIcon;

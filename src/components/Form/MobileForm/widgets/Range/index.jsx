@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { CustomScore } from 'ming-ui';
 
 const RangeWrap = styled.div`
-  ${props => (!props.formDisabled && props.disabled ? 'opacity: 0.5' : '')};
+  ${props => (!props.$formDisabled && props.$disabled ? 'opacity: 0.5' : '')};
   display: flex;
   align-items: center;
   min-height: 37px;
@@ -23,7 +23,7 @@ const Range = props => {
   };
 
   return (
-    <RangeWrap formDisabled={formDisabled} disabled={disabled}>
+    <RangeWrap $formDisabled={formDisabled} $disabled={disabled}>
       <CustomScore data={props} hideText={!disabled} score={parseInt(value)} disabled={disabled} callback={onChange} />
     </RangeWrap>
   );

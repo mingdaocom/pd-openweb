@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SearchInput, Support, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import '../index.less';
 
 export default function GlobalVarLeft(props) {
@@ -59,7 +58,7 @@ export default function GlobalVarLeft(props) {
         <Icon icon="business" />
         {_l('组织')}
       </div>
-      <SearchInput className="searchCon mLeft18" placeholder={_l('搜索应用')} onChange={onSearch} />
+      <SearchInput className="searchCon" placeholder={_l('搜索应用')} onChange={onSearch} />
       <div className="textTertiary mBottom8 pLeft30">{_l('按应用')}</div>
       <ScrollView className="flex" onScrollEnd={onScrollEnd}>
         {fetchState.pageIndex === 1 && fetchState.loading ? (

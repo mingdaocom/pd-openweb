@@ -4,9 +4,9 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Linkify } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
 import TextMarkdown from '../../../components/TextMarkdown';
-import { ADD_EVENT_ENUM } from '../../../core/enum';
 import ClearValueIcon, { CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
 import { getIsScanQR } from '../../components/ScanQRCode';
 import TextScanQRCode from '../../components/TextScanQRCode';
@@ -17,13 +17,13 @@ const isScanQR = getIsScanQR();
 
 const TextareaWrap = styled.div`
   position: relative;
-  width: ${props => (props.startTextScanCode ? 'calc(100% - 42px)' : '100%')};
+  width: ${props => (props.$startTextScanCode ? 'calc(100% - 47px)' : '100%')};
   .customFormTextareaView {
-    ${props => !(props.disabled || props.isMask || props.hint) && 'pointer-events: none;'}
+    ${props => !(props.$disabled || props.$isMask || props.$hint) && 'pointer-events: none;'}
     span {
       ${props =>
-        props.hint &&
-        (props.enumDefault === 1
+        props.$hint &&
+        (props.$enumDefault === 1
           ? 'display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;overflow: hidden;'
           : 'display: inline-block;width: 100%;white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis;')}
     }
@@ -214,11 +214,11 @@ const Textarea = props => {
     <Fragment>
       <TextareaWrap
         className={cx('customFormTextareaWrap', { [CLEAR_ICON_SAFE_CLASS]: showClear })}
-        startTextScanCode={startTextScanCode}
-        disabled={disabled}
-        isMask={showMaskValue}
-        hint={!value && hint}
-        enumDefault={enumDefault}
+        $startTextScanCode={startTextScanCode}
+        $disabled={disabled}
+        $isMask={showMaskValue}
+        $hint={!value && hint}
+        $enumDefault={enumDefault}
       >
         <div
           ref={textareaViewRef}
@@ -273,6 +273,7 @@ const Textarea = props => {
 
       {startTextScanCode && (
         <TextScanQRCode
+          className="boxSizing"
           projectId={projectId}
           disablePhoto={strDefault.split('')[0] === '1'}
           scantype={advancedSetting.scantype || '0'}

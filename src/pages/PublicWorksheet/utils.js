@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
 import { FILLLIMIT_TYPE } from 'src/pages/FormExtend/enum';
+import { transferValue } from 'src/utils/domain/control/value';
 
 const userAgent = navigator.userAgent;
 
@@ -99,6 +100,35 @@ export const getPublicSubmitStorage = shareId => {
       ? [publicSubmit]
       : safeParse(publicSubmit);
   return publicWorksheetSubmit;
+};
+
+export const getAfterSubmitJumpUrl = (afterSubmit = {}, fillData = []) => {
+  if (afterSubmit.action !== 2) {
+    return '';
+  }
+
+  const controlMap = _.keyBy(fillData, 'controlId');
+
+  const getValue = controlId => {
+    const value = _.get(controlMap, [controlId, 'value']);
+
+    return _.isUndefined(value) ? '' : String(value);
+  };
+
+  const content = (_.isString(afterSubmit.content) ? safeParse(afterSubmit.content) : afterSubmit.content) || {};
+
+  if (content.isControl) {
+    return getValue(_.get(content, 'value.controlId'));
+  }
+
+  const template = content.value || '';
+  const templateParts = transferValue(template);
+
+  if (!templateParts.some(item => item.cid)) {
+    return template;
+  }
+
+  return templateParts.map(item => (item.cid ? getValue(item.cid) : item.staticValue || '')).join('');
 };
 
 export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) => {

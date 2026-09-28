@@ -1,9 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import DropComponent from 'src/pages/widgetConfig/components/Dropdown';
+import { Select } from 'ming-ui/antd-components';
 import { DefaultEmpty, SectionItemWrap } from './style';
-import './index.less';
 
 const THEME_COLORS = {
   0: 'var(--color-warning)',
@@ -11,28 +9,18 @@ const THEME_COLORS = {
   2: 'var(--color-success)',
 };
 
-const DropComponentWrap = styled(DropComponent)`
-  padding: 0 8px 0 12px;
-  & > i {
-    font-size: 16px !important;
-  }
-`;
-
-const renderItem = newVal => {
+const renderItem = value => {
   let iconContent = null;
 
-  if (newVal === '1') {
-    iconContent = <div className="rangeIcon"></div>;
-  } else if (newVal === '2') {
+  if (value === '1') {
+    iconContent = <div className="rangeIcon" />;
+  } else if (value === '2') {
     iconContent = <Icon icon="play_circle_filled" className="headerArrowIcon Font20" />;
   }
 
   return (
-    <div
-      className="mTop5 w100 mBottom5 flexColumn"
-      style={{ background: 'var(--color-background-primary)', padding: '0 12px', borderRadius: '3px' }}
-    >
-      <SectionItemWrap theme={THEME_COLORS[newVal]} color="var(--color-text-primary)" sectionstyle={newVal}>
+    <div className="mTop5 w100 mBottom5 flexColumn pLeft12 pRight12 bgPrimary">
+      <SectionItemWrap $theme={THEME_COLORS[value]} $color="var(--color-text-primary)">
         <div className="titleBox">
           {iconContent}
           <div className="titleText">{_l('标题')}</div>
@@ -43,24 +31,20 @@ const renderItem = newVal => {
   );
 };
 
-const getDropData = () => {
-  return Array.from({ length: 3 }).map((item, index) => {
-    const newVal = String(index);
-    return {
-      value: newVal,
-      children: renderItem(newVal),
-    };
-  });
-};
+const OPTIONS = Array.from({ length: 3 }, (_, index) => {
+  const value = String(index);
+  return { value, label: renderItem(value) };
+});
 
 export default function StyleSetting({ sectionstyle, onChange }) {
   return (
-    <DropComponentWrap
-      overlayClassName="sectionStyleDrop"
+    <Select
+      className="w100"
+      style={{ height: 'auto' }}
       value={sectionstyle}
-      data={getDropData()}
-      renderDisplay={() => renderItem(sectionstyle)}
-      onChange={value => onChange(value)}
+      options={OPTIONS}
+      virtual={false}
+      onChange={onChange}
     />
   );
 }

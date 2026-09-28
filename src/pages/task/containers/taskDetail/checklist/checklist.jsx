@@ -1,72 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import Textarea from 'ming-ui/components/Textarea';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import ChecklistItem from './checklistItem';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 import EmptyItem from './common/emptyItem';
 
-const ClickAwayable = ClickAway;
 let root;
 
 function getNode(component) {
   return component && component.getNode ? component.getNode() : null;
-}
-
-class ChecklistOperator extends Component {
-  componentDidMount() {
-    const { isShowOperator } = this.props;
-    const clipboardText = this.props.data.name;
-
-    const items = _.map(this.props.data.items, item => {
-      return `\n${item.name}`;
-    });
-
-    $('.checklistOperator .clipboard')
-      .off()
-      .on('click', function () {
-        copy(clipboardText + items.join(''));
-        alert(_l('已复制到剪切板'));
-        isShowOperator();
-      });
-  }
-
-  render() {
-    return (
-      <ClickAwayable
-        component="ul"
-        className="boxShadow5 boderRadAll_3 checklistOperator"
-        onClickAway={() => this.props.isShowOperator()}
-      >
-        <li className="bgColorPrimary" onClick={() => this.props.updateChecklistName()}>
-          <i className="icon-edit" />
-          {_l('重命名')}
-        </li>
-        <li className="bgColorPrimary clipboard">
-          <i className="icon-task-new-copy Font14" />
-          {_l('复制清单')}
-          <Tooltip
-            title={_l('复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。')}
-            placement="bottomLeft"
-          >
-            <span className="mLeft25">
-              <i className="icon-help" />
-            </span>
-          </Tooltip>
-        </li>
-        <li className="bgColorPrimary" onClick={() => this.props.removeCheckList()}>
-          <i className="icon-trash" />
-          {_l('删除清单')}
-        </li>
-      </ClickAwayable>
-    );
-  }
 }
 
 const checklistSource = {
@@ -147,7 +95,6 @@ let Checklist = class Checklist extends Component {
     super(props);
     this.state = {
       isEditName: false,
-      isShowOperator: false,
       checklistAdd: props.showAddItem,
     };
   }
@@ -168,6 +115,42 @@ let Checklist = class Checklist extends Component {
       });
       this.props.noDragIndexUpdate(this.props.index);
     }
+  }
+
+  getChecklistOperatorMenu() {
+    return {
+      items: [
+        { key: 'rename', icon: <i className="icon-edit" />, label: _l('重命名') },
+        {
+          key: 'copy',
+          icon: <i className="icon-task-new-copy Font14" />,
+          label: (
+            <span>
+              {_l('复制清单')}
+              <Tooltip
+                title={_l('复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。')}
+                placement="bottomLeft"
+              >
+                <i className="icon-help mLeft25" />
+              </Tooltip>
+            </span>
+          ),
+        },
+        { key: 'delete', danger: true, icon: <i className="icon-trash" />, label: _l('删除清单') },
+      ],
+      onClick: ({ key }) => {
+        if (key === 'rename') {
+          this.setState({ isEditName: true });
+          this.props.noDragIndexUpdate(this.props.index);
+        } else if (key === 'copy') {
+          const itemNames = _.map(this.props.data.items, item => `\n${item.name}`);
+          copy(this.props.data.name + itemNames.join(''));
+          alert(_l('已复制到剪切板'));
+        } else if (key === 'delete') {
+          this.props.removeCheckList(this.props.data.checkListId);
+        }
+      },
+    };
   }
   /**
    * 修改清单名称
@@ -276,36 +259,14 @@ let Checklist = class Checklist extends Component {
               />
             ) : undefined}
             {this.props.noAuth ? undefined : (
-              <i
-                className={cx('icon-moreop pointer colorPrimary', {
-                  Hidden: this.state.isEditName,
-                })}
-                onClick={() => this.setState({ isShowOperator: true })}
-              />
+              <Dropdown trigger={['click']} placement="bottomRight" menu={this.getChecklistOperatorMenu()}>
+                <i
+                  className={cx('icon-moreop pointer colorPrimary', {
+                    Hidden: this.state.isEditName,
+                  })}
+                />
+              </Dropdown>
             )}
-            {this.state.isShowOperator ? (
-              <ChecklistOperator
-                updateChecklistName={() => {
-                  this.setState({
-                    isEditName: true,
-                    isShowOperator: false,
-                  });
-                  this.props.noDragIndexUpdate(this.props.index);
-                }}
-                isShowOperator={() =>
-                  this.setState({
-                    isShowOperator: false,
-                  })
-                }
-                data={data}
-                removeCheckList={() => {
-                  this.setState({
-                    isShowOperator: false,
-                  });
-                  this.props.removeCheckList(data.checkListId);
-                }}
-              />
-            ) : undefined}
             <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
               <span className="taskDetailFold">
                 <i

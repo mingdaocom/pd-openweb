@@ -3,11 +3,22 @@ import cx from 'classnames';
 import { find } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { isLightColor } from 'src/utils/control';
+import { getItemOptionWidth } from 'src/pages/widgetConfig/util/editorSetting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getOptions } from 'src/utils/domain/control/options';
+import { isLightColor } from 'src/utils/domain/control/style';
 import { CommonDisplay, OptionsWrap, OptionWrap } from '../../styled';
-import { getAdvanceSetting, getItemOptionWidth, getOptions } from '../../util/setting';
+
+const CHECKBOX_LABEL_STYLES = {
+  label: {
+    paddingInlineEnd: 0,
+    display: 'inline-flex',
+    alignItems: 'center',
+    lineHeight: '24px',
+  },
+};
 
 const MultiSelectDrop = styled(CommonDisplay)`
   min-height: 34px;
@@ -29,7 +40,7 @@ function MultiSelect({ data, fromType }) {
   const checkedValue = safeParse(defsource || '[]')
     .map(item => item.staticValue)
     .filter(_.identity);
-  const params = { direction, width };
+  const params = { $direction: direction, $width: width };
 
   if (checktype === '1') {
     return (
@@ -47,7 +58,7 @@ function MultiSelect({ data, fromType }) {
                       light: isLightColor(item.color),
                       withoutColor: data.enumDefault2 !== 1,
                     })}
-                    color={item.color}
+                    $color={item.color}
                   >
                     {item.value}
                   </OptionWrap>
@@ -75,18 +86,20 @@ function MultiSelect({ data, fromType }) {
           style={direction === '0' ? { width: `${getItemOptionWidth(data, fromType)}%` } : {}}
         >
           <div className="optionItem">
-            <Checkbox checked={checkedValue.includes(item.key)} />
-            <OptionWrap
-              className={cx({
-                light: isLightColor(item.color),
-                withoutColor: data.enumDefault2 !== 1,
-                horizontal: direction !== '1',
-              })}
-              color={item.color}
-              {...params}
-            >
-              {item.value}
-            </OptionWrap>
+            <Checkbox checked={checkedValue.includes(item.key)} styles={CHECKBOX_LABEL_STYLES}>
+              <OptionWrap
+                as="span"
+                className={cx({
+                  light: isLightColor(item.color),
+                  withoutColor: data.enumDefault2 !== 1,
+                  horizontal: direction !== '1',
+                })}
+                $color={item.color}
+                {...params}
+              >
+                {item.value}
+              </OptionWrap>
+            </Checkbox>
           </div>
         </div>
       ))}

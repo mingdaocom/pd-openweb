@@ -1,10 +1,11 @@
 import React from 'react';
 import { ReactSVG } from 'react-svg';
+import cx from 'classnames';
 
 export default ({ url = '', size = 24, fill = '#1677ff', className, addClassName = '' }) => {
   return (
     <ReactSVG
-      className={className}
+      className={cx('svgIconRoot', className)}
       src={url}
       beforeInjection={svg => {
         if (addClassName) {

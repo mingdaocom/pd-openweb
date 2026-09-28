@@ -1,13 +1,11 @@
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Dropdown as AntdDropdown, Button, Drawer, Select, Tooltip } from 'ming-ui/antd-components';
 import agentAjax from 'src/api/agent';
 import applicationAjax from 'src/api/application';
 import downloadAjax from 'src/api/download';
@@ -15,13 +13,15 @@ import orderAjax from 'src/api/order';
 import projectAjax from 'src/api/project';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
-import { AccountIdOperation, BillInfoWrap } from 'src/pages/Admin/common/styled';
+import { BillInfoWrap } from 'src/pages/Admin/common/styled';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
-import { getCurrentProject } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import PaginationWrap from '../../../components/PaginationWrap';
+import { getAITypeLabel } from '../../billing/config';
 import Common from '../common';
 import ApplyInvoice from './applyInvoice';
 import {
@@ -39,7 +39,8 @@ import {
   RECHARGE_RECORD_TYPE,
 } from './config';
 import InvoiceSetting from './invoiceSetting';
-import 'rc-trigger/assets/index.css';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const licenseSupportInfoCache = {};
 
@@ -81,6 +82,8 @@ const AgentBillingDetailWrap = styled.div`
   .credits {
     flex: 0 0 150px;
     width: 150px;
+    margin-right: 80px;
+    text-align: right;
   }
   .createTime {
     flex: 0 0 180px;
@@ -94,24 +97,10 @@ const AgentBillingDetailWrap = styled.div`
 `;
 
 const AgentBillingDetailDrawer = styled(Drawer)`
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: -7px 0px 6px 1px rgba(0, 0, 0, 0.08);
   }
-  .ant-drawer-header {
-    border-bottom: 1px solid var(--color-border-primary);
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-close {
-        padding: 0;
-        margin: 0 0 0 16px;
-      }
-    }
-    .ant-drawer-title {
-      font-size: 17px;
-      font-weight: 600;
-    }
-  }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 20px 24px;
   }
   .agentBillingDetailTitle {
@@ -219,17 +208,14 @@ export default function BillInfo({ match }) {
     status: 0,
     recordTypes: type === 'paid' ? PAID_RECORD_TYPE : RECHARGE_RECORD_TYPE,
   });
-  const [
-    { applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, datePickerVisible, hideBalance },
-    setVisible,
-  ] = useSetState({
-    applyInvoiceVisible: false,
-    invoiceVisible: false,
-    operateMenuVisible: -1,
-    datePickerVisible: false,
-    applyOrderId: '',
-    hideBalance: true,
-  });
+  const [{ applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, hideBalance }, setVisible] =
+    useSetState({
+      applyInvoiceVisible: false,
+      invoiceVisible: false,
+      operateMenuVisible: -1,
+      applyOrderId: '',
+      hideBalance: true,
+    });
   const [agentBillingFreeQuota, setAgentBillingFreeQuota] = useState({});
   const [loading, setLoading] = useState(true);
   const [disabledExportBtn, setDisabledExportBtn] = useState(false);
@@ -342,8 +328,8 @@ export default function BillInfo({ match }) {
           setAiBenefitData({ list: [], totalCount: 0 });
         }
       })
-      .catch(() => {
-        alert(_l('获取AI福利点记录失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('获取AI福利点记录失败'), 2);
         setAiBenefitData({ list: [], totalCount: 0 });
       })
       .finally(() => {
@@ -353,6 +339,8 @@ export default function BillInfo({ match }) {
 
   // 导出
   const exportOrderRecord = () => {
+    if (disabledExportBtn) return;
+
     setDisabledExportBtn(true);
     downloadAjax
       .exportTransactionRecords({
@@ -459,7 +447,7 @@ export default function BillInfo({ match }) {
             return list;
           })
           .catch(error => {
-            alert(getAgentBillingErrorMessage(error), 2);
+            alertIfNotUnauthorized(error, getAgentBillingErrorMessage(error), 2);
             return [];
           })
           .finally(() => {
@@ -485,7 +473,7 @@ export default function BillInfo({ match }) {
 
     return (
       <AgentBillingDetailDrawer
-        visible
+        open
         width={980}
         title={
           <div className="agentBillingDetailTitle">
@@ -509,7 +497,6 @@ export default function BillInfo({ match }) {
           </div>
         }
         placement="right"
-        destroyOnClose
         onClose={() => {
           agentBillingDetailCacheKeyRef.current = '';
           setAgentBillingDetail({ visible: false, loading: false, list: [], traceId: '' });
@@ -533,16 +520,19 @@ export default function BillInfo({ match }) {
                 })
                 .map((item, index) => {
                   const timeText = formatMsDate(item.createTime);
+                  const sceneLabel = item.scene ? getAITypeLabel(item.scene) : '';
                   const detailLabel =
-                    item.sceneName && item.agentName
-                      ? `${item.sceneName} · ${item.agentName}`
-                      : item.sceneName || item.agentName || '-';
+                    sceneLabel && item.agentName
+                      ? `${sceneLabel} · ${item.agentName}`
+                      : sceneLabel || item.agentName || '-';
 
                   return (
                     <div className="agentBillingDetailRow" key={`${agentBillingDetail.traceId}_${index}`}>
-                      <Tooltip title={item.sceneName || item.scene} placement="top">
-                        <div className="detailName overflow_ellipsis">{detailLabel || '-'}</div>
-                      </Tooltip>
+                      <div className="detailName">
+                        <Tooltip title={detailLabel} placement="top">
+                          <span className="InlineBlock wMax100 ellipsis cursorDefault">{detailLabel || '-'}</span>
+                        </Tooltip>
+                      </div>
                       <div className="model overflow_ellipsis" title={item.model}>
                         {item.model || '-'}
                       </div>
@@ -599,8 +589,11 @@ export default function BillInfo({ match }) {
 
     if (status === 1) {
       return (
-        <div
-          className="goToPay"
+        <Button
+          color="orange"
+          variant="solid"
+          size="small"
+          shape="round"
           onClick={() => {
             location.href = pathCompletion(
               _.includes([5, 6], recordType)
@@ -610,7 +603,7 @@ export default function BillInfo({ match }) {
           }}
         >
           {_l('立即支付')}
-        </div>
+        </Button>
       );
     }
 
@@ -744,51 +737,58 @@ export default function BillInfo({ match }) {
                           </Fragment>
                         )}
                       </div>
-                      {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+                      {window.platformENV.isHap && (
                         <div className="paidPerson overflow_ellipsis item">
                           {renderPay({ status, payAccountInfo, orderId, recordType })}
                         </div>
                       )}
-                      <Trigger
-                        popupVisible={operateMenuVisible === index}
-                        onPopupVisibleChange={visible => setVisible({ operateMenuVisible: visible ? index : -1 })}
-                        action={['click']}
-                        popup={
-                          <AccountIdOperation>
-                            {status === Common.orderRecordStatus.success &&
-                              _.includes([enumInvoiceStatus.notApply], invoiceStatus) && (
-                                <li
-                                  onClick={() => {
-                                    setVisible({
-                                      applyInvoiceVisible: true,
-                                      applyOrderId: orderId || recordId,
-                                      operateMenuVisible: -1,
-                                    });
-                                  }}
-                                >
-                                  {_l('申请发票')}
-                                </li>
-                              )}
-                            <li
-                              className="copyOrderId"
-                              onClick={() => {
+                      <AntdDropdown
+                        open={operateMenuVisible === index}
+                        onOpenChange={visible => setVisible({ operateMenuVisible: visible ? index : -1 })}
+                        trigger={['click']}
+                        menu={{
+                          items: [
+                            ...(status === Common.orderRecordStatus.success &&
+                            _.includes([enumInvoiceStatus.notApply], invoiceStatus)
+                              ? [
+                                  {
+                                    key: 'invoice',
+                                    label: _l('申请发票'),
+                                    onClick: () => {
+                                      setVisible({
+                                        applyInvoiceVisible: true,
+                                        applyOrderId: orderId || recordId,
+                                        operateMenuVisible: -1,
+                                      });
+                                    },
+                                  },
+                                ]
+                              : []),
+                            {
+                              key: 'copy',
+                              label: _l('复制账单Id'),
+                              onClick: () => {
                                 copy(`${orderId || recordId}`);
                                 alert(_l('复制成功'));
-                              }}
-                            >
-                              {_l('复制账单Id')}
-                            </li>
-                            {status === 1 && (
-                              <li onClick={() => cancelOrderFn({ recordType, orderId })}>{_l('取消订单')}</li>
-                            )}
-                          </AccountIdOperation>
-                        }
-                        popupAlign={{ points: ['tr', 'bc'], offset: [0, -15] }}
+                              },
+                            },
+                            ...(status === 1
+                              ? [
+                                  {
+                                    key: 'cancel',
+                                    label: _l('取消订单'),
+                                    danger: true,
+                                    onClick: () => cancelOrderFn({ recordType, orderId }),
+                                  },
+                                ]
+                              : []),
+                          ],
+                        }}
                       >
                         <div className="operation textTertiary item">
                           <i className="icon-moreop Font18 pointer" />
                         </div>
-                      </Trigger>
+                      </AntdDropdown>
                     </Fragment>
                   )}
                 </li>
@@ -807,8 +807,8 @@ export default function BillInfo({ match }) {
       <ScrollView className="h100">
         <ul className="recordList aiBenefitRecordList">
           {aiBenefitData.list.map((item, index) => {
-            const { traceId, scene, sceneName, createTime, freeApplied } = item;
-            const sceneLabel = sceneName || scene || '-';
+            const { traceId, scene, createTime, freeApplied } = item;
+            const sceneLabel = getAITypeLabel(scene);
             const timeText = formatMsDate(createTime);
             const createAccountInfo = item.createAccountInfo;
             const accountName = getBillingAccountName(createAccountInfo);
@@ -868,16 +868,24 @@ export default function BillInfo({ match }) {
       <AdminTitle prefix={_l('组织 - 账务')} />
       <div className="billInfoHeader orgManagementHeader">
         <div className="title">{_l('账务%15000')}</div>
-        {!window.platformENV.isOverseas && (
-          <div
-            className="invoiceSetting pointer adminHoverColor"
-            onClick={() => {
-              setVisible({ invoiceVisible: true });
-            }}
+        <div className="billInfoHeaderActions flexRow alignItemsCenter Font15">
+          <span
+            className="colorPrimary adminHoverColor pointer"
+            onClick={() => navigateTo(`/admin/billing/${projectId}/statistics`)}
           >
-            {_l('发票设置')}
-          </div>
-        )}
+            {_l('进入新版')}
+          </span>
+          {!window.platformENV.isOverseas && (
+            <div
+              className="invoiceSetting pointer adminHoverColor mLeft32"
+              onClick={() => {
+                setVisible({ invoiceVisible: true });
+              }}
+            >
+              {_l('发票设置')}
+            </div>
+          )}
+        </div>
       </div>
       <div className="orgManagementContent flexColumn">
         <div className="accountInfo">
@@ -895,9 +903,9 @@ export default function BillInfo({ match }) {
           {!window.platformENV.isLocal &&
             isPaid &&
             (!window.platformENV.isOverseas ? (
-              <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
+              <Button type="primary" size="small" className="Bold" onClick={() => handleClick('recharge')}>
                 {_l('充值')}
-              </span>
+              </Button>
             ) : (
               <PurchaseExpandPack className="mLeft10 nowrap" text={_l('充值')} type="recharge" projectId={projectId} />
             ))}
@@ -922,7 +930,7 @@ export default function BillInfo({ match }) {
                   }
                   placement="bottom"
                 >
-                  <i className="icon icon-help Font14 mLeft0 textDisabled hoverColorPrimary TxtMiddle" />
+                  <i className="icon icon-help Font14 mLeft0 textDisabled hoverColorPrimary TxtMiddle pointer" />
                 </Tooltip>
               )}
             </AIWelfarePointLine>
@@ -942,7 +950,7 @@ export default function BillInfo({ match }) {
               <span className="TxtMiddle">{_l('支付记录')}</span>
             </li>
             <li
-              className={cx('mLeft20 mRight20', { active: displayRecordType === 'recharge' })}
+              className={cx('mLeft24 mRight24', { active: displayRecordType === 'recharge' })}
               onClick={() => {
                 setType('recharge');
                 updateParas({ recordTypes: RECHARGE_RECORD_TYPE, pageIndex: 1 });
@@ -956,7 +964,7 @@ export default function BillInfo({ match }) {
                   '异步执行的工作流扣费存在约 5 分钟延迟，同时系统会将 5 分钟内相同操作自动合并成一条扣费记录，如5分钟内相同流程的扣费信息',
                 )}
               >
-                <i className="icon icon-help Font14 mLeft5 textDisabled hoverColorPrimary TxtMiddle" />
+                <i className="icon icon-help Font14 mLeft5 textDisabled hoverColorPrimary TxtMiddle pointer" />
               </Tooltip>
             </li>
             {isSaas && (
@@ -974,31 +982,21 @@ export default function BillInfo({ match }) {
           </ul>
           <div className="flexRow alignCenter">
             <div className="dataFilter">
-              <Trigger
-                popupVisible={datePickerVisible}
-                onPopupVisibleChange={visible => setVisible({ datePickerVisible: visible })}
-                action={['click']}
-                popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
-                popup={
-                  <DatePickerFilter
-                    updateData={data => {
-                      if (isAiBenefitType) {
-                        setAiBenefitParas({ ...data, page: 1 });
-                      } else {
-                        updateParas({ ...data });
-                      }
-
-                      setVisible({ datePickerVisible: false });
-                    }}
-                  />
-                }
+              <DatePickerFilter
+                placement="bottomLeft"
+                tooltipProps={{ title: _l('按照时间筛选'), placement: 'top' }}
+                updateData={data => {
+                  if (isAiBenefitType) {
+                    setAiBenefitParas({ ...data, page: 1 });
+                  } else {
+                    updateParas({ ...data });
+                  }
+                }}
               >
-                <Tooltip title={_l('按照时间筛选')} placement="top">
-                  <div className="date textSecondary">
-                    <i className="Font18 icon-sidebar_calendar" />
-                  </div>
-                </Tooltip>
-              </Trigger>
+                <span className="date textSecondary">
+                  <i className="Font18 icon-sidebar_calendar" />
+                </span>
+              </DatePickerFilter>
               {activeStartDate ? (
                 <div className="dateRange">
                   {_l('%0 ~ %1', activeStartDate, activeEndDate)}
@@ -1032,9 +1030,16 @@ export default function BillInfo({ match }) {
             </Tooltip>
             {!isAiBenefitType && (
               <Tooltip title={_l('导出')} placement="top">
-                <div className={cx('exportBtn mLeft10', { disabledExportBtn })} onClick={exportOrderRecord}>
-                  <i className="icon icon-download textSecondary Font18 LineHeight24" />
-                </div>
+                <Button
+                  color="default"
+                  variant="text"
+                  size="small"
+                  className="mLeft10"
+                  aria-label={_l('导出')}
+                  disabled={disabledExportBtn}
+                  icon={<Icon icon="download" />}
+                  onClick={exportOrderRecord}
+                />
               </Tooltip>
             )}
           </div>
@@ -1051,10 +1056,13 @@ export default function BillInfo({ match }) {
           ) : (
             <Fragment>
               <div className={cx('type item flex', { rechargeType: isRechargeType })}>
-                <Dropdown
-                  data={
+                <Select
+                  variant="borderless"
+                  popupMatchSelectWidth={180}
+                  options={
                     displayRecordType === 'paid' ? orderRecordPaidTypeDropdownData : orderRecordRechargeTypeDropdownData
                   }
+                  fieldNames={SELECT_FIELD_NAMES}
                   value={recordTypes.length > 1 ? 0 : recordTypes[0]}
                   onChange={value => {
                     updateParas({
@@ -1077,8 +1085,10 @@ export default function BillInfo({ match }) {
                 <Fragment>
                   {displayRecordType === 'paid' && <div className="payType item pLeft20">{_l('支付方式')}</div>}
                   <div className="billStatus item pLeft20">
-                    <Dropdown
-                      data={orderRecordStatusDropdownData}
+                    <Select
+                      variant="borderless"
+                      options={orderRecordStatusDropdownData}
+                      fieldNames={SELECT_FIELD_NAMES}
                       value={status}
                       onChange={value => {
                         updateParas({ status: value });
@@ -1087,9 +1097,7 @@ export default function BillInfo({ match }) {
                   </div>
                   <div className="invoiceStatus item">{_l('发票状态')}</div>
                   <div className="createPerson item">{_l('创建人')}</div>
-                  {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-                    <div className="paidPerson item">{_l('付款人')}</div>
-                  )}
+                  {window.platformENV.isHap && <div className="paidPerson item">{_l('付款人')}</div>}
                   <div className="operation item">{_l('操作')}</div>
                 </Fragment>
               )}

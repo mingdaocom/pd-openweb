@@ -1,6 +1,7 @@
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
+import { DeleteReconfirm as DeleteConfirm } from 'ming-ui/antd-components';
 import service from '../../api/service';
 import createRoot from 'src/components/kc/createRoot/createRoot';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 /**
  *创建左侧文件夹
@@ -32,7 +33,7 @@ export function addNewRoot(args, cb) {
       }
     })
     .then(() => alert(_l('创建成功')))
-    .catch(() => alert(_l('创建失败，请稍后再试'), 3));
+    .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('创建失败，请稍后再试'), 3));
 }
 
 /**
@@ -44,8 +45,12 @@ export function editRoot(rootId, successCb, progressCb) {
     isEdit: true,
     id: rootId,
   })
-    .then(successCb, () => alert(_l('操作失败, 请稍后重试'), 3), progressCb)
-    .catch(() => alert(_l('操作失败, 请稍后重试'), 3));
+    .then(
+      successCb,
+      _requestError3 => alertIfNotUnauthorized(_requestError3, _l('操作失败, 请稍后重试'), 3),
+      progressCb,
+    )
+    .catch(_requestError2 => alertIfNotUnauthorized(_requestError2, _l('操作失败, 请稍后重试'), 3));
 }
 
 /**
@@ -87,7 +92,7 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
               throw data.message;
             }
           })
-          .catch(err => alert(err || _l('%0失败，请稍后重试', messageTitle), 3));
+          .catch(err => alertIfNotUnauthorized(err, err || _l('%0失败，请稍后重试', messageTitle), 3));
       } else {
         service
           .removeRoot({ isPermanent, id: rootId })
@@ -101,7 +106,7 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
               throw data.message;
             }
           })
-          .catch(err => alert(err || _l('删除失败，请稍后重试'), 3));
+          .catch(err => alertIfNotUnauthorized(err, err || _l('删除失败，请稍后重试'), 3));
       }
     },
   });

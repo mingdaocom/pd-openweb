@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Dropdown, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Radio, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../util/setting';
 
 const LOCATION_RANGE = [
-  { value: 0, text: _l('不限制') },
-  { value: 1, text: _l('当前位置周围') },
+  { value: 0, label: _l('不限制') },
+  { value: 1, label: _l('当前位置周围') },
   // { value: 2, text: '指定定位地点' },
 ];
 
@@ -29,23 +29,23 @@ const LOCATION_RANGE_TYPE = [
 const DISTANCE_CONFIG = [
   {
     value: 100,
-    text: _l('100米'),
+    label: _l('100米'),
   },
   {
     value: 300,
-    text: _l('300米'),
+    label: _l('300米'),
   },
   {
     value: 500,
-    text: _l('500米'),
+    label: _l('500米'),
   },
   {
     value: 1000,
-    text: _l('1000米'),
+    label: _l('1000米'),
   },
   {
     value: 2000,
-    text: _l('2000米'),
+    label: _l('2000米'),
   },
 ];
 
@@ -65,32 +65,36 @@ export default function Location({ data, onChange }) {
             </Tooltip>
           )}
         </div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
           vertical={true}
-          checkedValue={strDefault[0]}
-          data={LOCATION_RANGE_TYPE}
-          onChange={value =>
-            onChange({
+          value={strDefault[0]}
+          options={(LOCATION_RANGE_TYPE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
+            return onChange({
               ...handleAdvancedSettingChange(data, {
                 showxy: value === '0' ? showxy : '1',
                 allowcustom: value === '0' ? allowcustom : '0',
               }),
-              strDefault: updateConfig({ config: strDefault, value, index: 0 }),
-            })
-          }
+              strDefault: updateConfig({
+                config: strDefault,
+                value,
+                index: 0,
+              }),
+            });
+          }}
         />
       </SettingItem>
       {strDefault[0] !== '1' && (
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('限制选择范围')}</div>
-            <Dropdown
-              border
-              style={{ width: '100%', backgroundColor: 'var(--color-background-primary)' }}
-              menuStyle={{ width: '100%' }}
+            <Select
+              className="w100"
               value={enumDefault2}
-              data={LOCATION_RANGE}
+              options={LOCATION_RANGE}
               onChange={value => {
                 if (value === 1) {
                   onChange({ ...handleAdvancedSettingChange(data, { distance: 100 }), enumDefault2: 1 });
@@ -102,12 +106,10 @@ export default function Location({ data, onChange }) {
             />
           </SettingItem>
           {enumDefault2 === 1 && (
-            <Dropdown
-              border
-              style={{ width: '100%', backgroundColor: 'var(--color-background-primary)', marginTop: '10px' }}
-              menuStyle={{ width: '100%' }}
+            <Select
+              className="w100 mTop10"
               value={+distance || undefined}
-              data={DISTANCE_CONFIG}
+              options={DISTANCE_CONFIG}
               onChange={value => {
                 onChange(handleAdvancedSettingChange(data, { distance: value }));
               }}

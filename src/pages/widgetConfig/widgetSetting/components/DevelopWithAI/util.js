@@ -1,7 +1,7 @@
 import { get, pick } from 'lodash';
 import _ from 'lodash';
 import codeAjax from 'src/api/code';
-import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { Date, MultipleSelect, Number, RelateRecord, SingleSelect, Text, Time } from './examples';
 
 export const getEnvControls = (reference, allControls) => {
@@ -34,6 +34,7 @@ export const generatePrompt = (systemPrompt, { envControls, isRefValue, control 
     getControlTypeName(control) + ' ' + JSON.stringify(pick(control, ['controlName', 'controlId', 'type'])),
     envControls,
   ];
+
   return systemPrompt.replace(/\{\d\}/g, match => {
     return needReplace[match.slice(1, -1)];
   });

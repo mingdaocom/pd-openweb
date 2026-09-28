@@ -6,8 +6,6 @@ export const DRAG_ITEMS = {
   DISPLAY_LIST_TAB: 'DISPLAY_LIST_TAB', // 标签页表格
 };
 
-export const WHOLE_SIZE = 12;
-
 export const TEMP_WIDGET = 'TEMP_WIDGET';
 
 export const DRAG_MODE = {

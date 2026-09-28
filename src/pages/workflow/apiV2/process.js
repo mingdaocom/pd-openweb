@@ -88,7 +88,7 @@ const process = {
    * null
    * @param {Object} options 配置参数
    */
-  deleteProcess: function(args, options) {
+  deleteProcess_1: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/deleteProcess';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'processdeleteProcess', args, $.extend({}, base, options));

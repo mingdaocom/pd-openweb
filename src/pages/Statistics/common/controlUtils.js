@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 export const isTimeControl = (value, controls = []) => {
   const data = _.find(controls, { controlId: value });

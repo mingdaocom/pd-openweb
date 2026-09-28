@@ -1,18 +1,18 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Input } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import reportApi from 'statistics/api/report.js';
 import TextInput from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/TextInput';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { SYSTEM_CONTROL } from '../../config/widget';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { transferValue } from 'src/utils/domain/control/value';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import { DisplayMode, EditInfo, SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import AttachmentConfig from '../components/AttachmentConfig';
 import FilterDialog from '../components/embed/filterDialog';
 import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
@@ -315,19 +315,21 @@ export default function Embed(props) {
           <div className="settingItemTitle">{_l('过滤')}</div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={filters.length > 0}
-              onClick={checked => {
-                if (checked) {
+              onChange={event => {
+                if (!event.target.checked) {
                   onChange(
                     handleAdvancedSettingChange(data, {
                       filters: '',
                     }),
                   );
                 } else {
-                  setCommonState({ filterVisible: true });
+                  setCommonState({
+                    filterVisible: true,
+                  });
                 }
               }}
+              size="small"
             >
               {renderCom()}
             </Checkbox>
@@ -345,17 +347,18 @@ export default function Embed(props) {
       ) : (
         <div className="labelWrap mTop15">
           <Checkbox
-            size="small"
             checked={allowlink === '1'}
-            text={_l('允许新页面打开链接')}
-            onClick={checked => {
+            onChange={event => {
               onChange(
                 handleAdvancedSettingChange(data, {
-                  allowlink: checked ? '0' : '1',
+                  allowlink: !event.target.checked ? '0' : '1',
                 }),
               );
             }}
-          />
+            size="small"
+          >
+            {_l('允许新页面打开链接')}
+          </Checkbox>
         </div>
       )}
 

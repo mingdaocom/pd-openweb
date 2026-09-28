@@ -1,8 +1,11 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import { any, bool, element, func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Button, Input, Support, UpgradeIcon } from 'ming-ui';
+import { Support, UpgradeIcon } from 'ming-ui';
+import { Button, Input } from 'ming-ui/antd-components';
+
+const ADD_BUTTON_PROPS = { type: 'primary' };
+const UPGRADE_ADD_BUTTON_PROPS = { color: 'default', variant: 'filled' };
 
 const HeaderWrap = styled.div`
   margin-bottom: 24px;
@@ -10,29 +13,10 @@ const HeaderWrap = styled.div`
     height: 40px;
   }
   .searchWrap {
-    display: flex;
-    align-items: center;
     width: 200px;
     height: 36px;
-    background: var(--color-background-primary);
-    border: 1px solid var(--color-border-secondary);
     border-radius: 18px;
-    padding: 0 12px;
     margin-left: 20px;
-    overflow: hidden;
-    .ming.Input {
-      flex: 1;
-      border: none;
-      background-color: inherit;
-      padding: 0 7px;
-    }
-  }
-  .needUpgrade {
-    background: var(--color-border-secondary);
-    color: var(--color-text-title);
-    &:hover {
-      background: var(--color-border-primary);
-    }
   }
 `;
 
@@ -63,19 +47,21 @@ export default function AppSettingHeader(props) {
         </div>
         {extraElement && <Fragment>{extraElement}</Fragment>}
         {showSearch && (
-          <div className="searchWrap">
-            <i className="icon-search Font18 textTertiary" />
-            <Input className="flex" placeholder={_l('搜索') || placeholder} onChange={handleSearch} />
-          </div>
+          <Input
+            className="searchWrap"
+            prefix={<i className="icon-search Font18 textTertiary" />}
+            placeholder={_l('搜索') || placeholder}
+            onChange={event => handleSearch(event.target.value)}
+          />
         )}
         {addBtnName ? (
           <Button
-            className={cx(`mLeft20 pLeft20 pRight20 hoverBgColorPrimaryDark`, { needUpgrade })}
-            type="primary"
-            radius
+            {...(needUpgrade ? UPGRADE_ADD_BUTTON_PROPS : ADD_BUTTON_PROPS)}
+            className="mLeft20"
+            shape="round"
+            icon={<i className={`icon icon-${addIcon || 'plus'}`} />}
             onClick={handleAdd}
           >
-            <i className={`icon icon-${addIcon ? addIcon : 'plus'} Font12 mRight5`} />
             {addBtnName}
             {needUpgrade && <UpgradeIcon />}
           </Button>

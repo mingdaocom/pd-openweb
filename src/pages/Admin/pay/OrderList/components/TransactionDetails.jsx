@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import appManagementAjax from 'src/api/appManagement';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -13,15 +13,23 @@ import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import MaskText from 'src/pages/Admin/components/MaskText';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
-import { VersionProductType } from 'src/utils/enum';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getRequest } from 'src/utils/platform/browser/device';
 import DatePickerFilter from '../../../common/datePickerFilter';
 import Empty from '../../../common/TableEmpty';
-import { DATE_CONFIG, INCOME_INFO, ORDER_SOURCE, ORDER_STATUS, PAY_CHANNEL_TXT, PAY_METHOD } from '../../config';
+import {
+  DATE_CONFIG,
+  INCOME_INFO,
+  ORDER_SOURCE,
+  ORDER_STATUS,
+  PAY_CHANNEL_TXT,
+  PAY_CHANNEL_TYPE,
+  PAY_METHOD,
+} from '../../config';
 import transactionEmptyImg from '../../images/withdrawals.png';
-import reimburseDialogFunc from '../../Merchant/components/WithdrawReimburseDialog';
+import { useWithdrawReimburseDialog } from '../../Merchant/components/WithdrawReimburseDialog';
 import PaymentDetails from '../../PaymentDetails';
 
 const TransactionDetailsWrap = styled.div`
@@ -58,7 +66,12 @@ const IncomeWrap = styled.div`
   }
 `;
 
-export default class TransactionDetails extends Component {
+const SETTLEMENT_PAY_CHANNELS = [PAY_CHANNEL_TYPE.AGGREGATE, PAY_CHANNEL_TYPE.LAKALA];
+
+const showSettlementInfo = ({ status, merchantPaymentChannel }) =>
+  _.includes([1, 2, 3, 5], status) && _.includes(SETTLEMENT_PAY_CHANNELS, merchantPaymentChannel);
+
+class TransactionDetails extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -115,8 +128,7 @@ export default class TransactionDetails extends Component {
         dataIndex: 'settlementAmount',
         width: 170,
         render: (text, record) => {
-          const { status } = record;
-          return _.includes([1, 2, 3, 5], status) && record.merchantPaymentChannel === 0 ? text : '-';
+          return showSettlementInfo(record) ? text : '-';
         },
       },
       {
@@ -131,8 +143,7 @@ export default class TransactionDetails extends Component {
         dataIndex: 'taxAmount',
         width: 200,
         render: (text, record) => {
-          const { status } = record;
-          return _.includes([1, 2, 3, 5], status) && record.merchantPaymentChannel === 0 ? text : '-';
+          return showSettlementInfo(record) ? text : '-';
         },
       },
       {
@@ -147,8 +158,7 @@ export default class TransactionDetails extends Component {
         dataIndex: 'taxRate',
         width: 200,
         render: (text, record) => {
-          const { status } = record;
-          return _.includes([1, 2, 3, 5], status) && record.merchantPaymentChannel === 0 ? text + '%' : '-';
+          return showSettlementInfo(record) ? text + '%' : '-';
         },
       },
       {
@@ -299,7 +309,7 @@ export default class TransactionDetails extends Component {
         title: _l('操作'),
         dataIndex: 'action',
         fixed: 'right',
-        width: 'auto',
+        width: 180,
         render: (text, record) => {
           // 开票： 已开票、开票中不展示，同时申请退款、退款中、已退款不展示开票按钮；状态是申请开票、开票失败、已支付才可点击开票
           // 退款：已退款、退款中、订单状态（已完结）也不展示此操作项；订单状态已支付、退款失败才可点击退款
@@ -332,7 +342,7 @@ export default class TransactionDetails extends Component {
                       return;
                     }
 
-                    reimburseDialogFunc({
+                    this.props.openWithdrawReimburseDialog({
                       type: 'reimburse',
                       title: <span className="Red">{_l('是否确定退款?')}</span>,
                       buttonType: 'danger',
@@ -531,26 +541,36 @@ export default class TransactionDetails extends Component {
     const { projectId } = this.props;
     const copyList = _.clone(this.state.list);
 
-    Dialog.confirm({
+    Modal.confirm({
       width: 560,
       title: _l('是否取消当前订单'),
       okText: _l('确认'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
-        paymentAjax.deletePayOrder({ orderId, projectId }).then(res => {
-          if (res) {
-            const index = _.findIndex(copyList, v => v.orderId === orderId);
-
-            if (index > -1) {
-              copyList[index] = { ...copyList[index], status: 7 };
+        paymentAjax
+          .deletePayOrder({
+            orderId,
+            projectId,
+          })
+          .then(res => {
+            if (res) {
+              const index = _.findIndex(copyList, v => v.orderId === orderId);
+              if (index > -1) {
+                copyList[index] = {
+                  ...copyList[index],
+                  status: 7,
+                };
+              }
+              this.setState({
+                list: copyList,
+              });
+              alert(_l('取消成功'));
+            } else {
+              alert(_l('取消失败'), 2);
             }
-
-            this.setState({ list: copyList });
-            alert(_l('取消成功'));
-          } else {
-            alert(_l('取消失败'), 2);
-          }
-        });
+          });
       },
     });
   };
@@ -644,7 +664,6 @@ export default class TransactionDetails extends Component {
         type: 'selectTime',
         label: _l('支付时间'),
         placeholder: _l('选择日期范围'),
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {
@@ -824,7 +843,6 @@ export default class TransactionDetails extends Component {
       pageIndex,
       orderInfo,
       showPaymentDetails,
-      datePickerVisible,
       dateItem,
       startDate,
       endDate,
@@ -873,39 +891,25 @@ export default class TransactionDetails extends Component {
             return (
               <div key={id} className="flexRow alignItemsBaseline mRight60">
                 {id === 'dateRangeTotalAmount' && (
-                  <Trigger
-                    popupVisible={datePickerVisible}
-                    onPopupVisibleChange={visible => this.setState({ datePickerVisible: visible })}
-                    action={['click']}
-                    popupAlign={{
-                      points: ['tl', 'bl'],
-                      offset: [0, 0],
-                      overflow: { adjustX: true, adjustY: true },
+                  <DatePickerFilter
+                    dataConfig={DATE_CONFIG}
+                    updateData={data => {
+                      this.setState(
+                        {
+                          ...data,
+                          startDate: data.startDate ? data.startDate : moment().format('YYYY-MM-DD'),
+                          endDate: data.endDate ? data.endDate : moment().format('YYYY-MM-DD'),
+                          dateItem: data.dateItem ? data.dateItem : 'today',
+                        },
+                        this.getPayOrderSummary,
+                      );
                     }}
-                    popup={
-                      <DatePickerFilter
-                        offset={{ left: 0, top: -345 }}
-                        dataConfig={DATE_CONFIG}
-                        updateData={data => {
-                          this.setState(
-                            {
-                              ...data,
-                              startDate: data.startDate ? data.startDate : moment().format('YYYY-MM-DD'),
-                              endDate: data.endDate ? data.endDate : moment().format('YYYY-MM-DD'),
-                              dateItem: data.dateItem ? data.dateItem : 'today',
-                              datePickerVisible: false,
-                            },
-                            this.getPayOrderSummary,
-                          );
-                        }}
-                      />
-                    }
                   >
                     <span className="dateTxt">
                       <span>{`${dateTxt} ¥`}</span>
                       <Icon icon="arrow-down-border" className=" textTertiary Hand mLeft6 mRight12" />
                     </span>
-                  </Trigger>
+                  </DatePickerFilter>
                 )}
                 {id !== 'dateRangeTotalAmount' && (
                   <span>
@@ -962,3 +966,7 @@ export default class TransactionDetails extends Component {
     );
   }
 }
+
+export default withOpeners(TransactionDetails, {
+  openWithdrawReimburseDialog: useWithdrawReimburseDialog,
+});

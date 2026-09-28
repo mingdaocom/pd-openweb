@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
-import Input from 'ming-ui/components/Input';
+import { Input, Modal } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './SheetSetName.less';
 
 export default class SheetSetName extends Component {
@@ -12,8 +12,11 @@ export default class SheetSetName extends Component {
       entityName: entityName || '',
       btnName: btnName || '',
     };
+    this.requestPending = false;
   }
   handleSave() {
+    if (this.requestPending) return;
+
     const { entityName } = this.state;
     const defaultName = _l('记录');
 
@@ -23,7 +26,8 @@ export default class SheetSetName extends Component {
     // }
     if (entityName !== this.props.entityName) {
       const name = entityName.trim() || defaultName;
-      sheetAjax
+      this.requestPending = true;
+      return sheetAjax
         .updateEntityName({
           worksheetId: this.props.worksheetId,
           entityName: name,
@@ -36,9 +40,13 @@ export default class SheetSetName extends Component {
           this.props.updateSheetInfo(this.props.worksheetId, args);
           alert(_l('修改成功'));
         })
-        .catch(() => {
-          alert(_l('修改失败'), 2);
-        });
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, _l('修改失败'), 2);
+        })
+        .finally(() => {
+          this.requestPending = false;
+        })
+        .then(() => this.props.onHide());
     }
 
     this.props.onHide();
@@ -47,10 +55,9 @@ export default class SheetSetName extends Component {
     const { visible } = this.props;
     const { entityName } = this.state;
     return (
-      <Dialog
+      <Modal
         className="SheetSetName"
-        visible={visible}
-        anim={false}
+        open={visible}
         title={_l('设置记录名称')}
         width={560}
         okText={_l('确认')}
@@ -65,9 +72,9 @@ export default class SheetSetName extends Component {
           <Input
             className="flex"
             value={entityName}
-            onChange={value => {
+            onChange={event => {
               this.setState({
-                entityName: value,
+                entityName: event.target.value,
               });
             }}
           />
@@ -84,7 +91,7 @@ export default class SheetSetName extends Component {
             }}
           />
         </div> */}
-      </Dialog>
+      </Modal>
     );
   }
 }

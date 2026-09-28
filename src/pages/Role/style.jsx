@@ -50,18 +50,8 @@ export const WrapNav = styled.div`
   max-width: 240px;
   min-height: 100%;
   overflow: auto;
-  .addRole {
-    margin: 4px 12px;
-    padding: 8px;
-    border-radius: 24px;
-    border: 1px solid var(--color-border-primary);
-    &:hover {
-      color: var(--color-primary);
-      border: 1px solid var(--color-primary);
-    }
-  }
   .search {
-    padding: 0 15px 0 26px;
+    padding: 0 15px;
   }
   .navCon {
     padding: 10px 8px;
@@ -113,11 +103,8 @@ export const WrapNav = styled.div`
         text-align: center;
       }
     }
-    .title {
-      padding: 10px 18px;
-    }
     &.bTBorder {
-      border-bottom: 1px solid --color-background-disabled;
+      border-bottom: 1px solid var(--color-background-disabled);
     }
     &.roleSet {
       overflow: auto;
@@ -153,12 +140,10 @@ export const WrapNav = styled.div`
           font-weight: bold !important;
         }
         .icon-drag,
-        .icon-drag,
         .moreop {
           opacity: 0;
         }
         &:hover {
-          .icon-drag,
           .icon-drag,
           .moreop {
             opacity: 1;
@@ -175,85 +160,10 @@ export const WrapTableCon = styled.div`
   min-height: 0;
   .barActionCon {
     padding: 0 44px;
-    .toOthers,
-    .del {
-      font-weight: 400;
-      color: var(--color-primary);
-      line-height: 37px;
-      height: 37px;
-      background: var(--color-primary-transparent);
-      padding: 0 20px;
-      border-radius: 3px;
-      &:hover {
-        background: var(--color-primary-transparent);
-      }
-    }
   }
 `;
 
 export const WrapFooter = styled.div`
-  .saveBtn {
-    height: 36px;
-    padding: 0 30px;
-    color: var(--color-white);
-    line-height: 36px;
-    border-radius: 4px 4px 4px 4px;
-    font-size: 14px;
-    font-weight: 400;
-    transition:
-      color ease-in 0.2s,
-      border-color ease-in 0.2s,
-      background-color ease-in 0;
-    background: var(--color-primary);
-    &:not(.disabled):hover {
-      background: var(--color-link-hover);
-    }
-    &.disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-  .delBtn {
-    height: 36px;
-    padding: 0 30px;
-    line-height: 36px;
-    border-radius: 4px 4px 4px 4px;
-    font-size: 14px;
-    opacity: 1;
-    border: 1px solid var(--color-border-secondary);
-    margin-left: 23px;
-    font-weight: 400;
-    transition:
-      color ease-in 0.2s,
-      border-color ease-in 0.2s,
-      background-color ease-in 0;
-    &:not(.disabled):hover {
-      border: 1px solid var(--color-border-tertiary);
-    }
-    &.disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-  .toUser {
-    color: var(--color-text-title);
-    height: 36px;
-    padding: 0 30px;
-    line-height: 36px;
-    border-radius: 4px 4px 4px 4px;
-    font-size: 14px;
-    opacity: 1;
-    border: 1px solid var(--color-border-secondary);
-    font-weight: 400;
-    transition:
-      color ease-in 0.2s,
-      border-color ease-in 0.2s,
-      background-color ease-in 0;
-    &:hover {
-      border: 1px solid var(--color-primary);
-      color: var(--color-primary);
-    }
-  }
   .line {
     height: 24px;
     width: 0;

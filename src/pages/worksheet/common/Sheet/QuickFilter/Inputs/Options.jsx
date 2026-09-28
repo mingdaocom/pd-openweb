@@ -1,100 +1,28 @@
 import React from 'react';
-import cx from 'classnames';
 import _, { filter, find } from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
 import Dropdown from 'src/components/Form/DesktopForm/widgets/Dropdown';
-import Option from './StyledOption';
 
 const Con = styled.div`
   position: relative;
   display: flex;
   align-items: center;
   line-height: 0px;
-  .ant-select {
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    ${({ isMultiple }) => (isMultiple ? '' : 'height: 32px;')}
-    line-height: 32px;
-    overflow: hidden;
-    .ant-select-arrow {
-      color: var(--color-text-tertiary);
-    }
-    .ant-select-clear {
-      background: transparent !important;
-    }
-    &:hover {
-      border-color: var(--color-border-tertiary) !important;
-    }
-    &:not(.isEmpty):hover {
-      .ant-select-arrow {
-        display: none;
+  .hap-select {
+    // 记录详情控件高度36, 快速筛选/行内编辑32, 所以这里要减小高度
+    .hap-select-selection-item.customAntDropdownTitleWithBG,
+    .hap-select-selection-item.customAntDropdownTitle {
+      --hap-select-multi-item-height: 21px;
+      .multiSelectTagText {
+        padding: unset;
       }
     }
-    &.ant-select-open {
-      border-color: var(--color-primary) !important;
-    }
-    &.customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
-      background-color: transparent !important;
-      &:hover {
-        background-color: transparent !important;
-      }
-    }
-    .ant-select-selector {
-      cursor: pointer !important;
-      border: none !important;
-      min-height: 30px;
-      .customAntSelectPlaceHolder,
-      .ant-select-selection-placeholder {
-        color: var(--color-text-disabled) !important;
-        font-size: 13px !important;
-      }
-      .ant-select-selection-search {
-        line-height: 0px;
-      }
-      .ant-select-selection-search-input {
-        height: 30px !important;
-      }
-      .ant-select-selection-placeholder {
-        line-height: 30px !important;
-      }
-      .ant-select-selection-item {
-        line-height: 28px !important;
-      }
-      .ant-select-selection-item > span {
-        margin: 3px 0 !important;
-      }
-      .customAntDropdownTitleWithBG {
-        margin-top: 3px !important;
-        margin-bottom: 3px !important;
-      }
-      .customAntSelectPlaceHolder {
-        padding: 0px !important;
-      }
-    }
-    .isEmpty {
-      color: inherit !important;
-      margin-left: 0px !important;
-      padding-left: 0px !important;
-      .icon-close {
-        display: none;
-      }
-    }
-    &.ant-select-multiple {
-      .ant-select-selector .ant-select-selection-overflow {
-        .ant-select-selection-search {
-          margin: 0px;
-        }
-        .ant-select-selection-overflow-item .customAntDropdownTitle {
-          margin-top: 3px !important;
-          margin-bottom: 3px !important;
-        }
-      }
-      .customAntDropdownTitleWithBG {
-        margin-top: 4px !important;
-        margin-bottom: 4px !important;
-      }
+    .singleSelectLabel {
+      line-height: 21px;
     }
   }
 `;
@@ -104,6 +32,16 @@ const FullLineCon = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
+
+const OPTION_BUTTON_STYLE = {
+  maxWidth: 200,
+  '--hap-control-height-sm': '28px',
+  '--hap-button-padding-inline-sm': '12px',
+};
+const SELECTED_MULTIPLE_OPTION_BUTTON_STYLE = {
+  ...OPTION_BUTTON_STYLE,
+  borderColor: 'var(--hap-color-primary-border)',
+};
 
 function pickOptions(options, navfilters) {
   try {
@@ -151,27 +89,39 @@ export default function Options(props) {
         {options
           .filter(o => !o.isDeleted)
           .slice(0, 20)
-          .map((o, i) => (
-            <Option
-              className={cx({ multiple, checked: _.includes(values, o.key) })}
-              title={o.value}
-              key={i}
-              onClick={() => {
-                if (o.key === 'isEmpty') {
-                  handleChange({ values: values.length === 1 && values[0] === 'isEmpty' ? [] : ['isEmpty'] });
-                } else if (_.includes(values, o.key)) {
-                  handleChange({ values: values.filter(v => v !== o.key && v !== 'isEmpty') });
-                } else {
-                  handleChange({
-                    values: multiple ? _.uniqBy(values.concat(o.key)).filter(v => v !== 'isEmpty') : [o.key],
-                  });
-                }
-              }}
-            >
-              {multiple && _.includes(values, o.key) && <span className="icon-hr_ok selectedIcon"></span>}
-              <div className="ellipsis">{o.value}</div>
-            </Option>
-          ))}
+          .map(o => {
+            const checked = _.includes(values, o.key);
+
+            return (
+              <Button
+                className="mTop2 mRight6 mBottom2 Normal"
+                color={checked ? 'primary' : 'default'}
+                variant={checked ? (multiple ? 'filled' : 'solid') : 'outlined'}
+                shape="round"
+                size="small"
+                ellipsis
+                Normal
+                style={checked && multiple ? SELECTED_MULTIPLE_OPTION_BUTTON_STYLE : OPTION_BUTTON_STYLE}
+                title={o.value}
+                key={o.key}
+                aria-pressed={checked}
+                icon={multiple && checked ? <Icon icon="hr_ok" className="Font13" /> : undefined}
+                onClick={() => {
+                  if (o.key === 'isEmpty') {
+                    handleChange({ values: values.length === 1 && values[0] === 'isEmpty' ? [] : ['isEmpty'] });
+                  } else if (checked) {
+                    handleChange({ values: values.filter(v => v !== o.key && v !== 'isEmpty') });
+                  } else {
+                    handleChange({
+                      values: multiple ? _.uniqBy(values.concat(o.key)).filter(v => v !== 'isEmpty') : [o.key],
+                    });
+                  }
+                }}
+              >
+                {o.value}
+              </Button>
+            );
+          })}
       </FullLineCon>
     );
   } else if (String(direction) === '2' && String(allowitem) === '1') {
@@ -188,7 +138,7 @@ export default function Options(props) {
             }),
           }}
           default={undefined}
-          dropdownClassName="scrollInTable withIsEmpty"
+          dropdownClassName="scrollInTable"
           value={JSON.stringify(values)}
           onChange={newValue => {
             handleChange({ values: safeParse(newValue) });
@@ -198,7 +148,7 @@ export default function Options(props) {
     );
   } else if (String(direction) === '2' && String(allowitem) === '2') {
     return (
-      <Con isMultiple>
+      <Con $isMultiple>
         <Checkbox
           key={controlKey}
           {...{
@@ -211,7 +161,7 @@ export default function Options(props) {
           default={undefined}
           fromFilter
           isFocus
-          dropdownClassName="scrollInTable withIsEmpty"
+          dropdownClassName="scrollInTable"
           value={JSON.stringify(values)}
           onChange={newValue => {
             let parsedValue = JSON.parse(newValue);

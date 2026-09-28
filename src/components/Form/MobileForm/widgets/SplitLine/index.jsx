@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, SvgIcon } from 'ming-ui';
-import { getAdvanceSetting, getExpandWidgetIds } from '../../tools/utils';
+import { getAdvanceSetting, getSplitLineTextColor } from 'src/utils/domain/control/advancedSetting';
+import { getExpandWidgetIds } from 'src/utils/domain/control/editorLayout';
 import { SectionItemWrap } from './style';
 
 const getFormItemMap = (container, widgetIds, worksheetId) => {
@@ -33,12 +34,7 @@ const SplitLine = props => {
     worksheetId,
   } = props;
   const sectionstyle = _.get(props, 'widgetStyle.sectionstyle') || '0';
-  const {
-    theme = 'var(--color-primary)',
-    color = 'var(--color-text-primary)',
-    icon = '',
-    hidetitle,
-  } = getAdvanceSetting(props);
+  const { theme = 'var(--color-primary)', color, icon = '', hidetitle } = getAdvanceSetting(props);
   const [visible, setVisible] = useState(enumDefault2 !== 2);
   const expandWidgetIds = useMemo(
     () => getExpandWidgetIds(renderData, { controlId, sectionId }, from),
@@ -141,13 +137,11 @@ const SplitLine = props => {
 
   return (
     <SectionItemWrap
-      theme={theme}
-      color={color}
-      visible={visible}
+      $theme={theme}
+      $color={getSplitLineTextColor(color)}
+      $visible={visible}
       ref={$ref}
-      sectionstyle={sectionstyle}
-      enumDefault2={enumDefault2}
-      hidetitle={hidetitle === '1'}
+      $hidetitle={hidetitle === '1'}
       onClick={() => handleExpand()}
     >
       <div className="titleBox alignItemsCenter">

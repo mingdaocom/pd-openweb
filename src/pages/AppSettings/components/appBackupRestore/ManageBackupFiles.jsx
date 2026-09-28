@@ -1,113 +1,94 @@
-import React, { useEffect, useState } from 'react';
-import { Drawer } from 'antd';
+import React, { useCallback, useEffect, useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, UpgradeIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Drawer, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { isAppSandboxInProduction } from 'src/utils/domain/app/sandbox';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import AppSettingHeader from '../AppSettingHeader';
 import ActionLogs from './components/ActionLogs';
 import BackupFiles from './components/BackupFiles';
-import backupFromFiles from './components/BackupFromFiles';
-import RegularBackup from './components/RegularBackup';
+import { useBackupFromFiles } from './components/BackupFromFiles';
+import openRegularBackupModal from './components/RegularBackup';
 import CreateAppBackupDialog from './CreateAppBackupDialog';
 import { cycleWeekText } from './enum';
 import './less/manageBackupFiles.less';
 
-const DrawerWrap = styled(Drawer)`
-  .ant-drawer-content-wrapper {
+const DrawerWrap = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-content-wrapper {
     width: 500px !important;
   }
-  .ant-drawer-wrapper-body,
-  .ant-drawer-body {
+  .hap-drawer-wrapper-body,
+  .hap-drawer-body {
     padding: 0;
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
   }
 `;
-const Refresh = styled.span`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  text-align: center;
-  color: var(--color-text-tertiary);
-  padding-top: 3px;
-  box-sizing: border-box;
-  margin-right: 30px;
-  margin-left: 10px;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--color-background-hover);
-    color: var(--color-primary);
-  }
-`;
-const ActionWrap = styled.div`
-  .act {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    .icon {
-      color: var(--color-text-tertiary);
-      font-size: 18px;
-    }
-    &:hover {
-      color: var(--color-primary);
-      .icon {
-        color: var(--color-primary);
-      }
-    }
-  }
-`;
 
 export default function ManageBackupFiles(props) {
-  const { appId, projectId, appName, permissionType, data } = props;
+  const { appId, projectId, appName, permissionType, data, sandboxStatus } = props;
   const [validLimit, setValidLimit] = useState(0);
   const [currentValid, setCurrentValid] = useState(0);
   const [createBackupVisible, setCreateBackUpVisible] = useState(false);
   const [showLog, setShowLog] = useState(false);
-  const [showBackupFromFiles, setShowBackupFromFiles] = useState(false);
   const [countLoading, setCountLoading] = useState(true);
-  const [backupInfo, setBackupInfo] = useState({ isLoading: false, fileList: [], pageIndex: 1 });
+  const [backupInfo, setBackupInfo] = useState({ isLoading: true, fileList: [], pageIndex: 1 });
   const [backupTask, setBackupTask] = useState({});
-  const [popupVisible, setPopupVisible] = useState(false);
   const [backupTaskText, setBackupTaskText] = useState();
-  const { isLoading, fileList } = backupInfo;
+  const { open: openBackupFromFiles, holder: backupFromFilesHolder } = useBackupFromFiles();
+  const { isLoading } = backupInfo;
   const featureType = getFeatureStatus(projectId, VersionProductType.regularBackup);
+  const readonly = isAppSandboxInProduction(sandboxStatus);
 
-  const getList = ({ pageIndex = 1, ...rest } = {}) => {
-    if (isLoading) return;
-    setBackupInfo({ ...backupInfo, isLoading: true });
-    appManagementAjax
-      .pageGetBackupRestoreOperationLog({
-        pageIndex: pageIndex,
-        pageSize: 50,
-        projectId,
-        appId,
-        isBackup: true,
-        orderType: rest.orderType || 0,
-        ...rest,
-      })
-      .then(({ list = [], total }) => {
-        let temp = pageIndex === 1 ? list : fileList.concat(list);
-        setBackupInfo({
-          isLoading: false,
-          fileList: temp,
-          pageIndex,
-          total,
-        });
-      });
-  };
+  const requestList = useCallback(
+    ({ pageIndex = 1, ...rest } = {}) =>
+      appManagementAjax
+        .pageGetBackupRestoreOperationLog({
+          pageIndex: pageIndex,
+          pageSize: 50,
+          projectId,
+          appId,
+          isBackup: true,
+          orderType: rest.orderType || 0,
+          ...rest,
+        })
+        .then(({ list = [], total }) => {
+          setBackupInfo(currentBackupInfo => ({
+            isLoading: false,
+            fileList: pageIndex === 1 ? list : currentBackupInfo.fileList.concat(list),
+            pageIndex,
+            total,
+          }));
+        })
+        .catch(() => {
+          setBackupInfo(currentBackupInfo => ({ ...currentBackupInfo, isLoading: false }));
+        }),
+    [appId, projectId],
+  );
 
-  const getBackupCount = () => {
+  const getList = useCallback(
+    ({ pageIndex = 1, ...rest } = {}) => {
+      if (isLoading) return;
+      setBackupInfo(currentBackupInfo => ({ ...currentBackupInfo, isLoading: true }));
+      requestList({ pageIndex, ...rest });
+    },
+    [isLoading, requestList],
+  );
+
+  const getBackupCount = useCallback(() => {
     appManagementAjax
       .getValidBackupFileInfo({ appId, projectId })
       .then(res => {
@@ -118,16 +99,43 @@ export default function ManageBackupFiles(props) {
       .catch(() => {
         setCountLoading(false);
       });
-  };
+  }, [appId, projectId]);
+
+  const handleUpdateBackupTxt = useCallback((data = {}) => {
+    if (data.status === 0) {
+      setBackupTaskText('');
+      return;
+    }
+
+    let text = '';
+
+    switch (data.cycleType) {
+      case 1:
+        // 每天
+        text = _l('每天');
+        break;
+      case 2:
+        // 每周
+        text = cycleWeekText[data.cycleValue] || _l('每周一');
+        break;
+      case 3:
+        // 每月
+        text = _l(`每月%0日`, data.cycleValue);
+        break;
+      default:
+    }
+
+    setBackupTaskText(text);
+  }, []);
 
   // 获取备份定时任务
-  const getBackupTask = () => {
+  const getBackupTask = useCallback(() => {
     appManagementAjax.getBackupTask({ appId }).then(res => {
       const data = res.status === 1 ? res : { status: 0 };
       setBackupTask(data);
       handleUpdateBackupTxt(data);
     });
-  };
+  }, [appId, handleUpdateBackupTxt]);
 
   // 编辑备份定时任务
   const editBackupTaskInfo = (params = {}) => {
@@ -161,42 +169,16 @@ export default function ManageBackupFiles(props) {
       });
   };
 
-  const handleUpdateBackupTxt = (data = {}) => {
-    if (data.status === 0) {
-      setBackupTaskText('');
-      return;
-    }
-
-    let text = '';
-
-    switch (data.cycleType) {
-      case 1:
-        // 每天
-        text = _l('每天');
-        break;
-      case 2:
-        // 每周
-        text = cycleWeekText[data.cycleValue] || _l('每周一');
-        break;
-      case 3:
-        // 每月
-        text = _l(`每月%0日`, data.cycleValue);
-        break;
-      default:
-    }
-
-    setBackupTaskText(text);
-  };
-
   useEffect(() => {
     if (!appId) return;
-    getList();
+    requestList();
     getBackupCount();
     getBackupTask();
-  }, [appId]);
+  }, [appId, getBackupCount, getBackupTask, requestList]);
 
   return (
     <div className="manageBackupFilesWrap flexColumn">
+      {backupFromFilesHolder}
       <AppSettingHeader
         title={_l('备份与还原')}
         addBtnName={_l('备份')}
@@ -209,79 +191,75 @@ export default function ManageBackupFiles(props) {
         }
         link="https://help.mingdao.com/application/backup-restore"
         extraTitleElement={
-          <Refresh
+          <Button
+            className="mLeft10 mRight30"
+            color="default"
+            variant="text"
+            size="small"
+            icon={<Icon icon="refresh1" />}
             onClick={() => {
-              setBackupInfo({ ...backupInfo, pageIndex: 1 });
               getList({ pageIndex: 1, orderType: 0 });
             }}
-          >
-            <Icon icon="refresh1" className="Font18" />
-          </Refresh>
+          />
         }
         extraElement={
-          <ActionWrap className="flexRow alignItemsCenter">
+          <div className="flexRow alignItemsCenter">
             {featureType && !_.isEmpty(backupTask) && (
-              <div className="mRight16">
-                <Trigger
-                  action={['click']}
-                  popupVisible={popupVisible}
-                  popup={
-                    <RegularBackup
-                      appId={appId}
-                      backupTask={backupTask}
-                      popupVisible={popupVisible}
-                      editBackupTaskInfo={editBackupTaskInfo}
-                      updatePopupVisibleChange={visible => setPopupVisible(visible)}
-                    />
-                  }
-                  popupAlign={{
-                    points: ['tr', 'br'],
-                    offset: [0, 10],
-                    overflow: { adjustX: true, adjustY: true },
+              <div className="flexRow alignItemsCenter mRight16">
+                <Button
+                  color="primary"
+                  variant="text"
+                  size="small"
+                  onClick={() => {
+                    if (featureType === '2') {
+                      buriedUpgradeVersionDialog(projectId, VersionProductType.regularBackup);
+                      return;
+                    }
+
+                    openRegularBackupModal({ backupTask, editBackupTaskInfo });
                   }}
                 >
-                  <span
-                    className="mLeft5 Hand colorPrimary"
-                    onClick={() => {
-                      if (featureType === '2') {
-                        buriedUpgradeVersionDialog(projectId, VersionProductType.regularBackup);
-                        return;
-                      }
-
-                      setPopupVisible(true);
-                    }}
-                  >
-                    {backupTaskText ? _l('定期备份') + '（' + backupTaskText + '）' : _l('设置定期备份')}
-                  </span>
-                </Trigger>
+                  {backupTaskText ? _l('定期备份') + '（' + backupTaskText + '）' : _l('设置定期备份')}
+                  {featureType === '2' && <UpgradeIcon />}
+                </Button>
                 {backupTask.status === 1 && (
                   <Tooltip title={_l('凌晨时段自动执行备份')}>
                     <i className="icon icon-info_outline textTertiary Font16 Hand" />
                   </Tooltip>
                 )}
-                {featureType === '2' && <UpgradeIcon />}
               </div>
             )}
-            <div
-              className="act mRight16"
-              onClick={() => {
-                backupFromFiles({ appId, projectId, validLimit, getBackupCount });
-              }}
+            {!readonly && (
+              <Button
+                className="mRight16"
+                color="default"
+                variant="text"
+                size="small"
+                icon={<Icon icon="upload_file" />}
+                onClick={() => {
+                  openBackupFromFiles({ appId, projectId, validLimit, getBackupCount });
+                }}
+              >
+                {_l('从文件还原')}
+              </Button>
+            )}
+            <Button
+              color="default"
+              variant="text"
+              size="small"
+              icon={<Icon icon="wysiwyg" />}
+              onClick={() => setShowLog(true)}
             >
-              <Icon icon="upload_file" className="mRight5" />
-              <span>{_l('从文件还原')}</span>
-            </div>
-            <div className="act" onClick={() => setShowLog(true)}>
-              <Icon icon="wysiwyg" className="mRight5" />
-              <span>{_l('日志')}</span>
-            </div>
-          </ActionWrap>
+              {_l('日志')}
+            </Button>
+          </div>
         }
         handleAdd={() => setCreateBackUpVisible(true)}
       />
 
       <BackupFiles
         backupInfo={backupInfo}
+        readonly={readonly}
         permissionType={permissionType}
         projectId={projectId}
         appId={appId}
@@ -307,22 +285,12 @@ export default function ManageBackupFiles(props) {
         />
       )}
 
-      {showBackupFromFiles && (
-        <BackupFromFiles
-          visible={showBackupFromFiles}
-          projectId={projectId}
-          appId={appId}
-          appName={appName}
-          onCancel={() => setShowBackupFromFiles(false)}
-        />
-      )}
-
       {showLog && (
         <DrawerWrap
           title={_l('操作日志')}
           onClose={() => setShowLog(false)}
-          visible={showLog}
-          headerStyle={{ display: 'none' }}
+          open={showLog}
+          styles={{ header: { display: 'none' } }}
         >
           <ActionLogs projectId={projectId} appId={appId} onClose={() => setShowLog(false)} />
         </DrawerWrap>

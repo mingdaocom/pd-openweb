@@ -1,16 +1,73 @@
-import React, { cloneElement } from 'react';
-import { Tooltip } from 'antd';
-import './index.less';
+import React, { cloneElement, forwardRef } from 'react';
+import AntdTooltip from 'antd/es/tooltip';
+import { transformSemanticConfig } from '../utils';
 
-export default function (props) {
+const DEFAULT_CONTAINER_STYLES = {
+  fontWeight: 'bold',
+  lineHeight: '18px',
+  padding: '9px 12px',
+};
+
+const joinClassNames = (...classNames) => classNames.filter(Boolean).join(' ');
+
+const getClassNames = classNames => {
+  if (!classNames) {
+    return {};
+  }
+
+  return typeof classNames === 'string' ? { root: classNames } : classNames;
+};
+
+const mergeRootClassName = classNames => {
+  const mergeClassNames = currentClassNames => {
+    const nextClassNames = getClassNames(currentClassNames);
+
+    return {
+      ...nextClassNames,
+      root: joinClassNames('md-tooltip-overlay', nextClassNames.root),
+    };
+  };
+
+  return transformSemanticConfig(classNames, mergeClassNames);
+};
+
+const mergeStyles = ({ styles, maxWidth }) => {
+  const mergeCurrentStyles = currentStyles => {
+    const nextStyles = currentStyles || {};
+    const { body, ...restStyles } = nextStyles;
+
+    return {
+      ...restStyles,
+      root: {
+        maxWidth,
+        maxHeight: 300,
+        whiteSpace: 'pre-wrap',
+        ...nextStyles.root,
+      },
+      container: {
+        ...DEFAULT_CONTAINER_STYLES,
+        ...body,
+        ...nextStyles.container,
+      },
+    };
+  };
+
+  return transformSemanticConfig(styles, mergeCurrentStyles);
+};
+
+const Tooltip = forwardRef((props, ref) => {
   const {
     children,
-    destroyTooltipOnHide = true,
-    type = 'var(--color-background-inverse)',
+    destroyOnHidden,
+    type = 'var(--color-background-tooltip)',
     title,
     color,
     shortcut,
     maxWidth = 350,
+    arrow,
+    classNames,
+    styles,
+    ...restProps
   } = props;
 
   const renderTitle = () => {
@@ -35,16 +92,21 @@ export default function (props) {
   };
 
   return (
-    <Tooltip
-      {...props}
-      color={type === 'white' ? 'white' : color || 'var(--color-background-inverse)'}
+    <AntdTooltip
+      {...restProps}
+      ref={ref}
+      arrow={arrow}
+      color={type === 'white' ? 'white' : color || 'var(--color-background-tooltip)'}
       title={renderTitle()}
-      overlayClassName={`md-tooltip-overlay ${props.overlayClassName}`}
-      overlayStyle={{ maxWidth, maxHeight: 300, whiteSpace: 'pre-wrap' }}
-      destroyTooltipOnHide={destroyTooltipOnHide}
-      zIndex={props.zIndex || 100000}
+      classNames={mergeRootClassName(classNames)}
+      styles={mergeStyles({ styles, maxWidth })}
+      destroyOnHidden={destroyOnHidden ?? true}
     >
       {cloneElement(children)}
-    </Tooltip>
+    </AntdTooltip>
   );
-}
+});
+
+Tooltip.displayName = 'Tooltip';
+
+export default Tooltip;

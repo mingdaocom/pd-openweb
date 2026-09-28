@@ -5,35 +5,35 @@ import styled from 'styled-components';
 import { Icon, MdMarkdown } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import MarkdownDialog from 'src/ming-ui/components/MdMarkdown/MarkdownDialog.js';
-import { browserIsMobile } from 'src/utils/common';
-import { ADD_EVENT_ENUM } from '../core/enum';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { useWidgetEvent } from '../core/useFormEventManager';
 
 const TextMarkdownWrap = styled.div`
   position: relative;
   border-radius: 4px;
-  min-height: ${props => `${props.minHeight}px`};
+  min-height: ${props => `${props.$minHeight}px`};
   height: auto;
-  ${props => (props.maxHeight ? `max-height: ${props.maxHeight}px` : '')};
+  ${props => (props.$maxHeight ? `max-height: ${props.$maxHeight}px` : '')};
   background: ${props =>
-    props.disabled ? 'transparent' : props.isEditing ? '#fff' : 'var(--color-background-secondary)'} !important;
+    props.$disabled ? 'transparent' : props.$isEditing ? '#fff' : 'var(--color-background-secondary)'} !important;
 
   .vditor {
     .vditor-reset {
-      padding: ${props => (props.disabled && !props.isCreate ? '6px 0' : '6px 15px 6px 12px')} !important;
+      padding: ${props => (props.$disabled && !props.$isCreate ? '6px 0' : '6px 15px 6px 12px')} !important;
       ${props =>
-        props.isMobile
-          ? !props.disabled || props.isEditing
+        props.$isMobile
+          ? !props.$disabled || props.$isEditing
             ? 'background: var(--color-background-input) !important;'
             : 'background: var(--color-background-primary) !important;'
           : ''}
     }
     border-color: ${props =>
-      props.disabled
+      props.$disabled
         ? 'transparent'
-        : props.isEditing
+        : props.$isEditing
           ? 'var(--color-primary)'
-          : props.isMobile
+          : props.$isMobile
             ? 'var(--color-border-primary)'
             : 'var(--color-background-secondary)'} !important;
   }
@@ -110,6 +110,7 @@ export default function TextMarkdown(props) {
       placeholder: hint,
       data: value,
       disabled,
+      analysisLink: advancedSetting.analysislink === '1',
       appId,
       projectId,
       worksheetId,
@@ -141,12 +142,12 @@ export default function TextMarkdown(props) {
 
   return (
     <TextMarkdownWrap
-      isEditing={isEditing}
-      disabled={disabled}
-      minHeight={minHeight}
-      maxHeight={maxHeight}
-      isCreate={!recordId}
-      isMobile={isMobile}
+      $isEditing={isEditing}
+      $disabled={disabled}
+      $minHeight={minHeight}
+      $maxHeight={maxHeight}
+      $isCreate={!recordId}
+      $isMobile={isMobile}
       className="textMarkdown"
     >
       {!disabled && isEditing && !isMobile && (

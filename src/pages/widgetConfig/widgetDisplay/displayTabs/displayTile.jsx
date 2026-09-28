@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { getPathById } from '../../util/widgets';
+import { getPathById } from 'src/utils/domain/control/layout';
 import BottomDragPointer from '../components/BottomDragPointer';
 import DisplayItem from '../displayItem';
 

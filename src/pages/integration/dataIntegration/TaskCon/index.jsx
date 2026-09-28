@@ -2,19 +2,20 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, FullScreenCurtain } from 'ming-ui';
+import { FullScreenCurtain } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import dataSourceApi from 'src/pages/integration/api/datasource.js';
 import SyncTask from 'src/pages/integration/api/syncTask.js';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import PublishFail from 'src/pages/integration/components/PublishFail';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { checkPermission } from 'src/utils/services/security/permission';
 import Disposition from './Disposition';
 import Monitor from './Monitor';
 import TaskCanvas from './TaskCanvas';
@@ -23,6 +24,8 @@ import TaskHeader from './TaskHeader';
 const Wrap = styled.div`
   height: 100%;
 `;
+const CREATE_TASK_PERMISSIONS = [PERMISSION_ENUM.CREATE_SYNC_TASK_FEATURE, PERMISSION_ENUM.CREATE_SYNC_TASK];
+const VIEW_TASK_PERMISSIONS = [...CREATE_TASK_PERMISSIONS, PERMISSION_ENUM.MANAGE_SYNC_TASKS];
 
 class Task extends Component {
   constructor(props) {
@@ -62,21 +65,23 @@ class Task extends Component {
     );
   }
 
-  validatePermission = projectId => {
-    const hasTaskAuth =
-      projectId && checkPermission(projectId, [PERMISSION_ENUM.CREATE_SYNC_TASK, PERMISSION_ENUM.MANAGE_SYNC_TASKS]);
+  validatePermission = (projectId, permissions = VIEW_TASK_PERMISSIONS) => {
+    const hasTaskAuth = projectId && checkPermission(projectId, permissions);
 
     if (!hasTaskAuth) {
       alert(_l('该同步任务无权限查看或已删除'), 3);
       navigateTo('/integration');
-      return;
+      return false;
     }
+
+    return true;
   };
 
   // 创建同步任务
   creatSynsTask = () => {
     const projectId = localStorage.getItem('currentProjectId');
-    this.validatePermission(projectId);
+    if (!this.validatePermission(projectId, CREATE_TASK_PERMISSIONS)) return;
+
     TaskFlow.init({
       projectId,
       owner: md.global.Account.accountId,
@@ -128,7 +133,8 @@ class Task extends Component {
         });
       }
 
-      this.validatePermission(flowData.projectId);
+      if (!this.validatePermission(flowData.projectId)) return;
+
       this.getDatasourcesList(flowData, flowData.projectId, datasources => {
         this.setState({
           flowData: { ...flowData, datasources },
@@ -312,11 +318,18 @@ class Task extends Component {
             },
             () => {
               if (errorType === 1 && errorMsgList.length > 0) {
-                return Dialog.confirm({
+                return Modal.confirm({
                   title: _l('报错信息'),
                   className: 'connectorErrorDialog',
-                  description: (
-                    <div className="errorInfo" style={{ marginBottom: -30, 'max-height': 400, overflow: 'auto' }}>
+                  content: (
+                    <div
+                      className="errorInfo"
+                      style={{
+                        marginBottom: -30,
+                        'max-height': 400,
+                        overflow: 'auto',
+                      }}
+                    >
                       {errorMsgList.map((error, index) => {
                         return (
                           <div key={index} className="mTop5">
@@ -326,9 +339,13 @@ class Task extends Component {
                       })}
                     </div>
                   ),
-                  removeCancelBtn: true,
+                  cancelButtonProps: {
+                    style: {
+                      display: 'none',
+                    },
+                  },
                   okText: _l('关闭'),
-                });
+                }).destroy;
               }
             },
           );

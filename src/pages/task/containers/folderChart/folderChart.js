@@ -1,5 +1,4 @@
 ﻿import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { connect } from 'react-redux';
 import doT from 'dot';
@@ -7,8 +6,10 @@ import _ from 'lodash';
 import moment from 'moment';
 import filterXss from 'xss';
 import { Icon } from 'ming-ui';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskFolderStatistics';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import DateFilter from 'src/components/DateFilter';
 import config from '../../config/config';
 import { listLoadingContent } from '../../utils/taskComm';
@@ -468,14 +469,19 @@ class FolderChart extends Component {
   folderChartMaxView(data) {
     const content = doT.template(folderChartMaxView)(data);
     // 弹出层
-    Dialog.confirm({
-      dialogClasses: 'folderChartMaxView',
-      noFooter: true,
+    Modal.confirm({
+      wrapClassName: 'folderChartMaxView',
+      footer: null,
       width: 860,
-      children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
-      handleClose: () => {
+      content: (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: content,
+          }}
+        ></div>
+      ),
+      onCancel: () => {
         rootMaxViewUpdateTime && rootMaxViewUpdateTime.unmount();
-        $('.folderChartMaxView').parent().remove();
       },
     });
 

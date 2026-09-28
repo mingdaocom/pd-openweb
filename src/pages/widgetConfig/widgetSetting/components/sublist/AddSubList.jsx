@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Button, Dialog, RadioGroup, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 
 const AddSubListWrap = styled.div`
@@ -15,11 +16,7 @@ const AddSubListWrap = styled.div`
   label {
     margin-top: 16px;
   }
-  .footerBtn {
-    text-align: right;
-    margin-top: 32px;
-  }
-  .Radio-text {
+  .ant-radio-label {
     font-weight: bold;
   }
   .radioIntro {
@@ -63,7 +60,16 @@ export default function AddSubList(props) {
   };
 
   return (
-    <Dialog width={560} visible={visible} title={_l('添加子表')} onCancel={closeSubListConfig} footer={null}>
+    <Modal
+      width={560}
+      open={visible}
+      title={_l('添加子表')}
+      okDisabled={createType === '2' && !sheetId}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={closeSubListConfig}
+      onOk={handleCreate}
+    >
       <AddSubListWrap>
         <div className="intro">
           {_l(
@@ -71,7 +77,12 @@ export default function AddSubList(props) {
           )}
           <Support type={3} href="https://help.mingdao.com/worksheet/control-subform" text={_l('帮助')} />
         </div>
-        <RadioGroup vertical data={OPTIONS} checkedValue={createType} onChange={setType} />
+        <Radio.Group
+          vertical
+          options={(OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={createType}
+          onChange={event => setType(event.target.value)}
+        />
         <div className="selectSheetWrap">
           {createType === '2' && (
             <SelectSheetFromApp
@@ -93,16 +104,7 @@ export default function AddSubList(props) {
             />
           )}
         </div>
-
-        <div className="footerBtn">
-          <Button type="link" onClick={closeSubListConfig}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" disabled={createType === '2' && !sheetId} onClick={handleCreate}>
-            {_l('确定')}
-          </Button>
-        </div>
       </AddSubListWrap>
-    </Dialog>
+    </Modal>
   );
 }

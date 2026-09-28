@@ -200,14 +200,13 @@ function List(props) {
           return '';
         }
 
-        const popupAlign = {
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
-        };
-
         const trigger = (
-          <MoreOperate onClick={e => e.stopPropagation()}>
+          <MoreOperate
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
             <i className="icon icon-more_horiz"></i>
           </MoreOperate>
         );
@@ -219,7 +218,6 @@ function List(props) {
             hasManageAuth={propsData.hasManageAuth}
             onCopySuccess={propsData.onFresh}
             onDeleteSuccess={propsData.onFresh}
-            popupAlign={popupAlign}
             trigger={trigger}
           />
         );

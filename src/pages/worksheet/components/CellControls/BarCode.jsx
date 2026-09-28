@@ -8,7 +8,7 @@ import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
 const Con = styled.div`
   padding: 4px 6px !important;
   img {
-    height: ${({ imgHeight }) => imgHeight}px !important;
+    height: ${({ $imgHeight }) => $imgHeight}px !important;
     width: auto !important;
   }
   &:hover {
@@ -22,7 +22,7 @@ const Con = styled.div`
 export default function OptionsSteps(props) {
   const { className, recordId = '', style, rowFormData, cell = {}, rowHeight = 34, onClick, isSubList = false } = props;
   return (
-    <Con className={cx(className, 'cellControl flexRow')} style={style} imgHeight={rowHeight - 9} onClick={onClick}>
+    <Con className={cx(className, 'cellControl flexRow')} style={style} $imgHeight={rowHeight - 9} onClick={onClick}>
       {!recordId.startsWith('empty') && (
         <BarCode
           isCell

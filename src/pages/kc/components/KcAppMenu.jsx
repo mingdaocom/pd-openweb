@@ -1,129 +1,123 @@
 /* 更多操作下拉项*/
 import React from 'react';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
-import ClickAway from 'ming-ui/components/ClickAway';
-import Icon from 'ming-ui/components/Icon';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { NODE_OPERATOR_TYPE, NODE_STATUS, NODE_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
 import UploadNewVersion from './UploadNewVersion';
 
-let KcAppMenu = class KcAppMenu extends React.Component {
-  static propTypes = {
-    item: PropTypes.object,
-    removeNode: PropTypes.func,
-    moveOrCopyClick: PropTypes.func,
-    updateNodeName: PropTypes.func,
-    updateNodeItem: PropTypes.func,
-    onShareNode: PropTypes.func,
-    onStarNode: PropTypes.func,
-    download: PropTypes.func,
-    permission: PropTypes.number,
-    onAddLinkFile: PropTypes.func,
-  };
+const KcAppMenu = props => {
+  const { children, item, isCreateUser, isList = false, onOpenChange, open } = props;
+  const isFolder = item.type === NODE_TYPE.FOLDER;
+  const isUrl = item.viewType === NODE_VIEW_TYPE.LINK;
+  const canEdit = item.canEdit;
+  const isAdmin = item.isAdmin;
+  const canDownload = isAdmin || item.canDownload;
+  const items = [
+    !isFolder &&
+      isUrl &&
+      canEdit && {
+        key: 'edit',
+        icon: <Icon icon="edit" />,
+        label: _l('编辑'),
+        onClick: () => props.onAddLinkFile(true, item),
+      },
+    !isList &&
+      canDownload && {
+        key: 'download',
+        icon: <Icon icon="kc-hover-download" />,
+        label: _l('下载'),
+        onClick: () => props.download(item),
+      },
+    !isList && { type: 'divider' },
+    !isFolder && {
+      key: 'star',
+      icon: <Icon icon="task-star" />,
+      label: item.isStared ? _l('取消标星') : _l('标星'),
+      onClick: () => props.onStarNode(item),
+    },
+    !isList && {
+      key: 'share',
+      icon: <Icon icon="calendar-task" />,
+      label: _l('分享'),
+      onClick: () => props.onShareNode(item),
+    },
+    !isFolder && { type: 'divider' },
+    (isAdmin || canEdit) && {
+      key: 'rename',
+      icon: <Icon icon="edit" />,
+      label: _l('重命名'),
+      onClick: () => props.updateNodeName(item),
+    },
+    !isFolder &&
+      !isUrl &&
+      (isAdmin || canEdit) && {
+        key: 'uploadNewVersion',
+        className: 'kcUploadNewVersionMenuItem',
+        icon: <Icon icon="attachment" />,
+        label: (
+          <>
+            {_l('上传新版本')}
+            <UploadNewVersion item={item} callback={props.updateNodeItem} />
+          </>
+        ),
+      },
+    canEdit && {
+      key: 'move',
+      icon: <Icon icon="task-replace" />,
+      label: _l('移动到…'),
+      onClick: () => props.moveOrCopyClick(NODE_OPERATOR_TYPE.MOVE, isAdmin ? null : item.rootId),
+    },
+    canDownload && {
+      key: 'copy',
+      icon: <Icon icon="knowledge-more-folder" />,
+      label: _l('复制到…'),
+      onClick: () => props.moveOrCopyClick(NODE_OPERATOR_TYPE.COPY),
+    },
+    (isAdmin || (isCreateUser && canEdit)) && {
+      key: 'delete',
+      danger: true,
+      icon: <Icon icon="trash" />,
+      label: _l('删除'),
+      onClick: () => props.removeNode(NODE_STATUS.RECYCLED),
+    },
+    {
+      key: 'detail',
+      icon: <Icon icon="info" />,
+      label: _l('属性'),
+      onClick: props.showDetail,
+    },
+  ].filter(Boolean);
 
-  render() {
-    const item = this.props.item;
-    const isFolder = item.type === NODE_TYPE.FOLDER;
-    const isUrl = item.viewType === NODE_VIEW_TYPE.LINK;
-    const isStared = item.isStared;
-    const canEdit = item.canEdit;
-    const isAdmin = item.isAdmin;
-    const isCreateUser = this.props.isCreateUser;
-    const isList = this.props.isList || false;
-    const isMulti = false;
-    return (
-      <Menu onClick={this.props.onClickAway} con={this.props.con}>
-        {!isFolder && !isMulti && isUrl && canEdit && (
-          <MenuItem icon={<Icon icon="edit" />} onClick={() => this.props.onAddLinkFile(true, item)}>
-            {_l('编辑')}
-          </MenuItem>
-        )}
-        {!isList && (isAdmin || (canEdit && item.canDownload) || item.canDownload || isMulti) && (
-          <MenuItem icon={<Icon icon="kc-hover-download" />} onClick={() => this.props.download(item)}>
-            {_l('下载')}
-          </MenuItem>
-        )}
-        <MenuItem
-          className={cx('menuLine', {
-            hide: isList,
-          })}
-        />
-        <MenuItem
-          icon={<Icon icon="task-star" />}
-          className={cx({
-            hide: isFolder || isMulti,
-          })}
-          onClick={() => this.props.onStarNode(item)}
-        >
-          {isStared ? _l('取消标星') : _l('标星')}
-        </MenuItem>
-        <MenuItem
-          icon={<Icon icon="calendar-task" />}
-          className={cx({
-            hide: isMulti || isList,
-          })}
-          onClick={() => this.props.onShareNode(item)}
-        >
-          {_l('分享')}
-        </MenuItem>
-        <MenuItem
-          className={cx('menuLine', {
-            hide: isFolder || isMulti,
-          })}
-        />
-        {(isAdmin || canEdit) && (
-          <MenuItem
-            icon={<Icon icon="edit" />}
-            className={cx({
-              hide: isMulti,
-            })}
-            onClick={() => this.props.updateNodeName(item)}
-          >
-            {_l('重命名')}
-          </MenuItem>
-        )}
-        {!isUrl && (isAdmin || canEdit) && (
-          <MenuItem
-            icon={<Icon icon="attachment" />}
-            className={cx({
-              hide: isFolder || isMulti,
-            })}
-          >
-            <span>
-              {_l('上传新版本')}
-              <UploadNewVersion item={this.props.item} callback={this.props.updateNodeItem} />
-            </span>
-          </MenuItem>
-        )}
-        {canEdit && (
-          <MenuItem
-            icon={<Icon icon="task-replace" />}
-            onClick={() => this.props.moveOrCopyClick(NODE_OPERATOR_TYPE.MOVE, isAdmin ? null : item.rootId)}
-          >
-            {_l('移动到…')}
-          </MenuItem>
-        )}
-        {(isAdmin || (canEdit && item.canDownload) || item.canDownload || isMulti) && (
-          <MenuItem
-            icon={<Icon icon="knowledge-more-folder" />}
-            onClick={() => this.props.moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}
-          >
-            {_l('复制到…')}
-          </MenuItem>
-        )}
-        {(isAdmin || (isCreateUser && canEdit) || isMulti) && (
-          <MenuItem icon={<Icon icon="trash" />} onClick={() => this.props.removeNode(NODE_STATUS.RECYCLED)}>
-            {_l('删除')}
-          </MenuItem>
-        )}
-        <MenuItem icon={<Icon icon="info" />} onClick={this.props.showDetail}>
-          {_l('属性')}
-        </MenuItem>
-      </Menu>
-    );
-  }
+  return (
+    <Dropdown
+      trigger={['click']}
+      open={open}
+      placement="bottomRight"
+      menu={{ items, style: { minWidth: 180 }, onClick: () => onOpenChange(false) }}
+      onOpenChange={onOpenChange}
+    >
+      <span>{children}</span>
+    </Dropdown>
+  );
 };
-KcAppMenu = ClickAway.wrap(KcAppMenu);
+
+KcAppMenu.propTypes = {
+  children: PropTypes.node,
+  item: PropTypes.object,
+  open: PropTypes.bool,
+  onOpenChange: PropTypes.func,
+  removeNode: PropTypes.func,
+  moveOrCopyClick: PropTypes.func,
+  updateNodeName: PropTypes.func,
+  updateNodeItem: PropTypes.func,
+  onShareNode: PropTypes.func,
+  onStarNode: PropTypes.func,
+  download: PropTypes.func,
+  onAddLinkFile: PropTypes.func,
+  showDetail: PropTypes.func,
+  isCreateUser: PropTypes.bool,
+  isList: PropTypes.bool,
+};
+
 export default KcAppMenu;

@@ -1,16 +1,15 @@
-﻿import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Modal } from 'antd';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import PurchaseIcon from '../image/purchaseIcon.png';
 import TimeIcon from '../image/time.png';
 import { FreeTrialWrap } from '../styled';
@@ -53,10 +52,10 @@ export default function VersionCard(props) {
           return;
         }
 
-        Dialog.confirm({
+        Modal.confirm({
           width: 510,
           title: _l('续费'),
-          description: _l('仅允许在市场中完成开发版购买与续费，请前往 市场-开发者 后台完成续费'),
+          content: _l('仅允许在市场中完成开发版购买与续费，请前往 市场-开发者 后台完成续费'),
           okText: _l('立即前往'),
           onOk: () => {
             window.open(`${md.global.Config.MarketUrl}/seller/profile`);
@@ -75,10 +74,19 @@ export default function VersionCard(props) {
   }, [data.rules, freeTrialVisible, projectId, updateData]);
 
   useEffect(() => {
-    isNocolySaas && data.licenseType !== 0 && projectAjax?.getCurrentLicense
-      ? projectAjax.getCurrentLicense({ projectId }).then(res => res && setVersionInfo({ ...res, loading: false }))
-      : setVersionInfo({ loading: false });
-  }, [data, isNocolySaas, projectId]);
+    if (!isNocolySaas || data.licenseType === 0 || !projectAjax?.getCurrentLicense) return;
+
+    let isActive = true;
+    projectAjax.getCurrentLicense({ projectId }).then(res => {
+      if (isActive && res) {
+        setVersionInfo({ ...res, loading: false });
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [data.licenseType, isNocolySaas, projectId]);
 
   return (
     <div className="infoCard row1">
@@ -163,31 +171,40 @@ export default function VersionCard(props) {
         (!window.platformENV.isOverseas ? (
           <div className="buttons">
             {!isFree && _.isEmpty(nextLicense) && (
-              <div
-                className={cx('Bold', isTrial ? 'greenBtn' : 'blueBtn')}
+              <Button
+                type={isTrial ? undefined : 'primary'}
+                color={isTrial ? 'var(--color-success)' : undefined}
+                variant={isTrial ? 'solid' : undefined}
+                shape="round"
+                icon={<img src={isTrial ? PurchaseIcon : TimeIcon} width={20} height={20} alt="" />}
                 onClick={() => handleClick(versionIdV2 === 0 ? 'toast' : 'renew')}
               >
-                <img src={isTrial ? PurchaseIcon : TimeIcon} />
                 {isTrial ? _l('购买') : _l('续费')}
-              </div>
+              </Button>
             )}
             {(isFree || (versionIdV2 !== 3 && !isTrial)) && (
-              <div
-                className={cx('Bold', isFree ? 'greenBtn' : 'whiteBtn')}
+              <Button
+                color={isFree ? 'var(--color-success)' : undefined}
+                variant={isFree ? 'solid' : undefined}
+                shape="round"
+                icon={<span>🚀</span>}
                 onClick={() => handleClick(isFree ? 'renew' : 'upgrade')}
               >
-                <span className="mRight6">🚀</span>
                 {_l('升级')}
-              </div>
+              </Button>
             )}
           </div>
         ) : (
           <div className="valignWrapper">
-            <div className="Bold greenBtn" onClick={() => versionUpgradeModal({ projectId })}>
-              <span className="mRight6">🚀</span>
+            <Button
+              color="var(--color-success)"
+              variant="solid"
+              shape="round"
+              icon={<span>🚀</span>}
+              onClick={() => versionUpgradeModal({ projectId })}
+            >
               {_l('升级')}
-            </div>
-
+            </Button>
             {!isTrial && versionInfo.id && !versionInfo.isOffLine && (
               <PurchaseExpandPack
                 className="mLeft16"
@@ -199,7 +216,7 @@ export default function VersionCard(props) {
           </div>
         ))}
 
-      <Modal width={720} visible={freeTrialVisible} title={null} footer={null} onCancel={() => setVisible(false)}>
+      <Modal width={720} open={freeTrialVisible} title={null} footer={null} onCancel={() => setVisible(false)}>
         <FreeTrialWrap>
           <div className="title">{_l('额外获赠最多30天免费试用')}</div>
           <div className="subTitle">{_l('试用期间邀请同事加入即可获赠相应试用天数')}</div>
@@ -229,12 +246,7 @@ export default function VersionCard(props) {
               </li>
             ))}
           </ul>
-          <Button
-            style={{ height: '48px' }}
-            type="primary"
-            block
-            onClick={() => addFriends({ projectId: projectId, fromType: 4 })}
-          >
+          <Button type="primary" block onClick={() => addFriends({ projectId: projectId, fromType: 4 })}>
             {_l('立即邀请同事加入')}
           </Button>
         </FreeTrialWrap>

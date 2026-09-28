@@ -3,10 +3,10 @@ import cx from 'classnames';
 import { find, get } from 'lodash';
 import { TagTextarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { ROW_ID_CONTROL, SYSTEM_CONTROL } from '../../config/widget';
+import { getConcatenateControls } from 'src/utils/domain/control/controlSelection';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { ROW_ID_CONTROL, SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import { ControlTag, SettingItem } from '../../styled';
-import { getConcatenateControls } from '../../util/data';
 import SelectControl from './SelectControl';
 
 export default function Concatenate({

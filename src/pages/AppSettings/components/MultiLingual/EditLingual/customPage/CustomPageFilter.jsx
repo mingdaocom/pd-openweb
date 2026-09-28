@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import customApi from 'statistics/api/custom';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../../config';
 import EditInput from '../EditInput';
 

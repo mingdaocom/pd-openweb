@@ -1,24 +1,41 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { AILoading, BgIconButton, Button, Checkbox, Switch } from 'ming-ui';
+import { AILoading, BgIconButton } from 'ming-ui';
+import { Button, Checkbox, Popover, Switch } from 'ming-ui/antd-components';
 import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
-import { emitter } from 'src/utils/common';
-import { parseStreamingJsonlData } from 'src/utils/sse';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { parseStreamingJsonlData } from 'src/utils/platform/network/sse';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { buildSheetListUpdates, saveOptimizationResult } from './saveOptimizationResult';
 import WorksheetItemTree from './WorksheetItemTree';
 
-const PopupContainer = styled.div`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 400px;
-  right: 0;
-  padding: 0 20px;
-  background-color: var(--color-background-primary);
+const DETAIL_POPOVER_STYLES = {
+  root: { width: '100%' },
+  container: {
+    height: '100%',
+    padding: 0,
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+  content: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: 400,
+    padding: '0 20px',
+    backgroundColor: 'var(--color-background-primary)',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+};
+
+const PopupContent = styled.div`
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   .header {
@@ -29,14 +46,6 @@ const PopupContainer = styled.div`
     color: var(--color-text-title);
     font-size: 17px;
     font-weight: bold;
-    .closeIcon {
-      font-size: 20px;
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      &:hover {
-        color: var(--color-text-primary);
-      }
-    }
   }
   .content {
     flex: 1;
@@ -97,30 +106,10 @@ const PopupContainer = styled.div`
     padding: 0 30px;
     margin: 0 -20px;
     border-top: 1px solid var(--color-border-primary);
-    .confirmButton {
-      border-radius: 36px;
-      background-color: var(--color-mingo);
-      &:hover {
-        background-color: var(--color-mingo-dark);
-      }
-      &:disabled {
-        background-color: var(--color-background-disabled);
-        color: var(--color-text-disabled);
-      }
-    }
-  }
-  .Checkbox {
-    flex-shrink: 0;
   }
   .checkboxPlaceholder {
     width: 16px;
     flex-shrink: 0;
-  }
-  .Checkbox.checked .Checkbox-box,
-  .Checkbox.clearselected .Checkbox-box,
-  .Checkbox.clearselected .Checkbox-box:hover {
-    border-color: var(--color-mingo) !important;
-    background-color: var(--color-mingo) !important;
   }
 `;
 
@@ -257,9 +246,12 @@ function AppInfoOptimizationPopup({ appInfo, optimizedMap, config, isStreaming, 
   );
   const [selectedIds, setSelectedIds] = useState(allIds);
   const [hasSaved, setHasSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const savePendingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const isAllChecked = selectedIds.length === allIds.length;
-  const disabledAll = hasSaved || isStreaming || !editable;
+  const disabledAll = hasSaved || isStreaming || !editable || isSaving;
 
   const handleToggleAll = () => {
     if (disabledAll) return;
@@ -275,16 +267,23 @@ function AppInfoOptimizationPopup({ appInfo, optimizedMap, config, isStreaming, 
   const dispatch = useDispatch();
 
   const handleUse = () => {
-    if (disabledAll) return;
-    saveOptimizationResult({
-      appInfo,
-      optimizedMap,
-      selectedIds,
-      editName,
-      editIcon,
-      isLine,
-      treeData,
-    })
+    if (disabledAll || savePendingRef.current) return;
+
+    savePendingRef.current = true;
+    setIsSaving(true);
+
+    return Promise.resolve()
+      .then(() =>
+        saveOptimizationResult({
+          appInfo,
+          optimizedMap,
+          selectedIds,
+          editName,
+          editIcon,
+          isLine,
+          treeData,
+        }),
+      )
       .then(res => {
         if (res === null) {
           onClose();
@@ -319,17 +318,31 @@ function AppInfoOptimizationPopup({ appInfo, optimizedMap, config, isStreaming, 
         setHasSaved(true);
         onClose();
       })
-      .catch(() => {
-        alert(_l('保存失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
+      })
+      .finally(() => {
+        savePendingRef.current = false;
+        if (mountedRef.current) {
+          setIsSaving(false);
+        }
       });
   };
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     setSelectedIds(allIds);
   }, [allIds]);
 
   return (
-    <PopupContainer>
+    <PopupContent>
       <div className="header">
         {_l('选择需要的修改')}
         <BgIconButton icon="close" onClick={onClose} />
@@ -366,24 +379,26 @@ function AppInfoOptimizationPopup({ appInfo, optimizedMap, config, isStreaming, 
             <div className="switchCon">
               <div className="switchLabel">{_l('图标样式')}</div>
               <Switch
-                primaryColor="#1677ff"
                 checked={isLine}
                 disabled={disabledAll}
-                onClick={() => {
+                onClick={(checked, event) => {
+                  event.stopPropagation();
                   if (disabledAll) return;
                   setIsLine(prev => {
                     const next = !prev;
                     const commonSetting = safeParse(localStorage.getItem('md_common_icon_setting')) || {};
-
                     safeLocalStorageSetItem(
                       'md_common_icon_setting',
-                      JSON.stringify({ ...commonSetting, isLine: next }),
+                      JSON.stringify({
+                        ...commonSetting,
+                        isLine: next,
+                      }),
                     );
-
                     return next;
                   });
                 }}
-                text={isLine ? _l('线框') : _l('填充')}
+                checkedChildren={isLine ? _l('线框') : _l('填充')}
+                unCheckedChildren={isLine ? _l('线框') : _l('填充')}
               />
             </div>
           )}
@@ -401,14 +416,25 @@ function AppInfoOptimizationPopup({ appInfo, optimizedMap, config, isStreaming, 
         />
       </div>
       <div className="footer">
-        <Checkbox checked={isAllChecked} disabled={disabledAll} onClick={handleToggleAll}>
+        <Checkbox
+          checked={isAllChecked}
+          disabled={disabledAll}
+          onChange={event => handleToggleAll(!event.target.checked, undefined, event)}
+        >
           {_l('全选')}
         </Checkbox>
-        <Button type="primary" className="confirmButton" disabled={disabledAll} onClick={handleUse}>
+        <Button
+          color="var(--color-mingo)"
+          variant="solid"
+          shape="round"
+          disabled={disabledAll}
+          loading={isSaving}
+          onClick={handleUse}
+        >
           {_l('使用')}
         </Button>
       </div>
-    </PopupContainer>
+    </PopupContent>
   );
 }
 
@@ -440,12 +466,19 @@ function AppOptimizationComp(props, ref) {
     };
   }, []);
   return (
-    <Trigger
-      popupVisible={detailVisible}
-      popupAlign={{ points: ['tr', 'tl'], offset: [0, 0] }}
+    <Popover
+      noPadding
+      trigger={[]}
+      open={detailVisible}
+      onOpenChange={setDetailVisible}
+      placement="leftTop"
+      align={{ offset: [0, 0] }}
       getPopupContainer={() => document.getElementById('containerWrapper')}
-      popupClassName="sidePanelContainerForMingo"
-      popup={
+      classNames={{ root: 'sidePanelContainerForMingo' }}
+      styles={DETAIL_POPOVER_STYLES}
+      motion={{ motionName: '' }}
+      destroyOnHidden={false}
+      content={
         <AppInfoOptimizationPopup
           appInfo={appInfo}
           config={config}
@@ -475,7 +508,7 @@ function AppOptimizationComp(props, ref) {
           </div>
         </EntryCard>
       </EntryWrap>
-    </Trigger>
+    </Popover>
   );
 }
 

@@ -4,11 +4,11 @@ import { includes } from 'lodash';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { getShowFormat } from 'src/utils/controlCommon';
-import { formatFormulaDate, formatStrZero } from 'src/utils/control';
-import { dateConvertToUserZone } from 'src/utils/project';
-import { UNIT_TO_TEXT } from '../../../core/enum';
-import { toFixed } from '../../tools/utils';
+import { formatFormulaDate } from 'src/utils/domain/control/date';
+import { getShowFormat } from 'src/utils/domain/control/date';
+import { formatStrZero, toFixed } from 'src/utils/domain/control/number';
+import { UNIT_TO_TEXT } from 'src/utils/domain/control/setting';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 
 const DateCalc = props => {
   const { value, enumDefault, unit, advancedSetting, dot, formDisabled } = props;

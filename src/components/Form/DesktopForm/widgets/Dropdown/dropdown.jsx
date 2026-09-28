@@ -1,14 +1,30 @@
-import React, { Fragment, memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Select } from 'antd';
+import React, { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon } from 'ming-ui';
-import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
-import { isLightColor } from 'src/utils/control';
+import { Select } from 'ming-ui/antd-components';
+import { MAX_OPTIONS_COUNT } from 'src/utils/domain/control/config';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
-import { getCheckAndOther } from '../../../core/utils';
 import OtherInput from '../Checkbox/OtherInput';
+
+const SELECT_LIST_ITEM_STYLE = { padding: '5.5px 12px' };
+
+const mergeSelectStyles = styles => {
+  const mergeStyles = currentStyles => ({
+    ...currentStyles,
+    popup: {
+      ...currentStyles?.popup,
+      listItem: {
+        ...SELECT_LIST_ITEM_STYLE,
+        ...currentStyles?.popup?.listItem,
+      },
+    },
+  });
+
+  return typeof styles === 'function' ? info => mergeStyles(styles(info)) : mergeStyles(styles);
+};
 
 const DropdownComp = props => {
   const {
@@ -25,6 +41,7 @@ const DropdownComp = props => {
     formItemId,
     recordId,
     flag,
+    isFormDetail,
     createEventHandler = () => {},
   } = props;
 
@@ -32,6 +49,7 @@ const DropdownComp = props => {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState('');
   const selectRef = useRef(null);
+  const selectStyles = useMemo(() => mergeSelectStyles(selectProps.styles), [selectProps.styles]);
 
   useWidgetEvent(
     formItemId,
@@ -60,12 +78,16 @@ const DropdownComp = props => {
         <span
           key={item.key}
           className={cx(
-            'ellipsis mTop5 mBottom5 mRight5 Font13',
+            'ellipsis Font13',
             enumDefault2 === 1 ? (isLightColor(item.color) ? 'textBlack' : 'textWhite') : '',
-            enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
+            enumDefault2 === 1
+              ? 'customAntDropdownTitleWithBG singleSelectLabel'
+              : 'customAntDropdownTitle singleSelectLabel',
             { isEmpty: item.key === 'isEmpty' },
           )}
-          style={enumDefault2 === 1 ? { background: item.color } : { color: 'var(--color-text-primary)' }}
+          style={{
+            ...(enumDefault2 === 1 ? { background: item.color } : { color: 'var(--color-text-primary)' }),
+          }}
           title={item.value}
         >
           {item.value}
@@ -147,6 +169,42 @@ const DropdownComp = props => {
     );
   }
 
+  const dropdownOptions = [
+    !keywords.length &&
+      advancedSetting.allowadd === '1' &&
+      canAddOption && {
+        value: '__allow_add_tip__',
+        disabled: true,
+        className: 'cursorDefault',
+        label: (
+          <span className="ellipsis customRadioItem textTertiary" title={_l('或直接输入添加新选项')}>
+            {_l('或直接输入添加新选项')}
+          </span>
+        ),
+      },
+    ...noDelOptions.map(item => ({
+      value: item.key,
+      text: item.text,
+      label: renderList(item),
+      className: cx({
+        'hap-select-item-option-selected': _.includes(checkIds, item.key),
+        isEmpty: item.key === 'isEmpty',
+      }),
+    })),
+    !disableCustom &&
+      !!keywords.length &&
+      !options.find(item => item.value === keywords) &&
+      advancedSetting.allowadd === '1' &&
+      canAddOption && {
+        value: `add_${keywords}`,
+        label: (
+          <span className="ellipsis customRadioItem colorPrimary" title={_l('添加新的选项：') + keywords}>
+            {_l('添加新的选项：') + keywords}
+          </span>
+        ),
+      },
+  ].filter(Boolean);
+
   const checkItems = noDelOptions
     .concat(delOptions)
     .filter(i => _.includes(checkIds, i.key))
@@ -166,9 +224,10 @@ const DropdownComp = props => {
       <span
         key={tagValue}
         className={cx(
-          'mTop5 mBottom5 mRight5',
           enumDefault2 === 1 ? (isLightColor(currentItem.color) ? 'textBlack' : 'textWhite') : '',
-          enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
+          enumDefault2 === 1
+            ? 'customAntDropdownTitleWithBG hap-select-selection-item'
+            : 'customAntDropdownTitle hap-select-selection-item',
           { isEmpty: tagValue === 'isEmpty' },
         )}
         style={{ background: enumDefault2 === 1 ? currentItem.color : '' }}
@@ -187,62 +246,29 @@ const DropdownComp = props => {
       <Select
         {...(mode ? { mode, tagRender } : {})}
         ref={selectRef}
-        dropdownClassName={dropdownClassName}
+        classNames={{ popup: { root: dropdownClassName } }}
         className={cx('w100 customAntSelect', { optionDisabled: disabled })}
         disabled={disabled}
         showSearch
+        copyable
         open={open}
         allowClear={checkIds.length > 0}
         listHeight={320}
         value={checkItems}
         placeholder={hint}
-        suffixIcon={<Icon icon="arrow-down-border Font14" />}
         labelInValue={true}
         optionFilterProp="children"
         filterOption={() => true}
         notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
         onSearch={handleSearch}
-        onDropdownVisibleChange={handleDropdownVisibleChange}
+        onOpenChange={handleDropdownVisibleChange}
         onChange={handleSelectChange}
         onKeyDown={createEventHandler}
         {...selectProps}
-      >
-        {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
-          <Select.Option disabled className="cursorDefault">
-            <span className="ellipsis customRadioItem textTertiary" title={_l('或直接输入添加新选项')}>
-              {_l('或直接输入添加新选项')}
-            </span>
-          </Select.Option>
-        )}
-
-        {noDelOptions.map((item, i) => {
-          return (
-            <Select.Option
-              value={item.key}
-              key={i}
-              text={item.text}
-              className={cx({
-                'ant-select-item-option-selected': _.includes(checkIds, item.key),
-                isEmpty: item.key === 'isEmpty',
-              })}
-            >
-              {renderList(item)}
-            </Select.Option>
-          );
-        })}
-
-        {!disableCustom &&
-          !!keywords.length &&
-          !options.find(item => item.value === keywords) &&
-          advancedSetting.allowadd === '1' &&
-          canAddOption && (
-            <Select.Option value={`add_${keywords}`}>
-              <span className="ellipsis customRadioItem colorPrimary" title={_l('添加新的选项：') + keywords}>
-                {_l('添加新的选项：') + keywords}
-              </span>
-            </Select.Option>
-          )}
-      </Select>
+        styles={selectStyles}
+        variant={isFormDetail ? 'filled' : 'outlined'}
+        options={dropdownOptions}
+      />
       <OtherInput {...props} isSelect={true} />
     </Fragment>
   );
@@ -259,11 +285,12 @@ DropdownComp.propTypes = {
   onChange: PropTypes.func,
   advancedSetting: PropTypes.object,
   hint: PropTypes.string,
+  isFormDetail: PropTypes.bool,
 };
 
 export default memo(DropdownComp, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'controlId', 'options']),
-    _.pick(nextProps, ['value', 'disabled', 'controlId', 'options']),
+    _.pick(prevProps, ['value', 'disabled', 'controlId', 'options', 'isFormDetail', 'selectProps']),
+    _.pick(nextProps, ['value', 'disabled', 'controlId', 'options', 'isFormDetail', 'selectProps']),
   );
 });

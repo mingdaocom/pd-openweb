@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import UniformRoute from 'src/router/withTitle';
-import { emitter } from 'src/utils/common';
+import { LazyRoute as UniformRoute } from 'src/router/components/LazyRoute';
+import { emitter } from 'src/utils/platform/browser/dom';
 import TaskCenter from './containers/taskCenter/taskCenter';
 
 const MODULE_TO_TITLE = {

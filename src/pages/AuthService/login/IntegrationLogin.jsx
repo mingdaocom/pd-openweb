@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const WrapCon = styled.div`
   min-height: 400px;

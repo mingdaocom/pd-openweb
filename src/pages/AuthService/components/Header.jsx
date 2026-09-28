@@ -1,13 +1,13 @@
 import React from 'react';
 import _ from 'lodash';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 function Header(props) {
   const { lineLoading, logo, hasGetLogo, isDefaultLogo, loading } = props;
 
   let brandLogo = '';
 
-  if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
+  if (window.platformENV.isHap) {
     if (hasGetLogo) {
       brandLogo = isDefaultLogo ? '' : logo;
     } else {

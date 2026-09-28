@@ -34,7 +34,7 @@ const ActionWrapper = styled.div`
   background-color: var(--color-background-primary);
   border-radius: 0 0 10px 10px;
   z-index: 1001;
-  animation: ${props => (props.closing ? slideUp : slideDown)} 0.25s ease-out forwards;
+  animation: ${props => (props.$closing ? slideUp : slideDown)} 0.25s ease-out forwards;
   box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.16);
 `;
 
@@ -85,7 +85,7 @@ const ConfirmAction = ({ visible, content, onCancel, onConfirm }) => {
   return (
     <Fragment>
       <Mask onClick={() => handleClose(onCancel)} />
-      <ActionWrapper closing={closing}>
+      <ActionWrapper $closing={closing}>
         <Content>{content}</Content>
         <Footer>
           <div className="basicBtn cancel" onClick={() => handleClose(onCancel)}>

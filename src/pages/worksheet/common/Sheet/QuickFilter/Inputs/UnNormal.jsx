@@ -1,22 +1,9 @@
 import React from 'react';
 import { arrayOf, func, shape, string } from 'prop-types';
-import styled from 'styled-components';
-
-const Con = styled.div`
-  display: flex;
-  align-items: center;
-  height: 32px;
-  line-height: 32px;
-  border: 1px solid var(--color-border-primary) !important;
-  border-radius: 4px;
-  background-color: var(--color-background-secondary);
-  padding: 0 12px;
-  color: var(--color-text-disabled);
-  cursor: not-allowed;
-`;
+import { Select } from 'ming-ui/antd-components';
 
 export default function UnNormal() {
-  return <Con> {_l('字段配置出错')}</Con>;
+  return <Select className="w100" disabled placeholder={_l('字段配置出错')} />;
 }
 
 UnNormal.propTypes = {

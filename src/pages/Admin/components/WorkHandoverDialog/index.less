@@ -1,8 +1,4 @@
 .workHandoverDialog {
-  .mui-dialog-body {
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
   .tabBox {
     display: flex;
     align-items: center;
@@ -17,9 +13,6 @@
       margin-right: 4px;
       cursor: pointer;
       padding: 10px;
-      &:first-child {
-        margin-left: 20px;
-      }
       &.active {
         color: var(--color-primary);
         border-bottom-color: var(--color-primary);
@@ -39,12 +32,12 @@
     background: var(--color-primary-transparent);
     border-radius: 3px;
     padding: 8px 16px;
-    margin: 16px 20px 10px;
+    margin: 16px 0 10px;
   }
   .apps {
     width: 260px;
     border-right: 1px solid var(--color-border-secondary);
-    padding: 10px 20px;
+    padding: 10px 20px 10px 0px;
     overflow: auto;
   }
   .handoverList {
@@ -80,27 +73,6 @@
   }
   .role {
     height: 36px;
-  }
-  .footer {
-    height: 60px;
-    text-align: right;
-    padding: 12px 24px;
-    box-shadow: 0px -2px 6px 1px rgba(0, 0, 0, 0.06);
-    border-radius: 0px 0px 6px 6px;
-    .removeAppMember {
-      height: 36px;
-      line-height: 36px;
-      border-radius: 3px;
-      color: var(--color-primary);
-      border: 1px solid var(--color-primary);
-      padding: 0 32px;
-      background-color: var(--color-background-primary);
-      &:hover {
-        color: var(--color-link-hover);
-        border: 1px solid var(--color-link-hover);
-        background-color: var(--color-background-primary);
-      }
-    }
   }
   .flex2 {
     flex: 2;

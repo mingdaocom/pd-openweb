@@ -3,11 +3,12 @@ import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, Radio } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import account from 'src/api/account';
-import common from 'src/pages/Personal/common';
-import { pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import common from 'src/utils/domain/account/settings';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 import Back from '../components/Back';
 
 const EmptyProject = styled.div`

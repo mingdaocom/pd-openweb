@@ -2,7 +2,8 @@
 import moment from 'moment';
 import AjaxRequest from 'src/api/calendar';
 import createShare from 'src/components/createShare/createShare';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { FREQUENCY, RECURLAYERS, RECURTYPE, REMINDTYPE, WEEKDAYS } from './constant';
 import afterRefreshOp from './lib/afterRefreshOp';
 import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
@@ -284,7 +285,6 @@ export const shareCalendar = function (params, callback) {
       shareID: id,
       recurTime: recurTime,
       token: token,
-      ajaxRequest: AjaxRequest,
       shareCallback: callback,
     },
   });
@@ -400,6 +400,7 @@ export const removeMember = function (accountID, { id, recurTime, originRecur, i
         operatorTitle,
         recurTitle,
         recurCalendarUpdateFun: removeMemberFunc,
+        danger: true,
       },
       {
         originRecur,
@@ -416,7 +417,7 @@ export const removeMember = function (accountID, { id, recurTime, originRecur, i
 export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime }) => {
   const { members } = calendar;
 
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const updateFunc = reInvite => {
       return function (isAllCalendar) {
         let {
@@ -519,8 +520,15 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
           untilDate: untilDate ? moment(untilDate).toISOString() : '',
           isAllCalendar,
           reConfirm: reInvite,
-        }).then(({ code }) => {
-          if (code === 1) {
+        })
+          .then(({ code }) => {
+            if (code !== 1) {
+              const message = code === 3 ? _l('无权限或日程已删除') : _l('操作失败');
+              alert(message, 3);
+              reject(new Error(message));
+              return;
+            }
+
             resolve({
               isAllCalendar,
               oldStartTime: start,
@@ -528,43 +536,39 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
               reInvite,
             });
 
-            if ($('#calendarList').is(':visible') && Config.saveCallback) {
-              // 日程列表
-              Config.saveCallback({
-                start: moment().format('YYYY-MM-DD HH:mm'),
-                end: $('#calendarListMoreData').html(),
-                isFirst: true,
-                scrollTop: $('.calendarList').scrollTop(),
-              });
-            } else if (_.isFunction(Config.saveCallback)) {
+            if (_.isFunction(Config.saveCallback)) {
               Config.saveCallback(); // 刷新日历
             }
 
             alert(_l('修改成功'));
-          } else if (code === 3) {
-            alert(_l('无权限或日程已删除'), 3);
-          } else {
-            alert(_l('操作失败'), 3);
-          }
-        });
+          })
+          .catch(error => {
+            console.error(error);
+            alertIfNotUnauthorized(error, _l('操作失败'), 3);
+            reject(error);
+          });
       };
     };
 
     if (members.length > 1) {
-      afterRefreshOp(function (reInvite, directRun) {
-        recurCalendarUpdate(
-          {
-            operatorTitle: _l('您确定编辑日程吗'),
-            recurTitle: _l('您确定编辑重复日程吗?'),
-            recurCalendarUpdateFun: updateFunc(reInvite),
-          },
-          calendar,
-          {
-            directRun,
-            isEdit,
-          },
-        );
-      });
+      afterRefreshOp(
+        function (reInvite, directRun) {
+          recurCalendarUpdate(
+            {
+              operatorTitle: _l('您确定编辑日程吗'),
+              recurTitle: _l('您确定编辑重复日程吗?'),
+              recurCalendarUpdateFun: updateFunc(reInvite),
+            },
+            calendar,
+            {
+              directRun,
+              isEdit,
+              callback: () => resolve(null),
+            },
+          );
+        },
+        () => resolve(null),
+      );
     } else {
       recurCalendarUpdate(
         {
@@ -576,6 +580,7 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
         {
           directRun: false,
           isEdit,
+          callback: () => resolve(null),
         },
       );
     }
@@ -650,6 +655,7 @@ export const deleteCalendar = function ({ id, recurTime, originRecur, isChildCal
         operatorTitle: _l('您确定删除日程吗？'),
         recurTitle: _l('您确定删除重复日程吗?'),
         recurCalendarUpdateFun: deleteCalendarFun,
+        danger: true,
       },
       {
         originRecur,
@@ -731,6 +737,7 @@ export const removeWxMember = function (thirdId, { id, recurTime, originRecur, i
         operatorTitle: _l('您确定移出日程成员吗？'),
         recurTitle: _l('您确定移出重复日程成员吗？'),
         recurCalendarUpdateFun: removeWeChatMemberFun,
+        danger: true,
       },
       {
         originRecur,

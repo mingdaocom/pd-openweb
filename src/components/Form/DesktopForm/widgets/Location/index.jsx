@@ -8,7 +8,9 @@ import Amap from 'ming-ui/components/amap/Amap';
 import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
-import { getMapConfig, toFixed, wgs84togcj02 } from 'src/utils/control';
+import { wgs84togcj02 } from 'src/utils/core/geo';
+import { toFixed } from 'src/utils/domain/control/number';
+import { getMapConfig } from 'src/utils/platform/runtime/config';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const LocationWrap = styled.div`

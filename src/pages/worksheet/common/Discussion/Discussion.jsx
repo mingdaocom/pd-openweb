@@ -9,9 +9,9 @@ const clickAwayExceptions = [
   '.folderSelectDialog',
   '.addLinkFileDialog',
   '#attachemntsPreviewContainer',
-  '.mdEmotion',
+  '.emotionPicker',
   '.discussionFilterCon > .List',
-  '.mui-dialog-container',
+  '.hap-modal-wrap',
   '.mentionsAutocompleteList',
   '.discussionFilterCon',
 ];

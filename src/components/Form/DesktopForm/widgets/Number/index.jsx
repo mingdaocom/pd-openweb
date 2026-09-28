@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Slider } from 'ming-ui';
-import { getAdvanceSetting } from 'src/utils/controlCommon';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 import Number from './number';
 
@@ -43,6 +43,7 @@ const NumberWidget = props => {
     return (
       <Slider
         from="recordInfo"
+        inputClassName="customFormProgressInput"
         disabled={disabled}
         itemnames={itemnames}
         itemcolor={itemcolor}

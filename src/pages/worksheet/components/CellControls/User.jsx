@@ -2,48 +2,28 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import { UserHead } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
-import { quickSelectUser } from 'ming-ui/functions';
-import { dealUserRange } from 'src/components/Form/core/utils';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { isKeyBoardInputChar } from 'src/utils/common';
-import ChildTableContext from '../ChildTable/ChildTableContext';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
+import { dealUserRange } from 'src/utils/domain/control/selectionRange';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTip from './comps/CellErrorTip';
 
-const ClickAwayable = ClickAway;
-
-function getPopupContainer(popupContainer, rows) {
-  try {
-    if (_.get(rows, 'length') && _.get(rows, 'length') <= 2 && popupContainer().closest('.customFieldsContainer')) {
-      return () =>
-        _.get(rows, 'length') && _.get(rows, 'length') <= 2 && popupContainer().closest('.customFieldsContainer');
-    }
-  } catch (err) {
-    console.log(err);
-  }
-
-  return popupContainer;
-}
-
 // enumDefault 单选 0 多选 1
 export default class User extends React.Component {
-  static contextType = ChildTableContext;
   static propTypes = {
     className: PropTypes.string,
     singleLine: PropTypes.bool,
     style: PropTypes.shape({}),
-    rowHeight: PropTypes.number,
     editable: PropTypes.bool,
-    disabled: PropTypes.bool, // 地图视图不使用Trigger
+    disabled: PropTypes.bool,
     isediting: PropTypes.bool,
     updateCell: PropTypes.func,
-    popupContainer: PropTypes.any,
     cell: PropTypes.shape({ value: PropTypes.string }),
     projectId: PropTypes.string,
     updateEditingStatus: PropTypes.func,
+    onValidate: PropTypes.func,
     onClick: PropTypes.func,
   };
   constructor(props) {
@@ -53,36 +33,26 @@ export default class User extends React.Component {
     };
   }
 
+  hasInvalidSelection = false;
+
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (this.props.cell.value !== prevProps.cell.value) {
-        this.setState({
-          value: safeParse(this.props.cell.value, 'array'),
-        });
-      }
+    if (this.props.cell.value !== prevProps.cell.value) {
+      this.hasInvalidSelection = false;
+      this.setState({
+        value: safeParse(this.props.cell.value, 'array'),
+      });
+    }
 
-      const single = this.props.cell.enumDefault === 0;
-
-      if (this.cell.current && single && !prevProps.isediting && this.props.isediting) {
-        this.pickUser();
-      }
-
-      if (!single && !prevProps.isediting && this.props.isediting && _.isEmpty(prevProps.cell.value)) {
-        setTimeout(() => {
-          this.pickUser();
-        }, 200);
-      }
+    if (!prevProps.isediting && this.props.isediting) {
+      this.ensureCanSelectUser();
     }
   }
 
-  cell = React.createRef();
-
-  renderCellUser(user, index) {
-    const { isediting, projectId, appId, cell, disabled, chatButton } = this.props;
+  renderCellUser(user) {
+    const { projectId, appId, cell, disabled, chatButton, isediting } = this.props;
     const { value } = this.state;
-
     return (
-      <div className="cellUser" key={index}>
+      <div className="cellUser" key={user.accountId}>
         <div className="flexRow">
           <UserHead
             className="cellUserHead"
@@ -104,7 +74,7 @@ export default class User extends React.Component {
                 e.stopPropagation();
                 this.deleteUser(user.accountId);
               }}
-            ></i>
+            />
           )}
         </div>
       </div>
@@ -114,12 +84,20 @@ export default class User extends React.Component {
   handleExitEditing = ({ exit = true } = {}) => {
     const { updateEditingStatus, cell } = this.props;
     const { isError } = this.state;
+    const shouldResetValue = this.hasInvalidSelection || isError;
 
-    if (isError) {
-      this.setState({ value: safeParse(cell.value, 'array') });
+    this.hasInvalidSelection = false;
+
+    if (shouldResetValue) {
+      this.setState({
+        value: safeParse(cell.value, 'array'),
+        isError: false,
+        valueChanged: false,
+      });
+    } else {
+      this.setState({ isError: false, valueChanged: false });
     }
 
-    this.setState({ isError: false });
     if (exit) {
       updateEditingStatus(false);
     }
@@ -137,13 +115,7 @@ export default class User extends React.Component {
         this.handleExitEditing();
         break;
       case 'Backspace':
-        this.deleteLastUser(false);
-        break;
-      case 'Enter':
-        if (!this.isPicking) {
-          this.pickUser();
-        }
-
+        this.deleteLastUser();
         break;
       default:
         if (!e.key || !isKeyBoardInputChar(e.key)) {
@@ -175,7 +147,10 @@ export default class User extends React.Component {
       return;
     }
 
-    this.handleExitEditing({ exit: cell.enumDefault === 0 });
+    if (this.state.isError) {
+      this.setState({ isError: false });
+    }
+
     if (error && !ignoreErrorMessage) {
       return;
     }
@@ -185,141 +160,103 @@ export default class User extends React.Component {
     });
   };
 
-  pickUser = event => {
-    const { isSubList, cell, projectId, appId, rowFormData, onValidate, masterData = () => {} } = this.props;
-    const { value } = this.state;
-    const target = (this.cell && this.cell.current) || (event || {}).target;
+  canSelectUser = () => {
+    const { cell, projectId } = this.props;
     const tabType = getTabTypeBySelectUser(cell);
-
-    if (!target || this.isPicking) {
-      return;
-    }
-
-    this.isPicking = true;
-    if (
+    return !(
       tabType === 1 &&
       md.global.Account.isPortal &&
       !_.find(md.global.Account.projects, item => item.projectId === projectId)
-    ) {
+    );
+  };
+
+  ensureCanSelectUser = () => {
+    if (!this.canSelectUser()) {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
+      this.props.updateEditingStatus(false);
+      return false;
+    }
+
+    return true;
+  };
+
+  getUserRange = () => {
+    const { cell, rowFormData, masterData = () => {} } = this.props;
+    return dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, masterData());
+  };
+
+  handleUserSelect = (data, forceUpdate) => {
+    const { cell, onValidate } = this.props;
+    const validateResult = onValidate(JSON.stringify(data));
+
+    if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
+      this.hasInvalidSelection = true;
+      this.setState({
+        value: data,
+        isError: true,
+        validateResult,
+      });
       return;
     }
 
-    const selectedAccountIds = value.map(item => item.accountId);
+    this.hasInvalidSelection = false;
 
-    const callback = (data, forceUpdate) => {
-      if (cell.enumDefault === 0) {
-        // 单选
-        const validateResult = onValidate(JSON.stringify(data));
+    if (validateResult.errorMessage) {
+      alert(validateResult.errorMessage, 3);
+    }
 
-        if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
-          this.setState({
-            value: data,
-            isError: true,
-            validateResult,
-          });
-          return;
-        }
+    if (cell.enumDefault === 0) {
+      this.setState(
+        {
+          value: data,
+          valueChanged: true,
+        },
+        () => this.handleChange(true),
+      );
+    } else {
+      let newData = [];
 
-        if (validateResult.errorMessage) {
-          alert(validateResult.errorMessage, 3);
-        }
-
-        this.setState(
-          {
-            value: data,
-            valueChanged: true,
-          },
-          () => {
-            this.handleChange(true);
-          },
-        );
-      } else {
-        const validateResult = onValidate(JSON.stringify(data));
-
-        if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
-          this.setState({
-            value: data,
-            isError: true,
-            validateResult,
-          });
-          return;
-        }
-
-        let newData = [];
-
-        try {
-          newData = _.uniqBy(this.state.value.concat(data), 'accountId');
-        } catch (err) {
-          console.log(err);
-        }
-
-        if (validateResult.errorMessage) {
-          alert(validateResult.errorMessage, 3);
-        }
-
-        this.setState(
-          {
-            value: newData,
-            valueChanged: true,
-          },
-          () => this.handleChange(forceUpdate),
-        );
+      try {
+        newData = _.uniqBy(this.state.value.concat(data), 'accountId');
+      } catch (err) {
+        console.log(err);
       }
 
-      this.isPicking = false;
-    };
-
-    const selectRangeOptions = dealUserRange(
-      cell,
-      _.isFunction(rowFormData) ? rowFormData() : rowFormData,
-      masterData(),
-    );
-    const hasUserRange = Object.values(selectRangeOptions).some(i => !_.isEmpty(i));
-    quickSelectUser(target, {
-      selectRangeOptions,
-      tabType,
-      appId,
-      showMoreInvite: false,
-      prefixAccounts:
-        !_.includes(selectedAccountIds, md.global.Account.accountId) && !hasUserRange
-          ? [
-              {
-                accountId: md.global.Account.accountId,
-                fullname: md.global.Account.fullname,
-                avatar: md.global.Account.avatar,
-              },
-            ]
-          : [],
-      selectedAccountIds,
-      zIndex: 10001,
-      isDynamic: cell.enumDefault === 1,
-      filterOtherProject: cell.enumDefault2 === 2,
-      SelectUserSettings: {
-        unique: cell.enumDefault === 0,
-        projectId: projectId,
-        selectedAccountIds,
-        callback: selected => callback(selected, true),
-      },
-      selectCb: callback,
-      onClose: () => {
-        this.isPicking = false;
-        if (isSubList && this.state.valueChanged) {
-          this.handleChange(true);
-        }
-      },
-    });
+      this.setState(
+        {
+          value: newData,
+          valueChanged: true,
+        },
+        () => this.handleChange(forceUpdate),
+      );
+    }
   };
 
-  handleMutipleEdit = () => {
-    const { updateEditingStatus } = this.props;
-    updateEditingStatus(true);
+  handleQuickUserSelect = (data, isCancel = false) => {
+    if (isCancel) {
+      data[0] && this.deleteUser(data[0].accountId);
+      return;
+    }
+
+    this.handleUserSelect(data);
   };
 
-  handleSingleEdit = event => {
-    const { updateEditingStatus } = this.props;
-    updateEditingStatus(true);
-    this.pickUser(event);
+  handleUserSelectOpenChange = visible => {
+    if (visible) return false;
+
+    const { isSubList } = this.props;
+
+    if (isSubList && this.state.valueChanged) {
+      this.handleChange(true);
+    }
+
+    this.handleExitEditing();
+  };
+
+  handleEdit = () => {
+    if (this.ensureCanSelectUser()) {
+      this.props.updateEditingStatus(true);
+    }
   };
 
   deleteUser = accountId => {
@@ -327,6 +264,7 @@ export default class User extends React.Component {
     this.setState(
       {
         value: value.filter(account => account.accountId !== accountId),
+        valueChanged: true,
       },
       () => this.handleChange(true),
     );
@@ -339,6 +277,7 @@ export default class User extends React.Component {
       this.setState(
         {
           value: value.slice(0, -1),
+          valueChanged: true,
         },
         this.handleChange,
       );
@@ -347,102 +286,93 @@ export default class User extends React.Component {
 
   render() {
     const {
+      appId,
+      cell,
       className,
+      disabled,
       error,
+      editable,
+      ignoreErrorMessage,
+      isediting,
+      onClick,
+      projectId,
       rowIndex,
       singleLine,
       style,
-      rowHeight,
-      popupContainer,
-      cell,
-      editable,
-      isediting,
-      disabled,
-      ignoreErrorMessage,
     } = this.props;
     const { value, validateResult } = this.state;
     const single = cell.enumDefault === 0;
-    const { rows } = this.context || {};
-    const editcontent = (
-      <ClickAwayable
-        onClickAwayExceptions={['.cellUsers', '.selectUserBox', '#dialogBoxSelectUser']}
-        onClickAway={() => this.handleExitEditing()}
-      >
-        <div
-          className={cx('cellUsers cellControl cellControlUserPopup cellControlEdittingStatus', {
-            cellControlErrorStatus: error,
-            ignoreErrorMessage: ignoreErrorMessage || validateResult?.ignoreErrorMessage,
-          })}
-          ref={isediting && !single ? this.cell : () => {}}
-          style={{
-            width: style.width,
-            ...(single ? { minHeight: 'auto', height: style.height - 1 } : { minHeight: rowHeight }),
-          }}
-        >
-          {value.map((user, index) => this.renderCellUser(user, index))}
-          {!single && (
-            <span className="addUserBtn" onClick={this.pickUser}>
-              <i className="icon icon-add textSecondary Font14"></i>
-            </span>
-          )}
-        </div>
-        {error && single && (
-          <CellErrorTip
-            color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
-            pos={rowIndex === 0 ? 'bottom' : 'top'}
-            error={error}
-          />
-        )}
-      </ClickAwayable>
-    );
 
     if (disabled) {
       return (
         <div>
-          {!!value && (
+          {!_.isEmpty(value) && (
             <div className={cx('cellUsers cellControl', { singleLine })}>
-              {value.map((user, index) => this.renderCellUser(user, index))}
+              {value.map(user => this.renderCellUser(user))}
             </div>
           )}
         </div>
       );
     }
 
+    const canSelectUser = this.canSelectUser();
+    const userRange = isediting && canSelectUser ? this.getUserRange() : undefined;
+    const selectedAccountIds = value.map(item => item.accountId);
+    const hasUserRange = Object.values(userRange || {}).some(item => !_.isEmpty(item));
+    const prefixAccounts =
+      !_.includes(selectedAccountIds, md.global.Account.accountId) && !hasUserRange
+        ? [
+            {
+              accountId: md.global.Account.accountId,
+              fullname: md.global.Account.fullname,
+              avatar: md.global.Account.avatar,
+            },
+          ]
+        : [];
+
     return (
-      <Trigger
-        action={['click']}
-        zIndex={1000}
-        popup={editcontent}
-        getPopupContainer={single ? undefined : getPopupContainer(popupContainer, rows)}
-        popupClassName="filterTrigger LineHeight0"
-        popupVisible={isediting}
-        popupAlign={{
-          points: ['tl', 'tl'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
+      <EditableCellCon
+        onClick={onClick}
+        className={cx(className, { canedit: editable })}
+        style={style}
+        iconName="people_5"
+        isediting={isediting}
+        onIconClick={this.handleEdit}
       >
-        <EditableCellCon
-          conRef={single ? this.cell : () => {}}
-          hideOutline={!single}
-          onClickAwayExceptions={['.cellUsers', '.selectUserBox', '#dialogBoxSelectUser']}
-          onClickAway={() => isediting && this.handleExitEditing()}
-          onClick={this.props.onClick}
-          className={cx(className, { canedit: editable })}
-          style={style}
-          iconName="people_5"
-          isediting={isediting}
-          onIconClick={cell.enumDefault === 0 ? this.handleSingleEdit : this.handleMutipleEdit}
+        <UserSelectPopover
+          open={isediting && canSelectUser}
+          onOpenChange={this.handleUserSelectOpenChange}
+          selectRangeOptions={userRange}
+          tabType={getTabTypeBySelectUser(cell)}
+          appId={appId}
+          prefixAccounts={prefixAccounts}
+          selectedAccountIds={selectedAccountIds}
+          isDynamic={!single}
+          filterOtherProject={cell.enumDefault2 === 2}
+          SelectUserSettings={{
+            unique: single,
+            projectId,
+            selectedAccountIds,
+            callback: selected => this.handleUserSelect(selected, true),
+          }}
+          onSelect={this.handleQuickUserSelect}
         >
-          {!!value && (
+          {!_.isEmpty(value) ? (
             <div className={cx('cellUsers cellControl', { singleLine })}>
-              {value.map((user, index) => this.renderCellUser(user, index))}
+              {value.map(user => this.renderCellUser(user))}
             </div>
+          ) : (
+            <div className="w100 h100"></div>
           )}
-        </EditableCellCon>
-      </Trigger>
+        </UserSelectPopover>
+        {isediting && error && single && (
+          <CellErrorTip
+            color={ignoreErrorMessage || validateResult?.ignoreErrorMessage ? 'var(--color-warning)' : undefined}
+            pos={rowIndex === 0 ? 'bottom' : 'top'}
+            error={error}
+          />
+        )}
+      </EditableCellCon>
     );
   }
 }

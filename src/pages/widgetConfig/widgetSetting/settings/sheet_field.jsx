@@ -1,25 +1,19 @@
-import React, { createRef, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown } from 'antd';
-import cx from 'classnames';
-import _, { isEmpty } from 'lodash';
-import { Dialog, LoadDiv, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
-import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
-import { WHOLE_SIZE } from '../../config/Drag';
-import { SYS_CONTROLS } from '../../config/widget';
+import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { CAN_NOT_AS_OTHER_FIELD } from 'src/utils/domain/control/config';
+import { isFullLineControl, resortControlByColRow } from 'src/utils/domain/control/editorLayout';
+import { isSingleRelateSheet, updateConfig } from 'src/utils/domain/control/editorSetting';
+import { filterControlsFromAll, filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { getIconByType, parseDataSource } from 'src/utils/domain/control/metadata';
+import { SYS_CONTROLS } from 'src/utils/domain/control/widget';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
 import { useSheetInfo } from '../../hooks';
-import { DropdownOverlay, DropdownPlaceholder, SettingItem } from '../../styled';
-import {
-  filterControlsFromAll,
-  filterOnlyShowField,
-  getIconByType,
-  parseDataSource,
-  resortControlByColRow,
-} from '../../util';
-import { handleAdvancedSettingChange, isSingleRelateSheet, updateConfig } from '../../util/setting';
-import { isFullLineControl } from '../../util/widgets';
+import { SettingItem } from '../../styled';
 import WorksheetReference from '../components/WorksheetReference';
 
 const SHEET_FIELD_TYPES = [
@@ -51,20 +45,13 @@ export default function SheetField(props) {
 
   const showType = strDefault.split('')[0] || '0';
 
-  const $ref = createRef(null);
-
   const parsedDataSource = parseDataSource(dataSource);
-  const [searchValue, setSearchValue] = useState('');
-  const [visible, setVisible] = useState(false);
-  const [{ sheetName, controlName, sheetDel, controlDel, dataSourceDisabled, sheetFieldDisabled }, setInfo] =
-    useSetState({
-      sheetName: '',
-      controlName: '',
-      sheetDel: false,
-      controlDel: false,
-      dataSourceDisabled: false,
-      sheetFieldDisabled: false,
-    });
+  const [{ sheetDel, controlDel, dataSourceDisabled, sheetFieldDisabled }, setInfo] = useSetState({
+    sheetDel: false,
+    controlDel: false,
+    dataSourceDisabled: false,
+    sheetFieldDisabled: false,
+  });
   const saveControlId =
     _.get(
       _.find(allControls, i => i.controlId === controlId),
@@ -73,11 +60,10 @@ export default function SheetField(props) {
   const isSaved = controlId && saveControlId && !saveControlId.includes('-');
   // 取关联单条
   const sheetList = filterControlsFromAll(allControls, item => isSingleRelateSheet(item) || item.type === 35);
+  const relateControl = allControls.find(item => item.controlId === parsedDataSource);
+  const isLightweightRelate = _.get(relateControl, 'advancedSetting.notautopassive') === '1';
 
-  const worksheetId = _.get(
-    allControls.find(item => _.get(item, 'controlId') === parsedDataSource),
-    'dataSource',
-  );
+  const worksheetId = _.get(relateControl, 'dataSource');
 
   const {
     loading,
@@ -85,8 +71,7 @@ export default function SheetField(props) {
   } = useSheetInfo({ worksheetId, relationWorksheetId: globalSheetInfo.worksheetId });
 
   const fields = getFieldsByControls(controls);
-  const filterBySearch = searchValue ? _.filter(fields, item => _.includes(item.controlName, searchValue)) : fields;
-  const filteredFields = filterOnlyShowField(filterBySearch);
+  const filteredFields = filterOnlyShowField(fields);
 
   const updateDisabledInfo = () => {
     const sheetObj = _.find(sheetList, item => item.value === parsedDataSource);
@@ -122,28 +107,20 @@ export default function SheetField(props) {
     }
   }, [worksheetId, saveIndex]);
 
-  useEffect(() => {
-    const name = _.find(sheetList, item => item.value === parsedDataSource);
-    setInfo({ sheetName: (name || {}).text });
-  }, [controlId, allControls]);
-
-  useEffect(() => {
-    const name = _.find(fields, item => item.controlId === data.sourceControlId);
-    setInfo({ controlName: (name || {}).controlName });
-  }, [controlId, data.sourceControlId, controls, allControls]);
-
   const sureChangeToOnlyShow = () => {
-    Dialog.confirm({
-      title: <span className="Bold Font16">{_l('修改他表字段类型为：仅显示')}</span>,
-      description: (
+    Modal.confirm({
+      title: <span className="Font16">{_l('修改他表字段类型为：仅显示')}</span>,
+      content: (
         <span className="textTertiary">
           {_l(
             '修改后将清除此字段存储的数据。此字段将不能在用于搜索、筛选、公式、文本组合、统计。请确认以上位置都不再需要此字段的数据后执行操作。',
           )}
         </span>
       ),
-      footerLeftElement: () => <WorksheetReference {...props} className="LineHeight36" />,
-      buttonType: 'danger',
+      footerLeftElement: <WorksheetReference {...props} />,
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         updateValue('1');
       },
@@ -161,131 +138,74 @@ export default function SheetField(props) {
         {loading ? (
           <LoadDiv />
         ) : (
-          <Dropdown
-            trigger={['click']}
+          <Select
+            className="w100"
+            value={parsedDataSource || undefined}
             disabled={dataSourceDisabled}
-            overlay={
-              <DropdownOverlay>
-                {_.isEmpty(sheetList) ? (
-                  <div className="emptyText">{_l('请先添加一个 ”关联记录“ 字段')}</div>
-                ) : (
-                  <ul className="dropdownContent">
-                    {sheetList.map(({ value, text }) => (
-                      <li
-                        key={value}
-                        className="item"
-                        onClick={() => {
-                          if (parsedDataSource === value) return;
-                          onChange({ dataSource: `$${value}$`, sourceControlId: '', sourceControl: '' });
-                          setInfo({
-                            sheetDel: false,
-                            sheetFieldDisabled: !isSaved ? false : sheetFieldDisabled,
-                          });
-                        }}
-                      >
-                        <span>{text}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </DropdownOverlay>
-            }
-          >
-            <DropdownPlaceholder
-              className={cx({
-                invalid: parsedDataSource && !worksheetId,
-                disabled: dataSourceDisabled,
-                deleted: sheetDel,
-              })}
-            >
-              {parsedDataSource ? (
-                <span>{sheetDel ? _l('关联记录已删除') : sheetName}</span>
-              ) : (
-                <span className="textTertiary">{_l('选择配置的 “关联记录” 字段')}</span>
-              )}
-              {!dataSourceDisabled && <i className="icon-arrow-down-border Font14 textTertiary"></i>}
-            </DropdownPlaceholder>
-          </Dropdown>
+            status={parsedDataSource && !worksheetId ? 'error' : undefined}
+            placeholder={_l('选择配置的 “关联记录” 字段')}
+            options={sheetList.map(({ value, text }) => ({ value, label: text }))}
+            notFoundContent={_l('请先添加一个 ”关联记录“ 字段')}
+            labelRender={({ label }) => (sheetDel ? <span className="textError">{_l('关联记录已删除')}</span> : label)}
+            onChange={value => {
+              if (parsedDataSource === value) return;
+              onChange({ dataSource: `$${value}$`, sourceControlId: '', sourceControl: '' });
+              setInfo({
+                sheetDel: false,
+                sheetFieldDisabled: !isSaved ? false : sheetFieldDisabled,
+              });
+            }}
+          />
         )}
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('显示字段')}</div>
-        <Dropdown
-          trigger={['click']}
-          visible={visible}
-          onVisibleChange={visible => {
-            if (visible) setSearchValue('');
-            setVisible(visible);
-          }}
+        <Select
+          className="w100"
+          value={data.sourceControlId || undefined}
           disabled={sheetFieldDisabled}
-          getPopupContainer={() => $ref.current}
-          overlay={
-            <DropdownOverlay>
-              <div className="searchWrap" onClick={e => e.stopPropagation()}>
-                <i className="icon-search textTertiary" />
-                <input
-                  autoFocus
-                  value={searchValue}
-                  onChange={e => setSearchValue(e.target.value)}
-                  placeholder={_l('搜索字段')}
-                ></input>
-              </div>
-              {isEmpty(filteredFields) ? (
-                <div className="emptyText">{_l('搜索结果为空')}</div>
-              ) : (
-                <ul className="dropdownContent">
-                  {filteredFields.map(item => (
-                    <li
-                      className="item overflow_ellipsis"
-                      key={item.controlId}
-                      onClick={() => {
-                        onChange({
-                          ...handleAdvancedSettingChange(data, { datamask: '0' }),
-                          ...{
-                            sourceControlId: item.controlId,
-                            sourceControl: item,
-                            controlName: item.controlName,
-                            size: isFullLineControl(item) ? WHOLE_SIZE : data.size,
-                          },
-                        });
-                        setInfo({ controlDel: false });
-                      }}
-                    >
-                      <i className={`Font16 icon-${getIconByType(item.type)}`}></i>
-                      <span className="flex ellipsis">{item.controlName}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </DropdownOverlay>
-          }
-        >
-          <DropdownPlaceholder
-            ref={$ref}
-            className={cx({
-              deleted: data.sourceControlId && controlDel,
-              disabled: sheetFieldDisabled,
-              invalid: !loading && data.sourceControlId && !worksheetId,
-            })}
-          >
-            {data.sourceControlId ? (
-              <Tooltip title={!controlDel ? '' : <span>{_l('ID: %0', data.sourceControlId)}</span>} placement="bottom">
-                <span className="breakAll">{controlDel ? _l('字段已删除') : controlName}</span>
+          status={data.sourceControlId && (controlDel || (!loading && !worksheetId)) ? 'error' : undefined}
+          placeholder={_l('请选择')}
+          showPopupSearch
+          optionFilterProp="label"
+          options={filteredFields.map(item => ({ value: item.controlId, label: item.controlName, control: item }))}
+          notFoundContent={_l('搜索结果为空')}
+          labelRender={({ label }) =>
+            controlDel ? (
+              <Tooltip title={<span>{_l('ID: %0', data.sourceControlId)}</span>} placement="bottom">
+                <span className="textError">{_l('字段已删除')}</span>
               </Tooltip>
             ) : (
-              <span className="textTertiary">{_l('请选择')}</span>
-            )}
-            {!sheetFieldDisabled && <i className="icon-arrow-down-border Font14 textTertiary"></i>}
-          </DropdownPlaceholder>
-        </Dropdown>
+              label
+            )
+          }
+          optionRender={({ data: { control: item } }) => (
+            <div className="flexRow alignItemsCenter">
+              <i className={`Font16 mRight8 textTertiary icon-${getIconByType(item.type)}`} />
+              <span className="overflow_ellipsis">{item.controlName}</span>
+            </div>
+          )}
+          onChange={(controlId, { control: item }) => {
+            onChange({
+              ...handleAdvancedSettingChange(data, { datamask: '0' }),
+              sourceControlId: controlId,
+              sourceControl: item,
+              controlName: item.controlName,
+              size: isFullLineControl(item) ? WHOLE_SIZE : data.size,
+            });
+            setInfo({ controlDel: false });
+          }}
+        />
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('类型')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={showType}
-          data={SHEET_FIELD_TYPES}
-          onChange={type => {
+          value={showType}
+          options={(SHEET_FIELD_TYPES || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const type = event.target.value;
+
             if (type === '1') {
               if (isSaved) {
                 sureChangeToOnlyShow();
@@ -303,20 +223,29 @@ export default function SheetField(props) {
       ) : (
         <div>
           <div className="textTertiary mTop10">
-            {_l(
-              '在当前表中存储数据并保持同步，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。',
-            )}
+            {isLightweightRelate
+              ? _l('在当前表中存储数据，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。')
+              : _l(
+                  '在当前表中存储数据并保持同步，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。',
+                )}
           </div>
-          <div className="mTop10">
-            <span>
-              {_l(
-                '注意：1.存储的数据与实际数据存在一定延时；2.当显示字段的数据变更后，最大支持更新与之关联的1000行数据。',
-              )}
-            </span>
-            <span className="textTertiary">
-              {_l('所以此方式适合显示字段的值不会变更，或虽然变更但关联的记录数量较少（不超过1000行）的场景。')}
-            </span>
-          </div>
+          {isLightweightRelate ? (
+            <div className="mTop10">
+              <span className="Bold">{_l('注意：')}</span>
+              {_l('当前关联记录已开启【轻量级单向关联】：当引用的数据源的字段变更后，不会同步更新本表的他表字段数据。')}
+            </div>
+          ) : (
+            <div className="mTop10">
+              <span>
+                {_l(
+                  '注意：1.存储的数据与实际数据存在一定延时；2.当显示字段的数据变更后，最大支持更新与之关联的1000行数据。',
+                )}
+              </span>
+              <span className="textTertiary">
+                {_l('所以此方式适合显示字段的值不会变更，或虽然变更但关联的记录数量较少（不超过1000行）的场景。')}
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

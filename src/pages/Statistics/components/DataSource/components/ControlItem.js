@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDrag } from 'react-dnd-latest';
-import { Checkbox } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -56,6 +56,7 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
         })}
         icon={getIcon()}
       />
+
       <span className={cx('ellipsis', { active: isActive })}>{item.controlName}</span>
     </div>
   );

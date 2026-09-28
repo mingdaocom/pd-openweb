@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import _, { identity } from 'lodash';
-import { Icon } from 'ming-ui';
+import { controlState } from 'src/utils/domain/control/state';
+import { getCoverUrl } from 'src/utils/domain/worksheet/view';
+import ChildTableFlatComp from '../../components/ChildTable/ChildTableFlatComp';
 import { LoadingButton } from '../../components/RelateRecordCards';
 import RecordCoverCard from '../../components/RelateRecordCards/RecordCoverCard';
-import { getCoverUrl } from '../../tools/utils';
 
 export default function Cards(props) {
   const {
@@ -33,19 +34,69 @@ export default function Cards(props) {
     records = records.slice(0, 1);
   }
 
+  const isSingle = control.enumDefault === 1;
   const hideTitle = control.type === 51 && control.enumDefault === 1;
+  const showControls = control.showControls || [];
+  const advancedSetting = control.advancedSetting || {};
+  const titleControl =
+    _.find(controls, { controlId: advancedSetting.showtitleid }) || _.find(controls, { attribute: 1 });
+  const displayControls = _.uniqBy(
+    showControls
+      .map(controlId => _.find(controls, { controlId }))
+      .concat(titleControl)
+      .filter(identity),
+    'controlId',
+  );
+  const showRecords = showAll || records.length <= 3 ? records : records.slice(0, 3);
+
   return (
     <Fragment>
       {showNewRecord && (
-        <div className="customFormControlBox customFormButton mBottom10" onClick={onAdd}>
-          <Icon icon="plus" />
+        <div className="customFormControlBox customFormButton mTop12 mBottom12" onClick={onAdd}>
+          <i className="icon icon-plus Font16 mRight6" />
           <span>{entityName || _l('记录')}</span>
         </div>
       )}
       <Fragment>
-        {!loading &&
+        {!loading && !!records.length && isSingle ? (
+          <ChildTableFlatComp
+            appId={control.appId}
+            cellErrors={{}}
+            control={{
+              ...control,
+              relationControls: controls,
+              advancedSetting: {
+                ...advancedSetting,
+                showtitleid: advancedSetting.showtitleid || _.get(titleControl, 'controlId'),
+              },
+            }}
+            controlPermission={{ ...controlState(control, control.from), editable: false }}
+            controls={displayControls}
+            disabled
+            from={control.from}
+            filterControlsByPermission={false}
+            hideExpandAll
+            h5abstractids={safeParse(advancedSetting.h5abstractids, 'array')}
+            inheritCardStyle
+            isEdit={false}
+            onOpen={index => {
+              const record = showRecords[index];
+
+              if (record) {
+                onOpen(record.rowid);
+              }
+            }}
+            openRecordOnClick={allowOpenRecord}
+            projectId={projectId}
+            rows={showRecords}
+            showControls={showControls}
+            showNumber={false}
+            worksheetId={control.dataSource}
+          />
+        ) : (
+          !loading &&
           !!records.length &&
-          (showAll || records.length <= 3 ? records : records.slice(0, 3)).map((record, i) => (
+          showRecords.map((record, i) => (
             <RecordCoverCard
               projectId={projectId}
               viewId={viewId}
@@ -66,7 +117,8 @@ export default function Cards(props) {
                 onOpen(record.rowid);
               }}
             />
-          ))}
+          ))
+        )}
         {records.length > 3 && (
           <div className="mBottom10">
             {showLoadMore && showAll && (

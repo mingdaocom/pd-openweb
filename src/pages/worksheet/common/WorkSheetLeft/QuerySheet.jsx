@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import sheetAjax from 'src/api/worksheet';
@@ -63,22 +63,26 @@ export default class QuerySheet extends Component {
     return (
       <div className="querySheet Relative">
         <div className="search borderSecondary">
-          <i
-            className="icon icon-search pointer textSecondary"
-            onClick={() => {
-              this.setState({ isLoading: true });
-              sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then(data => {
-                this.setState({
-                  listVisible: !!this.state.keyWords,
-                  keyWords: this.state.keyWords,
-                  workSheetList: data,
-                  isLoading: false,
-                });
-              });
-            }}
-          />
-          <input
-            className="ming Input textPrimary flex"
+          <Input
+            allowClear
+            className="flex"
+            variant="borderless"
+            prefix={
+              <i
+                className="icon icon-search pointer textSecondary"
+                onClick={() => {
+                  this.setState({ isLoading: true });
+                  sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then(data => {
+                    this.setState({
+                      listVisible: !!this.state.keyWords,
+                      keyWords: this.state.keyWords,
+                      workSheetList: data,
+                      isLoading: false,
+                    });
+                  });
+                }}
+              />
+            }
             placeholder={_l('搜索工作表')}
             value={this.state.keyWords}
             onChange={event => {
@@ -87,31 +91,12 @@ export default class QuerySheet extends Component {
                 isLoading: true,
               });
             }}
-            onFocus={() => {
-              $('.worksheet .workSheetLeft .querySheet .search')
-                .removeClass('borderSecondary')
-                .addClass('borderColorPrimary');
-            }}
-            onBlur={() => {
-              $('.worksheet .workSheetLeft .querySheet .search')
-                .removeClass('borderColorPrimary')
-                .addClass('borderSecondary');
-            }}
             onKeyUp={() => {
               this.setState({ isLoading: true });
               this.searchSheet();
             }}
+            onClear={() => this.setState({ listVisible: false, keyWords: '', isLoading: false })}
           />
-          {this.state.keyWords && (
-            <span
-              className="clean Right LineHeight36 pointer"
-              onClick={() => {
-                this.setState({ listVisible: false, keyWords: '' });
-              }}
-            >
-              <Icon icon="cancel textTertiary Font14" />
-            </span>
-          )}
         </div>
         {listVisible && (
           <ClickAwayable

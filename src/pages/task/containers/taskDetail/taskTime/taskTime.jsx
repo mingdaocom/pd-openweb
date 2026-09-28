@@ -2,13 +2,58 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import moment from 'moment';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { DatePicker, Tooltip } from 'ming-ui/antd-components';
 import config, { OPEN_TYPE } from '../../../config/config';
 import { updateCompletedTime, updateTaskActualStartTime, updateTaskStartTimeAndDeadline } from '../../../redux/actions';
 import { afterUpdateTaskDate, afterUpdateTaskDateInfo } from '../../../utils/taskComm';
 import { formatTimeInfo, getCurrentTime } from '../../../utils/utils';
 import './taskTime.less';
+
+const TASK_TIME_FORMAT = 'YYYY-MM-DD HH:00';
+const TASK_TIME_PICKER_CONFIG = { format: 'HH', hideDisabledOptions: true };
+
+const formatTaskTime = value => formatTimeInfo(value, true).text;
+
+const isTaskDateDisabled = (current, min, max) => {
+  if (!current) return false;
+
+  return (min && current.isBefore(min, 'day')) || (max && current.isAfter(max, 'day'));
+};
+
+const getDisabledTaskTime = (current, min, max) => {
+  if (!current) return {};
+
+  return {
+    disabledHours: () =>
+      Array.from({ length: 24 }, (_, hour) => hour).filter(hour => {
+        const currentHour = current.clone().hour(hour).startOf('hour');
+        return (min && currentHour.isBefore(min)) || (max && currentHour.isAfter(max));
+      }),
+  };
+};
+
+function TaskDateTimePicker({ value, defaultPickerValue, min, max, onChange, ...props }) {
+  const pickerValue = value ? moment(value) : null;
+
+  return (
+    <DatePicker
+      {...props}
+      className={cx('taskTimeDatePicker', props.className)}
+      defaultPickerValue={defaultPickerValue ? moment(defaultPickerValue) : undefined}
+      disabledDate={current => isTaskDateDisabled(current, min, max)}
+      disabledTime={current => getDisabledTaskTime(current, min, max)}
+      format={formatTaskTime}
+      inputReadOnly
+      needConfirm
+      showNow={false}
+      showTime={TASK_TIME_PICKER_CONFIG}
+      suffixIcon={null}
+      value={pickerValue}
+      variant="borderless"
+      onChange={nextValue => onChange(nextValue ? nextValue.format(TASK_TIME_FORMAT) : '')}
+    />
+  );
+}
 
 const TASK_STATUS = {
   nostart: -1,
@@ -397,17 +442,14 @@ class TaskTime extends Component {
             <div className="Font15 detailTimeMs">{_l('开始：')}</div>
 
             <div className={cx('Font15', { detailTimeNoSet: !data.startTime }, { detailTimeDate: hasAuth })}>
-              <DateTime
-                selectedValue={data.startTime || moment(getCurrentTime()).format('YYYY-MM-DD HH:00')}
+              <TaskDateTimePicker
+                value={data.startTime}
+                defaultPickerValue={moment(getCurrentTime()).format(TASK_TIME_FORMAT)}
                 max={data.deadline ? moment(data.deadline).add(-1, 'h') : null}
-                timePicker
-                timeMode="hour"
                 disabled={!hasAuth}
-                onOk={e => this.updatePlanTime(e.format('YYYY-MM-DD HH:00'), true)}
-                onClear={() => this.updatePlanTime('', true)}
-              >
-                {data.startTime ? formatTimeInfo(moment(data.startTime), true).text : _l('设置开始时间')}
-              </DateTime>
+                placeholder={_l('设置开始时间')}
+                onChange={value => this.updatePlanTime(value, true)}
+              />
             </div>
 
             <div className="flex" />
@@ -415,17 +457,14 @@ class TaskTime extends Component {
             <div className="Font15 detailTimeMs">{_l('结束：')}</div>
 
             <div className={cx('Font15', { detailTimeNoSet: !data.deadline }, { detailTimeDate: hasAuth })}>
-              <DateTime
-                selectedValue={data.deadline || moment(getCurrentTime()).add(1, 'h').format('YYYY-MM-DD HH:00')}
+              <TaskDateTimePicker
+                value={data.deadline}
+                defaultPickerValue={moment(getCurrentTime()).add(1, 'h').format(TASK_TIME_FORMAT)}
                 min={data.startTime ? moment(data.startTime).add(1, 'h') : null}
-                timePicker
-                timeMode="hour"
                 disabled={!hasAuth}
-                onOk={e => this.updatePlanTime(e.format('YYYY-MM-DD HH:00'))}
-                onClear={() => this.updatePlanTime('')}
-              >
-                {data.deadline ? formatTimeInfo(moment(data.deadline), true).text : _l('设置结束时间')}
-              </DateTime>
+                placeholder={_l('设置结束时间')}
+                onChange={value => this.updatePlanTime(value)}
+              />
             </div>
           </div>
 
@@ -466,25 +505,18 @@ class TaskTime extends Component {
             {data.actualStartTime || data.completeTime ? (
               <Fragment>
                 <div className="detailTimeRealMs">{_l('实际开始于')}</div>
-                <DateTime
-                  selectedValue={data.actualStartTime}
+                <TaskDateTimePicker
+                  value={data.actualStartTime}
                   max={data.completeTime ? moment(data.completeTime).add(-1, 'h') : null}
-                  timePicker
-                  timeMode="hour"
+                  className={cx(
+                    'mLeft5 mRight5 detailTimeRealBold detailTimeRealColor',
+                    { detailTimeRealStartColor: processLines.yellow.width > 0 },
+                    { detailTimeRealLine: hasAuth },
+                  )}
                   disabled={!hasAuth}
-                  onOk={e => this.updateTaskActualStartTime(e.format('YYYY-MM-DD HH:00'))}
-                  onClear={() => this.updateTaskActualStartTime('')}
-                >
-                  <span
-                    className={cx(
-                      'mLeft5 mRight5 detailTimeRealBold detailTimeRealColor',
-                      { detailTimeRealStartColor: processLines.yellow.width > 0 },
-                      { detailTimeRealLine: hasAuth },
-                    )}
-                  >
-                    {data.actualStartTime ? formatTimeInfo(moment(data.actualStartTime), true).text : '...'}
-                  </span>
-                </DateTime>
+                  placeholder="..."
+                  onChange={value => this.updateTaskActualStartTime(value)}
+                />
                 <div className="detailTimeRealMs">
                   {data.actualStartTime && this.contrastActualOrPlan(data.startTime, data.actualStartTime)}
                 </div>
@@ -505,25 +537,18 @@ class TaskTime extends Component {
             {data.completeTime ? (
               <Fragment>
                 <div className="detailTimeRealMs">{_l('实际结束于')}</div>
-                <DateTime
-                  selectedValue={data.completeTime}
+                <TaskDateTimePicker
+                  value={data.completeTime}
                   min={data.actualStartTime ? moment(data.actualStartTime).add(1, 'h') : null}
-                  timePicker
-                  timeMode="hour"
+                  className={cx(
+                    'mLeft5 detailTimeRealBold detailTimeRealColor',
+                    { detailTimeRealEndColor: data.deadline && moment(data.completeTime) > moment(data.deadline) },
+                    { detailTimeRealLine: hasAuth },
+                  )}
                   disabled={!hasAuth}
                   allowClear={false}
-                  onOk={e => this.updateCompletedTime(e.format('YYYY-MM-DD HH:00'))}
-                >
-                  <span
-                    className={cx(
-                      'mLeft5 detailTimeRealBold detailTimeRealColor',
-                      { detailTimeRealEndColor: data.deadline && moment(data.completeTime) > moment(data.deadline) },
-                      { detailTimeRealLine: hasAuth },
-                    )}
-                  >
-                    {formatTimeInfo(moment(data.completeTime), true).text}
-                  </span>
-                </DateTime>
+                  onChange={value => this.updateCompletedTime(value)}
+                />
               </Fragment>
             ) : null}
           </div>

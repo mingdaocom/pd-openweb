@@ -277,9 +277,6 @@ export const WrapContainer = styled.div`
     top: 48px;
     right: 48px;
     z-index: 2;
-    > div {
-      gap: 4px;
-    }
     .iconCon {
       font-size: 16px;
     }
@@ -287,17 +284,6 @@ export const WrapContainer = styled.div`
     .iconCon,
     .icon-arrow-down-border {
       color: var(--color-text-secondary);
-    }
-    .ming.Dropdown {
-      line-height: 20px;
-      .Dropdown--input {
-        min-height: 20px;
-        padding: 0;
-        background: transparent;
-      }
-      .value {
-        max-width: none;
-      }
     }
   }
   &.isM {

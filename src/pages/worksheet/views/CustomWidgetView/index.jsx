@@ -4,10 +4,10 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { CUSTOM_WIDGET_VIEW_STATUS, PLUGIN_INFO_SOURCE, PLUGIN_INFO_STATE } from 'worksheet/constants/enum';
 import * as actions from 'src/pages/worksheet/redux/actions/customWidgetView';
-import { browserIsMobile } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
+import { CUSTOM_WIDGET_VIEW_STATUS, PLUGIN_INFO_SOURCE, PLUGIN_INFO_STATE } from 'src/utils/domain/worksheet/constants';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
 import Abnormal from './Abnormal';
 import WidgetContainer from './WidgetContainer';
 

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Back from '../../components/Back';
 import * as actions from '../redux/actions';
 import './index.less';

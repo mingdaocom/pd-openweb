@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend-latest';
 import { useDrag } from 'react-dnd-latest';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Input, Modal } from 'ming-ui/antd-components';
 import { getNextOpenMoreKey, ITEM_TYPE_GROUP } from './constants';
 import { renderCustomBtnStyleIcon } from './icon';
-
-const confirm = Dialog.confirm;
 
 export default function GroupHeader({
   segmentIndex,
@@ -67,40 +65,36 @@ export default function GroupHeader({
     };
   }, []);
 
-  useEffect(() => {
-    setDraftName(name);
-  }, [name]);
-
   const handleDropdownVisibleChange = visible => {
     setOpenMoreKey(prev => getNextOpenMoreKey(prev, visible, moreKey));
   };
 
-  const moreMenu = (
-    <Menu className="customBtnGroupedGroupDropdownMenu" onClick={() => setOpenMoreKey(null)}>
-      <Menu.Item key="edit" className="customBtnGroupedGroupMenuItem" onClick={onEditFromMenu}>
-        <Icon icon="edit" className="Font16 mRight8 textSecondary" />
-        {_l('编辑')}
-      </Menu.Item>
-      <Menu.Item
-        key="del"
-        danger
-        className="customBtnGroupedGroupMenuItem customBtnGroupedGroupMenuItemDanger"
-        onClick={() => {
-          confirm({
-            title: _l('确认删除分组？'),
-            description: _l('此操作不会删除分组下的自定义动作，将移至列表末尾'),
-            buttonType: 'danger',
-            okText: _l('确认'),
-            cancelText: _l('取消'),
-            onOk: () => onRemoveGroup(),
-          });
-        }}
-      >
-        <Icon icon="trash" className="Font16 mRight8" />
-        {_l('删除')}
-      </Menu.Item>
-    </Menu>
-  );
+  const moreMenuItems = [
+    {
+      key: 'edit',
+      icon: <Icon icon="edit" className="Font16 textSecondary" />,
+      label: _l('编辑'),
+      onClick: onEditFromMenu,
+    },
+    {
+      key: 'del',
+      danger: true,
+      icon: <Icon icon="trash" className="Font16" />,
+      label: _l('删除'),
+      onClick: () => {
+        Modal.confirm({
+          title: <span className="textError">{_l('确认删除分组？')}</span>,
+          content: _l('此操作不会删除分组下的自定义动作，将移至列表末尾'),
+          okButtonProps: {
+            danger: true,
+          },
+          okText: _l('确认'),
+          cancelText: _l('取消'),
+          onOk: () => onRemoveGroup(),
+        });
+      },
+    },
+  ];
 
   const handleHeaderClick = e => {
     if (
@@ -108,7 +102,7 @@ export default function GroupHeader({
       e.target.closest('.customBtnGroupedGroupMore') ||
       e.target.closest('.customBtnGroupedGroupCaret') ||
       e.target.closest('.customBtnGroupedGroupTitleInput') ||
-      e.target.closest('.ant-dropdown') ||
+      e.target.closest('.hap-dropdown') ||
       e.target.closest('.customBtnGroupedGroupTitle')
     ) {
       return;
@@ -142,6 +136,7 @@ export default function GroupHeader({
       titleToggleTimerRef.current = null;
     }
 
+    setDraftName(name);
     setEditing(true);
   };
 
@@ -159,7 +154,7 @@ export default function GroupHeader({
         {renderCustomBtnStyleIcon(icon || 'adds', iconUrl, iconColor)}
       </span>
       {editing ? (
-        <input
+        <Input
           className="flex customBtnGroupedGroupTitleInput"
           value={draftName}
           autoFocus
@@ -185,13 +180,17 @@ export default function GroupHeader({
         </span>
       )}
       <Dropdown
-        overlay={moreMenu}
         trigger={['click']}
         placement="bottomRight"
         align={{ overflow: { adjustX: true, adjustY: true } }}
         getPopupContainer={() => document.body}
-        visible={openMoreKey === moreKey}
-        onVisibleChange={handleDropdownVisibleChange}
+        open={openMoreKey === moreKey}
+        onOpenChange={handleDropdownVisibleChange}
+        menu={{
+          items: moreMenuItems,
+          style: { minWidth: 180 },
+          onClick: () => setOpenMoreKey(null),
+        }}
       >
         <span
           className="customBtnGroupedGroupMore Hand InlineFlex alignItemsCenter justifyContentCenter"

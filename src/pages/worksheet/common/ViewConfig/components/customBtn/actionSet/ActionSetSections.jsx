@@ -1,7 +1,8 @@
 import React from 'react';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { VIEW_CONFIG_RECORD_CLICK_ACTION } from 'worksheet/constants/enum';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select } from 'ming-ui/antd-components';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { VIEW_CONFIG_RECORD_CLICK_ACTION } from 'src/utils/domain/worksheet/constants';
 import CustomBtnCon from '../CustomBtnCon';
 
 export function ToggleHeader({ open, title, count, onClick }) {
@@ -21,35 +22,31 @@ export function RecordClickAction({ open, show, clicktype, clickcid, worksheetCo
 
   return (
     <React.Fragment>
-      <Dropdown
+      <Select
         value={clicktype}
         className="w100 mTop24"
         onChange={clicktype => {
           updateViewSet({ clicktype });
         }}
-        border
-        isAppendToBody
-        data={[
-          { text: _l('打开记录详情'), value: VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD },
-          { text: _l('打开链接'), value: VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_LINK },
-          { text: _l('无'), value: VIEW_CONFIG_RECORD_CLICK_ACTION.NONE },
+        options={[
+          { label: _l('打开记录详情'), value: VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD },
+          { label: _l('打开链接'), value: VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_LINK },
+          { label: _l('无'), value: VIEW_CONFIG_RECORD_CLICK_ACTION.NONE },
         ]}
       />
       {clicktype === '1' && (
         <React.Fragment>
           <p className="Bold textSecondary Font13 mTop25 mBottom0">{_l('链接字段')}</p>
-          <Dropdown
+          <Select
             placeholder={_l('选择记录中的文本字段')}
             value={clickcid}
             className="mTop10 w100"
             onChange={clickcid => {
               updateViewSet({ clickcid });
             }}
-            border
-            isAppendToBody
-            data={(worksheetControls || [])
+            options={(worksheetControls || [])
               .filter(o => [1, 2].includes(o.type) && !ALL_SYS.includes(o.controlId))
-              .map(o => ({ value: o.controlId, text: o.controlName }))}
+              .map(o => ({ value: o.controlId, label: o.controlName }))}
           />
         </React.Fragment>
       )}
@@ -73,10 +70,11 @@ export function CustomActionPanel({
           {showHideUnavailable && (
             <Checkbox
               className="hideBtn"
-              text={_l('隐藏不可用的动作')}
               checked={hideUnavailable}
-              onClick={onToggleHideUnavailable}
-            />
+              onChange={event => onToggleHideUnavailable(!event.target.checked, undefined, event)}
+            >
+              {_l('隐藏不可用的动作')}
+            </Checkbox>
           )}
         </div>
       ) : (

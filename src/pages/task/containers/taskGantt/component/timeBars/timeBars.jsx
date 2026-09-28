@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
 import { DragSource } from 'react-dnd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Tooltip } from 'ming-ui/antd-components';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { formatTaskTime } from '../../../../utils/utils';
 import config from '../../config/config';
 import utils from '../../utils/utils';

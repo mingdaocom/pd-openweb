@@ -1,7 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowNode from '../../../api/flowNode';
+import worksheet from 'src/api/worksheet';
 import { checkConditionsIsNull } from '../../utils';
 import { TriggerCondition } from '../components';
 
@@ -24,67 +27,113 @@ const AddActionBtn = styled.div`
   }
 `;
 
+const renderSelectLabel = (label, isDeleted) => (isDeleted ? <span className="textError">{_l('已删除')}</span> : label);
+
 const WorksheetFilter = props => {
-  const { onOk, onClose } = props;
+  const { companyId, relationId, processId, selectNodeId, nodeId, worksheetId, onOk, onClose } = props;
+  const [viewId, setViewId] = useState(props.viewId || '');
+  const [fields, setFields] = useState(props.fields || []);
   const [filters, setFilters] = useState(props.filter || []);
-  const [controls, setControls] = useState([]);
+  const [filterControls, setFilterControls] = useState([]);
+  const [views, setViews] = useState([]);
+  const [fieldControls, setFieldControls] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    flowNode
-      .getAppTemplateControls({
-        processId: props.processId,
-        nodeId: props.selectNodeId,
-        appId: props.worksheetId,
+    Promise.all([
+      flowNode.getAppTemplateControls({
+        processId,
+        nodeId: selectNodeId,
+        appId: worksheetId,
         appType: 1,
-      })
-      .then(res => setControls(res));
-  }, []);
+      }),
+      worksheet.getWorksheetInfo({
+        worksheetId,
+        getViews: true,
+      }),
+    ]).then(([controls, worksheetInfo]) => {
+      setFilterControls(controls);
+      setViews(worksheetInfo.resultCode === 1 ? worksheetInfo.views || [] : []);
+      setFieldControls(worksheetInfo.resultCode === 1 ? worksheetInfo.template?.controls || [] : []);
+      setLoading(false);
+    });
+  }, [processId, selectNodeId, worksheetId]);
 
   return (
-    <Dialog
+    <Modal
       width={640}
       className="workflowDialogBox"
-      visible
+      open
       title={_l('设置')}
       onOk={() => {
         if (filters.length) {
-          let hasError = false;
-
-          filters.forEach(item => {
-            if (checkConditionsIsNull(item.conditions)) {
-              hasError = true;
-            }
-          });
+          const hasError = filters.some(item => checkConditionsIsNull(item.conditions));
 
           if (hasError) {
             alert(_l('筛选条件的判断值不能为空'), 2);
             return;
           }
-
-          onOk(filters);
-          onClose();
-        } else {
-          onOk([]);
-          onClose();
         }
+
+        onOk({
+          viewId,
+          fields,
+          filters,
+        });
+        onClose();
       }}
       onCancel={onClose}
     >
-      <div className="Font13 bold">{_l('查询范围')}</div>
-      <div className="Font13 textSecondary mTop5">{_l('定义模型的查询范围，未配置时默认查询工作表的全部数据')}</div>
-
-      {!controls.length ? (
+      {loading ? (
         <LoadDiv className="mTop15" />
       ) : (
         <Fragment>
+          <div className="Font13 bold">{_l('指定视图')}</div>
+          <Select
+            className="w100 mTop10"
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            placeholder={_l('请选择视图')}
+            value={viewId || undefined}
+            options={views.map(view => ({
+              label: view.name,
+              value: view.viewId,
+            }))}
+            labelRender={({ label, value }) => renderSelectLabel(label, !views.some(view => view.viewId === value))}
+            onChange={value => setViewId(value || '')}
+          />
+
+          <div className="Font13 bold mTop20">{_l('指定返回字段')}</div>
+          <Select
+            className="w100 mTop10"
+            mode="multiple"
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            maxTagCount="responsive"
+            placeholder={_l('为空时返回全部字段')}
+            value={fields}
+            options={fieldControls.map(control => ({
+              label: control.controlName,
+              value: control.controlId,
+            }))}
+            labelRender={({ label, value }) =>
+              renderSelectLabel(label, !fieldControls.some(control => control.controlId === value))
+            }
+            onChange={setFields}
+          />
+
+          <div className="Font13 bold mTop20">{_l('筛选条件')}</div>
+
           {filters.length ? (
             <TriggerCondition
-              projectId={props.companyId}
-              relationId={props.relationId}
-              processId={props.processId}
-              selectNodeId={props.nodeId}
+              projectId={companyId}
+              relationId={relationId}
+              processId={processId}
+              selectNodeId={nodeId}
               openNewFilter
-              controls={controls}
+              controls={filterControls}
               data={filters}
               updateSource={filters => setFilters(filters)}
               filterEncryptCondition
@@ -99,8 +148,10 @@ const WorksheetFilter = props => {
           )}
         </Fragment>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 
-export default props => FunctionWrap(WorksheetFilter, { ...props });
+export function useWorksheetFilterDialog() {
+  return useFunctionWrapComponent(WorksheetFilter);
+}

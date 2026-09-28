@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog, FunctionWrap, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 import JobController from 'src/api/job';
 import './style.less';
 
@@ -9,8 +9,6 @@ class DialogSelectJob extends Component {
   static defaultProps = {
     projectId: '',
     unique: false,
-    onSave: () => {},
-    onClose: () => {},
   };
 
   state = {
@@ -92,12 +90,13 @@ class DialogSelectJob extends Component {
           return (
             <Checkbox
               key={i}
-              className="GSelect-department-row pointer"
+              className="GSelect-department-row w100 pointer"
               style={{ padding: '9px 5px' }}
               checked={!!_.find(selectData, o => o.jobId === item.jobId)}
-              onClick={checked => this.toggle(item, !checked)}
-              text={item.jobName}
-            />
+              onChange={event => this.toggle(item, event.target.checked)}
+            >
+              {item.jobName}
+            </Checkbox>
           );
         })}
       </ScrollView>
@@ -127,53 +126,68 @@ class DialogSelectJob extends Component {
   }
 
   render() {
-    const { onClose, projectId, onSave, showCompanyName, overlayClosable, visible } = this.props;
-    const { keywords, selectData } = this.state;
+    const { projectId, showCompanyName } = this.props;
+    const { keywords } = this.state;
 
     return (
-      <Dialog
-        visible={visible}
-        title={_l('选择职位')}
-        width={480}
-        type="scroll"
-        onCancel={onClose}
-        overlayClosable={overlayClosable}
-        onOk={() => {
-          onSave(selectData);
-          onClose();
-        }}
-      >
-        <div className="selectJobContainer">
-          <div className="selectJobContainer_search">
-            <span className="searchIcon icon-search" />
-            <input
-              type="text"
-              className="searchInput"
-              placeholder={_l('搜索职位')}
-              value={keywords}
-              onChange={evt => {
-                this.setState({ keywords: evt.target.value, loading: true, pageIndex: 1, data: [] }, () => {
-                  this.searchRequst = _.throttle(this.fetchData, 200);
-                  this.searchRequst();
-                });
-              }}
-            />
-            <span
-              className={cx('searchClose icon-cancel', { Block: !!keywords.trim() })}
-              onClick={() => this.setState({ keywords: '' })}
-            />
+      <div className="selectJobContainer">
+        <Input
+          allowClear
+          placeholder={_l('搜索职位')}
+          prefix={<Icon icon="search" className="textTertiary Font20" />}
+          value={keywords}
+          onChange={evt => {
+            this.setState({ keywords: evt.target.value, loading: true, pageIndex: 1, data: [] }, () => {
+              this.searchRequst = _.throttle(this.fetchData, 200);
+              this.searchRequst();
+            });
+          }}
+        />
+        {showCompanyName && (
+          <div className="mTop12 Font13 overflow_ellipsis">
+            {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
           </div>
-          {showCompanyName && (
-            <div className="mTop12 Font13 overflow_ellipsis">
-              {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
-            </div>
-          )}
-          <div className="selectJobContent">{this.renderContent()}</div>
-          <div className="GSelect-result-box">{this.renderResult()}</div>
-        </div>
-      </Dialog>
+        )}
+        <div className="selectJobContent">{this.renderContent()}</div>
+        <div className="GSelect-result-box">{this.renderResult()}</div>
+      </div>
     );
   }
 }
 
-export default props => FunctionWrap(DialogSelectJob, { ...props });
+export function dialogSelectJob(options = {}) {
+  let modal;
+  const dialogRef = React.createRef();
+  const handlePopState = () => modal.destroy();
+
+  modal = Modal.info({
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    content: <DialogSelectJob {...options} ref={dialogRef} />,
+    mask: { closable: options.overlayClosable !== false },
+    okCancel: true,
+    onCancel: () => {
+      if (_.isFunction(options.onClose)) {
+        options.onClose();
+      }
+    },
+    onOk: () => {
+      if (_.isFunction(options.onSave)) {
+        options.onSave(dialogRef.current.state.selectData);
+      }
+
+      if (_.isFunction(options.onClose)) {
+        options.onClose();
+      }
+    },
+    title: _l('选择职位'),
+    width: 480,
+    zIndex: options.zIndex,
+  });
+
+  window.addEventListener('popstate', handlePopState);
+
+  return modal;
+}
+
+export default dialogSelectJob;

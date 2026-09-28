@@ -3,14 +3,14 @@ import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { checkControlCanSetStyle } from 'src/utils/control';
+import { checkControlCanSetStyle } from 'src/utils/domain/control/type';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
 import { getRecordCardStyle } from '../../tools/utils';
 
 const Control = styled.div`
   display: flex;
-  flex-direction: ${$props => $props.direction};
-  ${({ direction }) => direction === 'row' && 'align-items: center;'}
+  flex-direction: ${$props => $props.$direction};
+  ${({ $direction }) => $direction === 'row' && 'align-items: center;'}
   padding-bottom: 6px;
 
   .cellControl {
@@ -22,8 +22,8 @@ const Control = styled.div`
     min-width: 70px;
     color: var(--color-text-secondary);
     padding-right: 1em;
-    ${({ direction }) => direction === 'column' && 'padding-bottom: 6px;'}
-    ${({ labelStyle }) => labelStyle}
+    ${({ $direction }) => $direction === 'column' && 'padding-bottom: 6px;'}
+    ${({ $labelStyle }) => $labelStyle}
   }
   .content {
     display: flex;
@@ -103,7 +103,7 @@ const Control = styled.div`
       background: var(--color-border-primary);
       border-radius: 3px;
     }
-    ${({ contentStyle }) => contentStyle}
+    ${({ $contentStyle }) => $contentStyle}
   }
 `;
 
@@ -133,9 +133,9 @@ export default function CardCellControls(props) {
           <Control
             className="controlWrap"
             key={i}
-            labelStyle={get(recordCardStyle, 'controlTitleStyle.valueStyle', '')}
-            contentStyle={isTextControl ? get(recordCardStyle, 'controlValueStyle.valueStyle', '') : ''}
-            direction={isColumn ? 'column' : 'row'}
+            $labelStyle={get(recordCardStyle, 'controlTitleStyle.valueStyle', '')}
+            $contentStyle={isTextControl ? get(recordCardStyle, 'controlValueStyle.valueStyle', '') : ''}
+            $direction={isColumn ? 'column' : 'row'}
           >
             <div
               className={cx('label', { ellipsis: isColumn, breakAll: !isColumn })}

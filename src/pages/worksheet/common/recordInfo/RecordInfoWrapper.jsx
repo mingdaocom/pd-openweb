@@ -2,21 +2,28 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _, { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
-import { LoadDiv, Modal } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
 import worksheetAjax from 'src/api/worksheet';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
-import { emitter } from 'src/utils/common';
-import { RECORD_INFO_FROM } from '../../constants/enum';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+import { emitter } from 'src/utils/platform/browser/dom';
 import RecordInfo from './RecordInfo';
 
 const AutoSizeRecordInfo = autoSize(RecordInfo);
+const MADAL_STYLES = {
+  body: { position: 'relative' },
+  container: { padding: 0, overflow: 'hidden', minWidth: 900, height: '100%' },
+};
 
 export default class RecordInfoWrapper extends Component {
   static propTypes = {
     from: PropTypes.number,
     notDialog: PropTypes.bool,
     visible: PropTypes.bool,
+    loading: PropTypes.bool,
+    loadingError: PropTypes.string,
     sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
     instanceId: PropTypes.string,
     workId: PropTypes.string,
@@ -28,6 +35,8 @@ export default class RecordInfoWrapper extends Component {
   };
 
   static defaultProps = {
+    loading: false,
+    loadingError: '',
     hideRecordInfo: () => {},
   };
 
@@ -35,12 +44,23 @@ export default class RecordInfoWrapper extends Component {
     super(props);
     this.didMountTimestamp = Date.now();
     this.state = {
-      loading: props.from === RECORD_INFO_FROM.WORKFLOW || _.isEmpty(props.sheetSwitchPermit),
+      loading: props.loading || props.from === RECORD_INFO_FROM.WORKFLOW || _.isEmpty(props.sheetSwitchPermit),
     };
   }
 
   componentDidMount() {
-    if (this.state.loading) {
+    if (this.state.loading && !this.props.loading && !this.props.loadingError) {
+      this.init();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      this.state.loading &&
+      (prevProps.loading || prevProps.loadingError) &&
+      !this.props.loading &&
+      !this.props.loadingError
+    ) {
       this.init();
     }
   }
@@ -105,8 +125,21 @@ export default class RecordInfoWrapper extends Component {
     }
   };
 
+  setModalRightComp = comp => {
+    this.setState(prevState => {
+      const isSame = prevState.modalRightComp === comp || (_.isNil(prevState.modalRightComp) && _.isNil(comp));
+
+      return isSame ? null : { modalRightComp: comp };
+    });
+
+    if (isFunction(this.props.setLandRightComp)) {
+      this.props.setLandRightComp(comp);
+    }
+  };
+
   render() {
-    const { notDialog, width, visible, from, instanceId, workId, allowAiAction = true } = this.props;
+    const { loading: externalLoading, loadingError, ...recordInfoProps } = this.props;
+    const { notDialog, width, visible, from, instanceId, workId, allowAiAction = true } = recordInfoProps;
     const { loading, error, errorMsg, worksheetId, recordId, viewId, modalRightComp } = this.state;
     const extendsProps = {};
     let dialogWidth = width || (window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2);
@@ -126,8 +159,10 @@ export default class RecordInfoWrapper extends Component {
       onCancel: this.handleCancel,
       type: 'fixed',
       width: dialogWidth,
-      visible,
+      open: visible,
+      closable: true,
       needRenderRight: true,
+      animated: false,
       ...(modalRightComp
         ? {
             renderModalRightComp: () => {
@@ -141,7 +176,9 @@ export default class RecordInfoWrapper extends Component {
               );
             },
             fullScreen: true,
-            closeIcon: () => null,
+            // 右侧面板铺满弹窗右侧后，弹窗自带的关闭按钮会落到面板头部，和面板自身的关闭按钮重叠；
+            // 记录详情的关闭按钮由 RecordForm/Header 的 closeBtn 提供，这里不再重复渲染
+            closable: false,
           }
         : {}),
     };
@@ -160,57 +197,46 @@ export default class RecordInfoWrapper extends Component {
     let sheetSwitchPermit = this.props.sheetSwitchPermit || this.state.sheetSwitchPermit;
     let RecordInfoComp = notDialog ? AutoSizeRecordInfo : RecordInfo;
 
-    if (error) {
-      content = <TextAbsoluteCenter className="error textTertiary">{errorMsg}</TextAbsoluteCenter>;
+    if (loadingError || error) {
+      content = <TextAbsoluteCenter className="error textTertiary">{loadingError || errorMsg}</TextAbsoluteCenter>;
     } else {
-      content = loading ? (
-        <LoadDiv className="mTop32" />
-      ) : (
-        <RecordInfoComp
-          ref={this.recordinfo}
-          notDialog={notDialog}
-          didMountTimestamp={this.didMountTimestamp}
-          {...{
-            ...this.props,
-            ...extendsProps,
-            sheetSwitchPermit,
-            width: !notDialog ? dialogWidth : undefined,
-            hideRecordInfo: (...args) => {
-              if (window.customWidgetViewIsActive) {
-                emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
-                  action: 'close-record-info',
-                  value: {
-                    recordId: this.props.recordId,
-                  },
-                });
-              }
+      content =
+        externalLoading || loading ? (
+          <TextAbsoluteCenter role="status" aria-busy="true">
+            <LoadDiv />
+          </TextAbsoluteCenter>
+        ) : (
+          <RecordInfoComp
+            ref={this.recordinfo}
+            notDialog={notDialog}
+            didMountTimestamp={this.didMountTimestamp}
+            {...{
+              ...recordInfoProps,
+              ...extendsProps,
+              sheetSwitchPermit,
+              width: !notDialog ? dialogWidth : undefined,
+              hideRecordInfo: (...args) => {
+                if (window.customWidgetViewIsActive) {
+                  emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+                    action: 'close-record-info',
+                    value: {
+                      recordId: this.props.recordId,
+                    },
+                  });
+                }
 
-              if (isFunction(this.props.hideRecordInfo)) {
-                this.props.hideRecordInfo(...args);
-              }
-            },
-          }}
-          setModalRightComp={
-            allowAiAction &&
-            (comp => {
-              this.setState({ modalRightComp: comp });
-              if (isFunction(this.props.setLandRightComp)) {
-                this.props.setLandRightComp(comp);
-              }
-            })
-          }
-        />
-      );
+                if (isFunction(this.props.hideRecordInfo)) {
+                  this.props.hideRecordInfo(...args);
+                }
+              },
+            }}
+            setModalRightComp={allowAiAction && this.setModalRightComp}
+          />
+        );
     }
 
     return !notDialog ? (
-      <Modal
-        {...dialogProps}
-        verticalAlign="bottom"
-        closeSize={56}
-        style={{ minWidth: 900 }}
-        bodyStyle={{ padding: 0, position: 'relative' }}
-      >
+      <Modal {...dialogProps} verticalAlign="bottom" styles={MADAL_STYLES}>
         {content}
       </Modal>
     ) : (

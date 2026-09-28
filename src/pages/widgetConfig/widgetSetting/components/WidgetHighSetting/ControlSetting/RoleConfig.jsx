@@ -2,18 +2,18 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { dialogSelectOrgRole } from 'ming-ui/functions';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { SettingItem } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import { OtherField, SelectOtherField } from '../../DynamicDefaultValue/components';
-import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
 
 const ROLE_RANGE = [
-  { value: 0, text: _l('全部') },
-  { value: 1, text: _l('指定组织角色') },
+  { value: 0, label: _l('全部') },
+  { value: 1, label: _l('指定组织角色') },
 ];
 
 export default function RoleConfig(props) {
@@ -77,7 +77,7 @@ export default function RoleConfig(props) {
   const getUserDisplay = item => {
     const organizeName = _.get(safeParse(item.staticValue || '{}'), 'organizeName');
     return (
-      <FieldInfo hideIcon={true}>
+      <FieldInfo $hideIcon={true}>
         <div className="name">{organizeName || _l('已删除')}</div>
         <div
           className="remove"
@@ -101,10 +101,9 @@ export default function RoleConfig(props) {
           </Tooltip> */}
       </div>
 
-      <Dropdown
-        border
+      <Select
         className="w100"
-        data={ROLE_RANGE}
+        options={ROLE_RANGE}
         value={enumDefault2}
         onChange={value => {
           const nextData =

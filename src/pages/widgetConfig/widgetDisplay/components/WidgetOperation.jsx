@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
-import { Button } from 'antd';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { get, includes } from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Dropdown, Flex, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { canAdjustWidth } from 'src/pages/widgetConfig/util/setting';
-import { NOT_NEED_DELETE_CONFIRM } from '../../config';
-import { canSetAsTitle, isCustomWidget } from '../../util';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { NOT_NEED_DELETE_CONFIRM } from 'src/utils/domain/control/config';
+import { canAdjustWidth } from 'src/utils/domain/control/editorSetting';
+import { adjustWidthList } from 'src/utils/domain/control/editorSetting';
+import { canSetAsTitle, isCustomWidget } from 'src/utils/domain/control/metadata';
 import { supportCreateTemplate } from '../../util/createTemplate';
-import { handleAdvancedSettingChange } from '../../util/setting';
-import { adjustWidthList } from '../../util/setting';
-import { openDevelopWithAI } from '../../widgetSetting/components/DevelopWithAI';
+import { useDevelopWithAI } from '../../widgetSetting/components/DevelopWithAI';
 import DeleteConfirm from './DeleteConfirm';
-
-const DeleteBothWayRelateWrap = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
 
 const OperationWrap = styled.div`
   position: absolute;
@@ -54,7 +47,9 @@ const OperationWrap = styled.div`
     line-height: 24px;
     padding: 0 5px;
     cursor: pointer;
-    transition: color background-color 0.4s;
+    transition:
+      color 0.4s,
+      background-color 0.4s;
     color: var(--color-text-secondary);
     padding: 0 4px;
     margin-right: 4px;
@@ -77,23 +72,6 @@ const OperationWrap = styled.div`
   }
 `;
 
-const WidthMenuItem = styled(MenuItem)`
-  &.isActive {
-    background: var(--color-link-hover);
-    color: var(--color-white);
-
-    &.ming.MenuItem .Item-content:not(.disabled):hover {
-      background: var(--color-link-hover) !important;
-    }
-  }
-  &.menuTitle {
-    &.ming.MenuItem .Item-content.disabled {
-      cursor: default;
-      color: var(--color-text-disabled);
-    }
-  }
-`;
-
 const WidthSettings = [
   { text: '1/4', size: 3 },
   { text: '1/3', size: 4 },
@@ -103,7 +81,11 @@ const WidthSettings = [
   { text: '1', size: 12 },
 ];
 
-export default function WidgetOperation(props) {
+const isSuccessfulWorksheetControlUpdate = result => result === true || Boolean(result?.data);
+
+function WidgetOperation(props) {
+  const requestPending = useRef(false);
+  const [deletingRelateControl, setDeletingRelateControl] = useState(false);
   const {
     isBatchActive,
     batchMode,
@@ -113,8 +95,9 @@ export default function WidgetOperation(props) {
     queryConfig,
     globalSheetInfo = {},
     rest,
+    openDevelopWithAI,
   } = props;
-  const { type, controlId, attribute, dataSource, sourceControl, size, advancedSetting = {} } = data;
+  const { type, controlId, attribute, dataSource, sourceControl, size } = data;
   const { widgets } = rest || {};
   const availableWidth = adjustWidthList(widgets, data);
 
@@ -133,47 +116,42 @@ export default function WidgetOperation(props) {
       <OperationWrap>
         <div className="operationWrap">
           {canAdjustWidth(widgets, data) && (
-            <Trigger
-              action={['click']}
-              popupVisible={widthPopupVisible}
-              onPopupVisibleChange={visible => setWidthPopupVisible(visible)}
-              popupAlign={{
-                points: ['tr', 'br'],
-                offset: [0, 10],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              popup={
-                <Menu style={{ width: 150 }} className="Relative">
-                  <WidthMenuItem disabled className="menuTitle">
-                    {_l('宽度（占比）')}
-                  </WidthMenuItem>
-                  {WidthSettings.map(item => {
-                    const disabled = !availableWidth.includes(item.size);
-                    const isActive = size === item.size;
-                    return (
-                      <WidthMenuItem
-                        disabled={disabled}
-                        key={item.size}
-                        onClick={() => {
-                          if (disabled || isActive) return;
+            <Dropdown
+              trigger={['click']}
+              open={widthPopupVisible}
+              onOpenChange={setWidthPopupVisible}
+              placement="bottomRight"
+              menu={{
+                style: { width: 150 },
+                selectedKeys: [size],
+                items: [
+                  {
+                    key: 'width',
+                    type: 'group',
+                    label: _l('宽度（占比）'),
+                    children: WidthSettings.map(item => {
+                      const disabled = !availableWidth.includes(item.size);
+                      return {
+                        key: item.size,
+                        disabled,
+                        label: item.text,
+                        onClick: () => {
+                          if (disabled || size === item.size) return;
                           handleOperate('width', { size: item.size });
                           setWidthPopupVisible(false);
-                        }}
-                        className={cx({ isActive })}
-                      >
-                        {item.text}
-                      </WidthMenuItem>
-                    );
-                  })}
-                </Menu>
-              }
+                        },
+                      };
+                    }),
+                  },
+                ],
+              }}
             >
               <Tooltip placement="bottom" trigger={['hover']} title={_l('宽度(占比)')}>
                 <div className="operationIconWrap" onClick={e => e.stopPropagation()}>
                   <i className="icon-resize_width" />
                 </div>
               </Tooltip>
-            </Trigger>
+            </Dropdown>
           )}
           <Tooltip placement="bottom" trigger={['hover']} title={_l('隐藏')}>
             <div
@@ -217,12 +195,27 @@ export default function WidgetOperation(props) {
 
     const deleteRelateControl = e => {
       e.stopPropagation();
-      worksheetAjax.editWorksheetControls({
-        worksheetId: dataSource,
-        controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
-      });
+      if (requestPending.current) return;
 
-      handleDelete();
+      requestPending.current = true;
+      setDeletingRelateControl(true);
+      return worksheetAjax
+        .editWorksheetControls({
+          worksheetId: dataSource,
+          controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
+        })
+        .then(res => {
+          if (!isSuccessfulWorksheetControlUpdate(res)) {
+            alert(_l('删除失败，请稍后再试！'), 2);
+            return;
+          }
+
+          handleDelete();
+        })
+        .finally(() => {
+          requestPending.current = false;
+          setDeletingRelateControl(false);
+        });
     };
 
     // 关联记录类型 且双向关联了其他表  删除需要异化为选择删除单个控件和删除双向控件
@@ -237,23 +230,24 @@ export default function WidgetOperation(props) {
           )}
           onCancel={() => setVisible(false)}
           footer={
-            <DeleteBothWayRelateWrap>
-              <Button danger onClick={deleteRelateControl}>
+            <Flex justify="space-between" gap="small">
+              <Button
+                className="flex"
+                danger
+                loading={deletingRelateControl}
+                disabled={deletingRelateControl}
+                onClick={deleteRelateControl}
+              >
                 {_l('同时删除另一侧')}
               </Button>
-              <Button type="primary" danger onClick={handleDelete}>
+              <Button className="flex" type="primary" danger onClick={handleDelete}>
                 {_l('仅删除此控件')}
               </Button>
-            </DeleteBothWayRelateWrap>
+            </Flex>
           }
         >
           <Tooltip placement="bottom" trigger={['hover']} title={_l('删除')}>
-            <div
-              className="delWidget operationIconWrap"
-              onClick={e => {
-                e.stopPropagation();
-              }}
-            >
+            <div className="delWidget operationIconWrap">
               <i className="icon-hr_delete" />
             </div>
           </Tooltip>
@@ -276,12 +270,7 @@ export default function WidgetOperation(props) {
         onOk={handleDelete}
       >
         <Tooltip placement="bottom" trigger={['hover']} title={_l('删除')}>
-          <div
-            className="delWidget operationIconWrap"
-            onClick={e => {
-              e.stopPropagation();
-            }}
-          >
+          <div className="delWidget operationIconWrap">
             <i className="icon-hr_delete" />
           </div>
         </Tooltip>
@@ -369,3 +358,7 @@ export default function WidgetOperation(props) {
     </OperationWrap>
   );
 }
+
+export default withOpeners(WidgetOperation, {
+  openDevelopWithAI: useDevelopWithAI,
+});

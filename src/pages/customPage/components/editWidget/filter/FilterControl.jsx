@@ -1,15 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Divider, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Divider, Select } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { FASTFILTER_CONDITION_TYPE, getSetDefault } from 'worksheet/common/ViewConfig/components/fastFilter/util';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { FASTFILTER_CONDITION_TYPE, getSetDefault } from 'src/utils/domain/worksheet/fastFilter';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import FilterDefaultValue from './FilterDefaultValue';
 import FilterSetting from './FilterSetting';
 import FilterShowItem from './FilterShowItem';
@@ -87,6 +88,67 @@ export default function FilterControl(props) {
       return <div className="valignWrapper textTertiary">{_l('暂无数据')}</div>;
     };
 
+    const options = filterOnlyShowField(templateControls)
+      .filter(
+        c =>
+          FASTFILTER_CONDITION_TYPE.includes(c.type) ||
+          (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD &&
+            FASTFILTER_CONDITION_TYPE.includes((c.sourceControl || {}).type)),
+      )
+      .filter(c => {
+        if (index) {
+          // 兼容单选控件(平铺和下拉菜单)
+          if ([9, 11].includes(c.type) && [9, 11].includes(c.type) === [9, 11].includes(firstControlData.type)) {
+            return true;
+          }
+
+          // 兼容时间控件(日期和日期时间)
+          if ([15, 16].includes(c.type) && [15, 16].includes(c.type) === [15, 16].includes(firstControlData.type)) {
+            return true;
+          }
+
+          return c.type === firstControlData.type;
+        } else {
+          return true;
+        }
+      })
+      .filter(c => {
+        if (isOptionControl || isRelateControl) {
+          if (c.controlId === 'rowid') {
+            return true;
+          }
+
+          if (c.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
+            return (
+              c.sourceControlId === firstControlData.controlId ||
+              c.sourceControlId === firstControlData.sourceControlId ||
+              _.get(c.sourceControl, 'dataSource') === firstControlData.dataSource
+            );
+          }
+
+          if (firstControlData.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
+            return c.dataSource === _.get(firstControlData.sourceControl, 'dataSource');
+          }
+
+          if (c.dataSource && firstControlData.dataSource) {
+            return c.dataSource === firstControlData.dataSource;
+          } else {
+            return false;
+          }
+        } else {
+          return true;
+        }
+      })
+      .map(c => ({
+        value: c.controlId,
+        label: (
+          <div className="valignWrapper h100 w100">
+            <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
+            <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
+          </div>
+        ),
+      }));
+
     return (
       <div key={item.worksheetId} className={index === filterObjectControls.length - 1 ? 'mBottom16' : 'mBottom20'}>
         <div className="mBottom12 flexRow">
@@ -100,13 +162,14 @@ export default function FilterControl(props) {
         </div>
         <Select
           showSearch
-          className={cx('customPageSelect w100', { Red: item.controlId && !currentControl })}
+          className={cx('w100', { Red: item.controlId && !currentControl })}
           value={item.controlId ? (currentControl ? item.controlId : _l('字段已删除')) : undefined}
           disabled={index && (lastControl.controlId ? false : true)}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择筛选字段')}
           notFoundContent={notFoundContent()}
           getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
+          options={options}
           filterOption={(searchValue, option) => {
             const { value } = option;
             const { controlName } = _.find(templateControls, { controlId: value }) || {};
@@ -159,70 +222,7 @@ export default function FilterControl(props) {
 
             setFilter(param, otherFilter);
           }}
-        >
-          {filterOnlyShowField(templateControls)
-            .filter(
-              c =>
-                FASTFILTER_CONDITION_TYPE.includes(c.type) ||
-                (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD &&
-                  FASTFILTER_CONDITION_TYPE.includes((c.sourceControl || {}).type)),
-            )
-            .filter(c => {
-              if (index) {
-                // 兼容单选控件(平铺和下拉菜单)
-                if ([9, 11].includes(c.type) && [9, 11].includes(c.type) === [9, 11].includes(firstControlData.type)) {
-                  return true;
-                }
-
-                // 兼容时间控件(日期和日期时间)
-                if (
-                  [15, 16].includes(c.type) &&
-                  [15, 16].includes(c.type) === [15, 16].includes(firstControlData.type)
-                ) {
-                  return true;
-                }
-
-                return c.type === firstControlData.type;
-              } else {
-                return true;
-              }
-            })
-            .filter(c => {
-              if (isOptionControl || isRelateControl) {
-                if (c.controlId === 'rowid') {
-                  return true;
-                }
-
-                if (c.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
-                  return (
-                    c.sourceControlId === firstControlData.controlId ||
-                    c.sourceControlId === firstControlData.sourceControlId ||
-                    _.get(c.sourceControl, 'dataSource') === firstControlData.dataSource
-                  );
-                }
-
-                if (firstControlData.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
-                  return c.dataSource === _.get(firstControlData.sourceControl, 'dataSource');
-                }
-
-                if (c.dataSource && firstControlData.dataSource) {
-                  return c.dataSource === firstControlData.dataSource;
-                } else {
-                  return false;
-                }
-              } else {
-                return true;
-              }
-            })
-            .map(c => (
-              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
-                <div className="valignWrapper h100 w100">
-                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
-                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-                </div>
-              </Select.Option>
-            ))}
-        </Select>
+        />
       </div>
     );
   };
@@ -280,6 +280,7 @@ export default function FilterControl(props) {
             filter={filter}
             setFilter={setFilter}
           />
+
           <FilterDefaultValue
             firstControlData={_.cloneDeep(firstControlData)}
             dataType={dataType}

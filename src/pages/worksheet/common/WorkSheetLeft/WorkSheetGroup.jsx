@@ -1,11 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
+import { canEditApp } from 'src/utils/domain/permission/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import Drag from './Drag';
 import MoreOperation from './MoreOperation';
 import WorkSheetItem, { convertColor } from './WorkSheetItem';
@@ -219,19 +218,20 @@ export default function WorkSheetGroup(props) {
       {sheetListVisible ? (
         renderContent()
       ) : (
-        <Trigger
-          popupVisible={childrenItems.length ? popupVisible : false}
-          onPopupVisibleChange={setPopupVisible}
-          action={['hover']}
-          popupAlign={{ points: ['tl', 'tr'], offset: [0, -5], overflow: { adjustX: true, adjustY: true } }}
-          popup={
-            <div className="card z-depth-2 pTop5 pBottom5">
+        <Popover
+          noPadding
+          open={childrenItems.length ? popupVisible : false}
+          onOpenChange={setPopupVisible}
+          trigger="hover"
+          placement="rightTop"
+          content={
+            <div className="pTop5 pBottom5">
               <div className="workSheetLeft BorderRight0">{renderGroupItems()}</div>
             </div>
           }
         >
           <div>{renderContent()}</div>
-        </Trigger>
+        </Popover>
       )}
     </Fragment>
   );

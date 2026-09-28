@@ -11,19 +11,17 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { browserIsMobile } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+import { getSheetOperateButtonIds, getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from 'src/utils/services/worksheet/view';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -33,14 +31,13 @@ import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
 import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
 import ToolBar from '../HierarchyView/ToolBar';
 import { hierarchyViewCanSelectFields } from '../HierarchyView/util';
-import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from '../util';
 import './index.less';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
   height: 100%;
   overflow: auto;
-  ::-webkit-scrollbar-x {
+  &::-webkit-scrollbar:horizontal {
     height: 14px;
   }
 `;
@@ -48,7 +45,7 @@ const RecordStructureWrap = styled.div`
 const SortableTreeWrap = styled.div`
   position: relative;
   transform-origin: left top;
-  transform: ${props => (props.scale ? `scale(${props.scale / 100})` : 'scale(1)')};
+  transform: ${props => (props.$scale ? `scale(${props.$scale / 100})` : 'scale(1)')};
   width: fit-content;
   margin: 0 auto;
   .nodeWrap {
@@ -555,7 +552,7 @@ function HierarchyMix(props) {
           <ViewEmpty filters={filters} viewFilter={view.filters || []} />
         ) : (
           <Fragment>
-            <SortableTreeWrap scale={scale} id={viewId}>
+            <SortableTreeWrap $scale={scale} id={viewId}>
               {_.isEmpty(hierarchyViewState) ? (
                 <EmptyHierarchy
                   layersName={layersName}

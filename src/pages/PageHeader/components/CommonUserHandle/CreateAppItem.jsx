@@ -2,8 +2,8 @@ import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import chatbotIcon from 'worksheet/common/WorkSheetLeft/assets/chatbot.png';
 import customPageIcon from 'worksheet/common/WorkSheetLeft/assets/dashboard.png';
 import worksheetIcon from 'worksheet/common/WorkSheetLeft/assets/worksheet.png';
@@ -11,7 +11,7 @@ import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
 import { addFirstAppSection, createAppItem, getSheetList } from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { CREATE_ITEM_LIST } from 'src/pages/worksheet/common/WorkSheetLeft/enum';
-import { findSheet } from 'src/utils/worksheet';
+import { findSheet } from 'src/utils/domain/worksheet/helpers';
 
 const LoadableDialogImportExcelCreate = lazy(() => import('worksheet/components/DialogImportExcelCreate'));
 
@@ -42,7 +42,7 @@ function CreateAppItem(props) {
     return () => {
       delete window.__worksheetLeftReLoad;
     };
-  }, []);
+  }, [appId, appItem, groupId, singleRef]);
 
   const handleCreate = (type, args) => {
     if (singleRef) {
@@ -77,67 +77,62 @@ function CreateAppItem(props) {
     setCreateMenuVisible(false);
   };
 
+  const createMenuItems = CREATE_ITEM_LIST.filter(item => {
+    if (item.createType === 'chatbot') {
+      return workflowAgentFeatureType === '1' && !md.global?.SysSettings?.hideAIBasicFun;
+    }
+
+    return true;
+  }).reduce((items, item) => {
+    if (item.createType === 'group') {
+      items.push({ key: 'createDivider', type: 'divider', className: 'mTop4 mBottom4' });
+    }
+
+    items.push({
+      key: item.createType,
+      icon: iconMaps[item.createType] ? (
+        <img className="createIcon" style={{ width: 20 }} src={iconMaps[item.createType]} />
+      ) : (
+        <Icon
+          icon={item.icon}
+          className={cx('Font18 textTertiary', {
+            Visibility: ['worksheet', 'importExcel'].includes(item.createType),
+          })}
+        />
+      ),
+      label: (
+        <Fragment>
+          <span className={item.className}>{item.text}</span>
+          {item.createType === 'chatbot' && (
+            <Icon icon="auto_awesome" className="Font15 mLeft5" style={{ color: 'var(--color-mingo-light)' }} />
+          )}
+        </Fragment>
+      ),
+      onClick: () => {
+        handleSwitchCreateType(item.createType);
+      },
+    });
+
+    return items;
+  }, []);
+
   return (
     <Fragment>
       {isCharge && (
-        <Trigger
-          forceRender={true}
-          popupVisible={createMenuVisible}
-          onPopupVisibleChange={setCreateMenuVisible}
-          action={['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [-10, 0],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
+        <Dropdown
+          trigger={['click']}
+          open={createMenuVisible}
+          onOpenChange={setCreateMenuVisible}
+          placement="bottomLeft"
+          align={{ offset: [0, 0] }}
+          classNames={{ root: 'createNewMenu' }}
+          menu={{
+            items: createMenuItems,
+            style: { minWidth: 240 },
           }}
-          popup={
-            <div className="createNewMenu">
-              <Menu>
-                {CREATE_ITEM_LIST.filter(item => {
-                  if (item.createType === 'chatbot') {
-                    return workflowAgentFeatureType === '1' && !md.global?.SysSettings?.hideAIBasicFun;
-                  }
-
-                  return true;
-                }).map((item, index) => (
-                  <Fragment key={index}>
-                    {item.createType === 'group' && <div className="spaceLine mTop4 mBottom4"></div>}
-                    <MenuItem
-                      key={item.createType}
-                      onClick={() => {
-                        handleSwitchCreateType(item.createType);
-                      }}
-                    >
-                      {iconMaps[item.createType] ? (
-                        <img className="createIcon" src={iconMaps[item.createType]} />
-                      ) : (
-                        <Icon
-                          icon={item.icon}
-                          className={cx('Font18', {
-                            Visibility: ['worksheet', 'importExcel'].includes(item.createType),
-                          })}
-                        />
-                      )}
-                      <span className={item.className}>{item.text}</span>
-                      {item.createType === 'chatbot' && (
-                        <Icon
-                          icon="auto_awesome"
-                          className="Font15 mLeft5"
-                          style={{ color: 'var(--color-mingo-light)' }}
-                        />
-                      )}
-                    </MenuItem>
-                  </Fragment>
-                ))}
-              </Menu>
-            </div>
-          }
         >
           {children}
-        </Trigger>
+        </Dropdown>
       )}
       {!!createType && (
         <CreateNew

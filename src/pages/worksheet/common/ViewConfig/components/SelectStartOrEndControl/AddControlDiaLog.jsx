@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import WidgetBase from 'src/pages/widgetConfig/widgetSetting/components/WidgetBase';
-import './index.less';
+import { DEFAULT_DATA, SYS } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+
+const QUICK_ADD_MODAL_STYLES = {
+  header: { marginBottom: 0 },
+  body: { overflow: 'visible' },
+};
 
 const Wrap = styled.div(
-  ({ height }) => `
+  ({ $height }) => `
   #widgetConfigSettingWrap {
-    height: ${height}px;
+    height: ${$height}px;
     width: 100%;
     border-left: none;
     margin-top: -20px;
@@ -31,6 +34,7 @@ const Wrap = styled.div(
 );
 
 export default function AddControlDiaLog(params) {
+  const requestPending = useRef(false);
   const { controls = [], setVisible, visible, type, addName, onAdd, enumType, title, worksheetId, onChange } = params;
   let initData = {
     ...DEFAULT_DATA[enumType],
@@ -52,9 +56,12 @@ export default function AddControlDiaLog(params) {
   };
 
   const onSave = () => {
+    if (requestPending.current) return;
+
     let row = Math.max(...controls.filter(o => !SYS.includes(o.controlId)).map(o => o.row));
     let control = { ...data, row: row + 1 };
-    worksheetAjax
+    requestPending.current = true;
+    return worksheetAjax
       .addWorksheetControls({
         worksheetId: worksheetId,
         controls: [_.omit(control, ['controlId'])],
@@ -63,28 +70,29 @@ export default function AddControlDiaLog(params) {
         onAdd(controls.concat({ ...control, controlId: msg.split(':')[0] }));
         onChange && onChange(msg.split(':')[0]);
         setVisible(false);
+      })
+      .finally(() => {
+        requestPending.current = false;
       });
   };
 
   return (
-    <Dialog
+    <Modal
       title={title}
       width={360}
       okText={_l('确定')}
       cancelText={_l('取消')}
       className="quickAddControlDialog"
-      headerClass="quickAddControlDialogTitle"
-      bodyClass="quickAddControlDialogCon"
+      styles={QUICK_ADD_MODAL_STYLES}
       onCancel={() => setVisible(false)}
       onOk={() => {
         onSave();
       }}
-      visible={visible}
-      updateTrigger="false"
+      open={visible}
     >
-      <Wrap height={!widgetProps.type ? 135 : 88}>
+      <Wrap $height={!widgetProps.type ? 135 : 88}>
         <WidgetBase {...widgetProps} />
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -1,8 +1,7 @@
-import Remarkable from 'remarkable';
-import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import _ from 'lodash';
 import filterXss from 'xss';
+import Remarkable, { escapeHtml, replaceEntities } from 'ming-ui/components/Remarkable';
 
 export const SORT_TYPE = {
   ASC: 'ASC',

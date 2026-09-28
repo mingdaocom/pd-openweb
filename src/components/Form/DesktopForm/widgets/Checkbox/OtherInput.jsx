@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import { Textarea } from 'ming-ui';
-import { getCheckAndOther } from '../../../core/utils';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 
 export default function OtherInput(props) {
   const textRef = useRef(null);

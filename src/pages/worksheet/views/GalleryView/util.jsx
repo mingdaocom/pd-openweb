@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { getCardWidth } from 'worksheet/common/ViewConfig/getCardWidth';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
-import { getCardWidth } from 'src/utils/worksheet';
-import { RENDER_RECORD_NECESSARY_ATTR } from '../util';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getTitleControlForCard } from 'src/utils/services/worksheet/view';
+import { RENDER_RECORD_NECESSARY_ATTR } from 'src/utils/services/worksheet/view';
 
 export const getWidth = props => {
   const { base = {}, views = [], width } = props;
@@ -50,11 +50,4 @@ export const getDataWithFormat = (row, props) => {
   });
 
   return arr;
-};
-
-export const canEditForGroupControl = props => {
-  const { allowAdd = false, control = {} } = props;
-  if (_.get(window, 'shareState.shareId') || control?.type === 30) return false;
-  const { fieldPermission = '111', controlPermissions = '111' } = control;
-  return allowAdd && (fieldPermission || '111')[1] === '1' && (controlPermissions || '111')[1] === '1';
 };

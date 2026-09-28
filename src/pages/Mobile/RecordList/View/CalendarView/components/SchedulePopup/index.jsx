@@ -1,6 +1,7 @@
 import React, { Fragment, memo, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, LoadDiv, MobileSearch, PopupWrapper, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, ScrollView } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import RecordCard from 'mobile/RecordList/RecordCard';
 import { getFormateView } from '../../util';
 import EmptyStatus from '../EmptyStatus';

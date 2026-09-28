@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { DEFAULT_COLUMNS } from '../../enum';
+import { DEFAULT_COLUMNS } from 'src/utils/domain/worksheet/filterConstants';
 import RelateBox from './RelateBox';
 
 export default class RelateFilter extends Component {

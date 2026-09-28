@@ -2,16 +2,15 @@ import React, { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import { Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView, Support, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Button, Checkbox, Dropdown, Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import knowledgeAjax from '../../../../api/knowledge';
 import knowledgeCollectionAjax from '../../../../api/knowledgeCollection';
 import knowledgeVectorAjax from '../../../../api/knowledgeVector';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
+import { getTranslateInfo } from 'src/utils/services/app';
 import {
   COLLECTION_ACTION_VISIBLE_STATUS,
   FIELD_RULE_TIP_URL,
@@ -36,6 +35,7 @@ import { getBannerConfig } from './utils';
 import './index.less';
 
 const FORMAT_TIME = 'YYYY-MM-DD HH:mm:ss';
+const DANGER_BUTTON_PROPS = { danger: true };
 
 const DIALOG_TYPE_MAP = {
   // 确认向量化入库
@@ -61,9 +61,6 @@ const deleteKeyFromMap = (mapSetter, key) => {
     delete next[key];
     return next;
   });
-};
-const handleViewRule = () => {
-  window.open(FIELD_RULE_TIP_URL, '_blank');
 };
 
 const KnowledgeWorksheet = props => {
@@ -145,7 +142,7 @@ const KnowledgeWorksheet = props => {
       }));
       setAllWorksheetList(worksheetList);
     });
-  }, []);
+  }, [appId]);
 
   // 打开开始向量化对话框
   const openKnowledgeVector = () => {
@@ -522,51 +519,48 @@ const KnowledgeWorksheet = props => {
                   />
                 </div>
                 <div className="action">
-                  <Trigger
-                    popupVisible={activeId === item.id}
-                    popup={
-                      <Menu className="knowledgeMoreActions" style={{ position: 'unset' }}>
-                        {COLLECTION_ACTION_VISIBLE_STATUS.preview.includes(item.taskStatus) && !item.isDeleted && (
-                          <MenuItem
-                            onClick={e => {
-                              e.stopPropagation();
+                  <Dropdown
+                    open={activeId === item.id}
+                    menu={{
+                      items: [
+                        COLLECTION_ACTION_VISIBLE_STATUS.preview.includes(item.taskStatus) &&
+                          !item.isDeleted && {
+                            key: 'preview',
+                            label: _l('分块预览'),
+                            onClick: ({ domEvent }) => {
+                              domEvent.stopPropagation();
                               handleOpenChunkPreview(knowledgeDetail, item);
-                            }}
-                          >
-                            {_l('分块预览')}
-                          </MenuItem>
-                        )}
-                        {COLLECTION_ACTION_VISIBLE_STATUS.changeScope.includes(item.taskStatus) && !item.isDeleted && (
-                          <MenuItem onClick={openUpdateCollectionScope}>{_l('调整知识源')}</MenuItem>
-                        )}
-                        {/* {COLLECTION_ACTION_VISIBLE_STATUS.rePullData.includes(item.taskStatus) && (
-                          <MenuItem>{_l('重试')}</MenuItem>
-                        )} */}
-                        {!KNOWLEDGE_STATUS_INITIALIZING.includes(knowledgeDetail.taskStatus) && (
-                          <MenuItem className="delete" onClick={openDeleteDialog}>
-                            {_l('删除')}
-                          </MenuItem>
-                        )}
-                      </Menu>
-                    }
-                    action={['click']}
-                    popupAlign={{
-                      points: ['tr', 'br'],
-                      offset: [0, 5],
-                      overflow: { adjustX: true, adjustY: true },
+                            },
+                          },
+                        COLLECTION_ACTION_VISIBLE_STATUS.changeScope.includes(item.taskStatus) &&
+                          !item.isDeleted && {
+                            key: 'changeScope',
+                            label: _l('调整知识源'),
+                            onClick: ({ domEvent }) => openUpdateCollectionScope(domEvent),
+                          },
+                        !KNOWLEDGE_STATUS_INITIALIZING.includes(knowledgeDetail.taskStatus) && {
+                          key: 'delete',
+                          label: _l('删除'),
+                          danger: true,
+                          onClick: ({ domEvent }) => openDeleteDialog(domEvent),
+                        },
+                      ].filter(Boolean),
                     }}
-                    onPopupVisibleChange={visible => setActiveId(visible ? item.id : null)}
+                    trigger={['click']}
+                    placement="bottomRight"
+                    onOpenChange={visible => setActiveId(visible ? item.id : null)}
                   >
-                    <div
-                      className="moreIconWrap"
+                    <Button
+                      color="default"
+                      variant="text"
+                      size="small"
+                      icon={<Icon icon="more_vert" />}
                       onClick={e => {
                         e.stopPropagation();
                         setCurrentCollection(item);
                       }}
-                    >
-                      <Icon icon="more_vert" className="moreIcon" />
-                    </div>
-                  </Trigger>
+                    />
+                  </Dropdown>
                 </div>
               </div>
             );
@@ -615,16 +609,18 @@ const KnowledgeWorksheet = props => {
         <div className="right">
           {SHOW_KNOWLEDGE_SEARCH_STATUS.includes(knowledgeDetail.taskStatus) &&
             knowledgeDetail?.knowledgeCollections?.length > 0 && (
-              <div
-                className="retrieveBtn"
+              <Button
+                color="primary"
+                variant="outlined"
+                shape="round"
+                icon={<Icon icon="a-knowledge_search" />}
                 onClick={() => {
                   if (isDisabledKnowledge(projectId)) return;
                   setShowKnowledgeSearch(true);
                 }}
               >
-                <Icon icon="a-knowledge_search" />
                 {_l('检索测试')}
-              </div>
+              </Button>
             )}
           <AddWorksheet
             disabled={KNOWLEDGE_STATUS_INITIALIZING.includes(knowledgeDetail.taskStatus) || knowledgeOverLimit}
@@ -658,10 +654,12 @@ const KnowledgeWorksheet = props => {
         <div className="contentBox">{renderWorksheet()}</div>
       </div>
       {dialogState.type === DIALOG_TYPE_MAP.CONFIRM_VECTORIZE && (
-        <Dialog
-          visible
+        <Modal
+          open
           title={_l('确认是否向量化入库')}
           width={550}
+          mask={{ closable: true }}
+          keyboard
           onCancel={() => {
             closeDialog();
             setStartVectorizeLoading(false);
@@ -686,13 +684,15 @@ const KnowledgeWorksheet = props => {
             </div>
             <div className="totalInfo">{_l('共 %0 个分块', chunksStatistics.totalChunkCount.toLocaleString())}</div>
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.UPDATE_COLLECTION && (
-        <Dialog
-          visible
+        <Modal
+          open
           title={dialogState.updateType === 'add' ? _l('添加工作表') : _l('调整知识源')}
           width={1000}
+          mask={{ closable: true }}
+          keyboard
           onCancel={closeDialog}
           onOk={updateCollection}
         >
@@ -716,10 +716,18 @@ const KnowledgeWorksheet = props => {
               onSaveFilterConditions={handleSaveFilterConditions}
             />
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.COLLECTION_SCOPE && (
-        <Dialog visible title={_l('调整知识源')} width={580} onCancel={closeDialog} onOk={updateCollectionScope}>
+        <Modal
+          open
+          title={_l('调整知识源')}
+          width={580}
+          mask={{ closable: true }}
+          keyboard
+          onCancel={closeDialog}
+          onOk={updateCollectionScope}
+        >
           <div className="collectionScope">
             {[KNOWLEDGE_STATUS.CHUNK_SUCCESS, KNOWLEDGE_STATUS.CHUNK_FAILED].includes(knowledgeDetail.taskStatus) ? (
               _l('知识范围有调整。确认保存后将对已分块数据重新计算分块。')
@@ -728,7 +736,13 @@ const KnowledgeWorksheet = props => {
                 <div className="collectionScopeSwitch">
                   <Switch
                     checked={dialogState.isChecked}
-                    onClick={() => setDialogState(prev => ({ ...prev, isChecked: !prev.isChecked }))}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return setDialogState(prev => ({
+                        ...prev,
+                        isChecked: !prev.isChecked,
+                      }));
+                    }}
                   />
                   <span className="switchText">{_l('对已向量化的数据同时生效')}</span>
                 </div>
@@ -742,14 +756,16 @@ const KnowledgeWorksheet = props => {
               </Fragment>
             )}
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.RE_VECTORIZE && (
-        <Dialog
-          visible
-          title={<span>{_l('重新向量化入库 %0', knowledgeDetail.name)}</span>}
+        <Modal
+          open
+          title={_l('重新向量化入库 %0', knowledgeDetail.name)}
           width={580}
           okText={_l('确认')}
+          mask={{ closable: true }}
+          keyboard
           onCancel={closeDialog}
           onOk={() => {}}
         >
@@ -758,13 +774,13 @@ const KnowledgeWorksheet = props => {
               {_l('知识库当前模型 %0 已失效。确认后，系统将先删除所有内容，并使用平台默认嵌入模型 %1 重新向量化入库。')}
             </div>
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.DELETE && (
-        <Dialog
-          visible
+        <Modal
+          open
           title={
-            <span className="Red">
+            <span className="textError">
               {currentCollection.isDeleted
                 ? _l('删除知识源')
                 : _l('删除知识源 “%0”', currentCollection.worksheet?.workSheetName)}
@@ -772,33 +788,44 @@ const KnowledgeWorksheet = props => {
           }
           width={580}
           okText={_l('确认删除')}
-          buttonType="danger"
+          okButtonProps={DANGER_BUTTON_PROPS}
           okDisabled={!dialogState.isChecked}
+          mask={{ closable: true }}
+          keyboard
           onCancel={closeDialog}
           onOk={deleteWorksheet}
         >
           <div className="deleteKnowledge">
             <div className="mBottom20">{_l('删除后，工作表中所有向量化内容将被永久清空，且无法被语义检索到。')}</div>
             <Checkbox
-              text={_l('我确认删除所有向量化内容')}
-              onClick={checked => setDialogState(prev => ({ ...prev, isChecked: checked }))}
-            />
+              onChange={event => {
+                const checked = event.target.checked;
+                return setDialogState(prev => ({
+                  ...prev,
+                  isChecked: checked,
+                }));
+              }}
+            >
+              {_l('我确认删除所有向量化内容')}
+            </Checkbox>
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.CANCEL_VECTORIZE && (
-        <Dialog
-          visible
-          title={<span className="Red">{_l('取消向量化入库')}</span>}
+        <Modal
+          open
+          title={<span className="textError">{_l('取消向量化入库')}</span>}
           width={580}
-          buttonType="danger"
+          okButtonProps={DANGER_BUTTON_PROPS}
+          mask={{ closable: true }}
+          keyboard
           onCancel={closeDialog}
           onOk={cancelKnowledgeVector}
         >
           <div className="cancelVectorizeInfo">
             <div className="mBottom20">{_l('确认后，系统将删除已向量化的内容，知识库也将回退到分块完成的状态。')}</div>
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.CHECK_ERROR && <ErrorDialog visible onCancel={closeDialog} />}
       {showKnowledgeSearch && (

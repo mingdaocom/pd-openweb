@@ -1,73 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import _, { get } from 'lodash';
-import styled from 'styled-components';
-import { Input, ScrollView } from 'ming-ui';
+import { Input, Menu } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { ControlContent } from 'worksheet/components/GroupByControl';
 import { getDefaultValue } from 'worksheet/components/GroupByControl';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { renderText } from 'src/utils/control';
-import { handleRecordError } from 'src/utils/record';
-
-const MoveRecordToOtherGroupWrap = styled.div`
-  width: 360px;
-  background: var(--color-background-primary);
-  border-radius: 3px 3px 3px 3px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Header = styled.div`
-  height: 38px;
-  border-radius: 3px 3px 0 0;
-  border-bottom: 1px solid var(--color-border-primary);
-  padding: 0 12px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  .icon-search {
-    color: var(--color-text-secondary);
-    font-size: 20px;
-  }
-  input {
-    border: none !important;
-    flex: 1;
-    font-size: 13px;
-  }
-`;
-
-const Content = styled(ScrollView)`
-  padding: 5px 0;
-  flex: 1;
-  overflow-y: auto;
-  .groupItem {
-    height: 36px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    cursor: pointer;
-    overflow: hidden;
-    .cellOption {
-      margin-bottom: 0px !important;
-    }
-    .controlContent {
-      margin-right: 6px;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-    }
-    &:hover {
-      background-color: var(--color-background-hover);
-    }
-  }
-`;
-
-const Empty = styled.div`
-  line-height: 36px;
-  font-size: 13px;
-  text-align: center;
-  color: var(--color-text-secondary);
-`;
+import { renderText } from 'src/utils/domain/control/display';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { handleRecordError } from 'src/utils/services/worksheet/record';
 
 function updateRecord({ appId, viewId, worksheetId, recordId, value, control } = {}, cb = () => {}) {
   worksheetAjax
@@ -122,71 +61,66 @@ export default function MoveRecordToOtherGroup(props) {
   } = props;
   const groupEmptyName = get(view, 'advancedSetting.groupemptyname', _l('空'));
   const [keyWords, setKeyWords] = useState('');
-  const groupsForShow = useMemo(() => {
-    let result = groups
-      .map(group => ({
-        ...group,
-        ...getGroupText(groupControl, group, groupEmptyName),
+  const normalizedKeyWords = keyWords.trim();
+  const groupsForShow = groups
+    .map(group => ({
+      ...group,
+      ...getGroupText(groupControl, group, groupEmptyName),
+    }))
+    .filter(group => String(group.key) !== String(currentGroupKey))
+    .filter(group => !normalizedKeyWords || group.text.includes(normalizedKeyWords));
+  const menuItems = groupsForShow.length
+    ? groupsForShow.map(group => ({
+        key: String(group.key),
+        label: (
+          <ControlContent
+            control={{
+              ...groupControl,
+              type:
+                groupControl.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD
+                  ? groupControl.sourceControlType
+                  : groupControl.type,
+            }}
+            groupKey={group.key}
+            name={group.name}
+            groupEmptyName={groupEmptyName}
+          />
+        ),
+        onClick: () => {
+          updateRecord(
+            {
+              appId,
+              worksheetId,
+              viewId,
+              recordId,
+              control: groupControl,
+              value:
+                group.key === '-1'
+                  ? ''
+                  : getDefaultValue({ control: groupControl, groupKey: group.key, name: group.name })[
+                      groupControl.controlId
+                    ],
+            },
+            newRow => {
+              onUpdate({ ...newRow, group });
+              onClose();
+            },
+          );
+        },
       }))
-      .filter(group => String(group.key) !== String(currentGroupKey));
+    : [{ key: 'empty', label: _l('没有搜索结果'), disabled: true }];
 
-    if (keyWords.trim()) {
-      result = result.filter(group => group.text.indexOf(keyWords.trim()) > -1);
-    }
-
-    return result;
-  }, [groups.map(g => g.key).join(','), keyWords.trim()]);
   return (
-    <MoveRecordToOtherGroupWrap>
-      <Header>
-        <i className="icon icon-search" />
-        <Input value={keyWords} onChange={setKeyWords} placeholder={_l('将记录移动到...')} />
-        {!!keyWords && <i className="icon icon-cancel Hand textTertiary Font16" onClick={() => setKeyWords('')}></i>}
-      </Header>
-      <Content style={{ maxHeight: '300px' }}>
-        {!groupsForShow.length && <Empty>{_l('没有搜索结果')}</Empty>}
-        {!!groupsForShow.length &&
-          groupsForShow.map((group, i) => (
-            <div
-              className="groupItem"
-              key={i}
-              onClick={() => {
-                updateRecord(
-                  {
-                    appId,
-                    worksheetId,
-                    viewId,
-                    recordId,
-                    control: groupControl,
-                    value:
-                      group.key === '-1'
-                        ? ''
-                        : getDefaultValue({ control: groupControl, groupKey: group.key, name: group.name })[
-                            groupControl.controlId
-                          ],
-                  },
-                  newRow => {
-                    onUpdate({ ...newRow, group });
-                    onClose();
-                  },
-                );
-              }}
-            >
-              <ControlContent
-                control={{
-                  ...groupControl,
-                  type:
-                    groupControl.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD
-                      ? groupControl.sourceControlType
-                      : groupControl.type,
-                }}
-                groupKey={group.key}
-                name={group.name}
-                groupEmptyName={groupEmptyName}
-              />
-            </div>
-          ))}
-      </Content>
-    </MoveRecordToOtherGroupWrap>
+    <div className="flexColumn">
+      <Input
+        allowClear
+        variant="underlined"
+        value={keyWords}
+        prefix={<i className="icon icon-search textSecondary Font20" />}
+        onChange={event => setKeyWords(event.target.value)}
+        placeholder={_l('将记录移动到...')}
+      />
+      <Menu className="mTop10" selectable={false} items={menuItems} />
+    </div>
   );
 }

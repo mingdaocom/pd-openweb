@@ -3,10 +3,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import postAjax from 'src/api/taskCenter';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
-import { htmlDecodeReg } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { sanitizeHtml } from 'src/utils/core/sanitizeHtml';
+import { htmlDecodeReg } from 'src/utils/core/string';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './printTask.less';
 
 export default class PrintTask extends Component {
@@ -196,7 +197,7 @@ export default class PrintTask extends Component {
             </div>
             <div className="flexRow borderLine">
               <div className="printTaskLabel">{_l('任务详情：')}</div>
-              <div className="flex" dangerouslySetInnerHTML={{ __html: htmlDecodeReg(data.desc) }} />
+              <div className="flex" dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlDecodeReg(data.desc)) }} />
             </div>
 
             <div className="flexRow">

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import tagAjax from 'src/api/tag';
 import ajaxRequest from 'src/api/taskCenter';
 
@@ -51,7 +51,7 @@ const Tag = styled.div`
 `;
 
 const SelectWrap = styled(Select)`
-  .ant-select-selection-overflow {
+  .hap-select-selection-overflow {
     gap: 6px;
   }
 `;
@@ -70,6 +70,7 @@ function SelectTag(props) {
   } = props;
 
   const selectRef = useRef(null);
+  const requestPending = useRef(false);
   const [searchValue, setSearchValue] = useState(undefined);
   const [tagList, setTagList] = useState([]);
   const [value, setValue] = useState([]);
@@ -118,10 +119,15 @@ function SelectTag(props) {
   };
 
   const handleChange = (item = {}, type = 'add') => {
+    if (requestPending.current) return;
+
     const isAdd = type === 'add';
+    let request;
+
+    requestPending.current = true;
 
     if (isAdd) {
-      batchTask
+      request = batchTask
         ? tagAjax
             .addTaskTag2({
               taskIds: taskID,
@@ -138,16 +144,20 @@ function SelectTag(props) {
             ),
           );
     } else {
-      batchTask
+      request = batchTask
         ? tagAjax.removeTasksTag({ sourceIds: taskID, tagId: item.tagID }).then(() => {
             getTags();
             setValue(value.filter(l => l !== item.tagID));
           })
         : dispatch(removeTasksTag(taskID, item.tagID, () => getTags()));
     }
+
+    return Promise.resolve(request).finally(() => {
+      requestPending.current = false;
+    });
   };
 
-  const dropdownRender = () => {
+  const renderPopupContent = () => {
     if (!tagList.length && !searchValue) return null;
 
     return (
@@ -197,9 +207,13 @@ function SelectTag(props) {
       ref={selectRef}
       mode="tags"
       className=""
-      dropdownClassName={cx({ hide: !searchValue && !tagList.length })}
+      classNames={{
+        popup: {
+          root: cx({ hide: !searchValue && !tagList.length }),
+        },
+      }}
       loading={loading}
-      bordered={false}
+      variant="borderless"
       labelInValue
       placeholder={_l('+添加标签')}
       disabled={false}
@@ -211,7 +225,7 @@ function SelectTag(props) {
       tokenSeparators={[',']}
       options={[]}
       tagRender={tagRender}
-      dropdownRender={() => dropdownRender()}
+      popupRender={() => renderPopupContent()}
       onFocus={() => getTags()}
     />
   );

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   display: flex;
@@ -9,8 +9,6 @@ const Con = styled.div`
   color: var(--color-text-title);
   font-weight: bold;
   input {
-    border: none !important;
-    font-size: 16px !important;
     color: var(--color-text-title) !important;
     font-weight: bold !important;
     padding-left: 0 !important;
@@ -27,8 +25,9 @@ export default function EditableText(props) {
       {isEditing && (
         <Input
           value={value}
-          manualRef={ref}
-          onChange={setValue}
+          variant="borderless"
+          ref={ref}
+          onChange={event => setValue(event.target.value)}
           onBlur={e => {
             if (!(value || '').trim()) {
               alert(_l('字段名称不能为空'), 3);

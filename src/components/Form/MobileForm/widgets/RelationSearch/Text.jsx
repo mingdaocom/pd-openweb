@@ -2,26 +2,14 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
 
 const MobileTextWrap = styled.div`
   display: flex;
+  flex-direction: column;
 
   .customFormControlCapsuleBox {
     background: var(--color-background-secondary) !important;
-  }
-
-  .mobileRecordTextAdd {
-    width: 40px;
-    height: 40px;
-    background: var(--color-background-primary);
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    color: var(--color-text-secondary);
-    text-align: center;
-    line-height: 38px;
-    margin-left: 6px;
   }
 `;
 
@@ -30,6 +18,12 @@ export default function Texts(props) {
 
   return (
     <MobileTextWrap>
+      {!disabled && allowNewRecord && (
+        <div className="customFormControlBox customFormButton mBottom12" onClick={onAdd}>
+          <i className="icon icon-plus Font16 mRight6" />
+          <span>{entityName || _l('记录')}</span>
+        </div>
+      )}
       {!_.isEmpty(records) && (
         <div
           className={cx('customFormControlBox controlMinHeight customFormControlCapsuleBox', {
@@ -54,13 +48,6 @@ export default function Texts(props) {
             );
           })}
         </div>
-      )}
-      {!disabled && allowNewRecord && (
-        <Tooltip title={entityName ? _l('新建') + entityName : undefined}>
-          <div className="mobileRecordTextAdd" onClick={onAdd}>
-            <i className="icon icon-add"></i>
-          </div>
-        </Tooltip>
       )}
     </MobileTextWrap>
   );

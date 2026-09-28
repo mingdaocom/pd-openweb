@@ -2,38 +2,38 @@ import update from 'immutability-helper';
 import _, { find, flatten, get, includes, some, values } from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import {
-  formatFilterValues,
-  formatFilterValuesToServer,
-  handleConditionsDefault,
-  validate,
-} from 'worksheet/common/Sheet/QuickFilter/utils';
-import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { refreshBtnData } from 'src/pages/FormSet/util';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
-import { getTranslateInfo } from 'src/utils/app';
-import { getHighAuthControls } from 'src/utils/control';
-import { needHideViewFilters } from 'src/utils/filter';
-import { addBehaviorLog } from 'src/utils/project';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { getHighAuthControls } from 'src/utils/domain/control/state';
+import { isHaveCharge } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { refreshBtnData } from 'src/utils/domain/worksheet/customButton';
+import { needHideViewFilters } from 'src/utils/domain/worksheet/filter';
+import { validate } from 'src/utils/domain/worksheet/filterQuick';
+import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
+import { getHighAuthSheetSwitchPermit } from 'src/utils/domain/worksheet/helpers';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import {
   replaceAdvancedSettingTranslateInfo,
   replaceBtnsTranslateInfo,
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
-} from 'src/utils/translate';
-import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
+} from 'src/utils/services/translation/app';
+import {
+  formatFilterValues,
+  formatFilterValuesToServer,
+  handleConditionsDefault,
+} from 'src/utils/services/worksheet/quickFilter';
 import { initBoardViewData } from './boardView';
 import { refresh as calendarViewRefresh } from './calendarview';
 import { refresh as customWidgetViewRefresh } from './customWidgetView';
 import { refresh as detailViewRefresh } from './detailView';
 import { refresh as galleryViewRefresh } from './galleryview';
-import { addNewRecord as addGunterNewRecord, resetLoadGunterView } from './gunterview';
-import { updateGunterSearchRecord } from './gunterview';
+import { addNewRecord as addGunterNewRecord, resetLoadGunterView, updateGunterSearchRecord } from './gunterview';
 import { getDefaultHierarchyData, resetHierarchyViewData, updateHierarchySearchRecord } from './hierarchy';
 import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
 import { getNavGroupCount, updateNavGroup } from './navFilter.js';
@@ -44,7 +44,6 @@ import {
   addRecord as sheetViewAddRecord,
   refresh as sheetViewRefresh,
 } from './sheetview';
-import { isHaveCharge } from './util';
 
 export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
   return (dispatch, getState) => {
@@ -169,6 +168,7 @@ export const updateBase = base => {
 
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
+      resetNavGroupFilters: viewChanged,
       base: Object.assign({}, base, {
         chartId: base.chartId || undefined,
       }),
@@ -234,7 +234,7 @@ export function loadWorksheet(worksheetId, setRequest) {
       getSwitchPermit: true,
     };
 
-    worksheetRequest = worksheetAjax.getWorksheetBaseInfo(args);
+    worksheetRequest = worksheetAjax.getWorksheetById(args);
     if (_.isFunction(setRequest)) {
       setRequest(worksheetRequest);
     }
@@ -329,15 +329,11 @@ export function loadWorksheet(worksheetId, setRequest) {
           const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));
           infoRes.entityName = translateInfo.recordName || infoRes.entityName;
           if (infoRes.advancedSetting) {
-            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(
-              appId,
-              worksheetId,
-              res.advancedSetting || {},
-            );
+            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(appId, worksheetId, infoRes.advancedSetting);
           }
 
           if (infoRes.rules && infoRes.rules.length) {
-            infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, res.rules);
+            infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, infoRes.rules);
           }
 
           if (infoRes.views) {
@@ -593,8 +589,8 @@ export function saveView(viewId, newConfig, cb) {
 
         dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       })
-      .catch(() => {
-        alert(_l('视图配置保存失败'), 3);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('视图配置保存失败'), 3);
         dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       });
   };
@@ -672,7 +668,7 @@ export function addNewRecord(data, view) {
 }
 
 // 打开创建记录弹层
-export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
+export function openNewRecord({ isDraft, allowShowMingoCreate, openAddRecord } = {}) {
   return (dispatch, getState) => {
     const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, appPkgData } = getState().sheet;
     const { appId, viewId, groupId, worksheetId } = base;
@@ -708,7 +704,7 @@ export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
         worksheetInfo.rules = [];
       }
 
-      return addRecord({
+      return openAddRecord({
         ...param,
         showFillNext: true,
         allowShowMingoCreate,

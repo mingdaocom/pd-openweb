@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import organizeAjax from 'src/api/organize.js';
-import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
+import { useUserBoardDialog } from 'src/pages/Admin/components/userBoardDialog';
 import PaginationWrap from '../../../components/PaginationWrap';
 import * as actions from '../../../redux/roleManage/action';
 import RoleUserList from './RoleUserList';
@@ -77,7 +78,7 @@ class RoleManageContent extends Component {
     const { projectId, selectUserIds = [] } = this.props;
     if (_.isEmpty(selectUserIds)) return;
 
-    dialogUserBoard({
+    this.props.openUserBoardDialog({
       projectId,
       accountIds: selectUserIds,
       updateSelectUserIds: () => {
@@ -93,6 +94,7 @@ class RoleManageContent extends Component {
   };
   render() {
     const { currentRole, allUserCount, userPageIndex, userLoading, selectUserIds, userList, projectId } = this.props;
+    const isActionDisabled = _.isEmpty(selectUserIds);
     return (
       <Fragment>
         <div className="roleContentHeader Font17">
@@ -100,15 +102,15 @@ class RoleManageContent extends Component {
           {allUserCount ? <span className="textTertiary mLeft10">{allUserCount}</span> : ''}
         </div>
         <div className="actUserBox">
-          <div className="actBtn addUser Hand" onClick={this.addUser}>
+          <Button type="primary" className="mRight8" onClick={this.addUser}>
             {_l('添加成员')}
-          </div>
-          <div className={cx('actBtn', { disabledBtn: _.isEmpty(selectUserIds) })} onClick={this.removeUsers}>
+          </Button>
+          <Button className="mRight8" disabled={isActionDisabled} onClick={this.removeUsers}>
             {_l('移出')}
-          </div>
-          <div className={cx('actBtn', { disabledBtn: _.isEmpty(selectUserIds) })} onClick={this.handleExportUser}>
+          </Button>
+          <Button className="mRight8" disabled={isActionDisabled} onClick={this.handleExportUser}>
             {_l('导出')}
-          </div>
+          </Button>
         </div>
         <div className="userList">
           {userLoading ? (
@@ -137,12 +139,20 @@ class RoleManageContent extends Component {
   }
 }
 
-export default connect(
-  state => {
-    const { currentRole, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId } =
-      state.orgManagePage.roleManage;
-    return { currentRole, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId };
+export default withOpeners(
+  connect(
+    state => {
+      const { currentRole, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId } =
+        state.orgManagePage.roleManage;
+      return { currentRole, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId };
+    },
+    dispatch =>
+      bindActionCreators(
+        { ..._.pick(actions, ['getUserList', 'updateUserPageIndex', 'updateSelectUserIds']) },
+        dispatch,
+      ),
+  )(RoleManageContent),
+  {
+    openUserBoardDialog: useUserBoardDialog,
   },
-  dispatch =>
-    bindActionCreators({ ..._.pick(actions, ['getUserList', 'updateUserPageIndex', 'updateSelectUserIds']) }, dispatch),
-)(RoleManageContent);
+);

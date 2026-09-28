@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { MIGRATE_CODE } from '../config';
 
@@ -32,15 +32,13 @@ function ConfirmMoveDialog(props) {
   };
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
       width={460}
       title={
-        <span>
-          {type === 'move'
-            ? _l('将应用迁移到数据库：%0', dataBaseInfo.name)
-            : _l('将应用从数据库 "%0" 中移出', dataBaseInfo.name)}
-        </span>
+        type === 'move'
+          ? _l('将应用迁移到数据库：%0', dataBaseInfo.name)
+          : _l('将应用从数据库 "%0" 中移出', dataBaseInfo.name)
       }
       okDisabled={(name || '').trim() !== appInfo.appName}
       onOk={handleOk}
@@ -58,9 +56,9 @@ function ConfirmMoveDialog(props) {
           <div>{_l('应用迁移不允许频繁操作，每天只能移动一次')}</div>
         </div>
         <div className="Font13 mBottom8 textSecondary">{_l('请输入应用名称，表示您确认迁移此应用')}</div>
-        <Input autoFocus className="w100" value={name} onChange={value => setName(value)} />
+        <Input autoFocus className="w100" value={name} onChange={e => setName(e.target.value)} />
       </Content>
-    </Dialog>
+    </Modal>
   );
 }
 

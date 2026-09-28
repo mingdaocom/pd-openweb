@@ -3,12 +3,18 @@ import { Route, Switch } from 'react-router-dom';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { getMyPermissions } from 'src/components/checkPermission';
-import { hasPermission } from 'src/components/checkPermission';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { addSubPathOfRoute, emitter, getRequest } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { addSubPathOfRoute } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
+import {
+  FEATURE_PERMISSION,
+  getMyPermissions,
+  hasFeaturePermission,
+  hasPermission,
+} from 'src/utils/services/security/permission';
 import { PLUGIN_TYPE } from './config';
 import PluginComponent from './pluginComponent';
 import SideNav from './SideNav';
@@ -65,10 +71,8 @@ export default class PluginContainer extends React.Component {
       myPermissions,
     };
     const hasPluginAuth =
-      _.get(
-        _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
-        'allowPlugin',
-      ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
+      hasFeaturePermission(currentProjectId, FEATURE_PERMISSION.PLUGIN) ||
+      hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_PLUGINS);
 
     if (!hasPluginAuth) {
       return upgradeVersionDialog({

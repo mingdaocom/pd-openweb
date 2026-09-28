@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import homeApp from 'src/api/homeApp';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { hasPermission } from 'src/utils/services/security/permission';
 
 const Title = styled.span`
   display: inline-block;
@@ -46,10 +46,14 @@ export default class CopyApp extends Component {
           alert(_l('复制成功'));
           onCopy && onCopy({ appId: result });
         } else {
-          Dialog.confirm({
+          Modal.confirm({
             title: _l('复制失败'),
-            removeCancelBtn: true,
-            description: (
+            cancelButtonProps: {
+              style: {
+                display: 'none',
+              },
+            },
+            content: (
               <Fragment>
                 <div className="textSecondary mBottom15">{_l('以下工作表存在错误配置：')}</div>
                 {result.worksheetNames.map((item, i) => {
@@ -74,7 +78,7 @@ export default class CopyApp extends Component {
 
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+      (!window.platformENV.isPlatform || window.platformENV.isHap);
     const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     if (hasDataBase && hasAppResourceAuth) {
@@ -106,8 +110,10 @@ export default class CopyApp extends Component {
     const { pending, visible, DBInstancesDialog, dataDBInstances } = this.state;
     return (
       <Fragment>
-        <Dialog
-          visible={visible}
+        <Modal
+          open={visible}
+          mask={{ closable: true }}
+          keyboard
           title={<Title className="overflow_ellipsis">{_l('复制应用 “%0”', title)}</Title>}
           okText={pending ? _l('复制中...') : _l('复制')}
           onOk={this.handleCopy}
@@ -116,7 +122,7 @@ export default class CopyApp extends Component {
           <div className="textSecondary">
             {_l('将复制目标应用的应用结构、流程和角色。应用下的数据和成员不会被复制')}
           </div>
-        </Dialog>
+        </Modal>
         <SelectDBInstance
           visible={DBInstancesDialog}
           options={dataDBInstances}

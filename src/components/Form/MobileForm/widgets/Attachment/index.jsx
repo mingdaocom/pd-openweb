@@ -8,15 +8,16 @@ import attachmentApi from 'src/api/attachment';
 import worksheetApi from 'src/api/worksheet';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils';
-import { getRowGetType } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { compatibleMDJS } from 'src/utils/project';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { getRowGetType } from 'src/utils/services/worksheet/access';
 import Files from '../../../components/Files';
-import { permitList } from '../../../core/enum';
+import { shouldLoadAttachmentDetails } from '../../../components/Files/utils';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
 import { getCurrentPos } from '../../../core/mapUtils';
-import { isOpenPermit } from '../../tools/utils';
 import './index.less';
 
 export default class Widgets extends Component {
@@ -49,7 +50,7 @@ export default class Widgets extends Component {
     const showtype = _.get(props, 'advancedSetting.showtype') || '1';
     this.state = {
       value: props.value,
-      loading: this.checkFileNeedLoad(props.value),
+      loading: shouldLoadAttachmentDetails(props.value),
       isComplete: null,
       uploadStart: false,
       downloadAllLoading: false,
@@ -89,7 +90,7 @@ export default class Widgets extends Component {
       }
 
       if (this.props.value !== prevProps.value) {
-        if (this.checkFileNeedLoad(this.props.value)) {
+        if (shouldLoadAttachmentDetails(this.props.value)) {
           this.loadAttachments(this.props);
         } else {
           this.setState({
@@ -102,26 +103,6 @@ export default class Widgets extends Component {
 
   componentWillUnmount() {
     this._isUnmounted = true;
-  }
-
-  checkFileNeedLoad(value) {
-    if (!value) {
-      return false;
-    }
-
-    try {
-      const file = JSON.parse(value)[0];
-
-      if (!file) {
-        return false;
-      } else {
-        return file.fileId && !file.updateTime && !file.createUserName;
-      }
-    } catch (err) {
-      console.log(err);
-    }
-
-    return false;
   }
 
   loadAttachments(props) {
@@ -200,11 +181,13 @@ export default class Widgets extends Component {
       });
     }
 
-    this.props.onChange(
+    const nextValue =
       newValue.attachments.length + newValue.knowledgeAtts.length + newValue.attachmentData.length === 0
         ? ''
-        : JSON.stringify(newValue),
-    );
+        : JSON.stringify(newValue);
+
+    this.setState({ value: nextValue });
+    this.props.onChange(nextValue);
   };
 
   filesChangedAll = files => {
@@ -215,11 +198,13 @@ export default class Widgets extends Component {
     newValue.knowledgeAtts = knowledgeAtts;
     newValue.attachmentData = attachmentData;
 
-    this.props.onChange(
+    const nextValue =
       newValue.attachments.length + newValue.knowledgeAtts.length + newValue.attachmentData.length === 0
         ? ''
-        : JSON.stringify(newValue),
-    );
+        : JSON.stringify(newValue);
+
+    this.setState({ value: nextValue });
+    this.props.onChange(nextValue);
   };
 
   checkValueByFilterRegex = name => {

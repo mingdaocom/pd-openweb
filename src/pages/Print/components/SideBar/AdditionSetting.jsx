@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { POSITION_OPTION } from '../../core/config';
 
@@ -41,8 +41,8 @@ const AdditionSettingConfig = [
 ];
 
 const QrCodeOption = [
-  { text: _l('公开分享链接'), value: 0 },
-  { text: _l('内部成员访问链接'), value: 1 },
+  { label: _l('公开分享链接'), value: 0 },
+  { label: _l('内部成员访问链接'), value: 1 },
 ];
 
 export default function AdditionSetting(props) {
@@ -84,13 +84,14 @@ export default function AdditionSetting(props) {
         <Checkbox
           checked={printData.formNameChecked}
           className="flex"
-          onClick={() =>
+          onChange={() =>
             handChange({
               formNameChecked: !printData.formNameChecked,
             })
           }
-          text={_l('表单标题')}
-        />
+        >
+          {_l('表单标题')}
+        </Checkbox>
         <span className="textTertiary">{_l('位置')}</span>
         <div className="forSizeBox mLeft12 namePositionBox">
           {POSITION_OPTION.map(item => (
@@ -124,23 +125,25 @@ export default function AdditionSetting(props) {
             <Checkbox
               checked={printData[l.key]}
               className={cx({ flex: isSysTime })}
-              onClick={() =>
+              onChange={() =>
                 handChange({
                   [l.key]: !printData[l.key],
                 })
               }
-              text={l.text}
-            />
+            >
+              {l.text}
+            </Checkbox>
             {l.key === 'qrCode' && printData.qrCode && (
-              <Dropdown
+              <Select
                 className="forSizeText forQrCode"
+                variant="borderless"
                 value={shareType}
                 onChange={value =>
                   handChange({
                     shareType: value,
                   })
                 }
-                data={QrCodeOption.filter(
+                options={QrCodeOption.filter(
                   o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 1),
                 )} //外部门户没有内部成员访问链接
               />

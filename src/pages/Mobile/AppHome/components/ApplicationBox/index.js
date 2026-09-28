@@ -2,9 +2,12 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, SvgIcon } from 'ming-ui';
-import { generateRandomPassword, pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import showAddAppActionSheet from '../AddAppActionSheet';
 import ApplicationItem from '../ApplicationItem';
 import './index.less';
@@ -36,7 +39,8 @@ export default class ApplicationList extends Component {
 
   renderErr() {
     const isApp = window.isWxWork || window.isWeLink || window.isDingTalk;
-    const cannotCreateApp = isApp ? _.get(md.global.Account.projects[0], ['cannotCreateApp']) : true;
+    const projectId = _.get(md.global.Account.projects[0], 'projectId');
+    const canCreateApp = isApp ? hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP) : true;
     const { externalApps } = this.props.myAppData || {};
 
     const projects = _.get(md, ['global', 'Account', 'projects']);
@@ -89,12 +93,12 @@ export default class ApplicationList extends Component {
     return (
       <div className="flexColumn flex valignWrapper justifyContentCenter">
         <p className="textSecondary mTop25 TxtCenter textPrimary Font17 errPageCon">
-          {cannotCreateApp
+          {canCreateApp
             ? _l('暂无任何应用，请选择从应用库添加应用开始使用')
             : _l('您暂无权限添加应用，请联系管理员进行添加使用')}
         </p>
-        {cannotCreateApp && (
-          <Button className="addApp bold Font17" onClick={this.showActionSheet}>
+        {canCreateApp && (
+          <Button type="primary" shape="round" className="mTop10 bold Font17" onClick={this.showActionSheet}>
             {_l('添加应用')}
           </Button>
         )}
@@ -207,9 +211,7 @@ export default class ApplicationList extends Component {
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
     const distance = ((this.state.width - 12) / 4 - 56) / 2;
-    const canCreateApp =
-      projectId !== 'external' &&
-      !(_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp;
+    const canCreateApp = projectId !== 'external' && hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP);
 
     // 无网络 &&（ 无任何应用 || 有外协）
     if (

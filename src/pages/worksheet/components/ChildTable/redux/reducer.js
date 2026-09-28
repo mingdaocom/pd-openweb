@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import _, { includes, uniq } from 'lodash';
 import { handleTreeNodeRow, treeTableViewData } from 'worksheet/common/TreeTableHelper/index.js';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 function dataLoading(state = true, action) {
   switch (action.type) {
@@ -60,12 +60,26 @@ const DIRTY_MARKING_ACTIONS = [
   'UPDATE_ROWS',
   'DELETE_ROW',
   'DELETE_ROWS',
+  'MOVE_ROW',
   'CLEAR_AND_SET_ROWS',
 ];
 
 function changes(state = {}, action) {
+  // 静默拖拽排序（查看态直接走接口持久化）不标脏，避免记录被误判为有未保存变更
+  if (action.type === 'MOVE_ROW' && action.silent) {
+    return state;
+  }
+
   if (_.includes(DIRTY_MARKING_ACTIONS, action.type)) {
-    return { ...state, isDirty: true };
+    const next = { ...state, isDirty: true };
+
+    // 插入行（指定位置新增）与拖拽排序会改变记录顺序，标记后由保存流程附带完整排序 controlItems，
+    // 否则差量保存只提交新增值、顺序会丢（新增行被追加到末尾）
+    if ((action.type === 'ADD_ROW' && action.insertRowId) || action.type === 'MOVE_ROW') {
+      next.orderChanged = true;
+    }
+
+    return next;
   }
 
   switch (action.type) {
@@ -140,6 +154,7 @@ const ROWS_HANDLED_ACTIONS = [
   'UPDATE_ROWS',
   'DELETE_ROW',
   'DELETE_ROWS',
+  'MOVE_ROW',
   'UPDATE_STATE',
 ];
 
@@ -203,6 +218,33 @@ function rows(state = [], action) {
           : row,
       );
       break;
+    case 'MOVE_ROW': {
+      // 拖拽排序：按 rowid 在真实行序列中重排（先存本地，走子表保存流程提交新顺序）
+      const fromIndex = _.findIndex(newState, r => r.rowid === action.fromRowId);
+      const toIndex = _.findIndex(newState, r => r.rowid === action.toRowId);
+
+      if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+        break;
+      }
+
+      const [movedRow] = newState.splice(fromIndex, 1);
+      let targetIndex = _.findIndex(newState, r => r.rowid === action.toRowId);
+
+      if (action.position === 'after') {
+        targetIndex += 1;
+      }
+
+      newState.splice(targetIndex, 0, movedRow);
+      // 把新顺序同步到 addTime（子表默认顺序字段）：否则拖拽只改数组、addTime 仍是旧值/新建行的时间戳，
+      // 一旦发生按 addTime 的重排（关字段排序 / 树形 / 新建记录）会被打回原序。addTime 不提交给后端，
+      // 仅作前端默认排序键，故按数组顺序整体重编号即可（含新建记录，让其排序同样稳定）。
+      let seq = 0;
+      newState = newState.map(r =>
+        r.rowid && _.isFunction(r.rowid.startsWith) && r.rowid.startsWith('empty') ? r : { ...r, addTime: seq++ },
+      );
+      break;
+    }
+
     case 'DELETE_ROW':
       newState = newState.filter(row => row.rowid !== action.rowid).map(row => handleTreeNodeRow(row, action.rowid));
       break;

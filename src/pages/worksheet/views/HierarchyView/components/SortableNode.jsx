@@ -6,10 +6,12 @@ import { func, number, string } from 'prop-types';
 import SVG from 'svg.js';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
-import { handleRecordClick } from 'src/utils/record';
-import { getCardWidth } from 'src/utils/worksheet';
+import { getCardWidth } from 'worksheet/common/ViewConfig/getCardWidth';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { getPosition, getRelateSheetId } from '../util';
 import DraggableRecord from './DraggableRecord';
 

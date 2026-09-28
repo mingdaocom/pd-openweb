@@ -1,12 +1,21 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, QiniuUpload } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { formatResponseData } from 'src/components/UploadFiles/utils.js';
-import { pathCompletion } from 'src/utils/common';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
+
+const OCR_BUTTON_STYLES = { root: { maxWidth: 320 } };
+const getOcrTypes = () => [
+  {},
+  { text: _l('文字识别'), icon: 'ocr' },
+  { text: _l('身份证识别'), icon: 'ocr_id_card' },
+  { text: _l('增值税发票识别'), icon: 'ocr_invoice' },
+];
 
 const OCR = props => {
   const {
@@ -23,16 +32,8 @@ const OCR = props => {
     recordId,
   } = props;
   const [isUploading, setIsUploading] = useState(false);
-  const [width, setWidth] = useState(0);
-  const fileRef = useRef(null);
   const postListRef = useRef(null);
   const cacheFileRef = useRef([]);
-
-  useEffect(() => {
-    if (fileRef.current && fileRef.current.upload) {
-      setWidth(fileRef.current.upload.offsetWidth);
-    }
-  }, []);
 
   const handleClear = up => {
     setIsUploading(false);
@@ -262,31 +263,9 @@ const OCR = props => {
     });
   };
 
-  const renderContent = () => {
-    const TYPES = [
-      {},
-      { text: _l('文字识别'), icon: 'ocr' },
-      { text: _l('身份证识别'), icon: 'ocr_id_card' },
-      { text: _l('增值税发票识别'), icon: 'ocr_invoice' },
-    ];
-
-    return (
-      <Fragment>
-        {isUploading ? (
-          <span style={{ width: width - 50, textAlign: 'center' }}>
-            <Icon icon="loading_button" className="Font16 customOCRLoading" />
-          </span>
-        ) : (
-          <Fragment>
-            <Icon icon={TYPES[enumDefault].icon} className="Font20 mRight5 textTertiary" />
-            <span className="overflow_ellipsis Bold">
-              {advancedSetting.ocrapitype === '1' ? hint || _l('识别文字') : hint || TYPES[enumDefault].text}
-            </span>
-          </Fragment>
-        )}
-      </Fragment>
-    );
-  };
+  const types = getOcrTypes();
+  const buttonText = advancedSetting.ocrapitype === '1' ? hint || _l('识别文字') : hint || types[enumDefault].text;
+  const buttonIcon = <Icon icon={types[enumDefault].icon} className="Font20" />;
 
   const requestMap = safeParse(advancedSetting.requestmap || '[]');
 
@@ -299,22 +278,26 @@ const OCR = props => {
     )
   ) {
     return (
-      <div
-        className="customFormControlBox customFormControlOCR"
+      <Button
+        color="default"
+        variant="textBordered"
+        block
+        loading={isUploading}
+        styles={OCR_BUTTON_STYLES}
+        icon={buttonIcon}
         onClick={() => {
           setIsUploading(true);
           handleSearch();
         }}
       >
-        {renderContent()}
-      </div>
+        <span className="overflow_ellipsis Bold">{buttonText}</span>
+      </Button>
     );
   }
 
   return (
     <QiniuUpload
-      className="customFormControlBox customFormControlOCR"
-      ref={fileRef}
+      className="w100"
       getTokenParam={{ worksheetId }}
       options={{
         ...(advancedSetting.ocrmaptype === '2'
@@ -347,7 +330,16 @@ const OCR = props => {
         handleClear(up);
       }}
     >
-      {renderContent()}
+      <Button
+        color="default"
+        variant="textBordered"
+        block
+        loading={isUploading}
+        styles={OCR_BUTTON_STYLES}
+        icon={buttonIcon}
+      >
+        <span className="overflow_ellipsis Bold">{buttonText}</span>
+      </Button>
     </QiniuUpload>
   );
 };

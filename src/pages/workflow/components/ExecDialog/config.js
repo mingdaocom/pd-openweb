@@ -38,11 +38,13 @@ export const ACTION_LIST = {
 };
 
 export const OPERATION_LIST = {
+  11: { id: 'addCC', text: _l('抄送'), icon: 'send' },
   12: { id: 'print', text: _l('打印'), icon: 'print' },
   16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add' },
 };
 
 export const MOBILE_OPERATION_LIST = {
+  11: { id: 'addCC', text: _l('抄送'), icon: 'send' },
   6: { id: 'transferApprove', text: _l('转审'), icon: 'swap_horiz' },
   7: { id: 'sign', text: _l('加签'), icon: 'countersign' },
   10: { id: 'transfer', text: _l('转交'), icon: 'sp_post_exchange_white' },
@@ -72,6 +74,9 @@ export const ACTION_TO_TEXT = {
   addApprove: {
     headerText: _l('添加审批人'),
     placeholder: _l('填写加人备注'),
+  },
+  addCC: {
+    headerText: _l('抄送'),
   },
   pass: {
     headerText: _l('审批处理：'),

@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
 import { checkConditionsIsNull, getIcons } from '../../utils';
@@ -87,7 +88,19 @@ export default class FindSystem extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { appId, appType, name, actionId, selectNodeId, fields, conditions, executeType, random, relation } = data;
+    const {
+      appId,
+      appType,
+      name,
+      actionId,
+      selectNodeId,
+      fields,
+      conditions,
+      executeType,
+      random,
+      relation,
+      needTpUserId,
+    } = data;
 
     if (checkConditionsIsNull(conditions)) {
       alert(_l('筛选条件的判断值不能为空'), 2);
@@ -123,6 +136,7 @@ export default class FindSystem extends Component {
         executeType,
         random,
         relation,
+        needTpUserId,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -311,27 +325,50 @@ export default class FindSystem extends Component {
           <div className="mTop20">
             <Checkbox
               className="InlineFlex"
-              text={_l('在筛选条件的基础上，随机获取一个')}
               checked={data.random}
-              onClick={checked => this.updateSource({ random: !checked })}
-            />
+              onChange={event =>
+                this.updateSource({
+                  random: event.target.checked,
+                })
+              }
+            >
+              {_l('在筛选条件的基础上，随机获取一个')}
+            </Checkbox>
           </div>
         )}
 
         {data.appType === APP_TYPE.USER && (
           <Fragment>
-            <div className="mTop20 bold">{_l('获取汇报关系')}</div>
+            <div className="mTop20 bold">{_l('获取更多信息')}</div>
             <div className="mTop15" style={{ height: 23 }}>
               <Checkbox
                 className="InlineFlex"
-                text={_l('同时获取人员的汇报关系信息')}
                 checked={data.relation}
-                onClick={checked => this.updateSource({ relation: !checked })}
-              />
+                onChange={event =>
+                  this.updateSource({
+                    relation: event.target.checked,
+                  })
+                }
+              >
+                {_l('获取人员的汇报关系信息')}
+              </Checkbox>
+            </div>
+            <div className="mLeft25 textSecondary">
+              {_l('包含人员的直属上司、直接下属、所有下属；无需汇报关系时建议取消勾选，提升查询效率')}
+            </div>
+
+            <div className="mTop15" style={{ height: 23 }}>
+              <Checkbox
+                className="InlineFlex"
+                checked={!!data.needTpUserId}
+                onChange={e => this.updateSource({ needTpUserId: e.target.checked })}
+              >
+                {_l('获取第三方企业身份 ID')}
+              </Checkbox>
             </div>
             <div className="mLeft25 textSecondary">
               {_l(
-                '包含人员的直属上司、直接下属、所有下属；如果您的使用场景无需汇报关系相关信息，推荐不勾选以提升您的查询效率',
+                '获取当前组织已集成的第三方用户 ID（企业微信/钉钉/飞书/Lark/Miacrosoft Entra）；无需第三方用户 ID时建议取消勾选，提升查询效率',
               )}
             </div>
           </Fragment>

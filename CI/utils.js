@@ -85,7 +85,13 @@ const webpackCompile = (err, stats) => {
 
   console.log('[webpack]', output);
 
-  const json = stats.toJson();
+  const json = stats.toJson({
+    all: false,
+    errors: true,
+    warnings: true,
+    assets: true,
+    children: true,
+  });
 
   if (json.warnings && json.warnings.length) {
     console.log(chalk.yellow(json.warnings.join('\n')));
@@ -134,7 +140,7 @@ const webpackTaskFactory = (webpackConfigArg, isWatch) => {
     const compile = (err, stats) => {
       try {
         webpackCompile(err, stats);
-        if (isProduction && stats.toJson().errors.length) {
+        if (isProduction && stats.hasErrors()) {
           finish(new Error('Webpack compilation failed'));
           return;
         }

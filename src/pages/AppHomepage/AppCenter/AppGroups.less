@@ -2,7 +2,6 @@
 @addItemColor: var(--color-text-tertiary);
 @addItemHoverColor: var(--color-info);
 @appItemHoverColor: var(--color-background-hover);
-@delColor: var(--color-error);
 
 .myAppGroupWrap {
   display: flex;
@@ -84,9 +83,6 @@
     display: flex;
     flex-wrap: wrap;
     margin-top: 12px;
-  }
-  .delApp {
-    color: @delColor !important;
   }
   .sortableMyAppItemWrap {
     position: relative;
@@ -244,31 +240,6 @@
     text-align: center;
   }
 }
-.addAppItemMenu {
-  position: unset !important;
-  &.ming.Menu {
-    width: 240px;
-  }
-  .ming.MenuItem {
-    font-size: 14px;
-    .Item-content {
-      .Icon {
-        left: 12px;
-      }
-    }
-  }
-  &.ming.List--withIconFront .Item .Item-content {
-    padding-left: 40px;
-  }
-  .addItemIcon {
-    color: var(--color-text-tertiary);
-  }
-  .divider {
-    border: 1px solid var(--color-border-primary);
-    border-top: none;
-    margin: 5px 0;
-  }
-}
 .sortableItemHelperClass {
   background: transparent !important;
   .myAppItemWrap {
@@ -290,15 +261,4 @@
 .myAppScrollContent {
   box-sizing: border-box;
   padding: 0 8%;
-}
-
-.myAppItemOperatorTriggerWrap {
-  li {
-    &.delApp .Item-content:not(.disabled) {
-      color: @delColor;
-      .icon {
-        color: @delColor;
-      }
-    }
-  }
 }

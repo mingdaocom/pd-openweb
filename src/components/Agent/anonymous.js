@@ -1,5 +1,8 @@
 // 官网免登录漏斗（详见《官网免登录生成应用-前端对接完整文档》§1-§8）：
 // 匿名版 agent 只能由前端显式点名直达，登录后续建换产品版。
+import { v4 as uuidv4 } from 'uuid';
+import { isRecord, readField, stringValue } from './valueUtils';
+
 export const ANON_AGENT = 'app-plan-builder-public'; // §1 匿名版：官网免登录生成 plan
 export const PROD_AGENT = 'app-plan-builder'; // §1 产品版：登录后在已有 plan 上续聊/续建
 
@@ -16,26 +19,6 @@ const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'heic', 'h
 const UPLOAD_TOKEN_VALIDATION_CODES = ['type_not_supported', 'media_type_not_supported', 'size_out_of_range'];
 
 let captchaLoaderPromise;
-
-function isRecord(value) {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
-
-function readField(source, key) {
-  if (!isRecord(source)) return undefined;
-  if (key in source) return source[key];
-  const target = key.toLowerCase();
-
-  for (const [k, v] of Object.entries(source)) {
-    if (k.toLowerCase() === target) return v;
-  }
-
-  return undefined;
-}
-
-function stringValue(value) {
-  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
 
 function agentRequest(args, options) {
   return window.agentAPI(args, {
@@ -394,9 +377,10 @@ function decodeHtmlEntities(str) {
 }
 
 // —— 官网输入框 → HAP 页面 交接（一次性 handoff）——
-// 默认以 sessionId_<随机串> 为 key 存入 webCache；已登录直进 /mingo/chat 时可指定 key=sessionId。
+// 默认以 uuid 为 key 存入 webCache；已登录直进 /mingo/chat 时可指定 key=sessionId。
+// WebCache 交接类模块要求 key 匹配 ^[A-Za-z0-9_-]{16,256}$，uuid 同时满足长度和字符集。
 export async function setAnonHandoff(data, options = {}) {
-  const key = options.key || (data.sessionId || '') + '_' + Math.random().toString(36).substring(2);
+  const key = options.key || uuidv4();
 
   await webCacheRequest('Add', { key, value: JSON.stringify(data) });
   return key;

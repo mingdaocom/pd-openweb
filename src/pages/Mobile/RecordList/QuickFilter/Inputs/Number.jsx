@@ -1,14 +1,12 @@
 import React from 'react';
 import { func, number, string } from 'prop-types';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
-import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Input } from 'ming-ui/antd-components';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
-const InputCon = styled(Input)`
+const InputCon = styled(Input).attrs({ variant: 'filled' })`
   width: 100%;
-  border: none !important;
-  background-color: var(--color-background-secondary) !important;
 `;
 
 export default function Number(props) {
@@ -24,8 +22,8 @@ export default function Number(props) {
                 className="centerAlign"
                 placeholder={_l('最小值')}
                 value={minValue}
-                valueFilter={formatNumberFromInput}
-                onChange={newValue => {
+                onChange={event => {
+                  const newValue = formatNumberFromInput(event.target.value);
                   onChange({ minValue: newValue.trim(), filterType: FILTER_CONDITION_TYPE.BETWEEN });
                 }}
               />
@@ -36,8 +34,8 @@ export default function Number(props) {
                 className="centerAlign"
                 placeholder={_l('最大值')}
                 value={maxValue}
-                valueFilter={formatNumberFromInput}
-                onChange={newValue => {
+                onChange={event => {
+                  const newValue = formatNumberFromInput(event.target.value);
                   onChange({ maxValue: newValue.trim(), filterType: FILTER_CONDITION_TYPE.BETWEEN });
                 }}
               />
@@ -47,8 +45,8 @@ export default function Number(props) {
           <InputCon
             placeholder={_l('请输入')}
             value={value}
-            valueFilter={formatNumberFromInput}
-            onChange={newValue => {
+            onChange={event => {
+              const newValue = formatNumberFromInput(event.target.value);
               onChange({ value: newValue.trim(), filterType: FILTER_CONDITION_TYPE.EQ });
             }}
           />

@@ -2,7 +2,7 @@ import React, { forwardRef, Suspense, useCallback, useEffect, useImperativeHandl
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { fetchDefaultApps, readAppCache, searchApps, writeAppCache } from '../../appSource';
 import AppMentionPopup from './AppMentionPopup';
 
@@ -97,6 +97,7 @@ function createMentionNode(app) {
   span.setAttribute('contenteditable', 'false');
   span.dataset.appId = app.id;
   span.dataset.appName = app.name;
+  if (app.projectId) span.dataset.projectId = app.projectId;
   // @应用名称用应用自身主题色，缺省回退到 CSS 里的 mingo 色
   if (app.iconColor) {
     span.dataset.appColor = app.iconColor;
@@ -105,6 +106,10 @@ function createMentionNode(app) {
 
   span.textContent = '@' + app.name;
   return span;
+}
+
+export function clearEmptyEditor(root) {
+  if (root && !root.textContent.trim()) root.innerHTML = '';
 }
 
 export function applySelectionRange(range) {
@@ -116,6 +121,16 @@ export function applySelectionRange(range) {
   sel.addRange(range);
 }
 
+function focusContentEditableEnd(root) {
+  if (!root) return;
+
+  root.focus();
+  const range = document.createRange();
+  range.selectNodeContents(root);
+  range.collapse(false);
+  applySelectionRange(range);
+}
+
 function MentionInput(
   {
     projectId,
@@ -123,6 +138,7 @@ function MentionInput(
     disabled = false,
     autoFocus = false,
     enableMention = true,
+    submitOnEnter = true,
     // embedded：嵌入 PromptInput 等外壳时去掉自带边框/背景，由外壳负责
     embedded = false,
     // 透传给编辑器 DOM 的 id（附件上传用作拖拽落点 dropElementId）
@@ -130,6 +146,7 @@ function MentionInput(
     onChange,
     onSubmit,
     onFocusChange,
+    onSelectApp,
   },
   ref,
 ) {
@@ -168,7 +185,7 @@ function MentionInput(
       if (node.classList && node.classList.contains('appMention')) {
         const name = node.dataset.appName || '';
         text += '@' + name;
-        mentions.push({ type: 'app', id: node.dataset.appId, name });
+        mentions.push({ type: 'app', id: node.dataset.appId, name, projectId: node.dataset.projectId || undefined });
       } else if (node.tagName === 'BR') {
         text += '\n';
       } else {
@@ -231,36 +248,6 @@ function MentionInput(
     return { node, atIndex: m.index, caretOffset: range.startOffset, query: m[1] };
   }, []);
 
-  // 输入 / 光标变化后：上报内容 + 更新 @ 浮层状态
-  const syncMentionState = useCallback(() => {
-    if (!enableMention) {
-      closePopup();
-      return;
-    }
-
-    if (isComposingRef.current) return;
-    const ctx = detectMention();
-
-    if (ctx) {
-      mentionCtxRef.current = ctx;
-      if (IS_MOBILE) {
-        setQuery(ctx.query || '');
-        openMobilePopup();
-      } else {
-        setQuery(ctx.query);
-        if (editorRef.current) setPopupRect(editorRef.current.getBoundingClientRect());
-        setPopupOpen(true);
-      }
-    } else {
-      closePopup();
-    }
-  }, [enableMention, detectMention, openMobilePopup, closePopup]);
-
-  const handleInput = useCallback(() => {
-    emitChange();
-    syncMentionState();
-  }, [emitChange, syncMentionState]);
-
   // 在当前 @ 上下文处，用 chip 替换 @关键字 文本
   const insertApp = useCallback(
     app => {
@@ -269,12 +256,17 @@ function MentionInput(
       if (!root || (!ctx && !IS_MOBILE)) return;
 
       if (!ctx) {
+        // 移动端唤起原生应用选择器时编辑器会失焦，空的 contenteditable 可能残留 <br>。
+        // 先清掉无实际内容的占位 DOM，避免应用标签被追加到第二行。
+        clearEmptyEditor(root);
         const chip = createMentionNode(app);
         const space = document.createTextNode(' ');
 
         root.append(chip, space);
         closePopup();
         emitChange();
+        focusContentEditableEnd(root);
+        requestAnimationFrame(() => focusContentEditableEnd(root));
         return;
       }
 
@@ -297,9 +289,51 @@ function MentionInput(
 
       closePopup();
       emitChange();
+      if (IS_MOBILE) {
+        focusContentEditableEnd(root);
+        requestAnimationFrame(() => focusContentEditableEnd(root));
+      }
     },
     [closePopup, emitChange],
   );
+
+  const openAppPicker = useCallback(() => {
+    if (onSelectApp) {
+      onSelectApp(insertApp, closePopup);
+    } else {
+      openMobilePopup();
+    }
+  }, [insertApp, onSelectApp, openMobilePopup, closePopup]);
+
+  // 输入 / 光标变化后：上报内容 + 更新 @ 浮层状态
+  const syncMentionState = useCallback(() => {
+    if (!enableMention) {
+      closePopup();
+      return;
+    }
+
+    if (isComposingRef.current) return;
+    const ctx = detectMention();
+
+    if (ctx) {
+      mentionCtxRef.current = ctx;
+      if (IS_MOBILE) {
+        setQuery(ctx.query || '');
+        openAppPicker();
+      } else {
+        setQuery(ctx.query);
+        if (editorRef.current) setPopupRect(editorRef.current.getBoundingClientRect());
+        setPopupOpen(true);
+      }
+    } else {
+      closePopup();
+    }
+  }, [enableMention, detectMention, openAppPicker, closePopup]);
+
+  const handleInput = useCallback(() => {
+    emitChange();
+    syncMentionState();
+  }, [emitChange, syncMentionState]);
 
   // @ 浮层打开时，按 query 拉取应用列表（防抖 + 缓存）
   useEffect(() => {
@@ -372,6 +406,9 @@ function MentionInput(
 
   const handleKeyDown = useCallback(
     e => {
+      // 输入法确认候选词不触发操作；换行模式保留浏览器原生编辑行为。
+      if (e.key === 'Enter' && (isComposingRef.current || e.nativeEvent.isComposing || !submitOnEnter)) return;
+
       // 浮层一旦打开，Esc 始终能关掉（即使列表为空/加载中），避免浮层无法消除
       if (popupOpen && e.key === 'Escape') {
         e.preventDefault();
@@ -408,7 +445,7 @@ function MentionInput(
         onSubmit && onSubmit(value);
       }
     },
-    [popupOpen, visibleApps, activeIndex, insertApp, closePopup, serialize, onSubmit],
+    [popupOpen, visibleApps, activeIndex, insertApp, closePopup, serialize, onSubmit, submitOnEnter],
   );
 
   // 命令式 API
@@ -419,13 +456,7 @@ function MentionInput(
   }, [closePopup, emitChange]);
 
   const focusEnd = useCallback(() => {
-    const root = editorRef.current;
-    if (!root) return;
-    root.focus();
-    const range = document.createRange();
-    range.selectNodeContents(root);
-    range.collapse(false);
-    applySelectionRange(range);
+    focusContentEditableEnd(editorRef.current);
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -437,6 +468,7 @@ function MentionInput(
       if (editorRef.current) editorRef.current.textContent = text || '';
       emitChange();
     },
+    insertApp,
     // 供底部 @ 按钮调用：插入一个 '@' 并触发浮层
     insertAt: () => {
       if (!enableMention) {
@@ -447,7 +479,8 @@ function MentionInput(
       if (IS_MOBILE) {
         mentionCtxRef.current = null;
         setQuery('');
-        openMobilePopup();
+        openAppPicker();
+
         return;
       }
 
@@ -470,6 +503,7 @@ function MentionInput(
         id={inputId}
         className="mentionEditor"
         contentEditable={!disabled}
+        enterKeyHint={submitOnEnter ? 'send' : 'enter'}
         suppressContentEditableWarning
         data-empty={isEmpty}
         data-placeholder={placeholder}

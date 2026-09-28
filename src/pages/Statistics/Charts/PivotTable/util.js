@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 /**
  * 将连续的单元格合并

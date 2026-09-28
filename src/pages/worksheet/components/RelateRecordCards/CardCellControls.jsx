@@ -3,10 +3,11 @@ import cx from 'classnames';
 import _, { get, identity, isEmpty } from 'lodash';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { browserIsMobile } from 'src/utils/common';
-import { getRecordCardStyle } from 'src/utils/control';
-import { checkCellIsEmpty, checkControlCanSetStyle } from 'src/utils/control';
+import { getRecordCardStyle } from 'src/utils/domain/control/style';
+import { checkControlCanSetStyle } from 'src/utils/domain/control/type';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 function getCellContentPaddingTop(control, isNotEmpty) {
   if (!isNotEmpty) {
@@ -36,7 +37,7 @@ function getCellContentPaddingTop(control, isNotEmpty) {
 }
 
 const Con = styled.div`
-  ${({ fullShowCard }) => (!fullShowCard ? 'display: grid;' : '')}
+  ${({ $fullShowCard }) => (!$fullShowCard ? 'display: grid;' : '')}
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 `;
 
@@ -50,7 +51,7 @@ const Empty = styled.span`
 
 const Control = styled.div`
   display: flex;
-  flex-direction: ${$props => $props.direction};
+  flex-direction: ${$props => $props.$direction};
   font-size: 12px;
   padding-right: 14px;
   .label {
@@ -60,7 +61,7 @@ const Control = styled.div`
     line-height: 16px;
     margin: 6px 0;
     padding-right: 1em;
-    ${({ labelStyle }) => labelStyle}
+    ${({ $labelStyle }) => $labelStyle}
   }
   .content {
     flex: 1;
@@ -103,7 +104,7 @@ const Control = styled.div`
     .AttachmentCon {
       margin: 0 4px 0 0;
     }
-    ${({ contentStyle }) => contentStyle}
+    ${({ $contentStyle }) => $contentStyle}
   }
 `;
 
@@ -123,7 +124,7 @@ export default function CardCellControls(props) {
   const isMobile = browserIsMobile();
 
   return (
-    <Con className="cardCellControls" fullShowCard={fullShowCard}>
+    <Con className="cardCellControls" $fullShowCard={fullShowCard}>
       {controls.filter(identity).map((control = {}, i) => {
         const recordCardStyle = getRecordCardStyle(parentControl);
         const isColumn = get(recordCardStyle, 'controlTitleStyle.direction') === '2';
@@ -132,9 +133,9 @@ export default function CardCellControls(props) {
         return (
           <Control
             key={i}
-            labelStyle={get(recordCardStyle, 'controlTitleStyle.valueStyle', '')}
-            contentStyle={isTextControl ? get(recordCardStyle, 'controlValueStyle.valueStyle', '') : ''}
-            direction={isColumn ? 'column' : 'row'}
+            $labelStyle={get(recordCardStyle, 'controlTitleStyle.valueStyle', '')}
+            $contentStyle={isTextControl ? get(recordCardStyle, 'controlValueStyle.valueStyle', '') : ''}
+            $direction={isColumn ? 'column' : 'row'}
           >
             <div
               className={cx('label', { ellipsis: isColumn, breakAll: isMobile && !isColumn })}

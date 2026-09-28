@@ -1,10 +1,4 @@
 .workSheetImportExcel {
-  height: 560px !important;
-  .mui-dialog-body {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
   .importConfigure {
     overflow: auto;
     .excelInfo {
@@ -14,10 +8,10 @@
         line-height: 40px;
         padding: 0 24px;
         position: relative;
-        &.ming.Radio {
+        &.ant-radio-wrapper {
           margin-right: 0;
         }
-        .Radio-text {
+        .ant-radio-label {
           text-overflow: ellipsis;
           max-width: 190px;
           overflow: hidden;
@@ -51,28 +45,6 @@
           width: 25px;
           text-align: center;
         }
-        .LineDropDown {
-          width: 50px;
-          position: absolute;
-          top: 26px;
-          left: 70px;
-          background: var(--color-background-primary);
-          text-align: center;
-          z-index: 1;
-          box-shadow:
-            0 4px 20px rgba(0, 0, 0, 0.2),
-            0 2px 6px rgba(0, 0, 0, 0.15);
-          padding: 6px 0;
-          div {
-            cursor: pointer;
-            height: 24px;
-            line-height: 24px;
-            &:hover {
-              background: var(--color-primary);
-              color: var(--color-white);
-            }
-          }
-        }
         .columnNumber {
           color: var(--color-primary);
         }
@@ -84,7 +56,7 @@
       }
       .importData {
         margin-bottom: 36px;
-        .RadioGroup {
+        .ant-radio-group {
           display: inline-block;
         }
       }

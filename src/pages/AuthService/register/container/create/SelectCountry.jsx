@@ -1,24 +1,30 @@
-﻿import React, { useCallback, useEffect, useRef } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import fixedDataAjax from 'src/api/fixedData';
 
 export default function RegionDropdown(props) {
   const { onChange, onVisibleChange } = props;
-  const [{ loading, geoCountryRegionCode, country, keywords, searchResultCountry }, setState] = useSetState({
-    geoCountryRegionCode: props.geoCountryRegionCode,
-    country: [],
-    searchResultCountry: [],
-    keywords: '',
-    loading: false,
-  });
+  const searchSeqRef = useRef(0);
+  const [{ loading, geoCountryRegionCode, country, keywords, debouncedKeywords, searchResultCountry }, setState] =
+    useSetState({
+      geoCountryRegionCode: props.geoCountryRegionCode,
+      country: [],
+      searchResultCountry: [],
+      keywords: '',
+      debouncedKeywords: '',
+      loading: false,
+    });
+  const loadCountries = useCallback(
+    searchKeywords => {
+      const isSearch = !!searchKeywords;
+      const searchSeq = isSearch ? searchSeqRef.current + 1 : searchSeqRef.current;
 
-  const searchRef = useRef();
+      if (isSearch) {
+        searchSeqRef.current = searchSeq;
+      }
 
-  searchRef.current = useCallback(
-    _.debounce(async searchKeywords => {
-      if (loading) return;
       setState({ loading: true });
       fixedDataAjax
         .getCitysByParentID({
@@ -27,7 +33,11 @@ export default function RegionDropdown(props) {
           keywords: searchKeywords,
         })
         .then(res => {
-          const countryData = _.get(res, 'citys', []).map(l => ({ ...l, text: l.name, value: l.id }));
+          if (isSearch && searchSeq !== searchSeqRef.current) {
+            return;
+          }
+
+          const countryData = _.get(res, 'citys', []).map(l => ({ ...l, label: l.name, value: l.id }));
 
           if (searchKeywords) {
             setState({ searchResultCountry: countryData, loading: false });
@@ -36,16 +46,37 @@ export default function RegionDropdown(props) {
           }
         })
         .catch(error => {
+          if (isSearch && searchSeq !== searchSeqRef.current) {
+            return;
+          }
+
           console.error('Search failed:', error);
           setState({ loading: false });
         });
-    }, 500),
-    [loading],
+    },
+    [setState],
+  );
+  const searchCountry = useMemo(
+    () =>
+      _.debounce(searchKeywords => {
+        setState({ debouncedKeywords: searchKeywords });
+      }, 500),
+    [setState],
   );
 
   useEffect(() => {
-    searchRef.current('');
-  }, []);
+    loadCountries('');
+    return () => {
+      searchSeqRef.current += 1;
+      searchCountry.cancel();
+    };
+  }, [loadCountries, searchCountry]);
+
+  useEffect(() => {
+    if (debouncedKeywords) {
+      loadCountries(debouncedKeywords);
+    }
+  }, [debouncedKeywords, loadCountries]);
 
   const onChangRegionCode = code => {
     setState({ geoCountryRegionCode: code });
@@ -53,30 +84,36 @@ export default function RegionDropdown(props) {
   };
 
   const handleSearch = newKeywords => {
-    setState({ keywords: newKeywords });
-    if (newKeywords) {
-      searchRef.current(newKeywords);
+    const nextKeywords = (newKeywords || '').trim();
+
+    setState({ keywords: nextKeywords });
+
+    if (!nextKeywords) {
+      searchSeqRef.current += 1;
+      searchCountry.cancel();
+      setState({ debouncedKeywords: '', searchResultCountry: [], loading: false });
+      return;
     }
+
+    searchCountry(nextKeywords);
   };
 
   const currentCountry = _.find(country, v => v.id === geoCountryRegionCode) || {};
 
   return (
-    <Dropdown
+    <Select
       className={'w100 controlDropdown flexRow alignItemsCenter'}
-      border
       value={!geoCountryRegionCode ? undefined : geoCountryRegionCode}
-      data={keywords ? searchResultCountry : country}
-      openSearch
-      showItemTitle
-      isAppendToBody
-      renderTitle={() => <span title={currentCountry.text}>{currentCountry.text}</span>}
+      options={keywords ? searchResultCountry : country}
+      showPopupSearch
+      optionFilterProp="label"
+      labelRender={() => <span title={currentCountry.label}>{currentCountry.label}</span>}
       onSearch={handleSearch}
       onChange={onChangRegionCode}
-      noData={keywords && _.isEmpty(searchResultCountry) ? _l('暂无搜索结果') : _l('无数据')}
+      notFoundContent={keywords && _.isEmpty(searchResultCountry) ? _l('暂无搜索结果') : _l('无数据')}
       loading={loading}
       placeholder={_l('请选择')}
-      onVisibleChange={visible => {
+      onOpenChange={visible => {
         onVisibleChange(visible);
       }}
     />

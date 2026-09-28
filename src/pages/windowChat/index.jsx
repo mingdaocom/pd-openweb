@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import store from 'src/redux/configureStore';
 import { socketInit } from 'src/socket';
 import Chat from './Chat';

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import { reportTypes } from 'statistics/Charts/common';
+import { Input } from 'ming-ui/antd-components';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import EditInput from '../EditInput';
 
 export default function BaseChart(props) {

@@ -18,10 +18,6 @@ export const Con = styled.div`
       border-left: 1px solid #000;
       border-right: 1px solid #000;
     }
-    .moreActive {
-      z-index: 1;
-      color: var(--color-text-secondary) !important;
-    }
     span {
       position: relative;
       color: var(--color-text-title) !important;
@@ -31,56 +27,10 @@ export const Con = styled.div`
       position: relative;
     }
   }
-  .trash {
-    color: var(--color-text-secondary);
-    .trashIcon {
-      color: var(--color-text-tertiary);
-    }
-    &:hover {
-      color: var(--color-primary);
-      .trashIcon {
-        color: var(--color-primary);
-      }
-    }
-  }
   .line {
     border-top: 1px solid var(--color-border-secondary);
     width: 100%;
     margin-top: 8px;
-  }
-  .customBtnSearch {
-    width: 320px;
-    height: 36px;
-    margin: 16px 0 12px 0;
-    padding: 0 16px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 18px;
-    box-sizing: border-box;
-    background: var(--color-background-primary);
-    .searchIcon {
-      flex-shrink: 0;
-      color: var(--color-text-tertiary);
-    }
-    input {
-      flex: 1;
-      min-width: 0;
-      height: 34px;
-      line-height: 34px;
-      margin-left: 10px;
-      border: none;
-      background: transparent;
-      color: var(--color-text-primary);
-      &::placeholder {
-        color: var(--color-text-placeholder);
-      }
-    }
-    .clearIcon {
-      flex-shrink: 0;
-      color: var(--color-text-tertiary);
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
   }
 `;
 

@@ -111,11 +111,8 @@ export const saveFn = (projectId, items, ruleId, ruleType, errorCallback) => dis
     type: 'ISLOADING',
     isSaveing: true,
   });
-  let callback = res => {
-    dispatch({
-      type: 'ISLOADING',
-      isSaveing: false,
-    });
+
+  const callback = res => {
     if (res.success) {
       errorCallback([]);
       dispatch(showEditFn(false));
@@ -126,31 +123,25 @@ export const saveFn = (projectId, items, ruleId, ruleType, errorCallback) => dis
     }
   };
 
-  if (!ruleId) {
-    projectUserRule
-      .addRule({
+  const request = !ruleId
+    ? projectUserRule.addRule({
         projectId,
         items,
         ruleType,
       })
-      .then(
-        res => {
-          callback(res);
-        },
-        () => {},
-      );
-  } else {
-    projectUserRule
-      .resetRule({
+    : projectUserRule.resetRule({
         ruleId,
         projectId,
         items,
-      })
-      .then(
-        res => {
-          callback(res);
-        },
-        () => {},
-      );
-  }
+      });
+
+  return request
+    .then(callback)
+    .catch(() => {})
+    .finally(() => {
+      dispatch({
+        type: 'ISLOADING',
+        isSaveing: false,
+      });
+    });
 };

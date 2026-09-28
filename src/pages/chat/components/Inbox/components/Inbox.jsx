@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { DROPDOWN_GROUPLIST, INBOXTYPES, TYPENAMES } from '../constants';
 import InboxHeader from './inboxHeader';
 import InboxList from './inboxList';
@@ -92,7 +92,8 @@ export default class Inbox extends React.Component {
 
   renderList() {
     const { type, inboxFavorite, filter, updateNow } = this.state;
-    const { clearUnread, inboxType, count, weak_count, requestNow } = this.props;
+    const { clearUnread, inboxType, count, weak_count, requestNow, onFirstPageLoadError, onFirstPageLoadSuccess } =
+      this.props;
     return (
       <InboxList
         {...{
@@ -105,6 +106,8 @@ export default class Inbox extends React.Component {
           filter,
           updateNow,
           requestNow,
+          onFirstPageLoadError,
+          onFirstPageLoadSuccess,
         }}
       />
     );

@@ -1,55 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Segmented } from 'ming-ui/antd-components';
 import CustomFields from 'src/components/Form';
 import { getDisabledTabs } from './controller';
-
-const TabContainer = styled.div`
-  height: 36px;
-  display: flex;
-  flex-shrink: 0;
-  padding: 2px;
-  border-radius: 4px;
-  background: var(--color-background-secondary);
-`;
-
-const Tab = styled.div`
-  padding: 6px 12px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 13px;
-  color: ${props => (props.active ? 'var(--color-text-title)' : 'var(--color-text-secondary)')};
-  background: ${props => (props.active ? 'var(--color-background-card)' : 'transparent')};
-  opacity: ${props => (props.disabled ? 0.5 : 1)};
-  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
-`;
-
-function Tabs({ disabledTabs, activeTab = 'modify', onTabChange }) {
-  return (
-    <TabContainer>
-      <Tab
-        disabled={disabledTabs.includes('modify')}
-        active={activeTab === 'modify'}
-        onClick={disabledTabs.includes('modify') ? undefined : () => onTabChange('modify')}
-      >
-        {_l('修改')}
-      </Tab>
-      <Tab
-        disabled={disabledTabs.includes('clear')}
-        active={activeTab === 'clear'}
-        onClick={disabledTabs.includes('clear') ? undefined : () => onTabChange('clear')}
-      >
-        {_l('清空')}
-      </Tab>
-    </TabContainer>
-  );
-}
-
-Tabs.propTypes = {
-  activeTab: PropTypes.string,
-  onTabChange: PropTypes.func,
-  disabledTabs: PropTypes.arrayOf(PropTypes.string),
-};
 
 const Con = styled.div`
   .delete {
@@ -103,10 +57,17 @@ export default function EditControlItem(props) {
     <Con className="mTop10">
       <div className="Font13 Bold">{control.controlName}</div>
       <div className="mTop4 flexRow">
-        <Tabs
-          disabledTabs={disabledTabs}
-          activeTab={type}
-          onTabChange={newType => {
+        <Segmented
+          value={type}
+          options={[
+            { label: _l('修改'), value: 'modify', disabled: disabledTabs.includes('modify') },
+            { label: _l('清空'), value: 'clear', disabled: disabledTabs.includes('clear') },
+          ]}
+          styles={{
+            root: { height: 40, flexShrink: 0 },
+            label: { minHeight: 30 },
+          }}
+          onChange={newType => {
             if (newType === 'clear') {
               setRef(undefined);
             }

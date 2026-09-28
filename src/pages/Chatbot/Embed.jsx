@@ -6,10 +6,11 @@ import { Provider } from 'react-redux';
 import { LoadDiv } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import UnNormal from 'worksheet/views/components/UnNormal';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import store from 'src/redux/configureStore';
-import { navigateTo } from 'src/router/navigateTo';
-import { addSubPathOfRoute, getPathWithoutSubPath } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import socketInit from 'src/socket';
+import { addSubPathOfRoute, getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 import Chatbot from './index';
 
 const ChatbotWrap = withRouter(props => {
@@ -17,6 +18,14 @@ const ChatbotWrap = withRouter(props => {
   const { appId, chatbotId, conversationId } = match.params;
   const [state, setState] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // 「新页面打开」是独立入口，不经过 src/router/layouts/MainLayout，需要自己初始化 socket。
+  // 左侧会话列表靠 workflow_chatbot 推送在 AI 回复途中就插入新会话（见 ConversationList 的
+  // CHATBOT_SOCKET_UPDATE_CONVERSATION 监听），缺了它新对话要等流式下发 conversationId 后才补拉出来。
+  // 单独成一个只跑一次的 effect：socketInit 会注册一批全局监听，重复调用会让同一事件被广播多次。
+  useEffect(() => {
+    !window.isPublicApp && socketInit();
+  }, []);
 
   useEffect(() => {
     homeAppApi

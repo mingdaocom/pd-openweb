@@ -115,6 +115,11 @@ class ImageViewer extends React.Component {
   }
 
   onWheel = evt => {
+    // 分享等弹层的滚轮事件也会冒泡到 window，仅处理当前图片区域内的操作。
+    if (!this.root || !this.root.contains(evt.target)) {
+      return;
+    }
+
     if (this.state.ctrlIsdDown) {
       this.updateScale(evt.deltaY < 0);
       evt.preventDefault();

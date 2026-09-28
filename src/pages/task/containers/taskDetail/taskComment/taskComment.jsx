@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 import Commenter from 'src/components/comment/commenter';
-import { htmlDecodeReg } from 'src/utils/common';
+import { htmlDecodeReg } from 'src/utils/core/string';
 import { addTaskDiscussions, discussionsAddMembers } from '../../../redux/actions';
 import './taskComment.less';
 

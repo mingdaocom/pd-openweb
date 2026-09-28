@@ -2,13 +2,12 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Dialog, Icon, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Icon, ScrollView } from 'ming-ui';
+import { Button, Dropdown, Modal, Radio, Tooltip } from 'ming-ui/antd-components';
 import './index.less';
 
-const titleLineArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const ClickAwayable = ClickAway;
+const TITLE_LINE_ITEMS = Array.from({ length: 10 }, (_, index) => ({ key: String(index), label: index + 1 }));
+
 export default class ImportConfig extends Component {
   static propTypes = {
     hideImportConfig: PropTypes.func,
@@ -35,6 +34,7 @@ export default class ImportConfig extends Component {
     });
     let maxColumnNumber = 0; // 获取第一个sheet 中实际列数最多的一行(第一列不为空且有值的列数最多)
     let maxValidColumn = 0; // 单行有效列数
+    const worksheetExcelImportDataLimitCount = md.global.SysSettings.worksheetExcelImportDataLimitCount || 20000;
     this.props.fileList[0].rows.forEach(rowItem => {
       if (rowItem.rowNumber < 10) {
         let validCells = rowItem.cells;
@@ -56,7 +56,7 @@ export default class ImportConfig extends Component {
 
     const defaultSelectImportSheetIndex = _.findIndex(
       this.props.fileList,
-      item => item.state && item.total <= md.global.SysSettings.worksheetExcelImportDataLimitCount,
+      item => item.state && item.total <= worksheetExcelImportDataLimitCount,
     );
     const selectRow = Object.assign(
       {},
@@ -124,45 +124,6 @@ export default class ImportConfig extends Component {
     });
   };
 
-  renderSelectLine() {
-    const { fileList } = this.props;
-    const { importSheetIndex, showDownload } = this.state;
-    const selectSheet = _.find(fileList, item => item.sheetNumber === importSheetIndex);
-
-    return (
-      <ClickAwayable
-        className={cx('LineDropDown', { Hidden: !showDownload })}
-        onClickAway={() => this.setState({ showDownload: false })}
-      >
-        {titleLineArr.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              const rowItem = selectSheet.rows[item - 1];
-              let selectCells = Object.assign({}, rowItem).cells;
-
-              if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
-                selectCells = _.slice(
-                  rowItem.cells,
-                  0,
-                  _.findIndex(rowItem.cells, item => !item.value),
-                );
-              }
-
-              const selectRow = {
-                ...rowItem,
-                cells: selectCells,
-              };
-              this.setState({ titleLine: item, showDownload: false, selectRow });
-            }}
-          >
-            {item}
-          </div>
-        ))}
-      </ClickAwayable>
-    );
-  }
-
   selectLine(rowItem, rowIndex) {
     let selectCells = Object.assign({}, rowItem).cells;
 
@@ -190,7 +151,7 @@ export default class ImportConfig extends Component {
             {item.state
               ? _l(
                   '当前sheet行数超过单次导入上限（%0行），无法导入。',
-                  md.global.SysSettings.worksheetExcelImportDataLimitCount,
+                  md.global.SysSettings.worksheetExcelImportDataLimitCount || 20000,
                 )
               : _l('当前工作表剩余总行数不足，无法导入此sheet。')}
           </span>
@@ -206,6 +167,7 @@ export default class ImportConfig extends Component {
     const { fileName, fileList, hideImportConfig } = this.props;
     const { importSheetIndex, titleLine, selectRow, showCancelDialog, hoverIndex } = this.state;
     const selectSheet = _.find(fileList, item => item.sheetNumber === importSheetIndex) || {};
+    const worksheetExcelImportDataLimitCount = md.global.SysSettings.worksheetExcelImportDataLimitCount || 20000;
 
     // 过滤掉空行
     const emptyRows = (selectSheet.rows || []).filter(item => !(item.cells || []).some(cell => cell.value));
@@ -218,14 +180,15 @@ export default class ImportConfig extends Component {
 
     return (
       <Fragment>
-        <Dialog
-          className="workSheetImportExcel"
-          visible={true}
-          width="960"
+        <Modal
+          rootClassName="workSheetImportExcel"
+          open
+          mask={{ closable: false }}
+          keyboard
+          width={960}
           title={_l('导入数据 - 选择内容（2/3）')}
           footer={null}
-          anim={false}
-          overlayClosable={false}
+          styles={{ container: { height: 560, paddingInline: 0 }, header: { paddingInline: 24 } }}
           onCancel={hideImportConfig}
         >
           <div className="flexColumn h100">
@@ -236,21 +199,26 @@ export default class ImportConfig extends Component {
                 </div>
                 <ScrollView className="flex mTop15">
                   {fileList.map(item => {
-                    const disabled =
-                      !item.state || item.total > md.global.SysSettings.worksheetExcelImportDataLimitCount;
+                    const disabled = !item.state || item.total > worksheetExcelImportDataLimitCount;
                     return (
-                      <Radio
+                      <div
+                        key={item.sheetNumber}
                         className={cx('sheetItem Block', {
                           bgColorPrimaryTransparent: !disabled && item.sheetNumber === importSheetIndex,
                         })}
-                        text={item.sheetName}
-                        value={item.sheetNumber}
-                        children={disabled ? this.renderTooltip(item) : null}
-                        checked={item.sheetNumber === importSheetIndex}
-                        disabled={disabled}
-                        size="small"
-                        onClick={this.onChange}
-                      />
+                      >
+                        <Radio
+                          value={item.sheetNumber}
+                          children={disabled ? this.renderTooltip(item) : null}
+                          checked={item.sheetNumber === importSheetIndex}
+                          disabled={disabled}
+                          size="small"
+                          onChange={event => this.onChange(event.target.value, event)}
+                          title={item.sheetName}
+                        >
+                          {item.sheetName}
+                        </Radio>
+                      </div>
                     );
                   })}
                 </ScrollView>
@@ -260,11 +228,22 @@ export default class ImportConfig extends Component {
                   <div className="excelTitle mTop10">
                     <span className="mRight12 textTertiary">{_l('选择表头:')}</span>
                     <span>{_l('第')}</span>
-                    <input
-                      value={titleLine}
-                      className="TxeCenter InlineBlock pointer"
-                      onClick={() => this.setState({ showDownload: true })}
-                    />
+                    <Dropdown
+                      trigger={['click']}
+                      placement="bottom"
+                      menu={{
+                        items: TITLE_LINE_ITEMS,
+                        selectable: true,
+                        selectedKeys: [String(titleLine - 1)],
+                        style: { minWidth: 50 },
+                        onClick: ({ key }) => {
+                          const rowIndex = Number(key);
+                          this.selectLine(selectSheet.rows[rowIndex], rowIndex);
+                        },
+                      }}
+                    >
+                      <input readOnly value={titleLine} className="TxeCenter InlineBlock pointer" />
+                    </Dropdown>
                     <span> {_l('行')}</span>
                     <span className="columnNumber mLeft8 mRight10">
                       {_l('共%0列有效', _.isEmpty(selectRow) ? 0 : selectRow.cells.length)}
@@ -279,7 +258,6 @@ export default class ImportConfig extends Component {
                         <Icon icon="error1" className="Font15 textTertiary" />
                       </span>
                     </Tooltip>
-                    {this.renderSelectLine()}
                   </div>
                   <div className="flex mTop15">
                     <div className="excelDetailBox">
@@ -328,14 +306,14 @@ export default class ImportConfig extends Component {
             <div className="buttons">
               <Button
                 className="mRight16"
-                size="medium"
-                type="secondary"
+                color="default"
+                variant="filled"
                 onClick={() => this.setState({ showCancelDialog: true })}
               >
                 {_l('取消')}
               </Button>
               <Button
-                size="medium"
+                type="primary"
                 disabled={!(hasSheetImport && importSheetIndex >= 0)}
                 onClick={() => {
                   if (selectSheet.rows[titleLine - 1].cells[0].value) {
@@ -349,13 +327,14 @@ export default class ImportConfig extends Component {
               </Button>
             </div>
           </div>
-        </Dialog>
+        </Modal>
 
         {showCancelDialog && (
-          <Dialog
-            className="workSheetCancelDialog"
-            visible={true}
-            anim={false}
+          <Modal
+            rootClassName="workSheetCancelDialog"
+            open
+            mask={{ closable: true }}
+            keyboard
             title={_l('您确定要取消导入数据吗？')}
             width={480}
             onOk={hideImportConfig}

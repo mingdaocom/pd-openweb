@@ -1,32 +1,28 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { browserIsMobile } from 'src/utils/common';
-import { renderText as renderTextCell } from 'src/utils/control';
+import { renderText as renderTextCell } from 'src/utils/domain/control/display';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import '../WorksheetRecordLogValue.less';
 
 const LoadableRecordInfoWrapper = lazy(() => import('src/pages/worksheet/common/recordInfo/RecordInfoWrapper'));
 
-const getTitle = (value, sourceControl) => {
-  if (!sourceControl) return renderTextCell({ value });
-  const data = safeParse(value, 'array');
+// 点击时基于当前日志生成预览快照，避免日志刷新后旧列表索引指向错误记录。
+const getPreviewRecordInfo = (data, onlyNew) => {
+  const oldObj = safeParse(data?.oldValue) || {};
+  const newObj = safeParse(data?.newValue) || {};
+  const oldList = safeParse(oldObj.rows, 'array');
+  const newList = safeParse(newObj.rows, 'array');
 
-  switch (sourceControl.type) {
-    case 26:
-    case 27:
-    case 48:
-      return data
-        .map(m => m.departmentName || m.fullname || m.organizeName)
-        .filter(m => m)
-        .join('、');
-
-    case 40:
-      return data.address || `${_l('经度')}：${_.round(data.x, 6)} ${_l('纬度')}：${_.round(data.y, 6)}`;
-
-    default:
-      return renderTextCell({ ...sourceControl, value: value });
-  }
+  return {
+    appId: oldObj.appId || newObj.appId,
+    worksheetId: oldObj.worksheetId || newObj.worksheetId,
+    viewId: oldObj.viewId || newObj.viewId,
+    delList: onlyNew ? newList : _.differenceBy(oldList, newList, 'recordId'),
+    addList: onlyNew ? newList : _.differenceBy(newList, oldList, 'recordId'),
+    defList: onlyNew ? newList : _.intersectionBy(oldList, newList, 'recordId'),
+  };
 };
 
 function WorksheetRecordLogSelectTags(props) {
@@ -42,70 +38,25 @@ function WorksheetRecordLogSelectTags(props) {
     isChangeValue = false,
   } = props;
   const isMobile = browserIsMobile();
-  const [preview, setPreview] = useState(false);
-  const [preType, setPreType] = useState(undefined);
-  const [recordInfo, setRecordInfo] = useState(undefined);
-  const [showMaskData, setShowMaskData] = useState(false);
-  const [maskList, setMaskList] = useState([]);
   const advancedSetting = _.get(control, ['advancedSetting']) || {};
+  const [previewRecordInfo, setPreviewRecordInfo] = useState(undefined);
+  const [maskList, setMaskList] = useState([]);
+  const showMaskData = Boolean(advancedSetting.masktype);
   const isdecrypt = advancedSetting.isdecrypt;
 
   const clickHandle = (type, index) => {
     if (isMobile) return;
-    setPreview(index);
-    setPreType({
-      type: type,
-      index: index,
-    });
+
+    const recordInfo = getPreviewRecordInfo(data, onlyNew);
+    const recordList =
+      type === 'old' ? recordInfo?.delList : type === 'new' ? recordInfo?.addList : recordInfo?.defList;
+    const recordId = recordList?.[index]?.recordId;
+
+    if (recordId) setPreviewRecordInfo({ ...recordInfo, recordId });
   };
-
-  useEffect(() => {
-    if (advancedSetting.masktype) {
-      setShowMaskData(true);
-    }
-
-    if (needPreview) {
-      let oldObj = safeParse(data.oldValue) || {};
-      let newObj = safeParse(data.newValue) || {};
-      let Record = {
-        appId: oldObj.appId || newObj.appId,
-        worksheetId: oldObj.worksheetId || newObj.worksheetId,
-        viewId: oldObj.viewId || newObj.viewId,
-        delList: [],
-        addList: [],
-        defList: [],
-      };
-      let oldList = safeParse(oldObj.rows, 'array');
-      let newList = safeParse(newObj.rows, 'array');
-
-      if (onlyNew) {
-        Record.delList = newList;
-        Record.addList = newList;
-        Record.defList = newList;
-      } else {
-        Record.delList = _.differenceBy(oldList, newList, 'recordId');
-        Record.addList = _.differenceBy(newList, oldList, 'recordId');
-        Record.defList = _.intersectionBy(oldList, newList, 'recordId');
-      }
-
-      setRecordInfo(Record);
-    }
-  }, []);
 
   const renderText = item => {
     let text = item;
-
-    if (needPreview && text && ['[', '{'].includes(text[0])) {
-      let sourceControlType = (control || {}).sourceControlType;
-      let sourceControl = { ...(control || {}).sourceControl, type: sourceControlType };
-
-      if ((!sourceControlType && control) || control.type === 29) {
-        sourceControl =
-          (control.relationControls || []).find(l => l.attribute === 1) || (control.relationControls || [])[0];
-      }
-
-      text = getTitle(item, sourceControl);
-    }
 
     if (control) {
       const { type, enumDefault } = control;
@@ -184,25 +135,19 @@ function WorksheetRecordLogSelectTags(props) {
         {renderList(newValue, 'new')}
         {renderList(defaultValue, 'default')}
       </div>
-      {preview !== false && preType && recordInfo && (
+      {previewRecordInfo && (
         <Suspense fallback={null}>
           <LoadableRecordInfoWrapper
             visible
             allowAdd={false}
-            appId={recordInfo.appId}
-            viewId={recordInfo.viewId}
+            appId={previewRecordInfo.appId}
+            viewId={previewRecordInfo.viewId}
             from={1}
             hideRecordInfo={() => {
-              setPreview(false);
+              setPreviewRecordInfo(undefined);
             }}
-            recordId={
-              preType.type === 'old'
-                ? recordInfo.delList[preview].recordId
-                : preType.type === 'new'
-                  ? recordInfo.addList[preview].recordId
-                  : recordInfo.defList[preview].recordId
-            }
-            worksheetId={recordInfo.worksheetId}
+            recordId={previewRecordInfo.recordId}
+            worksheetId={previewRecordInfo.worksheetId}
           />
         </Suspense>
       )}

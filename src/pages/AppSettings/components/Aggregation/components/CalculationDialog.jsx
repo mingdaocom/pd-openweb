@@ -1,14 +1,16 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Input } from 'ming-ui';
-import 'src/pages/Role/PortalCon/components/AddUserByTelDialog.less';
-import { getVerifyInfo } from 'src/pages/widgetConfig/util/setting.js';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 import FormulaFunc from 'src/pages/widgetConfig/widgetSetting/settings/formula_func.jsx';
 import FormulaNumber from 'src/pages/widgetConfig/widgetSetting/settings/formula_number.jsx';
-import { handleAdvancedSettingChange } from 'src/utils/control';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getVerifyInfo } from 'src/utils/domain/control/validation';
+
+const CALCULATION_MODAL_STYLES = {
+  body: { overflow: 'visible' },
+};
 
 const Wrap = styled.div`
   .enumDefaultType {
@@ -23,33 +25,11 @@ const Wrap = styled.div`
   .customTip {
     color: var(--color-text-tertiary);
   }
-  .ant-input {
-    border-radius: 3px 0 0 3px;
-  }
-  .numberControlBox .iconWrap {
-    border-radius: 0 0 3px 0;
-    &:hover {
-      i {
-        color: var(--color-primary);
-      }
-    }
-  }
-  .numberControlBox .iconWrap:first-child {
-    border-radius: 0 3px 0 0;
-  }
   .flexCenter {
     display: inline-flex !important;
-    .Dropdown--input {
-      width: 200px;
-      padding: 5px 8px 5px 12px !important;
-      margin-right: 16px;
-    }
   }
-  .AggregationFormula {
-    .Checkbox {
-      display: inline-flex !important;
-      height: 24px !important;
-    }
+  .AggregationFormula .flexCenter + .hap-checkbox-wrapper {
+    margin-left: 8px;
   }
 `;
 
@@ -97,13 +77,14 @@ export default function CalculationDialog(props) {
   };
 
   return (
-    <Dialog
-      dialogClasses={className}
-      className={cx('calculationConPolymerizationDialog addUserByTelDialog')}
-      visible={visible}
-      anim={false}
+    <Modal
+      wrapClassName={className}
+      className="calculationConPolymerizationDialog"
+      open={visible}
       title={_l('计算')}
       width={560}
+      styles={CALCULATION_MODAL_STYLES}
+      keyboard
       onCancel={onHide}
       onOk={() => {
         if (!calculation.controlName) {
@@ -130,16 +111,16 @@ export default function CalculationDialog(props) {
       }}
     >
       <Wrap className="">
-        <div className="Bold mTop10" style={{ marginTop: -4 }}>
+        <div className="Bold" style={{ marginTop: -4 }}>
           {_l('名称')}
         </div>
         <Input
           value={calculation.controlName}
-          className="w100 mTop10 placeholderColor"
+          className="w100 mTop10"
           placeholder={_l('输入字段名称')}
-          onChange={controlName => {
+          onChange={event => {
             setState({
-              calculation: { ...calculation, controlName },
+              calculation: { ...calculation, controlName: event.target.value },
             });
           }}
           maxLength={60}
@@ -166,21 +147,22 @@ export default function CalculationDialog(props) {
             <div className="Bold mTop24">{_l('数据格式')}</div>
             <div className="labelWrap mTop12">
               <Checkbox
-                className="InlineBlock"
                 checked={_.get(calculation, 'advancedSetting.thousandth') !== '1'}
-                onClick={checked => {
+                onChange={event => {
                   setState({
                     calculation: handleAdvancedSettingChange(calculation, {
-                      thousandth: checked ? '1' : '0',
+                      thousandth: !event.target.checked ? '1' : '0',
                     }),
                   });
                 }}
-                text={_l('显示千分位')}
-              />
+              >
+                {_l('显示千分位')}
+              </Checkbox>
               <Checkbox
-                className="InlineBlock mLeft60"
+                className="mLeft60"
                 checked={_.get(calculation, 'advancedSetting.numshow') === '1'}
-                onClick={checked => {
+                onChange={event => {
+                  const checked = !event.target.checked;
                   setState({
                     calculation: handleAdvancedSettingChange(calculation, {
                       suffix: checked ? '' : '%',
@@ -189,12 +171,13 @@ export default function CalculationDialog(props) {
                     }),
                   });
                 }}
-                text={_l('按百分比显示')}
-              />
+              >
+                {_l('按百分比显示')}
+              </Checkbox>
             </div>
           </React.Fragment>
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

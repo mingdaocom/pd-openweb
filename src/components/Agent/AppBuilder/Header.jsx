@@ -213,6 +213,20 @@ const CloseBtn = styled.button`
   }
 `;
 
+// 「下载搭建方案」：与关闭按钮同款图标按钮，方案生成完毕后才出现
+const DownloadBtn = styled(CloseBtn)`
+  color: var(--color-text-secondary);
+
+  .icon {
+    font-size: 20px;
+  }
+
+  /* hover 只给底色反馈，图标颜色保持不变 */
+  &:hover {
+    color: var(--color-text-secondary);
+  }
+`;
+
 function overlayChipLabel(buildStatus) {
   if (buildStatus === 'completed') return _l('已完成');
   if (buildStatus === 'failed') return _l('搭建失败');
@@ -224,6 +238,7 @@ export default function Header({
   onGenerate,
   generateDisabled,
   builtVersionLabel,
+  onDownload,
   onClose,
   appName,
   inBuild,
@@ -267,6 +282,11 @@ export default function Header({
       )}
       <Right>
         {showEstimate && <EstimateText>{estimateText}</EstimateText>}
+        {onDownload && (
+          <DownloadBtn type="button" onClick={onDownload} title={_l('下载搭建方案')} aria-label={_l('下载搭建方案')}>
+            <Icon icon="download" />
+          </DownloadBtn>
+        )}
         {builtVersionLabel ? (
           // 当前查看的方案版本已用于搭建：按钮转为已搭建态（禁用），明示用的是哪个版本
           <GenerateBtn type="button" disabled>

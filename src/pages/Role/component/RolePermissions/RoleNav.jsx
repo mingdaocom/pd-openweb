@@ -1,6 +1,6 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { Icon, SearchInput } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { WrapNav } from 'src/pages/Role/style';
 import RoleList from './RoleList';
 
@@ -11,8 +11,10 @@ export default class Con extends React.Component {
       <WrapNav className="flexColumn">
         <React.Fragment>
           <div className="navCon">
-            <span
-              className="addRole Hand Block TxtCenter"
+            <Button
+              block
+              shape="round"
+              icon={<Icon type="add" />}
               onClick={() => {
                 if (roleList.find(o => !o.roleId)) {
                   alert(_l('请保存当前新增角色'), 3);
@@ -27,13 +29,12 @@ export default class Con extends React.Component {
                 });
               }}
             >
-              <Icon type="add" />
               {_l('创建角色')}
-            </span>
+            </Button>
           </div>
           <div className="search">
             <SearchInput
-              className="roleSearch"
+              className="roleSearch w100"
               placeholder={_l('搜索角色')}
               value={keywords}
               onChange={keywords => {

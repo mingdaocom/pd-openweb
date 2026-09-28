@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import projectSettingAjax from 'src/api/projectSetting';
-import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { pathCompletion } from 'src/utils/common';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import {
   fetchApproval,
   fetchInActive,
@@ -126,16 +126,18 @@ class TabList extends React.Component {
                 <span>{_l('全组织')}</span>
               </div>
               <Dropdown
-                overlayStyle={{ width: 150 }}
+                styles={{ root: { width: 150 } }}
                 trigger={['click']}
                 placement="bottomLeft"
-                overlay={
-                  <Menu>
-                    <Menu.Item key="0" onClick={this.clearCache}>
-                      {_l('刷新所有成员信息')}
-                    </Menu.Item>
-                  </Menu>
-                }
+                menu={{
+                  items: [
+                    {
+                      key: 'clearCache',
+                      label: _l('刷新所有成员信息'),
+                      onClick: this.clearCache,
+                    },
+                  ],
+                }}
               >
                 <div className="moreopWrap" onClick={e => e.stopPropagation()}>
                   <Icon icon="moreop" />

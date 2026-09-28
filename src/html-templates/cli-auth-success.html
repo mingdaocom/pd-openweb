@@ -79,9 +79,18 @@
                 <div class="m-top30">您可以关闭此窗口了</div>
             </div>
         </div>
+
         <script>
-            document.getElementById('help-center-link').setAttribute('href', location.href.includes('nocoly.com') ? 'https://help.nocoly.com/extensions/developer/view/' : 'https://help.mingdao.com/extensions/developer/view/');
+            document
+                .getElementById('help-center-link')
+                .setAttribute(
+                    'href',
+                    location.href.includes('nocoly.com')
+                        ? 'https://help.nocoly.com/extensions/developer/view/'
+                        : 'https://help.mingdao.com/extensions/developer/view/',
+                );
         </script>
+
         <script src="webpack[single]?src/pages/Mdye/AuthSuccess"></script>
     </body>
 </html>

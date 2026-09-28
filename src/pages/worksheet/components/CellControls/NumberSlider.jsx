@@ -2,15 +2,22 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Slider } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
-import { FROM } from './enum';
+import { Popover } from 'ming-ui/antd-components';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+
+const SLIDER_POPOVER_MOTION = { motionName: '' };
+const SLIDER_POPOVER_STYLES = {
+  container: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+};
 
 const Con = styled.div`
-  ${({ isCard }) =>
-    isCard
+  ${({ $isCard }) =>
+    $isCard
       ? `
   height: 100%;
   align-items: center;
@@ -214,37 +221,41 @@ export default class NumberSlider extends React.Component {
         min={levelSafeParse(min)}
         max={levelSafeParse(max)}
         step={levelSafeParse(numinterval)}
-        itemnames={itemnames ? JSON.parse(itemnames) : ''}
-        itemcolor={itemcolor ? JSON.parse(itemcolor) : ''}
+        itemnames={itemnames ? safeParse(itemnames) : ''}
+        itemcolor={itemcolor ? safeParse(itemcolor) : ''}
         onChange={this.handleChange}
       />
     );
 
     if (isediting) {
+      const cellHeight = parseFloat(style.height) || rowHeight;
+
       return (
-        <Trigger
-          zIndex={99}
-          popup={
-            <ClickAway onClickAway={this.handleExit}>
-              <EditingCon style={{ width: style.width, minHeight: style.height }}>{sliderComp}</EditingCon>
-            </ClickAway>
-          }
+        <Popover
+          align={{ offset: [0, -cellHeight] }}
+          autoAdjustOverflow={false}
+          content={<EditingCon style={{ width: style.width, minHeight: style.height }}>{sliderComp}</EditingCon>}
           getPopupContainer={popupContainer}
-          popupClassName="filterTrigger"
-          popupVisible={isediting}
-          destroyPopupOnHide
-          popupAlign={{
-            points: ['tl', 'tl'],
+          motion={SLIDER_POPOVER_MOTION}
+          open={isediting}
+          placement="bottomLeft"
+          noPadding
+          styles={SLIDER_POPOVER_STYLES}
+          trigger="click"
+          onOpenChange={open => {
+            if (!open) {
+              this.handleExit();
+            }
           }}
         >
           <div className={className} style={style} onClick={onClick} />
-        </Trigger>
+        </Popover>
       );
     }
 
     return (
       <Con
-        isCard={from === FROM.CARD}
+        $isCard={from === FROM.CARD}
         className={cx(className, 'cellControl flexRow', {
           canedit: editable,
         })}

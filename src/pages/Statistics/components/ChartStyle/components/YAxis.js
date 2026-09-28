@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Collapse, Input, Select, Switch } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { reportTypes } from 'statistics/Charts/common';
+import { Checkbox, Input, Segmented, Select, Switch } from 'ming-ui/antd-components';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 class YAxis extends Component {
   constructor(props) {
@@ -16,40 +16,23 @@ class YAxis extends Component {
         {isDualAxes && !isRight && (
           <div className="mBottom16">
             <div className="mBottom8">{_l('图表类型')}</div>
-            <div className="chartTypeSelect flexRow valignWrapper">
-              <div
-                title={_l('柱图')}
-                className={cx('flex centerAlign pointer textSecondary', {
-                  active: yreportType == reportTypes.BarChart,
-                })}
-                onClick={() => {
-                  onChangeCurrentReport(
-                    {
-                      yreportType: reportTypes.BarChart,
-                    },
-                    true,
-                  );
-                }}
-              >
-                <span className="ellipsis">{_l('柱图')}</span>
-              </div>
-              <div
-                title={_l('折线图')}
-                className={cx('flex centerAlign pointer textSecondary', {
-                  active: yreportType == reportTypes.LineChart,
-                })}
-                onClick={() => {
-                  onChangeCurrentReport(
-                    {
-                      yreportType: reportTypes.LineChart,
-                    },
-                    true,
-                  );
-                }}
-              >
-                <span className="ellipsis">{_l('折线图')}</span>
-              </div>
-            </div>
+            <Segmented
+              block
+              className="bgDisabled"
+              value={[reportTypes.BarChart, reportTypes.LineChart].find(value => value == yreportType) ?? ''}
+              options={[
+                { label: _l('柱图'), value: reportTypes.BarChart },
+                { label: _l('折线图'), value: reportTypes.LineChart },
+              ]}
+              onChange={value => {
+                onChangeCurrentReport(
+                  {
+                    yreportType: value,
+                  },
+                  true,
+                );
+              }}
+            />
           </div>
         )}
         {reportType !== reportTypes.BidirectionalBarChart && (
@@ -76,23 +59,26 @@ class YAxis extends Component {
             <div className="mBottom16">
               <div className="mBottom8">{_l('线条样式')}</div>
               <Select
-                className="chartSelect w100"
+                className="w100"
                 value={ydisplay.lineStyle}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={[
+                  {
+                    value: 1,
+                    label: _l('实线'),
+                  },
+                  {
+                    value: 2,
+                    label: _l('虚线'),
+                  },
+                ]}
                 onChange={value => {
                   onChangeDisplayValue({
                     ...ydisplay,
                     lineStyle: value,
                   });
                 }}
-              >
-                <Select.Option className="selectOptionWrapper" value={1}>
-                  {_l('实线')}
-                </Select.Option>
-                <Select.Option className="selectOptionWrapper" value={2}>
-                  {_l('虚线')}
-                </Select.Option>
-              </Select>
+              />
             </div>
           )}
         {reportType !== reportTypes.BidirectionalBarChart && (
@@ -113,8 +99,9 @@ class YAxis extends Component {
             </div>
             {ydisplay.showTitle && (
               <Input
-                className="chartInput mBottom16"
+                className="mBottom16"
                 defaultValue={ydisplay.title}
+                onPressEnter={event => event.currentTarget.blur()}
                 onBlur={event => {
                   onChangeDisplayValue({
                     ...ydisplay,
@@ -129,7 +116,6 @@ class YAxis extends Component {
           <div className="mBottom16 minWrapper">
             <div className="mBottom8">{_l('最小值')}</div>
             <Input
-              className="chartInput"
               placeholder={_l('自动')}
               defaultValue={ydisplay.minValue}
               onBlur={event => {
@@ -145,7 +131,6 @@ class YAxis extends Component {
           <div className="mBottom16 maxWrapper">
             <div className="mBottom8">{_l('最大值')}</div>
             <Input
-              className="chartInput"
               placeholder={_l('自动')}
               defaultValue={ydisplay.maxValue}
               onBlur={event => {
@@ -165,7 +150,7 @@ class YAxis extends Component {
 }
 
 export function bidirectionalBarChartYAxisPanelGenerator(props) {
-  const { currentReport, changeCurrentReport, ...collapseProps } = props;
+  const { currentReport, changeCurrentReport } = props;
   const { displaySetup, rightY, reportType, yreportType } = currentReport;
   const { ydisplay } = displaySetup;
 
@@ -178,13 +163,11 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
     });
   };
 
-  return (
-    <Collapse.Panel
-      key="bidirectionalBarChartYAxis"
-      header={_l('测量轴')}
-      className={cx({ yAxisCollapsible: false })}
-      {...collapseProps}
-    >
+  return {
+    key: 'bidirectionalBarChartYAxis',
+    label: _l('测量轴'),
+    className: cx({ yAxisCollapsible: false }),
+    children: (
       <div>
         <div className="flexRow valignWrapper">
           <Checkbox
@@ -206,26 +189,29 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
           <div className="mBottom16">
             <div className="mBottom8">{_l('线条样式')}</div>
             <Select
-              className="chartSelect w100"
+              className="w100"
               value={ydisplay.lineStyle}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={[
+                {
+                  value: 1,
+                  label: _l('实线'),
+                },
+                {
+                  value: 2,
+                  label: _l('虚线'),
+                },
+              ]}
               onChange={value => {
                 onChangeDisplayValue({
                   ...ydisplay,
                   lineStyle: value,
                 });
               }}
-            >
-              <Select.Option className="selectOptionWrapper" value={1}>
-                {_l('实线')}
-              </Select.Option>
-              <Select.Option className="selectOptionWrapper" value={2}>
-                {_l('虚线')}
-              </Select.Option>
-            </Select>
+            />
           </div>
         )}
-        <div className="mBottom10">{_l('方向1(数值)')}</div>
+        <div className="mBottom10 textSecondary">{_l('方向1(数值)')}</div>
         <YAxis
           yreportType={yreportType}
           reportType={reportType}
@@ -234,7 +220,7 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
           onChangeCurrentReport={changeCurrentReport}
           onChangeDisplayValue={onChangeDisplayValue}
         />
-        <div className="mBottom10">{_l('方向2(数值)')}</div>
+        <div className="mBottom10 textSecondary">{_l('方向2(数值)')}</div>
         <YAxis
           isRight={true}
           reportType={reportType}
@@ -252,12 +238,12 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
           }}
         />
       </div>
-    </Collapse.Panel>
-  );
+    ),
+  };
 }
 
 export default function yAxisPanelGenerator(props) {
-  const { currentReport, changeCurrentReport, ...collapseProps } = props;
+  const { currentReport, changeCurrentReport } = props;
   const { displaySetup, rightY, reportType, yreportType } = currentReport;
   const isDualAxes = reportType === reportTypes.DualAxes;
   const isBarChart = reportType === reportTypes.BarChart;
@@ -266,35 +252,33 @@ export default function yAxisPanelGenerator(props) {
   const rightYSwitchChecked = isDualAxes
     ? rightY.display.ydisplay.showDial || rightY.display.ydisplay.showTitle
     : false;
-  return (
-    <Fragment>
-      <Collapse.Panel
-        key="yAxis"
-        header={isDualAxes ? _l('Y轴') : isVertical ? _l('X轴') : _l('Y轴')}
-        className={cx({ yAxisCollapsible: !switchChecked })}
-        {...collapseProps}
-        extra={
-          <Switch
-            size="small"
-            checked={switchChecked}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              changeCurrentReport({
-                displaySetup: {
-                  ...displaySetup,
-                  ydisplay: {
-                    ...displaySetup.ydisplay,
-                    showDial: checked,
-                    showTitle: checked,
-                  },
+  return [
+    {
+      key: 'yAxis',
+      label: isDualAxes ? _l('Y轴') : isVertical ? _l('X轴') : _l('Y轴'),
+      className: cx({ yAxisCollapsible: !switchChecked }),
+      extra: (
+        <Switch
+          size="small"
+          checked={switchChecked}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            changeCurrentReport({
+              displaySetup: {
+                ...displaySetup,
+                ydisplay: {
+                  ...displaySetup.ydisplay,
+                  showDial: checked,
+                  showTitle: checked,
                 },
-              });
-            }}
-          />
-        }
-      >
+              },
+            });
+          }}
+        />
+      ),
+      children: (
         <YAxis
           yreportType={yreportType}
           reportType={reportType}
@@ -310,56 +294,54 @@ export default function yAxisPanelGenerator(props) {
             });
           }}
         />
-      </Collapse.Panel>
-      {isDualAxes && (
-        <Collapse.Panel
-          key="rightyAxis"
-          header={isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}
-          className={cx({ yAxisCollapsible: !rightYSwitchChecked })}
-          {...collapseProps}
-          extra={
-            <Switch
-              size="small"
-              checked={rightYSwitchChecked}
-              onClick={(checked, event) => {
-                event.stopPropagation();
-              }}
-              onChange={checked => {
-                changeCurrentReport({
-                  rightY: {
-                    ...rightY,
-                    display: {
-                      ...rightY.display,
-                      ydisplay: {
-                        ...rightY.display.ydisplay,
-                        showDial: checked,
-                        showTitle: checked,
-                      },
-                    },
-                  },
-                });
-              }}
-            />
-          }
-        >
-          <YAxis
-            isRight={true}
-            reportType={reportType}
-            ydisplay={rightY.display.ydisplay}
-            onChangeDisplayValue={data => {
-              changeCurrentReport({
-                rightY: {
-                  ...rightY,
-                  display: {
-                    ...rightY.display,
-                    ydisplay: data,
+      ),
+    },
+    isDualAxes && {
+      key: 'rightyAxis',
+      label: isDualAxes ? _l('辅助Y轴') : _l('数值(2)'),
+      className: cx({ yAxisCollapsible: !rightYSwitchChecked }),
+      extra: (
+        <Switch
+          size="small"
+          checked={rightYSwitchChecked}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            changeCurrentReport({
+              rightY: {
+                ...rightY,
+                display: {
+                  ...rightY.display,
+                  ydisplay: {
+                    ...rightY.display.ydisplay,
+                    showDial: checked,
+                    showTitle: checked,
                   },
                 },
-              });
-            }}
-          />
-        </Collapse.Panel>
-      )}
-    </Fragment>
-  );
+              },
+            });
+          }}
+        />
+      ),
+      children: (
+        <YAxis
+          isRight={true}
+          reportType={reportType}
+          ydisplay={rightY.display.ydisplay}
+          onChangeDisplayValue={data => {
+            changeCurrentReport({
+              rightY: {
+                ...rightY,
+                display: {
+                  ...rightY.display,
+                  ydisplay: data,
+                },
+              },
+            });
+          }}
+        />
+      ),
+    },
+  ].filter(Boolean);
 }

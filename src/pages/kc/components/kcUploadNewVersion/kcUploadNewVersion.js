@@ -1,9 +1,10 @@
 ﻿import React from 'react';
 import doT from 'dot';
-import { Button, Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import kcAjax from 'src/api/kc';
-import { formatFileSize, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import { getUrlByBucketName } from '../../utils';
 import mainTpl from './tpl/main.html';
 import './style.less';
@@ -34,28 +35,24 @@ UploadNewVersion.prototype = {
     var html = doT.template(mainTpl)();
     NV.dialogBoxID = 'uploadNewVersion_' + Math.random().toString(16).slice(2);
 
-    Dialog.confirm({
-      dialogClasses: `${NV.dialogBoxID} uploadNewVersion darkHeader`,
+    Modal.confirm({
+      wrapClassName: `${NV.dialogBoxID} uploadNewVersion darkHeader`,
       width: 540,
       title: _l('上传新版本'),
-      children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
-      footer: (
-        <div className="Dialog-footer-btns">
-          <Button type="link" onClick={() => $(`.${NV.dialogBoxID}`).parent().remove()}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              let sign = NV.addAsNewVersion();
-              if (sign === false) return;
-              $(`.${NV.dialogBoxID}`).parent().remove();
-            }}
-          >
-            {_l('确认')}
-          </Button>
-        </div>
+      styles: { header: { background: 'var(--color-background-secondary)' } },
+      content: (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: html,
+          }}
+        ></div>
       ),
+      manualClose: true,
+      onOk: close => {
+        const sign = NV.addAsNewVersion();
+
+        if (sign !== false) close();
+      },
     });
 
     setTimeout(() => {

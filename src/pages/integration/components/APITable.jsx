@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Checkbox, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 
 const Wrap = styled.div(
-  ({ maxHeight, minHeight }) => `
+  ({ $maxHeight, $minHeight }) => `
   height: 100%;
   .tableCon {
     height: 100%;
@@ -49,8 +50,8 @@ const Wrap = styled.div(
   }
   .lisCon {
     overflow: auto;
-    max-height: ${maxHeight}px;
-    min-height: ${minHeight}px;
+    max-height: ${$maxHeight}px;
+    min-height: ${$minHeight}px;
   }
   .conTr {
     &:hover {
@@ -82,9 +83,9 @@ const keysDef = [
       return (
         <Checkbox
           className="mLeft5"
-          size="small"
           checked={selectedList.includes(item.id) || isCheckAll}
           // onClick={() => handleSelect(item.id)}
+          size="small"
         />
       );
     },
@@ -138,7 +139,7 @@ function APITable(props) {
   };
 
   return (
-    <Wrap maxHeight={props.maxHeight} minHeight={props.minHeight}>
+    <Wrap $maxHeight={props.maxHeight} $minHeight={props.minHeight}>
       <div className="tableCon flexColumn flex">
         <div className="headTr">
           {keys.map((o, i) => {
@@ -146,13 +147,13 @@ function APITable(props) {
               <div className={`${o.key}`} key={i}>
                 {i === 0 ? (
                   <Checkbox
-                    size="small"
                     className="mLeft5"
-                    clearselected={selectedList.length < props.count && selectedList.length > 0 && !props.isCheckAll}
+                    indeterminate={selectedList.length < props.count && selectedList.length > 0 && !props.isCheckAll}
                     checked={
                       ((selectedList.length >= props.count && props.count > 0) || props.isCheckAll) && list.length > 0
                     }
-                    onClick={checked => props.onCheck(!checked)}
+                    onChange={event => props.onCheck(event.target.checked)}
+                    size="small"
                   />
                 ) : (
                   o.name

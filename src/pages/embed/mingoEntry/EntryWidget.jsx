@@ -1,14 +1,16 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import AnonAttachmentSlot from 'src/components/Agent/ui/AnonAttachmentSlot';
 import PromptInput from 'src/components/Agent/ui/PromptInput';
 import AddedFiles from 'src/components/Mingo/ChatBot/components/AddedFiles';
-import { browserIsMobile } from 'src/utils/common';
-import { isThirdPartyIntegration } from './env';
-import { pickEntrySamples } from './samples';
-
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 // 官网首页输入框 embed（设计图框选部分）：输入框 + 示例 chips + 换一批。
 // JS 直嵌（MDHome 等外部站）：提交 → bootstrap → 写 handoff → 新标签页打开 HAP plan 页。
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { isMingoEntryMobileClient, isThirdPartyIntegration } from './env';
+import { pickEntrySamples } from './samples';
+
 const PROMPT_INPUT_ID = 'mingo-entry-prompt-input';
 let anonymousRuntimePromise;
 let loginApiPromise;
@@ -64,8 +66,9 @@ function getMobileCreateAppUrl(handoffKey, webUrl) {
   return webUrl ? url.toString() : `${url.pathname}${url.search}`;
 }
 
+// 登录态下该 id 同时作为 WebCache handoff 的 key，需满足 ^[A-Za-z0-9_-]{16,256}$；uuid 兼顾长度与随机性。
 function createMingoSessionId() {
-  return `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `session-${uuidv4()}`;
 }
 
 async function checkLoggedAccount() {
@@ -291,7 +294,7 @@ export default function EntryWidget({
 
     if (!text || submitting || submitLockRef.current) return;
     submitLockRef.current = true;
-    const isMobile = browserIsMobile();
+    const isMobile = isMingoEntryMobileClient({ browserIsMobile: browserIsMobile() });
     const threePartyIntegration = isThirdPartyIntegration();
     const targetWindow = isMobile && !threePartyIntegration ? window.open('about:blank', '_blank') : null;
 
@@ -332,7 +335,7 @@ export default function EntryWidget({
       if (isCaptchaCancelledError(err)) return;
 
       console.error('[mingo-entry] start plan failed', err);
-      alert(_l('网络繁忙，请稍后再试'), 2);
+      alertIfNotUnauthorized(err, _l('网络繁忙，请稍后再试'), 2);
     } finally {
       setSubmitting(false);
       submitLockRef.current = false;

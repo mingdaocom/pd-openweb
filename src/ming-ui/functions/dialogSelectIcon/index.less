@@ -1,20 +1,20 @@
 .selectIconWrap {
-  .ant-tabs-tab {
+  .hap-tabs-tab {
     font-size: 13px;
     margin: 0 0 0 12px;
     padding: 6px 0;
-    &.ant-tabs-tab-active .ant-tabs-tab-btn {
+    &.hap-tabs-tab-active .hap-tabs-tab-btn {
       color: var(--color-text-title) !important;
       font-weight: bold;
     }
   }
-  .ant-tabs-nav {
+  .hap-tabs-nav {
     margin-bottom: 0;
     &::before {
       border: none;
     }
   }
-  .ant-tabs-content-holder {
+  .hap-tabs-content-holder {
     margin-top: 6px;
   }
   .colorsWrap {
@@ -84,27 +84,22 @@
   }
 }
 
-.selectIconDialogContainer {
-  .mui-dialog-mask {
-    background-color: rgba(0, 0, 0, 0.1) !important;
-  }
-  .mui-dialog-dialog {
+.selectIconDialog {
+  .hap-modal-content,
+  .hap-modal-container {
     border-radius: 16px !important;
-    .mui-dialog-close-btn {
-      top: 4px !important;
-    }
-    .mui-dialog-body {
-      padding: 0 24px 24px !important;
-    }
-    .mui-dialog-footer {
-      button {
-        color: var(--color-text-title);
-        background: var(--color-background-primary);
-        border-color: var(--color-text-disabled);
-        &:hover {
-          color: var(--color-primary);
-          border-color: var(--color-primary);
-        }
+  }
+  .hap-modal-close {
+    top: 4px !important;
+  }
+  .hap-modal-footer {
+    button {
+      color: var(--color-text-title);
+      background: var(--color-background-primary);
+      border-color: var(--color-text-disabled);
+      &:hover {
+        color: var(--color-primary);
+        border-color: var(--color-primary);
       }
     }
   }

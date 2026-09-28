@@ -2,10 +2,10 @@ import React, { Fragment, useRef } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import projectAjax from 'src/api/project';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const TYPE_CONFIG = {
   desktop: {
@@ -14,10 +14,11 @@ const TYPE_CONFIG = {
     text: _l('将链接分享给你的成员'),
   },
   app: {
-    title:
-      window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+    get title() {
+      return window.platformENV.isPlatform && window.platformENV.isHap
         ? _l('安装明道云手机移动客户端')
-        : _l('安装手机移动客户端'),
+        : _l('安装手机移动客户端');
+    },
     explain: _l('为您的成员安装App（支持IOS或者Andriod)'),
     text: _l('扫描二维码，将页面发送给您的好友'),
   },
@@ -156,6 +157,7 @@ export default ({ projectId, type, onClose }) => {
       <div className="text">{text}</div>
       {isDesktop && (
         <Button
+          type="primary"
           ref={$copy}
           className="copyBtn"
           onClick={() => {

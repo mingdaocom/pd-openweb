@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Icon, LoadDiv, MobileSearch, PopupWrapper, ScrollView, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, ScrollView, SvgIcon } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 
 const HIDDEN_SCROLLBAR_OPTIONS = { scrollbars: { visibility: 'hidden' } };
 

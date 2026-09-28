@@ -4,8 +4,8 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { MdLink } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getClassNameByExt } from 'src/utils/common';
-import { getIconNameByExt } from 'src/utils/common';
+import { getIconNameByExt } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
 import { NODE_STATUS, NODE_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
 import HoverState from '../decorators/withHoverState';
 import { humanDateTime, humanFileSize } from '../utils';
@@ -65,7 +65,6 @@ export default class KcAppItem extends React.Component {
       isList,
       isRecycle,
       animation,
-      permission,
       removeNode,
       restoreNode,
       onStarNode,
@@ -73,7 +72,6 @@ export default class KcAppItem extends React.Component {
       updateNodeItem,
       showDetail,
       handlePreview,
-      handleAddLinkFile,
       onShareNode,
       moveOrCopyClick,
       download,
@@ -84,27 +82,22 @@ export default class KcAppItem extends React.Component {
     const isCreateUser = item.owner.accountId === md.global.Account.accountId;
     const isUrl = item.viewType === NODE_VIEW_TYPE.LINK;
 
-    const menu = this.state.clickMoreActionsBtn && (
-      <KcAppMenu
-        item={item}
-        permission={permission}
-        onClickAway={() => this.setState({ clickMoreActionsBtn: false })}
-        onClickAwayExceptions={[this.moreActions]}
-        removeNode={removeNode}
-        moveOrCopyClick={moveOrCopyClick}
-        updateNodeName={updateNodeName}
-        updateNodeItem={updateNodeItem}
-        handleAddLinkFile={handleAddLinkFile}
-        onShareNode={onShareNode}
-        onStarNode={onStarNode}
-        download={download}
-        isList={isList}
-        showDetail={showDetail}
-        isCreateUser={isCreateUser}
-        onAddLinkFile={onAddLinkFile}
-        con="#kclistContainer"
-      />
-    );
+    const menuProps = {
+      item,
+      open: this.state.clickMoreActionsBtn,
+      onOpenChange: clickMoreActionsBtn => this.setState({ clickMoreActionsBtn }),
+      removeNode,
+      moveOrCopyClick,
+      updateNodeName,
+      updateNodeItem,
+      onShareNode,
+      onStarNode,
+      download,
+      isList,
+      showDetail,
+      isCreateUser,
+      onAddLinkFile,
+    };
 
     /* 列表视图*/
     let itemType = getClassNameByExt(item.type !== NODE_TYPE.FOLDER && item.ext);
@@ -225,21 +218,20 @@ export default class KcAppItem extends React.Component {
             )}
             <Tooltip title={_l('更多操作')}>
               <span>
-                <HoverState
-                  component="span"
-                  ref={moreActions => (this.moreActions = moreActions)}
-                  className={cx(
-                    'actions pointer',
-                    { colorPrimary: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
-                    isRecycle ? 'hide' : 'icon-more_horiz',
-                  )}
-                  thisArg={this}
-                  hoverStateName="hoverMoreActionsBtn"
-                  onClick={() => this.setState({ clickMoreActionsBtn: true })}
-                />
+                <KcAppMenu {...menuProps}>
+                  <HoverState
+                    component="span"
+                    className={cx(
+                      'actions pointer',
+                      { colorPrimary: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
+                      isRecycle ? 'hide' : 'icon-more_horiz',
+                    )}
+                    thisArg={this}
+                    hoverStateName="hoverMoreActionsBtn"
+                  />
+                </KcAppMenu>
               </span>
             </Tooltip>
-            {menu}
             {(item.isAdmin || isCreateUser) && (
               <Tooltip title={_l('彻底删除')}>
                 <span>
@@ -357,19 +349,18 @@ export default class KcAppItem extends React.Component {
           <span className={cx('nodeActionIcons', { hide: !this.state.clickMoreActionsBtn })}>
             <Tooltip title={_l('更多操作')}>
               <span>
-                <HoverState
-                  ref={moreActions => (this.moreActions = moreActions)}
-                  component="span"
-                  className={cx('actions pointer icon-more_horiz', {
-                    colorPrimary: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
-                  })}
-                  thisArg={this}
-                  hoverStateName="hoverMoreActionsBtn"
-                  onClick={() => this.setState({ clickMoreActionsBtn: true })}
-                />
+                <KcAppMenu {...menuProps}>
+                  <HoverState
+                    component="span"
+                    className={cx('actions pointer icon-more_horiz', {
+                      colorPrimary: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
+                    })}
+                    thisArg={this}
+                    hoverStateName="hoverMoreActionsBtn"
+                  />
+                </KcAppMenu>
               </span>
             </Tooltip>
-            {menu}
           </span>
           <div className="selectBox">
             <span className="select hide">

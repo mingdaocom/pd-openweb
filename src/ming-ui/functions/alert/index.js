@@ -1,7 +1,39 @@
 import React from 'react';
-import { message } from 'antd';
 import { Toast } from 'antd-mobile';
-import { browserIsMobile } from 'src/utils/common';
+import { GLOBAL_FEEDBACK_Z_INDEX, message } from 'ming-ui/antd-components';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import './index.less';
+
+const pcAlertTimers = new Map();
+
+function clearPcAlertTimer(key) {
+  if (key !== undefined && key !== null) {
+    const timer = pcAlertTimers.get(key);
+
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      pcAlertTimers.delete(key);
+    }
+
+    return;
+  }
+
+  pcAlertTimers.forEach(timer => clearTimeout(timer));
+  pcAlertTimers.clear();
+}
+
+function resetPcAlertTimer(key, duration, onClose) {
+  clearPcAlertTimer(key);
+  const timer = setTimeout(() => {
+    pcAlertTimers.delete(key);
+    try {
+      onClose?.();
+    } finally {
+      message.destroy(key);
+    }
+  }, duration);
+  pcAlertTimers.set(key, timer);
+}
 
 function getIcon(type = 'success', isMobile = false) {
   const config = {
@@ -43,7 +75,7 @@ function getIcon(type = 'success', isMobile = false) {
         className={`icon-${icon.name}`}
         style={{
           fontSize: isMobile ? 48 : 18,
-          ...(isMobile ? {} : { color: icon.color, marginRight: 6, top: 1, position: 'relative' }),
+          ...(isMobile ? {} : { color: icon.color }),
           ...rotationStyle,
         }}
       />
@@ -76,24 +108,47 @@ export function antAlert(content, alertType = 1) {
       content: contentValue,
       duration,
       afterClose: onClose,
-      maskStyle: { zIndex: 999999 },
+      maskStyle: { zIndex: GLOBAL_FEEDBACK_Z_INDEX },
     });
     return toastController;
+  }
+
+  const hasKey = key !== undefined && key !== null;
+  const shouldManageDuration = hasKey && Number.isFinite(duration) && duration > 0;
+
+  const handleClose = () => {
+    if (hasKey) {
+      clearPcAlertTimer(key);
+    }
+
+    onClose?.();
+  };
+
+  if (hasKey) {
+    clearPcAlertTimer(key);
   }
 
   message[func]({
     className: 'pcToast',
     icon: getIcon(func),
     content: contentValue,
-    duration: duration / 1000,
-    onClose,
+    // antd 同 key 更新可能复用已结束的内部计时器，由 alert 统一重置 keyed message 的关闭时间
+    duration: shouldManageDuration ? 0 : duration / 1000,
+    pauseOnHover: false,
+    onClose: hasKey ? handleClose : onClose,
     key,
     style,
   });
+
+  if (shouldManageDuration) {
+    resetPcAlertTimer(key, duration, handleClose);
+  }
 }
 
 export function destroyAlert(key) {
   const isMobile = browserIsMobile();
+
+  clearPcAlertTimer(key);
 
   if (isMobile) {
     Toast.clear();

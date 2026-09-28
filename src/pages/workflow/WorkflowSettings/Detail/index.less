@@ -1,32 +1,7 @@
 .AppAdminWorkflowEdit,
 .integration {
-  .dropdownTrigger {
-    .ming.Menu {
-      width: 100%;
-      .icon-info {
-        color: var(--color-text-tertiary);
-      }
-    }
-  }
   .actionCustomBoxError {
     background: var(--color-warning-bg);
-  }
-  .workflowPrintTrigger {
-    width: 752px;
-    max-height: 200px;
-    overflow-y: auto;
-    .Item-content {
-      padding-left: 36px !important;
-    }
-    .icon-new_word {
-      color: var(--color-primary) !important;
-    }
-    .icon-new_excel {
-      color: var(--color-success) !important;
-    }
-    .icon-doc {
-      color: #465a65 !important;
-    }
   }
 }
 
@@ -120,7 +95,6 @@
       input {
         height: 34px;
         line-height: 34px;
-        border: none;
         background: transparent;
         border-radius: 3px;
         padding: 0 10px;
@@ -200,53 +174,9 @@
         min-width: 0;
         width: 100%;
         font-size: 13px;
-        &.flowDropdownMoreSelect {
-          .Dropdown--input {
-            height: auto;
-            min-height: 36px;
-            padding: 2px 10px;
-          }
-        }
-        &.flowDropdownBorder {
-          .Dropdown--border {
-            border-width: 2px;
-            height: 40px;
-          }
-          .List {
-            li {
-              height: 36px;
-              line-height: 36px;
-            }
-          }
-        }
         &.flowDropdownHideArrow {
-          .icon-arrow-down-border {
+          .hap-select-arrow {
             display: none;
-          }
-        }
-        &.flowDropdownNull {
-          .dropdown-btn {
-            span {
-              color: var(--color-text-disabled);
-              font-size: 12px;
-            }
-          }
-        }
-        &.flowDropdownDate {
-          .ming.Menu {
-            padding: 5px;
-            width: 276px;
-            .MenuItem {
-              width: 32px;
-              height: 32px;
-              line-height: 32px;
-              text-align: center;
-              display: inline-block;
-              margin: 3px;
-            }
-            .Item-content {
-              padding: 0;
-            }
           }
         }
         &.flowDropdownModel {
@@ -263,94 +193,17 @@
             color: #615ced;
           }
         }
-        .Dropdown--border {
-          padding: 5px 10px;
-          border-color: var(--color-border-primary);
-        }
-        .value {
+        .hap-select-selection-item {
           display: inline-flex;
           align-items: center;
-        }
-        .ming.Menu {
-          width: 100%;
-          li {
-            .field {
-              margin-right: 5px;
-              color: var(--color-text-secondary);
-            }
-          }
-        }
-        .dropdown-btn {
-          border: 1px solid var(--color-border-tertiary);
-          border-radius: 4px;
-          width: 100%;
-          box-sizing: border-box;
-          padding: 5px 30px 5px 10px;
-          position: relative;
-          text-align: left;
-          .icon-arrow-down-border {
-            position: absolute;
-            right: 4px;
-            top: 6px;
-          }
-        }
-        .multi-dropdown-menu {
-          width: 100%;
         }
         .icon-arrow-down-border {
           color: var(--color-text-secondary);
         }
-        .tagWrap {
-          display: flex;
-          flex-wrap: wrap;
-          li {
-            align-items: center;
-            box-sizing: border-box;
-            margin: 3px 6px 3px 0;
-            border-radius: 3px;
-            height: 24px;
-            padding: 6px 5px 6px 10px;
-            background-color: var(--color-background-tertiary);
-            border: 1px solid var(--color-border-primary);
-            &.error {
-              background-color: var(--color-error-bg);
-              border-color: var(--color-error-bg);
-              color: var(--color-error);
-            }
-            .tag {
-              margin-right: 5px;
-              font-size: 13px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              flex: 1;
-            }
-            .delTag {
-              color: var(--color-text-tertiary);
-              &:hover {
-                color: var(--color-text-secondary);
-              }
-            }
-          }
-        }
       }
       .flowDropdownMinWidth {
-        .value {
+        .hap-select-selection-item {
           min-width: 93%;
-        }
-      }
-      .flowAddTypeDropdown {
-        .Dropdown--input {
-          padding: 0;
-          height: 22px;
-          display: flex;
-          align-items: center;
-          .value {
-            color: var(--color-text-secondary);
-          }
-          .ming.Icon {
-            margin-left: 5px !important;
-          }
         }
       }
       .workflowDetailAddBtn {
@@ -370,9 +223,6 @@
         position: absolute;
         right: 0;
         top: -5px;
-        .ming.List {
-          width: 480px !important;
-        }
       }
       .actionItem {
         padding-right: 14px;
@@ -414,20 +264,11 @@
         .tagInputareaIuput {
           padding-right: 34px;
         }
-        .nodeListMenu {
-          right: 36px !important;
-          width: auto !important;
-        }
       }
     }
     .clearBorderRadius {
       border-top-right-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
-      .Dropdown--border,
-      .dropdown-btn {
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-      }
     }
     .actionControlBox {
       height: 34px;
@@ -479,6 +320,7 @@
         }
       }
       .CityPicker-wrapper {
+        &.CityPicker-input-container,
         .CityPicker-input-container {
           height: 34px;
           line-height: 34px;
@@ -501,43 +343,15 @@
           color: var(--color-text-secondary) !important;
         }
       }
-      .mui-datetime-base,
-      .mui-datetimerange-base {
+      .workflowDatePicker {
+        width: 100%;
         height: 34px;
-        line-height: 34px;
-        .mui-datetime-picker {
-          display: block;
-          height: 100%;
-          padding: 0 10px;
-        }
+        padding: 0 10px;
+        background: transparent;
+        box-sizing: border-box;
       }
-      .tagWrap {
-        display: flex;
-        flex-wrap: wrap;
-        li {
-          align-items: center;
-          box-sizing: border-box;
-          margin: 3px 4px;
-          border-radius: 26px;
-          height: 28px;
-          padding: 6px 12px 6px 10px;
-          background-color: var(--color-background-tertiary);
-          border: 1px solid var(--color-border-primary);
-          .tag {
-            margin-right: 12px;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-          }
-          .delTag {
-            color: var(--color-text-disabled);
-            &:hover {
-              color: var(--color-text-secondary);
-            }
-          }
-        }
+      &.actionControlBoxClear .workflowDatePicker {
+        padding-right: 30px;
       }
       .triggerConditionTime {
         height: 34px;
@@ -727,7 +541,7 @@
         &:hover {
           background: var(--color-background-hover);
         }
-        .Radio-box {
+        .ant-radio-inner {
           background: var(--color-background-primary) !important;
         }
       }
@@ -799,32 +613,6 @@
       }
     }
   }
-  .fomulaFnList {
-    right: 36px;
-    width: auto;
-    max-height: 280px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    li.hr {
-      border-top: 1px solid var(--color-border-tertiary);
-      margin: 3px 0;
-    }
-    .MenuItem {
-      &:hover {
-        .fnName {
-          color: rgba(255, 255, 255, 0.8);
-        }
-      }
-    }
-    .fnName {
-      margin-left: 6px;
-      color: var(--color-text-secondary);
-    }
-    .fnEmpty {
-      padding: 10px;
-      color: var(--color-text-secondary);
-    }
-  }
   .workflowMessageList {
     box-sizing: border-box;
     border: 1px solid var(--color-border-primary);
@@ -841,14 +629,14 @@
       &:hover {
         background: var(--color-background-hover);
       }
-      .Radio-box {
+      .ant-radio-inner {
         background: var(--color-background-primary) !important;
       }
-      .Radio-text {
+      .ant-radio-label {
         color: var(--color-text-title) !important;
         font-size: 16px;
       }
-      .ming.Radio {
+      .ant-radio-wrapper {
         margin-right: 0;
       }
     }
@@ -935,7 +723,6 @@
   }
   .webhookLink {
     border-radius: 4px;
-    border: 1px solid var(--color-border-primary);
     background: var(--color-background-disabled);
     height: 40px;
     line-height: 40px;
@@ -1022,13 +809,6 @@
   .errorColor {
     color: var(--color-error) !important;
   }
-  .errorBorder {
-    &.ming.Dropdown {
-      .Dropdown--border {
-        border-color: var(--color-error) !important;
-      }
-    }
-  }
   .errorBG {
     background: var(--color-error-bg) !important;
   }
@@ -1037,22 +817,19 @@
     position: absolute;
     top: 1px;
     right: 37px;
-    height: 34px;
+    height: 34px !important;
     display: inline-flex;
     justify-content: center;
     border-left: 1px solid var(--color-border-primary);
+    border-radius: 0;
     padding: 0 10px;
     &.clearBorderRadius {
       right: 0;
     }
     &:hover {
-      .Dropdown--placeholder,
       .icon {
         color: var(--color-primary) !important;
       }
-    }
-    .Dropdown--input {
-      padding: 7px 0;
     }
   }
   .workflowEmailContentType {
@@ -1062,15 +839,6 @@
 }
 
 .workflowDialogBox {
-  max-height: inherit !important;
-  &.workflowDetailRelease {
-    .mui-dialog-body {
-      pointer-events: none;
-    }
-    .mui-dialog-footer {
-      display: none;
-    }
-  }
   .workflowDialogSupport {
     color: var(--color-text-tertiary) !important;
     &:hover {
@@ -1086,13 +854,10 @@
   }
   .actionFields {
     width: 100%;
-    top: 36px;
+    top: 40px;
     .conditionScrollWrap {
       max-height: 300px !important;
     }
-  }
-  .mui-dialog-body {
-    overflow: inherit !important;
   }
   .actionControlBox {
     height: 34px;
@@ -1128,21 +893,6 @@
   .clearBorderRadius {
     border-top-right-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
-    .Dropdown--border,
-    .dropdown-btn {
-      border-top-right-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-    }
-  }
-  .mui-datetime-base,
-  .mui-datetimerange-base {
-    height: 34px;
-    line-height: 34px;
-    .mui-datetime-picker {
-      display: block;
-      height: 100%;
-      padding: 0 10px;
-    }
   }
   .mui-forminput {
     width: 100px;
@@ -1192,14 +942,6 @@
 }
 
 .workfowFullCode {
-  .mui-dialog-header {
-    text-align: right;
-    padding: 6px !important;
-  }
-  .mui-dialog-body {
-    padding-bottom: 0 !important;
-    margin-bottom: 22px;
-  }
   .codeEditorSmall {
     font-size: 22px;
     color: var(--color-text-disabled);
@@ -1211,30 +953,5 @@
   .workflowCodeMirrorBox,
   .tagInputareaIuput {
     height: 100%;
-  }
-}
-
-.subProcessDialog {
-  max-height: inherit !important;
-  .mui-dialog-body {
-    overflow: inherit !important;
-  }
-}
-
-.deleteApprovalProcessDialog {
-  .mui-dialog-footer {
-    .Button--primary {
-      background: var(--color-error);
-    }
-  }
-}
-
-.workflowDetailExecDialog {
-  .mui-dialog-body {
-    background-color: var(--color-background-primary);
-    padding-top: 10px !important;
-    padding-right: 0 !important;
-    padding-bottom: 10px !important;
-    border-radius: 0 0 3px 3px;
   }
 }

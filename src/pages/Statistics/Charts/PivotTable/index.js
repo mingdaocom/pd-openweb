@@ -1,18 +1,21 @@
 import React, { Component, createRef, Fragment } from 'react';
 import { generate } from '@ant-design/colors';
-import { Dropdown, Menu, Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Linkify, UserCard } from 'ming-ui';
+import { Linkify, UserCard } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { isDisplayModes, isFormatNumber, isOptionControl, renderFieldStyleValue } from 'statistics/common/controlUtils';
 import { relevanceImageSize } from 'statistics/common/reportConfigUtils';
 import DepartmentTooltip from 'src/components/Form/DesktopForm/widgets/DepartmentSelect/DepartmentTooltip';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { isLightColor } from 'src/pages/customPage/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { browserIsMobile, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { chartContextMenuProps, getChartContextMenuItems } from '../ChartContextMenu';
 import { formatNumberValue, formatrChartValue } from '../common';
 import PivotTableContent from './styled';
 import {
@@ -196,6 +199,7 @@ class PivotTable extends Component {
         mobilePivotTableLineFreezeIndex,
         displaySetup.mergeCell,
       ],
+
       () => mergeLinesCell(data.x, lines, valueMap, config),
     );
   };
@@ -232,11 +236,11 @@ class PivotTable extends Component {
     const { pivotTableColumnFreeze, pivotTableLineFreeze } = style ? style : {};
 
     if (pivotTableColumnFreeze) {
-      return this.$ref.current.querySelector('.ant-table-body');
+      return this.$ref.current.querySelector('.hap-table-body');
     }
 
     if (pivotTableLineFreeze) {
-      return this.$ref.current.querySelector('.ant-table-content');
+      return this.$ref.current.querySelector('.hap-table-content');
     }
 
     return null;
@@ -811,6 +815,7 @@ class PivotTable extends Component {
             rowSpan: 0,
           },
         ];
+
         set(data.children[0]);
       }
     };
@@ -1250,6 +1255,7 @@ class PivotTable extends Component {
               {res.map((item, index) => this.renderRelevanceContent(item, control, index, diffWidth, linesData))}
             </div>
           ),
+
           props,
         };
       } else if (_.isString(data.value) && data.value.includes('subTotal')) {
@@ -1479,24 +1485,15 @@ class PivotTable extends Component {
 
     return children;
   }
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   render() {
     const { dragValue, pageSize, dropdownVisible, offset, pageIndex } = this.state;
     const { themeColor, customPageConfig, reportData, linkageMatch = {}, sourceType } = this.props;
@@ -1539,10 +1536,10 @@ class PivotTable extends Component {
       <Fragment>
         <PivotTableContent
           ref={this.$ref}
-          isMobile={isMobile}
-          pivotTableStyle={replaceColor({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch })}
-          isFreeze={columnFreeze || lineFreeze}
-          paginationVisible={paginationVisible && !isPrintPivotTable && paginationTotal > pageSize}
+          $isMobile={isMobile}
+          $pivotTableStyle={replaceColor({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch })}
+          $isFreeze={columnFreeze || lineFreeze}
+          $paginationVisible={paginationVisible && !isPrintPivotTable && paginationTotal > pageSize}
           className={cx('flex flexColumn chartWrapper Relative', {
             contentXAuto: _.isUndefined(scrollConfig.x),
             contentYAuto: _.isUndefined(scrollConfig.y),
@@ -1553,7 +1550,6 @@ class PivotTable extends Component {
             hideDrag: widthModel === 3,
             noSelect: dragValue,
             safariScroll: scrollConfig.y,
-            firefoxScroll: scrollConfig.y && window.isWindows && window.isFirefox,
           })}
         >
           <Table
@@ -1571,7 +1567,7 @@ class PivotTable extends Component {
                     current: pageIndex,
                     total: paginationTotal,
                     hideOnSinglePage: true,
-                    showSizeChanger: true,
+                    showSizeChanger: { showSearch: false },
                     pageSize: showTopLineTotal ? pageSize + 1 : pageSize,
                     pageSizeOptions: [20, 25, 30, 50, 100],
                     onChange: pageIndex => {
@@ -1588,16 +1584,21 @@ class PivotTable extends Component {
             dataSource={dataSource}
             scroll={scrollConfig}
           />
+
           {!!dragValue && <div style={{ left: dragValue }} className="pivotTableDragLine" />}
         </PivotTableContent>
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>

@@ -1,32 +1,26 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import projectSettingAjax from 'src/api/projectSetting';
 import { CLEAR_CACHE_PROCESS_TYPE } from 'src/pages/Admin/enum';
-import { emitter } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getCurrentProject } from 'src/utils/services/project';
 import { downloadFile } from '../../../../../util';
 import * as currentActions from '../../actions/current';
 import * as entitiesActions from '../../actions/entities';
-import { createEditDeptDialog } from '../CreateEditDeptDialog';
+import { useCreateEditDeptDialog } from '../CreateEditDeptDialog';
 
 const Wrap = styled.div`
   padding: 12px 0;
   border-top: 1px solid var(--color-border-secondary);
   display: flex;
   align-items: center;
-`;
-
-const MenuWrap = styled(Menu)`
-  .ming.Item .Item-content .Icon {
-    position: static;
-  }
 `;
 
 class CreateBtn extends Component {
@@ -60,7 +54,7 @@ class CreateBtn extends Component {
     }
 
     const { projectId, getFullTree } = this.props;
-    createEditDeptDialog({
+    this.props.openCreateEditDeptDialog({
       type: 'create',
       projectId,
       departmentId: '',
@@ -135,44 +129,42 @@ class CreateBtn extends Component {
             {_l('添加')}
           </span>
         )}
-        <Trigger
-          action={['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 0],
-            overflow: { adjustX: true, adjustY: true },
+        <Dropdown
+          trigger={['click']}
+          open={popupVisible}
+          onOpenChange={popupVisible => this.setState({ popupVisible })}
+          menu={{
+            items: [
+              ...(hasDepartmentAuth
+                ? [
+                    {
+                      key: 'showDisabled',
+                      label: <Checkbox checked={showDisabledDepartment}>{_l('显示停用部门')}</Checkbox>,
+                      onClick: () => handleShowDisabledDepartment(!showDisabledDepartment),
+                    },
+                    {
+                      key: 'import',
+                      label: _l('导入部门'),
+                      onClick: () => {
+                        updateShowExport(true);
+                        updateImportType('importDepartment');
+                      },
+                    },
+                    {
+                      key: 'export',
+                      disabled: _.isEmpty(newDepartments),
+                      label: _l('导出部门'),
+                      onClick: this.exportDepartmentList,
+                    },
+                  ]
+                : []),
+              { key: 'refresh', label: _l('刷新部门列表'), onClick: this.clearDepartmentCache },
+            ],
+            onClick: () => this.setState({ popupVisible: false }),
           }}
-          popupVisible={popupVisible}
-          onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
-          popup={
-            <MenuWrap>
-              {hasDepartmentAuth && (
-                <Fragment>
-                  <MenuItem onClick={() => handleShowDisabledDepartment(!showDisabledDepartment)}>
-                    <Checkbox text={_l('显示停用部门')} checked={showDisabledDepartment} />
-                  </MenuItem>
-                  <MenuItem
-                    key="0"
-                    onClick={() => {
-                      updateShowExport(true);
-                      updateImportType('importDepartment');
-                    }}
-                  >
-                    {_l('导入部门')}
-                  </MenuItem>
-                  <MenuItem key="1" disabled={_.isEmpty(newDepartments)} onClick={this.exportDepartmentList}>
-                    {_l('导出部门')}
-                  </MenuItem>
-                </Fragment>
-              )}
-              <MenuItem key="2" onClick={this.clearDepartmentCache}>
-                {_l('刷新部门列表')}
-              </MenuItem>
-            </MenuWrap>
-          }
         >
           <Icon icon="moreop" className="textTertiary Hand Font20 iconHover mRight12" />
-        </Trigger>
+        </Dropdown>
       </Wrap>
     );
   }
@@ -189,4 +181,6 @@ const ConnectedCreateBtn = connect(
   dispatch => bindActionCreators({ ...currentActions, ...entitiesActions }, dispatch),
 )(CreateBtn);
 
-export default ConnectedCreateBtn;
+export default withOpeners(ConnectedCreateBtn, {
+  openCreateEditDeptDialog: useCreateEditDeptDialog,
+});

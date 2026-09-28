@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import qs from 'query-string';
 import { MdLink } from 'ming-ui';
 import { ACTION_ID, APP_TYPE, DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME } from '../../WorkflowSettings/enum';
 
@@ -20,6 +21,51 @@ export const FLOW_TYPE = {
   LOOP: '13',
   CHATBOT: '14',
   AI_ACTIONS: '15',
+};
+
+const DISPLAY_TYPES = ['createdDate', 'lastModifiedDate'];
+const SORT_TYPES = ['name', ...DISPLAY_TYPES];
+
+export const getWorkflowListState = (search = '', worksheetId = '') => {
+  const query = qs.parse(search.replace(/^\?/, ''));
+  const dateFilter = query.date && Number(query.date) >= 1 && Number(query.date) <= 8 ? Number(query.date) : '';
+  const rangeDate = query.rangeStart && query.rangeEnd ? [moment(query.rangeStart), moment(query.rangeEnd)] : [];
+
+  return {
+    type: query.type || '',
+    groupFilter: query.group === undefined ? worksheetId : query.group,
+    userFilter: query.owner || '',
+    statusFilter: query.status === 'true' ? true : query.status === 'false' ? false : '',
+    dateFilter,
+    keywords: query.keyword || '',
+    isAsc: query.asc !== 'false',
+    displayType: DISPLAY_TYPES.includes(query.display) ? query.display : 'lastModifiedDate',
+    sortType: SORT_TYPES.includes(query.sort) ? query.sort : '',
+    rangeDate: dateFilter === 8 && rangeDate.length === 2 && rangeDate.every(date => date.isValid()) ? rangeDate : [],
+    focusId: query.focus || '',
+  };
+};
+
+export const buildWorkflowListReturnQuery = (state, focusId) =>
+  qs.stringify({
+    type: state.type || undefined,
+    group: state.groupFilter || undefined,
+    status: state.statusFilter === '' ? undefined : String(state.statusFilter),
+    owner: state.userFilter || undefined,
+    date: state.dateFilter || undefined,
+    display: state.displayType === 'lastModifiedDate' ? undefined : state.displayType,
+    rangeStart: state.dateFilter === 8 && state.rangeDate[0] ? state.rangeDate[0].toISOString() : undefined,
+    rangeEnd: state.dateFilter === 8 && state.rangeDate[1] ? state.rangeDate[1].toISOString() : undefined,
+    sort: state.sortType || undefined,
+    asc: state.sortType && !state.isAsc ? 'false' : undefined,
+    keyword: state.keywords || undefined,
+    focus: focusId,
+  });
+
+export const getWorkflowListReturnPath = (appId, hash = '') => {
+  const query = hash.replace(/^#/, '');
+
+  return '/app/' + appId + '/workflow' + (query ? '?' + query : '');
 };
 
 export const FLOW_TYPE_NULL = {
@@ -341,28 +387,28 @@ export const getActionTypeContent = (type, item, disable) => {
 
 export const DATE_SCOPE = [
   {
-    text: _l('今天'),
+    label: _l('今天'),
     value: 1,
     format: () => {
       return [moment().format('YYYY-MM-DD'), moment().add(1, 'days').format('YYYY-MM-DD')];
     },
   },
   {
-    text: _l('昨天'),
+    label: _l('昨天'),
     value: 2,
     format: () => {
       return [moment().add(-1, 'days').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')];
     },
   },
   {
-    text: _l('前天'),
+    label: _l('前天'),
     value: 3,
     format: () => {
       return [moment().add(-2, 'days').format('YYYY-MM-DD'), moment().add(-1, 'days').format('YYYY-MM-DD')];
     },
   },
   {
-    text: _l('本周'),
+    label: _l('本周'),
     value: 4,
     format: () => {
       return [
@@ -372,7 +418,7 @@ export const DATE_SCOPE = [
     },
   },
   {
-    text: _l('上周'),
+    label: _l('上周'),
     value: 5,
     format: () => {
       return [
@@ -382,7 +428,7 @@ export const DATE_SCOPE = [
     },
   },
   {
-    text: _l('本月'),
+    label: _l('本月'),
     value: 6,
     format: () => {
       return [
@@ -392,7 +438,7 @@ export const DATE_SCOPE = [
     },
   },
   {
-    text: _l('上月'),
+    label: _l('上月'),
     value: 7,
     format: () => {
       return [
@@ -402,7 +448,7 @@ export const DATE_SCOPE = [
     },
   },
   {
-    text: _l('自定义日期'),
+    label: _l('自定义日期'),
     value: 8,
   },
 ];

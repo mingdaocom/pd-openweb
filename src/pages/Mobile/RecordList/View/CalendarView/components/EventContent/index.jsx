@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
+import { RECORD_COLOR_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 
 const EventContentWrapper = styled.div`
   display: flex;

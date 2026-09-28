@@ -1,4 +1,4 @@
-﻿import preall from 'src/common/preall';
+﻿import preall from 'src/common/entries/preall';
 import MobileSharePreview from './shareMobile';
 
 md.global.Config.disableKf5 = true;

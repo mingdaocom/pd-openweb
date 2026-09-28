@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _, { isEmpty } from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import { SortableList } from 'ming-ui';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import AddAppItem from './AddAppItem';
 import MyAppItem from './MyAppItem';
 

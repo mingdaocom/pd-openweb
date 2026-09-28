@@ -1,20 +1,22 @@
 import React, { Component } from 'react';
 import filterXSS from 'xss';
-import { Icon, Skeleton } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import 'src/components/UnusualContent/index.less';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export default class FixedContent extends Component {
   render() {
     const { appPkg, showLeftSkeleton = true, isNoPublish, hideFixAccount } = this.props;
     const { fixRemark, fixAccount = {}, currentPcNaviStyle } = appPkg;
-    const fixAccountUrl = pathCompletion(`/user_${fixAccount.accountId}`, { hasDomain: false });
-
+    const fixAccountUrl = pathCompletion(`/user_${fixAccount.accountId}`, {
+      hasDomain: false,
+    });
     return (
       <div className="unusualContentWrap">
         {showLeftSkeleton && currentPcNaviStyle !== 1 && (
           <div className="unusualSkeletonWrap">
-            <Skeleton active={false} />
+            <Skeleton className="pAll20" active={false} />
           </div>
         )}
         <div className="unusualContent">
@@ -31,7 +33,13 @@ export default class FixedContent extends Component {
           ) : (
             <React.Fragment>
               <div className="imgWrap mBottom10">
-                <Icon className="Font56" icon="setting" style={{ color: '#fd7558' }} />
+                <Icon
+                  className="Font56"
+                  icon="setting"
+                  style={{
+                    color: '#fd7558',
+                  }}
+                />
               </div>
               <div className="Font20 mBottom10">{_l('应用维护中...')}</div>
               {!hideFixAccount && (
@@ -40,9 +48,7 @@ export default class FixedContent extends Component {
                   dangerouslySetInnerHTML={{
                     __html: _l(
                       '该应用已被 %0 设为维护状态，暂停访问',
-                      `<a href="${fixAccountUrl}" target="_blank" class="fixAccount textPrimary pointer">${filterXSS(
-                        (fixAccount || {}).fullName,
-                      )}</a>`,
+                      `<a href="${fixAccountUrl}" target="_blank" class="fixAccount textPrimary pointer">${filterXSS((fixAccount || {}).fullName)}</a>`,
                     ),
                   }}
                 ></div>

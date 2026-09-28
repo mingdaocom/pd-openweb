@@ -2,9 +2,8 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { controlState } from 'src/utils/control';
+import { Popover } from 'ming-ui/antd-components';
+import { controlState } from 'src/utils/domain/control/state';
 import { WrapChoose } from './styles';
 
 export default function (props) {
@@ -23,20 +22,21 @@ export default function (props) {
     updateCalendarEventIsAdd,
     onChangeClickData,
     random,
+    openAddRecord,
   } = props;
+  const [{ popupVisible }, setState] = useSetState({
+    popupVisible: false,
+  });
 
   if (!canNew) {
     return '';
   }
 
-  const [{ popupVisible }, setState] = useSetState({
-    popupVisible: false,
-  });
   let date = moment(item.date).format('YYYY-MM-DD');
 
   const addRecordInfo = defaultFormData => {
     const { worksheetId } = base;
-    addRecord({
+    openAddRecord({
       showFillNext: true,
       worksheetId: worksheetId,
       defaultFormData,
@@ -113,12 +113,13 @@ export default function (props) {
   };
 
   return (
-    <Trigger
-      popupVisible={popupVisible === `${date}`}
-      action={['click']}
-      popup={renderPopup(item)}
-      getPopupContainer={() => document.body}
-      onPopupVisibleChange={visible => {
+    <Popover
+      open={popupVisible === `${date}`}
+      trigger="click"
+      content={renderPopup(item)}
+      placement="bottom"
+      noPadding
+      onOpenChange={visible => {
         if (visible) {
           if (calendarInfo.length <= 1) {
             useViewInfoUpdate(calendarInfo[0], item);
@@ -129,11 +130,6 @@ export default function (props) {
           setState({ popupVisible: '' });
         }
       }}
-      popupAlign={{
-        points: ['tc', 'bc'],
-        offset: [0, 12],
-        overflow: { adjustX: true, adjustY: true },
-      }}
     >
       <span
         className={cx('add', { isTop: item.view.type !== 'dayGridMonth', Alpha0: isHide })}
@@ -141,6 +137,6 @@ export default function (props) {
       >
         +
       </span>
-    </Trigger>
+    </Popover>
   );
 }

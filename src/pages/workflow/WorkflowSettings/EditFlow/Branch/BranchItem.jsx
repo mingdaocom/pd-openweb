@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Modal } from 'ming-ui/antd-components';
 import { addFlowNode } from '../../../redux/actions';
 import { NODE_TYPE } from '../../enum';
 import { getFilterText } from '../../utils';
@@ -213,13 +213,17 @@ export default class BranchItem extends Component {
         onMouseDown={e => {
           e.stopPropagation();
 
-          Confirm({
-            className: 'deleteNodeConfirm',
-            title: _.includes([1, 2], item.resultTypeId)
-              ? _l('您确定要删除审批结果分支吗？')
-              : _l('你确定要删除此查找结果分支吗？'),
-            description: _l('分支删除后，该分支下的所有节点都将被删除'),
+          Modal.confirm({
+            title: (
+              <span className="textError">
+                {_.includes([1, 2], item.resultTypeId)
+                  ? _l('您确定要删除审批结果分支吗？')
+                  : _l('你确定要删除此查找结果分支吗？')}
+              </span>
+            ),
+            content: _l('分支删除后，该分支下的所有节点都将被删除'),
             okText: _l('删除'),
+            okButtonProps: { danger: true },
             onOk: () => {
               deleteNode(processId, item.id);
             },

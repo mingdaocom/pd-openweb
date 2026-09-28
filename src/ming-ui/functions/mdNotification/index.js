@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import antNotification from '../../components/antNotification';
+import Notification from '../../antd-components/Notification';
 
 const Btn = styled.div`
   display: inline-block;
@@ -40,11 +40,11 @@ function notify(type = 'success', content) {
   let btnList = [];
 
   if (type === 'close') {
-    return antNotification.close(content);
+    return Notification.close(content);
   }
 
   if (type === 'destroy') {
-    return antNotification.destroy();
+    return Notification.destroy();
   }
 
   if (typeof content === 'string') {
@@ -64,11 +64,11 @@ function notify(type = 'success', content) {
     ].concat(btnList);
   }
 
-  antNotification[type]({
+  Notification[type]({
     ...(typeof content === 'object' ? content : {}),
     message,
     description,
-    btn: !_.isEmpty(btnList) ? renderBtnList(btnList) : undefined,
+    actions: !_.isEmpty(btnList) ? renderBtnList(btnList) : undefined,
   });
 }
 

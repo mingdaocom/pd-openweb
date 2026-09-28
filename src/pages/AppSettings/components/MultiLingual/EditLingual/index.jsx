@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Popover, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, RadioGroup } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Popover, Radio, Select } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import worksheetApi from 'src/api/worksheet';
 import workflowTranslatorApi from 'src/pages/workflow/api/translator';
 import DragMask from 'worksheet/common/DragMask';
-import langConfig from 'src/common/langConfig';
+import langConfig from 'src/utils/platform/i18n/langConfig';
 import Content from './Content';
 import Nav from './Nav';
 import './index.less';
@@ -18,10 +18,10 @@ const PopoverWrap = styled.div`
 `;
 
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 2;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -134,6 +134,7 @@ export default function Edit(props) {
       return;
     }
 
+    setTranslateStatus(true);
     setMachineTranslationLoading(true);
     appManagementApi
       .machineTranslation({
@@ -144,9 +145,11 @@ export default function Edit(props) {
       })
       .then(data => {
         if (data.message) {
-          setTranslateStatus(true);
           alert(data.message, 3);
         }
+      })
+      .catch(() => {
+        setTranslateStatus(false);
       })
       .finally(() => {
         setMachineTranslationLoading(false);
@@ -171,15 +174,16 @@ export default function Edit(props) {
     return (
       <div className="header flexRow">
         <div className="flexRow alignItemsCenter Font15">
-          <span className="bold mRight5 pointer colorPrimary backHome" onClick={onBack}>
+          <Button className="Font15" color="primary" variant="link" size="small" onClick={onBack}>
             {_l('语言')}
-          </span>
+          </Button>
           /<span className="bold mLeft5">{langInfoText}</span>
         </div>
         <div className="flexRow alignItemsCenter">
           {!md.global.SysSettings.hideAIBasicFun && (
             <Popover
-              disabled={true}
+              arrow={true}
+              disabled={translateStatus}
               trigger="click"
               placement="bottomLeft"
               content={
@@ -190,9 +194,9 @@ export default function Edit(props) {
                   </div>
                   <div className="mTop40 mBottom40">
                     <div className="mBottom10">{_l('译文填充方式')}</div>
-                    <RadioGroup
+                    <Radio.Group
                       size="middle"
-                      data={[
+                      options={[
                         {
                           text: _l('仅处理为空的文本'),
                           value: 1,
@@ -201,15 +205,17 @@ export default function Edit(props) {
                           text: _l('全部处理（将覆盖已有文本）'),
                           value: 0,
                         },
-                      ]}
-                      checkedValue={fillType}
-                      onChange={value => {
+                      ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                      value={fillType}
+                      onChange={event => {
+                        const value = event.target.value;
+
                         setFillType(value);
                       }}
-                    ></RadioGroup>
+                    ></Radio.Group>
                   </div>
-                  <Button type="primary" size="small" radius={true} onClick={handleRunTranslation}>
-                    <span>{_l('执行翻译')}</span>
+                  <Button type="primary" shape="round" onClick={handleRunTranslation}>
+                    {_l('执行翻译')}
                   </Button>
                 </PopoverWrap>
               }
@@ -231,22 +237,21 @@ export default function Edit(props) {
             onChange={value => {
               handleChangeComparisonLangId(value);
             }}
-          >
-            <Select.Option key={''} value={''}>
-              {originalText}
-            </Select.Option>
-            {langs
-              .filter(data => data.langCode !== langInfo.langCode)
-              .map(data => {
-                const langItem = _.find(allLangList, { langCode: data.langCode });
-                if (!langItem) return null;
-                return (
-                  <Select.Option key={data.id} value={data.id}>
-                    {langItem[currentLangKey]}({langItem.localLang})
-                  </Select.Option>
-                );
-              })}
-          </Select>
+            options={[
+              { value: '', label: originalText },
+              ...langs
+                .filter(data => data.langCode !== langInfo.langCode)
+                .map(data => {
+                  const langItem = _.find(allLangList, { langCode: data.langCode });
+                  if (!langItem) return null;
+                  return {
+                    value: data.id,
+                    label: `${langItem[currentLangKey]}(${langItem.localLang})`,
+                  };
+                })
+                .filter(Boolean),
+            ]}
+          />
         </div>
       </div>
     );
@@ -268,7 +273,7 @@ export default function Edit(props) {
             }}
           />
         )}
-        <Drag left={navWidth} onMouseDown={() => setDragMaskVisible(true)} />
+        <Drag $left={navWidth} onMouseDown={() => setDragMaskVisible(true)} />
         <Nav
           style={{ width: navWidth }}
           app={appData}

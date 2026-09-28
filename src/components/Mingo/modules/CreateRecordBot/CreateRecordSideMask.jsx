@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import styled from 'styled-components';
 import NewRecordLand from 'src/pages/NewRecord';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 const SideMaskWrap = styled.div`
   position: absolute;
@@ -36,25 +36,25 @@ export default function CreateRecordSideMask({
 }) {
   const didMountTimestamp = useRef(Date.now());
   useEffect(() => {
-    document.querySelectorAll('.ant-modal-wrap').forEach(el => {
-      const modalRoot = el.closest('.ant-modal-root');
+    document.querySelectorAll('.hap-modal-wrap').forEach(el => {
+      const modalRoot = el.closest('.hap-modal-root');
 
       if (modalRoot) {
         modalRoot.classList.add('hide');
       }
     });
-    document.querySelectorAll('.mui-dialog-container').forEach(el => {
+    document.querySelectorAll('.hap-modal-root').forEach(el => {
       el.classList.add('hide');
     });
     return () => {
-      document.querySelectorAll('.ant-modal-wrap').forEach(el => {
-        const modalRoot = el.closest('.ant-modal-root');
+      document.querySelectorAll('.hap-modal-wrap').forEach(el => {
+        const modalRoot = el.closest('.hap-modal-root');
 
         if (modalRoot) {
           modalRoot.classList.remove('hide');
         }
       });
-      document.querySelectorAll('.mui-dialog-container').forEach(el => {
+      document.querySelectorAll('.hap-modal-root').forEach(el => {
         el.classList.remove('hide');
       });
     };

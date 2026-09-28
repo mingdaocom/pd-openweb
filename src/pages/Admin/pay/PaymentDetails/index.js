@@ -1,15 +1,8 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
 import paymentAjax from 'src/api/payment';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import { PAY_STATUS } from '../config';
-
-const TableWrap = styled(PageTableCon)`
-  .ant-table-body {
-    height: calc(100% - 60px) !important;
-  }
-`;
 
 export default class PaymentDetails extends Component {
   constructor(props) {
@@ -120,7 +113,7 @@ export default class PaymentDetails extends Component {
           </div>
         </div>
         <div className="orgManagementContent">
-          <TableWrap
+          <PageTableCon
             paginationInfo={{ pageIndex, pageSize: 50 }}
             loading={loading}
             columns={this.columns}

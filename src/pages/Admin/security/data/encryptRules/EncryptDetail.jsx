@@ -1,24 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import EncryptBaseInfo from './EncryptBaseInfo';
 import EncryptFieldList from './EncryptFieldList';
-
-const DetailDialog = styled(Dialog)`
-  height: unset !important;
-  .mui-dialog-header {
-    padding: 22px 20px 20px !important;
-    .mui-dialog-default-title {
-      font-weight: 600;
-    }
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-`;
 
 const TabWrap = styled.div`
   display: flex;
@@ -56,14 +42,14 @@ class EncryptDetail extends Component {
     const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
 
     return (
-      <DetailDialog
+      <Modal
         width={780}
         title={_l('加密规则详情')}
-        visible
+        open
+        mask={{ closable: true }}
+        keyboard
         onCancel={onCancel}
-        showFooter={false}
-        showCancel={false}
-        maxHeight={windowHeight - 70}
+        footer={null}
       >
         <div className="flexColumn" style={{ height: `${windowHeight - 200}px` }}>
           <TabWrap>
@@ -87,9 +73,11 @@ class EncryptDetail extends Component {
           )}
           {currentTab === 2 && <EncryptFieldList projectId={projectId} encryptRuleId={encryptRuleId} />}
         </div>
-      </DetailDialog>
+      </Modal>
     );
   }
 }
 
-export const encryptDetailCon = props => FunctionWrap(EncryptDetail, { ...props });
+export function useEncryptDetail() {
+  return useFunctionWrapComponent(EncryptDetail);
+}

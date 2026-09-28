@@ -10,6 +10,7 @@ export default {
    * @param {} args.logType
    * @param {} args.accountResult
    * @param {array} args.accountIds 用户ID
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {array} args.columnNames 列名称
    * @param {string} args.fileName 导出文件名
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
@@ -31,6 +32,7 @@ export default {
    * @param {} args.operateTargetType
    * @param {} args.operateType
    * @param {array} args.accountIds 用户ID
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {string} args.fileName 文件名
    * @param {array} args.columnNames 列名称
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)

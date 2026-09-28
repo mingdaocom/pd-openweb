@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox, Icon, RadioGroup, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getTranslateInfo } from 'src/utils/app';
-import { htmlEncodeReg } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Checkbox, Radio, Switch, Tooltip } from 'ming-ui/antd-components';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { getTranslateInfo } from 'src/utils/services/app';
 import delPng from './img/del.png';
 import editPng from './img/edit.png';
 import lookPng from './img/look.png';
@@ -25,12 +25,12 @@ const Wrap = styled.div`
     }
     .conRadioGroup {
       padding: 15px 30px;
-      .Radio-text {
+      .hap-radio-label {
         font-weight: 600;
       }
     }
   }
-  .ming.Radio {
+  .hap-radio-wrapper {
     margin-right: 60px;
   }
 `;
@@ -49,10 +49,14 @@ const WrapTip = styled.div`
     border-left: 1px solid var(--color-border-secondary);
     border-top: 1px solid var(--color-border-secondary);
     transform: rotate(45deg);
-    left: 118px;
+    left: 122px;
     top: -7px;
   }
 `;
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 function TipsRender(props) {
   const {
@@ -111,7 +115,8 @@ function TipsRender(props) {
               size="small"
               className="InlineBlock "
               checked={props.value === 30}
-              onClick={() => {
+              onClick={(checked, event) => {
+                event.stopPropagation();
                 onChange(props.value === 30 ? 20 : 30);
               }}
             />
@@ -134,8 +139,9 @@ function TipsRender(props) {
                 size="small"
                 className="InlineBlock"
                 checked={extendAttrList.filter(l => extendAttrValue.includes(l.id)).length > 0}
-                onClick={value => {
-                  if (value) {
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  if (!checked) {
                     onChangeExtendAttr([]);
                   } else {
                     onChangeExtendAttr(extendAttrList.map(l => l.id));
@@ -164,8 +170,9 @@ function TipsRender(props) {
                     }
                   }}
                 >
-                  <Checkbox className="InlineBlock" checked={isChecked} />
-                  <span className={cx('Font13', isChecked ? 'textPrimary' : 'textTertiary')}>{item.name}</span>
+                  <Checkbox checked={isChecked} styles={CHECKBOX_LABEL_STYLES}>
+                    <span className={cx('Font13', isChecked ? 'textPrimary' : 'textTertiary')}>{item.name}</span>
+                  </Checkbox>
                 </span>
               );
             })}
@@ -177,70 +184,58 @@ function TipsRender(props) {
 }
 
 const getData = data => {
-  const { value, type = 'operation', disable } = data;
+  const { type = 'operation' } = data;
   return [
     {
       text: _l('全部'),
       value: 100,
-      checked: value === 100 && !disable,
     },
     {
       text: type === 'look' ? _l('用户加入的') : _l('用户拥有的'),
       value: 20,
-      checked: [20, 30].includes(value) && !disable,
     },
-    // {
-    //   text: _l('不允许'),
-    //   value: 0,
-    //   checked: ![20, 30, 100].includes(value) || disable,
-    // },
   ];
 };
 
 export default function SheetSet(props) {
-  const [list, setState] = useState([]);
-  const { onChange } = props;
-
-  useEffect(() => {
-    const { sheet = {} } = props;
-    const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
-    const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
-    setState([
-      {
-        title: _l('可查看哪些记录？'),
-        img: lookPng,
-        k: 'readLevel',
-        type: 'look',
-        disable: ![20, 30, 100].includes(readLevel) || !showRead,
-        disabled: !showRead,
-        value: readLevel,
-        extendAttrValue: canReadExtendAttrs,
-        ek: 'canReadExtendAttrs',
-      },
-      {
-        title: _l('可修改哪些记录？'),
-        img: editPng,
-        k: 'editLevel',
-        type: 'edit',
-        disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
-        disabled: !showRead || !showEdit,
-        value: editLevel,
-        extendAttrValue: canEditExtendAttrs,
-        ek: 'canEditExtendAttrs',
-      },
-      {
-        title: _l('可删除哪些记录？'),
-        img: delPng,
-        k: 'removeLevel',
-        type: undefined,
-        disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
-        disabled: !showRead || !showRemove,
-        value: removeLevel,
-        extendAttrValue: canRemoveExtendAttrs,
-        ek: 'canRemoveExtendAttrs',
-      },
-    ]);
-  }, [props]);
+  const { onChange, sheet = {} } = props;
+  const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
+  const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
+  const list = [
+    {
+      title: _l('可查看哪些记录？'),
+      img: lookPng,
+      k: 'readLevel',
+      type: 'look',
+      disable: ![20, 30, 100].includes(readLevel) || !showRead,
+      disabled: !showRead,
+      value: readLevel,
+      extendAttrValue: canReadExtendAttrs,
+      ek: 'canReadExtendAttrs',
+    },
+    {
+      title: _l('可修改哪些记录？'),
+      img: editPng,
+      k: 'editLevel',
+      type: 'edit',
+      disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
+      disabled: !showRead || !showEdit,
+      value: editLevel,
+      extendAttrValue: canEditExtendAttrs,
+      ek: 'canEditExtendAttrs',
+    },
+    {
+      title: _l('可删除哪些记录？'),
+      img: delPng,
+      k: 'removeLevel',
+      type: undefined,
+      disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
+      disabled: !showRead || !showRemove,
+      value: removeLevel,
+      extendAttrValue: canRemoveExtendAttrs,
+      ek: 'canRemoveExtendAttrs',
+    },
+  ];
 
   return (
     <Wrap className="TxtLeft">
@@ -255,12 +250,14 @@ export default function SheetSet(props) {
               </div>
               <div className="mTop10 radioCon flexRow">
                 <div className="flex conRadioGroup">
-                  <RadioGroup
-                    data={data}
+                  <Radio.Group
+                    options={(data || []).map(({ text, ...option }) => ({ ...option, label: text }))}
                     disabled={o.disabled && i > 0}
                     key={`radioItem-${i}`}
-                    radioItemClassName={'radioItem'}
-                    onChange={value => {
+                    value={o.disable ? undefined : [20, 30].includes(o.value) ? 20 : o.value}
+                    onChange={event => {
+                      const value = event.target.value;
+
                       onChange({
                         [o.k]: value,
                       });

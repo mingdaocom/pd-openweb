@@ -27,9 +27,6 @@ export const Option = styled.div`
     border: 1px solid var(--color-border-secondary);
     background-color: var(--color-background-primary);
   }
-  .ming.Checkbox {
-    padding: 1px 0;
-  }
 `;
 
 function pickOptions(options, navfilters) {

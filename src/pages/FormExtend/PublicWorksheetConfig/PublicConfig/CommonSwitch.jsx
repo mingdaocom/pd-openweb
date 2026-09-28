@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Switch, Tooltip } from 'ming-ui/antd-components';
 
 const CommonSwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
   height: 18px;
   .smallSwitch {
-    transform: scale(0.67) translate(-6px, -3px);
-    margin-left: -4px;
+    flex: none;
+    margin-right: 8px;
   }
 `;
 
@@ -15,7 +16,16 @@ export default function CommonSwitch(props) {
   const { checked, onClick, name, tip, disabled } = props;
   return (
     <CommonSwitchContainer>
-      <Switch className="smallSwitch" checked={checked} onClick={onClick} disabled={disabled} />
+      <Switch
+        size="small"
+        className="smallSwitch"
+        checked={checked}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+          return onClick(!checked, event);
+        }}
+        disabled={disabled}
+      />
       <span>{name}</span>
       {!!tip && (
         <Tooltip placement="bottom" title={typeof tip === 'string' ? tip : <span>{tip}</span>}>

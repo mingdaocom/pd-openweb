@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Dialog from 'ming-ui/components/Dialog';
+import { Icon, LoadDiv, MdLink } from 'ming-ui';
+import { Button, Input, Modal, Popover, Switch, Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import CancelIntegration from '../components/CancelIntegration';
 import { checkClearIntergrationData, integrationFailed } from '../utils';
 import clientIdImg from './img/client_id.png';
@@ -37,6 +36,7 @@ export default class Welink extends React.Component {
       failedStr: '',
       canSyncBtn: false,
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -131,11 +131,12 @@ export default class Welink extends React.Component {
           <span className="inputTitle">{`${key}：`}</span>
           <Popover
             title={null}
-            arrowPointAtCenter={true}
+            arrow={{ pointAtCenter: true }}
             placement="bottomLeft"
-            overlayClassName="welinkPopoverWrapper"
+            classNames={{ root: 'welinkPopoverWrapper' }}
+            noPadding
             content={
-              <span className="card Relative overflowHidden">
+              <span className="Relative overflowHidden">
                 <img width={466} className="mTop1" src={clientIdImg} alt={_l('点击“自建应用”进入新建应用页面')} />
               </span>
             }
@@ -146,7 +147,7 @@ export default class Welink extends React.Component {
         <div className="Relative InlineBlock inputDiv clearfix">
           {this.state.canEditInfo ? (
             <React.Fragment>
-              <input
+              <Input
                 type="text"
                 className="inputBox"
                 onChange={e => {
@@ -161,20 +162,22 @@ export default class Welink extends React.Component {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <input
+              <Input
                 type="text"
                 className="inputBox"
                 readOnly
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
-              />
-              <Icon
-                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
-                className="textTertiary Font18 isShowIcon"
-                onClick={() => {
-                  this.setState({
-                    [`isShow${strId}`]: !this.state[`isShow${strId}`],
-                  });
-                }}
+                suffix={
+                  <Icon
+                    icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
+                    className="textTertiary Font18 Hand hoverColorPrimary"
+                    onClick={() => {
+                      this.setState({
+                        [`isShow${strId}`]: !this.state[`isShow${strId}`],
+                      });
+                    }}
+                  />
+                }
               />
             </React.Fragment>
           )}
@@ -277,14 +280,20 @@ export default class Welink extends React.Component {
             <span className="Font13 textSecondary Right closeDing">
               <Tooltip
                 title={
-                  window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+                  window.platformENV.isPlatform && window.platformENV.isHap
                     ? _l('关闭Welink集成后，无法再从Welink集成处进入明道云应用')
                     : _l('关闭Welink集成后，无法再从Welink集成处进入应用')
                 }
                 placement="bottomLeft"
               >
                 <span className="mLeft10 switchBtn">
-                  <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
+                  <Switch
+                    checked={!this.state.isCloseDing}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return this.editDingStatus(!checked ? 2 : 1);
+                    }}
+                  />
                 </span>
               </Tooltip>
             </span>
@@ -303,8 +312,8 @@ export default class Welink extends React.Component {
               <div className="TxtRight mTop30">
                 {!this.state.canEditInfo ? (
                   <Button
-                    type="primary"
-                    className="editInfo"
+                    color="default"
+                    variant="filled"
                     onClick={() => {
                       this.setState({
                         canEditInfo: true,
@@ -316,7 +325,6 @@ export default class Welink extends React.Component {
                 ) : (
                   <Button
                     type="primary"
-                    className="saveInfo"
                     onClick={() => {
                       checkClearIntergrationData({
                         projectId: this.props.projectId,
@@ -335,14 +343,14 @@ export default class Welink extends React.Component {
           <h3 className="stepTitle Font16 textPrimary">{_l('3.数据同步')}</h3>
           <div className="mTop20 syncBox">
             <span className="Font14 syncTxt">
-              {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              {window.platformENV.isPlatform && window.platformENV.isHap
                 ? _l('从Welink通讯录同步到明道云')
                 : _l('从Welink通讯录同步到该系统')}
             </span>
 
             <Button
               type="primary"
-              className={cx('syncBtn', {
+              className={cx({
                 isNO:
                   (this.state.canEditInfo && !this.state.isHasInfo) ||
                   this.state.isCloseDing ||
@@ -370,40 +378,27 @@ export default class Welink extends React.Component {
 
   renderSyncDiaLog = () => {
     return (
-      <Dialog
-        visible={this.state.showSyncDiaLog}
+      <Modal
+        open={this.state.showSyncDiaLog}
         className="SyncDiaLog"
         onCancel={() => {
           this.setState({
             showSyncDiaLog: false,
           });
         }}
-        overlayClosable={false}
+        mask={{ closable: false }}
+        keyboard
         title={this.state.failed ? _l('同步失败') : _l('同步内容')}
-        footer={
-          <Button
-            disabled={this.state.canSyncBtn ? false : true}
-            type="primary"
-            onClick={() => {
-              if (!this.state.canSyncBtn) {
-                return;
-              }
-
-              if (this.state.failed) {
-                this.setState({
-                  showSyncDiaLog: false,
-                });
-              } else {
-                this.setState({
-                  canSyncBtn: false,
-                });
-                this.syncFn(false);
-              }
-            }}
-          >
-            {_l('确认')}
-          </Button>
-        }
+        cancelButtonProps={{ style: { display: 'none' } }}
+        okButtonProps={{ disabled: !this.state.canSyncBtn }}
+        onOk={() => {
+          if (this.state.failed) {
+            this.setState({ showSyncDiaLog: false });
+          } else {
+            this.setState({ canSyncBtn: false });
+            this.syncFn(false);
+          }
+        }}
       >
         <p>
           {this.state.isLoading ? (
@@ -433,22 +428,29 @@ export default class Welink extends React.Component {
             this.state.failedStr
           )}
         </p>
-      </Dialog>
+      </Modal>
     );
   };
 
   editWXProjectSettingStatus = (tag, callback) => {
+    if (this.requestPending) return;
+
     // 状态：0 提交申请；2关闭集成；1重新开启集成 tag
-    Ajax.editWelinkProjectSettingStatus({
+    this.requestPending = true;
+    return Ajax.editWelinkProjectSettingStatus({
       projectId: this.props.projectId,
       status: tag,
-    }).then(res => {
-      if (res) {
-        callback();
-      } else {
-        integrationFailed(this.props.projectId);
-      }
-    });
+    })
+      .then(res => {
+        if (res) {
+          callback();
+        } else {
+          integrationFailed(this.props.projectId);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
 
   render() {
@@ -499,13 +501,13 @@ export default class Welink extends React.Component {
               <div className="TxtCenter mTop50">
                 <h2 className="Font26 textPrimary">{_l('申请Welink集成')}</h2>
                 <p className="mTop24 mBottom32 Font16 textSecondary">
-                  {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+                  {window.platformENV.isPlatform && window.platformENV.isHap
                     ? _l('申请通过后，可将明道云应用安装到Welink集成工作台！')
                     : _l('申请通过后，可将应用安装到Welink集成工作台！')}
                 </p>
                 <Button
                   type="primary"
-                  className="applyBtn mBottom10"
+                  className="mBottom10"
                   onClick={() => {
                     // 提交申请
                     this.editWXProjectSettingStatus(0, () => {
@@ -524,11 +526,10 @@ export default class Welink extends React.Component {
                   <React.Fragment>
                     <h2 className="Font18 textPrimary">{_l('试用已过期，请付费后继续使用')}</h2>
                     <p className="mTop15 Font13 textSecondary">{_l('如有疑问，请联系您的专属顾问')}</p>
-
-                    {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+                    {window.platformENV.isPlatform && window.platformENV.isHap ? (
                       <Button
                         type="primary"
-                        className="applyBtn mBottom10 mTop25"
+                        className="mBottom10 mTop25"
                         onClick={() => {
                           // 前往付费
                           purchaseMethodFunc({ projectId: this.props.projectId });

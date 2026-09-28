@@ -1,11 +1,12 @@
 import React from 'react';
 import _ from 'lodash';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { AddCustomDialog } from '../components/CustomWidget';
-import { openDevelopWithAI } from '../components/DevelopWithAI';
+import { useDevelopWithAI } from '../components/DevelopWithAI';
 
-export default function Custom(props) {
-  const { data, globalSheetInfo = {}, saveControls, onChange, deleteWidget, from } = props;
+function Custom(props) {
+  const { data, globalSheetInfo = {}, saveControls, onChange, deleteWidget, from, openDevelopWithAI } = props;
   const { customtype } = getAdvanceSetting(data);
 
   if (!customtype && from !== 'subList') {
@@ -38,3 +39,7 @@ export default function Custom(props) {
 
   return null;
 }
+
+export default withOpeners(Custom, {
+  openDevelopWithAI: useDevelopWithAI,
+});

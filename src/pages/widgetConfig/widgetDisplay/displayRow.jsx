@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { useGlobalStore } from 'src/common/GlobalStore';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
+import { getSectionWidgets } from 'src/utils/domain/control/editorLayout';
+import { getMaxControlsCount } from 'src/utils/platform/runtime/config';
 import GeneratingHeader from '../components/GeneratingHeader';
-import { getMaxControlsCount } from '../config';
-import { getSectionWidgets } from '../util';
 import BottomDragPointer from './components/BottomDragPointer';
 import FieldRecycleBin from './components/FieldRecycleBin';
 import { WidgetStyle } from './components/WidgetStyle';
@@ -27,8 +26,8 @@ const DisplayRowListWrap = styled.div`
     display: flex;
     flex-direction: column;
     background: var(--color-background-primary);
-    ${props => (props.widgetPanelFixed ? 'border-left: 10px solid var(--color-border-secondary);' : '')}
-    ${props => (props.settingPanelFixed ? 'border-right: 10px solid var(--color-border-secondary);' : '')}
+    ${props => (props.$widgetPanelFixed ? 'border-left: 10px solid var(--color-border-secondary);' : '')}
+    ${props => (props.$settingPanelFixed ? 'border-right: 10px solid var(--color-border-secondary);' : '')}
     .addWidgetIcon {
       width: 28px;
       height: 28px;
@@ -101,8 +100,8 @@ export default function DisplayRow(props) {
     widgetVisible,
     setPanelVisible = () => {},
   } = props;
-  const maxControlsCount = getMaxControlsCount();
   const { commonWidgets = [], tabWidgets = [] } = getSectionWidgets(widgets);
+  const maxControlsCount = getMaxControlsCount();
   const noWidgets = isEmpty(widgets);
   const rowsContent = (
     <Fragment>
@@ -146,7 +145,8 @@ export default function DisplayRow(props) {
   return (
     <DisplayRowListWrap
       className={fromType === 'public' ? '' : 'overflowHidden'}
-      {..._.pick(props, ['settingPanelFixed', 'widgetPanelFixed'])}
+      $settingPanelFixed={props.settingPanelFixed}
+      $widgetPanelFixed={props.widgetPanelFixed}
     >
       {fromType === 'public' ? (
         rowsContent

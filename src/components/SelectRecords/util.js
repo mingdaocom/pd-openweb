@@ -1,6 +1,6 @@
 import _, { find, get, isNumber } from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { turnControl } from 'src/pages/worksheet/common/Sheet/QuickFilter/Conditions';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { ERROR_MESSAGE } from './useRecords';
 
 export function enrichFilters(filters) {

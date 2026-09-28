@@ -4,7 +4,8 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import * as actions from 'src/pages/chat/redux/actions';
-import { emitter, pathCompletion } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 let AppLib = class AppLib extends Component {
   constructor(props) {
@@ -34,8 +35,7 @@ let AppLib = class AppLib extends Component {
       },
       MDAppLibraryId: 'containerAppLib',
       getUrl:
-        (!window.platformENV.isLocal && !window.platformENV.isOverseas) ||
-        md?.global?.SysSettings?.templateLibraryTypes === '2'
+        window.platformENV.isHap || md?.global?.SysSettings?.templateLibraryTypes === '2'
           ? __api_server__.main
           : window.platformENV.isOverseas
             ? 'https://pd.nocoly.com/wwwapi/'

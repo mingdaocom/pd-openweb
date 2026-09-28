@@ -7,31 +7,33 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
-import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
-import { handleRecordClick } from 'src/utils/record';
+import { controlState } from 'src/utils/domain/control/state';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { lineHeight, timeWidth, timeWidthHalf, types } from '../config';
 import { getTops } from '../util';
 
 const CLICK_MOVE_THRESHOLD = 3;
 
 const Wrap = styled.div`
-  cursor: ${props => (props.dragDisable ? 'auto' : 'grab')};
-  max-width: ${props => props.maxWidth}px;
+  cursor: ${props => (props.$dragDisable ? 'auto' : 'grab')};
+  max-width: ${props => props.$maxWidth}px;
   position: absolute;
   z-index: 1;
   margin-top: 1px;
   margin-left: -0.5px;
   padding: 1px;
-  color: ${props => props.row.fontColor};
+  color: ${props => props.$row.fontColor};
   line-height: ${lineHeight}px;
-  min-height: ${props => props.minHeight}px;
-  height: ${props => props.height}px;
+  min-height: ${props => props.$minHeight}px;
+  height: ${props => props.$height}px;
   .conW {
     border-radius: 2px;
     padding: 4px;
-    background: ${props => props.row.color};
+    background: ${props => props.$row.color};
     .rowInfo {
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -48,7 +50,7 @@ const Wrap = styled.div`
     display: none;
     width: 4px;
     top: 0;
-    height: ${props => props.height}px;
+    height: ${props => props.$height}px;
     &::before {
       content: '';
       height: 8px;
@@ -279,10 +281,10 @@ export default function RecordBlock(props) {
   return (
     <React.Fragment>
       <Wrap
-        row={props.row}
+        $row={props.row}
         style={style}
         ref={$ref}
-        dragDisable={dragDisable}
+        $dragDisable={dragDisable}
         className={cx('recordTitle Hand WordBreak')}
         onMouseDown={
           dragDisable
@@ -302,9 +304,9 @@ export default function RecordBlock(props) {
             : handleMouseDown
         }
         // onMouseEnter={handleMouseEnter}
-        maxWidth={oneWidth * gridTimes.length}
-        minHeight={minHeight}
-        height={props.row.height}
+        $maxWidth={oneWidth * gridTimes.length}
+        $minHeight={minHeight}
+        $height={props.row.height}
       >
         <div
           className={cx('w100 h100 conW Relative flexRow alignItemsCenter', {

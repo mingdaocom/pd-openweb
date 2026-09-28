@@ -3,16 +3,15 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { SearchInput } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import { AddWrap, WrapNav, WrapTableCon } from 'src/pages/Role/style';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import PendingReview from './PendingReview';
 import User from './User';
 
@@ -57,14 +56,6 @@ const Wrap = styled.div`
         }
       }
     }
-  }
-`;
-const WrapL = styled.div`
-  .roleSearch {
-    background: var(--color-background-primary);
-    border-radius: 0;
-    width: 100%;
-    padding-left: 0;
   }
 `;
 const list = [
@@ -157,10 +148,12 @@ class Con extends React.Component {
   delDialog = data => {
     const { portal = {}, appId, setPortalRoleList, setFastFilters } = this.props;
     const { roleList = [] } = portal;
-    return Dialog.confirm({
-      title: <span className="Red">{_l('你确认删除此角色吗？')}</span>,
-      buttonType: 'danger',
-      description: '',
+    return Modal.confirm({
+      title: <span className="Red textError">{_l('你确认删除此角色吗？')}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: '',
       onOk: () => {
         externalPortalAjax
           .removeExRole({
@@ -176,14 +169,17 @@ class Con extends React.Component {
                 roleId: 'all',
               });
               setPortalRoleList(list);
-              this.props.setQuickTag({ roleId: 'all', tab: 'user' });
+              this.props.setQuickTag({
+                roleId: 'all',
+                tab: 'user',
+              });
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败，请稍后重试'), 2);
             }
           });
       },
-    });
+    }).destroy;
   };
   renderNav = () => {
     const { navList = [], roleId, keywords = '' } = this.state;
@@ -191,7 +187,7 @@ class Con extends React.Component {
     const { commonCount = 0, unApproveCount = 0, roleCountList = [], roleList = [] } = portal;
     return (
       <React.Fragment>
-        <WrapL className="">
+        <div>
           <div className="navCon bTBorder">
             <ul>
               {list.map(o => {
@@ -220,7 +216,7 @@ class Con extends React.Component {
           </div>
           <div className="search mTop16">
             <SearchInput
-              className="roleSearch"
+              className="roleSearch w100"
               placeholder={_l('搜索角色')}
               value={keywords}
               onChange={keywords => {
@@ -237,7 +233,7 @@ class Con extends React.Component {
               }}
             />
           </div>
-        </WrapL>
+        </div>
         <div className="navCon navConList">
           <ul>
             {navList.length <= 0 ? (

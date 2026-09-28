@@ -4,13 +4,14 @@ import _, { includes } from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { validate } from 'uuid';
-import { Switch } from 'ming-ui';
-import { emitter, validateFnExpression } from 'src/utils/common';
+import { Switch } from 'ming-ui/antd-components';
+import { emitter } from 'src/utils/platform/browser/dom';
 import CodeEdit from './common/CodeEdit';
 import Footer from './common/Footer';
 import SelectFnControl from './common/SelectFnControl';
-import { openTestFunctionDialog } from './common/TestFunctionDialog';
+import { useTestFunctionDialog } from './common/TestFunctionDialog';
 import Tip from './common/Tip';
+import { validateFnExpression } from './validation';
 import './style.less';
 
 if (!window.emitter) {
@@ -54,7 +55,7 @@ const CodeEditCon = styled.div`
 `;
 const TipCon = styled.div`
   height: 200px;
-  border-top: 1px solid --color-background-disabled;
+  border-top: 1px solid var(--color-background-disabled);
 `;
 
 const ActiveJsSwitchCon = styled.div`
@@ -75,6 +76,7 @@ const ActiveJsSwitchCon = styled.div`
 `;
 
 function Func(props, ref) {
+  const { open: openTestFunctionDialog, holder: testFunctionDialogHolder } = useTestFunctionDialog();
   const {
     supportDebug,
     isWorksheetFlow,
@@ -101,7 +103,7 @@ function Func(props, ref) {
   const [type, setType] = useState(value.type || 'mdfunction');
   const [codeEditorLoading, setCodeEditorLoading] = useState(false);
   const [pendingEditorValue, setPendingEditorValue] = useState(null);
-  let { controls = [] } = props;
+  let { controls = [], selectableControls } = props;
 
   if (_.isArray(controlGroups)) {
     controls = _.flatten(controlGroups.map(group => group.controls.map(c => ({ ...c, workflowGroupId: group.id }))));
@@ -123,7 +125,13 @@ function Func(props, ref) {
         }));
       });
     }
+
+    // 分组模式下可选字段由 controlGroups 决定
+    selectableControls = undefined;
   }
+
+  // 可供选择和输入提示的字段，未传时与 controls 一致；controls 仍保留全量，用于存量表达式的展示和校验
+  const fnSelectableControls = selectableControls || controls;
 
   const codeEditor = useRef();
   const loadingTimerRef = useRef(null);
@@ -193,6 +201,7 @@ function Func(props, ref) {
   }, []);
   return (
     <Con className={cx('functionEditor', className)}>
+      {testFunctionDialogHolder}
       <Header>
         {customTitle || _l('编辑函数')}
         {supportJavaScript && !fromCustom && (
@@ -200,9 +209,10 @@ function Func(props, ref) {
             <Switch
               size="small"
               checked={type === 'javascript'}
-              onClick={checked => {
+              onClick={(checked, event) => {
+                event.stopPropagation();
                 const tempValue = codeEditor.current ? codeEditor.current.getValue() : '';
-                const nextType = checked ? 'mdfunction' : 'javascript';
+                const nextType = !checked ? 'mdfunction' : 'javascript';
                 setPendingEditorValue(tempValue);
                 setType(nextType);
                 setCodeEditorLoading(true);
@@ -224,7 +234,7 @@ function Func(props, ref) {
           <SelectFnControl
             type={type}
             controlGroups={controlGroups}
-            controls={controls}
+            controls={fnSelectableControls}
             control={control}
             insertTagToEditor={editorFunctions('insertTag')}
             insertFn={editorFunctions('insertFn')}
@@ -247,6 +257,7 @@ function Func(props, ref) {
                 value={expression}
                 title={title}
                 controls={controls}
+                selectableControls={fnSelectableControls}
                 ref={codeEditor}
                 renderTag={renderTag}
                 onChange={onChange}
@@ -272,6 +283,7 @@ Func.propTypes = {
   supportJavaScript: bool,
   value: shape({}),
   controls: arrayOf(shape({})),
+  selectableControls: arrayOf(shape({})),
   controlGroups: arrayOf(shape({})), // { controlName, controlId }
   renderTag: func,
   onClose: func,

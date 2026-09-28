@@ -3,7 +3,8 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { emitter, getDefaultThemeMode, setBodyThemeMode } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getDefaultThemeMode, setBodyThemeMode } from 'src/utils/platform/theme/theme';
 
 const Wrap = styled.div`
   background: var(--color-background-secondary);

@@ -2,17 +2,9 @@ import React, { Component, createRef, Fragment } from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import { func } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
-import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { ACTION_VALUE_ENUM } from '../../CustomEvent/config';
-import FunctionEditorDialog from '../../FunctionEditorDialog';
-import SearchWorksheetDialog from '../../SearchWorksheet/SearchWorksheetDialog';
+import { Menu, Popover, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import {
   CAN_AS_FX_DYNAMIC_FIELD,
   CAN_AS_OTHER_DYNAMIC_FIELD,
@@ -28,19 +20,29 @@ import {
   OTHER_FIELD_TYPE,
   PRINT_TEMP_TYPES,
   WATER_MASK_TYPES,
-} from '../config';
+} from 'src/utils/domain/control/dynamicValueConfig';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { getDaterange } from 'src/utils/domain/worksheet/fastFilter';
+import { DATE_TYPE } from 'src/utils/domain/worksheet/fastFilterConfig';
+import { ACTION_VALUE_ENUM } from '../../CustomEvent/config';
+import FunctionEditorDialog from '../../FunctionEditorDialog';
+import SearchWorksheetDialog from '../../SearchWorksheet/SearchWorksheetDialog';
 import { SelectOtherFieldWrap } from '../styled';
 import SelectFields from './SelectFields';
-import 'rc-trigger/assets/index.css';
 
-const MenuStyle = styled.div`
-  display: flex;
-  align-items: center;
-  i {
-    width: 20px;
-    color: var(--color-text-secondary);
-  }
+const PopoverContent = styled.div`
+  width: 100%;
+  padding: 6px 0;
 `;
+
+const CLEAR_EMPTY_ITEM_STYLE = { paddingInlineEnd: 48 };
+const CLEAR_EMPTY_TIP_STYLE = { insetInlineEnd: 16, top: '50%', transform: 'translateY(-50%)' };
+
+const POPOVER_STYLES = {
+  root: {
+    width: '100%',
+  },
+};
 
 export default class SelectOtherField extends Component {
   static propTypes = { onTriggerClick: func };
@@ -196,7 +198,7 @@ export default class SelectOtherField extends Component {
 
     // 自定义页面---封装业务流程
     if (this.props.from === DYNAMIC_FROM_MODE.CUSTOM_PHP) {
-      return data.type === 2 ? _.flatten(Object.values(CUSTOM_PHP_TYPES)) : CUSTOM_PHP_TYPES[data.type];
+      return data.type === 2 ? _.flatten(Object.values(CUSTOM_PHP_TYPES)) : CUSTOM_PHP_TYPES[data.type] || [];
     }
 
     let types = OTHER_FIELD_LIST;
@@ -278,11 +280,11 @@ export default class SelectOtherField extends Component {
       popupContainer,
       propFiledVisible,
       showEmpty,
+      emptyTip,
       from,
       withLinkParams,
       withDY,
       linkParams = [],
-      fromCustomEventApi,
       actionData = {},
     } = this.props;
 
@@ -295,75 +297,75 @@ export default class SelectOtherField extends Component {
 
     const renderPopupForQuickFilter = () => {
       switch (showPopupType) {
-        case 'DY_DATE':
+        case 'DY_DATE': {
+          const dateRanges = getDaterange(data.advancedSetting || {});
+
           return (
-            <Menu style={{ maxHeight: 200, overflowY: 'auto' }}>
-              {getDaterange(data.advancedSetting || {}).map(o => {
-                return (
-                  <MenuItem
-                    className="overflow_ellipsis"
-                    onClick={e => {
-                      this.handleActionForDY(o);
-                      e.stopPropagation();
-                    }}
-                  >
-                    <MenuStyle>{(_.flattenDeep(DATE_TYPE).find(it => it.value == o) || {}).text}</MenuStyle>
-                  </MenuItem>
-                );
-              })}
-            </Menu>
+            <Menu
+              selectable={false}
+              style={{ maxHeight: 200, overflowY: 'auto' }}
+              items={dateRanges.map((value, index) => ({
+                key: `${index}`,
+                className: 'overflow_ellipsis',
+                label: (_.flattenDeep(DATE_TYPE).find(item => item.value == value) || {}).text,
+              }))}
+              onClick={({ key, domEvent }) => {
+                this.handleActionForDY(dateRanges[Number(key)]);
+                domEvent.stopPropagation();
+              }}
+            />
           );
+        }
 
         case 'DY_LINK':
           return linkParams.length > 0 ? (
-            <Menu>
-              {linkParams.map(item => {
-                return (
-                  <MenuItem
-                    className="overflow_ellipsis"
-                    onClick={e => {
-                      this.handleActionForLinkParam(item);
-                      e.stopPropagation();
-                    }}
-                  >
-                    <MenuStyle>{item}</MenuStyle>
-                  </MenuItem>
-                );
-              })}
-            </Menu>
+            <Menu
+              selectable={false}
+              items={linkParams.map((item, index) => ({
+                key: `${index}`,
+                className: 'overflow_ellipsis',
+                label: item,
+              }))}
+              onClick={({ key, domEvent }) => {
+                this.handleActionForLinkParam(linkParams[Number(key)]);
+                domEvent.stopPropagation();
+              }}
+            />
           ) : (
-            <Menu>
-              <div className="textSecondary pLeft16 pTop8 pBottom8">{_l('未添加链接参数')}</div>
-            </Menu>
+            <Menu
+              selectable={false}
+              items={[
+                {
+                  key: 'empty',
+                  disabled: true,
+                  label: _l('未添加链接参数'),
+                },
+              ]}
+            />
           );
         default:
           return (
-            <Menu>
-              <MenuItem
-                className="overflow_ellipsis"
-                onClick={e => {
-                  this.setState({ showPopupType: 'DY_DATE', isDynamic: true });
-                  e.stopPropagation();
-                }}
-              >
-                <MenuStyle>
-                  <i className={`icon-task_custom_today Font20 mRight15`}></i>
-                  {_l('动态时间')}
-                </MenuStyle>
-              </MenuItem>
-              <MenuItem
-                className="overflow_ellipsis"
-                onClick={e => {
-                  this.setState({ showPopupType: 'DY_LINK', isDynamic: true });
-                  e.stopPropagation();
-                }}
-              >
-                <MenuStyle>
-                  <i className={`icon-global_variable Font20 mRight15`}></i>
-                  {_l('链接参数')}
-                </MenuStyle>
-              </MenuItem>
-            </Menu>
+            <Menu
+              selectable={false}
+              items={[
+                {
+                  key: 'DY_DATE',
+                  className: 'overflow_ellipsis',
+                  icon: <i className="icon-task_custom_today Font20"></i>,
+                  label: _l('动态时间'),
+                },
+                {
+                  key: 'DY_LINK',
+                  className: 'overflow_ellipsis',
+                  icon: <i className="icon-global_variable Font20"></i>,
+                  label: _l('链接参数'),
+                },
+              ]}
+              onClick={({ key, domEvent }) => {
+                this.setState({ showPopupType: key, isDynamic: true });
+                domEvent.stopPropagation();
+              }}
+            />
           );
       }
     };
@@ -383,41 +385,59 @@ export default class SelectOtherField extends Component {
           {...this.props}
         />
       ) : (
-        <Menu>
-          {filterTypes.map(item => {
-            return (
-              <MenuItem className="overflow_ellipsis" onClick={() => this.handleAction(item)}>
-                <MenuStyle>
-                  {from !== DYNAMIC_FROM_MODE.CUSTOM_PHP && <i className={`${item.icon} Font20 mRight15`}></i>}
-                  {item.text}
-                </MenuStyle>
-              </MenuItem>
-            );
+        <Menu
+          selectable={false}
+          items={filterTypes.map((item, index) => {
+            const showEmptyTip = item.key === OTHER_FIELD_TYPE.EMPTY && !!emptyTip;
+
+            return {
+              key: `${index}`,
+              className: showEmptyTip ? undefined : 'overflow_ellipsis',
+              style: showEmptyTip ? CLEAR_EMPTY_ITEM_STYLE : undefined,
+              icon:
+                from !== DYNAMIC_FROM_MODE.CUSTOM_PHP ? (
+                  <i className={`${item.icon} Font20 textTertiary`}></i>
+                ) : undefined,
+              label: showEmptyTip ? (
+                <span>
+                  <span className="clearEmptyText">{item.text}</span>
+                  <Tooltip placement="bottom" title={emptyTip}>
+                    <i
+                      className="clearEmptyTip icon-info Font16 textTertiary Absolute InlineFlex alignItemsCenter justifyContentCenter LineHeight16"
+                      style={CLEAR_EMPTY_TIP_STYLE}
+                      onClick={event => event.stopPropagation()}
+                    />
+                  </Tooltip>
+                </span>
+              ) : (
+                item.text
+              ),
+            };
           })}
-        </Menu>
+          onClick={({ key }) => this.handleAction(filterTypes[Number(key)])}
+        />
       );
     };
 
     return (
       <Fragment>
         <div ref={this.$wrap} className="selectOtherFieldContainer">
-          <Trigger
-            action={['click']}
-            popupStyle={{ width: '100%' }}
-            popupVisible={isDynamic && !isSubList}
-            onPopupVisibleChange={isDynamic => this.setState({ isDynamic })}
-            getPopupContainer={() => popupContainer || this.$wrap.current}
-            popup={renderPopup}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 5],
-              ...(fromCustomEventApi ? {} : { overflow: { adjustX: true, adjustY: true } }),
-            }}
+          <Tooltip
+            trigger={['hover']}
+            placement="bottom"
+            title={withLinkParams && !withDY ? _l('使用链接参数') : isSubList ? _l('查询工作表') : _l('使用动态值')}
           >
-            <Tooltip
-              trigger={['hover']}
-              placement="bottom"
-              title={withLinkParams && !withDY ? _l('使用链接参数') : isSubList ? _l('查询工作表') : _l('使用动态值')}
+            <Popover
+              trigger="click"
+              placement="bottomRight"
+              destroyOnHidden={false}
+              noPadding
+              styles={POPOVER_STYLES}
+              open={isDynamic && !isSubList}
+              onOpenChange={isDynamic => this.setState({ isDynamic })}
+              getPopupContainer={() => popupContainer || this.$wrap.current}
+              autoAdjustOverflow={false}
+              content={<PopoverContent>{renderPopup()}</PopoverContent>}
             >
               <SelectOtherFieldWrap
                 onClick={() => {
@@ -444,8 +464,8 @@ export default class SelectOtherField extends Component {
                   )}
                 ></i>
               </SelectOtherFieldWrap>
-            </Tooltip>
-          </Trigger>
+            </Popover>
+          </Tooltip>
         </div>
         {searchVisible && (
           <SearchWorksheetDialog {...this.props} onClose={() => this.setState({ searchVisible: false })} />

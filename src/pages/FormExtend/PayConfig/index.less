@@ -1,16 +1,4 @@
 .payConfigWrap .configContent {
-  .mdAntSelect {
-    .ant-select-selector {
-      padding: 0 5px 0 11px;
-      .ant-select-selection-item {
-        padding-right: 0px;
-      }
-    }
-    .ant-select-arrow {
-      width: unset !important;
-      right: 5px;
-    }
-  }
   .filterView {
     padding-right: 5px !important;
     .icon-arrow-down-border {
@@ -21,21 +9,7 @@
 }
 
 .merchantList {
-  .ming.MenuItem .Item-content:not(.disabled):hover {
-    .option {
-      color: var(--color-white);
-    }
-  }
-
-  &.valueDisable .Dropdown--input .value {
-    color: var(--color-text-tertiary);
-  }
-
-  &.ant-select-open .ant-select-selector {
-    border-color: var(--color-primary);
-    box-shadow: none;
-  }
-  .ant-select-item-option-disabled {
+  .hap-select-item-option-disabled {
     color: var(--color-text-disabled) !important;
   }
   .disabledTag {
@@ -44,19 +18,19 @@
   }
 }
 
-.merchantDropDown.ant-select-dropdown {
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
-  .ant-select-item-option-disabled.ant-select-item-option-selected {
+.merchantDropDown.hap-select-dropdown {
+  .hap-select-item-option-selected:not(.hap-select-item-option-disabled),
+  .hap-select-item-option-disabled.hap-select-item-option-selected {
     background-color: var(--color-background-primary) !important;
   }
-  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  .hap-select-item-option-active:not(.hap-select-item-option-disabled) {
     background-color: var(--color-cyan-blue) !important;
   }
-  .ant-select-item-option-state {
+  .hap-select-item-option-state {
     margin-left: 10px;
   }
-  .ant-select-item-option-disabled.ant-select-item-option-selected {
-    .ant-select-item-option-state {
+  .hap-select-item-option-disabled.hap-select-item-option-selected {
+    .hap-select-item-option-state {
       display: none !important;
     }
   }

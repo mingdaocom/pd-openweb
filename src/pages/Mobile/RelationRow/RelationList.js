@@ -7,8 +7,8 @@ import _, { identity } from 'lodash';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import RecordCoverCard from 'src/components/Form/MobileForm/components/RelateRecordCards/RecordCoverCard';
-import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
-import { addBehaviorLog } from 'src/utils/project';
+import { getCoverUrl } from 'src/utils/domain/worksheet/view';
+import { addBehaviorLog } from 'src/utils/services/project';
 import * as actions from './redux/actions';
 import './index.less';
 

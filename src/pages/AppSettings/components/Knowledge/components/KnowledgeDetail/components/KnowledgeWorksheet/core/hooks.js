@@ -1,18 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import knowledgeAjax from '../../../../../api/knowledge';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { usePolling } from 'src/utils/platform/react/polling';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { COLLECTION_TASK_STATUS_NEEDS_REFRESH } from '../../../../../core/config';
-import { usePolling } from '../../../../../core/hooks';
 import { removeKidHashFromUrl } from '../../../../../core/utils';
 
-export const useKnowledgeDetail = (knowledgeId, { enabled = true, callback = () => {} } = {}) => {
-  const [loading, setLoading] = useState(false);
+const noop = () => {};
+
+export const useKnowledgeDetail = (knowledgeId, { enabled = true, callback = noop } = {}) => {
+  const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState({});
 
   const mountedRef = useRef(true);
   const requestIdRef = useRef(0);
-  const isInitializedRef = useRef(true);
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   const hasRunningTask = useCallback(data => {
     return data?.knowledgeCollections?.some(item => COLLECTION_TASK_STATUS_NEEDS_REFRESH.includes(item.taskStatus));
@@ -68,7 +74,7 @@ export const useKnowledgeDetail = (knowledgeId, { enabled = true, callback = () 
         return next;
       } catch (err) {
         console.error('getKnowledgeBaseDetail error:', err);
-        callback();
+        callbackRef.current();
         removeKidHashFromUrl();
         return null;
       } finally {
@@ -79,45 +85,45 @@ export const useKnowledgeDetail = (knowledgeId, { enabled = true, callback = () 
     },
     [knowledgeId],
   );
+  const fetchDetailSilently = useCallback(() => fetchDetail(true), [fetchDetail]);
 
   // 使用通用轮询
   const { start, stop } = usePolling({
-    fetcher: () => fetchDetail(true),
+    fetcher: fetchDetailSilently,
     shouldContinue: hasRunningTask,
   });
 
   // 初始加载
   useEffect(() => {
-    fetchDetail().then(data => {
-      if (enabled && hasRunningTask(data)) {
-        start();
-      }
-    });
-  }, []);
+    let active = true;
+    mountedRef.current = true;
+
+    Promise.resolve()
+      .then(fetchDetailSilently)
+      .then(() => {
+        if (active && mountedRef.current) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      mountedRef.current = false;
+      requestIdRef.current += 1;
+      stop();
+    };
+  }, [fetchDetailSilently, stop]);
 
   useEffect(() => {
-    if (isInitializedRef.current) {
-      isInitializedRef.current = false;
-      return;
-    }
-
     if (enabled && hasRunningTask(detail)) {
       start();
-    }
-
-    if (!enabled) {
+    } else {
       stop();
     }
-  }, [enabled, start, stop]);
+  }, [detail, enabled, hasRunningTask, start, stop]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     stop();
-    fetchDetail().then(data => {
-      if (enabled && hasRunningTask(data)) {
-        start();
-      }
-    });
-  };
+    return fetchDetail();
+  }, [fetchDetail, stop]);
 
   return {
     loading,

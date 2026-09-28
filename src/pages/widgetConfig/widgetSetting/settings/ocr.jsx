@@ -1,12 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { isEmpty } from 'lodash';
-import _ from 'lodash';
-import { PriceTip, RadioGroup } from 'ming-ui';
-import WidgetDropdown from '../../components/Dropdown';
+import _, { isEmpty } from 'lodash';
+import { PriceTip } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 import { TEMPLATE_TYPE } from '../../config/ocr';
-import { ALL_SYS } from '../../config/widget';
 import { Button, SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import ApiSearchConfig from '../components/ApiSearchConfig';
 import OcrMap from '../components/OcrMap';
 
@@ -32,16 +31,23 @@ const MAP_DISPLAY = [
   },
 ];
 
+const getSelectOptions = options => options.map(({ text, ...option }) => ({ ...option, label: text }));
+const MAP_OPTIONS = getSelectOptions(MAP_DISPLAY);
+const TEMPLATE_OPTIONS = getSelectOptions(TEMPLATE_TYPE);
+
 function OcrMapType({ data, allControls = [], onChange }) {
   const { ocrmaptype = '0', ocrcid = '' } = getAdvanceSetting(data);
   const FILED_LIST = allControls.filter(i => i.type === 34).map(i => ({ text: i.controlName, value: i.controlId }));
+  const fieldOptions = getSelectOptions(FILED_LIST);
+  const fieldDeleted = ocrcid && !fieldOptions.some(item => item.value === ocrcid);
   return (
     <Fragment>
       <SettingItem className="withSplitLine">
         <div className="settingItemTitle">{_l('将当前模版映射到')}</div>
-        <WidgetDropdown
+        <Select
+          className="w100"
           value={ocrmaptype}
-          data={MAP_DISPLAY}
+          options={MAP_OPTIONS}
           onChange={value => {
             if (ocrmaptype === value) return;
             onChange(handleAdvancedSettingChange(data, { ocrmaptype: value, ocrcid: '', ocrmap: '' }));
@@ -56,9 +62,12 @@ function OcrMapType({ data, allControls = [], onChange }) {
       {ocrmaptype === '2' && (
         <SettingItem>
           <div className="settingItemTitle">{_l('选择子表')}</div>
-          <WidgetDropdown
-            value={ocrcid}
-            data={FILED_LIST}
+          <Select
+            className="w100"
+            value={ocrcid || undefined}
+            options={fieldOptions}
+            status={fieldDeleted ? 'error' : undefined}
+            labelRender={({ label }) => (fieldDeleted ? <span className="textError">{_l('字段已删除')}</span> : label)}
             onChange={value => {
               onChange(handleAdvancedSettingChange(data, { ocrcid: value }));
             }}
@@ -86,6 +95,8 @@ export default function OcrDisplay(props) {
   } = getAdvanceSetting(data);
 
   const FILED_LIST = allControls.filter(i => i.type === 14).map(i => ({ text: i.controlName, value: i.controlId }));
+  const fieldOptions = getSelectOptions(FILED_LIST);
+  const originalFieldDeleted = ocroriginal && !fieldOptions.some(item => item.value === ocroriginal);
   const batchDisabled = ocrmaptype === '2' && !ocrcid;
   const FILED_RELATION_LIST =
     ocrmaptype === '2' && ocrcid
@@ -101,34 +112,69 @@ export default function OcrDisplay(props) {
     if (_.isUndefined(enumDefault)) {
       onChange(handleAdvancedSettingChange({ ...data, enumDefault: 1 }, { ocrmap: JSON.stringify([]) }));
     }
-  }, [data.controlId]);
+  }, [data, enumDefault, onChange]);
 
   return (
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('接口服务')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={ocrapitype}
-          data={API_DISPLAY.map(item =>
-            item.value === '1' ? { ...item, disabled: md.global.SysSettings.hideIntegration } : item,
-          )}
-          onChange={value => {
-            let newData = handleAdvancedSettingChange(data, { ocrapitype: value, ocrmaptype: '0', ocrcid: '' });
+          value={ocrapitype}
+          options={(
+            API_DISPLAY.map(item =>
+              item.value === '1' ? { ...item, disabled: md.global.SysSettings.hideIntegration } : item,
+            ) || []
+          ).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
+            let newData = handleAdvancedSettingChange(data, {
+              ocrapitype: value,
+              ocrmaptype: '0',
+              ocrcid: '',
+            });
 
             if (value === '1') {
               newData = handleAdvancedSettingChange(
-                { ...newData, ...(_.isUndefined(data.hint) ? { hint: _l('识别文字') } : {}) },
                 {
-                  ...(ocrcid ? { ocrcid: '' } : {}),
-                  ...(ocrmap ? { ocrmap: '' } : {}),
+                  ...newData,
+                  ...(_.isUndefined(data.hint)
+                    ? {
+                        hint: _l('识别文字'),
+                      }
+                    : {}),
+                },
+                {
+                  ...(ocrcid
+                    ? {
+                        ocrcid: '',
+                      }
+                    : {}),
+                  ...(ocrmap
+                    ? {
+                        ocrmap: '',
+                      }
+                    : {}),
                 },
               );
             } else {
               newData = handleAdvancedSettingChange(newData, {
-                ...(authaccount ? { authaccount: '' } : {}),
-                ...(requestmap ? { requestmap: '' } : {}),
-                ...(ocroriginal ? { ocroriginal: '' } : {}),
+                ...(authaccount
+                  ? {
+                      authaccount: '',
+                    }
+                  : {}),
+                ...(requestmap
+                  ? {
+                      requestmap: '',
+                    }
+                  : {}),
+                ...(ocroriginal
+                  ? {
+                      ocroriginal: '',
+                    }
+                  : {}),
               });
             }
 
@@ -148,10 +194,15 @@ export default function OcrDisplay(props) {
           <ApiSearchConfig {...props} />
           <SettingItem>
             <div className="settingItemTitle">{_l('保存识别原件')}</div>
-            <WidgetDropdown
+            <Select
+              className="w100"
               placeholder={_l('选择附件字段')}
-              value={ocroriginal}
-              data={FILED_LIST}
+              value={ocroriginal || undefined}
+              options={fieldOptions}
+              status={originalFieldDeleted ? 'error' : undefined}
+              labelRender={({ label }) =>
+                originalFieldDeleted ? <span className="textError">{_l('字段已删除')}</span> : label
+              }
               onChange={value => {
                 onChange(handleAdvancedSettingChange(data, { ocroriginal: value }));
               }}
@@ -162,10 +213,17 @@ export default function OcrDisplay(props) {
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('识别模板')}</div>
-            <WidgetDropdown
+            <Select
+              className="w100"
               placeholder={_l('请选择识别模板')}
               value={enumDefault}
-              data={TEMPLATE_TYPE}
+              options={TEMPLATE_OPTIONS}
+              optionRender={({ data: item }) => (
+                <div className="flexRow alignItemsCenter">
+                  <i className={`icon-${item.icon} Font16 textTertiary mRight8`} />
+                  <span className="overflow_ellipsis">{item.label}</span>
+                </div>
+              )}
               onChange={value => {
                 if (value !== enumDefault) {
                   onChange(

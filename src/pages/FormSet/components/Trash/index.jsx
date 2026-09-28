@@ -1,37 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { DeleteReconfirm, Dialog, Icon, LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
+import { DeleteReconfirm, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import Search from 'src/pages/workflow/components/Search';
-import './index.less';
 
-const WrapHeader = styled.div`
-  flex-shrink: 0;
-  height: 53px;
-  padding: 0 68px 0 26px;
-  .trashSearch {
-    .icon {
-      top: 8px;
-    }
-    input {
-      width: 184px;
-      height: 30px;
-      background: var(--color-background-secondary);
-      border-radius: 16px 16px 16px 16px;
-    }
-  }
-`;
 const Wrap = styled.div`
   height: 650px;
   overflow: hidden;
   .table {
     flex: 1;
     overflow: hidden;
-    border-top: 1px solid rgba(0, 0, 0, 0.16);
     .nameWrapTr,
     .rageWrapTr {
       min-width: 260px;
@@ -121,16 +102,15 @@ export default function TrashDialog(props) {
     allList: [],
     keyWords: '',
   });
+  const loadingRef = useRef(false);
   const isAIAction = btnType === 1; //  -1:全部 0：按钮 1：AI Action
 
-  useEffect(() => {
-    getList();
-  }, []);
-  const getList = () => {
-    if (loading) {
+  const getList = useCallback(() => {
+    if (loadingRef.current) {
       return;
     }
 
+    loadingRef.current = true;
     setState({ loading: true });
     sheetAjax
       .getWorksheetBtns({
@@ -140,13 +120,18 @@ export default function TrashDialog(props) {
         btnType,
       })
       .then(res => {
+        loadingRef.current = false;
         setState({
           list: res || [],
           allList: res || [],
           loading: false,
         });
       });
-  };
+  }, [appId, btnType, setState, worksheetId]);
+
+  useEffect(() => {
+    getList();
+  }, [getList]);
 
   const reply = btnId => {
     sheetAjax
@@ -379,31 +364,43 @@ export default function TrashDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       className="btnTrashDialog"
-      width="1000"
-      headerClass="pAll0"
-      visible={true}
-      title={null}
+      width={1000}
+      open
+      mask={{ closable: true }}
+      keyboard
+      title={
+        <div className="flexRow alignItemsCenter minWidth0">
+          <div className="Font17">
+            {_l('回收站')}（ {isAIAction ? _l('AI 动作') : _l('自定义动作')}）
+          </div>
+          <span className="textTertiary Font13 mLeft10">
+            {_l('可恢复60天内删除的%0', isAIAction ? _l('AI 动作') : _l('自定义动作'))}
+          </span>
+        </div>
+      }
+      headerRightElement={
+        <Input
+          allowClear
+          radius
+          variant="filled"
+          placeholder={_l('动作名称')}
+          prefix={<Icon icon="search" className="textSecondary Font16" />}
+          value={keyWords}
+          style={{ width: 184, height: 30 }}
+          onChange={event => {
+            const value = event.target.value;
+
+            setState({ keyWords: value, list: allList.filter(item => item.name.indexOf(value) >= 0) });
+          }}
+        />
+      }
       footer={null}
       onCancel={props.onCancel}
     >
       <Wrap className="flexColumn">
-        <WrapHeader className="flexRow alignItemsCenter">
-          <div className="Font17 flex">
-            {_l('回收站')}（ {isAIAction ? _l('AI 动作') : _l('自定义动作')}）
-            <span className="textTertiary Font13 mLeft10">
-              {_l('可恢复60天内删除的%0', isAIAction ? _l('AI 动作') : _l('自定义动作'))}
-            </span>
-          </div>
-          <Search
-            className="trashSearch"
-            placeholder={_l('动作名称')}
-            value={keyWords}
-            handleChange={keyWords => setState({ keyWords, list: allList.filter(o => o.name.indexOf(keyWords) >= 0) })}
-          />
-        </WrapHeader>
-        <div className="table flex flexColumn pLeft20 pRight20 pTop10 pBottom10">
+        <div className="table flex flexColumn pTop10 pBottom10">
           {loading ? (
             <LoadDiv />
           ) : list.length <= 0 ? (
@@ -420,6 +417,6 @@ export default function TrashDialog(props) {
           )}
         </div>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -3,21 +3,14 @@
 }
 
 .userCardSite {
-  position: absolute;
   width: 340px;
-  z-index: 10002;
-  zoom: 1;
-  color: var(--color-text-title);
-  left: -300px;
-  top: 0;
-  border-bottom: 10px solid transparent;
-  border-top: 10px solid transparent;
+
   .userOperatorCon {
     height: 45px;
-    border-radius: 0 0 4px 4px;
     line-height: 45px;
-    background-color: var(--color-background-secondary);
     display: flex;
+    align-items: center;
+    margin-top: 8px;
   }
 
   .userOperatorCon .removeUser {
@@ -29,35 +22,4 @@
     text-align: center;
     width: 50%;
   }
-}
-
-.userCardSite.rc-trigger-popup-placement-topLeft,
-.userCardSite.rc-trigger-popup-placement-topRight {
-  .arrowBoxUserCard {
-    bottom: -8px;
-  }
-  .arrowBoxUserCard .arrow {
-    border-top-color: var(--color-background-card);
-  }
-}
-
-.userCardSite.rc-trigger-popup-placement-bottomLeft,
-.userCardSite.rc-trigger-popup-placement-bottomRight {
-  .arrowBoxUserCard {
-    top: -15px;
-  }
-  .arrowBoxUserCard .arrow {
-    border-bottom-color: var(--color-background-card);
-  }
-}
-
-.userCardSite.rc-trigger-popup-placement-bottomRight,
-.userCardSite.rc-trigger-popup-placement-topRight {
-  .arrowBoxUserCard {
-    right: 2px !important;
-  }
-}
-
-.enlargeImageDialog {
-  z-index: 10005 !important;
 }

@@ -8,7 +8,7 @@ export const bindWeiXin = projectId => {
     const url = (window.isIphone ? entryUrl || location.href : location.href).split('#')[0];
     weixinApi
       .getWeiXinConfig({
-        url: encodeURI(url),
+        url,
         projectId,
       })
       .then(({ data, code }) => {
@@ -25,7 +25,7 @@ export const bindWeiXin = projectId => {
             reslove();
           });
           window.wx.error(res => {
-            res.mdurl = encodeURI(url);
+            res.mdurl = url;
             window.nativeAlert(JSON.stringify(res));
             reject();
           });
@@ -46,7 +46,7 @@ export const bindWxWork = projectId => {
     workWeiXinApi
       .getSignatureInfo({
         projectId,
-        url: encodeURI(url),
+        url,
         suiteType: 8,
         tickettype: 1,
       })
@@ -69,7 +69,7 @@ export const bindWxWork = projectId => {
           reslove();
         });
         window.wx.error(res => {
-          res.mdurl = encodeURI(url);
+          res.mdurl = url;
           window.nativeAlert(JSON.stringify(res));
           reject();
         });
@@ -82,7 +82,7 @@ export const bindWxWork = projectId => {
 
 export const bindFeishu = projectId => {
   return new Promise((reslove, reject) => {
-    const url = encodeURI(location.href.split('#')[0]);
+    const url = location.href.split('#')[0];
     workWeiXinApi
       .getFeiShuSignatureInfo({
         projectId,
@@ -155,7 +155,7 @@ export const bindDing = projectId => {
 
 export const bindWeLink = projectId => {
   return new Promise((reslove, reject) => {
-    const url = encodeURI(location.href.split('#')[0]);
+    const url = location.href.split('#')[0];
     workWeiXinApi
       .getWeLinkSignatureInfo({
         projectId,

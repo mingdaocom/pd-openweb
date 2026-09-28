@@ -1,5 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button, Flex, Space, Typography } from 'ming-ui/antd-components';
+
+const { Text } = Typography;
+const LINK_BUTTON_STYLE = { paddingInline: 0 };
+const VOTE_ACTION_STYLE = {
+  paddingTop: 12,
+  marginTop: 12,
+  borderTop: '1px solid var(--color-border-secondary)',
+};
 
 /**
  * 投票的操作项
@@ -9,46 +18,44 @@ function VoteAction(props) {
   let actions;
 
   if (props.isShowResult && !voteItem.isPostVote && !voteItem.isDeadline) {
-    actions = <a onClick={props.handleShowList}>{_l('返回投票')}</a>;
-  } else if ((!voteItem.isPostVote && !voteItem.isDeadline) || (voteItem.isPostVote && !props.isShowResult)) {
-    // 没有投过票且没过期 或者 已经投过票并修改投票
     actions = (
-      <span className="textTertiary">
-        {voteItem.Anonymous ? <span className="mRight10">{_l('匿名投票')}</span> : undefined}
-        <span className="mRight10">{_l('最多可以选择%0项', voteItem.AvailableNumber)}</span>
-        {
-          /* 过期时间*/ voteItem.Deadline ? (
-            <span className="mRight10">{_l('%0 到期', voteItem.Deadline)}</span>
-          ) : undefined
-        }
-        {!voteItem.isMy ? <span>{_l('投票后可以查看结果') /* 投票后可以查看结果*/}</span> : undefined}
-      </span>
+      <Button type="link" size="small" style={LINK_BUTTON_STYLE} onClick={props.handleShowList}>
+        {_l('返回投票')}
+      </Button>
+    );
+  } else if ((!voteItem.isPostVote && !voteItem.isDeadline) || (voteItem.isPostVote && !props.isShowResult)) {
+    actions = (
+      <Space size={[12, 4]} wrap>
+        {voteItem.Anonymous ? <Text type="secondary">{_l('匿名投票')}</Text> : undefined}
+        <Text type="secondary">{_l('最多可以选择%0项', voteItem.AvailableNumber)}</Text>
+        {voteItem.Deadline ? <Text type="secondary">{_l('%0 到期', voteItem.Deadline)}</Text> : undefined}
+        {!voteItem.isMy ? <Text type="secondary">{_l('投票后可以查看结果')}</Text> : undefined}
+      </Space>
     );
   } else if (!voteItem.isPostVote && voteItem.isDeadline) {
-    // 如果没有投票但投票已过期
     actions = (
-      <span>
-        <span className="textTertiary mRight10">{_l('投票已到期')}</span>
-        <a onClick={props.handleReloadVote}>{_l('刷新结果') /* 刷新结果*/}</a>
-      </span>
+      <Space size={8}>
+        <Text type="secondary">{_l('投票已到期')}</Text>
+        <Button type="link" size="small" style={LINK_BUTTON_STYLE} onClick={props.handleReloadVote}>
+          {_l('刷新结果')}
+        </Button>
+      </Space>
     );
   } else if (voteItem.isPostVote && props.isShowResult) {
-    actions = (
-      <span className="textTertiary">
-        {voteItem.isDeadline ? (
-          /* 投票已过期*/ _l('投票已到期')
-        ) : (
-          /* 更改我的投票*/ <a onClick={props.handleShowList}>{_l('更改我的投票')}</a>
-        )}
-      </span>
+    actions = voteItem.isDeadline ? (
+      <Text type="secondary">{_l('投票已到期')}</Text>
+    ) : (
+      <Button type="link" size="small" style={LINK_BUTTON_STYLE} onClick={props.handleShowList}>
+        {_l('更改我的投票')}
+      </Button>
     );
   }
 
   return (
-    <div className="mTop10">
-      <span className="mRight15">{_l('总计 %0 票', voteItem.Num_Vote)}</span>
+    <Flex align="center" gap={12} wrap style={VOTE_ACTION_STYLE}>
+      <Text strong>{_l('总计 %0 票', voteItem.Num_Vote)}</Text>
       {actions}
-    </div>
+    </Flex>
   );
 }
 

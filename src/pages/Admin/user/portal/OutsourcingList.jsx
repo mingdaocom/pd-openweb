@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ConfigProvider, Input, Spin, Table } from 'antd';
 import cx from 'classnames';
 import { LoadDiv } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { ConfigProvider, Input, Modal, Spin } from 'ming-ui/antd-components';
 import transferController from 'src/api/transfer';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
 import Config from '../../config';
@@ -144,9 +144,9 @@ export default class OutsourcingList extends Component {
 
   //移除成员
   handleDelete = accountId => {
-    Confirm({
-      title: _l('您确定要将成员从各个模块移除吗?'),
-      description: _l(
+    Modal.confirm({
+      title: <span className="textError">{_l('您确定要将成员从各个模块移除吗?')}</span>,
+      content: _l(
         '您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）',
       ),
       onOk: () => {
@@ -211,9 +211,9 @@ export default class OutsourcingList extends Component {
             url = '/apps/kc/';
         }
 
-        Confirm({
-          description: <DetailDialog data={data.list} typeName={typeName} url={url} urlDetail={urlDetail} />,
-          showFooter: false,
+        Modal.confirm({
+          content: <DetailDialog data={data.list} typeName={typeName} url={url} urlDetail={urlDetail} />,
+          footer: null,
         });
       });
   }

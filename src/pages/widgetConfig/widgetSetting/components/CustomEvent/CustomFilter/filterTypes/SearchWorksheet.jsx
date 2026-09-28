@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import SearchWorksheetDialog from '../../../SearchWorksheet/SearchWorksheetDialog';
 
 export default function SearchWorksheet(props) {

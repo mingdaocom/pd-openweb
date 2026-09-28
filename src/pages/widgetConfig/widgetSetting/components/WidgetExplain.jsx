@@ -1,6 +1,6 @@
 import React from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
+import { Input } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 
 export default ({ data, onChange }) => {

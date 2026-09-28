@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
 import { NumberRange, SettingItem } from '../../styled';
-import { isCustomWidget } from '../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import NumberDynamicColor from '../components/NumberDynamicColor';
 import PointerConfig from '../components/PointerConfig';
@@ -15,21 +15,21 @@ import WidgetVerify from '../components/WidgetVerify';
 const NUMBER_TYPES = [
   {
     value: '0',
-    text: _l('数值'),
+    label: _l('数值'),
   },
   {
     value: '2',
-    text: _l('进度'),
+    label: _l('进度'),
   },
   {
     value: '3',
-    text: _l('计步器'),
+    label: _l('计步器'),
   },
 ];
 
 const NUMBER_COLOR_TYPE = [
-  { text: _l('固定颜色'), value: 1 },
-  { text: _l('动态颜色'), value: 2 },
+  { label: _l('固定颜色'), value: 1 },
+  { label: _l('动态颜色'), value: 2 },
 ];
 
 const defaultItemColor = {
@@ -204,12 +204,11 @@ export default function Number(props) {
 
   return (
     <Fragment>
-      <SettingItem hide={isCustomWidget(data)}>
+      <SettingItem $hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('输入方式')}</div>
-        <Dropdown
-          border
-          isAppendToBody
-          data={FILTER_NUMBER_TYPES}
+        <Select
+          className="w100"
+          options={FILTER_NUMBER_TYPES}
           value={showtype}
           onChange={type => {
             let newOptions = { showtype: type };
@@ -243,7 +242,7 @@ export default function Number(props) {
 
       {fromExcel ? null : (
         <Fragment>
-          <DynamicDefaultValue {...props} />
+          <DynamicDefaultValue {...props} from={0} />
           <WidgetVerify {...props} />
 
           {isSlider && (
@@ -251,11 +250,9 @@ export default function Number(props) {
               <SettingItem>
                 <div className="settingItemTitle">{_l('颜色')}</div>
                 <div className="labelWrap flexRow">
-                  <Dropdown
-                    border
-                    isAppendToBody
+                  <Select
                     style={{ width: '120px', marginRight: '10px' }}
-                    data={NUMBER_COLOR_TYPE}
+                    options={NUMBER_COLOR_TYPE}
                     value={_.get(itemcolor, 'type') || 1}
                     onChange={type => {
                       onChange(

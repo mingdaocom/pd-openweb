@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import { Icon, LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import 'src/pages/AuthService/components/form.less';
 import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
 import { WrapCom } from 'src/pages/AuthService/style.jsx';
-import { browserIsMobile } from 'src/utils/common';
-import { getRequest } from 'src/utils/sso';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getRequest } from 'src/utils/services/auth/sso';
 import { isErrSet } from '../util';
 import Container from './Container';
 import { Wrap, WrapCon } from './style';
@@ -24,29 +26,43 @@ function ContainerCon(props) {
   const [documentTitle, setdocumentTitle] = useState('');
   const { customLink } = getRequest();
 
-  useEffect(() => {
-    getBaseInfo();
-  }, []);
-
   //根据appid  获取当前应用的登录页面 以及应用状态
-  const getBaseInfo = () => {
+  const getBaseInfo = useCallback(() => {
     let ajaxPromise = '';
     let request = getRequest();
     const { appId = '' } = request;
     ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId, customLink });
     ajaxPromise &&
       ajaxPromise
-        .then(res => {
-          const { portalSetResult = {}, isExist, status } = res;
+        .then(async res => {
+          const { portalSetResult = {}, isExist, status, appLangs = [] } = res;
           const { isEnable, appId } = portalSetResult;
+          const currentAppLang = Array.isArray(appLangs)
+            ? appLangs.find(item => item.langCode === getCurrentLang())
+            : undefined;
+          const appLangId = currentAppLang?.id;
+          let translateInfo = {};
 
-          if (portalSetResult.pageTitle) {
-            setdocumentTitle(_l('忘记密码 - %0', portalSetResult.pageTitle));
+          if (appLangId) {
+            const langData = await appManagementApi
+              .getAppLangForPortalAppInfo({ appId, appLangId }, { silent: true })
+              .catch(() => []);
+            window[`langData-${appId}`] = langData;
+            translateInfo = getTranslateInfo(appId, null, appId);
+          }
+
+          const nextPortalSetResult = {
+            ...portalSetResult,
+            pageTitle: translateInfo.portalTitle || portalSetResult.pageTitle,
+          };
+
+          if (nextPortalSetResult.pageTitle) {
+            setdocumentTitle(_l('忘记密码 - %0', nextPortalSetResult.pageTitle));
           } else {
             setdocumentTitle(_l('忘记密码'));
           }
 
-          const isErrCustomUrl = customLink && isErrSet(portalSetResult);
+          const isErrCustomUrl = customLink && isErrSet(nextPortalSetResult);
 
           if (status === 40 || isErrCustomUrl) {
             //扩展链接不存在 || 你访问的链接已停止访问
@@ -66,14 +82,18 @@ function ContainerCon(props) {
           });
           setStatus(status);
           setAppId(appId);
-          setBaseSetInfo(portalSetResult);
+          setBaseSetInfo(nextPortalSetResult);
           setLoading(false);
         })
         .catch(error => {
           console.log(error);
           setLoading(false);
         });
-  };
+  }, [customLink]);
+
+  useEffect(() => {
+    getBaseInfo();
+  }, [getBaseInfo]);
 
   if (loading) {
     return <LoadDiv className="" style={{ margin: '120px auto' }} />;

@@ -713,6 +713,20 @@
     vertical-align: middle;
   }
 
+  .markdown-body li:has(> .task-list-checkbox),
+  .markdown-body li:has(> p > .task-list-checkbox) {
+    list-style-type: none;
+  }
+
+  .markdown-body .task-list-checkbox {
+    width: 16px;
+    height: 16px;
+    margin: 0 0.35em 0.25em -1.6em;
+    vertical-align: middle;
+    accent-color: var(--color-success);
+    cursor: default;
+  }
+
   .markdown-body :checked + .radio-label {
     z-index: 1;
     position: relative;
@@ -1008,7 +1022,11 @@
 }
 
 // Prism Dark — based on prism-one-dark
-[data-theme='dark'] {
+// 代码文件预览层（.codeViewer-code）背景固定为反色深底（--color-background-inverse），
+// 不随主题切换，因此其内 .mdcode 必须始终使用深色高亮配色；
+// 否则浅色主题下会出现“深底 + 浅色配色”，普通文本/标点几乎不可见
+[data-theme='dark'],
+.codeViewer-code {
   .mdcode {
     code[class*='language-'],
     pre[class*='language-'] {

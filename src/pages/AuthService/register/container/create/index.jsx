@@ -9,8 +9,8 @@ import RegisterController from 'src/api/register';
 import CompanyDrop from 'src/pages/AuthService/components/companyDrop';
 import { ActionResult } from 'src/pages/AuthService/config.js';
 import { registerSuc } from 'src/pages/AuthService/util.js';
-import RegExpValidator from 'src/utils/expression';
-import { setPssId } from 'src/utils/pssId';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { setPssId } from 'src/utils/platform/auth/pssId';
 import SelectCountry from './SelectCountry';
 import { Wrap, WrapConDp } from './style';
 

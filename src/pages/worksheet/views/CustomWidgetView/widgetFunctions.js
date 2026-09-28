@@ -18,18 +18,15 @@ import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
 import { selectUser } from 'mobile/components/SelectUser';
 import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
-import exportSheet from 'worksheet/common/ExportSheet';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { importDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
+import { openGlobalRecordInfo } from 'worksheet/common/recordInfo';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { selectRecords } from 'src/components/SelectRecords';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
-import { browserIsMobile, getDefaultThemeMode, getFilledRequestParams } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
-import { renderText } from 'src/utils/control';
-import { addBehaviorLog, compatibleMDJS, mdAppResponse } from 'src/utils/project';
-import selectLocation from './selectLocation';
+import { renderText } from 'src/utils/domain/control/display';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { getDefaultThemeMode } from 'src/utils/platform/theme/theme';
+import { addBehaviorLog, compatibleMDJS, mdAppResponse } from 'src/utils/services/project';
 
 export const api = {
   getFilterRowsTotalNum: data => window.mdyAPI('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
@@ -145,7 +142,7 @@ export const utils = {
     }
 
     return new Promise(resolve => {
-      (isMobile ? openMobileRecordInfo : openRecordInfo)({
+      (isMobile ? openMobileRecordInfo : openGlobalRecordInfo)({
         projectId: args.projectId,
         allowAdd: args.worksheetInfo && args.worksheetInfo.allowAdd,
         ...args,
@@ -166,7 +163,7 @@ export const utils = {
       });
     });
   },
-  openNewRecord: args => {
+  openNewRecord: ({ openAddRecord, ...args } = {}) => {
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -188,7 +185,7 @@ export const utils = {
     }
 
     return new Promise(resolve => {
-      (isMobile ? mobileAddRecord : addRecord)({
+      (isMobile ? mobileAddRecord : openAddRecord)({
         ...args,
         onAdd: resolve,
       });
@@ -347,7 +344,7 @@ export const utils = {
       }
     });
   },
-  selectRecord: ({ relateSheetId, multiple, ...rest } = {}) => {
+  selectRecord: ({ relateSheetId, multiple, openSelectRecords, ...rest } = {}) => {
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -371,7 +368,7 @@ export const utils = {
     }
 
     return new Promise(resolve => {
-      (isMobile ? mobileSelectRecord : selectRecords)({
+      (isMobile ? mobileSelectRecord : openSelectRecords)({
         projectId: rest.projectId,
         canSelectAll: false,
         pageSize: rest.pageSize,
@@ -387,7 +384,7 @@ export const utils = {
       });
     });
   },
-  selectLocation: (options = {}) => {
+  selectLocation: ({ openSelectLocation, ...options } = {}) => {
     const { distance } = options;
 
     if (window.isMingDaoApp) {
@@ -419,7 +416,7 @@ export const utils = {
     }
 
     return new Promise(resolve => {
-      selectLocation({
+      openSelectLocation({
         ...options,
         onSelect: location => {
           resolve(location);
@@ -447,23 +444,23 @@ export const utils = {
   getThemeMode: () => {
     return localStorage.getItem('themeMode') || getDefaultThemeMode();
   },
-  importDataFromExcel: async (options = {}) => {
+  importDataFromExcel: async ({ openImportDataFromExcel, ...options } = {}) => {
     const isDisabled = location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal;
 
     if (isDisabled) {
       return Promise.resolve({});
     }
 
-    return importDataFromExcel(options);
+    return openImportDataFromExcel(options);
   },
-  exportSheet: async (options = {}) => {
+  exportSheet: async ({ openExportSheet, ...options } = {}) => {
     const isDisabled = location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal;
 
     if (isDisabled) {
       return Promise.resolve({});
     }
 
-    return exportSheet(options);
+    return openExportSheet(options);
   },
   renderText,
 };

@@ -8,15 +8,15 @@ import { Icon, SvgIcon } from 'ming-ui';
 import Share from 'worksheet/components/Share';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { TAB_TYPE } from '../../core/enum';
 import Beta from '../Beta';
 
 const HeaderWrap = styled.header`
   position: relative;
   display: flex;
-  justify-content: ${props => (props.isAuthorization ? 'flex-start' : 'space-between')};
+  justify-content: ${props => (props.$isAuthorization ? 'flex-start' : 'space-between')};
   padding: 0 30px;
   font-size: 17px;
   height: 50px;
@@ -58,7 +58,26 @@ const HeaderWrap = styled.header`
   }
 
   .appName {
-    display: inline;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .appInfo {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    white-space: nowrap;
+
+    &.hasTabs {
+      max-width: max(160px, calc(50% - 210px));
+    }
+
+    > :not(.appName) {
+      flex-shrink: 0;
+    }
   }
 
   .flexNone {
@@ -132,7 +151,7 @@ const CommonHeader = props => {
 
   return (
     <HeaderWrap className="flexRow">
-      <div className="ellipsis">
+      <div className={cx('appInfo', { hasTabs: !isSharePage })}>
         {data && (
           <Fragment>
             <span
@@ -146,6 +165,7 @@ const CommonHeader = props => {
             </span>
             <span
               className="appName Hand bold mRight5"
+              title={dataApp.name}
               onClick={() => {
                 navigateTo(`/app/${appId}`);
               }}
@@ -186,7 +206,7 @@ const CommonHeader = props => {
                 <span className="Font14">{_l('打开')}</span>
               </div>
             )}
-            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+            {window.platformENV.isHap && (
               <a
                 className="shareButton Hand textSecondary flexRow valignWrapper"
                 target="_blank"
@@ -230,7 +250,7 @@ const AuthorizationHeader = props => {
   const { appIconColor, appNavColor } = share.data;
   const { backgroundColor, fillColor } = getIconColor({ iconColor: appIconColor, navColor: appNavColor });
   return (
-    <HeaderWrap isAuthorization={true}>
+    <HeaderWrap $isAuthorization={true}>
       {share.data && (
         <React.Fragment>
           <span className="appIconWrapIcon" style={{ backgroundColor }}>

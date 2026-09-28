@@ -14,30 +14,28 @@ const ClickAwayable = ClickAway;
 const exceptions = [
   '.ChatList-wrapper',
   '.dialogScroll',
-  '.ant-modal',
-  '.mdModal',
-  '.ChatPanel-Trigger',
+  '.hap-modal',
   '.attachmentsPreview',
-  '.mui-dialog-container',
   '.confirm',
-  '.PositionContainer-wrapper',
   '.groupSettingAvatarSelect',
   '.ui-timepicker-list',
   '.selectUserBox',
   '.warpDatePicker',
-  '.dropdownTrigger',
-  '.rc-trigger-popup',
   '.workflowStepListWrap',
-  '.ant-select-dropdown',
-  '.ant-cascader-menus',
+  '.hap-select-dropdown',
+  '.hap-cascader-menus',
   '.InboxFilterWrapper',
-  '.ant-picker-dropdown',
-  '.addMembersMoreAction',
-  '.ChatList-ContextMenu',
+  '.hap-modal-root',
+  '.hap-picker-dropdown',
+  '.hap-dropdown-menu',
+  '.hap-dropdown',
+  '.hap-popover',
   '.inboxAppFilterWrapper',
 ];
 
 class ChatPanel extends Component {
+  failedInboxIds = new Set();
+
   constructor(props) {
     super(props);
     this.state = {
@@ -76,6 +74,11 @@ class ChatPanel extends Component {
     if (prevProps !== this.props) {
       const { currentSession: newCurrentSession } = this.props;
       const { currentSession, currentSessionList, currentInboxList } = prevProps;
+
+      if (currentSession.value && currentSession.value !== newCurrentSession.value) {
+        this.removeFailedInbox(currentSession.value);
+      }
+
       const sessionSuperfluous = currentSessionList.filter(
         item => (item.groupId || item.accountId) === newCurrentSession.value,
       );
@@ -162,7 +165,26 @@ class ChatPanel extends Component {
     this.setState({ isError: false });
     this.props.dispatch(actions.addCurrentInbox(session));
   }
+  handleInboxFirstPageLoadError = inboxId => {
+    if (this.props.currentSession.value === inboxId) {
+      this.failedInboxIds.add(inboxId);
+    } else {
+      this.props.dispatch(actions.removeCurrentInbox(inboxId));
+    }
+  };
+  handleInboxFirstPageLoadSuccess = inboxId => {
+    this.failedInboxIds.delete(inboxId);
+  };
+  removeFailedInbox(inboxId) {
+    if (!this.failedInboxIds.has(inboxId)) {
+      return;
+    }
+
+    this.failedInboxIds.delete(inboxId);
+    this.props.dispatch(actions.removeCurrentInbox(inboxId));
+  }
   handleClosePanel() {
+    this.removeFailedInbox(this.props.currentSession.value);
     this.props.dispatch(actions.closeSessionPanel());
   }
   handleClickAway() {
@@ -207,6 +229,8 @@ class ChatPanel extends Component {
           count={currentSession.value === item.id ? currentSession.count : 0}
           weak_count={currentSession.value === item.id ? currentSession.weak_count : 0}
           requestNow={currentSession.value === item.id ? item.requestNow : undefined}
+          onFirstPageLoadError={this.handleInboxFirstPageLoadError}
+          onFirstPageLoadSuccess={this.handleInboxFirstPageLoadSuccess}
         />
       </div>
     );

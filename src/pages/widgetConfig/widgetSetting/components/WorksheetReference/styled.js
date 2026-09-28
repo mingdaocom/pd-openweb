@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const ReferenceWrap = styled.div`
   min-height: 500px;
-  height: ${props => `${props.height}px`};
+  height: ${props => `${props.$height}px`};
   display: flex;
   border-top: 1px solid var(--color-border-primary);
 
@@ -144,12 +144,12 @@ export const ExtraTime = styled.span`
   color: var(--color-text-tertiary);
   .getBtn {
     ${props =>
-      props.isLoading
+      props.$isLoading
         ? 'display:inline-block;animation: rotate 2s linear infinite;color: var(--color-primary);'
         : 'display:none;'}
   }
   .time {
-    ${props => (props.isLoading ? 'display: none;' : 'display: block;')}
+    ${props => (props.$isLoading ? 'display: none;' : 'display: block;')}
   }
   &:hover {
     .time {

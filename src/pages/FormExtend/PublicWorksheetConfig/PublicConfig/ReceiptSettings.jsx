@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input, Radio, RichText } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Icon, RichText } from 'ming-ui';
+import { Input, Popover, Radio } from 'ming-ui/antd-components';
+import DynamicFieldTextarea from 'src/pages/FormExtend/common/DynamicFieldTextarea';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { SUBMIT_AFTER_OPTIONS } from '../../enum';
 import SectionTitle from './SectionTitle';
 
@@ -32,38 +33,9 @@ const ContentWrap = styled.div`
       }
     }
   }
-  .submitLinkWrap {
-    .inputCon {
-      height: 36px;
-      border-radius: 3px 0px 0px 3px;
-      border: 1px solid var(--color-border-primary);
-      input {
-        height: 100% !important;
-      }
-      .selectCon {
-        justify-content: space-between;
-        height: 100%;
-        padding: 0 10px;
-        .tag {
-          height: 24px;
-          line-height: 24px;
-          border-radius: 24px;
-          background: #d8eeff;
-          color: var(--color-link-hover);
-          border: 1px solid var(--color-primary-transparent);
-          padding: 0px 12px;
-          font-size: 12px;
-          box-sizing: border-box;
-        }
-      }
-    }
-  }
 `;
 
 const PopupWrap = styled.div`
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
   overflow: hidden;
   padding: 6px 0;
   .searchCon {
@@ -99,43 +71,35 @@ function ReceiptSettings(props) {
   const [search, setSearch] = useState(undefined);
   const [visible, setVisible] = useState(false);
 
-  const handleClick = (control, type = 1) => {
+  const handleClick = control => {
     setVisible(false);
-
-    if (type) {
-      copy(`#{${control.controlId}}`, { format: 'text/plain' });
-      alert(_l('已复制'));
-    } else {
-      handleUpdate({
-        content: JSON.stringify({ isControl: true, value: _.pick(control, ['controlId', 'controlName']) }),
-      });
-    }
+    copy(`#{${control.controlId}}`, { format: 'text/plain' });
+    alert(_l('已复制'));
   };
 
   const handleUpdate = value => handleUpdateExpandDatas({ afterSubmit: JSON.stringify({ ...afterSubmit, ...value }) });
 
-  const renderPopup = (list, type = 1) => {
+  const renderPopup = list => {
     return (
-      <PopupWrap style={{ width: type ? 506 : 230 }}>
-        {!!type && (
-          <Fragment>
-            <div className="headerText mTop6 textSecondary Font12 pLeft12 mBottom4">
-              {_l('点击复制字段代码，粘贴到需要的位置')}
-            </div>
-            <div className="searchCon flexRow alignItemsCenter">
-              <Icon icon="search" className="mLeft8 textTertiary Font14" />
-              <Input
-                autoFocus
-                className="flex Border0 placeholderColor textPrimary Font12"
-                placeholder={_l('搜索')}
-                value={search}
-                onChange={value => {
-                  setSearch(value);
-                }}
-              />
-            </div>
-          </Fragment>
-        )}
+      <PopupWrap style={{ width: 506 }}>
+        <Fragment>
+          <div className="headerText mTop6 textSecondary Font12 pLeft12 mBottom4">
+            {_l('点击复制字段代码，粘贴到需要的位置')}
+          </div>
+          <div className="searchCon flexRow alignItemsCenter">
+            <Input
+              autoFocus
+              className="flex"
+              variant="borderless"
+              prefix={<Icon icon="search" className="textTertiary Font14" />}
+              placeholder={_l('搜索')}
+              value={search}
+              onChange={event => {
+                setSearch(event.target.value);
+              }}
+            />
+          </div>
+        </Fragment>
         <ul>
           {list
             .filter(l => _.toLower(l.controlName).includes(_.toLower(search || '')))
@@ -143,7 +107,7 @@ function ReceiptSettings(props) {
               <li
                 key={`receipt-${control.controlId}`}
                 className="valignWrapper Hand"
-                onClick={() => handleClick(control, type)}
+                onClick={() => handleClick(control)}
               >
                 <Icon icon={getIconByType(control.type)} className="Font16 mRight9" />
                 <span className="overflow_ellipsis flex">{control.controlName}</span>
@@ -154,59 +118,34 @@ function ReceiptSettings(props) {
     );
   };
 
-  const renderSelectControlCode = (type = 0) => {
+  const renderSelectControlCode = () => {
     return (
-      <Trigger
-        action={['click']}
-        popupVisible={visible}
-        onPopupVisibleChange={visible => setVisible(visible)}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 5],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={renderPopup(
-          type ? controls.filter(l => !ReceiptFilterType.includes(l.type)) : controls.filter(l => l.type === 2),
-          type,
-        )}
+      <Popover
+        noPadding
+        trigger="click"
+        open={visible}
+        onOpenChange={setVisible}
+        placement="bottomRight"
+        content={renderPopup(controls.filter(l => !ReceiptFilterType.includes(l.type)))}
       >
         <SelectControlWrap className="valignWrapper justifyContentCenter Hand textTertiary hoverColorPrimary">
           <Icon icon="workflow_other" className="Font20" />
         </SelectControlWrap>
-      </Trigger>
+      </Popover>
     );
   };
 
   const renderLink = () => {
-    const content = safeParse(afterSubmit.content);
+    const content = safeParse(afterSubmit.content) || {};
+    const value =
+      content.isControl && _.get(content, 'value.controlId') ? `$${content.value.controlId}$` : content.value || '';
 
     return (
-      <div className="valignWrapper submitLinkWrap">
-        {
-          <div className="inputCon flex">
-            {!_.isEmpty(content) && content.isControl && !!content.value ? (
-              <div className="valignWrapper selectCon">
-                <span className="tag">{content.value.controlName}</span>
-                <Icon
-                  icon="delete"
-                  className="hoverColorPrimary Hand Font16 textSecondary"
-                  onClick={() => handleUpdate({ content: JSON.stringify({ isControl: false, value: '' }) })}
-                />
-              </div>
-            ) : (
-              <Input
-                autoFocus
-                className="w100 Border0 placeholderColor textPrimary"
-                value={content.value}
-                onChange={value => {
-                  handleUpdate({ content: JSON.stringify({ isControl: false, value: value }) });
-                }}
-              />
-            )}
-          </div>
-        }
-        {renderSelectControlCode(0)}
-      </div>
+      <DynamicFieldTextarea
+        value={value}
+        controlList={controls.filter(l => l.type === 2)}
+        onChange={value => handleUpdate({ content: JSON.stringify({ value }) })}
+      />
     );
   };
 
@@ -228,11 +167,18 @@ function ReceiptSettings(props) {
             {SUBMIT_AFTER_OPTIONS.map(l => (
               <Radio
                 key={`receiptRadio-${l.value}`}
-                text={l.label}
                 value={l.value}
                 checked={afterSubmit.action === l.value}
-                onClick={() => handleUpdate({ action: l.value, content: '' })}
-              />
+                onChange={() =>
+                  handleUpdate({
+                    action: l.value,
+                    content: '',
+                  })
+                }
+                title={l.label}
+              >
+                {l.label}
+              </Radio>
             ))}
             <ContentWrap className="mTop16">
               {afterSubmit.action === 2 ? (
@@ -248,7 +194,7 @@ function ReceiptSettings(props) {
                       onSave={value => handleUpdate({ content: value })}
                     />
                   </div>
-                  {renderSelectControlCode(1)}
+                  {renderSelectControlCode()}
                 </div>
               )}
             </ContentWrap>

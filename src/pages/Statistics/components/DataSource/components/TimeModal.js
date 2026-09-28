@@ -1,11 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Checkbox, DatePicker, Input, Modal, Select } from 'antd';
-import locale from 'antd/es/date-picker/locale/zh_CN';
 import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, DatePicker, Input, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 import {
   dropdownScopeData,
@@ -15,13 +13,25 @@ import {
   timeTypes,
   unitTypes,
 } from 'statistics/common/timeUtils';
-import { formatNumberFromInput } from 'src/utils/control';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
 
 const { RangePicker } = DatePicker;
 
 const newDropdownScopeData = _.cloneDeep(dropdownScopeData.filter(data => ![18, 19].includes(data.value)));
 
 newDropdownScopeData.splice(18, 0, ...pastAndFutureData);
+
+const getTextOptions = data =>
+  data.map(item => ({
+    value: item.value,
+    label: item.text,
+  }));
+
+const getNameOptions = data =>
+  data.map(item => ({
+    value: item.value,
+    label: item.name,
+  }));
 
 export default class TimeModal extends Component {
   constructor(props) {
@@ -59,25 +69,6 @@ export default class TimeModal extends Component {
       dynamicFilter,
     });
   };
-  renderFooter() {
-    const { onCancel } = this.props;
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <Button type="link" onClick={onCancel}>
-          {_l('取消')}
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => {
-            this.handleSave();
-            onCancel();
-          }}
-        >
-          {_l('确认')}
-        </Button>
-      </div>
-    );
-  }
   renderTime() {
     const { filterRangeId } = this.state;
     const { controls } = this.props;
@@ -85,7 +76,7 @@ export default class TimeModal extends Component {
       <Fragment>
         <div className="Font13">{_l('时间')}</div>
         <Select
-          className="chartSelect w100 mTop5"
+          className="w100 mTop5"
           value={filterRangeId}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
@@ -96,13 +87,11 @@ export default class TimeModal extends Component {
               this.handleSave,
             );
           }}
-        >
-          {controls.map(item => (
-            <Select.Option className="selectOptionWrapper" key={item.controlId} value={item.controlId}>
-              {item.controlName}
-            </Select.Option>
-          ))}
-        </Select>
+          options={controls.map(item => ({
+            value: item.controlId,
+            label: item.controlName,
+          }))}
+        />
       </Fragment>
     );
   }
@@ -119,7 +108,7 @@ export default class TimeModal extends Component {
         <div className="flexRow valignWrapper mTop5">
           <div className="flex Relative">
             <Select
-              className="chartSelect w100"
+              className="w100"
               value={
                 [18, 19].includes(rangeType)
                   ? [7, 30, 365].includes(Number(rangeValue))
@@ -145,16 +134,11 @@ export default class TimeModal extends Component {
 
                 this.setState(data);
               }}
-              onDropdownVisibleChange={visible => {
+              onOpenChange={visible => {
                 this.setState({ dropdownVisible: visible });
               }}
-            >
-              {newDropdownScopeData.map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                  {item.text}
-                </Select.Option>
-              ))}
-            </Select>
+              options={getTextOptions(newDropdownScopeData)}
+            />
             <TimeZoneTag appId={appId} position={{ top: 1, bottom: 1 }} />
           </div>
           {rangeType == 20 && this.renderRangePicker()}
@@ -184,10 +168,9 @@ export default class TimeModal extends Component {
     return (
       <div className="mLeft10">
         <RangePicker
-          className="chartInput rangePickerInput"
+          className="rangePickerInput"
           allowClear={false}
           suffixIcon={null}
-          locale={locale}
           format="YYYY/MM/DD"
           value={rangeValue ? rangeValue.split('-').map(item => moment(item)) : null}
           onChange={date => {
@@ -218,7 +201,7 @@ export default class TimeModal extends Component {
         <div className="flexRow valignWrapper mTop20">
           <div className="mRight15">{_l('从')}</div>
           <Select
-            className="chartSelect flex"
+            className="flex"
             value={dynamicFilter.startType}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
@@ -227,17 +210,12 @@ export default class TimeModal extends Component {
                 startUnit: unitValues.includes(value) ? value : dynamicFilter.startUnit,
               });
             }}
-          >
-            {timeTypes.map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.name}
-              </Select.Option>
-            ))}
-          </Select>
+            options={getNameOptions(timeTypes)}
+          />
           {[5, 6].includes(dynamicFilter.startType) && (
             <Fragment>
               <Input
-                className="chartInput flex mLeft10 mRight10"
+                className="flex mLeft10 mRight10"
                 value={dynamicFilter.startCount}
                 onChange={event => {
                   const value = event.target.value;
@@ -249,26 +227,21 @@ export default class TimeModal extends Component {
                 }}
               />
               <Select
-                className="chartSelect flex"
+                className="flex"
                 value={dynamicFilter.startUnit}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   changeDynamicFilter({ startUnit: value });
                 }}
-              >
-                {unitTypes.map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                options={getNameOptions(unitTypes)}
+              />
             </Fragment>
           )}
         </div>
         <div className="flexRow valignWrapper mTop10">
           <div className="mRight15">{_l('至')}</div>
           <Select
-            className="chartSelect flex"
+            className="flex"
             value={dynamicFilter.endType}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
@@ -277,17 +250,12 @@ export default class TimeModal extends Component {
                 endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit,
               });
             }}
-          >
-            {timeTypes.map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.name}
-              </Select.Option>
-            ))}
-          </Select>
+            options={getNameOptions(timeTypes)}
+          />
           {[5, 6].includes(dynamicFilter.endType) && (
             <Fragment>
               <Input
-                className="chartInput flex mLeft10 mRight10"
+                className="flex mLeft10 mRight10"
                 value={dynamicFilter.endCount}
                 onChange={event => {
                   const value = event.target.value;
@@ -299,19 +267,14 @@ export default class TimeModal extends Component {
                 }}
               />
               <Select
-                className="chartSelect flex"
+                className="flex"
                 value={dynamicFilter.endUnit}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   changeDynamicFilter({ endUnit: value });
                 }}
-              >
-                {unitTypes.map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                options={getNameOptions(unitTypes)}
+              />
             </Fragment>
           )}
         </div>
@@ -324,7 +287,7 @@ export default class TimeModal extends Component {
     return (
       <Fragment>
         <Select
-          className="chartSelect w100 mTop10"
+          className="w100 mTop10"
           value={Number(year)}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
@@ -332,17 +295,12 @@ export default class TimeModal extends Component {
               rangeValue: `${value}:${month}`,
             });
           }}
-        >
-          {fiscalYearData.map(item => (
-            <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-              {item.text}
-            </Select.Option>
-          ))}
-        </Select>
+          options={getTextOptions(fiscalYearData)}
+        />
         <div className="flexRow valignWrapper mTop10">
           <div className="mRight10">{_l('财政年度开始于')}</div>
           <Select
-            className="chartSelect flex"
+            className="flex"
             value={Number(month)}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
@@ -350,13 +308,11 @@ export default class TimeModal extends Component {
                 rangeValue: `${year}:${value}`,
               });
             }}
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(value => (
-              <Select.Option className="selectOptionWrapper" key={value} value={value}>
-                {_l('%0月', value)}
-              </Select.Option>
-            ))}
-          </Select>
+            options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(value => ({
+              value,
+              label: _l('%0月', value),
+            }))}
+          />
         </div>
       </Fragment>
     );
@@ -378,11 +334,13 @@ export default class TimeModal extends Component {
         style={dropdownVisible ? { top: -100 } : {}}
         width={560}
         className="chartModal"
-        visible={visible}
+        open={visible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderFooter()}
+        onOk={() => {
+          this.handleSave();
+          onCancel();
+        }}
         onCancel={onCancel}
       >
         {this.renderContent()}

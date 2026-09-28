@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { enumWidgetType } from '../../util';
-import { getPathById } from '../../util/widgets';
+import { getPathById } from 'src/utils/domain/control/layout';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import RightDragPointer from '../components/RightDragPointer';
 import displayTypes from '../displayTypes';
 import { DragHeaderItem } from './tabHeader';

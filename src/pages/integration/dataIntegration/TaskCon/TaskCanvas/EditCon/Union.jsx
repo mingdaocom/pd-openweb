@@ -2,15 +2,12 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Popover } from 'ming-ui/antd-components';
 import { UNION_TYPE_LIST } from '../config';
 import { WrapL } from './style';
 
 const PopupWrap = styled.div`
-  border-radius: 6px;
-  background: var(--color-background-primary);
-  box-shadow: var(--shadow-lg);
   padding: 16px 24px;
   position: relative;
   .triangle {
@@ -46,7 +43,7 @@ export default function Union(props) {
   }, [props.node]);
   const renderPopup = o => {
     return (
-      <PopupWrap class="toolTipCon">
+      <PopupWrap className="toolTipCon">
         <div className="Bold TxtLeft textPrimary Font13 titleTips">{o.txt}</div>
         <div className="Bold TxtLeft textSecondary Font12 titleTips">{o.tips}</div>
         <div className={cx(`iconImg bgImg${o.tipImg} mTop10`)} style={{ width: 489, height: o.h }}></div>
@@ -88,16 +85,7 @@ export default function Union(props) {
       <ul className="unionC flexRow alignItemsCenter">
         {UNION_TYPE_LIST.map(o => {
           return (
-            <Trigger
-              action={['hover']}
-              popup={renderPopup(o)}
-              mouseLeaveDelay={0.2}
-              popupAlign={{
-                points: ['bl', 'tl'],
-                offset: [0, -10],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-            >
+            <Popover noPadding trigger="hover" content={renderPopup(o)} mouseLeaveDelay={0.2} placement="topLeft">
               <li
                 key={o.txt}
                 className={cx('mTop12 Hand flexCloumn alignItemsCenter TxtCenter justifyContentCenter', {
@@ -122,7 +110,7 @@ export default function Union(props) {
                 <div className="Bold">{o.txt}</div>
                 <div className="er">{o.Er}</div>
               </li>
-            </Trigger>
+            </Popover>
           );
         })}
       </ul>

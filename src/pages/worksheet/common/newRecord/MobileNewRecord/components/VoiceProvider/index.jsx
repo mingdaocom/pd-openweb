@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { get } from 'lodash';
 import { getRecorderAuthConfig } from 'src/components/Mingo/ChatBot/components/Recorder/index';
 import { VOICE_STEP } from '../../core/config';
@@ -9,25 +9,49 @@ const VoiceProvider = ({ children, onGenerateRecord, onAbort }) => {
   const [step, setStep] = useState(VOICE_STEP.INIT);
   const [text, setText] = useState('');
   const [authConfig, setAuthConfig] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const requestRef = useRef(null);
+  const onAbortRef = useRef(onAbort);
 
   useEffect(() => {
-    // 没有开启语音转文字
-    if (!get(md, 'global.Account.accountId') || !md.global.SysSettings.enableVoiceToText) {
-      setLoading(false);
-      return;
-    }
+    onAbortRef.current = onAbort;
+  }, [onAbort]);
 
-    getRecorderAuthConfig()
-      .then(data => setAuthConfig(data))
-      .catch(() => setError(_l('发生错误，请稍后重试')))
-      .finally(() => setLoading(false));
-
-    return () => onAbort();
+  useEffect(() => {
+    return () => {
+      requestRef.current = null;
+      onAbortRef.current?.();
+    };
   }, []);
 
-  const onStart = () => setStep(VOICE_STEP.RECORDING);
+  const onStart = async () => {
+    // 没有开启语音转文字
+    if (!get(md, 'global.Account.accountId') || !md.global.SysSettings.enableVoiceToText) return;
+    if (requestRef.current) return;
+
+    const request = {};
+    requestRef.current = request;
+    setLoading(true);
+    setError('');
+    try {
+      // 实际开始录音时才获取凭证，由公共 helper 复用有效缓存并刷新过期凭证。
+      const data = await getRecorderAuthConfig();
+      if (requestRef.current !== request) return;
+      setAuthConfig(data);
+      setStep(VOICE_STEP.RECORDING);
+    } catch {
+      if (requestRef.current !== request) return;
+      const message = _l('发生错误，请稍后重试');
+      setError(message);
+      alert(message, 2);
+    } finally {
+      if (requestRef.current === request) {
+        requestRef.current = null;
+        setLoading(false);
+      }
+    }
+  };
 
   const onComplete = recognizedText => {
     setText(recognizedText);
@@ -35,13 +59,16 @@ const VoiceProvider = ({ children, onGenerateRecord, onAbort }) => {
   };
 
   const onReset = () => {
+    requestRef.current = null;
+    setLoading(false);
+    setError('');
     setText('');
     setStep(VOICE_STEP.INIT);
   };
 
   const onRestart = () => {
     setText('');
-    setStep(VOICE_STEP.RECORDING);
+    return onStart();
   };
 
   return (

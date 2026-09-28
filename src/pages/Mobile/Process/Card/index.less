@@ -101,11 +101,17 @@
       .pass,
       .overrule,
       .backlog {
-        border-color: var(--color-border-primary) !important;
-        border-radius: 19px;
-        padding: 2px 12px;
-        max-width: 100px;
         min-width: 60px;
+        max-width: 100px;
+        overflow: hidden;
+        border-color: var(--color-border-primary) !important;
+      }
+      .buttonText {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .pass {
         color: var(--color-success) !important;

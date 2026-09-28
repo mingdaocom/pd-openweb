@@ -1,9 +1,12 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Input, Select } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { APP_TYPE, APP_TYPE_TEXT, FIELD_TYPE_LIST } from '../../enum';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const List = styled.div`
   .w120 {
@@ -14,17 +17,6 @@ const List = styled.div`
   }
   .w30 {
     width: 30px;
-  }
-  .fieldName {
-    padding: 5px 12px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-tertiary);
-    height: 36px;
-    line-height: 36px;
-    font-size: 13px;
-    &:focus {
-      border-color: var(--color-primary);
-    }
   }
 `;
 
@@ -70,23 +62,16 @@ export default ({ data, updateSource }) => {
               {data.controls.map((item, index) => {
                 return (
                   <div key={index} className="flexRow mTop4 relative">
-                    <Dropdown
+                    <Select
                       className="w120 mTop8"
-                      menuStyle={{ width: '100%' }}
-                      data={FIELD_TYPE_LIST}
+                      options={FIELD_TYPE_LIST}
+                      fieldNames={SELECT_FIELD_NAMES}
                       value={item.type}
                       disabled={true}
-                      border
                     />
-                    <input
-                      type="text"
-                      className="mLeft10 fieldName w160 mTop8 minWidth0"
-                      disabled={true}
-                      value={item.controlName}
-                    />
-                    <input
-                      type="text"
-                      className="mLeft10 fieldName flex mTop8"
+                    <Input className="mLeft10 w160 mTop8 minWidth0" disabled={true} value={item.controlName} />
+                    <Input
+                      className="mLeft10 flex mTop8"
                       placeholder={_l('请输入说明')}
                       value={item.desc}
                       maxLength={64}

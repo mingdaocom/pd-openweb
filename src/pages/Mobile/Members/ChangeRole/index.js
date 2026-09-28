@@ -4,7 +4,7 @@ import { Button, Dialog, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import * as actions from './redux/actions';
 import './index.less';
 

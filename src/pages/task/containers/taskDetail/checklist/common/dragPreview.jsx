@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { sanitizePreviewHtml } from 'src/utils/core/sanitizeHtml';
 
 export default class DragPreview extends Component {
   constructor(props) {
@@ -9,7 +10,7 @@ export default class DragPreview extends Component {
     return (
       <div
         className="taskDetailDragPreview"
-        dangerouslySetInnerHTML={{ __html: this.props.preview }}
+        dangerouslySetInnerHTML={{ __html: sanitizePreviewHtml(this.props.preview) }}
         style={{ width: this.props.width }}
       />
     );

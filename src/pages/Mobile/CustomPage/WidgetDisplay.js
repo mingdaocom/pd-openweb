@@ -6,7 +6,7 @@ import Image from 'src/pages/customPage/components/editWidget/Image';
 import { EditRichText as RichText } from 'src/pages/customPage/components/editWidget/richText';
 import Subsection from 'src/pages/customPage/components/editWidget/subsection';
 import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { StateChartContent } from './ChartContent';
 import Filter from './FilterContent';
 import PreviewContent from './PreviewContent';
@@ -63,7 +63,7 @@ const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
   const { ids, widget, apk, pageComponents, pageConfig, componentType } = props;
-  const { value, name, button, param = [], config = {} } = widget;
+  const { value, name, button, param = [], config = {}, componentConfig = {} } = widget;
 
   const renderContent = () => {
     if (componentType === 'embedUrl') {
@@ -155,7 +155,18 @@ function WidgetDisplay(props) {
     }
 
     if (componentType === 'subsection') {
-      return <Subsection widget={widget} />;
+      const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
+      const translatedWidget = translateInfo.name
+        ? {
+            ...widget,
+            componentConfig: {
+              ...componentConfig,
+              name: translateInfo.name,
+            },
+          }
+        : widget;
+
+      return <Subsection widget={translatedWidget} />;
     }
   };
 

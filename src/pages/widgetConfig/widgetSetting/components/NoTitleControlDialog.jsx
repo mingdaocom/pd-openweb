@@ -1,13 +1,10 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import img from '../../image/setAsTitle.png';
 
 const NoTitleControlWrap = styled.div`
-  .closeText {
-    display: flex;
-    margin: auto 0 auto auto;
-  }
   .imgContent {
     width: 80%;
     text-align: center;
@@ -28,11 +25,15 @@ const NoTitleControlWrap = styled.div`
 
 export default function NoTitleControlDialog({ onClose }) {
   return (
-    <Dialog
-      visible
-      title={<span style={{ color: '#000' }}>{_l('标题字段已删除，请重新设置')}</span>}
-      footer={null}
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
+      title={_l('标题字段已删除，请重新设置')}
+      okText={_l('前往设置')}
+      cancelButtonProps={{ style: { display: 'none' } }}
       onCancel={onClose}
+      onOk={onClose}
     >
       <NoTitleControlWrap>
         <Fragment>
@@ -47,10 +48,7 @@ export default function NoTitleControlDialog({ onClose }) {
           <span className="imgText">{_l('点击设为标题字段')}</span>
           <img src={img} alt={_l('如何设置标题控件')} />
         </div>
-        <Button type="primary" onClick={onClose} className="closeText">
-          {_l('前往设置')}
-        </Button>
       </NoTitleControlWrap>
-    </Dialog>
+    </Modal>
   );
 }

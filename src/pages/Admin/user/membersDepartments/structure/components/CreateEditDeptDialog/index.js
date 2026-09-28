@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Dialog, FunctionWrap } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
+import useFunctionWrapComponent, { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import departmentController from 'src/api/department';
 import fixedDataAjax from 'src/api/fixedData.js';
 import { updateTreeData } from 'src/pages/Admin/user/membersDepartments/structure/modules/util';
-import { dialogSelectDeptUser } from '../DialogSelectDeptUser';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { useDialogSelectDeptUser } from '../DialogSelectDeptUser';
 import './index.less';
 
 let RESULTS = {
@@ -17,7 +19,7 @@ let RESULTS = {
   /* 设置的上级部门是自己的子部门 */
 };
 
-export default class CreateEditDeptDialog extends Component {
+class CreateEditDeptDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -99,8 +101,8 @@ export default class CreateEditDeptDialog extends Component {
 
             this.setState({ submitLoading: false });
           })
-          .catch(() => {
-            alert(_l('创建失败'), 2);
+          .catch(_requestError => {
+            alertIfNotUnauthorized(_requestError, _l('创建失败'), 2);
             this.setState({ submitLoading: false });
           });
       } else {
@@ -144,8 +146,8 @@ export default class CreateEditDeptDialog extends Component {
 
             this.setState({ submitLoading: false });
           })
-          .catch(() => {
-            alert(_l('编辑失败'), 2);
+          .catch(_requestError2 => {
+            alertIfNotUnauthorized(_requestError2, _l('编辑失败'), 2);
             this.setState({ submitLoading: false });
           });
       }
@@ -173,7 +175,7 @@ export default class CreateEditDeptDialog extends Component {
   selectCharger = () => {
     const { projectId } = this.props;
     const { departmentInfo, chargeUsers } = this.state;
-    dialogSelectDeptUser({
+    this.props.openDialogSelectDeptUser({
       projectId,
       departmentId: departmentInfo.departmentId,
       selectedUsersIds: chargeUsers.map(({ accountId }) => accountId),
@@ -189,23 +191,25 @@ export default class CreateEditDeptDialog extends Component {
     const { companyName } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
     return (
-      <Dialog
-        visible={visible}
+      <Modal
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={type === 'create' ? _l('创建部门') : _l('编辑部门')}
         onCancel={onCancel}
         onOk={this.onOk}
-        okDisabled={submitLoading}
+        confirmLoading={submitLoading}
       >
         <div className="departmentInfoList">
           <div className="singleInfo departmentName">
             <span className="infoLabel">{_l('部门名称')}</span>
             <span className="info Relative">
-              <input
+              <Input
                 type="text"
                 value={departmentInfo.departmentName}
-                maxlength="64"
+                maxLength={64}
                 autoFocus
-                className="deptName TxtBottom w100"
+                className="w100"
                 onChange={e => {
                   let val = e.target.value;
                   this.setState({ departmentInfo: { ...departmentInfo, departmentName: val } });
@@ -218,13 +222,13 @@ export default class CreateEditDeptDialog extends Component {
               <div className="singleInfo parentDepartment" onClick={this.changeParent}>
                 <span className="infoLabel">{_l('上级部门')}</span>
                 <span className="info Hand">
-                  <input
+                  <Input
                     type="text"
                     value={parentDepartment.departmentName || companyName}
-                    maxlength="64"
-                    className="deptName TxtBottom"
+                    maxLength={64}
+                    readOnly
+                    suffix={<span className="icon-arrow-down-border Font16 changeParent" />}
                   />
-                  <span className="icon-arrow-down-border arrowIcon Font16 changeParent"></span>
                 </span>
               </div>
               <div className="singleInfo departmentCharger">
@@ -258,9 +262,15 @@ export default class CreateEditDeptDialog extends Component {
             </Fragment>
           )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export const createEditDeptDialog = props => FunctionWrap(CreateEditDeptDialog, { ...props });
+export function useCreateEditDeptDialog() {
+  return useFunctionWrapComponent(CreateEditDeptDialog);
+}
+
+export default withOpeners(CreateEditDeptDialog, {
+  openDialogSelectDeptUser: useDialogSelectDeptUser,
+});

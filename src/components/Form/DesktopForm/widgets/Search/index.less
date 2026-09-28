@@ -69,43 +69,55 @@
 }
 
 .customSelectIcon {
-  .ant-select-arrow {
+  .hap-select-arrow {
     display: flex !important;
   }
 }
 
-.customApiSelect {
-  padding-right: 36px;
-  .ant-select-selection-item {
-    padding: 8px 18px 6px 0px !important;
-    line-height: 22px !important;
+.customApiSearchButton {
+  .successIcon {
+    color: var(--color-success);
+    font-size: 18px;
+    vertical-align: text-bottom;
   }
-  .ant-select-arrow {
+}
+
+.customApiSelect {
+  height: 36px;
+  padding-right: 0;
+
+  .hap-select-selection-item {
+    padding: 0 !important;
+    line-height: 34px !important;
+  }
+
+  .hap-select-arrow {
     height: 36px !important;
     width: 36px !important;
     right: 0 !important;
-    top: 6px !important;
+    top: 0 !important;
+    margin-top: 0 !important;
     display: flex !important;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     pointer-events: all !important;
   }
-  .ant-select-selector {
-    border-radius: 4px 0px 0px 4px !important;
+
+  .hap-select-clear {
+    right: 40px !important;
   }
-  .ant-select-clear {
-    right: 46px !important;
-  }
+
   .searchIconBox {
-    width: 36px;
-    height: 36px;
+    box-sizing: border-box;
+    width: 35px;
+    height: 34px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--color-background-primary);
-    border-radius: 0px 3px 3px 0px;
-    border: 1px solid var(--color-border-secondary);
+    border-left: 1px solid var(--color-border-secondary);
+    border-radius: 0 3px 3px 0;
     color: var(--color-text-secondary);
     &:hover {
       i {
@@ -116,6 +128,21 @@
       i {
         color: var(--color-text-disabled) !important;
       }
+    }
+  }
+}
+
+.customApiSelectFilled {
+  .searchIconBox {
+    border-left-color: var(--color-border-primary);
+    background: var(--color-background-secondary);
+  }
+
+  &.hap-select-open,
+  &:focus-within {
+    .searchIconBox {
+      border-left-color: var(--color-primary);
+      background: var(--color-background-primary);
     }
   }
 }

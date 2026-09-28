@@ -1,105 +1,15 @@
-import React, { useState } from 'react';
-import cx from 'classnames';
+import React, { Fragment } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Input, ScrollView } from 'ming-ui';
+import { Divider, Input, Menu, Select } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import { getTranslateInfo } from 'src/utils/app';
-import DropdownWrapper from '../DropdownWrapper';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import SelectOtherWorksheetDialog from './SelectOtherWorksheetDialog';
-import './SelectWorksheet.less';
 
-const SearchWrap = styled.div`
-  padding: 0 40px;
-  border-bottom: 1px solid var(--color-border-primary);
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  input.Input {
-    width: 100%;
-    border: none;
-  }
-  i {
-    position: absolute;
-    top: 12px;
-    left: 20px;
-    font-size: 24px;
-  }
-`;
-
-function WorksheetList(props) {
-  const {
-    searchable = true,
-    loading,
-    worksheets,
-    currentWorksheetId,
-    handleSelect,
-    showSelectOther,
-    hide,
-    from,
-    worksheetType,
-    filterIds = [],
-  } = props;
-  const [searchValue, setSearchValue] = useState('');
-  const filterSheets = () => worksheets.filter(item => item.workSheetName.includes(searchValue));
-  return (
-    <div className="selectWorksheetCommonContent">
-      {loading && <div className="loadingCon">loading</div>}
-      {!loading && (
-        <div className="worksheetList">
-          {searchable && (
-            <SearchWrap>
-              <i className="icon-search textTertiary"></i>
-              <Input autoFocus placeholder={_l('搜索工作表')} value={searchValue} onChange={setSearchValue} />
-            </SearchWrap>
-          )}
-          <ScrollView style={{ maxHeight: 200 }}>
-            {filterSheets().map(worksheet => (
-              <div
-                className={cx(
-                  'worksheetItem overflow_ellipsis ',
-                  filterIds.includes(worksheet.workSheetId) ? 'disable' : 'Hand',
-                )}
-                onClick={() => {
-                  if (filterIds.includes(worksheet.workSheetId)) {
-                    return;
-                  }
-
-                  hide();
-                  handleSelect(worksheet);
-                }}
-              >
-                {worksheet.workSheetName}
-                {worksheet.workSheetId === currentWorksheetId && from !== 'customPage' && _l('（本表）')}
-              </div>
-            ))}
-          </ScrollView>
-          <div className="selectOhterApp">
-            <div
-              className="worksheetItem Hand"
-              onClick={() => {
-                hide();
-                showSelectOther();
-              }}
-            >
-              {_l('选择其他应用下的%0', worksheetType === 1 ? _l('自定义页面') : _l('工作表'))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-WorksheetList.propTypes = {
-  currentWorksheetId: PropTypes.string,
-  loading: PropTypes.bool,
-  worksheets: PropTypes.arrayOf(PropTypes.shape({})),
-  handleSelect: PropTypes.func,
-  showSelectOther: PropTypes.func,
-  hide: PropTypes.func,
-};
+const CUSTOM_TRIGGER_VALUE = '__select_worksheet_custom_trigger__';
 
 export default class SelectWroksheet extends React.Component {
   static propTypes = {
@@ -109,6 +19,10 @@ export default class SelectWroksheet extends React.Component {
     currentWorksheetId: PropTypes.string, // 当前工作表 用来添加（本表）标识
     hint: PropTypes.string, // 空提示
     value: PropTypes.string, // 选中的工作表 id
+    searchable: PropTypes.bool,
+    filterIds: PropTypes.arrayOf(PropTypes.string),
+    disabled: PropTypes.bool,
+    dropdownElement: PropTypes.element,
     onChange: PropTypes.func, // 回掉 (newappId, worksheetId)
   };
 
@@ -120,6 +34,8 @@ export default class SelectWroksheet extends React.Component {
     super(props);
     this.state = {
       loading: true,
+      popupVisible: false,
+      searchValue: '',
       worksheets: [],
       selectOtherVisible: false,
     };
@@ -162,8 +78,8 @@ export default class SelectWroksheet extends React.Component {
           },
         );
       })
-      .catch(() => {
-        alert(_l('程序发生错误'), 3);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('程序发生错误'), 3);
       });
   }
 
@@ -208,6 +124,7 @@ export default class SelectWroksheet extends React.Component {
   handleSelect = worksheet => {
     const { appId, currentWorksheetId } = this.props;
     this.props.onChange(appId, worksheet.workSheetId, worksheet);
+    this.setState({ popupVisible: false, searchValue: '' });
     if (worksheet.workSheetId === currentWorksheetId) {
       return;
     }
@@ -218,6 +135,52 @@ export default class SelectWroksheet extends React.Component {
         id: worksheet.workSheetId,
       },
     });
+  };
+
+  handleOpenChange = popupVisible => {
+    if (this.props.dropdownElement && popupVisible) {
+      return;
+    }
+
+    this.setState({
+      popupVisible,
+      ...(!popupVisible ? { searchValue: '' } : {}),
+    });
+  };
+
+  renderSelectLabel = () => {
+    const { value, currentWorksheetId, hint, from, worksheetType } = this.props;
+    const { loading, selectedWorksheet } = this.state;
+
+    if (loading) {
+      return _l('加载中...');
+    }
+
+    if (selectedWorksheet) {
+      return (
+        <span>
+          {selectedWorksheet.name}
+          {from !== 'customPage' &&
+            selectedWorksheet.id === currentWorksheetId &&
+            worksheetType !== 1 &&
+            _l('（本表）')}
+        </span>
+      );
+    }
+
+    if (value) {
+      return (
+        <span onMouseDown={event => event.target.closest?.('a') && event.stopPropagation()}>
+          <DeletedSourceMessage deletedText={_l('应用项无权限或者已删除')} worksheetId={value} />
+        </span>
+      );
+    }
+
+    return (
+      <span className="textTertiary">
+        {hint || (worksheetType === 1 ? _l('选择您管理的自定义页面') : _l('选择您管理的工作表'))}
+      </span>
+    );
   };
 
   handleSelectOtherChange = (newappId, worksheetId, worksheet) => {
@@ -236,49 +199,88 @@ export default class SelectWroksheet extends React.Component {
   };
 
   render() {
-    const { dialogClassName, projectId, appId, currentWorksheetId, hint, from, worksheetType, dropdownElement } =
-      this.props;
-    const { loading, worksheets, selectOtherVisible, selectedWorksheet } = this.state;
+    const {
+      value,
+      dialogClassName,
+      projectId,
+      appId,
+      currentWorksheetId,
+      from,
+      worksheetType,
+      dropdownElement,
+      searchable = true,
+      filterIds = [],
+      disabled,
+    } = this.props;
+    const { loading, popupVisible, searchValue, worksheets, selectOtherVisible, selectedWorksheet } = this.state;
+    const selectLabel = this.renderSelectLabel();
+    const options = worksheets
+      .filter(worksheet => worksheet.workSheetName.includes(searchValue))
+      .map(worksheet => ({
+        value: worksheet.workSheetId,
+        label: (
+          <span>
+            {worksheet.workSheetName}
+            {worksheet.workSheetId === currentWorksheetId && from !== 'customPage' && _l('（本表）')}
+          </span>
+        ),
+        disabled: filterIds.includes(worksheet.workSheetId),
+        worksheet,
+      }));
+
     return (
-      <div className={cx('selectWorksheetCommon ming Dropdown w100')}>
-        <DropdownWrapper
+      <div className="selectWorksheetCommon w100">
+        <Select
           className="w100"
-          downElement={
-            <WorksheetList
-              {...{ loading, worksheets }}
-              {..._.pick(this.props, ['currentWorksheetId', 'from', 'worksheetType', 'searchable', 'filterIds'])}
-              handleSelect={this.handleSelect}
-              showSelectOther={() => {
-                this.setState({ selectOtherVisible: true });
-              }}
-            />
-          }
-        >
-          {dropdownElement ? (
-            dropdownElement
-          ) : (
-            <div className="Dropdown--input Dropdown--border">
-              <React.Fragment>
-                <span>
-                  {!loading && !selectedWorksheet && (
-                    <div className="textTertiary">
-                      {hint || (worksheetType === 1 ? _l('选择您管理的自定义页面') : _l('选择您管理的工作表'))}
-                    </div>
-                  )}
-                  {loading && _l('加载中...')}
-                  {!loading && selectedWorksheet && selectedWorksheet.name}
-                  {!loading &&
-                    from !== 'customPage' &&
-                    selectedWorksheet &&
-                    selectedWorksheet.id === currentWorksheetId &&
-                    worksheetType !== 1 &&
-                    _l('（本表）')}
-                </span>
-                <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
-              </React.Fragment>
-            </div>
+          disabled={disabled}
+          open={popupVisible}
+          onOpenChange={this.handleOpenChange}
+          onClick={dropdownElement ? () => this.setState({ popupVisible: true }) : undefined}
+          components={dropdownElement ? { root: dropdownElement } : undefined}
+          value={dropdownElement ? CUSTOM_TRIGGER_VALUE : selectedWorksheet?.id || value || undefined}
+          placeholder={selectLabel}
+          labelRender={() => selectLabel}
+          loading={loading}
+          showSearch={false}
+          listHeight={200}
+          options={options}
+          notFoundContent={<span className="textTertiary">{loading ? _l('加载中...') : _l('暂无搜索结果')}</span>}
+          onChange={(_, option) => this.handleSelect(option.worksheet)}
+          popupRender={menu => (
+            <Fragment>
+              {searchable && (
+                <Input
+                  autoFocus
+                  variant="borderless"
+                  placeholder={_l('搜索工作表')}
+                  prefix={<i className="icon-search textTertiary Font20" />}
+                  value={searchValue}
+                  onChange={event => this.setState({ searchValue: event.target.value })}
+                  onKeyDown={event => event.stopPropagation()}
+                />
+              )}
+              {searchable && <Divider className="mTop2 mBottom5" />}
+              {menu}
+              {!loading && (
+                <Fragment>
+                  <Divider className="mTop5 mBottom5" />
+                  <Menu
+                    selectable={false}
+                    items={[
+                      {
+                        key: 'selectOtherWorksheet',
+                        label: _l('选择其他应用下的%0', worksheetType === 1 ? _l('自定义页面') : _l('工作表')),
+                      },
+                    ]}
+                    onClick={() => {
+                      this.setState({ popupVisible: false, searchValue: '', selectOtherVisible: true });
+                    }}
+                  />
+                </Fragment>
+              )}
+            </Fragment>
           )}
-        </DropdownWrapper>
+        />
         {selectOtherVisible && (
           <SelectOtherWorksheetDialog
             worksheetType={worksheetType}

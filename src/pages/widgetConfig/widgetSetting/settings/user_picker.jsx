@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
 import _ from 'lodash';
-import { RadioGroup } from 'ming-ui';
-import { DISPLAY_USER_TYPE_OPTIONS } from '../../config/setting';
+import { Radio } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DISPLAY_USER_TYPE_OPTIONS } from 'src/utils/domain/control/setting';
 import { SettingItem } from '../../styled';
-import { handleAdvancedSettingChange } from '../../util/setting';
 import UserConfig from '../components/WidgetHighSetting/ControlSetting/UserConfig';
 import WidgetUserPermission from '../components/WidgetUserPermission';
 
@@ -32,11 +32,16 @@ export default function UserPicker(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={enumDefault}
-          data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ enumDefault: value, unique: false })}
+          value={enumDefault}
+          options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event =>
+            onChange({
+              enumDefault: event.target.value,
+              unique: false,
+            })
+          }
         />
       </SettingItem>
       {fromExcel ? null : (
@@ -58,16 +63,22 @@ export default function UserPicker(props) {
               ) : (
                 <SettingItem>
                   <div className="settingItemTitle">{_l('成员类型')}</div>
-                  <RadioGroup
+                  <Radio.Group
                     size="middle"
-                    checkedValue={usertype}
-                    data={DISPLAY_USER_TYPE_OPTIONS}
-                    onChange={value =>
+                    value={usertype}
+                    options={(DISPLAY_USER_TYPE_OPTIONS || []).map(({ text, ...option }) => ({
+                      ...option,
+                      label: text,
+                    }))}
+                    onChange={event =>
                       onChange(
                         handleAdvancedSettingChange(
-                          { ...data, enumDefault2: 0 },
                           {
-                            usertype: value,
+                            ...data,
+                            enumDefault2: 0,
+                          },
+                          {
+                            usertype: event.target.value,
                             dynamicsrc: '',
                             defaultfunc: '',
                             defsource: '',

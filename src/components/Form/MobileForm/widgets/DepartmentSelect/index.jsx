@@ -4,7 +4,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SelectUser from 'mobile/components/SelectUser';
 import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
-import { dealRenderValue, dealUserRange } from '../../../core/utils';
+import { formatDepartmentDisplayValue } from 'src/utils/domain/control/department';
+import { dealUserRange } from 'src/utils/domain/control/selectionRange';
 
 function DepartmentSelect(props) {
   const {
@@ -21,7 +22,7 @@ function DepartmentSelect(props) {
   } = props;
   const rawDepartments = useMemo(() => safeParse(value || '[]', 'array'), [value]);
   const selectDepartments = useMemo(
-    () => dealRenderValue(rawDepartments, advancedSetting),
+    () => formatDepartmentDisplayValue(rawDepartments, advancedSetting),
     [rawDepartments, advancedSetting],
   );
   const [showSelectDepartment, setShowSelectDepartment] = useState(false);

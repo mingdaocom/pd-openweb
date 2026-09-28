@@ -4,40 +4,25 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, PriceTip, Radio } from 'ming-ui';
+import { Icon, PriceTip } from 'ming-ui';
+import { Button, Checkbox, Modal, Radio, Select } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import * as actions from '../redux/actions';
 import EmailInput from './Email';
 import Tel from './Tel';
-import './AddUserByTelDialog.less';
 
 const Wrap = styled.div`
-  .ming.Radio .Radio-box {
+  .hap-radio-wrapper .hap-radio-inner {
     margin-right: 8px;
   }
-  .ming.Radio {
+  .hap-radio-wrapper {
     margin-right: 40px;
   }
   .sendMes {
     position: absolute;
     bottom: 28px;
     left: 24px;
-  }
-  .add {
-    width: 77px;
-    height: 36px;
-    line-height: 36px;
-    background: var(--color-background-secondary);
-    border-radius: 3px;
-    color: var(--color-primary);
-    i {
-      color: var(--color-primary);
-      line-height: 36px;
-    }
-    &:hover {
-      background: var(--color-background-hover);
-    }
   }
   .row {
     margin-top: 10px;
@@ -65,18 +50,6 @@ const Wrap = styled.div`
     }
     .role {
       width: 90px;
-      height: 36px;
-      .Dropdown--input {
-        display: flex;
-        border: 1px solid var(--color-border-secondary) !important;
-        .value {
-          flex: 1;
-        }
-        span.value,
-        i {
-          line-height: 26px;
-        }
-      }
     }
     .del {
       opacity: 0;
@@ -157,12 +130,14 @@ function AddUserByTelDialog(props) {
   };
 
   return (
-    <Dialog
-      className="addUserByTelDialog"
-      width="680"
-      visible={show}
-      title={<span className="Font17 Bold">{_l('邀请用户')}</span>}
-      okText={loading ? _l('确认邀请...') : _l('确认邀请')}
+    <Modal
+      width={680}
+      open={show}
+      title={_l('邀请用户')}
+      okText={_l('确认邀请')}
+      confirmLoading={loading}
+      mask={{ closable: true }}
+      keyboard
       onCancel={() => {
         setAddUserByTelDialog(false);
       }}
@@ -174,7 +149,11 @@ function AddUserByTelDialog(props) {
         {md.global.SysSettings?.enableSmsCustomContent &&
           registerMode.phone &&
           registerMode.email &&
-          TYPELIST.map((o, i) => <Radio key={i} text={o} checked={type === i} onClick={() => setType(i)} />)}
+          TYPELIST.map((o, i) => (
+            <Radio key={i} checked={type === i} onChange={() => setType(i)} title={o}>
+              {o}
+            </Radio>
+          ))}
         {window.platformENV.isPlatform && (
           <p
             className={
@@ -189,7 +168,7 @@ function AddUserByTelDialog(props) {
         <div className="list">
           {list.map((o, i) => {
             return (
-              <div className="row">
+              <div className="row" key={i}>
                 {effectiveType === 0 ? (
                   <Tel
                     data={o}
@@ -257,11 +236,9 @@ function AddUserByTelDialog(props) {
                     );
                   }}
                 />
-                <Dropdown
-                  border
-                  isAppendToBody
-                  data={roleList.map(o => {
-                    return { ...o, value: o.roleId, text: getTranslateInfo(appId, null, o.roleId).name || o.name };
+                <Select
+                  options={roleList.map(o => {
+                    return { ...o, value: o.roleId, label: getTranslateInfo(appId, null, o.roleId).name || o.name };
                   })}
                   value={o.roleId || roleId} //成员
                   className={cx('flex role')}
@@ -290,25 +267,28 @@ function AddUserByTelDialog(props) {
             );
           })}
         </div>
-        <span
-          className="add mTop10 InlineBlock Hand TxtCenter Bold"
+        <Button
+          color="primary"
+          variant="filled"
+          className="mTop10"
+          icon={<Icon icon="add" />}
           onClick={() => {
             addNew();
           }}
         >
-          <Icon icon="add Bold" />
           {_l('添加')}
-        </span>
+        </Button>
         <Checkbox
-          className="TxtCenter InlineBlock Hand textSecondary sendMes"
-          text={effectiveType === 0 ? _l('发送短信通知') : _l('发送邮件通知')}
+          className="TxtCenter Hand textSecondary sendMes"
           checked={isSendMsgs}
-          onClick={() => {
+          onChange={() => {
             setIsSend(!isSendMsgs);
           }}
-        />
+        >
+          {effectiveType === 0 ? _l('发送短信通知') : _l('发送邮件通知')}
+        </Checkbox>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }
 

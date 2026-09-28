@@ -142,9 +142,6 @@
 .picturePreview {
   text-align: center;
   width: 240px;
-  box-shadow: var(--shadow-lg);
-  border-radius: 6px;
-  background-color: var(--color-background-card);
   overflow: hidden;
   .fileDetail {
     text-align: left;
@@ -172,18 +169,6 @@
   }
 }
 .richTextDiffDialog {
-  min-width: 900px !important;
-  max-width: calc(100vw - 32px) !important;
-  .mui-dialog-footer {
-    display: none;
-  }
-  .mui-dialog-header,
-  .mui-dialog-body {
-    padding: 0 !important;
-  }
-  .mui-dialog-body {
-    display: flex;
-  }
   .leftCon {
     border-right: 1px solid var(--color-border-secondary);
   }
@@ -204,7 +189,7 @@
   .leftCon .title {
     padding: 0 24px;
   }
-  .mui-dialog-body::-webkit-scrollbar {
+  .hap-modal-body::-webkit-scrollbar {
     width: 0;
   }
   .richTextContent {
@@ -225,9 +210,6 @@
 }
 
 .worksheetRecordLogSubDialog {
-  .mui-dialog-footer {
-    display: none !important;
-  }
   .tableTitle {
     font-size: 17px;
     margin-bottom: 20px;
@@ -254,14 +236,14 @@
   .defaultValue {
     background: rgba(0, 0, 0, 0.06);
   }
-  .mui-dialog-body {
+  .hap-modal-body {
     display: flex;
     flex-direction: column;
   }
 }
 
 .worksheetRecordLogSubTable {
-  .ant-table-thead > tr > th {
+  .hap-table-thead > tr > th {
     padding: 10px 7px;
     font-size: 13px;
     line-height: 13px;
@@ -269,7 +251,7 @@
     font-weight: 600;
     background: var(--color-background-secondary);
   }
-  .ant-table-cell {
+  .hap-table-cell {
     min-width: 200px;
   }
   .canMask {
@@ -307,17 +289,5 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-}
-
-.triggerSelectPopup {
-  padding: 12px 16px;
-  background: var(--color-background-card);
-  display: inline-block;
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px;
-  cursor: pointer;
-  &:hover {
-    color: var(--color-primary);
   }
 }

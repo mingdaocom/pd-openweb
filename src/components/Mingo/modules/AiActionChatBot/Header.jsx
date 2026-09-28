@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
 import { get } from 'lodash';
 import styled from 'styled-components';
-import { BgIconButton, Checkbox, Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
+import { BgIconButton } from 'ming-ui';
+import { Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { MODE } from './enum';
 
 const Con = styled.div`
-  ${({ isMobile }) => (isMobile ? 'padding: 10px 16px;' : 'padding: 0 20px;margin-bottom: 10px;')}
+  ${({ $isMobile }) => ($isMobile ? 'padding: 10px 16px;' : 'padding: 0 20px;margin-bottom: 10px;')}
   .header {
     height: 50px;
     display: flex;
@@ -36,7 +36,7 @@ const Con = styled.div`
     }
   }
   .recordTitle {
-    ${({ isMobile }) => (isMobile ? '' : 'width: 100%;')}
+    ${({ $isMobile }) => ($isMobile ? '' : 'width: 100%;')}
     height: 32px;
     display: inline-flex;
     align-items: center;
@@ -78,7 +78,7 @@ export default function Header({
   };
 
   if (isMobile) {
-    return <Con isMobile>{renderRecordTitle()}</Con>;
+    return <Con $isMobile>{renderRecordTitle()}</Con>;
   }
 
   return (
@@ -116,22 +116,27 @@ export default function Header({
                 ) {
                   handleClearConversation();
                 } else {
-                  Dialog.confirm({
-                    title: _l('清空当前会话'),
-                    description: _l('清空当前会话记录后将开始新对话。清空操作不可恢复。执行日志保留，不受该操作影响。'),
-                    children: (
-                      <div className="textSecondary Font13">
-                        <Checkbox
-                          text={_l('不再显示')}
-                          size="small"
-                          checked={cache.current.aiActionDisableClearConfirm}
-                          onClick={() => {
-                            cache.current.aiActionDisableClearConfirm = !cache.current.aiActionDisableClearConfirm;
-                          }}
-                        />
-                      </div>
+                  Modal.confirm({
+                    title: <span className="textError">{_l('清空当前会话')}</span>,
+                    content: (
+                      <>
+                        {_l('清空当前会话记录后将开始新对话。清空操作不可恢复。执行日志保留，不受该操作影响。')}
+                        <div className="textSecondary Font13">
+                          <Checkbox
+                            checked={cache.current.aiActionDisableClearConfirm}
+                            onChange={() => {
+                              cache.current.aiActionDisableClearConfirm = !cache.current.aiActionDisableClearConfirm;
+                            }}
+                            size="small"
+                          >
+                            {_l('不再显示')}
+                          </Checkbox>
+                        </div>
+                      </>
                     ),
-                    buttonType: 'danger',
+                    okButtonProps: {
+                      danger: true,
+                    },
                     okText: _l('清空'),
                     onOk: () => {
                       handleClearConversation();

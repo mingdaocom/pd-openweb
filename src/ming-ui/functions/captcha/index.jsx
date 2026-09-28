@@ -1,6 +1,6 @@
 ﻿import React, { Fragment } from 'react';
-import { Dialog } from 'ming-ui';
-import { generateRandomPassword } from 'src/utils/common';
+import { Modal } from 'ming-ui/antd-components';
+import { generateRandomPassword } from 'src/utils/core/string';
 import './index.less';
 
 const TENCENT_CAPTCHA_SCRIPT_URL = 'https://turing.captcha.qcloud.com/TJCaptcha.js';
@@ -44,12 +44,11 @@ export default function captcha(callback = () => {}, onCancel = () => {}) {
   };
 
   if (md.global.getCaptchaType() === 1) {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('请输入验证码'),
       closable: false,
-      anim: false,
       width: 368,
-      description: (
+      content: (
         <Fragment>
           <input type="text" className="captchaInput" autoFocus placeholder={_l('不区分大小写')} />
           <div className="captchaImg">
@@ -70,12 +69,15 @@ export default function captcha(callback = () => {}, onCancel = () => {}) {
       onOk: () => {
         return new Promise(function (reslove, reject) {
           const value = $('.captchaInput').val().trim();
-
           if (!value) {
             alert(_l('请输入验证码'), 3);
             reject(true);
           } else {
-            callback({ ret: 0, ticket: value, randstr: randstr });
+            callback({
+              ret: 0,
+              ticket: value,
+              randstr: randstr,
+            });
             reslove();
           }
         });

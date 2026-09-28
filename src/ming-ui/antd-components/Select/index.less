@@ -1,0 +1,22 @@
+.hap-select {
+  .hap-select-copyable-single-label {
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  .hap-select-copyable-single-content.hap-select-content-has-search-value > :not(.hap-select-copyable-single-input) {
+    pointer-events: none;
+  }
+
+  &.hap-select-multiple.hap-select-hide-remove-icon-on-blur:not(.hap-select-focused) {
+    .hap-select-selection-item-remove {
+      display: none;
+    }
+  }
+
+  .hap-select-clear {
+    --hap-font-size-icon: 18px;
+    transform: scale(0.9);
+  }
+}

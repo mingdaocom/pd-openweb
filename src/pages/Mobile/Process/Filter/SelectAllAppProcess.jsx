@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import processVersionApi from 'src/pages/workflow/api/processVersion';
-import { TYPES } from 'src/pages/workflow/WorkflowList/utils';
 import { SidebarWrap } from './styled';
 
 const Wrap = styled.div`
@@ -59,37 +58,6 @@ const SelectApp = props => {
   );
 };
 
-const SelectProcessType = props => {
-  const { processType = {}, onChange, onClose } = props;
-  return (
-    <SidebarWrap className="flexColumn">
-      <div className="flexRow alignItemsCenter">
-        <div className="flexRow alignItemsCenter flex">
-          <Icon icon="backspace" className="textTertiary Font20 mRight10" onClick={onClose} />
-          <div className="textTertiary Font13 flex ellipsis">{_l('流程类型')}</div>
-        </div>
-        <Icon icon="close" className="textTertiary close" onClick={onClose} />
-      </div>
-      <div className="flex overflowY mTop10">
-        {TYPES.map(item => (
-          <div
-            key={item.value}
-            className="flexRow alignItemsCenter pTop10 pBottom10"
-            onClick={() => {
-              onChange(item);
-              onClose();
-            }}
-          >
-            <i className={`icon ${item.icon} textTertiary Font22 mRight5`} />
-            <div className="flex mLeft10 mRight10 ellipsis Font14">{item.text}</div>
-            {processType.value === item.value && <Icon icon="done" className="colorPrimary Font18" />}
-          </div>
-        ))}
-      </div>
-    </SidebarWrap>
-  );
-};
-
 const SelectProcess = props => {
   const { processList, process = {}, onChange, onClose } = props;
   return (
@@ -133,15 +101,23 @@ export default props => {
   const [validProject, setValidProject] = useState([]);
   const [processList, setProcessList] = useState([]);
   const [appVisible, setAppVisible] = useState(false);
-  const [processTypeVisible, setProcessTypeVisible] = useState(false);
   const [processVisible, setProcessVisible] = useState(false);
-  const processType = _.get(selectInfo, 'processType.value');
   const currentSelectAppId = apkId || requestAppId;
+  const onChangeRef = useRef(onChange);
 
   useEffect(() => {
-    if (visible && !selectInfo.app) {
-      setLoading(true);
-      homeAppApi.getAllHomeApp().then(data => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    if (!visible || validProject.length) return;
+
+    let active = true;
+    const request = homeAppApi.getAllHomeApp();
+    setLoading(true);
+    request.then(
+      data => {
+        if (!active) return;
         const list = data.validProject.filter(item => item.projectApps.length);
 
         if (requestAppId) {
@@ -149,36 +125,45 @@ export default props => {
           const app = _.find(apps, { id: requestAppId });
           setSelectInfo({
             app,
-            processType: undefined,
             process: undefined,
           });
-          onChange({ apkId: app.id, processId: undefined });
+          onChangeRef.current({ apkId: app.id, processId: undefined });
         }
 
         setValidProject(list);
         setLoading(false);
-      });
-    }
-  }, [visible]);
+      },
+      () => {
+        if (active) {
+          setLoading(false);
+        }
+      },
+    );
+
+    return () => {
+      active = false;
+      request.abort?.();
+    };
+  }, [requestAppId, validProject.length, visible]);
 
   useEffect(() => {
-    if (_.isString(processType)) {
-      let request = null;
+    if (!visible || !currentSelectAppId) return;
 
-      if (processType) {
-        request = processVersionApi.list;
-      } else {
-        request = processVersionApi.listAll;
-      }
-
-      request({
-        relationId: currentSelectAppId,
-        processListType: processType || undefined,
-      }).then(data => {
+    let active = true;
+    const request = processVersionApi.listAll({ relationId: currentSelectAppId });
+    request.then(
+      data => {
+        if (!active) return;
         setProcessList(_.flatten(data.map(n => n.processList)));
-      });
-    }
-  }, [processType]);
+      },
+      () => {},
+    );
+
+    return () => {
+      active = false;
+      request.abort?.();
+    };
+  }, [currentSelectAppId, visible]);
 
   useEffect(() => {
     if (!apkId) {
@@ -204,7 +189,8 @@ export default props => {
             <SelectApp
               app={selectInfo.app}
               onChange={app => {
-                setSelectInfo(values => ({ ...values, app, processType: undefined, process: undefined }));
+                setProcessList([]);
+                setSelectInfo(values => ({ ...values, app, process: undefined }));
                 onChange({ apkId: app.id, processId: undefined });
               }}
               validProject={validProject}
@@ -212,27 +198,6 @@ export default props => {
             />
           )}
           {_.get(selectInfo, 'app.id') && (
-            <div className="flexRow alignItemsCenter pTop10 pBottom10" onClick={() => setProcessTypeVisible(true)}>
-              <div className={cx('flex Font14 bold', { textTertiary: !_.get(selectInfo, 'processType.text') })}>
-                {_l('流程类型')}
-              </div>
-              <div className="flexRow alignItemsCenter">
-                <div className="colorPrimary ellipsis">{_.get(selectInfo, 'processType.text')}</div>
-                <Icon icon="arrow-right-border" className="Font18 textPlaceholder" />
-              </div>
-            </div>
-          )}
-          {processTypeVisible && (
-            <SelectProcessType
-              processType={selectInfo.processType}
-              onChange={processType => {
-                setSelectInfo(values => ({ ...values, processType, process: undefined }));
-                onChange({ processId: undefined });
-              }}
-              onClose={() => setProcessTypeVisible(false)}
-            />
-          )}
-          {_.isString(processType) && (
             <div className="flexRow alignItemsCenter pTop10 pBottom10" onClick={() => setProcessVisible(true)}>
               <div className={cx('flex Font14 bold', { textTertiary: false })}>{_l('流程')}</div>
               <div className="flexRow alignItemsCenter flex justifyContentRight">

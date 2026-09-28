@@ -1,40 +1,17 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { VerticalMiddle } from 'worksheet/components/Basics';
-import { FILTER_TYPE } from '../enum';
+import { FILTER_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 const Con = styled.div`
   .title {
     font-size: 14px;
     color: var(--color-text-tertiary);
     padding: 8px 18px;
-  }
-`;
-
-const MenuCon = styled(Menu)`
-  width: 160px;
-  position: relative !important;
-  hr {
-    border: none;
-    margin: 4px 0;
-    border-top: 1px solid var(--color-border-secondary) !important;
-  }
-  .ming.Item .Item-content {
-    padding-left: 50px !important;
-    .Icon {
-      left: 15px;
-    }
-  }
-  .red {
-    color: var(--color-error);
-    &.ming.MenuItem .icon {
-      color: var(--color-error);
-    }
   }
 `;
 
@@ -92,6 +69,10 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   }
 `;
 
+const MORE_MENU_TRIGGER = ['click'];
+const MORE_MENU_STYLE = { width: 160 };
+const MORE_MENU_CLASS_NAMES = { root: 'worksheetFilterOperateList' };
+
 function FilterTitleItem(props) {
   const {
     error,
@@ -112,6 +93,49 @@ function FilterTitleItem(props) {
   const canEdit =
     (filter.type === FILTER_TYPE.PUBLIC ? isCharge : filter.createAccountId === md.global.Account.accountId) &&
     !get(window, 'shareState.shareId');
+  const menuItems = [
+    canEdit && {
+      key: 'rename',
+      icon: <Icon icon="rename_input" className="Font18" />,
+      label: _l('重命名'),
+      onClick: () => {
+        onEditFilter(filter);
+        setTimeout(() => {
+          document.querySelector('.filterDetailName .name').click();
+        }, 40);
+      },
+    },
+    {
+      key: 'copy',
+      icon: <Icon icon="copy" className="Font18" />,
+      label: _l('复制'),
+      onClick: () => {
+        setMoreMenuActive(false);
+        onCopy(filter);
+      },
+    },
+    isCharge && {
+      key: 'toggleType',
+      icon: <Icon icon="group" className="Font18" />,
+      label: filter.type === FILTER_TYPE.PUBLIC ? _l('设为个人筛选') : _l('设为公共筛选'),
+      onClick: () => {
+        setMoreMenuActive(false);
+        onToggleFilterType(filter);
+      },
+    },
+    canEdit && { type: 'divider' },
+    canEdit && {
+      key: 'delete',
+      icon: <Icon icon="trash" className="Font18" />,
+      label: _l('删除'),
+      danger: true,
+      onClick: () => {
+        setMoreMenuActive(false);
+        onDelete(filter);
+      },
+    },
+  ].filter(Boolean);
+
   return (
     <FilterTitleItemCon
       className={cx(className, { active, moreMenuActive })}
@@ -150,73 +174,16 @@ function FilterTitleItem(props) {
             ></i>
           </Tooltip>
         )}
-        <Trigger
-          popupVisible={moreMenuActive}
-          action={['click']}
-          popupAlign={{
-            points: ['tr', 'br'],
-            offset: [0, 4],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
-          }}
-          popup={
-            <MenuCon>
-              {canEdit && (
-                <MenuItem
-                  icon={<Icon icon="rename_input" className="Font18" />}
-                  onClick={() => {
-                    onEditFilter(filter);
-                    setTimeout(() => {
-                      document.querySelector('.filterDetailName .name').click();
-                    }, 40);
-                  }}
-                >
-                  {_l('重命名')}
-                </MenuItem>
-              )}
-              <MenuItem
-                icon={<Icon icon="copy" className="Font18" />}
-                onClick={() => {
-                  setMoreMenuActive(false);
-                  onCopy(filter);
-                }}
-              >
-                {_l('复制')}
-              </MenuItem>
-              {isCharge && (
-                <MenuItem
-                  icon={<Icon icon="group" className="Font18" />}
-                  onClick={() => {
-                    setMoreMenuActive(false);
-                    onToggleFilterType(filter);
-                  }}
-                >
-                  {filter.type === FILTER_TYPE.PUBLIC ? _l('设为个人筛选') : _l('设为公共筛选')}
-                </MenuItem>
-              )}
-              {canEdit && (
-                <Fragment>
-                  <hr />
-                  <MenuItem
-                    className="red"
-                    icon={<Icon icon="trash" className="Font18" />}
-                    onClick={() => {
-                      setMoreMenuActive(false);
-                      onDelete(filter);
-                    }}
-                  >
-                    {_l('删除')}
-                  </MenuItem>
-                </Fragment>
-              )}
-            </MenuCon>
-          }
-          onPopupVisibleChange={setMoreMenuActive}
+        <Dropdown
+          open={moreMenuActive}
+          trigger={MORE_MENU_TRIGGER}
+          placement="bottomRight"
+          classNames={MORE_MENU_CLASS_NAMES}
+          menu={{ items: menuItems, style: MORE_MENU_STYLE }}
+          onOpenChange={setMoreMenuActive}
         >
           <i className="icon icon-more_horiz Hand moreMenu hoverShow hoverColorPrimary"></i>
-        </Trigger>
+        </Dropdown>
       </div>
     </FilterTitleItemCon>
   );
@@ -249,6 +216,7 @@ export default function FilterTitleList(props) {
     <Con>
       <div className="title">{title}</div>
       <SortableList
+        renderBody
         useDragHandle
         items={filters}
         itemKey="id"

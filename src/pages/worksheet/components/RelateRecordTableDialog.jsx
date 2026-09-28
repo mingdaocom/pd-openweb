@@ -3,9 +3,8 @@ import { useKey } from 'react-use';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 
 const Con = styled.div`
@@ -19,60 +18,7 @@ const Con = styled.div`
   }
 `;
 
-const IconBtn = styled.span`
-  color: var(--color-text-tertiary);
-  cursor: pointer;
-  display: inline-block;
-  height: 28px;
-  font-size: 20px;
-  line-height: 28px;
-  padding: 0 4px;
-  border-radius: 5px;
-  &:hover {
-    background: var(--color-background-hover);
-  }
-`;
-
-const Header = styled.div`
-  height: 50px;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  .main {
-    font-size: 17px;
-    color: var(--color-text-title);
-    font-weight: bold;
-    width: 100%;
-  }
-  .split {
-    font-size: 16px;
-    margin: 0 8px;
-    color: var(--color-text-tertiary);
-  }
-  .sec {
-    font-size: 17px;
-    color: var(--color-text-secondary);
-    max-width: 600px;
-    &:hover {
-      color: var(--color-text-title);
-    }
-  }
-  .openInNewTab {
-    cursor: pointer;
-    color: var(--color-text-tertiary);
-    font-size: 14px;
-    margin-left: 6px;
-    line-height: 18px;
-    height: 18px;
-  }
-  .flexCenter {
-    display: flex;
-    align-items: center;
-  }
-`;
 const Content = styled.div`
-  padding: 0 24px 80px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -170,68 +116,64 @@ export default function RelateRecordTableDialog(props) {
       get(cache, 'current.' + control.controlId)();
     }
   });
+
+  const iconButtons = [
+    {
+      type: 'refresh',
+      icon: 'task-later',
+      tip: _l('刷新'),
+      onClick: () => {
+        if (get(cache, 'current.' + control.controlId)) {
+          get(cache, 'current.' + control.controlId)();
+        }
+      },
+    },
+    {
+      type: 'fullScreen',
+      icon: isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge',
+      tip: isFullScreen ? _l('退出') : _l('全屏'),
+      onClick: () => {
+        if (callFromDialog) {
+          handleClose();
+        } else {
+          setIsFullScreen(!isFullScreen);
+        }
+      },
+    },
+    ...(!callFromDialog
+      ? [
+          {
+            type: 'close',
+            icon: 'close',
+            tip: _l('关闭'),
+            onClick: () => {
+              reloadTable();
+              handleClose();
+            },
+          },
+        ]
+      : []),
+  ];
+
   return (
     <Modal
-      visible
+      open
       keyboard
       type="fixed"
       verticalAlign="bottom"
       width={width}
-      closeSize={50}
-      closeIcon={<span />}
-      bodyStyle={{ padding: 0, position: 'relative' }}
+      title={control.controlName}
+      styles={{
+        header: {
+          marginBottom: 10,
+        },
+      }}
+      iconButtons={iconButtons}
+      closable={false}
       fullScreen={isFullScreen}
-      style={{ transition: 'none' }}
       onCancel={handleClose}
     >
       <Con>
-        <Header>
-          <div className="main ellipsis">{control.controlName}</div>
-          <div className="flex"></div>
-          <Tooltip title={_l('刷新')} shortcut={window.isMacOs ? '⌘⇧R' : 'Ctrl+Shift+R'} placement="bottom">
-            <IconBtn
-              className="mRight10 hoverColorPrimary"
-              onClick={() => {
-                if (get(cache, 'current.' + control.controlId)) {
-                  get(cache, 'current.' + control.controlId)();
-                }
-              }}
-            >
-              <i className="icon icon-task-later"></i>
-            </IconBtn>
-          </Tooltip>
-          <Tooltip
-            title={isFullScreen ? _l('退出') : _l('全屏')}
-            shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
-            placement="bottom"
-          >
-            <IconBtn
-              className="mRight10 hoverColorPrimary"
-              onClick={() => {
-                if (callFromDialog) {
-                  handleClose();
-                } else {
-                  setIsFullScreen(!isFullScreen);
-                }
-              }}
-            >
-              <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
-            </IconBtn>
-          </Tooltip>
-          {!callFromDialog && (
-            <Tooltip title={_l('关闭')} shortcut={'Esc'} placement="bottom">
-              <IconBtn
-                className="hoverColorPrimary"
-                onClick={() => {
-                  reloadTable();
-                  handleClose();
-                }}
-              >
-                <i className="icon icon-close"></i>
-              </IconBtn>
-            </Tooltip>
-          )}
-        </Header>
         <Content>
           <Table
             {...{
@@ -269,4 +211,6 @@ RelateRecordTableDialog.propTypes = {
   onUpdateCount: PropTypes.func,
 };
 
-export const openRelateRelateRecordTable = props => functionWrap(RelateRecordTableDialog, props);
+export function useRelateRecordTableDialog() {
+  return useFunctionWrapComponent(RelateRecordTableDialog);
+}

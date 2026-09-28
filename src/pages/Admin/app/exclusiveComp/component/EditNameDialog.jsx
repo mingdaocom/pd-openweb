@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
   input {
@@ -20,10 +20,12 @@ function EditNameDialog(props) {
   }, [defauleValue]);
 
   return (
-    <Dialog
+    <Modal
       className="EditNameDialog"
-      width="480"
-      visible={visible}
+      width={480}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={_l('修改名称')}
       okText={_l('确定')}
       onCancel={onCancel}
@@ -38,16 +40,15 @@ function EditNameDialog(props) {
     >
       <Wrap>
         <Input
-          manualRef={$inputRef}
+          ref={$inputRef}
           defaultValue={defauleValue}
           value={value}
-          size="default"
           onChange={e => {
-            setValue(e);
+            setValue(e.target.value);
           }}
         />
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }
 

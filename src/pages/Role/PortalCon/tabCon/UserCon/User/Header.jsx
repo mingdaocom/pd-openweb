@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, MenuItem } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Dropdown, Modal, Space } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import { pageSizeForPortal } from 'src/pages/Role/PortalCon/tabCon/config';
 import PortalBar from 'src/pages/Role/PortalCon/tabCon/portalComponent/PortalBar';
-import { WrapPop } from './style';
+
+const ACTION_BUTTON_STYLE = { height: 32 };
 
 export default function (props) {
   const {
@@ -88,13 +89,15 @@ export default function (props) {
   };
 
   const deleteRowsDialog = () => {
-    return Dialog.confirm({
-      title: <span className="Red">{_l('注销%0个成员', selectedIds.length || 1)}</span>,
-      buttonType: 'danger',
+    return Modal.confirm({
+      title: <span className="Red textError">{_l('注销%0个成员', selectedIds.length || 1)}</span>,
+      okButtonProps: {
+        danger: true,
+      },
       okText: _l('注销'),
-      description: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
+      content: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
       onOk: () => deleteRows(selectedIds),
-    });
+    }).destroy;
   };
 
   //导出
@@ -143,39 +146,47 @@ export default function (props) {
           )}
         </div>
         {selectedIds.length > 0 && (
-          <div className="flex-shrink-0">
-            <span
-              className={cx('changeRole InlineBlock mLeft10', disabledActions.changeRole ? 'disabledAction' : 'Hand')}
+          <Space className="flex-shrink-0" size={10}>
+            <Button
+              color="primary"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
+              disabled={disabledActions.changeRole}
               onClick={() => !disabledActions.changeRole && setChangeRoleDialog(true)}
             >
               {_l('更改角色')}
               {actionCounts.changeRole > 0 && `(${actionCounts.changeRole})`}
-            </span>
-            <span className={cx('download InlineBlock Hand mLeft10')} onClick={() => down()}>
+            </Button>
+            <Button color="primary" variant="filled" style={ACTION_BUTTON_STYLE} onClick={() => down()}>
               {_l('导出')}
-            </span>
+            </Button>
             {(window.platformENV.isOverseas || window.platformENV.isLocal) &&
               !!list.find(o => safeParse(o.portal_status, 'array')[0] === '5') && (
-                <span
-                  className={cx('download InlineBlock mLeft10', disabledActions.activate ? 'disabledAction' : 'Hand')}
+                <Button
+                  color="primary"
+                  variant="filled"
+                  style={ACTION_BUTTON_STYLE}
+                  disabled={disabledActions.activate}
                   onClick={() => !disabledActions.activate && updateActivationStatus(statusGroups.unActivated)}
                 >
                   {_l('激活')}
                   {actionCounts.activate > 0 && `(${actionCounts.activate})`}
-                </span>
+                </Button>
               )}
-            <span
-              className={cx('download InlineBlock mLeft10', disabledActions.enable ? 'disabledAction' : 'Hand')}
+            <Button
+              color="primary"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
+              disabled={disabledActions.enable}
               onClick={() => {
                 if (disabledActions.enable) {
                   return;
                 }
 
-                Dialog.confirm({
-                  title: <span className="">{_l('启用%0个用户', actionCounts.enable || 1)}</span>,
-                  buttonType: '',
+                Modal.confirm({
+                  title: _l('启用%0个用户', actionCounts.enable || 1),
                   okText: _l('启用%15005'),
-                  description: _l('启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用'),
+                  content: _l('启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用'),
                   onOk: () => {
                     updateListByStatus({
                       newState: 1,
@@ -190,9 +201,12 @@ export default function (props) {
             >
               {_l('启用%15005')}
               {actionCounts.enable > 0 && `(${actionCounts.enable})`}
-            </span>
-            <span
-              className={cx('download InlineBlock mLeft10', disabledActions.reinvite ? 'disabledAction' : 'Hand')}
+            </Button>
+            <Button
+              color="primary"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
+              disabled={disabledActions.reinvite}
               onClick={() => {
                 if (disabledActions.reinvite) {
                   return;
@@ -205,20 +219,22 @@ export default function (props) {
             >
               {_l('重新邀请')}
               {actionCounts.reinvite > 0 && `(${actionCounts.reinvite})`}
-            </span>
-            <span
-              className={cx(
-                'download InlineBlock mLeft10',
-                disabledActions.cancelInviteAndRemove ? 'disabledAction' : 'Hand',
-              )}
+            </Button>
+            <Button
+              color="primary"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
+              disabled={disabledActions.cancelInviteAndRemove}
               onClick={() => {
                 if (disabledActions.cancelInviteAndRemove) {
                   return;
                 }
 
-                Dialog.confirm({
-                  title: <span className="Red">{_l('确认取消邀请该用户吗')}</span>,
-                  buttonType: 'danger',
+                Modal.confirm({
+                  title: <span className="textError">{_l('确认取消邀请该用户吗')}</span>,
+                  okButtonProps: {
+                    danger: true,
+                  },
                   okText: _l('确定'),
                   onOk: () => cancelInvitationRows(statusGroups.unActivated),
                 });
@@ -226,19 +242,24 @@ export default function (props) {
             >
               {_l('取消邀请并移除')}
               {actionCounts.cancelInviteAndRemove > 0 && `(${actionCounts.cancelInviteAndRemove})`}
-            </span>
-            <span
-              className={cx('del InlineBlock mLeft10', disabledActions.stop ? 'disabledAction' : 'Hand')}
+            </Button>
+            <Button
+              color="danger"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
+              disabled={disabledActions.stop}
               onClick={() => {
                 if (disabledActions.stop) {
                   return;
                 }
 
-                Dialog.confirm({
-                  title: <span className="Red">{_l('停用%0个用户', actionCounts.stop || 1)}</span>,
-                  buttonType: 'danger',
+                Modal.confirm({
+                  title: <span className="textError">{_l('停用%0个用户', actionCounts.stop || 1)}</span>,
+                  okButtonProps: {
+                    danger: true,
+                  },
                   okText: _l('停用'),
-                  description: _l('停用只对“正常”状态的用户生效；用户被停用后将不能通过外部门户链接登录此应用'),
+                  content: _l('停用只对“正常”状态的用户生效；用户被停用后将不能通过外部门户链接登录此应用'),
                   onOk: () => {
                     updateListByStatus({
                       newState: 4,
@@ -253,11 +274,11 @@ export default function (props) {
             >
               {_l('停用')}
               {actionCounts.stop > 0 && `(${actionCounts.stop})`}
-            </span>
-            <span className={cx('del InlineBlock Hand mLeft10')} onClick={deleteRowsDialog}>
+            </Button>
+            <Button color="danger" variant="filled" style={ACTION_BUTTON_STYLE} onClick={deleteRowsDialog}>
               {_l('注销')}
-            </span>
-          </div>
+            </Button>
+          </Space>
         )}
         {selectedIds.length <= 0 && (
           <div className="InlineFlex flex-shrink-0">
@@ -269,42 +290,50 @@ export default function (props) {
                 return (
                   <React.Fragment>
                     {roleId !== 'all' && canEditApp && (
-                      <div
-                        className="toRole Hand mRight14 TxtTop Bold"
+                      <Button
+                        style={{ height: 32 }}
+                        className="mRight14"
                         onClick={() => setQuickTag({ roleId: roleId, tab: 'roleSet' })}
                       >
                         {_l('编辑角色')}
-                      </div>
+                      </Button>
                     )}
-                    <div className="addUser InlineBlock Hand Bold">
-                      <span className="lAdd" onClick={() => setAddUserByTelDialog(true)}>
+                    <Space.Compact>
+                      <Button
+                        type="primary"
+                        style={{ height: 32 }}
+                        className="Bold"
+                        onClick={() => setAddUserByTelDialog(true)}
+                      >
                         {_l('邀请用户')}
-                      </span>
-                      |
-                      <Trigger
-                        popupVisible={popupVisible}
-                        action={['click']}
-                        onPopupVisibleChange={popupVisible => setPopupVisible(popupVisible)}
-                        popup={
-                          <WrapPop className="Hand InlineBlock mTop6 uploadUser">
-                            <MenuItem
-                              onClick={() => {
+                      </Button>
+                      <Dropdown
+                        open={popupVisible}
+                        trigger={['click']}
+                        placement="bottomRight"
+                        onOpenChange={setPopupVisible}
+                        menu={{
+                          items: [
+                            {
+                              key: 'import',
+                              icon: <Icon className="Font18" type="new_excel" />,
+                              label: _l('从Excel导入数据'),
+                              onClick: () => {
                                 setAddUserDialog(true);
                                 setPopupVisible(false);
-                              }}
-                            >
-                              <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
-                              <span className=""> {_l('从Excel导入数据')}</span>
-                            </MenuItem>
-                          </WrapPop>
-                        }
-                        popupAlign={{ points: ['tr', 'br'], offset: [8, 0] }}
+                              },
+                            },
+                          ],
+                        }}
                       >
-                        <span className="rAdd hand" onClick={() => setPopupVisible(!popupVisible)}>
-                          <Icon className="TxtMiddle mLeft6 " type="arrow-down" />
-                        </span>
-                      </Trigger>
-                    </div>
+                        <Button
+                          type="primary"
+                          style={{ height: 32 }}
+                          icon={<Icon type="arrow-down" />}
+                          aria-label={_l('更多邀请方式')}
+                        />
+                      </Dropdown>
+                    </Space.Compact>
                   </React.Fragment>
                 );
               }}

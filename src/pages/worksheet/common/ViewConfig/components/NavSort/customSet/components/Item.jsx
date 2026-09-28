@@ -2,53 +2,33 @@ import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, UserHead } from 'ming-ui';
-import { quickSelectDept, quickSelectRole, quickSelectUser } from 'ming-ui/functions';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
+import { RoleSelectPopover } from 'ming-ui/functions/quickSelectRole';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
 import DropCon from './DropCon';
 import Option from './Options';
 import './index.less';
 
 export default function (props) {
   const { setting } = props;
-  const $ref = useRef(null);
   const valueRef = useRef();
 
   useEffect(() => {
     valueRef.current = setting;
   }, [setting]);
 
-  const { onAdd, onDelete, item, onUpdate, projectId, appId, DragHandle, maxCount } = props;
+  const { onDelete, item, onUpdate, projectId, appId, DragHandle, maxCount } = props;
   const { num, info } = item;
 
-  const addUser = (isMultiple = true, tabType, cb) => {
-    quickSelectUser($ref.current, {
-      showMoreInvite: false,
-      isTask: false,
-      tabType,
-      appId,
-      includeUndefinedAndMySelf: false,
-      includeSystemField: false,
-      offset: {
-        top: 4,
-        left: 68,
-      },
-      zIndex: 10001,
-      isDynamic: true,
-      filterAccountIds: ['user-self'],
-      selectedAccountIds: valueRef.current.map(l => l.accountId),
-      SelectUserSettings: {
-        projectId,
-        unique: !isMultiple,
-        filterResigned: false,
-        callback(users) {
-          cb(users);
-        },
-      },
-      selectCb(users) {
-        cb(users);
-      },
-    });
+  const onSaveAddUser = (data, isCancel = false) => {
+    if (isCancel) {
+      data[0] && onDelete(data[0]);
+      return;
+    }
+
+    onUpdate(data, num);
   };
 
   const onSaveAddDep = (data, isCancel = false) => {
@@ -61,42 +41,28 @@ export default function (props) {
     onUpdate(maxCount ? newData.slice(0, maxCount) : newData, num);
   };
 
-  const addDep = (e, isMultiple = true) => {
-    quickSelectDept(e.target, {
-      projectId,
-      isIncludeRoot: false,
-      unique: !isMultiple,
-      showCreateBtn: false,
-      selectedDepartment: valueRef.current,
-      selectFn: onSaveAddDep,
-    });
-  };
-
   //添加角色
-  const addRole = e => {
-    quickSelectRole(e.target, {
-      projectId,
-      unique: false,
-      offset: {
-        left: -167,
-      },
-      value: setting,
-      onSave: (data, isCancel = false) => {
-        if (!data.length) return;
-        const newData = isCancel
-          ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
-          : _.uniqBy(valueRef.current.concat(data), 'organizeId');
-        onUpdate(maxCount ? newData.slice(0, maxCount) : newData, num);
-      },
-    });
+  const onSaveAddRole = (data, isCancel = false) => {
+    if (!data.length) return;
+    const newData = isCancel
+      ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
+      : _.uniqBy(valueRef.current.concat(data), 'organizeId');
+    onUpdate(maxCount ? newData.slice(0, maxCount) : newData, num);
   };
 
-  if (info === 'add') {
-    return <DropCon {...props} currentList={setting} onChange={item => onUpdate(item)} />;
-  }
+  const isAddDisabled = setting.length >= 50;
+  const addIcon = (
+    <Icon
+      className={cx(
+        'Font16 addNext mLeft15 textTertiary TxtCenter',
+        isAddDisabled ? 'disabled' : 'Hand hoverColorPrimary',
+      )}
+      icon="add"
+    />
+  );
 
   return (
-    <div className="flexRow customsortItem alignItemsCenter" ref={$ref}>
+    <div className="flexRow customsortItem alignItemsCenter">
       <span className={cx('con flexRow flex alignItemsCenter pLeft6 pRight6')}>
         <DragHandle className="alignItemsCenter flexRow">
           <Icon className="mRight10 Font16 textTertiary hoverColorPrimary Hand dragHandle" icon="drag" />
@@ -139,30 +105,60 @@ export default function (props) {
           }}
         />
       </span>
-      <Icon
-        className={cx(
-          'Font16 addNext mLeft15 textTertiary TxtCenter',
-          setting.length >= 50 ? 'disabled' : 'Hand hoverColorPrimary',
-        )}
-        icon="add"
-        onClick={e => {
-          if (setting.length >= 50) {
-            return;
-          }
-
-          if (isSameType([26], props.controlInfo)) {
-            addUser(true, getTabTypeBySelectUser(props.controlInfo), users => {
-              onUpdate(users, num);
-            });
-          } else if (isSameType([27], props.controlInfo)) {
-            addDep(e, true);
-          } else if (isSameType([48], props.controlInfo)) {
-            addRole(e);
-          } else {
-            onAdd(num);
-          }
-        }}
-      />
+      {isSameType([26], props.controlInfo) && !isAddDisabled ? (
+        <UserSelectPopover
+          showMoreInvite={false}
+          tabType={getTabTypeBySelectUser(props.controlInfo)}
+          appId={appId}
+          includeUndefinedAndMySelf={false}
+          includeSystemField={false}
+          offset={{ top: 4, left: 0 }}
+          isDynamic
+          filterAccountIds={['user-self']}
+          selectedAccountIds={setting.map(l => l.accountId)}
+          SelectUserSettings={{
+            projectId,
+            unique: false,
+            filterResigned: false,
+            callback: onSaveAddUser,
+          }}
+          onSelect={onSaveAddUser}
+        >
+          {addIcon}
+        </UserSelectPopover>
+      ) : isSameType([27], props.controlInfo) && !isAddDisabled ? (
+        <DeptSelectPopover
+          projectId={projectId}
+          isIncludeRoot={false}
+          unique={false}
+          showCreateBtn={false}
+          selectedDepartment={setting}
+          selectFn={onSaveAddDep}
+        >
+          {addIcon}
+        </DeptSelectPopover>
+      ) : isSameType([48], props.controlInfo) && !isAddDisabled ? (
+        <RoleSelectPopover
+          projectId={projectId}
+          unique={false}
+          value={setting}
+          onSave={onSaveAddRole}
+          placement="bottomLeft"
+        >
+          {addIcon}
+        </RoleSelectPopover>
+      ) : !isAddDisabled ? (
+        <DropCon
+          controlInfo={props.controlInfo}
+          currentList={setting}
+          onChange={(item, insertOffset) => onUpdate(item, num + insertOffset)}
+          onDelete={onDelete}
+        >
+          {addIcon}
+        </DropCon>
+      ) : (
+        addIcon
+      )}
     </div>
   );
 }

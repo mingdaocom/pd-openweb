@@ -30,33 +30,10 @@
   margin-top: -36px;
 }
 
-.uploadAssistant .chooseBtn {
-  color: var(--color-white);
-  background: blue;
-  display: inline-block;
-  border-radius: 3px;
-  cursor: pointer;
-  height: 38px;
-  line-height: 38px;
-  width: 124px;
-  text-align: center;
-  font-size: 14px;
-  position: relative;
-}
-.uploadAssistant .chooseBtn .chooseBtnText {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
 .uploadAssistant .selectOptions {
   width: 100%;
   text-align: left;
 }
-.uploadAssistant .selectOptions .Item-content {
-  color: var(--color-text-secondary);
-  padding-right: 0px !important;
-}
-
 .uploadAssistant .uploadPathBlock {
   margin-top: 11px;
 }

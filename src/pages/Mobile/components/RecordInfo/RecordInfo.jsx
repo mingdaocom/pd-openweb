@@ -4,7 +4,9 @@ import { bindActionCreators } from 'redux';
 import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { LoadDiv, WaterMark } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import externalPortalApi from 'src/api/externalPortal';
 import paymentAjax from 'src/api/payment';
 import worksheetApi from 'src/api/worksheet';
@@ -15,23 +17,24 @@ import MobileRecordRecoverConfirm from 'worksheet/common/newRecord/MobileNewReco
 import { handleSubmitDraft, loadRecord, updateRecord } from 'worksheet/common/recordInfo/crtl';
 import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import RecordEditLock from 'worksheet/common/recordInfo/RecordEditLock';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { checkRuleLocked } from 'src/components/Form/core/formUtils';
-import { isPublicLink } from 'src/components/Form/core/utils';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import ShareCardConfig from 'src/components/ShareCardConfig';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getTranslateInfo } from 'src/utils/app';
-import { emitter } from 'src/utils/common';
-import { getRowGetType, KVGet, removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/common';
-import { pathCompletion } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
-import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
-import { getRecordTempValue } from 'src/utils/record';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+import { getRecordTempValue } from 'src/utils/domain/worksheet/record';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { KVGet, removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/services/cache/record';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { getRowGetType } from 'src/utils/services/worksheet/access';
 import RecordFooter from './RecordFooter';
 import RecordForm from './RecordForm';
 import { Abnormal, Loading } from './RecordState';
@@ -56,6 +59,7 @@ let RecordInfo = class RecordInfo extends Component {
       externalPortalConfig: {},
       recordId: props.recordId,
       currentTab: {},
+      resetTabToFirstFlag: 0,
       restoreVisible: false,
       payConfig: {},
       // 支付相关
@@ -70,6 +74,7 @@ let RecordInfo = class RecordInfo extends Component {
     this.refreshEvents = {};
     this.cellObjs = {};
     this.confirmHandler = null;
+    this.relationLoadRequestId = null;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
     this.draftType = 'save'; // save: 保存  submit: 提交,
 
@@ -99,6 +104,14 @@ let RecordInfo = class RecordInfo extends Component {
 
   customwidget = React.createRef();
 
+  clearRelationControlChange = controlId => {
+    const dataFormat = _.get(this.customwidget, 'current.dataFormat');
+
+    if (!dataFormat) return;
+
+    dataFormat.controlIds = dataFormat.getUpdateControlIds().filter(id => id !== controlId);
+  };
+
   componentDidMount() {
     emitter.addListener('MOBILE_RELOAD_RECORD_INFO', this.debounceRefresh);
     this.loadRecord();
@@ -120,24 +133,23 @@ let RecordInfo = class RecordInfo extends Component {
   componentDidUpdate(prevProps) {
     const { relationRow } = this.props;
     const { currentTab, isEditRecord } = this.state;
+    const relationRowChanged = !_.isEqual(relationRow, prevProps.relationRow);
 
-    if (
-      this.customwidget &&
-      this.customwidget.current &&
-      currentTab.type === 29 &&
-      !_.isEqual(relationRow, prevProps.relationRow) &&
-      (!this.ignoreUpdateRelationCount || isEditRecord)
-    ) {
-      this.customwidget.current.handleChange(
-        !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value,
-        currentTab.controlId,
-        currentTab,
-      );
+    if (this.customwidget && this.customwidget.current && currentTab.type === 29 && relationRowChanged) {
+      const relationCount = !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value;
+
+      if (isEditRecord) {
+        this.customwidget.current.handleChange(relationCount, currentTab.controlId, currentTab);
+      } else if (!_.isNaN(relationRow.count) && this.customwidget.current.dataFormat) {
+        const { dataFormat } = this.customwidget.current;
+
+        dataFormat.setControlItemValue(currentTab.controlId, relationRow.count);
+        this.customwidget.current.updateRenderData();
+      }
+
       this.setState({
-        currentTab: { ...currentTab, value: !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value },
+        currentTab: { ...currentTab, value: relationCount },
       });
-    } else if (this.ignoreUpdateRelationCount && !_.isEqual(relationRow, prevProps.relationRow)) {
-      this.ignoreUpdateRelationCount = false;
     }
   }
 
@@ -145,6 +157,35 @@ let RecordInfo = class RecordInfo extends Component {
     this.recordEditLock?.destroy();
     emitter.removeListener('MOBILE_RELOAD_RECORD_INFO', this.debounceRefresh);
   }
+
+  loadRelationActionData = tab => {
+    const { recordBase, tempFormData, isEditRecord } = this.state;
+
+    if (!tab || tab.type !== 29 || isEditRecord) return;
+
+    const { appId, from, instanceId, recordId: rowId, viewId, workId, worksheetId } = recordBase;
+    const requestId = _.uniqueId('mobileRelationLoad_');
+
+    this.relationLoadRequestId = requestId;
+    const base =
+      instanceId && workId
+        ? { controlId: tab.controlId, instanceId, requestId, rowId, workId, worksheetId }
+        : { appId, controlId: tab.controlId, requestId, rowId, viewId, worksheetId };
+
+    this.props.reset();
+    this.props.updateBase(base);
+    Promise.resolve(this.props.loadRow({ ...tab, formData: tempFormData }, from === 3 ? 1 : from)).then(result => {
+      if (
+        !result?.stale &&
+        requestId === this.relationLoadRequestId &&
+        !this.state.isEditRecord &&
+        this.state.recordBase.recordId === rowId &&
+        this.state.currentTab.controlId === tab.controlId
+      ) {
+        this.clearRelationControlChange(tab.controlId);
+      }
+    });
+  };
 
   getIsEditLockOpen = recordInfo => {
     const { from } = this.props;
@@ -272,6 +313,7 @@ let RecordInfo = class RecordInfo extends Component {
         this.recordEditLock = new RecordEditLock({
           worksheetId,
           recordId,
+          openFunctionWrap: this.props.openFunctionWrap,
           rowEditLock: safeParse(_.get(recordInfo, 'advancedSetting.roweditlock')) || {},
           updateLockedUser: userInfo =>
             this.setState({
@@ -601,7 +643,8 @@ let RecordInfo = class RecordInfo extends Component {
   };
   handleCancelSave = (cb = () => {}) => {
     const { updateEditStatus = () => {} } = this.props;
-    const { recordBase } = this.state;
+    const { currentTab, recordBase } = this.state;
+    const shouldResetTab = currentTab.type === 29;
     this.recordEditLock?.cancelEditLock();
     this.confirmHandler && this.confirmHandler.close();
     removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
@@ -611,8 +654,13 @@ let RecordInfo = class RecordInfo extends Component {
         formChanged: false,
         isEditRecord: false,
         random: Date.now(),
+        resetTabToFirstFlag: shouldResetTab ? Date.now() : this.state.resetTabToFirstFlag,
       },
       () => {
+        if (shouldResetTab) {
+          this.props.updateActionParams({ isEdit: false, selectedRecordIds: [] });
+        }
+
         this.customwidget.current.dataFormat.callStore('cancelChange');
         this.abortChildTable();
         _.isFunction(cb) && cb();
@@ -653,7 +701,7 @@ let RecordInfo = class RecordInfo extends Component {
       updateRow = () => {},
     } = this.props;
     const { callback = () => {}, noSave, ignoreError } = this.submitOptions || {};
-    const { recordInfo, recordBase, tempFormData } = this.state;
+    const { recordInfo, recordBase, tempFormData, currentTab } = this.state;
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
 
     if (error && !ignoreError) {
@@ -804,14 +852,28 @@ let RecordInfo = class RecordInfo extends Component {
             );
           }
 
-          this.setState({
-            isEditRecord: false,
-            random: Date.now(),
-            recordInfo: Object.assign(recordInfo, {
-              formData,
-            }),
-            tempFormData: formData,
-          });
+          // 与桌面端一致，保存成功后重置子表 store（加载/赋值标记、变更集）；
+          // 否则子表不会重新加载行，原始行停留在首次加载，后续清空赋值的删除名单会漏删保存后新建的子记录
+          if (_.get(this, 'customwidget.current.dataFormat.callStore')) {
+            this.customwidget.current.dataFormat.callStore('reset');
+          }
+
+          this.setState(
+            {
+              isEditRecord: false,
+              random: Date.now(),
+              recordInfo: Object.assign(recordInfo, {
+                formData,
+              }),
+              tempFormData: formData,
+            },
+            () => {
+              // 编辑态进入关联标签时会清空批量操作数据，保存后需重新加载以恢复操作状态
+              if (currentTab.type === 29) {
+                this.loadRelationActionData(currentTab);
+              }
+            },
+          );
           this.recordEditLock?.cancelEditLock();
 
           if (_.isFunction(callback)) {
@@ -1283,6 +1345,11 @@ let RecordInfo = class RecordInfo extends Component {
       recordTitle,
       isCharge,
       isSingleView,
+      actionParams,
+      relationRows,
+      relationRow,
+      relationBase = {},
+      updateActionParams,
     } = this.props;
     const {
       random,
@@ -1301,6 +1368,7 @@ let RecordInfo = class RecordInfo extends Component {
       payConfig,
       isRecordLock,
       editLockedUser,
+      resetTabToFirstFlag,
     } = this.state;
 
     if (loading || isSettingTempData) {
@@ -1352,6 +1420,14 @@ let RecordInfo = class RecordInfo extends Component {
             customwidget={this.customwidget}
             isPublicShare={this.isPublicShare}
             random={random}
+            resetTabToFirstFlag={resetTabToFirstFlag}
+            relationActionData={{
+              actionParams,
+              count: relationRow.count,
+              controlId: relationBase.controlId,
+              rows: relationRows,
+              updateActionParams,
+            }}
             isEditRecord={isEditRecord}
             isModal={isModal}
             refreshBtnNeedLoading={refreshBtnNeedLoading}
@@ -1392,7 +1468,8 @@ let RecordInfo = class RecordInfo extends Component {
                 this.props.updateRelationRows([], 0);
               }
 
-              this.ignoreUpdateRelationCount = !isEditRecord && currentTab.type === 29;
+              this.loadRelationActionData(tab);
+
               this.setState({
                 currentTab: {
                   id: tab.controlId,
@@ -1457,7 +1534,14 @@ let RecordInfo = class RecordInfo extends Component {
   }
 };
 RecordInfo = connect(
-  state => ({ ..._.pick(state.mobile, ['relationRow']) }),
-  dispatch => bindActionCreators({ ..._.pick(actions, ['updateRelationRows', 'updateActionParams']) }, dispatch),
+  state => ({
+    ..._.pick(state.mobile, ['actionParams', 'relationRow', 'relationRows']),
+    relationBase: state.mobile.base,
+  }),
+  dispatch =>
+    bindActionCreators(
+      { ..._.pick(actions, ['loadRow', 'reset', 'updateActionParams', 'updateBase', 'updateRelationRows']) },
+      dispatch,
+    ),
 )(RecordInfo);
-export default RecordInfo;
+export default withOpeners(RecordInfo);

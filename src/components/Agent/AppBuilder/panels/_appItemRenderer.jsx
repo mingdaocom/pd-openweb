@@ -6,7 +6,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
-import { CardEditButton, PanelWrap, parseCompactList, parseCompactStr } from './_shared';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
+import { CardEditButton, PanelWrap } from './_shared';
+import { parseCompactList, parseCompactStr } from './compactValue';
 
 const TYPE_BADGE = {
   worksheet: {
@@ -51,8 +53,6 @@ const DEFAULT_COLOR = {
 
 // plan 阶段为元素挑的 icon 是 HAP customIcon 字体类（sys_ 前缀），按此 URL 渲染 SVG；
 // 缺失时回退到 DEFAULT_ICON 的 ming-ui 字体 glyph。
-const customIconUrl = fileName => `https://fp1.mingdaoyun.cn/customIcon/${fileName}.svg`;
-
 // 统计图表类型 → HAP 图表图标（与 statistics/Charts/reportTypeIcons 对齐，均为 HAP iconfont 字体名）。
 // 之前用的是 Material 图标名（pie_chart/show_chart 等），HAP 字体里没有对应 glyph 故不显示。
 // plan 的 Column/Area/Ranking 等别名归一到 HAP 对应类型。
@@ -96,7 +96,7 @@ const COMPONENT_ICONS = {
 };
 const COMPONENT_FALLBACK_ICON = 'custom_actions';
 
-// worksheet 字段紧凑字符串 Type → 图标（对齐 HAP 控件图标 widgetConfig/config/widget.js）。
+// worksheet 字段紧凑字符串 Type → 图标（对齐 HAP canonical 控件类型配置）。
 // Relation:目标表 这类带冒号的取冒号前的基础类型。
 const FIELD_ICONS = {
   Text: 'text_bold2',
@@ -115,10 +115,18 @@ const FIELD_ICONS = {
   RichText: 'rich_text',
   Relation: 'link_record',
   selfRelation: 'link_record',
+  SubTable: 'table',
   Collaborator: 'account_circle',
   Department: 'department',
   AutoNumber: 'auto_number',
   Formula: 'formula',
+  Concatenate: 'category',
+  Signature: 'gesture',
+  Barcode: 'a-barcode',
+  Lookup: 'lookup',
+  Rollup: 'task_functions',
+  CascadingSelect: 'cascade_selection',
+  CustomField: 'custom-01',
 };
 
 const FIELD_BORDER = 'var(--color-border-primary)';
@@ -424,7 +432,7 @@ export default function AppItemListRenderer({ items, fallbackType = 'worksheet' 
                 <CardTop>
                   <ItemIcon $color={color}>
                     {item.icon ? (
-                      <SvgIcon url={customIconUrl(item.icon)} fill={color} size={24} />
+                      <SvgIcon url={getCustomIconUrl(item.icon)} fill={color} size={24} />
                     ) : (
                       <Icon icon={DEFAULT_ICON[type] || 'bookmark'} />
                     )}

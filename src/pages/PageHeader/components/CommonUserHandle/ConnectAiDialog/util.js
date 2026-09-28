@@ -1,4 +1,4 @@
-import { CLI_COMMAND, QUICK_CONNECT_TOOLS, SKILL_MANUAL_COMMAND_BLOCKS, SKILL_MODULES } from './constant';
+import { CLI_COMMAND, getQuickConnectTools, SKILL_MANUAL_COMMAND_BLOCKS, SKILL_MODULES } from './constant';
 
 const getMcpBaseUrl = () => md.global?.Config?.MCPUrl || 'https://api.mingdao.com/mcp';
 
@@ -144,7 +144,7 @@ export const getInstallData = ({
   return {
     canInstall: isMcpTab ? showMcpJson : isSkillsTab ? selectedSkillModules.length > 0 : !cliDisabled,
     cliDisabled,
-    currentTool: QUICK_CONNECT_TOOLS.find(item => item.key === selectedTool),
+    currentTool: getQuickConnectTools().find(item => item.key === selectedTool),
     installMessage,
     isOtherTool: selectedTool === 'other',
     manualInstallHint: isMcpTab ? _l('复制下方配置，添加到 MCP 服务中') : _l('在终端中执行以下命令，即可完成安装'),

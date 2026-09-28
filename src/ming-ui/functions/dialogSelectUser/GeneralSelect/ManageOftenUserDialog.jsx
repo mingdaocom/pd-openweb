@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, Icon, LoadDiv, RadioGroup, SortableList } from 'ming-ui';
+import { Icon, LoadDiv, SortableList } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import accountSettingAjax from 'src/api/accountSetting';
 import addressBookAjax from 'src/api/addressBook';
 import userAjax from 'src/api/user';
@@ -19,9 +20,9 @@ const Wrap = styled.div`
     height: 390px;
     position: relative;
     overflow-y: scroll;
-    border-top: ${({ activeBorder }) =>
-      activeBorder ? 'var(--color-border-tertiary)' : '1px solid var(--color-border-tertiary)'};
-    border-bottom: ${({ activeBorder }) => (activeBorder ? 'var(--color-border-tertiary)' : 'none')};
+    border-top: ${({ $activeBorder }) =>
+      $activeBorder ? 'var(--color-border-tertiary)' : '1px solid var(--color-border-tertiary)'};
+    border-bottom: ${({ $activeBorder }) => ($activeBorder ? 'var(--color-border-tertiary)' : 'none')};
     .empty {
       position: absolute;
       top: 50%;
@@ -29,59 +30,53 @@ const Wrap = styled.div`
       width: 100%;
       text-align: center;
     }
-    ul {
-      li {
-        .userItemBox {
-          flex: 1;
-          width: 100%;
-          .GSelect-User__fullname {
-            flex: 1;
-            width: auto;
-          }
-          .GSelect-User__companyName {
-            flex: 2;
-            width: auto;
-          }
-        }
-        .removeBtn {
-          line-height: 40px;
-          padding-right: 15px;
-        }
-        &:hover {
-          .userItemBox,
-          .removeBtn {
-            background: var(--color-background-hover);
-          }
-        }
-      }
+  }
+`;
+
+const OftenUserItem = styled.li`
+  width: 100%;
+  .userItemBox {
+    flex: 1;
+    width: 100%;
+    .GSelect-User__fullname {
+      flex: 1;
+      width: auto;
+    }
+    .GSelect-User__companyName {
+      flex: 2;
+      width: auto;
+    }
+  }
+  .removeBtn {
+    line-height: 40px;
+    padding-right: 15px;
+  }
+  &:hover {
+    .userItemBox,
+    .removeBtn {
+      background: var(--color-background-hover);
     }
   }
 `;
 
-const OftenUserDialog = styled(Dialog)`
-  .manageOftenUserDialog {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-`;
+const MODAL_STYLES = {
+  body: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+  },
+};
 
-function ManageOftenUserDialog(props) {
-  const { visible, userOptions, onOk = () => {}, onClose = () => {}, dialogSelectUser } = props;
+const ManageOftenUserContent = forwardRef(function ManageOftenUserContent(props, ref) {
+  const { userOptions, onOk = () => {}, dialogSelectUser } = props;
 
   const [type, setType] = useState(0);
   const [clearFlag, setClearFlag] = useState(false);
   const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isDrag, setIsDrag] = useState(false);
+
   useEffect(() => {
-    if (!visible) return;
-
-    getData();
-  }, [visible]);
-
-  const getData = () => {
-    setLoading(true);
     userAjax
       .getOftenMetionedUser({
         count: MAX_OFTEN_USERS,
@@ -95,7 +90,7 @@ function ManageOftenUserDialog(props) {
     accountSettingAjax.getAccountSettings().then(({ addressBookOftenMetioned }) => {
       setType(addressBookOftenMetioned);
     });
-  };
+  }, []);
 
   const onClear = () => {
     setList([]);
@@ -135,13 +130,13 @@ function ManageOftenUserDialog(props) {
     ]).then(() => {
       onOk(type);
     });
-
-    onClose();
   };
+
+  useImperativeHandle(ref, () => ({ onSave }));
 
   const renderUserItem = options => {
     return (
-      <li className="valignWrapper">
+      <OftenUserItem className="valignWrapper">
         <Icon icon="drag" className="Font14 Hand textTertiary hoverColorPrimary dragIcon" />
         <div className="flex userItemBox overflow_ellipsis">
           <User
@@ -158,7 +153,7 @@ function ManageOftenUserDialog(props) {
         >
           {_l('移除')}
         </span>
-      </li>
+      </OftenUserItem>
     );
   };
 
@@ -176,6 +171,8 @@ function ManageOftenUserDialog(props) {
     return (
       <ul className="GSelect-box">
         <SortableList
+          renderBody
+          helperClass="GSelect-box"
           items={list}
           itemKey="accountId"
           onSortEnd={newItems => onSortEnd(newItems)}
@@ -187,52 +184,74 @@ function ManageOftenUserDialog(props) {
   };
 
   return (
-    <OftenUserDialog
-      bodyClass="manageOftenUserDialog"
+    <Wrap $activeBorder={isDrag}>
+      <Radio.Group
+        size="middle"
+        className="mBottom16"
+        value={type}
+        options={(OFTEN_USER_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+        onChange={event => setType(event.target.value)}
+      />
+
+      <div className="textSecondary mBottom20 Font14">
+        {type === 0
+          ? _l('最近一段时间与您互动频率较高的用户自动显示在最常协作中')
+          : _l('自定义最常协作人员，在组织下查看最常协作时，只显示当前组织下的人员')}
+      </div>
+
+      {type === 1 && (
+        <Fragment>
+          <div className="Font14 valignWrapper actionWrap">
+            <span className="colorPrimary flex Hand" onClick={onAdd}>
+              <Icon icon="add" className="mRight6" />
+              {_l('添加人员')}
+            </span>
+            <span className="textTertiary Hand mRight25 hoverColorPrimary" onClick={onClear}>
+              {_l('清空')}
+            </span>
+          </div>
+          <div className="contentWrap">{renderUserList()}</div>
+        </Fragment>
+      )}
+    </Wrap>
+  );
+});
+
+function ManageOftenUserDialog(props) {
+  const { visible, onClose = () => {}, ...contentProps } = props;
+  const contentRef = useRef(null);
+
+  return (
+    <Modal
+      open={visible}
       width={640}
-      zIndex={10002}
-      visible={visible}
       title={_l('管理最常协作人员')}
       okText={_l('保存')}
-      onOk={onSave}
+      styles={MODAL_STYLES}
+      onOk={() => {
+        contentRef.current?.onSave();
+        onClose();
+      }}
       onCancel={onClose}
     >
-      <Wrap activeBorder={isDrag}>
-        <RadioGroup
-          size="middle"
-          className="mBottom16"
-          checkedValue={type}
-          data={OFTEN_USER_OPTIONS}
-          onChange={value => setType(value)}
-        />
-
-        <div className="textSecondary mBottom20 Font14">
-          {type === 0
-            ? _l('最近一段时间与您互动频率较高的用户自动显示在最常协作中')
-            : _l('自定义最常协作人员，在组织下查看最常协作时，只显示当前组织下的人员')}
-        </div>
-
-        {type === 1 && (
-          <Fragment>
-            <div className="Font14 valignWrapper actionWrap">
-              <span className="colorPrimary hoverBgColorPrimaryDark flex Hand" onClick={onAdd}>
-                <Icon icon="add" className="mRight6" />
-                {_l('添加人员')}
-              </span>
-              <span className="textTertiary Hand mRight25 hoverColorPrimary" onClick={onClear}>
-                {_l('清空')}
-              </span>
-            </div>
-            <div className="contentWrap">{renderUserList()}</div>
-          </Fragment>
-        )}
-      </Wrap>
-    </OftenUserDialog>
+      <ManageOftenUserContent ref={contentRef} {...contentProps} />
+    </Modal>
   );
 }
 
 export default ManageOftenUserDialog;
 
 export const openManageOftenUserDialog = props => {
-  FunctionWrap(ManageOftenUserDialog, { ...props });
+  const contentRef = React.createRef();
+
+  return Modal.info({
+    content: <ManageOftenUserContent ref={contentRef} {...props} />,
+    okCancel: true,
+    okText: _l('保存'),
+    onCancel: props.onClose,
+    onOk: () => contentRef.current?.onSave(),
+    styles: MODAL_STYLES,
+    title: _l('管理最常协作人员'),
+    width: 640,
+  });
 };

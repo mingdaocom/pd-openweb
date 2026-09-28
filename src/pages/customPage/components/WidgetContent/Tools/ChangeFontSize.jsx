@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Input, Popover, Slider } from 'antd';
 import cx from 'classnames';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Input, Popover, Slider } from 'ming-ui/antd-components';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
 
 export default props => {
   const { highlight, toolItem, widget, toolsWrapRef, handleToolClick } = props;
@@ -11,7 +11,7 @@ export default props => {
   return (
     <Popover
       placement="bottom"
-      arrowPointAtCenter={true}
+      arrow={{ pointAtCenter: true }}
       content={
         <div className="changeFontSizePopover flexRow">
           <Slider
@@ -60,9 +60,9 @@ export default props => {
       }
       getPopupContainer={() => toolsWrapRef.current || document.body}
     >
-      <li className={cx(type, { highlight })} key={type}>
+      <div className={cx('toolItem', type, { highlight })} key={type}>
         <i className={`icon-${icon} Font18`}></i>
-      </li>
+      </div>
     </Popover>
   );
 };

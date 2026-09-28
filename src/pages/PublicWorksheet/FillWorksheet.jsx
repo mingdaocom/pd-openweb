@@ -6,7 +6,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, RichText } from 'ming-ui';
+import { RichText } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import CustomFields from 'src/components/Form';
@@ -14,9 +15,9 @@ import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesD
 import { checkMobileVerify, getControlsByTab } from 'src/components/Form/core/utils';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
-import { browserIsMobile, getRequest } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { controlState } from 'src/utils/domain/control/state';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import { TIME_TYPE } from '../FormExtend/enum';
 import CountDown from '../FormExtend/PublicWorksheetConfig/CountDown';
 import { getLimitWriteTimeDisplayText } from '../FormExtend/utils';
@@ -67,6 +68,8 @@ export default class FillWorksheet extends React.Component {
 
   constructor(props) {
     super(props);
+    // url 参数 hotkey=yes 时开启 Command/Ctrl + Enter 提交
+    this.enableSubmitHotkey = _.includes(['yes', 'true', '1'], getRequest().hotkey);
     this.state = {
       showError: false,
       formData: props.formData,
@@ -93,6 +96,15 @@ export default class FillWorksheet extends React.Component {
         this.setState({ submitBtnLoading: false });
       }, 100);
     }
+
+    if (this.enableSubmitHotkey) {
+      document.addEventListener('keydown', this.handleHotkeyDown);
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleHotkeyDown);
+    clearTimeout(this.hotkeySubmitTimer);
   }
 
   con = React.createRef();
@@ -100,7 +112,46 @@ export default class FillWorksheet extends React.Component {
   sectionTab = React.createRef();
   cellObjs = {};
 
+  isSubmitDisabled = () => {
+    const { isPreview, status } = this.props;
+    const { formData = [] } = this.state;
+
+    return (
+      !formData.filter(c => controlState(c, 4).visible).length || status === FILL_STATUS.NOT_IN_FILL_TIME || isPreview
+    );
+  };
+
+  // Mac: Command+Enter，Windows: Ctrl+Enter。
+  // 邮箱、电话、证件号等控件的 onChange 有 300ms 防抖，只有失焦时才立即回写，所以先让当前输入框失焦，
+  // 再延时提交，避免刚输入的内容还没进表单数据就被提交。
+  handleHotkeyDown = e => {
+    if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey) || e.isComposing) {
+      return;
+    }
+
+    const { loading } = this.props;
+    const { submitLoading, submitBtnLoading } = this.state;
+
+    if (loading || submitBtnLoading || submitLoading || this.isSubmitDisabled()) {
+      return;
+    }
+
+    e.preventDefault();
+
+    const activeElement = document.activeElement;
+
+    if (activeElement && _.isFunction(activeElement.blur)) {
+      activeElement.blur();
+    }
+
+    this.hotkeySubmitTimer = setTimeout(() => this.handleSubmit(), 50);
+  };
+
   handleSubmit = () => {
+    if (this.state.submitLoading) {
+      return;
+    }
+
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   };
@@ -300,9 +351,12 @@ export default class FillWorksheet extends React.Component {
       extendDatas = {},
     } = publicWorksheetInfo;
     const request = getRequest();
-    const { header, submit, logo, title, description, footer } = request;
+    const { header, submit, submitbottom, logo, title, description, footer } = request;
+    // url 参数 submitbottom 直接指定提交按钮底部间距（px），未传或非法值时保留样式表默认值
+    const submitBottomMargin = /^\d+(\.\d+)?$/.test(submitbottom) ? Number(submitbottom) : undefined;
     const isFixedLeft = !browserIsMobile() && _.get(advancedSetting, 'tabposition') === '3';
     const isFixedRight = _.get(advancedSetting, 'tabposition') === '4';
+    const isMingdaoSaas = window.platformENV.isHap;
     const visibleHeaders = _.isUndefined(extendDatas.visibleHeaders)
       ? ['logo', 'title', 'description']
       : safeParse(extendDatas.visibleHeaders);
@@ -468,20 +522,17 @@ export default class FillWorksheet extends React.Component {
           )}
         </div>
         {!loading && !submitBtnLoading && (
-          <div className={cx('submitCon', { TxtLeft: submit === 'left', TxtRight: submit === 'right' })}>
+          <div
+            className={cx('submitCon', { TxtLeft: submit === 'left', TxtRight: submit === 'right' })}
+            style={{ marginBottom: submitBottomMargin }}
+          >
             <Button
+              type="primary"
               className="submitBtn"
-              disabled={
-                !formData.filter(c => controlState(c, 4).visible).length ||
-                status === FILL_STATUS.NOT_IN_FILL_TIME ||
-                isPreview
-              }
+              disabled={this.isSubmitDisabled()}
               loading={submitLoading}
               style={{
-                height: '40px',
-                lineHeight: '40px',
                 background: themeBgColor,
-                padding: 0,
                 color: !themeBgColor || new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
               }}
               onClick={this.handleSubmit}
@@ -490,30 +541,25 @@ export default class FillWorksheet extends React.Component {
             </Button>
           </div>
         )}
-
-        {!window.platformENV.isOverseas &&
-          !window.platformENV.isLocal &&
-          worksheetId &&
-          footer !== 'no' &&
-          window.top === window.self && (
-            <div className="mingdaoCon">
-              <PublicAppLangDropdown className="mRight16" appId={appId} projectId={projectId} placement="topLeft" />
-              {_l('由 %0 创建的表单', projectName || '')}
-              {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
-              {shareId && shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
-                <a
-                  className="mLeft16 nowrap"
-                  target="_blank"
-                  href={`/public/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
-                >
-                  {_l('举报')}
-                </a>
-              )}
-              <div className="Right nowrap">
-                <CreateByMingDaoYun mode={1} />
-              </div>
+        {isMingdaoSaas && worksheetId && footer !== 'no' && window.top === window.self && (
+          <div className="mingdaoCon">
+            <PublicAppLangDropdown className="mRight16" appId={appId} projectId={projectId} placement="topLeft" />
+            {_l('由 %0 创建的表单', projectName || '')}
+            {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
+            {shareId && shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
+              <a
+                className="mLeft16 nowrap"
+                target="_blank"
+                href={`/public/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
+              >
+                {_l('举报')}
+              </a>
+            )}
+            <div className="Right nowrap">
+              <CreateByMingDaoYun mode={1} />
             </div>
-          )}
+          </div>
+        )}
       </React.Fragment>
     );
   }

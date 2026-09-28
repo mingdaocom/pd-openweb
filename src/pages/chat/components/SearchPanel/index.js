@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import * as ajax from '../../utils/ajax';
+import Constant from '../../utils/constant';
 import Files from './Files';
 import Members from './Members';
 import Messages from './Messages';
 import './index.less';
 
-const formatMatchedTab = (res, isGroup) => {
+const formatMatchedTab = (res, isGroup, isFileTrsnsfer) => {
   const tab = [
     {
-      title: _l('聊天记录'),
+      title: isFileTrsnsfer ? _l('文字消息') : _l('聊天记录'),
       count: res.matchedMessageCount,
       type: 'message',
     },
@@ -58,12 +59,13 @@ export default class SearchPanel extends Component {
   }
   updateTabCount(searchText) {
     const { session } = this.props;
+    const isFileTrsnsfer = session.id === Constant.FILE_TRANSFER.id;
     const param = {
       keywords: searchText,
       [session.isGroup ? 'groupId' : 'withUser']: session.id,
     };
     ajax.getCountByTabName(param).then(result => {
-      result = formatMatchedTab(result, session.isGroup);
+      result = formatMatchedTab(result, session.isGroup, isFileTrsnsfer);
       this.setState({
         tab: result,
         tabIndex: 0,
@@ -102,7 +104,9 @@ export default class SearchPanel extends Component {
         {type === 'message' ? (
           <Messages onGotoMessage={this.props.onGotoMessage} session={session} searchText={searchText} />
         ) : undefined}
-        {type === 'file' ? <Files session={session} searchText={searchText} /> : undefined}
+        {type === 'file' ? (
+          <Files onGotoMessage={this.props.onGotoMessage} session={session} searchText={searchText} />
+        ) : undefined}
         {type === 'member' ? (
           <Members onOpenSession={this.props.onOpenSession} session={session} searchText={searchText} />
         ) : undefined}

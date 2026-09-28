@@ -1,56 +1,57 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { controlState } from 'src/utils/control';
+import { HAVE_VALUE_STYLE_WIDGET } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { getTitleStyle, isSheetDisplay } from 'src/utils/domain/control/style';
 import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
-import { HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
+import { isSameRenderValue } from '../../core/renderDataUtils';
 import { renderCount } from '../../core/utils';
 import { TITLE_SIZE_OPTIONS } from '../tools/config';
-import { getTitleStyle, isSheetDisplay } from '../tools/utils';
 
 const ControlLabel = styled.div`
-  ${({ displayRow, titlewidth_app = '100' }) => {
-    if (displayRow) {
-      return `width: ${titlewidth_app}px !important;`;
+  ${({ $displayRow, $titlewidth_app = '100' }) => {
+    if ($displayRow) {
+      return `width: ${$titlewidth_app}px !important;`;
     }
   }}
-  ${({ hasContent, displayRow, titlewidth_pc }) => {
-    if (displayRow && hasContent) {
-      return titlewidth_pc === '0' ? 'width: auto !important;padding-right: 10px;' : 'padding-right: 10px;';
+  ${({ $hasContent, $displayRow, $titlewidth_pc }) => {
+    if ($displayRow && $hasContent) {
+      return $titlewidth_pc === '0' ? 'width: auto !important;padding-right: 10px;' : 'padding-right: 10px;';
     }
   }}
-  ${({ displayRow }) => (displayRow ? 'padding-top: 6px !important;padding-bottom: 6px !important;' : '')}
-  line-height: ${({ valuesize }) => {
-    const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
+  ${({ $displayRow }) => ($displayRow ? 'padding-top: 6px !important;padding-bottom: 6px !important;' : '')}
+  line-height: ${({ $valuesize }) => {
+    const valueHeight = $valuesize !== '0' ? (parseInt($valuesize) - 1) * 2 + 40 : 36;
     return `${valueHeight - 12}px !important`;
-  }}
-  ${({ item, showTitle }) =>
-    item.type === 34 && showTitle ? 'margin-bottom: 6px;margin-top:20px;' : 'min-height: 0px !important;'}
-  ${({ withSearchInput, showTitle }) =>
-    withSearchInput && showTitle ? 'margin-bottom: 6px;margin-top:10px;' : 'min-height: 0px !important;'}
+  }};
+  ${({ $item, $showTitle }) =>
+    $item.type === 34 && $showTitle ? 'margin-bottom: 6px;margin-top:20px;' : 'min-height: 0px !important;'}
+  ${({ $withSearchInput, $showTitle }) =>
+    $withSearchInput && $showTitle ? 'margin-bottom: 6px;margin-top:10px;' : 'min-height: 0px !important;'}
   .controlLabelName {
-    ${({ displayRow, align_app = '1', showTitle }) => {
-      if (displayRow) {
-        return align_app === '1' ? 'text-align: left!important;' : 'text-align: right!important;flex: 1;';
+    ${({ $displayRow, $align_app = '1', $showTitle }) => {
+      if ($displayRow) {
+        return $align_app === '1' ? 'text-align: left!important;' : 'text-align: right!important;flex: 1;';
       } else {
-        if (!showTitle) {
+        if (!$showTitle) {
           return 'visibility: hidden;';
         }
       }
     }}
-    font-size: ${props => props.titleSize || '0.8em'}!important;
-    color: ${props => props.titleColor || 'var(--color-text-title)'};
-    ${props => props.titleStyle || ''};
+    font-size: ${props => props.$titleSize || '0.8em'}!important;
+    color: ${props => props.$titleColor || 'var(--color-text-title)'};
+    ${props => props.$titleStyle || ''};
   }
   .requiredBtnBox .customFormItemLoading {
-    line-height: ${({ valuesize }) => {
-      const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
+    line-height: ${({ $valuesize }) => {
+      const valueHeight = $valuesize !== '0' ? (parseInt($valuesize) - 1) * 2 + 40 : 36;
       return `${valueHeight - 12}px !important`;
     }};
   }
@@ -135,13 +136,35 @@ function FormErrorMessage({
   return errorNode;
 }
 
-export default ({
+const getCurrentErrorItem = ({ currentErrorItem, errorItems = [], uniqueErrorItems = [], item = {} }) =>
+  currentErrorItem || _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
+
+const getLoading = ({ loading, loadingItems = {}, item = {} }) =>
+  _.isUndefined(loading) ? loadingItems[item.controlId] : loading;
+
+const arePropsEqual = (prevProps, nextProps) => {
+  const prevError = getCurrentErrorItem(prevProps);
+  const nextError = getCurrentErrorItem(nextProps);
+  const keys = ['from', 'recordId', 'disabled', 'formDisabled', 'isFirstItem'];
+
+  return (
+    keys.every(key => Object.is(prevProps[key], nextProps[key])) &&
+    isSameRenderValue(prevProps.item, nextProps.item) &&
+    isSameRenderValue(prevProps.widgetStyle, nextProps.widgetStyle) &&
+    Object.is(getLoading(prevProps), getLoading(nextProps)) &&
+    isSameRenderValue(prevError, nextError)
+  );
+};
+
+const FormLabel = ({
   from,
   recordId,
   item,
-  errorItems,
-  uniqueErrorItems,
-  loadingItems,
+  currentErrorItem: currentErrorItemProp,
+  errorItems = [],
+  uniqueErrorItems = [],
+  loading,
+  loadingItems = {},
   widgetStyle = {},
   disabled,
   formDisabled,
@@ -171,7 +194,13 @@ export default ({
   const showDesc = hintShowAsIcon && item.desc && !_.includes([22, 10010], item.type);
   const showOtherIcon = item.type === 45 && allowlink === '1' && item.enumDefault === 1;
 
-  const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
+  const currentErrorItem = getCurrentErrorItem({
+    currentErrorItem: currentErrorItemProp,
+    errorItems,
+    uniqueErrorItems,
+    item,
+  });
+  const isLoading = getLoading({ loading, loadingItems, item });
   const errorText = currentErrorItem.errorText || '';
   const isEditable = (item.required && required === '1') || controlState(item, from).editable;
   const withSearchInput =
@@ -260,18 +289,20 @@ export default ({
       <ControlLabel
         ref={labelRef}
         className="customFormItemLabel"
-        disabled={disabled}
-        item={item}
-        showTitle={showTitle}
-        {..._.omit(widgetStyle, 'title')}
-        titleSize={titleSize}
-        titleStyle={titleStyle}
-        titleColor={titlecolor}
-        valuesize={_.includes(HAVE_VALUE_STYLE_WIDGET, item.type) ? valuesize : '0'}
-        hasContent={showDesc || showOtherIcon || showTitle}
-        withSearchInput={withSearchInput}
+        $item={item}
+        $showTitle={showTitle}
+        $displayRow={widgetStyle.displayRow}
+        $titlewidth_app={widgetStyle.titlewidth_app}
+        $titlewidth_pc={widgetStyle.titlewidth_pc}
+        $align_app={widgetStyle.align_app}
+        $titleSize={titleSize}
+        $titleStyle={titleStyle}
+        $titleColor={titlecolor}
+        $valuesize={_.includes(HAVE_VALUE_STYLE_WIDGET, item.type) ? valuesize : '0'}
+        $hasContent={showDesc || showOtherIcon || showTitle}
+        $withSearchInput={withSearchInput}
       >
-        {loadingItems[item.controlId] ? (
+        {isLoading ? (
           <div className="requiredBtnBox">
             <i className="icon-loading_button customFormItemLoading textTertiary" />
           </div>
@@ -321,3 +352,5 @@ export default ({
     </Fragment>
   );
 };
+
+export default memo(FormLabel, arePropsEqual);

@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import { browserIsMobile } from 'src/utils/common';
-import { getPssId } from 'src/utils/pssId';
+import { getPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { accountResultAction, setAutoLoginKey, statusList } from './util';
 
 const Wrap = styled.div`

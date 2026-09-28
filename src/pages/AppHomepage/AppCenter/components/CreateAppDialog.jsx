@@ -2,21 +2,13 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { generateAppOrWorksheetDescription } from 'src/utils/app';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
+import { generateAppOrWorksheetDescription } from 'src/utils/services/app';
+
+const REMARK_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 5 };
 
 const Wrapper = styled.div`
-  input,
-  textarea {
-    &::placeholder {
-      color: var(--color-text-tertiary);
-    }
-  }
-  .ming.Textarea {
-    padding: 5px 12px;
-    line-height: 24px;
-  }
   .withdraw,
   .active {
     padding: 2px 5px;
@@ -33,9 +25,6 @@ const Wrapper = styled.div`
     }
   }
   .error {
-    .ming.Textarea {
-      border-color: var(--color-error) !important;
-    }
     .TxtRight {
       color: var(--color-error);
     }
@@ -113,8 +102,10 @@ const CreateAppDialog = props => {
   const isError = _.get(appInfo, 'shortdesc.length') > remarkMaxLength;
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       title={_l('从空白创建应用')}
       okText={_l('创建')}
       width={540}
@@ -148,18 +139,16 @@ const CreateAppDialog = props => {
               className="w100"
               placeholder={_l('请输入')}
               value={appInfo.name}
-              onChange={name => setAppInfo(values => ({ ...values, name }))}
+              onChange={event => setAppInfo(values => ({ ...values, name: event.target.value }))}
             />
           </div>
         </div>
         <div>
           <div className="mBottom10 flexRow alignItemsCenter justifyContentBetween">
             <div className="flexRow alignItemsCenter">
-              <span>{_l('描述')}</span>
+              <span>{_l('备注')}</span>
               <Tooltip
-                title={_l(
-                  '用于概括应用的主要用途和业务定位，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
-                )}
+                title={_l('用于概括应用的主要用途和业务定位，便于AI正确理解和使用。备注内容不会直接展示给普通用户。')}
               >
                 <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
               </Tooltip>
@@ -167,22 +156,27 @@ const CreateAppDialog = props => {
             {!md.global.SysSettings.hideAIBasicFun && renderState()}
           </div>
           <div className={cx('w100', { error: isError })}>
-            <Textarea
+            <Input.TextArea
+              autoSize={REMARK_TEXTAREA_AUTO_SIZE}
               className="w100"
-              minHeight={36}
-              maxHeight={36 * 2}
               disabled={loading}
+              status={isError ? 'error' : undefined}
               placeholder={loading ? _l('AI 生成中...') : _l('例如: 跟进销售线索的客户管理系统')}
               value={appInfo.shortdesc}
-              onChange={shortdesc =>
-                setAppInfo(values => ({ ...values, sourceAi: undefined, shortdesc, lastShortdesc: shortdesc }))
+              onChange={event =>
+                setAppInfo(values => ({
+                  ...values,
+                  sourceAi: undefined,
+                  shortdesc: event.target.value,
+                  lastShortdesc: event.target.value,
+                }))
               }
             />
             <div className="TxtRight">{isError ? `${appInfo.shortdesc.length} / ${remarkMaxLength}` : ''}</div>
           </div>
         </div>
       </Wrapper>
-    </Dialog>
+    </Modal>
   );
 };
 

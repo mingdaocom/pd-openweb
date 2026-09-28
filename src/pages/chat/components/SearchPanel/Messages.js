@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { ScrollView } from 'ming-ui';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/core/string';
 import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
 
@@ -33,6 +33,8 @@ const highlightMessageText = (keyword, message) => {
 export default class Messages extends Component {
   constructor(props) {
     super(props);
+    this.requestId = 0;
+    this.isUnmounted = false;
     this.state = {
       loading: false,
       pageIndex: 1,
@@ -40,13 +42,20 @@ export default class Messages extends Component {
     };
   }
   componentDidMount() {
+    this.isUnmounted = false;
     const { searchText } = this.props;
     this.updateMessages(searchText);
+  }
+
+  componentWillUnmount() {
+    this.isUnmounted = true;
+    this.requestId += 1;
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.searchText !== prevProps.searchText) {
+        this.requestId += 1;
         this.setState(
           {
             loading: false,
@@ -69,6 +78,7 @@ export default class Messages extends Component {
       return;
     }
 
+    const requestId = ++this.requestId;
     this.setState({
       loading: true,
     });
@@ -80,12 +90,19 @@ export default class Messages extends Component {
         keyword: searchText,
       })
       .then(res => {
+        if (this.isUnmounted || requestId !== this.requestId) return;
+
         // res = res.reverse();
         this.setState({
           pageIndex: res && res.length >= 10 ? pageIndex + 1 : 0,
           loading: false,
           messages: format(searchText, messages.concat(res || [])),
         });
+      })
+      .catch(() => {
+        if (this.isUnmounted || requestId !== this.requestId) return;
+
+        this.setState({ loading: false });
       });
   }
   handleScrollEnd() {

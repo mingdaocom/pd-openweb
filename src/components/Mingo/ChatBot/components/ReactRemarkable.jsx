@@ -1,12 +1,12 @@
 import React, { lazy, Suspense, useMemo, useState } from 'react';
-import Remarkable from 'remarkable';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import cx from 'classnames';
 import { get } from 'lodash';
+import Remarkable from 'ming-ui/components/Remarkable';
 import MarkdownWithCSS from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/MarkdownWithCSS';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import 'prismjs/themes/prism.css';
 
 const LoadableMobileRecordInfoWrap = lazy(() => import('src/pages/Mobile/Record/MobileRecordInfoWrap'));
@@ -45,14 +45,22 @@ function sanitizeMdTagChunk(chunk) {
   return chunk;
 }
 
-export default function ({ className, isStreaming, style = {}, markdown, renderCustomBlock }) {
+export default function ({ className, isStreaming, style = {}, markdown, renderCustomBlock, appId, isCharge }) {
   markdown = typeof markdown === 'string' ? markdown : mergeContent(markdown);
   const [{ recordId, worksheetId }, setMobileRowInfo] = useState({});
-  markdown = markdown.replace('<FINAL_ANSWER>', '').replace('</FINAL_ANSWER>', '');
+  // 工作阶段结束标记：<workEnd />（新）与 <FINAL_ANSWER>…</FINAL_ANSWER>（旧，待废弃）均剔除，仅保留正文
+  markdown = markdown
+    .replace('<FINAL_ANSWER>', '')
+    .replace('</FINAL_ANSWER>', '')
+    .replace(/<workEnd\b[^>]*>/gi, '');
 
   if (isStreaming) {
     markdown = sanitizeMdTagChunk(markdown);
-    markdown = markdown.replace(/<\/?(?:F(?:I(?:N(?:A(?:L(?:_(?:A(?:N(?:S(?:W(?:E(?:R)?)?)?)?)?)?)?)?)?)?)?)?$/, '');
+    markdown = markdown
+      .replace(/<\/?(?:F(?:I(?:N(?:A(?:L(?:_(?:A(?:N(?:S(?:W(?:E(?:R)?)?)?)?)?)?)?)?)?)?)?)?$/, '')
+      // 末尾未闭合的 <workEnd（含 <workEnd 属性… 但还没到 >）及正在拼写标签名的前缀 <w…<workEnd
+      .replace(/<workEnd\b[^>]*$/i, '')
+      .replace(/<w(?:o(?:r(?:k(?:E(?:n(?:d)?)?)?)?)?)?$/i, '');
   } // 使用 remarkable 的原生渲染，只自定义代码块处理
 
   const content = useMemo(() => {
@@ -166,10 +174,15 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
           worksheetId,
         });
       } else {
-        import('worksheet/common/recordInfo').then(({ openRecordInfo }) => {
-          openRecordInfo({
+        import('worksheet/common/recordInfo').then(({ openGlobalRecordInfo }) => {
+          openGlobalRecordInfo({
+            appId,
+            isCharge,
             worksheetId: worksheetId,
             recordId: recordId,
+            // 聊天正文里的记录链接没有列表上下文，记录被删或已移出视图时保持弹层并展示异常态，
+            // 不要像列表打开那样直接关掉，否则用户点开后弹层会凭空消失
+            disableAutoClose: true,
           });
         });
       }
@@ -199,6 +212,8 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
           <LoadableMobileRecordInfoWrap
             className="full"
             visible={!!recordId}
+            appId={appId}
+            isCharge={isCharge}
             worksheetId={worksheetId}
             rowId={recordId}
             updateMobileInfo={data => setMobileRowInfo(data)}

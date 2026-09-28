@@ -1,19 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActionSheet } from 'antd-mobile';
-import { get } from 'lodash';
+import { get, sampleSize } from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
 import { AgentBusProvider } from 'src/components/Agent/agentBus';
-import { mapAttachmentForRequest, readField, stringValue } from 'src/components/Agent/agentService';
+import { HELP_AGENT_NAME, mapAttachmentForRequest } from 'src/components/Agent/agentService';
 import { claimAnonymousSession, peekAnonHandoff } from 'src/components/Agent/anonymous';
 import ChatPanel from 'src/components/Agent/ChatPanel';
+import { readField, stringValue } from 'src/components/Agent/valueUtils';
 import { useDailyBuildSuggestions } from 'src/components/Mingo/ChatBot/components/buildRecommender';
 import { TRY_TRY_LIST } from 'src/components/Mingo/ChatBot/components/tryTryList';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { compatibleMDJS } from 'src/utils/services/project';
 import Header from './components/Header';
+import MobileMingoPromptInput from './components/MobileMingoPromptInput';
 import OverviewPopup, { OverviewController } from './components/OverviewPopup';
 import SessionHistory from './components/SessionHistory';
 import Welcome from './components/Welcome';
-import Wrapper, { MobileMingoGlobalStyle } from './core/style';
+import Wrapper, { AiGeneratedNotice, MobileMingoGlobalStyle } from './core/style';
 import {
   getDefaultProject,
   getEntryHandoffKey,
@@ -21,8 +24,9 @@ import {
   isAnonymousCreateAppRoute,
   isCreateAppRoute,
   isEntryCreateAppRoute,
+  isHelpRoute,
   pickRandom,
-  syncCreateAppProjectFromUrl,
+  syncMingoProjectFromUrl,
 } from './core/utils';
 
 function clearInitialPayload() {
@@ -68,9 +72,15 @@ export default function Mingo() {
   const promptInputRef = useRef(null);
   const overviewFilesRef = useRef({});
   const anonymousProjectSheetOpenedRef = useRef(false);
-  const isBuildAppMode = isCreateAppRoute();
+  // 帮助（智能客服）异化形态：/embed/mingo/help，供 native 客户端内嵌。与搭建态互斥。
+  // 钉 help-agent、无组织切换 / 无搭建推荐 / 无总览、无附件与分享，输入框上方提供「帮助文档 + 人工客服」。
+  // 与站内帮助抽屉（components/Mingo/HelpAgentChat）的差别：那边是按人记录会话 id 的单会话续接，
+  // 这里每次进入都是新对话——不带 initialSessionId（由 ChatPanel 自生成会话 id）、永远先落帮助首页，
+  // 且 rememberHelpSession=false 不参与本地会话记录，避免污染站内抽屉的进面板分流。
+  const helpMode = isHelpRoute();
+  const isBuildAppMode = !helpMode && isCreateAppRoute();
   const [initialRoute] = useState(() => ({
-    sessionId: getInitialSessionId(),
+    sessionId: helpMode ? '' : getInitialSessionId(),
     isAnonymousSession: isAnonymousCreateAppRoute(),
     isEntrySession: isEntryCreateAppRoute(),
     entryHandoffKey: getEntryHandoffKey(),
@@ -82,21 +92,28 @@ export default function Mingo() {
     return {
       // 试一试第三条 TryTry：随机取一条（挂载内稳定，与桌面一致）
       tryQuestion: get(pickRandom(TRY_TRY_LIST), 'text') || get(TRY_TRY_LIST, '[0].text'),
+      // 帮助态整列都是 TryTry 帮助问题：随机取 3 条不重复（对齐桌面帮助模式 buildTrySamples）
+      helpQuestions: sampleSize(TRY_TRY_LIST, 3).map(item => get(item, 'text') || ''),
     };
   });
   const [project, setProject] = useState(() => {
-    syncCreateAppProjectFromUrl();
+    syncMingoProjectFromUrl();
     return getDefaultProject();
   });
   // 个性化「待搭建应用」推荐：nextSuggestion 顺延 1 条（welcome 单条）、randomSamples 返回全量推荐（搭建态取前 3）；
   // 就绪前由 Welcome 骨架占位（不再回退静态样例以免闪动）；仅内存缓存（刷新页面才重拉），移动端与桌面同源。
-  const { nextSuggestion: buildReco, randomSamples: buildRandomSamples } = useDailyBuildSuggestions(project.projectId);
+  // 帮助态不取搭建推荐（projectId 传空即跳过请求），首页整列固定为帮助问题
+  const { nextSuggestion: buildReco, randomSamples: buildRandomSamples } = useDailyBuildSuggestions(
+    helpMode ? '' : project.projectId,
+  );
   const [draft, setDraft] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [wideHistoryLayout, setWideHistoryLayout] = useState(isWideHistoryLayout);
   const [activeHistorySessionId, setActiveHistorySessionId] = useState(initialSessionId);
   const [isChatting, setIsChatting] = useState(() => {
+    // 帮助态每次进入（含刷新）都是新对话：永远先落帮助首页
+    if (helpMode) return false;
     if (isAnonymousSession) return true;
     if (isEntrySession) return true;
     if (initialSessionId) {
@@ -115,9 +132,24 @@ export default function Mingo() {
   const [overviewReady, setOverviewReady] = useState(false);
   const [overviewGenerating, setOverviewGenerating] = useState(false);
   const [overviewFilesVersion, setOverviewFilesVersion] = useState(0);
+  const [safeAreaBottom, setSafeAreaBottom] = useState(0);
   const handleOverviewFilesChange = useCallback(() => {
     setOverviewFilesVersion(version => version + 1);
   }, []);
+
+  const syncLastMingoId = useCallback(
+    mingoId => {
+      if (!window.isMingDaoApp || helpMode || isBuildAppMode) return;
+      compatibleMDJS('updateLastMingoId', { mingoId: mingoId || '' });
+    },
+    [helpMode, isBuildAppMode],
+  );
+
+  // 帮助态每次进入都是新对话：清掉可能由别处（如 /mobile/mingo）遗留、尚未被 Agent 消费的交接载荷，
+  // 避免首次进对话时被恢复成旧会话。此时还在帮助首页，ChatPanel 尚未挂载，清理不会打断在途交接。
+  useEffect(() => {
+    if (helpMode) clearInitialPayload();
+  }, [helpMode]);
 
   useEffect(() => {
     document.documentElement.classList.add('mobileMingoPage');
@@ -126,6 +158,24 @@ export default function Mingo() {
     return () => {
       document.documentElement.classList.remove('mobileMingoPage');
       document.body.classList.remove('mobileMingoPage');
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    compatibleMDJS('getSafeAreaInsets', {
+      success: res => {
+        if (!mounted) return;
+        const bottom = Number(res?.bottom);
+        setSafeAreaBottom(Number.isFinite(bottom) ? Math.max(bottom, 0) : 0);
+      },
+      fail: () => {
+        if (mounted) setSafeAreaBottom(0);
+      },
+    });
+
+    return () => {
+      mounted = false;
     };
   }, []);
 
@@ -157,6 +207,29 @@ export default function Mingo() {
     setProject(selectedProject);
     return projectId;
   }, []);
+
+  const handleProjectSelectorOpen = useCallback(() => {
+    if (!window.isMingDaoApp || !window.MDJS?.chooseProject) return true;
+
+    compatibleMDJS('chooseProject', {
+      current: project.projectId,
+      success: res => {
+        const projectId = get(res, 'projectId');
+        if (!projectId) return;
+
+        const projects = get(md, 'global.Account.projects', []) || [];
+        const selectedProject = projects.find(item => item.projectId === projectId) || {
+          projectId,
+          companyName: get(res, 'projectName', ''),
+        };
+
+        selectProject(selectedProject);
+      },
+      cancel: () => {},
+    });
+
+    return false;
+  }, [project.projectId, selectProject]);
 
   const showProjectSheet = useCallback(
     ({ projects: sheetProjects, title, onSelect, onClose } = {}) => {
@@ -382,6 +455,7 @@ export default function Mingo() {
 
   const resetToHome = () => {
     clearInitialPayload();
+    syncLastMingoId('');
     setInitialSessionAutoOpenOverview(false);
     setDraft('');
     setAttachments([]);
@@ -395,6 +469,10 @@ export default function Mingo() {
     setOverviewReady(false);
     setOverviewGenerating(false);
     overviewFilesRef.current = {};
+  };
+
+  const handleHistorySessionDeleted = sessionId => {
+    if (sessionId === activeHistorySessionId) resetToHome();
   };
 
   const startAgent = ({ text, mentions, sessionId, autoOpenOverview = false } = {}) => {
@@ -430,31 +508,33 @@ export default function Mingo() {
     text,
     onClick: item => startAgent({ text: item.text }),
   }));
-  const tryItems = isBuildAppMode
+  const helpTryItems = initialBuildSamples.helpQuestions.map(text => ({
+    text,
+    onClick: item => startAgent({ text: item.text }),
+  }));
+  const normalTryItems = isBuildAppMode
     ? buildAppTryItems
     : [
         {
           title: _l('提问'),
           text: _l('@ 一个应用开始提问'),
-          isNew: true,
           onClick: () => promptInputRef.current?.insertAt(),
         },
         {
           title: _l('搭建'),
           // 直接用 agent 顺延推荐，就绪前整列走骨架（见下方 loading），不再先显示静态值再切动态值（避免闪动）
           text: buildReco,
-          isNew: true,
           onClick: item => startAgent({ text: item.text }),
         },
         { title: _l('帮助'), text: initialBuildSamples.tryQuestion, onClick: item => startAgent({ text: item.text }) },
       ];
+  const tryItems = helpMode ? helpTryItems : normalTryItems;
+  const showAiGeneratedNotice = window.isMingDaoApp && window.isAndroid;
   const chatRuntime = {
-    promptInputClassName: 'mobileMingoPromptInput mobileMingoWelcomeInput',
-    promptAttachmentButtonClassName: 'mobileMingoAttachmentButton',
-    promptAttachmentButtonIcon: 'plus',
-    promptMentionButtonIcon: 'widgets',
-    promptMentionButtonText: _l('选择应用'),
-    promptPlaceholder: _l('发消息...'),
+    promptInputComponent: MobileMingoPromptInput,
+    enableAttachmentAppPicker: !isBuildAppMode && !helpMode,
+    promptPlaceholder: _l('提问或描述应用需求'),
+    ...(!isBuildAppMode && !helpMode ? { onSessionActive: syncLastMingoId } : {}),
     ...(isBuildAppMode
       ? {
           enableMention: false,
@@ -464,17 +544,33 @@ export default function Mingo() {
           initialSessionId: entrySessionId || undefined,
         }
       : {}),
+    // 帮助态：钉 help-agent；不传 initialSessionId 即每次都是新会话，
+    // 也不走「恢复上次通用会话」的 localStorage 逻辑（disableSessionRestore）
+    ...(helpMode
+      ? {
+          agentName: HELP_AGENT_NAME,
+          helpMode: true,
+          enableMention: false,
+          // 嵌入页不提供附件与会话分享
+          enableAttachment: false,
+          enableShare: false,
+          rememberHelpSession: false,
+          disableSessionRestore: true,
+          promptPlaceholder: _l('有什么可以帮助您'),
+        }
+      : {}),
   };
 
   return (
-    <Wrapper>
-      <MobileMingoGlobalStyle />
+    <Wrapper $safeAreaBottom={safeAreaBottom} $showAiGeneratedNotice={showAiGeneratedNotice}>
+      <MobileMingoGlobalStyle $embeddedInApp={window.isMingDaoApp} />
       <div className="mobileMingoBody">
-        {wideHistoryLayout && (
+        {!helpMode && wideHistoryLayout && (
           <div className="historyAside">
             <SessionHistory
               inline
               currentSessionId={activeHistorySessionId}
+              onDeleted={handleHistorySessionDeleted}
               onSelect={session => {
                 if (!session?.sessionId) return;
                 startAgent({ sessionId: session.sessionId });
@@ -483,40 +579,55 @@ export default function Mingo() {
           </div>
         )}
         <div className="mobileMingoMain">
-          <Header
-            isChatting={isChatting}
-            disableProjectSelect={isBuildAppMode}
-            onOpenHistory={() => setHistoryVisible(true)}
-            onFocusInput={isChatting ? resetToHome : () => promptInputRef.current?.focus()}
-            onProjectChange={() => setProject(getDefaultProject())}
-          />
+          {/* 帮助态是单会话模型：不提供新对话 / 历史入口，也不接管 APP 导航栏（嵌入方自带标题栏） */}
+          {!helpMode && (
+            <Header
+              isChatting={isChatting}
+              historyVisible={historyVisible}
+              onOpenHistory={() => setHistoryVisible(true)}
+              onCloseHistory={() => setHistoryVisible(false)}
+              onFocusInput={
+                isChatting
+                  ? resetToHome
+                  : () => {
+                      syncLastMingoId('');
+                      promptInputRef.current?.focus();
+                    }
+              }
+            />
+          )}
           {isChatting ? (
             <div className="agentContent">
               {bootstrappingSession ? (
                 <LoadDiv className="mTop10" />
               ) : (
                 <AgentBusProvider key={agentKey}>
-                  <OverviewController
-                    filesRef={overviewFilesRef}
-                    setOverviewContent={setOverviewContent}
-                    setOverviewReady={setOverviewReady}
-                    setOverviewVisible={setOverviewVisible}
-                    onFilesChange={handleOverviewFilesChange}
-                  />
+                  {/* 帮助态不搭建应用，无方案总览 */}
+                  {!helpMode && (
+                    <OverviewController
+                      filesRef={overviewFilesRef}
+                      setOverviewContent={setOverviewContent}
+                      setOverviewReady={setOverviewReady}
+                      setOverviewVisible={setOverviewVisible}
+                      onFilesChange={handleOverviewFilesChange}
+                    />
+                  )}
                   <ChatPanel runtime={chatRuntime} />
-                  <OverviewPopup
-                    visible={overviewVisible}
-                    content={overviewContent}
-                    ready={overviewReady}
-                    generating={overviewGenerating}
-                    filesRef={overviewFilesRef}
-                    filesVersion={overviewFilesVersion}
-                    onClose={() => setOverviewVisible(false)}
-                    onGenerateStart={() => {
-                      setOverviewGenerating(true);
-                      setOverviewVisible(false);
-                    }}
-                  />
+                  {!helpMode && (
+                    <OverviewPopup
+                      visible={overviewVisible}
+                      content={overviewContent}
+                      ready={overviewReady}
+                      generating={overviewGenerating}
+                      filesRef={overviewFilesRef}
+                      filesVersion={overviewFilesVersion}
+                      onClose={() => setOverviewVisible(false)}
+                      onGenerateStart={() => {
+                        setOverviewGenerating(true);
+                        setOverviewVisible(false);
+                      }}
+                    />
+                  )}
                 </AgentBusProvider>
               )}
             </div>
@@ -529,21 +640,31 @@ export default function Mingo() {
               tryItems={tryItems}
               // 推荐就绪前（含初始 idle）整列走骨架，三项一起占位 → 一起出现，避免静态/空态闪动、也不会只单独刷第二项。
               // buildReco（nextSuggestion）与 randomSamples 同步赋值，两端模式都能用它判断是否就绪。
-              loading={!buildReco}
-              placeholder={isBuildAppMode ? _l('告诉我您希望搭建什么样的应用？') : undefined}
-              enableMention={!isBuildAppMode}
+              // 帮助态整列是本地帮助问题、不等接口，恒不走骨架。
+              loading={!helpMode && !buildReco}
+              placeholder={
+                helpMode ? _l('有什么可以帮助您') : isBuildAppMode ? _l('告诉我您希望搭建什么样的应用？') : undefined
+              }
+              enableMention={!isBuildAppMode && !helpMode}
               buildMode={isBuildAppMode}
+              helpMode={helpMode}
               onDraftChange={setDraft}
               onSubmit={(text, mentions) => startAgent({ text, mentions })}
               onAttachmentsChange={setAttachments}
+              onProjectChange={() => setProject(getDefaultProject())}
+              onProjectSelectorOpen={handleProjectSelectorOpen}
             />
           )}
         </div>
       </div>
+      {showAiGeneratedNotice && (
+        <AiGeneratedNotice $safeAreaBottom={safeAreaBottom}>{_l('内容由AI生成')}</AiGeneratedNotice>
+      )}
       {historyVisible && !wideHistoryLayout && (
         <SessionHistory
           currentSessionId={activeHistorySessionId}
           onClose={() => setHistoryVisible(false)}
+          onDeleted={handleHistorySessionDeleted}
           onSelect={session => {
             if (!session?.sessionId) return;
             setHistoryVisible(false);

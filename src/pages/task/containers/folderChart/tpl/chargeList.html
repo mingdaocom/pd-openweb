@@ -5,9 +5,11 @@
     <ul class="folderChartChargeLists">
         {{~it:list}}
         <li>
-            <img src="{{=list.avatar}}" />
+            <img src="{{!list.avatar}}" />
             {{!list.fullName}}
-            <span class="folderChartSelectBtn folderChartSelect pointer" data-id="{{=list.accountID}}"><i class="icon-ok"></i></span>
+            <span class="folderChartSelectBtn folderChartSelect pointer" data-id="{{!list.accountID}}"
+                ><i class="icon-ok"></i
+            ></span>
         </li>
         {{~}}
     </ul>

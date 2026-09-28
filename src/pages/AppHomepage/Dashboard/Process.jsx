@@ -4,6 +4,7 @@ import _ from 'lodash';
 import todoEmpty from 'staticfiles/images/todolist.png';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import { getStateParam, TABS } from 'src/pages/workflow/MyProcess/config';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
@@ -90,9 +91,9 @@ const TodoTabList = styled.div`
     }
     &.isCur {
       font-weight: bold;
-      color: ${({ themeColor }) => themeColor};
+      color: ${({ $themeColor }) => $themeColor};
       &::after {
-        background-color: ${({ themeColor }) => themeColor};
+        background-color: ${({ $themeColor }) => $themeColor};
       }
       &:hover {
         background: var(--color-background-hover) !important;
@@ -182,10 +183,10 @@ const DataListWrapper = styled.div`
     border-radius: 3px;
     margin-top: 16px;
     cursor: pointer;
-    color: ${({ themeColor }) => themeColor};
-    background: ${({ btnColor }) => btnColor};
+    color: ${({ $themeColor }) => $themeColor};
+    background: ${({ $btnColor }) => $btnColor};
     &:hover {
-      background: ${({ hoverColor }) => hoverColor};
+      background: ${({ $hoverColor }) => $hoverColor};
     }
   }
 `;
@@ -259,6 +260,24 @@ export default function Process(props) {
   const [todoList, setTodoList] = useState([]);
   const [selectProcess, setSelectProcess] = useState(null);
   const [showViewAll, setShowViewAll] = useState(false);
+
+  useEffect(() => {
+    const socket = window.IM?.socket;
+    if (!socket) return;
+
+    const handleNewNotify = (message = {}) => {
+      if (message.dtype === 7) {
+        getTodoCount().then(data => updateCountData(data));
+      }
+    };
+
+    socket.on('new notify', handleNewNotify);
+
+    return () => {
+      socket.off('new notify', handleNewNotify);
+    };
+  }, [updateCountData]);
+
   useEffect(() => {
     todoDisplay === 1 && fetchTodoList();
 
@@ -314,7 +333,7 @@ export default function Process(props) {
   const renderTodoList = () => {
     return (
       <React.Fragment>
-        <TodoTabList themeColor={dashboardColor.themeColor}>
+        <TodoTabList $themeColor={dashboardColor.themeColor}>
           {processList
             .filter(item => item.key !== 'finished')
             .map((item, index) => {
@@ -370,9 +389,9 @@ export default function Process(props) {
 
         {!todoLoading && !!todoList.length && (
           <DataListWrapper
-            themeColor={dashboardColor.themeColor}
-            btnColor={dashboardColor.activeColor}
-            hoverColor={dashboardColor.hoverColor}
+            $themeColor={dashboardColor.themeColor}
+            $btnColor={dashboardColor.activeColor}
+            $hoverColor={dashboardColor.hoverColor}
             className={cx({
               displayComplete,
             })}
@@ -508,9 +527,19 @@ export default function Process(props) {
                       })
                     }
                   >
-                    <div className="countText">
-                      {item.key !== 'finished' ? countData[item.key] || 0 : <Icon icon="event_available" />}
-                    </div>
+                    <Tooltip title={countData[item.key] > 1000 ? countData[item.key] : null}>
+                      <div className="countText">
+                        {item.key !== 'finished' ? (
+                          countData[item.key] > 1000 ? (
+                            '999+'
+                          ) : (
+                            countData[item.key] || 0
+                          )
+                        ) : (
+                          <Icon icon="event_available" />
+                        )}
+                      </div>
+                    </Tooltip>
                     <div className="Font15 mBottom16">{item.text}</div>
                   </div>
                 </React.Fragment>

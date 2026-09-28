@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tabs } from 'ming-ui';
-import { useGlobalStore } from 'src/common/GlobalStore';
-import { navigateTo } from 'src/router/navigateTo';
-import { toEditWidgetPage } from '../../pages/widgetConfig/util';
+import { Button, Tabs } from 'ming-ui/antd-components';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import './index.less';
 
 /**
@@ -107,22 +107,24 @@ class WorksheetConfigHeaderComponent extends Component {
           {!mingoCreateWorksheetAction && (
             <Tabs
               className="tabs"
-              active={this.currentModuleName}
-              tabs={[
-                { value: 'field', text: _l('编辑表单') },
-                { value: 'formSet', text: _l('更多设置') },
-                { value: 'form', text: _l('扩展功能') },
+              centered
+              animated={false}
+              activeKey={this.currentModuleName}
+              items={[
+                { key: 'field', label: _l('编辑表单') },
+                { key: 'formSet', label: _l('更多设置') },
+                { key: 'form', label: _l('扩展功能') },
               ]}
-              onChange={tab => {
-                this.handleRedirect(tab.value);
+              onChange={key => {
+                this.handleRedirect(key);
               }}
             />
           )}
-          <Button className="closeConfigPage" onClick={onClose}>
+          <Button color="default" variant="filled" wide className="closeConfigPage mRight10" onClick={onClose}>
             {_l('关闭')}
           </Button>
           {showSaveButton && (
-            <Button onClick={onSave} className="btn-loading saveConfigPage" loading={saveLoading}>
+            <Button type="primary" onClick={onSave} wide className="saveConfigPage" loading={saveLoading}>
               {_l('保存')}
             </Button>
           )}

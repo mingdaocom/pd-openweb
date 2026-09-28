@@ -1,18 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
 import { getIcons } from 'src/pages/workflow/WorkflowSettings/utils.js';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
-import { pathCompletion } from 'src/utils/common';
-import { getWidgetInfo, toEditWidgetPage } from '../../../util';
+import { getWidgetInfo } from 'src/utils/domain/control/metadata';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { REFERENCE_TYPE } from './config';
 import { ExtraTime } from './styled';
-
-const { Panel } = Collapse;
 
 const renderHeader = l => {
   return (
@@ -124,23 +122,20 @@ export const WorksheetField = props => {
   if (appType === 'total') {
     return (
       <SettingCollapseWrap
-        contentBg="var(--color-background-secondary)"
-        headerPadding={12}
+        $contentBg="var(--color-background-secondary)"
+        $headerPadding={12}
         bordered={false}
         activeKey={expandKeys}
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+        items={groupList.map(l => ({
+          key: l.appId,
+          label: renderHeader(l),
+          children: renderItem(l),
+        }))}
         onChange={value => {
           setExpandKeys(value);
         }}
-      >
-        {groupList.map(l => {
-          return (
-            <Panel header={renderHeader(l)} key={l.appId}>
-              {renderItem(l)}
-            </Panel>
-          );
-        })}
-      </SettingCollapseWrap>
+      />
     );
   }
 
@@ -195,7 +190,7 @@ export const WorksheetWorkflow = props => {
     return (
       <ExtraTime
         className="pointer"
-        isLoading={workflowLoadings[item.appId]}
+        $isLoading={workflowLoadings[item.appId]}
         onClick={e => {
           e.stopPropagation();
           refreshItemWorkflowReference(item);
@@ -211,22 +206,20 @@ export const WorksheetWorkflow = props => {
     return (
       <SettingCollapseWrap
         bordered={false}
-        headerPadding={12}
-        contentBg="var(--color-background-secondary)"
+        $headerPadding={12}
+        $contentBg="var(--color-background-secondary)"
         activeKey={expandKeys}
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+        items={list.map(l => ({
+          key: l.appId,
+          label: renderHeader(l),
+          extra: renderExtra(l),
+          children: renderWorkflowItem(l),
+        }))}
         onChange={value => {
           setExpandKeys(value);
         }}
-      >
-        {list.map(l => {
-          return (
-            <Panel header={renderHeader(l)} key={l.appId} extra={renderExtra(l)}>
-              {renderWorkflowItem(l)}
-            </Panel>
-          );
-        })}
-      </SettingCollapseWrap>
+      />
     );
   }
 
@@ -258,28 +251,25 @@ export const WorksheetRules = props => {
   const [expandKeys, setExpandKeys] = useState([]);
 
   useEffect(() => {
-    setExpandKeys(list.map(i => i.disabled));
+    setExpandKeys(list.map(i => String(i.disabled)));
   }, [loading]);
 
   return (
     <SettingCollapseWrap
       bordered={false}
-      headerPadding={12}
-      contentBg="var(--color-background-secondary)"
+      $headerPadding={12}
+      $contentBg="var(--color-background-secondary)"
       activeKey={expandKeys}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+      items={list.map(l => ({
+        key: String(l.disabled),
+        label: l.disabled ? _l('关闭') : _l('开启'),
+        children: renderRuleItem(l),
+      }))}
       onChange={value => {
         setExpandKeys(value);
       }}
-    >
-      {list.map(l => {
-        return (
-          <Panel header={l.disabled ? _l('关闭') : _l('开启')} key={l.disabled}>
-            {renderRuleItem(l)}
-          </Panel>
-        );
-      })}
-    </SettingCollapseWrap>
+    />
   );
 };
 
@@ -325,22 +315,19 @@ export const WorksheetView = props => {
     return (
       <SettingCollapseWrap
         bordered={false}
-        headerPadding={12}
-        contentBg="var(--color-background-secondary)"
+        $headerPadding={12}
+        $contentBg="var(--color-background-secondary)"
         activeKey={expandKeys}
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+        items={list.map(l => ({
+          key: l.appId,
+          label: renderHeader(l),
+          children: renderItem(l),
+        }))}
         onChange={value => {
           setExpandKeys(value);
         }}
-      >
-        {list.map(l => {
-          return (
-            <Panel header={renderHeader(l)} key={l.appId}>
-              {renderItem(l)}
-            </Panel>
-          );
-        })}
-      </SettingCollapseWrap>
+      />
     );
   }
 

@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ConfigProvider, Input, Spin, Table } from 'antd';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { ConfigProvider, Input, Modal, Spin } from 'ming-ui/antd-components';
 import groupController from 'src/api/group';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
 import Config from '../../config';
@@ -114,9 +114,9 @@ export default class MemberList extends Component {
   }
 
   handleSet = id => {
-    Confirm({
+    Modal.confirm({
       title: _l('设置管理员'),
-      description: _l('确认将所选择人员设置为管理员?'),
+      content: _l('确认将所选择人员设置为管理员?'),
       onOk: () => {
         groupController
           .addAdmin({
@@ -134,9 +134,9 @@ export default class MemberList extends Component {
   };
 
   handleDelete(id, name) {
-    Confirm({
-      title: _l('移除管理员'),
-      description: _l('确认移除%0的管理员权限？', name),
+    Modal.confirm({
+      title: <span className="textError">{_l('移除管理员')}</span>,
+      content: _l('确认移除%0的管理员权限？', name),
       onOk: () => {
         groupController
           .removeAdmin({

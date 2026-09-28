@@ -16,12 +16,28 @@
     left: 50%;
     margin-left: -170px;
     font-size: 14px;
-    div {
-      padding: 0 20px;
-      &::after {
-        left: 0px;
-        right: 0px;
+    line-height: normal;
+
+    .hap-tabs-nav {
+      height: 50px;
+      margin: 0;
+      &::before {
+        border-bottom: 0;
       }
+    }
+    .hap-tabs-tab {
+      height: 50px;
+      margin: 0;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+    .hap-tabs-ink-bar {
+      height: 3px;
     }
   }
 
@@ -73,15 +89,6 @@
     color: var(--color-text-placeholder) !important;
   }
 
-  .closeConfigPage.Button {
-    margin-right: 10px;
-    color: var(--color-text-tertiary);
-    background: var(--color-background-secondary);
-    transition: all 0.25s;
-    &:hover {
-      background: var(--color-border-secondary);
-    }
-  }
   .customSave {
     color: var(--color-white);
     border-radius: 3px;

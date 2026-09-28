@@ -2,13 +2,15 @@ import _ from 'lodash';
 import reportRequestAjax from '../api/report';
 import reportConfigAjax from '../api/reportConfig';
 import worksheetAjax from 'src/api/worksheet';
-import { reportTypes } from 'statistics/Charts/common';
-import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { getTranslateInfo } from 'src/utils/app';
-import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { isAreaControl, isNumberControl, isTimeControl } from '../common/controlUtils';
 import {
   filterAreaParticleSizeDropdownData,

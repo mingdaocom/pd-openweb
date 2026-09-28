@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
-import { Button, ConfigProvider, Modal, Radio } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
-import { getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
+import { Button, Modal, Radio } from 'ming-ui/antd-components';
 import { getIsAlienationColor } from 'statistics/common/reportDataUtils';
 import store from 'src/redux/configureStore';
-import { pathCompletion } from 'src/utils/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getProjectChartColors } from 'src/utils/services/project';
 import './BaseColor.less';
 
 export default class BaseColor extends Component {
   constructor(props) {
     super(props);
     const { projectId } = props;
-    const chartColors = getPorjectChartColors(projectId);
+    const chartColors = getProjectChartColors(projectId);
     const { style, xaxes = {}, split = {}, reportType } = props.currentReport;
     const isBarChart = reportType === reportTypes.BarChart;
     const { colorType, colorGroupIndex, colorGroupId, customColors } = style ? style : {};
     const defaultColors = chartColors[0].colors;
     const defaultCustomColors = defaultColors.map(() => defaultColors[0]);
-    const storeCustomColors = JSON.parse(localStorage.getItem('chartCustomColors'));
+    const storeCustomColors = safeParse(localStorage.getItem('chartCustomColors'), 'array');
     const xaxesOptions = (xaxes.options || []).map(item => item.color);
     const splitOptions = (split.options || []).map(item => item.color);
     const controlColors = splitOptions.length ? splitOptions : xaxesOptions;
@@ -33,7 +34,7 @@ export default class BaseColor extends Component {
       colorGroupIndex: colorGroupIndex || 0,
       colorGroupId: colorGroupIndex ? null : colorGroupId || chartColors[0].id,
       colorIndex: 0,
-      customColors: customColors || storeCustomColors || defaultCustomColors,
+      customColors: customColors || (storeCustomColors.length ? storeCustomColors : defaultCustomColors),
       controlColors: this.isAlienationColor ? controlColors : [],
     };
     this.chartColors = chartColors;
@@ -103,35 +104,25 @@ export default class BaseColor extends Component {
       customColors: customColors.concat('#1677ff'),
     });
   };
-  renderBaseColorFooter() {
+  renderBaseColorActions() {
     const { type } = this.state;
-    const { projectId, onCancel } = this.props;
+    const { projectId } = this.props;
     const { isSuperAdmin } = _.find(md.global.Account.projects, { projectId }) || {};
+
+    if (!(isSuperAdmin && type === 1)) return null;
+
     return (
-      <div className="mTop20 mBottom10 pRight8 flexRow alignItemsCenter">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <div className="flex flexRow pLeft7">
-            {isSuperAdmin && type === 1 && (
-              <Button
-                type="link"
-                className="pAll0"
-                onClick={() => {
-                  window.open(pathCompletion(`/admin/settings/${projectId}/customcolor`));
-                }}
-              >
-                <span className="bold colorPrimary hoverColorPrimaryDark">{_l('前往组织后台编辑颜色')}</span>
-              </Button>
-            )}
-          </div>
-          <div className="flex">
-            <Button type="link" className="bold" onClick={onCancel}>
-              <span className="bold">{_l('取消')}</span>
-            </Button>
-            <Button type="primary" className="bold" onClick={this.handleSave}>
-              <span className="bold">{_l('确认')}</span>
-            </Button>
-          </div>
-        </ConfigProvider>
+      <div className="flexRow">
+        <Button
+          color="primary"
+          variant="link"
+          className="pAll0"
+          onClick={() => {
+            window.open(pathCompletion(`/admin/settings/${projectId}/customcolor`));
+          }}
+        >
+          <span className="bold colorPrimary hoverColorPrimaryDark">{_l('前往组织后台编辑颜色')}</span>
+        </Button>
       </div>
     );
   }
@@ -229,11 +220,11 @@ export default class BaseColor extends Component {
         title={_l('图形颜色')}
         width={520}
         className="chartModal chartBaseColorModal"
-        visible={visible}
+        open={visible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderBaseColorFooter()}
+        footerLeftElement={this.renderBaseColorActions()}
+        onOk={this.handleSave}
         onCancel={onCancel}
       >
         <div className="mBottom16">{_l('配色方案')}</div>

@@ -1,53 +1,51 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, MenuItem } from 'ming-ui';
-import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { hasPermission } from 'src/utils/services/security/permission';
 
-const Con = styled(MenuItem)`
-  .Item-content {
-    overflow: visible !important;
-  }
-`;
 const EditPanelCon = styled.div`
-  width: 240px;
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
-  padding-top: 2px;
   .title {
     font-weight: bold;
-    margin: 14px 0 4px 20px;
+    margin: 14px 0 4px;
   }
   .groups {
     overflow-y: auto;
     max-height: 400px;
-    padding-bottom: 10px;
   }
 `;
-const Header = styled(VerticalMiddle)`
+const Header = styled.div`
+  display: flex;
+  align-items: center;
   height: 40px;
-  padding: 0 20px;
   border-bottom: 1px solid var(--color-border-secondary);
   input {
-    border: none;
     margin-left: 6px;
     flex: 1;
   }
 `;
-const GroupItem = styled(VerticalMiddle)`
+const GroupItem = styled.div`
+  display: flex;
+  align-items: center;
   cursor: pointer;
-  padding: 0 20px;
+  padding: 0 4px;
   height: 36px;
   &:hover {
     background: var(--color-background-hover);
   }
 `;
 
-const Empty = styled(FlexCenter)`
+const GROUP_CHECKBOX_STYLES = {
+  root: { flex: 1, minWidth: 0 },
+  label: { display: 'flex', flex: 1, minWidth: 0, paddingInlineStart: 10, paddingInlineEnd: 0 },
+};
+
+const Empty = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-direction: column;
   height: 140px;
   margin-bottom: -10px;
@@ -65,19 +63,20 @@ function EditPanel(props) {
     projectGroupsLang,
   } = props;
   const [selectedIds, setSelectedIds] = useState(selectedGroupIds);
-  const [keywords, setKeywords] = useState();
+  const [keywords, setKeywords] = useState('');
+  const normalizedKeywords = keywords.trim().toLowerCase();
   const filteredPersonalGroups = personalGroups.filter(
-    g => !keywords || new RegExp(keywords.toLowerCase()).test((g.name || '').toLowerCase()),
+    group => !normalizedKeywords || (group.name || '').toLowerCase().includes(normalizedKeywords),
   );
   const filteredProjectGroups = projectGroups.filter(
-    g => !keywords || new RegExp(keywords.toLowerCase()).test((g.name || '').toLowerCase()),
+    group => !normalizedKeywords || (group.name || '').toLowerCase().includes(normalizedKeywords),
   );
 
-  function renderGroups(group, i) {
+  function renderGroups(group) {
     const checked = _.includes(selectedIds, group.id);
     return (
       <GroupItem
-        key={i}
+        key={group.id}
         onClick={() => {
           onUpdateAppBelongGroups({
             editingGroup: group,
@@ -86,13 +85,11 @@ function EditPanel(props) {
           setSelectedIds(sids => (checked ? sids.filter(id => id !== group.id) : _.uniq([...sids, group.id])));
         }}
       >
-        <Checkbox checked={checked} />
-        <span
-          className="mLeft2 ellipsis flex"
-          title={_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
-        >
-          {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
-        </span>
+        <Checkbox checked={checked} styles={GROUP_CHECKBOX_STYLES}>
+          <span className="ellipsis flex" title={_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}>
+            {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
+          </span>
+        </Checkbox>
       </GroupItem>
     );
   }
@@ -101,7 +98,7 @@ function EditPanel(props) {
     return (
       <EditPanelCon>
         <Empty>
-          <i className="icon icon-folder_off Font26 textTertiary"></i>
+          <Icon icon="folder_off" className="Font26 textTertiary" />
           <div className="Font13 textTertiary mTop12">
             {isDashboard ? _l('无分组') : _l('无分组，可从左侧列表创建')}
           </div>
@@ -113,8 +110,13 @@ function EditPanel(props) {
   return (
     <EditPanelCon>
       <Header className="search">
-        <i className="icon icon-search Font18 textTertiary"></i>
-        <input type="text" placeholder={_l('搜索分组')} value={keywords} onChange={e => setKeywords(e.target.value)} />
+        <Input
+          variant="borderless"
+          placeholder={_l('搜索分组')}
+          prefix={<Icon icon="search" className="Font18 textTertiary" />}
+          value={keywords}
+          onChange={e => setKeywords(e.target.value)}
+        />
       </Header>
       <div className="groups">
         {!!filteredPersonalGroups.length && (
@@ -137,41 +139,30 @@ function EditPanel(props) {
   );
 }
 
-export default function EditGroupMenuItem(props) {
-  const { groups = [], projectId, myPermissions = [] } = props;
-  const itemRef = useRef();
+export default function EditGroupModal(props) {
+  const { groups = [], myPermissions = [], open, onCancel } = props;
   const personalGroups = groups.filter(g => g.groupType === 0);
   const projectGroups = groups.filter(g => g.groupType === 1);
   const hasManageAppAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
   const isEmpty = !personalGroups.length && (!projectGroups.length || !hasManageAppAuth);
 
   return (
-    <Trigger
-      action={['hover']}
-      popupAlign={{
-        points: ['tl', 'tr'],
-        offset: [2, isEmpty ? 0 : -78],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      popup={
-        <EditPanel
-          {...props}
-          isEmpty={isEmpty}
-          personalGroups={personalGroups}
-          projectGroups={projectGroups}
-          projectId={projectId}
-          hasManageAppAuth={hasManageAppAuth}
-        />
-      }
-      getPopupContainer={() => itemRef.current}
-      destroyPopupOnHide
+    <Modal
+      open={open}
+      title={_l('设置分组%01010')}
+      width={480}
+      footer={null}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onCancel}
     >
-      <div ref={itemRef}>
-        <Con icon={<Icon className="operationIcon" icon={'addto-folder'} />}>
-          {_l('设置分组%01010')}
-          <i className="icon icon-arrow-right-tip Right mTop11"></i>
-        </Con>
-      </div>
-    </Trigger>
+      <EditPanel
+        {...props}
+        isEmpty={isEmpty}
+        personalGroups={personalGroups}
+        projectGroups={projectGroups}
+        hasManageAppAuth={hasManageAppAuth}
+      />
+    </Modal>
   );
 }

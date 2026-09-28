@@ -1,18 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, UpgradeIcon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, UpgradeIcon, UserHead } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import SearchInput from 'worksheet/components/SearchInput';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getDefaultSizeByType, SearchFn } from 'src/pages/widgetConfig/util';
-import { handleAddWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/util/data';
+import { handleAddWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/internal/editorData';
+import { isExceedMaxControlLimit } from 'src/pages/widgetConfig/util/editorSetting';
 import WidgetDetail from 'src/pages/widgetConfig/widgetSetting';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { checkWidgetMaxNumErr, getWidgetInfo } from '../../util';
-import { isExceedMaxControlLimit } from '../../util/setting';
+import { SearchFn } from 'src/utils/domain/control/capabilities';
+import { getDefaultSizeByType } from 'src/utils/domain/control/editorLayout';
+import { checkWidgetMaxNumErr, getWidgetInfo } from 'src/utils/domain/control/metadata';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import './FieldRecycleBin.less';
 
 export default class FieldRecycleBin extends Component {
@@ -65,45 +66,49 @@ export default class FieldRecycleBin extends Component {
     });
   };
 
-  renderHeader = () => {
+  renderTitle = () => (
+    <span>
+      <span className="Font17">{_l('回收站（字段）')}</span>
+      <span className="Font13 textTertiary">
+        {_l('可恢复%0天内删除的字段', md.global.SysSettings.worksheetRowRecycleDays)}
+      </span>
+    </span>
+  );
+
+  renderSearchInput = () => {
     const { originList } = this.state;
+
     return (
-      <Fragment>
-        <span>
-          <span className="Font17">{_l('回收站（字段）')}</span>
-          <span className="Font13 textTertiary">
-            {_l('可恢复%0天内删除的字段', md.global.SysSettings.worksheetRowRecycleDays)}
-          </span>
-        </span>
-        <SearchInput
-          className="searchContainer"
-          placeholder={_l('字段名称/id/别名')}
-          onOk={value => {
-            this.setState({ keywords: value.trim() }, this.searchList);
-          }}
-          onClear={() => {
-            this.setState({
-              keywords: '',
-              filterList: originList,
-              activeWidget: originList[0],
-            });
-          }}
-        />
-      </Fragment>
+      <SearchInput
+        className="searchContainer"
+        placeholder={_l('字段名称/id/别名')}
+        onOk={value => {
+          this.setState({ keywords: value.trim() }, this.searchList);
+        }}
+        onClear={() => {
+          this.setState({
+            keywords: '',
+            filterList: originList,
+            activeWidget: originList[0],
+          });
+        }}
+      />
     );
   };
 
   handleDelete = item => {
-    Dialog.confirm({
+    Modal.confirm({
       width: 440,
       title: (
-        <span className="Font17 Red">
+        <span className="Font17 Red textError">
           <span className="icon-error mRight5"></span>
           {_l('确定彻底删除这个字段？')}
         </span>
       ),
-      description: _l('彻底删除该数据后，将无法恢复。'),
-      buttonType: 'danger',
+      content: _l('彻底删除该数据后，将无法恢复。'),
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         this.updateStatus(item, 'delete');
       },
@@ -276,16 +281,17 @@ export default class FieldRecycleBin extends Component {
     const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
     return (
       <Fragment>
-        <Dialog
-          visible={visible}
-          title={<div className="FieldRecycleBinHeader">{this.renderHeader()}</div>}
+        <Modal
+          open={visible}
+          title={<div className="FieldRecycleBinHeader">{this.renderTitle()}</div>}
+          headerRightElement={this.renderSearchInput()}
           type="fixed"
           className="FieldRecycleBinDialog"
           onCancel={() => this.setState({ visible: false })}
           footer={null}
         >
           <div className="FieldRecycleBinContent">{this.renderContent()}</div>
-        </Dialog>
+        </Modal>
 
         {featureType && (
           <div

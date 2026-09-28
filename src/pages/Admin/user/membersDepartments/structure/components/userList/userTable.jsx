@@ -1,10 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Popover, Tooltip } from 'ming-ui/antd-components';
 import {
   addUserToSet,
   fetchApproval,
@@ -32,6 +31,9 @@ const NAME_COLUMN_WIDTH = 200;
 const ACTION_COLUMN_WIDTH = 80;
 const ACTION_COLUMN_WIDTH_WITH_SCROLLBAR = 90;
 const ROW_HEIGHT = 48;
+const TABLE_CHECKBOX_STYLES = {
+  icon: { marginTop: -2 },
+};
 
 const isCurrentTypeColumn = (column, typeCursor) =>
   _.isUndefined(column.typeCursor) || column.typeCursor === typeCursor;
@@ -88,6 +90,7 @@ class UserTable extends React.Component {
       { value: 'applyDate', label: _l('申请时间'), checked: true, typeCursor: 3, width: 160 },
       { value: 'operator', label: _l('操作者'), checked: true, typeCursor: 3, width: 160 },
     ],
+    dropDownVisible: false,
     savedScrollLeft: 0, // 暂存移动位置
     scrollbarWidth: 0,
   };
@@ -136,11 +139,12 @@ class UserTable extends React.Component {
         renderHeader: () => {
           return (
             <Checkbox
-              className="TxtMiddle InlineBlock mRight0 checked_selected"
-              clearselected={isCurrentPagePartialChecked}
+              className="TxtMiddle mRight0 checked_selected"
+              indeterminate={isCurrentPagePartialChecked}
               checked={isCheck}
               disabled={isLoading}
-              onClick={() => {
+              styles={TABLE_CHECKBOX_STYLES}
+              onChange={() => {
                 if (isLoading) return;
                 let accountIds = _.map(selectDatas, user => user.accountId);
 
@@ -219,21 +223,21 @@ class UserTable extends React.Component {
         style: { width: actWidth },
         renderHeader: () => {
           return (
-            <Dropdown
-              overlay={this.renderShowColumns}
-              trigger={['click']}
-              visible={dropDownVisible}
-              onVisibleChange={this.handleVisibleChange}
-              placement="bottomRight"
-            >
-              <Tooltip title={_l('自定义显示列')}>
+            <Tooltip title={_l('自定义显示列')}>
+              <Popover
+                trigger="click"
+                open={dropDownVisible}
+                onOpenChange={this.handleVisibleChange}
+                placement="bottomRight"
+                content={this.renderShowColumns()}
+              >
                 <Icon
                   icon="visibility"
-                  className="visibiliityIcon"
+                  className="pointer visibiliityIcon"
                   style={isSetShowColumn ? { color: 'var(--color-primary)' } : {}}
                 />
-              </Tooltip>
-            </Dropdown>
+              </Popover>
+            </Tooltip>
           );
         },
       },
@@ -435,9 +439,9 @@ class UserTable extends React.Component {
       <div className="showColumnsBox">
         <div className="statistics">
           <Checkbox
-            clearselected={checkedLength !== colLength}
+            indeterminate={checkedLength !== colLength}
             checked={_.every(temp, item => item.checked)}
-            onClick={this.handleClickStastics}
+            onChange={event => this.handleClickStastics(!event.target.checked, undefined, event)}
           >
             <span className="verticalAlign">{_l('显示列 %0/%1', checkedLength, colLength)}</span>
           </Checkbox>
@@ -447,7 +451,7 @@ class UserTable extends React.Component {
             <li key={item.value}>
               <Checkbox
                 checked={item.checked}
-                onClick={checked => this.handleSingleColumn(checked, item.value)}
+                onChange={event => this.handleSingleColumn(!event.target.checked, item.value)}
                 disabled={item.value === 'name'}
               >
                 <span className="verticalAlign">{item.label}</span>

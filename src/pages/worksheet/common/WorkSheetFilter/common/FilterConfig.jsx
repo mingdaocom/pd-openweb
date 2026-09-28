@@ -2,15 +2,16 @@ import React, { useEffect, useReducer } from 'react';
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
+import { formatOriginFilterGroupValue } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
 import FilterDetail from '../components/FilterDetail';
-import { CONTROL_FILTER_WHITELIST } from '../enum';
 import { createActions, createReducer, formatForSave, initialState } from '../model';
-import { formatOriginFilterGroupValue, redefineComplexControl } from '../util';
 
 const Con = styled.div``;
 

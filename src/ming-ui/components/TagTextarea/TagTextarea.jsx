@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _, { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 import { MODE } from './enum';
 import loadCodeMirror from './loadCodeMirror';
 import './TagTextarea.less';
@@ -276,7 +277,11 @@ export default class TagTextarea extends React.Component {
 
       if (React.isValidElement(tag)) {
         const root = createRoot(node);
-        root.render(<TagWrapper onDidMount={() => cb(node)} tag={tag} />);
+        root.render(
+          <AntdConfigProvider>
+            <TagWrapper onDidMount={() => cb(node)} tag={tag} />
+          </AntdConfigProvider>,
+        );
       } else {
         node.appendChild(tag);
         cb(node);

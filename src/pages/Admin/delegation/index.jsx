@@ -2,7 +2,8 @@ import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import SelectUser from 'src/pages/Admin/components/SelectUser/index';
 import TodoEntrustModal from 'src/pages/workflow/MyProcess/TodoEntrust/TodoEntrustModal';
@@ -12,9 +13,6 @@ const ActionWrap = styled.div`
   justify-content: space-between;
   .searchUser {
     width: 200px;
-  }
-  .addBtn {
-    padding: 0 26px !important;
   }
 `;
 
@@ -36,7 +34,7 @@ function DelegationManage(props) {
     });
   };
 
-  const onSearch = data => setSearchUser(data.map(l => l.accountId));
+  const onSearch = data => setSearchUser(data);
 
   const renderActionWrap = () => {
     return (
@@ -46,12 +44,16 @@ function DelegationManage(props) {
           className="searchUser"
           placeholder={_l('搜索委托人')}
           projectId={projectId}
-          userInfo={[]}
+          userInfo={searchUser}
           changeData={onSearch}
         />
-        <Button type="primary" radius className="addBtn" onClick={() => setAddModal({ visible: true, data: null })}>
-          <Icon icon="add" />
-          <span className="mLeft4">{_l('委托')}</span>
+        <Button
+          type="primary"
+          shape="round"
+          icon={<Icon icon="add" />}
+          onClick={() => setAddModal({ visible: true, data: null })}
+        >
+          {_l('委托')}
         </Button>
       </ActionWrap>
     );
@@ -65,7 +67,12 @@ function DelegationManage(props) {
         <div className="orgManagementHeader flexRow Font17 bold">{_l('待办委托')}</div>
         <div className="orgManagementContent">
           {renderActionWrap()}
-          <DelegationTable projectId={projectId} principals={searchUser} refreshFlag={refreshFlag} onEdit={onEdit} />
+          <DelegationTable
+            projectId={projectId}
+            principals={searchUser.map(item => item.accountId)}
+            refreshFlag={refreshFlag}
+            onEdit={onEdit}
+          />
         </div>
       </div>
       {addModal.visible && (

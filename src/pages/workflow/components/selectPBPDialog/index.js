@@ -3,25 +3,20 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import process from '../../api/process';
 import processVersion from '../../api/processVersion';
 import ajaxRequest from 'src/api/appManagement';
 import appManagement from 'src/api/appManagement';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { RELATION_TYPE } from '../../WorkflowSettings/enum';
 
-const DialogWrapper = styled(Dialog)`
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    flex-basis: 600px !important;
-    display: flex;
-    flex-direction: column;
-  }
-`;
+const PBP_MODAL_STYLES = {
+  body: { padding: 0, display: 'flex', flexDirection: 'column' },
+  container: { padding: 0, height: 600 },
+};
 
 const NavBox = styled.div`
   width: 250px;
@@ -74,15 +69,7 @@ const ContentBox = styled.div`
   min-width: 0;
   .searchBox {
     height: 48px;
-    border-bottom: 1px solid var(--color-border-secondary);
     padding: 0 40px 0 20px;
-    input {
-      border: 0;
-      width: 100%;
-      height: 100%;
-      padding: 0;
-      margin-left: 10px;
-    }
   }
   .emptyContent {
     display: flex;
@@ -143,6 +130,7 @@ class SelectPBPDialog extends Component {
       list: null,
       keyword: '',
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -195,9 +183,12 @@ class SelectPBPDialog extends Component {
    * 新建封装业务流程
    */
   createNewPBPFlow = () => {
+    if (this.requestPending) return;
+
     const { appId, onClose } = this.props;
 
-    process
+    this.requestPending = true;
+    return process
       .addProcess({
         companyId: '',
         relationId: appId,
@@ -209,6 +200,9 @@ class SelectPBPDialog extends Component {
         appManagement.addWorkflow({ projectId: res.companyId, name: _l('未命名业务流程') });
         window.open(pathCompletion(`/workflowedit/${res.id}`));
         onClose();
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
@@ -222,7 +216,7 @@ class SelectPBPDialog extends Component {
     }
 
     return (
-      <DialogWrapper width={1000} visible footer={null} onCancel={onClose}>
+      <Modal width={1000} open footer={null} styles={PBP_MODAL_STYLES} onCancel={onClose}>
         {!appList.length && <LoadDiv className="mTop15" />}
         {!!appList.length && (
           <div className="flexRow flex h100">
@@ -255,20 +249,23 @@ class SelectPBPDialog extends Component {
               </div>
             </NavBox>
             <ContentBox className="flexColumn flex">
-              <div className="searchBox flexRow alignItemsCenter">
-                <i className="icon-search Font18 textTertiary" />
-                <input
-                  value={keyword}
-                  placeholder={_l('搜索')}
-                  onChange={e => this.setState({ keyword: e.target.value })}
-                />
-                {keyword.trim() && (
-                  <i
-                    className="icon-cancel textTertiary Font15 pointer"
-                    onClick={() => this.setState({ keyword: '' })}
-                  ></i>
-                )}
-              </div>
+              <Input
+                className="searchBox"
+                value={keyword}
+                variant="underlined"
+                placeholder={_l('搜索')}
+                prefix={<i className="icon-search Font18 textTertiary" />}
+                suffix={
+                  keyword.trim() ? (
+                    <i
+                      className="icon-cancel textTertiary Font15 pointer"
+                      onMouseDown={event => event.preventDefault()}
+                      onClick={() => this.setState({ keyword: '' })}
+                    />
+                  ) : null
+                }
+                onChange={e => this.setState({ keyword: e.target.value })}
+              />
               {list === null && <LoadDiv className="mTop15" />}
               {list && !list.length && <div className="emptyContent">{_l('暂无数据')}</div>}
               {list && !!list.length && (
@@ -305,9 +302,11 @@ class SelectPBPDialog extends Component {
             </ContentBox>
           </div>
         )}
-      </DialogWrapper>
+      </Modal>
     );
   }
 }
 
-export default props => FunctionWrap(SelectPBPDialog, { ...props });
+export function useSelectPBPDialog() {
+  return useFunctionWrapComponent(SelectPBPDialog);
+}

@@ -2,34 +2,32 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, ClickAway } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { ClickAway } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 
 const WeekdayWrap = styled.ul`
-   {
-    position: absolute;
-    top: 30px;
-    z-index: 1;
-    width: 170px;
-    padding: 7px 0;
-    border-radius: 3px;
-    background-color: var(--color-background-primary);
-    cursor: pointer;
-    box-shadow: 0 3px 12px rgb(0, 0, 0, 0.16);
-    li {
-      line-height: 24px;
-      padding: 6px 12px;
-      min-height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      &:hover,
-      &.active {
-        background-color: var(--color-primary-transparent);
-        .icon-done {
-          color: var(--color-primary);
-        }
+  position: absolute;
+  top: 30px;
+  z-index: 1;
+  width: 170px;
+  padding: 7px 0;
+  border-radius: 3px;
+  background-color: var(--color-background-primary);
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgb(0, 0, 0, 0.16);
+  li {
+    line-height: 24px;
+    padding: 6px 12px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    &:hover,
+    &.active {
+      background-color: var(--color-primary-transparent);
+      .icon-done {
+        color: var(--color-primary);
       }
     }
   }
@@ -111,11 +109,15 @@ export default function WeekdaySetting({ data, onChange }) {
       {enumDefault === 3 && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={hideneg === '1'}
-            onClick={checked => {
-              onChange(handleAdvancedSettingChange(data, { hideneg: checked ? '0' : '1' }));
+            onChange={event => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  hideneg: !event.target.checked ? '0' : '1',
+                }),
+              );
             }}
+            size="small"
           >
             <span style={{ marginRight: '6px' }}>{_l('不显示负值')}</span>
             <Tooltip placement="bottom" title={_l('勾选后，当计算结果为负数时，则显示为空')}>
@@ -127,11 +129,12 @@ export default function WeekdaySetting({ data, onChange }) {
       {enumDefault === 1 && weekdayStr.indexOf(unit) > -1 && (
         <div className="flexRow mTop8">
           <Checkbox
-            text={_l('仅计算工作日')}
-            size="small"
             checked={!!weekday}
-            onClick={checked => handleChange(!checked ? '12345' : '')}
-          />
+            onChange={event => handleChange(event.target.checked ? '12345' : '')}
+            size="small"
+          >
+            {_l('仅计算工作日')}
+          </Checkbox>
           {!!weekday && (
             <div className="Relative">
               <span className="Hand colorPrimary hoverColorPrimaryDark mLeft8" onClick={() => setVisible(true)}>

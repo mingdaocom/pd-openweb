@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import UploadFile from './UploadFile';
 import './index.less';
+
+const UPLOAD_MODAL_STYLES = {
+  container: { height: 426 },
+};
 
 export default class DialogUpload extends Component {
   constructor(props) {
@@ -14,16 +18,15 @@ export default class DialogUpload extends Component {
   render() {
     const { visible } = this.props;
     return (
-      <Dialog
+      <Modal
         width={544}
-        height={426}
-        title={<span className="Bold">{_l('上传Excel文件')}</span>}
-        visible={visible}
-        footer={null}
+        styles={UPLOAD_MODAL_STYLES}
+        title={_l('上传Excel文件')}
+        open={visible}
         onCancel={() => this.props.onCancel()}
       >
         <UploadFile onCancel={this.props.onCancel} fileUploaded={this.fileUploaded} />
-      </Dialog>
+      </Modal>
     );
   }
 }

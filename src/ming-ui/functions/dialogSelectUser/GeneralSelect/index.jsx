@@ -1,19 +1,19 @@
 ﻿import React, { Component, createRef, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Input, Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
 import groupController from 'src/api/group';
 import structureController from 'src/api/structure';
 import userController from 'src/api/user';
+import { findDepartmentById } from 'src/utils/domain/project/department';
 import { ChooseType, RenderTypes, UserTabsId } from './constant';
 import DefaultUserList from './DefaultUserList';
 import DepartmentGroupUserList from './DepartmentGroupUserList';
 import DepartmentList from './DepartmentList';
 import DepartmentTree from './DepartmentTree';
 import ExtraUserList from './ExtraUserList';
-import GDropdown from './GDropdown';
 import NoData from './NoData';
 import Result from './Result';
 import './style.less';
@@ -131,7 +131,6 @@ export default class GeneraSelect extends Component {
 
   promiseObj = null; // 请求promise
   _scrollView = null; // ScrollView 的 ref
-  _searchInput = null; // 搜索input
   userSettings = null;
   departmentSettings = null;
 
@@ -164,7 +163,6 @@ export default class GeneraSelect extends Component {
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDown, false);
     this.defaultAction();
-    this.focusSearchInput();
   }
 
   componentWillUnmount() {
@@ -737,27 +735,6 @@ export default class GeneraSelect extends Component {
     return renderType;
   }
 
-  /**
-   * 遍历部门树得到部门
-   * @param {*部门树} departmentTree
-   * @param {*部门id} id
-   * @return {*部门} department
-   */
-  getDepartmentById(departmentTree, id) {
-    for (let i = 0; i < departmentTree.length; i++) {
-      let department = departmentTree[i];
-
-      if (department.departmentId === id) {
-        return department;
-      } else if (department.subDepartments.length) {
-        let oDepartment = this.getDepartmentById(department.subDepartments, id);
-
-        if (oDepartment) {
-          return this.getDepartmentById(department.subDepartments, id);
-        }
-      }
-    }
-  }
   /* ---------------------------------------------------------------------------------------------------
     -----------------------------------         绑定方法        -----------------------------------------
     ---------------------------------------------------------------------------------------------------- */
@@ -874,7 +851,7 @@ export default class GeneraSelect extends Component {
    */
   toggleDepartmentList = id => {
     let departmentTree = [...this.state.mainData.data];
-    let department = this.getDepartmentById(departmentTree, id);
+    let department = findDepartmentById(departmentTree, id);
 
     if (!department.haveSubDepartment) {
       return false;
@@ -1154,30 +1131,6 @@ export default class GeneraSelect extends Component {
         selectAll(list);
       }
     }
-  };
-
-  changeChooseType = type => {
-    this.setState(
-      {
-        chooseType: type,
-        keywords: '',
-        pageIndex: 1,
-        currentIndex: -1,
-        haveMore: true,
-      },
-      () => {
-        this.defaultAction();
-      },
-    );
-  };
-
-  dropdownOnClick = () => {
-    if (this.state.chooseType !== ChooseType.USER) {
-      this.changeChooseType(ChooseType.USER);
-      return false;
-    }
-
-    return true;
   };
 
   /** 提交 */
@@ -1520,93 +1473,17 @@ export default class GeneraSelect extends Component {
         </ul>
       );
     } else {
-      const userFilterData = this.userSettings.defaultTabs.map(tab => {
-        return {
-          text: tab.name,
-          value: tab.id,
-        };
-      });
-      let Tabs;
-
-      if (this.commonSettings.selectModes.length === 1 && this.commonSettings.selectModes[0] === 'user') {
-        // 选择成员模式
-        Tabs = this.userSettings.defaultTabs.map(tab => (
-          <li
-            key={tab.id}
-            onClick={() => this.onChangeUserFilter(tab.id)}
-            className={cx('GSelect-head-navbar__item', {
-              'GSelect-head-navbar__item--active': this.state.selectedUserTabId === tab.id,
-            })}
-          >
-            {tab.name}
-          </li>
-        ));
-      } else {
-        // 其他模式
-        let SelectUsers = (
-          <GDropdown
-            key="selectUsers"
-            data={userFilterData}
-            onChange={this.onChangeUserFilter}
-            onClick={this.dropdownOnClick}
-            value={this.state.selectedUserTabId}
-            className={cx('GSelect-head-navbar__item', {
-              'GSelect-head-navbar__item--active': this.state.chooseType === ChooseType.USER,
-            })}
-            renderValue={_l('选择成员（{{value}}）')}
-          />
-        );
-        let SelectDepartments = (
-          <li
-            key="SelectDepartemnts"
-            onClick={() => this.changeChooseType(ChooseType.DEPARTMENT)}
-            className={cx('GSelect-head-navbar__item', {
-              'GSelect-head-navbar__item--active': this.state.chooseType === ChooseType.DEPARTMENT,
-            })}
-          >
-            {_l('选择部门')}
-          </li>
-        );
-        let SelectGroups = (
-          <li
-            key="SelectGroups"
-            onClick={() => this.changeChooseType(ChooseType.GROUP)}
-            className={cx('GSelect-head-navbar__item borderColorPrimary', {
-              'GSelect-head-navbar__item--active': this.state.chooseType === ChooseType.GROUP,
-            })}
-          >
-            {_l('选择群组')}
-          </li>
-        );
-
-        if (!this.state.isProject) {
-          // 不显示联系人的筛选
-          SelectUsers = (
-            <li
-              key="SelectUsers"
-              onClick={() => this.changeChooseType(ChooseType.USER)}
-              className={cx('GSelect-head-navbar__item', {
-                'GSelect-head-navbar__item--active': this.state.chooseType === ChooseType.USER,
-              })}
-            >
-              {_l('选择成员')}
-            </li>
-          );
-          SelectGroups = SelectDepartments = null;
-        }
-
-        Tabs = this.commonSettings.selectModes.map(mode => {
-          if (mode === ChooseType.USER) {
-            return SelectUsers;
-          } else if (mode === ChooseType.DEPARTMENT) {
-            return SelectDepartments;
-          } else if (mode === ChooseType.GROUP) {
-            return SelectGroups;
-          }
-
-          return null;
-        });
-      }
+      const Tabs = this.userSettings.defaultTabs.map(tab => (
+        <li
+          key={tab.id}
+          onClick={() => this.onChangeUserFilter(tab.id)}
+          className={cx('GSelect-head-navbar__item', {
+            'GSelect-head-navbar__item--active': this.state.selectedUserTabId === tab.id,
+          })}
+        >
+          {tab.name}
+        </li>
+      ));
 
       return <ul className="GSelect-head-navbar">{Tabs}</ul>;
     }
@@ -1618,26 +1495,22 @@ export default class GeneraSelect extends Component {
     return (
       <Fragment>
         <div className="GSelect-head-searchArea">
-          <span className="icon-search searchIcon" />
-          <input
-            type="text"
-            value={keywords}
-            autoFocus
-            onChange={event => this.search(event.target.value)}
-            ref={searchInput => {
-              this._searchInput = searchInput;
+          <Input
+            ref={input => {
+              this._searchInput = input;
             }}
+            allowClear
+            radius
+            variant="filled"
+            value={keywords}
+            onChange={event => this.search(event.target.value)}
             placeholder={
               this.checkIsProject() && !_.includes(showTabs, 'structureUsers')
                 ? _l('搜索用户 / 部门 / 群组')
                 : _l('搜索用户')
             }
+            prefix={<Icon icon="search" className="textTertiary Font18" />}
           />
-          {keywords && (
-            <div className="GSelect-head-searchArea--deleteIcon">
-              <span className="icon-cancel " onClick={this.closeSearch} />
-            </div>
-          )}
         </div>
         {this.checkIsProject() && this.renderTabs()}
       </Fragment>
@@ -1687,25 +1560,27 @@ export default class GeneraSelect extends Component {
         </div>
         <div className="GSelect-footer-buttonBox">
           <div className="mRight24">
-            <div
-              className="closeBtn"
+            <Button
+              wide
+              type="text"
               onClick={evt => {
                 evt.nativeEvent.stopImmediatePropagation();
                 this.props.handleCancel();
               }}
-              fullWidth
             >
               {_l('取消')}
-            </div>
+            </Button>
           </div>
           <div>
             <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
               <Button
+                type="primary"
+                wide
                 onClick={evt => {
                   evt.nativeEvent.stopImmediatePropagation();
                   this.submit();
                 }}
-                fullWidth
+                block
               >
                 {this.commonSettings.btnName +
                   (this.state.selectedData.length ? ` (${this.state.selectedData.length})` : '')}

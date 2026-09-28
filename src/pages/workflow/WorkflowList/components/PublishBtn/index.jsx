@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { navigateTo } from 'router/navigateTo';
-import { Switch } from 'ming-ui';
+import { navigateTo } from 'router/navigation/navigateTo';
+import { Switch } from 'ming-ui/antd-components';
 import process from '../../../api/process';
 import PublishErrorDialog from '../../../components/PublishErrorDialog';
 
@@ -13,6 +13,9 @@ const publishStatus2Text = {
   2: _l('发布'),
   3: _l('关闭%03055'),
 };
+
+const ENABLED_SWITCH_STYLE = { background: 'var(--color-task)' };
+const SWITCH_STYLES = { content: { color: 'var(--color-white)' } };
 
 export default class PublishBtn extends Component {
   state = {
@@ -94,8 +97,14 @@ export default class PublishBtn extends Component {
         <Switch
           disabled={disabled}
           checked={item.enabled}
-          text={item.enabled ? _l('开启') : _l('关闭%03055')}
-          onClick={this.switchEnabled}
+          style={item.enabled ? ENABLED_SWITCH_STYLE : undefined}
+          styles={SWITCH_STYLES}
+          checkedChildren={item.enabled ? _l('开启') : _l('关闭%03055')}
+          unCheckedChildren={item.enabled ? _l('开启') : _l('关闭%03055')}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return this.switchEnabled(!checked, event);
+          }}
         />
         {!!showTime && (
           <Fragment>

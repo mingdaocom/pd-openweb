@@ -2,13 +2,12 @@ import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
+import { Icon } from 'ming-ui';
+import { Button, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/components/style.jsx';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { RECORD_COLOR_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 
 const Wrap = styled.div`
   .line {
@@ -47,69 +46,18 @@ const Con = styled.div`
   }
   .customAntSelect {
     margin-top: 10px;
-    .ant-select-selector {
-      border-color: var(--color-border-primary) !important;
-      background: var(--color-background-primary) !important;
-    }
-  }
-  .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) {
-    .ant-select-selector:hover {
-      background-color: inherit !important;
-      border-color: var(--color-border-primary) !important;
-    }
   }
 `;
 
-const AddButton = styled.div`
-  position: relative;
-  width: 100%;
-  height: 44px;
-  line-height: 44px;
-  background: var(--color-background-secondary);
-  border-radius: 3px;
-  &:hover {
-    background: var(--color-background-hover);
-  }
-`;
+const ADD_BUTTON_STYLE = { '--hap-button-default-color': 'var(--color-primary)' };
+const SELECT_CONTROL_CLASS_NAMES = { clear: 'recordColorSelectClear' };
+const SELECT_CONTROL_SUFFIX_ICON = <Icon icon="arrow-down-border" className="Font13 textTertiary" />;
 
-const SelectedControlCon = styled.div`
-  width: 100%;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  height: 36px;
-  padding: 0 5px 0 14px;
-  &:hover {
-    border-color: var(--color-primary);
+const handleSelectControlClick = event => {
+  if (event.target.closest?.('.recordColorSelectClear')) {
+    event.stopPropagation();
   }
-  .controlTypeIcon {
-    font-size: 16px;
-    color: var(--color-text-secondary);
-  }
-  .controlName {
-    margin-left: 10px;
-    font-size: 14px;
-    color: var(--color-text-title);
-  }
-  .endIcon {
-    .icon {
-      font-size: 13px;
-      color: var(--color-text-tertiary);
-    }
-    .removeIcon {
-      display: none;
-    }
-  }
-  &:hover {
-    .dropDownIcon {
-      display: none;
-    }
-    .removeIcon {
-      display: inline-block;
-    }
-  }
-`;
+};
 
 function typesInclude(types = [], control = {}) {
   return _.includes(types, control.type) || (control.type === 30 && _.includes(types, control.sourceControlType));
@@ -127,21 +75,18 @@ function SelectControl({ value, controls = [], onChange, onClear }) {
       offset={[0, 0]}
       classNamePopup="addControlDrop"
       comp={() => (
-        <SelectedControlCon>
-          <i className={`controlTypeIcon icon-${getIconByType(selectedControl.type)}`}></i>
-          <div className="controlName ellipsis">{selectedControl.controlName}</div>
-          <div className="flex"></div>
-          <div className="endIcon">
-            <i
-              className="icon removeIcon icon-cancel"
-              onClick={e => {
-                e.stopPropagation();
-                onClear();
-              }}
-            ></i>
-            <i className="icon dropDownIcon icon-arrow-down-border"></i>
-          </div>
-        </SelectedControlCon>
+        <Select
+          className="w100"
+          open={false}
+          value={value}
+          options={[{ value, label: selectedControl.controlName }]}
+          prefix={<i className={`icon-${getIconByType(selectedControl.type)} Font16 textSecondary`} />}
+          allowClear
+          classNames={SELECT_CONTROL_CLASS_NAMES}
+          suffixIcon={SELECT_CONTROL_SUFFIX_ICON}
+          onClear={onClear}
+          onClick={handleSelectControlClick}
+        />
       )}
     />
   );
@@ -151,6 +96,7 @@ SelectControl.propTypes = {
   value: string,
   controls: arrayOf(shape({})),
   onChange: func,
+  onClear: func,
 };
 
 const SelectColorShowTypeCon = styled.div`
@@ -251,8 +197,8 @@ function RecordColor(params) {
           <div className="Font3 Bold mTop16 mBottom8 valignWrapper">
             {_l('字段')}
             {selectedControl && selectedControl.enumDefault2 !== 1 && (
-              <Tooltip className="mLeft6" title={_l('当前选择的字段未启用颜色')}>
-                <i className="icon icon-error1 Font16" style={{ color: 'var(--color-warning)' }}></i>
+              <Tooltip title={_l('当前选择的字段未启用颜色')}>
+                <i className="icon icon-error1 Font16 mLeft6" style={{ color: 'var(--color-warning)' }}></i>
               </Tooltip>
             )}
           </div>
@@ -275,12 +221,11 @@ function RecordColor(params) {
             }}
           />
           <div className="Font3 Bold mTop24 mBottom8">{_l('显示项')}</div>
-          <Dropdown
-            border
+          <Select
             className="w100"
-            data={[
-              { text: _l('全部'), value: 0 },
-              { text: _l('显示指定项'), value: 1 },
+            options={[
+              { label: _l('全部'), value: 0 },
+              { label: _l('显示指定项'), value: 1 },
             ]}
             value={!coloritems ? 0 : 1}
             onChange={newValue => {
@@ -302,7 +247,7 @@ function RecordColor(params) {
               fromFilter
               isFocus
               className="optionsSelect mTop14"
-              dropdownClassName="scrollInTable withIsEmpty"
+              dropdownClassName="scrollInTable"
               value={coloritems}
               onChange={newValue => {
                 updateAdvancedSetting({
@@ -347,10 +292,17 @@ function RecordColor(params) {
           }}
           classNamePopup="addControlDrop"
           comp={() => (
-            <AddButton className="mTop4 Bold Font13 colorPrimary TxtCenter">
-              <i className="icon icon-add Font16 mRight5"></i>
+            <Button
+              block
+              className="mTop4"
+              color="default"
+              variant="filled"
+              size="large"
+              style={ADD_BUTTON_STYLE}
+              icon={<Icon icon="add" className="Font16" />}
+            >
               {_l('选择字段')}
-            </AddButton>
+            </Button>
           )}
         />
       )}
@@ -415,42 +367,30 @@ export default function (props) {
           {openList.includes('control') && (
             <div className="mTop10">
               <div className="textSecondary mTop20">{_l('显示字段配置中的样式')}</div>
-              <SwitchStyle>
-                <Icon
-                  icon={_.get(view, 'advancedSetting.controlstyle') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                  className="Font28 Hand"
-                  onClick={() => {
-                    onChangeControlByKey('controlstyle');
-                  }}
+              <div className="flexRow alignItemsCenter viewConfigSwitchRow mTop8">
+                <Switch
+                  size="mini"
+                  checked={_.get(view, 'advancedSetting.controlstyle') === '1'}
+                  onChange={() => onChangeControlByKey('controlstyle')}
                 />
-                <div
-                  className="switchText InlineBlock Normal mLeft12 mTop8 Hand"
-                  onClick={() => {
-                    onChangeControlByKey('controlstyle');
-                  }}
-                >
+                <div className="InlineBlock Normal mLeft12 Hand" onClick={() => onChangeControlByKey('controlstyle')}>
                   {_l('在PC端显示')}
                 </div>
-              </SwitchStyle>
-              <br />
+              </div>
               {_.get(view, 'advancedSetting.hierarchyViewType') !== '3' && (
-                <SwitchStyle>
-                  <Icon
-                    icon={_.get(view, 'advancedSetting.controlstyleapp') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font28 Hand"
-                    onClick={() => {
-                      onChangeControlByKey('controlstyleapp');
-                    }}
+                <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+                  <Switch
+                    size="mini"
+                    checked={_.get(view, 'advancedSetting.controlstyleapp') === '1'}
+                    onChange={() => onChangeControlByKey('controlstyleapp')}
                   />
                   <div
-                    className="switchText InlineBlock Normal mLeft12 mTop8 Hand"
-                    onClick={() => {
-                      onChangeControlByKey('controlstyleapp');
-                    }}
+                    className="InlineBlock Normal mLeft12 Hand"
+                    onClick={() => onChangeControlByKey('controlstyleapp')}
                   >
                     {_l('在移动端显示')}
                   </div>
-                </SwitchStyle>
+                </div>
               )}
             </div>
           )}

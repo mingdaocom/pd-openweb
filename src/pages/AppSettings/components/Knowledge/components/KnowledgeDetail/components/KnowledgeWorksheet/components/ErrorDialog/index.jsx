@@ -1,37 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-
-const ErrorDialogTitle = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  .buttonBox {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding-right: 10px;
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 85px;
-      height: 36px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--color-text-primary);
-      border: 1px solid var(--color-border-primary);
-      border-radius: 3px;
-      cursor: pointer;
-    }
-  }
-`;
+import { Modal } from 'ming-ui/antd-components';
 
 const ErrorDialogWrap = styled.div`
-  padding: 10px;
   .header {
     display: flex;
     align-items: center;
@@ -61,17 +32,6 @@ const ErrorDialogWrap = styled.div`
       align-items: center;
       gap: 10px;
       width: 100px;
-      .btn {
-        color: var(--color-primary);
-        font-weight: 700;
-        cursor: pointer;
-        &:hover {
-          color: var(--color-primary-light);
-        }
-        &:active {
-          color: var(--color-primary-dark);
-        }
-      }
     }
   }
   .content {
@@ -86,20 +46,14 @@ const ErrorDialog = props => {
   if (!visible) return null;
 
   return (
-    <Dialog
+    <Modal
       width={1000}
-      visible={visible}
-      title={
-        <ErrorDialogTitle>
-          {_l('错误详情')}
-          <div className="buttonBox">
-            <div className="btn">{_l('全部忽略')}</div>
-            <div className="btn">{_l('全部重试')}</div>
-          </div>
-        </ErrorDialogTitle>
-      }
+      open={visible}
+      title={_l('错误详情')}
+      cancelText={_l('全部忽略')}
+      okText={_l('全部重试')}
+      keyboard
       onCancel={onCancel}
-      footer={null}
     >
       <ErrorDialogWrap>
         <div className="header">
@@ -112,7 +66,7 @@ const ErrorDialog = props => {
         </div>
         <div className="content"></div>
       </ErrorDialogWrap>
-    </Dialog>
+    </Modal>
   );
 };
 

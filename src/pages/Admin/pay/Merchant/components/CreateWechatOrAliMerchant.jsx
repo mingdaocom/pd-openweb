@@ -4,13 +4,14 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import CryptoJS from 'crypto-js';
 import _, { isEmpty } from 'lodash';
-import { Button, Dialog, Icon, LoadDiv, Textarea } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Input, Modal } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
-import { setWeChatServiceAccountsDialog } from 'src/components/WeChatServiceAccountsDialog';
+import { useWeChatServiceAccountsDialog } from 'src/components/WeChatServiceAccountsDialog';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
-import { pathCompletion } from 'src/utils/common';
-import { PUBLIC_KEY } from 'src/utils/enum';
+import { PUBLIC_KEY } from 'src/utils/domain/shared/securityConstants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './createMerchant.less';
 
 const wechatFormInfo = [
@@ -27,6 +28,8 @@ const aliFormInfo = [
   { label: _l('应用私钥'), field: 'privateKey', placeholder: _l('输入应用私钥') },
   { label: _l('支付宝公钥'), field: 'publicKey', placeholder: _l('输入支付宝公钥') },
 ];
+const MULTILINE_FIELDS = ['privateKey', 'publicKey'];
+const MULTILINE_TEXTAREA_STYLES = { root: { minHeight: 100, maxHeight: 350 } };
 
 const encryptRequestData = data => {
   if (!_.trim(data)) return '';
@@ -42,14 +45,16 @@ const encryptRequestData = data => {
 };
 
 export default function CreateWechatOrAliMerchant(props) {
+  const { open: openWeChatServiceAccountsDialog, holder: weChatServiceAccountsDialogHolder } =
+    useWeChatServiceAccountsDialog();
   const {
     projectId,
     merchantPaymentChannel,
     currentMerchantInfo = {},
-    onClose = () => { },
-    changeCreateMerchant = () => { },
-    updateCurrentMerchant = () => { },
-    getDataList = () => { },
+    onClose = () => {},
+    changeCreateMerchant = () => {},
+    updateCurrentMerchant = () => {},
+    getDataList = () => {},
   } = props;
   const isCreate = _.isEmpty(currentMerchantInfo);
 
@@ -193,7 +198,7 @@ export default function CreateWechatOrAliMerchant(props) {
           title: _l('验证商户信息'),
           paymentModule: 5,
           orderId: res.orderId,
-          payFinished: ({ onCancel = () => { } }) => {
+          payFinished: ({ onCancel = () => {} }) => {
             alert(_l('保存成功'));
             onCancel();
             updateData();
@@ -250,7 +255,7 @@ export default function CreateWechatOrAliMerchant(props) {
         <div
           className="Hand colorPrimary hoverColorPrimaryLight mTop10"
           onClick={() =>
-            setWeChatServiceAccountsDialog({
+            openWeChatServiceAccountsDialog({
               projectId,
               weChatServiceAccounts,
               appId: formData?.appId,
@@ -267,12 +272,11 @@ export default function CreateWechatOrAliMerchant(props) {
 
     return (
       <div className="appIdWrap w100 Relative">
-        <Textarea
-          className="w100 placeholderColor isSingleLine"
-          style={{ maxHeight: 350 }}
+        <Input
           value={formData[item.field]}
           placeholder={item.placeholder}
-          onChange={value => {
+          onChange={event => {
+            const { value } = event.target;
             setFormData({
               [item.field]: value,
               isSubmit: !value,
@@ -285,7 +289,7 @@ export default function CreateWechatOrAliMerchant(props) {
           <i
             className="icon icon-exchange textTertiary Hand hoverColorPrimary Font20 Absolute exchangeIcon"
             onClick={() => {
-              setWeChatServiceAccountsDialog({
+              openWeChatServiceAccountsDialog({
                 projectId,
                 weChatServiceAccounts,
                 appId: formData?.appId,
@@ -302,11 +306,22 @@ export default function CreateWechatOrAliMerchant(props) {
 
   const renderFormInfo = forData => {
     return forData.map(item => {
+      const isMultiline = _.includes(MULTILINE_FIELDS, item.field);
+      const inputProps = {
+        value: formData[item.field],
+        placeholder: item.placeholder,
+        onChange: event => {
+          const { value } = event.target;
+          setFormData({
+            [item.field]: value,
+            isSubmit: !value,
+            formChanged: _.trim(value) !== initData[item.field],
+          });
+        },
+      };
+
       return (
-        <div
-          className={cx('formItem mBottom15 Relative', { w100: _.includes(['privateKey', 'publicKey'], item.field) })}
-          key={item.field}
-        >
+        <div className={cx('formItem mBottom15 Relative', { w100: isMultiline })} key={item.field}>
           {isSubmit && !_.trim(formData[item.field]) && (
             <div className="errorMessage">
               <span>{item.placeholder}</span>
@@ -320,21 +335,10 @@ export default function CreateWechatOrAliMerchant(props) {
           <div className="form">
             {item.field === 'appId' ? (
               renderAppId(item)
+            ) : isMultiline ? (
+              <Input.TextArea autoSize styles={MULTILINE_TEXTAREA_STYLES} {...inputProps} />
             ) : (
-              <Textarea
-                className={`w100 placeholderColor ${_.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
-                  }`}
-                style={{ maxHeight: 350 }}
-                value={formData[item.field]}
-                placeholder={item.placeholder}
-                onChange={value => {
-                  setFormData({
-                    [item.field]: value,
-                    isSubmit: !value,
-                    formChanged: _.trim(value) !== initData[item.field],
-                  });
-                }}
-              />
+              <Input {...inputProps} />
             )}
           </div>
         </div>
@@ -344,6 +348,7 @@ export default function CreateWechatOrAliMerchant(props) {
 
   return (
     <Fragment>
+      {weChatServiceAccountsDialogHolder}
       <div className="orgManagementHeader">
         <div className="createMerchantHeader bold Font17">
           <Icon icon="backspace" className="Font22 hoverColorPrimary pointer mRight10" onClick={onClose} />
@@ -441,7 +446,7 @@ export default function CreateWechatOrAliMerchant(props) {
         )}
         <div className="mTop50 mBottom20">
           <Button
-            className="submit"
+            type="primary"
             disabled={loading || (isWechat && !appId) || (!isCreate && shortName === initData.shortName)}
             onClick={() => checkMerchant('save')}
           >
@@ -451,11 +456,13 @@ export default function CreateWechatOrAliMerchant(props) {
       </div>
 
       {showSecretDialog && (
-        <Dialog
+        <Modal
           className={cx('secretDialog', { secretScrollDialog: isScroll })}
           width={880}
-          bodyClass="secretBody"
-          visible={showSecretDialog}
+          classNames={{ body: 'secretBody' }}
+          open={showSecretDialog}
+          mask={{ closable: true }}
+          keyboard
           title={_l('密钥信息')}
           okText={_l('去验证')}
           okDisabled={!formChanged}
@@ -469,7 +476,7 @@ export default function CreateWechatOrAliMerchant(props) {
             {_l('修改配置后，需支付0.01元验证您填写的商户信息，支付成功后自动保存')}
           </div>
           {renderFormInfo(secretFormInfo)}
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

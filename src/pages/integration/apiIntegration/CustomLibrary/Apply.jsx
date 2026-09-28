@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-
-const ApplyBtn = styled.div`
-  padding: 0 32px;
-  height: 36px;
-  border-radius: 18px;
-  background: var(--color-primary);
-  color: var(--color-white);
-  cursor: pointer;
-  &:hover {
-    background: var(--color-link-hover);
-  }
-`;
 
 const IconWrapper = styled.div`
   width: 56px;
@@ -49,7 +38,7 @@ export default function Apply(props) {
           setLoading(false);
         }
       });
-  }, []);
+  }, [apiDetail.id, companyId]);
 
   const onApply = selectedApps => {
     packageVersionAjax
@@ -73,8 +62,26 @@ export default function Apply(props) {
       });
   };
 
+  const handleApply = () => {
+    dialogSelectApp({
+      title: _l('选择授权应用'),
+      projectId: companyId,
+      ajaxFun: 'getManagerApps',
+      ajaxParam: { projectId: companyId },
+      onOk: onApply,
+    });
+  };
+
   return (
-    <Dialog className="dialogAddFriendsBox" width={680} visible title={null} footer={null} onCancel={onClose}>
+    <Modal
+      open
+      width={680}
+      mask={{ closable: true }}
+      keyboard
+      okText={_l('申请使用')}
+      onOk={handleApply}
+      onCancel={onClose}
+    >
       <div className="flexRow alignItemsCenter">
         {apiDetail.iconName ? (
           <img src={apiDetail.iconName} alt="" width="60" height="60" />
@@ -84,25 +91,10 @@ export default function Apply(props) {
           </IconWrapper>
         )}
 
-        <div className="flex flexColumn mLeft12 mRight60 minWidth0">
+        <div className="flex flexColumn mLeft12 minWidth0">
           <div className="Font20 bold ellipsis">{apiDetail.name}</div>
           <div className="textSecondary ellipsis">{apiDetail.explain}</div>
         </div>
-
-        <ApplyBtn
-          className="flexRow alignItemsCenter"
-          onClick={() =>
-            dialogSelectApp({
-              title: _l('选择授权应用'),
-              projectId: companyId,
-              ajaxFun: 'getManagerApps',
-              ajaxParam: { projectId: companyId },
-              onOk: onApply,
-            })
-          }
-        >
-          {_l('申请使用')}
-        </ApplyBtn>
       </div>
       <div className="Font14 bold mTop40">{_l('API 列表（%0）', apiList.length)}</div>
       <Item className="flexRow alignItemsCenter textSecondary noBG">
@@ -132,6 +124,6 @@ export default function Apply(props) {
           'API 由企业组织应用管理员开放提供，申请使用后需选择授权使用的应用，管理员审核通过后被授权的应用将可以使用 API',
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 }

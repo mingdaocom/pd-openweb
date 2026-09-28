@@ -1,7 +1,7 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
@@ -127,16 +127,25 @@ function Header(props, ref) {
     <Con>
       <div className="flex flexRow overflow_ellipsis">
         <Title className="overflow_ellipsis">{title}</Title>
-
-        <Tip> {_l('%0%1天后将被自动删除', entityName, md.global.SysSettings.worksheetRowRecycleDays)} </Tip>
+        <Tip> {_l('%0%1天后将被自动删除', entityName, md.global.SysSettings.worksheetRowRecycleDays || 60)} </Tip>
         {isCharge && errorCode !== 300016 && (
           <Clear
             onClick={() => {
-              Dialog.confirm({
-                title: <span style={{ color: 'var(--color-error)' }}>{_l('是否清空回收站')}</span>,
-                buttonType: 'danger',
-                anim: false,
-                description: _l('清空后，记录无法恢复，请谨慎操作！'),
+              Modal.confirm({
+                title: (
+                  <span
+                    style={{
+                      color: 'var(--color-error)',
+                    }}
+                    className="textError"
+                  >
+                    {_l('是否清空回收站')}
+                  </span>
+                ),
+                okButtonProps: {
+                  danger: true,
+                },
+                content: _l('清空后，记录无法恢复，请谨慎操作！'),
                 onOk: onClear,
               });
             }}
@@ -168,7 +177,6 @@ function Header(props, ref) {
               type="trash"
               className="actionWrap"
               onlyUseEditing
-              zIndex={1000}
               isCharge={isCharge}
               appId={appId}
               viewId={viewId}

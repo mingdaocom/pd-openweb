@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Button, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import { EditWidgetContent, Header } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
@@ -28,40 +27,41 @@ export default function View(props) {
       return;
     }
 
-    if (_.isEmpty(config.name)) {
-      config.name = `${config._workSheetName} (${config._viewName})`;
-    }
+    const defaultName =
+      config._workSheetName && config._viewName
+        ? `${config._workSheetName} (${config._viewName})`
+        : config._workSheetName || config._viewName || _l('视图');
+    const nextConfig = {
+      ...config,
+      name: _.isEmpty(config.name) ? defaultName : config.name,
+      objectId: _.isEmpty(config.objectId) ? uuidv4() : config.objectId,
+    };
 
-    if (_.isEmpty(config.objectId)) {
-      config.objectId = uuidv4();
-    }
-
-    delete config._workSheetName;
-    delete config._viewName;
-    onEdit(setting);
+    delete nextConfig._workSheetName;
+    delete nextConfig._viewName;
+    onEdit({ ...setting, config: nextConfig });
   };
 
   return (
     <Modal
-      maskStyle={{ zIndex: 999 }}
-      wrapClassName="customPageViewWrap"
       className="editWidgetDialogWrap"
-      visible
-      transitionName=""
-      maskTransitionName=""
+      classNames={{ container: 'pAll0', body: 'pAll0' }}
+      styles={{ body: { padding: 0, position: 'relative' } }}
+      verticalAlign="bottom"
+      open
       width="100%"
+      type="fixed"
       footer={null}
+      closable={false}
       centered={true}
       onCancel={onClose}
     >
       <Header>
         <div className="typeName">{_l('视图')}</div>
         <div className="flexRow valignWrapper">
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
-              {_l('保存')}
-            </Button>
-          </ConfigProvider>
+          <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+            {_l('保存')}
+          </Button>
           <Tooltip title={_l('关闭')} placement="bottom">
             <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>

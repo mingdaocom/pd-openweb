@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { APP_TYPE } from '../../../enum';
 import { getIcons } from '../../../utils';
 
@@ -20,15 +20,15 @@ export default class SelectNodeObject extends Component {
             item.nodeId ? 'Font16 textSecondary' : 'Font18 errorColor',
           )}
         />
-        <span className={cx('Font14 mLeft5', { errorColor: !item.nodeId })}>{item.nodeName || _l('节点已删除')}</span>
+        <span className={cx('Font13 mLeft5', { errorColor: !item.nodeId })}>{item.nodeName || _l('节点已删除')}</span>
 
         {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId ? (
           <Fragment>
-            <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
-            <span className="Font14 mLeft5 bold">{`“${item.appName}”`}</span>
+            <span className="Font13 mLeft5 bold">{item.appTypeName}</span>
+            <span className="Font13 mLeft5 bold">{`“${item.appName}”`}</span>
           </Fragment>
         ) : !_.isEmpty(item) ? (
-          <span className="Font14 mLeft5 textSecondary">{_l('工作表已删除')}</span>
+          <span className="Font13 mLeft5 textSecondary">{_l('工作表已删除')}</span>
         ) : null}
       </Fragment>
     );
@@ -43,14 +43,14 @@ export default class SelectNodeObject extends Component {
     return (
       <div className="flexRow alignItemsCenter">
         <span className={cx('Font16 textSecondary', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
-        <span className={cx('Font14 mLeft5 ellipsis flex', { textSecondary: !item.appId })}>{item.nodeName}</span>
+        <span className={cx('Font13 mLeft5 ellipsis flex', { textSecondary: !item.appId })}>{item.nodeName}</span>
         {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId && item.appName ? (
           <Fragment>
-            <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
-            <span className="Font14 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
+            <span className="Font13 mLeft5 bold">{item.appTypeName}</span>
+            <span className="Font13 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
           </Fragment>
         ) : (
-          <span className="Font14 mLeft5 textSecondary">
+          <span className="Font13 mLeft5 textSecondary">
             <i className="icon-info_outline Font14 mRight5" />
             {_l('设置此节点后才能选择')}
           </span>
@@ -63,24 +63,23 @@ export default class SelectNodeObject extends Component {
     const { isIntegration, appList, selectNodeId, selectNodeObj, onChange, smallBorder, disabled = false } = this.props;
     const list = (appList || []).map(item => {
       return {
-        text: this.renderDropdownItem(item),
+        label: this.renderDropdownItem(item),
         value: item.nodeId,
         disabled: (!item.appId || !item.appName) && !isIntegration,
       };
     });
 
     return (
-      <Dropdown
+      <Select
         className={cx(
           'flowDropdown mTop10',
           { 'errorBorder errorBG': selectNodeId && !selectNodeObj.nodeId },
           { flowDropdownBorder: !smallBorder },
         )}
-        data={list}
+        options={list}
         value={selectNodeId || undefined}
         disabled={disabled}
-        border
-        renderTitle={() => selectNodeId && this.renderTitle(selectNodeObj)}
+        labelRender={() => selectNodeId && this.renderTitle(selectNodeObj)}
         onChange={onChange}
       />
     );

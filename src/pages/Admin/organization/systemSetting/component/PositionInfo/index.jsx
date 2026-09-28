@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Dropdown, Input } from 'ming-ui/antd-components';
 import jobAjax from 'src/api/job';
 import ImportDeptAndRole from 'src/pages/Admin/components/ImportDeptAndRole';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../../config';
 import * as actions from '../../../../redux/position/action';
 import { downloadFile } from '../../../../util';
@@ -99,6 +99,17 @@ class PositionInfo extends Component {
       }
     });
   });
+  handleClear = () => {
+    if (this.ajaxObj && this.ajaxObj.abort) {
+      this.ajaxObj.abort();
+      this.ajaxObj = null;
+    }
+
+    this.props.updateSearchValue('');
+    this.props.updateIsLoading(true);
+    this.props.updatePositionPageInfo({ ...this.props.positionPageInfo, pageIndex: 1 });
+    this.props.getPositionList();
+  };
   renderImportInfo = () => {
     return (
       <div className="importPositionWrap">
@@ -139,10 +150,10 @@ class PositionInfo extends Component {
           <div className="itemMain positionContent">
             <div className="PositionL">
               <div className="searchContainer">
-                <Icon icon="search" className=" btnSearch textSecondary" />
-                <input
-                  defaultValue={searchValue}
-                  ref={input => (this.input = input)}
+                <Input
+                  radius
+                  variant="filled"
+                  value={searchValue}
                   onChange={e => {
                     this.props.updateSearchValue(e.target.value);
                     if (this.ajaxObj && this.ajaxObj.abort) {
@@ -156,46 +167,52 @@ class PositionInfo extends Component {
                   onFocus={() => {
                     this.props.updatePositionPageInfo({ ...this.props.positionPageInfo, pageIndex: 1 });
                   }}
-                  type="text"
                   className="searchInput textPrimary w100"
                   placeholder={_l('搜索')}
+                  prefix={<Icon icon="search" className="textSecondary Font18" />}
+                  suffix={
+                    searchValue ? (
+                      <Icon
+                        icon="cancel"
+                        className="Font14 textPlaceholder pointer"
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={this.handleClear}
+                      />
+                    ) : null
+                  }
                 />
-                {searchValue ? (
-                  <span
-                    className="Font14 icon-cancel textPlaceholder Hand Absolute"
-                    style={{
-                      top: '8px',
-                      right: '8px',
-                    }}
-                    onClick={this.handleClear}
-                  />
-                ) : null}
               </div>
-              <input type="text" style={{ width: 0, height: 0, border: 0 }} />
+              <Input type="hidden" />
               <div className="actBox flexRow">
-                <span className="creatRole themeColor Hand" onClick={() => this.createAndEdit('create')}>
-                  <Icon icon="add" className="Font20 TxtMiddle mRight10" />
+                <Button
+                  color="primary"
+                  variant="text"
+                  icon={<Icon icon="add" className="Font20" />}
+                  onClick={() => this.createAndEdit('create')}
+                >
                   {_l('创建职位')}
-                </span>
+                </Button>
                 <Dropdown
-                  overlayClassName="createMoreDropDown"
+                  classNames={{ root: 'createMoreDropDown' }}
                   trigger={['click']}
                   placement="bottomLeft"
-                  overlay={
-                    <Menu>
-                      <Menu.Item
-                        key="0"
-                        onClick={() => {
+                  menu={{
+                    items: [
+                      {
+                        key: 'import',
+                        label: _l('导入职位'),
+                        onClick: () => {
                           this.props.updateIsImportRole(true);
-                        }}
-                      >
-                        {_l('导入职位')}
-                      </Menu.Item>
-                      <Menu.Item key="1" disabled={_.isEmpty(positionList)} onClick={this.exportJobList}>
-                        {_l('导出职位')}
-                      </Menu.Item>
-                    </Menu>
-                  }
+                        },
+                      },
+                      {
+                        key: 'export',
+                        disabled: _.isEmpty(positionList),
+                        label: _l('导出职位'),
+                        onClick: this.exportJobList,
+                      },
+                    ],
+                  }}
                 >
                   <Icon icon="moreop" className="textSecondary Hand Font20 TxtMiddle iconHover" />
                 </Dropdown>

@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import _, { isEmpty } from 'lodash';
-import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SYSTEM_FIELD_TO_TEXT } from 'src/utils/domain/control/dynamicValueConfig';
+import { getShowControls } from 'src/utils/domain/control/options';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
 import { EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
-import { isSheetDisplay } from '../../util';
-import { getAdvanceSetting, getShowControls } from '../../util/setting';
 
 export default function SubList({ data }) {
   const { relationControls = [], desc = '' } = data;

@@ -4,45 +4,41 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
-import {
-  Button,
-  Dropdown,
-  Icon,
-  LoadDiv,
-  MdLink,
-  Menu,
-  MenuItem,
-  ScrollView,
-  Support,
-  SvgIcon,
-  UpgradeIcon,
-  UserHead,
-  WaterMark,
-} from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, MdLink, ScrollView, Support, SvgIcon, UpgradeIcon, UserHead } from 'ming-ui';
+import { Button, DatePicker, Dropdown, Input, Menu, Modal, Select, Tooltip, WaterMark } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import processVersion from '../api/processVersion';
 import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import processAjax from 'src/pages/workflow/api/process';
+import { updateGlobalStoreForMingo } from 'src/common/runtime/mingoStore';
+import EnvironmentBadge from 'src/components/AppSandbox/environment/EnvironmentBadge';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { getAppLangDetail, getTranslateInfo, setFavicon } from 'src/utils/app';
-import { emitter, getAppFeaturesPath, updateGlobalStoreForMingo } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getAppFeaturesPath } from 'src/utils/platform/navigation/query';
+import { getAppLangDetail, getTranslateInfo, setFavicon } from 'src/utils/services/app';
+import { getFeatureStatus } from 'src/utils/services/project';
 import Search from '../components/Search';
 import { APP_TYPE, RELATION_TYPE } from '../WorkflowSettings/enum';
 import CopyFlowBtn from './components/CopyFlowBtn';
 import CreateWorkflow from './components/CreateWorkflow';
-import DeleteFlowBtn from './components/DeleteFlowBtn';
 import ListName from './components/ListName';
 import PublishBtn from './components/PublishBtn';
-import { DATE_SCOPE, FLOW_TYPE, FLOW_TYPE_NULL, getActionTypeContent, START_APP_TYPE, TYPES } from './utils/index';
+import {
+  buildWorkflowListReturnQuery,
+  DATE_SCOPE,
+  FLOW_TYPE,
+  FLOW_TYPE_NULL,
+  getActionTypeContent,
+  getWorkflowListState,
+  START_APP_TYPE,
+  TYPES,
+} from './utils/index';
 import './index.less';
 
 const HeaderWrap = styled.div`
@@ -90,39 +86,38 @@ function updateWorkflowMingoStore(appDetail = {}) {
   });
 }
 
-const CreateBtn = styled.div`
-  .workflowAdd {
-    line-height: 32px !important;
-    border-radius: 32px !important;
-    padding: 0 16px !important;
-    opacity: 0.87;
-    font-weight: bold;
-    &:hover {
-      opacity: 1;
-    }
-    .icon {
-      margin-right: 2px;
-    }
-  }
-`;
+const isCompleteDateRange = range =>
+  Array.isArray(range) && range.length === 2 && range.every(date => moment.isMoment(date) && date.isValid());
+
+const RANGE_PICKER_TRIGGER_STYLE = {
+  position: 'absolute',
+  inset: 0,
+  opacity: 0,
+  pointerEvents: 'none',
+};
+const WORKFLOW_MENU_STYLE = { minWidth: 180 };
+
+const CreateBtn = styled.div``;
 
 const CreateBtnBig = styled.div`
-  .workflowCreate,
-  .flowSupport {
-    line-height: 36px !important;
-    border-radius: 36px !important;
-    padding: 0 32px !important;
+  .workflowCreate {
     opacity: 0.87;
-    font-weight: bold;
     &:hover {
       opacity: 1;
     }
   }
   .flowSupport {
     line-height: 34px !important;
+    border-radius: 36px !important;
+    padding: 0 32px !important;
     background-color: var(--color-background-primary);
     margin-left: 16px;
     border: 1px solid var(--color-text-disabled);
+    opacity: 0.87;
+    font-weight: bold;
+    &:hover {
+      opacity: 1;
+    }
     span {
       margin-left: 0 !important;
       font-size: 13px;
@@ -132,40 +127,10 @@ const CreateBtnBig = styled.div`
   }
 `;
 
-const DropdownBox = styled.div`
-  &.active {
-    .Dropdown--border {
-      border-color: var(--color-primary) !important;
-      background: var(--color-primary-transparent);
-      .value {
-        color: var(--color-primary);
-      }
-    }
-    &:hover {
-      .icon-arrow-down-border {
-        visibility: hidden;
-      }
-      .icon-cancel {
-        display: block;
-      }
-    }
-  }
-  .icon-cancel {
-    position: absolute;
-    display: none;
-    top: 10px;
-    right: 6px;
-    color: var(--color-text-secondary);
-    &:hover {
-      color: var(--color-primary);
-    }
-  }
-`;
-
 const ArrowUp = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent var(--color-text-secondary) transparent;
+  border-color: transparent transparent var(--color-text-tertiary) transparent;
   cursor: pointer;
   &:hover,
   &.active {
@@ -176,7 +141,7 @@ const ArrowUp = styled.span`
 const ArrowDown = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: var(--color-text-secondary) transparent transparent transparent;
+  border-color: var(--color-text-tertiary) transparent transparent transparent;
   cursor: pointer;
   margin-top: 2px;
   &:hover,
@@ -185,34 +150,31 @@ const ArrowDown = styled.span`
   }
 `;
 
-class AppWorkflowList extends Component {
+export class AppWorkflowList extends Component {
   constructor(props) {
     super(props);
+    const listState = getWorkflowListState(location.search, _.get(props, 'match.params.worksheetId') || '');
+
     this.state = {
       loading: true,
       list: [],
       count: {},
-      type: this.getQueryStringType(),
-      groupFilter: _.get(props, 'match.params.worksheetId') || '',
-      userFilter: '',
-      statusFilter: '',
-      dateFilter: '',
-      keywords: '',
+      ...listState,
       isCreate: false,
       appDetail: {},
       selectFlowId: '',
       selectItem: '',
+      renameItem: null,
+      renameName: '',
+      renamePending: false,
       showTrash: false,
-      isAsc: true,
-      displayType: 'lastModifiedDate',
-      sortType: '',
-      rangeDate: [],
       showDateRangePicker: false,
     };
   }
 
   ajaxRequest = null;
   requestPending = false;
+  renameRequestPending = false;
 
   componentDidMount() {
     const { appId } = this.props.match.params;
@@ -250,6 +212,7 @@ class AppWorkflowList extends Component {
           isAsc: true,
           displayType: 'lastModifiedDate',
           sortType: '',
+          focusId: '',
         });
         this.getList(type);
         this.getCount();
@@ -339,12 +302,33 @@ class AppWorkflowList extends Component {
         });
       }
 
-      this.setState({
-        loading: false,
-        list: result,
-      });
+      this.focusedWorkflowElement = null;
+      this.setState(
+        {
+          loading: false,
+          list: result,
+        },
+        this.scrollToFocusedWorkflow,
+      );
     });
   }
+
+  getWorkflowListReturnQuery = focusId => buildWorkflowListReturnQuery(this.state, focusId);
+
+  scrollToFocusedWorkflow = () => {
+    if (!this.state.focusId || !this.listScrollView || !this.focusedWorkflowElement) return;
+
+    const { viewport } = this.listScrollView.getScrollInfo() || {};
+
+    if (!viewport) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const elementRect = this.focusedWorkflowElement.getBoundingClientRect();
+
+    if (elementRect.top < viewportRect.top || elementRect.bottom > viewportRect.bottom) {
+      this.listScrollView.scrollToElement(this.focusedWorkflowElement);
+    }
+  };
 
   /**
    * 获取计数
@@ -388,13 +372,18 @@ class AppWorkflowList extends Component {
 
     return (
       <HeaderWrap className="flexRow alignItemsCenter">
+        <EnvironmentBadge />
         <div className="flexRow alignItemsCenter">
           <i
             className="icon-backspace simpleHeaderBackIcon Font20 textTertiary hoverColorPrimary"
             onClick={() => this.backToApp()}
           />
           <Tooltip placement="bottomLeft" title={_l('应用：%0', appDetail.name)}>
-            <div className="applicationIcon" style={{ backgroundColor: appDetail.iconColor }}>
+            <div
+              className="applicationIcon pointer"
+              style={{ backgroundColor: appDetail.iconColor }}
+              onClick={() => this.backToApp()}
+            >
               <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
             </div>
           </Tooltip>
@@ -416,8 +405,9 @@ class AppWorkflowList extends Component {
         <CreateBtn>
           {type !== FLOW_TYPE.PBC ? (
             <Button
-              size="small"
-              icon="add"
+              type="primary"
+              shape="round"
+              icon={<Icon icon="add" />}
               className="workflowAdd"
               style={{ backgroundColor: appDetail.iconColor }}
               onClick={() => this.setState({ isCreate: true })}
@@ -426,8 +416,9 @@ class AppWorkflowList extends Component {
             </Button>
           ) : (
             <Button
-              size="small"
-              icon="add"
+              type="primary"
+              shape="round"
+              icon={<Icon icon="add" />}
               className="workflowAdd"
               onClick={() => !this.requestPending && this.createFlow(appId)}
             >
@@ -464,64 +455,99 @@ class AppWorkflowList extends Component {
       (_.get(params, 'worksheetId')
         ? location.pathname.replace(`/${_.get(params, 'worksheetId')}`, '')
         : location.pathname) + (featurePath ? `?${featurePath}` : '');
+    const visibleTypes = TYPES.filter(
+      o =>
+        !(md.global.SysSettings.hideAIBasicFun && o.value === FLOW_TYPE.AI_ACTIONS) &&
+        (o.value !== FLOW_TYPE.EVENT_PUSH || count[o.value]),
+    );
+    const getNavigationItem = item => ({
+      key: item.value || 'all',
+      icon: <i className={cx('Font18', item.icon)} />,
+      label: (
+        <div className="workflowNavigationLabel flexRow">
+          <span className="flex ellipsis">{item.text}</span>
+          <span className="textTertiary mLeft10 Font13">
+            {(item.value ? count[item.value] : _.sum(Object.values(count))) || ''}
+          </span>
+        </div>
+      ),
+    });
+    const navigationItems = [
+      getNavigationItem(visibleTypes[0]),
+      {
+        type: 'group',
+        label: _l('触发方式'),
+        children: visibleTypes
+          .filter(item =>
+            _.includes(
+              [
+                FLOW_TYPE.APP,
+                FLOW_TYPE.TIME,
+                FLOW_TYPE.USER,
+                FLOW_TYPE.WEBHOOK,
+                FLOW_TYPE.CUSTOM_ACTION,
+                FLOW_TYPE.AI_ACTIONS,
+                FLOW_TYPE.CHATBOT,
+              ],
+              item.value,
+            ),
+          )
+          .map(getNavigationItem),
+      },
+      {
+        type: 'group',
+        label: _l('调用流程'),
+        children: visibleTypes
+          .filter(item =>
+            _.includes([FLOW_TYPE.LOOP, FLOW_TYPE.SUB_PROCESS, FLOW_TYPE.APPROVAL, FLOW_TYPE.PBC], item.value),
+          )
+          .map(getNavigationItem),
+      },
+      {
+        type: 'group',
+        label: _l('其他'),
+        children: visibleTypes.filter(item => item.value === FLOW_TYPE.EVENT_PUSH).map(getNavigationItem),
+      },
+    ];
+
+    if (featureType) {
+      navigationItems.push({
+        key: 'trash',
+        icon: <i className="Font18 icon-knowledge-recycle" />,
+        label: (
+          <span className="flex ellipsis">
+            {_l('回收站')}
+            {isFree && <UpgradeIcon />}
+          </span>
+        ),
+      });
+    }
 
     return (
-      <ul className="workflowHeader flexColumn">
+      <div className="workflowHeader flexColumn">
         <ScrollView className="pLeft8 pRight8">
-          {TYPES.filter(
-            o =>
-              !(md.global.SysSettings.hideAIBasicFun && o.value === FLOW_TYPE.AI_ACTIONS) &&
-              (o.value !== FLOW_TYPE.EVENT_PUSH || count[o.value]),
-          ).map(item => (
-            <Fragment key={item.value}>
-              {item.value === FLOW_TYPE.APP && (
-                <div className="bold Font12 textSecondary mTop15 mBottom15 mLeft16">{_l('触发方式')}</div>
-              )}
-
-              {item.value === FLOW_TYPE.LOOP && (
-                <div className="bold Font12 textSecondary mTop15 mBottom15 mLeft16">{_l('调用流程')}</div>
-              )}
-
-              <MdLink
-                className="NoUnderline"
-                to={item.value ? `${linkUrl}${linkUrl.indexOf('?') > -1 ? '&' : '?'}type=${item.value}` : linkUrl}
-                key={item.value}
-              >
-                <li className={cx({ 'active colorPrimary': type === item.value })}>
-                  <i className={cx('Font18', item.icon, type === item.value ? 'colorPrimary' : 'textSecondary')} />
-                  <span className="flex ellipsis mLeft10">{item.text}</span>
-                  <span className="textTertiary mLeft10 Font13">
-                    {(item.value ? count[item.value] : _.sum(Object.values(count))) || ''}
-                  </span>
-                </li>
-              </MdLink>
-
-              {item.value === FLOW_TYPE.PBC && (
-                <div className="bold Font12 textSecondary mTop15 mBottom15 mLeft16">{_l('其他')}</div>
-              )}
-            </Fragment>
-          ))}
-
-          {featureType && (
-            <li
-              onClick={() => {
+          <Menu
+            className="workflowNavigationMenu"
+            mode="inline"
+            selectedKeys={[type || 'all']}
+            items={navigationItems}
+            onClick={({ key }) => {
+              if (key === 'trash') {
                 if (isFree) {
                   buriedUpgradeVersionDialog(appDetail.projectId, VersionProductType.recycle);
                   return;
                 }
 
                 this.setState({ showTrash: true });
-              }}
-            >
-              <i className="Font18 icon-knowledge-recycle textSecondary" />
-              <span className="flex ellipsis mLeft10">
-                {_l('回收站')}
-                {isFree && <UpgradeIcon />}
-              </span>
-            </li>
-          )}
+                return;
+              }
+
+              const flowType = key === 'all' ? '' : key;
+              navigateTo(flowType ? `${linkUrl}${linkUrl.indexOf('?') > -1 ? '&' : '?'}type=${flowType}` : linkUrl);
+            }}
+          />
         </ScrollView>
-      </ul>
+      </div>
     );
   }
 
@@ -661,14 +687,15 @@ class AppWorkflowList extends Component {
             ) : (
               <Fragment>
                 <div className="flex">
-                  <Dropdown
-                    className="Normal"
-                    data={[
-                      { text: _l('创建时间'), value: 'createdDate' },
-                      { text: _l('更新时间'), value: 'lastModifiedDate' },
+                  <Select
+                    className="workflowListTimeSelect Normal"
+                    variant="borderless"
+                    options={[
+                      { label: _l('创建时间'), value: 'createdDate' },
+                      { label: _l('更新时间'), value: 'lastModifiedDate' },
                     ]}
                     value={displayType}
-                    renderTitle={() => (
+                    labelRender={() => (
                       <span className="textSecondary bold">
                         {displayType === 'createdDate' ? _l('状态 / 创建时间') : _l('状态 / 更新时间')}
                       </span>
@@ -692,7 +719,7 @@ class AppWorkflowList extends Component {
           <div className="w120">{_l('拥有者')}</div>
           <div className="w20 mRight20" />
         </div>
-        <ScrollView className="flex">
+        <ScrollView className="flex" ref={ref => (this.listScrollView = ref)}>
           {!list.length && (
             <div className="flowEmptyWrap flexColumn">
               <div className="flowEmptyPic flowEmptyPic-search" />
@@ -746,7 +773,11 @@ class AppWorkflowList extends Component {
           )}
 
         {item.processList.map(data => (
-          <div key={data.id} className={cx('flexRow manageList', { active: selectFlowId === data.id })}>
+          <div
+            key={data.id}
+            ref={data.id === this.state.focusId ? element => (this.focusedWorkflowElement = element) : null}
+            className={cx('flexRow manageList', { active: selectFlowId === data.id })}
+          >
             <div
               className={cx('iconWrap mLeft10', { unable: !data.enabled })}
               style={{
@@ -768,7 +799,7 @@ class AppWorkflowList extends Component {
               />
             </div>
             <div className="flex name mLeft10 mRight20">
-              <ListName item={data} type={this.state.type} />
+              <ListName item={data} returnQuery={this.getWorkflowListReturnQuery(data.id)} />
             </div>
             <div className="w180 pRight20 breakAll">{getActionTypeContent(this.state.type, data)}</div>
             <div className="w270 pRight20">{this.column3Content(data)}</div>
@@ -781,12 +812,19 @@ class AppWorkflowList extends Component {
               <div className="mLeft12 ellipsis flex mRight20">{data.ownerAccount.fullName}</div>
             </div>
             <div className="w20 mRight20 TxtCenter relative">
-              <Icon
-                type="more_horiz"
-                className="textSecondary hoverColorPrimary pointer Font16 listBtn"
-                onClick={() => this.setState({ selectFlowId: data.id })}
-              />
-              {selectFlowId === data.id && this.renderMoreOptions(data)}
+              <Dropdown
+                trigger={['click']}
+                open={selectFlowId === data.id}
+                onOpenChange={open => this.setState({ selectFlowId: open ? data.id : '' })}
+                placement="bottomRight"
+                menu={{
+                  style: WORKFLOW_MENU_STYLE,
+                  items: this.getMoreOptionItems(data),
+                  onClick: () => this.setState({ selectFlowId: '' }),
+                }}
+              >
+                <Icon type="more_horiz" className="textSecondary hoverColorPrimary pointer Font16 listBtn" />
+              </Dropdown>
             </div>
           </div>
         ))}
@@ -847,88 +885,136 @@ class AppWorkflowList extends Component {
   /**
    * 更多操作
    */
-  renderMoreOptions(data) {
+  getMoreOptionItems(data) {
     const type = String(data.processListType);
+    const canCopy = !_.includes(
+      [
+        FLOW_TYPE.OTHER_APP,
+        FLOW_TYPE.APPROVAL,
+        FLOW_TYPE.CUSTOM_ACTION,
+        FLOW_TYPE.EVENT_PUSH,
+        FLOW_TYPE.LOOP,
+        FLOW_TYPE.CHATBOT,
+        FLOW_TYPE.AI_ACTIONS,
+      ],
+      type,
+    );
+    const canConvert =
+      _.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) ||
+      (type === FLOW_TYPE.TIME && data.appId !== 'timer') ||
+      (type === FLOW_TYPE.SUB_PROCESS && data.appId === 'otherSubProcess');
+    const canMove =
+      _.includes([APP_TYPE.LOOP, APP_TYPE.WEBHOOK, APP_TYPE.PBC, APP_TYPE.USER], data.startAppType) &&
+      type !== FLOW_TYPE.SUB_PROCESS;
+    const canDelete = !_.includes(
+      [FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT, FLOW_TYPE.AI_ACTIONS],
+      type,
+    );
 
-    return (
-      <Menu
-        className="mTop10 TxtLeft workflowListMenu"
-        style={{ left: 'inherit', right: 0 }}
-        onClickAway={() => this.setState({ selectFlowId: '' })}
-      >
-        <MenuItem>
+    return [
+      {
+        key: 'rename',
+        icon: <i className="icon-edit Font16" />,
+        label: _l('重命名'),
+        onClick: () => this.openRenameDialog(data),
+      },
+      {
+        key: 'history',
+        label: (
           <MdLink to={`/workflowedit/${data.id}/2`}>
-            <span className="icon-restore2 textSecondary Font16 pLeft12 mRight10" />
+            <span className="icon-restore2 textSecondary Font16 mRight10" />
             {_l('历史')}
           </MdLink>
-        </MenuItem>
-
-        {!_.includes(
-          [
-            FLOW_TYPE.OTHER_APP,
-            FLOW_TYPE.APPROVAL,
-            FLOW_TYPE.CUSTOM_ACTION,
-            FLOW_TYPE.EVENT_PUSH,
-            FLOW_TYPE.LOOP,
-            FLOW_TYPE.CHATBOT,
-            FLOW_TYPE.AI_ACTIONS,
-          ],
-          type,
-        ) && (
-          <MenuItem>
-            <CopyFlowBtn
-              item={data}
-              updateList={() => {
-                this.getList(this.state.type);
-                this.getCount();
-              }}
-            />
-          </MenuItem>
-        )}
-
-        {(_.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) ||
-          (type === FLOW_TYPE.TIME && data.appId !== 'timer') ||
-          (type === FLOW_TYPE.SUB_PROCESS && data.appId === 'otherSubProcess')) && (
-          <MenuItem>
-            <CopyFlowBtn
-              item={data}
-              isConvertSubProcess={
-                _.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) ||
-                (type === FLOW_TYPE.TIME && data.appId !== 'timer')
-              }
-              isConvertPBP={type === FLOW_TYPE.SUB_PROCESS && data.appId === 'otherSubProcess'}
-              updateList={() => {
-                this.getList(this.state.type);
-                this.getCount();
-              }}
-            />
-          </MenuItem>
-        )}
-
-        {_.includes([APP_TYPE.LOOP, APP_TYPE.WEBHOOK, APP_TYPE.PBC, APP_TYPE.USER], data.startAppType) &&
-          type !== FLOW_TYPE.SUB_PROCESS && (
-            <MenuItem onClick={() => this.setState({ selectItem: data })}>
-              <span className="icon-swap_horiz textSecondary Font16 pLeft12 mRight10" />
-              {_l('移至其他应用')}
-            </MenuItem>
-          )}
-
-        {_.includes(
-          [FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT, FLOW_TYPE.AI_ACTIONS],
-          type,
-        ) ? null : (
-          <MenuItem>
-            <DeleteFlowBtn
-              item={data}
-              callback={id => {
-                this.deleteOrMoveProcessHandle(id);
-              }}
-            />
-          </MenuItem>
-        )}
-      </Menu>
-    );
+        ),
+      },
+      canCopy && {
+        key: 'copy',
+        label: (
+          <CopyFlowBtn
+            item={data}
+            updateList={() => {
+              this.getList(this.state.type);
+              this.getCount();
+            }}
+          />
+        ),
+      },
+      canConvert && {
+        key: 'convert',
+        label: (
+          <CopyFlowBtn
+            item={data}
+            isConvertSubProcess={
+              _.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) ||
+              (type === FLOW_TYPE.TIME && data.appId !== 'timer')
+            }
+            isConvertPBP={type === FLOW_TYPE.SUB_PROCESS && data.appId === 'otherSubProcess'}
+            updateList={() => {
+              this.getList(this.state.type);
+              this.getCount();
+            }}
+          />
+        ),
+      },
+      canMove && {
+        key: 'move',
+        icon: <i className="icon-swap_horiz Font16" />,
+        label: _l('移至其他应用'),
+        onClick: () => this.setState({ selectItem: data }),
+      },
+      canDelete && {
+        key: 'delete',
+        danger: true,
+        icon: <i className="icon-trash Font16" />,
+        label: _l('删除'),
+        onClick: () => this.deleteFlow(data),
+      },
+    ].filter(Boolean);
   }
+
+  /**
+   * 重命名工作流
+   */
+  openRenameDialog = item => {
+    this.setState({ renameItem: item, renameName: item.name });
+  };
+
+  renameWorkflow = () => {
+    const { appDetail, renameItem, renameName } = this.state;
+    const name = renameName.trim();
+
+    if (this.renameRequestPending || !renameItem) return;
+
+    if (!name) {
+      alert(_l('请输入工作流名称'), 2);
+      this.renameInput?.focus();
+      return;
+    }
+
+    this.renameRequestPending = true;
+    this.setState({ renamePending: true });
+
+    return processAjax
+      .updateProcess({
+        companyId: renameItem.companyId || appDetail.projectId,
+        processId: renameItem.id,
+        name,
+      })
+      .then(() => {
+        this.setState(state => ({
+          list: state.list.map(group => ({
+            ...group,
+            processList: group.processList.map(item => (item.id === renameItem.id ? { ...item, name } : item)),
+          })),
+          renameItem: null,
+          renameName: '',
+        }));
+      })
+      .finally(() => {
+        this.renameRequestPending = false;
+        this.setState({ renamePending: false });
+      });
+  };
 
   /**
    * 创建封装业务流程
@@ -951,6 +1037,26 @@ class AppWorkflowList extends Component {
       .finally(() => {
         this.requestPending = false;
       });
+  };
+
+  /**
+   * 删除工作流
+   */
+  deleteFlow = item => {
+    Modal.confirm({
+      title: <span className="textError">{_l('删除工作流“%0”', item.name)}</span>,
+      content: _l('工作流将被删除，请确认执行此操作'),
+      okText: _l('删除'),
+      okButtonProps: {
+        danger: true,
+      },
+      onOk: () =>
+        processAjax.deleteProcess({ processId: item.id }).then(res => {
+          if (res) {
+            this.deleteOrMoveProcessHandle(item.id);
+          }
+        }),
+    });
   };
 
   /**
@@ -989,6 +1095,7 @@ class AppWorkflowList extends Component {
       dateFilter,
       displayType,
       rangeDate,
+      keywords,
       showDateRangePicker,
     } = this.state;
     let CREATE_FILTER_LIST = [];
@@ -996,7 +1103,7 @@ class AppWorkflowList extends Component {
     list.forEach(item => {
       CREATE_FILTER_LIST = CREATE_FILTER_LIST.concat(
         item.processList.map(o => {
-          return { text: o.ownerAccount.fullName, value: o.ownerAccount.accountId };
+          return { label: o.ownerAccount.fullName, value: o.ownerAccount.accountId };
         }),
       );
     });
@@ -1006,138 +1113,111 @@ class AppWorkflowList extends Component {
     // 是否包含我自己
     if (CREATE_FILTER_LIST.find(o => o.value === md.global.Account.accountId)) {
       _.remove(CREATE_FILTER_LIST, o => o.value === md.global.Account.accountId);
-      CREATE_FILTER_LIST = [[{ text: _l('我自己'), value: md.global.Account.accountId }]].concat([CREATE_FILTER_LIST]);
+      CREATE_FILTER_LIST = [{ label: _l('我自己'), value: md.global.Account.accountId }].concat(CREATE_FILTER_LIST);
     }
+
+    const hasCompleteRangeDate = isCompleteDateRange(rangeDate);
+    const rangeDateText =
+      dateFilter === 8 && hasCompleteRangeDate
+        ? _l('%0 至 %1', rangeDate[0].format('YYYY-MM-DD HH:mm'), rangeDate[1].format('YYYY-MM-DD HH:mm'))
+        : '';
 
     return (
       <div className="manageListSearch flexRow">
         {!_.includes([FLOW_TYPE.WEBHOOK, FLOW_TYPE.PBC, FLOW_TYPE.CHATBOT], type) && (
-          <DropdownBox className={cx('w180 relative mRight10', { active: groupFilter !== '' })}>
-            <Dropdown
-              className="w100"
-              data={(list || []).map(item => {
-                return { text: item.groupName, value: item.groupId };
-              })}
-              value={groupFilter}
-              placeholder={type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部')}
-              openSearch
-              border
-              onChange={groupFilter => {
-                this.clearUrlWorksheetId();
-                this.setState({ groupFilter });
-              }}
-            />
-            <Icon
-              icon="cancel"
-              className="Font16 pointer"
-              onClick={() => {
-                this.clearUrlWorksheetId();
-                this.setState({ groupFilter: '' });
-              }}
-            />
-          </DropdownBox>
-        )}
-
-        <DropdownBox className={cx('w180 relative mRight10', { active: statusFilter !== '' })}>
-          <Dropdown
-            className="w100"
-            data={[
-              { text: _l('开启'), value: true },
-              { text: _l('关闭'), value: false },
-            ]}
-            value={statusFilter}
-            placeholder={_l('状态')}
-            border
-            onChange={statusFilter => this.setState({ statusFilter })}
-          />
-          <Icon icon="cancel" className="Font16 pointer" onClick={() => this.setState({ statusFilter: '' })} />
-        </DropdownBox>
-
-        <DropdownBox
-          className={cx('w180 relative', { active: userFilter !== '' }, showDateRangePicker ? 'mRight9' : 'mRight10')}
-        >
-          <Dropdown
-            className="w100"
-            data={CREATE_FILTER_LIST}
-            value={userFilter}
-            placeholder={_l('拥有者')}
-            openSearch
-            border
-            onChange={userFilter => this.setState({ userFilter })}
-          />
-          <Icon icon="cancel" className="Font16 pointer" onClick={() => this.setState({ userFilter: '' })} />
-        </DropdownBox>
-
-        {showDateRangePicker && (
-          <DateRangePicker
-            mode="date"
-            defaultVisible
-            timePicker
-            selectedValue={
-              rangeDate.length
-                ? rangeDate
-                : [moment(moment().format('YYYY-MM-DD 00:00')), moment(moment().format('YYYY-MM-DD 23:59'))]
-            }
-            allowClear={false}
-            children={<div className="filterTimeRange"></div>}
-            onOk={rangeDate => this.setState({ dateFilter: 8, rangeDate, showDateRangePicker: false })}
-            onVisibleChange={visible => {
-              if (!visible) {
-                !rangeDate.length && this.setState({ dateFilter: '' });
-                this.setState({ showDateRangePicker: false });
-              }
+          <Select
+            allowClear
+            className="w180 mRight10"
+            options={(list || []).map(item => {
+              return { label: item.groupName, value: item.groupId };
+            })}
+            value={groupFilter || undefined}
+            placeholder={type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部')}
+            showSearch
+            optionFilterProp="label"
+            onChange={groupFilter => {
+              this.clearUrlWorksheetId();
+              this.setState({ groupFilter: groupFilter || '' });
             }}
           />
         )}
 
-        <DropdownBox className={cx('w180 relative mRight10', { active: dateFilter !== '' })}>
-          <Dropdown
-            className="w100"
-            data={DATE_SCOPE}
-            value={dateFilter === 8 ? -1 : dateFilter}
-            placeholder={displayType === 'createdDate' ? _l('创建时间') : _l('更新时间')}
-            border
-            renderTitle={
-              dateFilter === 8
-                ? () => (
-                    <Tooltip
-                      placement="bottomLeft"
-                      title={
-                        !rangeDate.length ? (
-                          ''
-                        ) : (
-                          <span>
-                            {_l(
-                              '%0 至 %1',
-                              rangeDate[0].format('YYYY-MM-DD HH:mm'),
-                              rangeDate[1].format('YYYY-MM-DD HH:mm'),
-                            )}
-                          </span>
-                        )
-                      }
-                    >
-                      <span>{_l('自定义日期')}</span>
-                    </Tooltip>
-                  )
-                : null
-            }
-            onChange={dateFilter =>
-              this.setState({
-                dateFilter,
-                rangeDate: dateFilter === 8 ? rangeDate : [],
-                showDateRangePicker: dateFilter === 8,
-              })
-            }
-          />
-          <Icon
-            icon="cancel"
-            className="Font16 pointer"
-            onClick={() => this.setState({ dateFilter: '', rangeDate: [] })}
-          />
-        </DropdownBox>
+        <Select
+          allowClear
+          className="w180 mRight10"
+          options={[
+            { label: _l('开启'), value: true },
+            { label: _l('关闭'), value: false },
+          ]}
+          value={statusFilter === '' ? undefined : statusFilter}
+          placeholder={_l('状态')}
+          onChange={statusFilter => this.setState({ statusFilter: statusFilter ?? '' })}
+        />
+
+        <Select
+          allowClear
+          className="w180 mRight10"
+          options={CREATE_FILTER_LIST}
+          value={userFilter || undefined}
+          placeholder={_l('拥有者')}
+          showSearch
+          optionFilterProp="label"
+          onChange={userFilter => this.setState({ userFilter: userFilter || '' })}
+        />
+
+        <div className="w180 mRight10 Relative">
+          {showDateRangePicker && (
+            <DatePicker.RangePicker
+              allowClear={false}
+              format="YYYY-MM-DD HH:mm"
+              open
+              showTime={{ format: 'HH:mm' }}
+              style={RANGE_PICKER_TRIGGER_STYLE}
+              onOk={rangeDate => {
+                if (isCompleteDateRange(rangeDate)) {
+                  this.setState({ dateFilter: 8, rangeDate, showDateRangePicker: false });
+                }
+              }}
+              onOpenChange={open => {
+                if (!open) {
+                  this.setState(prevState => {
+                    const hasCompleteRangeDate = isCompleteDateRange(prevState.rangeDate);
+
+                    return {
+                      dateFilter: hasCompleteRangeDate ? 8 : '',
+                      rangeDate: hasCompleteRangeDate ? prevState.rangeDate : [],
+                      showDateRangePicker: false,
+                    };
+                  });
+                }
+              }}
+            />
+          )}
+
+          <Tooltip placement="bottomLeft" title={rangeDateText}>
+            <Select
+              allowClear
+              className="w100"
+              options={DATE_SCOPE}
+              value={dateFilter === 8 ? -1 : dateFilter || undefined}
+              placeholder={displayType === 'createdDate' ? _l('创建时间') : _l('更新时间')}
+              labelRender={dateFilter === 8 ? () => <span>{_l('自定义日期')}</span> : null}
+              onChange={dateFilter => {
+                const nextDateFilter = dateFilter || '';
+
+                this.setState({
+                  dateFilter: nextDateFilter,
+                  rangeDate: nextDateFilter === 8 && hasCompleteRangeDate ? rangeDate : [],
+                  showDateRangePicker: nextDateFilter === 8,
+                });
+              }}
+            />
+          </Tooltip>
+        </div>
 
         <div className="flex" />
         <Search
+          value={keywords}
           placeholder={_l('搜索流程名称')}
           handleChange={keywords => this.setState({ keywords: keywords.trim() })}
         />
@@ -1158,7 +1238,8 @@ class AppWorkflowList extends Component {
           <div className="Font16 bold mTop25">{_l('将日常工作与业务流程自动化运行，替代手工操作')}</div>
           <CreateBtnBig className="flexRow mTop25">
             <Button
-              size="small"
+              type="primary"
+              shape="round"
               className="workflowCreate"
               style={{ backgroundColor: appDetail.iconColor }}
               onClick={() => this.setState({ isCreate: true })}
@@ -1212,7 +1293,7 @@ class AppWorkflowList extends Component {
 
   render() {
     const { appId } = this.props.match.params;
-    const { type, loading, list, selectItem, appDetail, showTrash } = this.state;
+    const { type, loading, list, selectItem, renameItem, renameName, renamePending, appDetail, showTrash } = this.state;
 
     return (
       <WaterMark projectId={appDetail.projectId}>
@@ -1277,6 +1358,30 @@ class AppWorkflowList extends Component {
             }}
           />
         )}
+
+        <Modal
+          centered
+          width={520}
+          title={_l('重命名')}
+          open={!!renameItem}
+          maskClosable={false}
+          okText={_l('确定')}
+          cancelText={_l('取消')}
+          confirmLoading={renamePending}
+          okButtonProps={{ disabled: !renameName.trim() }}
+          cancelButtonProps={{ disabled: renamePending }}
+          onOk={this.renameWorkflow}
+          onCancel={() => !renamePending && this.setState({ renameItem: null, renameName: '' })}
+        >
+          <Input
+            ref={input => (this.renameInput = input)}
+            autoFocus
+            maxLength={30}
+            value={renameName}
+            onChange={event => this.setState({ renameName: event.target.value })}
+            onPressEnter={() => !renamePending && this.renameWorkflow()}
+          />
+        </Modal>
       </WaterMark>
     );
   }

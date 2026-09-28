@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isAreaControl, isNumberControl, isOptionControl, isTimeControl } from 'statistics/common/controlUtils';
 import {
   areaParticleSizeDropdownData,
@@ -11,7 +9,8 @@ import {
   filterDisableParticleSizeTypes,
 } from 'statistics/common/reportConfigUtils';
 import { timeGatherParticle, timeParticleSizeDropdownData } from 'statistics/common/timeUtils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import WithoutFidldItem from './WithoutFidldItem';
 
 const emptyTypes = [
@@ -114,79 +113,64 @@ export default class GroupingAxis extends Component {
 
     return _l('分组');
   };
-  renderTimeOverlay() {
+  getTimeMenuItems() {
     const { split, disableParticleSizeTypes } = this.props;
     const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(split.controlId, disableParticleSizeTypes);
     const timeDataList = split.controlType === WIDGETS_TO_API_TYPE_ENUM.TIME ? timeParticle : timeGather;
-    return (
-      <Menu className="chartControlMenu chartMenu">
-        {timeDataList.map(item => (
-          <Menu.Item
-            className="valignWrapper"
-            disabled={item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-            style={{ color: item.value === split.particleSizeType ? 'var(--color-primary) !important' : null }}
-            key={item.value}
-            onClick={() => {
-              this.handleChangeTimeParticleSizeType(item.value);
-            }}
-          >
-            <div className="flex">{item.text}</div>
-            <div className="textSecondary Font12">{item.getTime()}</div>
-          </Menu.Item>
-        ))}
-      </Menu>
-    );
+
+    return timeDataList.map(item => ({
+      key: item.value,
+      className: 'valignWrapper',
+      disabled: item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value),
+      style: { color: item.value === split.particleSizeType ? 'var(--color-primary)' : null },
+      label: item.text,
+      extra: <div className="textSecondary Font12">{item.getTime()}</div>,
+
+      onClick: () => {
+        this.handleChangeTimeParticleSizeType(item.value);
+      },
+    }));
   }
-  renderAreaOverlay(axis) {
+  getAreaMenuItems(axis) {
     const { split, disableParticleSizeTypes } = this.props;
     const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(split.controlId, disableParticleSizeTypes);
     const areaParticleSizeDropdownData = filterAreaParticleSizeDropdownData(axis);
-    return (
-      <Menu className="chartControlMenu chartMenu">
-        {areaParticleSizeDropdownData.map(item => (
-          <Menu.Item
-            className="valignWrapper"
-            disabled={item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-            style={{ color: item.value === split.particleSizeType ? 'var(--color-primary) !important' : null }}
-            key={item.value}
-            onClick={() => {
-              this.handleChangeTimeParticleSizeType(item.value);
-            }}
-          >
-            <div className="flex">{item.text}</div>
-          </Menu.Item>
-        ))}
-      </Menu>
-    );
+
+    return areaParticleSizeDropdownData.map(item => ({
+      key: item.value,
+      className: 'valignWrapper',
+      disabled: item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value),
+      style: { color: item.value === split.particleSizeType ? 'var(--color-primary)' : null },
+      label: <div className="flex">{item.text}</div>,
+      onClick: () => {
+        this.handleChangeTimeParticleSizeType(item.value);
+      },
+    }));
   }
-  renderOptionOverlay() {
+  getOptionMenuItems() {
     const { split } = this.props;
-    return (
-      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
-        <Menu.SubMenu
-          popupClassName="chartMenu"
-          title={
-            <div className="flexRow valignWrapper w100">
-              <div className="flex">{_l('无记录的项目')}</div>
-              <div className="Font12 textSecondary emptyTypeName">{split.emptyType ? _l('显示') : _l('隐藏')}</div>
-            </div>
-          }
-          popupOffset={[0, -15]}
-        >
-          {emptyTypes.map(item => (
-            <Menu.Item
-              key={item.value}
-              style={{ color: item.value === split.emptyType ? 'var(--color-primary) !important' : null }}
-              onClick={() => {
-                this.handleChangeEmptyType(item.value);
-              }}
-            >
-              {item.name}
-            </Menu.Item>
-          ))}
-        </Menu.SubMenu>
-      </Menu>
-    );
+
+    return [
+      {
+        key: 'emptyType',
+        label: (
+          <div className="flexRow valignWrapper w100">
+            <div className="flex">{_l('无记录的项目')}</div>
+            <div className="Font12 textSecondary emptyTypeName">{split.emptyType ? _l('显示') : _l('隐藏')}</div>
+          </div>
+        ),
+
+        popupOffset: [0, -15],
+        children: emptyTypes.map(item => ({
+          key: item.value,
+          style: { color: item.value === split.emptyType ? 'var(--color-primary)' : null },
+          label: item.name,
+          onClick: () => {
+            this.handleChangeEmptyType(item.value);
+          },
+        })),
+      },
+    ];
   }
   renderAxis() {
     const { split, axisControls, allControls, reportType } = this.props;
@@ -213,7 +197,10 @@ export default class GroupingAxis extends Component {
         )}
         {isTime && (
           <Dropdown
-            overlay={this.renderTimeOverlay(axis)}
+            menu={{
+              style: { minWidth: 200 },
+              items: this.getTimeMenuItems(axis),
+            }}
             trigger={['click']}
             placement="bottomRight"
             getPopupContainer={() => document.querySelector('.ChartDialogContainer .setting')}
@@ -222,12 +209,26 @@ export default class GroupingAxis extends Component {
           </Dropdown>
         )}
         {isArea && (
-          <Dropdown overlay={this.renderAreaOverlay(axis)} trigger={['click']} placement="bottomRight">
+          <Dropdown
+            menu={{
+              style: { minWidth: 200 },
+              items: this.getAreaMenuItems(axis),
+            }}
+            trigger={['click']}
+            placement="bottomRight"
+          >
             <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
         {isOption && (
-          <Dropdown overlay={this.renderOptionOverlay(axis)} trigger={['click']} placement="bottomRight">
+          <Dropdown
+            menu={{
+              style: { minWidth: 200 },
+              items: this.getOptionMenuItems(axis),
+            }}
+            trigger={['click']}
+            placement="bottomRight"
+          >
             <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}

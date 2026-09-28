@@ -4,11 +4,11 @@ import { get, isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
-import { Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import agentApi from 'src/api/agent';
 import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
-import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { transformQiniuUrl, usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
 import { generateParamsForPrompt } from '../util';
 import AutoHeightInput from './AutoHeightInput';
 import { MESSAGE_TYPE } from './enum';
@@ -51,26 +51,22 @@ const Container = styled.div`
     }
   }
 `;
-
 const MessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
 `;
-
 const MessageWrapper = styled.div`
   padding: 6px 17px 18px;
 `;
-
 const Message = styled.div`
   display: flex;
   gap: 10px;
   margin: 10px 0 16px;
-  cursor: ${props => (props.loading ? 'default' : 'pointer')};
+  cursor: ${props => (props.$loading ? 'default' : 'pointer')};
   // &.active {
   //   border: 1px solid var(--color-primary);
   // }
 `;
-
 const Avatar = styled.div`
   width: 26px;
   height: 26px;
@@ -91,17 +87,14 @@ const Avatar = styled.div`
     height: 100%;
   }
 `;
-
 const TextContainer = styled.div`
   flex: 1;
   overflow: hidden;
 `;
-
 const InputContainer = styled.div`
   position: relative;
   padding-top: 12px;
 `;
-
 const InputWrapper = styled.div`
   position: relative;
   margin: 0 17px;
@@ -113,7 +106,6 @@ const InputWrapper = styled.div`
     border-color: var(--color-primary);
   }
 `;
-
 const Input = styled(AutoHeightInput)`
   width: 100%;
   padding: 8px 12px;
@@ -130,13 +122,11 @@ const Input = styled(AutoHeightInput)`
     background: rgba(187, 187, 187, 0.4);
   }
 `;
-
 const SendTools = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 6px 12px;
 `;
-
 const SendButton = styled.div`
   cursor: pointer;
   color: var(--color-primary);
@@ -169,7 +159,6 @@ const AbortButton = styled.div`
     background-color: var(--color-background-inverse);
   }
 `;
-
 const Footer = styled.div`
   height: 40px;
   color: var(--color-text-secondary);
@@ -182,7 +171,6 @@ const Footer = styled.div`
     align-items: center;
   }
 `;
-
 const ScrollToBottomButton = styled.div`
   margin-top: -40px;
   position: absolute;
@@ -210,35 +198,49 @@ const ScrollToBottomButton = styled.div`
     }
   }
 `;
-
 function MessageListLoading() {
   return (
-    <div style={{ padding: 10 }}>
+    <div
+      style={{
+        padding: 10,
+      }}
+    >
       <Skeleton
-        style={{ flex: 1 }}
-        direction="column"
-        widths={['30%', '40%', '90%', '60%']}
+        className="pAll20 pBottom0"
+        style={{
+          flex: 1,
+        }}
         active
-        itemStyle={{ marginBottom: '4px' }}
+        paragraph={{
+          rows: 4,
+          width: ['30%', '40%', '90%', '60%'],
+        }}
       />
       <Skeleton
-        style={{ flex: 1 }}
-        direction="column"
-        widths={['40%', '55%', '100%', '80%']}
+        className="pAll20 pBottom0"
+        style={{
+          flex: 1,
+        }}
         active
-        itemStyle={{ marginBottom: '4px' }}
+        paragraph={{
+          rows: 4,
+          width: ['40%', '55%', '100%', '80%'],
+        }}
       />
       <Skeleton
-        style={{ flex: 2 }}
-        direction="column"
-        widths={['45%', '100%', '100%', '100%']}
+        className="pAll20"
+        style={{
+          flex: 2,
+        }}
         active
-        itemStyle={{ marginBottom: '4px' }}
+        paragraph={{
+          rows: 4,
+          width: ['45%', '100%', '100%', '100%'],
+        }}
       />
     </div>
   );
 }
-
 function ChatLLM(
   {
     env,
@@ -251,6 +253,7 @@ function ChatLLM(
   },
   ref,
 ) {
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
   // AI 生成字段属单轮旧功能，sessionId 加 session-bot- 前缀以便从历史会话列表排除（见 fetchAgentSessions）；
   // 仍以 controlId 收尾，保持同一控件对话的稳定续接。
   const sessionId = `session-bot-${control.controlId}`;
@@ -262,7 +265,12 @@ function ChatLLM(
   const [uploadedAttachment, setUploadedAttachment] = useState(null);
   const isRefValue = control.type === 54;
   const paramsForPrompt = useMemo(
-    () => generateParamsForPrompt({ envControls: env.controls, isRefValue, control }),
+    () =>
+      generateParamsForPrompt({
+        envControls: env.controls,
+        isRefValue,
+        control,
+      }),
     [env.controls, isRefValue, control],
   );
   const {
@@ -312,16 +320,13 @@ function ChatLLM(
         120,
     );
   }, [messagesContainerRef]);
-
   useImperativeHandle(ref, () => ({
     sendMessage,
     setInput,
   }));
-
   useEffect(() => {
     setLlmIsGenerating(loading);
   }, [loading]);
-
   useEffect(() => {
     if (
       messagesContainerRef.current.scrollHeight -
@@ -329,26 +334,29 @@ function ChatLLM(
         messagesContainerRef.current.clientHeight <
       120
     ) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({
+        behavior: 'smooth',
+      });
     }
   }, [messages]);
-
   const handleMessageClick = useCallback(
     e => {
       e.stopPropagation();
       if (loading) return;
       const $codeCard = e.target.closest('.code-card');
-
       if ($codeCard) {
         const messageId = $codeCard.dataset.messageId;
         onCodeCardClick(messageId);
       } else if (e.target.tagName.toLowerCase() === 'img') {
-        previewAttachments(transformQiniuUrl(e.target.src, { ext: 'png' }));
+        openPreviewAttachments(
+          transformQiniuUrl(e.target.src, {
+            ext: 'png',
+          }),
+        );
       }
     },
-    [loading],
+    [loading, openPreviewAttachments],
   );
-
   const handleSubmit = e => {
     e.preventDefault();
     sendMessage(input, {
@@ -359,26 +367,31 @@ function ChatLLM(
       uploadImageRef.current.clear();
       setUploadedAttachment(null);
     }
-
     setTimeout(() => {
       inputRef.current.focus();
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({
+        behavior: 'smooth',
+      });
     }, 0);
   };
-
   useEffect(() => {
     if (messagesContainerRef.current) {
       updateScrollToBottomButtonVisible();
     }
   }, [messagesContainerRef.current]);
-
   useEffect(() => {
     setCurrentCode(currentCode);
   }, [currentCode]);
-
   useEffect(() => {
     agentApi
-      .getAgentSessionsMessages({ sessionId }, { silent: true })
+      .getAgentSessionsMessages(
+        {
+          sessionId,
+        },
+        {
+          silent: true,
+        },
+      )
       .then(res => {
         const body = res?.data ?? res;
         const rawList = Array.isArray(body)
@@ -398,17 +411,24 @@ function ChatLLM(
             // 带图片的历史消息还原为 OpenAI 风格数组，复用 Markdown 的图片预览渲染
             const content = imageAttachments.length
               ? [
-                  { type: 'text', text: typeof text === 'string' ? text : '' },
+                  {
+                    type: 'text',
+                    text: typeof text === 'string' ? text : '',
+                  },
                   ...imageAttachments.map(a => ({
                     type: 'image_url',
-                    image_url: { url: a.url || a.Url },
+                    image_url: {
+                      url: a.url || a.Url,
+                    },
                   })),
                 ]
               : text;
-            return { role, content };
+            return {
+              role,
+              content,
+            };
           })
           .filter(m => m.role && m.content != null && m.content !== '');
-
         if (messageList.length) {
           setMessages(prev => [...prev, ...messageList]);
           const first = messageList[0];
@@ -427,9 +447,9 @@ function ChatLLM(
         }, 0);
       });
   }, []);
-
   return (
     <Container>
+      {previewAttachmentsHolder}
       <MessagesContainer ref={messagesContainerRef} onScroll={updateScrollToBottomButtonVisible}>
         <MessageWrapper onClick={handleMessageClick}>
           {!!messageListLoading && <MessageListLoading />}
@@ -437,7 +457,13 @@ function ChatLLM(
             messages
               .filter(m => m.role !== 'system')
               .map((message, index) => (
-                <Message key={index} className={cx({ active: activeMessageId === message.id, loading })}>
+                <Message
+                  key={index}
+                  className={cx({
+                    active: activeMessageId === message.id,
+                    loading,
+                  })}
+                >
                   <Avatar role={message.role}>
                     {message.role === 'assistant' ? (
                       <i className="icon icon-ai1" />
@@ -453,9 +479,14 @@ function ChatLLM(
                       codeIsClosed={message.codeIsClosed}
                       onAiCodeUpdate={onCodeUpdate}
                     />
+                    {/* 流式响应头先于首个 token 返回，此时 isRequesting 已置 false 而消息仍为空，
+                        需要继续显示加载态，否则等待首包期间界面上没有任何提示 */}
+                    {activeMessageId === message.id && !message.content && <LoadingDots />}
                     {!!error && message.role === 'assistant' && index === messages.length - 1 && (
                       <ResponseError
-                        style={{ marginTop: 0 }}
+                        style={{
+                          marginTop: 0,
+                        }}
                         aiFeatureType={AI_FEATURE_TYPE.CODEGEN_TABLE_FIELDS}
                         error={error}
                         showFeedback
@@ -480,7 +511,13 @@ function ChatLLM(
 
       <InputContainer>
         {scrollToBottomVisible && (
-          <ScrollToBottomButton onClick={() => messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })}>
+          <ScrollToBottomButton
+            onClick={() =>
+              messagesEndRef.current.scrollIntoView({
+                behavior: 'smooth',
+              })
+            }
+          >
             <i className="icon icon-arrow-down-border" />
           </ScrollToBottomButton>
         )}
@@ -502,7 +539,6 @@ function ChatLLM(
                 setInput(old => old + '\n');
                 return;
               }
-
               if (e.key === 'Enter' && !cache.current.isOnComposition) {
                 e.preventDefault();
                 if (!loading) {
@@ -567,7 +603,7 @@ function ChatLLM(
           {/* <div className="Hand mLeft12">
             <i className="icon icon-wait textTertiary Font17" />
             <span className="textSecondary mLeft6">237 / 200</span>
-          </div> */}
+           </div> */}
           <div className="flex"></div>
           <div>{_l('内容由 AI 生成，可能存在错误，仅供参考')}</div>
         </Footer>
@@ -575,9 +611,7 @@ function ChatLLM(
     </Container>
   );
 }
-
 ChatLLM.propTypes = {
   onCodeUpdate: PropTypes.func,
 };
-
 export default forwardRef(ChatLLM);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 
 const KeywordInput = styled.textarea`
   width: 100%;
@@ -40,11 +40,12 @@ export default function PasteDialog(props) {
   const { keywords = '', onClose, onChange } = props;
   const [value, setValue] = useState(cutStringByLine(keywords));
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={480}
       title={_l('添加多个搜索关键词')}
-      handleClose={onClose}
       cancelText={value ? _l('清除') : _l('取消')}
       onCancel={() => (value ? setValue('') : onClose())}
       onOk={() => {
@@ -59,7 +60,7 @@ export default function PasteDialog(props) {
         onChange={e => setValue(cutStringByLine(e.target.value))}
       />
       <Tip>{_l('%0/500 个', value.split('\n').filter(v => v.trim()).length)}</Tip>
-    </Dialog>
+    </Modal>
   );
 }
 

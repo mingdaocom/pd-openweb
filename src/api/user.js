@@ -425,6 +425,19 @@ export default {
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络Id
    * @param {array} args.accountIds 账户Ids
+   * @param {array} args.orgRoleIds 组织角色Ids
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateOrgRoleForUsers: function (args, options = {}) {
+    return mdyAPI('User', 'UpdateOrgRoleForUsers', args, options);
+  },
+  /**
+   * 批量更新 用户部门
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {array} args.accountIds 账户Ids
    * @param {array} args.departmentIds 部门ids 第一个为主部门
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

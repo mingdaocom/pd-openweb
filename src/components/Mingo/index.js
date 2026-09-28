@@ -4,10 +4,14 @@ import cx from 'classnames';
 import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { BgIconButton } from 'ming-ui';
+import { BgIconButton, Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { AGENT_HEADER_EVENT } from 'src/components/Agent/agentService';
+import { buildSessionShareProps } from 'src/components/Agent/sessionShare';
 import mingoWordmark from 'src/pages/mingo/common/images/mingo-logo.png';
-import { emitter, pathCompletion } from 'src/utils/common';
+import Share from 'src/pages/worksheet/components/Share';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { MINGO_TASK_TYPE } from './ChatBot/enum';
 import MingoEntry from './Entry';
 
@@ -42,7 +46,7 @@ const MingoWrap = styled.div`
 `;
 
 function getDefaultValueOfMingoCache() {
-  if (window.globalStoreForMingo.activeModule === 'worksheetControlsEdit') {
+  if (window.globalStoreForMingo?.activeModule === 'worksheetControlsEdit') {
     const cacheObj = safeParse(
       localStorage.getItem(`MINGO_CACHE_CREATE_WORKSHEET_BOT_${get(md, 'global.Account.accountId')}`),
     );
@@ -69,6 +73,10 @@ function Mingo(props) {
   const hadPendingTask = useRef(!!pendingStartTask);
   // 记住挂载时捕获的 pendingTask 引用，供挂载后清理（避免在 effect 闭包里依赖 render 派生值）
   const pendingStartTaskRef = useRef(pendingStartTask);
+  // 同理，用户手动切换固定态也会走上面的重挂链路，但没有 pendingTask 兜底：智能客服（帮助首页态才有
+  // 固定按钮）取消固定后 taskType 会回落到默认的 MINGDAO_HELP_ASSISTANT，抽屉变成 Mingo 首页。
+  // 切换前由 keepStateAcrossFixing 暂存当前任务态，这里在新实例挂载时消费恢复；有 pendingTask 时以其为准。
+  const fixingRestoreState = pendingStartTask ? null : window.mingoFixingRestoreState;
   // 固定显示时刷新会先挂载 Mingo，此时 Redux base 可能尚未被 WorkSheet updateBase 写入 appId；
   // 仅用 useState 初始值会导致本地 base 一直为空，创建工作表等接口报 appId 不存在。
   useEffect(() => {
@@ -84,17 +92,21 @@ function Mingo(props) {
   // 记住上次 Agent 会话：无待办任务 / 无其它缓存时，若本地存有上次会话则重开直接进入 Agent 续接（ChatPanel 内恢复消息），
   // 否则照常落到 MingoWelcome 首页。"新对话"会清掉该记录，从首页重新开始。
   const rememberedAgentSession = useMemo(() => {
-    if (window.mingoPendingStartTask || defaultMingoCache.taskType) return '';
+    if (window.mingoPendingStartTask || window.mingoFixingRestoreState || defaultMingoCache.taskType) return '';
     const accountId = get(md, 'global.Account.accountId') || '';
 
     return accountId ? (localStorage.getItem(`md_agent_last_session_${accountId}`) || '').trim() : '';
   }, [defaultMingoCache.taskType]);
   const [, setCurrentChatId] = useState(null);
-  // 新版 Agent 当前会话 id（由 ChatPanel 广播 SESSION_ACTIVE 得到）：供「新窗口打开」续接同一会话
+  // 新版 Agent 当前会话 id（由 ChatPanel 广播 SESSION_ACTIVE 得到）：供「新窗口打开」续接同一会话、「分享」定位会话
   const [agentSessionId, setAgentSessionId] = useState(null);
+  // 当前会话默认标题（首条用户消息，随 SESSION_ACTIVE 广播而来）：供「分享」弹窗标题默认值
+  const [agentSessionTitle, setAgentSessionTitle] = useState('');
+  const [shareVisible, setShareVisible] = useState(false);
   const contentRef = useRef(null);
   const [taskType, setTaskType] = useState(
     (pendingStartTask && pendingStartTask.type) ||
+      (fixingRestoreState && fixingRestoreState.taskType) ||
       defaultMingoCache.taskType ||
       (rememberedAgentSession ? MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT : MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT),
   );
@@ -103,8 +115,20 @@ function Mingo(props) {
   // const [isChatting, setIsChatting] = useState(true); // 测试
   // const [taskType, setTaskType] = useState(MINGO_TASK_TYPE.CUSTOM_BOT);
   const [isChatting, setIsChatting] = useState(
-    !!pendingStartTask || !!defaultMingoCache.taskType || !!rememberedAgentSession,
+    fixingRestoreState
+      ? !!fixingRestoreState.isChatting
+      : !!pendingStartTask || !!defaultMingoCache.taskType || !!rememberedAgentSession,
   );
+  // 镜像最新 taskType：handleBack 是挂载期 useCallback（[]），返回目标需按当前任务判定（帮助会话回帮助态）
+  const taskTypeRef = useRef(taskType);
+  useEffect(() => {
+    taskTypeRef.current = taskType;
+  }, [taskType]);
+  // 同理镜像 isChatting：切换固定态的回调也是挂载期 useCallback，闭包里读不到最新值
+  const isChattingRef = useRef(isChatting);
+  useEffect(() => {
+    isChattingRef.current = isChatting;
+  }, [isChatting]);
   // 已在初始 state 消费 pendingTask（进入对应任务），挂载后清掉全局，避免后续无关重挂被旧任务带偏。
   // 仅清挂载时捕获的那一个引用：若挂载后又有外部入口设了新的 pendingTask（走 handleStartPendingTask），不误清。
   useEffect(() => {
@@ -113,10 +137,25 @@ function Mingo(props) {
     if (captured && window.mingoPendingStartTask === captured) {
       window.mingoPendingStartTask = null;
     }
+
+    // 固定态暂存只服务紧接着的这一次重挂，无论本次是否消费（带 pendingTask 的重挂会优先走 pendingTask）
+    // 都要清掉，否则会在下次打开抽屉时把用户带回上一次的任务
+    window.mingoFixingRestoreState = null;
+  }, []);
+  // 切换固定态前把当前任务态留给重挂后的新实例；只在切换固定时写入，关闭抽屉不写，
+  // 保证「关闭后重开是默认态」的既有行为不变
+  const keepStateAcrossFixing = useCallback(() => {
+    window.mingoFixingRestoreState = { taskType: taskTypeRef.current, isChatting: isChattingRef.current };
   }, []);
   const handleMingoFixing = useCallback(() => {
+    keepStateAcrossFixing();
     onFixing({ saveStateToLocal: false });
-  }, []);
+  }, [keepStateAcrossFixing]);
+  // 头部固定按钮：与 handleMingoFixing 的区别是 saveStateToLocal 为 true（把用户选择记到本地）
+  const handleToggleFixing = useCallback(() => {
+    keepStateAcrossFixing();
+    onFixing({ saveStateToLocal: true });
+  }, [keepStateAcrossFixing, onFixing]);
   const handleStartPendingTask = useCallback(() => {
     setTimeout(() => {
       if (window.mingoPendingStartTask) {
@@ -130,26 +169,42 @@ function Mingo(props) {
       }
     }, 0);
   }, []);
-  const handleBack = useCallback(() => {
+  const goToWelcome = useCallback(backType => {
     // 同步先退出对话态，避免 taskType 置空的中间帧仍渲染对话头部、标题「Mingo」一闪而过
     setIsChatting(false);
     setTaskType(undefined);
     setTimeout(() => {
-      setTaskType(MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT);
+      setTaskType(backType);
     }, 0);
   }, []);
+  // 返回/回首页：帮助会话（智能客服）仍回帮助态（重挂后按单会话查询续接或落帮助首页），其它任务回通用首页
+  const handleBack = useCallback(() => {
+    goToWelcome(
+      taskTypeRef.current === MINGO_TASK_TYPE.MINGDAO_HELP_CHAT
+        ? MINGO_TASK_TYPE.MINGDAO_HELP_CHAT
+        : MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT,
+    );
+  }, [goToWelcome]);
   const handleClose = useCallback(() => {
     // 先广播会话关闭：ChatPanel 同步中断在途流并调取消接口（此刻面板仍挂载，监听器可执行）
     emitter.emit(AGENT_HEADER_EVENT.SESSION_CLOSE);
-    handleBack();
+    // 关闭抽屉统一复位到通用首页：下次从 mingo 图标打开是默认态，从帮助入口打开时由 pendingTask 重新进帮助态
+    goToWelcome(MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT);
     onClose();
-  }, []);
+  }, [goToWelcome, onClose]);
   useEffect(() => {
-    if (taskType !== MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT && !mingoFixing) {
+    // 帮助会话（智能客服）与默认首页一样不强制固定抽屉；帮助入口打开时由 SET_MINGO_VISIBLE 已置固定
+    if (
+      !includes([MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT, MINGO_TASK_TYPE.MINGDAO_HELP_CHAT], taskType) &&
+      !mingoFixing
+    ) {
       handleMingoFixing();
     }
 
-    const handleAgentSessionActive = ({ sessionId } = {}) => sessionId && setAgentSessionId(sessionId);
+    const handleAgentSessionActive = ({ sessionId, title } = {}) => {
+      if (sessionId) setAgentSessionId(sessionId);
+      if (title !== undefined) setAgentSessionTitle(title || '');
+    };
 
     emitter.on('SET_MINGO_FIXED', handleMingoFixing);
     window.addEventListener('popstate', handleClose);
@@ -190,13 +245,18 @@ function Mingo(props) {
                 mingoFixing ? { color: 'var(--color-text-title)' } : { color: 'var(--color-text-placeholder)' }
               }
               icon="set_top"
-              onClick={onFixing}
+              onClick={handleToggleFixing}
             />
           )}
           {isChatting && (
             <div className="chattingTitle t-flex t-flex-row t-items-center">
               {/* 搭建应用（Agent）头部去掉返回按钮（改由「新对话」回首页）；其它任务保留返回 */}
-              {taskType === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT ? (
+              {taskType === MINGO_TASK_TYPE.MINGDAO_HELP_CHAT ? (
+                // 帮助会话（智能客服）：单会话模型，无返回/新对话，仅展示标题
+                <span className="Font15 bold mLeft4" style={{ cursor: 'default' }}>
+                  {_l('智能客服')}
+                </span>
+              ) : taskType === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT ? (
                 // 点击 logo 回到 welcome 首页：同「新对话」先清掉记住的会话，避免下次打开又恢复上次会话
                 <img
                   className="brandWordmark pointer"
@@ -245,13 +305,43 @@ function Mingo(props) {
                   icon="access_time"
                   onClick={() => emitter.emit(AGENT_HEADER_EVENT.OPEN_HISTORY)}
                 />
-                <BgIconButton
-                  tooltip={_l('新窗口打开')}
-                  icon="launch"
-                  onClick={() => {
-                    window.open(pathCompletion(agentSessionId ? `/mingo/chat/${agentSessionId}` : '/mingo'), '_blank');
+                {/* 分享 / 新窗口打开收进「更多」：分享作用于当前会话，空会话（尚未发起首轮）时不可用 */}
+                <Dropdown
+                  trigger={['click']}
+                  placement="bottomRight"
+                  menu={{
+                    // 宽度与 icon 颜色对齐项目既有菜单规范
+                    style: { width: 180 },
+                    items: [
+                      {
+                        key: 'share',
+                        icon: <Icon icon="share" className="Font18 textTertiary" />,
+                        label: _l('分享'),
+                        disabled: !agentSessionId,
+                      },
+                      {
+                        key: 'newWindow',
+                        icon: <Icon icon="launch" className="Font18 textTertiary" />,
+                        label: _l('新窗口打开'),
+                      },
+                    ],
+                    onClick: ({ key }) => {
+                      if (key === 'share') {
+                        setShareVisible(true);
+                      } else {
+                        window.open(
+                          pathCompletion(agentSessionId ? `/mingo/chat/${agentSessionId}` : '/mingo'),
+                          '_blank',
+                        );
+                      }
+                    },
                   }}
-                />
+                >
+                  {/* Dropdown 需要给 children 挂 onClick / ref，BgIconButton 未转发 ref，故包一层 span */}
+                  <span className="t-flex">
+                    <BgIconButton tooltip={_l('更多')} icon="more_horiz" onClick={() => {}} />
+                  </span>
+                </Dropdown>
               </>
             )}
             {taskType === MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT && !isChatting && (
@@ -278,6 +368,12 @@ function Mingo(props) {
         onClose={onClose}
         onBack={handleBack}
       />
+      {shareVisible && (
+        <Share
+          {...buildSessionShareProps({ sessionId: agentSessionId, title: agentSessionTitle })}
+          onClose={() => setShareVisible(false)}
+        />
+      )}
     </MingoWrap>
   );
 }

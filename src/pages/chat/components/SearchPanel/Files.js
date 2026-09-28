@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { LoadDiv, ScrollView } from 'ming-ui';
-import { getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import * as utils from '../../utils/';
 import * as ajax from '../../utils/ajax';
 import { FileItem } from '../Files';
@@ -88,7 +88,7 @@ export default class Files extends Component {
         onScrollEnd={this.handleScrollEnd.bind(this)}
       >
         {files.map((item, index) => (
-          <FileItem item={item} key={item.fileId || index} />
+          <FileItem item={item} key={item.fileId || index} onGotoMessage={this.props.onGotoMessage} />
         ))}
         <LoadDiv className={cx('loading', { Hidden: !loading })} size="small" />
         {!loading && !files.length ? (

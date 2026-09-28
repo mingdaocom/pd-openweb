@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
 import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
-import { dealUserRange } from '../../../core/utils';
+import { dealUserRange } from 'src/utils/domain/control/selectionRange';
 
 function OrgRole(props) {
   const {

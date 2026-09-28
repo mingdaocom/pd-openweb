@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import copy from 'copy-to-clipboard';
-import { Button, Dialog, Input } from 'ming-ui';
-import RegExpValidator from 'src/utils/expression';
+import { Button, Input, Modal } from 'ming-ui/antd-components';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 const CreateLinkDialog = props => {
   const { visible, onCancel } = props;
@@ -27,8 +27,10 @@ const CreateLinkDialog = props => {
   };
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       width={640}
       className="createLinkDialog"
       title={_l('生成%0链接', title)}
@@ -39,11 +41,11 @@ const CreateLinkDialog = props => {
         <div className="textTertiary label">{_l('应用内链接')}</div>
         <Input
           value={appLink}
-          onChange={value => setAppLink(value)}
+          onChange={e => setAppLink(e.target.value)}
           className="flex mLeft15 mRight10"
           placeholder={_l('可以使用应用、视图、自定义页面、表单等链接')}
         />
-        <Button className="pLeft10 pRight10" onClick={handleCreateLink}>
+        <Button type="primary" className="pLeft10 pRight10" onClick={handleCreateLink}>
           {_l('生成链接')}
         </Button>
       </div>
@@ -52,7 +54,8 @@ const CreateLinkDialog = props => {
         <Input className="flex mLeft15 mRight10 readonly" value={ssoLink} readOnly />
         <Button
           className="pLeft10 pRight10"
-          type="danger"
+          color="danger"
+          variant="solid"
           onClick={() => {
             if (ssoLink) {
               copy(ssoLink);
@@ -63,7 +66,7 @@ const CreateLinkDialog = props => {
           {_l('复制')}
         </Button>
       </div>
-    </Dialog>
+    </Modal>
   );
 };
 

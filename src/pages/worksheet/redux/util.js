@@ -1,4 +1,23 @@
-import { find, head } from 'lodash';
+import { find, get, head } from 'lodash';
+
+/**
+ * 将工作表记录数组按 rowid 转换为记录字典。
+ */
+export const dealData = data => {
+  const result = {};
+  data.forEach(item => {
+    result[item.rowid] = item;
+  });
+  return result;
+};
+
+/**
+ * 从工作表 Redux state 中提取接口通用的应用、工作表和视图 ID。
+ */
+export const getParaIds = worksheet => {
+  const { appId, worksheetId, viewId } = get(worksheet, 'base');
+  return { appId, worksheetId, viewId };
+};
 
 export function getBoardItemKey(data) {
   try {

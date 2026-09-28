@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, LoadDiv } from 'ming-ui';
-import dataSourceApi from '../../../../api/datasource';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import syncTaskApi from '../../../../api/syncTask';
 import taskFlowApi from '../../../../api/taskFlow';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
 import { CREATE_CONNECTOR_STEP_LIST, CREATE_TYPE, DATABASE_TYPE, ROLE_TYPE } from '../../../constant';
+import dataSourceApi from '../../../services/datasource';
+import { getSensitiveRequestErrorMessages } from '../../../services/sensitiveRequest';
 import { getExtraParams } from '../../../utils';
 import CreateSyncTask from '../CreateSyncTask';
 import '../../style.less';
+
+const CONNECTOR_RESULT_MODAL_STYLES = {
+  container: { height: 450 },
+  body: { padding: '0 24px 36px' },
+};
+
+const HIDDEN_CANCEL_BUTTON_PROPS = { style: { display: 'none' } };
 
 const ConnectorAddWrapper = styled.div`
   position: fixed;
@@ -102,18 +111,8 @@ const HeaderWrapper = styled.div`
   .headerRight {
     display: inline-flex;
     padding-right: 32px;
-    .commonButton {
-      height: 36px;
-      min-width: 102px;
-      &.disabled {
-        background: var(--color-primary-light) !important;
-      }
-    }
     .lastStepButton {
       margin-right: 16px;
-      border: 1px solid var(--color-primary);
-      background: var(--color-background-primary);
-      color: var(--color-primary);
     }
   }
 `;
@@ -146,6 +145,16 @@ export default function AddConnector(props) {
   const [connectorConfigData, setConnectorConfigData] = useSetState(props.connectorConfigData);
   const [currentStep, setCurrentStep] = useState(0);
   const [nextOrSaveDisabled, setNextOrSaveDisabled] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [savingSource, setSavingSource] = useState(false);
+  const sourceRequest = useRef(null);
+  useEffect(
+    () => () => {
+      sourceRequest.current?.abort();
+      sourceRequest.current = null;
+    },
+    [],
+  );
   const [submitData, setSubmitData] = useState([]);
   const [resDialog, setResDialog] = useState({ visible: false });
   const isSourceAppType = connectorConfigData.source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -153,7 +162,8 @@ export default function AddConnector(props) {
 
   const getRoleType = () => (currentStep === 0 ? ROLE_TYPE.SOURCE : ROLE_TYPE.DEST).toLowerCase();
 
-  const onClickNext = () => {
+  const onClickNext = async () => {
+    if (sourceRequest.current) return;
     const currentRoleType = getRoleType();
     const currentData = connectorConfigData[currentRoleType];
     const { formData } = currentData;
@@ -162,12 +172,6 @@ export default function AddConnector(props) {
       alert(_l('数据源名称不能为空'), 2);
       return;
     }
-
-    if ((currentStep === 0 && !_.includes([24, 36], connectorConfigData.dest.id.length)) || currentStep !== 0) {
-      setNextOrSaveDisabled(true);
-    }
-
-    setCurrentStep(currentStep + 1);
 
     if (
       currentData.createType !== CREATE_TYPE.SELECT_EXIST &&
@@ -188,14 +192,40 @@ export default function AddConnector(props) {
         extraParams: getExtraParams(currentData.type, formData),
       };
 
-      dataSourceApi.addDatasource(addParams).then(res => {
-        if (res) {
-          setConnectorConfigData({
-            [currentRoleType]: Object.assign({}, currentData, { id: res }),
-          });
+      const controller = new AbortController();
+      sourceRequest.current = controller;
+      setSavingSource(true);
+      try {
+        const res = await dataSourceApi.addDatasource(addParams, { abortController: controller });
+        if (controller.signal.aborted) return;
+        if (typeof res !== 'string' || !res) {
+          alert(_l('数据源创建失败'), 2);
+          return;
         }
-      });
+
+        setConnectorConfigData({
+          [currentRoleType]: { ...currentData, id: res },
+        });
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          const messages = getSensitiveRequestErrorMessages(error, _l('数据源创建失败'));
+          if (messages.length) alert(messages[0], 2);
+        }
+
+        return;
+      } finally {
+        if (sourceRequest.current === controller) {
+          sourceRequest.current = null;
+          setSavingSource(false);
+        }
+      }
     }
+
+    if ((currentStep === 0 && !_.includes([24, 36], connectorConfigData.dest.id.length)) || currentStep !== 0) {
+      setNextOrSaveDisabled(true);
+    }
+
+    setCurrentStep(currentStep + 1);
   };
 
   const validateSubmitData = () => {
@@ -445,37 +475,43 @@ export default function AddConnector(props) {
   };
 
   const onCreateTask = () => {
+    if (creating) return;
+
     //校验数据
     if (validateSubmitData()) {
       //获取当前任务数和最大限制数
-      syncTaskApi.createOnlySyncTaskPreCheck({ projectId: props.currentProjectId }).then(res => {
-        if (res.currentTaskNum + submitData.length > res.maxTaskNum) {
-          upgradeVersionDialog({
-            projectId: props.currentProjectId,
-            hint: _l('余量不足'),
-            explainText: _l('当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum),
-            isFree: true,
-          });
-        } else {
+      setCreating(true);
+      return syncTaskApi
+        .createOnlySyncTaskPreCheck({ projectId: props.currentProjectId })
+        .then(res => {
+          if (res.currentTaskNum + submitData.length > res.maxTaskNum) {
+            upgradeVersionDialog({
+              projectId: props.currentProjectId,
+              hint: _l('余量不足'),
+              explainText: _l('当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum),
+              isFree: true,
+            });
+            return;
+          }
+
           setNextOrSaveDisabled(true);
           setResDialog({ visible: true, type: 'loading' });
-          //创建同步任务
           const submitParams = submitData.map(item => _.omit(item, ['tableList', 'destPkCount']));
-          taskFlowApi
-            .createSyncTasks(submitParams)
-            .then(res => {
-              setResDialog({
-                visible: true,
-                type: res.isSucceeded ? 'success' : 'error',
-                errorMsgList: res.errorMsgList,
-              });
-            })
-            .catch(() => {
-              setNextOrSaveDisabled(false);
-              setResDialog({ visible: false });
+          return taskFlowApi.createSyncTasks(submitParams).then(res => {
+            setResDialog({
+              visible: true,
+              type: res.isSucceeded ? 'success' : 'error',
+              errorMsgList: res.errorMsgList,
             });
-        }
-      });
+          });
+        })
+        .catch(() => {
+          setNextOrSaveDisabled(false);
+          setResDialog({ visible: false });
+        })
+        .finally(() => {
+          setCreating(false);
+        });
     }
   };
 
@@ -506,9 +542,12 @@ export default function AddConnector(props) {
         <div className="headerRight">
           {currentStep !== 0 && (
             <Button
-              type="primary"
-              className="commonButton lastStepButton"
+              color="primary"
+              variant="outlined"
+              className="lastStepButton"
+              disabled={savingSource}
               onClick={() => {
+                if (sourceRequest.current) return;
                 setCurrentStep(currentStep - 1);
                 setNextOrSaveDisabled(false);
               }}
@@ -519,7 +558,7 @@ export default function AddConnector(props) {
 
           <Button
             type="primary"
-            className={cx('commonButton', { disabled: nextOrSaveDisabled })}
+            loading={creating || savingSource}
             disabled={nextOrSaveDisabled}
             onClick={currentStep !== 2 ? onClickNext : onCreateTask}
           >
@@ -545,12 +584,14 @@ export default function AddConnector(props) {
         <ContentWrapper>
           <div className="configForm">
             <ConfigForm
+              key={getRoleType()}
               {...props}
               connectorConfigData={connectorConfigData}
               setConnectorConfigData={setConnectorConfigData}
               isCreateConnector={true}
               setSaveDisabled={setNextOrSaveDisabled}
               roleType={getRoleType()}
+              disabled={savingSource}
             />
           </div>
           <div className="configGuide">
@@ -561,7 +602,7 @@ export default function AddConnector(props) {
 
       {resDialog.visible &&
         (resDialog.type !== 'error' ? (
-          <Dialog visible width={640} className="connectorResultDialog" showFooter={false} closable={false}>
+          <Modal open width={640} styles={CONNECTOR_RESULT_MODAL_STYLES} closable={false}>
             <div className="flexColumn alignItemsCenter justifyContentCenter h100 TxtCenter">
               {resDialog.type === 'success' ? (
                 <React.Fragment>
@@ -599,15 +640,17 @@ export default function AddConnector(props) {
                 </React.Fragment>
               )}
             </div>
-          </Dialog>
+          </Modal>
         ) : (
-          <Dialog
-            visible
+          <Modal
+            open
             title={_l('报错信息')}
             width={480}
             className="connectorErrorDialog"
-            showCancel={false}
             okText={_l('关闭')}
+            cancelButtonProps={HIDDEN_CANCEL_BUTTON_PROPS}
+            mask={{ closable: true }}
+            keyboard
             onOk={() => {
               setResDialog({ visible: false });
               setNextOrSaveDisabled(false);
@@ -624,7 +667,7 @@ export default function AddConnector(props) {
                 })}
               </div>
             )}
-          </Dialog>
+          </Modal>
         ))}
     </ConnectorAddWrapper>
   );

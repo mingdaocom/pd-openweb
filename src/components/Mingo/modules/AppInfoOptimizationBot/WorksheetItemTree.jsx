@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Checkbox, Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
 
 const TreeWrap = styled.div`
   flex: 1;
@@ -102,8 +103,6 @@ const buildIconFileNameByStyle = (iconName, isLineStyle) => {
 
   return iconName.endsWith('_line') ? iconName.replace(/_line$/, '') : iconName;
 };
-const buildCustomIconUrl = iconName => (iconName ? `https://fp1.mingdaoyun.cn/customIcon/${iconName}.svg` : undefined);
-
 export default function WorksheetItemTree({
   appInfo,
   treeData,
@@ -230,7 +229,7 @@ export default function WorksheetItemTree({
               <SvgIcon
                 url={
                   editIcon && optimizedMap.app?.icon
-                    ? buildCustomIconUrl(
+                    ? getCustomIconUrl(
                         appHasReason ? buildIconFileNameByStyle(optimizedMap.app.icon, isLine) : optimizedMap.app.icon,
                       )
                     : appInfo.iconUrl
@@ -278,7 +277,7 @@ export default function WorksheetItemTree({
                     <SvgIcon
                       url={
                         item.icon
-                          ? buildCustomIconUrl(hasReason ? buildIconFileNameByStyle(item.icon, isLine) : item.icon)
+                          ? getCustomIconUrl(hasReason ? buildIconFileNameByStyle(item.icon, isLine) : item.icon)
                           : item.iconUrl
                       }
                       fill="#757575"

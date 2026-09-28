@@ -3,11 +3,8 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { NODE_STATUS, PICK_TYPE } from '../constant/enum';
 import HoverState from '../decorators/withHoverState';
@@ -179,65 +176,62 @@ export default class KcListHeader extends Component {
             </span>
           </Tooltip>
 
-          <Trigger
-            popupVisible={showAddNodeBtnMenu}
-            onPopupVisibleChange={visible => {
+          <Dropdown
+            open={showAddNodeBtnMenu}
+            onOpenChange={visible => {
               this.setState({ showAddNodeBtnMenu: visible });
             }}
-            popupClassName="DropdownPanelTrigger"
-            action={['click']}
-            popupPlacement="bottom"
-            builtinPlacements={{
-              bottom: {
-                points: ['tl', 'bl'],
-              },
-            }}
-            popup={
-              <Menu className={cx('kcAddNodeBtnMenu', { hide: !showAddNodeBtnMenu || isRecycle })}>
-                <MenuItem
-                  icon={<Icon icon="attachment" className="textTertiary" />}
-                  onClick={() => {
+            trigger={['click']}
+            placement="bottomRight"
+            menu={{
+              style: { minWidth: 160 },
+              items: [
+                {
+                  key: 'uploadLocalFile',
+                  icon: <Icon icon="attachment" className="textTertiary Font16" />,
+                  label: _l('上传本地文件'),
+                  onClick: () => {
                     openUploadAssistant();
                     this.setState({ showAddNodeBtnMenu: false });
-                  }}
-                >
-                  {_l('上传本地文件')}
-                </MenuItem>
-                <MenuItem
-                  icon={<Icon icon="link" className="textTertiary" />}
-                  onClick={() => {
+                  },
+                },
+                {
+                  key: 'addLinkFile',
+                  icon: <Icon icon="link" className="textTertiary Font16" />,
+                  label: _l('添加链接文件'),
+                  onClick: () => {
                     addLinkFile();
                     this.setState({ showAddNodeBtnMenu: false });
-                  }}
-                >
-                  {_l('添加链接文件')}
-                </MenuItem>
-                <MenuItem
-                  className="uploadFileForGuide"
-                  icon={<Icon icon="task-folder-solid" className="textTertiary" />}
-                  onClick={() => {
+                  },
+                },
+                {
+                  key: 'createFolder',
+                  className: 'uploadFileForGuide',
+                  icon: <Icon icon="task-folder-solid" className="textTertiary Font16" />,
+                  label: _l('新建文件夹'),
+                  onClick: () => {
                     onShowAddNewFolder();
                     this.setState({ showAddNodeBtnMenu: false });
-                  }}
-                >
-                  {_l('新建文件夹')}
-                </MenuItem>
-              </Menu>
-            }
-            popupAlign={{ offset: [-70, 2], overflow: { adjustX: 2, adjustY: 1 } }}
+                  },
+                },
+              ],
+            }}
           >
-            <span
-              className={cx('kcRightAdd bgColorPrimary hoverBgColorPrimaryDark', {
+            <Button
+              style={{ '--hap-control-height': '32px' }}
+              type="primary"
+              shape="round"
+              icon={<Icon icon="plus" />}
+              className={cx('kcRightAdd', {
                 hide:
                   isRecycle ||
                   ((isRecycle || currentRoot === PICK_TYPE.STARED || currentRoot === PICK_TYPE.RECENT || isReadOnly) &&
                     currentRoot !== PICK_TYPE.MY),
               })}
             >
-              <i className="icon-plus" />
               {_l('添加')}
-            </span>
-          </Trigger>
+            </Button>
+          </Dropdown>
 
           <HoverState
             component="span"

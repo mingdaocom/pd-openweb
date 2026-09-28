@@ -3,26 +3,24 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, LoadDiv, MenuItem, ScrollView, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import { Icon, LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowNode from '../../api/flowNode';
 import process from '../../api/process';
 import sheetAjax from 'src/api/worksheet';
 import AiActionChatBot from 'src/components/Mingo/modules/AiActionChatBot';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
-import { selectRecords } from 'src/components/SelectRecords';
-import { pathCompletion } from 'src/utils/common';
+import { useSelectRecords } from 'src/components/SelectRecords';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import Switch from '../../components/Switch';
 import { clearTestRunning, updatePublishState, updateTestRunning } from '../../redux/actions';
-import { START_APP_TYPE } from '../../WorkflowList/utils';
+import { getWorkflowListReturnPath, START_APP_TYPE } from '../../WorkflowList/utils';
 import { ProcessParameters } from '../Detail/components';
 import { APP_TYPE, NODE_TYPE } from '../enum';
-import logDialog from '../History/components/logDialog';
+import { useWorkflowLogDialog } from '../History/components/logDialog';
 import { getIcons, getStartNodeColor } from '../utils';
 import HistoryVersion, { restoreVision } from './HistoryVersion';
 import './index.less';
@@ -32,17 +30,6 @@ const TABS_OPTS = [
   { tabIndex: 3, name: _l('配置') },
   { tabIndex: 2, name: _l('历史') },
 ];
-
-const MenuBox = styled.div`
-  min-width: 180px;
-  padding: 5px 0;
-  border-radius: 3px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  .Item-content {
-    padding-left: 36px !important;
-  }
-`;
 
 const Description = styled.div`
   > div {
@@ -153,6 +140,7 @@ class Header extends Component {
       worksheetInfo: {},
       recordInfo: {},
     };
+    this.requestPending = false;
   }
 
   closeTestDialog = false;
@@ -276,17 +264,19 @@ class Header extends Component {
         location.href = pathCompletion(
           isPlugin
             ? '/plugin/node'
-            : `${flowInfo.parentId ? `/workflowedit/${flowInfo.parentId}` : `/app/${flowInfo.relationId}/workflow`}`,
+            : flowInfo.parentId
+              ? `/workflowedit/${flowInfo.parentId}`
+              : getWorkflowListReturnPath(flowInfo.relationId, location.hash),
         );
       };
     }
 
     if (noSelectWorksheet) {
-      Confirm({
-        className: 'leaveWorkflowConfirm',
+      Modal.confirm({
         title: _l('是否放弃保存工作流？'),
-        description: _l('未设置触发方式的工作流将不会被保存'),
+        content: _l('未设置触发方式的工作流将不会被保存'),
         okText: _l('放弃保存'),
+        okButtonProps: { danger: true },
         onOk: () => onBack(flowInfo.enabled),
       });
     } else {
@@ -346,39 +336,38 @@ class Header extends Component {
     }
 
     return (
-      <Trigger
-        popupVisible={testVisible}
-        onPopupVisibleChange={testVisible => {
+      <Dropdown
+        open={testVisible}
+        onOpenChange={testVisible => {
           this.setState({ testVisible });
         }}
-        action={['click']}
-        mouseEnterDelay={0.1}
-        popupAlign={{ points: ['tr', 'br'], offset: [0, 0], overflow: { adjustX: 1, adjustY: 2 } }}
-        popup={
-          <MenuBox>
-            <MenuItem
-              icon={<Icon icon="test_workflow" className="Font16" />}
-              onClick={() => {
+        trigger={['click']}
+        placement="bottomRight"
+        menu={{
+          items: [
+            {
+              key: 'test',
+              icon: <Icon icon="test_workflow" className="Font16" />,
+              label: _l('测试编辑中流程'),
+              onClick: () => {
                 this.setState({ testVisible: false });
                 this.test();
-              }}
-            >
-              {_l('测试编辑中流程')}
-            </MenuItem>
-            <MenuItem
-              icon={<Icon icon="play_circle_filled" className="Font16" />}
-              onClick={() => {
+              },
+            },
+            {
+              key: 'execute',
+              icon: <Icon icon="play_circle_filled" className="Font16" />,
+              label: _l('执行当前运行中的流程'),
+              onClick: () => {
                 this.setState({ testVisible: false });
                 this.onExecuteFlow(false);
-              }}
-            >
-              {_l('执行当前运行中的流程')}
-            </MenuItem>
-          </MenuBox>
-        }
+              },
+            },
+          ],
+        }}
       >
         <span className="workflowAction hoverColorPrimary hoverBorderColorPrimary">{_l('测试')}</span>
-      </Trigger>
+      </Dropdown>
     );
   }
 
@@ -389,21 +378,25 @@ class Header extends Component {
     const { isPlugin } = this.props;
 
     if (!localStorage.getItem('closeWorkflowTestPrompt') && !isPlugin) {
-      Confirm({
+      Modal.confirm({
         width: 560,
         title: _l('测试编辑中流程'),
-        description: (
+        content: (
           <Description>
             <div>{_l('待办、通知节点以我自己作为节点执行人，实际执行人不会收到消息。')}</div>
             <div>{_l('审批、填写节点无需操作，将会自动通过。')}</div>
             <div>{_l('仅对主流程进行测试执行。引用的子流程、PBP、审批流程将跳过执行，可单独前往测试这些流程。')}</div>
           </Description>
         ),
-        footerLeftElement: () => (
-          <Checkbox text={_l('下次不再提示')} onClick={checked => (this.closeTestDialog = checked)} />
+        footerLeftElement: (
+          <Checkbox onChange={event => (this.closeTestDialog = event.target.checked)}>{_l('下次不再提示')}</Checkbox>
         ),
         okText: _l('继续'),
-        removeCancelBtn: true,
+        cancelButtonProps: {
+          style: {
+            display: 'none',
+          },
+        },
         onOk: () => {
           // 本地记忆测试流程弹层提示
           if (this.closeTestDialog) {
@@ -427,7 +420,15 @@ class Header extends Component {
     const { appType, triggerId, typeId, name } = startNodeDetail;
 
     return (
-      <DialogBase visible type="fixed" className="workflowSettings" width={800}>
+      <Modal
+        open
+        type="fixed"
+        className="workflowSettings"
+        width={800}
+        closable={false}
+        footer={null}
+        styles={{ body: { padding: 0 }, container: { padding: 0 } }}
+      >
         <div className="flexColumn h100 workflowDetail">
           {_.isEmpty(startNodeDetail) ? (
             <LoadDiv className="mTop15" />
@@ -487,7 +488,7 @@ class Header extends Component {
             </Fragment>
           )}
         </div>
-      </DialogBase>
+      </Modal>
     );
   };
 
@@ -509,11 +510,15 @@ class Header extends Component {
           : this.sendRealityFlow({ sourceId: selectedRecords[0].rowid });
       });
     } else if (flowInfo.startAppType === APP_TYPE.LOOP) {
-      Confirm({
+      Modal.confirm({
         width: 560,
         title: _l('执行定时触发流程'),
-        description: _l('点击确定后，将会立即开始执行此流程'),
-        removeCancelBtn: true,
+        content: _l('点击确定后，将会立即开始执行此流程'),
+        cancelButtonProps: {
+          style: {
+            display: 'none',
+          },
+        },
         onOk: () => {
           isTest ? this.sendTestFlow() : this.sendRealityFlow();
         },
@@ -530,7 +535,7 @@ class Header extends Component {
   selectRecord = (callback = () => {}) => {
     const { flowInfo } = this.props;
 
-    selectRecords({
+    this.props.openSelectRecords({
       canSelectAll: false,
       pageSize: 25,
       multiple: false,
@@ -624,11 +629,13 @@ class Header extends Component {
     });
 
     if (showSendModeDialog) {
-      Confirm({
+      let sendModeDialog;
+      let isTestSelfPending = false;
+
+      sendModeDialog = Modal.confirm({
         width: 560,
-        className: 'actionProcessDialog',
         title: _l('待办、通知发送方式'),
-        description: (
+        content: (
           <div>
             <p className="textPrimary">
               {_l('点击【发给我自己测试】时，实际执行人不收到消息，由我作为节点的执行人进行测试。')}
@@ -652,12 +659,17 @@ class Header extends Component {
         ),
         okText: _l('发给实际执行人'),
         cancelText: _l('发给我自己测试'),
-        cancelType: 'primary',
-        onlyClose: true,
-        onOk: execFunc,
-        onCancel: () => {
-          execFunc([1, 2, 3]);
+        cancelButtonProps: {
+          type: 'default',
+          onClick: () => {
+            if (isTestSelfPending) return;
+
+            isTestSelfPending = true;
+            sendModeDialog.destroy();
+            execFunc([1, 2, 3]);
+          },
         },
+        onOk: execFunc,
       });
     } else {
       execFunc();
@@ -673,7 +685,7 @@ class Header extends Component {
     if (!showPublishDialog) return null;
 
     return (
-      <DialogBase visible width={640}>
+      <Modal open width={640} closable={false} footer={null} styles={{ body: { padding: 0 } }}>
         <div className="publishSuccessDialog">
           <div className="publishSuccessImg" />
 
@@ -692,7 +704,12 @@ class Header extends Component {
                   ),
                 }}
               />
-              <Button size="large" onClick={() => this.setState({ showPublishDialog: false })} className="mTop40">
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => this.setState({ showPublishDialog: false })}
+                className="mTop40"
+              >
                 {_l('我知道了')}
               </Button>
             </Fragment>
@@ -707,9 +724,14 @@ class Header extends Component {
                 <Checkbox
                   className="mRight5"
                   checked={showApprovalFields}
-                  text={_l('在视图上显示审批系统字段')}
-                  onClick={checked => this.setState({ showApprovalFields: !checked })}
-                />
+                  onChange={event =>
+                    this.setState({
+                      showApprovalFields: event.target.checked,
+                    })
+                  }
+                >
+                  {_l('在视图上显示审批系统字段')}
+                </Checkbox>
 
                 <Support
                   type={1}
@@ -720,9 +742,14 @@ class Header extends Component {
                 <Checkbox
                   className="mRight5"
                   checked={showApprovalDetail}
-                  text={_l('打开记录时显示审批流转详情')}
-                  onClick={checked => this.setState({ showApprovalDetail: !checked })}
-                />
+                  onChange={event =>
+                    this.setState({
+                      showApprovalDetail: event.target.checked,
+                    })
+                  }
+                >
+                  {_l('打开记录时显示审批流转详情')}
+                </Checkbox>
 
                 <Support
                   type={1}
@@ -730,8 +757,11 @@ class Header extends Component {
                 />
               </div>
               <Button
+                type="primary"
                 size="large"
                 onClick={() => {
+                  if (this.requestPending) return;
+
                   const switchList = [];
 
                   if (showApprovalFields) {
@@ -742,17 +772,23 @@ class Header extends Component {
                     switchList.push({ state: true, type: 41, roleType: 0 });
                   }
 
-                  if (switchList.length) {
-                    data.apps.forEach(({ id }) => {
-                      sheetAjax.batchEditSwitch({ worksheetId: id, switchList }).then(result => {
-                        if (!result) {
-                          alert(_l('修改失败，请稍后再试！'), 2);
-                        }
-                      });
-                    });
-                  }
+                  this.requestPending = true;
+                  const request = switchList.length
+                    ? Promise.all(
+                        data.apps.map(({ id }) =>
+                          sheetAjax.batchEditSwitch({ worksheetId: id, switchList }).then(result => {
+                            if (!result) {
+                              alert(_l('修改失败，请稍后再试！'), 2);
+                            }
+                          }),
+                        ),
+                      )
+                    : Promise.resolve();
 
-                  this.setState({ showPublishDialog: false, showApprovalFields: false, showApprovalDetail: false });
+                  return request.finally(() => {
+                    this.requestPending = false;
+                    this.setState({ showPublishDialog: false, showApprovalFields: false, showApprovalDetail: false });
+                  });
                 }}
                 className="mTop40"
               >
@@ -761,7 +797,7 @@ class Header extends Component {
             </Fragment>
           )}
         </div>
-      </DialogBase>
+      </Modal>
     );
   }
 
@@ -836,7 +872,7 @@ class Header extends Component {
             recordData={recordInfo}
             onClose={() => this.setState({ showChatbotDialog: false })}
             onOpenMessageLog={({ instanceId }) => {
-              logDialog({
+              this.props.openWorkflowLogDialog({
                 processId: flowInfo.id,
                 nodeId: workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId,
                 instanceId,
@@ -858,7 +894,7 @@ class Header extends Component {
           recordInfo={recordInfo}
           onClose={() => this.setState({ showChatbotDialog: false })}
           onOpenMessageLog={({ instanceId }) => {
-            logDialog({
+            this.props.openWorkflowLogDialog({
               processId: flowInfo.id,
               nodeId: workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId,
               instanceId,
@@ -888,7 +924,11 @@ class Header extends Component {
         </Tooltip>
 
         <Tooltip title={processInfo.text}>
-          <div className="iconWrap mRight10" style={{ backgroundColor: processInfo.iconColor }}>
+          <div
+            className="iconWrap mRight10 pointer"
+            style={{ backgroundColor: processInfo.iconColor }}
+            onClick={this.back}
+          >
             <Icon icon={processInfo.iconName} />
           </div>
         </Tooltip>
@@ -1032,4 +1072,7 @@ class Header extends Component {
   }
 }
 
-export default connect(state => state.workflow)(Header);
+export default withOpeners(connect(state => state.workflow)(Header), {
+  openSelectRecords: useSelectRecords,
+  openWorkflowLogDialog: useWorkflowLogDialog,
+});

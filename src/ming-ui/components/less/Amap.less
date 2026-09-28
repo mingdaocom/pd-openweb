@@ -10,42 +10,34 @@
     left: 10px;
     right: 10px;
     top: 10px;
-    padding: 0 100px 0 20px;
+    padding-right: 100px;
     position: absolute;
     z-index: 99;
     background-color: var(--color-background-primary);
     border: 1px solid var(--color-border-tertiary);
     border-radius: 3px;
     box-shadow: 0 0 10px #c5b7b7;
-    input {
-      width: 100%;
-      border: none !important;
-    }
     .Amap-autocomplete-list {
       width: 190px;
     }
   }
-  &-input-search {
-    position: absolute;
-    left: 7px;
-    top: 50%;
-    transform: translateY(-50%);
+  &-input-search-icon {
     color: var(--color-text-tertiary);
-    &-icon {
-      font-size: 20px;
-      cursor: pointer;
-    }
+    font-size: 20px;
+    cursor: pointer;
   }
   &-autocomplete-list {
     max-height: 200px;
     overflow: scroll;
   }
-  .MenuItem .Item-content {
+  &-autocomplete-list-item {
+    display: block;
+    min-width: 0;
+    width: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     box-sizing: border-box;
-    width: 100%;
   }
   .Amap-topRightElement {
     position: absolute;

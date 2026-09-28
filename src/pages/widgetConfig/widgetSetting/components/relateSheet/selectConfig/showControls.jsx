@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
-import { RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getControlsSorts } from 'src/utils/domain/control/editorSetting';
+import { getFilterRelateControls } from 'src/utils/domain/control/filters';
 import { SettingItem } from '../../../../styled';
-import { getFilterRelateControls } from '../../../../util';
-import { getAdvanceSetting, getControlsSorts, handleAdvancedSettingChange } from '../../../../util/setting';
 
 const DISPLAY_OPTIONS = [
   { text: _l('与关联记录的显示字段保持一致'), value: '0' },
@@ -21,16 +22,23 @@ export default function ShowControls(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('显示字段')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
           className="fixedWidth"
-          checkedValue={chooseshow}
-          data={DISPLAY_OPTIONS}
-          onChange={value => {
+          value={chooseshow}
+          options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             handleChange(
               handleAdvancedSettingChange(data, {
                 chooseshow: value,
-                ...(value === '0' ? { chooseshowids: '', choosecontrolssorts: '' } : {}),
+                ...(value === '0'
+                  ? {
+                      chooseshowids: '',
+                      choosecontrolssorts: '',
+                    }
+                  : {}),
               }),
             );
           }}

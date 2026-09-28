@@ -5,27 +5,24 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowNode from '../../../api/flowNode';
-import GetHelp from 'src/components/GetHelp';
-import { formatNumberThousand } from 'src/utils/control';
+import useGetHelp from 'src/components/Mingo/ChatBot/components/GetHelp';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
 import { ACTION_ID, AGENT_TOOLS, APP_TYPE } from '../../enum';
 import { getToolName } from '../../utils';
 
-const DialogWrapper = styled(Dialog)`
-  .mui-dialog-header {
-    border-bottom: 1px solid var(--color-border-primary);
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    flex-basis: 600px !important;
-    display: flex;
-    flex-direction: column;
-  }
-`;
+const LOG_MODAL_STYLES = {
+  header: { padding: 20, margin: 0, borderBottom: '1px solid var(--color-border-primary)' },
+  body: { display: 'flex', flexDirection: 'column' },
+  container: { padding: 0, height: 600 },
+};
 
 const Nav = styled.div`
   width: 320px !important;
+  flex-shrink: 0;
   .scrollViewContainer {
     padding: 12px 8px;
   }
@@ -70,6 +67,7 @@ const Content = styled.div`
 `;
 
 const ListIconBox = styled.div`
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -95,6 +93,40 @@ const Error = styled.div`
   margin: 20px auto;
 `;
 
+const FailureTag = styled.span`
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: 22px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 1px solid rgba(244, 67, 54, 0.35);
+  border-radius: 4px;
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  font-size: 12px;
+  line-height: 20px;
+`;
+
+const FailureMessage = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(244, 67, 54, 0.35);
+  border-radius: 4px;
+  background: var(--color-error-bg);
+  .label {
+    flex-shrink: 0;
+    font-weight: bold;
+    color: var(--color-text-primary);
+  }
+  .message {
+    color: var(--color-error);
+    word-break: break-all;
+  }
+`;
+
 const MODEL_ICON = {
   AI_Agent: {
     icon: 'icon-AI_Agent',
@@ -114,7 +146,196 @@ const MODEL_ICON = {
   },
 };
 
+const ERROR_MESSAGE_KEYS = ['errorMessage', 'ErrorMessage', 'errorMsg', 'message', 'causeMsg', 'error'];
+
+export function normalizeAgentErrorMessage(value) {
+  if (value === undefined || value === null) return '';
+
+  if (typeof value === 'object') {
+    for (const key of ERROR_MESSAGE_KEYS) {
+      if (value[key] !== undefined && value[key] !== null) {
+        const message = normalizeAgentErrorMessage(value[key]);
+
+        if (message) return message;
+      }
+    }
+
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+
+  const text = String(value).trim();
+
+  if (!text) return '';
+
+  const jsonCandidates = [text];
+  const jsonStart = text.indexOf('{');
+  const jsonEnd = text.lastIndexOf('}');
+
+  if (jsonStart > -1 && jsonEnd > jsonStart) {
+    jsonCandidates.push(text.slice(jsonStart, jsonEnd + 1));
+  }
+
+  for (const candidate of jsonCandidates) {
+    try {
+      const parsed = JSON.parse(candidate);
+
+      if (parsed !== candidate) {
+        const message = normalizeAgentErrorMessage(parsed);
+
+        if (message) return message;
+      }
+    } catch {
+      // 普通错误文本无需按 JSON 处理
+    }
+  }
+
+  return text;
+}
+
+export const isAgentLogItemFailed = item => item?.failed === true || item?.toolCall?.failed === true;
+
+const getAgentLogErrorMessage = (item, fallbackErrorMessage) => {
+  const values = [
+    item?.errorMessage,
+    item?.toolCall?.errorMessage,
+    item?.toolCall?.responseData,
+    item?.text,
+    fallbackErrorMessage,
+  ];
+
+  for (const value of values) {
+    const message = normalizeAgentErrorMessage(value);
+
+    if (message) return message;
+  }
+
+  return '';
+};
+
+export const decorateFailedAgentHistory = (history = [], fallbackErrorMessage = '') =>
+  history.map(item =>
+    isAgentLogItemFailed(item) ? { ...item, errorMessage: getAgentLogErrorMessage(item, fallbackErrorMessage) } : item,
+  );
+
+const FailureStatus = ({ item }) => {
+  if (item.role === 'agent' && item.failed) {
+    return <FailureTag>{_l('本轮未完成')}</FailureTag>;
+  }
+
+  return isAgentLogItemFailed(item) ? <FailureTag>{_l('失败')}</FailureTag> : null;
+};
+
+export const ListIcon = ({ item, model }) => {
+  const { icon, ...style } = (() => {
+    if (item.role === 'memory') {
+      return {
+        icon: 'icon-article',
+        color: '#9e9e9e',
+        backgroundColor: '#eaeaea',
+      };
+    }
+
+    if (item.role === 'agent') {
+      return {
+        icon: 'icon-AI_Agent',
+        color: '#fff',
+        backgroundColor: 'var(--color-mingo)',
+      };
+    }
+
+    if (item.role === 'ocr') {
+      return {
+        icon: 'icon-folder',
+        color: 'rgba(0, 0, 0, 0.5)',
+      };
+    }
+
+    if (item.role === 'model') {
+      return {
+        icon: 'icon-AI_Agent',
+        color: '#2196f3',
+        backgroundColor: 'var(--color-background-primary)',
+        border: '1px solid #ddd',
+      };
+    }
+
+    if (item.role === 'user' || (item.role === 'assistant' && !item.toolCall)) {
+      return {
+        ...(_.includes(model, 'GPT')
+          ? MODEL_ICON.GPT
+          : _.includes(model, 'DeepSeek')
+            ? MODEL_ICON.DeepSeek
+            : _.includes(model, 'QWen')
+              ? MODEL_ICON.QWen
+              : MODEL_ICON.AI_Agent),
+        backgroundColor: 'var(--color-background-primary)',
+        border: '1px solid #ddd',
+      };
+    }
+
+    if (item.flowNode?.toolType) {
+      return AGENT_TOOLS[item.flowNode?.toolType];
+    }
+
+    if (item.flowNode?.appType === APP_TYPE.SHEET && item.flowNode?.toolType !== 0) {
+      let icon = 'icon-AI_Agent';
+
+      if (item.flowNode.actionId === ACTION_ID.ADD) {
+        icon = 'icon-playlist_add';
+      } else if (item.flowNode.actionId === ACTION_ID.EDIT) {
+        icon = 'icon-workflow_update';
+      } else if (item.flowNode.actionId === ACTION_ID.WORKSHEET_TOTAL) {
+        icon = 'icon-task_functions';
+      } else if (item.flowNode.actionId === ACTION_ID.WORKSHEET_FIND) {
+        icon = 'icon-search';
+      }
+
+      return { icon };
+    }
+
+    return {
+      icon: 'icon-tune',
+      color: 'rgba(0, 0, 0, 0.5)',
+    };
+  })();
+  const TEXT = {
+    memory: _l('记忆'),
+    agent: _l('Agent'),
+    ocr: _l('解析文件链接'),
+    model: _l('选择模型'),
+  };
+
+  const isTool =
+    !_.includes(['memory', 'agent', 'ocr', 'model', 'user'], item.role) &&
+    !(item.role === 'assistant' && !item.toolCall);
+  const name = _.includes(['memory', 'agent', 'ocr', 'model'], item.role)
+    ? TEXT[item.role]
+    : !isTool
+      ? model
+      : item.flowNode?.id !== item.flowNode?.name
+        ? item.flowNode.name
+        : getToolName(item.toolCall?.name);
+  const desc = isTool && typeof item.flowNode?.desc === 'string' ? item.flowNode.desc.trim() : '';
+  const title = desc ? `${name}（${desc}）` : name;
+
+  return (
+    <Fragment>
+      <ListIconBox className="listIcon" style={style}>
+        <i className={icon} />
+      </ListIconBox>
+      <div className="ellipsis minWidth0 mLeft10 bold" title={title}>
+        {title}
+      </div>
+    </Fragment>
+  );
+};
+
 const LogDialog = props => {
+  const { open: openGetHelp, holder: getHelpHolder } = useGetHelp();
   const { processId, nodeId, instanceId, onClose } = props;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [folds, setFolds] = useState([]);
@@ -123,104 +344,6 @@ const LogDialog = props => {
   const [model, setModel] = useState('');
   const [isError, setIsError] = useState(false);
   const [support, setSupport] = useState({});
-
-  const ListIcon = ({ item }) => {
-    const { icon, ...style } = (() => {
-      if (item.role === 'memory') {
-        return {
-          icon: 'icon-article',
-          color: '#9e9e9e',
-          backgroundColor: '#eaeaea',
-        };
-      }
-
-      if (item.role === 'agent') {
-        return {
-          icon: 'icon-AI_Agent',
-          color: '#fff',
-          backgroundColor: 'var(--color-mingo)',
-        };
-      }
-
-      if (item.role === 'ocr') {
-        return {
-          icon: 'icon-folder',
-          color: 'rgba(0, 0, 0, 0.5)',
-        };
-      }
-
-      if (item.role === 'model') {
-        return {
-          icon: 'icon-AI_Agent',
-          color: '#2196f3',
-          backgroundColor: 'var(--color-background-primary)',
-          border: '1px solid #ddd',
-        };
-      }
-
-      if (item.role === 'user' || (item.role === 'assistant' && !item.toolCall)) {
-        return {
-          ...(_.includes(model, 'GPT')
-            ? MODEL_ICON.GPT
-            : _.includes(model, 'DeepSeek')
-              ? MODEL_ICON.DeepSeek
-              : _.includes(model, 'QWen')
-                ? MODEL_ICON.QWen
-                : MODEL_ICON.AI_Agent),
-          backgroundColor: 'var(--color-background-primary)',
-          border: '1px solid #ddd',
-        };
-      }
-
-      if (item.flowNode?.toolType) {
-        return AGENT_TOOLS[item.flowNode?.toolType];
-      }
-
-      if (item.flowNode?.appType === APP_TYPE.SHEET && item.flowNode?.toolType !== 0) {
-        let icon = 'icon-AI_Agent';
-
-        if (item.flowNode.actionId === ACTION_ID.ADD) {
-          icon = 'icon-playlist_add';
-        } else if (item.flowNode.actionId === ACTION_ID.EDIT) {
-          icon = 'icon-workflow_update';
-        } else if (item.flowNode.actionId === ACTION_ID.WORKSHEET_TOTAL) {
-          icon = 'icon-task_functions';
-        } else if (item.flowNode.actionId === ACTION_ID.WORKSHEET_FIND) {
-          icon = 'icon-search';
-        }
-
-        return { icon };
-      }
-
-      return {
-        icon: 'icon-tune',
-        color: 'rgba(0, 0, 0, 0.5)',
-      };
-    })();
-    const TEXT = {
-      memory: _l('记忆'),
-      agent: _l('Agent'),
-      ocr: _l('解析文件链接'),
-      model: _l('选择模型'),
-    };
-
-    return (
-      <Fragment>
-        <ListIconBox className="listIcon" style={style}>
-          <i className={icon} />
-        </ListIconBox>
-        <div className="flex ellipsis mLeft10 bold">
-          {_.includes(['memory', 'agent', 'ocr', 'model'], item.role)
-            ? TEXT[item.role]
-            : item.role === 'user' || (item.role === 'assistant' && !item.toolCall)
-              ? model
-              : item.flowNode?.id !== item.flowNode?.name
-                ? item.flowNode.name
-                : getToolName(item.toolCall?.name)}
-        </div>
-      </Fragment>
-    );
-  };
 
   const copyText = text => {
     copy(text);
@@ -293,64 +416,82 @@ const LogDialog = props => {
   useEffect(() => {
     flowNode
       .getAgentNodeDetailHistory({ processId, nodeId, instanceId }, { silent: true })
-      .then(({ getModel, history, maxMessages, model, ocr, prompt, tools, totalTokens, price }) => {
-        const memoryData = maxMessages?.length
-          ? [
-              {
-                utime: maxMessages[0].ctime,
-                role: 'memory',
-                toolCall: {
-                  responseData: JSON.stringify(
-                    maxMessages.map(o => {
-                      return {
-                        role: o.role,
-                        content: o.text,
-                      };
-                    }),
-                  ),
+      .then(
+        ({
+          getModel,
+          history = [],
+          maxMessages,
+          model,
+          ocr,
+          prompt,
+          tools,
+          totalTokens,
+          price,
+          failed,
+          errorMessage,
+        }) => {
+          const decoratedHistory = decorateFailedAgentHistory(history, errorMessage);
+          const hasFailedHistory = decoratedHistory.some(isAgentLogItemFailed);
+          const memoryData = maxMessages?.length
+            ? [
+                {
+                  utime: maxMessages[0].ctime,
+                  role: 'memory',
+                  toolCall: {
+                    responseData: JSON.stringify(
+                      maxMessages.map(o => {
+                        return {
+                          role: o.role,
+                          content: o.text,
+                        };
+                      }),
+                    ),
+                  },
                 },
+              ]
+            : [];
+          const agentData = [
+            {
+              role: 'agent',
+              failed: failed === true,
+              errorMessage: failed === true && !hasFailedHistory ? normalizeAgentErrorMessage(errorMessage) : '',
+              toolCall: {
+                prompt,
+                tools: (tools || []).map(o => ({ ...o, inputSchema: JSON.parse(o.inputSchema) })),
               },
-            ]
-          : [];
-        const agentData = [
-          {
-            role: 'agent',
-            toolCall: {
-              prompt,
-              tools: (tools || []).map(o => ({ ...o, inputSchema: JSON.parse(o.inputSchema) })),
             },
-          },
-        ];
-        const modelData = getModel ? [{ ...getModel, role: 'model' }] : [];
-        const ocrData = ocr ? [{ ...ocr, role: 'ocr' }] : [];
-        const historyData = history
-          .map((o, index) => {
-            const nextItem = history[index + 1] || {};
+          ];
+          const modelData = getModel ? [{ ...getModel, role: 'model' }] : [];
+          const ocrData = ocr ? [{ ...ocr, role: 'ocr' }] : [];
+          const historyData = decoratedHistory
+            .map((o, index) => {
+              const nextItem = decoratedHistory[index + 1] || {};
 
-            if (o.isUser && nextItem.isUser && nextItem.role === 'assistant') {
-              nextItem.isDelete = true;
+              if (o.isUser && nextItem.isUser && nextItem.role === 'assistant' && !isAgentLogItemFailed(nextItem)) {
+                nextItem.isDelete = true;
 
-              return {
-                ...o,
-                utime: nextItem.ctime,
-                toolCall: {
-                  responseData: _.slice(history, index)
-                    .filter(o => o.isUser && o.role === 'assistant')
-                    .map(o => o.text)
-                    .join(''),
-                },
-              };
-            }
+                return {
+                  ...o,
+                  utime: nextItem.ctime,
+                  toolCall: {
+                    responseData: _.slice(decoratedHistory, index)
+                      .filter(o => o.isUser && o.role === 'assistant')
+                      .map(o => o.text)
+                      .join(''),
+                  },
+                };
+              }
 
-            return o;
-          })
-          .filter(o => !o.isDelete);
+              return o;
+            })
+            .filter(o => !o.isDelete);
 
-        setFolds(memoryData.length ? [0] : []);
-        setList(memoryData.concat(agentData, modelData, ocrData, historyData));
-        setModel(model);
-        setSupport({ totalTokens, price });
-      })
+          setFolds(memoryData.length ? [0] : []);
+          setList(memoryData.concat(agentData, modelData, ocrData, historyData));
+          setModel(model);
+          setSupport({ totalTokens, price });
+        },
+      )
       .catch(() => {
         setList(false);
         setIsError(true);
@@ -358,14 +499,16 @@ const LogDialog = props => {
   }, [instanceId, nodeId, processId]);
 
   return (
-    <DialogWrapper
+    <Modal
       className="logDialogWrapper"
       width={1060}
-      visible
+      open
       title={_l('日志详情')}
       footer={null}
+      styles={LOG_MODAL_STYLES}
       onCancel={onClose}
     >
+      {getHelpHolder}
       <div className="flexRow h100 minHeight0">
         {list === null && <LoadDiv />}
         {list && (
@@ -382,9 +525,13 @@ const LogDialog = props => {
                         sections[index]?.scrollIntoView();
                       }}
                     >
-                      <ListIcon item={item} />
+                      <ListIcon item={item} model={model} />
+                      <FailureStatus item={item} />
+                      <div className="flex" />
                       {!_.includes(['memory', 'agent'], item.role) && (
-                        <div className="mLeft5 textSecondary Font12">{diffTime(item, list, index)}</div>
+                        <div className="mLeft5 textSecondary Font12" style={{ flexShrink: 0 }}>
+                          {diffTime(item, list, index)}
+                        </div>
                       )}
                     </li>
                   ))}
@@ -395,7 +542,7 @@ const LogDialog = props => {
                 <div
                   className="colorPrimary hoverColorPrimaryDark Font14 flexRow alignItemsCenter pointer pLeft16"
                   style={{ height: 40 }}
-                  onClick={() => GetHelp({ type: 2, instanceId, flowNodeId: nodeId, chatbotId: processId })}
+                  onClick={() => openGetHelp({ type: 2, instanceId, flowNodeId: nodeId, chatbotId: processId })}
                 >
                   {_l('反馈给平台')}
                 </div>
@@ -409,6 +556,7 @@ const LogDialog = props => {
                     <div className={cx('flexRow alignItemsCenter workflowSectionName', { mTop24: index !== 0 })}>
                       <div
                         className="pAll3 pointer Font0 mRight7 textTertiary hoverColorPrimary"
+                        style={{ flexShrink: 0 }}
                         onClick={() => {
                           if (_.includes(folds, index)) {
                             setFolds(folds.filter(o => o !== index));
@@ -424,15 +572,19 @@ const LogDialog = props => {
                           )}
                         />
                       </div>
-                      <ListIcon item={item} />
+                      <ListIcon item={item} model={model} />
+                      <FailureStatus item={item} />
+                      <div className="flex" />
                       {!_.includes(['memory', 'agent'], item.role) && (
-                        <div className="mLeft5 textSecondary Font12">{diffTime(item, list, index, true)}</div>
+                        <div className="mLeft5 textSecondary Font12" style={{ flexShrink: 0 }}>
+                          {diffTime(item, list, index, true)}
+                        </div>
                       )}
                     </div>
                     {!_.includes(folds, index) && (
                       <Fragment>
                         {item.role === 'agent' && (
-                          <div className="contentMessage success">
+                          <div className={cx('contentMessage', item.failed ? 'error' : 'success')}>
                             <div className="flexRow Font13 textSecondary bold">
                               <div className="flex">{_l('总 TOKEN 数')}</div>
                               {window.platformENV.isPlatform && <div className="flex">{_l('费用')}</div>}
@@ -448,7 +600,7 @@ const LogDialog = props => {
                           </div>
                         )}
 
-                        {item.text && (
+                        {item.text && !isAgentLogItemFailed(item) && (
                           <div className="contentMessage">
                             <div className="flexRow alignItemsCenter">
                               <i
@@ -527,7 +679,7 @@ const LogDialog = props => {
                               </div>
                             )}
 
-                            {item.toolCall.responseData && (
+                            {item.toolCall.responseData && !isAgentLogItemFailed(item) && (
                               <div className="contentMessage success">
                                 <div className="flexRow alignItemsCenter">
                                   <i className="icon-output Font16 textTertiary" />
@@ -555,6 +707,29 @@ const LogDialog = props => {
                             )}
                           </Fragment>
                         )}
+
+                        {isAgentLogItemFailed(item) && item.errorMessage && (
+                          <div className="contentMessage error">
+                            <div className="flexRow alignItemsCenter">
+                              <i className="icon-output Font16 textTertiary" />
+                              <div className="bold mLeft6">{_l('输出')}</div>
+                              {(item.utime || item.ctime) && (
+                                <div className="textSecondary Font12 mLeft6 flex">
+                                  {moment(item.utime || item.ctime).format('YYYY/MM/DD HH:mm:ss.SSS')}
+                                </div>
+                              )}
+                              <div className="flex" />
+                              <i
+                                className="icon-copy Font16 textTertiary hoverColorPrimary pointer"
+                                onClick={() => copyText(item.errorMessage)}
+                              />
+                            </div>
+                            <FailureMessage>
+                              <div className="label">{_l('Error Message')}</div>
+                              <div className="message">{item.errorMessage}</div>
+                            </FailureMessage>
+                          </div>
+                        )}
                       </Fragment>
                     )}
                   </Fragment>
@@ -571,8 +746,10 @@ const LogDialog = props => {
           </Error>
         )}
       </div>
-    </DialogWrapper>
+    </Modal>
   );
 };
 
-export default props => FunctionWrap(LogDialog, { ...props });
+export function useWorkflowLogDialog() {
+  return useFunctionWrapComponent(LogDialog);
+}

@@ -7,9 +7,10 @@ import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { pathCompletion } from 'src/utils/common';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { checkPermission } from 'src/utils/services/security/permission';
 import ConnectAvator from '../../components/ConnectAvator';
 import ConnectDesDia from '../../components/connectDesDialog';
 import ConnectOptionMenu from '../../components/ConnectOptionMenu';
@@ -174,11 +175,11 @@ function ConnectCon(props) {
           alert(_l('你暂时没有权限查看该连接！'), 3);
         }
       },
-      () => {
+      _requestError => {
         setTimeout(() => {
           location.href = pathCompletion('/integration/connectList');
         }, 500);
-        alert(_l('你暂时没有权限查看该连接！'), 3);
+        alertIfNotUnauthorized(_requestError, _l('你暂时没有权限查看该连接！'), 3);
       },
     );
   };
@@ -335,7 +336,7 @@ function ConnectCon(props) {
                     onClickAway={() => {
                       setState({ showEdit: false });
                     }}
-                    onClickAwayExceptions={['.ant-modal-mask', '.ant-modal-wrap', '.mui-dialog-scroll-container']}
+                    onClickAwayExceptions={['.hap-modal-mask', '.hap-modal-wrap']}
                   />
                 </div>
               )}
@@ -398,10 +399,7 @@ function ConnectCon(props) {
                           location.href = pathCompletion('/integration/connectList');
                         }, 1000);
                       }}
-                      popupAlign={{
-                        points: ['tl', 'bl'],
-                        overflow: { adjustX: true, adjustY: true },
-                      }}
+                      placement="bottomLeft"
                       onCopySuccess={() => {
                         location.href = pathCompletion('/integration/connectList');
                       }}

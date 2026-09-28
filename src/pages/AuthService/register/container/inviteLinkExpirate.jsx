@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const Wrap = styled.div`
   min-height: 400px;

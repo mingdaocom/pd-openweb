@@ -3,34 +3,57 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, DatePicker, Dropdown, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { pathCompletion } from 'src/utils/common';
-import { getSummaryInfo } from 'src/utils/record';
+import { getSummaryInfo } from 'src/utils/domain/worksheet/record';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID, APP_TYPE, DATE_SHOW_TYPES } from '../../enum';
 import { checkConditionsIsNull, getControlTypeName, getIcons, handleGlobalVariableName } from '../../utils';
 import {
+  AppSelectTitle,
   CustomTextarea,
   DetailFooter,
   DetailHeader,
   FindMode,
-  FnList,
   SelectNodeObject,
   SelectOtherFields,
   SpecificFieldsValue,
   Tag,
   TriggerCondition,
 } from '../components';
+import { FORMULA } from './enum';
+
+const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
+const DATE_TIME_PICKER_CONFIG = { format: 'HH:mm' };
+const FORMULA_MENU_STYLE = { maxHeight: 280, overflowX: 'hidden', overflowY: 'auto' };
+const FORMULA_DROPDOWN_TRIGGER_STYLE = {
+  position: 'absolute',
+  minWidth: 260,
+  height: 0,
+  top: 0,
+  left: 0,
+  pointerEvents: 'none',
+};
+
+const getFormulaKeys = fnmatch => {
+  const keys = _.keys(FORMULA).slice(1);
+  keys.splice(5, 0, 'divider');
+  const filteredKeys = keys.filter(key => key === 'divider' || key.includes(fnmatch.toUpperCase()));
+
+  if (_.head(filteredKeys) === 'divider') filteredKeys.shift();
+  if (_.last(filteredKeys) === 'divider') filteredKeys.pop();
+
+  return filteredKeys;
+};
 
 const DotBox = styled.div`
   input {
-    width: 28px;
-    min-width: 28px !important;
+    width: 50px;
+    min-width: 50px !important;
     text-align: center;
   }
 `;
@@ -301,6 +324,23 @@ export default class Formula extends Component {
    */
   renderNumberContent() {
     const { data, showFormulaLayer, fnmatch } = this.state;
+    const formulaKeys = getFormulaKeys(fnmatch);
+    const formulaMenuItems = formulaKeys.length
+      ? formulaKeys.map(key =>
+          key === 'divider'
+            ? { key: 'formula-divider', type: 'divider' }
+            : {
+                key,
+                label: (
+                  <span>
+                    <span>{key}</span>
+                    <span className="mLeft6 textSecondary">{FORMULA[key].fnName}</span>
+                  </span>
+                ),
+                onClick: () => this.handleFnClick(key),
+              },
+        )
+      : [{ key: 'empty', disabled: true, label: _l('没有找到符合的公式') }];
 
     return (
       <Fragment>
@@ -320,13 +360,20 @@ export default class Formula extends Component {
 
         {this.renderFormulaAndOtherValue()}
         {showFormulaLayer && (
-          <div className="relative">
-            <FnList
-              fnmatch={fnmatch}
-              onFnClick={this.handleFnClick}
-              onClickAwayExceptions={[document.querySelector('.addFormula')]}
-              onClickAway={() => this.setState({ showFormulaLayer: false })}
-            />
+          <div className="relative" ref={element => (this.formulaDropdownContainer = element)}>
+            <Dropdown
+              trigger={['click']}
+              open
+              placement="bottomLeft"
+              getPopupContainer={() => this.formulaDropdownContainer}
+              menu={{ items: formulaMenuItems, style: FORMULA_MENU_STYLE }}
+              onOpenChange={open => {
+                if (open) return;
+                this.setState({ showFormulaLayer: false });
+              }}
+            >
+              <span style={FORMULA_DROPDOWN_TRIGGER_STYLE} />
+            </Dropdown>
           </div>
         )}
 
@@ -335,10 +382,15 @@ export default class Formula extends Component {
         <div className="mTop20 flexRow">
           <Checkbox
             className="InlineFlex"
-            text={_l('参与计算的字段值为空时，视为0')}
             checked={data.nullZero}
-            onClick={checked => this.updateSource({ nullZero: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                nullZero: event.target.checked,
+              })
+            }
+          >
+            {_l('参与计算的字段值为空时，视为0')}
+          </Checkbox>
         </div>
       </Fragment>
     );
@@ -409,19 +461,20 @@ export default class Formula extends Component {
           </div>
         ) : (
           <div className="actionControlBox flex borderColorPrimary clearBorderRadius">
-            <DateTime
-              selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
-              timePicker
-              timeMode="minute"
+            <DatePicker
               allowClear={false}
-              onOk={e => callback({ fieldValue: e.format('YYYY-MM-DD HH:mm') })}
-            >
-              {data.fieldValue ? (
-                moment(data.fieldValue).format('YYYY-MM-DD HH:mm')
-              ) : (
-                <span className="textDisabled">{_l('请选择日期')}</span>
-              )}
-            </DateTime>
+              className="workflowDatePicker"
+              format={DATE_TIME_FORMAT}
+              inputReadOnly
+              needConfirm
+              placeholder={_l('请选择日期')}
+              showNow={false}
+              showTime={DATE_TIME_PICKER_CONFIG}
+              suffixIcon={null}
+              value={data.fieldValue ? moment(data.fieldValue) : null}
+              variant="borderless"
+              onChange={value => value && callback({ fieldValue: value.format(DATE_TIME_FORMAT) })}
+            />
           </div>
         )}
         <SelectOtherFields
@@ -476,14 +529,13 @@ export default class Formula extends Component {
           </Tooltip>
         </div>
 
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={[
-            { text: _l('日期+时间'), value: 1 },
-            { text: _l('日期'), value: 2 },
+          options={[
+            { label: _l('日期+时间'), value: 1 },
+            { label: _l('日期'), value: 2 },
           ]}
           value={data.number}
-          border
           onChange={number => this.updateSource({ number })}
         />
 
@@ -510,16 +562,15 @@ export default class Formula extends Component {
         {this.renderFormulaAndOtherValue()}
 
         <div className="mTop20 bold">{_l('输出结果')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={[
-            { text: _l('日期+时间'), value: 1 },
-            { text: _l('日期'), value: 3 },
-            { text: _l('时分'), value: 8 },
-            { text: _l('时分秒'), value: 9 },
+          options={[
+            { label: _l('日期+时间'), value: 1 },
+            { label: _l('日期'), value: 3 },
+            { label: _l('时分'), value: 8 },
+            { label: _l('时分秒'), value: 9 },
           ]}
           value={data.unit}
-          border
           onChange={unit => this.updateSource({ unit })}
         />
 
@@ -555,30 +606,28 @@ export default class Formula extends Component {
 
         <div className="mTop20 bold">{_l('格式化')}</div>
         <div className="mTop10 textSecondary">{_l('参与计算的日期未设置时间时，格式化方式为：')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={[
-            { text: _l('开始 00:00，结束24:00'), value: 1 },
-            { text: _l('开始 00:00，结束00:00'), value: 2 },
+          options={[
+            { label: _l('开始 00:00，结束24:00'), value: 1 },
+            { label: _l('开始 00:00，结束00:00'), value: 2 },
           ]}
           value={data.number}
-          border
           onChange={number => this.updateSource({ number })}
         />
 
         <div className="mTop20 bold">{_l('输出单位')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={[
-            { text: _l('年'), value: 1 },
-            { text: _l('月'), value: 2 },
-            { text: _l('天'), value: 3 },
-            { text: _l('时'), value: 4 },
-            { text: _l('分'), value: 5 },
-            { text: _l('秒'), value: 6 },
+          options={[
+            { label: _l('年'), value: 1 },
+            { label: _l('月'), value: 2 },
+            { label: _l('天'), value: 3 },
+            { label: _l('时'), value: 4 },
+            { label: _l('分'), value: 5 },
+            { label: _l('秒'), value: 6 },
           ]}
           value={data.outUnit}
-          border
           onChange={outUnit => this.updateSource({ outUnit })}
         />
       </Fragment>
@@ -611,10 +660,15 @@ export default class Formula extends Component {
         <div className="mTop15 flexRow">
           <Checkbox
             className="InlineFlex"
-            text={_l('按汇总对象数量限制返回结果')}
             checked={data.limit}
-            onClick={checked => this.updateSource({ limit: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                limit: event.target.checked,
+              })
+            }
+          >
+            {_l('按汇总对象数量限制返回结果')}
+          </Checkbox>
         </div>
       </Fragment>
     );
@@ -658,11 +712,16 @@ export default class Formula extends Component {
             <div style={{ marginRight: 64 }} key={i}>
               <Radio
                 checked={data.type === item.value}
-                text={item.text}
-                onClick={() =>
-                  this.updateSource({ type: item.value, number: _.includes([15, 16], item.value) ? 0 : 2 })
+                onChange={() =>
+                  this.updateSource({
+                    type: item.value,
+                    number: _.includes([15, 16], item.value) ? 0 : 2,
+                  })
                 }
-              />
+                title={item.text}
+              >
+                {item.text}
+              </Radio>
             </div>
           ))}
         </div>
@@ -703,13 +762,12 @@ export default class Formula extends Component {
       <Fragment>
         <div className="mTop15 flexRow alignItemsCenter">
           <div>{_l('日期格式')}</div>
-          <Dropdown
+          <Select
             className="flowDropdown mLeft12 flex"
-            data={DATE_SHOW_TYPES.map(item => {
-              return { ...item, text: `${moment().format(item.format)}` + (item.text ? `(${item.text})` : '') };
+            options={DATE_SHOW_TYPES.map(item => {
+              return { ...item, label: `${moment().format(item.format)}` + (item.text ? `(${item.text})` : '') };
             })}
             value={parseInt(data[key])}
-            border
             onChange={value => this.updateSource({ [key]: isString ? value.toString() : value })}
           />
         </div>
@@ -770,7 +828,7 @@ export default class Formula extends Component {
   editFormulaDialog = event => {
     const { processId, selectNodeId } = this.props;
 
-    if ($(event.target).closest('.ant-tooltip').length) return;
+    if ($(event.target).closest('.hap-tooltip').length) return;
 
     if (!this.state.fieldsData.length) {
       flowNode
@@ -822,13 +880,12 @@ export default class Formula extends Component {
     const list = data.appList
       .filter(item => !item.otherApkId)
       .map(({ name, id }) => ({
-        text: name,
+        label: name,
         value: id,
-        className: id === data.appId ? 'colorPrimary' : '',
       }));
     const otherWorksheet = [
       {
-        text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
+        label: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
         className: 'textSecondary',
       },
@@ -858,32 +915,21 @@ export default class Formula extends Component {
           )}
         </div>
 
-        <Dropdown
+        <Select
           className={cx('flowDropdown mTop10 flowDropdownBorder', {
             'errorBorder errorBG': data.appId && !selectAppItem,
           })}
-          data={[list, otherWorksheet]}
+          options={list.concat(otherWorksheet)}
           value={data.appId}
-          renderTitle={
-            !data.appId
-              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
-              : data.appId && !selectAppItem
-                ? () => (
-                    <span className="errorColor">
-                      {isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
-                    </span>
-                  )
-                : () => (
-                    <Fragment>
-                      <span>{selectAppItem.name}</span>
-                      {selectAppItem.otherApkName && (
-                        <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
-                      )}
-                    </Fragment>
-                  )
-          }
-          border
-          openSearch
+          labelRender={() => (
+            <AppSelectTitle
+              data={data}
+              selectAppItem={selectAppItem}
+              invalidText={isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
+            />
+          )}
+          showSearch
+          optionFilterProp="label"
           onChange={appId => {
             if (appId === 'other') {
               this.setState({ showOtherWorksheet: true });
@@ -951,14 +997,14 @@ export default class Formula extends Component {
       <Fragment>
         <div className="mTop20 bold">{_l('汇总')}</div>
         <div className="mTop10 flexRow">
-          <Dropdown
+          <Select
             className="flowDropdown flex"
-            data={[{ text: _l('记录数量'), value: '' }].concat(
+            options={[{ label: _l('记录数量'), value: '' }].concat(
               data.controls
                 .filter(o => o.controlId.length === 24)
                 .map(o => {
                   return {
-                    text: (
+                    label: (
                       <Fragment>
                         <span className="textSecondary mRight5">[{getControlTypeName(o)}]</span>
                         <span>{o.controlName}</span>
@@ -969,10 +1015,10 @@ export default class Formula extends Component {
                   };
                 }),
             )}
-            openSearch
+            showSearch
+            optionFilterProp="searchText"
             value={data.reportControlId}
-            border
-            renderTitle={
+            labelRender={
               data.reportControlId
                 ? () => {
                     return (
@@ -992,18 +1038,17 @@ export default class Formula extends Component {
           />
           <div className="flex mLeft10">
             {!!reportControl.controlName && (
-              <Dropdown
+              <Select
                 className="flowDropdown"
-                data={getTotalTypes(data.reportControlId)
+                options={getTotalTypes(data.reportControlId)
                   .list.filter(o => o && o.value)
                   .map(o => {
                     return {
-                      text: o.label,
+                      label: o.label,
                       value: o.value,
                     };
                   })}
                 value={data.reportType}
-                border
                 onChange={reportType => this.updateSource({ reportType })}
               />
             )}
@@ -1013,10 +1058,15 @@ export default class Formula extends Component {
         <div className="mTop20 flexRow">
           <Checkbox
             className="InlineFlex"
-            text={_l('汇总结果为空时，视为0')}
             checked={data.nullZero}
-            onClick={checked => this.updateSource({ nullZero: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                nullZero: event.target.checked,
+              })
+            }
+          >
+            {_l('汇总结果为空时，视为0')}
+          </Checkbox>
         </div>
       </Fragment>
     );

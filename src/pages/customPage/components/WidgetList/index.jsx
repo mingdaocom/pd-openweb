@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import { getEnumType } from 'src/utils/domain/customPage/model';
 import { containerWidgets, widgets } from '../../enum';
-import { componentCountLimit, getEnumType } from '../../util';
+import { componentCountLimit } from '../../util';
 import EditWidget from '../editWidget';
 
 const WidgetWrap = styled.div`

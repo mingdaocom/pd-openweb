@@ -1,14 +1,10 @@
 import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
-import { Popover } from 'antd';
 import cx from 'classnames';
-import update from 'immutability-helper';
 import { pick } from 'lodash';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import { Icon, LoadDiv, RichText, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
+import { DeleteReconfirm as DeleteConfirm, Dropdown, Popover, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import customApi from 'statistics/api/custom';
 import { getReportTypeIcon } from 'statistics/Charts/reportTypeIcons';
@@ -16,19 +12,19 @@ import SheetDesc from 'worksheet/common/SheetDesc';
 import selectIconDialog from 'worksheet/components/selectIconDialog';
 import { deleteSheet } from 'worksheet/redux/actions/sheetList';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
-import { canEditData } from 'worksheet/redux/actions/util';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { isLightColor, replaceColor } from 'src/pages/customPage/util';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import store from 'src/redux/configureStore';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { htmlEncodeReg } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
-import OperateMenu from './OperateMenu';
-import 'rc-trigger/assets/index.css';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { replaceColor } from 'src/utils/domain/customPage/model';
+import { canEditData } from 'src/utils/domain/permission/app';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getCurrentProject } from 'src/utils/services/project';
+import { getOperateMenuItems } from './OperateMenu';
 
 const ConfigSideWrap = lazy(() => import('src/pages/customPage/components/ConfigSideWrap'));
 const EditExternalLink = lazy(() =>
@@ -157,12 +153,12 @@ export default function CustomPageHeader(props) {
   const handleClick = (type, data) => {
     switch (type) {
       case 'editCanvas':
-        updateVisible(update(visible, { popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
         updatePageInfo({ components: [], pageId, pageName: name });
         updateEditPageVisible(true);
         break;
       case 'editPage':
-        updateVisible(update(visible, { popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
         setExternalLinkIsEditing(true);
         break;
       case 'editName':
@@ -179,7 +175,7 @@ export default function CustomPageHeader(props) {
         break;
       case 'editIntro':
         setDescIsEditing(true);
-        updateVisible(update(visible, { editIntroVisible: { $set: true }, popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, editIntroVisible: true, popupVisible: false }));
         break;
       case 'adjustScreen':
         handleUpdatePage(data);
@@ -193,15 +189,15 @@ export default function CustomPageHeader(props) {
           iconColor: currentSheet.iconColor,
           iconUrl: currentSheet.iconUrl,
         });
-        updateVisible(update(visible, { popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
         break;
       case 'move':
-        updateVisible(update(visible, { popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
         break;
       case 'delete':
         DeleteConfirm({
-          style: { width: '560px' },
-          title: <span className="Bold">{_l('删除自定义页面 “%0”', name)}</span>,
+          style: { width: 560 },
+          title: _l('删除自定义页面 “%0”', name),
           description: (
             <div>
               <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
@@ -230,16 +226,16 @@ export default function CustomPageHeader(props) {
             }
           },
         });
-        updateVisible(update(visible, { popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
         break;
       default:
-        updateVisible(update(visible, { popupVisible: { $set: false } }));
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
         break;
     }
   };
 
   const handleVisibleChange = (value, type) => {
-    updateVisible(update(visible, { [type]: { $set: value } }));
+    updateVisible(prevVisible => ({ ...prevVisible, [type]: value }));
   };
 
   const isPublicShare = location.href.includes('public/page');
@@ -328,6 +324,19 @@ export default function CustomPageHeader(props) {
   const isDarkTheme = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
   const backgroundColor =
     appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
+  const bgStyleValue = _.isUndefined(pageConfig.bgStyleValue)
+    ? pageConfig.pageBgImage
+      ? 'shape'
+      : ''
+    : pageConfig.bgStyleValue;
+  const hasPageBg =
+    (bgStyleValue === 'shape' && Boolean(pageConfig.pageBgImage)) ||
+    (bgStyleValue === 'image' && Boolean(pageConfig.bgImageIndex)) ||
+    (bgStyleValue === 'custom' && Boolean(props.previewUrl || props.imageUrl));
+  const operateMenuItems = getOperateMenuItems({
+    ...pick(props, ['adjustScreen', 'ids', 'currentSheet', 'appPkg']),
+    onClick: handleClick,
+  });
 
   return (
     <Fragment>
@@ -340,11 +349,11 @@ export default function CustomPageHeader(props) {
               : !(urlTemplate ? configuration?.hideHeaderBar === '0' : pageConfig.headerVisible),
         })}
         style={{
-          zIndex: pageConfig.pageBgImage ? 0 : 2,
+          // zIndex: hasPageBg ? 0 : 2,
           '--title-color': isDarkTheme ? '#ffffffcc' : '#333',
           '--icon-color': isDarkTheme ? '#ffffffcc' : '#757575a1',
           '--icon-hover-color': isDarkTheme ? '#ffffff' : '#1677ff',
-          backgroundColor: backgroundColor,
+          backgroundColor: hasPageBg ? 'transparent' : backgroundColor,
         }}
       >
         <div className="nameWrap flex">
@@ -406,11 +415,10 @@ export default function CustomPageHeader(props) {
           )}
           {desc && !isPublicShare && (
             <Popover
-              arrowPointAtCenter={true}
+              arrow={{ pointAtCenter: true }}
               title={null}
-              zIndex={2000}
               placement="bottomLeft"
-              overlayClassName="sheetDescPopoverOverlay"
+              classNames={{ root: 'sheetDescPopoverOverlay' }}
               content={
                 <div className="popoverContent" style={{ maxHeight: document.body.clientHeight / 2 }}>
                   <RichText
@@ -433,22 +441,17 @@ export default function CustomPageHeader(props) {
             </Popover>
           )}
           {isCharge && (
-            <Trigger
-              onPopupVisibleChange={value => handleVisibleChange(value, 'popupVisible')}
-              popupVisible={popupVisible}
-              action={['click']}
-              popupAlign={{ points: ['tl', 'bl'] }}
-              popup={
-                <OperateMenu
-                  {...pick(props, ['adjustScreen', 'ids', 'currentSheet', 'appPkg'])}
-                  onClick={handleClick}
-                />
-              }
+            <Dropdown
+              trigger={['click']}
+              open={popupVisible}
+              onOpenChange={value => handleVisibleChange(value, 'popupVisible')}
+              placement="bottomLeft"
+              menu={{ items: operateMenuItems, selectable: false, selectedKeys: [], style: { minWidth: 220 } }}
             >
               <div className="iconWrap valignWrapper">
                 <Icon className="Font18 moreOperateIcon pointer" icon="more_horiz" />
               </div>
-            </Trigger>
+            </Dropdown>
           )}
         </div>
         {!urlTemplate && (
@@ -457,19 +460,20 @@ export default function CustomPageHeader(props) {
               <PublicAppLangDropdown className="iconWrap valignWrapper mLeft20" appId={appId} projectId={projectId} />
             )}
             {pageConfig.autoLinkage && (
-              <Popover
-                visible={undefined}
-                trigger="click"
-                placement="bottom"
-                overlayClassName="customPageAutoLinkagePopoverWrap"
-                content={renderLinkageFiltersPopover()}
-              >
-                <Tooltip title={_l('联动筛选')} placement="bottom">
+              <Tooltip title={_l('联动筛选')} placement="bottom">
+                <Popover
+                  arrow={true}
+                  open={undefined}
+                  trigger="click"
+                  placement="bottom"
+                  classNames={{ root: 'customPageAutoLinkagePopoverWrap' }}
+                  content={renderLinkageFiltersPopover()}
+                >
                   <div data-event="filter" className="iconWrap valignWrapper mLeft20 autoLinkageTrigger">
                     <Icon className="Font22 pointer" icon="linkage_filter" />
                   </div>
-                </Tooltip>
-              </Popover>
+                </Popover>
+              </Tooltip>
             )}
             <Tooltip title={_l('刷新')} placement="bottom">
               <div data-event="refresh" className="iconWrap valignWrapper mLeft20" onClick={resetPage}>
@@ -516,7 +520,7 @@ export default function CustomPageHeader(props) {
               ))}
           </Fragment>
         )}
-        {isPublicShare && !window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        {isPublicShare && window.platformENV.isHap && (
           <div className="valignWrapper textSecondary createSource mLeft20">
             <CreateByMingDaoYun />
           </div>
@@ -535,16 +539,18 @@ export default function CustomPageHeader(props) {
         cacheKey="pageIntroDescription"
         visible={editIntroVisible}
         desc={descIsEditing ? desc || '' : desc ? getTranslateInfo(appId, null, pageId).description || desc : ''}
+        remark={props.remark}
+        showRemark={!urlTemplate}
         isEditing={descIsEditing}
         setDescIsEditing={setDescIsEditing}
         onClose={() => {
           handleVisibleChange(false, 'editIntroVisible');
         }}
-        onSave={value => {
+        onSave={({ desc, remark }) => {
           if (urlTemplate) {
-            handleUpdateDesc(value);
+            handleUpdateDesc(desc);
           } else {
-            handleUpdatePage({ desc: value });
+            handleUpdatePage({ desc, remark });
           }
           // handleVisibleChange(false, 'editIntroVisible');
         }}
@@ -586,7 +592,7 @@ export default function CustomPageHeader(props) {
             className="sideAbsolute"
             onClose={() => {
               setConfigVisible(false);
-              const { id, adjustScreen, config, urlParams } = props;
+              const { id, adjustScreen, config, imageUrl, previewUrl, urlParams } = props;
               customApi.updatePage({
                 appId: id,
                 adjustScreen,
@@ -594,6 +600,8 @@ export default function CustomPageHeader(props) {
                   ...config,
                   webNewCols: config.orightWebCols,
                 },
+                imageUrl,
+                previewUrl,
                 urlParams,
               });
             }}

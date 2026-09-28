@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { mdNotification } from 'ming-ui/functions';
 import userAJAX from 'src/api/user';
-import { setCaretPosition } from 'src/utils/common';
+import { setCaretPosition } from 'src/utils/platform/browser/dom';
 import CardToolbar from '../../components/CardToolbar';
 import MessageSendText from '../../components/MessageSendText';
 import SendToolbar from '../../components/SendToolbar';
@@ -30,15 +30,18 @@ const WarnBox = styled.div`
   background: rgba(244, 67, 54, 0.1);
 `;
 
-class ChatPanelSession extends Component {
+export class ChatPanelSession extends Component {
   constructor(props) {
     super(props);
     const { session } = this.props;
     const { id, isGroup } = session;
+    const cachedDraftValue = localStorage.getItem(`textareaValue${id}`) || '';
     this.currentHeight = 0;
     this.isFocus = true;
+    this.focusAnimationFrame = undefined;
+    this.lastCachedDraftValue = cachedDraftValue;
     this.state = {
-      value: localStorage.getItem(`textareaValue${id}`) || '',
+      value: cachedDraftValue,
       infoVisible: isGroup ? !localStorage.getItem('chatInfoHidden') : false,
       searchText: '',
       isOpenFile: false,
@@ -47,7 +50,7 @@ class ChatPanelSession extends Component {
     };
     window[`onChangeChatValue-${id}`] = this.handleChange;
 
-    if (this.state.isContact && !isGroup && !window.platformENV.isOverseas && !window.platformENV.isLocal) {
+    if (this.state.isContact && !isGroup && window.platformENV.isHap) {
       this.checkAccountSecured();
     }
   }
@@ -60,8 +63,29 @@ class ChatPanelSession extends Component {
 
     return false;
   }
+  componentDidMount() {
+    const { id } = this.props.session;
+
+    if (
+      !window.isMDClient ||
+      !window.isMacOs ||
+      this.props.currentSession.value !== id ||
+      !window.requestAnimationFrame
+    ) {
+      return;
+    }
+
+    this.scheduleTextareaFocus(id);
+  }
   componentWillUnmount() {
     const { session } = this.props;
+
+    if (this.focusAnimationFrame !== undefined && window.cancelAnimationFrame) {
+      window.cancelAnimationFrame(this.focusAnimationFrame);
+    }
+
+    this.focusAnimationFrame = undefined;
+
     delete window[`onChangeChatValue-${session.id}`];
   }
 
@@ -73,10 +97,41 @@ class ChatPanelSession extends Component {
    */
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      const value = this.props.currentSession.value;
-      value && this.focus(value);
+    const { id } = this.props.session;
+    const currentSessionId = this.props.currentSession.value;
+
+    if (currentSessionId === id && prevProps.currentSession.value !== currentSessionId) {
+      this.focus(currentSessionId);
     }
+  }
+
+  scheduleTextareaFocus(id, { skipWhileComposing = false } = {}) {
+    if (this.focusAnimationFrame !== undefined && window.cancelAnimationFrame) {
+      window.cancelAnimationFrame(this.focusAnimationFrame);
+    }
+
+    const focus = () => {
+      this.focusAnimationFrame = undefined;
+
+      if (
+        this.props.currentSession.value !== id ||
+        (skipWhileComposing && this.textarea && this.textarea.isComposing)
+      ) {
+        return;
+      }
+
+      this.focus(id);
+    };
+
+    if (window.requestAnimationFrame) {
+      this.focusAnimationFrame = window.requestAnimationFrame(focus);
+    } else {
+      focus();
+    }
+  }
+
+  handleRequestTextareaFocus() {
+    this.scheduleTextareaFocus(this.props.session.id, { skipWhileComposing: true });
   }
 
   /**
@@ -95,7 +150,11 @@ class ChatPanelSession extends Component {
 
   focus(id) {
     if (typeof id !== 'string') return;
-    $(`#ChatPanel-${id} .ChatPanel-Textarea`).find('.Textarea').focus();
+    const textarea = $(`#ChatPanel-${id} .ChatPanel-Textarea`).find('.Textarea').get(0);
+
+    if (!textarea || textarea.disabled || document.activeElement === textarea) return;
+
+    textarea.focus({ preventScroll: true });
   }
   jointMessageText(value, emotionText) {
     const { currentCursortPosition } = window;
@@ -168,10 +227,26 @@ class ChatPanelSession extends Component {
     // 草稿
     if (document.visibilityState === 'visible') {
       const { id } = this.props.session;
+      const draftValue = _.trim(value) ? value : '';
+      const cachedDraftValue = localStorage.getItem(`textareaValue${id}`) || '';
+
+      // 其他页面可能已发送或更新了该会话的草稿，不要让本页面的旧值在失焦时覆盖它。
+      if (draftValue === this.lastCachedDraftValue && cachedDraftValue !== this.lastCachedDraftValue) {
+        this.lastCachedDraftValue = cachedDraftValue;
+        this.props.dispatch(
+          actions.updateSessionList({
+            id,
+            sendMsg: cachedDraftValue,
+          }),
+        );
+        this.setState({ value: cachedDraftValue });
+        return;
+      }
+
       this.props.dispatch(
         actions.updateSessionList({
           id,
-          sendMsg: _.trim(value) ? value : '',
+          sendMsg: draftValue,
         }),
       );
     }
@@ -199,6 +274,8 @@ class ChatPanelSession extends Component {
           }),
         );
       }
+
+      this.lastCachedDraftValue = draftValue;
     }
 
     this.setState({
@@ -474,12 +551,15 @@ class ChatPanelSession extends Component {
                 </a>
               </WarnBox>
             )}
-            <MessageView session={session} />
+            <MessageView session={session} onRequestTextareaFocus={this.handleRequestTextareaFocus.bind(this)} />
             <div className="ChatPanel-textarea">
               <div className={cx('sessionTextarea', { disable: !isContact })}>
                 {isContact ? null : <div className="mask"></div>}
                 <CardToolbar session={session} onSendCardMsg={this.handleSendCardMsg.bind(this)} />
                 <Textarea
+                  ref={textarea => {
+                    this.textarea = textarea;
+                  }}
                   disabled={!isContact}
                   value={value}
                   session={session}

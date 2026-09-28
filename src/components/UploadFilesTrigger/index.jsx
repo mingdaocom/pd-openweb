@@ -1,29 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import Button from 'ming-ui/components/Button';
+import { Button, Popover } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import Icon from 'ming-ui/components/Icon';
 import UploadFiles from 'src/components/UploadFiles';
-import { generateRandomPassword } from 'src/utils/common';
+import { generateRandomPassword } from 'src/utils/core/string';
 import './index.less';
 
 const ClickAwayable = ClickAway;
-const builtinPlacements = {
-  topLeft: {
-    points: ['bl', 'tl'],
-  },
-  topRight: {
-    points: ['br', 'tr'],
-  },
-  bottomRight: {
-    points: ['tr', 'br'],
-  },
-  bottomLeft: {
-    points: ['tl', 'bl'],
-  },
-};
 
 export default class UploadFilesTrigger extends Component {
   constructor(props) {
@@ -48,6 +33,9 @@ export default class UploadFilesTrigger extends Component {
       }
     }
   }
+  componentWillUnmount() {
+    this.handleCancelDetection();
+  }
   show = e => {
     e.preventDefault();
     const $el = $(`#UploadFilesTriggerPanel${this.id}`);
@@ -58,19 +46,34 @@ export default class UploadFilesTrigger extends Component {
     const $el = $(`#UploadFilesTriggerPanel${this.id}`);
     $el.removeClass('drag');
   };
+  isFileDrag = e => {
+    const dataTransfer = (e.originalEvent || e).dataTransfer;
+    const types = Array.from(dataTransfer?.types || []);
+    const items = Array.from(dataTransfer?.items || []);
+
+    return types.includes('Files') || items.some(item => item.kind === 'file');
+  };
   dragenter = e => {
+    if (!this.isFileDrag(e)) return;
+
     this.lastenter = e.target;
     this.show(e);
   };
   dragleave = e => {
+    if (!this.isFileDrag(e)) return;
+
     if (this.lastenter === e.target) {
       this.hide(e);
     }
   };
   drop = e => {
+    if (!this.isFileDrag(e)) return;
+
     this.hide(e);
   };
   dragover = e => {
+    if (!this.isFileDrag(e)) return;
+
     this.show(e);
     return false;
   };
@@ -133,10 +136,15 @@ export default class UploadFilesTrigger extends Component {
   renderBtns() {
     return (
       <div className="panelBtns flexRow valignWrapper">
-        <Button type="link" size="small" onClick={this.handleCancel.bind(this)}>
+        <Button
+          color="primary"
+          variant="link"
+          style={{ '--hap-control-height': '32px' }}
+          onClick={this.handleCancel.bind(this)}
+        >
           {_l('取消')}
         </Button>
-        <Button type="primary" size="small" onClick={this.handleOk.bind(this)}>
+        <Button type="primary" style={{ '--hap-control-height': '32px' }} onClick={this.handleOk.bind(this)}>
           {_l('确定')}
         </Button>
       </div>
@@ -191,6 +199,12 @@ export default class UploadFilesTrigger extends Component {
           readOnly
           id={id}
           className={'dropTextarea'}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && isData && isComplete) {
+              event.preventDefault();
+              this.handleOk();
+            }
+          }}
           ref={textarea => {
             this.textarea = textarea;
           }}
@@ -201,22 +215,34 @@ export default class UploadFilesTrigger extends Component {
   }
   render() {
     const { visible } = this.state;
-    const { children, getPopupContainer, offset, noWrap, destroyPopupOnHide, ...uploadFilesProps } = this.props;
+    const {
+      children,
+      getPopupContainer,
+      offset,
+      noWrap,
+      buttonTrigger,
+      destroyPopupOnHide = false,
+      ...uploadFilesProps
+    } = this.props;
     return (
-      <Trigger
-        popupVisible={visible}
-        onPopupVisibleChange={!noWrap ? this.setTriggerPanelVisible.bind(this, true) : () => {}}
-        destroyPopupOnHide={destroyPopupOnHide}
-        popupClassName="UploadFilesTriggerWrap"
-        action={['click']}
-        popupPlacement="bottomLeft"
-        builtinPlacements={builtinPlacements}
-        popup={this.renderPanel(uploadFilesProps)}
-        popupAlign={{ offset: offset || [2, 2], overflow: { adjustX: 2, adjustY: 1 } }}
+      <Popover
+        open={visible}
+        onOpenChange={open => {
+          if (!noWrap && open) {
+            this.setTriggerPanelVisible(true);
+          }
+        }}
+        destroyOnHidden={destroyPopupOnHide}
+        classNames={{ root: 'UploadFilesTriggerWrap' }}
+        noPadding
+        trigger="click"
+        placement="bottomLeft"
+        content={this.renderPanel(uploadFilesProps)}
+        align={{ offset: offset || [2, 2] }}
         getPopupContainer={getPopupContainer}
       >
-        {noWrap ? children : <div className="triggerTraget">{children}</div>}
-      </Trigger>
+        {noWrap || buttonTrigger ? children : <div className="triggerTraget">{children}</div>}
+      </Popover>
     );
   }
 }

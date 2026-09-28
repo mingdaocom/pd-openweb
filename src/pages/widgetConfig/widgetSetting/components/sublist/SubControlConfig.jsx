@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { SETTING_MODE_DISPLAY } from '../../../config/setting';
-import { getAdvanceSetting } from '../../../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SETTING_MODE_DISPLAY } from 'src/utils/domain/control/setting';
 import ExplainContent from '../../content/ExplainContent';
 import SettingContent from '../../content/SettingContent';
 import StyleContent from '../StyleContent';

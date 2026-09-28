@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, LoadDiv, ScrollView, SortableList, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView, SortableList, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
 import Config from '../../../config';
@@ -85,12 +85,14 @@ export default class SelectApp extends React.Component {
             <Checkbox
               className="TxtMiddle selectAppSortableItem"
               checked={isSelect}
-              onClick={() => this.updateSelectList(isSelect, item)}
+              onChange={() => this.updateSelectList(isSelect, item)}
             >
-              <div className="mRight10 svgBox" style={{ backgroundColor: item.iconColor }}>
-                <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
-              </div>
-              <div className="flex ellipsis">{item.appName}</div>
+              <span className="selectAppLabel">
+                <span className="mRight10 svgBox" style={{ backgroundColor: item.iconColor }}>
+                  <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
+                </span>
+                <span className="flex ellipsis">{item.appName}</span>
+              </span>
             </Checkbox>
           );
         })}
@@ -143,6 +145,7 @@ export default class SelectApp extends React.Component {
     return (
       <div className="selectBox scrollBox">
         <SortableList
+          renderBody
           items={selectList}
           itemKey="appId"
           renderItem={item => renderSortableItem(item)}
@@ -204,11 +207,11 @@ export default class SelectApp extends React.Component {
             {this.renderSelectList()}
           </div>
         </div>
-        <div className="mTop32 mBottom20 clearfix selectAppOptionBtns">
-          <button
-            type="button"
+        <div className="mTop32 mBottom20 clearfix">
+          <Button
+            type="primary"
             disabled={!selectList.length}
-            className={cx('ming Button Right nextBtn Button--primary Bold', { disabled: !selectList.length })}
+            className="Right Bold"
             onClick={() => {
               if (selectList.length > MAX_EXPORT_NUM) {
                 alert(_l('导出的应用共%0个，已超过上限%1个，请重新选择', selectList.length, MAX_EXPORT_NUM), 3);
@@ -218,7 +221,7 @@ export default class SelectApp extends React.Component {
             }}
           >
             {_l('下一步')}
-          </button>
+          </Button>
           <div
             className="Right mRight40 textTertiary hoverColorPrimaryLight Hand LineHeight36"
             onClick={() => this.props.closeDialog()}

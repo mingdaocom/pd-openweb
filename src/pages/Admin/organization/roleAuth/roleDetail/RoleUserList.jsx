@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { LoadDiv, ScrollView, SearchInput, UserHead } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import roleApi from 'src/api/role';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const UserListWrapper = styled.div`
   flex: 1;
@@ -17,9 +17,6 @@ const UserListWrapper = styled.div`
   overflow: hidden;
   .userListHeader {
     .searchInput {
-      height: 32px;
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-border-secondary);
       input {
         min-width: 160px;
       }
@@ -80,6 +77,15 @@ export default function RoleUserList(props) {
     noMore: false,
   });
   const [userList, setUserList] = useState([]);
+  const debouncedSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setFetchState({ loading: true, keywords: value, pageIndex: 1 });
+      }, 500),
+    [setFetchState],
+  );
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
   useEffect(() => {
     setFetchState({ loading: true, pageIndex: 1 });
@@ -171,15 +177,19 @@ export default function RoleUserList(props) {
           <SearchInput
             className="searchInput"
             placeholder={_l('搜索')}
-            value={fetchState.keywords}
-            onChange={_.debounce(value => {
-              setFetchState({ loading: true, keywords: value, pageIndex: 1 });
-            }, 500)}
+            onChange={value => {
+              if (value) {
+                debouncedSearch(value);
+              } else {
+                debouncedSearch.cancel();
+                setFetchState({ loading: true, keywords: '', pageIndex: 1 });
+              }
+            }}
           />
           <div className="flex" />
 
           {allowManageUser && (
-            <Button type="ghost" size="small" onClick={onAddMember}>
+            <Button color="primary" variant="outlined" onClick={onAddMember}>
               <span className="Font16">+</span>
               <span className="mLeft4">{_l('添加')}</span>
             </Button>

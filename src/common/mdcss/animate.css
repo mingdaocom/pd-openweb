@@ -223,3 +223,28 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes clipLoader {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(0.8);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.clipLoader {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-bottom-color: transparent !important;
+  background: transparent !important;
+  animation: clipLoader 0.75s 0s infinite linear;
+  animation-fill-mode: both;
+}

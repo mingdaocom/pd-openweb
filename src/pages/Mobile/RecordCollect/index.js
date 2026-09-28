@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import favoriteAjax from 'src/api/favorite';
 import { RecordInfoModal } from 'mobile/Record';
-import { addBehaviorLog } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/services/project';
 import Back from '../components/Back';
 import SearchResultEmpty from '../components/SearchResultEmpty';
 import SearchWrap from './SearchWrap';

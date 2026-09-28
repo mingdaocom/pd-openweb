@@ -2,8 +2,8 @@ import React, { forwardRef, Fragment, memo, useEffect, useImperativeHandle, useR
 import cx from 'classnames';
 import { get } from 'lodash';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
-import { compatibleMDJS } from 'src/utils/project';
+import { Icon, LoadDiv } from 'ming-ui';
+import { compatibleMDJS } from 'src/utils/services/project';
 import { COMPOSITE_INPUT_TYPE, VOICE_STEP } from '../../core/config';
 import UploadFiles from '../UploadFiles';
 import { useVoice } from '../VoiceProvider';
@@ -60,7 +60,7 @@ const formatAppFile = (file = {}) => ({
 });
 
 const CompositeInput = forwardRef((props, ref) => {
-  const { step, text, loading, error, onStart, onReset, onGenerateRecord } = useVoice();
+  const { step, text, loading, onStart, onReset, onGenerateRecord } = useVoice();
 
   const uploadFileRef = useRef(null);
   const attachmentBoxRef = useRef(null);
@@ -178,7 +178,7 @@ const CompositeInput = forwardRef((props, ref) => {
     };
   }, []);
 
-  if (!visible || loading) return null;
+  if (!visible) return null;
 
   return (
     <div className="compositeInputWrapper toastWrapper">
@@ -229,9 +229,15 @@ const CompositeInput = forwardRef((props, ref) => {
                     </UploadFiles>
                   )}
                 </div>
-                {!error && !!get(md, 'global.Account.accountId') && md.global.SysSettings.enableVoiceToText && (
-                  <div className="iconBox" onClick={onStart}>
-                    <Icon icon="microphone" />
+                {!!get(md, 'global.Account.accountId') && md.global.SysSettings.enableVoiceToText && (
+                  <div
+                    className="iconBox"
+                    aria-busy={loading}
+                    aria-disabled={loading}
+                    aria-label={loading ? _l('加载中...') : _l('开始语音识别')}
+                    onClick={loading ? undefined : onStart}
+                  >
+                    {loading ? <LoadDiv size="small" /> : <Icon icon="microphone" />}
                   </div>
                 )}
               </div>

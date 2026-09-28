@@ -1,21 +1,15 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { Button, Icon, UpgradeIcon } from 'ming-ui';
-import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getRequest } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import Config from '../../config';
 import MerchantCom from './components/MerchantCom';
-
-const CreateButton = styled(Button)`
-  &.createDisabled {
-    background: var(--color-border-secondary) !important;
-  }
-`;
 
 export default class Merchant extends Component {
   constructor(props) {
@@ -54,20 +48,18 @@ export default class Merchant extends Component {
                 onClick={() => this.com && this.com.getDataList()}
               />
               {showCreateMerchant && hasManageMerchantAuth && (
-                <CreateButton
-                  className={cx('pLeft15 pRight15', { 'textPrimary createDisabled': featureType === '2' })}
+                <Button
                   type="primary"
-                  radius={featureType === '2'}
+                  shape={featureType === '2' ? 'round' : undefined}
                   onClick={() => {
                     if (this.com && this.com.changeCreateMerchant) {
                       this.com.changeCreateMerchant('createMerchantVisible', true);
                     }
                   }}
                 >
-                  {featureType === '2' && <i className="icon icon-add Font17 TxtMiddle mRight4" />}
                   <span className="TxtMiddle"> {_l('创建商户')}</span>
                   {featureType === '2' && <UpgradeIcon />}
-                </CreateButton>
+                </Button>
               )}
             </div>
           </div>

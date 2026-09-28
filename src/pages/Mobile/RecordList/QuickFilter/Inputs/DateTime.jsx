@@ -4,20 +4,19 @@ import _ from 'lodash';
 import moment from 'moment';
 import { func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Input, TimeZoneTag } from 'ming-ui';
-import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
+import { TimeZoneTag } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { getDatePickerConfigs, getShowFormat } from 'src/utils/domain/control/date';
+import { DATE_TYPE } from 'src/utils/domain/worksheet/fastFilterConfig';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import DateTimeList from './DateTimeList';
 import { Option } from './Options';
 import RightSidebar from './RightSidebar';
 
-const InputCon = styled(Input)`
+const InputCon = styled(Input).attrs({ variant: 'filled' })`
   width: 100%;
   border-radius: 18px !important;
-  border: none !important;
-  background-color: var(--color-background-secondary) !important;
 `;
 
 const replaceTimeValue = value => (value.replace ? value.replace(/[\u4e00-\u9fa5]+/g, '-') : value);

@@ -12,7 +12,7 @@ const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.html', '.htm', '.tpl']);
 
 const getLangConfig = function () {
   const fileContent = fs
-    .readFileSync(path.join(ROOT_PATH, 'src/common/langConfig.js'))
+    .readFileSync(path.join(ROOT_PATH, 'src/utils/platform/i18n/langConfig.js'))
     .toString()
     .replace(/export\s+default\s+config\s*;?/, '')
     .replace(/export\s+(const|let|var)\s+/g, '$1 ')
@@ -320,6 +320,7 @@ module.exports = {
   buildPoToJs,
   clearPoLangKey,
   extractLangKeysFromContent,
+  getLangConfig,
   getLangKeys,
   pushLangKey,
 };

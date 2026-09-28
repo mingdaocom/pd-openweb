@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import GroupWrap from './components/GroupWrap';
 import { RecordWrapper } from './components/Record';
@@ -12,19 +12,8 @@ import { RecordWrapper } from './components/Record';
 const More = styled.div`
   height: 32px;
   padding: 0 15px;
-  .ant-dropdown-trigger:hover {
+  .hap-dropdown-trigger:hover {
     color: var(--color-primary) !important;
-  }
-`;
-export const MenuOverlayWrapper = styled(Menu)`
-  .ant-dropdown-menu-item {
-    padding: 7px 12px;
-    transition: none;
-  }
-  .ant-dropdown-menu-item:hover,
-  .ant-dropdown-menu-submenu-title:hover {
-    color: var(--color-white);
-    background-color: var(--color-primary);
   }
 `;
 const GroupingChildWrapper = styled.div`
@@ -223,36 +212,32 @@ let GunterDirectory = class GunterDirectory extends Component {
     );
   }
 
-  renderOverlay() {
+  getMoreMenuItems() {
     const { withoutArrangementVisible } = this.props;
-    return (
-      <MenuOverlayWrapper
-        className="pTop6 pBottom6"
-        style={{
-          width: 170,
-        }}
-      >
-        <Menu.Item
-          className="valignWrapper"
-          onClick={() => {
-            this.props.updateWithoutArrangementVisible(!withoutArrangementVisible);
-          }}
-        >
-          <Icon
-            className="Font18 mLeft4 mRight12 textTertiary"
-            icon={withoutArrangementVisible ? 'visibility_off' : 'visibility'}
-          />
-          <span className="Font14">{withoutArrangementVisible ? _l('隐藏未排期') : _l('显示未排期')}</span>
-        </Menu.Item>
-      </MenuOverlayWrapper>
-    );
+
+    return [
+      {
+        key: 'toggleWithoutArrangement',
+        className: 'valignWrapper',
+        icon: (
+          <Icon className="Font18 textTertiary" icon={withoutArrangementVisible ? 'visibility_off' : 'visibility'} />
+        ),
+        label: <span className="Font14">{withoutArrangementVisible ? _l('隐藏未排期') : _l('显示未排期')}</span>,
+        onClick: () => {
+          this.props.updateWithoutArrangementVisible(!withoutArrangementVisible);
+        },
+      },
+    ];
   }
 
   renderMore() {
     return (
       <More className="flexRow valignWrapper">
         <div className="flex"></div>
-        <Dropdown overlay={this.renderOverlay()} trigger={['click']}>
+        <Dropdown
+          trigger={['click']}
+          menu={{ items: this.getMoreMenuItems(), style: { minWidth: 170 }, className: 'pTop6 pBottom6' }}
+        >
           <Icon className="textTertiary Font18 pointer" icon="more_horiz" />
         </Dropdown>
       </More>

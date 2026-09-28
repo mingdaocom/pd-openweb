@@ -6,11 +6,12 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import CustomFields from 'src/components/Form';
 import DataFormat from 'src/components/Form/core/DataFormat';
-import { ADD_EVENT_ENUM } from 'src/components/Form/core/enum';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import withWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { FlexCenter } from 'src/pages/worksheet/components/Basics';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 
 const Con = styled.div`
   display: flex;
@@ -34,6 +35,34 @@ const Con = styled.div`
     }
   }
 `;
+
+// 批量选择记录触发时没有单条 recordId，子表和关联记录表格形态都要按行维护各自记录的关联关系，
+// 在批量填写里既填不准也存不下，直接从弹层字段里剔除
+function isControlUnsupportedInBatchFill(control) {
+  return control.type === 34 || (control.type === 29 && isRelateRecordTableControl(control));
+}
+
+// 看字段权限第一位（可见位）而不是第二位（可编辑位）：按钮配成只读的字段拿到 '10x'，本来就要显示出来
+// 供查看，不能因为不可编辑就连带藏掉；只有没配进 writeControls 的、来自主记录的才是 '000' 不显示。
+// 标签页只是布局容器（上面被异化成 '111' 常驻显示），本身不算一个字段
+function hasVisibleControl(formData) {
+  return _.some(formData, c => c.type !== 52 && _.get(c, 'controlPermissions[0]') === '1');
+}
+
+const Empty = styled(FlexCenter)`
+  height: 220px;
+  flex-direction: column;
+`;
+
+const EmptyCircle = styled(FlexCenter)`
+  width: 100px;
+  height: 100px;
+  border-radius: 100px;
+  background: var(--color-background-secondary);
+  font-size: 60px;
+  color: var(--color-text-disabled);
+`;
+
 const LoadMask = styled.div`
   position: absolute;
   width: 100%;
@@ -157,7 +186,18 @@ let FillRecordControls = class FillRecordControls extends React.Component {
                 return { ...c, value: '', controlPermissions: '000' };
               }
 
-              if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '5') {
+              const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+
+              // 关联表格只在两种场景禁用删除记录：一是批量操作等没有 recordId 的新建态，此时行头菜单的
+              // 单条删除没有别处拦截（Operate 的 !!recordId 只挡批量删除入口）；二是控件配了默认值，
+              // 表格复用 DataFormat 算默认值时建的临时 store，记录是预选进来的。
+              // 已有记录且未配默认值时与记录详情页一致，保留删除能力。
+              if (
+                c.type === 29 &&
+                c.enumDefault === 2 &&
+                c.advancedSetting.showtype === '5' &&
+                (!props.recordId || get(defaultFormControl, 'store'))
+              ) {
                 c.advancedSetting.allowdelete = '0';
               }
 
@@ -169,8 +209,6 @@ let FillRecordControls = class FillRecordControls extends React.Component {
                 originControlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + originControlPermissions[2];
               c.required = writeControl.type === 3;
               c.fieldPermission = '111';
-
-              const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
 
               const needClear = get(safeParse(get(writeControl, 'defsource')), '0.cid') === 'empty';
 
@@ -230,7 +268,7 @@ let FillRecordControls = class FillRecordControls extends React.Component {
 
               return c;
             })
-            .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type)));
+            .filter(c => !!c && (!props.isBatchOperate || !isControlUnsupportedInBatchFill(c)));
           return formData;
         },
       },
@@ -282,6 +320,11 @@ let FillRecordControls = class FillRecordControls extends React.Component {
       $('.mobileFillRecordControls').find('.fileUpdateLoading').length
     ) {
       alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
+
+    // 没有可填字段时不渲染表单，与 PC 端一致先挡住空引用
+    if (!this.customwidget.current) {
       return;
     }
 
@@ -370,6 +413,7 @@ let FillRecordControls = class FillRecordControls extends React.Component {
       customButton,
     } = this.props;
     const { submitLoading, isSubmitting, formData, showError, formFlag } = this.state;
+    const hasFields = hasVisibleControl(formData);
     return (
       <Con>
         <div className="flex customFieldsWrapper mobileFillRecordControls">
@@ -390,59 +434,69 @@ let FillRecordControls = class FillRecordControls extends React.Component {
             <div className="title Font18 textPrimary flex bold leftAlign ellipsis">{title}</div>
             <i className="icon icon-close textTertiary Font20" onClick={hideDialog}></i>
           </div>
-          {isBatchRecordLock && (
+          {!hasFields && (
+            <Empty>
+              <EmptyCircle>
+                <i className="icon-workflow_write" />
+              </EmptyCircle>
+              <span className="textTertiary Font13 mTop20">{_l('无可填写字段')}</span>
+            </Empty>
+          )}
+          {hasFields && isBatchRecordLock && (
             <div className="pLeft20 textTertiary">
               {_l('未填写时不会清空字段值。一次最多处理1000条未锁定且有编辑权限的记录。')}
             </div>
           )}
-          <div ref={this.formcon}>
-            <CustomFields
-              isWorksheetQuery
-              ignoreLock
-              flag={formFlag}
-              ref={this.customwidget}
-              widgetStyle={widgetStyle}
-              data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
-              controlProps={{ customButton }}
-              recordId={recordId}
-              from={3}
-              projectId={projectId}
-              appId={appId}
-              worksheetId={worksheetId}
-              showError={showError}
-              registerCell={({ item, cell }) =>
-                (this.cellObjs[item.controlId] = {
-                  item,
-                  cell,
-                })
-              }
-              onChange={data => {
-                this.setState({
-                  formData: data,
-                });
-              }}
-              onSave={this.onSave}
-              onFormDataReady={dataFormat => {
-                try {
-                  this.needRunFunctionsAfterDataReady.forEach(fn => fn());
-                } catch (err) {
-                  console.log(err);
+          {hasFields && (
+            <div ref={this.formcon}>
+              <CustomFields
+                isWorksheetQuery
+                ignoreLock
+                flag={formFlag}
+                ref={this.customwidget}
+                widgetStyle={widgetStyle}
+                data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
+                controlProps={{ customButton }}
+                recordId={recordId}
+                from={3}
+                projectId={projectId}
+                appId={appId}
+                worksheetId={worksheetId}
+                showError={showError}
+                registerCell={({ item, cell }) =>
+                  (this.cellObjs[item.controlId] = {
+                    item,
+                    cell,
+                  })
                 }
+                onChange={data => {
+                  this.setState({
+                    formData: data,
+                  });
+                }}
+                onSave={this.onSave}
+                onFormDataReady={dataFormat => {
+                  try {
+                    this.needRunFunctionsAfterDataReady.forEach(fn => fn());
+                  } catch (err) {
+                    console.log(err);
+                  }
 
-                if (!this.appScanStarted) {
-                  this.appScanStarted = true;
-                  this.handleAppScan(dataFormat.getDataSource());
-                }
-              }}
-            />
-          </div>
+                  if (!this.appScanStarted) {
+                    this.appScanStarted = true;
+                    this.handleAppScan(dataFormat.getDataSource());
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
         <div className="btnsWrapper flexRow">
           <Button className="flex mLeft6 mRight6 Font15 bold textSecondary" onClick={hideDialog}>
             <span>{_l('取消')}</span>
           </Button>
           <Button
-            disabled={submitLoading || isSubmitting}
+            disabled={!hasFields || submitLoading || isSubmitting}
             className="flex mLeft6 mRight6 Font15 bold"
             color="primary"
             onClick={this.handleSave}

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 
 const RULE_CONFIG = [
-  { text: _l('当前条件无筛选结果'), value: 3 },
-  { text: _l('忽略此条件（当全部忽略时，返回所有记录）'), value: 1 },
-  { text: _l('忽略此条件（当全部忽略时，返回无结果）'), value: 2 },
-  { text: _l('查询空值'), value: 4 },
+  { label: _l('当前条件无筛选结果'), value: 3 },
+  { label: _l('忽略此条件（当全部忽略时，返回所有记录）'), value: 1 },
+  { label: _l('忽略此条件（当全部忽略时，返回无结果）'), value: 2 },
+  { label: _l('查询空值'), value: 4 },
 ];
 
 const isDynamicValue = (filters = []) => {
@@ -42,10 +42,10 @@ export default function EmptyRuleConfig({ filters, handleChange }) {
   return (
     <SettingItem className="mTop10">
       <div className="settingItemTitle settingItemSubTitle">{_l('当条件使用的动态值为空时，如何处理？')}</div>
-      <Dropdown
-        border
+      <Select
+        className="w100"
         value={emptyRule || undefined}
-        data={RULE_CONFIG}
+        options={RULE_CONFIG}
         onChange={value => {
           if (value === emptyRule) return;
           setRule(value);

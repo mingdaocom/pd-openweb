@@ -1,30 +1,17 @@
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 
 export const SettingItem = styled.div`
   margin-top: 20px;
   position: relative;
-  ${props => (props.hide ? 'display: none;' : '')}
-  .ant-input {
-    font-size: 13px;
-    color: var(--color-text-title);
-    line-height: 26px;
-    border-radius: 3px;
-    background-color: transparent !important;
+  ${props => (props.$hide ? 'display: none;' : '')}
+  .hap-input {
     &.inputError {
       border-color: var(--color-error);
-      box-shadow: none;
     }
   }
-  textarea.ant-input {
+  textarea.hap-input {
     line-height: 1.5715;
-  }
-  .DropdownBottom {
-    position: relative;
-    .ming.Menu.List {
-      top: 100% !important;
-      height: fit-content;
-    }
   }
   .savedContent {
     display: flex;
@@ -38,33 +25,19 @@ export const SettingItem = styled.div`
     border-top: 1px solid var(--color-border-primary);
     padding-top: 24px;
   }
-  .ming.Dropdown {
-    &.disabled {
-      background-color: var(--color-background-secondary);
-    }
-    .Dropdown--input {
-      background-color: transparent !important;
-    }
-    &.error {
-      .Dropdown--border {
-        border-color: var(--color-error);
-      }
-      background-color: rgba(244, 67, 154, 0.1);
-    }
-  }
-  .ming.Radio {
+  .hap-radio-wrapper {
     flex: 1;
     line-height: 24px;
   }
-  .ming.RadioGroup.fixedWidth {
-    .Radio {
+  .hap-radio-group {
+    display: flex;
+    width: 100%;
+  }
+  .hap-radio-group.fixedWidth {
+    .hap-radio-wrapper {
       flex: unset;
       margin-right: 36px;
     }
-  }
-  .ming.Checkbox {
-    display: flex;
-    align-items: center;
   }
   .settingItemTitle {
     display: flex;
@@ -75,13 +48,6 @@ export const SettingItem = styled.div`
     .icon-help {
       margin-left: 5px;
     }
-  }
-  .Dropdown {
-    /* margin: 16px 0; */
-    width: 100%;
-  }
-  .ming.Menu {
-    width: 100%;
   }
   .dropdownWrapper {
     display: block;
@@ -96,7 +62,7 @@ export const SettingItem = styled.div`
     resize: none;
   }
   .credTypesWrap {
-    .ming.Radio {
+    .ant-radio-wrapper {
       margin: 12px 0 0 0;
       flex-basis: 50%;
     }
@@ -118,18 +84,6 @@ export const SettingItem = styled.div`
   .Calendar-column-header {
     flex: 1;
   }
-  .attachmentDisplayType {
-    width: 310px !important;
-    .ming.Item {
-      height: auto !important;
-      line-height: normal !important;
-    }
-    .ming.Item .Item-content .Icon {
-      line-height: normal !important;
-      position: relative;
-      left: 0px !important;
-    }
-  }
 `;
 export const RelateInfo = styled.div`
   margin-top: 12px;
@@ -150,7 +104,7 @@ export const InfoWrap = styled.div`
   color: var(--color-text-secondary);
   line-height: 34px;
   padding: 0 12px;
-  background: ${props => props.bgColor || 'var(--color-background-primary)'};
+  background: ${props => props.$bgColor || 'var(--color-background-primary)'};
 `;
 
 export const EditInfo = styled(InfoWrap)`
@@ -211,10 +165,10 @@ export const DropdownPlaceholder = styled.div`
       border-color: var(--color-error);
     }
     .arrowIcon {
-      ${props => (props.cancelAble ? 'display: none;' : '')}
+      ${props => (props.$cancelAble ? 'display: none;' : '')}
     }
     .clearIcon {
-      ${props => (props.cancelAble ? 'display: inline-block;' : '')}
+      ${props => (props.$cancelAble ? 'display: inline-block;' : '')}
     }
   }
   &.disabled {
@@ -245,19 +199,25 @@ export const DropdownPlaceholder = styled.div`
 `;
 
 export const SelectFieldsWrap = styled.div`
+  ${({ $dropdownPopup }) =>
+    $dropdownPopup &&
+    `
+      overflow: hidden;
+      border-radius: 8px;
+      background-color: var(--color-background-primary);
+      box-shadow: var(--shadow-lg);
+    `}
   &.isolate {
     position: absolute;
     width: 100%;
     z-index: 3;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 3px;
+    box-shadow: var(--shadow-lg);
+    background-color: var(--color-background-primary);
   }
   padding: 6px 0;
-  border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  border: 1px solid var(--color-border-primary);
-  background-color: var(--color-background-primary);
   .emptyText {
     margin: 0 auto;
     line-height: 38px;
@@ -275,36 +235,23 @@ export const SelectFieldsWrap = styled.div`
       color: var(--color-white);
     }
   }
-  .search {
-    position: relative;
-    margin-bottom: 8px;
-    i {
-      position: absolute;
-      top: 11px;
-      left: 16px;
-      font-size: 16px;
-    }
-    input {
-      box-sizing: border-box;
-      width: 100%;
-      height: 36px;
-      border: none;
-      outline: none;
-      padding-left: 40px;
-      border-bottom: 1px solid var(--color-border-primary);
-      &::placeholder {
-        color: var(--color-text-placeholder);
-      }
-    }
-  }
   .fieldsWrap {
-    max-height: ${props => (props.limitWidth ? '400px' : '230px')};
+    max-height: ${props => (props.$limitWidth ? '400px' : '230px')};
     overflow-y: auto;
   }
   .relateSheetList {
     border-top: 1px solid var(--color-border-primary);
     background-color: var(--color-background-primary);
     margin-top: 8px;
+    .hap-menu {
+      box-shadow: none;
+      .hap-menu-item-icon + .hap-menu-title-content {
+        margin-inline-start: 8px;
+      }
+      .hap-checkbox-label > i {
+        margin-inline-end: 8px;
+      }
+    }
     &:first-child {
       border-top: none;
       margin-top: 0px;
@@ -324,7 +271,7 @@ export const SelectFieldsWrap = styled.div`
       align-items: center;
       box-sizing: border-box;
       height: 36px;
-      ${props => (props.limitWidth ? 'max-width: 320px;' : 'max-width: 100%;')}
+      ${props => (props.$limitWidth ? 'max-width: 320px;' : 'max-width: 100%;')}
       line-height: 36px;
       padding: 0 16px;
       cursor: pointer;
@@ -354,7 +301,7 @@ export const CommonDisplay = styled.div`
   position: relative;
   padding: 0 12px;
   border: 1px solid var(--color-border-primary);
-  height: ${props => props.height || 34}px;
+  height: ${props => props.$height || 34}px;
   line-height: 34px;
   color: var(--color-text-tertiary);
   border-radius: 3px;
@@ -396,11 +343,11 @@ export const CircleAdd = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${props => props.size || 24}px;
-  height: ${props => props.size || 24}px;
+  width: ${props => props.$size || 24}px;
+  height: ${props => props.$size || 24}px;
   border-radius: 50%;
   border: 1px solid var(--color-border-primary);
-  margin-top: ${props => (props.displayRow ? '5px' : '12px')};
+  margin-top: ${props => (props.$displayRow ? '5px' : '12px')};
   i {
     font-size: 14px;
   }
@@ -420,14 +367,10 @@ export const OptionsWrap = styled.div`
       max-width: 100%;
       margin-right: 16px;
       margin-top: 8px;
-      ${props => (props.direction === '0' ? `width: ${props.width}px;` : 'width: fit-content;')}
+      ${props => (props.$direction === '0' ? `width: ${props.$width}px;` : 'width: fit-content;')}
     }
-    .ming.Radio {
+    .ant-radio-wrapper {
       margin: 0;
-      line-height: 22px;
-    }
-    .ming.Checkbox {
-      flex-shrink: 0;
       line-height: 22px;
     }
   }
@@ -438,24 +381,24 @@ export const OptionWrap = styled.div`
   border-radius: 18px;
   color: var(--color-white);
   ${props =>
-    props.direction !== '0' ? 'white-space: normal' : 'white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'};
+    props.$direction !== '0' ? 'white-space: normal' : 'white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'};
 
   &.horizontal {
-    ${props => (props.direction === '0' ? `max-width: ${props.width}px;` : '')}
+    ${props => (props.$direction === '0' ? `max-width: ${props.$width}px;` : '')}
   }
   &.light {
-    color: var(--color-text-title);
+    color: var(--color-black);
   }
   &.withoutColor {
     background: transparent;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
     padding: 0 4px;
   }
-  background-color: ${props => props.color || 'var(--color-primary)'};
+  background-color: ${props => props.$color || 'var(--color-primary)'};
 `;
 
 export const EditModelWrap = styled.div`
-  ${props => (props.isTab ? 'padding: 8px 20px;' : '')}
+  ${props => (props.$isTab ? 'padding: 8px 20px;' : '')}
   .desc {
     line-height: 13px;
     &.subList {
@@ -531,32 +474,6 @@ export const ControlTag = styled.div`
     color: var(--color-error);
     background: rgba(244, 67, 54, 0.06);
     border-color: var(--color-error);
-  }
-`;
-
-export const IntroMenu = styled.div`
-  width: 160px;
-  padding: 5px 0;
-  background: var(--color-background-primary);
-  box-shadow: var(--shadow-lg);
-  .menuItem {
-    display: flex;
-    align-items: center;
-    line-height: 36px;
-    padding: 0 16px;
-    cursor: pointer;
-    &:hover {
-      background: var(--color-primary);
-      color: var(--color-white);
-      i {
-        color: var(--color-white);
-      }
-    }
-    i {
-      margin-right: 10px;
-      color: var(--color-text-secondary);
-      font-size: 16px;
-    }
   }
 `;
 
@@ -647,7 +564,9 @@ export const DropdownContent = styled.div`
     line-height: 36px;
     padding: 0 16px;
     cursor: pointer;
-    transition: background-color color 0.25s;
+    transition:
+      background-color 0.25s,
+      color 0.25s;
     i {
       margin-right: 6px;
       color: var(--color-text-tertiary);
@@ -677,13 +596,7 @@ export const DropdownContentWrap = styled(DropdownContent)`
     width: 100%;
     padding: 0 16px;
     margin-bottom: 6px;
-    border-bottom: 1px solid --color-background-disabled;
-    input {
-      line-height: 36px;
-      border: none;
-      outline: none;
-      padding-left: 8px;
-    }
+    border-bottom: 1px solid var(--color-background-disabled);
   }
   .emptyText {
     margin: 0 auto;
@@ -724,17 +637,17 @@ export const TitleContentWrap = styled.div`
   position: relative;
   border-radius: 3px;
   display: flex;
-  flex-direction: ${props => (props.displayRow ? 'row' : 'column')};
-  ${props => (props.readOnly ? 'opacity: 0.6;' : '')}
+  flex-direction: ${props => (props.$displayRow ? 'row' : 'column')};
+  ${props => (props.$readOnly ? 'opacity: 0.6;' : '')}
   & > .nameAndStatus {
     display: flex;
-    ${props => (props.displayRow ? 'line-height: 18px;' : 'align-items: center;')}
-    margin-right: ${props => (props.displayRow ? '1px' : '0px')};
-    margin-bottom: ${props => (props.displayRow ? '0px' : '6px')};
-    padding-top: ${props => (props.displayRow ? '7px' : '0px')};
+    ${props => (props.$displayRow ? 'line-height: 18px;' : 'align-items: center;')}
+    margin-right: ${props => (props.$displayRow ? '1px' : '0px')};
+    margin-bottom: ${props => (props.$displayRow ? '0px' : '6px')};
+    padding-top: ${props => (props.$displayRow ? '7px' : '0px')};
     .required {
       position: absolute;
-      top: ${props => (props.displayRow ? '8px' : '4px')};
+      top: ${props => (props.$displayRow ? '8px' : '4px')};
       left: -8px;
       color: var(--color-error);
       transition: all 0.25s;
@@ -743,9 +656,7 @@ export const TitleContentWrap = styled.div`
       display: flex;
       position: relative;
       margin-right: 10px;
-      ${({ displayRow, titleWidth }) => (displayRow && titleWidth ? `width:${titleWidth}px` : '')}
-    }
-    .iconWrap {
+      ${({ $displayRow, $titleWidth }) => ($displayRow && $titleWidth ? `width:${$titleWidth}px` : '')}
     }
     .typeIcon {
       color: var(--color-text-tertiary);
@@ -754,11 +665,11 @@ export const TitleContentWrap = styled.div`
     .controlName {
       margin-left: 6px;
       font-weight: 700;
-      text-align: ${props => (props.textAlign === '1' ? 'left' : 'right')};
-      font-size: ${props => props.titleSize};
-      line-height: ${props => (parseInt(props.titleSize) > 18 ? props.titleSize : '18px')};
-      color: ${props => props.titleColor || 'var(--color-text-primary)'} !important;
-      ${props => props.titleStyle || ''};
+      text-align: ${props => (props.$textAlign === '1' ? 'left' : 'right')};
+      font-size: ${props => props.$titleSize};
+      line-height: ${props => (parseInt(props.$titleSize) > 18 ? props.$titleSize : '18px')};
+      color: ${props => props.$titleColor || 'var(--color-text-primary)'} !important;
+      ${props => props.$titleStyle || ''};
       &.hideTitle {
         color: var(--color-text-tertiary) !important;
       }
@@ -786,8 +697,8 @@ export const TitleContentWrap = styled.div`
       }
     }
     .tabHeaderTitle {
-      ${props => props.titleStyle || ''}
-      color: ${props => props.titleColor};
+      ${props => props.$titleStyle || ''}
+      color: ${props => props.$titleColor};
     }
   }
 
@@ -813,6 +724,11 @@ export const RelateDetail = styled.div`
   .text {
     margin: 0 6px;
   }
+  .deletedSourceMessage {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
   .name {
     flex: 1;
     &.needLink {
@@ -822,69 +738,11 @@ export const RelateDetail = styled.div`
   }
 `;
 
-export const AnimationWrap = styled.div`
-  display: flex;
-  padding: 2px;
-  background: var(--color-background-disabled);
-  border-radius: 3px;
-  .animaItem {
-    height: 32px;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-weight: bold;
-    color: var(--color-text-secondary);
-    flex: 1;
-    margin-left: 2px;
-    &:first-child {
-      margin-left: 0;
-    }
-    &:hover {
-      color: var(--color-primary);
-      i {
-        color: var(--color-primary);
-      }
-    }
-    i {
-      color: var(--color-text-secondary);
-    }
-    &.active {
-      background: var(--color-background-card);
-      color: var(--color-primary);
-      i {
-        color: var(--color-primary);
-      }
-    }
-    &.disabled {
-      color: var(--color-text-disabled) !important;
-      cursor: not-allowed;
-    }
-    &.breakText {
-      word-break: break-word;
-      text-align: center;
-      line-height: 12px;
-    }
-  }
-`;
-
 export const SheetViewWrap = styled.div`
   display: flex;
   border-radius: 3px;
   border: 1px solid var(--color-border-primary);
   margin-top: 8px;
-  .Dropdown--input {
-    border: none !important;
-  }
-  .ming.Dropdown.disabled {
-    background-color: var(--color-background-primary) !important;
-  }
-  .ming.Dropdown {
-    .ming.Menu {
-      width: 100%;
-    }
-  }
   .viewCon {
     padding: 0 16px;
     background: var(--color-background-secondary);
@@ -920,11 +778,29 @@ export const NumberRange = styled.div`
 `;
 
 export const BothRelateInfo = styled.div`
-  border: 1px solid var(--color-border-primary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 3px;
   padding: 10px 12px;
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-tertiary);
+  .relateInfo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    > span {
+      margin: 0;
+    }
+    .relateTitle {
+      margin-right: 8px;
+    }
+    .relateHelp {
+      margin-left: 4px;
+    }
+    .relateSheetName:hover {
+      color: var(--color-primary);
+    }
+  }
   .displayType {
+    flex-basis: 100%;
     margin-top: 8px;
   }
   span {
@@ -1003,8 +879,8 @@ export const DisplayMode = styled.div`
   }
 `;
 
-export const EditOptionDialog = styled(Dialog)`
-  .editOptionDialog {
+export const EditOptionModal = styled(Modal)`
+  .hap-modal-body {
     display: flex;
     flex-direction: column;
     padding: 0 0 36px !important;
@@ -1021,7 +897,6 @@ export const EditOptionDialog = styled(Dialog)`
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 0 24px;
     box-sizing: border-box;
   }
   .handleOption {
@@ -1040,7 +915,7 @@ export const SetConfig = styled.div`
   border-radius: 3px;
   cursor: pointer;
   border: ${props =>
-    props.hasSet ? '1px solid var(--color-border-primary)' : '1px dashed var(--color-border-primary)'};
+    props.$hasSet ? '1px solid var(--color-border-primary)' : '1px dashed var(--color-border-primary)'};
   i {
     font-size: 15px;
     color: var(--color-success);
@@ -1055,28 +930,12 @@ export const CoverWrap = styled.div`
   width: 308px;
   max-height: 350px;
   overflow-x: hidden;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.1608);
   padding: 16px;
   .coverTitle {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .coverType {
-    display: Inline-block;
-    border-radius: 3px 0px 0px 3px;
-    border: 1px solid var(--color-border-primary);
-    padding: 6px 18px;
-    color: var(--color-text-secondary);
-    &.active {
-      color: var(--color-primary);
-      border-color: var(--color-primary);
-    }
-    &:last-child {
-      border-radius: 0px 3px 3px 0px;
-    }
-  }
 `;
 
-export { Button, DropdownOverlay } from './common';
+export { Button } from './common';

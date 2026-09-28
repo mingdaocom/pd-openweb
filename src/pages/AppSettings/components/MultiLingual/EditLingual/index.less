@@ -4,13 +4,6 @@
     padding: 0 20px;
     border-bottom: 1px solid var(--color-border-primary);
     justify-content: space-between;
-    .backHome {
-      margin-top: 1px;
-      border-bottom: 1px solid transparent;
-      &:hover {
-        border-color: currentColor;
-      }
-    }
     .translateWrap {
       padding: 3px 5px;
       border-radius: 3px;
@@ -25,10 +18,6 @@
   .searchWrap {
     .searchWrap();
   }
-  .ant-select-selector {
-    border-radius: 4px !important;
-    box-shadow: none !important;
-  }
 }
 
 .searchWrap() {
@@ -37,7 +26,6 @@
   margin-right: 15px;
   input {
     padding: 3px;
-    border: none;
     min-width: 0;
   }
 }
@@ -71,15 +59,8 @@
       width: 120px;
     }
   }
-  textarea.ant-input {
+  textarea.hap-input {
     height: 120px;
-  }
-  .ant-input {
-    border-radius: 3px !important;
-    box-shadow: none !important;
-    &[disabled] {
-      color: var(--color-text-title);
-    }
   }
   .highlight {
     border-radius: 3px;

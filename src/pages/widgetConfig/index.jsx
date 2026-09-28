@@ -1,49 +1,88 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSetState, useTitle } from 'react-use';
 import update from 'immutability-helper';
-import { assign, find, findIndex, flatten, get, isEmpty, isEqual, isFunction, pick } from 'lodash';
-import _ from 'lodash';
+import _, { assign, find, findIndex, flatten, get, isEmpty, isEqual, isFunction, pick } from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import worksheetAjax from 'src/api/worksheet';
-import { useGlobalStore } from 'src/common/GlobalStore';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
+import { updateGlobalStoreForMingo } from 'src/common/runtime/mingoStore';
 import ErrorState from 'src/components/errorPage/errorState';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter, updateGlobalStoreForMingo } from 'src/utils/common';
-import { dateConvertToUserZone } from 'src/utils/project';
-import { WHOLE_SIZE } from './config/Drag';
-import { ALL_SYS } from './config/widget';
-import Content from './content';
-import Header from './Header';
-import { useSheetInfo } from './hooks';
 import {
-  canSetAsTitle,
+  batchUpdateWidgetsLayout,
+  checkWidgetErrorBeforeSave,
+  clearAndSetWidgets,
+  getChildWidgetsBySection,
+  getMsgByCode,
+  handleAddWidgets,
+  handleDeleteWidgetsForMingo,
+  handleUpdateWidgetsAttribute,
+  scrollToVisibleRange,
+} from 'src/pages/widgetConfig/internal/editorData';
+import { getUrlPara, returnMasterPage } from 'src/pages/widgetConfig/navigation';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import {
   fixedBottomWidgets,
-  formatSearchConfigs,
   genControlsByWidgets,
   genWidgetRowAndCol,
   genWidgetsByControls,
   getBoundRowByTab,
-  getCurrentRowSize,
-  getUrlPara,
-  returnMasterPage,
-} from './util';
-import {
-  checkWidgetBeforeSave,
-  checkWidgetErrorBeforeSave,
-  formatControlsData,
-  getChildWidgetsBySection,
-  getMsgByCode,
-  scrollToVisibleRange,
-} from './util/data';
+} from 'src/utils/domain/control/editorLayout';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { getCurrentRowSize, getPathById, WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { canSetAsTitle } from 'src/utils/domain/control/metadata';
+import { formatControlsData } from 'src/utils/domain/control/normalization';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import Content from './content';
+import Header from './Header';
+import { useSheetInfo } from './hooks';
 import { resetDisplay } from './util/drag';
-import { getPathById } from './util/widgets';
 import NoTitleControlDialog from './widgetSetting/components/NoTitleControlDialog';
-import VerifyModifyDialog from './widgetSetting/components/VerifyModifyDialog';
-import { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
+import VerifyModifyDialog, { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
 import './index.less';
+
+const checkAutoIdReset = (data = {}, originControls = [], globalInfo = {}) => {
+  const increase = getAdvanceSetting(data, 'increase') || [];
+  const originAutoId = _.find(originControls, item => item.controlId === data.controlId);
+  const originIncrease = getAdvanceSetting(originAutoId, 'increase') || [];
+  const startValueChange =
+    _.get(_.find(increase, { type: 1 }), 'start') !== _.get(_.find(originIncrease, { type: 1 }), 'start');
+
+  if (startValueChange && window.auto_id_reset[data.controlId]) {
+    worksheetAjax.resetControlIncrease({
+      ..._.pick(globalInfo, ['appId', 'worksheetId']),
+      controlId: data.controlId,
+      initNum: 0,
+    });
+  }
+};
+
+/** 保存字段配置前处理自动编号及游离子表中的自动编号重置。 */
+const checkWidgetBeforeSave = (controls = [], originControls = [], globalInfo = {}, deep = 0) => {
+  controls.forEach(data => {
+    if (data.type === 33 && !data.controlId.includes('-')) {
+      checkAutoIdReset(data, originControls, globalInfo);
+    }
+
+    if (data.type === 34 && getAdvanceSetting(data, 'detailworksheettype') === 2 && deep === 0) {
+      deep = 1;
+      const oriControls = _.get(
+        _.find(originControls, item => item.controlId === data.controlId),
+        'relationControls',
+      );
+      checkWidgetBeforeSave(data.relationControls, oriControls, {
+        appId: globalInfo.appId,
+        worksheetId: data.dataSource,
+      });
+    }
+  });
+};
 
 const WidgetConfig = styled.div`
   height: 100%;
@@ -263,11 +302,10 @@ export default function Container({ isDialog, ...props }) {
           if (savedWidgets) {
             // 未被保存过的更改 可以恢复
             if (savedWidgets.version === version) {
-              Dialog.confirm({
+              Modal.confirm({
                 title: _l('发现有未保存的更改，是否需要恢复 ？'),
                 okText: _l('恢复'),
                 cancelText: _l('取消'),
-                cancelType: 'ghost',
                 onOk: () => {
                   initData(savedWidgets);
                 },
@@ -398,7 +436,7 @@ export default function Container({ isDialog, ...props }) {
       // 清除不走缓存
       window.clearLocalDataTime({
         requestData: { worksheetId: activeWidget.dataSource },
-        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
       });
     }
 
@@ -451,17 +489,19 @@ export default function Container({ isDialog, ...props }) {
   const updateConflictDialog = data => {
     const { version, fullname, updateTime } = safeParse(data || '{}');
     const timeAgo = window.createTimeSpan(dateConvertToUserZone(updateTime));
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('发现更新冲突，是否覆盖 ？'),
-      description: _l('在你编辑期间，当前表单已被更新（%0, %1）。现在保存将会覆盖此更新。', fullname, timeAgo),
+      content: _l('在你编辑期间，当前表单已被更新（%0, %1）。现在保存将会覆盖此更新。', fullname, timeAgo),
       okText: _l('放弃保存'),
       cancelText: _l('保存并覆盖'),
-      cancelType: 'danger',
-      buttonType: 'ghost',
-      onlyClose: true,
+      cancelButtonProps: {
+        danger: true,
+      },
       onOk: () => {},
       onCancel: () => {
-        saveControls({ newVersion: version });
+        saveControls({
+          newVersion: version,
+        });
       },
     });
   };
@@ -571,6 +611,7 @@ export default function Container({ isDialog, ...props }) {
     }
   };
 
+  const allControls = useMemo(() => genControlsByWidgets(widgets), [widgets]);
   const widgetProps = {
     isDialog,
     activeWidget,
@@ -588,7 +629,7 @@ export default function Container({ isDialog, ...props }) {
     getTemplateListByPersonal,
     getTemplateListByOrganization,
     updateQueryConfigs,
-    allControls: genControlsByWidgets(widgets),
+    allControls,
     styleInfo,
     setStyleInfo,
     relateToNewPage,
@@ -614,6 +655,70 @@ export default function Container({ isDialog, ...props }) {
       { systemControls: (_.get(globalInfo, 'template.controls') || []).filter(i => _.includes(ALL_SYS, i.controlId)) },
     ),
   };
+
+  // Mingo 生成字段等外部调用通过 emitter 操作表单数据，监听必须挂在常驻的配置页容器上：
+  // 建表模式下左侧字段库面板会被收起（Drawer 未打开即不渲染），挂在面板内会导致事件无人接收。
+  useEffect(() => {
+    cache.current.widgetProps = widgetProps;
+  });
+
+  const clearAndSetWidgetsFromEmitter = useCallback((data, para = {}, callback) => {
+    window.lastAddWidgetsTriggerByMingo = true;
+    clearAndSetWidgets(data, para, cache.current.widgetProps, callback);
+    setTimeout(() => {
+      window.lastAddWidgetsTriggerByMingo = false;
+    }, 100);
+  }, []);
+
+  const handleAddWidgetsFromEmitter = useCallback((data, para = {}, callback) => {
+    window.lastAddWidgetsTriggerByMingo = true;
+    handleAddWidgets(
+      data.map(item => ({ ...item, isMingo: true })),
+      {
+        ...para,
+        isMingo: true,
+      },
+      cache.current.widgetProps,
+      ({ newWidgets = [] } = []) => {
+        if (para.isStreaming) {
+          return;
+        }
+
+        batchUpdateWidgetsLayout(
+          para.layoutOfAllWidgets,
+          {
+            ...cache.current.widgetProps,
+            widgets: newWidgets,
+          },
+          callback,
+        );
+      },
+    );
+    setTimeout(() => {
+      window.lastAddWidgetsTriggerByMingo = false;
+    }, 100);
+  }, []);
+
+  const handleUpdateWidgetsAttributeFromEmitter = useCallback((data, callback) => {
+    handleUpdateWidgetsAttribute(data, cache.current.widgetProps, callback);
+  }, []);
+
+  const handleDeleteWidgetsForMingoFromEmitter = useCallback((data, para = {}, callback) => {
+    handleDeleteWidgetsForMingo(data, cache.current.widgetProps, ({ newWidgets = [] } = []) => {
+      batchUpdateWidgetsLayout(
+        para.layoutOfAllWidgets,
+        {
+          ...cache.current.widgetProps,
+          widgets: newWidgets,
+        },
+        callback,
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    updateGlobalStoreForMingo('allWidgets', allControls);
+  }, [allControls]);
 
   const cancelSubmit = ({ redirectfn } = {}) => {
     if (_.isFunction(props.handleClose)) {
@@ -666,11 +771,20 @@ export default function Container({ isDialog, ...props }) {
   useEffect(() => {
     emitter.on('SAVE_WIDGET_CONFIG', saveForEvent);
     emitter.on('UPDATE_WORKSHEET_NAME', updateWorksheetName);
+    emitter.on('WIDGET_CONFIG_CLEAR_AND_SET_WIDGETS', clearAndSetWidgetsFromEmitter);
+    emitter.on('WIDGET_CONFIG_DELETE_WIDGETS', handleDeleteWidgetsForMingoFromEmitter);
+    emitter.on('WIDGET_CONFIG_ADD_WIDGETS', handleAddWidgetsFromEmitter);
+    emitter.on('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', handleUpdateWidgetsAttributeFromEmitter);
     return () => {
       emitter.emit('UPDATE_GLOBAL_STORE', 'mingoCreateWorksheetAction', false);
       emitter.emit('WIDGET_CONFIG_UNMOUNT');
+      updateGlobalStoreForMingo('allWidgets', []);
       emitter.off('SAVE_WIDGET_CONFIG', saveForEvent);
       emitter.off('UPDATE_WORKSHEET_NAME', updateWorksheetName);
+      emitter.off('WIDGET_CONFIG_CLEAR_AND_SET_WIDGETS', clearAndSetWidgetsFromEmitter);
+      emitter.off('WIDGET_CONFIG_DELETE_WIDGETS', handleDeleteWidgetsForMingoFromEmitter);
+      emitter.off('WIDGET_CONFIG_ADD_WIDGETS', handleAddWidgetsFromEmitter);
+      emitter.off('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', handleUpdateWidgetsAttributeFromEmitter);
     };
   }, []);
 

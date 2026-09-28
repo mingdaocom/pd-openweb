@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Radio, Select } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
 import {
@@ -160,10 +161,6 @@ export default class SubProcess extends Component {
         desc: _l('如果某条子流程运行中止，则跳过该条继续执行下一条子流程'),
       },
     ];
-    const clearSubProcess = data.subProcessId
-      ? [{ text: <span className="textSecondary">{_l('清除选择')}</span>, value: '' }]
-      : [];
-
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择数据对象')}</div>
@@ -189,10 +186,15 @@ export default class SubProcess extends Component {
                     <div className="mTop15">
                       <Checkbox
                         className="InlineFlex TxtTop"
-                        text={_l('获取工作表所有记录')}
                         checked={data.executeAll}
-                        onClick={checked => this.updateSource({ executeAll: !checked })}
-                      />
+                        onChange={event =>
+                          this.updateSource({
+                            executeAll: event.target.checked,
+                          })
+                        }
+                      >
+                        {_l('获取工作表所有记录')}
+                      </Checkbox>
                     </div>
                     <div style={{ marginLeft: 26 }}>
                       <div className="Font13 textSecondary">
@@ -231,10 +233,16 @@ export default class SubProcess extends Component {
                 return (
                   <div className="mTop15" key={i}>
                     <Radio
-                      text={item.text}
                       checked={data.executeType === item.value}
-                      onClick={() => this.updateSource({ executeType: item.value })}
-                    />
+                      onChange={() =>
+                        this.updateSource({
+                          executeType: item.value,
+                        })
+                      }
+                      title={item.text}
+                    >
+                      {item.text}
+                    </Radio>
                     <div className="mTop10 mLeft30 textSecondary">{item.desc}</div>
                   </div>
                 );
@@ -245,22 +253,29 @@ export default class SubProcess extends Component {
         <div className="mTop20 relative">
           <span className="Font13 bold">{_l('执行子流程')}</span>
           {!!(data.processList || []).length && (
-            <Dropdown
+            <Select
+              allowClear
+              showPopupSearch
+              optionFilterProp="label"
+              popupMatchSelectWidth={360}
+              placement="bottomRight"
               className="flowSubProcessDropdown"
-              renderTitle={() => <span className="colorPrimary">{_l('选择已有流程')}</span>}
-              menuStyle={{ left: 'inherit', right: 0 }}
-              data={clearSubProcess.concat(
-                data.processList.map(item => {
-                  return {
-                    text: item.name,
-                    value: item.id,
-                    disabled: data.subProcessId === item.id,
-                  };
-                }),
-              )}
-              value={data.subProcessId}
+              variant="borderless"
+              placeholder={_l('选择已有流程')}
+              labelRender={() => <span className="colorPrimary">{_l('选择已有流程')}</span>}
+              options={data.processList.map(item => {
+                return {
+                  label: item.name,
+                  value: item.id,
+                  disabled: data.subProcessId === item.id,
+                };
+              })}
+              value={data.subProcessId || undefined}
               onChange={subProcessId =>
-                this.getNodeDetail(this.props, { selectNodeId: data.selectNodeId, subProcessId })
+                this.getNodeDetail(this.props, {
+                  selectNodeId: data.selectNodeId,
+                  subProcessId: subProcessId || '',
+                })
               }
             />
           )}
@@ -285,10 +300,15 @@ export default class SubProcess extends Component {
             <div className="mTop15">
               <Checkbox
                 className="InlineFlex TxtTop"
-                text={_l('子流程执行完毕后，再开始下一个节点')}
                 checked={data.nextExecute}
-                onClick={checked => this.updateSource({ nextExecute: !checked })}
-              />
+                onChange={event =>
+                  this.updateSource({
+                    nextExecute: event.target.checked,
+                  })
+                }
+              >
+                {_l('子流程执行完毕后，再开始下一个节点')}
+              </Checkbox>
             </div>
             <div className="Font13 textSecondary" style={{ marginLeft: 26 }}>
               {_l('勾选后，当子流程数据源为单条对象，之后节点可使用子流程中的参数')}

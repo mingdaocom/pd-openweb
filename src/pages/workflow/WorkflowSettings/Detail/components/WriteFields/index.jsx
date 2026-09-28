@@ -2,8 +2,8 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import { NODE_TYPE } from '../../../enum';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51, 52, 53, 54, 10010];
@@ -22,21 +22,8 @@ const Box = styled.ul`
   }
 `;
 
-const SearchBox = styled.div`
-  position: relative;
-  input {
-    box-sizing: border-box;
-    height: 36px;
-    padding: 0px 28px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-primary);
-    width: 300px;
-  }
-  .icon {
-    position: absolute;
-    top: 11px;
-    left: 8px;
-  }
+const SearchBox = styled(Input)`
+  width: 300px;
 `;
 
 const DecryptBox = styled.span`
@@ -239,23 +226,28 @@ export default class WriteFields extends Component {
           <div className="mLeft16">
             {!_.includes(hideTypes, 1) && (
               <Checkbox
-                className="InlineBlock Font12 TxtMiddle"
-                text={_l('查看')}
-                clearselected={
+                className="Font12 TxtMiddle"
+                indeterminate={
                   data.filter(item => item.property === 4).length !== data.length &&
                   data.filter(item => item.property === 4).length
                 }
                 checked={!data.filter(item => item.property === 4).length}
-                onClick={checked => this.updateAllSettings({ key: 'LOOK', checked: !checked })}
-              />
+                onChange={event =>
+                  this.updateAllSettings({
+                    key: 'LOOK',
+                    checked: event.target.checked,
+                  })
+                }
+              >
+                {_l('查看')}
+              </Checkbox>
             )}
           </div>
           <div className="mLeft16">
             {!_.includes(hideTypes, 2) && (
               <Checkbox
-                className="InlineBlock Font12 TxtMiddle"
-                text={_l('编辑')}
-                clearselected={
+                className="Font12 TxtMiddle"
+                indeterminate={
                   data.filter(item => item.property === 2 || item.property === 3).length &&
                   !(
                     data.filter(item => item.property === 2 || item.property === 3).length ===
@@ -266,16 +258,22 @@ export default class WriteFields extends Component {
                   data.filter(item => item.property === 2 || item.property === 3).length ===
                   data.filter(item => !this.isDisabled(item)).length
                 }
-                onClick={checked => this.updateAllSettings({ key: 'EDIT', checked: !checked })}
-              />
+                onChange={event =>
+                  this.updateAllSettings({
+                    key: 'EDIT',
+                    checked: event.target.checked,
+                  })
+                }
+              >
+                {_l('编辑')}
+              </Checkbox>
             )}
           </div>
           <div className="mLeft16">
             {!_.includes(hideTypes, 3) && (
               <Checkbox
-                className="InlineBlock Font12 TxtMiddle"
-                text={_l('必填')}
-                clearselected={
+                className="Font12 TxtMiddle"
+                indeterminate={
                   data.filter(item => item.property === 3).length &&
                   !(
                     data.filter(item => item.property === 3).length ===
@@ -286,34 +284,42 @@ export default class WriteFields extends Component {
                   data.filter(item => item.property === 3).length ===
                   data.filter(item => !this.isDisabled(item, 'REQUIRED')).length
                 }
-                onClick={checked => this.updateAllSettings({ key: 'REQUIRED', checked: !checked })}
-              />
+                onChange={event =>
+                  this.updateAllSettings({
+                    key: 'REQUIRED',
+                    checked: event.target.checked,
+                  })
+                }
+              >
+                {_l('必填')}
+              </Checkbox>
             )}
           </div>
           <div className="mLeft16">
             {!_.includes(hideTypes, 1) && (
               <Checkbox
-                className="InlineBlock Font12 TxtMiddle"
-                text={_l('解码')}
-                clearselected={
+                className="Font12 TxtMiddle"
+                indeterminate={
                   data.filter(item => item.datamask === '1' && item.isdecrypt === '1').length &&
                   data.filter(item => item.datamask === '1' && item.isdecrypt === '1').length !==
                     data.filter(item => item.datamask === '1').length
                 }
                 checked={data.filter(item => item.datamask === '1' && item.isdecrypt === '1').length}
-                onClick={checked =>
+                onChange={event =>
                   this.updateAllSettings({
                     key: 'DECRYPT',
                     checked:
-                      (checked &&
+                      (!event.target.checked &&
                         data.filter(item => item.datamask === '1' && item.isdecrypt === '1').length !==
                           data.filter(item => item.datamask === '1').length) ||
-                      !checked
+                      event.target.checked
                         ? '1'
                         : '0',
                   })
                 }
-              />
+              >
+                {_l('解码')}
+              </Checkbox>
             )}
           </div>
           {showCard && (
@@ -394,22 +400,22 @@ export default class WriteFields extends Component {
               <div className="mLeft16">
                 {!_.includes(hideTypes, 1) && (
                   <Checkbox
-                    clearselected={
+                    indeterminate={
                       item.property !== 4 &&
                       item.type === 52 &&
                       data.filter(o => o.sectionId === item.id).length !==
                         data.filter(o => o.sectionId === item.id && o.property !== 4).length
                     }
                     checked={item.property !== 4}
-                    onClick={checked =>
+                    onChange={event =>
                       this.onChange(
                         item,
-                        checked &&
+                        !event.target.checked &&
                           item.type === 52 &&
                           data.filter(o => o.sectionId === item.id).length !==
                             data.filter(o => o.sectionId === item.id && o.property !== 4).length
                           ? 1
-                          : checked
+                          : !event.target.checked
                             ? 4
                             : 1,
                       )
@@ -421,7 +427,7 @@ export default class WriteFields extends Component {
                 {!this.isDisabled(item) && (!isChildTable || !item.detailTable) && !_.includes(hideTypes, 2) && (
                   <Checkbox
                     checked={item.property === 2 || item.property === 3}
-                    onClick={checked => this.onChange(item, checked ? 1 : 2)}
+                    onChange={event => this.onChange(item, !event.target.checked ? 1 : 2)}
                   />
                 )}
               </div>
@@ -429,7 +435,10 @@ export default class WriteFields extends Component {
                 {!this.isDisabled(item, 'REQUIRED') &&
                   (!isChildTable || !item.detailTable) &&
                   !_.includes(hideTypes, 3) && (
-                    <Checkbox checked={item.property === 3} onClick={checked => this.onChange(item, checked ? 2 : 3)} />
+                    <Checkbox
+                      checked={item.property === 3}
+                      onChange={event => this.onChange(item, !event.target.checked ? 2 : 3)}
+                    />
                   )}
               </div>
               <div className="mLeft16">
@@ -437,7 +446,7 @@ export default class WriteFields extends Component {
                   <Checkbox
                     checked={item.isdecrypt === '1'}
                     disabled={_.includes([2, 3], item.property)}
-                    onClick={checked => this.onChange(item, checked ? '0' : '1', 'isdecrypt')}
+                    onChange={event => this.onChange(item, !event.target.checked ? '0' : '1', 'isdecrypt')}
                   />
                 )}
               </div>
@@ -446,7 +455,7 @@ export default class WriteFields extends Component {
                   {!_.includes([14, 21, 22, 40, 41, 42, 43, 45, 47, 49, 51, 52, 54, 10010], item.type) && (
                     <Checkbox
                       checked={item.showCard}
-                      onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)}
+                      onChange={event => this.onChangeCard(item.id, !event.target.checked ? 0 : 1)}
                     />
                   )}
                 </div>
@@ -473,20 +482,26 @@ export default class WriteFields extends Component {
     return (
       <Fragment>
         <div className="flexRow alignItemsCenter">
-          <SearchBox>
-            <input type="text" placeholder={_l('搜索')} onChange={e => this.setState({ keywords: e.target.value })} />
-            <Icon type="search" className="textSecondary Font16" />
-          </SearchBox>
+          <SearchBox
+            placeholder={_l('搜索')}
+            prefix={<Icon type="search" className="textSecondary Font16" />}
+            onChange={e => this.setState({ keywords: e.target.value })}
+          />
           <div className="flex" />
           {!_.includes(hideTypes, 1) && (
             <Tooltip title={_l('勾选时，当工作表中新增字段时，新字段将自动设为允许查看')}>
               <div>
                 <Checkbox
-                  className="InlineBlock Font12 TxtMiddle"
-                  text={_l('新增字段默认可查看')}
+                  className="Font12 TxtMiddle"
                   checked={!addNotAllowView}
-                  onClick={checked => updateSource({ addNotAllowView: checked })}
-                />
+                  onChange={event =>
+                    updateSource({
+                      addNotAllowView: !event.target.checked,
+                    })
+                  }
+                >
+                  {_l('新增字段默认可查看')}
+                </Checkbox>
               </div>
             </Tooltip>
           )}
@@ -495,8 +510,8 @@ export default class WriteFields extends Component {
         {this.renderContent({ data, showCard })}
 
         {showTableControls && (
-          <Dialog
-            visible
+          <Modal
+            open
             width={680}
             title={_l('子表操作和列权限')}
             onCancel={() => this.setState({ showTableControls: false })}
@@ -519,9 +534,14 @@ export default class WriteFields extends Component {
               <Switch
                 size="small"
                 checked={selectItem.workflow}
-                onClick={() =>
-                  this.setState({ selectItem: Object.assign({}, selectItem, { workflow: !selectItem.workflow }) })
-                }
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return this.setState({
+                    selectItem: Object.assign({}, selectItem, {
+                      workflow: !selectItem.workflow,
+                    }),
+                  });
+                }}
               />
             </div>
             <div className="Font13 textSecondary mTop5">
@@ -543,14 +563,17 @@ export default class WriteFields extends Component {
                           <Checkbox
                             key={item.key}
                             className="mTop10 flex"
-                            text={item.text}
                             checked={selectItem[item.key] === '1'}
-                            onClick={checked =>
+                            onChange={event =>
                               this.setState({
-                                selectItem: Object.assign({}, selectItem, { [item.key]: !checked ? '1' : '0' }),
+                                selectItem: Object.assign({}, selectItem, {
+                                  [item.key]: event.target.checked ? '1' : '0',
+                                }),
                               })
                             }
-                          />
+                          >
+                            {item.text}
+                          </Checkbox>
                         ))}
                     </div>
                   </Fragment>
@@ -565,7 +588,7 @@ export default class WriteFields extends Component {
                 })}
               </Fragment>
             )}
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );

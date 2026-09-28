@@ -1,13 +1,14 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { find, head, includes, isEmpty } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { Dropdown } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { getOptions } from 'src/utils/domain/control/options';
 import { DropdownContent, SettingItem } from '../../../../styled';
-import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
 import { DynamicInput, OtherField, SelectOtherField } from '../components';
 import { OptionControl } from '../styled';
 
@@ -195,10 +196,11 @@ export default function DefaultOptions(props) {
         <div className="content">
           <Dropdown
             trigger={['click']}
-            visible={visible}
-            onVisibleChange={setVisible}
+            open={visible}
+            onOpenChange={setVisible}
             getPopupContainer={() => document.querySelector('.defaultOptionsWrap') || document.body}
-            overlay={
+            menu={{ items: [] }}
+            popupRender={() => (
               <DefaultOptionsMenu onClick={e => e.stopPropagation()}>
                 <div
                   className="clearDefault hoverText"
@@ -226,7 +228,7 @@ export default function DefaultOptions(props) {
                   );
                 })}
               </DefaultOptionsMenu>
-            }
+            )}
           >
             <div className="defaultOptionsWrap">
               {dynamicValue.map(({ cid, rcid, staticValue }) => {

@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isFormatNumber } from 'statistics/common/controlUtils';
 import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { formatterTooltipTitle } from 'statistics/common/timeUtils';
-import { toFixed } from 'src/utils/control';
+import { toFixed } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
+import { chartContextMenuProps, getChartContextMenuItems } from './ChartContextMenu';
 import {
   formatControlInfo,
   formatrChartAxisValue,
@@ -20,7 +20,6 @@ import {
   getEmptyChartData,
   getLegendType,
   getStyleColor,
-  reportTypes,
 } from './common';
 import { formatChartData as formatLineChartData } from './LineChart';
 import loadG2Plot from './loadG2Plot';
@@ -761,24 +760,15 @@ export default class extends Component {
       },
     );
   };
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   renderCount(summary, yaxisList) {
     const get = value => {
       const count = formatrChartValue(value, false, yaxisList);
@@ -831,13 +821,17 @@ export default class extends Component {
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>

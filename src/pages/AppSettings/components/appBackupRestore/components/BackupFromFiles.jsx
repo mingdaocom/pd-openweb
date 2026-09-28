@@ -2,12 +2,14 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, FunctionWrap, QiniuUpload, Support, VerifyPasswordConfirm } from 'ming-ui';
+import { QiniuUpload, Support, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import appManagementAjax from 'src/api/appManagement';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import { navigateTo } from 'src/router/navigateTo';
-import { formatFileSize } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { formatFileSize } from 'src/utils/core/file';
 import { RestoreContent } from './RestoreAppDialog';
 
 const Wrap = styled.div`
@@ -212,16 +214,16 @@ class BackupFromFilesCom extends Component {
     } = this.state;
 
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         title={
           <Fragment>
             <span className="TxtMiddle">{_l('从文件还原')}</span>
             <SupportWrap className="customStyle" type={1} href="https://help.mingdao.com/application/backup-restore/" />
           </Fragment>
         }
-        footer={null}
         width={600}
+        keyboard
         onCancel={onCancel}
       >
         {!checkLoading && checkSuccess ? (
@@ -265,7 +267,7 @@ class BackupFromFilesCom extends Component {
             )}
             {_.isEmpty(file)
               ? this.renderUploadBtn(
-                  <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
+                  <Button type="primary" shape="round" className={cx({ Visibility: analyzeLoading })}>
                     {_l('上传文件')}
                   </Button>,
                 )
@@ -274,9 +276,11 @@ class BackupFromFilesCom extends Component {
                 )}
           </Wrap>
         )}
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export default props => FunctionWrap(BackupFromFilesCom, { ...props });
+export function useBackupFromFiles() {
+  return useFunctionWrapComponent(BackupFromFilesCom);
+}

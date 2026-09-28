@@ -1,7 +1,10 @@
-﻿import LinkifyIt from 'linkify-it';
+import LinkifyIt from 'linkify-it';
 import moment from 'moment';
-import { browserIsMobile, htmlEncodeReg, pathCompletion } from 'src/utils/common';
-import { MSGTYPES, SOURCE_TYPE } from './constants';
+import { SOURCE_TYPE } from 'src/components/comment/config';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getAccountPersonalUrl, pathCompletion } from 'src/utils/platform/navigation/path';
+import { MSGTYPES } from './constants';
 
 export const formatInboxItem = function (inboxItem) {
   const createUser = inboxItem.CreateUser || {};
@@ -285,6 +288,30 @@ function makeAnchor(doc, url, text, opts) {
 
 const DEFAULT_IGNORE = new Set(['A', 'CODE', 'PRE', 'SCRIPT', 'STYLE', 'TEXTAREA']);
 
+export const completeInboxLink = href => {
+  if (/^\/personal(?:[?#]|$)/i.test(href)) {
+    return `${getAccountPersonalUrl()}${href.slice('/personal'.length)}`;
+  }
+
+  return pathCompletion(href);
+};
+
+export const isOrganizationDrawerLink = href => {
+  try {
+    const personalUrl = new URL(getAccountPersonalUrl(), 'http://localhost');
+    const targetUrl = new URL(href, personalUrl.origin);
+    const normalizePath = pathname => pathname.replace(/\/+$/, '');
+
+    return (
+      targetUrl.origin === personalUrl.origin &&
+      normalizePath(targetUrl.pathname) === normalizePath(personalUrl.pathname) &&
+      targetUrl.searchParams.get('type') === 'enterprise'
+    );
+  } catch {
+    return false;
+  }
+};
+
 export function linkifySanitizedHtml(sanitizedHtml, options = {}) {
   const opts = {
     target: '_blank',
@@ -298,7 +325,7 @@ export function linkifySanitizedHtml(sanitizedHtml, options = {}) {
   const doc = new DOMParser().parseFromString(sanitizedHtml, 'text/html');
 
   Array.from(doc.body.querySelectorAll('a[href]')).forEach(a => {
-    a.setAttribute('href', pathCompletion(a.getAttribute('href')));
+    a.setAttribute('href', completeInboxLink(a.getAttribute('href')));
   });
 
   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {

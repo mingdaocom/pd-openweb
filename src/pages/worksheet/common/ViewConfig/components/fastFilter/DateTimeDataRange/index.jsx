@@ -2,7 +2,7 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { DATE_TYPE } from '../config';
+import { DATE_TYPE } from 'src/utils/domain/worksheet/fastFilterConfig';
 import RangeDialog from './RangeDialog';
 
 const Wrap = styled.div`

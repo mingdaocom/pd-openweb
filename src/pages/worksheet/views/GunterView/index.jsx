@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import DragMask from 'worksheet/common/DragMask';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import GunterChart from './Chart';
 import SelectionIndicator from './components/SelectionIndicator';
 import GunterDirectory from './Directory';
@@ -15,10 +15,10 @@ import { getMaxTime } from './util';
 import './index.less';
 
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 2;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -195,7 +195,7 @@ let Gunter = class Gunter extends Component {
             )}
             <GunterDirectory width={directoryWidth} />
             <Drag
-              left={directoryWidth}
+              $left={directoryWidth}
               onMouseDown={() =>
                 this.setState({
                   dragMaskVisible: true,

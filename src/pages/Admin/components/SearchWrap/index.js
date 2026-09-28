@@ -1,16 +1,13 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Motion, spring } from 'react-motion';
 import { useSetState } from 'react-use';
-import { DatePicker, Select } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { DatePicker, Input, Select } from 'ming-ui/antd-components';
 import CustomSelectDate from '../CustomSelectDate';
+import SearchApp from '../SearchApp';
 import SelectUser from '../SelectUser';
 
 const Wrap = styled.div`
@@ -18,13 +15,13 @@ const Wrap = styled.div`
 `;
 
 const Item = styled.div(
-  ({ maxWidth, isLastLine, fullShow }) => `
+  ({ $maxWidth, $isLastLine, $fullShow }) => `
   display: flex;
   align-items: center;
-  width: ${fullShow ? maxWidth : 'unset'};
-  margin-bottom: ${isLastLine ? 18 : 8}px;
+  width: ${$fullShow ? $maxWidth : 'unset'};
+  margin-bottom: ${$isLastLine ? 18 : 8}px;
   ${
-    fullShow
+    $fullShow
       ? `.label{
     max-width: 140px;
     min-width: 60px;
@@ -33,20 +30,8 @@ const Item = styled.div(
       : ''
   }
   .searcValueContent{
-    ${fullShow ? `flex: 1;width: 0;margin: 0 10px;` : `min-width:200px;margin: 0 18px 0 10px;`}
+    ${$fullShow ? `flex: 1;width: 0;margin: 0 10px;` : `min-width:200px;margin: 0 18px 0 10px;`}
     min-height: 34px;
-    input::-webkit-input-placeholder {
-      color: var(--color-text-disabled);
-    }
-    input::-moz-placeholder {
-      color: var(--color-text-disabled);
-    }
-    input::-moz-placeholder {
-      color: var(--color-text-disabled);
-    }
-    input::-ms-input-placeholder {
-      color: var(--color-text-disabled);
-    }
   }
 `,
 );
@@ -68,20 +53,6 @@ const ExpandBtn = styled.div`
   }
 `;
 
-const Input = styled.input`
-  border: 1px solid var(--color-border-tertiary);
-  box-sizing: border-box;
-  height: 36px;
-  border-radius: 3px;
-  padding: 0 12px;
-  font-size: 14px;
-  &:hover {
-    border-color: var(--color-text-disabled);
-  }
-  &:focus {
-    border-color: var(--color-primary);
-  }
-`;
 const { RangePicker } = DatePicker;
 
 let resizeObserver = null;
@@ -100,7 +71,7 @@ export default function SearchWrap(props) {
     showExpandBtn ? false : !_.isUndefined(props.fullShow) ? props.fullShow : true,
   );
   const searchBoxRef = useRef();
-  const [width, setWidth] = useState(searchBoxRef && searchBoxRef.current && searchBoxRef.current.clientWidth);
+  const [width, setWidth] = useState();
   const [values, setValues] = useSetState(searchValues);
   let colNum = (width - 63) / 280;
   const showExpand = searchList.length > colNum;
@@ -108,26 +79,24 @@ export default function SearchWrap(props) {
 
   const renderSearchCon = item => {
     const { key, type, options = [], className, ...extra } = item;
-    const lang = getCurrentLangCode();
-    const datePickerLocale = { 0: zh_CN, 1: en_US, 2: ja_JP, 3: zh_TW }[lang] || en_US;
 
     switch (type) {
       case 'selectUser':
         return (
           <SelectUser
-            className={`w100 mdAntSelect ${className}`}
+            className={cx('w100', className)}
             projectId={projectId}
             userInfo={searchValues[key] || []}
             changeData={data => onChange({ ...searchValues, [key]: data })}
             isAdmin
             {...extra}
+            style={fullShow ? extra.style : { ...extra.style, maxWidth: 200 }}
           />
         );
       case 'selectTime':
         return (
           <CustomSelectDate
-            className={`w100 mdAntSelect ${className}`}
-            dateFormat={'YYYY-MM-DD HH:mm:ss'}
+            className={cx('w100', className)}
             dateInfo={searchValues[key] || {}}
             {...extra}
             changeDate={({ startDate, endDate, searchDateStr }) =>
@@ -138,19 +107,21 @@ export default function SearchWrap(props) {
       case 'select':
         return (
           <Select
-            className={`w100 mdAntSelect ${className}`}
+            className={cx('w100', className)}
             notFoundContent={<span className="textTertiary">{_l('暂无数据')}</span>}
             {...extra}
             onChange={value => onChange({ ...searchValues, [key]: value })}
-          >
-            {options.map(it => {
-              return (
-                <Select.Option className="mdAntSelectOption" key={it.value} value={it.value}>
-                  {it.label}
-                </Select.Option>
-              );
-            })}
-          </Select>
+            options={options}
+          />
+        );
+      case 'selectApp':
+        return (
+          <SearchApp
+            {...extra}
+            className={cx('w100', className)}
+            projectId={projectId}
+            onChange={value => onChange({ ...searchValues, [key]: value })}
+          />
         );
       case 'input':
         return (
@@ -182,7 +153,6 @@ export default function SearchWrap(props) {
         return (
           <RangePicker
             {...extra}
-            locale={datePickerLocale}
             onChange={(dates = []) => {
               onChange({ ...searchValues, [key]: !_.isEmpty(dates) ? { startDate: dates[0], endDate: dates[1] } : {} });
             }}
@@ -192,7 +162,6 @@ export default function SearchWrap(props) {
         return (
           <DatePicker
             className="w100"
-            locale={datePickerLocale}
             {...extra}
             onChange={date => {
               onChange({
@@ -221,9 +190,9 @@ export default function SearchWrap(props) {
         return (
           <Item
             key={i}
-            fullShow={fullShow}
-            maxWidth={`${100 / colNum}%`}
-            isLastLine={Math.ceil((i + 1) / colNum) === Math.ceil((searchList.length + (showExpand ? 1 : 0)) / colNum)}
+            $fullShow={fullShow}
+            $maxWidth={`${100 / colNum}%`}
+            $isLastLine={Math.ceil((i + 1) / colNum) === Math.ceil((searchList.length + (showExpand ? 1 : 0)) / colNum)}
           >
             <div className={cx('label textSecondary', { pLeft16: i === 0 && !fullShow })}>{item.label}</div>
             <div className="searcValueContent">{renderSearchCon(item)}</div>

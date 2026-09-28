@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1784860492040') format('woff2'),
-       url('iconfont.woff?t=1784860492040') format('woff'),
-       url('iconfont.ttf?t=1784860492040') format('truetype');
+  src: url('iconfont.woff2?t=1790146376255') format('woff2'),
+       url('iconfont.woff?t=1790146376255') format('woff'),
+       url('iconfont.ttf?t=1790146376255') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,50 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-qwenwork:before {
+  content: "\ed34";
+}
+
+.icon-a-JobQueue:before {
+  content: "\ed33";
+}
+
+.icon-waterfall:before {
+  content: "\ed32";
+}
+
+.icon-treemap:before {
+  content: "\ed2f";
+}
+
+.icon-sankey:before {
+  content: "\ed30";
+}
+
+.icon-rose:before {
+  content: "\ed31";
+}
+
+.icon-branch-exclusive:before {
+  content: "\ed2d";
+}
+
+.icon-branch-parallel:before {
+  content: "\ed2e";
+}
+
+.icon-lakala:before {
+  content: "\e603";
+}
+
+.icon-organization_in:before {
+  content: "\ed2b";
+}
+
+.icon-platform_govern1:before {
+  content: "\ed2c";
 }
 
 .icon-zcode:before {
@@ -5992,4 +6036,3 @@
 .icon-minus:before {
   content: "\e9a7";
 }
-

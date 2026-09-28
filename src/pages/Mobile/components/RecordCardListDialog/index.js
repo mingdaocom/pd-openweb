@@ -2,24 +2,25 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { FunctionWrap, Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
+import { FunctionWrap, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { FROM } from 'src/components/Form/core/config';
 import { getCurrentValue } from 'src/components/Form/core/formUtils';
 import RecordCoverCard from 'src/components/Form/MobileForm/components/RelateRecordCards/RecordCoverCard';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
-import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { fieldCanSort } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { compatibleMDJS } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { fieldCanSort } from 'src/utils/domain/control/sort';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { getCoverUrl } from 'src/utils/domain/worksheet/view';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { formatFilterValues } from 'src/utils/services/worksheet/quickFilter';
 import Filter from './Filter';
 import QuickFilterView from './QuickFilterView';
 import './index.less';
@@ -42,7 +43,7 @@ export default class RecordCardListDialog extends Component {
     filterRelatesheetControlIds: PropTypes.arrayOf(PropTypes.string), // 过滤的关联表控件对应控件id
     multiple: PropTypes.bool, // 是否多选
     visible: PropTypes.bool, // 弹窗显示
-    control: PropTypes.bool, // 关联表控件
+    control: PropTypes.shape({}), // 关联表控件
     onClose: PropTypes.func, // 关闭回掉
     onOk: PropTypes.func, // 确定回掉
     formData: PropTypes.arrayOf(PropTypes.shape({})),
@@ -78,6 +79,8 @@ export default class RecordCardListDialog extends Component {
     };
     this.clickSearch = clickSearch;
     this.isOnComposition = false;
+    this.isSelectAllMode = false;
+    this.selectAllRecordIds = [];
   }
   componentDidMount() {
     const { control, keyWords, parentWorksheetId, staticRecords = [], isScan } = this.props;
@@ -167,6 +170,8 @@ export default class RecordCardListDialog extends Component {
       recordId,
       controlId,
       multiple,
+      maxCount,
+      selectedCount = 0,
       control = {},
       formData,
       getDataType,
@@ -331,6 +336,29 @@ export default class RecordCardListDialog extends Component {
             list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
             'rowid',
           );
+          const nextList = getDataType
+            ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
+            : filteredList;
+          let nextSelectedRecords;
+
+          if (multiple && this.isSelectAllMode) {
+            const { selectedRecords } = this.state;
+            const selectedRowIds = selectedRecords.map(record => record.rowid);
+            const unselectedRecords = nextList.filter(record => !_.includes(selectedRowIds, record.rowid));
+            const selectableCount = _.isUndefined(maxCount)
+              ? unselectedRecords.length
+              : Math.max(maxCount - selectedCount - selectedRecords.length, 0);
+            const autoSelectedRecords = unselectedRecords.slice(0, selectableCount);
+
+            nextSelectedRecords = _.uniqBy(selectedRecords.concat(autoSelectedRecords), 'rowid');
+            this.selectAllRecordIds = _.uniq(
+              this.selectAllRecordIds.concat(autoSelectedRecords.map(record => record.rowid)),
+            );
+
+            if (autoSelectedRecords.length < unselectedRecords.length) {
+              this.isSelectAllMode = false;
+            }
+          }
 
           if (res?.worksheet?.worksheetId) {
             res.worksheet.entityName =
@@ -340,15 +368,14 @@ export default class RecordCardListDialog extends Component {
 
           this.setState(
             {
-              list: getDataType
-                ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
-                : filteredList,
+              list: nextList,
               loading: false,
               loadouted: res.data.length < 20,
               controls: res.template
                 ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
                 : [],
               worksheet: res.worksheet || {},
+              ...(!_.isUndefined(nextSelectedRecords) ? { selectedRecords: nextSelectedRecords } : {}),
             },
             () => {
               if (this.props.keyWords && res.data.length === 1) {
@@ -447,12 +474,19 @@ export default class RecordCardListDialog extends Component {
 
   handleSearch = _.debounce((value, isScanSearch) => {
     const { staticRecords = [] } = this.props;
+    const selectedRecords = this.state.selectedRecords.filter(
+      record => !_.includes(this.selectAllRecordIds, record.rowid),
+    );
+
+    this.isSelectAllMode = false;
+    this.selectAllRecordIds = [];
     value = (value || '').trim();
 
     if (!_.isEmpty(staticRecords)) {
       this.setState({
         keyWords: value,
         list: staticRecords.filter(v => new RegExp(value, 'i').test(v.name)),
+        selectedRecords,
       });
       return;
     }
@@ -464,6 +498,7 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         list: [],
         isScanSearch,
+        selectedRecords,
       },
       () => {
         if (isScanSearch && this.inputRef && value) this.inputRef.value = value;
@@ -479,6 +514,7 @@ export default class RecordCardListDialog extends Component {
   }, 500);
 
   handleFilter = filters => {
+    this.isSelectAllMode = false;
     this.setState(
       {
         quickFilters: filters,
@@ -495,10 +531,12 @@ export default class RecordCardListDialog extends Component {
     const { selectedRecords } = this.state;
 
     if (multiple) {
-      if (selectedCount + selectedRecords.length >= maxCount) {
+      if (selected && selectedCount + selectedRecords.length >= maxCount) {
         return alert(_l('最多关联%0条', maxCount), 3);
       }
 
+      this.isSelectAllMode = false;
+      this.selectAllRecordIds = this.selectAllRecordIds.filter(rowId => rowId !== record.rowid);
       this.setState({
         selectedRecords: selected
           ? _.uniqBy(selectedRecords.concat(record))
@@ -519,6 +557,34 @@ export default class RecordCardListDialog extends Component {
     handleReplaceHistoryState();
   };
 
+  handleSelectAll = () => {
+    const { maxCount, selectedCount = 0 } = this.props;
+    const { list, selectedRecords } = this.state;
+    const selectedRowIds = selectedRecords.map(record => record.rowid);
+    const isAllSelected = !!list.length && list.every(record => _.includes(selectedRowIds, record.rowid));
+
+    if (isAllSelected) {
+      const currentRowIds = list.map(record => record.rowid);
+
+      this.isSelectAllMode = false;
+      this.selectAllRecordIds = this.selectAllRecordIds.filter(rowId => !_.includes(currentRowIds, rowId));
+      this.setState({
+        selectedRecords: selectedRecords.filter(record => !_.includes(currentRowIds, record.rowid)),
+      });
+      return;
+    }
+
+    const unselectedRecords = list.filter(record => !_.includes(selectedRowIds, record.rowid));
+
+    if (!_.isUndefined(maxCount) && selectedCount + selectedRecords.length + unselectedRecords.length > maxCount) {
+      return alert(_l('最多关联%0条', maxCount), 3);
+    }
+
+    this.isSelectAllMode = true;
+    this.selectAllRecordIds = _.uniq(this.selectAllRecordIds.concat(unselectedRecords.map(record => record.rowid)));
+    this.setState({ selectedRecords: _.uniqBy(selectedRecords.concat(unselectedRecords), 'rowid') });
+  };
+
   handleSort = (control, isAsc) => {
     let newIsAsc;
 
@@ -530,6 +596,7 @@ export default class RecordCardListDialog extends Component {
       newIsAsc = false;
     }
 
+    this.isSelectAllMode = false;
     this.setState(
       {
         sortControls: _.isUndefined(newIsAsc)
@@ -924,18 +991,21 @@ export default class RecordCardListDialog extends Component {
       layerId,
       handleReplaceHistoryState = () => {},
     } = this.props;
-    const { selectedRecords, error } = this.state;
+    const { selectedRecords, error, list } = this.state;
+    const selectedRowIds = selectedRecords.map(record => record.rowid);
+    const isAllSelected = !!list.length && list.every(record => _.includes(selectedRowIds, record.rowid));
+    const confirmText = selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定');
 
     return (
       <PopupWrapper
-        className={className}
+        className={cx(className, { mobileRecordCardListDialogPopup: multiple })}
         bodyClassName="heightPopupBody40"
         visible={visible}
         title={control?.controlName || _l('关联记录')}
-        confirmDisable={!selectedRecords.length}
-        confirmText={selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
+        confirmDisable={multiple ? !list.length : !selectedRecords.length}
+        confirmText={multiple ? (isAllSelected ? _l('取消全选') : _l('全选')) : confirmText}
         onClose={onClose}
-        onConfirm={multiple ? this.handleConfirm : null}
+        onConfirm={multiple ? this.handleSelectAll : null}
         clearDisable={!multiple && !filterRowIds.length}
         layerId={layerId}
         onClear={
@@ -956,6 +1026,21 @@ export default class RecordCardListDialog extends Component {
               {!disabledManualWrite && this.renderSearchWrapper()}
               {this.renderContent()}
             </Fragment>
+          )}
+          {multiple && (
+            <div className="btnsWrapper flexRow alignItemsCenter">
+              <button type="button" className="footerButton cancelButton" onClick={onClose}>
+                {_l('取消')}
+              </button>
+              <button
+                type="button"
+                className="footerButton confirmButton"
+                disabled={!selectedRecords.length}
+                onClick={this.handleConfirm}
+              >
+                {confirmText}
+              </button>
+            </div>
           )}
         </div>
       </PopupWrapper>

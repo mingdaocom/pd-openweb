@@ -1,0 +1,3 @@
+export const CHAT_EVENT = {
+  OPEN_SESSION: 'OPEN_CHAT_SESSION',
+};

@@ -3,16 +3,15 @@ import cx from 'classnames';
 import { includes } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
 import { UserHead } from 'ming-ui';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { Dropdown } from 'ming-ui/antd-components';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import CustomScore from 'src/ming-ui/components/CustomScore';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { FROM } from 'src/pages/worksheet/components/CellControls/enum';
 import Options from 'src/pages/worksheet/components/CellControls/Options';
-import { controlState } from 'src/utils/control';
+import { controlState } from 'src/utils/domain/control/state';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { FROM } from 'src/utils/domain/worksheet/relation';
 
 const Con = styled.div`
   display: flex;
@@ -167,6 +166,7 @@ export function ControlContent(props) {
               accountId: account.accountId,
             }}
           />
+
           <div className="controlText ellipsis mLeft5"> {account.fullname} </div>
         </div>
       )
@@ -214,6 +214,7 @@ export default function GroupByControl(props) {
     onAllFold = () => {},
     onAdd,
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
   const [popupVisible, setPopupVisible] = useState(false);
   const originControl = props.control;
   const control = _.assign(
@@ -235,6 +236,7 @@ export default function GroupByControl(props) {
         onFold(!folded);
       }}
     >
+      {addRecordHolder}
       <Icon>
         <i className={cx('icon icon-arrow-down', { folded })}> </i>
       </Icon>
@@ -246,58 +248,53 @@ export default function GroupByControl(props) {
         groupEmptyName={groupEmptyName}
         appId={appId}
       />
+
       <div className="count">{count}</div>
-      <Trigger
-        action={['click']}
-        popupVisible={popupVisible}
-        onPopupVisibleChange={setPopupVisible}
-        popup={
-          <Menu className="Relative" onClick={e => e.stopPropagation()}>
-            <MenuItem
-              onClick={() => {
+      <Dropdown
+        open={popupVisible}
+        trigger={['click']}
+        placement="bottomLeft"
+        onOpenChange={setPopupVisible}
+        menu={{
+          onClick: ({ domEvent }) => domEvent.stopPropagation(),
+          items: [
+            {
+              key: 'toggleCurrent',
+              label: folded ? _l('展开分组') : _l('收起分组'),
+              onClick: () => {
                 setPopupVisible(false);
                 onFold(!folded);
-              }}
-            >
-              {folded ? _l('展开分组') : _l('收起分组')}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
+              },
+            },
+            {
+              key: 'expandAll',
+              label: _l('展开全部'),
+              onClick: () => {
                 setPopupVisible(false);
                 onAllFold(false);
-              }}
-            >
-              {_l('展开全部')}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
+              },
+            },
+            {
+              key: 'collapseAll',
+              label: _l('收起全部'),
+              onClick: () => {
                 setPopupVisible(false);
                 onAllFold(true);
-              }}
-            >
-              {_l('收起全部')}
-            </MenuItem>
-          </Menu>
-        }
-        popupAlign={{
-          offset: [0, 2],
-          points: ['tl', 'bl'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
+              },
+            },
+          ],
         }}
       >
         <Icon className="hoverShow" onClick={e => e.stopPropagation()}>
           <i className="icon icon-more_horiz textTertiary"></i>
         </Icon>
-      </Trigger>
+      </Dropdown>
       {addRecordVisible && (
         <Icon
           className="hoverShow"
           onClick={e => {
             e.stopPropagation();
-            addRecord({
+            openAddRecord({
               worksheetId,
               appId,
               viewId,

@@ -2,12 +2,13 @@
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
-import { Button, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import userAuthorization from 'src/api/userAuthorization';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { getRequest } from 'src/utils/platform/browser/device';
 import { ACTION_RESULT, ERROR_MSG, getScopeDisplayListFromScopes } from './constants';
-import { BtnGroup, Card, ErrorContent, ErrorIconWrap, LogoWrap, PageWrap, ScopeListWrap } from './style';
+import { Card, ErrorContent, ErrorIconWrap, LogoWrap, PageWrap, ScopeListWrap } from './style';
 
 const onCancel = () => {
   window.close();
@@ -142,11 +143,7 @@ function OAuthConsentPage() {
   return (
     <PageWrap className="flexCenter justifyContentCenter">
       <DocumentTitle
-        title={
-          !window.platformENV.isOverseas && !window.platformENV.isLocal
-            ? _l('%0 请求授权 - 明道云', appName)
-            : _l('%0 请求授权', appName)
-        }
+        title={window.platformENV.isHap ? _l('%0 请求授权 - 明道云', appName) : _l('%0 请求授权', appName)}
       />
       <Card>
         <div className="TxtCenter mBottom20">
@@ -168,7 +165,7 @@ function OAuthConsentPage() {
         {displayScopeList.length > 0 && (
           <div className="mBottom12 titleTxt Font16">
             {_l('授权后该应用将获得')}
-            <span className="Bold mRight5 mLeft5">{userName}</span>
+            <span className="Bold mRight5 mLeft5 WordBreak">{userName}</span>
             {_l('的以下权限，您可以随时撤销')}
           </div>
         )}
@@ -180,27 +177,14 @@ function OAuthConsentPage() {
             </li>
           ))}
         </ScopeListWrap>
-        <BtnGroup className="flexColumn">
-          <Button
-            type="primary"
-            className="w100 Bold boderRadAll_3 authorizeBtn"
-            fullWidth
-            height={44}
-            disabled={authorizeLoading}
-            onClick={onAuthorize}
-          >
+        <div className="flexColumn">
+          <Button type="primary" className="w100" loading={authorizeLoading} onClick={onAuthorize}>
             {authorizeLoading ? _l('授权中...') : _l('授权')}
           </Button>
-          <Button
-            className="w100 mTop12 boderRadAll_3 Border cancelBtn"
-            fullWidth
-            height={44}
-            type="link"
-            onClick={onCancel}
-          >
+          <Button className="w100 mTop12" color="primary" variant="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
-        </BtnGroup>
+        </div>
       </Card>
     </PageWrap>
   );

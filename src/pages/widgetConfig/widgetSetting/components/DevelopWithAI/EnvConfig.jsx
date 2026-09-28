@@ -1,14 +1,13 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Drawer } from 'antd';
 import { find, get, pick, pickBy } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Switch } from 'ming-ui';
+import { Drawer, Select, Switch } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { selectRecords } from 'src/components/SelectRecords';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
+import { useSelectRecords } from 'src/components/SelectRecords';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import CustomReference from '../CustomWidget/CustomReference';
 import { getFormData } from './util';
 
@@ -33,7 +32,7 @@ const Con = styled.div`
     .name {
       color: var(--color-text-title);
     }
-    .RadioGroup {
+    .ant-radio-group {
       flex: 1;
       justify-content: flex-end;
     }
@@ -275,6 +274,7 @@ function getEnvValueForShow({ worksheetId, control, valueToShow, selectedEnv, fo
           </div>
         </Fragment>
       );
+
     case SHOW_TYPE.CURRENT:
       matchControl = find(formData, { controlId: control.controlId });
       return (
@@ -287,6 +287,7 @@ function getEnvValueForShow({ worksheetId, control, valueToShow, selectedEnv, fo
           <div className="envValueArea flex">{getValueSaveExample(control.type)}</div>
         </Fragment>
       );
+
     case SHOW_TYPE.STRING:
       return <div className="envValueArea mTop18">"{showItem.valueToShow}"</div>;
     default:
@@ -311,6 +312,7 @@ export default function EnvConfig(props) {
     setEnvIsDisabled,
     onUpdate,
   } = props;
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
   const ref = useRef(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const formData = getFormData(controls, mockRecord);
@@ -318,6 +320,7 @@ export default function EnvConfig(props) {
   const [selectedEnv, setSelectedEnv] = useState(get(valueToShow, '0.value'));
   return (
     <Con className={className} ref={ref}>
+      {selectRecordsHolder}
       <div className="title">{_l('引用其他字段')}</div>
       <div className="sectionTitle">
         {_l(
@@ -339,12 +342,13 @@ export default function EnvConfig(props) {
           setDrawerVisible(true);
         }}
       />
+
       <div className="title mTop12">{_l('模拟数据')}</div>
       <div className="sectionTitle">{_l('选择一条已有记录，模拟表单字段有数据的情况')}</div>
       {!mockRecord ? (
         <LoadMockDataBtn
           onClick={() =>
-            selectRecords({
+            openSelectRecords({
               canSelectAll: false,
               pageSize: 25,
               multiple: false,
@@ -385,38 +389,38 @@ export default function EnvConfig(props) {
           <Switch
             size="small"
             checked={item.value === true}
-            onClick={checked => {
+            onClick={(checked, event) => {
+              event.stopPropagation();
               if (item.key === 'mobile') {
-                setEnvIsMobile(!checked);
+                setEnvIsMobile(!!checked);
               } else if (item.key === 'disabled') {
-                setEnvIsDisabled(!checked);
+                setEnvIsDisabled(!!checked);
               }
             }}
           />
+
           <div className="InlineBlock mLeft12">{item.name}</div>
         </div>
       ))}
       <Drawer
-        bodyStyle={{ padding: 0 }}
-        width={490}
+        size={490}
         title={null}
-        visible={drawerVisible}
-        destroyOnClose={true}
+        open={drawerVisible}
         mask={false}
-        closable={null}
+        closable={false}
         placement="right"
+        styles={{ body: { padding: 0 } }}
       >
         <DrawerContent>
           <div className="title">{_l('查看变量值')}</div>
           <div className="sectionTitle">{_l('查看字段环境变量与模拟加载记录的值')}</div>
-          <Dropdown
+          <Select
             style={{ width: 300 }}
-            menuStyle={{ width: 300 }}
-            border
             defaultValue={selectedEnv}
-            data={valueToShow.map(item => ({ text: item.text, value: item.value }))}
-            onChange={value => setSelectedEnv(value)}
+            options={valueToShow.map(item => ({ label: item.text, value: item.value }))}
+            onChange={setSelectedEnv}
           />
+
           <div className="content">
             {getEnvValueForShow({
               control,

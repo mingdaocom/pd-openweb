@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 export function getControlTypeInfo(type) {
   const key = _.findKey(WIDGETS_TO_API_TYPE_ENUM, o => o === type);
@@ -39,6 +40,7 @@ export function createLabelOption(control, sourceWorksheet) {
           selector: 'txt',
         },
       ],
+
       attrs: {
         txt: {
           fill: '#151515',
@@ -61,6 +63,7 @@ export function createLabelOption(control, sourceWorksheet) {
           selector: 'txt',
         },
       ],
+
       attrs: {
         txt: {
           fill: '#151515',

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { resourceTypes, types } from './config';
 
 const ToolBarWrap = styled.div`
@@ -12,8 +12,8 @@ const ToolBarWrap = styled.div`
   align-items: center;
   position: absolute;
   bottom: 20px;
-  left: ${props => (!props.isM ? 'auto' : '16px')};
-  right: ${props => (!props.isM ? '20px' : 'auto')};
+  left: ${props => (!props.$isM ? 'auto' : '16px')};
+  right: ${props => (!props.$isM ? '20px' : 'auto')};
   z-index: 1;
   background-color: var(--color-background-primary);
   border-radius: 26px;
@@ -23,7 +23,7 @@ const ToolBarWrap = styled.div`
   .H40 {
     height: 40px;
     line-height: 40px;
-    padding: 0 ${props => (props.isM ? '3px' : '10px')};
+    padding: 0 ${props => (props.$isM ? '3px' : '10px')};
   }
 `;
 
@@ -31,7 +31,7 @@ export default function ToolBar(props) {
   const { onClick, onChangeType, view } = props;
   const isM = browserIsMobile();
   return (
-    <ToolBarWrap className={cx('flexRow valignWrappe')} left={props.left} isM={isM}>
+    <ToolBarWrap className={cx('flexRow valignWrappe')} $isM={isM}>
       {!isM && (
         <Tooltip title={_l('导出为图片')}>
           <Icon

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import { FindResult, SelectNodeObject, SingleControlValue } from '../components';
 
 export default props => {
@@ -33,9 +33,8 @@ export default props => {
       {REFUND_TYPES.map(item => (
         <div className="mTop15" key={item.value}>
           <Radio
-            text={item.text}
             checked={refundType === item.value}
-            onClick={() =>
+            onChange={() =>
               updateSource({
                 fields: data.fields.map(o => {
                   if (o.fieldId === 'refundType') {
@@ -50,7 +49,10 @@ export default props => {
                 }),
               })
             }
-          />
+            title={item.text}
+          >
+            {item.text}
+          </Radio>
           <div className="mTop5 mLeft30 textSecondary">{item.desc}</div>
         </div>
       ))}

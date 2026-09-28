@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import _ from 'lodash';
-import { Dialog, RadioGroup } from 'ming-ui';
+import React, { useState } from 'react';
+import { Button, Modal, Radio } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { WORKSHEET_BTN_OPTION_TYPE } from './config';
 import CustomBtnList from './CustomBtnList.jsx';
 import CustomBtnGroupedLayout from './groupedLayout';
 import './CustomBtn.less';
+
+const ADD_BUTTON_STYLE = { '--hap-button-default-color': 'var(--color-primary)' };
 
 const deleteStr = isAllView => {
   const list = [
@@ -31,8 +32,8 @@ function CustomBtnCon(props) {
     worksheetId,
     appId,
     viewId,
-    btnData: btnDataFromProps = [],
-    btnList: btnListFromProps = [],
+    btnData = [],
+    btnList = [],
     btnGroupsJson,
     flatBtnOrderJson,
     projectId,
@@ -41,23 +42,10 @@ function CustomBtnCon(props) {
     onFresh,
     onShowCreateCustomBtn,
   } = props;
-  const [btnData, setBtnData] = useState(btnDataFromProps);
-  const [btnList, setBtnList] = useState(btnListFromProps);
   const [showBtn, setShowBtn] = useState(false);
-  const [deleteState, setDeleteState] = useState({
-    showDeleteDialog: false,
-    value: 0,
-    btnId: '',
-    isAllView: false,
-  });
-
-  useEffect(() => {
-    setBtnData(prev => (_.isEqual(btnDataFromProps, prev) ? prev : btnDataFromProps));
-    setBtnList(prev => (_.isEqual(btnListFromProps, prev) ? prev : btnListFromProps));
-  }, [btnDataFromProps, btnListFromProps]);
 
   const optionWorksheetBtn = (btnId, optionType, callback) => {
-    sheetAjax
+    return sheetAjax
       .optionWorksheetBtn({
         appId,
         viewId,
@@ -79,11 +67,28 @@ function CustomBtnCon(props) {
   };
 
   const deleteBtn = (id, isAllView) => {
-    setDeleteState({
-      showDeleteDialog: true,
-      btnId: id,
-      isAllView,
-      value: isAllView ? 1 : 0,
+    let value = isAllView ? 1 : 0;
+
+    Modal.confirm({
+      className: 'deleteCustomBtnDialog',
+      title: <span className="textError">{_l('删除按钮')}</span>,
+      content: (
+        <Radio.Group
+          className="deleteCustomBtnDialogCon"
+          options={deleteStr(isAllView).map(({ text, ...option }) => ({ ...option, label: text }))}
+          size="small"
+          defaultValue={value}
+          onChange={event => {
+            value = event.target.value;
+          }}
+        />
+      ),
+      okText: _l('删除'),
+      cancelText: _l('取消'),
+      okButtonProps: {
+        danger: true,
+      },
+      onOk: () => optionWorksheetBtn(id, value === 0 ? (isListOption ? 24 : 22) : 9, onFresh),
     });
   };
 
@@ -115,41 +120,6 @@ function CustomBtnCon(props) {
         alert(status === 0 ? _l('停用失败') : _l('启用失败'), 2);
       }
     });
-  };
-
-  const renderDeleteDialog = () => {
-    const { isAllView, btnId, value, showDeleteDialog } = deleteState;
-    return (
-      <Dialog
-        title={_l('删除按钮')}
-        okText={_l('删除')}
-        cancelText={_l('取消')}
-        confirm="danger"
-        className="deleteCustomBtnDialog"
-        headerClass="deleteCustomBtnDialogTitle"
-        bodyClass="deleteCustomBtnDialogCon"
-        onCancel={() => {
-          setDeleteState(prev => ({ ...prev, showDeleteDialog: false }));
-        }}
-        onOk={() => {
-          optionWorksheetBtn(btnId, value === 0 ? (isListOption ? 24 : 22) : 9, () => {
-            setDeleteState(prev => ({ ...prev, showDeleteDialog: false }));
-            onFresh();
-          });
-        }}
-        visible={showDeleteDialog}
-        updateTrigger="false"
-      >
-        <RadioGroup
-          data={deleteStr(isAllView)}
-          size="small"
-          onChange={value => {
-            setDeleteState(prev => ({ ...prev, value }));
-          }}
-          checkedValue={value}
-        />
-      </Dialog>
-    );
   };
 
   const handleAddClick = () => {
@@ -193,9 +163,19 @@ function CustomBtnCon(props) {
             />
           )}
         </div>
-        <div className="addBtn Hand mTop10 Relative" onClick={handleAddClick}>
-          <i className="icon icon-add Font18 mRight5 TxtMiddle InlineBlock"></i>
-          <span className="Bold TxtMiddle InlineBlock">{_l('动作')}</span>
+        <div className="addBtnWrapper mTop10 Relative">
+          <Button
+            block
+            className="Bold Font13"
+            color="default"
+            variant="filled"
+            size="large"
+            style={ADD_BUTTON_STYLE}
+            icon={<i className="icon icon-add Font18" />}
+            onClick={handleAddClick}
+          >
+            {_l('动作')}
+          </Button>
           {showBtn && (
             <CustomBtnList
               btnList={btnList}
@@ -212,7 +192,6 @@ function CustomBtnCon(props) {
           )}
         </div>
       </div>
-      {deleteState.showDeleteDialog && renderDeleteDialog()}
     </React.Fragment>
   );
 }

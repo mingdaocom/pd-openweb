@@ -1,7 +1,7 @@
 import React from 'react';
-import cx from 'classnames';
 import styled, { css, keyframes } from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 const typeStyleMap = {
   warning: css`
@@ -41,12 +41,12 @@ const BannerWrapper = styled.div`
   font-weight: 700;
   color: var(--color-text-primary);
 
-  ${({ type }) => typeStyleMap[type]}
+  ${({ $type }) => typeStyleMap[$type]}
 
   .icon {
     margin-right: 10px;
     font-size: 16px;
-    color: ${({ type }) => iconColorMap[type]};
+    color: ${({ $type }) => iconColorMap[$type]};
   }
 
   .icon-agent_loading {
@@ -54,39 +54,24 @@ const BannerWrapper = styled.div`
     animation: ${iconRotate} 0.8s linear infinite;
     font-size: 16px;
   }
-
-  .action {
-    margin-left: 6px;
-    color: var(--color-primary);
-    cursor: pointer;
-    &:hover {
-      color: var(--color-primary-light);
-    }
-    &:active {
-      color: var(--color-primary-dark);
-    }
-    &.disabled {
-      color: var(--color-text-disabled) !important;
-      cursor: not-allowed;
-    }
-  }
 `;
 
 const Banner = ({ icon, type = 'primary', text, action, className }) => {
   return (
-    <BannerWrapper className={className} type={type}>
+    <BannerWrapper className={className} $type={type}>
       {icon && <Icon icon={icon} />}
       <span className="text">{text}</span>
       {action && (
-        <span
-          className={cx('action', { disabled: action.disabled })}
-          onClick={() => {
-            if (action.disabled) return;
-            action.onClick?.();
-          }}
+        <Button
+          className="mLeft6"
+          color="primary"
+          variant="link"
+          size="small"
+          disabled={action.disabled}
+          onClick={action.onClick}
         >
           {action.text}
-        </span>
+        </Button>
       )}
     </BannerWrapper>
   );

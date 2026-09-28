@@ -1,14 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { DatePicker, Select } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
+import { DatePicker, Divider, Input, Select } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import AppFilter from '../AppFilter';
 import { TABS } from '../config';
@@ -72,6 +68,7 @@ export default class Filter extends Component {
       operationType: {},
       status: {},
       apkId: '',
+      appId: '',
       processId: '',
       type: null,
       startDate: '',
@@ -82,6 +79,10 @@ export default class Filter extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
+      if (this.props.stateTab !== prevProps.stateTab) {
+        this.setState({ createAccount: {}, startDate: '', endDate: '' });
+      }
+
       if (this.props.isResetFilter) {
         this.handleReset();
 
@@ -94,20 +95,21 @@ export default class Filter extends Component {
         this.props.stateTab == TABS.COMPLETE &&
         (this.state.type == null || this.props.param.type !== prevProps.param.type)
       ) {
+        const type = this.props.param.type;
+
         this.setState({
-          type: this.props.param.type,
-          operationType: {},
-          createAccount: {},
-          companyId: '',
-          status: {},
-          searchValue: '',
+          type,
+          ...(type !== -1 ? { operationType: {} } : {}),
+          ...(type === 0 ? { createAccount: {} } : {}),
+          ...(type !== 0 ? { status: {} } : {}),
         });
       }
 
       if (this.props.stateTab !== TABS.COMPLETE) {
         if (
           (this.props.visible !== prevProps.visible && this.props.visible) ||
-          (this.props.visible && this.props.param.type !== prevProps.param.type)
+          (this.props.visible &&
+            (this.props.param.type !== prevProps.param.type || this.props.param.complete !== prevProps.param.complete))
         ) {
           this.setState(
             {
@@ -115,6 +117,7 @@ export default class Filter extends Component {
               searchValue: '',
               processId: '',
               apkId: '',
+              appId: '',
               companyId: '',
               startDate: '',
               endDate: '',
@@ -127,13 +130,13 @@ export default class Filter extends Component {
       }
     }
   }
+  componentWillUnmount() {
+    this.request?.abort?.();
+    this.request = null;
+    this.handleChange.cancel();
+  }
   getTodoListFilter = props => {
-    const { loading } = this.state;
     const { param } = props || this.props;
-
-    if (loading) {
-      return;
-    }
 
     this.setState({
       loading: true,
@@ -143,28 +146,47 @@ export default class Filter extends Component {
       this.request.abort();
     }
 
-    this.request = instanceVersion.getTodoListFilter(param);
-    this.request.then(result => {
-      this.setState({
-        list: result.map(item => {
-          item.visible = false;
-          return item;
-        }),
-        loading: false,
-      });
-    });
+    const request = instanceVersion.getTodoListFilter(param);
+    this.request = request;
+    return request.then(
+      result => {
+        if (this.request !== request) return;
+
+        this.setState({
+          list: result.map(item => ({ ...item, visible: false })),
+          loading: false,
+        });
+      },
+      () => {
+        if (this.request !== request) return;
+
+        this.setState({ loading: false });
+      },
+    );
   };
   getResetVisible = () => {
     const { stateTab } = this.props;
-    const { type, searchValue, createAccount, apkId, companyId, processId, operationType, status, startDate, endDate } =
-      this.state;
+    const {
+      type,
+      searchValue,
+      createAccount,
+      apkId,
+      appId,
+      companyId,
+      processId,
+      operationType,
+      status,
+      startDate,
+      endDate,
+    } = this.state;
+    const hasDateScope = startDate && endDate;
 
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab)) {
-      return searchValue || !_.isEmpty(createAccount) || apkId || companyId || processId;
+      return searchValue || !_.isEmpty(createAccount) || apkId || appId || companyId || processId || hasDateScope;
     }
 
     if (stateTab === TABS.MY_SPONSOR) {
-      return searchValue || apkId || companyId || processId;
+      return searchValue || apkId || appId || companyId || processId || hasDateScope;
     }
 
     if (stateTab === TABS.COMPLETE) {
@@ -174,17 +196,18 @@ export default class Filter extends Component {
           !_.isEmpty(operationType) ||
           !_.isEmpty(createAccount) ||
           apkId ||
+          appId ||
           companyId ||
-          (startDate && endDate)
+          hasDateScope
         );
       }
 
       if (type === 5) {
-        return searchValue || !_.isEmpty(createAccount) || apkId || companyId || (startDate && endDate);
+        return searchValue || !_.isEmpty(createAccount) || apkId || appId || companyId || hasDateScope;
       }
 
       if (type === 0) {
-        return searchValue || !_.isEmpty(status) || apkId || companyId || (startDate && endDate);
+        return searchValue || !_.isEmpty(status) || apkId || appId || companyId || hasDateScope;
       }
     }
 
@@ -194,7 +217,7 @@ export default class Filter extends Component {
     this.props.handleChangeVisible();
   };
   handleChange = _.debounce(() => {
-    const { searchValue, createAccount, apkId, processId, status, startDate, endDate, companyId } = this.state;
+    const { searchValue, createAccount, apkId, appId, processId, status, startDate, endDate, companyId } = this.state;
     const operationType = this.state.operationType.value;
 
     let newType = null;
@@ -215,6 +238,7 @@ export default class Filter extends Component {
       createAccountId: createAccount.accountId,
       status: status.value,
       apkId,
+      appId,
       processId,
       startDate,
       endDate,
@@ -223,12 +247,23 @@ export default class Filter extends Component {
 
     this.props.onChange(param);
   }, 500);
+  handleAppFilterChange = ({ apkId = '', worksheetId = '', processId = '' }) => {
+    this.setState(
+      {
+        apkId,
+        appId: worksheetId,
+        processId,
+      },
+      this.handleChange,
+    );
+  };
   handleReset = () => {
     this.setState(
       {
         searchValue: '',
         createAccount: {},
         apkId: '',
+        appId: '',
         processId: '',
         operationType: {},
         status: {},
@@ -251,34 +286,13 @@ export default class Filter extends Component {
       }),
     });
   };
-  changeUser = () => {
-    const change = user => {
-      this.setState(
-        {
-          createAccount: user,
-        },
-        this.handleChange,
-      );
-    };
-
-    quickSelectUser(this.owner, {
-      showMoreInvite: false,
-      isTask: false,
-      offset: {
-        top: 5,
-        left: 18,
+  handleSelectUser = users => {
+    this.setState(
+      {
+        createAccount: users[0],
       },
-      zIndex: 10001,
-      SelectUserSettings: {
-        unique: true,
-        callback(users) {
-          change(users[0]);
-        },
-      },
-      selectCb(users) {
-        change(users[0]);
-      },
-    });
+      this.handleChange,
+    );
   };
   handleChangeSearchValue = event => {
     this.setState(
@@ -292,20 +306,14 @@ export default class Filter extends Component {
     const { searchValue } = this.state;
     return (
       <div className="mBottom16">
-        <div className="inputWrapper valignWrapper Relative">
-          <input
+        <div className="inputWrapper">
+          <Input
             value={searchValue}
-            type="text"
             placeholder={_l('搜索名称和摘要')}
+            suffix={<Icon icon="search" className="textSecondary Font17" />}
             onChange={this.handleChangeSearchValue}
-            onKeyDown={event => {
-              if (event.which === 13) {
-                this.handleChangeSearchValue(event);
-              }
-            }}
+            onPressEnter={this.handleChangeSearchValue}
           />
-          {/*searchValue && <Icon icon="close" className="textSecondary Font17 pointer" onClick={() => { this.setState({ searchValue: '' }) }} />*/}
-          <Icon icon="search" className="textSecondary Font17" />
         </div>
       </div>
     );
@@ -316,13 +324,19 @@ export default class Filter extends Component {
       <div className="mBottom16">
         <div className="Font13 mBottom10">{_l('发起人')}</div>
         {_.isEmpty(createAccount) ? (
-          <div className="personPostBox" ref={owner => (this.owner = owner)}>
-            <Icon
-              icon="task_add-02"
-              className="textSecondary Font24 hoverColorPrimaryLight Hand"
-              onClick={this.changeUser}
-            />
-          </div>
+          <UserSelectPopover
+            showMoreInvite={false}
+            isTask={false}
+            SelectUserSettings={{
+              unique: true,
+              callback: this.handleSelectUser,
+            }}
+            onSelect={this.handleSelectUser}
+          >
+            <div className="personPostBox">
+              <Icon icon="task_add-02" className="textSecondary Font24 hoverColorPrimaryLight Hand" />
+            </div>
+          </UserSelectPopover>
         ) : (
           <div className="personPostBox spaceBtween">
             <div className="personPostBox">
@@ -357,18 +371,16 @@ export default class Filter extends Component {
         <Select
           value={value}
           placeholder={_l('请选择')}
-          className="w100 selectWrapper"
+          className="w100"
           suffixIcon={selectArrowIcon}
           onChange={index => {
             this.setState({ operationType: operationTypeData[index] }, this.handleChange);
           }}
-        >
-          {operationTypeData.map((item, index) => (
-            <Select.Option className="processOptionWrapper" value={index}>
-              {item.text}
-            </Select.Option>
-          ))}
-        </Select>
+          options={operationTypeData.map((item, index) => ({
+            value: index,
+            label: item.text,
+          }))}
+        />
       </div>
     );
   }
@@ -382,39 +394,34 @@ export default class Filter extends Component {
         <Select
           value={value}
           placeholder={_l('请选择')}
-          className="w100 selectWrapper"
+          className="w100"
           suffixIcon={selectArrowIcon}
           onChange={index => {
             this.setState({ status: statusData[index] }, this.handleChange);
           }}
-        >
-          {statusData.map((item, index) => (
-            <Select.Option className="processOptionWrapper" value={index}>
-              {item.text}
-            </Select.Option>
-          ))}
-        </Select>
+          options={statusData.map((item, index) => ({
+            value: index,
+            label: item.text,
+          }))}
+        />
       </div>
     );
   }
   renderDateScope() {
     const { archivedItem } = this.props;
     const { startDate, endDate } = this.state;
-    const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
-    const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
 
     return (
       <div className="mBottom16">
         <div className="Font13 mBottom10">{_l('时间范围')}</div>
         {_.isEmpty(archivedItem) ? (
           <RangePicker
-            className="dateInput w100"
+            className="w100"
             suffixIcon={null}
-            locale={datePickerLocale}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {
-                const end = moment(moment().format('YYYY-MM-DD')).add(1, 'day');
+                const end = moment(moment().format('YYYY-MM-DD'));
                 return current > end;
               } else {
                 return false;
@@ -439,14 +446,13 @@ export default class Filter extends Component {
           />
         ) : (
           <RangePicker
-            className="dateInput w100"
+            className="w100"
             suffixIcon={null}
-            locale={datePickerLocale}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {
                 const start = moment(archivedItem.start);
-                const end = moment(archivedItem.end).add(1, 'day');
+                const end = moment(archivedItem.end);
                 return current < start || current > end;
               } else {
                 return false;
@@ -475,7 +481,7 @@ export default class Filter extends Component {
         <Select
           value={companyId}
           placeholder={_l('请选择')}
-          className="w100 selectWrapper"
+          className="w100"
           suffixIcon={selectArrowIcon}
           onChange={projectId => {
             this.setState(
@@ -485,16 +491,14 @@ export default class Filter extends Component {
               this.handleChange,
             );
           }}
-        >
-          <Select.Option className="processOptionWrapper" value="">
-            {_l('全部')}
-          </Select.Option>
-          {projects.map(item => (
-            <Select.Option className="processOptionWrapper" value={item.projectId}>
-              {item.companyName}
-            </Select.Option>
-          ))}
-        </Select>
+          options={[
+            { value: '', label: _l('全部') },
+            ...projects.map(item => ({
+              value: item.projectId,
+              label: item.companyName,
+            })),
+          ]}
+        />
       </div>
     );
   }
@@ -574,7 +578,8 @@ export default class Filter extends Component {
         </div>
         <div className="flex filterContent">
           {this.renderSearchName()}
-          {stateTab == TABS.COMPLETE && this.renderDateScope()}
+          {this.renderDateScope()}
+          <Divider />
           {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab) && this.renderAccount()}
           {stateTab == TABS.COMPLETE && (
             <Fragment>
@@ -584,21 +589,14 @@ export default class Filter extends Component {
               {this.renderSelectProjects()}
               <AppFilter
                 apkId={this.state.apkId}
-                onChange={(apkId, processId) => {
-                  this.setState(
-                    {
-                      apkId,
-                      processId,
-                    },
-                    this.handleChange,
-                  );
-                }}
+                worksheetId={this.state.appId}
+                processId={this.state.processId}
+                onChange={this.handleAppFilterChange}
               />
             </Fragment>
           )}
           {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE, TABS.MY_SPONSOR].includes(stateTab) && (
             <Fragment>
-              <div className="filterFivider" />
               {this.renderSelectProjects()}
               {this.renderTodoListFilter()}
             </Fragment>

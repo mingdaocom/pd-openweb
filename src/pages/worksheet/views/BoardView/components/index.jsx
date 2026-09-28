@@ -8,8 +8,8 @@ const BoardIconWrap = styled(FlexCenter)`
   align-items: end;
   justify-content: space-between;
   box-sizing: border-box;
-  min-width: ${props => props.size || '56px'};
-  height: ${props => props.size || '56px'};
+  min-width: ${props => props.$size || '56px'};
+  height: ${props => props.$size || '56px'};
   padding: 8px;
   background-color: var(--color-success);
   border-radius: 6px;
@@ -17,13 +17,13 @@ const BoardIconWrap = styled(FlexCenter)`
 const VerticalItem = styled.div`
   background-color: var(--color-background-primary);
   width: 10px;
-  height: ${props => props.height || '100%'};
+  height: ${props => props.$height || '100%'};
 `;
 export const BoardIcon = ({ size }) => (
-  <BoardIconWrap size={size}>
-    <VerticalItem height="50%" />
+  <BoardIconWrap $size={size}>
+    <VerticalItem $height="50%" />
     <VerticalItem />
-    <VerticalItem height="75%" />
+    <VerticalItem $height="75%" />
   </BoardIconWrap>
 );
 
@@ -44,10 +44,10 @@ const AddWrap = styled(FlexCenter)`
   background-color: var(--color-background-tertiary);
   border-radius: 3px;
   cursor: pointer;
-  width: ${props => `${props.width ? props.width : 280}px`};
+  width: ${props => `${props.$width ? props.$width : 280}px`};
   height: 36px;
   min-height: 36px;
-  margin: ${props => (props.noItem ? '0 auto' : ' 0 auto 8px auto')};
+  margin: ${props => (props.$noItem ? '0 auto' : ' 0 auto 8px auto')};
   border-radius: 3px;
   text-align: center;
   transition: all 0.25s;

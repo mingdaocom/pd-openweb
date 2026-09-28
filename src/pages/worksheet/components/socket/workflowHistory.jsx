@@ -3,9 +3,10 @@ import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import process from 'src/pages/workflow/api/process';
-import { pathCompletion } from 'src/utils/common';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const STATUS_TEXT = {
   1: _l('执行成功'),
@@ -104,8 +105,10 @@ class WorkflowHistory extends Component {
     const { title, ...rest } = this.props;
     const { activeStatus, data } = this.state;
     return (
-      <Dialog
-        visible
+      <Modal
+        open
+        mask={{ closable: true }}
+        keyboard
         title={
           <DialogTitle>
             {_l('批量操作 “')}
@@ -113,7 +116,7 @@ class WorkflowHistory extends Component {
             {_l('” 执行完成')}
           </DialogTitle>
         }
-        cancelText={null}
+        cancelButtonProps={{ style: { display: 'none' } }}
         okText={_l('关闭')}
         {...rest}
       >
@@ -150,7 +153,7 @@ class WorkflowHistory extends Component {
             ))
           )}
         </WorkflowList>
-      </Dialog>
+      </Modal>
     );
   }
 }
@@ -173,7 +176,11 @@ export default function workflowHistory(props) {
     }, 0);
   }
 
-  root.render(<WorkflowHistory onCancel={handleClose} onOk={handleClose} {...props} />);
+  root.render(
+    <AntdConfigProvider>
+      <WorkflowHistory onCancel={handleClose} onOk={handleClose} {...props} />
+    </AntdConfigProvider>,
+  );
 
   return handleClose;
 }

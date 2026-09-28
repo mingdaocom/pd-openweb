@@ -2,11 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Button, Checkbox, Dropdown, LoadDiv, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getWithToken } from 'src/utils/common';
+import { LoadDiv, Support } from 'ming-ui';
+import { Button, Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
+import { getWithToken } from 'src/utils/services/request/authenticated';
 import convert from './convertData';
 import PreviewTable from './PreviewTable';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const Header = styled.div`
   height: 52px;
@@ -131,7 +133,7 @@ export default function PreviewData(props) {
     } else {
       setMapConfig(getDefaultMap(controls));
     }
-  }, [mapByExcel, headRowIndex, cellsData]);
+  }, [mapByExcel, headRowIndex, cellsData, controls]);
   return (
     <Fragment>
       {isConverting && (
@@ -150,13 +152,12 @@ export default function PreviewData(props) {
               <div className="flexRow">
                 <div className="setHead">
                   {_l('表头行')}
-                  <Dropdown
+                  <Select
                     className="headNumber"
-                    border
                     value={headRowIndex}
-                    data={new Array(cellsData.length < 10 ? cellsData.length : 10)
+                    options={new Array(cellsData.length < 10 ? cellsData.length : 10)
                       .fill()
-                      .map((e, i) => ({ text: i === 0 ? _l('没有表头行') : _l('第%0行', i), value: i }))}
+                      .map((e, i) => ({ label: i === 0 ? _l('没有表头行') : _l('第%0行', i), value: i }))}
                     onChange={setHeadRowIndex}
                   />
                   <Tooltip title={_l('只有表头下方的数据才会被导入')} placement="bottom">
@@ -166,7 +167,9 @@ export default function PreviewData(props) {
                   </Tooltip>
                 </div>
                 <div className="flexRow mLeft30 valignWrapper">
-                  <Checkbox text={_l('按名称匹配')} checked={mapByExcel} onClick={() => setMapByExcel(!mapByExcel)} />
+                  <Checkbox checked={mapByExcel} onChange={() => setMapByExcel(!mapByExcel)}>
+                    {_l('按名称匹配')}
+                  </Checkbox>
                   <Tooltip
                     title={_l('勾选时，自动匹配与表头行名称的一致的字段。取消勾选时，默认按照字段顺序依次匹配')}
                     placement="bottom"
@@ -179,11 +182,11 @@ export default function PreviewData(props) {
               </div>
             )}
             {sheets.length > 1 && (
-              <Dropdown
+              <Select
                 className="sheetsDropDown"
-                border
                 value={sheetIndex}
-                data={sheets}
+                options={sheets}
+                fieldNames={SELECT_FIELD_NAMES}
                 onChange={async newSheetIndex => {
                   setTableLoading(true);
                   const data = await getWithToken(
@@ -259,7 +262,8 @@ export default function PreviewData(props) {
           />
           <Button
             className="mRight10"
-            type="link"
+            color="primary"
+            variant="link"
             onClick={() => {
               setStep('upload');
             }}
@@ -268,20 +272,23 @@ export default function PreviewData(props) {
           </Button>
           <Button
             type="primary"
+            loading={isConverting}
             disabled={_.isEmpty(valuedData) || _.isEmpty(_.values(mapConfig).filter(_.identity))}
             onClick={async () => {
               setIsConverting(true);
-              const data = await convert({
-                projectId,
-                worksheetId,
-                controlId,
-                mapConfig,
-                controls,
-                data: needImportCellData,
-              });
-              setIsConverting(false);
-
-              onClose(data);
+              try {
+                const data = await convert({
+                  projectId,
+                  worksheetId,
+                  controlId,
+                  mapConfig,
+                  controls,
+                  data: needImportCellData,
+                });
+                onClose(data);
+              } finally {
+                setIsConverting(false);
+              }
             }}
           >
             {_l('导入')}

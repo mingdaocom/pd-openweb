@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'ming-ui/antd-components';
-import Checkbox from 'ming-ui/components/Checkbox';
-import Dropdown from 'ming-ui/components/Dropdown';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import { updateRemind, updateRemindVoice } from '../../common';
 import { REMINDTYPE } from '../../constant';
@@ -139,12 +137,13 @@ export default class CalendarRemind extends Component {
   render() {
     const { remindType, editable, voiceRemind } = this.props;
     const dropDownProps = {
-      data: [
-        { text: _l('分钟'), value: REMINDTYPE.MINUTE + '' },
-        { text: _l('小时'), value: REMINDTYPE.HOUR + '' },
-        { text: _l('天'), value: REMINDTYPE.DAY + '' },
-        { text: _l('无'), value: REMINDTYPE.NONE + '' },
+      options: [
+        { label: _l('分钟'), value: REMINDTYPE.MINUTE + '' },
+        { label: _l('小时'), value: REMINDTYPE.HOUR + '' },
+        { label: _l('天'), value: REMINDTYPE.DAY + '' },
+        { label: _l('无'), value: REMINDTYPE.NONE + '' },
       ],
+      variant: 'borderless',
       value: remindType + '',
       key: 'remind-input',
       onChange: this.changeRemindType.bind(this),
@@ -170,14 +169,14 @@ export default class CalendarRemind extends Component {
                 />
               </span>
             )}
-            <Dropdown {...dropDownProps} className="InlineBlock" />
+            <Select {...dropDownProps} />
             {remindType === REMINDTYPE.NONE ? null : (
               <span className="mLeft50 textTertiary InlineBlock">
                 <Checkbox
-                  className="Font12 InlineBlock TxtMiddle"
-                  size="small"
+                  className="Font12 TxtMiddle"
                   checked={voiceRemind}
-                  onClick={this.changeVoiceRemind.bind(this)}
+                  onChange={event => this.changeVoiceRemind.bind(this)(!event.target.checked, undefined, event)}
+                  size="small"
                 >
                   {_l('电话提醒')}
                 </Checkbox>

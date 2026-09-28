@@ -2,33 +2,32 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import filterXss from 'xss';
-import { Input, Textarea } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
+
+const TEXTAREA_STYLES = {
+  root: {
+    color: 'inherit',
+    display: 'block',
+    fontSize: 'inherit',
+    lineHeight: 'inherit',
+    padding: 0,
+  },
+};
 
 const Con = styled.div(
-  ({ active }) => `
+  ({ $active }) => `
   padding: 10px 20px;
   white-space: pre-line;
-  ${active ? 'background: var(--color-background-secondary)' : ''}
-  :hover { background: var(--color-background-secondary) }
+  ${$active ? 'background: var(--color-background-secondary)' : ''}
+  &:hover { background: var(--color-background-secondary) }
 `,
 );
 const EmptyTip = styled.span`
   color: var(--color-text-tertiary);
 `;
 const NewInput = styled(Input)`
-  border: none !important;
   padding: 0 !important;
-  font-size: inherit !important;
   font-weight: inherit !important;
-  background-color: transparent;
-`;
-const NewTextarea = styled(Textarea)`
-  display: block;
-  color: inherit;
-  border: none !important;
-  padding: 0 !important;
-  font-size: inherit !important;
-  line-height: inherit;
   background-color: transparent;
 `;
 
@@ -57,7 +56,7 @@ export default class EditableText extends React.Component {
     return (
       <Con
         className={`editableText Hand ${className || ''}`}
-        active={editting}
+        $active={editting}
         style={style}
         onClick={() => {
           this.setState({ editting: true, inputvalue: value }, () => {
@@ -69,26 +68,36 @@ export default class EditableText extends React.Component {
       >
         {editting && !mutiLine && (
           <NewInput
-            manualRef={input => (this.input = input)}
+            variant="borderless"
+            ref={input => (this.input = input)}
             value={inputvalue}
             onBlur={e => {
               onChange(e.target.value);
               this.setState({ editting: false });
             }}
-            onChange={v => this.setState({ inputvalue: turnLine ? v : v.replace(/\n/g, '') })}
+            onChange={event => {
+              const value = event.target.value;
+              this.setState({ inputvalue: turnLine ? value : value.replace(/\n/g, '') });
+            }}
           />
         )}
         {editting && mutiLine && (
-          <NewTextarea
-            minHeight={minHeight}
+          <Input.TextArea
+            autoSize
             maxLength={maxLength}
-            manualRef={input => (this.input = input)}
-            value={inputvalue}
+            ref={input => (this.input = input)}
+            style={{ minHeight }}
+            styles={TEXTAREA_STYLES}
+            variant="borderless"
             onBlur={e => {
               onChange(e.target.value);
               this.setState({ editting: false });
             }}
-            onChange={v => this.setState({ inputvalue: turnLine ? v : v.replace(/\n/g, '') })}
+            onChange={event => {
+              const value = event.target.value;
+              this.setState({ inputvalue: turnLine ? value : value.replace(/\n/g, '') });
+            }}
+            value={inputvalue}
           />
         )}
         {!editting && (

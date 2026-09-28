@@ -6,10 +6,10 @@ import { DndProvider } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, ScrollView, Skeleton } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { Skeleton, Tooltip } from 'ming-ui/antd-components';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
-import { getAppFeaturesVisible } from 'src/utils/common';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
 import CreateAppItem from './CreateAppItem';
 import WorkSheetGroup from './WorkSheetGroup';
 import WorkSheetItem from './WorkSheetItem';
@@ -18,21 +18,17 @@ import './WorkSheetLeft.less';
 function getProjectfoldedFromStorage() {
   let result = {};
   const storageStr = window.localStorage.getItem(`worksheet_left_projectfolded_${md.global.Account.accountId}`);
-
   if (!storageStr) {
     return result;
   }
-
   try {
     result = JSON.parse(storageStr);
   } catch (err) {
     console.log(err);
     return {};
   }
-
   return result;
 }
-
 class WorkSheetLeft extends Component {
   static propTypes = {
     worksheetId: PropTypes.string,
@@ -53,13 +49,11 @@ class WorkSheetLeft extends Component {
     this.props.sheetListActions.updateSheetListLoading(true);
     this.props.sheetListActions.clearSheetList();
   }
-
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.groupId !== prevProps.groupId) {
         this.getSheetList(this.props);
       }
-
       if (!_.isEqual(this.props.groupData, prevProps.groupData)) {
         this.getSheetList(this.props);
       }
@@ -67,7 +61,6 @@ class WorkSheetLeft extends Component {
   }
   getSheetList = props => {
     const { appId, groupId, groupData } = props || this.props;
-
     if (groupData) {
       this.props.sheetListActions.updateSheetList(groupData);
       this.props.sheetListActions.updateSheetListLoading(false);
@@ -159,7 +152,6 @@ class WorkSheetLeft extends Component {
 
     // 获取url参数
     const { ln } = getAppFeaturesVisible();
-
     return (
       <div
         style={style}
@@ -171,7 +163,7 @@ class WorkSheetLeft extends Component {
         {secondLevelGroup ? (
           this.renderContent(data)
         ) : loading || _.isEmpty(data) ? (
-          <Skeleton active={true} />
+          <Skeleton className="pAll20" active={true} />
         ) : (
           this.renderContent(data)
         )}
@@ -179,16 +171,13 @@ class WorkSheetLeft extends Component {
     );
   }
 }
-
 const mapDispatchToProps = dispatch => ({
   sheetListActions: bindActionCreators(sheetListActions, dispatch),
   dispatch,
 });
-
 const mapStateToProps = state => ({
   data: state.sheetList.data,
   loading: state.sheetList.loading,
   isUnfold: state.sheetList.isUnfold,
 });
-
 export default connect(mapStateToProps, mapDispatchToProps)(WorkSheetLeft);

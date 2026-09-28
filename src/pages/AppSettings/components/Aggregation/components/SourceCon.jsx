@@ -4,15 +4,16 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet.jsx';
-import { getTranslateInfo } from 'src/utils/app';
-import { getSyncLicenseInfo } from 'src/utils/project';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getSyncLicenseInfo } from 'src/utils/services/project';
 import { DEFAULT_COLORS } from '../config';
 import { getAllSourceList, getNodeInfo } from '../util';
 import { filterForFilterDialog, getSourceMaxCountByVersion, sourceIsMax, updateConfig } from '../util';
-import { WrapSelectCon, WrapSource, WrapWorksheet } from './style';
+import { WrapSelectCon, WrapWorksheet } from './style';
 
 export default function SourceCon(props) {
   const { projectId, appId, getWorksheets, onChange, onChangeByInit = () => {} } = props;
@@ -26,7 +27,7 @@ export default function SourceCon(props) {
   const renderSourceItem = (dataInfo = {}, canChange = false, filters = []) => {
     if (dataInfo.isRelative) {
       return (
-        <div className="Dropdown--input Dropdown--border" onClick={e => e.stopPropagation()}>
+        <div className="flexRow alignItemsCenter pAll10" onClick={e => e.stopPropagation()}>
           {dataInfo.isDelete ? (
             <span className="Red Bold">{_l('字段已删除')}</span>
           ) : (
@@ -49,9 +50,9 @@ export default function SourceCon(props) {
       : '';
     return (
       <Fragment>
-        <div className="Dropdown--input Dropdown--border">
+        <div className="flexRow alignItemsCenter pAll10">
           {dataInfo.isDelete ? (
-            <span className="Red Bold">{_l('数据源已删除')}</span>
+            <DeletedSourceMessage deletedText={_l('数据源已删除')} worksheetId={dataInfo.workSheetId} />
           ) : (
             <React.Fragment>
               <SvgIcon
@@ -233,8 +234,8 @@ export default function SourceCon(props) {
           <React.Fragment>
             <div className="topCon" onClick={e => e.stopPropagation()} />
             <WrapWorksheet className="hoverBoxShadow">
-              <div className="Dropdown--input Dropdown--border">
-                <div className="textTertiary">{_l('请选择工作表')}</div>
+              <div className="flexRow alignItemsCenter pAll10">
+                <div className="textTertiary flex">{_l('请选择工作表')}</div>
                 <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary Font16 Hand mRight12 hoverColorPrimary" />
               </div>
             </WrapWorksheet>
@@ -423,9 +424,9 @@ export default function SourceCon(props) {
   };
 
   return (
-    <WrapSource className={cx({ isTopChild: isChange })}>
+    <div>
       {renderSelectWorksheet()}
       {renderFilterDialog()}
-    </WrapSource>
+    </div>
   );
 }

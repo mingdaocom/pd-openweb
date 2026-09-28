@@ -1,27 +1,7 @@
 ﻿import _ from 'lodash';
-import api from 'src/api/homeApp';
 import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
-import { navigateToLogout } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-
-export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
-  //工作表老路由id补齐
-  api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
-    if (appId) {
-      let url = '';
-
-      if (rowId) {
-        url = `/app/${appId}/${workSheetId}/row/${rowId}`;
-      } else if (viewId) {
-        url = `/app/${appId}/${appSectionId}/${workSheetId}/${viewId}${location.search}`;
-      } else if (appSectionId) {
-        url = `/app/${appId}/${appSectionId}/${workSheetId}`;
-      }
-
-      location.href = pathCompletion(url);
-    }
-  });
-};
+import { compatibleWorksheetRoute } from 'src/pages/Portal/navigation';
+import { navigateToLogout } from 'src/router/navigation/navigateTo';
 
 export function formatPortalHref(props) {
   // 外部门户 并且应用id对应不上 自定义域名后缀也对应不上

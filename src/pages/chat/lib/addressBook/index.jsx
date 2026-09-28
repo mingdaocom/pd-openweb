@@ -1,7 +1,7 @@
 import React from 'react';
 import shallowEqual from 'react-redux/lib/utils/shallowEqual';
-import { default as MingDialog } from 'ming-ui/components/Dialog';
-import Icon from 'ming-ui/components/Icon';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { config } from './config';
 import { gatherProjects, SIDER_BAR_LIST, TYPES } from './constants';
 import Apps from './containers/Apps';
@@ -14,7 +14,10 @@ import ProjectContacts from './containers/ProjectContacts';
 import SiderBar from './containers/SiderBar';
 import './style.less';
 
-const Dialog = MingDialog.DialogBase;
+const ADDRESS_BOOK_MODAL_STYLES = {
+  body: { overflow: 'hidden' },
+  container: { padding: 0 },
+};
 
 class AddressBook extends React.Component {
   constructor(props) {
@@ -77,20 +80,20 @@ class AddressBook extends React.Component {
 }
 
 export default function AddressBookDialog(props) {
-  const dialogProps = {
-    width: 900,
-    visible: props.showAddressBook,
-    anim: false,
-    type: 'scroll',
-    className: 'overflowHidden Relative',
-    onClose: props.closeDialog,
-  };
-
   config.callback = props.closeDialog;
 
   if (!props.showAddressBook) return null;
   return (
-    <Dialog {...dialogProps}>
+    <Modal
+      width={900}
+      open
+      className="overflowHidden Relative"
+      styles={ADDRESS_BOOK_MODAL_STYLES}
+      closable={false}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={props.closeDialog}
+    >
       <Icon
         icon={'delete'}
         className="contacts-dialog-close textSecondary Hand"
@@ -99,6 +102,6 @@ export default function AddressBookDialog(props) {
         }}
       />
       <AddressBook {...{ type: props.showNewFriends ? TYPES.NEW_FRIENDS : TYPES.ALL_CONTACTS }} />
-    </Dialog>
+    </Modal>
   );
 }

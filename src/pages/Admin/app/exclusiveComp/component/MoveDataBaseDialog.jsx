@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Empty } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Empty, Modal } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
-
-const MoveDataBaseDialogWrap = styled(Dialog)`
-  min-height: 400px;
-`;
 
 const ContentWrap = styled.ul`
   height: 100%;
@@ -44,10 +39,13 @@ function MoveDataBaseDialog(props) {
   }, []);
 
   return (
-    <MoveDataBaseDialogWrap
+    <Modal
       className="MoveDataBaseDialogWrap"
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       width={600}
+      styles={{ container: { minHeight: 400 } }}
       title={<span className="Font17 bold">{_l('迁移到')}</span>}
       okText={_l('移动')}
       okDisabled={list.length === 0}
@@ -79,7 +77,7 @@ function MoveDataBaseDialog(props) {
           </li>
         ))}
       </ContentWrap>
-    </MoveDataBaseDialogWrap>
+    </Modal>
   );
 }
 

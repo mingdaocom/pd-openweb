@@ -1,14 +1,14 @@
 import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Progress } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, Dialog, QiniuUpload, Support } from 'ming-ui';
+import { QiniuUpload, Support } from 'ming-ui';
+import { Button, Modal, Progress } from 'ming-ui/antd-components';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize } from 'src/utils/core/file';
 
 const Wrap = styled.div`
   &.importAppContainer {
@@ -121,6 +121,7 @@ const Wrap = styled.div`
 
 export default function ImportDialog(props) {
   const uploaderWrap = useRef();
+  const requestPending = useRef(false);
   const { projectId, onFresh, onClose } = props;
   const [{ file, errTip, analyzeLoading, upgradeId }, setState] = useSetState({
     file: {},
@@ -135,17 +136,24 @@ export default function ImportDialog(props) {
   }, []);
 
   //导入
-  const importConnect = async () => {
-    AppManagementAjax.importApi(
+  const importConnect = () => {
+    if (requestPending.current) return;
+
+    requestPending.current = true;
+    return AppManagementAjax.importApi(
       {
         projectId,
         id: upgradeId,
       },
       { isIntegration: true },
-    ).then(() => {
-      onFresh();
-      onClose();
-    });
+    )
+      .then(() => {
+        onFresh();
+        onClose();
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   const renderFileInfo = () => {
@@ -251,7 +259,7 @@ export default function ImportDialog(props) {
           }}
         >
           {!file.name ? (
-            <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
+            <Button type="primary" shape="round" className={cx({ Visibility: analyzeLoading })}>
               {_l('上传文件')}
             </Button>
           ) : (
@@ -268,9 +276,9 @@ export default function ImportDialog(props) {
           <div className={cx('flexRow mTop16', { Hidden: file.loaded === file.size })}>
             <Progress
               style={{ width: 250 }}
-              trailColor="var(--color-border-secondary)"
+              railColor="var(--color-border-secondary)"
               strokeColor="var(--color-primary)"
-              strokeWidth={8}
+              size={[-1, 8]}
               percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
             />
             <span
@@ -301,12 +309,15 @@ export default function ImportDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('导入连接')}
-      visible={true}
-      footer={null}
+      open
+      mask={{ closable: false }}
+      keyboard
+      footer={file.name && upgradeId ? undefined : null}
+      okText={_l('立即导入')}
+      onOk={importConnect}
       width={640}
-      overlayClosable={false}
       onCancel={() => onClose()}
     >
       <Wrap className="importAppContainer">
@@ -315,25 +326,7 @@ export default function ImportDialog(props) {
           <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
         </div>
         {renderStepContent()}
-        {file.name && upgradeId && (
-          <div className="exportBottomOption mTop16">
-            <button
-              type="button"
-              className="ming Button Button--link hoverColorPrimaryLight Bold"
-              onClick={() => onClose()}
-            >
-              {_l('取消')}
-            </button>
-            <button
-              type="button"
-              className="ming Button Button--primary hoverColorPrimaryLight importBtn Bold mLeft20"
-              onClick={() => importConnect()}
-            >
-              {_l('立即导入')}
-            </button>
-          </div>
-        )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

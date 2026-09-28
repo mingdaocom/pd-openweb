@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 import RoleConfig from '../components/WidgetHighSetting/ControlSetting/RoleConfig';
 import WidgetUserPermission from '../components/WidgetUserPermission';
@@ -23,11 +23,16 @@ export default function OrgRole(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={enumDefault}
-          data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ enumDefault: value, unique: false })}
+          value={enumDefault}
+          options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event =>
+            onChange({
+              enumDefault: event.target.value,
+              unique: false,
+            })
+          }
         />
       </SettingItem>
       <RoleConfig {...props} />

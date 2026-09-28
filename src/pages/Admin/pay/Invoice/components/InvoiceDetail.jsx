@@ -1,31 +1,25 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Drawer, Tooltip } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import { INVOICE_STATUS, INVOICE_STATUS_OPTIONS } from 'src/pages/invoice/constant';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { INVOICE_TYPE } from '../config';
 
-const DetailDrawer = styled(Drawer)`
-  .ant-drawer-header {
-    border-color: var(--color-border-tertiary);
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-close {
-        margin-right: 0;
-        color: var(--color-text-tertiary);
-      }
-    }
-  }
-
+const DetailDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
   .statusWrap {
     display: flex;
     padding: 12px;
@@ -71,7 +65,7 @@ const DetailDrawer = styled(Drawer)`
     -webkit-line-clamp: 2;
   }
   .productTable {
-    .ant-table .ant-table-thead tr th {
+    .hap-table .hap-table-thead tr th {
       background-color: var(--color-background-tertiary) !important;
       &:hover {
         background-color: var(--color-background-hover) !important;
@@ -372,7 +366,7 @@ export default function InvoiceDetail(props) {
   ];
 
   return (
-    <DetailDrawer visible width={1100} title={_l('发票详情-%0', invoiceId)} onClose={onClose}>
+    <DetailDrawer open width={1100} title={_l('发票详情-%0', invoiceId)} onClose={onClose}>
       {loading && <LoadDiv className="mTop20" />}
 
       {!loading && (

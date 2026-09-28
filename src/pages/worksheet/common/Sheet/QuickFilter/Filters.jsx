@@ -7,7 +7,6 @@ export default function Filters(props) {
     projectId,
     showTextAdvanced,
     defaultTriggerUpdate,
-    isDark,
     appId,
     mode,
     filters,
@@ -22,7 +21,6 @@ export default function Filters(props) {
     <QuickFilter
       showTextAdvanced={showTextAdvanced}
       defaultTriggerUpdate={defaultTriggerUpdate}
-      isDark={isDark}
       projectId={projectId}
       appId={appId}
       mode={mode}

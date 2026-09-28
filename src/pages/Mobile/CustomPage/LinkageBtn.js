@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Popover } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import { chartNav } from 'statistics/common/chartNav';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
 import * as actions from './redux/actions';
 
 const Wrap = styled.div`
@@ -124,10 +124,10 @@ const LinkageBtn = props => {
 
   return (
     <Popover
-      visible={undefined}
+      open={undefined}
       trigger="click"
       placement="topRight"
-      arrowPointAtCenter={true}
+      arrow={{ pointAtCenter: true }}
       content={renderLinkageFiltersPopover()}
     >
       <Wrap className="flexRow alignItemsCenter justifyContentCenter card autoLinkageTrigger">

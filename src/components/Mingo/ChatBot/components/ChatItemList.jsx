@@ -1,16 +1,11 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { useClickAway } from 'react-use';
 import cx from 'classnames';
-import copy from 'copy-to-clipboard';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, Menu, MenuItem, MobileConfirmPopup, PopupWrapper, Skeleton } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Input, Modal, Skeleton } from 'ming-ui/antd-components';
 import ScrollView from 'ming-ui/components/ScrollView';
-import appManagementApi from 'src/api/appManagement';
-import { getPublicShare, updatePublicShareStatus } from 'src/pages/worksheet/components/Share/controller';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
-import 'rc-trigger/assets/index.css';
+import ActionPopup from 'mobile/components/ActionPopup';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const Con = styled(ScrollView)`
   width: 100%;
@@ -87,112 +82,43 @@ function ChatHistoryItem({
   item,
   currentChatId,
   allowShareChat,
-  appId,
   onClick = () => {},
   onRename = () => {},
   onDelete = () => {},
   onShare = () => {},
 }) {
   const isMobile = browserIsMobile();
-  const { chatbotId, conversationId } = item.conversation || {};
   const [menuVisible, setMenuVisible] = useState(false);
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
-  const [confirmVisible, setConfirmVisible] = useState(false);
-  const itemRef = useRef(null);
   const cache = useRef({});
-  useClickAway(itemRef, e => {
-    if (e.target.closest('.MenuItem')) {
-      return;
-    }
-
-    setMenuVisible(false);
-  });
-
-  const handleShare = async () => {
-    let linkUrl = '';
-
-    if (!conversationId) {
-      // 帮助文档历史对话
-      const res = await appManagementApi.editEntityShareStatus({
-        sourceId: item.id,
-        sourceType: 73,
-        status: 1,
-      });
-      linkUrl = res.appEntityShare.url;
-    } else {
-      // 对话机器人历史对话
-      const sourceId = `${chatbotId}|${conversationId}`;
-      const shareParams = await getPublicShare({
-        from: 'chatbot',
-        appId,
-        sourceId,
-      });
-
-      // 未开启分享
-      if (!shareParams.shareLink) {
-        const updateRes = await updatePublicShareStatus({
-          from: 'chatbot',
-          appId,
-          sourceId,
-          isPublic: true,
-        });
-
-        if (!updateRes.shareLink) {
-          alert(_l('分享失败'), 2);
-          return;
-        }
-
-        linkUrl = updateRes.shareLink;
-      } else {
-        linkUrl = shareParams.shareLink;
-      }
-    }
-
-    if (window.isMingDaoApp) {
-      compatibleMDJS('shareContent', {
-        type: 1,
-        title: item.title || _l('未命名'),
-        url: linkUrl,
-        success: function (res) {
-          console.log(res, 'success');
-        },
-        cancel: function (res) {
-          console.log(res, 'cancel');
-        },
-      });
-    } else {
-      setMobileMenuVisible(false);
-      copy(linkUrl);
-      alert(_l('链接已复制'));
-    }
-  };
 
   const renderDesktopTrigger = () => {
     return (
-      <Trigger
-        popupVisible={menuVisible}
-        onPopupVisibleChange={setMenuVisible}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 6],
-          overflow: { adjustY: true, adjustX: true },
-        }}
-        popup={
-          <Menu className="Relative">
-            <MenuItem
-              onClick={() => {
+      <Dropdown
+        open={menuVisible}
+        onOpenChange={setMenuVisible}
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          items: [
+            {
+              key: 'rename',
+              icon: <Icon icon="rename_input" className="Font18" />,
+              label: <span className="mLeft10">{_l('重命名')}</span>,
+              onClick: () => {
                 setMenuVisible(false);
-                Dialog.confirm({
+                Modal.confirm({
                   title: _l('重命名对话'),
                   width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
-                  description: (
+                  content: (
                     <Input
                       autoFocus
                       placeholder={_l('请输入对话名称')}
                       className="w100 textPrimary"
                       defaultValue={item.title}
-                      manualRef={ref => (cache.current.input = ref)}
+                      ref={input => {
+                        cache.current.input = input?.input;
+                      }}
                     />
                   ),
                   onOk: () => {
@@ -205,50 +131,53 @@ function ChatHistoryItem({
                     }
                   },
                 });
-              }}
-              icon={<Icon icon="rename_input" className="Font18 mLeft5" />}
-            >
-              <span className="mLeft10">{_l('重命名')}</span>
-            </MenuItem>
-            {allowShareChat && (
-              <MenuItem
-                onClick={() => {
-                  setMenuVisible(false);
-                  onShare();
-                }}
-                icon={<Icon icon="share" className="Font18 mLeft5" />}
-              >
-                <span className="mLeft10">{_l('分享')}</span>
-              </MenuItem>
-            )}
-            <MenuItem
-              icon={<Icon icon="trash" className="Font18 mLeft5" style={{ color: 'var(--color-error)' }} />}
-              onClick={() => {
+              },
+            },
+            allowShareChat && {
+              key: 'share',
+              icon: <Icon icon="share" className="Font18" />,
+              label: <span className="mLeft10">{_l('分享')}</span>,
+              onClick: () => {
                 setMenuVisible(false);
-                Dialog.confirm({
+                onShare();
+              },
+            },
+            {
+              key: 'delete',
+              danger: true,
+              icon: <Icon icon="trash" className="Font18" />,
+              label: <span className="mLeft10">{_l('删除')}</span>,
+              onClick: () => {
+                setMenuVisible(false);
+                Modal.confirm({
                   title: (
-                    <span style={{ color: 'var(--color-error)', fontWeight: 'bold' }}>{_l('确定删除该对话')}</span>
+                    <span
+                      style={{
+                        color: 'var(--color-error)',
+                      }}
+                      className="textError"
+                    >
+                      {_l('确定删除该对话')}
+                    </span>
                   ),
                   width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
-                  description: _l('删除后，聊天记录将不可恢复'),
-                  buttonType: 'danger',
+                  content: _l('删除后，聊天记录将不可恢复'),
+                  okButtonProps: {
+                    danger: true,
+                  },
                   onOk: () => {
                     onDelete();
                   },
                 });
-              }}
-            >
-              <span className="mLeft10" style={{ color: 'var(--color-error)' }}>
-                {_l('删除')}
-              </span>
-            </MenuItem>
-          </Menu>
-        }
+              },
+            },
+          ].filter(Boolean),
+        }}
       >
         <span className="operateIcon" onClick={e => e.stopPropagation()}>
           <i className="icon icon-more_horiz Font18 textTertiary Hand" />
         </span>
-      </Trigger>
+      </Dropdown>
     );
   };
 
@@ -258,38 +187,22 @@ function ChatHistoryItem({
         <span className="operateIcon" onClick={() => setMobileMenuVisible(true)}>
           <i className="icon icon-more_horiz Font18 textTertiary Hand" />
         </span>
-        <PopupWrapper
-          visible={mobileMenuVisible}
-          title={item.title}
-          headerType="withIcon"
-          headerTitleAlign="left"
-          onClose={() => setMobileMenuVisible(false)}
-        >
-          <div className="commonButtonBox">
-            {allowShareChat && (
-              <div className="commonButton" onClick={handleShare}>
-                <Icon icon="share" />
-                <div className="buttonText">{_l('对外公开分享')}</div>
-              </div>
-            )}
-            <div className="commonButton" onClick={() => setConfirmVisible(true)}>
-              <Icon className="error" icon="trash" />
-              <div className="buttonText error">{_l('删除')}</div>
-            </div>
-          </div>
-        </PopupWrapper>
-        <MobileConfirmPopup
-          visible={confirmVisible}
-          title={_l('确定删除该对话')}
-          subDesc={_l('删除后，聊天记录将不可恢复')}
-          confirmType="delete"
-          onCancel={() => setConfirmVisible(false)}
-          onConfirm={() => {
-            setMobileMenuVisible(false);
-            setConfirmVisible(false);
-            onDelete();
-          }}
-        />
+        {mobileMenuVisible && (
+          <ActionPopup
+            title={item.title}
+            renamePlaceholder={_l('请输入对话名称')}
+            deleteTitle={_l('确定删除该对话')}
+            deleteDescription={_l('删除后，聊天记录将不可恢复')}
+            manageHistory={false}
+            onRename={onRename}
+            onShare={() => {
+              setMobileMenuVisible(false);
+              onShare();
+            }}
+            onDelete={onDelete}
+            onClose={() => setMobileMenuVisible(false)}
+          />
+        )}
       </Fragment>
     );
   };
@@ -301,7 +214,6 @@ function ChatHistoryItem({
         hasMenu: menuVisible,
       })}
       onClick={onClick}
-      ref={itemRef}
     >
       <div className="name ellipsis t-flex-1">{item.title}</div>
       <div className="updateTime">{window.createTimeSpan(item.updateTime, 5)}</div>
@@ -321,7 +233,6 @@ export default function ChatItemList(props) {
     currentChatId,
     isLand,
     allowShareChat,
-    appId,
     onClick,
     onSelect,
     onDelete,
@@ -330,7 +241,12 @@ export default function ChatItemList(props) {
     onClose,
   } = props;
   return (
-    <Con className={cx('chatItemList', className, { isMobile })} onClick={onClick}>
+    <Con
+      className={cx('chatItemList', className, {
+        isMobile,
+      })}
+      onClick={onClick}
+    >
       {header}
       {showHeader && (
         <div className="header t-flex t-items-center t-space-between">
@@ -344,8 +260,15 @@ export default function ChatItemList(props) {
         {isLoading ? (
           <Skeleton
             active
-            style={{ maxWidth: 800, margin: '0 auto', padding: '0 10px' }}
-            widths={[100, '100%', '100%', '50%']}
+            style={{
+              maxWidth: 800,
+              margin: '0 auto',
+              padding: '0 10px',
+            }}
+            paragraph={{
+              rows: 4,
+              width: [100, '100%', '100%', '50%'],
+            }}
           />
         ) : (
           <Fragment>
@@ -359,7 +282,6 @@ export default function ChatItemList(props) {
                   key={i}
                   item={item}
                   currentChatId={currentChatId}
-                  appId={appId}
                   onClick={() => {
                     onSelect(item);
                   }}

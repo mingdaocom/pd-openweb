@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
-import { Dialog, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Support } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { checkConditionsIsNull } from '../../utils';
 import { TriggerCondition } from '../components';
@@ -95,14 +94,17 @@ export default class Branch extends Component {
   render() {
     const { flowInfo, closeDetail, instanceId } = this.props;
     const { data, controls, name } = this.state;
+    const isReadOnly = !!flowInfo.parentId || !!instanceId;
 
     return (
-      <Dialog
-        className={cx('workflowDialogBox', { workflowDetailRelease: !!flowInfo.parentId || instanceId })}
-        overlayClosable={false}
-        visible
+      <Modal
+        className="workflowDialogBox"
+        mask={{ closable: false }}
+        open
+        footer={isReadOnly ? null : undefined}
+        styles={{ body: { pointerEvents: isReadOnly ? 'none' : undefined } }}
         title={
-          <div className="flexRow" style={{ height: 24 }}>
+          <div className="flexRow alignItemsCenter" style={{ height: 24 }}>
             <span className="ellipsis">{name || _l('分支')}</span>
             <span className="mLeft10">
               <Support
@@ -138,7 +140,7 @@ export default class Branch extends Component {
             {_l('添加筛选条件')}
           </div>
         )}
-      </Dialog>
+      </Modal>
     );
   }
 }

@@ -5,26 +5,20 @@ import { SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { WaterMark } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import customApi from 'statistics/api/custom';
 import DocumentTitle from 'mobile/components/DocumentTitle';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import {
-  CUSTOM_PAGE_IFRAME_ALLOW,
-  getDefaultLayout,
-  getEnumType,
-  isLightColor,
-  reorderComponents,
-  replaceColor,
-  syncThemeConfig,
-} from 'src/pages/customPage/util';
+import { CUSTOM_PAGE_IFRAME_ALLOW, syncThemeConfig } from 'src/pages/customPage/util';
 import { insertPortal } from 'src/pages/customPage/util';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import store from 'src/redux/configureStore';
-import { getTranslateInfo } from 'src/utils/app';
-import { compatibleMDJS } from 'src/utils/project';
+import { transferValue } from 'src/utils/domain/control/value';
+import { getDefaultLayout, getEnumType, reorderComponents, replaceColor } from 'src/utils/domain/customPage/model';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { compatibleMDJS } from 'src/utils/services/project';
 import AppPermissions from '../components/AppPermissions';
 import Back from '../components/Back';
 import LinkageBtn from './LinkageBtn';
@@ -63,11 +57,17 @@ const LayoutContent = styled.div`
     &.haveTitle {
       height: calc(100% - 40px);
     }
-    &.tabs,
     &.subsection {
       overflow: inherit;
+    }
+    &.tabs,
+    &.subsection {
       box-shadow: none;
       background-color: transparent !important;
+    }
+    &.tabs,
+    &.card {
+      overflow: auto;
     }
     &.richText {
       box-shadow: none;
@@ -256,6 +256,7 @@ let CustomPage = class CustomPage extends Component {
     return (
       <div
         style={{
+          minHeight: '100%',
           backgroundColor: pageConfig.pageBgColor,
           '--title-color': bgIsDark ? '#ffffffcc' : '#333',
           '--icon-color': bgIsDark ? '#ffffffcc' : '#9e9e9e',

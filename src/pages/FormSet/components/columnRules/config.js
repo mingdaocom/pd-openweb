@@ -1,9 +1,20 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { ALL_SYS, SYS, SYS_CONTROLS, WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
-import { getIconByType, isCustomWidget, isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import { getUnUniqName } from 'src/utils/core/string';
+import { getDatePickerConfigs } from 'src/utils/domain/control/date';
+import { getIconByType, isCustomWidget } from 'src/utils/domain/control/metadata';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { ALL_SYS, SYS, SYS_CONTROLS } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import {
+  checkConditionAvailable,
+  formatOriginFilterGroupValue,
+  getConditionType,
+  getFilterTypes,
+  getTypeKey,
+} from 'src/utils/domain/worksheet/filterCondition';
 import {
   API_ENUM_TO_TYPE,
   CONTROL_FILTER_WHITELIST,
@@ -12,16 +23,7 @@ import {
   DEFAULT_COLUMNS,
   FILTER_CONDITION_TYPE,
   getControlSelectType,
-} from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import {
-  checkConditionAvailable,
-  formatOriginFilterGroupValue,
-  getConditionType,
-  getFilterTypes,
-  getTypeKey,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
-import { getUnUniqName } from 'src/utils/common';
-import { getSwitchItemNames } from 'src/utils/control';
+} from 'src/utils/domain/worksheet/filterConstants';
 
 //初始规则数据
 export const originRuleItem = {
@@ -542,6 +544,7 @@ export const filterText = (key, filterData, control) => {
           'value',
         ) || ''
       );
+
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
       if (
         filterData.dataType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT ||

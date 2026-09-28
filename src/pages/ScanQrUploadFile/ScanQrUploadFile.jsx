@@ -3,7 +3,7 @@ import { get, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import attachmentAjax from 'src/api/attachment';
-import { UPLOAD_TYPE } from 'worksheet/constants/enum';
+import { UPLOAD_TYPE } from 'src/utils/domain/worksheet/constants';
 import Attachments from './Attachments';
 import Signature from './Signature';
 

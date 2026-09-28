@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import ScrollView from 'ming-ui/components/ScrollView';
 import { AGENT_DIALOG_CLOSE_CLASS, AgentDialogCloseStyle } from '../dialogCloseStyle';
 
@@ -135,12 +136,14 @@ export function ModifyPlanDialog({
   onClose = () => {},
 }) {
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={640}
       title={_l('修改搭建计划')}
-      showFooter={false}
-      className={AGENT_DIALOG_CLOSE_CLASS}
+      footer={null}
+      rootClassName={AGENT_DIALOG_CLOSE_CLASS}
       onCancel={onClose}
     >
       <AgentDialogCloseStyle />
@@ -162,7 +165,7 @@ export function ModifyPlanDialog({
           </div>
         )}
       </Body>
-    </Dialog>
+    </Modal>
   );
 }
 

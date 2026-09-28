@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
-import { NAV_SHOW_TYPE } from '../util';
+import { NAV_SHOW_TYPE } from 'src/utils/domain/worksheet/fastFilter';
 
 // 选项、人员等字段的快速筛选显示项配置。
 export default function NavShowSetting(props) {

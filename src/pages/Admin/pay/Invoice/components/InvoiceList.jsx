@@ -4,18 +4,21 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import appManagementApi from 'src/api/appManagement';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import MaskText from 'src/pages/Admin/components/MaskText';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import { INVOICE_STATUS, INVOICE_STATUS_OPTIONS } from 'src/pages/invoice/constant';
-import { InvoiceConfirmDialog } from 'src/pages/invoice/InvoiceConfirm';
-import { formatNumberThousand } from 'src/utils/control';
+import { useInvoiceConfirmDialog } from 'src/pages/invoice/InvoiceConfirm';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
 import { INVOICE_TYPE, REVERSAL_REASON, STATISTIC } from '../config';
 import InvoiceDetail from './InvoiceDetail';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const Wrapper = styled.div`
   .statisticWrap {
@@ -183,7 +186,6 @@ const InvoiceList = forwardRef((props, ref) => {
         type: 'selectTime',
         label: _l('申请时间'),
         placeholder: _l('选择日期范围'),
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       { key: 'orderId', type: 'input', label: _l('订单编号'), placeholder: _l('输入订单编号'), value: orderId },
@@ -429,8 +431,7 @@ const InvoiceList = forwardRef((props, ref) => {
       title: _l('操作'),
       dataIndex: 'action',
       fixed: 'right',
-      width: 'auto',
-      minWidth: 108,
+      width: 128,
       render: (value, record) => {
         return (
           <div className="flexRow alignItemsCenter">
@@ -461,7 +462,7 @@ const InvoiceList = forwardRef((props, ref) => {
                   <span
                     className="colorPrimary Hand Hover_51 mLeft24"
                     onClick={() => {
-                      InvoiceConfirmDialog({
+                      props.openInvoiceConfirmDialog({
                         isLandPage: false,
                         orderId: record.orderId,
                         projectId,
@@ -525,32 +526,35 @@ const InvoiceList = forwardRef((props, ref) => {
       )}
 
       {reversalOrderId && (
-        <Dialog
-          visible={true}
+        <Modal
+          open
+          mask={{ closable: true }}
+          keyboard
           title={<span className="textError">{_l('确定冲红')}</span>}
-          buttonType="danger"
+          okButtonProps={{ danger: true }}
           onCancel={() => {
             setReversalOrderId('');
             setReversalReason(1);
           }}
-          okDisabled={reversalLoading}
+          confirmLoading={reversalLoading}
           onOk={onReversalInvoice}
         >
           <div>
             <div className="Font14 mBottom8">{_l('冲红原因')}</div>
-            <Dropdown
-              border
-              isAppendToBody
+            <Select
               className="w100"
-              data={REVERSAL_REASON}
+              options={REVERSAL_REASON}
+              fieldNames={SELECT_FIELD_NAMES}
               value={reversalReason}
-              onChange={value => setReversalReason(value)}
+              onChange={setReversalReason}
             />
           </div>
-        </Dialog>
+        </Modal>
       )}
     </Wrapper>
   );
 });
 
-export default InvoiceList;
+export default withOpeners(InvoiceList, {
+  openInvoiceConfirmDialog: useInvoiceConfirmDialog,
+});

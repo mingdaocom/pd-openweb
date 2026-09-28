@@ -1,22 +1,45 @@
-import Remarkable from 'remarkable';
-import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
-import xss from 'xss';
+import Remarkable, { escapeHtml, replaceEntities } from 'ming-ui/components/Remarkable';
+import { sanitizeMarkdownPreviewHtml, sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+
+const filerXss = sanitizePostMessageHtml;
 
 function warpCode(content) {
   return filerXss(`<pre class="mdcode"><code class="language-">${content}</code></pre>`);
 }
 
-function filerXss(str) {
-  return xss(str, {
-    whiteList: Object.assign({}, xss.whiteList, {
-      span: ['class'],
-      div: ['class'],
-      code: ['class'],
-      pre: ['class'],
-    }),
+function enableTaskLists(md) {
+  md.core.ruler.after('inline', 'task-lists', state => {
+    const tokens = state.tokens;
+
+    for (let index = 2; index < tokens.length; index++) {
+      const inlineToken = tokens[index];
+
+      if (
+        inlineToken.type !== 'inline' ||
+        tokens[index - 1].type !== 'paragraph_open' ||
+        tokens[index - 2].type !== 'list_item_open'
+      ) {
+        continue;
+      }
+
+      const firstChild = inlineToken.children && inlineToken.children[0];
+      if (!firstChild || firstChild.type !== 'text') continue;
+
+      const matched = /^\[([ xX])\]\s+/.exec(firstChild.content);
+      if (!matched) continue;
+
+      firstChild.content = firstChild.content.slice(matched[0].length);
+      const checked = matched[1] !== ' ';
+
+      inlineToken.children.unshift({
+        type: 'htmltag',
+        content: `<input class="task-list-checkbox" type="checkbox" disabled${checked ? ' checked' : ''}>`,
+        level: firstChild.level,
+      });
+    }
   });
 }
 
@@ -40,6 +63,8 @@ export function renderMarkdown(src, cb = () => {}) {
           },
         });
 
+        enableTaskLists(md);
+
         // mermaid 围栏：不做代码高亮，输出占位 div（内含原始源码），由预览层注入 DOM 后异步渲染成图
         const defaultFence = md.renderer.rules.fence;
 
@@ -55,10 +80,12 @@ export function renderMarkdown(src, cb = () => {}) {
 
         md.renderer.rules.link_open = function (tokens, idx /* , options, env */) {
           const title = tokens[idx].title ? ' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"' : '';
-          return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
+          return (
+            '<a target="_blank" rel="noopener noreferrer" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>'
+          );
         };
 
-        cb(null, `<div class="markdown-body">${filerXss(md.render(text))}</div>`);
+        cb(null, `<div class="markdown-body">${sanitizeMarkdownPreviewHtml(md.render(text))}</div>`);
       } else {
         cb(null, filerXss(text));
       }

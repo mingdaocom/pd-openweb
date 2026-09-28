@@ -1,6 +1,7 @@
 import React, { Fragment, useLayoutEffect } from 'react';
 import _ from 'lodash';
-import { browserIsMobile } from 'src/utils/common';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import StepItem from './components/StepItem';
 
 export default ({
@@ -16,6 +17,8 @@ export default ({
   projectId,
   controls,
 }) => {
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
+
   useLayoutEffect(() => {
     if (currentWork && !browserIsMobile()) {
       const $el = $(`#workflowStep_${currentWork.workId}`);
@@ -26,12 +29,14 @@ export default ({
 
   return (
     <Fragment>
+      {previewAttachmentsHolder}
       {works.map((item, index) => (
         <StepItem
           key={index}
           appId={appId}
           projectId={projectId}
           controls={controls}
+          openPreviewAttachments={openPreviewAttachments}
           isLast={index === works.length - 1}
           data={item}
           currentWork={currentWork}

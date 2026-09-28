@@ -1,7 +1,7 @@
 ﻿import React, { Fragment } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
+import { Dropdown } from 'ming-ui/antd-components';
 import Config from '../../../../config';
 import DatePickerFilter from './datePickerFilter';
 import StatTable from './StatTable';
@@ -61,12 +61,12 @@ export default class Stat extends React.Component {
   renderTimePicker() {
     const { datePickerVisible, startDate, endDate } = this.state;
     return (
-      <Trigger
-        popupVisible={datePickerVisible}
-        onPopupVisibleChange={visible => this.setState({ datePickerVisible: visible })}
-        action={['click']}
-        popupAlign={{ points: ['tl', 'bl'] }}
-        popup={
+      <Dropdown
+        destroyOnHidden
+        open={datePickerVisible}
+        onOpenChange={visible => this.setState({ datePickerVisible: visible })}
+        placement="bottomRight"
+        popupRender={() => (
           <DatePickerFilter
             updateData={data => {
               this.setState({
@@ -76,10 +76,11 @@ export default class Stat extends React.Component {
               });
             }}
           />
-        }
+        )}
+        trigger={['click']}
       >
         <div className="selectDateInput">{startDate && endDate ? _l('%0 至 %1', startDate, endDate) : ''}</div>
-      </Trigger>
+      </Dropdown>
     );
   }
 

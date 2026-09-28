@@ -1,7 +1,9 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
+import { replaceColor } from 'src/utils/domain/customPage/model';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
 import { WidgetContent } from '../components';
-import { getComponentTitleText, getIconByType, isLightColor, replaceColor } from '../util';
+import { getComponentTitleText, getIconByType } from '../util';
 
 const MobileList = styled.div`
   box-sizing: border-box;

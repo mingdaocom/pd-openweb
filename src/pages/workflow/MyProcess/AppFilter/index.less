@@ -1,55 +1,11 @@
-.appFilterWrapper {
-  width: 248px;
+.appFilterIcon {
+  width: 23px;
+  height: 23px;
+  margin-right: 10px;
   border-radius: 4px;
-  background-color: var(--color-background-card);
-  max-height: 430px;
-  overflow-y: auto;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 
-  .appListWrapper {
-    border-bottom: 1px solid var(--color-border-primary);
-    padding-bottom: 10px;
-    .projectName {
-      padding: 15px 15px 0;
-    }
-  }
-  .appWrapper {
-    padding: 10px 15px;
-    cursor: pointer;
-    &:hover {
-      background-color: var(--color-background-hover);
-    }
-    &.active {
-      background-color: var(--color-primary-focus) 1a;
-    }
-  }
-  .searchWrapper {
-    margin: 10px 10px 0;
-    padding: 7px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 4px;
-    input {
-      border: 0;
-      padding: 0 0 0 5px;
-    }
-  }
-  .iconWrqaper {
-    color: var(--color-white);
-    width: 23px;
-    height: 23px;
-    margin-right: 10px;
-    border-radius: 4px;
-    justify-content: center;
-    > div {
-      line-height: normal;
-    }
-  }
-}
-
-.selectProcessTypeWrapper {
-  .ant-select-selector .icon {
-    display: none;
+  > div {
+    line-height: normal;
   }
 }

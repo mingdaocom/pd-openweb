@@ -3,12 +3,12 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Radio, Switch } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Input, Modal, Radio, Switch } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { hrefReg } from 'src/pages/customPage/components/previewContent/index.jsx';
-import { pathCompletion } from 'src/utils/common';
-import { WrapFooter } from '../apiIntegration/style';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import APITable from './APITable';
 
 // 表单字段配置
@@ -25,6 +25,7 @@ const FORM_FIELDS = [
 const CONNECT_NAME_MAX_LENGTH = 50;
 const CONNECT_EXPLAIN_MAX_LENGTH = 1000;
 const PUBLISH_FIELD_MAX_LENGTH = 200;
+const PUBLISH_MODAL_STYLES = { body: { overflowY: 'auto' } };
 
 // 默认表单数据
 const getDefaultInfo = () => ({
@@ -58,10 +59,7 @@ const Wrap = styled.div`
     width: 100%;
     height: 36px;
     line-height: 36px;
-    padding: 0 12px;
     background: var(--color-background-primary);
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
   }
   .warnCon {
     padding: 5px 10px;
@@ -188,7 +186,17 @@ function PublishDialog(props) {
 
   const renderFormField = field => {
     if (field.key === 'allowEdit') {
-      return <Switch checked={!!info[field.key]} onClick={() => updateInfo({ [field.key]: !info[field.key] })} />;
+      return (
+        <Switch
+          checked={!!info[field.key]}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return updateInfo({
+              [field.key]: !info[field.key],
+            });
+          }}
+        />
+      );
     }
 
     if (field.key === 'identity') {
@@ -199,18 +207,33 @@ function PublishDialog(props) {
         <div>
           <div className="mTop12">
             <Radio
-              text={_l('以企业组织身份')}
               checked={!!info.companyId}
               disabled={!hasManageAuth}
-              onClick={() => hasManageAuth && updateInfo({ companyId: currentProjectId, accountId: '' })}
-            />
+              onChange={() =>
+                hasManageAuth &&
+                updateInfo({
+                  companyId: currentProjectId,
+                  accountId: '',
+                })
+              }
+              title={_l('以企业组织身份')}
+            >
+              {_l('以企业组织身份')}
+            </Radio>
             <Radio
-              text={_l('以个人身份')}
               checked={!!info.accountId}
-              onClick={() => updateInfo({ accountId: md.global.Account.accountId, companyId: '' })}
-            />
+              onChange={() =>
+                updateInfo({
+                  accountId: md.global.Account.accountId,
+                  companyId: '',
+                })
+              }
+              title={_l('以个人身份')}
+            >
+              {_l('以个人身份')}
+            </Radio>
           </div>
-          <input type="text" className="mTop20" value={displayName} readOnly placeholder={_l('请输入')} />
+          <Input className="mTop20" value={displayName} readOnly placeholder={_l('请输入')} />
         </div>
       );
     }
@@ -224,8 +247,7 @@ function PublishDialog(props) {
             ? CONNECT_EXPLAIN_MAX_LENGTH
             : PUBLISH_FIELD_MAX_LENGTH;
     return (
-      <input
-        type="text"
+      <Input
         value={info[field.key] || ''}
         placeholder={_l('请输入')}
         maxLength={maxLength}
@@ -241,29 +263,18 @@ function PublishDialog(props) {
     status === 2 ? _l('已申请，请等待审核') : status === 3 || status ? _l('申请上架新版本') : _l('申请上架');
 
   return (
-    <Dialog
-      width="660"
-      oneScreen
-      oneScreenGap={240}
-      visible
+    <Modal
+      width={660}
+      open
+      type="fixed"
+      mask={{ closable: true }}
+      keyboard
+      styles={PUBLISH_MODAL_STYLES}
       title={<span className="Font17 Bold">{_l('申请上架到API 库')}</span>}
-      footer={
-        <WrapFooter className="flexRow textSecondary TxtLeft mTop24">
-          <span className="flex">{_l('共 %0 个API，已选择 %1 个', list.length, selectedList.length)}</span>
-          <span className="cancel Hand Font14" onClick={onCancel}>
-            {_l('取消')}
-          </span>
-          <div
-            className={cx('btn Bold Font14', { disable: status === 2 || !canSubmit() })}
-            onClick={e => {
-              e.stopPropagation();
-              handleSubmit();
-            }}
-          >
-            {submitBtnText}
-          </div>
-        </WrapFooter>
-      }
+      footerLeftElement={_l('共 %0 个API，已选择 %1 个', list.length, selectedList.length)}
+      okText={submitBtnText}
+      okDisabled={status === 2 || !canSubmit()}
+      onOk={handleSubmit}
       onCancel={onCancel}
     >
       {isLoading ? (
@@ -317,8 +328,10 @@ function PublishDialog(props) {
           </div>
         </Wrap>
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(PublishDialog, { ...props });
+export function usePublishDialog() {
+  return useFunctionWrapComponent(PublishDialog);
+}

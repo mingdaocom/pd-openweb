@@ -3,12 +3,15 @@ import qs from 'query-string';
 import attachmentAjax from 'src/api/attachment';
 import kcAjax from 'src/api/kc';
 import worksheetAjax from 'src/api/worksheet';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { emitter, pathCompletion } from 'src/utils/common';
-import { checkCellIsEmpty, updateOptionsOfControls } from 'src/utils/control';
-import { handleRecordError } from 'src/utils/record';
+import { updateOptionsOfControls } from 'src/utils/domain/control/options';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { FORM_HIDDEN_CONTROL_IDS } from 'src/utils/domain/control/widget';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { handleRecordError } from 'src/utils/services/worksheet/record';
 import { updateRecord } from '../common/recordInfo/crtl';
 
 export async function downloadAttachmentById({
@@ -52,7 +55,7 @@ export async function downloadAttachmentById({
     window.open(`${data.downloadUrl}&${logExtend}`);
   } catch (err) {
     console.error(err);
-    alert(_l('下载附件失败'), 3);
+    alertIfNotUnauthorized(err, _l('下载附件失败'), 3);
   }
 }
 
@@ -345,7 +348,7 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
     })
     .catch(err => {
       console.log(err);
-      alert(_l('复制失败！'), 3);
+      alertIfNotUnauthorized(err, _l('复制失败！'), 3);
     });
 }
 
@@ -408,13 +411,15 @@ export async function openControlAttachmentInNewTab({
   }
 }
 
-export function updateRelateRecordSorts({ appId, viewId, worksheetId, recordId, changes = [] }) {
+export function updateRelateRecordSorts({ appId, viewId, worksheetId, recordId, isDraft, changes = [] }) {
   updateRecord(
     {
       appId,
       viewId,
       worksheetId,
       recordId,
+      // 草稿记录不在正式表中，更新排序需要带上 rowStatus 21，否则接口找不到记录
+      isDraft,
       updateControlIds: changes.map(c => c.controlId),
       data: changes,
     },

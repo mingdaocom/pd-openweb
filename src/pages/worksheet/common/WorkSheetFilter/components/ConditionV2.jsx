@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _, { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Select, Tooltip } from 'ming-ui/antd-components';
 import { VerticalMiddle } from 'worksheet/components/Basics';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { isCustomOptions } from 'src/utils/domain/control/dynamicValue';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getConditionOverrideValue, getFilterTypes } from 'src/utils/domain/worksheet/filterCondition';
 import {
   API_ENUM_TO_TYPE,
   CONDITION_OPTIONS,
@@ -16,8 +16,7 @@ import {
   FILTER_CONDITION_TYPE,
   getControlSelectType,
   valueTypeOptions,
-} from '../enum';
-import { getConditionOverrideValue, getFilterTypes } from '../util';
+} from 'src/utils/domain/worksheet/filterConstants';
 import renderConditionValue from './contents';
 
 // 为空 不为空  在范围内 不在范围内
@@ -33,35 +32,35 @@ const listType = [
 ];
 // 附件 检查框 地区 地区 地区
 const listControlType = [API_ENUM_TO_TYPE.ATTACHMENT, API_ENUM_TO_TYPE.SWITCH, API_ENUM_TO_TYPE.LOCATION];
+const HIDDEN_OPTION_STYLE = { display: 'none' };
 
-const ParamsDropdown = styled(Dropdown)`
+const ParamsSelect = styled(Select)`
   flex: 1;
+  min-width: 0;
   max-width: calc(100% - 132px) !important;
   margin-bottom: 5px;
-
-  .Dropdown--input {
-    min-height: 36px;
-    height: auto !important;
-  }
 
   .titleDisplay {
     line-height: 22px;
     padding: 0 12px;
     border-radius: 16px;
     color: var(--color-link);
-    background: #d8eeff;
+    background: var(--color-primary-transparent);
     border: 1px solid var(--color-primary-transparent);
     font-size: 12px;
     white-space: normal;
   }
-  &.isDelete {
-    color: var(--color-error);
-    background: rgba(244, 67, 54, 0.06);
-    .Dropdown--input {
-      border-color: var(--color-error) !important;
-    }
-  }
 `;
+
+const getSelectOptions = (options, hiddenValues = []) =>
+  options.map(({ text, ...option }) => ({
+    ...option,
+    label: text,
+    style: _.includes(hiddenValues, option.value) ? HIDDEN_OPTION_STYLE : option.style,
+  }));
+
+const VALUE_TYPE_SELECT_OPTIONS = getSelectOptions(valueTypeOptions);
+
 export default class Condition extends Component {
   static propTypes = {
     isRules: PropTypes.bool,
@@ -196,16 +195,17 @@ export default class Condition extends Component {
     const showUrlParams =
       (!!urlParams.length || !!dynamicSource.filter(item => item.rcid === 'url').length) &&
       _.includes(showParamsTypes, condition.controlType);
+    const currentParam = (dynamicSource[0] || {}).cid;
+    const isParamDeleted = !!currentParam && !_.includes(urlParams, currentParam);
 
     return (
       <div className="flexRow flex">
         {showUrlParams && (
-          <Dropdown
-            border
-            isAppendToBody
+          <Select
             className="Width120 mRight12"
-            data={valueTypeOptions}
             value={this.state.valueType}
+            options={VALUE_TYPE_SELECT_OPTIONS}
+            showSearch={false}
             onChange={value => {
               this.setState({ valueType: value, isDynamicsource: value !== 1 });
               if (value === 1) {
@@ -254,29 +254,19 @@ export default class Condition extends Component {
             })}
           </div>
         ) : (
-          <ParamsDropdown
-            border
-            isAppendToBody
-            className={cx({
-              isDelete: !!(dynamicSource[0] || {}).cid && !_.includes(urlParams, (dynamicSource[0] || {}).cid),
-            })}
-            data={urlParams.map(item => {
-              return { text: item, value: item };
-            })}
-            renderTitle={() => {
-              const params = (dynamicSource[0] || {}).cid;
-              const isDelete = !!params && !_.includes(urlParams, params);
-              return !isDelete ? (
-                params ? (
-                  <div className="titleDisplay">{params}</div>
-                ) : (
-                  <span className="textDisabled">{_l('请选择')}</span>
-                )
+          <ParamsSelect
+            status={isParamDeleted ? 'error' : undefined}
+            value={currentParam || undefined}
+            options={urlParams.map(item => ({ label: item, value: item }))}
+            placeholder={_l('请选择')}
+            showSearch={false}
+            labelRender={({ label }) =>
+              isParamDeleted ? (
+                <span className="errorName">{_l('该参数已删除')}</span>
               ) : (
-                <span>{_l('该参数已删除')}</span>
-              );
-            }}
-            value={(dynamicSource[0] || {}).cid || ''}
+                <div className="titleDisplay">{label}</div>
+              )
+            }
             onChange={value => {
               const dateRangeSetObj =
                 conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value ? { dateRange: 0 } : {};
@@ -377,10 +367,9 @@ export default class Condition extends Component {
               </span>
               {conditionGroupType !== CONTROL_FILTER_WHITELIST.BOOL.value && (
                 <span className="relation">
-                  <Dropdown
-                    dropIcon="task_custom_btn_unfold"
+                  <Select
                     key={`${control.controlId}-${condition.type}`}
-                    defaultValue={
+                    value={
                       getControlSelectType(control).isMultiple && condition.type === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE
                         ? control.type === 29
                           ? FILTER_CONDITION_TYPE.RCEQ
@@ -388,10 +377,12 @@ export default class Condition extends Component {
                         : condition.type || conditionFilterTypes[0].value
                     }
                     disabled={!canEdit}
-                    data={conditionFilterTypes}
-                    isAppendToBody
-                    hiddenValue={hiddenValue}
-                    menuStyle={{ width: 'auto', minWidth: '100px' }}
+                    options={getSelectOptions(conditionFilterTypes, hiddenValue)}
+                    popupMatchSelectWidth={false}
+                    showSearch={false}
+                    size="small"
+                    variant="borderless"
+                    suffixIcon={<Icon icon="task_custom_btn_unfold" className="Font14" />}
                     onChange={this.changeConditionType}
                   />
                 </span>
@@ -408,7 +399,7 @@ export default class Condition extends Component {
           ) : (
             <div className="deletedColumn mTop6">
               <Tooltip
-                overlayInnerStyle={{ padding: '8px 10px' }}
+                styles={{ body: { padding: '8px 10px' } }}
                 title={_l('ID: %0', condition.controlId)}
                 placement="bottom"
               >
@@ -431,7 +422,6 @@ export default class Condition extends Component {
             <Select
               className="dynamicSource"
               disabled={!isDynamicValue}
-              dropdownClassName="dynamicSelectDropdown"
               value={this.state.isDynamicsource ? 2 : 1}
               options={isDynamicValue ? CONDITION_OPTIONS : CONDITION_OPTIONS.filter(o => o.value === 1)}
               suffixIcon={<Icon icon="arrow-down-border Font14" />}

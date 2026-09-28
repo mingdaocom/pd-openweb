@@ -8,8 +8,8 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { updateComponents, updatePageInfo } from 'src/pages/customPage/redux/action';
-import { getEnumType, getLayout } from 'src/pages/customPage/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { getEnumType, getLayout, getMaxLayoutHeight } from 'src/utils/domain/customPage/model';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LAYOUT_CONFIG, LayoutContent } from '../../WidgetContent';
 import WidgetTools from '../../WidgetContent/WidgetTools';
 
@@ -136,6 +136,9 @@ const ContentWrap = styled.div`
     &.richText > .flex {
       height: 100%;
     }
+    &.view {
+      overflow: hidden;
+    }
     &.solidBorder {
       border: 1px solid var(--bg-color, var(--color-border-secondary));
     }
@@ -230,9 +233,10 @@ export const Tabs = props => {
     const data = { ...config, width: width || (wrap ? wrap.clientWidth : undefined) };
 
     if (adjustScreen) {
-      const maxH = _.max(tabComponents.map(item => _.get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
+      const maxH = getMaxLayoutHeight(tabComponents);
+      if (!wrap || !maxH) return data;
 
-      return { ...data, rowHeight: wrap ? (wrap.offsetHeight - 20) / maxH - 10 : undefined };
+      return { ...data, rowHeight: (wrap.offsetHeight - 20) / maxH - 10 };
     }
 
     return data;
@@ -380,7 +384,7 @@ export const Tabs = props => {
             layout={layout}
             isDraggable={editable}
             isResizable={editable}
-            draggableCancel=".childrenDisableDrag,.chartWrapper .drag,.mui-dialog-container"
+            draggableCancel=".childrenDisableDrag,.chartWrapper .drag,.hap-modal-wrap"
             onResizeStart={() => {
               elementRef.current.classList.add('cardNoSelect');
             }}

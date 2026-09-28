@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Dialog, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { SettingItem } from '../../../styled';
 
 const TimeFormatConfigWrap = styled.div`
@@ -17,10 +17,6 @@ const TimeFormatConfigWrap = styled.div`
       color: var(--color-error);
     }
   }
-  .footerBtn {
-    text-align: right;
-    margin-top: 32px;
-  }
 `;
 
 export default function TimeFormatConfig({ rule, onOk, onClose }) {
@@ -33,7 +29,19 @@ export default function TimeFormatConfig({ rule, onOk, onClose }) {
   };
 
   return (
-    <Dialog style={{ width: '480px' }} visible title={_l('自定义日期格式')} footer={null} onCancel={onClose}>
+    <Modal
+      width={480}
+      open
+      title={_l('自定义日期格式')}
+      okDisabled={!data.trim()}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onClose}
+      onOk={() => {
+        onOk(data);
+        onClose();
+      }}
+    >
       <TimeFormatConfigWrap>
         <div className="intro">
           {_l('在下方输入自定义格式，将日期按需要的方式显示')}
@@ -43,22 +51,7 @@ export default function TimeFormatConfig({ rule, onOk, onClose }) {
           <Input value={data} onChange={handleChange} />
           <div className={cx('hint')}>{_l('预览:  %0', moment().format(data))}</div>
         </SettingItem>
-        <div className="footerBtn">
-          <Button type="link" onClick={onClose}>
-            {_l('取消')}
-          </Button>
-          <Button
-            disabled={!data.trim()}
-            type="primary"
-            onClick={() => {
-              onOk(data);
-              onClose();
-            }}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
       </TimeFormatConfigWrap>
-    </Dialog>
+    </Modal>
   );
 }

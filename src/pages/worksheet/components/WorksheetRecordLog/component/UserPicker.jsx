@@ -1,43 +1,35 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Avatar, Checkbox, Icon } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Avatar, Icon } from 'ming-ui';
+import { Checkbox, Dropdown } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import { isUser } from '../util';
 
-const UserPickerWrapper = styled.div`
-  width: 220px;
-  padding: 16px 0;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  .divider {
-    height: 1px;
-    background: var(--color-border-primary);
-    margin: 12px 0;
-  }
-  .userItem {
+const USER_PICKER_MENU_STYLE = {
+  width: 220,
+  padding: '12px 0',
+};
+
+const USER_PICKER_ITEM_STYLE = {
+  height: 40,
+};
+
+const UserItemLabel = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  .userIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 0 20px;
-    height: 40px;
-    cursor: pointer;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-    .userIcon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: var(--color-text-disabled);
-      color: var(--color-white);
-    }
+    background: var(--color-text-disabled);
+    color: var(--color-white);
   }
 `;
 
@@ -51,9 +43,9 @@ const SYSTEM_FIELDS = [
 
 export default function UserPicker(props) {
   const { projectId, appId, selectUsers = [], changeSelect, showRequestTypeFilter = true } = props;
-  const selectUserRef = useRef();
 
   const [visible, setVisible] = useState(false);
+  const [userSelectVisible, setUserSelectVisible] = useState(false);
   const isPortal = _.get(md, 'global.Account.isPortal');
 
   const selectUserCallback = users => {
@@ -66,92 +58,98 @@ export default function UserPicker(props) {
     changeSelect(undefined, param, { opeartorIds: users.map(item => item.accountId) });
   };
 
-  const pickUser = () => {
-    const filterIds = ['user-sub', 'user-undefined'];
-    quickSelectUser(selectUserRef.current, {
-      isHidAddUser: isPortal,
-      hidePortalCurrentUser: true,
-      selectRangeOptions: false,
-      includeSystemField: false,
-      rect: selectUserRef.current.getBoundingClientRect(),
-
-      tabType: isPortal ? 2 : 3,
-      appId,
-      showMoreInvite: false,
-      isTask: false,
-      filterAccountIds: filterIds,
-      selectedAccountIds: selectUsers.map(item => item.accountId),
-      offset: {
-        top: 2,
-      },
-      zIndex: 10001,
-      SelectUserSettings: {
-        unique: true,
-        projectId,
-        filterAccountIds: filterIds,
-        selectedAccountIds: selectUsers.map(item => item.accountId),
-        callback: selectUserCallback,
-      },
-      selectCb: selectUserCallback,
-    });
-  };
-
   const clearSelectUser = e => changeSelect(e, { selectUsers: undefined }, { opeartorIds: undefined, requestType: 0 });
 
-  const renderPopup = () => {
-    return (
-      <UserPickerWrapper>
-        {showRequestTypeFilter && (
-          <React.Fragment>
-            <div className="bold pLeft20 pRight20 mBottom8">{_l('类型')}</div>
-            {SYSTEM_FIELDS.map(item => {
-              const checked = selectUsers.map(user => user.accountId).includes(item.accountId);
+  const systemIds = SYSTEM_FIELDS.map(item => item.accountId);
+  const selectedAccountIds = selectUsers.map(item => item.accountId);
+  const menuItems = [
+    ...(showRequestTypeFilter
+      ? [
+          {
+            key: 'request-type',
+            type: 'group',
+            label: <span className="bold textPrimary">{_l('类型')}</span>,
+            children: SYSTEM_FIELDS.map(item => {
+              const checked = selectedAccountIds.includes(item.accountId);
 
-              return (
-                <div
-                  className="userItem"
-                  key={`UserPicker-Item-${item.accountId}`}
-                  onClick={() => {
-                    const systemIds = SYSTEM_FIELDS.map(sys => sys.accountId);
-                    const users = selectUsers.filter(user => !!systemIds.includes(user.accountId));
-                    selectUserCallback(
-                      checked ? users.filter(user => user.accountId !== item.accountId) : users.concat(item),
-                    );
-                  }}
-                >
-                  <Checkbox text={item.fullname} checked={checked} />
-                </div>
-              );
-            })}
-            <div className="divider" />
-          </React.Fragment>
-        )}
-        <div
-          className="userItem"
-          onClick={() => selectUserCallback([{ accountId: 'user-self', fullname: _l('我自己') }])}
-        >
+              return {
+                key: item.accountId,
+                label: <Checkbox checked={checked}>{item.fullname}</Checkbox>,
+                style: USER_PICKER_ITEM_STYLE,
+                onClick: () => {
+                  const users = selectUsers.filter(user => systemIds.includes(user.accountId));
+                  selectUserCallback(
+                    checked ? users.filter(user => user.accountId !== item.accountId) : users.concat(item),
+                  );
+                },
+              };
+            }),
+          },
+          { key: 'request-type-divider', type: 'divider' },
+        ]
+      : []),
+    {
+      key: 'user-self',
+      label: (
+        <UserItemLabel>
           <Avatar src={_.get(md, 'global.Account.avatar')} size={28} />
           <span className="mLeft12">{_l('我自己')}</span>
-        </div>
-        <div className="userItem" onClick={pickUser}>
-          <div className="userIcon">
-            <Icon icon="person" className="Font16" />
-          </div>
-          <span className="mLeft12">{_l('指定用户')}</span>
-        </div>
-      </UserPickerWrapper>
-    );
-  };
+        </UserItemLabel>
+      ),
+      style: USER_PICKER_ITEM_STYLE,
+      onClick: () => selectUserCallback([{ accountId: 'user-self', fullname: _l('我自己') }]),
+    },
+    {
+      key: 'specified-user',
+      label: (
+        <UserSelectPopover
+          open={userSelectVisible}
+          onOpenChange={setUserSelectVisible}
+          isHidAddUser={isPortal}
+          hidePortalCurrentUser
+          selectRangeOptions={false}
+          includeSystemField={false}
+          tabType={isPortal ? 2 : 3}
+          appId={appId}
+          showMoreInvite={false}
+          filterAccountIds={['user-sub', 'user-undefined']}
+          selectedAccountIds={selectedAccountIds}
+          offset={{ top: 2, left: 0 }}
+          SelectUserSettings={{
+            unique: true,
+            projectId,
+            filterAccountIds: ['user-sub', 'user-undefined'],
+            selectedAccountIds,
+            callback: selectUserCallback,
+          }}
+          onSelect={selectUserCallback}
+        >
+          <UserItemLabel>
+            <div className="userIcon">
+              <Icon icon="person" className="Font16" />
+            </div>
+            <span className="mLeft12">{_l('指定用户')}</span>
+          </UserItemLabel>
+        </UserSelectPopover>
+      ),
+      style: USER_PICKER_ITEM_STYLE,
+    },
+  ];
 
   return (
-    <Trigger
-      popupVisible={visible}
-      onPopupVisibleChange={value => setVisible(value)}
-      action={['click']}
-      popupAlign={{ points: ['tl', 'bl'], offset: [0, 5] }}
-      popup={renderPopup()}
+    <Dropdown
+      open={visible}
+      onOpenChange={(value, info) => {
+        if (_.get(info, 'source') === 'menu') return;
+
+        setVisible(value);
+      }}
+      trigger={['click']}
+      placement="bottomLeft"
+      align={{ offset: [0, 5] }}
+      menu={{ items: menuItems, style: USER_PICKER_MENU_STYLE }}
     >
-      <span className={cx({ selectLight: !!selectUsers.length }, 'selectUser')} ref={selectUserRef}>
+      <span className={cx({ selectLight: !!selectUsers.length }, 'selectUser')}>
         <Icon icon="person" />
         <span className="selectConText breakAll">
           {selectUsers.length > 1
@@ -163,6 +161,6 @@ export default function UserPicker(props) {
         <Icon icon="arrow-down" style={selectUsers.length ? {} : { display: 'inline-block' }} />
         {!!selectUsers.length && <Icon onClick={clearSelectUser} icon="cancel" />}
       </span>
-    </Trigger>
+    </Dropdown>
   );
 }

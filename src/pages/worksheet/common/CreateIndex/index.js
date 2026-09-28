@@ -1,14 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import DrawerFooter from 'src/pages/FormSet/components/DrawerFooter';
 import './index.less';
-
-const { Option } = Select;
 
 const RULES = {
   0: [
@@ -378,14 +375,11 @@ export default class CreateIndex extends Component {
                       value={item.fieldId}
                       onChange={value => this.changeIndexField(value, index)}
                       showSearch={true}
-                      filterOption={(val, option) => option.children.toLowerCase().includes(val.toLowerCase())}
-                    >
-                      {(item.selectFiledsList || []).concat(USERS_INDEX).map(f => (
-                        <Option value={f.id} key={f.id}>
-                          {f.name}
-                        </Option>
-                      ))}
-                    </Select>
+                      filterOption={(val, option) => String(option.label).toLowerCase().includes(val.toLowerCase())}
+                      options={(item.selectFiledsList || [])
+                        .concat(USERS_INDEX)
+                        .map(f => ({ value: f.id, label: f.name }))}
+                    />
                   )}
                   <Select
                     className="col2"
@@ -398,17 +392,12 @@ export default class CreateIndex extends Component {
                           ? item.indexType
                           : ''
                     }
-                  >
-                    {(RULES[item.type || 0] || []).map((v, i) => (
-                      <Option
-                        key={`${index}-${i}`}
-                        value={v.value}
-                        disabled={(wildcardIndex || uniqueIndex) && v.value === 'text'}
-                      >
-                        {v.txt}
-                      </Option>
-                    ))}
-                  </Select>
+                    options={(RULES[item.type || 0] || []).map(v => ({
+                      value: v.value,
+                      label: v.txt,
+                      disabled: (wildcardIndex || uniqueIndex) && v.value === 'text',
+                    }))}
+                  />
                   <Icon
                     icon="remove_circle_outline"
                     className={cx('Font16 remove Hand textTertiary', {
@@ -430,7 +419,7 @@ export default class CreateIndex extends Component {
           <div className="minBold sunTitle">{_l('索引类型')}</div>
           <div className="flexRow">
             <Checkbox
-              onClick={this.changeIndexOnly}
+              onChange={event => this.changeIndexOnly(!event.target.checked, undefined, event)}
               checked={uniqueIndex}
               disabled={selectedIndexList.some(item => item.indexType == 'text')}
             >

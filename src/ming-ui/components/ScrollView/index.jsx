@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import PropTypes from 'prop-types';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import instancePlugin from './plugins';
 import 'overlayscrollbars/styles/overlayscrollbars.css';
 import './index.less';

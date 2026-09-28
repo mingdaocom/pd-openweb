@@ -3,8 +3,9 @@ import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import sheetApi from 'src/api/worksheet';
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getRequest, pathCompletion } from 'src/utils/common';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
 import './index.less';
 

@@ -23,15 +23,6 @@
   }
 }
 
-.dialogAddFriendsBox {
-  min-height: 578px !important;
-  max-height: unset !important;
-  .mui-dialog-body {
-    overflow: initial !important;
-    padding: 0 24px 16px !important;
-  }
-}
-
 .dialogAddFriendsContainer {
   display: flex;
   flex-direction: column;
@@ -190,36 +181,6 @@
         flex: 1;
         min-width: 0;
         position: relative;
-        input {
-          height: 100%;
-          padding: 0 35px;
-          border: 1px solid var(--color-background-secondary);
-          width: 100%;
-          background-color: var(--color-background-secondary);
-        }
-        .searchIcon {
-          position: absolute;
-          top: 12px;
-          left: 15px;
-          font-size: 18px;
-          color: var(--color-text-secondary);
-        }
-        .searchClear {
-          top: 10px;
-          align-self: center;
-          border-radius: 50%;
-          padding: 3px;
-          background: var(--color-text-placeholder);
-          color: var(--color-white);
-          position: absolute;
-          right: 10px;
-        }
-      }
-
-      .searchBtn {
-        height: 40px;
-        width: 85px;
-        margin-left: 16px;
       }
     }
 
@@ -240,12 +201,6 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-      }
-      .inviteButton {
-        width: 133px;
-        height: 40px;
-        line-height: 40px;
-        text-align: center;
       }
     }
 
@@ -272,13 +227,6 @@
       }
       &.recordIcon {
         color: var(--color-primary) !important;
-      }
-    }
-    .inviteDrop {
-      .Dropdown--input {
-        width: auto;
-        height: 24px;
-        border-color: var(--color-border-secondary);
       }
     }
     .numberBox {
@@ -311,9 +259,6 @@
       & > div {
         flex: 1;
         min-width: 0;
-        .iti {
-          width: 100%;
-        }
       }
       .rowTel {
         width: 100%;
@@ -355,15 +300,6 @@
 }
 
 .inviteDialog {
-  .mui-dialog-body {
-    padding-right: 0 !important;
-  }
-
-  .projectList {
-    overflow-y: auto;
-    max-height: 300px;
-  }
-
   .splitLine {
     width: 372px;
     border-top: 1px solid var(--color-border-tertiary);

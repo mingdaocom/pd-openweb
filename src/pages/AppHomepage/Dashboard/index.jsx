@@ -2,18 +2,19 @@ import React, { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, use
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { emitter, getToken } from 'src/utils/common';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
+import { getAdvancedThemeBulletinPicExt, getFilterApps } from 'src/utils/services/appCenter';
+import { getToken } from 'src/utils/services/request/authenticated';
+import { hasPermission } from 'src/utils/services/security/permission';
 import { CreateActions, initialState, reducer } from '../AppCenter/appHomeReducer';
 import AppGrid from '../AppCenter/components/AppGrid';
 import NoProjectsStatus from '../AppCenter/components/NoProjectsStatus';
-import { getAdvancedThemeBulletinPicExt, getFilterApps } from '../AppCenter/utils';
 import BulletinBoard from './BulletinBoard';
 import CollectionApps from './CollectionApps';
 import CollectionCharts from './CollectionCharts';
@@ -23,8 +24,10 @@ import {
   CardItem,
   getGreetingText,
   getImageBase64UploadData,
+  getModuleVisible,
   getUrlWithRandomQuery,
   MODULE_TYPES,
+  normalizeSortModuleIds,
   urlToBase64,
 } from './utils';
 
@@ -58,7 +61,7 @@ const Wrapper = styled.div`
         display: flex;
         align-items: center;
         img {
-          height: ${({ logoHeight }) => `${logoHeight}px`};
+          height: ${({ $logoHeight }) => `${$logoHeight}px`};
         }
       }
 
@@ -149,6 +152,7 @@ export default function Dashboard(props) {
   );
   const [flag, setFlag] = useState(null);
   const [settingVisible, setSettingVisible] = useState(false);
+  const [collectCounts, setCollectCounts] = useState({});
   const {
     origin = {},
     dashboardLoading,
@@ -166,9 +170,26 @@ export default function Dashboard(props) {
   } = state;
   const { logo, logoSwitch, slogan, boardSwitch, logoHeight, bulletinBoards = [] } = platformSetting;
   const { displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } = origin.homeSetting || {};
-  const hasNewTheme = !window.platformENV.isOverseas && !window.platformENV.isLocal && !!advancedThemes.length;
+  const hasNewTheme = window.platformENV.isHap && !!advancedThemes.length;
   const newTheme = advancedThemes[0] || {};
   const hasProjectSetting = hasPermission(myPermissions, PERMISSION_ENUM.DASHBOARD_SETTING);
+
+  const currentCollectCounts = collectCounts.projectId === projectId ? collectCounts : {};
+  const handleCollectCountChange = useCallback(
+    (type, count) => {
+      setCollectCounts(value =>
+        value.projectId === projectId && value[type] === count ? value : { ...value, projectId, [type]: count },
+      );
+    },
+    [projectId],
+  );
+  const resetCollectCounts = useCallback(() => {
+    setCollectCounts(value =>
+      value.projectId === projectId && (!_.isUndefined(value.record) || !_.isUndefined(value.chart))
+        ? { projectId }
+        : value,
+    );
+  }, [projectId]);
 
   const fetchData = ({ noCache } = {}) => {
     !isExternal
@@ -261,21 +282,65 @@ export default function Dashboard(props) {
         });
   };
 
+  const renderAppGrid = () => (
+    <AppGrid
+      projectGroupsLang={projectGroupsLang}
+      dashboardColor={dashboardColor}
+      isDashboard={true}
+      setting={origin.homeSetting}
+      loading={dashboardLoading}
+      keywords={keywords}
+      actions={actions}
+      projectId={projectId}
+      currentProject={currentProject}
+      markedGroup={markedGroup}
+      markedApps={getFilterApps(
+        markedApps.filter(item => item.type === 0),
+        keywords,
+      )}
+      myApps={getFilterApps(apps, keywords)}
+      externalApps={getFilterApps(externalApps, keywords)}
+      aloneApps={getFilterApps(aloneApps, keywords)}
+      appLang={appLang}
+      groups={groups}
+      hideExternalTitle={isExternal}
+      currentTheme={currentTheme}
+      myPermissions={myPermissions}
+    />
+  );
+
   const renderSortableModules = () => {
-    const sortModuleIds = sortItems && sortItems.length ? sortItems.map(item => item.moduleType) : [0, 1, 2, 3];
+    const moduleVisibleData = {
+      markedApps,
+      displayCommonApp,
+      recentApps,
+      recentAppItems,
+      rowCollect,
+      recordCollectCount: currentCollectCounts.record,
+      displayChart,
+      chartCollectCount: currentCollectCounts.chart,
+      displayApp,
+    };
+    const visibleSortModuleIds = normalizeSortModuleIds(sortItems).filter(moduleType =>
+      getModuleVisible(moduleType, moduleVisibleData),
+    );
+    const hasRecentAndRecordCollect =
+      _.includes(visibleSortModuleIds, MODULE_TYPES.RECENT) &&
+      _.includes(visibleSortModuleIds, MODULE_TYPES.ROW_COLLECTION);
     const halfWidth =
+      hasRecentAndRecordCollect &&
       Math.abs(
-        _.indexOf(sortModuleIds, MODULE_TYPES.RECENT) - _.indexOf(sortModuleIds, MODULE_TYPES.ROW_COLLECTION),
-      ) === 1 &&
-      displayCommonApp &&
-      rowCollect;
+        _.indexOf(visibleSortModuleIds, MODULE_TYPES.RECENT) -
+          _.indexOf(visibleSortModuleIds, MODULE_TYPES.ROW_COLLECTION),
+      ) === 1;
+
     return (
       <div className="sortableCardsWrap">
-        {sortModuleIds.map((type, index) => {
+        {visibleSortModuleIds.map(type => {
           switch (type) {
             case MODULE_TYPES.APP_COLLECTION:
-              return markedApps.length ? (
-                <CardItem key={index} className="sortItem appCollectCard">
+              return (
+                <CardItem key={type} className="sortItem appCollectCard">
                   <CollectionApps
                     loading={dashboardLoading}
                     projectId={projectId}
@@ -290,12 +355,12 @@ export default function Dashboard(props) {
                     currentTheme={currentTheme}
                   />
                 </CardItem>
-              ) : null;
+              );
 
             case MODULE_TYPES.RECENT:
-              return displayCommonApp ? (
+              return (
                 <CardItem
-                  key={index}
+                  key={type}
                   className={cx('sortItem recentCard', {
                     halfWidth,
                   })}
@@ -311,12 +376,12 @@ export default function Dashboard(props) {
                     currentTheme={currentTheme}
                   />
                 </CardItem>
-              ) : null;
+              );
 
             case MODULE_TYPES.ROW_COLLECTION:
-              return rowCollect ? (
+              return (
                 <CardItem
-                  key={index}
+                  key={type}
                   className={cx('sortItem rowCollectCard', {
                     halfWidth,
                   })}
@@ -343,15 +408,32 @@ export default function Dashboard(props) {
                       projectId={projectId}
                       forCard
                       loading={dashboardLoading}
+                      onDataCountChange={handleCollectCountChange}
                     />
                   </Suspense>
                 </CardItem>
-              ) : null;
+              );
+
+            case MODULE_TYPES.CHART_COLLECTION:
+              return (
+                <CollectionCharts
+                  key={type}
+                  projectId={projectId}
+                  flag={flag}
+                  currentTheme={currentTheme}
+                  onDataCountChange={handleCollectCountChange}
+                />
+              );
+
+            case MODULE_TYPES.APP:
+              return (
+                <CardItem key={type} className="sortItem flex">
+                  {renderAppGrid()}
+                </CardItem>
+              );
 
             default:
-              return displayChart ? (
-                <CollectionCharts key={index} projectId={projectId} flag={flag} currentTheme={currentTheme} />
-              ) : null;
+              return null;
           }
         })}
       </div>
@@ -364,7 +446,7 @@ export default function Dashboard(props) {
       style={{
         backgroundColor: hasBgImg ? 'unset' : 'var(--color-background-primary)',
       }}
-      logoHeight={logoHeight || 40}
+      $logoHeight={logoHeight || 40}
     >
       <div className="dashboardMask" />
       <ScrollView className="dashboardScrollView h100 pRight10">
@@ -415,6 +497,7 @@ export default function Dashboard(props) {
                 <div
                   className="headerIcon"
                   onClick={() => {
+                    resetCollectCounts();
                     fetchData({
                       noCache: true,
                     });
@@ -490,34 +573,7 @@ export default function Dashboard(props) {
 
           {!isExternal && renderSortableModules()}
 
-          {(displayApp || isExternal) && (
-            <CardItem className="flex">
-              <AppGrid
-                projectGroupsLang={projectGroupsLang}
-                dashboardColor={dashboardColor}
-                isDashboard={true}
-                setting={origin.homeSetting}
-                loading={dashboardLoading}
-                keywords={keywords}
-                actions={actions}
-                projectId={projectId}
-                currentProject={currentProject}
-                markedGroup={markedGroup}
-                markedApps={getFilterApps(
-                  markedApps.filter(item => item.type === 0),
-                  keywords,
-                )}
-                myApps={getFilterApps(apps, keywords)}
-                externalApps={getFilterApps(externalApps, keywords)}
-                aloneApps={getFilterApps(aloneApps, keywords)}
-                appLang={appLang}
-                groups={groups}
-                hideExternalTitle={isExternal}
-                currentTheme={currentTheme}
-                myPermissions={myPermissions}
-              />
-            </CardItem>
-          )}
+          {isExternal && <CardItem className="flex">{renderAppGrid()}</CardItem>}
         </div>
       </ScrollView>
     </Wrapper>

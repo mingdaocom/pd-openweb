@@ -1,19 +1,21 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { isEmpty, isEqual } from 'lodash';
-import _ from 'lodash';
-import { Dialog, Support } from 'ming-ui';
+import _, { isEmpty, isEqual } from 'lodash';
+import { Support } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { CONTROL_FILTER_WHITELIST } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import {
-  filterUnavailableConditions,
-  getTypeKey,
-  redefineComplexControl,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
-import { filterControlsFromAll } from '../../../util';
-import { getAdvanceSetting, isSingleRelateSheet } from '../../../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { isSingleRelateSheet } from 'src/utils/domain/control/editorSetting';
+import { filterControlsFromAll } from 'src/utils/domain/control/filters';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { filterUnavailableConditions, getTypeKey } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
 import EmptyRuleConfig from '../EmptyRuleConfig';
 import './FilterDialog.less';
+
+const FILTER_DIALOG_MODAL_STYLES = {
+  header: { marginBottom: 8 },
+};
 
 export default function FilterDialog(props) {
   const {
@@ -51,15 +53,17 @@ export default function FilterDialog(props) {
   const currentColumns = allControls.map(redefineComplexControl);
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      keyboard
       title={title || _l('筛选关联记录')}
       okDisabled={isEmpty(filters) && !allowEmpty}
       okText={_l('确定')}
       cancelText={_l('取消')}
       className="filterDialog"
       width={560}
-      overlayClosable={props.overlayClosable}
+      styles={FILTER_DIALOG_MODAL_STYLES}
+      mask={{ closable: props.overlayClosable ?? true }}
       onCancel={onClose}
       onOk={() => {
         function formatCondition(condition) {
@@ -163,6 +167,6 @@ export default function FilterDialog(props) {
           />
         )}
       </Fragment>
-    </Dialog>
+    </Modal>
   );
 }

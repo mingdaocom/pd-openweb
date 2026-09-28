@@ -1,65 +1,28 @@
-import React, { Fragment, useCallback, useMemo, useRef } from 'react';
+import React, { Fragment, memo, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
-import { getExpandWidgetIdsMap } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
-import { controlState } from 'src/utils/control';
+import { getExpandWidgetIdsMap } from 'src/utils/domain/control/editorLayout';
+import { controlState } from 'src/utils/domain/control/state';
 import { FROM } from '../core/config';
 import { desktopFormPropTypes } from '../core/formPropTypes';
-import { getControlsByTab, getWidgetDisplayRow } from '../core/utils';
+import { useControlRenderCache, useEventCallback, useWidgetLayoutCache } from '../core/renderHooks';
+import { getControlsByTab, getErrorItemsMap } from '../core/utils';
 import DeskFormWidget from './components/DeskFormWidget';
 import FormLabel from './components/FormLabel';
 import WidgetSection from './components/WidgetSection';
 import './style.less';
 
-const useEventCallback = callback => {
-  const callbackRef = useRef(callback);
-  callbackRef.current = callback;
-
-  return useCallback((...args) => {
-    if (_.isFunction(callbackRef.current)) {
-      return callbackRef.current(...args);
-    }
-  }, []);
-};
-
-const useStableFunctionProps = props => {
-  const propsRef = useRef(props);
-  const stableFunctionRef = useRef({});
-  propsRef.current = props;
-
-  return useMemo(() => {
-    const stableProps = { ...(props || {}) };
-
-    Object.keys(stableProps).forEach(key => {
-      if (!_.isFunction(stableProps[key])) {
-        return;
-      }
-
-      if (!stableFunctionRef.current[key]) {
-        stableFunctionRef.current[key] = (...args) => {
-          const current = _.get(propsRef.current, key);
-
-          if (_.isFunction(current)) {
-            return current(...args);
-          }
-        };
-      }
-
-      stableProps[key] = stableFunctionRef.current[key];
-    });
-
-    return stableProps;
-  }, [props]);
-};
+const EMPTY_ARRAY = [];
+const EMPTY_OBJECT = {};
 
 const DesktopForm = props => {
   const {
     from,
-    widgetStyle = {},
+    widgetStyle: rawWidgetStyle,
     ignoreSection,
-    tabControlProp = {},
+    tabControlProp: rawTabControlProp,
     className,
     renderData,
     rulesLoading,
@@ -67,8 +30,14 @@ const DesktopForm = props => {
     recordId,
     instanceId,
     tabFocusArr,
+    dataFormat,
+    getMasterFormData,
+    masterData,
+    systemControlData,
   } = props;
-  const stableControlProps = useStableFunctionProps(props.controlProps);
+  const widgetStyle = rawWidgetStyle || EMPTY_OBJECT;
+  const tabControlProp = rawTabControlProp || EMPTY_OBJECT;
+  const stableControlProps = useMemo(() => props.controlProps || {}, [props.controlProps]);
   const stableWidgetCallbacks = {
     openRelateSheet: useEventCallback(props.openRelateSheet),
     registerCell: useEventCallback(props.registerCell),
@@ -78,14 +47,29 @@ const DesktopForm = props => {
     handleChange: useEventCallback(props.handleChange),
     checkControlUnique: useEventCallback(props.checkControlUnique),
     submitFormData: useEventCallback(props.submitFormData),
-    renderVerifyCode: useEventCallback(props.renderVerifyCode),
     updateRenderData: useEventCallback(props.updateRenderData),
+    updateErrorState: useEventCallback(props.updateErrorState),
     setLoadingInfo: useEventCallback(props.setLoadingInfo),
     setNavVisible: useEventCallback(_.get(tabControlProp, 'setNavVisible')),
   };
-  const { otherTabs = [] } = tabControlProp;
-  let { commonData, tabData } = getControlsByTab(renderData, widgetStyle, from, ignoreSection, otherTabs);
-  tabData = tabData.filter(control => controlState(control, from).visible).filter(c => !c.hidden);
+  const otherTabs = tabControlProp.otherTabs || EMPTY_ARRAY;
+  const { commonData, tabData: rawTabData } = useMemo(
+    () => getControlsByTab(renderData, widgetStyle, from, ignoreSection, otherTabs),
+    [from, ignoreSection, otherTabs, renderData, widgetStyle],
+  );
+  const tabData = useMemo(
+    () => rawTabData.filter(control => controlState(control, from).visible).filter(c => !c.hidden),
+    [from, rawTabData],
+  );
+  const errorItemsMap = useMemo(
+    () => getErrorItemsMap(props.errorItems, props.uniqueErrorItems),
+    [props.errorItems, props.uniqueErrorItems],
+  );
+  const fullFormData = useMemo(() => {
+    const dataSource = dataFormat?.current ? dataFormat.current.getDataSource() : renderData;
+
+    return dataSource.concat(systemControlData || EMPTY_ARRAY).concat(getMasterFormData() || EMPTY_ARRAY);
+  }, [dataFormat, getMasterFormData, renderData, systemControlData]);
 
   const getWidgetTabFocusId = item => {
     const currentTabFocusId = tabFocusArr[0];
@@ -95,6 +79,8 @@ const DesktopForm = props => {
   // 是否新建记录
   const isCreated = useMemo(() => !recordId || recordId === '_FAKE_RECORD_ID', [recordId]);
   const expandWidgetIdsMap = useMemo(() => getExpandWidgetIdsMap(renderData, from), [renderData, from]);
+  const controlRenderCache = useControlRenderCache();
+  const getWidgetLayoutInfo = useWidgetLayoutCache();
 
   /**
    * 渲染表单
@@ -114,7 +100,7 @@ const DesktopForm = props => {
     let prevRow = -1;
     let preIsSection;
     let data = [].concat(formData).filter(item => !item.hidden && controlState(item, from).visible);
-    const richTextControlCount = data.filter(c => c.type === 41).length;
+    const { displayRowMap, richTextControlCount, rowControlCountMap } = getWidgetLayoutInfo({ data, widgetStyle });
 
     data.forEach(item => {
       const isFilledByAi = !!filledByAiMap[item.controlId];
@@ -126,9 +112,31 @@ const DesktopForm = props => {
       }
 
       const isFull = forceFull || item.size === 12;
-      const displayRowInfo = getWidgetDisplayRow({ item, data, widgetStyle });
+      const displayRowInfo = displayRowMap[item.controlId] || EMPTY_OBJECT;
       const id = `formItem-${worksheetId}-${item.controlId}`;
       const formItemId = `${instanceId}~${item.controlId}`;
+      const formItemStyle = controlRenderCache.getFormItemStyle(item.controlId, {
+        width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
+        display: item.type === 49 && disabled ? 'none' : 'flex',
+      });
+      const labelWidgetStyle = controlRenderCache.getWidgetStyle(
+        `${item.controlId}-label`,
+        displayRowInfo === EMPTY_OBJECT ? widgetStyle : { ...widgetStyle, ...displayRowInfo },
+      );
+      const widgetItem = controlRenderCache.getItem(item.controlId, {
+        ...item,
+        ...stableControlProps,
+        setLoadingInfo: stableWidgetCallbacks.setLoadingInfo,
+        richTextControlCount,
+        formItemId,
+        isDraft: isDraft || from === FROM.DRAFT,
+        ...(item.type === 22
+          ? {
+              setNavVisible: stableWidgetCallbacks.setNavVisible,
+              expandWidgetIds: expandWidgetIdsMap[item.controlId] || EMPTY_ARRAY,
+            }
+          : {}),
+      });
       const widgetVerifyCode =
         window.isPublicWorksheet && smsVerification && item.type === 3 && smsVerificationFiled === item.controlId
           ? verifyCode
@@ -137,10 +145,7 @@ const DesktopForm = props => {
       formList.push(
         <div
           className={cx('customFormItem', { customFormItemRow: displayRowInfo.displayRow, isFilledByAi })}
-          style={{
-            width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
-            display: item.type === 49 && disabled ? 'none' : 'flex',
-          }}
+          style={formItemStyle}
           id={id}
           key={id}
           data-instance-id={formItemId}
@@ -163,19 +168,15 @@ const DesktopForm = props => {
           {/**控件标题 */}
           {!_.includes([22, 52], item.type) && (
             <FormLabel
-              {..._.pick(props, [
-                'from',
-                'worksheetId',
-                'recordId',
-                'errorItems',
-                'uniqueErrorItems',
-                'loadingItems',
-                'disabled',
-                'updateErrorState',
-                'handleChange',
-              ])}
+              from={from}
+              worksheetId={worksheetId}
+              recordId={recordId}
+              disabled={disabled}
+              updateErrorState={stableWidgetCallbacks.updateErrorState}
               item={item}
-              widgetStyle={{ ...widgetStyle, ...displayRowInfo }}
+              currentErrorItem={errorItemsMap[item.controlId] || EMPTY_OBJECT}
+              loading={!!_.get(props.loadingItems, item.controlId)}
+              widgetStyle={labelWidgetStyle}
             />
           )}
 
@@ -191,36 +192,24 @@ const DesktopForm = props => {
             appId={props.appId}
             from={from}
             sheetSwitchPermit={props.sheetSwitchPermit}
-            systemControlData={props.systemControlData}
             popupContainer={props.popupContainer}
             isCharge={props.isCharge}
             widgetStyle={widgetStyle}
             mobileApprovalRecordInfo={props.mobileApprovalRecordInfo}
             customWidgets={props.customWidgets}
             isDraft={isDraft}
-            masterData={props.masterData}
+            masterData={masterData}
             disabledChildTableCheck={props.disabledChildTableCheck}
             formDidMountFlag={props.formDidMountFlag}
             controlRefs={props.controlRefs}
-            dataFormat={props.dataFormat}
+            dataFormat={dataFormat}
             disabledFunctions={props.disabledFunctions}
             renderData={renderData}
+            formData={fullFormData}
             verifyCode={widgetVerifyCode}
+            renderVerifyCode={props.renderVerifyCode}
             {...stableWidgetCallbacks}
-            item={{
-              ...item,
-              ...stableControlProps,
-              setLoadingInfo: stableWidgetCallbacks.setLoadingInfo,
-              richTextControlCount,
-              formItemId,
-              isDraft: isDraft || from === FROM.DRAFT,
-              ...(item.type === 22
-                ? {
-                    setNavVisible: stableWidgetCallbacks.setNavVisible,
-                    expandWidgetIds: expandWidgetIdsMap[item.controlId] || [],
-                  }
-                : {}),
-            }}
+            item={widgetItem}
             isCreated={isCreated}
             tabFocusId={getWidgetTabFocusId(item)}
           />
@@ -229,31 +218,38 @@ const DesktopForm = props => {
 
       prevRow = item.row;
       preIsSection =
-        (item.type === 22 || item.type === 10010) &&
-        item.size === 12 &&
-        data.filter(d => d.row === item.row).length === 1;
+        (item.type === 22 || item.type === 10010) && item.size === 12 && rowControlCountMap[item.row] === 1;
     });
 
     return formList;
   };
 
+  const stableSectionTriggerCustomEvent = useEventCallback(value => triggerCustomEvent({ ...props, ...value }));
+  const stableSetActiveTabControlId = useEventCallback(props.setActiveTabControlId);
+
   const renderTab = (commonData, tabControls) => {
-    const {
-      tabControlProp: { isSplit, splitTabDom } = {},
-      from,
-      isDraft,
-      activeTabControlId,
-      setActiveTabControlId,
-    } = props;
+    const { tabControlProp: { isSplit, splitTabDom } = {}, from, isDraft, activeTabControlId } = props;
     const sectionProps = {
-      ...props,
+      from,
+      disabled: props.disabled,
+      tabControlProp,
+      controlProps: stableControlProps,
+      isCharge: props.isCharge,
+      appId: props.appId,
+      worksheetId: props.worksheetId,
+      recordId: props.recordId,
       tabControls,
+      widgetStyle,
+      sheetSwitchPermit: props.sheetSwitchPermit,
+      showSplitIcon: props.showSplitIcon,
       hasCommon: commonData.length > 0,
       activeTabControlId: activeTabControlId || _.get(tabControls[0], 'controlId'),
       isDraft: isDraft || from === FROM.DRAFT,
-      setActiveTabControlId: value => setActiveTabControlId(value),
-      renderForm: value => renderForm(value),
-      triggerCustomEvent: value => triggerCustomEvent({ ...props, ...value }),
+      setActiveTabControlId: stableSetActiveTabControlId,
+      // renderForm 会在 WidgetSection 的 render 阶段执行，必须使用本轮闭包中的错误状态。
+      // useEventCallback 直到 layout effect 才更新回调，会导致分段内的 FormLabel 落后一轮渲染。
+      renderForm,
+      triggerCustomEvent: stableSectionTriggerCustomEvent,
     };
 
     if (isSplit && splitTabDom) {
@@ -292,4 +288,4 @@ const DesktopForm = props => {
 
 DesktopForm.propTypes = desktopFormPropTypes;
 
-export default DesktopForm;
+export default memo(DesktopForm);

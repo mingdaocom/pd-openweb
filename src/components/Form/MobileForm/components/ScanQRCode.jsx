@@ -5,8 +5,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { compatibleMDJS } from 'src/utils/services/project';
 import { bindFeishu, bindWeiXin, bindWxWork, handleTriggerEvent } from '../../core/authentication';
 
 const ErrorWrap = styled.div`
@@ -41,7 +41,7 @@ const QrInputWrap = styled.div`
 
 const ShadeRegion = styled.div`
   position: absolute;
-  border-width: ${props => props.borderWidth};
+  border-width: ${props => props.$borderWidth};
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.48);
   box-sizing: border-box;
@@ -805,7 +805,7 @@ export default class Widgets extends Component {
     const { borderWidth } = this.state;
 
     return (
-      <ShadeRegion borderWidth={borderWidth}>
+      <ShadeRegion $borderWidth={borderWidth}>
         <div className="horizontalBoundary" style={{ top: -5, left: 0 }}></div>
         <div className="horizontalBoundary" style={{ top: -5, right: 0 }}></div>
         <div className="horizontalBoundary" style={{ bottom: -5, left: 0 }}></div>

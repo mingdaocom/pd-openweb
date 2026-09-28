@@ -1,5 +1,9 @@
 ﻿.calendarEdit {
   // override dialog css
+  .hap-modal-container {
+    overflow: hidden;
+    border-radius: 12px;
+  }
   .noHeader {
     display: none;
   }
@@ -39,7 +43,7 @@
   height: 0;
 
   .calendarActionWrapper {
-    padding: 9px 0;
+    padding: 6px 0;
   }
 
   &.action-bar-active {
@@ -50,9 +54,9 @@
     color: var(--color-white);
     padding-left: 16px;
     font-size: 14px;
-    line-height: 30px;
+    line-height: 36px;
   }
-  .Button--link:hover {
+  .calendarActionLink:hover {
     text-decoration: underline !important;
   }
   .ghostBtn {
@@ -100,14 +104,8 @@
     }
   }
   .calendarNameInput {
-    &.Textarea {
-      font-size: 17px;
-      border: none;
-      line-height: 26px;
-      padding: 5px 15px;
-      vertical-align: bottom;
-    }
     flex: 1 0 0%;
+    font-size: 17px;
   }
   .categoryContainer {
     height: 16px;
@@ -123,11 +121,6 @@
       vertical-align: middle;
       text-align: center;
     }
-  }
-  .calendarNameInput .Input {
-    border: none;
-    width: 100%;
-    font-size: 17px;
   }
   .calendarCatInput {
     margin-top: -1px;
@@ -169,15 +162,11 @@
 .calendarMainPart {
   margin-top: 8px;
   padding: 10px 16px;
-  // override ming-ui padding on dropdown
-  .Dropdown--input {
-    padding: 0 !important;
-  }
   .calBox {
     border: 1px solid var(--color-border-secondary);
     background-color: var(--color-background-primary);
     font-size: 13px;
-    border-radius: 3px;
+    border-radius: 6px;
   }
   .calRow {
     display: flex;
@@ -214,12 +203,6 @@
       border-color: var(--color-border-tertiary) !important;
     }
   }
-  .untilDateBox {
-    border-bottom: 1px solid var(--color-border-tertiary);
-    &:not(:hover) {
-      border-color: var(--color-border-tertiary) !important;
-    }
-  }
   .calendarDate {
     transition: height 300ms ease-out;
 
@@ -231,12 +214,6 @@
     }
     .calLine {
       line-height: 32px;
-    }
-    .editWrapper {
-      border-bottom: 2px dotted var(--color-border-primary);
-      padding-bottom: 4px;
-      padding-left: 5px;
-      padding-right: 5px;
     }
     .weekDaysContainer {
       margin-left: 5px;
@@ -346,14 +323,6 @@
       padding: 12px 0;
       width: 100%;
     }
-    .Textarea {
-      font-size: 13px;
-      vertical-align: top;
-      padding: 0;
-      -webkit-appearance: none;
-      border: none;
-      background: transparent;
-    }
     .attachmentBox {
       padding: 10px 0;
     }
@@ -428,6 +397,10 @@
       max-height: 310px;
     }
   }
+  .commentBox {
+    overflow: hidden;
+    border-radius: 6px;
+  }
   .userAvatar {
     width: 32px;
     height: 32px;
@@ -441,24 +414,6 @@
 }
 
 .calendarBusinessCard {
-  .messageDivBtn {
-    width: 100%;
-    display: flex;
-    position: relative;
-    & span {
-      text-align: center;
-      cursor: pointer;
-      display: inline-block;
-      flex: 1;
-      box-sizing: border-box;
-      &:hover {
-        color: var(--color-link-hover);
-      }
-    }
-    .messageDivPerson {
-      border-left: 1px solid var(--color-border-tertiary);
-    }
-  }
   .cardContentDesc {
     position: relative;
     .messageDivContentState {
@@ -481,9 +436,4 @@
       max-width: 175px;
     }
   }
-}
-
-.calendarEdit > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header,
-.calendarEdit > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-  padding: 0 !important;
 }

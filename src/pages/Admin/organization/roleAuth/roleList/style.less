@@ -5,10 +5,20 @@
   flex-direction: column;
   padding-bottom: 24px;
 
+  .roleListHeader,
+  .roleList {
+    scrollbar-gutter: stable;
+  }
+  .roleListHeader {
+    flex-shrink: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
   .roleList {
     flex: 1;
     min-height: 0;
     overflow-x: hidden;
+    overflow-y: auto;
   }
   .roleItem {
     display: flex;
@@ -62,8 +72,17 @@
   }
   .roleOperation {
     width: 130px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+
     span {
-      margin-right: 30px;
+      white-space: nowrap;
     }
+  }
+
+  .roleItem:not(.roleListTitle) .roleOperation {
+    gap: 30px;
   }
 }

@@ -1,20 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, SvgIcon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon, UserHead } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import HistoryVersion from 'src/pages/workflow/WorkflowSettings/Header/HistoryVersion.jsx';
-import { pathCompletion } from 'src/utils/common';
-import { ActWrap, LogoWrap, MenuItemWrap, RedMenuItemWrap } from '../style';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { ActWrap, LogoWrap } from '../style';
 
 // 接口名称最多 100 字符，接口说明最多 400 字符
 const API_NAME_MAX_LENGTH = 100;
 const API_EXPLAIN_MAX_LENGTH = 400;
 
-const WrapMenu = styled(Menu)`
+const WrapMenu = styled.div`
   .historyVersion {
     top: 0;
     right: 0;
@@ -44,6 +43,106 @@ const HeadTop = styled.div`
   }
 `;
 
+function HeaderOptions({ data, apkInfo, isConnectOwner, listId, onCancel, onDel }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const optionMenuItems = [
+    location.href.indexOf('integrationApi') < 0 && {
+      key: 'openInNewPage',
+      icon: <Icon icon="launch" className="Font17" />,
+      label: _l('新页面打开'),
+      onClick: () => {
+        setShowMenu(false);
+        window.open(pathCompletion(`/integrationApi/${listId}`));
+      },
+    },
+    apkInfo.type === 1 &&
+      isConnectOwner &&
+      data.lastPublishDate && {
+        key: 'historyVersion',
+        label: (
+          <HistoryVersion
+            isIntegration
+            popupClassName="historyActionPopup"
+            wrapClassName="historyVersion"
+            flowInfo={data}
+            customBtn={() => (
+              <div className="flexRow alignItemsCenter">
+                <Icon icon="sp_library_books_white" className="Font17 mRight8 textTertiary" />
+                <span>{_l('历史版本')}</span>
+              </div>
+            )}
+          />
+        ),
+      },
+    apkInfo.type === 1 &&
+      isConnectOwner && {
+        key: 'delete',
+        danger: true,
+        icon: <Icon icon="trash" className="Font17" />,
+        label: _l('删除'),
+        onClick: () => {
+          setShowMenu(false);
+          onDel && onDel(data);
+        },
+      },
+  ].filter(Boolean);
+
+  return (
+    <React.Fragment>
+      {data.ownerAccount && _.get(data, 'ownerAccount.accountId') && (
+        <div className="textSecondary node TxtMiddle mLeft10 flexRow alignItemsCenter">
+          <UserHead
+            user={{
+              userHead: data?.ownerAccount?.avatar,
+              accountId: data?.ownerAccount?.accountId,
+            }}
+            size={24}
+            className="mRight8"
+            newPageChat={true}
+          />
+          <span
+            className="textPrimary mRight8 maxWidth100 overflow_ellipsis"
+            title={_.get(data, 'ownerAccount.fullName')}
+          >
+            {_.get(data, 'ownerAccount.fullName')}
+          </span>
+          <span style={{ color: 'var(--color-text-tertiary)' }}>
+            {apkInfo.type === 2 ? _l('安装于') : data.lastModifiedDate ? _l('更新于') : _l('创建于')}
+            {apkInfo.type === 2 ? data.createdDate : data.lastModifiedDate || data.createdDate}
+          </span>
+          {(location.href.indexOf('integrationApi') < 0 || (apkInfo.type === 1 && isConnectOwner)) && (
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              open={showMenu}
+              onOpenChange={(visible, info) => {
+                if (!visible && info.source === 'menu') return;
+
+                setShowMenu(visible);
+              }}
+              menu={{
+                style: { minWidth: 200 },
+                items: optionMenuItems,
+              }}
+              popupRender={menu => <WrapMenu>{menu}</WrapMenu>}
+            >
+              <ActWrap className="act InlineBlock TxtMiddle TxtCenter">
+                <i className="icon-moreop Font22 TxtMiddle" />
+              </ActWrap>
+            </Dropdown>
+          )}
+        </div>
+      )}
+      {location.href.indexOf('integrationApi') < 0 && (
+        <i
+          className="icon-close Font24 TxtMiddle Hand LineHeight35 textTertiary hoverColorPrimaryLight closeBtn"
+          onClick={() => onCancel && onCancel()}
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
 function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDel, updateInfo, onDataChange }) {
   // API 名称、说明与图标使用同一编辑权限；安装 API 仍展示图标，仅有权限时可修改。
   const canEditApiInfo = [1, 2].includes(apkInfo.type) && isConnectOwner;
@@ -51,7 +150,6 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
   // 内部状态管理
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
 
   // 内部 refs
   const TipRef = useRef();
@@ -96,7 +194,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
     return data.iconName ? (
       <LogoWrap
         className="logo iconWrap mRight15 flexRow alignItemsCenter justifyContentCenter"
-        width={48}
+        $width={48}
         onClick={onClickIcon}
       >
         <div className="bg" style={{ backgroundColor: data.iconColor }}></div>
@@ -105,116 +203,11 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
     ) : (
       <LogoWrap
         className="logo mRight15 flexRow alignItemsCenter justifyContentCenter"
-        width={48}
+        $width={48}
         onClick={onClickIcon}
       >
         <Icon icon="rocket_launch" className="Font32" />
       </LogoWrap>
-    );
-  };
-
-  const renderOption = () => {
-    return (
-      <React.Fragment>
-        {data.ownerAccount && _.get(data, 'ownerAccount.accountId') && (
-          <div className="textSecondary node TxtMiddle mLeft10 flexRow alignItemsCenter">
-            <React.Fragment>
-              <UserHead
-                user={{
-                  userHead: data?.ownerAccount?.avatar,
-                  accountId: data?.ownerAccount?.accountId,
-                }}
-                size={24}
-                className="mRight8"
-                newPageChat={true}
-              />
-              <span
-                className="textPrimary mRight8 maxWidth100 overflow_ellipsis"
-                title={_.get(data, 'ownerAccount.fullName')}
-              >
-                {_.get(data, 'ownerAccount.fullName')}
-              </span>
-              <span className="" style={{ color: 'var(--color-text-tertiary)' }}>
-                {apkInfo.type === 2 ? _l('安装于') : data.lastModifiedDate ? _l('更新于') : _l('创建于')}
-                {apkInfo.type === 2 ? data.createdDate : data.lastModifiedDate || data.createdDate}
-              </span>
-            </React.Fragment>
-            {(location.href.indexOf('integrationApi') < 0 || (apkInfo.type === 1 && isConnectOwner)) && (
-              <Trigger
-                action={['click']}
-                zIndex={1000}
-                popup={
-                  <WrapMenu>
-                    {location.href.indexOf('integrationApi') < 0 && (
-                      <MenuItemWrap
-                        icon={<Icon icon="launch" className="Font17 mLeft5" />}
-                        onClick={() => {
-                          window.open(pathCompletion(`/integrationApi/${listId}`));
-                        }}
-                      >
-                        <span>{_l('新页面打开')}</span>
-                      </MenuItemWrap>
-                    )}
-                    {/* 自定义的api才能有删除的权限 */}
-                    {apkInfo.type === 1 && isConnectOwner && (
-                      <React.Fragment>
-                        {data.lastPublishDate && (
-                          <HistoryVersion
-                            isIntegration
-                            popupClassName="historyActionPopup"
-                            wrapClassName="historyVersion"
-                            flowInfo={data}
-                            customBtn={() => {
-                              return (
-                                <MenuItemWrap icon={<Icon icon="sp_library_books_white" className="Font17 mLeft5" />}>
-                                  <span>{_l('历史版本')}</span>
-                                </MenuItemWrap>
-                              );
-                            }}
-                          />
-                        )}
-                        <RedMenuItemWrap
-                          icon={<Icon icon="trash" className="Font17 mLeft5" />}
-                          onClick={() => {
-                            setShowMenu(false);
-                            onDel && onDel(data);
-                          }}
-                        >
-                          <span>{_l('删除')}</span>
-                        </RedMenuItemWrap>
-                      </React.Fragment>
-                    )}
-                  </WrapMenu>
-                }
-                popupVisible={showMenu}
-                onPopupVisibleChange={visible => {
-                  setShowMenu(visible);
-                }}
-                popupAlign={{
-                  points: ['tr', 'bl'],
-                  offset: [-150, 0],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-              >
-                <ActWrap
-                  className="act InlineBlock TxtMiddle TxtCenter"
-                  onClick={() => {
-                    setShowMenu(true);
-                  }}
-                >
-                  <i className={'icon-moreop Font22 TxtMiddle'} />
-                </ActWrap>
-              </Trigger>
-            )}
-          </div>
-        )}
-        {location.href.indexOf('integrationApi') < 0 && (
-          <i
-            className={'icon-close Font24 TxtMiddle Hand LineHeight35 textTertiary hoverColorPrimaryLight closeBtn'}
-            onClick={() => onCancel && onCancel()}
-          />
-        )}
-      </React.Fragment>
     );
   };
 
@@ -294,7 +287,14 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                   />
                 </React.Fragment>
               )}
-              {renderOption()}
+              <HeaderOptions
+                data={data}
+                apkInfo={apkInfo}
+                isConnectOwner={isConnectOwner}
+                listId={listId}
+                onCancel={onCancel}
+                onDel={onDel}
+              />
             </div>
 
             {!editing ? (

@@ -6,35 +6,57 @@
   }
   .workflowHeader {
     width: 240px;
-    padding: 16px 0;
     border-right: 1px solid var(--color-border-primary);
-    li {
-      font-size: 14px;
-      cursor: pointer;
-      padding: 0 18px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      position: relative;
-      border-radius: 4px;
-      &:not(.active) {
-        color: var(--color-text-primary);
+    .workflowNavigationMenu {
+      padding: 10px 0;
+      background: transparent;
+      border-inline-end: none !important;
+      .hap-menu-item-group-title {
+        padding: 9px 16px;
+        color: var(--color-text-secondary);
+        font-size: 12px;
+        font-weight: bold;
       }
-      &.active {
+      .hap-menu-item {
+        width: 100%;
+        height: 40px;
+        margin: 6px 0;
+        padding: 0 10px !important;
+        border-radius: 6px;
+        color: var(--color-text-primary);
+        line-height: 40px;
+        &::after {
+          display: none;
+        }
+        &:hover:not(.hap-menu-item-selected) {
+          background: var(--color-background-hover);
+        }
+        .hap-menu-item-icon {
+          color: var(--color-text-secondary);
+          font-size: 18px;
+        }
+      }
+      .hap-menu-item-selected {
+        position: relative;
         background: var(--color-primary-transparent);
+        color: var(--color-primary);
         font-weight: bold;
         &::before {
           position: absolute;
           content: '';
           height: 16px;
           width: 3px;
+          border-radius: 2px;
           background: var(--color-primary);
           top: 12px;
           left: 0;
         }
+        .hap-menu-item-icon {
+          color: var(--color-primary);
+        }
       }
-      &:hover:not(.active) {
-        background: var(--color-background-hover);
+      .workflowNavigationLabel {
+        width: 100%;
       }
     }
   }
@@ -63,11 +85,12 @@
       .w180 {
         width: 180px;
       }
-      .filterTimeRange {
-        width: 1px;
-        height: 36px;
-        visibility: hidden;
+      .hap-select-placeholder {
+        --hap-color-text-placeholder: var(--color-text-primary);
       }
+    }
+    .workflowListTimeSelect {
+      padding-left: 0 !important;
     }
     .manageListName {
       font-weight: bold;
@@ -97,14 +120,6 @@
         color: var(--color-text-secondary);
         &:hover {
           background: var(--color-background-primary);
-        }
-        .Dropdown--input {
-          padding: 0;
-          .icon-arrow-down-border {
-            margin-top: 5px;
-            vertical-align: top;
-            display: inline-block;
-          }
         }
       }
       &.active {
@@ -259,26 +274,6 @@
       color: var(--color-text-secondary);
     }
   }
-  .workflowListMenu {
-    a {
-      display: block;
-      color: var(--color-text-primary) !important;
-    }
-    .ming.MenuItem {
-      .Item-content {
-        font-size: 14px;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        &:hover {
-          background: var(--color-background-hover) !important;
-          color: var(--color-text-primary) !important;
-        }
-        > span {
-          display: block;
-        }
-      }
-    }
-  }
 }
 
 .adminWorkflowList {
@@ -392,7 +387,7 @@
   }
   .manageListOrder {
     transform: scale(0.8);
-    color: var(--color-text-disabled);
+    color: var(--color-text-tertiary);
     margin-left: -10px;
     .icon-arrow-down {
       margin-top: -4px;
@@ -431,6 +426,16 @@
     line-height: 24px;
     label {
       transform: scale(0.7);
+    }
+  }
+}
+
+.workflowList,
+.adminWorkflowList {
+  .manageListSearch {
+    .hap-select-selection-placeholder,
+    .hap-select-selection-item {
+      color: var(--color-text-primary);
     }
   }
 }

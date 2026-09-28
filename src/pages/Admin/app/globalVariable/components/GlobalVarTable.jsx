@@ -6,9 +6,9 @@ import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import variableApi from 'src/api/variable';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { CONTROL_NAME, REFRESH_TYPE } from '../constant';
 import { formatVarList } from '../utils';
 import OptionColumn from './OptionColumn';
@@ -149,6 +149,7 @@ export default function GlobalVarTable(props) {
     onAdd = () => {},
     onEdit = () => {},
     readOnly,
+    hideDelete,
     allowSelected,
     onSelect = () => {},
     activeId,
@@ -263,6 +264,7 @@ export default function GlobalVarTable(props) {
         return !readOnly ? (
           <OptionColumn
             isDirOption={item.hasChild}
+            hideDelete={hideDelete}
             onAdd={() => {
               featureType === '2'
                 ? buriedUpgradeVersionDialog(projectId, VersionProductType.globalVariable)

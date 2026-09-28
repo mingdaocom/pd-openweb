@@ -2,8 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import { LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Checkbox from 'ming-ui/components/Checkbox';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../config';
 import { fetchRootSubordinates, initRoot, updateCollapse } from './actions';
@@ -97,14 +96,22 @@ class Root extends Component {
             <Fragment>
               <Tooltip title={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')} placement="top">
                 <span className="rootBoardHeaderTips">
-                  <Checkbox checked={allowStructureSelfEdit} onClick={this.changeSubordinate} className="mLeft15">
+                  <Checkbox
+                    checked={allowStructureSelfEdit}
+                    onChange={event => this.changeSubordinate(!event.target.checked, undefined, event)}
+                    className="mLeft15"
+                  >
                     {_l('允许员工自行管理下属')}
                   </Checkbox>
                 </span>
               </Tooltip>
               <Tooltip title={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')} placement="top">
                 <span className="rootBoardHeaderTips">
-                  <Checkbox checked={authForAll} onClick={this.changeReporting} className="mLeft15">
+                  <Checkbox
+                    checked={authForAll}
+                    onChange={event => this.changeReporting(!event.target.checked, undefined, event)}
+                    className="mLeft15"
+                  >
                     {_l('全员可以查看汇报关系')}
                   </Checkbox>
                 </span>

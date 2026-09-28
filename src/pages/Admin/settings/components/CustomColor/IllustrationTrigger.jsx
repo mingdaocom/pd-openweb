@@ -1,17 +1,11 @@
 import React from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Popover } from 'ming-ui/antd-components';
 import { CUSTOM_ILLUSTRATION } from '../../config';
 
 const GuildWrap = styled.div`
   width: 280px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  border-radius: 3px;
-  left: 100%;
   justify-content: space-between;
-  padding-top: 20px;
-  box-sizing: border-box;
   overflow: hidden;
   .top {
     text-align: left;
@@ -26,8 +20,8 @@ function IllustrationTrigger(props) {
   const { type, children } = props;
 
   return (
-    <Trigger
-      popup={
+    <Popover
+      content={
         <GuildWrap>
           <div className="top">
             <div className="Font14 Bold">{CUSTOM_ILLUSTRATION[type].title}</div>
@@ -38,17 +32,11 @@ function IllustrationTrigger(props) {
           </div>
         </GuildWrap>
       }
-      popupTransitionName="Tooltip-move-top"
-      destroyPopupOnHide
-      action={['hover']}
-      popupAlign={{
-        points: ['tl', 'tr'],
-        offset: [5, 0],
-        overflow: { adjustX: true, adjustY: true },
-      }}
+      trigger="hover"
+      placement="rightTop"
     >
       {children}
-    </Trigger>
+    </Popover>
   );
 }
 

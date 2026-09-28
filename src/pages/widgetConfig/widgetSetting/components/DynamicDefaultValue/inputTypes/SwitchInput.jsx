@@ -1,13 +1,15 @@
-import React, { createRef, Fragment, useState } from 'react';
-import { ClickAwayMenu, DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import React, { useRef, useState } from 'react';
+import { Dropdown } from 'ming-ui/antd-components';
+import { getTypeList } from 'src/utils/domain/control/dynamicValue';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import { getTypeList } from '../util';
+
+const DROPDOWN_TRIGGER_STYLE = { width: 'calc(100% - 36px)' };
 
 export default function (props) {
-  const { onDynamicValueChange, dynamicValue = [], defaultType, data = {} } = props;
+  const { onDynamicValueChange, defaultType, data = {} } = props;
   const [visible, setVisible] = useState(false);
-  const $wrap = createRef(null);
-  const Type_List = getTypeList(data);
+  const $wrap = useRef(null);
 
   const setDynamicValue = newValue => {
     onDynamicValueChange(newValue || []);
@@ -22,25 +24,24 @@ export default function (props) {
     defaultType && $wrap.current.triggerClick();
   };
 
+  const menuItems = getTypeList(data).map(type => ({
+    key: type.id,
+    label: type.text,
+    onClick: () => handleTimeSelect(type),
+  }));
+
   return (
-    <Fragment>
-      <DynamicValueInputWrap>
-        {defaultType ? (
-          <DynamicInput {...props} onTriggerClick={onTriggerClick} />
-        ) : (
-          <OtherFieldList {...props} onClick={() => setVisible(true)} />
-        )}
-        <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} ref={$wrap} />
-      </DynamicValueInputWrap>
-      {visible && (
-        <ClickAwayMenu
-          showClear={false}
-          dynamicValue={dynamicValue}
-          types={Type_List}
-          handleTimeSelect={handleTimeSelect}
-          onClickAway={() => setVisible(false)}
-        />
+    <DynamicValueInputWrap>
+      {defaultType ? (
+        <DynamicInput {...props} onTriggerClick={onTriggerClick} />
+      ) : (
+        <Dropdown trigger={['click']} open={visible} onOpenChange={setVisible} menu={{ items: menuItems }}>
+          <div style={DROPDOWN_TRIGGER_STYLE}>
+            <OtherFieldList {...props} totalWidth />
+          </div>
+        </Dropdown>
       )}
-    </Fragment>
+      <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} ref={$wrap} />
+    </DynamicValueInputWrap>
   );
 }

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { getControlTypeName } from '../../../utils';
 import AddOptions from '../AddOptions';
 import SingleControlValue from '../SingleControlValue';
@@ -104,9 +104,9 @@ export default class UpdateFields extends Component {
   renderOperatorType(item, i) {
     const { isBatch } = this.props;
     const TYPES = [
-      { text: _l('设为'), value: 0 },
-      { text: _l('增加'), value: 1 },
-      { text: _l('减少'), value: 2 },
+      { label: _l('设为'), value: 0 },
+      { label: _l('增加'), value: 1 },
+      { label: _l('减少'), value: 2 },
     ];
 
     // 附件没有减少
@@ -121,9 +121,10 @@ export default class UpdateFields extends Component {
       !isBatch
     ) {
       return (
-        <Dropdown
-          className="flowAddTypeDropdown"
-          data={TYPES}
+        <Select
+          variant="borderless"
+          size="small"
+          options={TYPES}
           value={item.addType}
           onChange={addType => this.updateOperatorType(addType, i)}
         />
@@ -168,7 +169,7 @@ export default class UpdateFields extends Component {
       .filter(v => v.type === 29)
       .map(item => {
         return {
-          text: this.renderFieldsTitle(item),
+          label: this.renderFieldsTitle(item),
           searchText: item.controlName,
           value: item.controlId,
           disabled: !!_.find(fields, o => o.fieldId === item.controlId),
@@ -178,13 +179,13 @@ export default class UpdateFields extends Component {
       .filter(v => v.type !== 29)
       .map(item => {
         return {
-          text: this.renderFieldsTitle(item),
+          label: this.renderFieldsTitle(item),
           searchText: item.controlName,
           value: item.controlId,
           disabled: !!_.find(fields, o => o.fieldId === item.controlId),
         };
       });
-    const list = [otherList, relationList];
+    const list = otherList.concat(relationList);
 
     return (
       <Fragment>
@@ -195,16 +196,15 @@ export default class UpdateFields extends Component {
             <Fragment key={item.fieldId || i}>
               <div className="relative actionItem mTop15">
                 <div className="textSecondary">{type === 1 ? _l('将字段') : _l('将参数')}</div>
-                <Dropdown
+                <Select
                   className="flowDropdown mTop5 flowDropdownMinWidth"
-                  data={list}
+                  options={list}
                   value={item.fieldId || undefined}
-                  border
-                  openSearch
-                  isAppendToBody
-                  noData={isSubProcessNode ? _l('子流程暂无参数') : _l('本流程暂无参数')}
+                  showSearch
+                  optionFilterProp="searchText"
+                  notFoundContent={isSubProcessNode ? _l('子流程暂无参数') : _l('本流程暂无参数')}
                   placeholder={type === 1 ? _l('请选择字段') : _l('请选择参数')}
-                  renderTitle={() => item.fieldId && this.renderFieldsTitle(singleControl)}
+                  labelRender={() => item.fieldId && this.renderFieldsTitle(singleControl)}
                   onChange={fields => this.switchFields(fields, i)}
                 />
 

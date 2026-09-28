@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dropdown, Icon, Input, LoadDiv, MdAntTimePicker, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Input, Radio, Select, TimePicker, Tooltip } from 'ming-ui/antd-components';
 import datasourceApi from 'src/pages/integration/api/datasource';
 import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getScheduleConfigUpdateError } from '../../requestResult';
 import CommonSelect from '../CommonSelect';
 
 const SettingWrapper = styled.div`
@@ -58,7 +59,7 @@ const SettingWrapper = styled.div`
       &:hover {
         border-color: var(--color-primary);
       }
-      &.ant-picker-focused {
+      &.hap-picker-focused {
         border-color: var(--color-primary);
       }
     }
@@ -82,6 +83,7 @@ const RADIO_LIST = [
 ];
 
 export default function TimingSetting(props) {
+  const requestPending = useRef(false);
   const {
     showInDrawer = true,
     projectId,
@@ -100,6 +102,7 @@ export default function TimingSetting(props) {
   } = props;
   const [setting, setSetting] = useState(settingValue || { readIntervalType: 0, readType: 0, config: {} });
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [fields, setFields] = useState(sourceFields);
 
   useEffect(() => {
@@ -182,6 +185,8 @@ export default function TimingSetting(props) {
   };
 
   const onSave = () => {
+    if (requestPending.current) return;
+
     if (setting.readIntervalType === 1 && !setting.readTime) {
       alert(_l('请选择每天读取具体时间'), 3);
       return;
@@ -194,15 +199,25 @@ export default function TimingSetting(props) {
       }
     }
 
-    scheduleConfigApi.update({ projectId, ...setting }).then(res => {
-      if (res && !res.errorMsgList) {
-        alert(_l('保存成功'));
-        onUpdateSuccess(setting);
-        onClose();
-      } else {
-        alert(res.errorMsgList[0] || res.errorMsg || _l('保存失败'), 2);
-      }
-    });
+    requestPending.current = true;
+    setSaving(true);
+    return scheduleConfigApi
+      .update({ projectId, ...setting })
+      .then(res => {
+        const error = getScheduleConfigUpdateError(res, _l('保存失败'));
+
+        if (!error) {
+          alert(_l('保存成功'));
+          onUpdateSuccess(setting);
+          onClose();
+        } else {
+          alert(error, 2);
+        }
+      })
+      .finally(() => {
+        requestPending.current = false;
+        setSaving(false);
+      });
   };
 
   if (loading) {
@@ -215,21 +230,20 @@ export default function TimingSetting(props) {
         <div className="sectionTitle">{_l('读取数据间隔')}</div>
         <div className="flexRow alignItemsCenter mBottom24">
           <span>{_l('每')}</span>
-          <Dropdown
+          <Select
             className="mLeft5 mRight5"
             placeholder={_l('请选择')}
             value={setting.readIntervalType}
             onChange={readIntervalType => {
               onChangeSetting({ readIntervalType, readTime: null });
             }}
-            border
-            data={[
-              { value: 0, text: _l('小时') },
-              { value: 1, text: _l('天') },
+            options={[
+              { value: 0, label: _l('小时') },
+              { value: 1, label: _l('天') },
             ]}
           />
           {setting.readIntervalType === 1 && (
-            <MdAntTimePicker
+            <TimePicker
               className="timePicker"
               format="HH:mm"
               placeholder="HH:mm"
@@ -247,10 +261,12 @@ export default function TimingSetting(props) {
           return (
             <React.Fragment key={i}>
               <Radio
-                text={item.text}
                 checked={setting.readType === item.value}
-                onClick={() => onChangeReadType(item.value)}
-              />
+                onChange={() => onChangeReadType(item.value)}
+                title={item.text}
+              >
+                {item.text}
+              </Radio>
 
               {item.value === 0 && (
                 <div className="mLeft30 mBottom20 tipsText">
@@ -320,7 +336,7 @@ export default function TimingSetting(props) {
               <Input
                 className="firstReadInput"
                 value={setting.config.firstValue}
-                onChange={firstValue => onChangeSetting({ config: { ...setting.config, firstValue } })}
+                onChange={event => onChangeSetting({ config: { ...setting.config, firstValue: event.target.value } })}
                 onBlur={e => {
                   onChangeSetting({ config: { ...setting.config, firstValue: e.target.value.trim() } });
                 }}
@@ -371,8 +387,10 @@ export default function TimingSetting(props) {
             </div>
           ) : (
             <div className="flexRow alignItemsCenter">
-              <Button onClick={onSave}>{_l('保存')}</Button>
-              <Button type="ghost" className="mLeft16" onClick={onClose}>
+              <Button type="primary" loading={saving} onClick={onSave}>
+                {_l('保存')}
+              </Button>
+              <Button color="primary" variant="outlined" className="mLeft16" onClick={onClose}>
                 {_l('取消')}
               </Button>
             </div>

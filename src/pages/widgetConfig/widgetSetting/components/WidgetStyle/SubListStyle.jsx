@@ -1,23 +1,26 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
-import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import { Icon } from 'ming-ui';
+import { Checkbox, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DISPLAY_FROZEN_LIST } from 'src/utils/domain/control/setting';
 import AttachmentConfig from '../AttachmentConfig';
 import TableConfig from './component/TableConfig';
+import TitleWrapConfig from './component/TitleWrapConfig';
 import TreeTableLevel from './component/TreeTableLevel';
 
-const DISPLAY_LIST = [
+const DISPLAY_FROZEN_OPTIONS = DISPLAY_FROZEN_LIST.map(({ text: label, ...option }) => ({ ...option, label }));
+
+const getDisplayOptions = layerControlId => [
   {
-    text: _l('滚动'),
+    label: _l('滚动'),
     value: '1',
   },
   {
-    text: _l('分页'),
+    label: _l('分页'),
     value: '2',
+    disabled: !!layerControlId,
   },
 ];
 
@@ -28,12 +31,11 @@ export default function SubListStyle(props) {
     blankrow = '1',
     rownum = '15',
     hidenumber,
-    titlewrap,
     layercontrolid,
     detailworksheettype,
-    rctitlestyle = '0',
     direction = '0',
     openstatistics,
+    rcsorttype = '2',
   } = getAdvanceSetting(data);
   const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
 
@@ -43,7 +45,7 @@ export default function SubListStyle(props) {
     _.get(sheetInfo, ['template', 'controls']) || _.get(sheetInfo, 'relationControls') || data.relationControls || [];
   const tableData = tableControls
     .filter(c => c.type === 29 && c.dataSource === data.dataSource && c.enumDefault === 1)
-    .map(i => ({ value: i.controlId, text: i.controlName }));
+    .map(i => ({ value: i.controlId, label: i.controlName }));
 
   const isDelete = layercontrolid && !_.find(tableControls, t => t.controlId === layercontrolid);
   const isUnSupport =
@@ -56,11 +58,11 @@ export default function SubListStyle(props) {
       <TableConfig {...props} />
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('冻结列')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           value={freezeIds[0] || '0'}
-          maxHeight={250}
-          data={DISPLAY_FROZEN_LIST}
+          listHeight={250}
+          options={DISPLAY_FROZEN_OPTIONS}
           onChange={value => {
             onChange(handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }));
           }}
@@ -76,21 +78,21 @@ export default function SubListStyle(props) {
               </Tooltip>
             )}
           </div>
-          <Dropdown
-            border
-            className={cx({ error: isUnSupport })}
-            cancelAble
+          <Select
+            className="w100"
+            status={isUnSupport ? 'error' : undefined}
+            allowClear
             placeholder={_l('选择子表中的关联本表字段')}
             value={layercontrolid || undefined}
-            renderTitle={() => {
+            labelRender={() => {
               if (isDelete) return <span className="Red">{_l('已删除')}</span>;
               return _.get(
                 _.find(tableControls, t => t.controlId === layercontrolid),
                 'controlName',
               );
             }}
-            data={tableData}
-            noData={_l('未添加关联本表字段')}
+            options={tableData}
+            notFoundContent={_l('未添加关联本表字段')}
             onChange={value => {
               if (layercontrolid === value) return;
               onChange(
@@ -102,6 +104,7 @@ export default function SubListStyle(props) {
                         showtype: '1',
                         defaultlayer: '5',
                         ...(openstatistics === '1' ? { openstatistics: '0' } : {}),
+                        ...(rcsorttype === '1' ? { rcsorttype: '2' } : {}),
                       }
                     : {}),
                 }),
@@ -116,25 +119,12 @@ export default function SubListStyle(props) {
       {layercontrolid && <TreeTableLevel {...props} />}
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
-        <AnimationWrap>
-          {DISPLAY_LIST.map(({ text, value }) => {
-            const disabled = value === '2' && layercontrolid;
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', {
-                  active: showtype === value,
-                  disabled: disabled,
-                })}
-                onClick={() => {
-                  if (disabled) return;
-                  onChange(handleAdvancedSettingChange(data, { showtype: value }));
-                }}
-              >
-                {text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Segmented
+          block
+          value={showtype}
+          options={getDisplayOptions(layercontrolid)}
+          onChange={value => onChange(handleAdvancedSettingChange(data, { showtype: value }))}
+        />
       </SettingItem>
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">
@@ -191,52 +181,20 @@ export default function SubListStyle(props) {
         <div className="settingItemTitle">{_l('其他')}</div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={hidenumber !== '1'}
-            text={_l('显示序号')}
-            onClick={checked => {
+            onChange={event => {
               onChange(
                 handleAdvancedSettingChange(data, {
-                  hidenumber: checked ? '1' : '0',
+                  hidenumber: !event.target.checked ? '1' : '0',
                 }),
               );
             }}
-          />
+            size="small"
+          >
+            {_l('显示序号')}
+          </Checkbox>
         </div>
-        {direction !== '1' && (
-          <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
-            <div className="labelWrap LineHeight36 mTop0">
-              <Checkbox
-                size="small"
-                checked={titlewrap === '1'}
-                text={_l('标题行文字换行')}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
-              />
-            </div>
-            {titlewrap === '1' && (
-              <AnimationWrap style={{ width: '112px' }}>
-                {DISPLAY_RC_TITLE_STYLE.map(({ icon, text, value }) => {
-                  return (
-                    <Tooltip title={text}>
-                      <div
-                        className={cx('animaItem', { active: rctitlestyle === value })}
-                        onClick={() => {
-                          onChange(
-                            handleAdvancedSettingChange(data, {
-                              rctitlestyle: value,
-                            }),
-                          );
-                        }}
-                      >
-                        <Icon icon={icon} className="Font18" />
-                      </div>
-                    </Tooltip>
-                  );
-                })}
-              </AnimationWrap>
-            )}
-          </div>
-        )}
+        {direction !== '1' && <TitleWrapConfig {...props} />}
       </SettingItem>
     </Fragment>
   );

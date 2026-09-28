@@ -4,10 +4,10 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Support, TagTextarea } from 'ming-ui';
-import Input from 'ming-ui/components/Input';
+import { Icon, Support, TagTextarea } from 'ming-ui';
+import { Input, Select } from 'ming-ui/antd-components';
 import { devTapList } from 'src/pages/worksheet/common/ViewConfig/components/DebugConfig/config.js';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 import tailwindIcon from './tailwind.svg';
 import vueIcon from './vue.svg';
 
@@ -80,22 +80,13 @@ const Wrap = styled.div`
       max-width: 400px;
     }
   }
-  .ming.Input {
-    border: 1px solid var(--color-border-primary);
-    &:hover {
-      border-color: var(--color-text-disabled);
-    }
-    &:focus {
-      border-color: var(--color-primary);
-    }
-  }
   .tagInputarea .tagInputareaIuput:not(.active) {
     border: 1px solid var(--color-border-primary) !important;
   }
 `;
 const OPTIONS = [
   {
-    text: _l('React 基础示例模板'),
+    label: _l('React 基础示例模板'),
     template: 'React',
     value: 1,
     iconTxt: 'react',
@@ -109,14 +100,14 @@ const OPTIONS = [
   // color:'#0288D1'
   // },
   {
-    text: _l('JavaScript 基础示例模板'),
+    label: _l('JavaScript 基础示例模板'),
     template: 'JavaScript',
     value: 3,
     iconTxt: 'JS',
     color: '#FFCA28',
   },
   {
-    text: _l('React + Tailwind CSS 模板'),
+    label: _l('React + Tailwind CSS 模板'),
     template: 'React-Tailwind',
     value: 4,
     svg: tailwindIcon,
@@ -124,7 +115,7 @@ const OPTIONS = [
     tip: _l('该模板 mdye-cli 依赖版本 >= beta-0.0.23'),
   },
   {
-    text: _l('Vue 模板'),
+    label: _l('Vue 模板'),
     template: 'Vue',
     value: 5,
     svg: vueIcon,
@@ -132,7 +123,7 @@ const OPTIONS = [
     tip: _l('Vue3，该模板 mdye-cli 依赖版本 >= beta-0.0.34'),
   },
   {
-    text: _l('Vue2 模板'),
+    label: _l('Vue2 模板'),
     template: 'Vue2',
     value: 6,
     svg: vueIcon,
@@ -160,16 +151,7 @@ export default function DebugConfig(params) {
   const { worksheetId, view = {}, onChangeView } = params;
   const { viewId, pluginInfo = {} } = view;
   const [
-    {
-      stepState,
-      cur,
-      editHref,
-      templateType,
-      customViewDebugUrl,
-      localStorageCustomViewDebugUrl,
-      configuration,
-      version,
-    },
+    { stepState, cur, templateType, customViewDebugUrl, localStorageCustomViewDebugUrl, configuration, version },
     setState,
   ] = useSetState({
     stepState: 0,
@@ -185,14 +167,14 @@ export default function DebugConfig(params) {
     const { view } = params;
     const { pluginInfo = {} } = view;
     const { stepState = 0, templateType = 1, configuration } = pluginInfo;
-    setState({
+    setState(state => ({
       stepState,
       templateType,
-      cur: editHref ? cur : stepState,
+      cur: state.editHref ? state.cur : stepState,
       configuration: _.isEmpty(configuration) ? '' : JSON.stringify(configuration),
-      version: version + 1,
-    });
-  }, [params]);
+      version: state.version + 1,
+    }));
+  }, [params, setState]);
 
   const renderTemplateTip = () => {
     const selectedTemplate = OPTIONS.find(o => o.value === (templateType || 1));
@@ -208,7 +190,7 @@ export default function DebugConfig(params) {
         {cur !== 0 && i === 0 && (
           <Fragment>
             <div className="mTop7">
-              {_l('已选择%0', OPTIONS.find(it => it.value === (templateType || 1)).text)}
+              {_l('已选择%0', OPTIONS.find(it => it.value === (templateType || 1)).label)}
               <span
                 className="editHref colorPrimary mLeft25 Hand"
                 onClick={e => {
@@ -298,12 +280,11 @@ export default function DebugConfig(params) {
       case 0:
         return (
           <React.Fragment>
-            <Dropdown
+            <Select
               className="editHrefDrop w100 mTop16"
-              border
               value={templateType || 1}
-              data={OPTIONS}
-              renderTitle={() => {
+              options={OPTIONS}
+              labelRender={() => {
                 let item = OPTIONS.find(o => o.value === (templateType || 1));
                 return (
                   <div className={cx('itemText flexRow alignItemsCenter')}>
@@ -312,11 +293,12 @@ export default function DebugConfig(params) {
                     ) : (
                       <Icon className="Hand Font18" icon={item.iconTxt} style={{ color: item.color }} />
                     )}
-                    <span className="mLeft5"> {item.text}</span>
+                    <span className="mLeft5"> {item.label}</span>
                   </div>
                 );
               }}
-              renderItem={item => {
+              optionRender={option => {
+                const item = option.data;
                 return (
                   <div className={cx('itemText flexRow alignItemsCenter')}>
                     {item.svg ? (
@@ -324,7 +306,7 @@ export default function DebugConfig(params) {
                     ) : (
                       <Icon className="Hand Font18" icon={item.iconTxt} style={{ color: item.color }} />
                     )}
-                    <span className="mLeft20"> {item.text}</span>
+                    <span className="mLeft20"> {item.label}</span>
                   </div>
                 );
               }}
@@ -416,9 +398,9 @@ export default function DebugConfig(params) {
                 className="flex"
                 value={customViewDebugUrl}
                 disabled={localStorageCustomViewDebugUrl}
-                onChange={customViewDebugUrl => {
+                onChange={e => {
                   setState({
-                    customViewDebugUrl,
+                    customViewDebugUrl: e.target.value,
                   });
                 }}
               />

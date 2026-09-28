@@ -1,17 +1,17 @@
 import React, { Fragment, memo, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import { Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import knowledgeAjax from '../../api/knowledge';
+import { useAutoFocus } from 'src/utils/platform/react/interaction';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { KNOWLEDGE_ACTION_VISIBLE_STATUS, STATUS_FROM } from '../../core/config';
-import { useAutoFocus, useKnowledgeUsage } from '../../core/hooks';
+import { useKnowledgeUsage } from '../../core/hooks';
 import { isDisabledKnowledge } from '../../core/utils';
 import Banner from '../Banner';
 import BasicStatus from '../BasicStatus';
 import CreateKnowledgeEntry from '../CreateKnowledgeEntry';
-import DialogFooter from '../DialogFooter';
 import Guide from '../Guide';
 import { useKnowledgeList } from './hooks';
 import './index.less';
@@ -21,6 +21,8 @@ const DIALOG_TYPE_MAP = {
   DELETE: 'delete',
   RESET: 'reset',
 };
+
+const DANGER_BUTTON_PROPS = { danger: true };
 
 const KnowledgeList = props => {
   const { appId, projectId, openKnowledgeDetail } = props;
@@ -98,7 +100,7 @@ const KnowledgeList = props => {
       setCurrentKnowledge({});
     } catch (err) {
       console.error(err);
-      alert(_l('更新失败'), 2);
+      alertIfNotUnauthorized(err, _l('更新失败'), 2);
     }
   };
 
@@ -114,7 +116,7 @@ const KnowledgeList = props => {
       alert(_l('删除成功'));
     } catch (err) {
       console.error(err);
-      alert(_l('删除失败'), 2);
+      alertIfNotUnauthorized(err, _l('删除失败'), 2);
     } finally {
       setDialogState(prev => ({ ...prev, loading: false }));
     }
@@ -165,44 +167,55 @@ const KnowledgeList = props => {
                 </Tooltip>
               </div>
               <div className="right">
-                <Trigger
-                  popupVisible={activeId === item.id}
-                  popup={
-                    <Menu className="knowledgeMoreActions" style={{ position: 'unset' }}>
-                      {KNOWLEDGE_ACTION_VISIBLE_STATUS.cancelVector.includes(item.taskStatus) && (
-                        <MenuItem>{_l('取消向量化入库')}</MenuItem>
-                      )}
-                      <MenuItem onClick={openUpdateKnowledgeDialog}>{_l('编辑信息')}</MenuItem>
-                      <MenuItem onClick={copyKnowledgeId}>{_l('复制 ID')}</MenuItem>
-                      {KNOWLEDGE_ACTION_VISIBLE_STATUS.reset.includes(item.taskStatus) && (
-                        <MenuItem onClick={openResetKnowledge}>{_l('重置知识库')}</MenuItem>
-                      )}
-                      <MenuItem className="delete" onClick={openDeleteKnowledge}>
-                        {_l('删除')}
-                      </MenuItem>
-                    </Menu>
-                  }
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tr', 'br'],
-                    offset: [0, 5],
-                    overflow: { adjustX: true, adjustY: true },
+                <Dropdown
+                  open={activeId === item.id}
+                  menu={{
+                    items: [
+                      KNOWLEDGE_ACTION_VISIBLE_STATUS.cancelVector.includes(item.taskStatus) && {
+                        key: 'cancelVector',
+                        label: _l('取消向量化入库'),
+                      },
+                      {
+                        key: 'edit',
+                        label: _l('编辑信息'),
+                        onClick: ({ domEvent }) => openUpdateKnowledgeDialog(domEvent),
+                      },
+                      {
+                        key: 'copyId',
+                        label: _l('复制 ID'),
+                        onClick: ({ domEvent }) => copyKnowledgeId(domEvent),
+                      },
+                      KNOWLEDGE_ACTION_VISIBLE_STATUS.reset.includes(item.taskStatus) && {
+                        key: 'reset',
+                        label: _l('重置知识库'),
+                        onClick: ({ domEvent }) => openResetKnowledge(domEvent),
+                      },
+                      {
+                        key: 'delete',
+                        label: _l('删除'),
+                        danger: true,
+                        onClick: ({ domEvent }) => openDeleteKnowledge(domEvent),
+                      },
+                    ].filter(Boolean),
                   }}
-                  onPopupVisibleChange={visible => {
+                  trigger={['click']}
+                  placement="bottomRight"
+                  onOpenChange={visible => {
                     setActiveId(visible ? item.id : null);
                   }}
                 >
-                  <div
-                    className="moreIconWrap"
+                  <Button
+                    color="default"
+                    variant="text"
+                    size="small"
+                    icon={<Icon icon="more_vert" />}
                     onClick={e => {
                       e.stopPropagation();
                       setCurrentKnowledge(item);
                       setActiveId(item.id);
                     }}
-                  >
-                    <Icon icon="more_vert" className="moreIcon" />
-                  </div>
-                </Trigger>
+                  />
+                </Dropdown>
               </div>
             </div>
             <div className="knowledgeInfo">
@@ -267,7 +280,7 @@ const KnowledgeList = props => {
           type="error"
           icon="info1"
           text={
-            !window.platformENV.isOverseas && !window.platformENV.isLocal
+            window.platformENV.isHap
               ? _l('组织授权到期，知识库暂不可用。知识库内数据将保留30天，到期后自动清空')
               : _l('组织授权到期，知识库暂不可用')
           }
@@ -286,7 +299,15 @@ const KnowledgeList = props => {
         <ScrollView>{renderKnowledgeWorksheet()}</ScrollView>
       </div>
       {dialogState.type === DIALOG_TYPE_MAP.UPDATE && (
-        <Dialog visible title={_l('编辑信息')} width={550} onCancel={closeDialog} onOk={saveKnowledge}>
+        <Modal
+          open
+          title={_l('编辑信息')}
+          width={550}
+          mask={{ closable: true }}
+          keyboard
+          onCancel={closeDialog}
+          onOk={saveKnowledge}
+        >
           <div className="updateKnowledgeForm">
             <div className="formLabel">{_l('名称')}</div>
             <input
@@ -304,62 +325,70 @@ const KnowledgeList = props => {
               onChange={e => setCurrentKnowledge({ ...currentKnowledge, description: e.target.value })}
             />
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.DELETE && (
-        <Dialog
-          visible
-          title={<span className="Red">{_l('删除知识库 “%0”', currentKnowledge.name)}</span>}
+        <Modal
+          open
+          title={<span className="textError">{_l('删除知识库 “%0”', currentKnowledge.name)}</span>}
           width={580}
+          okText={_l('确认删除')}
+          okButtonProps={DANGER_BUTTON_PROPS}
+          okDisabled={!dialogState.isChecked}
+          confirmLoading={dialogState.loading}
+          mask={{ closable: true }}
+          keyboard
           onCancel={closeDialog}
-          footer={
-            <DialogFooter
-              okLoading={dialogState.loading}
-              okType="danger"
-              okDisabled={!dialogState.isChecked}
-              okText={_l('确认删除')}
-              onCancel={closeDialog}
-              onOk={deleteKnowledgeBase}
-            />
-          }
+          onOk={deleteKnowledgeBase}
         >
           <div className="openDeleteKnowledge">
             <div className="mBottom3">{_l('删除后，知识库内容会被清空，相关工作流节点将无法检索此知识库')}</div>
             <div className="mBottom20">{_l('注：并不会删除原始工作表')}</div>
             <Checkbox
-              text={_l('我确认删除知识库')}
-              onClick={checked => setDialogState(prev => ({ ...prev, isChecked: checked }))}
-            />
+              onChange={event => {
+                const checked = event.target.checked;
+                return setDialogState(prev => ({
+                  ...prev,
+                  isChecked: checked,
+                }));
+              }}
+            >
+              {_l('我确认删除知识库')}
+            </Checkbox>
           </div>
-        </Dialog>
+        </Modal>
       )}
       {dialogState.type === DIALOG_TYPE_MAP.RESET && (
-        <Dialog
-          visible
-          title={<span className="Red">{_l('重置知识库')}</span>}
+        <Modal
+          open
+          title={<span className="textError">{_l('重置知识库')}</span>}
           width={580}
+          okText={_l('确认')}
+          okButtonProps={DANGER_BUTTON_PROPS}
+          okDisabled={!dialogState.isChecked}
+          confirmLoading={dialogState.loading}
+          mask={{ closable: true }}
+          keyboard
           onCancel={closeDialog}
-          footer={
-            <DialogFooter
-              okLoading={dialogState.loading}
-              okType="danger"
-              okDisabled={!dialogState.isChecked}
-              okText={_l('确认')}
-              onCancel={closeDialog}
-              onOk={resetKnowledge}
-            />
-          }
+          onOk={resetKnowledge}
         >
           <div className="openDeleteKnowledge">
             <div className="mBottom20">
               {_l('确认后将清空数据并重新分块（期间不可检索），分块完成后需您再次确认以开始向量数据入库。')}
             </div>
             <Checkbox
-              text={_l('我确认重置知识库')}
-              onClick={checked => setDialogState(prev => ({ ...prev, isChecked: checked }))}
-            />
+              onChange={event => {
+                const checked = event.target.checked;
+                return setDialogState(prev => ({
+                  ...prev,
+                  isChecked: checked,
+                }));
+              }}
+            >
+              {_l('我确认重置知识库')}
+            </Checkbox>
           </div>
-        </Dialog>
+        </Modal>
       )}
     </div>
   );

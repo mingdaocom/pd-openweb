@@ -15,12 +15,15 @@
   .editWorkflowName {
     box-sizing: border-box;
     width: 300px;
-    border: none;
-    font-size: 17px;
-    border: 1px solid transparent;
-    outline: none;
     padding: 8px;
+    border: 1px solid transparent;
+    font-size: 17px;
+    box-shadow: none;
     transition: all 0.5s;
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: none;
+    }
   }
 }
 

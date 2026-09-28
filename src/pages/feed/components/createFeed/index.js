@@ -1,46 +1,36 @@
-﻿import React from 'react';
-import { createRoot } from 'react-dom/client';
-import doT from 'dot';
+import React from 'react';
 import _ from 'lodash';
-import Dialog from 'ming-ui/components/Dialog';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import { Modal } from 'ming-ui/antd-components';
 import postAjax from 'src/api/post';
 import 'src/components/autoTextarea/autoTextarea';
 import createShare from 'src/components/createShare/createShare';
-import Emotion from 'src/components/emotion/emotion';
-import MentionsInput from 'src/components/MentionsInput';
-import UploadFiles from 'src/components/UploadFiles';
-import { pathCompletion } from 'src/utils/common';
-import LinkView from '../linkView/linkView';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import VoteUpdater from '../voteUpdater/voteUpdater';
-import tpl from './s.html';
-import './style.css';
+import CreateFeedContent from './CreateFeedContent';
 
-var langUploadFiles = _l('上传附件');
-var langShareLink = _l('分享网站') + '...';
-var langVoteQuestion = _l('请输入投票问题') + '...';
+const DEFAULT_PLACEHOLDER = () => _l('知会工作是一种美德') + '...';
+const ATTACHMENT_PLACEHOLDER = () => _l('上传附件');
+const VOTE_PLACEHOLDER = () => _l('请输入投票问题') + '...';
 
-export default function (options) {
-  var MDUpdater = {
+export default function createFeed(options) {
+  const MDUpdater = {
     options: {
       postType: {
         post: 0,
-        link: 1,
         vote: 7,
         attachment: 9,
       },
-      defaultPostType: 0, // 默认是动态
-      showType: ['post', 'link', 'vote', 'attachment'],
+      defaultPostType: 0,
+      showType: ['post', 'vote', 'attachment'],
       showToFeed: false,
       knowledge: true,
       appId: undefined,
-      uploadObj: null,
       isUploadComplete: true,
       attachmentData: [],
       kcAttachmentData: [],
-      defaultAttachmentData: [], // uploadAttachment的默认普通附件参数
-      defaultKcAttachmentData: [], // uploadAttachment的默认知识附件参数
-      linkViewData: null, // 链接预览数据
+      defaultAttachmentData: [],
+      defaultKcAttachmentData: [],
       selectGroupOptions: {
         maxHeight: 270,
         isAll: true,
@@ -51,220 +41,174 @@ export default function (options) {
       createShare: true,
       scope: undefined,
     },
-    handleOpen() {
-      let $Attachment_updater = $('[targetdiv="#MDUpdater_Attachment_updater"]');
+    controller: null,
+    isPosting: false,
+    voteElement: null,
 
-      if (!$Attachment_updater.hasClass('colorPrimary')) {
-        $Attachment_updater.click();
-        MDUpdater.options.filesRender = true;
+    getPlaceholder(postType) {
+      if (postType === MDUpdater.options.postType.attachment) {
+        return ATTACHMENT_PLACEHOLDER();
+      }
+
+      if (postType === MDUpdater.options.postType.vote) {
+        return VOTE_PLACEHOLDER();
+      }
+
+      return DEFAULT_PLACEHOLDER();
+    },
+
+    isPlaceholder(value) {
+      return [DEFAULT_PLACEHOLDER(), ATTACHMENT_PLACEHOLDER(), VOTE_PLACEHOLDER()].includes(value);
+    },
+
+    changeUpdaterType(postType, reset = false) {
+      const $textarea = $('#MDUpdater_textarea_Updater');
+      const currentValue = $textarea.val();
+
+      $('#MDUpdater_hidden_UpdaterType').val(postType);
+
+      if (!currentValue || MDUpdater.isPlaceholder(currentValue)) {
+        $textarea.val(MDUpdater.getPlaceholder(postType)).addClass('textTertiary');
+      }
+
+      if (postType === MDUpdater.options.postType.vote && !reset) {
+        VoteUpdater.init($('#MDUpdater_Vote_updater'));
+      }
+
+      if (reset) {
+        MDUpdater.resetUpdater();
       }
     },
-    handleUploadComplete(bool) {
-      MDUpdater.options.isUploadComplete = bool;
-      let $textarea = $('#MDUpdater_textarea_Updater');
-      let value = $textarea.val();
+
+    handleUploadComplete(isComplete) {
+      MDUpdater.options.isUploadComplete = isComplete;
+      const $textarea = $('#MDUpdater_textarea_Updater');
+      const value = $textarea.val();
 
       if (
-        bool &&
-        (!value || value == _l('知会工作是一种美德') + '...' || value == _l('上传附件')) &&
+        isComplete &&
+        (!value || MDUpdater.isPlaceholder(value)) &&
         (MDUpdater.options.attachmentData.length || MDUpdater.options.kcAttachmentData.length)
       ) {
-        $textarea.val(
-          MDUpdater.options.attachmentData.length
-            ? MDUpdater.options.attachmentData[0].originalFileName
-            : MDUpdater.options.kcAttachmentData[0].originalFileName,
-        );
-        $textarea.focus();
+        $textarea
+          .val(
+            MDUpdater.options.attachmentData.length
+              ? MDUpdater.options.attachmentData[0].originalFileName
+              : MDUpdater.options.kcAttachmentData[0].originalFileName,
+          )
+          .removeClass('textTertiary')
+          .focus();
       }
     },
-    render() {
-      const root = createRoot(document.querySelector('#MDUpdater_Attachment_updater'));
 
-      root.render(
-        <UploadFiles
-          dropPasteElement="MDUpdater_textarea_Updater"
-          onDropPasting={() => this.handleOpen()}
-          arrowLeft={4}
-          isInitCall={true}
-          temporaryData={MDUpdater.options.attachmentData}
-          kcAttachmentData={MDUpdater.options.kcAttachmentData}
-          onTemporaryDataUpdate={result => {
-            MDUpdater.options.attachmentData = result;
-          }}
-          onKcAttachmentDataUpdate={result => {
-            MDUpdater.options.kcAttachmentData = result;
-          }}
-          onUploadComplete={bool => {
-            this.handleUploadComplete(bool);
-            if (bool && MDUpdater.options.filesRender) {
-              MDUpdater.options.filesRender = undefined;
-              this.render();
-            }
-          }}
-        />,
-      );
+    handleGroupChange(value = {}) {
+      MDUpdater.options.scope =
+        !value.isMe &&
+        !(value.shareGroupIds || []).length &&
+        !(value.shareProjectIds || []).length &&
+        !(value.radioProjectIds || []).length
+          ? undefined
+          : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']);
     },
-    bindUploadEvent: function () {
-      let defaultAttachmentData = MDUpdater.options.defaultAttachmentData;
-      let defaultKcAttachmentData = MDUpdater.options.defaultKcAttachmentData;
 
-      if (defaultAttachmentData.length) {
-        MDUpdater.options.attachmentData = defaultAttachmentData;
-      }
-
-      if (defaultKcAttachmentData.length) {
-        MDUpdater.options.kcAttachmentData = defaultKcAttachmentData;
-      }
-
-      if (MDUpdater.options.defaultPostType === 0 || defaultAttachmentData.length || defaultKcAttachmentData.length) {
-        this.render();
-      }
-    },
-    resetUpdater: function (options, clearCallback) {
-      if (!options) {
-        options = {};
-      }
-
+    resetUpdater(clearCallback) {
       if (clearCallback) {
-        MDUpdater.options.callback = function () {};
+        MDUpdater.options.callback = () => {};
       }
 
-      var $mdUpdaterTextareaUpdater = $('#MDUpdater_textarea_Updater');
+      const $textarea = $('#MDUpdater_textarea_Updater');
+      const message = $textarea.val();
 
-      if ($mdUpdaterTextareaUpdater) {
-        var msg = $mdUpdaterTextareaUpdater.val();
-        if (!msg || msg == langUploadFiles || msg == langShareLink || msg == langVoteQuestion) {
-          $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
-        }
+      if (!message || MDUpdater.isPlaceholder(message)) {
+        $textarea.val(DEFAULT_PLACEHOLDER()).addClass('textTertiary');
       }
 
-      if (MDUpdater.options.defaultPostType !== 9) {
-        $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.post);
-      }
-
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
-        .removeClass('colorPrimary')
-        .addClass('textPlaceholder');
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Link_updater']").removeClass('colorPrimary').addClass('textPlaceholder');
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Vote_updater']").removeClass('colorPrimary').addClass('textPlaceholder');
-      $('#MDUpdater_Attachment_updater,#MDUpdater_Link_updater,#MDUpdater_Vote_updater').hide();
-
-      // 附件
-      MDUpdater.options.attachmentData = new Array();
-      MDUpdater.options.kcAttachmentData = new Array();
-      // this.render();
-
-      // 链接
-      var $mdUpdaterLinkUpdater = $('#MDUpdater_Link_updater');
-      $mdUpdaterLinkUpdater.find('.updaterLinkView').empty();
-      $mdUpdaterLinkUpdater.find('.textLinkUrl').val('http://').addClass('textPlaceholder');
-      MDUpdater.options.linkViewData = null;
-      $('#MDUpdater_button_Share').attr('disabled', false).removeClass('Disabled');
-      $('#MDUpdater_Link_updater .linkBtn').val(_l('预览')).attr('disabled', false).removeClass('Disabled');
-
-      // 投票
+      MDUpdater.options.attachmentData = [];
+      MDUpdater.options.kcAttachmentData = [];
+      MDUpdater.options.isUploadComplete = true;
+      $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.post);
       VoteUpdater.reset($('#MDUpdater_Vote_updater'));
-
-      // 关闭按钮
-      $('#mdUpdateCloseContainer').hide();
+      MDUpdater.controller?.resetContent();
     },
-    // 发布动态
-    postUpdater: function (obj) {
-      var $mdUpdaterTextareaUpdater = $('#MDUpdater_textarea_Updater');
-      var mdUpdaterTextareaUpdaterEl = $mdUpdaterTextareaUpdater.get(0);
-      var handlePost = data => {
-        var postMsg = data || '';
-        if (
-          !postMsg.trim() ||
-          postMsg == _l('知会工作是一种美德') + '...' ||
-          postMsg == langUploadFiles ||
-          postMsg == langShareLink ||
-          postMsg == langVoteQuestion
-        ) {
+
+    postUpdater() {
+      if (MDUpdater.isPosting) {
+        return;
+      }
+
+      const $textarea = $('#MDUpdater_textarea_Updater');
+      const textareaElement = $textarea.get(0);
+
+      const handlePost = data => {
+        const postMsg = data || '';
+
+        if (!postMsg.trim() || MDUpdater.isPlaceholder(postMsg)) {
           alert(_l('内容不能为空'), 3);
-          return false;
-        } else if (postMsg.length > 6000) {
+          return;
+        }
+
+        if (postMsg.length > 6000) {
           alert(_l('发表内容过长，最多允许6000个字符'), 3);
-          return false;
+          return;
         }
 
-        var postType = $('#MDUpdater_hidden_UpdaterType').val();
-        var isToFeed = $('#isToFeed').prop('checked');
-        var rData = { postType: postType, postMsg: postMsg };
-        // 不在动态更新显示
+        const postType = Number($('#MDUpdater_hidden_UpdaterType').val());
+        const isToFeed = $('#isToFeed').prop('checked');
+        const requestData = { postType, postMsg };
+
         if (!isToFeed) {
-          rData.showType = 1;
+          requestData.showType = 1;
         }
 
-        // 链接类型
-        if (postType == MDUpdater.options.postType.link) {
-          // 验证链接是否有效
-          var linkUrl = $('#MDUpdater_text_LinkUrl').val();
-
-          if (!linkUrl || linkUrl == 'http://') {
-            alert(_l('请输入链接'), 3);
-            return false;
-          }
-
-          if (MDUpdater.options.linkViewData) {
-            var linkViewData = MDUpdater.options.linkViewData;
-            rData.linkUrl = linkViewData.url;
-            rData.linkTitle = linkViewData.title;
-            rData.linkDesc = linkViewData.desc;
-            rData.linkThumb = linkViewData.img;
-          } else {
-            alert(_l('请预览链接'), 3);
-            return false;
-          }
-        } else if (postType == MDUpdater.options.postType.attachment && MDUpdater != 'undefined') {
-          if (typeof MDUpdater.options.isUploadComplete != 'undefined' && !MDUpdater.options.isUploadComplete) {
+        if (postType === MDUpdater.options.postType.attachment) {
+          if (!MDUpdater.options.isUploadComplete) {
             alert(_l('文件上传中，请稍等'), 3);
-            return false;
-          }
-
-          if (MDUpdater.options.attachmentData.length == 0 && MDUpdater.options.kcAttachmentData.length == 0) {
-            alert(_l('请选择要上传的附件'), 3);
-            return false;
-          }
-
-          var tempAttachments = MDUpdater.options.attachmentData.filter(function (item) {
-            return item.inEdit;
-          });
-          if (tempAttachments.length > 0) {
-            alert(_l('请先保存文件名'), 3);
-            return false;
-          }
-
-          rData.attachments = JSON.stringify(MDUpdater.options.attachmentData);
-          rData.knowledgeAttach = JSON.stringify(MDUpdater.options.kcAttachmentData);
-          // 如果发布内容与原文件名称一致，需要用户确认
-          if (MDUpdater.options.attachmentData[0] && postMsg == MDUpdater.options.attachmentData[0].originalFileName) {
-            if (!confirm(_l('确认要以原始图片名作为发布动态内容？'))) return false;
-          }
-        } else if (postType == MDUpdater.options.postType.vote) {
-          var voteData = VoteUpdater.getData($('#MDUpdater_Vote_updater'));
-          if (voteData.invalid) {
-            alert(_l('投票项内容不能为空'), 3);
             return;
           }
 
-          // 验证投票是否有选项
-          rData.voteOptions = voteData.voteOptions;
-          rData.voteOptionFiles = voteData.voteOptionFiles;
-          rData.voteLastTime = voteData.voteLastTime;
-          rData.voteLastHour = voteData.voteLastHour;
-          rData.voteAvailableNumber = voteData.voteAvailableNumber;
-          rData.voteAnonymous = voteData.voteAnonymous;
-          rData.voteVisble = voteData.voteVisble;
+          if (!MDUpdater.options.attachmentData.length && !MDUpdater.options.kcAttachmentData.length) {
+            alert(_l('请选择要上传的附件'), 3);
+            return;
+          }
+
+          if (MDUpdater.options.attachmentData.some(item => item.inEdit)) {
+            alert(_l('请先保存文件名'), 3);
+            return;
+          }
+
+          requestData.attachments = JSON.stringify(MDUpdater.options.attachmentData);
+          requestData.knowledgeAttach = JSON.stringify(MDUpdater.options.kcAttachmentData);
+
+          if (
+            MDUpdater.options.attachmentData[0] &&
+            postMsg === MDUpdater.options.attachmentData[0].originalFileName &&
+            !confirm(_l('确认要以原始图片名作为发布动态内容？'))
+          ) {
+            return;
+          }
+        } else if (postType === MDUpdater.options.postType.vote) {
+          const voteData = VoteUpdater.getData($('#MDUpdater_Vote_updater'));
+
+          if (voteData.invalid) {
+            VoteUpdater.alertInvalidData($('#MDUpdater_Vote_updater'));
+            return;
+          }
+
+          requestData.voteOptions = voteData.voteOptions;
+          requestData.voteOptionFiles = voteData.voteOptionFiles;
+          requestData.voteLastTime = voteData.voteLastTime;
+          requestData.voteLastHour = voteData.voteLastHour;
+          requestData.voteAvailableNumber = voteData.voteAvailableNumber;
+          requestData.voteAnonymous = voteData.voteAnonymous;
+          requestData.voteVisble = voteData.voteVisble;
         }
 
-        rData.appId = MDUpdater.options.appId;
+        requestData.appId = MDUpdater.options.appId;
 
-        // 判断群组
         if (MDUpdater.options.scope) {
-          rData.scope = MDUpdater.options.scope;
+          requestData.scope = MDUpdater.options.scope;
         } else if (!isToFeed) {
-          rData.scope = {
+          requestData.scope = {
             radioProjectIds: '',
             shareGroupIds: [],
             shareProjectIds: [MDUpdater.options.selectGroupOptions.projectId],
@@ -274,440 +218,211 @@ export default function (options) {
           return;
         }
 
-        // 知识门户
-        $(obj).attr('disabled', 'disabled').addClass('Disabled');
+        MDUpdater.isPosting = true;
+        MDUpdater.controller?.setPosting(true);
+        let posted = false;
 
         postAjax
-          .addPost(rData)
-          .then(function (result) {
-            if (!result.success) {
-              alert(_l('发布动态失败'), 2);
-              return;
-            }
-
-            if (MDUpdater.options.createShare) {
-              if (window.location.pathname.indexOf('/feed') > -1) {
-                alert(_l('发布成功'));
-                return false;
+          .addPost(requestData)
+          .then(
+            result => {
+              if (!result.success) {
+                alert(_l('发布动态失败'), 2);
+                return;
               }
 
-              createShare({
-                linkURL: pathCompletion('/feeddetail?itemID=' + result.post.postID),
-                content: _l('动态创建成功'),
-              });
+              posted = true;
+
+              const isFeedPage = MDUpdater.options.createShare && window.location.pathname.includes('/feed');
+
+              if (isFeedPage) {
+                alert(_l('发布成功'));
+              } else {
+                if (MDUpdater.options.createShare) {
+                  createShare({
+                    linkURL: pathCompletion(`/feeddetail?itemID=${result.post.postID}`),
+                    content: _l('动态创建成功'),
+                  });
+                }
+
+                if (MDUpdater.options.callback) {
+                  MDUpdater.options.callback(result.post);
+                } else {
+                  alert(_l('分享成功'));
+                }
+              }
+
+              $textarea.val('');
+              if (_.isFunction(textareaElement.reset)) {
+                textareaElement.reset();
+                textareaElement.clearStore();
+              }
+
+              MDUpdater.resetUpdater(true);
+            },
+            _requestError => {
+              alertIfNotUnauthorized(_requestError, _l('发布动态失败'), 2);
+            },
+          )
+          .finally(() => {
+            MDUpdater.isPosting = false;
+            MDUpdater.controller?.setPosting(false);
+
+            if (posted) {
+              MDUpdater.destroyRoots();
+              MDUpdater.modal?.destroy();
             }
-
-            if (MDUpdater.options.callback) {
-              MDUpdater.options.callback(result.post);
-            } else {
-              alert(_l('分享成功'));
-            }
-
-            $mdUpdaterTextareaUpdater.val('');
-
-            if (_.isFunction(mdUpdaterTextareaUpdaterEl.reset)) {
-              mdUpdaterTextareaUpdaterEl.reset();
-              mdUpdaterTextareaUpdaterEl.clearStore();
-            }
-
-            MDUpdater.resetUpdater(null, true);
-            MDUpdater.renderSelectGroup(MDUpdater.options.selectGroupOptions);
-          })
-          .finally(function () {
-            $(obj).removeAttr('disabled').removeClass('Disabled');
-            $('.easyDialogBoxMDUpdater')[0] && $('.easyDialogBoxMDUpdater').parent().remove();
           });
       };
 
-      if (_.isFunction(mdUpdaterTextareaUpdaterEl.val)) {
-        mdUpdaterTextareaUpdaterEl.val(handlePost);
+      if (_.isFunction(textareaElement.val)) {
+        textareaElement.val(handlePost);
       } else {
-        handlePost(mdUpdaterTextareaUpdaterEl.value);
+        handlePost(textareaElement.value);
       }
     },
-    // 拦截层选群组
-    dialogChooseGroup: function (el, hidGroupID, projectId) {
-      $(el).dialogSelectGroup({
-        projectId: projectId,
-        callback: function (groupIDs) {
-          var selectGroupOptions = MDUpdater.options.selectGroupOptions;
-          selectGroupOptions.defaultValue = groupIDs;
 
-          MDUpdater.renderSelectGroup(selectGroupOptions);
-          MDUpdater.postUpdater(el);
-        },
-      });
-    },
-    showUpdaterDivForDocCenter: function (options) {
-      if (options) {
-        $.extend(MDUpdater.options, options);
+    showUpdaterDivForDocCenter(nextOptions) {
+      if (nextOptions) {
+        Object.assign(MDUpdater.options, nextOptions);
       }
 
-      Dialog.confirm({
-        dialogClasses: 'easyDialogBoxMDUpdater',
+      MDUpdater.options.attachmentData = [...MDUpdater.options.defaultAttachmentData];
+      MDUpdater.options.kcAttachmentData = [...MDUpdater.options.defaultKcAttachmentData];
+
+      const hasDefaultAttachments =
+        MDUpdater.options.defaultAttachmentData.length + MDUpdater.options.defaultKcAttachmentData.length > 0;
+      const defaultPostType = hasDefaultAttachments
+        ? MDUpdater.options.postType.attachment
+        : Number(MDUpdater.options.defaultPostType);
+      const isAvailableDefaultTab =
+        (defaultPostType === MDUpdater.options.postType.attachment &&
+          MDUpdater.options.showType.includes('attachment')) ||
+        (defaultPostType === MDUpdater.options.postType.vote && MDUpdater.options.showType.includes('vote'));
+      const initialActiveTab = isAvailableDefaultTab ? String(defaultPostType) : '';
+      const initialPostType = isAvailableDefaultTab ? defaultPostType : MDUpdater.options.postType.post;
+      const { defaultValue, ...selectGroupOptions } = MDUpdater.options.selectGroupOptions;
+      const initialShareGroup = defaultValue
+        ? { shareGroupIds: [defaultValue], shareProjectIds: [], radioProjectIds: [] }
+        : {};
+
+      MDUpdater.handleGroupChange(initialShareGroup);
+
+      MDUpdater.modal = Modal.confirm({
+        afterClose: MDUpdater.destroyRoots,
+        onCancel: MDUpdater.destroyRoots,
+        wrapClassName: 'easyDialogBoxMDUpdater',
         width: 640,
-        noFooter: true,
-        children: <div dangerouslySetInnerHTML={{ __html: doT.template(tpl)() }}></div>,
+        footer: null,
+        styles: {
+          header: { padding: 0 },
+          body: { padding: 0, overflow: 'visible' },
+          container: { padding: 0 },
+        },
+        content: (
+          <CreateFeedContent
+            defaultAttachmentData={MDUpdater.options.attachmentData}
+            defaultKcAttachmentData={MDUpdater.options.kcAttachmentData}
+            initialActiveTab={initialActiveTab}
+            initialShareGroup={initialShareGroup}
+            knowledge={MDUpdater.options.knowledge}
+            postMsg={MDUpdater.options.postMsg}
+            selectGroupOptions={selectGroupOptions}
+            showToFeed={MDUpdater.options.showToFeed}
+            showType={MDUpdater.options.showType}
+            onAttachmentDataChange={data => {
+              MDUpdater.options.attachmentData = data;
+            }}
+            onGroupChange={MDUpdater.handleGroupChange}
+            onKcAttachmentDataChange={data => {
+              MDUpdater.options.kcAttachmentData = data;
+            }}
+            onEmotionSelect={() => {
+              const textareaElement = document.getElementById('MDUpdater_textarea_Updater');
+
+              if (MDUpdater.isPlaceholder(textareaElement.value)) {
+                textareaElement.value = '';
+              }
+            }}
+            onMount={controller => MDUpdater.bindEvent(controller, initialPostType)}
+            onPost={MDUpdater.postUpdater}
+            onTabChange={MDUpdater.changeUpdaterType}
+            onUploadComplete={MDUpdater.handleUploadComplete}
+          />
+        ),
       });
-
-      setTimeout(() => {
-        if (MDUpdater.options.postMsg) {
-          $('#MDUpdater_textarea_Updater').val(MDUpdater.options.postMsg);
-        }
-
-        MDUpdater.bindEvent();
-      }, 200);
     },
-    bindEvent: function () {
-      MDUpdater.bindUploadEvent();
 
-      setTimeout(function () {
-        $('#MDUpdater_textarea_Updater')[0].focus();
-      }, 10);
-
-      // 分享范围
-      MDUpdater.renderSelectGroup(MDUpdater.options.selectGroupOptions);
-
-      // 分享按钮
-      $('#MDUpdater_button_Share').val(_l('分享'));
-
-      $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.defaultPostType);
-
-      if (MDUpdater.options.showToFeed) {
-        $('#divIsToFeed').show();
+    destroyRoots() {
+      if (MDUpdater.voteElement) {
+        VoteUpdater.destroy($(MDUpdater.voteElement));
       }
 
-      if (!MDUpdater.options.knowledge) {
-        $('#MDUpdater_Div_JoinKnowledge').remove();
-      }
+      MDUpdater.voteElement = null;
+      MDUpdater.controller = null;
+    },
 
-      var $mdUpdaterTextareaUpdater = $('#MDUpdater_textarea_Updater');
-      var mdUpdaterTextareaUpdaterEl = $mdUpdaterTextareaUpdater.get(0);
+    bindEvent(controller, defaultPostType) {
+      MDUpdater.controller = controller;
+      MDUpdater.voteElement = document.getElementById('MDUpdater_Vote_updater');
+      const $textarea = $('#MDUpdater_textarea_Updater');
+      const textareaElement = $textarea.get(0);
 
-      $mdUpdaterTextareaUpdater
-        .focus(function () {
-          var msg = $mdUpdaterTextareaUpdater.val();
-          if (
-            msg == _l('知会工作是一种美德') + '...' ||
-            msg == langUploadFiles ||
-            msg == langShareLink ||
-            msg == langVoteQuestion
-          ) {
-            $mdUpdaterTextareaUpdater.val('');
+      setTimeout(() => textareaElement?.focus(), 10);
+
+      $textarea
+        .on('focus.createFeed', () => {
+          if (MDUpdater.isPlaceholder($textarea.val())) {
+            $textarea.val('');
           }
 
-          $mdUpdaterTextareaUpdater.removeClass('textTertiary');
+          $textarea.removeClass('textTertiary');
         })
-        .blur(function () {
-          if (_.isFunction(mdUpdaterTextareaUpdaterEl.store)) {
-            mdUpdaterTextareaUpdaterEl.store();
+        .on('blur.createFeed', function () {
+          if (_.isFunction(textareaElement.store)) {
+            textareaElement.store();
           }
 
           if (!$(this).val().trim()) {
-            $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
+            $textarea
+              .val(MDUpdater.getPlaceholder(Number($('#MDUpdater_hidden_UpdaterType').val())))
+              .addClass('textTertiary');
           }
         });
 
-      if (typeof $mdUpdaterTextareaUpdater.autoTextarea === 'function') {
-        $mdUpdaterTextareaUpdater.autoTextarea({
-          maxHeight: 150,
-          minHeight: 72,
-        });
+      if (typeof $textarea.autoTextarea === 'function') {
+        $textarea.autoTextarea({ maxHeight: 150, minHeight: 72 });
       }
 
-      MentionsInput({
-        input: mdUpdaterTextareaUpdaterEl,
+      controller.openMentionsInput({
+        input: textareaElement,
         submitBtn: 'MDUpdater_button_Share',
         showCategory: true,
         cacheKey: 'updatertext',
         reset: false,
         initCallback: () => {
           if (!MDUpdater.options.postMsg) {
-            mdUpdaterTextareaUpdaterEl.restore(success => {
+            textareaElement.restore(success => {
               if (success) {
-                $mdUpdaterTextareaUpdater.removeClass('textTertiary');
-                $('#myupdaterOP').show();
+                $textarea.removeClass('textTertiary');
               } else {
-                if (!MDUpdater.options.postMsg) {
-                  $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
-                }
+                $textarea.val(MDUpdater.getPlaceholder(defaultPostType)).addClass('textTertiary');
               }
             });
           }
         },
       });
 
-      if (_.includes(MDUpdater.options.showType, 'post')) {
-        // 右上角关闭
-        $('.Updater_Textpanel span.update_close').on('click', function () {
-          MDUpdater.resetUpdater();
-          if ($mdUpdaterTextareaUpdater) {
-            if (!$mdUpdaterTextareaUpdater.val().trim()) {
-              $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
-            }
-          }
-        });
-      } else {
-        $('.Updater_Textpanel span.update_close').css('display', 'none');
+      if (defaultPostType === MDUpdater.options.postType.vote) {
+        VoteUpdater.init($('#MDUpdater_Vote_updater'));
       }
 
-      if (_.includes(MDUpdater.options.showType, 'attachment'))
-        $("[targetdiv='#MDUpdater_Attachment_updater']").removeAttr('style');
-      if (_.includes(MDUpdater.options.showType, 'link'))
-        $("[targetdiv='#MDUpdater_Link_updater']").removeAttr('style');
-      if (_.includes(MDUpdater.options.showType, 'vote'))
-        $("[targetdiv='#MDUpdater_Vote_updater']").removeAttr('style');
-      if (_.includes(MDUpdater.options.showType, 'video'))
-        $("[targetdiv='#MDUpdater_Video_updater']").removeAttr('style');
-
-      $('#isToFeed').on('change', function () {
-        if ($(this).prop('checked')) {
-          $('#divIsToFeedToggle').removeClass('textPlaceholder').addClass('colorPrimary');
-          $('.Updater_Textpanel').find('.groupSelect').show();
-        } else {
-          $('#divIsToFeedToggle').removeClass('colorPrimary').addClass('textPlaceholder');
-          $('.Updater_Textpanel').find('.groupSelect').hide();
-        }
-      });
-
-      $('div.MDUpdater a[targetDiv]').on('click', function () {
-        var targetDivID = $(this).attr('targetDiv');
-        if (targetDivID == '#MDUpdater_Attachment_updater') {
-          if (
-            MDUpdater.options.attachmentData.length == 0 &&
-            MDUpdater.options.kcAttachmentData.length == 0 &&
-            $('#MDUpdater_Attachment_updater').is(':visible')
-          ) {
-            MDUpdater.resetUpdater();
-            return;
-          } else if ($('#MDUpdater_Attachment_updater').is(':visible')) {
-            return;
-          }
-        }
-
-        // 链接
-        if (targetDivID == '#MDUpdater_Link_updater') {
-          if (
-            ($('#MDUpdater_Link_updater').val().trim() == 'http://' ||
-              $('#MDUpdater_Link_updater').val().trim() == '') &&
-            $('#MDUpdater_Link_updater').is(':visible')
-          ) {
-            MDUpdater.resetUpdater();
-            return;
-          } else if ($('#MDUpdater_Link_updater').is(':visible')) {
-            return;
-          }
-        }
-
-        if (
-          targetDivID == '#MDUpdater_Vote_updater' &&
-          $('div.MDUpdater .voteOptions li').eq(0).find('input').val() == _l('请输入投票项') &&
-          $('div.MDUpdater .voteOptions li').eq(1).find('input').val() == _l('请输入投票项') &&
-          $('#MDUpdater_Vote_updater').is(':visible')
-        ) {
-          MDUpdater.resetUpdater();
-          return;
-        } else if (targetDivID == '#MDUpdater_Vote_updater' && $('#MDUpdater_Vote_updater').is(':visible')) {
-          return;
-        }
-
-        MDUpdater.resetUpdater();
-        // MDUpdater.bindUploadEvent();
-
-        if (targetDivID == '#MDUpdater_Attachment_updater') {
-          $('#MDUpdater_Attachment_updater').show(0, function () {
-            // MDUpdater.options.uploadObj.getPluploadObj().refresh();
-          });
-          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
-          $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.attachment);
-          if (
-            $('#MDUpdater_textarea_Updater') &&
-            ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
-              $('#MDUpdater_textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
-          ) {
-            $('#MDUpdater_textarea_Updater').val(langUploadFiles).addClass('textTertiary');
-          }
-
-          MDUpdater.render();
-        } else if (targetDivID == '#MDUpdater_Link_updater') {
-          $('#MDUpdater_Link_updater').show();
-          $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.link);
-          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
-          if (
-            $('#MDUpdater_textarea_Updater') &&
-            ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
-              $('#MDUpdater_textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
-          ) {
-            $('#MDUpdater_textarea_Updater').val(langShareLink).addClass('textTertiary');
-          }
-
-          $('#MDUpdater_Link_updater .textLinkUrl').on('keydown', function (e) {
-            var key = window.event ? e.keyCode : e.which;
-            if (key == 13) {
-              $('#MDUpdater_Link_updater .linkBtn').click();
-            }
-          });
-        } else if (targetDivID == '#MDUpdater_Vote_updater') {
-          $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.vote);
-
-          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
-          if (
-            $('#MDUpdater_textarea_Updater') &&
-            ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
-              $('#MDUpdater_textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
-          ) {
-            $('#MDUpdater_textarea_Updater').val(langVoteQuestion).addClass('textTertiary');
-          }
-
-          var index = $("a[targetDiv='#MDUpdater_Vote_updater']").prevAll(':visible').length;
-          $('#MDUpdater_Vote_updater').attr('left', index * 36 + 3);
-          VoteUpdater.init($('#MDUpdater_Vote_updater'));
-        } else {
-          $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.post);
-        }
-
-        $(targetDivID).show(0, function () {});
-        // 关闭按钮
-        if (targetDivID != '#MDUpdater_Video_updater') $('#mdUpdateCloseContainer').show();
-      });
-
-      // 上传音视频
-      if ($("[targetdiv='#MDUpdater_Video_updater']").length > 0) {
-        MDUpdater.showUploadPageForVideoCenter("[targetdiv='#MDUpdater_Video_updater']");
+      if (!MDUpdater.options.postMsg && !$textarea.val()) {
+        $textarea.val(MDUpdater.getPlaceholder(defaultPostType)).addClass('textTertiary');
       }
-
-      new Emotion('div.MDUpdater .faceBtn', {
-        input: '#MDUpdater_textarea_Updater',
-        placement: 'right bottom',
-        mdBear: false,
-        relatedLeftSpace: 22,
-        onSelect: function () {
-          var textBox = $('#MDUpdater_textarea_Updater')[0];
-          if (
-            textBox.value === _l('知会工作是一种美德') + '...' ||
-            textBox.value === langUploadFiles ||
-            textBox.value === langShareLink ||
-            textBox.value === langVoteQuestion
-          ) {
-            textBox.value = '';
-          }
-        },
-      });
-
-      // 链接预览
-      $('#MDUpdater_Link_updater .linkBtn').on('click', function () {
-        var linkUrl = $('#MDUpdater_text_LinkUrl').val().trim();
-        if (!linkUrl || linkUrl == 'http://') {
-          alert(_l('请输入链接'), 3);
-          return false;
-        }
-
-        var $el = $(this);
-        $el.val(_l('提取中...')).attr('disabled', true).addClass('Disabled');
-
-        var $btnShare = $('#MDUpdater_button_Share');
-        $btnShare.attr('disabled', true).addClass('Disabled');
-
-        LinkView($('#MDUpdater_Link_updater .updaterLinkView'), {
-          viewUrl: linkUrl,
-          callback: function (data) {
-            if (data.errorCode != '1') {
-              alert(_l('链接提取失败'), 3);
-              data = null;
-            }
-
-            MDUpdater.options.linkViewData = data;
-            $el.val(_l('预览')).attr('disabled', false).removeClass('Disabled');
-            $btnShare.attr('disabled', false).removeClass('Disabled');
-          },
-        });
-      });
-
-      // 发布
-      $('#MDUpdater_button_Share').on('click', function () {
-        MDUpdater.postUpdater(this);
-      });
-
-      // 默认触发点击哪个
-      if (MDUpdater.options.defaultPostType == MDUpdater.options.postType.vote) {
-        $("div.MDUpdater a[targetDiv='#MDUpdater_Vote_updater']").click();
-      }
-
-      if (MDUpdater.options.defaultAttachmentData.length + MDUpdater.options.defaultKcAttachmentData.length) {
-        // $("div.MDUpdater a[targetDiv='#MDUpdater_Attachment_updater']").click();
-        $('#MDUpdater_hidden_UpdaterType').val(9);
-        $('#MDUpdater_Attachment_updater').show();
-        $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
-          .addClass('colorPrimary')
-          .removeClass('textPlaceholder');
-      }
-    },
-    renderSelectGroup: options => {
-      if (options.defaultValue) {
-        MDUpdater.options.scope = {
-          shareGroupIds: [options.defaultValue],
-          shareProjectIds: [],
-          radioProjectIds: [],
-        };
-      }
-
-      const ele = document.getElementById('createFeedGroupSelect');
-
-      if (!ele) return;
-
-      const root = createRoot(ele);
-
-      root.render(
-        <SelectGroupTrigger
-          {...options}
-          defaultValue={
-            options.defaultValue
-              ? {
-                  shareGroupIds: [options.defaultValue],
-                }
-              : undefined
-          }
-          onChange={value => {
-            MDUpdater.options.scope =
-              !value.isMe &&
-              !(value.shareGroupIds || []).length &&
-              !(value.shareProjectIds || []).length &&
-              !(value.radioProjectIds || []).length
-                ? undefined
-                : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']);
-          }}
-          getPopupContainer={() => document.body}
-        />,
-      );
-    },
-    showVideoUpload: function () {
-      var dialogHeight = 450;
-      var dialogWidth = 660;
-      var dialogTop = (window.screen.height - dialogHeight) / 2 - 50;
-      var dialogLeft = (window.screen.width - dialogWidth) / 2 - 7;
-      var url = pathCompletion('/apps/videos/uploadpage/fileupload');
-      var features =
-        'top=' +
-        dialogTop +
-        'px,' +
-        'left=' +
-        dialogLeft +
-        'px,' +
-        'width=' +
-        dialogWidth +
-        'px,' +
-        'height=' +
-        dialogHeight +
-        'px,' +
-        'toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no';
-      window.open(url, '_blank', features);
-    },
-    showUploadPageForVideoCenter: function (element) {
-      $(element).click(function () {
-        MDUpdater.showVideoUpload();
-      });
     },
   };
+
   if (
     $('#dialogSendMessage').is(':visible') ||
     $('.easyDialogBoxMDUpdater').is(':visible') ||

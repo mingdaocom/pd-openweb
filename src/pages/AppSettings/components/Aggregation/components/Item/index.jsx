@@ -1,20 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Switch } from 'antd';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, MenuItem, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, UserHead } from 'ming-ui';
+import { Dropdown, Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import SyncTask from 'src/pages/integration/api/syncTask.js';
 import workflowAjax from 'src/pages/workflow/api/worksheetReference';
 import customApi from 'statistics/api/custom.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import { getTranslateInfo } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
 import MoveDialog from '../MoveDialog';
-import { Wrap, WrapDialog, WrapS } from './style';
+import { Wrap, WrapDialog } from './style';
 
 const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }) => {
   const [reCheck, setReCheck] = useState(false);
@@ -22,8 +20,8 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
   const [aggNameList, setAggNameList] = useState([]);
 
   useEffect(() => {
-    setReCheckLoading(true);
-    setAggNameList([]);
+    let cancelled = false;
+
     AggTableAjax.preReSyncCheck(
       {
         projectId,
@@ -32,11 +30,17 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
       },
       { isAggTable: true },
     ).then(res => {
+      if (cancelled) return;
+
       setReCheck(true);
       setReCheckLoading(false);
       setAggNameList(res.aggNameList);
     });
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [aggTableId, appId, projectId]);
 
   const handleOk = () => {
     setReCheckLoading(true);
@@ -71,27 +75,32 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
   };
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={true}
+      open
       title={_l('重新同步')}
+      keyboard
       onCancel={onClose}
-      okDisabled={reCheckLoading}
+      confirmLoading={reCheckLoading}
       okText={reCheckLoading && !reCheck ? _l('检测中...') : _l('确定')}
       onOk={handleOk}
     >
-      <div class="">
-        <div class="textPrimary Font14">{_l('重新获取数据源数据')}</div>
+      <div>
+        <div className="textPrimary Font14">{_l('重新获取数据源数据')}</div>
         {reCheck && aggNameList.length > 0 && (
-          <div class="mTop5">
+          <div className="mTop5">
             <div className="textTertiary">{_l('以下%0个聚合表使用该数据源', aggNameList.length)}</div>
-            {aggNameList.map(o => {
-              return <div className="mTop8">{o}</div>;
+            {aggNameList.map((name, index) => {
+              return (
+                <div className="mTop8" key={`${name}-${index}`}>
+                  {name}
+                </div>
+              );
             })}
           </div>
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 };
 
@@ -106,8 +115,7 @@ const getFullName = o => {
 };
 
 export default function ItemCard(props) {
-  const { item, items, onEdit, onChange, projectId, displayType, appId, onRefresh, canEdit } = props;
-  const trigger = useRef(null);
+  const { item, items, onEdit, onChange, projectId, displayType, appId, onRefresh, canEdit, canView } = props;
   const [{ showChangeName, showMoreOption, updating, showMoveDialog, showReSync }, setState] = useSetState({
     showChangeName: false,
     showMoreOption: false,
@@ -197,16 +205,22 @@ export default function ItemCard(props) {
 
   const checkItem = () => {
     const deleteDia = () => {
-      Dialog.confirm({
+      Modal.confirm({
         title: (
-          <span style={{ color: 'var(--color-error)' }} className="WordBreak">
+          <span
+            style={{
+              color: 'var(--color-error)',
+            }}
+            className="WordBreak textError"
+          >
             {_l('删除聚合表“%0”', item.name)}
           </span>
         ),
-        buttonType: 'danger',
-        anim: false,
+        okButtonProps: {
+          danger: true,
+        },
         okText: _l('确定'),
-        description: (
+        content: (
           <div className="pBottom6 pTop8">
             <span className="textPrimary">{_l('该聚合表未被引用，删除后不可恢复，请确认是否继续删除？')}</span>
           </div>
@@ -229,17 +243,22 @@ export default function ItemCard(props) {
         const hasGet = reportsRes.length > 0 || referencesRes?.data?.length > 0;
 
         if (hasGet) {
-          Dialog.confirm({
+          Modal.confirm({
             title: (
-              <span style={{ color: 'var(--color-error)' }} className="WordBreak">
+              <span
+                style={{
+                  color: 'var(--color-error)',
+                }}
+                className="WordBreak textError"
+              >
                 {_l('删除聚合表“%0”', item.name)}
               </span>
             ),
-            buttonType: 'danger',
-            anim: false,
+            okButtonProps: {
+              danger: true,
+            },
             okText: _l('确定'),
-            type: 'scroll',
-            description: (
+            content: (
               <WrapDialog>
                 <span className="textPrimary">
                   {_l('该聚合表当前仍被以下流程引用，删除后可能导致相关流程异常或数据不可用，请确认是否继续删除？')}
@@ -309,6 +328,8 @@ export default function ItemCard(props) {
         className="flex mLeft10 mRight20 flexRow alignItemsCenter Hand"
         style={{ minWidth: 120 }}
         onClick={e => {
+          if (!canEdit) return;
+
           e.stopPropagation();
           onEdit();
         }}
@@ -371,6 +392,7 @@ export default function ItemCard(props) {
             unCheckedChildren={_l('关闭%01019')}
             className="TxtMiddle tableSwitch mRight10"
             checked={item.taskStatus === TASK_STATUS_TYPE.RUNNING}
+            disabled={!canEdit}
             onChange={() => {
               if (!canEdit) return;
               changeTask(item.taskStatus);
@@ -407,7 +429,7 @@ export default function ItemCard(props) {
           item.aggTableTaskStatus !== 0 ? 'colorPrimary Hand hoverColorPrimary' : 'textTertiary',
         )}
         onClick={() => {
-          if (item.aggTableTaskStatus === 0 || !canEdit) {
+          if (item.aggTableTaskStatus === 0 || !canView) {
             return;
           }
 
@@ -420,89 +442,76 @@ export default function ItemCard(props) {
         {!canEdit ? (
           <span />
         ) : (
-          <Trigger
-            ref={trigger}
-            action={['click']}
-            popup={
-              <WrapS>
-                <MenuItem
-                  icon={<Icon className="Font16" icon={'edit'} />}
-                  onClick={event => {
+          <Dropdown
+            open={showMoreOption}
+            trigger={['click']}
+            placement="bottomLeft"
+            menu={{
+              items: [
+                {
+                  key: 'rename',
+                  icon: <Icon className="Font16" icon="edit" />,
+                  label: _l('重命名'),
+                  onClick: ({ domEvent }) => {
                     setState({
                       showMoreOption: false,
                       showChangeName: true,
                     });
-                    event.stopPropagation();
-                  }}
-                >
-                  <div className="mLeft16 textPrimary">{_l('重命名')}</div>
-                </MenuItem>
-                <MenuItem
-                  icon={<Icon className="Font16" icon={'copy'} />}
-                  onClick={event => {
+                    domEvent.stopPropagation();
+                  },
+                },
+                {
+                  key: 'copy',
+                  icon: <Icon className="Font16" icon="copy" />,
+                  label: _l('复制'),
+                  onClick: ({ domEvent }) => {
                     setState({
                       showMoreOption: false,
                     });
                     onCopy();
-                    event.stopPropagation();
-                  }}
-                >
-                  <div className="mLeft16 textPrimary">{_l('复制')}</div>
-                </MenuItem>
-                <MenuItem
-                  onClick={event => {
+                    domEvent.stopPropagation();
+                  },
+                },
+                {
+                  key: 'move',
+                  icon: <Icon className="Font16" icon="swap_horiz" />,
+                  label: _l('移动到'),
+                  onClick: ({ domEvent }) => {
                     setState({
                       showMoveDialog: true,
                       showMoreOption: false,
                     });
-                    event.stopPropagation();
-                  }}
-                  icon={<Icon className="Font16" icon={'swap_horiz'} />}
-                >
-                  <div className="mLeft16 textPrimary">{_l('移动到')}</div>
-                </MenuItem>
-                {item.taskStatus === TASK_STATUS_TYPE.RUNNING && (
-                  <MenuItem
-                    onClick={event => {
-                      setState({ showMoreOption: false, showReSync: true });
-                      event.stopPropagation();
-                    }}
-                    icon={<Icon className="Font16" icon={'ic_refresh_black'} />}
-                  >
-                    <div className="mLeft16 textPrimary">{_l('重新同步')}</div>
-                  </MenuItem>
-                )}
-                {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
-                  <MenuItem
-                    icon={<Icon icon={'trash'} className="Red Font16" />}
-                    className="Red"
-                    onClick={event => {
-                      event.stopPropagation();
-                      setState({
-                        showMoreOption: false,
-                      });
-                      checkItem();
-                    }}
-                  >
-                    <div className="mLeft16">{_l('删除')}</div>
-                  </MenuItem>
-                )}
-              </WrapS>
-            }
-            popupClassName={cx('dropdownTrigger PolymerizationTrigge')}
-            popupVisible={showMoreOption}
-            onPopupVisibleChange={visible => {
+                    domEvent.stopPropagation();
+                  },
+                },
+                item.taskStatus === TASK_STATUS_TYPE.RUNNING && {
+                  key: 'resync',
+                  icon: <Icon className="Font16" icon="ic_refresh_black" />,
+                  label: _l('重新同步'),
+                  onClick: ({ domEvent }) => {
+                    setState({ showMoreOption: false, showReSync: true });
+                    domEvent.stopPropagation();
+                  },
+                },
+                item.taskStatus !== TASK_STATUS_TYPE.RUNNING && {
+                  key: 'delete',
+                  icon: <Icon icon="trash" className="Font16" />,
+                  label: _l('删除'),
+                  danger: true,
+                  onClick: ({ domEvent }) => {
+                    domEvent.stopPropagation();
+                    setState({
+                      showMoreOption: false,
+                    });
+                    checkItem();
+                  },
+                },
+              ].filter(Boolean),
+            }}
+            onOpenChange={visible => {
               setState({
                 showMoreOption: visible,
               });
-            }}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 1],
-              overflow: {
-                adjustX: true,
-                adjustY: true,
-              },
             }}
           >
             <Icon
@@ -513,7 +522,7 @@ export default function ItemCard(props) {
               )}
               onClick={e => e.stopPropagation()}
             />
-          </Trigger>
+          </Dropdown>
         )}
       </div>
       {showReSync && (

@@ -2,10 +2,10 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
-import 'src/pages/Personal/personalInfo/modules/index.less';
+import AvatorInfo from 'src/components/UserInfoComponents/AvatorInfo.jsx';
 
 const Wrap = styled.div`
   p,
@@ -39,19 +39,20 @@ const Wrap = styled.div`
     text-align: center;
     cursor: pointer;
   }
-  input,
+  input {
+    padding: 8px 58px 8px 15px;
+    width: 100%;
+  }
   textarea {
     border: 1px solid var(--color-border-primary);
     padding: 8px 58px 8px 15px;
     border-radius: 3px;
     width: 100%;
+    height: 72px;
+    resize: none;
     &:focus {
       border: 1px solid var(--color-primary);
     }
-  }
-  textarea {
-    height: 72px;
-    resize: none;
   }
   .btn {
     margin-top: 32px;
@@ -93,28 +94,30 @@ function ConnectDesDia(props) {
 
   //编辑详细资料
   const handleUploadImg = () => {
-    Dialog.confirm({
+    const modal = Modal.confirm({
       width: 980,
       title: 'Logo',
-      showFooter: false,
-      dialogClasses: 'uploadAvatorDialogId_container',
-      description: _l('支持.png、.jpg图片格式，不小于80*80px'),
-      children: (
-        <WrapAvatorInfo>
-          <AvatorInfo
-            editAvatar={res => {
-              setState({ iconName: res.url });
-            }}
-            from="integration"
-            label={_l('点击这里上传图片')}
-            avatar={(iconName || ' ').split('imageView2')[0]}
-            closeDialog={() => {
-              $('.uploadAvatorDialogId_container').parent().remove();
-            }}
-            defaultType
-            cropRadius={100}
-          />
-        </WrapAvatorInfo>
+      footer: null,
+      wrapClassName: 'uploadAvatorDialogId_container',
+      content: (
+        <>
+          {_l('支持.png、.jpg图片格式，不小于80*80px')}
+          <WrapAvatorInfo>
+            <AvatorInfo
+              editAvatar={res => {
+                setState({
+                  iconName: res.url,
+                });
+              }}
+              from="integration"
+              label={_l('点击这里上传图片')}
+              avatar={(iconName || ' ').split('imageView2')[0]}
+              closeDialog={() => modal.destroy()}
+              defaultType
+              cropRadius={100}
+            />
+          </WrapAvatorInfo>
+        </>
       ),
     });
   };
@@ -133,8 +136,7 @@ function ConnectDesDia(props) {
       <p className="txt textTertiary mTop6">{_l('支持.png、.jpg图片格式，不小于80*80px')}</p>
       <p className="title">{_l('连接名称')}</p>
       <div className="Relative">
-        <input
-          type="text"
+        <Input
           value={name}
           className="Block mTop8"
           onChange={e => {

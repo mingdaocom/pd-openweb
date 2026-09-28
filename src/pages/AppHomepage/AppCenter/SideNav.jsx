@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { ScrollView, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import privateSource from 'src/api/privateSource';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { getCurrentProject } from 'src/utils/project';
-import PopupLinks from './components/PopupLinks';
+import { HAP_PREFIX_CLS } from 'src/common/config/theme/antdTheme';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission, hasPermission } from 'src/utils/services/security/permission';
 import ThirdApp from './components/ThirdApp';
-import { pathCompletion } from 'src/utils/common';
 
-const NATIVE_APP_ITEM = [
+const POPOVER_TRANSITION_NAME = `${HAP_PREFIX_CLS}-zoom-big`;
+const DROPDOWN_STYLES = { root: { transformOrigin: 'left top' } };
+const DROPDOWN_ITEM_STYLE = { color: 'var(--color-text-secondary)' };
+
+const getNativeAppItems = () => [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#1677ff', href: '/feed', key: 1 },
   { id: 'task', icon: 'task_basic_application', text: _l('任务'), color: '#3cca8f', href: '/apps/task', key: 2 },
   { id: 'calendar', icon: 'sidebar_calendar', text: _l('日程'), color: '#ff6d6c', href: '/apps/calendar/home', key: 3 },
@@ -22,7 +25,7 @@ const NATIVE_APP_ITEM = [
   { id: 'hr', icon: 'hr_home', text: _l('人事'), color: '#607D8B', href: '/hr', key: 5, openInNew: true },
 ];
 
-const NATIVE_INTERAGION_ITEM = [
+const getNativeIntegrationItems = () => [
   {
     id: 'api',
     icon: 'connect',
@@ -41,9 +44,26 @@ const NATIVE_INTERAGION_ITEM = [
   },
 ];
 
+const getDropdownItems = items =>
+  items.map(item => ({
+    key: item.id,
+    icon: item.icon ? <i className={`icon icon-${item.icon} Font20`} style={{ color: item.color }} /> : undefined,
+    label: item.name || item.text,
+    style: DROPDOWN_ITEM_STYLE,
+    onClick: () => {
+      if (item.onClick) {
+        item.onClick();
+      } else if (item.openInNew) {
+        window.open(pathCompletion(item.href), '_blank', 'noopener,noreferrer');
+      } else {
+        navigateTo(item.href);
+      }
+    },
+  }));
+
 const Con = styled.div`
   overflow: hidden;
-  background-color: ${({ themeBgColor }) => themeBgColor};
+  background-color: ${({ $themeBgColor }) => $themeBgColor};
   transition: width 0.2s;
   width: 68px;
   position: relative;
@@ -141,9 +161,9 @@ const ModuleEntry = styled(BaseEntry)`
     .entryIcon,
     .fullName,
     .name {
-      color: ${({ themeColor }) => themeColor};
+      color: ${({ $themeColor }) => $themeColor};
     }
-    background: ${({ activeColor }) => activeColor};
+    background: ${({ $activeColor }) => $activeColor};
   }
 `;
 
@@ -201,7 +221,7 @@ const DashboardEntry = styled.div`
   }
 `;
 
-const moduleEntries = [
+const getModuleEntries = () => [
   {
     type: 'dashboard',
     icon: 'home_page',
@@ -221,20 +241,20 @@ const moduleEntries = [
     fullName: _l('收藏'),
     href: '/favorite',
   },
-  !window.platformENV.isOverseas && !window.platformENV.isLocal
+  window.platformENV.isHap
     ? {
-      type: 'market',
-      icon: 'merchant',
-      name: _l('市场'),
-      fullName: _l('市场'),
-    }
+        type: 'market',
+        icon: 'merchant',
+        name: _l('市场'),
+        fullName: _l('市场'),
+      }
     : {
-      type: 'lib',
-      icon: 'custom_store',
-      name: _l('应用库%01000'),
-      fullName: _l('应用库%01012'),
-      href: '/app/lib',
-    },
+        type: 'lib',
+        icon: 'custom_store',
+        name: _l('应用库%01000'),
+        fullName: _l('应用库%01012'),
+        href: '/app/lib',
+      },
   {
     type: 'cooperation',
     icon: 'cooperation',
@@ -260,8 +280,11 @@ export default function SideNav(props) {
   const [isExpanded, setIsExpanded] = useState(localStorage.getItem('homeNavIsExpanded') === '1');
   const [thirdPartyAppVisible, setThirdPartyAppVisible] = useState();
   const [sourcesList, setSourcesList] = useState([]);
+  const moduleEntries = getModuleEntries();
+  const nativeAppItems = getNativeAppItems();
+  const nativeIntegrationItems = getNativeIntegrationItems();
   const { projectId } = currentProject;
-  const cooperationItems = NATIVE_APP_ITEM.filter(
+  const cooperationItems = nativeAppItems.filter(
     item =>
       md.global.SysSettings.forbidSuites.indexOf(item.key) === -1 &&
       (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
@@ -269,16 +292,16 @@ export default function SideNav(props) {
   const count = countData ? (countData.waitingDispose > 99 ? '99+' : countData.waitingDispose) : 0;
   const isExternal = _.isEmpty(getCurrentProject(projectId));
   const hasPluginAuth =
-    _.get(
-      _.find(md.global.Account.projects, item => item.projectId === projectId),
-      'allowPlugin',
-    ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
+    hasFeaturePermission(projectId, FEATURE_PERMISSION.PLUGIN) ||
+    hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_PLUGINS);
   const hasDataIntegrationAuth =
     !_.get(window, 'md.global.SysSettings.hideDataPipeline') &&
     hasPermission(myPermissions, [
+      PERMISSION_ENUM.CREATE_SYNC_TASK_FEATURE,
       PERMISSION_ENUM.CREATE_SYNC_TASK,
       PERMISSION_ENUM.MANAGE_SYNC_TASKS,
       PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+      PERMISSION_ENUM.MANAGE_DATA_MIRROR,
     ]);
 
   useEffect(() => {
@@ -305,8 +328,8 @@ export default function SideNav(props) {
     const content = (
       <ModuleEntry
         key={index}
-        themeColor={dashboardColor.themeColor}
-        activeColor={dashboardColor.activeColor}
+        $themeColor={dashboardColor.themeColor}
+        $activeColor={dashboardColor.activeColor}
         className={cx('moduleEntry', {
           active: active === entry.type,
           libraryEntry: 'lib' === entry.type,
@@ -322,16 +345,16 @@ export default function SideNav(props) {
         onClick={
           !entry.href
             ? () => {
-              if (entry.type === 'integration') {
-                const type = localStorage.getItem('integrationUrl');
-                navigateTo('/integration/' + (type || ''));
-              } else if (entry.type === 'plugin') {
-                const type = localStorage.getItem('pluginUrl');
-                navigateTo('/plugin/' + (type || ''));
-              } else if (entry.type === 'market') {
-                window.open(`${md.global.Config.MarketUrl}/apps`);
+                if (entry.type === 'integration') {
+                  const type = localStorage.getItem('integrationUrl');
+                  navigateTo('/integration/' + (type || ''));
+                } else if (entry.type === 'plugin') {
+                  const type = localStorage.getItem('pluginUrl');
+                  navigateTo('/plugin/' + (type || ''));
+                } else if (entry.type === 'market') {
+                  window.open(`${md.global.Config.MarketUrl}/apps`);
+                }
               }
-            }
             : _.noop
         }
       >
@@ -344,7 +367,7 @@ export default function SideNav(props) {
     switch (entry.type) {
       case 'dashboard':
         return (
-          <DashboardEntry isExpanded={isExpanded} key={index}>
+          <DashboardEntry key={index}>
             {content}
             {!!count && <span className={cx('count', { isExpanded, outed: String(count) === '99+' })}>{count}</span>}
             {!count && !!_.get(countData, 'waitingExamine') && (
@@ -354,39 +377,29 @@ export default function SideNav(props) {
         );
       case 'cooperation':
         return (
-          <Trigger
+          <Dropdown
             key={index}
-            action={['hover']}
-            popupAlign={{
-              points: ['tl', 'tr'],
-              offset: [12, -4],
-            }}
-            popup={
-              <PopupLinks
-                items={NATIVE_APP_ITEM.filter(
-                  item =>
-                    md.global.SysSettings.forbidSuites.indexOf(item.key) === -1 &&
-                    (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
-                )}
-              />
-            }
+            trigger={['hover']}
+            placement="rightTop"
+            transitionName={POPOVER_TRANSITION_NAME}
+            styles={DROPDOWN_STYLES}
+            menu={{ items: getDropdownItems(cooperationItems), style: { width: 200 } }}
           >
             {content}
-          </Trigger>
+          </Dropdown>
         );
       case 'integration':
         return hasDataIntegrationAuth ? (
-          <Trigger
+          <Dropdown
             key={index}
-            action={['hover']}
-            popupAlign={{
-              points: ['tl', 'tr'],
-              offset: [12, -4],
-            }}
-            popup={<PopupLinks items={NATIVE_INTERAGION_ITEM} />}
+            trigger={['hover']}
+            placement="rightTop"
+            transitionName={POPOVER_TRANSITION_NAME}
+            styles={DROPDOWN_STYLES}
+            menu={{ items: getDropdownItems(nativeIntegrationItems), style: { width: 200 } }}
           >
             {content}
-          </Trigger>
+          </Dropdown>
         ) : (
           content
         );
@@ -431,7 +444,7 @@ export default function SideNav(props) {
   return (
     <Con
       className={cx('sideNavWrapper', { isExpanded })}
-      themeBgColor={hasBgImg ? 'unset' : 'var(--color-background-primary)'}
+      $themeBgColor={hasBgImg ? 'unset' : 'var(--color-background-primary)'}
     >
       <div className="sideNavMask" />
       <ScrollView className="h100">
@@ -441,7 +454,7 @@ export default function SideNav(props) {
             {(!cooperationItems.length ? moduleEntries.filter(m => m.type !== 'cooperation') : moduleEntries)
               .filter(
                 o =>
-                  !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
+                  !(o.type === 'cooperation' && !nativeAppItems.length) &&
                   !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary) &&
                   !(o.type === 'integration' && md.global.SysSettings.hideIntegration) &&
                   !(o.type === 'plugin' && md.global.SysSettings.hidePlugin),
@@ -473,9 +486,11 @@ export default function SideNav(props) {
                     safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
                   }}
                 >
-                  <span className="fullName Font12 textSecondary flex" style={{ marginLeft: '25px' }}>
-                    {'v' + md.global.Config.Version}
-                  </span>
+                  {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
+                    <span className="fullName Font12 textSecondary flex" style={{ marginLeft: '25px' }}>
+                      {'v' + md.global.Config.Version}
+                    </span>
+                  )}
                   <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} textSecondary`} />
                 </ResourceEntry>
               </Tooltip>

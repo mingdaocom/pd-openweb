@@ -1,8 +1,8 @@
 import React from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { ColorPicker, Icon } from 'ming-ui';
+import { Input, InputNumber, Segmented } from 'ming-ui/antd-components';
 import { defaultTitleStyles, replaceTitleColor } from 'src/pages/customPage/components/ConfigSideWrap/util';
 
 const Wrap = styled.div`
@@ -17,50 +17,12 @@ const Wrap = styled.div`
     height: 28px;
     border-radius: 4px;
     border: 1px solid var(--color-border-tertiary);
+    transition: border 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  .pageInput {
-    &.ant-input-affix-wrapper {
-      padding: 0;
-      .ant-input {
-        height: 30px;
-      }
-    }
-    &.ant-input-affix-wrapper:hover,
     &:hover {
-      border-color: var(--color-primary) !important;
-    }
-    &.ant-input-affix-wrapper,
-    &.ant-input-affix-wrapper-focused,
-    & {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-input-suffix {
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 0 4px 4px 0;
-      border-left: 1px solid var(--color-border-primary);
-      background-color: var(--color-background-input);
-    }
-    .icon-expand_less,
-    .icon-expand_more {
-      line-height: 10px;
-    }
-    &.ant-picker-range .ant-picker-input > input {
-      font-size: 13px;
-    }
-  }
-  .countInput {
-    .disabled {
-      color: var(--color-border-primary);
-    }
-    .ant-input-suffix {
-      width: 38px !important;
+      border-color: var(--color-primary);
     }
   }
 `;
@@ -112,41 +74,18 @@ export default props => {
             >
               <div className="colorWrap" style={{ backgroundColor: color }}></div>
             </ColorPicker>
-            <Input
-              className="pageInput countInput mRight10"
+            <InputNumber
+              className="mRight10"
               style={{ width: 100 }}
-              value={`${newTitleStyles.fontSize} px`}
-              readOnly={true}
-              suffix={
-                <div className="flexColumn">
-                  <Icon
-                    icon="expand_less"
-                    className={cx(
-                      'Font20 pointer mBottom2',
-                      newTitleStyles.fontSize === 32 ? 'disabled' : 'textTertiary',
-                    )}
-                    onClick={() => {
-                      let value = Number(newTitleStyles.fontSize) + 1;
-                      handleChange({
-                        fontSize: newTitleStyles.fontSize === 32 ? 32 : value,
-                      });
-                    }}
-                  />
-                  <Icon
-                    icon="expand_more"
-                    className={cx(
-                      'Font20 pointer mBottom2',
-                      newTitleStyles.fontSize === 13 ? 'disabled' : 'textTertiary',
-                    )}
-                    onClick={() => {
-                      let value = Number(newTitleStyles.fontSize) - 1;
-                      handleChange({
-                        fontSize: newTitleStyles.fontSize === 13 ? 13 : value,
-                      });
-                    }}
-                  />
-                </div>
-              }
+              min={13}
+              max={32}
+              value={newTitleStyles.fontSize}
+              formatter={value => `${value} px`}
+              parser={value => (value || '').replace(/\s?px/g, '')}
+              onChange={value => {
+                if (value === null) return;
+                handleChange({ fontSize: value });
+              }}
             />
             <div
               className="colorWrap"
@@ -180,32 +119,15 @@ export default props => {
         </div>
         <div className="flexRow alignItemsCenter mBottom12">
           <div className="label">{_l('对齐方式')}</div>
-          <div className="typeSelect flexRow valignWrapper">
-            <div
-              className={cx('centerAlign pLeft10 pRight10 pointer textSecondary', {
-                active: newTitleStyles.textAlign === 'left',
-              })}
-              onClick={() => {
-                handleChange({
-                  textAlign: 'left',
-                });
-              }}
-            >
-              <Icon icon="format_align_left" className="Font18" />
-            </div>
-            <div
-              className={cx('centerAlign pLeft10 pRight10 pointer textSecondary', {
-                active: newTitleStyles.textAlign === 'center',
-              })}
-              onClick={() => {
-                handleChange({
-                  textAlign: 'center',
-                });
-              }}
-            >
-              <Icon icon="format_align_center" className="Font18" />
-            </div>
-          </div>
+          <Segmented
+            className="bgDisabled"
+            options={[
+              { icon: <Icon icon="format_align_left" className="Font18" />, value: 'left' },
+              { icon: <Icon icon="format_align_center" className="Font18" />, value: 'center' },
+            ]}
+            value={newTitleStyles.textAlign}
+            onChange={textAlign => handleChange({ textAlign })}
+          />
         </div>
       </div>
     </Wrap>

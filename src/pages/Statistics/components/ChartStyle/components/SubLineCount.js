@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Checkbox, Input } from 'antd';
+import { Checkbox, Input } from 'ming-ui/antd-components';
 
 export default class SubLineCount extends Component {
   constructor(props) {
@@ -54,9 +54,9 @@ export default class SubLineCount extends Component {
             </Checkbox>
             <div className="mBottom5">{_l('名称')}</div>
             <Input
-              className="chartInput"
               defaultValue={data.subTotalName || _l('总计')}
-              onChange={event => {
+              onPressEnter={event => event.currentTarget.blur()}
+              onBlur={event => {
                 onChangeCurrentReport({
                   pivotTable: {
                     ...currentReport.pivotTable,

@@ -1,5 +1,4 @@
 .workConfigControl {
-  height: 560px !important;
   .workConfigControlBox {
     overflow: auto;
     .controlSeparate {
@@ -31,16 +30,9 @@
           box-sizing: border-box;
           height: 36px;
           align-items: center;
-          .Dropdown.disabled {
-            background-color: var(--color-background-secondary);
-          }
-          .Dropdown--input {
-            padding-left: 5px !important;
-          }
         }
       }
       .excelControls {
-        .excelControlDropDown,
         .cantConfig {
           height: 36px;
           line-height: 36px;
@@ -53,87 +45,10 @@
           width: 100%;
           background: var(--color-background-secondary);
         }
-        .excelControlDropDown {
-          &.fixedDropdownSelected {
-            cursor: pointer;
-            font-weight: normal;
-          }
-          .dropDownLabel {
-            display: inline-block;
-            width: 350px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-        }
-      }
-    }
-  }
-  .repeatConfigDropdown {
-    .ming.List {
-      top: inherit !important;
-      bottom: 36px;
-      width: auto;
-      min-width: 180px;
-    }
-    &.multi-dropdown {
-      .dropdown-btn {
-        border-width: 1px;
-        border-style: solid;
-        border-color: var(--color-border-primary);
-        height: 36px;
-        box-sizing: border-box;
-        border-radius: 4px;
-        display: inline-flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-left: 12px;
-        span {
-          max-width: 200px;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          overflow: hidden;
-        }
-      }
-    }
-  }
-  .Dropdown {
-    &.disabled {
-      .icon-arrow-down-border {
-        visibility: hidden;
       }
     }
   }
   .repeatConfigError {
     color: var(--color-error);
-  }
-  .errorSkipDialog {
-    position: absolute;
-    top: inherit !important;
-    bottom: 0 !important;
-    width: 440px;
-    padding: 16px;
-  }
-}
-
-.excelControlDropDownList {
-  max-height: 220px;
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-    background: var(--color-background-primary) !important;
-  }
-  .ant-dropdown-menu-item {
-    line-height: 26px;
-    height: 36px;
-    font-size: 13px;
-    transition: none !important;
-  }
-  .ant-dropdown-menu-item-active {
-    color: var(--color-white);
-    background-color: var(--color-background-hover) !important;
-  }
-  .ant-dropdown-menu-item-selected {
-    color: var(--color-primary) !important;
-    background-color: var(--color-background-primary) !important;
   }
 }

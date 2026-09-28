@@ -4,16 +4,16 @@ import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import { Support } from 'ming-ui';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { getMyPermissions } from 'src/components/checkPermission';
-import { hasPermission } from 'src/components/checkPermission';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { integrationConfig } from 'src/pages/integration/config.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { addSubPathOfRoute, emitter } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject } from 'src/utils/project';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { addSubPathOfRoute } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import APILibrary from './apiIntegration';
 import ConnectList from './apiIntegration/ConnectList';
 import Connector from './dataIntegration/connector';
@@ -134,16 +134,17 @@ export default class HubContainer extends React.Component {
     const info = integrationConfig.find(o => o.type === type) || {};
     const { currentProjectId } = this.state;
     const myPermissions = getMyPermissions(currentProjectId);
+    const canCreateTask = hasPermission(myPermissions, [
+      PERMISSION_ENUM.CREATE_SYNC_TASK_FEATURE,
+      PERMISSION_ENUM.CREATE_SYNC_TASK,
+    ]);
+    const canAccessDataMirror = hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_DATA_MIRROR);
     const menuAuth = {
-      noCreateTaskMenu: !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK),
-      noSyncTaskMenu:
-        !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK) &&
-        !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_SYNC_TASKS),
-      noSourceMenu:
-        !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK) &&
-        !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_DATA_SOURCES),
-      noMirrorMenu: !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK),
-      noStatsMenu: !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK),
+      noCreateTaskMenu: !canCreateTask,
+      noSyncTaskMenu: !canCreateTask && !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_SYNC_TASKS),
+      noSourceMenu: !canCreateTask && !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_DATA_SOURCES),
+      noMirrorMenu: !canAccessDataMirror,
+      noStatsMenu: !canCreateTask,
     };
     const param = {
       ...this.props,

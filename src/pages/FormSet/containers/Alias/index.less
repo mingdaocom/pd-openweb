@@ -54,19 +54,11 @@
       margin: 32px 0;
     }
     .name {
-      border: 1px solid var(--color-text-placeholder);
-      border-radius: 2px;
       width: 100%;
       height: 36px;
       line-height: 36px;
       padding: 0 13px;
       box-sizing: border-box;
-      &:hover {
-        border: 1px solid var(--color-text-disabled);
-      }
-      &:focus {
-        border: 1px solid var(--color-primary);
-      }
     }
     .preview {
       & > div {
@@ -77,14 +69,8 @@
           padding: 5px 0;
           color: var(--color-text-secondary);
         }
-        .btnCon {
-          display: inline-block;
-          padding: 5px 18px;
-          background: var(--color-primary) 0% 0% no-repeat padding-box;
-          border-radius: 22px;
-          color: var(--color-white);
+        .aliasButtonPreview {
           max-width: 560px;
-          cursor: initial;
         }
         &.notice {
           display: flex;
@@ -124,21 +110,6 @@
   }
   .nameFocus {
     background-color: var(--color-warning);
-  }
-  .btnAlias {
-    border: 1px solid var(--color-primary);
-    border-radius: 3px;
-    width: 132px;
-    text-align: center;
-    height: 36px;
-    line-height: 36px;
-    display: inline-block;
-    color: var(--color-primary);
-    cursor: pointer;
-    &:hover {
-      color: var(--color-white);
-      background-color: var(--color-primary);
-    }
   }
   .listCon {
     position: absolute;

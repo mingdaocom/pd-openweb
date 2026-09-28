@@ -3,16 +3,23 @@ import cx from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { DatePicker } from 'ming-ui/antd-components';
+
+const DATE_FORMAT = 'YYYY-MM-DD';
+const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
+const DATE_TIME_PICKER_CONFIG = { format: 'HH:mm' };
 
 const DateRange = props => {
-  const { type, disabled, value: originValue, onChange } = props;
+  const { type, disabled, value: originValue, onChange, compProps = {}, isFormDetail } = props;
+  const { className: compClassName, ...restCompProps } = compProps;
 
   const handleChange = value => {
-    const formatText = type === 17 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm';
+    const formatText = type === 17 ? DATE_FORMAT : DATE_TIME_FORMAT;
 
     if (value) {
       value = JSON.stringify([value[0].format(formatText), value[1].format(formatText)]);
+    } else {
+      value = '';
     }
 
     onChange(value);
@@ -53,28 +60,34 @@ const DateRange = props => {
   const parsedValue = JSON.parse(originValue || JSON.stringify(['', '']));
   const start = parsedValue[0] ? moment(parsedValue[0]) : null;
   const end = parsedValue[1] ? moment(parsedValue[1]) : null;
-  const formatText = type === 17 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm';
+  const formatText = type === 17 ? DATE_FORMAT : DATE_TIME_FORMAT;
   const durationText = duration();
 
   return (
-    <DateTimeRange
+    <DatePicker.RangePicker
+      allowClear={!disabled}
+      className={cx('w100 dateRangeFormPicker classtabfocus', compClassName, { controlDisabled: disabled })}
       disabled={disabled}
-      selectedValue={start ? [start, end] : null}
-      timePicker={type === 18}
-      timeMode="minute"
-      placeholder=""
-      onOk={handleChange}
-      onClear={() => handleChange('')}
-    >
-      <div className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}>
-        <span className={cx('flex mRight20 ellipsis', { textDisabled: !start })}>
-          {start && end ? `${start.format(formatText)} ~ ${end.format(formatText)}` : _l('请选择日期')}
-          {durationText && <span className="mLeft5">{durationText}</span>}
-        </span>
-
-        {!disabled && <Icon icon="bellSchedule" className="Font16 textDisabled" />}
-      </div>
-    </DateTimeRange>
+      format={formatText}
+      inputReadOnly
+      needConfirm
+      placeholder={[_l('开始日期'), _l('结束日期')]}
+      separator="~"
+      showNow={false}
+      showTime={type === 18 ? DATE_TIME_PICKER_CONFIG : false}
+      variant={isFormDetail ? 'filled' : 'outlined'}
+      suffixIcon={
+        durationText || !disabled ? (
+          <React.Fragment>
+            {durationText && <span className="Font13 textSecondary mRight5">{durationText}</span>}
+            {!disabled && <Icon icon="bellSchedule" className="Font16 textDisabled" />}
+          </React.Fragment>
+        ) : null
+      }
+      value={start && end ? [start, end] : null}
+      onChange={handleChange}
+      {...restCompProps}
+    />
   );
 };
 
@@ -84,6 +97,8 @@ DateRange.propTypes = {
   disabled: PropTypes.bool,
   value: PropTypes.string,
   onChange: PropTypes.func,
+  compProps: PropTypes.object,
+  isFormDetail: PropTypes.bool,
 };
 
 export default DateRange;

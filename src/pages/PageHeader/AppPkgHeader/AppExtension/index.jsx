@@ -7,10 +7,10 @@ import { Icon, MdLink } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import LanguageList from 'src/pages/PageHeader/components/LanguageList';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
 
 const RoleDebugSelectWrap = styled.div(
-  ({ navColor, borderColor }) => `
+  ({ $navColor, $borderColor }) => `
     width: 160px;
     height: 32px;
     border-radius: 16px;
@@ -18,7 +18,7 @@ const RoleDebugSelectWrap = styled.div(
     align-items: center;
     cursor: pointer;
     &:hover {
-      border: 1px solid ${borderColor} !important;
+      border: 1px solid ${$borderColor} !important;
     }
     a {
       line-height: 1;
@@ -26,7 +26,7 @@ const RoleDebugSelectWrap = styled.div(
     .roledebugSelectWrap-iconWrap {
       padding: 0 9px;
       border-radius: 34px;
-      background: ${navColor};
+      background: ${$navColor};
       display: flex;
       height: 24px;
       align-items: center;
@@ -86,7 +86,11 @@ export default props => {
     }
 
     return (
-      <RoleDebugSelectWrap className="roledebugSelectWrap mRight12" navColor={navColor} borderColor={getBorderColor()}>
+      <RoleDebugSelectWrap
+        className="roledebugSelectWrap mRight12"
+        $navColor={navColor}
+        $borderColor={getBorderColor()}
+      >
         {roleEntryVisible && (
           <MdLink to={`/app/${appId}/role`}>
             <Tooltip placement="bottom" title={_l('用户')}>

@@ -8,12 +8,12 @@ import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { renderFieldStyleValue } from 'statistics/common/controlUtils';
 import * as actions from 'statistics/redux/actions';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SingleView from 'src/pages/worksheet/common/SingleView';
-import { emitter } from 'src/utils/common';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { emitter } from 'src/utils/platform/browser/dom';
 import charts from '../Charts';
-import { reportTypes } from '../Charts/common';
 import { WithoutData } from '../components/ChartStatus';
 
 const Con = styled.div`

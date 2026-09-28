@@ -1,8 +1,9 @@
 ﻿import React from 'react';
 import { findIndex, isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, WaterMark } from 'ming-ui';
-import preall from 'src/common/preall';
+import { LoadDiv } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
+import preall from 'src/common/entries/preall';
 import { NODE_TYPE } from '../../constant/enum';
 import AttachmentsPreview from '../AttachmentsPreview';
 import { getAttachment } from './controller';

@@ -3,8 +3,8 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { pathCompletion } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
 
 const RecordItem = styled.div`
   margin-top: 12px;

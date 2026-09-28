@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Modal, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SearchInput } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../api/datasource';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { formatDate } from '../../../config';
 import { CREATE_TYPE, dataMirrorDestTypes, ROLE_TYPE, SOURCE_FROM_TYPE } from '../../constant';
 
@@ -23,9 +23,7 @@ const ExistSourceWrapper = styled.div`
     border-bottom: 1px solid var(--color-border-secondary);
 
     .searchInput {
-      background: var(--color-background-primary);
       width: 94%;
-      height: 36px;
       margin-top: 7px;
       margin-left: 10px;
     }
@@ -265,12 +263,18 @@ export default function ExistSourceModal(props) {
     });
   };
 
-  const onSearch = useCallback(
-    _.debounce(value => {
-      setSearchKeyWords(value);
-    }, 500),
-    [],
-  );
+  const debouncedSearch = useMemo(() => _.debounce(setSearchKeyWords, 500), []);
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  const onSearch = value => {
+    if (value) {
+      debouncedSearch(value);
+    } else {
+      debouncedSearch.cancel();
+      setSearchKeyWords('');
+    }
+  };
 
   const onSelect = selectItem => {
     //获取数据源详情以回填表单
@@ -302,15 +306,10 @@ export default function ExistSourceModal(props) {
   };
 
   return (
-    <Modal visible width={1000} type="fixed" bodyStyle={{ padding: '0' }} onCancel={onClose}>
+    <Modal open width={1000} type="fixed" styles={{ container: { padding: '0' } }} onCancel={onClose}>
       <ExistSourceWrapper>
         <div className="headerWrapper">
-          <SearchInput
-            className="searchInput"
-            placeholder={_l('搜索数据源名称、地址')}
-            value={searchKeyWords}
-            onChange={onSearch}
-          />
+          <SearchInput className="searchInput" placeholder={_l('搜索数据源名称、地址')} onChange={onSearch} />
         </div>
         <div className="contentWrapper">
           <div className="flexRow h100">

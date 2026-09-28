@@ -36,6 +36,7 @@ export default function AnonAttachmentSlot({
   icon = 'attachment',
   onSessionChange,
   createSession,
+  children,
 }) {
   const inputRef = useRef(null);
 
@@ -122,14 +123,18 @@ export default function AnonAttachmentSlot({
   return (
     <>
       <input ref={inputRef} type="file" multiple accept={ACCEPT} style={{ display: 'none' }} onChange={handlePick} />
-      <BgIconButton
-        className={className}
-        style={{ borderRadius: '8px', padding: '6px' }}
-        icon={icon}
-        tooltip={<AttachmentTooltip max={MAX_ANON_ATTACHMENTS} />}
-        popupPlacement="top"
-        onClick={() => inputRef.current && inputRef.current.click()}
-      />
+      {children ? (
+        React.cloneElement(children, { onClick: () => inputRef.current?.click() })
+      ) : (
+        <BgIconButton
+          className={className}
+          style={{ borderRadius: '8px', padding: '6px' }}
+          icon={icon}
+          tooltip={<AttachmentTooltip max={MAX_ANON_ATTACHMENTS} />}
+          popupPlacement="top"
+          onClick={() => inputRef.current?.click()}
+        />
+      )}
     </>
   );
 }

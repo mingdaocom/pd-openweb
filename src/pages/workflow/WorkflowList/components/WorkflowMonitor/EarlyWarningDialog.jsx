@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, Input, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon, UserHead } from 'ming-ui';
+import { Button, Checkbox, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+
+const WARNING_INPUT_STYLE = { width: 'auto' };
 
 const NotifierCon = styled.div`
   display: flex;
@@ -39,13 +41,6 @@ const AddNotifierBtn = styled.div`
   &:hover {
     border: 1px solid var(--color-primary);
     color: var(--color-primary);
-  }
-`;
-
-const InputWrap = styled(Input)`
-  &.overLimit,
-  &.overLimit.Input:focus {
-    border-color: #f00 !important;
   }
 `;
 
@@ -124,11 +119,13 @@ class EarlyWarningDialog extends Component {
         <span className="mRight16">
           {type === 'balance' ? _l('当组织信用点余额低于') : _l('当累积排队超过 / 降低到')}
         </span>
-        <InputWrap
+        <Input
+          style={WARNING_INPUT_STYLE}
           placeholder={_l('请输入')}
-          className={cx('mRight16', { overLimit, mTop10: _.includes([1], getCurrentLangCode()) })}
+          className={cx('mRight16', { mTop10: _.includes([1], getCurrentLangCode()) })}
+          status={overLimit ? 'error' : undefined}
           value={warningValue}
-          onChange={this.changeBalanceWarningValue}
+          onChange={event => this.changeBalanceWarningValue(event.target.value)}
           onBlur={e => {
             let val = e.target.value;
             val = val.replace(/[^0-9]/g, '');
@@ -150,7 +147,7 @@ class EarlyWarningDialog extends Component {
 
     return (
       <NoticeMethod className="mTop26">
-        <div className="mBottom12">
+        <div className="mBottom12 flexRow alignItemsCenter">
           {_l('通知方式')}
           <Tooltip placement="bottom" title={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
             <Icon icon="info" className="textDisabled mLeft8 Font16" />
@@ -166,7 +163,7 @@ class EarlyWarningDialog extends Component {
             <Checkbox
               checked={noticeTypes.includes(item.value)}
               disabled={index === 0}
-              onClick={() => this.onChangeNoticeTypes(item.value)}
+              onChange={() => this.onChangeNoticeTypes(item.value)}
             >
               <span>{item.label}</span>
             </Checkbox>
@@ -182,7 +179,7 @@ class EarlyWarningDialog extends Component {
     const isWorkflow = type === 'workflow';
 
     return (
-      <Dialog
+      <Modal
         title={
           type === 'balance' ? (
             <div>
@@ -200,45 +197,32 @@ class EarlyWarningDialog extends Component {
             _l('预警设置')
           )
         }
-        visible
+        open
         onCancel={onCancel}
-        overlayClosable={false}
-        footer={
-          <div className="flexRow">
-            <div className="flex TxtLeft">
-              {isWarning ? (
-                <Button
-                  style={{ minWidth: 0, padding: '0 8px' }}
-                  type="link"
-                  onClick={() => closeWarning(isWorkflow ? 0 : warningValue, [], [], onCancel)}
-                >
-                  {_l('关闭预警')}
-                </Button>
-              ) : (
-                ''
-              )}
-            </div>
-            <Button type="link" onClick={onCancel}>
-              {_l('取消')}
-            </Button>
+        onOk={() => {
+          if (overLimit || !warningValue) {
+            this.setState({ overLimit: true });
+            alert(ALERT_TIP[type], 3);
+            return;
+          }
+
+          if (_.isEmpty(notifiers)) {
+            return alert(_l('请选择通知人'), 3);
+          }
+
+          this.props.onOk(warningValue, notifiers, noticeTypes, onCancel);
+        }}
+        mask={{ closable: false }}
+        footerLeftElement={
+          isWarning ? (
             <Button
-              onClick={() => {
-                if (overLimit || !warningValue) {
-                  this.setState({ overLimit: true });
-                  alert(ALERT_TIP[type], 3);
-                  return;
-                }
-
-                if (_.isEmpty(notifiers)) {
-                  return alert(_l('请选择通知人'), 3);
-                }
-
-                this.props.onOk(warningValue, notifiers, noticeTypes, onCancel);
-              }}
+              color="primary"
+              variant="link"
+              onClick={() => closeWarning(isWorkflow ? 0 : warningValue, [], [], onCancel)}
             >
-              {_l('确定')}
+              {_l('关闭预警')}
             </Button>
-          </div>
+          ) : null
         }
       >
         {this.renderSetting()}
@@ -272,9 +256,11 @@ class EarlyWarningDialog extends Component {
           </div>
         </NotifierCon>
         {this.renderNoticeMethod()}
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export const settingEarlyWarning = props => functionWrap(EarlyWarningDialog, props);
+export function useEarlyWarningDialog() {
+  return useFunctionWrapComponent(EarlyWarningDialog);
+}

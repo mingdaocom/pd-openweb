@@ -3,7 +3,7 @@ import { CircleAdd } from '../../styled';
 
 export default function Department(props) {
   return (
-    <CircleAdd displayRow={props.displayRow}>
+    <CircleAdd $displayRow={props.displayRow}>
       <i className="icon-add"></i>
     </CircleAdd>
   );

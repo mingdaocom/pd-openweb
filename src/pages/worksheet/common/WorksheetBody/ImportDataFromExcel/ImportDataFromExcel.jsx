@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { antNotification } from 'ming-ui';
+import { Notification } from 'ming-ui/antd-components';
 import ConfigControl from './ConfigControl';
 import ErrorDialog from './ErrorDialog';
 import ImportConfig from './ImportConfig';
@@ -56,15 +56,15 @@ export const wsexcelSocketInit = () => {
           return txt1 + txt2;
         };
 
-        antNotification.close(id);
-        antNotification.success({
+        Notification.close(id);
+        Notification.success({
           key: 'wsServiceErrorCountDialog',
-          message: _l('导入完成'),
+          title: _l('导入完成'),
           description: wsServiceErrorCount > 0 ? _l('导入完成，部分数据未导入。请查看错误报告后重试') : title(),
           btnText: isErrorMsg ? _l('查看错误报告') : '',
           onBtnClick: () => {
             ErrorDialog({ fileKey: id });
-            antNotification.close('wsServiceErrorCountDialog');
+            Notification.close('wsServiceErrorCountDialog');
           },
         });
       }
@@ -133,10 +133,10 @@ export default class ImportDataFromExcel extends Component {
           fileId={fileInfo.fileId}
           fileKey={fileKey}
           onSave={key => {
-            antNotification.info({
+            Notification.info({
               key,
               loading: true,
-              message: _l('正在导入数据“%0”', worksheetName),
+              title: _l('正在导入数据“%0”', worksheetName),
               description: _l('这可能需要一段时间。现在您可以进行其他操作，全部导入完成后将会通知您'),
             });
           }}

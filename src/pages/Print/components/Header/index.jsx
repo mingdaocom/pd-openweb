@@ -3,10 +3,12 @@ import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import { Icon, LoadDiv } from 'ming-ui';
-import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
+import { Button, Input } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/services/project';
 import { fromType, typeForCon } from '../../core/config';
 import { getPrintLayoutConfig } from '../../core/layout';
-import { openPrintPageInBrowser } from './CopyPrintLinkPopup';
+import { usePrintPageInBrowser } from './CopyPrintLinkPopup';
 import { isThirdPartyBrowser, requestExportWord } from './utils';
 import './index.less';
 
@@ -40,7 +42,8 @@ class Header extends React.Component {
     try {
       this.richTextImgHandle();
       const { printData } = this.props;
-      const { layout } = getPrintLayoutConfig(printData.advanceSettings);
+      const { layout, paperSizeOption, paperDirectionOption } = getPrintLayoutConfig(printData.advanceSettings);
+      const isHorizontal = paperDirectionOption.value === 'horizontal';
       let contentNode = document.getElementById('printItemsBox').cloneNode(true);
       // 移除分隔节点
       const separators = contentNode.querySelectorAll('.printItemSeparator');
@@ -128,6 +131,8 @@ class Header extends React.Component {
         const param = {
           name: printData.name || printData.formName || '打印',
           html: str || '',
+          width: isHorizontal ? paperSizeOption.height : paperSizeOption.width,
+          height: isHorizontal ? paperSizeOption.width : paperSizeOption.height,
         };
 
         requestExportWord(param).then(data => {
@@ -145,7 +150,7 @@ class Header extends React.Component {
 
   handlePrint = () => {
     const { params, isMobile } = this.props;
-    const { printId, projectId, worksheetId, rowIds } = params;
+    const { printId, worksheetId, rowIds } = params;
 
     if (window.isMingDaoApp) {
       compatibleMDJS('openNativePage', {
@@ -158,7 +163,7 @@ class Header extends React.Component {
     }
 
     if (isThirdPartyBrowser()) {
-      openPrintPageInBrowser(projectId);
+      this.props.openPrintPageInBrowser();
       return false;
     }
 
@@ -214,6 +219,7 @@ class Header extends React.Component {
       pagesInfo,
       showPrintAndSaveButtons,
       isMobile,
+      saveLoading,
     } = this.props;
     const { type, from, isDefault, fileTypeNum } = params;
     const { isEdit, exportLoading } = this.state;
@@ -221,6 +227,7 @@ class Header extends React.Component {
     const hideExportWord =
       isMobile && (window.isWxWork || window.isDingTalk || window.isFeiShu || window.isWeiXin || window.isMingDaoApp);
     const showExportWord = !hideExportWord && type === typeForCon.PREVIEW && isDefault && allowDown;
+    const previewTitle = isMobile && !printData.name ? _l('系统打印') : _l('预览: %0', printData.name);
 
     return (
       <div
@@ -230,7 +237,7 @@ class Header extends React.Component {
         })}
       >
         <React.Fragment>
-          <div className="headerTitleRow">
+          <div className={cx('headerTitleRow', { hasPageIndicator: from === fromType.PRINT && !!pagesInfo })}>
             {from === fromType.FORM_SET && (
               <React.Fragment>
                 <Icon
@@ -240,13 +247,13 @@ class Header extends React.Component {
                     this.props.onCloseFn();
                   }}
                 />
-                {type === typeForCon.NEW && <span className="Font17 Bold">{_l('新建模板')}</span>}
-                {type === typeForCon.EDIT && <span className="Font17 Bold">{_l('编辑模板')}</span>}
+                {type === typeForCon.NEW && <span className="Font17 Bold flex-shrink-0">{_l('新建模板')}</span>}
+                {type === typeForCon.EDIT && <span className="Font17 Bold flex-shrink-0">{_l('编辑模板')}</span>}
                 {type !== typeForCon.PREVIEW && (
                   <React.Fragment>
                     {isEdit ? (
-                      <input
-                        type="text"
+                      <Input
+                        variant="underlined"
                         placeholder={_l('请输入模板名称')}
                         className="tepName"
                         value={printData.name}
@@ -278,30 +285,28 @@ class Header extends React.Component {
                 )}
                 <div className="Right headerActions">
                   {type !== typeForCon.PREVIEW && (
-                    <React.Fragment>
-                      <div
-                        className="saveButton InlineBlock Hand Bold"
-                        onClick={() => {
-                          // saveTem();
-                          if (!printData.name) {
-                            alert(_l('请输入模板名称'), 3);
-                            return;
-                          }
+                    <Button
+                      type="primary"
+                      loading={saveLoading}
+                      onClick={() => {
+                        if (!printData.name) {
+                          alert(_l('请输入模板名称'), 3);
+                          return;
+                        }
 
-                          saveFn();
-                        }}
-                      >
-                        {_l('保存')}
-                      </div>
-                    </React.Fragment>
+                        saveFn();
+                      }}
+                    >
+                      {_l('保存')}
+                    </Button>
                   )}
                 </div>
               </React.Fragment>
             )}
             {type === typeForCon.PREVIEW && (
-              <span className="Font17 Bold flex overflow_ellipsis">
+              <span className="previewTitle Font17 Bold overflow_ellipsis" title={previewTitle}>
                 {/* 兼容H5批量系统打印显示 */}
-                {isMobile && !printData.name ? _l('系统打印') : _l('预览: %0', printData.name)}
+                {previewTitle}
               </span>
             )}
             {from === fromType.PRINT && type === typeForCon.NEW && (
@@ -381,4 +386,6 @@ class Header extends React.Component {
   }
 }
 
-export default Header;
+export default withOpeners(Header, {
+  openPrintPageInBrowser: usePrintPageInBrowser,
+});

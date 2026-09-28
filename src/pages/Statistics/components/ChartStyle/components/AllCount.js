@@ -1,54 +1,52 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Collapse, Input, Switch } from 'antd';
 import _ from 'lodash';
+import { Checkbox, Input, Switch } from 'ming-ui/antd-components';
 import { isNumberControl } from 'statistics/common/controlUtils';
 import { Count } from './Count';
 
 export default function allCountPanelGenerator(props) {
-  const { key, title, yaxisList, summary, currentReport, changeCurrentReport, ...collapseProps } = props;
+  const { key, title, yaxisList, summary, currentReport, changeCurrentReport } = props;
   const { displaySetup } = currentReport;
   const { controlList = [] } = summary;
   const totalSwitch = summary.all && controlList.length === yaxisList.length;
-  return (
-    <Collapse.Panel
-      key={key}
-      header={title}
-      {...collapseProps}
-      extra={
-        <Switch
-          size="small"
-          checked={totalSwitch}
-          onClick={(checked, event) => {
-            event.stopPropagation();
-          }}
-          onChange={checked => {
-            changeCurrentReport(
-              {
-                displaySetup: {
-                  ...displaySetup,
-                  showTotal: checked,
-                },
-                summary: {
-                  ...summary,
-                  all: checked,
-                  controlList: checked
-                    ? yaxisList.map(data => {
-                        return {
-                          controlId: data.controlId,
-                          name: '',
-                          sum: 0,
-                          type: 1,
-                        };
-                      })
-                    : [],
-                },
+  return {
+    key,
+    label: title,
+    extra: (
+      <Switch
+        size="small"
+        checked={totalSwitch}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+        }}
+        onChange={checked => {
+          changeCurrentReport(
+            {
+              displaySetup: {
+                ...displaySetup,
+                showTotal: checked,
               },
-              true,
-            );
-          }}
-        />
-      }
-    >
+              summary: {
+                ...summary,
+                all: checked,
+                controlList: checked
+                  ? yaxisList.map(data => {
+                      return {
+                        controlId: data.controlId,
+                        name: '',
+                        sum: 0,
+                        type: 1,
+                      };
+                    })
+                  : [],
+              },
+            },
+            true,
+          );
+        }}
+      />
+    ),
+    children: (
       <Fragment>
         <div className="mBottom16">
           <Checkbox
@@ -74,13 +72,15 @@ export default function allCountPanelGenerator(props) {
           <div className="mBottom8">{_l('提示')}</div>
           <Input
             defaultValue={summary.name || _l('总计')}
-            className="chartInput w100"
-            onChange={event => {
+            maxLength={20}
+            className="w100"
+            onPressEnter={event => event.currentTarget.blur()}
+            onBlur={event => {
               changeCurrentReport(
                 {
                   summary: {
                     ...summary,
-                    name: event.target.value.slice(0, 20),
+                    name: event.target.value,
                   },
                 },
                 false,
@@ -171,6 +171,6 @@ export default function allCountPanelGenerator(props) {
             );
           })}
       </Fragment>
-    </Collapse.Panel>
-  );
+    ),
+  };
 }

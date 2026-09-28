@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import mingoLogo from '../ChatList/Mingo/images/mingo.png';
 
 const Mingo = styled.div`
@@ -44,10 +44,11 @@ export default props => {
       <div className="flexRow alignItemsCenter widthMaxContent mBottom15">
         <Switch
           checked={isOpenSearch}
-          onClick={value => {
-            handleSureSettings('isOpenSearch', !value ? 1 : 0, () => {
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            handleSureSettings('isOpenSearch', !!checked ? 1 : 0, () => {
               handleChangeAccountSettings({
-                isOpenSearch: !value,
+                isOpenSearch: !!checked,
               });
             });
           }}
@@ -59,10 +60,11 @@ export default props => {
         <div className="flexRow alignItemsCenter mBottom15">
           <Switch
             checked={isOpenMingoAI}
-            onClick={value => {
-              handleSureSettings('isOpenMingoAI', !value ? 1 : 0, () => {
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              handleSureSettings('isOpenMingoAI', !!checked ? 1 : 0, () => {
                 handleChangeAccountSettings({
-                  isOpenMingoAI: !value,
+                  isOpenMingoAI: !!checked,
                 });
               });
             }}
@@ -95,7 +97,8 @@ export default props => {
       <span className="flexRow alignItemsCenter widthMaxContent pointer mTop20">
         <Checkbox
           checked={isShowToolName}
-          onClick={value => {
+          onChange={event => {
+            const value = !event.target.checked;
             handleSureSettings('isShowToolName', !value ? 1 : 0, () => {
               handleChangeAccountSettings({
                 isShowToolName: !value,
@@ -112,10 +115,11 @@ export default props => {
       <div className="flexRow alignItemsCenter widthMaxContent mBottom10">
         <Switch
           checked={isOpenMessageList}
-          onClick={value => {
-            handleSureSettings('isOpenMessageList', !value ? 1 : 0, () => {
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            handleSureSettings('isOpenMessageList', !!checked ? 1 : 0, () => {
               handleChangeAccountSettings({
-                isOpenMessageList: !value,
+                isOpenMessageList: !!checked,
               });
             });
           }}
@@ -124,13 +128,12 @@ export default props => {
       </div>
       {isOpenMessageList && (
         <div className="mLeft60 mTop10 mBottom20">
-          <Dropdown
+          <Select
             className="w100 textPrimary"
-            border
             value={messageListShowType}
-            data={[
-              { text: _l('新消息在前'), value: 1 },
-              { text: _l('置顶消息在前'), value: 2 },
+            options={[
+              { label: _l('新消息在前'), value: 1 },
+              { label: _l('置顶消息在前'), value: 2 },
             ]}
             onChange={value => {
               handleSureSettings('messageListShowType', value, () => {
@@ -145,10 +148,11 @@ export default props => {
       <div className="flexRow alignItemsCenter widthMaxContent">
         <Switch
           checked={isOpenCommonApp}
-          onClick={value => {
-            handleSureSettings('isOpenCommonApp', !value ? 1 : 0, () => {
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            handleSureSettings('isOpenCommonApp', !!checked ? 1 : 0, () => {
               handleChangeAccountSettings({
-                isOpenCommonApp: !value,
+                isOpenCommonApp: !!checked,
               });
             });
           }}
@@ -157,13 +161,12 @@ export default props => {
       </div>
       {isOpenCommonApp && (
         <div className="mLeft60 mTop10">
-          <Dropdown
+          <Select
             className="w100 textPrimary"
-            border
             value={commonAppShowType}
-            data={[
-              { text: _l('显示最近访问的应用'), value: 1 },
-              { text: _l('显示收藏的应用'), value: 2 },
+            options={[
+              { label: _l('显示最近访问的应用'), value: 1 },
+              { label: _l('显示收藏的应用'), value: 2 },
             ]}
             onChange={value => {
               handleSureSettings('commonAppShowType', value, () => {
@@ -175,13 +178,12 @@ export default props => {
           />
           <div className="flexRow alignItemsCenter mTop10">
             <div className="mRight10">{_l('打开方式')}</div>
-            <Dropdown
+            <Select
               className="flex textPrimary"
-              border
               value={commonAppOpenType}
-              data={[
-                { text: _l('当前页面打开'), value: 1 },
-                { text: _l('新页面打开'), value: 2 },
+              options={[
+                { label: _l('当前页面打开'), value: 1 },
+                { label: _l('新页面打开'), value: 2 },
               ]}
               onChange={value => {
                 handleSureSettings('commonAppOpenType', value, () => {

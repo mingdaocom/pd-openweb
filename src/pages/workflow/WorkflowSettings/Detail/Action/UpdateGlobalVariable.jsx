@@ -1,29 +1,30 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
+import { Select, Tooltip } from 'ming-ui/antd-components';
+import { useSelectGlobalVar } from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import { APP_TYPE, GLOBAL_VARIABLE, NODE_TYPE } from '../../enum';
 import { handleGlobalVariableName } from '../../utils';
 import { SingleControlValue, Tag } from '../components';
 
 export default props => {
   const { relationId, data, updateSource } = props;
+  const { open: openSelectGlobalVar, holder: selectGlobalVarHolder } = useSelectGlobalVar();
 
   // 渲染操作类型
   const renderOperatorType = (item, i) => {
     const TYPES = [
-      { text: _l('设为'), value: 0 },
-      { text: _l('增加'), value: 1 },
-      { text: _l('减少'), value: 2 },
+      { label: _l('设为'), value: 0 },
+      { label: _l('增加'), value: 1 },
+      { label: _l('减少'), value: 2 },
     ];
 
     // 数值
     if (item.fieldId && item.type === 6) {
       return (
-        <Dropdown
-          className="flowAddTypeDropdown"
-          data={TYPES}
+        <Select
+          variant="borderless"
+          size="small"
+          options={TYPES}
           value={item.addType}
           onChange={addType => updateOperatorType(addType, i)}
         />
@@ -47,6 +48,7 @@ export default props => {
 
   return (
     <Fragment>
+      {selectGlobalVarHolder}
       <div className="Font13 bold">{_l('更新变量')}</div>
       <div className="mTop20 textSecondary">{_l('将变量')}</div>
 
@@ -54,7 +56,7 @@ export default props => {
         <div
           className="inlineFlexRow mTop12 colorPrimary workflowDetailAddBtn"
           onClick={() =>
-            SelectGlobalVar({
+            openSelectGlobalVar({
               projectId: props.companyId,
               appId: relationId,
               filterNoEdit: true,

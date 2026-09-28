@@ -64,14 +64,7 @@
       }
 
       .inputBox {
-        background: var(--color-background-secondary);
         flex: 1;
-        border: 0;
-        color: var(--color-text-secondary);
-        height: 36px;
-        line-height: 36px;
-        border-radius: 3px;
-        padding-left: 15px;
       }
 
       .copyBtn {
@@ -91,18 +84,11 @@
     .inputForSecret {
       width: 250px;
       background: var(--color-background-primary);
-      border: 1px solid var(--color-border-primary);
       color: var(--color-text-secondary);
       height: 36px;
       line-height: 36px;
       border-radius: 3px;
       padding-left: 15px;
-    }
-
-    .inputForAgentId::placeholder,
-    .inputForWXAgentId::placeholder,
-    .inputForSecret::placeholder {
-      color: var(--color-text-disabled);
     }
 
     .submitBtn {
@@ -178,38 +164,8 @@
   .label {
     width: 80px;
   }
-  .Button {
-    padding: 0 16px;
-  }
   .readonly {
-    border-color: var(--color-background-secondary) !important;
     background-color: var(--color-background-secondary);
-  }
-  .ming.Input {
-    border-color: var(--color-border-secondary);
-    &:hover {
-      border-color: var(--color-border-secondary);
-    }
-    &:focus {
-      border-color: var(--color-primary);
-    }
-    &::placeholder {
-      color: var(--color-text-disabled);
-    }
-  }
-  .Button--primary {
-    background-color: var(--color-primary);
-    &:hover {
-      background-color: var(--color-link-hover);
-    }
-  }
-  .Button--danger {
-    color: var(--color-text-secondary);
-    background-color: var(--color-background-secondary);
-    &:hover {
-      color: var(--color-primary);
-      background-color: var(--color-background-hover);
-    }
   }
 }
 

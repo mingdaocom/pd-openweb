@@ -54,7 +54,7 @@ const TableRToC = ({
                 <BaseColumnHead
                   hideMaskIcon
                   disableSort
-                  className={`ant-table-cell ${row.className || ''}`}
+                  className={`hap-table-cell ${row.className || ''}`}
                   style={{ width: '100%', padding: '5px' }}
                   control={row.control}
                   columnIndex={rowIndex}

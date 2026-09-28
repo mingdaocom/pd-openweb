@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import sheetAjax from 'src/api/worksheet';
 import FreeFieldRunner from 'worksheet/common/FreeFieldRunner/FreeFieldRunner';
 import { getEnv } from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/util';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 export default function FreeField(props) {
   const {

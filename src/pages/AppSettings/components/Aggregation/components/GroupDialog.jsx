@@ -2,12 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _, { isUndefined } from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList } from 'ming-ui';
+import { Button, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import 'src/pages/AppSettings/components/Aggregation/components/style.less';
-import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, GROUPMAXBYREL, isUnique } from '../config';
+import { canArraySplit, getGroupMaxByRel, GROUPLIMITTYPES, GROUPMAX, isUnique } from '../config';
 import {
   formatControls,
   getControls,
@@ -25,7 +24,7 @@ const Wrap = styled.div`
   max-height: 400px;
 `;
 const WrapItem = styled.div(
-  ({ length }) => `
+  ({ $length }) => `
   height: 40px;
   padding-left: 36px;
   & > span {
@@ -37,7 +36,7 @@ const WrapItem = styled.div(
     line-height: 36px;
     position: absolute;
     flex-shrink: 0;
-    left: 24px;
+    left: 0;
     width: 36px;
     min-width: 36px;
     text-align: center;
@@ -114,9 +113,9 @@ const WrapItem = styled.div(
     width: 32px;
     min-width: 32px;
   }
-  .Dropdown--input {
-    min-width: ${length > 2 ? inputWm : inputW}px;
-    width: ${length > 2 ? inputWm : inputW}px;
+  .groupFieldCell {
+    min-width: ${$length > 2 ? inputWm : inputW}px;
+    width: ${$length > 2 ? inputWm : inputW}px;
     height: 35px;
     line-height: 35px;
     background: var(--color-background-primary);
@@ -144,7 +143,7 @@ const WrapItem = styled.div(
     }
   }
   &.cardItemTitle {
-    .Dropdown--input {
+    .groupFieldCell {
       background: var(--color-background-disabled);
       border: none;
       font-weight: 700;
@@ -154,18 +153,8 @@ const WrapItem = styled.div(
 `,
 );
 const WrapDrop = styled.div`
-  background: var(--color-background-primary);
-  box-shadow: var(--shadow-lg);
-  border-radius: 3px;
   padding: 5px 0;
   max-height: 360px;
-`;
-const WrapAdd = styled.span`
-  color: var(--color-primary);
-  background: var(--color-background-primary);
-  height: 36px;
-  position: relative;
-  z-index: 1;
 `;
 
 export default function GroupDialog(props) {
@@ -185,7 +174,7 @@ export default function GroupDialog(props) {
     const { num } = item;
     let version = Math.random();
     return (
-      <WrapItem className={cx('flexRow cardItem alignItemsCenter mTop12', `${num}_itemC`)} length={sourceInfos.length}>
+      <WrapItem className={cx('flexRow cardItem alignItemsCenter mTop12', `${num}_itemC`)} $length={sourceInfos.length}>
         <div className="leftCon flexRow alignItemsCenter justifyContentCenter">
           <div className="num">{num + 1}</div>
           <Icon
@@ -229,7 +218,7 @@ export default function GroupDialog(props) {
                           )
                           .map(o => {
                             if (
-                              getLimitControlByRelativeNum(flowDataNew) >= GROUPMAXBYREL &&
+                              getLimitControlByRelativeNum(flowDataNew) >= getGroupMaxByRel() &&
                               GROUPLIMITTYPES.includes(o.type)
                             ) {
                               o.isLimit = true;
@@ -257,13 +246,13 @@ export default function GroupDialog(props) {
 
               return (
                 <React.Fragment>
-                  <Trigger
-                    action={['click']}
+                  <Popover
+                    noPadding
+                    trigger="click"
                     key={`${o.worksheetId}_${i}_${o.controlId}_${version}`}
                     getPopupContainer={() => document.body}
-                    popupClassName="aggregationChooseControlTriggerWrap"
-                    popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
-                    popup={
+                    placement="bottomLeft"
+                    content={
                       <WrapDrop>
                         <ChooseControls
                           hasFormat
@@ -309,7 +298,7 @@ export default function GroupDialog(props) {
                     }
                   >
                     <div
-                      className={cx('Dropdown--input Dropdown--border flexRow alignItemsCenter', {
+                      className={cx('groupFieldCell flexRow alignItemsCenter', {
                         hasField: _.get(item, `fields[${i}].name`),
                       })}
                     >
@@ -359,7 +348,7 @@ export default function GroupDialog(props) {
                       )}
                       <Icon icon="arrow-down-border" className="mLeft5 Font16 Hand textTertiary" />
                     </div>
-                  </Trigger>
+                  </Popover>
                   {i < sourceInfos.length - 1 && (
                     <div className="joinCon flexRow alignItemsCenter justifyContentCenter">
                       <Icon icon="more_horiz" className="Font20 textDisabled" />
@@ -447,20 +436,21 @@ export default function GroupDialog(props) {
   };
 
   return (
-    <Dialog
-      dialogClasses={className}
-      className={cx('groupConPolymerizationDialog')}
-      visible={visible}
-      anim={false}
-      overlayClosable={false}
+    <Modal
+      wrapClassName={className}
+      className="groupConPolymerizationDialog"
+      open={visible}
+      mask={{ closable: false }}
       title={_l('设置归组')}
-      description={_l('对多表数据源归组，请分别选择工作表中的同类型字段进行归组合并')}
-      style={{ maxWidth: window.innerWidth - 100, width: 'auto' }}
+      width="fit-content"
+      style={{ maxWidth: window.innerWidth - 100 }}
+      keyboard
       onCancel={onHide}
-      onOk={() => {
-        onSave();
-      }}
+      onOk={onSave}
     >
+      <div className="textSecondary mBottom16">
+        {_l('对多表数据源归组，请分别选择工作表中的同类型字段进行归组合并')}
+      </div>
       <div className="groupConPolymerizationCon noSelect">
         <Wrap
           className="tbodyContainer"
@@ -472,13 +462,13 @@ export default function GroupDialog(props) {
             });
           }}
         >
-          <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter" length={sourceInfos.length}>
+          <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter" $length={sourceInfos.length}>
             <div className="flex flexRow alignItemsCenter conByWorksheet">
               <div className="leftCon tit"></div>
               {sourceInfos.map((it, i) => {
                 return (
                   <React.Fragment>
-                    <div className="Dropdown--input TxtCenter WordBreak overflow_ellipsis">{it.workSheetName}</div>
+                    <div className="groupFieldCell TxtCenter WordBreak overflow_ellipsis">{it.workSheetName}</div>
                     {i < sourceInfos.length - 1 && <div className="joinCon"></div>}
                   </React.Fragment>
                 );
@@ -486,6 +476,7 @@ export default function GroupDialog(props) {
             </div>
           </WrapItem>
           <SortableList
+            renderBody
             items={groupControls.map((o, i) => {
               return { ...o, num: i };
             })}
@@ -505,16 +496,19 @@ export default function GroupDialog(props) {
         </Wrap>
 
         {groupControls.length < GROUPMAX && (
-          <WrapAdd
-            className="Hand pTop12 addItem Bold hoverColorPrimary flexRow alignItemsCenter InlineBlock addGroupBtn"
+          <Button
+            className="mTop12"
+            color="primary"
+            variant="link"
+            icon={<Icon icon="add" />}
             onClick={() => {
               setState({ groupControls: groupControls.concat({}) });
             }}
           >
-            <Icon icon="add" className="InlineBlock Font16" /> <span>{_l('归组')}</span>
-          </WrapAdd>
+            {_l('归组')}
+          </Button>
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 }

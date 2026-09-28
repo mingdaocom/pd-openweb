@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Input, RadioGroup, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import { ACCESS_CONDITION_ENUM, DEVICE_ENUM, YES_NO_ENUM } from '../enum';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const IP_TEXTAREA_AUTO_SIZE = { minRows: 3, maxRows: 8 };
 
 const AccessConditionsWrap = styled.div`
   margin-bottom: 20px;
@@ -20,7 +22,7 @@ const AccessConditionsWrap = styled.div`
 `;
 
 const SelectWrap = styled(Select)`
-  .ant-select-selection-search {
+  .hap-select-selection-search {
     right: unset !important;
   }
   .anticon-search {
@@ -93,10 +95,12 @@ export default function AccessConditions(props) {
                 <Icon icon="info_outline" className=" mLeft5 pointer Font16 textTertiary TxtMiddle" />
               </Tooltip>
             </div>
-            <Textarea
+            <Input.TextArea
+              autoSize={IP_TEXTAREA_AUTO_SIZE}
               placeholder={_l('输入多个地址时，请使用英文逗号","分割')}
               value={ipRule.join(',')}
-              onChange={value => {
+              onChange={event => {
+                const value = event.target.value;
                 const ipList = value.trim().split(',');
 
                 if (ipList.length > 50) {
@@ -104,10 +108,8 @@ export default function AccessConditions(props) {
                   return;
                 }
 
-                setIpRule(value.trim().split(','));
+                setIpRule(ipList);
               }}
-              minHeight={80}
-              maxHeight={200}
             />
           </Fragment>
         );
@@ -120,15 +122,15 @@ export default function AccessConditions(props) {
                   className="keyInput mRight8"
                   placeholder={_l('Key')}
                   value={item.key}
-                  onChange={value =>
-                    setHearderRule(hearderRule.map(v => (v.index === item.index ? { ...v, key: value } : v)))
+                  onChange={e =>
+                    setHearderRule(hearderRule.map(v => (v.index === item.index ? { ...v, key: e.target.value } : v)))
                   }
                 />
                 <Input
                   className="flex"
                   value={item.value}
-                  onChange={value =>
-                    setHearderRule(hearderRule.map(v => (v.index === item.index ? { ...v, value: value } : v)))
+                  onChange={e =>
+                    setHearderRule(hearderRule.map(v => (v.index === item.index ? { ...v, value: e.target.value } : v)))
                   }
                 />
                 {hearderRule.length > 1 && (
@@ -155,7 +157,7 @@ export default function AccessConditions(props) {
                 <Input
                   className="flex"
                   value={item}
-                  onChange={value => setAdressRule(addressRule.map((v, i) => (index === i ? value : v)))}
+                  onChange={e => setAdressRule(addressRule.map((v, i) => (index === i ? e.target.value : v)))}
                 />
                 {addressRule.length > 1 && (
                   <span
@@ -177,11 +179,10 @@ export default function AccessConditions(props) {
         return (
           <div className="w100">
             <SelectWrap
-              showArrow
               allowClear
               mode="multiple"
               options={DEVICE_ENUM}
-              className="w100 mBottom16 mdAntSelect"
+              className="w100 mBottom16"
               placeholder={_l('请选择')}
               value={clientRule}
               suffixIcon={<Icon icon="arrow-down-border" className="textTertiary Font14" />}
@@ -204,25 +205,33 @@ export default function AccessConditions(props) {
   return (
     <AccessConditionsWrap>
       <div className="bold mBottom16">{_l('条件')}</div>
-      <RadioGroup
+      <Radio.Group
         className="accessTypeRadioGroup"
         size="middle"
-        checkedValue={accessType}
-        data={ACCESS_CONDITION_ENUM}
-        onChange={value => {
+        value={accessType}
+        options={(ACCESS_CONDITION_ENUM || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+        onChange={event => {
+          const value = event.target.value;
+
           setAccessType(value);
           setIpRule([]);
-          setHearderRule([{ index: 0, key: '', value: '' }]);
+          setHearderRule([
+            {
+              index: 0,
+              key: '',
+              value: '',
+            },
+          ]);
           setAdressRule(['']);
           setDeviceList([]);
         }}
       />
-      <Dropdown
+      <Select
         className="accessPass mTop16 mBottom16"
-        data={YES_NO_ENUM}
-        border
+        options={YES_NO_ENUM}
+        fieldNames={SELECT_FIELD_NAMES}
         value={accessPass}
-        onChange={value => setAccessPass(value)}
+        onChange={setAccessPass}
       />
       <div>{renderCon()}</div>
     </AccessConditionsWrap>

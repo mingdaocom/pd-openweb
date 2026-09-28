@@ -2,12 +2,11 @@ import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, MenuItem, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Dropdown, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import process from '../../api/process';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const HistoryBox = styled.span`
   border-bottom: 1px dashed var(--color-text-secondary);
@@ -93,14 +92,6 @@ const ListItem = styled.div`
   }
 `;
 
-const MenuBox = styled.div`
-  min-width: 180px;
-  padding: 5px 0;
-  border-radius: 3px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-`;
-
 const openPublishVersion = (id, isIntegration, isPlugin) => {
   location.href = pathCompletion(
     isIntegration ? `/integrationApi/${id}` : isPlugin ? `/workflowplugin/${id}` : `/workflowedit/${id}`,
@@ -110,19 +101,39 @@ const openPublishVersion = (id, isIntegration, isPlugin) => {
 export const restoreVision = ({ id, date, index, versionName, currentFlowId, isIntegration, isPlugin }) => {
   const isCurrent = id === currentFlowId;
 
-  Dialog.confirm({
-    title: isCurrent
-      ? _l('删除更改')
-      : _l('恢复到历史版本：%0', versionName ? versionName : `${moment(date).format('YYYYMMDD')}.${index}`),
-    description: isCurrent
-      ? _l('删除当前编辑中的草稿和所有更新，此操作无法撤回')
-      : _l('将以当前的版本创建草稿。您当前正在编辑中的草稿和所有更新将会被删除，此操作无法撤回'),
+  Modal.confirm({
+    title: (
+      <span className="textError">
+        {isCurrent
+          ? _l('删除更改')
+          : _l('恢复到历史版本：%0', versionName ? versionName : `${moment(date).format('YYYYMMDD')}.${index}`)}
+      </span>
+    ),
+    width: 480,
+    content: (
+      <span className="textPrimary">
+        {isCurrent
+          ? _l('删除当前编辑中的草稿和所有更新，此操作无法撤回')
+          : _l('将以当前的版本创建草稿。您当前正在编辑中的草稿和所有更新将会被删除，此操作无法撤回')}
+      </span>
+    ),
     okText: isCurrent ? _l('确定删除') : _l('确定'),
-    buttonType: isCurrent ? 'danger' : 'primary',
+    okButtonProps: {
+      danger: (isCurrent ? 'danger' : 'primary') === 'danger',
+    },
     onOk: () => {
-      process.goBack({ processId: id }, { isIntegration }).then(() => {
-        openPublishVersion(currentFlowId, isIntegration, isPlugin);
-      });
+      process
+        .goBack(
+          {
+            processId: id,
+          },
+          {
+            isIntegration,
+          },
+        )
+        .then(() => {
+          openPublishVersion(currentFlowId, isIntegration, isPlugin);
+        });
     },
   });
 };
@@ -135,7 +146,6 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
   const [pageIndex, setPageIndex] = useState(1);
   const [list, setList] = useState([]);
   const [selectId, setSelectId] = useState('');
-  let isFirstLoad = true;
   const getList = _.debounce(pageIndex => {
     // 加载更多
     if (pageIndex > 1 && ((isLoading && isMore) || !isMore)) {
@@ -144,29 +154,30 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
 
     setIsLoading(true);
 
-    process.getHistory({ processId: flowInfo.id, pageIndex, pageSize: 20 }, { isIntegration }).then(result => {
-      setIsLoading(false);
-      setIsMore(result.length >= 20);
-      setPageIndex(pageIndex);
-      setList(pageIndex === 1 ? result : list.concat(result));
-      isFirstLoad = false;
-    });
+    process
+      .getHistory({ processId: flowInfo.id, pageIndex, pageSize: 20 }, { isIntegration })
+      .then(result => {
+        setIsMore(result.length >= 20);
+        setPageIndex(pageIndex);
+        setList(pageIndex === 1 ? result : list.concat(result));
+      })
+      .finally(() => setIsLoading(false));
   }, 200);
 
   const updateVersionName = ({ id, date, index, versionName }) => {
     setSelectId('');
 
-    Dialog.confirm({
+    Modal.confirm({
       className: 'processNodeBox',
+      width: 480,
       title: _l('设置版本名称：%0', `${moment(date).format('YYYYMMDD')}.${index}`),
-      description: (
+      content: (
         <div>
           <div>{_l('版本名称')}</div>
-          <input
+          <Input
             autoFocus
-            type="text"
             id="processVersionName"
-            className="processNodeAlias mTop10"
+            className="mTop10"
             maxLength={30}
             placeholder={_l('请输入')}
             defaultValue={versionName}
@@ -175,18 +186,27 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
       ),
       onOk: () => {
         const name = document.getElementById('processVersionName').value.trim();
-
-        process.updateProcess({ companyId, processId: id, versionName: name }, { isIntegration }).then(() => {
-          setList(
-            list.map(o => {
-              if (o.id === id) {
-                o.versionName = name;
-              }
-
-              return o;
-            }),
-          );
-        });
+        process
+          .updateProcess(
+            {
+              companyId,
+              processId: id,
+              versionName: name,
+            },
+            {
+              isIntegration,
+            },
+          )
+          .then(() => {
+            setList(
+              list.map(o => {
+                if (o.id === id) {
+                  o.versionName = name;
+                }
+                return o;
+              }),
+            );
+          });
       },
     });
   };
@@ -227,35 +247,49 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
           </div>
         </div>
         <div className="flexRow alignItemsCenter justifyContentCenter">
-          <Trigger
-            popupVisible={selectId === item.id}
-            onPopupVisibleChange={visible => {
+          <Dropdown
+            open={selectId === item.id}
+            onOpenChange={visible => {
               setSelectId(visible ? item.id : '');
             }}
-            popupClassName={popupClassName}
-            action={['click']}
-            mouseEnterDelay={0.1}
-            popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: 1, adjustY: 2 } }}
-            popup={
-              <MenuBox>
-                <MenuItem onClick={() => openPublishVersion(item.id, isIntegration, isPlugin)}>{_l('查看')}</MenuItem>
-                <MenuItem onClick={() => updateVersionName(item)}>{_l('重命名版本')}</MenuItem>
-                <MenuItem
-                  onClick={() => {
+            classNames={popupClassName ? { root: popupClassName } : undefined}
+            trigger={['click']}
+            placement="bottomLeft"
+            menu={{
+              style: { minWidth: 180 },
+              items: [
+                {
+                  key: 'view',
+                  label: _l('查看'),
+                  onClick: () => {
+                    setSelectId('');
+                    openPublishVersion(item.id, isIntegration, isPlugin);
+                  },
+                },
+                {
+                  key: 'rename',
+                  label: _l('重命名版本'),
+                  onClick: () => {
+                    setSelectId('');
+                    updateVersionName(item);
+                  },
+                },
+                {
+                  key: 'restore',
+                  label: _l('恢复到此版本'),
+                  onClick: () => {
                     restoreVision({ ...item, currentFlowId: flowInfo.id, isIntegration });
                     setSelectId('');
-                  }}
-                >
-                  {_l('恢复到此版本')}
-                </MenuItem>
-              </MenuBox>
-            }
+                  },
+                },
+              ],
+            }}
           >
             <Icon
               icon="more_horiz"
               className={cx('Font16 textSecondary hoverColorPrimary pointer', { active: item.id === selectId })}
             />
-          </Trigger>
+          </Dropdown>
         </div>
       </ListItem>
     );
@@ -324,9 +358,8 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
                 .filter((o, index) => !(flowInfo.publishStatus === 1 && flowInfo.enabled && index === 0))
                 .map(renderItem)}
 
-              {((isLoading && pageIndex > 1) || (!list.length && isFirstLoad)) && (
-                <LoadDiv className="mTop15" size="small" />
-              )}
+              {!isLoading && !list.length && <div className="TxtCenter textTertiary mTop20">{_l('暂无数据')}</div>}
+              {isLoading && <LoadDiv className="mTop15" size="small" />}
             </HistoryListCon>
           </ScrollView>
         </HistoryListBox>

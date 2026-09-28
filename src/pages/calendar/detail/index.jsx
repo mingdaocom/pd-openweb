@@ -1,42 +1,29 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import CalendarDetail from '../modules/calendarDetail';
+import React, { useEffect } from 'react';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { CalendarDetailContainer } from '../modules/calendarDetail';
+import { getParamsFromUrl } from '../modules/calendarDetail/common';
 import './style.less';
 
-class CalendarDetailEntrypoint extends Component {
-  componentDidMount() {
-    $('html').addClass('AppCalendar AppCalendarDetail');
-    CalendarDetail({
-      isDetailPage: true,
-      container: this.el,
-    });
-  }
+export default function CalendarDetailEntrypoint() {
+  const { calendarId, recurTime = '' } = getParamsFromUrl();
 
-  componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (prevProps.match.params.id !== this.props.match.params.id) {
-        CalendarDetail({
-          isDetailPage: true,
-          container: this.el,
-        });
-      }
-    }
-  }
-  componentWillUnmount() {
-    $('html').removeClass('AppCalendar AppCalendarDetail');
-  }
-  render() {
-    return (
-      <div className="borderContainer Relative flexColumn">
-        <div
-          ref={el => {
-            this.el = el;
+  useEffect(() => {
+    document.documentElement.classList.add('AppCalendar', 'AppCalendarDetail');
+    return () => document.documentElement.classList.remove('AppCalendar', 'AppCalendarDetail');
+  }, []);
+
+  return (
+    <div className="borderContainer Relative flexColumn">
+      <div className="detail flex">
+        <CalendarDetailContainer
+          isDetailPage
+          calendarId={calendarId}
+          recurTime={recurTime}
+          onExit={() => {
+            window.location.href = pathCompletion('/apps/calendar/home');
           }}
-          className="detail flex"
         />
       </div>
-    );
-  }
+    </div>
+  );
 }
-
-export default connect(state => state)(CalendarDetailEntrypoint);

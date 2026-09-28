@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { FilterAndSort, FindResult, SelectNodeObject } from '../components';
 
@@ -40,27 +40,26 @@ export default class RelationFields extends Component {
     const { data, updateSource } = this.props;
     const list = data.controls.map(item => {
       return {
-        text: this.renderRelationTitle(item),
+        label: this.renderRelationTitle(item),
         value: item.controlId,
         searchText: item.controlName,
-        disabled: !!_.find(data.fields, o => o.fieldId === item.controlId),
       };
     });
 
     return (
-      <Dropdown
+      <Select
         className="flowDropdown mTop10"
-        maxHeight={280}
-        data={list}
-        value={data.fields.length || undefined}
-        openSearch
-        renderTitle={() =>
+        listHeight={280}
+        options={list}
+        value={data.fields[0]?.fieldId || undefined}
+        showSearch
+        optionFilterProp="searchText"
+        labelRender={() =>
           !!data.fields.length &&
           !!data.controls.length &&
           this.renderRelationTitle(_.find(data.controls, item => item.controlId === data.fields[0].fieldId))
         }
-        border
-        noData={_l('指定的节点对象中，没有关联他表字段')}
+        notFoundContent={_l('指定的节点对象中，没有关联他表字段')}
         onChange={controlId => {
           this.getWorksheetFields(data.controls.find(item => item.controlId === controlId).dataSource);
           updateSource({ fields: [{ fieldId: controlId }] });
@@ -115,7 +114,12 @@ export default class RelationFields extends Component {
               filterEncryptCondition={true}
             />
 
-            <FindResult executeType={data.executeType} updateSource={updateSource} />
+            <FindResult
+              nodeType={this.props.selectNodeType}
+              appType={data.appType}
+              executeType={data.executeType}
+              updateSource={updateSource}
+            />
           </Fragment>
         )}
       </Fragment>

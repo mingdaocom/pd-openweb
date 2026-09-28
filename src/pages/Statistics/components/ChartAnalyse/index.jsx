@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Collapse, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { reportTypes } from 'statistics/Charts/common';
+import { Collapse, Switch } from 'ming-ui/antd-components';
 import { ContrastValue } from 'statistics/components/ChartStyle/components/NumberStyle';
 import * as actions from 'statistics/redux/actions';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { defaultNumberChartStyle } from '../.../../../enum';
 import AutoLinkage from './components/AutoLinkage';
 import AuxiliaryLine from './components/AuxiliaryLine';
@@ -41,66 +41,65 @@ let ChartAnalyse = class ChartAnalyse extends Component {
 
   renderAutoLinkage() {
     const { reportId, worksheetInfo, currentReport } = this.props;
-    return (
-      <Collapse.Panel key="autoLinkage" header={_l('联动筛选')}>
+    return {
+      key: 'autoLinkage',
+      label: _l('联动筛选'),
+      children: (
         <AutoLinkage
           reportId={reportId}
           worksheetInfo={worksheetInfo}
           currentReport={currentReport}
           onChangeStyle={this.handleChangeStyle}
         />
-      </Collapse.Panel>
-    );
+      ),
+    };
   }
 
   renderOriginalData() {
     const { worksheetInfo, currentReport, base } = this.props;
     const { displaySetup, filter, style } = currentReport;
     const aggregationSheet = base.appType === 2;
-    return (
-      <Collapse.Panel
-        key="originalData"
-        header={_l('查看原始数据')}
-        className={cx({
-          collapsible: !displaySetup.showRowList,
-          hideArrowIcon: aggregationSheet,
-        })}
-        extra={
-          <Switch
-            size="small"
-            checked={displaySetup.showRowList}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeDisplaySetup({
-                showRowList: checked,
-              });
-            }}
-          />
-        }
-      >
-        {!aggregationSheet && (
-          <OriginalData
-            worksheetInfo={worksheetInfo}
-            displaySetup={displaySetup}
-            viewId={filter.viewId}
-            style={style || {}}
-            onChangeDisplaySetup={this.handleChangeDisplaySetup}
-            onChangeStyle={this.handleChangeStyle}
-          />
-        )}
-      </Collapse.Panel>
-    );
+    return {
+      key: 'originalData',
+      label: _l('查看原始数据'),
+      className: cx({
+        collapsible: !displaySetup.showRowList,
+        hideArrowIcon: aggregationSheet,
+      }),
+      extra: (
+        <Switch
+          size="small"
+          checked={displaySetup.showRowList}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            this.handleChangeDisplaySetup({
+              showRowList: checked,
+            });
+          }}
+        />
+      ),
+      children: !aggregationSheet && (
+        <OriginalData
+          worksheetInfo={worksheetInfo}
+          displaySetup={displaySetup}
+          viewId={filter.viewId}
+          style={style || {}}
+          onChangeDisplaySetup={this.handleChangeDisplaySetup}
+          onChangeStyle={this.handleChangeStyle}
+        />
+      ),
+    };
   }
 
   renderAuxiliaryLine() {
     const { currentReport } = this.props;
-    return (
-      <Collapse.Panel key="auxiliaryLine" header={_l('辅助线')}>
-        <AuxiliaryLine currentReport={currentReport} onChangeDisplaySetup={this.handleChangeDisplaySetup} />
-      </Collapse.Panel>
-    );
+    return {
+      key: 'auxiliaryLine',
+      label: _l('辅助线'),
+      children: <AuxiliaryLine currentReport={currentReport} onChangeDisplaySetup={this.handleChangeDisplaySetup} />,
+    };
   }
 
   renderDataContrast() {
@@ -120,55 +119,54 @@ let ChartAnalyse = class ChartAnalyse extends Component {
       return null;
     }
 
-    return (
-      <Collapse.Panel
-        header={_l('数据对比')}
-        key="dataContrast"
-        className={cx({
-          collapsible: isNumberChart ? !switchChecked : false,
-        })}
-        extra={
-          isNumberChart ? (
-            <Switch
-              size="small"
-              checked={switchChecked}
-              disabled={!rangeType}
-              onClick={(checked, event) => {
-                event.stopPropagation();
-              }}
-              onChange={checked => {
-                this.handleChangeDisplaySetup(
-                  {
-                    contrastType: checked ? 2 : 0,
-                    contrast: checked ? true : false,
-                  },
-                  true,
-                );
+    return {
+      key: 'dataContrast',
+      label: _l('数据对比'),
+      className: cx({
+        collapsible: isNumberChart ? !switchChecked : false,
+      }),
+      extra: isNumberChart ? (
+        <Switch
+          size="small"
+          checked={switchChecked}
+          disabled={!rangeType}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            this.handleChangeDisplaySetup(
+              {
+                contrastType: checked ? 2 : 0,
+                contrast: checked ? true : false,
+              },
+              true,
+            );
+          }}
+        />
+      ) : null,
+      children: (
+        <React.Fragment>
+          <DataContrast
+            isNumberChart={isNumberChart}
+            contrastVisible={contrastVisible}
+            currentReport={currentReport}
+            onChangeDisplaySetup={this.handleChangeDisplaySetup}
+            onChangeStyle={this.handleChangeStyle}
+            onChangeCurrentReport={this.props.changeCurrentReport}
+          />
+          {isNumberChart && (
+            <ContrastValue
+              numberChartStyle={numberChartStyle}
+              onChangeNumberStyle={data => {
+                this.handleChangeStyle({
+                  numberChartStyle: { ...numberChartStyle, ...data },
+                });
               }}
             />
-          ) : null
-        }
-      >
-        <DataContrast
-          isNumberChart={isNumberChart}
-          contrastVisible={contrastVisible}
-          currentReport={currentReport}
-          onChangeDisplaySetup={this.handleChangeDisplaySetup}
-          onChangeStyle={this.handleChangeStyle}
-          onChangeCurrentReport={this.props.changeCurrentReport}
-        />
-        {isNumberChart && (
-          <ContrastValue
-            numberChartStyle={numberChartStyle}
-            onChangeNumberStyle={data => {
-              this.handleChangeStyle({
-                numberChartStyle: { ...numberChartStyle, ...data },
-              });
-            }}
-          />
-        )}
-      </Collapse.Panel>
-    );
+          )}
+        </React.Fragment>
+      ),
+    };
   }
 
   renderPeriodTarget() {
@@ -179,11 +177,11 @@ let ChartAnalyse = class ChartAnalyse extends Component {
       return null;
     }
 
-    return (
-      <Collapse.Panel key="periodTarget" header={_l('周期目标')}>
-        <PeriodTarget currentReport={currentReport} onChangeDisplaySetup={this.handleChangeDisplaySetup} />
-      </Collapse.Panel>
-    );
+    return {
+      key: 'periodTarget',
+      label: _l('周期目标'),
+      children: <PeriodTarget currentReport={currentReport} onChangeDisplaySetup={this.handleChangeDisplaySetup} />,
+    };
   }
 
   renderExpandIcon(panelProps) {
@@ -200,17 +198,19 @@ let ChartAnalyse = class ChartAnalyse extends Component {
   render() {
     const { sourceType, currentReport } = this.props;
     const { reportType } = currentReport;
+    const items = [
+      sourceType === 1 && this.renderAutoLinkage(),
+      [reportTypes.LineChart, reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) &&
+        this.renderDataContrast(),
+      reportType === reportTypes.LineChart && this.renderPeriodTarget(),
+      this.renderOriginalData(),
+      [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) &&
+        this.renderAuxiliaryLine(),
+    ].filter(Boolean);
+
     return (
       <div className="chartAdvanced">
-        <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
-          {sourceType === 1 && this.renderAutoLinkage()}
-          {[reportTypes.LineChart, reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) &&
-            this.renderDataContrast()}
-          {reportType === reportTypes.LineChart && this.renderPeriodTarget()}
-          {this.renderOriginalData()}
-          {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) &&
-            this.renderAuxiliaryLine()}
-        </Collapse>
+        <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost items={items} />
       </div>
     );
   }

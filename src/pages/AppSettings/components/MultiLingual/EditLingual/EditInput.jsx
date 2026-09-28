@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
+import { Input } from 'ming-ui/antd-components';
 
 export default function (props) {
   const { className, style, disabled, type, value, onChange } = props;

@@ -29,74 +29,25 @@
       }
     }
   }
-  .folderSearchBox {
-    border: 1px solid transparent;
-    border-width: 6px 15px 7px;
-    .folderSearch {
-      border-bottom: 1px solid var(--color-white);
-      height: 37px;
-      transition: background-color 0.3s;
-      &.inputActive {
-        background: var(--color-background-primary);
-      }
-      .clearAutoSearch {
-        margin-left: 25px;
-      }
-      .txtSearch.inputActive {
-        color: var(--color-text-tertiary);
-      }
-    }
-    .btnFolderSearch {
-      display: inline-block;
-      font-size: 18px;
-      color: var(--color-white);
-      margin: 10px 5px;
-      cursor: pointer;
-      position: absolute;
-    }
-    .txtSearch {
-      width: 100%;
-      height: 23px;
-      vertical-align: top;
-      margin-top: 7px;
-      border: 0;
-      background-color: transparent;
-      color: rgba(255, 255, 255, 0.75);
-      padding-left: 34px;
-      padding-right: 30px;
-    }
-  }
-  #leftSearchTaskOrFolder_clearAutoSearch.inputActive {
-    color: rgba(0, 0, 0, 0.7) !important;
-  }
   .taskType {
     border-bottom: 1px solid var(--color-border-secondary);
     padding-bottom: 6px;
     li {
-      height: 40px;
-      padding: 0 15px;
-      color: var(--color-white);
-      font-size: 0;
-      cursor: pointer;
       .allCountTask {
         font-size: 12px;
-        margin-top: 11px;
       }
       span {
-        display: inline-block;
         &.typeName {
           font-size: 13px;
           color: rgba(255, 255, 255, 0.87);
-          margin-top: 11px;
-          margin-left: 9px;
         }
       }
       .typeIcon {
         display: inline-block;
-        font-size: 18px;
+        font-size: 16px;
         color: var(--color-text-placeholder);
         text-align: center;
-        width: 24px;
+        width: 16px;
         text-align: center;
         &.icon-task-star {
           color: var(--color-warning) !important;
@@ -349,23 +300,6 @@
     text-align: center;
     padding-top: 11px;
     box-sizing: initial;
-    .createNew {
-      display: inline-block;
-      padding: 0 18px;
-      height: 30px;
-      line-height: 30px;
-      color: var(--color-white);
-      cursor: pointer;
-      border-radius: 18px;
-      border-width: 1px;
-      border-style: solid;
-      i {
-        margin-right: 5px;
-        vertical-align: top;
-        margin-top: 8px;
-        display: inline-block;
-      }
-    }
   }
 
   #folderLoading {
@@ -377,52 +311,6 @@
     z-index: 1;
   }
 
-  .folderSettingsList,
-  .projectFolderOp {
-    position: absolute;
-    background-color: var(--color-background-card);
-    z-index: 30;
-    padding: 6px 0px;
-    left: 200px;
-    top: 40px;
-  }
-  .folderSettingsList li,
-  .projectFolderOp li {
-    padding-left: 15px;
-    width: 165px;
-    line-height: 32px;
-    height: 32px;
-    box-sizing: initial;
-    cursor: pointer;
-    &:not(:hover):not(.dividerLine) {
-      background: var(--color-background-card) !important;
-    }
-  }
-  .folderSettingsList .arrorwRightColor {
-    display: inline-block;
-    float: right;
-    margin-right: 10px;
-    margin-top: 10px;
-  }
-  .folderSettingsList li:hover,
-  .projectFolderOp li:hover {
-    color: var(--color-white);
-  }
-  .folderSettingsList li:hover i,
-  .projectFolderOp li:hover i {
-    color: var(--color-white);
-  }
-  .folderSettingsList .dividerLine {
-    height: 1px !important;
-    background-color: var(--color-border-secondary) !important;
-    margin: 5px 0;
-  }
-  .folderSettingsList .chargeAuth {
-    color: var(--color-error);
-    i {
-      color: var(--color-error);
-    }
-  }
   .outsideColors {
     display: inline-block;
     border: 2px #fff solid;
@@ -457,20 +345,6 @@
     z-index: 1;
   }
 
-  .folderSettingsList i {
-    font-size: 14px;
-    color: var(--color-text-tertiary);
-    display: inline-block;
-    margin-right: 10px;
-  }
-  .folderSettingsList i.arrorwRight {
-    padding: 0;
-    margin: 0px;
-    border: 6px transparent solid;
-    border-left-color: var(--color-border-tertiary);
-    margin-top: 10px;
-    margin-right: 4px;
-  }
   #folderJoin,
   #projectSort {
     width: 245px;
@@ -568,38 +442,6 @@
     width: 185px;
     border-top: 1px var(--color-border-tertiary) solid;
     margin-top: 6px;
-  }
-  .addFileBox {
-    position: relative;
-  }
-  .addFileBox .fileFoldersBox {
-    position: absolute;
-    left: 180px;
-  }
-  .addFileBox .fileFoldersBox .fileFolders {
-    margin-left: 5px;
-    background-color: var(--color-background-card);
-    padding: 6px 0px;
-  }
-  .addFileBox .fileFoldersBox .fileFolders .moveToFileBox {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-  .addFileBox .fileFoldersBox .fileFolders li {
-    width: 180px;
-  }
-  .addFileBox .fileFoldersBox .newFile {
-    border-top: 1px rgba(0, 0, 0, 0.15) solid;
-  }
-  .addFileBox .fileFoldersBox .fileFolders .moveToFile {
-    color: var(--color-text-placeholder);
-    background-color: var(--color-background-primary) !important;
-  }
-  .fileFoldersBox .fileFolders .exitFile {
-    border-bottom: 1px rgba(0, 0, 0, 0.15) solid;
-  }
-  .fileFoldersBox .fileFolders .exitFile + .newFile {
-    border-top: 0;
   }
   .folderList > li.popTop:first-child {
     margin-top: 0px;

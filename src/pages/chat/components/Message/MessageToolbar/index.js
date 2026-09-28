@@ -2,17 +2,14 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import { Tooltip } from 'ming-ui/antd-components';
-import Dialog from 'ming-ui/components/Dialog';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { downloadFile } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { downloadFile } from 'src/utils/platform/browser/download';
 import { getCurrentTime } from '../../../utils';
 import * as ajax from '../../../utils/ajax';
 import Constant from '../../../utils/constant';
 import './index.less';
-
-const confirm = Dialog.confirm;
 
 const getImageContextIndex = (id, list) => {
   let index = -1;
@@ -34,14 +31,17 @@ const formatMessage = (id, res) => {
     const { files } = item.msg;
     const isPicture = RegExpValidator.fileIsPicture(`.${RegExpValidator.getExtOfFileName(files.name)}`);
     const bigImg = parseInt(files.size / 1024 / 1024) >= 20;
+    const previewUrl = isPicture && (files.thumbs?.web_2 || files.thumbs?.web_1);
     return {
       fileid: files.id || '',
       name: files.name || '',
-      path: isPicture
-        ? bigImg
-          ? files.url
-          : `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageMogr2/auto-orient`
-        : files.url,
+      path: files.url,
+      originalImageUrl: isPicture ? files.url : undefined,
+      viewUrl:
+        previewUrl ||
+        (isPicture && !bigImg
+          ? `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageMogr2/auto-orient`
+          : files.url),
       size: files.size,
       previewAttachmentType: 'QINIU',
     };
@@ -221,6 +221,7 @@ export default class MessageToolbar extends Component {
         ext: `.${RegExpValidator.getExtOfFileName(files.name)}`,
         size: files.size,
         path: files.url ? files.url : window.config.FilePath + files.key,
+        previewUrl: files.thumbs?.web_2 || files.thumbs?.web_1,
         id: files.id,
       };
     }
@@ -243,7 +244,9 @@ export default class MessageToolbar extends Component {
         params.name = attachment.name;
         params.ext = attachment.ext;
         params.size = attachment.size || 0;
-        params.imgSrc = isPicture ? `${attachment.path.split('imageView2')[0]}imageView2/2/w/490` : undefined;
+        params.imgSrc = isPicture
+          ? attachment.previewUrl || `${attachment.path.split('imageView2')[0]}imageView2/2/w/490`
+          : undefined;
         params.qiniuPath = attachment.path;
         params.node = attachment;
       }
@@ -262,18 +265,20 @@ export default class MessageToolbar extends Component {
     const isFileTransfer = session.id === 'file-transfer';
 
     if (isFileTransfer) {
-      confirm({
-        title: <span className="Red">{_l('是否确认删除 ?')}</span>,
-        buttonType: 'danger',
+      Modal.confirm({
+        title: <span className="Red textError">{_l('是否确认删除 ?')}</span>,
+        okButtonProps: {
+          danger: true,
+        },
         onOk: () => {
           this.props.onWithdrawMessage();
         },
       });
     } else if (isWithdraw) {
       if (isAdmin && !isMine) {
-        confirm({
+        Modal.confirm({
           title: _l('管理员消息撤回'),
-          description: _l('管理员有权撤回其他成员消息，不限时间，是否确认撤回'),
+          content: _l('管理员有权撤回其他成员消息，不限时间，是否确认撤回'),
           onOk: () => {
             this.props.onWithdrawMessage();
           },

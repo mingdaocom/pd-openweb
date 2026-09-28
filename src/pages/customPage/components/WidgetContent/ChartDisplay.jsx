@@ -6,7 +6,7 @@ import { LoadDiv } from 'ming-ui';
 import Card from 'statistics/Card';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
 import { updateLinkageFiltersGroup } from 'src/pages/customPage/redux/action.js';
-import { formatLinkageFiltersGroup } from 'src/pages/customPage/util';
+import { formatLinkageFiltersGroup } from 'src/utils/domain/customPage/linkage';
 
 const ChartDisplay = props => {
   const { widget, filterComponents, loadFilterComponentCount } = props;

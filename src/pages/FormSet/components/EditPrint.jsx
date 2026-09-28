@@ -1,19 +1,19 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Dropdown } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
 import sheetAjax from 'src/api/worksheet';
 import createUploader from 'src/library/plupload/createUploader';
 import { createEditFileLink } from 'src/pages/UploadTemplateSheet/utils';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import RegExpValidator from 'src/utils/expression';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
 import DrawerFooter from './DrawerFooter';
-import PrintTemSetting from './PrintTemSetting';
+import PrintTemSetting, { isCustomNameEmpty, PRINT_TEMPLATE_ADVANCE_KEYS } from './PrintTemSetting';
 import './editPrint.less';
 
 const SUFFIX = {
@@ -22,6 +22,10 @@ const SUFFIX = {
 };
 
 const EDIT_PRINT_URL = '/PrintTemplate/EditPrint';
+const DEPRECATED_ADVANCE_SETTING_KEYS = ['sheet_name_type', 'sheet_name'];
+
+const removeDeprecatedAdvanceSettings = (advanceSettings = []) =>
+  advanceSettings.filter(item => !DEPRECATED_ADVANCE_SETTING_KEYS.includes(item.key));
 
 const EDIT_OPTIONS = [
   {
@@ -233,7 +237,7 @@ class EditPrint extends React.Component {
       name: templateName,
       allowDownloadPermission,
       allowEditAfterPrint,
-      advanceSettings,
+      advanceSettings: removeDeprecatedAdvanceSettings(advanceSettings),
     };
 
     window
@@ -271,7 +275,7 @@ class EditPrint extends React.Component {
         fileName: undefined,
         allowDownloadPermission,
         allowEditAfterPrint,
-        advanceSettings,
+        advanceSettings: removeDeprecatedAdvanceSettings(advanceSettings),
       },
       createCompleted: id => {
         this.setState({ createEditLoading: false });
@@ -327,14 +331,11 @@ class EditPrint extends React.Component {
       !templateName ||
       !!error ||
       !!saveLoading ||
-      (_.get(
-        advanceSettings.find(l => l.key === 'export_type'),
-        'value',
-      ) === '1' &&
-        !_.get(
-          advanceSettings.find(l => l.key === 'export_name'),
-          'value',
-        ))
+      isCustomNameEmpty(
+        advanceSettings,
+        PRINT_TEMPLATE_ADVANCE_KEYS.exportNameType,
+        PRINT_TEMPLATE_ADVANCE_KEYS.exportName,
+      )
     );
   };
 
@@ -362,44 +363,49 @@ class EditPrint extends React.Component {
 
     if (templateId)
       return (
-        <span className={cx('editBtn mLeft10', { disable: createEditLoading })} onClick={this.onEdit}>
-          <Icon icon="edit" className="mRight2 Font14" />
+        <Button
+          className="mLeft10"
+          color="var(--color-success)"
+          variant="outlined"
+          shape="round"
+          size="small"
+          loading={createEditLoading}
+          icon={<Icon icon="edit" />}
+          onClick={this.onEdit}
+        >
           {createEditLoading ? _l('请稍等...') : _l('在线编辑')}
-        </span>
+        </Button>
       );
 
     return (
-      <Trigger
-        popupVisible={popupVisible}
-        onPopupVisibleChange={visible => this.setState({ popupVisible: visible })}
-        action={createEditLoading ? [] : ['click']}
-        popup={() => {
-          return (
-            <Menu style={{ left: 'initial', right: 0, width: 180 }}>
-              {EDIT_OPTIONS.map((item, index) => (
-                <MenuItem className="TxtLeft" key={index} onClick={() => this.onCreateEdit(item)}>
-                  <span>{item.label}</span>
-                </MenuItem>
-              ))}
-            </Menu>
-          );
-        }}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        open={popupVisible}
+        onOpenChange={visible => this.setState({ popupVisible: visible })}
+        trigger={['click']}
+        disabled={createEditLoading}
+        placement="bottomRight"
+        menu={{
+          style: { width: 180, textAlign: 'left' },
+          items: EDIT_OPTIONS.map(item => ({
+            key: item.value,
+            label: item.label,
+            onClick: () => this.onCreateEdit(item),
+          })),
         }}
         getPopupContainer={triggerNode => triggerNode.parentElement}
       >
-        <span className={cx('editBtn mLeft10', { disable: createEditLoading })}>
-          {createEditLoading ? (
-            <LoadDiv size={12} className="mRight2" />
-          ) : (
-            <Icon icon="edit" className="mRight2 Font14" />
-          )}
+        <Button
+          className="mLeft10"
+          color="var(--color-success)"
+          variant="outlined"
+          shape="round"
+          size="small"
+          loading={createEditLoading}
+          icon={<Icon icon="edit" />}
+        >
           {createEditLoading ? _l('创建中...') : _l('在线新建')}
-        </span>
-      </Trigger>
+        </Button>
+      </Dropdown>
     );
   };
 
@@ -461,15 +467,19 @@ class EditPrint extends React.Component {
                 )}
               </span>
             </p>
-            <p
-              className="btnTable mTop20 Hand"
+            <Button
+              className="mTop20"
+              color="primary"
+              variant="filled"
+              block
+              icon={<Icon icon="navigate_next" />}
+              iconPlacement="end"
               onClick={() => {
                 window.open(pathCompletion(`/worksheet/uploadTemplateSheet/${worksheetId}`));
               }}
             >
               {_l('开始制作')}
-              <Icon icon="navigate_next" className="mLeft8" />
-            </p>
+            </Button>
             <div className="tiTop mTop50 valignWrapper">
               <div>{_l('2.制作模板')}</div>
             </div>
@@ -524,15 +534,19 @@ class EditPrint extends React.Component {
               </p>
               {!loading ? (
                 <div className="valignWrapper mTop32 justifyContentCenter">
-                  <span
+                  <Button
                     id="editorFiles"
+                    color="primary"
+                    variant="outlined"
+                    shape="round"
+                    size="small"
+                    icon={<Icon icon="file_upload" />}
                     onClick={() => {
                       $('#fileDemo').click();
                     }}
                   >
-                    <Icon icon="file_upload" className="mRight2 Font14" />
                     {!fileName && !error ? _l('本地上传') : _l('重新上传')}
-                  </span>
+                  </Button>
                   {this.renderEditFileBtn()}
                 </div>
               ) : (
@@ -571,6 +585,7 @@ class EditPrint extends React.Component {
               advanceSettings={advanceSettings}
               allowEditAfterPrint={allowEditAfterPrint}
               allowDownloadPermission={allowDownloadPermission}
+              fileType={fileType}
               onChange={this.onChange}
               updateExampleData={updateExampleData}
             />

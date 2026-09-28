@@ -2,18 +2,34 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Input } from 'ming-ui';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import { CONTROL_FILTER_WHITELIST, FILTER_TYPE } from '../enum';
-import { checkConditionAvailable, getDefaultCondition, getTypeKey } from '../util';
+import styled from 'styled-components';
+import { Input, Select } from 'ming-ui/antd-components';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { checkConditionAvailable, getDefaultCondition, getTypeKey } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST, FILTER_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import AddCondition from './AddCondition';
 import Condition from './Condition';
-import wrapDisableClick from './wrapDisableClick';
 
-const NewMenuItem = wrapDisableClick(MenuItem);
+const OperateSelect = styled(Select)`
+  width: 18px;
+
+  .hap-select-selection-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline-end: 0 !important;
+  }
+`;
+
+const OPERATE_VALUE = 'operate';
+const OPERATE_SELECT_STYLES = { popup: { root: { minWidth: 160 } } };
+
+const renderOperateLabel = (iconClassName, label, danger) => (
+  <span className={cx('flexRow alignItemsCenter', { colorRed: danger })}>
+    <i className={cx('icon', iconClassName)} />
+    <span className="mLeft8">{label}</span>
+  </span>
+);
 
 export default class FilterItem extends Component {
   static propTypes = {
@@ -75,7 +91,12 @@ export default class FilterItem extends Component {
       nameIsEditing: false,
       operateVisible: false,
     };
+    this.filterNameInputRef = React.createRef();
   }
+
+  focusFilterNameInput = () => {
+    this.filterNameInputRef.current?.focus({ cursor: 'all' });
+  };
 
   checkFilterEditable = () => {
     const { filter, isCharge } = this.props;
@@ -122,125 +143,72 @@ export default class FilterItem extends Component {
     const { unsaved, isCharge, filter, onDelete, onCopy, onUpdateFilterType, onSave, onSaveAs } = this.props;
     const { operateVisible } = this.state;
     const canEdit = this.checkFilterEditable();
-    return (
-      <Trigger
-        prefixCls={'Tooltip'}
-        action={['click']}
-        popupVisible={operateVisible}
-        popup={
-          <Menu
-            className="worksheetFilterOperateList"
-            onClickAway={() => {
-              this.setState({ operateVisible: false });
-            }}
-          >
-            <NewMenuItem
-              className="operateBtn"
-              disabled={!canSave}
-              onClick={() => {
-                if (!canSave) {
-                  return;
-                }
-
-                onSave(filter);
-                this.setState({
-                  operateVisible: false,
-                });
-              }}
-            >
-              <i className="icon icon-save"></i>
-              {_l('保存')}
-            </NewMenuItem>
-            {unsaved && (
-              <NewMenuItem
-                className="operateBtn"
-                onClick={() => {
-                  onSaveAs(filter);
-                  this.setState({
-                    operateVisible: false,
-                  });
-                }}
-              >
-                <i className="icon icon-content-copy"></i>
-                {_l('保存为')}
-              </NewMenuItem>
-            )}
-            {!unsaved && (
-              <NewMenuItem
-                className="operateBtn"
-                onClick={() => {
-                  onCopy(filter);
-                  this.setState({
-                    operateVisible: false,
-                  });
-                }}
-              >
-                <i className="icon icon-content-copy"></i>
-                {_l('复制')}
-              </NewMenuItem>
-            )}
-            <NewMenuItem
-              className="operateBtn"
-              disabled={!canEdit}
-              onClick={() => {
-                this.setState(
-                  {
-                    nameIsEditing: true,
-                    operateVisible: false,
-                  },
-                  () => {
-                    if (this.title) {
-                      this.title.querySelector('.filterNameInput').select();
-                      this.title.querySelector('.filterNameInput').focus();
-                    }
-                  },
-                );
-              }}
-            >
-              <i className="icon icon-edit" on></i>
-              {_l('重命名')}
-            </NewMenuItem>
-            <NewMenuItem
-              className="operateBtn"
-              disabled={!isCharge}
-              onClick={() => {
-                onUpdateFilterType(filter.type === FILTER_TYPE.PUBLIC ? FILTER_TYPE.PERSONAL : FILTER_TYPE.PUBLIC);
-                this.setState({
-                  operateVisible: false,
-                });
-              }}
-            >
-              <i className={cx('icon', filter.type === FILTER_TYPE.PUBLIC ? 'icon-person' : 'icon-group')}></i>
-              {filter.type === FILTER_TYPE.PUBLIC ? _l('设为个人筛选') : _l('设为公共筛选')}
-            </NewMenuItem>
-            <hr />
-            <NewMenuItem
-              className="operateBtn"
-              disabled={filter.createAccountId !== md.global.Account.accountId && !isCharge}
-              onClick={() => {
-                onDelete(filter);
-                this.setState({
-                  operateVisible: false,
-                });
-              }}
-            >
-              <i className="icon icon-hr_delete"></i>
-              {_l('删除')}
-            </NewMenuItem>
-          </Menu>
-        }
-        getPopupContainer={() => document.body}
-        popupAlign={{
-          points: ['bl', 'tl'],
-          offset: [0, 0],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
+    const options = [
+      {
+        value: 'save',
+        label: renderOperateLabel('icon-save', _l('保存')),
+        disabled: !canSave,
+        onSelect: () => onSave(filter),
+      },
+      unsaved
+        ? {
+            value: 'saveAs',
+            label: renderOperateLabel('icon-content-copy', _l('保存为')),
+            onSelect: () => onSaveAs(filter),
+          }
+        : {
+            value: 'copy',
+            label: renderOperateLabel('icon-content-copy', _l('复制')),
+            onSelect: () => onCopy(filter),
           },
+      {
+        value: 'rename',
+        label: renderOperateLabel('icon-edit', _l('重命名')),
+        disabled: !canEdit,
+        onSelect: () => {
+          this.setState({ nameIsEditing: true }, this.focusFilterNameInput);
+        },
+      },
+      {
+        value: 'toggleType',
+        label: renderOperateLabel(
+          filter.type === FILTER_TYPE.PUBLIC ? 'icon-person' : 'icon-group',
+          filter.type === FILTER_TYPE.PUBLIC ? _l('设为个人筛选') : _l('设为公共筛选'),
+        ),
+        disabled: !isCharge,
+        onSelect: () =>
+          onUpdateFilterType(filter.type === FILTER_TYPE.PUBLIC ? FILTER_TYPE.PERSONAL : FILTER_TYPE.PUBLIC),
+      },
+      {
+        value: 'delete',
+        label: renderOperateLabel('icon-hr_delete', _l('删除'), true),
+        disabled: filter.createAccountId !== md.global.Account.accountId && !isCharge,
+        onSelect: () => onDelete(filter),
+      },
+    ];
+
+    return (
+      <OperateSelect
+        className="moreOperateBtn"
+        value={OPERATE_VALUE}
+        options={options}
+        open={operateVisible}
+        placement="topLeft"
+        classNames={{ popup: { root: 'worksheetFilterOperateList' } }}
+        labelRender={() => <i className="icon icon-more_horiz" />}
+        showSearch={false}
+        suffixIcon={null}
+        variant="borderless"
+        popupMatchSelectWidth={false}
+        styles={OPERATE_SELECT_STYLES}
+        onChange={value => {
+          const selectedOption = _.find(options, { value });
+          this.setState({ operateVisible: false }, () => {
+            selectedOption?.onSelect();
+          });
         }}
-      >
-        <i className="icon icon-more_horiz moreOperateBtn" onClick={() => this.setState({ operateVisible: true })}></i>
-      </Trigger>
+        onOpenChange={operateVisible => this.setState({ operateVisible })}
+      />
     );
   };
   checkNewFilter(filter) {
@@ -326,14 +294,14 @@ export default class FilterItem extends Component {
             hideFilter();
           }}
         >
-          <div
-            className={cx('filterTitle flex ellipsis', { colorPrimary: selected })}
-            ref={title => (this.title = title)}
-          >
+          <div className={cx('filterTitle flex ellipsis', { colorPrimary: selected })}>
             {nameIsEditing ? (
               <Input
-                className="filterNameInput"
+                ref={this.filterNameInputRef}
+                className="filterNameInput w100"
                 defaultValue={filter.name}
+                size="small"
+                variant="borderless"
                 onClick={e => {
                   e.stopPropagation();
                 }}
@@ -355,12 +323,7 @@ export default class FilterItem extends Component {
                   }
 
                   e.stopPropagation();
-                  this.setState({ nameIsEditing: true }, () => {
-                    if (this.title) {
-                      this.title.querySelector('.filterNameInput').select();
-                      this.title.querySelector('.filterNameInput').focus();
-                    }
-                  });
+                  this.setState({ nameIsEditing: true }, this.focusFilterNameInput);
                 }}
               >
                 {filter.name}

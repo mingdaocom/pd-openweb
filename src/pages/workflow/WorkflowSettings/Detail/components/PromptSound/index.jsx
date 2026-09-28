@@ -1,13 +1,15 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dropdown, QiniuUpload, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { QiniuUpload } from 'ming-ui';
+import { Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
 import { LANGUAGE_BCP47 } from '../../../enum';
 import CustomTextarea from '../CustomTextarea';
 import audioGif from './audio.gif';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const AudioBox = styled.span`
   margin: 10px 10px 0 0;
@@ -152,10 +154,11 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
           return (
             <Radio
               key={item.value}
-              className={cx({ mLeft50: i !== 0 })}
+              className={cx({
+                mLeft50: i !== 0,
+              })}
               checked={promptSound.type === item.value}
-              text={item.text}
-              onClick={() =>
+              onChange={() =>
                 updateSource({
                   promptSound: {
                     content: '',
@@ -168,7 +171,10 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
                   },
                 })
               }
-            />
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
           );
         })}
       </div>
@@ -295,12 +301,11 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
           {SpeechSetting.map((item, i) => (
             <Fragment key={i}>
               <div className="Font13 bold mTop20">{item.title}</div>
-              <Dropdown
+              <Select
                 className="w100 mTop10"
-                menuClass="w100"
-                data={item.data}
+                options={item.data}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={promptSound[item.key]}
-                border
                 onChange={value => updateSource({ promptSound: { ...promptSound, [item.key]: value } })}
               />
             </Fragment>

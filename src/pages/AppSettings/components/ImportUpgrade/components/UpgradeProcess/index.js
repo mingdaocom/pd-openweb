@@ -1,14 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { Steps } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Dialog, LoadDiv, QiniuUpload, Radio, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, QiniuUpload, Support, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Modal, Radio, Steps, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize } from 'src/utils/core/file';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import {
   AdvancedConfig,
   ERROR_CODE,
@@ -28,7 +27,7 @@ import UpgradeSelectApp from '../UpgradeSelectApp';
 import UpgradeStatus from '../UpgradeStatus';
 import './index.less';
 
-const { Step } = Steps;
+const CHECKBOX_STYLES = { label: { paddingInlineEnd: 0 } };
 
 export const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
 export const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
@@ -447,7 +446,7 @@ export default class UpgradeProcess extends Component {
               ? ''
               : _.isEmpty(file)
                 ? this.renderUploadBtn(
-                    <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
+                    <Button type="primary" shape="round" className={cx({ Visibility: analyzeLoading })}>
                       {_l('上传文件')}
                     </Button>,
                   )
@@ -589,9 +588,8 @@ export default class UpgradeProcess extends Component {
               <div className={`updateMethodItem ${index === 0 ? 'mRight12' : ''}`} key={item.modelType}>
                 <Radio
                   className="bold"
-                  text={item.text}
                   checked={modelType === item.modelType}
-                  onClick={() =>
+                  onChange={() =>
                     this.setState({
                       modelType: item.modelType,
                       upgradeName: item.modelType ? true : upgradeName,
@@ -603,7 +601,10 @@ export default class UpgradeProcess extends Component {
                       backupCurrentVersion: item.modelType ? true : backupCurrentVersion,
                     })
                   }
-                />
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
                 <div className="textSecondary Font12 mTop8 mLeft30">
                   {' '}
                   {!item.desc ? (
@@ -626,9 +627,15 @@ export default class UpgradeProcess extends Component {
               <i className="icon-admin-apps textTertiary Font18 mRight7 TxtMiddle" />
               <span className="bold TxtMiddle">{_l('应用')}</span>
               {modelType === 0 && (
-                <span className="mLeft5 textTertiary Hand" onClick={() => this.selectAllSettings(selectAll)}>
+                <Button
+                  className="mLeft5"
+                  color="default"
+                  variant="link"
+                  size="small"
+                  onClick={() => this.selectAllSettings(selectAll)}
+                >
                   {selectAll ? _l('全选') : _l('取消全选')}
-                </span>
+                </Button>
               )}
             </div>
             <ul className="flexRow">
@@ -637,9 +644,15 @@ export default class UpgradeProcess extends Component {
                   <Checkbox
                     disabled={modelType === 1 || isAllNew}
                     checked={isAllNew ? true : this.state[v.key]}
-                    onClick={checked => this.setState({ [v.key]: !checked })}
-                  />
-                  <span className="">{modelType === 1 && v.coverName ? v.coverName : v.name}</span>
+                    styles={CHECKBOX_STYLES}
+                    onChange={event =>
+                      this.setState({
+                        [v.key]: event.target.checked,
+                      })
+                    }
+                  >
+                    {modelType === 1 && v.coverName ? v.coverName : v.name}
+                  </Checkbox>
 
                   {v.desc && (
                     <Tooltip title={modelType === 1 && v.coverdesc ? v.coverdesc : v.desc} placement="bottom">
@@ -766,9 +779,9 @@ export default class UpgradeProcess extends Component {
   };
 
   clickBack = () => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('退出导入升级'),
-      description: _l('当前进程不会被保存'),
+      content: _l('当前进程不会被保存'),
       okText: _l('退出'),
       onOk: () => {
         this.props.onCancel();
@@ -787,7 +800,8 @@ export default class UpgradeProcess extends Component {
     }
   };
 
-  updateFiles = files => this.setState({ files });
+  updateFiles = files =>
+    this.setState(prevState => ({ files: typeof files === 'function' ? files(prevState.files) : files }));
 
   handleNext = () => {
     const { current, batchUpdate, upgradeModel } = this.state;
@@ -811,7 +825,7 @@ export default class UpgradeProcess extends Component {
       <div className="upgradeProcessFooter">
         {!isUpgradeScope ? (
           <div className="actionContent">
-            <Button disabled={this.getNextStatus()} onClick={this.handleNext}>
+            <Button type="primary" disabled={this.getNextStatus()} onClick={this.handleNext}>
               {_l('下一步')}
             </Button>
           </div>
@@ -824,16 +838,20 @@ export default class UpgradeProcess extends Component {
                     <Checkbox
                       disabled={modelType === 1 && !isAllNew}
                       checked={this.state[l.key]}
-                      onClick={checked => {
-                        this.setState({ [l.key]: !checked });
+                      styles={CHECKBOX_STYLES}
+                      onChange={event => {
+                        this.setState({
+                          [l.key]: event.target.checked,
+                        });
                       }}
-                    />
-                    <span className="">{l.label}</span>
+                    >
+                      {l.label}
+                    </Checkbox>
                   </li>
                 ))}
               </ul>
             )}
-            <Button type="primary" className="mLeft30" disabled={batchCheckUpgradeLoading} onClick={this.handleUpgrade}>
+            <Button type="primary" className="mLeft30" loading={batchCheckUpgradeLoading} onClick={this.handleUpgrade}>
               {_l('开始导入')}
             </Button>
           </div>
@@ -863,7 +881,13 @@ export default class UpgradeProcess extends Component {
       <div className="upgradeProcessWrap Normal Font14">
         <div className="upgradeProcessHeader">
           <div>
-            <i className="icon-backspace textTertiary Font24 Hand TxtMiddle" onClick={this.clickBack} />
+            <Button
+              color="default"
+              variant="text"
+              size="small"
+              icon={<i className="icon-backspace" />}
+              onClick={this.clickBack}
+            />
             <span className="Font17 TxtMiddle mLeft12 bold">{_l('应用导入升级')}</span>
           </div>
           {(!batchUpdate || items[current].key === 'renderUpgradeScope') && (
@@ -882,13 +906,7 @@ export default class UpgradeProcess extends Component {
           </div>
         </div>
         <div className={cx('upgradeProcessContent', { pBottom68: batchUpdate })}>
-          <Fragment>
-            <Steps current={current} className="mBottom20">
-              {items.map(item => {
-                return <Step key={item.title} title={item.title} disabled={true}></Step>;
-              })}
-            </Steps>
-          </Fragment>
+          <Steps current={current} className="mBottom20" items={items.map(item => ({ ...item, disabled: true }))} />
           {this[items[current].key]()}
           {this.renderFooter()}
         </div>

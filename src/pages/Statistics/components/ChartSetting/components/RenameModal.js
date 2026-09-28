@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Button, ConfigProvider, Input, Modal } from 'antd';
 import { Icon } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 
 export default class RenameModal extends Component {
   constructor(props) {
@@ -24,25 +24,6 @@ export default class RenameModal extends Component {
     this.props.onChangeRename(rename);
     this.props.onHideDialogVisible(false);
   };
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.props.onHideDialogVisible(false);
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSave}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   render() {
     const { dialogVisible } = this.props;
     const { rename } = this.state;
@@ -51,18 +32,16 @@ export default class RenameModal extends Component {
         title={_l('重命名')}
         width={480}
         className="chartModal"
-        visible={dialogVisible}
-        destroyOnClose={true}
+        open={dialogVisible}
         centered={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderFooter()}
+        onOk={this.handleSave}
         onCancel={() => {
           this.props.onHideDialogVisible(false);
         }}
       >
         <Input
           autoFocus={true}
-          className="chartInput"
           value={rename}
           onChange={event => {
             this.setState({

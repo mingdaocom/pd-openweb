@@ -18,15 +18,6 @@ import _ from 'lodash';
 import { normalizeGroups, parseJsonArray } from './parseUtils';
 import { cloneSegment, newGroupId, normalizeSegments } from './segmentUtils';
 
-export {
-  addGroupSegment,
-  moveGroupSegment,
-  moveIdBetweenSegments,
-  moveIdToSegmentBoundary,
-  moveSegmentToIndex,
-  removeGroupSegment,
-} from './segmentUtils';
-
 function buildGroupSegment(meta, ids) {
   const g = meta.raw;
   return {

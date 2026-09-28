@@ -1,7 +1,8 @@
 import React from 'react';
 import { Icon, UpgradeIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 
 export default function Header({ featureType, isFree, worksheetInfo, onOpenTrash, onAdd }) {
   return (
@@ -13,8 +14,11 @@ export default function Header({ featureType, isFree, worksheetInfo, onOpenTrash
         </p>
       </div>
       {featureType && (
-        <div
-          className="trash mRight20 hoverColorPrimary flexRow"
+        <Button
+          className="mRight20"
+          color="default"
+          variant="text"
+          icon={<Icon icon="knowledge-recycle" />}
           onClick={() => {
             // 免费版展示入口但升级拦截，避免用户进入不可用的回收站能力。
             if (isFree) {
@@ -25,15 +29,13 @@ export default function Header({ featureType, isFree, worksheetInfo, onOpenTrash
             onOpenTrash();
           }}
         >
-          <Icon icon="knowledge-recycle" className="trashIcon Hand Font18" />
-          <div className="recycle InlineBlock Hand mLeft5">{_l('回收站')}</div>
+          {_l('回收站')}
           {isFree && <UpgradeIcon />}
-        </div>
+        </Button>
       )}
-      <span className="add Relative bold" onClick={onAdd}>
-        <Icon icon="plus" className="mRight8" />
+      <Button type="primary" shape="round" icon={<Icon icon="plus" />} onClick={onAdd}>
         {_l('添加按钮')}
-      </span>
+      </Button>
     </div>
   );
 }

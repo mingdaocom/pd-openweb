@@ -1,12 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, LoadDiv, Menu, MenuItem, VerifyPasswordConfirm } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification';
 import ListContainer from '../components/ListContainer';
-import { AddOrEditSignDialog } from './AddOrEditSign';
-import { TestSmsDialog } from './TestSmsDialog';
+import { useAddOrEditSignDialog } from './AddOrEditSign';
+import { useTestSmsDialog } from './TestSmsDialog';
 
 const SIGN_STATUS = {
   REVIEWING: 1,
@@ -27,6 +26,8 @@ export default function SmsSignature(props) {
   const [signList, setSignList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [popupVisibleId, setPopupVisibleId] = useState('');
+  const { open: openAddOrEditSignDialog, holder: addOrEditSignDialogHolder } = useAddOrEditSignDialog();
+  const { open: openTestSmsDialog, holder: testSmsDialogHolder } = useTestSmsDialog();
 
   useEffect(() => {
     getSignList();
@@ -47,7 +48,7 @@ export default function SmsSignature(props) {
     setPopupVisibleId('');
     switch (key) {
       case 'smsTest':
-        TestSmsDialog({ signId: item.id, signName: item.signName, projectId });
+        openTestSmsDialog({ signId: item.id, signName: item.signName, projectId });
         break;
       case 'setDefault':
         certificationApi.setDefaultSmsSignature({ id: item.id, projectId }).then(res => {
@@ -70,28 +71,35 @@ export default function SmsSignature(props) {
         });
         break;
       case 'edit':
-        AddOrEditSignDialog({ signInfo: item, projectId, onSuccess: getSignList });
+        openAddOrEditSignDialog({ signInfo: item, projectId, onSuccess: getSignList });
         break;
       case 'delete':
-        Dialog.confirm({
-          title: <span className="Red">{_l('您确定删除签名？')}</span>,
+        Modal.confirm({
+          title: <span className="Red textError">{_l('您确定删除签名？')}</span>,
           width: 560,
-          buttonType: 'danger',
+          okButtonProps: {
+            danger: true,
+          },
           okText: _l('删除'),
-          description: _l(
+          content: _l(
             '删除后，有使用此签名的外部门户/公开表单/工作流短信发送还是用此签名，需要联系应用管理员修改签名。',
           ),
           onOk: () => {
             VerifyPasswordConfirm.confirm({
               onOk: () => {
-                certificationApi.removeSmsSignature({ id: item.id, projectId }).then(res => {
-                  if (res) {
-                    alert(_l('删除成功'));
-                    setSignList(signList.filter(sign => sign.id !== item.id));
-                  } else {
-                    alert(_l('删除失败'), 2);
-                  }
-                });
+                certificationApi
+                  .removeSmsSignature({
+                    id: item.id,
+                    projectId,
+                  })
+                  .then(res => {
+                    if (res) {
+                      alert(_l('删除成功'));
+                      setSignList(signList.filter(sign => sign.id !== item.id));
+                    } else {
+                      alert(_l('删除失败'), 2);
+                    }
+                  });
               },
             });
           },
@@ -102,7 +110,7 @@ export default function SmsSignature(props) {
     }
   };
 
-  if ([0, 1].includes(authType) && !window.platformENV.isOverseas && !window.platformENV.isLocal) {
+  if ([0, 1].includes(authType) && window.platformENV.isHap) {
     return (
       <Fragment>
         <div className="bold mBottom16">{_l('短信签名')}</div>
@@ -142,47 +150,33 @@ export default function SmsSignature(props) {
             )}
             <div className="textSecondary flex mTop10">{_l('申请人：') + item.operator?.fullname}</div>
           </div>
-          <Trigger
-            popupVisible={popupVisibleId === item.id}
-            onPopupVisibleChange={visible => setPopupVisibleId(visible ? item.id : '')}
-            action={['click']}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 5],
-              overflow: { adjustX: true, adjustY: true },
+          <Dropdown
+            open={popupVisibleId === item.id}
+            onOpenChange={visible => setPopupVisibleId(visible ? item.id : '')}
+            trigger={['click']}
+            menu={{
+              items: MENU_LIST.filter(menu => {
+                if (item.auditStatus === SIGN_STATUS.SUCCESS && menu.key === 'edit') {
+                  return false;
+                }
+
+                if (item.auditStatus === SIGN_STATUS.FAIL && ['smsTest', 'setDefault', 'switch'].includes(menu.key)) {
+                  return false;
+                }
+
+                return !(item.isDefault && menu.key === 'setDefault');
+              }).map(menu => ({
+                key: menu.key,
+                danger: menu.key === 'delete',
+                label: menu.key === 'switch' ? (item.disable ? _l('启用') : _l('停用')) : menu.text,
+              })),
+              onClick: ({ key }) => onMenuClick(key, item),
             }}
-            popup={
-              <Menu style={{ position: 'unset' }}>
-                {MENU_LIST.map(menu => {
-                  if (item.auditStatus === SIGN_STATUS.SUCCESS && menu.key === 'edit') {
-                    return null;
-                  }
-
-                  if (item.auditStatus === SIGN_STATUS.FAIL && ['smsTest', 'setDefault', 'switch'].includes(menu.key)) {
-                    return null;
-                  }
-
-                  if (item.isDefault && menu.key === 'setDefault') {
-                    return null;
-                  }
-
-                  return (
-                    <MenuItem
-                      key={menu.key}
-                      onClick={() => onMenuClick(menu.key, item)}
-                      className={{ Red: menu.key === 'delete' }}
-                    >
-                      {menu.key === 'switch' ? (item.disable ? _l('启用') : _l('停用')) : menu.text}
-                    </MenuItem>
-                  );
-                })}
-              </Menu>
-            }
           >
             <div className={cx('mTop10', { Visibility: item.auditStatus === SIGN_STATUS.REVIEWING })}>
               <Icon icon="moreop" className="Font20 textTertiary pointer hoverColorPrimary" />
             </div>
-          </Trigger>
+          </Dropdown>
         </div>
       </div>
     );
@@ -190,9 +184,11 @@ export default function SmsSignature(props) {
 
   return (
     <Fragment>
+      {addOrEditSignDialogHolder}
+      {testSmsDialogHolder}
       <div className="flexRow alignItemsCenter mBottom10">
         <div className="bold flex">{_l('短信签名')}</div>
-        <div className="addBtn" onClick={() => AddOrEditSignDialog({ projectId, onSuccess: getSignList })}>
+        <div className="addBtn" onClick={() => openAddOrEditSignDialog({ projectId, onSuccess: getSignList })}>
           <Icon icon="add" />
           <span className="bold">{_l('添加')}</span>
         </div>

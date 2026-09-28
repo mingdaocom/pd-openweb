@@ -2,7 +2,8 @@
 import shallowEqual from 'shallowequal';
 import groupController from 'src/api/group';
 import postAjax from 'src/api/post';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import postEnum from '../constants/postEnum';
 
 function handleMdAjaxFail(dispatch, actionType, payload = {}) {
@@ -259,10 +260,6 @@ export function changeListType(inputOptions, showLoading = false) {
       dispatch(reload(options, showLoading || !shallowEqual(Object.assign({}, prevOptions, options), prevOptions)));
     });
   };
-}
-
-export function changeSearchKeywords(keywords) {
-  return { type: 'POST_CHANGE_SEARCH_KEYWORDS', keywords };
 }
 
 export function searchAll(keywords) {
@@ -525,30 +522,36 @@ export function editShareScopeSuccess({ postId, scope }) {
 export function addComment(args, successCallback, failCallback) {
   return (dispatch, getState) => {
     dispatch({ type: 'POST_ADD_COMMENT_START', args });
-    postAjax.addPostComment(args).then(result => {
-      if (result == '-1' || !result.success) {
-        failCallback(result);
-        return alert(_l('操作失败'), 2);
-      }
+    return postAjax.addPostComment(args).then(
+      result => {
+        if (result == '-1' || !result || !result.success) {
+          failCallback(result);
+          return alert(_l('操作失败'), 2);
+        }
 
-      if (result.withPost) {
-        dispatch(addSuccess(result.withPost));
-      }
+        if (result.withPost) {
+          dispatch(addSuccess(result.withPost));
+        }
 
-      const postId = args.postID;
-      const postItem = _.clone(getState().post.postsById[postId]);
-      const promise = postItem
-        ? Promise.resolve(
-            ((postItem.commentCount = postItem.commentCount + 1),
-            (postItem.comments = [result.comment].concat(postItem.comments)),
-            postItem),
-          )
-        : postAjax.getPostDetail({ postId });
-      promise.then(postItemResult => {
-        dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
-      });
-      successCallback(result);
-    });
+        const postId = args.postID;
+        const postItem = _.clone(getState().post.postsById[postId]);
+        const promise = postItem
+          ? Promise.resolve(
+              ((postItem.commentCount = postItem.commentCount + 1),
+              (postItem.comments = [result.comment].concat(postItem.comments)),
+              postItem),
+            )
+          : postAjax.getPostDetail({ postId });
+        promise.then(postItemResult => {
+          dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
+        });
+        successCallback(result);
+      },
+      error => {
+        failCallback(error);
+        alertIfNotUnauthorized(error, _l('操作失败'), 2);
+      },
+    );
   };
 }
 

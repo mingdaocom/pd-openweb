@@ -175,32 +175,36 @@ export default {
     return mdyAPI('Account', 'EditIntergrationAccount', args, options);
   },
   /**
-   * 发送修改帐号验证码
-   * @param {Object} args 请求参数
-   * @param {string} args.ticket 验证码返票据
-   * @param {string} args.randStr 票据随机字符串
-   * @param {} args.captchaType
-   * @param {string} args.account 账号
-   * @param {boolean} args.needCheckCode 是否需要验证密码输入
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
+  * 发送修改帐号验证码
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {integer} args.type 发送类型
+0为输入手机号；1为当前用户的手机号；2为当前用户的邮箱
+  * @param {string} args.account 账号
+  * @param {boolean} args.needCheckCode 是否需要验证密码输入
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
   sendChangeAccountVerifyCode: function (args, options = {}) {
     return mdyAPI('Account', 'SendChangeAccountVerifyCode', args, options);
   },
   /**
-   * 发送验证码
-   * @param {Object} args 请求参数
-   * @param {string} args.ticket 验证码返票据
-   * @param {string} args.randStr 票据随机字符串
-   * @param {} args.captchaType
-   * @param {string} args.account 账号
-   * @param {boolean} args.needCheckCode 是否需要验证密码输入
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
+  * 发送验证码
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {integer} args.type 发送类型
+0为输入手机号；1为当前用户的手机号；2为当前用户的邮箱
+  * @param {string} args.account 账号
+  * @param {boolean} args.needCheckCode 是否需要验证密码输入
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
   sendVerifyCode: function (args, options = {}) {
     return mdyAPI('Account', 'SendVerifyCode', args, options);
   },
@@ -219,7 +223,7 @@ export default {
     return mdyAPI('Account', 'CheckAccount', args, options);
   },
   /**
-  * 验证登录密码
+  * 验证身份（登录密码 / 手机短信 / 邮箱 / 身份验证器TOTP）
 根据设备（勾选之后1小时内免验证）
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
@@ -228,6 +232,10 @@ export default {
   * @param {string} args.password 密码
   * @param {string} args.projectId 组织ID
   * @param {boolean} args.isNoneVerification 是否1小时内该设备免验证
+  * @param {integer} args.type 验证方式：0=登录密码（默认，用 Password 字段）；1=手机短信验证码；2=邮箱验证码；
+3=身份验证器(TOTP)。1/2/3 均用 VerifyCode 字段传验证码。
+编号与 SendVerifyCode / 前端 TwofactorType(手机1/邮箱2/totp3) 保持一致。
+  * @param {string} args.verifyCode 验证码（手机短信 / 邮箱 / 身份验证器 TOTP 共用；Type=1/2/3 时使用）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

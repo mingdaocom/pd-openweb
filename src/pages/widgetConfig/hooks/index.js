@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 // 获取表信息
 export const useSheetInfo = ({ worksheetId, saveIndex = 0, setConfigLoading, ...rest }) => {
@@ -36,7 +36,7 @@ export const useSheetInfo = ({ worksheetId, saveIndex = 0, setConfigLoading, ...
           requestData: { worksheetId },
           clearSpecificKeys: [
             'Worksheet_GetWorksheetInfo',
-            'Worksheet_GetWorksheetBaseInfo',
+            'Worksheet_GetWorksheetById',
             'Worksheet_GetQueryBySheetId',
           ],
         });

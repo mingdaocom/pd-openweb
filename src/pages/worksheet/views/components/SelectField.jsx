@@ -2,9 +2,10 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, number, oneOf, shape } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, RadioGroup, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import { Button, FlexCenter, RevertButton, Text } from 'worksheet/styled';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import ConfigureHierarchyView from './configureHierarchyView';
 
 const VIEW_TYPE_INFO = {
@@ -102,7 +103,7 @@ const DisplayFieldWrap = styled.div`
     color: var(--color-text-secondary);
   }
 
-  .Radio {
+  .hap-radio-wrapper {
     margin-bottom: 12px;
   }
   .selectFieldWrap {
@@ -152,14 +153,14 @@ export default class SelectField extends Component {
   };
   computeHeight = () => {
     const $title = document.querySelector('h5');
-    const $content = document.querySelector('.RadioGroup');
+    const $content = document.querySelector('.hap-radio-group');
     if (!$title) return;
     const { bottom } = $title.getBoundingClientRect();
     const innerHeight = window.innerHeight;
     const $scrollWrap = document.querySelector('.selectFieldWrap');
 
     if ($scrollWrap) {
-      $($scrollWrap).height(Math.min($content.offsetHeight, innerHeight - bottom - 116));
+      $($scrollWrap).height(Math.min($content?.offsetHeight, innerHeight - bottom - 116));
     }
   };
   renderContent = () => {
@@ -176,10 +177,14 @@ export default class SelectField extends Component {
         <DisplayFieldWrap>
           <h5>{viewType === 1 ? _l('选择分组字段') : _l('选择字段')}</h5>
           <ScrollView className="selectFieldWrap">
-            <RadioGroup
-              data={fields}
-              onChange={value => this.setState({ checkedValue: value })}
-              checkedValue={checkedValue}
+            <Radio.Group
+              options={(fields || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
+                this.setState({
+                  checkedValue: event.target.value,
+                })
+              }
+              value={checkedValue}
               vertical
             />
           </ScrollView>

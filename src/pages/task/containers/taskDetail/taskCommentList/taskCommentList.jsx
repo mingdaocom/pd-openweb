@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import { htmlDecodeReg } from 'src/utils/common';
+import { htmlDecodeReg } from 'src/utils/core/string';
 import {
   addTaskDiscussions,
   discussionsAddMembers,

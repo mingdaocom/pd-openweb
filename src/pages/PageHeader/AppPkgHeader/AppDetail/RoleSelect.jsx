@@ -1,20 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import localForage from 'localforage';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon } from 'ming-ui';
+import { Icon, SearchInput } from 'ming-ui';
+import { Button, Checkbox } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import appManagementApi from 'src/api/appManagement';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { ICON_ROLE_TYPE } from '../config';
-
-const OkButtonWrap = styled.div`
-  width: 105px;
-  > button {
-    width: max-content !important;
-  }
-`;
 
 const RoleSelectWrap = styled.div`
   position: fixed;
@@ -38,9 +31,6 @@ const RoleSelectWrap = styled.div`
     padding: 0 15px 0 24px;
     .roleSearch {
       width: 100%;
-      background: var(--color-background-primary) !important;
-      border-radius: 0;
-      border-bottom: 1px solid var(--color-border-secondary);
     }
   }
   .roleSelectList {
@@ -94,6 +84,7 @@ const RoleSelectWrap = styled.div`
 `;
 
 function RoleSelect(props) {
+  const requestPending = useRef(false);
   const { id, handleClose, roleSelectValue = [], visible, appId } = props;
 
   const [roleList, setRoleList] = useState([]);
@@ -129,8 +120,11 @@ function RoleSelect(props) {
   }, [visible]);
 
   const setDebugRoles = ids => {
+    if (requestPending.current) return;
+
     localForage.clear();
-    appManagementApi
+    requestPending.current = true;
+    return appManagementApi
       .setDebugRoles({
         appId: id,
         roleIds: ids || value,
@@ -140,6 +134,9 @@ function RoleSelect(props) {
           setValue(ids || value);
           window.location.reload();
         }
+      })
+      .finally(() => {
+        requestPending.current = false;
       });
   };
 
@@ -158,6 +155,20 @@ function RoleSelect(props) {
     setType(type === 0 ? 1 : 0);
     safeLocalStorageSetItem('mingRoleDebugType', type === 0 ? 1 : 0);
   };
+
+  const filteredRoleList = roleList.filter(item => !search || item.name.toLowerCase().includes(search.toLowerCase()));
+  const roleGroups = [
+    {
+      key: 'system',
+      name: _l('系统'),
+      roles: filteredRoleList.filter(item => ICON_ROLE_TYPE[item.roleType]),
+    },
+    {
+      key: 'custom',
+      name: _l('自定义'),
+      roles: filteredRoleList.filter(item => !ICON_ROLE_TYPE[item.roleType]),
+    },
+  ].filter(group => group.roles.length);
 
   return (
     <RoleSelectWrap className="flexColumn">
@@ -206,13 +217,10 @@ function RoleSelect(props) {
         />
       </div>
       <ul className="roleSelectList flex">
-        {roleList
-          .filter(l => !search || l.name.toLowerCase().includes(search.toLowerCase()))
-          .map((item, index) => (
-            <React.Fragment>
-              {[0, 3].includes(index) && (
-                <p className="Font12 pLeft12 mBottom4 mTop10 textTertiary">{index === 0 ? _l('系统') : _l('自定义')}</p>
-              )}
+        {roleGroups.map(group => (
+          <React.Fragment key={group.key}>
+            <p className="Font12 pLeft12 mBottom4 mTop10 textTertiary">{group.name}</p>
+            {group.roles.map(item => (
               <li
                 className={cx('item Hand valignWrapper', {
                   active: type === 0 && value.includes(item.roleId),
@@ -224,8 +232,9 @@ function RoleSelect(props) {
               >
                 {type === 1 && (
                   <Checkbox
+                    className="mRight8"
                     checked={value.includes(item.roleId)}
-                    onClick={checked => changeValue(item.roleId, !checked)}
+                    onChange={event => changeValue(item.roleId, event.target.checked)}
                   />
                 )}
                 <span className="flex overflow_ellipsis valignWrapper">
@@ -235,15 +244,16 @@ function RoleSelect(props) {
                   {item.name}
                 </span>
               </li>
-            </React.Fragment>
-          ))}
+            ))}
+          </React.Fragment>
+        ))}
       </ul>
       {type === 1 && (
-        <OkButtonWrap className="pLeft24">
-          <Button size="medium" onClick={() => setDebugRoles()}>
+        <div className="pLeft24">
+          <Button type="primary" onClick={() => setDebugRoles()}>
             {_l('确定')}
           </Button>
-        </OkButtonWrap>
+        </div>
       )}
     </RoleSelectWrap>
   );

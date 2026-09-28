@@ -1,9 +1,10 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import { func, string } from 'prop-types';
 import { FullScreenCurtain, Icon, Support } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import api from '../../../api/process';
 import appManagement from 'src/api/appManagement';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { RELATION_TYPE } from '../../../WorkflowSettings/enum';
 import { START_APP_TYPE } from '../../utils';
 import BgIcon from './BgIcon';
@@ -87,8 +88,6 @@ export default class CreateFlow extends Component {
     };
   }
 
-  inputRef = createRef();
-
   requestPending = false;
 
   createFlow = startEventAppType => {
@@ -113,11 +112,6 @@ export default class CreateFlow extends Component {
       });
   };
 
-  handleInputFocus = (focus = true) => {
-    const $ele = this.inputRef.current;
-    focus ? $ele.classList.add('borderColorPrimary') : $ele.classList.remove('borderColorPrimary');
-  };
-
   render() {
     const { flowName } = this.state;
     return (
@@ -127,14 +121,10 @@ export default class CreateFlow extends Component {
             <div className="backToWorkflowIndex mRight12" onClick={this.props.onBack}>
               <Icon icon="backspace" className="Font24 textSecondary hoverColorPrimary pointer" />
             </div>
-            <input
-              ref={this.inputRef}
-              type="text"
+            <Input
               value={flowName}
               placeholder={_l('请输入流程名称')}
-              onFocus={this.handleInputFocus}
               onChange={e => this.setState({ flowName: e.target.value })}
-              onBlur={() => this.handleInputFocus(false)}
               className="editWorkflowName"
             />
           </div>

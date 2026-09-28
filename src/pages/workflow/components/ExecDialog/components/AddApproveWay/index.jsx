@@ -1,9 +1,18 @@
 import React from 'react';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import './index.less';
 
 export default ({ onOk, onCancel, onSubmit }) => {
   return (
-    <Dialog className="addApproveWayDialog" visible title={_l('加签方式')} footer={null} onCancel={onCancel}>
+    <Modal
+      className="addApproveWayDialog"
+      open
+      title={_l('加签方式')}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onCancel}
+    >
       <div className="actionWrap">
         <div
           className="action flexRow"
@@ -28,6 +37,6 @@ export default ({ onOk, onCancel, onSubmit }) => {
           <Icon icon="arrow-right-border" />
         </div>
       </div>
-    </Dialog>
+    </Modal>
   );
 };

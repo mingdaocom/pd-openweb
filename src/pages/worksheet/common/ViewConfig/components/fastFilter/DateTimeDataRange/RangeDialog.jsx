@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useKey, useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Checkbox, Dialog } from 'ming-ui';
-import { DATE_TYPE, DATE_TYPE_ALL, DATE_TYPE_FUTURE, DATE_TYPE_PASS } from '../config';
-import { getDefaultDateRange, getShowtypeByDateRangeType } from '../util';
-
-const Wrap = styled.div``;
+import { Checkbox, Modal } from 'ming-ui/antd-components';
+import { getDefaultDateRange, getShowtypeByDateRangeType } from 'src/utils/domain/worksheet/fastFilter';
+import {
+  DATE_TYPE,
+  DATE_TYPE_ALL,
+  DATE_TYPE_FUTURE,
+  DATE_TYPE_PASS,
+} from 'src/utils/domain/worksheet/fastFilterConfig';
 
 export default function (props) {
   const { onClose, showType, dateRangeType, onChange = () => {} } = props;
@@ -31,9 +33,9 @@ export default function (props) {
     [],
   );
   return (
-    <Dialog
-      visible
-      title={<span className="Bold">{_l('选择动态时间范围')}</span>}
+    <Modal
+      open
+      title={_l('选择动态时间范围')}
       width={860}
       onCancel={onClose}
       className="subListSortDialog"
@@ -42,18 +44,21 @@ export default function (props) {
         onClose();
       }}
     >
-      <Wrap className="h100">
+      <div className="h100">
         <React.Fragment key={'all'}>
           <Checkbox
-            className="checkBox mBottom10 InlineBlock"
-            text={_l('全选')}
+            className="checkBox mBottom10"
             checked={isAllRange}
-            onClick={() => {
+            onChange={() => {
               let newValue = daterange;
               newValue = !isAllRange ? defaultRange : [];
-              setState({ daterange: newValue });
+              setState({
+                daterange: newValue,
+              });
             }}
-          />
+          >
+            {_l('全选')}
+          </Checkbox>
           <span
             className={cx(
               ' mLeft20 TxtTop',
@@ -86,19 +91,18 @@ export default function (props) {
             // const aa = it.filter(o => defaultRange.includes(o.value));
             // if (aa.length <= 0) return '';
             return (
-              <div className="flex" key={`${i}_rangeC`}>
+              <div className="flex flexColumn" key={`${i}_rangeC`}>
                 {it.map(item => {
                   // if (!defaultRange.includes(item.value)) return '';
                   return (
                     <React.Fragment>
                       <Checkbox
                         className="checkBox mBottom10 noSelect"
-                        text={item.text}
                         disabled={!defaultRange.includes(item.value)}
                         key={`${i}_rangeItem`}
                         checked={(isAllRange || daterange.includes(item.value)) && defaultRange.includes(item.value)}
-                        onClick={(a, s, event) => {
-                          if (event.shiftKey && startIndex !== null) {
+                        onChange={event => {
+                          if (event.nativeEvent.shiftKey && startIndex !== null) {
                             // 计算选中范围
                             function sliceBetweenValues(arr, startValue, endValue) {
                               const startIndex = _.findIndex(arr, value => value === startValue);
@@ -121,10 +125,14 @@ export default function (props) {
                               newValue = newValue.concat(item.value);
                             }
 
-                            setState({ daterange: newValue });
+                            setState({
+                              daterange: newValue,
+                            });
                           }
                         }}
-                      />
+                      >
+                        {item.text}
+                      </Checkbox>
                     </React.Fragment>
                   );
                 })}
@@ -132,7 +140,7 @@ export default function (props) {
             );
           })}
         </div>
-      </Wrap>
-    </Dialog>
+      </div>
+    </Modal>
   );
 }

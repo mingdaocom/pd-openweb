@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import datasourceApi from '../../../api/datasource';
 import homeAppApi from 'src/api/homeApp';
 import { isValidName } from '../../constant';
@@ -181,7 +180,7 @@ export default function SelectTables(props) {
           .toLowerCase()
           .includes(inputValue.toLowerCase());
       }}
-      dropdownRender={menu => (
+      popupRender={menu => (
         <React.Fragment>
           {allowCreate && (
             <NewItem onClick={onAdd}>

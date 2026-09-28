@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import certificationApi from 'src/api/certification';
 import { RESULT_TYPES } from '../../constant';
 
@@ -12,20 +13,6 @@ const FormItemWrap = styled.div`
     line-height: 1.5;
     font-size: 14px;
     color: #000000d9;
-  }
-  input {
-    width: 100%;
-    border-color: var(--color-border-primary);
-    font-size: 13px;
-    &:hover {
-      border-color: var(--color-border-tertiary);
-    }
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-    &::placeholder {
-      color: var(--color-text-disabled);
-    }
   }
 `;
 
@@ -84,12 +71,14 @@ function EditContactInfo(props) {
   };
 
   return (
-    <Dialog
-      visible={true}
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={640}
       title={_l('修改联系人信息')}
       okText={submitLoading ? _l('提交中...') : _l('提交')}
-      okDisabled={submitLoading}
+      confirmLoading={submitLoading}
       onOk={onSubmit}
       onCancel={onClose}
     >
@@ -98,7 +87,7 @@ function EditContactInfo(props) {
         <Input
           placeholder={_l('请输入')}
           value={data.contactName || ''}
-          onChange={contactName => setData({ contactName })}
+          onChange={event => setData({ contactName: event.target.value })}
         />
       </FormItemWrap>
       <FormItemWrap>
@@ -106,7 +95,7 @@ function EditContactInfo(props) {
         <Input
           placeholder={_l('请输入')}
           value={data.contactIdNumber || ''}
-          onChange={contactIdNumber => setData({ contactIdNumber })}
+          onChange={event => setData({ contactIdNumber: event.target.value })}
         />
       </FormItemWrap>
       <FormItemWrap>
@@ -114,11 +103,13 @@ function EditContactInfo(props) {
         <Input
           placeholder={_l('请输入')}
           value={data.contactMobile || ''}
-          onChange={contactMobile => setData({ contactMobile })}
+          onChange={event => setData({ contactMobile: event.target.value })}
         />
       </FormItemWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(EditContactInfo, props);
+export function useEditContactInfo() {
+  return useFunctionWrapComponent(EditContactInfo);
+}

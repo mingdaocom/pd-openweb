@@ -3,13 +3,22 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'ming-ui/antd-components';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
-import Emotion from 'src/components/emotion/emotion';
+import { Button, Checkbox, Tabs, Tooltip } from 'ming-ui/antd-components';
+import { SelectGroupPopover } from 'ming-ui/functions/quickSelectGroup';
+import Emotion from 'src/components/emotion';
 import UploadFiles from 'src/components/UploadFiles';
 import { addSuccess } from '../../redux/postActions';
 import MyUpdater from '../common/myupdater/myupdater';
 import './updater.css';
+
+const UPDATER_TAB_STYLES = {
+  root: { marginTop: 12 },
+  header: { marginBottom: 10 },
+};
+const INACTIVE_UPDATER_TAB_STYLES = {
+  root: { marginTop: 12 },
+  header: { marginBottom: 0 },
+};
 
 /**
  * 动态发布器
@@ -23,12 +32,16 @@ class Updater extends React.Component {
   constructor(props) {
     super(props);
     this.MyUpdater = null;
+    this.isPosting = false;
 
     this.state = {
       kcAttachmentData: [],
       temporaryData: [],
       isUploadComplete: true,
+      addAttachmentToKc: false,
       shareGroup: {},
+      activeTab: '',
+      isPosting: false,
     };
   }
 
@@ -37,6 +50,7 @@ class Updater extends React.Component {
       kcAttachmentData: [],
       temporaryData: [],
       isUploadComplete: true,
+      addAttachmentToKc: false,
     });
   };
 
@@ -45,11 +59,6 @@ class Updater extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     const comp = this;
-    $('.myUpdateItem_Content a').each(function () {
-      if ($(this).data('targetdiv')) {
-        $(this).attr('targetdiv', $(this).data('targetdiv'));
-      }
-    });
     this.MyUpdater = MyUpdater;
     MyUpdater.Init({
       clearFilesData: () => {
@@ -57,8 +66,9 @@ class Updater extends React.Component {
       },
       projectId: comp.props.projectId,
       group: { groupId: comp.props.groupId, isJoin: true },
+      resetActiveTab: this.resetActiveTab,
+      onPostingChange: this.handlePostingChange,
     });
-    this.initEmotion();
     $('#hidden_UpdaterType').val('0');
   }
 
@@ -66,7 +76,10 @@ class Updater extends React.Component {
     if (
       nextState.temporaryData.length !== this.state.temporaryData.length ||
       nextState.kcAttachmentData.length !== this.state.kcAttachmentData.length ||
-      nextState.shareGroup !== this.state.shareGroup
+      nextState.addAttachmentToKc !== this.state.addAttachmentToKc ||
+      nextState.shareGroup !== this.state.shareGroup ||
+      nextState.activeTab !== this.state.activeTab ||
+      nextState.isPosting !== this.state.isPosting
     ) {
       return true;
     }
@@ -77,6 +90,8 @@ class Updater extends React.Component {
         clearFilesData: this.clearFilesData.bind(this),
         projectId: nextProps.projectId,
         group: { groupId: nextProps.groupId },
+        resetActiveTab: this.resetActiveTab,
+        onPostingChange: this.handlePostingChange,
       });
     }
 
@@ -88,6 +103,10 @@ class Updater extends React.Component {
   }
 
   post = () => {
+    if (this.isPosting) {
+      return;
+    }
+
     const { shareGroup = {} } = this.state;
 
     if (!this.state.isUploadComplete) {
@@ -100,6 +119,7 @@ class Updater extends React.Component {
       attachmentData: this.state.temporaryData,
       kcAttachmentData: this.state.kcAttachmentData,
       isUploadComplete: this.state.isUploadComplete,
+      addAttachmentToKc: this.state.addAttachmentToKc,
       scope:
         (shareGroup.shareGroupIds || []).length ||
         (shareGroup.shareProjectIds || []).length ||
@@ -113,54 +133,24 @@ class Updater extends React.Component {
       return;
     }
 
-    MyUpdater.PostUpdater(resultData, this.postBtn, result => {
+    MyUpdater.PostUpdater(resultData, result => {
       addPost(result.post);
       this.setState({
         kcAttachmentData: [],
         temporaryData: [],
         isUploadComplete: true,
+        addAttachmentToKc: false,
         shareGroup: {},
       });
       $('body').click(); // 发布器收起
     });
   };
 
-  initEmotion = () => {
-    new Emotion(this.faceBtn, {
-      input: '#textarea_Updater',
-      placement: 'right bottom',
-      mdBear: false,
-      relatedLeftSpace: 22,
-      onSelect: () => {
-        const textBox = $('#textarea_Updater')[0];
-
-        if (
-          textBox.value === _l('知会工作是一种美德') + '...' ||
-          textBox.value === _l('上传附件') + '...' ||
-          textBox.value === _l('分享网站') + '...' ||
-          textBox.value === _l('分享网站') + '...' ||
-          textBox.value === _l('请输入投票问题') + '...'
-        ) {
-          textBox.value = '';
-        }
-      },
-    });
-  };
-
-  viewLink = () => {
-    if (!this._isMounted) {
-      return;
+  handlePostingChange = isPosting => {
+    this.isPosting = isPosting;
+    if (this._isMounted) {
+      this.setState({ isPosting });
     }
-
-    MyUpdater.ViewLink(this.linkBtn);
-  };
-
-  handleMouseover = () => {
-    $(this.faceBtn).addClass('icon-smilingFace');
-  };
-
-  handleMouseout = () => {
-    $(this.faceBtn).removeClass('icon-smilingFace');
   };
 
   textareaFocus = () => {
@@ -168,10 +158,23 @@ class Updater extends React.Component {
   };
 
   handleOpen = () => {
-    const $Attachment_updater = $('[targetdiv="#Attachment_updater"]');
+    if (this.state.activeTab !== '9') {
+      this.handleTabChange('9');
+    }
+  };
 
-    if (!$Attachment_updater.hasClass('colorPrimary')) {
-      $Attachment_updater.click();
+  handleTabChange = activeTab => {
+    MyUpdater.ChangeUpdaterType(activeTab);
+    this.setState({ activeTab });
+  };
+
+  handleClose = () => {
+    MyUpdater.ResetUpdaterDiv();
+  };
+
+  resetActiveTab = () => {
+    if (this._isMounted) {
+      this.setState({ activeTab: '' });
     }
   };
 
@@ -198,8 +201,25 @@ class Updater extends React.Component {
 
   handleSelectGroup = value => this.setState({ shareGroup: value });
 
+  renderBottomRightCon = inTabBar => {
+    const { isPosting, shareGroup } = this.state;
+
+    return (
+      <div className={cx('updaterBottomRightCon', !inTabBar && 'Right mTop5')}>
+        <div className="Right" style={{ boxSizing: 'border-box', marginTop: '2px' }}>
+          <Button id="button_Share" type="primary" size="small" loading={isPosting} onClick={this.post}>
+            {_l('分享')}
+          </Button>
+        </div>
+        <div className="Right">
+          <SelectGroupPopover value={shareGroup} onChange={this.handleSelectGroup} />
+        </div>
+      </div>
+    );
+  };
+
   render() {
-    const { shareGroup } = this.state;
+    const { activeTab } = this.state;
 
     return (
       <div className="card updaterCard">
@@ -214,137 +234,116 @@ class Updater extends React.Component {
               <div className="Hidden" id="myupdaterOP">
                 <div className="faceArea">
                   <div className="msgExpandDiv" style={{ marginRight: '-4px' }}>
-                    <a
-                      className="faceBtn icon-smile"
-                      ref={faceBtn => {
-                        this.faceBtn = faceBtn;
+                    <Emotion
+                      input="#textarea_Updater"
+                      placement="bottomRight"
+                      onSelect={() => {
+                        const textBox = document.getElementById('textarea_Updater');
+
+                        if (
+                          textBox.value === _l('知会工作是一种美德') + '...' ||
+                          textBox.value === _l('上传附件') + '...' ||
+                          textBox.value === _l('请输入投票问题') + '...'
+                        ) {
+                          textBox.value = '';
+                        }
                       }}
-                      onMouseOver={this.handleMouseover}
-                      onMouseOut={this.handleMouseout}
-                    />
+                      popupContainer={document.querySelector('.myUpdateItem')}
+                    >
+                      <button
+                        type="button"
+                        className="emotionTriggerButton faceBtn icon-smile"
+                        aria-label={_l('插入表情')}
+                        title={_l('插入表情')}
+                      />
+                    </Emotion>
                     <div className="Clear" />
                   </div>
                 </div>
 
                 <div className="Relative">
-                  <div className="Absolute Hidden" id="updateCloseContainer" style={{ right: '0px', top: '15px' }}>
-                    <Tooltip title={_l('关闭')}>
-                      <span className="update_close bgColorPrimary" style={{ margin: '5px' }}>
-                        <i className="icon-delete colorPrimary" />
-                      </span>
-                    </Tooltip>
-                  </div>
-
-                  <div className="myUpdateType mTop12">
-                    <Tooltip title={_l('添加附件')}>
-                      <span className="inlineBlock mRight20">
-                        <a className="icon-attachment Font18 NoUnderLine" data-targetdiv="#Attachment_updater" />
-                      </span>
-                    </Tooltip>
-                    <Tooltip title={_l('链接')}>
-                      <span className="inlineBlock mRight20">
-                        <a className="icon-link Font18 NoUnderLine" data-targetdiv="#Link_updater" />
-                      </span>
-                    </Tooltip>
-                    <Tooltip title={_l('投票')}>
-                      <span className="inlineBlock">
-                        <a className="icon-votenobg Font18 NoUnderLine" data-targetdiv="#Vote_updater" />
-                      </span>
-                    </Tooltip>
-                  </div>
-
-                  <div id="Attachment_updater" className="middleContent mBottom5 Hidden">
-                    <UploadFiles
-                      dropPasteElement="myUpdateItem_Content"
-                      onDropPasting={() => {
-                        this.textareaFocus();
-                        this.handleOpen([]);
-                      }}
-                      arrowLeft={4}
-                      temporaryData={this.state.temporaryData}
-                      kcAttachmentData={this.state.kcAttachmentData}
-                      onTemporaryDataUpdate={result => {
-                        (this.handleOpen(result), this.setState({ temporaryData: result }));
-                      }}
-                      onKcAttachmentDataUpdate={result => {
-                        this.setState({ kcAttachmentData: result });
-                      }}
-                      onUploadComplete={bool => {
-                        this.handleUploadComplete(bool);
-                      }}
-                    />
-                    <div className={cx('addAttachmentToKc mTop10', { Hidden: !this.state.temporaryData.length })}>
-                      <input id="addAttachmentToKcToggle" type="checkbox" />
-                      <span id="addAttachmentToKcLink" className="colorPrimary Hand">
-                        {_l('本地文件存入知识中心')}
-                      </span>
-                    </div>
-                    <hr
-                      className={cx('updaterAttachmentSplitter borderColorPrimaryDark', {
-                        Hidden: !(this.state.temporaryData.length || this.state.kcAttachmentData.length),
-                      })}
-                    />
-                    <div
-                      id="Div_JoinKnowledge"
-                      className={cx('mLeft0 mAll5 Left', {
-                        Hidden: !(this.state.temporaryData.length || this.state.kcAttachmentData.length),
-                      })}
-                      style={{ width: '200px' }}
-                    >
-                      <input type="text" className="Hidden" id="txtKnowledge" style={{ width: '370px', opacity: 0 }} />
-                    </div>
-                  </div>
-
-                  {/* 链接*/}
-                  <div id="Link_updater" className="middleContent Hidden">
-                    <div className="arrowUpOuter" style={{ left: '40px' }}>
-                      <div className="arrowUpInner" />
-                    </div>
-                    <div className="updaterDialog_Main" style={{ minHeight: '35px' }}>
-                      <div id="uploadLink_Step1" className="upload_Step1">
-                        <div className="visualDocTextBox">
-                          <div className="Left">
-                            <input type="text" id="text_LinkUrl" className="TextBox linkTextBox" />
-                          </div>
-                          <div className="Right linkBtnArea">
-                            <input
-                              type="button"
-                              className="btnBootstrap btnBootstrap-primary btnBootstrap-small linkBtn"
-                              ref={linkBtn => {
-                                this.linkBtn = linkBtn;
-                              }}
-                              onClick={this.viewLink}
-                              defaultValue={_l('预览')}
+                  <Tabs
+                    className={cx('updaterTabs', { updaterTabsInactive: !activeTab })}
+                    activeKey={activeTab}
+                    destroyOnHidden={false}
+                    onChange={this.handleTabChange}
+                    styles={activeTab ? UPDATER_TAB_STYLES : INACTIVE_UPDATER_TAB_STYLES}
+                    tabBarExtraContent={
+                      activeTab ? (
+                        <div id="updateCloseContainer">
+                          <Tooltip title={_l('关闭')}>
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<i className="icon icon-close Font16 textTertiary" />}
+                              aria-label={_l('关闭')}
+                              onClick={this.handleClose}
                             />
-                          </div>
-                          <div className="clear" />
+                          </Tooltip>
                         </div>
-                        <div className="updaterLinkView uploadLinkContent" />
-                      </div>
-                    </div>
-                  </div>
+                      ) : (
+                        this.renderBottomRightCon(true)
+                      )
+                    }
+                    items={[
+                      {
+                        key: '9',
+                        label: (
+                          <Tooltip title={_l('添加附件')}>
+                            <span className="updaterTabIcon icon icon-attachment Font18" aria-label={_l('添加附件')} />
+                          </Tooltip>
+                        ),
+                        forceRender: true,
+                        children: (
+                          <div id="Attachment_updater" className="middleContent mBottom5">
+                            <UploadFiles
+                              dropPasteElement="myUpdateItem_Content"
+                              onDropPasting={() => {
+                                this.textareaFocus();
+                                this.handleOpen([]);
+                              }}
+                              temporaryData={this.state.temporaryData}
+                              kcAttachmentData={this.state.kcAttachmentData}
+                              onTemporaryDataUpdate={result => {
+                                this.handleOpen(result);
+                                this.setState(state => ({
+                                  temporaryData: result,
+                                  addAttachmentToKc: result.length ? state.addAttachmentToKc : false,
+                                }));
+                              }}
+                              onKcAttachmentDataUpdate={result => {
+                                this.setState({ kcAttachmentData: result });
+                              }}
+                              onUploadComplete={bool => {
+                                this.handleUploadComplete(bool);
+                              }}
+                            />
+                            <Checkbox
+                              className={cx('mTop10', {
+                                Hidden: !this.state.temporaryData.length,
+                              })}
+                              checked={this.state.addAttachmentToKc}
+                              onChange={event => this.setState({ addAttachmentToKc: event.target.checked })}
+                            >
+                              {_l('本地文件存入知识中心')}
+                            </Checkbox>
+                          </div>
+                        ),
+                      },
+                      {
+                        key: '7',
+                        label: (
+                          <Tooltip title={_l('投票')}>
+                            <span className="updaterTabIcon icon icon-votenobg Font18" aria-label={_l('投票')} />
+                          </Tooltip>
+                        ),
+                        forceRender: true,
+                        children: <div id="Vote_updater" className="middleContent" />,
+                      },
+                    ]}
+                  />
 
-                  {/* 投票*/}
-                  <div id="Vote_updater" className="middleContent Hidden" />
-
-                  <div className="Right mTop5 updaterBottomRightCon">
-                    <div className="Right" style={{ boxSizing: 'border-box', marginTop: '2px' }}>
-                      <input
-                        id="button_Share"
-                        type="button"
-                        className="TxtMiddle btnBootstrap btnBootstrap-primary btnBootstrap-small"
-                        style={{ padding: '2px 15px' }}
-                        ref={postBtn => {
-                          this.postBtn = postBtn;
-                        }}
-                        onClick={this.post}
-                        value={_l('分享')}
-                      />
-                    </div>
-                    <div className="Right">
-                      <SelectGroupTrigger value={shareGroup} onChange={this.handleSelectGroup} />
-                    </div>
-                  </div>
+                  {activeTab && this.renderBottomRightCon(false)}
                   <div className="Clear" />
                 </div>
               </div>

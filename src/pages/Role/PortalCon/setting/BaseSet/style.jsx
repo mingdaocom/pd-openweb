@@ -77,24 +77,8 @@ export const Wrap = styled.div`
   }
   .cardSelect {
     font-size: 12px !important;
-    .ant-select-selection-item-remove:hover {
+    .hap-select-selection-item-remove:hover {
       color: var(--color-primary) !important;
-    }
-  }
-`;
-export const SwitchStyle = styled.div`
-  display: inline-block;
-  .switchText {
-    line-height: 24px;
-    font-size: 13px;
-  }
-  .icon {
-    vertical-align: middle;
-    &-ic_toggle_on {
-      color: #00c345;
-    }
-    &-ic_toggle_off {
-      color: var(--color-text-disabled);
     }
   }
 `;

@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import RegExpValidator from 'src/utils/expression';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 const ContentWrap = styled.div`
   &.cardStyleWrap {
@@ -39,6 +39,7 @@ const ContentWrap = styled.div`
 `;
 
 export default props => {
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
   const { editable, widget, themeColor, customPageConfig = {} } = props;
   const { componentConfig = {} } = widget;
   const {
@@ -59,7 +60,7 @@ export default props => {
     if (editable || !action || !previewUrl) return;
 
     if (action === 1) {
-      previewAttachments({
+      openPreviewAttachments({
         index: 0,
         attachments: [
           {
@@ -87,44 +88,47 @@ export default props => {
   };
 
   return (
-    <ContentWrap
-      className={cx('flexColumn h100', {
-        cardStyleWrap: showType === 2,
-        editableWrap: editable && showType === 1,
-      })}
-      style={{
-        '--app-primary-color': themeColor,
-        '--border-color': isDark ? '#e6e6e633' : '#bdbdbd',
-        '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5',
-      }}
-      onClick={handleTriggerAction}
-    >
-      {showType === 2 && (
-        <div className={cx('imageHeader flexRow', { hide: !showName })}>
-          <div className="bold Font15 cardName">{name}</div>
-        </div>
-      )}
-      <div className="imageBody flex">
-        {previewUrl ? (
-          fill === 3 ? (
-            <img src={previewUrl} className="w100 h100" />
-          ) : (
-            <div
-              className={cx('image', { fill: fill === 1, full: fill === 2 })}
-              style={{ backgroundImage: `url(${previewUrl})` }}
-            />
-          )
-        ) : imageUploadLoading ? (
-          <div className="h100 flexColumn alignItemsCenter justifyContentCenter">
-            <LoadDiv />
-          </div>
-        ) : (
-          <div className="h100 flexColumn alignItemsCenter justifyContentCenter textTertiary">
-            <Icon className="Font40" icon="insert_photo_21" />
-            <div className="mTop10">{editable ? _l('添加图片') : _l('暂无图片')}</div>
+    <Fragment>
+      {previewAttachmentsHolder}
+      <ContentWrap
+        className={cx('flexColumn h100', {
+          cardStyleWrap: showType === 2,
+          editableWrap: editable && showType === 1,
+        })}
+        style={{
+          '--app-primary-color': themeColor,
+          '--border-color': isDark ? '#e6e6e633' : '#bdbdbd',
+          '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5',
+        }}
+        onClick={handleTriggerAction}
+      >
+        {showType === 2 && (
+          <div className={cx('imageHeader flexRow', { hide: !showName })}>
+            <div className="bold Font15 cardName">{name}</div>
           </div>
         )}
-      </div>
-    </ContentWrap>
+        <div className="imageBody flex">
+          {previewUrl ? (
+            fill === 3 ? (
+              <img src={previewUrl} className="w100 h100" />
+            ) : (
+              <div
+                className={cx('image', { fill: fill === 1, full: fill === 2 })}
+                style={{ backgroundImage: `url(${previewUrl})` }}
+              />
+            )
+          ) : imageUploadLoading ? (
+            <div className="h100 flexColumn alignItemsCenter justifyContentCenter">
+              <LoadDiv />
+            </div>
+          ) : (
+            <div className="h100 flexColumn alignItemsCenter justifyContentCenter textTertiary">
+              <Icon className="Font40" icon="insert_photo_21" />
+              <div className="mTop10">{editable ? _l('添加图片') : _l('暂无图片')}</div>
+            </div>
+          )}
+        </div>
+      </ContentWrap>
+    </Fragment>
   );
 };

@@ -1,32 +1,5 @@
 import Constant from './constant';
 
-const builtinPlacements = {
-  left: {
-    points: ['cr', 'cl'],
-  },
-  right: {
-    points: ['cl', 'cr'],
-  },
-  top: {
-    points: ['bc', 'tc'],
-  },
-  bottom: {
-    points: ['tc', 'bc'],
-  },
-  topLeft: {
-    points: ['bl', 'tl'],
-  },
-  topRight: {
-    points: ['br', 'tr'],
-  },
-  bottomRight: {
-    points: ['tr', 'br'],
-  },
-  bottomLeft: {
-    points: ['tl', 'bl'],
-  },
-};
-
 const Config = {
   // 文件上传路径
   EmailConnector: '',
@@ -63,7 +36,6 @@ const Config = {
   sessionInfoOpen: true, // 右侧会话信息栏是否打开
   smallPicHeight: 150, // 小图片的高度，低于这个高度将视作小图片显示
   searchInterval: 0, // 搜索的时间间隔
-  builtinPlacements,
 };
 
 // window.Config = Config;

@@ -1,9 +1,8 @@
 import React, { Fragment } from 'react';
-import { Input, Popover, Radio, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, MdLink } from 'ming-ui';
+import { Button, Checkbox, Input, Popover, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import CancelIntegration from '../components/CancelIntegration';
@@ -27,6 +26,15 @@ const TABS = [
   { key: 'other', label: _l('扫码登录与同步') },
   { key: 'chatSetting', label: _l('聊天工具栏配置') },
   { key: 'interfaceLicense', label: _l('接口许可') },
+];
+
+const SYNC_CHECKBOX_STYLES = {
+  icon: { marginTop: -2 },
+  label: { paddingInlineStart: 16, paddingInlineEnd: 0 },
+};
+const SYNC_WX_LABEL_OPTIONS = [
+  { value: 'organize', label: _l('组织角色') },
+  { value: 'job', label: _l('职位') },
 ];
 
 export default class Workwx extends React.Component {
@@ -68,6 +76,7 @@ export default class Workwx extends React.Component {
       currentTab: 'base',
       isProxy: false, // 是否开启网络代理
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -158,18 +167,25 @@ export default class Workwx extends React.Component {
   };
 
   handleSaveJobnumberMappingField = () => {
+    if (this.requestPending) return;
+
     const { fieldRadio, jobnumberMappingField } = this.state;
     const fieldName = jobnumberMappingField.trim();
 
     if (fieldName) {
-      Ajax.editWXProjectJobnumberMappingField({
+      this.requestPending = true;
+      return Ajax.editWXProjectJobnumberMappingField({
         projectId: this.props.projectId,
         fieldName,
-      }).then(res => {
-        if (res && fieldRadio === 'customField') {
-          alert(_l('保存成功'));
-        }
-      });
+      })
+        .then(res => {
+          if (res && fieldRadio === 'customField') {
+            alert(_l('保存成功'));
+          }
+        })
+        .finally(() => {
+          this.requestPending = false;
+        });
     } else {
       alert(_l('请输入信息字段'), 2);
     }
@@ -225,11 +241,12 @@ export default class Workwx extends React.Component {
           <span className="inputTitle">{`${strId}：`}</span>
           <Popover
             title={null}
-            arrowPointAtCenter={true}
+            arrow={{ pointAtCenter: true }}
             placement="bottomLeft"
-            overlayClassName="workwxPopoverWrapper"
+            classNames={{ root: 'workwxPopoverWrapper' }}
+            noPadding
             content={
-              <span className="card Relative overflowHidden">
+              <span className="Relative overflowHidden">
                 <img
                   width={w}
                   className="mTop1"
@@ -248,7 +265,7 @@ export default class Workwx extends React.Component {
         <div className="Relative InlineBlock inputDiv clearfix">
           {this.state.canEditInfo && this.state.intergrationType !== 2 ? (
             <React.Fragment>
-              <input
+              <Input
                 type="text"
                 className="inputBox"
                 onChange={e => {
@@ -263,20 +280,22 @@ export default class Workwx extends React.Component {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <input
+              <Input
                 type="text"
                 className="inputBox"
                 readOnly
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
-              />
-              <Icon
-                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
-                className="textTertiary Font18 isShowIcon"
-                onClick={() => {
-                  this.setState({
-                    [`isShow${strId}`]: !this.state[`isShow${strId}`],
-                  });
-                }}
+                suffix={
+                  <Icon
+                    icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
+                    className="textTertiary Font18 Hand hoverColorPrimary"
+                    onClick={() => {
+                      this.setState({
+                        [`isShow${strId}`]: !this.state[`isShow${strId}`],
+                      });
+                    }}
+                  />
+                }
               />
             </React.Fragment>
           )}
@@ -337,7 +356,7 @@ export default class Workwx extends React.Component {
             <span className="Font13 textSecondary Right closeDing">
               <Tooltip
                 title={
-                  !window.platformENV.isOverseas && !window.platformENV.isLocal
+                  window.platformENV.isHap
                     ? _l('关闭企业微信集成后，无法再从企业微信处进入明道云应用')
                     : _l('关闭企业微信集成后，无法再从企业微信处进入应用')
                 }
@@ -346,8 +365,9 @@ export default class Workwx extends React.Component {
                 <span className="mLeft10 switchBtn">
                   <Switch
                     checked={!isCloseDing}
-                    onClick={checked => {
-                      this.editDingStatus(checked ? 2 : 1);
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      this.editDingStatus(!checked ? 2 : 1);
                     }}
                   />
                 </span>
@@ -371,13 +391,12 @@ export default class Workwx extends React.Component {
               {intergrationType !== 2 && (
                 <div className="TxtRight mTop30">
                   {!canEditInfo ? (
-                    <Button type="primary" className="editInfo" onClick={() => this.setState({ canEditInfo: true })}>
+                    <Button color="default" variant="filled" onClick={() => this.setState({ canEditInfo: true })}>
                       {_l('编辑')}
                     </Button>
                   ) : (
                     <Button
                       type="primary"
-                      className="saveInfo"
                       onClick={() => {
                         checkClearIntergrationData({ projectId, onSave: this.editInfo });
                       }}
@@ -403,19 +422,26 @@ export default class Workwx extends React.Component {
   };
 
   editWXProjectSettingStatus = (tag, callback, isProxy) => {
+    if (this.requestPending) return;
+
     // 状态：0 提交申请；2关闭集成；1重新开启集成 tag
-    Ajax.editWXProjectSettingStatus({
+    this.requestPending = true;
+    return Ajax.editWXProjectSettingStatus({
       projectId: this.props.projectId,
       status: tag,
       isProxy: _.isUndefined(isProxy) ? this.state.isProxy : isProxy,
-    }).then(res => {
-      if (res) {
-        callback();
-        this.setState({ status: tag });
-      } else {
-        integrationFailed(this.props.projectId);
-      }
-    });
+    })
+      .then(res => {
+        if (res) {
+          callback();
+          this.setState({ status: tag });
+        } else {
+          integrationFailed(this.props.projectId);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
   changeTab = key => {
     this.setState({ currentTab: key });
@@ -563,7 +589,11 @@ export default class Workwx extends React.Component {
                     </span>
                   </div>
                   <div className="flexRow alignItemsCenter mBottom16 syncRow height32">
-                    <Checkbox checked={this.state.syncWXLabelChecked} onClick={this.syncWXLabel}>
+                    <Checkbox
+                      checked={this.state.syncWXLabelChecked}
+                      onChange={event => this.syncWXLabel(!event.target.checked, undefined, event)}
+                      styles={SYNC_CHECKBOX_STYLES}
+                    >
                       {_l('同步企业微信标签')}
                     </Checkbox>
                     {this.state.syncWXLabelChecked && (
@@ -573,10 +603,8 @@ export default class Workwx extends React.Component {
                           style={{ width: 180, margin: '0 10px' }}
                           value={syncWXLabel}
                           onChange={this.changeSyncWXLabel}
-                        >
-                          <Option value={'organize'}>{_l('组织角色')}</Option>
-                          <Option value={'job'}>{_l('职位')}</Option>
-                        </Select>
+                          options={SYNC_WX_LABEL_OPTIONS}
+                        />
                         {_l('字段')}
                       </span>
                     )}
@@ -584,7 +612,10 @@ export default class Workwx extends React.Component {
                   <div className="syncRow mBottom8">
                     <Checkbox
                       checked={this.state.customMappingFieldEnabled}
-                      onClick={this.handleChangeCustomMappingFieldEnabled}
+                      onChange={event =>
+                        this.handleChangeCustomMappingFieldEnabled(!event.target.checked, undefined, event)
+                      }
+                      styles={SYNC_CHECKBOX_STYLES}
                     >
                       {_l('同步企业微信用户账号 或 自定义信息字段 到工号字段')}
                     </Checkbox>
@@ -600,10 +631,10 @@ export default class Workwx extends React.Component {
                           onChange={this.handleChangeJobnumberMappingField}
                           value={this.state.fieldRadio}
                         >
-                          <Radio className="Block" value="workxeixinapp-userid">
+                          <Radio value="workxeixinapp-userid">
                             <span className="width225"> {_l('企业微信用户账号')}</span>
                           </Radio>
-                          <Radio className="Block" value="customField">
+                          <Radio value="customField">
                             <span className="width225">{_l('企业微信自定义信息字段')}</span>
                           </Radio>
                         </Radio.Group>
@@ -690,13 +721,13 @@ export default class Workwx extends React.Component {
               <div className="TxtCenter mTop50">
                 <h2 className="Font26 textPrimary">{_l('申请企业微信集成')}</h2>
                 <p className="mTop24 mBottom32 Font16 textSecondary">
-                  {!window.platformENV.isOverseas && !window.platformENV.isLocal
+                  {window.platformENV.isHap
                     ? _l('申请通过后，可将明道云应用安装到企业微信工作台！')
                     : _l('申请通过后，可将该系统应用安装到企业微信工作台！')}
                 </p>
                 <Button
                   type="primary"
-                  className="applyBtn mBottom10"
+                  className="mBottom10"
                   onClick={() => {
                     // 提交申请
                     this.editWXProjectSettingStatus(0, () => {
@@ -715,11 +746,10 @@ export default class Workwx extends React.Component {
                   <React.Fragment>
                     <h2 className="Font18 textPrimary">{_l('试用已过期，请付费后继续使用')}</h2>
                     <p className="mTop15 Font13 textSecondary">{_l('如有疑问，请联系您的专属顾问')}</p>
-
-                    {!window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+                    {window.platformENV.isHap ? (
                       <Button
                         type="primary"
-                        className="applyBtn mBottom10 mTop25"
+                        className="mBottom10 mTop25"
                         onClick={() => {
                           // 前往付费
                           purchaseMethodFunc({ projectId });

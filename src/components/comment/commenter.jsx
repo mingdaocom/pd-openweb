@@ -2,24 +2,27 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'ming-ui/antd-components';
-import Button from 'ming-ui/components/Button';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import Icon from 'ming-ui/components/Icon';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import { SelectGroupPopover } from 'ming-ui/functions/quickSelectGroup';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import discussionAjax from 'src/api/discussion';
 import postAjax from 'src/api/post';
 import 'src/components/autoTextarea/autoTextarea';
-import Emotion from 'src/components/emotion/emotion';
-import MentionsInput from 'src/components/MentionsInput';
+import Emotion from 'src/components/emotion';
+import { useMentionsInput } from 'src/components/MentionsInput';
 import UploadFiles from 'src/components/UploadFiles';
-import { generateRandomPassword } from 'src/utils/common';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { AT_ALL_TEXT } from './config';
 import { SOURCE_TYPE } from './config';
 import './css/commenter.less';
 
 const ClickAwayable = ClickAway;
 class Commenter extends React.Component {
+  isSubmitting = false;
+
   static propTypes = {
     placeholder: PropTypes.string,
     activePlaceholder: PropTypes.string,
@@ -42,7 +45,6 @@ class Commenter extends React.Component {
     }), // @功能的参数
 
     canAddLink: PropTypes.bool, // 是否支持添加链接文件
-    disableShareToPost: PropTypes.bool, // 禁用分享到动态
     sendPost: PropTypes.bool, // 开启分享到动态功能
     selectGroupOptions: PropTypes.shape({
       position: PropTypes.string,
@@ -93,8 +95,16 @@ class Commenter extends React.Component {
     };
   }
 
+  focus = () => {
+    setTimeout(() => {
+      if (this.textarea) {
+        $(this.textarea).focus();
+      }
+    }, 50);
+  };
+
   componentDidMount() {
-    const { textarea, faceBtn } = this;
+    const { textarea } = this;
     const { textareaMaxHeight, textareaMinHeight, projectId } = this.props;
     const comp = this;
 
@@ -128,7 +138,7 @@ class Commenter extends React.Component {
     // @
     if (!this.props.disableMentions) {
       const { sourceType } = this.props;
-      MentionsInput(
+      this.props.openMentionsInput(
         Object.assign(
           {
             input: textarea,
@@ -149,22 +159,10 @@ class Commenter extends React.Component {
       );
     }
 
-    // 表情
-    new Emotion(faceBtn, {
-      input: this.textarea,
-      placement: 'left bottom',
-      relatedLeftSpace: -38 + (this.props.relatedLeftSpace || 0),
-      relatedTopSpace: 5,
-      offset: this.props.offset,
-      popupContainer: this.props.popupContainer,
-    });
-
     // 获得焦点
     if (this.props.autoFocus) {
       // 处理withClickAway 第一次就触发引起的第一次焦点无法focus的bug
-      setTimeout(() => {
-        $textarea.focus();
-      }, 50);
+      this.focus();
     }
   }
 
@@ -178,9 +176,7 @@ class Commenter extends React.Component {
         !_.isEqual(_.pick(prevProps, ['entityType', 'isHide']), _.pick(this.props, ['entityType', 'isHide'])) &&
         this.props.autoFocus
       ) {
-        setTimeout(() => {
-          $(this.textarea).focus();
-        }, 50);
+        this.focus();
       }
     }
 
@@ -238,18 +234,30 @@ class Commenter extends React.Component {
     }
   }
 
+  canShareToPost = () => {
+    return !md.global.Account.isPortal && !_.includes(md.global.SysSettings.forbidSuites, '1');
+  };
+
   handleSubmit() {
-    const { groups } = this.state;
+    const canShareToPost = this.canShareToPost();
+    const groups = canShareToPost ? this.state.groups : undefined;
+
+    if (this.isSubmitting) {
+      return false;
+    }
 
     if (!this.state.isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
       return false;
     }
 
-    if (this.state.isReshare && !groups) {
+    if (canShareToPost && this.state.isReshare && !groups) {
       alert(_l('请选择分享范围'), 3);
       return false;
     }
+
+    this.isSubmitting = true;
+    this.setState({ disabled: true });
 
     const textarea = this.textarea;
     const $textarea = $(textarea);
@@ -258,7 +266,7 @@ class Commenter extends React.Component {
       : new Promise(resolve => {
           textarea.val(data => resolve(data));
         });
-    getMessagePromise.then(data => {
+    const submission = getMessagePromise.then(data => {
       let message = (data || '').trim();
 
       if (!message || message.length > 3000) {
@@ -271,8 +279,6 @@ class Commenter extends React.Component {
 
       let attachments = this.state.attachmentData;
       let kcAttachmentData = this.state.kcAttachmentData;
-
-      this.setState({ disabled: true });
 
       const {
         sourceId,
@@ -290,7 +296,7 @@ class Commenter extends React.Component {
 
       if (sourceType === SOURCE_TYPE.POST) {
         const { accountId } = this.props;
-        postAjax
+        return postAjax
           .addPostComment({
             uType: 'AddComment',
             postID: sourceId,
@@ -307,14 +313,15 @@ class Commenter extends React.Component {
               onSubmit(result.comment);
               this.clearLocalStorage();
             } else {
-              Promise.reject(result.error);
+              return Promise.reject(result.error);
             }
           })
-          .catch(function (text) {
-            alert(text || _l('操作失败'), 2);
+          .catch(text => {
+            alertIfNotUnauthorized(text, text || _l('操作失败'), 2);
+            this.clearLocalStorage(false);
           });
       } else {
-        discussionAjax
+        const addDiscussionPromise = discussionAjax
           .addDiscussion({
             sourceId,
             sourceType,
@@ -361,7 +368,14 @@ class Commenter extends React.Component {
             knowledgeAttach: JSON.stringify(kcAttachmentData),
           });
         }
+
+        return addDiscussionPromise;
       }
+    });
+
+    return submission.finally(() => {
+      this.isSubmitting = false;
+      this.setState({ disabled: false });
     });
   }
 
@@ -427,6 +441,7 @@ class Commenter extends React.Component {
       selectGroupOptions = {},
     } = this.props;
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
+    const canShareToPost = this.canShareToPost();
     const [worksheetId] = sourceId.split('|');
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
     const style = !isEditing && !hasAttachment ? { display: 'none' } : {};
@@ -458,7 +473,7 @@ class Commenter extends React.Component {
         })}
         onClickAway={() => this.onClickAway()}
         // 知识文件选择层 点击时不收起
-        onClickAwayExceptions={['.folderSelectDialog', '#addLinkFileDialog_container', '.mentionsAutocompleteList']}
+        onClickAwayExceptions={['.hap-popover', '.hap-modal-root', '.hap-tooltip']}
       >
         <textarea
           ref={textarea => {
@@ -483,17 +498,14 @@ class Commenter extends React.Component {
               />
             </span>
           </Tooltip>
-          <Tooltip title={_l('表情')}>
-            <span
-              ref={faceBtn => {
-                this.faceBtn = faceBtn;
-              }}
-              className="commentIconBtn hoverColorPrimary"
-            >
-              <Icon className="Hand" icon="smile" />
-            </span>
-          </Tooltip>
-          {!this.props.disableShareToPost && !md.global.Account.isPortal ? (
+          <Emotion input={() => this.textarea} placement="bottomLeft" popupContainer={this.props.popupContainer}>
+            <Tooltip title={_l('表情')}>
+              <span className="commentIconBtn hoverColorPrimary">
+                <Icon className="Hand" icon="smile" />
+              </span>
+            </Tooltip>
+          </Emotion>
+          {canShareToPost ? (
             <Tooltip title={_l('同时转发此条')}>
               <span className="commentIconBtn">
                 <i
@@ -504,16 +516,17 @@ class Commenter extends React.Component {
             </Tooltip>
           ) : null}
           <div className="flex" />
-          {this.state.isReshare && (
+          {canShareToPost && this.state.isReshare && (
             <span className="commentSelectGroup">
-              <SelectGroupTrigger {...selectGroupOptions} minHeight={260} onChange={this.handleChangeGroup} />
+              <SelectGroupPopover {...selectGroupOptions} minHeight={260} onChange={this.handleChangeGroup} />
             </span>
           )}
           <Button
+            color="var(--app-primary-color)"
             id={this.textareaId + '-submit'}
             className="commentSubmit"
             onClick={() => this.handleSubmit()}
-            disabled={this.state.disabled}
+            loading={this.state.disabled}
             children={this.props.submitButtonText || _l('发送')}
           />
         </div>
@@ -542,6 +555,10 @@ class Commenter extends React.Component {
   }
 }
 
-Commenter.TYPES = SOURCE_TYPE;
+const CommenterWithOpeners = withOpeners(Commenter, {
+  openMentionsInput: useMentionsInput,
+});
 
-export default Commenter;
+CommenterWithOpeners.TYPES = SOURCE_TYPE;
+
+export default CommenterWithOpeners;

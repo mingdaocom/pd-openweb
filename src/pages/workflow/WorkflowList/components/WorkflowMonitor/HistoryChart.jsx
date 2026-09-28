@@ -1,7 +1,8 @@
 import React, { Fragment, PureComponent } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dropdown, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import { formatter } from './enum';
 
@@ -272,17 +273,15 @@ export default class HistoryChart extends PureComponent {
         </div>
         <div className="Relative">
           <div className="historyStatistics">
-            <Dropdown
+            <Select
               className="selectDate mRight35"
               placeholder={_l('自定义')}
               value={showDate}
-              border
-              menuStyle={{ width: 220 }}
-              data={[
-                { value: 1, text: _l('最近1小时') },
-                { value: 3, text: _l('最近3小时') },
-                { value: 12, text: _l('最近12小时') },
-                { value: 24, text: _l('最近24小时') },
+              options={[
+                { value: 1, label: _l('最近1小时') },
+                { value: 3, label: _l('最近3小时') },
+                { value: 12, label: _l('最近12小时') },
+                { value: 24, label: _l('最近24小时') },
               ]}
               onChange={value => {
                 this.setState({ showDate: value });

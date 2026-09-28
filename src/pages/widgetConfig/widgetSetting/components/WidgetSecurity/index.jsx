@@ -2,14 +2,14 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Support, UpgradeIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support, UpgradeIcon } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
 import { EditInfo } from 'src/pages/widgetConfig/styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/utils/domain/control/setting';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import EncryptSettingDialog from './EncryptSettingDialog';
 import MaskSettingDialog from './MaskSettingDialog';
 
@@ -48,9 +48,10 @@ export default function ControlMask(props) {
       <div className="labelWrap">
         <Checkbox
           className="customWidgetCheckbox"
-          size="small"
           checked={datamask === '1'}
-          onClick={checked => {
+          onChange={event => {
+            const checked = !event.target.checked;
+
             if (!checked) {
               setVisible(true);
             } else {
@@ -61,6 +62,7 @@ export default function ControlMask(props) {
               );
             }
           }}
+          size="small"
         >
           <span style={{ marginRight: '4px' }}>{_l('掩码显示')}</span>
           <Tooltip
@@ -95,10 +97,9 @@ export default function ControlMask(props) {
         <div className="labelWrap">
           <Checkbox
             className="customWidgetCheckbox"
-            size="small"
             checked={encryId}
-            onClick={checked => {
-              if (!checked) {
+            onChange={event => {
+              if (event.target.checked) {
                 if (isPayType) {
                   buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.dataEnctypt);
                   return;
@@ -106,9 +107,12 @@ export default function ControlMask(props) {
 
                 setEncryptVisible(true);
               } else {
-                onChange({ encryId: '' });
+                onChange({
+                  encryId: '',
+                });
               }
             }}
+            size="small"
           >
             <span className="mRight5">{_l('数据存储加密')}</span>
             {isPayType && <UpgradeIcon />}

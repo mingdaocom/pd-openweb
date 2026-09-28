@@ -1,0 +1,254 @@
+import React, { Fragment, lazy, Suspense, useState } from 'react';
+import JsonView from '@mingdaocom/json-view';
+import cx from 'classnames';
+import { get } from 'lodash';
+import styled from 'styled-components';
+import { Button } from 'ming-ui/antd-components';
+import { getToolCallCardConfig, TOOL_CALL_CARD_TYPES } from '../toolCallUtils';
+import EmailCard from './EmailCard';
+import NotificationCard from './NotificationCard';
+
+const RecordCard = lazy(() => import('./RecordCard'));
+const Con = styled.div`
+  max-width: 100%;
+  > div:first-child {
+    margin-top: 8px;
+  }
+`;
+const CardCon = styled.div`
+  border: 1px solid var(--color-border-primary);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  max-width: 100%;
+  .card-header {
+    height: 40px;
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 0 16px 0 12px;
+    .tool-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      font-size: 16px;
+      color: var(--color-white);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-mingo-transparent);
+      color: var(--color-mingo-dark);
+    }
+    .tool-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--color-text-title);
+      max-width: 160px;
+    }
+    .secondary-tool-name {
+      margin-left: 10px;
+      font-size: 14px;
+      color: var(--color-text-title);
+    }
+  }
+  .card-body {
+  }
+  &.folded {
+    width: fit-content;
+    border-radius: 40px;
+    overflow: hidden;
+    .card-header {
+      border-bottom: none;
+      &.needConfirm {
+        cursor: pointer;
+        &:hover {
+          background: var(--color-background-hover);
+        }
+      }
+    }
+  }
+`;
+const JSONDataCon = styled.div`
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  background: var(--color-background-secondary);
+  padding: 10px 16px;
+  .title {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    margin-bottom: 5px;
+  }
+`;
+
+function renderToolArguments({ chatbotId, conversationId, config, functionArguments, functionData }) {
+  if (config.type === TOOL_CALL_CARD_TYPES.CREATE_RECORD || config.type === TOOL_CALL_CARD_TYPES.UPDATE_RECORD) {
+    return (
+      <Suspense fallback={null}>
+        <RecordCard
+          chatbotId={chatbotId}
+          conversationId={conversationId}
+          config={config}
+          functionArguments={functionArguments}
+          functionData={functionData}
+        />
+      </Suspense>
+    );
+  } else if (config.type === TOOL_CALL_CARD_TYPES.SEND) {
+    return (
+      <NotificationCard
+        chatbotId={chatbotId}
+        conversationId={conversationId}
+        functionArguments={functionArguments}
+        functionData={functionData}
+      />
+    );
+  } else if (config.type === TOOL_CALL_CARD_TYPES.EMAIL) {
+    return (
+      <EmailCard
+        chatbotId={chatbotId}
+        conversationId={conversationId}
+        functionArguments={functionArguments}
+        functionData={functionData}
+      />
+    );
+  }
+
+  return null;
+}
+
+function JSONDataComp({ data }) {
+  return (
+    <JSONDataCon>
+      <div className="title">json</div>
+      <JsonView data={data} />
+    </JSONDataCon>
+  );
+}
+
+function FunctionCallCard(props) {
+  const { chatbotId, conversationId, needConfirm, config, functionArguments, functionData } = props;
+  const [isFolded, setIsFolded] = useState(!needConfirm);
+  return (
+    <CardCon className={isFolded ? 'folded' : ''}>
+      <div
+        className={cx('card-header t-flex t-flex-row t-items-center', {
+          needConfirm,
+        })}
+        onClick={() => {
+          if (isFolded) {
+            setIsFolded(false);
+          }
+        }}
+      >
+        <div className="tool-icon">
+          <i className={`icon ${config.icon}`}></i>
+        </div>
+        <div className="tool-name ellipsis">{config.name}</div>
+        {(config.type === TOOL_CALL_CARD_TYPES.CREATE_RECORD || config.type === TOOL_CALL_CARD_TYPES.UPDATE_RECORD) && (
+          <Suspense fallback={null}>
+            <RecordCard
+              chatbotId={chatbotId}
+              conversationId={conversationId}
+              showAsTitle={true}
+              config={config}
+              functionArguments={functionArguments}
+            />
+          </Suspense>
+        )}
+        {!isFolded && (
+          <Fragment>
+            <div className="t-flex-1"></div>
+            <div className="tool-calls-message-fold textSecondary Font20 Hand" onClick={() => setIsFolded(true)}>
+              <i className="icon icon-arrow-up-border1"></i>
+            </div>
+          </Fragment>
+        )}
+      </div>
+      {!isFolded && (
+        <div className="card-body">
+          {renderToolArguments({
+            chatbotId,
+            conversationId,
+            config,
+            functionArguments,
+            functionData,
+          }) || <JSONDataComp data={functionArguments} />}
+        </div>
+      )}
+    </CardCon>
+  );
+}
+
+export function renderToolCalls(
+  toolCalls = [],
+  { chatbotId, conversationId, needConfirm = false, confirmToolCalls = () => {} } = {},
+) {
+  const toolCallsData = toolCalls
+    .map(item => {
+      const config = getToolCallCardConfig(get(item, 'function.name'));
+      const functionArguments = safeParse(get(item, 'function.arguments'));
+      const functionData = get(item, 'function');
+
+      if (!config) {
+        return null;
+      }
+
+      return {
+        config,
+        functionArguments,
+        functionData,
+        item,
+      };
+    })
+    .filter(item => !!item);
+  return (
+    <Con>
+      {toolCallsData.map(({ config, functionArguments, item, functionData }, index) => {
+        return (
+          <FunctionCallCard
+            chatbotId={chatbotId}
+            conversationId={conversationId}
+            key={index}
+            needConfirm={needConfirm}
+            config={{ ...config, name: item.toolName || config.name }}
+            functionArguments={functionArguments}
+            item={item}
+            functionData={functionData}
+          />
+        );
+      })}
+      {needConfirm && !!toolCallsData.length && (
+        <Button
+          type="primary"
+          size="large"
+          className="mTop2 mBottom10"
+          onClick={() => {
+            confirmToolCalls();
+          }}
+        >
+          {_l('确定')}
+        </Button>
+      )}
+    </Con>
+  );
+}
+/**
+ * 发送邮件
+ *   原始数据
+ *   （测试下来支持邮箱和明道用户id）
+ *   {
+  "subject": "温馨提醒",
+  "content": "该吃饭了",
+  "receiver": [
+    "c12ad989-53f9-49ca-a4f7-676c33e683fa" // 也支持邮箱
+  ]
+}
+ * 发送站内通知
+{
+  "users": [
+    "c12ad989-53f9-49ca-a4f7-676c33e683fa"
+  ],
+  "message": "该吃饭了"
+}
+ * 封装业务流程
+ * 集成 API
+ */

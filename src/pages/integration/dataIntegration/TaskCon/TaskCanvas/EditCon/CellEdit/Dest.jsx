@@ -2,7 +2,8 @@ import React, { createRef, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Input, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
 import {
   DATABASE_TYPE,
@@ -125,7 +126,11 @@ export default function DestEdit(props) {
             className="setSheetName"
             placeholder={_l('请输入')}
             defaultValue={isPgDest ? lowercaseIfString(sheetName) : sheetName}
-            valueFilter={isPgDest ? lowercaseIfString : undefined}
+            onChange={event => {
+              if (isPgDest) {
+                event.target.value = lowercaseIfString(event.target.value);
+              }
+            }}
             onBlur={e => {
               const sheetName = e.target.value;
               onChangeInfo({
@@ -142,7 +147,7 @@ export default function DestEdit(props) {
                 },
               });
             }}
-            manualRef={inputRef}
+            ref={inputRef}
           />
           <div className="mTop45"></div>
         </React.Fragment>

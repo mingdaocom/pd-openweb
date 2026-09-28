@@ -1,29 +1,23 @@
 import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import customApi from 'statistics/api/custom.js';
 import reportConfigApi from 'statistics/api/reportConfig';
-import { reportTypes } from 'statistics/Charts/common';
-import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap/defaultConfig';
-import { formatControlsData } from 'src/pages/widgetConfig/util/data';
-import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
+import { formatControlsData } from 'src/utils/domain/control/normalization';
+import { enumWidgetType, reorderComponents } from 'src/utils/domain/customPage/model';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { formatFilterValuesToServer } from 'src/utils/services/worksheet/quickFilter';
 import ConfigHeader from './ConfigHeader';
 import * as actions from './redux/action';
-import {
-  enumWidgetType,
-  fillObjectId,
-  formatNavfilters,
-  reorderComponents,
-  syncThemeConfig,
-  updateLayout,
-} from './util';
+import { fillObjectId, formatNavfilters, syncThemeConfig, updateLayout } from './util';
 import WebLayout from './webLayout';
 import './index.less';
 
@@ -87,13 +81,15 @@ let CustomPage = class CustomPage extends Component {
       .getPage({
         appId: pageId,
       })
-      .then(({ components, apk, version, adjustScreen, config }) => {
+      .then(({ components, apk, version, adjustScreen, config, imageUrl, previewUrl }) => {
         components = updateLayout(fillObjectId(components), config);
         updatePageInfo({
           components,
           pageId,
           version,
           adjustScreen,
+          imageUrl,
+          previewUrl,
           config: syncThemeConfig(
             config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
           ),
@@ -104,6 +100,8 @@ let CustomPage = class CustomPage extends Component {
         this.$originComponents = components;
         this.$originAdjustScreen = adjustScreen;
         this.$originConfig = syncThemeConfig(config || {});
+        this.$originImageUrl = imageUrl;
+        this.$originPreviewUrl = previewUrl;
       })
       .finally(() => updateLoading(false));
   };
@@ -495,21 +493,18 @@ let CustomPage = class CustomPage extends Component {
 
   dealComponents = components => {
     return components.map(item => {
-      return update(item, {
+      return {
+        ...item,
         web: {
-          title: {
-            $apply: value => value.trim(),
-          },
+          ...item.web,
+          title: item.web.title.trim(),
         },
         mobile: {
-          title: {
-            $apply: value => value.trim(),
-          },
+          ...item.mobile,
+          title: item.mobile.title.trim(),
         },
-        type: {
-          $apply: value => (typeof value === 'number' ? value : enumWidgetType[value]),
-        },
-      });
+        type: typeof item.type === 'number' ? item.type : enumWidgetType[item.type],
+      };
     });
   }; // 清除 component 里面的临时数据 & 填充或处理后端需要的数据
 
@@ -556,6 +551,8 @@ let CustomPage = class CustomPage extends Component {
       urlParams = [],
       config,
       components,
+      imageUrl,
+      previewUrl,
       updatePageInfo,
       updateSaveLoading,
     } = this.props;
@@ -581,32 +578,48 @@ let CustomPage = class CustomPage extends Component {
         adjustScreen,
         urlParams,
         config,
+        imageUrl,
+        previewUrl,
       })
-      .then(({ appId: pageId, version, components, apk, config = {} }) => {
-        if (_.isNumber(version)) {
-          this.removeWorksheetBtn();
-          this.removeFilterId();
-          this.removeFiltersGroup();
-          this.$originComponents = components;
-          this.$originAdjustScreen = adjustScreen;
-          this.$originConfig = { ...config, orightWebCols: config.webNewCols };
-          updatePageInfo({
-            components,
-            pageId,
-            version,
-            modified: false,
-            filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
-            apk,
-            config: this.$originConfig,
-            activeContainerInfo: {},
-          });
-          alert(_l('保存成功'), 1);
-        } else {
-          alert(_l('保存失败'), 2);
-        }
-      })
-      .catch(() => {
-        alert(_l('保存失败'), 2);
+      .then(
+        ({
+          appId: pageId,
+          version,
+          components,
+          apk,
+          config = {},
+          imageUrl: savedImageUrl = imageUrl,
+          previewUrl: savedPreviewUrl = previewUrl,
+        }) => {
+          if (_.isNumber(version)) {
+            this.removeWorksheetBtn();
+            this.removeFilterId();
+            this.removeFiltersGroup();
+            this.$originComponents = components;
+            this.$originAdjustScreen = adjustScreen;
+            this.$originConfig = { ...config, orightWebCols: config.webNewCols };
+            this.$originImageUrl = savedImageUrl;
+            this.$originPreviewUrl = savedPreviewUrl;
+            updatePageInfo({
+              components,
+              pageId,
+              version,
+              imageUrl: savedImageUrl,
+              previewUrl: savedPreviewUrl,
+              modified: false,
+              filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
+              apk,
+              config: this.$originConfig,
+              activeContainerInfo: {},
+            });
+            alert(_l('保存成功'), 1);
+          } else {
+            alert(_l('保存失败'), 2);
+          }
+        },
+      )
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
       })
       .finally(() => updateSaveLoading(false));
   };
@@ -616,6 +629,8 @@ let CustomPage = class CustomPage extends Component {
       components: this.$originComponents,
       adjustScreen: this.$originAdjustScreen,
       config: syncThemeConfig(this.$originConfig || {}),
+      imageUrl: this.$originImageUrl,
+      previewUrl: this.$originPreviewUrl,
       activeContainerInfo: {},
     });
     this.handleBack();

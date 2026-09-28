@@ -39,7 +39,6 @@
     overflow: hidden;
   }
   .name {
-    width: 100%;
     font-size: 14px;
     vertical-align: middle;
     overflow: hidden;
@@ -138,9 +137,18 @@
   .filter {
     display: flex;
     align-items: center;
+    overflow: hidden;
+  }
+  .filterDropdownTrigger {
+    max-width: 120px;
+    padding: 0 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
   }
   .filter-data {
     flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -154,32 +162,5 @@
   .content {
     /* 兼容 Chrome 低版本，80 是 header & filter 的高度 */
     height: calc(~'100% - 80px');
-  }
-}
-
-.ChatPanel-FilesPanel-filterDate {
-  padding: 10px;
-  width: 160px;
-
-  .item {
-    cursor: pointer;
-    font-size: 13px;
-    height: 29px;
-    padding: 0 12px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    background-color: var(--color-background-secondary);
-    &:hover {
-      background-color: var(--color-border-secondary);
-      color: var(--color-text-title);
-      &.bgColorPrimary {
-        color: var(--color-white);
-      }
-    }
-  }
-  .bgColorPrimary {
-    color: var(--color-white);
   }
 }

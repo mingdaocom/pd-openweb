@@ -1,12 +1,11 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
 import styled from 'styled-components';
-import { Icon, ScrollView, SortableList, SvgIcon } from 'ming-ui';
+import { Icon, ScrollView, SearchInput, SortableList, SvgIcon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite.js';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { addBehaviorLog } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/services/project';
 import Item from './Item';
 import './index.less';
 
@@ -28,7 +27,7 @@ const Con = styled.div`
   display: flex;
   min-width: 0;
   box-sizing: border-box;
-  ${({ forCard }) => !forCard && 'padding: 24px 0;'}
+  ${({ $forCard }) => !$forCard && 'padding: 24px 0;'}
   width: 100%;
   height: 100%;
   .openNavIcon {
@@ -57,10 +56,10 @@ const Con = styled.div`
         max-width: 1600px;
       }
       .hed {
-        ${({ forCard }) => !forCard && 'padding: 0 76px;'}
+        ${({ $forCard }) => !$forCard && 'padding: 0 76px;'}
       }
       .scrollViewContainer {
-        ${({ forCard }) => !forCard && 'padding: 0 80px;'}
+        ${({ $forCard }) => !$forCard && 'padding: 0 80px;'}
       }
     }
     .nullCon {
@@ -123,11 +122,11 @@ const NavCon = styled.div`
   }
 `;
 const Cell = styled.div`
-  ${({ width }) => (width ? `width: ${width}px;` : 'width: 100%;')}
-  height:   ${({ height }) => (height ? `${height}px;` : '17px')};
-  border-radius: ${({ height }) => (!height ? `17px;` : '3px')};
+  ${({ $width }) => ($width ? `width: ${$width}px;` : 'width: 100%;')}
+  height:   ${({ $height }) => ($height ? `${$height}px;` : '17px')};
+  border-radius: ${({ $height }) => (!$height ? `17px;` : '3px')};
   background-color: var(--color-background-secondary);
-  margin: ${({ forCard }) => (forCard ? `16px 0` : '25px 0 0 0')};
+  margin: ${({ $forCard }) => ($forCard ? `16px 0` : '25px 0 0 0')};
 `;
 
 const LoadableRecordInfoWrapper = lazy(() => import('src/pages/worksheet/common/recordInfo/RecordInfoWrapper'));
@@ -135,8 +134,22 @@ const LoadableRecordInfoWrapper = lazy(() => import('src/pages/worksheet/common/
 let request;
 let currentProjectId;
 
+function getFilteredList(data, keywords, appId) {
+  return (data || [])
+    .filter(
+      o =>
+        (o.title || '').toLowerCase().indexOf((keywords || '').toLowerCase()) >= 0 &&
+        (appId === 'all' ? true : o.appId === appId),
+    )
+    .map(o => {
+      return { ...o, rowid: o.rowId };
+    });
+}
+
 function RecordFav(props) {
   const { projectId } = props;
+  const cache = useRef({ keywords: '', appId: 'all' });
+  const onDataCountChangeRef = useRef(props.onDataCountChange);
   const [
     { loading, navloading, openNav, keywords, recordListAll, recordList, topList, favApps, appId, record },
     setState,
@@ -153,44 +166,25 @@ function RecordFav(props) {
     record: {},
   });
 
-  useEffect(() => {
-    getAllList();
-  }, []);
+  const getList = useCallback(
+    data => {
+      return getFilteredList(data || recordListAll, keywords, appId);
+    },
+    [appId, keywords, recordListAll],
+  );
 
-  useEffect(() => {
-    if ((props.loading !== loading && props.loading) || currentProjectId !== props.projectId) {
-      onRefresh();
-    }
-  }, [props.loading, props.projectId]);
-
-  useEffect(() => {
-    const list = getList();
-    setState({ recordList: list.filter(item => !item.isTop), topList: list.filter(item => item.isTop) });
-  }, [keywords, appId]);
-
-  const getList = data => {
-    return (data || recordListAll)
-      .filter(
-        o =>
-          (o.title || '').toLowerCase().indexOf((keywords || '').toLowerCase()) >= 0 &&
-          (appId === 'all' ? true : o.appId === appId),
-      )
-      .map(o => {
-        return { ...o, rowid: o.rowId };
-      });
-  };
-
-  const getAllList = () => {
+  const getAllList = useCallback(() => {
     if (request) {
       request.abort();
     }
 
-    currentProjectId = props.projectId;
+    currentProjectId = projectId;
     request = favoriteApi.getAllFavorites({
       projectId,
       isRefresh: 1,
     });
     request.then(res => {
+      onDataCountChangeRef.current && onDataCountChangeRef.current('record', res.length);
       const groupedData = res.reduce((acc, item) => {
         const { appId } = item;
 
@@ -201,7 +195,11 @@ function RecordFav(props) {
         acc[appId].push(item);
         return acc;
       }, {});
-      const list = getList(res.map(o => ({ ...o, rowid: o.rowId })));
+      const list = getFilteredList(
+        res.map(o => ({ ...o, rowid: o.rowId })),
+        cache.current.keywords,
+        cache.current.appId,
+      );
       setState({
         recordListAll: res,
         recordList: list.filter(item => !item.isTop),
@@ -211,7 +209,49 @@ function RecordFav(props) {
         loading: false,
       });
     });
-  };
+  }, [projectId, setState]);
+
+  const onRefresh = useCallback(
+    isClear => {
+      isClear &&
+        setState({
+          recordListAll: [],
+          recordList: [],
+          topList: [],
+          favApps: [],
+          keywords: '',
+        });
+      setState({
+        navloading: true,
+        loading: true,
+      });
+      getAllList();
+    },
+    [getAllList, setState],
+  );
+
+  useEffect(() => {
+    cache.current = { keywords, appId };
+  }, [keywords, appId]);
+
+  useEffect(() => {
+    onDataCountChangeRef.current = props.onDataCountChange;
+  }, [props.onDataCountChange]);
+
+  useEffect(() => {
+    getAllList();
+  }, [getAllList]);
+
+  useEffect(() => {
+    if ((props.loading !== loading && props.loading) || currentProjectId !== projectId) {
+      onRefresh();
+    }
+  }, [loading, onRefresh, projectId, props.loading]);
+
+  useEffect(() => {
+    const list = getList();
+    setState({ recordList: list.filter(item => !item.isTop), topList: list.filter(item => item.isTop) });
+  }, [appId, getList, keywords, setState]);
 
   const onSearch = value => {
     setState({ keywords: value });
@@ -221,7 +261,7 @@ function RecordFav(props) {
     return (
       <div className={cx({ 'pLeft16 pRight16': props.forCard })}>
         {Array.from({ length: 3 }).map((_, index) => (
-          <Cell key={index} height={height} forCard={props.forCard} />
+          <Cell key={index} $height={height} $forCard={props.forCard} />
         ))}
       </div>
     );
@@ -314,22 +354,6 @@ function RecordFav(props) {
         <span className={!props.forCard ? 'mTop30 Gary Font15 Block' : ''}>{_l('没有收藏')}</span>
       </div>
     );
-  };
-
-  const onRefresh = isClear => {
-    isClear &&
-      setState({
-        recordListAll: [],
-        recordList: [],
-        topList: [],
-        favApps: [],
-        keywords: '',
-      });
-    setState({
-      navloading: true,
-      loading: true,
-    });
-    getAllList();
   };
 
   const onDel = info => {
@@ -432,6 +456,7 @@ function RecordFav(props) {
                   className="searchCon mRight10"
                   placeholder={_l('搜索')}
                   value={keywords}
+                  variant="outlined"
                   onChange={onSearch}
                 />
                 <BaseBtnCon
@@ -455,7 +480,7 @@ function RecordFav(props) {
   const recordId = record.rowId || record.rowid;
 
   return (
-    <Con className={cx('flexRow Relative', props.className)} forCard={props.forCard}>
+    <Con className={cx('flexRow Relative', props.className)} $forCard={props.forCard}>
       {!props.forCard && renderNav()}
       {renderCon()}
       {!!recordId && (

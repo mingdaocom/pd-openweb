@@ -4,13 +4,44 @@ import update from 'immutability-helper';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { LoadDiv, Modal } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import CustomFields from 'src/components/Form';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { FlexCenter } from 'src/pages/worksheet/components/Basics';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import withWorksheetRowProvider from '../WorksheetRecordProvider';
 import './FillRecordControls.less';
+
+const MODAL_STYLES = { header: { marginBottom: 0 } };
+
+// 批量选择记录触发时没有单条 recordId，子表和关联记录表格形态都要按行维护各自记录的关联关系，
+// 在批量填写里既填不准也存不下，直接从弹层字段里剔除
+function isControlUnsupportedInBatchFill(control) {
+  return control.type === 34 || (control.type === 29 && isRelateRecordTableControl(control));
+}
+
+// 看字段权限第一位（可见位）而不是第二位（可编辑位）：按钮配成只读的字段拿到 '10x'，本来就要显示出来
+// 供查看，不能因为不可编辑就连带藏掉；只有没配进 writeControls 的、来自主记录的才是 '000' 不显示。
+// 标签页只是布局容器（上面被异化成 '111' 常驻显示），本身不算一个字段
+function hasVisibleControl(formData) {
+  return _.some(formData, c => c.type !== 52 && _.get(c, 'controlPermissions[0]') === '1');
+}
+
+const Empty = styled(FlexCenter)`
+  height: 260px;
+  flex-direction: column;
+`;
+
+const EmptyCircle = styled(FlexCenter)`
+  width: 130px;
+  height: 130px;
+  border-radius: 130px;
+  background: var(--color-background-secondary);
+  font-size: 80px;
+  color: var(--color-text-disabled);
+`;
 
 const LoadMask = styled.div`
   margin: -58px -24px;
@@ -154,7 +185,18 @@ let FillRecordControls = class FillRecordControls extends React.Component {
                 return { ...c, value: '', controlPermissions: '000' };
               }
 
-              if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '5') {
+              const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+
+              // 关联表格只在两种场景禁用删除记录：一是批量操作等没有 recordId 的新建态，此时行头菜单的
+              // 单条删除没有别处拦截（Operate 的 !!recordId 只挡批量删除入口）；二是控件配了默认值，
+              // 表格复用 DataFormat 算默认值时建的临时 store，记录是预选进来的。
+              // 已有记录且未配默认值时与记录详情页一致，保留删除能力。
+              if (
+                c.type === 29 &&
+                c.enumDefault === 2 &&
+                c.advancedSetting.showtype === '5' &&
+                (!props.recordId || get(defaultFormControl, 'store'))
+              ) {
                 c.advancedSetting.allowdelete = '0';
               }
 
@@ -166,8 +208,6 @@ let FillRecordControls = class FillRecordControls extends React.Component {
                 originControlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + originControlPermissions[2];
               c.required = writeControl.type === 3;
               c.fieldPermission = '111';
-
-              const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
 
               const needClear = get(safeParse(get(writeControl, 'defsource')), '0.cid') === 'empty';
 
@@ -240,7 +280,7 @@ let FillRecordControls = class FillRecordControls extends React.Component {
 
               return c;
             })
-            .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type)));
+            .filter(c => !!c && (!props.isBatchOperate || !isControlUnsupportedInBatchFill(c)));
           return formData;
         },
       },
@@ -370,20 +410,31 @@ let FillRecordControls = class FillRecordControls extends React.Component {
       customButton,
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
+    const hasFields = hasVisibleControl(formData);
     return (
       <Modal
-        allowScale // type="fixed"
+        allowScale
         className={cx('fillRecordControls', className)}
+        title={<div className="Font19">{title}</div>}
         width={900}
+        styles={MODAL_STYLES}
         onCancel={() => {
           hideDialog();
         }}
-        okDisabled={submitLoading || isSubmitting}
+        confirmLoading={submitLoading || isSubmitting}
+        okDisabled={!hasFields}
         onOk={this.handleSave.bind(this)}
-        visible={visible}
+        open={visible}
       >
-        <div className="newRecordTitle ellipsis Font19 mBottom10">{title}</div>
-        {isBatchRecordLock && (
+        {!hasFields && (
+          <Empty>
+            <EmptyCircle>
+              <i className="icon-workflow_write" />
+            </EmptyCircle>
+            <span className="textTertiary Font13 mTop20">{_l('无可填写字段')}</span>
+          </Empty>
+        )}
+        {hasFields && isBatchRecordLock && (
           <div className="textTertiary mBottom10">
             {_l('未填写时不会清空字段值。一次最多处理1000条未锁定且有编辑权限的记录。')}
           </div>
@@ -401,54 +452,56 @@ let FillRecordControls = class FillRecordControls extends React.Component {
             <LoadDiv />
           </LoadMask>
         )}
-        <div className="formCon" ref={this.formcon}>
-          <CustomFields
-            parentName="fillRecordControls"
-            isCharge={isCharge}
-            widgetStyle={
-              _.includes(['3', '4'], widgetStyle.tabposition) ? { ...widgetStyle, tabposition: '' } : widgetStyle
-            }
-            isWorksheetQuery
-            ignoreLock
-            flag={formFlag}
-            ref={this.customwidget}
-            popupContainer={document.body}
-            data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
-            controlProps={{ customButton }}
-            recordId={recordId}
-            viewId={viewId}
-            disableRules={!recordId}
-            from={3}
-            appId={this.props.appId}
-            projectId={projectId}
-            worksheetId={worksheetId}
-            sheetSwitchPermit={sheetSwitchPermit}
-            showError={showError}
-            isDraft={isDraft}
-            registerCell={({ item, cell }) =>
-              (this.cellObjs[item.controlId] = {
-                item,
-                cell,
-              })
-            }
-            disabledFunctions={['controlRefresh']}
-            onChange={data => {
-              this.setState({
-                formData: data,
-              });
-            }}
-            onSave={(...args) => {
-              setTimeout(() => this.onSave(...args), window.cellTextIsBlurring ? 1000 : 0);
-            }}
-            onFormDataReady={() => {
-              try {
-                this.needRunFunctionsAfterDataReady.forEach(fn => fn());
-              } catch (err) {
-                console.log(err);
+        {hasFields && (
+          <div className="formCon" ref={this.formcon}>
+            <CustomFields
+              parentName="fillRecordControls"
+              isCharge={isCharge}
+              widgetStyle={
+                _.includes(['3', '4'], widgetStyle.tabposition) ? { ...widgetStyle, tabposition: '' } : widgetStyle
               }
-            }}
-          />
-        </div>
+              isWorksheetQuery
+              ignoreLock
+              flag={formFlag}
+              ref={this.customwidget}
+              popupContainer={document.body}
+              data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
+              controlProps={{ customButton }}
+              recordId={recordId}
+              viewId={viewId}
+              disableRules={!recordId}
+              from={3}
+              appId={this.props.appId}
+              projectId={projectId}
+              worksheetId={worksheetId}
+              sheetSwitchPermit={sheetSwitchPermit}
+              showError={showError}
+              isDraft={isDraft}
+              registerCell={({ item, cell }) =>
+                (this.cellObjs[item.controlId] = {
+                  item,
+                  cell,
+                })
+              }
+              disabledFunctions={['controlRefresh']}
+              onChange={data => {
+                this.setState({
+                  formData: data,
+                });
+              }}
+              onSave={(...args) => {
+                setTimeout(() => this.onSave(...args), window.cellTextIsBlurring ? 1000 : 0);
+              }}
+              onFormDataReady={() => {
+                try {
+                  this.needRunFunctionsAfterDataReady.forEach(fn => fn());
+                } catch (err) {
+                  console.log(err);
+                }
+              }}
+            />
+          </div>
+        )}
       </Modal>
     );
   }

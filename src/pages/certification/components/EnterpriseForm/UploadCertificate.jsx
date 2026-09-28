@@ -1,43 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, Icon, QiniuUpload } from 'ming-ui';
+import { Icon, QiniuUpload } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 const Wrapper = styled.div`
-  .addBtn {
-    padding: 0 16px !important;
-    display: flex;
-    align-items: center;
-    transition: none;
-    span {
-      color: var(--color-text-title);
-    }
-    .icon {
-      color: var(--color-text-tertiary);
-      font-size: 18px;
-    }
-    &:hover {
-      border-color: var(--color-primary) !important;
-      span {
-        color: var(--color-primary);
-      }
-      .icon {
-        color: var(--color-primary);
-      }
-    }
-
-    .icon-loading_button {
-      display: inline-block;
-      animation: loadingRotate 1s linear infinite;
-      @keyframes loadingRotate {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    }
-  }
   .imgWrap {
     width: 180px;
     height: 130px;
@@ -116,9 +82,8 @@ export default function UploadCertificate(props) {
           alert(errTip, 2);
         }}
       >
-        <Button type="ghostgray" className="addBtn">
-          {uploading ? <Icon icon="loading_button" /> : <Icon icon="attachment" />}
-          <span className="mLeft6 bold Font13">{_l('添加附件')}</span>
+        <Button loading={uploading} icon={<Icon icon="attachment" />}>
+          {_l('添加附件')}
         </Button>
       </QiniuUpload>
       {value && (

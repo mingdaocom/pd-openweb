@@ -9,7 +9,7 @@ import { Inbox } from 'src/pages/chat/components/Inbox';
 import 'src/pages/chat/containers/ChatPanel/index.less';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as socket from 'src/pages/chat/utils/socket';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const Wrap = styled.div`
   .back {
@@ -50,24 +50,20 @@ let PortalMg = class PortalMg extends Component {
     const { currentSession } = this.props;
     const exceptions = [
       '.dialogScroll',
-      '.ant-modal',
-      '.mdModal',
-      '.ChatPanel-Trigger',
+      '.hap-modal',
+      '.hap-dropdown-menu',
       '.attachmentsPreview',
-      '.mui-dialog-container',
+      '.hap-modal-wrap',
       '.confirm',
-      '.PositionContainer-wrapper',
       '.groupSettingAvatarSelect',
       '.ui-timepicker-list',
       '.selectUserBox',
       '.warpDatePicker',
-      '.dropdownTrigger',
-      '.rc-trigger-popup',
       '.workflowStepListWrap',
-      '.ant-select-dropdown',
-      '.ant-cascader-menus',
+      '.hap-select-dropdown',
+      '.hap-cascader-menus',
       '.InboxFilterWrapper',
-      '.ant-picker-dropdown',
+      '.hap-picker-dropdown',
     ];
     return (
       <ClickAwayable

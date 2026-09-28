@@ -3,16 +3,19 @@ import { BrowserRouter } from 'react-router-dom';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Dialog, Dropdown, LoadDiv, Support, SvgIcon, Switch } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { Modal, Select, Switch } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType, filterSysControls, toEditWidgetPage } from 'src/pages/widgetConfig/util';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { handleAdvancedSettingChange } from 'src/utils/control';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { filterSysControls } from 'src/utils/domain/control/filters';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import EmptyRuleConfig from '../EmptyRuleConfig';
 import SelectSearchSheetFromApp from './SelectSearchSheetFromApp';
 import { AddRelate, FilterContent } from './styled';
@@ -263,20 +266,27 @@ export function RelateSearchWorksheet(props) {
                 <span className="overflow_ellipsis flex">
                   {_l('检测到已有关联，是否查询关联当前 %0 的 %1 ？', name, sheetName)}
                 </span>
-                <Switch checked={open} text={''} onClick={checked => handleSetSource({ open: !checked })} />
+                <Switch
+                  checked={open}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return handleSetSource({
+                      open: !!checked,
+                    });
+                  }}
+                />
               </div>
               {open ? (
                 <Fragment>
                   <div className="selectItem Bold">{_l('依据关联记录')}</div>
-                  <Dropdown
+                  <Select
                     className="w100"
-                    menuStyle={{ width: '100%' }}
-                    border
+                    loading={loading}
                     value={_.get(selectedControl, 'sourceControl.controlId')}
-                    data={relateFields.map(i => {
+                    options={relateFields.map(i => {
                       return {
                         value: _.get(i, 'sourceControl.controlId'),
-                        text: _.get(i, 'sourceControl.controlName'),
+                        label: _.get(i, 'sourceControl.controlName'),
                       };
                     })}
                     onChange={value =>
@@ -400,95 +410,81 @@ export function RelateSearchWorksheet(props) {
     );
   };
 
+  const handleSubmit = () => {
+    if (isFilter) {
+      function formatCondition(condition) {
+        if (condition.groupFilters) {
+          return {
+            ...condition,
+            groupFilters: condition.groupFilters.map(formatCondition),
+          };
+        }
+
+        return { ...condition, emptyRule: ruleRef.current };
+      }
+
+      onOk({
+        sheetId,
+        sourceControlId,
+        resultFilters: resultFilters.map(formatCondition).filter(_.identity),
+        relationControls,
+        sheetName,
+        queryType,
+      });
+      setVisible(false);
+      return;
+    }
+
+    setState({ relateType: 'filter', loading: true });
+    let nextResultFilters = [];
+
+    // 为关联表时，筛选条件有默认值
+    if (sourceControlId || (selectedControl || {}).sourceControl) {
+      const selectControl = (sourceControlId || open) && selectedControl ? selectedControl.sourceControl : '';
+
+      if (selectControl && selectControl.type === 29 && _.get(selectControl, 'advancedSetting.hide') !== '1') {
+        const groupFilters = [
+          {
+            controlId: selectControl.controlId,
+            dataType: selectControl.type,
+            dynamicSource: [{ rcid: selectControl.dataSource, cid: 'current-rowid', staticValue: '' }],
+            filterType: 24,
+            isDynamicsource: true,
+            spliceType: 1,
+            emptyRule: 3,
+          },
+        ];
+        nextResultFilters = [{ isGroup: true, spliceType: 2, groupFilters }];
+      }
+    }
+
+    setInfo({ resultFilters: nextResultFilters });
+  };
+
   return (
     <BrowserRouter>
-      <Dialog
+      <Modal
         width={640}
-        type="scroll"
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={<span className="Bold">{isFilter ? _l('查询条件') : _l('查询记录')}</span>}
-        footer={null}
         className="SearchWorksheetDialog"
         onCancel={handleClose}
+        okText={isFilter ? _l('确定') : _l('下一步')}
+        okButtonProps={{
+          disabled: isFilter
+            ? !checkConditionCanSave(resultFilters)
+            : !sheetId || (isDeleteWorksheet && sheetId === dataSource),
+        }}
+        onOk={handleSubmit}
       >
-        <AddRelate>
-          {renderTypeContent()}
-          <div className="footerBtn">
-            <Button type="link" onClick={handleClose}>
-              {_l('取消')}
-            </Button>
-            <Button
-              type="primary"
-              className="Bold"
-              disabled={
-                isFilter
-                  ? !checkConditionCanSave(resultFilters)
-                  : !sheetId || (isDeleteWorksheet && sheetId === dataSource)
-              }
-              onClick={() => {
-                if (isFilter) {
-                  function formatCondition(condition) {
-                    if (condition.groupFilters) {
-                      return {
-                        ...condition,
-                        groupFilters: condition.groupFilters.map(formatCondition),
-                      };
-                    }
-
-                    return { ...condition, emptyRule: ruleRef.current };
-                  }
-
-                  onOk({
-                    sheetId,
-                    sourceControlId,
-                    resultFilters: resultFilters.map(formatCondition).filter(_.identity),
-                    relationControls,
-                    sheetName,
-                    queryType,
-                  });
-                  setVisible(false);
-                } else {
-                  setState({ relateType: 'filter', loading: true });
-                  let resultFilters = [];
-
-                  // 为关联表时，筛选条件有默认值
-                  if (sourceControlId || (selectedControl || {}).sourceControl) {
-                    const selectControl =
-                      (sourceControlId || open) && selectedControl ? selectedControl.sourceControl : '';
-
-                    if (
-                      selectControl &&
-                      selectControl.type === 29 &&
-                      _.get(selectControl, 'advancedSetting.hide') !== '1'
-                    ) {
-                      let groupFilters = [
-                        {
-                          controlId: selectControl.controlId,
-                          dataType: selectControl.type,
-                          dynamicSource: [{ rcid: selectControl.dataSource, cid: 'current-rowid', staticValue: '' }],
-                          filterType: 24,
-                          isDynamicsource: true,
-                          spliceType: 1,
-                          emptyRule: 3,
-                        },
-                      ];
-                      resultFilters = [{ isGroup: true, spliceType: 2, groupFilters }];
-                    }
-                  }
-
-                  setInfo({ resultFilters });
-                }
-              }}
-            >
-              {isFilter ? _l('确定') : _l('下一步')}
-            </Button>
-          </div>
-        </AddRelate>
-      </Dialog>
+        <AddRelate>{renderTypeContent()}</AddRelate>
+      </Modal>
     </BrowserRouter>
   );
 }
 
-export function relateSearchWorksheet(opts) {
-  functionWrap(RelateSearchWorksheet, opts);
+export function useRelateSearchWorksheet() {
+  return useFunctionWrapComponent(RelateSearchWorksheet);
 }

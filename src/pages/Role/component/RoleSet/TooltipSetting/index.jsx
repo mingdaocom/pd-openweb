@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Drawer } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import ControlSet from './controlSet';
@@ -86,12 +86,11 @@ export default class Con extends PureComponent {
     const { tab = 0 } = this.state;
     return (
       <Drawer
-        width={880}
+        size={880}
         onClose={() => onClose()}
-        mask={true}
+        mask={{ enabled: true, closable: true }}
         placement="right"
-        visible={showRoleSet}
-        maskClosable={true}
+        open={showRoleSet}
         closable={false}
       >
         <Wrap className="roleSettingWrap flexColumn">

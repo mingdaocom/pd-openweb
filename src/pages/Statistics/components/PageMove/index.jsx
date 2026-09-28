@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Button, Dialog, Dropdown } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import reportConfig from '../../api/reportConfig';
 import homeApp from 'src/api/homeApp';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import store from 'src/redux/configureStore';
+import { canEditApp } from 'src/utils/domain/permission/app';
+
+const PAGE_MOVE_APP_SELECT_CLASS_NAMES = { popup: { root: 'sheetMoveApp' } };
 
 const formatApps = function (validProject, projectId, appId) {
   const appList = [];
@@ -14,7 +16,7 @@ const formatApps = function (validProject, projectId, appId) {
     project.projectApps.forEach(app => {
       if (canEditApp(app.permissionType) && !app.isLock) {
         appList.push({
-          text: appId === app.id ? `${app.name} (${_l('本应用')})` : app.name,
+          label: appId === app.id ? `${app.name} (${_l('本应用')})` : app.name,
           value: app.id,
         });
       }
@@ -85,7 +87,7 @@ export default class SheetMove extends Component {
           .filter(item => !item.urlTemplate)
           .map(item => {
             return {
-              text: item.workSheetName,
+              label: item.workSheetName,
               value: item.workSheetId,
             };
           });
@@ -95,47 +97,27 @@ export default class SheetMove extends Component {
         });
       });
   }
-  renderFooter() {
-    const { pageValue } = this.state;
-    return (
-      <div>
-        <Button type="link" onClick={this.props.onCancel}>
-          {_l('取消')}
-        </Button>
-        <Button
-          type="primary"
-          onClick={this.handleOk.bind(this)}
-          disabled={!pageValue}
-          className={cx({ 'Button--disabled': !pageValue })}
-        >
-          {_l('确认')}
-        </Button>
-      </div>
-    );
-  }
   render() {
     const { pageId, dialogClasses } = this.props;
     const { appList, appValue, pages, pageValue } = this.state;
     return (
-      <Dialog
-        dialogClasses={dialogClasses}
+      <Modal
+        wrapClassName={dialogClasses}
         className="PageMove"
-        visible={true}
-        anim={false}
+        open
         title={pageId ? _l('移动到自定义页面') : _l('复制到自定义页面')}
         width={560}
+        okDisabled={!pageValue}
+        onOk={() => this.handleOk()}
         onCancel={this.props.onCancel}
-        footer={this.renderFooter()}
       >
         <div className="flexRow valignWrapper mTop25">
           <span className="textSecondary mRight10 TxtRight name">{_l('应用')}</span>
-          <Dropdown
-            border
-            isAppendToBody
-            menuClass="sheetMoveApp"
+          <Select
+            classNames={PAGE_MOVE_APP_SELECT_CLASS_NAMES}
             className={cx('flex', { empty: !appValue })}
             value={appValue}
-            data={appList}
+            options={appList}
             onChange={value => {
               this.handleChangeApp(value);
             }}
@@ -143,14 +125,12 @@ export default class SheetMove extends Component {
         </div>
         <div className="flexRow valignWrapper mTop15">
           <span className="textSecondary mRight10 TxtRight name">{_l('页面')}</span>
-          <Dropdown
+          <Select
             disabled={!appValue}
             placeholder={_l('请选择页面')}
-            isAppendToBody
             className={cx('flex', { empty: !pageValue })}
-            border
             value={pageValue}
-            data={pages}
+            options={pages}
             onChange={value => {
               this.setState({
                 pageValue: value,
@@ -158,7 +138,7 @@ export default class SheetMove extends Component {
             }}
           />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

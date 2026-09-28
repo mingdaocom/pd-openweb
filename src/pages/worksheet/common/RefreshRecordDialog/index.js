@@ -1,6 +1,7 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import RefreshRecordDialog from './RefreshRecordDialog';
 
 export default RefreshRecordDialog;
-
-export const refreshRecord = props => functionWrap(RefreshRecordDialog, props);
+export function useRefreshRecord() {
+  return useFunctionWrapComponent(RefreshRecordDialog);
+}

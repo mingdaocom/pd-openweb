@@ -1,24 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dialog, FunctionWrap } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import certificationApi from 'src/api/certification';
 import userApi from 'src/api/user';
 import { checkForm } from 'src/pages/Admin/user/membersDepartments/structure/constant';
-
-const InputWrapper = styled.div`
-  .iti--inline-dropdown {
-    width: 100%;
-  }
-  .iti__flag {
-    display: none;
-  }
-  .iti__tel-input {
-    padding-left: 48px;
-  }
-`;
 
 function TestSms(props) {
   const { onCancel, signId, signName, projectId } = props || {};
@@ -104,24 +92,35 @@ function TestSms(props) {
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={600}
       title={_l('短信发送测试')}
-      description={_l('可通过发送一条短信来测试当前签名是否可以正常使用，短信发送后会自动扣费')}
       onCancel={onCancel}
       onOk={onTestSms}
       okText={sendLoading ? _l('发送中...') : _l('确定')}
-      okDisabled={sendLoading}
+      confirmLoading={sendLoading}
     >
+      <div className="textSecondary mBottom16">
+        {_l('可通过发送一条短信来测试当前签名是否可以正常使用，短信发送后会自动扣费')}
+      </div>
       <div className="textSecondary bold mBottom8 mTop8">{_l('短信内容')}</div>
       <div className="">{_l('【%0】您的验证码是1234，感谢您的使用！', signName)}</div>
       <div className="textSecondary bold mBottom8 mTop16">{_l('手机号')}</div>
-      <InputWrapper>
-        <input type="tel" className="ming Input w100" ref={mobileRef} placeholder={_l('请输入手机号')} />
-      </InputWrapper>
-    </Dialog>
+      <Input
+        type="tel"
+        className="w100"
+        ref={input => {
+          mobileRef.current = input?.input;
+        }}
+        placeholder={_l('请输入手机号')}
+      />
+    </Modal>
   );
 }
 
-export const TestSmsDialog = props => FunctionWrap(TestSms, { ...props });
+export function useTestSmsDialog() {
+  return useFunctionWrapComponent(TestSms);
+}

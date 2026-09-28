@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Drawer, Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
 import BaseSet from './BaseSet';
 import InfoSet from './InfoSet';
 import LoginSet from './LoginSet';
@@ -75,37 +76,6 @@ const WrapCon = styled.div`
   left: 0;
   right: 0;
   z-index: 2;
-  .saveBtn {
-    display: inline-block;
-    height: 36px;
-    padding: 0 24px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    line-height: 36px;
-    cursor: pointer;
-    background: var(--color-primary);
-    color: var(--color-white);
-    &:hover {
-      background-color: var(--color-link-hover);
-    }
-    &.disable {
-      opacity: 0.5;
-    }
-  }
-  .cancelBtn {
-    display: inline-block;
-    height: 36px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    line-height: 36px;
-    cursor: pointer;
-    background: var(--color-background-primary);
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
-    margin-left: 16px;
-    padding: 0 32px;
-    width: auto;
-  }
   .closePortal {
     line-height: 36px;
     color: var(--color-text-tertiary);
@@ -147,33 +117,40 @@ class PortalSetting extends React.Component {
 
   closeSetFn = callback => {
     if (this.state.hasChange) {
-      return Dialog.confirm({
+      return Modal.confirm({
         title: _l('您是否保存当前页的更改'),
         okText: _l('保存'),
         width: 440,
-        description: _l('当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。'),
+        content: _l('当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。'),
         onOk: () => {
           this.saveRef && $(this.saveRef).click();
         },
         onCancel: () => {
-          this.setState({ hasChange: false }, () => {
-            callback && callback();
-          });
+          this.setState(
+            {
+              hasChange: false,
+            },
+            () => {
+              callback && callback();
+            },
+          );
         },
-      });
+      }).destroy;
     } else {
       callback && callback();
     }
   };
 
   closePortal = () => {
-    return Dialog.confirm({
+    return Modal.confirm({
       title: _l('关闭后所有人将不能再访问门户'),
       okText: _l('关闭门户'),
       width: 480,
       onOk: () => this.props.closePortal(),
-      buttonType: 'danger',
-    });
+      okButtonProps: {
+        danger: true,
+      },
+    }).destroy;
   };
 
   editPortal = noClose => {
@@ -331,16 +308,15 @@ class PortalSetting extends React.Component {
     const { show, closeSet } = this.props;
     const { type, portalSet = {} } = this.state;
     const Component = TYPE_TO_COMP[type];
+    const settingTypes = isSandboxEnvironment() ? SETTYPE.slice(0, -1) : SETTYPE;
 
     return (
       <Drawer
-        width={640}
+        size={640}
         onClose={() => closeSet()}
-        zIndex={999}
-        mask={true}
+        mask={{ enabled: true, closable: true }}
         placement="right"
-        visible={show}
-        maskClosable={true}
+        open={show}
         closable={false}
       >
         {show ? (
@@ -358,7 +334,7 @@ class PortalSetting extends React.Component {
               />
             </div>
             <ul className="conTab">
-              {SETTYPE.map((o, i) => {
+              {settingTypes.map((o, i) => {
                 return (
                   <li
                     className={cx('Hand', { current: i === type })}
@@ -397,11 +373,13 @@ class PortalSetting extends React.Component {
               }}
             />
             <WrapCon className="Con">
-              <span
+              <Button
+                type="primary"
                 ref={textarea => {
                   this.saveRef = textarea;
                 }}
-                className={cx('saveBtn Hand', { disable: this.state.name === '' || this.state.saveLoading })}
+                loading={this.state.saveLoading}
+                disabled={this.state.name === ''}
                 onClick={() => {
                   if (this.state.name === '' || this.state.saveLoading) {
                     return;
@@ -411,15 +389,15 @@ class PortalSetting extends React.Component {
                 }}
               >
                 {_l('保存设置')}
-              </span>
-              <span
-                className="cancelBtn Hand"
+              </Button>
+              <Button
+                className="mLeft16"
                 onClick={() => {
                   this.closeSetFn(() => closeSet());
                 }}
               >
                 {_l('取消')}
-              </span>
+              </Button>
               <span className="closePortal Hand Right Bold" onClick={this.closePortal}>
                 {_l('关闭门户')}
               </span>

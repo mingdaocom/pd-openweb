@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
-import { formatControlsToDropdown } from 'src/pages/widgetConfig/util/index.js';
+import { Checkbox, Radio, Select } from 'ming-ui/antd-components';
+import { formatControlsToDropdown } from 'src/utils/domain/control/filters';
 
 //可搜索的字段仅支持文本类型字段（文本、号码、邮箱、证件、自动编号、文本组合）
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const ConfigWrap = styled.div`
   padding-bottom: 24px;
@@ -25,7 +26,7 @@ const ConfigWrap = styled.div`
     .title {
       width: 80px;
     }
-    .ming RadioGroup {
+    .hap-radio-group {
       line-height: 36px;
     }
   }
@@ -33,9 +34,6 @@ const ConfigWrap = styled.div`
     font-weight: 400;
     font-size: 13px;
     margin-top: 24px;
-  }
-  .ming.Dropdown {
-    background-color: transparent;
   }
 `;
 
@@ -51,24 +49,22 @@ export default function SearchConfig(props) {
     clicksearch: data.clicksearch || '0',
   });
   useEffect(() => {
-    const { data } = props;
     setState({
       searchtype: data.searchtype || '0',
       searchcontrol: data.searchcontrol,
       clicksearch: data.clicksearch || '0',
     });
-  }, [props]);
+  }, [data, setState]);
   return (
     <ConfigWrap>
       <div className="lineBox"></div>
       <div className="title pTop0">{_l('下拉框搜索设置')}</div>
       <div className="settingTitle">{_l('搜索字段')}</div>
-      <Dropdown
-        border
-        isAppendToBody
+      <Select
         value={searchcontrol}
-        data={searchableControls}
-        cancelAble
+        options={searchableControls}
+        fieldNames={SELECT_FIELD_NAMES}
+        allowClear
         onChange={value => {
           if (value == searchcontrol) {
             return;
@@ -80,32 +76,38 @@ export default function SearchConfig(props) {
       {searchcontrol && (
         <div className="configItem">
           <div className="settingTitle">{_l('搜索方式')}</div>
-          <RadioGroup
-            checkedValue={searchtype}
+          <Radio.Group
+            value={searchtype}
             className="mTop8"
-            data={[
+            options={[
               { value: '1', text: _l('精确搜索') },
               { value: '0', text: _l('模糊搜索') },
-            ]}
-            onChange={value => {
+            ].map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
               if (value == searchtype) {
                 return;
               }
 
-              onChange({ searchtype: value });
+              onChange({
+                searchtype: value,
+              });
             }}
           />
         </div>
       )}
-      <div className="configItem">
+      <div className="mTop8">
         <Checkbox
-          className="mTop8"
           checked={clicksearch === '1'}
-          text={_l('在搜索后显示可选记录')}
-          onClick={checked => {
-            onChange({ clicksearch: checked ? '0' : '1' });
+          onChange={event => {
+            onChange({
+              clicksearch: !event.target.checked ? '0' : '1',
+            });
           }}
-        />
+        >
+          {_l('在搜索后显示可选记录')}
+        </Checkbox>
       </div>
     </ConfigWrap>
   );

@@ -1,12 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { Button, Drawer } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import CustomFields from 'src/components/Form';
 
 const Wrap = styled.div(
-  ({ width }) => `
+  ({ $width }) => `
   .disable {
     opacity: 0.5;
     cursor: not-allowed !important;
@@ -19,7 +19,7 @@ const Wrap = styled.div(
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
-  width: ${width || '580px'};
+  width: ${$width || '580px'};
   background: var(--color-background-primary);
   .headerWrap {
     padding: 24px;
@@ -29,27 +29,6 @@ const Wrap = styled.div(
   }
   .footerWrap {
     padding: 18px 22px;
-    .btn {
-      padding: 0 32px;
-      line-height: 36px;
-      border-radius: 3px;
-      box-sizing: border-box;
-      &.saveBtn {
-        color: var(--color-white);
-        background: var(--color-primary);
-        &:hover {
-          background: var(--color-primary);
-        }
-      }
-      &.cancelBtn {
-        color: var(--color-text-tertiary);
-        border: 1px solid var(--color-border-primary);
-        &:hover {
-          color: var(--color-primary);
-          border: 1px solid var(--color-primary);
-        }
-      }
-    }
     .del {
       line-height: 36px;
       color: var(--color-text-secondary);
@@ -85,7 +64,7 @@ export default function UserInfoWrap(props) {
 
   const renderCon = () => {
     return (
-      <Wrap className="flexColumn" width={width}>
+      <Wrap className="flexColumn" $width={width}>
         <div className="headerWrap flexRow">
           <span className="flex">{title || _l('修改用户信息')}</span>
           {showClose && (
@@ -108,9 +87,12 @@ export default function UserInfoWrap(props) {
           />
         </UserInfoDialogWrap>
         <div className="footerWrap flexRow">
-          <div className="flex">
-            <div
-              className={cx('btn saveBtn Hand', { disable })}
+          <div className={cx('flex', { flexRow: isPage })}>
+            <Button
+              type="primary"
+              shape={isPage ? 'round' : undefined}
+              className={cx({ flex: isPage })}
+              disabled={disable}
               onClick={() => {
                 if (disable) {
                   return;
@@ -132,12 +114,13 @@ export default function UserInfoWrap(props) {
               }}
             >
               {okText ? okText : _l('保存')}
-            </div>
+            </Button>
             {renderCancel ? (
               renderCancel(currentData)
             ) : (
-              <div
-                className={cx('btn cancelBtn Hand mLeft10', { disable })}
+              <Button
+                className="mLeft10"
+                disabled={disable}
                 onClick={() => {
                   if (disable) {
                     return;
@@ -147,7 +130,7 @@ export default function UserInfoWrap(props) {
                 }}
               >
                 {_l('取消')}
-              </div>
+              </Button>
             )}
           </div>
           {onDel && (
@@ -166,12 +149,11 @@ export default function UserInfoWrap(props) {
 
   return (
     <Drawer
-      width={640}
+      size={640}
       onClose={() => setShow(false)}
-      mask={true}
+      mask={{ enabled: true, closable: true }}
       placement="right"
-      visible={show}
-      maskClosable={true}
+      open={show}
       closable={false}
     >
       {renderCon()}

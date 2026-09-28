@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, VerifyPasswordInput } from 'ming-ui';
+import { Icon, VerifyPasswordInput } from 'ming-ui';
+import { Button, Modal, Popover } from 'ming-ui/antd-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import ProductLicenseInfo from 'src/components/productLicenseInfo';
-import verifyPassword from 'src/components/verifyPassword';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig } from '../config';
 
 const OperateMenu = styled.div`
   position: relative !important;
   width: 220px !important;
   padding: 6px 0 !important;
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px;
-  background: var(--color-background-card);
 `;
 const MenuItem = styled.div`
   padding: 0 20px;
@@ -27,18 +24,14 @@ const MenuItem = styled.div`
   }
 `;
 
-const ConfirmDialog = styled(Dialog)`
-  .mui-dialog-desc {
-    padding-top: 8px !important;
-    font-size: 13px;
-  }
+const ConfirmDialog = styled(Modal)`
   .passwordInput {
     box-shadow: none !important;
     line-height: 28px !important;
     border-radius: 3px !important;
     border: 1px solid var(--color-border-tertiary) !important;
     padding: 3px 10px !important;
-    &.ant-input-affix-wrapper-focused {
+    &.hap-input-affix-wrapper-focused {
       border-color: var(--color-primary) !important;
     }
   }
@@ -74,18 +67,18 @@ export default function OperateColumn(props) {
 
   return (
     <div onClick={e => e.stopPropagation()}>
-      <Trigger
-        action={['click']}
-        popupClassName="moreOption"
+      <Popover
+        noPadding
+        trigger="click"
         getPopupContainer={() => document.body}
-        popupVisible={visible}
-        onPopupVisibleChange={visible => setVisible(visible)}
-        popupAlign={{
+        open={visible}
+        onOpenChange={setVisible}
+        align={{
           points: ['tr', 'bl'],
           offset: [25, 5],
           overflow: { adjustX: true, adjustY: true },
         }}
-        popup={
+        content={
           <OperateMenu>
             {pluginType === 'view' && !_.isEmpty(license) && (
               <ProductLicenseInfo popupAlign={{ points: ['tr', 'tl'], offset: [-305, -139] }} license={license}>
@@ -115,20 +108,28 @@ export default function OperateColumn(props) {
         <div className="operateIcon" onClick={e => e.stopPropagation()}>
           <Icon icon="moreop" className="Font18 pointer" />
         </div>
-      </Trigger>
+      </Popover>
       <ConfirmDialog
         width={480}
-        visible={confirmVisible}
+        open={confirmVisible}
         title={_l('删除插件')}
-        description={
-          pluginType === PLUGIN_TYPE.WORKFLOW
-            ? _l('删除后，使用该插件的工作流将无法使用')
-            : _l('删除后，使用该插件的视图将无法使用')
-        }
-        buttonType="danger"
-        onOk={onDelete}
         onCancel={() => setConfirmVisible(false)}
+        footer={
+          <div>
+            <Button color="primary" variant="link" onClick={() => setConfirmVisible(false)}>
+              {_l('取消')}
+            </Button>
+            <Button color="danger" variant="solid" onClick={onDelete} data-id="confirmBtn">
+              {_l('确认')}
+            </Button>
+          </div>
+        }
       >
+        <div className="Font13 textSecondary mBottom15">
+          {pluginType === PLUGIN_TYPE.WORKFLOW
+            ? _l('删除后，使用该插件的工作流将无法使用')
+            : _l('删除后，使用该插件的视图将无法使用')}
+        </div>
         {needVerifyPwd && <VerifyPasswordInput onChange={({ password }) => setPassword(password)} />}
       </ConfirmDialog>
     </div>

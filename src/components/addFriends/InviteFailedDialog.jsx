@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap } from 'ming-ui';
-import { addUserFeedbackFunc } from 'src/pages/Admin/user/membersDepartments/structure/components/AddUserFeedback';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { useAddUserFeedback } from 'src/pages/Admin/user/membersDepartments/structure/components/AddUserFeedback';
 import { INVITE_FAILED_REASON } from './enum';
 
 const UserItemWrap = styled.div`
@@ -38,6 +39,7 @@ function UserItem(props) {
 }
 
 function InviteFailedDialog(props) {
+  const { open: openAddUserFeedback, holder: addUserFeedbackHolder } = useAddUserFeedback();
   const { visible, projectId, inviteTotal, result = {}, onClose = () => {} } = props;
   const {
     existAccountInfos = [],
@@ -68,7 +70,7 @@ function InviteFailedDialog(props) {
                   <span
                     className="mLeft20 LineHeight28 Hand colorPrimary Hover_51"
                     onClick={() =>
-                      addUserFeedbackFunc({
+                      openAddUserFeedback({
                         projectId,
                         actionResult: 5,
                         currentUser: user,
@@ -101,20 +103,31 @@ function InviteFailedDialog(props) {
   }
 
   return (
-    <Dialog
-      visible={visible}
-      title={_l('%0 个成员邀请失败', failedTotal)}
-      description={_l('本次共邀请%0个成员，有%1个成员邀请失败', inviteTotal, failedTotal)}
+    <Modal
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
+      title={
+        <React.Fragment>
+          <div>{_l('%0 个成员邀请失败', failedTotal)}</div>
+          <div className="Font13 Normal textSecondary mTop8">
+            {_l('本次共邀请%0个成员，有%1个成员邀请失败', inviteTotal, failedTotal)}
+          </div>
+        </React.Fragment>
+      }
       footer={null}
       onCancel={onClose}
     >
+      {addUserFeedbackHolder}
       {renderReason(removedAccountInfos, 'removed')}
       {renderReason(existAccountInfos, 'exist')}
       {renderReason(limitAccountInfos, 'limit')}
       {renderReason(forbidAccountInfos, 'forbid')}
       {renderReason(failedAccountInfos, 'failed')}
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(InviteFailedDialog, { ...props });
+export function useInviteFailedDialog() {
+  return useFunctionWrapComponent(InviteFailedDialog);
+}

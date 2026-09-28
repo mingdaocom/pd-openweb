@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 
 export const routerConfigs = [
   {
@@ -34,6 +33,12 @@ export const routerConfigs = [
     icon: 'circle_three',
     text: _l('关系图'),
     component: () => import('./components/EntityRelationship'),
+  },
+  {
+    type: 'sandbox',
+    icon: 'worksheet_public',
+    text: _l('沙盒'),
+    component: () => import('./components/AppSandbox'),
   },
   {
     type: 'publish',
@@ -95,4 +100,4 @@ export const routerConfigs = [
     text: _l('删除应用%02037'),
     className: 'delApp',
   },
-].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.type === 'aggregations'));
+].filter(o => !(window.md?.global?.SysSettings?.hideDataPipeline && o.type === 'aggregations'));

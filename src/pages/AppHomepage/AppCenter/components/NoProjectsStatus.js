@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { FlexCenter } from 'worksheet/components/Basics';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const FullCon = styled(FlexCenter)`
   height: 320px;
@@ -44,14 +44,23 @@ const JoinGroupCon = styled.div`
 
 export default function NoProjectsStatus(props) {
   const { hasExternalApps } = props;
+  const isMingdaoSaas = window.platformENV.isHap;
 
   if (hasExternalApps) {
     return (
       <JoinGroupCon>
         <div className="joinOrCreateProject">
           {_l('您还未拥有任何组织！')}
+          {isMingdaoSaas && (
+            <>
+              <span onClick={() => window.open(pathCompletion('/enterpriseRegister?type=create'), '__blank')}>
+                {_l('创建')}
+              </span>
+              <span className="mLeft3 mRight3">{_l('或')}</span>
+            </>
+          )}
           <span onClick={() => window.open(pathCompletion('/enterpriseRegister?type=add'), '__blank')}>
-            {_l('加入')}
+            {isMingdaoSaas ? _l('申请加入') : _l('加入')}
           </span>
           {_l('组织，开始创建您的应用')}
         </div>

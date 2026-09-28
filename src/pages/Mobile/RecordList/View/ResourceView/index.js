@@ -5,8 +5,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import ViewErrorPage from '../components/ViewErrorPage';
 
 const ResourceViewWrap = styled.div`

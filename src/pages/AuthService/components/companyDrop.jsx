@@ -1,70 +1,21 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
+import { Select } from 'ming-ui/antd-components';
+import { sanitizeLinkTextHtml } from 'src/utils/core/sanitizeHtml';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const WrapCon = styled.div`
   .controlDropdown {
-    height: auto;
-    .itemT {
-      background: var(--color-background-secondary);
-      border-radius: 6px;
-      padding: 3px 8px 3px 10px;
-      border: 1px solid var(--color-border-secondary);
-      line-height: 20px;
-      i {
-        color: var(--color-text-tertiary);
-        &:hover {
-          color: var(--color-text-secondary);
-        }
-      }
-    }
-    span.itemSpan {
-      color: var(--color-text-title) !important;
-      font-size: 14px;
-    }
-    .ming.Item .Item-content:not(.disabled):hover {
-      span.itemSpan {
-        color: var(--color-text-inverse) !important;
-        font-size: 14px;
-      }
-    }
-    .Dropdown--border,
-    .dropdownTrigger .Dropdown--border {
-      height: auto !important;
-    }
-    .Dropdown--input {
-      height: auto !important;
-      min-height: 48px;
-      padding: 4px !important;
-      .Dropdown--placeholder {
-        line-height: 40px !important;
-      }
-      .icon-arrow-down-border {
-        line-height: 40px !important;
-      }
-      .value {
-        line-height: 40px !important;
-        display: flex !important;
-        & > div {
-          flex: 1 !important;
-          display: flex !important;
-          flex-flow: row wrap !important;
-          gap: 5px;
-        }
-      }
-    }
+    min-height: 48px;
   }
 `;
 
 function Drop(props) {
   const { updateCompany = () => {}, updateState = () => {}, info = {} } = props;
   const openSearch = !browserIsMobile();
-  const [{ dropDownVisible, extraDatas, warnList }, setState] = useSetState({
-    dropDownVisible: false,
+  const [{ extraDatas, warnList }, setState] = useSetState({
     extraDatas: {},
     warnList: [],
   });
@@ -76,103 +27,36 @@ function Drop(props) {
     });
   }, [props, setState]);
 
+  const selectedValues = _.get(extraDatas, `${info.id}`) || [];
+  const isMultiple = info.multiple === 1;
+
   return (
     <WrapCon>
-      <Dropdown
-        selectClose={info.multiple !== 1}
-        cancelAble={info.multiple === 1}
-        showItemTitle
-        openSearch={openSearch}
-        menuClass={''}
-        value={
-          !_.get(extraDatas, `${info.id}`) || _.get(extraDatas, `${info.id}`).length <= 0
-            ? undefined
-            : _.get(extraDatas, `${info.id}`)
-        }
+      <Select
+        mode={isMultiple ? 'multiple' : undefined}
+        allowClear={isMultiple}
+        showPopupSearch={openSearch}
+        optionFilterProp="searchText"
+        value={isMultiple ? selectedValues : selectedValues[0]}
         className={'w100 controlDropdown flexRow alignItemsCenter'}
         onChange={value => {
-          if (info.multiple === 1 && (_.get(extraDatas, `${info.id}`) || []).includes(value)) return;
           updateState({
             warnList: _.filter(warnList, it => it.tipDom !== `.${info.id}`),
           });
           updateCompany({
             extraDatas: {
               ...extraDatas,
-              [info.id]: info.multiple === 1 ? [...(_.get(extraDatas, `${info.id}`) || []), value] : [value],
+              [info.id]: isMultiple ? value : value === undefined ? [] : [value],
             },
           });
         }}
-        data={(info.options || []).map(o => {
-          return { value: o.id, text: o.name };
-        })}
-        renderItem={item => {
-          const isCur = info.multiple === 1 && (_.get(extraDatas, `${info.id}`) || []).includes(item.value);
-          return (
-            <div
-              className={cx('itemText liBox flexRow alignItemsCenter', {
-                isCur,
-              })}
-            >
-              <span
-                className="flex itemSpan Font15"
-                dangerouslySetInnerHTML={{
-                  __html: item.text,
-                }}
-              />
-              {isCur && <Icon icon="done" className="Relative colorPrimary Font18" style={{ left: 0 }} />}
-            </div>
-          );
-        }}
-        isAppendToBody
-        onVisibleChange={props.onVisibleChange}
-        renderTitle={() => {
-          let ids = _.get(extraDatas, `${info.id}`) || [];
-
-          if (info.multiple === 1) {
-            return (
-              <div className="">
-                {ids.map(it => {
-                  return (
-                    <div className="itemT InlineBlock">
-                      {(info.options.find(a => it === a.id) || {}).name}
-                      <Icon
-                        icon={'close'}
-                        className="Hand mLeft3"
-                        onClick={e => {
-                          e.stopPropagation();
-                          let data = (_.get(extraDatas, `${info.id}`) || []).filter(a => a !== it);
-                          updateCompany({
-                            extraDatas: {
-                              ...extraDatas,
-                              [info.id]: data,
-                            },
-                          });
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          }
-
-          let id = ids[0];
-          return (
-            <span
-              className=""
-              dangerouslySetInnerHTML={{
-                __html: (info.options.find(a => a.id === id) || {}).name,
-              }}
-            />
-          );
-        }}
-        {...(info.multiple === 1
-          ? {
-              placeholder: _l('请选择'),
-              popupVisible: dropDownVisible,
-              onVisibleChange: visible => setState({ dropDownVisible: visible }),
-            }
-          : {})}
+        options={(info.options || []).map(option => ({
+          value: option.id,
+          searchText: option.name,
+          // 创建组织的自定义选项需要通过 a 标签跳转（如伙伴政策），因此仅开放经过安全清洗的链接 HTML。
+          label: <span dangerouslySetInnerHTML={{ __html: sanitizeLinkTextHtml(option.name) }} />,
+        }))}
+        onOpenChange={props.onVisibleChange}
       />
     </WrapCon>
   );

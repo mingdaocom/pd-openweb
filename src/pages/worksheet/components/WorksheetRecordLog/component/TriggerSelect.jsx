@@ -1,33 +1,21 @@
-import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import '../WorksheetRecordLogValue.less';
+import React from 'react';
+import { Dropdown } from 'ming-ui/antd-components';
 
 function TriggerSelect(props) {
   const { text, onSelect, children } = props;
-  const [visible, setVisible] = useState(false);
 
   return (
-    <Trigger
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        setVisible(visible);
+    <Dropdown
+      trigger={['click']}
+      menu={{
+        items: [{ key: 'select', label: text }],
+        onClick: () => {
+          onSelect();
+        },
       }}
-      action={['click']}
-      popupAlign={{ points: ['tl', 'bl'] }}
-      popup={
-        <span
-          onClick={() => {
-            onSelect();
-            setVisible(false);
-          }}
-          className="triggerSelectPopup"
-        >
-          {text}
-        </span>
-      }
     >
       {children}
-    </Trigger>
+    </Dropdown>
   );
 }
 

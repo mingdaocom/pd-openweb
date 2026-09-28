@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { formatElapsedDuration } from 'src/utils/domain/shared/time';
 import { IconChevronDown, IconChevronRight } from './icons';
 import { MarkdownText } from './MarkdownText';
 import { colors, spacing } from './tokens';
@@ -106,17 +107,6 @@ const Content = styled.div`
   }
 `;
 
-function formatDuration(ms) {
-  if (!ms || ms < 0) return '';
-  // 有测得耗时但不足 1 秒时按 1 秒计，避免出现无意义的「0秒」
-  const sec = Math.max(1, Math.floor(ms / 1000));
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-
-  if (m > 0) return _l('%0分%1秒', m, s);
-  return _l('%0秒', s);
-}
-
 // 仅聚合 reasoning part；items 为空时整块不渲染（模型没产出推理 → 无"思考中/已思考"提示）
 export function ThinkingSummary({ items = [], streaming = false, defaultOpen = false }) {
   const [open, setOpen] = useState(streaming || defaultOpen);
@@ -145,7 +135,7 @@ export function ThinkingSummary({ items = [], streaming = false, defaultOpen = f
   }, [streaming, open, items]);
 
   if (!items.length) return null;
-  const duration = formatDuration(endTs - startTs);
+  const duration = formatElapsedDuration(endTs - startTs);
 
   return (
     <Root>

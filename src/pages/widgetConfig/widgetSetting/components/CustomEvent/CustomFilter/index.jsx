@@ -1,5 +1,5 @@
 import React from 'react';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import { FILTER_VALUE_ENUM } from '../config';
 import IntegratedApi from '../CustomAction/actionTypes/IntegratedApi';
 import FilterValue from './filterTypes/FilterValue';
@@ -25,4 +25,6 @@ const CustomFilterConfig = props => {
   }
 };
 
-export default props => functionWrap(CustomFilterConfig, { ...props });
+export function useCustomFilter() {
+  return useFunctionWrapComponent(CustomFilterConfig);
+}

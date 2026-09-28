@@ -1,38 +1,16 @@
 import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
 import cx from 'classnames';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Dropdown } from 'ming-ui/antd-components';
 import Textarea from 'ming-ui/components/Textarea';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 
-const ClickAwayable = ClickAway;
 let root;
 
 function getNode(component) {
   return component && component.getNode ? component.getNode() : null;
-}
-
-class ChecklistOperator extends Component {
-  render() {
-    return (
-      <ClickAwayable
-        component="ul"
-        className="boxShadow5 boderRadAll_3 checklistOperator"
-        onClickAway={() => this.props.isShowOperator()}
-      >
-        <li className="bgColorPrimary" onClick={() => this.props.createTask()}>
-          <i className="icon-task-card" />
-          {_l('转为任务')}
-        </li>
-        <li className="bgColorPrimary" onClick={() => this.props.removeItem()}>
-          <i className="icon-trash" />
-          {_l('删除')}
-        </li>
-      </ClickAwayable>
-    );
-  }
 }
 
 const cardSource = {
@@ -113,7 +91,7 @@ let ChecklistItem = class ChecklistItem extends Component {
     super(props);
     this.state = {
       isEditName: false,
-      isShowOperator: false,
+      isOperatorOpen: false,
     };
   }
   /**
@@ -190,7 +168,7 @@ let ChecklistItem = class ChecklistItem extends Component {
           className={cx(
             'taskChecklistItem flexRow pointer',
             {
-              itemActive: this.state.isShowOperator,
+              itemActive: this.state.isOperatorOpen,
             },
             {
               itemActiveBG: this.state.isEditName,
@@ -225,30 +203,29 @@ let ChecklistItem = class ChecklistItem extends Component {
           )}
 
           {this.props.noAuth ? undefined : (
-            <i className="icon-moreop colorPrimary" onClick={() => this.setState({ isShowOperator: true })} />
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              open={this.state.isOperatorOpen}
+              onOpenChange={isOperatorOpen => this.setState({ isOperatorOpen })}
+              menu={{
+                items: [
+                  { key: 'task', icon: <i className="icon-task-card" />, label: _l('转为任务') },
+                  { key: 'delete', danger: true, icon: <i className="icon-trash" />, label: _l('删除') },
+                ],
+                onClick: ({ key }) => {
+                  this.setState({ isOperatorOpen: false });
+                  if (key === 'task') {
+                    this.props.createTask(data.itemId, data.name);
+                  } else if (key === 'delete') {
+                    this.props.removeItem(data.itemId);
+                  }
+                },
+              }}
+            >
+              <i className="icon-moreop colorPrimary" />
+            </Dropdown>
           )}
-
-          {this.state.isShowOperator ? (
-            <ChecklistOperator
-              isShowOperator={() =>
-                this.setState({
-                  isShowOperator: false,
-                })
-              }
-              createTask={() => {
-                this.setState({
-                  isShowOperator: false,
-                });
-                this.props.createTask(data.itemId, data.name);
-              }}
-              removeItem={() => {
-                this.setState({
-                  isShowOperator: false,
-                });
-                this.props.removeItem(data.itemId);
-              }}
-            />
-          ) : undefined}
         </div>
       );
     };

@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import CustomFields from 'src/components/Form';
-import { isUnTextWidget } from 'src/components/Form/core/utils';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import RefreshTime from 'src/pages/worksheet/common/ViewConfig/components/RefreshTime.jsx';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { isUnTextWidget } from 'src/utils/domain/control/capabilities';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const Wrap = styled.div`
   .emptyCon {
@@ -37,38 +37,21 @@ const Wrap = styled.div`
       border-color: var(--color-border-tertiary);
     }
   }
-  .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
-    background: var(--color-background-primary) !important;
-    border-color: var(--color-border-primary) !important;
-    &:hover {
-      border-color: var(--color-border-tertiary) !important;
-      background: var(--color-background-primary) !important;
-    }
-  }
-  .customFieldsContainer .customFormItemControl > .ming.Dropdown .Dropdown--border:not(:hover):not(.active),
-  .customFieldsContainer .customFormItemControl .sortColumnWrap .Dropdown--input,
-  .customFieldsContainer .customFormItemControl > .ming.Dropdown .Dropdown--border:hover,
-  .customFieldsContainer .customFormItemControl > .ming.Dropdown .Dropdown--border.active {
-    border-color: var(--color-border-primary) !important;
-    &:hover {
-      border-color: var(--color-border-tertiary) !important;
-    }
-  }
   .conCustomFields {
     .customFieldsContainer .customFormItem {
       padding: 0px 12px;
+    }
+    .customFieldsContainer .customFormItemControl .customFormControlSwitch .customFormCheck {
+      margin-top: 0 !important;
     }
     padding-top: 10px;
     &.conCustomFields_boolean {
       padding-top: 16px;
     }
     &.conCustomFields_enum {
-      .RadioGroupCon .Radio {
+      .RadioGroupCon .hap-radio-wrapper {
         word-break: break-all;
       }
-    }
-    .customFieldsContainer .customFormItemControl .customFormControlBox.customFormControlSwitch .Checkbox {
-      margin-top: 0px;
     }
   }
 `;
@@ -148,18 +131,19 @@ const CustomControlDrop = props => {
   const allColumns = worksheetControls.filter(o => allTypes.includes(o.type));
   return (
     <div className="flexRow">
-      <Dropdown
+      <Select
         placeholder={_l('请选择')}
-        className={cx('paramControlDropdown', props.sourceControlType === 29 ? 'flex' : 'w100')}
-        renderItem={(item = {}) => {
+        className={props.sourceControlType === 29 ? 'flex' : 'w100'}
+        optionRender={option => {
+          const item = option.data || {};
           return (
-            <div className={cx('itemText', { isCur: allColumns.find(it => it.controlId === item.controlId) })}>
-              <Icon icon={getIconByType(item.type, false)} className="Font18" />
-              <span className="mLeft20">{item.controlName}</span>
+            <div className="itemText">
+              <Icon icon={getIconByType(item.type, false)} className="Font18 textTertiary" />
+              <span className="mLeft10">{item.controlName}</span>
             </div>
           );
         }}
-        noData={_l('当前工作表中没有可选字段，请先去添加一个')}
+        notFoundContent={_l('当前工作表中没有可选字段，请先去添加一个')}
         value={
           !value || value.length <= 0
             ? undefined
@@ -184,7 +168,7 @@ const CustomControlDrop = props => {
 
           props.onChange(data);
         }}
-        renderTitle={() => {
+        labelRender={() => {
           let data = props.sourceControlType === 29 ? _.get(value, 'value.cid') : (value || [])[0];
           let item = allColumns.find(it => it.controlId === data);
           return (
@@ -194,14 +178,15 @@ const CustomControlDrop = props => {
             </div>
           );
         }}
-        border
-        menuClass={'paramControlDropdownMenu'}
-        cancelAble
-        isAppendToBody
-        openSearch
-        data={allColumns.map(o => {
-          return { ..._.omit(o, ['icon']), value: o.controlId, text: o.controlName };
-        })}
+        allowClear
+        showPopupSearch
+        optionFilterProp="label"
+        options={allColumns.map(({ controlId, controlName, type }) => ({
+          value: controlId,
+          label: controlName,
+          controlName,
+          type,
+        }))}
       />
       {props.sourceControlType === 29 && (
         <div className="flex mLeft10">
@@ -224,12 +209,12 @@ const CustomControlDrop = props => {
 
 export default function ParameterSet(params) {
   const { view = {}, onChangeView, worksheetControls } = params;
+  const pluginMapSetting = _.get(view, 'advancedSetting.plugin_map');
+  const pluginParamSettings = _.get(view, 'pluginInfo.paramSettings');
   const [{ paramSettings }, setState] = useSetState({
     paramSettings: [],
   });
   const cache = useRef({});
-  const pluginMapSetting = _.get(view, 'advancedSetting.plugin_map');
-  const pluginParamSettings = _.get(view, 'pluginInfo.paramSettings');
 
   useEffect(() => {
     const paramSettings = pluginParamSettings || [];

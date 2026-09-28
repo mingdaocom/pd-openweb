@@ -3,21 +3,20 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
-import { quickSelectDept, quickSelectRole, quickSelectUser } from 'ming-ui/functions';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
+import { RoleSelectPopover } from 'ming-ui/functions/quickSelectRole';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import sheetAjax from 'src/api/worksheet';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { renderText as renderCellText } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import DropCon from './components/DropCon';
 import SortList from './components/SortList';
 
 const Wrap = styled.div`
-  .recordItem {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 12px;
-  }
   .reset,
   .clearBtn {
     padding: 6px 12px;
@@ -51,7 +50,6 @@ const Wrap = styled.div`
 `;
 
 export default function (props) {
-  const $ref = useRef(null);
   const {
     view,
     controlInfo,
@@ -159,40 +157,14 @@ export default function (props) {
     }
   };
 
-  const onChangeSettingUser = (isMultiple, users) => {
-    const list = isMultiple ? _.uniqBy([...valueRef.current, ...users], 'accountId') : users;
+  const onChangeSettingUser = (isMultiple, users, isCancel = false) => {
+    const list = isCancel
+      ? valueRef.current.filter(user => user.accountId !== users[0]?.accountId)
+      : isMultiple
+        ? _.uniqBy([...valueRef.current, ...users], 'accountId')
+        : users;
     setState({
       setting: maxCount ? list.slice(0, maxCount) : list,
-    });
-  };
-
-  const addUser = (isMultiple = true, tabType) => {
-    quickSelectUser($ref.current, {
-      showMoreInvite: false,
-      isTask: false,
-      tabType,
-      appId,
-      includeUndefinedAndMySelf: false,
-      includeSystemField: false,
-      offset: {
-        top: 4,
-        left: -1,
-      },
-      zIndex: 10001,
-      isDynamic: true,
-      filterAccountIds: ['user-self'],
-      selectedAccountIds: valueRef.current.map(l => l.accountId),
-      SelectUserSettings: {
-        projectId,
-        unique: !isMultiple,
-        filterResigned: false,
-        callback(users) {
-          onChangeSettingUser(isMultiple, users);
-        },
-      },
-      selectCb(users) {
-        onChangeSettingUser(isMultiple, users);
-      },
     });
   };
 
@@ -208,47 +180,87 @@ export default function (props) {
     });
   };
 
-  const addDep = (e, isMultiple = true) => {
-    quickSelectDept(e.target, {
-      projectId,
-      isIncludeRoot: false,
-      unique: !isMultiple,
-      key: JSON.stringify(setting),
-      showCreateBtn: false,
-      selectedDepartment: setting,
-      selectFn: onSaveAddDep,
+  //添加角色
+  const onSaveAddRole = (data, isCancel = false) => {
+    if (!data.length) return;
+    const newData = isCancel
+      ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
+      : _.uniqBy(valueRef.current.concat(data), 'organizeId');
+    setState({
+      setting: maxCount ? newData.slice(0, maxCount) : newData,
     });
   };
 
-  //添加角色
-  const addRole = e => {
-    quickSelectRole(e.target, {
-      projectId,
-      unique: false,
-      offset: {
-        left: -167,
-      },
-      value: setting,
-      onSave: (data, isCancel = false) => {
-        if (!data.length) return;
-        const newData = isCancel
-          ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
-          : _.uniqBy(valueRef.current.concat(data), 'organizeId');
-        setState({
-          setting: maxCount ? newData.slice(0, maxCount) : newData,
-        });
-      },
+  const onAddSettingItem = (data, index) => {
+    const newSetting = [...setting];
+    const insertIndex = typeof index === 'number' ? index + 1 : newSetting.length;
+
+    if (_.isArray(data)) {
+      const key = isSameType([26], controlInfo)
+        ? 'accountId'
+        : isSameType([27], controlInfo)
+          ? 'departmentId'
+          : 'organizeId';
+      const ids = setting.map(item => item[key]);
+      newSetting.splice(insertIndex, 0, ...data.filter(item => !ids.includes(item[key])));
+    } else if (isSameType([29], controlInfo)) {
+      const control = ((controlInfo || {}).relationControls || []).find(item => item.attribute === 1);
+      newSetting.splice(insertIndex, 0, {
+        rowid: data.rowid,
+        name: renderCellText({ ...control, value: data[control.controlId] }) || _l('未命名'),
+      });
+    } else if (isSameType([9, 10, 11], controlInfo)) {
+      newSetting.splice(insertIndex, 0, data.key);
+    } else {
+      newSetting.splice(insertIndex, 0, data);
+    }
+
+    setState({ setting: maxCount ? newSetting.slice(0, maxCount) : newSetting });
+  };
+
+  const onDeleteSettingItem = data => {
+    const key = isSameType([27], controlInfo)
+      ? 'departmentId'
+      : isSameType([26], controlInfo)
+        ? 'accountId'
+        : isSameType([48], controlInfo)
+          ? 'organizeId'
+          : 'rowid';
+
+    setState({
+      setting: setting.filter(item =>
+        isSameType([9, 10, 11, 28], controlInfo) ? item !== data : item[key] !== data[key],
+      ),
     });
   };
+
+  const isAddDisabled = setting.length >= maxCount;
+  const addButton = (
+    <span
+      className={cx(
+        'add InlineBlock mTop6 Bold TxtCenter',
+        isAddDisabled ? 'disable textTertiary' : 'Hand colorPrimary',
+      )}
+    >
+      <i className="icon icon-add Font16 mRight5"></i>
+      {props.addTxt || _l('选择字段')}
+    </span>
+  );
 
   return (
-    <Dialog
-      visible
-      title={<span className="Bold">{title || _l('自定义排序')}</span>}
-      description={description ? <span>{description}</span> : undefined}
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
+      title={
+        <React.Fragment>
+          <div className="Bold">{title || _l('自定义排序')}</div>
+          {description && <div className="Font13 Normal textSecondary mTop8">{description}</div>}
+        </React.Fragment>
+      }
       width={480}
       onCancel={onClose}
-      className="subListSortDialog"
+      rootClassName="subListSortDialog"
       onOk={() => {
         onChange(setting);
         onClose();
@@ -258,14 +270,10 @@ export default function (props) {
         <div className="head flexRow alignItemsCenter">
           <div className="num flex">
             {!maxCount
-              ? setting.filter(o => o !== 'add').length > 0
-                ? setting.filter(o => o !== 'add').length
+              ? setting.length > 0
+                ? setting.length
                 : ''
-              : `${
-                  setting.filter(o => o !== 'add').length > maxCount
-                    ? maxCount
-                    : setting.filter(o => o !== 'add').length
-                }/${maxCount}`}
+              : `${setting.length > maxCount ? maxCount : setting.length}/${maxCount}`}
           </div>
           {/* 操作 重置 清空 */}
           <div className="act">
@@ -281,7 +289,7 @@ export default function (props) {
                   getColumns();
                 }}
               >
-                {setting.filter(o => o !== 'add').length <= 0 ? _l('添加全部') : _l('重置')}
+                {setting.length <= 0 ? _l('添加全部') : _l('重置')}
               </span>
             )}
             {setting.length > 0 && (
@@ -310,40 +318,68 @@ export default function (props) {
               maxCount={maxCount}
               controls={controls} //字段名称 用作显示
               onChange={setting => setState({ setting })}
+              onAdd={onAddSettingItem}
+              onDelete={onDeleteSettingItem}
               controlInfo={controlInfo} //分组字段信息
             />
           )}
         </div>
         <div className="">
-          <span
-            className={cx(
-              'add InlineBlock mTop6 Bold TxtCenter',
-              setting.filter(o => o !== 'add').length >= maxCount ? 'disable textTertiary' : 'Hand colorPrimary',
-            )}
-            onClick={e => {
-              if (setting.filter(o => o !== 'add').length >= maxCount) {
-                return;
-              }
-
-              if (isSameType([26], controlInfo)) {
-                addUser(true, getTabTypeBySelectUser(controlInfo));
-              } else if (isSameType([27], controlInfo)) {
-                addDep(e, true);
-              } else if (isSameType([48], controlInfo)) {
-                addRole(e);
-              } else {
-                setState({
-                  setting: setting.concat(['add']),
-                });
-              }
-            }}
-            ref={$ref}
-          >
-            <i className="icon icon-add Font16 mRight5"></i>
-            {props.addTxt || _l('选择字段')}
-          </span>
+          {isSameType([26], controlInfo) && !isAddDisabled ? (
+            <UserSelectPopover
+              showMoreInvite={false}
+              tabType={getTabTypeBySelectUser(controlInfo)}
+              appId={appId}
+              includeUndefinedAndMySelf={false}
+              includeSystemField={false}
+              offset={{ top: 4, left: -1 }}
+              isDynamic
+              filterAccountIds={['user-self']}
+              selectedAccountIds={setting.map(l => l.accountId)}
+              SelectUserSettings={{
+                projectId,
+                unique: false,
+                filterResigned: false,
+                callback: users => onChangeSettingUser(true, users),
+              }}
+              onSelect={(users, isCancel) => onChangeSettingUser(true, users, isCancel)}
+            >
+              {addButton}
+            </UserSelectPopover>
+          ) : isSameType([27], controlInfo) && !isAddDisabled ? (
+            <DeptSelectPopover
+              projectId={projectId}
+              isIncludeRoot={false}
+              unique={false}
+              showCreateBtn={false}
+              selectedDepartment={setting}
+              selectFn={onSaveAddDep}
+            >
+              {addButton}
+            </DeptSelectPopover>
+          ) : isSameType([48], controlInfo) && !isAddDisabled ? (
+            <RoleSelectPopover
+              projectId={projectId}
+              unique={false}
+              value={setting}
+              onSave={onSaveAddRole}
+              placement="bottomLeft"
+            >
+              {addButton}
+            </RoleSelectPopover>
+          ) : (
+            <DropCon
+              controlInfo={controlInfo}
+              currentList={setting}
+              disabled={isAddDisabled}
+              onChange={item => onAddSettingItem(item)}
+              onDelete={onDeleteSettingItem}
+            >
+              {addButton}
+            </DropCon>
+          )}
         </div>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

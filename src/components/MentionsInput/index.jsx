@@ -1,23 +1,27 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon } from 'ming-ui';
+import { Icon, PersonalStatus } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectUser } from 'ming-ui/functions';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import categoryApi from 'src/api/category';
 import groupApi from 'src/api/group';
 import personalStyleAjax from 'src/api/personalStyle';
 import userApi from 'src/api/user';
 import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
-import { getCaretPosition, setCaretPosition } from 'src/utils/common';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { getCaretPosition, setCaretPosition } from 'src/utils/platform/browser/dom';
 import './index.less';
 
 // 全角和半角
 const categoryLetterArr = ['#', '＃'];
 const atLetterArr = ['@', '＠'];
+
+const isEventComposing = event => event?.isComposing || event?.keyCode === 229 || event?.which === 229;
+const getInputCaretPosition = input =>
+  typeof input?.selectionStart === 'number' ? input.selectionStart : getCaretPosition(input);
 
 const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -134,6 +138,7 @@ const MentionsInput = props => {
         return;
       }
 
+      input.updateValue();
       var value = getMentionsCollection().length ? input.messageText : input.value;
       callback(value);
     };
@@ -260,7 +265,7 @@ const MentionsInput = props => {
     const state = mentionState.current;
     const currentType = state.currentType;
     var currentMessage = input.value;
-    var position = getCaretPosition(input);
+    var position = getInputCaretPosition(input);
 
     var startCaretPosition = 0;
     if (state.isAt && state.atPos < position) {
@@ -346,6 +351,8 @@ const MentionsInput = props => {
   };
 
   const handleValueChange = e => {
+    if (isEventComposing(e)) return;
+
     updateValues();
 
     const state = mentionState.current;
@@ -365,7 +372,7 @@ const MentionsInput = props => {
       return;
     }
 
-    let startPos = getCaretPosition(target);
+    const startPos = getInputCaretPosition(target);
     let currentMessage = target.value;
     let startChar = currentMessage.substring(startPos - 1, startPos);
 
@@ -402,8 +409,8 @@ const MentionsInput = props => {
       return;
     }
 
-    if (state.isAt && state.atPos <= getCaretPosition(target)) {
-      state.currentDataQuery = currentMessage.substring(state.atPos, getCaretPosition(target));
+    if (state.isAt && state.atPos <= startPos) {
+      state.currentDataQuery = currentMessage.substring(state.atPos, startPos);
       debouncedSearch.current(state.currentDataQuery);
     } else {
       debouncedSearch.current && debouncedSearch.current.cancel();
@@ -412,6 +419,8 @@ const MentionsInput = props => {
   };
 
   const handleKeydown = e => {
+    if (isEventComposing(e)) return;
+
     const state = mentionState.current;
     const { which } = e;
     const { accounts = [], groups = [], categorys = [] } = state.externalResults;
@@ -764,11 +773,11 @@ const MentionsInput = props => {
   };
 
   return (
-    <Trigger
-      popupVisible={triggerPopupVisible}
+    <Popover
+      open={triggerPopupVisible}
       getPopupContainer={getPopupContainer}
-      // onPopupVisibleChange={value => setTriggerPopupVisible(value)}
-      popupAlign={{
+      placement="topLeft"
+      align={{
         offset: popupAlignOffset || [0, 0],
         points: popupAlignPoints || ['bl', 'tl'],
         overflow: {
@@ -776,10 +785,9 @@ const MentionsInput = props => {
           adjustY: true,
         },
       }}
-      destroyPopupOnHide
-      action={['hover']}
-      popupClassName="mentionsTriggerWrap"
-      popup={
+      classNames={{ root: 'mentionsTriggerWrap' }}
+      noPadding
+      content={
         <div
           ref={popupRef}
           className="mentionsAutocompleteList"
@@ -926,9 +934,13 @@ const MentionsInput = props => {
         className="Absolute"
         style={{ left: rect.left, top: rect.top, height: rect.height, pointerEvents: 'none' }}
       />
-    </Trigger>
+    </Popover>
   );
 };
+
+export function useMentionsInput() {
+  return useFunctionWrapComponent(MentionsInput);
+}
 
 export default function initMentionsInput(props) {
   functionWrap(MentionsInput, props);

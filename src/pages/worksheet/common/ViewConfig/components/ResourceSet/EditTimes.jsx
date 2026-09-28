@@ -1,17 +1,9 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { TimePicker } from 'antd';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
-import dayjs from 'dayjs';
+import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-
-const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-const locale = locales[md.global.Account.lang] || localeEn;
+import { Modal, TimePicker } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
   .add {
@@ -45,7 +37,7 @@ const Wrap = styled.div`
       }
     }
   }
-  .rangePicker.ant-picker {
+  .rangePicker.hap-picker {
     height: 36px;
     line-height: 36px;
   }
@@ -64,12 +56,14 @@ export default function (props) {
   }, [props]);
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       title={<span className="Bold">{_l('设置工作时间')}</span>}
       width={480}
       onCancel={onClose}
-      className="subListSortDialog"
+      rootClassName="subListSortDialog"
       onOk={() => {
         onChange(showtime.filter(o => o).join('|'));
         onClose();
@@ -82,25 +76,25 @@ export default function (props) {
               <TimePicker.RangePicker
                 className={cx('rangePicker w100 borderAll3 flex', { mTop12: n !== 0 })}
                 format="HH:mm"
-                value={o ? o.split('-').map(item => dayjs(item, 'HH:mm')) : []}
+                value={o ? o.split('-') : []}
                 hourStep={1}
                 minuteStep={60}
-                popupClassName={`filterDateRangeInputPopup_${n}`}
+                classNames={{ popup: { root: `filterDateRangeInputPopup_${n}` } }}
                 onClick={() => {
-                  const $arrow = $(`.filterDateRangeInputPopup_${n} .ant-picker-range-arrow`);
+                  const $arrow = $(`.filterDateRangeInputPopup_${n} .hap-picker-range-arrow`);
 
                   if ($arrow) {
                     setTimeout(() => {
-                      const $arrows = $(`.filterDateRangeInputPopup_${n} .ant-picker-range-arrow`);
+                      const $arrows = $(`.filterDateRangeInputPopup_${n} .hap-picker-range-arrow`);
                       const arrowLeft = $arrows.css('left');
-                      $(`.filterDateRangeInputPopup_${n} .ant-picker-panel-container`).css({
+                      $(`.filterDateRangeInputPopup_${n} .hap-picker-panel-container`).css({
                         marginLeft: arrowLeft,
                       });
                     }, 200);
                   }
                 }}
                 onChange={(data, timeString) => {
-                  if (data && data[0] && data[1] && dayjs(data[1]).diff(dayjs(data[0])) <= 0) {
+                  if (data && data[0] && data[1] && moment(data[1]).diff(moment(data[0])) <= 0) {
                     alert(_l('结束时间不能早于或等于开始时间'), 3);
                     return;
                   }
@@ -111,7 +105,6 @@ export default function (props) {
                     }),
                   });
                 }}
-                locale={locale}
                 showNow={true}
                 allowClear={false}
               />
@@ -142,6 +135,6 @@ export default function (props) {
           </span>
         </div>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

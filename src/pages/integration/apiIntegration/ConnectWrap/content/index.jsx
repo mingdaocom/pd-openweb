@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { TYPELIST } from 'src/pages/integration/config.js';
 import AccountList from './AccountList';
@@ -14,6 +14,7 @@ import ConnectSet from './ConnectSet';
 const Wrap = styled.div``;
 
 export default function Info(props) {
+  const requestPending = useRef(false);
   const { onChangeSate, getInfo, getDetailInfo, setDefaultFlowNode } = props;
   const [
     {
@@ -64,7 +65,10 @@ export default function Info(props) {
   }, [props]);
   //创建api管理
   const addConnet = () => {
-    packageVersionAjax
+    if (requestPending.current) return;
+
+    requestPending.current = true;
+    return packageVersionAjax
       .add(
         {
           companyId: currentProjectId,
@@ -102,6 +106,9 @@ export default function Info(props) {
           isChange: true,
           isConnectOwner: hasManageAuth || newData.isOwner,
         });
+      })
+      .finally(() => {
+        requestPending.current = false;
       });
   };
 
@@ -217,12 +224,17 @@ export default function Info(props) {
                 <li className={'chooseTypeCon'}>
                   <Radio
                     className=""
-                    text={o.name}
                     checked={authType === o.appType && actionId === o.actionId}
-                    onClick={() => {
-                      setDefaultFlowNode({ authType: o.appType, actionId: o.actionId });
+                    onChange={() => {
+                      setDefaultFlowNode({
+                        authType: o.appType,
+                        actionId: o.actionId,
+                      });
                     }}
-                  />
+                    title={o.name}
+                  >
+                    {o.name}
+                  </Radio>
                 </li>
               );
             })}

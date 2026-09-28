@@ -1,6 +1,6 @@
 import { Dialog } from 'antd-mobile';
 import ajaxRequest from 'src/api/appManagement';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 export const getAppApplyInfo =
   ({ appId }) =>

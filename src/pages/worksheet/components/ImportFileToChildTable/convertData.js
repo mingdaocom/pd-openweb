@@ -1,8 +1,8 @@
 import _, { trim } from 'lodash';
 import moment from 'moment';
 import { onValidator } from 'src/components/Form/core/formUtils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
-import { postWithToken } from 'src/utils/common';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { postWithToken } from 'src/utils/services/request/authenticated';
 
 function getSelectedOptionKeys(text = '', options, isMultiple) {
   if (!text.trim()) {

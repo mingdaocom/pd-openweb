@@ -1,47 +1,39 @@
 import React, { Fragment } from 'react';
-import { Menu, MenuItem } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { importAttachmentsDialog } from '../WorksheetBody/ImportAttachments';
-import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 
-export default function ImportMenu(props) {
-  const {
-    isCharge,
-    allowAdd,
-    controls,
-    projectId,
-    appId,
-    worksheetId,
-    viewId,
-    worksheetName,
-    onMenuClick = () => {},
-    className = '',
-  } = props;
+export const getImportMenuItems = ({
+  isCharge,
+  allowAdd,
+  controls = [],
+  projectId,
+  appId,
+  worksheetId,
+  viewId,
+  worksheetName,
+  onMenuClick = () => {},
+  renderMenuLabel = text => text,
+  itemStyle,
+  importDataFromExcel,
+  importAttachmentsDialog,
+}) => {
+  const hasAttachmentControl = controls.some(control => control.type === 14);
 
-  return (
-    <Menu className={className}>
-      {allowAdd && (
-        <MenuItem
-          data-event="importExcel"
-          onClick={() => {
-            onMenuClick();
-            importDataFromExcel({ isCharge, appId, worksheetId, worksheetName });
-          }}
-        >
-          {_l('导入 Excel')}
-        </MenuItem>
-      )}
-      {controls.some(control => control.type === 14) ? (
-        <MenuItem
-          data-event="importAttachments"
-          disabled={!controls.some(control => control.type === 14)}
-          onClick={() => {
-            onMenuClick();
-            importAttachmentsDialog({ controls, projectId, appId, worksheetId, viewId, allowAdd });
-          }}
-        >
-          {_l('导入附件')}
-        </MenuItem>
+  return [
+    allowAdd && {
+      key: 'importExcel',
+      style: itemStyle,
+      label: renderMenuLabel(_l('导入 Excel')),
+      onClick: () => {
+        onMenuClick();
+        importDataFromExcel({ isCharge, appId, worksheetId, worksheetName });
+      },
+    },
+    {
+      key: 'importAttachments',
+      disabled: !hasAttachmentControl,
+      style: itemStyle,
+      label: hasAttachmentControl ? (
+        renderMenuLabel(_l('导入附件'))
       ) : (
         <Tooltip
           placement="bottom"
@@ -52,11 +44,13 @@ export default function ImportMenu(props) {
             </Fragment>
           }
         >
-          <MenuItem data-event="importAttachments" disabled>
-            {_l('导入附件')}
-          </MenuItem>
+          <span>{_l('导入附件')}</span>
         </Tooltip>
-      )}
-    </Menu>
-  );
-}
+      ),
+      onClick: () => {
+        onMenuClick();
+        importAttachmentsDialog({ controls, projectId, appId, worksheetId, viewId, allowAdd });
+      },
+    },
+  ].filter(Boolean);
+};

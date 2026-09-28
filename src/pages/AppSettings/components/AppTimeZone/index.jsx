@@ -1,21 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import fixedDataApi from 'src/api/fixedData';
 import homeAppApi from 'src/api/homeApp';
-
-const AppTimeZoneDropdown = styled(Dropdown)`
-  width: 500px;
-  color: var(--color-text-title);
-  .Dropdown--border {
-    height: 32px;
-  }
-  .ming.Menu {
-    width: auto;
-    right: 0;
-  }
-`;
 
 export default function AppTimeZone(props) {
   const { appId, data = {}, onChangeData } = props;
@@ -28,13 +15,15 @@ export default function AppTimeZone(props) {
     fixedDataApi.loadTimeZones().then(res => {
       if (res) {
         const data = Object.keys(res)
-          .map(key => ({ text: res[key], value: parseInt(key) }))
+          .map(key => ({ label: res[key], value: parseInt(key) }))
           .sort((a, b) => a.value - b.value);
 
         setTimeZones(data);
       }
     });
   }, []);
+
+  const selectedTimeZone = timeZones.some(item => item.value === currentTimeZone) ? currentTimeZone : undefined;
 
   const onChangeTimeZone = timeZone => {
     homeAppApi.editAppTimeZones({ appId, timeZone }).then(res => {
@@ -57,7 +46,14 @@ export default function AppTimeZone(props) {
       </div>
       <div className="flexRow alignItemsCenter mTop32">
         <div className="Width120">{_l('时区')}</div>
-        <AppTimeZoneDropdown border openSearch value={currentTimeZone} data={timeZones} onChange={onChangeTimeZone} />
+        <Select
+          showPopupSearch
+          optionFilterProp="label"
+          value={selectedTimeZone}
+          options={timeZones}
+          styles={{ root: { width: 500 } }}
+          onChange={onChangeTimeZone}
+        />
       </div>
     </div>
   );

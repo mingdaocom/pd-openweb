@@ -81,6 +81,23 @@ const reportConfig = {
     return mdyAPI(controllerName, 'reportConfiggetTableData', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 创建统计图（Mingo 对话内「保存图表」走此接口）
+   * 必填：chartName、worksheetId、viewId、chartType、dataScope、timeFieldId、timeRange、dimension、values；
+   * 传 addToCustomPageId 则追加到该自定义页面末尾（需应用管理员），不传建在工作表下。
+   * 与本文件其它方法不同：返回 { status, data, msg } 信封而非标准契约，调用方需传 customParseResponse 自行判定。
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  createChart: function (args, options = {}) {
+    // 不走 $.extend(base, options)：那会把 customParseResponse 等一次性配置写进共享的 base，污染后续其它接口
+    return mdyAPI(controllerName, 'reportConfigcreateChart', JSON.stringify(args), {
+      ...base,
+      ...options,
+      ajaxOptions: { ...base.ajaxOptions, url: base.server() + '/reportConfig/createChart', type: 'POST' },
+    });
+  },
+  /**
    * 保存图表配置
    * @param {Object} args 请求参数
    * @param {保存图表} {appId:工作表ID(string),appType:统计应用类型 1:工作表 2:聚合表(integer),auth:自定义页面图表权限(integer),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest

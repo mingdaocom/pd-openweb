@@ -1,15 +1,14 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Menu, MenuItem, Radio, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Icon, SortableList } from 'ming-ui';
+import { Dropdown as AntdDropdown, Checkbox, Radio, Select, Tooltip } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import sheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { NODE_TYPE, OPERATION_TYPE, RELATION_TYPE, USER_TYPE } from '../../../enum';
 import { EXPIRE_LIST } from '../../../enum';
 import CustomTextarea from '../CustomTextarea';
@@ -19,6 +18,18 @@ import OperatorEmpty from '../OperatorEmpty';
 import ProcessDetails from '../ProcessDetails';
 import UpdateFields from '../UpdateFields';
 import WriteFields from '../WriteFields';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
+const renderNodeLabel = (nodes, value) => {
+  const item = _.find(nodes, { id: value });
+
+  return (
+    <Tooltip title={item ? null : `ID：${value}`}>
+      <span className={cx({ errorColor: !item })}>{item ? item.name : _l('节点已删除')}</span>
+    </Tooltip>
+  );
+};
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -79,10 +90,10 @@ export default props => {
     { text: _l('允许发起人催办'), key: 'allowUrge' },
   ];
   const INITIATOR_TYPE = [
-    { text: _l('自动进入下一个节点'), value: 4 },
-    { text: _l('由流程拥有者代理'), value: 2 },
-    { text: _l('由指定人员代理'), value: 5 },
-    { text: _l('流程结束'), value: 3 },
+    { label: _l('自动进入下一个节点'), value: 4 },
+    { label: _l('由流程拥有者代理'), value: 2 },
+    { label: _l('由指定人员代理'), value: 5 },
+    { label: _l('流程结束'), value: 3 },
   ];
   const TABS = [
     { text: _l('流程设置'), value: 1 },
@@ -109,42 +120,38 @@ export default props => {
   const autoClear = !!data.processConfig.expireType;
   const featureType = getFeatureStatus(companyId, VersionProductType.encapsulatingBusinessProcess);
 
-  const selectCharge = (event, callback) => {
-    quickSelectUser(event.target, {
-      offset: {
-        top: 10,
-        left: 0,
-      },
-      projectId: companyId,
-      unique: true,
-      filterAll: true,
-      filterFriend: true,
-      filterOthers: true,
-      filterOtherProject: true,
-      onSelect: users => {
+  const renderUserSelect = (children, callback) => (
+    <UserSelectPopover
+      offset={{ top: 10, left: 0 }}
+      projectId={companyId}
+      unique
+      filterAll
+      filterFriend
+      filterOthers
+      filterOtherProject
+      onSelect={users =>
         callback(
-          users.map(item => {
-            return {
-              type: USER_TYPE.USER,
-              entityId: '',
-              entityName: '',
-              roleId: item.accountId,
-              roleName: item.fullname,
-              avatar: item.avatar,
-            };
-          }),
-        );
-      },
-    });
-  };
+          users.map(item => ({
+            type: USER_TYPE.USER,
+            entityId: '',
+            entityName: '',
+            roleId: item.accountId,
+            roleName: item.fullname,
+            avatar: item.avatar,
+          })),
+        )
+      }
+    >
+      {children}
+    </UserSelectPopover>
+  );
 
   const list = data.processConfig.revokeFlowNodes
     .filter(item => item.typeId === NODE_TYPE.APPROVAL)
     .map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
-        disabled: _.includes(data.processConfig.requiredIds, item.id),
       };
     });
 
@@ -153,9 +160,8 @@ export default props => {
     const { revokeFlowNodes, revokeNodeIds } = data.processConfig;
     const revokeNodes = revokeFlowNodes.map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
-        disabled: _.includes(revokeNodeIds, item.id),
       };
     });
     const CALLBACK_TYPES = [
@@ -167,48 +173,18 @@ export default props => {
       <Fragment>
         <div className="mTop10 mLeft25 flexRow alignItemsCenter">
           <div>{_l('节点')}</div>
-          <Dropdown
+          <Select
             className="mLeft10 flex flowDropdown flowDropdownMoreSelect"
-            menuStyle={{ width: '100%' }}
-            data={revokeNodes}
-            value={revokeNodeIds.length || undefined}
-            border
-            openSearch
-            renderTitle={() =>
-              !!revokeNodeIds.length && (
-                <ul className="tagWrap">
-                  {revokeNodeIds.map(id => {
-                    const item = _.find(revokeFlowNodes, item => item.id === id);
-
-                    return (
-                      <li key={id} className={cx('tagItem flexRow', { error: !item })}>
-                        <Tooltip title={item ? null : `ID：${id}`}>
-                          <span className="tag">{item ? item.name : _l('节点已删除')}</span>
-                        </Tooltip>
-                        <span
-                          className="delTag"
-                          onClick={e => {
-                            e.stopPropagation();
-                            const ids = [].concat(revokeNodeIds);
-                            _.remove(ids, item => item === id);
-
-                            updateSource({
-                              processConfig: Object.assign({}, data.processConfig, { revokeNodeIds: ids }),
-                            });
-                          }}
-                        >
-                          <Icon icon="close" className="pointer" />
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )
-            }
-            onChange={revokeNodeId =>
+            mode="multiple"
+            options={revokeNodes}
+            value={revokeNodeIds}
+            showSearch
+            optionFilterProp="label"
+            labelRender={({ value }) => renderNodeLabel(revokeFlowNodes, value)}
+            onChange={revokeNodeIds =>
               updateSource({
                 processConfig: Object.assign({}, data.processConfig, {
-                  revokeNodeIds: revokeNodeIds.concat(revokeNodeId),
+                  revokeNodeIds,
                 }),
               })
             }
@@ -217,30 +193,36 @@ export default props => {
         </div>
         <div className="mTop15 mLeft25">
           <Checkbox
-            className="InlineBlock"
-            text={_l('允许重新发起')}
             checked={data.processConfig.callBackType !== -1}
-            onClick={checked =>
+            onChange={event =>
               updateSource({
-                processConfig: Object.assign({}, data.processConfig, { callBackType: !checked ? 0 : -1 }),
+                processConfig: Object.assign({}, data.processConfig, {
+                  callBackType: event.target.checked ? 0 : -1,
+                }),
               })
             }
-          />
+          >
+            {_l('允许重新发起')}
+          </Checkbox>
           {data.processConfig.callBackType !== -1 && (
-            <div className="mLeft15 flexRow mTop10 alignItemsCenter">
+            <div className="mLeft26 flexRow mTop15 alignItemsCenter">
               {CALLBACK_TYPES.map((item, index) => {
                 return (
                   <Fragment key={index}>
                     <Radio
                       className="mRight40"
-                      text={item.text}
                       checked={data.processConfig.callBackType === item.value}
-                      onClick={() =>
+                      onChange={() =>
                         updateSource({
-                          processConfig: Object.assign({}, data.processConfig, { callBackType: item.value }),
+                          processConfig: Object.assign({}, data.processConfig, {
+                            callBackType: item.value,
+                          }),
                         })
                       }
-                    />
+                      title={item.text}
+                    >
+                      {item.text}
+                    </Radio>
                     {item.desc && (
                       <Tooltip title={item.desc}>
                         <span style={{ height: 16, marginLeft: -35 }}>
@@ -258,7 +240,7 @@ export default props => {
     );
   };
 
-  const getPrintList = () => {
+  const getPrintList = useCallback(() => {
     sheetAjax.getPrintList({ worksheetId }).then(data => {
       setPrintList(
         data
@@ -272,7 +254,7 @@ export default props => {
           }),
       );
     });
-  };
+  }, [worksheetId]);
 
   const renderPrintItem = ({ items, item, DragHandle, dragging }) => {
     const selectItem = _.find(printList, o => o.id === item);
@@ -315,62 +297,37 @@ export default props => {
     const { revokeFlowNodes, viewNodeIds } = data.processConfig;
     const opinionNodes = revokeFlowNodes.map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
-        disabled: _.includes(viewNodeIds || [], item.id),
       };
+    });
+    const opinionOptions = opinionNodes.concat({
+      label: _l('所有审批节点'),
+      value: 'all',
+      disabled: viewNodeIds === null,
     });
 
     return (
       <div className="mTop10 mLeft25 flexRow alignItemsCenter">
         <div>{_l('节点')}</div>
-        <Dropdown
+        <Select
           className="mLeft10 flex flowDropdown flowDropdownMoreSelect"
-          menuStyle={{ width: '100%' }}
-          data={[opinionNodes, [{ text: _l('所有审批节点'), value: null, disabled: viewNodeIds === null }]]}
-          value={viewNodeIds || 'all'}
-          border
-          openSearch
-          renderTitle={
-            viewNodeIds === null
-              ? () => <span>{_l('所有审批节点')}</span>
-              : () => (
-                  <ul className="tagWrap">
-                    {viewNodeIds.map(id => {
-                      const item = _.find(revokeFlowNodes, item => item.id === id);
-
-                      return (
-                        <li key={id} className={cx('tagItem flexRow', { error: !item })}>
-                          <Tooltip title={item ? null : `ID：${id}`}>
-                            <span className="tag">{item ? item.name : _l('节点已删除')}</span>
-                          </Tooltip>
-                          <span
-                            className="delTag"
-                            onClick={e => {
-                              e.stopPropagation();
-                              const ids = [].concat(viewNodeIds);
-                              _.remove(ids, item => item === id);
-
-                              updateSource({
-                                processConfig: Object.assign({}, data.processConfig, { viewNodeIds: ids }),
-                              });
-                            }}
-                          >
-                            <Icon icon="close" className="pointer" />
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )
+          mode="multiple"
+          options={opinionOptions}
+          value={viewNodeIds === null ? ['all'] : viewNodeIds}
+          showSearch
+          optionFilterProp="label"
+          labelRender={({ value }) =>
+            value === 'all' ? <span>{_l('所有审批节点')}</span> : renderNodeLabel(revokeFlowNodes, value)
           }
-          onChange={nodeId =>
+          onChange={nodeIds => {
+            const nextNodeIds = viewNodeIds === null ? nodeIds.filter(id => id !== 'all') : nodeIds;
             updateSource({
               processConfig: Object.assign({}, data.processConfig, {
-                viewNodeIds: nodeId === null ? null : (viewNodeIds || []).concat(nodeId),
+                viewNodeIds: nextNodeIds.includes('all') ? null : nextNodeIds,
               }),
-            })
-          }
+            });
+          }}
         />
       </div>
     );
@@ -378,11 +335,11 @@ export default props => {
 
   useEffect(() => {
     setSelected(!!data.processConfig.requiredIds.length);
-  }, [cacheKey]);
+  }, [cacheKey, data.processConfig.requiredIds.length]);
 
   useEffect(() => {
     worksheetId && getPrintList();
-  }, [worksheetId]);
+  }, [getPrintList, worksheetId]);
 
   return (
     <Fragment>
@@ -415,42 +372,52 @@ export default props => {
         <Fragment key={i}>
           <Checkbox
             className="mTop15 flexRow"
-            text={item.text}
             checked={data.processConfig[item.key]}
-            onClick={checked =>
+            onChange={event =>
               updateSource({
                 processConfig: Object.assign(
                   {},
                   data.processConfig,
-                  { [item.key]: !checked },
-                  item.key === 'allowRevoke' && checked ? { callBackType: -1 } : {},
+                  {
+                    [item.key]: event.target.checked,
+                  },
+                  item.key === 'allowRevoke' && !event.target.checked
+                    ? {
+                        callBackType: -1,
+                      }
+                    : {},
                 ),
               })
             }
-          />
+          >
+            {item.text}
+          </Checkbox>
           {item.key === 'allowRevoke' && data.processConfig.allowRevoke && renderRevokeNode()}
         </Fragment>
       ))}
 
       <Checkbox
         className="mTop15 flexRow"
-        text={_l('允许发起人查看审批意见')}
         checked={
           _.isArray(data.processConfig.viewNodeIds)
             ? !!data.processConfig.viewNodeIds.length
             : data.processConfig.viewNodeIds === null
         }
-        onClick={checked =>
+        onChange={event =>
           updateSource({
-            processConfig: Object.assign({}, data.processConfig, { viewNodeIds: !checked ? null : [] }),
+            processConfig: Object.assign({}, data.processConfig, {
+              viewNodeIds: event.target.checked ? null : [],
+            }),
           })
         }
-      />
+      >
+        {_l('允许发起人查看审批意见')}
+      </Checkbox>
       {(_.isArray(data.processConfig.viewNodeIds)
         ? !!data.processConfig.viewNodeIds.length
         : data.processConfig.viewNodeIds === null) && renderOpinionNode()}
 
-      <div className="Font13 mTop20 bold">
+      <div className="Font13 mTop20 bold flexRow alignItemsCenter">
         {_l('发起人为空时')}
         <Tooltip
           title={_l(
@@ -460,11 +427,10 @@ export default props => {
           <Icon className="Font16 textTertiary mLeft5" icon="info" />
         </Tooltip>
       </div>
-      <Dropdown
+      <Select
         className="flowDropdown mTop10"
-        data={INITIATOR_TYPE}
+        options={INITIATOR_TYPE}
         value={initiator || undefined}
-        border
         placeholder={_l('流程结束')}
         onChange={initiator =>
           updateSource({
@@ -481,30 +447,32 @@ export default props => {
         <div className="flexRow alignItemsCenter">
           <div className="mRight10 mTop12">{_l('代理人')}</div>
           <Member companyId={companyId} leastOne accounts={data.processConfig.initiatorMaps[initiator]} />
-          <div
-            className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
-              mLeft8: data.processConfig.initiatorMaps[initiator].length,
-            })}
-            style={{ height: 28 }}
-            onClick={event =>
-              selectCharge(event, accounts => {
-                updateSource({
-                  processConfig: Object.assign({}, data.processConfig, {
-                    initiatorMaps: {
-                      [initiator]: accounts,
-                    },
-                  }),
-                });
-              })
-            }
-          >
-            <i
-              className={cx(
-                'Font28',
-                data.processConfig.initiatorMaps[initiator].length ? 'icon-add-member3' : 'icon-task-add-member-circle',
-              )}
-            />
-          </div>
+          {renderUserSelect(
+            <div
+              className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
+                mLeft8: data.processConfig.initiatorMaps[initiator].length,
+              })}
+              style={{ height: 28 }}
+            >
+              <i
+                className={cx(
+                  'Font28',
+                  data.processConfig.initiatorMaps[initiator].length
+                    ? 'icon-add-member3'
+                    : 'icon-task-add-member-circle',
+                )}
+              />
+            </div>,
+            accounts => {
+              updateSource({
+                processConfig: Object.assign({}, data.processConfig, {
+                  initiatorMaps: {
+                    [initiator]: accounts,
+                  },
+                }),
+              });
+            },
+          )}
         </div>
       )}
 
@@ -530,38 +498,41 @@ export default props => {
           </div>
           <div className="flexRow alignItemsCenter">
             <Member companyId={companyId} leastOne accounts={data.processConfig.agents} />
-            <div
-              className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
-                mLeft8: data.processConfig.agents.length,
-              })}
-              style={{ height: 28 }}
-              onClick={event =>
-                selectCharge(event, accounts => {
-                  updateSource({ processConfig: Object.assign({}, data.processConfig, { agents: accounts }) });
-                })
-              }
-            >
-              <i
-                className={cx(
-                  'Font28',
-                  data.processConfig.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle',
-                )}
-              />
-            </div>
+            {renderUserSelect(
+              <div
+                className={cx('textPlaceholder hoverColorPrimary mTop12 pointer', {
+                  mLeft8: data.processConfig.agents.length,
+                })}
+                style={{ height: 28 }}
+              >
+                <i
+                  className={cx(
+                    'Font28',
+                    data.processConfig.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle',
+                  )}
+                />
+              </div>,
+              accounts => {
+                updateSource({ processConfig: Object.assign({}, data.processConfig, { agents: accounts }) });
+              },
+            )}
           </div>
 
           <div className="Font13 mTop20 bold">{_l('自动通过')}</div>
           {AutoPass.map((item, i) => (
             <div key={i} className="flexRow mTop15 alignItemsCenter">
               <Checkbox
-                text={item.text}
                 checked={data.processConfig[item.key]}
-                onClick={checked =>
+                onChange={event =>
                   updateSource({
-                    processConfig: Object.assign({}, data.processConfig, { [item.key]: !checked }),
+                    processConfig: Object.assign({}, data.processConfig, {
+                      [item.key]: event.target.checked,
+                    }),
                   })
                 }
-              />
+              >
+                {item.text}
+              </Checkbox>
             </div>
           ))}
 
@@ -570,74 +541,50 @@ export default props => {
               <div className="textSecondary">{_l('以下情况不自动通过')}</div>
               <div className="flexRow mTop15 alignItemsCenter">
                 <Checkbox
-                  text={_l('必填字段为空时')}
                   checked={data.processConfig.required}
-                  onClick={checked =>
+                  onChange={event =>
                     updateSource({
-                      processConfig: Object.assign({}, data.processConfig, { required: !checked }),
+                      processConfig: Object.assign({}, data.processConfig, {
+                        required: event.target.checked,
+                      }),
                     })
                   }
-                />
+                >
+                  {_l('必填字段为空时')}
+                </Checkbox>
                 <Tooltip title={_l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。')}>
                   <Icon icon="info" className="textTertiary Font16 mLeft5" />
                 </Tooltip>
               </div>
               <div className="flexRow mTop15 alignItemsCenter">
                 <Checkbox
-                  text={_l('设置为必须审批的节点')}
                   checked={selected}
-                  onClick={checked => {
-                    setSelected(!checked);
-                    checked &&
+                  onChange={event => {
+                    setSelected(event.target.checked);
+                    !event.target.checked &&
                       updateSource({
-                        processConfig: Object.assign({}, data.processConfig, { requiredIds: [] }),
+                        processConfig: Object.assign({}, data.processConfig, {
+                          requiredIds: [],
+                        }),
                       });
                   }}
-                />
+                >
+                  {_l('设置为必须审批的节点')}
+                </Checkbox>
               </div>
               {selected && (
-                <Dropdown
+                <Select
                   className="flowDropdown flowDropdownMoreSelect mTop10"
-                  menuStyle={{ width: '100%' }}
-                  data={list}
-                  value={data.processConfig.requiredIds.length || undefined}
-                  border
-                  openSearch
-                  renderTitle={() =>
-                    !!data.processConfig.requiredIds.length && (
-                      <ul className="tagWrap">
-                        {data.processConfig.requiredIds.map(id => {
-                          const item = _.find(data.processConfig.revokeFlowNodes, item => item.id === id);
-
-                          return (
-                            <li key={id} className={cx('tagItem flexRow', { error: !item })}>
-                              <Tooltip title={item ? null : `ID：${id}`}>
-                                <span className="tag">{item ? item.name : _l('节点已删除')}</span>
-                              </Tooltip>
-                              <span
-                                className="delTag"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  const ids = [].concat(data.processConfig.requiredIds);
-                                  _.remove(ids, item => item === id);
-
-                                  updateSource({
-                                    processConfig: Object.assign({}, data.processConfig, { requiredIds: ids }),
-                                  });
-                                }}
-                              >
-                                <Icon icon="close" className="pointer" />
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )
-                  }
-                  onChange={id => {
+                  mode="multiple"
+                  options={list}
+                  value={data.processConfig.requiredIds}
+                  showSearch
+                  optionFilterProp="label"
+                  labelRender={({ value }) => renderNodeLabel(data.processConfig.revokeFlowNodes, value)}
+                  onChange={requiredIds => {
                     updateSource({
                       processConfig: Object.assign({}, data.processConfig, {
-                        requiredIds: data.processConfig.requiredIds.concat(id),
+                        requiredIds,
                       }),
                     });
                     setSelected(true);
@@ -665,12 +612,17 @@ export default props => {
           <div className="Font13 mTop20 flexRow alignItemsCenter">
             <div className="bold flex">{_l('打印模板')}</div>
             <Checkbox
-              text={_l('系统打印模板')}
               checked={!data.processConfig.disabledPrint}
-              onClick={disabledPrint =>
-                updateSource({ processConfig: Object.assign({}, data.processConfig, { disabledPrint }) })
+              onChange={event =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, {
+                    disabledPrint: !event.target.checked,
+                  }),
+                })
               }
-            />
+            >
+              {_l('系统打印模板')}
+            </Checkbox>
           </div>
           <div></div>
 
@@ -685,64 +637,72 @@ export default props => {
           />
 
           <div className="mTop10">
-            <Trigger
-              popup={() => (
-                <Menu className="workflowPrintTrigger">
-                  {printList.map(o => (
-                    <MenuItem
-                      key={o.id}
-                      disabled={_.includes(data.processConfig.printIds, o.id)}
-                      onClick={() => {
-                        if (_.includes(data.processConfig.printIds, o.id)) return;
+            <AntdDropdown
+              disabled={!printList.length}
+              trigger={['click']}
+              placement="bottomLeft"
+              menu={{
+                style: { width: 752, maxHeight: 200, overflowY: 'auto' },
+                items: printList.map(o => ({
+                  key: o.id,
+                  disabled: _.includes(data.processConfig.printIds, o.id),
+                  icon: (
+                    <Icon
+                      icon={o.type === 2 ? 'new_word' : o.type === 5 ? 'new_excel' : 'doc'}
+                      className={cx('Font20', {
+                        colorPrimary: o.type === 2,
+                        Green: o.type === 5,
+                        textSecondary: !_.includes([2, 5], o.type),
+                      })}
+                    />
+                  ),
+                  label: o.text,
+                  onClick: () => {
+                    if (_.includes(data.processConfig.printIds, o.id)) return;
 
-                        updateSource({
-                          processConfig: Object.assign({}, data.processConfig, {
-                            printIds: data.processConfig.printIds.concat(o.id),
-                          }),
-                        });
-                      }}
-                    >
-                      <Icon icon={o.type === 2 ? 'new_word' : o.type === 5 ? 'new_excel' : 'doc'} className="Font20" />
-                      <span>{o.text}</span>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              )}
-              action={printList.length ? ['click'] : []}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [5, 5],
-                overflow: { adjustX: true, adjustY: true },
+                    updateSource({
+                      processConfig: Object.assign({}, data.processConfig, {
+                        printIds: data.processConfig.printIds.concat(o.id),
+                      }),
+                    });
+                  },
+                })),
               }}
             >
               <span className={cx('textSecondary', { 'pointer hoverColorPrimary': !!printList.length })}>
                 {printList.length ? `+ ${_l('添加打印模板')}` : _l('无打印模板')}
               </span>
-            </Trigger>
+            </AntdDropdown>
           </div>
 
           <div className="Font13 mTop20 bold">{_l('其他')}</div>
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox
-              text={_l('允许审批人撤回上次审批结果')}
               checked={data.processConfig.allowTaskRevoke}
-              onClick={checked =>
+              onChange={event =>
                 updateSource({
-                  processConfig: Object.assign({}, data.processConfig, { allowTaskRevoke: !checked }),
+                  processConfig: Object.assign({}, data.processConfig, {
+                    allowTaskRevoke: event.target.checked,
+                  }),
                 })
               }
-            />
+            >
+              {_l('允许审批人撤回上次审批结果')}
+            </Checkbox>
           </div>
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox
-              text={_l('当没有上级负责人时，由当前人员进行处理')}
               checked={data.processConfig.defaultCandidateUser}
-              onClick={checked =>
+              onChange={event =>
                 updateSource({
-                  processConfig: Object.assign({}, data.processConfig, { defaultCandidateUser: !checked }),
+                  processConfig: Object.assign({}, data.processConfig, {
+                    defaultCandidateUser: event.target.checked,
+                  }),
                 })
               }
-            />
+            >
+              {_l('当没有上级负责人时，由当前人员进行处理')}
+            </Checkbox>
             <Tooltip
               title={_l(
                 '指在审批流程中当人员设置为直属上级、上级部门负责人时。如果当前人员没有直属上级，则由本人自己处理；如果当前人员、部门没有上级部门，则由本部门负责人处理。未勾选时，则按照为空处理。',
@@ -753,14 +713,17 @@ export default props => {
           </div>
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox
-              text={_l('验证节点负责人的记录查看权限')}
               checked={data.processConfig.permissionLevel === 1}
-              onClick={checked =>
+              onChange={event =>
                 updateSource({
-                  processConfig: Object.assign({}, data.processConfig, { permissionLevel: !checked ? 1 : 0 }),
+                  processConfig: Object.assign({}, data.processConfig, {
+                    permissionLevel: event.target.checked ? 1 : 0,
+                  }),
                 })
               }
-            />
+            >
+              {_l('验证节点负责人的记录查看权限')}
+            </Checkbox>
             <Tooltip
               title={
                 <div>
@@ -777,6 +740,28 @@ export default props => {
                   <div>{_l('提醒：批量操作不受影响')}</div>
                 </div>
               }
+            >
+              <Icon icon="info" className="textTertiary Font16 mLeft5" />
+            </Tooltip>
+          </div>
+
+          <div className="flexRow mTop15 alignItemsCenter">
+            <Checkbox
+              checked={data.processConfig.allowShare}
+              onChange={event =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, {
+                    allowShare: event.target.checked,
+                  }),
+                })
+              }
+            >
+              {_l('允许审批/填写人添加抄送人')}
+            </Checkbox>
+            <Tooltip
+              title={_l(
+                '开启后，审批人或填写人在处理当前节点时，可手动添加抄送人；被添加的抄送人可查看当前记录的相关内容。',
+              )}
             >
               <Icon icon="info" className="textTertiary Font16 mLeft5" />
             </Tooltip>
@@ -802,14 +787,17 @@ export default props => {
 
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox
-              text={_l('审批流程中允许查看他人填写字段')}
               checked={data.processConfig.allowUpdateView}
-              onClick={checked =>
+              onChange={event =>
                 updateSource({
-                  processConfig: Object.assign({}, data.processConfig, { allowUpdateView: !checked }),
+                  processConfig: Object.assign({}, data.processConfig, {
+                    allowUpdateView: event.target.checked,
+                  }),
                 })
               }
-            />
+            >
+              {_l('审批流程中允许查看他人填写字段')}
+            </Checkbox>
             <Tooltip title={_l('审批和填写节点中查看他人填写内容')}>
               <Icon icon="info" className="textTertiary Font16 mLeft5" />
             </Tooltip>
@@ -818,19 +806,22 @@ export default props => {
           {featureType && (
             <div className="flexRow mTop15 alignItemsCenter">
               <Checkbox
-                text={_l('自动清理执行历史')}
                 checked={autoClear}
-                onClick={() => {
+                onChange={() => {
                   if (featureType === '2') {
                     buriedUpgradeVersionDialog(companyId, VersionProductType.workflowLog);
                     return;
                   }
 
                   updateSource({
-                    processConfig: Object.assign({}, data.processConfig, { expireType: autoClear ? 0 : 1 }),
+                    processConfig: Object.assign({}, data.processConfig, {
+                      expireType: autoClear ? 0 : 1,
+                    }),
                   });
                 }}
-              />
+              >
+                {_l('自动清理执行历史')}
+              </Checkbox>
               <Tooltip title={_l('勾选后，超过保留周期的执行历史将自动删除且不可找回，请谨慎使用。')}>
                 <Icon icon="info" className="textTertiary Font16 mLeft5" />
               </Tooltip>
@@ -839,13 +830,12 @@ export default props => {
           {autoClear && (
             <div className="mTop10 flexRow alignItemsCenter mLeft26">
               <div>{_l('执行后')}</div>
-              <Dropdown
+              <Select
                 className="mLeft10 mRight10"
                 style={{ width: 100 }}
-                menuStyle={{ width: '100%' }}
-                data={EXPIRE_LIST}
+                options={EXPIRE_LIST}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={data.processConfig.expireType}
-                border
                 onChange={expireType =>
                   updateSource({ processConfig: Object.assign({}, data.processConfig, { expireType }) })
                 }

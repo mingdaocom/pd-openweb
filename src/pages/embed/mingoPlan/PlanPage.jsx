@@ -8,8 +8,6 @@ import {
   fetchArtifactFileContent,
   fetchArtifactFileList,
   pickAgentMessageArtifact,
-  readField,
-  stringValue,
 } from 'src/components/Agent/agentService';
 import {
   ANON_AGENT,
@@ -19,9 +17,11 @@ import {
   peekAnonHandoff,
 } from 'src/components/Agent/anonymous';
 import { FILE_ENTRIES, SIDEBAR_ITEMS } from 'src/components/Agent/AppBuilder/fileRegistry';
+import { readField, stringValue } from 'src/components/Agent/valueUtils';
 import Header from 'src/pages/mingo/common/Header';
 import MingoBuilderEmptyState, { useMingoAppBuilderVisible } from 'src/pages/mingo/common/MingoBuilderEmptyState';
-import { browserIsMobile, getCurrentSubPath, getRequest, pathCompletion } from 'src/utils/common';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { getCurrentSubPath, pathCompletion } from 'src/utils/platform/navigation/path';
 import AnonymousMobileOverview from './AnonymousMobileOverview';
 
 // /public/mingo/plan：官网新标签页打开的「生成 plan」页（匿名）。
@@ -213,7 +213,8 @@ async function loadHistoryPlanArtifactFiles({ artifactId, versionId, bus } = {})
   filesToRestore.forEach(item => bus.emit('file:write', item));
   const firstRestoredSidebarPath = getFirstRestoredSidebarPath(filesToRestore);
 
-  if (firstRestoredSidebarPath) bus.emit('file:focus', { path: firstRestoredSidebarPath });
+  // restore：换了查看的方案版本，需覆盖「用户点过侧栏」的焦点锁定，落到本版本的第一个 tab
+  if (firstRestoredSidebarPath) bus.emit('file:focus', { path: firstRestoredSidebarPath, restore: true });
 
   return restored;
 }

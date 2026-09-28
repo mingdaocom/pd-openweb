@@ -2,14 +2,14 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef,
 import cx from 'classnames';
 import { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Popover } from 'ming-ui/antd-components';
 import agentApi from 'src/api/agent';
-import { useGlobalStore } from 'src/common/GlobalStore';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
 import IconBtn from 'src/pages/worksheet/common/recordInfo/RecordForm/IconBtn';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
@@ -51,14 +51,7 @@ const ConfigIconWrap = styled.div`
 
 const ConfigPanelWrap = styled.div`
   padding: 12px 16px;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: var(--shadow-sm);
   width: 200px;
-  .ming.Checkbox {
-    display: flex;
-    justify-content: space-between;
-  }
 `;
 
 const MingoContentWrap = styled.div`
@@ -157,6 +150,8 @@ function MingoContent(props, ref) {
           agentName,
           ...agentParams,
           sessionId: cache.current.sessionId,
+          // appId 为该 agent 的必传参数（缺失服务端直接拒绝），同时决定扣费流水归属哪个应用
+          appId: appInfoMessage.appId,
           message: JSON.stringify(appInfoMessage),
           context: {
             userLanguage: window.getCurrentLang() || 'zh-Hans',
@@ -278,14 +273,11 @@ function MingoContent(props, ref) {
         />
         {!!messages.length && (
           <ConfigIconWrap>
-            <Trigger
-              action={['hover']}
-              popupAlign={{
-                points: ['br', 'tr'],
-                offset: [0, -6],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              popup={
+            <Popover
+              noPadding
+              trigger="hover"
+              placement="topRight"
+              content={
                 <ConfigPanelWrap>
                   <ConfigPanel
                     checkboxTextPosition="left"
@@ -300,9 +292,7 @@ function MingoContent(props, ref) {
                   />
                 </ConfigPanelWrap>
               }
-              popupClassName="mingoCreateWorksheetDataBotConfigTrigger"
-              destroyPopupOnHide
-              zIndex={1050}
+              destroyOnHidden
             >
               <IconBtn
                 as="span"
@@ -310,7 +300,7 @@ function MingoContent(props, ref) {
               >
                 <i className="icon icon-tune" />
               </IconBtn>
-            </Trigger>
+            </Popover>
           </ConfigIconWrap>
         )}
       </MessageListWrap>

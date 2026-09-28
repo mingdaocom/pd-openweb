@@ -13,13 +13,14 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import appManagementAjax from 'src/api/appManagement';
-import { useGlobalStore } from 'src/common/GlobalStore';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { SpeechSynthesizer } from 'src/utils/audio';
-import { emitter } from 'src/utils/common';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
+import { SpeechSynthesizer } from 'src/utils/platform/browser/audio';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
 import CreateWorksheetRecommend from '../../ChatBot/components/CreateWorksheetRecommend';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
@@ -229,6 +230,7 @@ function MingoContent(props, ref) {
             ...agentParams,
             message,
           },
+          appId,
           sessionId: cache.current.createWorksheetSuggestionSessionId,
           context: {
             // userRequest: agentParams.message,
@@ -468,7 +470,7 @@ function MingoContent(props, ref) {
                   });
                   const sheetName = worksheetName || trim(content).slice(0, 100) || _l('工作表');
                   const iconName = icons[0]?.fileName || 'table';
-                  const iconUrl = `https://fp1.mingdaoyun.cn/customIcon/${iconName}.svg`;
+                  const iconUrl = getCustomIconUrl(iconName);
                   setTaskStep(STEP_STATUS.CREATING_WORKSHEET);
                   appManagementAjax
                     .addWorkSheet({

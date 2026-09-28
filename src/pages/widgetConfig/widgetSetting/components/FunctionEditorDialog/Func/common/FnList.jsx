@@ -1,10 +1,9 @@
 import React from 'react';
-import { Collapse } from 'antd';
-import 'antd/lib/collapse/style/index.css';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { SearchFn } from 'src/pages/widgetConfig/util';
+import { Collapse } from 'ming-ui/antd-components';
+import { SearchFn } from 'src/utils/domain/control/capabilities';
 import { functionDetails, functionTypes } from '../enum';
 
 const ExpandIcon = styled.i`
@@ -13,23 +12,26 @@ const ExpandIcon = styled.i`
   font-size: 16px;
   color: var(--color-text-tertiary);
   vertical-align: middle !important;
-  transform: ${({ isActive }) => `rotate(${isActive ? 0 : -90}deg)`};
+  transform: ${({ $isActive }) => `rotate(${$isActive ? 0 : -90}deg)`};
 `;
 
 const Con = styled.div`
   padding: 10px 0;
-  .ant-collapse,
-  .ant-collapse-borderless {
+  .hap-collapse,
+  .hap-collapse-borderless {
     background-color: transparent !important;
   }
   .fnTitle {
     font-weight: bold;
     color: var(--color-text-primary);
   }
-  .ant-collapse-header {
+  .hap-collapse-header {
     padding: 12px 14px !important;
+    .hap-collapse-expand-icon {
+      margin-inline-end: 0px !important;
+    }
   }
-  .ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+  .hap-collapse > .hap-collapse-item > .hap-collapse-header .hap-collapse-arrow {
     margin-right: 4px;
     vertical-align: middle;
   }
@@ -49,15 +51,15 @@ const Con = styled.div`
       background: var(--color-background-hover);
     }
   }
-  .ant-collapse-item {
+  .hap-collapse-item {
     border-bottom: none !important;
   }
-  .ant-collapse-arrow {
+  .hap-collapse-arrow {
     top: 15px !important;
     padding: 0px !important;
     left: 14px !important;
   }
-  .ant-collapse-content-box {
+  .hap-collapse-body {
     padding: 0px !important;
   }
 `;
@@ -114,7 +116,7 @@ export default function FnList(props) {
         bordered={false}
         expandIcon={({ isActive }) => (
           <span>
-            <ExpandIcon isActive={isActive} className="icon icon-worksheet_fall" />
+            <ExpandIcon $isActive={isActive} className="icon icon-worksheet_fall" />
           </span>
         )}
         {...(keywords
@@ -122,31 +124,30 @@ export default function FnList(props) {
               activeKey: types,
             }
           : {})}
-      >
-        {functionListOfTypes.map(item => (
-          <Collapse.Panel key={item.type} header={<span className="fnTitle">{item.name}</span>}>
-            {item.functions.map((fnName, j) => (
-              <div
-                className="fnItem"
-                key={j}
-                onClick={() => {
-                  window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', fnName);
-                  insertFn(fnName);
-                }}
-                onMouseEnter={() => {
-                  window.emitter.emit('FUNCTIONEDITOR_FOCUS_FN', fnName);
-                }}
-                onMouseLeave={() => {
-                  window.emitter.emit('FUNCTIONEDITOR_BLUR_FN', fnName);
-                }}
-              >
-                <div className="fn">{fnName}</div>
-                <div className="fnName">{functionDetails[fnName].name}</div>
-              </div>
-            ))}
-          </Collapse.Panel>
-        ))}
-      </Collapse>
+        items={functionListOfTypes.map(item => ({
+          key: item.type,
+          label: <span className="fnTitle">{item.name}</span>,
+          children: item.functions.map((fnName, j) => (
+            <div
+              className="fnItem"
+              key={j}
+              onClick={() => {
+                window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', fnName);
+                insertFn(fnName);
+              }}
+              onMouseEnter={() => {
+                window.emitter.emit('FUNCTIONEDITOR_FOCUS_FN', fnName);
+              }}
+              onMouseLeave={() => {
+                window.emitter.emit('FUNCTIONEDITOR_BLUR_FN', fnName);
+              }}
+            >
+              <div className="fn">{fnName}</div>
+              <div className="fnName">{functionDetails[fnName].name}</div>
+            </div>
+          )),
+        }))}
+      />
     </Con>
   );
 }

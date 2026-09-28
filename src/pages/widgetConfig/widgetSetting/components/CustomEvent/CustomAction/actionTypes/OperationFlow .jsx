@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import { ROW_ID_CONTROL } from '../../../../../config/widget';
 import ApiSearchConfig from '../../../ApiSearchConfig';
 import { CustomActionWrap } from '../../style';
 
@@ -46,13 +45,14 @@ export default function OperationFlow(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={!canSave()}
       className="SearchWorksheetDialog"
       title={_l('调封装业务流程')}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onCancel={() => setState({ visible: false })}
       onOk={() => {
         handleOk({
@@ -84,6 +84,6 @@ export default function OperationFlow(props) {
           }}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

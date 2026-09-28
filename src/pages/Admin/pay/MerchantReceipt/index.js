@@ -4,8 +4,8 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import paymentAjax from 'src/api/payment';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { getRequest } from 'src/utils/platform/browser/device';
 
 const Wrap = styled.div`
   padding-top: 20px;

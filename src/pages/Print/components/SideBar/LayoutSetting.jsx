@@ -1,7 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { PAPER_DIRECTION_OPTIONS, PAPER_SIZE_OPTIONS } from '../../core/config';
 import { getPrintPaperDirectionOption, getPrintPaperSizeOption } from '../../core/layout';
 
@@ -61,12 +62,10 @@ export default function LayoutSetting(props) {
     <LayoutSettingWrap>
       <div>
         <div className="settingLabel">{_l('纸张')}</div>
-        <Dropdown
+        <Select
           className="w100"
-          isAppendToBody
-          border
           value={currentPaperSize}
-          data={PAPER_SIZE_OPTIONS}
+          options={PAPER_SIZE_OPTIONS}
           onChange={value => changeAdvanceSettings({ key: 'paperSize', value })}
         />
       </div>

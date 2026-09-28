@@ -2,9 +2,10 @@ import React from 'react';
 import cx from 'classnames';
 import _, { isEmpty } from 'lodash';
 import { arrayOf, bool, number, shape, string } from 'prop-types';
-import { toFixed } from 'src/utils/control';
-import { controlIsNumber, formatNumberThousand } from 'src/utils/control';
-import { getSummaryNameByType, getSummaryResult } from 'src/utils/record';
+import { toFixed } from 'src/utils/domain/control/number';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { controlIsNumber } from 'src/utils/domain/control/type';
+import { getSummaryNameByType, getSummaryResult } from 'src/utils/domain/worksheet/record';
 
 export default function SummaryContent({
   isChildTableSummaryCell,

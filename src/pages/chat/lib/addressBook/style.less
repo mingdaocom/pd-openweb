@@ -19,15 +19,6 @@
     background-color: var(--color-background-secondary);
     display: flex;
     flex-flow: column nowrap;
-    .invite-btn {
-      // override ming.Button
-      padding: 0;
-      min-height: 32px;
-      font-size: 13px;
-      line-height: 32px;
-      min-height: 32px;
-      text-align: center;
-    }
     .invite-dropdown {
       .icon {
         color: var(--color-text-tertiary);
@@ -97,17 +88,12 @@
       align-items: center;
       padding-left: 14px;
       &-wrapper {
-        padding: 6px 5px 6px 10px;
-        border: 1px solid var(--color-border-primary);
-        border-radius: 17px;
         flex: 1 0 0%;
         display: flex;
       }
       &-input {
-        border: none;
-        outline: none;
         flex: 1 0 0px;
-        width: 0px;
+        min-width: 0;
       }
       &-addbtn {
         flex: 0 0 auto;
@@ -246,11 +232,6 @@
       .icon-chat-person {
         font-size: 100px;
         margin-bottom: 4px;
-      }
-    }
-    .Dropdown--input {
-      .value {
-        max-width: calc(~'100% - 22px');
       }
     }
   }

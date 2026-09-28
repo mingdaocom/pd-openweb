@@ -5,20 +5,20 @@ export const AddEventWrap = styled.div`
   align-items: center;
   font-weight: 500;
   ${props =>
-    props.type === 'action'
+    props.$type === 'action'
       ? 'width: fit-content;'
       : 'width: 100%; height: 36px;justify-content: center; border: 1px dashed var(--color-border-primary);margin-top: 20px;border-radius: 4px;'}
   cursor: pointer;
   color: var(--color-primary);
   ${props =>
-    props.disabled
+    props.$disabled
       ? 'background: var(--color-background-secondary);border-color: var(--color-background-secondary);color: var(--color-text-tertiary) !important;cursor: not-allowed !important;'
       : ''}
   i {
     margin-right: 4px;
     color: var(--color-primary);
     font-size: 16px;
-    ${props => (props.disabled ? 'color: var(--color-text-tertiary) !important;' : '')}
+    ${props => (props.$disabled ? 'color: var(--color-text-tertiary) !important;' : '')}
   }
   &:hover {
     i {
@@ -33,7 +33,7 @@ export const IconWrap = styled.span`
   cursor: pointer;
   font-size: 16px;
   &:hover {
-    color: ${props => (props.type === 'danger' ? 'var(--color-error)' : 'var(--color-primary)')};
+    color: ${props => (props.$type === 'danger' ? 'var(--color-error)' : 'var(--color-primary)')};
   }
 `;
 
@@ -51,8 +51,6 @@ export const EventActionWrap = styled.div`
     align-items: center;
     cursor: pointer;
     .customEventInput {
-      border: none;
-      border-bottom: 1px solid var(--color-border-primary);
       flex: 1;
       min-width: 0;
     }
@@ -62,12 +60,12 @@ export const EventActionWrap = styled.div`
       border-radius: 50%;
       text-align: center;
       line-height: 16px;
-      background: ${props => props.bgColor};
+      background: ${props => props.$bgColor};
       margin-right: 10px;
       color: var(--color-black);
     }
     .titleEvent {
-      color: ${props => props.eventColor};
+      color: ${props => props.$eventColor};
       margin-right: 10px;
       font-weight: 600;
     }
@@ -87,12 +85,12 @@ export const EventActionWrap = styled.div`
     bottom: 0px;
     left: 6px;
     width: 4px;
-    background: ${props => props.bgColor};
+    background: ${props => props.$bgColor};
   }
 `;
 
 export const CustomActionWrap = styled.div`
-  .RadioGroup {
+  .ant-radio-group {
     width: 70%;
   }
   .splitLine {
@@ -258,11 +256,5 @@ export const SpliceWrap = styled.div`
     right: 0;
     top: 12px;
     background: var(--color-border-primary);
-  }
-  .ming.Dropdown {
-    background: var(--color-background-primary);
-  }
-  .ming.Dropdown .Dropdown--input {
-    padding: 2px 8px !important;
   }
 `;

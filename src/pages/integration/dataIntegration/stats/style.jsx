@@ -13,7 +13,7 @@ export const Wrap = styled.div`
   .timeNum {
     li {
       width: 32%;
-      margin-right:16%
+      margin-right: 16%;
       height: 120px;
       background: var(--color-background-tertiary);
       border-radius: 4px;
@@ -99,11 +99,5 @@ export const Wrap = styled.div`
         color: var(--color-text-tertiary);
       }
     }
-  }
-  .searchCon {
-    border-radius: 4px;
-    background: var(--color-background-primary);
-    border: 1px solid var(--color-text-disabled);
-    font-size: 14px;
   }
 `;

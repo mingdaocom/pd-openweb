@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Select } from 'antd';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import apiKeyAjax from 'src/pages/Admin/api/cloudApi/apiKey';
 import { PERMISSION_AI_MODEL, PERMISSION_OPTIONS } from './constants';
 
-const { Option } = Select;
 const MAX_SECRET_NAME_LENGTH = 20;
 
 const CreateDialogContent = styled.div`
@@ -19,7 +18,7 @@ const CreateDialogContent = styled.div`
 `;
 
 const CreateFormItem = styled.div`
-  margin-bottom: ${props => (props.isLast ? '0' : '22px')};
+  margin-bottom: ${props => (props.$isLast ? '0' : '22px')};
 
   .label {
     color: var(--color-text-title);
@@ -28,29 +27,15 @@ const CreateFormItem = styled.div`
     font-size: 14px;
   }
 
-  .ming.Input {
+  .hap-input {
     height: 38px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 4px;
-    line-height: 36px;
-    padding: 0 12px;
   }
 
-  .ant-select-selector {
-    height: 38px !important;
-    border: 1px solid var(--color-border-primary) !important;
-    border-radius: 4px !important;
-    display: flex;
-    align-items: center;
-    box-shadow: none !important;
-    padding: 0 12px !important;
-  }
-
-  .ant-select-selection-item {
+  .hap-select-selection-item {
     line-height: 36px !important;
   }
 
-  .ant-select-arrow {
+  .hap-select-arrow {
     right: 12px;
   }
 `;
@@ -120,23 +105,18 @@ export default function CreateKeyDialog({ visible, projectId, mode = 'create', d
   };
 
   return (
-    <Dialog
+    <Modal
       width={640}
       className="cloudServiceCreateDialog"
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={isEdit ? _l('编辑密钥') : _l('创建密钥')}
       onCancel={handleClose}
-      footer={
-        <div className="flexRow alignItemsCenter">
-          <div className="flex"></div>
-          <Button type="link" disabled={submitting} onClick={handleClose}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" disabled={submitting} onClick={handleSubmit}>
-            {isEdit ? _l('保存') : _l('创建')}
-          </Button>
-        </div>
-      }
+      onOk={handleSubmit}
+      okText={isEdit ? _l('保存') : _l('创建')}
+      okButtonProps={{ disabled: submitting }}
+      cancelButtonProps={{ disabled: submitting }}
     >
       <CreateDialogContent>
         {!isEdit && <div className="createTip">{_l('密钥创建完成后不能修改，请及时保存')}</div>}
@@ -148,16 +128,16 @@ export default function CreateKeyDialog({ visible, projectId, mode = 'create', d
             defaultValue={isEdit ? description : ''}
             maxLength={MAX_SECRET_NAME_LENGTH}
             placeholder={_l('请输入')}
-            onChange={value =>
-              setCreateForm(prev => ({ ...prev, description: value.slice(0, MAX_SECRET_NAME_LENGTH) }))
+            onChange={e =>
+              setCreateForm(prev => ({ ...prev, description: e.target.value.slice(0, MAX_SECRET_NAME_LENGTH) }))
             }
           />
         </CreateFormItem>
         {/* 授权服务：permission 与后端 int 枚举对齐（1/2/3）；当前仅开放 1-AI模型服务，不传 0、不提供「全部」 */}
-        <CreateFormItem isLast>
+        <CreateFormItem $isLast>
           <div className="label">{_l('授权服务')}</div>
           <Select
-            className="w100 mdAntSelect"
+            className="w100"
             value={createForm.permission}
             suffixIcon={<Icon icon="arrow-down-border" className="Font14 textTertiary" />}
             onChange={v =>
@@ -166,15 +146,10 @@ export default function CreateKeyDialog({ visible, projectId, mode = 'create', d
                 permission: v,
               }))
             }
-          >
-            {PERMISSION_OPTIONS.map(item => (
-              <Option key={item.value} value={item.value}>
-                {item.label}
-              </Option>
-            ))}
-          </Select>
+            options={PERMISSION_OPTIONS}
+          />
         </CreateFormItem>
       </CreateDialogContent>
-    </Dialog>
+    </Modal>
   );
 }

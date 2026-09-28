@@ -1,10 +1,10 @@
 import React from 'react';
 import { bool, func, number, shape } from 'prop-types';
 import MDMap from 'ming-ui/components/amap/MDMap';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { browserIsMobile } from 'src/utils/common';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
-function ShowMap(props) {
+export default function ShowMap(props) {
   const { distance, defaultPosition, closeAfterSelect, onSelect = () => {}, onClose = () => {} } = props;
   return (
     <MDMap
@@ -30,6 +30,6 @@ ShowMap.propTypes = {
   onClose: func,
 };
 
-export default function openMDMap(props) {
-  functionWrap(ShowMap, props);
+export function useSelectLocation() {
+  return useFunctionWrapComponent(ShowMap);
 }

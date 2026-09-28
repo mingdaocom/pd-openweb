@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import DynamicRender from 'src/components/DynamicRender';
 import DrawerFooter from '../DrawerFooter';
+import DynamicRender from './DynamicRender';
 import './index.less';
 
 const supportedControlTypes = [2, 3, 4, 5, 6, 7, 8, 15, 16, 17, 18, 25, 26, 27, 32, 33, 46, 48, 53];
@@ -303,10 +304,12 @@ const CloudPrint = props => {
     if (!fieldsAnalysisVisible) return null;
 
     return (
-      <Dialog
+      <Modal
         title={_l('字段解析')}
         width={680}
-        visible={fieldsAnalysisVisible}
+        open={fieldsAnalysisVisible}
+        mask={{ closable: true }}
+        keyboard
         okText={_l('解析')}
         onCancel={() => {
           setOriginalData('');
@@ -319,7 +322,7 @@ const CloudPrint = props => {
           <div className="analysisLabel">{_l('快麦API示例数据')}</div>
           <textarea className="analysisTextarea" value={originalData} onChange={e => setOriginalData(e.target.value)} />
         </div>
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -327,11 +330,12 @@ const CloudPrint = props => {
     if (!checkMainTableVisible) return null;
 
     return (
-      <Dialog
+      <Modal
         title={_l('选择主表')}
-        description={_l('请选择打印数据的主表。系统将以该表作为主要数据来源，其余表将自动按动态表格（关联类型）处理。')}
         width={800}
-        visible={checkMainTableVisible}
+        open={checkMainTableVisible}
+        mask={{ closable: true }}
+        keyboard
         onCancel={() => setCheckMainTableVisible(false)}
         onOk={() => {
           setOriginalData('');
@@ -344,17 +348,20 @@ const CloudPrint = props => {
           setCheckMainTableVisible(false);
         }}
       >
+        <div className="textSecondary mBottom16">
+          {_l('请选择打印数据的主表。系统将以该表作为主要数据来源，其余表将自动按动态表格（关联类型）处理。')}
+        </div>
         <div className="checkMainTableContent">
           <div className="checkMainTableList">
             {parsedFields.map((it, index) => (
               <div key={index} className="flexRow alignItemsCenter mBottom10">
-                <Radio value={index} checked={masterTableIndex === index} onClick={() => setMasterTableIndex(index)} />
+                <Radio value={index} checked={masterTableIndex === index} onChange={() => setMasterTableIndex(index)} />
                 <div className="checkMainTableItem">{it.sheetName}</div>
               </div>
             ))}
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   };
 

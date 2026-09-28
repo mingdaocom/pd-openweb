@@ -1,5 +1,5 @@
-import { antNotification } from 'ming-ui';
-import { downloadFile } from 'src/utils/common';
+import { Notification } from 'ming-ui/antd-components';
+import { downloadFile } from 'src/utils/platform/browser/download';
 
 export default () => {
   IM.socket.on('report_export', ({ status, reportId, reportName, downloadUrl }) => {
@@ -23,7 +23,7 @@ export default () => {
       duration = 5;
     }
 
-    antNotification[action]({
+    Notification[action]({
       key: reportId,
       duration,
       message,
@@ -32,7 +32,7 @@ export default () => {
       btnText: status === 2 ? _l('立即下载') : '',
       onBtnClick: () => {
         window.open(downloadFile(`${md.global.Config.WsReportUrl}/${downloadUrl}`));
-        antNotification.close(reportId);
+        Notification.close(reportId);
       },
     });
   });

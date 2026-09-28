@@ -1,9 +1,9 @@
 import React from 'react';
-import { Button, Divider } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Divider } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import { defaultFilterData } from './enum';
@@ -15,20 +15,6 @@ const Wrap = styled.div`
   background-color: var(--color-background-tertiary);
   padding: 11px 24px;
   min-width: 0;
-
-  .addFilterItem {
-    height: 36px;
-    padding: 0 15px;
-    color: var(--color-primary);
-    border: none;
-    border-radius: 24px;
-    background-color: var(--color-background-card);
-    box-shadow: var(--shadow-sm);
-    &:hover {
-      color: var(--color-primary-dark);
-      background-color: var(--color-background-hover);
-    }
-  }
 
   .header {
     justify-content: space-between;
@@ -118,9 +104,14 @@ export default function Preview(props) {
         <div className="flex valignWrapper">
           <div className="Font13 textTertiary">{_l('选择下方预览卡片中的筛选器进行设置')}</div>
         </div>
-        <Button className="addFilterItem" onClick={add}>
-          <Icon icon="add" />
-          <span className="bold">{_l('添加筛选器')}</span>
+        <Button
+          classNames={{ content: 'colorPrimary' }}
+          styles={{ root: { border: 'none', boxShadow: 'var(--shadow-sm)' } }}
+          shape="round"
+          icon={<Icon icon="add" className="colorPrimary" />}
+          onClick={add}
+        >
+          {_l('添加筛选器')}
         </Button>
       </div>
       <Divider className="mTop15 mBottom15" />

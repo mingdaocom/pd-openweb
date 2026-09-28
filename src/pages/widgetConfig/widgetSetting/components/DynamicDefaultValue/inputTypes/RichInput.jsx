@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { Modal } from 'antd';
 import { Icon, RichText } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
@@ -57,15 +57,17 @@ export default function (props) {
         className="appIntroDialog"
         wrapClassName="appIntroDialogWrapCenter"
         footer={null}
-        visible={visible}
+        open={visible}
         onCancel={() => {
           setVisible(false);
         }}
         centered={true}
         width={800}
-        maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-        bodyStyle={{ minHeight: '480px', padding: 0 }}
         closeIcon={<Icon icon="close" />}
+        styles={{
+          body: { minHeight: '480px', padding: 0 },
+          container: { padding: 0 },
+        }}
       >
         <EditIntro
           description={value}

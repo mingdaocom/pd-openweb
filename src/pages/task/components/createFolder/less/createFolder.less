@@ -56,50 +56,6 @@
         margin-left: 5px;
       }
     }
-    .createFolderNetworkList {
-      position: absolute;
-      top: 45px;
-      left: 24px;
-      background: var(--color-background-primary);
-      max-height: 180px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      z-index: 100;
-      padding: 5px 0;
-    }
-    .createFolderNetworkList li {
-      height: 32px;
-      line-height: 32px;
-      padding: 0 10px;
-      width: 222px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: pointer;
-      i {
-        font-size: 14px;
-        width: 20px;
-        display: inline-block;
-        &.icon-charger {
-          vertical-align: top;
-          margin-top: 10px;
-        }
-      }
-      &:not(:hover) {
-        background-color: var(--color-background-primary) !important;
-      }
-      &:hover {
-        color: var(--color-white);
-      }
-      &:first-child {
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-      }
-      &:last-child {
-        border-bottom-left-radius: 3px;
-        border-bottom-right-radius: 3px;
-      }
-    }
     .createFolderBtn {
       position: absolute;
       right: 24px;
@@ -146,43 +102,9 @@
   .createFolderRange i {
     display: inline-block;
   }
-  .createFolderRangeBox {
-    position: absolute;
-    top: 30px;
-    left: 0;
-    padding: 5px 0;
-    font-size: 13px;
-    white-space: nowrap;
-    width: 260px;
-    background: var(--color-background-primary);
-    li {
-      padding: 7px 20px 5px 20px;
-      line-height: 22px;
-      &:not(:hover) {
-        background: var(--color-background-primary) !important;
-      }
-      &:hover {
-        background: var(--color-background-secondary);
-        color: var(--color-white) !important;
-        .colorPrimary {
-          color: var(--color-white) !important;
-        }
-        .descTip {
-          color: rgba(255, 255, 255, 0.5);
-        }
-      }
-    }
-    li.createFolderLine {
-      margin: 6px 0;
-      height: 0;
-      padding: 0;
-      width: 100%;
-      cursor: default;
-      border-top: 1px solid var(--color-border-secondary);
-    }
-    .descTip {
-      color: rgba(0, 0, 0, 0.5);
-    }
+  .createFolderRangeDescription {
+    color: var(--color-text-tertiary);
+    font-size: 12px;
   }
   .createFolderHead {
     height: 48px;

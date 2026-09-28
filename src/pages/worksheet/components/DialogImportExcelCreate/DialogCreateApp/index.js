@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Dialog, Icon, LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import congratulationImg from '../images/congratulation.png';
 import successImg from '../images/succuss.png';
 import './index.less';
@@ -83,11 +84,13 @@ export default class DialogCreateApp extends Component {
     const isOverLimit = licenseType === 0 && totalRows + freeRowCount > 50000;
 
     return (
-      <Dialog
-        dialogClasses="dialogCreateApp"
-        visible={visible}
+      <Modal
+        rootClassName="dialogCreateApp"
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         width={1000}
-        height="100%"
+        styles={{ container: { height: 640 } }}
         title={!createAppStatus ? <span className="Bold">{_l('准备创建应用')}</span> : null}
         onCancel={this.props.onCancel}
         footer={
@@ -99,7 +102,7 @@ export default class DialogCreateApp extends Component {
                 href="https://help.mingdao.com/worksheet/import-excel-create"
                 className="textDisabled mRight30"
               />
-              <Button type="link" className="mRight15 stepLast" onClick={this.props.handleLast}>
+              <Button color="primary" variant="link" className="mRight15" onClick={this.props.handleLast}>
                 {_l('上一步')}
               </Button>
               <Button
@@ -253,7 +256,7 @@ export default class DialogCreateApp extends Component {
               </div>
               <Button
                 type="primary"
-                className="checkAppBtn bold"
+                className="bold"
                 onClick={() => {
                   navigateTo(`/app/${appInfo.appId}`);
                 }}
@@ -263,7 +266,7 @@ export default class DialogCreateApp extends Component {
             </div>
           )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

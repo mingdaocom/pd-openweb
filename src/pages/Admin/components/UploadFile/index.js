@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { Button } from 'ming-ui/antd-components';
 import createUploader from 'src/library/plupload/createUploader';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 export default class UploadFile extends Component {
   constructor(props) {
@@ -71,14 +72,16 @@ export default class UploadFile extends Component {
   render() {
     const { fileName } = this.props;
     return (
-      <button
+      <Button
         id="upload_field"
         ref={con => (this.con = con)}
-        type="button"
-        className="ming Button uploadBtnStyle mTop30"
+        color="primary"
+        variant="outlined"
+        shape="round"
+        className="uploadBtnStyle mTop30"
       >
         {fileName ? _l('重新上传') : _l('上传文件')}
-      </button>
+      </Button>
     );
   }
 }

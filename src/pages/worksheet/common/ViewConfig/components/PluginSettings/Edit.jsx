@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, Icon, Input, RadioGroup, Textarea } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Radio, Select } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { OPTION_COLORS_LIST } from 'src/pages/widgetConfig/config/index.js';
-import { ALL_WIDGETS_TYPE, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
+import { OPTION_COLORS_LIST } from 'src/utils/domain/control/config';
+import { ALL_WIDGETS_TYPE } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import {
   ALLOW_ITEM_TYPES,
   BOOLEAN_ITEM_DEFAULT,
@@ -19,6 +20,9 @@ import {
   SHOW_ITEM_TYPES,
 } from './config';
 import { Wrap } from './editStyle';
+
+const PARAM_CONTROL_SELECT_CLASS_NAMES = { item: 'itemT' };
+const OPTIONS_TEXTAREA_STYLE = { minHeight: 100, maxHeight: 108 };
 
 const setOptions = values => {
   return values
@@ -49,17 +53,12 @@ const getValue = (info, o) => {
 
 function Edit(params) {
   const { onClose, onChange } = params;
-  const [{ info, dropDownVisible }, setState] = useSetState({
+  const [{ info }, setState] = useSetState({
     info: params.info,
-    dropDownVisible: false,
   });
   const WIDGETS_TO_API_TYPE_ENUM_KEYS = Object.keys(ALL_WIDGETS_TYPE).filter(o =>
     controlTypeList.includes(WIDGETS_TO_API_TYPE_ENUM[o]),
   );
-  let WIDGETS_TO_API_TYPE_ENUM_VALUESKEY = {};
-  _.forEach(WIDGETS_TO_API_TYPE_ENUM, function (value, key) {
-    WIDGETS_TO_API_TYPE_ENUM_VALUESKEY[value] = key;
-  });
   useEffect(() => {
     setState({
       info: params.info || {},
@@ -117,11 +116,11 @@ function Edit(params) {
               {renderTitle(o)}
               <Input
                 type="number"
-                className="w120 mTop8 placeholderColor"
+                className="w120 mTop8"
                 placeholder={_l('请输入数值')}
                 value={(staticValue || '').toString()}
-                onChange={value => {
-                  changeDef(value);
+                onChange={e => {
+                  changeDef(e.target.value);
                 }}
                 onBlur={() => {
                   onUpdate();
@@ -185,11 +184,13 @@ function Edit(params) {
           return (
             <React.Fragment>
               {renderTitle(o)}
-              <RadioGroup
-                checkedValue={staticValue}
+              <Radio.Group
+                value={staticValue}
                 className="mTop8"
-                data={BOOLEAN_ITEM_DEFAULT}
-                onChange={value => {
+                options={(BOOLEAN_ITEM_DEFAULT || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event => {
+                  const value = event.target.value;
+
                   changeDef(value);
                 }}
               />
@@ -201,10 +202,12 @@ function Edit(params) {
           <React.Fragment>
             {renderTitle(o)}
             <Input
-              className="w100 mTop8 placeholderColor"
+              className="w100 mTop8"
               defaultValue={['controlName', 'desc', 'des'].includes(o) ? info[o] : staticValue}
               placeholder={'desc' === o ? _l('请输入说明') : _l('请输入')}
-              onChange={value => {
+              onChange={e => {
+                const value = e.target.value;
+
                 if (['controlName', 'desc', 'des'].includes(o)) {
                   setState({
                     info: { ...info, [o]: value },
@@ -265,6 +268,7 @@ function Edit(params) {
             <div className="fieldIdCon mTop8">{info.fieldId}</div>
           </React.Fragment>
         );
+
       case 'allowitem':
       case 'checktype':
       case 'direction':
@@ -295,13 +299,13 @@ function Edit(params) {
         return (
           <React.Fragment>
             {renderTitle(o)}
-            <RadioGroup
-              checkedValue={
-                _.get(info, ['advancedSetting', o]) === '1' ? '1' : dataList.find(a => a.value !== '1').value
-              }
+            <Radio.Group
+              value={_.get(info, ['advancedSetting', o]) === '1' ? '1' : dataList.find(a => a.value !== '1').value}
               className="mTop8"
-              data={dataList}
-              onChange={value => {
+              options={(dataList || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event => {
+                const value = event.target.value;
+
                 onUpdate({
                   advancedSetting: {
                     ...info.advancedSetting,
@@ -312,91 +316,51 @@ function Edit(params) {
             />
           </React.Fragment>
         );
+
       case 'controls':
       case 'showControls':
         if (info.type === 200 && info.sourceControlType === 29 && o === 'controls') return;
         let values = _.get(info, [o]) || [];
+        const selectedWidgetKeys = WIDGETS_TO_API_TYPE_ENUM_KEYS.filter(key =>
+          values.includes(WIDGETS_TO_API_TYPE_ENUM[key] + ''),
+        );
         return (
           <React.Fragment>
             {renderTitle(o)}
             <div className="">
-              <Dropdown
-                selectClose={false}
+              <Select
+                mode="multiple"
                 placeholder={_l('请选择')}
-                className={cx('w100 mTop8 paramControlDropdown', {
-                  hs: values.length > 0,
-                })}
-                renderItem={item => {
-                  if (item.value === 'all') {
-                    return <div className={'itemText Hand forAll flexRow alignItemsCenter'}>{item.text}</div>;
-                  }
-
-                  const isCur = !!values.includes(WIDGETS_TO_API_TYPE_ENUM[item.value] + '');
+                className="w100 mTop8 paramControlDropdown"
+                classNames={PARAM_CONTROL_SELECT_CLASS_NAMES}
+                optionRender={option => {
+                  const item = option.data;
                   return (
-                    <div
-                      className={cx('itemText flexRow alignItemsCenter', {
-                        isCur,
-                      })}
-                    >
-                      <Icon icon={ALL_WIDGETS_TYPE[item.value].icon} className="Font18 Relative" />
-                      <span className="mLeft10 flex textPrimary">{item.text}</span>
-                      {isCur && <Icon icon="done" className="Relative colorPrimary Font18" />}
+                    <div className="itemText flexRow alignItemsCenter">
+                      {item.value !== 'all' && (
+                        <Icon icon={ALL_WIDGETS_TYPE[item.value].icon} className="Font18 Relative textTertiary" />
+                      )}
+                      <span className="mLeft10 flex textPrimary">{item.label}</span>
                     </div>
                   );
                 }}
-                popupVisible={dropDownVisible}
-                onVisibleChange={visible => setState({ dropDownVisible: visible })}
-                value={values.length <= 0 ? undefined : values}
-                onChange={value => {
-                  let data = [];
-
-                  if (!value) {
-                    data = [];
-                  } else if (value == 'all') {
-                    data = WIDGETS_TO_API_TYPE_ENUM_KEYS.map(o => WIDGETS_TO_API_TYPE_ENUM[o] + '');
-                  } else if (values.includes(WIDGETS_TO_API_TYPE_ENUM[value] + '')) {
-                    data = values.filter(o => o !== WIDGETS_TO_API_TYPE_ENUM[value] + '');
-                  } else {
-                    data = [...values, WIDGETS_TO_API_TYPE_ENUM[value] + ''];
-                  }
+                value={selectedWidgetKeys}
+                onChange={selectedKeys => {
+                  const data = selectedKeys.includes('all')
+                    ? WIDGETS_TO_API_TYPE_ENUM_KEYS.map(key => WIDGETS_TO_API_TYPE_ENUM[key] + '')
+                    : selectedKeys.map(key => WIDGETS_TO_API_TYPE_ENUM[key] + '');
 
                   onUpdate({
                     [o]: data,
                   });
                 }}
-                renderTitle={() => {
-                  return (
-                    <div className="">
-                      {(values || []).map(it => {
-                        return (
-                          <div className="itemT InlineBlock">
-                            {ALL_WIDGETS_TYPE[WIDGETS_TO_API_TYPE_ENUM_VALUESKEY[it]].widgetName}
-                            <Icon
-                              icon={'close'}
-                              className="Hand mLeft3"
-                              onClick={e => {
-                                e.stopPropagation();
-                                let data = values.filter(a => a !== it);
-                                onUpdate({
-                                  [o]: data,
-                                });
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                }}
-                border
-                menuClass={'paramControlDropdownMenu paramControlDropdownMenuSet'}
-                cancelAble
-                isAppendToBody
-                openSearch
-                data={[
-                  { value: 'all', text: _l('全部') },
+                allowClear
+                showPopupSearch
+                optionFilterProp="label"
+                options={[
+                  { value: 'all', label: _l('全部') },
                   ...WIDGETS_TO_API_TYPE_ENUM_KEYS.map(o => {
-                    return { ...o, value: o, text: (ALL_WIDGETS_TYPE[o] || {}).widgetName };
+                    return { value: o, label: (ALL_WIDGETS_TYPE[o] || {}).widgetName };
                   }),
                 ]}
               />
@@ -410,10 +374,11 @@ function Edit(params) {
           <React.Fragment>
             {renderTitle(o)}
             <React.Fragment>
-              <Textarea
+              <Input.TextArea
+                autoSize
                 className="mTop8 Font13"
                 name="textarea"
-                style={{ maxHeight: '108px' }}
+                style={OPTIONS_TEXTAREA_STYLE}
                 defaultValue={options.reduce(
                   (p, c, i) => (i === options.length - 1 ? `${p}${c.key}=[${c.value}]` : `${p}${c.key}=[${c.value}]\n`),
                   '',
@@ -422,7 +387,8 @@ function Edit(params) {
                   onUpdate();
                   e.stopPropagation();
                 }}
-                onChange={values => {
+                onChange={event => {
+                  const values = event.target.value;
                   setState({
                     info: {
                       ...info,
@@ -437,6 +403,7 @@ function Edit(params) {
                   });
                 }}
               />
+
               <p className="textSecondary mAll0">
                 {_l(
                   '输入选项值（每行一个），第一个作为默认值。可设置选项显示名，使用 选项值=[显示名] 表示，如：0=[填充]；1=[完整显示]',
@@ -445,6 +412,7 @@ function Edit(params) {
             </React.Fragment>
           </React.Fragment>
         );
+
       // case 'norange':
       //   return (
       //     <Checkbox

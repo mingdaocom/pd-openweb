@@ -1,8 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { getRequest, pathCompletion } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import googleIcon from './img/google.svg';
+import huaweiIcon from './img/huawei.png';
 import microsoftIcon from './img/microsoft.png';
 import { getWorkWeiXinCorpInfoByApp } from './util';
 
@@ -41,7 +43,7 @@ export default function (props) {
   const isCanWeixin = !isNetwork && !isMobile;
   const isCanQQ = !isNetwork;
   const canChangeSysOrLDAP = openLDAP && isOpenSystemLogin && isNetwork;
-  const isWeiXin = window.isWeiXin && !window.isWxWork && !window.platformENV.isOverseas && !window.platformENV.isLocal;
+  const isWeiXin = window.isWeiXin && !window.isWxWork && window.platformENV.isHap;
 
   //ldap || 平台
   const renderSysOrLDAPBtn = () => {
@@ -120,7 +122,7 @@ export default function (props) {
       {/* 手机号邮箱时 可切换验证方式 */}
       {modeType === 1 &&
         isOpenSystemLogin &&
-        ((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+        (window.platformENV.isHap ||
           ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
             md.global.SysSettings.enableVerificationCodeLogin)) && (
           <div
@@ -178,6 +180,11 @@ export default function (props) {
                     <React.Fragment>
                       <img src={microsoftIcon} width="20px" className="mRight8" />
                       {_l('Microsoft登录')}
+                    </React.Fragment>
+                  ) : o.tpType === 15 ? (
+                    <React.Fragment>
+                      <img src={huaweiIcon} width="20px" className="mRight8" />
+                      {_l('华为登录')}
                     </React.Fragment>
                   ) : o.tpType === 2 ? (
                     <React.Fragment>

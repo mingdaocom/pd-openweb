@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { APP_TYPE } from '../../enum';
 
 export default ({ item }) => {
@@ -15,7 +15,7 @@ export default ({ item }) => {
       <div className="ellipsis mLeft3">{item.appName}</div>
       {_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.APPROVAL_START], item.appType) && item.appId && (
         <i
-          className="mLeft5 icon-task-new-detail Font12 pointer colorPrimary hoverColorPrimaryDark"
+          className="workflowWorksheetLink mLeft5 icon-task-new-detail Font12 pointer colorPrimary hoverColorPrimaryDark"
           onMouseDown={openWorksheet}
         />
       )}

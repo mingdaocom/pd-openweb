@@ -1,20 +1,19 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import { Icon, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Popover, Tooltip } from 'ming-ui/antd-components';
 import AppManagementAjax from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import { checkCertification } from 'src/components/checkCertification';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { EDIT_TYPE_CONFIG, sysRoleType } from '../config';
 import openImg from '../img/open.gif';
-import { DividerVertical, IconWrap, RoleDebugSwitch, TopBar, WrapOpenPortalBtn, WrapPop, WrapTabCon } from './style';
+import { DividerVertical, IconWrap, RoleDebugSwitch, TopBar, WrapPop, WrapTabCon } from './style';
 
 export default function RoleHeader(props) {
   const { appDetail = {}, editType, isOpenPortal, roleDebug, handleChangePage, onChangeStates } = props;
@@ -81,7 +80,7 @@ export default function RoleHeader(props) {
           onClick={() => backToApp()}
         />
         <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
-          <IconWrap style={{ backgroundColor: iconColor }}>
+          <IconWrap className="pointer" style={{ backgroundColor: iconColor }} onClick={backToApp}>
             <SvgIcon url={iconUrl} fill="#fff" size={18} />
           </IconWrap>
         </Tooltip>
@@ -131,10 +130,11 @@ export default function RoleHeader(props) {
         </WrapTabCon>
       )}
       {editApp && !isOpenPortal && featureType && (
-        <Trigger
-          action={['click']}
-          popupVisible={externalPortalEnableVisible}
-          onPopupVisibleChange={visible =>
+        <Popover
+          noPadding
+          trigger="click"
+          open={externalPortalEnableVisible}
+          onOpenChange={visible =>
             visible
               ? checkCertification({
                   projectId,
@@ -142,7 +142,7 @@ export default function RoleHeader(props) {
                 })
               : setExternalPortalEnableVisible(visible)
           }
-          popup={
+          content={
             <WrapPop className="openPortalWrap">
               <img src={openImg} className="Block" />
               <div className="con">
@@ -152,9 +152,9 @@ export default function RoleHeader(props) {
                   <li>{_l('用于和你的业务客户建立关系，如：服务外部客户的下单，查单等场景。')}</li>
                   <li>{_l('支持微信、手机/邮箱验证码及密码登录')}</li>
                 </ul>
-                <div className={cx('btn InlineBlock', { disable: openLoading })} onClick={() => openPortal()}>
-                  {openLoading ? _l('开启中...') : _l('启用外部门户')}
-                </div>
+                <Button type="primary" className="mTop16" loading={openLoading} onClick={() => openPortal()}>
+                  {_l('启用外部门户')}
+                </Button>
                 <Support
                   href="https://help.mingdao.com/portal/introduction"
                   type={3}
@@ -164,16 +164,22 @@ export default function RoleHeader(props) {
               </div>
             </WrapPop>
           }
-          popupAlign={{
+          align={{
             points: ['tr', 'tr'],
             offset: [17, 0],
           }}
         >
-          <WrapOpenPortalBtn className={cx('openPortalBtn Hand InlineBlock', { disable: openLoading })}>
-            <Icon className="Font20 Hand mLeft10 mRight6 set " icon="external_users_01" />
+          <Button
+            color="primary"
+            variant="filled"
+            shape="round"
+            className="openPortalBtn"
+            disabled={openLoading}
+            icon={<Icon className="Font20" icon="external_users_01" />}
+          >
             {openLoading ? _l('开启中...') : _l('启用外部门户')}
-          </WrapOpenPortalBtn>
-        </Trigger>
+          </Button>
+        </Popover>
       )}
       {sysRoleType.concat(200).includes(appDetail.permissionType) &&
         editType !== 1 &&
@@ -199,9 +205,9 @@ export default function RoleHeader(props) {
                   onClick={checked => {
                     AppManagementAjax.updateAppDebugModel({
                       appId,
-                      isDebug: !checked,
+                      isDebug: checked,
                     }).then(res => {
-                      res && onChangeStates({ roleDebug: !checked });
+                      res && onChangeStates({ roleDebug: checked });
                     });
                   }}
                 />

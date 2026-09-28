@@ -1,10 +1,9 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { NOT_NEED_SET_READONLY_CONTROL } from 'src/utils/domain/control/config';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
 import AutoIcon from '../../components/Icon';
-import { NOT_NEED_SET_READONLY_CONTROL } from '../../config';
-import { updateConfig } from '../../util/setting';
 
 export default ({ from, data, onChange }) => {
   let { fieldPermission = '111', type } = data || {};
@@ -16,17 +15,17 @@ export default ({ from, data, onChange }) => {
         <div className="labelWrap">
           <Checkbox
             className="customWidgetCheckbox"
-            size="small"
             checked={editable === '0'}
-            onClick={checked =>
+            onChange={event =>
               onChange({
                 fieldPermission: updateConfig({
                   config: fieldPermission,
-                  value: +checked,
+                  value: +!event.target.checked,
                   index: 1,
                 }),
               })
             }
+            size="small"
           >
             <span style={{ marginRight: '4px' }}>{_l('只读')}</span>
             <Tooltip
@@ -45,17 +44,17 @@ export default ({ from, data, onChange }) => {
       <div className="labelWrap">
         <Checkbox
           className="customWidgetCheckbox"
-          size="small"
           checked={visible === '0'}
-          onClick={checked =>
+          onChange={event =>
             onChange({
               fieldPermission: updateConfig({
                 config: fieldPermission,
-                value: +checked,
+                value: +!event.target.checked,
                 index: 0,
               }),
             })
           }
+          size="small"
         >
           <span style={{ marginRight: '4px' }}>{_l('隐藏')}</span>
           <Tooltip
@@ -71,17 +70,17 @@ export default ({ from, data, onChange }) => {
         <div className="labelWrap">
           <Checkbox
             className="customWidgetCheckbox"
-            size="small"
             checked={canAdd === '0'}
-            onClick={checked =>
+            onChange={event =>
               onChange({
                 fieldPermission: updateConfig({
                   config: fieldPermission,
-                  value: +checked,
+                  value: +!event.target.checked,
                   index: 2,
                 }),
               })
             }
+            size="small"
           >
             <span style={{ marginRight: '4px' }}>{_l('新增记录时隐藏')}</span>
             <Tooltip

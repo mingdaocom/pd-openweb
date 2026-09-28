@@ -1,10 +1,11 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import _ from 'lodash';
-import Dialog from 'ming-ui/components/Dialog';
+import { Modal } from 'ming-ui/antd-components';
 import { SelectGroup } from 'ming-ui/functions/quickSelectGroup';
 import postAjax from 'src/api/post';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import mainHtml from './tpl/main.html';
 import resultHtml from './tpl/result.html';
 import './style.less';
@@ -26,12 +27,18 @@ EditShareScope.prototype = {
   init: function () {
     var ES = this;
 
-    Dialog.confirm({
+    ES.modal = Modal.confirm({
       width: 460,
       title: _l('选择分享范围'),
-      noFooter: true,
-      dialogClasses: 'editShareScopeConfirm',
-      children: <div dangerouslySetInnerHTML={{ __html: ES.tpl.main() }}></div>,
+      footer: null,
+      wrapClassName: 'editShareScopeConfirm',
+      content: (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: ES.tpl.main(),
+          }}
+        ></div>
+      ),
     });
 
     setTimeout(() => {
@@ -105,16 +112,16 @@ EditShareScope.prototype = {
               ES.callback(data.scope);
             }
           })
-          .catch(function () {
-            alert(_l('操作失败'), 2);
+          .catch(function (_requestError) {
+            alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
           })
           .finally(function () {
-            $('.editShareScopeConfirm').parent().remove();
+            ES.modal.destroy();
           });
       }
     });
     this.$cancelBtn.on('click', function () {
-      $('.editShareScopeConfirm').parent().remove();
+      ES.modal.destroy();
     });
   },
 };

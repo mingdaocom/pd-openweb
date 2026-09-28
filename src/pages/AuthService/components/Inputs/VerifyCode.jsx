@@ -11,7 +11,8 @@ import {
   SupportFindVerifyCodeUrl,
 } from 'src/pages/AuthService/config.js';
 import { isTel, toMDApp, validation } from 'src/pages/AuthService/util.js';
-import { emitter, encrypt } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { encrypt } from 'src/utils/services/security/encryption';
 
 // 'inputCode',//验证码
 let sendVerifyCodeTimer = null;

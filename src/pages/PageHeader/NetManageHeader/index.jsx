@@ -3,8 +3,8 @@ import _ from 'lodash';
 import { match } from 'path-to-regexp';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
-import { getPathWithoutSubPath } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
 
@@ -26,7 +26,6 @@ const HomeEntry = styled.div`
 `;
 
 const MODULE_TO_TEXT = {
-  account: _l('个人账户'),
   admin: _l('组织管理'),
   user: _l('个人资料'),
   group: _l('群组信息'),
@@ -37,7 +36,6 @@ const MODULE_TO_TEXT = {
 
 const PAGE_HEADER_ROUTE = {
   systemSetting: ['/appInstallSetting'],
-  account: ['/personal'],
   admin: ['/admin/:roleType/:projectId'],
   group: ['/group/groupValidate'],
   user: ['/user', '/user_:userId?'],
@@ -57,7 +55,6 @@ export default class NetManageHeader extends Component {
     const firstPath = _.isArray(this.props.path) ? this.props.path[0] : this.props.path || '';
     const path = getPathWithoutSubPath(firstPath);
     if (_.includes(PAGE_HEADER_ROUTE.user, path)) return 'user';
-    if (_.includes(PAGE_HEADER_ROUTE.account, path)) return 'account';
     if (_.includes(PAGE_HEADER_ROUTE.admin, path)) return 'admin';
     if (_.includes(PAGE_HEADER_ROUTE.group, path)) return 'group';
     if (_.includes(PAGE_HEADER_ROUTE.search, path)) return 'search';

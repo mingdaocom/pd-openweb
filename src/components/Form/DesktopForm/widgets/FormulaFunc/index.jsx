@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Linkify } from 'ming-ui';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
 
 const FormulaFunc = props => {
   const { advancedSetting } = props;

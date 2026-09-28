@@ -13,7 +13,7 @@ const Wrap = styled.div`
   .descContainer {
     width: 880px;
     margin: 24px auto 0;
-    border-radius: 10px
+    border-radius: 10px;
     background: var(--color-background-primary);
     .mdEditorHeader {
     }
@@ -52,7 +52,7 @@ const Wrap = styled.div`
         .ck-content {
           padding: 12px 24px;
           box-sizing: border-box;
-          border-radius: 0 0 10px 10px!important;
+          border-radius: 0 0 10px 10px !important;
         }
         .ck-editor {
           min-height: 100%;
@@ -66,7 +66,7 @@ const Wrap = styled.div`
         .ck-focused {
           background: var(--color-background-primary) !important;
           border: 1px solid var(--color-primary) !important;
-          border-radius: 0 0 10px 10px!important;
+          border-radius: 0 0 10px 10px !important;
         }
       }
       .mdEditorContent {

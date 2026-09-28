@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
-import { formatQuickFilter } from 'src/utils/filter';
-import { getGroupControlId } from 'src/utils/worksheet';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { sortDataByGroupItems } from 'src/utils/domain/worksheet/groupSort';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import { getNavGroupCount } from './navFilter';
-import { sortDataByGroupItems } from './util';
 
 let getGalleryRequest = null;
 let preWorksheetIds = [];

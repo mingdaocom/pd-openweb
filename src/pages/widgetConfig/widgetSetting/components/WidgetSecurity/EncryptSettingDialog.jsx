@@ -1,9 +1,12 @@
 import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dialog, Dropdown, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function EncryptSettingDialog(props) {
   const { data = {}, encryData = [], isDeleteRule, globalSheetInfo: { projectId } = {}, onCancel, onChange } = props;
@@ -32,12 +35,14 @@ export default function EncryptSettingDialog(props) {
   );
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={true}
+      open={true}
+      keyboard
       title={<span className="Bold">{_l('设置加密规则')}</span>}
+      styles={{ header: { marginBottom: 8 } }}
       onCancel={onCancel}
-      overlayClosable={false}
+      mask={{ closable: false }}
       okDisabled={!(newRule || oldRule)}
       onOk={() => {
         onChange({ encryId: newRule || oldRule });
@@ -52,14 +57,14 @@ export default function EncryptSettingDialog(props) {
       </div>
       <SettingItem>
         <div className="settingItemTitle labelBetween">{encryId ? _l('当前规则') : _l('规则')}</div>
-        <Dropdown
-          border
-          isAppendToBody
+        <Select
+          className="w100"
           disabled={encryId}
           value={isDeleteRule ? undefined : oldRule || undefined}
           placeholder={isDeleteRule ? <span className="Red">{_l('规则已删除')}</span> : _l('请选择')}
-          noData={EmptyContent}
-          data={encryId ? encryData : encryData.filter(i => i.state === 1)}
+          notFoundContent={EmptyContent}
+          options={encryId ? encryData : encryData.filter(i => i.state === 1)}
+          fieldNames={SELECT_FIELD_NAMES}
           onChange={value => {
             setRule({ oldRule: value });
           }}
@@ -68,18 +73,18 @@ export default function EncryptSettingDialog(props) {
       {encryId && (
         <SettingItem>
           <div className="settingItemTitle labelBetween">{_l('新规则')}</div>
-          <Dropdown
-            border
-            isAppendToBody
+          <Select
+            className="w100"
             value={newRule || undefined}
-            noData={EmptyContent}
-            data={encryData.filter(i => i.state === 1 && i.value !== encryId)}
+            notFoundContent={EmptyContent}
+            options={encryData.filter(i => i.state === 1 && i.value !== encryId)}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => {
               setRule({ newRule: value });
             }}
           />
         </SettingItem>
       )}
-    </Dialog>
+    </Modal>
   );
 }

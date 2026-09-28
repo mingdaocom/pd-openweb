@@ -1,7 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import { AddButton } from './WorksheetDataGenerator';
+
+const CHECKBOX_STYLES = {
+  left: {
+    root: { display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-end' },
+    label: { paddingInlineStart: 0, paddingInlineEnd: 8 },
+  },
+  right: {
+    root: { display: 'flex' },
+    label: { paddingInlineEnd: 0 },
+  },
+};
 
 const Con = styled.div`
   font-size: 15px;
@@ -19,29 +30,25 @@ const Con = styled.div`
   }
 `;
 
-const AiCheckbox = styled(Checkbox)`
-  &.checked .Checkbox-box {
-    background-color: var(--color-mingo) !important;
-  }
-`;
-
 export function ConfigPanel({ config, checkboxTextPosition = 'right', onConfigChange }) {
   const { includeSamplePeople, includeSampleAttachments } = config;
   return (
     <div>
-      <AiCheckbox
-        textPosition={checkboxTextPosition}
-        text={_l('包含示例人员')}
+      <Checkbox
         checked={includeSamplePeople}
-        onClick={() => onConfigChange({ ...config, includeSamplePeople: !includeSamplePeople })}
-      />
-      <AiCheckbox
+        styles={CHECKBOX_STYLES[checkboxTextPosition]}
+        onChange={event => onConfigChange({ ...config, includeSamplePeople: event.target.checked })}
+      >
+        {_l('包含示例人员')}
+      </Checkbox>
+      <Checkbox
         className="mTop15"
-        textPosition={checkboxTextPosition}
-        text={_l('包含示例附件')}
         checked={includeSampleAttachments}
-        onClick={() => onConfigChange({ ...config, includeSampleAttachments: !includeSampleAttachments })}
-      />
+        styles={CHECKBOX_STYLES[checkboxTextPosition]}
+        onChange={event => onConfigChange({ ...config, includeSampleAttachments: event.target.checked })}
+      >
+        {_l('包含示例附件')}
+      </Checkbox>
     </div>
   );
 }

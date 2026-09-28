@@ -1,9 +1,10 @@
 ﻿import _ from 'lodash';
 import agentApi from 'src/api/agent';
-import { buildFormFieldsControls } from 'src/components/Mingo/ChatBot/utils';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { emitter } from 'src/utils/common';
-import { formatAiGenControlValue } from 'src/utils/control';
+import { formatAiGenControlValue } from 'src/utils/domain/control/ai';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { buildFormFieldsControls } from 'src/utils/services/ai/formFields';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const IMAGE_FILE_EXTS = ['.jpg', '.jpeg', '.png', '.heic'];
 
@@ -41,13 +42,16 @@ export const generateRecord = ({
   setFilledByAiMap,
 }) => {
   setType('parse');
-  const { worksheetInfo = {} } = propsRef.current;
+  const { appId, worksheetInfo = {} } = propsRef.current;
   const currentProjectId = worksheetInfo?.projectId || projectId;
+  // appId 为该 agent 的必传参数（缺失服务端直接拒绝），同时决定扣费流水归属哪个应用
+  const currentAppId = appId || worksheetInfo?.appId;
 
   const request = agentApi.agentExecute({
     agentName: 'record-precise-filler',
     sessionId: genBotSessionId(),
     projectId: currentProjectId,
+    appId: currentAppId,
     forceReroute: false,
     message: text ? _l('【当前用户正在使用语音输入，文本内容与选项内容无需完全匹配，可以进行模糊匹配】') + text : '',
     attachments: normalizeGenerateRecordAttachments(filesList),
@@ -101,7 +105,7 @@ export const generateRecord = ({
     })
     .catch(error => {
       if (error?.name !== 'AbortError' && error?.errorCode !== 1) {
-        alert(_l('识别失败'), 2);
+        alertIfNotUnauthorized(error, _l('识别失败'), 2);
       }
     })
     .finally(() => {

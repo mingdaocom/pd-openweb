@@ -2,11 +2,12 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { getErrorControls } from 'src/pages/FormSet/components/columnRules/config.js';
-import { DEFAULT_CONFIG } from '../../../../../config/widget';
-import { enumWidgetType } from '../../../../../util';
-import { getAdvanceSetting } from '../../../../../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { CustomActionWrap } from '../../style';
 import AddFields from '../AddFields';
@@ -37,14 +38,15 @@ export default function PromptError(props) {
   const selectControls = filterErrorControls.filter(i => !_.find(actionItems, a => a.controlId === i.controlId));
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={isDisabled}
       className="SearchWorksheetDialog"
       title={_l('提示错误')}
       onCancel={() => setState({ visible: false })}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, actionItems });
         setState({ visible: false });
@@ -114,6 +116,6 @@ export default function PromptError(props) {
           disabled={!selectControls.length}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

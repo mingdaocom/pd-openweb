@@ -559,6 +559,7 @@ class MessageView extends Component {
               nextMessage={messageList[index - 1] || {}}
               session={session}
               onGotoMessage={this.handleGotoMessage.bind(this)}
+              onRequestTextareaFocus={this.props.onRequestTextareaFocus}
             />
           ))}
           {isMore && isDownLoadingMessage ? this.renderLoading('down') : undefined}

@@ -257,6 +257,7 @@ export default {
    * @param {} args.logType
    * @param {} args.accountResult
    * @param {array} args.accountIds 用户ID
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {array} args.columnNames 列名称
    * @param {string} args.fileName 导出文件名
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
@@ -287,6 +288,7 @@ export default {
    * @param {boolean} args.isSingle 是否是单个应用
    * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 界面操作，2 = OAuth 应用，3 = 个人访问令牌，4 = 应用密钥）
    * @param {array} args.sourceIds 操作来源ids
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -305,6 +307,7 @@ export default {
    * @param {} args.operateTargetType
    * @param {} args.operateType
    * @param {array} args.accountIds 用户ID
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {string} args.fileName 文件名
    * @param {array} args.columnNames 列名称
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
@@ -331,6 +334,24 @@ export default {
    **/
   exportTransactionRecords: function (args, options = {}) {
     return mdyAPI('Download', 'ExportTransactionRecords', args, options);
+  },
+  /**
+   * 导出账务中心信用点流水。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织 Id。
+   * @param {} args.transactionType
+   * @param {array} args.businessTypes 信用点业务类型筛选；空集合使用账务页面默认业务类型。
+   * @param {string} args.operatorAccountId 操作人账号 Id 筛选。
+   * @param {string} args.createdFrom 创建时间范围起点，必须为带显式时区偏移的 ISO 8601 时间。
+   * @param {string} args.createdTo 创建时间范围终点；时分秒全为零时包含当天，否则为排他终点。
+   * @param {object} args.extensionFilters 账务扩展字段筛选条件。
+   * @param {string} args.fileName 导出文件名称。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  exportCreditPointRecords: function (args, options = {}) {
+    return mdyAPI('Download', 'ExportCreditPointRecords', args, options);
   },
   /**
    * 导出应用汇总概览分析日志

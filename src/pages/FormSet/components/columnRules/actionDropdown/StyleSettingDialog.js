@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import { CardItem } from 'src/pages/widgetConfig/widgetSetting/components/StyleContent/StyleContentItems';
 
 function StyleSettingDialog(props) {
@@ -32,12 +32,14 @@ function StyleSettingDialog(props) {
   }, []);
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       width={480}
-      overlayClosable={false}
+      mask={{ closable: false }}
+      keyboard
       title={_l('卡片样式')}
       okText={_l('确认')}
+      styles={{ header: { marginBottom: 0 } }}
       onOk={() => {
         const newValues = values.map(v => {
           if (v.controlId === id) {
@@ -58,10 +60,10 @@ function StyleSettingDialog(props) {
         }}
         from="rule"
       />
-    </Dialog>
+    </Modal>
   );
 }
 
-export default function openStyleSettingDialog(props) {
-  return functionWrap(StyleSettingDialog, props);
+export function useStyleSettingDialog() {
+  return useFunctionWrapComponent(StyleSettingDialog);
 }

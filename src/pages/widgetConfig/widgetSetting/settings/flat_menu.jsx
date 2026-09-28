@@ -1,26 +1,26 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
 import { SettingItem } from '../../styled';
-import { isCustomWidget } from '../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import DisplayOptions from '../components/OptionList/DisplayOptions';
 import SelectOptions from '../components/OptionList/SelectOptions';
 
 const OPTIONS_DISPLAY = [
   {
     value: '0',
-    text: _l('下拉菜单'),
+    label: _l('下拉菜单'),
     type: 11,
   },
   {
     value: '1',
-    text: _l('平铺'),
+    label: _l('平铺'),
     type: 9,
   },
   {
     value: '2',
-    text: _l('进度'),
+    label: _l('进度'),
     type: 11,
   },
 ];
@@ -31,12 +31,12 @@ export default function FlatMenu(props) {
   const { showtype = '0', readonlyshowall } = getAdvanceSetting(data);
   return (
     <Fragment>
-      <SettingItem hide={isCustomWidget(data)}>
+      <SettingItem $hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <div className="labelWrap">
-          <Dropdown
-            border
-            data={FILTER_OPTIONS_DISPLAY}
+          <Select
+            className="w100"
+            options={FILTER_OPTIONS_DISPLAY}
             value={showtype}
             onChange={value => {
               onChange({

@@ -41,6 +41,8 @@ export const DROPDOWN_APP_CONFIG = [
   { type: 'copy', icon: 'content-copy', text: _l('复制'), action: 'copyAppVisible' },
   { type: 'modifyAppLockPassword', icon: 'lock', text: _l('解锁应用%02048'), action: 'modifyAppLockPasswordVisible' },
   { type: 'appManageMenu', icon: 'widgets', text: _l('应用管理'), action: 'toAppManageMenu' },
+  { type: 'environmentSwitch', icon: 'restore2' },
+  { type: 'mobileView', icon: 'mobile_phone', text: _l('查看移动端') },
   { type: 'appLicense', icon: 'access_time', text: _l('应用订购计划'), action: 'appLicense' },
   {
     type: 'worksheetapi',

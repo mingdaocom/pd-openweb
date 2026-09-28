@@ -1,14 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { DatePicker, Dropdown, Input, Menu, Select } from 'antd';
-import locale from 'antd/es/date-picker/locale/zh_CN';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
-import { Dialog, Icon, ScrollView, TimeZoneTag } from 'ming-ui';
-import { reportTypes } from 'statistics/Charts/common';
+import { Icon, ScrollView, TimeZoneTag } from 'ming-ui';
+import { DatePicker, Dropdown, Input, Modal, Select } from 'ming-ui/antd-components';
 import { isTimeControl } from 'statistics/common/controlUtils';
 import {
   dropdownDayData,
@@ -21,14 +19,28 @@ import {
 } from 'statistics/common/timeUtils';
 import * as actions from 'statistics/redux/actions';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { formatValuesOfOriginConditions } from 'worksheet/common/WorkSheetFilter/util';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { formatNumberFromInput } from 'src/utils/control';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
 import './index.less';
 
 const { RangePicker } = DatePicker;
 const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 24];
+
+const getTextOptions = data =>
+  data.map(item => ({
+    value: item.value,
+    label: item.text,
+  }));
+
+const getNameOptions = data =>
+  data.map(item => ({
+    value: item.value,
+    label: item.name,
+  }));
+
 let DecoratedComponent = class DecoratedComponent extends Component {
   constructor(props) {
     super();
@@ -123,19 +135,12 @@ let DecoratedComponent = class DecoratedComponent extends Component {
         <Fragment>
           <div className="Relative">
             <Select
-              className="chartSelect w100"
+              className="w100"
               value={dropdownScopeValue}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={this.handleUpdateScope}
-            >
-              {dropdownScopeData
-                .filter(n => n.value !== 24)
-                .map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.text}
-                  </Select.Option>
-                ))}
-            </Select>
+              options={getTextOptions(dropdownScopeData.filter(n => n.value !== 24))}
+            />
             <TimeZoneTag
               appId={worksheetInfo.appId}
               position={{
@@ -147,24 +152,18 @@ let DecoratedComponent = class DecoratedComponent extends Component {
 
           {isPastAndFuture(dropdownScopeValue) && (
             <Select
-              className="chartSelect w100 mTop10"
+              className="w100 mTop10"
               value={Number(dropdownDayValue)}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={this.handleUpdateDay}
-            >
-              {dropdownDayData.map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                  {item.text}
-                </Select.Option>
-              ))}
-            </Select>
+              options={getTextOptions(dropdownDayData)}
+            />
           )}
           {dropdownScopeValue === 20 && (
             <RangePicker
-              className="chartInput w100 mTop10"
+              className="w100 mTop10"
               allowClear={false}
               suffixIcon={null}
-              locale={locale}
               format="YYYY/MM/DD"
               value={
                 dropdownDayValue
@@ -192,7 +191,6 @@ let DecoratedComponent = class DecoratedComponent extends Component {
         <div className="Relative">
           <Input
             readOnly
-            className="chartInput"
             value={
               _.find(dropdownScopeData, {
                 value: filter.rangeType,
@@ -222,10 +220,9 @@ let DecoratedComponent = class DecoratedComponent extends Component {
       return (
         <div className="Relative">
           <RangePicker
-            className="chartInput w100"
+            className="w100"
             allowClear={false}
             suffixIcon={null}
-            locale={locale}
             format="YYYY/MM/DD"
             defaultValue={scopeTime}
             disabledDate={current => {
@@ -265,34 +262,30 @@ let DecoratedComponent = class DecoratedComponent extends Component {
       const { customRangeDay, currentRangeValue } = this.state;
       return (
         <Dropdown
-          overlay={
-            <Menu className="rangeDayOverlayMenu">
-              {dropdownDayData
-                .filter(item => item.value <= currentRangeValue)
-                .map(item => (
-                  <Menu.Item
-                    key={item.value}
-                    className={cx({
-                      active: Number(dropdownDayValue) === item.value,
-                    })}
-                    onClick={() => {
-                      this.setState({
-                        customRangeDay: false,
-                      });
-                      this.handleUpdateDay(item.value);
-                    }}
-                  >
-                    {item.text}
-                  </Menu.Item>
-                ))}
-            </Menu>
-          }
+          menu={{
+            className: 'rangeDayOverlayMenu',
+            items: dropdownDayData
+              .filter(item => item.value <= currentRangeValue)
+              .map(item => ({
+                key: item.value,
+                className: cx({
+                  active: Number(dropdownDayValue) === item.value,
+                }),
+                label: item.text,
+                onClick: () => {
+                  this.setState({
+                    customRangeDay: false,
+                  });
+                  this.handleUpdateDay(item.value);
+                },
+              })),
+          }}
           trigger={['click']}
         >
           <div className="w100 Relative">
             <Input
               value={customRangeDay === false ? _l('%0天', dropdownDayValue) : customRangeDay}
-              className="chartInput w100"
+              className="w100"
               onChange={event => {
                 let value = event.target.value;
                 let count = Number(value.replace(/[^\d]/g, ''));
@@ -341,7 +334,7 @@ let DecoratedComponent = class DecoratedComponent extends Component {
         <div className="flexRow valignWrapper mTop20">
           <div className="mRight15">{_l('从')}</div>
           <Select
-            className="chartSelect flex"
+            className="flex"
             value={dynamicFilter.startType}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
@@ -349,17 +342,12 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                 startType: value,
               });
             }}
-          >
-            {timeTypes.map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.name}
-              </Select.Option>
-            ))}
-          </Select>
+            options={getNameOptions(timeTypes)}
+          />
           {[5, 6].includes(dynamicFilter.startType) && (
             <Fragment>
               <Input
-                className="chartInput flex mLeft10 mRight10"
+                className="flex mLeft10 mRight10"
                 value={dynamicFilter.startCount}
                 onChange={() => {
                   const value = event.target.value;
@@ -369,7 +357,7 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                 }}
               />
               <Select
-                className="chartSelect flex"
+                className="flex"
                 value={dynamicFilter.startUnit}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
@@ -377,20 +365,15 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                     startUnit: value,
                   });
                 }}
-              >
-                {unitTypes.map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                options={getNameOptions(unitTypes)}
+              />
             </Fragment>
           )}
         </div>
         <div className="flexRow valignWrapper mTop10">
           <div className="mRight15">{_l('至')}</div>
           <Select
-            className="chartSelect flex"
+            className="flex"
             value={dynamicFilter.endType}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
@@ -399,17 +382,12 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                 startUnit: unitValues.includes(value) ? value : dynamicFilter.startUnit,
               });
             }}
-          >
-            {timeTypes.map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.name}
-              </Select.Option>
-            ))}
-          </Select>
+            options={getNameOptions(timeTypes)}
+          />
           {[5, 6].includes(dynamicFilter.endType) && (
             <Fragment>
               <Input
-                className="chartInput flex mLeft10 mRight10"
+                className="flex mLeft10 mRight10"
                 value={dynamicFilter.endCount}
                 onChange={() => {
                   const value = event.target.value;
@@ -419,7 +397,7 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                 }}
               />
               <Select
-                className="chartSelect flex"
+                className="flex"
                 value={dynamicFilter.endUnit}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
@@ -427,13 +405,8 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                     endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit,
                   });
                 }}
-              >
-                {unitTypes.map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                options={getNameOptions(unitTypes)}
+              />
             </Fragment>
           )}
         </div>
@@ -470,7 +443,7 @@ let DecoratedComponent = class DecoratedComponent extends Component {
       <Fragment>
         <div className="Font12 Bold mBottom10 mTop10">{_l('归组')}</div>
         <Select
-          className="chartSelect w100"
+          className="w100"
           value={xaxes.particleSizeType}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
@@ -481,34 +454,37 @@ let DecoratedComponent = class DecoratedComponent extends Component {
               true,
             );
           }}
-        >
-          {_.find(timeData, {
-            value: xaxes.particleSizeType,
-          }) && (
-            <Select.OptGroup label={_l('时间')}>
-              {timeData
-                .filter((_, index) => index >= timeDataIndex)
-                .map(item => (
-                  <Select.Option title className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.text}
-                  </Select.Option>
-                ))}
-            </Select.OptGroup>
-          )}
-          {_.find(timeGatherParticle, {
-            value: xaxes.particleSizeType,
-          }) && (
-            <Select.OptGroup label={_l('集合')}>
-              {timeGatherParticle
-                .filter((_, index) => index >= timeGatherParticleIndex)
-                .map(item => (
-                  <Select.Option title className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.text}
-                  </Select.Option>
-                ))}
-            </Select.OptGroup>
-          )}
-        </Select>
+          options={[
+            ...(_.find(timeData, { value: xaxes.particleSizeType })
+              ? [
+                  {
+                    label: _l('时间'),
+                    options: timeData
+                      .filter((_, index) => index >= timeDataIndex)
+                      .map(item => ({
+                        title: item.text,
+                        value: item.value,
+                        label: item.text,
+                      })),
+                  },
+                ]
+              : []),
+            ...(_.find(timeGatherParticle, { value: xaxes.particleSizeType })
+              ? [
+                  {
+                    label: _l('集合'),
+                    options: timeGatherParticle
+                      .filter((_, index) => index >= timeGatherParticleIndex)
+                      .map(item => ({
+                        title: item.text,
+                        value: item.value,
+                        label: item.text,
+                      })),
+                  },
+                ]
+              : []),
+          ]}
+        />
       </Fragment>
     );
   }
@@ -558,6 +534,8 @@ let DecoratedComponent = class DecoratedComponent extends Component {
                       className="bgPrimary"
                       loading={false}
                       filterItemTexts={filterData(worksheetInfo.columns, showFilterConditions)}
+                      filters={showFilterConditions}
+                      controls={worksheetInfo.columns}
                       onClear={() => {
                         this.setState({
                           filterConditions: [],
@@ -594,11 +572,12 @@ let DecoratedComponent = class DecoratedComponent extends Component {
             </div>
           </div>
         </ScrollView>
-        <Dialog
-          visible={visible}
+        <Modal
+          open={visible}
           title={_l('筛选')}
           okText={_l('确定')}
           cancelText={_l('取消')}
+          styles={{ header: { marginBottom: 10 } }}
           onCancel={() =>
             this.setState({
               visible: false,
@@ -646,7 +625,7 @@ let DecoratedComponent = class DecoratedComponent extends Component {
               });
             }}
           />
-        </Dialog>
+        </Modal>
       </div>
     );
   }

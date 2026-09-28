@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import styled from 'styled-components';
+import { Modal } from 'ming-ui/antd-components';
 import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
-import { UN_SORT_WIDGET } from '../../../config';
-import { getAdvanceSetting } from '../../../util';
-import { handleAdvancedSettingChange } from '../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { UN_SORT_WIDGET } from 'src/utils/domain/control/config';
+
+const ModalWrap = styled(Modal)`
+  .subListSortCondition > div {
+    margin-top: 0px !important;
+  }
+`;
 
 const defaultSort = [
   {
@@ -25,9 +31,9 @@ export default function SubListSort(props) {
   } = props;
   const [sorts, setSorts] = useState(getAdvanceSetting(data, advancedSettingKey));
   return (
-    <Dialog
-      visible
-      title={<span className="Bold">{_l('排序')}</span>}
+    <ModalWrap
+      open
+      title={_l('排序')}
       width={560}
       onCancel={onClose}
       className="subListSortDialog"
@@ -49,6 +55,6 @@ export default function SubListSort(props) {
         isSubList={true}
         onlyShowSystemDateControl={onlyShowSystemDateControl}
       />
-    </Dialog>
+    </ModalWrap>
   );
 }

@@ -3,10 +3,10 @@ import { useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
 import _, { head, isEmpty, some } from 'lodash';
 import styled from 'styled-components';
+import { notInsetSectionTab } from 'src/utils/domain/control/capabilities';
+import { isFullLineControl } from 'src/utils/domain/control/editorLayout';
 import { DRAG_ACCEPT, DRAG_MODE } from '../config/Drag';
-import { notInsetSectionTab } from '../util';
 import { isFullLineDragItem } from '../util/drag';
-import { isFullLineControl } from '../util/widgets';
 import DisplayItem from './displayItem';
 
 const DisplayRowWrap = styled.div`

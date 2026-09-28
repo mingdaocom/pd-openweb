@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Button from 'ming-ui/components/Button';
+import { Button } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import AjaxRequest from 'src/api/discussion';
 import UploadFiles from 'src/components/UploadFiles';
@@ -140,10 +140,10 @@ export default class FileList extends Component {
         />
         {isShowBtns ? (
           <div className="TxtRight">
-            <Button className="mRight15" size="small" type="ghost" onClick={this.cancel}>
+            <Button color="primary" variant="outlined" className="mRight15" onClick={this.cancel}>
               {_l('取消')}
             </Button>
-            <Button size="small" onClick={this.submit}>
+            <Button type="primary" onClick={this.submit}>
               {_l('确定')}
             </Button>
           </div>

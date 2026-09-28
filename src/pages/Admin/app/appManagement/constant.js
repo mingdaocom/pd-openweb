@@ -1,4 +1,4 @@
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 
 export const tabData = [
   { key: 'list', label: _l('应用') },

@@ -2,14 +2,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import cx from 'classnames';
 import { debounce, find, uniq } from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import CellControl from 'worksheet/components/CellControls';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
-import { emitter } from 'src/utils/common';
-import { formatAiGenControlValue } from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { parseStreamingJsonlData } from 'src/utils/sse';
+import { formatAiGenControlValue } from 'src/utils/domain/control/ai';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { parseStreamingJsonlData } from 'src/utils/platform/network/sse';
 
 const Con = styled.div`
   border-radius: 8px;
@@ -44,20 +43,6 @@ const Con = styled.div`
       margin-left: 1px;
       margin-top: -7px;
       color: var(--color-warning-border);
-    }
-    .Checkbox {
-      font-size: 0px;
-      flex-shrink: 0;
-    }
-    .Checkbox.checked .Checkbox-box,
-    .Checkbox.clearselected .Checkbox-box,
-    .Checkbox.clearselected .Checkbox-box:hover {
-      border-color: var(--color-mingo) !important;
-      background-color: var(--color-mingo) !important;
-    }
-    .ming.Checkbox.Checkbox--disabled .Checkbox-box,
-    .ming.Checkbox.Checkbox--disabled.clearselected .Checkbox-box {
-      opacity: 0.39;
     }
     .icon {
       margin-right: 8px;
@@ -245,7 +230,9 @@ export default function MingoGeneratedWidgetsSelector({
           };
         })
         .filter(Boolean),
-    [content, controls],
+    // 依赖必须跟着 allControls 走：流结束时 content 已不再变化，只有 isStreaming 由 true 变 false，
+    // 若这里只依赖 content，就会一直沿用流式解析结果（末尾两行被丢弃），最后的字段永远出不来
+    [allControls, controls],
   );
   const [selectedWidgetIds, setSelectedWidgetIds] = useState([]);
   useEffect(() => {

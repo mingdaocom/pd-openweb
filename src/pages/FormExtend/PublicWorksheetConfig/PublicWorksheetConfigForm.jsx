@@ -5,12 +5,12 @@ import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, RichText, ScrollView, Skeleton } from 'ming-ui';
+import { Icon, RichText, ScrollView } from 'ming-ui';
+import { Dropdown, Skeleton } from 'ming-ui/antd-components';
 import { Absolute, BlackBtn, FormTopImgCon, Hr } from 'worksheet/components/Basics';
-import { pathCompletion } from 'src/utils/common';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import { themes } from '../enum';
 import * as actions from '../PublicWorksheetConfig/redux/actions';
 import { getDisabledControls, getPageConfig, overridePos } from '../utils';
@@ -22,41 +22,32 @@ import Logo from './components/Logo';
 import FormPreview from './FormPreview';
 
 const TopBar = styled.div(
-  ({ color }) => `
+  ({ $color }) => `
   height: 10px;
   background: var(--color-background-primary);
   border-radius: 3px 3px 0 0;
   .topBar{
     width: 100%;
     height: 100%;
-    background: ${getRgbaByColor(color, 0.4)};
+    background: ${getRgbaByColor($color, 0.4)};
   }
  `,
 );
 const SubmitCon = styled.div(
-  ({ themeBgColor }) => `
+  ({ $themeBgColor }) => `
   text-align: center;
   margin: 30px 0 30px;
   .text {
     width: 100%;
   }
-  .icon {
-    margin-left: 6px;
-    font-size: 18px;
-  }
   input {
     width: 200px;
     max-width: calc(100% - 44px);
-    border: 7px solid ${themeBgColor} !important;
+    border: 7px solid ${$themeBgColor} !important;
     height: 40px !important;
-  }
-  .Button {
-    height: 40px;
-    line-height: 40px;
   }
 `,
 );
-
 class PublicWorksheetConfigForm extends React.Component {
   static propTypes = {
     controls: PropTypes.arrayOf(PropTypes.shape({})),
@@ -69,7 +60,6 @@ class PublicWorksheetConfigForm extends React.Component {
     changeControls: PropTypes.func,
     updateWorksheetInfo: PropTypes.func,
   };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -77,7 +67,6 @@ class PublicWorksheetConfigForm extends React.Component {
       headerPopupVisible: false,
     };
   }
-
   componentDidMount() {
     window.scrollToFormEnd = () => {
       if (this.con) {
@@ -100,60 +89,74 @@ class PublicWorksheetConfigForm extends React.Component {
       return themeBgColor;
     }
   };
-
   saveExtendDatas = value => {
     const { worksheetSettings } = this.props;
-
-    this.props.updateSettings({ ...worksheetSettings, extendDatas: { ...worksheetSettings.extendDatas, ...value } });
+    this.props.updateSettings({
+      ...worksheetSettings,
+      extendDatas: {
+        ...worksheetSettings.extendDatas,
+        ...value,
+      },
+    });
   };
-
   renderAddHeader = () => {
     const { headerPopupVisible } = this.state;
     const headerConfig = _.get(this.props, 'worksheetSettings.extendDatas.visibleHeaders');
     const visibleHeaders = _.isUndefined(headerConfig) ? ['logo', 'title', 'description'] : safeParse(headerConfig);
-
     const menuList = [
-      { key: 'logo', text: _l('Logo'), icon: 'picture' },
-      { key: 'title', text: _l('标题'), icon: 'H1' },
-      { key: 'description', text: _l('说明'), icon: 'title' },
+      {
+        key: 'logo',
+        text: _l('Logo'),
+        icon: 'picture',
+      },
+      {
+        key: 'title',
+        text: _l('标题'),
+        icon: 'H1',
+      },
+      {
+        key: 'description',
+        text: _l('说明'),
+        icon: 'title',
+      },
     ];
-
     return (
-      <Trigger
-        popup={
-          <Menu style={{ width: 240 }} className="Relative">
-            {menuList
-              .filter(item => !visibleHeaders.includes(item.key))
-              .map(item => (
-                <MenuItem
-                  key="newPage"
-                  icon={<Icon icon={item.icon} className="Font16" />}
-                  onClick={() => {
-                    const newVisibleHeaders = visibleHeaders.concat(item.key);
-                    this.saveExtendDatas({ visibleHeaders: JSON.stringify(newVisibleHeaders) });
-                  }}
-                >
-                  <span className="mLeft8">{item.text}</span>
-                </MenuItem>
-              ))}
-          </Menu>
+      <Dropdown
+        open={headerPopupVisible}
+        onOpenChange={visible =>
+          this.setState({
+            headerPopupVisible: visible,
+          })
         }
-        popupVisible={headerPopupVisible}
-        onPopupVisibleChange={visible => this.setState({ headerPopupVisible: visible })}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 12],
-          overflow: { adjustX: true, adjustY: true },
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          style: { width: 240 },
+          items: menuList
+            .filter(item => !visibleHeaders.includes(item.key))
+            .map(item => ({
+              key: item.key,
+              icon: <Icon icon={item.icon} className="Font16" />,
+              label: <span className="mLeft8">{item.text}</span>,
+              onClick: () => {
+                const newVisibleHeaders = visibleHeaders.concat(item.key);
+                this.saveExtendDatas({
+                  visibleHeaders: JSON.stringify(newVisibleHeaders),
+                });
+              },
+            })),
         }}
       >
-        <div className={cx('addBtn', { isActive: headerPopupVisible })}>
+        <div
+          className={cx('addBtn', {
+            isActive: headerPopupVisible,
+          })}
+        >
           <Icon icon="add" />
         </div>
-      </Trigger>
+      </Dropdown>
     );
   };
-
   render() {
     const {
       worksheetInfo,
@@ -180,14 +183,29 @@ class PublicWorksheetConfigForm extends React.Component {
 
     const hideHeader = key => {
       const newVisibleHeaders = visibleHeaders.filter(item => item !== key);
-      this.saveExtendDatas({ visibleHeaders: JSON.stringify(newVisibleHeaders) });
+
+      this.saveExtendDatas({
+        visibleHeaders: JSON.stringify(newVisibleHeaders),
+      });
     };
 
     const renderContent = () => {
       return (
         <Fragment>
-          <Absolute top="17" right="24" style={{ zIndex: 9 }}>
-            <BlackBtn onClick={() => this.setState({ appearanceConfigVisible: true })}>
+          <Absolute
+            $top="17"
+            $right="24"
+            style={{
+              zIndex: 9,
+            }}
+          >
+            <BlackBtn
+              onClick={() =>
+                this.setState({
+                  appearanceConfigVisible: true,
+                })
+              }
+            >
               <i className="icon icon-task-color"></i>
               {_l('设置封面')}
             </BlackBtn>
@@ -204,18 +222,34 @@ class PublicWorksheetConfigForm extends React.Component {
               {_l('预览')}
             </BlackBtn>
           </Absolute>
-          <div className={cx('formContent flexColumn', { mTop10: config.layout === 2 })}>
+          <div
+            className={cx('formContent flexColumn', {
+              mTop10: config.layout === 2,
+            })}
+          >
             {config.layout === 2 && config.cover && (
               <FormTopImgCon>
                 <img src={config.cover} />
               </FormTopImgCon>
             )}
-            <TopBar color={theme} className={cx({ hide: config.layout === 2 && config.cover })}>
+            <TopBar
+              $color={theme}
+              className={cx({
+                hide: config.layout === 2 && config.cover,
+              })}
+            >
               <div className="topBar" />
             </TopBar>
 
             {loading && (
-              <Skeleton direction="column" widths={['30%', '40%', '90%']} active itemStyle={{ marginBottom: '10px' }} />
+              <Skeleton
+                className="pAll20"
+                active
+                paragraph={{
+                  rows: 3,
+                  width: ['30%', '40%', '90%'],
+                }}
+              />
             )}
             {!loading && (
               <div className="formContentHeader">
@@ -223,8 +257,20 @@ class PublicWorksheetConfigForm extends React.Component {
 
                 {visibleHeaders.includes('logo') && (
                   <div className="mLeft20 mTop32">
-                    <div className={logoUrl ? '' : 'sectionWrapper'} style={{ width: 'fit-content' }}>
-                      <Logo url={logoUrl} onChange={url => updateWorksheetInfo({ logoUrl: url })} />
+                    <div
+                      className={logoUrl ? '' : 'sectionWrapper'}
+                      style={{
+                        width: 'fit-content',
+                      }}
+                    >
+                      <Logo
+                        url={logoUrl}
+                        onChange={url =>
+                          updateWorksheetInfo({
+                            logoUrl: url,
+                          })
+                        }
+                      />
                       {!logoUrl && (
                         <div className="hideIcon" onClick={() => hideHeader('logo')}>
                           <Icon icon="visibility_off1" className="Font14" />
@@ -243,7 +289,11 @@ class PublicWorksheetConfigForm extends React.Component {
                       maxLength={200}
                       emptyTip={_l('未命名表单')}
                       value={worksheetInfo.name}
-                      onChange={value => updateWorksheetInfo({ name: value.trim() })}
+                      onChange={value =>
+                        updateWorksheetInfo({
+                          name: value.trim(),
+                        })
+                      }
                     />
                     <div className="hideIcon" onClick={() => hideHeader('title')}>
                       <Icon icon="visibility_off1" className="Font14" />
@@ -259,7 +309,9 @@ class PublicWorksheetConfigForm extends React.Component {
                       minHeight={46}
                       className={`descText-${Math.round(Math.random() * 10)}`}
                       onSave={value => {
-                        updateWorksheetInfo({ desc: value });
+                        updateWorksheetInfo({
+                          desc: value,
+                        });
                       }}
                     />
                     <div className="hideIcon" onClick={() => hideHeader('description')}>
@@ -268,17 +320,23 @@ class PublicWorksheetConfigForm extends React.Component {
                   </div>
                 )}
 
-                <Hr style={{ margin: '16px 0' }} />
+                <Hr
+                  style={{
+                    margin: '16px 0',
+                  }}
+                />
               </div>
             )}
 
             <div className="formMain">
               {loading && (
                 <Skeleton
-                  direction="column"
-                  widths={['40%', '50%', '60%', '70%', '80%', '40%', '50%', '60%', '70%', '80%']}
+                  className="pAll20"
                   active
-                  itemStyle={{ marginBottom: '10px' }}
+                  paragraph={{
+                    rows: 10,
+                    width: ['40%', '50%', '60%', '70%', '80%', '40%', '50%', '60%', '70%', '80%'],
+                  }}
                 />
               )}
               {!loading && (
@@ -296,19 +354,24 @@ class PublicWorksheetConfigForm extends React.Component {
             </div>
             {loading && (
               <Skeleton
-                className="mBottom30"
-                direction="column"
-                widths={['60%', '70%', '80%']}
+                className="mBottom30 pAll20"
                 active
-                itemStyle={{ marginBottom: '10px' }}
+                paragraph={{
+                  rows: 3,
+                  width: ['60%', '70%', '80%'],
+                }}
               />
             )}
             {!loading && (
-              <SubmitCon themeBgColor={theme}>
+              <SubmitCon $themeBgColor={theme}>
                 <EditableButton
                   name={submitBtnName}
                   themeBgColor={theme}
-                  onChange={value => updateWorksheetInfo({ submitBtnName: value })}
+                  onChange={value =>
+                    updateWorksheetInfo({
+                      submitBtnName: value,
+                    })
+                  }
                 />
               </SubmitCon>
             )}
@@ -321,7 +384,9 @@ class PublicWorksheetConfigForm extends React.Component {
       <div
         className="publicWorksheetConfigForm flex"
         ref={con => (this.con = con)}
-        style={{ backgroundColor: generate(theme)[0] }}
+        style={{
+          backgroundColor: generate(theme)[0],
+        }}
       >
         <AppearanceConfig
           pageConfigKey=""
@@ -329,13 +394,23 @@ class PublicWorksheetConfigForm extends React.Component {
           open={appearanceConfigVisible}
           pageConfigs={_.get(extendDatas, 'pageConfigs')}
           saveExtendDatas={this.saveExtendDatas}
-          onClose={() => this.setState({ appearanceConfigVisible: false })}
+          onClose={() =>
+            this.setState({
+              appearanceConfigVisible: false,
+            })
+          }
         />
         <ScrollView className="flex">
           {config.layout === 2 ? (
             renderContent()
           ) : (
-            <BgContainer mask {...{ theme, coverUrl: config.cover }}>
+            <BgContainer
+              mask
+              {...{
+                theme,
+                coverUrl: config.cover,
+              }}
+            >
               {renderContent()}
             </BgContainer>
           )}
@@ -344,7 +419,6 @@ class PublicWorksheetConfigForm extends React.Component {
     );
   }
 }
-
 const mapStateToProps = state => ({
   ..._.pick(state.publicWorksheet, [
     'loading',
@@ -356,7 +430,5 @@ const mapStateToProps = state => ({
     'hidedControlIds',
   ]),
 });
-
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
 export default connect(mapStateToProps, mapDispatchToProps)(PublicWorksheetConfigForm);

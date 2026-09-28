@@ -2,25 +2,16 @@ import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import WidgetColor from './WidgetColor';
 
 const DynamicColorWrap = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 12px;
-  input {
+  .dynamicColorInput {
     width: 140px;
-    height: 36px;
-    border-radius: 3px;
-    padding: 0 12px;
-    box-sizing: border-box;
-    border: 1px solid var(--color-border-primary);
     margin-left: 12px;
-    &.disabled {
-      background: var(--color-background-secondary);
-      border: 1px solid var(--color-background-secondary);
-    }
   }
   .iconOp {
     color: var(--color-text-tertiary);
@@ -54,8 +45,10 @@ export default function NumberDynamicColor(props) {
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={500}
       title={_l('动态颜色')}
       okText={_l('确定')}
@@ -75,7 +68,8 @@ export default function NumberDynamicColor(props) {
           return (
             <DynamicColorWrap>
               <span>{_l('当数值≤')}</span>
-              <input
+              <Input
+                className="dynamicColorInput"
                 value={item.key}
                 disabled={item.key === max}
                 onChange={e => onChange({ key: e.target.value }, index)}
@@ -113,6 +107,6 @@ export default function NumberDynamicColor(props) {
           );
         })}
       </Fragment>
-    </Dialog>
+    </Modal>
   );
 }

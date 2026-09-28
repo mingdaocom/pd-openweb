@@ -2,8 +2,8 @@ import React, { Fragment, memo, useEffect, useLayoutEffect, useRef, useState } f
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import chunkAjax from 'src/pages/AppSettings/components/Knowledge/api/chunks';
 import EnhanceInfo from 'src/pages/AppSettings/components/Knowledge/components/EnhanceInfo';
 import MarkdownPreview from 'src/pages/AppSettings/components/Knowledge/components/MarkdownPreview';
@@ -89,9 +89,9 @@ const PAGE_SIZE = 100;
 
 const ChunkDetail = props => {
   const { knowledgeId, rowId, chunkIndex, type, attachmentId, attachmentName, worksheet, onPreviewAttachment } = props;
+  const worksheetId = worksheet.workSheetId;
 
   const didScrollRef = useRef(false);
-  const hasScrolledRef = useRef(false);
   const scrollRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [chunkDetail, setChunkDetail] = useState([]);
@@ -102,18 +102,34 @@ const ChunkDetail = props => {
 
   useLinkTargetBlank({ selector: '.chunkDetailContent' });
 
-  const getChunkDetail = () => {
+  const handleChangePage = page => {
     setLoading(true);
-    return chunkAjax
+    setPageIndex(page);
+  };
+
+  const handleOpen = () => {
+    didScrollRef.current = false;
+    setLoading(true);
+    setVisible(true);
+  };
+
+  useEffect(() => {
+    if (!visible) return;
+
+    let cancelled = false;
+
+    chunkAjax
       .getChunkDetail({
         types: [type],
         fileId: attachmentId,
         pageSize: PAGE_SIZE,
         pageIndex,
-        worksheetId: worksheet.workSheetId,
+        worksheetId,
         knowledgeId,
       })
       .then(res => {
+        if (cancelled) return;
+
         if (res) {
           const { data, header, total } = res;
           setChunkDetail(data || []);
@@ -122,20 +138,15 @@ const ChunkDetail = props => {
         }
       })
       .finally(() => {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       });
-  };
 
-  const handleChangePage = page => {
-    setPageIndex(page);
-  };
-
-  useEffect(() => {
-    if (visible) {
-      hasScrolledRef.current = false;
-      getChunkDetail();
-    }
-  }, [visible, pageIndex]);
+    return () => {
+      cancelled = true;
+    };
+  }, [attachmentId, knowledgeId, pageIndex, type, visible, worksheetId]);
 
   useLayoutEffect(() => {
     if (!visible || loading || didScrollRef.current || !scrollRef.current) return;
@@ -157,15 +168,15 @@ const ChunkDetail = props => {
   return (
     <Fragment>
       <Tooltip title={_l('查看分块位置')} placement="top">
-        <Container onClick={() => setVisible(true)}>
+        <Container onClick={handleOpen}>
           <Icon icon="gps_fixed" />
         </Container>
       </Tooltip>
 
       {visible && (
-        <Dialog
+        <Modal
           className="chunkDetailDialog"
-          visible={visible}
+          open={visible}
           title={
             <div>
               <span>{attachmentName}</span>
@@ -175,9 +186,9 @@ const ChunkDetail = props => {
               />
             </div>
           }
+          keyboard
           onCancel={() => setVisible(false)}
           width={1000}
-          footer={null}
         >
           <ChunkDetailContent>
             {!_.isEmpty(chunkHeader) && (
@@ -218,7 +229,7 @@ const ChunkDetail = props => {
               </div>
             )}
           </ChunkDetailContent>
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

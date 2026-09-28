@@ -5,7 +5,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { addIframePermissions, CUSTOM_PAGE_IFRAME_ALLOW, genUrl, insertPortal, parseLink } from '../../util';
 
 const PreviewWrap = styled.div`

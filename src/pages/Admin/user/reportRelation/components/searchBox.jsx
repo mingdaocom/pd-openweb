@@ -1,6 +1,10 @@
 import React from 'react';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import Config from '../../../config';
+
+const SEARCH_USER_BUTTON_STYLE = { position: 'relative', zIndex: 2, float: 'right' };
 
 export default ({ onChange = () => {} }) => {
   const selectUser = e => {
@@ -27,9 +31,13 @@ export default ({ onChange = () => {} }) => {
   };
 
   return (
-    <div className="searchUserBox Relative Hand" onClick={selectUser}>
-      <span className="Left icon-charger Font16 selectIcon mRight8" />
-      <span className="Font13">{_l('查看成员')}</span>
-    </div>
+    <Button
+      shape="round"
+      style={SEARCH_USER_BUTTON_STYLE}
+      icon={<Icon icon="charger" className="Font16" />}
+      onClick={selectUser}
+    >
+      {_l('查看成员')}
+    </Button>
   );
 };

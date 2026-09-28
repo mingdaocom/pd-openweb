@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import { ColorPicker, Icon } from 'ming-ui';
-import { SCORE_COLORS_LIST } from '../../config/score';
+import { SCORE_COLORS_LIST } from 'src/utils/domain/control/score';
 import { SelectColorWrap } from './SplitLineConfig/style';
 
 export default function ColorSelectWrap({ color: activeColor, handleChange }) {
@@ -61,7 +61,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
   };
 
   return (
-    <SelectColorWrap inputCoverStyle={false}>
+    <SelectColorWrap $inputCoverStyle={false}>
       {getColorList()}
       <div className="textTertiary mTop10">{_l('自定义')}</div>
       {getColorList(true)}

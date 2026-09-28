@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Input, Select } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { reportTypes } from 'statistics/Charts/common';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Input, Select, Space } from 'ming-ui/antd-components';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 export default class DataFilter extends Component {
   constructor(props) {
@@ -64,48 +64,50 @@ export default class DataFilter extends Component {
     return (
       <div className={cx('flexRow valignWrapper mBottom16', className)}>
         <span>{_l('显示%0', this.getText())}</span>
-        <div className="addonBeforeWrapper valignWrapper mLeft5 mRight5">
-          <Select
-            className="chartSelect"
-            value={showXAxisType}
-            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-            onChange={value => {
-              const newCount = value ? Math.abs(count) : -Math.abs(count);
-              this.setState(
+        <div className="valignWrapper flex mLeft5 mRight5">
+          <Space.Compact>
+            <Select
+              value={showXAxisType}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={[
                 {
-                  count: newCount,
-                  showXAxisType: value,
+                  value: 1,
+                  label: _l('前'),
                 },
-                this.handleSaveCount,
-              );
-            }}
-          >
-            <Select.Option className="selectOptionWrapper" key={1} value={1}>
-              {_l('前')}
-            </Select.Option>
-            <Select.Option className="selectOptionWrapper" key={0} value={0}>
-              {_l('后')}
-            </Select.Option>
-          </Select>
-          <Input
-            style={{ width: 130, paddingLeft: 80 }}
-            className="chartInput"
-            value={count ? Math.abs(count).toString() : ''}
-            onBlur={this.handleSaveCount}
-            onKeyDown={event => {
-              event.which === 13 && this.handleSaveCount();
-            }}
-            onChange={event => {
-              let value = formatNumberFromInput(event.target.value);
-              let count = parseInt(value || 0);
-              count = count > 1000 ? 1000 : count;
-              this.setState({
-                count,
-              });
-            }}
-          />
+                {
+                  value: 0,
+                  label: _l('后'),
+                },
+              ]}
+              onChange={value => {
+                const newCount = value ? Math.abs(count) : -Math.abs(count);
+                this.setState(
+                  {
+                    count: newCount,
+                    showXAxisType: value,
+                  },
+                  this.handleSaveCount,
+                );
+              }}
+            />
+            <Input
+              value={count ? Math.abs(count).toString() : ''}
+              onBlur={this.handleSaveCount}
+              suffix={_l('项')}
+              onKeyDown={event => {
+                event.which === 13 && this.handleSaveCount();
+              }}
+              onChange={event => {
+                let value = formatNumberFromInput(event.target.value);
+                let count = parseInt(value || 0);
+                count = count > 1000 ? 1000 : count;
+                this.setState({
+                  count,
+                });
+              }}
+            />
+          </Space.Compact>
         </div>
-        <span>{_l('项')}</span>
       </div>
     );
   }

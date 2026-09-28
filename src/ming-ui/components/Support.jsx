@@ -51,7 +51,7 @@ export default class Support extends Component {
     return (
       <span
         className={cx(
-          'TxtMiddle pointer stopPropagation',
+          'pointer stopPropagation',
           type === 3 ? 'colorPrimary hoverColorPrimaryDark' : 'textSecondary hoverColorPrimary',
           className,
         )}

@@ -1,6 +1,4 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import Remarkable from 'remarkable';
-import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -9,14 +7,15 @@ import { createParser } from 'eventsource-parser';
 import _ from 'lodash';
 import styled from 'styled-components';
 import filterXss from 'xss';
-import { Checkbox, Dialog, ScrollView, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ScrollView, Textarea } from 'ming-ui';
+import { Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
+import Remarkable, { escapeHtml, replaceEntities } from 'ming-ui/components/Remarkable';
 import agentApi from 'src/api/agent';
 import codeAjax from 'src/api/code';
 import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
 import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
 
 const Null = styled.div`
   > div {
@@ -359,13 +358,13 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
   }, [controller]);
 
   return (
-    <Dialog
+    <Modal
       type="fixed"
       title={_l('AI 生成代码')}
-      visible
+      open
       width={800}
       footer={null}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onCancel={onClose}
     >
       <div className="flexColumn h100">
@@ -403,11 +402,11 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
                             {code && (
                               <div className="mTop8 mBottom5 flexRow alignItemsCenter">
                                 <Checkbox
-                                  className="InlineBlock"
-                                  text={_l('使用时清空现有input参数与代码块')}
                                   checked={clearParams}
-                                  onClick={checked => setClearParams(!checked)}
-                                />
+                                  onChange={event => setClearParams(event.target.checked)}
+                                >
+                                  {_l('使用时清空现有input参数与代码块')}
+                                </Checkbox>
                                 <div className="flex" />
                                 <UseBtn
                                   className="colorPrimary mLeft20"
@@ -524,6 +523,6 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
           </div>
         </Footer>
       </div>
-    </Dialog>
+    </Modal>
   );
 };

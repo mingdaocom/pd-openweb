@@ -1,9 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import createTask from 'src/components/createTask/load';
 import GanttDialog from '../../component/ganttDialog';
 import config from '../../config/config';
@@ -17,15 +15,15 @@ import {
 } from '../../redux/actions';
 import './folderToolbar.less';
 
-const ClickAwayable = ClickAway;
+const TASK_STATUS_DROPDOWN_STYLES = { root: { minWidth: 170 } };
+const TASK_LEVEL_DROPDOWN_STYLES = { root: { minWidth: 168 } };
+
 class FolderToolbar extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       ganttDialogVisible: false,
-      showOperator: false,
-      showLevel: false,
     };
   }
 
@@ -62,7 +60,6 @@ class FolderToolbar extends Component {
    * @param  {number} status
    */
   switchStatus(status) {
-    this.setState({ showOperator: false });
     this.props.dispatch(changeTaskStatus(status));
     this.props.dispatch(updateDataSource());
   }
@@ -88,22 +85,10 @@ class FolderToolbar extends Component {
   }
 
   /**
-   * 显示子任务层级
-   * @param  {object} evt
-   */
-  showTaskLevel(evt) {
-    this.setState({
-      showLevel: !this.state.showLevel,
-      taskLevelOffsetLeft: evt.currentTarget.offsetLeft,
-    });
-  }
-
-  /**
    * 切换显示子任务的层级
    * @param  {number} level
    */
   switchLevel(level) {
-    this.setState({ showLevel: false });
     this.props.dispatch(changeSubTaskLevel(level));
     this.props.dispatch(updateDataSource());
   }
@@ -127,11 +112,16 @@ class FolderToolbar extends Component {
   render() {
     const { stateConfig } = this.props;
     const { ganttDialogVisible } = this.state;
-    const taskStatusList = [
+    const taskStatuses = [
       { text: _l('进行中'), icon: 'icon-task-have-in', value: config.TASKSTATUS.NO_COMPLETED },
       { text: _l('已完成'), icon: 'icon-done_all', value: config.TASKSTATUS.COMPLETED },
       { text: _l('全部'), icon: 'icon-task-all', value: config.TASKSTATUS.ALL },
     ];
+    const taskStatusItems = taskStatuses.map(item => ({
+      key: String(item.value),
+      icon: <i className={item.icon} />,
+      label: item.text,
+    }));
     const viewTypeList = [
       { text: _l('天'), value: config.VIEWTYPE.DAY },
       { text: _l('周%05034'), value: config.VIEWTYPE.WEEK },
@@ -141,7 +131,7 @@ class FolderToolbar extends Component {
       { text: _l('仅工作日'), value: true },
       { text: _l('显示周末'), value: false },
     ];
-    const taskLevelList = [
+    const taskLevels = [
       { text: _l('展开全部层级'), value: config.SUBTASKLEVEL.ALL },
       { text: _l('展开到%0级任务', 1), value: config.SUBTASKLEVEL.ONE },
       { text: _l('展开到%0级任务', 2), value: config.SUBTASKLEVEL.TWO },
@@ -149,90 +139,78 @@ class FolderToolbar extends Component {
       { text: _l('展开到%0级任务', 4), value: config.SUBTASKLEVEL.FOUR },
       { text: _l('展开到%0级任务', 5), value: config.SUBTASKLEVEL.FIVE },
     ];
+    const taskLevelItems = taskLevels.flatMap((item, index) => [
+      {
+        key: String(item.value),
+        label: item.text,
+      },
+      ...(index === 0 ? [{ type: 'divider' }] : []),
+    ]);
 
     return (
       <div className="folderToolbar">
         <span className="taskStatusBox">
-          <span
-            className="taskStatus pointer"
-            onClick={() => this.setState({ showOperator: !this.state.showOperator })}
+          <Dropdown
+            trigger={['click']}
+            placement="bottomLeft"
+            styles={TASK_STATUS_DROPDOWN_STYLES}
+            menu={{
+              items: taskStatusItems,
+              selectable: true,
+              selectedKeys: [String(stateConfig.currentStatus)],
+              onClick: ({ key }) => this.switchStatus(Number(key)),
+            }}
           >
-            <span>{this.getTaskStatusName()}</span>
-            <i className="Font12 icon-arrow-down-border" />
-          </span>
+            <span className="taskStatus pointer">
+              <span>{this.getTaskStatusName()}</span>
+              <i className="Font12 icon-arrow-down-border" />
+            </span>
+          </Dropdown>
         </span>
 
-        {this.state.showOperator ? (
-          <ClickAwayable
-            component="ul"
-            className={cx('taskStatusList boxShadow5 boderRadAll_3', { Hidden: !this.state.showOperator })}
-            onClickAway={() => this.setState({ showOperator: false })}
-          >
-            {taskStatusList.map((item, i) => {
-              return (
-                <li
-                  key={i}
-                  className={cx('bgColorPrimary', { colorPrimary: stateConfig.currentStatus === item.value })}
-                  onClick={() => this.switchStatus(item.value)}
-                >
-                  <i className={item.icon} />
-                  {item.text}
-                </li>
-              );
-            })}
-          </ClickAwayable>
-        ) : undefined}
+        <Button.Group className="folderGanttBtn">
+          {viewTypeList.map(item => (
+            <Button
+              key={item.value}
+              size="small"
+              type={stateConfig.currentView === item.value ? 'primary' : 'default'}
+              onClick={() => this.switchView(item.value)}
+            >
+              {item.text}
+            </Button>
+          ))}
+        </Button.Group>
 
-        <ul className="folderGanttBtn">
-          {viewTypeList.map((item, i) => {
-            return (
-              <li
-                key={i}
-                className={cx({ active: stateConfig.currentView === item.value })}
-                onClick={() => this.switchView(item.value)}
-              >
-                {item.text}
-              </li>
-            );
-          })}
-        </ul>
-
-        <ul className="folderGanttBtn folderGanttWeekBtn">
-          {filterWeekendList.map((item, i) => {
-            return (
-              <li
-                key={i}
-                className={cx({ active: stateConfig.filterWeekend === item.value })}
-                onClick={() => this.filterWeekend(item.value)}
-              >
-                {item.text}
-              </li>
-            );
-          })}
-        </ul>
+        <Button.Group className="folderGanttBtn folderGanttWeekBtn">
+          {filterWeekendList.map(item => (
+            <Button
+              key={String(item.value)}
+              size="small"
+              type={stateConfig.filterWeekend === item.value ? 'primary' : 'default'}
+              onClick={() => this.filterWeekend(item.value)}
+            >
+              {item.text}
+            </Button>
+          ))}
+        </Button.Group>
 
         <Tooltip title={_l('展开层级')}>
-          <span className="folderGanttLevelBtn pointer" onClick={evt => this.showTaskLevel(evt)}>
-            <i className="icon-task-show-tree Font15" />
-          </span>
-        </Tooltip>
-
-        {this.state.showLevel ? (
-          <ClickAwayable
-            component="ul"
-            className={cx('taskLevel boxShadow5 boderRadAll_3', { Hidden: !this.state.showLevel })}
-            style={{ left: this.state.taskLevelOffsetLeft }}
-            onClickAway={() => this.setState({ showLevel: false })}
+          <Dropdown
+            trigger={['click']}
+            placement="bottomLeft"
+            styles={TASK_LEVEL_DROPDOWN_STYLES}
+            menu={{
+              items: taskLevelItems,
+              selectable: true,
+              selectedKeys: [String(stateConfig.currentLevel)],
+              onClick: ({ key }) => this.switchLevel(Number(key)),
+            }}
           >
-            {taskLevelList.map((item, i) => {
-              return (
-                <li key={i} className="bgColorPrimary" onClick={() => this.switchLevel(item.value)}>
-                  {item.text}
-                </li>
-              );
-            })}
-          </ClickAwayable>
-        ) : undefined}
+            <span className="folderGanttLevelBtn pointer">
+              <i className="icon-task-show-tree Font15" />
+            </span>
+          </Dropdown>
+        </Tooltip>
 
         {this.props.showStaticGantt && (
           <span

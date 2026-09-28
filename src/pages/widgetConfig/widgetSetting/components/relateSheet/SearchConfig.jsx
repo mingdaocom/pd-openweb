@@ -3,19 +3,18 @@ import { useSetState } from 'react-use';
 import update from 'immutability-helper';
 import { get, head } from 'lodash';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, RadioGroup } from 'ming-ui';
-import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util.js';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { Checkbox, Modal, Popover, Radio, Select } from 'ming-ui/antd-components';
 import FastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/fastFilterCon';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { formatControlsToDropdown } from 'src/utils/domain/control/filters';
+import { FASTFILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/fastFilter';
 import { SettingItem } from '../../../styled';
-import { formatControlsToDropdown, getAdvanceSetting } from '../../../util';
-import { handleAdvancedSettingChange } from '../../../util/setting';
 import SelectControl from '../SelectControl';
-import 'rc-trigger/assets/index.css';
 
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const ConfigWrap = styled.div`
   .infoWrap {
@@ -46,11 +45,6 @@ const ConfigWrap = styled.div`
   .conditionItemHeader {
     display: flex;
     align-items: center;
-  }
-  .ming.Dropdown {
-    background-color: transparent;
-  }
-  .relateSheetSearchConfig {
   }
 `;
 
@@ -95,8 +89,10 @@ export default function ApiSearchConfig(props) {
   const hideConfig = _.includes([35], data.type);
 
   return (
-    <Dialog
-      visible={true}
+    <Modal
+      open={true}
+      mask={{ closable: true }}
+      keyboard
       title={<span className="Bold">{title || _l('查询设置')}</span>}
       width={560}
       onCancel={onClose}
@@ -122,11 +118,11 @@ export default function ApiSearchConfig(props) {
         )}
         <SettingItem className="mTop8">
           <div className="settingItemTitle Bold">{_l('搜索')}</div>
-          <Dropdown
-            border
-            isAppendToBody
+          <Select
+            className="w100"
             value={searchcontrol}
-            data={searchableControls}
+            options={searchableControls}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => {
               setState({ searchcontrol: value, searchtype: isForbidEncry(value) ? '1' : searchtype });
             }}
@@ -134,14 +130,18 @@ export default function ApiSearchConfig(props) {
         </SettingItem>
         <div className="configItem">
           <div className="title">{_l('搜索方式')}</div>
-          <RadioGroup
-            checkedValue={searchtype}
-            data={[
+          <Radio.Group
+            value={searchtype}
+            options={[
               { value: '1', text: _l('精确搜索') },
               { value: '0', text: _l('模糊搜索'), disabled: isForbidEncry() },
-            ]}
-            onChange={value => {
-              setState({ searchtype: value });
+            ].map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
+              setState({
+                searchtype: value,
+              });
             }}
           />
         </div>
@@ -152,11 +152,14 @@ export default function ApiSearchConfig(props) {
               <div className="title">{_l('设置')}</div>
               <Checkbox
                 checked={clicksearch === '1'}
-                text={_l('在搜索后显示可选记录')}
-                onClick={checked => {
-                  setState({ clicksearch: checked ? '0' : '1' });
+                onChange={event => {
+                  setState({
+                    clicksearch: !event.target.checked ? '0' : '1',
+                  });
                 }}
-              />
+              >
+                {_l('在搜索后显示可选记录')}
+              </Checkbox>
             </div>
             {showtype !== '3' && (
               <SettingItem className="mTop36">
@@ -167,14 +170,13 @@ export default function ApiSearchConfig(props) {
                   className="relateSheetSearchConfig"
                   customAdd={() => {
                     return (
-                      <Trigger
-                        action={['click']}
-                        popupVisible={visible}
-                        onPopupVisibleChange={visible => {
+                      <Popover
+                        trigger="click"
+                        open={visible}
+                        onOpenChange={visible => {
                           setVisible(visible);
                         }}
-                        popupStyle={{ width: 280 }}
-                        popup={
+                        content={
                           <SelectControl
                             list={filterOnlyShowField(controls).filter(({ type, sourceControlType, controlId }) => {
                               const ids = searchfilters.map(({ controlId }) => controlId);
@@ -188,17 +190,12 @@ export default function ApiSearchConfig(props) {
                             }}
                           />
                         }
-                        popupAlign={{
-                          points: ['tl', 'bl'],
-                          offset: [0, 3],
-                          overflow: {
-                            adjustX: true,
-                            adjustY: true,
-                          },
-                        }}
+                        placement="bottomLeft"
+                        noPadding
+                        styles={{ container: { width: 280 } }}
                       >
                         <div className="addFilterControl pointer">+ {_l('添加筛选字段')}</div>
-                      </Trigger>
+                      </Popover>
                     );
                   }}
                   fastFilters={searchfilters}
@@ -216,6 +213,6 @@ export default function ApiSearchConfig(props) {
           </Fragment>
         )}
       </ConfigWrap>
-    </Dialog>
+    </Modal>
   );
 }

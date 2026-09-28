@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { UserHead } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import departmentAjax from 'src/api/department.js';
 
 export default class User extends Component {

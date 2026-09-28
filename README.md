@@ -1,5 +1,4 @@
 # HAP 私有部署版 - Web 端
-==========
 
 ![](https://user-images.githubusercontent.com/7261408/132197149-901d0014-74ff-4547-bb8d-9aeeee49d0b4.png)
 

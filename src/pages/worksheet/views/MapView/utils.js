@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
 
 export function parseRecord(record = {}, mapViewConfig, controls) {
   const titleField = controls.find(l => l.attribute === 1) || {};

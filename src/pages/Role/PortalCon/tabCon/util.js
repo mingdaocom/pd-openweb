@@ -1,9 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { Checkbox, Radio, Switch } from 'ming-ui';
+import { Checkbox, Radio, Switch } from 'ming-ui/antd-components';
 import CellControl from 'worksheet/components/CellControls';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import { getSwitchItemNames, renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
 import { portalBaseControl } from './config';
 
 export const pageSize = 20;
@@ -49,15 +50,23 @@ export const renderContent = data => {
 
   if (showtype === '2') {
     return (
-      <div className="ming RadioGroup">
+      <div className="hap-radio-group">
         {itemnames.map((o, index) => {
-          return <Radio text={o.value} value={o.key} key={index} checked={`${value}` === o.key} size={'middle'} />;
+          return (
+            <Radio value={o.key} key={index} checked={`${value}` === o.key} size={'middle'} title={o.value}>
+              {o.value}
+            </Radio>
+          );
         })}
       </div>
     );
   }
 
-  return <Checkbox className="TxtCenter InlineBlock Hand" text={''} checked={isChecked} />;
+  return (
+    <Checkbox className="TxtCenter Hand" checked={isChecked}>
+      {''}
+    </Checkbox>
+  );
 };
 
 export const renderText = (o, options = {}) => {

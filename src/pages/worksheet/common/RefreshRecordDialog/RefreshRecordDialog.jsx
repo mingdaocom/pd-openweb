@@ -2,15 +2,16 @@ import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, shape } from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Support } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { FORM_HIDDEN_CONTROL_IDS, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { FlexCenter } from 'src/pages/worksheet/components/Basics';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { FORM_HIDDEN_CONTROL_IDS, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { refreshRecord } from './dal';
 
-const NewDialog = styled(Dialog)`
+const NewDialog = styled(Modal)`
   .titleTag {
     height: 26px;
     line-height: 26px;
@@ -27,12 +28,6 @@ const NewDialog = styled(Dialog)`
     margin: 18px 0;
     &:nth-child(1) {
       margin-top: 0;
-    }
-  }
-  .Checkbox {
-    margin-bottom: 14px;
-    [class^='icon-'] {
-      vertical-align: text-bottom;
     }
   }
   .relationControls {
@@ -281,45 +276,50 @@ export default function RefreshRecordDialog(props) {
   const renderCheckbox = list => {
     return list.map((c, i) => (
       <Checkbox
+        className="flexRow mBottom14"
         key={i}
-        text={renderControlLabel(c)}
         checked={calibrateConfig[c.controlId]}
-        onClick={() => {
-          setCalibrateConfig(config => ({ ...config, [c.controlId]: !calibrateConfig[c.controlId] }));
+        onChange={() => {
+          setCalibrateConfig(config => ({
+            ...config,
+            [c.controlId]: !calibrateConfig[c.controlId],
+          }));
         }}
-      />
+      >
+        {renderControlLabel(c)}
+      </Checkbox>
     ));
   };
 
   return (
     <NewDialog
-      visible
+      open
+      mask={{ closable: false }}
+      keyboard
       title={
-        <div className="flexRow alignItemsCenter">
-          <span>{_l('校准数据')}</span>
-          <div className="titleTag">{_l('管理员工具')}</div>
-        </div>
-      }
-      description={
         <Fragment>
-          <div>
-            {_l('选择需要重新计算的字段值。单次最多处理10万行数据，完成后通过系统消息通知结果。')}
-            <Support
-              className="mBottom2"
-              type={3}
-              href="https://help.mingdao.com/worksheet/batch-refresh"
-              text={_l('帮助')}
-            />
+          <div className="flexRow alignItemsCenter">
+            <span>{_l('校准数据')}</span>
+            <div className="titleTag">{_l('管理员工具')}</div>
           </div>
-          <Info className="valignWrapper">
-            <Icon icon="info" className="" />
-            <span>{getWarningText(time)}</span>
-          </Info>
+          <div className="Font13 Normal textSecondary mTop8">
+            <div>
+              {_l('选择需要重新计算的字段值。单次最多处理10万行数据，完成后通过系统消息通知结果。')}
+              <Support
+                className="mBottom2"
+                type={3}
+                href="https://help.mingdao.com/worksheet/batch-refresh"
+                text={_l('帮助')}
+              />
+            </div>
+            <Info className="valignWrapper">
+              <Icon icon="info" className="" />
+              <span>{getWarningText(time)}</span>
+            </Info>
+          </div>
         </Fragment>
       }
-      overlayClosable={false}
-      width="640"
-      anim={false}
+      width={640}
       okDisabled={!Object.keys(calibrateConfig).filter(key => calibrateConfig[key]).length}
       onCancel={onClose}
       onOk={handleOk}
@@ -363,10 +363,11 @@ export default function RefreshRecordDialog(props) {
                             <Fragment key={`relation-${l.controlId}`}>
                               <div className="mBottom14">
                                 <Checkbox
-                                  text={renderControlLabel(l)}
                                   checked={!notAllChecked}
-                                  onClick={() => handleAllChecked(l.children, notAllChecked)}
-                                />
+                                  onChange={() => handleAllChecked(l.children, notAllChecked)}
+                                >
+                                  {renderControlLabel(l)}
+                                </Checkbox>
                               </div>
                               <div className="relationControls">{renderCheckbox(l.children)}</div>
                             </Fragment>

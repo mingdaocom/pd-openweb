@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { handleConditionsDefault } from 'worksheet/common/Sheet/QuickFilter/utils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { handleConditionsDefault } from 'src/utils/services/worksheet/quickFilter';
 
 export const formatFiltersGroup = (id, filtersGroup) => {
   const targets = _.flatten(Object.keys(filtersGroup).map(item => filtersGroup[item])).filter(c =>
@@ -19,6 +19,7 @@ export const formatFiltersGroup = (id, filtersGroup) => {
         'values',
         'minValue',
         'maxValue',
+        'advancedSetting',
       ]);
 
       if (controlId === 'rowid') {

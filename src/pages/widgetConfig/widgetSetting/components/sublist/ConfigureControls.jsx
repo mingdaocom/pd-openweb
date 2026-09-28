@@ -1,74 +1,27 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSetState } from 'react-use';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Menu, MenuItem, SortableList, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList, Support } from 'ming-ui';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGET_GROUP_TYPE } from '../../../config/widget';
-import { checkWidgetMaxNumErr, enumWidgetType, getWidgetInfo } from '../../../util';
-import { dealCopyWidgetId } from '../../../util/data';
-import { handleAdvancedSettingChange } from '../../../util/setting';
-import { addCustomDialog } from '../CustomWidget/AddCustomDialog';
+import { dealCopyWidgetId } from 'src/pages/widgetConfig/internal/editorData';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { checkWidgetMaxNumErr, getWidgetInfo } from 'src/utils/domain/control/metadata';
+import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGET_GROUP_TYPE } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+import { useAddCustomDialog } from '../CustomWidget/AddCustomDialog';
 import SelectDataSource from '../SelectDataSource';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 import SubControlConfig from './SubControlConfig';
 
-const AllWidgetsWrap = styled.div`
-  overflow: auto;
-  background-color: var(--color-background-primary);
-  max-height: 400px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-
-  .searchWrap {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--color-border-primary);
-    input {
-      line-height: 36px;
-      border: none;
-      outline: none;
-      padding-left: 8px;
-    }
-    + div {
-      border: none !important;
-    }
-  }
-  .ming.Item.widgetMenuItem {
-    height: 36px;
-    line-height: 36px;
-  }
-  .ming.Menu {
-    width: 100%;
-  }
-  ul {
-    max-height: 400px;
-    overflow: auto;
-  }
-  .title {
-    font-size: 13px;
-    font-weight: bold;
-    border-top: 1px solid var(--color-border-primary);
-    line-height: 30px;
-    padding-left: 16px;
-    padding-top: 6px;
-    color: var(--color-text-tertiary);
-  }
-  .emptyText {
-    margin: 20px 0 32px 0;
-    color: var(--color-text-tertiary);
-    font-size: 13px;
-    text-align: center;
-    line-height: unset;
-  }
-`;
+const UNSUPPORTED_WIDGET_TYPES = [22, 34, 43, 45, 49, 51, 52];
+const WIDGET_MENU_STYLE = { maxHeight: 400, overflowY: 'auto' };
 
 const WidgetInfo = styled.div`
   border: 1px solid var(--color-border-primary);
@@ -119,7 +72,7 @@ const ControlsWrap = styled.div`
   align-items: center;
   padding-left: 12px;
   cursor: pointer;
-  span {
+  > span {
     margin-left: 6px;
   }
   &.isBg {
@@ -148,7 +101,7 @@ const getFilterData = value => {
     _.map(widgets, (widget = {}, itemKey) => {
       const type = enumWidgetType[itemKey];
 
-      if (widget.widgetName.includes(value) && !_.includes([22, 34, 43, 45, 49, 51, 52], type)) {
+      if (widget.widgetName.includes(value) && !UNSUPPORTED_WIDGET_TYPES.includes(type)) {
         filterWidgets[itemKey] = widget;
       }
     });
@@ -190,24 +143,19 @@ const SortableItem = ({ item, deleteWidget, copyWidget, configureWidget, DragHan
   );
 };
 
-export default function ConfigureControl(props) {
+function ConfigureControl(props) {
+  const { openAddCustomDialog } = props;
   const { data, globalSheetInfo, controls, onChange, ...rest } = props;
   const { appId } = globalSheetInfo;
-  const $ref = useRef(null);
   const $wrap = useRef(null);
-  const [activeWidgetIndex, setWidgetIndex] = useState(-1);
+  const [activeWidgetState, setActiveWidgetState] = useState({ controlId: data.controlId, index: -1 });
   const [visible, setValue] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [{ selectCascadeDataSourceVisible }, setVisible] = useSetState({ selectCascadeDataSourceVisible: false });
-  let dataSource = '';
-  let controlName = '';
   const disabledAdd = _.get(controls, 'length') >= 100;
   const count = controls.length;
   const filterData = getFilterData(searchValue);
-
-  useEffect(() => {
-    setWidgetIndex(-1);
-  }, [data.controlId]);
+  const activeWidgetIndex = activeWidgetState.controlId === data.controlId ? activeWidgetState.index : -1;
 
   // 子表字段增删改序后，controlssorts 必须跟着 showControls 一起更新，否则渲染时列顺序会错乱
   const updateControlsWithSorts = nextControls => ({
@@ -230,154 +178,133 @@ export default function ConfigureControl(props) {
     }
   };
 
-  const SelectWidgetMenu = (
-    <AllWidgetsWrap>
-      <Menu>
-        <div className="searchWrap" onClick={e => e.stopPropagation()}>
-          <i className="icon-search Font16 textSecondary"></i>
-          <input
-            autoFocus
-            className="flex"
-            value={searchValue}
-            placeholder={_l('搜索')}
-            onChange={e => {
-              setSearchValue(e.target.value);
-            }}
-          />
-          {searchValue && <i className="textTertiary pointer Font15 icon-cancel" onClick={() => setSearchValue('')} />}
-        </div>
-        {_.isEmpty(filterData) ? (
-          <div className="emptyText">{_l('没有搜索结果')}</div>
-        ) : (
-          <Fragment>
-            {_.keys(filterData).map(groupType => {
-              const { title, widgets } = filterData[groupType];
-              // if (groupType === 'SPECIAL') return null;
-              return (
-                <Fragment key={groupType}>
-                  <div className="title">{title}</div>
-                  {_.keys(widgets).map(key => {
-                    const type = enumWidgetType[key];
-                    const { icon, widgetName } = DEFAULT_CONFIG[key];
-                    const defaultData = DEFAULT_DATA[key] || {};
-                    const data = {
-                      ...defaultData,
-                      controlName: type === 10010 ? _l('备注') : defaultData.controlName,
-                      type,
-                      controlId: uuidv4(),
-                    };
-                    if ((md.global.SysSettings.hideWorksheetControl || '').includes(key)) return null;
-                    // 子表表单不允许再添加分段、子表、文本识别、嵌入、查询记录、备注
-                    if (_.includes([22, 34, 43, 45, 49, 51, 52], type)) return null;
-                    return (
-                      <MenuItem
-                        key={type}
-                        className="widgetMenuItem"
-                        icon={
-                          <i style={{ verticalAlign: 'text-top' }} className={`icon-${icon} icon pointer Font16`}></i>
-                        }
-                        onClick={() => {
-                          if (disabledAdd) {
-                            alert(_l('最多添加100个字段'), 3);
-                            return;
-                          }
-
-                          const err = checkWidgetMaxNumErr(data, controls);
-
-                          if (err) {
-                            alert(err, 3);
-                            return;
-                          }
-
-                          if (type === 35) {
-                            setValue(false);
-                            setVisible({ selectCascadeDataSourceVisible: true });
-                            return;
-                          }
-
-                          if (type === 29) {
-                            setValue(false);
-                            Dialog.confirm({
-                              title: _l('选择工作表'),
-                              children: (
-                                <Fragment>
-                                  <div className="intro" style={{ color: 'var(--color-text-tertiary)' }}>
-                                    {_l('在表单中显示关联的记录。如：订单关联客户')}
-                                    <Support
-                                      type={3}
-                                      text={_l('帮助')}
-                                      href={'https://help.mingdao.com/worksheet/control-relationship'}
-                                    />
-                                  </div>
-                                  <SelectSheetFromApp
-                                    globalSheetInfo={globalSheetInfo}
-                                    onChange={({ sheetId, sheetName }) => {
-                                      dataSource = sheetId;
-                                      controlName = sheetName;
-                                    }}
-                                  />
-                                </Fragment>
-                              ),
-                              okText: _l('确定'),
-                              onOk: () => {
-                                if (dataSource) {
-                                  worksheetAjax
-                                    .getWorksheetInfo({
-                                      worksheetId: dataSource,
-                                      getTemplate: true,
-                                    })
-                                    .then(res => {
-                                      addControl({
-                                        ...data,
-                                        controlName,
-                                        dataSource,
-                                        relationControls: (res.template || {}).controls || [],
-                                      });
-                                    });
-                                  return;
-                                }
-
-                                alert(_l('没有选择工作表'), 3);
-                              },
-                            });
-                            return;
-                          }
-
-                          if (type === 54) {
-                            setValue(false);
-                            addCustomDialog({
-                              ...props,
-                              data,
-                              onOk: nextData => {
-                                addControl(nextData);
-                              },
-                              onCancel: () => {
-                                handleDeleteWidget(controls.length);
-                              },
-                            });
-                            return;
-                          } else {
-                            addControl(data);
-                          }
-                        }}
-                      >
-                        <span style={{ marginLeft: '8px' }}>{widgetName}</span>
-                      </MenuItem>
-                    );
-                  })}
-                </Fragment>
-              );
-            })}
-          </Fragment>
-        )}
-      </Menu>
-    </AllWidgetsWrap>
-  );
-
   const handleDeleteWidget = index => {
     const newRelationControls = update(controls, { $splice: [[index, 1]] });
     onChange(updateControlsWithSorts(newRelationControls));
   };
+
+  const handleWidgetMenuItemClick = key => {
+    const type = enumWidgetType[key];
+    const defaultData = DEFAULT_DATA[key] || {};
+    const controlData = {
+      ...defaultData,
+      controlName: type === 10010 ? _l('备注') : defaultData.controlName,
+      type,
+      controlId: uuidv4(),
+    };
+
+    if (disabledAdd) {
+      alert(_l('最多添加100个字段'), 3);
+      return;
+    }
+
+    const err = checkWidgetMaxNumErr(controlData, controls);
+
+    if (err) {
+      alert(err, 3);
+      return;
+    }
+
+    if (type === 35) {
+      setValue(false);
+      setSearchValue('');
+      setVisible({ selectCascadeDataSourceVisible: true });
+      return;
+    }
+
+    if (type === 29) {
+      let dataSource = '';
+      let controlName = '';
+      setValue(false);
+      setSearchValue('');
+      Modal.confirm({
+        title: _l('选择工作表'),
+        content: (
+          <Fragment>
+            <div
+              className="intro"
+              style={{
+                color: 'var(--color-text-tertiary)',
+              }}
+            >
+              {_l('在表单中显示关联的记录。如：订单关联客户')}
+              <Support type={3} text={_l('帮助')} href={'https://help.mingdao.com/worksheet/control-relationship'} />
+            </div>
+            <SelectSheetFromApp
+              globalSheetInfo={globalSheetInfo}
+              onChange={({ sheetId, sheetName }) => {
+                dataSource = sheetId;
+                controlName = sheetName;
+              }}
+            />
+          </Fragment>
+        ),
+        okText: _l('确定'),
+        onOk: () => {
+          if (dataSource) {
+            worksheetAjax
+              .getWorksheetInfo({
+                worksheetId: dataSource,
+                getTemplate: true,
+              })
+              .then(res => {
+                addControl({
+                  ...controlData,
+                  controlName,
+                  dataSource,
+                  relationControls: (res.template || {}).controls || [],
+                });
+              });
+            return;
+          }
+
+          alert(_l('没有选择工作表'), 3);
+        },
+      });
+      return;
+    }
+
+    if (type === 54) {
+      setValue(false);
+      setSearchValue('');
+      openAddCustomDialog({
+        ...props,
+        data: controlData,
+        onOk: nextData => {
+          addControl(nextData);
+        },
+        onCancel: () => {
+          handleDeleteWidget(controls.length);
+        },
+      });
+      return;
+    }
+
+    addControl(controlData);
+  };
+
+  const widgetMenuItems = _.keys(filterData)
+    .map(groupType => {
+      const { title, widgets } = filterData[groupType];
+      const children = _.keys(widgets)
+        .filter(key => {
+          const type = enumWidgetType[key];
+          const hidden = (md.global.SysSettings.hideWorksheetControl || '').includes(key);
+          return !hidden && !UNSUPPORTED_WIDGET_TYPES.includes(type);
+        })
+        .map(key => {
+          const { icon, widgetName } = DEFAULT_CONFIG[key];
+          return {
+            key: `${groupType}-${key}`,
+            icon: <Icon icon={icon} className="Font16" />,
+            label: widgetName,
+            onClick: () => handleWidgetMenuItemClick(key),
+          };
+        });
+
+      return children.length ? { key: groupType, type: 'group', label: title, children } : null;
+    })
+    .filter(Boolean);
 
   const handleCopyWidget = index => {
     const curControl = controls[index];
@@ -393,7 +320,7 @@ export default function ConfigureControl(props) {
     });
     window.clearLocalDataTime({
       requestData: { worksheetId: data.dataSource },
-      clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+      clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
     });
   };
 
@@ -434,6 +361,7 @@ export default function ConfigureControl(props) {
       {count > 0 && (
         <ConfigureWrap ref={$wrap}>
           <SortableList
+            renderBody
             useDragHandle
             items={controls}
             itemKey="controlId"
@@ -446,7 +374,7 @@ export default function ConfigureControl(props) {
                 DragHandle={DragHandle}
                 copyWidget={() => handleCopyWidget(index)}
                 deleteWidget={() => handleDeleteWidget(index)}
-                configureWidget={() => setWidgetIndex(index)}
+                configureWidget={() => setActiveWidgetState({ controlId: data.controlId, index })}
               />
             )}
           />
@@ -454,17 +382,22 @@ export default function ConfigureControl(props) {
       )}
       <Dropdown
         trigger={['click']}
-        visible={visible}
-        overlay={SelectWidgetMenu}
-        onVisibleChange={value => {
+        open={visible}
+        showPopupSearch
+        searchValue={searchValue}
+        filterOption={false}
+        notFoundContent={_l('没有搜索结果')}
+        onSearch={setSearchValue}
+        onOpenChange={(value, { source } = {}) => {
+          if (source === 'menu') return;
           setValue(value);
           if (!value) {
             setSearchValue('');
           }
         }}
-        getPopupContainer={() => $ref.current}
+        menu={{ items: widgetMenuItems, style: WIDGET_MENU_STYLE }}
       >
-        <ControlsWrap className={cx({ disabled: disabledAdd, isBg: !count })} ref={$ref}>
+        <ControlsWrap className={cx({ disabled: disabledAdd, isBg: !count })}>
           <i className="icon-plus Font16" />
           <span>{_l('添加字段')}</span>
         </ControlsWrap>
@@ -476,7 +409,7 @@ export default function ConfigureControl(props) {
             control={controls[activeWidgetIndex]}
             subListData={data}
             backTop={() => {
-              setWidgetIndex(-1);
+              setActiveWidgetState({ controlId: data.controlId, index: -1 });
             }}
             changeWidgetData={handleControlDataChange}
             globalSheetInfo={globalSheetInfo}
@@ -487,3 +420,7 @@ export default function ConfigureControl(props) {
     </Fragment>
   );
 }
+
+export default withOpeners(ConfigureControl, {
+  openAddCustomDialog: useAddCustomDialog,
+});

@@ -1,39 +1,35 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
-import Trigger from 'rc-trigger';
+import { Icon, LoadDiv, MdLink, ScrollView, SvgIcon, UserHead } from 'ming-ui';
 import {
+  Dropdown as AntdDropdown,
+  Button,
   DeleteReconfirm,
-  Dialog,
-  Dropdown,
-  Icon,
-  LoadDiv,
-  MdLink,
-  ScrollView,
-  SvgIcon,
+  Modal,
+  Select,
   Switch,
-  UserHead,
-} from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { checkIsAppAdmin, dialogSelectUser } from 'ming-ui/functions';
+  Tooltip,
+} from 'ming-ui/antd-components';
+import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import projectAjax from 'src/api/project';
-import { hasPermission } from 'src/components/checkPermission';
-import { getMyPermissions } from 'src/components/checkPermission';
+import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import Search from 'src/pages/workflow/components/Search';
-import { emitter, pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { transferExternalLinkUrl } from 'src/utils/services/appCenter';
+import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import SelectUser from '../../components/SelectUser';
 import { DataDBInstances, terminals } from './constant';
 import ExportApp from './modules/ExportApp';
@@ -78,7 +74,7 @@ export default class AppManagement extends Component {
     const query = qs.parse(queryString);
     let _hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (window.platformENV.isLocal || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+      (window.platformENV.isLocal || window.platformENV.isHap);
 
     this.setState(
       {
@@ -86,7 +82,7 @@ export default class AppManagement extends Component {
         dbInstanceId: query.dbInstanceId || 'all',
       },
       () => {
-        this.getMyPermissions();
+        this.updateDeletePermission();
       },
     );
 
@@ -118,17 +114,12 @@ export default class AppManagement extends Component {
     }
   }
 
-  getMyPermissions = () => {
+  updateDeletePermission = () => {
     const { projectId } = this.props;
 
-    getMyPermissions(projectId, false).then(permissionIds =>
-      this.setState({
-        myPermissions: permissionIds,
-        allowDelete:
-          !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
-          hasPermission(permissionIds, PERMISSION_ENUM.CREATE_APP),
-      }),
-    );
+    this.setState({
+      allowDelete: hasFeaturePermission(projectId, FEATURE_PERMISSION.DELETE_APP),
+    });
   };
 
   async getDBInstances(importApp) {
@@ -305,8 +296,12 @@ export default class AppManagement extends Component {
           {item.createType !== 1 ? (
             <Switch
               checked={!!item.status}
-              text={item.status ? _l('开启') : _l('关闭')}
-              onClick={checked => this.editAppStatus(item.appId, checked ? 0 : 1)}
+              checkedChildren={item.status ? _l('开启') : _l('关闭')}
+              unCheckedChildren={item.status ? _l('开启') : _l('关闭')}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return this.editAppStatus(item.appId, !checked ? 0 : 1);
+              }}
             />
           ) : (
             '-'
@@ -343,112 +338,95 @@ export default class AppManagement extends Component {
               ></span>
             </Tooltip>
           )}
-          <Trigger
-            popupClassName="actionAppTrigger"
-            popupVisible={this.state.rowVisible === item.appId}
-            onPopupVisibleChange={() => this.handleChangeVisible('rowVisible', item.appId)}
-            action={['click']}
-            popup={() => {
-              return (
-                <ul className="optionPanelTrigger">
-                  {!featureType ||
-                  item.isLock ||
-                  item.isGoods ||
-                  !featureType ||
-                  item.createType === 1 ||
-                  (item.sourceType === 60 && item.exported === false) ? null : (
-                    <li
-                      onClick={() => {
-                        if (featureType === '2') {
-                          this.setState({ rowVisible: false });
-                          buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
-                          return;
-                        }
+          <AntdDropdown
+            open={this.state.rowVisible === item.appId}
+            onOpenChange={visible => this.setState({ rowVisible: visible ? item.appId : false })}
+            trigger={['click']}
+            menu={{
+              items: [
+                ...(!featureType ||
+                item.isLock ||
+                item.isGoods ||
+                item.createType === 1 ||
+                (item.sourceType === 60 && item.exported === false)
+                  ? []
+                  : [
+                      {
+                        key: 'export',
+                        icon: <Icon icon="cloud_download" className="textTertiary" />,
+                        label: _l('导出'),
+                        onClick: () => {
+                          if (featureType === '2') {
+                            this.setState({ rowVisible: false });
+                            buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
+                            return;
+                          }
 
-                        this.handleExport([item]);
-                        this.handleChangeVisible('rowVisible', item.appId);
-                      }}
-                    >
-                      <Icon icon={'cloud_download'} className="mRight12 textTertiary" />
-                      {_l('导出')}
-                    </li>
-                  )}
-                  {(_.isUndefined(allowDelete) || allowDelete) && (
-                    <li
-                      className="deleteIcon"
-                      onClick={() => {
-                        DeleteReconfirm({
-                          title: _l('你确定删除此应用吗？'),
-                          description: _l('应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作'),
-                          data: [{ text: _l('我确认执行此操作'), value: true }],
-                          onOk: () => {
-                            const oldTotal = this.state.total;
-                            this.setState({
-                              total: oldTotal - 1,
-                              hiddenIds: _.uniq([...hiddenIds, item.appId]),
-                            });
-                            this.props.updateListTotalNum(oldTotal - 1);
-                            homeAppAjax
-                              .deleteApp({
-                                appId: item.appId,
-                                projectId,
-                                isHomePage: false,
-                              })
-                              .then(res => {
-                                if (res.data) {
+                          this.handleExport([item]);
+                          this.setState({ rowVisible: false });
+                        },
+                      },
+                    ]),
+                ...(_.isUndefined(allowDelete) || allowDelete
+                  ? [
+                      {
+                        key: 'delete',
+                        icon: <Icon icon="hr_delete" />,
+                        label: _l('删除'),
+                        danger: true,
+                        onClick: () => {
+                          DeleteReconfirm({
+                            title: _l('你确定删除此应用吗？'),
+                            description: _l(
+                              '应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作',
+                            ),
+                            data: [{ text: _l('我确认执行此操作'), value: true }],
+                            onOk: () => {
+                              const oldTotal = this.state.total;
+                              this.setState({
+                                total: oldTotal - 1,
+                                hiddenIds: _.uniq([...hiddenIds, item.appId]),
+                              });
+                              this.props.updateListTotalNum(oldTotal - 1);
+                              homeAppAjax
+                                .deleteApp({
+                                  appId: item.appId,
+                                  projectId,
+                                  isHomePage: false,
+                                })
+                                .then(res => {
+                                  if (res.data) {
+                                    this.setState({
+                                      hiddenIds: hiddenIds.filter(id => id !== item.appId),
+                                    });
+                                    this.updateState({});
+                                  } else {
+                                    throw new Error();
+                                  }
+                                })
+                                .catch(_requestError => {
                                   this.setState({
                                     hiddenIds: hiddenIds.filter(id => id !== item.appId),
+                                    total: oldTotal,
                                   });
-                                  this.updateState({});
-                                } else {
-                                  throw new Error();
-                                }
-                              })
-                              .catch(() => {
-                                this.setState({
-                                  hiddenIds: hiddenIds.filter(id => id !== item.appId),
-                                  total: oldTotal,
+                                  this.props.updateListTotalNum(oldTotal);
+                                  alertIfNotUnauthorized(_requestError, _l('操作失败，请稍候重试！'), 2);
                                 });
-                                this.props.updateListTotalNum(oldTotal);
-                                alert(_l('操作失败，请稍候重试！'), 2);
-                              });
-                          },
-                        });
-                        this.handleChangeVisible('rowVisible', item.appId);
-                      }}
-                    >
-                      <Icon icon={'hr_delete'} className="mRight12 textTertiary" />
-                      {_l('删除')}
-                    </li>
-                  )}
-                </ul>
-              );
-            }}
-            popupAlign={{
-              offset: [-100, -20],
-              points: ['tl', 'bl'],
-              overflow: { adjustX: true, adjustY: true },
+                            },
+                          });
+                          this.setState({ rowVisible: false });
+                        },
+                      },
+                    ]
+                  : []),
+              ],
             }}
           >
             <span className="textTertiary Hand Font18 icon-moreop hoverColorPrimaryLight"></span>
-          </Trigger>
+          </AntdDropdown>
         </div>
       </div>
     );
-  }
-
-  /**
-   * 列表操作项点击后关闭操作项弹框
-   */
-  handleChangeVisible(key, value) {
-    this.setState({
-      [key]: this.state[key] ? false : value,
-    });
-  }
-
-  //关闭各类型dialog
-  closeDialog(name) {
-    $(`.${name}`).parents('.mui-dialog-container').parents('div').remove();
   }
 
   /**
@@ -489,17 +467,17 @@ export default class AppManagement extends Component {
 
     // 关闭
     if (status === 0) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('你确定关闭此应用吗？'),
-        description: _l('关闭应用后，所有人将无法再继续使用和查看此应用，应用下的工作流将全部关闭。'),
+        content: _l('关闭应用后，所有人将无法再继续使用和查看此应用，应用下的工作流将全部关闭。'),
         onOk: editAppStatusFun,
         okText: _l('关闭'),
       });
     } else if (status === 1) {
       // 开启
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('你确定开启此应用吗？'),
-        description: _l('重新开启应用后，你需要在应用中手动开启需要运行的工作流'),
+        content: _l('重新开启应用后，你需要在应用中手动开启需要运行的工作流'),
         onOk: editAppStatusFun,
         okText: _l('开启'),
       });
@@ -514,14 +492,17 @@ export default class AppManagement extends Component {
     const { transferLoading } = this.state;
 
     return (
-      <span
-        className={cx('textTertiary hoverColorPrimary pointer w100 oaButton updateAppCharge', {
-          disabled: transferLoading,
-        })}
+      <Button
+        block
+        className="updateAppCharge"
+        color="default"
+        ellipsis
+        loading={transferLoading}
+        variant="filled"
         onClick={() => this.chargeFn(appId, caid)}
       >
         {_l('将应用转交他人')}
-      </span>
+      </Button>
     );
   }
 
@@ -634,9 +615,9 @@ export default class AppManagement extends Component {
     const { projectId, className } = this.props;
     const { version = {}, licenseType } = getCurrentProject(projectId, true);
     const statusList = [
-      { text: _l('全部状态'), value: '' },
-      { text: _l('开启'), value: 1 },
-      { text: _l('关闭'), value: 0 },
+      { label: _l('全部状态'), value: '' },
+      { label: _l('开启'), value: 1 },
+      { label: _l('关闭'), value: 0 },
     ];
     const vertionType =
       !_.isEmpty(version) && Number(version.versionIdV2) < 2 ? Number(version.versionIdV2) + 1 : undefined;
@@ -661,7 +642,7 @@ export default class AppManagement extends Component {
                 {maxCount - count < 0 ? 0 : maxCount - count}
               </span>
 
-              {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+              {(window.platformENV.isHap ||
                 (window.platformENV.isLocal &&
                   !window.platformENV.isOverseas &&
                   (_.isEmpty(version) || version.versionIdV2 === '1'))) && (
@@ -690,16 +671,15 @@ export default class AppManagement extends Component {
           )}
 
           <div className="manageListSearch flexRow">
-            <Dropdown
+            <Select
               className="w180"
-              data={statusList}
+              options={statusList}
               value={status}
-              border
               onChange={value => this.updateState({ status: value })}
             />
             {hasDataBase && (
               <Select
-                className="w180 mdAntSelect mLeft15 Hand"
+                className="w180 mLeft15 Hand"
                 showSearch
                 defaultValue={dbInstanceId}
                 options={dataDBInstances}
@@ -716,7 +696,7 @@ export default class AppManagement extends Component {
               />
             )}
             <SelectUser
-              className="mdAntSelect w180 mLeft15"
+              className="w180 mLeft15"
               placeholder={_l('搜索拥有者')}
               projectId={projectId}
               userInfo={userInfo}

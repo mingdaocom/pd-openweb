@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
 
 // 获取应用配置列表
 export const getAppConfig = (menus, permissionType) => {

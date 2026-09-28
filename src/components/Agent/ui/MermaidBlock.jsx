@@ -1,13 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
-
-// 导出文件名时间戳后缀：yyMMddHHmmss（年月日时分秒，各 2 位）
-const pad2 = n => String(n).padStart(2, '0');
-
-function fileStamp(d = new Date()) {
-  return `${pad2(d.getFullYear() % 100)}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
-}
+import { formatFileTimestamp } from 'src/utils/core/date';
+import { downloadBlob } from 'src/utils/platform/browser/download';
 
 let _mermaid = null;
 let _idCounter = 0;
@@ -60,16 +55,7 @@ function downloadDiagramPng(svgEl, { filename = 'diagram.png', scale = 2, backgr
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(blob => {
-      if (!blob) return;
-      const objUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-
-      a.href = objUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(objUrl), 1000);
+      downloadBlob(blob, filename);
     }, 'image/png');
   };
 
@@ -261,7 +247,7 @@ function IconDownload() {
 const handleDownload = containerRef => () => {
   const svgEl = containerRef.current && containerRef.current.querySelector('svg');
 
-  downloadDiagramPng(svgEl, { filename: `diagram_${fileStamp()}.png` });
+  downloadDiagramPng(svgEl, { filename: `diagram_${formatFileTimestamp()}.png` });
 };
 
 export function MermaidBlock({ code, isStreaming }) {

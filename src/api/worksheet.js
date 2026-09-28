@@ -1910,6 +1910,62 @@ export default {
     return mdyAPI('Worksheet', 'GetPrintList', args, options);
   },
   /**
+   * 查询指定记录使用各打印模板的次数。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织 Id。
+   * @param {string} args.worksheetId 工作表 Id。
+   * @param {array} args.rowIds 记录 Id。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getRowPrintCount: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetRowPrintCount', args, options);
+  },
+  /**
+   * 修改打印模板的打印次数限制配置。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织 Id。
+   * @param {string} args.worksheetId 工作表 Id。
+   * @param {string} args.printId 打印模板 Id。
+   * @param {boolean} args.printLimitEnabled 是否限制打印次数。
+   * @param {integer} args.printLimitCount 打印模板累计次数上限；不传时保留原配置。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editPrintCountConfig: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'EditPrintCountConfig', args, options);
+  },
+  /**
+   * 打印次数预检接口
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织 Id。
+   * @param {string} args.worksheetId 工作表 Id。
+   * @param {string} args.printId 打印模板 Id。
+   * @param {array} args.rowIds 本次打印的记录 Id。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  precheckPrint: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'PrecheckPrint', args, options);
+  },
+  /**
+   * 将指定记录使用指定打印模板的次数重置为零。
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织 Id。
+   * @param {string} args.worksheetId 工作表 Id。
+   * @param {string} args.printId 打印模板 Id。
+   * @param {string} args.rowId 记录 Id。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  resetTemplatePrintCount: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'ResetTemplatePrintCount', args, options);
+  },
+  /**
    * 获取系统打印详情页列表
    * @param {Object} args 请求参数
    * @param {string} args.appId
@@ -2813,6 +2869,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    * @param {boolean} args.previewed 导出附件
    * @param {boolean} args.exportId 导出id
    * @param {boolean} args.exportJob 导出工号
+   * @param {boolean} args.exportScore 导出评分
    * @param {boolean} args.speed 加速导出
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

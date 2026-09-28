@@ -1,7 +1,8 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
+import Inbox from './components/Inbox';
 
-export { default as Inbox } from './components/Inbox';
+export { Inbox };
 
 export function index(options) {
   const { container, ...others } = options;

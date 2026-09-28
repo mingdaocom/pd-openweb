@@ -3,8 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, MobileRadio } from 'ming-ui';
-import { getCheckAndOther } from '../../../core/utils';
+import { Icon } from 'ming-ui';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
+import MobileRadio from '../../components/MobileRadio';
 import { CustomOptionCapsule } from '../../style';
 import OtherInput from '../Checkbox/OtherInput';
 
@@ -57,7 +58,7 @@ const Dropdown = props => {
 
     if (enumDefault2 === 1) {
       return (
-        <CustomOptionCapsule tagColor={item.color} inPopup={inPopup}>
+        <CustomOptionCapsule $tagColor={item.color} $inPopup={inPopup}>
           {content}
         </CustomOptionCapsule>
       );

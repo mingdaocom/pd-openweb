@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import homeAppAjax from 'src/api/homeApp';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { setAllWorksheetList, setWorksheetIsLoaded } from '../../store/actions';
 
 export function useSheetList({ appId, selectedWorksheetList = [], allWorksheetList = [], dispatch }) {

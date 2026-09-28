@@ -7,18 +7,18 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import { getCardWidth } from 'src/utils/worksheet';
-import { isDisabledCreate } from '../../util';
+import { getCardWidth } from 'worksheet/common/ViewConfig/getCardWidth';
+import { getFirstGroupDefaultValue } from 'src/utils/services/worksheet/board';
+import { isDisabledCreate } from 'src/utils/services/worksheet/view';
 import { AddRecord } from '../components';
 import BoardTitle from '../components/BoardTitle';
 import RecordItem from '../components/RecordItem';
 import { ITEM_TYPE } from '../config';
-import { getFirstGroupDefaultValue } from '../util';
 
 const Wrap = styled.div`
-  width: ${props => `${(props.width ? props.width : 280) + 12 * 2}px`};
+  width: ${props => `${(props.$width ? props.$width : 280) + 12 * 2}px`};
   .boardDataRecordItemWrap {
-    width: ${props => `${props.width ? props.width : 280}px`};
+    width: ${props => `${props.$width ? props.$width : 280}px`};
   }
 `;
 
@@ -129,7 +129,7 @@ export default function Board(props) {
 
   if (_.get(view, 'advancedSetting.cardwidth')) {
     param = {
-      width: getCardWidth(view),
+      $width: getCardWidth(view),
     };
   }
 

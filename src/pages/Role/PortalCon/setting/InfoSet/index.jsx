@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { v4 as uuidv4, validate as validateUUID } from 'uuid';
-import { Checkbox, SortableList, UpgradeIcon } from 'ming-ui';
+import { SortableList, UpgradeIcon } from 'ming-ui';
+import { Button, Checkbox } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import SelectExDrop from 'src/pages/Role/PortalCon/components/SelectExDrop';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import PortalSettingDialog from 'src/pages/widgetConfig/widgetSetting/components/PortalSettingDialog';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { filterAlias, WIDGETS_TO_API_TYPE_ENUM_N } from './config';
 import Item from './Item';
 import { Wrap, WrapSortControls } from './style';
@@ -83,17 +84,16 @@ export default function InfoSet(props) {
           <span className={cx('InlineBlock controlN disable title')}>{_l('类型')}</span>
           <span className={cx('controlName InlineBlock mLeft10 disable title')}>{_l('名称')}</span>
           <Checkbox
-            className="TxtLeft InlineBlock Hand"
-            text={_l('收集')}
+            className="TxtLeft Hand"
             checked={controls.filter(o => o.fieldPermission === '110').length >= controls.length}
-            clearselected={
+            indeterminate={
               !!(
                 controls.length &&
                 controls.filter(o => o.fieldPermission === '110').length &&
                 controls.filter(o => o.fieldPermission === '110').length !== controls.length
               )
             }
-            onClick={() => {
+            onChange={() => {
               setHs(true);
               setControls(
                 controls.map(o => {
@@ -105,19 +105,20 @@ export default function InfoSet(props) {
                 }),
               );
             }}
-          />
+          >
+            {_l('收集')}
+          </Checkbox>
           <Checkbox
-            className="TxtLeft InlineBlock Hand required"
-            text={_l('必填')}
+            className="TxtLeft Hand required"
             checked={controls.filter(o => o.required).length >= controls.length}
-            clearselected={
+            indeterminate={
               !!(
                 controls.length &&
                 controls.filter(o => o.required).length &&
                 controls.filter(o => o.required).length !== controls.length
               )
             }
-            onClick={() => {
+            onChange={() => {
               setHs(true);
               setControls(
                 controls.map((o, i) => {
@@ -125,11 +126,16 @@ export default function InfoSet(props) {
                     return o;
                   }
 
-                  return { ...o, required: !(controls.filter(o => o.required).length >= controls.length) };
+                  return {
+                    ...o,
+                    required: !(controls.filter(o => o.required).length >= controls.length),
+                  };
                 }),
               );
             }}
-          />
+          >
+            {_l('必填')}
+          </Checkbox>
           <div style={{ width: 46 }} />
         </WrapSortControls>
         {/* 系统字段 用户 */}
@@ -144,10 +150,9 @@ export default function InfoSet(props) {
             {controls[0].controlName}
           </span>
           <Checkbox
-            className="TxtLeft InlineBlock Hand cellect"
-            text={''}
+            className="TxtLeft Hand cellect"
             checked={controls[0].fieldPermission === '110'}
-            onClick={() => {
+            onChange={() => {
               setHs(true);
               setControls(
                 controls.map((o, i) => {
@@ -165,12 +170,17 @@ export default function InfoSet(props) {
                 }),
               );
             }}
-          />
-          <Checkbox className="TxtLeft InlineBlock Hand required" text={''} disabled checked={controls[0].required} />
+          >
+            {''}
+          </Checkbox>
+          <Checkbox className="TxtLeft Hand required" disabled checked={controls[0].required}>
+            {''}
+          </Checkbox>
           <div style={{ width: 46 }} />
         </WrapSortControls>
         <div className="">
           <SortableList
+            renderBody
             itemKey="controlId"
             items={controls.filter((o, i) => i !== 0)}
             useDragHandle
@@ -222,8 +232,11 @@ export default function InfoSet(props) {
           )}
         </div>
         {controls.length > 0 && renderCon()}
-        <div
-          className="addControl InlineBlock Hand"
+        <Button
+          color="primary"
+          variant="filled"
+          className="mLeft20"
+          icon={<i className="icon icon-add Font18" />}
           onClick={() => {
             setHs(true);
             setControls(
@@ -236,9 +249,8 @@ export default function InfoSet(props) {
             );
           }}
         >
-          <i className="icon icon-add Font18 mRight5 TxtMiddle InlineBlock" />
-          <span className="Bold TxtMiddle InlineBlock">{_l('添加字段')}</span>
-        </div>
+          {_l('添加字段')}
+        </Button>
         {controls.length > 0 && (
           <React.Fragment>
             <div className="mTop30 Font16 Bold">

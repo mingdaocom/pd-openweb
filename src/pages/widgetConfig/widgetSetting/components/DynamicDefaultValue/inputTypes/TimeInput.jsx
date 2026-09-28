@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { func, number, shape } from 'prop-types';
-import { MdAntTimePicker, MdAntTimeRangePicker } from 'ming-ui';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { TimePicker, TimeRangePicker } from 'ming-ui/antd-components';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 
@@ -84,7 +84,7 @@ export default class TimeInput extends Component {
       const [minValue, maxValue] = defValue.split('-');
       return (
         <WrapMaxOrMin className="flexRow alignItemsCenter">
-          <MdAntTimeRangePicker
+          <TimeRangePicker
             showNow
             className="timeMaxOrMinCon"
             placeholder={[_l('开始时间'), _l('结束时间')]}
@@ -97,7 +97,7 @@ export default class TimeInput extends Component {
     }
 
     return (
-      <MdAntTimePicker
+      <TimePicker
         className="datePicker"
         format={formatMode}
         value={defValue ? moment(defValue, formatMode) : ''}

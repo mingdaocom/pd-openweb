@@ -64,6 +64,15 @@
   }
   .skeletonBox {
     padding: 10px 14px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--color-background-secondary) 0,
+      var(--color-background-secondary) 12px,
+      transparent 12px,
+      transparent 40px
+    );
+    background-clip: content-box;
+    background-origin: content-box;
   }
 }
 .sortableTreeNodeWrap {

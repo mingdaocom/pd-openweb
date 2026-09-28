@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dropdown, Icon, LoadDiv, Support } from 'ming-ui';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Button, Checkbox, Input, Select } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import Oauth2Ajax from 'src/pages/workflow/api/oauth2';
 import { renderValue } from 'src/pages/integration/apiIntegration/util';
@@ -74,13 +75,8 @@ const Wrap = styled.div`
   .actionControlBox:not(.borderColorPrimary) {
     border-color: var(--color-border-primary) !important;
   }
-  .showRefreshLogBtn {
-    padding: 0 10px;
-    &:hover {
-      border-color: var(--color-primary) !important;
-    }
-  }
 `;
+
 const renderList = fields => {
   return (
     <div className="flexRow mBottom20">
@@ -303,12 +299,11 @@ function ConnectAuth(props) {
       <Fragment>
         <div className="Font13 mTop25">
           <Checkbox
-            className="InlineBlock bold"
-            text={_l('配置 Access Token 刷新条件')}
+            className="bold"
             checked={!!refreshType}
-            onClick={checked =>
+            onChange={event =>
               updateAjaxParameter(
-                checked
+                !event.target.checked
                   ? {
                       retryControls: [],
                     }
@@ -325,29 +320,30 @@ function ConnectAuth(props) {
                 true,
               )
             }
-          />
+          >
+            {_l('配置 Access Token 刷新条件')}
+          </Checkbox>
         </div>
         <div className="Font13 mTop5 textSecondary">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
 
         {!!(node.webHookNodes[testIndex].retryControls || []).length && (
           <div className="flexRow mTop10">
-            <Dropdown
+            <Select
               className="flowDropdown mRight10"
               style={{
                 width: 115,
               }}
-              data={[
+              options={[
                 {
-                  text: _l('状态码'),
+                  label: _l('状态码'),
                   value: 10001,
                 },
                 {
-                  text: _l('错误码'),
+                  label: _l('错误码'),
                   value: 10002,
                 },
               ]}
               value={refreshType}
-              border
               onChange={value =>
                 updateAjaxParameter(
                   {
@@ -365,9 +361,8 @@ function ConnectAuth(props) {
               }
             />
             {refreshType === 10002 && (
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+              <Input
+                className="mRight10"
                 style={{
                   width: 180,
                 }}
@@ -377,9 +372,8 @@ function ConnectAuth(props) {
                 onBlur={evt => updateTokenRefreshValue(evt, 'name', true)}
               />
             )}
-            <input
-              type="text"
-              className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+            <Input
+              className="flex"
               placeholder={
                 refreshType === 10001
                   ? _l('请输入指定刷新 token 的 HTTP 状态码，如：400,401(多个状态码用英文逗号隔开)')
@@ -462,8 +456,6 @@ function ConnectAuth(props) {
               {renderTokenRefreshCondition()}
               <div className="mTop10 mBottom10">
                 <Button
-                  type="ghostgray"
-                  className="showRefreshLogBtn"
                   onClick={() =>
                     setState({
                       showRefreshLog: true,
@@ -472,15 +464,8 @@ function ConnectAuth(props) {
                 >
                   {_l('查看日志')}
                 </Button>
-                <Button type="ghostgray" className="mLeft10 showRefreshLogBtn" onClick={onGetRefreshTokenLogs}>
-                  {tokenLoading ? (
-                    <div className="flexRow alignItemsCenter">
-                      <LoadDiv size="small" className="mRight5 mTop5" />
-                      {_l('刷新中')}
-                    </div>
-                  ) : (
-                    _l('刷新 token')
-                  )}
+                <Button className="mLeft10" loading={tokenLoading} onClick={onGetRefreshTokenLogs}>
+                  {_l('刷新 token')}
                 </Button>
               </div>
             </Fragment>

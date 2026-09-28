@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Input } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Input, Modal, Popover } from 'ming-ui/antd-components';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { INTEGRATION_INFO } from '../../config';
 import './index.less';
@@ -88,11 +86,13 @@ export default class SyncDialog extends Component {
       }
     });
     return (
-      <Dialog
-        visible={confirmVisible}
+      <Modal
+        open={confirmVisible}
+        mask={{ closable: true }}
+        keyboard
         title={_l('确认同步？')}
         width="555px"
-        okDisabled={syncLoading}
+        confirmLoading={syncLoading}
         onCancel={() => {
           this.setState({ confirmVisible: false });
         }}
@@ -109,10 +109,14 @@ export default class SyncDialog extends Component {
                 this.setState({ confirmVisible: false, syncLoading: false });
               } else {
                 this.setState({ confirmVisible: false, syncLoading: false });
-                Dialog.confirm({
+                Modal.confirm({
                   title: _l('同步失败'),
-                  description: res.item2 || _l('同步失败'),
-                  showCancel: false,
+                  content: res.item2 || _l('同步失败'),
+                  cancelButtonProps: {
+                    style: {
+                      display: 'none',
+                    },
+                  },
                 });
               }
             })
@@ -130,7 +134,7 @@ export default class SyncDialog extends Component {
               )
             : _l('平台会给未绑定组织用户的%0用户创建一个组织账号绑定', INTEGRATION_INFO[integrationType].text)}
         </div>
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -167,10 +171,8 @@ export default class SyncDialog extends Component {
     });
   };
 
-  searchQWUserList = _.throttle(value => {
-    this.setState({ keywords: value }, () => {
-      this.getWorkWXUsers();
-    });
+  searchQWUserList = _.throttle(() => {
+    this.getWorkWXUsers();
   }, 200);
 
   renderSelectUsers = accountId => {
@@ -179,11 +181,12 @@ export default class SyncDialog extends Component {
     return (
       <div className="selectUserWrap flexColumn">
         <div className="searchBox">
-          <Icon icon="search" className="textDisabled Font20 mRight16" />
-          <input
-            ref={ele => (this.input = ele)}
+          <Input
+            value={this.state.keywords || ''}
+            variant="borderless"
+            prefix={<Icon icon="search" className="textDisabled Font20" />}
             placeholder={_l('搜索姓名、部门、职位')}
-            onChange={e => this.searchQWUserList(e.target.value)}
+            onChange={e => this.setState({ keywords: e.target.value }, this.searchQWUserList)}
           />
         </div>
         <div className="userList flex overflowHidden">
@@ -291,16 +294,22 @@ export default class SyncDialog extends Component {
   // 解绑
   cancelBind = (accountId, userId) => {
     const { projectId, integrationType } = this.props;
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('确定解绑'),
-      description:
+      content:
         _l('%0账号与平台账号解绑后，将不能通过平台官网登录', INTEGRATION_INFO[integrationType].text) +
         (integrationType !== 7 ? _l('；后续点击同步可以重新选择账号绑定。') : ''),
       onOk: () => {
         const params =
           integrationType === 3
-            ? { mingdaoAccountId: accountId, workwxUserId: userId }
-            : { mdAccountId: accountId, tpUserId: userId };
+            ? {
+                mingdaoAccountId: accountId,
+                workwxUserId: userId,
+              }
+            : {
+                mdAccountId: accountId,
+                tpUserId: userId,
+              };
         INTEGRATION_INFO[integrationType]
           .unbindRelationAjax({
             projectId,
@@ -339,7 +348,7 @@ export default class SyncDialog extends Component {
     return this.getUserList(type).length;
   };
   renderSyncInfo = () => {
-    const { visible, isBindRelationship, integrationType } = this.props;
+    const { visible, isBindRelationship, integrationType, projectId } = this.props;
     const {
       allCount,
       pageIndex = 1,
@@ -353,10 +362,12 @@ export default class SyncDialog extends Component {
     const extra = isBindRelationship ? { footer: null } : {};
 
     return (
-      <Dialog
+      <Modal
         className="syncDialog"
         width={1045}
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={isBindRelationship ? _l('绑定关系') : _l('同步账号')}
         okText={_l('同步')}
         onCancel={() => {
@@ -500,7 +511,12 @@ export default class SyncDialog extends Component {
                   return (
                     <div className="row flexRow" key={`${item.accountId}-${userInfo.userId}`}>
                       <div className="flex orgInfo flexRow alignItemsCenter pLeft12">
-                        <img className={cx('avatar', { bg: !item.avatar })} src={item.avatar} />
+                        <UserHead
+                          className="mRight5"
+                          size={24}
+                          user={{ accountId: item.accountId, userHead: item.avatar }}
+                          projectId={projectId}
+                        />
                         <div className="flex userInfo">
                           <div className="name bold">{item.fullname}</div>
                           <div className="textSecondary ellipsis">
@@ -551,7 +567,12 @@ export default class SyncDialog extends Component {
                 return (
                   <div className="row flexRow" key={item.accountId}>
                     <div className="flex orgInfo flexRow alignItemsCenter pLeft12">
-                      <img className={cx('avatar', { bg: !item.avatar })} src={item.avatar} />
+                      <UserHead
+                        className="mRight5"
+                        size={24}
+                        user={{ accountId: item.accountId, userHead: item.avatar }}
+                        projectId={projectId}
+                      />
                       <div className="flex userInfo">
                         <div className="name bold">{item.fullname}</div>
                         <div className="textSecondary ellipsis">
@@ -562,29 +583,19 @@ export default class SyncDialog extends Component {
                       </div>
                     </div>
                     <div className="flex workwxInfo flexRow alignItemsCenter pLeft16">
-                      <Trigger
-                        action={['click']}
-                        popupAlign={{
-                          points: ['tl', 'bl'],
-                          overflow: {
-                            adjustX: true,
-                            adjustY: true,
-                          },
-                        }}
-                        onPopupVisibleChange={() => {
-                          if (this.input) {
-                            this.input.value = '';
-                          }
-
+                      <Popover
+                        trigger="click"
+                        noPadding
+                        onOpenChange={() => {
                           this.setState({ keywords: undefined });
                         }}
-                        popup={() => this.renderSelectUsers(item.accountId)}
+                        content={this.renderSelectUsers(item.accountId)}
                       >
                         <span className="addUser Hand hoverColorPrimary" onClick={this.getWorkWXUsers}>
                           <Icon icon="plus" className="mRight6" />
                           {_l('绑定%0用户', INTEGRATION_INFO[integrationType].text)}
                         </span>
-                      </Trigger>
+                      </Popover>
                     </div>
                   </div>
                 );
@@ -595,7 +606,7 @@ export default class SyncDialog extends Component {
         {isBindRelationship && allCount > pageSize && (
           <PaginationWrap total={allCount} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changPage} />
         )}
-      </Dialog>
+      </Modal>
     );
   };
   render() {

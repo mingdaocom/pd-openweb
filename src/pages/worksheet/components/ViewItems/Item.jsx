@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon, MdLink } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import SettingMenu from './SettingMenu';
-import 'rc-trigger/assets/index.css';
+import { Dropdown, Input, Tooltip } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
+import getViewSettingMenuItems from './SettingMenu';
 import './ViewItems.less';
 
 export default class Item extends Component {
@@ -46,39 +44,37 @@ export default class Item extends Component {
 
     return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
-  renderSettingMenu = () => {
+  getSettingMenuItems = () => {
     const { item, updateAdvancedSetting, list, getNavigateUrl } = this.props;
 
-    return (
-      <SettingMenu
-        {...this.props}
-        changeViewType={true}
-        onChangeHidden={showhiden => {
-          this.setState({ visible: false });
-          updateAdvancedSetting({
-            ...item,
-            advancedSetting: {
-              showhide: showhiden,
-            },
-            editAttrs: ['advancedSetting'],
-            editAdKeys: ['showhide'],
+    return getViewSettingMenuItems({
+      ...this.props,
+      changeViewType: true,
+      onChangeHidden: showhiden => {
+        this.setState({ visible: false });
+        updateAdvancedSetting({
+          ...item,
+          advancedSetting: {
+            showhide: showhiden,
+          },
+          editAttrs: ['advancedSetting'],
+          editAdKeys: ['showhide'],
+        });
+        if (showhiden.search(/hide|hpc/g) > -1) {
+          let showList = list.filter(l => {
+            return (
+              l.viewId !== item.viewId &&
+              _.get(l, 'advancedSetting.showhide') &&
+              _.get(l, 'advancedSetting.showhide').search(/hide|hpc/g) === -1
+            );
           });
-          if (showhiden.search(/hide|hpc/g) > -1) {
-            let showList = list.filter(l => {
-              return (
-                l.viewId !== item.viewId &&
-                _.get(l, 'advancedSetting.showhide') &&
-                _.get(l, 'advancedSetting.showhide').search(/hide|hpc/g) === -1
-              );
-            });
 
-            if (showList.length === 0) return;
-            navigateTo(getNavigateUrl(showList[0]));
-          }
-        }}
-        handleClose={() => this.setState({ visible: false })}
-      />
-    );
+          if (showList.length === 0) return;
+          navigateTo(getNavigateUrl(showList[0]));
+        }
+      },
+      handleClose: () => this.setState({ visible: false }),
+    });
   };
   handleSaveName = event => {
     const value = event.target.value.trim();
@@ -139,9 +135,11 @@ export default class Item extends Component {
             </Tooltip>
           )}
           {isEdit ? (
-            <input
+            <Input
               autoFocus
               className="deit"
+              radius
+              variant="filled"
               defaultValue={item.name}
               onBlur={this.handleSaveName}
               onKeyDown={event => {
@@ -159,25 +157,24 @@ export default class Item extends Component {
             </span>
           )}
         </MdLink>
-        {(isCharge || this.canExport() || this.canShare()) && !isManageView ? (
-          <Trigger
-            popupVisible={this.state.visible}
-            onPopupVisibleChange={visible => {
+        {(isCharge || this.canExport() || this.canShare()) && !isManageView && (
+          <Dropdown
+            open={this.state.visible}
+            onOpenChange={visible => {
               this.setState({ visible });
             }}
-            popupClassName="DropdownPanelTrigger"
-            action={['click']}
-            popupPlacement="bottom"
-            builtinPlacements={{
-              bottom: { points: ['tc', 'bc'] },
+            trigger={['click']}
+            align={{ offset: [60, 10] }}
+            placement="bottom"
+            menu={{
+              items: this.getSettingMenuItems(),
+              selectable: false,
+              selectedKeys: [],
+              style: { minWidth: 220 },
             }}
-            popup={this.renderSettingMenu()}
-            popupAlign={{ offset: [-30, 10] }}
           >
             <Icon icon="arrow-down" />
-          </Trigger>
-        ) : (
-          ''
+          </Dropdown>
         )}
       </div>
     );

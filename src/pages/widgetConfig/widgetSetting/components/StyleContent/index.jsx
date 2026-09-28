@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse } from 'antd';
 import _ from 'lodash';
+import MobileTableSetting from 'src/pages/widgetConfig/widgetSetting/components/WidgetMobile/MobileTableSetting.jsx';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { supportSettingCollapse } from 'src/utils/domain/control/capabilities';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
 import WidgetConfigRuleItem from '../../../../FormSet/components/columnRules/WidgetConfigRuleItem';
-import { supportSettingCollapse } from '../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import { SettingCollapseWrap } from '../../content/styled';
 import WidgetStyle from '../WidgetStyle';
 import { CardItem, WidgetItem } from './StyleContentItems';
-
-const { Panel } = Collapse;
 
 const getItems = props => {
   const { data = {}, status = {}, from } = props;
@@ -53,6 +53,14 @@ const getItems = props => {
     });
   }
 
+  if (_.includes([29, 51], data.type) && isSheetDisplay(data)) {
+    defaultItem.push({
+      key: 'mobileTable',
+      label: _l('移动表格配置'),
+      children: <MobileTableSetting {...props} />,
+    });
+  }
+
   return defaultItem;
 };
 
@@ -60,10 +68,9 @@ export default function StyleCardContent(props) {
   const { data = {}, onChange } = props;
   const items = getItems(props);
   const totalKeys = items.map(i => i.key);
-  const [expandKeys, setExpandKeys] = useState(totalKeys);
+  const collapseKey = `${data.controlId}-${totalKeys.join('-')}`;
 
   useEffect(() => {
-    setExpandKeys(totalKeys);
     const cardTitleStyle = getAdvanceSetting(data, 'cardtitlestyle');
     const cardValueStyle = getAdvanceSetting(data, 'cardvaluestyle');
 
@@ -88,23 +95,15 @@ export default function StyleCardContent(props) {
         }),
       );
     }
-  }, [data.controlId]);
+  }, [data, onChange]);
 
   return (
     <SettingCollapseWrap
+      key={collapseKey}
       bordered={false}
-      activeKey={expandKeys}
+      defaultActiveKey={totalKeys}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
       items={items}
-      onChange={value => setExpandKeys(value)}
-    >
-      {items.map(item => {
-        return (
-          <Panel header={item.label} key={item.key}>
-            {item.children}
-          </Panel>
-        );
-      })}
-    </SettingCollapseWrap>
+    />
   );
 }

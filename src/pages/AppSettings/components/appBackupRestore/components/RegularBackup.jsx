@@ -1,23 +1,12 @@
 // 定期备份
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Dropdown } from 'ming-ui';
+import { Button, Checkbox, Modal, Popover, Select } from 'ming-ui/antd-components';
 import { Days, RegularBackupTabs } from '../enum';
 
 const RegularBackupWrap = styled.div`
-  width: 350px;
-  padding: 14px 20px 20px;
-  background: var(--color-background-primary);
-  box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
-  .icon-close {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 16px;
-  }
   .label {
     width: 70px;
     font-size: 17px;
@@ -49,8 +38,6 @@ const DaySelectWrap = styled.div`
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   display: flex;
-  background-color: var(--color-background-primary);
-  box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
   padding: 15px;
   font-weight: 500;
   .dayItem {
@@ -66,60 +53,43 @@ const DaySelectWrap = styled.div`
   }
 `;
 
-export default function RegularBackup(props) {
-  const { editBackupTaskInfo = () => {}, updatePopupVisibleChange = () => {} } = props;
-  const [backupTask, setBackupTask] = useState(props.backupTask ? props.backupTask : {});
+const DaySelectTrigger = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  padding: 5px 5px 5px 12px;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 4px;
+  background: var(--color-background-input);
+  &:hover {
+    border-color: var(--color-primary);
+  }
+`;
+
+const isSaveDisabled = (backupTask, originalBackupTask) =>
+  _.isEqual(backupTask, originalBackupTask) ||
+  !backupTask.cycleType ||
+  (_.isUndefined(backupTask.cycleValue) && backupTask.cycleType !== 1);
+
+function RegularBackupContent({ originalBackupTask, onChange, onCloseBackupTask }) {
+  const [backupTask, setBackupTask] = useState(originalBackupTask || {});
   const { cycleType, cycleValue, datum = false } = backupTask;
 
   const updateData = data => {
-    setBackupTask(data.status === 0 ? { status: 0 } : { ...backupTask, ...data });
+    const nextBackupTask = data.status === 0 ? { status: 0 } : { ...backupTask, ...data };
+    setBackupTask(nextBackupTask);
+    onChange(nextBackupTask);
   };
-
-  // 开启/更新定期备份
-  const handleSave = () => {
-    updatePopupVisibleChange(false);
-    if (_.get(props, 'backupTask.status') === 1) {
-      editBackupTaskInfo({ ...backupTask, status: 1 });
-      return;
-    }
-
-    Dialog.confirm({
-      title: _l('开启定期备份'),
-      description: _l('备份将于下个周期凌晨时段开始自动执行'),
-      okText: _l('立即开启'),
-      onOk: () => editBackupTaskInfo({ ...backupTask, status: 1 }),
-    });
-  };
-
-  // 关闭定期备份
-  const handleCloseBackupTask = () => {
-    updatePopupVisibleChange(false);
-    Dialog.confirm({
-      title: _l('关闭定期备份'),
-      description: _l('系统将不再定期备份您的应用数据'),
-      okText: _l('确认关闭'),
-      onOk: () => {
-        setBackupTask({ status: 0, datum: false });
-        editBackupTaskInfo({ ...backupTask, status: 0, datum: false });
-      },
-    });
-  };
-
-  // 取消（关闭弹层）
-  const handleCancel = () => {
-    updateData(props.backupTask);
-    updatePopupVisibleChange(false);
-  };
-
-  useEffect(() => {
-    setBackupTask(props.backupTask);
-  }, [props.backupTask]);
 
   const renderDay = () => {
     return (
       <DaySelectWrap>
         {Days.map(item => (
           <div
+            key={item}
             className={cx('dayItem Hand', { active: Number(item) === cycleValue })}
             onClick={() => updateData({ cycleValue: Number(item) })}
           >
@@ -132,21 +102,14 @@ export default function RegularBackup(props) {
 
   return (
     <RegularBackupWrap>
-      <div className="flexRow mBottom16">
-        <div className="Font17 bold">{_l('定期备份')}</div>
-        <i className="icon icon-close Hand" onClick={handleCancel} />
-      </div>
-
       <div className="flexRow">
         <div className="label mTop6">{_l('周期：')}</div>
         <div className="flex">
-          <Dropdown
+          <Select
             className={cx('w100', { mBottom24: !cycleType || cycleType === 1 })}
-            menuClass="w100"
             placeholder={_l('请选择')}
-            border={true}
-            data={RegularBackupTabs}
             value={cycleType}
+            options={RegularBackupTabs.map(item => ({ label: item.text, value: item.value }))}
             onChange={value => updateData({ cycleType: value, cycleValue: undefined })}
           />
           {cycleType === 2 && (
@@ -164,63 +127,103 @@ export default function RegularBackup(props) {
           )}
 
           {cycleType === 3 && (
-            <Trigger
-              action={['click']}
-              popup={renderDay}
-              destroyPopupOnHide={true}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 1],
-                overflow: {
-                  adjustX: true,
-                  adjustY: true,
-                },
-              }}
-            >
-              <div className="ming Dropdown pointer mTop18 mBottom15 w100 ">
-                <div className="Dropdown--input Dropdown--border">
-                  <div className="flex">
-                    {cycleValue ? _l('%0日', cycleValue) : <span className="textDisabled">{_l('请选择')}</span>}
-                  </div>
-                  <i className="icon icon-arrow-down-border mLeft8 textTertiary" />
+            <Popover trigger="click" placement="bottomLeft" noPadding content={renderDay()}>
+              <DaySelectTrigger className="pointer mTop18 mBottom15">
+                <div className="flex">
+                  {cycleValue ? _l('%0日', cycleValue) : <span className="textDisabled">{_l('请选择')}</span>}
                 </div>
-              </div>
-            </Trigger>
+                <i className="icon icon-arrow-down-border mLeft8 textTertiary" />
+              </DaySelectTrigger>
+            </Popover>
           )}
         </div>
       </div>
       <div className="flexRow alignItemsCenter">
         <div className="label">{_l('范围：')}</div>
         <div className="flex flexRow">
-          <Checkbox className="mRight16" text={_l('备份应用')} disabled={true} checked={true} />
-          {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
-            md.global.SysSettings.enableBackupWorksheetData) && (
-            <Checkbox text={_l('备份数据')} checked={datum} onClick={checked => updateData({ datum: !checked })} />
+          <Checkbox className="mRight16" disabled checked>
+            {_l('备份应用')}
+          </Checkbox>
+          {(window.platformENV.isHap ? true : md.global.SysSettings.enableBackupWorksheetData) && (
+            <Checkbox
+              checked={datum}
+              onChange={event =>
+                updateData({
+                  datum: event.target.checked,
+                })
+              }
+            >
+              {_l('备份数据')}
+            </Checkbox>
           )}
         </div>
       </div>
-
-      <div className="flexRow mTop24 alignItemsCenter">
-        {_.get(props, 'backupTask.status') === 1 && (
-          <div className="Font15 Hand textSecondary" onClick={handleCloseBackupTask}>
-            {_l('关闭定期备份')}
-          </div>
-        )}
-        <div className="flex"></div>
-        <Button type="link" onClick={handleCancel}>
-          {_l('取消')}
+      {originalBackupTask.status === 1 && (
+        <Button className="mTop24" color="default" variant="text" onClick={() => onCloseBackupTask(backupTask)}>
+          {_l('关闭定期备份')}
         </Button>
-        <Button
-          disabled={
-            _.isEqual(backupTask, props.backupTask) ||
-            !backupTask.cycleType ||
-            (_.isUndefined(backupTask.cycleValue) && backupTask.cycleType !== 1)
-          }
-          onClick={handleSave}
-        >
-          {_l('保存')}
-        </Button>
-      </div>
+      )}
     </RegularBackupWrap>
   );
+}
+
+export default function openRegularBackupModal({ backupTask = {}, editBackupTaskInfo = () => {} }) {
+  const backupTaskRef = { current: backupTask };
+  let modal;
+
+  const handleCloseBackupTask = currentBackupTask => {
+    modal.destroy();
+    Modal.confirm({
+      title: _l('关闭定期备份'),
+      content: _l('系统将不再定期备份您的应用数据'),
+      okText: _l('确认关闭'),
+      onOk: () =>
+        editBackupTaskInfo({
+          ...currentBackupTask,
+          status: 0,
+          datum: false,
+        }),
+    });
+  };
+
+  const handleSave = () => {
+    const currentBackupTask = backupTaskRef.current;
+    if (isSaveDisabled(currentBackupTask, backupTask)) return false;
+
+    if (backupTask.status === 1) {
+      editBackupTaskInfo({ ...currentBackupTask, status: 1 });
+      return;
+    }
+
+    Modal.confirm({
+      title: _l('开启定期备份'),
+      content: _l('备份将于下个周期凌晨时段开始自动执行'),
+      okText: _l('立即开启'),
+      onOk: () => editBackupTaskInfo({ ...currentBackupTask, status: 1 }),
+    });
+  };
+
+  modal = Modal.confirm({
+    width: 430,
+    title: _l('定期备份'),
+    content: (
+      <RegularBackupContent
+        originalBackupTask={backupTask}
+        onChange={currentBackupTask => {
+          backupTaskRef.current = currentBackupTask;
+          modal.update({
+            okButtonProps: {
+              disabled: isSaveDisabled(currentBackupTask, backupTask),
+            },
+          });
+        }}
+        onCloseBackupTask={handleCloseBackupTask}
+      />
+    ),
+    okText: _l('保存'),
+    okButtonProps: { disabled: true },
+    onOk: handleSave,
+  });
+
+  return modal;
 }

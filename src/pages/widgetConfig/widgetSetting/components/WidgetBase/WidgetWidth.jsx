@@ -1,7 +1,7 @@
 import React from 'react';
-import cx from 'classnames';
-import { AnimationWrap, SettingItem } from '../../../styled';
-import { adjustWidthList } from '../../../util/setting';
+import { Segmented } from 'ming-ui/antd-components';
+import { adjustWidthList } from 'src/utils/domain/control/editorSetting';
+import { SettingItem } from '../../../styled';
 
 const WIDTH_SETTING_LIST = [
   {
@@ -36,23 +36,16 @@ export default function WidgetWidth({ data, widgets, handleClick }) {
   return (
     <SettingItem>
       <div className="settingItemTitle">{_l('宽度（占比）')}</div>
-      <AnimationWrap>
-        {WIDTH_SETTING_LIST.map(({ text, value }) => {
-          const disabled = !availableWidth.includes(value);
-          const isActive = size === value;
-          return (
-            <div
-              className={cx('animaItem overflow_ellipsis', { active: isActive, disabled })}
-              onClick={() => {
-                if (isActive || disabled) return;
-                handleClick(value);
-              }}
-            >
-              {text}
-            </div>
-          );
-        })}
-      </AnimationWrap>
+      <Segmented
+        block
+        value={size}
+        options={WIDTH_SETTING_LIST.map(({ text, value }) => ({
+          label: text,
+          value,
+          disabled: !availableWidth.includes(value),
+        }))}
+        onChange={handleClick}
+      />
     </SettingItem>
   );
 }

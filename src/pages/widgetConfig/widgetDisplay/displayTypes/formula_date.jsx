@@ -1,7 +1,7 @@
 import React from 'react';
-import { UNIT_TO_TEXT } from '../../config/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { UNIT_TO_TEXT } from 'src/utils/domain/control/setting';
 import { CommonDisplay } from '../../styled';
-import { getAdvanceSetting } from '../../util';
 
 export default function FormulaDate({ data }) {
   const { hint, unit, enumDefault } = data;

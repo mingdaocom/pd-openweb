@@ -1,11 +1,18 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog, FunctionWrap, LoadDiv, Radio } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio } from 'ming-ui/antd-components';
 import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
 import departmentController from 'src/api/department';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import {
+  findDepartmentById,
+  findDepartmentPathById,
+  formatDepartmentTree,
+  formatSearchDepartmentTree,
+} from 'src/utils/domain/project/department';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { checkPermission } from 'src/utils/services/security/permission';
 import DepartmentList from '../dialogSelectUser/GeneralSelect/DepartmentList';
 import './style.less';
 
@@ -99,7 +106,7 @@ class DialogSelectDept extends React.Component {
   }
 
   getDepartmentPath(dept) {
-    const pathData = this.getParentId(this.state.list, dept.departmentId) || [];
+    const pathData = findDepartmentPathById(this.state.list, dept.departmentId) || [];
     return pathData
       .filter(item => item.departmentId !== dept.departmentId)
       .map((item, index) => ({
@@ -111,7 +118,7 @@ class DialogSelectDept extends React.Component {
 
   async selectFn() {
     const { selectedDepartment } = this.state;
-    const { checkIncludeChilren, allPath, onClose = () => {} } = this.props; //是否选择包含子集
+    const { checkIncludeChilren, allPath } = this.props; //是否选择包含子集
 
     const checkedHasUser = await this.hasUser();
 
@@ -141,7 +148,6 @@ class DialogSelectDept extends React.Component {
           )
         : null,
     );
-    onClose(true);
   }
 
   async hasUser() {
@@ -157,40 +163,6 @@ class DialogSelectDept extends React.Component {
     });
 
     return hasMemberIds.concat(hasMemberIdsInTree);
-  }
-
-  getDepartmentTree(data, parentId) {
-    return data.map(item => {
-      let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
-      return {
-        departmentId,
-        departmentName,
-        userCount,
-        haveSubDepartment,
-        open: subDepartments.length > 0,
-        subDepartments,
-        parentId,
-      };
-    });
-  }
-
-  getSearchDepartmentTree(data) {
-    return data.map(item => {
-      let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
-
-      if (subDepartments.length) {
-        subDepartments = this.getSearchDepartmentTree(subDepartments);
-      }
-
-      return {
-        departmentId,
-        departmentName,
-        userCount,
-        haveSubDepartment,
-        open: subDepartments && subDepartments.length,
-        subDepartments,
-      };
-    });
   }
 
   fetchData() {
@@ -212,9 +184,9 @@ class DialogSelectDept extends React.Component {
     let getTree;
 
     if (this.state.keywords) {
-      getTree = this.getSearchDepartmentTree.bind(this);
+      getTree = formatSearchDepartmentTree;
     } else {
-      getTree = this.getDepartmentTree.bind(this);
+      getTree = formatDepartmentTree;
     }
 
     let param = {
@@ -290,25 +262,9 @@ class DialogSelectDept extends React.Component {
       });
   }
 
-  getDepartmentById(departmentTree, id) {
-    for (let i = 0; i < departmentTree.length; i++) {
-      let department = departmentTree[i];
-
-      if (department.departmentId === id) {
-        return department;
-      } else if (department.subDepartments.length) {
-        let oDepartment = this.getDepartmentById(department.subDepartments, id);
-
-        if (oDepartment) {
-          return this.getDepartmentById(department.subDepartments, id);
-        }
-      }
-    }
-  }
-
   fetchSubDepartment(id) {
     let departmentTree = [...this.state.list];
-    let department = this.getDepartmentById(departmentTree, id);
+    let department = findDepartmentById(departmentTree, id);
     const { subDepartments = [] } = department;
 
     if (!department.haveSubDepartment) {
@@ -354,8 +310,8 @@ class DialogSelectDept extends React.Component {
           localStorage.removeItem('parentId');
           department.subDepartments =
             pageIndex > 1
-              ? department.subDepartments.concat(this.getDepartmentTree(data, department.departmentId))
-              : this.getDepartmentTree(data, department.departmentId);
+              ? department.subDepartments.concat(formatDepartmentTree(data, department.departmentId))
+              : formatDepartmentTree(data, department.departmentId);
           department.open = true;
           this.setMoreList(department.departmentId, data.length < this.state.pageSize);
           this.setState({
@@ -396,22 +352,6 @@ class DialogSelectDept extends React.Component {
         this.setState({
           departmentMoreIds: departmentMoreIds.concat({ departmentId: departmentId, pageIndex: 1 }),
         });
-      }
-    }
-  };
-
-  getParentId = (list, id) => {
-    for (let i in list) {
-      if (list[i].departmentId == id) {
-        return [list[i]];
-      }
-
-      if (list[i].subDepartments) {
-        let node = this.getParentId(list[i].subDepartments, id);
-
-        if (node !== undefined) {
-          return node.concat(list[i]);
-        }
       }
     }
   };
@@ -463,7 +403,7 @@ class DialogSelectDept extends React.Component {
             selectedDepartments = [];
           } else {
             selectedDepartment.map(o => {
-              let l = this.getParentId(this.state.allList, o.departmentId) || [];
+              let l = findDepartmentPathById(this.state.allList, o.departmentId) || [];
               l = l.map(it => it.departmentId);
               if (l.includes(department.departmentId)) {
                 selectedDepartments = selectedDepartments.filter(it => it.departmentId !== o.departmentId);
@@ -504,10 +444,6 @@ class DialogSelectDept extends React.Component {
     const keywords = evt.target.value;
     this.setState({ keywords });
     this.search();
-  }
-
-  clearKeywords() {
-    this.setState({ keywords: '' });
   }
 
   renderContent() {
@@ -596,119 +532,99 @@ class DialogSelectDept extends React.Component {
   }
 
   render() {
-    const { title, width, onClose, className } = this.props;
     const { showProjectAll } = this.state;
     return (
-      <Dialog
-        visible
-        type="scroll"
-        title={title}
-        width={width}
-        className={cx('mobileDepartmentPickerDialog', className)}
-        ref={dialog => {
-          this.dialog = dialog;
-        }}
-        onCancel={onClose}
-        onOk={() => {
-          this.selectFn();
-        }}
-      >
-        <div>
-          <div className="selectDepartmentContainer">
-            <div className="selectDepartmentContainer_search">
-              <span className="searchIcon icon-search" />
-              <input
-                type="text"
-                className="searchInput"
-                placeholder={_l('搜索部门')}
-                value={this.state.keywords}
-                onChange={this.handleChange.bind(this)}
-              />
-              <span className="searchClose icon-cancel" onClick={this.clearKeywords.bind(this)} />
-            </div>
-            {this.props.showCurrentUserDept && (
-              <div
-                className="mTop24 Font13 overflow_ellipsis Hand pBottom10"
-                onClick={this.toggle.bind(this, {
-                  departmentId: 'user-departments',
-                  departmentName: _l('当前用户所在的部门'),
-                })}
-              >
-                {this.props.unique ? (
-                  <Radio
-                    className="GSelect-department--checkbox mRight0"
-                    checked={this.getCurrentUserDeptChecked()}
-                    text={_l('当前用户所在的部门')}
-                  />
-                ) : (
-                  <Checkbox
-                    className="GSelect-department--checkbox"
-                    checked={this.getCurrentUserDeptChecked()}
-                    text={_l('当前用户所在的部门')}
-                  />
-                )}
-              </div>
-            )}
-            {this.props.allProject && showProjectAll && (
-              <div
-                className="mTop24 Font13 overflow_ellipsis Hand pBottom10"
-                onClick={this.toggle.bind(this, {
-                  departmentId: 'orgs_' + this.state.project.projectId,
-                  departmentName: _l('全组织'),
-                })}
-              >
-                {this.props.unique ? (
-                  <Radio
-                    className="GSelect-department--checkbox mRight0"
-                    checked={this.getCurrentAllDeptChecked()}
-                    text={this.state.project.companyName || _l('全组织')}
-                  />
-                ) : (
-                  <Checkbox
-                    className="GSelect-department--checkbox"
-                    checked={this.getCurrentAllDeptChecked()}
-                    text={this.state.project.companyName || _l('全组织')}
-                  />
-                )}
-              </div>
-            )}
-            {(() => {
-              if (!this.state.project || (this.props.allProject && showProjectAll)) return null;
-              if (!this.props.includeProject)
-                return <div className="mTop12 Font13 overflow_ellipsis">{this.state.project.companyName}</div>;
-              return (
-                <div
-                  className="mTop12 Font13 overflow_ellipsis Hand"
-                  onClick={this.toggle.bind(this, { departmentId: '', departmentName: this.state.project.companyName })}
+      <div>
+        <div className="selectDepartmentContainer">
+          <Input
+            allowClear
+            placeholder={_l('搜索部门')}
+            prefix={<Icon icon="search" className="textTertiary Font20" />}
+            value={this.state.keywords}
+            onChange={this.handleChange.bind(this)}
+          />
+          {this.props.showCurrentUserDept && (
+            <div
+              className="mTop24 Font13 overflow_ellipsis Hand pBottom10"
+              onClick={this.toggle.bind(this, {
+                departmentId: 'user-departments',
+                departmentName: _l('当前用户所在的部门'),
+              })}
+            >
+              {this.props.unique ? (
+                <Radio
+                  className="GSelect-department--checkbox mRight0"
+                  checked={this.getCurrentUserDeptChecked()}
+                  title={_l('当前用户所在的部门')}
                 >
-                  {this.props.unique ? (
-                    <Radio
-                      className="GSelect-department--checkbox mRight0"
-                      checked={this.getChecked()}
-                      text={this.state.project.companyName}
-                    />
-                  ) : (
-                    <Checkbox
-                      className="GSelect-department--checkbox"
-                      checked={this.getChecked()}
-                      text={this.state.project.companyName}
-                    />
-                  )}
-                </div>
-              );
-            })()}
-            <div className="selectDepartmentContent" ref={this.scroll}>
-              {this.renderContent()}
+                  {_l('当前用户所在的部门')}
+                </Radio>
+              ) : (
+                <Checkbox className="GSelect-department--checkbox" checked={this.getCurrentUserDeptChecked()}>
+                  {_l('当前用户所在的部门')}
+                </Checkbox>
+              )}
             </div>
-            <div className="GSelect-result-box">{this.renderResult()}</div>
+          )}
+          {this.props.allProject && showProjectAll && (
+            <div
+              className="mTop24 Font13 overflow_ellipsis Hand pBottom10"
+              onClick={this.toggle.bind(this, {
+                departmentId: 'orgs_' + this.state.project.projectId,
+                departmentName: _l('全组织'),
+              })}
+            >
+              {this.props.unique ? (
+                <Radio
+                  className="GSelect-department--checkbox mRight0"
+                  checked={this.getCurrentAllDeptChecked()}
+                  title={this.state.project.companyName || _l('全组织')}
+                >
+                  {this.state.project.companyName || _l('全组织')}
+                </Radio>
+              ) : (
+                <Checkbox className="GSelect-department--checkbox" checked={this.getCurrentAllDeptChecked()}>
+                  {this.state.project.companyName || _l('全组织')}
+                </Checkbox>
+              )}
+            </div>
+          )}
+          {(() => {
+            if (!this.state.project || (this.props.allProject && showProjectAll)) return null;
+            if (!this.props.includeProject)
+              return <div className="mTop12 Font13 overflow_ellipsis">{this.state.project.companyName}</div>;
+            return (
+              <div
+                className="mTop12 Font13 overflow_ellipsis Hand"
+                onClick={this.toggle.bind(this, { departmentId: '', departmentName: this.state.project.companyName })}
+              >
+                {this.props.unique ? (
+                  <Radio
+                    className="GSelect-department--checkbox mRight0"
+                    checked={this.getChecked()}
+                    title={this.state.project.companyName}
+                  >
+                    {this.state.project.companyName}
+                  </Radio>
+                ) : (
+                  <Checkbox className="GSelect-department--checkbox" checked={this.getChecked()}>
+                    {this.state.project.companyName}
+                  </Checkbox>
+                )}
+              </div>
+            );
+          })()}
+          <div className="selectDepartmentContent" ref={this.scroll}>
+            {this.renderContent()}
           </div>
+          <div className="GSelect-result-box">{this.renderResult()}</div>
         </div>
-      </Dialog>
+      </div>
     );
   }
 }
 
-export default function (opts) {
+export function dialogSelectDept(opts = {}) {
   const DEFAULTS = {
     title: _l('选择部门'),
     dialogBoxID: 'dialogSelectDept',
@@ -728,10 +644,7 @@ export default function (opts) {
 
   const options = _.extend({}, DEFAULTS, opts);
 
-  const listProps = {
-    className: options.className,
-    title: options.title,
-    width: options.displayType === 'mobile' ? '100%' : 480,
+  const dialogProps = {
     unique: options.unique,
     projectId: options.projectId,
     returnCount: options.returnCount,
@@ -749,8 +662,39 @@ export default function (opts) {
     appointedDepartmentIds: options.appointedDepartmentIds,
     appointedUserIds: options.appointedUserIds,
     fetchCount: options.fetchCount,
-    onClose: options.onClose,
   };
+  const dialogRef = React.createRef();
+  let modal;
+  const handlePopState = () => modal.destroy();
 
-  FunctionWrap(DialogSelectDept, { ...listProps });
+  modal = (options.modal || Modal).info({
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    className: cx('departmentPickerModal', options.className),
+    content: <DialogSelectDept {...dialogProps} ref={dialogRef} />,
+    mask: { closable: true },
+    okCancel: true,
+    onCancel: () => {
+      if (_.isFunction(options.onClose)) {
+        options.onClose();
+      }
+    },
+    onOk: async () => {
+      await dialogRef.current.selectFn();
+
+      if (_.isFunction(options.onClose)) {
+        options.onClose(true);
+      }
+    },
+    styles: { body: { color: 'var(--color-text-primary)' } },
+    title: options.title,
+    width: options.displayType === 'mobile' ? '100%' : 480,
+    zIndex: options.zIndex,
+  });
+
+  window.addEventListener('popstate', handlePopState);
+
+  return modal;
 }
+
+export default dialogSelectDept;

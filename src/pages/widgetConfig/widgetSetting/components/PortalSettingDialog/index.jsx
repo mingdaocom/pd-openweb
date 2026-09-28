@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import 'src/pages/widgetConfig/styled/style.less';
-import { enumWidgetType, getWidgetInfo } from 'src/pages/widgetConfig/util';
 import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
 import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
+import { getWidgetInfo } from 'src/utils/domain/control/metadata';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import Switch from '../../settings/switch';
 import DynamicDefaultValue from '../DynamicDefaultValue';
 import {
@@ -49,7 +50,7 @@ export default class PortalSettingDialog extends Component {
     const SettingComponent = Settings[ENUM_TYPE];
     const { icon, widgetName } = getWidgetInfo(type);
     return (
-      <Dialog
+      <Modal
         title={
           <div className="flexCenter">
             <i className={cx('icon Font20 mRight10 textSecondary', `icon-${icon}`)} />
@@ -57,7 +58,9 @@ export default class PortalSettingDialog extends Component {
           </div>
         }
         className="portalSettingsDialog"
-        visible={true}
+        open={true}
+        mask={{ closable: true }}
+        keyboard
         width={360}
         onCancel={onClose}
         okText={_l('保存')}
@@ -83,7 +86,7 @@ export default class PortalSettingDialog extends Component {
           {/**引导文案 */}
           {HAS_EXPLAIN_CONTROL.includes(type) && <WidgetExplain {...allProps} />}
         </PortalWrap>
-      </Dialog>
+      </Modal>
     );
   }
 }

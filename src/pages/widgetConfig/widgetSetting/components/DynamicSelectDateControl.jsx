@@ -6,11 +6,14 @@ import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import styled from 'styled-components';
-import { DatePicker } from 'ming-ui';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { SYSTEM_DATE_CONTROL } from '../../config/widget';
+import { DatePicker } from 'ming-ui/antd-components';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { SYSTEM_DATE_CONTROL } from 'src/utils/domain/control/widget';
 import { ControlTag } from '../../styled';
 import SelectControl from './SelectControl';
+
+const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
+const DATE_TIME_PICKER_CONFIG = { format: 'HH:mm' };
 
 const DateInfoWrap = styled.div`
   display: flex;
@@ -37,9 +40,12 @@ const DateInfoWrap = styled.div`
       width: 100%;
     }
   }
-  .selectedDate {
-    height: 36px;
-    line-height: 36px;
+  .dynamicDatePicker {
+    width: 100%;
+    padding: 0;
+    .hap-picker-input > input {
+      cursor: pointer;
+    }
   }
   .selectControl {
     width: 36px;
@@ -85,24 +91,18 @@ export default function DynamicSelectDateControl({ value, onChange, allControls,
             <Fragment>
               {isSelectPlainTime ? (
                 <DatePicker
-                  timePicker
-                  offset={{ left: -14, top: 1 }}
-                  selectedValue={value ? moment(value) : moment()}
-                  defaultVisible={false}
-                  onSelect={newDate => {
-                    const newValue = newDate.format('YYYY-MM-DD HH:mm');
-                    onChange(newValue);
-                  }}
-                  onOk={newDate => {
-                    const newValue = newDate.format('YYYY-MM-DD HH:mm');
-                    onChange(newValue);
-                  }}
-                  onClear={() => {
-                    onChange('');
-                  }}
-                >
-                  <div className="selectedDate">{value && moment(value).format('YYYY-MM-DD HH:mm')}</div>
-                </DatePicker>
+                  allowClear={false}
+                  className="dynamicDatePicker"
+                  format={DATE_TIME_FORMAT}
+                  inputReadOnly
+                  needConfirm
+                  placeholder=""
+                  showTime={DATE_TIME_PICKER_CONFIG}
+                  suffixIcon={null}
+                  value={value ? moment(value) : null}
+                  variant="borderless"
+                  onChange={newDate => onChange(newDate.format(DATE_TIME_FORMAT))}
+                />
               ) : (
                 <ControlTag className={cx('overflow_ellipsis', { invalid: !controlName || invalidError })}>
                   {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('已删除')}

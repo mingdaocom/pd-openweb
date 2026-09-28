@@ -52,16 +52,6 @@
     }
   }
 
-  .applyBtn {
-    background: var(--color-primary) !important;
-    width: 120px;
-    height: 44px;
-    line-height: 44px;
-    &:hover {
-      background: var(--color-link-hover) !important;
-    }
-  }
-
   .stepTitle {
     margin: 0;
     padding: 0;
@@ -105,10 +95,10 @@
   }
 
   .radioGroupWrapper {
-    .ant-radio-wrapper {
+    .hap-radio-wrapper {
       margin-top: 9px;
     }
-    .ant-radio-input {
+    .hap-radio-input {
       position: absolute !important;
     }
     .width225 {
@@ -125,13 +115,6 @@
 
   .customFieldWrapper {
     width: 360px;
-    .ant-input {
-      border-radius: 4px;
-    }
-    .ant-input:focus,
-    .ant-input-focused {
-      box-shadow: none;
-    }
   }
 
   .infoList {
@@ -145,49 +128,10 @@
       }
       .inputDiv {
         flex: 1;
-        .isShowIcon {
-          cursor: pointer;
-          position: absolute;
-          right: 12px;
-          top: 9px;
-          z-index: 1;
-          &:hover {
-            color: var(--color-primary) !important;
-          }
-        }
         .inputBox {
           width: 100%;
-          line-height: 36px;
-          height: 36px;
-          background-color: var(--color-background-primary);
-          border-radius: 3px;
-          padding-left: 10px;
-          border: 1px solid var(--color-border-primary);
-          padding-right: 40px;
-          box-sizing: border-box;
         }
       }
-    }
-  }
-
-  .editInfo {
-    width: 90px;
-    height: 36px;
-    border-radius: 2px;
-    background: var(--color-background-disabled) !important;
-    color: var(--color-primary) !important;
-    &:hover {
-      background: var(--color-border-secondary) !important;
-    }
-  }
-
-  .saveInfo {
-    width: 90px;
-    height: 36px;
-    border-radius: 2px;
-    background: var(--color-primary) !important;
-    &:hover {
-      background: var(--color-link-hover) !important;
     }
   }
 
@@ -197,33 +141,18 @@
       flex: 1;
       line-height: 36px;
     }
-    .syncBtn {
-      width: 90px;
-      height: 36px;
-      border-radius: 2px;
-      background: var(--color-primary) !important;
-      &:hover {
-        background: var(--color-link-hover) !important;
-      }
-    }
-
     .isNO {
       cursor: default;
       opacity: 0.5;
 
       &:hover {
         opacity: 0.5;
-        background: var(--color-primary) !important;
       }
     }
   }
   .syncRow {
     .mLeft110 {
       margin-left: 110px;
-    }
-    .Checkbox-box {
-      margin-right: 16px;
-      margin-top: -2px;
     }
     &.height32 {
       height: 32px;
@@ -242,9 +171,6 @@
   }
 }
 
-.workwxPopoverWrapper .ant-popover-inner-content {
-  padding: 0;
-}
 .helpEntry {
   color: var(--color-primary);
   &:hover {

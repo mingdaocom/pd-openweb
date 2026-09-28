@@ -3,16 +3,16 @@ import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import { Motion, spring } from 'react-motion';
 import { generate } from '@ant-design/colors';
-import { Drawer, Modal } from 'antd';
 import api from 'api/homeApp';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { func, oneOf } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, Skeleton, SvgIcon, UpgradeIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Qr, SvgIcon, UpgradeIcon } from 'ming-ui';
+import { Drawer, Dropdown, Modal, Skeleton, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
+import { pcNavList } from 'ming-ui/functions/dialogSelectIcon/AppNavStyle';
 import appManagementApi from 'src/api/appManagement';
 import DragMask from 'worksheet/common/DragMask';
 import { refreshSheetList } from 'worksheet/redux/actions/sheetList';
@@ -21,7 +21,6 @@ import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AppAnalytics from 'src/pages/Admin/app/useAnalytics/components/AppAnalytics';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import { unlockAppLockPassword } from 'src/pages/AppSettings/components/LockApp/AppLockPasswordDialog';
-import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet';
 import {
@@ -31,19 +30,28 @@ import {
   setAppStatus,
   syncAppDetail,
 } from 'src/pages/PageHeader/redux/action';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo, setFavicon } from 'src/utils/app';
-import { emitter, getAppFeaturesVisible, pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { getSheetListFirstId } from 'src/utils/worksheet';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { compareProps, getAppConfig, getIds } from 'src/utils/domain/app/model';
+import {
+  getPeerEnvironmentUrl,
+  isAppSandboxEnabled,
+  isSandboxEnvironment,
+  openPeerEnvironment,
+} from 'src/utils/domain/app/sandbox';
+import { canEditApp, canEditData, isHaveCharge } from 'src/utils/domain/permission/app';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getSheetListFirstId } from 'src/utils/domain/worksheet/helpers';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo, setFavicon } from 'src/utils/services/app';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import CommonUserHandle, { LeftCommonUserHandle } from '../../components/CommonUserHandle';
 import HomepageIcon from '../../components/HomepageIcon';
 import IndexSide from '../../components/IndexSide';
 import MyProcessEntry from '../../components/MyProcessEntry';
-import { compareProps, getAppConfig, getIds } from '../../util';
 import AppGroup from '../AppGroup';
 import { DROPDOWN_APP_CONFIG } from '../config';
 import LeftAppGroup from '../LeftAppGroup';
@@ -57,10 +65,10 @@ const APP_STATUS_TEXT = {
   12: _l('迁移中'),
 };
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 2;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -69,13 +77,22 @@ const Drag = styled.div(
   }
 `,
 );
+const MobileQrCodeWrap = styled.div`
+  width: 200px;
+  padding: 8px;
+  text-align: center;
+  color: var(--color-text-secondary);
 
+  img {
+    display: block;
+    margin: 0 auto 8px;
+  }
+`;
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({
   sheet,
   sheetList,
   appStatus,
 });
-
 const mapDispatchToProps = dispatch => ({
   syncAppDetail: detail => dispatch(syncAppDetail(detail)),
   updateColor: color => dispatch(changeAppColor(color)),
@@ -84,12 +101,9 @@ const mapDispatchToProps = dispatch => ({
   refreshSheetList: () => dispatch(refreshSheetList()),
   clearAppDetail: () => dispatch(clearAppDetail()),
 });
-
 const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)|\/app\/(.*)\/newrecord\/(.*)\/(.*)/;
 const workflowDetailReg = /\/app\/(.*)\/workflowdetail\/record\/(.*)\/(.*)/;
-
 const checkRecordInfo = url => rowInfoReg.test(url) || workflowDetailReg.test(url);
-
 const appCacheList = [
   'icon',
   'iconUrl',
@@ -117,7 +131,6 @@ let AppInfo = class AppInfo extends Component {
     updateNavColor: _.noop,
     syncAppDetail: _.noop,
   };
-
   constructor(props) {
     super(props);
     const { appId } = getIds(props);
@@ -126,7 +139,6 @@ let AppInfo = class AppInfo extends Component {
     const appCacheData = window.safeParse(localStorage.getItem(`appCache-${appId}`));
     this.appDetailRequestId = 0;
     this.unmounted = false;
-
     if (appCacheData.navColor) {
       if (window.themeMode === 'light' && appCacheData.lightThemeModeNavColor) {
         appCacheData.navColor = appCacheData.lightThemeModeNavColor;
@@ -142,7 +154,6 @@ let AppInfo = class AppInfo extends Component {
     const isAIPreview = /[?&]previewMode=ai(?:&|$)/.test(_.get(window, 'location.search') || '');
     // 搭建预览态下隐藏首页 / 超级搜索 / 待办入口，预览只呈现应用本身
     this.isAIPreview = isAIPreview;
-
     this.state = {
       indexSideVisible: false,
       appConfigVisible: false,
@@ -161,10 +172,12 @@ let AppInfo = class AppInfo extends Component {
       navWidth: Number(localStorage.getItem(`appNavWidth-${appId}`)) || 240,
       dragMaskVisible: false,
     };
-    appCacheData && this.props.syncAppDetail({ ..._.pick(this.state.data, ['currentPcNaviStyle', 'iconColor']) });
+    appCacheData &&
+      this.props.syncAppDetail({
+        ..._.pick(this.state.data, ['currentPcNaviStyle', 'iconColor']),
+      });
     this.checkNavigationStyle(_.get(this.state.data, 'currentPcNaviStyle'));
   }
-
   componentDidMount() {
     this.unmounted = false;
     this.ids = getIds(this.props);
@@ -179,8 +192,8 @@ let AppInfo = class AppInfo extends Component {
 
     emitter.addListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
     emitter.addListener('REFRESH_APP_DETAIL', this.getData);
+    document.addEventListener('mousedown', this.handleDocumentMouseDown, true);
   }
-
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       this.ids = getIds(this.props);
@@ -201,7 +214,10 @@ let AppInfo = class AppInfo extends Component {
         }
 
         this.setState({
-          data: { ...data, currentPcNaviStyle },
+          data: {
+            ...data,
+            currentPcNaviStyle,
+          },
         });
         prevProps.syncAppDetail({
           currentPcNaviStyle,
@@ -219,24 +235,26 @@ let AppInfo = class AppInfo extends Component {
       }
     }
   }
-
   componentWillUnmount() {
     this.unmounted = true;
     clearTimeout(this.timer);
-    $('[rel="icon"]').attr('href', '/favicon.png?t=' + Date.now());
+    $('[rel="icon"]').attr(
+      'href',
+      window.platformENV.isHap
+        ? 'https://fp1.mingdaoyun.cn/favicon.png'
+        : `/file/mdpic/ProjectLogo/favicon.png?t=${Date.now()}`,
+    );
     const body = document.querySelector('body');
-
     body && body.classList.remove('leftNavigationStyleWrap');
     this.props.clearAppDetail();
     emitter.removeListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
     delete window.updateAppGroups;
     emitter.removeListener('REFRESH_APP_DETAIL', this.getData);
+    document.removeEventListener('mousedown', this.handleDocumentMouseDown, true);
   }
-
   checkIsFull = worksheetId => {
     const wrapper = document.querySelector('#wrapper');
     if (!wrapper) return;
-
     if (worksheetId) {
       wrapper.classList.add('fullWrapper');
     } else {
@@ -267,12 +285,9 @@ let AppInfo = class AppInfo extends Component {
   };
   translateDebugRoles = (data, appId) => {
     const selectedRoles = _.get(data, 'debugRole.selectedRoles') || [];
-
     if (!selectedRoles.length) return;
-
     data.debugRole.selectedRoles = selectedRoles.map(role => {
       const translateInfo = role.roleId ? getTranslateInfo(appId, null, role.roleId) : {};
-
       return {
         ...role,
         name: translateInfo.name || role.name,
@@ -312,9 +327,7 @@ let AppInfo = class AppInfo extends Component {
         silent: true,
       },
     );
-
     if (this.unmounted || requestId !== this.appDetailRequestId) return;
-
     emitter.emit('UPDATE_GLOBAL_STORE', 'appInfo', data);
     const { langInfo } = data;
 
@@ -324,9 +337,7 @@ let AppInfo = class AppInfo extends Component {
         appId,
         appLangId: langInfo.appLangId,
       });
-
       if (this.unmounted || requestId !== this.appDetailRequestId) return;
-
       window[`langData-${appId}`] = lang.items;
       window[`langVersion-${appId}`] = langInfo.version;
     }
@@ -347,7 +358,6 @@ let AppInfo = class AppInfo extends Component {
     data.needUpdate = Date.now();
     data.workflowAgentFeatureType = getFeatureStatus(data.projectId, VersionProductType.workflowAgent);
     this.translateDebugRoles(data, appId);
-
     if (window.themeMode === 'dark') {
       data.navColor = '#1b2025';
     }
@@ -371,6 +381,7 @@ let AppInfo = class AppInfo extends Component {
       'lightColor',
       'iconUrl',
       'projectId',
+      'sandboxStatus',
       'name',
       'id',
       'fixed',
@@ -393,12 +404,10 @@ let AppInfo = class AppInfo extends Component {
       'license',
       'workflowAgentFeatureType',
     ]);
-
     window[`timeZone_${appId}`] = data.timeZone; //记录应用时区
 
     syncAppDetail(appDetail);
     this.checkNavigationStyle(data.currentPcNaviStyle);
-
     if (data.currentPcNaviStyle === 2) {
       this.checkIsFull(worksheetId);
     } else {
@@ -414,9 +423,29 @@ let AppInfo = class AppInfo extends Component {
   switchVisible = (obj, cb) => {
     this.setState(obj, cb);
   };
+  handleDocumentMouseDown = event => {
+    this.appConfigMouseDownTarget = event.target;
+  };
+  isAppConfigClickAwayException = () => {
+    const { appConfigMouseDownTarget } = this;
+    const target =
+      appConfigMouseDownTarget && appConfigMouseDownTarget.closest
+        ? appConfigMouseDownTarget
+        : appConfigMouseDownTarget && appConfigMouseDownTarget.parentElement;
+    return target && target.closest('.appLicenseWrap, .hap-modal-wrap');
+  };
+  handleAppConfigOpenChange = visible => {
+    if (!visible && this.isAppConfigClickAwayException()) return;
+    this.setState({
+      appConfigVisible: visible,
+    });
+  };
   updateData = obj => {
     const { data } = this.state;
-    const nextData = { ...data, ...obj };
+    const nextData = {
+      ...data,
+      ...obj,
+    };
     this.setState({
       data: nextData,
     });
@@ -436,7 +465,6 @@ let AppInfo = class AppInfo extends Component {
   };
   updateAppDetail = obj => {
     const { appId, groupId } = this.ids;
-
     const current = _.pick(this.state.data, [
       'projectId',
       'iconColor',
@@ -446,9 +474,11 @@ let AppInfo = class AppInfo extends Component {
       'name',
       'shortDesc',
     ]);
-
     if (!obj.name) obj = _.omit(obj, 'name');
-    const para = { ...current, ...obj };
+    const para = {
+      ...current,
+      ...obj,
+    };
     api
       .editAppInfo({
         appId,
@@ -458,7 +488,6 @@ let AppInfo = class AppInfo extends Component {
         this.dataCache = _.pick(para, appCacheList);
         safeLocalStorageSetItem(`appCache-${appId}`, JSON.stringify(this.dataCache));
         if (data) this.updateData(obj);
-
         if ('pcNaviStyle' in obj && obj.pcNaviStyle !== this.state.data.currentPcNaviStyle) {
           if (obj.pcNaviStyle === 2) {
             location.href = pathCompletion(`/app/${appId}/${groupId || ''}`);
@@ -478,7 +507,10 @@ let AppInfo = class AppInfo extends Component {
   };
   handleModify = obj => {
     if (obj.name === '') {
-      obj = { ...obj, name: this.dataCache.name };
+      obj = {
+        ...obj,
+        name: this.dataCache.name,
+      };
     }
 
     if (obj.iconColor) {
@@ -525,8 +557,9 @@ let AppInfo = class AppInfo extends Component {
   };
   renderMenu = ({ type, icon, text, action, ...rest }) => {
     const { data } = this.state;
-    const { projectId, isPassword, permissionType, license } = data;
-
+    const { projectId, isPassword, permissionType, license, sandboxStatus } = data;
+    let environmentSwitchText;
+    const sandboxEnvironment = isSandboxEnvironment();
     const canLock = _.includes(
       [
         APP_ROLE_TYPE.ADMIN_ROLE,
@@ -536,166 +569,186 @@ let AppInfo = class AppInfo extends Component {
       ],
       permissionType,
     );
-
     if (type === 'unlockApp' && !(canLock && isPassword)) return;
+    if (type === 'mobileView' && !sandboxEnvironment) return;
+
+    if (type === 'environmentSwitch') {
+      if (!isHaveCharge(permissionType)) return;
+
+      if (sandboxEnvironment) {
+        environmentSwitchText = _l('访问生产');
+      } else if (isAppSandboxEnabled(sandboxStatus)) {
+        environmentSwitchText = _l('访问沙盒');
+      } else {
+        return;
+      }
+    }
 
     if (rest.featureId) {
       const featureType = getFeatureStatus(projectId, rest.featureId);
       if (!featureType) return;
     }
 
-    if (_.includes(['appAnalytics', 'copy', 'worksheetapi', 'modifyAppLockPassword'], type)) {
-      return (
-        <React.Fragment>
-          <div
-            style={{
-              width: '100%',
-              margin: '3px 0',
-              borderTop: '1px solid var(--color-border-secondary)',
-            }}
-          />
-          {this.renderMenuHtml({
-            type,
-            icon,
-            text,
-            action,
-            ...rest,
-          })}
-        </React.Fragment>
-      );
-    }
-
-    if ('appLicense' === type && license) {
-      return (
-        <ProductLicenseInfo license={license} data={_.pick(data, ['endTime', 'projectId', 'goodsId', 'id'])}>
-          {this.renderMenuHtml({
-            type,
-            icon,
-            text,
-            action,
-            ...rest,
-          })}
-        </ProductLicenseInfo>
-      );
-    }
-
-    return this.renderMenuHtml({
+    let item = this.renderMenuHtml({
       type,
       icon,
-      text,
+      text: environmentSwitchText || text,
       action,
       ...rest,
     });
+
+    if ('appLicense' === type && license) {
+      item = {
+        ...item,
+        label: (
+          <ProductLicenseInfo license={license} data={_.pick(data, ['endTime', 'projectId', 'goodsId', 'id'])}>
+            {item.label}
+          </ProductLicenseInfo>
+        ),
+      };
+    }
+
+    if (_.includes(['appAnalytics', 'copy', 'worksheetapi', 'modifyAppLockPassword'], type)) {
+      return [
+        {
+          key: `${type}Divider`,
+          type: 'divider',
+        },
+        item,
+      ];
+    }
+
+    return item;
   };
   renderMenuHtml = ({ type, icon, text, action, ...rest }) => {
     const { appId } = this.ids;
     const { projectId, sourceType, permissionType, isPassword, isLock, license = {} } = this.state.data;
-    const featureType = getFeatureStatus(projectId, rest.featureId);
+    const { className, featureId, ...itemRest } = rest;
+    const featureType = getFeatureStatus(projectId, featureId);
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE;
-    return (
-      <MenuItem
-        key={type}
-        data-event={type}
-        className={cx('appConfigItem', type)}
-        icon={<Icon className="appConfigItemIcon Font18" icon={icon} />}
-        onClick={e => {
-          e.stopPropagation();
+    const menuItem = {
+      ...itemRest,
+      key: type,
+      className: cx('appConfigItem', type, className),
+      icon: <Icon className="appConfigItemIcon Font18 textTertiary" icon={icon} />,
+      label: (
+        <span className="flexRow alignItemsCenter">
+          <span>{text}</span>
+          {_.includes(['appAnalytics', 'appLogs'], type) && featureType === '2' && <UpgradeIcon />}
+          {type === 'worksheetapi' && <Icon icon="launch" className="mLeft10 textTertiary worksheetapiIcon" />}
+          {type === 'appLicense' && <Icon icon="arrow-right-tip" className="mLeft10" />}
+        </span>
+      ),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+
+        if (type === 'mobileView') return;
+
+        this.setState({
+          appConfigVisible: false,
+        });
+
+        if (type === 'environmentSwitch') {
+          openPeerEnvironment(`/app/${appId}`);
+          return;
+        }
+
+        if (type === 'editIntro') {
           this.setState({
-            appConfigVisible: false,
+            editAppIntroVisible: true,
+            isEditing: true,
           });
+          return;
+        }
 
-          if (type === 'editIntro') {
-            this.setState({
-              editAppIntroVisible: true,
-              isEditing: true,
-            });
-            return;
-          }
+        if (_.includes(['appAnalytics', 'appLogs'], type) && getFeatureStatus(projectId, featureId) === '2') {
+          buriedUpgradeVersionDialog(projectId, featureId);
+          return;
+        }
 
-          if (_.includes(['appAnalytics', 'appLogs'], type) && getFeatureStatus(projectId, rest.featureId) === '2') {
-            buriedUpgradeVersionDialog(projectId, rest.featureId);
-            return;
-          }
+        if (type === 'copyId') {
+          copy(appId);
+          alert(_l('复制成功'), 1);
+          return;
+        }
 
-          if (type === 'copyId') {
-            copy(appId);
-            alert(_l('复制成功'), 1);
-            return;
-          }
+        if (type === 'appAnalytics') {
+          window.open(pathCompletion(`/app/${appId}/analytics/${projectId}`), '__blank');
+          return;
+        }
 
-          if (type === 'appAnalytics') {
-            window.open(pathCompletion(`/app/${appId}/analytics/${projectId}`), '__blank');
-            return;
-          }
+        if (type === 'appLogs') {
+          window.open(pathCompletion(`/app/${appId}/logs/${projectId}`), '__blank');
+          return;
+        }
 
-          if (type === 'appLogs') {
-            window.open(pathCompletion(`/app/${appId}/logs/${projectId}`), '__blank');
-            return;
-          }
+        if (type === 'modifyAppLockPassword') {
+          unlockAppLockPassword({
+            appId,
+            sourceType,
+            isPassword,
+            isOwner,
+            isLock,
+            refreshPage: () => {
+              location.reload();
+            },
+          });
+          return;
+        } // API开发文档
 
-          if (type === 'modifyAppLockPassword') {
-            unlockAppLockPassword({
-              appId,
-              sourceType,
-              isPassword,
-              isOwner,
-              isLock,
-              refreshPage: () => {
-                location.reload();
-              },
-            });
-            return;
-          } // API开发文档
+        if (type === 'worksheetapi') {
+          window.open(pathCompletion(`/worksheetapi/${appId}`));
+          return;
+        }
 
-          if (type === 'worksheetapi') {
-            window.open(pathCompletion(`/worksheetapi/${appId}`));
-            return;
-          }
+        if (type === 'appManageMenu') {
+          const appManageMenuType = localStorage.getItem('appManageMenu');
+          const isMarketAstrict = sourceType === 60 ? (license.licenseType ? true : isLock) : false;
+          navigateTo(
+            `/app/${appId}/settings/${isMarketAstrict ? 'variables' : appManageMenuType ? appManageMenuType : 'options'}`,
+          );
+          return;
+        }
 
-          if (type === 'appManageMenu') {
-            const appManageMenuType = localStorage.getItem('appManageMenu');
-            const isMarketAstrict = sourceType === 60 ? (license.licenseType ? true : isLock) : false;
-            navigateTo(
-              `/app/${appId}/settings/${isMarketAstrict ? 'variables' : appManageMenuType ? appManageMenuType : 'options'}`,
-            );
-            return;
-          }
+        if (type === 'modify') {
+          dialogSelectIcon({
+            projectId,
+            ..._.pick(this.state.data, ['icon', 'iconColor', 'name', 'navColor']),
+            onModify: data => {
+              data.lightThemeModeNavColor = data.navColor;
+              this.handleModify(data);
+            },
+            onChange: this.handleAppIconAndNameChange,
+            showNavigationConfig: canEditApp(permissionType, isLock),
+            onChangeNavigationConfig: this.onChangeNavigationConfig,
+            app: this.state.data,
+          });
+          return;
+        }
 
-          if (type === 'modify') {
-            dialogSelectIcon({
-              projectId,
-              ..._.pick(this.state.data, ['icon', 'iconColor', 'name', 'navColor']),
-              onModify: data => {
-                data.lightThemeModeNavColor = data.navColor;
-                this.handleModify(data);
-              },
-              onChange: this.handleAppIconAndNameChange,
-              showNavigationConfig: canEditApp(permissionType, isLock),
-              onChangeNavigationConfig: this.onChangeNavigationConfig,
-              app: this.state.data,
-            });
-            return;
-          }
+        this.handleAppConfigClick(action);
+      },
+    };
 
-          this.handleAppConfigClick(action);
-        }}
-        {...rest}
-      >
-        <span>{text}</span>
-        {_.includes(['appAnalytics', 'appLogs'], type) && featureType === '2' && <UpgradeIcon />}
-        {type === 'worksheetapi' && <Icon icon="launch" className="mLeft10 worksheetapiIcon" />}
-        {type === 'appLicense' && (
-          <Icon
-            icon="arrow-right-tip"
-            className="mLeft10"
-            style={{
-              right: 10,
-              left: 'auto',
-            }}
-          />
-        )}
-      </MenuItem>
-    );
+    if (type === 'mobileView') {
+      const mobileAppUrl = getPeerEnvironmentUrl(`/mobile/app/${appId}`);
+
+      menuItem.children = [
+        {
+          key: 'mobileViewQrCode',
+          className: 'mobileViewQrCodeItem',
+          disabled: true,
+          label: (
+            <MobileQrCodeWrap>
+              <Qr content={mobileAppUrl} width={180} height={180} gap={8} />
+              <div>{_l('扫码查看')}</div>
+            </MobileQrCodeWrap>
+          ),
+        },
+      ];
+    }
+
+    return menuItem;
   };
   changeIndexVisible = (visible = true) => {
     this.timer = setTimeout(() => {
@@ -725,7 +778,10 @@ let AppInfo = class AppInfo extends Component {
     });
   };
   onChangeNavigationConfig = value => {
-    const result = { ...this.state.data, ...value };
+    const result = {
+      ...this.state.data,
+      ...value,
+    };
     this.setState({
       data: result,
     });
@@ -751,15 +807,11 @@ let AppInfo = class AppInfo extends Component {
       ssoAddress,
       exported,
     } = data;
-
     const isUpgrade = _.includes([10, 11], appStatus);
-
     const isNormalApp = _.includes([1, 5], appStatus);
-
     const { s, ss, tb, td } = getAppFeaturesVisible();
     let list = getAppConfig(DROPDOWN_APP_CONFIG, permissionType) || [];
     const isAuthorityApp = canEditApp(permissionType, isLock);
-
     const canLock = _.includes(
       [
         APP_ROLE_TYPE.ADMIN_ROLE,
@@ -770,13 +822,24 @@ let AppInfo = class AppInfo extends Component {
       permissionType,
     );
 
-    if ((_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).cannotCreateApp) {
+    if (!hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP)) {
       _.remove(list, o => o.type === 'copy');
     } // 加锁应用不限制 修改应用名称和外观、应用说明、使用说明、日志（8.2）
 
     if (isLock && isPassword && canLock) {
       list = _.filter(list, it =>
-        _.includes(['modify', 'editIntro', 'appAnalytics', 'appLogs', 'modifyAppLockPassword'], it.type),
+        _.includes(
+          [
+            'modify',
+            'editIntro',
+            'appAnalytics',
+            'appLogs',
+            'modifyAppLockPassword',
+            'mobileView',
+            'environmentSwitch',
+          ],
+          it.type,
+        ),
       );
     } else {
       list = _.filter(list, it => !_.includes(['modifyAppLockPassword'], it.type));
@@ -886,37 +949,14 @@ let AppInfo = class AppInfo extends Component {
           {((isNormalApp && (canEditApp(permissionType, isLock) || canEditData(permissionType)) && tb) ||
             (isLock && canLock)) &&
             !isUpgrade && (
-              <div
-                className="appConfigIcon pointer"
-                onClick={() => {
-                  this.setState({
-                    appConfigVisible: true,
-                  });
-                }}
-              >
-                <Icon
-                  icon="expand_more"
-                  className="Font18"
-                  style={{
-                    lineHeight: 'inherit',
-                  }}
-                />
-                {appConfigVisible && (
-                  <Menu
-                    className="appOperate"
-                    style={{
-                      top: '45px',
-                      width: '220px',
-                      padding: '6px 0',
-                    }}
-                    onClickAway={() =>
-                      this.setState({
-                        appConfigVisible: false,
-                      })
-                    }
-                    onClickAwayExceptions={['.appLicenseWrap', '.mui-dialog-container']}
-                  >
-                    {list.map(({ type, icon, text, action, ...rest }) => {
+              <Dropdown
+                trigger={['click']}
+                open={appConfigVisible}
+                onOpenChange={this.handleAppConfigOpenChange}
+                placement="bottomLeft"
+                menu={{
+                  items: _.flatten(
+                    list.map(({ type, icon, text, action, ...rest }) => {
                       return this.renderMenu({
                         type,
                         icon,
@@ -924,10 +964,25 @@ let AppInfo = class AppInfo extends Component {
                         action,
                         ...rest,
                       });
-                    })}
-                  </Menu>
-                )}
-              </div>
+                    }),
+                  ).filter(Boolean),
+                  selectable: false,
+                  selectedKeys: [],
+                  style: {
+                    minWidth: 220,
+                  },
+                }}
+              >
+                <div className="appConfigIcon pointer">
+                  <Icon
+                    icon="expand_more"
+                    className="Font18"
+                    style={{
+                      lineHeight: 'inherit',
+                    }}
+                  />
+                </div>
+              </Dropdown>
             )}
           {(!isHaveCharge(permissionType) ? description : false) && (isNormalApp || isMigrate) && (
             <Tooltip title={_l('应用说明')}>
@@ -1010,7 +1065,6 @@ let AppInfo = class AppInfo extends Component {
       );
     }
   };
-
   render() {
     const { appStatus, ...props } = this.props;
     const {
@@ -1042,9 +1096,7 @@ let AppInfo = class AppInfo extends Component {
       debugRole,
     } = data;
     const isUpgrade = appStatus === 10;
-
     const isNormalApp = _.includes([1, 5], appStatus);
-
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const hasCharge = canEditApp(permissionType) || canEditData(permissionType);
     const AppGroupComponent = [1, 3].includes(currentPcNaviStyle) ? LeftAppGroup : AppGroup;
@@ -1078,7 +1130,7 @@ let AppInfo = class AppInfo extends Component {
               />
             )}
             <Drag
-              left={navWidth}
+              $left={navWidth}
               className="appNavWidthDrag"
               onMouseDown={() => {
                 this.setState({
@@ -1105,7 +1157,7 @@ let AppInfo = class AppInfo extends Component {
           {this.renderAppInfoWrap(showName)}
           {[1, 3].includes(currentPcNaviStyle) && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
             <div className="LeftAppGroupWrap w100 h100">
-              <Skeleton active={false} />
+              <Skeleton className="pAll20" active={false} />
             </div>
           )}
           {((!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)) || canDebug) && (
@@ -1167,12 +1219,12 @@ let AppInfo = class AppInfo extends Component {
           )}
           {/* 当应用状态正常且应用描述有值且第一次进入此应用会弹出编辑框 */}
           <Modal
-            zIndex={1000}
             className="appIntroDialog"
             wrapClassName={cx('appIntroDialogWrapCenter', {
               preview: !isEditing,
             })}
-            visible={editAppIntroVisible || (!window.isPublicApp && isShowAppIntroFirst && description && isNormalApp)}
+            open={editAppIntroVisible || (!window.isPublicApp && isShowAppIntroFirst && description && isNormalApp)}
+            keyboard
             onCancel={() =>
               this.switchVisible({
                 editAppIntroVisible: false,
@@ -1181,19 +1233,15 @@ let AppInfo = class AppInfo extends Component {
                 hasChange: false,
               })
             }
-            animation="zoom"
+            animated
             width={800}
             footer={null}
             centered={true}
-            maskStyle={{
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            }}
-            bodyStyle={{
-              padding: 0,
-            }}
-            maskAnimation="fade"
             mousePosition={mousePosition}
             closeIcon={<Icon icon="close" />}
+            styles={{
+              container: { padding: 0 },
+            }}
           >
             <EditAppIntro
               cacheKey="appIntroDescription"
@@ -1257,18 +1305,18 @@ let AppInfo = class AppInfo extends Component {
           )}
 
           <Drawer
-            bodyStyle={{
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '0',
-            }}
-            width={900}
-            title={null}
-            visible={navigationConfigVisible}
-            destroyOnClose={true}
-            closeIcon={null}
+            size={900}
+            title={_l('导航设置')}
+            open={navigationConfigVisible}
             onClose={this.closeNavigationConfigVisible}
             placement="right"
+            styles={{
+              body: {
+                display: 'flex',
+                flexDirection: 'column',
+                padding: 0,
+              },
+            }}
           >
             <NavigationConfig
               app={data}
@@ -1335,8 +1383,7 @@ let AppInfo = class AppInfo extends Component {
           )}
           <Drawer
             title={null}
-            visible={roleDebugVisible}
-            destroyOnClose={true}
+            open={roleDebugVisible}
             closeIcon={null}
             onClose={() =>
               this.setState({

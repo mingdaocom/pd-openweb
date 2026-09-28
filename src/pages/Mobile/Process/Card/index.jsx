@@ -3,7 +3,8 @@ import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Icon, SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import OtherAction from 'mobile/ProcessRecord/OtherAction';
@@ -207,32 +208,30 @@ export default class Card extends Component {
       return (
         <div className="valignWrapper mLeft10 approveBtnWrapper">
           {!fastApprove && (
-            <Button className="backlog" type="ghostgray" size="small">
-              {_l('办理')}
+            <Button className="backlog" shape="round">
+              <span className="buttonText">{_l('办理')}</span>
             </Button>
           )}
           {fastApprove && (
             <Button
               className="ellipsis pass mRight5"
-              type="ghostgray"
-              size="small"
+              shape="round"
               onClick={event => {
                 this.handleApprove(event, 'pass');
               }}
             >
-              {btnMap[4] || _l('同意')}
+              <span className="buttonText">{btnMap[4] || _l('同意')}</span>
             </Button>
           )}
           {fastApprove && '5' in btnMap && (
             <Button
               className="ellipsis overrule"
-              type="ghostgray"
-              size="small"
+              shape="round"
               onClick={event => {
                 this.handleApprove(event, 'overrule');
               }}
             >
-              {btnMap[5] || _l('拒绝')}
+              <span className="buttonText">{btnMap[5] || _l('拒绝')}</span>
             </Button>
           )}
         </div>
@@ -325,7 +324,7 @@ export default class Card extends Component {
             .map(item => (
               <div key={item.controlId} className="Font12 flexRow mTop4">
                 <div className="textTertiary mRight10 overflow_ellipsis maxWidth80">{item.controlName}</div>
-                <div className="flex overflow_ellipsis_line3">{item.value || '--'}</div>
+                <div className="flex textPrimary overflow_ellipsis_line3">{item.value || '--'}</div>
               </div>
             ))}
         </div>

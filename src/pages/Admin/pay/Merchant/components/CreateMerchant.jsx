@@ -1,11 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
-import { PAY_CHANNEL } from '../../config';
-import jxqfImg from '../../images/jxqf.png';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { PAY_CHANNEL, PAY_CHANNEL_TYPE } from '../../config';
 import CreateJxqfMerchant from './CreateJxqfMerchant';
 import CreateWechatOrAliMerchant from './CreateWechatOrAliMerchant';
 import './createMerchant.less';
@@ -34,12 +32,6 @@ const PayChannelItem = styled.div`
     border-radius: 6px;
     color: var(--color-white);
     margin-right: 10px;
-    &.wechatBgColor {
-      background: var(--color-success);
-    }
-    &.aliBgColor {
-      background: var(--color-primary);
-    }
   }
 `;
 
@@ -55,7 +47,7 @@ export default class CreateMerchant extends Component {
     const { projectId, currentMerchantInfo = {} } = this.props;
     const { merchantPaymentChannel } = this.state;
 
-    if (merchantPaymentChannel === 0) {
+    if (merchantPaymentChannel === PAY_CHANNEL_TYPE.AGGREGATE) {
       return (
         <CreateJxqfMerchant
           {...this.props}
@@ -69,7 +61,7 @@ export default class CreateMerchant extends Component {
       );
     }
 
-    if (_.includes([1, 2], merchantPaymentChannel)) {
+    if (_.includes([PAY_CHANNEL_TYPE.ALIPAY, PAY_CHANNEL_TYPE.WECHAT], merchantPaymentChannel)) {
       return (
         <CreateWechatOrAliMerchant
           {...this.props}
@@ -104,28 +96,28 @@ export default class CreateMerchant extends Component {
           <div className="Font18 TxtCenter textTertiary mBottom50">
             {_l('根据业务需求平台提供不同的支付收款渠道，支持创建多个通道的商户')}
           </div>
-          {PAY_CHANNEL.filter(item => item.value !== 0).map(item => {
+          {PAY_CHANNEL.filter(item => !item.isHide).map(item => {
             return (
               <PayChannelItem
                 key={item.value}
                 className="mBottom15 Hand"
                 onClick={() => {
+                  if (item.tip) {
+                    alert(item.tip, 3);
+                    return;
+                  }
+
                   if (merchantPaymentChannel === item.value) return;
                   this.setState({ merchantPaymentChannel: item.value });
                 }}
               >
                 <div className="flexRow mBottom10">
-                  <div
-                    className={cx('channelIcon mRight14', {
-                      wechatBgColor: item.value === 2,
-                      aliBgColor: item.value === 1,
-                    })}
-                  >
-                    {item.value === 0 ? (
-                      <img src={jxqfImg} className="w100" />
-                    ) : (
-                      <Icon icon={item.icon} className={item.value === 2 ? 'Font18' : 'Font24'} />
-                    )}
+                  <div className="channelIcon mRight14" style={{ backgroundColor: item.iconBgColor }}>
+                    <Icon
+                      icon={item.icon}
+                      className={item.value === PAY_CHANNEL_TYPE.WECHAT ? 'Font18' : 'Font24'}
+                      style={{ color: item.iconColor }}
+                    />
                   </div>
                   <div className="bold Font17">{item.label}</div>
                 </div>

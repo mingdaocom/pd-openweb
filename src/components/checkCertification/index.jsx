@@ -1,20 +1,24 @@
 import React from 'react';
 import _ from 'lodash';
 import certImg from 'staticfiles/images/cert.png';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
-import './index.less';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getAccountPersonalUrl, pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 
 export const identityInterception = (projectId, isPersonal) => {
   const isMobile = browserIsMobile();
 
-  Dialog.confirm({
-    title: '',
+  Modal.confirm({
+    title: _l('认证提示'),
     className: 'identityDialogContainer',
     width: isMobile ? 320 : 480,
-    description: (
+    styles: {
+      header: { padding: '56px 24px 30px' },
+      footer: { paddingBottom: 50, textAlign: 'center' },
+    },
+    content: (
       <div className="flexColumn justifyContentCenter alignItemsCenter">
         <img src={certImg} width={100} />
         <div className={`bold textPrimary TxtCenter LineHeight25 ${isMobile ? 'mTop32 Font16' : 'mTop40 Font20'}`}>
@@ -27,12 +31,17 @@ export const identityInterception = (projectId, isPersonal) => {
       </div>
     ),
     okText: !isMobile ? _l('立即认证') : _l('确定'),
+    okButtonProps: { style: { borderRadius: 18 } },
     onOk: () => {
       if (!isMobile) {
-        location.href = pathCompletion(isPersonal ? '/personal?type=information' : `/admin/certinfo/${projectId}`);
+        location.href = isPersonal ? getAccountPersonalUrl() : pathCompletion(`/admin/certinfo/${projectId}`);
       }
     },
-    removeCancelBtn: true,
+    cancelButtonProps: {
+      style: {
+        display: 'none',
+      },
+    },
   });
 };
 

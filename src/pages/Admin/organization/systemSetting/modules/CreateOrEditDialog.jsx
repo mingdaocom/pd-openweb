@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import fixedDataAjax from 'src/api/fixedData.js';
 import workSiteController from 'src/api/workSite';
 
@@ -18,7 +18,7 @@ export default class SiteName extends Component {
         workSiteName: this.props.workSiteId ? this.props.workSiteName : '',
       });
       setTimeout(() => {
-        $(this.processName).focus();
+        this.processName?.focus();
       }, 300);
     }
   }
@@ -68,33 +68,34 @@ export default class SiteName extends Component {
 
   render() {
     return (
-      <Dialog
-        visible={this.props.visible}
+      <Modal
+        open={this.props.visible}
         title={this.props.workSiteId ? _l('编辑工作地点') : _l('创建工作地点')}
         cancelText={_l('取消')}
         okText={_l('确定')}
-        width="413"
-        overlayClosable={false}
+        width={413}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => {
           this.props.updateValue();
         }}
         onOk={() => this.handleOk()}
       >
-        <input
+        <Input
           ref={processName => {
             this.processName = processName;
           }}
           onChange={e => this.handleChange(e)}
           type="text"
           placeholder={_l('请输入工作地点名称')}
-          className="ming Input Input--default w100"
-          maxLength="64"
-          defaultValue={this.state.workSiteName}
+          className="w100"
+          maxLength={64}
+          value={this.state.workSiteName}
         />
         <div className="pTop10">
           <div className="existResult"></div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

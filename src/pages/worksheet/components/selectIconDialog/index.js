@@ -4,6 +4,7 @@ import homeAppApi from 'src/api/homeApp';
 import { updateAppItemInfo, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import store from 'src/redux/configureStore';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export default props => {
   const { iconColor } = store.getState().appPkg;
@@ -25,8 +26,8 @@ export default props => {
           updateName(newName);
           updateIcon({ icon: newIcon || icon });
         })
-        .catch(() => {
-          alert(_l('修改分组名称失败'), 2);
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, _l('修改分组名称失败'), 2);
         });
     } else {
       appManagementApi
@@ -41,8 +42,8 @@ export default props => {
           updateName(newName);
           updateIcon({ icon: newIcon || icon });
         })
-        .catch(() => {
-          alert(_l('修改工作表名称失败'), 2);
+        .catch(_requestError2 => {
+          alertIfNotUnauthorized(_requestError2, _l('修改工作表名称失败'), 2);
         });
     }
   };

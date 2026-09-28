@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isNumberControl } from 'statistics/common/controlUtils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { normTypes } from '../../../enum';
 import WithoutFidldItem from './WithoutFidldItem';
 
@@ -26,59 +25,39 @@ export default class ValueAxis extends Component {
       this.props.addValueAxis(data);
     }
   };
-  renderOverlay() {
+  getMenuItems() {
     const { valueAxis } = this.props;
-    return (
-      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
-        {isNumberControl(valueAxis.controlType, false) && (
-          <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-            {normTypes
-              .filter(n => ![5, 6].includes(n.value))
-              .map(item => (
-                <Menu.Item
-                  style={{
-                    width: 120,
-                    color: item.value === valueAxis.normType ? 'var(--color-primary) !important' : null,
-                  }}
-                  key={item.value}
-                  onClick={() => {
-                    this.props.changeValueAxis({ normType: item.value });
-                  }}
-                >
-                  {item.text}
-                </Menu.Item>
-              ))}
-          </Menu.SubMenu>
-        )}
-        {!isNumberControl(valueAxis.controlType) && (
-          <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-            {[
-              {
-                text: _l('计数'),
-                value: 5,
-              },
-              {
-                text: _l('去重计数'),
-                value: 6,
-              },
-            ].map(item => (
-              <Menu.Item
-                style={{
-                  width: 120,
-                  color: item.value === valueAxis.normType ? 'var(--color-primary) !important' : null,
-                }}
-                key={item.value}
-                onClick={() => {
-                  this.props.changeValueAxis({ normType: item.value });
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
-          </Menu.SubMenu>
-        )}
-      </Menu>
-    );
+    const normTypeOptions = isNumberControl(valueAxis.controlType, false)
+      ? normTypes.filter(n => ![5, 6].includes(n.value))
+      : [
+          {
+            text: _l('计数'),
+            value: 5,
+          },
+          {
+            text: _l('去重计数'),
+            value: 6,
+          },
+        ];
+
+    return [
+      {
+        key: 'normType',
+        label: _l('计算'),
+        popupOffset: [0, -15],
+        children: normTypeOptions.map(item => ({
+          key: item.value,
+          style: {
+            width: 120,
+            color: item.value === valueAxis.normType ? 'var(--color-primary)' : null,
+          },
+          label: item.text,
+          onClick: () => {
+            this.props.changeValueAxis({ normType: item.value });
+          },
+        })),
+      },
+    ];
   }
   renderAxis() {
     const { valueAxis, allControls, axisControls } = this.props;
@@ -103,7 +82,15 @@ export default class ValueAxis extends Component {
           </Tooltip>
         )}
         {isNumber && (
-          <Dropdown overlay={this.renderOverlay(axis)} trigger={['click']} placement="bottomRight">
+          <Dropdown
+            menu={{
+              style: { minWidth: 200 },
+              subMenuOpenDelay: 0.2,
+              items: this.getMenuItems(),
+            }}
+            trigger={['click']}
+            placement="bottomRight"
+          >
             <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
 
 const Content = styled.div`
   display: flex;

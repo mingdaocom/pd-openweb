@@ -5,14 +5,15 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import accountApi from 'src/api/account';
 import registerApi from 'src/api/register';
-import ChangeLang from 'src/components/ChangeLang';
+import ChangeLang from 'src/pages/AuthService/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import { AccountNextActions, ActionResult, InviteFromType } from 'src/pages/AuthService/config.js';
 import { getDes, getTitle } from 'src/pages/AuthService/register/util.js';
 import { getDataByFilterXSS, getDialCode, getEmailOrTel, isTel } from 'src/pages/AuthService/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest, htmlEncodeReg } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { getRequest } from 'src/utils/platform/browser/device';
 import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
@@ -308,7 +309,7 @@ export default function () {
             lineLoading={state.lineLoading}
             logo={
               state.logo ||
-              (state.step === 'create' && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              (state.step === 'create' && window.platformENV.isHap
                 ? `${_.get(md, 'global.FileStoreConfig.pictureHost')}/ProjectLogo/default_hap.png`
                 : '')
             }

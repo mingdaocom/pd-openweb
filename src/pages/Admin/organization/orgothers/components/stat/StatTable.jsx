@@ -3,8 +3,9 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, LoadDiv, UserName } from 'ming-ui';
 import statisticController from 'src/api/statistic';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import PaginationWrap from '../../../../components/PaginationWrap';
-import { pathCompletion } from 'src/utils/common';
 
 const PAGE_SIZES = {
   NORMAL: 20,
@@ -294,9 +295,10 @@ export default class StatTable extends React.Component {
           throw new Error();
         }
       })
-      .catch(({ errorCode } = {}) => {
+      .catch(_requestError => {
+        const { errorCode } = _requestError || {};
         if (errorCode !== 1) {
-          alert(_l('获取列表失败'), 2);
+          alertIfNotUnauthorized(_requestError, _l('获取列表失败'), 2);
           this.setState({
             isLoading: false,
           });

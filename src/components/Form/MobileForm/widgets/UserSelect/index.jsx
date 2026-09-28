@@ -3,25 +3,26 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { MobilePersonalInfo } from 'ming-ui';
+import { MobilePersonalInfo } from 'ming-ui/antd-mobile-components';
 import SelectUser from 'mobile/components/SelectUser';
-import { compatibleMDJS } from 'src/utils/project';
-import { dealUserRange, getUserValue } from '../../../core/utils';
-import { useFormStore } from '../../../index';
-import { getTabTypeBySelectUser } from '../../tools/utils';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
+import { dealUserRange } from 'src/utils/domain/control/selectionRange';
+import { getUserValue } from 'src/utils/domain/control/value';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { useFormEmSize } from '../../FormContext';
 
 const UserItemBox = styled.div`
   position: relative;
   max-width: 100%;
-  padding-left: ${props => props.userHeadSize + 8}px !important;
+  padding-left: ${props => props.$userHeadSize + 8}px !important;
 
   .userHead {
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: ${props => props.userHeadSize}px;
-    height: ${props => props.userHeadSize}px;
+    width: ${props => props.$userHeadSize}px;
+    height: ${props => props.$userHeadSize}px;
     border-radius: 50%;
   }
   .userName {
@@ -68,9 +69,7 @@ function UserSelect(props) {
     value,
     onChange = () => {},
   } = props;
-  const {
-    state: { emSizeNum },
-  } = useFormStore();
+  const emSizeNum = useFormEmSize();
   const userHeadSize = emSizeNum * 1.5 + 6;
   const selectUsers = useMemo(() => getUserValue(value), [value]);
   const [showSelectUser, setShowSelectUser] = useState(false);
@@ -144,7 +143,10 @@ function UserSelect(props) {
     if (!formDisabled) return;
 
     if (window.isMingDaoApp) {
-      compatibleMDJS('userDetail', { accountId });
+      compatibleMDJS('userDetail', {
+        accountId,
+        appId,
+      });
     } else {
       setPersonalInfoVisible(true);
       setAccountId(accountId);
@@ -154,16 +156,17 @@ function UserSelect(props) {
   const normalizedUsers = useMemo(() => selectUsers.map(normalizeUser), [selectUsers]);
   const hasSelectedUsers = normalizedUsers.length > 0;
   const firstSelectedUser = normalizedUsers[0];
-  const selectedUsersForApp = useMemo(
-    () => normalizedUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })),
-    [normalizedUsers],
-  );
+  const selectedUsersForApp = normalizedUsers.map(({ accountId, fullname, avatar }) => ({
+    accountId,
+    fullname,
+    avatar,
+  }));
 
   const renderItem = item => {
     return (
       <UserItemBox
         key={item.accountId}
-        userHeadSize={userHeadSize}
+        $userHeadSize={userHeadSize}
         className="customFormCapsule"
         onClick={() => viewPersonalInfo(item)}
       >
@@ -254,7 +257,7 @@ UserSelect.propTypes = {
 
 export default memo(UserSelect, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'formDisabled']),
-    _.pick(nextProps, ['value', 'disabled', 'formDisabled']),
+    _.pick(prevProps, ['value', 'disabled', 'formDisabled', 'appId']),
+    _.pick(nextProps, ['value', 'disabled', 'formDisabled', 'appId']),
   );
 });

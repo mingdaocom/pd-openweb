@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, ColorPicker, Dialog, FunctionWrap } from 'ming-ui';
+import { ColorPicker } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 
-const WrapCon = styled(Dialog)`
-  .footer {
-    justify-content: flex-end;
-  }
+const noop = () => {};
+
+const ColorContent = styled.div`
   .colorBlack {
     width: 84px;
     height: 34px;
@@ -18,30 +18,22 @@ const WrapCon = styled(Dialog)`
       border-radius: 2px;
     }
   }
-  .colorInput {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
 `;
 
-const SelectColor = props => {
-  const { onSave, onCancel } = props;
+export const SelectColor = props => {
+  const { onColorChange = noop } = props;
+  const contentRef = useRef(null);
   const [color, setColor] = useState(props.color || '#000000');
   const colorData = new TinyColor(color);
   const hsv = colorData.toHsv();
   const s = Number((hsv.s * 100).toFixed(2));
   const v = Number((hsv.v * 100).toFixed(2));
 
-  const getColorPopParent = () => {
-    return document.querySelector('.addColorDialog');
-  };
+  // Modal 面板层禁用了 pointer-events，Popover 需挂载到可交互的内容节点内。
+  const getColorPopParent = useCallback(() => contentRef.current, []);
 
   return (
-    <WrapCon className="addColorDialog" title={_l('自定义主题色')} visible footer={null} onCancel={onCancel}>
+    <ColorContent ref={contentRef}>
       <div className="flexColumn">
         <div style={{ color: 'var(--color-text-secondary)' }}>
           <div>
@@ -60,6 +52,7 @@ const SelectColor = props => {
               value={color}
               onChange={value => {
                 setColor(value);
+                onColorChange(value);
               }}
               getPopupContainer={getColorPopParent}
             >
@@ -69,22 +62,51 @@ const SelectColor = props => {
           <div>{color}</div>
         </div>
       </div>
-      <div className="footer flexRow alignItemsCenter">
-        <Button type="link" onClick={onCancel}>
-          {_l('取消')}
-        </Button>
-        <Button
-          onClick={() => {
-            onSave(color);
-            onCancel();
-          }}
-          className={cx('btnOk', { btnDel: !!color })}
-        >
-          {_l('保存')}
-        </Button>
-      </div>
-    </WrapCon>
+    </ColorContent>
   );
 };
 
-export default props => FunctionWrap(SelectColor, { ...props });
+export function dialogSelectColor(options = {}) {
+  let modal;
+  let color = options.color || '#000000';
+  const handlePopState = () => modal.destroy();
+
+  const handleCancel = () => {
+    if (typeof options.onCancel === 'function') {
+      options.onCancel();
+    }
+  };
+
+  const handleSave = () => {
+    const result = typeof options.onSave === 'function' ? options.onSave(color) : undefined;
+
+    handleCancel();
+    return result;
+  };
+
+  const handleColorChange = value => {
+    color = value;
+  };
+
+  modal = Modal.info({
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    cancelText: _l('取消'),
+    className: 'addColorDialog',
+    content: <SelectColor {...options} onColorChange={handleColorChange} />,
+    mask: { closable: options.overlayClosable !== false },
+    okCancel: true,
+    okText: _l('保存'),
+    onCancel: handleCancel,
+    onOk: handleSave,
+    title: _l('自定义主题色'),
+    width: 520,
+    zIndex: options.zIndex,
+  });
+
+  window.addEventListener('popstate', handlePopState);
+
+  return modal;
+}
+
+export default dialogSelectColor;

@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Popover, Tooltip } from 'ming-ui/antd-components';
 import reportConfig from '../api/reportConfig';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import ChartDesc from '../components/ChartDesc';
+
+const POPOVER_STYLES = { container: { width: 300, padding: 12 } };
 
 export default class Header extends Component {
   constructor(props) {
@@ -84,43 +85,43 @@ export default class Header extends Component {
                   />
                 )}
                 {(permissions ? true : currentReport.desc) && (
-                  <Trigger
-                    action={['click']}
-                    popup={
-                      <ChartDesc
-                        reportId={report.id}
-                        desc={currentReport.desc}
-                        onSave={desc => {
-                          this.props.changeCurrentReport({ desc });
-                        }}
-                        onClose={() => {
-                          this.setState({ editDescVisible: false });
-                        }}
-                      />
-                    }
-                    popupVisible={editDescVisible}
-                    onPopupVisibleChange={visible => {
-                      if (!permissions) return;
-                      this.setState({ editDescVisible: visible });
-                    }}
-                    popupAlign={{
-                      points: ['tr', 'br'],
-                      offset: [10, 10],
-                      overflow: { adjustX: true, adjustY: true },
-                    }}
+                  <Tooltip
+                    title={translateInfo.description || currentReport.desc || _l('编辑图表说明')}
+                    placement="bottom"
                   >
-                    <Tooltip
-                      title={translateInfo.description || currentReport.desc || _l('编辑图表说明')}
-                      placement="bottom"
+                    <Popover
+                      trigger={permissions ? 'click' : []}
+                      open={editDescVisible}
+                      onOpenChange={visible => {
+                        if (!permissions) return;
+                        this.setState({ editDescVisible: visible });
+                      }}
+                      placement="bottomRight"
+                      destroyOnHidden={false}
+                      styles={POPOVER_STYLES}
+                      content={
+                        <ChartDesc
+                          reportId={report.id}
+                          desc={currentReport.desc}
+                          onSave={desc => {
+                            this.props.changeCurrentReport({ desc });
+                          }}
+                          onClose={() => {
+                            this.setState({ editDescVisible: false });
+                          }}
+                        />
+                      }
                     >
-                      <Icon
-                        icon="info"
-                        className={cx('Font18 pointer textTertiary mLeft7', {
-                          hideDesc: !editDescVisible && _.isEmpty(currentReport.desc),
-                        })}
-                      />
-                    </Tooltip>
-                  </Trigger>
+                      <div>
+                        <Icon
+                          icon="info"
+                          className={cx('Font18 pointer textTertiary mLeft7', {
+                            hideDesc: !editDescVisible && _.isEmpty(currentReport.desc),
+                          })}
+                        />
+                      </div>
+                    </Popover>
+                  </Tooltip>
                 )}
               </Fragment>
             )}

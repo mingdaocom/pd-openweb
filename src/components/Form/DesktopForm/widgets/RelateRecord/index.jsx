@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { controlState } from 'src/utils/control';
-import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'src/utils/record';
+import { controlState } from 'src/utils/domain/control/state';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'src/utils/domain/worksheet/record';
 import { WidgetEventHelper } from '../../../core/useFormEventManager';
 
 export default class Widgets extends Component {
@@ -23,7 +23,7 @@ export default class Widgets extends Component {
     controlId: PropTypes.string, // 他表字段 id
     coverCid: PropTypes.string, // 他表字段封面 id
     // enumDefault2: PropTypes.number,
-    value: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     dataSource: PropTypes.string,
     showControls: PropTypes.arrayOf(PropTypes.string),
     enumDefault: PropTypes.number,
@@ -224,6 +224,7 @@ export default class Widgets extends Component {
       relationControls,
       sourceEntityName,
       advancedSetting,
+      isFormDetail,
       isDraft,
       updateWorksheetControls,
       updateRelateRecordTableCount,
@@ -316,6 +317,7 @@ export default class Widgets extends Component {
             controlId={controlId}
             controls={relationControls}
             multiple={enumDefault === 2}
+            isFormDetail={isFormDetail}
             coverCid={coverCid}
             showControls={showControls}
             instanceId={instanceId}

@@ -31,7 +31,7 @@ const Dot = styled.span`
   border-radius: 50%;
   background: var(--color-primary);
   animation: ${load} 1.04s ease infinite;
-  animation-delay: ${props => props.delay}s;
+  animation-delay: ${props => props.$delay}s;
 `;
 
 const delays = [0.13, 0.26, 0.39, 0.52, 0.65];
@@ -42,7 +42,7 @@ const Loading = () => {
   return (
     <LoadingWrapper>
       {delays.map((d, i) => (
-        <Dot key={i} delay={d} />
+        <Dot key={i} $delay={d} />
       ))}
     </LoadingWrapper>
   );

@@ -6,21 +6,8 @@ export const WrapL = styled.div`
     vertical-align: middle;
     line-height: 14px;
   }
-  .ming.Dropdown .Dropdown--input .value {
-    max-width: 100%;
-  }
-  // 暂时不开放
-  .Dropdown--input {
-    .icon-arrow-down-border {
-      display: none;
-    }
-  }
   .icon-expand_more {
     display: none;
-  }
-  .ming.Dropdown.disabled,
-  .dropdownTrigger.disabled {
-    background-color: var(--color-background-primary);
   }
   .autosize {
     flex: 1;
@@ -82,19 +69,9 @@ export const WrapL = styled.div`
     &.selectGroupDropWorksheet {
       height: 36px;
       width: 100% !important;
-      .ant-select {
+      .hap-select {
         margin-bottom: 0 !important;
         width: 100% !important;
-      }
-      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-        height: 36px !important;
-        border-radius: 4px !important;
-      }
-      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input,
-      .ant-select-single .ant-select-selector .ant-select-selection-item,
-      .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
-        height: 36px !important;
-        line-height: 36px !important;
       }
     }
   }

@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -6,8 +6,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import RelationList from 'mobile/RelationRow/RelationList';
-import { ADD_EVENT_ENUM } from '../../core/enum';
-import { getTitleStyle } from '../tools/utils';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { getTitleStyle } from 'src/utils/domain/control/style';
+import RelationSearchCount from '../../components/RelationSearchCount';
+import { isSameControlList } from '../../core/renderDataUtils';
 import RelateRecord from '../widgets/RelateRecord';
 import RelationSearch from '../widgets/RelationSearch';
 
@@ -73,9 +75,11 @@ const IconCon = styled.span`
   margin-right: 6px;
 `;
 
-const RelateTabCon = styled.div`
+const RelationTabContent = styled.div`
   margin: unset !important;
-  height: calc(100% - 44px);
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
 `;
 
 function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
@@ -143,8 +147,25 @@ const getCount = (control = {}) => {
 
   const data = _.isArray(value) ? value : value ? JSON.parse(value) : [];
 
-  if (_.isArray(data) && data.length) return data.length;
+  if (_.isArray(data)) return data.length;
 };
+
+const tabCountCache = new Map();
+
+const StableTabCount = memo(function StableTabCount({ cacheKey, count }) {
+  const cachedCount = tabCountCache.get(cacheKey);
+  const hasCount = !_.isUndefined(count) && count !== null && count !== '';
+
+  useEffect(() => {
+    if (hasCount) {
+      tabCountCache.set(cacheKey, count);
+    }
+  }, [cacheKey, count, hasCount]);
+
+  const displayCount = hasCount ? count : cachedCount;
+
+  return displayCount ? <span className="count bold">{`(${displayCount})`}</span> : null;
+});
 
 function MobileWidgetSection(props) {
   const {
@@ -163,38 +184,61 @@ function MobileWidgetSection(props) {
     view = {},
     tabControls = [],
     data = [],
+    errorItemsMap,
     loadMoreRelateCards,
     mobileApprovalRecordInfo = {},
     setActiveTabControlId = () => {},
     renderForm = () => {},
+    renderVerifyCode,
     onChange = () => {},
+    triggerCustomEvent,
   } = props;
-  const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
+  const { otherTabs = [], changeMobileTab = () => {}, relationActionData = {}, resetTabToFirstFlag } = tabControlProp;
   const [newFlag, setNewFlag] = useState(flag);
   const $sectionControls = useRef([]);
-  const allTabs = tabControls.concat(otherTabs).filter(v => v);
+  const allTabs = useMemo(() => tabControls.concat(otherTabs).filter(Boolean), [otherTabs, tabControls]);
   const hideTab = _.get(widgetStyle, 'hidetab') === '1' && tabControls.length === 1 && _.isEmpty(otherTabs);
-  const activeControl =
-    _.find(allTabs, i => i.controlId === activeTabControlId) || _.get(tabControls[0], 'controlId') || {};
+  const activeControl = useMemo(
+    () => _.find(allTabs, i => i.controlId === activeTabControlId) || tabControls[0] || {},
+    [activeTabControlId, allTabs, tabControls],
+  );
+  const initialTabControlsRef = useRef(tabControls);
+  const initialChangeMobileTabRef = useRef(changeMobileTab);
+  const resetTabToFirstFlagRef = useRef(resetTabToFirstFlag);
+  const flagEffectRef = useRef({ activeTabControlId, allTabs, changeMobileTab, setActiveTabControlId, tabControls });
+
+  useLayoutEffect(() => {
+    flagEffectRef.current = { activeTabControlId, allTabs, changeMobileTab, setActiveTabControlId, tabControls };
+  }, [activeTabControlId, allTabs, changeMobileTab, setActiveTabControlId, tabControls]);
 
   useEffect(() => {
-    changeMobileTab(tabControls[0]);
+    initialChangeMobileTabRef.current(initialTabControlsRef.current[0]);
   }, []);
 
   useEffect(() => {
-    if (activeControl.type === 52) {
+    if (resetTabToFirstFlagRef.current === resetTabToFirstFlag) return;
+
+    resetTabToFirstFlagRef.current = resetTabToFirstFlag;
+    const firstTab = tabControls[0];
+
+    if (!firstTab) return;
+
+    setActiveTabControlId(firstTab.controlId);
+    changeMobileTab(firstTab);
+  }, [changeMobileTab, resetTabToFirstFlag, setActiveTabControlId, tabControls]);
+
+  useEffect(() => {
+    const current = flagEffectRef.current;
+
+    if (_.some(current.allTabs, { controlId: current.activeTabControlId })) {
       return;
     }
 
-    setActiveTabControlId(_.get(tabControls[0], 'controlId'));
-    changeMobileTab(tabControls[0]);
+    current.setActiveTabControlId(_.get(current.tabControls[0], 'controlId'));
+    current.changeMobileTab(current.tabControls[0]);
   }, [flag]);
 
   useEffect(() => {
-    sectionCustomEvent();
-  }, [tabControls.length]);
-
-  const sectionCustomEvent = () => {
     let changeControls = [];
     let triggerType = '';
     const preControls = _.get($sectionControls, 'current') || [];
@@ -209,14 +253,14 @@ function MobileWidgetSection(props) {
       triggerType = ADD_EVENT_ENUM.SHOW;
     }
 
-    if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
+    if (_.isFunction(triggerCustomEvent) && changeControls.length && triggerType) {
       changeControls.forEach(itemControl => {
-        props.triggerCustomEvent({ ...itemControl, triggerType });
+        triggerCustomEvent({ ...itemControl, triggerType });
       });
     }
 
     $sectionControls.current = tabControls;
-  };
+  }, [tabControls, triggerCustomEvent]);
 
   const TabsContent = () => {
     return (
@@ -254,10 +298,15 @@ function MobileWidgetSection(props) {
                     <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                     {tab.controlName}
                   </span>
-                  {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 && tab.value && count ? (
-                    <span className="count bold">{`(${count})`}</span>
+                  {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 ? (
+                    <StableTabCount cacheKey={`${recordId || ''}:${tab.controlId}`} count={count} />
                   ) : (
                     ''
+                  )}
+                  {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 51 && (
+                    <span className="count bold">
+                      <RelationSearchCount control={tab} recordId={recordId} keepPrevious />
+                    </span>
                   )}
                 </Fragment>
               }
@@ -280,13 +329,16 @@ function MobileWidgetSection(props) {
       return (
         <div className="flex">
           {desc && <div className="mTop16 mBottom16 pLeft20 pRight20 textTertiary">{desc}</div>}
-          <div className="customMobileFormContainer pBottom60 mTop8">{renderForm(activeControl.child)}</div>
+          <div className="customMobileFormContainer pBottom60 mTop8">
+            {/* 稳定 renderForm 在 layout effect 后才更新闭包，验证码需使用本次渲染的回调。 */}
+            {renderForm(activeControl.child, errorItemsMap, renderVerifyCode)}
+          </div>
         </div>
       );
     }
 
-    // 列表多条、查询记录 呈现态
-    if (recordId && (disabled || activeControl.disabled)) {
+    // 其他标签页呈现态
+    if (recordId && (disabled || activeControl.disabled) && !_.includes([29, 51], activeControl.type)) {
       return (
         <div className="flexColumn h100">
           <RelationList
@@ -306,12 +358,17 @@ function MobileWidgetSection(props) {
       );
     }
 
-    // 列表多条 新增/编辑
+    // 关联记录列表新增、编辑、呈现态统一按 H5 配置渲染
     if (activeControl.type === 29) {
-      const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId);
-      const c = { ...activeControl, disabled: initC.disabled, value: initC.value, isDraft };
+      const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId) || activeControl;
+      const c = {
+        ...activeControl,
+        disabled: disabled || initC.disabled || activeControl.disabled,
+        value: initC.value,
+        isDraft,
+      };
       return (
-        <RelateTabCon className="customMobileFormContainer pTop10">
+        <RelationTabContent className="customMobileFormContainer mobileTabContentContainer pTop10">
           <RelateRecord
             {...c}
             projectId={projectId}
@@ -324,21 +381,28 @@ function MobileWidgetSection(props) {
             formData={data}
             showRelateRecordEmpty={true}
             onChange={(value, cid = activeControl.controlId) => {
-              props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
+              triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
               onChange(value, cid, activeControl);
             }}
             loadMoreRelateCards={loadMoreRelateCards}
+            relationActionRows={relationActionData.rows}
+            relationActionCount={relationActionData.count}
+            relationActionControlId={relationActionData.controlId}
+            relationActionParams={relationActionData.actionParams}
+            updateRelationActionParams={relationActionData.updateActionParams}
           />
-        </RelateTabCon>
+        </RelationTabContent>
       );
     }
 
     // 查询记录列表 新增
     if (activeControl.type === 51) {
       return (
-        <div className="customMobileFormContainer pTop10 mLeft0 mRight0">
+        <RelationTabContent className="customMobileFormContainer mobileTabContentContainer pTop10 mLeft0 mRight0">
           <RelationSearch
             {...activeControl}
+            disabled={disabled || activeControl.disabled}
+            formDisabled={disabled || activeControl.disabled}
             worksheetId={worksheetId}
             appId={appId}
             from={from}
@@ -346,8 +410,9 @@ function MobileWidgetSection(props) {
             recordId={recordId}
             widgetStyle={widgetStyle}
             formData={data}
+            showRelateRecordEmpty={true}
           />
-        </div>
+        </RelationTabContent>
       );
     }
 
@@ -391,10 +456,37 @@ MobileWidgetSection.propTypes = {
   isDraft: PropTypes.bool, // 是否是草稿记录
   tabControls: PropTypes.array, // 标签页字段
   data: PropTypes.array, // formData
+  errorItemsMap: PropTypes.object,
   loadMoreRelateCards: PropTypes.bool, // 分页加载关联记录
   setActiveTabControlId: PropTypes.func,
   renderForm: PropTypes.func,
+  renderVerifyCode: PropTypes.func,
   onChange: PropTypes.func,
 };
 
-export default memo(MobileWidgetSection);
+const getActiveControl = props => {
+  const { activeTabControlId, tabControlProp = {}, tabControls = [] } = props;
+  const allTabs = tabControls.concat(tabControlProp.otherTabs || []).filter(Boolean);
+
+  return _.find(allTabs, control => control.controlId === activeTabControlId) || tabControls[0];
+};
+
+const arePropsEqual = (prevProps, nextProps) => {
+  const prevActiveControl = getActiveControl(prevProps);
+  const nextActiveControl = getActiveControl(nextProps);
+  const keys = _.uniq(Object.keys(prevProps).concat(Object.keys(nextProps)));
+
+  return keys.every(key => {
+    if (key === 'tabControls') {
+      return isSameControlList(prevProps.tabControls, nextProps.tabControls);
+    }
+
+    if (key === 'data' && prevActiveControl?.type === 52 && nextActiveControl?.type === 52) {
+      return true;
+    }
+
+    return Object.is(prevProps[key], nextProps[key]);
+  });
+};
+
+export default memo(MobileWidgetSection, arePropsEqual);

@@ -1,7 +1,4 @@
 .delAppItemDialog {
-  .mui-dialog-default-title {
-    color: var(--color-error) !important;
-  }
   .groupingWrap {
     border: 1px solid var(--color-border-tertiary);
     border-radius: 4px;
@@ -10,9 +7,6 @@
     .searchWrap {
       padding: 0 5px;
       border-bottom: 1px solid var(--color-border-secondary);
-      input {
-        border: none;
-      }
     }
     .groupingItem {
       height: 33px;
@@ -23,38 +17,6 @@
         .ellipsis {
           font-weight: 600;
         }
-      }
-    }
-  }
-  .btnBox {
-    margin-top: 32px;
-    display: flex;
-    justify-content: flex-end;
-    button {
-      width: 90px;
-      line-height: 36px;
-      padding: 0;
-      text-align: center;
-      background-color: var(--color-background-primary);
-      border-radius: 4px;
-      border: none;
-      outline: none;
-      cursor: pointer;
-    }
-    .btnCancel {
-      background-color: transparent;
-      &:hover {
-        color: var(--color-primary);
-      }
-    }
-    .btnOk {
-      color: var(--color-white);
-      background-color: var(--color-text-disabled);
-    }
-    .btnDel {
-      background-color: var(--color-error);
-      &:hover {
-        background-color: var(--color-error-hover);
       }
     }
   }

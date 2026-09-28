@@ -1,32 +1,41 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Input, Modal } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
 
 export default function CustomAction(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
-  const [loading, setLoading] = useState(true);
   const [sheetBtns, setSheetBtns] = useState([]);
+  const [loadedWorksheetId, setLoadedWorksheetId] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const scrollViewRef = useRef();
   const [optionsEditDialogVisible, setOptionsEditDialogVisible] = useState('');
+  const worksheetId = selectNode.workSheetId;
+  const loading = loadedWorksheetId !== worksheetId;
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
+
     sheetApi
       .getWorksheetBtns({
-        worksheetId: selectNode.workSheetId,
+        worksheetId,
       })
       .then(data => {
-        setLoading(false);
+        if (cancelled) return;
+
         setSheetBtns(data);
+        setLoadedWorksheetId(worksheetId);
       });
-  }, [selectNode.key]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [worksheetId]);
 
   if (loading) {
     return (
@@ -87,7 +96,7 @@ export default function CustomAction(props) {
     const cancelName = comparisonLangId ? comparisonLangInfo.cancelName : _.get(btn, 'cancelName');
     const remark = comparisonLangId ? comparisonLangInfo.remark : _.get(btn.advancedSetting, 'remarkname');
     const hintText = comparisonLangId ? comparisonLangInfo.hintText : _.get(btn.advancedSetting, 'remarkhint');
-    const remarkoptions = _.get(JSON.parse(_.get(btn.advancedSetting, 'remarkoptions') || '{}'), 'template') || [];
+    const remarkoptions = _.get(safeParse(_.get(btn.advancedSetting, 'remarkoptions') || '{}'), 'template') || [];
     const withoutRemarkoptions = remarkoptions.filter((item, index) => !translateInfo[`templateName_${index}`]);
 
     const handleSave = info => {
@@ -222,23 +231,24 @@ export default function CustomAction(props) {
               {!!withoutRemarkoptions.length && `，${_l('%0个没有译文', withoutRemarkoptions.length)}`}
             </div>
             <div className="flex">
-              <span className="colorPrimary pointer" onClick={() => setOptionsEditDialogVisible(btn.btnId)}>
+              <Button
+                color="primary"
+                variant="link"
+                size="small"
+                onClick={() => setOptionsEditDialogVisible(btn.btnId)}
+              >
                 {_l('编辑译文')}
-              </span>
+              </Button>
             </div>
           </div>
         )}
         {optionsEditDialogVisible && optionsEditDialogVisible === btn.btnId && (
-          <Dialog
-            visible={true}
+          <Modal
+            open
             className="editLingualDialog"
             width={860}
-            title={
-              <div className="flexRow alignItemsCenter mBottom10">
-                <span>{_l('模版')}</span>
-              </div>
-            }
-            showFooter={false}
+            title={_l('模版')}
+            keyboard
             onCancel={() => setOptionsEditDialogVisible('')}
           >
             {remarkoptions.map((item, index) => (
@@ -252,7 +262,7 @@ export default function CustomAction(props) {
                 />
               </div>
             ))}
-          </Dialog>
+          </Modal>
         )}
       </div>
     );
@@ -263,7 +273,8 @@ export default function CustomAction(props) {
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
-          <input
+          <Input
+            variant="borderless"
             placeholder={_l('自定义动作')}
             className="flex"
             value={searchValue}

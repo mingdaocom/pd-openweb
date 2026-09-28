@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { openAddRecord } from 'mobile/Record/addRecord';
-import { getFirstGroupDefaultValue, getSecondGroupDefaultValue } from 'worksheet/views/BoardView/util';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFirstGroupDefaultValue, getSecondGroupDefaultValue } from 'src/utils/services/worksheet/board';
 
 const AddBtnWrap = styled.div`
   display: flex;

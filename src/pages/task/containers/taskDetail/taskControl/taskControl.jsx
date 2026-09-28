@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
 import CustomFields from 'src/components/Form';
 import { deleteAttachment } from 'src/pages/kc/common/AttachmentsPreview/ajax';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import config from '../../../config/config';
 import { taskFoldStatus, updateControlValue, updateTaskControlFiles } from '../../../redux/actions';
 import './taskControl.less';
@@ -195,8 +196,8 @@ class TaskControl extends Component {
         alert(_l('删除成功'));
         this.props.dispatch(updateTaskControlFiles(taskId, controlId, newFiles));
       })
-      .catch(() => {
-        alert(_l('删除文件失败'), 3);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('删除文件失败'), 3);
       });
   }
 

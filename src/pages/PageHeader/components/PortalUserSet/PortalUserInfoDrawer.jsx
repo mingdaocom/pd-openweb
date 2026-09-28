@@ -1,20 +1,19 @@
 import React, { lazy, Suspense, useCallback, useState } from 'react';
-import { Drawer } from 'antd';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Dialog, Dropdown, Icon, Menu } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown as AntdDropdown, Drawer, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import accountSetting from 'src/api/accountSetting';
 import externalPortalAjax from 'src/api/externalPortal';
-import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
-import 'src/pages/Personal/personalInfo/modules/index.less';
+import AvatorInfo from 'src/components/UserInfoComponents/AvatorInfo.jsx';
 import { formatDataForPortalControl, renderText } from 'src/pages/Role/PortalCon/tabCon/util';
-import { browserIsMobile, emitter, getDefaultThemeMode, setBodyThemeMode } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getDefaultThemeMode, setBodyThemeMode } from 'src/utils/platform/theme/theme';
 import BindContactDialog from './BindContactDialog';
 import ChangeAccountDialog from './ChangeAccountDialog';
 import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
-import { ModalWrap, RedMenuItemWrap, Wrap } from './style';
+import { ModalWrap, Wrap } from './style';
 import './index.less';
 
 const LoadableUserInfoDialog = lazy(() => import('src/pages/Role/PortalCon/components/UserInfoDialog'));
@@ -24,6 +23,7 @@ const themeModes = [
   { value: 'dark', name: _l('深色'), icon: 'dark_mode' },
   { value: 'system', name: _l('跟随设备'), icon: 'computer' },
 ];
+const DRAWER_WITH_USER_INFO_FOCUSABLE = { trap: false };
 
 export default function PortalUserInfoDrawer(props) {
   const {
@@ -54,12 +54,12 @@ export default function PortalUserInfoDrawer(props) {
   const [type, setType] = useState('');
 
   const handleUploadImg = useCallback(() => {
-    Dialog.confirm({
-      dialogClasses: 'uploadAvatorDialogId',
+    const modal = Modal.confirm({
+      wrapClassName: 'uploadAvatorDialogId',
       width: browserIsMobile() ? '335px' : '980px',
       title: _l('上传头像'),
-      noFooter: true,
-      children: (
+      footer: null,
+      content: (
         <AvatorInfo
           editAvatar={res => {
             externalPortalAjax
@@ -68,19 +68,20 @@ export default function PortalUserInfoDrawer(props) {
                 exAccountId: md.global.Account.accountId,
                 newCell: (currentData || [])
                   .filter(o => ['avatar'].includes(o.alias))
-                  .map(o => ({ ...o, value: res.fileName })),
+                  .map(o => ({
+                    ...o,
+                    value: res.fileName,
+                  })),
               })
               .then(res => {
                 const newAvatar = res.data.portal_avatar;
                 md.global.Account.avatar = newAvatar;
                 onAvatarUpdate && onAvatarUpdate(newAvatar);
-                $('.uploadAvatorDialogId').parent().remove();
+                modal.destroy();
               });
           }}
           avatar={(avatar || '').split('imageView2')[0]}
-          closeDialog={() => {
-            $('.uploadAvatorDialogId').parent().remove();
-          }}
+          closeDialog={() => modal.destroy()}
         />
       ),
     });
@@ -99,7 +100,7 @@ export default function PortalUserInfoDrawer(props) {
   );
 
   const currentLangKey = getCookie('i18n_langtag') || window.getDefaultLangKey();
-  const langDropdownData = window.getAllowLangConfig().map(item => ({ text: item.value, value: item.key }));
+  const langDropdownData = window.getAllowLangConfig().map(item => ({ label: item.value, value: item.key }));
   const [themeMode, setThemeMode] = useState(() => localStorage.getItem('themeMode') || getDefaultThemeMode());
 
   const handleThemeChange = useCallback(value => {
@@ -134,16 +135,16 @@ export default function PortalUserInfoDrawer(props) {
   return (
     <>
       <Drawer
-        width={isMobile ? '100%' : 480}
-        className={[1, 3].includes(currentPcNaviStyle) ? '' : 'Absolute'}
+        size={isMobile ? '100%' : 480}
+        rootClassName={[1, 3].includes(currentPcNaviStyle) ? '' : 'Absolute'}
         onClose={onClose}
         placement="right"
-        visible={visible}
-        maskClosable={true}
+        open={visible}
+        focusable={isMobile && showUserInfoDialog ? DRAWER_WITH_USER_INFO_FOCUSABLE : undefined}
+        mask={{ enabled: true, closable: true }}
         closable={false}
-        getContainer={![1, 3].includes(currentPcNaviStyle)}
-        mask={true}
-        bodyStyle={{ padding: 0 }}
+        getContainer={[1, 3].includes(currentPcNaviStyle) ? false : undefined}
+        styles={{ body: { padding: 0 } }}
       >
         <Wrap className={cx('flexColumn h100', { isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
           {isMobile && (
@@ -242,16 +243,13 @@ export default function PortalUserInfoDrawer(props) {
                 <span className="title textTertiary pRight5" title={_l('语言')}>
                   {_l('语言')}
                 </span>
-                <Dropdown
+                <Select
                   className="langSettingDropdown"
+                  variant="borderless"
                   value={currentLangKey}
-                  data={langDropdownData}
+                  options={langDropdownData}
                   onChange={handleLangChange}
-                  dropIcon="arrow-right-border"
-                  isAppendToBody
-                  points={['tr', 'br']}
-                  offset={[0, 1]}
-                  menuStyle={{ width: 180 }}
+                  suffixIcon={<Icon icon="arrow-right-border" />}
                 />
               </div>
               <div className={cx('tel flexRow alignItemsCenter justifyContentBetween mTop16')}>
@@ -322,27 +320,23 @@ export default function PortalUserInfoDrawer(props) {
                 <Icon icon="more_horiz" className="Font18" />
               </div>
             ) : (
-              <Trigger
-                action={['click']}
-                popupVisible={showMenu}
-                onPopupVisibleChange={setShowMenu}
-                popup={
-                  <Menu>
-                    <RedMenuItemWrap
-                      className="RedMenuItem"
-                      onClick={() => {
+              <AntdDropdown
+                trigger={['click']}
+                open={showMenu}
+                onOpenChange={setShowMenu}
+                placement="bottomLeft"
+                menu={{
+                  items: [
+                    {
+                      key: 'deleteAccount',
+                      danger: true,
+                      label: _l('注销此账户'),
+                      onClick: () => {
                         setShowDelDialog(true);
                         setShowMenu(false);
-                      }}
-                    >
-                      <span>{_l('注销此账户')}</span>
-                    </RedMenuItemWrap>
-                  </Menu>
-                }
-                popupClassName={cx('dropdownTrigger')}
-                popupAlign={{
-                  points: ['tl', 'bl'],
-                  overflow: { adjustX: true, adjustY: true },
+                      },
+                    },
+                  ],
                 }}
               >
                 <div
@@ -351,7 +345,7 @@ export default function PortalUserInfoDrawer(props) {
                 >
                   <Icon icon="more_horiz" className="Font18" />
                 </div>
-              </Trigger>
+              </AntdDropdown>
             )}
           </div>
         </Wrap>

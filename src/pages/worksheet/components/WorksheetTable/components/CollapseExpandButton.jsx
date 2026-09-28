@@ -18,10 +18,10 @@ const Con = styled.div`
     background: var(--color-text-secondary);
   }
   .line-vertical {
-    transform: rotate(${({ folded }) => (folded ? '90deg' : '0deg')});
+    transform: rotate(${({ $folded }) => ($folded ? '90deg' : '0deg')});
   }
   .line-horizontal {
-    transform: rotate(${({ folded }) => (folded ? '180deg' : '0deg')});
+    transform: rotate(${({ $folded }) => ($folded ? '180deg' : '0deg')});
   }
   &:hover {
     border-color: var(--color-primary);
@@ -35,7 +35,7 @@ const Con = styled.div`
 function CollapseExpandButton(props) {
   const { folded } = props;
   return (
-    <Con folded={folded}>
+    <Con $folded={folded}>
       <div className="line line-vertical"></div>
       <div className="line line-horizontal"></div>
     </Con>

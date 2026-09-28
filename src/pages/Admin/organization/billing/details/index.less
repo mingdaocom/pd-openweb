@@ -1,0 +1,170 @@
+.billingDetails {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  .accountInfo {
+    flex-shrink: 0;
+  }
+
+  .aiWelfarePoint {
+    min-width: 0;
+  }
+
+  .billingDetailTabs {
+    flex-shrink: 0;
+    gap: 48px;
+    margin-top: 12px;
+    min-height: 46px;
+    border-bottom: 1px solid var(--color-border-primary);
+  }
+
+  .billingDetailTab {
+    height: 46px;
+    line-height: 44px;
+    border-bottom: 2px solid transparent;
+    font-size: 15px;
+
+    &.active,
+    &:hover {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    &.active {
+      font-weight: 600;
+    }
+  }
+
+  .billingDetailRefresh {
+    align-self: stretch;
+    margin-left: auto;
+  }
+
+  .billingDetailRefreshIcon {
+    color: var(--color-text-secondary);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+
+    &.disabled {
+      color: var(--color-text-disabled);
+      cursor: default;
+    }
+  }
+
+  .billingSearchWrap {
+    flex-shrink: 0;
+    padding-top: 24px;
+
+    .label {
+      min-width: 4em;
+      text-align: left;
+    }
+
+    .label.pLeft16 {
+      padding-left: 0 !important;
+    }
+  }
+
+  .billingTable {
+    overflow: hidden;
+
+    .hap-table-thead > tr > th:first-child {
+      padding-left: 0;
+    }
+
+    .hap-table-tbody > tr > td:first-child {
+      padding-left: 0;
+    }
+
+    .hap-table-thead > tr > th.billingAmountColumn,
+    .hap-table-tbody > tr > td.billingAmountColumn {
+      padding-right: 56px !important;
+    }
+  }
+
+  .billingUser {
+    min-width: 0;
+
+    > span:last-child {
+      min-width: 0;
+    }
+  }
+}
+
+.billingAgentDetailDrawer {
+  .hap-drawer-body {
+    padding: 20px 24px;
+  }
+
+  .agentBillingDetailTitle {
+    min-width: 0;
+  }
+
+  .traceIdText {
+    max-width: 560px;
+    min-width: 0;
+    color: var(--color-text-secondary);
+  }
+
+  .agentBillingDetailTable {
+    border: 1px solid var(--color-border-primary);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .agentBillingDetailRow {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    border-top: 1px solid var(--color-border-primary);
+
+    &:first-child {
+      border-top: none;
+    }
+
+    > div {
+      box-sizing: border-box;
+      padding: 0 12px;
+    }
+  }
+
+  .agentBillingDetailHeader {
+    min-height: 48px;
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    font-weight: 600;
+  }
+
+  .detailName {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .model {
+    width: 280px;
+    flex: 0 0 280px;
+  }
+
+  .credits {
+    width: 150px;
+    flex: 0 0 150px;
+    margin-right: 80px;
+    text-align: right;
+  }
+
+  .createTime {
+    width: 180px;
+    flex: 0 0 180px;
+  }
+
+  .emptyList {
+    padding: 32px 0;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
+}

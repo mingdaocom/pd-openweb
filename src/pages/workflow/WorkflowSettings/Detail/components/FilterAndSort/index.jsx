@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import { switchFilterConditions } from '../../../utils';
 import Sort from '../Sort';
 import TriggerCondition from '../TriggerCondition';
@@ -74,10 +74,15 @@ export default ({
             {showRandom && (
               <Checkbox
                 className="flexRow"
-                text={_l('忽略排序规则，随机获取')}
                 checked={data.random}
-                onClick={checked => updateSource({ random: !checked })}
-              />
+                onChange={event =>
+                  updateSource({
+                    random: event.target.checked,
+                  })
+                }
+              >
+                {_l('忽略排序规则，随机获取')}
+              </Checkbox>
             )}
           </div>
           {sortText && <div className="Font13 textSecondary mTop5">{sortText}</div>}

@@ -4,14 +4,15 @@ import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import AppAjax from 'src/api/appManagement';
 import HomeAjax from 'src/api/homeApp';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import UserTable from 'src/pages/Role/AppRoleCon/UserCon/UserListCon/index.jsx';
 import 'src/pages/Role/style.less';
-import { canEditApp, canEditData, getUserRole } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp, canEditData, getUserRole } from 'src/utils/domain/permission/app';
 
 const Wrapper = styled.div`
   min-height: 640px; //最小高度
@@ -25,21 +26,6 @@ const Wrapper = styled.div`
   }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
     width: calc(calc(calc(100% - 30px - 38px) / 100) * 15);
-  }
-  .ming.Dropdown .Dropdown--input,
-  .dropdownTrigger .Dropdown--input {
-    padding: 0;
-  }
-  .topActDrop .Dropdown--input {
-    display: flex;
-    align-items: center;
-    & > span.value {
-      display: inline-block;
-      flex: 1;
-    }
-    .icon {
-      display: block;
-    }
   }
   .memberTag {
     font-size: 12px;
@@ -154,16 +140,13 @@ function ManageUserDialog(props) {
   };
 
   return (
-    <Dialog
-      visible
-      title={null}
+    <Modal
+      open
       width={1000}
-      footer={null}
-      onCancel={() => {
-        onCancel();
-      }}
-      bodyClass={'pAll0 manageUserDialogBody flexColumn'}
-      headerClass={'pAll0'}
+      mask={{ closable: true }}
+      keyboard
+      styles={{ container: { padding: 0 } }}
+      onCancel={onCancel}
     >
       <Wrapper className="flex flexColumn">
         {loading ? (
@@ -185,7 +168,7 @@ function ManageUserDialog(props) {
           />
         )}
       </Wrapper>
-    </Dialog>
+    </Modal>
   );
 }
 

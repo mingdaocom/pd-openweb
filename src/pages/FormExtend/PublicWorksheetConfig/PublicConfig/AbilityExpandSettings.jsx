@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Input, Radio } from 'ming-ui';
+import { Input, Radio, Select } from 'ming-ui/antd-components';
 import { ALLOW_EDIT_TYPES } from '../../enum';
 import CommonFieldDropdown from './CommonFieldDropdown';
 import CommonSwitch from './CommonSwitch';
@@ -111,30 +111,37 @@ export default function AbilityExpandSettings(props) {
             />
             {_.get(abilityExpand, 'allowViewChange.isAllowViewChange') && (
               <div className="commonMargin">
-                {ALLOW_EDIT_TYPES.map((item, i) => (
+                {ALLOW_EDIT_TYPES.map(item => (
                   <Radio
-                    key={i}
-                    {...item}
-                    disableTitle
+                    key={item.value}
+                    value={item.value}
                     checked={item.value === _.get(abilityExpand, 'allowViewChange.switchViewChange')}
-                    onClick={() => {
+                    onChange={() => {
                       const newAbilityExpand = _.cloneDeep(abilityExpand);
                       newAbilityExpand.allowViewChange.switchViewChange = item.value;
-                      newAbilityExpand.allowViewChange.changeSetting = item.value === 2 ? { changeType: 1 } : {};
-                      setState({ abilityExpand: newAbilityExpand });
+                      newAbilityExpand.allowViewChange.changeSetting =
+                        item.value === 2
+                          ? {
+                              changeType: 1,
+                            }
+                          : {};
+                      setState({
+                        abilityExpand: newAbilityExpand,
+                      });
                     }}
-                  />
+                  >
+                    {item.text}
+                  </Radio>
                 ))}
                 {_.get(abilityExpand, 'allowViewChange.switchViewChange') === 2 && (
                   <div className="flexRow alignItemsCenter mTop16">
                     <span>{_l('修改时效：')}</span>
-                    <Dropdown
-                      border
+                    <Select
                       className="effectiveTimeDropdown"
                       value={_.get(abilityExpand, ['allowViewChange', 'changeSetting', 'changeType'])}
-                      data={[
-                        { text: _l('始终允许修改'), value: 1 },
-                        { text: _l('一段时间内可修改'), value: 2 },
+                      options={[
+                        { label: _l('始终允许修改'), value: 1 },
+                        { label: _l('一段时间内可修改'), value: 2 },
                       ]}
                       onChange={value => {
                         const newAbilityExpand = _.cloneDeep(abilityExpand);
@@ -146,7 +153,8 @@ export default function AbilityExpandSettings(props) {
                       <div className="mLeft10">
                         <CustomTimeInput
                           value={_.get(abilityExpand, ['allowViewChange', 'changeSetting', 'expireTime']) || ''}
-                          onChange={value => {
+                          onChange={event => {
+                            const value = event.target.value;
                             if (parseInt(value) || value === '') {
                               const newAbilityExpand = _.cloneDeep(abilityExpand);
                               const expireTime = parseInt(value) ? (parseInt(value) < 1 ? 1 : parseInt(value)) : '';

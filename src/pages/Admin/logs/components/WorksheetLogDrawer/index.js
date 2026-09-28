@@ -1,16 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Input, LoadDiv, SvgIcon } from 'ming-ui';
+import { LoadDiv, SvgIcon } from 'ming-ui';
+import { Drawer, Input } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp.js';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import WorksheetLog from './WorksheetLog';
 import './index.less';
 
 export default function WorksheetLogDrawer(props) {
-  const { visible, appId, onClose = () => {} } = props;
+  const { visible, appId, selectWorksheetId: defaultWorksheetId, onClose = () => {} } = props;
   const worksheetListRef = useRef(null);
   const [{ worksheetLoading, worksheetList, selectWorksheetId, searchValue, searchWorksheetList }, setData] =
     useSetState({
@@ -21,7 +21,7 @@ export default function WorksheetLogDrawer(props) {
       searchWorksheetList: [],
     });
 
-  const getWorksheets = () => {
+  useEffect(() => {
     homeAppAjax
       .getWorksheetsByAppId({ appId })
       .then(res => {
@@ -35,15 +35,15 @@ export default function WorksheetLogDrawer(props) {
             };
           }),
           selectWorksheetId:
-            props.selectWorksheetId && (_.find(list, v => v.workSheetId === props.selectWorksheetId) || {}).type === 0
-              ? props.selectWorksheetId
+            defaultWorksheetId && (_.find(list, v => v.workSheetId === defaultWorksheetId) || {}).type === 0
+              ? defaultWorksheetId
               : _.get(list, '[0].workSheetId'),
         });
       })
       .catch(() => {
         setData({ worksheetLoading: false });
       });
-  };
+  }, [appId, defaultWorksheetId, setData]);
 
   const handleSearch = val => {
     const searchValue = _.trim(val);
@@ -52,32 +52,32 @@ export default function WorksheetLogDrawer(props) {
   };
 
   useEffect(() => {
-    getWorksheets();
-  }, []);
-
-  useEffect(() => {
-    if (!!props.selectWorksheetId && worksheetListRef) {
-      const index = _.findIndex(worksheetList, v => v.workSheetId === props.selectWorksheetId);
+    if (defaultWorksheetId && worksheetListRef.current) {
+      const index = _.findIndex(worksheetList, v => v.workSheetId === defaultWorksheetId);
       worksheetListRef.current.scrollTop = index * 36;
     }
-  }, [worksheetList]);
+  }, [defaultWorksheetId, worksheetList]);
 
   return (
     <Drawer
-      className="worksheetLogDrawer"
-      visible={visible}
+      rootClassName="worksheetLogDrawer"
+      open={visible}
       title={null}
       closable={false}
-      maskClosable={true}
-      destroyOnClose={true}
+      mask={{ closable: true }}
       size="large"
       onClose={onClose}
     >
       <div className="flexRow h100">
         <div className="sheetWrap flexColumn">
           <div className="searchWrap Relative">
-            <i className="icon icon-search Font18 textTertiary TxtMiddle" />
-            <Input placeholder={_l('搜索')} value={searchValue} onChange={handleSearch} />
+            <Input
+              className="w100"
+              prefix={<i className="icon icon-search Font18 textTertiary" />}
+              placeholder={_l('搜索')}
+              value={searchValue}
+              onChange={e => handleSearch(e.target.value)}
+            />
           </div>
           <div className="mTop15 mLeft16 mBottom10">{_l('选择工作表')}</div>
           <div className="worksheetList flex" ref={worksheetListRef}>

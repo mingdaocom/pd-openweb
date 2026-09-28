@@ -3,12 +3,12 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { checkIsAppAdmin } from 'ming-ui/functions';
+import { Icon } from 'ming-ui';
+import { Button, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
-import { navigateToView } from 'src/pages/widgetConfig/util/data';
-import { addBehaviorLog } from 'src/utils/project';
+import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
+import { navigateToView } from 'src/pages/widgetConfig/navigation';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { pluginConfigType } from '../config';
 
 const Wrapper = styled.div`
@@ -26,15 +26,6 @@ const Wrapper = styled.div`
       font-weight: 500;
     }
     .dataItem {
-      .ming.Dropdown {
-        width: 220px;
-      }
-      .confirmBtn {
-        background: var(--color-primary);
-        :hover {
-          background: var(--color-link-hover);
-        }
-      }
       .viewCon {
         display: flex;
         align-items: center;
@@ -95,7 +86,7 @@ export default function DebugEnv(props) {
       homeAppApi.getWorksheetsByAppId({ type: 0, appId: env.appId }).then(res => {
         if (res) {
           const list = res.map(item => {
-            return { text: item.workSheetName, value: item.workSheetId };
+            return { label: item.workSheetName, value: item.workSheetId };
           });
           setWorksheetList({ [env.appId]: list });
         }
@@ -109,15 +100,15 @@ export default function DebugEnv(props) {
       title: _l('应用'),
       render: (item, index) =>
         item.isEdit ? (
-          <Dropdown
-            border={true}
-            isAppendToBody={true}
-            openSearch={true}
+          <Select
+            className="w100"
+            showPopupSearch={true}
             placeholder={_l('请选择应用')}
-            data={appList || []}
+            optionFilterProp="label"
+            options={appList || []}
             value={item.appId}
-            itemLoading={!appList}
-            onVisibleChange={visible => {
+            loading={!appList}
+            onOpenChange={visible => {
               if (visible && !appList) {
                 onGetAppList();
               }
@@ -135,13 +126,13 @@ export default function DebugEnv(props) {
       title: _l('工作表'),
       render: (item, index) =>
         item.isEdit ? (
-          <Dropdown
-            border={true}
-            isAppendToBody={true}
-            openSearch={true}
+          <Select
+            className="w100"
+            showPopupSearch={true}
             disabled={!item.appId}
             placeholder={_l('请选择工作表')}
-            data={worksheetList[item.appId] || []}
+            optionFilterProp="label"
+            options={worksheetList[item.appId] || []}
             value={item.worksheetId}
             onChange={worksheetId => updateDebugEnv({ ...item, worksheetId }, index)}
           />
@@ -166,7 +157,6 @@ export default function DebugEnv(props) {
           configType !== pluginConfigType.create ? (
             <Button
               type="primary"
-              className="confirmBtn"
               disabled={!item.appId || !item.worksheetId}
               onClick={() => {
                 onUpdate(
@@ -231,15 +221,19 @@ export default function DebugEnv(props) {
           <Icon
             icon="trash"
             onClick={() => {
-              Dialog.confirm({
-                title: _l('删除调试应用'),
-                buttonType: 'danger',
+              Modal.confirm({
+                title: <span className="textError">{_l('删除调试应用')}</span>,
+                okButtonProps: {
+                  danger: true,
+                },
                 onOk: () => {
                   const newDebugEnvList = debugEnvList.filter((_, i) => i !== index);
                   onUpdate(
                     {
                       debugEnvironments: newDebugEnvList.map(item => {
-                        return { ..._.pick(item, ['appId', 'worksheetId', 'viewId']) };
+                        return {
+                          ..._.pick(item, ['appId', 'worksheetId', 'viewId']),
+                        };
                       }),
                     },
                     () => {

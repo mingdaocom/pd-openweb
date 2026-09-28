@@ -2,33 +2,28 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend-latest';
 import { useDrag } from 'react-dnd-latest';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, Dropdown } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import {
-  batchUpdateWidgetsLayout,
-  clearAndSetWidgets,
-  handleAddWidgets,
-  handleDeleteWidgetsForMingo,
-  handleUpdateWidgetsAttribute,
-} from 'src/pages/widgetConfig/util/data';
-import { emitter, updateGlobalStoreForMingo } from 'src/utils/common';
-import { getFeatureStatus } from 'src/utils/project';
+import { handleAddWidgets } from 'src/pages/widgetConfig/internal/editorData';
+import { notInsetSectionTab } from 'src/utils/domain/control/capabilities';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { checkWidgetMaxNumErr, getWidgetInfo } from 'src/utils/domain/control/metadata';
+import { WIDGET_GROUP_TYPE } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { DRAG_ITEMS } from '../config/Drag';
-import { WIDGET_GROUP_TYPE } from '../config/widget';
-import { DropdownOverlay } from '../styled';
-import { checkWidgetMaxNumErr, enumWidgetType, formatSearchConfigs, getWidgetInfo, notInsetSectionTab } from '../util';
-import { createTemplateDialog, hasCreateOrganizationTemplatePermission } from '../util/createTemplate';
+import { hasCreateOrganizationTemplatePermission, useCreateTemplateDialog } from '../util/createTemplate';
 import { FixedIcon } from '../widgetDisplay/components/WidgetStyle';
 import { SettingCollapseWrap } from '../widgetSetting/content/styled';
 import DraggableItem from './draggableItem';
 import ListItemLayer from './ListItemLayer';
-
-const { Panel } = Collapse;
 
 const WidgetList = styled.div`
   width: 300px;
@@ -93,27 +88,27 @@ const WidgetList = styled.div`
       justify-content: center;
     }
     .templateGroupCollapse {
-      &.ant-collapse {
+      &.hap-collapse {
         background: transparent !important;
-        .ant-collapse-item > .ant-collapse-header {
+        .hap-collapse-item > .hap-collapse-header {
           padding: 12px 0 !important;
         }
-        .ant-collapse-content-box {
+        .hap-collapse-body {
           padding-bottom: 0 !important;
         }
       }
     }
     .templateItemCollapse {
-      &.ant-collapse {
+      &.hap-collapse {
         background: transparent !important;
-        .ant-collapse-item {
+        .hap-collapse-item {
           margin-bottom: 14px;
           border: 1px solid var(--color-border-primary) !important;
           border-radius: 4px;
           background-color: var(--color-background-primary);
           overflow: hidden;
         }
-        .ant-collapse-item > .ant-collapse-header {
+        .hap-collapse-item > .hap-collapse-header {
           align-items: center;
           min-height: 36px;
           padding: 0 12px 0 0 !important;
@@ -133,11 +128,11 @@ const WidgetList = styled.div`
           .anticon {
             margin-right: 0 !important;
           }
-          .ant-collapse-header-text {
+          .hap-collapse-header-text {
             min-width: 0;
           }
         }
-        .ant-collapse-content-box {
+        .hap-collapse-body {
           padding: 0 0 12px 0 !important;
         }
       }
@@ -536,37 +531,35 @@ function TemplatePanelHeader(props) {
         <Dropdown
           trigger={['click']}
           placement={dropdownPlacement}
-          visible={dropdownVisible}
           getPopupContainer={() => document.body}
-          onVisibleChange={handleDropdownVisibleChange}
-          overlay={
-            <DropdownOverlay>
-              <div className="dropdownContent grayDropdown Width200">
-                <div
-                  className="item grayItem"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onDropdownVisibleChange(false);
-                    onEdit(item);
-                  }}
-                >
-                  <i className="icon-edit" />
-                  <span>{_l('编辑')}</span>
-                </div>
-                <div
-                  className="item grayItem"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onDropdownVisibleChange(false);
-                    onDelete(item);
-                  }}
-                >
-                  <i className="icon-trash" />
-                  <span>{_l('删除')}</span>
-                </div>
-              </div>
-            </DropdownOverlay>
-          }
+          open={dropdownVisible}
+          onOpenChange={handleDropdownVisibleChange}
+          menu={{
+            style: { minWidth: 200 },
+            items: [
+              {
+                key: 'edit',
+                icon: <i className="icon-edit" />,
+                label: _l('编辑'),
+                onClick: ({ domEvent }) => {
+                  domEvent.stopPropagation();
+                  onDropdownVisibleChange(false);
+                  onEdit(item);
+                },
+              },
+              {
+                key: 'delete',
+                danger: true,
+                icon: <i className="icon-trash" />,
+                label: _l('删除'),
+                onClick: ({ domEvent }) => {
+                  domEvent.stopPropagation();
+                  onDropdownVisibleChange(false);
+                  onDelete(item);
+                },
+              },
+            ],
+          }}
         >
           <i
             ref={moreBtnRef}
@@ -584,9 +577,7 @@ const getTemplateId = item => item.templateId || item.id;
 const getTemplateControls = item => _.get(item, 'controls') || [];
 const getTemplateControlCount = item => item.controlCount || getTemplateControls(item).length;
 
-export default function List(props) {
-  const cache = useRef({});
-  cache.current.props = props;
+function List(props) {
   const containerRef = useRef(false);
   const {
     globalSheetInfo = {},
@@ -648,81 +639,9 @@ export default function List(props) {
     return true;
   };
 
-  const clearAndSetWidgetsFromEmitter = (data, para = {}, callback) => {
-    window.lastAddWidgetsTriggerByMingo = true;
-    clearAndSetWidgets(data, para, cache.current.props, callback);
-    setTimeout(() => {
-      window.lastAddWidgetsTriggerByMingo = false;
-    }, 100);
-  };
-
-  const handleAddWidgetsFromEmitter = (data, para = {}, callback) => {
-    window.lastAddWidgetsTriggerByMingo = true;
-    handleAddWidgets(
-      data.map(item => ({ ...item, isMingo: true })),
-      {
-        ...para,
-        isMingo: true,
-      },
-      cache.current.props,
-      ({ newWidgets = [] } = []) => {
-        if (para.isStreaming) {
-          return;
-        }
-
-        batchUpdateWidgetsLayout(
-          para.layoutOfAllWidgets,
-          {
-            ...cache.current.props,
-            widgets: newWidgets,
-          },
-          callback,
-        );
-      },
-    );
-    setTimeout(() => {
-      window.lastAddWidgetsTriggerByMingo = false;
-    }, 100);
-  };
-
-  const handleUpdateWidgetsAttributeFromEmitter = (data, callback) => {
-    handleUpdateWidgetsAttribute(data, cache.current.props, callback);
-  };
-
-  const handleDeleteWidgetsForMingoFromEmitter = (data, para = {}, callback) => {
-    handleDeleteWidgetsForMingo(data, cache.current.props, ({ newWidgets = [] } = []) => {
-      batchUpdateWidgetsLayout(
-        para.layoutOfAllWidgets,
-        {
-          ...cache.current.props,
-          widgets: newWidgets,
-        },
-        callback,
-      );
-    });
-  };
-
-  useEffect(() => {
-    updateGlobalStoreForMingo('allWidgets', allControls);
-  }, [allControls]);
-
   useEffect(() => {
     setHasCreateTemplatePermission(hasCreateOrganizationTemplatePermission(globalSheetInfo.projectId));
   }, [globalSheetInfo.projectId]);
-
-  useEffect(() => {
-    emitter.on('WIDGET_CONFIG_CLEAR_AND_SET_WIDGETS', clearAndSetWidgetsFromEmitter);
-    emitter.on('WIDGET_CONFIG_DELETE_WIDGETS', handleDeleteWidgetsForMingoFromEmitter);
-    emitter.on('WIDGET_CONFIG_ADD_WIDGETS', handleAddWidgetsFromEmitter);
-    emitter.on('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', handleUpdateWidgetsAttributeFromEmitter);
-    return () => {
-      updateGlobalStoreForMingo('allWidgets', []);
-      emitter.off('WIDGET_CONFIG_CLEAR_AND_SET_WIDGETS', clearAndSetWidgetsFromEmitter);
-      emitter.off('WIDGET_CONFIG_DELETE_WIDGETS', handleDeleteWidgetsForMingoFromEmitter);
-      emitter.off('WIDGET_CONFIG_ADD_WIDGETS', handleAddWidgetsFromEmitter);
-      emitter.off('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', handleUpdateWidgetsAttributeFromEmitter);
-    };
-  }, []);
 
   const handleTemplateDropdownVisibleChange = (templateKey, visible) => {
     setActiveDropdownKey(currentKey => {
@@ -746,15 +665,20 @@ export default function List(props) {
         }
       }
 
-      handleAddWidgets(controls, para, props);
+      const activeWidgetByPath = Array.isArray(para.activePath) ? _.get(props.widgets, para.activePath) : undefined;
+      handleAddWidgets(
+        controls,
+        _.omit(para, 'mode'),
+        activeWidgetByPath ? { ...props, activeWidget: activeWidgetByPath } : props,
+      );
     } catch (err) {
       console.error(err);
-      alert(_l('查询工作表配置失败'), 2);
+      alertIfNotUnauthorized(err, _l('查询工作表配置失败'), 2);
     }
   };
 
   const handleEditTemplate = item => {
-    createTemplateDialog({
+    props.openCreateTemplateDialog({
       globalSheetInfo,
       setConfig,
       templateInfo: {
@@ -769,13 +693,18 @@ export default function List(props) {
   };
 
   const handleDeleteTemplate = item => {
-    Dialog.confirm({
-      title: _l('确定要删除此字段模板？'),
-      description: _l('删除字段模板后，使用该模板的字段不会被删除。'),
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="textError">{_l('确定要删除此字段模板？')}</span>,
+      content: _l('删除字段模板后，使用该模板的字段不会被删除。'),
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         worksheetAjax
-          .operationControlTemplate({ templateId: getTemplateId(item), operationType: 9 })
+          .operationControlTemplate({
+            templateId: getTemplateId(item),
+            operationType: 9,
+          })
           .then(res => {
             if (res.code === 1) {
               const nextTemplatePersonalList = (templatePersonalList || []).filter(
@@ -784,19 +713,17 @@ export default function List(props) {
               const nextTemplateOrganizationList = (templateOrganizationList || []).filter(
                 template => getTemplateId(template) !== getTemplateId(item),
               );
-
               setConfig({
                 templatePersonalList: nextTemplatePersonalList,
                 templateOrganizationList: nextTemplateOrganizationList,
               });
-
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败'), 2);
             }
           })
-          .catch(() => {
-            alert(_l('删除失败'), 2);
+          .catch(_requestError => {
+            alertIfNotUnauthorized(_requestError, _l('删除失败'), 2);
           });
       },
     });
@@ -832,90 +759,99 @@ export default function List(props) {
       );
     }
 
+    const renderTemplateItem = group => item => {
+      const templateId = getTemplateId(item);
+      const templateKey = `${group.key}-${templateId}`;
+      const controls = getTemplateControls(item);
+      const controlCount = getTemplateControlCount(item);
+      const showOperate = group.key !== 'organization' || hasCreateTemplatePermission;
+
+      if (controlCount === 1) {
+        return (
+          <div className="templateSingleItem" key={templateKey}>
+            <TemplatePanelHeader
+              item={item}
+              controls={controls}
+              controlCount={controlCount}
+              dropdownVisible={activeDropdownKey === templateKey}
+              onDropdownVisibleChange={visible => handleTemplateDropdownVisibleChange(templateKey, visible)}
+              onAdd={handleAddTemplate}
+              onEdit={handleEditTemplate}
+              onDelete={handleDeleteTemplate}
+              showOperate={showOperate}
+            />
+          </div>
+        );
+      }
+
+      return (
+        <SettingCollapseWrap
+          key={templateKey}
+          className="templateItemCollapse"
+          bordered={false}
+          activeKey={expandedTemplates}
+          expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+          items={[
+            {
+              key: templateKey,
+              collapsible: 'icon',
+              label: (
+                <TemplatePanelHeader
+                  item={item}
+                  controls={controls}
+                  controlCount={controlCount}
+                  dropdownVisible={activeDropdownKey === templateKey}
+                  onDropdownVisibleChange={visible => handleTemplateDropdownVisibleChange(templateKey, visible)}
+                  onAdd={handleAddTemplate}
+                  onEdit={handleEditTemplate}
+                  onDelete={handleDeleteTemplate}
+                  showOperate={showOperate}
+                />
+              ),
+
+              children: (
+                <div className="templateControlList">
+                  {controls.map(control => {
+                    const { icon } = getWidgetInfo(control.type);
+                    return (
+                      <div className="templateControl" key={control.controlId}>
+                        <i className={`icon-${icon || 'text_bold2'}`} />
+                        <span className="ellipsis">{control.controlName}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ),
+            },
+          ]}
+          onChange={value => {
+            const activeKeys = _.isArray(value) ? value : [value].filter(Boolean);
+            setActiveDropdownKey('');
+            setExpandedTemplates(prevKeys => {
+              const otherKeys = prevKeys.filter(key => key !== templateKey);
+              return activeKeys.includes(templateKey) ? otherKeys.concat(templateKey) : otherKeys;
+            });
+          }}
+        />
+      );
+    };
+
     return (
       <SettingCollapseWrap
         className="templateGroupCollapse"
         bordered={false}
         activeKey={expandedGroups}
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+        items={groups.map(group => ({
+          key: group.key,
+          label: group.title,
+          children: <Fragment>{group.list.map(renderTemplateItem(group))}</Fragment>,
+        }))}
         onChange={value => {
           setActiveDropdownKey('');
           setExpandedGroups(value);
         }}
-      >
-        {groups.map(group => (
-          <Panel header={group.title} key={group.key}>
-            <SettingCollapseWrap
-              className="templateItemCollapse"
-              bordered={false}
-              activeKey={expandedTemplates}
-              expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-              onChange={value => {
-                setActiveDropdownKey('');
-                setExpandedTemplates(value);
-              }}
-            >
-              {group.list.map(item => {
-                const templateId = getTemplateId(item);
-                const templateKey = `${group.key}-${templateId}`;
-                const controls = getTemplateControls(item);
-                const controlCount = getTemplateControlCount(item);
-                const showOperate = group.key !== 'organization' || hasCreateTemplatePermission;
-
-                if (controlCount === 1) {
-                  return (
-                    <div className="templateSingleItem" key={templateKey}>
-                      <TemplatePanelHeader
-                        item={item}
-                        controls={controls}
-                        controlCount={controlCount}
-                        dropdownVisible={activeDropdownKey === templateKey}
-                        onDropdownVisibleChange={visible => handleTemplateDropdownVisibleChange(templateKey, visible)}
-                        onAdd={handleAddTemplate}
-                        onEdit={handleEditTemplate}
-                        onDelete={handleDeleteTemplate}
-                        showOperate={showOperate}
-                      />
-                    </div>
-                  );
-                }
-
-                return (
-                  <Panel
-                    collapsible="icon"
-                    header={
-                      <TemplatePanelHeader
-                        item={item}
-                        controls={controls}
-                        controlCount={controlCount}
-                        dropdownVisible={activeDropdownKey === templateKey}
-                        onDropdownVisibleChange={visible => handleTemplateDropdownVisibleChange(templateKey, visible)}
-                        onAdd={handleAddTemplate}
-                        onEdit={handleEditTemplate}
-                        onDelete={handleDeleteTemplate}
-                        showOperate={showOperate}
-                      />
-                    }
-                    key={templateKey}
-                  >
-                    <div className="templateControlList">
-                      {controls.map(control => {
-                        const { icon } = getWidgetInfo(control.type);
-                        return (
-                          <div className="templateControl" key={control.controlId}>
-                            <i className={`icon-${icon || 'text_bold2'}`} />
-                            <span className="ellipsis">{control.controlName}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </Panel>
-                );
-              })}
-            </SettingCollapseWrap>
-          </Panel>
-        ))}
-      </SettingCollapseWrap>
+      />
     );
   };
 
@@ -936,7 +872,7 @@ export default function List(props) {
 
     return (
       <Fragment>
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        {window.platformENV.isHap && (
           <div className="mTop12">
             <span className="textSecondary">{_l('点击或拖拽添加')}</span>
           </div>
@@ -981,15 +917,15 @@ export default function List(props) {
       <ListItemLayer {..._.pick(props, ['listPanelVisible', 'setPanelVisible'])} containerRef={containerRef} />
       <ScrollView>
         <div className={cx('groupList', { isTemplateTab: activeWidgetTab === 2 })}>
-          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-            <div className="addWidgetCon">
+          <div className="addWidgetCon">
+            {window.platformENV.isHap && (
               <div className="flexCenter">
                 <span className="title">{_l('添加字段')}</span>
                 <Support className="supportBox" type={1} href="https://help.mingdao.com/worksheet/controls" />
               </div>
-              <FixedIcon {...props} fixedKey="widgetPanelFixed" />
-            </div>
-          )}
+            )}
+            <FixedIcon {...props} fixedKey="widgetPanelFixed" />
+          </div>
 
           <div className="templateTab">
             {WIDGET_TAB.map(item => {
@@ -1011,3 +947,7 @@ export default function List(props) {
     </WidgetList>
   );
 }
+
+export default withOpeners(List, {
+  openCreateTemplateDialog: useCreateTemplateDialog,
+});

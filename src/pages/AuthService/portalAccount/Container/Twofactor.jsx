@@ -4,7 +4,7 @@ import { LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import { isTel } from 'src/pages/AuthService/util.js';
 import { validation } from 'src/pages/AuthService/util.js';
-import { encrypt } from 'src/utils/common';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { setAutoLoginKey } from '../util';
 import Form from './Form';
 

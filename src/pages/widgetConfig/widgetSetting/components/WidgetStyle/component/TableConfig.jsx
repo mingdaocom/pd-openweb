@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Radio, Tooltip } from 'ming-ui/antd-components';
 import { DisplayMode, SettingItem } from 'src/pages/widgetConfig/styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import WidgetRowHeight from '../../WidgetRowHeight';
 
 const DIRECTION_DISPLAY_TYPE = [
@@ -29,6 +29,7 @@ export default function TableConfig(props) {
     layercontrolid,
     freezeids,
     titlewrap,
+    usecolumnstyle,
     sheettype: sheettypeFromSetting,
   } = getAdvanceSetting(data);
   const sheettype = sheettypeFromSetting === undefined ? (data.type === 34 ? '1' : '0') : sheettypeFromSetting;
@@ -55,6 +56,7 @@ export default function TableConfig(props) {
                         ...(freezeids ? { freezeids: '' } : {}),
                         ...(layercontrolid ? { layercontrolid: '' } : {}),
                         ...(titlewrap ? { titlewrap: '0' } : {}),
+                        ...(usecolumnstyle ? { usecolumnstyle: '0' } : {}),
                       }),
                     );
 
@@ -68,6 +70,7 @@ export default function TableConfig(props) {
                       ...(freezeids ? { freezeids: '' } : {}),
                       ...(layercontrolid ? { layercontrolid: '' } : {}),
                       ...(titlewrap ? { titlewrap: '0' } : {}),
+                      ...(usecolumnstyle ? { usecolumnstyle: '0' } : {}),
                     }),
                   );
                 }}
@@ -98,11 +101,17 @@ export default function TableConfig(props) {
             <i className="icon-help textTertiary Font16"></i>
           </Tooltip>
         </div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={sheettype}
-          data={SHEETTYPE_DISPLAY_LIST}
-          onChange={value => onChange(handleAdvancedSettingChange(data, { sheettype: value }))}
+          value={sheettype}
+          options={(SHEETTYPE_DISPLAY_LIST || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                sheettype: event.target.value,
+              }),
+            )
+          }
         />
       </SettingItem>
 

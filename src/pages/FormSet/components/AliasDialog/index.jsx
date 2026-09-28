@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, Support } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './index.less';
 
 const CONFIG = {
@@ -83,25 +85,31 @@ export default function AliasDialog(props) {
   const onBatchGenerate = useCallback(() => {
     if (loadingRef.current) return;
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('确定批量生成别名？'),
-      description: isEditControl
+      content: isEditControl
         ? _l('根据字段名的拼音自动生成别名，若字段名为英文则直接取字段名作为别名，此操作不会影响已设置的别名。')
         : _l('根据视图名的拼音自动生成别名，若视图名为英文则直接取视图名作为别名，此操作不会影响已设置的别名。'),
       onOk: () => {
         loadingRef.current = true;
         sheetAjax[isEditControl ? 'editGenerateControlsDefaultAlias' : 'editGenerateViewDefaultAlias'](
-          isEditControl ? { worksheetId, appId } : { worksheetId },
+          isEditControl
+            ? {
+                worksheetId,
+                appId,
+              }
+            : {
+                worksheetId,
+              },
         )
           .then(res => {
             if (!mountedRef.current) return;
-
             setAliasData(res.data.controls || res.data);
             setIsUpdate(true);
           })
-          .catch(() => {
+          .catch(_requestError2 => {
             if (mountedRef.current) {
-              alert(_l('生成失败'), 2);
+              alertIfNotUnauthorized(_requestError2, _l('生成失败'), 2);
             }
           })
           .finally(() => {
@@ -170,9 +178,9 @@ export default function AliasDialog(props) {
             setIsUpdate(true);
           }
         })
-        .catch(() => {
+        .catch(_requestError => {
           if (mountedRef.current) {
-            alert(_l('修改失败'), 2);
+            alertIfNotUnauthorized(_requestError, _l('修改失败'), 2);
           }
         });
     },
@@ -180,8 +188,10 @@ export default function AliasDialog(props) {
   );
 
   return (
-    <Dialog
-      visible={true}
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       className="aliasDialog"
       width={720}
       onCancel={() => onClose(isUpdate, aliasData)}
@@ -245,6 +255,6 @@ export default function AliasDialog(props) {
           );
         })}
       </div>
-    </Dialog>
+    </Modal>
   );
 }

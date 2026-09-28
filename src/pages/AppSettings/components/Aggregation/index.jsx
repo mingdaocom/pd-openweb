@@ -1,15 +1,17 @@
-import React, { Fragment, useCallback, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, FullScreenCurtain, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { FullScreenCurtain, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { isAppSandboxInProduction } from 'src/utils/domain/app/sandbox';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { getFeatureStatus } from 'src/utils/services/project';
 import AppSettingHeader from '../AppSettingHeader';
 import Info from './components/Info';
 import Item from './components/Item';
@@ -39,18 +41,6 @@ const Wrap = styled.div`
     height: 40px;
     border-bottom: 1px solid var(--color-border-primary);
     margin: 0 40px;
-    .Dropdown {
-      .Dropdown--input {
-        padding: 0;
-        background: transparent;
-        i {
-          line-height: 32px;
-          display: inline-block;
-          vertical-align: middle;
-          height: 32px;
-        }
-      }
-    }
   }
   .minWidth100 {
     min-width: 100px;
@@ -99,6 +89,7 @@ const ArrowDown = styled.span`
 `;
 let ajaxPromise = null;
 const pageSize = 40;
+const TIME_SELECT_STYLES = { root: { paddingInlineStart: 0 } };
 
 const renderNull = txt => {
   return (
@@ -128,6 +119,7 @@ export default function AggregationTables(props) {
   });
 
   const featureType = getFeatureStatus(projectId, VersionProductType.aggregation);
+  const readonly = isAppSandboxInProduction(props.sandboxStatus);
 
   useEffect(() => {
     if (!loading) return;
@@ -147,7 +139,7 @@ export default function AggregationTables(props) {
     ajaxPromise = syncTaskApi.list(fetchListParams, { isAggTable: true });
     ajaxPromise.then(result => {
       if (result) {
-        cache.current.list = pageNo > 0 ? list.concat(result.content || []) : result.content;
+        cache.current.list = pageNo > 0 ? (cache.current.list || []).concat(result.content || []) : result.content;
         setState({
           list: cache.current.list,
           loading: false,
@@ -155,7 +147,7 @@ export default function AggregationTables(props) {
         });
       }
     });
-  }, [keyWords, pageNo, loading, sort]);
+  }, [appId, keyWords, loading, pageNo, projectId, setState, sort]);
 
   const checkCanAdd = () => {
     syncTaskApi
@@ -189,12 +181,16 @@ export default function AggregationTables(props) {
     }
   };
 
-  const onSearch = useCallback(
-    _.debounce(value => {
-      setState({ keyWords: value, loading: true, pageNo: 0 });
-    }, 500),
-    [],
+  // Header 输入框自身不受 keyWords 控制，这里只防抖触发列表查询；卸载时取消避免延迟 setState。
+  const onSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setState({ keyWords: value, loading: true, pageNo: 0 });
+      }, 500),
+    [setState],
   );
+
+  useEffect(() => () => onSearch.cancel(), [onSearch]);
 
   /**
    * 渲染内容
@@ -232,14 +228,16 @@ export default function AggregationTables(props) {
           <div className="w150px mRight20 minWidth100 textSecondary">{_l('状态')}</div>
           <div className="w180px pRight20 mRight20 flexRow alignItemsCenter">
             <div className="flex">
-              <Dropdown
+              <Select
                 className="Normal"
-                data={[
-                  { text: _l('创建时间'), value: 'createDate' },
-                  { text: _l('更新时间'), value: 'lastModifiedDate' },
+                variant="borderless"
+                styles={TIME_SELECT_STYLES}
+                options={[
+                  { label: _l('创建时间'), value: 'createDate' },
+                  { label: _l('更新时间'), value: 'lastModifiedDate' },
                 ]}
                 value={displayType}
-                renderTitle={() => (
+                labelRender={() => (
                   <span className="textSecondary bold TxtTop">
                     {displayType === 'createDate' ? _l('创建时间') : _l('更新时间')}
                   </span>
@@ -318,7 +316,8 @@ export default function AggregationTables(props) {
                 index={index}
                 num={index}
                 displayType={displayType}
-                canEdit={featureType !== '2'}
+                canEdit={featureType !== '2' && !readonly}
+                canView={featureType !== '2'}
                 onEdit={() => {
                   if (featureType === '2') {
                     buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation);
@@ -343,7 +342,7 @@ export default function AggregationTables(props) {
         <React.Fragment>
           <AppSettingHeader
             title={_l('聚合表')}
-            addBtnName={_l('新建聚合表')}
+            addBtnName={readonly ? undefined : _l('新建聚合表')}
             description={_l('可将多个工作表连接，对数据进行归组聚合，在统计中直接使用')}
             link="https://help.mingdao.com/application/aggregation" //帮助链接
             handleSearch={onSearch}

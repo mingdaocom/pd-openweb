@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ConfigProvider, Empty, Table } from 'antd';
 import _ from 'lodash';
 import { ScrollView } from 'ming-ui';
+import { ConfigProvider, Empty } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { controlState } from 'src/utils/control';
-import { renderText } from 'src/utils/control';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
+import { renderText } from 'src/utils/domain/control/display';
+import { controlState } from 'src/utils/domain/control/state';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum';
 import { getDepartmentName } from '../util';
 import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
@@ -319,8 +320,10 @@ function WorksheetRecordLogSubTable(props) {
 
   const renderEmpty = () => (
     <Empty
-      imageStyle={{
-        height: 40,
+      styles={{
+        image: {
+          height: 40,
+        },
       }}
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description={<span>{columns.length ? _l('无数据，或是移除记录暂不支持查看详情') : _l('暂无权限查看')}</span>}

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import Icon from 'ming-ui/components/Icon';
 import inboxController from 'src/api/inbox';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 export default class Star extends React.Component {
   constructor(props) {

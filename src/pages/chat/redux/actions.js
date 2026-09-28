@@ -1,9 +1,24 @@
 import _ from 'lodash';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { INBOXTYPES } from 'src/pages/chat/components/Inbox/constants';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import * as utils from '../utils';
 import * as ajax from '../utils/ajax';
 import Constant from '../utils/constant';
 import * as socket from '../utils/socket';
+
+// 沙盒环境仅禁止用户和群组会话；系统通知、应用消息、工作流消息仍可正常查看。
+const SANDBOX_ALLOWED_INBOX_IDS = new Set([INBOXTYPES.SYSTEM, INBOXTYPES.WORKSHEET, INBOXTYPES.WORKFLOW]);
+
+const preventSandboxConversationOpening = target => {
+  const hasTarget = _.isObject(target) ? !_.isEmpty(target) : Boolean(target);
+  const targetId = _.isObject(target) ? target.value : target;
+
+  if (!hasTarget || !isSandboxEnvironment() || SANDBOX_ALLOWED_INBOX_IDS.has(targetId)) return false;
+
+  alert(_l('沙盒环境，不允许发起聊天'), 3);
+  return true;
+};
 
 /**
  * 设置会话列表
@@ -613,6 +628,8 @@ export const closeSessionPanel = () => (dispatch, getState) => {
  * @param {*} result
  */
 export const setNewCurrentSession = result => dispatch => {
+  if (preventSandboxConversationOpening(result)) return;
+
   socket.Contact.setCurrentChat(result);
   dispatch({
     type: 'SET_CURRENT_SESSION',
@@ -634,6 +651,8 @@ export const setNewCurrentSession = result => dispatch => {
 export const setCurrentSessionId =
   (id, message = {}) =>
   (dispatch, getState) => {
+    if (preventSandboxConversationOpening(id)) return;
+
     const { sessionList } = getState().chat;
     const session = sessionList.filter(item => item.value === id)[0];
     socket.Contact.setCurrentChat(session);

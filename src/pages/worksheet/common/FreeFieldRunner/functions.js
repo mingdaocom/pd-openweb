@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 
 export function getRowsRelation({ control, recordId, formData, parentAppId }, params = {}) {
   const { pageIndex = 1, pageSize = 50, keyWords } = params;

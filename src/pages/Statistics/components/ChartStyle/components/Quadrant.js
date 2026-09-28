@@ -1,8 +1,8 @@
 import React, { Component, Fragment, useState } from 'react';
-import { Input } from 'antd';
 import styled from 'styled-components';
 import { ColorPicker } from 'ming-ui';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Input } from 'ming-ui/antd-components';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
 
 const ColorWrap = styled.div`
   width: 32px;
@@ -23,11 +23,13 @@ const QuadrantName = props => {
   return (
     <Input
       value={name}
-      className="chartInput flex"
+      maxLength={30}
+      className="flex"
       placeholder={data.name}
       onChange={event => {
-        setName(event.target.value.slice(0, 30));
+        setName(event.target.value);
       }}
+      onPressEnter={event => event.currentTarget.blur()}
       onBlur={() => {
         onChangeQuadrant({
           [data.textKey]: name,
@@ -42,7 +44,7 @@ const QuadrantAxisValue = props => {
   return (
     <Input
       value={value}
-      className="chartInput mLeft10 flex"
+      className="mLeft10 flex"
       placeholder={_l('默认')}
       onChange={event => {
         setValue(formatNumberFromInput(event.target.value));
@@ -126,7 +128,7 @@ export default class Quadrant extends Component {
           </ColorPicker>
         </div>
         <div className="mBottom16">
-          <div className="mBottom12">{_l('位置')}</div>
+          <div className="mBottom12 textSecondary">{_l('位置')}</div>
           <div className="mTop10">
             <div className="flexRow valignWrapper mBottom10">
               <div>{_l('X轴')}</div>
@@ -149,7 +151,7 @@ export default class Quadrant extends Component {
           </div>
         </div>
         <div className="mBottom16">
-          <div className="mBottom12">{_l('象限名称和背景色')}</div>
+          <div className="mBottom12 textSecondary">{_l('象限名称和背景色')}</div>
           {this.renderQuadrantItem({
             textKey: 'topRightText',
             bgColorKey: 'topRightBgColor',

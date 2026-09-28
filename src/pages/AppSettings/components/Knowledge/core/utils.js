@@ -1,8 +1,8 @@
 import worksheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import {
   DATA_FILTER_FIELD_TYPES,
   FILTER_CONDITION_TYPE,

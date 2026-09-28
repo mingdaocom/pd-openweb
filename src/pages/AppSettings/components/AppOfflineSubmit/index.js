@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Button, Dialog, Input, LoadDiv, Menu, MenuItem, ScrollView, Support, SvgIcon, Switch } from 'ming-ui';
+import { LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Button, Divider, Dropdown, Input, Modal, Switch } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import AppSettingHeader from '../AppSettingHeader';
@@ -14,19 +14,21 @@ export default function AppOfflineSubmit(props) {
   const [sheetData, setSheetData] = useState([]);
   const [offlineItems, setOfflineItems] = useState([]);
   const [keyword, setKeyword] = useState('');
+  const [menuVisible, setMenuVisible] = useState(false);
   const offlineItemIds = offlineItems.map(v => v.worksheetId);
   const searchData = keyword
     ? sheetData.filter(v => v.workSheetName.toLowerCase().indexOf(_.trim(keyword).toLowerCase()) > -1)
     : [];
+  const visibleSheetData = keyword ? searchData : sheetData;
 
-  const getWorksheetList = () => {
+  const getWorksheetList = useCallback(() => {
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setSheetData(res);
     });
-  };
+  }, [appId]);
 
   // 获取离线应用项
-  const getOfflineItems = () => {
+  const getOfflineItems = useCallback(() => {
     appManagementAjax
       .getOfflineItems({ appId })
       .then(res => {
@@ -37,7 +39,7 @@ export default function AppOfflineSubmit(props) {
         setOfflineItems([]);
         setLoading(false);
       });
-  };
+  }, [appId]);
 
   // 添加离线应用项
   const addOfflineItem = worksheetId => {
@@ -81,36 +83,26 @@ export default function AppOfflineSubmit(props) {
   useEffect(() => {
     getWorksheetList();
     getOfflineItems();
-  }, []);
+  }, [getOfflineItems, getWorksheetList]);
 
-  const renderSheetList = () => {
+  const renderSheetList = menu => {
     return (
       <div className="menuWrapper">
-        <div className="searchWrapper flexRow">
-          <i className="icon icon-search" />
-          <Input
-            autoFocus
-            placeholder={_l('搜索')}
-            className="w100"
-            value={keyword}
-            onChange={val => setKeyword(val)}
-          />
-        </div>
-        <Menu className="worksheetListMenu w100">
-          {(keyword ? searchData : sheetData).map(item => {
-            return (
-              <MenuItem iconAtEnd key={item.workSheetId} onClick={() => addOfflineItem(item.workSheetId)}>
-                <span className="flex ellipsis Block">{item.workSheetName}</span>
-                {_.includes(offlineItemIds, item.workSheetId) && (
-                  <i className="icon icon-done Font18 TxtMiddle mLeft10" />
-                )}
-              </MenuItem>
-            );
-          })}
-          {!!keyword && !searchData.length && (
-            <div className="TxtCenter textTertiary pTop10 pBottom10">{_l('没有搜索结果')}</div>
-          )}
-        </Menu>
+        <Input
+          autoFocus
+          variant="borderless"
+          prefix={<i className="icon icon-search" />}
+          placeholder={_l('搜索')}
+          className="searchWrapper w100"
+          value={keyword}
+          onChange={event => setKeyword(event.target.value)}
+        />
+        <Divider className="mp0" />
+        {visibleSheetData.length ? (
+          menu
+        ) : (
+          <div className="TxtCenter textTertiary pTop10 pBottom10">{_l('没有搜索结果')}</div>
+        )}
       </div>
     );
   };
@@ -121,20 +113,32 @@ export default function AppOfflineSubmit(props) {
         title={_l('APP离线提交')}
         customBtn={
           _.isEmpty(sheetData) ? null : (
-            <Trigger
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 12],
-                overflow: { adjustX: true, adjustY: true },
+            <Dropdown
+              open={menuVisible}
+              onOpenChange={(open, info) => {
+                if (info?.source !== 'menu') {
+                  setMenuVisible(open);
+                }
               }}
-              popup={renderSheetList}
+              trigger={['click']}
+              placement="bottomLeft"
+              menu={{
+                items: visibleSheetData.map(item => ({
+                  key: item.workSheetId,
+                  label: item.workSheetName,
+                  extra: _.includes(offlineItemIds, item.workSheetId) ? (
+                    <i className="icon icon-done Font18 colorPrimary" />
+                  ) : undefined,
+                  onClick: () => addOfflineItem(item.workSheetId),
+                })),
+                style: { width: 500, maxHeight: 300, overflowY: 'auto', boxShadow: 'none' },
+              }}
+              popupRender={renderSheetList}
             >
-              <Button className="mLeft20 pLeft20 pRight20" type="primary" radius>
-                <i className="icon icon-plus Font12 mRight5" />
+              <Button type="primary" shape="round" icon={<i className="icon icon-plus" />}>
                 {_l('离线提交')}
               </Button>
-            </Trigger>
+            </Dropdown>
           )
         }
       />
@@ -181,16 +185,23 @@ export default function AppOfflineSubmit(props) {
                   </div>
                   <div className="operator ellipsis pRight10">{operator.fullname}</div>
                   <div className="status">
-                    <Switch checked={status === 1} onClick={() => editOfflineItemStatus(worksheetId, status)} />
+                    <Switch
+                      checked={status === 1}
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
+                        return editOfflineItemStatus(worksheetId, status);
+                      }}
+                    />
                   </div>
                   <div className="action">
                     <i
                       className="icon icon-trash Hand Font20"
                       onClick={() => {
-                        Dialog.confirm({
+                        Modal.confirm({
                           className: 'deleteOfflineItemDialog',
-                          title: _l('是否确认删除？'),
+                          title: <span className="textError">{_l('是否确认删除？')}</span>,
                           okText: _l('删除'),
+                          okButtonProps: { danger: true },
                           onOk: () => editOfflineItemStatus(worksheetId, 2),
                         });
                       }}

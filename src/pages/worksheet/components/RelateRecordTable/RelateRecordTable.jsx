@@ -2,15 +2,15 @@ import React, { Fragment, useCallback, useContext, useEffect, useRef, useState }
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useKey } from 'react-use';
-import { Skeleton } from 'antd';
 import cx from 'classnames';
 import { find, get, isFunction, isUndefined } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { Skeleton } from 'ming-ui/antd-components';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
 import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 import Operate from './Operate';
 import * as actions from './redux/action';
 import TableComp from './TableComp';
@@ -52,6 +52,7 @@ function RelateRecordTable(props) {
   const { updateWorksheetControls } = props;
   const { updateRecord, deleteRecords, refresh, updateBase, updateTableConfigByControl } = props;
   const { isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
+  const controlEditable = Boolean(controlPermission?.editable);
   const view = find(relateWorksheetInfo?.views, { viewId: control.viewId });
   const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
     get(control, 'advancedSetting.showtype'),
@@ -59,6 +60,7 @@ function RelateRecordTable(props) {
   const tableCache = useRef({});
   const tableConRef = useRef();
   const [tableId] = useState(v4());
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
   const { width, recordbase = {}, iseditting, isMingoCreate } = useContext(RecordFormContext) || {};
   const { recordTitle } = recordbase;
   const smallMode = width < 500;
@@ -89,13 +91,25 @@ function RelateRecordTable(props) {
           window.activeTableId = tableId;
         },
         onDeleteSuccess: () => {
-          if (!control.disabled && allowEdit && controlPermission.editable) {
+          if (!control.disabled && allowEdit && controlEditable) {
             deleteRecords([recordId]);
           }
         },
       });
     },
-    [control.controlId, records, relateWorksheetInfo],
+    [
+      allowEdit,
+      base.worksheetId,
+      control,
+      controlEditable,
+      deleteRecords,
+      isDraft,
+      openRecordInfo,
+      records,
+      relateWorksheetInfo,
+      tableId,
+      updateRecord,
+    ],
   );
   useEffect(() => {
     if (isUndefined(saveSync)) {
@@ -150,19 +164,25 @@ function RelateRecordTable(props) {
   }, []);
 
   if (loading) {
-    return tableState.error ? (
-      <ErrorStatus>{tableState.error}</ErrorStatus>
-    ) : (
-      <Skeleton
-        style={{
-          ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
-        }}
-      />
+    return (
+      <Fragment>
+        {recordInfoHolder}
+        {tableState.error ? (
+          <ErrorStatus>{tableState.error}</ErrorStatus>
+        ) : (
+          <Skeleton
+            style={{
+              ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
+            }}
+          />
+        )}
+      </Fragment>
     );
   }
 
   return (
     <Fragment>
+      {recordInfoHolder}
       {
         <Operate
           view={view}

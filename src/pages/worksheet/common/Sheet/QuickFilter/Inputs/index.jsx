@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import { shape } from 'prop-types';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getType } from '../utils';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { getType } from 'src/utils/domain/worksheet/filterQuick';
 import Areas from './Areas';
 import Cascader from './Cascader';
 import CheckboxComp from './CheckboxComp';

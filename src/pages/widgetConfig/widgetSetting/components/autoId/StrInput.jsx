@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
+import { Input } from 'ming-ui/antd-components';
 import AutoIcon from '../../../components/Icon';
 
 export default function StrInput({ rule, deleteRule, updateRule }) {

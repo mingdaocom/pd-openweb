@@ -1,7 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
-import { DatePicker } from 'ming-ui';
-import { DatePickerFilterWrap } from 'src/pages/Admin/common/styled';
+import { DatePicker, Menu } from 'ming-ui/antd-components';
+
+const RANGE_PICKER_TRIGGER_STYLE = {
+  position: 'absolute',
+  inset: 0,
+  opacity: 0,
+  pointerEvents: 'none',
+};
+const DATE_FILTER_MENU_STYLE = { minWidth: 120 };
 
 const DATE_FILTER = [
   { id: 'today', text: _l('今天') },
@@ -37,44 +44,61 @@ const getDateFilter = id => {
 
 export default function DatePickerFilter(props) {
   const { updateData } = props;
-  const $ref = useRef(null);
-  let _endDate = formatDate(moment());
+  const [dateBounds, setDateBounds] = useState(null);
 
   const handleClick = id => {
     const data = getDateFilter(id);
     updateData(data);
   };
 
-  return (
-    <DatePickerFilterWrap ref={$ref}>
-      {DATE_FILTER.map(({ id, text }) =>
-        id === 'custom' ? (
-          <DatePicker.RangePicker
-            offset={{ left: -533, top: -220 }}
-            popupParentNode={() => $ref.current}
-            max={moment(_endDate)}
-            min={moment(_endDate).subtract(1, 'year')}
-            onOk={([start, end]) => {
-              updateData({ startDate: formatDate(start), endDate: formatDate(end) });
-            }}
-            onClear={() => {
-              const data = getDateFilter('currentMonth');
-              updateData(data);
-            }}
-            onSelect={selectedValue => {
-              if (selectedValue && selectedValue[1]) {
-                _endDate = formatDate(moment(selectedValue[1]));
+  const handleRangeChange = range => {
+    if (range && (range.length !== 2 || range.some(date => !date))) return;
+
+    setDateBounds(null);
+    updateData(
+      range ? { startDate: formatDate(range[0]), endDate: formatDate(range[1]) } : getDateFilter('currentMonth'),
+    );
+  };
+
+  const items = DATE_FILTER.map(({ id, text }) => {
+    if (id !== 'custom') {
+      return { key: id, label: text, onClick: () => handleClick(id) };
+    }
+
+    return {
+      key: id,
+      label: (
+        <div
+          className="Relative"
+          onClick={event => {
+            event.stopPropagation();
+            const maxDate = moment().endOf('day');
+
+            setDateBounds({ maxDate, minDate: maxDate.clone().subtract(1, 'year').startOf('day') });
+          }}
+        >
+          {text}
+          {dateBounds && (
+            <DatePicker.RangePicker
+              disabledDate={current =>
+                current && (current.isBefore(dateBounds.minDate, 'day') || current.isAfter(dateBounds.maxDate, 'day'))
               }
-            }}
-          >
-            <li>{text}</li>
-          </DatePicker.RangePicker>
-        ) : (
-          <li key={id} onClick={() => handleClick(id)}>
-            {text}
-          </li>
-        ),
-      )}
-    </DatePickerFilterWrap>
-  );
+              format="YYYY-MM-DD"
+              open
+              placement="bottomRight"
+              style={RANGE_PICKER_TRIGGER_STYLE}
+              onChange={handleRangeChange}
+              onOpenChange={open => {
+                if (!open) {
+                  setDateBounds(null);
+                }
+              }}
+            />
+          )}
+        </div>
+      ),
+    };
+  });
+
+  return <Menu selectable={false} items={items} style={DATE_FILTER_MENU_STYLE} />;
 }

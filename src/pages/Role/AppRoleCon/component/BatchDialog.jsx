@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import AjaxApi from 'src/api/appManagement.js';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const Wrap = styled.div`
   .iconBG {
@@ -31,18 +31,7 @@ const Wrap = styled.div`
     line-height: 18px;
     padding: 0 6px;
   }
-  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    min-height: 36px;
-    height: auto;
-    border-radius: 3px;
-    border: 1px solid var(--color-border-primary);
-  }
-  .ant-select-focused:not(.ant-select-disabled) {
-    .ant-select-selector {
-      box-shadow: none !important;
-    }
-  }
-  .ant-select-multiple .ant-select-selection-item {
+  .hap-select-multiple .hap-select-selection-item {
     background: var(--color-border-secondary) !important;
     border-radius: 11px !important;
   }
@@ -88,12 +77,13 @@ export default function BatchDialog(props) {
   }, [getRole, showRole]);
 
   return (
-    <Dialog
-      className="BatchDialog"
-      width="580"
-      visible={show}
-      title={<span className="Font17 Bold">{props.title}</span>}
+    <Modal
+      width={580}
+      open={show}
+      title={props.title}
       okText={okText}
+      mask={{ closable: true }}
+      keyboard
       onCancel={onCancel}
       onOk={() => {
         onOk(roles);
@@ -127,6 +117,6 @@ export default function BatchDialog(props) {
           ></Select>
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { RadioGroup } from 'ming-ui';
-import { TIME_DISPLAY_TYPE } from '../../config/setting';
+import { Radio } from 'ming-ui/antd-components';
+import { TIME_DISPLAY_TYPE } from 'src/utils/domain/control/setting';
 import { SettingItem } from '../../styled';
 
 export default function Text(props) {
@@ -10,11 +10,15 @@ export default function Text(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('类型')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={unit}
-          data={TIME_DISPLAY_TYPE}
-          onChange={value => onChange({ unit: value })}
+          value={unit}
+          options={(TIME_DISPLAY_TYPE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event =>
+            onChange({
+              unit: event.target.value,
+            })
+          }
         />
       </SettingItem>
     </Fragment>

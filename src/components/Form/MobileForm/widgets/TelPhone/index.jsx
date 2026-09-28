@@ -2,8 +2,8 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { ADD_EVENT_ENUM } from '../../../core/enum';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
 import ClearValueIcon, { CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
 import { FIELD_SIZE_OPTIONS } from '../../tools/config';
 

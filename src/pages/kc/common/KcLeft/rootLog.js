@@ -1,7 +1,9 @@
 import React, { Fragment } from 'react';
-import { Dialog, UserCard } from 'ming-ui';
+import { UserCard } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import service from '../../api/service';
-import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { PERMISSION_TYPE_NAME, PICK_TYPE, ROOT_LOG_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import { humanDateTime } from '../../utils';
 import './rootLog.less';
@@ -165,19 +167,18 @@ function logDesc(log) {
 export function getRootLog(rootName, rootId) {
   const srv = rootId === PICK_TYPE.MY ? service.getMyLogDetail() : service.getRootLogDetail({ id: rootId });
   srv.then(result => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('%0的日志', htmlEncodeReg(rootName)),
       width: 410,
-      noFooter: true,
-      dialogBoxID: 'rootLogs',
+      footer: null,
       className: 'kcDialogBox',
-      description: (
+      styles: { body: { overflow: 'hidden' } },
+      content: (
         <ul class="rootLog">
           {result.logCount ? (
             <Fragment>
               {result.logContent.map(item => {
                 let logTypeName;
-
                 if (item.type === ROOT_LOG_TYPE.CREATE || item.type === ROOT_LOG_TYPE.CHILDADD) {
                   logTypeName = 'icon-plus';
                 } else if (
@@ -190,7 +191,6 @@ export function getRootLog(rootName, rootId) {
                 } else {
                   logTypeName = 'icon-edit';
                 }
-
                 return (
                   <li>
                     <i className={`rootLogType ${logTypeName}`}></i>

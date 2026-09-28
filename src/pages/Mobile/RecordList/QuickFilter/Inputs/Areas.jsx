@@ -27,7 +27,7 @@ const AreaCon = styled.div`
   }
 `;
 const AreaItem = styled.span`
-  max-width: ${props => (props.isMultiple ? '100%' : 'calc(100% - 20px)')};
+  max-width: ${props => (props.$isMultiple ? '100%' : 'calc(100% - 20px)')};
   display: inline-block;
   height: 28px;
   background: var(--color-background-secondary);
@@ -66,7 +66,7 @@ export default function Areas(props) {
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <AreaCon>
         {values.map(item => (
-          <AreaItem key={item.id} isMultiple={isMultiple}>
+          <AreaItem key={item.id} $isMultiple={isMultiple}>
             <span className="userName 12">{item.name}</span>
             <Icon icon="close" onClick={() => deleteCurrentArea(item)} />
           </AreaItem>

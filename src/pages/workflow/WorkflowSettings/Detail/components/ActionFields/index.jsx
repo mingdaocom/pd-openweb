@@ -3,15 +3,16 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Divider, Input, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import { APP_TYPE, NODE_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
 import { getIcons } from '../../../utils';
-import selectToolsFields from './selectToolsFields';
+import { useSelectToolsFields } from './selectToolsFields';
 import './index.less';
 
 const ClickAwayable = ClickAway;
-export default class ActionFields extends Component {
+class ActionFields extends Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
@@ -60,6 +61,7 @@ export default class ActionFields extends Component {
     this.state = {
       activeIndex: props.condition.length > 1 ? -1 : 0,
       keywords: '',
+      isSelectToolsFieldsOpen: false,
     };
   }
 
@@ -84,6 +86,12 @@ export default class ActionFields extends Component {
     if (this.state.activeIndex === index) index = -1;
     this.setState({ activeIndex: index });
     this.search && this.search.focus();
+  };
+
+  handleClickAway = target => {
+    if (!this.state.isSelectToolsFieldsOpen) {
+      this.props.onClose(target);
+    }
   };
 
   render() {
@@ -114,32 +122,28 @@ export default class ActionFields extends Component {
         style={style}
         className={cx('startConditionWrap', { [className]: className })}
         onClickAwayExceptions={onClickAwayExceptions}
-        onClickAway={onClose}
+        onClickAway={this.handleClickAway}
       >
         <div className="conditionWrapContent">
           {title && <div className="pLeft16 pRight16 mTop15">{title}</div>}
           {header && header}
           {openSearch && (
-            <div
-              className="flexRow mTop5 mBottom5 alignItemsCenter"
-              style={{
-                padding: '0 16px 0 14px',
-                height: 36,
-                borderBottom: '1px solid var(--color-border-tertiary)',
-              }}
-            >
-              <i className="icon-search textSecondary Font14" />
-              <input
-                type="text"
-                ref={search => {
-                  this.search = search;
-                }}
-                autoFocus
-                className="mLeft5 flex Border0 placeholderColor textPrimary"
-                placeholder={_l('搜索流程节点对象下的字段')}
-                onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
-              />
-            </div>
+            <Fragment>
+              <div className="flexRow alignItemsCenter mTop5 mBottom5 pLeft5 pRight5">
+                <Input
+                  ref={search => {
+                    this.search = search;
+                  }}
+                  autoFocus
+                  className="flex"
+                  variant="borderless"
+                  prefix={<i className="icon-search textSecondary Font14" />}
+                  placeholder={_l('搜索流程节点对象下的字段')}
+                  onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
+                />
+              </div>
+              <Divider className="mTop3 mBottom3" />
+            </Fragment>
           )}
           <div className={cx('conditionWrap', { 'pTop6 pBottom6': condition.length || noData || keywords })}>
             <div className="conditionScrollWrap">
@@ -163,7 +167,7 @@ export default class ActionFields extends Component {
                           ? 'workflow_field'
                           : getIcons(item.nodeTypeId, item.appType, item.actionId).replace('icon-', '')
                       }
-                      className="textSecondary"
+                      className="textTertiary Font16"
                     />
                     <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
                     {_.includes(
@@ -200,7 +204,7 @@ export default class ActionFields extends Component {
                     )}
                     <Icon
                       icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}
-                      className="mLeft10 textSecondary"
+                      className="mLeft10 textTertiary Font16"
                     />
                   </div>
                   {
@@ -247,16 +251,18 @@ export default class ActionFields extends Component {
                       ))}
                       {item.nodeTypeId === NODE_TYPE.AGENT && (
                         <Fragment>
-                          <div className="divider"></div>
+                          <Divider className="mTop3 mBottom0" />
                           <li
                             className="flexRow hoverBgColorPrimaryDark agentField"
                             onClick={() => {
-                              selectToolsFields({
-                                subFlowNodeApps: item.subFlowNodeApps,
-                                toolsFunction: item.toolsFunction,
-                                onOk: handleFieldClick,
+                              this.setState({ isSelectToolsFieldsOpen: true }, () => {
+                                this.props.openSelectToolsFields({
+                                  subFlowNodeApps: item.subFlowNodeApps,
+                                  toolsFunction: item.toolsFunction,
+                                  onOk: handleFieldClick,
+                                  onClose,
+                                });
                               });
-                              onClose();
                             }}
                           >
                             <div className="ellipsis">
@@ -277,3 +283,7 @@ export default class ActionFields extends Component {
     );
   }
 }
+
+export default withOpeners(ActionFields, {
+  openSelectToolsFields: useSelectToolsFields,
+});

@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, Support } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Button, Modal } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { deleteRules, getRulesAll, saveFn, showEditFn } from '../actions/action';
 import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';
@@ -95,11 +95,13 @@ class ContactsHidden extends React.Component {
           <span
             className="deleteRule"
             onClick={() => {
-              Confirm({
+              Modal.confirm({
                 className: '',
-                title: _l('确定删除这条规则么？'),
+                title: <span className="textError">{_l('确定删除这条规则么？')}</span>,
                 okText: _l('确认'),
-                buttonType: 'primary',
+                okButtonProps: {
+                  danger: true,
+                },
                 cancelText: _l('取消'),
                 onOk: () => {
                   dispatch(deleteRules(projectId, item.ruleId));
@@ -141,14 +143,15 @@ class ContactsHidden extends React.Component {
     const { dispatch, isEdit, projectId } = this.props;
 
     if (isEdit) {
-      Confirm({
+      Modal.confirm({
         className: '',
         title: _l('你修改的设置尚未保存，确定要离开吗？'),
         okText: _l('确认'),
-        buttonType: 'primary',
         cancelText: _l('取消'),
         onOk: () => {
-          this.setState({ errorIds: [] });
+          this.setState({
+            errorIds: [],
+          });
           dispatch(getRulesAll(projectId));
           dispatch(showEditFn(false));
         },
@@ -191,6 +194,7 @@ class ContactsHidden extends React.Component {
     }
 
     const currentEditRule = _.find(rules, it => it.type === editType) || {};
+    const saveDisabled = !isEdit || dataByRuleId.length <= 0;
 
     return (
       <div className="contactsHiddenBox orgManagementWrap">
@@ -221,26 +225,27 @@ class ContactsHidden extends React.Component {
                 currentEditRule={currentEditRule}
                 errorIds={this.state.errorIds || []}
               />
-              <span
-                className={cx('saveBtn', { disable: !isEdit || dataByRuleId.length <= 0 })}
+              <Button
+                wide
+                type="primary"
+                shape="round"
+                className="mTop32"
+                disabled={saveDisabled}
+                loading={isSaveing}
                 onClick={() => {
-                  if (isEdit && !isSaveing && dataByRuleId.length > 0) {
-                    let data = [];
-                    dataByRuleId.map(it => {
-                      data.push({
-                        ruleItemType: it.ruleItemType,
-                        targetType: it.targetType,
-                        targetId: it.targetId,
-                      });
-                    });
-                    dispatch(saveFn(projectId, data, ruleId, currentEditRule.ruleType, this.errorCallback));
-                  } else {
-                    return;
-                  }
+                  if (saveDisabled || isSaveing) return;
+
+                  const data = dataByRuleId.map(it => ({
+                    ruleItemType: it.ruleItemType,
+                    targetType: it.targetType,
+                    targetId: it.targetId,
+                  }));
+
+                  dispatch(saveFn(projectId, data, ruleId, currentEditRule.ruleType, this.errorCallback));
                 }}
               >
                 {_l('保存')}
-              </span>
+              </Button>
             </div>
           </div>
         ) : (

@@ -1,20 +1,21 @@
 import React, { Component, forwardRef, lazy, Suspense, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import reportApi from '../api/report';
 import login from 'src/api/login';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { configureStore } from 'src/redux/configureStore';
-import { getTranslateInfo } from 'src/utils/app';
-import { getFilledRequestParams, htmlEncodeReg, pathCompletion } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
 import charts from '../Charts';
-import { reportTypes } from '../Charts/common';
 import { chartNav } from '../common/chartNav';
 import { isOptionControl } from '../common/controlUtils';
 import { fillValueMap } from '../common/reportDataUtils';
@@ -371,8 +372,6 @@ class Card extends Component {
           '--title-color': hideNumberChartName ? undefined : '#fff',
           '--icon-color': hideNumberChartName ? undefined : '#fff',
           '--widget-title-color': isLight && !hideNumberChartName ? '#fff' : undefined,
-          '--widget-icon-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
-          '--widget-icon-hover-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
           marginBottom: 8,
           background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`,
         };
@@ -420,10 +419,11 @@ class Card extends Component {
             )}
             {sourceType && !_.isEmpty(initiateChartInfo) && (
               <Popover
-                visible={undefined}
+                arrow={true}
+                open={undefined}
                 trigger="hover"
                 placement="bottom"
-                overlayClassName="customPageAutoLinkagePopoverWrap"
+                classNames={{ root: 'customPageAutoLinkagePopoverWrap' }}
                 content={
                   <div className="customPageAutoLinkagePopover">
                     <div className="Font14 bold mBottom5">

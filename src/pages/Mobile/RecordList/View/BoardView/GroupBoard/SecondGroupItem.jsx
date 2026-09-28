@@ -1,6 +1,6 @@
 import React from 'react';
 import RecordCardIO from 'mobile/RecordList/RecordCard/RecordCardIO';
-import { isShowAddRecord } from 'worksheet/views/BoardView/util';
+import { isShowAddRecord } from 'src/utils/services/worksheet/board';
 import AddRecordBtn from '../components/AddRecordBtn';
 
 const SecondGroupItem = props => {

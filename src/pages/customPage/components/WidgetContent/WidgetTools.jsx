@@ -1,10 +1,10 @@
 import React, { Fragment, lazy, Suspense, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import update from 'immutability-helper';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { getTranslateInfo } from 'src/utils/app';
+import { Input } from 'ming-ui/antd-components';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { containerWidgets } from '../../enum';
 import * as actions from '../../redux/action';
 import { componentCountLimit } from '../../util';
@@ -100,32 +100,31 @@ const WidgetTools = props => {
         break;
       case 'switchButtonDisplay':
         if (widget.type === 1) {
+          const mobileCount = widget.config.mobileCount === undefined ? 1 : widget.config.mobileCount;
           updateWidget({
             widget,
-            config: update(widget.config, {
-              mobileCount: {
-                $apply: (item = 1) => {
-                  return item === 6 ? 1 : item + 1;
-                },
-              },
-            }),
+            config: {
+              ...widget.config,
+              mobileCount: mobileCount === 6 ? 1 : mobileCount + 1,
+            },
           });
         } else {
           const { btnType, direction } = _.get(widget, 'button.config') || {};
+          const mobileCount = widget.button.mobileCount;
           updateWidget({
             widget,
-            button: update(widget.button, {
-              mobileCount: {
-                $apply: item => {
-                  // 图形按钮，上下结构
-                  if (btnType === 2 && direction === 1) {
-                    return item === 4 ? 1 : item + 1;
-                  } else {
-                    return item === 1 ? 2 : 1;
-                  }
-                },
-              },
-            }),
+            button: {
+              ...widget.button,
+              // 图形按钮，上下结构
+              mobileCount:
+                btnType === 2 && direction === 1
+                  ? mobileCount === 4
+                    ? 1
+                    : mobileCount + 1
+                  : mobileCount === 1
+                    ? 2
+                    : 1,
+            },
           });
         }
 
@@ -151,13 +150,14 @@ const WidgetTools = props => {
           {editable || isEdit ? (
             <Fragment>
               <div className="titleSign" style={{ backgroundColor: iconColor }} />
-              <input
+              <Input
+                variant="underlined"
                 value={title}
                 className="bold"
                 placeholder={_l('标题')}
                 onBlur={() => setEdit(false)}
                 onChange={e => updateWidget({ widget, title: e.target.value, layoutType })}
-              ></input>
+              />
             </Fragment>
           ) : (
             <Fragment>

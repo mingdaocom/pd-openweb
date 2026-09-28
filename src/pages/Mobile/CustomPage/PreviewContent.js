@@ -7,7 +7,7 @@ import { Icon } from 'ming-ui';
 import share from 'src/api/share';
 import { PreviewWraper } from 'src/pages/customPage/components/previewContent';
 // import { genUrl } from 'src/pages/customPage/util';
-import { getIconNameByExt } from 'src/utils/common';
+import { getIconNameByExt } from 'src/utils/core/file';
 
 const PreviewContentWrapper = styled.div`
   height: 100%;

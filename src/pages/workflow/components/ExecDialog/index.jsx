@@ -9,13 +9,14 @@ import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { getTranslateInfo } from 'src/utils/app';
-import { addBehaviorLog } from 'src/utils/project';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { STATUS_ERROR_MESSAGE } from './config';
 import Header from './Header';
 import StepHeader from './StepHeader';
 import Steps from './Steps';
-import './index.less';
+
+const AutoSizeRecordInfoWrapper = autoSize(RecordInfoWrapper);
 
 const WorkflowHistory = props => {
   return (
@@ -81,12 +82,25 @@ export default class ExecDialog extends Component {
     viewId: '',
     nodeLoading: true,
     worksheetLoading: true,
+    loadingError: '',
   };
 
+  unmounted = false;
+
   componentDidMount() {
+    this.unmounted = false;
     this.getData();
     this.getPermit();
   }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+  }
+
+  handleLoadError = () => {
+    if (this.unmounted || (!this.state.nodeLoading && !this.state.worksheetLoading)) return;
+    this.setState({ loadingError: _l('加载失败，请稍后重试') });
+  };
 
   /**
    * 获取节点的详细数据
@@ -94,100 +108,115 @@ export default class ExecDialog extends Component {
   getData = async () => {
     let { id, workId, onRead, onSave, onClose } = this.props;
 
-    instanceVersion.get({ id, workId }).then(async res => {
-      const { status, currentWork, currentWorkItem, works, companyId, ...rest } = res;
+    return instanceVersion
+      .get({ id, workId })
+      .then(async res => {
+        if (this.unmounted) return;
+        const { status, currentWork, currentWorkItem, works, companyId, ...rest } = res;
 
-      onRead();
+        onRead();
 
-      if (_.includes([20001, 20018, 30001, 30002, 30003, 30004, 30006, 40007], status)) {
-        if (status === 30006) {
-          alert(STATUS_ERROR_MESSAGE[status], 2);
-          onClose(true);
-          return;
-        }
+        if (_.includes([20001, 20018, 30001, 30002, 30003, 30004, 30006, 40007], status)) {
+          if (status === 30006) {
+            this.setState({ loadingError: STATUS_ERROR_MESSAGE[status] });
+            alert(STATUS_ERROR_MESSAGE[status], 2);
+            onClose(true);
+            return;
+          }
 
-        this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status], nodeLoading: false });
-      } else {
-        const { app, flowNode } = rest;
-        const appId = app.id;
+          this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status], nodeLoading: false });
+        } else {
+          const { app, flowNode } = rest;
+          const appId = app.id;
 
-        if (!window[`langData-${appId}`]) {
-          const langInfo = await homeAppApi.getAppLangInfo({
-            appId,
+          if (!window[`langData-${appId}`]) {
+            const langInfo = await homeAppApi.getAppLangInfo({
+              appId,
+            });
+            if (this.unmounted) return;
+
+            if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+              const lang = await appManagementApi.getAppLangDetail({
+                appId,
+                appLangId: langInfo.appLangId,
+                projectId: langInfo.projectId,
+              });
+              if (this.unmounted) return;
+              window[`langData-${appId}`] = lang.items;
+              window[`langVersion-${appId}`] = langInfo.version;
+            }
+          }
+
+          app.name = getTranslateInfo(app.id, null, app.id).name || app.name;
+          flowNode.name = getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name;
+          rest.processName = getTranslateInfo(app.id, null, rest.parentId).name || rest.processName;
+          rest.backFlowNodes = rest.backFlowNodes.map(flowNode => {
+            return {
+              ...flowNode,
+              name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
+            };
           });
 
-          if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
-            const lang = await appManagementApi.getAppLangDetail({
-              appId,
-              appLangId: langInfo.appLangId,
-              projectId: langInfo.projectId,
-            });
-            window[`langData-${appId}`] = lang.items;
-            window[`langVersion-${appId}`] = langInfo.version;
+          this.setState({
+            data: Object.assign({}, rest, { status }),
+            currentWork,
+            currentWorkItem,
+            works: works.map(work => {
+              const { flowNode, explain, explainMap } = work;
+              return {
+                ...work,
+                explain: explainMap && explain ? explainMap[md.global.Account.lang] || explain : explain,
+                flowNode: {
+                  ...flowNode,
+                  name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
+                },
+              };
+            }),
+            projectId: companyId,
+            nodeLoading: false,
+          });
+
+          if ((currentWorkItem || {}).operationTime) {
+            onSave();
           }
         }
-
-        app.name = getTranslateInfo(app.id, null, app.id).name || app.name;
-        flowNode.name = getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name;
-        rest.processName = getTranslateInfo(app.id, null, rest.parentId).name || rest.processName;
-        rest.backFlowNodes = rest.backFlowNodes.map(flowNode => {
-          return {
-            ...flowNode,
-            name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
-          };
-        });
-
-        this.setState({
-          data: Object.assign({}, rest, { status }),
-          currentWork,
-          currentWorkItem,
-          works: works.map(work => {
-            const { flowNode, explain, explainMap } = work;
-            return {
-              ...work,
-              explain: explainMap && explain ? explainMap[md.global.Account.lang] || explain : explain,
-              flowNode: {
-                ...flowNode,
-                name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
-              },
-            };
-          }),
-          projectId: companyId,
-          nodeLoading: false,
-        });
-
-        if ((currentWorkItem || {}).operationTime) {
-          onSave();
-        }
-      }
-    });
+      })
+      .catch(this.handleLoadError);
   };
   getPermit = () => {
     const { id, workId, onError, onClose } = this.props;
 
-    worksheetApi
+    return worksheetApi
       .getWorkItem({
         instanceId: id,
         workId: workId,
       })
       .then(res => {
+        if (this.unmounted) return;
         if (!res.worksheetId) {
+          this.setState({ loadingError: _l('流程已关闭或删除') });
           onClose(true);
           return;
         }
 
-        worksheetApi.getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
-          this.setState({
-            sheetSwitchPermit,
-            viewId: res.viewId,
-            worksheetId: res.worksheetId,
-            rowId: res.rowId,
-            worksheetLoading: false,
-          });
-          addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
-        });
+        return worksheetApi
+          .getSwitchPermit({ worksheetId: res.worksheetId })
+          .then(sheetSwitchPermit => {
+            if (this.unmounted) return;
+            this.setState({
+              sheetSwitchPermit,
+              viewId: res.viewId,
+              worksheetId: res.worksheetId,
+              rowId: res.rowId,
+              worksheetLoading: false,
+            });
+            addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
+          })
+          .catch(this.handleLoadError);
       })
       .catch(() => {
+        if (this.unmounted) return;
+        this.handleLoadError();
         onError();
       });
   };
@@ -235,33 +264,39 @@ export default class ExecDialog extends Component {
       rowId,
       nodeLoading,
       worksheetLoading,
+      loadingError,
     } = this.state;
 
-    if (nodeLoading || worksheetLoading) return null;
-
-    const RecordInfoWrapperComp = isLand ? autoSize(RecordInfoWrapper) : RecordInfoWrapper;
+    const RecordInfoWrapperComp = isLand ? AutoSizeRecordInfoWrapper : RecordInfoWrapper;
+    const workflowRecordTitle = data.recordTitle ? data.title.replace(/(<([^>]+)>)/gi, '') : '';
 
     return (
       <RecordInfoWrapperComp
         notDialog={isLand}
+        loading={nodeLoading || worksheetLoading}
+        loadingError={loadingError}
         from={_.get(data, 'flowNode.type') === 5 ? 3 : 4}
         sheetSwitchPermit={sheetSwitchPermit}
         viewId={viewId}
         recordId={rowId}
         worksheetId={worksheetId}
-        recordTitle={data.recordTitle ? data.title.replace(/(<([^>]+)>)/gi, '') : ''}
-        renderHeader={({ resultCode, isLoading, onRefresh, isRecordLock }) => {
+        recordTitle={workflowRecordTitle}
+        renderHeader={({ resultCode, isLoading, onRefresh, isRecordLock, formData = [] }) => {
           return (
             <Header
               projectId={projectId}
               data={data}
               works={works}
+              currentWork={currentWork}
               currentWorkItem={currentWorkItem}
               errorMsg={errorMsg}
               sheetSwitchPermit={sheetSwitchPermit}
               viewId={viewId}
               rowId={rowId}
               worksheetId={worksheetId}
+              attriData={
+                workflowRecordTitle ? { type: 2, value: workflowRecordTitle } : _.find(formData, { attribute: 1 })
+              }
               noAuth={resultCode === 7 || isRecordLock}
               instanceId={id}
               isLoading={isLoading}

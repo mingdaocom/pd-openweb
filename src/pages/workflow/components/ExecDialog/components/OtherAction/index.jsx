@@ -3,16 +3,21 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { func, object, oneOf, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Signature, Textarea, VerifyPasswordInput } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { quickSelectUser } from 'ming-ui/functions';
+import { VerifyPasswordInput } from 'ming-ui';
+import { Input, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import delegationAJAX from '../../../../api/delegation';
 import codeAuth from 'src/api/codeAuth';
 import Attachment from 'src/components/Form/DesktopForm/widgets/Attachment';
-import verifyPassword from 'src/components/verifyPassword';
-import { getTranslateInfo } from 'src/utils/app';
+import Signature from 'src/components/Signature';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
+import { getTranslateInfo } from 'src/utils/services/app';
 import instanceAJAX from '../../../../apiV2/instance';
 import { ACTION_TO_TEXT } from '../../config';
+import './index.less';
+
+const OPINION_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 10 };
 
 const Member = styled.span`
   align-items: center;
@@ -112,13 +117,25 @@ export default class OtherAction extends Component {
   static propTypes = {
     projectId: string,
     data: object,
-    action: oneOf(['after', 'before', 'pass', 'overrule', 'transfer', 'transferApprove', 'addApprove', 'return']),
+    currentWork: object,
+    action: oneOf([
+      'after',
+      'before',
+      'pass',
+      'overrule',
+      'transfer',
+      'transferApprove',
+      'addApprove',
+      'addCC',
+      'return',
+    ]),
     onOk: func.isRequired,
     onCancel: func.isRequired,
   };
   static defaultProps = {
     projectId: '',
     data: {},
+    currentWork: {},
     action: 'before',
     onOk: () => {},
     onCancel: () => {},
@@ -169,8 +186,6 @@ export default class OtherAction extends Component {
   }
 
   isComplete = true;
-  password = '';
-  isNoneVerification = false;
 
   componentDidMount() {
     const { projectId, action } = this.props;
@@ -186,7 +201,9 @@ export default class OtherAction extends Component {
       });
     }
 
-    this.getOperationDetail();
+    if (action !== 'addCC') {
+      this.getOperationDetail();
+    }
   }
 
   /**
@@ -286,7 +303,10 @@ export default class OtherAction extends Component {
       }
     };
 
-    if (_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove'], action) && !selectedUsers.length) {
+    if (
+      _.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove', 'addCC'], action) &&
+      !selectedUsers.length
+    ) {
       alert(_l('必须选择一个人员'), 2);
       return;
     }
@@ -311,16 +331,22 @@ export default class OtherAction extends Component {
 
     // 验证密码
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
-      if (showPassword && (!this.password || !this.password.trim())) {
-        alert(_l('请输入密码'), 3);
-        return;
+      const verifyInfo = this.verifyInfo || {};
+
+      if (showPassword) {
+        const error = getVerifyValueError(verifyInfo);
+
+        if (error) {
+          alert(error, 3);
+          return;
+        }
       }
 
       verifyPassword({
         projectId,
-        password: this.password,
+        ...verifyInfo,
+        showVerifyType: true,
         closeImageValidation: true,
-        isNoneVerification: this.isNoneVerification,
         checkNeedAuth: !showPassword,
         success: submitFun,
         fail: () => {
@@ -335,21 +361,7 @@ export default class OtherAction extends Component {
       this.getCode();
       this.setState({ showCode: true });
     } else {
-      // 验证密码
-      if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
-        verifyPassword({
-          password: this.password,
-          closeImageValidation: true,
-          isNoneVerification: this.isNoneVerification,
-          checkNeedAuth: !showPassword,
-          success: submitFun,
-          fail: () => {
-            this.setState({ showPassword: true });
-          },
-        });
-      } else {
-        submitFun();
-      }
+      submitFun();
     }
   };
 
@@ -368,9 +380,11 @@ export default class OtherAction extends Component {
               ? _l('加签')
               : action === 'addApprove'
                 ? _l('添加成员')
-                : _l('转交给')}
+                : action === 'addCC'
+                  ? _l('抄送给')
+                  : _l('转交给')}
 
-            {_.includes(['after', 'before', 'addApprove'], action) &&
+            {_.includes(['after', 'before', 'addApprove', 'addCC'], action) &&
               !!selectedUsers.length &&
               `(${selectedUsers.length})`}
           </div>
@@ -384,7 +398,7 @@ export default class OtherAction extends Component {
                 <span className="ellipsis mLeft8" style={{ maxWidth: 300 }}>
                   {user.fullname}
                 </span>
-                {_.includes(['after', 'before', 'addApprove', 'pass'], action) && (
+                {_.includes(['after', 'before', 'addApprove', 'addCC', 'pass'], action) && (
                   <i
                     className="icon-close Font14 mLeft5 textSecondary pointer"
                     onClick={() =>
@@ -396,11 +410,11 @@ export default class OtherAction extends Component {
                 {!!entrustList[user.accountId] && (
                   <Tooltip
                     placement="bottomLeft"
-                    overlayInnerStyle={{ padding: '12px 16px', minWidth: 240, width: 'max-content' }}
+                    styles={{ body: { padding: '12px 16px', minWidth: 240, width: 'max-content' } }}
                     align={{ offset: [5, 15] }}
                     title={() => (
                       <Fragment>
-                        <div className="Font15 bold">
+                        <div className="Font15 bold textPrimary">
                           {_l('%0发起了委托', entrustList[user.accountId].principal.fullName)}
                         </div>
                         <div className="mTop10 flexRow alignItemsCenter">
@@ -416,7 +430,7 @@ export default class OtherAction extends Component {
                         </div>
                         <div className="mTop10 flexRow Font13 alignItemsCenter">
                           <div className="textSecondary">{_l('委托截止')}</div>
-                          <div className="mLeft15">{entrustList[user.accountId].endDate}</div>
+                          <div className="mLeft15 textPrimary">{entrustList[user.accountId].endDate}</div>
                         </div>
                       </Fragment>
                     )}
@@ -428,15 +442,16 @@ export default class OtherAction extends Component {
             );
           })}
 
-          <i
-            className={cx(
-              'Font26 textSecondary hoverColorPrimary pointer mTop10 InlineBlock relative',
-              !_.includes(['after', 'before', 'addApprove', 'pass'], action) && !!selectedUsers.length
-                ? 'icon-task-folder-charge'
-                : 'icon-task-add-member-circle',
-            )}
-            onClick={this.selectUser}
-          />
+          <UserSelectPopover {...this.getUserSelectProps()} onSelect={this.handleSelectUsers}>
+            <i
+              className={cx(
+                'Font26 textSecondary hoverColorPrimary pointer mTop10 InlineBlock relative',
+                !_.includes(['after', 'before', 'addApprove', 'addCC', 'pass'], action) && !!selectedUsers.length
+                  ? 'icon-task-folder-charge'
+                  : 'icon-task-add-member-circle',
+              )}
+            />
+          </UserSelectPopover>
         </div>
       </div>
     );
@@ -445,13 +460,14 @@ export default class OtherAction extends Component {
   /**
    * 选择人员
    */
-  selectUser = event => {
-    const { projectId, action, data } = this.props;
+  getUserSelectProps = () => {
+    const { projectId, action, data, currentWork } = this.props;
     const { nextUserRange } = this.state;
     const { operationUserRange } = data;
     const TYPES = {
       transferApprove: 6,
       addApprove: 16,
+      addCC: 11,
       after: 7,
       before: 7,
       transfer: 10,
@@ -460,13 +476,13 @@ export default class OtherAction extends Component {
     const appointedAccountIds = ((operationUserRange || {})[TYPES[action]] || _.flatten(_.map(nextUserRange))).filter(
       id => action === 'pass' || id !== md.global.Account.accountId,
     );
-    const unique = !_.includes(['after', 'before', 'addApprove', 'pass'], action);
+    const unique = !_.includes(['after', 'before', 'addApprove', 'addCC', 'pass'], action);
+    const currentWorkAccountIds =
+      action === 'addCC'
+        ? (_.get(currentWork, 'workItems') || []).map(item => _.get(item, 'workItemAccount.accountId'))
+        : [];
 
-    quickSelectUser(event.target, {
-      offset: {
-        top: 10,
-        left: 0,
-      },
+    return {
       selectRangeOptions: isUserRange ? { appointedAccountIds } : '',
       projectId,
       unique,
@@ -474,16 +490,24 @@ export default class OtherAction extends Component {
       filterFriend: true,
       filterOthers: true,
       filterOtherProject: true,
-      filterAccountIds: (action === 'pass' ? [] : [md.global.Account.accountId]).concat(
-        this.state.selectedUsers.map(o => o.accountId),
+      filterAccountIds: _.uniq(
+        (action === 'pass' ? [] : [md.global.Account.accountId])
+          .concat(
+            currentWorkAccountIds,
+            this.state.selectedUsers.map(o => o.accountId),
+          )
+          .filter(Boolean),
       ),
-      onSelect: users => {
-        const selectedUsers = unique ? users : _.uniqBy(this.state.selectedUsers.concat(users), user => user.accountId);
+    };
+  };
 
-        this.setState({ selectedUsers });
-        action !== 'pass' && this.checkEntrust(selectedUsers);
-      },
-    });
+  handleSelectUsers = users => {
+    const { action } = this.props;
+    const unique = !_.includes(['after', 'before', 'addApprove', 'addCC', 'pass'], action);
+    const selectedUsers = unique ? users : _.uniqBy(this.state.selectedUsers.concat(users), user => user.accountId);
+
+    this.setState({ selectedUsers });
+    !_.includes(['pass', 'addCC'], action) && this.checkEntrust(selectedUsers);
   };
 
   getCode(fixedSignMode) {
@@ -544,21 +568,19 @@ export default class OtherAction extends Component {
   renderSignType = () => {
     const { countersignType } = this.state;
     const personsPassing = [
-      { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
-      { text: _l('会签（需所有审批人通过）'), value: 1 },
-      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
-      // { text: _l('会签（按比例投票通过）'), value: 4 },
+      { label: _l('或签（一名审批人通过或否决即可）'), value: 3 },
+      { label: _l('会签（需所有审批人通过）'), value: 1 },
+      { label: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
+      // { label: _l('会签（按比例投票通过）'), value: 4 },
     ];
 
     return (
       <div className="mBottom20">
         <div className="bold">{_l('多人审批时采用的审批方式')}</div>
-        <Dropdown
+        <Select
           className="mTop10 w100"
-          menuClass="w100"
-          data={personsPassing}
+          options={personsPassing}
           value={countersignType}
-          border
           onChange={countersignType => this.setState({ countersignType })}
         />
       </div>
@@ -688,7 +710,7 @@ export default class OtherAction extends Component {
     } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
       };
     });
@@ -697,6 +719,7 @@ export default class OtherAction extends Component {
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
     const hideContent =
+      action === 'addCC' ||
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
       (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const onlySelectTemplate =
@@ -704,12 +727,12 @@ export default class OtherAction extends Component {
 
     if (showCode) {
       return (
-        <Dialog
-          visible
+        <Modal
+          open
           width={560}
           title={_l('扫码刷脸')}
           footer={null}
-          handleClose={() => this.setState({ showCode: false })}
+          onCancel={() => this.setState({ showCode: false })}
         >
           <div className="Gray_9e">{_l('请用微信、微警或警融App扫下方二维码进行刷脸验证，验证通过后才能提交流程')}</div>
           <div className="mTop20 TxtCenter " style={{ minHeight: 200 }}>
@@ -773,18 +796,18 @@ export default class OtherAction extends Component {
               </div>
             )}
           </div>
-        </Dialog>
+        </Modal>
       );
     }
 
     return (
-      <Dialog
-        className={cx('approveDialog', { approveDialogBtn: action === 'overrule' })}
-        visible
-        overlayClosable={false}
+      <Modal
+        className="approveDialog"
+        open
+        mask={{ closable: false }}
         width={640}
         title={this.renderHeader()}
-        handleClose={onCancel}
+        okButtonProps={{ danger: action === 'overrule' }}
         onOk={this.onOk}
         onCancel={onCancel}
       >
@@ -793,16 +816,17 @@ export default class OtherAction extends Component {
             <VerifyPasswordInput
               showSubTitle={false}
               isRequired={true}
+              showVerifyType={true}
               allowNoVerify={!removeNoneVerification}
-              onChange={({ password, isNoneVerification }) => {
-                if (password !== undefined) this.password = password;
-                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+              onChange={verifyInfo => {
+                this.verifyInfo = verifyInfo;
               }}
             />
           </div>
         )}
 
-        {_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove'], action) && this.renderMember()}
+        {_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove', 'addCC'], action) &&
+          this.renderMember()}
 
         {_.includes(['after', 'before'], action) && selectedUsers.length > 1 && this.renderSignType()}
 
@@ -818,14 +842,12 @@ export default class OtherAction extends Component {
             </div>
             <div className="mTop10 relative">
               <div className="flexRow">
-                <Textarea
-                  className="Font13 TxtTop flex"
+                <Input.TextArea
+                  autoSize={OPINION_TEXTAREA_AUTO_SIZE}
+                  className="TxtTop flex"
                   disabled={onlySelectTemplate}
-                  minHeight={0}
-                  style={{ paddingTop: 7, paddingBottom: 7 }}
-                  maxHeight={240}
                   value={content}
-                  onChange={content => this.setState({ content })}
+                  onChange={event => this.setState({ content: event.target.value })}
                   placeholder={
                     onlySelectTemplate ? _l('选择预设的审批意见') : (ACTION_TO_TEXT[action] || {}).placeholder
                   }
@@ -872,19 +894,18 @@ export default class OtherAction extends Component {
             {_.includes([0, 3], callBackNodeType) ? (
               <Fragment>
                 <div className="mTop20 bold">{_l('退回到')}</div>
-                <Dropdown
+                <Select
                   className="mTop10 approveDialogCallBack"
-                  data={backFlowNodes}
-                  value={backNodeId}
-                  border
+                  options={backFlowNodes}
+                  value={backNodeId || undefined}
                   onChange={backNodeId => this.setState({ backNodeId })}
                 />
               </Fragment>
             ) : (
               <div className="mTop20">
                 {callBackNodeType === 1
-                  ? _l('退回到：%0', backFlowNodes[0].text)
-                  : _l('退回上一节点：%0', backFlowNodes[0].text)}
+                  ? _l('退回到：%0', backFlowNodes[0].label)
+                  : _l('退回上一节点：%0', backFlowNodes[0].label)}
               </div>
             )}
           </Fragment>
@@ -906,7 +927,7 @@ export default class OtherAction extends Component {
         )}
 
         {action === 'pass' && this.renderNextApprovalUser()}
-      </Dialog>
+      </Modal>
     );
   }
 }

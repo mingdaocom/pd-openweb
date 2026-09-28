@@ -1,42 +1,32 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Button, Dialog, Textarea } from 'ming-ui';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import { Textarea } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { SelectGroupPopover } from 'ming-ui/functions/quickSelectGroup';
+import useFunctionWrapComponent, { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
+import { useMentionsInput } from 'src/components/MentionsInput';
 import UploadFiles from 'src/components/UploadFiles';
-import { htmlDecodeReg } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import RegExpValidator from 'src/utils/expression';
+import { htmlDecodeReg } from 'src/utils/core/string';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import { edit } from '../../../redux/postActions';
 
-const FooterWrap = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-export default class EditPostDialog extends React.Component {
-  static show(postItem, dispatch) {
-    const div = document.createElement('div');
-
-    document.body.appendChild(div);
-
-    const root = createRoot(div);
-
-    const dispose = () => {
-      setTimeout(() => {
-        root.unmount();
-        document.body.removeChild(div);
-      }, 100);
-    };
-
-    root.render(
-      <EditPostDialog postItem={postItem} dispose={() => dispose()} editPost={(...args) => dispatch(edit(...args))} />,
-    );
+class EditPostMentionsOwner extends React.PureComponent {
+  componentDidMount() {
+    this.props.onMount(this.props.openMentionsInput);
   }
 
+  render() {
+    return <React.Fragment>{this.props.children}</React.Fragment>;
+  }
+}
+
+const EditPostMentionsOwnerWithOpeners = withOpeners(EditPostMentionsOwner, {
+  openMentionsInput: useMentionsInput,
+});
+
+class EditPostDialog extends React.Component {
   state = {
-    visible: true,
     kcAttachmentData: [],
     temporaryData: [],
     isUploadComplete: true,
@@ -61,9 +51,7 @@ export default class EditPostDialog extends React.Component {
       });
     }
   }
-  componentDidMount() {
-    this.setContent(this.props.postItem);
-  }
+
   formatAttachment(attachment) {
     if (attachment.twice) {
       attachment = _.assign({}, attachment.twice, attachment);
@@ -92,46 +80,44 @@ export default class EditPostDialog extends React.Component {
 
     return attachment;
   }
-  setContent(postItem) {
-    import('src/components/MentionsInput').then(data => {
-      const MentionsInput = data.default;
-      const message = htmlDecodeReg(
-        createLinksForMessage(_.assign({ noLink: true, doNotEscapeHTML: true }, postItem))
-          .replace(/<br>/g, '\n')
-          .replace(/<[^>]+>/g, ''),
-      );
-      const messageMentions = createLinksForMessage(
-        _.assign({ noLink: true, doNotEscapeHTML: true }, postItem, {
-          message: postItem.message
-            .replace('/[aid]([0-9a-zA-Z-]*\\|?.*)[/aid]/', 'user:$1')
-            .replace('/[gid]([0-9a-zA-Z-]*\\|?.*)[/gid]/', 'group:$1'),
-        }),
-      )
+
+  initializeMentionsInput = openMentionsInput => {
+    const { postItem } = this.props;
+    const message = htmlDecodeReg(
+      createLinksForMessage(_.assign({ noLink: true, doNotEscapeHTML: true }, postItem))
         .replace(/<br>/g, '\n')
-        .replace(/<[^>]+>/g, '');
-      const mentionsCollection = _.map(postItem.rUserList, account => ({
-        id: account.aid,
-        fullname: account.name,
-        type: 'user',
-      })).concat(
-        _.map(postItem.rGroupList, group => ({
-          id: group.groupID,
-          value: group.groupName,
-          type: 'group',
-        })),
-      );
+        .replace(/<[^>]+>/g, ''),
+    );
+    const messageMentions = createLinksForMessage(
+      _.assign({ noLink: true, doNotEscapeHTML: true }, postItem, {
+        message: postItem.message
+          .replace('/[aid]([0-9a-zA-Z-]*\\|?.*)[/aid]/', 'user:$1')
+          .replace('/[gid]([0-9a-zA-Z-]*\\|?.*)[/gid]/', 'group:$1'),
+      }),
+    )
+      .replace(/<br>/g, '\n')
+      .replace(/<[^>]+>/g, '');
+    const mentionsCollection = _.map(postItem.rUserList, account => ({
+      id: account.aid,
+      fullname: account.name,
+      type: 'user',
+    })).concat(
+      _.map(postItem.rGroupList, group => ({
+        id: group.groupID,
+        value: group.groupName,
+        type: 'group',
+      })),
+    );
+    const textarea = this.textarea;
 
-      const textarea = this.textarea;
-
-      MentionsInput({
-        input: textarea,
-        showCategory: true,
-        initCallback: () => {
-          textarea.setValue(message, messageMentions, mentionsCollection);
-        },
-      });
+    openMentionsInput({
+      input: textarea,
+      showCategory: true,
+      initCallback: () => {
+        textarea.setValue(message, messageMentions, mentionsCollection);
+      },
     });
-  }
+  };
 
   submit() {
     if (!this.state.isUploadComplete) {
@@ -179,9 +165,7 @@ export default class EditPostDialog extends React.Component {
         },
         () => {
           $textarea.get(0).reset();
-          this.setState({ visible: false }, () => {
-            this.props.dispose();
-          });
+          this.props.onClose();
         },
         () => {
           this.setState({ submitting: false });
@@ -208,64 +192,71 @@ export default class EditPostDialog extends React.Component {
     if (!postItem) return false;
 
     return (
-      <Dialog
+      <Modal
         className="editUpdaterDialog"
-        type="scroll"
-        overlayClosable={false}
+        mask={{ closable: false }}
+        keyboard
         width={640}
-        visible={this.state.visible}
+        open={this.props.visible}
         title={_l('编辑动态')}
-        footer={
-          <FooterWrap className="footer">
-            <span className="flex"></span>
-            <SelectGroupTrigger
-              defaultValue={{
-                shareProjectIds: _.map(postItem.scope.shareProjects, p => p.projectId),
-                shareGroupIds: _.map(postItem.scope.shareGroups, g => g.groupId),
-                isMe: !postItem.scope.shareProjects.length && !postItem.scope.shareGroups.length,
-              }}
-              onChange={this.handleChangeGroup}
-            />
-            <Button
-              id={`textareaUpdaterEdit_${this.props.postItem.postID}`}
-              loading={this.state.submitting}
-              onClick={() => this.submit()}
-            >
-              {_l('确定')}
-            </Button>
-          </FooterWrap>
+        footerLeftElement={
+          <SelectGroupPopover
+            defaultValue={{
+              shareProjectIds: _.map(postItem.scope.shareProjects, p => p.projectId),
+              shareGroupIds: _.map(postItem.scope.shareGroups, g => g.groupId),
+              isMe: !postItem.scope.shareProjects.length && !postItem.scope.shareGroups.length,
+            }}
+            onChange={this.handleChangeGroup}
+          />
         }
-        onCancel={() => this.props.dispose()}
+        cancelButtonProps={{ style: { display: 'none' } }}
+        okText={_l('确定')}
+        okButtonProps={{ id: `textareaUpdaterEdit_${this.props.postItem.postID}`, loading: this.state.submitting }}
+        onOk={() => this.submit()}
+        onCancel={this.props.onClose}
       >
-        <Textarea
-          id="textarea_Updater_Edit"
-          className="textarea_Updater_Edit"
-          maxHeight={220}
-          manualRef={textarea => {
-            this.textarea = textarea;
-          }}
-        />
-        {(postItem.postType == 2 || postItem.postType == 3 || postItem.postType == 9) && (
-          <UploadFiles
-            dropPasteElement="textarea_Updater_Edit"
-            className="mTop10"
-            isUpload
-            isInitCall
-            column={4}
-            temporaryData={this.state.temporaryData}
-            kcAttachmentData={this.state.kcAttachmentData}
-            onTemporaryDataUpdate={result => {
-              this.setState({ temporaryData: result });
-            }}
-            onKcAttachmentDataUpdate={result => {
-              this.setState({ kcAttachmentData: result });
-            }}
-            onUploadComplete={bool => {
-              this.setState({ isUploadComplete: bool });
+        <EditPostMentionsOwnerWithOpeners onMount={this.initializeMentionsInput}>
+          <Textarea
+            id="textarea_Updater_Edit"
+            className="textarea_Updater_Edit"
+            maxHeight={220}
+            manualRef={textarea => {
+              this.textarea = textarea;
             }}
           />
-        )}
-      </Dialog>
+          {(postItem.postType == 2 || postItem.postType == 3 || postItem.postType == 9) && (
+            <UploadFiles
+              dropPasteElement="textarea_Updater_Edit"
+              className="mTop10"
+              isUpload
+              isInitCall
+              column={4}
+              temporaryData={this.state.temporaryData}
+              kcAttachmentData={this.state.kcAttachmentData}
+              onTemporaryDataUpdate={result => {
+                this.setState({ temporaryData: result });
+              }}
+              onKcAttachmentDataUpdate={result => {
+                this.setState({ kcAttachmentData: result });
+              }}
+              onUploadComplete={bool => {
+                this.setState({ isUploadComplete: bool });
+              }}
+            />
+          )}
+        </EditPostMentionsOwnerWithOpeners>
+      </Modal>
     );
   }
 }
+
+const getEditPostDialogProps = ({ postItem, dispatch }) => ({
+  postItem,
+  editPost: (...args) => dispatch(edit(...args)),
+});
+
+export function useEditPostDialog() {
+  return useFunctionWrapComponent(EditPostDialog, getEditPostDialogProps);
+}
+
+export default EditPostDialog;

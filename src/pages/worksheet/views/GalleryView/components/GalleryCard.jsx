@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import GalleryItem from '../GalleryItem';
 import { formatGalleryItem, getGalleryItemGroupInfo } from '../utils/formatGalleryItem';
 
@@ -19,7 +19,11 @@ const GalleryCard = props => {
       key={item.rowid}
       className={cx('galleryItem')}
       style={{ width: cardWidth }}
-      onClick={() => onRecordClick(currentView, item, rowKey)}
+      onClick={event => {
+        if (!event.currentTarget.contains(event.target)) return;
+
+        onRecordClick(currentView, item, rowKey);
+      }}
     >
       <GalleryItem
         key={`galleryItem-${item.rowid}`}

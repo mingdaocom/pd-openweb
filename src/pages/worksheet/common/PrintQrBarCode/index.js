@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import PrintQrBarCode from './PrintQrBarCode';
 
 const FullScreenCon = styled.div`
@@ -22,4 +22,6 @@ function FullScreen(props = {}) {
 }
 
 export default PrintQrBarCode;
-export const printQrBarCode = props => functionWrap(FullScreen, props);
+export function usePrintQrBarCode() {
+  return useFunctionWrapComponent(FullScreen);
+}

@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/components/Basics';
-import { FILTER_RELATION_TYPE } from '../enum';
+import { FILTER_RELATION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 const Con = styled.div`
   position: relative;
@@ -40,25 +41,22 @@ const Con = styled.div`
   }
 `;
 
-const DropdownCon = styled.div`
+const SelectCon = styled.div`
   display: inline-block;
   padding: 0 6px;
   position: absolute;
   left: calc(50% - 27px);
   top: 0;
   background: var(--color-background-card);
-  .Dropdown--input {
-    padding: 2px 6px !important;
-    border-radius: 4px;
-    .icon {
-      margin-left: 4px !important;
-      vertical-align: middle;
-    }
-    &:hover {
-      background: var(--color-background-hover);
-    }
+  .splitRelationSelect {
+    width: 52px;
   }
 `;
+
+const RELATION_OPTIONS = [
+  { label: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
+  { label: _l('或'), value: FILTER_RELATION_TYPE.OR },
+];
 
 export default function SplitDropdown(props) {
   const { canEdit, type = FILTER_RELATION_TYPE.AND, onChange, onDelete } = props;
@@ -67,21 +65,21 @@ export default function SplitDropdown(props) {
       <hr />
       <Fragment>
         {canEdit ? (
-          <DropdownCon>
-            <Dropdown
-              dropIcon="task_custom_btn_unfold"
-              defaultValue={type}
-              isAppendToBody
-              menuStyle={{ width: 'auto' }}
-              data={[
-                { text: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
-                { text: _l('或'), value: FILTER_RELATION_TYPE.OR },
-              ]}
+          <SelectCon>
+            <Select
+              className="splitRelationSelect"
+              value={type}
+              options={RELATION_OPTIONS}
+              popupMatchSelectWidth={false}
+              showSearch={false}
+              size="small"
+              variant="borderless"
+              suffixIcon={<Icon icon="task_custom_btn_unfold" className="Font14" />}
               onChange={value => {
                 onChange(value);
               }}
             />
-          </DropdownCon>
+          </SelectCon>
         ) : (
           <span className="text">{['', _l('且%25000'), _l('或')][type]}</span>
         )}

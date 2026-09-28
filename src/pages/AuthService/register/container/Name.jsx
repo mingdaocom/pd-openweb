@@ -6,8 +6,9 @@ import fixedDataAjax from 'src/api/fixedData.js';
 import RegisterController from 'src/api/register';
 import { AccountNextActions } from 'src/pages/AuthService/config.js';
 import { getDataByFilterXSS, registerSuc } from 'src/pages/AuthService/util.js';
-import { getRequest } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 let request = getRequest();
 const Wrap = styled.div`
@@ -76,9 +77,11 @@ export default function (props) {
               alert(_l('操作失败'), 3);
             }
           })
-          .catch(() => {
+          .catch(error => {
             setState({ createAccountLoading: false });
-            alert(_l('操作失败'), 3);
+            if (!error?.errorMessage) {
+              alertIfNotUnauthorized(error, _l('操作失败'), 3);
+            }
           });
       }
     });

@@ -1,22 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dropdown } from 'ming-ui';
-import { isCustomWidget } from 'src/pages/widgetConfig/util';
+import { Select } from 'ming-ui/antd-components';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 
 const MULTI_SELECT_DISPLAY = [
   {
     value: '2',
-    text: _l('横向排列'),
+    label: _l('横向排列'),
   },
   {
     value: '1',
-    text: _l('纵向排列'),
+    label: _l('纵向排列'),
   },
   {
     value: '0',
-    text: _l('矩阵排列'),
+    label: _l('矩阵排列'),
   },
 ];
 
@@ -32,12 +32,12 @@ export default function DisplayOptions({ data, onChange }) {
 
   return (
     <Fragment>
-      <SettingItem hide={isCustomWidget(data)}>
+      <SettingItem $hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('排列方式')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           value={direction}
-          data={MULTI_SELECT_DISPLAY}
+          options={MULTI_SELECT_DISPLAY}
           onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
         />
       </SettingItem>

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import { loadImage } from '../utils';
 import './index.less';
 

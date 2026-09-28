@@ -1,3 +1,4 @@
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import fanShaped from '../assets/gaugeChart/fan_shaped.png';
 import fanShapedColor from '../assets/gaugeChart/fan_shaped_color.png';
 import scale from '../assets/gaugeChart/scale.png';
@@ -10,7 +11,6 @@ import progressBar from '../assets/progressChart/progress_bar.png';
 import progressBarColor from '../assets/progressChart/progress_bar_color.png';
 import rippleChart from '../assets/progressChart/ripple_chart.png';
 import rippleChartColor from '../assets/progressChart/ripple_chart_color.png';
-import { reportTypes } from '../Charts/reportTypes';
 
 /**
  * 图表二级类型

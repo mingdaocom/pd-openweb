@@ -1,219 +1,17 @@
-﻿import _, { isEmpty } from 'lodash';
-import kcService from '../../../api/service';
+﻿import _ from 'lodash';
 import attachmentAjax from 'src/api/attachment';
-import fileAjax from 'src/api/file';
-import kcAjax from 'src/api/kc';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import { getToken } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
-import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { PICK_TYPE } from '../../../constant/enum';
 import { defaultWpsPreview, isWpsPreview } from '../../../utils';
 import * as ajax from '../ajax';
 import ACTION_TYPES from '../constant/actionTypes';
-import { EXT_TYPE_DIC, LOADED_STATUS, PREVIEW_TYPE } from '../constant/enum';
-import { canPreviewHtml, getHtmlPreviewUrl, isHtmlPreviewExt, splitFileName } from '../constant/util';
-
-function addViewCount(attachment) {
-  if (
-    !attachment ||
-    !md.global.Account ||
-    !md.global.Account.accountId ||
-    !_.get(attachment, 'sourceNode.fileID') ||
-    _.get(window, 'shareState.shareId') ||
-    location.href.indexOf('printForm') > -1
-  ) {
-    return;
-  }
-
-  if (attachment.previewAttachmentType === 'COMMON') {
-    attachmentAjax.addAttachmentClick({
-      fileId: attachment.sourceNode.fileID,
-      fromType: attachment.sourceNode.fromType,
-    });
-  } else if (attachment.previewAttachmentType === 'KC') {
-    kcService.addNodeViewCount(attachment.sourceNode.refId || attachment.sourceNode.id);
-  }
-}
-
-class AttachmentError {
-  constructor({ text, status } = {}) {
-    this.text = text;
-    this.status = status;
-  }
-}
-
-function loadAttachment(attachment, options = {}) {
-  return new Promise(resolve => {
-    if (!attachment) attachment = {};
-    let { previewAttachmentType, previewType } = attachment;
-    const { refId } = attachment.sourceNode || {};
-    addViewCount(attachment);
-    let attachmentPromise = Object.assign({}, attachment);
-
-    if ((attachment.ext || '').toLocaleLowerCase() === 'pdf' && attachment.sourceNode.path) {
-      // 判断文件中是否有Token
-      const { path } = attachment.sourceNode;
-
-      if ((path || '').indexOf('token=') >= 0) {
-        // 直接返回文件url
-        attachment.sourceNode.privateDownloadUrl = attachment.sourceNode.path;
-        attachmentPromise = Object.assign({}, attachment, {});
-      } else {
-        getToken([{ bucket: 3, ext: '.pdf' }]).then(res => {
-          const [{ serverName }] = res;
-          const key = (path || '').split(serverName)[1];
-
-          // 通过特定API获取下载链接
-          fileAjax.getChatFileUrl({ serverName, key }).then(data => {
-            // 在聊天中访问PDF
-            attachment.sourceNode.privateDownloadUrl = data;
-            attachmentPromise = Object.assign({}, attachment, {});
-          });
-        });
-      }
-    } else if (
-      (attachment.ext || '').toLocaleLowerCase() === 'pdf' &&
-      (previewAttachmentType == 'KC' || previewAttachmentType == 'KC_ID')
-    ) {
-      // 在知识库中访问PDF
-      attachmentPromise = kcAjax
-        .getDetailUrl({
-          id: attachment.sourceNode.refId || attachment.sourceNode.id,
-        })
-        .then(data => {
-          // 获取文件的浏览链接
-          attachment.sourceNode.privateDownloadUrl = data;
-          return Object.assign({}, attachment, {});
-        });
-    } else if (
-      (attachment.ext || '').toLocaleLowerCase() !== 'pdf' &&
-      ((previewAttachmentType === 'COMMON' &&
-        !!refId &&
-        isEmpty((attachment || {}).sourceNode) &&
-        md.global.Account.accountId) ||
-        previewAttachmentType === 'KC_ID')
-    ) {
-      attachmentPromise = ajax.getKcNodeDetail(refId, options.worksheetId).then(data => {
-        if (!data || data.visibleType === NODE_VISIBLE_TYPE.CLOSE) {
-          throw new AttachmentError({
-            text: _l('文件已删除或您没有权限查看此文件'),
-            status: LOADED_STATUS.DELETED,
-          });
-        }
-
-        return Object.assign({}, attachment, {
-          previewType: data.viewType,
-          viewUrl: data.viewUrl,
-          previewAttachmentType: 'KC',
-          sourceNode: data,
-          originNode: attachment.sourceNode,
-        });
-      });
-    } else if (previewAttachmentType === 'COMMON_ID' || (attachment.ext || '').toLocaleLowerCase() === 'pdf') {
-      // 在其他场景中访问PDF
-      const { fileId, fileID } = attachment.sourceNode;
-      const args = {
-        fileId: fileId || fileID,
-        rowId: options.recordId,
-        controlId: options.controlId,
-      };
-
-      if (window.shareState && window.shareState.shareId) {
-        args.type =
-          _.get(window, 'shareState.isPublicRecord') ||
-          _.get(window, 'shareState.isPublicView') ||
-          _.get(window, 'shareState.isPublicPage')
-            ? 3
-            : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
-              ? 11
-              : 14;
-      }
-
-      if (options.from === 21) {
-        args.type = 21;
-      }
-
-      args.worksheetId = options.worksheetId;
-      attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
-        if (!data) {
-          throw new AttachmentError({
-            text: _l('文件不存在'),
-            status: LOADED_STATUS.DELETED,
-          });
-        }
-
-        if (options.disableNoPeimission && data.refId && !data.privateDownloadUrl) {
-          throw new AttachmentError({
-            text: _l('您权限不足，无法分享，请联系管理员或文件上传者'),
-            status: LOADED_STATUS.DELETED,
-          });
-        }
-
-        return Object.assign({}, attachment, {
-          previewType: data.viewType,
-          viewUrl: data.viewUrl,
-          previewAttachmentType: 'COMMON',
-          sourceNode: data,
-          originNode: attachment.sourceNode,
-        });
-      });
-    }
-
-    Promise.all([attachmentPromise])
-      .then(([newAttachment]) => {
-        const htmlPreviewUrl =
-          canPreviewHtml() && isHtmlPreviewExt(newAttachment.ext) ? getHtmlPreviewUrl(newAttachment) : '';
-
-        if (htmlPreviewUrl) {
-          newAttachment.previewType = PREVIEW_TYPE.IFRAME;
-          newAttachment.viewUrl = htmlPreviewUrl;
-        }
-
-        previewType = newAttachment.previewType;
-        if (previewAttachmentType === 'COMMON') {
-          if (attachment.sourceNode.viewUrl) {
-            newAttachment.viewUrl = attachment.sourceNode.viewUrl;
-            resolve(newAttachment);
-          } else {
-            resolve(newAttachment);
-          }
-        } else if (previewAttachmentType === 'QINIU') {
-          if (htmlPreviewUrl) {
-            resolve(newAttachment);
-          } else if (previewType === PREVIEW_TYPE.IFRAME) {
-            ajax
-              .fetchViewUrl(attachment)
-              .then(fetchedAttachment => {
-                resolve(fetchedAttachment);
-              })
-              .catch(err => {
-                throw new AttachmentError({
-                  text: err,
-                });
-              });
-          } else if (previewType === PREVIEW_TYPE.VIDEO) {
-            newAttachment.viewUrl = attachment.sourceNode.path;
-            resolve(newAttachment);
-          } else {
-            resolve(newAttachment);
-          }
-        } else if (previewAttachmentType === 'KC') {
-          newAttachment.viewUrl =
-            previewType === PREVIEW_TYPE.PICTURE ? newAttachment.sourceNode.viewUrl : newAttachment.sourceNode.viewUrl;
-          resolve(newAttachment);
-        } else {
-          resolve(newAttachment);
-        }
-      })
-      .catch(err => {
-        throw new AttachmentError({
-          text: err,
-        });
-      });
-  });
-}
+import { PREVIEW_ATTACHMENT_TYPE, PREVIEW_TYPE } from '../constant/enum';
+import { formatAttachment } from '../utils/formatAttachment';
+import { loadAttachment } from '../utils/loadAttachment';
 
 export function getAttachmentEditDetail(params) {
   const {
@@ -233,8 +31,9 @@ export function getAttachmentEditDetail(params) {
   } = params;
   const isNewTab = location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1;
   const featureType = getFeatureStatus(projectId, VersionProductType.editAttachment);
+  const docEditEnabled = md.global.Config.EnableDocEdit || window.platformENV.isHap;
 
-  if ((!isNewTab && featureType !== '1') || !allowEdit || !md.global.Config.EnableDocEdit) return;
+  if ((!isNewTab && featureType !== '1') || !allowEdit || !docEditEnabled) return;
 
   if (isWpsPreview(currentAttachment.ext, true) && !_.get(window, 'shareState.shareId')) {
     let attachmentShareId;
@@ -267,107 +66,6 @@ export function getAttachmentEditDetail(params) {
   }
 }
 
-function getExtType(ext) {
-  return EXT_TYPE_DIC[ext.toLowerCase()];
-}
-
-function formatAttachment(attachments, callfrom) {
-  return attachments.map(attachment => {
-    let previewAttachmentType, previewType, name, ext, size, viewUrl, msg;
-    attachment.ext = attachment.ext || '';
-    if (attachment.previewAttachmentType) {
-      previewAttachmentType = attachment.previewAttachmentType;
-    } else if (callfrom) {
-      if (callfrom === 'kc') {
-        previewAttachmentType = 'KC';
-      } else if (callfrom === 'player') {
-        previewAttachmentType = 'COMMON';
-      } else if (callfrom === 'chat') {
-        previewAttachmentType = 'QINIU';
-      } else {
-        console.error('不合法的callfrom');
-      }
-    } else {
-      console.log('attachmentType.....');
-    }
-
-    if (previewAttachmentType === 'COMMON' || previewAttachmentType === 'COMMON_ID') {
-      ext = attachment.ext[0] === '.' ? attachment.ext.slice(1) : attachment.ext;
-      previewType = attachment.viewType || getExtType(ext) || PREVIEW_TYPE.OTHER;
-      name = attachment.originalFilename || attachment.name;
-      size = attachment.filesize || attachment.size;
-    } else if (previewAttachmentType === 'KC') {
-      previewType = attachment.viewType;
-      name = attachment.name;
-      ext = attachment.ext;
-      size = attachment.size;
-    } else if (previewAttachmentType === 'QINIU') {
-      const splited = splitFileName(attachment.name);
-      ext = attachment.ext || splited.ext;
-      previewType = getExtType(ext) || PREVIEW_TYPE.OTHER;
-      if (previewType === PREVIEW_TYPE.LINK) {
-        const url = attachment.linkUrl.match(/http(|s):\/\/.*/) ? attachment.linkUrl : 'http://' + attachment.linkUrl;
-        attachment.shortLinkUrl = url;
-        attachment.originLinkUrl = url;
-      }
-
-      name = splited.name;
-      size = attachment.size;
-    }
-
-    const htmlPreviewUrl =
-      canPreviewHtml() && isHtmlPreviewExt(ext)
-        ? getHtmlPreviewUrl({ previewAttachmentType, viewUrl: attachment.viewUrl, sourceNode: attachment })
-        : '';
-
-    if (previewType === PREVIEW_TYPE.PICTURE) {
-      viewUrl =
-        previewAttachmentType === 'COMMON'
-          ? attachment.viewUrl || attachment.filepath + attachment.filename
-          : previewAttachmentType === 'KC'
-            ? attachment.viewUrl
-            : attachment.path;
-    } else if (htmlPreviewUrl) {
-      previewType = PREVIEW_TYPE.IFRAME;
-      viewUrl = htmlPreviewUrl;
-    } else if (previewType === PREVIEW_TYPE.CODE || previewType === PREVIEW_TYPE.MARKDOWN) {
-      if (size >= 5 * 1024 * 1024) {
-        // 大于 5M 的文件不预览
-        previewType = PREVIEW_TYPE.OTHER;
-      } else {
-        if (previewAttachmentType === 'KC') {
-          viewUrl = attachment.viewUrl;
-        } else if (previewAttachmentType === 'QINIU') {
-          // viewUrl = attachment.path;
-          previewType = PREVIEW_TYPE.OTHER; // path 暂时没有 token，无法预览
-        } else {
-          viewUrl = attachment.downloadUrl;
-        }
-      }
-    }
-
-    if (previewType === PREVIEW_TYPE.VIDEO && (attachment.filesize || attachment.size) > 1024 * 1024 * 1024) {
-      msg = _l('文件过大，不支持在线预览，请您下载后查看');
-      previewType = PREVIEW_TYPE.OTHER;
-    }
-
-    if (ext === 'xd') {
-      previewType = PREVIEW_TYPE.OTHER;
-    }
-
-    return {
-      previewAttachmentType,
-      previewType,
-      name: name || '',
-      ext: ext || '',
-      size,
-      viewUrl,
-      msg,
-      sourceNode: attachment,
-    };
-  });
-}
-
 export function init(options, extra) {
   return (dispatch, getState) => {
     const { callFrom, showThumbnail, showAttInfo, hideFunctions, fromType, onClose } = options;
@@ -398,7 +96,7 @@ export function init(options, extra) {
           attachment,
           index,
         });
-        if (!window.platformENV.isOverseas && !window.platformENV.isLocal && defaultWpsPreview(attachment.ext)) {
+        if (window.platformENV.isHap && defaultWpsPreview(attachment.ext)) {
           dispatch({
             type: 'CHANGE_PREVIEW_SERVICE',
             previewService: 'wps',
@@ -465,8 +163,8 @@ function loadMoreAttachments(state, dispatch, isPre) {
         });
         // }
       })
-      .catch(() => {
-        alert(_l('加载更多失败'), 2);
+      .catch(_requestError4 => {
+        alertIfNotUnauthorized(_requestError4, _l('加载更多失败'), 2);
       });
   }
 }
@@ -570,7 +268,7 @@ export function renameFile(value) {
     const currentAttachment = state.attachments[index];
     const previewAttachmentType = currentAttachment.previewAttachmentType;
 
-    if (previewAttachmentType === 'KC') {
+    if (previewAttachmentType === PREVIEW_ATTACHMENT_TYPE.KC) {
       const { id, ext } = currentAttachment.sourceNode;
       ajax
         .renameKcFile(id, value, ext)
@@ -589,10 +287,10 @@ export function renameFile(value) {
             index,
           });
         })
-        .catch(() => {
-          alert(_l('修改失败'), 2);
+        .catch(_requestError2 => {
+          alertIfNotUnauthorized(_requestError2, _l('修改失败'), 2);
         });
-    } else if (previewAttachmentType === 'COMMON') {
+    } else if (previewAttachmentType === PREVIEW_ATTACHMENT_TYPE.COMMON) {
       const { docVersionID, fileID, ext, sourceID } = currentAttachment.sourceNode;
       ajax
         .renameFile(docVersionID, fileID, value, ext, sourceID)
@@ -611,8 +309,8 @@ export function renameFile(value) {
             index,
           });
         })
-        .catch(() => {
-          alert(_l('修改失败'), 2);
+        .catch(_requestError3 => {
+          alertIfNotUnauthorized(_requestError3, _l('修改失败'), 2);
         });
     }
   };
@@ -642,8 +340,8 @@ export function updateAllowDownload() {
           index,
         });
       })
-      .catch(() => {
-        alert(_l('设置失败'), 3);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('设置失败'), 3);
       });
   };
 }
@@ -654,7 +352,6 @@ function selectFolder() {
       dialogTitle: _l('选择路径'),
       isFolderNode: 1,
       selectedItems: null,
-      zIndex: 9999,
     })
       .then(result => {
         resolve(result);
@@ -689,20 +386,20 @@ export function saveToKnowlwdge(savePath) {
         const sourceData = {};
         let attachmentType;
 
-        if (previewAttachmentType === 'COMMON') {
+        if (previewAttachmentType === PREVIEW_ATTACHMENT_TYPE.COMMON) {
           attachmentType = 1;
           sourceData.fileID = sourceNode.fileID;
           sourceData.allowDown = !!(sourceNode.allowDown && sourceNode.allowDown === 'ok');
           if (previewType === PREVIEW_TYPE.PICTURE) {
             sourceData.allowDown = true;
           }
-        } else if (previewAttachmentType === 'KC') {
+        } else if (previewAttachmentType === PREVIEW_ATTACHMENT_TYPE.KC) {
           attachmentType = 2;
           sourceData.nodeId = sourceNode.id;
           if (state.extra && state.extra.shareFolderId) {
             sourceData.isShareFolder = true;
           }
-        } else if (previewAttachmentType === 'QINIU') {
+        } else if (previewAttachmentType === PREVIEW_ATTACHMENT_TYPE.QINIU) {
           attachmentType = 0;
           sourceData.name = currentAttachment.name + '.' + currentAttachment.ext;
           sourceData.filePath = sourceNode.path;
@@ -714,7 +411,7 @@ export function saveToKnowlwdge(savePath) {
             // alert(message || '保存成功');
           })
           .catch(message => {
-            alert(message || _l('保存失败'), 3);
+            alertIfNotUnauthorized(message, message || _l('保存失败'), 3);
           });
       })
       .catch(() => {});

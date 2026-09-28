@@ -1,16 +1,8 @@
 import React, { Component } from 'react';
-import { Button, ConfigProvider, Input } from 'antd';
-import styled from 'styled-components';
+import { Button, Input } from 'ming-ui/antd-components';
 import reportConfig from '../../api/reportConfig';
 
 const { TextArea } = Input;
-
-const Con = styled.div`
-  .ant-input:focus,
-  .ant-input-focused {
-    box-shadow: none !important;
-  }
-`;
 
 export default class ChartDesc extends Component {
   constructor(props) {
@@ -57,8 +49,9 @@ export default class ChartDesc extends Component {
   render() {
     const { desc } = this.state;
     return (
-      <Con className="bgCard z-depth-2 boderRadAll_4" style={{ width: 300, padding: 12 }}>
+      <div>
         <TextArea
+          autoFocus
           rows={4}
           autoSize={{ minRows: 4, maxRows: 6 }}
           placeholder={_l('添加图表描述')}
@@ -78,13 +71,11 @@ export default class ChartDesc extends Component {
           >
             {_l('取消')}
           </Button>
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button type="primary" size="small" className="mLeft10 hoverBgColorPrimaryDark" onClick={this.handleSave}>
-              {_l('保存')}
-            </Button>
-          </ConfigProvider>
+          <Button type="primary" size="small" className="mLeft10 hoverBgColorPrimaryDark" onClick={this.handleSave}>
+            {_l('保存')}
+          </Button>
         </div>
-      </Con>
+      </div>
     );
   }
 }

@@ -5,7 +5,8 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Icon, LoadDiv, Menu, MenuItem, Radio, ScrollView, Support } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Dropdown, Modal, Radio } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { FIELD_TYPE_LIST } from '../../enum';
 import { checkConditionsIsNull } from '../../utils';
@@ -21,12 +22,12 @@ import {
 } from '../components';
 
 const List = styled.div(
-  ({ isHeader }) => `
+  ({ $isHeader }) => `
   border-bottom: 1px solid var(--color-border-tertiary);
   height: 36px;
   align-items: center;
   ${
-    isHeader
+    $isHeader
       ? 'font-weight: bold;'
       : `
         &:hover {
@@ -66,11 +67,6 @@ const List = styled.div(
   }
   .hideOperation {
     visibility: hidden;
-  }
-  .jsonMenu {
-    left: inherit !important;
-    right: 0 !important;
-    width: 450px !important;
   }
 `,
 );
@@ -270,14 +266,20 @@ export default class JSONParse extends Component {
             {ERROR_TYPES.map(item => (
               <div className="mTop15" key={item.value}>
                 <Radio
-                  text={item.text}
                   checked={
                     (item.value === 0 && !data.conditions.length) || (item.value === 1 && data.conditions.length)
                   }
-                  onClick={() =>
-                    this.updateSource({ conditions: item.value === 0 ? [] : [[{}]], executeType: 0, errorMessage: '' })
+                  onChange={() =>
+                    this.updateSource({
+                      conditions: item.value === 0 ? [] : [[{}]],
+                      executeType: 0,
+                      errorMessage: '',
+                    })
                   }
-                />
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               </div>
             ))}
 
@@ -362,17 +364,20 @@ export default class JSONParse extends Component {
         </div>
 
         {showDialog && (
-          <Dialog
+          <Modal
             width={1100}
-            visible
-            type="scroll"
-            title={_l('查看 JSON 解析结果')}
-            description={this.renderOutputDesc()}
-            showFooter={false}
+            open
+            title={
+              <Fragment>
+                <div>{_l('查看 JSON 解析结果')}</div>
+                <div className="Font13 Normal textSecondary mTop8">{this.renderOutputDesc()}</div>
+              </Fragment>
+            }
+            footer={null}
             onCancel={() => this.setState({ showDialog: false })}
           >
             <div style={{ minHeight: 400 }}>
-              <List className="flexRow" isHeader>
+              <List className="flexRow" $isHeader>
                 <div className="width250 pLeft24 mRight10">{_l('名称')}</div>
                 <div className="width100 mRight10">{_l('类型')}</div>
                 <div className="flex mRight10">{_l('参考值')}</div>
@@ -381,7 +386,7 @@ export default class JSONParse extends Component {
               </List>
               {data.controls.filter(item => !item.dataSource).map(item => this.renderDialogJSONList(item))}
             </div>
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );
@@ -450,38 +455,42 @@ export default class JSONParse extends Component {
               {_l('生成参数')}
             </span>
             <Icon type="copy" className="textSecondary mLeft15" />
-            <span
-              className="mLeft5 hoverColorPrimary pointer"
-              onClick={() => {
-                if (isObjectOptions) {
-                  this.setState({ selectFiledId: item.jsonPath });
-                } else {
-                  copy(item.jsonPath);
-                  alert(_l('复制成功'));
-                }
-              }}
-            >
-              {_l('复制')}
-            </span>
-
-            {isObjectOptions && selectFiledId === item.jsonPath && (
-              <Menu className="jsonMenu" onClickAway={() => this.setState({ selectFiledId: '' })}>
-                {options.map((o, i) => (
-                  <MenuItem
-                    key={i}
-                    onMouseDown={() => {
-                      copy(o.text);
+            {isObjectOptions ? (
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                open={selectFiledId === item.jsonPath}
+                onOpenChange={open => this.setState({ selectFiledId: open ? item.jsonPath : '' })}
+                menu={{
+                  style: { width: 450 },
+                  items: options.map((option, index) => ({
+                    key: `${option.text}-${index}`,
+                    label: (
+                      <div className="flexRow">
+                        <div className="flex ellipsis mRight15"> {option.text} </div>
+                        <div className="textSecondary"> {option.desc} </div>
+                      </div>
+                    ),
+                    onClick: () => {
+                      copy(option.text);
                       alert(_l('复制成功'));
                       this.setState({ selectFiledId: '' });
-                    }}
-                  >
-                    <div className="flexRow">
-                      <div className="flex ellipsis mRight15"> {o.text} </div>
-                      <div className="textSecondary"> {o.desc} </div>
-                    </div>
-                  </MenuItem>
-                ))}
-              </Menu>
+                    },
+                  })),
+                }}
+              >
+                <span className="mLeft5 hoverColorPrimary pointer">{_l('复制')}</span>
+              </Dropdown>
+            ) : (
+              <span
+                className="mLeft5 hoverColorPrimary pointer"
+                onClick={() => {
+                  copy(item.jsonPath);
+                  alert(_l('复制成功'));
+                }}
+              >
+                {_l('复制')}
+              </span>
             )}
           </div>
         </List>
@@ -519,11 +528,11 @@ export default class JSONParse extends Component {
    * 预览json
    */
   previewJSON(json) {
-    Dialog.confirm({
+    Modal.confirm({
       width: 720,
       title: _l('查看'),
-      description: <JsonView data={json} />,
-      noFooter: true,
+      content: <JsonView data={json} />,
+      footer: null,
     });
   }
 

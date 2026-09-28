@@ -3,7 +3,8 @@ import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 // import ToolBar from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/ToolBar';
 import EditCon from './EditCon/index.jsx';
@@ -26,7 +27,7 @@ const TableTreeWrap = styled.div`
   transform-origin: left top;
   margin: 50px 40px;
   z-index: 1;
-  transform: ${props => (props.scale ? `scale(${props.scale / 100})` : 'scale(1)')};
+  transform: ${props => (props.$scale ? `scale(${props.$scale / 100})` : 'scale(1)')};
 `;
 const WrapEdit = styled.div`
   height: 395px;
@@ -191,11 +192,16 @@ class TaskCanvas extends Component {
         cb,
       );
       if (!isSucceeded && errorMsgList) {
-        return Dialog.confirm({
+        return Modal.confirm({
           title: _l('报错信息'),
           className: 'connectorErrorDialog',
-          description: (
-            <div className="errorInfo" style={{ marginBottom: -30 }}>
+          content: (
+            <div
+              className="errorInfo"
+              style={{
+                marginBottom: -30,
+              }}
+            >
               {errorMsgList.map((error, index) => {
                 return (
                   <div key={index} className="mTop5">
@@ -205,9 +211,13 @@ class TaskCanvas extends Component {
               })}
             </div>
           ),
-          removeCancelBtn: true,
+          cancelButtonProps: {
+            style: {
+              display: 'none',
+            },
+          },
           okText: _l('关闭'),
-        });
+        }).destroy;
       }
     });
   };
@@ -269,7 +279,7 @@ class TaskCanvas extends Component {
           }}
         >
           <TableTreeWrap
-            scale={scale}
+            $scale={scale}
             className="treeContainerCon"
             onClick={() => {
               this.closeEdit();

@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, LoadDiv, Menu, MenuItem, Skeleton } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import ScrollView from 'ming-ui/components/ScrollView';
-import { deleteAgentSession, fetchAgentSessions, renameAgentSession } from 'src/components/Agent/agentService';
+import useAutoLoadUntilScrollable from 'ming-ui/hooks/useAutoLoadUntilScrollable';
+import { fetchAgentSessionPage } from 'src/components/Agent/agentService';
 import { SessionHistory } from 'src/components/Agent/ui';
+import SessionRow from 'src/components/Agent/ui/SessionRow';
 import mingoLogo from 'src/pages/mingo/common/images/mingo-logo.png';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const PAGE_SIZE = 30;
-
 const Con = styled.div`
   width: 280px;
   border-right: 1px solid var(--color-border-secondary);
@@ -123,7 +124,6 @@ const Con = styled.div`
     margin-left: -280px;
   }
 `;
-
 export const ExpandIcon = styled.span`
   width: 32px;
   height: 32px;
@@ -146,7 +146,6 @@ export const ExpandIcon = styled.span`
     margin: 12px;
   }
 `;
-
 export default function HistorySide({
   visible,
   currentSessionId,
@@ -161,25 +160,30 @@ export default function HistorySide({
   const [hasMore, setHasMore] = useState(false);
   const [sessions, setSessions] = useState([]);
   const [searchVisible, setSearchVisible] = useState(false);
-  const [menuOpenId, setMenuOpenId] = useState('');
   const loadedRef = useRef(false);
+  const scrollViewRef = useRef(null);
   const pageRef = useRef(1);
-  const seqRef = useRef(0); // 每次关键词检索/会话切换自增，用于丢弃过期的“加载更多”响应
+  const seqRef = useRef(0); // 每次整拉列表时自增，用于丢弃过期的“加载更多”响应
   const loadingMoreRef = useRef(false); // 同步防抖，避免触底事件重复触发
-  const renameInputRef = useRef(null); // 重命名弹层里 Input 的非受控引用
 
-  // 搜索已移到弹窗（SessionHistory），左栏列表常显全部；currentSessionId / refreshKey 变化（新建、切换、一轮结束）刷新列表
+  // 搜索已移到弹窗（SessionHistory），左栏列表常显全部。
+  // 只由 refreshKey 触发整拉（新会话首次落库）：整拉会重置到第一页，若把 currentSessionId 也作为依赖，
+  // 点击已加载的第 N 页会话就会把后续页丢掉、滚动回顶部，被点中的那条反而从列表里消失。
+  // 切换会话不改变列表内容，高亮由 currentSessionId 直接参与渲染，无需重新拉取。
   useEffect(() => {
     const seq = ++seqRef.current;
     pageRef.current = 1;
     loadingMoreRef.current = false;
     setIsLoadingMore(false);
     setIsLoading(true);
-    fetchAgentSessions({ page: 1, size: PAGE_SIZE })
-      .then(list => {
+    fetchAgentSessionPage({
+      page: 1,
+      size: PAGE_SIZE,
+    })
+      .then(({ items, hasMore: nextHasMore }) => {
         if (seq !== seqRef.current) return;
-        setSessions(list);
-        setHasMore(list.length >= PAGE_SIZE);
+        setSessions(items);
+        setHasMore(nextHasMore);
       })
       .catch(err => console.error('[agent] fetch sessions failed', err))
       .finally(() => {
@@ -187,23 +191,27 @@ export default function HistorySide({
         loadedRef.current = true;
         setIsLoading(false);
       });
-  }, [currentSessionId, refreshKey]);
-
+  }, [refreshKey]);
   const handleLoadMore = () => {
     if (isLoading || loadingMoreRef.current || !hasMore) return;
     const seq = seqRef.current;
     const nextPage = pageRef.current + 1;
     loadingMoreRef.current = true;
     setIsLoadingMore(true);
-    fetchAgentSessions({ page: nextPage, size: PAGE_SIZE })
-      .then(list => {
+    fetchAgentSessionPage({
+      page: nextPage,
+      size: PAGE_SIZE,
+    })
+      // hasMore 必须取接口层按「过滤前的原始条数」算出的值：items 已剔除 session-bot- 会话，
+      // 按它的长度判断会在本页混有 bot 会话时误判成没有下一页，翻页就此停住
+      .then(({ items, hasMore: nextHasMore }) => {
         if (seq !== seqRef.current) return;
         pageRef.current = nextPage;
         setSessions(prev => {
           const existed = new Set(prev.map(item => item.sessionId));
-          return prev.concat(list.filter(item => !existed.has(item.sessionId)));
+          return prev.concat(items.filter(item => !existed.has(item.sessionId)));
         });
-        setHasMore(list.length >= PAGE_SIZE);
+        setHasMore(nextHasMore);
       })
       .catch(err => console.error('[agent] load more sessions failed', err))
       .finally(() => {
@@ -213,33 +221,32 @@ export default function HistorySide({
       });
   };
 
-  const doRename = (item, newTitle) => {
-    renameAgentSession(item.sessionId, newTitle)
-      .then(resultTitle => {
-        setSessions(prev => prev.map(s => (s.sessionId === item.sessionId ? { ...s, title: resultTitle } : s)));
-        alert(_l('重命名成功'));
-      })
-      .catch(err => {
-        console.error('[agent] rename session failed', err);
-        alert(_l('重命名失败'), 2);
-      });
+  // 接口按 size 取数后会剔除 session-bot- 会话，首屏很可能只剩几条、撑不出滚动条，
+  // 光靠 onScrollEnd 就再也翻不到下一页，这里补上「不够一屏就继续拉」
+  useAutoLoadUntilScrollable({
+    scrollViewRef,
+    hasMore,
+    loading: isLoading,
+    loadingMore: isLoadingMore,
+    contentKey: sessions.length,
+    onLoadMore: handleLoadMore,
+  });
+
+  const handleRenamed = (sessionId, newTitle) => {
+    setSessions(prev => prev.map(s => (s.sessionId === sessionId ? { ...s, title: newTitle } : s)));
   };
 
-  const doDelete = item => {
-    deleteAgentSession(item.sessionId)
-      .then(() => {
-        setSessions(prev => prev.filter(s => s.sessionId !== item.sessionId));
-        alert(_l('删除成功'));
-        onDeleted(item.sessionId);
-      })
-      .catch(err => {
-        console.error('[agent] delete session failed', err);
-        alert(_l('删除失败'), 2);
-      });
+  const handleDeleted = sessionId => {
+    setSessions(prev => prev.filter(s => s.sessionId !== sessionId));
+    onDeleted(sessionId);
   };
 
   return (
-    <Con className={cx('t-flex t-flex-col', { 'un-expand': !visible })}>
+    <Con
+      className={cx('t-flex t-flex-col', {
+        'un-expand': !visible,
+      })}
+    >
       <div className="side-header t-flex t-items-center t-justify-between">
         <a href={pathCompletion('/')} className="t-flex t-items-center">
           <img className="brand-wordmark" src={md.global.SysSettings.aiBrandLogoUrl || mingoLogo} alt="mingo" />
@@ -257,97 +264,29 @@ export default function HistorySide({
         <span className="placeholder">{_l('搜索历史对话')}</span>
       </div>
       <div className="list-title">{_l('历史对话')}</div>
-      <ScrollView className="sessionList t-flex-1" onScrollEnd={handleLoadMore}>
+      <ScrollView ref={scrollViewRef} className="sessionList t-flex-1" onScrollEnd={handleLoadMore}>
         {isLoading && !loadedRef.current ? (
-          <Skeleton active widths={[100, '100%', '100%', '50%']} />
+          <Skeleton
+            className="pAll20"
+            active
+            paragraph={{
+              rows: 4,
+              width: [100, '100%', '100%', '50%'],
+            }}
+          />
         ) : !sessions.length ? (
           <div className="emptyStatus">{_l('暂无历史对话')}</div>
         ) : (
           <React.Fragment>
             {sessions.map(item => (
-              <div
+              <SessionRow
                 key={item.sessionId}
-                className={cx('sessionItem t-flex t-items-center', {
-                  active: currentSessionId && item.sessionId === currentSessionId,
-                  menuActive: menuOpenId === item.sessionId,
-                })}
-                onClick={() => onSelect(item)}
-              >
-                <div className="name ellipsis t-flex-1">{item.title}</div>
-                <Trigger
-                  popupVisible={menuOpenId === item.sessionId}
-                  onPopupVisibleChange={open => setMenuOpenId(open ? item.sessionId : '')}
-                  action={['click']}
-                  // rc-trigger 默认未给弹层加 position:absolute（项目未引入其内置样式），
-                  // dom-align 会回退成 position:relative 导致菜单贴到容器左缘，这里显式指定
-                  popupStyle={{ position: 'absolute', zIndex: 1051 }}
-                  popupAlign={{ points: ['tl', 'bl'], offset: [0, 6], overflow: { adjustX: true, adjustY: true } }}
-                  popup={
-                    <Menu className="Relative">
-                      <MenuItem
-                        icon={<Icon icon="rename_input" className="Font18 mLeft5" />}
-                        onClick={e => {
-                          // Trigger 弹层经 portal 渲染，事件会沿 React 树冒泡到行的 onSelect，需阻断
-                          if (e && e.stopPropagation) e.stopPropagation();
-                          setMenuOpenId('');
-                          Dialog.confirm({
-                            title: _l('重命名对话'),
-                            width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
-                            description: (
-                              <Input
-                                autoFocus
-                                placeholder={_l('请输入对话名称')}
-                                className="w100 textPrimary"
-                                defaultValue={item.title}
-                                manualRef={ref => (renameInputRef.current = ref)}
-                              />
-                            ),
-                            onOk: () => {
-                              const val = renameInputRef.current && renameInputRef.current.value.trim();
-
-                              if (val) {
-                                doRename(item, val);
-                              } else {
-                                alert(_l('请输入对话名称'), 3);
-                                renameInputRef.current && renameInputRef.current.focus();
-                                return false;
-                              }
-                            },
-                          });
-                        }}
-                      >
-                        <span className="mLeft10">{_l('重命名')}</span>
-                      </MenuItem>
-                      <MenuItem
-                        icon={<Icon icon="trash" className="Font18 mLeft5" style={{ color: 'var(--color-error)' }} />}
-                        onClick={e => {
-                          if (e && e.stopPropagation) e.stopPropagation();
-                          setMenuOpenId('');
-                          Dialog.confirm({
-                            title: (
-                              <span style={{ color: 'var(--color-error)', fontWeight: 'bold' }}>
-                                {_l('确定删除该对话')}
-                              </span>
-                            ),
-                            width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
-                            description: _l('删除后，聊天记录将不可恢复'),
-                            buttonType: 'danger',
-                            onOk: () => doDelete(item),
-                          });
-                        }}
-                      >
-                        <span className="mLeft10" style={{ color: 'var(--color-error)' }}>
-                          {_l('删除')}
-                        </span>
-                      </MenuItem>
-                    </Menu>
-                  }
-                >
-                  <span className="operateIcon" onClick={e => e.stopPropagation()}>
-                    <i className="icon icon-more_horiz Font18 textTertiary Hand" />
-                  </span>
-                </Trigger>
-              </div>
+                item={item}
+                active={currentSessionId && item.sessionId === currentSessionId}
+                onSelect={onSelect}
+                onRenamed={handleRenamed}
+                onDeleted={handleDeleted}
+              />
             ))}
             {isLoadingMore && <LoadDiv className="mTop6 mBottom6" size={20} />}
           </React.Fragment>

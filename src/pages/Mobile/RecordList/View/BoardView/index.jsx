@@ -6,12 +6,12 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { getTargetName } from 'worksheet/views/BoardView/util';
-import { getViewSelectFields, hasSecondGroupControl } from 'worksheet/views/BoardView/util';
 import ViewEmpty from 'worksheet/views/components/ViewEmpty';
-import { pathCompletion } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTargetName } from 'src/utils/services/worksheet/board';
+import { getViewSelectFields, hasSecondGroupControl } from 'src/utils/services/worksheet/board';
 import ViewErrorPage from '../components/ViewErrorPage';
 import CommonBoard from './CommonBoard';
 import GroupBoard from './GroupBoard';
@@ -25,19 +25,19 @@ const Container = styled.div`
   .mobileCommonBoardWrap {
     .scaleContainer {
       width: 100%;
-      height: ${props => 100 / props.scale}%;
+      height: ${props => 100 / props.$scale}%;
     }
   }
 
   .mobileGroupBoardWrap {
     .scaleContainer {
-      width: ${props => 100 / props.scale}%;
+      width: ${props => 100 / props.$scale}%;
       height: 100%;
     }
   }
 
   .scaleContent {
-    transform: ${props => `scale(${props.scale})`};
+    transform: ${props => `scale(${props.$scale})`};
     transform-origin: top left;
     transition: transform 0.3s ease;
   }
@@ -190,7 +190,7 @@ const MobileBoardView = props => {
   }
 
   return (
-    <Container scale={isZoomedOut ? 0.6 : 1}>
+    <Container $scale={isZoomedOut ? 0.6 : 1}>
       {hasSecondGroup ? (
         <GroupBoard {...props} controlId={controlId} control={control} openRecord={openRecord} />
       ) : (

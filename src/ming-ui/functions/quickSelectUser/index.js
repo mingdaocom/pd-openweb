@@ -1,25 +1,29 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { useClickAway } from 'react-use';
 import _ from 'lodash';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
+import { any, arrayOf, bool, func, number, object, shape, string } from 'prop-types';
 import { LoadDiv } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+import { createControllableOpenHandler, getMergedTriggerEventHandlers } from 'src/utils/platform/react/interaction';
 import { Con, Content, Search, Tabs, UserList } from './Comps';
 import { getAccounts, getUsers } from './util';
+
+const DEFAULT_LIST = [];
 
 export function UserSelector(props) {
   const {
     projectId,
-    staticAccounts = [], // 静态显示用户，传值时不在走接口取数据
+    staticAccounts = DEFAULT_LIST, // 静态显示用户，传值时不在走接口取数据
     includeUndefinedAndMySelf = false,
     includeSystemField = false, // 是否显示系统字段
     prefixOnlySystemField = false,
-    filterAccountIds = [], // 过滤的账户
-    selectedAccountIds = [], // 已选择的用户
-    prefixAccountIds = [], // 指定置顶的用户id
-    prefixAccounts = [], // 指定置顶的用户对象
+    filterAccountIds = DEFAULT_LIST, // 过滤的账户
+    selectedAccountIds = DEFAULT_LIST, // 已选择的用户
+    prefixAccountIds = DEFAULT_LIST, // 指定置顶的用户id
+    prefixAccounts = DEFAULT_LIST, // 指定置顶的用户对象
     isHidAddUser = false, // 隐藏选择通讯录入口
     selectRangeOptions = undefined, // 限制选择范围
     filterOtherProject = false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
@@ -36,6 +40,11 @@ export function UserSelector(props) {
   } = props;
   const conRef = useRef();
   const scrollRef = useRef();
+  const loadedRequestRef = useRef();
+  const loadListRef = useRef();
+  const debounceLoadListRef = useRef();
+  const requestIdRef = useRef(0);
+  const selectedAccountIdsRef = useRef(selectedAccountIds);
   const [activeTab, setActiveTab] = useState(
     !_.isUndefined(tabIndex) ? tabIndex : tabType === 1 || tabType === 3 ? 0 : 1,
   );
@@ -49,11 +58,12 @@ export function UserSelector(props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const isStatic =
     !_.isEmpty(staticAccounts) && !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
+  const resolvedProjectId = projectId || _.get(props, 'SelectUserSettings.projectId');
   const baseArgs = {
     filterAccountIds: filterAccountIds.concat(selectedAccountIds).filter(_.identity),
     prefixAccountIds,
     selectRangeOptions,
-    projectId: projectId || _.get(props, 'SelectUserSettings.projectId'),
+    projectId: resolvedProjectId,
     appId,
     includeUndefinedAndMySelf,
     includeSystemField,
@@ -62,26 +72,76 @@ export function UserSelector(props) {
     filterOtherProject,
   };
 
-  function loadList({ keywords, pageIndex = 1, clear = true, type } = {}) {
-    if (isStatic) {
-      return;
-    }
+  useEffect(() => {
+    selectedAccountIdsRef.current = selectedAccountIds;
+  }, [selectedAccountIds]);
 
-    if (clear) {
-      setList([]);
-    }
-
-    setLoading(true);
-    getUsers({ ...baseArgs, type, keywords: (keywords || '').trim(), pageIndex }).then(data => {
-      setList(l => l.concat(data));
-      setLoading(false);
-      if (_.isEmpty(data)) {
-        setLoadOuted(true);
+  const loadList = React.useCallback(
+    ({ keywords, pageIndex = 1, clear = true, type } = {}) => {
+      if (isStatic) {
+        setLoading(false);
+        return;
       }
-    });
-  }
 
-  const debounceLoadList = useCallback(_.debounce(loadList, 200), []);
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+
+      if (clear) {
+        setList([]);
+        setLoadOuted(false);
+      }
+
+      setLoading(true);
+      getUsers({
+        filterAccountIds: filterAccountIds.concat(selectedAccountIdsRef.current).filter(_.identity),
+        prefixAccountIds,
+        selectRangeOptions,
+        projectId: resolvedProjectId,
+        appId,
+        includeUndefinedAndMySelf,
+        includeSystemField,
+        mentionedCount: count,
+        hidePortalCurrentUser,
+        filterOtherProject,
+        type,
+        keywords: (keywords || '').trim(),
+        pageIndex,
+      }).then(data => {
+        if (requestIdRef.current !== requestId) return;
+
+        setList(currentList => currentList.concat(data));
+        setLoading(false);
+        if (_.isEmpty(data)) {
+          setLoadOuted(true);
+        }
+      });
+    },
+    [
+      appId,
+      count,
+      filterAccountIds,
+      filterOtherProject,
+      hidePortalCurrentUser,
+      includeSystemField,
+      includeUndefinedAndMySelf,
+      isStatic,
+      prefixAccountIds,
+      resolvedProjectId,
+      selectRangeOptions,
+    ],
+  );
+
+  useEffect(() => {
+    loadListRef.current = loadList;
+    const debounceLoadList = _.debounce(loadList, 200);
+    debounceLoadListRef.current = debounceLoadList;
+
+    return () => debounceLoadList.cancel();
+  }, [loadList]);
+
+  const debounceLoadList = React.useCallback(args => {
+    debounceLoadListRef.current && debounceLoadListRef.current(args);
+  }, []);
   let prefixUsers = prefixAccounts;
   let users = [];
 
@@ -114,8 +174,9 @@ export function UserSelector(props) {
 
   function handleSelect(user) {
     const res = [_.pick(user, ['accountId', 'avatar', 'fullname', 'job'])];
-    onSelect(res);
-    selectCb(res);
+    const isCancel = selectedAccountIds.includes(user.accountId);
+    onSelect(res, isCancel);
+    selectCb(res, isCancel);
     onClose();
   }
 
@@ -127,8 +188,38 @@ export function UserSelector(props) {
     onClose(true);
   });
   useEffect(() => {
-    loadList({ type });
-  }, []);
+    const requestArgs = {
+      appId,
+      count,
+      filterAccountIds,
+      filterOtherProject,
+      hidePortalCurrentUser,
+      includeSystemField,
+      includeUndefinedAndMySelf,
+      isStatic,
+      prefixAccountIds,
+      projectId: resolvedProjectId,
+      selectRangeOptions,
+      type,
+    };
+    if (_.isEqual(loadedRequestRef.current, requestArgs)) return;
+
+    loadedRequestRef.current = _.cloneDeep(requestArgs);
+    loadListRef.current({ type });
+  }, [
+    appId,
+    count,
+    filterAccountIds,
+    filterOtherProject,
+    hidePortalCurrentUser,
+    includeSystemField,
+    includeUndefinedAndMySelf,
+    isStatic,
+    prefixAccountIds,
+    resolvedProjectId,
+    selectRangeOptions,
+    type,
+  ]);
   return (
     <Con
       ref={conRef}
@@ -144,7 +235,6 @@ export function UserSelector(props) {
           active={activeTab}
           onActive={value => {
             const newType = selectRangeOptions ? 'range' : value === 1 ? 'external' : 'normal';
-            loadList({ type: newType, keywords: '' });
             setType(newType);
             setActiveTab(value);
             setKeywords('');
@@ -264,6 +354,7 @@ export function UserSelector(props) {
               onSelect={handleSelect}
               onShowMore={() => setHadShowMore(true)}
               projectId={baseArgs.projectId}
+              selectedAccountIds={selectedAccountIds}
             />
             <hr />
           </Fragment>
@@ -283,6 +374,7 @@ export function UserSelector(props) {
             }
             list={usersForUserList}
             projectId={baseArgs.projectId}
+            selectedAccountIds={selectedAccountIds}
             onClose={onClose}
             onSelect={handleSelect}
           />
@@ -318,122 +410,171 @@ UserSelector.propTypes = {
   onSelect: func, // 选中回调(用这个新的属性名)
 };
 
-export function SelectWrapper(props) {
-  const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
+export const UserSelectPopover = forwardRef(function UserSelectPopover(props, ref) {
+  const {
+    align,
+    arrow = false,
+    children,
+    destroyOnHidden,
+    getPopupContainer,
+    isDynamic,
+    offset,
+    onBlur,
+    onClick,
+    onClose = () => {},
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
+    onOpenChange = () => {},
+    open,
+    placement = 'bottomLeft',
+    styles = {},
+    trigger = 'click',
+    zIndex,
+    ...userSelectorProps
+  } = props;
   const [visible, setVisible] = useState(false);
-  const popupOffset = [offset.left, offset.top];
+  const isControlled = _.has(props, 'open');
+  const mergedVisible = isControlled ? open : visible;
+  const mergedAlign = align || (offset ? { offset: [offset.left || 0, offset.top || 0] } : undefined);
+  const childTriggerEvents = {
+    onBlur,
+    onClick,
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
+  };
+  const triggerNode = React.isValidElement(children)
+    ? React.cloneElement(children, getMergedTriggerEventHandlers(children.props, childTriggerEvents))
+    : children;
+
+  const handleOpenChange = createControllableOpenHandler({ isControlled, onOpenChange, setOpen: setVisible });
+
+  const handleClose = force => {
+    if (!force && isDynamic) return;
+
+    handleOpenChange(false);
+    onClose(force);
+  };
+
   return (
-    <Trigger
-      zIndex={zIndex}
-      popupVisible={visible}
-      action={['click']}
-      destroyPopupOnHide
-      popupAlign={{
-        offset: popupOffset,
-        points: ['tl', 'bl'],
-        overflow: { adjustX: true, adjustY: true },
+    <Popover
+      ref={ref}
+      align={mergedAlign}
+      arrow={arrow}
+      destroyOnHidden={destroyOnHidden}
+      getPopupContainer={getPopupContainer}
+      open={!!mergedVisible}
+      onOpenChange={handleOpenChange}
+      placement={placement}
+      noPadding
+      styles={{
+        ..._.omit(styles, 'body'),
+        container: { ...styles.body, ...styles.container },
       }}
-      popup={
-        <UserSelector
-          {...props}
-          onClose={force => {
-            if (!force && props.isDynamic) {
-              return;
-            }
-
-            if (_.isFunction(props.onClose)) {
-              props.onClose();
-            }
-
-            setVisible(false);
-          }}
-        />
-      }
-      onPopupVisibleChange={setVisible}
+      trigger={trigger}
+      zIndex={zIndex}
+      content={<UserSelector {...userSelectorProps} onClose={handleClose} />}
     >
-      {props.children}
-    </Trigger>
+      {triggerNode}
+    </Popover>
   );
-}
+});
 
-SelectWrapper.propTypes = {
-  popupOffset: arrayOf(number),
+UserSelectPopover.propTypes = {
+  align: object,
+  arrow: any,
+  children: any,
+  destroyOnHidden: bool,
+  getPopupContainer: func,
+  offset: object,
+  onBlur: func,
+  onClick: func,
+  onClose: func,
+  onContextMenu: func,
+  onFocus: func,
+  onMouseDown: func,
+  onMouseEnter: func,
+  onMouseLeave: func,
+  onMouseMove: func,
+  onMouseUp: func,
+  onOpenChange: func,
+  open: bool,
+  placement: string,
+  styles: object,
+  trigger: any,
+  zIndex: number,
 };
 
 export default function quickSelectUser(target, props = {}) {
-  const panelWidth = 360;
-  const panelHeight = 48 + (props.minHeight || 328);
-  let targetLeft;
-  let targetTop;
-  let x = 0;
-  let y = 0;
-  let height = 0;
-  const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
   const $con = document.createElement('div');
+  let destroyed = false;
 
   function setPosition() {
     if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
       const rect = target.getBoundingClientRect();
-      height = rect.height;
-      targetLeft = rect.x;
-      targetTop = rect.y;
-      x = targetLeft + (offset.left || 0);
-      y = targetTop + height + (offset.top || 0);
-      if (x + panelWidth > window.innerWidth) {
-        x = targetLeft - 10 - panelWidth;
-      }
-
-      if (y + panelHeight > window.innerHeight) {
-        y = targetTop - panelHeight - 4;
-        if (y < 0) {
-          y = 0;
-        }
-
-        if (targetTop < panelHeight) {
-          x = targetLeft - 10 - panelWidth;
-          if (x < panelWidth) {
-            x = targetLeft + 10 + 36;
-          }
-        }
-      }
-
-      $con.style.position = 'absolute';
-      $con.style.left = x + 'px';
-      $con.style.top = y + 'px';
-      $con.style.zIndex = zIndex;
+      $con.style.left = `${rect.left}px`;
+      $con.style.top = `${rect.bottom}px`;
     }
   }
 
+  $con.style.position = 'fixed';
+  $con.style.width = '0';
+  $con.style.height = '0';
+  $con.style.pointerEvents = 'none';
   setPosition();
   document.body.appendChild($con);
+  window.addEventListener('resize', setPosition);
+  window.addEventListener('scroll', setPosition, true);
 
   const root = createRoot($con);
 
   function destory() {
+    if (destroyed) return;
+
+    destroyed = true;
+    window.removeEventListener('resize', setPosition);
+    window.removeEventListener('scroll', setPosition, true);
     root.unmount();
-    if ($con && $con.parentNode === document.body && document.body.contains($con)) {
-      document.body.removeChild($con);
+    if ($con.parentNode) {
+      $con.parentNode.removeChild($con);
     }
   }
 
+  function close() {
+    if (destroyed) return;
+
+    if (_.isFunction(props.onClose)) {
+      props.onClose();
+    }
+
+    destory();
+  }
+
   root.render(
-    <BrowserRouter>
-      <UserSelector
-        {...props}
-        onClose={force => {
-          if (!force && props.isDynamic) {
-            setTimeout(setPosition, 100);
-            return;
-          }
-
-          if (_.isFunction(props.onClose)) {
-            props.onClose();
-          }
-
-          destory();
-        }}
-      />
-    </BrowserRouter>,
+    <AntdConfigProvider>
+      <BrowserRouter>
+        <UserSelectPopover
+          {...props}
+          open
+          trigger={[]}
+          onOpenChange={visible => {
+            if (!visible) close();
+          }}
+          onClose={close}
+        >
+          <span style={{ display: 'block', width: 0, height: 0 }} />
+        </UserSelectPopover>
+      </BrowserRouter>
+    </AntdConfigProvider>,
   );
 
   return {

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Dialog, Dropdown } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import './SelectOtherWorksheetDialog.less';
 
 export default class extends Component {
@@ -32,7 +31,7 @@ export default class extends Component {
     };
   }
   componentDidMount() {
-    const { projectId, currentAppId } = this.props;
+    const { projectId, currentAppId, selectedAppId } = this.props;
     homeAppAjax.getAllHomeApp().then(data => {
       let apps = [];
 
@@ -44,14 +43,28 @@ export default class extends Component {
         apps = data.aloneApps;
       }
 
+      const toOption = app =>
+        app.id === currentAppId
+          ? { label: _l('%0  (本应用)', app.name), value: app.id }
+          : { label: app.name, value: app.id };
+      const myApps = apps.filter(app => canEditApp(app.permissionType) && !app.isLock).map(toOption);
+      // 传入的默认应用未必落在当前组织的可选列表里（跨组织、或只有只读权限）。Select 匹配不到
+      // 对应 option 时会退化成直接显示 appId，所以从全量应用里补一条；补不到就清掉默认选中，
+      // 让它回到 placeholder 而不是把一串 id 摆给用户看。
+      const defaultMissing = selectedAppId && !_.find(myApps, item => item.value === selectedAppId);
+      const defaultApp = defaultMissing
+        ? _.find(
+            _.flatten((data.validProject || []).map(project => project.projectApps || [])).concat(
+              data.externalApps || [],
+              data.aloneApps || [],
+            ),
+            app => app.id === selectedAppId,
+          )
+        : null;
+
       this.setState({
-        myApps: apps
-          .filter(app => canEditApp(app.permissionType) && !app.isLock)
-          .map(app =>
-            app.id === currentAppId
-              ? { text: _l('%0  (本应用)', app.name), value: app.id }
-              : { text: app.name, value: app.id },
-          ),
+        myApps: defaultApp ? [toOption(defaultApp)].concat(myApps) : myApps,
+        ...(defaultMissing && !defaultApp ? { selectedAppId: undefined } : null),
       });
     });
     if (this.props.selectedAppId) {
@@ -68,7 +81,7 @@ export default class extends Component {
           this.setState({
             worksheetsOfSelectedApp: data.content
               .filter(o => o.aggTableTaskStatus !== 0)
-              .map(({ name, worksheetId }) => ({ text: name, value: worksheetId })),
+              .map(({ name, worksheetId }) => ({ label: name, value: worksheetId })),
           });
         });
     } else {
@@ -76,45 +89,63 @@ export default class extends Component {
         this.setState({
           worksheetsOfSelectedApp: data
             .filter(o => o.createType !== 1)
-            .map(sheet => ({ text: sheet.workSheetName, value: sheet.workSheetId })),
+            .map(sheet => ({ label: sheet.workSheetName, value: sheet.workSheetId })),
         });
       });
     }
   }
+  handleOk = () => {
+    const { onOk, onHide } = this.props;
+    const { myApps, worksheetsOfSelectedApp, selectedAppId, selectedWorksheetId } = this.state;
+    const selectedWorksheet = _.find(worksheetsOfSelectedApp, worksheet => worksheet.value === selectedWorksheetId);
+
+    onOk(
+      selectedAppId,
+      selectedWorksheetId,
+      selectedWorksheet && {
+        workSheetName: selectedWorksheet.label,
+        workSheetId: selectedWorksheet.value,
+        appName: (myApps.find(item => item.value === selectedAppId) || {}).label,
+      },
+    );
+    onHide();
+  };
+  handleCancel = () => {
+    this.props.onHide();
+  };
   render() {
-    const { visible, onHide, worksheetType, onOk, className, onlyApp, title, description, hideAppLabel, disabled } =
-      this.props;
+    const { visible, worksheetType, className, onlyApp, title, description, hideAppLabel, disabled } = this.props;
     const { myApps, worksheetsOfSelectedApp, selectedAppId, selectedWorksheetId } = this.state;
     const worksheetTypeName =
       worksheetType === 1 ? _l('自定义页面') : worksheetType === 2 ? _l('聚合表') : _l('工作表');
 
     return (
-      <Dialog
-        dialogClasses={className}
-        className={cx('selectWorksheetDialog')}
-        visible={visible}
-        anim={false}
+      <Modal
+        wrapClassName={className}
+        className="selectWorksheetDialog"
+        open={visible}
         title={title || _l('选择其他应用下的%0', worksheetTypeName)}
-        description={description}
-        footer={null}
         width={480}
-        onCancel={onHide}
-        onOk={() => {}}
+        okDisabled={
+          !selectedAppId || (!onlyApp && !_.find(worksheetsOfSelectedApp, item => item.value === selectedWorksheetId))
+        }
+        keyboard
+        onCancel={this.handleCancel}
+        onOk={this.handleOk}
       >
+        {description && <div className="textSecondary mBottom20">{description}</div>}
         <div className="formItem">
           {!hideAppLabel && <div className="label">{_l('应用')}</div>}
           <div className="content">
-            <Dropdown
-              isAppendToBody
-              border
-              openSearch
+            <Select
+              showPopupSearch
+              optionFilterProp="label"
               className="w100"
               disabled={disabled}
-              menuClass="selectWorksheetDropdownMenu"
               placeholder={_l('请选择你作为管理员或开发者的应用')}
-              noData={_l('没有可选的应用')}
-              defaultValue={selectedAppId}
-              data={myApps}
+              notFoundContent={_l('没有可选的应用')}
+              value={_.find(myApps, item => item.value === selectedAppId) ? selectedAppId : undefined}
+              options={myApps}
               onChange={value => {
                 this.setState({ selectedAppId: value, selectedWorksheetId: undefined });
                 !onlyApp && this.loadWorksheetsOfApp(value);
@@ -126,21 +157,19 @@ export default class extends Component {
           <div className="formItem">
             <div className="label">{worksheetTypeName}</div>
             <div className="content">
-              <Dropdown
-                isAppendToBody
-                border
-                openSearch
+              <Select
+                showPopupSearch
+                optionFilterProp="label"
                 disabled={!selectedAppId}
                 className="w100"
-                menuClass="selectWorksheetDropdownMenu"
                 placeholder={_l('选择') + worksheetTypeName}
-                noData={_l('没有可选的') + worksheetTypeName}
+                notFoundContent={_l('没有可选的') + worksheetTypeName}
                 value={
                   selectedWorksheetId && _.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId)
                     ? selectedWorksheetId
                     : undefined
                 }
-                data={worksheetsOfSelectedApp}
+                options={worksheetsOfSelectedApp}
                 onChange={value => {
                   this.setState({ selectedWorksheetId: value });
                 }}
@@ -148,38 +177,7 @@ export default class extends Component {
             </div>
           </div>
         )}
-
-        <div className="btns TxtRight mTop32">
-          <Button
-            type="link"
-            onClick={e => {
-              e.stopPropagation();
-              onHide();
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button
-            disabled={!selectedAppId || (!onlyApp && !_.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId))}
-            onClick={e => {
-              e.stopPropagation();
-              const selectedWrorkesheet = _.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId);
-              onOk(
-                selectedAppId,
-                selectedWorksheetId,
-                selectedWrorkesheet && {
-                  workSheetName: selectedWrorkesheet.text,
-                  workSheetId: selectedWrorkesheet.value,
-                  appName: myApps.find(item => item.value === selectedAppId).text,
-                },
-              );
-              onHide();
-            }}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

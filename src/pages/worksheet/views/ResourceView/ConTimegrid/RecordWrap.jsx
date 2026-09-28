@@ -4,7 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { lineBottomHeight, minHeightObj, pageSize } from 'src/pages/worksheet/views/ResourceView/config.js';
 import { getResourceRowHoverHandlers } from 'src/pages/worksheet/views/ResourceView/util';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import RecordBlock from './RecordBlock';
 
 const Wrap = styled.div`
@@ -18,12 +18,12 @@ const Wrap = styled.div`
   -ms-overflow-style: none; /* Internet Explorer和Edge */
   scrollbar-width: none; /* Firefox */
   .thByGroup {
-    min-height: ${props => `${props.minHeight}px`};
+    min-height: ${props => `${props.$minHeight}px`};
     height: auto;
     display: grid;
     border-bottom: 1px solid rgba(0, 0, 0, 0.09);
     .lineTimeHr {
-      min-height: ${props => `${props.minHeight}px`};
+      min-height: ${props => `${props.$minHeight}px`};
       height: auto;
     }
   }
@@ -108,7 +108,7 @@ export default function RecordWrap(props) {
       id={`rightCon_${view.viewId}`}
       onScroll={bodyScroll}
       ref={tbodyContainer}
-      minHeight={minHeightObj[Number(_.get(view, 'rowHeight') || '0')]}
+      $minHeight={minHeightObj[Number(_.get(view, 'rowHeight') || '0')]}
     >
       {renderContent()}
     </Wrap>

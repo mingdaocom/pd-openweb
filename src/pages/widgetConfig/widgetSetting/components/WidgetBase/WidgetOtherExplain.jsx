@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
+import { Input } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 
 export default ({ data, onChange }) => {
   const { otherhint } = getAdvanceSetting(data);

@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isFormatNumber } from 'statistics/common/controlUtils';
 import { formatSummaryName, getIsAlienationColor } from 'statistics/common/reportDataUtils';
 import { formatterTooltipTitle } from 'statistics/common/timeUtils';
-import { toFixed } from 'src/utils/control';
+import { toFixed } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { chartContextMenuProps, getChartContextMenuItems } from './ChartContextMenu';
 import {
   formatControlInfo,
   formatNumberValue,
@@ -23,7 +23,7 @@ import {
   getMaxValue,
   getMinValue,
   getStyleColor,
-  reportTypes,
+  getYAxisScale,
 } from './common';
 import loadG2Plot from './loadG2Plot';
 
@@ -54,6 +54,25 @@ export const formatDataCount = (data, isVertical, newYaxisList) => {
     }
 
     return data;
+  });
+};
+
+export const formatStackedScaleData = data => {
+  return _.flatMap(_.toArray(_.groupBy(data, 'originalId')), items => {
+    const stackValues = items.reduce(
+      (result, item) => {
+        const value = Number(item.value);
+
+        if (Number.isFinite(value)) {
+          result[value >= 0 ? 'positive' : 'negative'] += value;
+        }
+
+        return result;
+      },
+      { negative: 0, positive: 0 },
+    );
+
+    return [{ value: stackValues.negative }, { value: stackValues.positive }];
   });
 };
 
@@ -369,8 +388,9 @@ export default class extends Component {
       showPileTotal && isPile && (yaxisList.length > 1 || split.controlId)
         ? formatDataCount(data, isVertical, newYaxisList)
         : [];
-    const maxValue = getMaxValue(data);
-    const minValue = getMinValue(data);
+    const scaleData = isPile ? formatStackedScaleData(data) : data;
+    const maxValue = getMaxValue(scaleData);
+    const minValue = getMinValue(scaleData);
     const colors = getChartColors(style, themeColor, projectId);
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
@@ -386,6 +406,13 @@ export default class extends Component {
     const isFunColor =
       isRuleColor || split.controlId || isOptionsColor || isCustomColor || isSplitColor || !_.isEmpty(linkageMatch);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
+    const yAxisScale = getYAxisScale(scaleData, 'value', {
+      tickCount: 5,
+      paddingRatio: 0.2,
+      preventNegativeWhenAllPositive: true,
+      min: ydisplay.minValue,
+      max: ydisplay.maxValue,
+    });
 
     const getRuleColor = value => {
       const color = getStyleColor({
@@ -456,14 +483,15 @@ export default class extends Component {
         groupName: {
           formatter: value => formatControlInfo(value).name,
         },
+        ...(!isPerPile ? { value: { ...yAxisScale, nice: false } } : {}),
       },
       xField: isVertical ? 'originalId' : 'value',
       yField: isVertical ? 'value' : 'originalId',
       xAxis: isVertical
         ? this.getxAxis(displaySetup, xaxes, isDark)
-        : this.getyAxis(displaySetup, newYaxisList, isDark),
+        : this.getyAxis(displaySetup, newYaxisList, isDark, yAxisScale),
       yAxis: isVertical
-        ? this.getyAxis(displaySetup, newYaxisList, isDark)
+        ? this.getyAxis(displaySetup, newYaxisList, isDark, yAxisScale)
         : this.getxAxis(displaySetup, xaxes, isDark),
       animation: true,
       slider:
@@ -663,11 +691,17 @@ export default class extends Component {
       BarChartConfig: baseConfig,
     };
   }
-  getyAxis(displaySetup, yaxisList, isDark) {
+  getyAxis(displaySetup, yaxisList, isDark, yAxisScale) {
     const { isPerPile, ydisplay } = displaySetup;
+    const scale = {
+      ...(isPerPile ? {} : _.omit(yAxisScale, 'ticks')),
+      nice: false,
+      ...(_.isNumber(ydisplay.minValue) ? { min: ydisplay.minValue } : {}),
+      ...(isPerPile ? { max: 1 } : _.isNumber(ydisplay.maxValue) ? { max: ydisplay.maxValue } : {}),
+    };
+
     return {
-      minLimit: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
-      maxLimit: isPerPile ? 1 : ydisplay.maxValue || null,
+      ...scale,
       title:
         ydisplay.showTitle && ydisplay.title
           ? {
@@ -737,24 +771,15 @@ export default class extends Component {
       count,
     });
   }
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   renderCount() {
     const { newYaxisList } = this.state;
     const { summary, yaxisList } = this.props.reportData;
@@ -809,13 +834,17 @@ export default class extends Component {
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>

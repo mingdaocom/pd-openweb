@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
@@ -237,14 +238,24 @@ export default class ApprovalProcess extends Component {
     const { data } = this.state;
 
     if (data.selectNodeId) {
-      Dialog.confirm({
-        title: <span style={{ color: 'var(--color-error)' }}>{_l('注意！你将要更改审批流程的数据对象')}</span>,
-        description: _l(
+      Modal.confirm({
+        title: (
+          <span
+            style={{
+              color: 'var(--color-error)',
+            }}
+          >
+            {_l('注意！你将要更改审批流程的数据对象')}
+          </span>
+        ),
+        content: _l(
           '更换为新的工作表后，所有相关节点配置的字段都将被重置，你需要重新配置这些节点。请确认你需要执行此操作',
         ),
         okText: _l('确认更改'),
         onOk: () => {
-          this.getNodeDetail(this.props, { sId: selectNodeId });
+          this.getNodeDetail(this.props, {
+            sId: selectNodeId,
+          });
         },
       });
     } else {

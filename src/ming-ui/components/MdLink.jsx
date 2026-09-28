@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import propTypes from 'prop-types';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export default function MdLink(props) {
   const { to, children, onClick, className, ...rest } = props;

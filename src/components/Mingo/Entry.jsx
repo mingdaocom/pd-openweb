@@ -3,6 +3,7 @@ import Agent from 'src/components/Agent';
 // import CustomBot from './modules/CustomBot';
 import MingoWelcome from './ChatBot/components/MingoWelcome';
 import { MINGO_TASK_TYPE } from './ChatBot/enum';
+import HelpAgentChat from './HelpAgentChat';
 import CustomBot from './modules/AgentPromptGenBot';
 import AppInfoOptimizationBot from './modules/AppInfoOptimizationBot';
 import CreateRecordBot from './modules/CreateRecordBot';
@@ -50,6 +51,9 @@ export default function MingoEntry({
     return <AppInfoOptimizationBot base={base} onClose={onClose} onBack={onBack} />;
   } else if (taskType === MINGO_TASK_TYPE.CUSTOM_BOT) {
     return <CustomBot base={base} onClose={onClose} onBack={onBack} />;
+  } else if (taskType === MINGO_TASK_TYPE.MINGDAO_HELP_CHAT) {
+    // 帮助中心（智能客服）：钉住 help-agent 的单会话帮助对话，详见 HelpAgentChat
+    return <HelpAgentChat updateIsChatting={updateIsChatting} />;
   } else if (taskType === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT) {
     return <Agent />;
   }

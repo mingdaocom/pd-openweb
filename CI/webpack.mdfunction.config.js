@@ -8,7 +8,7 @@ const ROOT_PATH = path.join(__dirname, '..');
 
 module.exports = {
   resolve: Object.assign({}, config.resolve, {
-    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/utils/uuid' }),
+    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/utils/platform/identity/uuid' }),
   }),
   plugins: [
     new webpack.DefinePlugin({

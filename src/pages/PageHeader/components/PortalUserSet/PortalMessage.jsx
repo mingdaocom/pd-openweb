@@ -6,7 +6,7 @@ import * as actions from 'src/pages/chat/redux/actions';
 import * as ajax from 'src/pages/chat/utils/ajax';
 import * as socketEvent from 'src/pages/chat/utils/socketEvent.js';
 import PortalMg from 'src/pages/Portal/PortalMg.jsx';
-import { getAppFeaturesVisible } from 'src/utils/common';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
 import './index.less';
 
 const Wrap = styled.div`

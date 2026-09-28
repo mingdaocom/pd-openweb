@@ -1,15 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, SortableList, Support } from 'ming-ui';
+import { Icon, SortableList, Support } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import 'src/pages/widgetConfig/styled/style.less';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getSortItems } from 'src/utils/domain/control/filters';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting, getSortItems } from '../../../util';
-import { handleAdvancedSettingChange } from '../../../util/setting';
-import renderCustomFilter from '../CustomEvent/CustomFilter';
+import { useCustomFilter } from '../CustomEvent/CustomFilter';
 
 const FORMAT_CONFIG = [
   { text: _l('字母'), value: 'char', regExp: '^[A-Za-z]*$' },
@@ -132,13 +134,13 @@ const AddVerify = styled.div`
 `;
 
 function SortableItem(props) {
-  const { itemData = {}, sortIndex, setIndex, onDelete, changeFilters, fromPortal } = props;
+  const { itemData = {}, sortIndex, setIndex, onDelete, changeFilters, fromPortal, openCustomFilter } = props;
   const filters = itemData.filters || [];
   const name = itemData.name || _l('未命名');
   const isFilterActive = filters.length > 0;
 
   const editFilterFn = () => {
-    renderCustomFilter({
+    openCustomFilter({
       ...props,
       customTitle: _l('筛选条件'),
       filterData: { valueType: '1', filterItems: filters },
@@ -203,6 +205,10 @@ function SortableItem(props) {
   );
 }
 
+const SortableItemWithCustomFilter = withOpeners(SortableItem, {
+  openCustomFilter: useCustomFilter,
+});
+
 export default function TextVerify(props) {
   const { data, onChange } = props;
   const filterRegex = getAdvanceSetting(data, 'filterregex') || [];
@@ -236,6 +242,7 @@ export default function TextVerify(props) {
     return (
       <div className="flexColumn">
         <SortableList
+          renderBody
           items={getSortItems(filterRegex, true)}
           itemKey="key"
           helperClass="filterRegexSortableList"
@@ -243,7 +250,7 @@ export default function TextVerify(props) {
             onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(getSortItems(newItems, false)) }));
           }}
           renderItem={({ item, index }) => (
-            <SortableItem
+            <SortableItemWithCustomFilter
               {..._.pick(props, ['globalSheetInfo', 'allControls', 'fromPortal'])}
               setIndex={setIndex}
               itemData={item}
@@ -271,10 +278,12 @@ export default function TextVerify(props) {
 
   return (
     <Fragment>
-      <Dialog
+      <Modal
         width={720}
         className="textRegexpVerifyDialog"
-        visible={activeIndex >= 0}
+        open={activeIndex >= 0}
+        mask={{ closable: true }}
+        keyboard
         okDisabled={!itemData.value || !itemData.name}
         onOk={() => {
           const newItem = {
@@ -365,14 +374,17 @@ export default function TextVerify(props) {
             </SettingItem>
           </div>
         </ConfigWrap>
-      </Dialog>
+      </Modal>
       <div className="labelWrap flexCenter" style={{ justifyContent: 'space-between' }}>
         <Checkbox
-          size="small"
           checked={!!filterRegex.length}
-          onClick={checked => {
-            if (checked) {
-              onChange(handleAdvancedSettingChange(data, { filterregex: '' }));
+          onChange={event => {
+            if (!event.target.checked) {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  filterregex: '',
+                }),
+              );
               setTestValue('');
               setData({});
               return;
@@ -380,8 +392,10 @@ export default function TextVerify(props) {
 
             setIndex(0);
           }}
-          text={data.type === 14 ? _l('验证文件名') : _l('限定输入格式')}
-        />
+          size="small"
+        >
+          {data.type === 14 ? _l('验证文件名') : _l('限定输入格式')}
+        </Checkbox>
 
         {filterRegex.length > 0 && (
           <AddVerify className={filterRegex.length >= 5 ? 'disable' : ''}>

@@ -3,10 +3,12 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Dropdown, LoadDiv, Support, SvgIcon, Switch } from 'ming-ui';
+import { LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+import AutoIcon from '../../../components/Icon';
 import { AddRelate } from '../relationSearch/styled';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 
@@ -16,19 +18,47 @@ const InputWrap = styled.div`
   width: 100%;
   margin-bottom: 12px;
   padding-right: 10px;
-  border-bottom: 1px solid --color-background-disabled;
-  input {
-    line-height: 36px;
+  border-bottom: 1px solid var(--color-background-disabled);
+`;
+
+const RelateWarning = styled.div`
+  min-height: 70px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-primary);
+
+  &.active {
+    background: var(--color-primary-transparent);
+    border-color: var(--color-primary);
+  }
+
+  .warningContent {
     flex: 1;
-    border: none;
-    outline: none;
-    padding-left: 8px;
+    min-width: 0;
+    padding-right: 16px;
+  }
+
+  .warningTitle {
+    line-height: 20px;
+  }
+
+  .warningDescription {
+    margin-top: 5px;
+    line-height: 20px;
   }
 `;
 
 const RELATE_TYPE = [
   { key: 'new', text: _l('新建关联') },
-  { key: 'exist', text: _l('已有关联') },
+  { key: 'exist', text: _l('建立双向关联') },
+];
+
+const getRelateSheetSelectConfig = () => [
+  { key: 'app', text: _l('应用') },
+  { key: 'sheet', text: _l('关联工作表') },
 ];
 
 export default function ConfigRelate(props) {
@@ -105,6 +135,7 @@ export default function ConfigRelate(props) {
       return (
         <div className="selectSheetWrap">
           <SelectSheetFromApp
+            config={getRelateSheetSelectConfig()}
             onChange={setSelectedId}
             globalSheetInfo={globalSheetInfo}
             appId={appId}
@@ -112,28 +143,37 @@ export default function ConfigRelate(props) {
           />
           {_.isEmpty(relateFields) ? null : (
             <Fragment>
-              <div className={cx('relateWarning', { active: open })}>
-                {_l('检测到所选表已关联 %0，是否建立', sourceName)}
-                <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/worksheet/associations" />
-                {_l('同步数据？')}
-                <Switch
+              <RelateWarning className={cx({ active: open })}>
+                <div className="warningContent">
+                  <div className="warningTitle Bold">{_l('检测到有可建立的双向关联')}</div>
+                  <div className="warningDescription">
+                    {_l(
+                      '“%0”中存在可添加到当前工作表的反向字段，是否使用已有关系添加反向字段？关闭后将会创建一组新的关联关系。',
+                      sourceName,
+                    )}
+                  </div>
+                </div>
+                <Radio
                   checked={open}
-                  text={''}
-                  onClick={checked => handleSetSource({ open: checked ? false : undefined })}
+                  onClick={event => {
+                    event.stopPropagation();
+                    return handleSetSource({
+                      open: open ? false : undefined,
+                    });
+                  }}
                 />
-              </div>
+              </RelateWarning>
               {open ? (
                 <Fragment>
-                  <div className="selectItem Bold">{_l('%0 中的关联字段', sheetName)}</div>
-                  <Dropdown
+                  <div className="selectItem Bold">{_l('%0 中的已有关联关系', sheetName)}</div>
+                  <Select
                     className="w100"
-                    menuStyle={{ width: '100%' }}
-                    border
+                    loading={loading}
                     value={_.get(selectedControl, 'sourceControl.controlId')}
-                    data={relateFields.map(i => {
+                    options={relateFields.map(i => {
                       return {
                         value: _.get(i, 'sourceControl.controlId'),
-                        text: _.get(i, 'sourceControl.controlName'),
+                        label: _.get(i, 'sourceControl.controlName'),
                       };
                     })}
                     onChange={value =>
@@ -160,29 +200,44 @@ export default function ConfigRelate(props) {
           <div className="emptyHint">{_l('没有与当前工作表关联的表')}</div>
         ) : (
           <div className="relateListWrap">
-            <div className="title mBottom0">
-              {_l('添加关联当前')}
-              <span className="Bold mLeft5 mRight5">{sourceName}</span>
-              {_l('的')}
-              <span className="textTertiary">
-                （{_l('建立')}
-                <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/worksheet/associations" />
-                {_l('同步数据')}）
-              </span>
+            <div className="title">
+              {_l(
+                '选择其他工作表中已关联 "%0" 的字段建立双向关联。建立后，可在两个工作表中维护同一关联关系',
+                sourceName,
+              )}
+
+              <Tooltip
+                placement="bottom"
+                title={
+                  <div>
+                    <div>{_l('配置建议：')}</div>
+                    <div>
+                      {_l(
+                        '如仅需在当前表中查看记录，可使用“查询记录”字段，无需创建双向关联。如：在客户表中查看关联当前客户的订单。',
+                      )}
+                    </div>
+                    <div>
+                      {_l('如需在两个工作表中同时维护关联关系。如：项目与成员、用户与角色。则需创建为双向关联。')}
+                    </div>
+                  </div>
+                }
+              >
+                <AutoIcon icon="help" className="mLeft6" />
+              </Tooltip>
             </div>
             <InputWrap>
-              <i className="icon-search textSecondary Font16"></i>
-              <input
+              <Input
+                allowClear
                 autoFocus
+                className="flex"
+                variant="borderless"
+                prefix={<i className="icon-search textSecondary Font16" />}
                 value={searchValue}
                 placeholder={_l('搜索')}
                 onChange={e => {
                   setSearchValue(e.target.value);
                 }}
               />
-              {searchValue && (
-                <i className="icon-cancel textTertiary Font16 pointer" onClick={() => setSearchValue('')}></i>
-              )}
             </InputWrap>
 
             {_.isEmpty(filterData) ? (
@@ -228,16 +283,19 @@ export default function ConfigRelate(props) {
   };
 
   return (
-    <Dialog
-      style={{ width: '640px' }}
-      visible={visible}
-      title={<span className="Bold">{_l('添加关联记录')}</span>}
-      footer={null}
+    <Modal
+      width={640}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
+      title={<span className="Bold">{_l('添加关联记录字段')}</span>}
       onCancel={closeRelateConfig}
+      okButtonProps={{ disabled: !sheetId }}
+      onOk={() => onOk({ sheetId, control: selectedControl, sheetName })}
     >
       <AddRelate>
         <div className="intro">
-          {_l('在表单中显示关联的记录。如：订单关联客户')}
+          {_l('关联其他工作表中的记录，并保存记录之间的关系。如：订单关联客户。')}
           <Support type={3} href="https://help.mingdao.com/worksheet/controls" text={_l('帮助')} />
         </div>
         <div className="relateWrap">
@@ -262,21 +320,7 @@ export default function ConfigRelate(props) {
           )}
           {renderContent()}
         </div>
-        <div className="footerBtn">
-          <div className="flex"></div>
-          <Button type="link" onClick={closeRelateConfig}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            className="Bold"
-            disabled={!sheetId}
-            onClick={() => onOk({ sheetId, control: selectedControl, sheetName })}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
       </AddRelate>
-    </Dialog>
+    </Modal>
   );
 }

@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
-import { Input } from 'antd';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Input, Tooltip } from 'ming-ui/antd-components';
 
 export default props => {
   const { urlParams, updatePageInfo } = props;
@@ -43,7 +42,6 @@ export default props => {
         <div className="flexRow alignItemsCenter mBottom10 urlParamsWrap">
           <Input
             placeholder={_l('请输入参数名')}
-            className="pageInput"
             value={value}
             maxLength={20}
             onChange={event => {

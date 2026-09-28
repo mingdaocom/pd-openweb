@@ -39,6 +39,10 @@ export function useFileStore() {
   const appMetaBufRef = useRef('');
   // 本轮 app.json 流是否已触发过重置，避免逐 delta 重复 reset。file:begin 时归位。
   const regenFiredRef = useRef(false);
+  // 用户是否主动点过侧栏：置位后流式新产物不再抢焦点，避免正在看的 tab 被自动切走。
+  // 解除时机：发起新一轮对话（chat:submitting=true）、方案被整套重写、加载历史版本方案——
+  // 这三种都是"查看对象换了"，此时继续跟随才符合预期。
+  const userPickedRef = useRef(false);
 
   function update(path, mutator) {
     const entry = entryByPath(path);
@@ -74,6 +78,14 @@ export function useFileStore() {
     });
     setPathOrder(prev => prev.filter(p => p === META_FILE_PATH));
     setFocus(null);
+    // 旧方案连同用户选中的 tab 一起作废，恢复跟随新一版的流式产物
+    userPickedRef.current = false;
+  }
+
+  // 用户主动点侧栏切 tab：锁住焦点，后续流式产物不再自动跳走
+  function focusByUser(path) {
+    userPickedRef.current = true;
+    setFocus(path);
   }
 
   // app.json 流式增量到达：比对 planGenerationId，值变化（且非首次）即判定整套方案重写并清空旧视图。
@@ -105,7 +117,7 @@ export function useFileStore() {
       status: 'streaming',
     }));
     track(path);
-    setFocus(path);
+    if (!userPickedRef.current) setFocus(path);
   });
 
   useAgentEvent('file:delta', ({ path, delta }) => {
@@ -147,7 +159,18 @@ export function useFileStore() {
     track(path);
   });
 
-  useAgentEvent('file:focus', ({ path }) => setFocus(path));
+  // restore=true 是加载历史版本方案后的定位（换了查看对象），解除锁定并跟随；
+  // 其余（流式产物到达）在用户点过侧栏后不再抢焦点。
+  useAgentEvent('file:focus', ({ path, restore } = {}) => {
+    if (restore) userPickedRef.current = false;
+    else if (userPickedRef.current) return;
+    setFocus(path);
+  });
+
+  // 用户发起新一轮对话：方案即将有新产物，恢复自动跟随
+  useAgentEvent('chat:submitting', value => {
+    if (value) userPickedRef.current = false;
+  });
 
   // 把 files 推回 chat 侧，构建 build context 时取最新快照
   useEffect(() => {
@@ -171,5 +194,5 @@ export function useFileStore() {
     })
     .filter(Boolean);
 
-  return { files, focus, setFocus, sidebarItems };
+  return { files, focus, setFocus, focusByUser, sidebarItems };
 }

@@ -1,12 +1,9 @@
 ﻿import React from 'react';
-import doT from 'dot';
 import _ from 'lodash';
-import Dialog from 'ming-ui/components/Dialog';
-import tpl from './template/repeatCalendarOperator.html';
-import './css/recurUpdate.less';
+import { Button, Modal } from 'ming-ui/antd-components';
 
 export default function recurCalendarUpdate(
-  { operatorTitle, recurTitle, recurCalendarUpdateFun },
+  { operatorTitle, recurTitle, recurCalendarUpdateFun, danger = false },
   { isChildCalendar, isRecurChange, originRecur },
   { directRun, isEdit, callback } = {},
 ) {
@@ -19,55 +16,65 @@ export default function recurCalendarUpdate(
 
   if (originRecur && !isChildCalendar && !directAll) {
     // 重复日程 非子日程 的 单个日程
-    Dialog.confirm({
-      dialogClasses: 'repeatCalendarOperator',
+    let modal;
+
+    const handleSelect = isAllCalendar => {
+      modal.destroy();
+      recurCalendarUpdateFun(isAllCalendar);
+    };
+
+    modal = Modal.confirm({
+      wrapClassName: 'repeatCalendarOperator',
       width: 410,
       title: recurTitle,
-      children: <div dangerouslySetInnerHTML={{ __html: doT.template(tpl)({ isRecurChange, isEdit }) }}></div>,
-      noFooter: true,
-      handleClose: () => {
+      content: (
+        <div className="repeatCalendarOperatorMain mTop10 textTertiary">
+          <div className="repeatCalendarOperatorModel mBottom10">
+            <Button
+              danger={danger}
+              className="mRight10"
+              disabled={isRecurChange && isEdit}
+              onClick={() => handleSelect(false)}
+            >
+              {_l('仅此日程')}
+            </Button>
+            {isRecurChange && isEdit
+              ? _l('日程重复性修改，不支持此操作')
+              : _l('此操作仅更改单个日程，其他日程不受影响')}
+          </div>
+          <div className="repeatCalendarOperatorModel">
+            <Button danger={danger} className="mRight10" onClick={() => handleSelect(true)}>
+              {_l('所有日程')}
+            </Button>
+            {_l('此操作会更改后续所有的日程')}
+          </div>
+        </div>
+      ),
+      footer: null,
+      onCancel: () => {
         if (_.isFunction(callback)) {
           // 拖拽时取消
           callback();
         }
-
-        $('.repeatCalendarOperator').parent().remove();
       },
     });
-
-    setTimeout(() => {
-      $('#btnOperatorAlone:not(.disabled)').click(function (event) {
-        // param: isAllCalendar
-        $('.repeatCalendarOperator').parent().remove();
-        recurCalendarUpdateFun(false);
-        event.stopPropagation();
-      });
-
-      $('#btnOperatorAll').click(function (event) {
-        // param: isAllCalendar
-        $('.repeatCalendarOperator').parent().remove();
-        recurCalendarUpdateFun(true);
-        event.stopPropagation();
-      });
-    }, 200);
   } else if (directRun) {
     // fullCalendar 拖拽
     recurCalendarUpdateFun(!isChildCalendar);
   } else {
-    Dialog.confirm({
-      dialogClasses: 'repeatCalendarOperator',
+    Modal.confirm({
+      wrapClassName: 'repeatCalendarOperator',
       width: 420,
       title: operatorTitle,
-      children: <div></div>,
+      content: <div></div>,
+      okButtonProps: { danger },
       onOk: () => {
         recurCalendarUpdateFun(!isChildCalendar);
       },
-      handleClose: () => {
+      onCancel: () => {
         if (_.isFunction(callback)) {
           callback();
         }
-
-        $('.repeatCalendarOperator').parent().remove();
       },
     });
   }

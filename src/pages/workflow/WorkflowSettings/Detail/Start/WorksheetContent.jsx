@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Dropdown, Radio } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
 import { APP_TYPE, TRIGGER_ID } from '../../enum';
 import { SelectFields, TriggerCondition } from '../components';
 
@@ -18,9 +18,8 @@ export default ({
   const isSheet = data.appType === APP_TYPE.SHEET;
   const appList = data.appList.map(item => {
     return {
-      text: item.name,
+      label: item.name,
       value: item.id,
-      className: item.id === data.appId ? 'colorPrimary' : '',
     };
   });
   const TYPES = [
@@ -40,14 +39,14 @@ export default ({
       </div>
       <div className="workflowDetailBox mTop20">
         <div className="Font13 bold">{_l('选择工作表')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown flowDropdownBorder mTop10"
           disabled={data.appId && !isSheet}
-          data={appList}
+          options={appList}
           value={data.appId || undefined}
-          border
-          openSearch
-          noData={_l('暂无工作表，请先在应用里创建')}
+          showSearch
+          optionFilterProp="label"
+          notFoundContent={_l('暂无工作表，请先在应用里创建')}
           placeholder={_l('请选择一个工作表，开始配置流程')}
           onChange={switchWorksheet}
         />
@@ -55,16 +54,22 @@ export default ({
         <div className="Font13 bold mTop20">{isSheet ? _l('触发方式') : _l('订阅事件类型')}</div>
 
         {TYPES.filter(o => o.value !== TRIGGER_ID.EDIT || isSheet).map(item => (
-          <div className="mTop15" key={item.value}>
+          <div className="mTop12" key={item.value}>
             <Radio
-              text={item.text}
-              className="Font15"
+              className="Font14"
               checked={data.triggerId === item.value}
-              onClick={() => updateSource({ triggerId: item.value })}
-            />
+              onChange={() =>
+                updateSource({
+                  triggerId: item.value,
+                })
+              }
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
             {item.selectFields && data.triggerId === item.value && (
               <Fragment>
-                <div className="mLeft30 bold mTop8 Font13" style={{ marginBottom: -5 }}>
+                <div className="mLeft30 bold mTop12 Font13" style={{ marginBottom: -5 }}>
                   {_l('选择触发字段')}
                 </div>
                 <div className="mLeft30">
@@ -74,7 +79,7 @@ export default ({
                     updateSource={ids => updateSource({ assignFieldIds: ids })}
                   />
                   <div className="textSecondary mTop5 Font13">
-                    {_l('当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发')}
+                    {_l('当以上指定的其中一个字段新增或更新时将触发流程，如未指定则表示任何字段新增或更新时都会触发')}
                   </div>
                 </div>
               </Fragment>

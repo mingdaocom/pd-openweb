@@ -1,20 +1,22 @@
 import React from 'react';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import { Icon, LoadDiv, SortableList, Support, UpgradeIcon } from 'ming-ui';
+import { Button, Drawer } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import systemIntegrationAjax from 'src/api/systemIntegration';
 import sheetAjax from 'src/api/worksheet';
-import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { usePrintQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PRINT_TYPE } from 'src/pages/Print/core/config';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import CloudPrint from '../../components/CloudPrint';
 import EditPrint from '../../components/EditPrint';
 import PrintTemDialog from '../../components/PrintTemDialog';
 import KuaiMaiIcon from './assets/kuaimai.png';
-import openKuaiMaiDialog from './BindKuaiMaiDialog';
-import PrintSortableItem from './PrintSortableItem';
+import { useBindKuaiMaiDialog } from './components/BindKuaiMaiDialog';
+import { PrintCountSettingCard } from './components/PrintCountSetting';
+import PrintSortableItem from './components/PrintSortableItem';
 import './style.less';
 
 const MAX_PRINT_COUNT = 500;
@@ -24,6 +26,16 @@ const PRINT_TYPE_CLASSIFY = {
   1: [PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT],
   6: [PRINT_TYPE.CLOUD_PRINT],
 };
+
+const getTemplatePrintLimitCount = item => {
+  const count = Number(_.find(item.advanceSettings, { key: 'print_limit_count' })?.value);
+  return count > 0 ? count : 1;
+};
+
+const getTemplatePrintLimit = item =>
+  _.find(item.advanceSettings, { key: 'print_limit_enabled' })?.value === '1'
+    ? getTemplatePrintLimitCount(item)
+    : undefined;
 
 class CreatePrintDrawer extends React.Component {
   constructor(props) {
@@ -47,14 +59,14 @@ class CreatePrintDrawer extends React.Component {
 
     return (
       <Drawer
-        width={400}
-        className="printTempDrawer"
+        size={400}
+        rootClassName="printTempDrawer"
         title={_l('创建打印模板')}
         placement="right"
         mask={false}
         closeIcon={<Icon className="textTertiary" icon="close" onClick={onCloseDrawer} />}
         onClose={onCloseDrawer}
-        visible={visible}
+        open={visible}
       >
         <p className="printTempDrawerListTitle">{_l('通过系统默认打印创建')}</p>
         <div className="printTempDrawerListItem" onClick={addNewRecordPrintTemp}>
@@ -130,6 +142,7 @@ class CreatePrintDrawer extends React.Component {
 class Print extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       showEditPrint: false,
       templateId: '', // 当前正在编辑的模板ID
@@ -143,14 +156,12 @@ class Print extends React.Component {
       loading: false,
       sortIds: [],
       exampleData: {},
-      bindKuaiMai: false,
       showCloudPrint: false,
     };
   }
   componentDidMount() {
     const { worksheetId } = this.props;
     this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
-    this.checkedCloudPrint();
   }
 
   loadPrint = ({ worksheetId }) => {
@@ -252,18 +263,9 @@ class Print extends React.Component {
     });
   };
 
-  // 校验是否集成云打印
-  checkedCloudPrint = () => {
-    const { worksheetInfo = {} } = this.props;
-
-    systemIntegrationAjax.getSystemIntegrationList({ projectId: worksheetInfo.projectId, type: 1 }).then(res => {
-      this.setState({ bindKuaiMai: res.length >= 1 });
-    });
-  };
-
-  addKuaiMaiPrintTemp = () => {
-    const { worksheetInfo = {} } = this.props;
-    const { bindKuaiMai } = this.state;
+  addKuaiMaiPrintTemp = async () => {
+    const { worksheetInfo = {}, worksheetId } = this.props;
+    if (this.checkingCloudPrint) return;
 
     const featureType = getFeatureStatus(worksheetInfo.projectId, VersionProductType.wordPrintTemplate);
 
@@ -272,13 +274,30 @@ class Print extends React.Component {
       return;
     }
 
+    let bindKuaiMai;
+    this.checkingCloudPrint = true;
+    try {
+      bindKuaiMai = await systemIntegrationAjax.getCloudPrintStatus({ worksheetId }, { silent: true });
+      if (typeof bindKuaiMai !== 'boolean') {
+        alert(_l('查询云打印绑定状态失败，请稍后重试'), 2);
+        return;
+      }
+    } catch {
+      alert(_l('查询云打印绑定状态失败，请稍后重试'), 2);
+      return;
+    } finally {
+      this.checkingCloudPrint = false;
+    }
+
+    if (this.props.worksheetId !== worksheetId) return;
+
     if (bindKuaiMai) {
       this.setState({
         showCloudPrint: true,
         showCreatePrintTemp: false,
       });
     } else {
-      openKuaiMaiDialog({
+      this.props.openBindKuaiMaiDialog({
         projectId: worksheetInfo.projectId,
         onOk: () => {
           this.setState({
@@ -296,7 +315,7 @@ class Print extends React.Component {
     if (this.checkedPrintTempCount()) return;
 
     this.setState({ showCreatePrintTemp: false });
-    printQrBarCode({
+    this.props.openPrintQrBarCode({
       isCharge: true,
       mode: 'newTemplate',
       printType: type === PRINT_TYPE.QR_CODE_PRINT ? 1 : 3,
@@ -309,7 +328,33 @@ class Print extends React.Component {
     });
   };
 
-  renderPrintItem = (data, type) => {
+  updateTemplatePrintLimit = (templateId, count, previousCount) => {
+    const { worksheetInfo = {}, worksheetId } = this.props;
+    const enabled = count !== null;
+
+    return sheetAjax
+      .editPrintCountConfig({
+        projectId: worksheetInfo.projectId,
+        worksheetId,
+        printId: templateId,
+        printLimitEnabled: enabled,
+        ...(enabled || previousCount ? { printLimitCount: enabled ? count : previousCount } : {}),
+      })
+      .then(res => {
+        if (!res) {
+          throw new Error('Failed to update print count limit');
+        }
+
+        this.loadPrint({ worksheetId });
+      });
+  };
+
+  openPrintCountUpgradeDialog = () => {
+    const { worksheetInfo = {} } = this.props;
+    buriedUpgradeVersionDialog(worksheetInfo.projectId, VersionProductType.printCountLimit);
+  };
+
+  renderPrintItem = (data, type, printCountFeatureDisabled) => {
     const { worksheetInfo = {}, worksheetControls } = this.props;
 
     return (
@@ -322,12 +367,17 @@ class Print extends React.Component {
         renderItem={({ item, DragHandle }) => (
           <PrintSortableItem
             item={item}
+            printLimit={printCountFeatureDisabled ? undefined : getTemplatePrintLimit(item)}
+            printLimitCount={getTemplatePrintLimitCount(item)}
             DragHandle={DragHandle}
             worksheetInfo={worksheetInfo}
             worksheetControls={worksheetControls}
             updatePrint={this.updatePrint}
             changeState={this.changeState}
             loadPrint={this.loadPrint}
+            onPrintLimitChange={this.updateTemplatePrintLimit}
+            onPrintCountUpgrade={this.openPrintCountUpgradeDialog}
+            printCountFeatureDisabled={printCountFeatureDisabled}
           />
         )}
       />
@@ -340,17 +390,15 @@ class Print extends React.Component {
 
     return (
       <Drawer
-        width={480}
+        size={480}
         placement="right"
-        className="Absolute"
         zIndex={10}
         onClose={() => this.setState({ showEditPrint: false, type: '' })}
-        visible={showEditPrint}
-        maskClosable={false}
+        open={showEditPrint}
+        mask={{ enabled: false, closable: false }}
         closable={false}
         getContainer={false}
-        mask={false}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         <EditPrint
           type={type}
@@ -385,17 +433,15 @@ class Print extends React.Component {
 
     return (
       <Drawer
-        width={560}
+        size={560}
         placement="right"
-        className="Absolute"
         zIndex={10}
         onClose={() => this.setState({ showCloudPrint: false })}
-        visible={showCloudPrint}
-        maskClosable={false}
+        open={showCloudPrint}
+        mask={{ enabled: false, closable: false }}
         closable={false}
         getContainer={false}
-        mask={false}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         <CloudPrint
           type={type}
@@ -410,6 +456,9 @@ class Print extends React.Component {
 
   renderCon = () => {
     const { printData = [] } = this.state;
+    const { worksheetInfo = {} } = this.props;
+    const printCountFeatureDisabled =
+      getFeatureStatus(worksheetInfo.projectId, VersionProductType.printCountLimit) === '2';
     const defaultTemData = printData.filter(it => PRINT_TYPE_CLASSIFY[0].includes(it.type)); //记录打印
     const codeTemData = printData.filter(it => PRINT_TYPE_CLASSIFY[1].includes(it.type)); //条码打印
     const cloudTemData = printData.filter(it => it.type === PRINT_TYPE.CLOUD_PRINT); //云打印
@@ -417,10 +466,19 @@ class Print extends React.Component {
     return (
       <div className="printBox Relative">
         <div className="printBoxList">
-          <div className="h100 overflowHidden">
+          <div className="h100 overflowHidden flexColumn">
+            <h5 className="formName textPrimary Font17 Bold">{_l('打印模板')}</h5>
+            <div className="printSettingSection">
+              <div className="Font15 Bold textPrimary">{_l('打印次数')}</div>
+              <PrintCountSettingCard
+                worksheetInfo={worksheetInfo}
+                disabled={printCountFeatureDisabled}
+                onChange={this.props.onChange}
+              />
+            </div>
             <div className="topBoxText">
               <div className="textCon">
-                <h5 className="formName textPrimary Font17 Bold">{_l('打印模板')}</h5>
+                <h5 className="formName textPrimary Font15 Bold">{_l('模版列表')}</h5>
                 <p className="desc mTop8">
                   <span className="Font13 textTertiary">
                     {_l('保存系统打印配置模板，或上传 Word、Excel 模板自定义记录打印样式，同时新增云打印功能。')}
@@ -428,10 +486,14 @@ class Print extends React.Component {
                   <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/print-template" />
                 </p>
               </div>
-              <span className="add Relative bold" onClick={() => this.setState({ showCreatePrintTemp: true })}>
-                <Icon icon="plus" className="mRight8" />
+              <Button
+                type="primary"
+                shape="round"
+                icon={<Icon icon="plus" />}
+                onClick={() => this.setState({ showCreatePrintTemp: true })}
+              >
                 {_l('新建模板')}
-              </span>
+              </Button>
             </div>
             {printData.length <= 0 ? (
               <p className="noData">
@@ -445,6 +507,7 @@ class Print extends React.Component {
                   <div className="printTemplatesList-header">
                     <div className="name flex mRight20 valignWrapper overflow_ellipsis pLeft35">{_l('名称')}</div>
                     <div className="views flex mRight20">{_l('使用范围')}</div>
+                    <div className="printCountLimit w120px TxtCenter">{_l('次数限制')}</div>
                     <div className="action mRight8 w180px">{_l('操作')}</div>
                     <div className="more w80px"></div>
                   </div>
@@ -455,21 +518,21 @@ class Print extends React.Component {
                         {`（${defaultTemData.length}）`}
                       </p>
                     )}
-                    {defaultTemData.length > 0 && this.renderPrintItem(defaultTemData || [], 0)}
+                    {defaultTemData.length > 0 && this.renderPrintItem(defaultTemData, 0, printCountFeatureDisabled)}
                     {codeTemData.length > 0 && (
                       <p className="printTemTi">
                         {_l('条码打印')}
                         {`（${codeTemData.length}）`}
                       </p>
                     )}
-                    {codeTemData.length > 0 && this.renderPrintItem(codeTemData || [], 1)}
+                    {codeTemData.length > 0 && this.renderPrintItem(codeTemData, 1, printCountFeatureDisabled)}
                     {cloudTemData.length > 0 && (
                       <p className="printTemTi">
                         {_l('云打印')}
                         {`（${cloudTemData.length}）`}
                       </p>
                     )}
-                    {cloudTemData.length > 0 && this.renderPrintItem(cloudTemData || [], 6)}
+                    {cloudTemData.length > 0 && this.renderPrintItem(cloudTemData, 6, printCountFeatureDisabled)}
                   </div>
                 </div>
               </React.Fragment>
@@ -539,4 +602,7 @@ class Print extends React.Component {
   }
 }
 
-export default Print;
+export default withOpeners(Print, {
+  openPrintQrBarCode: usePrintQrBarCode,
+  openBindKuaiMaiDialog: useBindKuaiMaiDialog,
+});

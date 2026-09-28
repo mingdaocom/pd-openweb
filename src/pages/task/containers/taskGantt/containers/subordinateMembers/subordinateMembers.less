@@ -37,41 +37,6 @@
           font-size: 14px !important;
         }
       }
-      ul {
-        position: absolute;
-        top: 42px;
-        left: 5px;
-        right: 5px;
-        background: var(--color-background-primary);
-        padding: 6px 0;
-        z-index: 10;
-        max-height: 160px;
-        overflow: auto;
-        overflow-x: hidden;
-        li {
-          padding: 0 12px;
-          width: 100%;
-          box-sizing: border-box;
-          cursor: pointer;
-          height: 32px;
-          line-height: 32px;
-          vertical-align: top;
-          &:not(.active):not(:hover) {
-            background: var(--color-background-primary) !important;
-            color: var(--color-text-secondary) !important;
-          }
-          &:not(.active):hover {
-            color: var(--color-white) !important;
-          }
-          &.active {
-            background: var(--color-background-primary) !important;
-          }
-          i {
-            font-size: 14px;
-            margin-right: 8px;
-          }
-        }
-      }
     }
 
     .ganttMembersList {
@@ -201,48 +166,6 @@
     .ganttTextAlignLeft {
       text-align: left;
       width: 170px;
-    }
-    .ganttSubordinateAddMember {
-      width: 120px;
-      height: 30px;
-      line-height: 30px;
-      border-radius: 3px;
-      cursor: pointer;
-      border-style: solid;
-      border-width: 1px;
-    }
-  }
-}
-
-.ganttSubordinateBox {
-  position: absolute;
-  z-index: 100;
-  &.ganttSubordinateBox-hidden {
-    display: none;
-  }
-  .ganttSubordinateMembersOp {
-    width: 160px;
-    background: var(--color-background-primary);
-    padding: 6px 0;
-    li {
-      padding: 0 12px;
-      width: 100%;
-      box-sizing: border-box;
-      cursor: pointer;
-      height: 32px;
-      line-height: 32px;
-      vertical-align: top;
-      &:not(:hover) {
-        background: var(--color-background-primary) !important;
-        color: var(--color-text-secondary) !important;
-      }
-      &:hover {
-        color: var(--color-white) !important;
-      }
-      i {
-        font-size: 14px;
-        margin-right: 10px;
-      }
     }
   }
 }

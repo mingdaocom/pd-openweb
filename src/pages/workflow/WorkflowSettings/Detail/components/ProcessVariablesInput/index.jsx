@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import process from '../../../../api/process';
 import ProcessVariables from '../ProcessVariables';
 import UpdateFields from '../UpdateFields';
@@ -75,19 +75,12 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectPr
       />
 
       {showDialog && (
-        <Dialog
-          visible
-          width={800}
-          className="subProcessDialog"
-          onCancel={() => setShowDialog(false)}
-          onOk={saveProcessOptions}
-          title={_l('参数设置')}
-        >
+        <Modal open width={800} onCancel={() => setShowDialog(false)} onOk={saveProcessOptions} title={_l('参数设置')}>
           <ProcessVariables
             processVariables={processVariables}
             updateSource={({ processVariables }) => setProcessVariables(_.cloneDeep(processVariables))}
           />
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

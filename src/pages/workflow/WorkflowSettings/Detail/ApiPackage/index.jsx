@@ -6,7 +6,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
 import ConnectParam from 'src/pages/integration/components/ConnectParam';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import SelectApiPackage from '../../../components/SelectApiPackage';
 import { APP_TYPE } from '../../enum';
 import { DetailFooter, DetailHeader } from '../components';

@@ -1,10 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox } from 'ming-ui';
+import { Button, Checkbox } from 'ming-ui/antd-components';
 import chatbotAjax from 'src/pages/workflow/apiV2/chatbot';
 import Share from 'src/pages/worksheet/components/Share';
+import { buildChatbotShareProps } from './chatbotShare';
 
 const ShareOperateWrap = styled.div`
   width: 100%;
@@ -49,19 +50,31 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  .Button {
-    width: 108px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 `;
+
+// 一「组对话」= 一次用户提问及其对应的 AI 回复，因此组数按用户消息条数计算。
+// 不能用 selectedMessageIds.length / 2 推算：末条提问尚无回复、或多条 assistant 消息被
+// formatMessages 合并时，id 数与组数并非固定 2:1 关系。
+export function getShareGroupCounts({ messages = [], selectedMessageIds = [], isSelectAll = false }) {
+  const userMessages = messages.filter(message => message.role === 'user');
+  const totalCount = userMessages.length;
+  const selectedCount = isSelectAll
+    ? totalCount
+    : userMessages.filter(
+        message => selectedMessageIds.includes(message.modelMessageId) || selectedMessageIds.includes(message.id),
+      ).length;
+
+  return { selectedCount, totalCount };
+}
 
 export default function ShareOperate({
   from = 'chatbot',
   appId,
   chatbotId,
   conversationId,
+  // 分享的可见范围按应用所属组织提交，不传会回退到「当前组织」（localStorage / 第一个组织），
+  // 跨组织时会把分享挂到错误的组织下
+  projectId,
   isCharge,
   isSelectAll = false,
   messages,
@@ -74,14 +87,16 @@ export default function ShareOperate({
   const isAiAction = from === 'aiAction';
   const [shareVisible, setShareVisible] = useState(false);
   const [conversationName, setConversationName] = useState();
-  const [conversationIdForShare, setConversationIdForShare] = useState(conversationId);
-  const selectedCount = Math.floor(selectedMessageIds.length / 2);
+  const { selectedCount, totalCount } = getShareGroupCounts({ messages, selectedMessageIds, isSelectAll });
+  // 勾选态与「再点一次取消」必须同一口径：逐组手动勾满时勾选框已是选中态，
+  // 若取消再按 selectedMessageIds 与全量 modelMessageId 深比较（顺序、无 id 的实时消息都对不上），
+  // 首次点击会退化成「再全选一次」，画面无变化，需要点两次才清空。
+  const allSelected = isSelectAll || (!!totalCount && selectedCount === totalCount);
+  // 全选即分享整个会话，用原会话作锚点；否则按所选提问建一条新的分享会话（延后到开启分享时执行）
+  const selectedUserMessageIds = isSelectAll ? [] : selectedMessageIds.filter(id => id && id.length === 24);
   const operateComp = (
     <RightSection>
       <Button
-        type="ghostgray"
-        size="medium"
-        className="Font14"
         onClick={() => {
           setSelectedMessageIds([]);
           setShareMode(false);
@@ -90,36 +105,23 @@ export default function ShareOperate({
         {_l('取消')}
       </Button>
       <Button
-        type="success"
-        size="medium"
-        style={{ backgroundColor: 'var(--app-primary-color)' }}
+        color="var(--app-primary-color, var(--color-success))"
+        variant="solid"
+        icon={<i className="icon icon-share" />}
         onClick={async () => {
-          const res = await chatbotAjax.getConversation({
-            chatbotId,
-            conversationId,
-          });
-          console.log(res);
-          setConversationName(res.title);
-          if (isSelectAll) {
-            setShareVisible(true);
-          } else {
-            chatbotAjax
-              .addShareConversation({
-                chatbotId,
-                conversationId,
-                userMessageIds: selectedMessageIds.filter(id => id && id.length === 24),
-              })
-              .then(data => {
-                if (data.conversationId) {
-                  setConversationIdForShare(data.conversationId);
-                  setShareVisible(true);
-                }
-              });
+          try {
+            const res = await chatbotAjax.getConversation({
+              chatbotId,
+              conversationId,
+            });
+            setConversationName(res.title);
+          } catch (err) {
+            console.error('[chatbot-share] get conversation failed', err);
           }
+
+          setShareVisible(true);
         }}
-        className="Font14"
       >
-        <i className="icon icon-share Font16 mRight6"></i>
         {_l('分享')}
       </Button>
     </RightSection>
@@ -129,7 +131,7 @@ export default function ShareOperate({
       setShareVisible(false);
       setShareMode(false);
     }
-  }, [isSelectAll, selectedMessageIds]);
+  }, [isSelectAll, selectedMessageIds, setShareMode]);
   if (!isSelectAll && isEmpty(selectedMessageIds)) {
     return null;
   }
@@ -139,30 +141,24 @@ export default function ShareOperate({
       <WidthWrap style={{ maxWidth }} className={cx({ isAiAction })}>
         <LeftSection>
           <Checkbox
-            text={_l('全选')}
-            checked={isSelectAll || selectedMessageIds.length === messages.length}
-            onClick={() => {
-              if (isSelectAll) {
+            checked={allSelected}
+            onChange={() => {
+              if (allSelected) {
                 setIsSelectAll(false);
-              } else {
-                if (
-                  isEqual(
-                    selectedMessageIds,
-                    messages.map(message => message.modelMessageId),
-                  )
-                ) {
-                  setSelectedMessageIds([]);
-                } else {
-                  setSelectedMessageIds(messages.map(message => message.modelMessageId));
-                }
+                setSelectedMessageIds([]);
+                return;
               }
+
+              setSelectedMessageIds(messages.map(message => message.modelMessageId));
             }}
             className="textPrimary"
-          />
-          {!isSelectAll && !!selectedCount && (
+          >
+            {_l('全选')}
+          </Checkbox>
+          {!!totalCount && (
             <Fragment>
               <Divider />
-              <span className="Font13 textPrimary">{_l('已选择 %0 组对话', selectedCount)}</span>
+              <span className="Font13 textPrimary">{_l('已选择 %0 / %1 组对话', selectedCount, totalCount)}</span>
             </Fragment>
           )}
         </LeftSection>
@@ -171,17 +167,16 @@ export default function ShareOperate({
       {isAiAction && <div className="mTop10 t-flex t-justify-end">{operateComp}</div>}
       {shareVisible && (
         <Share
-          title={_l('分享对话: %0', conversationName)}
-          isCustomShare
-          from={from}
-          isCharge={isCharge}
-          privateShare={false}
-          params={{
+          {...buildChatbotShareProps({
+            from,
             appId,
-            sourceId: `${chatbotId}|${conversationIdForShare}`,
-            worksheetId: chatbotId,
+            chatbotId,
+            conversationId,
             title: conversationName,
-          }}
+            projectId,
+            isCharge,
+            messageIds: selectedUserMessageIds,
+          })}
           onClose={() => setShareVisible(false)}
         />
       )}

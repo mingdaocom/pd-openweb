@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 export const getCoverStyle = data => {
   const coverStyle = safeParse(_.get(data, 'advancedSetting.coverstyle'));

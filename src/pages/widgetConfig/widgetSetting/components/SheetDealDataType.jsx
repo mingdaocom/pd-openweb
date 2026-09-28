@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 
 const TIPS = {
   2: [
@@ -26,9 +25,15 @@ export default function SheetDealDataType({ data, onChange }) {
     <Fragment>
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={getinput === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { getinput: String(+!checked) }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                getinput: String(+event.target.checked),
+              }),
+            )
+          }
+          size="small"
         >
           <span style={{ marginRight: '4px' }}>{_l('在显示表单前先获取输入')}</span>
           <Tooltip placement="bottom" title={tip[0]}>
@@ -38,9 +43,15 @@ export default function SheetDealDataType({ data, onChange }) {
       </div>
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={getsave === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { getsave: String(+!checked) }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                getsave: String(+event.target.checked),
+              }),
+            )
+          }
+          size="small"
         >
           <span style={{ marginRight: '4px' }}>{_l('获取后直接提交表单')}</span>
           <Tooltip placement="bottom" title={tip[1]}>
@@ -51,9 +62,15 @@ export default function SheetDealDataType({ data, onChange }) {
       {getsave === '1' && (
         <div className="labelWrap pLeft24">
           <Checkbox
-            size="small"
             checked={createnext !== '0'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { createnext: String(+!checked) }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  createnext: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
           >
             <span style={{ marginRight: '4px' }}>{_l('提交后继续创建下一条')}</span>
           </Checkbox>

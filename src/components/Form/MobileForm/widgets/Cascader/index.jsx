@@ -3,14 +3,28 @@ import cx from 'classnames';
 import _ from 'lodash';
 import nzh from 'nzh';
 import PropTypes from 'prop-types';
-import { Checkbox, Icon, LoadDiv, MobileSearch, PopupWrapper, Radio, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, ScrollView } from 'ming-ui';
+import { Checkbox, Radio } from 'ming-ui/antd-components';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import sheetAjax from 'src/api/worksheet';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { sortPathsBySearchKeyword } from 'src/utils/domain/control/searchPath';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 import { CustomCommonCapsule } from '../../style';
-import { checkCellIsEmpty, sortPathsBySearchKeyword } from '../../tools/utils';
 import { CustomMobileCascadeControl, OptionWrap, PopupContentBox } from './style';
+
+const OPTION_STYLES = {
+  root: { flex: 1, display: 'flex', alignItems: 'center', marginRight: 20 },
+  label: {
+    paddingInlineStart: 12,
+    paddingInlineEnd: 0,
+    fontSize: 15,
+    wordBreak: 'break-all',
+    whiteSpace: 'normal',
+  },
+};
 
 const formatSearchData = (item, keywords) => {
   const searchPath = safeParse(item.searchPath) || [];
@@ -172,8 +186,9 @@ const Cascader = props => {
     }
 
     setLoading(true);
+    setIsError(false);
     const keywords = getKeywords();
-    ajax.current = sheetAjax.chooseRelationRows({
+    const request = sheetAjax.chooseRelationRows({
       worksheetId: dataSource,
       viewId,
       filterControls,
@@ -188,8 +203,13 @@ const Cascader = props => {
       relationWorksheetId: worksheetId,
     });
 
-    ajax.current
+    ajax.current = request;
+
+    request
       .then(result => {
+        // 旧搜索请求不再更新当前状态。
+        if (ajax.current !== request) return;
+
         if (result.resultCode === 1) {
           const { template } = result;
           const control = template.controls.find(item => item.attribute === 1);
@@ -210,7 +230,7 @@ const Cascader = props => {
             setLayersName((_.find(result.worksheet.views, item => item.viewId === viewId) || {}).layersName || []);
           }
 
-          ajax.current = '';
+          setIsError(false);
           cacheData.current = keywords ? result.data : _.uniqBy(cacheData.current.concat(result.data), 'rowid');
           deepDataUpdate(_.cloneDeep(options), data, rowId);
           if (isFirstLoad) {
@@ -221,9 +241,14 @@ const Cascader = props => {
         }
       })
       .catch(err => {
-        setIsError(err.errorCode === 300016 ? err.errorCode : err.errorMessage);
+        if (ajax.current !== request) return;
+
+        setIsError(err?.errorCode === 300016 ? err.errorCode : err?.errorMessage || true);
       })
       .finally(() => {
+        if (ajax.current !== request) return;
+
+        ajax.current = null;
         setLoading(false);
       });
   };
@@ -373,10 +398,12 @@ const Cascader = props => {
       >
         {isMultiple && item.isLeaf ? (
           <Checkbox
-            text={keywords ? formatSearchData(item, keywords) : item.label}
             checked={selectItems.some(selected => selected.id === item.value)}
-            onClick={() => handleCheckboxClick(item)}
-          />
+            styles={OPTION_STYLES}
+            onChange={() => handleCheckboxClick(item)}
+          >
+            {keywords ? formatSearchData(item, keywords) : item.label}
+          </Checkbox>
         ) : (
           <div className="simpleContent">{keywords ? formatSearchData(item, keywords) : item.label}</div>
         )}
@@ -394,16 +421,28 @@ const Cascader = props => {
     <OptionWrap className="advanced">
       {isMultiple ? (
         <Checkbox
-          text={item.label}
           checked={selectItems.some(selected => selected.id === item.value)}
-          onClick={() => handleCheckboxClick(item)}
-        />
+          styles={OPTION_STYLES}
+          onChange={() => handleCheckboxClick(item)}
+        >
+          {item.label}
+        </Checkbox>
       ) : (
         <Radio
-          text={item.label}
           checked={selectItems.some(selected => selected.id === item.value)}
-          onClick={() => setSelectItems([{ id: item.value, label: item.label }])}
-        />
+          styles={OPTION_STYLES}
+          onChange={() =>
+            setSelectItems([
+              {
+                id: item.value,
+                label: item.label,
+              },
+            ])
+          }
+          title={item.label}
+        >
+          {item.label}
+        </Radio>
       )}
       {!item.isLeaf && (
         <Fragment>
@@ -534,7 +573,7 @@ const Cascader = props => {
   return (
     <Fragment>
       <CustomMobileCascadeControl
-        hasMultipleValues={isMultiple && selectedValues.length}
+        $hasMultipleValues={isMultiple && selectedValues.length}
         className={cx('customFormControlBox controlMinHeight', {
           controlEditReadonly: !formDisabled && selectedValues.length && disabled,
           controlDisabled: formDisabled,

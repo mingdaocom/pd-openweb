@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import worksheetApi from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 
 export function handleBatchUpdateRecords({
   appId,

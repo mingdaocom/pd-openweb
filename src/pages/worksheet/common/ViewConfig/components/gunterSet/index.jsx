@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import cx from 'classnames';
+import React from 'react';
 import _ from 'lodash';
-import { Checkbox, Icon } from 'ming-ui';
+import { Checkbox, Segmented, Switch } from 'ming-ui/antd-components';
 import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet.jsx';
 import TitleControl from 'src/pages/worksheet/common/ViewConfig/components/TitleControl.jsx';
-import { ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
 import DisplayControl from '../DisplayControl';
 import DropDownSet from '../DropDownSet';
 import Group from '../Group';
 import SelectStartOrEnd from '../SelectStartOrEndControl/SelectStartOrEnd';
+import WeekdaySegmented from '../WeekdaySegmented';
 
 let obj = [
   { txt: _l('日'), key: '0' },
@@ -29,14 +26,12 @@ export default function GunterSet(props) {
   const { appId, view, updateCurrentView, worksheetControls = [] } = props;
   const { advancedSetting = {} } = view;
   const { calendartype = '0', unweekday = '', milepost, showgroupcolor } = advancedSetting;
-  let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
-  let [timeControls, setTimeControls] = useState(getControlsForGunter(worksheetControls));
+  const checkedWorkDate = unweekday !== '';
+  const timeControls = getControlsForGunter(worksheetControls);
   const { begindate = '', enddate = '' } = getAdvanceSetting(view);
   const beginIsDel = begindate && !worksheetControls.find(item => item.controlId === begindate);
   const endIsDel = enddate && !worksheetControls.find(item => item.controlId === enddate);
-  useEffect(() => {
-    setCheckedWorkDate(unweekday !== '');
-  }, [unweekday]);
+
   const handleChange = obj => {
     updateCurrentView({
       ...view,
@@ -46,9 +41,6 @@ export default function GunterSet(props) {
     });
   };
 
-  useEffect(() => {
-    setTimeControls(getControlsForGunter(worksheetControls));
-  }, [worksheetControls]);
   return (
     <React.Fragment>
       <div className="title Font13 bold">{_l('日期')}</div>
@@ -155,11 +147,11 @@ export default function GunterSet(props) {
       <Group {...props} />
       {_.get(view, 'viewControl') &&
         [9, 10, 11].includes((worksheetControls.find(o => o.controlId === _.get(view, 'viewControl')) || {}).type) && (
-          <SwitchStyle className="flexRow alignItemsCenter mTop8">
-            <Icon
-              icon={showgroupcolor === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font28 Hand"
-              onClick={() => {
+          <div className="flexRow alignItemsCenter viewConfigSwitchRow mTop8">
+            <Switch
+              size="mini"
+              checked={showgroupcolor === '1'}
+              onChange={() => {
                 updateCurrentView({
                   ...view,
                   appId,
@@ -172,7 +164,7 @@ export default function GunterSet(props) {
               }}
             />
             <div className="mLeft12">{_l('显示分组颜色')}</div>
-          </SwitchStyle>
+          </div>
         )}
       {view.viewControl && (
         <NavSet
@@ -182,67 +174,35 @@ export default function GunterSet(props) {
         />
       )}
       <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
-      <AnimationWrap className="mTop8">
-        {obj.map(it => {
-          return (
-            <div
-              className={cx('animaItem overflow_ellipsis', { active: it.key === calendartype })}
-              onClick={() => {
-                handleChange({ calendartype: it.key });
-              }}
-            >
-              {it.txt}
-            </div>
-          );
-        })}
-      </AnimationWrap>
+      <Segmented
+        block
+        className="mTop8"
+        value={calendartype}
+        options={obj.map(({ key, txt }) => ({ value: key, label: txt }))}
+        onChange={value => handleChange({ calendartype: value })}
+      />
       <div className="title Font13 bold mTop32">{_l('设置')}</div>
-      <ShowChoose>
+      <div>
         <Checkbox
           checked={checkedWorkDate}
           className="mTop18"
-          onClick={e => {
-            if (!checkedWorkDate) {
-              handleChange({ unweekday: '67' });
-            } else {
-              handleChange({ unweekday: '' });
-            }
-
-            setCheckedWorkDate(e);
+          onChange={event => {
+            handleChange({
+              unweekday: event.target.checked ? '67' : '',
+            });
           }}
-          text={_l('只显示工作日')}
-        />
+        >
+          {_l('只显示工作日')}
+        </Checkbox>
         {checkedWorkDate && (
-          <AnimationWrap className="hiddenDaysBox mTop18">
-            {weekObj.map((it, i) => {
-              let n = i + 1;
-              return (
-                <div
-                  className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
-                  onClick={() => {
-                    let str = unweekday;
-
-                    if (unweekday.indexOf(n) >= 0) {
-                      str = str.replace(n, '');
-                    } else {
-                      str = `${str}` + n;
-                    }
-
-                    if (str.length >= 7) {
-                      //不能全部选中
-                      return;
-                    }
-
-                    handleChange({ unweekday: str });
-                  }}
-                >
-                  {it}
-                </div>
-              );
-            })}
-          </AnimationWrap>
+          <WeekdaySegmented
+            className="mTop18"
+            weekdays={weekObj}
+            hiddenDays={unweekday}
+            onChange={value => handleChange({ unweekday: value })}
+          />
         )}
-      </ShowChoose>
+      </div>
     </React.Fragment>
   );
 }

@@ -7,7 +7,7 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { reportTypes } from '../Charts/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import Sort from '../components/Sort';
 import * as actions from '../redux/actions.js';
 
@@ -37,7 +37,7 @@ const Operation = ({
   const { pivotTableColumnWidthConfig } = style || {};
   return (
     <div className="flexRow valignWrapper">
-      {_.get(window, 'shareState.isPublicChart') && !window.platformENV.isOverseas && !window.platformENV.isLocal && (
+      {_.get(window, 'shareState.isPublicChart') && window.platformENV.isHap && (
         <div className="valignWrapper textSecondary">
           <CreateByMingDaoYun />
         </div>

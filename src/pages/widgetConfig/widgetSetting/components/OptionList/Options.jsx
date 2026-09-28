@@ -9,16 +9,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { ColorPicker, SortableList } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import 'src/pages/widgetConfig/styled/style.less';
-import { getUnUniqName } from 'src/utils/common';
-import { isLightColor } from 'src/utils/control';
-import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
+import { getUnUniqName } from 'src/utils/core/string';
+import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from 'src/utils/domain/control/config';
+import { isLightColor } from 'src/utils/domain/control/style';
 import AssignValue from './AssignValue';
 import BatchAdd from './BatchAdd';
-import 'rc-trigger/assets/index.css';
 
 const OptionsWrap = styled.div`
   margin-top: 8px;
-  border: ${({ showBorder }) => (showBorder ? '1px solid rgba(253 ,180,50 ,0.3)' : 'none')};
+  border: ${({ $showBorder }) => ($showBorder ? '1px solid rgba(253 ,180,50 ,0.3)' : 'none')};
   .dragPointer {
     &:hover {
       cursor: move;
@@ -95,20 +94,14 @@ const DragItem = styled.div`
   }
 
   .optionContent {
-    margin-left: ${props => (props.isOther ? '21px' : '8px')};
+    margin-left: ${props => (props.$isOther ? '21px' : '8px')};
     padding-right: 8px;
     display: flex;
     align-items: center;
     flex: 1;
     align-items: center;
-    border-bottom: 1px solid --color-background-disabled;
-    border-color: ${props => (props.isFocus ? 'var(--color-primary)' : 'var(--color-background-disabled)')};
-  }
-
-  .checkWrap {
-    .ming.Checkbox {
-      height: 18px;
-    }
+    border-bottom: 1px solid var(--color-background-disabled);
+    border-color: ${props => (props.$isFocus ? 'var(--color-primary)' : 'var(--color-background-disabled)')};
   }
 
   .optionName {
@@ -120,7 +113,7 @@ const DragItem = styled.div`
       }
     }
   }
-  .ming.Radio {
+  .ant-radio-wrapper {
     margin: 0;
   }
 
@@ -130,7 +123,7 @@ const DragItem = styled.div`
     outline: none;
     line-height: 37px;
     &:hover {
-      ${props => (props.isFocus ? '' : 'background: var(--color-background-secondary);cursor: pointer;')};
+      ${props => (props.$isFocus ? '' : 'background: var(--color-background-secondary);cursor: pointer;')};
     }
   }
   .deleteWrap {
@@ -176,7 +169,7 @@ function OptionItem({
   };
 
   return (
-    <DragItem isOther={isOther} isFocus={isFocus} key={optionKey}>
+    <DragItem $isOther={isOther} $isFocus={isFocus} key={optionKey}>
       {!isDeleted && (
         <Fragment>
           {!isOther && renderDragHandle()}
@@ -412,8 +405,9 @@ function SelectOptions(props, ref) {
   const showBorder = isDialog && isDrag && windowHeight - 340 < options.length * 40;
 
   return (
-    <OptionsWrap ref={wrapRef} className={className} showBorder={showBorder}>
+    <OptionsWrap ref={wrapRef} className={className} $showBorder={showBorder}>
       <SortableList
+        renderBody
         useDragHandle
         items={options}
         itemKey="key"

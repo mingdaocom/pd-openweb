@@ -1,9 +1,9 @@
 import React from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import ChangeLang from 'src/components/ChangeLang';
+import ChangeLang from 'src/pages/AuthService/components/ChangeLang';
 import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { WrapContainer } from '../style';
 import { statusList } from '../util';
 import LoginContainer from './LoginContainer';

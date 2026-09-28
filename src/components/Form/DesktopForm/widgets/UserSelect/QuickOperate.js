@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import { Popover } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import UserController from 'src/api/user';
-import { WIDGET_VALUE_ID } from 'src/components/Form/core/config';
-import { pathCompletion } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
+import { controlState } from 'src/utils/domain/control/state';
+import { WIDGET_VALUE_ID } from 'src/utils/domain/control/value';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const QuickOperateWrap = styled.div`
   .operateItem {
@@ -201,11 +201,13 @@ export default function QuickOperate(props) {
       <Fragment>
         {item.value === 'chat' && <div className="showLine"></div>}
         <Popover
-          overlayClassName="quickConfigPopover"
+          arrow={true}
+          classNames={{ root: 'quickConfigPopover' }}
           title={null}
-          visible={showId === item.value}
+          open={showId === item.value}
           placement="rightTop"
-          onVisibleChange={visible => setShowId(visible ? item.value : '')}
+          noPadding
+          onOpenChange={visible => setShowId(visible ? item.value : '')}
           content={item.isPopover ? renderSelect(item) : null}
         >
           <div className="operateItem" onClick={() => (item.isPopover ? {} : handleClick(item))}>

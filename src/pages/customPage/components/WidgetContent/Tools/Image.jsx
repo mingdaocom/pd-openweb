@@ -1,10 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Input, Popover, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, QiniuUpload } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Input, Popover, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
 import { TabsSettingPopover } from './styled.js';
 
 const actionType = [
@@ -155,16 +154,18 @@ export default props => {
 
   return (
     <Popover
-      zIndex={1000}
       placement="bottomLeft"
-      overlayClassName="tabsSettingPopover"
-      arrowPointAtCenter={true}
+      classNames={{ root: 'tabsSettingPopover' }}
+      arrow={{ pointAtCenter: true }}
       mouseLeaveDelay={0.3}
-      overlayInnerStyle={{
-        padding: 24,
+      destroyOnHidden={false}
+      styles={{
+        body: {
+          padding: 24,
+        },
       }}
-      visible={popoverVisible}
-      onVisibleChange={visible => {
+      open={popoverVisible}
+      onOpenChange={visible => {
         if (isEdit) return;
         setPopoverVisible(visible);
       }}
@@ -193,43 +194,47 @@ export default props => {
           />
           <div className="flexRow valignWrapper mTop15 mBottom10">
             <div className="bold mRight10">{_l('显示方式')}</div>
-            <div className="typeSelect flex flexRow valignWrapper">
-              <div
-                className={cx('centerAlign flex pointer textSecondary', { active: showType === 1 })}
-                onClick={() => handleChangeConfig({ showType: 1 })}
-              >
-                {_l('透明')}
-              </div>
-              <div
-                className={cx('centerAlign flex pointer textSecondary', { active: showType === 2 })}
-                onClick={() => handleChangeConfig({ showType: 2 })}
-              >
-                {_l('卡片')}
-              </div>
-            </div>
+            <Segmented
+              block
+              className="flex"
+              options={[
+                { label: _l('透明'), value: 1 },
+                { label: _l('卡片'), value: 2 },
+              ]}
+              value={showType}
+              onChange={value => handleChangeConfig({ showType: value })}
+            />
           </div>
           <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('填充方式')}</div>
           <Select
-            className="mdAntSelect w100"
+            className="w100"
             value={fill}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-            onChange={value => {
-              handleChangeConfig({ fill: value });
-            }}
-          >
-            {fillType.map(c => (
-              <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
+            options={fillType.map(c => ({
+              value: c.value,
+              label: (
                 <div className="valignWrapper h100">
                   <span className="Font13 ellipsis">{c.name}</span>
                 </div>
-              </Select.Option>
-            ))}
-          </Select>
+              ),
+            }))}
+            onChange={value => {
+              handleChangeConfig({ fill: value });
+            }}
+          />
           <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('点击图片时')}</div>
           <Select
-            className="mdAntSelect w100"
+            className="w100"
             value={action}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            options={actionType.map(c => ({
+              value: c.value,
+              label: (
+                <div className="valignWrapper h100">
+                  <span className="Font13 ellipsis">{c.name}</span>
+                </div>
+              ),
+            }))}
             onChange={value => {
               const data = { action: value };
 
@@ -239,15 +244,7 @@ export default props => {
 
               handleChangeConfig(data);
             }}
-          >
-            {actionType.map(c => (
-              <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
-                <div className="valignWrapper h100">
-                  <span className="Font13 ellipsis">{c.name}</span>
-                </div>
-              </Select.Option>
-            ))}
-          </Select>
+          />
           {action === 2 && (
             <Fragment>
               <Input
@@ -268,21 +265,21 @@ export default props => {
               />
               <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('打开方式')}</div>
               <Select
-                className="mdAntSelect w100"
+                className="w100"
                 value={openMode}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-                onChange={value => {
-                  handleChangeConfig({ openMode: value });
-                }}
-              >
-                {openModeType.map(c => (
-                  <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
+                options={openModeType.map(c => ({
+                  value: c.value,
+                  label: (
                     <div className="valignWrapper h100">
                       <span className="Font13 ellipsis">{c.name}</span>
                     </div>
-                  </Select.Option>
-                ))}
-              </Select>
+                  ),
+                }))}
+                onChange={value => {
+                  handleChangeConfig({ openMode: value });
+                }}
+              />
             </Fragment>
           )}
           <ImageUploadWrap className="mTop15">
@@ -324,7 +321,6 @@ export default props => {
           </ImageUploadWrap>
         </TabsSettingPopover>
       }
-      getPopupContainer={() => document.body}
     >
       {renderItem()}
     </Popover>

@@ -1,24 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
-import { WHOLE_SIZE } from '../../config/Drag';
-import { SETTING_MODE_DISPLAY } from '../../config/setting';
-import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../../config/widget';
-import { IntroMenu, WidgetIntroWrap } from '../../styled';
-import {
-  canSetAsTitle,
-  checkWidgetMaxNumErr,
-  enumWidgetType,
-  getWidgetInfo,
-  isCustomWidget,
-  supportWidgetIntroOptions,
-} from '../../util';
-import { handleAdvancedSettingChange } from '../../util/setting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { supportWidgetIntroOptions } from 'src/utils/domain/control/capabilities';
+import { WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { canSetAsTitle, checkWidgetMaxNumErr, getWidgetInfo, isCustomWidget } from 'src/utils/domain/control/metadata';
+import { SETTING_MODE_DISPLAY } from 'src/utils/domain/control/setting';
+import { DEFAULT_CONFIG, DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType, WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { WidgetIntroWrap } from '../../styled';
 import { FixedIcon } from '../../widgetDisplay/components/WidgetStyle';
 import NoTitleControlDialog from './NoTitleControlDialog';
 
@@ -124,16 +118,18 @@ export default function WidgetIntro(props) {
       const isHaveCanSetAsTitle = _.some(relationControls, canSetAsTitle);
 
       if (isHaveCanSetAsTitle) {
-        Dialog.confirm({
+        Modal.confirm({
           title: _l('将子表转为工作表'),
-          description: _l(
+          content: _l(
             '将从空白创建的子表转为一个实体工作表。此工作表将成为当前表单的一个关联子表，并可以在应用配置、流程、权限中被使用',
           ),
           okText: _l('确定'),
           onOk: () => {
             window.clearLocalDataTime({
-              requestData: { worksheetId: dataSource },
-              clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+              requestData: {
+                worksheetId: dataSource,
+              },
+              clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
             });
             appManagementAjax
               .changeSheet({
@@ -147,7 +143,12 @@ export default function WidgetIntro(props) {
                     window.subListSheetConfig[controlId].mode = 'relate';
                   }
 
-                  onChange({ ...handleAdvancedSettingChange(data, { searchrange: '1' }), needUpdate: true });
+                  onChange({
+                    ...handleAdvancedSettingChange(data, {
+                      searchrange: '1',
+                    }),
+                    needUpdate: true,
+                  });
                   alert(_l('转换成功'));
                 } else {
                   alert(_l('转换失败'), 2);
@@ -244,9 +245,9 @@ export default function WidgetIntro(props) {
 
     // 关联记录
     if (type === 29) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('将关联记录字段转为子表字段'),
-        description: _l(
+        content: _l(
           '转为子表字段后，原关联记录字段中配置的筛选条件，以及与关联视图相关的权限、排序方式、自定义动作将被清除。',
         ),
         okText: _l('确定'),
@@ -295,9 +296,9 @@ export default function WidgetIntro(props) {
 
     // 公式
     if (type === 31 || type === 38) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('变更字段类型'),
-        description: _l(
+        content: _l(
           '此为不可逆操作，将公式变更为%0后，公式计算方式将丢失，保存后无法再转换为公式类型。你确定要进行变更吗？',
           info.widgetName,
         ),
@@ -316,9 +317,9 @@ export default function WidgetIntro(props) {
 
     // 子表
     if (type === 34) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('将子表转为关联记录'),
-        description: _l('将子表字段转为关联记录字段'),
+        content: _l('将子表字段转为关联记录字段'),
         okText: _l('确定'),
         onOk: () => {
           const sheetInfo = _.get(window, `subListSheetConfig.${data.controlId}.sheetInfo`);
@@ -348,9 +349,9 @@ export default function WidgetIntro(props) {
 
     // 富文本
     if (type === 41 && controlId) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('变更字段类型'),
-        description: _l('将富文本变更为普通文本后，文本样式、图片等信息将丢失。你确定要进行变更吗？'),
+        content: _l('将富文本变更为普通文本后，文本样式、图片等信息将丢失。你确定要进行变更吗？'),
         okText: _l('确定'),
         onOk: () => {
           onChange(newData);
@@ -371,40 +372,31 @@ export default function WidgetIntro(props) {
   return (
     <WidgetIntroWrap>
       <div className="title">
-        <Trigger
-          popup={() => {
-            return (
-              <IntroMenu>
-                {switchList.map(i => {
-                  return (
-                    <div className="menuItem" onClick={() => switchType(i)}>
-                      <Icon icon={i.icon} />
-                      {i.widgetName}
-                    </div>
-                  );
-                })}
-              </IntroMenu>
-            );
+        <Dropdown
+          menu={{
+            style: { width: 160 },
+            items: switchList.map(item => ({
+              key: item.type,
+              icon: <Icon icon={item.icon} />,
+              label: item.widgetName,
+              onClick: () => switchType(item),
+            })),
           }}
-          popupVisible={visible}
-          onPopupVisibleChange={visible => {
+          open={visible}
+          onOpenChange={visible => {
             if (!isAllowSwitch()) return;
             setVisible(visible);
           }}
-          action={['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 4],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          getPopupContainer={() => document.body}
+          trigger={['click']}
+          placement="bottomLeft"
+          disabled={!isAllowSwitch()}
         >
-          <div className={cx('switchType', { disabled: !isAllowSwitch })}>
+          <div className={cx('switchType', { disabled: !isAllowSwitch() })}>
             <Icon icon={icon} className="textSecondary Font18" />
             <span>{widgetName}</span>
             {isAllowSwitch() && <Icon icon="task_custom_btn_unfold" className="mLeft6 textSecondary" />}
           </div>
-        </Trigger>
+        </Dropdown>
         {from !== 'subList' && !isRecycle && <FixedIcon {...props} />}
       </div>
 

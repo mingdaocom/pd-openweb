@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import AppList from './AppList';
 import { tabData } from './constant';
 import ExportRecords from './ExportRecords';

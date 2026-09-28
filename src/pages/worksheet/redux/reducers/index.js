@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import boardView from './boardView';
 import * as calendarview from './calendarview';
 import * as customWidgetView from './customWidgetView';

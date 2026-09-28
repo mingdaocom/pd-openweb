@@ -7,12 +7,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import FixedPage from 'mobile/App/FixedPage.jsx';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
-import { getRequest } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
-import { mdAppResponse } from 'src/utils/project';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { mdAppResponse } from 'src/utils/services/project';
 import AppPermissions from '../components/AppPermissions';
 import * as actions from './redux/actions';
 import State from './State';
@@ -114,15 +114,21 @@ let RecordList = class RecordList extends Component {
     const { viewId } = base;
     const { detail } = appDetail;
     const { appNaviStyle } = detail;
-    let views = worksheetInfo.views.filter(
-      v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-    );
+    const { getFilters } = getRequest();
+    // App 嵌入入口按配置展示隐藏视图，与加载工作表时的视图选择保持一致。
+    const views =
+      getFilters === 'true'
+        ? worksheetInfo.views
+        : worksheetInfo.views.filter(
+            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+          );
     const view =
       _.find(views, {
         viewId,
       }) ||
       (!viewId && views[0]) ||
       {};
+
     const { params } = match;
     let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
 

@@ -4,16 +4,16 @@ import api from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, oneOf } from 'prop-types';
-import { Icon, VCenterIconText } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
 import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getAppFeaturesVisible } from 'src/utils/common';
-import { navigateTo } from '../../../../router/navigateTo';
+import { compareProps, getIds } from 'src/utils/domain/app/model';
+import { canEditApp } from 'src/utils/domain/permission/app';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
+import { navigateTo } from '../../../../router/navigation/navigateTo';
 import { updateAppGroup } from '../../redux/action';
-import { compareProps, getIds } from '../../util';
 import AppExtension from '../AppExtension';
 import { DEFAULT_CREATE } from '../config';
 import AppGroupIntro from './AppGroupIntro';
@@ -459,26 +459,17 @@ let DecoratedComponent = class DecoratedComponent extends Component {
     const renderContent = ({ count, waitingExamine }, onClick) => {
       return (
         <Tooltip title={_l('流程待办')}>
-          <VCenterIconText
-            onClick={onClick}
-            className="appExtensionItem"
-            icon="task_alt"
-            iconSize={20}
-            textSize={14}
-            iconStyle={{
-              margin: 0,
-            }}
-            text={
-              <Fragment>
-                {!!count && (
-                  <div className="flexRow alignItemsCenter mLeft6">
-                    <div className="count">{count}</div>
-                  </div>
-                )}
-                {!!waitingExamine && !count && <div className="weakCount"></div>}
-              </Fragment>
-            }
-          />
+          <div className="appExtensionItem flexRow alignItemsCenter" onClick={onClick}>
+            <Icon icon="task_alt" className="Font20" />
+            <Fragment>
+              {!!count && (
+                <div className="flexRow alignItemsCenter mLeft6">
+                  <div className="count">{count}</div>
+                </div>
+              )}
+              {!!waitingExamine && !count && <div className="weakCount"></div>}
+            </Fragment>
+          </div>
         </Tooltip>
       );
     }; // 获取url参数

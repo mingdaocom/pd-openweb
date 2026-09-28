@@ -4,12 +4,12 @@ import onlySyncBg from 'staticfiles/images/onlySync.png';
 import syncWithDealBg from 'staticfiles/images/syncWithDeal.png';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import taskFlowApi from 'src/pages/integration/api/taskFlow';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { DATABASE_TYPE, SYNC_TYPE } from '../../../constant';
 import OnlySyncStep from '../OnlySyncStep';
 
@@ -30,23 +30,6 @@ const SyncTaskWrapper = styled.div`
   .selectItem {
     width: 100%;
     font-size: 13px;
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border: 1px solid var(--color-border-tertiary) !important;
-      border-radius: 3px !important;
-      box-shadow: none !important;
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
-    &.disabled {
-      .ant-select-selector {
-        border: 0;
-      }
-    }
   }
   .tabNav {
     height: 32px;
@@ -103,7 +86,7 @@ const CardWrapper = styled.div`
   margin-top: 16px;
   cursor: pointer;
 
-  .Radio-text {
+  .ant-radio-label {
     font-size: 17px;
     font-weight: 500;
   }
@@ -169,7 +152,9 @@ export default function CreateSyncTask(props) {
           <p className="titleText">{_l('选择创建方式')}</p>
           <CardWrapper onClick={() => setSyncType(SYNC_TYPE.ONLY_SYNC)}>
             <div>
-              <Radio text={_l('仅同步数据')} checked={syncType === 'onlySync'} />
+              <Radio checked={syncType === 'onlySync'} title={_l('仅同步数据')}>
+                {_l('仅同步数据')}
+              </Radio>
               <div className="textTertiary mTop8 mLeft30">
                 {_l('批量创建同步任务，(后续可在任务列表中添加数据处理步骤）')}
               </div>
@@ -188,7 +173,9 @@ export default function CreateSyncTask(props) {
               }}
             >
               <div>
-                <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
+                <Radio checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} title={_l('同步时需要对数据进行处理')}>
+                  {_l('同步时需要对数据进行处理')}
+                </Radio>
                 <div className="textTertiary mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
               </div>
               <img src={syncWithDealBg} width={330} />

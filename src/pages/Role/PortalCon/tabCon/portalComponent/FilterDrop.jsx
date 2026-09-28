@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
@@ -10,10 +9,20 @@ import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 const ClickAwayable = ClickAway;
 
 const Popup = styled.div`
-  background: var(--color-background-card);
   width: 300px;
-  border-radius: 4px;
-  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
+  .filterHeader {
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding-left: 20px;
+    line-height: 44px;
+    font-size: 16px;
+    color: var(--color-text-title);
+  }
+  > .singleFilter.workSheetFilter {
+    width: auto;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
   .addFilterCondition {
     padding: 5px 20px 20px;
   }
@@ -31,55 +40,45 @@ export default function FilterDrop(props) {
       className="InlineBlock filterBox TxtTop"
       onClickAwayExceptions={[
         '.selectUserBox',
-        '.workSheetFilter',
+        '.portalFilterPopup',
         '.addFilterPopup',
-        '.dropdownTrigger',
         '.filterControlOptionsList',
-        '.mui-dialog-container',
-        '.mui-datetimepicker',
-        '.mui-datetimerangepicker',
+        '.hap-modal-wrap',
         '.worksheetFilterOperateList',
-        '.ant-picker-dropdown',
+        '.hap-picker-dropdown',
         '.CityPicker',
         '.CityPicker-wrapper',
-        '.ant-modal-wrap',
+        '.hap-modal-wrap',
       ]}
       onClick={() => setShow(true)}
       onClickAway={() => setShow(false)}
     >
-      <Trigger
-        action={['click']}
-        popupVisible={show}
-        popup={
-          <Popup className="workSheetFilter">
-            <div className="filterHeader">{_l('筛选')}</div>
-            <SingleFilter
-              canEdit
-              columns={controls.filter(o => !['avatar', 'firstLoginTime', 'roleid', 'status'].includes(o.alias))}
-              filters={filters}
-              onConditionsChange={conditions => {
-                setFilter(conditions);
-                setShow(true);
-              }}
-              appId={appId}
-            />
-          </Popup>
-        }
-        getPopupContainer={() => document.body}
-        popupClassName="filterTrigger"
-        popupAlign={{
-          points: ['tr', 'br'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
-        zIndex={100}
-      >
-        <Tooltip placement="bottom" title={_l('筛选')}>
+      <Tooltip placement="bottom" title={_l('筛选')}>
+        <Popover
+          noPadding
+          trigger="click"
+          open={show}
+          content={
+            <Popup className="portalFilterPopup">
+              <div className="filterHeader">{_l('筛选')}</div>
+              <SingleFilter
+                canEdit
+                columns={controls.filter(o => !['avatar', 'firstLoginTime', 'roleid', 'status'].includes(o.alias))}
+                filters={filters}
+                onConditionsChange={conditions => {
+                  setFilter(conditions);
+                  setShow(true);
+                }}
+                appId={appId}
+              />
+            </Popup>
+          }
+          getPopupContainer={() => document.body}
+          placement="bottomRight"
+        >
           <Icon className="mRight12 Font16 Hand actIcon InlineBlock TxtMiddle" icon="worksheet_filter" />
-        </Tooltip>
-      </Trigger>
+        </Popover>
+      </Tooltip>
     </ClickAwayable>
   );
 }

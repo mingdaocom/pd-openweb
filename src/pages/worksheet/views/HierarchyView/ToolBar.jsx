@@ -1,15 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled, { css } from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/styled';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
-import 'src/pages/worksheet/views/GunterView/Chart/components/ToolBar/index.less';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const SCALE_LIMIT = {
   min: 50,
@@ -27,7 +25,7 @@ const ToolBarWrap = styled(FlexCenter)`
   z-index: 9;
   box-shadow: var(--shadow-md);
   ${props =>
-    props.isMobile &&
+    props.$isMobile &&
     css`
       left: 0;
       bottom: 20px;
@@ -48,9 +46,6 @@ const ToolBarWrap = styled(FlexCenter)`
       color: var(--color-text-secondary);
     }
   }
-  .ant-select-selector {
-    border: none !important;
-  }
   .toOrigin {
     margin: 0 12px;
   }
@@ -65,38 +60,6 @@ const ToolBarWrap = styled(FlexCenter)`
   .scale {
     font-size: 13px;
     color: var(--color-text-title);
-  }
-  .expand {
-    .Dropdown--input {
-      padding: 5px 7px 5px 18px;
-      .value {
-        font-size: 13px;
-      }
-      .icon {
-        margin-left: 4px !important;
-      }
-    }
-  }
-`;
-
-const SelectWrap = styled(Select)`
-  width: 85px;
-  .ant-select-selector {
-    padding-left: 0 !important;
-  }
-  .ant-select-selection-item {
-    text-align: center;
-  }
-  &.ant-select-single.ant-select-open .ant-select-selection-item {
-    color: inherit;
-  }
-  .ant-select-selection-search-input {
-    display: none;
-  }
-  &:hover {
-    .icon-arrow-down {
-      color: var(--color-primary) !important;
-    }
   }
 `;
 
@@ -189,29 +152,36 @@ export default class ToolBar extends Component {
     const isMobile = browserIsMobile();
 
     return (
-      <ToolBarWrap isMobile={isMobile} className={cx('flexRow valignWrappe toolBarWrap', className)} style={style}>
+      <ToolBarWrap $isMobile={isMobile} className={cx('flexRow valignWrappe toolBarWrap', className)} style={style}>
         {isMobile ? (
           <div onClick={this.changeMobileDisplayLevel}>
             {(_.find(DISPLAY_HIERARCHY, v => v.value === level) || {}).name || _l('展开')}
             <Icon className="Font12 textTertiary mLeft6" icon="arrow-down" />
           </div>
         ) : (
-          <SelectWrap
+          <Select
+            styles={{
+              root: {
+                width: isMobile ? 60 : 85,
+              },
+              popup: {
+                root: {
+                  width: 120,
+                },
+              },
+            }}
             suffixIcon={<Icon className="Font12 textTertiary" icon="arrow-down" />}
             defaultActiveFirstOption={false}
             defaultOpen={false}
-            dropdownClassName="gunterToolBarSelectWrapper"
             value={level || _l('展开')}
-            bordered={false}
+            variant="borderless"
             virtual={false}
             onChange={this.changeDisplayLevel}
-          >
-            {DISPLAY_HIERARCHY.map(item => (
-              <Select.Option key={item.value} value={item.value} className="gunterToolBarSelectOptionWrapper">
-                {item.name}
-              </Select.Option>
-            ))}
-          </SelectWrap>
+            options={DISPLAY_HIERARCHY.map(item => ({
+              value: item.value,
+              label: item.name,
+            }))}
+          />
         )}
         {isMobile && <div className="line"></div>}
         {allowAdjustScale && (
@@ -239,9 +209,7 @@ export default class ToolBar extends Component {
               <Fragment>
                 <div className="line"></div>
                 <SearchRecord
-                  overlayClassName={
-                    isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'
-                  }
+                  popupClassName={isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'}
                   queryKey={searchData.queryKey}
                   data={searchData.data}
                   onSearch={record => {

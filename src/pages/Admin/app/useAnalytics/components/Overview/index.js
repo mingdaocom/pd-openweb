@@ -1,11 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Segmented, Select, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
@@ -13,10 +11,17 @@ import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import { formatValue } from 'src/pages/Admin/homePage/utils.js';
-import { formatFileSize, pathCompletion } from 'src/utils/common';
-import { dateDimension, formatChartData, formatter, selectDateList } from '../../util';
+import { formatFileSize } from 'src/utils/core/file';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { formatChartData, formatter, getDayRangeByDateValue, USE_ANALYTICS_HIDDEN_DATE_VALUES } from '../../util';
 import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
+
+const getDimensionOptions = () => [
+  { value: '1d', label: _l('天') },
+  { value: '1w', label: _l('周') },
+  { value: '1M', label: _l('月') },
+];
 
 const Summary = styled.div`
   background-color: var(--color-background-primary);
@@ -60,46 +65,6 @@ const ChartWrap = styled.div`
     .selectCondition {
       .width200 {
         width: 200px;
-      }
-      .ant-select {
-        height: 36px;
-        border-radius: 3px;
-        .ant-select-selector {
-          height: 36px;
-          border: 1px solid var(--color-border-secondary);
-          border-radius: 3px;
-          .ant-select-selection-item {
-            line-height: 34px;
-          }
-          .ant-select-selection-placeholder {
-            line-height: 34px;
-          }
-        }
-        .ant-select-arrow {
-          margin-top: -9px;
-          top: 50%;
-          width: 18px;
-          height: 18px;
-        }
-      }
-    }
-    .dateDimension {
-      background-color: var(--color-background-secondary);
-      height: 36px;
-      border-radius: 3px;
-      .dimensionItem {
-        width: 50px;
-        height: 32px;
-        display: inline-block;
-        text-align: center;
-        line-height: 32px;
-        cursor: pointer;
-        margin: 2px;
-        &.currentDimension {
-          color: var(--color-primary);
-          background-color: var(--color-background-primary);
-          border-radius: 3px;
-        }
       }
     }
   }
@@ -168,10 +133,11 @@ export default class Overview extends Component {
       departmentInfo: {},
       depFlag: false,
       wrapWidth: undefined,
-      startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-      endTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+      startTime: moment().subtract(29, 'days').format('YYYY-MM-DD'),
+      endTime: moment().format('YYYY-MM-DD'),
       totalTxtWidthMap: {},
     };
+    this.dimensionOptions = getDimensionOptions();
     this.summaryRef = React.createRef();
     this.totalTxtRefs = {};
     this.totalTxtElements = {};
@@ -631,12 +597,11 @@ export default class Overview extends Component {
           <div className="conditions flexRow">
             <div className="selectCondition flexRow flex">
               <Select
-                className="width200 mRight15 mdAntSelect"
+                className="width200 mRight15"
                 placeholder={_l('按部门')}
                 value={departmentInfo.departmentName}
-                dropdownRender={null}
                 open={false}
-                onFocus={this.handleSelectDepartment}
+                onClick={this.handleSelectDepartment}
                 suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
                 onChange={() => {
                   this.setState({ departmentInfo: {} });
@@ -644,7 +609,7 @@ export default class Overview extends Component {
               />
               {!this.props.appId && (
                 <Select
-                  className="width200 mRight15 mdAntSelect"
+                  className="width200 mRight15"
                   showSearch
                   defaultValue={appId}
                   options={appList}
@@ -679,16 +644,15 @@ export default class Overview extends Component {
                 />
               )}
               <CustomSelectDate
-                className="mdAntSelect mRight10 width200"
-                dateFormat={'YYYY-MM-DD HH:mm:ss'}
-                searchDateList={selectDateList}
+                className="mRight10 width200"
+                hiddenDateValues={USE_ANALYTICS_HIDDEN_DATE_VALUES}
                 dateInfo={dateInfo}
                 min={moment().subtract(1, 'year')}
-                changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
+                changeDate={({ startDate, endDate, searchDateStr, value }) => {
                   this.setState(
                     {
                       dateInfo: { startDate, endDate, searchDateStr },
-                      selectedDate: dayRange,
+                      selectedDate: getDayRangeByDateValue(value),
                       startTime: startDate,
                       endTime: endDate,
                     },
@@ -697,25 +661,15 @@ export default class Overview extends Component {
                 }}
               />
             </div>
-            <div className="dateDimension">
-              {!_.includes([0, 5], selectedDate) &&
-                customDateDays >= 29 &&
-                dateDimension.map(item => (
-                  <span
-                    key={item.value}
-                    className={cx('dimensionItem', {
-                      currentDimension: currentDimension === item.value,
-                    })}
-                    onClick={() => {
-                      this.setState({ currentDimension: item.value }, () => {
-                        this.getChartData();
-                      });
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                ))}
-            </div>
+            {!_.includes([0, 5], selectedDate) && customDateDays >= 29 && (
+              <Segmented
+                options={this.dimensionOptions}
+                value={currentDimension}
+                onChange={value => {
+                  this.setState({ currentDimension: value }, this.getChartData);
+                }}
+              />
+            )}
           </div>
           <div className="charContainer">
             <div className="Font15 fontWeight600 mBotto8 textPrimary">

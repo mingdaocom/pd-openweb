@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ApprovalProcessSettings } from '../components';
 
 export default props => {

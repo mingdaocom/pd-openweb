@@ -3,9 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Switch, UpgradeIcon } from 'ming-ui';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getFeatureStatus } from 'src/utils/project';
+import { getFeatureStatus } from 'src/utils/services/project';
 
 const ConfigItemWrap = styled.div`
   padding: 0 32px;
@@ -73,7 +74,15 @@ export default function FeatureListWrap(props) {
                   {_l('设置')}
                 </span>
               )}
-              {showSwitch && <Switch checked={switchChecked} onClick={clickSwitch} />}
+              {showSwitch && (
+                <Switch
+                  checked={switchChecked}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return clickSwitch(!checked, event);
+                  }}
+                />
+              )}
               {showSlideIcon && (
                 <div className="flexRow alignItemsCenter">
                   {isEnabled && <span className="Green mRight20 Font14 bold">{_l('已启用')}</span>}

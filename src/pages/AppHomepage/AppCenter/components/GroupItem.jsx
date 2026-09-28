@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, number, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, MdLink, Menu, MenuItem, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, MdLink, SvgIcon } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { FlexSpacer, VerticalMiddle } from 'worksheet/components/Basics';
 
 const GroupItemLink = styled(MdLink)`
@@ -70,13 +69,13 @@ const GroupItemCon = styled.div`
     background-color: var(--color-background-hover);
   }
   &.active {
-    color: ${({ themeColor }) => themeColor};
-    background-color: ${({ activeColor }) => activeColor};
+    color: ${({ $themeColor }) => $themeColor};
+    background-color: ${({ $activeColor }) => $activeColor};
     .fontIcon {
-      color: ${({ themeColor }) => `${themeColor} !important`};
+      color: ${({ $themeColor }) => `${$themeColor} !important`};
     }
     svg {
-      fill: ${({ themeColor }) => themeColor};
+      fill: ${({ $themeColor }) => $themeColor};
     }
     .name {
       font-weight: 500;
@@ -84,25 +83,6 @@ const GroupItemCon = styled.div`
   }
   > div {
     height: 100%;
-  }
-`;
-
-const MenuWrap = styled(Menu)`
-  position: relative !important;
-  overflow: auto;
-  padding: 6px 0 !important;
-  width: 200px !important;
-  .ming.MenuItem.red .Item-content {
-    color: var(--color-error) !important;
-    .Icon {
-      color: var(--color-error) !important;
-    }
-  }
-`;
-
-const MenuItemWrap = styled(MenuItem)`
-  .Item-content {
-    padding-left: 47px !important;
   }
 `;
 
@@ -149,8 +129,8 @@ export default function GroupItem(props) {
   const [menuVisible, setMenuVisible] = useState();
   const content = (
     <GroupItemCon
-      themeColor={dashboardColor.themeColor}
-      activeColor={dashboardColor.activeColor}
+      $themeColor={dashboardColor.themeColor}
+      $activeColor={dashboardColor.activeColor}
       className={cx(className, {
         hover: menuVisible,
         isDragging,
@@ -184,42 +164,40 @@ export default function GroupItem(props) {
               }}
             >
               {(groupType === 0 || (groupType === 1 && hasManageAppAuth)) && itemType !== 'star' && (
-                <Trigger
-                  popupVisible={menuVisible}
-                  onPopupVisibleChange={setMenuVisible}
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    overflow: { adjustY: true },
-                  }}
-                  popup={
-                    <MenuWrap>
-                      <MenuItemWrap
-                        onClick={() => {
+                <Dropdown
+                  open={menuVisible}
+                  onOpenChange={setMenuVisible}
+                  trigger={['click']}
+                  placement="bottomLeft"
+                  menu={{
+                    style: { width: 200 },
+                    items: [
+                      {
+                        key: 'edit',
+                        icon: <Icon icon="edit" className="Font18" />,
+                        label: _l('编辑'),
+                        onClick: () => {
                           setMenuVisible(false);
                           onEdit(id);
-                        }}
-                        icon={<Icon icon="edit" className="Font18 mLeft5" />}
-                      >
-                        {_l('编辑')}
-                      </MenuItemWrap>
-                      <MenuItemWrap
-                        className="red"
-                        icon={<Icon icon="trash" className="Font18 mLeft5" />}
-                        onClick={() => {
+                        },
+                      },
+                      {
+                        key: 'delete',
+                        danger: true,
+                        icon: <Icon icon="trash" className="Font18" />,
+                        label: _l('删除'),
+                        onClick: () => {
                           setMenuVisible(false);
                           onDelete(id, groupType);
-                        }}
-                      >
-                        {_l('删除')}
-                      </MenuItemWrap>
-                    </MenuWrap>
-                  }
+                        },
+                      },
+                    ],
+                  }}
                 >
                   <MoreBtnCon>
                     <i className="icon icon-more_horiz Font18 textTertiary Hand" />
                   </MoreBtnCon>
-                </Trigger>
+                </Dropdown>
               )}
 
               <Tooltip placement="right" title={isMarked ? _l('取消标星') : _l('标星')}>

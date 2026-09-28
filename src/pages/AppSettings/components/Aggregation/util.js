@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import _ from 'lodash';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import {
   isFormulaResultAsDate,
   isFormulaResultAsDateTime,
@@ -11,10 +10,11 @@ import {
   isFormulaResultAsSubtotalDateTime,
   isFormulaResultAsSubtotalTime,
   isFormulaResultAsTime,
-} from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { API_ENUM_TO_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { VersionProductType } from 'src/utils/enum';
-import { getSyncLicenseInfo } from 'src/utils/project';
+} from 'src/utils/domain/control/dynamicValue';
+import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/utils/domain/control/dynamicValueConfig';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { API_ENUM_TO_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { getSyncLicenseInfo } from 'src/utils/services/project';
 import { DATE_TIME_DATA_PARTICLE, GROUPLIMITTYPES } from './config';
 
 export const getNodeInfo = (flowData, type) => {

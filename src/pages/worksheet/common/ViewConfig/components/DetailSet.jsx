@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Icon, Radio } from 'ming-ui';
-import { SwitchStyle } from './style';
+import { Radio, Switch } from 'ming-ui/antd-components';
 
 export default function DetailSet(props) {
   const { appId, view, updateCurrentView } = props;
@@ -24,38 +23,38 @@ export default function DetailSet(props) {
           <div className="mTop12">
             <Radio
               className=""
-              text={_l('常规（多条）')}
               checked={view.childType !== 1}
-              onClick={() => {
+              onChange={() => {
                 handleChange(2);
               }}
-            />
-            <div className="txt textSecondary mTop8" style={{ marginLeft: '28px' }}>
-              {_l('在左侧显示卡片列表，可切换查看记录详情')}
-            </div>
+              title={_l('常规（多条）')}
+            >
+              {_l('常规（多条）')}
+            </Radio>
+            <div className="txt textSecondary mTop8 mLeft30">{_l('在左侧显示卡片列表，可切换查看记录详情')}</div>
           </div>
           <div className="mTop16">
             <Radio
               className=""
-              text={_l('仅显示详情（一条）')}
               checked={view.childType === 1}
-              onClick={() => {
+              onChange={() => {
                 handleChange(1);
               }}
-            />
-            <div className="txt textSecondary mTop8" style={{ marginLeft: '28px' }}>
-              {_l('显示第一条记录的详情')}
-            </div>
+              title={_l('仅显示详情（一条）')}
+            >
+              {_l('仅显示详情（一条）')}
+            </Radio>
+            <div className="txt textSecondary mTop8 mLeft30">{_l('显示第一条记录的详情')}</div>
           </div>
         </div>
       </Fragment>
       <div className="bold mBottom12">{_l('详情设置')}</div>
       <div className="configSwitch">
-        <SwitchStyle className="flexRow alignItemsCenter">
-          <Icon
-            icon={_.get(view, 'advancedSetting.showtoolbar') !== '0' ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font28 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+          <Switch
+            size="mini"
+            checked={_.get(view, 'advancedSetting.showtoolbar') !== '0'}
+            onChange={() => {
               updateCurrentView({
                 ...view,
                 appId,
@@ -65,15 +64,15 @@ export default function DetailSet(props) {
               });
             }}
           />
-          <div className="switchText InlineBlock Normal mLeft10 TxtMiddle">{_l('显示操作栏')}</div>
-        </SwitchStyle>
+          <div className="InlineBlock Normal mLeft12 TxtMiddle">{_l('显示操作栏')}</div>
+        </div>
       </div>
       <div className="configSwitch">
-        <SwitchStyle className="flexRow alignItemsCenter">
-          <Icon
-            icon={_.get(view, 'advancedSetting.showtitle') !== '0' ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font28 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+          <Switch
+            size="mini"
+            checked={_.get(view, 'advancedSetting.showtitle') !== '0'}
+            onChange={() => {
               updateCurrentView({
                 ...view,
                 appId,
@@ -83,8 +82,26 @@ export default function DetailSet(props) {
               });
             }}
           />
-          <div className="switchText InlineBlock Normal mLeft10 TxtMiddle">{_l('显示记录标题')}</div>
-        </SwitchStyle>
+          <div className="InlineBlock Normal mLeft12 TxtMiddle">{_l('显示记录标题')}</div>
+        </div>
+      </div>
+      <div className="configSwitch">
+        <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+          <Switch
+            size="mini"
+            checked={_.get(view, 'advancedSetting.closesidebar') === '1'}
+            onChange={() => {
+              updateCurrentView({
+                ...view,
+                appId,
+                advancedSetting: { closesidebar: _.get(view, 'advancedSetting.closesidebar') !== '1' ? '1' : '' },
+                editAttrs: ['advancedSetting'],
+                editAdKeys: ['closesidebar'],
+              });
+            }}
+          />
+          <div className="InlineBlock Normal mLeft12 TxtMiddle">{_l('关闭侧边栏')}</div>
+        </div>
       </div>
     </Fragment>
   );

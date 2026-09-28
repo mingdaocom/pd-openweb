@@ -5,7 +5,8 @@ import { useDeepCompareEffect } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import homeAppAjax from 'src/api/homeApp';
 import DocumentTitle from 'mobile/components/DocumentTitle';
@@ -21,12 +22,12 @@ import View from 'mobile/RecordList/View';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import ShareCardConfig from 'src/components/ShareCardConfig';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SlideGroupFilter from 'src/pages/Mobile/RecordList/GroupFilter/SlideGroupFilter.jsx';
 import { addNewRecord, updateFilters } from 'src/pages/worksheet/redux/actions';
-import { pathCompletion } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { mdAppResponse } from 'src/utils/services/project';
 
 const Con = styled.div`
   width: 100%;
@@ -70,12 +71,6 @@ const AddBtn = styled.div`
   button {
     width: 60px !important;
     height: 60px !important;
-    min-width: initial !important;
-    display: flex !important;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50% !important;
-    padding: 0px 15px !important;
     margin: 0 auto;
     box-shadow: 0 1px 4px #00000029;
   }
@@ -255,15 +250,15 @@ function ViewComp(props) {
           )}
           {!batchOptVisible && canAddRecord && (
             <Button
-              radius
+              type="primary"
+              shape="circle"
               className={cx('valignWrapper flexRow addRecord mTop10', {
                 'Right mRight16': [2, 5, 7].includes(view.viewType),
               })}
+              icon={<Icon icon="add" className="Font36" />}
               style={{ backgroundColor: appColor }}
               onClick={addRecord}
-            >
-              <Icon icon="add" className="Font36" />
-            </Button>
+            />
           )}
         </AddBtn>
       </Con>

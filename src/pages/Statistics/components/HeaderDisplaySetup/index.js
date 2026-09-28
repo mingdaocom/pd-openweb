@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { reportTypes } from '../../Charts/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 export default class HeaderDisplaySetup extends Component {
   constructor(props) {

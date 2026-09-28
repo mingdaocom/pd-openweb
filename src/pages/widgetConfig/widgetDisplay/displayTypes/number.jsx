@@ -2,15 +2,16 @@ import React from 'react';
 import { get, head } from 'lodash';
 import styled from 'styled-components';
 import { Slider } from 'ming-ui';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { levelSafeParse } from 'src/utils/domain/control/metadata';
 import { CommonDisplay } from '../../styled';
-import { getAdvanceSetting, levelSafeParse } from '../../util';
 
 const NumberControlWrap = styled.div`
   display: flex;
   align-items: center;
   .numberContent {
     flex: 1;
-    ${props => (props.isStep ? 'border-radius: 3px 0 0 3px;' : '')}
+    ${props => (props.$isStep ? 'border-radius: 3px 0 0 3px;' : '')}
   }
   .numberControl {
     display: flex;
@@ -56,7 +57,7 @@ export default function FormulaNumber({ data }) {
   }
 
   return (
-    <NumberControlWrap isStep={isStep}>
+    <NumberControlWrap $isStep={isStep}>
       <CommonDisplay className="numberContent">
         <div className="hint overflow_ellipsis">{defValue || hint}</div>
       </CommonDisplay>

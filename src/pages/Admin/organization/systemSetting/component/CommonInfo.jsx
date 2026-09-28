@@ -1,12 +1,13 @@
 import React, { Component, createRef, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
-import { Button, Dialog, LoadDiv, QiniuUpload, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
+import { LoadDiv, QiniuUpload, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
 import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules/index.jsx';
 import CertificationDisplay from 'src/pages/certification/components/CertificationDisplay';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../config';
 import SetInfoDialog from '../modules/SetInfoDialog';
 import './index.less';
@@ -196,9 +197,13 @@ export default class CommonInfo extends Component {
         onOk: () => this.toggleComp(4),
       });
     } else {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('当前已付费组织还未到期，使用到期后才能关闭'),
-        removeCancelBtn: true,
+        cancelButtonProps: {
+          style: {
+            display: 'none',
+          },
+        },
         okText: _l('我知道了'),
       });
     }
@@ -338,7 +343,8 @@ export default class CommonInfo extends Component {
             <div className="common-info-row mTop24">
               <div className="common-info-row-label"></div>
               <Button
-                type="link"
+                color="primary"
+                variant="link"
                 className="colorPrimary adminHoverColor editBtn"
                 onClick={() => this.updateVisible(1)}
               >
@@ -353,9 +359,10 @@ export default class CommonInfo extends Component {
                   onClick={() => {
                     try {
                       copy(code);
-                    } catch (e) {
+                    } catch {
                       // removeRange may throw on some browsers when selection state is unexpected
                     }
+
                     alert(_l('复制成功'));
                   }}
                 >
@@ -385,9 +392,10 @@ export default class CommonInfo extends Component {
                   onClick={() => {
                     try {
                       copy(Config.projectId);
-                    } catch (e) {
+                    } catch {
                       // removeRange may throw on some browsers when selection state is unexpected
                     }
+
                     alert(_l('复制成功'));
                   }}
                 >
@@ -397,7 +405,7 @@ export default class CommonInfo extends Component {
                 <div className="set-describe mTop4">{_l('组织唯一身份编号，用于沟通反馈问题时使用')}</div>
               </div>
             </div>
-            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+            {window.platformENV.isHap && (
               <Fragment>
                 <div className="common-info-row mTop24">
                   <div className="common-info-row-label">{_l('身份认证')}</div>
@@ -436,9 +444,10 @@ export default class CommonInfo extends Component {
                         : _l('可自定义访问链接和登录背景图片')}
                     </span>
                   )}
-                  <button
-                    type="button"
-                    className="ming Button Button--link mLeft12 colorPrimary adminHoverColor"
+                  <Button
+                    color="primary"
+                    variant="link"
+                    className="mLeft12"
                     onClick={() => {
                       if (Config.project.licenseType === 0) {
                         AdminCommon.freeUpdateDialog();
@@ -449,7 +458,7 @@ export default class CommonInfo extends Component {
                     }}
                   >
                     {_l('设置')}
-                  </button>
+                  </Button>
                 </div>
                 {homeImage && <img src={homeImage} className="domain-review" />}
                 <div className="mTop4 textSecondary">
@@ -465,23 +474,15 @@ export default class CommonInfo extends Component {
             </div>
             <div className="common-info-row mTop24">
               <div className="common-info-row-label">{_l('职位列表')}</div>
-              <button
-                type="button"
-                className="ming Button Button--link colorPrimary adminHoverColor"
-                onClick={this.toggleComp.bind(this, 5)}
-              >
+              <Button color="primary" variant="link" onClick={this.toggleComp.bind(this, 5)}>
                 {_l('设置')}
-              </button>
+              </Button>
             </div>
             <div className="common-info-row mTop24">
               <div className="common-info-row-label">{_l('工作地点')}</div>
-              <button
-                type="button"
-                className="ming Button Button--link colorPrimary adminHoverColor"
-                onClick={this.toggleComp.bind(this, 3)}
-              >
+              <Button color="primary" variant="link" onClick={this.toggleComp.bind(this, 3)}>
                 {_l('设置')}
-              </button>
+              </Button>
             </div>
 
             <div className="split-line"></div>

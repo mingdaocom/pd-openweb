@@ -2,18 +2,18 @@ import React, { createRef, Fragment, useEffect, useRef, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { CardNav, ScrollView } from 'ming-ui';
+import { CardNav, ScrollView, UpgradeIcon } from 'ming-ui';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import worksheetAjax from 'src/api/worksheet';
 import ErrorState from 'src/components/errorPage/errorState';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Header from 'src/components/worksheetConfigHeader';
-import { navigateToApp } from 'src/pages/widgetConfig/util/data';
+import { navigateToApp } from 'src/pages/widgetConfig/navigation';
 import VerifyModifyDialog from 'src/pages/widgetConfig/widgetSetting/components/VerifyModifyDialog';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { saveSelectExtensionNavType } from 'src/utils/worksheet';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { saveSelectExtensionNavType } from 'src/utils/platform/storage/worksheet';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { NAV_LIST, NAV_NAME } from './enum';
 import InvoiceConfig from './InvoiceConfig';
 import PayConfig from './PayConfig';
@@ -113,7 +113,7 @@ export default function FormExtend(props) {
                     return {
                       ...item,
                       url: `/worksheet/form/edit/${worksheetId}/${item.key}`,
-                      showUpgradeIcon: featureType === '2',
+                      extra: featureType === '2' ? <UpgradeIcon className="verticalTxtBottom" /> : null,
                       onClick: () => {
                         if (featureType === '2') {
                           buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);

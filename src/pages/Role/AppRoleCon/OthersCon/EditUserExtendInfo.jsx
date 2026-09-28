@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Modal, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support } from 'ming-ui';
+import { Button, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './EditUserExtendInfo.less';
 
 const EditUserExtendInfoCon = styled.div`
@@ -18,55 +18,10 @@ const EditUserExtendInfoCon = styled.div`
     width: 100%;
     height: 36px;
   }
-  .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    box-shadow: unset;
-  }
-  .saveBtn {
-    border: none;
-    height: 36px;
-    padding: 0 30px;
-    color: var(--color-white);
-    line-height: 36px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 400;
-    -webkit-transition:
-      color ease-in 0.2s,
-      border-color ease-in 0.2s,
-      background-color ease-in 0;
-    transition:
-      color ease-in 0.2s,
-      border-color ease-in 0.2s,
-      background-color ease-in 0;
-    background: var(--color-primary);
-    cursor: pointer;
-  }
-  .saveBtn:hover {
-    background: var(--color-link-hover);
-  }
-  .clearBtn {
-    background: var(--color-background-primary);
-    color: var(--color-text-title);
-    font-weight: 400;
-    border: 1px solid var(--color-border-secondary);
-  }
-  .clearBtn:hover {
-    border: 1px solid var(--color-border-tertiary);
-    background: var(--color-background-primary) !important;
-  }
-  .cancelBtn {
-    float: right;
-    cursor: pointer;
-    color: var(--color-error);
-    background: var(--color-background-primary);
-    border: 1px solid var(--color-error);
-  }
-  .cancelBtn:hover {
-    background: var(--color-error-bg);
-  }
 `;
 
 export default function EditUserExtendInfo(props) {
+  const requestPending = useRef(false);
   const { step, appId, onChangeStep, value, onChangeData, result, appProjectId } = props;
 
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -120,6 +75,8 @@ export default function EditUserExtendInfo(props) {
   }, [data.worksheetId]);
 
   const saveFn = statusFlag => {
+    if (requestPending.current) return;
+
     if (statusFlag === 9 && !data.controlId) {
       return alert(_l('无扩展信息表'), 3);
     }
@@ -136,7 +93,8 @@ export default function EditUserExtendInfo(props) {
       return alert(_l('请选择用户映射'), 3);
     }
 
-    worksheetAjax
+    requestPending.current = true;
+    return worksheetAjax
       .saveAppExtendAttr({
         appId: appId,
         worksheetId: data.worksheetId,
@@ -153,7 +111,10 @@ export default function EditUserExtendInfo(props) {
           alert(_l('保存失败'), 2);
         }
       })
-      .catch(err => alert(err));
+      .catch(err => alertIfNotUnauthorized(err, err))
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   return (
@@ -171,8 +132,8 @@ export default function EditUserExtendInfo(props) {
         className="selectWorksheet mTop8"
         loading={loading}
         placeholder={_l('选择应用')}
-        optionFilterProp="workSheetName"
-        filterOption={(input, option) => (option.children || '').toLowerCase().includes(input.toLowerCase())}
+        optionFilterProp="label"
+        filterOption={(input, option) => (option.label || '').toLowerCase().includes(input.toLowerCase())}
         value={
           appList.find(l => l.appId === data.appId)
             ? data.appId
@@ -184,13 +145,11 @@ export default function EditUserExtendInfo(props) {
         }
         onSelect={value => setData({ ...data, appId: value, worksheetId: '', controlId: '' })}
         notFoundContent={<span>{_l('无应用')}</span>}
-      >
-        {appList.map(item => (
-          <Select.Option key={item.appId} value={item.appId}>
-            {item.appName ? `${item.appName}${appId === item.appId ? _l('（本应用）') : ''}` : ''}
-          </Select.Option>
-        ))}
-      </Select>
+        options={appList.map(item => ({
+          value: item.appId,
+          label: item.appName ? `${item.appName}${appId === item.appId ? _l('（本应用）') : ''}` : '',
+        }))}
+      />
       <div className="selectTitle Bold valignWrapper mTop20">
         {_l('选择工作表')}
         <Tooltip title={_l('选择或新建的工作表字段中，必须包含“成员”字段')}>
@@ -202,8 +161,8 @@ export default function EditUserExtendInfo(props) {
         className="selectWorksheet mTop8"
         loading={loading}
         placeholder={_l('选择工作表')}
-        optionFilterProp="workSheetName"
-        filterOption={(input, option) => (option.children || '').toLowerCase().includes(input.toLowerCase())}
+        optionFilterProp="label"
+        filterOption={(input, option) => (option.label || '').toLowerCase().includes(input.toLowerCase())}
         value={
           worksheetList.find(l => l.workSheetId === data.worksheetId)
             ? data.worksheetId
@@ -215,13 +174,11 @@ export default function EditUserExtendInfo(props) {
         }
         onSelect={value => setData({ ...data, worksheetId: value, controlId: '' })}
         notFoundContent={<span>{_l('该应用无工作表')}</span>}
-      >
-        {worksheetList.map(item => (
-          <Select.Option key={item.workSheetId} value={item.workSheetId}>
-            {item.workSheetName || ''}
-          </Select.Option>
-        ))}
-      </Select>
+        options={worksheetList.map(item => ({
+          value: item.workSheetId,
+          label: item.workSheetName || '',
+        }))}
+      />
       <div className="selectTitle Bold valignWrapper mTop20">
         {_l('用户映射')}
         <Tooltip title={_l('选择一个“成员”字段，用于标识匹配系统登陆的用户，进而读取用户关联的扩展属性')}>
@@ -233,35 +190,32 @@ export default function EditUserExtendInfo(props) {
         className="selectControl mTop8"
         loading={loading}
         placeholder={_l('选择用户映射')}
-        optionFilterProp="controlName"
-        filterOption={(input, option) => (option.children || '').toLowerCase().includes(input.toLowerCase())}
+        optionFilterProp="label"
+        filterOption={(input, option) => (option.label || '').toLowerCase().includes(input.toLowerCase())}
         value={controls.find(l => l.controlId === data.controlId) ? data.controlId : undefined}
         onSelect={value => setData({ ...data, controlId: value })}
         notFoundContent={<span>{data.worksheetId ? _l('该工作表无"成员"字段') : _l('请先选择工作表')}</span>}
-      >
-        {controls.map(item => (
-          <Select.Option key={item.controlId} value={item.controlId}>
-            {item.controlName}
-          </Select.Option>
-        ))}
-      </Select>
+        options={controls.map(item => ({
+          value: item.controlId,
+          label: item.controlName,
+        }))}
+      />
       <div className="mTop30 buttons">
-        <button className="saveBtn mRight20" onClick={() => saveFn(1)}>
+        <Button type="primary" className="mRight20" onClick={() => saveFn(1)}>
           {_l('保存')}
-        </button>
-        <button
-          className="clearBtn saveBtn"
+        </Button>
+        <Button
           onClick={() => {
             let status = _.get(result, ['appExtendAttr', 'status']);
             onChangeStep(status ? (status === 9 ? 0 : 3) : 0);
           }}
         >
           {_l('取消')}
-        </button>
+        </Button>
         {step !== 1 && (
-          <span className="cancelBtn saveBtn" onClick={() => setDialogVisible(true)}>
+          <Button danger className="Right" onClick={() => setDialogVisible(true)}>
             {_l('停用')}
-          </span>
+          </Button>
         )}
       </div>
       {dialogVisible && (
@@ -269,9 +223,10 @@ export default function EditUserExtendInfo(props) {
           className="cancelUserExtendInfo"
           width={494}
           title={<span style={{ color: 'var(--color-error)', fontWeight: 600 }}>{_l('停用用户扩展信息表')}</span>}
-          visible={dialogVisible}
+          open={dialogVisible}
           okText={_l('停用')}
           cancelText={_l('取消')}
+          okButtonProps={{ color: 'danger', variant: 'solid' }}
           onCancel={() => {
             setDialogVisible(false);
           }}

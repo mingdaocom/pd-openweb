@@ -10,8 +10,8 @@ const EmptyStatusWrap = styled.div`
   justify-content: center;
   align-items: center;
   .con {
-    width: ${props => (props.radiusSize ? props.radiusSize + 'px' : '100px')};
-    height: ${props => (props.radiusSize ? props.radiusSize + 'px' : '100px')};
+    width: ${props => (props.$radiusSize ? props.$radiusSize + 'px' : '100px')};
+    height: ${props => (props.$radiusSize ? props.$radiusSize + 'px' : '100px')};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -33,7 +33,7 @@ const EmptyStatusWrap = styled.div`
 export default function EmptyStatus(props) {
   const { emptyTxt, icon, radiusSize, emptyTxtClassName, iconClassName } = props;
   return (
-    <EmptyStatusWrap radiusSize={radiusSize}>
+    <EmptyStatusWrap $radiusSize={radiusSize}>
       <div className={`con`}>
         <Icon icon={icon || 'assignment'} className={iconClassName} />
       </div>

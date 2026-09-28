@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { connect } from 'react-redux';
 import doT from 'dot';
 import _ from 'lodash';
 import { LoadDiv, UserHead } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
 import config from '../../config/config';
 import { updateTaskCharge } from '../../redux/actions';
@@ -309,12 +310,16 @@ class TaskTree extends Component {
         size={26}
         operation={
           item.attr('data-auth') == config.auth.Charger ? (
-            <span
-              className="updateChargeBtn colorPrimary"
+            <Button
+              block
+              className="updateChargeBtn"
+              ellipsis
+              color="primary"
+              variant="outlined"
               onClick={() => this.updateCharge(accountId, taskId, projectId, ele)}
             >
               {_l('将任务托付给他人')}
-            </span>
+            </Button>
           ) : null
         }
       />,

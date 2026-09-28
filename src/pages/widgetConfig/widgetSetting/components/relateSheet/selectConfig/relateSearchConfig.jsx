@@ -3,22 +3,21 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import { get, head } from 'lodash';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util.js';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { Icon } from 'ming-ui';
+import { Checkbox, Popover, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import FastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/fastFilterCon';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { formatControlsToDropdown } from 'src/utils/domain/control/filters';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { FASTFILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/fastFilter';
 import { SettingItem } from '../../../../styled';
-import { formatControlsToDropdown, getAdvanceSetting } from '../../../../util';
-import { handleAdvancedSettingChange } from '../../../../util/setting';
 import SelectControl from '../../SelectControl';
 import { SectionItem } from '../../SplitLineConfig/style';
-import 'rc-trigger/assets/index.css';
 
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const DISPLAY_OPTIONS = [
   {
@@ -49,13 +48,13 @@ const ConfigWrap = styled.div`
       background-color: var(--color-background-hover);
     }
   }
+  .Width105 {
+    width: 105px;
+  }
 
   .conditionItemHeader {
     display: flex;
     align-items: center;
-  }
-  .ming.Dropdown {
-    background-color: transparent;
   }
   .filterDesc {
     line-height: 44px;
@@ -76,6 +75,8 @@ const renderViewMenu = (item, isDisplay) => {
     </div>
   );
 };
+
+const renderViewOption = ({ data: item }) => renderViewMenu(item);
 
 export default function RelateSearchConfig(props) {
   const { data, controls = [], views = [], handleChange } = props;
@@ -102,6 +103,8 @@ export default function RelateSearchConfig(props) {
   const isDropdown = showtype === '3';
   const showFastFilter = isDropdown ? advancedSetting.openfastfilters || '0' : '1';
   const fastViews = views.filter(f => !_.isEmpty(f.fastFilters) && f.viewId !== f.worksheetId);
+  const currentFastView = _.find(fastViews, f => f.viewId === fastfiltersview);
+  const fastViewOptions = fastViews.map(i => ({ ...i, label: i.name, value: i.viewId }));
 
   const handleDelete = id => {
     const index = searchfilters.findIndex(item => item.controlId === id);
@@ -127,13 +130,14 @@ export default function RelateSearchConfig(props) {
         <div className="settingItemTitle">{_l('搜索')}</div>
         <SectionItem>
           <div className="label Width120">{_l('搜索内容')}</div>
-          <RadioGroup
+          <Radio.Group
             size="middle"
             className="fixedWidth"
-            disableTitle={true}
-            checkedValue={searchcontrol ? 1 : 0}
-            data={DISPLAY_OPTIONS}
-            onChange={value => {
+            value={searchcontrol ? 1 : 0}
+            options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
               handleChange(
                 handleAdvancedSettingChange(data, {
                   searchcontrol: value ? searchcontrol || defaultSearchControl : '',
@@ -145,13 +149,12 @@ export default function RelateSearchConfig(props) {
         {!searchcontrol ? null : (
           <Fragment>
             <SectionItem>
-              <div className="label Width120">{_l('搜索字段')}</div>
-              <Dropdown
-                border
+              <div className="label Width105">{_l('搜索字段')}</div>
+              <Select
                 className="flex"
-                isAppendToBody
                 value={searchcontrol}
-                data={searchableControls}
+                options={searchableControls}
+                fieldNames={SELECT_FIELD_NAMES}
                 onChange={value => {
                   handleChange(
                     handleAdvancedSettingChange(data, {
@@ -164,15 +167,21 @@ export default function RelateSearchConfig(props) {
             </SectionItem>
             <SectionItem>
               <div className="label Width120">{_l('搜索方式')}</div>
-              <RadioGroup
-                checkedValue={searchtype}
+              <Radio.Group
+                value={searchtype}
                 className="fixedWidth"
-                data={[
+                options={[
                   { value: '1', text: _l('精确搜索') },
                   { value: '0', text: _l('模糊搜索'), disabled: isForbidEncry() },
-                ]}
-                onChange={value => {
-                  handleChange(handleAdvancedSettingChange(data, { searchtype: value }));
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event => {
+                  const value = event.target.value;
+
+                  handleChange(
+                    handleAdvancedSettingChange(data, {
+                      searchtype: value,
+                    }),
+                  );
                 }}
               />
             </SectionItem>
@@ -182,14 +191,19 @@ export default function RelateSearchConfig(props) {
           </Fragment>
         )}
         <SectionItem>
-          <div className="label Width120">{_l('其他')}</div>
+          <div className="label Width105">{_l('其他')}</div>
           <Checkbox
             checked={clicksearch === '1'}
-            text={_l('在搜索后显示可选记录')}
-            onClick={checked => {
-              handleChange(handleAdvancedSettingChange(data, { clicksearch: checked ? '0' : '1' }));
+            onChange={event => {
+              handleChange(
+                handleAdvancedSettingChange(data, {
+                  clicksearch: !event.target.checked ? '0' : '1',
+                }),
+              );
             }}
-          />
+          >
+            {_l('在搜索后显示可选记录')}
+          </Checkbox>
         </SectionItem>
       </SettingItem>
 
@@ -204,11 +218,10 @@ export default function RelateSearchConfig(props) {
           <Fragment>
             <SectionItem>
               <div className="label Width120">{_l('筛选设置')}</div>
-              <RadioGroup
-                checkedValue={fastfilterstype}
+              <Radio.Group
+                value={fastfilterstype}
                 className="fixedWidth"
-                disableTitle={true}
-                data={[
+                options={[
                   { value: '1', text: _l('筛选指定字段') },
                   {
                     value: '2',
@@ -221,8 +234,10 @@ export default function RelateSearchConfig(props) {
                       </span>
                     ),
                   },
-                ]}
-                onChange={value => {
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event => {
+                  const value = event.target.value;
+
                   if (value === fastfilterstype) return;
                   if (value === '2') {
                     handleChange(
@@ -235,24 +250,29 @@ export default function RelateSearchConfig(props) {
                     return;
                   }
 
-                  handleChange(handleAdvancedSettingChange(data, { fastfilterstype: value, fastfiltersview: '' }));
+                  handleChange(
+                    handleAdvancedSettingChange(data, {
+                      fastfilterstype: value,
+                      fastfiltersview: '',
+                    }),
+                  );
                 }}
               />
             </SectionItem>
             {fastfilterstype === '1' ? (
-              <div className="mTop16" style={{ paddingLeft: 120 }}>
+              <div className="mTop16" style={{ paddingLeft: 105 }}>
                 <FastFilter
                   from="fastFilter"
                   className="relateSheetSearchConfig"
                   customAdd={() => {
                     return (
-                      <Trigger
-                        action={['click']}
-                        popupVisible={visible}
-                        onPopupVisibleChange={visible => {
+                      <Popover
+                        trigger="click"
+                        open={visible}
+                        onOpenChange={visible => {
                           setVisible(visible);
                         }}
-                        popup={
+                        content={
                           <SelectControl
                             list={filterOnlyShowField(controls).filter(({ type, sourceControlType, controlId }) => {
                               const ids = searchfilters.map(({ controlId }) => controlId);
@@ -270,20 +290,15 @@ export default function RelateSearchConfig(props) {
                             }}
                           />
                         }
-                        popupAlign={{
-                          points: ['tl', 'bl'],
-                          offset: [0, 3],
-                          overflow: {
-                            adjustX: true,
-                            adjustY: true,
-                          },
-                        }}
+                        placement="bottomLeft"
+                        noPadding
+                        styles={{ container: { width: 280 } }}
                       >
                         <div className="addFilterControl pointer">
                           <span className="icon-add Font18" />
                           {_l('选择字段')}
                         </div>
-                      </Trigger>
+                      </Popover>
                     );
                   }}
                   fastFilters={searchfilters}
@@ -300,20 +315,17 @@ export default function RelateSearchConfig(props) {
                 />
               </div>
             ) : (
-              <div className="mTop16" style={{ paddingLeft: 120 }}>
-                <Dropdown
-                  border
+              <div className="mTop16" style={{ paddingLeft: 105 }}>
+                <Select
                   className="w100"
-                  isAppendToBody
                   value={fastfiltersview || undefined}
-                  data={fastViews.map(i => ({ text: i.name, value: i.viewId, ..._.pick(i, ['viewType', 'name']) }))}
-                  renderTitle={({ value } = {}) => {
-                    const currenView = _.find(fastViews, f => f.viewId === value);
-                    if (!fastfiltersview) return <span className="textDisabled">{_l('请选择')}</span>;
-                    if (fastfiltersview && !currenView) return <span className="Red">{_l('已删除')}</span>;
-                    return renderViewMenu(currenView, true);
+                  options={fastViewOptions}
+                  placeholder={_l('请选择')}
+                  labelRender={() => {
+                    if (!currentFastView) return <span className="Red">{_l('已删除')}</span>;
+                    return renderViewMenu(currentFastView, true);
                   }}
-                  renderItem={renderViewMenu}
+                  optionRender={renderViewOption}
                   onChange={value => handleChange(handleAdvancedSettingChange(data, { fastfiltersview: value }))}
                 />
               </div>

@@ -1,22 +1,20 @@
-﻿import React from 'react';
-import { Drawer } from 'antd';
+import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Checkbox, ColorPicker, Icon, RadioGroup, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ColorPicker, Icon, SvgIcon } from 'ming-ui';
+import { Checkbox, Drawer, Input, Popover, Radio, Tooltip } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import sheetAjax from 'src/api/worksheet';
 import process from 'src/pages/workflow/api/process';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import DrawerFooter from 'src/pages/FormSet/components/DrawerFooter';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
-import { getButtonColor } from 'src/utils/control';
-import { formatValuesOfCondition } from '../../common/WorkSheetFilter/util';
+import { formatControlsData } from 'src/utils/domain/control/normalization';
+import { getButtonColor } from 'src/utils/domain/control/style';
+import { SYS } from 'src/utils/domain/control/widget';
+import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
 import AppointDialog from './components/AppointDialog';
 import DoubleConfirmDialog from './components/DoubleConfirmDialog';
 import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
@@ -49,7 +47,7 @@ class CreateCustomBtnCon extends React.Component {
   ajaxRequest = null;
   componentDidMount() {
     this.initState(this.props);
-    $('.Radio').attr('title', '');
+    $('.hap-radio-wrapper').attr('title', '');
   }
 
   componentDidUpdate(prevProps) {
@@ -458,8 +456,8 @@ class CreateCustomBtnCon extends React.Component {
         {!(!_.isUndefined(isListOption) && !isListOption && !isEdit) && ( //记录详情进入，且是创建，则不显示数据源类型，默认单条记录
           <React.Fragment>
             <div className="mTop14">{_l('数据源')}</div>
-            <RadioGroup
-              data={[
+            <Radio.Group
+              options={[
                 {
                   value: 0,
                   text: _l('单条记录'),
@@ -468,14 +466,16 @@ class CreateCustomBtnCon extends React.Component {
                   value: 1,
                   text: _l('多条记录'),
                 },
-              ]}
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
               size="small"
-              onChange={value => {
+              onChange={event => {
+                const value = event.target.value;
+
                 this.setState({
                   isBatch: value === 1,
                 });
               }}
-              checkedValue={isBatch ? 1 : 0}
+              value={isBatch ? 1 : 0}
             />
           </React.Fragment>
         )}
@@ -509,10 +509,9 @@ class CreateCustomBtnCon extends React.Component {
       return (
         <div>
           <Checkbox
-            className="checkBox InlineBlock"
-            text={_l('流程执行完成后提示')}
+            className="checkBox"
             checked={_.get(this.state.advancedSetting, 'opentip') !== '0'}
-            onClick={() => {
+            onChange={() => {
               this.setState({
                 advancedSetting: {
                   ...this.state.advancedSetting,
@@ -520,9 +519,11 @@ class CreateCustomBtnCon extends React.Component {
                 },
               });
             }}
-          />
+          >
+            {_l('流程执行完成后提示')}
+          </Checkbox>
           {_.get(this.state.advancedSetting, 'opentip') !== '0' && (
-            <input
+            <Input
               className={cx('w100 nameInput')}
               maxLength={50}
               value={_.get(this.state.advancedSetting, 'tiptext')}
@@ -552,7 +553,7 @@ class CreateCustomBtnCon extends React.Component {
     return (
       <div className="createBtnBox mTop25">
         <h5 className="textPrimary">{_l('按钮名称')}</h5>
-        <input
+        <Input
           value={name}
           placeholder={_l('例如：添加线索、关闭机会')}
           ref={inputEl => {
@@ -569,7 +570,8 @@ class CreateCustomBtnCon extends React.Component {
             );
           }}
           maxLength="50"
-          className={cx('nameInput Font14', { errer: this.state.isErrer })}
+          className="nameInput"
+          status={this.state.isErrer ? 'error' : undefined}
         />
         {this.state.isErrer && <p className="errorMessage mTop6 Font12">{_l('按钮名称重名，请重新修改')}</p>}
         <div className="flexRow">
@@ -579,8 +581,8 @@ class CreateCustomBtnCon extends React.Component {
         {this.renderDesc()}
         <div className="line"></div>
         <h5 className="textPrimary">{_l('动作')}</h5>
-        <RadioGroup
-          data={[
+        <Radio.Group
+          options={[
             {
               value: 1,
               text: _l('执行工作流'),
@@ -589,9 +591,11 @@ class CreateCustomBtnCon extends React.Component {
               value: 3,
               text: _l('填写表单字段'),
             },
-          ]}
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
           size="small"
-          onChange={value => {
+          onChange={event => {
+            const value = event.target.value;
+
             // 'clickType', //1：立即执行  3：填写 'workflowType', // 1:执行 2：不执行
             if (value === 1) {
               if (!workflowId && btnId) {
@@ -622,7 +626,7 @@ class CreateCustomBtnCon extends React.Component {
               );
             }
           }}
-          checkedValue={clickType}
+          value={clickType}
         />
         {clickType === 1 && (
           <React.Fragment>
@@ -704,16 +708,17 @@ class CreateCustomBtnCon extends React.Component {
         )}
         <h5 className="textPrimary mTop32">{clickType === 1 ? _l('点击按钮时') : _l('提交时')}</h5>
         <Checkbox
-          className="checkBox InlineBlock"
-          text={_l('需要二次确认 / 填写备注')}
+          className="checkBox"
           checked={enableConfirm || clickType === 2}
-          onClick={() => {
+          onChange={() => {
             this.setState({
               enableConfirm: !(enableConfirm || clickType === 2),
               showDoubleConfirmDialog: !(enableConfirm || clickType === 2),
             });
           }}
-        />
+        >
+          {_l('需要二次确认 / 填写备注')}
+        </Checkbox>
         <br />
         {(enableConfirm || clickType === 2) && (
           <div className="filterTextCon">
@@ -749,30 +754,33 @@ class CreateCustomBtnCon extends React.Component {
           </div>
         )}
         <Checkbox
-          className="checkBox InlineBlock"
-          text={
-            <span>
-              {_l('登录密码验证')}
-              <Tooltip placement="bottom" title={_l('启用后，用户需要输入登录密码通过校验后才可执行自定义按钮')}>
-                <Icon icon="help_center" className="textTertiary mLeft5 Font16 TxtMiddle" />
-              </Tooltip>
-            </span>
-          }
+          className="checkBox"
           checked={verifyPwd}
-          onClick={() => {
+          onChange={() => {
             this.setState({
               verifyPwd: !verifyPwd,
             });
           }}
-        />
+        >
+          {
+            <span>
+              {_l('启用安全验证')}
+              <Tooltip
+                placement="bottom"
+                title={_l('开启后，执行该操作时需完成身份校验，验证方式以操作人个人账户的安全设置为准。')}
+              >
+                <Icon icon="help_center" className="textTertiary mLeft5 Font16 TxtMiddle" />
+              </Tooltip>
+            </span>
+          }
+        </Checkbox>
         {clickType === 3 && (
           <React.Fragment>
             <h5 className="textPrimary mTop32">{_l('提交后')}</h5>
             <Checkbox
-              className="checkBox InlineBlock"
-              text={_l('继续执行工作流')}
+              className="checkBox"
               checked={workflowType === 1}
-              onClick={() => {
+              onChange={() => {
                 if (!workflowId && workflowType !== 1 && btnId) {
                   this.getProcessByTriggerId(() => {
                     this.setState({
@@ -785,15 +793,16 @@ class CreateCustomBtnCon extends React.Component {
                   });
                 }
               }}
-            />
+            >
+              {_l('继续执行工作流')}
+            </Checkbox>
             {this.renderFlowText()}
             {workflowType === 1 && renderTips()}
             {workflowType === 1 && writeObject === 1 && writeType === 1 && (
               <Checkbox
-                className="checkBox InlineBlock"
-                text={_l('执行完成后继续填写')}
+                className="checkBox"
                 checked={_.get(this.state.advancedSetting, 'continuewrite') === '1'}
-                onClick={() => {
+                onChange={() => {
                   this.setState({
                     advancedSetting: {
                       ...this.state.advancedSetting,
@@ -801,14 +810,16 @@ class CreateCustomBtnCon extends React.Component {
                     },
                   });
                 }}
-              />
+              >
+                {_l('执行完成后继续填写')}
+              </Checkbox>
             )}
           </React.Fragment>
         )}
         <div className="line"></div>
         <h5 className="textPrimary">{_l('启用按钮')}</h5>
-        <RadioGroup
-          data={[
+        <Radio.Group
+          options={[
             {
               value: 1,
               text: _l('一直'),
@@ -817,9 +828,11 @@ class CreateCustomBtnCon extends React.Component {
               value: 2,
               text: _l('满足筛选条件'),
             },
-          ]}
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
           size="small"
-          onChange={value => {
+          onChange={event => {
+            const value = event.target.value;
+
             this.setState(
               {
                 showType: value,
@@ -833,11 +846,13 @@ class CreateCustomBtnCon extends React.Component {
               },
             );
           }}
-          checkedValue={showType}
+          value={showType}
         />
         {filters.length > 0 && showType === 2 && (
           <FilterItemTexts
             filterItemTexts={filterItemTexts}
+            filters={filters}
+            controls={this.props.columns}
             loading={false}
             editFn={() =>
               this.setState({
@@ -898,15 +913,13 @@ class CreateCustomBtnCon extends React.Component {
     return (
       <div className="mTop32 customBtnIconBox">
         <h5 className="textPrimary Bold">{_l('图标')}</h5>
-        <Trigger
-          action={['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 3],
-          }}
-          popupVisible={showCustomIcon}
-          onPopupVisibleChange={visible => this.setState({ showCustomIcon: visible })}
-          popup={
+        <Popover
+          trigger="click"
+          placement="bottomLeft"
+          noPadding
+          open={showCustomIcon}
+          onOpenChange={visible => this.setState({ showCustomIcon: visible })}
+          content={
             <ul className="buttonTrigger">
               {ICONS.map(item => {
                 return (
@@ -964,7 +977,7 @@ class CreateCustomBtnCon extends React.Component {
               <Icon type="expand_more" className="textTertiary Font18 mLeft8" />
             </div>
           </div>
-        </Trigger>
+        </Popover>
       </div>
     );
   };
@@ -974,7 +987,7 @@ class CreateCustomBtnCon extends React.Component {
       <div className="customBtnIconBox">
         <h5 className="textPrimary pTop16">{_l('按钮说明')}</h5>
         <div className="mTop10">
-          <input
+          <Input
             value={this.state.desc}
             placeholder={_l('请输入按钮说明')}
             onChange={event => {
@@ -982,7 +995,7 @@ class CreateCustomBtnCon extends React.Component {
                 desc: event.target.value,
               });
             }}
-            className={cx('descInput Font14')}
+            className="descInput"
           />
         </div>
       </div>
@@ -997,6 +1010,7 @@ class CreateCustomBtnCon extends React.Component {
 
     return (
       <DrawerFooter
+        wide
         saveLoading={saveLoading}
         disabled={disabled}
         onCancel={this.props.onClose}
@@ -1158,17 +1172,16 @@ class CreateCustomBtn extends React.Component {
     const { zIndex, onClose, isClickAway, btnI = '' } = this.props;
     return (
       <Drawer
-        width={640}
-        className={cx('createCustomBtnConDraw')}
+        size={640}
+        rootClassName={cx('createCustomBtnConDraw')}
         onClose={onClose}
         zIndex={zIndex}
-        mask={true}
+        mask={{ enabled: true, closable: !!isClickAway }}
         placement="right"
         getContainer={false}
-        visible={true}
-        maskClosable={!!isClickAway}
+        open={true}
         closable={false}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         <div className="createCustomBtnCon">
           <div className="flexColumn h100">

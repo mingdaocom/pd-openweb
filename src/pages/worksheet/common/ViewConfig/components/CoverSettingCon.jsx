@@ -1,26 +1,16 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Input } from 'ming-ui';
-import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { Input, Select, Switch } from 'ming-ui/antd-components';
 import { isGalleryOrBoardOrStructureOrDetail } from 'src/pages/worksheet/constants/common';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import { isIframeControl } from 'src/utils/domain/control/dynamicValue';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 import { CARD_WIDTH_OPTIONS, COVER_DISPLAY_FILL, COVER_DISPLAY_MODE, COVER_DISPLAY_POSITION } from '../config';
-import { SwitchStyle } from '../style';
 import { getCoverStyle } from '../utils';
 import ButtonTabs from './ButtonTabs';
 
 const SettingCon = styled.div`
-  .ming.Dropdown.isDelete .Dropdown--input .value,
-  .dropdownTrigger .Dropdown--input .value {
-    color: var(--color-error);
-  }
-  .ming.Dropdown.isDelete .Dropdown--border,
-  .dropdownTrigger .Dropdown--border {
-    border-color: var(--color-error);
-  }
   .navWidth {
     width: 48%;
     input[type='number'] {
@@ -33,16 +23,6 @@ const SettingCon = styled.div`
     .unit {
       right: 12px;
       line-height: 34px;
-    }
-    .ming.Input {
-      font-size: 13px;
-      border: 1px solid var(--color-border-primary);
-      &:hover {
-        border-color: var(--color-primary);
-      }
-      &:focus {
-        border-color: var(--color-primary);
-      }
     }
   }
   .cardWidthWrap {
@@ -112,6 +92,7 @@ export default class CoverSetting extends React.Component {
               [14, 47].includes(item.sourceControlType) ||
               (item.type === 45 && item.enumDefault === 1)
           : item => [14, 47].includes(item.type) || [14, 47].includes(item.sourceControlType),
+      formatter: ({ controlName, controlId }) => ({ label: controlName, value: controlId }),
     });
     let coverValue =
       _.get(
@@ -151,11 +132,10 @@ export default class CoverSetting extends React.Component {
         <div className="title Font13 bold">{_l('封面')}</div>
         <SettingCon>
           <div className="settingContent mTop8">
-            <Dropdown
-              data={coverControls.concat({ value: 'notDisplay', text: _l('不显示') })}
-              value={coverValue}
-              className={cx({ isDelete })}
-              border
+            <Select
+              options={coverControls.concat({ value: 'notDisplay', label: _l('不显示') })}
+              value={isDelete ? undefined : coverValue}
+              status={isDelete ? 'error' : undefined}
               style={{ width: '100%' }}
               onChange={value => {
                 let coverControl = _.find(coverColumns, item => item.controlId === value) || {};
@@ -251,17 +231,17 @@ export default class CoverSetting extends React.Component {
                   </div>
                 </CoverSettingCon>
                 <div className="configSwitch mTop10">
-                  <SwitchStyle className="flexRow alignItemsCenter">
+                  <div className="flexRow alignItemsCenter viewConfigSwitchRow">
                     {/* //空(默认没key)或者"1"：允许 "2"：不允许 */}
-                    <Icon
-                      icon={COVER_IMAGE_PREVIEW[opencover] ? 'ic_toggle_on' : 'ic_toggle_off'}
-                      className="Font28 Hand"
-                      onClick={() => {
+                    <Switch
+                      size="mini"
+                      checked={!!COVER_IMAGE_PREVIEW[opencover]}
+                      onChange={() => {
                         handleChangeOpencover(COVER_IMAGE_PREVIEW[opencover] ? '2' : '1');
                       }}
                     />
-                    <div className="switchText InlineBlock Normal mLeft10">{_l('允许点击查看')}</div>
-                  </SwitchStyle>
+                    <div className="InlineBlock Normal mLeft12">{_l('允许点击查看')}</div>
+                  </div>
                 </div>
               </Fragment>
             )}
@@ -292,7 +272,7 @@ export default class CoverSetting extends React.Component {
                         type="number"
                         min={200}
                         max={800}
-                        onChange={e => this.setState({ customWidth: e })}
+                        onChange={e => this.setState({ customWidth: e.target.value })}
                         onBlur={e => {
                           const value = Math.max(200, Math.min(800, e.target.value));
                           this.setState({ customWidth: value });

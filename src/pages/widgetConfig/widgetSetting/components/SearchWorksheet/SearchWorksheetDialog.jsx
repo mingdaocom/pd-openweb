@@ -1,29 +1,25 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Dropdown, LoadDiv, Menu, MenuItem, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import homeAppAjax from 'src/api/homeApp';
+import { Modal, Popover, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import { FORM_HIDDEN_CONTROL_IDS, ROW_ID_CONTROL, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget.js';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import 'src/pages/widgetConfig/styled/style.less';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getDefaultCount } from 'src/utils/control';
+import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getControls } from 'src/utils/domain/control/dynamicValue';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { getDefaultCount } from 'src/utils/domain/control/type';
+import { FORM_HIDDEN_CONTROL_IDS, ROW_ID_CONTROL, SYS_CONTROLS } from 'src/utils/domain/control/widget';
 import { RESULT_DISPLAY } from '../CustomEvent/config';
-import { DYNAMIC_FROM_MODE } from '../DynamicDefaultValue/config';
-import { SearchWorksheetWrap, WorksheetListWrap } from '../DynamicDefaultValue/styled';
-import { getControls } from '../DynamicDefaultValue/util';
+import { SearchWorksheetWrap } from '../DynamicDefaultValue/styled';
 import EmptyRuleConfig from '../EmptyRuleConfig';
 import SelectControl from '../SelectControl';
-import SelectWorksheet from './SelectWorksheet';
 
 const RadioDisplay = [
   {
@@ -76,9 +72,8 @@ export default class SearchWorksheetDialog extends Component {
       data: { relationControls = [] },
     } = props;
     this.state = {
+      initialized: false,
       id: '', //工作表查询配置id
-      sheetList: [],
-      originSheetList: [],
       appId: '', //应用id
       appName: '', //应用名
       sheetId: '', //工作表id
@@ -92,13 +87,10 @@ export default class SearchWorksheetDialog extends Component {
       resultType: 0, // 结果条件成立时
       moreSort: [], // 排序
       queryCount: '', // 查询数量
-      visible: false,
-      showMenu: false,
       controlVisible: false,
       relationControls: relationControls,
       sheetSwitchPermit: [],
       views: [],
-      loading: true,
       emptyRule: '',
     };
   }
@@ -138,6 +130,7 @@ export default class SearchWorksheetDialog extends Component {
         moreSort: queryConfig.moreSort,
         queryCount: queryConfig.queryCount,
         controls: tempControls,
+        appId: queryConfig.appId || globalSheetInfo.appId,
         sheetId: queryConfig.sourceId,
         sheetName: queryConfig.sourceName,
         isSheetDelete: isDelete,
@@ -147,26 +140,9 @@ export default class SearchWorksheetDialog extends Component {
 
     this.setState({
       ...stateParams,
+      initialized: true,
     });
   }
-
-  getWorksheetList = () => {
-    const { globalSheetInfo = {} } = this.props;
-    if (!globalSheetInfo.appId) return;
-    if (!_.isEmpty(this.state.originSheetList)) return;
-    this.setState({ loading: true });
-    homeAppAjax.getWorksheetsByAppId({ appId: globalSheetInfo.appId, type: 0 }).then(res => {
-      const sheetList = (res || []).map(({ workSheetId: sheetId, workSheetName: sheetName }) => ({
-        sheetId,
-        sheetName,
-      }));
-      this.setState({
-        sheetList,
-        originSheetList: sheetList,
-        loading: false,
-      });
-    });
-  };
 
   relateField = () => {
     const { data = {} } = this.props;
@@ -189,6 +165,31 @@ export default class SearchWorksheetDialog extends Component {
           appName: res.appName,
         });
       });
+  };
+
+  handleWorksheetChange = (newAppId, newSheetId, worksheet = {}) => {
+    const { appId, appName, sheetId } = this.state;
+    if (newSheetId === sheetId) return;
+
+    this.setState(
+      {
+        appId: newAppId,
+        appName: worksheet.appName || (newAppId === appId ? appName : ''),
+        sheetId: newSheetId,
+        sheetName: worksheet.workSheetName || '',
+        isSheetDelete: false,
+        controls: [],
+        items: [],
+        configs: [],
+        moreSort: [],
+        moreType: 0,
+        recordsNotFound: 0,
+        resultType: 0,
+        sheetSwitchPermit: [],
+        views: [],
+      },
+      this.setControls,
+    );
   };
 
   handleSubmit = () => {
@@ -252,13 +253,6 @@ export default class SearchWorksheetDialog extends Component {
     });
   };
 
-  handleSearch = _.throttle(value => {
-    const { originSheetList = [] } = this.state;
-    this.setState({
-      sheetList: value ? originSheetList.filter(i => (i.sheetName || '').indexOf(value) > -1) : originSheetList,
-    });
-  }, 300);
-
   // 获取子表下拉数据或查询表下拉数据
   getDropData = (controls = [], control = {}, hasRowId) => {
     let filterControls = getControls({
@@ -321,10 +315,8 @@ export default class SearchWorksheetDialog extends Component {
                 )}
               </div>
               <span className="mLeft20 mRight20">=</span>
-              <Dropdown
+              <Select
                 className="mapppingDropdown"
-                border
-                isAppendToBody
                 placeholder={
                   isDelete ? (
                     <Tooltip title={_l('ID: %0', item.subCid)} placement="bottom">
@@ -335,7 +327,7 @@ export default class SearchWorksheetDialog extends Component {
                   )
                 }
                 value={isDelete ? undefined : item.subCid || undefined}
-                data={subControls}
+                options={subControls.map(({ text, ...option }) => ({ ...option, label: text }))}
                 onChange={controlId => {
                   const currentItem = _.find(subControls, subControl => subControl.value === controlId) || {};
                   this.setState({
@@ -364,19 +356,14 @@ export default class SearchWorksheetDialog extends Component {
 
   render() {
     const {
+      initialized,
       sheetId,
-      appName,
-      sheetName,
+      appId,
       controls = [], //动态字段值显示的Controls
       configs = [],
-      sheetList = [],
       items = [],
       relationControls = [],
-      visible,
-      showMenu,
       controlVisible,
-      loading = false,
-      isSheetDelete,
       moreType,
       recordsNotFound,
       resultType,
@@ -423,12 +410,14 @@ export default class SearchWorksheetDialog extends Component {
     const isDelete =
       _.get(configs[0] || {}, 'subCid') &&
       !_.find(controls, con => con.controlId === _.get(configs[0] || {}, 'subCid'));
+    const queryFieldOptions = this.getDropData(controls, data).map(item => ({ ...item, label: item.text }));
 
     const filterItems = JSON.parse(JSON.stringify(items).replace(/"rcid":"parent"/g, '"rcid":""'));
-
     return (
-      <Dialog
-        visible={true}
+      <Modal
+        open={true}
+        mask={{ closable: true }}
+        keyboard
         title={<span className="Bold">{customTitle || _l('查询工作表')}</span>}
         width={640}
         onCancel={onClose}
@@ -441,120 +430,17 @@ export default class SearchWorksheetDialog extends Component {
         <SearchWorksheetWrap>
           <SettingItem className="mTop8">
             <div className="settingItemTitle">{_l('工作表')}</div>
-            <Trigger
-              action={['click']}
-              popupVisible={showMenu}
-              onPopupVisibleChange={showMenu => {
-                if (relateField) {
-                  return;
-                }
-
-                this.setState({ showMenu }, () => {
-                  if (showMenu) {
-                    this.getWorksheetList();
-                  }
-                });
-              }}
-              popupStyle={{ width: 592 }}
-              popup={() => {
-                return (
-                  <Fragment>
-                    {loading ? (
-                      <WorksheetListWrap>
-                        <LoadDiv className="mTop10 mBottom10 TxtCenter" />
-                      </WorksheetListWrap>
-                    ) : (
-                      <WorksheetListWrap>
-                        <Menu
-                          fixedHeader={
-                            <div
-                              className="flexRow"
-                              style={{
-                                padding: '0 16px 0 14px',
-                                height: 36,
-                                alignItems: 'center',
-                                borderBottom: '1px solid var(--color-border-tertiary)',
-                                marginBottom: 5,
-                              }}
-                            >
-                              <i className="icon-search textSecondary Font14" />
-                              <input
-                                type="text"
-                                autoFocus
-                                className="mLeft5 flex Border0 placeholderColor w100"
-                                placeholder={_l('搜索')}
-                                onChange={evt => this.handleSearch(evt.target.value.trim())}
-                              />
-                            </div>
-                          }
-                        >
-                          {sheetList.length > 0 ? (
-                            sheetList.map(item => {
-                              return (
-                                <MenuItem
-                                  onClick={() => {
-                                    if (item.sheetId === sheetId) return;
-                                    this.setState(
-                                      {
-                                        sheetId: item.sheetId,
-                                        items: [],
-                                        configs: [],
-                                        moreSort: [],
-                                        moreType: 0,
-                                        recordsNotFound: 0,
-                                        resultType: 0,
-                                        showMenu: false,
-                                      },
-                                      this.setControls,
-                                    );
-                                  }}
-                                >
-                                  {item.sheetName}
-                                </MenuItem>
-                              );
-                            })
-                          ) : (
-                            <MenuItem className="textTertiary">{_l('暂无搜索结果')}</MenuItem>
-                          )}
-                        </Menu>
-                        <div
-                          className="otherWorksheet"
-                          onClick={() => this.setState({ visible: true, showMenu: false })}
-                        >
-                          <div className="otherMenuItem">{_l('其他应用下的工作表')}</div>
-                        </div>
-                      </WorksheetListWrap>
-                    )}
-                  </Fragment>
-                );
-              }}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 3],
-                overflow: {
-                  adjustX: true,
-                  adjustY: true,
-                },
-              }}
-            >
-              <div className={cx('settingWorksheetInput', { disabled: relateField })} ref={con => (this.box = con)}>
-                <div className="overflow_ellipsis">
-                  {isSheetDelete ? (
-                    <span className="Red">{_l('工作表已删除')}</span>
-                  ) : sheetName ? (
-                    <span className="textPrimary">
-                      {sheetName}
-                      {appName && <span>（{appName}）</span>}
-                    </span>
-                  ) : (
-                    <span className="textDisabled">{_l('选择工作表')}</span>
-                  )}
-                </div>
-                <div className="edit">
-                  <i className="icon-arrow-down-border"></i>
-                </div>
-              </div>
-            </Trigger>
+            {initialized && (
+              <SelectWorksheet
+                worksheetType={0}
+                projectId={globalSheetInfo.projectId}
+                appId={appId || globalSheetInfo.appId}
+                currentWorksheetId={globalSheetInfo.worksheetId}
+                value={sheetId}
+                disabled={relateField}
+                onChange={this.handleWorksheetChange}
+              />
+            )}
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('查询条件')}</div>
@@ -591,13 +477,17 @@ export default class SearchWorksheetDialog extends Component {
           {eventKey === 'filters' ? (
             <SettingItem className="mTop12">
               <div className="settingItemTitle">{_l('查询到以下结果时条件成立')}</div>
-              <RadioGroup
+              <Radio.Group
                 size="middle"
                 className="searchRadio"
                 vertical={true}
-                checkedValue={resultType}
-                data={RESULT_DISPLAY}
-                onChange={value => this.setState({ resultType: value })}
+                value={resultType}
+                options={(RESULT_DISPLAY || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event =>
+                  this.setState({
+                    resultType: event.target.value,
+                  })
+                }
               />
             </SettingItem>
           ) : (
@@ -608,11 +498,10 @@ export default class SearchWorksheetDialog extends Component {
                   <Fragment>
                     <div>
                       {_l('将')}
-                      <Dropdown
+                      <Select
                         className="mLeft12 mRight12 Width250"
-                        border
-                        openSearch
-                        isAppendToBody
+                        showPopupSearch
+                        optionFilterProp="label"
                         placeholder={
                           isDelete ? (
                             <Tooltip placement="bottom" title={_l('ID: %0', _.get(configs[0] || {}, 'subCid'))}>
@@ -624,8 +513,11 @@ export default class SearchWorksheetDialog extends Component {
                         }
                         disabled={!sheetId}
                         value={isDelete ? undefined : _.get(configs[0] || {}, 'subCid')}
-                        data={this.getDropData(controls, data)}
-                        renderItem={(selectData = {}) => {
+                        labelRender={selectData => {
+                          return <span>{_.get(_.find(controls, { controlId: selectData.value }), 'controlName')}</span>;
+                        }}
+                        options={queryFieldOptions}
+                        optionRender={({ data: selectData = {} }) => {
                           return (
                             <span title={selectData.text}>
                               {selectData.text}
@@ -648,18 +540,17 @@ export default class SearchWorksheetDialog extends Component {
                       {_l('查询到的每行记录添加为一行子表明细。请选择需要写入的字段。')}
                     </div>
                     {this.renderMapping()}
-                    <Trigger
-                      action={['click']}
-                      popupVisible={controlVisible}
-                      onPopupVisibleChange={controlVisible => {
+                    <Popover
+                      trigger="click"
+                      open={controlVisible}
+                      onOpenChange={controlVisible => {
                         if (!sheetId) {
                           return;
                         }
 
                         this.setState({ controlVisible });
                       }}
-                      popupStyle={{ width: 280 }}
-                      popup={
+                      content={
                         <SelectControl
                           list={this.filterSelectControls(relationControls)}
                           onClick={item => {
@@ -669,14 +560,9 @@ export default class SearchWorksheetDialog extends Component {
                           }}
                         />
                       }
-                      popupAlign={{
-                        points: ['tl', 'bl'],
-                        offset: [0, 3],
-                        overflow: {
-                          adjustX: true,
-                          adjustY: true,
-                        },
-                      }}
+                      placement="bottomLeft"
+                      noPadding
+                      styles={{ container: { width: 280 } }}
                     >
                       <div className="addFilterIcon pointer">
                         <span
@@ -691,7 +577,7 @@ export default class SearchWorksheetDialog extends Component {
                           {_l('选择子表字段')}
                         </span>
                       </div>
-                    </Trigger>
+                    </Popover>
                   </div>
                 )}
               </SettingItem>
@@ -700,11 +586,15 @@ export default class SearchWorksheetDialog extends Component {
               {(normalField || (data.type === 29 && data.enumDefault === 1) || selfCascader) && (
                 <SettingItem className="mTop12">
                   <div className="settingItemTitle">{_l('查询到多条时')}</div>
-                  <RadioGroup
+                  <Radio.Group
                     size="middle"
-                    checkedValue={moreType}
-                    data={RadioDisplay}
-                    onChange={value => this.setState({ moreType: value })}
+                    value={moreType}
+                    options={(RadioDisplay || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+                    onChange={event =>
+                      this.setState({
+                        moreType: event.target.value,
+                      })
+                    }
                   />
                 </SettingItem>
               )}
@@ -750,37 +640,21 @@ export default class SearchWorksheetDialog extends Component {
 
               <SettingItem className="mTop12">
                 <div className="settingItemTitle">{_l('未查询到记录时')}</div>
-                <RadioGroup
+                <Radio.Group
                   size="middle"
-                  checkedValue={recordsNotFound}
-                  data={EmptyDisplay}
-                  onChange={value => this.setState({ recordsNotFound: value })}
+                  value={recordsNotFound}
+                  options={(EmptyDisplay || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+                  onChange={event =>
+                    this.setState({
+                      recordsNotFound: event.target.value,
+                    })
+                  }
                 />
               </SettingItem>
             </Fragment>
           )}
-
-          {visible && (
-            <SelectWorksheet
-              {...this.props}
-              {...this.state}
-              onClose={() => this.setState({ visible: false })}
-              onOk={data => {
-                this.setState(
-                  {
-                    appId: data.appId,
-                    appName: data.appName,
-                    sheetId: data.sheetId,
-                    items: data.sheetId === sheetId ? items : [],
-                    configs: [],
-                  },
-                  this.setControls,
-                );
-              }}
-            />
-          )}
         </SearchWorksheetWrap>
-      </Dialog>
+      </Modal>
     );
   }
 }

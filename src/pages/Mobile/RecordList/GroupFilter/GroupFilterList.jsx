@@ -1,17 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Breadcrumb } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Breadcrumb, Input } from 'ming-ui/antd-components';
 import departmentAjax from 'src/api/department.js';
 import fixedDataController from 'src/api/fixedData';
 import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { AREA, TYPES } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants';
 import {
   formatData,
@@ -24,12 +22,14 @@ import {
   sortDataByCustomNavs,
   transformCountsToData,
 } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
-import { getFilledRequestParams } from 'src/utils/common';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import './index.less';
 
 const GroupFilterList = props => {
@@ -533,13 +533,15 @@ const GroupFilterList = props => {
     });
     breadlist = breadlist.length ? breadlist.concat([{ ...source, txt: source.controlName }]) : [];
     if (breadlist.length) {
+      const reversedBreadlist = breadlist.reverse();
       return (
         <div className="breadNavbar" ref={breadNavBar}>
-          <Breadcrumb separator={''}>
-            {breadlist.reverse().map((item, index) => {
-              return (
-                <Breadcrumb.Item
-                  key={item.value}
+          <Breadcrumb
+            separator={''}
+            items={reversedBreadlist.map((item, index) => ({
+              key: item.value || item.controlId || item.txt || index,
+              title: (
+                <span
                   onClick={() => {
                     if (!item.value && (item.txt === _l('全部') || item.txt === allitemname)) {
                       fetchData({ worksheetId: item.wsid, appId, viewId: navGroup.viewId });
@@ -557,11 +559,13 @@ const GroupFilterList = props => {
                   }}
                 >
                   {item.txt}
-                  {index < breadlist.length - 1 && <Icon icon="arrow-right-border" className="breadIcon Font4" />}
-                </Breadcrumb.Item>
-              );
-            })}
-          </Breadcrumb>
+                  {index < reversedBreadlist.length - 1 && (
+                    <Icon icon="arrow-right-border" className="breadIcon Font4" />
+                  )}
+                </span>
+              ),
+            }))}
+          />
         </div>
       );
     }
@@ -786,22 +790,22 @@ const GroupFilterList = props => {
   return (
     <div className={`groupFilterContainer ${className}`} style={style}>
       {showSearch && (
-        <div className="searchBar flexRow">
-          <i className="icon icon-search Font17"></i>
-          <Input
-            value={searchValue}
-            placeholder={_l('搜索')}
-            className="flex"
-            onChange={value => {
-              let keyWords = value.trim();
-              setSearchValue(value);
-              debouncedSetKeywords.current(keyWords);
-              setCurrentNodeId();
-              setGroupFilterData([]);
-              setNextData([]);
-            }}
-          />
-        </div>
+        <Input
+          className="searchBar"
+          radius
+          variant="filled"
+          prefix={<i className="icon icon-search Font17"></i>}
+          value={searchValue}
+          placeholder={_l('搜索')}
+          onChange={event => {
+            const value = event.target.value;
+            setSearchValue(value);
+            debouncedSetKeywords.current(value.trim());
+            setCurrentNodeId();
+            setGroupFilterData([]);
+            setNextData([]);
+          }}
+        />
       )}
       {!keywords && navGroupData && currentNodeId && renderBreadcrumb()}
       {conRender()}

@@ -4,11 +4,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Modal } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../api/flowNode';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
 import nodeModules from '../../WorkflowSettings/EditFlow/nodeModules';
 import { NODE_TYPE } from '../../WorkflowSettings/enum';
 import { getSameLevelIds } from '../../WorkflowSettings/utils';
@@ -167,8 +167,11 @@ export class FlowChart extends Component {
           'workflowInclusionBranch',
           gatewayType === 1,
         );
-        const branchLeft = $branchEl.offset().left;
         const branchWidth = $branchEl.innerWidth();
+        const branchRect = $branchEl[0].getBoundingClientRect();
+        // 弹窗动画和画布缩放都会影响屏幕坐标，连线样式需还原为布局尺寸。
+        const renderedScale = branchRect.width / branchWidth;
+        const branchCenter = branchRect.left + branchRect.width / 2;
 
         if (index === ids.length - 1) {
           $branchEl
@@ -191,17 +194,15 @@ export class FlowChart extends Component {
         }
 
         const $nextEl = $(`.flowChartModal .workflowBox[data-id=${ids[index + 1]}]`);
-        const nextLeft = $nextEl.offset()?.left;
-        const nextWidth = $nextEl.innerWidth();
-        const diffWidth = branchWidth / 2 + branchLeft - (nextWidth / 2 + nextLeft);
+        const nextRect = $nextEl[0].getBoundingClientRect();
+        const diffWidth = (branchCenter - (nextRect.left + nextRect.width / 2)) / renderedScale;
         let moreBranchWidth = 0;
 
         // 经过分支多个补充宽度
         if (lastId && lastId !== ids[index + 1]) {
           const $lastEl = $(`.flowChartModal .workflowBox[data-id=${lastId}]`);
-          const lastLeft = $lastEl.offset().left;
-          const lastWidth = $lastEl.innerWidth();
-          const lastDiffWidth = branchWidth / 2 + branchLeft - (lastWidth / 2 + lastLeft);
+          const lastRect = $lastEl[0].getBoundingClientRect();
+          const lastDiffWidth = (branchCenter - (lastRect.left + lastRect.width / 2)) / renderedScale;
 
           if (diffWidth > 0 && lastDiffWidth < 0) {
             moreBranchWidth = Math.abs(lastDiffWidth);
@@ -286,10 +287,7 @@ export class FlowChart extends Component {
     return getSameLevelIds(data, firstId, excludeFirstId).map(id => {
       const item = data[id];
 
-      if (
-        !item ||
-        !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL, NODE_TYPE.WRITE, NODE_TYPE.CC], item.typeId)
-      )
+      if (!item || !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL, NODE_TYPE.WRITE, NODE_TYPE.CC], item.typeId))
         return null;
 
       const props = {
@@ -338,7 +336,12 @@ export class FlowChart extends Component {
         ) : (
           <div
             className="workflowEditContent"
-            style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center top' }}
+            style={{
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transform: `scale(${scale / 100})`,
+              transformOrigin: 'center top',
+            }}
           >
             <div className="flexColumn">
               <Start className="workflowBox" data-id={startEventId}>
@@ -414,15 +417,19 @@ export class FlowChart extends Component {
 export default memo(({ appId, processId, instanceId, selectNodeId, onClose = () => {} }) => {
   return (
     <Modal
-      visible
+      open
       className="flowChartModal"
-      closable={false}
-      title={
-        <div className="flexRow valignWrapper">
-          <div className="flex Font17 bold">{_l('流转图')}</div>
-          <Icon className="textSecondary Font20 pointer" icon="close" onClick={onClose} />
-        </div>
-      }
+      title={_l('流转图')}
+      styles={{
+        header: {
+          borderBottom: '1px solid var(--color-border-secondary)',
+          padding: '15px 24px',
+          marginBottom: 0,
+        },
+        container: {
+          padding: 0,
+        },
+      }}
       type="fixed"
       width={window.outerWidth - 60}
       onCancel={onClose}

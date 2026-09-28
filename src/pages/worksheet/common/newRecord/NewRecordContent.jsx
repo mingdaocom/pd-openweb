@@ -1,31 +1,37 @@
-﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from 'antd-mobile';
 import cx from 'classnames';
 import _, { find, get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { EditingBar, ScrollView } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Modal } from 'ming-ui/antd-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { openGlobalRecordInfo } from 'worksheet/common/recordInfo';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
-import { BUTTON_ACTION_TYPE } from 'worksheet/constants/enum';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
-import { canEditData } from 'worksheet/redux/actions/util';
-import { ADD_EVENT_ENUM } from 'src/components/Form/core/enum';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { openWorkSheetDraft } from 'src/pages/worksheet/common/WorksheetDraft';
+import { useWorkSheetDraftModal } from 'src/pages/worksheet/common/WorksheetDraft';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import Share from 'src/pages/worksheet/components/Share';
-import { browserIsMobile, emitter, getRequest } from 'src/utils/common';
-import { removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/common';
-import { KVGet } from 'src/utils/common';
-import { isRelateRecordTableControl } from 'src/utils/control';
-import { compatibleMDJS } from 'src/utils/project';
-import { formatRecordToRelateRecord, getRecordTempValue, parseRecordTempValue } from 'src/utils/record';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { canEditData } from 'src/utils/domain/permission/app';
+import { BUTTON_ACTION_TYPE } from 'src/utils/domain/worksheet/constants';
+import {
+  formatRecordToRelateRecord,
+  getRecordTempValue,
+  parseRecordTempValue,
+} from 'src/utils/domain/worksheet/record';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/services/cache/record';
+import { KVGet } from 'src/utils/services/cache/record';
+import { compatibleMDJS } from 'src/utils/services/project';
 import RecordInfoContext from '../recordInfo/RecordInfoContext';
 import MobileRecordRecoverConfirm from './MobileNewRecord/components/RecordRecoverConfirm';
 import './NewRecord.less';
@@ -42,8 +48,8 @@ const Con = styled.div`
     .recordInfoForm {
       flex: 1;
       min-width: 0;
-      padding: ${({ isMobile }) => (isMobile ? '0 20px' : ' 0 32px')};
-      overflow-x: ${({ isMobile }) => (isMobile ? 'hidden' : 'unset')};
+      padding: ${({ $isMobile }) => ($isMobile ? '0 20px' : ' 0 32px')};
+      overflow-x: ${({ $isMobile }) => ($isMobile ? 'hidden' : 'unset')};
     }
   }
 `;
@@ -83,7 +89,7 @@ function focusInput(formcon) {
 
     const focusTarget =
       el.querySelector('.customFormTextareaBox:not(.customFormReadonly):not(.controlDisabled)') ||
-      el.querySelector('.customFormControlBox.classtabfocus:not(.controlDisabled)') ||
+      el.querySelector('.classtabfocus:not(.customFormReadonly):not(.controlDisabled)') ||
       el.querySelector('.customFormControlBox:not(.customFormReadonly):not(.controlDisabled)');
 
     if (focusTarget) {
@@ -147,6 +153,7 @@ function NewRecordForm(props) {
     formLoading: true,
     pendingFunctions: [],
   });
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
   const cellObjs = useRef({});
   const isSubmitting = useRef(false);
   // 提交锁必须用 ref：requesting 是 state，连点提交时 onSave 闭包里读到的仍是旧值，拦不住第二次提交
@@ -170,6 +177,7 @@ function NewRecordForm(props) {
   const [offlineTempId, setOfflineTempId] = useState('');
   const [filledByAiMap, setFilledByAiMap] = useState({});
   const [isRenderForm, setIsRenderForm] = useState(true);
+  const { open: openWorkSheetDraft, holder: workSheetDraftHolder } = useWorkSheetDraftModal();
   const [formResetFlag, setFormResetFlag] = useState('');
   const { offlineUpload } = getRequest();
 
@@ -238,12 +246,14 @@ function NewRecordForm(props) {
                 return;
               }
 
-              Confirm({
+              Modal.confirm({
                 className: '',
                 title: _l('您的草稿箱已满，无法保存'),
-                description: _l('草稿箱中的草稿数量已经达到10条'),
+                content: _l('草稿箱中的草稿数量已经达到10条'),
                 okText: _l('查看草稿箱'),
-                buttonType: 'primary',
+                okButtonProps: {
+                  type: 'default',
+                },
                 cancelText: _l('我知道了'),
                 onOk: () => {
                   openWorkSheetDraft({
@@ -484,7 +494,8 @@ function NewRecordForm(props) {
                   filledByAiMap: props.mobileFilledByAiMap,
                 });
               } else {
-                openRecordInfo({
+                // 当前新建弹层会先关闭并卸载，由全局 Holder 承接随后打开的记录详情。
+                openGlobalRecordInfo({
                   appId: appId,
                   worksheetId: worksheetId,
                   recordId: rowData.rowid,
@@ -851,6 +862,7 @@ function NewRecordForm(props) {
   return (
     <RecordInfoContext.Provider
       value={{
+        openPreviewAttachments,
         updateWorksheetControls: newControls => {
           newControls.forEach(control => {
             try {
@@ -867,7 +879,8 @@ function NewRecordForm(props) {
         },
       }}
     >
-      <Con isMobile={isMobile}>
+      {previewAttachmentsHolder}
+      <Con $isMobile={isMobile}>
         {isMobile ? (
           <MobileRecordRecoverConfirm
             visible={restoreVisible}
@@ -1002,6 +1015,7 @@ function NewRecordForm(props) {
                           'rowid',
                           'uaid',
                         ],
+
                         it.controlId,
                       ),
                   )}
@@ -1089,6 +1103,7 @@ function NewRecordForm(props) {
             </div>
           )}
         </RecordCon>
+        {workSheetDraftHolder}
       </Con>
     </RecordInfoContext.Provider>
   );

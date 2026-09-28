@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
-import { Dropdown } from 'ming-ui';
-import Time from 'ming-ui/components/NewTimePicker';
+import moment from 'moment';
+import { Select, TimePicker } from 'ming-ui/antd-components';
 import { TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 
 export default ({ projectId, processId, relationId, selectNodeId, data, text, minDate, onChange }) => {
   const UNIT_List = [
-    { text: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
-    { text: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
-    { text: TIME_TYPE_NAME[TIME_TYPE.DAY], value: TIME_TYPE.DAY },
+    { label: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
+    { label: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
+    { label: TIME_TYPE_NAME[TIME_TYPE.DAY], value: TIME_TYPE.DAY },
   ];
 
   return data.type === 1 ? (
@@ -27,12 +27,11 @@ export default ({ projectId, processId, relationId, selectNodeId, data, text, mi
           updateSource={executeTime => onChange(Object.assign({}, data, { executeTime }))}
         />
       </div>
-      <Dropdown
+      <Select
         className="mLeft10"
         style={{ width: 100 }}
-        data={UNIT_List}
+        options={UNIT_List}
         value={data.unit}
-        border
         onChange={unit => {
           onChange(Object.assign({}, data, { unit }));
         }}
@@ -63,18 +62,17 @@ export default ({ projectId, processId, relationId, selectNodeId, data, text, mi
       {data.executeTime && !!data.executeTime.fieldControlType && data.executeTime.fieldControlType === 15 && (
         <Fragment>
           <div className="mLeft10">{_l('的')}</div>
-          <div className="mLeft10" style={{ width: 100 }}>
-            <Time
-              type="minute"
-              value={{
-                hour: data.dayTime ? parseInt(data.dayTime.split(':')[0]) : 8,
-                minute: data.dayTime ? parseInt(data.dayTime.split(':')[1]) : 0,
-                second: 0,
-              }}
-              onChange={(event, value) => {
+          <div className="mLeft10">
+            <TimePicker
+              allowClear={false}
+              format="HH:mm"
+              inputReadOnly
+              showNow={false}
+              value={moment(data.dayTime || '08:00', 'HH:mm')}
+              onChange={(time, timeString) => {
                 onChange(
                   Object.assign({}, data, {
-                    dayTime: value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
+                    dayTime: timeString,
                   }),
                 );
               }}

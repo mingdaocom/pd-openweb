@@ -1,13 +1,15 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
-import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DISPLAY_FROZEN_LIST } from 'src/utils/domain/control/setting';
 import TableConfig from './component/TableConfig';
+import TitleWrapConfig from './component/TitleWrapConfig';
 import TreeTableLevel from './component/TreeTableLevel';
+
+const DISPLAY_FROZEN_OPTIONS = DISPLAY_FROZEN_LIST.map(({ text: label, ...option }) => ({ ...option, label }));
 
 export default function RelateStyle(props) {
   const { data, onChange } = props;
@@ -16,8 +18,6 @@ export default function RelateStyle(props) {
     allowedit = '1',
     layercontrolid,
     showtype,
-    titlewrap,
-    rctitlestyle = '0',
     hidenumber,
     direction = '0',
     querytype,
@@ -27,7 +27,7 @@ export default function RelateStyle(props) {
   const tableControls = _.get(data, 'relationControls') || [];
   const tableData = tableControls
     .filter(c => c.type === 29 && c.dataSource === data.dataSource && c.enumDefault === 1)
-    .map(i => ({ value: i.controlId, text: i.controlName }));
+    .map(i => ({ value: i.controlId, label: i.controlName }));
 
   const isDelete = layercontrolid && !_.find(tableControls, t => t.controlId === layercontrolid);
   const isUnSupport =
@@ -41,11 +41,11 @@ export default function RelateStyle(props) {
 
       <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('冻结列')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           value={freezeIds[0] || '0'}
-          maxHeight={250}
-          data={DISPLAY_FROZEN_LIST}
+          listHeight={250}
+          options={DISPLAY_FROZEN_OPTIONS}
           onChange={value => {
             onChange(handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }));
           }}
@@ -62,21 +62,21 @@ export default function RelateStyle(props) {
               </Tooltip>
             )}
           </div>
-          <Dropdown
-            border
-            className={cx({ error: isUnSupport })}
-            cancelAble
+          <Select
+            className="w100"
+            status={isUnSupport ? 'error' : undefined}
+            allowClear
             placeholder={_l('选择关联表中的关联本表字段')}
             value={layercontrolid || undefined}
-            data={tableData}
-            renderTitle={() => {
+            options={tableData}
+            labelRender={() => {
               if (isDelete) return <span className="Red">{_l('已删除')}</span>;
               return _.get(
                 _.find(tableControls, t => t.controlId === layercontrolid),
                 'controlName',
               );
             }}
-            noData={_l('未添加关联本表字段')}
+            notFoundContent={_l('未添加关联本表字段')}
             onChange={value => {
               if (layercontrolid === value) return;
               onChange(
@@ -99,18 +99,31 @@ export default function RelateStyle(props) {
         <div className="settingItemTitle">{_l('其他')}</div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={hidenumber !== '1'}
-            text={_l('显示序号')}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { hidenumber: String(+checked) }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  hidenumber: String(+!event.target.checked),
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('显示序号')}
+          </Checkbox>
         </div>
         {querytype !== '1' && (
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={allowedit === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowedit: String(+!checked) }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowedit: String(+event.target.checked),
+                  }),
+                )
+              }
+              size="small"
             >
               <span style={{ marginRight: '4px' }}>{_l('允许行内编辑')}</span>
               <Tooltip placement="bottom" title={_l('无需打开记录详情，在表格行内直接编辑字段')}>
@@ -121,46 +134,20 @@ export default function RelateStyle(props) {
         )}
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={alternatecolor === '1'}
-            text={_l('显示交替行颜色')}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { alternatecolor: String(+!checked) }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  alternatecolor: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('显示交替行颜色')}
+          </Checkbox>
         </div>
-        {direction !== '1' && (
-          <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
-            <div className="labelWrap LineHeight36 mTop0">
-              <Checkbox
-                size="small"
-                checked={titlewrap === '1'}
-                text={_l('标题行文字换行')}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
-              />
-            </div>
-            {titlewrap === '1' && (
-              <AnimationWrap style={{ width: '112px' }}>
-                {DISPLAY_RC_TITLE_STYLE.map(({ icon, value, text }) => {
-                  return (
-                    <Tooltip title={text}>
-                      <div
-                        className={cx('animaItem', { active: rctitlestyle === value })}
-                        onClick={() => {
-                          onChange(
-                            handleAdvancedSettingChange(data, {
-                              rctitlestyle: value,
-                            }),
-                          );
-                        }}
-                      >
-                        <Icon icon={icon} className="Font18" />
-                      </div>
-                    </Tooltip>
-                  );
-                })}
-              </AnimationWrap>
-            )}
-          </div>
-        )}
+        {direction !== '1' && <TitleWrapConfig {...props} />}
       </SettingItem>
     </Fragment>
   );

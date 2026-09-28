@@ -6,17 +6,21 @@ import { find, findIndex, get, includes, isArray, isEmpty, isEqual, uniq, uniqBy
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape } from 'prop-types';
 import styled from 'styled-components';
-import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import { useBatchEditRecord } from 'worksheet/common/BatchEditRecord';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import RowHeadColumn from 'worksheet/components/BaseColumnHead/RowHeadColumn';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { SummaryCell } from 'worksheet/components/WorksheetTable/components/';
-import { RECORD_INFO_FROM, ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { emitter } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
-import { getRecordColorConfig } from 'src/utils/record';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { RECORD_INFO_FROM, ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { getSheetStylesOfRelateRecordTable } from 'src/utils/domain/worksheet/helpers';
+import { getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { getSheetViewRows } from 'src/utils/domain/worksheet/tree';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { addBehaviorLog } from 'src/utils/services/project';
 import * as actions from './redux/action';
 import ColumnHead from './RelateRecordTableColumnHead';
 import RowHead from './RelateRecordTableRowHead';
@@ -137,6 +141,8 @@ function TableComp(props) {
     onUpdateCell = () => {},
     isDraft,
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const { open: openBatchEditRecord, holder: batchEditRecordHolder } = useBatchEditRecord();
   const { isCustomButtonFillRecord } = control || {};
   const { addedRecords = [] } = changes;
   let { records } = props;
@@ -158,6 +164,7 @@ function TableComp(props) {
     controlPermission,
     allowRemoveRelation,
     relateWorksheetInfo = {},
+    manageView,
     addVisible,
     isHiddenOtherViewRecord,
     showNumber,
@@ -196,6 +203,25 @@ function TableComp(props) {
   }, [controls, control, sheetHiddenColumnIds, records, treeTableViewData.maxLevel]);
   const isRelationRecord = control.type === 51;
   const columnWidthsOfSetting = useMemo(() => getCellWidths(control, controls), [control, controls]);
+  // 勾选「列样式与工作表保持一致」后，继承关联工作表指定视图/数据管理视图的列样式（列宽 + 对齐方式 + 样式），
+  // 此时忽略字段自身保存的列宽；拖拽列宽仅临时生效、不保存。
+  const useColumnStyle = get(control, 'advancedSetting.usecolumnstyle') === '1';
+  const inheritedSheetStyles = useMemo(
+    () =>
+      useColumnStyle
+        ? getSheetStylesOfRelateRecordTable({
+            control,
+            viewId: control.viewId,
+            worksheetInfo: relateWorksheetInfo,
+            manageView,
+          })
+        : undefined,
+    [useColumnStyle, control, relateWorksheetInfo, manageView],
+  );
+  const columnStyles = useColumnStyle ? get(inheritedSheetStyles, 'columnStyles') : undefined;
+  const baseColumnWidths = useColumnStyle
+    ? get(inheritedSheetStyles, 'sheetColumnWidths') || {}
+    : columnWidthsOfSetting;
   const tableConfig = getTableConfig(control);
   const { showQuickFromSetting, allowOpenRecord, allowDeleteFromSetting } = tableConfig;
   const emptyRowCount = isTab ? 3 : 1;
@@ -282,12 +308,14 @@ function TableComp(props) {
         rowIndex={rowIndex}
         row={row}
         layoutChangeVisible={isCharge && layoutChanged}
+        isCharge={isCharge}
         allowRemoveRelation={canRemoveRelation}
         tableControls={controls}
         sheetSwitchPermit={sheetSwitchPermit}
         appId={relateWorksheetInfo.appId}
         viewId={control.viewId}
         worksheetId={relateWorksheetInfo.worksheetId}
+        printCountEnabled={get(relateWorksheetInfo, 'advancedSetting.print_count_enabled') === '1'}
         relateRecordControlPermission={controlPermission}
         allowAdd={addVisible}
         allowDelete={allowDeleteFromSetting}
@@ -310,7 +338,12 @@ function TableComp(props) {
           appendRecords([{ ...record, pid: row.pid }], { afterRecordId });
         }}
         saveSheetLayout={() => {
-          handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting });
+          handleSaveSheetLayout({
+            updateWorksheetControls,
+            columns,
+            columnWidthsOfSetting,
+            skipWidths: useColumnStyle,
+          });
         }}
         resetSheetLayout={() => {
           updateTableState({
@@ -324,6 +357,7 @@ function TableComp(props) {
         onRecreate={() => {
           handleRecreateRecord(row, {
             openRecord: id => handleOpenRecordInfo({ recordId: id }),
+            openAddRecord,
             isDraft,
           });
         }}
@@ -410,220 +444,226 @@ function TableComp(props) {
   };
 
   return (
-    <WorksheetTable
-      showControlStyle
-      isDraft={isDraft}
-      isTreeTableView={isTreeTableView}
-      treeLayerControlId={treeLayerControlId}
-      treeTableViewData={treeTableViewData}
-      expandCellAppendWidth={dataCache.current.expandCellAppendWidth}
-      tableId={tableId}
-      scrollBarHoverShow
-      isRelateRecordList
-      wrapControlName={get(control, 'advancedSetting.titlewrap') === '1'}
-      headTitleCenter={get(control, 'advancedSetting.rctitlestyle') === '1'}
-      direction={direction}
-      recordColorConfig={view ? getRecordColorConfig(view) : undefined}
-      disablePanVertical
-      showSummary={showSummary}
-      renderFooterCell={showSummary ? renderFooterCell : undefined}
-      {...tableConfig}
-      ref={worksheetTableRef}
-      loading={tableLoading}
-      fromModule={WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD}
-      fixedColumnCount={fixedColumnCount}
-      masterData={() => ({
-        controlId: control.controlId,
-        recordId,
-        worksheetId,
-        formData,
-      })}
-      masterRecord={
-        base.saveSync
-          ? {
-              rowId: recordId,
-              controlId: control.controlId,
-              worksheetId,
-            }
-          : undefined
-      }
-      rowCount={!useHeight ? rowCount : undefined}
-      defaultScrollLeft={defaultScrollLeft}
-      allowlink={get(control, 'advancedSetting.allowlink')}
-      viewId={control.viewId}
-      sheetSwitchPermit={sheetSwitchPermit}
-      lineEditable={
-        (tableConfig.allowLineEdit || control.type === 51) &&
-        !control.disabled &&
-        allowEdit &&
-        controlPermission.editable &&
-        isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, control.viewId)
-      }
-      noRenderEmpty
-      projectId={relateWorksheetInfo.projectId}
-      appId={relateWorksheetInfo.appId}
-      worksheetId={relateWorksheetInfo.worksheetId}
-      rules={relateWorksheetInfo.rules}
-      rowHeadWidth={rowHeadWidth}
-      rowHeight={ROW_HEIGHT[rowHeight] || 34}
-      controls={controls}
-      data={tableData}
-      allowAdd={addVisible}
-      columns={columns}
-      sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
-      sheetViewHighlightRows={highlightRows}
-      renderRowHead={renderRowHead}
-      renderColumnHead={({ ...rest }) => {
-        const { control } = rest;
-
-        if (direction === 'vertical') {
-          return <RowHeadColumn columnIndex={rest.rowIndex} control={control} showNumber={showNumber} {...rest} />;
-        }
-
-        return (
-          <ColumnHead
-            {...rest}
-            iseditting={iseditting}
-            hideFilter={isTreeTableView}
-            isCustomButtonFillRecord={isCustomButtonFillRecord}
-            control={
-              disableMaskDataControls[control.controlId]
-                ? {
-                    ...control,
-                    advancedSetting: Object.assign({}, control.advancedSetting, {
-                      datamask: '0',
-                    }),
-                  }
-                : control
-            }
-            visibleControls={columns}
-            isRelationRecord={isRelationRecord}
-            disabled={isNewRecord || from === RECORD_INFO_FROM.DRAFT}
-            isNewRecord={isNewRecord}
-            sheetHiddenColumnIds={sheetHiddenColumnIds}
-            tableId={tableId}
-            selectedRowIds={selectedRowIds}
-            isAsc={rest.control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
-            isDraft={isDraft}
-            changeSort={newIsAsc => {
-              let newDefaultScrollLeft;
-
-              try {
-                const scrollX = worksheetTableRef.current.con.querySelector(`.sheetViewTable .scroll-x`);
-
-                if (scrollX) {
-                  newDefaultScrollLeft = scrollX.scrollLeft;
-                }
-              } catch (err) {
-                console.error(err);
-              }
-
-              updateSort({
-                newIsAsc,
-                controlId: rest.control.controlId,
-                newDefaultScrollLeft,
-              });
-            }}
-            hideColumn={controlId => {
-              updateTableState({
-                sheetHiddenColumnIds: uniqBy(sheetHiddenColumnIds.concat(controlId)),
-              });
-            }}
-            clearHiddenColumn={() => {
-              updateTableState({
-                layoutChanged: true,
-                sheetHiddenColumnIds: [],
-              });
-            }}
-            frozen={index => {
-              updateTableState({
-                layoutChanged: true,
-                fixedColumnCount: index,
-              });
-            }}
-            onShowFullValue={() => {
-              addBehaviorLog('worksheetBatchDecode', _.get(props, 'control.dataSource'), {
+    <React.Fragment>
+      {addRecordHolder}
+      {batchEditRecordHolder}
+      <WorksheetTable
+        showControlStyle
+        isDraft={isDraft}
+        isTreeTableView={isTreeTableView}
+        treeLayerControlId={treeLayerControlId}
+        treeTableViewData={treeTableViewData}
+        expandCellAppendWidth={dataCache.current.expandCellAppendWidth}
+        tableId={tableId}
+        scrollBarHoverShow
+        isRelateRecordList
+        wrapControlName={get(control, 'advancedSetting.titlewrap') === '1'}
+        headTitleCenter={get(control, 'advancedSetting.rctitlestyle') === '1'}
+        direction={direction}
+        recordColorConfig={view ? getRecordColorConfig(view) : undefined}
+        disablePanVertical
+        showSummary={showSummary}
+        renderFooterCell={showSummary ? renderFooterCell : undefined}
+        {...tableConfig}
+        ref={worksheetTableRef}
+        loading={tableLoading}
+        fromModule={WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD}
+        fixedColumnCount={fixedColumnCount}
+        masterData={() => ({
+          controlId: control.controlId,
+          recordId,
+          worksheetId,
+          formData,
+        })}
+        masterRecord={
+          base.saveSync
+            ? {
+                rowId: recordId,
                 controlId: control.controlId,
-              });
-              updateTableState({
-                disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true },
-              });
-            }}
-            handleBatchUpdateRecords={activeControl => {
-              batchUpdateRecords({ selectedRowIds, records, activeControl });
-            }}
-          />
-        );
-      }}
-      onCellClick={(cell, row) => {
-        addBehaviorLog('worksheetRecord', _.get(props, 'control.dataSource'), { rowId: row.rowid }); // 埋点
-        handleOpenRecordInfo({
-          recordId: row.rowid,
-          activeRelateTableControlIdOfRecord: cell.type === 29 ? cell.controlId : undefined,
-        });
-        updateTableState({
-          highlightRows: {},
-        });
-      }}
-      updateCell={(args, options = {}) => {
-        updateCell(args, {
-          ...options,
-          updateSuccessCb: (...cbArgs) => {
-            onUpdateCell();
-            if (_.isFunction(options.updateSuccessCb)) {
-              options.updateSuccessCb(...cbArgs);
-            }
-          },
-        });
-      }}
-      onColumnWidthChange={(controlId, value) => {
-        updateTableState({
-          layoutChanged: true,
-          sheetColumnWidths: { ...sheetColumnWidths, [controlId]: value },
-        });
-      }}
-      actions={{
-        updateTreeNodeExpansion,
-        onTreeAddRecord: (parentRow, record) => {
-          const newRecord = { ...record, pid: parentRow.rowid };
-          appendRecords([newRecord]);
-          updateTreeNodeExpansion(parentRow, {
-            forceUpdate: true,
-            getNewRows: () => Promise.resolve([newRecord]),
-            updateRows: ([recordId], changes) => {
-              updateRecordByRecordId(recordId, changes);
+                worksheetId,
+              }
+            : undefined
+        }
+        rowCount={!useHeight ? rowCount : undefined}
+        defaultScrollLeft={defaultScrollLeft}
+        allowlink={get(control, 'advancedSetting.allowlink')}
+        viewId={control.viewId}
+        sheetSwitchPermit={sheetSwitchPermit}
+        lineEditable={
+          (tableConfig.allowLineEdit || control.type === 51) &&
+          !control.disabled &&
+          allowEdit &&
+          controlPermission.editable &&
+          isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, control.viewId)
+        }
+        noRenderEmpty
+        projectId={relateWorksheetInfo.projectId}
+        appId={relateWorksheetInfo.appId}
+        worksheetId={relateWorksheetInfo.worksheetId}
+        rules={relateWorksheetInfo.rules}
+        rowHeadWidth={rowHeadWidth}
+        rowHeight={ROW_HEIGHT[rowHeight] || 34}
+        controls={controls}
+        data={tableData}
+        allowAdd={addVisible}
+        columns={columns}
+        columnStyles={columnStyles}
+        sheetColumnWidths={{ ...baseColumnWidths, ...sheetColumnWidths }}
+        sheetViewHighlightRows={highlightRows}
+        renderRowHead={renderRowHead}
+        renderColumnHead={({ ...rest }) => {
+          const { control } = rest;
+
+          if (direction === 'vertical') {
+            return <RowHeadColumn columnIndex={rest.rowIndex} control={control} showNumber={showNumber} {...rest} />;
+          }
+
+          return (
+            <ColumnHead
+              {...rest}
+              iseditting={iseditting}
+              hideFilter={isTreeTableView}
+              isCustomButtonFillRecord={isCustomButtonFillRecord}
+              control={
+                disableMaskDataControls[control.controlId]
+                  ? {
+                      ...control,
+                      advancedSetting: Object.assign({}, control.advancedSetting, {
+                        datamask: '0',
+                      }),
+                    }
+                  : control
+              }
+              visibleControls={columns}
+              isRelationRecord={isRelationRecord}
+              disabled={isNewRecord || from === RECORD_INFO_FROM.DRAFT}
+              isNewRecord={isNewRecord}
+              sheetHiddenColumnIds={sheetHiddenColumnIds}
+              tableId={tableId}
+              selectedRowIds={selectedRowIds}
+              isAsc={rest.control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
+              isDraft={isDraft}
+              changeSort={newIsAsc => {
+                let newDefaultScrollLeft;
+
+                try {
+                  const scrollX = worksheetTableRef.current.con.querySelector(`.sheetViewTable .scroll-x`);
+
+                  if (scrollX) {
+                    newDefaultScrollLeft = scrollX.scrollLeft;
+                  }
+                } catch (err) {
+                  console.error(err);
+                }
+
+                updateSort({
+                  newIsAsc,
+                  controlId: rest.control.controlId,
+                  newDefaultScrollLeft,
+                });
+              }}
+              hideColumn={controlId => {
+                updateTableState({
+                  sheetHiddenColumnIds: uniqBy(sheetHiddenColumnIds.concat(controlId)),
+                });
+              }}
+              clearHiddenColumn={() => {
+                updateTableState({
+                  layoutChanged: true,
+                  sheetHiddenColumnIds: [],
+                });
+              }}
+              frozen={index => {
+                updateTableState({
+                  layoutChanged: true,
+                  fixedColumnCount: index,
+                });
+              }}
+              onShowFullValue={() => {
+                addBehaviorLog('worksheetBatchDecode', _.get(props, 'control.dataSource'), {
+                  controlId: control.controlId,
+                });
+                updateTableState({
+                  disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true },
+                });
+              }}
+              handleBatchUpdateRecords={activeControl => {
+                batchUpdateRecords({ selectedRowIds, records, activeControl, openBatchEditRecord });
+              }}
+            />
+          );
+        }}
+        onCellClick={(cell, row) => {
+          addBehaviorLog('worksheetRecord', _.get(props, 'control.dataSource'), { rowId: row.rowid }); // 埋点
+          handleOpenRecordInfo({
+            recordId: row.rowid,
+            activeRelateTableControlIdOfRecord: cell.type === 29 ? cell.controlId : undefined,
+          });
+          updateTableState({
+            highlightRows: {},
+          });
+        }}
+        updateCell={(args, options = {}) => {
+          updateCell(args, {
+            ...options,
+            updateSuccessCb: (...cbArgs) => {
+              onUpdateCell();
+              if (_.isFunction(options.updateSuccessCb)) {
+                options.updateSuccessCb(...cbArgs);
+              }
             },
           });
-        },
-      }}
-      renderCompInMainCenter={() => {
-        return (
-          <ColumnPopupOperateCon>
-            <span className="iconButton">
-              <i className="icon icon-worksheet_enlarge"></i>
-            </span>
-          </ColumnPopupOperateCon>
-        );
-      }}
-      cellProps={{
-        renderColumnPopupContent: args =>
-          renderRowHead({
-            ...args,
-            isColumnPopup: true,
-          }),
-      }}
-      onHoverColumnChange={columnIndex => {
-        console.log('onHoverColumnChange', columnIndex);
-        if (typeof columnIndex === 'undefined') {
-          emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
-        } else {
-          emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, {
-            newHoverColumnIndex: columnIndex,
-            visible: true,
+        }}
+        onColumnWidthChange={(controlId, value) => {
+          updateTableState({
+            // 继承列样式时，拖拽列宽仅临时生效，不进入可保存的布局变更
+            ...(useColumnStyle ? {} : { layoutChanged: true }),
+            sheetColumnWidths: { ...sheetColumnWidths, [controlId]: value },
           });
-        }
-      }}
-    />
+        }}
+        actions={{
+          updateTreeNodeExpansion,
+          onTreeAddRecord: (parentRow, record) => {
+            const newRecord = { ...record, pid: parentRow.rowid };
+            appendRecords([newRecord]);
+            updateTreeNodeExpansion(parentRow, {
+              forceUpdate: true,
+              getNewRows: () => Promise.resolve([newRecord]),
+              updateRows: ([recordId], changes) => {
+                updateRecordByRecordId(recordId, changes);
+              },
+            });
+          },
+        }}
+        renderCompInMainCenter={() => {
+          return (
+            <ColumnPopupOperateCon>
+              <span className="iconButton">
+                <i className="icon icon-worksheet_enlarge"></i>
+              </span>
+            </ColumnPopupOperateCon>
+          );
+        }}
+        cellProps={{
+          renderColumnPopupContent: args =>
+            renderRowHead({
+              ...args,
+              isColumnPopup: true,
+            }),
+        }}
+        onHoverColumnChange={columnIndex => {
+          console.log('onHoverColumnChange', columnIndex);
+          if (typeof columnIndex === 'undefined') {
+            emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
+          } else {
+            emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, {
+              newHoverColumnIndex: columnIndex,
+              visible: true,
+            });
+          }
+        }}
+      />
+    </React.Fragment>
   );
 }
 

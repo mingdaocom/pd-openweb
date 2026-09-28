@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Checkbox, Input, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import process from '../../api/process';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
 import SelectWorkflow from '../../components/SelectWorkflow';
 import { updatePublishState } from '../../redux/actions';
 import { ProcessVariables } from '../Detail/components';
@@ -19,10 +19,31 @@ import { APP_TYPE, EXPIRE_LIST, USER_TYPE } from '../enum';
 import SetControlName from './components/SetControlName';
 import './index.less';
 
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
 const TRIGGER_TYPE = {
   ALLOW: 0,
   ONLY_WORKFLOW: 1,
   NO_ALLOW: 2,
+};
+
+const PARTITION_CONTROL_TYPES = [
+  9, // 单选
+  11, // 单选
+  19, // 地区
+  23, // 地区
+  24, // 地区
+  26, // 成员
+  27, // 部门
+  28, // 等级
+  29, // 关联记录
+  35, // 级联选择
+  36, // 检查框
+  48, // 组织角色
+];
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
 };
 
 class ProcessConfig extends Component {
@@ -32,20 +53,21 @@ class ProcessConfig extends Component {
     showSelectUserDialog: false,
     tab: 1,
     errorItems: {},
+    partitionControls: [],
   };
 
   componentDidMount() {
     const { flowInfo } = this.props;
 
     process.getProcessConfig({ processId: flowInfo.id }).then(data => {
-      this.setState({ data });
+      this.setState({ data, partitionControls: data.startNodeControls || [] });
     });
   }
 
   /**
    * 更新data数据
    */
-  updateSource = (obj, callback = () => { }) => {
+  updateSource = (obj, callback = () => {}) => {
     this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
   };
 
@@ -60,6 +82,11 @@ class ProcessConfig extends Component {
 
     if (_.find(errorItems, o => o)) {
       alert(_l('有参数配置错误'), 2);
+      return;
+    }
+
+    if (data.executeType === 4 && !(data.partitionControlIds || []).length) {
+      alert(_l('分区严格串行模式下，至少选择一个字段'), 2);
       return;
     }
 
@@ -136,51 +163,46 @@ class ProcessConfig extends Component {
     this.updateSource({ processNames });
   }
 
-  /**
-   * 选择流程负责人
-   */
-  selectProcessCharge = event => {
-    const { flowInfo } = this.props;
+  renderPartitionControl() {
+    const { data, partitionControls } = this.state;
+    const options = partitionControls
+      .filter(item => PARTITION_CONTROL_TYPES.includes(item.type))
+      .map(item => ({
+        label: item.controlName,
+        value: item.controlId,
+      }));
+    const partitionControlIds = data.partitionControlIds || [];
 
-    quickSelectUser(event.target, {
-      offset: {
-        top: 10,
-        left: 0,
-      },
-      projectId: flowInfo.companyId,
-      unique: true,
-      filterAll: true,
-      filterFriend: true,
-      filterOthers: true,
-      filterOtherProject: true,
-      onSelect: users => {
-        this.updateSource({
-          agents: users.map(item => {
-            return {
-              type: USER_TYPE.USER,
-              entityId: '',
-              entityName: '',
-              roleId: item.accountId,
-              roleName: item.fullname,
-              avatar: item.avatar,
-            };
-          }),
-        });
-      },
-    });
-  };
+    return (
+      <div className="mTop10 mLeft30">
+        <Select
+          style={{ width: 300, maxWidth: '100%' }}
+          mode="multiple"
+          options={options}
+          value={partitionControlIds}
+          placeholder={_l('选择字段')}
+          notFoundContent={_l('暂无可选字段')}
+          showSearch
+          optionFilterProp="label"
+          maxCount={3}
+          maxTagCount="responsive"
+          onChange={partitionControlIds => this.updateSource({ partitionControlIds })}
+        />
+      </div>
+    );
+  }
 
   renderProcessContent() {
     const { flowInfo } = this.props;
     const { data, showSelectUserDialog, showWorkflow } = this.state;
     const dateArr = [
-      { text: _l('始终通知'), value: 0 },
-      { text: _l('15分钟'), value: 15 },
-      { text: _l('1小时'), value: 60 },
-      { text: _l('2小时'), value: 120 },
-      { text: _l('6小时'), value: 360 },
-      { text: _l('12小时'), value: 720 },
-      { text: _l('24小时'), value: 1440 },
+      { label: _l('始终通知'), value: 0 },
+      { label: _l('15分钟'), value: 15 },
+      { label: _l('1小时'), value: 60 },
+      { label: _l('2小时'), value: 120 },
+      { label: _l('6小时'), value: 360 },
+      { label: _l('12小时'), value: 720 },
+      { label: _l('24小时'), value: 1440 },
     ];
     const operationMode = [
       {
@@ -197,6 +219,11 @@ class ProcessConfig extends Component {
         text: _l('严格串行'),
         value: 3,
         desc: _l('数据按顺序逐条执行，上一条流程完全执行完成后才会执行下一流程，速度最慢'),
+      },
+      {
+        text: _l('分区严格串行'),
+        value: 4,
+        desc: _l('相同字段值的数据属于同一分区，分区内按顺序严格串行，分区之间并行'),
       },
     ];
     const timeMode = [
@@ -218,12 +245,31 @@ class ProcessConfig extends Component {
           </div>
           <div className="flexRow alignItemsCenter">
             <Member companyId={flowInfo.companyId} leastOne accounts={data.agents} />
-            <div
-              className={cx('colorPrimary AddUserBtn mTop12', { mLeft12: data.agents.length })}
-              onClick={this.selectProcessCharge}
+            <UserSelectPopover
+              offset={{ top: 10, left: 0 }}
+              projectId={flowInfo.companyId}
+              unique
+              filterAll
+              filterFriend
+              filterOthers
+              filterOtherProject
+              onSelect={users => {
+                this.updateSource({
+                  agents: users.map(item => ({
+                    type: USER_TYPE.USER,
+                    entityId: '',
+                    entityName: '',
+                    roleId: item.accountId,
+                    roleName: item.fullname,
+                    avatar: item.avatar,
+                  })),
+                });
+              }}
             >
-              <i className={cx('Font28', data.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle')} />
-            </div>
+              <div className={cx('colorPrimary AddUserBtn mTop12', { mLeft12: data.agents.length })}>
+                <i className={cx('Font28', data.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle')} />
+              </div>
+            </UserSelectPopover>
           </div>
 
           <div className="mTop15">
@@ -269,12 +315,10 @@ class ProcessConfig extends Component {
         {Notice_Accounts()}
 
         <div className="mTop20 flexRow alignItemsCenter">
-          <Dropdown
+          <Select
             style={{ width: 100 }}
-            menuStyle={{ width: '100%' }}
-            data={dateArr}
+            options={dateArr}
             value={data.errorInterval}
-            border
             onChange={errorInterval => this.updateSource({ errorInterval })}
           />
           <div className="textSecondary mLeft10">{_l('内不发送同类错误通知')}</div>
@@ -287,27 +331,33 @@ class ProcessConfig extends Component {
             <div className="textSecondary mTop5">
               {_l('设置流程的运行方式，仅支持新增记录触发，自定义动作触发的流程')}
             </div>
-            {operationMode.map((item, i) => (
-              <Fragment key={i}>
-                <div className="mTop15">
-                  <Radio
-                    className="bold"
-                    text={item.text}
-                    disabled={!data.sequence && item.value !== 1}
-                    checked={data.executeType === item.value}
-                    onClick={() => this.updateSource({ executeType: item.value })}
-                  />
-                </div>
-                <div
-                  className={cx(
-                    'Font12 mTop5 mLeft30',
-                    !data.sequence && item.value !== 1 ? 'textDisabled' : 'textSecondary',
-                  )}
-                >
-                  {item.desc}
-                </div>
-              </Fragment>
-            ))}
+            {operationMode.map((item, i) => {
+              const disabled = item.value === 4 ? !data.partitionSequence : !data.sequence && item.value !== 1;
+
+              return (
+                <Fragment key={i}>
+                  <div className="mTop15">
+                    <Radio
+                      className="bold"
+                      disabled={disabled}
+                      checked={data.executeType === item.value}
+                      onChange={() =>
+                        this.updateSource({
+                          executeType: item.value,
+                        })
+                      }
+                      title={item.text}
+                    >
+                      {item.text}
+                    </Radio>
+                  </div>
+                  <div className={cx('Font12 mTop5 mLeft30', disabled ? 'textDisabled' : 'textSecondary')}>
+                    {item.desc}
+                  </div>
+                </Fragment>
+              );
+            })}
+            {data.partitionSequence && data.executeType === 4 && this.renderPartitionControl()}
           </Fragment>
         )}
 
@@ -318,10 +368,16 @@ class ProcessConfig extends Component {
         {timeMode.map((item, i) => (
           <div className="mTop15" key={i}>
             <Radio
-              text={item.text}
               checked={data.dateShowType === item.value}
-              onClick={() => this.updateSource({ dateShowType: item.value })}
-            />
+              onChange={() =>
+                this.updateSource({
+                  dateShowType: item.value,
+                })
+              }
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
           </div>
         ))}
         <div className="mTop15 bold">{_l('数值字段的小数位数')}</div>
@@ -329,10 +385,16 @@ class ProcessConfig extends Component {
         {dotMode.map((item, i) => (
           <div className="mTop15" key={i}>
             <Radio
-              text={item.text}
               checked={data.dotType === item.value}
-              onClick={() => this.updateSource({ dotType: item.value })}
-            />
+              onChange={() =>
+                this.updateSource({
+                  dotType: item.value,
+                })
+              }
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
           </div>
         ))}
 
@@ -343,8 +405,14 @@ class ProcessConfig extends Component {
         <div className="mTop10">
           <Switch
             checked={data.textShowType === 1}
-            text={data.textShowType === 1 ? _l('开启') : _l('关闭%03087')}
-            onClick={checked => this.updateSource({ textShowType: checked ? 0 : 1 })}
+            checkedChildren={data.textShowType === 1 ? _l('开启') : _l('关闭%03087')}
+            unCheckedChildren={data.textShowType === 1 ? _l('开启') : _l('关闭%03087')}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return this.updateSource({
+                textShowType: !checked ? 0 : 1,
+              });
+            }}
           />
         </div>
 
@@ -358,27 +426,30 @@ class ProcessConfig extends Component {
             <div className="mTop10">
               <Switch
                 checked={autoClear}
-                text={autoClear ? _l('开启') : _l('关闭%03087')}
-                onClick={() => {
+                checkedChildren={autoClear ? _l('开启') : _l('关闭%03087')}
+                unCheckedChildren={autoClear ? _l('开启') : _l('关闭%03087')}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
                   if (featureType === '2') {
                     buriedUpgradeVersionDialog(flowInfo.companyId, VersionProductType.workflowLog);
                     return;
                   }
 
-                  this.updateSource({ expireType: autoClear ? 0 : 1 });
+                  this.updateSource({
+                    expireType: autoClear ? 0 : 1,
+                  });
                 }}
               />
             </div>
             {autoClear && (
               <div className="mTop10 flexRow alignItemsCenter">
                 <div>{_l('执行后')}</div>
-                <Dropdown
+                <Select
                   className="mLeft10 mRight10"
                   style={{ width: 100 }}
-                  menuStyle={{ width: '100%' }}
-                  data={EXPIRE_LIST}
+                  options={EXPIRE_LIST}
+                  fieldNames={SELECT_FIELD_NAMES}
                   value={data.expireType}
-                  border
                   onChange={expireType => this.updateSource({ expireType })}
                 />
                 <div>{_l('自动删除')}</div>
@@ -395,8 +466,14 @@ class ProcessConfig extends Component {
         <div className="mTop10">
           <Switch
             checked={openDebug}
-            text={openDebug ? _l('开启') : _l('关闭%03087')}
-            onClick={() => this.updateSource({ debugEvents: openDebug ? [] : [0] })}
+            checkedChildren={openDebug ? _l('开启') : _l('关闭%03087')}
+            unCheckedChildren={openDebug ? _l('开启') : _l('关闭%03087')}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return this.updateSource({
+                debugEvents: openDebug ? [] : [0],
+              });
+            }}
           />
         </div>
 
@@ -410,8 +487,14 @@ class ProcessConfig extends Component {
             <div className="mTop10">
               <Switch
                 checked={data.triggerView}
-                text={data.triggerView ? _l('开启') : _l('关闭%03087')}
-                onClick={() => this.updateSource({ triggerView: !data.triggerView })}
+                checkedChildren={data.triggerView ? _l('开启') : _l('关闭%03087')}
+                unCheckedChildren={data.triggerView ? _l('开启') : _l('关闭%03087')}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return this.updateSource({
+                    triggerView: !data.triggerView,
+                  });
+                }}
               />
             </div>
           </Fragment>
@@ -421,10 +504,16 @@ class ProcessConfig extends Component {
         <div className="bold Font16 mTop28">{_l('触发其他工作流')}</div>
         <div className="mTop15">
           <Radio
-            text={_l('允许触发')}
             checked={data.triggerType === TRIGGER_TYPE.ALLOW}
-            onClick={() => this.updateSource({ triggerType: TRIGGER_TYPE.ALLOW })}
-          />
+            onChange={() =>
+              this.updateSource({
+                triggerType: TRIGGER_TYPE.ALLOW,
+              })
+            }
+            title={_l('允许触发')}
+          >
+            {_l('允许触发')}
+          </Radio>
         </div>
         <div className="textSecondary Font12 mTop5 mLeft30">
           {_l('在选择此配置时，如果要触发本表的其他工作流，必须为目标流程指定触发字段')}
@@ -432,10 +521,16 @@ class ProcessConfig extends Component {
 
         <div className="mTop15">
           <Radio
-            text={_l('只能触发指定工作流')}
             checked={data.triggerType === TRIGGER_TYPE.ONLY_WORKFLOW}
-            onClick={() => this.updateSource({ triggerType: TRIGGER_TYPE.ONLY_WORKFLOW })}
-          />
+            onChange={() =>
+              this.updateSource({
+                triggerType: TRIGGER_TYPE.ONLY_WORKFLOW,
+              })
+            }
+            title={_l('只能触发指定工作流')}
+          >
+            {_l('只能触发指定工作流')}
+          </Radio>
         </div>
         {data.triggerType === TRIGGER_TYPE.ONLY_WORKFLOW && (
           <div className="processConfigFlow mTop5 mLeft30">
@@ -468,10 +563,16 @@ class ProcessConfig extends Component {
 
         <div className="mTop15">
           <Radio
-            text={_l('不允许触发')}
             checked={data.triggerType === TRIGGER_TYPE.NO_ALLOW}
-            onClick={() => this.updateSource({ triggerType: TRIGGER_TYPE.NO_ALLOW })}
-          />
+            onChange={() =>
+              this.updateSource({
+                triggerType: TRIGGER_TYPE.NO_ALLOW,
+              })
+            }
+            title={_l('不允许触发')}
+          >
+            {_l('不允许触发')}
+          </Radio>
         </div>
 
         <SelectWorkflow
@@ -517,14 +618,10 @@ class ProcessConfig extends Component {
     ];
     const list = data.revokeFlowNodes.map(item => {
       return {
-        text: item.name,
+        label: item.name,
         value: item.id,
       };
     });
-
-    if (data.revokeNodeIds[0]) {
-      list.unshift({ text: _l('清除选择'), value: '' });
-    }
 
     return (
       <Fragment>
@@ -532,21 +629,25 @@ class ProcessConfig extends Component {
         <div className="mTop15">
           <Checkbox
             className="InlineFlex TxtTop"
-            text={_l('允许触发者撤回')}
             checked={data.allowRevoke}
             disabled={!isSheetOrButton}
-            onClick={checked => this.updateSource({ allowRevoke: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                allowRevoke: event.target.checked,
+              })
+            }
+          >
+            {_l('允许触发者撤回')}
+          </Checkbox>
           {data.allowRevoke && (
             <div className="mTop10 mLeft25 flexRow alignItemsCenter">
               <div>{_l('节点')}</div>
-              <Dropdown
+              <Select
+                allowClear
                 className="mLeft10"
                 style={{ width: 220 }}
-                menuStyle={{ width: '100%' }}
-                data={list}
+                options={list}
                 value={data.revokeNodeIds[0] || undefined}
-                border
                 onChange={revokeNodeId => this.updateSource({ revokeNodeIds: revokeNodeId ? [revokeNodeId] : [] })}
               />
               <div className="mLeft10 flex">{_l('通过后不允许撤回')}</div>
@@ -556,27 +657,35 @@ class ProcessConfig extends Component {
         <div className="mTop15">
           <Checkbox
             className="InlineFlex TxtTop"
-            text={_l('允许触发者催办')}
             checked={data.allowUrge}
             disabled={!isSheetOrButton}
-            onClick={checked => this.updateSource({ allowUrge: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                allowUrge: event.target.checked,
+              })
+            }
+          >
+            {_l('允许触发者催办')}
+          </Checkbox>
         </div>
 
         {nodeSettings.map((item, i) => {
           return (
             <Fragment key={i}>
               <div className="bold Font16 mTop28">{item.text}</div>
-              {item.list.map(o => {
+              {item.list.map(({ text, tip, key, ...checkboxProps }) => {
                 return (
-                  <div className="mTop15 flexRow" key={o.key}>
+                  <div className="mTop15 flexRow alignItemsCenter" key={key}>
                     <Checkbox
-                      {...o}
+                      {...checkboxProps}
                       className="InlineFlex TxtTop"
-                      onClick={checked => this.updateSource({ [o.key]: !checked })}
-                    />
-                    {o.tip && (
-                      <Tooltip title={o.tip}>
+                      styles={CHECKBOX_LABEL_STYLES}
+                      onChange={event => this.updateSource({ [key]: event.target.checked })}
+                    >
+                      {text}
+                    </Checkbox>
+                    {tip && (
+                      <Tooltip title={tip}>
                         <Icon icon="info" className="textTertiary mLeft5" />
                       </Tooltip>
                     )}
@@ -631,10 +740,16 @@ class ProcessConfig extends Component {
         <div className="mTop10">
           <Switch
             checked={data.pbcConfig.enable}
-            text={data.pbcConfig.enable ? _l('开启') : _l('关闭%03087')}
-            onClick={() =>
-              this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { enable: !data.pbcConfig.enable }) })
-            }
+            checkedChildren={data.pbcConfig.enable ? _l('开启') : _l('关闭%03087')}
+            unCheckedChildren={data.pbcConfig.enable ? _l('开启') : _l('关闭%03087')}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return this.updateSource({
+                pbcConfig: Object.assign({}, data.pbcConfig, {
+                  enable: !data.pbcConfig.enable,
+                }),
+              });
+            }}
           />
         </div>
 
@@ -645,8 +760,7 @@ class ProcessConfig extends Component {
               {_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}
             </div>
             <div className="mTop10 flexRow">
-              <input
-                type="text"
+              <Input
                 className="webhookLink flex"
                 style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
                 value={data.pbcConfig.url.replace(
@@ -655,8 +769,7 @@ class ProcessConfig extends Component {
                 )}
                 disabled
               />
-              <input
-                type="text"
+              <Input
                 className="webhookLinkCustom"
                 value={data.pbcConfig.urlExtension}
                 onChange={e =>
@@ -712,31 +825,31 @@ class ProcessConfig extends Component {
     const exportData = data.processVariables.filter(item => item.processVariableType === 2);
     const options = [
       {
-        text: _l('通过回调地址接受返回参数'),
+        label: _l('通过回调地址接受返回参数'),
         value: 1,
         desc: _l('此时对方请求时必须附带参数callbackURL，我方流程运行结束后会向此URL传递输出参数'),
       },
       {
-        text: _l('直接返回固定文本给请求地址'),
+        label: _l('直接返回固定文本给请求地址'),
         value: 3,
         desc: _l('对方请求时，立即以返回一段固定文本给请求方'),
       },
       {
-        text: _l('直接返回流程节点数据对象给请求地址'),
+        label: _l('直接返回流程节点数据对象给请求地址'),
         value: 4,
         desc: _l(
           '选择一个代码块、发送API请求、JSON解析或调用已集成API节点，把它的返回数据对象立即返回给请求方；请控制请求频率在500次/小时以内，流程执行时间30s以内，私有部署不限',
         ),
       },
       {
-        text: _l('直接返回流程节点的字段值给请求地址'),
+        label: _l('直接返回流程节点的字段值给请求地址'),
         value: 5,
         desc: _l(
           '将所选节点的字段值结果立即返回给请求方，支持选择返回格式;请控制请求频率在500次/小时以内，流程执行时间30s以内，私有部署不限直接返回输出参数给请求地址',
         ),
       },
       {
-        text: _l('直接返回输出参数给请求地址'),
+        label: _l('直接返回输出参数给请求地址'),
         value: 2,
         desc: _l('请控制请求频率在500次/小时以内，流程执行时间30s以内，私有部署不限'),
       },
@@ -751,16 +864,14 @@ class ProcessConfig extends Component {
       <Fragment>
         {featureType && <div className="bold Font16 mTop28">{_l('响应方式')}</div>}
         {featureType && (
-          <Dropdown
+          <Select
             className="mTop10 w100 workflowConfigDropdown"
-            menuStyle={{ width: '100%' }}
-            data={options}
+            options={options}
             value={data.pbcConfig.outType}
-            border
-            renderItem={({ text, desc }) => {
+            optionRender={({ data: { label, desc } }) => {
               return (
                 <Fragment>
-                  <div className="itemText">{text}</div>
+                  <div className="itemText">{label}</div>
                   <div className="textSecondary mTop3" style={{ whiteSpace: 'normal', lineHeight: '18px' }}>
                     {desc}
                   </div>
@@ -882,14 +993,24 @@ class ProcessConfig extends Component {
           <Radio
             key={item.value}
             className="flex"
-            text={item.text}
             checked={data[key] === item.value}
-            onClick={() =>
+            onChange={() =>
               this.updateSource(
-                key === 'responseContentType' ? { [key]: item.value, value: '' } : { [key]: item.value, endValue: '' },
+                key === 'responseContentType'
+                  ? {
+                      [key]: item.value,
+                      value: '',
+                    }
+                  : {
+                      [key]: item.value,
+                      endValue: '',
+                    },
               )
             }
-          />
+            title={item.text}
+          >
+            {item.text}
+          </Radio>
         ))}
       </div>
     );
@@ -910,25 +1031,36 @@ class ProcessConfig extends Component {
             <Radio
               key={i}
               className="bold mRight60"
-              text={item.text}
               checked={data.pbcConfig.authType === item.value || (data.pbcConfig.authType === 2 && item.value === 0)}
-              onClick={() =>
-                this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { authType: item.value }) })
+              onChange={() =>
+                this.updateSource({
+                  pbcConfig: Object.assign({}, data.pbcConfig, {
+                    authType: item.value,
+                  }),
+                })
               }
-            />
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
           ))}
         </div>
         <div className="bold Font16 mTop28">{_l('白名单')}</div>
         <div className="mTop15">
           <Checkbox
-            className="InlineBlock textPrimary"
-            text={_l('使用应用IP白名单')}
+            className="textPrimary"
             checked={data.pbcConfig.authType !== 0}
             disabled={data.pbcConfig.authType === 1}
-            onClick={checked =>
-              this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { authType: checked ? 0 : 2 }) })
+            onChange={event =>
+              this.updateSource({
+                pbcConfig: Object.assign({}, data.pbcConfig, {
+                  authType: !event.target.checked ? 0 : 2,
+                }),
+              })
             }
-          />
+          >
+            {_l('使用应用IP白名单')}
+          </Checkbox>
         </div>
       </Fragment>
     );

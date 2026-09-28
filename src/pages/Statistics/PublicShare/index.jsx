@@ -6,12 +6,13 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import store from 'src/redux/configureStore';
-import { shareGetAppLangDetail } from 'src/utils/app';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { shareGetAppLangDetail } from 'src/utils/services/app';
 import './index.less';
 
 const { hideHeader } = getRequest();
@@ -173,4 +174,8 @@ export default class PublicShareChart extends Component {
   }
 }
 const root = createRoot(document.getElementById('app'));
-root.render(<PublicShareChart />);
+root.render(
+  <AntdThemeProvider>
+    <PublicShareChart />
+  </AntdThemeProvider>,
+);

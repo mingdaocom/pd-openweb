@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Checkbox, Select } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import worksheet from 'src/api/worksheet';
 import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
@@ -197,9 +198,8 @@ export default class CC extends Component {
   renderContent() {
     const { data, showSelectUserDialog, tabIndex, isNewCC } = this.state;
     const views = this.state.views.map(o => ({
-      text: o.name,
+      label: o.name,
       value: o.viewId,
-      className: data.viewId === o.viewId ? 'colorPrimary' : '',
     }));
     const selectView = _.find(views, o => o.value === data.viewId);
 
@@ -260,22 +260,20 @@ export default class CC extends Component {
             <div className="Font13 textSecondary mTop5">
               {_l('按照所选视图配置的显示字段发送，如果通知人被分发了此视图，可以直接按权限编辑记录、执行自定义动作')}
             </div>
-            <Dropdown
+            <Select
               className={cx('flowDropdown mTop10', {
                 'errorBorder errorBG': data.viewId && !!views.length && !selectView,
               })}
-              isAppendToBody
               disabled={!data.selectNodeId}
-              data={views}
+              options={views}
               value={data.viewId}
-              renderTitle={
+              labelRender={
                 !data.viewId || !views.length
                   ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : data.viewId && !selectView
                     ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
-                    : () => <span>{selectView.text}</span>
+                    : () => <span>{selectView.label}</span>
               }
-              border
               onChange={viewId => this.updateSource({ viewId })}
             />
           </Fragment>
@@ -338,10 +336,15 @@ export default class CC extends Component {
                   <Checkbox
                     className="InlineFlex"
                     disabled={!data.sendContent}
-                    text={_l('显示待办/记录标题')}
                     checked={data.showTitle || !data.sendContent}
-                    onClick={checked => this.updateSource({ showTitle: !checked })}
-                  />
+                    onChange={event =>
+                      this.updateSource({
+                        showTitle: event.target.checked,
+                      })
+                    }
+                  >
+                    {_l('显示待办/记录标题')}
+                  </Checkbox>
                 </div>
 
                 <PromptSoundDialog

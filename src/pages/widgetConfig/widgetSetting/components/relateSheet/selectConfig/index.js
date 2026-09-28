@@ -3,10 +3,11 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, Modal, RadioGroup } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { DisplayTabs, SettingItem } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import DropdownShowControls from './dropdownShowControls';
 import FilterConfig from './filterConfig';
 import RelateSearchConfig from './relateSearchConfig';
@@ -21,15 +22,12 @@ const SelectConfigWrap = styled.div`
     margin-top: 10px !important;
   }
   .selectConfigRadioGroup {
-    .ming.Radio {
-      margin-right: 0;
-      margin-top: 10px;
-      &:last-child {
-        margin-top: 16px;
-      }
-      display: flex;
-      .Radio-text {
-        margin-top: -6px;
+    .hap-radio-wrapper {
+      align-items: flex-start;
+
+      .hap-radio {
+        align-self: flex-start;
+        margin-top: 5px;
       }
     }
   }
@@ -113,16 +111,21 @@ function SelectConfig(props) {
           <SettingItem className="mTop12">
             <span className="Gray75">{_l('设置用户在使用弹层选择记录时可以查看的字段')}</span>
             <div className="settingItemTitle mTop12">{_l('记录显示方式')}</div>
-            <RadioGroup
+            <Radio.Group
               size="middle"
               className="selectConfigRadioGroup"
-              disableTitle={true}
               vertical={true}
-              checkedValue={chooselisttype}
-              data={RECORD_DISPLAY_OPTIONS}
-              onChange={value => {
-                const nextData = handleAdvancedSettingChange(configData, { chooselisttype: value });
-                setData({ configData: nextData });
+              value={chooselisttype}
+              options={(RECORD_DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event => {
+                const value = event.target.value;
+
+                const nextData = handleAdvancedSettingChange(configData, {
+                  chooselisttype: value,
+                });
+                setData({
+                  configData: nextData,
+                });
               }}
             />
           </SettingItem>
@@ -166,9 +169,8 @@ function SelectConfig(props) {
 
   return (
     <Modal
-      visible
+      open
       width={960}
-      destroyOnClose={true}
       title={<span className="Bold">{_l('关联选择设置')}</span>}
       className="filterDialog selectConfigDialog"
       okDisabled={isRelationSheetLoading}
@@ -208,6 +210,6 @@ function SelectConfig(props) {
   );
 }
 
-export default function openSelectConfig(props) {
-  return functionWrap(SelectConfig, props);
+export function useSelectConfig() {
+  return useFunctionWrapComponent(SelectConfig);
 }

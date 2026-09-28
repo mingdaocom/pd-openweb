@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import certificationApi from '../../../api/certification';
 import ListContainer from 'src/pages/Admin/organization/systemSetting/component/CertInfo/components/ListContainer';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import CertificationDetail from './CertificationDetail';
-import SelectCertification from './SelectCertification';
+import { useSelectCertification } from './SelectCertification';
 
 const Wrapper = styled.div`
   .certBtn {
@@ -34,19 +35,12 @@ const Wrapper = styled.div`
   }
 `;
 
-const DetailDialog = styled(Dialog)`
-  .mui-dialog-header {
-    padding-bottom: 0 !important;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    position: relative;
-    .loadDiv {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%);
-    }
+const DetailModal = styled(Modal)`
+  .loadDiv {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%);
   }
   .detailWrapper {
     overflow: hidden;
@@ -65,6 +59,7 @@ export default function CertificationDisplay(props) {
     onRefreshCertList,
   } = props; // fromType: 1-个人认证 2-企业认证 3-认证信息页面
   const [detail, setDetail] = useState({ visible: false, id: '' });
+  const { open: openSelectCertification, holder: selectCertificationHolder } = useSelectCertification();
 
   const onVerify = ({ isUpgrade }) => {
     const isCert = certificationApi.checkIsCert(
@@ -80,7 +75,7 @@ export default function CertificationDisplay(props) {
     if (projectId) {
       certificationApi.getCertInfoList({ certSource: 1, isUpgrade }).then(res => {
         if (res && !!res.length) {
-          SelectCertification({ certList: res, projectId, onUpdateCertStatus, isUpgrade });
+          openSelectCertification({ certList: res, projectId, onUpdateCertStatus, isUpgrade });
         } else {
           isUpgrade
             ? window.open(
@@ -100,6 +95,7 @@ export default function CertificationDisplay(props) {
 
   return (
     <Wrapper>
+      {selectCertificationHolder}
       <div className="flexRow alignItemsCenter">
         {!authType ? (
           <div className="certBtn" onClick={onVerify}>
@@ -163,7 +159,15 @@ export default function CertificationDisplay(props) {
         </Fragment>
       )}
 
-      <DetailDialog visible={detail.visible} width={800} footer={null} onCancel={() => setDetail({ visible: false })}>
+      <DetailModal
+        open={detail.visible}
+        mask={{ closable: true }}
+        keyboard
+        width={800}
+        footer={null}
+        styles={{ container: { padding: '20px 0 0 0' } }}
+        onCancel={() => setDetail({ visible: false })}
+      >
         <div className="detailWrapper">
           <CertificationDetail
             isHap={true}
@@ -176,7 +180,7 @@ export default function CertificationDisplay(props) {
             }}
           />
         </div>
-      </DetailDialog>
+      </DetailModal>
     </Wrapper>
   );
 }

@@ -9,7 +9,8 @@ import { Tooltip } from 'ming-ui/antd-components';
 import SearchMember from 'src/pages/chat/components/SearchMember';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as socket from 'src/pages/chat/utils/socket';
-import { pathCompletion } from 'src/utils/common';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Avatar from '../ChatList/Avatar';
 import RenderAddressBook from '../ChatList/Toolbar/RenderAddressBook';
 import SessionList from '../SessionList';
@@ -33,6 +34,7 @@ const SessionListDrawer = props => {
   const { sessionListFixing } = toolbarConfig;
   const [searchValue, setSearchValue] = useState(null);
   const hideChat = md.global.SysSettings.forbidSuites.includes('6');
+  const sandboxEnvironment = isSandboxEnvironment();
 
   return (
     <Wrap className={cx('flexColumn h100 w100 bgPrimary pLeft10 pRight10', embed ? 'pTop4' : 'pTop10')}>
@@ -117,7 +119,7 @@ const SessionListDrawer = props => {
             <RenderAddressBook />
           </Fragment>
         )}
-        {!hideChat && (
+        {!sandboxEnvironment && !hideChat && (
           <div className="flexRow alignItemsCenter pLeft4 pRight4 mTop5 mBottom10">
             <SearchMember embed={embed} searchValue={searchValue} setSearchValue={setSearchValue} />
             <BgIconButton
@@ -132,7 +134,7 @@ const SessionListDrawer = props => {
         <div className="flexColumn flex Relative minHeight0">
           <SessionList visible={true} />
         </div>
-        {!searchValue && !hideChat && <CreateGroup />}
+        {!sandboxEnvironment && !searchValue && !hideChat && <CreateGroup />}
       </div>
     </Wrap>
   );

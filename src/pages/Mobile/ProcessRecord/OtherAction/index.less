@@ -10,6 +10,9 @@
 .otherActionWrapper {
   max-height: 100vh;
   min-height: 200px;
+  &.compact {
+    min-height: auto;
+  }
   .otherActionContent {
     overflow-y: auto;
   }
@@ -51,6 +54,10 @@
   }
   .verifyPasswordInputWrap .label {
     font-weight: bold;
+  }
+  // 输入框自带下边距，仅在实际显示免验证选项时补齐底部留白。
+  .verifyPasswordInputWrap .noVerifyWrap {
+    padding-bottom: 10px;
   }
   .attachmentFiles {
     padding: 0;

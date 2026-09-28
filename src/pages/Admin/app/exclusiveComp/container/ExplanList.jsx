@@ -1,56 +1,31 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
+import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, UserName } from 'ming-ui';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import EditNameDialog from '../component/EditNameDialog';
 import Status from '../component/Status';
 import { COMPUTING_INSTANCE_STATUS } from '../config';
+import {
+  canManageComputingInstance,
+  canViewComputingInstanceHistory,
+  getComputingHistoryPath,
+  isLatestComputingInstanceRequest,
+  shouldShowComputingInstanceWorkflowCount,
+} from '../historyWorkflow';
 import EXCLUSIVE_BIG from '../images/exclusive_big.png';
 import EXCLUSIVE_EXPLAN_IMG from '../images/exclusive_explan.png';
 import EXCLUSIVE_EXPLAN_HUI_IMG from '../images/exclusive_explan_hui.png';
 import '../index.less';
-
-const MoreOperateMenu = styled.ul`
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px 3px 3px 3px;
-  width: 160px;
-  font-size: 13px;
-  color: var(--color-text-title);
-  padding: 4px 0;
-  li {
-    line-height: 36px;
-    padding: 0 24px;
-    cursor: pointer;
-    a {
-      color: var(--color-text-title);
-      transition: none !important;
-    }
-    .renewal {
-      color: var(--color-text-title) !important;
-    }
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-      a {
-        color: var(--color-white);
-      }
-      .renewal {
-        color: var(--color-white) !important;
-      }
-    }
-  }
-`;
 
 const EmptyWrap = styled.div`
   display: flex;
@@ -90,44 +65,61 @@ function ExplanList(props) {
     effectiveCount: 0,
     upgradeVersionDialog: FEATURE_STATUS ? false : true,
   });
+  const listRequestIdRef = useRef(0);
+
+  const getData = useCallback(() => {
+    const requestId = ++listRequestIdRef.current;
+
+    return Promise.resolve()
+      .then(() => {
+        if (!isLatestComputingInstanceRequest(requestId, listRequestIdRef.current)) return undefined;
+
+        setConfig(currentConfig => ({ ...currentConfig, loading: true }));
+        return projectAjax.getComputingInstances({ projectId });
+      })
+      .then(res => {
+        if (!isLatestComputingInstanceRequest(requestId, listRequestIdRef.current)) return;
+
+        const instances = res || [];
+
+        setConfig(currentConfig => ({
+          ...currentConfig,
+          isInit: instances.length === 0,
+          effectiveCount: instances.filter(l =>
+            [COMPUTING_INSTANCE_STATUS.Creating, COMPUTING_INSTANCE_STATUS.Running].includes(l.status),
+          ).length,
+        }));
+        let list = [];
+        let outDateList = [];
+        instances.forEach(l => {
+          if (l.status < 7) list.push(l);
+          else outDateList.push(l);
+        });
+        setData({
+          list: list,
+          outDateList: outDateList,
+        });
+      })
+      .finally(() => {
+        if (!isLatestComputingInstanceRequest(requestId, listRequestIdRef.current)) return;
+
+        setConfig(currentConfig => ({ ...currentConfig, loading: false }));
+      });
+  }, [projectId]);
 
   useEffect(() => {
     getData();
-  }, [projectId]);
+
+    return () => {
+      listRequestIdRef.current += 1;
+    };
+  }, [getData]);
 
   useEffect(() => {
     if (refresh === -1) return;
 
     getData();
-  }, [refresh]);
-
-  const getData = () => {
-    !config.loading &&
-      setConfig({
-        ...config,
-        loading: true,
-      });
-    projectAjax.getComputingInstances({ projectId }).then(res => {
-      setConfig({
-        ...config,
-        isInit: res && res.length === 0,
-        loading: false,
-        effectiveCount: res.filter(l =>
-          [COMPUTING_INSTANCE_STATUS.Creating, COMPUTING_INSTANCE_STATUS.Running].includes(l.status),
-        ).length,
-      });
-      let list = [];
-      let outDateList = [];
-      res.forEach(l => {
-        if (l.status < 7) list.push(l);
-        else outDateList.push(l);
-      });
-      setData({
-        list: list,
-        outDateList: outDateList,
-      });
-    });
-  };
+  }, [getData, refresh]);
 
   const updateData = param => {
     projectAjax.updateComputingInstance({ projectId, ...param }).then(res => {
@@ -191,7 +183,7 @@ function ExplanList(props) {
             '组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响',
           )}
         </div>
-        <Button radius className="exclusiveCompButton Font14" onClick={goToPurchase}>
+        <Button type="primary" shape="round" className="Font14" onClick={goToPurchase}>
           {window.platformENV.isPlatform ? _l('购买专属算力') : _l('创建专属算力')}
         </Button>
       </EmptyWrap>
@@ -274,9 +266,15 @@ function ExplanList(props) {
               </Fragment>
             )}
             {[COMPUTING_INSTANCE_STATUS.CreationFailed, COMPUTING_INSTANCE_STATUS.Stopped].includes(item.status) && (
-              <span className="repurchaseBtn mLeft24" onClick={() => renewPurchase(item)}>
+              <Button
+                color="primary"
+                variant="text"
+                size="small"
+                className="mLeft24"
+                onClick={() => renewPurchase(item)}
+              >
                 {_l('重新创建')}
-              </span>
+              </Button>
             )}
             {![
               COMPUTING_INSTANCE_STATUS.Creating,
@@ -289,81 +287,100 @@ function ExplanList(props) {
               .filter(v => (window.platformENV.isPlatform ? true : v !== COMPUTING_INSTANCE_STATUS.CreationFailed))
               .includes(item.status) && (
               <Fragment>
-                {(![COMPUTING_INSTANCE_STATUS.Destroyed, COMPUTING_INSTANCE_STATUS.DestroyFailed].includes(
-                  item.status,
-                ) ||
-                  item.workflowCount > 0) && (
-                  <span
-                    className="manageBtn"
-                    onClick={() => {
-                      navigateTo(`/admin/computing/${projectId}/${item.id}`);
-                    }}
-                  >
-                    {_l('管理')}
-                  </span>
-                )}
+                {canManageComputingInstance(item.status) &&
+                  (item.status !== COMPUTING_INSTANCE_STATUS.DestroyFailed || item.workflowCount > 0) && (
+                    <Button
+                      color="default"
+                      variant="outlined"
+                      shape="round"
+                      className="mLeft24"
+                      onClick={() => {
+                        navigateTo(`/admin/computing/${projectId}/${item.id}`);
+                      }}
+                    >
+                      {_l('管理')}
+                    </Button>
+                  )}
                 {![COMPUTING_INSTANCE_STATUS.Destroying, COMPUTING_INSTANCE_STATUS.DestroyFailed].includes(
                   item.status,
                 ) && (
-                  <Trigger
-                    popupVisible={operateMenuVisible === item.id}
-                    onPopupVisibleChange={visible => setOperateMenuVisible(visible ? item.id : -1)}
-                    action={['click']}
-                    popup={
-                      <MoreOperateMenu>
-                        {[COMPUTING_INSTANCE_STATUS.Creating, COMPUTING_INSTANCE_STATUS.Running].includes(
+                  <Dropdown
+                    open={operateMenuVisible === item.id}
+                    onOpenChange={visible => setOperateMenuVisible(visible ? item.id : -1)}
+                    trigger={['click']}
+                    menu={{
+                      items: [
+                        ...(canViewComputingInstanceHistory(item.status)
+                          ? [
+                              {
+                                key: 'view',
+                                label: _l('查看'),
+                                onClick: () => {
+                                  navigateTo(getComputingHistoryPath({ projectId, id: item.id }));
+                                  setOperateMenuVisible(-1);
+                                },
+                              },
+                            ]
+                          : []),
+                        ...([COMPUTING_INSTANCE_STATUS.Creating, COMPUTING_INSTANCE_STATUS.Running].includes(
                           item.status,
-                        ) && (
-                          <Fragment>
-                            <li
-                              onClick={() => {
-                                setEditNameParam({
-                                  visible: true,
-                                  value: item.name,
-                                  id: item.id,
-                                });
-                                setOperateMenuVisible(-1);
-                              }}
-                            >
-                              {_l('修改名称')}
-                            </li>
-                            {item.canRenew && (
-                              <li>
-                                <PurchaseExpandPack
-                                  className="Block renewal"
-                                  text={_l('续费')}
-                                  type="renewcomputing"
-                                  routePath="expansionserviceComputing"
-                                  projectId={projectId}
-                                  extraParam={item.id}
-                                />
-                              </li>
-                            )}
-                          </Fragment>
-                        )}
-
-                        {/* 非平台版创建失败的也可以删除 */}
-                        {[COMPUTING_INSTANCE_STATUS.Destroyed]
+                        )
+                          ? [
+                              {
+                                key: 'rename',
+                                label: _l('修改名称'),
+                                onClick: () => {
+                                  setEditNameParam({
+                                    visible: true,
+                                    value: item.name,
+                                    id: item.id,
+                                  });
+                                  setOperateMenuVisible(-1);
+                                },
+                              },
+                              ...(item.canRenew
+                                ? [
+                                    {
+                                      key: 'renew',
+                                      label: (
+                                        <PurchaseExpandPack
+                                          className="Block renewal"
+                                          text={_l('续费')}
+                                          type="renewcomputing"
+                                          routePath="expansionserviceComputing"
+                                          projectId={projectId}
+                                          extraParam={item.id}
+                                        />
+                                      ),
+                                    },
+                                  ]
+                                : []),
+                            ]
+                          : []),
+                        ...([COMPUTING_INSTANCE_STATUS.Destroyed]
                           .concat(!window.platformENV.isPlatform ? [COMPUTING_INSTANCE_STATUS.CreationFailed] : [])
-                          .includes(item.status) && (
-                          <li
-                            onClick={() => {
-                              updateData({
-                                instanceId: item.id,
-                                isDelete: true,
-                              });
-                              setOperateMenuVisible(-1);
-                            }}
-                          >
-                            {_l('删除')}
-                          </li>
-                        )}
-                      </MoreOperateMenu>
-                    }
-                    popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
+                          .includes(item.status)
+                          ? [
+                              {
+                                key: 'delete',
+                                label: _l('删除'),
+                                danger: true,
+                                onClick: () => {
+                                  updateData({
+                                    instanceId: item.id,
+                                    isDelete: true,
+                                  });
+                                  setOperateMenuVisible(-1);
+                                },
+                              },
+                            ]
+                          : []),
+                      ],
+                      style: { minWidth: 160 },
+                    }}
                   >
                     <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverColorPrimaryLight Hand" />
-                  </Trigger>
+                  </Dropdown>
                 )}
               </Fragment>
             )}
@@ -402,7 +419,12 @@ function ExplanList(props) {
               )}
             </p>
           </div>
-          <div className="explanCardContentItem">
+          <div
+            className={cx('explanCardContentItem', {
+              // 服务过期后不显示工作流数，与算力实例是否已销毁无关。
+              Visibility: !shouldShowComputingInstanceWorkflowCount(item.remainingDays),
+            })}
+          >
             <p className="label">{_l('工作流数')}</p>
             <p className="value">{item.workflowCount}</p>
           </div>
@@ -423,12 +445,9 @@ function ExplanList(props) {
         <div className="exclusiveCompContent flex">
           <div className="exclusiveCompExplan">
             {_l('将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响')}
-            <span className="createComputingButton Hand" onClick={goToPurchase}>
-              <Icon icon="add" className="mRight3" />
-              {window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
-                ? _l('购买')
-                : _l('创建')}
-            </span>
+            <Button color="primary" variant="text" size="small" icon={<Icon icon="add" />} onClick={goToPurchase}>
+              {window.platformENV.isPlatform && window.platformENV.isHap ? _l('购买') : _l('创建')}
+            </Button>
           </div>
           <ul className="exclusiveCompList">
             {renderList(data.list)}

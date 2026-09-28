@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { VerifyPasswordConfirm } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import appManagementAjax from 'src/api/appManagement';
 import SecretKey from '../SecretKey';
@@ -49,13 +50,12 @@ let MoreOption = class MoreOption extends Component {
     const { showDescDialog, remark } = this.state;
     if (!showDescDialog) return null;
     return (
-      <Dialog
+      <Modal
         className="setDescDialog"
-        visible={true}
+        open
+        mask={{ closable: true }}
+        keyboard
         title={_l('备注')}
-        autoScrollBody
-        type="scroll"
-        maxHeight={200}
         width={500}
         onOk={() => {
           if (remark.trim() === '') {
@@ -84,8 +84,7 @@ let MoreOption = class MoreOption extends Component {
           setFn(false);
         }}
       >
-        <input
-          type="text"
+        <Input
           placeholder={_l('备注')}
           onChange={e =>
             this.setState({
@@ -94,7 +93,7 @@ let MoreOption = class MoreOption extends Component {
           }
           value={remark}
         />
-      </Dialog>
+      </Modal>
     );
   };
   renderCancelAndDeleteDialog = () => {

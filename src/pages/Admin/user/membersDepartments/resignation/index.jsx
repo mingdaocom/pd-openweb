@@ -2,25 +2,27 @@ import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Dropdown, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { UserHead, UserName } from 'ming-ui';
+import { Input, Modal, Select, Space, Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
 import userAjax from 'src/api/user';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import UserCountLimitLink from 'src/pages/Admin/user/membersDepartments/UserCountLimitLink';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { hasPermission } from 'src/utils/services/security/permission';
 import PageTableCon from '../../../components/PageTableCon';
 import WorkHandoverDialog from '../../../components/WorkHandoverDialog';
 import ActionDrop from './ActionDrop';
 import HandOver from './handOver';
-import SearchInput from './SearchInput';
 
 const KEYWORDS_TYPES = [
-  { text: _l('姓名'), value: 1 },
-  { text: _l('工号'), value: 2 },
-  { text: _l('手机号'), value: 3 },
-  { text: _l('邮箱'), value: 4 },
+  { label: _l('姓名'), value: 1 },
+  { label: _l('工号'), value: 2 },
+  { label: _l('手机号'), value: 3 },
+  { label: _l('邮箱'), value: 4 },
 ];
+
+const KEYWORDS_TYPE_SELECT_STYLE = { width: 90 };
+const SEARCH_INPUT_STYLE = { width: 197 };
 
 const TableWrap = styled(PageTableCon)`
   &.resignTableList {
@@ -29,7 +31,7 @@ const TableWrap = styled(PageTableCon)`
       margin-left: auto;
       margin-right: 0;
     }
-    .ant-table-tbody > tr.ant-table-row {
+    .hap-table-tbody > tr.hap-table-row {
       .icon-moreop {
         display: none;
       }
@@ -44,19 +46,6 @@ const TableWrap = styled(PageTableCon)`
 
 const Wrap = styled.div`
   justify-content: space-between;
-  .actionWrap {
-    border: 1px solid var(--color-border-primary);
-    border-radius: 4px;
-  }
-  .keywordsTypeOptions.ming.Dropdown {
-    border-right: 1px solid var(--color-border-primary);
-  }
-  .resignationSearch {
-    background: var(--color-background-primary);
-    input {
-      background: var(--color-background-primary);
-    }
-  }
 `;
 
 export default class extends React.Component {
@@ -251,7 +240,7 @@ export default class extends React.Component {
   recovery = (accountId, fullName) => {
     const { projectId } = this.props;
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('确定恢复 %0 权限吗？', fullName),
       onOk: () => {
         userAjax
@@ -314,21 +303,22 @@ export default class extends React.Component {
     return (
       <div className="flexColumn flex minHeight0 h100">
         <Wrap className="flexRow">
-          <div className="valignWrapper actionWrap">
-            <Dropdown
-              className="keywordsTypeOptions"
-              value={keywordsType === 0 ? undefined : keywordsType}
-              data={KEYWORDS_TYPES}
+          <Space.Compact className="valignWrapper actionWrap">
+            <Select
+              style={KEYWORDS_TYPE_SELECT_STYLE}
+              value={keywordsType}
+              options={KEYWORDS_TYPES}
               onChange={value => this.setState({ keywordsType: value, keywords: '' })}
             />
-            <SearchInput
-              keywords={keywords}
-              className="resignationSearch"
+            <Input
+              style={SEARCH_INPUT_STYLE}
+              value={keywords}
               placeholder={_l('搜索成员')}
-              onSearch={val => this.setState({ keywords: val }, this.getData)}
-              onChange={val => this.setState({ keywords: val })}
+              prefix={<i className="icon icon-search textTertiary" />}
+              onPressEnter={e => this.setState({ keywords: e.target.value }, this.getData)}
+              onChange={e => this.setState({ keywords: e.target.value })}
             />
-          </div>
+          </Space.Compact>
 
           {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
             <span className="colorPrimary Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>

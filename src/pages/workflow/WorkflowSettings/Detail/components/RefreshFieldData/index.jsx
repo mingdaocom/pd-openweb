@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 export default ({ isSingle = false, controls, fields, updateSource }) => {
   // 刷新计算结果 字段类型 公式数值 || 文本组合 || 公式日期 || 公式函数 || 级联选择存储路径
@@ -57,24 +57,28 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
 
   const renderCheckbox = list => {
     return list.map((c, i) => (
-      <Checkbox
-        className="mTop10"
-        key={i}
-        text={
-          <span>
-            <i className={`icon-${getIconByType(c.type)} textTertiary Font16 mRight8`}></i>
-            {c.controlName}
-          </span>
-        }
-        checked={!!(_.find(fields, o => o.fieldId === c.controlId) || {}).isClear}
-        onClick={checked => {
-          updateSource({
-            fields: checked
-              ? fields.filter(o => o.fieldId !== c.controlId)
-              : fields.concat({ fieldId: c.controlId, isClear: true }),
-          });
-        }}
-      />
+      <div className="mTop10" key={i}>
+        <Checkbox
+          checked={!!(_.find(fields, o => o.fieldId === c.controlId) || {}).isClear}
+          onChange={event => {
+            updateSource({
+              fields: !event.target.checked
+                ? fields.filter(o => o.fieldId !== c.controlId)
+                : fields.concat({
+                    fieldId: c.controlId,
+                    isClear: true,
+                  }),
+            });
+          }}
+        >
+          {
+            <span>
+              <i className={`icon-${getIconByType(c.type)} textTertiary Font16 mRight8`}></i>
+              {c.controlName}
+            </span>
+          }
+        </Checkbox>
+      </div>
     ));
   };
 

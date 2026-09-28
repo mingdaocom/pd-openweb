@@ -66,10 +66,6 @@ export const AddRelate = styled.div`
       }
     }
   }
-  .footerBtn {
-    text-align: right;
-    margin-top: 32px;
-  }
   .existRelateWrap {
     .emptyHint {
       margin-top: 120px;
@@ -124,21 +120,8 @@ export const FilterContent = styled.div`
           min-width: 0;
           margin-right: 0px;
         }
-        .ant-select-arrow {
+        .hap-select-arrow {
           margin-top: -8px !important;
-        }
-        .ant-select-selector {
-          border-color: var(--color-border-secondary);
-          height: 36px;
-          width: 130px;
-          border-radius: 4px;
-          box-shadow: none !important;
-          .ant-select-selection-search-input {
-            height: 34px;
-          }
-          .ant-select-selection-item {
-            line-height: 34px;
-          }
         }
       }
       .conditionValue {
@@ -173,10 +156,6 @@ export const FilterContent = styled.div`
         .dateValue {
           display: flex;
           align-items: center;
-        }
-        .dateInputCon .ming.Dropdown {
-          height: 34px;
-          background: none;
         }
       }
     }

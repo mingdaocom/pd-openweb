@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getDatePickerConfigs, isEmptyValue } from 'src/utils/controlCommon';
+import { getDatePickerConfigs } from 'src/utils/domain/control/date';
+import { isEmptyValue } from 'src/utils/domain/control/number';
+import { transferValue } from 'src/utils/domain/control/value';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import { getDynamicValue } from './formUtils';
 import { getAttachmentData } from './formUtils/helper';
 
@@ -253,6 +254,12 @@ export const getShowValue = (control, value = '') => {
   }
 
   return clearValue(value);
+};
+
+/** 根据接口响应字段映射查找对应的主表控件。 */
+export const getSearchMappingControl = (responseMap = [], formData = [], sourceFieldId) => {
+  const mapping = _.find(responseMap, item => item.id === sourceFieldId && !item.pid && !item.subid);
+  return mapping ? _.find(formData, control => control.controlId === mapping.cid) : undefined;
 };
 
 export const clearValue = (value = '') => {

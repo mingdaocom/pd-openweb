@@ -2,7 +2,9 @@ import React, { createContext, useCallback, useEffect, useRef, useState } from '
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
-import { emitter, pathCompletion } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { downloadBlob } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { useAgentBus, useAgentEvent } from '../agentBus';
 import { AGENT_HEADER_EVENT, fetchBuildEstimate } from '../agentService';
 import { IS_DEBUG } from '../debug';
@@ -18,6 +20,7 @@ import {
   WorkflowsPanel,
   WorksheetsPanel,
 } from './panels';
+import { buildPlanFileName, buildPlanMarkdown } from './planExport';
 import PreviewFrame from './PreviewFrame';
 import Sidebar from './Sidebar';
 import SkeletonPanel from './SkeletonPanel';
@@ -236,7 +239,7 @@ export default function AppBuilder({
   sidebarCollapsed = false,
 }) {
   const bus = useAgentBus();
-  const { files, focus, setFocus, sidebarItems } = useFileStore();
+  const { files, focus, focusByUser, sidebarItems } = useFileStore();
   const [appMeta, setAppMeta] = useState({
     name: '',
     versionLabel: '',
@@ -259,6 +262,8 @@ export default function AppBuilder({
   const [previewNonce, setPreviewNonce] = useState(0);
   // chat panel 正在请求中（plan streaming 或 build 进行中）：禁用「生成应用」按钮
   const [chatSubmitting, setChatSubmitting] = useState(false);
+  // 方案是否还在流式生成：plan.md 先收流，后面还有一串 jsons 在写，单看某个文件 ready 判不出整份方案完没完
+  const [planStreaming, setPlanStreaming] = useState(false);
   // 「生成应用」点击后到搭建真正发起前的过渡态：预检为异步，这段窗口立即禁用按钮（文案仍是「生成应用」），
   // 给即时反馈 + 防重复点击；提交成功由 chatSubmitting 接力，预检被拦则恢复可点。
   const [kickingOff, setKickingOff] = useState(false);
@@ -367,7 +372,13 @@ export default function AppBuilder({
     setChatSubmitting(!!value);
     // 搭建已真正发起（submitting 置位）：交接给 chatSubmitting 维持禁用，清掉过渡态
     if (value) setKickingOff(false);
+    // 本轮对话收流：方案文件不会再有新产物，解除「方案生成中」
+    else setPlanStreaming(false);
   });
+
+  // 方案正在流式写入：任一方案文件开始流即置位。搭建轮不发 file:begin，故不受影响；
+  // 历史版本走 file:write 也不置位，加载完即可导出。
+  useAgentEvent('file:begin', () => setPlanStreaming(true));
 
   useAgentEvent('chat:pending-edits', value => setPendingEdits(Array.isArray(value) ? value : []));
 
@@ -508,10 +519,11 @@ export default function AppBuilder({
     };
   }, [appMeta.appId]);
 
+  // 用户点侧栏切 tab：走 focusByUser 锁住焦点，后续流式产物不再把 tab 自动切走
   function setActiveKey(key) {
     const entry = entryByKey(key);
 
-    setFocus((entry && entry.file) || null);
+    focusByUser((entry && entry.file) || null);
   }
 
   // 方案是否含工作表：工作表是应用的最小数据载体，无工作表的空方案搭建无意义，禁止生成。
@@ -620,6 +632,32 @@ export default function AppBuilder({
   const appMetaFile = files['/jsons/app.json'];
   const appMetaParsed = (appMetaFile && appMetaFile.parsed) || {};
 
+  // 导出 icon 只在整份方案生成完毕后出现（生成过程中导出的是半截文档），四个条件缺一不可：
+  // plan.md 已收流（它是最先收流的文件，单看它 ready 时 workflows / ai-assistants 还在排队写）、
+  // 本轮请求已结束、本轮没有方案文件开过流、且没有任何文件仍停在 streaming
+  // ——最后一条与侧栏转圈判据同源，保证「侧栏还在转」时不会出现导出入口。
+  // 历史版本方案走 file:write 直接落 ready，加载完即可导出。
+  const planFile = files['/plan.md'];
+  const anyFileStreaming = Object.keys(files).some(path => (files[path] || {}).status === 'streaming');
+  const canDownloadPlan = !!(
+    planFile &&
+    planFile.status === 'ready' &&
+    (planFile.content || '').trim() &&
+    !chatSubmitting &&
+    !planStreaming &&
+    !anyFileStreaming
+  );
+
+  // 导出整份搭建方案：头部信息 + 应用概览（plan.md）+ 各模块详细设计，按导出模板拼成一个 md 文件
+  function handleDownloadPlan() {
+    const now = new Date();
+    const planAppName = appMetaParsed.appName || appMeta.name;
+    const markdown = buildPlanMarkdown({ files, appName: planAppName, estimateCredits, now });
+    const fileName = buildPlanFileName({ appName: planAppName, versionLabel: appMeta.versionLabel, now });
+
+    downloadBlob(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }), fileName);
+  }
+
   const hasAppId = !!appMeta.appId;
   const previewUrl = hasAppId
     ? buildPreviewUrl(previewKey, {
@@ -690,6 +728,7 @@ export default function AppBuilder({
           builtVersionLabel={builtVersionLabel}
           estimateCredits={estimateCredits}
           estimateLoading={estimateLoading}
+          onDownload={canDownloadPlan ? handleDownloadPlan : undefined}
           onClose={() => bus.emit('builder:close')}
           isSingleMingoPlan={isSingleMingoPlan}
         />

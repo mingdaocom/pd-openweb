@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { formatElapsedDuration } from 'src/utils/domain/shared/time';
 import { IconChevronDown, IconChevronRight } from './icons';
 import { MarkdownText } from './MarkdownText';
 import { colors, spacing } from './tokens';
@@ -107,17 +108,6 @@ const Content = styled.div`
   }
 `;
 
-function formatDuration(ms) {
-  if (!ms || ms < 0) return '';
-  // 有测得耗时但不足 1 秒时按 1 秒计，避免出现无意义的「0秒」
-  const sec = Math.max(1, Math.floor(ms / 1000));
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-
-  if (m > 0) return _l('%0分%1秒', m, s);
-  return _l('%0秒', s);
-}
-
 // 思考时长根据组件挂载时间与 streaming 状态自行计时，结束后停在最终时长不再跳动。
 // 折叠进「已工作」的思考块（非流式）改用传入的 startedAt / finishedAt 取真实时长，
 // 避免重新挂载后时长归零。内容区统一限高 220px，长推理不会撑爆容器。
@@ -153,8 +143,8 @@ export function Reasoning({ children, streaming = false, defaultOpen = false, cl
 
   const duration =
     startedAt && finishedAt
-      ? formatDuration(finishedAt - startedAt)
-      : formatDuration((endTs || now) - startRef.current);
+      ? formatElapsedDuration(finishedAt - startedAt)
+      : formatElapsedDuration((endTs || now) - startRef.current);
 
   return (
     <Root className={className}>

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Checkbox, DatePicker, Dialog, Dropdown, Icon, LoadDiv, ScrollView, Switch, UserHead } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Button, Checkbox, DatePicker, Modal, Select, Switch } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/externalPortal';
 import projectAjax from 'src/api/project';
 import projectSetting from 'src/api/projectSetting';
@@ -15,6 +16,12 @@ const DATE_TYPE = [
   { key: ['lastTimeStart', 'lastTimeTimeEnd'], text: _l('最近登录时间'), id: 'last' },
   { key: ['createTimeStart', 'createTimeEnd'], text: _l('注册时间'), id: 'create' },
 ];
+const RANGE_PICKER_TRIGGER_STYLE = {
+  position: 'absolute',
+  inset: 0,
+  opacity: 0,
+  pointerEvents: 'none',
+};
 
 const formatDate = value => {
   return moment(value).format('YYYY-MM-DD');
@@ -54,6 +61,7 @@ export default class PortalList extends Component {
       allowUpgradeExternalPortal: false,
       showOption: false,
       allCount: 0,
+      openDateRangePicker: '',
     };
   }
 
@@ -93,7 +101,7 @@ export default class PortalList extends Component {
       })
       .then(res => {
         this.setState({
-          apps: (res.apps || []).map(({ appId: value, appName: text }) => ({ text, value })),
+          apps: (res.apps || []).map(({ appId: value, appName: label }) => ({ label, value })),
         });
       });
   }
@@ -171,11 +179,13 @@ export default class PortalList extends Component {
   setAutoOrderStatus = () => {
     const { projectId, autoPurchaseExternalUserExtPack } = this.state;
 
-    Dialog.confirm({
+    Modal.confirm({
       width: autoPurchaseExternalUserExtPack ? 480 : 800,
       title: autoPurchaseExternalUserExtPack ? _l('确认关闭自动订购？') : _l('是否开启自动订购？'),
-      buttonType: autoPurchaseExternalUserExtPack ? 'danger' : 'primary',
-      description: autoPurchaseExternalUserExtPack ? null : (
+      okButtonProps: {
+        danger: (autoPurchaseExternalUserExtPack ? 'danger' : 'primary') === 'danger',
+      },
+      content: autoPurchaseExternalUserExtPack ? null : (
         <div>
           {_l('开启后，当外部用户额度剩余不足20人时，自动购买')}
           <span class="Bold textPrimary mLeft3 mRight3">{_l('500信用点/100人')}</span>
@@ -190,7 +200,9 @@ export default class PortalList extends Component {
           })
           .then(res => {
             if (res) {
-              this.setState({ autoPurchaseExternalUserExtPack: !autoPurchaseExternalUserExtPack });
+              this.setState({
+                autoPurchaseExternalUserExtPack: !autoPurchaseExternalUserExtPack,
+              });
             }
           });
       },
@@ -233,9 +245,9 @@ export default class PortalList extends Component {
       <div className="flexRow manageList" key={item.accountId}>
         <div className="w40 mRight20">
           <Checkbox
-            size="small"
             checked={selectedColumnIds.includes(item.accountId)}
-            onClick={() => this.handleSelect(item.accountId)}
+            onChange={() => this.handleSelect(item.accountId)}
+            size="small"
           />
         </div>
         <div className="flex name mLeft10 mRight40 flexRow minWidth110">
@@ -276,12 +288,15 @@ export default class PortalList extends Component {
    * 删除
    */
   handleDelete(ids) {
-    Dialog.confirm({
-      title: <span className="Red Font17 Bold">{_l('删除用户')}</span>,
-      description: _l('删除后用户需要重新注册才可访问所在的应用'),
+    Modal.confirm({
+      title: <span className="Red Font17 textError">{_l('删除用户')}</span>,
+      content: _l('删除后用户需要重新注册才可访问所在的应用'),
       onOk: () => {
         const exAccountInfos = ids.map(item => {
-          return { exAccountId: item, appId: (_.find(this.state.list || [], i => i.accountId === item) || {}).appId };
+          return {
+            exAccountId: item,
+            appId: (_.find(this.state.list || [], i => i.accountId === item) || {}).appId,
+          };
         });
         ajaxRequest
           .removeUsersByPorject({
@@ -291,7 +306,9 @@ export default class PortalList extends Component {
           .then(res => {
             if (res) {
               alert(_l('删除成功'));
-              this.updateState({ selectedColumnIds: [] });
+              this.updateState({
+                selectedColumnIds: [],
+              });
             }
           });
       },
@@ -325,6 +342,7 @@ export default class PortalList extends Component {
       allCount,
       currentLicense,
       autoPurchaseExternalUserExtPack,
+      openDateRangePicker,
     } = this.state;
     const totalCount = (list || []).length;
     const isDevelopment = _.get(currentLicense || {}, 'version.versionIdV2') === 'Development';
@@ -363,9 +381,16 @@ export default class PortalList extends Component {
             />
           )}
           <div className="flex"></div>
-          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+          {window.platformENV.isHap && (
             <div className="flexRow alignItemsCenter">
-              <Switch size="small" checked={autoPurchaseExternalUserExtPack} onClick={this.setAutoOrderStatus} />
+              <Switch
+                size="small"
+                checked={autoPurchaseExternalUserExtPack}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return this.setAutoOrderStatus(!checked, event);
+                }}
+              />
               <span className="textSecondary Hand mLeft5">{_l('自动订购')}</span>
             </div>
           )}
@@ -374,93 +399,76 @@ export default class PortalList extends Component {
         {selectedColumnIds.length > 0 ? (
           <div className="manageListSearch flexRow">
             <span className="Font17 Bold mRight32">{_l(`已选择%0条`, selectedColumnIds.length)}</span>
-            <Button type="danger ghost" size="medium" onClick={() => this.handleDelete(selectedColumnIds)}>
+            <Button color="danger" variant="outlined" onClick={() => this.handleDelete(selectedColumnIds)}>
               {_l('删除')}
             </Button>
           </div>
         ) : (
           <div className="manageListSearch flexRow">
-            <Dropdown
+            <Select
+              allowClear
               className="w200"
               placeholder={_l('应用')}
-              data={apps}
+              options={apps}
               value={appId || undefined}
-              border
-              isAppendToBody
-              openSearch
-              cancelAble
+              showPopupSearch
+              optionFilterProp="label"
               onChange={appId => this.updateState({ appId })}
             />
             {DATE_TYPE.map(item => {
               const [startDateKey, endDateKey] = item.key;
               const startDate = this.state[startDateKey];
               const endDate = this.state[endDateKey];
+              const rangeText = startDate && endDate ? _l('%0 至 %1', startDate, endDate) : undefined;
+
               return (
-                <span className="InlineBlock mLeft12">
-                  <DatePicker.RangePicker
-                    selectedValue={[startDate ? moment(startDate) : '', endDate ? moment(endDate) : '']}
-                    onClear={() =>
-                      this.updateState({
-                        [startDateKey]: '',
-                        [endDateKey]: '',
-                      })
-                    }
-                    locale={{
-                      lang: {
-                        today: _l('今天'),
-                        clear: _l('取消'),
-                        ok: _l('确认'),
-                        tomorrow: _l('明天'),
-                        timepicker: _l('时间'),
-                        dateTimeFormat: 'YYYY/MM/DD',
-                        dateFormat: 'YYYY/MM/DD',
-                      },
-                    }}
-                    onOk={([start, end]) => {
-                      if (start && end) {
+                <div key={item.id} className="w200 mLeft12 Relative">
+                  <Select
+                    allowClear
+                    className="w100"
+                    open={false}
+                    placeholder={item.text}
+                    suffixIcon={<Icon icon="sidebar_calendar" className="Font16" />}
+                    value={rangeText}
+                    onChange={value => {
+                      if (!value) {
                         this.updateState({
-                          [startDateKey]: formatDate(start),
-                          [endDateKey]: formatDate(end),
+                          [startDateKey]: '',
+                          [endDateKey]: '',
+                          openDateRangePicker: '',
                         });
                       }
                     }}
-                  >
-                    <div
-                      className="selectDateInput"
-                      ref={con => (this.dateInput = con)}
-                      onMouseEnter={() => {
-                        if (startDate && endDate) {
-                          $(`#dateArrowIcon_${item.id}`).hide();
-                          $(`#dateDeleteIcon_${item.id}`).show();
+                    onOpenChange={open => {
+                      if (open) {
+                        this.setState({ openDateRangePicker: item.id });
+                      }
+                    }}
+                  />
+                  {openDateRangePicker === item.id && (
+                    <DatePicker.RangePicker
+                      allowClear={false}
+                      format="YYYY-MM-DD"
+                      open
+                      style={RANGE_PICKER_TRIGGER_STYLE}
+                      value={startDate && endDate ? [moment(startDate), moment(endDate)] : null}
+                      onChange={range => {
+                        if (!Array.isArray(range) || !range[0] || !range[1]) return;
+
+                        this.updateState({
+                          [startDateKey]: formatDate(range[0]),
+                          [endDateKey]: formatDate(range[1]),
+                          openDateRangePicker: '',
+                        });
+                      }}
+                      onOpenChange={open => {
+                        if (!open) {
+                          this.setState({ openDateRangePicker: '' });
                         }
                       }}
-                      onMouseLeave={() => {
-                        $(`#dateArrowIcon_${item.id}`).show();
-                        $(`#dateDeleteIcon_${item.id}`).hide();
-                      }}
-                    >
-                      <span className="flex overflow_ellipsis">
-                        {startDate && endDate ? (
-                          _l('%0 至 %1', startDate, endDate)
-                        ) : (
-                          <span className="textTertiary">{item.text}</span>
-                        )}
-                      </span>
-                      <span className="icon-arrow-down-border icon textTertiary" id={`dateArrowIcon_${item.id}`} />
-                      <span
-                        className="icon-cancel icon textTertiary Hidden"
-                        id={`dateDeleteIcon_${item.id}`}
-                        onClick={e => {
-                          e.stopPropagation();
-                          this.updateState({
-                            [startDateKey]: '',
-                            [endDateKey]: '',
-                          });
-                        }}
-                      />
-                    </div>
-                  </DatePicker.RangePicker>
-                </span>
+                    />
+                  )}
+                </div>
               );
             })}
             <div className="flex" />
@@ -475,13 +483,13 @@ export default class PortalList extends Component {
         <div className="flexRow manageList manageListHeader bold mTop16">
           <div className="w40 mRight20">
             <Checkbox
-              size="small"
               checked={totalCount > 0 && selectedColumnIds.length === totalCount}
-              onClick={checked =>
+              onChange={event =>
                 this.setState({
-                  selectedColumnIds: checked ? [] : (list || []).map(i => i.accountId),
+                  selectedColumnIds: !event.target.checked ? [] : (list || []).map(i => i.accountId),
                 })
               }
+              size="small"
             />
           </div>
           <div className="flex mLeft10 minWidth150">{_l('姓名')}</div>

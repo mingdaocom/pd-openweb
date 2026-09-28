@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import { Icon, Support } from 'ming-ui';
+import { Input, Tooltip } from 'ming-ui/antd-components';
+import { useShareDialog } from 'src/pages/worksheet/components/Share';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 
 const ParamsWrapper = styled.div`
   margin-top: 20px;
@@ -20,21 +20,6 @@ const ParamsWrapper = styled.div`
     }
   }
 
-  .ming.Input {
-    border-color: var(--color-border-primary);
-  }
-  input::-webkit-input-placeholder {
-    color: var(--color-text-tertiary);
-  }
-  input::-ms-input-placeholder {
-    color: var(--color-text-tertiary);
-  }
-  input::-moz-placeholder {
-    color: var(--color-text-tertiary);
-  }
-  .ming.Input:focus {
-    border-color: var(--color-primary) !important;
-  }
   .repeatItem {
     border-color: var(--color-error) !important;
   }
@@ -73,6 +58,7 @@ export default function UrlParams(props) {
   const [params, setParams] = useState(safeParse(view?.advancedSetting?.urlparams, 'array'));
   const [flag, setFlag] = useState(false);
   const paramsRef = useRef();
+  const { open: openShareDialog, holder: shareDialogHolder } = useShareDialog();
 
   useEffect(() => {
     if (paramsRef && paramsRef.current && paramsRef.current.lastChild && paramsRef.current.lastChild.firstChild) {
@@ -108,6 +94,7 @@ export default function UrlParams(props) {
 
   return (
     <div>
+      {shareDialogHolder}
       <div className="textSecondary mTop8">
         <span>{_l('指定参数名，可作为查询字符串附加在')}</span>
 
@@ -151,7 +138,8 @@ export default function UrlParams(props) {
                   placeholder={_l('请输入参数名')}
                   value={item}
                   maxLength={20}
-                  onChange={value => {
+                  onChange={e => {
+                    const value = e.target.value;
                     const newParams = params.map((p, i) => {
                       return i === index ? value : p;
                     });

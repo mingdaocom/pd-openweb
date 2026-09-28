@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Segmented } from 'ming-ui/antd-components';
 import * as actions from 'statistics/redux/actions';
-import { reportTypes } from '../../Charts/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { chartType, funnelCurvatureList, funnelShapeList } from '../../common/chartTypeConfig';
 import { filterDisableParticleSizeTypes, getAxisText } from '../../common/reportConfigUtils';
 import Accumulate from './components/Accumulate';
@@ -46,6 +47,8 @@ let ChartSetting = class ChartSetting extends Component {
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
     const isFunnelChart = reportType == reportTypes.FunnelChart;
+    const items = chartType[reportType].items;
+    const selectedItem = items.find(item => displaySetup.showChartType == item.value);
 
     const handleClick = item => {
       if (displaySetup.showChartType !== item.value) {
@@ -71,7 +74,7 @@ let ChartSetting = class ChartSetting extends Component {
         </div>
         {[reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) ? (
           <div className="chartTypeImageSelect flexRow valignWrapper mBottom16">
-            {chartType[reportType].items.map(item => (
+            {items.map(item => (
               <div
                 key={item.value}
                 className={cx('flex styleItem centerAlign pointer textSecondary', {
@@ -87,20 +90,20 @@ let ChartSetting = class ChartSetting extends Component {
             ))}
           </div>
         ) : (
-          <div className="chartTypeSelect flexRow valignWrapper">
-            {chartType[reportType].items.map(item => (
-              <div
-                key={item.value}
-                title={item.name}
-                className={cx('flex centerAlign pointer textSecondary', {
-                  active: displaySetup.showChartType == item.value,
-                })}
-                onClick={() => handleClick(item)}
-              >
-                <span className="ellipsis">{item.name}</span>
-              </div>
-            ))}
-          </div>
+          <Segmented
+            block
+            className="bgDisabled"
+            value={selectedItem?.value ?? ''}
+            options={items.map(item => ({
+              value: item.value,
+              label: (
+                <span className="ellipsis" title={item.name}>
+                  {item.name}
+                </span>
+              ),
+            }))}
+            onChange={value => handleClick(items.find(item => item.value === value))}
+          />
         )}
       </div>
     );
@@ -111,24 +114,24 @@ let ChartSetting = class ChartSetting extends Component {
     return (
       <div className="mBottom15">
         <div className="mBottom8 Font13">{_l('形状')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {funnelShapeList.map(item => (
-            <div
-              key={item.value}
-              title={item.name}
-              className={cx('flex centerAlign pointer textSecondary', {
-                active: (style.funnelShape || 'funnel') == item.value,
-              })}
-              onClick={() => {
-                this.props.changeCurrentReport({
-                  style: { ...style, funnelShape: item.value },
-                });
-              }}
-            >
-              <span className="ellipsis">{item.name}</span>
-            </div>
-          ))}
-        </div>
+        <Segmented
+          block
+          className="bgDisabled"
+          value={style.funnelShape || 'funnel'}
+          options={funnelShapeList.map(item => ({
+            value: item.value,
+            label: (
+              <span className="ellipsis" title={item.name}>
+                {item.name}
+              </span>
+            ),
+          }))}
+          onChange={value => {
+            this.props.changeCurrentReport({
+              style: { ...style, funnelShape: value },
+            });
+          }}
+        />
       </div>
     );
   }
@@ -138,24 +141,24 @@ let ChartSetting = class ChartSetting extends Component {
     return (
       <div className="mBottom15">
         <div className="mBottom8 Font13">{_l('曲率')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {funnelCurvatureList.map(item => (
-            <div
-              key={item.value}
-              title={item.name}
-              className={cx('flex centerAlign pointer textSecondary', {
-                active: (style.funnelCurvature || 2) == item.value,
-              })}
-              onClick={() => {
-                this.props.changeCurrentReport({
-                  style: { ...style, funnelCurvature: item.value },
-                });
-              }}
-            >
-              <span className="ellipsis">{item.name}</span>
-            </div>
-          ))}
-        </div>
+        <Segmented
+          block
+          className="bgDisabled"
+          value={style.funnelCurvature || 2}
+          options={funnelCurvatureList.map(item => ({
+            value: item.value,
+            label: (
+              <span className="ellipsis" title={item.name}>
+                {item.name}
+              </span>
+            ),
+          }))}
+          onChange={value => {
+            this.props.changeCurrentReport({
+              style: { ...style, funnelCurvature: value },
+            });
+          }}
+        />
       </div>
     );
   }

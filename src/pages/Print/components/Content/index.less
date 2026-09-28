@@ -106,8 +106,19 @@
       }
     }
     .relationsTitle {
-      height: 34px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      min-height: 34px;
+      height: auto;
+      .relationTitleText {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
       .relationShowType {
+        flex-shrink: 0;
+        margin: 0;
         .typeItem {
           border: 0.1px solid #ddd;
           color: #9e9e9e;
@@ -206,11 +217,11 @@
       }
     }
   }
-  .ant-table {
+  .hap-table {
     font-size: 12px;
     color: #000;
   }
-  .ant-table table {
+  .hap-table table {
     border-radius: 0px;
     border-top: 1px solid #151515;
     border-bottom: 1px solid #151515;
@@ -224,30 +235,30 @@
   .relationsTable + .controlDiv {
     border-top: 1px solid #ddd;
   }
-  .ant-table tbody > tr.ant-table-row:hover > td {
+  .hap-table tbody > tr.hap-table-row:hover > td {
     background: #fff;
   }
-  .ant-table thead > tr > th,
-  .ant-table tbody > tr > td,
-  .ant-table tfoot > tr > th,
-  .ant-table tfoot > tr > td {
+  .hap-table thead > tr > th,
+  .hap-table tbody > tr > td,
+  .hap-table tfoot > tr > th,
+  .hap-table tfoot > tr > td {
     padding: 5px;
     border: 1px solid #ddd;
   }
-  .ant-table-thead > tr > th {
+  .hap-table-thead > tr > th {
     background: #fafafa !important;
   }
-  .ant-table tbody > tr:last-child > td {
+  .hap-table tbody > tr:last-child > td {
     border-bottom: 0;
   }
-  .ant-table-container table > thead > tr:first-child th:first-child,
-  .ant-table-container table > thead > tr:first-child th:last-child,
-  .ant-table-container {
+  .hap-table-container table > thead > tr:first-child th:first-child,
+  .hap-table-container table > thead > tr:first-child th:last-child,
+  .hap-table-container {
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
   }
-  .ant-table.ant-table-bordered thead > tr > th,
-  .ant-table.ant-table-bordered tbody > tr > td {
+  .hap-table.hap-table-bordered thead > tr > th,
+  .hap-table.hap-table-bordered tbody > tr > td {
     border-top: 0px;
     border-right: 0px !important;
     color: #000;
@@ -255,15 +266,15 @@
     white-space: pre-wrap;
     word-break: break-word;
   }
-  .ant-table-container table > thead > tr:first-child th:first-child,
-  .ant-table.ant-table-bordered tbody > tr > td:first-child {
+  .hap-table-container table > thead > tr:first-child th:first-child,
+  .hap-table.hap-table-bordered tbody > tr > td:first-child {
     border-left: 0px;
   }
-  .ant-table-container table > thead > tr:first-child th:last-child,
-  .ant-table.ant-table-bordered tbody > tr > td:last-child {
+  .hap-table-container table > thead > tr:first-child th:last-child,
+  .hap-table.hap-table-bordered tbody > tr > td:last-child {
     border-right: 0px !important;
   }
-  .ant-table.ant-table-bordered .ant-table-container {
+  .hap-table.hap-table-bordered .hap-table-container {
     border-left: 0px;
     border: 0px;
     border-right: 0px !important;
@@ -272,7 +283,7 @@
   .relationsTable {
     overflow: hidden;
     &.noData {
-      .ant-table-tbody {
+      .hap-table-tbody {
         display: none;
       }
     }
@@ -281,11 +292,11 @@
     .react-resizable-handle {
       display: none;
     }
-    .ant-table .ant-table-container::before,
-    .ant-table .ant-table-container::after {
+    .hap-table .hap-table-container::before,
+    .hap-table .hap-table-container::after {
       display: none;
     }
-    .ant-table table {
+    .hap-table table {
       border-radius: 0px;
       border-top: 1px solid #151515;
       border-bottom: 1px solid #151515;
@@ -363,7 +374,7 @@
   thead > tr > th:last-child .react-resizable-handle {
     cursor: initial;
   }
-  .ant-table-cell {
+  .hap-table-cell {
     .recordAttachments .recordAttachmentPictures {
       .pictureAttachment {
         float: initial;
@@ -423,8 +434,8 @@
       }
     }
   }
-  .ant-table.ant-table-bordered thead > tr > th,
-  .ant-table.ant-table-bordered tbody > tr > td {
+  .hap-table.hap-table-bordered thead > tr > th,
+  .hap-table.hap-table-bordered tbody > tr > td {
     &.borderLine {
       border-right: 2px solid var(--color-primary) !important;
     }
@@ -447,7 +458,7 @@
 
 .printPage {
   @media print {
-    .ant-notification {
+    .hap-notification {
       display: none;
     }
     * {

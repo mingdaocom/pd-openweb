@@ -3,13 +3,14 @@ import cx from 'classnames';
 import { get, isFunction } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import noAiPng from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/assets/noAi.png';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import ChatLLM from './ChatBot/ChatLLM';
 import ReactCodeEditor from './ChatBot/ReactCodeEditor';
+import { CUSTOM_FIELD_CODE_MAX_SIZE_IN_KB, isCustomFieldCodeTooLarge } from './codeSize';
 import ControlPreview from './ControlPreview';
 import DevelopGuide from './DevelopGuide';
 import DragHelper from './DragHelper';
@@ -65,7 +66,7 @@ const Card = styled.div`
 `;
 
 const Preview = styled(Card)`
-  height: ${props => props.height || '240'}px;
+  height: ${props => props.$height || '240'}px;
 `;
 
 const Editor = styled(Card)`
@@ -100,7 +101,7 @@ const CodingArea = styled.div`
 `;
 
 const Terminal = styled.div`
-  height: ${props => props.height || '200'}px;
+  height: ${props => props.$height || '200'}px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -131,7 +132,7 @@ const ConfigAndLLM = styled.div`
 `;
 
 const Config = styled(Card)`
-  height: ${props => props.height || '220'}px;
+  height: ${props => props.$height || '220'}px;
   overflow-y: auto;
 `;
 
@@ -205,10 +206,8 @@ export default function DevelopWithAI(props) {
   );
 
   const handleExit = () => {
-    const blobSizeOfKb = new Blob([currentCode]).size / 1024;
-
-    if (blobSizeOfKb > 64) {
-      alert(_l('代码无法保存，代码长度不能超过64KB'), 3);
+    if (isCustomFieldCodeTooLarge(currentCode)) {
+      alert(_l('代码无法保存，代码长度不能超过%0KB', CUSTOM_FIELD_CODE_MAX_SIZE_IN_KB), 3);
       return;
     }
 
@@ -223,7 +222,7 @@ export default function DevelopWithAI(props) {
     }));
   }, [currentCode]);
   return (
-    <Modal visible fullScreen bodyStyle={{ padding: 0 }} closeIcon={<span />}>
+    <Modal open fullScreen styles={{ container: { padding: 0 } }} closable={false}>
       <Con>
         <Header>
           <i className="icon-backspace Font16 mRight12 textSecondary hoverColorPrimary pointer" onClick={handleExit} />
@@ -249,7 +248,7 @@ export default function DevelopWithAI(props) {
               min={240}
               max={window.innerHeight - 50 - 10 - BOTTOM_MIN_HEIGHT}
             />
-            <Preview height={previewHeight} style={envIsMobile ? { width: 400, margin: '0 auto' } : {}}>
+            <Preview $height={previewHeight} style={envIsMobile ? { width: 400, margin: '0 auto' } : {}}>
               <ControlPreview
                 controlName={controlName}
                 currentControlId={control.controlId}
@@ -267,7 +266,7 @@ export default function DevelopWithAI(props) {
             </Preview>
             <Editor>
               <EditorHeader>
-                <Icon className="icon icon-react" color="var(--color-text-tertiary)" size={24} />
+                <Icon className="icon icon-react" $color="var(--color-text-tertiary)" $size={24} />
                 <span className="file-name">{codeFileName}</span>
                 <div style={{ flex: 1 }}></div>
                 <IconButton
@@ -279,7 +278,7 @@ export default function DevelopWithAI(props) {
                     }
                   }}
                 >
-                  <Icon className="icon icon-play_circle_filled" color="var(--color-task)" />
+                  <Icon className="icon icon-play_circle_filled" $color="var(--color-task)" />
                   <span className="text">{_l('运行')} </span>
                 </IconButton>
                 <IconButton
@@ -293,17 +292,17 @@ export default function DevelopWithAI(props) {
                       : undefined
                   }
                 >
-                  <Icon className="icon icon-rotate" color="var(--color-text-tertiary)" />
+                  <Icon className="icon icon-rotate" $color="var(--color-text-tertiary)" />
                   <span className="text">{_l('撤销')} </span>
                 </IconButton>
                 <IconButton
                   className="mLeft15"
-                  textColor={terminalVisible ? 'var(--color-primary)' : 'var(--color-text-title)'}
+                  $textColor={terminalVisible ? 'var(--color-primary)' : 'var(--color-text-title)'}
                   onClick={() => setTerminalVisible(prevVisible => !prevVisible)}
                 >
                   <Icon
                     className="icon icon-fact_check_black"
-                    color={terminalVisible ? 'var(--color-primary)' : 'var(--color-text-tertiary)'}
+                    $color={terminalVisible ? 'var(--color-primary)' : 'var(--color-text-tertiary)'}
                   />
                   <span className="text">{_l('控制台')} </span>
                 </IconButton>
@@ -313,13 +312,13 @@ export default function DevelopWithAI(props) {
                 <ReactCodeEditor value={currentCode} onChange={setCurrentCode} />
               </CodingArea>
               {terminalVisible && (
-                <Terminal height={window.innerHeight - 50 - 10 - 240 - 6 - 200 < 200 ? 100 : 200}>
+                <Terminal $height={window.innerHeight - 50 - 10 - 240 - 6 - 200 < 200 ? 100 : 200}>
                   <div className="header">
-                    <Icon className="icon icon-fact_check_black" color="var(--color-text-tertiary)" />
+                    <Icon className="icon icon-fact_check_black" $color="var(--color-text-tertiary)" />
                     <span className="text mLeft4 textSecondary">{_l('控制台')} </span>
                     <div className="flex"></div>
                     <IconButton
-                      textColor="var(--color-text-secondary)"
+                      $textColor="var(--color-text-secondary)"
                       className={error ? '' : 'disabled'}
                       onClick={() => {
                         if (!error) {
@@ -332,21 +331,21 @@ export default function DevelopWithAI(props) {
                         }
                       }}
                     >
-                      <Icon className="icon icon-ai1" color="var(--color-text-secondary)" />
+                      <Icon className="icon icon-ai1" $color="var(--color-text-secondary)" />
                       <span className="text">{_l('修复建议')} </span>
                     </IconButton>
                     <IconButton
-                      textColor="var(--color-text-secondary)"
+                      $textColor="var(--color-text-secondary)"
                       className={cx('mLeft15 Hand', { disabled: !error })}
                       onClick={() => setError('')}
                     >
-                      <Icon className="icon icon-block" color="var(--color-text-tertiary)" />
+                      <Icon className="icon icon-block" $color="var(--color-text-tertiary)" />
                       <span className="text">{_l('清除')} </span>
                     </IconButton>
                     <Icon
                       className="icon icon-close mLeft15 mRight2 Hand"
                       fontSize={20}
-                      color="var(--color-text-tertiary)"
+                      $color="var(--color-text-tertiary)"
                       onClick={() => setTerminalVisible(false)}
                     />
                   </div>
@@ -382,7 +381,7 @@ export default function DevelopWithAI(props) {
               min={220}
               max={window.innerHeight - 50 - 10 - BOTTOM_MIN_HEIGHT}
             />
-            <Config height={configHeight}>
+            <Config $height={configHeight}>
               <EnvConfig
                 worksheetId={worksheetId}
                 control={control}
@@ -418,7 +417,7 @@ export default function DevelopWithAI(props) {
                     <span
                       className="colorPrimary hoverColorPrimary Hand mLeft8"
                       onClick={() => {
-                        location.href = md.global.Config.PlatformUrl + 'sysconfig/hub/ai';
+                        location.href = md.global.Config.PlatformUrl + 'aiService';
                       }}
                     >
                       {_l('去配置')}
@@ -475,8 +474,8 @@ export default function DevelopWithAI(props) {
   );
 }
 
-export function openDevelopWithAI(props) {
-  functionWrap(DevelopWithAI, props);
+export function useDevelopWithAI() {
+  return useFunctionWrapComponent(DevelopWithAI);
 }
 
 /**

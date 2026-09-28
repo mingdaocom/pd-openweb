@@ -1,38 +1,42 @@
 ﻿import update from 'immutability-helper';
 import _, { find, flatten, get, some } from 'lodash';
+import moment from 'moment';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { sortDataByCustomItems } from 'worksheet/redux/actions/util';
 import { getBoardItemKey } from 'worksheet/redux/util';
+import { handleConditionsDefault } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
+import { filterButtonBySheetSwitchPermit } from 'src/pages/worksheet/common/filterButtonBySheetSwitchPermit';
+import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
+import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { canEditApp } from 'src/utils/domain/permission/app';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { formatQuickFilter, needHideViewFilters } from 'src/utils/domain/worksheet/filter';
+import { formatOriginFilterGroupValue } from 'src/utils/domain/worksheet/filterCondition';
+import { validate } from 'src/utils/domain/worksheet/filterQuick';
+import { sortDataByCustomItems, sortDataByGroupItems } from 'src/utils/domain/worksheet/groupSort';
+import {
+  getGroupControlId,
+  getSheetOperateButtonIds,
+  getSheetOperatesButtons,
+} from 'src/utils/domain/worksheet/helpers';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/services/project';
+import {
+  replaceAdvancedSettingTranslateInfo,
+  replaceControlsTranslateInfo,
+  replaceRulesTranslateInfo,
+} from 'src/utils/services/translation/app';
 import {
   getCalendartypeData,
   getCalendarViewType,
   getTimeControls,
   setDataFormat,
-} from 'worksheet/views/CalendarView/util';
-import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
-import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
-import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
-import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
-import { canEditApp, sortDataByGroupItems } from 'src/pages/worksheet/redux/actions/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { getFilledRequestParams, getRequest } from 'src/utils/common';
-import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
-import { formatQuickFilter, needHideViewFilters } from 'src/utils/filter';
-import { addBehaviorLog, compatibleMDJS, dateConvertToUserZone } from 'src/utils/project';
-import {
-  replaceAdvancedSettingTranslateInfo,
-  replaceControlsTranslateInfo,
-  replaceRulesTranslateInfo,
-} from 'src/utils/translate';
-import {
-  filterButtonBySheetSwitchPermit,
-  getGroupControlId,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+} from 'src/utils/services/worksheet/calendar';
+import { formatFilterValues, formatFilterValuesToServer } from 'src/utils/services/worksheet/quickFilter';
 import { getFlatSheetRows } from '../util';
 
 const dealBoardViewRecordCount = data => {
@@ -240,7 +244,12 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
           ? _.find(workSheetInfo.views, v => v.viewId === base.viewId)
           : workSheetInfo.views[0];
 
-      if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide')) && base.type !== 'single') {
+      // App 嵌入入口通过 getFilters 传递筛选条件，保留配置的隐藏视图，与 single 入口一致。
+      if (
+        _.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide')) &&
+        base.type !== 'single' &&
+        getFilters !== 'true'
+      ) {
         view = _.find(
           workSheetInfo.views,
           v => !_.includes(['hide', 'spc&happ'], _.get(v, 'advancedSetting.showhide')),
@@ -281,6 +290,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       });
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
       dispatch({ type: 'WORKSHEET_UPDATE_FILTERS', filters: { ...filters, filterControls } });
+
       dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
     });
   if (noNeedGetApp) return;
@@ -362,16 +372,22 @@ export const fetchSheetRows =
     } = getState().mobile;
 
     const { appId, worksheetId, viewId, maxCount, type } = base;
+    const { chartId, getFilters } = getRequest();
     let { views = [], template = {} } = worksheetInfo;
     views =
-      base.type === 'single'
+      base.type === 'single' || getFilters === 'true'
         ? views
         : views.filter(
             v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
           );
     const view = _.find(views, v => v.viewId === viewId) || views[0];
+
     let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
-    if (hasGroupFilter && !_.includes([0, 1, 3, 4, 6], view.viewType)) return;
+
+    if (hasGroupFilter && !_.includes(['0', '1', '3', '4', '6'], String(view.viewType))) {
+      return;
+    }
+
     const defaultViewId = _.get(views[0], 'viewId');
     const showCurrentView = _.some(views, v => v.viewId === viewId);
     const isMobileSingleView = type === 'single';
@@ -382,7 +398,6 @@ export const fetchSheetRows =
     }
 
     const { keyWords, requestParams } = filters;
-    const { chartId, getFilters } = getRequest();
     // 看板
     const isKanban = view.viewType === 1;
     // 日历
@@ -574,8 +589,6 @@ export const fetchSheetRows =
   };
 
 export const loadGroupMore = groupKey => (dispatch, getState) => {
-  dispatch({ type: 'UPDATE_GROUP_DATA_INFO', data: { isGroupLoading: true } });
-
   const {
     base,
     filters,
@@ -596,6 +609,9 @@ export const loadGroupMore = groupKey => (dispatch, getState) => {
   const { groupData, currentKeyPageIndex = 1 } = groupDataInfo;
   const { chartId } = getRequest();
 
+  if (groupDataInfo.isGroupLoading) return Promise.resolve();
+  dispatch({ type: 'UPDATE_GROUP_DATA_INFO', data: { isGroupLoading: true } });
+
   const params = getFilledRequestParams({
     worksheetId,
     appId,
@@ -615,47 +631,52 @@ export const loadGroupMore = groupKey => (dispatch, getState) => {
     requestParams,
   });
 
-  sheetAjax.getFilterRows(params).then(({ data = [] }) => {
-    const { rows = [] } = _.find(data, v => v.key === groupKey) || {};
+  return sheetAjax
+    .getFilterRows(params)
+    .then(({ data = [] }) => {
+      const { rows = [] } = _.find(data, v => v.key === groupKey) || {};
 
-    dispatch({
-      type: 'UPDATE_GROUP_DATA_INFO',
-      data: {
-        isGroupLoading: false,
-        groupData: getGroupData({
-          data: groupData,
-          view,
-          controls: template.controls,
-          groupKey,
-          moreRows: rows,
-          currentKeyPageIndex,
-        }),
-      },
-    });
-
-    let operatesButtons = getSheetOperatesButtons(view, { buttons: sheetButtons, printList });
-    operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, sheetSwitchPermit, view.viewId);
-    const rowIds = rows.map(row => (_.isString(row) ? safeParse(row) : row).rowid).filter(Boolean);
-    const btnIds = getSheetOperateButtonIds(operatesButtons);
-
-    if (!_.isEmpty(rowIds) && !_.isEmpty(btnIds)) {
-      sheetAjax.checkWorksheetRowsBtn({ worksheetId, rowIds, btnIds }).then(result => {
-        const currentBase = getState().mobile.base;
-
-        if (currentBase.worksheetId !== worksheetId || currentBase.viewId !== viewId) {
-          return;
-        }
-
-        const buttonsCheckStatus = {};
-        result.forEach(item => {
-          item.rowIds.forEach(rowId => {
-            buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
-          });
-        });
-        dispatch(updateButtonsCheckStatus(buttonsCheckStatus, { rowIds, btnIds }));
+      dispatch({
+        type: 'UPDATE_GROUP_DATA_INFO',
+        data: {
+          groupData: getGroupData({
+            data: groupData,
+            view,
+            controls: template.controls,
+            groupKey,
+            moreRows: rows,
+            currentKeyPageIndex,
+          }),
+        },
       });
-    }
-  });
+
+      let operatesButtons = getSheetOperatesButtons(view, { buttons: sheetButtons, printList });
+      operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, sheetSwitchPermit, view.viewId);
+      const rowIds = rows.map(row => (_.isString(row) ? safeParse(row) : row).rowid).filter(Boolean);
+      const btnIds = getSheetOperateButtonIds(operatesButtons);
+
+      if (!_.isEmpty(rowIds) && !_.isEmpty(btnIds)) {
+        return sheetAjax.checkWorksheetRowsBtn({ worksheetId, rowIds, btnIds }).then(result => {
+          const currentBase = getState().mobile.base;
+
+          if (currentBase.worksheetId !== worksheetId || currentBase.viewId !== viewId) {
+            return;
+          }
+
+          const buttonsCheckStatus = {};
+          result.forEach(item => {
+            item.rowIds.forEach(rowId => {
+              buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
+            });
+          });
+          dispatch(updateButtonsCheckStatus(buttonsCheckStatus, { rowIds, btnIds }));
+        });
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      dispatch({ type: 'UPDATE_GROUP_DATA_INFO', data: { isGroupLoading: false } });
+    });
 };
 
 export const changeMobileSheetRows = data => dispatch => {
@@ -694,6 +715,17 @@ export const updateQuickFilter =
     });
 
     if (noLoad) return;
+
+    if (view.viewType === 4) {
+      const { calendarView = {} } = getState().mobile;
+      const { requestRange } = calendarView;
+
+      if (requestRange?.viewId === base.viewId && requestRange?.worksheetId === base.worksheetId) {
+        dispatch(initCalendarViewData(requestRange));
+      }
+
+      return;
+    }
 
     if (_.includes([7, 21], view.viewType)) {
       dispatch({
@@ -764,7 +796,7 @@ export const resetSheetView = () => dispatch => {
   });
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS',
-    filters: { keyWords: '', quickFilterKeyWords: '' },
+    filters: { keyWords: '' },
   });
   dispatch(fetchSheetRows());
 };
@@ -1072,14 +1104,17 @@ export function delBoardViewRecord(data) {
 }
 
 export const initCalendarViewData = searchArgs => {
-  return dispatch => {
-    if (searchArgs.beginTime) {
-      searchArgs.beginTime = dateConvertToUserZone(searchArgs.beginTime);
-    }
-
-    if (searchArgs.endTime) {
-      searchArgs.endTime = dateConvertToUserZone(searchArgs.endTime);
-    }
+  return (dispatch, getState) => {
+    const { base } = getState().mobile;
+    dispatch({
+      type: 'MOBILE_CHANGE_CALENDAR_REQUEST_RANGE',
+      data: {
+        worksheetId: base.worksheetId,
+        viewId: base.viewId,
+        beginTime: searchArgs.beginTime,
+        endTime: searchArgs.endTime,
+      },
+    });
 
     if (!searchArgs.isSilent) {
       dispatch({ type: 'MOBILE_CHANGE_CALENDAR_LOADING', data: true });
@@ -1087,8 +1122,13 @@ export const initCalendarViewData = searchArgs => {
 
     dispatch(
       fetchSheetRows({
-        beginTime: searchArgs.beginTime,
-        endTime: searchArgs.endTime,
+        // 与 PC 一致扩大查询范围，事件展示时再按字段配置处理时区。
+        beginTime: searchArgs.beginTime
+          ? moment(searchArgs.beginTime).subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss')
+          : searchArgs.beginTime,
+        endTime: searchArgs.endTime
+          ? moment(searchArgs.endTime).add(1, 'day').format('YYYY-MM-DD HH:mm:ss')
+          : searchArgs.endTime,
         pageSize: 10000000,
       }),
     );
@@ -1170,17 +1210,15 @@ export const updateFormatData = listData => {
     const controls = (template && template.controls) || [];
     const view = _.find(views, { viewId }) || {};
     const { calendarData = {} } = calendarView;
-    let list = [];
-    listData.map(item => {
-      let data = setDataFormat({
+    const list = listData.flatMap(item => {
+      const [event] = setDataFormat({
         ...item,
         worksheetControls: controls,
         currentView: { ...view, appId: base.appId },
         calendarData,
       });
-      list.push({
-        ...data[0],
-      });
+      // 无可用开始日期或日历元数据未就绪时，不生成缺少 row 的空事件。
+      return event ? [event] : [];
     });
     dispatch({ type: 'MOBILE_CHANGE_CALENDAR_FORMAT_DATA', data: list });
   };
@@ -1230,9 +1268,9 @@ export const getNotScheduledEventList = ({
     const { calendarView, calenderNotScheduled, sheetFiltersGroup } = sheet;
     const { calendarData = {} } = calendarView;
     const { calendarInfo = [] } = calendarData;
-    const { list = [], loading, total } = calenderNotScheduled;
+    const { list = [], loading, total, requestVersion = 0 } = calenderNotScheduled;
 
-    if (loading) return;
+    if (loading && !onlyGetCount) return;
     const filterControls = calendarInfo.map(o => ({
       controlId: o.begin,
       datatype: o.startData.type,
@@ -1259,9 +1297,25 @@ export const getNotScheduledEventList = ({
       });
     }
 
-    sheetAjax
-      .getFilterRows(params)
+    const requestKey = `calendarNotScheduled-${sheet.base.worksheetId}-${sheet.base.viewId}-${onlyGetCount}`;
+    const request = sheetAjax.getFilterRows(params);
+    promiseRequests[requestKey] = request;
+
+    const isCurrentRequest = () => {
+      const { base: currentBase, calenderNotScheduled: currentState } = getState().mobile;
+
+      return (
+        promiseRequests[requestKey] === request &&
+        currentBase.worksheetId === sheet.base.worksheetId &&
+        currentBase.viewId === sheet.base.viewId &&
+        (currentState.requestVersion || 0) === requestVersion
+      );
+    };
+
+    return request
       .then(({ data = [], count = 0 }) => {
+        if (!isCurrentRequest()) return;
+
         // 初始化时获取未排期数量
         if (onlyGetCount) {
           dispatch({
@@ -1271,10 +1325,10 @@ export const getNotScheduledEventList = ({
           return;
         }
 
-        const hasMore = list.length + data.length < count;
+        const hasMore = (pageIndex === 1 ? 0 : list.length) + data.length < count;
         // 有搜索条件的时候，还是以实际数量为准
         const realTotal = keyWords ? total : count;
-        const base = { total: realTotal, hasMore, loading: false };
+        const base = { total: realTotal, hasMore };
         const newList = {
           ...base,
           list: pageIndex === 1 ? data : [...(list || []), ...(data || [])],
@@ -1285,7 +1339,18 @@ export const getNotScheduledEventList = ({
           data: newList,
         });
       })
+      .catch(() => {
+        // 请求错误由统一 API 层提示，loading 在 finally 中按请求归属释放。
+      })
       .finally(() => {
+        if (!onlyGetCount && isCurrentRequest()) {
+          dispatch({ type: 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED', data: { loading: false } });
+        }
+
+        if (promiseRequests[requestKey] === request) {
+          delete promiseRequests[requestKey];
+        }
+
         callback();
       });
   };

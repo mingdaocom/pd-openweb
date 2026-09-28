@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { isLightColor } from 'src/utils/control';
-import { MAX_OPTIONS_COUNT } from '../../../config';
+import { Icon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
+import { MAX_OPTIONS_COUNT } from 'src/utils/domain/control/config';
+import { isLightColor } from 'src/utils/domain/control/style';
 
 const DelateDialogWrap = styled.ul`
   li {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0px 8;
+    padding: 0 8px;
     border-bottom: 1px solid var(--color-border-primary);
     line-height: 36px;
     .name {
@@ -54,9 +54,11 @@ export default function DelateDialog({ options = [], colorful, onOk, onCancel })
   const noDelOptions = options.filter(o => !o.isDeleted);
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={true}
+      open={true}
+      mask={{ closable: true }}
+      keyboard
       title={_l('已删除选项（%0）', deleteOptions.length)}
       footer={null}
       onCancel={onCancel}
@@ -99,6 +101,6 @@ export default function DelateDialog({ options = [], colorful, onOk, onCancel })
           );
         })}
       </DelateDialogWrap>
-    </Dialog>
+    </Modal>
   );
 }

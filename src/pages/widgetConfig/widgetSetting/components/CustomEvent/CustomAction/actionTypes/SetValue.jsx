@@ -2,12 +2,13 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
-import { DEFAULT_CONFIG } from '../../../../../config/widget';
-import { enumWidgetType } from '../../../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
+import { Icon } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
-import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
 import { HAS_DYNAMIC_TYPE } from '../../config';
 import { CustomActionWrap } from '../../style';
 import AddFields from '../AddFields';
@@ -39,14 +40,15 @@ export default function SetValue(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={_.isEmpty(actionItems)}
       title={_l('设置字段值')}
       onCancel={() => setState({ visible: false })}
       className="SearchWorksheetDialog"
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         if (actionItems.some(a => _.isEmpty(safeParse(a.value, 'array')))) {
           alert(_l('请设置字段值'), 3);
@@ -80,7 +82,7 @@ export default function SetValue(props) {
                     </span>
                   </div>
                   {isDelete ? (
-                    <input className="itemValue itemValueTitle errorBorder" disabled />
+                    <Input className="itemValue itemValueTitle" status="error" disabled />
                   ) : (
                     <div className="itemValue itemValueTitle">
                       <DynamicDefaultValue
@@ -138,6 +140,6 @@ export default function SetValue(props) {
           disabled={!selectControls.length}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

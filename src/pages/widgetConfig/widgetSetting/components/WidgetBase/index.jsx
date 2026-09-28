@@ -6,10 +6,11 @@ import {
   HAS_WARNING_CONTROL,
   NO_CUSTOM_SETTING_CONTROL,
   NO_VERIFY_WIDGET,
-} from '../../../config';
-import { enumWidgetType, isCustomWidget } from '../../../util';
-import { canAdjustWidth } from '../../../util/setting';
-import { changeWidgetSize } from '../../../util/widgets';
+} from 'src/utils/domain/control/config';
+import { canAdjustWidth } from 'src/utils/domain/control/editorSetting';
+import { changeWidgetSize } from 'src/utils/domain/control/layout';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import WidgetCustom from '../CustomWidget/WidgetCustom';
 import DynamicDefaultValue from '../DynamicDefaultValue';
 import WidgetName from '../WidgetName';
@@ -64,7 +65,7 @@ export default function WidgetBase(props) {
       {/* 快速创建字段暂时隐藏更多内容 */}
       {!rest.quickAddControl && (
         <Fragment>
-          {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...props} />}
+          {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...props} from={0} />}
           {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...props} />}
           {/* 选项其他项必填提示文案 */}
           {_.includes([9, 10, 11], type) && _.find(options, (i = {}) => i.key === 'other' && !i.isDeleted) && (

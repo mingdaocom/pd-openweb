@@ -1,8 +1,8 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Input } from 'ming-ui/antd-components';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 

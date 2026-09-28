@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { LoadDiv, UpgradeIcon } from 'ming-ui';
 import roleAjax from 'src/api/role';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getFeatureStatus } from 'src/utils/project';
+import { getFeatureStatus } from 'src/utils/services/project';
 import Config from '../../config';
 import { isPlatformHidden } from '../../util';
 import Ding from './ding';

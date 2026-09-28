@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { formatFilterValues } from 'src/utils/services/worksheet/quickFilter';
 import { EditWidgetContent, Header } from '../../../styled';
 import { defaultFilterData } from './enum';
 import Preview from './Preview';
@@ -15,9 +14,6 @@ import './index.less';
 const Wrap = styled.div`
   height: 100%;
   display: flex;
-  .Menu.List {
-    height: max-content;
-  }
 `;
 
 const defaultData = {
@@ -30,10 +26,11 @@ const defaultData = {
 export default function Filter(props) {
   const { ids, widget, onEdit, onClose } = props;
   const { value, filter: filtersGroup } = widget;
+  const initialFilter = filtersGroup || defaultData;
 
-  const [filter, setFilter] = useState(defaultData);
-  const [activeId, setActiveId] = useState(_.get(filter, 'filters[0].filterId'));
-  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState(initialFilter);
+  const [activeId, setActiveId] = useState(_.get(initialFilter, 'filters[0].filterId'));
+  const [loading, setLoading] = useState(!filtersGroup && !!value);
 
   const { filters } = filter;
 
@@ -78,66 +75,65 @@ export default function Filter(props) {
   };
 
   useEffect(() => {
-    if (filtersGroup) {
-      setFilter(filtersGroup);
-      setActiveId(_.get(filtersGroup, 'filters[0].filterId'));
-      setLoading(false);
+    if (filtersGroup || !value) {
       return;
     }
 
-    if (value) {
-      worksheetApi
-        .getFiltersGroupByIds({
-          appId: ids.appId,
-          filtersGroupIds: [value],
-        })
-        .then(data => {
-          const filtersGroup = data[0];
+    let cancelled = false;
+    worksheetApi
+      .getFiltersGroupByIds({
+        appId: ids.appId,
+        filtersGroupIds: [value],
+      })
+      .then(data => {
+        if (cancelled) return;
 
-          if (!filtersGroup || !filtersGroup.filters) {
-            setLoading(false);
-            return;
-          }
+        const filtersGroup = data[0];
 
-          setFilter({
-            ...filtersGroup,
-            filters: filtersGroup.filters.map(f => {
-              return {
-                ...f,
-                values: formatFilterValues(f.dataType, f.values),
-                showDefsource: f.values,
-              };
-            }),
-          });
-          setActiveId(_.get(filtersGroup, 'filters[0].filterId'));
+        if (!filtersGroup || !filtersGroup.filters) {
           setLoading(false);
+          return;
+        }
+
+        setFilter({
+          ...filtersGroup,
+          filters: filtersGroup.filters.map(f => {
+            return {
+              ...f,
+              values: formatFilterValues(f.dataType, f.values),
+              showDefsource: f.values,
+            };
+          }),
         });
-    } else {
-      setLoading(false);
-    }
-  }, [value]);
+        setActiveId(_.get(filtersGroup, 'filters[0].filterId'));
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [filtersGroup, ids.appId, value]);
 
   return (
     <Modal
-      maskStyle={{ zIndex: 999 }}
-      wrapClassName="customPageFilterWrap"
       className="editWidgetDialogWrap"
-      visible
-      transitionName=""
-      maskTransitionName=""
+      classNames={{ container: 'pAll0', body: 'pAll0' }}
+      styles={{ body: { padding: 0, position: 'relative' } }}
+      verticalAlign="bottom"
+      open
       width="100%"
+      type="fixed"
       footer={null}
+      closable={false}
       centered={true}
       onCancel={onClose}
     >
       <Header>
         <div className="typeName">{_l('筛选器')}</div>
         <div className="flexRow valignWrapper">
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
-              {_l('保存')}
-            </Button>
-          </ConfigProvider>
+          <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+            {_l('保存')}
+          </Button>
           <Tooltip title={_l('关闭')} placement="bottom">
             <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>

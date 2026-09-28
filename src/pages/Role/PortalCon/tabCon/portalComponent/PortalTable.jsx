@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { ConfigProvider, Pagination, Table } from 'antd';
+import React from 'react';
 import styled from 'styled-components';
+import { ConfigProvider, Pagination } from 'ming-ui/antd-components';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 
 const Wrap = styled.div`
   .userImgBox {
@@ -17,34 +18,34 @@ const Wrap = styled.div`
       width: 100%;
     }
   }
-  .ant-table-ping-right:not(.ant-table-has-fix-right) .ant-table-container::after,
-  .ant-table-ping-right .ant-table-cell-fix-right-first::after,
-  .ant-table-ping-right .ant-table-cell-fix-right-last::after,
-  .ant-table-ping-left .ant-table-cell-fix-left-first::after,
-  .ant-table-ping-left .ant-table-cell-fix-left-last::after {
+  .hap-table-ping-right:not(.hap-table-has-fix-right) .hap-table-container::after,
+  .hap-table-ping-right .hap-table-cell-fix-right-first::after,
+  .hap-table-ping-right .hap-table-cell-fix-right-last::after,
+  .hap-table-ping-left .hap-table-cell-fix-left-first::after,
+  .hap-table-ping-left .hap-table-cell-fix-left-last::after {
     box-shadow: none;
   }
-  .ant-table-sticky-scroll {
+  .hap-table-sticky-scroll {
     display: none;
   }
   .linelimit,
   .linelimitcomp:not(.singleLine) {
     display: block;
   }
-  .ant-pagination {
+  .hap-pagination {
     margin: 20px 20px 0;
     text-align: center;
   }
-  .ant-table-expanded-row-fixed {
+  .hap-table-expanded-row-fixed {
     height: 360px;
   }
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead,
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr,
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr,
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > thead > tr,
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr,
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tbody > tr,
-  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr {
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-content > table > thead,
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-content > table > thead > tr,
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-header > table > thead > tr,
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-body > table > thead > tr,
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-content > table > tbody > tr,
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-header > table > tbody > tr,
+  .hap-table.hap-table-bordered > .hap-table-container > .hap-table-body > table > tbody > tr {
     .tableCellPortal {
       text-overflow: ellipsis;
       word-wrap: break-word;
@@ -60,39 +61,19 @@ const Wrap = styled.div`
       .editableCellCon {
         padding: 0 !important;
       }
-      .ming.Dropdown.disabled,
-      .dropdownTrigger.disabled {
-        background-color: transparent;
-      }
-      .ming.Dropdown,
-      .dropdownTrigger {
-        display: flex;
-        .Dropdown--input {
-          padding: 0;
-          display: flex;
-          width: 100%;
-          .Dropdown--placeholder,
-          .value {
-            flex: 1;
-          }
-          .icon {
-            line-height: 20px;
-          }
-        }
-      }
     }
   }
 
-  .ant-table-tbody,
-  .ant-table-header {
-    & > tr.ant-table-row-selected {
+  .hap-table-tbody,
+  .hap-table-header {
+    & > tr.hap-table-row-selected {
       &:hover > td {
         background: var(--color-background-secondary);
       }
     }
     input[type='radio'],
     input[type='checkbox'],
-    .ant-table-cell-scrollbar {
+    .hap-table-cell-scrollbar {
       display: none !important;
       width: 0 !important;
     }
@@ -104,7 +85,7 @@ const Wrap = styled.div`
       }
     }
   }
-  .ant-table-tbody > tr.ant-table-row-selected > td {
+  .hap-table-tbody > tr.hap-table-row-selected > td {
     background: var(--color-background-primary);
   }
 `;
@@ -121,16 +102,11 @@ const customizeRenderEmpty = () => (
 function PorTalTable(props) {
   const { pageSize = 10 } = props;
   const { type, clickRow, noShowCheck } = props;
-  const [listCell, setList] = useState([]);
-  const [columnsCell, setColumns] = useState([]);
-
-  useEffect(() => {
-    setList(props.list || []);
-    setColumns(props.columns || []);
-  }, [props.list, props.columns]);
+  const listCell = props.list || [];
+  const columnsCell = props.columns || [];
 
   return (
-    <Wrap>
+    <Wrap className={props.className}>
       <ConfigProvider renderEmpty={customizeRenderEmpty}>
         <Table
           rowSelection={
@@ -158,17 +134,18 @@ function PorTalTable(props) {
           sticky
           loading={props.loading}
           dataSource={listCell}
-          bordered
+          bordered={props.bordered !== false}
           size="small"
           locale={_l('暂无数据')}
           rowKey={record => record.rowid}
           pagination={false}
           scroll={{
             x: props.width - 1,
+            ...(props.scrollY ? { y: props.scrollY } : {}),
           }}
           showSorterTooltip={false}
           onChange={(pagination, filters, sorter) => {
-            props.handleChangeSortHeader(sorter);
+            props.handleChangeSortHeader && props.handleChangeSortHeader(sorter);
           }}
           onRow={data => {
             return {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Icon, ScrollView } from 'ming-ui';
 import settingGroup from 'src/pages/Group/settingGroup';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { closeGroup, openGroup } from '../api';
 import { config } from '../config';
-import { pathCompletion } from 'src/utils/common';
 
 export default class GroupDetail extends React.Component {
   constructor(props) {

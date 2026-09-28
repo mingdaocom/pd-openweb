@@ -1,20 +1,30 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, FunctionWrap, Icon } from 'ming-ui';
+import { FunctionWrap, Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import account from 'src/api/account';
 import { checkCertification } from 'src/components/checkCertification';
-import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
-import { pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import AddressBookInvite from './AddressBookInvite';
 import DetailList from './DetailList';
 import { DETAIL_MODE, DETAIL_MODE_TEXT, FROM_TYPE, TAB_MODE, TABS } from './enum';
 import MobileOrEmailInvite from './MobileOrEmailInvite';
 import PublicLink from './PublicLink';
 import './index.less';
+
+const ADD_FRIENDS_MODAL_STYLES = {
+  container: { minHeight: 578, maxHeight: 'unset' },
+  body: { overflow: 'initial' },
+};
+
+const INVITE_MODAL_STYLES = {
+  body: { paddingInlineEnd: 0 },
+};
 
 class AddFriends extends Component {
   constructor(props) {
@@ -187,12 +197,13 @@ class AddFriends extends Component {
     const { detailMode } = this.state;
 
     return (
-      <Dialog
-        className="dialogAddFriendsBox"
+      <Modal
         width={640}
-        visible={this.state.visible}
+        open={this.state.visible}
         title={null}
-        footer={null}
+        styles={ADD_FRIENDS_MODAL_STYLES}
+        mask={{ closable: true }}
+        keyboard
         onCancel={onClose}
       >
         <div className="dialogAddFriendsContainer">
@@ -218,9 +229,9 @@ class AddFriends extends Component {
           {this.renderContent()}
         </div>
 
-        <Dialog
+        <Modal
           width={640}
-          visible={detailMode}
+          open={!!detailMode}
           title={
             <div className="inviteBackIcon">
               <div className="iconBox" onClick={() => this.setDetailMode(DETAIL_MODE.NORMAL)}>
@@ -229,14 +240,15 @@ class AddFriends extends Component {
               {DETAIL_MODE_TEXT[detailMode]}
             </div>
           }
-          footer={null}
+          mask={{ closable: true }}
+          keyboard
           onCancel={() => this.setDetailMode(DETAIL_MODE.NORMAL)}
         >
           <div className="dialogAddFriendsContainer pTop0" style={{ height: 510 }}>
             <DetailList detailMode={detailMode} {...this.props} />
           </div>
-        </Dialog>
-      </Dialog>
+        </Modal>
+      </Modal>
     );
   }
 }
@@ -258,7 +270,16 @@ class SelectProject extends Component {
     const { friendVisible, onClose } = this.props;
 
     return (
-      <Dialog className="inviteDialog" width={420} visible title={_l('邀请到')} footer={null} onCancel={onClose}>
+      <Modal
+        className="inviteDialog"
+        width={420}
+        open
+        title={_l('邀请到')}
+        styles={INVITE_MODAL_STYLES}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onClose}
+      >
         <div className="inviteList">
           <ul className="projectList">
             {md.global.Account.projects.concat(friendVisible ? { projectId: '' } : []).map((item, index) => {
@@ -291,7 +312,7 @@ class SelectProject extends Component {
             })}
           </ul>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

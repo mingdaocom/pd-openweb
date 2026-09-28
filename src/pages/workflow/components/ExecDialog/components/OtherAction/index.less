@@ -1,0 +1,54 @@
+.approveDialog {
+  header {
+    align-items: center;
+
+    .userAvatar {
+      margin: 0 10px;
+    }
+  }
+
+  .customFormControlBox {
+    &:not(.customFormAttachmentBox) {
+      cursor: default;
+    }
+    .addSignature {
+      width: 180px;
+      height: 40px;
+      background: var(--color-background-secondary);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+  }
+
+  .ming.Textarea:disabled {
+    background-color: var(--color-background-secondary);
+  }
+
+  .customFieldsContainer {
+    .triggerTraget,
+    .uploadFromMobile {
+      height: 1px !important;
+      visibility: hidden;
+      border: none;
+    }
+  }
+  .signatureFromMobile {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    .icon {
+      font-size: 16px;
+      margin-right: 6px;
+    }
+  }
+}
+
+.approveDialogCallBack {
+  width: 256px;
+}

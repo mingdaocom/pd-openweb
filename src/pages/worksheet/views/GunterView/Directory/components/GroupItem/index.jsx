@@ -1,16 +1,16 @@
 import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import GroupContent from 'worksheet/views/GunterView/components/GroupContent';
-import { MenuOverlayWrapper } from 'worksheet/views/GunterView/Directory';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { GUNTER_ROW_HEIGHT } from 'worksheet/views/GunterView/virtual';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import Record from '../Record';
 
 const GroupingItem = styled.div`
@@ -119,108 +119,190 @@ let GroupItem = class GroupItem extends Component {
     }
   };
 
-  renderOverlay({ key, subVisible }) {
+  getOperateMenuItems({ key, subVisible }) {
     const { worksheetInfo, viewConfig } = this.props;
     const { milepost } = viewConfig;
-    return (
-      <MenuOverlayWrapper
-        className="pTop6 pBottom6"
-        style={{
-          width: 180,
-        }}
-      >
-        <Menu.Item
-          className="valignWrapper"
-          onClick={() => {
-            if (!subVisible) {
-              this.handleChangeSubVisible(key);
-            }
 
-            this.handleCreateRecord(key);
+    return [
+      {
+        key: 'createRecord',
+        className: 'valignWrapper',
+        icon: <Icon className="textTertiary Font20" icon="add" />,
+        label: _l('新建%0', worksheetInfo.entityName),
+        onClick: () => {
+          if (!subVisible) {
+            this.handleChangeSubVisible(key);
+          }
+
+          this.handleCreateRecord(key);
+        },
+      },
+      milepost && {
+        key: 'createMilepost',
+        className: 'valignWrapper',
+        icon: <Icon className="textTertiary Font20" icon="flag" />,
+        label: _l('新建里程碑'),
+        onClick: () => {
+          if (!subVisible) {
+            this.handleChangeSubVisible(key);
+          }
+
+          this.handleCreateRecord(key, true);
+        },
+      },
+    ].filter(Boolean);
+  }
+
+  getRows() {
+    const { group, withoutArrangementVisible } = this.props;
+
+    return group.rows.filter(item => (withoutArrangementVisible ? true : item.diff > 0));
+  }
+
+  getAllowAdd() {
+    const { viewConfig, worksheetInfo, sheetSwitchPermit } = this.props;
+    const { viewControl } = viewConfig;
+
+    return (
+      isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+      worksheetInfo.allowAdd &&
+      viewControl !== 'wfstatus'
+    );
+  }
+
+  renderGroupHeader(rows, allowAdd) {
+    const { width, group } = this.props;
+
+    if (group.hide) {
+      return null;
+    }
+
+    return (
+      <GroupingItem
+        className={cx('valignWrapper pointer', {
+          allowAdd: allowAdd,
+        })}
+      >
+        <Icon
+          className="Font12 textTertiary mRight8"
+          icon={group.subVisible ? 'arrow-down' : 'arrow-right-tip'}
+          onClick={() => {
+            this.handleChangeSubVisible(group.key, !group.subVisible);
+          }}
+        />
+        <div
+          className="valignWrapper h100"
+          style={{
+            width: width - 50,
           }}
         >
-          <Icon className="textTertiary Font20 mRight10" icon="add" />
-          <span>{_l('新建%0', worksheetInfo.entityName)}</span>
-        </Menu.Item>
-        {milepost && (
-          <Menu.Item
-            className="valignWrapper"
+          <div
+            className="textSecondary h100 valignWrapper flex overflow_ellipsis"
             onClick={() => {
-              if (!subVisible) {
-                this.handleChangeSubVisible(key);
-              }
-
-              this.handleCreateRecord(key, true);
+              this.handleChangeSubVisible(group.key, !group.subVisible);
             }}
           >
-            <Icon className="textTertiary Font20 mRight10" icon="flag" />
-            <span>{_l('新建里程碑')}</span>
-          </Menu.Item>
+            <GroupContent group={group} />
+          </div>
+          <div className="textTertiary totalNum">{rows.length}</div>
+          {allowAdd && (
+            <Dropdown
+              trigger={['click']}
+              menu={{
+                items: this.getOperateMenuItems(group),
+                style: { minWidth: 180 },
+                className: 'pTop6 pBottom6',
+              }}
+            >
+              <Icon className="addCoin Font18" icon="add_circle" />
+            </Dropdown>
+          )}
+        </div>
+      </GroupingItem>
+    );
+  }
+
+  renderRecord(row) {
+    const { group, widthConfig } = this.props;
+
+    return <Record key={row.rowid} groupKey={group.key} row={row} widthConfig={widthConfig} />;
+  }
+
+  renderAddRecord(allowAdd) {
+    const { viewConfig, group, worksheetInfo } = this.props;
+    const { viewControl } = viewConfig;
+
+    if (!_.isEmpty(viewControl) || !allowAdd) {
+      return null;
+    }
+
+    return (
+      <GroupingItem
+        className="valignWrapper addGunterRecord textTertiary pointer"
+        onClick={() => {
+          this.handleCreateRecord(group.key);
+        }}
+      >
+        <Icon className="Font17 mBottom3" icon="add" />
+        <div>{_l('点击添加%0', worksheetInfo.entityName)}</div>
+      </GroupingItem>
+    );
+  }
+
+  renderVirtualContent() {
+    const { group, groupRowVisible, visibleRows = [], visibleRange = {} } = this.props;
+    const rows = this.getRows();
+    const allowAdd = this.getAllowAdd();
+    const addRecordVisible = visibleRange.endIndex >= group.openCount - 1;
+
+    return (
+      <Fragment>
+        {groupRowVisible && (
+          <div
+            className="gunterVirtualRow"
+            style={{
+              top: group.groupingIndex * GUNTER_ROW_HEIGHT,
+            }}
+          >
+            {this.renderGroupHeader(rows, allowAdd)}
+          </div>
         )}
-      </MenuOverlayWrapper>
+        {group.subVisible &&
+          visibleRows.map(({ row, rowIndex }) => (
+            <div
+              key={row.rowid}
+              className="gunterVirtualRow"
+              style={{
+                top: rowIndex * GUNTER_ROW_HEIGHT,
+              }}
+            >
+              {this.renderRecord(row)}
+            </div>
+          ))}
+        {addRecordVisible && (
+          <div
+            className="gunterVirtualRow"
+            style={{
+              top: group.openCount * GUNTER_ROW_HEIGHT,
+            }}
+          >
+            {this.renderAddRecord(allowAdd)}
+          </div>
+        )}
+      </Fragment>
     );
   }
 
   renderContent() {
-    const { width, viewConfig, widthConfig, group, worksheetInfo, sheetSwitchPermit, withoutArrangementVisible } =
-      this.props;
-    const { viewControl } = viewConfig;
-    const rows = group.rows.filter(item => (withoutArrangementVisible ? true : item.diff > 0));
-    const allowAdd =
-      isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
-      worksheetInfo.allowAdd &&
-      viewControl !== 'wfstatus';
+    const { group } = this.props;
+    const rows = this.getRows();
+    const allowAdd = this.getAllowAdd();
+
     return (
       <Fragment>
-        {!group.hide && (
-          <GroupingItem
-            className={cx('valignWrapper pointer', {
-              allowAdd: allowAdd,
-            })}
-          >
-            <Icon
-              className="Font12 textTertiary mRight8"
-              icon={group.subVisible ? 'arrow-down' : 'arrow-right-tip'}
-              onClick={() => {
-                this.handleChangeSubVisible(group.key, !group.subVisible);
-              }}
-            />
-            <div
-              className="valignWrapper h100"
-              style={{
-                width: width - 50,
-              }}
-            >
-              <div
-                className="textSecondary h100 valignWrapper flex overflow_ellipsis"
-                onClick={() => {
-                  this.handleChangeSubVisible(group.key, !group.subVisible);
-                }}
-              >
-                <GroupContent group={group} />
-              </div>
-              <div className="textTertiary totalNum">{rows.length}</div>
-              {allowAdd && (
-                <Dropdown overlay={this.renderOverlay(group)} trigger={['click']}>
-                  <Icon className="addCoin Font18" icon="add_circle" />
-                </Dropdown>
-              )}
-            </div>
-          </GroupingItem>
-        )}
-        {group.subVisible &&
-          rows.map(row => <Record key={row.rowid} groupKey={group.key} row={row} widthConfig={widthConfig} />)}
-        {_.isEmpty(viewControl) && allowAdd && (
-          <GroupingItem
-            className="valignWrapper addGunterRecord textTertiary pointer"
-            onClick={() => {
-              this.handleCreateRecord(group.key);
-            }}
-          >
-            <Icon className="Font17 mBottom3" icon="add" />
-            <div>{_l('点击添加%0', worksheetInfo.entityName)}</div>
-          </GroupingItem>
-        )}
+        {this.renderGroupHeader(rows, allowAdd)}
+        {group.subVisible && rows.map(row => this.renderRecord(row))}
+        {this.renderAddRecord(allowAdd)}
       </Fragment>
     );
   }
@@ -255,9 +337,10 @@ let GroupItem = class GroupItem extends Component {
 
   render() {
     const { createRecordVisible } = this.state;
+    const { virtual } = this.props;
     return (
       <Fragment>
-        {this.renderContent()}
+        {virtual ? this.renderVirtualContent() : this.renderContent()}
         {createRecordVisible && this.renderNewRecord()}
       </Fragment>
     );

@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import ExportApp from 'src/pages/Admin/app/appManagement/modules/ExportApp';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
 import './index.less';
@@ -152,16 +152,17 @@ export default class ExportAppCom extends Component {
             '将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据',
           )}
           extraElement={
-            <div
-              className="refresh"
+            <Button
+              color="default"
+              variant="text"
+              size="small"
+              icon={<Icon icon="refresh1" />}
               onClick={() => {
                 this.setState({ pageIndex: 1 }, () => {
                   this.getExportLogs();
                 });
               }}
-            >
-              <Icon icon="refresh1" className="Font18" />
-            </div>
+            />
           }
           handleAdd={() => this.setState({ exportAppVisible: true })}
         />

@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import userController from 'src/api/user';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
-const DialogWrap = styled(Dialog)`
+const DialogWrap = styled(Modal)`
   .test-textarea {
     padding: 8px;
     color: var(--color-text-title);
@@ -54,8 +55,8 @@ class RefuseUserJoinDia extends React.Component {
 
         onCancel();
       })
-      .catch(() => {
-        alert(_l('拒绝失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('拒绝失败'), 2);
         callback();
       });
   };
@@ -66,7 +67,9 @@ class RefuseUserJoinDia extends React.Component {
 
     return (
       <DialogWrap
-        visible
+        open
+        mask={{ closable: true }}
+        keyboard
         title={_l('拒绝用户加入')}
         okText={_l('确定')}
         cancelText={_l('取消')}
@@ -96,4 +99,6 @@ class RefuseUserJoinDia extends React.Component {
   }
 }
 
-export const refuseUserJoinFunc = props => FunctionWrap(RefuseUserJoinDia, props);
+export function useRefuseUserJoinDialog() {
+  return useFunctionWrapComponent(RefuseUserJoinDia);
+}

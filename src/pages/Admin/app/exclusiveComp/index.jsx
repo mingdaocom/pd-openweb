@@ -4,10 +4,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Support } from 'ming-ui';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { navigateTo } from 'src/router/navigateTo';
-import { addSubPathOfRoute } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { addSubPathOfRoute } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
 import DataBase from './container/DataBase';
 import ExplanDetail from './container/ExplanDetail';
 import ExplanList from './container/ExplanList';
@@ -42,7 +42,7 @@ export default class ExclusiveComp extends Component {
     const computingFeature = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
     const databaseFeature =
       getFeatureStatus(projectId, VersionProductType.dataBase) &&
-      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+      (!window.platformENV.isPlatform || window.platformENV.isHap);
 
     return (
       <div className="orgManagementHeader">
@@ -77,7 +77,7 @@ export default class ExclusiveComp extends Component {
     const projectId = _.get(this.props, 'match.params.projectId');
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+      (!window.platformENV.isPlatform || window.platformENV.isHap);
     const hasComputing = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
 
     return (

@@ -3,10 +3,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, VCenterIconText } from 'ming-ui';
-import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import { CONTROL_FILTER_WHITELIST, FILTER_RELATION_TYPE } from '../enum';
-import { getTypeKey } from '../util';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { getTypeKey } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST, FILTER_RELATION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import AddCondition from './AddCondition';
 import Condition from './ConditionV2';
 
@@ -41,18 +42,6 @@ const Con = styled.div`
       }
       .relation {
         margin-left: 14px;
-        .Dropdown--input {
-          padding: 2px 6px !important;
-          border-radius: 4px;
-          background: transparent;
-          .icon {
-            margin-left: 4px !important;
-            vertical-align: middle;
-          }
-          &:hover {
-            background: var(--color-background-hover);
-          }
-        }
       }
       .deleteBtn {
         cursor: pointer;
@@ -74,9 +63,6 @@ const Con = styled.div`
       .conditionValue {
         flex: 1;
         min-width: 0;
-        input {
-          font-size: 13px;
-        }
         .numberRange {
           input {
             width: 100%;
@@ -89,25 +75,8 @@ const Con = styled.div`
         border-color: var(--color-error) !important;
       }
     }
-    &.readonly {
-      .relation {
-        &:hover {
-          background-color: transparent;
-        }
-      }
-      .conditionRelation {
-        .Dropdown--input .icon {
-          visibility: hidden;
-        }
-      }
-    }
-
     &:not(.readonly):hover {
       .conditionItemHeader .deleteBtn {
-        visibility: visible;
-      }
-
-      .relation .Dropdown--input .icon {
         visibility: visible;
       }
     }
@@ -127,7 +96,7 @@ const ConditionCon = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: 12px;
-  padding: ${({ isSingleFilter }) => (isSingleFilter ? '0px' : '0 24px 0 18px')};
+  padding: ${({ $isSingleFilter }) => ($isSingleFilter ? '0px' : '0 24px 0 18px')};
 `;
 
 const ConditionHeader = styled.div`
@@ -137,24 +106,30 @@ const ConditionHeader = styled.div`
     display: inline-block;
     margin: 2px 0 0 6px;
   }
-  .Dropdown .Dropdown--input {
-    padding: 2px 6px !important;
-    border-radius: 4px;
-    .icon {
-      margin-left: 4px !important;
-      vertical-align: middle;
-    }
-    &:hover {
-      background: var(--color-background-hover);
-    }
+  .conditionSpliceTypeSelect {
+    width: 52px;
   }
 `;
 
-const AddButton = styled(VCenterIconText)`
+const AddButton = styled.div`
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   color: var(--color-text-secondary);
   font-weight: bold;
+  .Icon {
+    font-size: 18px;
+    margin-right: 4px;
+  }
+  .text {
+    font-size: 13px;
+  }
 `;
+
+const RELATION_OPTIONS = [
+  { label: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
+  { label: _l('或'), value: FILTER_RELATION_TYPE.OR },
+];
 
 export default function ConditionsGroup(props) {
   const {
@@ -194,20 +169,20 @@ export default function ConditionsGroup(props) {
         const conditionGroupType = control ? CONTROL_FILTER_WHITELIST[conditionGroupKey].value : '';
         const isSheetFieldError = from !== 'rule' && isOtherShowFeild(control);
         return (
-          <ConditionCon key={condition.id} isSingleFilter={isSingleFilter}>
+          <ConditionCon key={condition.id} $isSingleFilter={isSingleFilter}>
             <ConditionHeader>
               {i === 0 && <span className="text">{_l('当')}</span>}
               {i === 1 && (
-                <Dropdown
-                  dropIcon="task_custom_btn_unfold"
+                <Select
+                  className="conditionSpliceTypeSelect"
                   disabled={!canEdit}
-                  defaultValue={conditionSpliceType}
-                  isAppendToBody
-                  menuStyle={{ width: 'auto' }}
-                  data={[
-                    { text: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
-                    { text: _l('或'), value: FILTER_RELATION_TYPE.OR },
-                  ]}
+                  value={conditionSpliceType}
+                  options={RELATION_OPTIONS}
+                  popupMatchSelectWidth={false}
+                  showSearch={false}
+                  size="small"
+                  variant="borderless"
+                  suffixIcon={<Icon icon="task_custom_btn_unfold" className="Font14" />}
                   onChange={value => {
                     onUpdateGroup({ conditionSpliceType: value });
                   }}
@@ -249,7 +224,7 @@ export default function ConditionsGroup(props) {
         );
       })}
       {isGroup && conditionsGroupsLength !== 1 && (
-        <ConditionCon isSingleFilter={isSingleFilter}>
+        <ConditionCon $isSingleFilter={isSingleFilter}>
           <ConditionHeader />
           <div className="flex">
             <AddCondition
@@ -258,14 +233,10 @@ export default function ConditionsGroup(props) {
               from={from}
               widgetControlData={_.get(conditionProps, 'widgetControlData')}
             >
-              <AddButton
-                className="mRight30 hoverColorPrimary"
-                icon="add"
-                textLeft={4}
-                iconSize={18}
-                text={_l('条件')}
-                textSize={13}
-              />
+              <AddButton className="mRight30 hoverColorPrimary">
+                <Icon icon="add" />
+                <span className="text">{_l('条件')}</span>
+              </AddButton>
             </AddCondition>
           </div>
         </ConditionCon>

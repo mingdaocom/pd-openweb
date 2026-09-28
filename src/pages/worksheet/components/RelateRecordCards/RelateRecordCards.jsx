@@ -4,7 +4,9 @@ import _, { find, get, identity, includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import sheetAjax from 'src/api/worksheet';
 import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
@@ -14,19 +16,21 @@ import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { FROM } from 'src/components/Form/core/config';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
-import { selectRecords } from 'src/components/SelectRecords';
+import { useSelectRecords } from 'src/components/SelectRecords';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
+import { useSearchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
 import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
-import { completeControls, controlState, getTitleTextFromRelateControl } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { completeControls, controlState } from 'src/utils/domain/control/state';
+import { withKeepShowRowIds } from 'src/utils/domain/control/value';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
 
@@ -34,31 +38,12 @@ const MAX_COUNT = 200;
 
 const CARD_MIN_WIDTH = 360;
 const CARDS_GAP = 16;
+const RELATE_RECORD_BUTTON_STYLE = { maxWidth: 150 };
 
 const RecordsCon = styled.div`
-  ${({ width }) => (width > 700 ? 'display: grid;' : '')}
+  ${({ $width }) => ($width > 700 ? 'display: grid;' : '')}
   grid-gap: ${CARDS_GAP}px;
   grid-template-columns: repeat(auto-fit, minmax(${CARD_MIN_WIDTH}px, 1fr));
-`;
-
-export const Button = styled.div`
-  cursor: pointer;
-  height: 36px;
-  font-weight: bold;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  color: var(--color-text-title);
-  border: 1px solid var(--color-border-primary);
-  border-radius: 4px;
-  max-width: 150px;
-  > .icon {
-    color: var(--color-text-tertiary);
-    font-weight: normal;
-  }
-  &:hover {
-    background: var(--color-background-hover);
-  }
 `;
 
 export const LoadingButton = styled.div`
@@ -83,16 +68,16 @@ export const LoadingButton = styled.div`
 `;
 
 const Con = styled.div(
-  ({ isMobile, autoHeight, isCard, showAddAsDropdown }) =>
-    `${showAddAsDropdown ? 'width: 100% !important;' : ''}
+  ({ $isMobile, $autoHeight, $isCard, $showAddAsDropdown }) =>
+    `${$showAddAsDropdown ? 'width: 100% !important;' : ''}
   ${
-    isMobile
+    $isMobile
       ? `
-    ${autoHeight ? 'height: auto !important;' : ''}
-    ${isCard && !showAddAsDropdown ? '' : 'align-items: center;'}
+    ${$autoHeight ? 'height: auto !important;' : ''}
+    ${$isCard && !$showAddAsDropdown ? '' : 'align-items: center;'}
   `
       : `
-  ${autoHeight ? 'height: auto !important;' : ''}
+  ${$autoHeight ? 'height: auto !important;' : ''}
   padding: 0px !important;
 `
   }`,
@@ -163,6 +148,7 @@ class RelateRecordCards extends Component {
   static propTypes = {
     editable: PropTypes.bool,
     multiple: PropTypes.bool,
+    openSelectRecords: PropTypes.func,
     control: PropTypes.shape({
       disabled: PropTypes.bool,
       appId: PropTypes.string, // 他表字段被关联表所在应用 id
@@ -185,6 +171,7 @@ class RelateRecordCards extends Component {
     }),
     records: PropTypes.arrayOf(PropTypes.shape({})),
     onChange: PropTypes.func,
+    searchRecordInDialog: PropTypes.func,
   };
 
   static defaultProps = {
@@ -707,7 +694,8 @@ class RelateRecordCards extends Component {
       control: control,
       recordId,
       isCharge,
-      ignoreRowIds: isMobile ? mobileIgnoreRowIds : deletedIds,
+      // 自定义事件等外部清空不会把 rowid 带进 deletedIds，需并入放行名单，服务端才会返回原关联的记录
+      ignoreRowIds: withKeepShowRowIds(isMobile ? mobileIgnoreRowIds : deletedIds, control),
       allowNewRecord: this.allowNewRecord,
       disabledManualWrite: disabledManualWrite,
       multiple: enumDefault === 2,
@@ -746,7 +734,7 @@ class RelateRecordCards extends Component {
       return;
     }
 
-    selectRecords(Object.assign(selectOptions, options));
+    this.props.openSelectRecords(Object.assign(selectOptions, options));
   }
 
   renderRecordsCon() {
@@ -765,6 +753,7 @@ class RelateRecordCards extends Component {
       advancedSetting,
       isCharge,
       sheetSwitchPermit,
+      isDraft,
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { allowReplaceRecord, isCard } = this;
@@ -781,7 +770,7 @@ class RelateRecordCards extends Component {
     if (isCard || this.mobileShowAddAsDropdown) {
       return (
         <RecordsCon
-          width={width}
+          $width={width}
           className={cx('recordsCon mBottom6', {
             'pLeft10 pRight10':
               isMobile &&
@@ -792,6 +781,7 @@ class RelateRecordCards extends Component {
         >
           {!!records.length && (
             <SortableList
+              renderBody
               useDragHandle={canDrag}
               dragPreviewImage
               canDrag={canDrag}
@@ -810,6 +800,7 @@ class RelateRecordCards extends Component {
                   updateRelateRecordSorts({
                     worksheetId,
                     recordId,
+                    isDraft: isDraft || from === FROM.DRAFT,
                     changes: [
                       {
                         ...control,
@@ -1018,7 +1009,6 @@ class RelateRecordCards extends Component {
               _.includes([FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], from) &&
               advancedSetting.showtype === '2',
           })}
-          isMobile={isMobile}
         >
           <Con
             className={cx(
@@ -1030,10 +1020,10 @@ class RelateRecordCards extends Component {
                 pTop0: isMobile,
               },
             )}
-            isMobile={isMobile}
-            autoHeight={!!records.length}
-            isCard={isCard}
-            showAddAsDropdown={showAddAsDropdown}
+            $isMobile={isMobile}
+            $autoHeight={!!records.length}
+            $isCard={isCard}
+            $showAddAsDropdown={showAddAsDropdown}
             onClick={e =>
               !disabled &&
               (!isCard || (isCard && isMobile && showAddAsDropdown)) &&
@@ -1078,8 +1068,14 @@ class RelateRecordCards extends Component {
                     ) : isMobile && showAddAsDropdown ? (
                       this.renderDropDownRecordsCon()
                     ) : (
-                      <Button className="relateRecordBtn relateRecordCardsMainBtn" onClick={this.handleClick}>
-                        <i className="icon icon-plus mRight5 Font16"></i>
+                      <Button
+                        className="relateRecordBtn relateRecordCardsMainBtn"
+                        color="default"
+                        variant="textBordered"
+                        style={RELATE_RECORD_BUTTON_STYLE}
+                        icon={<i className="icon icon-plus Font16" />}
+                        onClick={this.handleClick}
+                      >
                         <span className="overflow_ellipsis WordBreak" title={sourceBtnName || sourceEntityName || ''}>
                           {sourceBtnName || sourceEntityName || ''}
                         </span>
@@ -1216,7 +1212,7 @@ class RelateRecordCards extends Component {
             <SearchRecordsButton
               icon="search"
               onClick={() => {
-                searchRecordInDialog({
+                this.props.searchRecordInDialog({
                   from,
                   title: controlName,
                   worksheetId,
@@ -1259,4 +1255,10 @@ class RelateRecordCards extends Component {
   }
 }
 
-export default autoSize(RelateRecordCards, { onlyWidth: true });
+export default autoSize(
+  withOpeners(RelateRecordCards, {
+    searchRecordInDialog: useSearchRecordInDialog,
+    openSelectRecords: useSelectRecords,
+  }),
+  { onlyWidth: true },
+);

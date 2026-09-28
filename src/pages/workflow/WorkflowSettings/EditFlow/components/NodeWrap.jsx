@@ -22,9 +22,6 @@ const Box = styled.div`
   .icon-custom_add_circle {
     background: var(--color-border-secondary) !important;
   }
-  .Menu.List {
-    margin-top: -6px !important;
-  }
 `;
 
 const Title = styled.div`

@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { Modal } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, RichText } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import { SettingItem } from '../../styled';
 
@@ -50,15 +50,17 @@ export default function Remark({ data, onChange }) {
             className="appIntroDialog"
             wrapClassName="appIntroDialogWrapCenter"
             footer={null}
-            visible={show}
+            open={show}
             onCancel={() => {
               setShow(false);
             }}
             centered={true}
             width={800}
-            maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-            bodyStyle={{ minHeight: '480px', padding: 0 }}
             closeIcon={<Icon icon="close" />}
+            styles={{
+              body: { minHeight: '480px', padding: 0 },
+              container: { padding: 0 },
+            }}
           >
             <EditIntro
               description={data.dataSource}

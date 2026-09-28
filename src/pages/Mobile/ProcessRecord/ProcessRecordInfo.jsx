@@ -11,7 +11,7 @@ import { Abnormal, Loading } from 'mobile/components/RecordInfo/RecordState';
 import WorkflowStepItem from 'mobile/ProcessRecord/WorkflowStepItem';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
 import { ACTION_TYPES } from 'src/pages/workflow/components/ExecDialog/config';
-import { addBehaviorLog } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/services/project';
 import Footer from './Footer';
 
 const LoadableRecordInfo = lazy(() => import('mobile/components/RecordInfo/RecordInfo'));
@@ -181,7 +181,7 @@ export default class ProcessRecordInfo extends Component {
       <Suspense fallback={<Loading />}>
         <LoadableRecordInfo
           isModal={true}
-          className={className}
+          className={cx(className, { appProcessRecord: window.isMingDaoApp })}
           from={_.get(instance, 'flowNode.type') === 5 ? 6 : 4}
           appId={instance.app.id}
           worksheetId={workItem.worksheetId}
@@ -221,6 +221,7 @@ export default class ProcessRecordInfo extends Component {
               instance={instance}
               onClose={onClose}
               onSave={onSave}
+              onRefresh={this.getWorkItem}
             />
           }
           workflow={this.renderWorkflow}

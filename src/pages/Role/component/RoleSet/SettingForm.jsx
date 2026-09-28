@@ -3,11 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Input, LoadDiv, Radio, ScrollView, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Input, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import { actionList, PERMISSION_WAYS, roleDetailPropType, TEXTS } from 'src/pages/Role/config.js';
 import { WrapFooter } from 'src/pages/Role/style.jsx';
-import Search from 'src/pages/workflow/components/Search/index.jsx';
 import BatchDialog from './batch';
 import RecordLoggingSettingDialog, { getRecordLoggingRangeText, LOGGING_RANGE } from './RecordLoggingSettingDialog';
 import SheetTable, { changeSheetModel } from './SheetTable';
@@ -24,47 +23,22 @@ const WrapCon = styled.div`
   .recordLoggingSettingIcon:hover {
     color: var(--color-primary) !important;
   }
-  .toUser {
-    color: var(--color-text-title);
-    &:hover {
-      color: var(--color-primary);
-    }
-  }
-  .ming.Input {
-    border: 1px solid var(--color-border-primary);
-  }
-  .ming.Dropdown .Dropdown--border,
-  .dropdownTrigger .Dropdown--border {
-    border-color: var(--color-border-primary);
-  }
   .flexShrink {
     flex-shrink: 0;
     min-width: 0;
   }
   .worksheetSearch {
     padding: 0 12px;
-    input {
-      background: none;
-      border: none;
-      width: 100%;
-      height: 24px;
-      margin: 0 25px 0 0;
-      &:focus {
-        border-bottom: 1px solid var(--color-border-tertiary);
-        border-radius: 0;
-      }
-    }
-    &.workflowSearchWrap {
-      .search {
-        left: 12px;
-      }
-      .close {
-        right: 12px;
-      }
-    }
   }
 `;
-const Wrap = styled.div``;
+const SUB_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 10, paddingInlineEnd: 0 },
+};
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
+const SEARCH_INPUT_STYLE = { backgroundColor: 'transparent' };
 
 const PERMISSION_WAYS_WITH_CHECKBOX = [
   PERMISSION_WAYS.OnlyManageSelfRecord,
@@ -186,7 +160,7 @@ export default class extends PureComponent {
       PERMISSION_WAYS.OnlyManageSelfRecord,
       PERMISSION_WAYS.OnlyViewAllRecord,
     ].map(value => ({
-      text: TEXTS[value],
+      label: TEXTS[value],
       value,
     }));
     const isCustom = PERMISSION_WAYS.CUSTOM === permissionWay;
@@ -204,32 +178,34 @@ export default class extends PureComponent {
         <div className="Font14 mTop25 bold">{_l('分发哪些应用项？')}</div>
         <div className="mTop15 Font14">
           <Radio
-            text={_l('分发所有应用项（简单）')}
             checked={!isCustom}
             value={PERMISSION_WAYS.ViewAllAndManageSelfRecord}
-            onClick={this.changePermissionWay}
-          />
+            onChange={event => this.changePermissionWay(event.target.value, event)}
+            title={_l('分发所有应用项（简单）')}
+          >
+            {_l('分发所有应用项（简单）')}
+          </Radio>
           <Radio
-            text={_l('分发有选择的应用项（高级）')}
             className="mLeft40"
             checked={isCustom}
             value={PERMISSION_WAYS.CUSTOM}
-            onClick={value => this.changePermissionWay(value, true)}
-          />
+            onChange={event => this.changePermissionWay(event.target.value, true)}
+            title={_l('分发有选择的应用项（高级）')}
+          >
+            {_l('分发有选择的应用项（高级）')}
+          </Radio>
         </div>
         {!isCustom ? (
           <div>
             <div className="Font14 mTop25 bold">{_l('权限')}</div>
             <div className="mTop8">
-              <Dropdown
+              <Select
                 className="w100 Font14"
-                data={list}
+                options={list}
                 value={permissionWay}
-                border
-                renderTitle={() => {
+                labelRender={() => {
                   return TEXTS[permissionWay];
                 }}
-                menuStyle={{ width: '100%' }}
                 onChange={value => this.changePermissionWay(value, true)}
               />
             </div>
@@ -239,8 +215,9 @@ export default class extends PureComponent {
                   size="small"
                   className="InlineBlock"
                   checked={isChecked}
-                  onClick={checked => {
-                    if (checked) {
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    if (!checked) {
                       const index = PERMISSION_WAYS_WITH_CHECKED.indexOf(permissionWay);
                       this.changePermissionWay(PERMISSION_WAYS_WITH_UNCHECKED[index]);
                     } else {
@@ -263,11 +240,16 @@ export default class extends PureComponent {
                       className="InlineBlock"
                       checked={optionalControls.filter(l => extendAttrs.includes(l.id)).length > 0}
                       size="small"
-                      onClick={checked => {
-                        if (checked) {
-                          onChange({ extendAttrs: [] });
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
+                        if (!checked) {
+                          onChange({
+                            extendAttrs: [],
+                          });
                         } else {
-                          onChange({ extendAttrs: optionalControls.map(l => l.id) });
+                          onChange({
+                            extendAttrs: optionalControls.map(l => l.id),
+                          });
                         }
                       }}
                     />
@@ -283,11 +265,9 @@ export default class extends PureComponent {
                   {optionalControls.map(item => (
                     <span className="flexRow alignItemsCenter">
                       <Checkbox
-                        className="InlineBlock"
                         checked={extendAttrs.indexOf(item.id) > -1}
-                        text={item.name}
-                        onClick={value => {
-                          if (value) {
+                        onChange={event => {
+                          if (!event.target.checked) {
                             onChange({
                               extendAttrs: extendAttrs.filter(l => l !== item.id),
                             });
@@ -297,7 +277,9 @@ export default class extends PureComponent {
                             });
                           }
                         }}
-                      />
+                      >
+                        {item.name}
+                      </Checkbox>
                     </span>
                   ))}
                 </div>
@@ -348,8 +330,7 @@ export default class extends PureComponent {
                               ? false
                               : !!(roleDetail[o.key] || {}).enable
                           }
-                          size="small"
-                          onClick={() => {
+                          onChange={() => {
                             const prev = roleDetail[o.key] || {};
                             const nextEnable = !prev.enable;
                             onChange({
@@ -367,6 +348,8 @@ export default class extends PureComponent {
                                     },
                             });
                           }}
+                          size="small"
+                          styles={SUB_CHECKBOX_STYLES}
                         >
                           {o.txt}
                           {o.tips && (
@@ -455,13 +438,20 @@ export default class extends PureComponent {
             <div className="flexRow flex flex-shrink-0">
               <div className={'TxtLeft pLeft24 boxSizing flexRow w35'}>
                 <span className="flexShrink">{_l('应用项')}</span>
-                <Search
-                  handleChange={keyWord => this.setState({ keyWord })}
-                  className="worksheetSearch flexShrink flex"
-                  placeholder={_l('搜索')}
-                />
+                <div className="worksheetSearch flexShrink flex">
+                  <Input
+                    allowClear
+                    className="flex"
+                    value={keyWord}
+                    placeholder={_l('搜索')}
+                    prefix={<Icon icon="search" className="textSecondary Font16" />}
+                    variant="underlined"
+                    style={SEARCH_INPUT_STYLE}
+                    onChange={event => this.setState({ keyWord: event.target.value })}
+                  />
+                </div>
               </div>
-              <Wrap className="con flexRow flex">
+              <div className="con flexRow flex">
                 {AUTH.map((item, index) => {
                   let clearselected;
                   let checked;
@@ -494,16 +484,17 @@ export default class extends PureComponent {
                   return (
                     <div key={index} className={'tableHeaderItem tableHeaderOther'}>
                       <Checkbox
-                        className="InlineBlock"
                         checked={checked}
-                        clearselected={clearselected}
-                        onClick={checked => this.toggleAllViewAuth(item.operatorKey, !checked)}
-                      />
-                      {item.text}
+                        indeterminate={clearselected}
+                        styles={CHECKBOX_LABEL_STYLES}
+                        onChange={event => this.toggleAllViewAuth(item.operatorKey, event.target.checked)}
+                      >
+                        {item.text}
+                      </Checkbox>
                     </div>
                   );
                 })}
-              </Wrap>
+              </div>
             </div>
             <div className={'tableHeaderItem tableHeaderOption TxtCenter flexRow'}>
               <span className="flex flexShrink overflow_ellipsis" title={_l('数据操作权限')}>
@@ -668,13 +659,13 @@ export default class extends PureComponent {
                   type="text"
                   value={name}
                   className={'nameInput'}
-                  manualRef={el => {
+                  ref={el => {
                     this.input = el;
                   }}
                   maxLength={100}
-                  onChange={value => {
+                  onChange={event => {
                     onChange({
-                      name: value,
+                      name: event.target.value,
                     });
                   }}
                 />
@@ -682,15 +673,16 @@ export default class extends PureComponent {
                   <span className="Font14 toUser Hand flexRow alignItemsCenter mLeft30">
                     <Checkbox
                       className="textPrimary"
-                      size="small"
                       checked={hideAppForMembers}
-                      onClick={() => {
+                      onChange={() => {
                         onChange({
                           hideAppForMembers: !hideAppForMembers,
                         });
                       }}
-                      text={_l('隐藏应用')}
-                    />
+                      size="small"
+                    >
+                      {_l('隐藏应用')}
+                    </Checkbox>
                     <Tooltip
                       title={_l(
                         '对当前角色下的用户仅授予权限，但不显示应用入口。通常用于跨应用关联数据或引用视图时，只需要用户从另一个应用中进行操作的场景。',
@@ -708,9 +700,9 @@ export default class extends PureComponent {
                   className="w100"
                   value={description || ''}
                   maxLength={300}
-                  onChange={value => {
+                  onChange={event => {
                     onChange({
-                      description: value,
+                      description: event.target.value,
                     });
                   }}
                 />
@@ -720,10 +712,10 @@ export default class extends PureComponent {
           </ScrollView>
         </WrapCon>
         <WrapFooter className={'footer flexRow alignItemsCenter'}>
-          <div
-            className={cx('saveBtn Hand flexRow alignItemsCenter', {
-              disabled: saveLoading || (_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId),
-            })}
+          <Button
+            type="primary"
+            loading={saveLoading}
+            disabled={_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId}
             onClick={() => {
               if (saveLoading || (_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId)) {
                 return;
@@ -733,8 +725,10 @@ export default class extends PureComponent {
             }}
           >
             {saveLoading ? (roleId ? _l('保存中') : _l('创建中')) : roleId ? _l('保存') : _l('创建')}
-          </div>
-          <div
+          </Button>
+          <Button
+            className="mLeft24"
+            disabled={_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId}
             onClick={() => {
               if (_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId) {
                 return;
@@ -742,17 +736,13 @@ export default class extends PureComponent {
                 onDel();
               }
             }}
-            className={cx('delBtn Hand', {
-              disabled: _.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId,
-            })}
           >
             {!roleId ? _l('删除') : _l('取消')}
-          </div>
+          </Button>
           {!!roleId && canEditUser && (
             <React.Fragment>
               <div className="line"></div>
-              <div
-                className="toUser Hand Bold"
+              <Button
                 onClick={() => {
                   this.props.handleChangePage(() => {
                     setQuickTag({ roleId: roleId, tab: 'user' });
@@ -760,7 +750,7 @@ export default class extends PureComponent {
                 }}
               >
                 {_l('管理用户')}
-              </div>
+              </Button>
             </React.Fragment>
           )}
         </WrapFooter>

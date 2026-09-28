@@ -2,19 +2,18 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { RadioGroup } from 'ming-ui';
+import { Button, Radio } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewAction from 'src/pages/worksheet/redux/actions/resourceview.js';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import SelectField from 'src/pages/worksheet/views/components/SelectField.jsx';
 import 'src/pages/worksheet/views/ResourceView/index.less';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import Resource from './Resource.jsx';
 
 const Wrap = styled.div`
@@ -30,24 +29,6 @@ const Wrap = styled.div`
     box-sizing: border-box;
     overflow: hidden;
     background-color: var(--color-background-secondary);
-  }
-`;
-const BtnForSure = styled.div`
-  padding: 0 32px;
-  line-height: 36px;
-  height: 36px;
-  color: var(--color-white);
-  background-color: var(--color-primary);
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-  border: 1px solid transparent;
-  margin-top: 32px;
-  box-sizing: border-box;
-  display: inline-block;
-  &.isUnAb {
-    background-color: var(--color-primary-light);
-    cursor: not-allowed;
   }
 `;
 
@@ -96,32 +77,39 @@ function ResourceView(props) {
             context={
               <React.Fragment>
                 <h5>{_l('资源')}</h5>
-                <RadioGroup
-                  data={setSysWorkflowTimeControlFormat(
-                    controls
-                      .filter(
-                        item =>
-                          (_.includes([27, 48, 9, 10, 11, 26, 29, 28], item.type) ||
-                            (item.type === 30 &&
-                              _.includes([27, 48, 9, 10, 11, 26, 29, 28], item.sourceControlType) &&
-                              (item.strDefault || '').split('')[0] !== '1')) &&
-                          !['rowid'].includes(item.controlId) &&
-                          !isRelateRecordTableControl(item),
-                      )
-                      .map(o => {
-                        return { text: o.controlName, value: o.controlId, icon: `icon-${getIconByType(o.type)}` };
-                      }),
-                    sheetSwitchPermit,
-                    'value',
-                  )}
-                  onChange={value => setState({ viewControl: value })}
-                  checkedValue={viewControl}
+                <Radio.Group
+                  options={(
+                    setSysWorkflowTimeControlFormat(
+                      controls
+                        .filter(
+                          item =>
+                            (_.includes([27, 48, 9, 10, 11, 26, 29, 28], item.type) ||
+                              (item.type === 30 &&
+                                _.includes([27, 48, 9, 10, 11, 26, 29, 28], item.sourceControlType) &&
+                                (item.strDefault || '').split('')[0] !== '1')) &&
+                            !['rowid'].includes(item.controlId) &&
+                            !isRelateRecordTableControl(item),
+                        )
+                        .map(o => {
+                          return { text: o.controlName, value: o.controlId, icon: `icon-${getIconByType(o.type)}` };
+                        }),
+                      sheetSwitchPermit,
+                      'value',
+                    ) || []
+                  ).map(({ text, ...option }) => ({ ...option, label: text }))}
+                  onChange={event =>
+                    setState({
+                      viewControl: event.target.value,
+                    })
+                  }
+                  value={viewControl}
                   vertical
                 />
-                <BtnForSure
-                  className={cx('', {
-                    isUnAb: !viewControl,
-                  })}
+                <Button
+                  type="primary"
+                  wide
+                  disabled={!viewControl}
+                  className="mTop32"
                   onClick={() => {
                     if (!viewControl) {
                       return;
@@ -147,7 +135,7 @@ function ResourceView(props) {
                   }}
                 >
                   {_l('确认')}
-                </BtnForSure>
+                </Button>
               </React.Fragment>
             }
             viewType={7}

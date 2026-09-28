@@ -1,20 +1,8 @@
 import React, { Fragment, memo, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import MarkdownPreview from '../MarkdownPreview';
-
-const EnhanceInfoBtn = styled.div`
-  display: flex;
-  align-items: center;
-  right: 10px;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  .icon {
-    margin-right: 4px;
-    font-size: 16px;
-    color: var(--color-mingo);
-  }
-`;
 
 const EnhanceInfoContent = styled.div`
   height: 400px;
@@ -31,12 +19,25 @@ const EnhanceInfoDialog = props => {
 
   return (
     <Fragment>
-      <EnhanceInfoBtn className={className} onClick={() => setVisible(true)}>
-        <Icon icon="auto_one_star" />
+      <Button
+        className={className}
+        color="primary"
+        variant="text"
+        size="small"
+        icon={<Icon icon="auto_one_star" />}
+        onClick={() => setVisible(true)}
+      >
         {title}
-      </EnhanceInfoBtn>
+      </Button>
       {visible && (
-        <Dialog visible width={800} title={_l('增强信息')} onCancel={() => setVisible(false)} footer={null}>
+        <Modal
+          open
+          width={800}
+          title={_l('增强信息')}
+          mask={{ closable: true }}
+          keyboard
+          onCancel={() => setVisible(false)}
+        >
           <EnhanceInfoContent>
             <ScrollView>
               <div className="contentBox">
@@ -46,7 +47,7 @@ const EnhanceInfoDialog = props => {
               </div>
             </ScrollView>
           </EnhanceInfoContent>
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

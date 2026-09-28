@@ -1,36 +1,18 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { DatePicker } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
-import cx from 'classnames';
-import _ from 'lodash';
+import React, { forwardRef, useState } from 'react';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-
-const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
-const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
+import { DatePicker, Dropdown } from 'ming-ui/antd-components';
 
 const { RangePicker } = DatePicker;
-
-const Menu = styled.div`
-  width: 180px;
-  padding: 10px 0;
-  border-radius: 4px;
-
-  .item {
-    padding: 5px 10px;
-  }
-  .clearDate {
-    color: var(--color-error);
-  }
-  .active:not(.clearDate),
-  .item:not(.clearDate):hover {
-    background-color: var(--color-background-hover);
-  }
-`;
+const DROPDOWN_MENU_STYLE = { width: 180 };
+const RANGE_PICKER_STYLES = {
+  root: {
+    pointerEvents: 'none',
+    opacity: 0,
+    position: 'absolute',
+    bottom: 0,
+    insetInlineStart: 0,
+  },
+};
 
 const dateMenu = [
   {
@@ -63,92 +45,111 @@ const dateMenu = [
   },
 ];
 
-let lastSelectId = null;
+const updateFeedDateCache = (selectId, customDate) => {
+  window.feedSelectDate = selectId;
+  if (customDate !== undefined) {
+    window.feedCustomDate = customDate;
+  }
+};
 
-const DateFilter = props => {
-  const { noClear, onChange, popupContainer } = props;
-  const [visible, setVisible] = useState(false);
+const DateFilter = forwardRef((props, ref) => {
+  const { children, noClear, onChange, ...triggerProps } = props;
+  const [open, setOpen] = useState(false);
+  const [panelVisible, setPanelVisible] = useState(false);
   const [selectId, setSelectId] = useState(window.feedSelectDate || null);
   const [customDate, setCustomDate] = useState(window.feedCustomDate || []);
 
-  useEffect(() => {
-    const { getDate } = _.find(dateMenu, { id: selectId }) || {};
-
-    if (selectId !== 'custom') {
-      setVisible(false);
+  const updateOpen = nextOpen => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      setPanelVisible(false);
     }
+  };
 
-    if (lastSelectId === selectId) {
-      return;
-    }
+  const handlePresetChange = item => {
+    const date = item.getDate ? item.getDate() : [null, null];
 
-    if (selectId === 'clear') {
-      onChange(null, null);
-    }
+    updateFeedDateCache(item.id);
+    setSelectId(item.id);
+    onChange(...date);
+    updateOpen(false);
+  };
 
-    if (getDate) {
-      const result = getDate();
-      onChange(...result);
-    }
+  const handleCustomChange = date => {
+    if (!date || date.length !== 2 || date.some(value => !value)) return;
 
-    lastSelectId = selectId;
-  }, [selectId]);
+    updateFeedDateCache('custom', date);
+    setSelectId('custom');
+    setCustomDate(date);
+    onChange(...date);
+    updateOpen(false);
+  };
 
-  const menu = (
-    <Menu className="card dateFilterMenuWrap">
-      {dateMenu
-        .filter(data => (noClear ? data.id !== 'clear' : true))
-        .map(item => (
-          <Fragment key={item.id}>
-            <div
-              className={cx('item pointer', { active: selectId == item.id, clearDate: item.id === 'clear' })}
-              onClick={() => {
-                setSelectId(item.id);
-                window.feedSelectDate = item.id;
-              }}
-            >
-              {item.name}
-            </div>
-            {selectId === 'custom' && item.id === 'custom' && (
+  const menuItems = dateMenu
+    .filter(item => !noClear || item.id !== 'clear')
+    .map(item => {
+      if (item.id !== 'custom') {
+        return {
+          key: String(item.id),
+          label: item.name,
+          danger: item.id === 'clear',
+          onClick: () => handlePresetChange(item),
+        };
+      }
+
+      return {
+        key: item.id,
+        label: (
+          <div
+            onClick={event => {
+              event.stopPropagation();
+              updateFeedDateCache(item.id);
+              setSelectId(item.id);
+              setPanelVisible(true);
+            }}
+          >
+            <span>{item.name}</span>
+            <div onClick={event => event.stopPropagation()}>
               <RangePicker
-                autoFocus={true}
+                open={panelVisible}
                 allowClear={false}
-                suffixIcon={null}
-                bordered={false}
-                locale={datePickerLocale}
                 format="YYYY/MM/DD"
+                placement="bottomRight"
+                styles={RANGE_PICKER_STYLES}
                 value={customDate}
-                onChange={date => {
-                  window.feedCustomDate = date;
-                  onChange(...date);
-                  setCustomDate(date);
-                  setVisible(false);
+                onOpenChange={nextOpen => {
+                  if (!nextOpen) {
+                    setPanelVisible(false);
+                  }
                 }}
+                onChange={handleCustomChange}
               />
-            )}
-          </Fragment>
-        ))}
-    </Menu>
-  );
+            </div>
+          </div>
+        ),
+      };
+    });
 
   return (
-    <Trigger
-      popup={menu}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        setVisible(visible);
+    <Dropdown
+      {...triggerProps}
+      ref={ref}
+      open={open}
+      onOpenChange={updateOpen}
+      placement="bottomRight"
+      trigger={['click']}
+      menu={{
+        items: menuItems,
+        selectable: true,
+        selectedKeys: selectId === null || selectId === 'clear' ? [] : [String(selectId)],
+        style: DROPDOWN_MENU_STYLE,
       }}
-      action={['click']}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [0, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      getPopupContainer={() => popupContainer || document.body}
     >
-      {props.children}
-    </Trigger>
+      {children}
+    </Dropdown>
   );
-};
+});
+
+DateFilter.displayName = 'DateFilter';
 
 export default DateFilter;

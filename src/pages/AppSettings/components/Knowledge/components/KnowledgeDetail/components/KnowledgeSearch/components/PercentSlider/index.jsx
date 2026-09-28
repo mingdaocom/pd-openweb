@@ -11,7 +11,7 @@ const Container = styled.div`
     border-radius: 4px;
     background-color: var(--color-border-secondary);
     .percentBar {
-      width: ${({ percent }) => `${Math.min(percent, 100)}%`};
+      width: ${({ $percent }) => `${Math.min($percent, 100)}%`};
       height: 100%;
       border-radius: 4px;
       background-color: var(--color-primary);
@@ -28,7 +28,7 @@ const PercentSlider = ({ percent, dimension = 100 }) => {
   const displayValue = Number(percent).toFixed(4);
 
   return (
-    <Container percent={sliderValue}>
+    <Container $percent={sliderValue}>
       <div className="percentSlider">
         <div className="percentBar" />
       </div>

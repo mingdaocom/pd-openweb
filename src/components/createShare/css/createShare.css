@@ -56,14 +56,6 @@
   margin-top: 20px;
   padding-bottom: 20px;
 }
-.createShareDialog .shareBtn {
-  margin-right: 24px;
-  font-size: 13px;
-  cursor: pointer;
-}
-.createShareDialog .shareBtn.cancelStyle {
-  color: var(--color-success) !important;
-}
 .noShare {
   width: 100%;
   text-align: center;
@@ -88,9 +80,6 @@
   padding-bottom: 70px;
 }
 
-.shareBtnClose {
-  color: var(--color-error) !important;
-}
 #createShareAlert {
   border-radius: 5px;
   z-index: 9999;

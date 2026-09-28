@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStatus.jsx';
-import { browserIsMobile } from 'src/utils/common';
-import { getExpandWidgetIds } from './config';
+import { getAdvanceSetting, getSplitLineTextColor } from 'src/utils/domain/control/advancedSetting';
+import { getExpandWidgetIds } from 'src/utils/domain/control/editorLayout';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { SectionItemWrap } from './style';
 
 const getFormItemMap = (container, widgetIds, worksheetId) => {
@@ -38,7 +38,7 @@ export default function SplitLineSection(props) {
     worksheetId,
   } = props;
   const { enumDefault2 = 0, controlName, controlId, sectionId } = data;
-  const { theme = '#1677ff', color = '#151515', icon = '', hidetitle } = getAdvanceSetting(data);
+  const { theme = '#1677ff', color, icon = '', hidetitle } = getAdvanceSetting(data);
   const isMobile = browserIsMobile();
   const [visible, setVisible] = useState(enumDefault2 !== 2);
   const expandWidgetIds = useMemo(() => {
@@ -153,14 +153,13 @@ export default function SplitLineSection(props) {
 
   return (
     <SectionItemWrap
-      theme={theme}
-      color={color}
-      visible={visible}
+      $theme={theme}
+      $color={getSplitLineTextColor(color)}
+      $visible={visible}
       ref={$ref}
-      sectionstyle={sectionstyle}
-      enumDefault2={enumDefault2}
-      hidetitle={hidetitle === '1'}
-      className={isMobile ? 'mobileSectionItemWrap' : ''}
+      $enumDefault2={enumDefault2}
+      $hidetitle={hidetitle === '1'}
+      className={isMobile ? 'mobileSectionItemWrap' : 'pcSectionItemWrap'}
       onClick={() => {
         //先激活在折叠
         if (fromType !== 'display' && _.get(activeWidget, 'controlId') !== controlId) return;

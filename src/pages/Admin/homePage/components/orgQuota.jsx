@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
-import { Progress } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { getFeatureStatus } from 'src/utils/project';
+import { Button, Progress, Tooltip } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
-import { PERMISSION_ENUM } from '../../enum';
 import { UPLOAD_COUNT } from '../config';
 import { TitleWrap } from '../styled';
 import { formatFileSize, getValue } from '../utils';
@@ -158,10 +157,13 @@ export default function orgQuota(props) {
       <TitleWrap>
         <span className="flex overflow_ellipsis">{_l('组织额度')}</span>
         {analysisPermission && (
-          <span className="titleBtn" onClick={() => navigateTo(`/admin/analytics/${projectId}`)}>
-            <Icon icon="stats_line_chart" className="colorPrimary Font16 mRight3" />
+          <Button
+            className="Bold"
+            icon={<Icon icon="stats_line_chart" className="colorPrimary Font16" />}
+            onClick={() => navigateTo(`/admin/analytics/${projectId}`)}
+          >
             {_l('使用分析')}
-          </span>
+          </Button>
         )}
       </TitleWrap>
       <div className="infoWrap infoWrapCopy">
@@ -220,7 +222,7 @@ export default function orgQuota(props) {
                         <Progress
                           showInfo={false}
                           style={{ margin: '7px 0', textAlign: 'left' }}
-                          trailColor="var(--color-border-secondary)"
+                          railColor="var(--color-border-secondary)"
                           strokeColor={
                             _.isNaN(Number(percentValue))
                               ? 'var(--color-border-secondary)'
@@ -228,7 +230,7 @@ export default function orgQuota(props) {
                                 ? { from: '#f44336', to: '#FF5779' }
                                 : { from: '#1677ff ', to: '#4bb2ff' }
                           }
-                          strokeWidth={4}
+                          size={[-1, 4]}
                           percent={percentValue}
                         />
                         {getCountText(key, limit)}

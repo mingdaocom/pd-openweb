@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 
 const Wrapper = styled.div`
   .expandIcon {
@@ -61,8 +62,7 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                 <Checkbox
                   className="mTop12"
                   checked={isCheck}
-                  text={c.controlName || _l('未命名')}
-                  onClick={() => {
+                  onChange={() => {
                     if (isCheck) {
                       onHide(c.controlId);
                     } else {
@@ -89,7 +89,9 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                       }
                     }
                   }}
-                />
+                >
+                  {c.controlName || _l('未命名')}
+                </Checkbox>
                 {c.type === 52 && (
                   <div>
                     <Icon

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import MobilePopup from 'ming-ui/components/MobilePopup';
+import { MobilePopup } from 'ming-ui/antd-mobile-components';
 import Back from 'mobile/components/Back';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { compatibleMDJS } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/services/project';
 import ProcessRecordInfo from './ProcessRecordInfo';
 
 export default props => {

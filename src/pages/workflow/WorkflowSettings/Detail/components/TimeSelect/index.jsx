@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown } from 'ming-ui';
-import Time from 'ming-ui/components/NewTimePicker';
+import moment from 'moment';
+import { Input, Select, TimePicker } from 'ming-ui/antd-components';
 import { EXEC_TIME_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
-import './index.less';
 
 export default class TimeSelect extends Component {
   static defaultProps = {
@@ -63,57 +62,49 @@ export default class TimeSelect extends Component {
     const { data, dateNoTime, updateSource } = this.props;
     const list = [
       {
-        text: dateNoTime ? _l('在以上日期') : _l('在以上日期时间'),
+        label: dateNoTime ? _l('在以上日期') : _l('在以上日期时间'),
         value: EXEC_TIME_TYPE.CURRENT,
-        className: EXEC_TIME_TYPE.CURRENT === data.executeTimeType ? 'colorPrimary' : '',
       },
       {
-        text: _l('之前'),
+        label: _l('之前'),
         value: EXEC_TIME_TYPE.BEFORE,
-        className: EXEC_TIME_TYPE.BEFORE === data.executeTimeType ? 'colorPrimary' : '',
       },
       {
-        text: _l('之后'),
+        label: _l('之后'),
         value: EXEC_TIME_TYPE.AFTER,
-        className: EXEC_TIME_TYPE.AFTER === data.executeTimeType ? 'colorPrimary' : '',
       },
     ];
     const unitList = [
       {
-        text: TIME_TYPE_NAME[TIME_TYPE.MINUTE],
+        label: TIME_TYPE_NAME[TIME_TYPE.MINUTE],
         value: TIME_TYPE.MINUTE,
-        className: data.unit === TIME_TYPE.MINUTE ? 'colorPrimary' : '',
       },
       {
-        text: TIME_TYPE_NAME[TIME_TYPE.HOUR],
+        label: TIME_TYPE_NAME[TIME_TYPE.HOUR],
         value: TIME_TYPE.HOUR,
-        className: data.unit === TIME_TYPE.HOUR ? 'colorPrimary' : '',
       },
       {
-        text: TIME_TYPE_NAME[TIME_TYPE.DAY],
+        label: TIME_TYPE_NAME[TIME_TYPE.DAY],
         value: TIME_TYPE.DAY,
-        className: data.unit === TIME_TYPE.DAY ? 'colorPrimary' : '',
       },
     ];
 
     return (
       <Fragment>
         <div className="mTop10 flexRow alignItemsCenter">
-          <Dropdown
+          <Select
             className="flowDropdown"
             style={{ width: data.executeTimeType === EXEC_TIME_TYPE.CURRENT ? '100%' : 192 }}
-            data={list}
+            options={list}
             value={data.executeTimeType}
-            border
             onChange={this.updateTimeType}
           />
           {data.executeTimeType !== EXEC_TIME_TYPE.CURRENT && (
             <Fragment>
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15"
+              <Input
+                className="mLeft15"
                 ref={text => {
-                  this.text = text;
+                  this.text = text?.input;
                 }}
                 defaultValue={data.number}
                 style={{ width: 100, minWidth: 80 }}
@@ -124,11 +115,10 @@ export default class TimeSelect extends Component {
               {dateNoTime ? (
                 <div className="mLeft15 flex">{TIME_TYPE_NAME[data.unit] || _l('天')}</div>
               ) : (
-                <Dropdown
+                <Select
                   className="flowDropdown flex mLeft15"
-                  data={unitList}
+                  options={unitList}
                   value={data.unit}
-                  border
                   onChange={value => updateSource({ unit: value })}
                 />
               )}
@@ -136,19 +126,14 @@ export default class TimeSelect extends Component {
           )}
         </div>
         {dateNoTime && (
-          <div className="mTop10 flexRow alignItemsCenter timeWidth">
-            <Time
-              type="minute"
-              value={{
-                hour: data.time ? parseInt(data.time.split(':')[0]) : 8,
-                minute: data.time ? parseInt(data.time.split(':')[1]) : 0,
-                second: 0,
-              }}
-              onChange={(event, value) => {
-                updateSource({
-                  time: value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
-                });
-              }}
+          <div className="mTop10 flexRow alignItemsCenter">
+            <TimePicker
+              allowClear={false}
+              format="HH:mm"
+              inputReadOnly
+              showNow={false}
+              value={moment(data.time || '08:00', 'HH:mm')}
+              onChange={(time, timeString) => updateSource({ time: timeString })}
             />
             <div className="flex mLeft15">{_l('执行')}</div>
           </div>

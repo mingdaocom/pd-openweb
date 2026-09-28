@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, UserHead } from 'ming-ui';
+import { Icon, UserHead } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import delegationAjax from 'src/pages/workflow/api/delegation';
 import PageTableCon from '../../components/PageTableCon';
 import PointImg from '../images/point.png';
 
 const TableWrap = styled.div`
-  td.ant-table-column-sort {
+  td.hap-table-column-sort {
     background: var(--color-background-primary);
   }
   .pointImg {
@@ -22,7 +22,7 @@ const TableWrap = styled.div`
   .actionIcon {
     opacity: 0;
   }
-  .ant-table-row:hover .actionIcon {
+  .hap-table-row:hover .actionIcon {
     opacity: 1 !important;
   }
 `;
@@ -207,33 +207,21 @@ function DeputeTable(props) {
         paginationInfo={{ pageIndex, pageSize: PAGE_SIZE }}
         onChange={onChange}
         moreActionContent={record => (
-          <Trigger
-            popupVisible={showMenu === record.id}
-            onPopupVisibleChange={visible => setShowMenu(visible ? record.id : false)}
-            action={['click']}
-            popup={() => {
-              return (
-                <Menu style={{ left: 'initial', right: 0, width: 138, position: 'static' }}>
-                  {OPTIONS.map((item, index) => (
-                    <MenuItem
-                      key={index}
-                      onClick={() => onClickOp(item.key, record)}
-                      style={{ height: 44, lineHeight: '44px' }}
-                    >
-                      <div className="h100">{item.label}</div>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              );
-            }}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 10],
-              overflow: { adjustX: true, adjustY: true },
+          <Dropdown
+            open={showMenu === record.id}
+            onOpenChange={visible => setShowMenu(visible ? record.id : false)}
+            trigger={['click']}
+            menu={{
+              items: OPTIONS.map(item => ({
+                key: item.key,
+                label: item.label,
+              })),
+              onClick: ({ key }) => onClickOp(Number(key), record),
+              style: { minWidth: 138 },
             }}
           >
             <Icon icon="moreop" className="textDisabled Font18 hoverColorPrimaryLight Hand TxtMiddle actionIcon" />
-          </Trigger>
+          </Dropdown>
         )}
       />
     </TableWrap>

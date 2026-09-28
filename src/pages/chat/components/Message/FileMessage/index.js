@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { formatFileSize, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import Constant from '../../../utils/constant';
 import { handleMessageFilePreview } from '../MessageToolbar';
 import './index.less';

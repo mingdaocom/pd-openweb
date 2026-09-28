@@ -1,28 +1,11 @@
 import React, { useRef } from 'react';
-import { Select } from 'antd';
 import styled from 'styled-components';
+import { Select } from 'ming-ui/antd-components';
 
 const SelectWrapper = styled.div`
   .selectItem {
     font-size: 13px;
-    width: ${({ width }) => `${width ? width + 'px' : '100%'} !important`};
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border: 1px solid var(--color-border-tertiary) !important;
-      border-radius: 3px !important;
-      box-shadow: none !important;
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
-    &.disabled {
-      .ant-select-selector {
-        border: 0;
-      }
-    }
+    width: ${({ $width }) => `${$width ? $width + 'px' : '100%'} !important`};
   }
 `;
 
@@ -31,7 +14,7 @@ export default function CommonSelect(props) {
   const selectRef = useRef();
 
   return (
-    <SelectWrapper ref={selectRef} className={className || ''} width={width}>
+    <SelectWrapper ref={selectRef} className={className || ''} $width={width}>
       <Select
         className="selectItem"
         getPopupContainer={() => selectRef.current}

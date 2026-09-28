@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dialog, RadioGroup } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import { SettingItem } from '../../../../../styled';
 import { CustomActionWrap } from '../../style';
 import SelectFields from '../SelectFields';
@@ -33,14 +33,15 @@ export default function ShowOrHide(props) {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={_.isEmpty(actionItems)}
       className="SearchWorksheetDialog"
       title={_l('显示/隐藏')}
       onCancel={() => setState({ visible: false })}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, actionType, actionItems });
         setState({ visible: false });
@@ -49,11 +50,15 @@ export default function ShowOrHide(props) {
       <CustomActionWrap>
         <SettingItem className="mTop0">
           <div className="settingItemTitle">{_l('设置为')}</div>
-          <RadioGroup
+          <Radio.Group
             size="middle"
-            checkedValue={actionType}
-            data={DISPLAY_OPTIONS}
-            onChange={value => setState({ actionType: value })}
+            value={actionType}
+            options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event =>
+              setState({
+                actionType: event.target.value,
+              })
+            }
           />
         </SettingItem>
 
@@ -64,6 +69,6 @@ export default function ShowOrHide(props) {
           onSelectField={value => setState({ actionItems: value })}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
-import { UN_SORT_WIDGET } from '../../../../config';
-import { RELATE_SORT_DISPLAY } from '../../../../config/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { UN_SORT_WIDGET } from 'src/utils/domain/control/config';
+import { RELATE_SORT_DISPLAY } from 'src/utils/domain/control/setting';
 import { SettingItem } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 
 const DISPLAY_OPTIONS = [
   { text: _l('与关联记录的排序保持一致'), value: '0' },
@@ -25,15 +25,25 @@ export default function SortConfig(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('显示规则')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
           className="fixedWidth"
-          checkedValue={isDefault ? '0' : '1'}
-          data={DISPLAY_OPTIONS}
-          onChange={value => {
+          value={isDefault ? '0' : '1'}
+          options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             handleChange(
               handleAdvancedSettingChange(data, {
-                choosesorts: value === '0' ? '' : JSON.stringify([{ controlId: 'ctime', isAsc: true }]),
+                choosesorts:
+                  value === '0'
+                    ? ''
+                    : JSON.stringify([
+                        {
+                          controlId: 'ctime',
+                          isAsc: true,
+                        },
+                      ]),
               }),
             );
           }}

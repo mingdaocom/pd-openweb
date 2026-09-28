@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import PropTypes from 'prop-types';
+import { sanitizeHtml } from 'src/utils/core/sanitizeHtml';
 
 /**
  * 动态带的徽章
@@ -23,7 +24,7 @@ function MedalContent(props) {
               </p>
               <p
                 style={{ color: 'var(--color-text-secondary)', fontSize: '12px', lineHeight: '20px' }}
-                dangerouslySetInnerHTML={{ __html: description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
               />
             </td>
           </tr>

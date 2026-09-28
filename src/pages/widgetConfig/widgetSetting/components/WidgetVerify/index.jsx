@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { pathCompletion } from 'src/utils/common';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { canAsUniqueWidget } from 'src/utils/domain/control/style';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { NumberRange, SettingItem } from '../../../styled';
 import AttachmentVerify from './AttachmentVerify';
 import DateVerify from './DateVerify';
@@ -33,6 +33,8 @@ const SWITCH_TYPE_TO_TEXT = {
   2: _l('必须选是'),
 };
 
+const DROP_LABEL_CHECKBOX_STYLES = { icon: { marginTop: 3 } };
+
 const VerifySettingItem = styled(SettingItem)`
   .widgetDisplaySettingWrap {
     display: flex;
@@ -50,16 +52,6 @@ const VerifySettingItem = styled(SettingItem)`
     span {
       padding: 0 12px;
       margin-top: 12px;
-    }
-  }
-  .dropLabel {
-    .Checkbox {
-      white-space: normal;
-      align-items: flex-start;
-    }
-    .Checkbox-box {
-      flex-shrink: 0;
-      margin-top: 3px;
     }
   }
 `;
@@ -91,24 +83,34 @@ export default function WidgetVerify(props) {
         {/**必填 */}
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={required}
-            onClick={checked =>
-              onChange({
-                ...handleAdvancedSettingChange(data, { required: checked ? '0' : forceReCheck }),
+            onChange={event => {
+              const checked = !event.target.checked;
+              return onChange({
+                ...handleAdvancedSettingChange(data, {
+                  required: checked ? '0' : forceReCheck,
+                }),
                 required: !checked,
-              })
-            }
-            text={type === 36 ? SWITCH_TYPE_TO_TEXT[showtype || '0'] : _l('必填')}
-          />
+              });
+            }}
+            size="small"
+          >
+            {type === 36 ? SWITCH_TYPE_TO_TEXT[showtype || '0'] : _l('必填')}
+          </Checkbox>
         </div>
         {/**写入时强制校验必填 */}
         {required && from !== 'portal' && !_.includes([34], type) && (
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={forceReCheck === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { required: checked ? '0' : '1' }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    required: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
             >
               <span>
                 {_l('写入时强制校验必填')}
@@ -127,7 +129,15 @@ export default function WidgetVerify(props) {
         {/**不允许重复输入 */}
         {!fromPortal && !isSubList && canAsUniqueWidget(data) && !_.includes([9, 10, 11], data.type) && (
           <div className="labelWrap">
-            <Checkbox size="small" checked={unique} onClick={checked => onChange({ unique: !checked })}>
+            <Checkbox
+              checked={unique}
+              onChange={event =>
+                onChange({
+                  unique: event.target.checked,
+                })
+              }
+              size="small"
+            >
               <span>
                 {_l('不允许重复输入')}
                 {!isSubList && (
@@ -165,10 +175,12 @@ export default function WidgetVerify(props) {
         {(_.includes([2, 8, 10], type) || (type === 6 && !_.includes(['1', '2'], showtype))) && (
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={checkrange === '1'}
-              onClick={checked => {
-                let tempData = { checkrange: checked ? '0' : '1' };
+              onChange={event => {
+                const checked = !event.target.checked;
+                let tempData = {
+                  checkrange: checked ? '0' : '1',
+                };
 
                 if (type === 6 && checked) {
                   tempData.min = '';
@@ -177,8 +189,10 @@ export default function WidgetVerify(props) {
 
                 onChange(handleAdvancedSettingChange(data, tempData));
               }}
-              text={title}
-            />
+              size="small"
+            >
+              {title}
+            </Checkbox>
           </div>
         )}
 
@@ -230,9 +244,16 @@ export default function WidgetVerify(props) {
         _.find(options, i => i && i.key === 'other' && !i.isDeleted) && (
           <div className="labelWrap dropLabel">
             <Checkbox
-              size="small"
               checked={otherrequired === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { otherrequired: checked ? '0' : '1' }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    otherrequired: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
+              styles={DROP_LABEL_CHECKBOX_STYLES}
             >
               <span>{_l('选择“%0”时，补充信息必填', otherText)}</span>
               <Tooltip placement="bottom" title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}>
@@ -244,9 +265,16 @@ export default function WidgetVerify(props) {
       {_.includes([10], type) && _.find(options, i => i && i.key === 'other' && !i.isDeleted) && (
         <div className="labelWrap dropLabel">
           <Checkbox
-            size="small"
             checked={chooseothertype === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { chooseothertype: checked ? '0' : '1' }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  chooseothertype: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
+            styles={DROP_LABEL_CHECKBOX_STYLES}
           >
             <span>{_l('选择“%0”时，不能选择常规选项', otherText)}</span>
             <Tooltip placement="bottom" title={_l('勾选后，选择“其他”时清空常规选项，选择常规选项时清空“其他”。')}>

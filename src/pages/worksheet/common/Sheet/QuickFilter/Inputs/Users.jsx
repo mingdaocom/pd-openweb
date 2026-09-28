@@ -1,86 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import _, { find, isEqual } from 'lodash';
-import { arrayOf, func, string } from 'prop-types';
-import styled from 'styled-components';
-import { UserHead } from 'ming-ui';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-
-const Con = styled.div`
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-  line-height: 32px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
-  .clearIcon {
-    display: none;
-  }
-  &:hover {
-    .clearIcon {
-      display: inline-block;
-    }
-  }
-  ${({ isEmpty }) => (!isEmpty ? '&:hover { .downIcon { display: none;} }' : '')}
-`;
-
-const UsersCon = styled.div`
-  cursor: pointer;
-  flex: 1;
-  overflow: hidden;
-  font-size: 13px;
-  min-height: 32px;
-  padding: 0 0 0 10px;
-`;
-
-const UserItem = styled.div`
-  font-size: 13px;
-  display: inline-block;
-  color: var(--color-text-title);
-  background: var(--color-border-secondary);
-  height: 24px;
-  line-height: 24px;
-  border-radius: 24px;
-  padding-right: 8px;
-  margin: 4px 6px 0 0;
-  .userHead {
-    display: inline-block !important;
-    margin-right: 6px;
-    vertical-align: top;
-    img {
-      vertical-align: unset;
-    }
-  }
-`;
-
-const SingleUserItem = styled.div`
-  font-size: 13px;
-  color: var(--color-text-title);
-  .userHead {
-    display: inline-block !important;
-    margin-right: 8px;
-  }
-`;
-
-const Icon = styled.i`
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  margin-right: 8px;
-`;
-
-const Empty = styled.span`
-  color: var(--color-text-disabled);
-`;
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import { Select } from 'ming-ui/antd-components';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
 
 export default function Users(props) {
   const { projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
   const [values, setValues] = useState(props.values || []);
   const cache = useRef({ values });
   const { shownullitem, nullitemname, navshow, navfilters } = advancedSetting;
-  const [active, setActive] = useState();
-  const conRef = useRef();
   const tabType = getTabTypeBySelectUser(props.control);
   let staticAccounts = [];
 
@@ -102,83 +33,50 @@ export default function Users(props) {
     setValues(values);
   };
 
-  const handleClick = () => {
+  const canOpen = () => {
     if (
       tabType === 1 &&
       md.global.Account.isPortal &&
       !find(md.global.Account.projects, item => item.projectId === projectId)
     ) {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
-      return;
+      return false;
     }
 
-    const selectIds = values.map(l => l.accountId);
+    return true;
+  };
 
-    setActive(true);
-    if (from === 'NavShow') {
-      dialogSelectUser({
-        title: _l('添加成员'),
-        sourceId: 0,
-        fromType: 0,
-        showMoreInvite: false,
-        SelectUserSettings: {
-          includeUndefinedAndMySelf: true,
-          filterResigned: false,
-          // includeSystemField: true,
-          showMoreInvite: false,
-          projectId,
-          unique: !isMultiple,
-          selectedAccountIds: selectIds,
-          callback(users) {
-            handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
-            setActive(false);
-          },
-        },
-      });
-    } else {
-      quickSelectUser(conRef.current, {
-        showMoreInvite: false,
-        isDynamic: isMultiple,
-        isTask: false,
-        tabType,
-        appId,
+  const handleSelect = (users, isCancel = false) => {
+    const nextValues = isCancel
+      ? cache.current.values.filter(value => value.accountId !== users[0]?.accountId)
+      : isMultiple
+        ? _.uniqBy([...cache.current.values, ...users], 'accountId')
+        : users;
+
+    handleChange({ values: nextValues });
+  };
+
+  const handleClick = () => {
+    if (!canOpen()) return;
+
+    dialogSelectUser({
+      title: _l('添加成员'),
+      sourceId: 0,
+      fromType: 0,
+      showMoreInvite: false,
+      SelectUserSettings: {
         includeUndefinedAndMySelf: true,
-        includeSystemField: true,
-        offset: {
-          top: 4,
-          left: -1,
+        filterResigned: false,
+        // includeSystemField: true,
+        showMoreInvite: false,
+        projectId,
+        unique: !isMultiple,
+        selectedAccountIds: values.map(l => l.accountId),
+        callback(users) {
+          handleSelect(users);
         },
-        zIndex: 10001,
-        filterAccountIds: [md.global.Account.accountId],
-        selectedAccountIds: selectIds,
-        staticAccounts: (shownullitem === '1'
-          ? [
-              {
-                avatar: emptyAvatar,
-                fullname: nullitemname || _l('为空'),
-                accountId: 'isEmpty',
-              },
-            ]
-          : []
-        ).concat(staticAccounts),
-        SelectUserSettings: {
-          projectId,
-          unique: !isMultiple,
-          filterResigned: md.global.Account.isPortal, //外部门户不支持查看已离职
-          callback(users) {
-            handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
-            setActive(false);
-          },
-        },
-        selectCb(users) {
-          handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
-          setActive(false);
-        },
-        onClose: () => {
-          setActive(false);
-        },
-      });
-    }
+      },
+    });
   };
 
   useEffect(() => {
@@ -188,60 +86,81 @@ export default function Users(props) {
     }
   }, [props.values]);
 
-  return (
-    <Con className={props.className} isEmpty={!values.length} active={active} onClick={handleClick}>
-      <UsersCon ref={conRef}>
-        {!values.length && <Empty>{_l('请选择')}</Empty>}
-        {!isMultiple && !!values.length ? (
-          <SingleUserItem className="singleUserItem">{values[0].fullname || nullitemname || _l('为空')}</SingleUserItem>
-        ) : (
-          values.map(user => {
-            if (user.accountId === 'isEmpty' && !user.avatar && !user.fullname) {
-              user.avatar = emptyAvatar;
-              user.fullname = nullitemname || _l('为空');
-            }
+  const options = values.map(user => ({
+    label: user.fullname || nullitemname || _l('为空'),
+    value: user.accountId,
+  }));
+  const selectedValue = isMultiple ? values.map(user => user.accountId) : values[0]?.accountId;
+  const triggerNode = (
+    <Select
+      className={cx('w100', props.className)}
+      mode={isMultiple ? 'multiple' : undefined}
+      open={false}
+      showSearch={false}
+      allowClear
+      options={options}
+      value={selectedValue}
+      onClick={from === 'NavShow' ? handleClick : undefined}
+      onClear={() => handleChange({ values: [] })}
+      onDeselect={accountId => handleChange({ values: values.filter(value => value.accountId !== accountId) })}
+    />
+  );
 
-            return (
-              <UserItem className="ellipsis">
-                <UserHead
-                  className="userHead"
-                  user={{
-                    userHead: user.avatar,
-                    accountId: user.accountId,
-                  }}
-                  size={24}
-                  appId={appId}
-                  projectId={projectId}
-                />
-                {user.fullname}
-                <i
-                  className="icon icon-delete textTertiary Font10 mLeft6 Hand"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleChange({ values: values.filter(v => v.accountId !== user.accountId) });
-                  }}
-                />
-              </UserItem>
-            );
-          })
-        )}
-      </UsersCon>
-      <Icon className="icon icon-arrow-down-border downIcon" />
-      {!!values.length && (
-        <Icon
-          className="icon icon-cancel clearIcon"
-          onClick={e => {
-            e.stopPropagation();
-            handleChange({ values: [] });
-          }}
-        />
-      )}
-    </Con>
+  if (from === 'NavShow') {
+    return triggerNode;
+  }
+
+  return (
+    <UserSelectPopover
+      showMoreInvite={false}
+      isDynamic={isMultiple}
+      tabType={tabType}
+      appId={appId}
+      includeUndefinedAndMySelf
+      includeSystemField
+      offset={{ top: 4, left: -1 }}
+      filterAccountIds={[md.global.Account.accountId]}
+      selectedAccountIds={values.map(l => l.accountId)}
+      staticAccounts={(shownullitem === '1'
+        ? [
+            {
+              avatar: emptyAvatar,
+              fullname: nullitemname || _l('为空'),
+              accountId: 'isEmpty',
+            },
+          ]
+        : []
+      ).concat(staticAccounts)}
+      SelectUserSettings={{
+        projectId,
+        unique: !isMultiple,
+        filterResigned: md.global.Account.isPortal,
+        callback: handleSelect,
+      }}
+      onSelect={handleSelect}
+      onOpenChange={visible => {
+        if (visible && !canOpen()) return false;
+      }}
+    >
+      {triggerNode}
+    </UserSelectPopover>
   );
 }
 
 Users.propTypes = {
+  advancedSetting: shape({}),
+  appId: string,
+  className: string,
+  control: shape({}),
+  from: string,
+  isMultiple: bool,
   projectId: string,
-  values: arrayOf(string),
+  values: arrayOf(
+    shape({
+      accountId: string,
+      avatar: string,
+      fullname: string,
+    }),
+  ),
   onChange: func,
 };

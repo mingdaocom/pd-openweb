@@ -1,15 +1,4 @@
 .setImportDataContainer {
-  .mui-dialog-dialog {
-    height: 595px !important;
-    position: relative;
-  }
-  .mui-dialog-container > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header {
-    padding: 20px 24px 16px 20px;
-  }
-  .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-    padding: 0;
-    overflow-x: hidden;
-  }
   .sheetTabWrap {
     height: 36px;
     padding: 0 20px;
@@ -98,36 +87,8 @@
       }
     }
   }
-  .footerContent {
-    justify-content: space-between;
-    align-items: center;
-    .cancelBtn {
-      color: var(--color-text-tertiary);
-      background-color: var(--color-background-secondary);
-    }
-    .Button {
-      &.bold {
-        font-weight: bold;
-      }
-    }
-  }
   .justifyContentBetween {
     justify-content: space-between;
-  }
-}
-
-.sheetItemOperate {
-  & > .Item-content {
-    overflow: visible !important;
-    position: relative !important;
-    .viewTypeMenuWrap {
-      position: absolute;
-      .viewTypeItem.ant-menu-item {
-        span.viewName {
-          margin-left: 24px;
-        }
-      }
-    }
   }
 }
 
@@ -136,35 +97,14 @@
   border: 1px solid var(--color-border-secondary);
 }
 
-.selectImportSheetWrap {
-  width: 240px;
-  height: 245px;
-  overflow: auto;
-  padding: 10px 16px 16px;
-  background-color: var(--color-background-primary);
-  z-index: 1000;
-  border-radius: 3px;
-  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
-  .Checkbox {
-    margin-top: -2px;
-  }
-  .Colorff9 {
-    color: var(--color-warning);
-  }
-}
-
 .selectCellsWrap {
   width: 240px;
   max-height: 275px;
-  padding: 16px;
-  background-color: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
+  padding: 10px;
   overflow: auto;
   .selectCellsItem {
     display: flex;
-    height: 42px;
-    line-height: 42px;
+    padding: 10px 0;
   }
   .spaceLine {
     height: 1px;
@@ -179,10 +119,4 @@
 
 .disabledCellIcon {
   position: unset !important;
-}
-
-.excelControlSettingWrap {
-  &.rc-trigger-popup {
-    z-index: 1000 !important;
-  }
 }

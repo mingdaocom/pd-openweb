@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { Button } from 'ming-ui/antd-components';
 import AdminCommon from 'src/pages/Admin/common/common';
 import Config from '../../config';
 import Announce from './components/Announce';
@@ -79,13 +80,9 @@ export default class Orgothers extends Component {
                     <div className="toolItemLabel">{item.label}</div>
                     <div className="toolItemRight">
                       <div>
-                        <button
-                          type="button"
-                          className="ming Button Button--link colorPrimary adminHoverColor"
-                          onClick={() => this[item.click](item.key, true)}
-                        >
+                        <Button color="primary" variant="link" onClick={() => this[item.click](item.key, true)}>
                           {item.clickValue}
-                        </button>
+                        </Button>
                       </div>
                       <div className="toolItemDescribe mLeft5">{item.desc}</div>
                     </div>

@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isTextTitle } from 'src/utils/services/worksheet/view';
 import CreateRecord from '../../components/createRecord';
 import CreateVerticalRecord from '../../components/CreateVerticalRecord';
 import AddRecord from '../../HierarchyView/components/AddRecord';
 import TreeNode from '../../HierarchyView/components/TreeNode';
 import { getRelateDefaultValue } from '../../HierarchyView/util';
-import { isTextTitle } from '../../util';
 import VerticalSortableRecordItem from './VerticalSortableNode';
 
 const ParentNodeWrap = styled.div`
@@ -39,9 +39,9 @@ const ParentNodeWrap = styled.div`
 `;
 
 const VerticalTreeChildNode = styled.div(
-  ({ isFirst = false }) => `
+  ({ $isFirst = false }) => `
   display: flex;
-  margin-top: ${isFirst ? 40 : 70}px;
+  margin-top: ${$isFirst ? 40 : 70}px;
   position: relative;
   gap: 10px;
   >div::after {
@@ -147,7 +147,7 @@ function VertricalTreeNode(props) {
     if ((!visible || _.isEmpty(childrenData)) && nodeItem) return null;
 
     return (
-      <VerticalTreeChildNode isFirst={isRoot}>
+      <VerticalTreeChildNode $isFirst={isRoot}>
         {childrenData.map((item, index) => {
           if (!item) return null;
 

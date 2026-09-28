@@ -1,20 +1,26 @@
-﻿import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import { difference, filter, find, get, isEmpty, isEqual, sortBy, uniq } from 'lodash';
 import styled, { keyframes } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
 import { mapWidgetTypeToControlType } from 'src/components/Mingo/ChatBot/utils';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
-import { emitter, htmlEncodeReg } from 'src/utils/common';
-import { changeCodeOfAIGenControl, convertAiRecommendControlToControlData } from 'src/utils/control';
-import { parseStreamingJsonlData } from 'src/utils/sse';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { convertAiRecommendControlToControlData } from 'src/utils/domain/control/ai';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { parseStreamingJsonlData } from 'src/utils/platform/network/sse';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 const Con = styled.div`
   border-radius: 8px;
@@ -32,20 +38,11 @@ const Con = styled.div`
       font-size: 13px;
       color: var(--color-text-title);
     }
-    .Checkbox {
-      font-size: 0px;
-    }
-    .Checkbox.checked .Checkbox-box,
-    .Checkbox.clearselected .Checkbox-box,
-    .Checkbox.clearselected .Checkbox-box:hover {
-      border-color: var(--color-mingo) !important;
-      background-color: var(--color-mingo) !important;
-    }
-    .ming.Checkbox.Checkbox--disabled .Checkbox-box,
-    .ming.Checkbox.Checkbox--disabled.clearselected .Checkbox-box {
-      opacity: 0.39;
-    }
     .icon {
+      margin-right: 8px;
+    }
+    /* 无 children 的 antd Checkbox 不渲染 label span，自身没有右间距，需与 .icon 保持一致 */
+    .widget-checkbox {
       margin-right: 8px;
     }
     .widget-name {
@@ -85,9 +82,6 @@ const Con = styled.div`
       .name {
         color: var(--color-mingo);
         font-weight: bold;
-      }
-      .Checkbox .Checkbox-box {
-        border-color: var(--color-mingo) !important;
       }
     }
   }
@@ -219,8 +213,19 @@ function CreateWorksheetOfRelateRecord({
   onClose = () => {},
 }) {
   const [isRequesting, setIsRequesting] = useState(false);
+  const isRequestingRef = useRef(false);
+  const createdWorksheetsRef = useRef({});
+
+  const handleClose = () => {
+    if (!isRequestingRef.current) onClose();
+  };
+
+  const handleSkip = () => {
+    if (!isRequestingRef.current) onSkip();
+  };
+
   return (
-    <CreateWorksheetOfRelateRecordCon className={className} onClick={onClose}>
+    <CreateWorksheetOfRelateRecordCon className={className} onClick={handleClose}>
       <div className="confirmContent" onClick={e => e.stopPropagation()}>
         <div className="confirmContent-title">{_l('创建关联表')}</div>
         <div
@@ -232,52 +237,75 @@ function CreateWorksheetOfRelateRecord({
             ),
           }}
         />
+
         <div className="confirmContent-button-con">
           <div
             className={cx('confirmContent-button', { loading: isRequesting })}
             onClick={() => {
+              if (isRequestingRef.current) return;
+              isRequestingRef.current = true;
               setIsRequesting(true);
               const needCreateWorksheets = relateControls.map(item => ({
                 name: get(item, 'source.createNewWorksheet.worksheetName') || item.controlName,
                 description: get(item, 'source.createNewWorksheet.description') || item.hint,
               }));
-              Promise.all(
-                needCreateWorksheets.map(needCreateWorksheet => {
-                  const iconName = 'table';
-                  const iconUrl = `https://fp1.mingdaoyun.cn/customIcon/${iconName}.svg`;
-                  return appManagementAjax
-                    .addWorkSheet({
-                      appId,
-                      sourceType: 1,
-                      name: needCreateWorksheet.name,
-                      iconColor: '#8f62ff',
-                      projectId,
-                      description: needCreateWorksheet.description,
-                      appSectionId: sectionId,
-                      icon: iconName,
-                      iconUrl,
-                      type: 0,
-                    })
-                    .then(data => {
-                      if (data.workSheetId) {
-                        return {
-                          worksheetId: data.workSheetId,
-                          worksheetName: needCreateWorksheet.name,
-                          worksheetDescription: needCreateWorksheet.description,
-                        };
-                      }
+              return needCreateWorksheets
+                .reduce((promise, needCreateWorksheet, index) => {
+                  return promise.then(result => {
+                    const controlId = relateControls[index].controlId;
 
-                      return null;
-                    });
-                }),
-              ).then(data => {
-                setIsRequesting(false);
-                const result = {};
-                data.forEach((item, index) => {
-                  result[relateControls[index].controlId] = item;
+                    if (createdWorksheetsRef.current[controlId]) {
+                      return {
+                        ...result,
+                        [controlId]: createdWorksheetsRef.current[controlId],
+                      };
+                    }
+
+                    const iconName = 'table';
+                    const iconUrl = getCustomIconUrl(iconName);
+
+                    return appManagementAjax
+                      .addWorkSheet({
+                        appId,
+                        sourceType: 1,
+                        name: needCreateWorksheet.name,
+                        iconColor: '#8f62ff',
+                        projectId,
+                        description: needCreateWorksheet.description,
+                        appSectionId: sectionId,
+                        icon: iconName,
+                        iconUrl,
+                        type: 0,
+                      })
+                      .then(data => {
+                        if (data.workSheetId) {
+                          const worksheet = {
+                            worksheetId: data.workSheetId,
+                            worksheetName: needCreateWorksheet.name,
+                            worksheetDescription: needCreateWorksheet.description,
+                          };
+                          createdWorksheetsRef.current[controlId] = worksheet;
+                          return { ...result, [controlId]: worksheet };
+                        }
+
+                        throw new Error('Failed to create worksheet');
+                      });
+                  });
+                }, Promise.resolve({}))
+                .then(result => {
+                  setIsRequesting(false);
+                  isRequestingRef.current = false;
+                  onConfirm(result);
+                })
+                .catch(_requestError => {
+                  alertIfNotUnauthorized(_requestError, _l('创建失败，请稍后重试'), 2);
+                })
+                .finally(() => {
+                  if (isRequestingRef.current) {
+                    setIsRequesting(false);
+                    isRequestingRef.current = false;
+                  }
                 });
-                onConfirm(result);
-              });
             }}
           >
             {isRequesting ? (
@@ -289,7 +317,7 @@ function CreateWorksheetOfRelateRecord({
               _l('确定')
             )}
           </div>
-          <div className="confirmContent-button secondary" onClick={onSkip}>
+          <div className={cx('confirmContent-button secondary', { loading: isRequesting })} onClick={handleSkip}>
             {_l('跳过，暂不创建')}
           </div>
         </div>
@@ -352,8 +380,9 @@ function WidgetList({
           <Checkbox
             disabled={disabled}
             checked={isAllSelected}
-            clearselected={hasSelected}
-            onClick={() => {
+            indeterminate={hasSelected}
+            styles={CHECKBOX_LABEL_STYLES}
+            onChange={() => {
               if (hasSelected) {
                 setSelectedWidgetIds(oldState => oldState.filter(id => !filteredSelectedWidgetIds.includes(id)));
               } else {
@@ -362,13 +391,21 @@ function WidgetList({
                     ? oldState.filter(id => !filteredSelectedWidgetIds.includes(id))
                     : uniq([
                         ...oldState,
-                        ...widgets.filter(item => !find(existingControls, { alias: item.code })).map(item => item.id),
+                        ...widgets
+                          .filter(
+                            item =>
+                              !find(existingControls, {
+                                alias: item.code,
+                              }),
+                          )
+                          .map(item => item.id),
                       ]);
                 });
               }
             }}
-          />
-          <div className="name">{name}</div>
+          >
+            <span className="name">{name}</span>
+          </Checkbox>
         </div>
       </div>
       {widgets.map((item, i) => {
@@ -390,13 +427,18 @@ function WidgetList({
               <div className="t-flex t-flex-row t-items-center t-justify-between">
                 <div className="widget-item-left t-flex t-flex-row t-items-center">
                   {!isExist ? (
-                    <Checkbox checked={selectedWidgetIds.includes(item.id)} disabled={isDisabled} />
+                    <Checkbox
+                      className="widget-checkbox"
+                      checked={selectedWidgetIds.includes(item.id)}
+                      disabled={isDisabled}
+                    />
                   ) : (
                     <i className="icon icon-ok textTertiary Font18 mRight5"></i>
                   )}
                   <i
                     className={`icon icon-${getIconByType(mapWidgetTypeToControlType(item.type))} Font18 textTertiary`}
                   />
+
                   <div className="name">{item.name}</div>
                 </div>
                 <span className="widget-name">{DEFAULT_CONFIG[mapWidgetTypeToControlType(item.type)]?.widgetName}</span>
@@ -409,6 +451,7 @@ function WidgetList({
                         className="circle"
                         style={{ backgroundColor: option.color || 'var(--color-text-disabled)' }}
                       />
+
                       {option.label}
                     </div>
                   ))}
@@ -464,12 +507,7 @@ export default function MingoGeneratedWidgetsSelector({
   const tabs = useMemo(() => allWidgets.filter(item => item.group === 'tab'), [allWidgets]);
   useEffect(() => {
     if (!content) return;
-    let data = parseStreamingJsonlData(content, isStreaming);
-    const streamEnd = !!content && !isStreaming;
-
-    if (streamEnd) {
-      data = changeCodeOfAIGenControl(window?.globalStoreForMingo?.allWidgets || [], data);
-    }
+    const data = parseStreamingJsonlData(content, isStreaming);
 
     const allWidgets = groupWidgetsByType(data, { idCache: cache.current.idCache });
     allWidgets.forEach(item => {
@@ -565,6 +603,7 @@ export default function MingoGeneratedWidgetsSelector({
         selectedWidgetIds={selectedWidgetIds}
         disabled={checkboxDisabled}
       />
+
       {!!tabs.length && <div className="hr" />}
       {!!tabs.length && (
         <WidgetList
@@ -648,7 +687,9 @@ export default function MingoGeneratedWidgetsSelector({
                           );
                         });
                       }
-                    } catch (e) {}
+                    } catch {
+                      // 关联字段补全失败时保留已生成的控件，避免中断后续创建流程
+                    }
                   }
 
                   const hasRelatedTableNoWorksheet = !!relateControlsNoWorksheet.length;

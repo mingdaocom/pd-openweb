@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Radio } from 'ming-ui';
-import { getShowViews } from 'src/pages/worksheet/views/util';
+import { Icon } from 'ming-ui';
+import { Checkbox, Radio } from 'ming-ui/antd-components';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 
 const Wrap = styled.div`
   width: 320px;
@@ -81,23 +82,32 @@ export default function BtnRangeDrop(props) {
       <div className="pLeft16 pBottom16">
         <div className="mTop16">
           <Radio
-            text={_l('所有记录')}
             checked={data.isAllView === 1}
-            onClick={() => {
+            onChange={() => {
               onChange({
                 ...data,
                 isAllView: 1,
                 advancedSetting: _.omit(advancedSetting, ['detailviews', 'listviews']),
               });
             }}
-          />
+            title={_l('所有记录')}
+          >
+            {_l('所有记录')}
+          </Radio>
         </div>
         <div className="mTop16">
           <Radio
-            text={_l('应用于指定视图')}
             checked={data.isAllView !== 1}
-            onClick={() => onChange({ ...data, isAllView: 0 })}
-          />
+            onChange={() =>
+              onChange({
+                ...data,
+                isAllView: 0,
+              })
+            }
+            title={_l('应用于指定视图')}
+          >
+            {_l('应用于指定视图')}
+          </Radio>
         </div>
       </div>
       <ul className="dropOptionTrigger">
@@ -113,11 +123,12 @@ export default function BtnRangeDrop(props) {
                 >
                   <Checkbox
                     className="viewInput TxtMiddle"
-                    size="small"
                     checked={isAllDt}
-                    clearselected={!isAllDt && hsDt}
-                    text={_l('记录详情')}
-                  />
+                    indeterminate={!isAllDt && hsDt}
+                    size="small"
+                  >
+                    {_l('记录详情')}
+                  </Checkbox>
                 </span>
                 {!noBatch ? (
                   <span
@@ -127,11 +138,12 @@ export default function BtnRangeDrop(props) {
                   >
                     <Checkbox
                       className="viewInput TxtMiddle"
-                      size="small"
                       checked={isAllList}
-                      clearselected={!isAllList && hsList}
-                      text={_l('批量操作')}
-                    />
+                      indeterminate={!isAllList && hsList}
+                      size="small"
+                    >
+                      {_l('批量操作')}
+                    </Checkbox>
                   </span>
                 ) : (
                   <span className="flex"></span>
@@ -152,7 +164,9 @@ export default function BtnRangeDrop(props) {
                         updateAdvancedSetting({ detailviews: JSON.stringify(toggleId(detailviews, it.viewId)) })
                       }
                     >
-                      <Checkbox className="viewInput TxtMiddle" size="small" checked={isDt} text={null} />
+                      <Checkbox className="viewInput TxtMiddle" checked={isDt} size="small">
+                        {null}
+                      </Checkbox>
                     </span>
                     {isSheetView && !noBatch ? (
                       <span
@@ -161,7 +175,9 @@ export default function BtnRangeDrop(props) {
                           updateAdvancedSetting({ listviews: JSON.stringify(toggleId(listviews, it.viewId)) })
                         }
                       >
-                        <Checkbox className="viewInput TxtMiddle" size="small" checked={isList} text={null} />
+                        <Checkbox className="viewInput TxtMiddle" checked={isList} size="small">
+                          {null}
+                        </Checkbox>
                       </span>
                     ) : (
                       <span className="flex"></span>

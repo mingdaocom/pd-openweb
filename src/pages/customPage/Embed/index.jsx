@@ -4,14 +4,15 @@ import { Provider } from 'react-redux';
 import { LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import UnusualContent from 'src/components/UnusualContent';
 import CustomPageContent from 'src/pages/customPage/pageContent';
 import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { changeAppColor } from 'src/pages/PageHeader/redux/action';
 import store from 'src/redux/configureStore';
 import socketInit from 'src/socket';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './index.less';
 
 const isMobile = browserIsMobile();

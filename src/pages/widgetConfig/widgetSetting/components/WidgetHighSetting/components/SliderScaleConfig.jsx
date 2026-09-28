@@ -2,7 +2,8 @@ import React, { useRef, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Input, Modal, Slider } from 'ming-ui';
+import { Slider } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { Tip9e } from 'worksheet/components/Basics';
 
 const SliderCon = styled.div`
@@ -59,9 +60,9 @@ export default function SliderScaleDialog(props) {
   return (
     <Modal
       width={480}
-      visible
+      open
       title={_l('刻度')}
-      bodyStyle={{ paddingTop: 10 }}
+      styles={{ body: { paddingTop: 10 } }}
       onCancel={onCancel}
       onOk={() => {
         onCancel();
@@ -97,13 +98,13 @@ export default function SliderScaleDialog(props) {
             <Input
               onFocus={() => updateActiveIndex(i)}
               value={item.key}
-              onChange={v => updateScale(i, v.replace(/[^-\d.]/g, ''), item.value)}
+              onChange={event => updateScale(i, event.target.value.replace(/[^-\d.]/g, ''), item.value)}
             />
             <Label className="mLeft16">{_l('刻度')}</Label>
             <Input
               onFocus={() => updateActiveIndex(i)}
               value={item.value}
-              onChange={v => updateScale(i, item.key, v)}
+              onChange={event => updateScale(i, item.key, event.target.value)}
             />
             <Buttons>
               <i

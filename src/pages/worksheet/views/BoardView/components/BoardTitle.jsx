@@ -4,8 +4,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, UserHead } from 'ming-ui';
 import { FlexCenter } from 'worksheet/styled';
-import { isLightColor } from 'src/utils/control';
-import { CAN_AS_BOARD_OPTION } from '../config';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { CAN_AS_BOARD_OPTION } from 'src/utils/domain/worksheet/board';
 
 const BoardTitleWrap = styled(FlexCenter)`
   border-radius: 18px;

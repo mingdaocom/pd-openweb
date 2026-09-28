@@ -4,7 +4,9 @@ import Back from '../components/Back';
 
 const data = {
   help: {
-    url: window.platformENV.isOverseas ? 'https://help.nocoly.com' : 'https://help.mingdao.com',
+    get url() {
+      return window.platformENV.isOverseas ? 'https://help.nocoly.com' : 'https://help.mingdao.com';
+    },
     title: _l('帮助中心'),
   },
 };

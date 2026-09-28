@@ -17,26 +17,24 @@ import workflow from 'src/pages/workflow/redux/reducers';
 import sheet from 'src/pages/worksheet/redux/reducers';
 import sheetList from 'src/pages/worksheet/redux/reducers/sheetList';
 
-export function makeRootReducer() {
-  return (state = {}, action) => {
-    return combineReducers({
-      post: combineReducers(postReducers),
-      postDetail: combineReducers(postDetailReducers),
-      sheet,
-      chat,
-      kc,
-      task,
-      workflow,
-      appPkg,
-      mobile,
-      publicWorksheet,
-      formSet,
-      customPage,
-      sheetList,
-      statistics,
-      portal,
-      appRole,
-      orgManagePage,
-    })(state, action);
-  };
-}
+const rootReducer = combineReducers({
+  post: combineReducers(postReducers),
+  postDetail: combineReducers(postDetailReducers),
+  sheet,
+  chat,
+  kc,
+  task,
+  workflow,
+  appPkg,
+  mobile,
+  publicWorksheet,
+  formSet,
+  customPage,
+  sheetList,
+  statistics,
+  portal,
+  appRole,
+  orgManagePage,
+});
+
+export default rootReducer;

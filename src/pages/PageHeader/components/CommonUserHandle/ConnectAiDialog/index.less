@@ -1,6 +1,5 @@
 .connectAiDialog {
-  .mui-dialog-header {
-    padding: 18px 24px 0 !important;
+  .hap-modal-header {
     background: linear-gradient(
       90deg,
       var(--color-primary-transparent-light) 0%,
@@ -9,7 +8,7 @@
     border-bottom: 1px solid var(--color-border-secondary);
   }
 
-  .mui-dialog-close-btn {
+  .hap-modal-close {
     top: 18px !important;
     right: 20px !important;
 
@@ -17,10 +16,6 @@
       font-size: 20px;
       color: var(--color-text-secondary) !important;
     }
-  }
-
-  .mui-dialog-body {
-    padding: 0 24px 24px !important;
   }
 
   .tabBar {
@@ -184,37 +179,6 @@
     line-height: 24px;
   }
 
-  .segmentWrap {
-    display: flex;
-    padding: 4px;
-    margin-top: 18px;
-    border-radius: 8px;
-    background: var(--color-background-disabled);
-  }
-
-  .installModeWrap {
-    margin-top: 0;
-  }
-
-  .segmentItem {
-    flex: 1;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .segmentItem.active {
-    color: var(--color-primary);
-    background: var(--color-background-primary);
-    border: 1px solid var(--color-border-primary);
-    line-height: 28px;
-    box-shadow: var(--shadow-sm);
-  }
-
   .configHint {
     margin-top: 8px;
     font-size: 12px;
@@ -237,17 +201,8 @@
     width: 100%;
     margin-top: 10px;
 
-    .ant-select-selector {
-      border-radius: 8px !important;
-      border-color: var(--color-border-primary) !important;
-      height: 36px !important;
-      display: flex !important;
-      align-items: center !important;
-      box-shadow: none !important;
-    }
-
-    .ant-select-selection-item,
-    .ant-select-selection-placeholder {
+    .hap-select-selection-item,
+    .hap-select-selection-placeholder {
       line-height: 34px !important;
     }
   }
@@ -364,12 +319,6 @@
     border: 1px solid var(--color-border-primary);
     border-radius: 8px;
     cursor: pointer;
-    .Checkbox-text {
-      font-size: 14px !important;
-      font-weight: bold;
-      margin-left: 10px;
-    }
-
     &:hover,
     &.active {
       border-color: var(--color-primary);
@@ -426,13 +375,6 @@
   .installActions .installOptionRow {
     flex: none;
     margin-bottom: 12px;
-  }
-
-  .installBtn {
-    height: 44px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
   }
 
   .installTip {

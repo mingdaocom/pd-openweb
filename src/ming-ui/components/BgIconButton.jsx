@@ -3,7 +3,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const isMobile = browserIsMobile();
 
@@ -37,8 +37,8 @@ const Con = styled.div`
       background-color: var(--color-background-hover);
     }
   }
-  ${({ disabled }) =>
-    disabled &&
+  ${({ $disabled }) =>
+    $disabled &&
     `
       cursor: not-allowed;
       .btnIcon {
@@ -69,19 +69,21 @@ function BgIconButton({
   popupPlacement = 'bottom',
   shortcut,
 }) {
+  // 不要自定义 align.offset：trigger 内部是 { ...builtinPlacements[placement], ...align } 浅合并，
+  // 自定义 offset 会整个覆盖掉 antd 按箭头尺寸算出的让位距离（top 为负、bottom 为正），
+  // 浮层就会压到按钮上，箭头落在按钮中间而不是从按钮边缘指出来
   return (
     <Tooltip
       title={tooltip && !isMobile ? <span>{tooltip}</span> : null}
       placement={popupPlacement}
-      align={{ offset: [0, -3] }}
       shortcut={shortcut}
     >
       <Con
         className={cx(className, `size-${size}`, { disabled, isMobile })}
-        disabled={disabled}
+        $disabled={disabled}
         style={style}
         onMouseDown={disabled || nativeOnClick ? null : onClick}
-        onClick={nativeOnClick}
+        onClick={disabled ? null : nativeOnClick}
       >
         {iconComponent ? (
           iconComponent
@@ -99,7 +101,7 @@ BgIconButton.propTypes = {
   className: PropTypes.string,
   iconClassName: PropTypes.string,
   icon: PropTypes.node.isRequired,
-  text: PropTypes.string,
+  text: PropTypes.node,
   onClick: PropTypes.func.isRequired,
   tooltip: PropTypes.node,
   popupPlacement: PropTypes.string,
@@ -107,9 +109,13 @@ BgIconButton.propTypes = {
   iconStyle: PropTypes.shape({}),
 };
 
-BgIconButton.Group = styled.div`
+const GroupWrap = styled.div`
   display: flex;
-  gap: ${({ gap }) => gap || '10'}px;
+  gap: ${({ $gap }) => $gap || '10'}px;
 `;
+
+BgIconButton.Group = function BgIconButtonGroup({ gap, ...props }) {
+  return <GroupWrap $gap={gap} {...props} />;
+};
 
 export default BgIconButton;

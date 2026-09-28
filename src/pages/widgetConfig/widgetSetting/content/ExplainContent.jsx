@@ -1,32 +1,29 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, Input } from 'antd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from '../../config';
-import { AnimationWrap, SettingItem } from '../../styled';
-import { notExplainDisplay, notWidgetDes } from '../../util';
-import { handleAdvancedSettingChange } from '../../util/setting';
+import { Input, Segmented, Tooltip } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { notExplainDisplay, notWidgetDes } from 'src/utils/domain/control/capabilities';
+import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from 'src/utils/domain/control/config';
+import { SettingItem } from '../../styled';
 import { SectionItem } from '../components/SplitLineConfig/style';
 import WidgetDes from '../components/WidgetDes';
 import WidgetExplain from '../components/WidgetExplain';
 import { SettingCollapseWrap } from './styled';
 
-const { Panel } = Collapse;
-
-const DISPLAY_TYPES = [
+const getDisplayTypeOptions = () => [
   {
-    text: _l('自动'),
+    label: _l('自动'),
     value: '0',
   },
   {
-    text: _l('图标%04025'),
+    label: _l('图标%04025'),
     value: '1',
   },
   {
-    text: _l('文字%04026'),
+    label: _l('文字%04026'),
     value: '2',
   },
 ];
@@ -47,18 +44,13 @@ const UserContent = props => {
           {!notExplainDisplay(data) && (
             <SectionItem>
               <div className="label Width90">{_l('显示方式')}</div>
-              <AnimationWrap className="flex">
-                {DISPLAY_TYPES.map(item => (
-                  <div
-                    className={cx('animaItem', { active: hinttype === item.value })}
-                    onClick={() => {
-                      onChange(handleAdvancedSettingChange(data, { hinttype: item.value }));
-                    }}
-                  >
-                    {item.text}
-                  </div>
-                ))}
-              </AnimationWrap>
+              <Segmented
+                block
+                className="flex"
+                value={hinttype}
+                options={getDisplayTypeOptions()}
+                onChange={value => onChange(handleAdvancedSettingChange(data, { hinttype: value }))}
+              />
             </SectionItem>
           )}
         </Fragment>
@@ -71,10 +63,6 @@ const DevelopContent = ({ data = {}, allControls, onChange }) => {
   const { alias = '', remark, controlId } = data;
   const [value, setValue] = useState(alias);
   const [error, setError] = useState(0);
-
-  useEffect(() => {
-    setValue(alias);
-  }, [controlId]);
 
   return (
     <Fragment>
@@ -155,7 +143,7 @@ const getItems = props => {
     {
       key: 'develop',
       label: _l('开发者'),
-      children: <DevelopContent {...props} />,
+      children: <DevelopContent key={data.controlId} {...props} />,
     },
   ];
 
@@ -180,16 +168,8 @@ export default function ExplainContent(props) {
       bordered={false}
       activeKey={expandKeys}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-      items={getItems(props)}
+      items={items}
       onChange={value => setExpandKeys(value)}
-    >
-      {items.map(item => {
-        return (
-          <Panel header={item.label} key={item.key}>
-            {item.children}
-          </Panel>
-        );
-      })}
-    </SettingCollapseWrap>
+    />
   );
 }

@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
 import _, { get, isNaN } from 'lodash';
 import qs from 'query-string';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { formatControlValue } from 'src/utils/function-library';
-import { initLang } from './local';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { formatControlValue } from 'src/utils/functionRuntime/functionLibrary';
 import { functions } from './enum';
+import { initLang } from './local';
 
 const execWorkerCode = `onmessage = function (e) {
   try {
@@ -195,8 +195,8 @@ function formatFunctionResult(control, value) {
             return group ? `.${group}` : '';
           });
         }
-      } catch (err) {
-        (() => {})(err);
+      } catch {
+        // 数值格式化失败时保留原始结果
       }
 
       break;
@@ -243,11 +243,7 @@ function formatFunctionResult(control, value) {
   return result;
 }
 
-export default function (
-  control,
-  formData,
-  { update, type, forceSyncRun = false, defaultExpression, langCode } = {},
-) {
+export default function (control, formData, { update, type, forceSyncRun = false, defaultExpression, langCode } = {}) {
   initLang(langCode);
   const run = functions;
   let expressionData = {};

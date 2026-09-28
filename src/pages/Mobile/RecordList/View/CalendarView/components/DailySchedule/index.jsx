@@ -1,7 +1,8 @@
 import React, { forwardRef, Fragment, memo, useImperativeHandle } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { MobileSearch, PopupWrapper, ScrollView } from 'ming-ui';
+import { MobileSearch, ScrollView } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import RecordCard from 'mobile/RecordList/RecordCard';
 import { getFormateView } from '../../util';
 import EmptyStatus from '../EmptyStatus';

@@ -6,10 +6,10 @@ import appManagementApi from 'src/api/appManagement';
 import MobileChart from 'mobile/CustomPage/ChartContent';
 import Chart from 'statistics/Card';
 import exportPivotTableSocket from 'statistics/components/socket';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import { socketInit } from 'src/socket';
 import customNotice from 'src/socket/customNotice';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
 import './index.less';
 
 const isMobile = browserIsMobile();

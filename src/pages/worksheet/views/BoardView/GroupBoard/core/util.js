@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { getAdvanceSetting, renderText } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { renderText } from 'src/utils/domain/control/display';
 
 // 特殊字段map关系
 const extraFieldGenerators = {

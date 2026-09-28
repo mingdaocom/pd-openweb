@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { isEmpty, isFunction } from 'lodash';
 import PropTypes from 'prop-types';
@@ -8,14 +8,19 @@ import { Tooltip } from 'ming-ui/antd-components';
 import discussionAjax from 'src/api/discussion';
 import favoriteApi from 'src/api/favorite.js';
 import worksheetAjax from 'src/api/worksheet';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import PrintList from 'src/pages/worksheet/common/recordInfo/RecordForm/PrintList';
-import { emitter } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import RecordPrintButton from 'src/pages/worksheet/common/recordInfo/RecordForm/RecordPrint/RecordPrintButton';
+import {
+  getRecordDiscussionsCountArgs,
+  shouldLoadRecordHeaderDiscussionCount,
+} from 'src/pages/worksheet/components/DiscussLogFile/utils';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
 import IconBtn from './IconBtn';
 import MoreMenu from './MoreMenu';
 import Operates from './Operates';
@@ -68,28 +73,37 @@ export default function InfoHeader(props) {
     payConfig = {},
     isDraft,
     updateDiscussCount = _.noop,
+    discussCount: latestDiscussCount,
     printCharge,
     recordTitle,
     isRecordLock,
     updateRecordLock,
-    setModalRightComp, // allowExAccountDiscuss = false, //允许外部用户讨论
-    // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
-    // approved: false, //允许外部用户允许查看审批流转详情
+    setModalRightComp,
+    allowExAccountDiscuss = false, //允许外部用户讨论
+    exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
+    approved = false, //允许外部用户允许查看审批流转详情
   } = props;
   const { projectId = localStorage.getItem('currentProjectId') } = recordinfo;
   let { renderHeader } = props;
-  const { isSmall, worksheetId, recordId, notDialog } = recordbase;
+  const { isSmall, worksheetId, recordId, notDialog, workId, instanceId } = recordbase;
   const rowId = useRef(recordId);
   const operatesRef = useRef(null);
+  const updateDiscussCountRef = useRef(updateDiscussCount);
+  const discussionCountReqId = useRef(0);
   const [discussCount, setDiscussCount] = useState();
   const [aiActionActive, setAiActionActive] = useState(false);
   const [aiActionButtons, setAiActionButtons] = useState([]);
   const [worksheetInfo, setWorksheetInfo] = useState(props.worksheetInfo);
-  const [isFavorite, setIsFavorite] = useState(recordinfo.isFavorite);
+  const [favoriteOverride, setFavoriteOverride] = useState(null);
+  const isFavorite =
+    favoriteOverride && favoriteOverride.recordId === recordId && favoriteOverride.baseValue === recordinfo.isFavorite
+      ? favoriteOverride.value
+      : recordinfo.isFavorite;
+  const displayDiscussCount = !_.isUndefined(latestDiscussCount) ? latestDiscussCount : discussCount;
   const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
   const workflowVisible = isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId);
-  const portalNotHasDiscuss = md.global.Account.isPortal && !props.allowExAccountDiscuss; //外部用户且未开启讨论
+  const portalNotHasDiscuss = md.global.Account.isPortal && !allowExAccountDiscuss; //外部用户且未开启讨论
 
   const isPublicShare =
     _.get(window, 'shareState.isPublicRecord') ||
@@ -115,9 +129,9 @@ export default function InfoHeader(props) {
     sideBarBtnVisible &&
     ((!isPublicShare && showOrder) ||
       (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
-      (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
+      (md.global.Account.isPortal && allowExAccountDiscuss && discussVisible) ||
       (md.global.Account.isPortal && logVisible) ||
-      (md.global.Account.isPortal && props.approved && workflowVisible) ||
+      (md.global.Account.isPortal && approved && workflowVisible) ||
       from === RECORD_INFO_FROM.WORKFLOW);
   useEffect(() => {
     if (!isFunction(setModalRightComp)) {
@@ -146,43 +160,91 @@ export default function InfoHeader(props) {
     } else {
       setModalRightComp(null);
     }
-  }, [aiActionActive, aiActionButtons, recordId, worksheetId, worksheetInfo.worksheetId, recordTitle]);
+  }, [
+    aiActionActive,
+    aiActionButtons,
+    isCharge,
+    notDialog,
+    recordbase.appId,
+    recordId,
+    recordTitle,
+    setModalRightComp,
+    worksheetId,
+    worksheetInfo,
+  ]);
 
-  function loadDiscussionsCount() {
-    if (sideVisible || !discussVisible || portalNotHasDiscuss) {
+  const loadDiscussionsCount = useCallback(() => {
+    if (
+      !shouldLoadRecordHeaderDiscussionCount({
+        loading,
+        sideVisible,
+        discussVisible,
+        portalNotHasDiscuss,
+      })
+    ) {
       return;
     }
 
-    let entityType = 0; //外部用户且未开启讨论 不能内部讨论
-
-    if (md.global.Account.isPortal && props.allowExAccountDiscuss && props.exAccountDiscussEnum === 1) {
-      entityType = 2;
-    }
+    // 自增请求序号，切换记录后旧请求若晚返回则丢弃，避免污染当前记录的计数。
+    const reqId = ++discussionCountReqId.current;
 
     discussionAjax
       .getDiscussionsCount({
-        pageIndex: 1,
-        pageSize: 1,
-        sourceId: worksheetId + '|' + rowId.current,
-        sourceType: 8,
-        entityType, // 0 = 全部，1 = 不包含外部讨论，2=外部讨论
+        ...getRecordDiscussionsCountArgs({
+          worksheetId,
+          rowId: rowId.current,
+          isPortal: md.global.Account.isPortal,
+          allowExAccountDiscuss,
+          exAccountDiscussEnum,
+          workId,
+          instanceId,
+        }),
       })
       .then(data => {
+        if (reqId !== discussionCountReqId.current) {
+          return;
+        }
+
         setDiscussCount(data.data);
-        updateDiscussCount(data.data);
-      });
-  }
+        updateDiscussCountRef.current(data.data);
+      })
+      .catch(() => {});
+  }, [
+    allowExAccountDiscuss,
+    discussVisible,
+    exAccountDiscussEnum,
+    instanceId,
+    loading,
+    portalNotHasDiscuss,
+    sideVisible,
+    workId,
+    worksheetId,
+  ]);
+  useEffect(() => {
+    updateDiscussCountRef.current = updateDiscussCount;
+  }, [updateDiscussCount]);
+
+  useLayoutEffect(() => {
+    discussionCountReqId.current += 1;
+    rowId.current = recordId;
+  }, [
+    allowExAccountDiscuss,
+    discussVisible,
+    exAccountDiscussEnum,
+    instanceId,
+    loading,
+    portalNotHasDiscuss,
+    recordId,
+    sideVisible,
+    workId,
+    worksheetId,
+  ]);
 
   useEffect(() => {
-    rowId.current = recordId;
-
     if (!isOpenNewAddedRecord) {
       loadDiscussionsCount();
     }
-  }, [recordId, props.allowExAccountDiscuss]);
-  useEffect(() => {
-    setIsFavorite(_.get(props, 'recordinfo.isFavorite'));
-  }, [_.get(props, 'recordinfo.isFavorite'), recordId]);
+  }, [isOpenNewAddedRecord, loadDiscussionsCount, recordId]);
   useEffect(() => {
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
 
@@ -199,30 +261,24 @@ export default function InfoHeader(props) {
     return () => {
       emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
-  }, []);
+  }, [loadDiscussionsCount, worksheetId, worksheetInfo]);
   let header = renderHeader && renderHeader({ ...recordinfo, isLoading: refreshRotating, onRefresh, isRecordLock });
 
-  if (viewId) {
+  if (viewId && from !== RECORD_INFO_FROM.DRAFT) {
     header = null;
   } // 展开 收起 右侧按钮
 
   const sideBarBtn = () => {
     return (
       <SideBarIcon className="Hand hoverColorPrimary" onClick={onSideIconClick}>
-        <Tooltip
-          title={sideVisible ? _l('收起') : _l('展开')}
-          placement="bottom"
-          align={{
-            offset: [0, 0],
-          }}
-        >
+        <Tooltip title={sideVisible ? _l('收起') : _l('展开')} placement="bottom">
           <span>
             <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
           </span>
         </Tooltip>
-        {!sideVisible && !!discussCount && (
+        {!sideVisible && !!displayDiscussCount && (
           <span className="discussCount">
-            {discussCount > 99 ? '99+' : discussCount}
+            {displayDiscussCount > 99 ? '99+' : displayDiscussCount}
             <span className="text">{_l('条讨论')}</span>
           </span>
         )}
@@ -245,14 +301,7 @@ export default function InfoHeader(props) {
     return notDialog ? (
       btn
     ) : (
-      <Tooltip
-        title={_l('关闭')}
-        placement="bottom"
-        align={{
-          offset: [0, 0],
-        }}
-        shortcut={'Esc'}
-      >
+      <Tooltip title={_l('关闭')} placement="bottom" shortcut={'Esc'}>
         {btn}
       </Tooltip>
     );
@@ -288,7 +337,7 @@ export default function InfoHeader(props) {
     }
 
     favCom.then(res => {
-      setIsFavorite(!isFavorite);
+      setFavoriteOverride({ recordId, baseValue: recordinfo.isFavorite, value: !isFavorite });
       favCom = null;
 
       if (res) {
@@ -318,13 +367,7 @@ export default function InfoHeader(props) {
       </IconBtn>
     );
     return (
-      <Tooltip
-        title={isFavorite ? _l('取消收藏') : _l('收藏')}
-        placement="bottom"
-        align={{
-          offset: [0, 0],
-        }}
-      >
+      <Tooltip title={isFavorite ? _l('取消收藏') : _l('收藏')} placement="bottom">
         {btn}
       </Tooltip>
     );
@@ -365,13 +408,7 @@ export default function InfoHeader(props) {
               onRefresh();
             }}
           >
-            <Tooltip
-              title={_l('刷新')}
-              placement="bottom"
-              align={{
-                offset: [0, 0],
-              }}
-            >
+            <Tooltip title={_l('刷新')} placement="bottom">
               <i className="icon icon-task-later" />
             </Tooltip>
           </span>
@@ -428,14 +465,15 @@ export default function InfoHeader(props) {
               </div>
             )}
           {!isPublicShare && (
-            <PrintList
-              type={1}
+            <RecordPrintButton
               isCharge={isCharge || printCharge}
               {..._.pick(recordbase, ['appId', 'workId', 'instanceId', 'worksheetId', 'viewId', 'recordId'])}
               projectId={projectId}
               controls={_.get(recordinfo, 'formData') || []}
-              sheetSwitchPermit={sheetSwitchPermit}
-              onItemClick={() => {}}
+              printCountEnabled={
+                getFeatureStatus(projectId, VersionProductType.printCountLimit) !== '2' &&
+                _.get(worksheetInfo, 'advancedSetting.print_count_enabled') === '1'
+              }
             />
           )}
           {showFav && favBtn()}
@@ -458,10 +496,11 @@ export default function InfoHeader(props) {
             />
           )}
           {!notDialog && closeBtn()}
-
-          {isPublicRecordLand && !_.get(window, 'shareState.isPublicPage') && (
-            <PublicAppLangDropdown className="mRight16" appId={recordbase.appId} projectId={projectId} />
-          )}
+          {isPublicRecordLand &&
+            !_.get(window, 'shareState.isPublicPage') &&
+            !_.get(window, 'shareState.isPublicView') && (
+              <PublicAppLangDropdown className="mRight16" appId={recordbase.appId} projectId={projectId} />
+            )}
           {isPublicRecordLand && _.get(view, 'viewType') !== 6 && <CreateByMingDaoYun />}
         </div>
       )}

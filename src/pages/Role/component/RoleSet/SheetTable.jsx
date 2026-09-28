@@ -2,15 +2,19 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import RoleSetTool from 'src/pages/Role/component/RoleSet/TooltipSetting';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
 import ViewGroup from './ViewGroup';
 
 const Wrap = styled.div`
   flex: 52;
 `;
+
+const VIEW_AUTH_CHECKBOX_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 export const changeSheetModel = (sheet, type, checked) => {
   const KEYS = {
@@ -171,7 +175,7 @@ export default class extends PureComponent {
               });
             }}
           >
-            <div className={classNames('boxSizing TxtLeft Hand  flexRow w35')} title={sheet.sheetName}>
+            <div className={classNames('boxSizing TxtLeft Hand flexRow alignItemsCenter w35')} title={sheet.sheetName}>
               <span className={classNames(sheet.sheetId && viewList && viewList.length ? 'pLeft5' : 'pLeft25')}></span>
               {!!(sheet.sheetId && viewList && viewList.length) && (
                 <Icon
@@ -211,27 +215,32 @@ export default class extends PureComponent {
             <Wrap className="con flexRow">
               {sheet.sheetId ? (
                 AUTH.map((item, index) => (
-                  <div key={index} className={'viewSettingItem'} style={{ height: 45 }}>
+                  <div
+                    key={index}
+                    className={'viewSettingItem'}
+                    style={{ height: 45 }}
+                    onClick={event => event.stopPropagation()}
+                  >
                     <Checkbox
-                      className="InlineBlock"
                       checked={
                         item.key === 'ADD' ? (readSize <= 0 ? false : sheet.canAdd) : item.size === viewList.length
                       }
-                      clearselected={item.key !== 'ADD' && item.size > 0 && item.size !== viewList.length}
-                      onClick={(checked, value, event) => {
-                        this.toggleViewAuth(item.key, !checked);
-                        event.stopPropagation();
-                      }}
-                    />
-                    {!!item.size && <div>{item.size === viewList.length ? _l('全部') : _l('%0个', item.size)}</div>}
+                      indeterminate={item.key !== 'ADD' && item.size > 0 && item.size !== viewList.length}
+                      styles={VIEW_AUTH_CHECKBOX_STYLES}
+                      onChange={event => this.toggleViewAuth(item.key, event.target.checked)}
+                    >
+                      {item.size ? (
+                        <span>{item.size === viewList.length ? _l('全部') : _l('%0个', item.size)}</span>
+                      ) : null}
+                    </Checkbox>
                   </div>
                 ))
               ) : (
                 <div className={'viewSettingItem'} style={{ height: 45 }}>
                   <Checkbox
-                    className="InlineBlock"
                     checked={sheet.checked}
-                    onClick={() =>
+                    onClick={event => event.stopPropagation()}
+                    onChange={() =>
                       updateLookPages(sheet.pageId || sheet.id, !sheet.checked, sheet?.pageId ? 'pages' : 'chatbots')
                     }
                   />
@@ -257,8 +266,8 @@ export default class extends PureComponent {
                       <div className={'viewSettingItem'} style={{ height: 45 }}>
                         <Checkbox
                           checked={view.canRead}
-                          className="InlineBlock"
-                          onClick={checked => {
+                          onChange={event => {
+                            const checked = !event.target.checked;
                             const payload = checked
                               ? {
                                   canEdit: false,
@@ -275,9 +284,8 @@ export default class extends PureComponent {
                       <div className={'viewSettingItem'} style={{ height: 45 }}>
                         <Checkbox
                           checked={view.canEdit}
-                          className="InlineBlock"
-                          onClick={checked => {
-                            const payload = checked
+                          onChange={event => {
+                            const payload = !event.target.checked
                               ? {
                                   canEdit: false,
                                   canRead: true,
@@ -293,9 +301,8 @@ export default class extends PureComponent {
                       <div className={'viewSettingItem'} style={{ height: 45 }}>
                         <Checkbox
                           checked={view.canRemove}
-                          className="InlineBlock"
-                          onClick={checked => {
-                            const payload = checked
+                          onChange={event => {
+                            const payload = !event.target.checked
                               ? {
                                   canRemove: false,
                                   canRead: true,

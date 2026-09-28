@@ -2,12 +2,15 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, SvgIcon, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Button, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
 import loadAiImg from 'src/pages/worksheet/assets/aiLoad.png';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
 
-const AIActionDialogWrap = styled(Dialog)`
+const REMARK_TEXTAREA_STYLE = { minHeight: 100 };
+
+const AIActionDialogWrap = styled(Modal)`
   .aiContentWrap {
     height: 130px;
   }
@@ -94,22 +97,29 @@ const AIActionDialogWrap = styled(Dialog)`
     background: var(--color-background-secondary) !important;
   }
 
-  .mui-dialog-footer {
+  .hap-modal-footer {
     .createBtn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       width: 100% !important;
-      border-radius: 3px !important;
-      line-height: 36px;
-      min-height: 36px;
     }
   }
   .icon-refresh1 {
-    vertical-align: text-bottom;
     &:hover {
       color: var(--color-link-hover) !important;
     }
+  }
+  .aiSuggestionTitle {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    line-height: 24px;
+  }
+  .aiSuggestionRefresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
   }
 `;
 
@@ -146,11 +156,7 @@ export default function CreateAIDialog(props) {
         <div className="flexRow mBottom10 alignItemsCenter">
           {item.icon ? (
             <div className="iconCon mRight5">
-              <SvgIcon
-                url={`https://fp1.mingdaoyun.cn/customIcon/${item.icon}.svg`}
-                size={20}
-                fill="var(--app-primary-color)"
-              />
+              <SvgIcon url={getCustomIconUrl(item.icon)} size={20} fill="var(--app-primary-color)" />
             </div>
           ) : null}
           <div className="summary bold ellipsis">{item.summary}</div>
@@ -186,51 +192,51 @@ export default function CreateAIDialog(props) {
   return (
     <AIActionDialogWrap
       width={width || 800}
-      visible={visible}
-      title={title}
-      description={description}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
+      title={
+        <Fragment>
+          <div>{title}</div>
+          {description && <div className="Font13 Normal textSecondary mTop8">{description}</div>}
+        </Fragment>
+      }
       okDisabled={okDisabled || !!name}
-      showCancel={false}
       onOk={() => onOk(true)}
       onCancel={onCancel}
       footer={
         <Button
+          type="primary"
+          loading={generateLoading}
           disabled={okDisabled || !!name}
-          className={cx('createBtn', {
-            disabled: generateLoading || okDisabled || !!name,
-          })}
+          className="createBtn"
           onClick={() => onOk(true)}
         >
-          {generateLoading ? (
-            <Fragment>
-              <LoadingDots className="loadingDots" dotNumber={3} />
-              <span className="mLeft3"> {_l('生成中')}</span>
-            </Fragment>
-          ) : (
-            okText || _l('创建')
-          )}
+          {generateLoading ? _l('生成中') : okText || _l('创建')}
         </Button>
       }
     >
       <div className="bold mBottom10">{customTitle}</div>
       <div className="customDescription textSecondary Font13 mBottom16">{customDescription}</div>
-      <Textarea
+      <Input.TextArea
+        autoSize
         autoFocus
         className={cx('w100 Font13', { textAreaDisabled: !!name || generateLoading })}
-        minHeight={100}
+        style={REMARK_TEXTAREA_STYLE}
         value={customRemark}
         placeholder={placeholder}
         disabled={!!name}
-        onChange={remark => {
+        onChange={event => {
+          const remark = event.target.value;
           setCustomRemark(remark);
           updateData({ remark });
         }}
       />
       <div className="line"></div>
-      <div className="mBottom10">
+      <div className="aiSuggestionTitle mBottom10">
         <span className="bold">{aiTitle}</span>
         <Tooltip title={_l('重新生成')}>
-          <Icon icon="refresh1" className="textTertiary Font16 pointer mLeft10" onClick={refresh} />
+          <Icon icon="refresh1" className="aiSuggestionRefresh textTertiary Font16 pointer mLeft10" onClick={refresh} />
         </Tooltip>
       </div>
       <div className="aiContentWrap overflowHidden Relative">

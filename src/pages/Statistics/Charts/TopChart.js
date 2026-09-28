@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, ScrollView, UserCard } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ScrollView, UserCard } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import copper_crown from 'statistics/assets/topChart/copper_crown.png';
 import copper_medal from 'statistics/assets/topChart/copper_medal.png';
 import gold_crown from 'statistics/assets/topChart/gold_crown.png';
@@ -17,6 +16,7 @@ import there from 'statistics/assets/topChart/there.png';
 import two from 'statistics/assets/topChart/two.png';
 import { isFormatNumber } from 'statistics/common/controlUtils';
 import { formatSummaryName } from 'statistics/common/reportDataUtils';
+import { chartContextMenuProps, getChartContextMenuItems } from './ChartContextMenu';
 import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 
 const formatTopChartData = map => {
@@ -80,9 +80,9 @@ const TopChartContent = styled.div`
     text-align: right;
   }
   .valueProgressWrap {
-    flex: ${props => (props.yaxisListLength === 1 ? 2 : 1)}
+    flex: ${props => (props.$yaxisListLength === 1 ? 2 : 1)};
     height: 12px;
-    background-color: ${props => (props.isDark ? '#ffffff99' : '#efedee')}
+    background-color: ${props => (props.$isDark ? '#ffffff99' : '#efedee')};
     border-radius: 2px;
     overflow: hidden;
     .progress {
@@ -97,7 +97,7 @@ const TopChartContent = styled.div`
     flex: 2;
   }
   .item:hover {
-    background-color: ${props => (props.isDark ? '#ffffff1a' : '#f7f7f7')}
+    background-color: ${props => (props.$isDark ? '#ffffff1a' : '#f7f7f7')};
   }
   .top {
     width: 20px;
@@ -283,24 +283,15 @@ export default class extends Component {
 
     return <span>{index}</span>;
   }
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   renderHeader() {
     const { xaxes, yaxisList, style = {} } = this.props.reportData;
     const { valueProgressVisible } = style;
@@ -418,7 +409,11 @@ export default class extends Component {
     const values = data.map(data => Number(data[progressControlId])).filter(value => Number.isFinite(value));
     const maxValue = _.max(values) || 0;
     return (
-      <TopChartContent className={cx('h100 topChart', { isMobile })} isDark={isDark} yaxisListLength={yaxisList.length}>
+      <TopChartContent
+        className={cx('h100 topChart', { isMobile })}
+        $isDark={isDark}
+        $yaxisListLength={yaxisList.length}
+      >
         <ScrollView>
           <Fragment>
             {yaxisList.length > 1 && this.renderHeader(isDark)}
@@ -436,13 +431,17 @@ export default class extends Component {
     return (
       <div className="flex flexColumn chartWrapper minHeight0 topChart Relative" ref={el => (this.chartWrapEl = el)}>
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ width: 1, height: 1, left: offset.x, top: offset.y }}></div>
         </Dropdown>

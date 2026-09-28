@@ -7,13 +7,14 @@ export const BillInfoWrap = styled.div`
   flex-direction: column;
   .billInfoHeader {
     .title {
-      color: 'var(--color-text-title)';
+      color: var(--color-text-title);
       font-size: 17px;
       font-weight: 600;
     }
     .invoiceSetting {
       color: var(--color-primary);
       margin: 0 8px;
+      font-size: 15px;
     }
   }
   .accountInfo {
@@ -22,7 +23,7 @@ export const BillInfoWrap = styled.div`
     i,
     .balance {
       color: var(--color-primary);
-      margin: 0 8px;
+      margin-right: 8px;
     }
     .eyeIcon {
       width: 20px;
@@ -37,31 +38,6 @@ export const BillInfoWrap = styled.div`
         background: var(--color-background-hover);
       }
     }
-    .recharge,
-    .warningBtn {
-      display: inline-block;
-      height: 24px;
-      line-height: 24px;
-      background-color: var(--color-primary);
-      color: var(--color-white);
-      font-size: 12px;
-      padding: 0 16px;
-      border-radius: 3px;
-      &:hover {
-        background-color: var(--color-link-hover);
-      }
-    }
-    .warningBtn {
-      background-color: var(--color-background-primary);
-      border: 1px solid var(--color-primary);
-      line-height: 22px;
-      color: var(--color-primary);
-      &:hover {
-        background-color: var(--color-background-primary);
-        border: 1px solid var(--color-link-hover);
-        color: var(--color-link-hover);
-      }
-    }
   }
   .emptyList {
     text-align: center;
@@ -72,15 +48,14 @@ export const BillInfoWrap = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 24px;
+    margin-top: 12px;
     .recordType {
       display: flex;
       li {
         border-bottom: 2px solid transparent;
         transition: all 0.25s;
-        line-height: 36px;
+        line-height: 44px;
         cursor: pointer;
-        padding: 6px;
         &.active,
         &:hover {
           border-bottom-color: var(--color-primary);
@@ -113,13 +88,6 @@ export const BillInfoWrap = styled.div`
       }
     }
 
-    .exportBtn {
-      cursor: pointer;
-      &.disabledExportBtn {
-        cursor: not-allowed;
-      }
-    }
-
     .switchPage {
       cursor: pointer;
       display: flex;
@@ -141,12 +109,9 @@ export const BillInfoWrap = styled.div`
     .item {
       text-align: left;
       width: 10%;
-      .ming.Dropdown .Dropdown--input {
-        padding: 0;
-      }
     }
     .time {
-      width: 140px;
+      width: 160px;
     }
     .type {
       width: 24%;
@@ -183,7 +148,7 @@ export const BillInfoWrap = styled.div`
         width: 10%;
       }
       .time {
-        width: 140px;
+        width: 160px;
       }
       .type {
         width: 24%;
@@ -203,9 +168,6 @@ export const BillInfoWrap = styled.div`
 
       .billStatus {
         padding: 0 5px;
-        .ming.Menu {
-          width: 100px;
-        }
       }
       .rechargeType {
         flex: 1;
@@ -222,14 +184,6 @@ export const BillInfoWrap = styled.div`
         vertical-align: baseline;
       }
     }
-  }
-
-  .goToPay {
-    padding: 0 12px;
-    background-color: var(--color-warning);
-    color: var(--color-white);
-    line-height: 24px;
-    border-radius: 12px;
   }
 
   .recordItem {
@@ -283,26 +237,3 @@ export const BillInfoWrap = styled.div`
     }
   }
 `;
-export const AccountIdOperation = styled.ul`
-  padding: 6px 0;
-  border-radius: 3px;
-  min-width: 120px;
-  background-color: var(--color-background-primary);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-  position: relative;
-  input {
-    /* display: none; */
-  }
-  li {
-    padding: 0 24px;
-    cursor: pointer;
-    line-height: 36px;
-    transition: all 0.25s;
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-`;
-
-export const DatePickerFilterWrap = styled(AccountIdOperation)``;

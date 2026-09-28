@@ -1,0 +1,134 @@
+.externalUserDialog {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+
+  .GSelect-container {
+    flex: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-top: 12px;
+  }
+
+  .GSelect-User {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding-right: 20px;
+    padding-left: 8px;
+    line-height: 40px;
+    vertical-align: middle;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--color-background-hover);
+      border-radius: 3px;
+    }
+
+    &__avatar {
+      margin-right: 12px;
+      margin-left: 16px;
+
+      img {
+        width: 28px;
+        height: 28px;
+        vertical-align: top;
+        border-radius: 50%;
+      }
+    }
+
+    &__fullname {
+      width: 180px;
+      padding-right: 10px;
+      overflow: hidden;
+      font-size: 14px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    &__companyName {
+      width: 260px;
+      padding-left: 10px;
+      overflow: hidden;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .GSelect-result {
+    box-sizing: border-box;
+    height: auto;
+    max-height: 110px;
+    padding-top: 12px;
+    padding-left: 10px;
+    overflow-y: auto;
+
+    &-box {
+      display: flex;
+      flex-wrap: wrap;
+      padding-top: 8px;
+    }
+
+    &-subItem {
+      position: relative;
+      display: inline-block;
+      height: 28px;
+      margin-right: 10px;
+      margin-bottom: 8px;
+      padding-right: 2px;
+      background: var(--color-background-tertiary);
+      border-radius: 20px;
+      cursor: default;
+
+      &__avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        overflow: hidden;
+        vertical-align: top;
+        border-radius: 50%;
+
+        .avatarBox,
+        img {
+          display: block;
+        }
+      }
+
+      &__name {
+        display: inline-block;
+        max-width: 95px;
+        margin-left: 8px;
+        line-height: 28px;
+        vertical-align: top;
+      }
+
+      &__remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin: 3px;
+        color: var(--color-text-tertiary);
+        font-size: 13px;
+        vertical-align: top;
+        background: var(--color-background-secondary);
+        border-radius: 50%;
+        cursor: pointer;
+
+        .Icon {
+          margin-top: 2px;
+        }
+
+        &:hover {
+          color: var(--color-primary);
+          background-color: var(--color-background-primary);
+        }
+      }
+    }
+  }
+}

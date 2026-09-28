@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu } from 'antd';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
+import { Select } from 'ming-ui/antd-components';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const SELECT_STYLE = { width: '100%' };
 
 export default class DropDownItem extends Component {
   static propTypes = {
@@ -17,66 +19,33 @@ export default class DropDownItem extends Component {
       value: this.props.value,
     };
   }
-  getTextByValue(key, value) {
-    const { dropDownData } = this.props;
-    let result;
-    dropDownData.forEach(item => {
-      if (item.value === value) {
-        result = item[key] || '';
-      }
-    });
-    return result;
-  }
   render() {
     const { className, listWidth, dropDownData, onChange } = this.props;
     const { value } = this.state;
-
-    const menu = (
-      <Menu
-        selectedKeys={[value.toString()]}
-        className="excelControlDropDownList"
-        style={{ width: listWidth }}
-        onClick={e => {
-          const value = Number(e.key) || '';
-          this.setState({ value });
-          onChange(value);
-        }}
-      >
-        {dropDownData.map(item => {
-          return (
-            <Menu.Item key={item.value} className="ellipsis">
-              {item.text}
-            </Menu.Item>
-          );
-        })}
-      </Menu>
-    );
+    const selectedItem = dropDownData.find(item => item.value === value);
 
     return (
-      <Dropdown
-        overlay={menu}
-        trigger={['click']}
-        align={{ overflow: { adjustY: true } }}
-        className={cx(className, 'excelControlDropDown')}
-      >
-        <div className="fixedDropdownSelected">
-          <span className="contentLabel">
-            <span className="dropDownLabel TxtBottom">
-              {value ? (
-                <span className="valueText">{this.getTextByValue('text', value)}</span>
-              ) : (
-                <span className="valueText textTertiary">{_l('请选择')}</span>
-              )}
-              <span className="preViewContent textTertiary mLeft12">
-                {value ? this.getTextByValue('previewContent', value) : ''}
-              </span>
-            </span>
-            <span className="Right mLeft10 mRight10">
-              <i className="icon-arrow-down-border textTertiary Font14" />
-            </span>
+      <Select
+        className={className}
+        style={SELECT_STYLE}
+        allowClear
+        value={value || undefined}
+        options={dropDownData}
+        fieldNames={SELECT_FIELD_NAMES}
+        listHeight={220}
+        popupMatchSelectWidth={listWidth}
+        labelRender={() => (
+          <span>
+            {selectedItem?.text}
+            <span className="textTertiary mLeft12">{selectedItem?.previewContent}</span>
           </span>
-        </div>
-      </Dropdown>
+        )}
+        onChange={value => {
+          const nextValue = value || '';
+          this.setState({ value: nextValue });
+          onChange(nextValue);
+        }}
+      />
     );
   }
 }

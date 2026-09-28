@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Input } from 'ming-ui/antd-components';
 import { FIELD_TYPE_LIST } from '../../../enum';
 
 const Box = styled.div`
@@ -54,15 +55,12 @@ const Box = styled.div`
         &:last-child {
           border: none;
         }
-        input {
-          width: 100%;
-          border: none;
-          height: 40px;
-        }
       }
     }
   }
 `;
+
+const CONTROL_INPUT_STYLE = { height: 40 };
 
 const ErrorTips = styled.div`
   position: absolute;
@@ -136,8 +134,9 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
               {_.find(FIELD_TYPE_LIST, o => o.value === obj.type).text}
             </div>
             <div className="pLeft15 pRight15 w180">
-              <input
-                type="text"
+              <Input
+                variant="borderless"
+                style={CONTROL_INPUT_STYLE}
                 placeholder={_l('请输入别名')}
                 value={obj.alias}
                 onFocus={e => e.target.select()}
@@ -196,8 +195,9 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
             </div>
             <div className="pLeft15 pRight15 flex">
               {!_.includes([10000003, 10000008], obj.type) ? (
-                <input
-                  type="text"
+                <Input
+                  variant="borderless"
+                  style={CONTROL_INPUT_STYLE}
                   placeholder={_l('请输入参考值')}
                   value={obj.value}
                   onFocus={e => e.target.select()}

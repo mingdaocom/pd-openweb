@@ -7,7 +7,7 @@ import { Icon, Textarea } from 'ming-ui';
 import discussionAjax from 'src/api/discussion';
 import externalPortalAjax from 'src/api/externalPortal';
 import SelectUser from 'mobile/components/SelectUser';
-import { getCaretPosition, setCaretPosition } from 'src/utils/common';
+import { getCaretPosition, setCaretPosition } from 'src/utils/platform/browser/dom';
 import AttachmentFiles, { UploadFileWrapper } from '../components/AttachmentFiles';
 import './index.less';
 

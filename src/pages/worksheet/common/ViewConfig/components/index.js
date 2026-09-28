@@ -13,6 +13,7 @@ export { default as DebugConfig } from './DebugConfig';
 export { default as PluginSettings } from './PluginSettings';
 export { default as SubmitConfig } from './Submit';
 export { default as ParameterSet } from './ParameterSet';
+export { default as FieldDeclaration } from './FieldDeclaration';
 export { default as ResourceSet } from './ResourceSet';
 export { default as SideNav } from './SideNav';
 export { default as ViewFilter } from './Filter';

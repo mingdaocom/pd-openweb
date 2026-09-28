@@ -3,28 +3,17 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import {
-  Button,
-  Dialog,
-  Dropdown,
-  Icon,
-  Input,
-  LoadDiv,
-  ScrollView,
-  Switch,
-  Textarea,
-  UserHead,
-  VerifyPasswordConfirm,
-} from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Input, Modal, Select, Switch } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import groupAjax from 'src/api/group';
 import invitationController from 'src/api/invitation';
 import addFriends from 'src/components/addFriends';
-import { checkPermission } from 'src/components/checkPermission';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { existAccountHint } from 'src/utils/inviteCommon';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { existAccountHint } from 'src/utils/services/inviteCommon';
+import { checkPermission } from 'src/utils/services/security/permission';
 import SelectAvatarTrigger from '../createGroup/SelectAvatarTrigger';
 import { BUTTONS, GROUP_INFOS, USER_ACTION_AJAX, USER_ACTION_MAP, USER_ACTIONS, USER_ACTIONS_MAP } from './config';
 import QrPopup from './QrPopup';
@@ -39,9 +28,10 @@ const ActionResult = {
 };
 const PAGE_SIZE = 30;
 
-const SettingDialog = styled(Dialog)`
-  background: var(--color-background-secondary) !important;
-`;
+const SETTING_MODAL_STYLES = {
+  header: { background: 'transparent' },
+  container: { background: 'var(--color-background-secondary)' },
+};
 
 const ContentWrap = styled.div`
   .group-card {
@@ -127,13 +117,6 @@ const ContentWrap = styled.div`
         padding-left: 16px;
       }
     }
-    input {
-      border: none !important;
-      background: var(--color-background-primary) !important;
-      padding: 0 16px !important;
-      border-radius: 6px !important;
-      height: 46px !important;
-    }
     .userList {
       flex-wrap: wrap;
       overflow: hidden;
@@ -157,11 +140,6 @@ const ContentWrap = styled.div`
   }
 `;
 
-const AboutTextarea = styled(Textarea)`
-  background: var(--color-background-primary) !important;
-  border-radius: 6px !important;
-`;
-
 const UserDialogContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -178,9 +156,6 @@ const UserDialogContent = styled.div`
       display: flex;
       align-items: center;
       padding: 0 16px;
-      input {
-        border: none !important;
-      }
     }
     .userList {
       flex: 1;
@@ -202,18 +177,13 @@ const UserDialogContent = styled.div`
     .action {
       text-align: right;
       width: 120px;
-      .Dropdown--input {
-        padding: 0 !important;
-      }
     }
-  }
-  .ming.Dropdown.disabled {
-    background-color: transparent;
   }
 `;
 
 function SettingGroup(props) {
   const { visible, groupID, isApprove = false, onClose, success = () => {} } = props;
+  const [modal, modalContextHolder] = Modal.useModal();
 
   let moreUserLoading = false;
   const [groupInfo, setState] = useSetState({
@@ -426,9 +396,9 @@ function SettingGroup(props) {
   const onClickButton = item => {
     switch (item.key) {
       case 0:
-        Dialog.confirm({
+        modal.confirm({
           title: _l('是否确认关闭群组？'),
-          description: (
+          content: (
             <div>
               {_l('关闭群组后，群组将不能被访问')}
               <br />
@@ -444,11 +414,12 @@ function SettingGroup(props) {
         });
         break;
       case 1:
-        Dialog.confirm({
-          title: _l('是否确认解散？'),
-          description: groupInfo.isPost
+        modal.confirm({
+          title: <span className="textError">{_l('是否确认解散？')}</span>,
+          content: groupInfo.isPost
             ? _l('群组解散后，将永久删除该群组。不可恢复')
             : _l('聊天解散后，将永久删除该聊天。不可恢复'),
+          okButtonProps: { danger: true },
           onOk: () => {
             VerifyPasswordConfirm.confirm({
               isRequired: true,
@@ -458,11 +429,10 @@ function SettingGroup(props) {
         });
         break;
       case 2:
-        Dialog.confirm({
-          title: _l('是否确认退出？'),
-          description: groupInfo.isPost
-            ? _l('退出群组后，您将不能进入这个群组')
-            : _l('退出聊天后，您将不能进入这个聊天'),
+        modal.confirm({
+          title: <span className="textError">{_l('是否确认退出？')}</span>,
+          content: groupInfo.isPost ? _l('退出群组后，您将不能进入这个群组') : _l('退出聊天后，您将不能进入这个聊天'),
+          okButtonProps: { danger: true },
           onOk: () => {
             updateGroup({}, 10, undefined, true);
           },
@@ -607,17 +577,10 @@ function SettingGroup(props) {
   };
 
   const renderOrg = () => {
-    const projects = _.get(md, 'global.Account.projects', []).map(l => ({ value: l.projectId, text: l.companyName }));
+    const projects = _.get(md, 'global.Account.projects', []).map(l => ({ value: l.projectId, label: l.companyName }));
 
     return (
-      <Dropdown
-        border
-        isAppendToBody
-        className="w100"
-        value={groupInfo.chatOrgId}
-        data={projects}
-        onChange={val => onSelectProject(val)}
-      />
+      <Select className="w100" value={groupInfo.chatOrgId} options={projects} onChange={val => onSelectProject(val)} />
     );
   };
 
@@ -684,10 +647,10 @@ function SettingGroup(props) {
       case 'name':
         return (
           <Input
-            className="w100"
+            className="w100 bgPrimary Border0"
             value={groupInfo.name}
             disabled={!groupInfo.isAdmin}
-            onChange={value => setState({ name: value })}
+            onChange={event => setState({ name: event.target.value })}
             onBlur={updateName}
           />
         );
@@ -724,7 +687,15 @@ function SettingGroup(props) {
                       className="mRight8"
                       disabled={!groupInfo.isAdmin}
                       checked={!groupInfo.isHidden}
-                      onClick={() => updateGroup({ isHidden: !groupInfo.isHidden }, 4)}
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
+                        return updateGroup(
+                          {
+                            isHidden: !groupInfo.isHidden,
+                          },
+                          4,
+                        );
+                      }}
                     />
                     <span>{_l('在组织通讯录下显示当前群组')}</span>
                   </div>
@@ -736,7 +707,15 @@ function SettingGroup(props) {
                     className="mRight8"
                     disabled={!groupInfo.isAdmin}
                     checked={groupInfo.isForbidInvite}
-                    onClick={() => updateGroup({ isForbidInvite: !groupInfo.isForbidInvite }, 5)}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return updateGroup(
+                        {
+                          isForbidInvite: !groupInfo.isForbidInvite,
+                        },
+                        5,
+                      );
+                    }}
                   />
                   <span>{_l('仅允许群主及管理员邀请新成员')}</span>
                 </div>
@@ -748,7 +727,10 @@ function SettingGroup(props) {
                         className="mRight8"
                         disabled={!groupInfo.isAdmin}
                         checked={groupInfo.isVerified}
-                        onClick={handleVerified}
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
+                          return handleVerified(!checked, event);
+                        }}
                       />
                       <span className="mRight8">{_l('关联部门')}</span>
                       {groupInfo.isVerified && groupInfo.mapDepartmentName && (
@@ -772,7 +754,15 @@ function SettingGroup(props) {
                     className="mRight8"
                     disabled={!groupInfo.isAdmin}
                     checked={groupInfo.isApproval}
-                    onClick={() => updateGroup({ isApproval: !groupInfo.isApproval }, 7)}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return updateGroup(
+                        {
+                          isApproval: !groupInfo.isApproval,
+                        },
+                        7,
+                      );
+                    }}
                   />
                   <span>{_l('新成员加入需要管理员验证')}</span>
                 </div>
@@ -786,7 +776,15 @@ function SettingGroup(props) {
                 size="small"
                 className="mRight8"
                 checked={!groupInfo.isPushNotice}
-                onClick={() => updateGroup({ isPushNotice: !groupInfo.isPushNotice }, 11)}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return updateGroup(
+                    {
+                      isPushNotice: !groupInfo.isPushNotice,
+                    },
+                    11,
+                  );
+                }}
               />
               <span>{_l('消息免打扰')}</span>
             </div>
@@ -872,47 +870,35 @@ function SettingGroup(props) {
 
   const renderUserItem = user => {
     const DropdownCon = user.status ? (
-      <Dropdown
+      <Select
         className="action"
-        isAppendToBody
-        menuStyle={{ width: 'auto', minWidth: '120px' }}
-        points={['tr', 'br']}
+        variant="borderless"
         value={user.groupUserRole}
         disabled={!groupInfo.isAdmin}
-        data={USER_ACTIONS.filter(l => l.value !== user.groupUserRole)}
+        options={USER_ACTIONS.filter(l => l.value !== user.groupUserRole)}
         onChange={value => onClickUserAction(value, user)}
-        renderPointer={() => (
-          <span className="actioWrap">
-            <span>{USER_ACTIONS_MAP[user.groupUserRole]}</span>
-            <Icon icon="arrow-up-border1" className="Font14 textTertiary" />
-          </span>
-        )}
+        labelRender={() => USER_ACTIONS_MAP[user.groupUserRole]}
+        suffixIcon={<Icon icon="arrow-up-border1" className="Font14 textTertiary" />}
       />
     ) : (
-      <Dropdown
+      <Select
         className="action"
-        isAppendToBody
-        menuStyle={{ width: 'auto', minWidth: '120px' }}
-        points={['tr', 'br']}
+        variant="borderless"
         value={user.groupUserRole}
         disabled={!groupInfo.isAdmin}
-        data={[
+        options={[
           {
-            text: _l('允许'),
+            label: _l('允许'),
             value: 1,
           },
           {
-            text: _l('拒绝'),
+            label: _l('拒绝'),
             value: 0,
           },
         ]}
         onChange={value => onApplyUser(value, user)}
-        renderPointer={() => (
-          <span className="actioWrap">
-            <span>{_l('等待审批加入群组')}</span>
-            <Icon icon="arrow-up-border1" className="Font14 textTertiary" />
-          </span>
-        )}
+        labelRender={() => _l('等待审批加入群组')}
+        suffixIcon={<Icon icon="arrow-up-border1" className="Font14 textTertiary" />}
       />
     );
 
@@ -959,8 +945,10 @@ function SettingGroup(props) {
 
   const renderCovertPostDialog = () => {
     return (
-      <Dialog
-        visible={groupInfo.covertVisible}
+      <Modal
+        open={groupInfo.covertVisible}
+        mask={{ closable: true }}
+        keyboard
         title={_l('转换为长期群组')}
         okDisabled={groupInfo.covertOkDisabled}
         onOk={() => updateGroup({ projectId: groupInfo.chatOrgId, covertVisible: false }, 12, ['projectId'], true)}
@@ -973,7 +961,7 @@ function SettingGroup(props) {
           </div>
           <p className="mTop15 textSecondary">{_l('点选转换后，该长期群组将永久隶属于此组织，不可更改')}</p>
         </div>
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -981,8 +969,11 @@ function SettingGroup(props) {
     const userList = _.get(groupInfo, 'users.groupUsers', []);
     const loading = groupInfo.loading && groupInfo.userLoading;
     return (
-      <SettingDialog
-        visible={groupInfo.userDialogVisible}
+      <Modal
+        open={groupInfo.userDialogVisible}
+        mask={{ closable: true }}
+        keyboard
+        styles={SETTING_MODAL_STYLES}
         width={620}
         type="fixed"
         title={
@@ -1005,22 +996,24 @@ function SettingGroup(props) {
           <UserDialogContent>
             {(groupInfo.isAdmin ? true : !groupInfo.isForbidInvite) && (
               <div className="valignWrapper mBottom16">
-                <Button icon="add" className="mRight10" onClick={quickInviteEvent}>
+                <Button type="primary" icon={<Icon icon="add" />} className="mRight10" onClick={quickInviteEvent}>
                   {_l('添加成员')}
                 </Button>
-                <Button type="ghost" onClick={inviteFriends}>
+                <Button color="primary" variant="outlined" onClick={inviteFriends}>
                   {_l('更多邀请')}
                 </Button>
               </div>
             )}
             <div className="selectUsers minHeight0">
               <div className="searchWrap">
-                <Icon icon="search" className="mRight5 textSecondary" />
                 <Input
                   className="w100"
+                  variant="borderless"
+                  prefix={<Icon icon="search" className="textSecondary" />}
                   placeholder={_l('搜索')}
                   value={groupInfo.keywords}
-                  onChange={value => {
+                  onChange={event => {
+                    const value = event.target.value;
                     setState({ keywords: value, pageIndex: 1 });
                     debouncedSearch(value);
                   }}
@@ -1036,14 +1029,17 @@ function SettingGroup(props) {
             </div>
           </UserDialogContent>
         )}
-      </SettingDialog>
+      </Modal>
     );
   };
 
   const renderAboutDialog = () => {
     return (
-      <SettingDialog
-        visible={groupInfo.aboutDialogVisible}
+      <Modal
+        open={groupInfo.aboutDialogVisible}
+        mask={{ closable: true }}
+        keyboard
+        styles={SETTING_MODAL_STYLES}
         width={620}
         type="fixed"
         title={
@@ -1056,21 +1052,31 @@ function SettingGroup(props) {
         onCancel={onCloseAbout}
       >
         <div className="flexColumn h100">
-          <AboutTextarea
+          <Input.TextArea
             className="flex"
             value={groupInfo.about}
             disabled={!groupInfo.isAdmin}
             placeholder={_l('请输入群公告')}
-            onChange={value => setState({ about: value })}
+            onChange={event => setState({ about: event.target.value })}
           />
         </div>
-      </SettingDialog>
+      </Modal>
     );
   };
 
   return (
     <Fragment>
-      <SettingDialog visible={visible} width={620} title={_l('设置')} footer={null} onCancel={onClose}>
+      <Modal
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
+        styles={SETTING_MODAL_STYLES}
+        width={620}
+        title={_l('设置')}
+        footer={null}
+        onCancel={onClose}
+      >
+        {modalContextHolder}
         {groupInfo.loading && groupInfo.userLoading ? (
           <div style={{ height: 300 }} className="flexRow alignItemsCenter justifyContentCenter">
             <LoadDiv />
@@ -1082,7 +1088,7 @@ function SettingGroup(props) {
             {renderButtons()}
           </ContentWrap>
         )}
-      </SettingDialog>
+      </Modal>
       {renderUserDialog()}
       {renderAboutDialog()}
       {renderCovertPostDialog()}

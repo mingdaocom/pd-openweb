@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { Input, Menu } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
-import Input from 'ming-ui/components/Input';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
 import MapHandler from './MapHandler';
 import MapLoader from './MapLoader';
 import '../less/Amap.less';
 
-/**
- * 高德地图key = 9aedaf173cec6f03d4b9ce7c8a9159c5;
- */
 export default class Amap extends Component {
   static defaultProps = {
     mapTools: false,
@@ -212,31 +207,30 @@ export default class Amap extends Component {
   renderInput() {
     const { autoCompleteResult, autoCompleteVisible } = this.state;
     const { placeholder } = this.props;
+    const autoCompleteItems = (autoCompleteResult || [])
+      .filter(item => item.address && typeof item.address === 'string')
+      .map((item, index) => {
+        const { lat = '', lng = '' } = item.location || {};
+
+        return {
+          key: item.id || `${item.name || ''}-${item.address}-${lng}-${lat}-${index}`,
+          label: <span className="Amap-autocomplete-list-item">{item.address}</span>,
+          onClick: () => this.handleSelect(item),
+        };
+      });
+
     return (
       <div className="Amap-input">
-        <span className="Amap-input-search">
-          <Icon onClick={this.handleSearch} icon="search" className="Amap-input-search-icon" />
-        </span>
         <Input
+          variant="borderless"
+          prefix={<Icon onClick={this.handleSearch} icon="search" className="Amap-input-search-icon" />}
           placeholder={placeholder}
           value={this.state.searchStr}
           onKeyUp={this.handleKeydown}
-          onChange={this.handleChange}
+          onChange={event => this.handleChange(event.target.value)}
         />
-        {autoCompleteResult && autoCompleteResult.length && autoCompleteVisible ? (
-          <Menu className="Amap-autocomplete-list">
-            {autoCompleteResult.map((item, index) => {
-              if (item.address && typeof item.address === 'string') {
-                return (
-                  <MenuItem key={index} onClick={() => this.handleSelect(item)} className="Amap-autocomplete-list-item">
-                    {item.address}
-                  </MenuItem>
-                );
-              }
-
-              return null;
-            })}
-          </Menu>
+        {autoCompleteItems.length && autoCompleteVisible ? (
+          <Menu className="Amap-autocomplete-list" items={autoCompleteItems} selectable={false} />
         ) : null}
       </div>
     );

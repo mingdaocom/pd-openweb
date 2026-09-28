@@ -1,10 +1,11 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
-import { navigateTo } from 'router/navigateTo';
-import { Dialog, Icon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { navigateTo } from 'router/navigation/navigateTo';
+import { Icon } from 'ming-ui';
+import { Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './index.less';
 
 // 新用户加入企业必填字段
@@ -25,6 +26,7 @@ class DialogSettingInviteRules extends React.Component {
         userFillJobNumberEnabled: false, //工号
       },
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -56,8 +58,10 @@ class DialogSettingInviteRules extends React.Component {
   render() {
     const { showDialogSettingInviteRules, setValue, projectId, updateAllowProjectCodeJoin = () => {} } = this.props;
     return (
-      <Dialog
+      <Modal
         width={640}
+        mask={{ closable: true }}
+        keyboard
         title={_l('用户加入规则')}
         okText={_l('保存')}
         cancelText={_l('取消')}
@@ -68,7 +72,10 @@ class DialogSettingInviteRules extends React.Component {
           });
         }}
         onOk={() => {
-          projectSettingController
+          if (this.requestPending) return;
+
+          this.requestPending = true;
+          return projectSettingController
             .setPrivacys({
               projectId: this.props.projectId,
               settings: [
@@ -139,12 +146,15 @@ class DialogSettingInviteRules extends React.Component {
                     break;
                 }
               },
-              () => {
-                alert(_l('保存失败'), 2);
+              _requestError => {
+                alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
               },
-            );
+            )
+            .finally(() => {
+              this.requestPending = false;
+            });
         }}
-        visible={showDialogSettingInviteRules}
+        open={showDialogSettingInviteRules}
       >
         <div className="listBox">
           <h3>{_l('人员加入审核')}</h3>
@@ -154,7 +164,8 @@ class DialogSettingInviteRules extends React.Component {
                 <span>
                   <Switch
                     checked={this.state.userAuditEnabled}
-                    onClick={() => {
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
                       this.setState({
                         userAuditEnabled: !this.state.userAuditEnabled,
                       });
@@ -190,7 +201,8 @@ class DialogSettingInviteRules extends React.Component {
             <span className="iconBox">
               <Switch
                 checked={this.state.allowProjectCodeJoin}
-                onClick={() => {
+                onClick={(checked, event) => {
+                  event.stopPropagation();
                   this.setState({
                     allowProjectCodeJoin: !this.state.allowProjectCodeJoin,
                   });
@@ -222,7 +234,8 @@ class DialogSettingInviteRules extends React.Component {
                   <span>
                     <Switch
                       checked={this.state.userFillDepartmentEnabled}
-                      onClick={() => {
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
                         this.setState({
                           userFillDepartmentEnabled: !this.state.userFillDepartmentEnabled,
                         });
@@ -260,7 +273,8 @@ class DialogSettingInviteRules extends React.Component {
                   <span>
                     <Switch
                       checked={this.state.userFillJobEnabled}
-                      onClick={() => {
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
                         this.setState({
                           userFillJobEnabled: !this.state.userFillJobEnabled,
                         });
@@ -280,7 +294,8 @@ class DialogSettingInviteRules extends React.Component {
                   <span>
                     <Switch
                       checked={this.state.userFillWorkSiteEnabled}
-                      onClick={() => {
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
                         this.setState({
                           userFillWorkSiteEnabled: !this.state.userFillWorkSiteEnabled,
                         });
@@ -318,7 +333,8 @@ class DialogSettingInviteRules extends React.Component {
                   <span>
                     <Switch
                       checked={this.state.userFillJobNumberEnabled}
-                      onClick={() => {
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
                         this.setState({
                           userFillJobNumberEnabled: !this.state.userFillJobNumberEnabled,
                         });
@@ -334,7 +350,7 @@ class DialogSettingInviteRules extends React.Component {
             </div>
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

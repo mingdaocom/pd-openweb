@@ -3,15 +3,15 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import filterXss from 'xss';
-import { Button, Dialog, Icon, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, UserHead, UserName } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
 import roleController from 'src/api/role';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import PageTableCon from '../../components/PageTableCon';
 import SearchWrap from '../../components/SearchWrap';
 import { OPERATE_TYPE, ORG_LOG_OPERATOR, ORG_MANAGE_LOG_COLUMNS, PRIVATE_APP_WORKSHEET_LOG_COLUMNS } from '../enum';
@@ -40,6 +40,7 @@ export default class orgLog extends React.Component {
       pageSize: 20,
       totalCount: null,
       historyLogInfo: {},
+      searchResetKey: 0,
     };
     this.columns = columns.map(item => {
       return {
@@ -130,7 +131,7 @@ export default class orgLog extends React.Component {
     const { projectId } = _.get(this.props, 'match.params') || '';
     const { pageIndex = 1, pageSize = 50 } = params;
     const { searchValues = {} } = this.state;
-    const { orgLogOutDate = {}, selectUserInfo = [], operateTargetType, operateType } = searchValues;
+    const { orgLogOutDate = {}, selectUserInfo = [], operateTargetType, operateType, ip } = searchValues;
     const { startDate, endDate } = orgLogOutDate;
 
     this.setState({ isLoading: true });
@@ -147,6 +148,7 @@ export default class orgLog extends React.Component {
         operateTargetType,
         operateType,
         accountIds: selectUserInfo.map(item => item.accountId),
+        ip: _.trim(ip) || undefined,
       })
       .then(({ data } = {}) => {
         const { totalCount, list } = data || {};
@@ -168,7 +170,7 @@ export default class orgLog extends React.Component {
   // 导出
   exportListData = (param = {}) => {
     this.setState({ disabledExportBtn: true });
-    let { orgLogOutDate = {}, selectUserInfo = [], operateTargetType, operateType } = this.state.searchValues || {};
+    let { orgLogOutDate = {}, selectUserInfo = [], operateTargetType, operateType, ip } = this.state.searchValues || {};
     const { startDate, endDate } = orgLogOutDate;
     const { pageIndex } = this.state;
     const { pageSize = 50 } = param;
@@ -181,6 +183,7 @@ export default class orgLog extends React.Component {
       operateTargetType,
       operateType,
       accountIds: selectUserInfo.map(item => item.accountId),
+      ip: _.trim(ip) || undefined,
       columnNames: this.columns.map(it => it.title),
       fileName: _l('组织管理日志'),
     };
@@ -188,11 +191,14 @@ export default class orgLog extends React.Component {
     downloadAjax.exportOrgOperateLogs(params).then(res => {
       this.setState({ disabledExportBtn: false });
       if (!res) {
-        Dialog.confirm({
+        Modal.confirm({
           title: _l('数据导出超过100,000行，本次仅导出前100,000行记录'),
           okText: _l('导出'),
           onOk: () => {
-            downloadAjax.exportOrgOperateLogs({ ...params, confirmExport: true });
+            downloadAjax.exportOrgOperateLogs({
+              ...params,
+              confirmExport: true,
+            });
           },
         });
       }
@@ -231,9 +237,55 @@ export default class orgLog extends React.Component {
       totalCount,
       showHistoryLogs,
       historyLogInfo = {},
+      searchResetKey,
     } = this.state;
     const { operateTargetType, operateType } = searchValues;
     const { projectId } = _.get(this.props, 'match.params') || '';
+    const searchList = [
+      {
+        type: 'selectUser',
+        key: 'selectUserInfo',
+        label: _l('操作人'),
+        suffixIcon: <Icon icon="person" className="Font16" />,
+      },
+      {
+        type: 'select',
+        key: 'operateTargetType',
+        label: _l('操作对象'),
+        placeholder: _l('全部'),
+        allowClear: true,
+        value: operateTargetType,
+        options: ORG_LOG_OPERATOR,
+      },
+      {
+        type: 'select',
+        key: 'operateType',
+        label: _l('操作类型'),
+        placeholder: _l('全部'),
+        allowClear: true,
+        value: operateType,
+        options: OPERATE_TYPE,
+      },
+      {
+        type: 'selectTime',
+        key: 'orgLogOutDate',
+        label: _l('操作时间'),
+        placeholder: _l('最近30天'),
+        maxRange: window.platformENV.isOverseas || window.platformENV.isLocal ? { value: 6, unit: 'month' } : undefined,
+        timeMode: 'minute',
+        timePicker: true,
+        suffixIcon: <Icon icon="person" className="Font16" />,
+      },
+    ];
+
+    if (this.columns.some(item => item.dataIndex === 'ip')) {
+      searchList.splice(3, 0, {
+        type: 'input',
+        key: 'ip',
+        label: 'IP',
+        placeholder: _l('请输入IP'),
+      });
+    }
 
     const licenseType = (md.global.Account.projects.find(o => o.projectId === projectId) || {}).licenseType;
 
@@ -280,12 +332,14 @@ export default class orgLog extends React.Component {
             )}
             <i
               className="icon-task-later textTertiary hoverText mRight26 Font17"
-              onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.fetchLogs)}
+              onClick={() =>
+                this.setState({ searchValues: {}, pageIndex: 1, searchResetKey: searchResetKey + 1 }, this.fetchLogs)
+              }
             />
             <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
               <Button
                 type="primary"
-                className="exportBtn pLeft15 pRight15"
+                className="pLeft15 pRight15"
                 disabled={disabledExportBtn}
                 onClick={() => {
                   if (disabledExportBtn) return;
@@ -299,46 +353,11 @@ export default class orgLog extends React.Component {
         </div>
         <div ref={ele => (this.seatchWrap = ele)} className="mLeft32 mRight32">
           <SearchWrap
+            key={searchResetKey}
             showExpandBtn={true}
             projectId={projectId}
             searchValues={searchValues}
-            searchList={[
-              {
-                type: 'selectUser',
-                key: 'selectUserInfo',
-                label: _l('操作人'),
-                suffixIcon: <Icon icon="person" className="Font16" />,
-              },
-              {
-                type: 'select',
-                key: 'operateTargetType',
-                label: _l('操作对象'),
-                placeholder: _l('全部'),
-                allowClear: true,
-                value: operateTargetType,
-                options: ORG_LOG_OPERATOR,
-              },
-              {
-                type: 'select',
-                key: 'operateType',
-                label: _l('操作类型'),
-                placeholder: _l('全部'),
-                allowClear: true,
-                value: operateType,
-                options: OPERATE_TYPE,
-              },
-              {
-                type: 'selectTime',
-                key: 'orgLogOutDate',
-                label: _l('操作时间'),
-                placeholder: _l('最近30天'),
-                dateFormat: 'YYYY-MM-DD HH:mm:ss',
-                limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
-                timeMode: 'minute',
-                timePicker: true,
-                suffixIcon: <Icon icon="person" className="Font16" />,
-              },
-            ]}
+            searchList={searchList}
             onChange={searchValues => {
               this.setState(
                 {

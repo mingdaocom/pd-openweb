@@ -1,97 +1,32 @@
-import React, { useState } from 'react';
-import { useMeasure } from 'react-use';
-import cx from 'classnames';
+import React from 'react';
 import _, { find } from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
-import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
-import { getTitleTextFromRelateControl, isRelateRecordTableControl } from 'src/utils/control';
+import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import RelateRecordOptions from './RelateRecordOptions';
 
 const Con = styled.div`
   display: flex;
   align-items: center;
-  height: 32px;
+  min-height: 32px;
   line-height: 32px;
-  .RelateRecordDropdown-selected {
-    border-color: var(--border-color);
-    max-height: 102px;
-    overflow-y: auto;
-    &.active {
-      border-color: var(--color-primary);
-    }
-  }
-  &:hover {
-    .RelateRecordDropdown-selected:not(.active) {
-      border-color: var(--color-border-tertiary);
-    }
-  }
-  &.isMultiple:not(.active) {
-    height: auto !important;
-    .RelateRecordDropdown-selected {
-      height: auto !important;
-    }
+  .RelateRecordDropdown {
+    width: 100%;
   }
 `;
 
-const Dropdown = styled(RelateRecordDropdown)`
-  width: 100%;
-  .RelateRecordDropdown-selected {
-    background-color: transparent;
-    height: 32px;
-    min-height: 32px;
-    .normalSelectedItem {
-      line-height: 30px;
-      display: block;
-    }
-    > input {
-      line-height: 32px !important;
-      display: block;
-    }
-    .clearIcon,
-    .dropIcon {
-      margin: ${({ selectedLength }) => (selectedLength > 0 ? 9 : 8)}px;
-    }
-    .activeSelectedItem {
-      margin-top: 0px !important;
-    }
-  }
-`;
-
-const SelectedTags = styled.div`
-  max-width: 100%;
-  .item {
-    position: relative;
-    max-width: 100%;
-    display: inline-block;
-    margin: 0 0 3px 6px;
-    line-height: 24px;
-    padding: 0 24px 0 10px;
-    background-color: rgba(0, 100, 240, 0.08);
-    color: var(--color-text-title);
-    border-radius: 3px;
-    .name {
-      max-width: 100%;
-    }
-    .icon-close {
-      cursor: pointer;
-      position: absolute;
-      right: 4px;
-      top: 4px;
-      color: var(--color-text-tertiary);
-      font-size: 16px;
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
-    &.active.allowRemove {
-      padding-right: 24px !important;
-    }
-  }
-`;
+const SELECT_PROPS = {
+  hideRemoveIconOnBlur: false,
+  styles: {
+    item: {
+      '--hap-select-multi-item-background': 'var(--color-primary-transparent)',
+    },
+  },
+};
 
 export default function RelateRecord(props) {
-  const { isDark, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {}, appId } = props;
+  const { worksheetId, values = [], filtersData, advancedSetting, onChange = () => {}, appId } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
@@ -125,8 +60,6 @@ export default function RelateRecord(props) {
   }
 
   const isRelateTable = isRelateRecordTableControl(props.control);
-  const [conRef, { width }] = useMeasure();
-  const [active, setActive] = useState();
   const isMultiple = String(allowitem) === '2';
   const prefixRecords =
     shownullitem === '1'
@@ -137,59 +70,11 @@ export default function RelateRecord(props) {
           },
         ]
       : [];
-  let renderSelected;
 
   function handleChange(value) {
     onChange({
       ...value,
     });
-  }
-
-  if (!values.length) {
-    renderSelected = () => (
-      <span className="normalSelectedItem" style={{ fontSize: 13, color: 'var(--color-text-disabled)' }}>
-        {_l('请选择')}
-      </span>
-    );
-  } else if (isMultiple || values.length > 1) {
-    renderSelected = (selected = [], { handleDelete = () => {} } = {}) => {
-      let text;
-
-      if ((selected[0] || {}).rowid === 'isEmpty') {
-        text = nullitemname || _l('为空');
-      } else {
-        text = !selected.length || _l('选中 %0 个', selected.length);
-        return (
-          <SelectedTags>
-            {selected.map((record, i) => (
-              <div
-                className="item"
-                key={i}
-                style={{
-                  ...(i === 0 ? { marginTop: 3 } : {}),
-                  ...(selected.length > 1 ? { maxWidth: 'calc(100% - 30px)' } : {}),
-                }}
-              >
-                <span className="name InlineBlock ellipsis">{getTitleTextFromRelateControl(control, record)}</span>
-                <i
-                  className="icon icon-close"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleDelete(record);
-                  }}
-                ></i>
-              </div>
-            ))}
-          </SelectedTags>
-        );
-      }
-
-      return (
-        <span className="normalSelectedItem" style={{ fontSize: 13 }}>
-          {text}
-        </span>
-      );
-    };
   }
 
   if (String(direction) === '1') {
@@ -221,40 +106,32 @@ export default function RelateRecord(props) {
   // searchtype 0 模糊[default] 1精确
   // clicksearch 1 搜索后限制 0[default]
   return (
-    <Con ref={conRef} className={cx({ isMultiple: true, active })}>
-      {!!width && (
-        <Dropdown
-          selectedLength={values?.length}
-          isDark={isDark}
-          popupClassName={cx('isQuickFilter', values.length < 2 ? 'small' : '')}
-          getFilterRowsGetType={32}
-          zIndex="xxx"
-          disableNewRecord
-          doNotClearKeywordsWhenChange={isMultiple}
-          parentWorksheetId={worksheetId}
-          isQuickFilter
-          control={control}
-          {...control}
-          selectedStyle={{ width, maxHeight: 102, overflowY: 'auto' }}
-          popupOffset={[0, -16]}
-          formData={filtersData}
-          advancedSetting={{}}
-          controls={relationControls}
-          selected={values}
-          showCoverAndControls={!isRelateTable}
-          forceShowDialogSelect={isRelateTable}
-          popupContainer={() => document.body}
-          multiple={isMultiple}
-          renderSelected={active ? undefined : renderSelected}
-          prefixRecords={prefixRecords}
-          staticRecords={staticRecords}
-          fastSearchControlArgs={fastSearchControlArgs}
-          onChange={newRecords => {
-            handleChange({ values: newRecords });
-          }}
-          onVisibleChange={setActive}
-        />
-      )}
+    <Con>
+      <RelateRecordDropdown
+        getFilterRowsGetType={32}
+        disableNewRecord
+        doNotClearKeywordsWhenChange={isMultiple}
+        parentWorksheetId={worksheetId}
+        isQuickFilter
+        control={control}
+        {...control}
+        enumDefault2={1}
+        formData={filtersData}
+        advancedSetting={{}}
+        controls={relationControls}
+        selected={values}
+        showCoverAndControls={!isRelateTable}
+        forceShowDialogSelect={isRelateTable || controlAdvancedSetting.openfastfilters === '1'}
+        popupContainer={() => document.body}
+        multiple={isMultiple}
+        selectProps={SELECT_PROPS}
+        prefixRecords={prefixRecords}
+        staticRecords={staticRecords}
+        fastSearchControlArgs={fastSearchControlArgs}
+        onChange={newRecords => {
+          handleChange({ values: newRecords });
+        }}
+      />
     </Con>
   );
 }

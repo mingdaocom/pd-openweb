@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import { InputNumber, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
-import { getTranslateInfo } from 'src/utils/app';
+import { InputNumber, Select } from 'ming-ui/antd-components';
+import { getTranslateInfo } from 'src/utils/services/app';
 import './index.less';
 
 const operationTypeData = [
@@ -179,7 +179,6 @@ export default class AppSettings extends React.Component {
                 <div className="singleItemRight">
                   <Select
                     value={item.entities && !item.entities.length ? _l('该应用下没有工作表') : item.exampleType}
-                    className="selectWrapper"
                     disabled={item.entities && !item.entities.length}
                     onChange={exampleType => {
                       this.setState(
@@ -193,13 +192,12 @@ export default class AppSettings extends React.Component {
                         },
                       );
                     }}
-                  >
-                    {operationTypeData.map(item => (
-                      <Select.Option className="processOptionWrapper" key={item.exampleType} value={item.exampleType}>
-                        {item.label}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                    options={operationTypeData.map(item => ({
+                      value: item.exampleType,
+                      label: item.label,
+                      className: 'processOptionWrapper',
+                    }))}
+                  />
                   <span
                     className={cx('mLeft10', {
                       textSecondary: item.selectedCount && item.selectedCount <= 50000,

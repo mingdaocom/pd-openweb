@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import process from '../../../api/process';
 
 export default class CopyFlowBtn extends Component {
@@ -10,13 +10,13 @@ export default class CopyFlowBtn extends Component {
   copyFlow = () => {
     const { isConvertSubProcess, isConvertPBP, item, updateList } = this.props;
 
-    Dialog.confirm({
+    Modal.confirm({
       title: isConvertSubProcess
         ? _l('将“%0”转为子流程', item.name)
         : isConvertPBP
           ? _l('将“%0”转为封装业务流程', item.name)
           : _l('复制工作流“%0”', item.name),
-      description: isConvertSubProcess
+      content: isConvertSubProcess
         ? _l('如果您需要复用本流程，通过此操作将为本流程创建一个副本，触发器类型为子流程')
         : isConvertPBP
           ? _l('如果您需要复用本流程，通过此操作将为本流程创建一个封装业务流程副本')
@@ -45,7 +45,7 @@ export default class CopyFlowBtn extends Component {
       <div onClick={this.copyFlow}>
         <span
           className={cx(
-            'textSecondary Font16 pLeft12 mRight10',
+            'textSecondary Font16 mRight10',
             isConvertSubProcess || isConvertPBP ? 'icon-swap_horiz' : 'icon-content-copy',
           )}
         />

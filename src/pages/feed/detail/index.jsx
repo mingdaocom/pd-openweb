@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 import { LoadDiv, ScrollView } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import PostDetails from '../components/post/postDetails/postDetails';
 import { changePostDetailId, clearPostDetail } from './redux/postDetailActions';
 import './feeddetail.css';

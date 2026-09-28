@@ -3,11 +3,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import AppSettingHeader from 'src/pages/AppSettings/components/AppSettingHeader';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const Content = styled.div`
   height: calc(100% - 53px);
@@ -203,18 +204,29 @@ export default function AppItemTrash(props) {
           throw new Error();
         }
       })
-      .catch(() => {
-        alert(_l('恢复失败'), 3);
+      .catch(_requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('恢复失败'), 3);
         setPendingCache(appItem.id, false);
       });
   }
 
   function onDelete(itemIndex) {
     const needDeleteItem = appItems[itemIndex];
-    Dialog.confirm({
-      title: <span style={{ color: 'var(--color-error)' }}>{_l('将彻底删除工作表"%0"', needDeleteItem.name)}</span>,
-      buttonType: 'danger',
-      description: _l('彻底删除该数据后，将无法恢复。'),
+    Modal.confirm({
+      title: (
+        <span
+          style={{
+            color: 'var(--color-error)',
+          }}
+          className="textError"
+        >
+          {_l('将彻底删除工作表"%0"', needDeleteItem.name)}
+        </span>
+      ),
+      okButtonProps: {
+        danger: true,
+      },
+      content: _l('彻底删除该数据后，将无法恢复。'),
       okText: _l('彻底删除'),
       onOk: () => {
         appManagementAjax
@@ -234,8 +246,8 @@ export default function AppItemTrash(props) {
               throw new Error();
             }
           })
-          .catch(() => {
-            alert(_l('彻底删除失败'), 3);
+          .catch(_requestError => {
+            alertIfNotUnauthorized(_requestError, _l('彻底删除失败'), 3);
           });
       },
     });
@@ -261,7 +273,7 @@ export default function AppItemTrash(props) {
     <Fragment>
       <AppSettingHeader
         title={_l('回收站（应用项）')}
-        description={_l('可恢复%0天内删除的应用项', md.global.SysSettings.appItemRecycleDays)}
+        description={_l('可恢复%0天内删除的应用项', md.global.SysSettings.appItemRecycleDays || 60)}
         showSearch={true}
         handleSearch={_.debounce(v => {
           if (!v) {

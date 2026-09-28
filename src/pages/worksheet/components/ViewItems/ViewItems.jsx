@@ -1,23 +1,21 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList } from 'ming-ui';
+import { Drawer, Input, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { getDefaultViewSet } from 'worksheet/constants/common';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
-import { getShowViews } from 'src/pages/worksheet/views/util';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 import AddViewDisplayMenu from './AddViewDisplayMenu';
 import HideItem from './HideItem';
 import Item from './Item';
-import 'rc-trigger/assets/index.css';
 import './ViewItems.less';
 
 const EmptyData = styled.div`
@@ -26,7 +24,6 @@ const EmptyData = styled.div`
   text-align: center;
   margin-top: 120px;
 `;
-const confirm = Dialog.confirm;
 let ViewItems = class ViewItems extends Component {
   static defaultProps = {
     viewList: [],
@@ -88,10 +85,28 @@ let ViewItems = class ViewItems extends Component {
     this.containerWrapper = document.getElementById('wrapper');
     this.containerWrapper && this.containerWrapper.addEventListener('click', this.clickDrawerArea);
     this.computeViewItemActiveLeft();
+    this.observeScrollWrapperResize();
   }
 
   componentWillUnmount() {
     this.containerWrapper && this.containerWrapper.removeEventListener('click', this.clickDrawerArea);
+    this.disconnectScrollWrapperResize();
+  }
+
+  // 右侧内容展开/收起只会改变视图 tab 容器宽度，不会触发 props 更新，需要监听尺寸变化重新判断左右切换按钮
+  observeScrollWrapperResize() {
+    if (!this.scrollWraperEl || typeof ResizeObserver === 'undefined') return;
+    this.resizeObserver = new ResizeObserver(() => {
+      window.cancelAnimationFrame(this.resizeAnimationFrame);
+      this.resizeAnimationFrame = window.requestAnimationFrame(this.computeDirectionVisible);
+    });
+    this.resizeObserver.observe(this.scrollWraperEl);
+  }
+
+  disconnectScrollWrapperResize() {
+    window.cancelAnimationFrame(this.resizeAnimationFrame);
+    this.resizeObserver && this.resizeObserver.disconnect();
+    this.resizeObserver = null;
   }
 
   clickDrawerArea = e => {
@@ -130,8 +145,8 @@ let ViewItems = class ViewItems extends Component {
           this.computeDirectionVisible();
         }
       })
-      .catch(() => {
-        alert(_l('获取视图列表失败'), 2);
+      .catch(_requestError3 => {
+        alertIfNotUnauthorized(_requestError3, _l('获取视图列表失败'), 2);
       });
   }
 
@@ -213,8 +228,8 @@ let ViewItems = class ViewItems extends Component {
         this.handleScrollPosition(0);
         callback && callback(result);
       })
-      .catch(() => {
-        alert(_l('新建视图失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('新建视图失败'), 2);
       });
   };
   handleRemoveView = view => {
@@ -226,10 +241,12 @@ let ViewItems = class ViewItems extends Component {
       return;
     }
 
-    confirm({
-      title: <span className="Red">{_l('确定删除此视图吗？')}</span>,
+    Modal.confirm({
+      title: <span className="Red textError">{_l('确定删除此视图吗？')}</span>,
       okText: _l('删除'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         sheetAjax
           .deleteWorksheetView({
@@ -246,8 +263,8 @@ let ViewItems = class ViewItems extends Component {
             this.handleScrollPosition(0);
             this.getWorksheetViews(worksheetId, 9);
           })
-          .catch(() => {
-            alert(_l('删除视图失败'), 2);
+          .catch(_requestError5 => {
+            alertIfNotUnauthorized(_requestError5, _l('删除视图失败'), 2);
           });
       },
     });
@@ -261,7 +278,7 @@ let ViewItems = class ViewItems extends Component {
       requestData: {
         worksheetId,
       },
-      clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+      clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
     });
     sheetAjax
       .copyWorksheetView({
@@ -279,8 +296,8 @@ let ViewItems = class ViewItems extends Component {
         this.handleSortViews(list);
         this.props.onAddView(list, result);
       })
-      .catch(() => {
-        alert(_l('复制视图失败'), 2);
+      .catch(_requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('复制视图失败'), 2);
       });
   };
   handleSortViews = views => {
@@ -292,18 +309,24 @@ let ViewItems = class ViewItems extends Component {
     });
   };
 
-  computeDirectionVisible() {
+  computeDirectionVisible = () => {
     if (!this.scrollWraperEl) return;
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
+    if (!viewsScrollEl) return;
+    const { offsetWidth, scrollWidth } = viewsScrollEl;
+    this.flag = true;
+    // 左右切换按钮本身会占用横向空间，统一按“不显示按钮时的可用宽度”判断，否则容器变宽后按钮无法自动隐藏
+    const directionWidth = this.directionEl ? this.directionEl.offsetWidth : 0;
+    const directionVisible = offsetWidth + directionWidth < scrollWidth;
 
-    if (viewsScrollEl) {
-      const { offsetWidth, scrollWidth } = viewsScrollEl;
-      this.flag = true;
-      this.setState({
-        directionVisible: offsetWidth < scrollWidth,
-      });
+    if (directionVisible !== this.state.directionVisible) {
+      this.setState({ directionVisible });
     }
-  }
+
+    if (directionVisible) {
+      this.updateScrollBtnState();
+    }
+  };
 
   computeViewItemActiveLeft(delay = 300) {
     if (!this.scrollWraperEl) return;
@@ -322,6 +345,9 @@ let ViewItems = class ViewItems extends Component {
     }
   }
 
+  handleDirectionRef = directionEl => {
+    this.directionEl = directionEl;
+  };
   handleScrollPosition = (direction = 0) => {
     if (!this.scrollWraperEl) return;
     const { clientWidth } = this.scrollWraperEl;
@@ -332,7 +358,9 @@ let ViewItems = class ViewItems extends Component {
   };
   updateScrollBtnState = () => {
     const { hideDirection } = this.state;
+    if (!this.scrollWraperEl) return;
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
+    if (!viewsScrollEl) return;
     const { scrollWidth, scrollLeft, offsetWidth } = viewsScrollEl;
     const width = scrollLeft + offsetWidth;
 
@@ -372,8 +400,8 @@ let ViewItems = class ViewItems extends Component {
         viewIds: newSortList.map(l => l.viewId),
       })
       .then(() => {})
-      .catch(() => {
-        alert(_l('退拽排序视图失败'), 2);
+      .catch(_requestError4 => {
+        alertIfNotUnauthorized(_requestError4, _l('退拽排序视图失败'), 2);
       });
   };
   updateViewName = view => {
@@ -715,13 +743,13 @@ let ViewItems = class ViewItems extends Component {
           </Tooltip>
           <Drawer
             title=""
-            width={280}
-            className="drawerWorksheetHidden"
+            size={280}
+            rootClassName="drawerWorksheetHidden"
             placement="left"
             mask={false}
             closable={false}
             getContainer={() => document.querySelector('#worksheetRightContentBox')}
-            style={{
+            rootStyle={{
               position: 'absolute',
             }}
             onClose={() =>
@@ -729,15 +757,18 @@ let ViewItems = class ViewItems extends Component {
                 setWorksheetHidden: false,
               })
             }
-            visible={setWorksheetHidden}
+            open={setWorksheetHidden}
           >
             <div className="searchBox">
-              <i className="icon icon-search textTertiary Font20"></i>
               <Input
+                allowClear
                 value={searchWorksheetListValue}
-                onChange={value =>
+                radius
+                variant="filled"
+                prefix={<i className="icon icon-search textTertiary Font20" />}
+                onChange={event =>
                   this.setState({
-                    searchWorksheetListValue: value,
+                    searchWorksheetListValue: event.target.value,
                   })
                 }
                 placeholder={_l(
@@ -746,21 +777,9 @@ let ViewItems = class ViewItems extends Component {
                     l => isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0,
                   ).length,
                 )}
-                type="text"
                 className="drawerWorksheetHiddenSearch flex"
-                manualRef={this.searchRef}
+                ref={this.searchRef}
               />
-              {!!searchWorksheetListValue && (
-                <Icon
-                  icon="cancel"
-                  className="Font16 Hand textTertiary mRight10"
-                  onClick={() => {
-                    this.setState({
-                      searchWorksheetListValue: '',
-                    });
-                  }}
-                />
-              )}
             </div>
             {this.renderManageViewItem()}
             {isEmpty ? (
@@ -785,37 +804,37 @@ let ViewItems = class ViewItems extends Component {
           </Drawer>
         </div>
         {isCharge && !isLock && (
-          <Trigger
-            action={['click']}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [-6, 4],
-            }}
-            popupVisible={addMenuVisible}
-            onPopupVisibleChange={visible =>
-              this.setState({
-                addMenuVisible: visible,
-              })
-            }
-            popup={
-              <AddViewDisplayMenu
-                canAddCustomView
-                projectId={_.get(this.props, 'worksheetInfo.projectId')}
-                onClick={this.handleAdd}
-                popupVisible={addMenuVisible}
-                appId={this.props.appId}
-              />
-            }
-          >
-            <Tooltip placement="bottom" title={_l('添加视图')}>
-              <Icon
-                icon="add"
-                className={cx('Font20 textSecondary pointer addViewIcon mLeft8 hoverGray', {
-                  menuVisible: addMenuVisible,
-                })}
-              />
-            </Tooltip>
-          </Trigger>
+          <Tooltip placement="bottom" title={_l('添加视图')}>
+            <Popover
+              trigger="click"
+              placement="bottomLeft"
+              noPadding
+              open={addMenuVisible}
+              onOpenChange={visible =>
+                this.setState({
+                  addMenuVisible: visible,
+                })
+              }
+              content={
+                <AddViewDisplayMenu
+                  canAddCustomView
+                  projectId={_.get(this.props, 'worksheetInfo.projectId')}
+                  onClick={this.handleAdd}
+                  popupVisible={addMenuVisible}
+                  appId={this.props.appId}
+                />
+              }
+            >
+              <span className="InlineBlock">
+                <Icon
+                  icon="add"
+                  className={cx('Font20 textSecondary pointer addViewIcon mLeft8 hoverGray', {
+                    menuVisible: addMenuVisible,
+                  })}
+                />
+              </span>
+            </Popover>
+          </Tooltip>
         )}
         <div
           className="valignWrapper flex workSheetViewsWrapper"
@@ -826,7 +845,7 @@ let ViewItems = class ViewItems extends Component {
           {this.renderSortList('sortNav', showViewList)}
         </div>
         {directionVisible ? (
-          <div className="Width95">
+          <div className="Width95" ref={this.handleDirectionRef}>
             <Icon
               icon="arrow-left-tip"
               className={cx('textTertiary pointer Font15', {

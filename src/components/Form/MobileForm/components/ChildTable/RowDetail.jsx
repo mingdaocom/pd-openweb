@@ -3,9 +3,11 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import CustomFields from 'src/components/Form';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 
 export default class RowDetail extends React.Component {
+  static contextType = RecordInfoContext;
+
   static propTypes = {
     widgetStyle: PropTypes.shape({}),
     ignoreLock: PropTypes.bool,
@@ -213,6 +215,7 @@ export default class RowDetail extends React.Component {
     return (
       <RecordInfoContext.Provider
         value={{
+          ...this.context,
           recordBaseInfo: {
             appId,
             worksheetId,

@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import { Button, ConfigProvider, Modal } from 'antd';
-import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { dealUserId } from 'src/pages/widgetConfig/util/data.js';
-import { getThemeColors } from 'src/utils/project';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
+import { dealUserId } from 'src/utils/domain/control/defaultValue';
+import { getThemeColors } from 'src/utils/services/project';
 import { EditWidgetContent, Header } from '../../../styled';
 import SideWrap from '../../SideWrap';
 import BtnGroupSetting from './btnGroupSetting';
@@ -63,7 +61,9 @@ export default function Btn(props) {
   const [visible, setVisible] = useState(_.isEmpty(button));
 
   const setBtnSetting = config => {
-    setSetting(update(btnSetting, { buttonList: { [activeIndex]: { $apply: item => ({ ...item, ...config }) } } }));
+    setSetting({
+      buttonList: buttonList.map((item, index) => (index === activeIndex ? { ...item, ...config } : item)),
+    });
   };
 
   const addBtn = () => {
@@ -86,7 +86,7 @@ export default function Btn(props) {
     }
 
     setIndex(buttonList.length);
-    setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
+    setSetting({ buttonList: [...buttonList, data] });
   };
 
   const handleDel = () => {
@@ -95,7 +95,7 @@ export default function Btn(props) {
       return;
     }
 
-    setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex, 1]] } }));
+    setSetting({ buttonList: buttonList.filter((_, index) => index !== activeIndex) });
     setIndex(Math.max(activeIndex - 1, 0));
   };
 
@@ -109,7 +109,9 @@ export default function Btn(props) {
       data.config = { ...config, isFilter: undefined };
     }
 
-    setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex + 1, 0, data]] } }));
+    setSetting({
+      buttonList: [...buttonList.slice(0, activeIndex + 1), data, ...buttonList.slice(activeIndex + 1)],
+    });
   };
 
   const handleSave = () => {
@@ -172,26 +174,24 @@ export default function Btn(props) {
     </SideWrap>
   ) : (
     <Modal
-      maskStyle={{ zIndex: 999 }}
-      wrapClassName="customPageButtonWrap"
       className="editWidgetDialogWrap"
-      visible
-      transitionName=""
-      maskTransitionName=""
+      classNames={{ container: 'pAll0', body: 'pAll0' }}
+      styles={{ body: { padding: 0, position: 'relative' } }}
+      verticalAlign="bottom"
+      open
       width="100%"
+      type="fixed"
       footer={null}
+      closable={false}
       centered={true}
       onCancel={onClose}
-      closeIcon={<Icon icon="close Font24 hoverColorPrimary" />}
     >
       <Header>
         <div className="typeName">{_l('按钮')}</div>
         <div className="flexRow valignWrapper">
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
-              {_l('保存')}
-            </Button>
-          </ConfigProvider>
+          <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+            {_l('保存')}
+          </Button>
           <Tooltip title={_l('关闭')} placement="bottom">
             <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>

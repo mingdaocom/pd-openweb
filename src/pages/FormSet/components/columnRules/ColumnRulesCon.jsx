@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, ScrollView, SortableList, Support } from 'ming-ui';
+import { Button, Drawer } from 'ming-ui/antd-components';
 import DrawerFooter from '../DrawerFooter';
 import { hasRuleChanged, TAB_TYPES, TABS_DISPLAY } from './config';
 import EditBox from './EditBox';
@@ -40,10 +40,9 @@ class ColumnRulesCon extends React.Component {
             <Icon icon="list" className="textDisabled" />
           </span>
           <span className="Font15 textTertiary mTop20">{_l('暂无业务规则')}</span>
-          <div className="addEmptyRules" onClick={() => addColumnRules()}>
-            <Icon icon="plus" className="mRight3" />
+          <Button className="mTop20" shape="round" icon={<Icon icon="plus" />} onClick={() => addColumnRules()}>
             {_l('添加规则')}
-          </div>
+          </Button>
         </div>
       );
     }
@@ -98,10 +97,9 @@ class ColumnRulesCon extends React.Component {
           <div className="flexRow">
             <span className="Font17 Bold flex LineHeight36">{_l('业务规则')}</span>
             {activeTab !== TAB_TYPES.LOCK_RULE && (
-              <div className="addRules" onClick={() => addColumnRules()}>
-                <Icon icon="plus" className="mRight3" />
+              <Button type="primary" shape="round" icon={<Icon icon="plus" />} onClick={() => addColumnRules()}>
                 {_l('添加规则')}
-              </div>
+              </Button>
             )}
           </div>
           <div className="columnRuleTabs">
@@ -143,17 +141,19 @@ class ColumnRulesCon extends React.Component {
 
         {selectRules.ruleId && (
           <Drawer
-            className="columnRulesDrawerContainer"
-            width={640}
+            rootClassName="columnRulesDrawerContainer"
+            size={640}
             title={isAdd ? _l('新建%0规则', tabText) : _l('编辑%0规则', tabText)}
             placement="right"
+            zIndex={10}
             mask={false}
             onClose={() => clearColumnRules()}
-            visible={true}
+            open={true}
             getContainer={false}
             closeIcon={<i className="icon-close Font20" />}
             footer={
               <DrawerFooter
+                wide
                 saveLoading={saveLoading}
                 disabled={saveLoading || !hasRuleChanged(columnRulesListData, selectRules, true)}
                 onCancel={() => clearColumnRules()}

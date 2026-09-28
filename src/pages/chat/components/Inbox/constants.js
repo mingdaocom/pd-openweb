@@ -293,8 +293,6 @@ export const APPID = {
   SCORE: '493cfed8-de7b-413d-b14c-bf7c235925d5',
 };
 
-export { SOURCE_TYPE } from 'src/components/comment/config';
-
 export const MSG_DONE_TEXT = {
   [MSGTYPES.WorkFlowSendTaskMessage]: _l('已查看'),
   [MSGTYPES.WorkFlowTaskMessage]: _l('已填写'),

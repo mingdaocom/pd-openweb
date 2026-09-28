@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import CascaderDropdown from 'src/components/Form/DesktopForm/widgets/Cascader';
-import { FILTER_CONDITION_TYPE } from '../../enum';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 export default class RelateRecord extends React.Component {
   static propTypes = {

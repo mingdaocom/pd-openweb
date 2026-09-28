@@ -49,8 +49,10 @@ const Pager = styled.div`
     color: var(--color-text-tertiary);
     cursor: pointer;
     transition: color 0.18s ease;
-    &:hover {
-      color: var(--color-text-primary);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        color: var(--color-text-primary);
+      }
     }
   }
   i.disabled {
@@ -111,8 +113,10 @@ const Option = styled.div`
   transition:
     border-color 0.18s ease,
     background 0.18s ease;
-  &:hover {
-    border-color: var(--color-mingo);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--color-mingo);
+    }
   }
   .marker {
     flex-shrink: 0;
@@ -171,11 +175,25 @@ const Custom = styled.textarea`
 const Footer = styled.div`
   display: flex;
   align-items: center;
-  /* 设计稿：跳过 + 主按钮右侧成组（非两端对齐），间距约 20px */
+  /* 设计稿：跳过 + 主按钮右侧成组（非两端对齐），间距约 20px。
+     「停止」是本轮的逃生口，靠左单独成组，与右侧继续流程的动作拉开距离 */
   justify-content: flex-end;
   gap: 20px;
   flex-shrink: 0;
   padding: 14px 12px;
+`;
+
+const StopLink = styled.span`
+  margin-right: auto;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--color-error);
+    }
+  }
 `;
 
 const SkipLink = styled.span`
@@ -183,8 +201,10 @@ const SkipLink = styled.span`
   line-height: 20px;
   color: var(--color-text-secondary);
   cursor: pointer;
-  &:hover {
-    color: var(--color-text-primary);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--color-text-primary);
+    }
   }
 `;
 
@@ -199,8 +219,10 @@ const PrimaryButton = styled.button`
   font-weight: 700;
   cursor: pointer;
   transition: background 0.18s ease;
-  &:hover {
-    background: var(--color-mingo-dark);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--color-mingo-dark);
+    }
   }
 `;
 
@@ -317,6 +339,14 @@ export default function Ask({ data, docked = false }) {
     bus.emit('ask:submit', { answers: collect(skipCurrent, answersOverride) });
   }
 
+  // 停止：作答前的逃生口。不作答也不跳过（跳过=继续下一步），直接结束这轮设计与搭建，
+  // 由 ChatPanel 终止服务端 run 并收掉提问卡、把底部还给输入框。
+  function handleStop() {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    bus.emit('ask:stop');
+  }
+
   function handleSkip() {
     // 单题 / 末题：跳过即提交；多题非末题：跳过当前并进入下一题
     if (isLast) {
@@ -375,6 +405,8 @@ export default function Ask({ data, docked = false }) {
       </Body>
 
       <Footer>
+        {/* 停止只在待答的 docked 卡上给：对话里回顾态的历史卡片没有可停的在途流程 */}
+        {docked && <StopLink onClick={handleStop}>{_l('停止')}</StopLink>}
         <SkipLink onClick={handleSkip}>{_l('跳过')}</SkipLink>
         <PrimaryButton type="button" onClick={() => (isLast ? submit(false) : goNext())}>
           {isLast ? _l('提交') : _l('下一个')}

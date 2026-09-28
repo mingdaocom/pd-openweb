@@ -15,6 +15,7 @@ import File from './File';
 import FindSystem from './FindSystem';
 import Formula from './Formula';
 import GetMoreRecord from './GetMoreRecord';
+import Goto from './Goto';
 import JSONParse from './JSONParse';
 import Link from './Link';
 import LoopProcess from './LoopProcess';
@@ -66,6 +67,7 @@ export default {
   32: Plugin,
   33: Agent,
   34: Vector,
+  35: Goto,
   101: Agent,
   1000: FindSystem,
   1001: FindSystem,

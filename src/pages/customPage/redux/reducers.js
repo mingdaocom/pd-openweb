@@ -1,8 +1,8 @@
-import update from 'immutability-helper';
 import _ from 'lodash';
 import maxBy from 'lodash/maxBy';
 import { v4 as uuidv4 } from 'uuid';
-import { enumWidgetType, getDefaultLayout, getIndexById } from '../util';
+import { enumWidgetType, getDefaultLayout } from 'src/utils/domain/customPage/model';
+import { getIndexById } from '../util';
 import {
   ADD_WIDGET,
   COPY_WIDGET,
@@ -31,10 +31,13 @@ const initialState = {
   visible: false,
   pageId: '',
   desc: '',
+  remark: '',
   adjustScreen: false,
   version: null,
   apk: {},
   components: [],
+  imageUrl: '',
+  previewUrl: '',
   filtersGroup: {},
   linkageFiltersGroup: {},
   filterComponents: [],
@@ -46,30 +49,32 @@ function updateLayout(state, payload) {
   const { layoutType, layouts, components, adjustScreen } = payload;
   if (!layouts) return state;
   if (_.includes(['web', 'mobile'], layoutType)) {
-    return update(state, {
-      components: {
-        $apply: items => {
-          return items.map(item => {
-            const index = _.findIndex(components, v => (v.id || v.uuid) === (item.id || item.uuid));
+    return {
+      ...state,
+      components: state.components.map(item => {
+        const index = _.findIndex(components, v => (v.id || v.uuid) === (item.id || item.uuid));
 
-            if (index >= 0) {
-              const data = layouts[index];
-              const maxH = 40;
+        if (index < 0) {
+          return item;
+        }
 
-              if (adjustScreen && data.h >= maxH) {
-                data.h = maxH;
-              }
+        const data = layouts[index];
+        const maxH = 40;
+        const layout = _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH', 'maxH']);
 
-              return update(item, {
-                [layoutType]: { layout: { $set: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH', 'maxH']) } },
-              });
-            } else {
-              return item;
-            }
-          });
-        },
-      },
-    });
+        if (adjustScreen && layout.h >= maxH) {
+          layout.h = maxH;
+        }
+
+        return {
+          ...item,
+          [layoutType]: {
+            ...item[layoutType],
+            layout,
+          },
+        };
+      }),
+    };
   }
 
   return state;
@@ -81,7 +86,22 @@ function getIndex(state, component) {
 
 function updateWidgetVisible(state, payload) {
   const { widget, layoutType } = payload;
-  return update(state, { components: { [getIndex(state, widget)]: { [layoutType]: { $toggle: ['visible'] } } } });
+  const index = getIndex(state, widget);
+
+  return {
+    ...state,
+    components: state.components.map((item, currentIndex) =>
+      currentIndex === index
+        ? {
+            ...item,
+            [layoutType]: {
+              ...item[layoutType],
+              visible: !item[layoutType].visible,
+            },
+          }
+        : item,
+    ),
+  };
 }
 
 // 获取单行中x最大的组件
@@ -151,23 +171,22 @@ function copyWidget(state, payload) {
     };
   }
 
-  return update(state, {
-    modified: { $set: true },
-    components: {
-      $push: [
-        {
-          ...rest,
-          uuid: uuidv4(),
-          button: newButton,
-          web: update(web, {
-            layout: {
-              $apply: item => copyWebLayout(state.components, item),
-            },
-          }),
+  return {
+    ...state,
+    modified: true,
+    components: [
+      ...state.components,
+      {
+        ...rest,
+        uuid: uuidv4(),
+        button: newButton,
+        web: {
+          ...web,
+          layout: copyWebLayout(state.components, web.layout),
         },
-      ],
-    },
-  });
+      },
+    ],
+  };
 }
 
 export default function customPage(state = initialState, action) {
@@ -175,11 +194,11 @@ export default function customPage(state = initialState, action) {
 
   switch (type) {
     case UPDATE_PAGE_INFO:
-      return update(state, { $apply: item => ({ ...item, ...payload }) });
+      return { ...state, ...payload };
     case UPDATE_LOADING:
-      return update(state, { loading: { $set: payload } });
+      return { ...state, loading: payload };
     case UPDATE_SAVE_LOADING:
-      return update(state, { saveLoading: { $set: payload } });
+      return { ...state, saveLoading: payload };
     case UPDATE_EDIT_PAGE_VISIBLE:
       if (!state.pageId) {
         _.keys(sessionStorage)
@@ -195,77 +214,75 @@ export default function customPage(state = initialState, action) {
         payload ? chat.classList.add('hide') : chat.classList.remove('hide');
       }
 
-      return update(state, { visible: { $set: payload } });
+      return { ...state, visible: payload };
     case UPDATE_MODIFIED:
-      return update(state, { modified: { $set: payload } });
+      return { ...state, modified: payload };
     case ADD_WIDGET:
       const uuid = uuidv4();
-      const addData = {
-        modified: { $set: true },
-        components: {
-          $push: [
-            {
-              ...payload,
-              uuid,
-              web: {
-                title: '',
-                titleVisible: false,
-                visible: true,
-                layout: getDefaultLayout({
-                  components: (() => {
-                    if (payload.tabId) {
-                      return state.components.filter(c => c.tabId === payload.tabId);
-                    }
+      const component = {
+        ...payload,
+        uuid,
+        web: {
+          title: '',
+          titleVisible: false,
+          visible: true,
+          layout: getDefaultLayout({
+            components: (() => {
+              if (payload.tabId) {
+                return state.components.filter(c => c.tabId === payload.tabId);
+              }
 
-                    if (payload.sectionId) {
-                      return state.components.filter(c => c.sectionId === payload.sectionId);
-                    }
+              if (payload.sectionId) {
+                return state.components.filter(c => c.sectionId === payload.sectionId);
+              }
 
-                    return state.components;
-                  })(),
-                  layoutType: 'web',
-                  type: payload.type,
-                  config: payload.config,
-                }),
-              },
-              mobile: {
-                title: '',
-                titleVisible: false,
-                visible: true,
-                layout: null,
-              },
-            },
-          ],
+              return state.components;
+            })(),
+            layoutType: 'web',
+            type: payload.type,
+            config: payload.config,
+          }),
         },
+        mobile: {
+          title: '',
+          titleVisible: false,
+          visible: true,
+          layout: null,
+        },
+      };
+      const addData = {
+        ...state,
+        modified: true,
+        components: [...state.components, component],
       };
 
       if (payload.type === 'filter') {
         const { loadFilterComponentCount } = state;
         const { filter } = payload;
-        addData.loadFilterComponentCount = {
-          $set: loadFilterComponentCount + 1,
-        };
-        addData.filterComponents = {
-          $push: [
-            {
-              value: uuid,
-              advancedSetting: filter.advancedSetting || {},
-              filters: _.flatten(filter.filters.map(item => item.objectControls)),
-            },
-          ],
-        };
+        addData.loadFilterComponentCount = loadFilterComponentCount + 1;
+        addData.filterComponents = [
+          ...state.filterComponents,
+          {
+            value: uuid,
+            advancedSetting: filter.advancedSetting || {},
+            filters: _.flatten(filter.filters.map(item => item.objectControls)),
+          },
+        ];
       }
 
-      return update(state, addData);
+      return addData;
     case COPY_WIDGET:
       return copyWidget(state, payload);
     case UPDATE_WIDGET_VISIBLE:
       return updateWidgetVisible(state, payload);
     case DEL_WIDGET:
-      const delData = update(state, {
-        components: { $splice: [[getIndexById({ component: payload, components: state.components }), 1]] },
-        modified: { $set: true },
-      });
+      const components = [...state.components];
+      components.splice(getIndexById({ component: payload, components: state.components }), 1);
+      const delData = {
+        ...state,
+        components,
+        modified: true,
+      };
 
       if (payload.type === enumWidgetType.filter || payload.type === 'filter') {
         const { loadFilterComponentCount } = state;
@@ -307,27 +324,26 @@ export default function customPage(state = initialState, action) {
     case UPDATE_WIDGET:
       const { widget, layoutType, ...rest } = payload;
       let result = {};
+      const componentIndex = getIndexById({ component: widget, components: state.components });
+      const nextComponents = [...state.components];
 
       // 更新对应布局里的标题或者统一的value
       if (layoutType) {
-        result = update(state, {
-          components: {
-            [getIndexById({ component: widget, components: state.components })]: {
-              [payload.layoutType]: { $apply: item => ({ ...item, ...rest }) },
-            },
+        nextComponents[componentIndex] = {
+          ...nextComponents[componentIndex],
+          [layoutType]: {
+            ...nextComponents[componentIndex][layoutType],
+            ...rest,
           },
-          modified: { $set: true },
-        });
+        };
       } else {
-        result = update(state, {
-          components: {
-            [getIndexById({ component: widget, components: state.components })]: {
-              $apply: item => ({ ...item, ...rest }),
-            },
-          },
-          modified: { $set: true },
-        });
+        nextComponents[componentIndex] = {
+          ...nextComponents[componentIndex],
+          ...rest,
+        };
       }
+
+      result = { ...state, components: nextComponents, modified: true };
 
       if (result.filterComponents.length) {
         result.filterComponents = result.filterComponents.map(item => {
@@ -347,20 +363,26 @@ export default function customPage(state = initialState, action) {
     case UPDATE_LAYOUT:
       return updateLayout(state, payload);
     case UPDATE_COMPONENTS:
-      return update(state, { components: { $set: payload } });
+      return { ...state, components: payload };
     case INSET_TITLE:
       const { visible } = payload;
-      return update(state, {
-        modified: { $set: true },
-        components: {
-          [getIndexById({ component: payload.widget, components: state.components })]: {
-            [payload.layoutType]: {
-              titleVisible: { $set: visible },
-              layout: { $apply: item => (item ? { ...item, h: visible ? item.h + 1 : item.h - 1 } : item) },
-            },
-          },
+      const titleComponentIndex = getIndexById({ component: payload.widget, components: state.components });
+      const titleComponents = [...state.components];
+      const titleComponent = titleComponents[titleComponentIndex];
+      const titleLayout = titleComponent[payload.layoutType].layout;
+      titleComponents[titleComponentIndex] = {
+        ...titleComponent,
+        [payload.layoutType]: {
+          ...titleComponent[payload.layoutType],
+          titleVisible: visible,
+          layout: titleLayout ? { ...titleLayout, h: visible ? titleLayout.h + 1 : titleLayout.h - 1 } : titleLayout,
         },
-      });
+      };
+      return {
+        ...state,
+        modified: true,
+        components: titleComponents,
+      };
     case UPDATE_FILTERS_GROUP:
       return {
         ...state,
@@ -378,12 +400,11 @@ export default function customPage(state = initialState, action) {
         },
       };
     case DELETE_LINKAGE_FILTERS_GROUP:
-      delete state.linkageFiltersGroup[payload.value];
+      const linkageFiltersGroup = { ...state.linkageFiltersGroup };
+      delete linkageFiltersGroup[payload.value];
       return {
         ...state,
-        linkageFiltersGroup: {
-          ...state.linkageFiltersGroup,
-        },
+        linkageFiltersGroup,
       };
     default:
       return state;

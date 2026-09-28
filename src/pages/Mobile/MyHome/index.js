@@ -5,10 +5,13 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import login from 'src/api/login';
-import { navigateToLogin } from 'src/router/navigateTo';
-import { emitter, getDefaultThemeMode, pathCompletion, setBodyThemeMode } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
-import { removePssId } from 'src/utils/pssId';
+import { navigateToLogin } from 'src/router/navigation/navigateTo';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { removePssId } from 'src/utils/platform/auth/pssId';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getDefaultThemeMode, setBodyThemeMode } from 'src/utils/platform/theme/theme';
+import { getCurrentProject } from 'src/utils/services/project';
 import TabBar from '../components/TabBar';
 import MobileMyStatus from '../MobileMyStatus';
 
@@ -19,6 +22,8 @@ const THEME_LIST = [
 ];
 
 class MyHome extends Component {
+  requestPending = false;
+
   constructor(props) {
     super(props);
 
@@ -58,16 +63,24 @@ class MyHome extends Component {
   }
 
   logout = () => {
+    if (this.requestPending) return;
+
     window.currentLeave = true;
 
-    login.loginOut().then(data => {
-      if (data) {
-        localForage.clear();
-        removePssId();
-        window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        navigateToLogin({ needReturnUrl: false });
-      }
-    });
+    this.requestPending = true;
+    return login
+      .loginOut()
+      .then(data => {
+        if (data) {
+          localForage.clear();
+          removePssId();
+          window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
+          navigateToLogin({ needReturnUrl: false });
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
 
   handleAction = ({ key }) => {
@@ -99,6 +112,7 @@ class MyHome extends Component {
   };
 
   render() {
+    const isSandbox = isSandboxEnvironment();
     const projectObj = getCurrentProject(
       localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
@@ -116,26 +130,28 @@ class MyHome extends Component {
               <img className="avatarMiddle" src={md.global.Account.avatar} />
             </div>
           </div>
-          <MobileMyStatus />
+          {!isSandbox && <MobileMyStatus />}
           <List className="body flex mTop20">
-            <List.Item
-              arrowIcon={<Icon icon="arrow-right-border" className="Font18 textTertiary" />}
-              prefix={
-                <div className="businessWrapper valignWrapper flexRow">
-                  <Icon icon="business" className="Font16" />
-                </div>
-              }
-              extra={
-                <div className="Font15 textPrimary ellipsis" style={{ maxWidth: 180 }}>
-                  {currentProject.companyName}
-                </div>
-              }
-              onClick={() => {
-                this.props.history.push(pathCompletion(`/mobile/enterprise`, { hasDomain: false }));
-              }}
-            >
-              {_l('切换组织')}
-            </List.Item>
+            {!isSandbox && (
+              <List.Item
+                arrowIcon={<Icon icon="arrow-right-border" className="Font18 textTertiary" />}
+                prefix={
+                  <div className="businessWrapper valignWrapper flexRow">
+                    <Icon icon="business" className="Font16" />
+                  </div>
+                }
+                extra={
+                  <div className="Font15 textPrimary ellipsis" style={{ maxWidth: 180 }}>
+                    {currentProject.companyName}
+                  </div>
+                }
+                onClick={() => {
+                  this.props.history.push(pathCompletion(`/mobile/enterprise`, { hasDomain: false }));
+                }}
+              >
+                {_l('切换组织')}
+              </List.Item>
+            )}
             {window.themeModeVisible && (
               <List.Item
                 arrowIcon={<Icon icon="arrow-right-border" className="Font18 textTertiary" />}
@@ -165,6 +181,17 @@ class MyHome extends Component {
             >
               {_l('系统语言')}
             </List.Item>
+            {!isSandbox && (
+              <List.Item
+                arrowIcon={<Icon icon="arrow-right-border" className="Font18 textTertiary" />}
+                prefix={<Icon icon="help_center" className="Font30" />}
+                onClick={() => {
+                  window.location.href = pathCompletion('/public/mingo/help');
+                }}
+              >
+                {_l('智能帮助')}
+              </List.Item>
+            )}
           </List>
           <a className="logOutBtn" onClick={this.logout} rel="external">
             {_l('退出登录')}

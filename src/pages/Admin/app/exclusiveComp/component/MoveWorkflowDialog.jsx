@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Empty } from 'antd';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Empty, Modal } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import Status from './Status';
 
-const MoveWorkflowDialogWrap = styled(Dialog)`
-  min-height: 400px;
-`;
+const MoveWorkflowDialogWrap = styled(Modal)``;
 
 const ContentWrap = styled.ul`
-  height: 100%;
-  overflow-y: scroll;
+  height: 360px;
+  overflow-y: auto;
   > li {
     margin-bottom: 20px;
     padding: 16px 20px;
@@ -21,7 +18,7 @@ const ContentWrap = styled.ul`
   }
   > li.active,
   > li:hover {
-    background: rgba(33, 150, 243, 0.11);
+    background: var(--color-primary-transparent);
     border: 1px solid var(--color-primary);
   }
   .emptyWrap {
@@ -30,7 +27,15 @@ const ContentWrap = styled.ul`
 `;
 
 function MoveWorkflowDialog(props) {
-  const { visible = false, onOk, onCancel, projectId, sourceResourceId } = props;
+  const {
+    visible = false,
+    onOk,
+    onCancel,
+    projectId,
+    sourceResourceId,
+    title = _l('移动到'),
+    okText = _l('移动'),
+  } = props;
 
   const [select, setSelect] = useState(undefined);
   const [list, setList] = useState([]);
@@ -39,18 +44,19 @@ function MoveWorkflowDialog(props) {
     if (!visible || !projectId) return;
 
     projectAjax.getComputingInstances({ projectId }).then(res => {
-      setList(res.filter(l => l.resourceId !== sourceResourceId && l.status === 2));
+      setList((res || []).filter(l => l.resourceId !== sourceResourceId && l.status === 2));
     });
-  }, [visible]);
+  }, [projectId, sourceResourceId, visible]);
 
   return (
     <MoveWorkflowDialogWrap
       className="moveWorkflowDialog"
-      visible={visible}
+      open={visible}
       width={600}
-      title={<span className="Font17 bold">{_l('移动到')}</span>}
-      okText={_l('移动')}
-      okDisabled={list.length === 0}
+      title={<span className="Font17 bold">{title}</span>}
+      okText={okText}
+      cancelText={_l('取消')}
+      okDisabled={list.length === 0 || !select}
       onOk={() => {
         let _select = select;
         onOk(_select);

@@ -1,4 +1,4 @@
-import { addSubPathOfRoutes } from 'src/utils/common';
+import { addSubPathOfRoutes } from 'src/utils/platform/navigation/path';
 
 export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes({
   printForm: {
@@ -7,7 +7,7 @@ export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes({
   },
   worksheet: {
     path: '/worksheet/:worksheetId',
-    component: () => import('src/router/Application'),
+    component: () => import('src/router/layouts/ApplicationShell'),
     title: _l('应用'),
   },
   // 工作表
@@ -32,7 +32,7 @@ export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes({
   },
   app: {
     path: '/(app/)?:appId',
-    component: () => import('src/router/Application'),
+    component: () => import('src/router/layouts/ApplicationShell'),
     title: _l('应用'),
   },
 });

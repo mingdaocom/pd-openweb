@@ -2,9 +2,9 @@
 import _, { find, get, isEmpty, isFunction, trim, uniqBy } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
 export const ERROR_STATUS = {
   NO_PERMISSION: -1,
@@ -71,6 +71,8 @@ export default function useRecords(props) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [worksheetInfo, setWorksheetInfo] = useState({});
+  const [manageView, setManageView] = useState();
+  const useColumnStyle = get(control, 'advancedSetting.usecolumnstyle') === '1';
   const [recordsLoading, setRecordsLoading] = useState(true);
   const [keyWords, setKeyWords] = useState('');
   const [sortControl, setSortControl] = useState();
@@ -327,11 +329,37 @@ export default function useRecords(props) {
     });
   }, [worksheetId, parentWorksheetId]);
 
+  // 数据管理视图（viewId === worksheetId）不在 getWorksheetInfo 返回的 views 里，
+  // 勾选「列样式与工作表保持一致」时单独取它的列样式；公开表单接口不支持，跳过后回退工作表级样式
+  useEffect(() => {
+    const ajax = getWorksheetAjax();
+
+    if (!useColumnStyle || !worksheetId || !isFunction(ajax.getWorksheetViewById)) {
+      return;
+    }
+
+    let cancelled = false;
+
+    ajax
+      .getWorksheetViewById({ appId, worksheetId, viewId: worksheetId }, { silent: true })
+      .then(data => {
+        if (!cancelled) {
+          setManageView(data);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [useColumnStyle, worksheetId, appId]);
+
   const hasMore = listMode && records.length < total;
 
   return {
     loading,
     worksheetInfo,
+    manageView,
     recordsLoading,
     records,
     pageIndex,

@@ -1,29 +1,28 @@
 import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
 
 export const TableWrap = styled.div`
-  .ant-table-thead > tr > th {
+  .hap-table-thead > tr > th {
     background: var(--color-background-primary) !important;
     color: var(--color-text-title);
     font-size: 13px;
     font-weight: normal;
-    &:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+    &:not(:last-child):not(.hap-table-selection-column):not(.hap-table-row-expand-icon-cell):not([colspan])::before {
       display: none;
     }
   }
-  .ant-switch-checked {
+  .hap-switch-checked {
     background-color: rgba(40, 202, 131, 1);
   }
 `;
 
 export const LogoWrap = styled.div(
-  ({ width }) => `
+  ({ $width }) => `
   text-align: center;
   position: relative;
   overflow: hidden;
-  width: ${width || 48}px;
-  height: ${width || 48}px;
-  min-width: ${width || 48}px;
+  width: ${$width || 48}px;
+  height: ${$width || 48}px;
+  min-width: ${$width || 48}px;
   background: var(--color-background-primary);
   opacity: 1;
   border-radius: 8px;
@@ -63,82 +62,29 @@ export const BtnWrap = styled.div`
     background: var(--color-link-hover);
   }
 `;
-export const MenuItemWrap = styled(MenuItem)`
-  .Item-content {
-    padding-left: 47px !important;
-  }
-`;
-
-export const RedMenuItemWrap = styled(MenuItemWrap)`
-  .Item-content {
-    color: var(--color-error) !important;
-    .Icon {
-      color: var(--color-error) !important;
-    }
-  }
-`;
-export const WrapFooter = styled.div`
-  .btn {
-    padding: 0 32px;
-    background: var(--color-primary);
-    color: var(--color-white);
-    line-height: 36px;
-    border-radius: 3px;
-    &:hover {
-      background: var(--color-link-hover);
-    }
-    &.disable {
-      opacity: 0.5;
-    }
-  }
-  .cancel {
-    color: var(--color-text-secondary);
-    margin-right: 52px;
-    &:hover {
-      color: var(--color-primary);
-    }
-    padding: 8px 32px;
-  }
-`;
-
 export const CardTopWrap = styled.div`
-   {
-    padding: 24px;
-    align-items: center;
-    .iconCon {
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--color-border-secondary);
-      border-radius: 6px;
-      position: relative;
-      .iconParam {
-        color: var(--color-text-secondary);
-      }
-      &.isEdit {
-        .iconParam {
-          color: var(--color-primary);
-        }
-        border: 1px solid var(--color-primary);
-      }
-      .tip {
-        position: absolute;
-        font-size: 20px;
-        left: -10px;
-        top: -10px;
-      }
+  padding: 24px;
+  align-items: center;
+  .iconCon {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 6px;
+    position: relative;
+    .iconParam {
+      color: var(--color-text-secondary);
     }
-    .btn {
-      padding: 0 20px;
-      margin-right: 12px;
-      line-height: 26px;
-      color: var(--color-primary);
-      border: 1px solid var(--color-primary);
-      border-radius: 26px;
-      height: 28px;
-      &:hover {
-        color: rgba(23, 100, 192, 1);
-        border: 1px solid rgba(23, 100, 192, 1);
+    &.isEdit {
+      .iconParam {
+        color: var(--color-primary);
       }
+      border: 1px solid var(--color-primary);
+    }
+    .tip {
+      position: absolute;
+      font-size: 20px;
+      left: -10px;
+      top: -10px;
     }
   }
 `;
@@ -177,11 +123,4 @@ export const MoreOperate = styled.span`
   &:hover {
     color: var(--color-primary);
   }
-`;
-
-export const MenuWrap = styled(Menu)`
-  position: relative !important;
-  overflow: auto;
-  padding: 6px 0 !important;
-  width: 200px !important;
 `;

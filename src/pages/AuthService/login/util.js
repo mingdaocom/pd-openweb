@@ -3,10 +3,11 @@ import loginController from 'src/api/login';
 import projectApi from 'src/api/project';
 import workWeiXinController from 'src/api/workWeiXin';
 import { cacheDefaultCountry, loginSuccessRedirect } from 'src/pages/AuthService/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
-import { setPssId } from 'src/utils/pssId';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { compatibleMDJS } from 'src/utils/services/project';
 import { IntegrationAccountType, LoginResult } from './config.js';
 
 //登录相关的回调处理
@@ -56,6 +57,9 @@ export const loginCallback = ({ data, onChange }) => {
           ua: window.navigator.userAgent,
         }),
       );
+    } else if (isCheck === false) {
+      // 自动登录不传 isCheck，仅在手动登录明确未勾选时清理旧缓存
+      window.localStorage.removeItem('LoginCheckList');
     }
   }
 
@@ -273,6 +277,11 @@ export const ssoLogin = (returnUrl = '') => {
 
           // 企业微信
           if (item1 === 3) {
+            // 公有云仅 www 和 meihua 支持此授权入口，其他二级域名不自动跳转。
+            if (window.platformENV.isHap && !['www.mingdao.com', 'meihua.mingdao.com'].includes(location.hostname)) {
+              return;
+            }
+
             location.href = pathCompletion(`/auth/workwx?p=${item2}&url=${url}`);
           }
 

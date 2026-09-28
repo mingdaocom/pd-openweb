@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon/index.js';
 import { downloadFile } from '../../../../../util';
 import alertImg from '../../assets/alert.png';
@@ -32,19 +33,6 @@ const FailInfoCon = styled.div`
     color: var(--color-text-title);
     line-height: 36px;
     margin-bottom: 30px;
-    .downloadBtn {
-      width: 114px;
-      height: 36px;
-      text-align: center;
-      line-height: 36px;
-      background: var(--color-primary);
-      border: 1px solid var(--color-primary);
-      opacity: 1;
-      border-radius: 28px;
-      font-size: 13px;
-      color: var(--color-white);
-      cursor: pointer;
-    }
   }
 `;
 
@@ -63,21 +51,9 @@ const ImportError = styled.div`
     margin: 36px 0 16px;
   }
   .errorDes {
-    font-size: 14;
+    font-size: 14px;
     color: var(--color-text-secondary);
     margin-bottom: 78px;
-  }
-  .uploadBtnStyle {
-    width: 108px;
-    height: 36px;
-    border: 1px solid rgba(33, 150, 243, 1);
-    border-radius: 32px;
-    background-color: var(--color-background-primary);
-    color: rgba(33, 150, 243, 1);
-    &:hover {
-      color: var(--color-primary-light) !important;
-      border-color: var(--color-primary-light) !important;
-    }
   }
 `;
 
@@ -216,9 +192,9 @@ export default class ImportResulFailtDetail extends Component {
             <div className="listTitle flexRow">
               <div>{currentTab === 'import' ? _l('导入新成员失败列表') : _l('更新成员信息失败列表')}</div>
               {resultDetail.dowloadId && (
-                <div onClick={this.exportExcel} className="downloadBtn">
+                <Button type="primary" shape="round" onClick={this.exportExcel}>
                   {_l('下载失败列表')}
-                </div>
+                </Button>
               )}
             </div>
             <div className="flex minHeight0">
@@ -241,9 +217,15 @@ export default class ImportResulFailtDetail extends Component {
               </a>
               {_l('，按格式修改后重新导入')}
             </div>
-            <button className="ming Button uploadBtnStyle mTop30" onClick={() => this.props.changeShowList(false)}>
+            <Button
+              color="primary"
+              variant="outlined"
+              shape="round"
+              className="mTop30"
+              onClick={() => this.props.changeShowList(false)}
+            >
               {_l('重新上传')}
-            </button>
+            </Button>
           </ImportError>
         )}
       </Fragment>

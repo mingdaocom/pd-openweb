@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input, RadioGroup } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Radio, Select } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import { CREATE_TYPE, CREATE_TYPE_RADIO_LIST, DATABASE_TYPE } from '../../../constant';
 import SelectDataObjForm from '../SelectDataObjForm';
@@ -20,22 +20,6 @@ const SyncWithDealWrapper = styled.div`
 
   .sheetNameInput {
     width: 100%;
-    .Input {
-      background: var(--color-background-secondary);
-      border: 1px solid var(--color-background-secondary) !important;
-      border-radius: 4px;
-      padding: 8px 12px 6px;
-      font-size: 13px;
-
-      :hover {
-        border-color: var(--color-background-disabled) !important;
-        background: var(--color-background-disabled);
-      }
-      :focus {
-        border-color: var(--color-primary) !important;
-        background: var(--color-background-primary);
-      }
-    }
   }
 `;
 
@@ -130,18 +114,20 @@ export default function SyncWithDeal(props) {
       {isDestAppType ? (
         <div>
           <p className="mBottom16">{_l('工作表')}</p>
-          <RadioGroup
+          <Radio.Group
             className="mBottom24"
-            data={CREATE_TYPE_RADIO_LIST}
-            checkedValue={sheetNameData.sheetCreateType}
-            onChange={sheetCreateType => onCreateTypeChange(sheetCreateType)}
+            options={(CREATE_TYPE_RADIO_LIST || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            value={sheetNameData.sheetCreateType}
+            onChange={event => onCreateTypeChange(event.target.value)}
           />
           {sheetNameData.sheetCreateType === CREATE_TYPE.NEW ? (
             <div className="sheetNameInput">
               <Input
                 className="mBottom24 w100"
+                radius
+                variant="filled"
                 value={sheetNameData.sheetName}
-                onChange={sheetName => setSheetNameData({ sheetName })}
+                onChange={event => setSheetNameData({ sheetName: event.target.value })}
               />
             </div>
           ) : (

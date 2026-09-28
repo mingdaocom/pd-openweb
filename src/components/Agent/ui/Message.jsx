@@ -55,6 +55,10 @@ const Content = styled.div`
   font-size: 14px;
   line-height: 24px;
 
+  body.mobileMingoPage & {
+    font-size: 16px;
+  }
+
   ${({ $role }) =>
     $role === 'user'
       ? css`
@@ -117,7 +121,6 @@ const Action = styled.button`
 
 const Response = styled.div`
   color: ${colors.text};
-  margin-top: ${({ $role }) => ($role === 'assistant' ? '12px' : '0')};
 `;
 
 // 信用点用量：贴在 assistant 气泡下方的一行小字。最新一条始终显示（$always），旧消息默认透明、hover 整条消息才显现。
@@ -126,7 +129,7 @@ const Meta = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 24px;
   color: ${colors.textDisabled};
   opacity: ${({ $always }) => ($always ? 1 : 0)};
@@ -220,14 +223,14 @@ export function MessageAction(props) {
 // assistant 气泡下方的元信息行：消息时间 + 本轮费用。整行最新一条常驻、旧消息 hover 才显现。
 // pending=true（用量未结算，a2a 后台还在扣）时费用显示「费用计算中…」+ 刷新按钮，点击重查；否则显示「X 信用点」。
 // credits 为 null 且非 pending（如 help-agent 不计费）时只显示时间。
-export function MessageMeta({ time, credits, pending = false, always = false, onRefresh }) {
+export function MessageMeta({ time, credits, pending = false, always = false, onRefresh, children }) {
   const timeValue = normalizeMessageTime(time);
   const hasCost = pending || credits != null;
 
-  if (!timeValue && !hasCost) return null;
+  if (!timeValue && !hasCost && !children) return null;
 
   return (
-    <Meta $always={always || pending}>
+    <Meta $always={always}>
       {/* 时间显示与记录消息讨论一致：默认相对时间，点击在「相对/完整」间切换并全局同步 + 用户时区转换 */}
       {!!timeValue && <PreferenceTime value={timeValue} />}
       {hasCost && (
@@ -244,7 +247,54 @@ export function MessageMeta({ time, credits, pending = false, always = false, on
           )}
         </MessageCost>
       )}
+      {/* 尾部操作槽（如用户提问的「复制」）：与时间同一行，跟随 Meta 一同 hover 显隐 */}
+      {children}
     </Meta>
+  );
+}
+
+// assistant 回复底部操作行（复制 / 朗读 / 重新生成 / 分享）：与 Meta 同一套显隐规则——
+// 最新一条常驻（$always），旧消息 hover 整条消息才显现，移动端常显。
+// 不带上边距：外层 MessageFooter 统一控制与正文的间距，并让操作栏与时间 / 信用点在同一行居中对齐。
+const ActionsBar = styled.div`
+  display: inline-flex;
+  align-items: center;
+  opacity: ${({ $always }) => ($always ? 1 : 0)};
+  transition: opacity ${transitions.hover};
+
+  ${Root}:hover & {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    opacity: 1;
+  }
+`;
+
+export function MessageActionsBar({ children, always = false, className }) {
+  return (
+    <ActionsBar className={className} $always={always}>
+      {children}
+    </ActionsBar>
+  );
+}
+
+// 消息底部页脚：把操作栏与「时间 / 信用点」放在同一行（assistant 左对齐、user 右对齐），
+// 与正文之间留统一上边距。子项各自的显隐规则不变（最新一条常驻、旧消息 hover 才显现）。
+const Footer = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: ${spacing.sm};
+  justify-content: ${({ $role }) => ($role === 'user' ? 'flex-end' : 'flex-start')};
+`;
+
+export function MessageFooter({ role = 'assistant', children, className }) {
+  return (
+    <Footer className={className} $role={role}>
+      {children}
+    </Footer>
   );
 }
 

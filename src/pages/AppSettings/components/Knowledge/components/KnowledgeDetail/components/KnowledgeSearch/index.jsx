@@ -2,10 +2,10 @@ import React, { Fragment, memo, useState } from 'react';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import knowledgeAjax from '../../../../api/knowledge';
 import attachmentAjax from 'src/api/attachment';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import { useEsc } from 'src/utils/platform/react/interaction';
 import { ATTACHMENT_TYPE_ENUM, CHUNK_TYPE_TEXT, SEARCH_MODE } from '../../../../core/config';
-import { useEsc } from '../../../../core/hooks';
 import { useLinkTargetBlank } from '../../../../core/hooks';
 import EnhanceInfo from '../../../EnhanceInfo';
 import MarkdownPreview from '../../../MarkdownPreview';
@@ -16,6 +16,8 @@ import './index.less';
 
 const KnowledgeSearch = ({ knowledgeDetail, onClose }) => {
   const { name: knowledgeName } = knowledgeDetail;
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
 
   const contentRef = useLinkTargetBlank();
 
@@ -58,7 +60,7 @@ const KnowledgeSearch = ({ knowledgeDetail, onClose }) => {
 
     if (data) {
       setActiveEsc(false);
-      previewAttachments({
+      openPreviewAttachments({
         index: 0,
         callFrom: 'player',
         attachments: [data],
@@ -72,6 +74,8 @@ const KnowledgeSearch = ({ knowledgeDetail, onClose }) => {
 
   return (
     <div className="knowledgeSearchContainer">
+      {recordInfoHolder}
+      {previewAttachmentsHolder}
       {/* Header */}
       <div className="knowledgeSearchHeader">
         <div className="left">

@@ -1,25 +1,21 @@
 import React, { Component } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import { Button, Icon, Input, LoadDiv, Menu, MenuItem, ScrollView, Switch, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Button, Dropdown, Input, Modal, Select, Switch, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import AddEditRulesDialog from './AddEditRulesDialog';
 import { encryptList, statusList } from './constant';
-import { encryptDetailCon } from './EncryptDetail';
+import { useEncryptDetail } from './EncryptDetail';
 import './index.less';
 
-const { Option } = Select;
-
-export default class EncryptRules extends Component {
+class EncryptRules extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -117,8 +113,9 @@ export default class EncryptRules extends Component {
             <div className="Font17 bold flex mLeft10">{_l('加密规则')}</div>
           </div>
           <Button
-            radius
+            shape="round"
             type="primary"
+            icon={<Icon icon="add" className="Font18" />}
             onClick={() => {
               if (featureType === '2') {
                 buriedUpgradeVersionDialog(projectId, VersionProductType.dataEnctypt);
@@ -128,41 +125,30 @@ export default class EncryptRules extends Component {
               this.setState({ showAddEditDialog: true });
             }}
           >
-            <Icon icon="add" className="Font18 mRight2" />
             {_l('新建规则')}
           </Button>
         </div>
         <div className="orgManagementContent flex flexColumn pTop16">
           <div className="searchWrap flexRow">
             <Select
-              className="mRight16 mdAntSelect"
+              className="mRight16"
               value={type}
               onChange={val => this.changeSearchParams('type', val)}
               style={{ width: 160 }}
-            >
-              {encryptList.map(it => (
-                <Option key={it.value} value={it.value}>
-                  {it.label}
-                </Option>
-              ))}
-            </Select>
+              options={encryptList}
+            />
             <Select
               value={state}
-              className="mRight16 mdAntSelect"
+              className="mRight16"
               onChange={val => this.changeSearchParams('state', val)}
               style={{ width: 160 }}
-            >
-              {statusList.map(it => (
-                <Option key={it.value} value={it.value}>
-                  {it.label}
-                </Option>
-              ))}
-            </Select>
+              options={statusList}
+            />
             <Input
               value={name}
               placeholder={_l('搜索规则名称')}
               style={{ width: 200 }}
-              onChange={val => this.changeSearchParams('name', val)}
+              onChange={e => this.changeSearchParams('name', e.target.value)}
             />
           </div>
           <div className="flexRow listHead">
@@ -195,24 +181,31 @@ export default class EncryptRules extends Component {
                       <Switch
                         className="mTop18"
                         checked={item.state === 1}
-                        text={item.state === 1 ? _l('启用') : _l('停用')}
-                        onClick={checked => {
+                        checkedChildren={item.state === 1 ? _l('启用') : _l('停用')}
+                        unCheckedChildren={item.state === 1 ? _l('启用') : _l('停用')}
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
                           projectEncryptAjax
                             .setEncryptRuleState({
                               projectId,
                               encryptRuleId: item.encryptRuleId,
-                              state: checked ? 2 : 1,
+                              state: !checked ? 2 : 1,
                             })
                             .then(res => {
                               if (res.success) {
                                 const tempData = dataSource.map(it => {
                                   if (it.encryptRuleId === item.encryptRuleId) {
-                                    return { ...it, state: checked ? 0 : 1 };
+                                    return {
+                                      ...it,
+                                      state: !checked ? 0 : 1,
+                                    };
                                   }
 
                                   return it;
                                 });
-                                this.setState({ dataSource: tempData });
+                                this.setState({
+                                  dataSource: tempData,
+                                });
                               } else {
                                 alert(_l('操作失败'), 2);
                               }
@@ -237,89 +230,86 @@ export default class EncryptRules extends Component {
                       {item.createAccountName}
                     </div>
                     <div className="w80 TxtCenter">
-                      <Trigger
-                        action={['click']}
-                        popupVisible={this.state.showMoreRuleId === item.encryptRuleId}
-                        onPopupVisibleChange={visible =>
-                          this.setState({ showMoreRuleId: visible ? item.encryptRuleId : null })
-                        }
-                        popup={() => {
-                          return (
-                            <Menu className="Static">
-                              <MenuItem
-                                onClick={() => {
-                                  this.setState({ showMoreRuleId: null });
-                                  encryptDetailCon({
-                                    projectId: this.props.projectId,
-                                    encryptRuleId: item.encryptRuleId,
-                                    ruleDetail: item,
-                                    updateCurrentRow: ({ name, remark, ...rest }) => {
-                                      console.log(rest, 'rest', name, remark);
-                                      const tempData = dataSource.map(it => {
-                                        if (it.encryptRuleId === item.encryptRuleId) {
-                                          return { ...it, name, remark, ...rest };
-                                        }
+                      <Dropdown
+                        trigger={['click']}
+                        open={this.state.showMoreRuleId === item.encryptRuleId}
+                        onOpenChange={visible => this.setState({ showMoreRuleId: visible ? item.encryptRuleId : null })}
+                        menu={{
+                          items: [
+                            {
+                              key: 'detail',
+                              label: _l('详情'),
+                              onClick: () => {
+                                this.setState({ showMoreRuleId: null });
+                                this.props.openEncryptDetail({
+                                  projectId: this.props.projectId,
+                                  encryptRuleId: item.encryptRuleId,
+                                  ruleDetail: item,
+                                  updateCurrentRow: ({ name, remark, ...rest }) => {
+                                    console.log(rest, 'rest', name, remark);
+                                    const tempData = dataSource.map(it => {
+                                      if (it.encryptRuleId === item.encryptRuleId) {
+                                        return { ...it, name, remark, ...rest };
+                                      }
 
-                                        return it;
-                                      });
-                                      this.setState({ dataSource: tempData });
-                                    },
-                                  });
-                                }}
-                              >
-                                {_l('详情')}
-                              </MenuItem>
-                              {!item.isDefault && item.state && (
-                                <MenuItem
-                                  onClick={() =>
-                                    this.handleDefaultAndDeleteRule({
-                                      encryptRuleId: item.encryptRuleId,
-                                      requestFuncName: 'setDefaultEncryptRule',
-                                    })
-                                  }
-                                >
-                                  {_l('设置默认规则')}
-                                </MenuItem>
-                              )}
-                              {!item.isSystem && (
-                                <MenuItem
-                                  onClick={() => {
-                                    this.setState({ showMoreRuleId: null });
-                                    Confirm({
-                                      title: _l('删除 %0 加密规则', item.name),
-                                      description: (
-                                        <span className="textPrimary">
-                                          {_l('若此规则有被字段使用，则该规则不能删除')}
-                                        </span>
-                                      ),
-                                      okText: _l('删除'),
-                                      buttonType: 'danger',
-                                      onOk: () => {
-                                        this.handleDefaultAndDeleteRule({
-                                          encryptRuleId: item.encryptRuleId,
-                                          requestFuncName: 'removeEncryptRule',
-                                          successTxt: _l('删除成功'),
-                                          failTxt: _l('删除失败'),
-                                        });
-                                      },
+                                      return it;
                                     });
-                                  }}
-                                >
-                                  {_l('删除')}
-                                </MenuItem>
-                              )}
-                            </Menu>
-                          );
+                                    this.setState({ dataSource: tempData });
+                                  },
+                                });
+                              },
+                            },
+                            ...(!item.isDefault && item.state
+                              ? [
+                                  {
+                                    key: 'setDefault',
+                                    label: _l('设置默认规则'),
+                                    onClick: () =>
+                                      this.handleDefaultAndDeleteRule({
+                                        encryptRuleId: item.encryptRuleId,
+                                        requestFuncName: 'setDefaultEncryptRule',
+                                      }),
+                                  },
+                                ]
+                              : []),
+                            ...(!item.isSystem
+                              ? [
+                                  {
+                                    key: 'delete',
+                                    danger: true,
+                                    label: _l('删除'),
+                                    onClick: () => {
+                                      this.setState({ showMoreRuleId: null });
+                                      Modal.confirm({
+                                        title: <span className="textError">{_l('删除 %0 加密规则', item.name)}</span>,
+                                        content: (
+                                          <span className="textPrimary">
+                                            {_l('若此规则有被字段使用，则该规则不能删除')}
+                                          </span>
+                                        ),
+                                        okText: _l('删除'),
+                                        okButtonProps: {
+                                          danger: true,
+                                        },
+                                        onOk: () => {
+                                          this.handleDefaultAndDeleteRule({
+                                            encryptRuleId: item.encryptRuleId,
+                                            requestFuncName: 'removeEncryptRule',
+                                            successTxt: _l('删除成功'),
+                                            failTxt: _l('删除失败'),
+                                          });
+                                        },
+                                      });
+                                    },
+                                  },
+                                ]
+                              : []),
+                          ],
+                          style: { minWidth: 180 },
                         }}
-                        popupAlign={{
-                          offset: [0, 0],
-                          points: ['tr', 'br'],
-                          overflow: { adjustX: true, adjustY: true },
-                        }}
-                        popupStyle={{ width: 180, height: 120 }}
                       >
                         <Icon icon="moreop" className="textTertiary Hand Font18 hoverColorPrimary" />
-                      </Trigger>
+                      </Dropdown>
                     </div>
                   </div>
                 ))
@@ -347,3 +337,7 @@ export default class EncryptRules extends Component {
     );
   }
 }
+
+export default withOpeners(EncryptRules, {
+  openEncryptDetail: useEncryptDetail,
+});

@@ -1,12 +1,15 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input, QiniuUpload, Switch, Textarea } from 'ming-ui';
+import { Icon, QiniuUpload } from 'ming-ui';
+import { Input, Switch } from 'ming-ui/antd-components';
 import processApi from 'src/pages/workflow/api/process';
 import { AGENT_TOOLS } from 'src/pages/workflow/WorkflowSettings/enum';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import defaultProfile from './assets/profile.png';
+
+const PRESET_QUESTION_TEXTAREA_STYLE = { minHeight: 100 };
 
 const Wrap = styled.div`
   width: 360px;
@@ -91,7 +94,7 @@ const Edit = props => {
   const { chatbotConfig, onChatbotConfig } = props;
   const { data, onClose } = props;
   const previewIconUrl = chatbotConfig.previewIconUrl || chatbotConfig.iconUrl;
-  const [originalChatbotConfig, setOriginalChatbotConfig] = useState({});
+  const [originalChatbotConfig, setOriginalChatbotConfig] = useState(chatbotConfig);
   const uploadPermission = _.get(chatbotConfig, 'uploadPermission') || '00';
   const allowUploadImage = uploadPermission.split('')[0] === '1';
   const allowUploadOffice = uploadPermission.split('')[1] === '1';
@@ -116,10 +119,6 @@ const Edit = props => {
       });
   };
 
-  useEffect(() => {
-    setOriginalChatbotConfig(chatbotConfig);
-  }, []);
-
   return (
     <Wrap className="flexColumn">
       <div className="header flexRow alignItemsCenter mBottom20">
@@ -132,8 +131,8 @@ const Edit = props => {
           <Input
             className="w100"
             value={chatbotConfig.name}
-            onChange={value => {
-              onChatbotConfig(values => ({ ...values, name: value }));
+            onChange={e => {
+              onChatbotConfig(values => ({ ...values, name: e.target.value }));
             }}
             onBlur={event => {
               const { value } = event.target;
@@ -184,8 +183,8 @@ const Edit = props => {
           <Input
             className="w100"
             value={chatbotConfig.welcomeText}
-            onChange={value => {
-              onChatbotConfig(values => ({ ...values, welcomeText: value }));
+            onChange={e => {
+              onChatbotConfig(values => ({ ...values, welcomeText: e.target.value }));
             }}
             onBlur={event => {
               const { value } = event.target;
@@ -206,11 +205,13 @@ const Edit = props => {
               '预设提问用于引导用户，帮助用户快速选择提问方向并进入流程。预设提问按行展示，一行对应一个。预设提问最多可配置 5 个。',
             )}
           </div>
-          <Textarea
+          <Input.TextArea
+            autoSize
             className="w100"
+            style={PRESET_QUESTION_TEXTAREA_STYLE}
             value={chatbotConfig.presetQuestion}
-            onChange={value => {
-              onChatbotConfig(values => ({ ...values, presetQuestion: value }));
+            onChange={event => {
+              onChatbotConfig(values => ({ ...values, presetQuestion: event.target.value }));
             }}
             onBlur={event => {
               const { value } = event.target;
@@ -238,7 +239,8 @@ const Edit = props => {
             <Switch
               size="small"
               checked={allowUploadImage}
-              onClick={() => {
+              onClick={(checked, event) => {
+                event.stopPropagation();
                 const res = uploadPermission
                   .split('')
                   .map((item, index) => (index === 0 ? (allowUploadImage ? '0' : '1') : item))
@@ -254,7 +256,8 @@ const Edit = props => {
             <Switch
               size="small"
               checked={allowUploadOffice}
-              onClick={() => {
+              onClick={(checked, event) => {
+                event.stopPropagation();
                 const res = uploadPermission
                   .split('')
                   .map((item, index) => (index === 1 ? (allowUploadOffice ? '0' : '1') : item))
@@ -270,8 +273,11 @@ const Edit = props => {
             <Switch
               size="small"
               checked={chatbotConfig.allowShare}
-              onClick={() => {
-                handleSave({ allowShare: !chatbotConfig.allowShare });
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                handleSave({
+                  allowShare: !chatbotConfig.allowShare,
+                });
               }}
             />
           </div>

@@ -1,10 +1,29 @@
-import React, { Component } from 'react';
+import React, { Component, forwardRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
+import defaultGroupAvatar from './resource/defaultGroupAvatar.png';
 import './index.less';
 
-export default class SessionItem extends Component {
+const AvatarImage = forwardRef(({ className, isGroup, isPost, logo, ...restProps }, ref) => {
+  const [loadFailed, setLoadFailed] = useState(false);
+  const showDefaultGroupAvatar = isGroup && loadFailed;
+
+  return (
+    <img
+      {...restProps}
+      ref={ref}
+      src={showDefaultGroupAvatar ? defaultGroupAvatar : logo}
+      className={cx(className, { radius: isPost !== false, 'default-group-avatar': showDefaultGroupAvatar })}
+      draggable={false}
+      onError={isGroup && !showDefaultGroupAvatar ? () => setLoadFailed(true) : undefined}
+    />
+  );
+});
+
+AvatarImage.displayName = 'AvatarImage';
+
+class SessionItem extends Component {
   constructor(props) {
     super(props);
   }
@@ -75,7 +94,7 @@ export default class SessionItem extends Component {
     const { logo, isPost } = item;
 
     if (logo) {
-      return <img src={logo} className={cx({ radius: isPost !== false })} draggable={false} />;
+      return <AvatarImage key={logo} logo={logo} isGroup={item.isGroup} isPost={isPost} />;
     } else {
       if (item.iconType === 'calendar') {
         return <div className={cx('circle', `chat_${item.iconType}`)} data-date={new Date().getDate()} />;
@@ -84,6 +103,10 @@ export default class SessionItem extends Component {
       }
     }
   }
+  handleClick = event => {
+    this.props.onClick?.(event);
+    this.props.onOpenPanel?.(event);
+  };
   render() {
     const { item, visible, isActive, isHover } = this.props;
     const { top_info } = item;
@@ -93,12 +116,13 @@ export default class SessionItem extends Component {
 
     return (
       <div
-        className={cx('SessionList-item', {
+        ref={this.props.forwardedRef}
+        className={cx('SessionList-item', this.props.className, {
           active: isActive,
           bgTertiary: isHover,
           topBGColor: visible && isTop,
         })}
-        onClick={this.props.onOpenPanel}
+        onClick={this.handleClick}
         onContextMenu={this.props.onContextMenu}
         data-id={item.value}
       >
@@ -120,7 +144,7 @@ export default class SessionItem extends Component {
           {visible ? (
             this.renderAvatar(item)
           ) : (
-            <Tooltip placement="left" title={item.name} align={{ offset: [-3, 0] }} mouseLeaveDelay={0.1}>
+            <Tooltip placement="left" title={item.name} mouseLeaveDelay={0.1}>
               {this.renderAvatar(item)}
             </Tooltip>
           )}
@@ -135,3 +159,9 @@ export default class SessionItem extends Component {
     );
   }
 }
+
+const ForwardedSessionItem = forwardRef((props, ref) => <SessionItem {...props} forwardedRef={ref} />);
+
+ForwardedSessionItem.displayName = 'SessionItem';
+
+export default ForwardedSessionItem;

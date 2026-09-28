@@ -1,4 +1,4 @@
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const getTranslatedName = (appId, id, originalName) => getTranslateInfo(appId, null, id).name || originalName;
 

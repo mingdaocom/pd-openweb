@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Drawer } from 'antd';
 import domtoimage from 'dom-to-image';
 import styled from 'styled-components';
+import { Drawer } from 'ming-ui/antd-components';
 
 const thumbnailWidth = 240;
 const thumbnailHeight = 240;
@@ -187,12 +187,12 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
   return (
     <Drawer
       placement="left"
-      className="workflowThumbnail"
-      visible={visible}
+      rootClassName="workflowThumbnail"
+      open={visible}
       closable={false}
       mask={false}
-      bodyStyle={{ padding: 0 }}
-      width={290}
+      size={290}
+      styles={{ body: { padding: 0 } }}
     >
       <Thumbnail>
         <Box style={{ backgroundImage: `url(${imgUrl})` }} ref={thumbnailContainer} onClick={clickPosition}>

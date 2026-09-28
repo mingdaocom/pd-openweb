@@ -1,9 +1,10 @@
-import { addSubPathOfRoutes } from 'src/utils/common';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { addSubPathOfRoutes } from 'src/utils/platform/navigation/path';
 
-export const ROUTE_CONFIG = addSubPathOfRoutes({
+const ROUTE_CONFIG = addSubPathOfRoutes({
   appHome: {
     path: '/mobile/dashboard',
-    component: () => import('mobile/AppHome'),
+    component: () => (isSandboxEnvironment() ? import('mobile/AppSandbox') : import('mobile/AppHome')),
     title: _l('工作台'),
   },
   appGroupList: {
@@ -34,7 +35,6 @@ export const ROUTE_CONFIG = addSubPathOfRoutes({
   appBox: {
     path: '/mobile/appBox',
     component: () => import('mobile/AppBox'),
-    title: _l('应用库'),
   },
   mingoCreateApp: {
     path: '/mobile/mingo/create-app/:key?',
@@ -42,10 +42,17 @@ export const ROUTE_CONFIG = addSubPathOfRoutes({
     title: _l('Mingo'),
   },
   mingo: {
-    path: '/mobile/mingo',
+    path: '/mobile/mingo/:key?',
     exact: true,
     component: () => import('mobile/Mingo'),
     title: _l('Mingo'),
+  },
+  // 智能客服嵌入页（native 客户端内嵌）：复用 H5 Mingo 页的帮助异化形态，见 mobile/Mingo 的 helpMode
+  mingoHelp: {
+    path: '/embed/mingo/help',
+    exact: true,
+    component: () => import('mobile/Mingo'),
+    title: _l('智能客服'),
   },
   myHome: {
     path: '/mobile/myHome/',
@@ -152,6 +159,13 @@ export const ROUTE_CONFIG = addSubPathOfRoutes({
     title: _l('草稿箱'),
   },
 });
+
+Object.defineProperty(ROUTE_CONFIG.appBox, 'title', {
+  enumerable: true,
+  get: () => (window.platformENV.isHap ? _l('明道云市场') : _l('应用库')),
+});
+
+export { ROUTE_CONFIG };
 
 export const PORTAL = [
   'home',

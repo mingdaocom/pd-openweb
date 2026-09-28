@@ -1,18 +1,19 @@
-import React, { Component, Fragment, lazy, Suspense } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
-import { array, bool, func, string } from 'prop-types';
-import { Dialog } from 'ming-ui';
+import { array, bool, element, func, string } from 'prop-types';
+import { Modal } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import { mapAttachmentForRequest } from 'src/components/Agent/agentService';
-import { hasPermission } from 'src/components/checkPermission';
 import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
+import { canBuildAppWithMingo } from 'src/components/Mingo/permission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus, getThemeColors } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getFeatureStatus, getThemeColors } from 'src/utils/services/project';
+import { hasPermission } from 'src/utils/services/security/permission';
 import SelectDBInstance from './SelectDBInstance';
 
 const LoadableCreateAppEntryDialog = lazy(() => import('./CreateAppEntryDialog'));
@@ -28,6 +29,7 @@ export default class AddAppItem extends Component {
     projectId: string,
     type: string,
     DBInstances: array,
+    children: element,
     // 内联模式：在引导页等场景直接平铺创建入口内容，不渲染「新建应用」触发块
     inline: bool,
   };
@@ -68,7 +70,7 @@ export default class AddAppItem extends Component {
     const importFeatureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+      (!window.platformENV.isPlatform || window.platformENV.isHap);
 
     return [
       {
@@ -196,12 +198,13 @@ export default class AddAppItem extends Component {
     if (!importAppDialog) return null;
 
     return (
-      <Dialog
+      <Modal
         title={_l('导入应用')}
-        visible={importAppDialog}
+        open={importAppDialog}
         footer={null}
         width={640}
-        overlayClosable={false}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => this.setState({ importAppDialog: false })}
       >
         <Suspense fallback={null}>
@@ -210,7 +213,7 @@ export default class AddAppItem extends Component {
               this.setState({ importAppDialog: false, importAppParams: params });
               const hasDataBase =
                 getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+                (!window.platformENV.isPlatform || window.platformENV.isHap);
 
               if (hasDataBase && hasAppResourceAuth) {
                 return this.getMyDbInstances('importApp');
@@ -221,7 +224,7 @@ export default class AddAppItem extends Component {
             groupType={groupType}
           />
         </Suspense>
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -306,28 +309,24 @@ export default class AddAppItem extends Component {
           <Suspense fallback={null}>
             <LoadableCreateAppEntryContent
               projectId={projectId}
-              showAi={!md.global.SysSettings.hideAIBasicFun}
+              showAi={canBuildAppWithMingo(projectId)}
               actions={this.buildCreateActions()}
               onAiSubmit={this.handleAiSubmit}
             />
           </Suspense>
+        ) : children ? (
+          React.cloneElement(children, { onClick: this.handleAddAppItemClick })
         ) : (
           <div className={'addAppItemWrap ' + className}>
-            {children ? (
-              <div onClick={this.handleAddAppItemClick}>{children}</div>
-            ) : (
-              <Fragment>
-                <div className="addAppItem" onClick={this.handleAddAppItemClick} />
-                <div className="info">{_l('新建应用')}</div>
-              </Fragment>
-            )}
+            <div className="addAppItem" onClick={this.handleAddAppItemClick} />
+            <div className="info">{_l('新建应用')}</div>
           </div>
         )}
         {createEntryVisible && (
           <Suspense fallback={null}>
             <LoadableCreateAppEntryDialog
               projectId={projectId}
-              showAi={!md.global.SysSettings.hideAIBasicFun}
+              showAi={canBuildAppWithMingo(projectId)}
               actions={this.buildCreateActions()}
               onAiSubmit={this.handleAiSubmit}
               onClose={() => this.setState({ createEntryVisible: false })}

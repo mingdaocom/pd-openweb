@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, Support, Switch, VerifyPasswordConfirm } from 'ming-ui';
+import { LoadDiv, Support, VerifyPasswordConfirm } from 'ming-ui';
+import { Modal, Switch } from 'ming-ui/antd-components';
 import dataLimitAjax from 'src/api/dataLimit';
 import openAuthorAjax from 'src/api/openAuthor';
 import projectSettingController from 'src/api/projectSetting';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import AppAccess from './AppAccess';
@@ -266,7 +267,14 @@ export default class DataCom extends Component {
   renderPolicyItem = ({ checked, onChange, title, description }) => {
     return (
       <div className="flexRow mBottom24">
-        <Switch className="mRight16 mTop3" checked={checked} onClick={value => onChange(!value)} />
+        <Switch
+          className="mRight16 mTop3"
+          checked={checked}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return onChange(!!checked);
+          }}
+        />
         <div className="flex minWidth0">
           <div className="textTitle Font14 bold">{title}</div>
           <div className="textSecondary mTop5">{description}</div>
@@ -289,19 +297,20 @@ export default class DataCom extends Component {
     if (!showPersonalApiAccessPolicy) return null;
 
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         title={_l('API 访问策略')}
         width={600}
         okText={_l('保存')}
         okDisabled={
-          personalApiAccessSaveLoading ||
-          (editingPersonalApiAccessSetting.enabled === initApiAccessSetting.enabled &&
-            editingPersonalApiAccessSetting.patEnabled === initApiAccessSetting.patEnabled)
+          editingPersonalApiAccessSetting.enabled === initApiAccessSetting.enabled &&
+          editingPersonalApiAccessSetting.patEnabled === initApiAccessSetting.patEnabled
         }
+        confirmLoading={personalApiAccessSaveLoading}
         onOk={this.verifyAndSavePersonalApiAccessPolicy}
-        showCancel={false}
-        overlayClosable={false}
+        cancelButtonProps={{ style: { display: 'none' } }}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => this.setState({ showPersonalApiAccessPolicy: false })}
       >
         <PersonalApiAccessPolicyWrap>
@@ -336,7 +345,7 @@ export default class DataCom extends Component {
             </Fragment>
           )}
         </PersonalApiAccessPolicyWrap>
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -352,15 +361,17 @@ export default class DataCom extends Component {
     if (!showCliAccessPolicy) return null;
 
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         title={_l('CLI 访问策略')}
         width={600}
         okText={_l('保存')}
-        okDisabled={cliAccessPolicySaveLoading || editingCliAccessSetting.enabled === initCliAccessSetting.enabled}
+        okDisabled={editingCliAccessSetting.enabled === initCliAccessSetting.enabled}
+        confirmLoading={cliAccessPolicySaveLoading}
         onOk={this.verifyAndSaveCliAccessPolicy}
-        showCancel={false}
-        overlayClosable={false}
+        cancelButtonProps={{ style: { display: 'none' } }}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => this.setState({ showCliAccessPolicy: false })}
       >
         <div>
@@ -378,7 +389,7 @@ export default class DataCom extends Component {
             </Fragment>
           )}
         </div>
-      </Dialog>
+      </Modal>
     );
   };
 

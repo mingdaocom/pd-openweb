@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { Input } from 'antd';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util';
+import { Input } from 'ming-ui/antd-components';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 

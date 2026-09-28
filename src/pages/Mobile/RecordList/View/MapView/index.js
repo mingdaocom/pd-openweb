@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import MapView from 'src/pages/worksheet/views/MapView';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import ViewErrorPage from '../components/ViewErrorPage';
 import SearchRecord from './SearchRecord';
 

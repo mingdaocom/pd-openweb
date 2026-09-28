@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { checkPermission } from 'src/utils/services/security/permission';
 import { addFavorite, removeFavorite } from '../../../redux/postActions';
 import PostOperateList from './postOperateList';
 
@@ -53,17 +53,11 @@ class PostOperator extends React.Component {
     this.props.dispatch(removeFavorite({ postId: this.props.postItem.postID }));
   };
 
-  toggleOperateList = () => {
-    this.setState({ showOperateList: !this.state.showOperateList });
-    this.getPostAllowOperate();
-  };
-
-  hideOperateList = e => {
-    if (e && e.target && e.target === this.toggleBtn) {
-      return;
+  handleOperateVisibleChange = open => {
+    this.setState({ showOperateList: open });
+    if (open) {
+      this.getPostAllowOperate();
     }
-
-    this.setState({ showOperateList: false });
   };
 
   render() {
@@ -72,24 +66,20 @@ class PostOperator extends React.Component {
     if (!this.props.isShowOperate) {
       dropBtn = (
         <div className="postOperatorListContainer clearfix">
-          <span
-            ref={toggleBtn => {
-              this.toggleBtn = toggleBtn;
-            }}
-            onClick={this.toggleOperateList}
-            className={cx(
-              'postOperatorListBtn icon-more_horiz Hand',
-              this.state.showOperateList ? 'textSecondary' : 'textTertiary',
-            )}
-          />
-          {this.state.showOperateList ? (
-            <PostOperateList
-              handleHide={this.hideOperateList}
-              className="postOperatorList z-depth-1"
-              postItem={this.props.postItem}
-              allowOperate={this.state.allowOperate}
+          <PostOperateList
+            open={this.state.showOperateList}
+            onOpenChange={this.handleOperateVisibleChange}
+            postItem={this.props.postItem}
+            allowOperate={this.state.allowOperate}
+            dispatch={this.props.dispatch}
+          >
+            <span
+              className={cx(
+                'postOperatorListBtn icon-more_horiz Hand',
+                this.state.showOperateList ? 'textSecondary' : 'textTertiary',
+              )}
             />
-          ) : undefined}
+          </PostOperateList>
         </div>
       );
     }

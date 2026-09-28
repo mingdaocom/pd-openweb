@@ -6,6 +6,11 @@ export default class WidgetBridge {
   constructor(options) {
     this.cache = options.cache;
     this.containerId = options.containerId;
+    this.openAddRecord = options.openAddRecord;
+    this.openSelectRecords = options.openSelectRecords;
+    this.openSelectLocation = options.openSelectLocation;
+    this.openImportDataFromExcel = options.openImportDataFromExcel;
+    this.openExportSheet = options.openExportSheet;
   }
   init(onLoad = () => {}, onLoadError = () => {}) {
     this.onLoad = onLoad;
@@ -28,11 +33,13 @@ export default class WidgetBridge {
   };
   mountPropertyOnWindow(propertyName, propertyValue) {
     let safeValue;
+
     try {
       safeValue = JSON.parse(JSON.stringify(propertyValue, (_, val) => (typeof val === 'function' ? undefined : val)));
     } catch {
       safeValue = {};
     }
+
     this.sendWidgetBridge({
       action: 'set-window',
       key: propertyName,
@@ -86,6 +93,11 @@ export default class WidgetBridge {
 
         const result = await utils[functionName]({
           ...args,
+          openAddRecord: this.openAddRecord,
+          openSelectRecords: this.openSelectRecords,
+          openSelectLocation: this.openSelectLocation,
+          openImportDataFromExcel: this.openImportDataFromExcel,
+          openExportSheet: this.openExportSheet,
           projectId: get(this, 'cache.current.config.worksheetInfo.projectId'),
           worksheetInfo:
             args?.worksheetId && args?.worksheetId !== get(this, 'cache.current.config.worksheetInfo.worksheetId')

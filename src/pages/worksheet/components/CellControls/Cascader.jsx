@@ -2,12 +2,16 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import CascaderDropdown from 'src/components/Form/DesktopForm/widgets/Cascader';
-import { isKeyBoardInputChar } from 'src/utils/common';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { renderText } from 'src/utils/control';
+import { renderText } from 'src/utils/domain/control/display';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
 import EditableCellCon from '../EditableCellCon';
+
+// 表格主体是 react-window 的 Grid（overflow: hidden + 固定高宽），级联面板挂进去会被裁剪，
+// 子表、关联记录表格及嵌入场景与日期、选项单元格保持一致挂到 body
+const getBodyPopupContainer = () => document.body;
 
 export default class Cascader extends React.Component {
   static propTypes = {
@@ -39,22 +43,21 @@ export default class Cascader extends React.Component {
   }
 
   con = React.createRef();
-  cell = React.createRef();
 
   handleTableKeyDown = e => {
     const { isediting, updateEditingStatus } = this.props;
 
     switch (e.key) {
-      default:
-        (() => {
-          if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
-            return;
-          }
+      default: {
+        if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
+          break;
+        }
 
-          updateEditingStatus(true, () => {});
-          e.stopPropagation();
-          e.preventDefault();
-        })();
+        updateEditingStatus(true, () => {});
+        e.stopPropagation();
+        e.preventDefault();
+        break;
+      }
     }
   };
 
@@ -63,10 +66,6 @@ export default class Cascader extends React.Component {
     this.setState({
       value,
     });
-  };
-
-  handleClear = () => {
-    this.handleChange('');
   };
 
   render() {
@@ -85,14 +84,22 @@ export default class Cascader extends React.Component {
       recordId,
       rowFormData = () => {},
       popupContainer,
+      tableFromModule,
+      fromEmbed,
     } = this.props;
     const { value } = this.state;
+    let cellPopupContainer = popupContainer;
+
+    if (
+      tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
+      tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD ||
+      fromEmbed
+    ) {
+      cellPopupContainer = getBodyPopupContainer;
+    }
+
     const editcontent = (
-      <div
-        className="cellControlCascaderPopup cellControlEdittingStatus bgPrimary"
-        onClick={e => e.stopPropagation()}
-        style={{ width: style.width }}
-      >
+      <div className="cellControlCascaderPopup cellControlEdittingStatus bgPrimary" onClick={e => e.stopPropagation()}>
         <CascaderDropdown
           value={value}
           from={from}
@@ -103,6 +110,7 @@ export default class Cascader extends React.Component {
           onChange={this.handleChange}
           worksheetId={worksheetId}
           formData={_.isFunction(rowFormData) ? rowFormData() : rowFormData}
+          getPopupContainer={cellPopupContainer}
           onPopupVisibleChange={visible => {
             if (!visible) {
               if (!_.isUndefined(this.value)) {
@@ -123,41 +131,27 @@ export default class Cascader extends React.Component {
       </div>
     );
     return (
-      <Trigger
-        action={['click']}
-        popup={editcontent}
-        getPopupContainer={popupContainer}
-        popupClassName="filterTrigger"
-        popupVisible={isediting}
-        destroyPopupOnHide={!window.isSafari}
-        popupAlign={{
-          points: ['tl', 'tl'],
-          overflow: {
-            adjustY: true,
-          },
-        }}
+      <EditableCellCon
+        conRef={this.con}
+        onClick={onClick}
+        className={cx(className, 'cellControlCascader', { canedit: editable, focusInput: editable })}
+        style={style}
+        isediting={isediting}
+        hideOutline
+        iconName={'arrow-down-border'}
+        onIconClick={() => updateEditingStatus(true)}
       >
-        <EditableCellCon
-          conRef={this.con}
-          onClick={onClick}
-          className={cx(className, 'cellControlCascader', { canedit: editable, focusInput: editable })}
-          style={style}
-          isediting={isediting}
-          hideOutline
-          iconName={'arrow-down-border'}
-          // onClear={value && this.handleClear}
-          onIconClick={() => updateEditingStatus(true)}
-        >
-          {!isediting && (
-            <div
-              className="cellread linelimit"
-              title={checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
-            >
-              {checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
-            </div>
-          )}
-        </EditableCellCon>
-      </Trigger>
+        {isediting ? (
+          editcontent
+        ) : (
+          <div
+            className="cellread linelimit"
+            title={checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
+          >
+            {checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
+          </div>
+        )}
+      </EditableCellCon>
     );
   }
 }

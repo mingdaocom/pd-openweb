@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Input, Slider } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Slider } from 'ming-ui';
+import { Checkbox, Input, Tooltip } from 'ming-ui/antd-components';
 import { DefaultNameWidth, FONT_OPTION, fromType, typeForCon } from '../../core/config';
 
 const BasicItemWrapper = styled.div`
@@ -19,7 +19,7 @@ const BasicItemWrapper = styled.div`
   }
   .emptyPlaceholderModeWrapper {
     padding-left: 26px;
-    input {
+    input.hap-input {
       width: 100% !important;
     }
   }
@@ -61,8 +61,10 @@ export default function BasicsSetting(props) {
   const [localEmptyPlaceholderMode, setLocalEmptyPlaceholderMode] = useState(printData.emptyPlaceholderMode);
 
   useEffect(() => {
+    const debounced = debouncedChange.current;
+
     return () => {
-      debouncedChange.current.cancel();
+      debounced.cancel();
     };
   }, []);
 
@@ -131,9 +133,10 @@ export default function BasicsSetting(props) {
           <div className="checkboxWrapper">
             <Checkbox
               checked={item.negate ? !printData[item.type] : printData[item.type]}
-              onClick={() => handleCheckboxChange(item)}
-              text={item.label}
-            />
+              onChange={() => handleCheckboxChange(item)}
+            >
+              {item.label}
+            </Checkbox>
             {item.tip && (
               <Tooltip placement="right" title={item.tip}>
                 <Icon icon="help" className="Font14" />
@@ -147,7 +150,8 @@ export default function BasicsSetting(props) {
                 <Input
                   placeholder={_l('请输入占位符')}
                   value={localEmptyPlaceholderMode}
-                  onChange={value => {
+                  onChange={e => {
+                    const value = e.target.value;
                     setLocalEmptyPlaceholderMode(value);
                     debouncedChange.current(value);
                   }}

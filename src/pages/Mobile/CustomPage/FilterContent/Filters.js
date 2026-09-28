@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import styled from 'styled-components';
 import FilterInput, { NumberTypes } from 'mobile/RecordList/QuickFilter/Inputs';
-import { conditionAdapter, formatQuickFilter, turnControl, validate } from 'mobile/RecordList/QuickFilter/utils';
-import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
-import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { conditionAdapter, formatQuickFilter, turnControl } from 'mobile/RecordList/QuickFilter/utils';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { DATE_TYPE } from 'src/utils/domain/worksheet/fastFilterConfig';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { validate } from 'src/utils/domain/worksheet/filterQuick';
+import { formatFilterValuesToServer } from 'src/utils/services/worksheet/quickFilter';
 
 const Item = styled.div`
   .controlName {
-    color: ${({ requiredError }) => (requiredError ? 'red' : 'var(--color-text-title)')};
+    color: ${({ $requiredError }) => ($requiredError ? 'red' : 'var(--color-text-title)')};
   }
 `;
 
@@ -231,13 +232,13 @@ function QuickFilter(props) {
   return (
     <Con className="flexColumn h100 overflowHidden">
       {/* <div className="header flexRow valignWrapper">
-        <Icon className="textTertiary close" icon="close" onClick={onCloseDrawer} />
-      </div> */}
+         <Icon className="textTertiary close" icon="close" onClick={onCloseDrawer} />
+        </div> */}
       <div className="flex body">
         {items.map((item, i) => (
           <Item
             key={item.controlId}
-            requiredError={
+            $requiredError={
               requiredErrorVisible &&
               item.isRequired &&
               !validate({

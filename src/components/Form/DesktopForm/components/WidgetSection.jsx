@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import SectionTableNav from '../../components/SectionTableNav';
+import { isSameControlList } from '../../core/renderDataUtils';
 
 const Con = styled.div`
   margin-top: -2px;
@@ -60,7 +61,7 @@ function TableContainer(props) {
   );
 }
 
-export default function WidgetSection(props) {
+function WidgetSection(props) {
   const {
     from,
     disabled,
@@ -79,6 +80,7 @@ export default function WidgetSection(props) {
     setActiveTabControlId,
     hasCommon,
     isDraft,
+    triggerCustomEvent,
   } = props;
   const {
     isSplit,
@@ -96,7 +98,7 @@ export default function WidgetSection(props) {
     onRelateRecordsChange,
   } = tabControlProp;
   const activeControl = _.find(tabControls, i => i.controlId === activeTabControlId) || tabControls[0];
-  const [version, setVersion] = useState(Math.random());
+  const [version, setVersion] = useState(0);
   const $sectionControls = useRef([]);
 
   // 上下布局时只有一个标签页时隐藏，左右布局直接隐藏
@@ -104,7 +106,7 @@ export default function WidgetSection(props) {
     (_.get(widgetStyle, 'hidetab') === '1' && tabControls.length === 1 && _.get(_.head(tabControls), 'type') === 52) ||
     _.includes(['3', '4'], _.get(widgetStyle, 'tabposition'));
 
-  const sectionCustomEvent = () => {
+  useEffect(() => {
     let changeControls = [];
     let triggerType = '';
     const preControls = _.get($sectionControls, 'current') || [];
@@ -119,20 +121,16 @@ export default function WidgetSection(props) {
       triggerType = ADD_EVENT_ENUM.SHOW;
     }
 
-    if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
+    if (_.isFunction(triggerCustomEvent) && changeControls.length && triggerType) {
       changeControls.forEach(itemControl => {
         setTimeout(() => {
-          props.triggerCustomEvent({ ...itemControl, triggerType });
+          triggerCustomEvent({ ...itemControl, triggerType });
         }, 500);
       });
     }
 
     $sectionControls.current = tabControls;
-  };
-
-  useEffect(() => {
-    sectionCustomEvent();
-  }, [tabControls.length]);
+  }, [tabControls, triggerCustomEvent]);
 
   const renderContent = () => {
     if (activeControl.type === 52) {
@@ -147,9 +145,10 @@ export default function WidgetSection(props) {
     }
 
     if (_.includes([29, 51], activeControl.type)) {
-      // 列表多条
+      // 按标签隔离表格实例，避免复用上一张表的业务规则、权限和事件闭包；数据仍由各控件的 store 缓存。
       return (
         <TableContainer
+          key={activeControl.controlId}
           {...{
             isDraft,
             isCharge,
@@ -175,13 +174,13 @@ export default function WidgetSection(props) {
           onCountChange={(newCount, changed) => {
             updateRelateRecordTableCount(activeControl.controlId, newCount, { changed });
             if (changed) {
-              props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
+              triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
             }
 
-            setVersion(Math.random());
+            setVersion(currentVersion => currentVersion + 1);
           }}
           onUpdateCell={() => {
-            props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
+            triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
           }}
         />
       );
@@ -238,3 +237,15 @@ export default function WidgetSection(props) {
     </Con>
   );
 }
+
+const arePropsEqual = (prevProps, nextProps) => {
+  const keys = _.uniq(Object.keys(prevProps).concat(Object.keys(nextProps)));
+
+  return keys.every(key =>
+    key === 'tabControls'
+      ? isSameControlList(prevProps.tabControls, nextProps.tabControls)
+      : Object.is(prevProps[key], nextProps[key]),
+  );
+};
+
+export default memo(WidgetSection, arePropsEqual);

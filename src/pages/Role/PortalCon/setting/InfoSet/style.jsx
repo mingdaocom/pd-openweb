@@ -10,19 +10,6 @@ export const Wrap = styled.div`
     height: calc(100% - 68px);
     overflow: auto;
   }
-  .addControl {
-    margin-left: 22px;
-    width: 99px;
-    height: 36px;
-    background: var(--color-background-secondary);
-    border-radius: 3px;
-    color: var(--color-primary);
-    line-height: 34px;
-    text-align: center;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-  }
 `;
 
 export const WrapSortControls = styled.div`

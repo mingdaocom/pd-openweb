@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getControlByControlId } from '../../../util';
-import { getAdvanceSetting } from '../../../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getControlByControlId } from 'src/utils/domain/control/filters';
 
 const FilterTextWrap = styled.div`
   display: flex;

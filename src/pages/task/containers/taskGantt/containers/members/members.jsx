@@ -1,7 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { Dialog, UserHead } from 'ming-ui';
+import { UserHead } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import config from '../../config/config';
@@ -84,12 +85,12 @@ class Members extends Component {
 
     const message = members.join('、') + (users.length > 3 ? _l('等%0人', users.length) : '');
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('加为项目成员'),
       cancelText: _l('暂不需要'),
       okText: _l('加入项目'),
       closable: false,
-      children: (
+      content: (
         <div style="color: var(--color-text-tertiary);">
           {_l('您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？', message)}
         </div>

@@ -1,20 +1,12 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { DatePicker } from 'antd';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import _ from 'lodash';
 import moment from 'moment';
-import { Icon } from 'ming-ui';
+import { DatePicker, Switch } from 'ming-ui/antd-components';
 import EditAgreementOrPrivacy from 'src/pages/Role/PortalCon/components/EditAgreementOrPrivacy';
-import { SwitchStyle } from './style';
 
 export default function (props) {
   const { portalSetModel, onChangePortalSet } = props;
-  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-  const locale = locales[md.global.Account.lang] || localeEn;
   const [{ type, show }, setCommonState] = useSetState({
     type: null,
     show: false,
@@ -23,23 +15,23 @@ export default function (props) {
     <>
       <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('登录设置')}</h6>
       <div className="mTop12">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand TxtBottom"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.termsAndAgreementEnable}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
+                  termsAndAgreementEnable: checked,
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('登录时需同意用户协议和隐私条款')}
           </div>
-        </SwitchStyle>
+        </div>
         <div style={{ 'margin-left': '44px' }}>
           {!!portalSetModel.termsAndAgreementEnable && (
             <React.Fragment>
@@ -73,15 +65,15 @@ export default function (props) {
         </div>
       </div>
 
-      {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+      {window.platformENV.isHap && (
         <div className="mTop5">
-          <SwitchStyle>
-            <Icon
-              icon={portalSetModel.subscribeWXOfficial ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font32 Hand"
-              onClick={() => {
+          <div className="flexRow alignItemsCenter">
+            <Switch
+              size="small"
+              checked={!!portalSetModel.subscribeWXOfficial}
+              onChange={checked => {
                 let data = {
-                  subscribeWXOfficial: !portalSetModel.subscribeWXOfficial,
+                  subscribeWXOfficial: checked,
                 };
                 onChangePortalSet({
                   portalSetModel: {
@@ -91,21 +83,21 @@ export default function (props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+            <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
               {_l('通过微信扫码登录时，需先关注服务号')}
             </div>
-          </SwitchStyle>
+          </div>
         </div>
       )}
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={_.get(portalSetModel, 'registerInfo.enable') ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!_.get(portalSetModel, 'registerInfo.enable')}
+            onChange={checked => {
               let registerInfo = {
                 ..._.get(portalSetModel, 'registerInfo'),
-                enable: !_.get(portalSetModel, 'registerInfo.enable'),
+                enable: checked,
               };
               onChangePortalSet({
                 portalSetModel: {
@@ -115,17 +107,16 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('外部用户注册开始/停止时间')}
           </div>
-        </SwitchStyle>
+        </div>
         {_.get(portalSetModel, 'registerInfo.enable') && (
           <div className="rangePicker flexRow alignItemsCenter">
             <DatePicker
               showTime={true}
               className={'flex Hand'}
-              locale={locale}
-              bordered={false}
+              variant="borderless"
               placeholder={_l('开始时间')}
               value={
                 !_.get(portalSetModel, 'registerInfo.startTime') ||
@@ -156,9 +147,8 @@ export default function (props) {
             <span className="pLeft5 pRight5 textPlaceholder">—</span>
             <DatePicker
               showTime={true}
-              locale={locale}
               className={'flex Hand'}
-              bordered={false}
+              variant="borderless"
               placeholder={_l('结束时间')}
               value={
                 !_.get(portalSetModel, 'registerInfo.endTime') ||
@@ -190,13 +180,13 @@ export default function (props) {
         )}
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.twoAuthenticationEnabled ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.twoAuthenticationEnabled}
+            onChange={checked => {
               let data = {
-                twoAuthenticationEnabled: !portalSetModel.twoAuthenticationEnabled,
+                twoAuthenticationEnabled: checked,
               };
               onChangePortalSet({
                 portalSetModel: {
@@ -206,8 +196,8 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('两步验证')}</div>
-        </SwitchStyle>
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('两步验证')}</div>
+        </div>
         {portalSetModel.twoAuthenticationEnabled && (
           <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录')}
@@ -215,13 +205,13 @@ export default function (props) {
         )}
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.autoLogin ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.autoLogin}
+            onChange={checked => {
               let data = {
-                autoLogin: !portalSetModel.autoLogin,
+                autoLogin: checked,
               };
               onChangePortalSet({
                 portalSetModel: {
@@ -231,8 +221,8 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('7天免登录')}</div>
-        </SwitchStyle>
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('7天免登录')}</div>
+        </div>
         {portalSetModel.autoLogin && (
           <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('登录页面是否显示 7 天免登录的选项')}
@@ -240,13 +230,13 @@ export default function (props) {
         )}
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.doubleBinding ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.doubleBinding}
+            onChange={checked => {
               let data = {
-                doubleBinding: !portalSetModel.doubleBinding,
+                doubleBinding: checked,
               };
               onChangePortalSet({
                 portalSetModel: {
@@ -256,10 +246,10 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('登录后需绑定手机号或者邮箱')}
           </div>
-        </SwitchStyle>
+        </div>
         {portalSetModel.doubleBinding && (
           <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('开启后，登录后需用户再额外绑定邮箱或者手机号，绑定后方可使用应用')}

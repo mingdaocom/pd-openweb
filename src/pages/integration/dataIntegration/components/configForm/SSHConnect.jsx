@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, Input, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import sshConfigApi from 'src/pages/integration/api/sshConfig';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { getSensitiveRequestErrorMessages } from '../../services/sensitiveRequest';
+import sshConfigApi from '../../services/sshConfig';
+
+const PUBLIC_KEY_TEXTAREA_AUTO_SIZE = { minRows: 4, maxRows: 4 };
 
 const SSHCheckbox = styled(Checkbox)`
   margin-top: 12px;
@@ -16,50 +18,17 @@ const SSHCheckbox = styled(Checkbox)`
     color: var(--color-text-secondary);
   }
 `;
-const SaveButton = styled(Button)`
-  margin-left: 16px;
-  &.ming.Button--disabled,
-  .ming.Button--disabled:hover {
-    background: var(--color-primary-light);
-  }
-`;
-const CrackTextarea = styled(Textarea)`
-  color: var(--color-text-tertiary);
-  max-height: 100px !important;
-`;
+const SSH_CHECKBOX_STYLES = { label: { paddingInlineEnd: 0 } };
 
 const CommonSelect = styled(Select)`
   width: 100%;
   font-size: 13px;
-  .ant-select-selector {
-    height: 36px !important;
-    padding: 2px 11px !important;
-    border-radius: 3px !important;
-    border-color: var(--color-border-tertiary) !important;
-    transition: 0;
-    box-shadow: none !important;
-    &:hover {
-      border-color: var(--color-primary) !important;
-    }
-  }
-  &.ant-select-focused {
-    .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
-  }
-  &.ant-select-disabled {
-    .ant-select-selector {
-      &:hover {
-        border-color: var(--color-border-primary) !important;
-      }
-    }
-  }
 `;
 
 const Wrapper = styled.div`
   padding-bottom: 24px;
 
-  .ant-select-dropdown {
+  .hap-select-dropdown {
     .addItem {
       height: 32px;
       line-height: 32px;
@@ -70,7 +39,7 @@ const Wrapper = styled.div`
         color: var(--color-primary);
       }
     }
-    .ant-select-item-empty {
+    .hap-select-item-empty {
       min-height: 0;
       padding: 0;
     }
@@ -109,7 +78,7 @@ const OptionItem = styled.div`
     color: var(--color-text-secondary);
     font-size: 16px;
     cursor: pointer;
-    :hover {
+    &:hover {
       color: #f00;
     }
   }
@@ -126,6 +95,10 @@ const EmptyMargin = styled.div`
 `;
 
 const DialogWrapper = styled.div`
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
   .fieldLabel,
   p {
     margin-bottom: 4px;
@@ -159,6 +132,15 @@ export default function SSHConnect(props) {
   const [errorInfo, setErrorInfo] = useState([]);
   const [sshFormData, setSshFormData] = useSetState({ authType: 0 });
   const [submitLoading, setSubmitLoading] = useState(false);
+  const saveRequest = useRef(null);
+
+  useEffect(
+    () => () => {
+      saveRequest.current?.abort();
+      saveRequest.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
     sshConfigApi.list({ projectId }).then(res => {
@@ -166,7 +148,7 @@ export default function SSHConnect(props) {
         setSshOptions(res.content);
       }
     });
-  }, []);
+  }, [projectId]);
 
   const onGenerateCrack = () => {
     sshConfigApi.genKeyPair({ projectId }).then(res => {
@@ -182,6 +164,8 @@ export default function SSHConnect(props) {
   };
 
   const clearData = () => {
+    saveRequest.current?.abort();
+    saveRequest.current = null;
     setSshFormData({
       sshHost: null,
       sshPort: null,
@@ -196,87 +180,109 @@ export default function SSHConnect(props) {
     setSubmitLoading(false);
   };
 
-  const onTestAndSave = () => {
-    if (submitLoading) {
+  const onTestAndSave = async () => {
+    if (saveRequest.current) {
       return;
     }
 
+    const controller = new AbortController();
+    saveRequest.current = controller;
     setSubmitLoading(true);
+    setErrorInfo([]);
 
-    sshConfigApi
-      .addSshConfig({ projectId, ..._.omit(sshFormData, ['sshPublicKey']) })
-      .then(res => {
-        if (res.isSucceeded) {
-          const newOption = [
-            {
-              id: res.id,
-              ...sshFormData,
-            },
-          ];
-          setSshOptions(newOption.concat(sshOptions));
-          setAddDialogVisible(false);
-          alert(_l('添加SSH连接成功'));
-          clearData();
-        } else {
-          setErrorInfo(res.errorMsgList);
-          setSubmitLoading(false);
-        }
-      })
-      .catch(() => setSubmitLoading(false));
+    try {
+      const res = await sshConfigApi.addSshConfig(
+        { projectId, ..._.omit(sshFormData, ['sshPublicKey']) },
+        { abortController: controller },
+      );
+      if (controller.signal.aborted) return;
+      if (res.isSucceeded) {
+        const newOption = [
+          {
+            id: res.id,
+            ..._.omit(sshFormData, ['sshPwd']),
+          },
+        ];
+        setSshOptions(options => newOption.concat(options));
+        setAddDialogVisible(false);
+        alert(_l('添加SSH连接成功'));
+        clearData();
+      } else {
+        setErrorInfo(res.errorMsgList || [_l('添加SSH连接失败')]);
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        setErrorInfo(getSensitiveRequestErrorMessages(error, _l('添加SSH连接失败')));
+      }
+    } finally {
+      if (saveRequest.current === controller) {
+        saveRequest.current = null;
+        setSubmitLoading(false);
+      }
+    }
   };
 
   const onDelete = (e, option) => {
     e.stopPropagation();
-    Dialog.confirm({
-      title: _l('删除SSH连接'),
-      description: _l('确认要删除该SSH连接吗？'),
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="textError">{_l('删除SSH连接')}</span>,
+      content: _l('确认要删除该SSH连接吗？'),
+      okButtonProps: {
+        danger: true,
+      },
       okText: _l('删除'),
       onOk: () => {
-        sshConfigApi.deleteSshConfig({ projectId, sshConfigId: option.id }).then(res => {
-          if (res.isSucceeded) {
-            alert(_l('删除成功'));
-            setSshOptions(sshOptions.filter(item => item.id !== option.id));
-          } else {
-            alert(res.errorMsg, 2);
-          }
-        });
+        sshConfigApi
+          .deleteSshConfig({
+            projectId,
+            sshConfigId: option.id,
+          })
+          .then(res => {
+            if (res.isSucceeded) {
+              alert(_l('删除成功'));
+              setSshOptions(sshOptions.filter(item => item.id !== option.id));
+            } else {
+              alert(res.errorMsg, 2);
+            }
+          });
       },
     });
   };
 
+  const getOptionLabel = option => `${option.sshUser}@${option.sshHost}:${option.sshPort}`;
+
   const renderOptionItem = option => {
     return (
-      <Select.Option value={option.id} label={`${option.sshUser}@${option.sshHost}:${option.sshPort}`}>
-        <OptionItem>
-          <div className="itemWrapper">
-            <div className="overflow_ellipsis">{`${option.sshUser}@${option.sshHost}:${option.sshPort}`}</div>
-            {option.remark && <div className="textTertiary overflow_ellipsis">{option.remark}</div>}
-          </div>
-          <Tooltip title={_l('删除')}>
-            <Icon icon="trash" onClick={e => onDelete(e, option)} />
-          </Tooltip>
-        </OptionItem>
-      </Select.Option>
+      <OptionItem>
+        <div className="itemWrapper">
+          <div className="overflow_ellipsis">{getOptionLabel(option)}</div>
+          {option.remark && <div className="textTertiary overflow_ellipsis">{option.remark}</div>}
+        </div>
+        <Tooltip title={_l('删除')}>
+          <Icon icon="trash" onClick={e => onDelete(e, option)} />
+        </Tooltip>
+      </OptionItem>
     );
   };
 
   return (
     <Wrapper>
       <SSHCheckbox
-        text={_l('使用SSH进行连接')}
         disabled={disabled}
         checked={!!data.enableSsh}
-        onClick={() => {
-          if (data.enableSsh) {
-            onChange({ enableSsh: 0, sshConfigId: null });
-          } else {
+        styles={SSH_CHECKBOX_STYLES}
+        onChange={event => {
+          if (event.target.checked) {
             onChange({ enableSsh: 1 });
+          } else {
+            onChange({ enableSsh: 0, sshConfigId: null });
           }
 
           setSubmitDisabled(true);
         }}
-      />
+      >
+        {_l('使用SSH进行连接')}
+      </SSHCheckbox>
 
       {!!data.enableSsh && (
         <div className="relative flexRow alignItemsCenter" ref={sshSelectRef}>
@@ -285,7 +291,7 @@ export default function SSHConnect(props) {
             getPopupContainer={() => sshSelectRef.current}
             placeholder={_l('请选择')}
             notFoundContent={<div></div>}
-            dropdownRender={menu => (
+            popupRender={menu => (
               <React.Fragment>
                 <div className="addItem" onClick={() => setAddDialogVisible(true)}>
                   <Icon icon="add" />
@@ -295,15 +301,19 @@ export default function SSHConnect(props) {
               </React.Fragment>
             )}
             optionLabelProp="label"
+            options={sshOptions.map(option => ({
+              value: option.id,
+              label: getOptionLabel(option),
+              option,
+            }))}
+            optionRender={({ data }) => renderOptionItem(data.option)}
             value={data.sshConfigId}
             onChange={value => {
               onChange({ sshConfigId: value });
               setSubmitDisabled(true);
             }}
             disabled={disabled}
-          >
-            {sshOptions.map(option => renderOptionItem(option))}
-          </CommonSelect>
+          />
           <div
             className={cx('copyIcon', {
               isHide: !(sshOptions.filter(o => o.id === data.sshConfigId)[0] || {}).sshPublicKey,
@@ -325,28 +335,33 @@ export default function SSHConnect(props) {
       )}
 
       {addDialogVisible && (
-        <Dialog
-          visible
+        <Modal
+          open
+          mask={{ closable: true }}
+          keyboard
           width={640}
           title={_l('新增SSH连接')}
-          footer={
-            <SaveButton type="primary" disabled={getSaveDisabled()} loading={submitLoading} onClick={onTestAndSave}>
-              {_l('测试并保存')}
-            </SaveButton>
-          }
+          cancelButtonProps={{ style: { display: 'none' } }}
+          okText={_l('测试并保存')}
+          okDisabled={getSaveDisabled()}
+          okButtonProps={{ loading: submitLoading }}
+          onOk={onTestAndSave}
           onCancel={() => {
             setAddDialogVisible(false);
             clearData();
           }}
         >
-          <DialogWrapper>
+          <DialogWrapper as="fieldset" disabled={submitLoading}>
             <div className="flexRow mBottom20 mTop20">
               <div className="flex">
                 <div className="fieldLabel">
                   <span className="Red">*</span>
                   <span>{_l('SSH IP')}</span>
                 </div>
-                <Input value={sshFormData.sshHost || ''} onChange={value => setSshFormData({ sshHost: value })} />
+                <Input
+                  value={sshFormData.sshHost || ''}
+                  onChange={event => setSshFormData({ sshHost: event.target.value })}
+                />
               </div>
               <EmptyMargin />
               <div className="flex">
@@ -354,7 +369,10 @@ export default function SSHConnect(props) {
                   <span className="Red">*</span>
                   <span>{_l('SSH 端口')}</span>
                 </div>
-                <Input value={sshFormData.sshPort || ''} onChange={value => setSshFormData({ sshPort: value })} />
+                <Input
+                  value={sshFormData.sshPort || ''}
+                  onChange={event => setSshFormData({ sshPort: event.target.value })}
+                />
               </div>
             </div>
 
@@ -363,13 +381,17 @@ export default function SSHConnect(props) {
                 <span className="Red">*</span>
                 <span>{_l('SSH 账号')}</span>
               </div>
-              <Input value={sshFormData.sshUser || ''} onChange={value => setSshFormData({ sshUser: value })} />
+              <Input
+                value={sshFormData.sshUser || ''}
+                onChange={event => setSshFormData({ sshUser: event.target.value })}
+              />
             </div>
 
             <div className="mBottom20" ref={authTypeRef}>
               <p>{_l('认证方式')}</p>
               <CommonSelect
                 getPopupContainer={() => authTypeRef.current}
+                disabled={submitLoading}
                 placeholder={_l('请选择')}
                 options={[
                   { label: _l('密码'), value: 0 },
@@ -389,11 +411,14 @@ export default function SSHConnect(props) {
             {sshFormData.authType === 0 ? (
               <div className="mBottom20">
                 <p>{_l('SSH 密码')}</p>
-                <Input value={sshFormData.sshPwd || ''} onChange={value => setSshFormData({ sshPwd: value })} />
+                <Input
+                  value={sshFormData.sshPwd || ''}
+                  onChange={event => setSshFormData({ sshPwd: event.target.value })}
+                />
               </div>
             ) : (
               <div className="mBottom20">
-                <CrackTextarea disabled={true} value={sshFormData.sshPublicKey} />
+                <Input.TextArea autoSize={PUBLIC_KEY_TEXTAREA_AUTO_SIZE} disabled value={sshFormData.sshPublicKey} />
                 <p className="textTertiary TxtRight">
                   <span
                     className={cx('copyButton', { isHide: !sshFormData.sshPublicKey })}
@@ -410,7 +435,10 @@ export default function SSHConnect(props) {
             )}
 
             <p>{_l('备注')}</p>
-            <Input value={sshFormData.remark || ''} onChange={value => setSshFormData({ remark: value })} />
+            <Input
+              value={sshFormData.remark || ''}
+              onChange={event => setSshFormData({ remark: event.target.value })}
+            />
 
             {errorInfo.length > 0 && (
               <div className="errorInfo mTop15">
@@ -420,7 +448,7 @@ export default function SSHConnect(props) {
               </div>
             )}
           </DialogWrapper>
-        </Dialog>
+        </Modal>
       )}
     </Wrapper>
   );

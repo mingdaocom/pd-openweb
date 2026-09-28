@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Collapse, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Collapse, Tooltip } from 'ming-ui/antd-components';
 import ManageOftenUserDialog from './ManageOftenUserDialog';
 import NoData from './NoData';
+import { isAccountChecked, isAccountIncluded } from './selection';
 import User from './User';
 
 const TitleWrapper = styled.div`
@@ -18,15 +19,39 @@ const TitleWrapper = styled.div`
     margin-top: 1px;
     margin-left: 2px;
     font-size: 18px;
-    ${({ open }) => open && 'transform: rotate(-90deg); display: none;'}
+    ${({ $open }) => $open && 'transform: rotate(-90deg); display: none;'}
   }
   &:hover {
     background-color: var(--color-background-hover);
     .icon {
-      ${({ open }) => open && 'display: inline-block;'}
+      ${({ $open }) => $open && 'display: inline-block;'}
     }
   }
 `;
+
+const CollapsibleContent = ({ open, panelKey, children }) => (
+  <Collapse
+    ghost
+    bordered={false}
+    styles={{
+      header: {
+        display: 'none',
+      },
+      body: {
+        padding: 0,
+      },
+    }}
+    activeKey={open ? [panelKey] : []}
+    items={[
+      {
+        key: panelKey,
+        label: null,
+        showArrow: false,
+        children,
+      },
+    ]}
+  />
+);
 
 export default class DefaultUserList extends Component {
   constructor(props) {
@@ -36,16 +61,6 @@ export default class DefaultUserList extends Component {
       oftenUsersCollapseOpen: true,
       usersCollapseOpen: true,
     };
-  }
-
-  getChecked(user) {
-    return (
-      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
-    );
-  }
-
-  getIncluded(user) {
-    return _.includes(this.props.selectedAccountIds || [], user.accountId);
   }
 
   setOftenUsersCollapseOpen = () => {
@@ -89,7 +104,7 @@ export default class DefaultUserList extends Component {
           {showOftenUsers ? (
             <div>
               <div className="GSelect-navTitle">
-                <TitleWrapper open={oftenUsersCollapseOpen} onClick={this.setOftenUsersCollapseOpen}>
+                <TitleWrapper $open={oftenUsersCollapseOpen} onClick={this.setOftenUsersCollapseOpen}>
                   <span>{_l('最常协作')}</span>
                   <Icon icon="navigate_before" />
                 </TitleWrapper>
@@ -102,20 +117,20 @@ export default class DefaultUserList extends Component {
                 )}
               </div>
               {!data.oftenUsers.list.length && this.renderOftenEmpty()}
-              <Collapse open={oftenUsersCollapseOpen}>
+              <CollapsibleContent open={oftenUsersCollapseOpen} panelKey="oftenUsers">
                 {data.oftenUsers.list.map(user => (
                   <User
                     {...otherOptions}
                     user={user}
                     onChange={this.props.onChange}
                     projectId={this.props.projectId}
-                    checked={this.getChecked(user)}
+                    checked={isAccountChecked(user, this.props.selectedUsers, this.props.selectedAccountIds)}
                     key={'oftenUser' + user.accountId}
                     currentId={isOften ? currentId : ''}
-                    disabled={this.getIncluded(user)}
+                    disabled={isAccountIncluded(user, this.props.selectedAccountIds)}
                   />
                 ))}
-              </Collapse>
+              </CollapsibleContent>
               <ManageOftenUserDialog
                 userOptions={{
                   ...otherOptions,
@@ -133,25 +148,25 @@ export default class DefaultUserList extends Component {
           {data.users && data.users.list.length ? (
             <div>
               <div className="GSelect-navTitle">
-                <TitleWrapper open={usersCollapseOpen} onClick={this.setUsersCollapseOpen}>
+                <TitleWrapper $open={usersCollapseOpen} onClick={this.setUsersCollapseOpen}>
                   <span>{_l('按拼音A-Z排序')}</span>
                   <Icon icon="navigate_before" />
                 </TitleWrapper>
               </div>
-              <Collapse open={usersCollapseOpen}>
+              <CollapsibleContent open={usersCollapseOpen} panelKey="users">
                 {data.users.list.map(user => (
                   <User
                     {...otherOptions}
                     user={user}
                     onChange={this.props.onChange}
                     projectId={this.props.projectId}
-                    checked={this.getChecked(user)}
+                    checked={isAccountChecked(user, this.props.selectedUsers, this.props.selectedAccountIds)}
                     key={'user' + user.accountId}
                     currentId={isOften ? '' : currentId}
-                    disabled={this.getIncluded(user)}
+                    disabled={isAccountIncluded(user, this.props.selectedAccountIds)}
                   />
                 ))}
-              </Collapse>
+              </CollapsibleContent>
             </div>
           ) : null}
         </div>

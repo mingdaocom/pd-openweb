@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import Result from 'ming-ui/functions/dialogSelectUser/GeneralSelect/Result';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import InviteController from 'src/api/invitation';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
-import inviteFailedDialog from './InviteFailedDialog';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { useInviteFailedDialog } from './InviteFailedDialog';
 
-export default class AddressBookInvite extends Component {
+class AddressBookInvite extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -23,7 +26,6 @@ export default class AddressBookInvite extends Component {
     const selectedAccountIds = selectUsers.map(i => i.accountId);
 
     dialogSelectUser({
-      zIndex: 11,
       fromType: _this.props.fromType,
       SelectUserSettings: {
         filterAccountIds: [md.global.Account.accountId],
@@ -52,12 +54,12 @@ export default class AddressBookInvite extends Component {
       fromType,
     })
       .then(result => {
-        inviteFailedDialog({ inviteTotal: selectUsers.length, projectId, result });
+        this.props.openInviteFailedDialog({ inviteTotal: selectUsers.length, projectId, result });
         onCancel();
         this.setState({ loading: false });
       })
-      .catch(() => {
-        alert(_l('邀请失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('邀请失败'), 2);
         this.setState({ loading: false });
       });
   };
@@ -98,7 +100,9 @@ export default class AddressBookInvite extends Component {
           </div>
 
           <Button
-            disabled={!selectUsers.length || loading}
+            type="primary"
+            loading={loading}
+            disabled={!selectUsers.length}
             onClick={evt => {
               evt.nativeEvent.stopImmediatePropagation();
               this.submit();
@@ -119,3 +123,7 @@ export default class AddressBookInvite extends Component {
     );
   }
 }
+
+export default withOpeners(AddressBookInvite, {
+  openInviteFailedDialog: useInviteFailedDialog,
+});

@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
-import kcCtrl from 'src/api/kc';
+import { Modal } from 'ming-ui/antd-components';
 import 'src/pages/PageHeader/components/NetState/index.less';
-import { formatFileSize, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export const QiniuUpload = {
   Tokens: {
@@ -116,111 +116,7 @@ export const isValid = files => {
   return count !== files.length;
 };
 
-export const formatTemporaryData = res => {
-  return res.map(item => {
-    if (item.accountId) {
-      return {
-        fileExt: item.ext,
-        filePath: item.filepath,
-        fileName: item.filename,
-        fileID: item.fileID,
-        fileSize: item.filesize,
-        originalFileName: item.originalFilename,
-        oldOriginalFileName: item.originalFilename,
-        commentID: item.commentID,
-        sourceID: item.sourceID,
-        twice: item,
-      };
-    } else {
-      if (!item.key) {
-        item.key = `${item.filePath}${item.fileName}${item.fileExt}`;
-      }
-
-      if (!item.fileID) {
-        item.fileID = Date.now();
-      }
-
-      return item;
-    }
-  });
-};
-
-export const formatKcAttachmentData = res => {
-  return res.map(item => {
-    if (!item.isUpload && !item.twice) {
-      return {
-        refId: item.refId || item.id,
-        fileExt: item.ext && item.ext.indexOf('.') >= 0 ? item.ext : `.${item.ext}`,
-        filePath: item.filepath,
-        fileName: item.filename,
-        fileID: item.fileID || item.id,
-        fileSize: item.filesize || item.size,
-        originalFileName: item.originalFilename || item.name,
-        commentID: item.commentID,
-        sourceID: item.sourceID,
-        allowDown: item.isDownloadable,
-        viewUrl: RegExpValidator.fileIsPicture('.' + item.ext) ? item.viewUrl : null,
-        type: item.type,
-        twice: item,
-      };
-    } else {
-      return item;
-    }
-  });
-};
-
-export const formatResponseData = (file, response) => {
-  /*
-  // 将七牛返回的数据临时转成该系统的数据，便于给组件显示
-
-  const item = {};
-  const data = JSON.parse(response);
-
-  item.fileID = file.id;
-  item.filesize = Number(data.fsize);
-  item.ext = data.fileExt;
-  item.originalFilename = data.originalFileName;
-  item.oldOriginalFilename = data.originalFileName;
-  item.filepath = `${ data.serverName }${ data.filePath }`;
-  item.filename = `${ data.fileName }${ data.fileExt }`;
-
-  return item;
-  */
-
-  const item = {};
-  const data = _.isString(response) ? JSON.parse(response) : response;
-
-  item.fileID = file.id;
-  item.fileSize = file.size || 0;
-  item.serverName = data.serverName;
-  item.filePath = data.filePath;
-  item.fileName = data.fileName;
-  item.fileExt = data.fileExt;
-  item.originalFileName = data.originalFileName;
-  item.key = data.key;
-  item.url = file.url;
-  item.oldOriginalFileName = item.originalFileName;
-  if (!RegExpValidator.fileIsPicture(item.fileExt)) {
-    item.allowDown = true;
-    item.docVersionID = '';
-  }
-
-  return item;
-};
-
-export const getFilesSize = files => {
-  let totalSize = 0;
-
-  for (let i = 0, length = files.length; i < length; i++) {
-    if (files[i].size) {
-      totalSize += files[i].size;
-    }
-  }
-
-  return totalSize;
-};
-
-export const getAttachmentTotalSize = files => {
+export const getAttachmentTotalSize = (files, maxTotalSize = 1024 * 4) => {
   let totalSize = 0;
 
   for (let i = 0, length = files.length; i < length; i++) {
@@ -231,12 +127,8 @@ export const getAttachmentTotalSize = files => {
 
   return {
     totalSize: formatFileSize(totalSize),
-    currentPrograss: (totalSize / 1024 / 1024 / 2048) * 100,
+    currentPrograss: (totalSize / 1024 / 1024 / maxTotalSize) * 100,
   };
-};
-
-export const getFileExtends = fileName => {
-  return fileName.substring(fileName.lastIndexOf('.') + 1);
 };
 
 export const findIndex = (res, id) => {
@@ -252,17 +144,13 @@ export const findIndex = (res, id) => {
   return index;
 };
 
-export const checkAccountUploadLimit = (size, params = {}) => {
-  return kcCtrl.getUsage(params).then(function (usage) {
-    return usage.used + size < usage.total;
-  });
-};
-
 export const openMdDialog = () => {
-  Dialog.confirm({
+  let closeDialog;
+
+  closeDialog = Modal.confirm({
     width: 450,
-    noFooter: true,
-    children: (
+    footer: null,
+    content: (
       <div id="uploadStorageOverDialog">
         <div className="mTop20 mLeft30">
           <div className="uploadStorageOverLogo Left"></div>
@@ -271,15 +159,22 @@ export const openMdDialog = () => {
         </div>
         <div className="mTop20 mBottom20 TxtCenter">
           <a
-            href={pathCompletion('/personal?type=enterprise')}
+            href={pathCompletion('/dashboard')}
             className="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small"
+            onClick={event => {
+              if (_.isFunction(window.openOrganizationDrawer)) {
+                event.preventDefault();
+                closeDialog(false);
+                window.openOrganizationDrawer();
+              }
+            }}
           >
             {_l('升级至专业版')}
           </a>
         </div>
       </div>
     ),
-  });
+  }).destroy;
 };
 
 export const findIsId = (id, files) => {
@@ -293,48 +188,6 @@ export const findIsId = (id, files) => {
   }
 
   return result;
-};
-
-export const isDocument = fileExt => {
-  var fileExts = [
-    '.doc',
-    '.docx',
-    '.dotx',
-    '.dot',
-    '.dotm',
-    '.xls',
-    '.xlsx',
-    '.xlsm',
-    '.xlm',
-    '.xlsb',
-    '.ppt',
-    '.pptx',
-    '.pps',
-    '.ppsx',
-    '.potx',
-    '.pot',
-    '.pptm',
-    '.potm',
-    '.ppsm',
-    '.pdf',
-  ];
-  if (fileExt) {
-    fileExt = fileExt.toLowerCase();
-    return fileExts.indexOf(fileExt) >= 0;
-  }
-
-  return false;
-};
-
-export const formatTime = (seconds = 0) => {
-  let minute = parseInt((seconds / 60) % 60);
-  let hour = parseInt(seconds / 60 / 60);
-  let second = parseInt(seconds % 60);
-
-  minute = minute >= 10 ? minute : `0${minute}`;
-  second = second >= 10 ? second : `0${second}`;
-
-  return hour ? `${hour}:${minute}:${second}` : `${minute}:${second}`;
 };
 
 // 文件类型验证

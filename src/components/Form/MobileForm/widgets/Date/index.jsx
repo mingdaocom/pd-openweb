@@ -3,14 +3,14 @@ import cx from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Icon, MobileDatePicker } from 'ming-ui';
-import { getTimeZoneText } from 'src/utils/control';
-import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/utils/controlCommon';
+import { getTimeZoneText } from 'src/utils/domain/control/date';
+import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/utils/domain/control/date';
 import {
   dateAppZoneToServerZone,
   dateConvertToServerZone,
   dateConvertToUserZone,
   dateServerZoneToAppZone,
-} from 'src/utils/project';
+} from 'src/utils/platform/runtime/timeZone';
 import { getDynamicValue } from '../../../core/formUtils';
 
 const DateWidget = props => {

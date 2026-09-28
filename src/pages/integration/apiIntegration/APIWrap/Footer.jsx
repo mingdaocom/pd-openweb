@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Button } from 'ming-ui/antd-components';
 import Switch from 'src/pages/workflow/components/Switch';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { BtnWrap } from '../style';
 
 const FooterCon = styled.div`
@@ -10,18 +11,6 @@ const FooterCon = styled.div`
   padding: 16px 40px;
   .boc {
     max-width: 800px;
-    .close {
-      height: 38px;
-      border-radius: 3px;
-      line-height: 38px;
-      color: var(--color-text-secondary);
-      padding: 0 30px;
-      border: 1px solid var(--color-border-secondary);
-      &:hover {
-        color: var(--color-primary);
-        border: 1px solid var(--color-primary);
-      }
-    }
   }
   .apiBtn {
     height: 36px;
@@ -49,8 +38,8 @@ function Footer({ data, apkInfo, isConnectOwner, pending, onCancel, switchStatus
     <FooterCon className="flexRow w100">
       <div className="boc flexRow divCenter w100">
         <div className="flex">
-          <div
-            className="InlineBlock close Hand"
+          <Button
+            wide
             onClick={() => {
               if (location.href.indexOf('/integrationApi') >= 0) {
                 location.href = pathCompletion('/integration');
@@ -60,7 +49,7 @@ function Footer({ data, apkInfo, isConnectOwner, pending, onCancel, switchStatus
             }}
           >
             {_l('关闭')}
-          </div>
+          </Button>
         </div>
         {isConnectOwner ? (
           // {/* 安装的连接均没有「更新发布」功能。 超级管理员或拥有者 */}

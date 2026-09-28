@@ -1,9 +1,9 @@
 import React from 'react';
 import { FilterContent } from 'src/pages/widgetConfig/widgetSetting/components/relationSearch/styled.js';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { filterSysControls } from 'src/utils/domain/control/filters';
 import { SettingItem } from '../../../styled';
-import { filterSysControls } from '../../../util';
-import { getFilterControls } from '../../../util/data';
+import { getFilterControls } from '../../apiSchema';
 
 export default function SearchMappingFilter(props) {
   const { originResponseControls, globalSheetInfo = {}, filterItems, handleFilters = () => {}, allControls } = props;

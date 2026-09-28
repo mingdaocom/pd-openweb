@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select } from 'ming-ui/antd-components';
 import ConfigRelate from 'src/pages/widgetConfig/widgetSetting/components/relateSheet/ConfigRelate.jsx';
-import { handleAdvancedSettingChange } from 'src/utils/control';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
 import { WIDGETS_TO_API_TYPE, WIDGETS_TO_API_TYPE_ENUM_N } from './config';
 import { WrapSortControls } from './style';
 import { initData } from './util';
@@ -37,12 +38,12 @@ export default function Item(props) {
           {DEFAULT_CONFIG[WIDGETS_TO_API_TYPE_ENUM_N[type] || 'TEXT'].widgetName}
         </span>
       ) : (
-        <Dropdown
-          isAppendToBody
-          data={WIDGETS_TO_API_TYPE.map(o => {
-            return { text: DEFAULT_CONFIG[o].widgetName, value: o };
+        <Select
+          variant="borderless"
+          options={WIDGETS_TO_API_TYPE.map(o => {
+            return { label: DEFAULT_CONFIG[o].widgetName, value: o };
           })}
-          className="InlineBlock controlN"
+          className="controlN"
           onChange={newValue => {
             if (newValue === 'RELATE_SHEET') {
               setState({ showCreateRelateControlId: controlId });
@@ -67,24 +68,29 @@ export default function Item(props) {
         }}
       />
       <Checkbox
-        className="TxtLeft InlineBlock Hand cellect"
-        text={''}
+        className="TxtLeft Hand cellect"
         checked={fieldPermission === '110'}
-        onClick={() => {
+        onChange={() => {
           onChange({
             fieldPermission: fieldPermission === '110' ? '111' : '110',
             controlId,
           });
         }}
-      />
+      >
+        {''}
+      </Checkbox>
       <Checkbox
-        className="TxtLeft InlineBlock Hand required"
-        text={''}
+        className="TxtLeft Hand required"
         checked={required}
-        onClick={() => {
-          onChange({ required: !required, controlId });
+        onChange={() => {
+          onChange({
+            required: !required,
+            controlId,
+          });
         }}
-      />
+      >
+        {''}
+      </Checkbox>
       <Icon
         className="Font18 Hand mRight10 set"
         icon="settings"

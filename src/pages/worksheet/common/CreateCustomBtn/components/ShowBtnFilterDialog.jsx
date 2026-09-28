@@ -1,7 +1,7 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { Modal } from 'ming-ui/antd-components';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { SYS } from 'src/utils/domain/control/widget';
 
 const segmentation = columns => {
   for (let i = 0; i < columns.length; i++) {
@@ -31,12 +31,18 @@ class ShowBtnFilterDialog extends React.Component {
       title,
     } = this.props;
     return (
-      <Dialog
-        title={title || _l('筛选')}
+      <Modal
+        title={
+          <React.Fragment>
+            <div>{title || _l('筛选')}</div>
+            {description && <div className="Font13 Normal textSecondary mTop8">{description}</div>}
+          </React.Fragment>
+        }
         okText={_l('确定')}
         cancelText={_l('取消')}
-        description={description}
-        className="showBtnFilterDialog"
+        rootClassName="showBtnFilterDialog"
+        mask={{ closable: true }}
+        keyboard
         onCancel={() => {
           setValue({
             ...this.state,
@@ -55,7 +61,7 @@ class ShowBtnFilterDialog extends React.Component {
             isOk: true,
           });
         }}
-        visible={isShowBtnFilterDialog}
+        open={isShowBtnFilterDialog}
       >
         <FilterConfig
           sheetSwitchPermit={sheetSwitchPermit}
@@ -76,7 +82,7 @@ class ShowBtnFilterDialog extends React.Component {
             });
           }}
         />
-      </Dialog>
+      </Modal>
     );
   }
 }

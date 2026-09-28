@@ -1,6 +1,14 @@
-import { pathCompletion } from 'src/utils/common';
-import { setPssId } from 'src/utils/pssId';
-import { ajax, browserIsMobile, checkLogin, getGlobalMeta, getRequest, login, replenishRet } from 'src/utils/sso';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import {
+  ajax,
+  browserIsMobile,
+  checkLogin,
+  getGlobalMeta,
+  getRequest,
+  login,
+  replenishRet,
+} from 'src/utils/services/auth/sso';
 
 const { code, state, i, ret, pc_slide = '' } = getRequest();
 const isPcSlide = pc_slide.includes('true');

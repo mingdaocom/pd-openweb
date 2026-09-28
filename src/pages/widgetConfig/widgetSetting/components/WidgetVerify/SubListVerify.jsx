@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { NumberRange } from '../../../styled';
 import InputValue from './InputValue';
 
@@ -23,16 +22,26 @@ export default function SubListVerify(props) {
     <div className="widgetDisplaySettingWrap">
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={enablelimit === '1'}
-          onClick={checked => {
+          onChange={event => {
             onChange(
               handleAdvancedSettingChange(
                 data,
-                checked ? { enablelimit: '0', min: '', max: '' } : { enablelimit: '1', min: '0', max: '200' },
+                !event.target.checked
+                  ? {
+                      enablelimit: '0',
+                      min: '',
+                      max: '',
+                    }
+                  : {
+                      enablelimit: '1',
+                      min: '0',
+                      max: '200',
+                    },
               ),
             );
           }}
+          size="small"
         >
           <span>
             {_l('限制添加行数')}
@@ -69,7 +78,7 @@ export default function SubListVerify(props) {
             onBlur={value => {
               if (value > 1000) {
                 value = 1000;
-              } else if (min && value <= Number(min)) {
+              } else if (min && value < Number(min)) {
                 value = Number(min) + 1;
               } else if (value === 0) {
                 value = 1;

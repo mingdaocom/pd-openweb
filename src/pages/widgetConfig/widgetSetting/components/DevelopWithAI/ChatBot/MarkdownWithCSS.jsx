@@ -1158,7 +1158,7 @@ export const MarkdownWithCSS = styled.div`
   }
 
   /* Inline code */
-  :not(pre) > code[class*='language-'] {
+  & :not(pre) > code[class*='language-'] {
     position: relative;
     padding: 0.2em;
     border-radius: 0.3em;

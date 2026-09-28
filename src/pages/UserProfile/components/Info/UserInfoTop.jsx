@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import openEnlargeImage from 'ming-ui/components/UserCard/EnlargeImage';
+import { PersonalStatus, UserBaseProfile } from 'ming-ui';
+import useEnlargeImage from 'ming-ui/components/UserCard/EnlargeImage';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import userAjax from 'src/api/user.js';
-import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
-import { pathCompletion } from 'src/utils/common';
+import { getAccountPersonalUrl } from 'src/utils/platform/navigation/path';
 
 const InfoTopWrap = styled.div`
   color: var(--color-text-title);
@@ -55,7 +55,7 @@ let InfoTop = class InfoTop extends React.PureComponent {
               const accountInfo = await userAjax
                 .getAccountBaseInfo({ accountId: userInfo.accountId, refresh: false })
                 .catch(() => ({}));
-              openEnlargeImage({
+              this.props.openEnlargeImage({
                 url: accountInfo.avatar || userInfo.avatar,
               });
             }}
@@ -83,11 +83,7 @@ let InfoTop = class InfoTop extends React.PureComponent {
             </span>
           </div>
           {isMe ? (
-            <a
-              className="Right colorPrimaryLight Font12"
-              href={pathCompletion('/personal?type=information')}
-              target="_blank"
-            >
+            <a className="Right colorPrimaryLight Font12" href={getAccountPersonalUrl()} target="_blank">
               {_l('修改个人设置')}
             </a>
           ) : (
@@ -124,4 +120,6 @@ let InfoTop = class InfoTop extends React.PureComponent {
   }
 };
 InfoTop = connect()(InfoTop);
-export default InfoTop;
+export default withOpeners(InfoTop, {
+  openEnlargeImage: useEnlargeImage,
+});

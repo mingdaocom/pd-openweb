@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import UniformRoute from 'src/router/withTitle';
+import { LazyRoute as UniformRoute } from 'src/router/components/LazyRoute';
 import TaskDetail from '../containers/taskDetail/taskDetail';
 import './index.less';
 

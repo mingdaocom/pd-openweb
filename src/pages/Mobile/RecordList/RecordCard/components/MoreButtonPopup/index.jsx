@@ -1,7 +1,8 @@
 import React, { Fragment, memo } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, PopupWrapper } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 
 const MoreButtonWrapper = styled.div`
   flex-shrink: 0;
@@ -11,7 +12,7 @@ const MoreButtonWrapper = styled.div`
   color: var(--color-text-tertiary);
   font-size: 18px;
   ${props =>
-    props.showType === 'icon'
+    props.$showType === 'icon'
       ? `
           flex: 1;
           padding: 0 8px;
@@ -20,7 +21,7 @@ const MoreButtonWrapper = styled.div`
           width: 32px;
           height: 32px;
           border-radius: 3px;
-          ${props.showType === 'standard' && 'border: 1px solid var(--color-border-primary);'}
+          ${props.$showType === 'standard' && 'border: 1px solid var(--color-border-primary);'}
         `}
 `;
 
@@ -46,7 +47,7 @@ const MoreButtonPopup = props => {
   return (
     <Fragment>
       {showMore && (
-        <MoreButtonWrapper showType={showType} onClick={handleClick}>
+        <MoreButtonWrapper $showType={showType} onClick={handleClick}>
           <Icon icon="more_horiz" />
         </MoreButtonWrapper>
       )}

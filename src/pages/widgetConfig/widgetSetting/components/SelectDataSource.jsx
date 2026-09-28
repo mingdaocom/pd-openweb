@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, RadioGroup } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import SelectSheetFromApp from './SelectSheetFromApp';
 
 const DATA_SOURCE_MODE = [
@@ -33,6 +34,7 @@ const SelectDataSourceWrap = styled.div`
 export default function SelectDataSource({ onClose, onOk, editType, appId, worksheetId, viewId, globalSheetInfo }) {
   const [dataSourceMode, setMode] = useState(editType);
   const [loading, setLoading] = useState(false);
+  const requestPending = useRef(false);
   const { appId: currentAppId, worksheetId: sourceId } = globalSheetInfo;
   const [ids, setIds] = useSetState(
     editType === 0 ? { appId: currentAppId, sheetId: '', viewId: '' } : { appId, sheetId: worksheetId, viewId },
@@ -40,9 +42,12 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
 
   const handleOk = () => {
     if (dataSourceMode === 0) {
+      if (requestPending.current) return;
+
+      requestPending.current = true;
       setLoading(true);
       const currentTime = moment();
-      appManagementAjax
+      return appManagementAjax
         .addSheet({
           name: _l('数据源 %0', `${currentTime.format('M-D HH:mm')}`),
           worksheetId: sourceId,
@@ -53,6 +58,11 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
           const { worksheetId, views = [], appId } = data;
           const { viewId } = _.head(views) || {};
           onOk({ viewId, sheetId: worksheetId, appId });
+        })
+        .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('创建失败，请稍后再试'), 2))
+        .finally(() => {
+          requestPending.current = false;
+          setLoading(false);
         });
     } else {
       onOk(ids);
@@ -60,9 +70,12 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
   };
 
   return (
-    <Dialog
-      style={{ width: '560px' }}
-      visible
+    <Modal
+      width={560}
+      open
+      mask={{ closable: true }}
+      keyboard
+      confirmLoading={loading}
       okDisabled={(dataSourceMode !== 0 && !ids.viewId) || (dataSourceMode === 0 && loading)}
       title={editType === 0 ? _l('选择数据源') : _l('修改数据源')}
       onCancel={onClose}
@@ -75,12 +88,12 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
           )}
         </div>
         {editType === 0 && (
-          <RadioGroup
+          <Radio.Group
             vertical
             size="middle"
-            data={DATA_SOURCE_MODE}
-            checkedValue={dataSourceMode === 3 ? 1 : dataSourceMode}
-            onChange={value => setMode(value)}
+            options={(DATA_SOURCE_MODE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            value={dataSourceMode === 3 ? 1 : dataSourceMode}
+            onChange={event => setMode(event.target.value)}
           />
         )}
         {_.includes([1, 3], dataSourceMode) && (
@@ -111,6 +124,6 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
           </div>
         )}
       </SelectDataSourceWrap>
-    </Dialog>
+    </Modal>
   );
 }

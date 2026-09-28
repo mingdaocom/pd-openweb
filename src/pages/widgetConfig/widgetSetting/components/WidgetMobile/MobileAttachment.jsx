@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Checkbox, Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
+import { transferValue } from 'src/utils/domain/control/value';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import DynamicDefaultValue from '../DynamicDefaultValue';
-import { transferValue } from '../DynamicDefaultValue/util';
 import SheetDealDataType from '../SheetDealDataType';
 
 const getWaterMarkValue = data => {
@@ -52,26 +52,32 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
             <div className="settingItemTitle">{_l('移动端输入')}</div>
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={_.includes([1, 3], enumDefault2)}
-                text={_l('拍摄照片')}
-                onClick={checked => {
-                  const value = checked ? (enumDefault2 === 3 ? 2 : 0) : enumDefault2 === 2 ? 3 : 1;
-                  onChange({ enumDefault2: value });
+                onChange={event => {
+                  const value = !event.target.checked ? (enumDefault2 === 3 ? 2 : 0) : enumDefault2 === 2 ? 3 : 1;
+                  onChange({
+                    enumDefault2: value,
+                  });
                 }}
-              />
+                size="small"
+              >
+                {_l('拍摄照片')}
+              </Checkbox>
             </div>
             {type !== '1' && (
               <div className="labelWrap">
                 <Checkbox
-                  size="small"
                   checked={_.includes([2, 3], enumDefault2)}
-                  text={_l('拍摄视频')}
-                  onClick={checked => {
-                    const value = checked ? (enumDefault2 === 3 ? 1 : 0) : enumDefault2 === 1 ? 3 : 2;
-                    onChange({ enumDefault2: value });
+                  onChange={event => {
+                    const value = !event.target.checked ? (enumDefault2 === 3 ? 1 : 0) : enumDefault2 === 1 ? 3 : 2;
+                    onChange({
+                      enumDefault2: value,
+                    });
                   }}
-                />
+                  size="small"
+                >
+                  {_l('拍摄视频')}
+                </Checkbox>
               </div>
             )}
             {_.includes([1, 2, 3], data.enumDefault2) && (
@@ -79,31 +85,44 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                 <div className="settingItemTitle Normal">{_l('选项')}</div>
                 <div className="labelWrap">
                   <Checkbox
-                    size="small"
                     checked={onlyAllowMobileInput === '1'}
-                    onClick={checked =>
-                      onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 1 }) })
+                    onChange={event =>
+                      onChange({
+                        strDefault: updateConfig({
+                          config: strDefault || '00',
+                          value: +event.target.checked,
+                          index: 1,
+                        }),
+                      })
                     }
-                    text={_l('禁止从桌面端输入')}
-                  />
+                    size="small"
+                  >
+                    {_l('禁止从桌面端输入')}
+                  </Checkbox>
                 </div>
                 <div className="labelWrap">
                   <Checkbox
-                    size="small"
                     checked={disableAlbum === '1'}
-                    onClick={checked =>
-                      onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 0 }) })
+                    onChange={event =>
+                      onChange({
+                        strDefault: updateConfig({
+                          config: strDefault || '00',
+                          value: +event.target.checked,
+                          index: 0,
+                        }),
+                      })
                     }
-                    text={_l('禁用相册')}
-                  />
+                    size="small"
+                  >
+                    {_l('禁用相册')}
+                  </Checkbox>
                 </div>
                 <Fragment>
                   <div className="labelWrap labelBetween">
                     <Checkbox
-                      size="small"
                       checked={currentWaterMark}
-                      onClick={checked => {
-                        if (checked) {
+                      onChange={event => {
+                        if (!event.target.checked) {
                           setVisible(false);
                           setWatermark('');
                           onChange({
@@ -117,6 +136,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                           setWatermark('$user$$time$');
                         }
                       }}
+                      size="small"
                     >
                       <span style={{ marginRight: '4px' }}>{_l('添加照片水印')}</span>
                       <Tooltip
@@ -145,53 +165,63 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('自动压缩图片')}</div>
-            <div className="flexRow">
-              <div className="labelWrap flex">
-                <Checkbox
-                  size="small"
-                  checked={advancedSetting.compress === '1'}
-                  onClick={checked => onChange(handleAdvancedSettingChange(data, { compress: checked ? '0' : '1' }))}
+            <div className="flexRow flexCenter justifyContentBetween">
+              <Checkbox
+                checked={advancedSetting.compress === '1'}
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      compress: !event.target.checked ? '0' : '1',
+                    }),
+                  )
+                }
+                size="small"
+              >
+                <span style={{ marginRight: '4px' }}>{_l('手机App')}</span>
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    <span className="WordBreak">
+                      {_l('勾选后，将对图片压缩后再进行上传。未勾选时，用户可自行选择是否上传原图。')}
+                    </span>
+                  }
                 >
-                  <span style={{ marginRight: '4px' }}>{_l('手机App')}</span>
-                  <Tooltip
-                    placement="bottom"
-                    title={
-                      <span className="WordBreak">
-                        {_l('勾选后，将对图片压缩后再进行上传。未勾选时，用户可自行选择是否上传原图。')}
-                      </span>
-                    }
-                  >
-                    <i className="icon-help textTertiary Font16 Hand"></i>
-                  </Tooltip>
-                </Checkbox>
-              </div>
-              <div className="labelWrap flex">
-                <Checkbox
-                  size="small"
-                  checked={webcompress === '1'}
-                  onClick={checked => onChange(handleAdvancedSettingChange(data, { webcompress: checked ? '0' : '1' }))}
+                  <i className="icon-help textTertiary Font16 Hand"></i>
+                </Tooltip>
+              </Checkbox>
+              <Checkbox
+                checked={webcompress === '1'}
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      webcompress: !event.target.checked ? '0' : '1',
+                    }),
+                  )
+                }
+                size="small"
+              >
+                <span style={{ marginRight: '4px' }}>{_l('Web移动端（H5）')}</span>
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    <span className="WordBreak">
+                      {_l(
+                        'Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及第三方平台的移动App）',
+                      )}
+                    </span>
+                  }
                 >
-                  <span style={{ marginRight: '4px' }}>{_l('Web移动端（H5）')}</span>
-                  <Tooltip
-                    placement="bottom"
-                    title={
-                      <span className="WordBreak">
-                        {_l(
-                          'Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及第三方平台的移动App）',
-                        )}
-                      </span>
-                    }
-                  >
-                    <i className="icon-help textTertiary Font16 Hand"></i>
-                  </Tooltip>
-                </Checkbox>
-              </div>
+                  <i className="icon-help textTertiary Font16 Hand"></i>
+                </Tooltip>
+              </Checkbox>
             </div>
           </SettingItem>
         </Fragment>
       )}
-      <Dialog
-        visible={visible}
+      <Modal
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={_l('水印内容')}
         okText={_l('保存')}
         cancelText={_l('取消')}
@@ -246,7 +276,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
             }}
           />
         </SettingItem>
-      </Dialog>
+      </Modal>
     </Fragment>
   );
 };

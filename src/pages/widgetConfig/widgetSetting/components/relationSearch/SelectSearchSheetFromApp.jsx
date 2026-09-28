@@ -1,18 +1,17 @@
 import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Button, ConfigProvider } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Dropdown as MDDropdown, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Button, Input, Popover, Select } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { DropdownPlaceholder } from '../../../styled';
 
 const SelectItem = styled.div`
@@ -22,13 +21,10 @@ const SelectItem = styled.div`
 `;
 
 const SelectSheetWrap = styled.div`
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
   .tabNav {
     display: flex;
     padding-left: 20px;
-    border-bottom: 1px solid --color-background-disabled;
+    border-bottom: 1px solid var(--color-background-disabled);
   }
   .navItem {
     margin-bottom: 0 !important;
@@ -52,12 +48,6 @@ const SelectSheetWrap = styled.div`
   .searchWrap {
     padding: 8px 10px 8px 20px;
     border-bottom: 1px solid var(--color-border-primary);
-    input {
-      border: none;
-      &::placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
   }
   .workSheetListWrap {
     padding: 6px 0;
@@ -167,9 +157,10 @@ export default function SelectSheetFromApp(props) {
           })}
         </div>
         <div className="searchWrap flexRow alignItemsCenter">
-          <Icon className="Font18 textTertiary mRight3" icon="search" />
-          <input
+          <Input
             className="w100"
+            variant="borderless"
+            prefix={<Icon className="Font18 textTertiary" icon="search" />}
             placeholder={_l('搜索')}
             autoFocus
             value={searchValue}
@@ -192,17 +183,15 @@ export default function SelectSheetFromApp(props) {
               <span className="Font14 textTertiary mTop12 ">{_l('将工作表数据预处理为聚合结果')}</span>
               <span className="Font14 textTertiary mBottom24">{_l('在表单、流程、统计中作为数据源使用')}</span>
               {getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
-                <ConfigProvider autoInsertSpaceInButton={false}>
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      window.open(pathCompletion(`/app/${appId}/settings/aggregations`));
-                    }}
-                    style={{ borderRadius: 20 }}
-                  >
-                    {_l('创建')}
-                  </Button>
-                </ConfigProvider>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    window.open(pathCompletion(`/app/${appId}/settings/aggregations`));
+                  }}
+                  style={{ borderRadius: 20 }}
+                >
+                  {_l('创建')}
+                </Button>
               )}
             </div>
           )}
@@ -230,8 +219,8 @@ export default function SelectSheetFromApp(props) {
 
         return appList.map(({ appName, appId }) =>
           appId === currentAppId
-            ? { text: _l('%0  (本应用)', appName), value: appId }
-            : { text: appName, value: appId },
+            ? { label: _l('%0  (本应用)', appName), value: appId }
+            : { label: appName, value: appId },
         );
       };
 
@@ -288,14 +277,13 @@ export default function SelectSheetFromApp(props) {
     <Fragment>
       <SelectItem>
         <div className={cx('title Bold', { mTop0: fromCustomEvent })}>{_l('应用')}</div>
-        <MDDropdown
+        <Select
           className="w100"
           value={appId || undefined}
-          border
-          openSearch
-          isAppendToBody
+          showPopupSearch
+          optionFilterProp="label"
           placeholder={appDelete ? <span className="Red">{_l('已删除')}</span> : _l('请选择')}
-          data={app}
+          options={app}
           onChange={value => {
             if (value === appId) return;
             setData({
@@ -313,16 +301,15 @@ export default function SelectSheetFromApp(props) {
       </SelectItem>
       <SelectItem>
         <div className="title Bold">{_l('查询表')}</div>
-        <Trigger
-          popupVisible={visible}
-          popupStyle={{ width: 554 }}
-          onPopupVisibleChange={visible => setData({ visible })}
-          action={['click']}
+        <Popover
+          noPadding
+          open={visible}
+          styles={{ container: { width: 554 } }}
+          onOpenChange={visible => setData({ visible })}
+          trigger="click"
           getPopupContainer={() => $ref.current}
-          popup={() => selectSheetMenu()}
-          popupAlign={{
-            points: ['tr', 'br'],
-          }}
+          content={() => selectSheetMenu()}
+          placement="bottomRight"
         >
           <DropdownPlaceholder ref={$ref}>
             <span className={cx('breakAll', { Red: sheetDelete })}>
@@ -338,7 +325,7 @@ export default function SelectSheetFromApp(props) {
             </span>
             <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
           </DropdownPlaceholder>
-        </Trigger>
+        </Popover>
       </SelectItem>
     </Fragment>
   );

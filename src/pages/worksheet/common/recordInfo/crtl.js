@@ -1,5 +1,4 @@
 import _, { isEmpty } from 'lodash';
-import { quickSelectUser } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
@@ -8,9 +7,10 @@ import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
 import { getRuleErrorInfo } from 'src/components/Form/core/formUtils';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
-import { postWithToken } from 'src/utils/common';
-import { getRecordLandUrl, handleRecordError } from 'src/utils/record';
-import { replaceBtnsTranslateInfo, replaceRulesTranslateInfo } from 'src/utils/translate';
+import { postWithToken } from 'src/utils/services/request/authenticated';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { replaceBtnsTranslateInfo, replaceRulesTranslateInfo } from 'src/utils/services/translation/app';
+import { getRecordLandUrl, handleRecordError } from 'src/utils/services/worksheet/record';
 
 export function getWorksheetInfo(...args) {
   return worksheetAjax.getWorksheetInfo(...args);
@@ -207,9 +207,7 @@ export function updateRecord(
     .catch(err => {
       console.error(err);
       handleCallback(err);
-      if (err.status !== 401) {
-        alert(_l('保存失败，请稍后重试'), 2);
-      }
+      alertIfNotUnauthorized(err, _l('保存失败，请稍后重试'), 2);
     });
 }
 
@@ -315,7 +313,7 @@ export function handleSubmitDraft(
     .catch(err => {
       console.error(err);
       handleCallback(err);
-      alert(_l('提交失败，请稍后重试'), 2);
+      alertIfNotUnauthorized(err, _l('提交失败，请稍后重试'), 2);
     });
 }
 
@@ -491,44 +489,6 @@ export function updateRecordOwner({ worksheetId, recordId, accountId }) {
         }
       })
       .catch(reject);
-  });
-}
-
-export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, target, changeOwner }) {
-  quickSelectUser(target, {
-    sourceId: recordId,
-    projectId: projectId,
-
-    showMoreInvite: false,
-    isTask: false,
-    tabType: 3,
-    appId,
-    includeUndefinedAndMySelf: true,
-    selectedAccountIds: [ownerAccountId],
-    offset: {
-      top: 16,
-      left: 0,
-    },
-    zIndex: 10001,
-    SelectUserSettings: {
-      unique: true,
-      projectId: projectId,
-      selectedAccountIds: [ownerAccountId],
-      callback(users) {
-        if (users[0].accountId === md.global.Account.accountId) {
-          users[0].fullname = md.global.Account.fullname;
-        }
-
-        changeOwner(users, users[0].accountId);
-      },
-    },
-    selectCb(users) {
-      if (users[0].accountId === md.global.Account.accountId) {
-        users[0].fullname = md.global.Account.fullname;
-      }
-
-      changeOwner(users, users[0].accountId);
-    },
   });
 }
 

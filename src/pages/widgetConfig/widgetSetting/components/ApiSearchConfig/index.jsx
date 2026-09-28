@@ -1,20 +1,19 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, LoadDiv, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { dialogSelectIntegrationApi } from 'ming-ui/functions';
+import { LoadDiv, SvgIcon } from 'ming-ui';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { dialogSelectIntegrationApi } from 'src/components/dialogSelectIntegrationApi';
 import SelectAuthAccount from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectAuthAccount';
-import { pathCompletion } from 'src/utils/common';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { transferValue } from 'src/utils/domain/control/value';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import DropdownSelectFields from '../../../components/DropdownSelectFields';
 import { SettingItem } from '../../../styled';
-import { dealRequestControls } from '../../../util/data';
-import { transferValue } from '../DynamicDefaultValue/util';
+import { dealRequestControls } from '../../apiSchema';
 import SearchMapping from './SearchMapping';
 import SearchMappingFilter from './SearchMappingFilter';
 import SearchParams from './SearchParams';
@@ -27,8 +26,10 @@ const SearchMode = styled.div`
   border-radius: 3px;
   border: 1px solid var(--color-border-primary);
   cursor: pointer;
-  ${({ isDelete }) =>
-    isDelete ? 'border: 1px solid var(--color-error);background: var(--color-error-bg);color: var(--color-error);' : ''}
+  ${({ $isDelete }) =>
+    $isDelete
+      ? 'border: 1px solid var(--color-error);background: var(--color-error-bg);color: var(--color-error);'
+      : ''}
   &:hover {
     border-color: var(--color-border-tertiary);
   }
@@ -110,7 +111,7 @@ const AuthWrap = styled.div`
 function BasicInfo(props) {
   const { data = {}, apiInfo = {}, onClick } = props;
   return (
-    <SearchMode onClick={onClick} isDelete={data.dataSource && _.isEmpty(apiInfo)}>
+    <SearchMode onClick={onClick} $isDelete={data.dataSource && _.isEmpty(apiInfo)}>
       {data.dataSource ? (
         <div className="apiWrap">
           {_.isEmpty(apiInfo) ? (
@@ -229,7 +230,7 @@ export default function ApiSearchConfig(props) {
         return total.concat(enabledList);
       }, []);
 
-      setList(list.map(i => ({ text: i.name, value: i.id })));
+      setList(list.map(i => ({ label: i.name, value: i.id })));
     });
   }, [globalSheetInfo.appId]);
 
@@ -321,10 +322,10 @@ export default function ApiSearchConfig(props) {
       {fromOperationFlow ? (
         <SettingItem>
           <div className="settingItemTitle">{_l('选择封装业务流程')}</div>
-          <Dropdown
-            border
-            className={cx({ error: isDelete })}
-            data={flowList}
+          <Select
+            className="w100"
+            status={isDelete ? 'error' : undefined}
+            options={flowList}
             value={isDelete ? undefined : data.dataSource || undefined}
             placeholder={isDelete ? <span className="Red">{_l('已删除')}</span> : _l('请选择封装业务流程')}
             onChange={value => handleSelect(value)}

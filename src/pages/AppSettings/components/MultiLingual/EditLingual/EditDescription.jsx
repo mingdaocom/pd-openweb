@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import { Input, Modal } from 'antd';
 import { RichText } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import EditAppIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import { filterHtmlTag } from '../util';
 
 export default function (props) {
-  const { value, originalValue, onChange } = props;
+  const { title = _l('应用说明'), value, originalValue, onChange } = props;
   const [editAppIntroVisible, setEditAppIntroVisible] = useState(false);
 
   return (
@@ -20,21 +20,17 @@ export default function (props) {
       />
       <Modal
         centered={true}
-        zIndex={1000}
         width={1600}
         footer={null}
-        destroyOnClose={true}
         className="appIntroDialog appMultilingualDialog"
         wrapClassName="appIntroDialogWrapCenter"
-        visible={editAppIntroVisible}
+        open={editAppIntroVisible}
         onClose={() => setEditAppIntroVisible(false)}
-        maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-        bodyStyle={{ padding: 0 }}
         closable={false}
-        // closeIcon={<Icon icon="close" />}
+        styles={{ container: { padding: 0 } }}
       >
         <EditAppIntro
-          title={_l('应用说明')}
+          title={title}
           description={value}
           permissionType={100}
           isEditing={true}

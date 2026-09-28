@@ -5,10 +5,10 @@ import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import DragMask from 'worksheet/common/DragMask';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { timeWidth, timeWidthHalf, types } from './config';
 import ConTimegrid from './ConTimegrid';
 import DataCon from './DataCon';
@@ -23,10 +23,10 @@ const Wrap = styled.div`
   }
 `;
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 2;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -35,50 +35,57 @@ const Drag = styled.div(
   }
 `,
 );
-
 const renderLoading = () => {
   return (
     <div className="Relative w100">
       <Skeleton
-        style={{ flex: 1 }}
-        direction="column"
-        widths={['30%', '40%', '90%', '60%']}
+        className="pAll20 pBottom0"
+        style={{
+          flex: 1,
+        }}
         active
-        itemStyle={{ marginBottom: '10px' }}
+        paragraph={{
+          rows: 4,
+          width: ['30%', '40%', '90%', '60%'],
+        }}
       />
       <Skeleton
-        style={{ flex: 1 }}
-        direction="column"
-        widths={['40%', '55%', '100%', '80%']}
+        className="pAll20 pBottom0"
+        style={{
+          flex: 1,
+        }}
         active
-        itemStyle={{ marginBottom: '10px' }}
+        paragraph={{
+          rows: 4,
+          width: ['40%', '55%', '100%', '80%'],
+        }}
       />
       <Skeleton
-        style={{ flex: 2 }}
-        direction="column"
-        widths={['45%', '100%', '100%', '100%']}
+        className="pAll20"
+        style={{
+          flex: 2,
+        }}
         active
-        itemStyle={{ marginBottom: '10px' }}
+        paragraph={{
+          rows: 4,
+          width: ['45%', '100%', '100%', '100%'],
+        }}
       />
     </div>
   );
 };
-
 export default function Resource(props) {
   const isM = browserIsMobile();
   const { fetchRows, getRelationControls, view, getTimeList, resourceview, controls } = props;
-
   const getDirectoryWidth = () => {
     if (isM) {
       return Math.floor(props.width * 0.3);
     }
-
     const resourceDirectoryWidth = localStorage.getItem(`resourceDirectoryWidth-${props.viewId}`);
     const worksheetContentBoxEl = document.querySelector('.worksheetSheet');
     const contentBoxWidth = worksheetContentBoxEl ? worksheetContentBoxEl.clientWidth / 3 : 210;
     return resourceDirectoryWidth ? Number(resourceDirectoryWidth) : contentBoxWidth;
   };
-
   const [{ dragMaskVisible, directoryWidth, maxWidth, showGroup, canvasType }, setState] = useSetState({
     dragMaskVisible: false,
     directoryWidth: getDirectoryWidth(),
@@ -87,7 +94,6 @@ export default function Resource(props) {
     canvasType:
       localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0],
   });
-
   useEffect(() => {
     onFetch();
   }, [props.view, resourceview.currentTime]);
@@ -100,19 +106,16 @@ export default function Resource(props) {
       fetchRows();
     });
   };
-
   useEffect(() => {
     const viewEl = document.querySelector(`.resourceView-${view.viewId}`);
     setState({
       maxWidth: viewEl ? (50 / 100) * viewEl.offsetWidth : 0,
     });
   }, []);
-
   const handleToolClick = () => {
     const $wrap = document.querySelector('.resourceView');
     const oneWidth = canvasType !== 'Day' ? timeWidth : timeWidthHalf;
     const timeWidthAll = resourceview.gridTimes.length * oneWidth;
-
     let copyDom = $wrap.cloneNode(true);
     copyDom.classList.add('new-div-class');
     const leftW = $(`#resourceGroup_${view.viewId}_0`).width() || directoryWidth;
@@ -141,19 +144,23 @@ export default function Resource(props) {
     });
     $('.new-div-class .valignWrappe').hide();
     const name = view.name + '.png';
-
     try {
-      domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width: width, height: height }).then(function (blob) {
-        saveAs(blob, name);
-        document.querySelector('body').removeChild(copyDom);
-      });
+      domtoimage
+        .toBlob(copyDom, {
+          bgcolor: '#f5f5f5',
+          width: width,
+          height: height,
+        })
+        .then(function (blob) {
+          saveAs(blob, name);
+          document.querySelector('body').removeChild(copyDom);
+        });
     } catch (error) {
       console.log(error);
       alert(_l('生成失败'), 2);
       document.querySelector('body').removeChild(copyDom);
     }
   };
-
   return (
     <Wrap>
       <div className={cx('resourceView flexRow', `resourceView-${view.viewId}`)}>
@@ -164,7 +171,10 @@ export default function Resource(props) {
               min={210}
               max={maxWidth}
               onChange={value => {
-                setState({ dragMaskVisible: false, directoryWidth: value });
+                setState({
+                  dragMaskVisible: false,
+                  directoryWidth: value,
+                });
                 safeLocalStorageSetItem(`resourceDirectoryWidth-${view.viewId}`, value);
               }}
             />
@@ -172,7 +182,16 @@ export default function Resource(props) {
           {showGroup && (
             <DataCon {...props} directoryWidth={!showGroup ? 0 : directoryWidth} renderLoading={renderLoading} />
           )}
-          {!isM && showGroup && <Drag left={directoryWidth} onMouseDown={() => setState({ dragMaskVisible: true })} />}
+          {!isM && showGroup && (
+            <Drag
+              $left={directoryWidth}
+              onMouseDown={() =>
+                setState({
+                  dragMaskVisible: true,
+                })
+              }
+            />
+          )}
         </Fragment>
         <ConTimegrid
           className="ConTimegrid"

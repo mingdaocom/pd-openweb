@@ -3,8 +3,9 @@ import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func } from 'prop-types';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import Icon from 'ming-ui/components/Icon';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 import GlobalSearchAllContent from 'src/pages/globalSearch/containers/GlobalSearchAllContent';
 import './index.less';
 
@@ -128,12 +129,14 @@ export default function (props) {
   }
 
   root.render(
-    <GlobalSearch
-      {...props}
-      onClose={() => {
-        _.isFunction(props.onClose) && props.onClose();
-        destory();
-      }}
-    />,
+    <AntdConfigProvider>
+      <GlobalSearch
+        {...props}
+        onClose={() => {
+          _.isFunction(props.onClose) && props.onClose();
+          destory();
+        }}
+      />
+    </AntdConfigProvider>,
   );
 }

@@ -1,13 +1,13 @@
 import React, { Component, Fragment, useState } from 'react';
-import { Button, Checkbox, ConfigProvider, Input, Modal, Radio, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { SortableList } from 'ming-ui';
 import { ColorPicker, Icon } from 'ming-ui';
-import { reportTypes } from 'statistics/Charts/common';
+import { Checkbox, Input, Modal, Radio, Select } from 'ming-ui/antd-components';
 import { isNumberControl } from 'statistics/common/controlUtils';
 import { getGradientColors, textNormTypes } from 'statistics/common/reportConfigUtils';
-import { formatNumberFromInput } from 'src/utils/control';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import './RuleColor.less';
 
 const MemoColorPicker = props => {
@@ -43,33 +43,37 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
         <div className="mRight10">{_l('如果值')}</div>
         <Select
           style={{ width: 80 }}
-          className="chartSelect mRight10"
+          className="mRight10"
           value={type}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+          options={[
+            {
+              value: 1,
+              label: '>',
+            },
+            {
+              value: 2,
+              label: '>=',
+            },
+            {
+              value: 3,
+              label: '=',
+            },
+            {
+              value: 4,
+              label: _l('为空'),
+            },
+          ]}
           onChange={type => {
             otherProps.onSetRule({ type }, ruleIndex);
           }}
-        >
-          <Select.Option className="selectOptionWrapper" value={1}>
-            {'>'}
-          </Select.Option>
-          <Select.Option className="selectOptionWrapper" value={2}>
-            {'>='}
-          </Select.Option>
-          <Select.Option className="selectOptionWrapper" value={3}>
-            {'='}
-          </Select.Option>
-          <Select.Option className="selectOptionWrapper" value={4}>
-            {_l('为空')}
-          </Select.Option>
-        </Select>
+        />
         {[1, 2].includes(type) && (
           <Fragment>
             <Input
               style={{ width: isPercent ? 90 : 115 }}
               value={min}
               placeholder={_l('最小值')}
-              className="chartInput"
               onChange={event => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ min: value ? value : undefined }, ruleIndex);
@@ -87,7 +91,6 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
               style={{ width: isPercent ? 90 : 115 }}
               value={value}
               placeholder={_l('值')}
-              className="chartInput"
               onChange={event => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ value: value ? value : undefined }, ruleIndex);
@@ -104,25 +107,27 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
             <div className="mLeft10 mRight10">{_l('和')}</div>
             <Select
               style={{ width: 80 }}
-              className="chartSelect mRight10"
+              className="mRight10"
               value={and}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={[
+                {
+                  value: 5,
+                  label: '<',
+                },
+                {
+                  value: 6,
+                  label: '<=',
+                },
+              ]}
               onChange={and => {
                 otherProps.onSetRule({ and }, ruleIndex);
               }}
-            >
-              <Select.Option className="selectOptionWrapper" value={5}>
-                {'<'}
-              </Select.Option>
-              <Select.Option className="selectOptionWrapper" value={6}>
-                {'<='}
-              </Select.Option>
-            </Select>
+            />
             <Input
               style={{ width: isPercent ? 90 : 115 }}
               value={max}
               placeholder={_l('最大值')}
-              className="chartInput"
               onChange={event => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ max: value ? value : undefined }, ruleIndex);
@@ -243,7 +248,7 @@ class ColorLevel extends Component {
           <Input
             value={value}
             placeholder={placeholder}
-            className="chartInput flex mRight10"
+            className="flex mRight10"
             onChange={event => {
               let value = formatNumberFromInput(event.target.value);
               onChange({
@@ -267,14 +272,17 @@ class ColorLevel extends Component {
     const { min, center, max, centerVisible, controlId, applyValue } = this.state;
     const filterYaxisList = _.uniqBy(yaxisList, 'controlId').filter(data => data.normType !== 7);
 
-    const renderOption = data => {
+    const getFieldOption = data => {
       const norm = _.find(textNormTypes, { value: data.normType });
-      return (
-        <Select.Option className="selectOptionWrapper" key={data.controlId} value={data.controlId}>
-          {data.controlName}
-          {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
-        </Select.Option>
-      );
+      return {
+        value: data.controlId,
+        label: (
+          <Fragment>
+            {data.controlName}
+            {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
+          </Fragment>
+        ),
+      };
     };
 
     return (
@@ -285,38 +293,41 @@ class ColorLevel extends Component {
             <Select
               style={{ width: 130 }}
               placeholder={_l('请选择')}
-              className={cx('chartSelect mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
+              className={cx('mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
               value={controlId ? (_.find(filterYaxisList, { controlId }) ? controlId : _l('已删除')) : undefined}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={filterYaxisList.map(getFieldOption)}
               onChange={controlId => {
                 this.setState({ controlId });
               }}
-            >
-              {filterYaxisList.map(renderOption)}
-            </Select>
+            />
           </div>
           {reportType === reportTypes.PivotTable && (
             <div>
               <div className="mBottom8">{_l('应用内容')}</div>
               <Select
                 style={{ width: 130 }}
-                className="chartSelect mRight10"
+                className="mRight10"
                 value={applyValue}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={[
+                  {
+                    value: 1,
+                    label: _l('仅值'),
+                  },
+                  {
+                    value: 2,
+                    label: _l('值和总计'),
+                  },
+                  {
+                    value: 3,
+                    label: _l('仅总计'),
+                  },
+                ]}
                 onChange={applyValue => {
                   this.setState({ applyValue });
                 }}
-              >
-                <Select.Option className="selectOptionWrapper" value={1}>
-                  {_l('仅值')}
-                </Select.Option>
-                <Select.Option className="selectOptionWrapper" value={2}>
-                  {_l('值和总计')}
-                </Select.Option>
-                <Select.Option className="selectOptionWrapper" value={3}>
-                  {_l('仅总计')}
-                </Select.Option>
-              </Select>
+              />
             </div>
           )}
         </div>
@@ -434,14 +445,17 @@ class ColorScope extends Component {
     };
     const filterYaxisList = _.uniqBy(yaxisList, 'controlId').filter(data => data.normType !== 7);
 
-    const renderOption = data => {
+    const getFieldOption = data => {
       const norm = _.find(textNormTypes, { value: data.normType });
-      return (
-        <Select.Option className="selectOptionWrapper" key={data.controlId} value={data.controlId}>
-          {data.controlName}
-          {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
-        </Select.Option>
-      );
+      return {
+        value: data.controlId,
+        label: (
+          <Fragment>
+            {data.controlName}
+            {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
+          </Fragment>
+        ),
+      };
     };
 
     return (
@@ -451,25 +465,28 @@ class ColorScope extends Component {
           <Select
             style={{ width: 130 }}
             placeholder={_l('请选择')}
-            className={cx('chartSelect mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
+            className={cx('mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
             value={controlId ? (_.find(filterYaxisList, { controlId }) ? controlId : _l('已删除')) : undefined}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            options={filterYaxisList.map(getFieldOption)}
             onChange={controlId => {
               this.setState({ controlId });
             }}
-          >
-            {filterYaxisList.map(renderOption)}
-          </Select>
+          />
         </div>
         <div className="flexRow valignWrapper mTop16 mBottom8">
           <div className="flex">{_l('规则')}</div>
-          <div className="flexRow valignWrapper colorPrimary pointer addRuleColor" onClick={this.handleAddRule}>
+          <div
+            className="flexRow valignWrapper colorPrimary hoverColorPrimaryLight pointer"
+            onClick={this.handleAddRule}
+          >
             <Icon icon="add" />
             {_l('添加规则')}
           </div>
         </div>
         <div className="scopeRulesWrap">
           <SortableList
+            renderBody
             useDragHandle
             dragPreviewImage
             items={scopeRules}
@@ -520,21 +537,6 @@ export default class RuleColor extends Component {
       model,
     });
   };
-  renderRuleColorFooter() {
-    const { onCancel } = this.props;
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button type="link" onClick={onCancel}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSave}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   render() {
     const {
       visible,
@@ -551,11 +553,10 @@ export default class RuleColor extends Component {
         title={_l('颜色规则')}
         width={680}
         className="chartModal chartRuleColorModal"
-        visible={visible}
+        open={visible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderRuleColorFooter()}
+        onOk={this.handleSave}
         onCancel={onCancel}
       >
         <div className="mBottom16">{_l('格式模式')}</div>

@@ -1,30 +1,20 @@
 import React from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
+import { Select } from 'ming-ui/antd-components';
 
 export default function (props) {
   const { onChangePortalSet, externalControls, internalControls, businessCardOption, portalSetModel } = props;
 
-  const renderSelectOptions = () => {
-    return (
-      <React.Fragment>
-        {businessCardOption
-          .filter(l => l.value.includes('_'))
-          .map(item => (
-            <Select.Option value={item.value} label={item.label}>
-              {item.label}
-            </Select.Option>
-          ))}
-        {businessCardOption
-          .filter(l => !l.value.includes('_'))
-          .map((item, i) => (
-            <Select.Option value={item.value} label={item.label} className={cx({ BorderTopGrayC: i === 0 })}>
-              {item.label}
-            </Select.Option>
-          ))}
-      </React.Fragment>
-    );
-  };
+  const selectOptions = [
+    ...businessCardOption.filter(l => l.value.includes('_')).map(item => ({ value: item.value, label: item.label })),
+    ...businessCardOption
+      .filter(l => !l.value.includes('_'))
+      .map((item, i) => ({
+        value: item.value,
+        label: item.label,
+        className: cx({ BorderTopGrayC: i === 0 }),
+      })),
+  ];
 
   return (
     <>
@@ -39,6 +29,7 @@ export default function (props) {
         placeholder={_l('请选择')}
         value={internalControls}
         optionLabelProp="label"
+        options={selectOptions}
         onChange={value => {
           if (value.length > 6) {
             alert(_l('最多支持显示6个字段'));
@@ -52,9 +43,7 @@ export default function (props) {
             },
           });
         }}
-      >
-        {renderSelectOptions()}
-      </Select>
+      />
       <div className="mTop12 mBottom6">{_l('外部用户查看')}</div>
       <Select
         mode="multiple"
@@ -64,6 +53,7 @@ export default function (props) {
         placeholder={_l('请选择')}
         value={externalControls}
         optionLabelProp="label"
+        options={selectOptions}
         onChange={value => {
           if (value.length > 6) {
             alert(_l('最多支持显示6个字段'));
@@ -77,9 +67,7 @@ export default function (props) {
             },
           });
         }}
-      >
-        {renderSelectOptions()}
-      </Select>
+      />
     </>
   );
 }

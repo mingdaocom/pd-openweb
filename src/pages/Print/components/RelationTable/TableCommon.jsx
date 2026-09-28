@@ -29,7 +29,7 @@ const TableCommon = ({ list = [], dataSource = [], id, tableProps, placeholderMo
               <BaseColumnHead
                 hideMaskIcon
                 disableSort={true}
-                className={`ant-table-cell ${item.className}`}
+                className={`hap-table-cell ${item.className}`}
                 style={{ width: item.width, padding: '5px' }}
                 control={item.control}
                 columnIndex={index}

@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import ChangeColumn from 'worksheet/common/ChangeColumn';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 
 const IconWrapper = styled.div`
   position: absolute;
@@ -14,12 +13,12 @@ const IconWrapper = styled.div`
   right: 2px;
   z-index: 1;
   width: 34px;
-  height: ${props => props.height || 34}px;
+  height: ${props => props.$height || 34}px;
   background: var(--color-background-tertiary);
   display: flex;
-  align-items: ${props => (props.headTitleCenter || props.height === 34 ? 'center' : 'flex-start')};
+  align-items: ${props => (props.$headTitleCenter || props.$height === 34 ? 'center' : 'flex-start')};
   justify-content: center;
-  padding-top: ${props => (props.headTitleCenter || props.height === 34 ? '0' : '7px')};
+  padding-top: ${props => (props.$headTitleCenter || props.$height === 34 ? '0' : '7px')};
   border-radius: 4px;
   cursor: pointer;
   &:hover {
@@ -28,11 +27,7 @@ const IconWrapper = styled.div`
 `;
 
 const PopupWrapper = styled.div`
-  min-width: 320px;
-  max-width: 320px;
-  background: var(--color-background-primary);
-  box-shadow: var(--shadow-lg);
-  border-radius: 4px;
+  width: 320px;
   overflow: hidden;
 `;
 
@@ -52,7 +47,6 @@ function ColumnVisibilityControl(props) {
   const [controlsSorts, setControlsSorts] = useState([]);
   const [columnHeadHeight, setColumnHeadHeight] = useState(columnHeadHeightProp || 34);
   const [tableVisibleHeight, setTableVisibleHeight] = useState(0);
-  const triggerRef = useRef(null);
   const resizeObserverRef = useRef(null);
 
   // 判断对齐方式（rctitlestyle === '1' 表示垂直居中对齐）
@@ -175,52 +169,46 @@ function ColumnVisibilityControl(props) {
   }, [viewId, saveView, columns]);
 
   return (
-    <Trigger
-      ref={triggerRef}
-      action={['click']}
-      popup={
-        <PopupWrapper>
-          <ChangeColumn
-            placeholder={_l('搜索字段')}
-            noempty={false}
-            dragable={true}
-            advance={true}
-            selected={showControls}
-            columns={columns}
-            controlsSorts={controlsSorts}
-            maxHeight={tableVisibleHeight > 0 ? tableVisibleHeight : undefined}
-            onChange={({ selected, newControlSorts }) => {
-              const uniqueSelected = _.uniqBy(ghostControlIds.concat(selected));
-              const uniqueSorts = _.uniqBy(ghostControlIds.concat(newControlSorts));
-              onChange({
-                newShowControls: uniqueSelected,
-                newControlSorts: uniqueSorts,
-              });
-            }}
-            isShowColumns={true}
-            sortAutoChange={true}
-            showOperate={true}
-            disabled={disabled}
-            onReset={handleReset}
-          />
-        </PopupWrapper>
-      }
-      popupVisible={visible}
-      onPopupVisibleChange={handleVisibleChange}
-      popupAlign={{
-        points: ['tr', 'br'],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      getPopupContainer={() => document.body}
-      destroyPopupOnHide
-      zIndex={1000}
-    >
-      <Tooltip title={_l('显示列设置')} placement="top">
-        <IconWrapper height={columnHeadHeight} headTitleCenter={headTitleCenter}>
+    <Tooltip title={_l('显示列设置')} placement="top">
+      <Popover
+        trigger="click"
+        content={
+          <PopupWrapper>
+            <ChangeColumn
+              placeholder={_l('搜索字段')}
+              noempty={false}
+              dragable={true}
+              advance={true}
+              selected={showControls}
+              columns={columns}
+              controlsSorts={controlsSorts}
+              maxHeight={tableVisibleHeight > 0 ? tableVisibleHeight : undefined}
+              onChange={({ selected, newControlSorts }) => {
+                const uniqueSelected = _.uniqBy(ghostControlIds.concat(selected));
+                const uniqueSorts = _.uniqBy(ghostControlIds.concat(newControlSorts));
+                onChange({
+                  newShowControls: uniqueSelected,
+                  newControlSorts: uniqueSorts,
+                });
+              }}
+              isShowColumns={true}
+              sortAutoChange={true}
+              showOperate={true}
+              disabled={disabled}
+              onReset={handleReset}
+            />
+          </PopupWrapper>
+        }
+        open={visible}
+        onOpenChange={handleVisibleChange}
+        placement="bottomRight"
+        noPadding
+      >
+        <IconWrapper $height={columnHeadHeight} $headTitleCenter={headTitleCenter}>
           <Icon icon="table_eye" className={`${hasHiddenColumns ? 'colorPrimary' : 'textSecondary'} Font18 Hand`} />
         </IconWrapper>
-      </Tooltip>
-    </Trigger>
+      </Popover>
+    </Tooltip>
   );
 }
 

@@ -1,21 +1,20 @@
 ﻿import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { errorMessage } from '../../utils/utils';
 import './less/copyFolder.less';
 
-const ClickAwayable = ClickAway;
+const PERSONAL_NETWORK_KEY = 'personal';
+const NETWORK_MENU_STYLE = { minWidth: 200, maxHeight: 160, overflowY: 'auto' };
+
 export default class CopyFolder extends Component {
   constructor(props) {
     super(props);
     this.state = {
       accountId: md.global.Account.accountId,
       avatar: md.global.Account.avatar,
-      showNetwork: false,
       projectId: props.projectId,
       taskAccountId: 'user-undefined',
       taskAvatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
@@ -156,17 +155,27 @@ export default class CopyFolder extends Component {
   switchNetwork(projectId) {
     expireDialogAsync(projectId)
       .then(() => {
-        this.setState({ projectId, showNetwork: false });
+        this.setState({ projectId });
       })
       .catch(() => {
-        this.setState({ projectId: '', showNetwork: false });
+        this.setState({ projectId: '' });
       });
   }
 
   render() {
+    const networkItems = [
+      ...md.global.Account.projects.map(project => ({
+        key: project.projectId,
+        label: project.companyName,
+      })),
+      { key: PERSONAL_NETWORK_KEY, label: _l('个人') },
+    ];
+
     return (
-      <Dialog
-        visible
+      <Modal
+        open
+        mask={{ closable: true }}
+        keyboard
         className="copyFolder"
         width={560}
         title={_l('复制项目')}
@@ -179,36 +188,22 @@ export default class CopyFolder extends Component {
           <div className="copyTitleBox">
             <div className="copyTitle copyTitleRight">{_l('归属')}</div>
             <div className="copyNetworkBox">
-              <div
-                className="copyNetworkTitle pointer colorPrimary"
-                onClick={() => this.setState({ showNetwork: !this.state.showNetwork })}
+              <Dropdown
+                trigger={['click']}
+                placement="bottomLeft"
+                menu={{
+                  items: networkItems,
+                  selectable: true,
+                  selectedKeys: [this.state.projectId || PERSONAL_NETWORK_KEY],
+                  style: NETWORK_MENU_STYLE,
+                  onClick: ({ key }) => this.switchNetwork(key === PERSONAL_NETWORK_KEY ? '' : key),
+                }}
               >
-                <span className="copyNetworkName overflow_ellipsis">{this.getNetWorkName()}</span>
-                <i className="icon-arrow-down-border" />
-              </div>
-
-              {this.state.showNetwork ? (
-                <ClickAwayable
-                  component="ul"
-                  className="copyNetworkList boxShadow5 boderRadAll_3"
-                  onClickAway={() => this.setState({ showNetwork: false })}
-                >
-                  {md.global.Account.projects.map((project, i) => {
-                    return (
-                      <li
-                        key={i}
-                        className="overflow_ellipsis colorPrimary bgColorPrimary"
-                        onClick={() => this.switchNetwork(project.projectId)}
-                      >
-                        {project.companyName}
-                      </li>
-                    );
-                  })}
-                  <li className="overflow_ellipsis colorPrimary bgColorPrimary" onClick={() => this.switchNetwork('')}>
-                    {_l('个人')}
-                  </li>
-                </ClickAwayable>
-              ) : undefined}
+                <div className="copyNetworkTitle pointer colorPrimary">
+                  <span className="copyNetworkName overflow_ellipsis">{this.getNetWorkName()}</span>
+                  <i className="icon-arrow-down-border" />
+                </div>
+              </Dropdown>
             </div>
           </div>
         ) : undefined}
@@ -313,7 +308,7 @@ export default class CopyFolder extends Component {
             </li>
           </ul>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

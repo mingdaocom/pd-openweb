@@ -5,15 +5,16 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
-import { renderText as renderCellText } from 'src/utils/control';
-import { handleRecordClick } from 'src/utils/record';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
 
 export const RecordWrapper = styled.div`
   height: 32px;
@@ -28,14 +29,6 @@ export const RecordWrapper = styled.div`
     width: 180px;
     padding-right: 10px;
     height: 100%;
-    input {
-      width: 100%;
-      padding: 0 3px;
-      border: none;
-      height: 30px;
-      line-height: 30px;
-      border: 2px solid var(--color-primary);
-    }
     &:hover {
       .icon-edit {
         display: inline;
@@ -90,7 +83,7 @@ export const RecordWrapper = styled.div`
   .startTimeField,
   .endTimeField {
     height: 32px;
-    .ant-picker-suffix {
+    .hap-picker-suffix {
       display: none;
     }
     &:hover {
@@ -384,17 +377,25 @@ let Record = class Record extends Component {
   }
 
   renderMore() {
-    const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView, isCharge, permissionType, controls } =
-      this.props;
+    const {
+      row,
+      base,
+      sheetSwitchPermit,
+      worksheetInfo,
+      groupKey,
+      gunterView,
+      isCharge,
+      permissionType,
+      controls,
+      view,
+    } = this.props;
     const { appId, worksheetId, viewId } = base;
     const isDevAndOps = canEditApp(permissionType) || canEditData(permissionType);
     return (
       <Suspense fallback={null}>
         <LoadableRecordOperate
-          popupAlign={{
-            offset: [0, 10],
-            points: ['tl', 'bl'],
-          }}
+          view={view}
+          placement="bottomLeft"
           isCharge={isCharge}
           isDevAndOps={isDevAndOps}
           shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'fav', 'lock']}
@@ -404,6 +405,7 @@ let Record = class Record extends Component {
           isRecordLock={row.sys_lock}
           isAdmin={worksheetInfo.roleType === 2}
           entityName={worksheetInfo.entityName}
+          printCountEnabled={_.get(worksheetInfo, 'advancedSetting.print_count_enabled') === '1'}
           appId={appId}
           worksheetId={worksheetId}
           sheetSwitchPermit={sheetSwitchPermit}
@@ -490,8 +492,9 @@ let Record = class Record extends Component {
         onClick={row.isEdit ? _.noop : this.handleClick}
       >
         {row.isEdit && titleControl.type === 2 ? (
-          <input
+          <Input
             autoFocus
+            className="w100"
             defaultValue={title}
             onBlur={event => {
               this.handleCreate(event, title, titleControl);
@@ -621,6 +624,7 @@ Record = connect(
   state => ({
     ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'worksheetInfo', 'gunterView', 'isCharge']),
     ..._.pick(state.appPkg, ['permissionType']),
+    view: _.find(state.sheet.views, { viewId: state.sheet.base.viewId }),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )(Record);

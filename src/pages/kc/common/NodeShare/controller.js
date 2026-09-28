@@ -3,9 +3,10 @@ import qs from 'query-string';
 import kcService from '../../api/service';
 import shareAjax from 'src/api/share';
 import worksheetAjax from 'src/api/worksheet';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { pathCompletion } from 'src/utils/common';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 function login() {
   window.nativeAlert(_l('请先登录'));
@@ -104,7 +105,7 @@ export function getAttachment() {
         })
         .catch(err => {
           console.log(err);
-          alert(_l('获取附件详情失败'), 2);
+          alertIfNotUnauthorized(err, _l('获取附件详情失败'), 2);
         });
     case 'record_share_files':
       if (!_.get(md, 'global.Account.accountId')) {

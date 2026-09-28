@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { EditInfo, SettingItem } from 'src/pages/widgetConfig/styled/index.js';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
-import { getSortData } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getSortData } from 'src/utils/domain/control/sort';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
 
 export default function (props) {
   const { view, onChange, relationControls, advancedSettingKey, viewControlData, canClear } = props;

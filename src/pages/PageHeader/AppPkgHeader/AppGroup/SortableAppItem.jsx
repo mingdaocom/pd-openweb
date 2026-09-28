@@ -4,26 +4,25 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, number, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, MdLink, Menu, MenuItem, SvgIcon } from 'ming-ui';
+import { Icon, MdLink, SvgIcon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { compareProps, getIds } from '../../util';
+import { compareProps, getIds } from 'src/utils/domain/app/model';
+import { canEditApp } from 'src/utils/domain/permission/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
-import 'rc-trigger/assets/index.css';
 
 const LiCon = styled.li`
   &.active {
-    background-color: ${props => props.lightIconColor} !important;
+    background-color: ${props => props.$lightIconColor} !important;
     .sortableItem {
-      color: ${props => props.textColor} !important;
+      color: ${props => props.$textColor} !important;
     }
   }
   .sortableItem::before {
-    background-color: ${props => props.iconColor} !important;
+    background-color: ${props => props.$iconColor} !important;
   }
 `;
 let SortableAppItem = class SortableAppItem extends Component {
@@ -179,15 +178,42 @@ let SortableAppItem = class SortableAppItem extends Component {
     const url = this.getNavigateUrl(appSectionId);
     const showName = getTranslateInfo(appPkg.id, null, appSectionId).name || name;
     const showIcon = (_.get(appPkg, 'displayIcon') || '').split('')[0] === '1';
+    const configMenuItems = _.flatten(
+      APP_GROUP_CONFIG.map(({ type, icon, text, ...rest }) => {
+        if (isLock && type !== 'rename') return null;
+
+        const item = {
+          ...rest,
+          key: type,
+          danger: type === 'del',
+          icon: <Icon icon={icon} className={cx('Font18', type === 'del' ? '' : 'textTertiary')} />,
+          label: <span>{text}</span>,
+          onClick: () =>
+            this.switchVisible(
+              {
+                visible: false,
+              },
+              () =>
+                onAppItemConfigClick({
+                  id: type,
+                  appSectionId,
+                }),
+            ),
+        };
+
+        return type === 'del' ? [{ key: 'delDivider', type: 'divider' }, item] : item;
+      }),
+    ).filter(Boolean);
+
     return (
       <LiCon
         className={cx({
           active: isFocus || groupId === appSectionId,
           isCanConfigAppGroup: isShowConfigIcon,
         })}
-        textColor={['light'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
-        iconColor={['light', 'black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
-        lightIconColor={['light'].includes(appPkg.themeType) ? convertColor(appPkg.iconColor) : ''}
+        $textColor={['light'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
+        $iconColor={['light', 'black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
+        $lightIconColor={['light'].includes(appPkg.themeType) ? convertColor(appPkg.iconColor) : ''}
       >
         {isFocus ? (
           <div className="sortableItem">
@@ -242,66 +268,27 @@ let SortableAppItem = class SortableAppItem extends Component {
           </MdLink>
         )}
         {canEditApp(permissionType) && !isUpgrade && (
-          <Trigger
-            action={['click']}
-            popupVisible={visible}
-            onPopupVisibleChange={visible =>
+          <Dropdown
+            trigger={['click']}
+            open={visible}
+            onOpenChange={visible =>
               this.switchVisible({
                 visible,
               })
             }
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [-63, 13],
+            placement="bottom"
+            menu={{
+              items: configMenuItems,
+              style: { minWidth: 180 },
             }}
-            popup={
-              <Menu
-                className="appGroupConfigWrap"
-                onClickAway={() =>
-                  this.switchVisible({
-                    visible: false,
-                  })
-                }
-              >
-                {APP_GROUP_CONFIG.map(({ type, icon, text, ...rest }) => {
-                  if (isLock && type !== 'rename') return '';
-                  return (
-                    <MenuItem
-                      key={type}
-                      icon={<Icon icon={icon} />}
-                      onClick={() =>
-                        this.switchVisible(
-                          {
-                            visible: false,
-                          },
-                          () =>
-                            onAppItemConfigClick({
-                              id: type,
-                              appSectionId,
-                            }),
-                        )
-                      }
-                      {...rest}
-                    >
-                      <span>{text}</span>
-                    </MenuItem>
-                  );
-                })}
-              </Menu>
-            }
           >
             <div
               className="topTri"
               style={{
                 display: isShowConfigIcon ? 'block' : 'none',
               }}
-              onClick={() =>
-                this.switchVisible({
-                  visible: true,
-                })
-              }
             />
-          </Trigger>
+          </Dropdown>
         )}
       </LiCon>
     );

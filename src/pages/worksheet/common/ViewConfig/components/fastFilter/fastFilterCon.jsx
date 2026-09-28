@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import { FASTFILTER_CONDITION_TYPE } from './util';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { FASTFILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/fastFilter';
 import './index.less';
 
 const Wrap = styled.div`
@@ -23,24 +23,6 @@ const Wrap = styled.div`
         width: 100% !important;
         display: block !important;
         padding: 0 0 !important;
-      }
-      span.addIcon {
-        position: relative;
-        background: var(--color-background-secondary);
-        color: var(--color-primary);
-        border-radius: 3px;
-        display: block;
-        padding: 12px 0;
-        cursor: pointer;
-        text-align: center;
-        font-weight: bold;
-        .icon {
-          font-size: 20px;
-        }
-        &:hover {
-          color: var(--color-link-hover);
-          background: var(--color-background-secondary);
-        }
       }
     }
     .iconWrap {
@@ -72,22 +54,6 @@ const Wrap = styled.div`
         width: 100% !important;
         display: block !important;
         padding: 0 0 !important;
-      }
-      span.addIcon {
-        position: relative;
-        background: var(--color-primary);
-        border-radius: 3px;
-        color: var(--color-white);
-        display: inline-block;
-        padding: 12px 32px;
-        cursor: pointer;
-        font-weight: bold;
-        .icon {
-          font-size: 20px;
-        }
-        &:hover {
-          background: var(--color-link-hover);
-        }
       }
     }
   }
@@ -195,10 +161,17 @@ export default function FastFilterCon(params) {
         classNamePopup="addControlDrop"
         comp={() => {
           return (
-            <span className="addIcon">
-              <i className="icon icon-add Font16 mRight5"></i>
+            <Button
+              wide
+              style={{ '--hap-button-default-color': fastFilters.length > 0 ? 'var(--color-primary)' : undefined }}
+              block={fastFilters.length > 0}
+              color={fastFilters.length > 0 ? 'default' : 'primary'}
+              variant={fastFilters.length > 0 ? 'filled' : 'solid'}
+              size="large"
+              icon={<Icon icon="add" className="Font16" />}
+            >
               {_l('选择字段')}
-            </span>
+            </Button>
           );
         }}
         from={from}
@@ -213,6 +186,7 @@ export default function FastFilterCon(params) {
         <div className="hasData">
           <div className="mTop24">
             <SortableList
+              renderBody
               worksheetControls={worksheetControls}
               items={fastFilterDataControls}
               itemKey="controlId"

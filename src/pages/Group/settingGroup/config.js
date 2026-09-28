@@ -37,15 +37,15 @@ export const GROUP_INFOS = [
 
 export const USER_ACTIONS = [
   {
-    text: _l('管理员'),
+    label: _l('管理员'),
     value: 1,
   },
   {
-    text: _l('成员'),
+    label: _l('成员'),
     value: 0,
   },
   {
-    text: _l('移出群组'),
+    label: _l('移出群组'),
     value: 3,
   },
 ];

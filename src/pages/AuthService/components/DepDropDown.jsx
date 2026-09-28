@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import { TreeSelect } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import departmentAjax from 'src/api/department';
+import { TreeSelect } from 'src/ming-ui/antd-components/AsyncAntd';
 
 export default class DepDropDown extends Component {
   static propTypes = {
     popupClassName: PropTypes.string,
     treePopupAlign: PropTypes.shape({}),
+    status: PropTypes.oneOf(['error', 'warning']),
     onChange: PropTypes.func,
     onPopupVisibleChange: PropTypes.func,
   };
@@ -189,12 +190,13 @@ export default class DepDropDown extends Component {
   };
 
   render() {
-    const { popupClassName, treePopupAlign } = this.props;
+    const { popupClassName, treePopupAlign, status } = this.props;
     const { options, searchOptions, keywords, isError, value } = this.state;
     return (
       <TreeSelect
         className="w100 customAntSelect customTreeSelect"
-        dropdownClassName={cx(popupClassName)}
+        status={status}
+        classNames={{ popup: { root: cx(popupClassName) } }}
         dropdownPopupAlign={treePopupAlign}
         ref={this.treeSelectComp}
         virtual={false}
@@ -228,7 +230,7 @@ export default class DepDropDown extends Component {
           this.treeSelectChange(id);
         }}
         onFocus={() => !options && this.loadData()}
-        onDropdownVisibleChange={data => {
+        onOpenChange={data => {
           if (data && !keywords && !options) {
             this.loadData();
           }

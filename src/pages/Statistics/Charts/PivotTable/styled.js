@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const PivotTableContent = styled.div`
-  .ant-table {
+  .hap-table {
     color: var(--color-text-primary);
     background: var(--color-background-primary);
   }
@@ -10,23 +10,24 @@ const PivotTableContent = styled.div`
   }
   &.contentAutoHeight {
     overflow: hidden;
-    .ant-table-wrapper,
-    .ant-spin-nested-loading,
-    .ant-spin-container,
-    .ant-table,
-    .ant-table-container,
-    .ant-table-content {
+    .hap-table-wrapper,
+    .hap-spin,
+    .hap-spin-nested-loading,
+    .hap-spin-container,
+    .hap-table,
+    .hap-table-container,
+    .hap-table-content {
       height: 100%;
     }
-    .ant-table-content {
+    .hap-table-content {
       overflow: auto !important;
     }
-    .ant-table {
-      height: ${props => (props.paginationVisible ? 'calc(100% - 45px)' : '100%')};
+    .hap-table {
+      height: ${props => (props.$paginationVisible ? 'calc(100% - 45px)' : '100%')};
     }
   }
   &.contentXAuto {
-    .ant-table-container {
+    .hap-table-container {
       width: fit-content;
       min-width: 100%;
     }
@@ -37,7 +38,7 @@ const PivotTableContent = styled.div`
     }
   }
   &.hideBody {
-    .ant-table-tbody {
+    .hap-table-tbody {
       display: none;
     }
   }
@@ -47,9 +48,6 @@ const PivotTableContent = styled.div`
     }
   }
   &.contentScroll {
-    .ant-table-header colgroup col:last-child {
-      display: none;
-    }
     thead th {
       overflow: hidden;
       white-space: nowrap;
@@ -57,17 +55,11 @@ const PivotTableContent = styled.div`
     }
   }
   &.safariScroll {
-    .ant-table-header table {
-      padding-right: 10px;
+    .hap-table-header table {
       border-top: none !important;
     }
     thead tr:first-child th {
-      border-top: 1px solid --color-background-disabled;
-    }
-  }
-  &.firefoxScroll {
-    .ant-table-header table {
-      padding-right: 17px !important;
+      border-top: 1px solid var(--color-background-disabled);
     }
   }
   &.cell-left .cell-content {
@@ -79,12 +71,12 @@ const PivotTableContent = styled.div`
   &.cell-right .cell-content {
     text-align: right;
   }
-  .ant-table {
+  .hap-table {
     line-height: 1.36;
   }
   .cell-content {
-    color: ${props => props.pivotTableStyle.textColor};
-    text-align: ${props => props.pivotTableStyle.cellTextAlign || 'right'};
+    color: ${props => props.$pivotTableStyle.textColor};
+    text-align: ${props => props.$pivotTableStyle.cellTextAlign || 'right'};
   }
   tbody {
     .cell-content {
@@ -113,14 +105,14 @@ const PivotTableContent = styled.div`
       z-index: 1;
       box-sizing: border-box;
     }
-    .ant-table-cell-fix-left {
+    .hap-table-cell-fix-left {
       z-index: 3;
     }
   }
   .line-content {
-    text-align: ${props => props.pivotTableStyle.lineTextAlign || 'left'};
-    color: ${props => props.pivotTableStyle.lineTextColor || 'var(--color-text-primary)'};
-    background-color: ${props => props.pivotTableStyle.lineBgColor || 'var(--color-background-primary)'} !important;
+    text-align: ${props => props.$pivotTableStyle.lineTextAlign || 'left'};
+    color: ${props => props.$pivotTableStyle.lineTextColor || 'var(--color-text-primary)'};
+    background-color: ${props => props.$pivotTableStyle.lineBgColor || 'var(--color-background-primary)'} !important;
     .departmentWrap {
       padding: 0 5px;
       border-radius: 13px;
@@ -143,77 +135,78 @@ const PivotTableContent = styled.div`
   .cell-content {
     white-space: pre-wrap;
   }
-  .ant-table-container {
-    th.ant-table-cell-ellipsis {
+  .hap-table-container {
+    th.hap-table-cell-ellipsis {
       white-space: initial;
       overflow: initial;
     }
     thead th {
-      text-align: ${props => props.pivotTableStyle.columnTextAlign || 'left'} !important;
-      color: ${props => props.pivotTableStyle.columnTextColor || 'var(--color-text-secondary)'};
+      text-align: ${props => props.$pivotTableStyle.columnTextAlign || 'left'} !important;
+      color: ${props => props.$pivotTableStyle.columnTextColor || 'var(--color-text-secondary)'};
       background-color: ${props =>
-        props.pivotTableStyle.columnBgColor || 'var(--color-background-secondary)'} !important;
+        props.$pivotTableStyle.columnBgColor || 'var(--color-background-secondary)'} !important;
       font-weight: bold;
     }
   }
-  .ant-pagination,
-  .ant-pagination-item:not(.ant-pagination-item-active) a,
-  .ant-pagination-prev button,
-  .ant-pagination-next button {
+  .hap-pagination,
+  .hap-pagination-item:not(.hap-pagination-item-active) a,
+  .hap-pagination-prev button,
+  .hap-pagination-next button {
     color: var(--title-color);
   }
-  .ant-pagination-options {
+  .hap-pagination-options {
     display: block !important;
   }
-  .ant-table-pagination.ant-pagination {
+  .hap-table-pagination.hap-pagination {
     margin-bottom: 5px;
-    .ant-select-selector {
-      border-radius: 4px;
-    }
   }
-  .ant-table-container,
+  .hap-table-container,
   table,
   tr > th,
   tr > td {
     border-color: var(--color-border-secondary) !important;
   }
-  .ant-table-tbody > tr.ant-table-row:hover > td {
+  .hap-table-tbody > tr.hap-table-row:hover > td {
     background: initial;
   }
-  .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'odd' : 'even')}) {
+  .hap-table-tbody > tr > td.cell-content {
+    /* 取消单元格背景过渡，避免快速 hover 时留下渐变色块。 */
+    transition-property: border-color;
+  }
+  .hap-table-tbody > tr.hap-table-row:nth-child(${props => (props.$isFreeze ? 'odd' : 'even')}) {
     .cell-content {
-      color: ${props => props.pivotTableStyle.evenTextColor} !important;
+      color: ${props => props.$pivotTableStyle.evenTextColor} !important;
       background-color: transparent !important;
     }
-    background-color: ${props => props.pivotTableStyle.evenBgColor || 'var(--color-background-secondary)'};
+    background-color: ${props => props.$pivotTableStyle.evenBgColor || 'var(--color-background-secondary)'};
     &:hover {
       background-color: ${props =>
-        props.pivotTableStyle.evenBgColor
-          ? `${props.pivotTableStyle.evenBgColor}e8`
+        props.$pivotTableStyle.evenBgColor
+          ? `${props.$pivotTableStyle.evenBgColor}e8`
           : 'var(--color-background-secondary)'};
     }
   }
-  .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'even' : 'odd')}) {
+  .hap-table-tbody > tr.hap-table-row:nth-child(${props => (props.$isFreeze ? 'even' : 'odd')}) {
     .cell-content {
-      color: ${props => props.pivotTableStyle.oddTextColor} !important;
+      color: ${props => props.$pivotTableStyle.oddTextColor} !important;
       background-color: transparent !important;
     }
-    background-color: ${props => props.pivotTableStyle.oddBgColor || 'transparent'};
+    background-color: ${props => props.$pivotTableStyle.oddBgColor || 'transparent'};
     &:hover {
       background-color: ${props =>
-        props.pivotTableStyle.oddBgColor
-          ? `${props.pivotTableStyle.oddBgColor}e8`
+        props.$pivotTableStyle.oddBgColor
+          ? `${props.$pivotTableStyle.oddBgColor}e8`
           : 'var(--color-background-secondary)'};
     }
   }
-  .ant-table-tbody tr:not(tr.sum-content) .contentValue {
+  .hap-table-tbody tr:not(tr.sum-content) .contentValue {
     cursor: pointer;
     &:hover {
-      color: ${props => props.pivotTableStyle.lineTextColor || 'var(--color-primary)'} !important;
-      background-color: ${props => props.pivotTableStyle.lineBgColor || 'var(--color-primary-transparent)'} !important;
+      color: ${props => props.$pivotTableStyle.lineTextColor || 'var(--color-primary)'} !important;
+      background-color: ${props => props.$pivotTableStyle.lineBgColor || 'var(--color-primary-transparent)'} !important;
     }
   }
-  .ant-table-tbody .sum-content .ant-table-cell {
+  .hap-table-tbody .sum-content .hap-table-cell {
     font-weight: bold;
   }
   .drag {
@@ -244,14 +237,13 @@ const PivotTableContent = styled.div`
   }
   th,
   td {
-    min-width: ${props => (props.isMobile ? '60px' : '100px')};
+    min-width: ${props => (props.$isMobile ? '60px' : '100px')};
   }
-  .ant-table-cell-scrollbar {
-    display: none;
+  // 固定表头时保留 Ant Design 的滚动条占位列，避免 Windows 滚动条压缩表体后列错位
+  .hap-table-cell-scrollbar {
+    min-width: 0;
   }
-  .ant-table-body {
-    overflow-y: overlay !important;
-    overflow-x: overlay !important;
+  .hap-table-body {
     > table {
       transform: translateZ(0);
     }

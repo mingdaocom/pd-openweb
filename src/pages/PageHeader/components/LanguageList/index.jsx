@@ -1,20 +1,13 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { Divider, Dropdown, Menu } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import accountSettingApi from 'src/api/accountSetting';
 import appManagementApi from 'src/api/appManagement';
 import fixedDataApi from 'src/api/fixedData';
-import { getSystemLangKey } from 'src/common/langConfig';
-import { pathCompletion } from 'src/utils/common';
-
-const Wrap = styled(Menu)`
-  .ant-dropdown-menu-item.active {
-    background-color: var(--color-background-secondary);
-  }
-`;
+import { getSystemLangKey } from 'src/utils/platform/i18n/langConfig';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export default props => {
   const { placement, app, isCharge } = props;
@@ -103,66 +96,73 @@ export default props => {
     return null;
   }
 
+  const langMenuItems = loading
+    ? [
+        {
+          key: 'loading',
+          label: (
+            <div className="flexRow alignItemsCenter justifyContentCenter">
+              <LoadDiv />
+            </div>
+          ),
+        },
+      ]
+    : [
+        ...appLangs.map(item => ({
+          key: item.langCode,
+          className: cx({ active: item.langCode === md.global.Account.appLang }),
+          style:
+            item.langCode === md.global.Account.appLang
+              ? { backgroundColor: 'var(--color-background-secondary)' }
+              : undefined,
+          label: (
+            <div className="flexRow alignItemsCenter">
+              <div className="flex">{_.get(langList[item.langCode], 'localLang')}</div>
+              {item.langCode === md.global.Account.appLang && <Icon icon="done" className="colorPrimary Font19" />}
+            </div>
+          ),
+          onClick: () => handleSetLang(item.langCode),
+        })),
+        {
+          key: 'originalLang',
+          className: cx({ active: !md.global.Account.appLang }),
+          style: !md.global.Account.appLang ? { backgroundColor: 'var(--color-background-secondary)' } : undefined,
+          label: (
+            <div className="flexRow alignItemsCenter">
+              <div className="flex">
+                {app.originalLang ? _.get(langList[app.originalLang], 'localLang') : _l('基准语言')}
+              </div>
+              {!md.global.Account.appLang && <Icon icon="done" className="colorPrimary Font19" />}
+            </div>
+          ),
+          onClick: () => handleSetLang(''),
+        },
+        isCharge && {
+          type: 'divider',
+          className: 'mTop2 mBottom2',
+        },
+        isCharge && {
+          key: 'settings',
+          icon: <Icon icon="settings" className="textTertiary Font20" />,
+          label: _l('管理'),
+          onClick: () => {
+            location.href = pathCompletion(`/app/${appId}/settings/language`);
+          },
+        },
+      ].filter(Boolean);
+
   return (
     <Dropdown
-      overlay={
-        <Wrap style={{ width: 200, maxHeight: 380, overflowY: loading ? undefined : 'auto' }}>
-          {loading ? (
-            <li className="flexRow alignItemsCenter justifyContentCenter">
-              <LoadDiv />
-            </li>
-          ) : (
-            <Fragment>
-              {appLangs.map(item => (
-                <Menu.Item
-                  key={item.langCode}
-                  className={cx({ active: item.langCode === md.global.Account.appLang })}
-                  onClick={() => handleSetLang(item.langCode)}
-                >
-                  <div className="flexRow alignItemsCenter">
-                    <div className="flex">{_.get(langList[item.langCode], 'localLang')}</div>
-                    {item.langCode === md.global.Account.appLang && (
-                      <Icon icon="done" className="colorPrimary Font19" />
-                    )}
-                  </div>
-                </Menu.Item>
-              ))}
-              <Menu.Item
-                key={app.originalLang}
-                className={cx({ active: !md.global.Account.appLang })}
-                onClick={() => handleSetLang('')}
-              >
-                <div className="flexRow alignItemsCenter">
-                  <div className="flex">
-                    {app.originalLang ? _.get(langList[app.originalLang], 'localLang') : _l('基准语言')}
-                  </div>
-                  {!md.global.Account.appLang && <Icon icon="done" className="colorPrimary Font19" />}
-                </div>
-              </Menu.Item>
-              {isCharge && (
-                <Fragment>
-                  <Divider className="mTop2 mBottom2" />
-                  <Menu.Item
-                    key="settings"
-                    onClick={() => {
-                      location.href = pathCompletion(`/app/${appId}/settings/language`);
-                    }}
-                  >
-                    <Icon icon="settings" className="mRight8 textTertiary" />
-                    {_l('管理')}
-                  </Menu.Item>
-                </Fragment>
-              )}
-            </Fragment>
-          )}
-        </Wrap>
-      }
       placement={placement}
       trigger={['click']}
-      onVisibleChange={value => {
+      onOpenChange={value => {
         if (value) {
           loadLangList(appLangs);
         }
+      }}
+      menu={{
+        items: langMenuItems,
+        style: { minWidth: 200, maxHeight: 380, overflowY: loading ? undefined : 'auto' },
       }}
     >
       <span>{props.children}</span>

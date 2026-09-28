@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Collapse, Input, Radio, Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { numberLevel, reportTypes, roundTypes } from 'statistics/Charts/common';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Checkbox, Input, InputNumber, Radio, Segmented, Select, Space, Tooltip } from 'ming-ui/antd-components';
+import { numberLevel, roundTypes } from 'statistics/Charts/common';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 class Unit extends Component {
   constructor(props) {
@@ -65,9 +64,9 @@ class Unit extends Component {
     const { changeAllYaxis, yaxisList, onChangeYaxisList } = this.props;
     let count = '';
 
-    if (value) {
+    if (!_.isNil(value) && value !== '') {
       count = _.isNumber(value) ? value : Number(formatNumberFromInput(value));
-      count = count > 9 ? 9 : count;
+      count = _.clamp(count, 0, 9);
     }
 
     const data = yaxisList.map(item => {
@@ -127,19 +126,17 @@ class Unit extends Component {
             <div className="mBottom15">
               <div className="mBottom8">{_l('数值数量级')}</div>
               <Select
-                className="chartSelect w100"
+                className="w100"
                 value={magnitude}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={numberLevel.map(item => ({
+                  value: item.value,
+                  label: item.text,
+                }))}
                 onChange={value => {
                   this.handleChangeMagnitude(value, data);
                 }}
-              >
-                {numberLevel.map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.text}
-                  </Select.Option>
-                ))}
-              </Select>
+              />
             </div>
             <div className="flexRow valignWrapper mBottom15">
               <Checkbox
@@ -155,48 +152,29 @@ class Unit extends Component {
             </div>
             <div className="mBottom15">
               <div className="mBottom8">{_l('保留小数')}</div>
-              <Input
-                className="chartInput"
+              <InputNumber
+                className="w100"
+                min={0}
+                max={9}
+                precision={0}
                 value={sheetDot ? undefined : ydot}
                 placeholder={sheetDot && _l('按工作表字段配置显示')}
-                onChange={event => {
-                  this.handleChangeYdot(event.target.value.replace(/-/g, ''), data);
+                onChange={value => {
+                  this.handleChangeYdot(value, data);
                 }}
-                suffix={
-                  <div className="flexColumn">
-                    <Icon
-                      icon="expand_less"
-                      className="textTertiary Font20 pointer mBottom2"
-                      onClick={() => {
-                        let newYdot = Number(ydot);
-                        this.handleChangeYdot(newYdot + 1, data);
-                      }}
-                    />
-                    <Icon
-                      icon="expand_more"
-                      className="textTertiary Font20 pointer mTop2"
-                      onClick={() => {
-                        let newYdot = Number(ydot);
-                        this.handleChangeYdot(newYdot ? newYdot - 1 : 0, data);
-                      }}
-                    />
-                  </div>
-                }
               />
               <Select
-                className="chartSelect w100 mTop10"
+                className="w100 mTop10"
                 value={roundType}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={roundTypes.map(item => ({
+                  value: item.value,
+                  label: item.text,
+                }))}
                 onChange={value => {
                   this.handleChangeYaxis('roundType', value, data);
                 }}
-              >
-                {roundTypes.map(item => (
-                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                    {item.text}
-                  </Select.Option>
-                ))}
-              </Select>
+              />
               <div className="flexRow valignWrapper mTop10">
                 <Checkbox
                   className="flexRow"
@@ -213,7 +191,7 @@ class Unit extends Component {
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                   )}
                   placement="bottom"
-                  arrowPointAtCenter
+                  arrow={{ pointAtCenter: true }}
                 >
                   <Icon className="textTertiary Font18 pointer" icon="info" />
                 </Tooltip>
@@ -223,32 +201,38 @@ class Unit extends Component {
         )}
         <div className="mBottom15">
           <div className="mBottom8">{_l('单位')}</div>
-          <div className="addonBeforeWrapper valignWrapper">
-            <Select
-              className="chartSelect"
-              disabled={[0].includes(magnitude)}
-              value={fixType || 0}
-              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-              onChange={value => {
-                this.handleChangeYaxis('fixType', value, data);
-              }}
-            >
-              <Select.Option className="selectOptionWrapper" key={1} value={1}>
-                {_l('前缀')}
-              </Select.Option>
-              <Select.Option className="selectOptionWrapper" key={0} value={0}>
-                {_l('后缀')}
-              </Select.Option>
-            </Select>
-            <Input
-              className="chartInput flex"
-              style={{ paddingLeft: 90 }}
-              value={suffix}
-              disabled={[0].includes(magnitude)}
-              onChange={event => {
-                this.handleChangeYaxis('suffix', event.target.value.slice(0, 10), data);
-              }}
-            />
+          <div className="valignWrapper">
+            <Space.Compact>
+              <Select
+                disabled={[0].includes(magnitude)}
+                value={fixType || 0}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={[
+                  {
+                    value: 1,
+                    label: _l('前缀'),
+                  },
+                  {
+                    value: 0,
+                    label: _l('后缀'),
+                  },
+                ]}
+                onChange={value => {
+                  this.handleChangeYaxis('fixType', value, data);
+                }}
+              />
+              <Input
+                key={`${data.controlId}-${magnitude}`}
+                className="flex"
+                defaultValue={suffix}
+                maxLength={10}
+                disabled={[0].includes(magnitude)}
+                onPressEnter={event => event.currentTarget.blur()}
+                onBlur={event => {
+                  this.handleChangeYaxis('suffix', event.target.value, data);
+                }}
+              />
+            </Space.Compact>
           </div>
         </div>
         {isPivotTable && (
@@ -298,59 +282,31 @@ class Unit extends Component {
                 </div>
                 <div className="mTop15 mBottom15">
                   <div className="mBottom8">{_l('保留小数')}</div>
-                  <Input
-                    className="chartInput"
+                  <InputNumber
+                    className="w100"
+                    min={0}
+                    max={9}
+                    precision={0}
                     value={percent.dot}
-                    onChange={event => {
-                      const count = Number(event.target.value.replace(/-/g, ''));
+                    onChange={value => {
                       this.handleChangeYaxis(
                         'percent',
                         {
                           ...percent,
-                          dot: count >= 9 ? 9 : count,
+                          dot: _.clamp(value || 0, 0, 9),
                         },
                         data,
                       );
                     }}
-                    suffix={
-                      <div className="flexColumn">
-                        <Icon
-                          icon="expand_less"
-                          className="textTertiary Font20 pointer mBottom2"
-                          onClick={() => {
-                            let newYdot = Number(percent.dot);
-                            this.handleChangeYaxis(
-                              'percent',
-                              {
-                                ...percent,
-                                dot: newYdot >= 9 ? 9 : newYdot + 1,
-                              },
-                              data,
-                            );
-                          }}
-                        />
-                        <Icon
-                          icon="expand_more"
-                          className="textTertiary Font20 pointer mTop2"
-                          onClick={() => {
-                            let newYdot = Number(percent.dot);
-                            this.handleChangeYaxis(
-                              'percent',
-                              {
-                                ...percent,
-                                dot: newYdot ? newYdot - 1 : 0,
-                              },
-                              data,
-                            );
-                          }}
-                        />
-                      </div>
-                    }
                   />
                   <Select
-                    className="chartSelect w100 mTop10"
+                    className="w100 mTop10"
                     value={percent.roundType}
                     suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                    options={roundTypes.map(item => ({
+                      value: item.value,
+                      label: item.text,
+                    }))}
                     onChange={value => {
                       this.handleChangeYaxis(
                         'percent',
@@ -361,13 +317,7 @@ class Unit extends Component {
                         data,
                       );
                     }}
-                  >
-                    {roundTypes.map(item => (
-                      <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                        {item.text}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                  />
                   <div className="flexRow valignWrapper mTop10">
                     <Checkbox
                       className="flexRow"
@@ -391,7 +341,7 @@ class Unit extends Component {
                         '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                       )}
                       placement="bottom"
-                      arrowPointAtCenter
+                      arrow={{ pointAtCenter: true }}
                     >
                       <Icon className="textTertiary Font18 pointer" icon="info" />
                     </Tooltip>
@@ -407,25 +357,57 @@ class Unit extends Component {
 }
 
 export default function unitPanelGenerator(props) {
-  const { currentReport, changeCurrentReport, onChangeStyle, ...collapseProps } = props;
+  const { currentReport, changeCurrentReport, onChangeStyle } = props;
   const { reportType, yaxisList, rightY, style } = currentReport;
   const isDualAxes = reportType === reportTypes.DualAxes;
   const rightYaxisList = rightY ? rightY.yaxisList : [];
   const firstYaxis = yaxisList[0];
   const firstRightYaxis = rightYaxisList[0];
   const { tooltipValueType = 0 } = style;
-  return (
-    <Fragment>
-      {[reportTypes.PivotTable, reportTypes.NumberChart, reportTypes.TopChart].includes(reportType) ? (
-        <Collapse.Panel header={_l('值')} key="pivotTableUnit" {...collapseProps}>
-          {yaxisList
-            .filter(data => data.normType !== 7)
-            .map(item => (
+  return [reportTypes.PivotTable, reportTypes.NumberChart, reportTypes.TopChart].includes(reportType)
+    ? {
+        key: 'pivotTableUnit',
+        label: _l('值'),
+        children: (
+          <Fragment>
+            {yaxisList
+              .filter(data => data.normType !== 7)
+              .map(item => (
+                <Fragment>
+                  <div className="mBottom12 Bold textSecondary">{item.controlName}</div>
+                  <Unit
+                    currentReport={currentReport}
+                    data={item}
+                    yaxisList={yaxisList}
+                    onChangeYaxisList={(data, isRequest = false) => {
+                      changeCurrentReport(
+                        {
+                          ...data,
+                          displaySetup: {
+                            ...currentReport.displaySetup,
+                            magnitudeUpdateFlag: Date.now(),
+                          },
+                        },
+                        isRequest,
+                      );
+                    }}
+                  />
+                </Fragment>
+              ))}
+          </Fragment>
+        ),
+      }
+    : {
+        key: 'leftUnit',
+        label: _l('值'),
+        children: (
+          <Fragment>
+            {firstYaxis && (
               <Fragment>
-                <div className="mBottom12 Bold textSecondary">{item.controlName}</div>
+                {isDualAxes && <div className="mBottom12 Bold textSecondary">{_l('Y轴')}</div>}
                 <Unit
-                  currentReport={currentReport}
-                  data={item}
+                  changeAllYaxis={true}
+                  data={firstYaxis}
                   yaxisList={yaxisList}
                   onChangeYaxisList={(data, isRequest = false) => {
                     changeCurrentReport(
@@ -441,89 +423,57 @@ export default function unitPanelGenerator(props) {
                   }}
                 />
               </Fragment>
-            ))}
-        </Collapse.Panel>
-      ) : (
-        <Collapse.Panel header={_l('值')} key="leftUnit" {...collapseProps}>
-          {firstYaxis && (
-            <Fragment>
-              {isDualAxes && <div className="mBottom12 Bold textSecondary">{_l('Y轴')}</div>}
-              <Unit
-                changeAllYaxis={true}
-                data={firstYaxis}
-                yaxisList={yaxisList}
-                onChangeYaxisList={(data, isRequest = false) => {
-                  changeCurrentReport(
-                    {
-                      ...data,
-                      displaySetup: {
-                        ...currentReport.displaySetup,
-                        magnitudeUpdateFlag: Date.now(),
+            )}
+            {firstRightYaxis && (
+              <Fragment>
+                <div className="mBottom12 Bold textSecondary">{isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}</div>
+                <Unit
+                  changeAllYaxis={true}
+                  data={firstRightYaxis}
+                  yaxisList={rightYaxisList}
+                  onChangeYaxisList={(data, isRequest = false) => {
+                    changeCurrentReport(
+                      {
+                        displaySetup: {
+                          ...currentReport.displaySetup,
+                          magnitudeUpdateFlag: Date.now(),
+                        },
+                        rightY: {
+                          ...currentReport.rightY,
+                          ...data,
+                        },
                       },
-                    },
-                    isRequest,
-                  );
-                }}
-              />
-            </Fragment>
-          )}
-          {firstRightYaxis && (
-            <Fragment>
-              <div className="mBottom12 Bold textSecondary">{isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}</div>
-              <Unit
-                changeAllYaxis={true}
-                data={firstRightYaxis}
-                yaxisList={rightYaxisList}
-                onChangeYaxisList={(data, isRequest = false) => {
-                  changeCurrentReport(
-                    {
-                      displaySetup: {
-                        ...currentReport.displaySetup,
-                        magnitudeUpdateFlag: Date.now(),
-                      },
-                      rightY: {
-                        ...currentReport.rightY,
-                        ...data,
-                      },
-                    },
-                    isRequest,
-                  );
-                }}
-              />
-            </Fragment>
-          )}
-          {[
-            reportTypes.BarChart,
-            reportTypes.LineChart,
-            reportTypes.DualAxes,
-            reportTypes.BidirectionalBarChart,
-            reportTypes.PieChart,
-            reportTypes.RadarChart,
-            reportTypes.FunnelChart,
-            reportTypes.ScatterChart,
-          ].includes(reportType) && (
-            <div className="mBottom15 mTop5">
-              <div className="mBottom8">{_l('卡片内容')}</div>
-              <div className="chartTypeSelect flexRow valignWrapper">
-                <div
-                  title={_l('原值')}
-                  className={cx('flex centerAlign pointer textSecondary', { active: tooltipValueType === 0 })}
-                  onClick={() => onChangeStyle({ tooltipValueType: 0 })}
-                >
-                  <span className="ellipsis">{_l('原值')}</span>
-                </div>
-                <div
-                  title={_l('显示单位')}
-                  className={cx('flex centerAlign pointer textSecondary', { active: tooltipValueType === 1 })}
-                  onClick={() => onChangeStyle({ tooltipValueType: 1 })}
-                >
-                  <span className="ellipsis">{_l('显示单位')}</span>
-                </div>
+                      isRequest,
+                    );
+                  }}
+                />
+              </Fragment>
+            )}
+            {[
+              reportTypes.BarChart,
+              reportTypes.LineChart,
+              reportTypes.DualAxes,
+              reportTypes.BidirectionalBarChart,
+              reportTypes.PieChart,
+              reportTypes.RadarChart,
+              reportTypes.FunnelChart,
+              reportTypes.ScatterChart,
+            ].includes(reportType) && (
+              <div className="mBottom15 mTop5">
+                <div className="mBottom8">{_l('卡片内容')}</div>
+                <Segmented
+                  block
+                  className="bgDisabled"
+                  value={tooltipValueType}
+                  options={[
+                    { label: _l('原值'), value: 0 },
+                    { label: _l('显示单位'), value: 1 },
+                  ]}
+                  onChange={value => onChangeStyle({ tooltipValueType: value })}
+                />
               </div>
-            </div>
-          )}
-        </Collapse.Panel>
-      )}
-    </Fragment>
-  );
+            )}
+          </Fragment>
+        ),
+      };
 }

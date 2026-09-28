@@ -1,38 +1,37 @@
 import React, { Component, Fragment } from 'react';
-import { Drawer } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, LoadDiv, RadioGroup, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Drawer, Input, Radio, Tooltip } from 'ming-ui/antd-components';
+import { getDefaultCountry } from 'ming-ui/components/PhoneNumberInput/util';
 import { dialogSelectUser } from 'ming-ui/functions';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
-import { encrypt } from 'src/utils/common';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { checkForm, getMobilePhoneNumber, RESULTS } from '../../constant';
-import { addUserFeedbackFunc } from '../AddUserFeedback';
+import { useAddUserFeedback } from '../AddUserFeedback';
 import BaseFormInfo from '../BaseFormInfo';
+import ControlledPhoneInput from '../ControlledPhoneInput';
+import { createControlledPhoneAdapter, getControlledPhoneValue } from '../ControlledPhoneInput/utils';
 import DrawerFooterOption from '../DrawerFooterOption';
 import EditUser from '../EditUser';
 import TextInput from '../TextInput';
 import './index.less';
 
-export default class AddUser extends Component {
+class AddUser extends Component {
   constructor(props) {
     super(props);
+    const { dialCode } = getControlledPhoneValue('', getDefaultCountry());
+
     this.state = {
       departmentIds: [],
       errors: {},
       baseInfo: {},
       inviteType: 'email',
       addUserVisible: props.addUserVisible,
+      mobileDialCode: dialCode,
+      autonomouslyDialCode: dialCode,
     };
-    this.it = null;
-    this.itiInvite = null;
-    this.itiAutonomously = null;
-  }
-  componentDidMount() {
-    this.itiFn();
   }
 
   componentDidUpdate(prevProps) {
@@ -44,35 +43,6 @@ export default class AddUser extends Component {
       }
     }
   }
-  componentWillUnmount() {
-    this.iti && this.iti.destroy();
-    this.itiInvite && this.itiInvite.destroy();
-    this.itiAutonomously && this.itiAutonomously.destroy();
-  }
-  itiFn = () => {
-    if (this.mobile) {
-      this.iti && this.iti.destroy();
-      this.iti = createIntlTelInput(this.mobile, {
-        customPlaceholder: '',
-        separateDialCode: true,
-        showSelectedDialCode: true,
-        showDialCodeInput: true,
-      });
-    }
-  };
-
-  itiAutonomouslyFn = val => {
-    this.itiAutonomously && this.itiAutonomously.destroy();
-    this.itiAutonomously = createIntlTelInput(this.autonomously, {
-      customPlaceholder: '',
-      separateDialCode: true,
-      showSelectedDialCode: true,
-    });
-    $(this.autonomously).css({ 'padding-left': '15px' });
-    this.autonomously.focus();
-    this.itiAutonomously.setNumber(val);
-  };
-
   // 通讯录添加人员
   dialogSelectUserHandler = () => {
     const { projectId } = this.props;
@@ -90,10 +60,6 @@ export default class AddUser extends Component {
     });
   };
   clearSelectUser = () => {
-    setTimeout(() => {
-      this.itiFn();
-    }, 200);
-
     this.clearError('mobile');
     this.clearError('email');
     this.setState({
@@ -101,21 +67,25 @@ export default class AddUser extends Component {
       errors: {},
       inviteType: 'mobile',
       mobile: '',
+      mobileDialCode: getControlledPhoneValue('', getDefaultCountry()).dialCode,
       email: '',
     });
   };
 
   changeFormInfo = (e, field) => {
-    const isMobile = field === 'autonomously' && e.length > 3 && !isNaN(Number(e));
-
-    if (isMobile && !this.itiAutonomously) {
-      this.itiAutonomouslyFn(e);
-    }
-
     this.setState({
       [field]: _.includes(['mobile', 'email', 'autonomously'], field) ? e : e.target.value,
       isClickSubmit: false,
     });
+  };
+  getMobileAdapter = () => {
+    return createControlledPhoneAdapter({ dialCode: this.state.mobileDialCode, value: this.state.mobile });
+  };
+  getAutonomouslyAdapter = () => {
+    const { autonomously, autonomouslyDialCode } = this.state;
+    const showDialCode = !!autonomously && autonomously.length > 3 && !isNaN(Number(autonomously));
+
+    return createControlledPhoneAdapter({ dialCode: autonomouslyDialCode, value: autonomously, showDialCode });
   };
   clearError = field => {
     const { errors = {} } = this.state;
@@ -126,11 +96,13 @@ export default class AddUser extends Component {
   checkedUser = ({ val, type, accountId } = {}) => {
     const { projectId, typeCursor, departmentId } = this.props;
     const { email, inviteType, autonomously } = this.state;
+    const mobileAdapter = this.getMobileAdapter();
+    const autonomouslyAdapter = this.getAutonomouslyAdapter();
 
     if (
-      (type === 'mobile' && !!checkForm['mobile'](val, this.iti)) ||
+      (type === 'mobile' && !!checkForm['mobile'](val, mobileAdapter)) ||
       (type === 'email' && !!checkForm['email'](val)) ||
-      (type === 'autonomously' && !!checkForm['autonomously'](val, this.itiAutonomously))
+      (type === 'autonomously' && !!checkForm['autonomously'](val, autonomouslyAdapter))
     ) {
       this.setState({ showMask: false });
       return;
@@ -140,11 +112,11 @@ export default class AddUser extends Component {
       type === 'selectUser'
         ? ''
         : inviteType === 'mobile'
-          ? getMobilePhoneNumber(this.iti, this.state.mobile)
+          ? getMobilePhoneNumber(mobileAdapter, this.state.mobile)
           : inviteType === 'email'
             ? email
-            : type === 'autonomously' && this.itiAutonomously
-              ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously)
+            : type === 'autonomously'
+              ? autonomouslyAdapter.getNumber()
               : autonomously;
 
     if (!userContact && !accountId) {
@@ -179,7 +151,7 @@ export default class AddUser extends Component {
           ...data,
           departmentIds: (data.departmentInfos || []).map(it => it.departmentId),
         };
-        addUserFeedbackFunc({
+        this.props.openAddUserFeedback({
           projectId,
           typeCursor: res.userState === 3 ? 2 : res.userState === 4 ? 3 : typeCursor,
           departmentId,
@@ -200,8 +172,10 @@ export default class AddUser extends Component {
   };
   handleSubmit = isClear => {
     const _this = this;
-    const { isUploading, inviteType, userName, email, user = {}, autonomouslyPasswrod, autonomously } = this.state;
-    const mobile = getMobilePhoneNumber(this.iti, this.state.mobile);
+    const { isUploading, inviteType, userName, email, user = {}, autonomouslyPasswrod } = this.state;
+    const mobileAdapter = this.getMobileAdapter();
+    const autonomouslyAdapter = this.getAutonomouslyAdapter();
+    const mobile = getMobilePhoneNumber(mobileAdapter, this.state.mobile);
     const {
       jobIds = [],
       departmentInfos = [],
@@ -216,12 +190,9 @@ export default class AddUser extends Component {
     const errors = {
       ...this.state.errors,
       userName: !!checkForm['userName'](userName),
-      mobile: inviteType === 'mobile' && !!checkForm['mobile'](mobile, this.iti),
+      mobile: inviteType === 'mobile' && !!checkForm['mobile'](mobile, mobileAdapter),
       email: inviteType === 'email' && !!checkForm['email'](email),
-      autonomously: !!checkForm['autonomously'](
-        this.itiAutonomously ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously) : autonomously,
-        this.itiAutonomously,
-      ),
+      autonomously: !!checkForm['autonomously'](autonomouslyAdapter.getNumber(), autonomouslyAdapter),
       autonomouslyPasswrod: inviteType === 'autonomously' && !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod),
     };
 
@@ -230,17 +201,14 @@ export default class AddUser extends Component {
     let check = !_.isEmpty(user)
       ? false
       : inviteType === 'mobile'
-        ? !!checkForm['userName'](userName) || !!checkForm['mobile'](mobile, this.iti)
+        ? !!checkForm['userName'](userName) || !!checkForm['mobile'](mobile, mobileAdapter)
         : !!checkForm['userName'](userName) || !!checkForm['email'](email);
 
     if ((window.platformENV.isOverseas || window.platformENV.isLocal) && _.isEmpty(user)) {
       check = _.includes(['mobile', 'email'], inviteType)
         ? check
         : inviteType === 'autonomously' &&
-          (!!checkForm['autonomously'](
-            this.itiAutonomously ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously) : autonomously,
-            this.itiAutonomously,
-          ) ||
+          (!!checkForm['autonomously'](autonomouslyAdapter.getNumber(), autonomouslyAdapter) ||
             !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
     }
 
@@ -261,8 +229,7 @@ export default class AddUser extends Component {
         contactPhone,
         fullname: !_.isEmpty(user) ? user.fullname : userName,
         account: inviteType === 'mobile' ? mobile : email,
-        accountId:
-          (!window.platformENV.isOverseas && !window.platformENV.isLocal) || !_.isEmpty(user) ? user.accountId : '',
+        accountId: window.platformENV.isHap || !_.isEmpty(user) ? user.accountId : '',
         orgRoleIds: orgRoles.map(l => l.id).join(';'),
         useMultiJobs,
         departmentJobIdMaps: departmentJobInfos.map(item => ({
@@ -274,11 +241,7 @@ export default class AddUser extends Component {
       if (window.platformENV.isOverseas || window.platformENV.isLocal) {
         params.verifyType = _.includes(['mobile', 'email'], inviteType) ? 0 : 1;
         if (inviteType === 'autonomously') {
-          params.account = _.isEmpty(user)
-            ? this.itiAutonomously
-              ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously)
-              : autonomously
-            : '';
+          params.account = _.isEmpty(user) ? autonomouslyAdapter.getNumber() : '';
           params.password = encrypt(autonomouslyPasswrod);
         }
       }
@@ -312,9 +275,6 @@ export default class AddUser extends Component {
             }
           }
 
-          setTimeout(() => {
-            this.itiFn();
-          }, 200);
           this.clearError('mobile');
           this.clearError('email');
           this.setState({
@@ -322,6 +282,7 @@ export default class AddUser extends Component {
             user: {},
             userName: '',
             mobile: '',
+            mobileDialCode: getControlledPhoneValue('', getDefaultCountry()).dialCode,
             email: '',
             departmentInfos: [],
             jobIds: [],
@@ -331,10 +292,8 @@ export default class AddUser extends Component {
             errors: {},
             isUploading: false,
             autonomously: '',
+            autonomouslyDialCode: getControlledPhoneValue('', getDefaultCountry()).dialCode,
           });
-          if (this.mobile) {
-            this.mobile.value = '';
-          }
         })
         .catch(() => {
           this.setState({ isUploading: false });
@@ -351,9 +310,13 @@ export default class AddUser extends Component {
       errors = {},
       user = {},
       autonomously,
+      mobileDialCode,
+      autonomouslyDialCode,
       autonomouslyPasswrod,
     } = this.state;
     const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
+    const mobileAdapter = this.getMobileAdapter();
+    const autonomouslyAdapter = this.getAutonomouslyAdapter();
 
     return (
       <Fragment>
@@ -400,40 +363,44 @@ export default class AddUser extends Component {
           <div className="formGroup">
             <div className="formLabel">{_l('邀请方式')}</div>
             <div>
-              <RadioGroup
-                checkedValue={inviteType}
-                data={[
-                  {
-                    text: window.platformENV.isOverseas || window.platformENV.isLocal ? _l('邮箱邀请') : _l('邮箱'),
-                    value: 'email',
-                  },
-                  {
-                    text: window.platformENV.isOverseas || window.platformENV.isLocal ? _l('手机号邀请') : _l('手机'),
-                    value: 'mobile',
-                  },
-                  { text: _l('自主创建'), value: 'autonomously' },
-                ].filter(item =>
-                  window.platformENV.isPlatform
-                    ? item.value !== 'autonomously'
-                    : !md.global.SysSettings.enableSmsCustomContent
-                      ? item.value !== 'mobile'
-                      : true,
-                )}
-                onChange={val => {
-                  setTimeout(() => {
-                    this.itiFn();
-                  }, 200);
-                  if (val === 'autonomously' && this.itiAutonomously) {
-                    this.itiAutonomously.destroy();
-                    this.itiAutonomously = null;
-                  }
+              <Radio.Group
+                value={inviteType}
+                options={(
+                  [
+                    {
+                      text: window.platformENV.isOverseas || window.platformENV.isLocal ? _l('邮箱邀请') : _l('邮箱'),
+                      value: 'email',
+                    },
+                    {
+                      text: window.platformENV.isOverseas || window.platformENV.isLocal ? _l('手机号邀请') : _l('手机'),
+                      value: 'mobile',
+                    },
+                    { text: _l('自主创建'), value: 'autonomously' },
+                  ].filter(item =>
+                    window.platformENV.isPlatform
+                      ? item.value !== 'autonomously'
+                      : !md.global.SysSettings.enableSmsCustomContent
+                        ? item.value !== 'mobile'
+                        : true,
+                  ) || []
+                ).map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event => {
+                  const val = event.target.value;
 
                   this.clearError('mobile');
                   this.clearError('email');
                   this.clearError('autonomously');
-                  this.setState({ inviteType: val, mobile: '', email: '', autonomously: '', autonomouslyPasswrod: '' });
+                  this.setState({
+                    inviteType: val,
+                    mobile: '',
+                    mobileDialCode: getControlledPhoneValue('', getDefaultCountry()).dialCode,
+                    email: '',
+                    autonomously: '',
+                    autonomouslyDialCode: getControlledPhoneValue('', getDefaultCountry()).dialCode,
+                    autonomouslyPasswrod: '',
+                  });
                 }}
-              ></RadioGroup>
+              ></Radio.Group>
             </div>
             {inviteType === 'mobile' && (
               <div className="prompt flexRow mBottom20 textPrimary mTop10">
@@ -461,27 +428,25 @@ export default class AddUser extends Component {
               {_l('手机')}
               <span className="TxtMiddle Red">*</span>
             </div>
-            <Input
-              value={mobile}
-              className={cx('formControl', {
-                error: errors['mobile'] && !!checkForm['mobile'](mobile, this.iti),
-              })}
-              manualRef={ele => (this.mobile = ele)}
+            <ControlledPhoneInput
+              value={mobile || ''}
+              dialCode={mobileDialCode}
+              className="formControl"
+              status={errors['mobile'] && checkForm['mobile'](mobile, mobileAdapter) ? 'error' : undefined}
               placeholder={_l('成员会收到邀请链接，验证后可加入组织')}
               onFocus={() => {
                 this.clearError('mobile');
               }}
-              onInput={e => {
-                const val = e.target.value.replace(/ +/g, '');
-                this.changeFormInfo(val, 'mobile');
+              onChange={({ value, dialCode }) => {
+                this.setState({ mobile: value, mobileDialCode: dialCode, isClickSubmit: false });
               }}
-              onBlur={e => {
+              onBlur={() => {
                 this.setState({ showMask: true });
-                this.checkedUser({ val: e.target.value, type: 'mobile' });
+                this.checkedUser({ val: this.state.mobile, type: 'mobile' });
               }}
             />
-            {errors['mobile'] && !!checkForm['mobile'](mobile, this.iti) && (
-              <div className="Block Red LineHeight25 Hidden">{checkForm['mobile'](mobile, this.iti)}</div>
+            {errors['mobile'] && !!checkForm['mobile'](mobile, mobileAdapter) && (
+              <div className="Block Red LineHeight25 Hidden">{checkForm['mobile'](mobile, mobileAdapter)}</div>
             )}
           </div>
         )}
@@ -492,9 +457,10 @@ export default class AddUser extends Component {
               <span className="TxtMiddle Red">*</span>
             </div>
             <Input
-              className={cx('formControl', { error: errors['email'] && checkForm['email'](email) })}
+              className="formControl"
+              status={errors['email'] && checkForm['email'](email) ? 'error' : undefined}
               value={email}
-              onChange={e => this.changeFormInfo(e, 'email')}
+              onChange={e => this.changeFormInfo(e.target.value, 'email')}
               placeholder={_l('成员会收到邀请链接，验证后可加入组织')}
               onFocus={() => {
                 this.clearError('email');
@@ -512,32 +478,24 @@ export default class AddUser extends Component {
         {inviteType === 'autonomously' && _.isEmpty(user) && (
           <div className="formGroup">
             <div className="formLabel">{_l('登录账号')}</div>
-            <Input
-              value={autonomously}
-              className={cx('formControl input', {
-                error: errors['autonomously'] && checkForm['autonomously'](autonomously),
-              })}
-              manualRef={ele => (this.autonomously = ele)}
-              onChange={e => this.changeFormInfo(e, 'autonomously')}
-              onInput={e => {
-                const val = e.target.value.replace(/ +/g, '');
-
-                if ((val.length <= 3 || isNaN(Number(val))) && this.itiAutonomously) {
-                  this.itiAutonomously.destroy();
-                  this.itiAutonomously = null;
-                  this.autonomously.focus();
-                  $(this.autonomously).css({ 'padding-left': '12px' });
-                }
-
-                this.changeFormInfo(val, 'autonomously');
+            <ControlledPhoneInput
+              value={autonomously || ''}
+              dialCode={autonomouslyDialCode}
+              showDialCode={!!autonomously && autonomously.length > 3 && !isNaN(Number(autonomously))}
+              className="formControl input"
+              status={
+                errors['autonomously'] && checkForm['autonomously'](autonomously, autonomouslyAdapter)
+                  ? 'error'
+                  : undefined
+              }
+              onChange={({ value, dialCode }) => {
+                this.setState({ autonomously: value, autonomouslyDialCode: dialCode, isClickSubmit: false });
               }}
               placeholder={_l('请输入')}
-              onFocus={() => {
-                this.clearError('autonomously');
-              }}
-              onBlur={e => {
+              onFocus={() => this.clearError('autonomously')}
+              onBlur={() => {
                 this.setState({ showMask: true });
-                this.checkedUser({ val: e.target.value, type: 'autonomously' });
+                this.checkedUser({ val: this.state.autonomously, type: 'autonomously' });
               }}
             />
             {errors['autonomously'] && checkForm['autonomously'](autonomously) && (
@@ -601,11 +559,11 @@ export default class AddUser extends Component {
     return (
       <Fragment>
         <Drawer
-          width={580}
+          size={580}
           placement="right"
           onClose={onClose}
-          visible={addUserVisible}
-          maskClosable={false}
+          open={addUserVisible}
+          mask={{ closable: false }}
           closable={false}
         >
           <div className="addEditUserInfoWrap" key="addEditUserInfo">
@@ -705,3 +663,7 @@ export default class AddUser extends Component {
     );
   }
 }
+
+export default withOpeners(AddUser, {
+  openAddUserFeedback: useAddUserFeedback,
+});

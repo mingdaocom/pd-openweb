@@ -2,16 +2,17 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import { Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Empty from '../../../common/TableEmpty';
 import { PAY_CHANNEL_TXT, REFUND_STATUS } from '../../config';
 import transactionEmptyImg from '../../images/withdrawals.png';
@@ -489,7 +490,6 @@ export default class RefundOrder extends Component {
         type: 'selectTime',
         label: _l('申请时间'),
         placeholder: _l('选择日期范围'),
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {
@@ -497,7 +497,6 @@ export default class RefundOrder extends Component {
         type: 'selectTime',
         label: _l('退款时间'),
         placeholder: _l('选择日期范围'),
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {
@@ -634,20 +633,31 @@ export default class RefundOrder extends Component {
       return;
     }
 
-    Dialog.confirm({
-      buttonType: status === 4 ? 'danger' : 'primary',
+    Modal.confirm({
+      okButtonProps: {
+        danger: (status === 4 ? 'danger' : 'primary') === 'danger',
+      },
       title: status === 4 ? _l('是否拒绝退款?') : _l('是否同意退款?'),
-      description: status === 4 ? '' : _l('同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中', amount),
+      content: status === 4 ? '' : _l('同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中', amount),
       okText: status === 4 ? _l('拒绝') : _l('同意'),
       onOk: () => {
-        paymentAjax.editRefundOrderStatus({ projectId, status, refundOrderId, refundSourceType: 0 }).then(res => {
-          if (res) {
-            this.getDataList({ pageIndex: 1 });
-            alert(_l('操作成功'));
-          } else {
-            alert(_l('操作失败'), 2);
-          }
-        });
+        paymentAjax
+          .editRefundOrderStatus({
+            projectId,
+            status,
+            refundOrderId,
+            refundSourceType: 0,
+          })
+          .then(res => {
+            if (res) {
+              this.getDataList({
+                pageIndex: 1,
+              });
+              alert(_l('操作成功'));
+            } else {
+              alert(_l('操作失败'), 2);
+            }
+          });
       },
     });
   };

@@ -1,32 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input, LoadDiv, Menu, MenuItem, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, UserHead } from 'ming-ui';
+import { Dropdown, Input, Popover, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { FILTER_OPTIONS } from './config';
-
-const Wrap = styled.div`
-  .isCheckedIcon {
-    right: 10px;
-    left: auto !important;
-  }
-`;
 
 const WrapFocusCon = styled.div`
   width: 340px;
-  padding: 5px 0;
-  border-radius: 3px;
-  background: var(--color-background-primary);
-  z-index: 11;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
   .focusUserCon {
     border-top: 1px solid var(--color-background-secondary);
     margin-top: 3px;
@@ -146,49 +131,42 @@ export default class WorkSheetCommentList extends Component {
         : FILTER_OPTIONS.find(o => o.value === focusType).label + (containAttachment ? _l('且包含附件') : '')
       : '';
     return (
-      <Trigger
-        popupVisible={withMeFilterVisible}
-        popupClassName="discussionFilterCon"
-        onPopupVisibleChange={visible => this.setState({ withMeFilterVisible: visible })}
-        action={['click']}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        open={withMeFilterVisible}
+        classNames={{ root: 'discussionFilterCon' }}
+        onOpenChange={(open, info) => {
+          if (info?.source !== 'menu') {
+            this.setState({ withMeFilterVisible: open });
+          }
         }}
-        popup={() => (
-          <Wrap>
-            <Menu style={{ left: 'initial', right: 0, width: 180 }} onClick={e => e.stopPropagation()}>
-              {FILTER_OPTIONS.map((item, index) => {
-                const isSelected = item.value === focusType;
-                return (
-                  <MenuItem
-                    key={index}
-                    className={cx('Relative', { selected: isSelected })}
-                    onClick={() =>
-                      this.setState({
-                        focusType: !isSelected ? item.value : 0,
-                        hasFilter: true,
-                      })
-                    }
-                    style={{ lineHeight: '40px', height: 40 }}
-                  >
-                    {item.label}
-                    {isSelected && <Icon icon="done" className="Font14 colorPrimary isCheckedIcon" />}
-                  </MenuItem>
-                );
-              })}
-              <MenuItem
-                className={cx('Relative', { selected: containAttachment })}
-                onClick={() => this.setState({ containAttachment: !containAttachment, hasFilter: true })}
-                style={{ lineHeight: '40px', height: 40, borderTop: '1px solid var(--color-border-secondary)' }}
-              >
-                {_l('包含附件的讨论')}
-                {containAttachment && <Icon icon="done" className="Font14 colorPrimary isCheckedIcon" />}
-              </MenuItem>
-            </Menu>
-          </Wrap>
-        )}
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          onClick: ({ domEvent }) => domEvent.stopPropagation(),
+          style: { minWidth: 180 },
+          items: [
+            ...FILTER_OPTIONS.map(item => {
+              const isSelected = item.value === focusType;
+              return {
+                key: item.value,
+                label: item.label,
+                extra: isSelected ? <Icon icon="done" className="Font14 colorPrimary" /> : undefined,
+                onClick: () =>
+                  this.setState({
+                    focusType: !isSelected ? item.value : 0,
+                    hasFilter: true,
+                  }),
+              };
+            }),
+            { type: 'divider' },
+            {
+              key: 'containAttachment',
+              label: _l('包含附件的讨论'),
+              extra: containAttachment ? <Icon icon="done" className="Font14 colorPrimary" /> : undefined,
+              onClick: () => this.setState({ containAttachment: !containAttachment, hasFilter: true }),
+            },
+          ],
+        }}
       >
         <span className="icon_Hover_21 flexRow alignItemsCenter Hand" onClick={e => e.stopPropagation()}>
           <Tooltip title={_l('筛选')}>
@@ -218,7 +196,7 @@ export default class WorkSheetCommentList extends Component {
             </span>
           )}
         </span>
-      </Trigger>
+      </Dropdown>
     );
   }
 
@@ -236,36 +214,40 @@ export default class WorkSheetCommentList extends Component {
           onClick={() => this.setState({ searchActive: true })}
         >
           <div className="valignWrapper w100" onClick={() => this.setState({ inputActive: true })}>
-            <span className="flexRow alignItemsCenter">
-              <Tooltip title={_l('搜索')}>
-                <Icon icon="search" className="Font20 textSecondary Hand" />
-              </Tooltip>
-            </span>
-            {searchActive && (
-              <Fragment>
-                <Input
-                  autoFocus
-                  value={search}
-                  className="searchInput placeholderColor"
-                  placeholder={_l('搜索')}
-                  onChange={value => {
-                    this.setState({ search: value });
-                    this.debouncedSetKeywords(value);
-                  }}
-                  onBlur={e => !e.target.value && this.setState({ searchActive: false })}
-                />
-                {!!search && (
-                  <Icon
-                    icon="cancel"
-                    className="textSecondary hoverColorPrimary Hand Font20"
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.setState({ search: undefined, searchActive: false });
-                      this.debouncedSetKeywords('');
-                    }}
-                  />
-                )}
-              </Fragment>
+            {!searchActive ? (
+              <span className="flexRow alignItemsCenter">
+                <Tooltip title={_l('搜索')}>
+                  <Icon icon="search" className="Font20 searchIcon textSecondary Hand" />
+                </Tooltip>
+              </span>
+            ) : (
+              <Input
+                autoFocus
+                value={search}
+                variant="borderless"
+                className="searchInput"
+                prefix={<Icon icon="search" className="Font20 textSecondary" />}
+                suffix={
+                  search ? (
+                    <Icon
+                      icon="cancel"
+                      className="textSecondary hoverColorPrimary Hand Font20"
+                      onMouseDown={event => event.preventDefault()}
+                      onClick={event => {
+                        event.stopPropagation();
+                        this.setState({ search: undefined, searchActive: false });
+                        this.debouncedSetKeywords('');
+                      }}
+                    />
+                  ) : null
+                }
+                placeholder={_l('搜索')}
+                onChange={event => {
+                  this.setState({ search: event.target.value });
+                  this.debouncedSetKeywords(event.target.value);
+                }}
+                onBlur={e => !e.target.value && this.setState({ searchActive: false })}
+              />
             )}
           </div>
         </div>
@@ -310,58 +292,53 @@ export default class WorkSheetCommentList extends Component {
     }
 
     return (
-      <Trigger
-        action={['hover']}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={() => {
-          return (
-            <WrapFocusCon>
-              {isFocus && (
-                <div className="flexRow alignItemsCenter pAll10">
-                  {
-                    <Icon
-                      icon={'notification_turn_on'}
-                      className={cx('Font20 textTertiary hoverColorPrimary Hand', { colorPrimary: isFocus })}
-                    />
-                  }
-                  <div className="flex flexColumn mLeft10">
-                    <div className={cx('Bold textPrimary colorPrimary')}>{_l('关注中')}</div>
-                    <div className={cx('textTertiary')}>{_l('通知所有讨论；取消关注仅@你或回复时通知。')}</div>
-                  </div>
+      <Popover
+        trigger="hover"
+        placement="bottomRight"
+        styles={{ container: { padding: '5px 0' } }}
+        content={
+          <WrapFocusCon>
+            {isFocus && (
+              <div className="flexRow alignItemsCenter pAll10">
+                {
+                  <Icon
+                    icon={'notification_turn_on'}
+                    className={cx('Font20 textTertiary hoverColorPrimary Hand', { colorPrimary: isFocus })}
+                  />
+                }
+                <div className="flex flexColumn mLeft10">
+                  <div className={cx('Bold textPrimary colorPrimary')}>{_l('关注中')}</div>
+                  <div className={cx('textTertiary')}>{_l('通知所有讨论；取消关注仅@你或回复时通知。')}</div>
                 </div>
-              )}
-              {focusUsers.length > 0 && (
-                <div className={cx('pLeft10 pRight10 pBottom10', { focusUserCon: isFocus })}>
-                  <div className="textTertiary mTop10">{_l('已关注 %0', focusUsers.length)}</div>
-                  {focusUsers.map((o, index) => {
-                    return (
-                      <div key={o.accountId || index} className="flexRow alignItemsCenter mTop12">
-                        <UserHead
-                          className="createHeadImg circle userAvarar pointer userMessage"
-                          user={{
-                            userHead: o.avatar,
-                            accountId: o.accountId,
-                          }}
-                          size={28}
-                          appId={appId}
-                          projectId={projectId}
-                        />
-                        <span className="mLeft10 textPrimary flex WordBreak">{o.fullname}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </WrapFocusCon>
-          );
-        }}
+              </div>
+            )}
+            {focusUsers.length > 0 && (
+              <div className={cx('pLeft10 pRight10 pBottom10', { focusUserCon: isFocus })}>
+                <div className="textTertiary mTop10">{_l('已关注 %0', focusUsers.length)}</div>
+                {focusUsers.map((o, index) => {
+                  return (
+                    <div key={o.accountId || index} className="flexRow alignItemsCenter mTop12">
+                      <UserHead
+                        className="createHeadImg circle userAvarar pointer userMessage"
+                        user={{
+                          userHead: o.avatar,
+                          accountId: o.accountId,
+                        }}
+                        size={28}
+                        appId={appId}
+                        projectId={projectId}
+                      />
+                      <span className="mLeft10 textPrimary flex WordBreak">{o.fullname}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </WrapFocusCon>
+        }
       >
-        {renderIcon()}
-      </Trigger>
+        <span>{renderIcon()}</span>
+      </Popover>
     );
   };
 
@@ -371,6 +348,7 @@ export default class WorkSheetCommentList extends Component {
       change,
       discussions,
       addCallback,
+      reloadDiscussionCount,
       forReacordDiscussion,
       atData,
       status,
@@ -402,7 +380,6 @@ export default class WorkSheetCommentList extends Component {
         rowId,
         title: typeof title === 'string' ? title : '',
       }),
-      offset: 45,
       instanceId,
       workId,
       popupContainer: document.body,
@@ -441,6 +418,10 @@ export default class WorkSheetCommentList extends Component {
             change({
               discussions: _.filter(discussions, ({ discussionId }) => discussionId !== _id),
             });
+            // 删除后重拉计数，避免当前 tab 标题停留在删除前的总数。
+            if (_.isFunction(reloadDiscussionCount)) {
+              reloadDiscussionCount();
+            }
           }}
           manualRef={comp => {
             this.commentList = comp;

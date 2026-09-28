@@ -2,36 +2,36 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import calendar from 'src/api/calendar';
 import taskCenter from 'src/api/taskCenter';
 import * as cardSender from '../../utils/cardSender';
-import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import './index.less';
 
 const items = [
   {
     name: _l('任务'),
-    icon: 'icon-task',
+    icon: 'task',
     classname: 'menuItem-task',
     fn: 'onSelectTask',
   },
   {
     name: _l('日程'),
-    icon: 'icon-bellSchedule',
+    icon: 'bellSchedule',
     classname: 'menuItem-calendar',
     fn: 'onSelectSchedule',
   },
   {
     name: _l('投票'),
-    icon: 'icon-votenobg',
+    icon: 'votenobg',
     classname: 'menuItem-votenobg',
     fn: 'onNewVote',
   },
   {
     name: _l('动态'),
-    icon: 'icon-chat-inputer-post',
+    icon: 'chat-inputer-post',
     classname: 'menuItem-post',
     fn: 'onNewFeed',
   },
@@ -56,11 +56,11 @@ export default class CardToolbar extends Component {
     const { isGroup } = this.props.session;
     const forbidSuites = _.uniq(md.global.SysSettings.forbidSuites.split('|')).filter(item => item !== '5');
     return items.filter(item => {
-      if (item.icon === 'icon-task') {
+      if (item.icon === 'task') {
         return !forbidSuites.includes('2');
       }
 
-      if (item.icon === 'icon-bellSchedule') {
+      if (item.icon === 'bellSchedule') {
         return !forbidSuites.includes('3');
       }
 
@@ -133,25 +133,13 @@ export default class CardToolbar extends Component {
       visible,
     });
   }
-  renderToolbar() {
-    return (
-      <div className="ChatPanel-addToolbar-menu">
-        {this.toolItems.map((item, index) => (
-          <div
-            key={index}
-            className={cx('menuItem', {
-              hide:
-                (item.icon === 'icon-chat-inputer-post' || item.icon === 'icon-votenobg') &&
-                !this.props.session.isGroup,
-            })}
-            onClick={this.handleOpen.bind(this, item)}
-          >
-            <i className={item.icon} />
-            <div className="menuItem-text">{item.name}</div>
-          </div>
-        ))}
-      </div>
-    );
+  renderMenuItems() {
+    return this.toolItems.map(item => ({
+      key: item.fn,
+      icon: <Icon icon={item.icon} className="Font16 textSecondary" />,
+      label: item.name,
+      onClick: this.handleOpen.bind(this, item),
+    }));
   }
   render() {
     const { visible } = this.state;
@@ -161,21 +149,18 @@ export default class CardToolbar extends Component {
     }
 
     return (
-      <Trigger
-        popupVisible={visible}
-        onPopupVisibleChange={this.handleChange.bind(this)}
-        popupClassName="ChatPanel-Trigger"
-        action={['click']}
-        popupPlacement="top"
-        builtinPlacements={config.builtinPlacements}
-        popup={this.renderToolbar()}
-        popupAlign={{ offset: [64, -10] }}
+      <Dropdown
         getPopupContainer={() => document.querySelector('.ChatPanel-wrapper')}
+        menu={{ items: this.renderMenuItems(), style: { width: 180 } }}
+        open={visible}
+        placement="topLeft"
+        trigger={['click']}
+        onOpenChange={this.handleChange.bind(this)}
       >
         <div className={cx('ChatPanel-addToolbar addToolbarHover')}>
           <i className="icon-plus" />
         </div>
-      </Trigger>
+      </Dropdown>
     );
   }
 }

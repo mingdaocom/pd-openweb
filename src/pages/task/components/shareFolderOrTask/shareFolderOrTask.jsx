@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import copy from 'copy-to-clipboard';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import './shareFolderOrTask.less';
 
 export default class ShareFolderOrTask extends Component {
@@ -14,12 +14,11 @@ export default class ShareFolderOrTask extends Component {
     const { shareUrl, shareMessage, linkText } = this.props;
 
     return (
-      <Dialog
-        visible
-        dialogClasses="shareFolderOrTask"
+      <Modal
+        open
+        wrapClassName="shareFolderOrTask"
         title={_l('获取链接与二维码')}
-        showFooter={false}
-        handleClose={() => {
+        onCancel={() => {
           this.props.onClose ? this.props.onClose() : $('.shareFolderOrTask').parent().remove();
         }}
       >
@@ -39,7 +38,7 @@ export default class ShareFolderOrTask extends Component {
             {linkText}
           </span>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

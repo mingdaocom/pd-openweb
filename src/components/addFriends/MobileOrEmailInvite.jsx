@@ -1,16 +1,20 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, RadioGroup, Support } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
+import { Button, Input, Radio } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import Requests from 'src/api/addressBook';
 import InviteController from 'src/api/invitation';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import Tel from 'src/pages/Role/PortalCon/components/Tel';
-import { encrypt, pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { DETAIL_MODE, FROM_TYPE } from './enum';
-import inviteFailedDialog from './InviteFailedDialog';
+import { useInviteFailedDialog } from './InviteFailedDialog';
 
 const DISPLAY_OPTIONS = [
   {
@@ -29,8 +33,9 @@ const TYPE_MODE = {
 };
 
 const defaultList = [{ phone: '', isErr: false }];
+const SEARCH_INPUT_STYLE = { height: '100%' };
 
-export default class MobileOrEmailInvite extends Component {
+class MobileOrEmailInvite extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -72,7 +77,7 @@ export default class MobileOrEmailInvite extends Component {
           })
           .catch(err => {
             if (err) {
-              alert(_l('请输入手机号/邮箱地址'), 3);
+              alertIfNotUnauthorized(err, _l('请输入手机号/邮箱地址'), 3);
             }
           });
       }
@@ -109,7 +114,7 @@ export default class MobileOrEmailInvite extends Component {
       fromType,
     })
       .then(result => {
-        inviteFailedDialog({
+        this.props.openInviteFailedDialog({
           inviteTotal: _.isObject(accounts) ? Object.keys(accounts).length : accounts.length,
           projectId,
           result,
@@ -125,8 +130,8 @@ export default class MobileOrEmailInvite extends Component {
           cb();
         }
       })
-      .catch(() => {
-        alert(_l('邀请失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('邀请失败'), 2);
         this.setState({ loading: false });
       });
   };
@@ -181,8 +186,8 @@ export default class MobileOrEmailInvite extends Component {
       .then(() => {
         this.invite(accountObj);
       })
-      .catch(() => {
-        alert(_l('邀请发送失败'), 2);
+      .catch(_requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('邀请发送失败'), 2);
         this.setState({ loading: false });
       });
   };
@@ -232,7 +237,7 @@ export default class MobileOrEmailInvite extends Component {
           <div className="Font17 Bold">{item.fullname}</div>
           {item.subInfo && <div className="textSecondary mTop8">{item.subInfo}</div>}
         </div>
-        <Button disabled={item.disabled} className="inviteButton" onClick={() => this.inviteFriend(item)}>
+        <Button type="primary" disabled={item.disabled} onClick={() => this.inviteFriend(item)}>
           {item.disabled ? _l('已邀请') : isDefault ? _l('发送邀请') : _l('加为好友')}
         </Button>
       </div>
@@ -262,23 +267,19 @@ export default class MobileOrEmailInvite extends Component {
         <div className="addFriendsContent">
           <div className="addFriendHeader">
             <div className="inputWrapper">
-              <span className="icon-search searchIcon"></span>
-              <input
-                type="text"
+              <Input
+                radius
+                variant="filled"
+                style={SEARCH_INPUT_STYLE}
+                prefix={<Icon icon="search" />}
+                allowClear
                 value={keywords}
                 onChange={e => this.setState({ keywords: e.target.value.trim() })}
+                onClear={() => this.setState({ searchData: null })}
                 placeholder={_l('搜索手机号 / 邮箱添加好友')}
               />
-              {keywords && (
-                <span
-                  className="searchClear icon-delete Hand"
-                  onClick={() => {
-                    this.setState({ keywords: '', searchData: null });
-                  }}
-                ></span>
-              )}
             </div>
-            <Button className="searchBtn" disabled={!keywords} onClick={() => this.handleSearch()}>
+            <Button type="primary" className="mLeft16" disabled={!keywords} onClick={() => this.handleSearch()}>
               {_l('搜索')}
             </Button>
           </div>
@@ -305,15 +306,20 @@ export default class MobileOrEmailInvite extends Component {
         </div>
 
         {md.global.SysSettings.enableSmsCustomContent && (
-          <RadioGroup
+          <Radio.Group
             size="middle"
             className="mBottom20"
-            checkedValue={selectType}
-            data={DISPLAY_OPTIONS}
-            onChange={value => this.setState({ selectType: value, list: defaultList })}
+            value={selectType}
+            options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event =>
+              this.setState({
+                selectType: event.target.value,
+                list: defaultList,
+              })
+            }
           />
         )}
-        {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+        {(window.platformENV.isHap ||
           ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
             md.global.SysSettings.enableSmsCustomContent)) &&
           selectType === 1 && (
@@ -364,7 +370,8 @@ export default class MobileOrEmailInvite extends Component {
             )}
           </div>
           <Button
-            disabled={loading}
+            type="primary"
+            loading={loading}
             onClick={evt => {
               evt.nativeEvent.stopImmediatePropagation();
               this.submit();
@@ -385,3 +392,7 @@ export default class MobileOrEmailInvite extends Component {
     );
   }
 }
+
+export default withOpeners(MobileOrEmailInvite, {
+  openInviteFailedDialog: useInviteFailedDialog,
+});

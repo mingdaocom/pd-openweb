@@ -1,9 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
 import filterXSS from 'xss';
-import { antNotification, Icon } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Notification } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const getAction = status => {
   switch (status) {
@@ -40,9 +41,9 @@ export default () => {
     const isPageBackup = location.href.indexOf(`/app/${appId}/settings/backup`) > -1;
     const url = status === 2 ? `/app/${appId}/settings/backup` : `/admin/expansionservice/${projectId}/storage`;
 
-    antNotification[action]({
+    Notification[action]({
       ...getCommon(data),
-      btn: _.includes([2, 3], status) ? (
+      actions: _.includes([2, 3], status) ? (
         <span
           className="Hand colorPrimary"
           onClick={() => {
@@ -57,7 +58,7 @@ export default () => {
         </span>
       ) : undefined,
       onBtnClick: () => {
-        antNotification.close(id);
+        Notification.close(id);
       },
     });
   });
@@ -73,10 +74,10 @@ export default () => {
           : _l('应用”%0”导入升级失败', appName);
     let action = getAction(status);
 
-    antNotification[action]({
+    Notification[action]({
       ...getCommon({ id, title, msg, status }),
       onBtnClick: () => {
-        antNotification.close(id);
+        Notification.close(id);
       },
     });
 

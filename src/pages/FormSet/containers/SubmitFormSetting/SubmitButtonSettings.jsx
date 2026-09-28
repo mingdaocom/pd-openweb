@@ -2,10 +2,9 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dropdown, Icon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getShowViews } from 'src/pages/worksheet/views/util';
+import { Icon } from 'ming-ui';
+import { Button, Input, Popover, Select, Switch, Tooltip } from 'ming-ui/antd-components';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 import { btnList, SUBMIT_NEXT_ACTION_LIST } from './config';
 import { Wrap } from './style';
 
@@ -13,7 +12,7 @@ const InputComponent = ({ str, handleBlur }) => {
   return (
     <Wrap>
       <p className="Font13">{_l('按钮名称')}</p>
-      <input type="text" className="btnName mTop10" defaultValue={str} autoFocus={true} onBlur={handleBlur} />
+      <Input className="btnName mTop10" defaultValue={str} autoFocus onBlur={handleBlur} />
     </Wrap>
   );
 };
@@ -39,10 +38,11 @@ export default function SubmitButtonSettings(props) {
             noAction,
           })}
         >
-          <div className="btnCon">
-            <Trigger
-              action={['click']}
-              popup={
+          <div className="buttonPreviewCon">
+            <Popover
+              noPadding
+              trigger="click"
+              content={
                 <InputComponent
                   str={str}
                   handleBlur={e => {
@@ -52,19 +52,16 @@ export default function SubmitButtonSettings(props) {
                   }}
                 />
               }
-              popupClassName={cx('inputTrigger')}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                overflow: {
-                  adjustX: true,
-                  adjustY: true,
-                },
-              }}
+              placement="bottomLeft"
             >
-              <div className="TxtMiddle">
-                <span className="btnStr InlineBlock overflow_ellipsis">
-                  {!!str && !!index && index === i ? str : btnStr}
-                </span>
+              <div className="flexRow alignItemsCenter">
+                <Button
+                  className="submitButtonPreview"
+                  color={i === 0 ? 'primary' : 'default'}
+                  variant={i === 0 ? 'solid' : 'outlined'}
+                >
+                  <span className="overflow_ellipsis">{!!str && !!index && index === i ? str : btnStr}</span>
+                </Button>
                 {!noAction && (
                   <Tooltip placement="bottom" title={_l('修改按钮名称')}>
                     <Icon
@@ -75,16 +72,16 @@ export default function SubmitButtonSettings(props) {
                   </Tooltip>
                 )}
               </div>
-            </Trigger>
+            </Popover>
           </div>
           <span className="after flex">
             <span className="textSecondary TxtMiddle">{_l('提交后：')}</span>
-            <Dropdown
-              menuStyle={{ minWidth: 150, width: 'auto' }}
-              currentItemClass="currentMenu"
-              data={SUBMIT_NEXT_ACTION_LIST}
+            <Select
+              variant="borderless"
+              styles={{ popup: { root: { minWidth: 150, width: 'auto' } } }}
+              options={SUBMIT_NEXT_ACTION_LIST}
               value={_.get(advancedSetting, data[0]) || (i === 0 ? '1' : '2')}
-              className={cx('flex InlineBlock')}
+              className={cx('flex')}
               onChange={newValue => {
                 if (newValue === _.get(advancedSetting, data[0])) return;
                 let param = {};
@@ -107,21 +104,21 @@ export default function SubmitButtonSettings(props) {
             {_.get(advancedSetting, data[0]) === '3' && (
               <span className="viewCon mLeft25">
                 <span className="textSecondary TxtMiddle">{_l('视图：')}</span>
-                <Dropdown
-                  menuStyle={{ width: 150 }}
-                  currentItemClass="currentMenu"
-                  data={getShowViews(_.get(props, 'worksheetInfo.views') || []).map(item => {
-                    return { text: item.name, value: item.viewId };
+                <Select
+                  variant="borderless"
+                  options={getShowViews(_.get(props, 'worksheetInfo.views') || []).map(item => {
+                    return { label: item.name, value: item.viewId };
                   })}
                   value={_.get(advancedSetting, data[2])}
                   placeholder={
                     _.get(advancedSetting, data[2]) ? <span className="Red">{_l('视图已删除')}</span> : _l('选择视图')
                   }
-                  className={cx('flex InlineBlock')}
+                  className={cx('flex')}
                   onChange={newValue => {
                     if (newValue === _.get(advancedSetting, data[2])) return;
                     onChangeSetting({ [data[2]]: newValue });
                   }}
+                  styles={{ popup: { root: { minWidth: 160 } } }}
                 />
               </span>
             )}
@@ -131,7 +128,8 @@ export default function SubmitButtonSettings(props) {
             <Switch
               className="Hand switchBtn"
               checked={_.get(advancedSetting, data[3]) !== '0'}
-              onClick={() => {
+              onClick={(checked, event) => {
+                event.stopPropagation();
                 onChangeSetting({
                   [data[3]]: _.get(advancedSetting, data[3]) === '0' ? '1' : '0',
                 });

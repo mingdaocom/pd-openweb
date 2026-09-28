@@ -1,18 +1,20 @@
 import React from 'react';
 import cx from 'classnames';
 import { identity, includes } from 'lodash';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { isLightColor } from 'src/utils/control';
+import { getItemOptionWidth } from 'src/pages/widgetConfig/util/editorSetting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getOptions } from 'src/utils/domain/control/options';
+import { isLightColor } from 'src/utils/domain/control/style';
 import { OptionsWrap, OptionWrap } from '../../styled';
-import { getAdvanceSetting, getItemOptionWidth, getOptions } from '../../util/setting';
 
 function FlatMenu({ data, fromType }) {
   const { direction = '2', width = '200', defsource } = getAdvanceSetting(data);
   const checkedValue = safeParse(defsource || '[]')
     .map(item => item.staticValue)
     .filter(identity);
-  const params = { direction, width };
+  const params = { $direction: direction, $width: width };
 
   return (
     <OptionsWrap
@@ -20,6 +22,7 @@ function FlatMenu({ data, fromType }) {
         horizontal: direction !== '1',
       })}
       {...params}
+      style={{ paddingLeft: '2px' }}
     >
       {getOptions(data).map(item => (
         <div
@@ -35,7 +38,7 @@ function FlatMenu({ data, fromType }) {
                 withoutColor: data.enumDefault2 !== 1,
                 horizontal: direction !== '1',
               })}
-              color={item.color}
+              $color={item.color}
               {...params}
             >
               {item.value}

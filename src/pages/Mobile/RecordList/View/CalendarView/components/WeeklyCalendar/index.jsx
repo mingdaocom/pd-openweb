@@ -12,6 +12,7 @@ import {
   FORMAT,
   formatDateWithWeekday,
   getCurrentWeekDates,
+  getEventsForDate,
   getWeekTitle,
 } from './util';
 import './index.less';
@@ -40,6 +41,7 @@ const WeeklyCalendar = forwardRef((props, ref) => {
     selectedDayIndex: null,
     delayRender: true,
   });
+  const selectedDateEvents = getEventsForDate(calendarFormatData, selectedDate);
 
   const updateSelectDate = dateStr => {
     if (dateStr === selectedDate) return;
@@ -142,9 +144,9 @@ const WeeklyCalendar = forwardRef((props, ref) => {
         ) : (
           <Fragment>
             <div className="selectedDate">{formatDateWithWeekday(selectedDate)}</div>
-            {calendarFormatData.length > 0 ? (
+            {selectedDateEvents.length > 0 ? (
               <div className="weeklyCalendarContentList">
-                {calendarFormatData.map(item => (
+                {selectedDateEvents.map(item => (
                   <RecordCard
                     key={`${item.row.rowid}-${item.mark}`}
                     data={item.row}

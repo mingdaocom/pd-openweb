@@ -6,14 +6,15 @@ import { LoadDiv, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import 'mobile/index.less';
 import { SHARE_STATE, VerificationPass } from 'worksheet/components/ShareState';
-import preall from 'src/common/preall';
+import globalEvents from 'src/common/entries/globalEvents';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import globalEvents from 'src/router/globalEvents';
-import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/services/app';
 import './index.less';
 
 const Header = ({ data, callback, onSubmit }) => {
@@ -296,4 +297,8 @@ class WorksheetRowEdit extends Component {
 }
 
 const root = createRoot(document.getElementById('app'));
-root.render(<WorksheetRowEdit />);
+root.render(
+  <AntdThemeProvider>
+    <WorksheetRowEdit />
+  </AntdThemeProvider>,
+);

@@ -122,6 +122,56 @@ const Plugin = {
     return mdyAPI(controllerName, 'PluginRemove', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 文件校验
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   */
+  check: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + '/Plugin/Check';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'PluginCheck', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 根据来源获取插件
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   */
+  getPluginListBySourece: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + '/Plugin/GetPluginListBySourece';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'PluginGetPluginListBySourece', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 插件导入
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   */
+  import: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + '/Plugin/Import';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'PluginImport', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 插件导出
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   */
+  export: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + '/Plugin/Export';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'PluginExport', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 获取插件导出历史
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   */
+  getExportHistory: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + '/Plugin/GetExportHistory';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'PluginGetExportHistory', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 回滚到某一个版本
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

@@ -1,110 +1,155 @@
 import React from 'react';
-import { Dialog, Icon } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 
-const confirm = Dialog.confirm;
+const stopMenuEvent = event => event?.domEvent?.stopPropagation();
+const getBodyPopupContainer = () => document.body;
 
 export const handleCopyOptionClick = ({ event, setFn, onCopy }) => {
-  event.stopPropagation();
+  event?.stopPropagation();
   setFn({ showMoreOption: false });
   onCopy();
 };
 
-let MoreOption = class MoreOption extends React.Component {
-  constructor(props) {
-    super(props);
+export const handleExtraOptionClick = ({ event, option, setFn }) => {
+  event?.stopPropagation();
+  if (option.disabled) {
+    option.onDisabledClick?.();
+    return;
   }
 
-  deleteFn = () => {
-    const { setFn, deleteFn, delTxt, description } = this.props;
-    setFn({
-      isRename: false,
-      showMoreOption: false,
-    });
-    return confirm({
-      title: <span className="Red">{delTxt || _l('删除模板')}</span>,
-      description: description || _l('删除后将无法恢复'),
-      buttonType: 'danger',
-      onOk: () => {
-        deleteFn();
+  setFn({ showMoreOption: false });
+  option.onClick?.();
+};
+
+export const openDeleteConfirm = ({ setFn, deleteFn, delTxt, description }) => {
+  setFn({
+    isRename: false,
+    showMoreOption: false,
+  });
+
+  return Modal.confirm({
+    title: <span className="Red textError">{delTxt || _l('删除模板')}</span>,
+    content: description || _l('删除后将无法恢复'),
+    okButtonProps: {
+      danger: true,
+    },
+    onOk: deleteFn,
+  }).destroy;
+};
+
+export const getMoreOptionItems = ({
+  setFn,
+  delTxt,
+  description,
+  deleteFn,
+  disabledRename,
+  showDisabledRename,
+  showCopy,
+  onCopy,
+  showEnableSwitch,
+  disabled,
+  onToggleEnable,
+  extraOptions = [],
+}) => {
+  const items = [];
+
+  if (!disabledRename || showDisabledRename) {
+    items.push({
+      key: 'rename',
+      icon: <Icon icon="edit" />,
+      label: _l('重命名'),
+      disabled: disabledRename,
+      onClick: event => {
+        stopMenuEvent(event);
+        setFn({
+          isRename: true,
+          showMoreOption: false,
+        });
       },
     });
-  };
+  }
 
-  render() {
-    const {
-      setFn,
-      delTxt,
-      disabledRename,
-      showDisabledRename,
-      showCopy,
-      onCopy,
-      showEnableSwitch,
-      disabled,
-      onToggleEnable,
-    } = this.props;
-    return (
-      <React.Fragment>
-        <ul className="moreOptionTrigger">
-          {(!disabledRename || showDisabledRename) && (
-            <li
-              className={disabledRename ? 'valignWrapper disabled' : 'valignWrapper'}
-              onClick={e => {
-                e.stopPropagation();
+  if (showCopy) {
+    items.push({
+      key: 'copy',
+      icon: <Icon icon="copy" />,
+      label: _l('复制'),
+      onClick: event => handleCopyOptionClick({ event: event.domEvent, setFn, onCopy }),
+    });
+  }
 
-                if (disabledRename) {
-                  return;
-                }
+  extraOptions.forEach(option => {
+    items.push({
+      key: option.key,
+      icon: <Icon icon={option.icon} />,
+      disabled: option.disabled,
+      label: (
+        <span
+          className="flexRow alignItemsCenter"
+          onClick={event => {
+            if (!option.disabled) return;
+            event.stopPropagation();
+            option.onDisabledClick?.();
+          }}
+        >
+          <span className="flex">{option.label}</span>
+          {option.suffix}
+        </span>
+      ),
+      onClick: event => handleExtraOptionClick({ event: event.domEvent, option, setFn }),
+    });
+  });
 
-                setFn({
-                  isRename: true,
-                  showMoreOption: false,
-                });
-              }}
-            >
-              <Icon icon="edit" className="Font16 textTertiary mRight10" />
-              {_l('重命名')}
-            </li>
-          )}
-          {showCopy && (
-            <li className="valignWrapper" onClick={e => handleCopyOptionClick({ event: e, setFn, onCopy })}>
-              <Icon icon="copy" className="Font16 textTertiary mRight10" />
-              {_l('复制')}
-            </li>
-          )}
-          {showEnableSwitch && (
-            <li
-              className={disabled ? 'valignWrapper' : 'Red valignWrapper'}
-              onClick={e => {
-                e.stopPropagation();
-                setFn({
-                  showMoreOption: false,
-                });
-                onToggleEnable(!disabled);
-              }}
-            >
-              <Icon
-                icon={disabled ? 'arrow-right-tip' : 'rounded_square'}
-                className={disabled ? 'Font16 textTertiary mRight10' : 'Font16 Red mRight10'}
-              />
-              {disabled ? _l('启用') : _l('停用')}
-            </li>
-          )}
-          {showEnableSwitch && <li className="moreOptionDivider" />}
-          <li
-            className="Red valignWrapper"
-            onClick={e => {
-              e.stopPropagation();
-              this.deleteFn();
-            }}
-          >
-            <Icon icon="trash" className="Font16 deleteIcon mRight10" />
-            {delTxt || _l('删除')}
-          </li>
-        </ul>
-      </React.Fragment>
+  if (showEnableSwitch) {
+    items.push(
+      {
+        key: 'toggleEnable',
+        icon: <Icon icon={disabled ? 'arrow-right-tip' : 'rounded_square'} />,
+        label: disabled ? _l('启用') : _l('停用'),
+        danger: !disabled,
+        onClick: event => {
+          stopMenuEvent(event);
+          setFn({ showMoreOption: false });
+          onToggleEnable(!disabled);
+        },
+      },
+      { type: 'divider' },
     );
   }
+
+  items.push({
+    key: 'delete',
+    icon: <Icon icon="trash" />,
+    label: delTxt || _l('删除'),
+    danger: true,
+    onClick: event => {
+      stopMenuEvent(event);
+      openDeleteConfirm({ setFn, deleteFn, delTxt, description });
+    },
+  });
+
+  return items;
 };
-MoreOption = ClickAway.wrap(MoreOption);
-export default MoreOption;
+
+export default function MoreOption({
+  open,
+  onOpenChange,
+  placement = 'bottomRight',
+  getPopupContainer = getBodyPopupContainer,
+  children,
+  ...menuProps
+}) {
+  return (
+    <Dropdown
+      open={open}
+      trigger={['click']}
+      placement={placement}
+      getPopupContainer={getPopupContainer}
+      onOpenChange={onOpenChange}
+      menu={{ items: getMoreOptionItems(menuProps) }}
+    >
+      {children}
+    </Dropdown>
+  );
+}

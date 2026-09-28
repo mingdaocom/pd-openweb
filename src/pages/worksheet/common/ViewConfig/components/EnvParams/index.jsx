@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { TagTextarea } from 'ming-ui';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
   .viewCodeTagTextarea {
@@ -13,31 +13,6 @@ const Wrap = styled.div`
       min-height: 300px;
       max-width: 500px;
     }
-  }
-  .saveBtn,
-  .cancelBtn {
-    line-height: 32px;
-    min-height: 32px;
-    padding: 0 16px;
-    border-radius: 3px;
-    min-width: 0;
-  }
-  .cancelBtn {
-    font-size: 14px;
-    background: var(--color-background-secondary);
-    &:hover {
-      background: var(--color-border-secondary);
-    }
-    font-weight: bold;
-    display: inline-block;
-    box-sizing: border-box;
-    text-shadow: none;
-    border: none;
-    outline: none;
-    vertical-align: middle;
-    cursor: pointer;
-    user-select: none;
-    font-weight: bold;
   }
 `;
 
@@ -121,16 +96,15 @@ export default function (props) {
 
             saveConfig();
           }}
-          className="saveBtn"
-          disabled={
-            props.saveViewSetLoading ||
-            _.isEqual(environmentparams, _.get(props.view, 'advancedSetting.environmentparams'))
-          }
+          loading={props.saveViewSetLoading}
+          disabled={_.isEqual(environmentparams, _.get(props.view, 'advancedSetting.environmentparams'))}
         >
           {_l('更新配置')}
         </Button>
-        <div
-          className="cancelBtn Hand textSecondary mLeft16"
+        <Button
+          color="default"
+          variant="filled"
+          className="mLeft16"
           onClick={() => {
             setState({
               environmentparams: _.get(view, 'advancedSetting.environmentparams') || '',
@@ -139,7 +113,7 @@ export default function (props) {
           }}
         >
           {_l('恢复默认')}
-        </div>
+        </Button>
       </div>
     </Wrap>
   );

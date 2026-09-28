@@ -2,9 +2,9 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import GunterView from 'worksheet/views/GunterView/mobile';
+import preall from 'src/common/entries/preall';
 import 'src/common/mdcss/basic.css';
 import 'src/common/mdcss/iconfont/mdfont.css';
-import preall from 'src/common/preall';
 import store from 'src/redux/configureStore';
 
 class MobileGunter extends React.Component {

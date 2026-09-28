@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Button, Popup } from 'antd-mobile';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { FunctionWrap, Input } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import paymentAjax from 'src/api/payment';
 
 const Wrap = styled(Popup)`
@@ -11,20 +11,6 @@ const Wrap = styled(Popup)`
     padding: 24px 20px 8px;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
-  }
-`;
-
-const InputWrap = styled.div`
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 3px;
-  &.focusWrap {
-    border: 1px solid var(--color-primary);
-  }
-  .ming.Input {
-    border: none;
-    &::placeholder {
-      color: var(--color-text-disabled);
-    }
   }
 `;
 
@@ -57,7 +43,9 @@ function AgreeOrRefuseRefund(props) {
   );
 }
 
-export const agreeOrRefuseRefundConfirm = props => FunctionWrap(AgreeOrRefuseRefund, props);
+export function useAgreeOrRefuseRefundConfirm() {
+  return useFunctionWrapComponent(AgreeOrRefuseRefund);
+}
 
 function RefundConfirm(props) {
   const {
@@ -148,20 +136,20 @@ function RefundConfirm(props) {
     <Wrap bodyClassName="popupContent" visible={visible} onClose={onClose}>
       <div className="Font17 bold mBottom16 Red">{_l('您是否确定退款?')}</div>
       <div className="bold mBottom10">{_l('退款金额')}</div>
-      <InputWrap className={cx('flexRow alignItemsCenter pRight16 mBottom24', { focusWrap: isFocus })}>
-        <Input
-          ref={inputRef}
-          className="flex"
-          value={!isFocus && (amount || amount === 0) ? _l('%0元', amount) : amount}
-          placeholder={isFocus ? undefined : _l('最多可退款%0元', max)}
-          onChange={onChange}
-          onBlur={onBlur}
-          onFocus={() => setIsFocus(true)}
-        />
-        <div className="Hand colorPrimary Hover_51 Font14" onClick={() => setAmount(max > 0 ? max : 0)}>
-          {_l('全部退款')}
-        </div>
-      </InputWrap>
+      <Input
+        ref={inputRef}
+        className="w100 mBottom24"
+        value={!isFocus && (amount || amount === 0) ? _l('%0元', amount) : amount}
+        placeholder={isFocus ? undefined : _l('最多可退款%0元', max)}
+        suffix={
+          <div className="Hand colorPrimary Hover_51 Font14" onClick={() => setAmount(max > 0 ? max : 0)}>
+            {_l('全部退款')}
+          </div>
+        }
+        onChange={e => onChange(e.target.value)}
+        onBlur={onBlur}
+        onFocus={() => setIsFocus(true)}
+      />
       <div className="flexRow">
         <Button className="flex mRight5 Font14 bold textSecondary" onClick={onClose}>
           <span>{_l('取消')}</span>
@@ -174,4 +162,6 @@ function RefundConfirm(props) {
   );
 }
 
-export const refundConfirmFunc = props => FunctionWrap(RefundConfirm, props);
+export function useRefundConfirm() {
+  return useFunctionWrapComponent(RefundConfirm);
+}

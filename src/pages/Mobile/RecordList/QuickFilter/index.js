@@ -4,19 +4,21 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WIDGETS_TO_API_TYPE_ENUM, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
 import * as sheetActions from 'src/pages/worksheet/redux/actions';
-import { compatibleMDJS } from 'src/utils/project';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { formatQuickFilterValueToControlValue, validate } from 'src/utils/domain/worksheet/filterQuick';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { formatFilterValuesToServer } from 'src/utils/services/worksheet/quickFilter';
 import FilterInput, { NumberTypes, TextTypes } from './Inputs';
-import { conditionAdapter, turnControl, validate } from './utils';
+import { conditionAdapter, turnControl } from './utils';
 
 const Con = styled.div`
   padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
@@ -50,20 +52,42 @@ const Con = styled.div`
     z-index: 0;
     .flex {
       padding: 10px;
+      border: 0;
+      border-radius: 0;
+      font-family: inherit;
+      line-height: inherit;
     }
     .reset {
+      color: var(--color-text-primary);
       background-color: var(--color-background-card);
     }
     .query {
       color: var(--color-white);
       background-color: var(--color-primary);
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     }
+  }
+`;
+
+const EmptyFilter = styled.div`
+  padding: 24px 0;
+  line-height: 22px;
+  .emptyFilterIcon {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 32px;
+    border-radius: 50%;
+    background-color: var(--color-background-secondary);
+    font-size: 40px;
   }
 `;
 
 const Item = styled.div`
   .controlName {
-    color: ${({ requiredError }) => (requiredError ? 'red' : 'var(--color-text-title)')};
+    color: ${({ $requiredError }) => ($requiredError ? 'red' : 'var(--color-text-title)')};
   }
 `;
 const SpaceLine = styled.div`
@@ -158,6 +182,8 @@ export function QuickFilter(props) {
       .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)));
   }, [JSON.stringify(filters)]);
   const [prevItems, setPrevItems] = useState(items);
+  const hasSavedFilters = showSavedFilter && _.some(savedFilters, filter => filter.type === 1 || filter.type === 2);
+  const isEmptyFilter = !window.isMingDaoApp && !items.length && !hasSavedFilters;
 
   if (items !== prevItems) {
     setPrevItems(items);
@@ -165,6 +191,7 @@ export function QuickFilter(props) {
   }
 
   const update = newValues => {
+    if (isEmptyFilter) return;
     const valuesToUpdate = newValues || values;
     const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1';
     const itemsWithValues = items.map((filter, i) => ({
@@ -224,15 +251,16 @@ export function QuickFilter(props) {
   };
 
   const handleReset = () => {
+    debounceUpdateQuickFilter.current.cancel();
     updateQuickFilterWithDefault(
       items.map(item => ({ ...item, values: [] })),
       view,
     );
     setValues({});
     updateActiveSavedFilter({}, view);
-    updateQuickFilter([], view);
     setFilterControls([]);
     updateFilterControls([]);
+    updateQuickFilter([], view);
     if (_.includes([21], view.viewType)) {
       pcUpdateFilters({ filterControls: [] }, view);
     }
@@ -325,10 +353,19 @@ export function QuickFilter(props) {
   return (
     <Con className="flexColumn h100 overflowHidden" style={{ width }}>
       {/* <div className="header flexRow valignWrapper">
-        <Icon className="textTertiary close" icon="close" onClick={onHideSidebar} />
-      </div> */}
-      <div className="flex body">
-        {showSavedFilter && !_.isEmpty(savedFilters) && (
+         <Icon className="textTertiary close" icon="close" onClick={onHideSidebar} />
+        </div> */}
+      <div className={cx('flex body', { 'flexColumn justifyContentCenter': isEmptyFilter })}>
+        {isEmptyFilter && (
+          <EmptyFilter className="flexColumn alignItemsCenter centerAlign textDisabled Font14">
+            <div className="emptyFilterIcon flexRow alignItemsCenter justifyContentCenter">
+              <Icon icon="filter" />
+            </div>
+            <div className="bold textTertiary">{_l('添加快速筛选或保存自定义筛选后，')}</div>
+            <div className="bold textTertiary">{_l('可在移动端快速缩小数据范围')}</div>
+          </EmptyFilter>
+        )}
+        {hasSavedFilters && (
           <Fragment>
             <div className="Font14 textPrimary bold pTop16 pBottom16">{_l('常用筛选')}</div>
             {[
@@ -372,13 +409,13 @@ export function QuickFilter(props) {
           </Fragment>
         )}
 
-        {showSavedFilter && !_.isEmpty(savedFilters) && items.length ? <SpaceLine></SpaceLine> : ''}
+        {hasSavedFilters && items.length ? <SpaceLine></SpaceLine> : ''}
 
-        <div className="pTop16">
+        <div className={cx({ pTop16: items.length > 0 })}>
           {items.map((item, i) => (
             <Item
               key={item.controlId}
-              requiredError={
+              $requiredError={
                 requiredErrorVisible &&
                 item.isRequired &&
                 !validate({
@@ -419,12 +456,21 @@ export function QuickFilter(props) {
         </div>
       </div>
       <div className="footer flexRow valignWrapper">
-        <div className="flex Font16 centerAlign reset" onClick={handleReset}>
-          {_l('重置')}
-        </div>
-        <div className="flex Font16 centerAlign query" onClick={() => update()}>
+        <button
+          type="button"
+          className="flex Font16 centerAlign reset"
+          onClick={isEmptyFilter ? onHideSidebar : handleReset}
+        >
+          {isEmptyFilter ? _l('关闭') : _l('重置')}
+        </button>
+        <button
+          type="button"
+          className="flex Font16 centerAlign query"
+          disabled={isEmptyFilter}
+          onClick={() => update()}
+        >
           {_l('查询')}
-        </div>
+        </button>
       </div>
     </Con>
   );

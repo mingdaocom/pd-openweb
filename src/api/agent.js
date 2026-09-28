@@ -78,6 +78,7 @@ export default {
    * @param {string} args.sessionId 当前请求所属的会话标识。
    * @param {string} args.language V5.12.4：客户端 UI 选定的界面语言（BCP-47 标签，如 `en` / `zh-CN` / `zh-TW` / `ja` / `th` / `ms`）。 作为会话语言的**权威源**（优先级高于启发式检测）：写了即按它注入 `{{session.language}}` 并冻结，天然覆盖启发式分不开的简繁 / 马来语等。 安全：该值会进 system prompt，MD.AgentService.Core.Agenting.Services.SessionMemory.SessionLanguageResolver 仅放行 BCP-47 形态（字母 + 可选 -子标签），不合法一律忽略、回落检测，杜绝经此字段注入任意文本。 空 / 不合法时回落 ② 会话粘性检测值 → ③ 启发式检测当前消息。
    * @param {string} args.projectId V3.4.5：当前请求关联的明道网络/组织 ID（顶层显式传参）。 与 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.Context["projectId"] 等价，但更显眼且类型固定为 string。 优先级（在 ICurrentUserContext.InitializeProjectId 实现里生效）： HTTP query `?projectId=` → 本字段 → `Context["projectId"]` → null。 服务端在 AgentApplicationService 入口完成装配，下游统一通过 ICurrentUserContext.ProjectId 取。
+   * @param {string} args.appId V6.7：当前请求归属的应用 ID（顶层显式传参）。仅作**业务归属标识**——不参与路由、不进 prompt、不影响产出， 唯一用途是扣费时透传 MDAPI 账务流水的 `app_id`，使账单可按应用维度统计。 优先级（在 MD.AgentService.Core.Agenting.Services.RequestAppIdResolver 里生效）：本字段 → `Context["appId"]` → `Context["defaultAppId"]` → `Context["currentApp"].appId` → null。服务端在入口一次性固化， 下游（含后台 async-agent 结算）统一读本字段——同 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.ProjectId 的固化理由：请求结束后 `ICurrentUserContext` / `HttpContext` 已失效。 ⚠️ app-build **首建**轮请求时应用尚未创建，本字段必然为空，由执行期回填通道补 （`WorkflowAppIdRegistry`）；**续建**轮前端会回填 `defaultAppId`，此处即可解析到。 ⚠️ 本字段**不参与 plan 指纹**（`PlanHashCalculator` 只哈希 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.Context），故新增它不会让 首建 / 续建算出不同 hash；同理**禁止**把解析结果写回 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.Context。
    * @param {string} args.captchaTicket V5.6：腾讯云图形验证码票据（前端验证码组件回吐的 ticket）。仅匿名访问 allowAnonymous agent 且触发验证码阈值时需要； 登录用户无需携带。与 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.CaptchaRandstr 成对，由匿名访问闸调腾讯云校验。
    * @param {string} args.captchaRandstr V5.6：腾讯云图形验证码随机串（randstr），与 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.CaptchaTicket 成对提交。
    * @param {string} args.regenerateFromMessageId V6.3 重新生成：要重跑的那条 <b>assistant</b> 消息 ID。传了它即进入「重新生成」语义—— 服务端取该条同轮的 user 提问原文重跑（重走路由），成功后删除「该条及其之后」的全部消息。
@@ -110,6 +111,7 @@ export default {
    * @param {string} args.sessionId 当前请求所属的会话标识。
    * @param {string} args.language V5.12.4：客户端 UI 选定的界面语言（BCP-47 标签，如 `en` / `zh-CN` / `zh-TW` / `ja` / `th` / `ms`）。 作为会话语言的**权威源**（优先级高于启发式检测）：写了即按它注入 `{{session.language}}` 并冻结，天然覆盖启发式分不开的简繁 / 马来语等。 安全：该值会进 system prompt，MD.AgentService.Core.Agenting.Services.SessionMemory.SessionLanguageResolver 仅放行 BCP-47 形态（字母 + 可选 -子标签），不合法一律忽略、回落检测，杜绝经此字段注入任意文本。 空 / 不合法时回落 ② 会话粘性检测值 → ③ 启发式检测当前消息。
    * @param {string} args.projectId V3.4.5：当前请求关联的明道网络/组织 ID（顶层显式传参）。 与 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.Context["projectId"] 等价，但更显眼且类型固定为 string。 优先级（在 ICurrentUserContext.InitializeProjectId 实现里生效）： HTTP query `?projectId=` → 本字段 → `Context["projectId"]` → null。 服务端在 AgentApplicationService 入口完成装配，下游统一通过 ICurrentUserContext.ProjectId 取。
+   * @param {string} args.appId V6.7：当前请求归属的应用 ID（顶层显式传参）。仅作**业务归属标识**——不参与路由、不进 prompt、不影响产出， 唯一用途是扣费时透传 MDAPI 账务流水的 `app_id`，使账单可按应用维度统计。 优先级（在 MD.AgentService.Core.Agenting.Services.RequestAppIdResolver 里生效）：本字段 → `Context["appId"]` → `Context["defaultAppId"]` → `Context["currentApp"].appId` → null。服务端在入口一次性固化， 下游（含后台 async-agent 结算）统一读本字段——同 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.ProjectId 的固化理由：请求结束后 `ICurrentUserContext` / `HttpContext` 已失效。 ⚠️ app-build **首建**轮请求时应用尚未创建，本字段必然为空，由执行期回填通道补 （`WorkflowAppIdRegistry`）；**续建**轮前端会回填 `defaultAppId`，此处即可解析到。 ⚠️ 本字段**不参与 plan 指纹**（`PlanHashCalculator` 只哈希 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.Context），故新增它不会让 首建 / 续建算出不同 hash；同理**禁止**把解析结果写回 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.Context。
    * @param {string} args.captchaTicket V5.6：腾讯云图形验证码票据（前端验证码组件回吐的 ticket）。仅匿名访问 allowAnonymous agent 且触发验证码阈值时需要； 登录用户无需携带。与 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.CaptchaRandstr 成对，由匿名访问闸调腾讯云校验。
    * @param {string} args.captchaRandstr V5.6：腾讯云图形验证码随机串（randstr），与 MD.AgentService.Core.Agenting.Contracts.ExecuteAgentRequest.CaptchaTicket 成对提交。
    * @param {string} args.regenerateFromMessageId V6.3 重新生成：要重跑的那条 <b>assistant</b> 消息 ID。传了它即进入「重新生成」语义—— 服务端取该条同轮的 user 提问原文重跑（重走路由），成功后删除「该条及其之后」的全部消息。
@@ -533,6 +535,22 @@ export default {
     return agentAPI(args, {
       ...options,
       url: '/api/agent/config/agents',
+      method: 'GET',
+    });
+  },
+
+  /**
+   * 返回携带 traceId / projectId 上下文的问题反馈表单地址。
+   * @param {Object} args 请求参数
+   * @param {string} args.traceId Agent 单次请求追踪 ID，必须属于当前登录账号。
+   * @param {string} args.projectId 组织/网络 ID，仅透传给反馈表单作为上下文。
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getAgentFeedbackFormUrl: function (args = {}, options = {}) {
+    return agentAPI(args, {
+      ...options,
+      url: '/api/agent/feedback/form-url',
       method: 'GET',
     });
   },

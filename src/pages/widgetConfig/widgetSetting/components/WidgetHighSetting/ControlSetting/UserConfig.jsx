@@ -1,28 +1,26 @@
 import React, { Fragment, useState } from 'react';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import { Dropdown as MingDropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Select, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
-import { DropdownContent, SettingItem } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { SettingItem } from '../../../../styled';
 import { OtherField, SelectOtherField } from '../../DynamicDefaultValue/components';
-import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
 
 const USER_RANGE_CONFIG = [
-  { text: _l('用户通讯录'), value: 0 },
-  { text: _l('组织通讯录'), value: 2 },
-  { text: _l('指定人员范围'), value: 1 },
+  { label: _l('用户通讯录'), value: 0 },
+  { label: _l('组织通讯录'), value: 2 },
+  { label: _l('指定人员范围'), value: 1 },
 ];
 
 const USER_RANGE = [
-  { id: 'assignUser', type: 1, value: '', text: _l('指定人员') },
-  { id: 'assignGroup', type: 2, value: '', text: _l('指定部门') },
-  { id: 'assignOrg', type: 3, value: '', text: _l('指定组织角色') },
+  { id: 'assignUser', type: 1, text: _l('指定人员') },
+  { id: 'assignGroup', type: 2, text: _l('指定部门') },
+  { id: 'assignOrg', type: 3, text: _l('指定组织角色') },
 ];
 
 const getId = item => {
@@ -156,7 +154,7 @@ export default function UserConfig(props) {
     const userInfo = safeParse(item.staticValue || '{}');
 
     return (
-      <FieldInfo hideIcon={true}>
+      <FieldInfo $hideIcon={true}>
         <div className="name">
           {userInfo.departmentName || userInfo.organizeName || userInfo.fullname || userInfo.name || _l('已删除')}
         </div>
@@ -189,10 +187,9 @@ export default function UserConfig(props) {
             </Tooltip>
           </div>
 
-          <MingDropdown
-            border
+          <Select
             className="w100"
-            data={USER_RANGE_CONFIG}
+            options={USER_RANGE_CONFIG}
             value={enumDefault2}
             onChange={value => {
               const nextData =
@@ -209,17 +206,15 @@ export default function UserConfig(props) {
             <div className="content">
               <Dropdown
                 trigger={['click']}
-                visible={overlayVisible}
-                onVisibleChange={setVisible}
-                overlay={
-                  <DropdownContent>
-                    {USER_RANGE.map(item => (
-                      <div className="item" onClick={() => handleClick(item)}>
-                        {item.text}
-                      </div>
-                    ))}
-                  </DropdownContent>
-                }
+                open={overlayVisible}
+                onOpenChange={setVisible}
+                menu={{
+                  items: USER_RANGE.map(item => ({
+                    key: item.id,
+                    label: item.text,
+                    onClick: () => handleClick(item),
+                  })),
+                }}
               >
                 <div className="defaultOptionsWrap">
                   {chooseRange.length > 0 ? (

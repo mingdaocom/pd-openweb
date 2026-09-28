@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import RecordCardIO from 'mobile/RecordList/RecordCard/RecordCardIO';
-import { isShowAddRecord } from 'worksheet/views/BoardView/util';
+import { isShowAddRecord } from 'src/utils/services/worksheet/board';
 import AddRecordBtn from '../components/AddRecordBtn';
 import './index.less';
 

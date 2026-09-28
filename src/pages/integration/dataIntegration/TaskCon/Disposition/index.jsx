@@ -1,16 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import Account from 'src/pages/integration/api/account';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
 import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+
+const FLOW_CHECKBOX_STYLES = { label: { paddingInlineEnd: 0 } };
 
 const Wrap = styled.div`
   flex: 1;
@@ -34,12 +36,6 @@ const Con = styled.div`
   }
 `;
 const WrapCon = styled.div`
-  .conCheckbox {
-    .ming.Checkbox {
-      display: inline-block;
-      margin-right: 32px;
-    }
-  }
   .owerItem {
     border-radius: 26px;
     background: var(--color-background-secondary);
@@ -79,7 +75,7 @@ const WrapCon = styled.div`
       color: var(--color-link-hover);
     }
   }
-  .ant-table-thead > tr > th {
+  .hap-table-thead > tr > th {
     color: var(--color-text-secondary) !important;
   }
   .iconWrap {
@@ -87,12 +83,12 @@ const WrapCon = styled.div`
     width: 36px;
     height: 36px;
   }
-  .ant-table.ant-table-small .ant-table-title,
-  .ant-table.ant-table-small .ant-table-footer,
-  .ant-table.ant-table-small .ant-table-thead > tr > th,
-  .ant-table.ant-table-small .ant-table-tbody > tr > td,
-  .ant-table.ant-table-small tfoot > tr > th,
-  .ant-table.ant-table-small tfoot > tr > td {
+  .hap-table.hap-table-small .hap-table-title,
+  .hap-table.hap-table-small .hap-table-footer,
+  .hap-table.hap-table-small .hap-table-thead > tr > th,
+  .hap-table.hap-table-small .hap-table-tbody > tr > td,
+  .hap-table.hap-table-small tfoot > tr > th,
+  .hap-table.hap-table-small tfoot > tr > td {
     padding: 15px 8px;
     align-items: center;
     display: flex;
@@ -143,6 +139,14 @@ const WrapCon = styled.div`
   .timeDrop {
     width: 85px;
   }
+  .conCheckbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    .hap-checkbox-wrapper {
+      margin-inline-start: 0;
+    }
+  }
   .logo {
     border-radius: 7px;
     & > div {
@@ -161,6 +165,7 @@ const WrapCon = styled.div`
 
 //配置
 function Disposition(props) {
+  const requestPending = useRef(false);
   const [{ loading, flowId, flowData, ownerInfoList, flowConfigClone, cloneFlowData, flowNodes }, setState] =
     useSetState({
       loading: false,
@@ -185,32 +190,39 @@ function Disposition(props) {
   const showFlowSet = _.get(destData, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET;
 
   const saveProcessConfigInfo = () => {
+    if (requestPending.current) return;
+
     const { currentProjectId: projectId } = props;
     const data = {
       insertTrigger: !!_.get(flowData, 'workflowConfig.insertTrigger'),
       updateTrigger: !!_.get(flowData, 'workflowConfig.updateTrigger'),
       deleteTrigger: !!_.get(flowData, 'workflowConfig.deleteTrigger'),
     };
-    TaskFlow.saveConfig({
+    requestPending.current = true;
+    return TaskFlow.saveConfig({
       flowId,
       projectId,
       accountIds: !_.get(flowData, 'ownerList') ? [] : _.get(flowData, 'ownerList'),
       ...data,
-    }).then(res => {
-      if (res) {
-        props.onUpdate(flowData, !_.isEqual(flowConfigClone, data));
-        setState({
-          flowConfigClone: data,
-          cloneFlowData: {
-            workflowConfig: data,
-            ownerList: !_.get(flowData, 'ownerList') ? [] : _.get(flowData, 'ownerList'),
-          },
-        });
-        alert(_l('保存成功！'));
-      } else {
-        alert(_l('保存失败，请稍后再试'), 2);
-      }
-    });
+    })
+      .then(res => {
+        if (res) {
+          props.onUpdate(flowData, !_.isEqual(flowConfigClone, data));
+          setState({
+            flowConfigClone: data,
+            cloneFlowData: {
+              workflowConfig: data,
+              ownerList: !_.get(flowData, 'ownerList') ? [] : _.get(flowData, 'ownerList'),
+            },
+          });
+          alert(_l('保存成功！'));
+        } else {
+          alert(_l('保存失败，请稍后再试'), 2);
+        }
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   useEffect(() => {
@@ -346,11 +358,8 @@ function Disposition(props) {
               <div className="des textTertiary mTop10">{_l('同步数据时，是否触发工作表绑定的自动化工作流')}</div>
               <div className="mTop16 conCheckbox">
                 <Checkbox
-                  size="small"
-                  text={_l('新增记录时触发')}
-                  className={'flex'}
                   checked={_.get(flowData, 'workflowConfig.insertTrigger')}
-                  onClick={() => {
+                  onChange={() => {
                     updateSource({
                       workflowConfig: {
                         ..._.get(flowData, 'workflowConfig'),
@@ -358,13 +367,14 @@ function Disposition(props) {
                       },
                     });
                   }}
-                />
-                <Checkbox
-                  className={'flex'}
                   size="small"
-                  text={_l('更新记录时触发')}
+                  styles={FLOW_CHECKBOX_STYLES}
+                >
+                  {_l('新增记录时触发')}
+                </Checkbox>
+                <Checkbox
                   checked={_.get(flowData, 'workflowConfig.updateTrigger')}
-                  onClick={() => {
+                  onChange={() => {
                     updateSource({
                       workflowConfig: {
                         ..._.get(flowData, 'workflowConfig'),
@@ -372,13 +382,14 @@ function Disposition(props) {
                       },
                     });
                   }}
-                />
-                <Checkbox
-                  className={'flex flexRow alignItemsCenter'}
                   size="small"
-                  text={_l('删除记录时触发')}
+                  styles={FLOW_CHECKBOX_STYLES}
+                >
+                  {_l('更新记录时触发')}
+                </Checkbox>
+                <Checkbox
                   checked={_.get(flowData, 'workflowConfig.deleteTrigger')}
-                  onClick={() => {
+                  onChange={() => {
                     updateSource({
                       workflowConfig: {
                         ..._.get(flowData, 'workflowConfig'),
@@ -386,7 +397,10 @@ function Disposition(props) {
                       },
                     });
                   }}
+                  size="small"
+                  styles={FLOW_CHECKBOX_STYLES}
                 >
+                  {_l('删除记录时触发')}
                   <Tooltip
                     title={
                       <span>

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Modal } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import { DATABASE_TYPE, isValidName } from '../../../../constant';
 import SelectDataObjForm from '../../SelectDataObjForm';
@@ -94,19 +93,9 @@ const Wrapper = styled.div`
   .selectItem {
     width: 100% !important;
     font-size: 13px;
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border-radius: 3px !important;
-    }
-    .ant-select-selection-search {
+    .hap-select-selection-search {
       margin-inline-start: 0px !important;
       -webkit-margin-start: 0px !important;
-    }
-    &.disabled {
-      .ant-select-selector {
-        border: 0;
-      }
     }
   }
 `;
@@ -334,7 +323,7 @@ export default function LeftTableList(props) {
 
       {visible && (
         <Modal
-          visible
+          open
           width={640}
           onOk={onAdd}
           okDisabled={!_.get(dataObj, ['tables', 'length'])}

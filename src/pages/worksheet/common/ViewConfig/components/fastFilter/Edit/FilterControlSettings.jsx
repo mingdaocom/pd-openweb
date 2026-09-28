@@ -1,8 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { Checkbox, Input } from 'ming-ui';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import DateTimeDataRange from '../DateTimeDataRange';
+import { Checkbox, Input } from 'ming-ui/antd-components';
 import {
   APP_ALLOWSCAN,
   DATE_FILTER_TYPE,
@@ -17,7 +15,9 @@ import {
   RELA_FILTER_TYPE,
   SHOW_RELATE_TYPE,
   TEXT_FILTER_TYPE,
-} from '../util';
+} from 'src/utils/domain/worksheet/fastFilter';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import DateTimeDataRange from '../DateTimeDataRange';
 import DropCom from './DropCom';
 import ShowTypeCom from './ShowTypeCom';
 
@@ -159,11 +159,11 @@ export default function FilterControlSettings(props) {
             <Input
               type="number"
               min={0}
-              className="w100 mTop8 placeholderColor"
+              className="w100 mTop8"
               value={_.get(advancedSetting, 'limit')}
               placeholder={_l('请输入数值')}
-              onChange={limit => {
-                setAdvancedSetting({ ...advancedSetting, limit });
+              onChange={e => {
+                setAdvancedSetting({ ...advancedSetting, limit: e.target.value });
               }}
               onBlur={e => {
                 updateViewSet({
@@ -175,15 +175,16 @@ export default function FilterControlSettings(props) {
         )}
       {APP_ALLOWSCAN.keys.includes(dataType) && (
         <Checkbox
-          className="checkBox InlineBlock mTop18"
-          text={_l('移动端支持扫码查询')}
+          className="checkBox mTop18"
           checked={advancedSetting.allowscan === '1'}
-          onClick={() => {
+          onChange={() => {
             updateViewSet({
               allowscan: advancedSetting.allowscan === '1' ? '' : '1',
             });
           }}
-        />
+        >
+          {_l('移动端支持扫码查询')}
+        </Checkbox>
       )}
     </React.Fragment>
   );

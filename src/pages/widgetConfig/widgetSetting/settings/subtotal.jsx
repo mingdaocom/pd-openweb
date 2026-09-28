@@ -1,29 +1,23 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import cx from 'classnames';
 import _, { get, includes, isEmpty } from 'lodash';
-import styled from 'styled-components';
-import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { Checkbox, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import WidgetDropdown from '../../components/Dropdown';
-import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../config/widget';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { resortControlByColRow } from 'src/utils/domain/control/editorLayout';
+import { filterByTypeAndSheetFieldType } from 'src/utils/domain/control/editorSetting';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { filterControlsFromAll, getControlByControlId } from 'src/utils/domain/control/filters';
+import { getIconByType, isShowUnitConfig, parseDataSource } from 'src/utils/domain/control/metadata';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import { useSheetInfo } from '../../hooks';
 import { SettingItem } from '../../styled';
-import {
-  filterControlsFromAll,
-  getControlByControlId,
-  getIconByType,
-  isShowUnitConfig,
-  parseDataSource,
-  resortControlByColRow,
-} from '../../util';
-import { filterByTypeAndSheetFieldType, getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import PointerConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
 
 const DATE_FORMULA_UNIT = [_l('分钟'), _l('小时'), _l('天'), _l('月'), _l('年')];
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const COMMON_TYPE = [
   { text: _l('已填计数'), value: 13 },
@@ -64,20 +58,20 @@ const DATE_TYPE = [...COMMON_TYPE, ...UNIQUE_TYPE, { text: _l('最晚'), value: 
 const getOutputType = enumDefault2 => {
   if (enumDefault2 === 15) {
     return [
-      { text: _l('年'), value: '5' },
-      { text: _l('年-月'), value: '4' },
-      { text: _l('年-月-日'), value: '3' },
+      { label: _l('年'), value: '5' },
+      { label: _l('年-月'), value: '4' },
+      { label: _l('年-月-日'), value: '3' },
     ];
   } else if (enumDefault2 === 16) {
     return [
-      { text: _l('年-月-日 时'), value: '2' },
-      { text: _l('年-月-日 时:分'), value: '1' },
-      { text: _l('年-月-日 时:分:秒'), value: '6' },
+      { label: _l('年-月-日 时'), value: '2' },
+      { label: _l('年-月-日 时:分'), value: '1' },
+      { label: _l('年-月-日 时:分:秒'), value: '6' },
     ];
   } else {
     return [
-      { text: _l('时:分'), value: '8' },
-      { text: _l('时:分:秒'), value: '9' },
+      { label: _l('时:分'), value: '8' },
+      { label: _l('时:分:秒'), value: '9' },
     ];
   }
 };
@@ -113,11 +107,16 @@ const getTotalType = control => {
   return includes([14, 34, 42], type) ? COMMON_TYPE : [...COMMON_TYPE, ...UNIQUE_TYPE];
 };
 
-const RecordCount = styled.div`
-  padding-bottom: 6px;
-  border-bottom: 1px solid --color-background-disabled;
-  margin-bottom: 6px;
-`;
+const renderTotalTypeOption = ({ data: item }) => (
+  <span>
+    {item.label}
+    {item.tips && (
+      <Tooltip title={item.tips} placement="bottom">
+        <span className="icon-help Font14 textTertiary mLeft4" />
+      </Tooltip>
+    )}
+  </span>
+);
 
 export default function Subtotal(props) {
   const { data, onChange, allControls, globalSheetInfo = {} } = props;
@@ -139,7 +138,9 @@ export default function Subtotal(props) {
   }, [data.controlId]);
 
   // 获取汇总关联表控件的表id
-  const { dataSource: worksheetId, relationControls } = getControlByControlId(allControls, parsedDataSource);
+  const relateControl = getControlByControlId(allControls, parsedDataSource);
+  const { dataSource: worksheetId, relationControls } = relateControl;
+  const isLightweightRelate = _.get(relateControl, 'advancedSetting.notautopassive') === '1';
   const { loading, data: sheetData } = useSheetInfo({ worksheetId, relationWorksheetId: globalSheetInfo.worksheetId });
   // 空白子表手动取值
   const availableControls = (
@@ -166,7 +167,15 @@ export default function Subtotal(props) {
   const filterControls = filterByTypeAndSheetFieldType(
     resortControlByColRow(filterOnlyShowField(availableControls) || []),
     type => !includes([22, 25, 30, 43, 45, 47, 49, 50, 51, 52, 10010], type),
-  ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
+  ).map(item => ({ value: item.controlId, label: item.controlName, icon: getIconByType(item.type) }));
+  const summaryOptions = [{ value: 'count', label: _l('记录数量'), icon: 'calculate' }, ...filterControls];
+  const summaryValue = sourceControlId || 'count';
+  const summaryControl = availableControls.find(item => item.controlId === summaryValue);
+  const summaryControlName = summaryValue === 'count' ? _l('记录数量') : get(summaryControl, 'controlName');
+  const summaryControlInvalid =
+    summaryControl && summaryControl.type === 30 && (summaryControl.strDefault || '')[0] === '1';
+  const summaryLoading =
+    loading || ((sheetData.info || {}).worksheetId && (sheetData.info || {}).worksheetId !== worksheetId);
 
   const handleChange = value => {
     let nextData = {
@@ -221,12 +230,13 @@ export default function Subtotal(props) {
   return (
     <Fragment>
       <SettingItem>
-        <div className="settingItemTitle">{_l('关联表')}</div>
-        <Dropdown
+        <div className="settingItemTitle">{_l('关联记录')}</div>
+        <Select
+          className="w100"
           placeholder={_l('请选择已添加的关联记录字段')}
-          border
           value={parsedDataSource || undefined}
-          data={controls}
+          options={controls}
+          fieldNames={SELECT_FIELD_NAMES}
           onChange={value => onChange({ dataSource: `$${value}$`, dot: 0 })}
         />
       </SettingItem>
@@ -234,77 +244,48 @@ export default function Subtotal(props) {
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('汇总')}</div>
-            <WidgetDropdown
-              searchable
-              value={sourceControlId || 'count'}
-              data={[
-                {
-                  value: 'count',
-                  text: _l('记录数量'),
-                  icon: 'calculate',
-                  className: 'recordCount',
-                  children: (
-                    <RecordCount>
-                      <div className="item">
-                        <i className={'icon-calculate Font16'}></i>
-                        <div className="text">{_l('记录数量')}</div>
-                      </div>
-                    </RecordCount>
-                  ),
-                },
-              ].concat(filterControls)}
-              renderDisplay={value => {
-                const originControl = availableControls.find(item => item.controlId === value);
-                const controlName = value === 'count' ? _l('记录数量') : get(originControl, 'controlName');
-                const invalidError =
-                  originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
-
+            <Select
+              className="w100"
+              showPopupSearch
+              optionFilterProp="label"
+              value={summaryValue}
+              options={summaryOptions}
+              status={!summaryLoading && (!summaryControlName || summaryControlInvalid) ? 'error' : undefined}
+              labelRender={() => {
                 // 数据没回不显示已删除
-                if (
-                  loading ||
-                  ((sheetData.info || {}).worksheetId && (sheetData.info || {}).worksheetId !== worksheetId)
-                ) {
-                  return <div className="text"></div>;
+                if (summaryLoading) return null;
+
+                if (summaryControlInvalid) {
+                  return <span className="textError">{_l('%0(无效类型)', summaryControlName)}</span>;
                 }
 
+                if (summaryControlName) return summaryControlName;
+
                 return (
-                  <div className={cx('text overflow_ellipsis', { Red: !controlName || invalidError })}>
-                    {controlName ? (
-                      invalidError ? (
-                        _l('%0(无效类型)', controlName)
-                      ) : (
-                        controlName
-                      )
-                    ) : (
-                      <Tooltip title={_l('ID: %0', value)} placement="bottom">
-                        <span>{_l('字段已删除')}</span>
-                      </Tooltip>
-                    )}
-                  </div>
+                  <Tooltip title={_l('ID: %0', summaryValue)} placement="bottom">
+                    <span className="textError">{_l('字段已删除')}</span>
+                  </Tooltip>
                 );
               }}
+              optionRender={({ data: item }) => (
+                <div className="flexRow alignItemsCenter">
+                  <i className={`icon-${item.icon} Font16 textTertiary mRight8`} />
+                  <span className="overflow_ellipsis" title={item.label}>
+                    {item.label}
+                  </span>
+                </div>
+              )}
+              notFoundContent={_l('暂无搜索结果')}
               onChange={handleChange}
             />
           </SettingItem>
           {sourceControlId && (
             <SettingItem>
-              <Dropdown
-                border
+              <Select
+                className="w100"
                 value={enumDefault}
-                data={totalType}
-                renderItem={item => {
-                  if (!item) return '';
-                  return (
-                    <span>
-                      {item.text}
-                      {item.tips && (
-                        <Tooltip title={item.tips} placement="bottom">
-                          <span className="icon-help Font14 textTertiary mLeft4" />
-                        </Tooltip>
-                      )}
-                    </span>
-                  );
-                }}
+                options={totalType.map(({ text: label, ...option }) => ({ ...option, label }))}
+                optionRender={renderTotalTypeOption}
                 onChange={value => {
                   const nextData = {
                     ...handleAdvancedSettingChange(data, { summaryresult: '' }),
@@ -353,32 +334,48 @@ export default function Subtotal(props) {
                 <div className="labelWrap mTop16">
                   <Checkbox
                     checked={reportempty === '1'}
-                    size="small"
-                    text={_l('包含空值')}
-                    onClick={checked => {
-                      onChange(handleAdvancedSettingChange(data, { reportempty: String(+!checked) }));
+                    onChange={event => {
+                      onChange(
+                        handleAdvancedSettingChange(data, {
+                          reportempty: String(+event.target.checked),
+                        }),
+                      );
                     }}
-                  />
+                    size="small"
+                  >
+                    {_l('包含空值')}
+                  </Checkbox>
                 </div>
               )}
             </SettingItem>
+          )}
+          {isLightweightRelate && (
+            <div className="mTop16">
+              <span className="Bold">{_l('注意：')}</span>
+              {_l('当前关联记录已开启【轻量级单向关联】，当引用的数据源字段变更后，不会同步更新本表的汇总字段数据')}
+            </div>
           )}
           <SettingItem>
             <div className="settingItemTitle">{_l('汇总范围')}</div>
             <div className="labelWrap">
               <Checkbox
                 checked={!isEmpty(filters)}
-                size="small"
-                text={_l('设置筛选条件')}
-                onClick={checked => {
-                  if (checked) {
-                    onChange(handleAdvancedSettingChange(data, { filters: '' }));
+                onChange={event => {
+                  if (!event.target.checked) {
+                    onChange(
+                      handleAdvancedSettingChange(data, {
+                        filters: '',
+                      }),
+                    );
                     return;
                   }
 
                   setVisible(true);
                 }}
-              />
+                size="small"
+              >
+                {_l('设置筛选条件')}
+              </Checkbox>
             </div>
             {visible && (
               <FilterDialog
@@ -401,17 +398,23 @@ export default function Subtotal(props) {
           {dataSource && !isEmpty(filters) && (includes([0, 5], enumDefault) || !sourceControlId) && (
             <SettingItem>
               <div className="settingItemTitle">{_l('显示')}</div>
-              <RadioGroup
+              <Radio.Group
                 size="small"
-                checkedValue={summaryresult === '1' ? '1' : '0'}
-                data={[
+                value={summaryresult === '1' ? '1' : '0'}
+                options={[
                   { text: _l('数值'), value: '0' },
                   {
                     text: _l('百分比'),
                     value: '1',
                   },
-                ]}
-                onChange={value => onChange(handleAdvancedSettingChange(data, { summaryresult: value }))}
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      summaryresult: event.target.value,
+                    }),
+                  )
+                }
               />
             </SettingItem>
           )}
@@ -430,10 +433,10 @@ export default function Subtotal(props) {
           {_.includes([15, 16, 46], enumDefault2) && _.includes([2, 3], enumDefault) && (
             <SettingItem>
               <div className="settingItemTitle">{_l('输出格式')}</div>
-              <Dropdown
-                border
+              <Select
+                className="w100"
                 value={unit}
-                data={getOutputType(enumDefault2)}
+                options={getOutputType(enumDefault2)}
                 onChange={value => onChange({ unit: value })}
               />
             </SettingItem>

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getCurrentValue } from 'src/components/Form/core/formUtils';
-import { compatibleMDJS } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/services/project';
 import ScanQRCode from './ScanQRCode';
 
 export default class Widgets extends Component {

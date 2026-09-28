@@ -127,10 +127,13 @@ class ThumbnailGuide extends React.Component {
     const { showThumbnail } = this.state;
     const currentAttachment = attachments[index];
     const { viewUrl = '' } = currentAttachment;
+    const sourceImageUrl = currentAttachment.sourceNode?.originalImageUrl;
     const fititClass = 'Hand ' + (this.state.fitited ? 'icon-Narrow' : 'icon-enlarge');
     let originalImageUrl;
 
-    if (/^data:/.test(viewUrl)) {
+    if (sourceImageUrl) {
+      originalImageUrl = sourceImageUrl;
+    } else if (/^data:/.test(viewUrl)) {
       originalImageUrl = URL.createObjectURL(b64toBlob(viewUrl.slice(22), 'image/png'));
     } else {
       originalImageUrl =

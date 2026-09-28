@@ -2,14 +2,14 @@ import React, { useEffect, useMemo, useReducer, useRef } from 'react';
 import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import { shape, string } from 'prop-types';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
-import { getPathWithoutSubPath } from 'src/utils/common';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
+import { getFilterApps } from 'src/utils/services/appCenter';
 import { CreateActions, initialState, reducer } from './appHomeReducer';
 import AppGrid from './components/AppGrid';
 import CreateFirstApp from './components/CreateFirstApp';
 import Groups from './components/Groups';
-import { getFilterApps } from './utils';
 import './AppGroups.less';
 
 const Con = styled.div`

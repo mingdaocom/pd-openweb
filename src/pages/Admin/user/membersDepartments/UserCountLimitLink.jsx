@@ -2,8 +2,8 @@ import React, { Fragment } from 'react';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
-import { getCurrentProject } from 'src/utils/project';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 
 export default function UserCountLimitLink({ projectId }) {
   const { licenseType, version } = getCurrentProject(projectId, true);

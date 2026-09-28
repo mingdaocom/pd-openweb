@@ -1,153 +1,104 @@
-﻿.MDUpdater {
-  padding: 15px 20px;
-  width: auto;
-  z-index: 1;
+.MDUpdater {
   position: relative;
+  z-index: 1;
+  width: auto;
+  padding: 15px 20px;
 }
 
 .MDUpdater .Updater_TextArea {
   width: 100%;
-  border: 0px;
+  border: 0;
   resize: none;
 }
 
-.MDUpdater .faceArea {
-  border-bottom: 1px solid var(--color-background-disabled);
-  height: 22px;
-}
-
-.MDUpdater .myUpdateType {
-  float: left;
-  padding-left: 4px;
-}
-
-.MDUpdater .myUpdateType .falseHide {
-  width: 1px;
-  width: 1px;
-  overflow: hidden;
-  margin-right: 0px;
-}
-
-.MDUpdater .myUpdateType a {
-  color: var(--color-text-secondary);
-  display: inline-block;
-  line-height: 16px;
-  height: 16px;
-  overflow: hidden;
-  margin: 0px;
-  padding: 0px;
-  margin-right: 20px;
-  position: relative;
-}
-
-.MDUpdater .myUpdateType a:hover {
-  text-decoration: none;
-}
-
-.MDUpdater .myUpdateType .ctrlUploadAttachment {
-  display: inline-block;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.MDUpdater .update_close {
-  background: url('images/close.gif') left top no-repeat;
-  display: block;
-  width: 13px;
-  height: 13px;
-  font-size: 1px;
-  position: relative;
-  float: right;
-  right: 0px;
-  top: 0px;
-  *position: absolute;
-  *top: 10px;
-  *right: 10px;
-  cursor: pointer;
-}
-
-.MDUpdater .update_close:hover {
-  background-position: left bottom !important;
-}
-
-.MDUpdater .middleContent {
-  clear: both;
-}
-
-.MDUpdater .updaterDialog_Main {
-  border-right: 0px;
-  zoom: 1;
-  background-color: var(--color-background-secondary);
-  border: 1px solid --color-background-disabled;
-}
-
-.MDUpdater .arrowUpOuter {
-  border-top-width: 0px;
-  border-color: transparent transparent var(--color-background-disabled) transparent;
-}
-
-.MDUpdater .arrowUpInner {
-  border-top-width: 0px;
-  top: 2px;
-  border-color: transparent transparent var(--color-background-secondary) transparent;
-}
-
-.MDUpdater .groupSelect {
-  margin-top: -2px;
-}
-
-.MDUpdater .linkViewTextBoxContainer {
-  margin: 10px;
-  height: 35px;
-  line-height: 35px;
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border-primary);
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.MDUpdater .linkTextBox {
-  height: 33px;
-  line-height: 33px;
-  border: 0px;
-  width: 420px;
-}
-
-.MDUpdater .linkBtnArea {
-  padding: 0px 5px;
-  border-left: 1px solid var(--color-border-tertiary);
-}
-
-.MDUpdater .linkBtn {
-  padding: 3px 6px;
-  margin: 0px;
-  margin-top: -2px;
-}
-
-.MDUpdater .updaterLinkView {
-  margin: 0px 10px 10px 10px;
+.MDUpdater .msgExpandDiv {
+  margin-top: -15px;
 }
 
 .MDUpdater .msgExpandDiv .faceBtn {
   display: inline-block;
   width: 18px;
   height: 18px;
-  background-position: left top !important;
-  cursor: pointer;
-  background-size: 100%;
+  color: var(--color-text-placeholder);
   font-size: 18px;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .MDUpdater .msgExpandDiv .faceBtn:hover {
-  background-position: left bottom !important;
+  color: var(--color-primary);
 }
 
-.MDUpdater .msgExpandDiv .faceBtn:not(:hover) {
-  color: var(--color-text-placeholder) !important;
+.MDUpdater .middleContent {
+  clear: both;
+}
+
+.MDUpdater .createFeedTabs {
+  --hap-tabs-horizontal-item-padding: 6px 0;
+  --hap-tabs-horizontal-item-gutter: 15px;
+}
+
+.MDUpdater .createFeedTabIcon {
+  display: inline-flex;
+  padding: 0 8px;
+  color: var(--color-text-tertiary);
+}
+
+.MDUpdater .hap-tabs-tab-active .createFeedTabIcon {
+  color: var(--color-primary);
+}
+
+.MDUpdater .createFeedTabsInactive .hap-tabs-ink-bar {
+  display: none;
+}
+
+.MDUpdater .createFeedTabsInactive .hap-tabs-nav::before {
+  border-bottom: 0;
+}
+
+.MDUpdater .createFeedTabsInactive .hap-tabs-tab-active .createFeedTabIcon {
+  color: var(--color-text-tertiary);
+}
+
+.MDUpdater .createFeedTabsInactive .hap-tabs-extra-content {
+  min-width: 0;
+  max-width: calc(100% - 100px);
+}
+
+.MDUpdater .createFeedActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.MDUpdater .createFeedShareGroup {
+  min-width: 0;
+  max-width: 240px;
+}
+
+.MDUpdater .createFeedShareGroup > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MDUpdater .createFeedShareGroup > .Icon,
+.MDUpdater .createFeedActions > .hap-btn {
+  flex-shrink: 0;
+}
+
+.MDUpdater .createFeedActionsInTabBar {
+  margin-top: 0;
+}
+
+.MDUpdater .createFeedToFeedButton {
+  color: var(--color-text-tertiary);
+}
+
+.MDUpdater .createFeedToFeedButtonActive {
+  color: var(--color-primary);
 }
 
 .easyDialogBoxMDUpdater .dialogContent {
@@ -166,15 +117,6 @@
 }
 
 .easyDialogBoxMDUpdater > .noHeader .dialogCloseBtn {
-  z-index: 2;
   position: relative;
-}
-
-.easyDialogBoxMDUpdater > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-  overflow: visible !important;
-}
-
-.easyDialogBoxMDUpdater > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header,
-.easyDialogBoxMDUpdater > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-  padding: 0 !important;
+  z-index: 2;
 }

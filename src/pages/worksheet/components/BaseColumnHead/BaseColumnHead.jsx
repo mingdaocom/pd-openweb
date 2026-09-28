@@ -2,12 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Tooltip } from 'ming-ui/antd-components';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import { emitter } from 'src/utils/common';
-import { fieldCanSort } from 'src/utils/control';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { fieldCanSort } from 'src/utils/domain/control/sort';
+import { emitter } from 'src/utils/platform/browser/dom';
 import getTableColumnWidth from './getTableColumnWidth';
 import './style.less';
 
@@ -179,6 +178,16 @@ export default class BaseColumnHead extends React.Component {
       sustractWidth += 21;
     }
 
+    const dropdownContent =
+      showDropdown && !disabled && renderPopup
+        ? renderPopup({
+            closeMenu: () => {
+              this.setState({ listVisible: false });
+            },
+          })
+        : null;
+    const isCustomPopup = React.isValidElement(dropdownContent);
+
     const head = (
       <div className={cx('baseColumnHead columnHead allowOutClick', className, { isLast })} style={style}>
         <div className="inner allowOutClick">
@@ -205,13 +214,27 @@ export default class BaseColumnHead extends React.Component {
           </div>
           {maskData && <i className="icon icon-eye_off maskData Font16"></i>}
           {showDropdown && !disabled && (
-            <span
-              className="dropIcon"
-              onClick={() => this.setState({ listVisible: true })}
-              style={className.indexOf('headAlignCenter') > -1 ? { lineHeight: style.height - 2 + 'px' } : {}}
+            <Dropdown
+              open={listVisible}
+              trigger={['click']}
+              placement={style.width > 180 ? 'bottomRight' : 'bottomLeft'}
+              menu={isCustomPopup ? undefined : dropdownContent || { items: [] }}
+              popupRender={isCustomPopup ? () => dropdownContent : undefined}
+              getPopupContainer={getPopupContainer || (() => document.body)}
+              onOpenChange={open => {
+                if (!open) {
+                  this.setState({ listVisible: false });
+                }
+              }}
             >
-              <i className="icon icon-arrow-down-border hoverColorPrimary Hand"></i>
-            </span>
+              <span
+                className="dropIcon"
+                onClick={() => this.setState({ listVisible: true })}
+                style={className.indexOf('headAlignCenter') > -1 ? { lineHeight: style.height - 2 + 'px' } : {}}
+              >
+                <i className="icon icon-arrow-down-border hoverColorPrimary Hand"></i>
+              </span>
+            </Dropdown>
           )}
         </div>
         {!disabled && canDrag && (
@@ -219,35 +242,7 @@ export default class BaseColumnHead extends React.Component {
         )}
       </div>
     );
-    return showDropdown && !disabled ? (
-      <Trigger
-        action={['click']}
-        popup={
-          renderPopup ? (
-            renderPopup({
-              closeMenu: () => {
-                this.setState({ listVisible: false });
-              },
-            })
-          ) : (
-            <span>hello world</span>
-          )
-        }
-        getPopupContainer={getPopupContainer || (() => document.body)}
-        popupClassName="filterTrigger"
-        popupVisible={listVisible}
-        popupAlign={{
-          points: style.width > 180 ? ['tr', 'br'] : ['tl', 'bl'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
-      >
-        {head}
-      </Trigger>
-    ) : (
-      head
-    );
+
+    return head;
   }
 }

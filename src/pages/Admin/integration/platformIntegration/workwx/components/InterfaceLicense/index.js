@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import workWeiXinAjax from 'src/api/workWeiXin';
 
 const orderTypes = { 1: _l('购买账号'), 2: _l('续期账号'), 5: _l('历史企业迁移订单') };
@@ -86,7 +87,9 @@ export default class InterfaceLicense extends Component {
       step: 1,
       pageIndex: 1,
       licenseDetail: {},
+      submitting: false,
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -144,18 +147,28 @@ export default class InterfaceLicense extends Component {
     if (isRenewal) {
       // 申请续费
     } else {
+      if (this.requestPending) return;
+
+      this.requestPending = true;
+      this.setState({ submitting: true });
       // 申请下单
-      workWeiXinAjax.createWorkWxLicenseOrder({ projectId }).then(res => {
-        if (res.item1) {
-          alert(_l('申请成功'));
-          this.setState({ isRenewal: false }, () => {
-            this.getLicenseDetail();
-            this.getWorkWxLicenseOrderList();
-          });
-        } else {
-          alert(res.item2, 2);
-        }
-      });
+      return workWeiXinAjax
+        .createWorkWxLicenseOrder({ projectId })
+        .then(res => {
+          if (res.item1) {
+            alert(_l('申请成功'));
+            this.setState({ isRenewal: false }, () => {
+              this.getLicenseDetail();
+              this.getWorkWxLicenseOrderList();
+            });
+          } else {
+            alert(res.item2, 2);
+          }
+        })
+        .finally(() => {
+          this.requestPending = false;
+          this.setState({ submitting: false });
+        });
     }
   };
 
@@ -172,7 +185,7 @@ export default class InterfaceLicense extends Component {
     return (
       <div className="pLeft24 pRight24">
         <div className="Font15 bold mBottom18">
-          {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+          {window.platformENV.isPlatform && window.platformENV.isHap
             ? _l(
                 '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，明道云收到付费后在企微服务商后台代为缴费',
               )
@@ -190,7 +203,7 @@ export default class InterfaceLicense extends Component {
   };
 
   renderOrderInfo = () => {
-    const { loading, orderInfo = {}, isRenewal, buyMore, orderList = [] } = this.state;
+    const { loading, submitting, orderInfo = {}, isRenewal, buyMore, orderList = [] } = this.state;
 
     if (loading) {
       return (
@@ -246,6 +259,7 @@ export default class InterfaceLicense extends Component {
           <Button
             type="primary"
             className="borderRadius16"
+            loading={submitting}
             onClick={() => {
               this.applyPayOrder(isRenewal);
             }}
@@ -254,7 +268,7 @@ export default class InterfaceLicense extends Component {
           </Button>
 
           <div className="textTertiary mTop20">
-            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            {window.platformENV.isPlatform && window.platformENV.isHap
               ? _l('申请下单后，尽快联系顾问协助完成订单付款')
               : _l('购买费用由平台支付，您只需申请下单即可')}
           </div>
@@ -268,7 +282,7 @@ export default class InterfaceLicense extends Component {
     return (
       <OrderDetail>
         <div className="Font15 bold mBottom20">
-          {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+          {window.platformENV.isPlatform && window.platformENV.isHap
             ? _l(
                 '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，明道云收到付费后在企微服务商后台代为缴费',
               )

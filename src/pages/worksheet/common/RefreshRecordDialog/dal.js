@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export function refreshRecord({
   updateControls,
@@ -50,7 +51,7 @@ export function refreshRecord({
   worksheetAjax
     .refreshWorksheetRows(getFilledRequestParams(args, _.get(searchArgs, 'requestParams')))
     .then(cb)
-    .catch(() => {
-      alert(_l('修改失败'), 2);
+    .catch(_requestError => {
+      alertIfNotUnauthorized(_requestError, _l('修改失败'), 2);
     });
 }

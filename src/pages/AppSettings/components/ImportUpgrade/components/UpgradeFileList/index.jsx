@@ -2,8 +2,8 @@ import React, { Fragment, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, QiniuUpload, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, QiniuUpload, SvgIcon } from 'ming-ui';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 
 const FileListWrap = styled.div`
@@ -19,7 +19,7 @@ const FileListWrap = styled.div`
   margin-bottom: 20px;
   flex: 1;
   padding: 32px 0 32px 56px;
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     background: var(--color-background-secondary);
     background-clip: padding-box;
   }
@@ -94,13 +94,21 @@ export default function UpgradeFileList(props) {
   const { files, projectId, addFilesLoading, batchCheckFiles, updateFiles } = props;
   const [passwords, setPasswords] = useState({});
   const [focusKey, setFocusKey] = useState(null);
+  const [pendingFileNames, setPendingFileNames] = useState([]);
   const uploadFiles = useRef([]);
+  const requestPending = useRef(new Set());
 
   const onDelete = fileName => {
+    if (requestPending.current.has(fileName)) return;
+
     const item = _.find(files, l => l.fileName === fileName);
+    if (!item) return;
+
     const password = (passwords[item.fileName] || '').trim();
 
-    appManagementAjax
+    requestPending.current.add(fileName);
+    setPendingFileNames(Array.from(requestPending.current));
+    return appManagementAjax
       .batchImportCheck({
         projectId,
         removed: true,
@@ -110,7 +118,7 @@ export default function UpgradeFileList(props) {
       .then(res => {
         switch (res.code) {
           case 0:
-            updateFiles(files.filter(l => l.fileName !== fileName));
+            updateFiles(currentFiles => currentFiles.filter(l => l.fileName !== fileName));
             break;
           case 10004:
             password ? alert(_l('密码不正确，请重新输入密码'), 2) : alert(_l('删除失败'), 2);
@@ -118,6 +126,10 @@ export default function UpgradeFileList(props) {
           default:
             alert(_l('删除失败'), 2);
         }
+      })
+      .finally(() => {
+        requestPending.current.delete(fileName);
+        setPendingFileNames(Array.from(requestPending.current));
       });
   };
 
@@ -219,17 +231,21 @@ export default function UpgradeFileList(props) {
 
   return (
     <FileListWrap>
-      {files.map((item, i) => {
+      {files.map(item => {
         const appInfo = _.get(item, 'apps[0]') || {};
+        const deleting = pendingFileNames.includes(item.fileName);
         return (
-          <FileItemWrap key={`UpgradeFileList-${i}-${item.fileName}`}>
+          <FileItemWrap key={item.batchId || item.fileName}>
             <div className="itemInfo mRight20">
               <span className="iconWrap mRight10" style={{ background: appInfo.iconColor }}>
                 <SvgIcon url={appInfo.iconUrl} fill="#fff" size={24} />
               </span>
               <span className="flex name overflow_ellipsis Font15">{appInfo.name}</span>
-              <span className="remove Font13 textTertiary Hand" onClick={() => onDelete(item.fileName)}>
-                {_l('移除')}
+              <span
+                className={cx('remove Font13 textTertiary', { Hand: !deleting, disabled: deleting })}
+                onClick={() => !deleting && onDelete(item.fileName)}
+              >
+                {deleting ? _l('移除中...') : _l('移除')}
               </span>
             </div>
             {_.includes([50, 51], item.code) ? (

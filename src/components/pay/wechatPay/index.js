@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import payAjax from 'src/api/pay';
 import { canPurchase } from 'src/components/checkPermission';
-import genQrDataurl, { QRErrorCorrectLevel } from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
-import { pathCompletion } from 'src/utils/common';
+import { generateQrDataUrl as genQrDataurl, QRErrorCorrectLevel } from 'src/utils/platform/browser/qrCode';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import PayHeader from '../payHeader';
 
 const WecharPayWrap = styled.div`

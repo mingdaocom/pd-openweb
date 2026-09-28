@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// 复用全站骨架的扫光配色（--skeleton-* 已在 ming-ui Skeleton 的 less 中按明暗主题定义）
+// 复用全站骨架的扫光配色（--skeleton-* 由 ming-ui antd Skeleton 按明暗主题定义）
 const shimmer = keyframes`
   from { background-position: 100% 50%; }
   to { background-position: 0 50%; }
@@ -26,7 +26,12 @@ const Card = styled.div`
 `;
 
 const Shimmer = styled.div`
-  background: linear-gradient(90deg, var(--skeleton-start), var(--skeleton-middle), var(--skeleton-end));
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-start, rgba(245, 245, 245, 0.8) 25%),
+    var(--skeleton-middle, rgba(245, 245, 245, 0.4) 37%),
+    var(--skeleton-end, rgba(245, 245, 245, 0.8) 63%)
+  );
   background-size: 400% 100%;
   animation: ${shimmer} 2s ease infinite;
 `;

@@ -3,22 +3,18 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { DepartmentFullName, LoadDiv, PersonalStatus, UserBaseProfile } from 'ming-ui';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import GroupController from 'src/api/group';
 import UserController from 'src/api/user';
-import DepartmentFullName from 'src/components/UserInfoComponents/DepartmentFullName';
-import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
-import { maskValue } from 'src/pages/Admin/security/account/utils';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
-import * as actions from 'src/pages/chat/redux/actions';
-import store from 'src/redux/configureStore';
-import { browserIsMobile, getPathWithoutSubPath, pathCompletion } from 'src/utils/common';
+import { maskValue } from 'src/utils/domain/account/profile';
+import { CHAT_EVENT } from 'src/utils/domain/chat/events';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getPathWithoutSubPath, pathCompletion } from 'src/utils/platform/navigation/path';
 import { EnlargeImage } from './EnlargeImage';
-import placements from './placements';
 import './css/userCard.less';
 
 const USER_STATUS = {
@@ -28,30 +24,12 @@ const USER_STATUS = {
   INACTIVE: 3, // 未激活
   REMOVED: 4, // 已删除
 };
+const USER_CARD_ARROW_CONFIG = { pointAtCenter: true };
 
 const CardContentBoxWrap = styled.div`
   position: relative;
-  box-shadow: var(--shadow-lg);
-  border-radius: 4px;
-  background: var(--color-background-card);
-
-  .arrowBoxUserCard {
-    position: absolute;
-    display: inline-block;
-    width: 16px;
-    height: 10px;
-  }
-  .arrowBoxUserCard.arrowTop {
-    top: -8px;
-  }
-  .arrowBoxUserCard .arrow {
-    border: 8px transparent solid;
-    display: inline-block;
-    vertical-align: top;
-  }
 
   .cardContent {
-    padding: 16px 16px 16px 16px;
     > .TxtCenter {
       margin: 0 !important;
       padding: 0 0 10px;
@@ -149,6 +127,7 @@ class UserCard extends React.Component {
     appId: PropTypes.string,
     sourceId: PropTypes.string,
     type: PropTypes.number,
+    placement: PropTypes.string,
     disabled: PropTypes.bool,
     chatButton: PropTypes.bool, // 是否显示发消息按钮
     newPageChat: PropTypes.bool, // 新页面打开 chat
@@ -156,6 +135,7 @@ class UserCard extends React.Component {
   };
   static defaultProps = {
     type: 1, // 1 人员 2 群组 3 通用`小秘书` 4 `任务 文件夹 群组 小秘书`
+    placement: 'bottomRight',
     chatButton: true,
     isFromDepartureList: false,
   };
@@ -179,12 +159,11 @@ class UserCard extends React.Component {
   componentDidMount() {
     if (this.state.visible) {
       this.fetchData();
-      this.addOutsideMouseDownListener();
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { data, preSourceId, visible, enlargeImageVisible } = this.state;
+    const { data, preSourceId, visible } = this.state;
 
     if (
       (!prevState.visible && visible && _.isEmpty(data)) ||
@@ -196,47 +175,7 @@ class UserCard extends React.Component {
     if (prevProps.disabled !== this.props.disabled && visible) {
       this.setState({ visible: false });
     }
-
-    if (visible && !enlargeImageVisible) {
-      this.addOutsideMouseDownListener();
-    } else {
-      this.removeOutsideMouseDownListener();
-    }
   }
-
-  componentWillUnmount() {
-    this.removeOutsideMouseDownListener();
-  }
-
-  addOutsideMouseDownListener = () => {
-    if (this.outsideMouseDownHandler) return;
-
-    this.outsideMouseDownHandler = event => {
-      const { visible, enlargeImageVisible } = this.state;
-
-      if (!visible || enlargeImageVisible) return;
-
-      const target = event.target;
-      const rootNode = this.triggerRef && this.triggerRef.getRootDomNode ? this.triggerRef.getRootDomNode() : undefined;
-      const popupNode =
-        this.triggerRef && this.triggerRef.getPopupDomNode ? this.triggerRef.getPopupDomNode() : undefined;
-
-      if ((rootNode && rootNode.contains(target)) || (popupNode && popupNode.contains(target))) {
-        return;
-      }
-
-      this.closeCard();
-    };
-
-    document.addEventListener('mousedown', this.outsideMouseDownHandler);
-  };
-
-  removeOutsideMouseDownListener = () => {
-    if (!this.outsideMouseDownHandler) return;
-
-    document.removeEventListener('mousedown', this.outsideMouseDownHandler);
-    this.outsideMouseDownHandler = null;
-  };
 
   closeCard = () => {
     this.setState({ visible: false, wrapKey: uuidv4() });
@@ -261,28 +200,12 @@ class UserCard extends React.Component {
     this.setState({ enlargeImageVisible });
   };
 
-  handleEnlargeImageMouseDown = e => {
-    e.stopPropagation();
-
-    if (this.triggerRef && this.triggerRef.onPopupMouseDown) {
-      this.triggerRef.onPopupMouseDown(e);
-    }
-  };
-
   renderEnlargeImage() {
     const { data, enlargeImageVisible } = this.state;
 
     if (!enlargeImageVisible || !data.avatar) return null;
 
-    return (
-      <span
-        onMouseDownCapture={this.handleEnlargeImageMouseDown}
-        onTouchStartCapture={this.handleEnlargeImageMouseDown}
-        onClick={e => e.stopPropagation()}
-      >
-        <EnlargeImage url={data.avatar} onCancel={() => this.setEnlargeImageVisible(false)} />
-      </span>
-    );
+    return <EnlargeImage url={data.avatar} onCancel={() => this.setEnlargeImageVisible(false)} />;
   }
 
   formatData = function (result) {
@@ -361,9 +284,6 @@ class UserCard extends React.Component {
           {isLoading || (_.isEmpty(data) && !isSecret) ? <LoadDiv /> : this.renderContent()}
         </div>
         {!!operation && <div className="userOperatorCon">{operation}</div>}
-        <span className="arrowBoxUserCard">
-          <span className="arrow" />
-        </span>
         {this.renderEnlargeImage()}
       </CardContentBoxWrap>
     );
@@ -404,19 +324,19 @@ class UserCard extends React.Component {
     const { data } = this.state;
     const isNewPageChat = _.isBoolean(newPageChat)
       ? newPageChat
-      : document.querySelector('.mdModal.workSheetRecordInfo');
+      : document.querySelector('.hap-modal.workSheetRecordInfo');
 
     if (type === 1) {
       if (isNewPageChat) {
         window.open(pathCompletion(`/windowChat?id=${data.accountId}&type=${type}`));
       } else {
-        store.dispatch(actions.addUserSession(data.accountId));
+        emitter.emit(CHAT_EVENT.OPEN_SESSION, { id: data.accountId, type });
       }
     } else if (type === 2) {
       if (isNewPageChat) {
         window.open(pathCompletion(`/windowChat?id=${data.groupId}&type=${type}`));
       } else {
-        store.dispatch(actions.addGroupSession(data.groupId));
+        emitter.emit(CHAT_EVENT.OPEN_SESSION, { id: data.groupId, type });
       }
     }
 
@@ -424,9 +344,8 @@ class UserCard extends React.Component {
   };
 
   handleContentLoaded = () => {
-    // 当异步内容加载完成后，强制 rc-trigger 重新对齐位置
-    if (this.triggerRef && this.triggerRef.forcePopupAlign) {
-      this.triggerRef.forcePopupAlign();
+    if (this.popoverRef && this.popoverRef.forcePopupAlign) {
+      this.popoverRef.forcePopupAlign();
     }
   };
 
@@ -580,41 +499,36 @@ class UserCard extends React.Component {
 
   render() {
     const { isMobile, visible, wrapKey, enlargeImageVisible } = this.state;
-    const { className, disabled } = this.props;
+    const { className, disabled, placement } = this.props;
     const isPublic = location.pathname.includes('/public/') || location.href.includes('#publicapp');
 
-    const props = {
-      popupClassName: cx('userCardSite', className),
-      popup: this.getPopupNode(),
-      popupVisible: visible,
-      action: ['hover'],
-      builtinPlacements: placements,
-      popupPlacement: 'topLeft',
-      destroyPopupOnHide: true,
+    const popoverProps = {
+      autoAdjustOverflow: true,
+      classNames: { root: cx('userCardSite', className) },
+      content: this.getPopupNode(),
       getPopupContainer: () => document.body,
       mouseEnterDelay: 0.1,
       mouseLeaveDelay: 0.3,
-      popupAlign: {
-        points: ['tr', 'br'],
-        offset: [0, 0],
-        overflow: { adjustX: true, adjustY: true },
-      },
-      onPopupVisibleChange: visible => {
+      open: visible,
+      placement,
+      onOpenChange: visible => {
         if (!visible && enlargeImageVisible) {
           return;
         }
 
         this.changePopupVisible(visible);
       },
-      zIndex: 10002,
+      ref: ele => (this.popoverRef = ele),
+      styles: { container: { padding: 16 }, body: { padding: 0 } },
+      trigger: 'hover',
     };
 
     if (isMobile || disabled || isPublic || !md.global.Account.accountId) return this.props.children;
 
     return (
-      <Trigger key={wrapKey} ref={ele => (this.triggerRef = ele)} {...props}>
+      <Popover arrow={USER_CARD_ARROW_CONFIG} key={wrapKey} {...popoverProps}>
         {this.props.children}
-      </Trigger>
+      </Popover>
     );
   }
 }

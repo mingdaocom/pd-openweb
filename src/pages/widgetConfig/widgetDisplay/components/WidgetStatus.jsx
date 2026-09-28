@@ -7,7 +7,7 @@ const StatusWrap = styled.div`
     font-size: 18px;
     margin-left: 3px;
     // &:first-child {
-    //   margin-left: ${props => (props.showTitle ? '3px' : '0px')};
+    //   margin-left: ${props => (props.$showTitle ? '3px' : '0px')};
     // }
     &.title {
       color: var(--color-primary);
@@ -20,7 +20,7 @@ export default function WidgetStatus({ data, showTitle, style }) {
   fieldPermission = fieldPermission || '111';
   const [visible, , canAdd] = fieldPermission.split('');
   return (
-    <StatusWrap showTitle={showTitle} style={style}>
+    <StatusWrap $showTitle={showTitle} style={style}>
       {data.attribute === 1 && <i className="title icon-ic_title"></i>}
       {[visible, canAdd].some(i => i === '0') && (
         <i

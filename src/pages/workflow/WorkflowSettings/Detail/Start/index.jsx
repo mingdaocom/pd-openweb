@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { APP_TYPE, DATE_TYPE, TRIGGER_ID } from '../../enum';
 import { checkConditionsIsNull, checkJSON, clearFlowNodeMapParameter, getIcons, getStartNodeColor } from '../../utils';
@@ -317,9 +318,18 @@ export default class Start extends Component {
     const refreshSource = () => this.getNodeDetail({ appId });
 
     if (this.state.data.appId) {
-      Dialog.confirm({
-        title: <span style={{ color: 'var(--color-error)' }}>{_l('注意！你将要更改触发流程的工作表')}</span>,
-        description: _l(
+      Modal.confirm({
+        width: 440,
+        title: (
+          <span
+            style={{
+              color: 'var(--color-error)',
+            }}
+          >
+            {_l('注意！你将要更改触发流程的工作表')}
+          </span>
+        ),
+        content: _l(
           '更换为新的工作表后，所有相关节点配置的字段都将被重置，你需要重新配置这些节点。请确认你需要执行此操作',
         ),
         okText: _l('确认更改'),

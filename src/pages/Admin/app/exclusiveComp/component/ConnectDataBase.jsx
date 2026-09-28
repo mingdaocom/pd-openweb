@@ -2,11 +2,14 @@ import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Switch, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
-import { encrypt } from 'src/utils/common';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { encrypt } from 'src/utils/services/security/encryption';
 import TextInput from './TextInput';
+
+const REMARK_TEXTAREA_STYLE = { minHeight: 62 };
 
 const DialogContentWrap = styled.div`
   .rowFlex {
@@ -126,9 +129,10 @@ function ConnectDataBase(props) {
         if (res) alert(_l('连接成功'));
         else alert(_l('连接失败，请检查'), 3);
       })
-      .catch(({ errorMessage }) => {
+      .catch(_requestError => {
+        const { errorMessage } = _requestError;
         setPending(false);
-        alert(errorMessage || _l('连接失败，请检查'), 3);
+        alertIfNotUnauthorized(_requestError, errorMessage || _l('连接失败，请检查'), 3);
       });
     return false;
   };
@@ -149,9 +153,11 @@ function ConnectDataBase(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       className="connectDataBaseDialog"
-      visible={true}
+      open
+      mask={{ closable: true }}
+      keyboard
       width={496}
       title={_l('数据库实例')}
       okDisabled={!isEdited()}
@@ -297,16 +303,25 @@ function ConnectDataBase(props) {
           <Switch
             className="mRight8"
             checked={!!data.status}
-            onClick={checked => {
-              setData({ ...data, status: !checked ? 1 : 0 });
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              setData({
+                ...data,
+                status: checked ? 1 : 0,
+              });
             }}
           />
           <span>{data.status ? _l('允许') : _l('不允许')}</span>
         </div>
         <div className="Font14 mBottom4">{_l('备注')}</div>
-        <Textarea minHeight={62} value={data.remark} onChange={value => handleChangeData({ remark: value })} />
+        <Input.TextArea
+          autoSize
+          style={REMARK_TEXTAREA_STYLE}
+          value={data.remark}
+          onChange={event => handleChangeData({ remark: event.target.value })}
+        />
       </DialogContentWrap>
-    </Dialog>
+    </Modal>
   );
 }
 

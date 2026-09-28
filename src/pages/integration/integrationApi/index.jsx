@@ -1,10 +1,11 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import APIWrap from 'src/pages/integration/apiIntegration/APIWrap/index.jsx';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 
 const Wrap = styled.div`
   .apiCont {
@@ -44,14 +45,14 @@ export default class IntegrationApi extends React.Component {
         },
         { isIntegration: true },
       );
-      Dialog.confirm({
+      Modal.confirm({
         title: (
-          <span className="Red">
+          <span className="Red textError">
             {cite.length > 0 ? <Icon type="warning" className="mRight8" /> : ''}
             {_l('删除“%0”', item.name)}
           </span>
         ),
-        description: (
+        content: (
           <div>
             {cite.length > 0 ? (
               <React.Fragment>
@@ -63,14 +64,25 @@ export default class IntegrationApi extends React.Component {
             )}
           </div>
         ),
-        buttonType: 'danger',
+        okButtonProps: {
+          danger: true,
+        },
         onOk: () => {
-          packageVersionAjax.deleteApi({ id: item.id }, { isIntegration: true }).then(res => {
-            if (res) {
-              alert(_l('删除成功'));
-              navigateTo('/integration');
-            }
-          });
+          packageVersionAjax
+            .deleteApi(
+              {
+                id: item.id,
+              },
+              {
+                isIntegration: true,
+              },
+            )
+            .then(res => {
+              if (res) {
+                alert(_l('删除成功'));
+                navigateTo('/integration');
+              }
+            });
         },
       });
     };

@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { DEFAULT_TEXT, SWITCH_TYPES } from 'src/pages/widgetConfig/config/setting.js';
-import { getStringBytes } from 'src/utils/common';
+import { Checkbox, Input, Select, Space } from 'ming-ui/antd-components';
+import { getStrBytesLength, getStringBytes } from 'src/utils/core/string';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DEFAULT_TEXT, SWITCH_TYPES } from 'src/utils/domain/control/setting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function Switch({ data, onChange }) {
   const { showtype = '0' } = getAdvanceSetting(data);
@@ -17,10 +17,10 @@ export default function Switch({ data, onChange }) {
       <SettingItem>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <div className="labelWrap">
-          <Dropdown
-            border
-            isAppendToBody
-            data={SWITCH_TYPES}
+          <Select
+            className="w100"
+            options={SWITCH_TYPES}
+            fieldNames={SELECT_FIELD_NAMES}
             value={showtype}
             onChange={value =>
               onChange(
@@ -39,38 +39,46 @@ export default function Switch({ data, onChange }) {
             ) : (
               <div className="labelWrap">
                 <Checkbox
-                  size="small"
                   checked={itemnames.length > 0}
-                  onClick={checked => {
+                  onChange={event => {
                     onChange(
                       handleAdvancedSettingChange(data, {
-                        itemnames: checked ? '' : JSON.stringify(DEFAULT_TEXT[showtype]),
+                        itemnames: !event.target.checked ? '' : JSON.stringify(DEFAULT_TEXT[showtype]),
                       }),
                     );
                   }}
-                  text={_l('显示开关文字')}
-                />
+                  size="small"
+                >
+                  {_l('显示开关文字')}
+                </Checkbox>
               </div>
             )}
             {itemnames.length > 0 && (
               <Fragment>
                 {(DEFAULT_TEXT[showtype] || []).map((item, index) => {
                   return (
-                    <Input
-                      style={{ marginTop: 10 }}
-                      addonBefore={<span>{item.value}</span>}
-                      value={_.get(itemnames[index], 'value')}
-                      onChange={e => {
-                        const tempValue =
-                          getStringBytes(e.target.value) <= 60 //30个中文字符
-                            ? e.target.value
-                            : getStrBytesLength(e.target.value, 60);
-                        const newItemNames = itemnames.map((i, idx) =>
-                          idx === index ? Object.assign({}, i, { value: tempValue }) : i,
-                        );
-                        onChange(handleAdvancedSettingChange(data, { itemnames: JSON.stringify(newItemNames) }));
-                      }}
-                    />
+                    <Space.Compact key={item.value} block style={{ marginTop: 10 }}>
+                      <Input
+                        readOnly
+                        tabIndex={-1}
+                        value={item.value}
+                        style={{ width: 48, textAlign: 'center', color: 'var(--color-text-secondary)' }}
+                      />
+                      <Input
+                        style={{ flex: 1 }}
+                        value={_.get(itemnames[index], 'value')}
+                        onChange={e => {
+                          const tempValue =
+                            getStringBytes(e.target.value) <= 60 //30个中文字符
+                              ? e.target.value
+                              : getStrBytesLength(e.target.value, 60);
+                          const newItemNames = itemnames.map((i, idx) =>
+                            idx === index ? Object.assign({}, i, { value: tempValue }) : i,
+                          );
+                          onChange(handleAdvancedSettingChange(data, { itemnames: JSON.stringify(newItemNames) }));
+                        }}
+                      />
+                    </Space.Compact>
                   );
                 })}
               </Fragment>

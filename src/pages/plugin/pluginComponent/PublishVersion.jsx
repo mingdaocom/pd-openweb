@@ -1,20 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Input, TagTextarea } from 'ming-ui';
+import { TagTextarea } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConstants } from '../config';
 
-const PublishDialog = styled(Dialog)`
-  .mui-dialog-desc {
-    font-size: 13px !important;
-    padding-top: 8px !important;
-  }
-  .mui-dialog-body {
-    padding-top: 12px !important;
-  }
-`;
+const PUBLISH_MODAL_STYLES = { body: { paddingTop: 12 } };
 
 const FormItem = styled.div`
   margin-bottom: 24px;
@@ -26,27 +18,12 @@ const FormItem = styled.div`
       margin-left: -4px;
     }
   }
-  .ming.Input {
-    font-size: 13px;
-  }
   .Width60 {
     width: 60px;
   }
   .selectItem {
     width: 100% !important;
     font-size: 13px;
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border: 1px solid var(--color-border-tertiary) !important;
-      border-radius: 3px !important;
-      box-shadow: none !important;
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
   }
 `;
 
@@ -84,6 +61,23 @@ export default function PublishVersion(props) {
 
   const pluginApi = pluginApiConfig[pluginType];
 
+  const fetchCommitHistory = useCallback(() => {
+    if (!fetchState.loading) {
+      return;
+    }
+
+    pluginApi
+      .getCommitHistory({ id: pluginId, pageSize: 50, pageIndex: fetchState.pageIndex, source }, API_EXTENDS)
+      .then(res => {
+        if (res) {
+          setFetchState({ loading: false, noMore: res.history.length < 50 });
+          setCommitList(prevCommitList =>
+            fetchState.pageIndex > 1 ? prevCommitList.concat(res.history) : res.history,
+          );
+        }
+      });
+  }, [fetchState.loading, fetchState.pageIndex, pluginApi, pluginId, setFetchState, source]);
+
   useEffect(() => {
     //设置版本号默认值
     if (latestVersion) {
@@ -96,26 +90,11 @@ export default function PublishVersion(props) {
     } else {
       setFormData({ v1: 0, v2: 0, v3: 1 });
     }
-  }, []);
+  }, [latestVersion, setFormData]);
 
   useEffect(() => {
     !isWorkflowPlugin && fetchCommitHistory();
-  }, [fetchState.pageIndex]);
-
-  const fetchCommitHistory = () => {
-    if (!fetchState.loading) {
-      return;
-    }
-
-    pluginApi
-      .getCommitHistory({ id: pluginId, pageSize: 50, pageIndex: fetchState.pageIndex, source }, API_EXTENDS)
-      .then(res => {
-        if (res) {
-          setFetchState({ loading: false, noMore: res.history.length < 50 });
-          setCommitList(fetchState.pageIndex > 1 ? commitList.concat(res.history) : res.history);
-        }
-      });
-  };
+  }, [fetchCommitHistory, isWorkflowPlugin]);
 
   const onChangeVersionValue = (value, objName) => {
     if (!value) {
@@ -197,11 +176,18 @@ export default function PublishVersion(props) {
   };
 
   return (
-    <PublishDialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={800}
-      title={_l('发布新版本到组织')}
-      description={pluginConstants[pluginType].publishDescription}
+      title={
+        <React.Fragment>
+          <div>{_l('发布新版本到组织')}</div>
+          <div className="Font13 Normal textSecondary mTop8">{pluginConstants[pluginType].publishDescription}</div>
+        </React.Fragment>
+      }
+      styles={PUBLISH_MODAL_STYLES}
       onOk={onPublish}
       onCancel={onClose}
     >
@@ -241,21 +227,21 @@ export default function PublishVersion(props) {
           className="Width60"
           maxLength={3}
           value={formData.v1}
-          onChange={value => onChangeVersionValue(value, 'v1')}
+          onChange={event => onChangeVersionValue(event.target.value, 'v1')}
         />
         <span className="mLeft2 mRight2">.</span>
         <Input
           className="Width60"
           maxLength={3}
           value={formData.v2}
-          onChange={value => onChangeVersionValue(value, 'v2')}
+          onChange={event => onChangeVersionValue(event.target.value, 'v2')}
         />
         <span className="mLeft2 mRight2">.</span>
         <Input
           className="Width60"
           maxLength={3}
           value={formData.v3}
-          onChange={value => onChangeVersionValue(value, 'v3')}
+          onChange={event => onChangeVersionValue(event.target.value, 'v3')}
         />
         {!!latestVersion && <span className="textSecondary mLeft12">{_l('版本号必须大于：') + latestVersion}</span>}
       </FormItem>
@@ -264,7 +250,11 @@ export default function PublishVersion(props) {
           <span className="requiredStar">*</span>
           {_l('发布说明')}
         </div>
-        <Input className="w100" value={formData.description} onChange={description => setFormData({ description })} />
+        <Input
+          className="w100"
+          value={formData.description}
+          onChange={event => setFormData({ description: event.target.value })}
+        />
       </FormItem>
 
       {!isWorkflowPlugin && (
@@ -290,6 +280,6 @@ export default function PublishVersion(props) {
           </div>
         </FormItem>
       )}
-    </PublishDialog>
+    </Modal>
   );
 }

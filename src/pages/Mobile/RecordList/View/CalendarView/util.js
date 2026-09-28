@@ -1,5 +1,13 @@
 import moment from 'moment';
 
+export const getCachedCalendarDimension = cacheKey => {
+  try {
+    return localStorage.getItem(cacheKey) === 'week' ? 'week' : 'month';
+  } catch {
+    return 'month';
+  }
+};
+
 export const WEEK_DAYS = [_l('日%25011'), _l('一'), _l('二'), _l('三'), _l('四'), _l('五'), _l('六')];
 export const WEEKS = [_l('星期日'), _l('星期一'), _l('星期二'), _l('星期三'), _l('星期四'), _l('星期五'), _l('星期六')];
 

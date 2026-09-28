@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getAdvanceSetting } from 'src/utils/control';
-import { getRecordColorConfig } from 'src/utils/record';
-import { getRecordAttachments } from '../../util';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { transferValue } from 'src/utils/domain/control/value';
+import { getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { getRecordAttachments } from 'src/utils/services/worksheet/view';
 import { getDataWithFormat } from '../util';
 
 // 将接口行数据整理成 EditableCard 需要的卡片数据结构。

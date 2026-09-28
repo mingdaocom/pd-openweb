@@ -3,9 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { ALL_SYS, SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { getUnUniqName } from 'src/utils/common';
+import { Input } from 'ming-ui/antd-components';
+import { getUnUniqName } from 'src/utils/core/string';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { ALL_SYS, SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import AddFields from '../CustomEvent/CustomAction/AddFields';
 
 const CustomReferenceWrap = styled.div`
@@ -37,24 +38,15 @@ const CustomReferenceWrap = styled.div`
     .customField {
       flex: 1;
       min-width: 0;
-      background: var(--color-background-primary);
+    }
+    .customField {
       border-radius: 4px;
       border: 1px solid var(--color-border-primary);
       padding: 0 12px;
-      &.isDel {
-        color: var(--color-error);
-      }
-    }
-    .customField {
       background: var(--color-background-secondary);
       margin-right: 10px;
-    }
-    .fieldName {
-      &:hover {
-        border-color: var(--color-border-tertiary);
-      }
-      &:focus {
-        border-color: var(--color-primary);
+      &.isDel {
+        color: var(--color-error);
       }
     }
     .showValue,
@@ -108,7 +100,7 @@ export default function CustomReference(props) {
             <div className={cx('customField overflow_ellipsis', { isDel: !control })}>
               {_.get(control, 'controlName') || _l('已删除')}
             </div>
-            <input
+            <Input
               className={cx('fieldName', { error: _.includes(errors, [item.cid]) })}
               value={item.name}
               onChange={e => {

@@ -4,16 +4,6 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import privateLinkAjax from 'src/api/privateLink.js';
 
-// 私有部署环境放开
-// (async () => {
-//   try {
-//     const module = await import('src/api/privateLink.js');
-//     privateLinkAjax = module.default || module;
-//   } catch (e) {
-//     console.warn(e);
-//   }
-// })();
-
 const Wrap = styled.div`
   width: 100%;
   height: auto;
@@ -57,26 +47,25 @@ const Wrap = styled.div`
 
 export default function Footer() {
   const [links, setState] = useState([]);
+  const isPrivateDeployment = window.platformENV.isOverseas || window.platformENV.isLocal;
 
   useEffect(() => {
-    getLinks();
-  }, []);
+    if (!isPrivateDeployment) return;
 
-  const getLinks = () => {
     privateLinkAjax.getLinkList({}).then(res => {
       setState(
-        res
+        (res || [])
           .filter(o => !!o.name && !!o.href)
           .sort((a, b) => {
             return a.sortIndex - b.sortIndex; // 升序排序
           }),
       );
     });
-  };
+  }, [isPrivateDeployment]);
 
   const showRight = window.platformENV.isPlatform && _.get(md, 'global.Config.IsCobranding');
   return (
-    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+    isPrivateDeployment &&
     (links.length > 0 || showRight) && (
       <Wrap
         className={cx('TxtCenter', {

@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Dialog, Dropdown, LoadDiv, MultipleDropdown } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Button, Modal, Select } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import './index.less';
 
 export default class SelectUsersFromApp extends Component {
@@ -51,8 +52,8 @@ export default class SelectUsersFromApp extends Component {
       result = result.map(({ appId, appName }) => {
         return {
           value: appId,
-          text: selectAppId === appId ? appName + _l('（本应用）') : appName,
-          label: appName,
+          label: selectAppId === appId ? appName + _l('（本应用）') : appName,
+          name: appName,
         };
       });
 
@@ -87,7 +88,7 @@ export default class SelectUsersFromApp extends Component {
    */
   onOk = () => {
     const { selectAppId, selectRoleIds, appList, roles } = this.state;
-    const appName = appList.find(item => item.value === selectAppId).label;
+    const appName = appList.find(item => item.value === selectAppId).name;
     const rolesList = selectRoleIds.map(roleId => {
       const singleRole = roles.find(item => item.value === roleId);
       return {
@@ -110,22 +111,20 @@ export default class SelectUsersFromApp extends Component {
   renderContent() {
     const { onCancel, multiChoose } = this.props;
     const { selectAppId, selectRoleIds, appList, roles } = this.state;
-    const label = selectRoleIds.map(id => roles.find(item => item.value === id).label);
 
     return (
       <Fragment>
         <div className="formItem flexRow mTop10">
           <div className="label">{_l('应用')}</div>
           <div className="content">
-            <Dropdown
-              isAppendToBody
-              border
-              openSearch
+            <Select
+              showSearch
+              optionFilterProp="label"
               className="w100"
               placeholder={_l('请选择')}
-              noData={_l('没有可选的应用')}
-              value={selectAppId}
-              data={appList}
+              notFoundContent={_l('没有可选的应用')}
+              value={selectAppId || undefined}
+              options={appList}
               onChange={id => {
                 this.setState({ selectAppId: id, selectRoleIds: [] });
                 this.getRolesByApp(id);
@@ -136,25 +135,25 @@ export default class SelectUsersFromApp extends Component {
         <div className="formItem flexRow mTop15">
           <div className="label">{_l('角色')}</div>
           <div className="content">
-            <MultipleDropdown
-              className={label.length ? '' : 'noSelectRoles'}
-              value={selectRoleIds}
+            <Select
+              className="w100"
+              mode={multiChoose ? 'multiple' : undefined}
+              value={multiChoose ? selectRoleIds : selectRoleIds[0]}
               options={roles}
-              multipleSelect={multiChoose}
-              label={label.length ? label.join('、') : _l('选择角色')}
-              multipleLevel={false}
-              multipleHideDropdownNav
-              filter
-              filterHint={_l('搜索')}
-              onChange={(evt, ids) => this.setState({ selectRoleIds: multiChoose ? ids : [ids] })}
+              placeholder={_l('选择角色')}
+              notFoundContent={_l('没有可选的角色')}
+              showSearch
+              optionFilterProp="label"
+              maxTagCount={multiChoose ? 'responsive' : undefined}
+              onChange={ids => this.setState({ selectRoleIds: multiChoose ? ids : [ids] })}
             />
           </div>
         </div>
         <div className="btns TxtRight mTop20">
-          <Button type="link" onClick={onCancel}>
+          <Button color="primary" variant="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
-          <Button disabled={!selectAppId || !selectRoleIds.length} onClick={this.onOk}>
+          <Button type="primary" disabled={!selectAppId || !selectRoleIds.length} onClick={this.onOk}>
             {_l('确定')}
           </Button>
         </div>
@@ -166,15 +165,15 @@ export default class SelectUsersFromApp extends Component {
     const { appList } = this.state;
 
     return (
-      <Dialog
+      <Modal
         className="selectUserFromAppDialog"
-        visible
+        open
         title={_l('选择应用下角色')}
         footer={null}
         onCancel={this.props.onCancel}
       >
         {appList === null ? <LoadDiv /> : this.renderContent()}
-      </Dialog>
+      </Modal>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const CountTip = styled(FlexCenter)`
   box-sizing: border-box;
@@ -13,14 +13,14 @@ const CountTip = styled(FlexCenter)`
   color: var(--color-white);
   font-weight: bold;
   cursor: pointer;
-  padding: ${props => (props.visible ? '0 8px' : '0 4px 0 8px')};
-  background: ${props => (props.visible ? 'var(--color-text-tertiary)' : 'var(--color-primary)')};
-  box-shadow: ${props => (props.visible ? 'none' : 'var(--shadow-md)')};
+  padding: ${props => (props.$visible ? '0 8px' : '0 4px 0 8px')};
+  background: ${props => (props.$visible ? 'var(--color-text-tertiary)' : 'var(--color-primary)')};
+  box-shadow: ${props => (props.$visible ? 'none' : 'var(--shadow-md)')};
 `;
 export default ({ count, rowId, visible, onClick }) => (
   <CountTip
     className="countTip"
-    visible={visible && count}
+    $visible={visible && count}
     onClick={e => {
       e.stopPropagation();
       if (count) {

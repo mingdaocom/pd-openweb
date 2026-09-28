@@ -6,15 +6,16 @@ import styled from 'styled-components';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { browserIsMobile, getClassNameByExt } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
-import { getMultiRelateViewConfig } from '../util';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { isIframeControl } from 'src/utils/domain/control/dynamicValue';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { getMultiRelateViewConfig } from 'src/utils/services/worksheet/view';
 
 const CoverImageWrap = styled.div`
   position: relative;

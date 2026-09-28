@@ -1,22 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Popover } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import { Popover } from 'ming-ui/antd-components';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
-import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard.jsx';
-import { getRecordAttachments } from 'src/pages/worksheet/views/util.js';
-import { RENDER_RECORD_NECESSARY_ATTR } from 'src/pages/worksheet/views/util.js';
-import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
-import { getRecordColorConfig } from 'src/utils/record';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { transferValue } from 'src/utils/domain/control/value';
+import { SYS_CONTROLS_WORKFLOW } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { RECORD_COLOR_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { getRecordAttachments } from 'src/utils/services/worksheet/view';
+import { RENDER_RECORD_NECESSARY_ATTR } from 'src/utils/services/worksheet/view';
 import { CARD_WIDTH } from './constants';
 import { isEmojiCharacter } from './util';
+
+const eventCardCleanups = new WeakMap();
+let activeEventCardCleanup;
 
 const EventCardContent = ({
   info,
@@ -141,6 +145,7 @@ const EventCardContent = ({
           type="board"
           showNull={true}
           data={data}
+          worksheetInfo={worksheetInfo}
           hoverShowAll
           canDrag={false}
           isCharge={isCharge}
@@ -177,86 +182,58 @@ const EventCard = ({
   views,
   eventClick,
   isMove,
+  initialVisible = false,
   getButtonsCheckStatus,
   ...props
 }) => {
-  const { event, el } = info;
-  const eventEl = el;
+  const eventEl = info.el;
   const [visible, setVisible] = useState(false);
   const [offsetX, setOffsetX] = useState(0);
   const hoverRef = useRef(null);
+  const handleMouseMoveRef = useRef(null);
 
-  const { stringColor, backgroundColor, borderColor, textColor, recordColor } = _.get(event, 'extendedProps', {});
-  const colortype = getAdvanceSetting(currentView).colortype || RECORD_COLOR_SHOW_TYPE.BG;
+  const setHoverElement = useCallback(
+    node => {
+      hoverRef.current = node;
+
+      if (node) {
+        setVisible(initialVisible && eventEl.matches(':hover'));
+      }
+    },
+    [eventEl, initialVisible],
+  );
 
   useEffect(() => {
-    if (!_.get(event, ['extendedProps', 'editable'])) {
-      eventEl.style.cursor = 'not-allowed';
-    }
+    handleMouseMoveRef.current = _.throttle(e => {
+      if (!hoverRef.current) return;
 
-    const titleEl = eventEl.querySelector('.fc-event-title');
+      const timebarRect = hoverRef.current.getBoundingClientRect();
+      const timebarWidth = timebarRect.width;
 
-    if (titleEl) {
-      titleEl.style.setProperty('color', textColor, 'important');
-      const mark = _.get(event, ['extendedProps', 'mark']);
-      const title = _.get(event, 'title', '');
+      if (timebarWidth > CARD_WIDTH) {
+        const mouseX = e.clientX - timebarRect.left;
+        let cardLeft = mouseX - CARD_WIDTH / 2;
 
-      if (mark) {
-        const markSpan = document.createElement('span');
-        markSpan.className = `mLeft10 Normal markTxt ${isEmojiCharacter(mark) ? '' : 'Alpha4'}`;
-        markSpan.textContent = mark;
+        if (cardLeft < 0) {
+          cardLeft = 0;
+        } else if (cardLeft + CARD_WIDTH > timebarWidth) {
+          cardLeft = timebarWidth - CARD_WIDTH;
+        }
 
-        titleEl.innerHTML = '';
-        titleEl.appendChild(document.createTextNode(title));
-        titleEl.appendChild(markSpan);
+        setOffsetX(cardLeft);
       } else {
-        titleEl.textContent = title;
+        setOffsetX(0);
       }
+    }, 50);
 
-      if (event.allDay) {
-        titleEl.style.fontWeight = 'bold';
-      }
-    }
-
-    ['Top', 'Bottom', 'Left', 'Right'].forEach(side => {
-      eventEl.style[`border${side}`] = `1px solid ${borderColor}`;
-    });
-    eventEl.style.setProperty('background-color', 'var(--color-background-primary)', 'important');
-    if (colortype !== RECORD_COLOR_SHOW_TYPE.LINE || !recordColor) {
-      eventEl.style.setProperty(
-        'background-image',
-        `linear-gradient(${backgroundColor}, ${backgroundColor})`,
-        'important',
-      );
-    } else {
-      eventEl.style.removeProperty('background-image');
-    }
-
-    if ([RECORD_COLOR_SHOW_TYPE.LINE, RECORD_COLOR_SHOW_TYPE.LINE_BG].includes(colortype) && recordColor) {
-      eventEl.style.borderLeft = `4px solid ${stringColor}`;
-    }
-  }, [eventEl, event, currentView, info, stringColor, backgroundColor, borderColor, colortype]);
+    return () => {
+      handleMouseMoveRef.current?.cancel();
+      handleMouseMoveRef.current = null;
+    };
+  }, []);
 
   const handleMouseMove = e => {
-    if (!hoverRef.current) return;
-
-    const timebarRect = hoverRef.current.getBoundingClientRect();
-    const timebarWidth = timebarRect.width;
-
-    if (timebarWidth > CARD_WIDTH) {
-      const mouseX = e.clientX - timebarRect.left;
-      let cardLeft = mouseX - CARD_WIDTH / 2;
-
-      if (cardLeft < 0) {
-        cardLeft = 0;
-      } else if (cardLeft + CARD_WIDTH > timebarWidth) {
-        cardLeft = timebarWidth - CARD_WIDTH;
-      }
-
-      setOffsetX(cardLeft);
-    } else {
-      setOffsetX(0);
-    }
+    handleMouseMoveRef.current?.(e);
   };
 
   return (
@@ -286,23 +263,22 @@ const EventCard = ({
         />
       }
       align={{
-        offset: [offsetX, 5],
+        offset: [offsetX, -5],
       }}
-      zIndex={100}
-      arrow={false}
+      destroyOnHidden={false}
       title={undefined}
       trigger="hover"
       // trigger="click"
       placement="topLeft"
-      overlayClassName="event-card-popover calendarPopoverWrap"
-      visible={visible && !isMove}
-      onVisibleChange={visible => {
+      classNames={{ root: 'event-card-popover calendarPopoverWrap' }}
+      noPadding
+      open={visible && !isMove}
+      onOpenChange={visible => {
         setVisible(visible);
       }}
-      destroyTooltipOnHide
     >
       <div
-        ref={hoverRef}
+        ref={setHoverElement}
         className="event-hover-area"
         style={{
           width: '100%',
@@ -312,10 +288,62 @@ const EventCard = ({
           left: 0,
           pointerEvents: 'auto',
         }}
-        onMouseMove={_.throttle(handleMouseMove, 50)}
+        onMouseMove={handleMouseMove}
       />
     </Popover>
   );
+};
+
+const applyEventStyle = (info, currentView) => {
+  const { event, el: eventEl } = info;
+  const { stringColor, backgroundColor, borderColor, textColor, recordColor } = _.get(event, 'extendedProps', {});
+  const colortype = getAdvanceSetting(currentView).colortype || RECORD_COLOR_SHOW_TYPE.BG;
+
+  if (!_.get(event, ['extendedProps', 'editable'])) {
+    eventEl.style.cursor = 'not-allowed';
+  }
+
+  const titleEl = eventEl.querySelector('.fc-event-title');
+
+  if (titleEl) {
+    titleEl.style.setProperty('color', textColor, 'important');
+    const mark = _.get(event, ['extendedProps', 'mark']);
+    const title = _.get(event, 'title', '');
+
+    if (mark) {
+      const markSpan = document.createElement('span');
+      markSpan.className = `mLeft10 Normal markTxt ${isEmojiCharacter(mark) ? '' : 'Alpha4'}`;
+      markSpan.textContent = mark;
+
+      titleEl.innerHTML = '';
+      titleEl.appendChild(document.createTextNode(title));
+      titleEl.appendChild(markSpan);
+    } else {
+      titleEl.textContent = title;
+    }
+
+    if (event.allDay) {
+      titleEl.style.fontWeight = 'bold';
+    }
+  }
+
+  ['Top', 'Bottom', 'Left', 'Right'].forEach(side => {
+    eventEl.style[`border${side}`] = `1px solid ${borderColor}`;
+  });
+  eventEl.style.setProperty('background-color', 'var(--color-background-primary)', 'important');
+  if (colortype !== RECORD_COLOR_SHOW_TYPE.LINE || !recordColor) {
+    eventEl.style.setProperty(
+      'background-image',
+      `linear-gradient(${backgroundColor}, ${backgroundColor})`,
+      'important',
+    );
+  } else {
+    eventEl.style.removeProperty('background-image');
+  }
+
+  if ([RECORD_COLOR_SHOW_TYPE.LINE, RECORD_COLOR_SHOW_TYPE.LINE_BG].includes(colortype) && recordColor) {
+    eventEl.style.borderLeft = `4px solid ${stringColor}`;
+  }
 };
 
 export const eventDidMount = (
@@ -331,31 +359,68 @@ export const eventDidMount = (
   isMove,
   getButtonsCheckStatus,
 ) => {
-  const container = document.createElement('div');
-  container.className = `custom-card-container_${_.get(info, 'event.extendedProps.rowid')}`;
-  info.el.appendChild(container);
+  applyEventStyle(info, currentView);
+  let container;
+  let root;
+  let cleaned = false;
 
-  const root = createRoot(container);
+  const disposeEventCard = () => {
+    if (!root) return;
 
-  root.render(
-    <EventCard
-      key={`custom-card_${_.get(info, 'event.extendedProps.rowid')}`}
-      isMove={isMove}
-      info={info}
-      currentView={currentView}
-      controls={controls}
-      worksheetInfo={worksheetInfo}
-      base={base}
-      sheetSwitchPermit={sheetSwitchPermit}
-      getButtonsCheckStatus={getButtonsCheckStatus}
-      isCharge={isCharge}
-      eventClick={eventClick}
-      {...props}
-    />,
-  );
-
-  return () => {
     root.unmount();
     container.remove();
+    root = undefined;
+    container = undefined;
+
+    if (activeEventCardCleanup === disposeEventCard) {
+      activeEventCardCleanup = undefined;
+    }
   };
+
+  const mountEventCard = () => {
+    if (root || cleaned) return;
+
+    activeEventCardCleanup?.();
+    container = document.createElement('div');
+    container.className = `custom-card-container_${_.get(info, 'event.extendedProps.rowid')}`;
+    info.el.appendChild(container);
+    root = createRoot(container);
+    root.render(
+      <EventCard
+        key={`custom-card_${_.get(info, 'event.extendedProps.rowid')}`}
+        initialVisible
+        isMove={isMove}
+        info={info}
+        currentView={currentView}
+        controls={controls}
+        worksheetInfo={worksheetInfo}
+        base={base}
+        sheetSwitchPermit={sheetSwitchPermit}
+        getButtonsCheckStatus={getButtonsCheckStatus}
+        isCharge={isCharge}
+        eventClick={eventClick}
+        {...props}
+      />,
+    );
+    activeEventCardCleanup = disposeEventCard;
+  };
+
+  const cleanup = () => {
+    if (cleaned) return;
+
+    cleaned = true;
+    info.el.removeEventListener('mouseenter', mountEventCard);
+    disposeEventCard();
+    eventCardCleanups.delete(info.el);
+  };
+
+  eventCardCleanups.get(info.el)?.();
+  info.el.addEventListener('mouseenter', mountEventCard);
+  eventCardCleanups.set(info.el, cleanup);
+
+  return cleanup;
+};
+
+export const eventWillUnmount = info => {
+  eventCardCleanups.get(info.el)?.();
 };

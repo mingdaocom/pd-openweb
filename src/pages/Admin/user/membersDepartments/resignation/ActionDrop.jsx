@@ -1,55 +1,48 @@
-import React, { useRef, useState } from 'react';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-
-const MenuWrap = styled(Menu)`
-  width: 130px !important;
-  position: relative !important;
-  min-width: 130px;
-`;
+import React, { useState } from 'react';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { hasPermission } from 'src/utils/services/security/permission';
 
 export default function ActionDrop(props) {
   const { record, authority, recovery = () => {}, updateData = () => {} } = props;
   const { accountId, fullname } = record;
   const [visible, setVisible] = useState(false);
-  const node = useRef(null);
 
   return (
     <div className="actionWrap">
-      <Trigger
-        getPopupContainer={node.current}
-        popupVisible={visible}
-        onPopupVisibleChange={dropdownVisible => setVisible(dropdownVisible)}
-        action={['click']}
-        popupAlign={{ points: ['tc', 'bc'], offset: [-60, 30], overflow: { adjustX: true, adjustY: true } }}
-        popup={
-          <MenuWrap>
-            <MenuItem
-              onClick={() => {
+      <Dropdown
+        open={visible}
+        onOpenChange={setVisible}
+        trigger={['click']}
+        menu={{
+          items: [
+            {
+              key: 'recovery',
+              label: _l('恢复'),
+              onClick: () => {
                 setVisible(false);
                 recovery(accountId, fullname);
-              }}
-            >
-              {_l('恢复')}
-            </MenuItem>
-            {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
-              <MenuItem
-                onClick={() => {
-                  setVisible(false);
-                  updateData({ showWorkHandover: true, transferor: record });
-                }}
-              >
-                {_l('交接工作')}
-              </MenuItem>
-            )}
-          </MenuWrap>
-        }
+              },
+            },
+            ...(hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE)
+              ? [
+                  {
+                    key: 'transfer',
+                    label: _l('交接工作'),
+                    onClick: () => {
+                      setVisible(false);
+                      updateData({ showWorkHandover: true, transferor: record });
+                    },
+                  },
+                ]
+              : []),
+          ],
+          style: { minWidth: 130 },
+        }}
       >
         <Icon icon="moreop" className="textTertiary Font16 Hand" />
-      </Trigger>
+      </Dropdown>
     </div>
   );
 }

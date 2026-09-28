@@ -1,8 +1,11 @@
 ﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { isFunction } from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { emitter } from 'src/utils/common';
+import { Popover } from 'ming-ui/antd-components';
+import { emitter } from 'src/utils/platform/browser/dom';
+
+const POPOVER_ALIGN = { offset: [0, 0] };
+const POPOVER_CLASS_NAMES = { root: 'tableColumnsPopup' };
 
 const Con = styled.div`
   .resizeDrag {
@@ -24,7 +27,7 @@ const Con = styled.div`
     &:hover {
       &::after {
         width: 2px;
-        background-color: #1677ff !important;
+        background-color: var(--color-primary) !important;
       }
     }
   }
@@ -32,10 +35,6 @@ const Con = styled.div`
 
 const PopupOperateCon = styled.div`
   .box {
-    border-radius: 4px;
-    border: 1px solid var(--color-border-primary);
-    background-color: #fff;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -46,7 +45,7 @@ const PopupOperateCon = styled.div`
       padding: 0 8px;
       .icon {
         font-size: 18px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         cursor: pointer;
         top: 2px;
         position: relative;
@@ -55,14 +54,9 @@ const PopupOperateCon = styled.div`
         }
       }
       &:hover {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-hover);
       }
     }
-  }
-  .footer {
-    height: 2px;
-    width: 200%;
-    margin-left: -100%;
   }
 `;
 
@@ -125,7 +119,7 @@ export default function CellWithPopupOperate({
         },
       });
     },
-    [style.width],
+    [columnIndex, control.appendWidth, style.width, updateSheetColumnWidths],
   );
   const handlePopupVisibleChange = useCallback(
     ({ newHoverColumnIndex, visible } = {}) => {
@@ -142,18 +136,16 @@ export default function CellWithPopupOperate({
     return () => {
       emitter.removeListener('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, handlePopupVisibleChange);
     };
-  }, [handlePopupVisibleChange]);
+  }, [handlePopupVisibleChange, tableId]);
   if (isFunction(renderColumnPopupContent) && !customPopupContent) {
     return null;
   }
 
   return (
-    <Trigger
-      action={['']}
-      zIndex={999}
-      popup={
+    <Popover
+      trigger={[]}
+      content={
         <PopupOperateCon
-          className="tableColumnsPopup"
           onMouseEnter={() => {
             setPopupVisible(true);
           }}
@@ -186,16 +178,14 @@ export default function CellWithPopupOperate({
               )}
             </div>
           )}
-          <div className="footer"></div>
         </PopupOperateCon>
       }
-      popupAlign={{
-        points: ['br', 'tr'],
-        offset: [0, 0],
-        overflow: { adjustY: true, adjustX: true },
-      }}
+      placement="topRight"
+      align={POPOVER_ALIGN}
+      classNames={POPOVER_CLASS_NAMES}
+      noPadding
       getPopupContainer={() => document.querySelector(`.sheetViewTable.id-${tableId}-id`) || document.body}
-      popupVisible={popupVisible}
+      open={popupVisible}
     >
       <Con
         className="cellPopupCon"
@@ -216,6 +206,6 @@ export default function CellWithPopupOperate({
         })}
         {!disabled && canDrag && <span ref={dragRef} className="resizeDrag Hand" onMouseDown={handleMouseDown}></span>}
       </Con>
-    </Trigger>
+    </Popover>
   );
 }

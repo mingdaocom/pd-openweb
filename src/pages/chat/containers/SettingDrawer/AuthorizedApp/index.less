@@ -1,0 +1,128 @@
+.authorizedAppContainer {
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  background-color: var(--color-background-primary);
+  overflow-x: hidden;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+
+  .description {
+    background: var(--color-primary-transparent);
+    border-radius: 3px;
+    padding: 12px;
+    margin-bottom: 21px;
+    color: var(--color-text-primary);
+    line-height: 20px;
+  }
+
+  .authorizedAppSearch {
+    width: 240px;
+    max-width: 100%;
+    height: 36px;
+    margin-bottom: 20px;
+    border-color: var(--color-border-secondary);
+    border-radius: 4px;
+  }
+
+  .authorizedAppCardList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+  }
+
+  .authorizedAppCard {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 6px;
+    background: var(--color-background-card);
+  }
+
+  .appIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .appIconFallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    color: var(--color-primary);
+    background: var(--color-primary-transparent);
+    font-size: 28px;
+  }
+
+  .authorizedAppIconWrap {
+    flex-shrink: 0;
+    margin-right: 18px;
+  }
+
+  .authorizedAppInfo {
+    min-width: 0;
+    flex: 1;
+    padding-right: 24px;
+  }
+
+  .authorizedAppName {
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 22px;
+  }
+
+  .authorizedAppDesc {
+    margin-top: 4px;
+    color: var(--color-text-secondary);
+    line-height: 20px;
+  }
+
+  .authorizedAppTime {
+    margin-top: 4px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  .authorizedAppError {
+    margin-top: 6px;
+    color: var(--color-error);
+    line-height: 20px;
+  }
+
+  .authorizedAppActionIcon {
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--color-text-secondary);
+    font-size: 20px;
+
+    &:hover {
+      color: var(--color-link);
+    }
+  }
+
+  .authorizedAppLoading,
+  .authorizedAppEmpty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+  }
+
+  .authorizedAppEmpty {
+    color: var(--color-text-secondary);
+  }
+}
+
+.authorizedAppActionMenu {
+  min-width: 116px;
+}

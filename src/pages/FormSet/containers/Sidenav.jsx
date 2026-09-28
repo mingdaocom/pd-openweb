@@ -1,9 +1,9 @@
 import React from 'react';
-import { CardNav, ScrollView } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { saveSelectExtensionNavType } from 'src/utils/worksheet';
+import { CardNav, ScrollView, UpgradeIcon } from 'ming-ui';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { saveSelectExtensionNavType } from 'src/utils/platform/storage/worksheet';
+import { getFeatureStatus } from 'src/utils/services/project';
 
 class Sidenav extends React.Component {
   handleClickNav = navType => {
@@ -23,24 +23,28 @@ class Sidenav extends React.Component {
           currentNav={type || 'submitForm'}
           navList={[
             {
+              key: 'submitForm',
               icon: 'task_alt',
               title: _l('提交表单'),
               url: `/worksheet/formSet/edit/${worksheetId}/submitForm`,
               onClick: () => this.handleClickNav('submitForm'),
             },
             {
+              key: 'alias',
               icon: 'rename_input',
               title: _l('数据名称'),
               url: `/worksheet/formSet/edit/${worksheetId}/alias`,
               onClick: () => this.handleClickNav('alias'),
             },
             {
+              key: 'functionalSwitch',
               icon: 'ic_toggle_off',
               title: _l('功能开关'),
               url: `/worksheet/formSet/edit/${worksheetId}/functionalSwitch`,
               onClick: () => this.handleClickNav('functionalSwitch'),
             },
             {
+              key: 'share',
               icon: 'share',
               title: _l('公开分享'),
               url: `/worksheet/formSet/edit/${worksheetId}/share`,
@@ -53,37 +57,46 @@ class Sidenav extends React.Component {
           currentNav={type}
           navList={[
             {
+              key: 'display',
               icon: 'list',
               title: _l('业务规则'),
               url: `/worksheet/formSet/edit/${worksheetId}/display`,
               onClick: () => this.handleClickNav('display'),
             },
             {
+              key: 'customAction',
               icon: 'custom_actions',
               title: _l('自定义动作'),
               url: `/worksheet/formSet/edit/${worksheetId}/customAction`,
               onClick: () => this.handleClickNav('customAction'),
             },
             {
+              key: 'aiAction',
               icon: 'auto_awesome',
               title: _l('AI 动作'),
               url: `/worksheet/formSet/edit/${worksheetId}/aiAction`,
               onClick: () => this.handleClickNav('aiAction'),
             },
             {
+              key: 'printTemplate',
               icon: 'print',
               title: _l('打印模板'),
               url: `/worksheet/formSet/edit/${worksheetId}/printTemplate`,
               onClick: () => this.handleClickNav('printTemplate'),
             },
             {
+              key: 'editProtect',
               icon: 'workflow_write',
               title: _l('编辑保护'),
               url: `/worksheet/formSet/edit/${worksheetId}/editProtect`,
               onClick: () => this.handleClickNav('editProtect'),
-              showUpgradeIcon: getFeatureStatus(projectId, VersionProductType.editProtect) !== '1',
+              extra:
+                getFeatureStatus(projectId, VersionProductType.editProtect) !== '1' ? (
+                  <UpgradeIcon className="verticalTxtBottom" />
+                ) : null,
             },
             {
+              key: 'indexSetting',
               icon: 'db_index',
               title: _l('检索加速'),
               url: `/worksheet/formSet/edit/${worksheetId}/indexSetting`,

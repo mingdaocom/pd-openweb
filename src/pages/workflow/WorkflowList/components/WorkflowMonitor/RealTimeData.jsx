@@ -1,12 +1,13 @@
 import React, { Fragment, PureComponent } from 'react';
 import _ from 'lodash';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
-import { settingEarlyWarning } from './EarlyWarningDialog';
+import { useEarlyWarningDialog } from './EarlyWarningDialog';
 import { justifyInfoData } from './enum';
 
 const formatter = v => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-export default class RealTimeData extends PureComponent {
+class RealTimeData extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -83,7 +84,7 @@ export default class RealTimeData extends PureComponent {
             <span
               className="colorPrimary Hand"
               onClick={() => {
-                settingEarlyWarning({
+                this.props.openEarlyWarningDialog({
                   type: 'workflow',
                   projectId,
                   warningValue,
@@ -118,3 +119,7 @@ export default class RealTimeData extends PureComponent {
     );
   }
 }
+
+export default withOpeners(RealTimeData, {
+  openEarlyWarningDialog: useEarlyWarningDialog,
+});

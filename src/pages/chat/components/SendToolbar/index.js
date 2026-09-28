@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import chatAjax from 'src/api/chat';
 import { SOURCE_TYPE } from 'src/components/comment/config';
-import Emotion from 'src/components/emotion/emotion';
+import Emotion from 'src/components/emotion';
 import MentionsInput from 'src/components/MentionsInput';
-import { getToken, setCaretPosition } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { setCaretPosition } from 'src/utils/platform/browser/dom';
+import { getToken } from 'src/utils/services/request/authenticated';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import * as utils from '../../utils';
-import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import fileConfirm from '../fileConfirm/fileConfirm';
 import './index.less';
@@ -63,8 +64,6 @@ export default class SendToolbar extends Component {
   }
   componentDidMount() {
     const { isGroup } = this.props.session;
-    // 表情
-    this.initEmotion();
     // 本地文件上传
     setTimeout(() => {
       this.initUpload();
@@ -77,41 +76,30 @@ export default class SendToolbar extends Component {
     const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea').get(0);
     textarea && textarea.destroy && textarea.destroy();
   }
-  initEmotion() {
-    const { id } = this.props.session;
-    const isFileTrsnsfer = id === 'file-transfer';
+  handleEmotionSelect = ({ code, src, text, type }) => {
+    if (type !== 'sticker') {
+      this.props.onSendEmotionTextMsg(text || code);
+      return;
+    }
 
-    new Emotion(this.emotion, {
-      historySize: 30,
-      autoHide: false,
-      mdBear: true,
-      showAru: true,
-      offset: isFileTrsnsfer ? 313 : 263,
-      relatedLeftSpace: isFileTrsnsfer ? -304 : -264,
-      onMDBearSelect: (name, src, targetEmotionSrc) => {
-        // 注意：ft 这个字段是作为七牛文件存储的类型判断的，所以要注意加上这个字段
-        // 1.图片 2.附件 3.音频
-        name = name == 'null' ? null : name;
-        const bearFile = {
-          ft: 1,
-          hash: '',
-          key: targetEmotionSrc.replace(/.*images\//, ''),
-          name: name ? name : `[${_l('表情')}]`,
-          size: 0,
-          aid: md.global.Account.accountId,
-          isEmotion: true,
-        };
-        const message = {
-          file: bearFile,
-          type: Constant.MSGTYPE_EMOTION,
-        };
-        this.props.onSendEmotionPicMsg(message);
-      },
-      onSelect: (name, value, emotionText) => {
-        this.props.onSendEmotionTextMsg(emotionText || name);
-      },
-    });
-  }
+    const name = code === 'null' || code === null ? null : code;
+    // 注意：ft 这个字段是作为七牛文件存储的类型判断的，所以要注意加上这个字段
+    // 1.图片 2.附件 3.音频
+    const emotionFile = {
+      ft: 1,
+      hash: '',
+      key: src.replace(/.*images\//, ''),
+      name: name || `[${_l('表情')}]`,
+      size: 0,
+      aid: md.global.Account.accountId,
+      isEmotion: true,
+    };
+    const message = {
+      file: emotionFile,
+      type: Constant.MSGTYPE_EMOTION,
+    };
+    this.props.onSendEmotionPicMsg(message);
+  };
   initUpload() {
     const { session, socketState = 0 } = this.props;
     const _this = this;
@@ -313,7 +301,9 @@ export default class SendToolbar extends Component {
     });
   }
   handleKnowledgeFile() {
-    if (this.props.socketState) {
+    const { session, socketState } = this.props;
+
+    if (socketState || session.id === Constant.FILE_TRANSFER.id) {
       return;
     }
 
@@ -361,57 +351,65 @@ export default class SendToolbar extends Component {
       .then(() => {
         alert(_l('发送成功'));
       })
-      .catch(() => {
-        alert(_l('发送失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('发送失败'), 2);
       });
   }
   handleRecord() {
     const { session } = this.props;
     utils.recordCursortPosition(session.id);
   }
-  renderMenu() {
+  renderMenuItems() {
     const { id } = this.props.session;
-    return (
-      <div className="ChatPanel-addToolbar-menu ChatPanel-addToolbar-KnowledgeMenu">
-        <div
-          className="menuItem"
-          onClick={this.handleLocalFile.bind(this)}
-          ref={uploadFile => {
-            this.uploadFile = uploadFile;
-          }}
-          id={`file-${id}`}
-        >
-          <i className="icon-local_file" />
-          <div className="menuItem-text">{_l('本地文件')}</div>
-        </div>
-        <div className="menuItem" onClick={this.handleKnowledgeFile.bind(this)}>
-          <i className="icon-knowledge_file" />
-          <div className="menuItem-text">{_l('知识中心')}</div>
-        </div>
-      </div>
-    );
+    const isFileTransfer = id === Constant.FILE_TRANSFER.id;
+
+    return [
+      {
+        key: 'localFile',
+        icon: <Icon icon="local_file" className="Font16 textSecondary" />,
+        label: (
+          <span
+            ref={uploadFile => {
+              this.uploadFile = uploadFile ? uploadFile.closest('[role="menuitem"]') || uploadFile : uploadFile;
+            }}
+            id={`file-${id}`}
+          >
+            {_l('本地文件')}
+          </span>
+        ),
+        onClick: this.handleLocalFile.bind(this),
+      },
+      !isFileTransfer && {
+        key: 'knowledgeFile',
+        icon: <Icon icon="knowledge_file" className="Font16 textSecondary" />,
+        label: _l('知识中心'),
+        onClick: this.handleKnowledgeFile.bind(this),
+      },
+    ].filter(Boolean);
   }
   renderFile() {
     const { visible, isHidden } = this.state;
     const { id } = this.props.session;
     return (
-      <Trigger
-        popupVisible={visible}
-        onPopupVisibleChange={this.handleChange.bind(this)}
-        popupClassName={cx('ChatPanel-Trigger', { Hidden: isHidden })}
-        action={['click']}
-        popupPlacement="top"
-        builtinPlacements={config.builtinPlacements}
-        popup={this.renderMenu()}
-        popupAlign={{ offset: [id === 'file-transfer' ? -50 : -20, -20] }}
+      <Dropdown
+        align={{ offset: [id === Constant.FILE_TRANSFER.id ? -45 : -15, -20] }}
+        classNames={{ root: cx({ Hidden: isHidden }) }}
+        forceRender
         getPopupContainer={() => document.querySelector('.ChatPanel-wrapper')}
+        menu={{ items: this.renderMenuItems(), style: { width: 150 } }}
+        open={visible}
+        placement="top"
+        trigger={['click']}
+        onOpenChange={this.handleChange.bind(this)}
       >
-        <Tooltip title={_l('发送本地文件')}>
-          <div className="icon-btn">
-            <i className="icon-attachment" />
-          </div>
-        </Tooltip>
-      </Trigger>
+        <div>
+          <Tooltip title={_l('发送本地文件')}>
+            <div className="icon-btn">
+              <i className="icon-attachment" />
+            </div>
+          </Tooltip>
+        </div>
+      </Dropdown>
     );
   }
   render() {
@@ -420,17 +418,21 @@ export default class SendToolbar extends Component {
 
     return (
       <div className="ChatPanel-sendToolbar">
-        <Tooltip title={_l('发表情')}>
-          <div
-            onClick={this.handleRecord.bind(this)}
-            ref={emotion => {
-              this.emotion = emotion;
-            }}
-            className="icon-btn"
-          >
-            <i className="icon-smilingFace" />
-          </div>
-        </Tooltip>
+        <Emotion
+          closeOnSelect={false}
+          historySize={30}
+          placement="topRight"
+          showAru
+          showBear
+          onOpenChange={open => open && this.handleRecord()}
+          onSelect={this.handleEmotionSelect}
+        >
+          <Tooltip title={_l('发表情')}>
+            <div className="icon-btn">
+              <i className="icon-smilingFace" />
+            </div>
+          </Tooltip>
+        </Emotion>
         {this.renderFile()}
         {session.isGroup ? (
           <Tooltip title={_l('@聊天成员，给ta发送一个抖动')} placement="topRight">

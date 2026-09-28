@@ -5,7 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Dialog, RichText, ScrollView, Skeleton } from 'ming-ui';
+import { RichText, ScrollView } from 'ming-ui';
+import { Modal, Skeleton } from 'ming-ui/antd-components';
 import { Absolute, FormTopImgCon } from 'worksheet/components/Basics';
 import { VerificationPass } from 'worksheet/components/ShareState';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
@@ -16,33 +17,29 @@ import { themes } from 'src/pages/FormExtend/enum';
 import BgContainer from 'src/pages/FormExtend/PublicWorksheetConfig/components/BgContainer';
 import Qr from 'src/pages/FormExtend/PublicWorksheetConfig/components/Qr';
 import { getPageConfig } from 'src/pages/FormExtend/utils';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 import { getFormData, getPublicWorksheet, getPublicWorksheetInfo } from './action';
 import { FILL_STATUS } from './enum';
 import FillWorksheet from './FillWorksheet';
 import NotFillStatus from './NotFillStatus';
+import { getAfterSubmitJumpUrl } from './utils';
 import './index.less';
 
 const TopBar = styled.div(
-  ({ color, hasBorderRadius }) =>
-    `height: 10px; background: ${color}; opacity: .4; border-radius: ${hasBorderRadius ? '3px 3px 0 0' : 'none'};`,
+  ({ $color, $hasBorderRadius }) =>
+    `height: 10px; background: ${$color}; opacity: .4; border-radius: ${$hasBorderRadius ? '3px 3px 0 0' : 'none'};`,
 );
-
 const PreFillWrap = styled.div``;
-
 export default class PublicWorksheet extends React.Component {
   static propTypes = {
     isPreview: PropTypes.bool,
     worksheetId: PropTypes.string,
   };
-
   constructor(props) {
     super(props);
-
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-
     this.state = {
       loading: true,
       qrurl: '',
@@ -53,7 +50,6 @@ export default class PublicWorksheet extends React.Component {
     };
     window.isPublicWorksheet = _.get(window, 'shareState.isPublicFormPreview') ? false : true;
   }
-
   componentDidMount() {
     const { isPreview, worksheetId } = this.props;
 
@@ -68,7 +64,6 @@ export default class PublicWorksheet extends React.Component {
       });
     } else {
       window.addEventListener('popstate', this.pageBack);
-
       const urlMatch = location.pathname.match(/.*\/((\w{32}))/);
 
       if (!urlMatch) {
@@ -83,7 +78,10 @@ export default class PublicWorksheet extends React.Component {
           shareId,
         },
         info => {
-          this.setState({ loading: false, ...info });
+          this.setState({
+            loading: false,
+            ...info,
+          });
           if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
             alert(_l('你访问的表单暂未开放!'), 3);
           }
@@ -105,36 +103,36 @@ export default class PublicWorksheet extends React.Component {
       );
     }
   }
-
   componentWillUnmount() {
     !this.props.isPreview && window.removeEventListener('popstate', this.pageBack);
   }
-
   pageBack = event => {
     if (event.state && event.state.page === 'wechat_redirect') {
       location.reload();
     }
   };
+  onClosePreFillDesc = () =>
+    this.setState({
+      preFillDescVisible: false,
+    });
+  // 被 iframe 嵌入时（如 Mingo 反馈弹层）向父窗口广播提交完成，供嵌入方做关闭浮层等收尾。
+  // 父窗口 origin 不可知，故 targetOrigin 用 '*'；消息只含类型与 worksheetId，不带任何填写内容。
+  // 类型串与 src/components/Agent/ui/Feedback.jsx 的监听端保持一致。
+  notifyParentSubmitted = () => {
+    if (window.parent === window) return;
 
-  onClosePreFillDesc = () => this.setState({ preFillDescVisible: false });
+    const { worksheetId } = this.state.publicWorksheetInfo || {};
+
+    window.parent.postMessage({ type: 'PUBLIC_WORKSHEET_SUBMITTED', worksheetId }, '*');
+  };
 
   onSubmit = (submitResult, data, submitSuccess = () => {}) => {
     const { isPayOrder, rowId, isAtOncePayment, isPaySuccessAddRecord, isOpenInvoice } = submitResult || {};
     const { worksheetId, extendDatas } = this.state.publicWorksheetInfo || {};
-
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
-    let jumpUrl = '';
-
-    if (afterSubmit.action === 2) {
-      const afterSubmitContent = safeParse(afterSubmit.content);
-      const control = afterSubmitContent.isControl
-        ? _.find(data, l => l.controlId === _.get(afterSubmitContent, 'value.controlId')) || {}
-        : {};
-      jumpUrl = afterSubmitContent.isControl ? control.value : afterSubmitContent.value;
-    }
+    const jumpUrl = getAfterSubmitJumpUrl(afterSubmit, data);
 
     const { notDialog } = getRequest() || {};
-
     isPayOrder &&
       rowId &&
       handlePrePayOrder({
@@ -148,6 +146,7 @@ export default class PublicWorksheet extends React.Component {
         payFinished: ({ onCancel, isSuccess, amount, orderId }) => {
           if (isPaySuccessAddRecord && isSuccess) {
             submitSuccess();
+            this.notifyParentSubmitted();
             if (!notDialog) {
               this.setState({
                 status: FILL_STATUS.COMPLETED,
@@ -164,12 +163,15 @@ export default class PublicWorksheet extends React.Component {
           }
         },
       });
-
     !isPayOrder && jumpUrl && (location.href = jumpUrl);
-
-    (!isPaySuccessAddRecord || notDialog) && this.setState({ status: FILL_STATUS.COMPLETED, fillData: data });
+    if (!isPaySuccessAddRecord || notDialog) {
+      this.setState({
+        status: FILL_STATUS.COMPLETED,
+        fillData: data,
+      });
+      this.notifyParentSubmitted();
+    }
   };
-
   getThemeBgColor = ({ themeBgColor, themeColor }) => {
     if (!themeBgColor) {
       return !themes[themeColor] ? '#1677ff' : (themes[themeColor] || {}).main;
@@ -177,29 +179,28 @@ export default class PublicWorksheet extends React.Component {
       return themeBgColor;
     }
   };
-
   renderPreFillDesc() {
     const { preFillDescVisible, publicWorksheetInfo, loading, status } = this.state;
     const preFillDesc = _.get(publicWorksheetInfo, 'extendDatas.preFillDesc');
     const preFillDescConfig = safeParse(preFillDesc);
-
     if (loading || !preFillDescConfig.enable || !_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status))
       return null;
-
     return (
-      <Dialog
+      <Modal
         width={800}
-        dialogClasses="preFillDescDialog"
+        rootClassName="preFillDescDialog"
         title={preFillDescConfig.title || _l('填写说明')}
-        style={{ maxWidth: '80%' }}
-        visible={preFillDescVisible}
-        overlayClosable={false}
+        style={{
+          maxWidth: '80%',
+        }}
+        open={preFillDescVisible}
+        mask={{ closable: false }}
+        keyboard
         closable={false}
-        footer={
-          <div className="flexRow justifyContentCenter">
-            <Button onClick={this.onClosePreFillDesc}>{preFillDescConfig.buttonName}</Button>
-          </div>
-        }
+        cancelButtonProps={{ style: { display: 'none' } }}
+        okText={preFillDescConfig.buttonName}
+        onOk={this.onClosePreFillDesc}
+        styles={{ footer: { textAlign: 'center' } }}
         onCancel={this.onClosePreFillDesc}
       >
         <PreFillWrap className="mdEditor">
@@ -210,23 +211,23 @@ export default class PublicWorksheet extends React.Component {
             minHeight={64}
           />
         </PreFillWrap>
-      </Dialog>
+      </Modal>
     );
   }
-
   render() {
     const { isPreview } = this.props;
     const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey, submitRes } = this.state;
     const { worksheetId, writeScope, appId, projectId } = publicWorksheetInfo;
-
     const request = getRequest();
     const { bg, cover } = request;
     const hideBg = bg === 'no';
-
     const config = getPageConfig(_.get(publicWorksheetInfo, 'extendDatas.pageConfigs'), pageConfigKey);
     const { themeBgColor, layout, cover: coverPic, showQrcode, themeColor } = config;
     const bgShowTop = (layout === 2 || hideBg) && !loading;
-    const theme = this.getThemeBgColor({ themeBgColor, themeColor });
+    const theme = this.getThemeBgColor({
+      themeBgColor,
+      themeColor,
+    });
 
     if (status === 300016) {
       return <RestrictAccessStatus />;
@@ -235,7 +236,11 @@ export default class PublicWorksheet extends React.Component {
     const renderContent = () => {
       return (
         <React.Fragment>
-          <div className={cx('formContent flexColumn', { mTop10: bgShowTop })}>
+          <div
+            className={cx('formContent flexColumn', {
+              mTop10: bgShowTop,
+            })}
+          >
             {!_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status) && (
               <PublicAppLangDropdown
                 className="publicWorksheetLang publicWorksheetLangInForm"
@@ -252,7 +257,7 @@ export default class PublicWorksheet extends React.Component {
             {!hideBg && (
               <React.Fragment>
                 {worksheetId && showQrcode && (
-                  <Absolute top="0" right="-48">
+                  <Absolute $top="0" $right="-48" className="publicWorksheetQr">
                     <div
                       className="qrIcon icon icon-zendeskHelp-qrcode"
                       onMouseEnter={() => {
@@ -266,7 +271,9 @@ export default class PublicWorksheet extends React.Component {
                           }
                         }
 
-                        this.setState({ qrurl });
+                        this.setState({
+                          qrurl,
+                        });
                       }}
                     >
                       <Qr url={qrurl} />
@@ -274,35 +281,53 @@ export default class PublicWorksheet extends React.Component {
                   </Absolute>
                 )}
                 <TopBar
-                  color={theme}
-                  hasBorderRadius={!bgShowTop || !coverPic}
-                  className={cx({ hide: (bgShowTop && coverPic) || loading })}
+                  $color={theme}
+                  $hasBorderRadius={!bgShowTop || !coverPic}
+                  className={cx({
+                    hide: (bgShowTop && coverPic) || loading,
+                  })}
                 />
               </React.Fragment>
             )}
 
             {loading && (
-              <div style={{ padding: 10 }}>
+              <div
+                style={{
+                  padding: 10,
+                }}
+              >
                 <Skeleton
-                  style={{ flex: 1 }}
-                  direction="column"
-                  widths={['30%', '40%', '90%', '60%']}
+                  className="pAll20 pBottom0"
+                  style={{
+                    flex: 1,
+                  }}
                   active
-                  itemStyle={{ marginBottom: '10px' }}
+                  paragraph={{
+                    rows: 4,
+                    width: ['30%', '40%', '90%', '60%'],
+                  }}
                 />
                 <Skeleton
-                  style={{ flex: 1 }}
-                  direction="column"
-                  widths={['40%', '55%', '100%', '80%']}
+                  className="pAll20 pBottom0"
+                  style={{
+                    flex: 1,
+                  }}
                   active
-                  itemStyle={{ marginBottom: '10px' }}
+                  paragraph={{
+                    rows: 4,
+                    width: ['40%', '55%', '100%', '80%'],
+                  }}
                 />
                 <Skeleton
-                  style={{ flex: 2 }}
-                  direction="column"
-                  widths={['45%', '100%', '100%', '100%']}
+                  className="pAll20"
+                  style={{
+                    flex: 2,
+                  }}
                   active
-                  itemStyle={{ marginBottom: '10px' }}
+                  paragraph={{
+                    rows: 4,
+                    width: ['45%', '100%', '100%', '100%'],
+                  }}
                 />
               </div>
             )}
@@ -348,7 +373,9 @@ export default class PublicWorksheet extends React.Component {
 
     return (
       <div
-        className={cx('publicWorksheet', { hideBg })}
+        className={cx('publicWorksheet', {
+          hideBg,
+        })}
         style={{
           backgroundColor: loading ? 'var(--color-background-disabled)' : !hideBg ? generate(theme)[0] : '#fff',
         }}
@@ -377,7 +404,10 @@ export default class PublicWorksheet extends React.Component {
                   };
                   getPublicWorksheet(params, info => {
                     if (info) {
-                      this.setState({ loading: false, ...info });
+                      this.setState({
+                        loading: false,
+                        ...info,
+                      });
                       if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
                         alert(_l('你访问的表单暂未开放!'), 3);
                       }

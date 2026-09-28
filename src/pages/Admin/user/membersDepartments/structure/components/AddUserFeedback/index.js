@@ -1,43 +1,40 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, UserHead } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { UserHead } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import userController from 'src/api/user';
 import UserCountLimitLink from 'src/pages/Admin/user/membersDepartments/UserCountLimitLink';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { feedbackTypes } from '../../constant';
-import { refuseUserJoinFunc } from '../refuseUserJoinDia';
+import { useRefuseUserJoinDialog } from '../refuseUserJoinDia';
 
-const FeedbackDialog = styled(Dialog)`
+const FeedbackDialog = styled(Modal)`
   .footer {
     text-align: right;
-    .ming.Button--medium {
-      padding: 0 24px;
-    }
-    .ming.Button--link {
-      height: 34px;
-      line-height: 34px;
-      border: 1px solid var(--color-primary);
-      color: var(--color-primary);
-    }
   }
 `;
 
 // 恢复权限
 const recovery = ({ accountId, fullname, projectId, callback = () => {} }) => {
-  Confirm({
+  Modal.confirm({
     title: _l('确定恢复 %0 权限吗？', fullname),
     onOk: () => {
-      userController.recoveryUser({ accountId, projectId }).then(data => {
-        if (data == 1) {
-          alert(_l('恢复成功'));
-          callback();
-        } else if (data == 4) {
-          alert(<UserCountLimitLink projectId={projectId} />, 3);
-        } else {
-          alert(_l('恢复失败'), 2);
-        }
-      });
+      userController
+        .recoveryUser({
+          accountId,
+          projectId,
+        })
+        .then(data => {
+          if (data == 1) {
+            alert(_l('恢复成功'));
+            callback();
+          } else if (data == 4) {
+            alert(<UserCountLimitLink projectId={projectId} />, 3);
+          } else {
+            alert(_l('恢复失败'), 2);
+          }
+        });
     },
   });
 };
@@ -65,8 +62,8 @@ const agreeJoin = ({ projectId, accountId, jobIds, departmentIds, workSiteId, jo
           alert(_l('操作失败'), 2);
         }
       },
-      () => {
-        alert(_l('操作失败'), 2);
+      _requestError => {
+        alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
       },
     );
 };
@@ -110,8 +107,8 @@ const handleMoveDepartment = ({
             alert(_l('设置失败'), 2);
           }
         },
-        () => {
-          alert(_l('设置失败'), 2);
+        _requestError3 => {
+          alertIfNotUnauthorized(_requestError3, _l('设置失败'), 2);
         },
       );
   } else {
@@ -138,14 +135,15 @@ const handleMoveDepartment = ({
           alert(_l('设置失败'), 2);
         }
       },
-      () => {
-        // alert(_l('设置失败'), 2);
+      _requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('设置失败'), 2);
       },
     );
   }
 };
 
 function AddUserFeedback(props) {
+  const { open: openRefuseUserJoinDialog, holder: refuseUserJoinDialogHolder } = useRefuseUserJoinDialog();
   const {
     visible,
     actionResult,
@@ -181,7 +179,8 @@ function AddUserFeedback(props) {
         return departmentId ? (
           <div className="footer">
             <Button
-              type="link"
+              color="primary"
+              variant="link"
               onClick={() => {
                 handleMoveDepartment({
                   ...currentUser,
@@ -221,7 +220,8 @@ function AddUserFeedback(props) {
         ) : (
           <div className="footer">
             <Button
-              type="link"
+              color="primary"
+              variant="link"
               onClick={() => {
                 props.reviewUserInfo();
                 onCancel();
@@ -238,12 +238,13 @@ function AddUserFeedback(props) {
         return (
           <div className="footer">
             <Button
-              type="link"
+              color="primary"
+              variant="link"
               onClick={() => {
-                Confirm({
+                Modal.confirm({
                   className: 'deleteNodeConfirm',
-                  title: _l('确认取消邀请该用户吗'),
-                  description: '',
+                  title: <span className="textError">{_l('确认取消邀请该用户吗')}</span>,
+                  content: '',
                   okText: _l('确定'),
                   onOk: () => {
                     props.fetchCancelImportUser([accountId], () => {
@@ -276,9 +277,10 @@ function AddUserFeedback(props) {
           <div className="footer">
             {actionResult !== 7 && (
               <Button
-                type="link"
+                color="primary"
+                variant="link"
                 onClick={() =>
-                  refuseUserJoinFunc({
+                  openRefuseUserJoinDialog({
                     accountIds: [accountId],
                     projectId,
                     callback: () => {
@@ -338,7 +340,8 @@ function AddUserFeedback(props) {
         return (
           <div className="footer">
             <Button
-              type="link"
+              color="primary"
+              variant="link"
               onClick={() => {
                 props.reviewUserInfo();
                 onCancel();
@@ -360,12 +363,15 @@ function AddUserFeedback(props) {
 
   return (
     <FeedbackDialog
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       width={410}
       title={<div className="Font17 textPrimary bold">{feedbackTypes[actionResult]}</div>}
       onCancel={onCancel}
       footer={null}
     >
+      {refuseUserJoinDialogHolder}
       <div className="flexRow mTop16">
         <UserHead
           className="createHeadImg circle userAvarar pointer userMessage"
@@ -387,4 +393,6 @@ function AddUserFeedback(props) {
   );
 }
 
-export const addUserFeedbackFunc = props => FunctionWrap(AddUserFeedback, { ...props });
+export function useAddUserFeedback() {
+  return useFunctionWrapComponent(AddUserFeedback);
+}

@@ -54,7 +54,7 @@ export default class DragMast extends React.Component {
     try {
       window.getSelection().removeAllRanges();
     } catch {
-      // ignore
+      // 忽略无可清理选区或浏览器限制导致的异常
     }
 
     if (this.mask) {

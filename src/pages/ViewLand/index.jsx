@@ -9,10 +9,10 @@ import appManagementApi from 'src/api/appManagement';
 import worksheet from 'src/api/worksheet';
 import MobileSingleView from 'mobile/components/SingleView';
 import SingleView from 'worksheet/common/SingleView';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import socketInit from 'src/socket';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const Con = styled.div`
   height: 100%;

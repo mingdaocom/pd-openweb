@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Trigger from 'rc-trigger';
-import { Icon, Input, SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Input, Popover } from 'ming-ui/antd-components';
 import HomeAjax from 'src/api/homeApp';
 import './index.less';
 
@@ -34,17 +34,24 @@ export default function SelectApp(props) {
   };
 
   return (
-    <Trigger
+    <Popover
+      noPadding
       className="appSelectTrigger"
-      popupVisible={visible}
-      onPopupVisibleChange={visible => setVisible(visible)}
-      action={['click']}
-      popupAlign={{ points: ['tr', 'br'] }}
-      popup={
+      open={visible}
+      onOpenChange={setVisible}
+      trigger="click"
+      placement="bottomRight"
+      content={
         <div className="appDrowSelectCon">
           <div className="appSearchCon">
-            <Icon icon="search Font16 textTertiary" />
-            <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
+            <Input
+              variant="borderless"
+              prefix={<Icon icon="search Font16 textTertiary" />}
+              placeholder={_l('搜索')}
+              className="flex"
+              value={search}
+              onChange={event => searchHandle(event.target.value)}
+            />
           </div>
           <ul className="appList">
             {list
@@ -81,6 +88,6 @@ export default function SelectApp(props) {
         </span>
         {value && <Icon icon="clear_bold" className="Font12 color_light lineHeight13 mLeft8" onClick={clearValue} />}
       </span>
-    </Trigger>
+    </Popover>
   );
 }

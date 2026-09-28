@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { isTimeControl } from 'statistics/common/controlUtils';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import store from 'src/redux/configureStore';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
 
 export default class Filter extends Component {
   constructor(props) {
@@ -69,6 +69,8 @@ export default class Filter extends Component {
             className="bgPrimary"
             loading={false}
             filterItemTexts={filterItemTexts}
+            filters={filterItem}
+            controls={filterColumns}
             onClear={() => {
               this.setState({
                 newConditions: [],
@@ -85,11 +87,12 @@ export default class Filter extends Component {
             {_l('添加筛选字段')}
           </div>
         )}
-        <Dialog
-          visible={visible}
+        <Modal
+          open={visible}
           title={_l('筛选')}
           okText={_l('确定')}
           cancelText={_l('取消')}
+          styles={{ header: { marginBottom: 10 } }}
           onCancel={() => this.setState({ visible: false })}
           onOk={() => {
             this.setState({ visible: false });
@@ -119,7 +122,7 @@ export default class Filter extends Component {
               });
             }}
           />
-        </Dialog>
+        </Modal>
       </div>
     );
   }

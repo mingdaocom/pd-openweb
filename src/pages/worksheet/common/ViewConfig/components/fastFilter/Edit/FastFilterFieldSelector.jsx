@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { FASTFILTER_CONDITION_TYPE, getControlFormatType, getSetDefault } from '../util';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { FASTFILTER_CONDITION_TYPE, getControlFormatType, getSetDefault } from 'src/utils/domain/worksheet/fastFilter';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 
 // 快速筛选字段切换，替换字段时同步清理必填筛选配置。
 export default function FastFilterFieldSelector(props) {

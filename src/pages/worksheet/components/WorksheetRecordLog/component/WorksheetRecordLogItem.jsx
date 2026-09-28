@@ -2,14 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import _, { isEqual } from 'lodash';
 import { Icon } from 'ming-ui';
-import {
-  DEFAULT_CONFIG,
-  WIDGETS_TO_API_TYPE_ENUM,
-  WORKFLOW_SYSTEM_CONTROL,
-} from 'src/pages/widgetConfig/config/widget';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
+import { DEFAULT_CONFIG, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { CIRCLE_TAGS_CONTROL_TYPE, RECT_TAGS_CONTROL_TYPE, SUBLIST_FILE_EDIT_TYPE } from '../enum.js';
 import { diffSelectTagsValue, getExtendParams, handleSelectTagsValue } from '../util';
 import TriggerSelect from './TriggerSelect';
@@ -35,7 +32,14 @@ function renderContent(data, recordInfo, extendParam) {
       oldList = [],
       onlyNew = false,
     } = handleSelectTagsValue({ ...data, control, requestType, appId: recordInfo?.appId });
-    const { _oldValue, _newValue, _defaultValue } = diffSelectTagsValue({ newList, oldList, type, editType, control });
+    const { _oldValue, _newValue, _defaultValue } = diffSelectTagsValue({
+      newList,
+      oldList,
+      type,
+      editType,
+      control,
+      appId: recordInfo?.appId,
+    });
 
     return (
       <WorksheetRecordLogSelectTags

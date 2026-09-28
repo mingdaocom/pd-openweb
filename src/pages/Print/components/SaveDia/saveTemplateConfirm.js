@@ -1,5 +1,8 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import SaveDia from './index';
 
-const saveTemplateConfirm = props => functionWrap(SaveDia, { ...props, visibleName: 'showSaveDia' });
-export default saveTemplateConfirm;
+const getSaveTemplateProps = props => ({ ...props, visibleName: 'showSaveDia' });
+
+export default function useSaveTemplateConfirm() {
+  return useFunctionWrapComponent(SaveDia, getSaveTemplateProps);
+}

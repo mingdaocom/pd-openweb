@@ -1,15 +1,12 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, MdLink, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, MdLink, ScrollView, SearchInput } from 'ming-ui';
+import { Checkbox, Popover, Switch, Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../../api/datasource';
 import syncTaskApi from '../../../../api/syncTask';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import DropMotion from 'src/pages/worksheet/components/Animations/DropMotion';
 import { formatDate } from '../../../../config';
 import { SORT_TYPE, TASK_STATUS_TAB_LIST, TASK_STATUS_TYPE } from '../../../constant';
@@ -39,7 +36,7 @@ const TaskListBox = styled.div`
         background: var(--color-background-card);
         .checkbox {
           .taskItemCheckbox {
-            display: block;
+            display: inline-flex;
           }
         }
         .titleText {
@@ -71,7 +68,7 @@ const TaskListBox = styled.div`
       color: var(--color-text-title);
       font-weight: 600;
     }
-    .ant-switch-checked {
+    .hap-switch-checked {
       background-color: rgba(40, 202, 131, 1);
     }
     .errorIcon {
@@ -90,8 +87,9 @@ const TaskListBox = styled.div`
     left: 6px;
     .taskItemCheckbox {
       display: none;
+      align-items: center;
       &.isShow {
-        display: block;
+        display: inline-flex;
       }
     }
   }
@@ -113,10 +111,10 @@ const TaskListBox = styled.div`
 
   .taskStatus {
     flex: 3;
-    .ant-switch-disabled {
+    .hap-switch-disabled {
       background: var(--color-border-primary) !important;
       opacity: 1;
-      &.ant-switch-checked {
+      &.hap-switch-checked {
         background: var(--color-task) !important;
         opacity: 1;
       }
@@ -196,9 +194,6 @@ const TaskIcon = styled.div`
 const ErrorInfoWrapper = styled.div`
   padding: 18px 20px;
   width: 220px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.24);
-  border-radius: 3px;
 
   .errorText {
     color: var(--color-error);
@@ -339,12 +334,24 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     { title: _l('目的地类型'), data: sourceTypeTabList, key: 'destType', hasExpand: false },
   ];
 
-  const onSearch = useCallback(
-    _.debounce(value => {
-      setFetchState({ keyWords: value, loading: true, pageNo: 0 });
-    }, 500),
-    [],
+  const debouncedSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setFetchState({ keyWords: value, loading: true, pageNo: 0 });
+      }, 500),
+    [setFetchState],
   );
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  const onSearch = value => {
+    if (value) {
+      debouncedSearch(value);
+    } else {
+      debouncedSearch.cancel();
+      setFetchState({ keyWords: '', loading: true, pageNo: 0 });
+    }
+  };
 
   const getTypes = () => {
     //获取数据源类型列表
@@ -494,13 +501,13 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         const checked = checkableCount === selectedTasks.length;
         return selectedTasks.length ? (
           <Checkbox
-            size="small"
             className={cx('taskItemCheckbox', { isShow: !!selectedTasks.length })}
             checked={checked}
-            clearselected={!checked && !!selectedTasks.length}
-            onClick={() => {
+            indeterminate={!checked && !!selectedTasks.length}
+            onChange={() => {
               setSelectedTasks(checked ? [] : taskList.filter(task => !task.errorInfo));
             }}
+            size="small"
           />
         ) : null;
       },
@@ -508,15 +515,15 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         const checked = !!selectedTasks.filter(task => task.id === item.id).length;
         return (
           <Checkbox
-            size="small"
             className={cx('taskItemCheckbox', { isShow: checked })}
             checked={checked}
             disabled={!!item.errorInfo}
-            onClick={() => {
+            onChange={() => {
               setSelectedTasks(
                 checked ? selectedTasks.filter(task => task.id !== item.id) : selectedTasks.concat(item),
               );
             }}
+            size="small"
           />
         );
       },
@@ -584,24 +591,21 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               </div>
             )}
             {item.errorInfo && (
-              <Trigger
-                action={['hover']}
+              <Popover
+                noPadding
+                trigger="hover"
                 getPopupContainer={() => document.body}
-                popupVisible={errorInfoVisible[item.id]}
-                onPopupVisibleChange={visible => setErrorInfoVisible({ [item.id]: visible })}
-                popupAlign={{
-                  points: ['bl', 'tl'],
-                  offset: [0, -10],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                popup={
+                open={errorInfoVisible[item.id]}
+                onOpenChange={visible => setErrorInfoVisible({ [item.id]: visible })}
+                placement="topLeft"
+                content={
                   <ErrorInfoWrapper>
                     <div className="errorText">{item.errorInfo}</div>
                   </ErrorInfoWrapper>
                 }
               >
                 <Icon icon="info" className="errorIcon" />
-              </Trigger>
+              </Popover>
             )}
           </div>
         );
@@ -694,8 +698,8 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               />
             </div>
 
-            <Tooltip className="mLeft5 h16" title={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}>
-              <Icon icon="info_outline" className="textTertiary Font16" />
+            <Tooltip title={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}>
+              <Icon icon="info_outline" className="textTertiary Font16 mLeft5 h16" />
             </Tooltip>
           </div>
         );
@@ -787,12 +791,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         <p className="taskListText">{_l('任务列表')}</p>
         <div className="flexRowBetween">
           <div className="flexRow">
-            <SearchInput
-              className="searchInput"
-              placeholder={_l('任务名称 / 创建人')}
-              value={fetchState.keyWords}
-              onChange={onSearch}
-            />
+            <SearchInput className="searchInput" placeholder={_l('任务名称 / 创建人')} onChange={onSearch} />
             <div className="relative">
               <Icon
                 icon="filter"

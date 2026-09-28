@@ -5,16 +5,40 @@ import Immutable from 'immutable';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import shallowEqual from 'shallowequal';
-import { Icon, Item, List, ScrollView, Splitter } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Menu as AntdMenu, Divider, Tooltip } from 'ming-ui/antd-components';
 import groupController from 'src/api/group';
 import createGroup from 'src/pages/Group/createGroup/load';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import postEnum from '../../constants/postEnum';
 import { searchAll } from '../../redux/postActions';
 import MDLeftNav from '../common/mdLeftNav';
 import MDLeftNavSearch from '../common/mdLeftNav/mdLeftNavSearch';
 import './feedLeftNav.css';
+
+const NAV_MENU_STYLES = {
+  root: { border: 0 },
+  item: {
+    '--hap-menu-item-height': '40px',
+    display: 'flex',
+    alignItems: 'center',
+    margin: 0,
+    width: '100%',
+    borderRadius: 0,
+  },
+  itemIcon: { fontSize: 16, textAlign: 'center' },
+  itemContent: { flex: 1, minWidth: 0, marginLeft: 15 },
+};
+
+const NavMenu = ({ className, items }) => (
+  <AntdMenu selectable={false} mode="vertical" className={className} styles={NAV_MENU_STYLES} items={items} />
+);
+
+NavMenu.propTypes = {
+  className: PropTypes.string,
+  items: PropTypes.arrayOf(PropTypes.object),
+};
 
 class FeedLeftNav extends React.Component {
   static propTypes = {
@@ -121,12 +145,14 @@ class FeedLeftNav extends React.Component {
 
   getCreateGroupIcon = projectId => {
     return (
-      <div
-        className="right panelIcon Hand textSecondary hoverTextPrimary"
-        onClick={e => this.createGroup(e, projectId)}
-      >
-        +
-      </div>
+      <Tooltip title={_l('创建群组')}>
+        <div
+          className="right panelIcon Hand textSecondary hoverTextPrimary"
+          onClick={e => this.createGroup(e, projectId)}
+        >
+          +
+        </div>
+      </Tooltip>
     );
   };
 
@@ -238,71 +264,71 @@ class FeedLeftNav extends React.Component {
         )}
       </div>
     );
+    const groupMenuItems =
+      !projectGroups.length && projectId === '' && !md.global.Account.projects.length
+        ? [
+            {
+              key: 'addGroup',
+              className: 'nullData textSecondary',
+              disabled: true,
+              label: (
+                <span>
+                  {_l('点击 " + " 号，创建新群组')}
+                  <i className="icon-restart arrow textTertiary" />
+                </span>
+              ),
+            },
+          ]
+        : _.chain(projectGroups)
+            .map(g => ({
+              key: g.groupId,
+              icon: (
+                <img
+                  className="avatar"
+                  src={
+                    g.avatar.includes('?') > 0
+                      ? g.avatar.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48/q/100')
+                      : `${g.avatar}?imageView2/1/w/48/h/48/q/100`
+                  }
+                  placeholder={g.avatar}
+                />
+              ),
+              extra: g.isVerified ? <Icon icon="official-group" title={_l('官方群组')} /> : undefined,
+              className: cx({
+                bgColorPrimaryTransparent: !!this.props.options.groupId && this.props.options.groupId === g.groupId,
+                folded: isFolded,
+              }),
+              onClick: () => navigateTo(`/feed?groupId=${g.groupId}&projectId=${projectId}`),
+              label: g.name,
+              title: g.name,
+            }))
+            .concat(
+              projectId
+                ? []
+                : [
+                    {
+                      key: 'myself',
+                      onClick: () => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.myself}`),
+                      className: cx({
+                        bgColorPrimaryTransparent:
+                          this.props.options.listType === postEnum.LIST_TYPE.myself &&
+                          this.props.options.projectId === projectId,
+                        folded: isFolded,
+                      }),
+                      label: _l('我自己'),
+                    },
+                  ],
+            )
+            .value();
     const groupListComp =
       !isFolded &&
       (isLoading ? undefined : (
-        <List
+        <NavMenu
           className={cx('avatarList', {
             expire: project && project.licenseType === 0,
           })}
-        >
-          {!projectGroups.length && projectId === '' && !md.global.Account.projects.length ? (
-            <li key="addGroup" className="nullData textSecondary">
-              <span>
-                {_l('点击 " + " 号，创建新群组')}
-                <i className="icon-restart arrow textTertiary" />
-              </span>
-            </li>
-          ) : (
-            _.chain(projectGroups)
-              .map(g => (
-                <Item
-                  iconAtEnd={g.isVerified}
-                  key={g.groupId}
-                  className={cx({
-                    hoverBgTertiary: true,
-                    bgColorPrimaryTransparent: !!this.props.options.groupId && this.props.options.groupId === g.groupId,
-                    folded: isFolded,
-                  })}
-                  onClick={() => navigateTo(`/feed?groupId=${g.groupId}&projectId=${projectId}`)}
-                >
-                  <img
-                    className="avatar"
-                    src={
-                      g.avatar.includes('?') > 0
-                        ? g.avatar.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48/q/100')
-                        : `${g.avatar}?imageView2/1/w/48/h/48/q/100`
-                    }
-                    placeholder={g.avatar}
-                  />
-                  <span className="textPrimary" title={g.name}>
-                    {g.name}
-                  </span>
-                  {g.isVerified && <Icon className="LineHeight40" icon="official-group" title={_l('官方群组')} />}
-                </Item>
-              ))
-              .concat(
-                projectId
-                  ? []
-                  : [
-                      <Item
-                        key="myself"
-                        onClick={() => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.myself}`)}
-                        className={cx({
-                          hoverBgTertiary: true,
-                          bgColorPrimaryTransparent:
-                            this.props.options.listType === postEnum.LIST_TYPE.myself &&
-                            this.props.options.projectId === projectId,
-                          folded: isFolded,
-                        })}
-                      >
-                        <span className="textPrimary">{_l('我自己')}</span>
-                      </Item>,
-                    ],
-              )
-              .value()
-          )}
-        </List>
+          items={groupMenuItems}
+        />
       ));
     return (
       <div className="folderProjectItem" key={projectId}>
@@ -313,6 +339,61 @@ class FeedLeftNav extends React.Component {
   };
 
   render() {
+    const fixedMenuItems = [
+      {
+        key: 'all',
+        icon: <Icon icon="mingdao" />,
+        onClick: () => navigateTo('/feed'),
+        className: cx({
+          bgColorPrimaryTransparent:
+            !this.props.options.groupId &&
+            !this.props.options.projectId &&
+            this.props.options.projectId !== '' &&
+            this.props.options.listType === postEnum.LIST_TYPE.project,
+        }),
+        label: (
+          <span className="itemContent textPrimary">
+            {_l('全部动态')}
+            {this.props.hasNew && (
+              <span
+                title={_l('有新的动态更新')}
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '100%',
+                  background: 'red',
+                  position: 'absolute',
+                  top: 17,
+                  right: 20,
+                }}
+              />
+            )}
+          </span>
+        ),
+      },
+      {
+        key: 'mine',
+        icon: <Icon icon="charger" />,
+        onClick: () => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.user}&accountId=${md.global.Account.accountId}`),
+        className: cx({
+          bgColorPrimaryTransparent:
+            (this.props.options.listType === postEnum.LIST_TYPE.user ||
+              this.props.options.listType === postEnum.LIST_TYPE.ireply) &&
+            this.props.options.accountId === md.global.Account.accountId,
+        }),
+        label: <span className="itemContent textPrimary">{_l('我的动态')}</span>,
+      },
+      {
+        key: 'fav',
+        icon: <Icon icon="task-star" />,
+        className: cx({
+          bgColorPrimaryTransparent: this.props.options.listType === postEnum.LIST_TYPE.fav,
+        }),
+        onClick: () => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.fav}`),
+        label: <span className="textPrimary">{_l('星标动态')}</span>,
+      },
+    ];
+
     return (
       <MDLeftNav className="feedLeftNav bgPrimary">
         <MDLeftNavSearch
@@ -324,66 +405,11 @@ class FeedLeftNav extends React.Component {
             this.props.dispatch(searchAll(keywords));
           }}
         />
-        <List className="iconList feedFixedList">
-          <Item
-            icon={<Icon icon="mingdao LineHeight40" />}
-            onClick={() => navigateTo('/feed')}
-            className={cx('LineHeight40', {
-              bgColorPrimaryTransparent:
-                !this.props.options.groupId &&
-                !this.props.options.projectId &&
-                this.props.options.projectId !== '' &&
-                this.props.options.listType === postEnum.LIST_TYPE.project,
-            })}
-          >
-            <span className="itemContent textPrimary">
-              {_l('全部动态')}
-              {this.props.hasNew && (
-                <span
-                  title={_l('有新的动态更新')}
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '100%',
-                    background: 'red',
-                    position: 'absolute',
-                    top: 17,
-                    right: 20,
-                  }}
-                />
-              )}
-            </span>
-          </Item>
-          <Item
-            icon={<Icon icon="charger LineHeight40" />}
-            onClick={() =>
-              navigateTo(`/feed?listType=${postEnum.LIST_TYPE.user}&accountId=${md.global.Account.accountId}`)
-            }
-            className={cx('LineHeight40', {
-              bgColorPrimaryTransparent:
-                (this.props.options.listType === postEnum.LIST_TYPE.user ||
-                  this.props.options.listType === postEnum.LIST_TYPE.ireply) &&
-                this.props.options.accountId === md.global.Account.accountId,
-            })}
-          >
-            <span className="itemContent textPrimary">{_l('我的动态')}</span>
-          </Item>
-          <Item
-            icon={<Icon icon="task-star LineHeight40" />}
-            className={cx('LineHeight40', {
-              bgColorPrimaryTransparent: this.props.options.listType === postEnum.LIST_TYPE.fav,
-            })}
-            onClick={() => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.fav}`)}
-          >
-            <span className="textPrimary">{_l('星标动态')}</span>
-          </Item>
-        </List>
-        <Splitter />
+        <NavMenu className="iconList feedFixedList" items={fixedMenuItems} />
+        <Divider className="Splitter" />
         <div className="clearfix panelHead">
           <div className="left panelTitle textTertiary">{_l('群组')}</div>
-          <div className="right panelIcon Hand textSecondary hoverTextPrimary" onClick={e => this.createGroup(e)}>
-            +
-          </div>
+          {this.getCreateGroupIcon()}
         </div>
         <ScrollView className="groupListContainer flex" disableParentScroll>
           {_.chain(md.global.Account.projects)

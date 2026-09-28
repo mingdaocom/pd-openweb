@@ -1,8 +1,12 @@
 .fillRecordControls {
-  .mui-dialog-header {
-    padding: 10px !important;
-  }
   .formCon {
-    min-height: 200px;
+    margin: 0 -24px;
+    overflow: auto;
+    height: 100%;
+    padding: 20px 24px 0;
+
+    > .formContainer > .customFieldsContainer:empty + .relateRecordBlockCon .relateRecordBlock {
+      margin-top: 0;
+    }
   }
 }

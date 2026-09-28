@@ -1,8 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
 import { Support } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import addFriends from 'src/components/addFriends';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
 import { formatValue, getValue } from '../utils';
 
@@ -47,9 +48,9 @@ export default function UserCard(props) {
       </div>
       {isShowInviteUser && (
         <div className="buttons">
-          <div className="blueBtn Bold" onClick={() => addFriends({ projectId: projectId, fromType: 4 })}>
+          <Button type="primary" shape="round" onClick={() => addFriends({ projectId: projectId, fromType: 4 })}>
             {_l('邀请成员')}
-          </div>
+          </Button>
         </div>
       )}
     </div>

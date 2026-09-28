@@ -1,73 +1,77 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { emitter } from 'src/utils/common';
+import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
+import { emitter } from 'src/utils/platform/browser/dom';
 import HapAiDialog from './HapAiDialog';
 import hapAI from './images/hapAI.png';
 
 const collections = () => {
   const lang = window.getCurrentLang();
+  const { isOverseas } = window.platformENV;
+  const supportItems = isOverseas
+    ? [
+        { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.nocoly.com' },
+        { id: 'partner', text: _l('伙伴'), icon: 'partner', href: 'https://www.nocoly.com/partner' },
+        { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
+      ]
+    : [
+        { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
+        { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
+        { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
+        { id: 'partner', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
+        { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
+      ];
+  const resourceItems = [
+    ...(isOverseas
+      ? [{ id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.nocoly.com' }]
+      : [
+          { id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.mingdao.com' },
+          { id: 'activity', text: _l('活动'), icon: 'school', href: 'https://www.mingdao.com/activitycenter' },
+        ]),
+    {
+      id: 'lastUpdated',
+      text: _l('最近更新'),
+      icon: 'gift',
+      href: isOverseas
+        ? 'https://blog.nocoly.com/category/product'
+        : 'https://blog.mingdao.com/category/product/product-update',
+    },
+    {
+      id: 'api',
+      text: _l('API文档'),
+      icon: 'worksheet_API',
+      href: `${md.global.Config.OpenApiDocUrl}/organization/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/`,
+    },
+  ];
+  const buyItems = [
+    {
+      id: 'versionAndPrice',
+      text: _l('版本和价格'),
+      icon: 'score',
+      href: isOverseas ? 'https://www.nocoly.com/pricing' : 'https://www.mingdao.com/price',
+    },
+  ];
 
   return [
     {
       type: 'support',
       text: _l('支持'),
-
-      items: window.platformENV.isOverseas
-        ? [
-            { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.nocoly.com' },
-            { id: 'helpDoc', text: _l('伙伴'), icon: 'partner', href: 'https://www.nocoly.com/partner' },
-            { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
-          ]
-        : [
-            { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
-            { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
-            { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
-            { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
-            { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
-          ],
+      items: supportItems,
     },
     {
       type: 'resource',
       text: _l('资源'),
-      items: [
-        ...(window.platformENV.isOverseas
-          ? [{ id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.nocoly.com' }]
-          : [
-              { id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.mingdao.com' },
-              { id: 'activity', text: _l('活动'), icon: 'school', href: 'https://www.mingdao.com/activitycenter' },
-            ]),
-        {
-          id: 'lastUpdated',
-          text: _l('最近更新'),
-          icon: 'gift',
-          href: window.platformENV.isOverseas
-            ? 'https://blog.nocoly.com/category/product'
-            : 'https://blog.mingdao.com/category/product/product-update',
-        },
-        {
-          id: 'api',
-          text: _l('API文档'),
-          icon: 'worksheet_API',
-          href: `${md.global.Config.OpenApiDocUrl}/organization/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/`,
-        },
-      ],
+      items: resourceItems,
     },
-    {
+    buyItems.length && {
       type: 'buy',
       text: _l('购买'),
-      items: [
-        {
-          id: 'versionAndPrice',
-          text: _l('版本和价格'),
-          icon: 'score',
-          href: window.platformENV.isOverseas ? 'https://www.nocoly.com/pricing' : 'https://www.mingdao.com/price',
-        },
-      ],
+      items: buyItems,
     },
-  ];
+  ].filter(Boolean);
 };
 
 const CollectionWrap = styled.div`
@@ -145,13 +149,6 @@ export default function HelpCollection(props) {
               {text}
             </div>
             {items.map(v => {
-              if (
-                (window.platformENV.isOverseas || window.platformENV.isLocal) &&
-                _.includes(['video', 'communityQuestions', 'helpDoc', ''], v.id)
-              ) {
-                return null;
-              }
-
               if (_.includes(['partnerSupport'], v.id)) {
                 return (
                   <div
@@ -160,11 +157,9 @@ export default function HelpCollection(props) {
                     onClick={() => {
                       updatePopupVisible(false);
                       if (v.id === 'partnerSupport') {
-                        if (window.platformENV.isOverseas) {
-                          emitter.emit('SET_MINGO_VISIBLE', { mingoVisible: true });
-                        } else {
-                          window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
-                        }
+                        // 智能客服：打开 Mingo 帮助会话（单会话续接），转人工入口在会话面板内提供
+                        window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.MINGDAO_HELP_CHAT };
+                        emitter.emit('SET_MINGO_VISIBLE');
                       }
                     }}
                   >

@@ -13,25 +13,25 @@ export const TextEllipsis = styled.div`
 
 export const Text = styled.p`
   font-size: 13px;
-  color: ${props => (props.color ? props.color : 'var(--color-text-title)')};
-  text-align: ${props => props.align || 'initial'};
+  color: ${props => (props.$color ? props.$color : 'var(--color-text-title)')};
+  text-align: ${props => props.$align || 'initial'};
 `;
 
 export const Fixed = styled.div`
   position: absolute;
   top: 0;
-  right: ${props => (props.right ? 0 : 'initial')};
-  left: ${props => (props.left ? 0 : 'initial')};
+  right: ${props => (props.$right ? 0 : 'initial')};
+  left: ${props => (props.$left ? 0 : 'initial')};
   bottom: 0;
 `;
 
 export const Button = styled.button`
-  width: ${props => (props.fullWidth ? '100%' : 'auto')};
+  width: ${props => (props.$fullWidth ? '100%' : 'auto')};
   padding: 0 32px;
   line-height: 36px;
   height: 36px;
   color: var(--color-white);
-  background-color: ${props => props.bgColor || 'var(--color-primary)'};
+  background-color: ${props => props.$bgColor || 'var(--color-primary)'};
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -39,9 +39,9 @@ export const Button = styled.button`
 `;
 
 export const RevertButton = styled(Button)`
-  color: ${props => props.color || 'var(--color-primary)'};
+  color: ${props => props.$color || 'var(--color-primary)'};
   border: 1px solid currentColor;
-  background: ${props => props.bgColor || 'transparent'};
+  background: ${props => props.$bgColor || 'transparent'};
   &:hover {
     background-color: var(--color-primary-transparent);
   }
@@ -54,7 +54,7 @@ export const Height100 = styled.div`
 `;
 
 export const Circle = styled(FlexCenter)`
-  width: ${props => props.size || 36}px;
-  height: ${props => props.size || 36}px;
+  width: ${props => props.$size || 36}px;
+  height: ${props => props.$size || 36}px;
   border-radius: 50%;
 `;

@@ -1,9 +1,9 @@
 import _, { get } from 'lodash';
 import { checkRuleLocked } from 'src/components/Form/core/formUtils';
 import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
-import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { emitter } from 'src/utils/common';
-import { controlState, replaceByIndex } from 'src/utils/control';
+import { controlState, replaceByIndex } from 'src/utils/domain/control/state';
+import { canSetWidgetStyle, getTitleStyle } from 'src/utils/domain/control/style';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 const KEY_MAP = {
   DELETE: 8,
@@ -84,6 +84,11 @@ export function handleLifeEffect(
   const $tableElement = $(`.sheetViewTable.id-${tableId}-id`);
 
   function handleCellEnter(e) {
+    // 子表整行拖拽排序进行中：不给指针经过的其它行叠加 hover 效果
+    if (document.documentElement.classList.contains('childTableRowDragging')) {
+      return;
+    }
+
     const $target = $(e.originalEvent.target).closest('.cell');
     const classMatch = $target.attr('class').match(/.*(row-([0-9]+|head)) .*/);
 
@@ -309,14 +314,18 @@ export function handleLifeEffect(
   function handleOuterClick(e) {
     removeReadOnlyTip();
     const forceOutClick = _.includes(get(e, 'target.className') || '', 'allowOutClick');
+    const inRecordInfo = e.target.closest('.workSheetRecordInfo') && !e.target.closest('.embedContainer');
+    // 弹窗白名单原本是旧 Dialog 的 `.mui-dialog-container`，改用 antd 通用的 `.hap-modal-wrap` 后，
+    // 表格自身所在的弹窗（记录详情、新建记录等）也会被整体放行，导致点表格外区域不再失焦。
+    // 这里只放行「表格之外的其它弹窗」（选人、关联记录等浮层），表格所在弹窗内部的点击仍按外部点击处理。
+    const tableModalWrap = document.querySelector(`.sheetViewTable.id-${tableId}-id`)?.closest('.hap-modal-wrap');
+    const targetModalWrap = e.target.closest('.hap-modal-wrap');
+    const inOtherModal = !!targetModalWrap && targetModalWrap !== tableModalWrap;
 
     if (
-      (e.target.closest(
-        '.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup, .selectUserBox',
-      ) ||
-        (!(isSubList || isRelateRecordList) &&
-          e.target.closest('.workSheetRecordInfo') &&
-          !e.target.closest('.embedContainer')) ||
+      (e.target.closest('.cellNeedFocus,.UploadFilesTriggerWrap,.selectUserBox') ||
+        inOtherModal ||
+        (!(isSubList || isRelateRecordList) && inRecordInfo) ||
         (!e.target.isConnected && !e.target.closest('.customFormControlBox'))) &&
       !forceOutClick
     ) {
@@ -332,9 +341,18 @@ export function handleLifeEffect(
         console.log(err);
       }
 
-      if (window.activeTableId === tableId) {
-        focusCell(-10000);
+      // 点到另一个表格时，新表格的 focusCell 会先把 window.activeTableId 改成自己，
+      // 只按 activeTableId 判断会让本表的取消聚焦被跳过、focus 样式残留，
+      // 因此再按本表自身是否还留有聚焦单元格兜底。
+      const isActiveTable = window.activeTableId === tableId;
+      const hasFocusedCell = isActiveTable || !_.isUndefined(cache.focusIndex);
+
+      if (isActiveTable) {
         window.activeTableId = undefined;
+      }
+
+      if (hasFocusedCell) {
+        focusCell(-10000);
       }
 
       onOuterClick();

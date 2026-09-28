@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, ScrollView, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Modal, Popover, Switch, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
+import { worksheetSwitch } from 'src/utils/domain/control/formEnum';
 import DelDialog from '../../components/DelAutoIdDialog';
 import Range from '../../components/Range';
 import {
@@ -17,11 +18,11 @@ import {
   statistics,
   statisticsConst,
   tipStr,
-  worksheetSwitch,
 } from './config';
 import './style.less';
 
-const confirm = Dialog.confirm;
+const RANGE_POPOVER_AUTO_ADJUST_OVERFLOW = { adjustX: true, adjustY: true, shiftY: true };
+const RANGE_POPOVER_ALIGN = { points: ['tr', 'tr'] };
 
 // "state": true,  //开关状态
 // "type": 10,  //业务类型枚举
@@ -39,7 +40,6 @@ function FunctionalSwitch(props) {
     worksheetId,
     showDialog: false,
     showData: {},
-    showLocation: {},
     key: '',
   });
   const [diaRang, setRang] = useState(false);
@@ -179,17 +179,19 @@ function FunctionalSwitch(props) {
   const renderSwitch = o => {
     return (
       <Switch
+        size="small"
         checked={o.state}
-        onClick={() => {
+        onClick={(checked, event) => {
+          event.stopPropagation();
           if (info.showDialog) {
             //使用范围未关闭 不可点击其他开关的状态时
             return;
           }
 
           if ([20, 30].includes(o.type) && o.state) {
-            return confirm({
+            return Modal.confirm({
               title: <span className="Red">{_l('关闭%0', listConfigStr[o.type])}</span>,
-              description: _l('关闭后，已经分享的链接将会失效无法访问'),
+              content: _l('关闭后，已经分享的链接将会失效无法访问'),
               onOk: () => {
                 edit({
                   state: !o.state,
@@ -197,7 +199,7 @@ function FunctionalSwitch(props) {
                   roleType: o.roleType,
                 });
               },
-            });
+            }).destroy;
           } else {
             edit({
               state: !o.state,
@@ -210,6 +212,41 @@ function FunctionalSwitch(props) {
       />
     );
   };
+
+  const renderRange = () => (
+    <Range
+      hasViewRange={![...statistics, 10, 11, 13, 14].includes(info.showData.type || '')}
+      text={{
+        allview: ['3'].includes(info.key) ? _l('所有记录') : '',
+        assignview: ['3'].includes(info.key) ? _l('应用于指定的视图下的记录') : '',
+      }}
+      diaRang={diaRang}
+      closeFn={() => closeRangeDiaFn(info)}
+      roleType={info.showData.roleType}
+      change={roleType => {
+        edit({
+          ...info.showData,
+          roleType,
+        });
+      }}
+      changeViewRange={data => {
+        edit({
+          ...info.showData,
+          ..._.omit(data, 'diaRang'),
+        });
+        setRang(data.diaRang);
+      }}
+      views={views.filter(l => l.viewId !== l.worksheetId)}
+      data={info.showData}
+      otherSet={41 === info.showData.type}
+      changeOtherSet={otherSet => {
+        edit({
+          ...info.showData,
+          ...otherSet,
+        });
+      }}
+    />
+  );
 
   return (
     <React.Fragment>
@@ -239,6 +276,7 @@ function FunctionalSwitch(props) {
                         .filter(it => !hideList.includes(it))
                         .map(oo => {
                           const o = info.data.find(a => a.type === oo) || {};
+                          const rangeOpen = info.showDialog && info.showData.type === o.type;
 
                           if (
                             oo === 31 ||
@@ -250,7 +288,10 @@ function FunctionalSwitch(props) {
                           }
 
                           return (
-                            <li className={cx({ current: (info.showData.type || '') === o.type, isOpen: o.state })}>
+                            <li
+                              key={oo}
+                              className={cx({ current: (info.showData.type || '') === o.type, isOpen: o.state })}
+                            >
                               {/* batch,statistics内的操作左侧没有开关*/}
                               {![...batch, ...statistics].includes(oo) ? (
                                 renderSwitch(o)
@@ -259,98 +300,102 @@ function FunctionalSwitch(props) {
                               )}
                               {/* batch,statistics内的操作 开关缩进 */}
                               {[...batch, ...statistics].includes(oo) && renderSwitch(o)}
-                              <span
-                                className="con flexRow"
-                                onClick={e => {
-                                  const target = e.target;
+                              <Popover
+                                open={rangeOpen}
+                                onOpenChange={visible => {
+                                  if (!o.state || !hasRangeList.includes(oo)) return;
 
-                                  if (o.state) {
+                                  if (visible) {
                                     const { viewIds = [] } = o;
                                     setRang(viewIds.length <= 0);
                                     setInfo({
                                       ...info,
                                       key,
                                       showData: o,
-                                      showDialog:
-                                        info.showData.type && info.showData.type !== oo ? true : !info.showDialog,
-                                      showLocation: {
-                                        left: e.clientX,
-                                        top: $(target).closest('li').length
-                                          ? $(target).closest('li').position().top
-                                          : 0,
-                                      },
+                                      showDialog: true,
                                     });
+                                  } else if (rangeOpen) {
+                                    closeRangeDiaFn(info);
                                   }
                                 }}
+                                trigger={o.state && hasRangeList.includes(oo) ? 'click' : []}
+                                placement="rightTop"
+                                align={RANGE_POPOVER_ALIGN}
+                                destroyOnHidden
+                                autoAdjustOverflow={RANGE_POPOVER_AUTO_ADJUST_OVERFLOW}
+                                noPadding
+                                content={renderRange}
                               >
-                                {listConfigStr[oo]}
-                                {oo === 21 && (
-                                  <span
-                                    className="textTertiary InlineBlock overflow_ellipsis WordBreak TxtMiddle"
-                                    style={{ maxWidth: 330 }}
-                                    title={_l('批量操作中的导出功能需额外设置')}
-                                  >
-                                    （{_l('批量操作中的导出功能需额外设置')}）
-                                  </span>
-                                )}
-                                {/* 批量操作显示数量 */}
-                                {[25].includes(oo) && !noBatch && (
-                                  <span className="mLeft5 textTertiary">
-                                    {batchNum}/{batch.length}
-                                  </span>
-                                )}
-                                {[statisticsConst].includes(oo) && !noStatistics && (
-                                  <span className="mLeft5 textTertiary">
-                                    {statisticsNum}/{statistics.length}
-                                  </span>
-                                )}
-                                {helpList.includes(oo) && (
-                                  <Tooltip placement="bottom" title={tipStr[oo]}>
-                                    <Icon icon="help" className="Font14 textTertiary mLeft4" />
-                                  </Tooltip>
-                                )}
-                                {o.roleType === 100 && o.state && (
-                                  <Tooltip
-                                    placement="bottom"
-                                    title={_l('仅系统角色可见（包含管理员、运营者、开发者）')}
-                                  >
-                                    <Icon icon="visibility_off" className="" />
-                                  </Tooltip>
-                                )}
-                                {((25 === oo && info.data.find(a => a.type === 25).state) ||
-                                  (statisticsConst === oo && !noStatistics)) && (
-                                  <span
-                                    className="batchIsOpen Right Hand hoverColorPrimary"
-                                    onClick={() => {
-                                      if (25 === oo) {
-                                        safeLocalStorageSetItem('batchIsOpen', hideBatch ? null : '1');
-                                        sethideBatch(!hideBatch);
-                                      } else {
-                                        safeLocalStorageSetItem('statisticsIsOpen', hideStatistics ? null : '1');
-                                        sethideStatistics(!hideStatistics);
-                                      }
-                                    }}
-                                  >
-                                    {(25 === oo && hideBatch) || (hideStatistics && statisticsConst === oo)
-                                      ? _l('展开')
-                                      : _l('收起')}
-                                  </span>
-                                )}
-                                {/* 作用范围 */}
-                                {hasRangeList.includes(oo) && o.state && (
-                                  <Icon icon="navigate_next" className="textPlaceholder Right Hand Font20" />
-                                )}
-                                {/* 25没有范围的操作 */}
-                                {o.state && !noRangeList.includes(oo) && (
-                                  <span className="textDisabled Right text">
-                                    {worksheetSwitch.includes(oo)
-                                      ? o.roleType === 100
-                                        ? _l('仅系统角色')
-                                        : _l('所有用户')
-                                      : strRight(key, o)}
-                                  </span>
-                                )}
-                              </span>
+                                <span className="con flexRow">
+                                  {listConfigStr[oo]}
+                                  {oo === 21 && (
+                                    <span
+                                      className="textTertiary InlineBlock overflow_ellipsis WordBreak TxtMiddle"
+                                      style={{ maxWidth: 330 }}
+                                      title={_l('批量操作中的导出功能需额外设置')}
+                                    >
+                                      （{_l('批量操作中的导出功能需额外设置')}）
+                                    </span>
+                                  )}
+                                  {/* 批量操作显示数量 */}
+                                  {[25].includes(oo) && !noBatch && (
+                                    <span className="mLeft5 textTertiary">
+                                      {batchNum}/{batch.length}
+                                    </span>
+                                  )}
+                                  {[statisticsConst].includes(oo) && !noStatistics && (
+                                    <span className="mLeft5 textTertiary">
+                                      {statisticsNum}/{statistics.length}
+                                    </span>
+                                  )}
+                                  {helpList.includes(oo) && (
+                                    <Tooltip placement="bottom" title={tipStr[oo]}>
+                                      <Icon icon="help" className="Font14 textTertiary mLeft4" />
+                                    </Tooltip>
+                                  )}
+                                  {o.roleType === 100 && o.state && (
+                                    <Tooltip
+                                      placement="bottom"
+                                      title={_l('仅系统角色可见（包含管理员、运营者、开发者）')}
+                                    >
+                                      <Icon icon="visibility_off" className="" />
+                                    </Tooltip>
+                                  )}
+                                  {((25 === oo && info.data.find(a => a.type === 25).state) ||
+                                    (statisticsConst === oo && !noStatistics)) && (
+                                    <span
+                                      className="batchIsOpen Right Hand hoverColorPrimary"
+                                      onClick={() => {
+                                        if (25 === oo) {
+                                          safeLocalStorageSetItem('batchIsOpen', hideBatch ? null : '1');
+                                          sethideBatch(!hideBatch);
+                                        } else {
+                                          safeLocalStorageSetItem('statisticsIsOpen', hideStatistics ? null : '1');
+                                          sethideStatistics(!hideStatistics);
+                                        }
+                                      }}
+                                    >
+                                      {(25 === oo && hideBatch) || (hideStatistics && statisticsConst === oo)
+                                        ? _l('展开')
+                                        : _l('收起')}
+                                    </span>
+                                  )}
+                                  {/* 作用范围 */}
+                                  {hasRangeList.includes(oo) && o.state && (
+                                    <Icon icon="navigate_next" className="textPlaceholder Right Hand Font20" />
+                                  )}
+                                  {/* 25没有范围的操作 */}
+                                  {o.state && !noRangeList.includes(oo) && (
+                                    <span className="textDisabled Right text">
+                                      {worksheetSwitch.includes(oo)
+                                        ? o.roleType === 100
+                                          ? _l('仅系统角色')
+                                          : _l('所有用户')
+                                        : strRight(key, o)}
+                                    </span>
+                                  )}
+                                </span>
+                              </Popover>
                             </li>
                           );
                         })}
@@ -359,49 +404,6 @@ function FunctionalSwitch(props) {
                 );
               })}
             </div>
-            {/* 10, 11, 25, 40 没有范围选择 */}
-            {info.showDialog && !noRangeList.includes(info.showData.type || '') && (
-              <Range
-                showDialog={info.showDialog}
-                hasViewRange={![...statistics, 10, 11, 13, 14].includes(info.showData.type || '')} //是否可选视图范围
-                text={{
-                  allview: ['3'].includes(info.key) ? _l('所有记录') : '',
-                  assignview: ['3'].includes(info.key) ? _l('应用于指定的视图下的记录') : '',
-                }}
-                onClickAwayExceptions={['.switchBox li.isOpen .con']}
-                onClickAway={() => {
-                  closeRangeDiaFn(info);
-                }}
-                diaRang={diaRang}
-                closeFn={() => {
-                  closeRangeDiaFn(info);
-                }}
-                roleType={info.showData.roleType}
-                change={roleType => {
-                  edit({
-                    ...info.showData,
-                    roleType: roleType,
-                  });
-                }}
-                top={info.showLocation.top}
-                changeViewRange={data => {
-                  edit({
-                    ...info.showData,
-                    ..._.omit(data, 'diaRang'),
-                  });
-                  setRang(data.diaRang);
-                }}
-                views={views.filter(l => l.viewId !== l.worksheetId)}
-                data={info.showData}
-                otherSet={41 === info.showData.type}
-                changeOtherSet={otherSet => {
-                  edit({
-                    ...info.showData,
-                    ...otherSet,
-                  });
-                }}
-              />
-            )}
             {!closeAutoID && (
               <React.Fragment>
                 <h6 className="Font13 mTop24 textPrimary Bold">{_l('其他')}</h6>
@@ -423,14 +425,15 @@ function FunctionalSwitch(props) {
                           <Icon icon="help" className="Font14 textTertiary mLeft4" />
                         </Tooltip>
                       </div>
-                      <span
-                        className="Hand text delBtn"
+                      <Button
+                        color="danger"
+                        variant="link"
                         onClick={() => {
                           setShow(true);
                         }}
                       >
                         {_l('删除')}
-                      </span>
+                      </Button>
                     </li>
                   </ul>
                 </div>

@@ -1,11 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import copy from 'copy-to-clipboard';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, MobileConfirmPopup } from 'ming-ui';
-import chatbotAjax from 'src/pages/workflow/apiV2/chatbot';
-import { getPublicShare, updatePublicShareStatus } from 'src/pages/worksheet/components/Share/controller';
-import { compatibleMDJS } from 'src/utils/project';
+import { Checkbox } from 'ming-ui/antd-components';
+import SharePopup from 'mobile/components/SharePopup';
+import { buildChatbotShareProps } from './chatbotShare';
 
 const MobileShareOperateWrap = styled.div`
   margin-bottom: -12px;
@@ -51,7 +49,7 @@ const RightSection = styled.div`
     }
     &.success {
       color: var(--color-white);
-      background: var(--color-success);
+      background: var(--app-primary-color, var(--color-success));
     }
   }
 `;
@@ -61,6 +59,9 @@ const MobileShareOperate = ({
   appId,
   chatbotId,
   conversationId,
+  // 同 PC：分享范围按应用所属组织提交，不传会回退到「当前组织」
+  projectId,
+  isCharge,
   isSelectAll = false,
   messages,
   maxWidth,
@@ -70,80 +71,27 @@ const MobileShareOperate = ({
   setIsSelectAll = () => {},
 }) => {
   const selectedCount = Math.floor(selectedMessageIds.length / 2);
-  const [confirmVisible, setConfirmVisible] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
-
-  const getConversationIdForShare = async () => {
-    const data = await chatbotAjax.addShareConversation({
-      chatbotId,
-      conversationId,
-      userMessageIds: selectedMessageIds.filter(id => id?.length === 24),
-    });
-
-    return data?.conversationId;
-  };
-
-  const handleShare = async () => {
-    try {
-      let finalConversationId = conversationId;
-
-      if (!isSelectAll) {
-        finalConversationId = await getConversationIdForShare();
-        if (!finalConversationId) {
-          alert(_l('获取会话失败'), 2);
-          return;
-        }
-      }
-
-      const sourceId = `${chatbotId}|${finalConversationId}`;
-      let { shareLink } = await getPublicShare({
+  // 勾选态与「再点一次取消」必须同一口径，否则手动勾满后首次点击会退化成「再全选一次」，需点两次才清空
+  const allSelected = isSelectAll || selectedMessageIds.length === messages.length;
+  const [shareVisible, setShareVisible] = useState(false);
+  const selectedUserMessageIds = isSelectAll ? [] : selectedMessageIds.filter(id => id?.length === 24);
+  const shareProps = shareVisible
+    ? buildChatbotShareProps({
         from,
         appId,
-        sourceId,
-      });
-
-      // 未开启分享
-      if (!shareLink) {
-        const res = await updatePublicShareStatus({
-          from,
-          appId,
-          sourceId,
-          isPublic: true,
-        });
-
-        if (!res?.shareLink) {
-          alert(_l('分享失败'), 2);
-          return;
-        }
-
-        shareLink = res.shareLink;
-      }
-
-      setConfirmVisible(true);
-      setShareUrl(shareLink);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const copyShareUrl = () => {
-    if (window.isMingDaoApp) {
-      compatibleMDJS('shareContent', {
-        type: 1,
-        title: _l('链接已复制'),
-        url: shareUrl,
-      });
-    } else {
-      copy(shareUrl);
-      alert(_l('链接已复制'));
-    }
-  };
+        chatbotId,
+        conversationId,
+        projectId,
+        isCharge,
+        messageIds: selectedUserMessageIds,
+      })
+    : null;
 
   useEffect(() => {
     if (!isSelectAll && isEmpty(selectedMessageIds)) {
       setShareMode(false);
     }
-  }, [isSelectAll, selectedMessageIds]);
+  }, [isSelectAll, selectedMessageIds, setShareMode]);
   if (!isSelectAll && isEmpty(selectedMessageIds)) {
     return null;
   }
@@ -153,26 +101,20 @@ const MobileShareOperate = ({
       <WidthWrap style={{ maxWidth }}>
         <LeftSection>
           <Checkbox
-            text={_l('全选')}
-            checked={isSelectAll || selectedMessageIds.length === messages.length}
-            onClick={() => {
-              if (isSelectAll) {
+            checked={allSelected}
+            onChange={() => {
+              if (allSelected) {
                 setIsSelectAll(false);
-              } else {
-                if (
-                  isEqual(
-                    selectedMessageIds,
-                    messages.map(message => message.modelMessageId),
-                  )
-                ) {
-                  setSelectedMessageIds([]);
-                } else {
-                  setSelectedMessageIds(messages.map(message => message.modelMessageId));
-                }
+                setSelectedMessageIds([]);
+                return;
               }
+
+              setSelectedMessageIds(messages.map(message => message.modelMessageId));
             }}
             className="textPrimary"
-          />
+          >
+            {_l('全选')}
+          </Checkbox>
           {!isSelectAll && !!selectedCount && (
             <Fragment>
               <Divider />
@@ -190,23 +132,13 @@ const MobileShareOperate = ({
           >
             {_l('取消')}
           </div>
-          <div className="basicBtn success" onClick={handleShare}>
+          <div className="basicBtn success" onClick={() => setShareVisible(true)}>
             <i className="icon icon-share Font16 mRight6"></i>
             {_l('分享')}
           </div>
         </RightSection>
       </WidthWrap>
-      <MobileConfirmPopup
-        visible={confirmVisible}
-        title={_l('对外公开分享')}
-        subDesc={_l('获得链接的所有人都可以查看')}
-        confirmText={_l('分享')}
-        onCancel={() => setConfirmVisible(false)}
-        onConfirm={() => {
-          setConfirmVisible(false);
-          copyShareUrl();
-        }}
-      />
+      {shareVisible && <SharePopup {...shareProps} onClose={() => setShareVisible(false)} />}
     </MobileShareOperateWrap>
   );
 };

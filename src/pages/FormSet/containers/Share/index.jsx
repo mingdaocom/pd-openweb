@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Radio, ScrollView, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Radio, Switch, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import SelectExDrop from 'src/pages/Role/PortalCon/components/SelectExDrop';
@@ -65,9 +65,6 @@ const RecordSharing = styled.div`
     width: 100%;
     height: 0;
     border-bottom: 1px solid var(--color-border-primary);
-  }
-  .ant-select-selector {
-    min-height: 36px;
   }
   .wxPublicWrap {
     justify-content: start;
@@ -181,16 +178,28 @@ const SharingSettings = props => {
             <SubTitle className="Bold Font14 mTop24">{_l('当被@用户没有记录查看权限时')}</SubTitle>
             <RadioGroup className="flexColumn mTop20">
               <Radio
-                text={_l('如果用户有工作表权限，允许以只读方式查看记录（默认）')}
                 checked={props?.worksheetInfo?.advancedSetting?.discusspermission !== '2'}
-                onClick={() => onChangeSetting({ discusspermission: '' })}
-              />
+                onChange={() =>
+                  onChangeSetting({
+                    discusspermission: '',
+                  })
+                }
+                title={_l('如果用户有工作表权限，允许以只读方式查看记录（默认）')}
+              >
+                {_l('如果用户有工作表权限，允许以只读方式查看记录（默认）')}
+              </Radio>
               <Radio
                 className="mTop20"
-                text={_l('不允许查看')}
                 checked={props?.worksheetInfo?.advancedSetting?.discusspermission === '2'}
-                onClick={() => onChangeSetting({ discusspermission: '2' })}
-              />
+                onChange={() =>
+                  onChangeSetting({
+                    discusspermission: '2',
+                  })
+                }
+                title={_l('不允许查看')}
+              >
+                {_l('不允许查看')}
+              </Radio>
             </RadioGroup>
           </>
         );
@@ -208,7 +217,8 @@ const SharingSettings = props => {
               <Switch
                 // size="small"
                 checked={isSharingEnabled}
-                onClick={() => {
+                onClick={(checked, event) => {
+                  event.stopPropagation();
                   edit({
                     ...data,
                     state: !isSharingEnabled,
@@ -225,19 +235,29 @@ const SharingSettings = props => {
                   <RadioGroup className="flexRow alignItemsCenter mTop18">
                     <Radio
                       className="InlineFlex"
-                      text={_l('有分享权限的用户')}
                       checked={data?.roleType !== 100}
-                      onClick={() => {
+                      onChange={() => {
                         edit({
                           ...data,
                           roleType: 0,
                         });
                       }}
-                    />
+                      title={_l('有分享权限的用户')}
+                    >
+                      {_l('有分享权限的用户')}
+                    </Radio>
                     <Radio
                       className="InlineFlex alignItemsCenter mLeft50"
                       title={_l('仅系统角色')}
-                      text={
+                      checked={data?.roleType === 100}
+                      onChange={() => {
+                        edit({
+                          ...data,
+                          roleType: 100,
+                        });
+                      }}
+                    >
+                      {
                         <span className="InlineFlex alignItemsCenter">
                           {_l('仅系统角色')}
                           <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
@@ -245,14 +265,7 @@ const SharingSettings = props => {
                           </Tooltip>
                         </span>
                       }
-                      checked={data?.roleType === 100}
-                      onClick={() => {
-                        edit({
-                          ...data,
-                          roleType: 100,
-                        });
-                      }}
-                    />
+                    </Radio>
                   </RadioGroup>
                 </SettingItem>
                 <SettingItem>
@@ -261,28 +274,32 @@ const SharingSettings = props => {
                     <RadioGroup className="flexRow alignItemsCenter mTop18">
                       <Radio
                         className="InlineFlex"
-                        text={_l('所有视图')}
                         checked={data?.viewIds?.length <= 0 && !isView}
-                        onClick={() => {
+                        onChange={() => {
                           edit({
                             ...data,
                             viewIds: [],
                           });
                           setIsView(false);
                         }}
-                      />
+                        title={_l('所有视图')}
+                      >
+                        {_l('所有视图')}
+                      </Radio>
                       <Radio
                         className="InlineFlex mLeft50"
-                        text={_l('指定视图')}
                         checked={data?.viewIds?.length > 0 || isView}
-                        onClick={() => {
+                        onChange={() => {
                           edit({
                             ...data,
                             viewIds: [],
                           });
                           setIsView(true);
                         }}
-                      />
+                        title={_l('指定视图')}
+                      >
+                        {_l('指定视图')}
+                      </Radio>
                     </RadioGroup>
                     {(data?.viewIds?.length > 0 || isView) && (
                       <SelectExDrop

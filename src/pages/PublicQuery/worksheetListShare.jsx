@@ -3,12 +3,11 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { browserIsMobile } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { SYS, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import './worksheetListShare.less';
 
 const hiddenIds = WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId);

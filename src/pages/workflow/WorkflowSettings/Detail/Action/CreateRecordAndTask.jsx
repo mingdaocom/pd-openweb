@@ -2,11 +2,14 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dropdown, PriceTip, Radio, Support } from 'ming-ui';
+import { PriceTip, Support } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { pathCompletion } from 'src/utils/common';
-import { APP_TYPE, NODE_TYPE, RELATION_TYPE } from '../../enum';
-import { AddOptions, SelectNodeObject, SingleControlValue } from '../components';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { ACTION_ID, APP_TYPE, NODE_TYPE, RELATION_TYPE } from '../../enum';
+import { AddOptions, AppSelectTitle, SelectNodeObject, SingleControlValue } from '../components';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const getAppList = data =>
   data.appList
@@ -91,7 +94,7 @@ export default class CreateRecordAndTask extends Component {
                 '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信费用自动从组织信用点中扣除',
               )}
             />
-            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+            {window.platformENV.isHap && (
               <Fragment>
                 <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
                 <Support
@@ -106,9 +109,13 @@ export default class CreateRecordAndTask extends Component {
 
         {data.appType === APP_TYPE.INVOICE && (
           <div className="Font14 textSecondary workflowDetailDesc">
-            {_l(
-              '本节点使用前，请确保已开通开票税号。电子开票采用异步处理方式，节点执行时将等待开票结果，开票完成后再继续后续流程。该开票为自动操作，无需管理员审核。',
-            )}
+            {data.actionId === ACTION_ID.SEND_EMAIL
+              ? _l(
+                  '使用本节点前，请先确认已有蓝字发票。电子开票为异步处理，节点执行时会等待开票结果后再继续。此节点为自动开票，无需管理员审核。',
+                )
+              : _l(
+                  '本节点使用前，请确保已开通开票税号。电子开票采用异步处理方式，节点执行时将等待开票结果，开票完成后再继续后续流程。该开票为自动操作，无需管理员审核。',
+                )}
             <span
               className="colorPrimary pointer"
               onClick={() => window.open(pathCompletion(`/admin/invoice/${companyId}/taxNo`))}
@@ -133,34 +140,24 @@ export default class CreateRecordAndTask extends Component {
         )}
 
         {_.includes([APP_TYPE.SHEET, APP_TYPE.TASK], data.appType) && (
-          <Dropdown
+          <Select
             className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
-            data={
+            options={
               data.appType === APP_TYPE.SHEET
-                ? [getAppList(data), this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet]
+                ? getAppList(data).concat(this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet)
                 : getAppList(data)
             }
+            fieldNames={SELECT_FIELD_NAMES}
             value={data.appId}
-            renderTitle={
-              !data.appId
-                ? () => <span className="textPlaceholder">{_l('请选择')}</span>
-                : data.appId && !selectAppItem
-                  ? () => (
-                      <span className="errorColor">
-                        {data.appType === APP_TYPE.SHEET ? _l('工作表无效或已删除') : _l('项目无效或已删除')}
-                      </span>
-                    )
-                  : () => (
-                      <Fragment>
-                        <span>{selectAppItem.name}</span>
-                        {selectAppItem.otherApkName && (
-                          <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
-                        )}
-                      </Fragment>
-                    )
-            }
-            border
-            openSearch
+            labelRender={() => (
+              <AppSelectTitle
+                data={data}
+                selectAppItem={selectAppItem}
+                invalidText={data.appType === APP_TYPE.SHEET ? _l('工作表无效或已删除') : _l('项目无效或已删除')}
+              />
+            )}
+            showSearch
+            optionFilterProp="text"
             onChange={appId => {
               if (appId === 'other') {
                 this.setState({ showOtherWorksheet: true });
@@ -184,10 +181,11 @@ export default class CreateRecordAndTask extends Component {
           <Fragment>
             <div className="mTop20">
               <Radio
-                text={data.appType === APP_TYPE.EXTERNAL_USER ? _l('邀请1名用户') : _l('新增一条记录')}
                 checked={!isBatch}
-                onClick={() => {
-                  this.setState({ isBatch: false });
+                onChange={() => {
+                  this.setState({
+                    isBatch: false,
+                  });
                   updateSource({
                     selectNodeId: '',
                     fields: data.fields.map(o => {
@@ -200,18 +198,29 @@ export default class CreateRecordAndTask extends Component {
                     }),
                   });
                 }}
-              />
+                title={data.appType === APP_TYPE.EXTERNAL_USER ? _l('邀请1名用户') : _l('新增一条记录')}
+              >
+                {data.appType === APP_TYPE.EXTERNAL_USER ? _l('邀请1名用户') : _l('新增一条记录')}
+              </Radio>
             </div>
             <div className="mTop10">
               <Radio
-                text={
+                checked={isBatch}
+                onChange={() =>
+                  this.setState({
+                    isBatch: true,
+                  })
+                }
+                title={
                   data.appType === APP_TYPE.EXTERNAL_USER
                     ? _l('基于多条数据邀请多名用户')
                     : _l('基于多条记录逐条新增记录')
                 }
-                checked={isBatch}
-                onClick={() => this.setState({ isBatch: true })}
-              />
+              >
+                {data.appType === APP_TYPE.EXTERNAL_USER
+                  ? _l('基于多条数据邀请多名用户')
+                  : _l('基于多条记录逐条新增记录')}
+              </Radio>
             </div>
           </Fragment>
         )}
@@ -260,7 +269,8 @@ export default class CreateRecordAndTask extends Component {
             );
           }
 
-          if (_.includes(['portal_logintime', 'portal_system_id'], singleObj.controlId)) return null;
+          if (_.includes(['portal_logintime', 'portal_system_id', 'invoiceSpecialMark'], singleObj.controlId))
+            return null;
 
           return (
             <div
@@ -339,7 +349,18 @@ export default class CreateRecordAndTask extends Component {
                 fields={fields}
                 hideOtherField={
                   data.appType === APP_TYPE.INVOICE &&
-                  _.includes(['taxNo', 'productId', 'invoiceType', 'invoiceOutputType'], singleObj.controlId)
+                  _.includes(
+                    [
+                      'taxNo',
+                      'productId',
+                      'invoiceType',
+                      'invoiceOutputType',
+                      'redReason',
+                      'invoiceSpecialMark',
+                      'transportToolType',
+                    ],
+                    singleObj.controlId,
+                  )
                 }
                 hideUserMoreObject={data.appType === APP_TYPE.INVOICE}
                 updateSource={(opts, callback) => {

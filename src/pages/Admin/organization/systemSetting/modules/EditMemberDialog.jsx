@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import workSiteController from 'src/api/workSite';
 
@@ -174,23 +175,24 @@ export default class EditMemberDialog extends Component {
   render() {
     const { userCount } = this.props;
     return (
-      <Dialog
-        visible={this.props.visible}
+      <Modal
+        open={this.props.visible}
         title={_l('添加成员(%0)', userCount)}
-        width="480"
-        overlayClosable={false}
+        width={480}
+        mask={{ closable: false }}
+        keyboard
         footer={null}
         onCancel={() => this.props.closeMenberDialog()}
       >
         <div className="editMemberDialog" id="editMemberDialog">
-          <div className="Relative">
-            <input
+          <div>
+            <Input
               type="text"
-              className="ming Input w100 pLeft30"
+              className="w100"
+              prefix={<span className="icon-search textTertiary Font18" />}
               placeholder={_l('搜索')}
               onChange={this.handleSearch}
             />
-            <span className="btnSearch icon-search textTertiary"></span>
           </div>
           <div id="memberList" className="mTop10">
             {this.renderUserList()}
@@ -205,7 +207,7 @@ export default class EditMemberDialog extends Component {
             </span>
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

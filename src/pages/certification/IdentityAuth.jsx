@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Input, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Input } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import certificationApi from 'src/api/certification';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { FACE_CERT_RESULT_TYPES, RESULT_TYPES, VERIFY_STATUS } from './constant';
 
 const Wrapper = styled.div`
@@ -34,16 +35,6 @@ const Wrapper = styled.div`
   }
   .icon-info {
     color: #fb0;
-  }
-  .nextBtn {
-    height: 44px;
-    line-height: 44px;
-    border-radius: 25px !important;
-    font-size: 15px;
-
-    &.Button--disabled {
-      background: var(--color-primary-light) !important;
-    }
   }
 `;
 
@@ -169,7 +160,7 @@ function IdentityAuth() {
           className="w100"
           placeholder={_l('请输入姓名')}
           value={fullName}
-          onChange={value => setFullName(value)}
+          onChange={event => setFullName(event.target.value)}
           onTouchStart={handleFocus}
         />
         <div className="labelText">{_l('身份证号')}</div>
@@ -177,13 +168,13 @@ function IdentityAuth() {
           className="w100"
           placeholder={_l('请输入身份证号')}
           value={idNumber}
-          onChange={value => setIdNumber(value)}
+          onChange={event => setIdNumber(event.target.value)}
           onTouchStart={handleFocus}
         />
       </div>
       <div className="paddingInline24 mBottom24">
-        <Button fullWidth radius className="nextBtn" disabled={submitLoading} onClick={onNext}>
-          {submitLoading ? _l('正在发起验证，请稍后…') : _l('下一步')}
+        <Button type="primary" block shape="round" loading={submitLoading} onClick={onNext}>
+          {_l('下一步')}
         </Button>
       </div>
     </Wrapper>

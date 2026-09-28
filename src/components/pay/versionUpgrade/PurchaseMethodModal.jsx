@@ -1,17 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
-const DialogWrap = styled(Dialog)`
+const DialogWrap = styled(Modal)`
   .promptTitle {
     color: var(--color-warning);
   }
-  .mui-dialog-default-title {
+  .hap-modal-title {
     font-size: 24px !important;
   }
-  .mui-dialog-close-btn {
+  .hap-modal-close {
     right: 22px !important;
     top: 20px !important;
     .Icon {
@@ -20,11 +20,11 @@ const DialogWrap = styled(Dialog)`
       color: var(--color-text-secondary) !important;
     }
   }
-  .mui-dialog-header {
-    padding: 32px 24px 16px 55px !important;
+  .hap-modal-container {
+    padding: 32px 55px 22px !important;
   }
-  .mui-dialog-body {
-    padding: 0 55px 22px !important;
+  .hap-modal-header {
+    margin-bottom: 16px;
   }
   .methodWrap {
     margin-bottom: 48px;
@@ -50,7 +50,7 @@ const DialogWrap = styled(Dialog)`
   }
 `;
 
-const mathods = [
+const getMethods = () => [
   {
     type: 'payOnline',
     icon: 'icon-wechat_pay',
@@ -76,6 +76,7 @@ const mathods = [
 
 export default function PurchaseMethodModal(props) {
   const { onCancel, projectId, select, isTrial } = props;
+  const methods = getMethods();
 
   const handleClick = it => {
     if (it.type === 'payOnline') {
@@ -101,13 +102,15 @@ export default function PurchaseMethodModal(props) {
           )}
         </div>
       }
-      visible
+      open
+      mask={{ closable: true }}
+      keyboard
       width={1160}
-      showFooter={false}
+      footer={null}
       onCancel={onCancel}
     >
       <div className="methodWrap flexRow">
-        {mathods.map(it => {
+        {methods.map(it => {
           return (
             <div key={it.type} className="methodItem flex Hand" onClick={() => handleClick(it)}>
               <i className={`ming Icon icon-default icon Font40 ${it.icon}`} style={{ color: it.iconColor }} />

@@ -1,10 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
+import { Input, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { normTypes } from '../../../enum';
 
 export class Count extends Component {
@@ -31,26 +29,29 @@ export class Count extends Component {
           <div className="mBottom16">
             <div className="mBottom8">{_l('显示字段')}</div>
             <Select
-              className="chartSelect w100"
+              className="w100"
               value={summary.controlId}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={[
+                ...(reportType !== reportTypes.WorldMap
+                  ? [
+                      {
+                        value: '',
+                        label: _l('全部'),
+                      },
+                    ]
+                  : []),
+                ...yaxisList.map(item => ({
+                  value: item.controlId,
+                  label: item.controlName,
+                })),
+              ]}
               onChange={value => {
                 onChangeSummary({
                   controlId: value,
                 });
               }}
-            >
-              {reportType !== reportTypes.WorldMap && (
-                <Select.Option className="selectOptionWrapper" value="">
-                  {_l('全部')}
-                </Select.Option>
-              )}
-              {yaxisList.map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.controlId} value={item.controlId}>
-                  {item.controlName}
-                </Select.Option>
-              ))}
-            </Select>
+            />
           </div>
         )}
         {(isCollectMode ? true : summary.controlId) && (
@@ -67,9 +68,16 @@ export class Count extends Component {
               )}
             </div>
             <Select
-              className="chartSelect w100"
+              className="w100"
               value={summary.type}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={(isCalculateMode && yAxis.controlType === 10000001
+                ? normTypes.filter(n => ![6].includes(n.value))
+                : normTypes.filter(n => ![5, 6].includes(n.value))
+              ).map(item => ({
+                value: item.value,
+                label: item.value === 5 ? _l('计算') : item.alias || item.text,
+              }))}
               onChange={value => {
                 const item = _.find(normTypes, { value });
 
@@ -86,27 +94,21 @@ export class Count extends Component {
                   });
                 }
               }}
-            >
-              {(isCalculateMode && yAxis.controlType === 10000001
-                ? normTypes.filter(n => ![6].includes(n.value))
-                : normTypes.filter(n => ![5, 6].includes(n.value))
-              ).map(item => (
-                <Select.Option className="selectOptionWrapper" value={item.value}>
-                  {item.value === 5 ? _l('计算') : item.alias || item.text}
-                </Select.Option>
-              ))}
-            </Select>
+            />
           </div>
         )}
         <div className="mBottom16">
           <div className="mBottom8">{_l('提示')}</div>
           <Input
-            value={summary.name}
-            className="chartInput w100"
-            onChange={event => {
+            key={`${summary.controlId}-${summary.type}`}
+            defaultValue={summary.name}
+            maxLength={20}
+            className="w100"
+            onPressEnter={event => event.currentTarget.blur()}
+            onBlur={event => {
               onChangeSummary(
                 {
-                  name: event.target.value.slice(0, 20),
+                  name: event.target.value,
                 },
                 false,
               );
@@ -149,25 +151,29 @@ const getLocationTypes = locationType => {
 };
 
 export const Location = ({ summary, locationType, onChangeSummary }) => {
+  const locationTypes = getLocationTypes(locationType);
+
   return (
     <div className="mBottom16">
       <div className="mBottom8">{_l('位置')}</div>
-      <div className="chartTypeSelect flexRow valignWrapper">
-        {getLocationTypes(locationType).map(item => (
-          <div
-            key={item.value}
-            title={item.text}
-            className={cx('flex centerAlign pointer textSecondary', { active: summary.location == item.value })}
-            onClick={() => {
-              onChangeSummary({
-                location: item.value,
-              });
-            }}
-          >
-            <span className="ellipsis">{item.text}</span>
-          </div>
-        ))}
-      </div>
+      <Segmented
+        block
+        className="bgDisabled"
+        value={locationTypes.find(item => summary.location == item.value)?.value ?? ''}
+        options={locationTypes.map(item => ({
+          value: item.value,
+          label: (
+            <span className="ellipsis" title={item.text}>
+              {item.text}
+            </span>
+          ),
+        }))}
+        onChange={value => {
+          onChangeSummary({
+            location: value,
+          });
+        }}
+      />
     </div>
   );
 };

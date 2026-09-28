@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Button, ConfigProvider, Dropdown, Input, Menu, Modal } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon, TagTextarea } from 'ming-ui';
+import { Dropdown, Input, InputNumber, Modal, Popover } from 'ming-ui/antd-components';
 import { isNumberControl } from 'statistics/common/controlUtils';
 import { textNormTypes } from 'statistics/common/reportConfigUtils';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
@@ -137,35 +136,29 @@ class CalculateControl extends Component {
     if (value) {
       count = parseInt(value);
       count = isNaN(count) ? 0 : count;
-      count = count > 8 ? 8 : count;
+      count = _.clamp(count, 0, 8);
     } else {
       count = 0;
     }
 
     this.setState({ dot: count });
   };
-  renderControlTypeOverlay({ controlId, type, enumDefault }, norm) {
+  getControlTypeMenuItems({ controlId, type, enumDefault }, norm) {
     const isNumber = isNumberControl(type) || enumDefault === 1;
-    return (
-      <Menu className="chartMenu" style={{ width: 140 }}>
-        {(isNumber ? calculateControlNormTypes : textControlNormTypes).map(item => (
-          <Menu.Item
-            key={item.value}
-            style={{ color: norm.value === item.value ? 'var(--color-primary) !important' : null }}
-            onClick={() => {
-              const newFormulaStr = this.state.formulaStr.replace(
-                new RegExp(`${controlId}-${norm.value || '\\d'}`),
-                `${controlId}-${item.value}`,
-              );
-              this.tagtextarea.setValue(newFormulaStr);
-              this.setState({ formulaStr: newFormulaStr, showDropdownId: '' });
-            }}
-          >
-            {item.text}
-          </Menu.Item>
-        ))}
-      </Menu>
-    );
+
+    return (isNumber ? calculateControlNormTypes : textControlNormTypes).map(item => ({
+      key: item.value,
+      style: { color: norm.value === item.value ? 'var(--color-primary)' : null },
+      label: item.text,
+      onClick: () => {
+        const newFormulaStr = this.state.formulaStr.replace(
+          new RegExp(`${controlId}-${norm.value || '\\d'}`),
+          `${controlId}-${item.value}`,
+        );
+        this.tagtextarea.setValue(newFormulaStr);
+        this.setState({ formulaStr: newFormulaStr, showDropdownId: '' });
+      },
+    }));
   }
   genControlTag = (axisControls, id) => {
     const control = _.find(axisControls, { controlId: id.replace(/-\w/, '') }) || {};
@@ -197,9 +190,12 @@ class CalculateControl extends Component {
       return (
         <Dropdown
           trigger={['click']}
-          overlay={this.renderControlTypeOverlay(control, norm)}
-          visible={showDropdownId}
-          onVisibleChange={visible => {
+          menu={{
+            style: { minWidth: 140 },
+            items: this.getControlTypeMenuItems(control, norm),
+          }}
+          open={!!showDropdownId}
+          onOpenChange={visible => {
             if (!visible) {
               this.setState({ showDropdownId: '' });
             }
@@ -255,7 +251,6 @@ class CalculateControl extends Component {
         <div className="mBottom10">{_l('名称')}</div>
         <Input
           value={controlName}
-          className="chartInput"
           placeholder={_l('输入字段名称')}
           onChange={e => {
             this.setState({
@@ -265,24 +260,19 @@ class CalculateControl extends Component {
         />
         <div className="flexRow valignWrapper mTop16 mBottom10">
           <div className="flex Font14">{_l('计算')}</div>
-          <Trigger
-            action={['click']}
-            popupVisible={dropdownVisible}
-            onPopupVisibleChange={dropdownVisible => this.setState({ dropdownVisible })}
-            popup={this.renderControlOverlay()}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              overflow: {
-                adjustX: true,
-                adjustY: true,
-              },
-            }}
+          <Popover
+            trigger="click"
+            open={dropdownVisible}
+            onOpenChange={dropdownVisible => this.setState({ dropdownVisible })}
+            content={this.renderControlOverlay()}
+            placement="bottomLeft"
+            noPadding
           >
-            <div className="flexRow valignWrapper pointer" style={{ color: 'var(--color-primary) !important' }}>
+            <div className="flexRow valignWrapper pointer colorPrimary">
               <Icon className="Font20" icon="add" />
               <span className="Font13">{_l('选择字段')}</span>
             </div>
-          </Trigger>
+          </Popover>
         </div>
         <div onClick={this.handleOpenDropdown}>
           <TagTextarea
@@ -301,33 +291,15 @@ class CalculateControl extends Component {
           {_l('英文输入+、-、*、/、( ) 进行运算，支持输入数值或全数值的计算，不支持公式')}
         </div>
         <div className="mTop16 mBottom10">{_l('保留小数位数')}</div>
-        <Input
+        <InputNumber
           style={{ width: 100 }}
-          className="chartInput"
+          min={0}
+          max={8}
+          precision={0}
           value={dot}
-          onChange={event => {
-            this.handleChangeDot(event.target.value);
+          onChange={value => {
+            this.handleChangeDot(value);
           }}
-          suffix={
-            <div className="flexColumn">
-              <Icon
-                icon="expand_less"
-                className="textTertiary Font20 pointer mBottom2"
-                onClick={() => {
-                  let newYdot = Number(dot);
-                  this.handleChangeDot(newYdot + 1);
-                }}
-              />
-              <Icon
-                icon="expand_more"
-                className="textTertiary Font20 pointer mTop2"
-                onClick={() => {
-                  let newYdot = Number(dot);
-                  this.handleChangeDot(newYdot ? newYdot - 1 : 0);
-                }}
-              />
-            </div>
-          }
         />
       </div>
     );
@@ -338,30 +310,6 @@ export default class CalculateControlModal extends Component {
   constructor(props) {
     super(props);
   }
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.props.onChangeDialogVisible(false);
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              this.calculateControlEl.handleSave();
-            }}
-          >
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   render() {
     const { dialogVisible } = this.props;
     return (
@@ -369,11 +317,12 @@ export default class CalculateControlModal extends Component {
         title={_l('添加计算字段')}
         width={480}
         className="chartModal"
-        visible={dialogVisible}
+        open={dialogVisible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderFooter()}
+        onOk={() => {
+          this.calculateControlEl.handleSave();
+        }}
         onCancel={() => {
           this.props.onChangeDialogVisible(false);
         }}

@@ -2,26 +2,28 @@ import React from 'react';
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { mdNotification } from 'ming-ui/functions';
 import attachmentAjax from 'src/api/attachment';
 import homeAppApi from 'src/api/homeApp';
 import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
 import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
-import { navigateToLogin } from 'src/router/navigateTo';
-import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
-import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
-import { getPssId } from 'src/utils/pssId';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { navigateToLogin } from 'src/router/navigation/navigateTo';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { canEditApp, isHaveCharge } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getAppLangDetail, getTranslateInfo } from 'src/utils/services/app';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import Header from './components/Header';
 import PrintContentBox from './components/PrintContentBox';
 import SaveDia from './components/SaveDia';
@@ -152,7 +154,7 @@ class PrintForm extends React.Component {
       const { params = {} } = this.state;
       const { key } = params;
 
-      webCacheAjax.get({ key }).then(res => {
+      webCacheAjax.get({ key, moduleType: 1 }).then(res => {
         if (res.data) {
           const data = safeParse(res.data) || {};
           const { appDetail, worksheetInfo, shareShortUrls, shareUrl, ...cacheParams } = data;
@@ -678,7 +680,7 @@ class PrintForm extends React.Component {
   };
 
   getFiles = () => {
-    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
+    if (window.platformENV.isHap) {
       this.getSaasFiles();
       return;
     }
@@ -806,9 +808,9 @@ class PrintForm extends React.Component {
     if (!this.state.isChange) {
       this.props.onBack && this.props.onBack();
     } else {
-      return Dialog.confirm({
-        title: <span className="">{_l('您是否保存本次修改？')}</span>,
-        description: _l('当前有尚未保存的修改，你在离开页面前是否需要保存这些修改？'),
+      return Modal.confirm({
+        title: _l('您是否保存本次修改？'),
+        content: _l('当前有尚未保存的修改，你在离开页面前是否需要保存这些修改？'),
         cancelText: _l('否，放弃保存'),
         okText: _l('是，保存修改'),
         onCancel: () => {
@@ -820,7 +822,7 @@ class PrintForm extends React.Component {
           this.confirmOk = true;
           this.saveFn();
         },
-      });
+      }).destroy;
     }
   };
 
@@ -918,6 +920,7 @@ class PrintForm extends React.Component {
       showPrintAndSaveButtons,
       view,
       cacheData,
+      saveLoading,
     } = this.state;
     const { type, isDefault, worksheetId, viewId, rowIds } = params;
     let { receiveControls = [], systemControl = [] } = printData;
@@ -959,6 +962,7 @@ class PrintForm extends React.Component {
       },
       saveTem: this.saveTem,
       saveFn: this.saveFn,
+      saveLoading,
       downFn: this.downFn,
       showPdf,
       sheetSwitchPermit: sheetSwitchPermit,

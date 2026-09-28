@@ -15,6 +15,17 @@ const activity = {
   /**
    * null
    * @param {string} [args.processId] *null
+   * @param {Object} options 配置参数
+   */
+  getPartitionList: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/activity/getPartitionList';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'activitygetPartitionList', args, $.extend({}, base, options));
+  },
+  /**
+   * null
+   * @param {string} [args.processId] *null
+   * @param {string} [args.sequenceId] null
    * @param {integer} [args.pageIndex] null
    * @param {integer} [args.pageSize] null
    * @param {Object} options 配置参数

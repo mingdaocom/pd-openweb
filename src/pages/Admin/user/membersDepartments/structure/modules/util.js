@@ -1,5 +1,5 @@
 ﻿import _ from 'lodash';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
 
 const keyName = 'departmentId';
 const childCollectionName = 'subDepartments';

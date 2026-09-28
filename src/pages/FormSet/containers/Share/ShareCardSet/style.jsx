@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { CustomButton } from 'worksheet/components/Basics';
 
 export const Con = styled.div`
   .shareCard {
@@ -131,15 +130,6 @@ export const Con = styled.div`
       }
     }
   }
-  .fillInput {
-    border-color: var(--color-border-primary) !important;
-    &:hover {
-      border-color: var(--color-border-tertiary) !important;
-    }
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-  }
   .customImgWrap {
     width: 58px;
     height: 58px;
@@ -158,21 +148,10 @@ export const Con = styled.div`
       width: 100%;
       height: 100%;
       .deleteBtn {
-        width: 32px;
-        height: 24px;
-        background: var(--color-background-primary);
-        border-radius: 3px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         position: absolute;
-        left: 12px;
+        left: 50%;
         bottom: 12px;
-        &:hover {
-          .Icon {
-            color: var(--color-error) !important;
-          }
-        }
+        transform: translateX(-50%);
       }
     }
     &:hover {
@@ -180,21 +159,5 @@ export const Con = styled.div`
         opacity: 1;
       }
     }
-  }
-`;
-
-export const UploadBtn = styled(CustomButton)`
-  border: 1px solid var(--color-border-secondary);
-  width: fit-content;
-  &.disabled {
-    cursor: not-allowed;
-    background-color: var(--color-background-secondary);
-  }
-  .icon {
-    display: inline-block;
-    position: relative;
-    top: 3px;
-    margin-right: 4px;
-    font-size: 20px;
   }
 `;

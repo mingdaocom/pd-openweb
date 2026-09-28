@@ -1,5 +1,5 @@
-import { pathCompletion } from 'src/utils/common';
-import { setPssId } from 'src/utils/pssId';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import {
   addOtherParam,
   ajax,
@@ -10,7 +10,7 @@ import {
   getGlobalMeta,
   getRequest,
   login,
-} from 'src/utils/sso';
+} from 'src/utils/services/auth/sso';
 
 const { code, state, url, p, pc_slide = '', ...otherParam } = getRequest();
 const isPcSlide = pc_slide.includes('true');

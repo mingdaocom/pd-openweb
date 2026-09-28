@@ -19,18 +19,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    .addAppBtn {
-      line-height: 32px;
-      background: var(--color-primary);
-      border-radius: 3px;
-      color: var(--color-white);
-      padding: 0 16px;
-      display: inline-block;
-
-      &:hover {
-        background: var(--color-link-hover);
-      }
-    }
 
     .search .roleSearch {
       width: 200px;
@@ -46,10 +34,6 @@
     .statusSelectWrap {
       width: 160px;
 
-      .Dropdown--border {
-        border-color: var(--color-border-secondary);
-      }
-
       .ming.Icon {
         color: var(--color-text-disabled) !important;
       }
@@ -63,19 +47,15 @@
         opacity: 0 !important;
       }
 
-      .Checkbox-box {
-        margin-right: 0 !important;
-      }
-
       .databaseAppTable {
-        .ant-table-thead > tr > th {
+        .hap-table-thead > tr > th {
           font-size: 13px;
           color: var(--color-text-tertiary);
           font-weight: 600;
           background: var(--color-background-primary);
         }
 
-        .ant-table-thead > tr > th::before {
+        .hap-table-thead > tr > th::before {
           display: none;
         }
 

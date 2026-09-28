@@ -1,6 +1,6 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import SelectDialog from './SelectDialog';
 
-export function selectRecords(props) {
-  functionWrap(SelectDialog, props);
+export function useSelectRecords() {
+  return useFunctionWrapComponent(SelectDialog);
 }

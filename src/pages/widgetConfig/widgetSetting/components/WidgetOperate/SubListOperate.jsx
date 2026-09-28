@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../../styled';
 
 export default function SubListOperate(props) {
@@ -23,7 +22,7 @@ export default function SubListOperate(props) {
 
   const worksheetControls = relationControls
     .filter(item => item.type === 29)
-    .map(({ controlId: value, controlName: text }) => ({ value, text }));
+    .map(({ controlId: value, controlName: label }) => ({ value, label }));
 
   useEffect(() => {
     setVisible(batchcids.length > 0);
@@ -40,11 +39,9 @@ export default function SubListOperate(props) {
     <Fragment>
       <div className="labelWrap">
         <Checkbox
-          size="small"
-          text={_l('允许新增明细')}
           checked={allowadd === '1'}
-          onClick={checked => {
-            if (checked) {
+          onChange={event => {
+            if (!event.target.checked) {
               onChange(
                 handleAdvancedSettingChange(data, {
                   allowadd: '0',
@@ -58,32 +55,40 @@ export default function SubListOperate(props) {
               return;
             }
 
-            onChange(handleAdvancedSettingChange(data, { allowadd: '1', allowsingle: '1' }));
+            onChange(
+              handleAdvancedSettingChange(data, {
+                allowadd: '1',
+                allowsingle: '1',
+              }),
+            );
           }}
-        />
+          size="small"
+        >
+          {_l('允许新增明细')}
+        </Checkbox>
       </div>
       {allowadd === '1' && (
         <div className="pLeft24">
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={allowsingle === '1'}
-              text={_l('单行新增')}
-              onClick={checked => {
+              onChange={event => {
                 onChange(
                   handleAdvancedSettingChange(data, {
-                    allowsingle: checked ? '0' : '1',
+                    allowsingle: !event.target.checked ? '0' : '1',
                   }),
                 );
               }}
-            />
+              size="small"
+            >
+              {_l('单行新增')}
+            </Checkbox>
           </div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={visible}
-              text={_l('选择关联记录字段新增')}
-              onClick={checked => {
+              onChange={event => {
+                const checked = !event.target.checked;
                 setVisible(!checked);
                 if (checked) {
                   onChange(
@@ -93,7 +98,9 @@ export default function SubListOperate(props) {
                   );
                 }
               }}
+              size="small"
             >
+              {_l('选择关联记录字段新增')}
               <Tooltip
                 placement="bottom"
                 title={_l(
@@ -105,14 +112,12 @@ export default function SubListOperate(props) {
             </Checkbox>
           </div>
           {visible && (
-            <Dropdown
-              border
+            <Select
               className="mTop10 w100"
-              isAppendToBody
               placeholder={_l('选择子表中的关联记录字段')}
-              noneContent={_l('没有可选字段')}
+              notFoundContent={_l('没有可选字段')}
               value={batchcids[0] || undefined}
-              data={worksheetControls}
+              options={worksheetControls}
               onChange={value => {
                 onChange(
                   handleAdvancedSettingChange(data, {
@@ -124,63 +129,112 @@ export default function SubListOperate(props) {
           )}
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={allowimport === '1'}
-              text={_l('导入新增')}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowimport: checked ? '0' : '1' }))}
-            />
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowimport: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
+            >
+              {_l('导入新增')}
+            </Checkbox>
           </div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={allowcopy === '1'}
-              text={_l('复制')}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowcopy: checked ? '0' : '1' }))}
-            />
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowcopy: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
+            >
+              {_l('复制')}
+            </Checkbox>
           </div>
         </div>
       )}
       <div className="labelWrap">
         <Checkbox
-          size="small"
-          text={_l('可编辑已有明细')}
           checked={allowedit === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowedit: checked ? '0' : '1' }))}
-        />
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                allowedit: !event.target.checked ? '0' : '1',
+              }),
+            )
+          }
+          size="small"
+        >
+          {_l('可编辑已有明细')}
+        </Checkbox>
       </div>
       <div className="labelWrap">
         <Checkbox
-          size="small"
-          text={_l('可删除已有明细')}
           checked={allowcancel === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowcancel: checked ? '0' : '1' }))}
-        />
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                allowcancel: !event.target.checked ? '0' : '1',
+              }),
+            )
+          }
+          size="small"
+        >
+          {_l('可删除已有明细')}
+        </Checkbox>
       </div>
       <SettingItem>
         <div className=" settingItemTitle">{_l('其他')}</div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={allowlink === '1'}
-            text={_l('允许弹层打开')}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowlink: checked ? '0' : '1' }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowlink: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('允许弹层打开')}
+          </Checkbox>
         </div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={allowbatch === '1'}
-            text={_l('允许批量操作')}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowbatch: checked ? '0' : '1' }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowbatch: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('允许批量操作')}
+          </Checkbox>
         </div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={allowexport === '1'}
-            text={_l('允许导出')}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowexport: checked ? '0' : '1' }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowexport: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('允许导出')}
+          </Checkbox>
         </div>
       </SettingItem>
     </Fragment>

@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import GroupByControl from 'src/pages/worksheet/components/GroupByControl.jsx';
-import { getAdvanceSetting } from 'src/utils/control';
-import { canEditForGroupControl } from '../util';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { canEditForGroupControl } from 'src/utils/services/worksheet/board';
 import AddGalleryCard from './AddGalleryCard';
 import GalleryCard from './GalleryCard';
 import ViewMore from './ViewMore';

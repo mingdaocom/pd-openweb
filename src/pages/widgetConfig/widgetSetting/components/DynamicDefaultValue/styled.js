@@ -27,7 +27,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
     color: var(--color-text-placeholder) !important;
     font-size: 14px !important;
     line-height: 27px !important;
-    margin-left: 3px !important;
+    padding: 0 10px !important;
   }
   .datePicker,
   .richInputText {
@@ -46,12 +46,12 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
     border-radius: 3px 0 0 3px !important;
     border: 1px solid var(--color-border-tertiary) !important;
     padding: 0;
-    .ant-picker-input {
+    .hap-picker-input {
       height: 34px;
       line-height: 34px;
       padding: 0 12px;
     }
-    .ant-picker-clear {
+    .hap-picker-clear {
       right: 12px;
     }
   }
@@ -88,7 +88,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
         display: block;
       }
       input {
-        background: ${props => (props.hasHoverBg ? 'var(--color-background-secondary)' : 'transparent')};
+        background: ${props => (props.$hasHoverBg ? 'var(--color-background-secondary)' : 'transparent')};
       }
     }
     .clearOp {
@@ -114,12 +114,6 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
       border-radius: 3px 0 0 3px;
       box-sizing: border-box;
       cursor: pointer;
-    }
-  }
-  & > div:nth-child(3) {
-    ${props => (props.triggerStyle ? 'top: 100% !important' : '')}
-    .rc-trigger-popup {
-      ${props => (props.triggerStyle ? 'top: 0px !important' : '')}
     }
   }
 `;
@@ -212,7 +206,7 @@ export const FieldInfo = styled(FlexCenter)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${props => (props.hideIcon ? 'padding-left: 8px;' : '')}
+  ${props => (props.$hideIcon ? 'padding-left: 8px;' : '')}
   .departWrap {
     width: 24px;
     height: 24px;
@@ -245,7 +239,7 @@ export const FieldInfo = styled(FlexCenter)`
 
 export const OtherFieldList = styled(FlexCenter)`
   flex-wrap: wrap;
-  width: ${props => (props.totalWidth ? '100%' : 'calc(100% - 36px)')};
+  width: ${props => (props.$totalWidth ? '100%' : 'calc(100% - 36px)')};
   box-sizing: border-box;
   padding: 0 6px 5px 12px;
   min-height: 36px;
@@ -255,7 +249,7 @@ export const OtherFieldList = styled(FlexCenter)`
   border: 1px solid var(--color-border-primary);
   border-radius: 3px 0 0 3px;
   cursor: pointer;
-  background: ${props => (props.isHaveUniqueField ? 'var(--color-background-secondary)' : 'transparent')};
+  background: ${props => (props.$isHaveUniqueField ? 'var(--color-background-secondary)' : 'transparent')};
   position: relative;
   .clearOp {
     position: absolute;
@@ -269,7 +263,7 @@ export const OtherFieldList = styled(FlexCenter)`
     .clearOp {
       display: block;
     }
-    background: ${props => (props.isHaveClear ? 'var(--color-background-secondary)' : 'transparent')};
+    background: ${props => (props.$isHaveClear ? 'var(--color-background-secondary)' : 'transparent')};
   }
 `;
 
@@ -370,7 +364,7 @@ export const SearchWorksheetWrap = styled.div`
     font-weight: unset;
   }
 
-  .searchRadio .ming.Radio {
+  .searchRadio .ant-radio-wrapper {
     line-height: 28px !important;
   }
   .mappingItem {
@@ -405,29 +399,6 @@ export const SearchWorksheetWrap = styled.div`
     display: flex;
     align-items: center;
   }
-  .settingWorksheetInput {
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    color: var(--color-text-disabled);
-    line-height: 34px;
-    padding: 0 12px;
-    background: var(--color-background-primary);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    .edit {
-      font-size: 15px;
-      color: var(--color-text-tertiary);
-    }
-    &.disabled {
-      cursor: not-allowed;
-      background: var(--color-background-secondary);
-      .edit {
-        display: none;
-      }
-    }
-  }
   .addFilterIcon {
     width: fit-content;
   }
@@ -461,14 +432,6 @@ export const SearchWorksheetWrap = styled.div`
       .deleteBtn {
         right: 0 !important;
       }
-      .relation {
-        .ming.Dropdown {
-          background: transparent;
-        }
-        .ming.Dropdown .Dropdown--input {
-          padding: 0 5px 0 12px;
-        }
-      }
     }
     .conditionItemContent {
       padding-right: 0 !important;
@@ -484,20 +447,8 @@ export const SearchWorksheetWrap = styled.div`
         box-shadow: none !important;
         font-size: 13px;
         margin-right: 12px;
-        .ant-select-arrow {
+        .hap-select-arrow {
           margin-top: -8px !important;
-        }
-        .ant-select-selector {
-          border-color: var(--color-border-secondary);
-          height: 36px;
-          border-radius: 4px;
-          box-shadow: none !important;
-          .ant-select-selection-search-input {
-            height: 34px;
-          }
-          .ant-select-selection-item {
-            line-height: 34px;
-          }
         }
       }
       .conditionValue {
@@ -529,10 +480,6 @@ export const SearchWorksheetWrap = styled.div`
           display: flex;
           align-items: center;
         }
-        .dateInputCon .ming.Dropdown {
-          height: 34px;
-          background: none;
-        }
       }
     }
     .worksheetFilterNumberCondition {
@@ -544,43 +491,6 @@ export const SearchWorksheetWrap = styled.div`
             width: 100%;
           }
         }
-      }
-    }
-  }
-`;
-
-export const WorksheetListWrap = styled.div`
-  border-radius: 3px;
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-  border: 1px solid var(--color-border-primary);
-  background-color: var(--color-background-primary);
-  .MenuBox {
-    position: relative !important;
-  }
-  .ming.Menu {
-    width: 100%;
-    max-height: 300px;
-    overflow-x: hidden;
-    box-shadow: none !important;
-    position: relative;
-    border-radius: unset;
-  }
-  .otherWorksheet {
-    width: 100%;
-    padding: 6px 0;
-    box-sizing: border-box;
-    border-top: 1px solid var(--color-border-primary);
-    background: var(--color-background-primary);
-    cursor: pointer;
-    position: relative;
-    z-index: 11;
-    .otherMenuItem {
-      padding: 0 16px;
-      line-height: 32px;
-      &:hover {
-        color: var(--color-white) !important;
-        background-color: var(--color-primary) !important;
       }
     }
   }
@@ -607,10 +517,6 @@ export const WrapMaxOrMin = styled.div`
   border: 1px solid var(--color-border-primary);
   border-radius: 3px 0 0 3px;
   width: calc(100% - 36px);
-  .ant-input:focus,
-  .ant-input-focused {
-    box-shadow: none;
-  }
   .dynamicCityContainer input {
     border: none !important;
     height: 34px;

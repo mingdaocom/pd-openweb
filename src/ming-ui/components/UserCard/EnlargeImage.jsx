@@ -1,21 +1,23 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { Dialog, FunctionWrap } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import './css/userCard.less';
 
-const EnlargeImageWrap = styled(Dialog)`
-  width: 400px !important;
-  height: 400px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    overflow: unset !important;
-  }
-`;
+const IMAGE_MODAL_STYLES = {
+  content: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+  container: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+  body: {
+    padding: 0,
+    overflow: 'unset',
+    height: 400,
+  },
+};
 
 export function EnlargeImage(props) {
   const { url, visible = true, onCancel } = props;
@@ -50,10 +52,20 @@ export function EnlargeImage(props) {
       : url + `${url.includes('?') ? '&' : '?'}imageView2/2/w/400`;
 
   return (
-    <EnlargeImageWrap dialogClasses="enlargeImageDialog" visible closable={false} onCancel={onCancel} footer={null}>
+    <Modal
+      open
+      width={400}
+      closable={false}
+      onCancel={onCancel}
+      footer={null}
+      mask={{ closable: true }}
+      styles={IMAGE_MODAL_STYLES}
+    >
       <img src={imgUrl} className="w100 h100" />
-    </EnlargeImageWrap>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(EnlargeImage, props);
+export default function useEnlargeImage() {
+  return useFunctionWrapComponent(EnlargeImage);
+}

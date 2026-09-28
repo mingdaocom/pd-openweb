@@ -1,5 +1,5 @@
 import sheetAjax from 'src/api/worksheet';
-import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
+import { WORKSHEET_TABLE_PAGESIZE } from 'src/utils/domain/worksheet/constants';
 
 let request = null;
 

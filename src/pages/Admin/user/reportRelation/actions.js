@@ -1,6 +1,6 @@
 ﻿import _ from 'lodash';
 import StructureController from 'src/api/structure';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../config';
 
 const COMPANY_FAKE_ACCOUNTID = '';

@@ -2,20 +2,19 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { find, get, isEmpty, isFunction, omit, some } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import useApi from 'worksheet/hooks/useApi';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import { controlBatchCanEdit } from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import { getGroupControlId } from 'src/utils/worksheet';
+import { controlBatchCanEdit } from 'src/utils/domain/control/state';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { getEditType, handleBatchUpdateRecords } from './controller';
 import EditControlItem from './EditControlItem';
 
 const Con = styled.div`
-  padding: 16px 23px;
   .addFilterCondition {
     display: inline-block;
   }
@@ -65,7 +64,7 @@ const EditCon = styled.div`
   margin: 0px -23px;
   padding: 0px 23px;
   overflow-y: auto;
-  max-height: ${props => (props.maxHeight ? `${props.maxHeight}px` : '400px')};
+  max-height: ${props => (props.$maxHeight ? `${props.$maxHeight}px` : '400px')};
 `;
 
 export default function BatchEditRecord(props) {
@@ -95,9 +94,8 @@ export default function BatchEditRecord(props) {
     onClose,
   } = props;
   const editConRef = useRef(null);
-  const addRef = useRef(null);
   const refCache = useRef({});
-  const [loading, , worksheetInfo] = useApi(
+  const [, , worksheetInfo] = useApi(
     worksheetApi.getWorksheetInfo,
     {
       appId,
@@ -240,18 +238,14 @@ export default function BatchEditRecord(props) {
       ]);
     }
   }, [activeControl]);
-  useEffect(() => {
-    if (!loading && addRef.current && !activeControl) {
-      addRef.current.click();
-    }
-  }, [loading]);
   return (
     <Modal
-      visible
+      open
       keyboard
       width={680}
-      bodyStyle={{ padding: 0, position: 'relative' }}
-      okDisabled={isEmpty(selectedControls) || isUpdating}
+      styles={{ body: { padding: 0, position: 'relative' } }}
+      okDisabled={isEmpty(selectedControls)}
+      confirmLoading={isUpdating}
       onOk={() => {
         handleEdit();
       }}
@@ -262,7 +256,7 @@ export default function BatchEditRecord(props) {
         <Description>
           {_l('批量编辑可以统一将字段值改为相同内容。一次最多修改前1000条未锁定且有编辑权限的记录。')}
         </Description>
-        <EditCon className="mTop12" ref={editConRef} maxHeight={window.innerHeight - 32 * 2 - 86 - 80 - 52}>
+        <EditCon className="mTop12" ref={editConRef} $maxHeight={window.innerHeight - 32 * 2 - 86 - 80 - 52}>
           {selectedControls.map(item => (
             <EditControlItem
               isCharge={isCharge}
@@ -312,7 +306,7 @@ export default function BatchEditRecord(props) {
               }, 0);
             }}
           >
-            <SelectControlButton ref={addRef}>
+            <SelectControlButton>
               <PlusIcon>+</PlusIcon>
               {_l('选择字段')}
             </SelectControlButton>

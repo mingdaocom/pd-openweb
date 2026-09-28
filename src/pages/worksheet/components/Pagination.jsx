@@ -2,9 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Input } from 'ming-ui';
+import { Input, Popover, Select } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   font-size: 14px;
@@ -26,7 +25,7 @@ const PageNum = styled.span`
     cursor: default;
   }
   &:not(.abnormalMode):hover {
-    background: var(--color-background-disabled);
+    background: var(--color-background-hover);
   }
 `;
 const Btn = styled.span`
@@ -42,9 +41,6 @@ const Btn = styled.span`
 `;
 
 const Popup = styled.div`
-  border-radius: 3px;
-  box-shadow: var(--shadow-lg);
-  background: var(--color-background-primary);
   padding: 6px 0 10px;
 `;
 const PageList = styled.div`
@@ -67,29 +63,24 @@ const PageList = styled.div`
 const PageSizeConfig = styled.div`
   margin-top: 12px;
   padding: 0 14px;
-  .Dropdown--input {
-    height: 28px !important;
-  }
 `;
 const JumpPage = styled.div`
   margin: 12px 0 6px;
   padding: 0 14px;
-  .Input {
+  .jumpPageInput {
     margin: 0 10px;
     width: 57px;
-    height: 28px !important;
   }
 `;
 
 const pageSizeNums = [
-  { text: 20, value: 20 },
-  { text: 25, value: 25 },
-  { text: 30, value: 30 },
-  { text: 50, value: 50 },
-  { text: 100, value: 100 },
-  { text: 200, value: 200 },
+  { label: 20, value: 20 },
+  { label: 25, value: 25 },
+  { label: 30, value: 30 },
+  { label: 50, value: 50 },
+  { label: 100, value: 100 },
+  { label: 200, value: 200 },
 ];
-
 export default class Pagination extends React.Component {
   static propTypes = {
     appendToBody: PropTypes.bool,
@@ -125,11 +116,11 @@ export default class Pagination extends React.Component {
     super(props);
     this.state = {
       popupVisible: false,
+      jumpPageValue: String(props.pageIndex),
     };
   }
 
   conRef = React.createRef();
-  jumpInputRef = React.createRef();
 
   get displayCount() {
     const { allCount, countForShow } = this.props;
@@ -149,6 +140,7 @@ export default class Pagination extends React.Component {
 
   renderPopup() {
     const { abnormalMode, pageIndex, pageSize, allowChangePageSize, changePageIndex, changePageSize } = this.props;
+    const { jumpPageValue } = this.state;
     let minShowPage = pageIndex - 2;
     let isEnd;
 
@@ -210,15 +202,13 @@ export default class Pagination extends React.Component {
         </PageList>
         {allowChangePageSize && (
           <PageSizeConfig>
-            <Dropdown
-              width={90}
-              style={{ marginRight: 10, height: 28 }}
-              isAppendToBody
-              border
+            <Select
+              size="small"
+              style={{ width: 90, marginRight: 10 }}
               value={pageSize}
-              renderTitle={selected => _l('%0行', selected ? selected.text : pageSize)}
-              data={pageSizeNums}
-              onChange={changePageSize}
+              labelRender={({ label }) => _l('%0行', label || pageSize)}
+              options={pageSizeNums}
+              onChange={value => changePageSize(value)}
             />
             {_l('/页')}
           </PageSizeConfig>
@@ -226,12 +216,16 @@ export default class Pagination extends React.Component {
         <JumpPage>
           {_l('跳至')}
           <Input
-            manualRef={this.jumpInputRef}
-            valueFilter={v => v.replace(/[^0-9]/g, '')}
-            defaultValue={pageIndex}
+            className="jumpPageInput"
+            inputMode="numeric"
+            size="small"
+            value={jumpPageValue}
+            onChange={event => {
+              this.setState({ jumpPageValue: event.target.value.replace(/[^0-9]/g, '') });
+            }}
             onKeyDown={e => {
-              if (e.keyCode === 13 && this.jumpInputRef.current && this.jumpInputRef.current.value) {
-                const jumpPage = parseInt(this.jumpInputRef.current.value, 10);
+              if (e.keyCode === 13 && jumpPageValue) {
+                const jumpPage = parseInt(jumpPageValue, 10);
 
                 if (!_.isNaN(jumpPage)) {
                   if ((jumpPage > 0 && jumpPage <= this.pageNum) || abnormalMode) {
@@ -290,19 +284,19 @@ export default class Pagination extends React.Component {
 
     return (
       <Con className={className} ref={this.conRef}>
-        <Trigger
-          action={['click']}
-          popupVisible={!(disabled || abnormalMode) && popupVisible}
-          onPopupVisibleChange={value => this.setState({ popupVisible: value })}
-          destroyPopupOnHide
-          popupAlign={{
-            points: ['tl', 'bl'],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
-          }}
-          popup={this.renderPopup()}
+        <Popover
+          trigger="click"
+          open={!(disabled || abnormalMode) && popupVisible}
+          onOpenChange={value =>
+            this.setState({
+              popupVisible: value,
+              ...(value ? { jumpPageValue: String(this.props.pageIndex) } : {}),
+            })
+          }
+          destroyOnHidden
+          placement="bottomLeft"
+          noPadding
+          content={this.renderPopup()}
           getPopupContainer={() => (appendToBody || !get(this, 'conRef.current') ? document.body : this.conRef.current)}
         >
           <PageNum className={cx({ abnormalMode })}>
@@ -312,7 +306,7 @@ export default class Pagination extends React.Component {
                 ? _l('%0/%1页', pageIndex, this.pageNum)
                 : _l('共%0行，%1/%2页', this.displayCount, pageIndex, this.pageNum)}
           </PageNum>
-        </Trigger>
+        </Popover>
         <Btn className={pageIndex === 1 && 'disabled'} onClick={pageIndex === 1 ? () => {} : onPrev}>
           <i className="icon icon-arrow-left-border" />
         </Btn>

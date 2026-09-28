@@ -1,10 +1,6 @@
-import React, { Fragment, useState } from 'react';
-import { Checkbox, Dropdown, Input } from 'antd';
-import cx from 'classnames';
-import update from 'immutability-helper';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DropdownContent } from '../../../widgetConfig/styled';
+import { Button, Checkbox, Dropdown, Input, Space, Tooltip } from 'ming-ui/antd-components';
 import { LINK_PARA_FIELDS } from '../../config';
 
 const DEFAULT_PARA_ITEM = { key: '', value: { type: 'static', data: '' } };
@@ -18,44 +14,8 @@ const LinkParaWrap = styled.div`
     height: 32px;
     border-radius: 3px;
   }
-  .valueWrap {
-    flex: 1;
-    margin: 0 6px;
-    .icon-workflow_other {
-      color: var(--color-text-tertiary) !important;
-    }
-    input {
-      border-radius: 3px 0 0 3px !important;
-    }
-  }
   .paraItem {
     margin-top: 12px;
-    .selectField {
-      flex-shrink: 0;
-      width: 32px;
-      line-height: 30px;
-      border: 1px solid var(--color-border-primary);
-      border-left: none;
-      text-align: center;
-      background: var(--color-background-primary);
-      &.active,
-      &:hover {
-        i {
-          color: var(--color-primary);
-        }
-      }
-      i {
-        vertical-align: sub;
-        color: var(--color-text-secondary);
-      }
-    }
-  }
-  .fieldWrap {
-    line-height: 34px;
-    flex: 1;
-    padding-left: 12px;
-    border: 1px solid var(--color-border-primary);
-    background: var(--color-background-primary);
   }
   .add {
     margin-top: 16px;
@@ -71,7 +31,7 @@ const LinkParaWrap = styled.div`
       color: var(--color-text-secondary);
     }
   }
-  .ant-checkbox-input {
+  .hap-checkbox-input {
     position: absolute;
   }
 `;
@@ -90,7 +50,7 @@ function ParaItem({ deleteItem, item, updateItem }) {
           updateItem({ key: e.target.value });
         }}
       />
-      <div className="valueWrap flexCenter">
+      <Space.Compact block className="flex mLeft6 mRight6">
         {type === 'static' ? (
           <Input
             value={data}
@@ -100,44 +60,41 @@ function ParaItem({ deleteItem, item, updateItem }) {
             }}
           />
         ) : (
-          <div className="fieldWrap">{`{{${data}}}`}</div>
+          <Input readOnly value={`{{${data}}}`} />
         )}
         <Dropdown
-          visible={visible}
-          trigger={'click'}
+          open={visible}
+          trigger={['click']}
           placement="bottomRight"
-          onVisibleChange={setVisible}
-          overlay={
-            <DropdownContent style={{ width: '180px' }}>
-              {LINK_PARA_FIELDS.map(({ type, title, fields }) => {
-                return (
-                  <Fragment key={type}>
-                    <div className="title">{title}</div>
-                    {fields.map(({ text, value }) => (
-                      <div
-                        key={value}
-                        className="item"
-                        onClick={() => {
-                          updateItem({ value: { type, data: value } });
-                          setVisible(false);
-                        }}
-                      >
-                        {text}
-                      </div>
-                    ))}
-                  </Fragment>
-                );
-              })}
-            </DropdownContent>
-          }
+          onOpenChange={setVisible}
+          menu={{
+            style: { minWidth: 180 },
+            items: LINK_PARA_FIELDS.map(({ type, title, fields }) => ({
+              type: 'group',
+              key: type,
+              label: title,
+              children: fields.map(({ text, value }) => ({
+                key: `${type}-${value}`,
+                label: text,
+                onClick: () => {
+                  updateItem({ value: { type, data: value } });
+                  setVisible(false);
+                },
+              })),
+            })),
+          }}
         >
-          <Tooltip title={_l('使用动态参数')}>
-            <div className={cx('selectField pointer', { active: visible })}>
-              <i className="icon-workflow_other Font18 "></i>
-            </div>
-          </Tooltip>
+          <Button
+            aria-label={_l('使用动态参数')}
+            color={visible ? 'primary' : 'default'}
+            icon={
+              <Tooltip title={_l('使用动态参数')}>
+                <i className="icon-workflow_other Font18" />
+              </Tooltip>
+            }
+          />
         </Dropdown>
-      </div>
+      </Space.Compact>
       <Tooltip title={_l('删除')}>
         <div className="deleteWrap pointer" onClick={deleteItem}>
           <i className="icon-delete_12"></i>
@@ -172,12 +129,14 @@ export default function LinkPara(props) {
                 key={index}
                 index={index}
                 item={item}
-                updateItem={obj => setParas(update(paras, { [index]: { $apply: data => ({ ...data, ...obj }) } }))}
-                deleteItem={() => setParas(update(paras, { $splice: [[index, 1]] }))}
+                updateItem={obj =>
+                  setParas(paras.map((data, itemIndex) => (itemIndex === index ? { ...data, ...obj } : data)))
+                }
+                deleteItem={() => setParas(paras.filter((_, itemIndex) => itemIndex !== index))}
               />
             ))}
           </div>
-          <div className="add pointer" onClick={() => setParas(update(paras, { $push: [DEFAULT_PARA_ITEM] }))}>
+          <div className="add pointer" onClick={() => setParas([...paras, DEFAULT_PARA_ITEM])}>
             <i className="icon-add"></i>
             {_l('添加')}
           </div>

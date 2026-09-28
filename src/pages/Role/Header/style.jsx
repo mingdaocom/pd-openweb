@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Switch } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 
 export const IconWrap = styled.div`
   width: 28px;
@@ -53,28 +53,8 @@ export const WrapTabCon = styled.div`
     }
   }
 `;
-export const WrapOpenPortalBtn = styled.div`
-  padding: 0 14px 0 8px;
-  line-height: 34px;
-  height: 34px;
-  background: var(--color-primary-transparent);
-  border-radius: 18px;
-  color: var(--color-primary);
-  font-weight: 500;
-  &:hover {
-    background: var(--color-primary-transparent);
-  }
-  .set {
-    margin-top: -4px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-`;
 export const WrapPop = styled.div`
   width: 640px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 5px 24px rgba(0, 0, 0, 0.24);
-  border-radius: 5px;
   overflow: hidden;
   img {
     width: 100%;
@@ -103,18 +83,6 @@ export const WrapPop = styled.div`
         vertical-align: middle;
       }
     }
-    .btn {
-      margin-top: 16px;
-      line-height: 36px;
-      background: var(--color-primary);
-      border-radius: 3px;
-      padding: 0 24px;
-      color: var(--color-white);
-      font-weight: 600;
-      &:hover {
-        background: var(--color-primary);
-      }
-    }
     .helpPortal {
       line-height: 36px;
       float: right;
@@ -124,21 +92,7 @@ export const WrapPop = styled.div`
   }
 `;
 
-export const RoleDebugSwitch = styled(Switch)`
-  width: 23px !important;
-  height: 14px !important;
-  border-radius: 7px !important;
-  &.ming.Switch.small .dot {
-    width: 10px;
-    height: 10px;
-  }
-  &.ming.Switch--off .dot {
-    left: 2px;
-  }
-  &.ming.Switch--on.small .dot {
-    left: 11px;
-  }
-`;
+export const RoleDebugSwitch = Switch;
 
 export const DividerVertical = styled.div`
   width: 1px;

@@ -2,16 +2,15 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Icon, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Icon, UserHead, UserName } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import RegExpValidator from 'src/utils/expression';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import PageTableCon from '../components/PageTableCon';
 import SearchWrap from '../components/SearchWrap';
 import Config from '../config';
@@ -25,7 +24,6 @@ const LoginLogWrap = styled.div`
   }
   .export {
     padding: 0 15px;
-    min-width: 0;
   }
   .flexWrap {
     flex: 1;
@@ -41,12 +39,13 @@ export default class LoginLog extends Component {
       v =>
         window.platformENV.isLocal ||
         (window.platformENV.isOverseas && v.dataIndex !== 'geoCity') ||
-        (!window.platformENV.isLocal && !window.platformENV.isOverseas && v.dataIndex !== 'failReason'),
+        (window.platformENV.isHap && v.dataIndex !== 'failReason'),
     );
     super(props);
     this.state = {
       count: 0, // 数据总数
       searchValues: {},
+      searchResetKey: 0,
       showColumns: columns.map(it => it.dataIndex),
       disabledExportBtn: false,
     };
@@ -167,7 +166,7 @@ export default class LoginLog extends Component {
     this.setState({ loading: true, pageIndex: params.pageIndex });
     let { pageIndex = 1, pageSize = 50 } = params;
     const { searchValues } = this.state;
-    const { loginLogOutDate = {}, selectUserInfo = [], logType = '', accountResult } = searchValues;
+    const { loginLogOutDate = {}, selectUserInfo = [], logType = '', accountResult, ip } = searchValues;
     const { startDate, endDate } = loginLogOutDate;
     let requestParams = {
       pageIndex,
@@ -178,6 +177,7 @@ export default class LoginLog extends Component {
       logType, // ogin=1 logout=2
       accountIds: selectUserInfo.map(item => item.accountId),
       accountResult,
+      ip: _.trim(ip) || undefined,
     };
     actionLogAjax.getActionLogs(requestParams).then(res => {
       const temp = _.get(res, ['data', 'list']) || [];
@@ -193,7 +193,7 @@ export default class LoginLog extends Component {
   // 导出
   exportListData = (param = {}) => {
     this.setState({ disabledExportBtn: true });
-    let { loginLogOutDate = {}, selectUserInfo = [], logType, accountResult } = this.state.searchValues || {};
+    let { loginLogOutDate = {}, selectUserInfo = [], logType, accountResult, ip } = this.state.searchValues || {};
     const { startDate, endDate } = loginLogOutDate;
     const { pageIndex } = this.state;
     const { pageSize = 50 } = param;
@@ -206,6 +206,7 @@ export default class LoginLog extends Component {
       logType, // ogin=1 logout=2
       accountIds: selectUserInfo.map(item => item.accountId),
       accountResult,
+      ip: _.trim(ip) || undefined,
       columnNames: this.columns.map(it => it.title),
       fileName: _l('登录日志'),
     };
@@ -214,11 +215,14 @@ export default class LoginLog extends Component {
       .then(res => {
         this.setState({ disabledExportBtn: false });
         if (!res) {
-          Confirm({
+          Modal.confirm({
             title: _l('数据导出超过100,000行，本次仅导出前100,000行记录'),
             okText: _l('导出'),
             onOk: () => {
-              downloadAjax.exportLoginLog({ ...params, confirmExport: true });
+              downloadAjax.exportLoginLog({
+                ...params,
+                confirmExport: true,
+              });
             },
           });
         }
@@ -229,7 +233,15 @@ export default class LoginLog extends Component {
   };
 
   render() {
-    const { loading, dataSource = [], count = 0, disabledExportBtn, searchValues, pageIndex } = this.state;
+    const {
+      loading,
+      dataSource = [],
+      count = 0,
+      disabledExportBtn,
+      searchValues,
+      searchResetKey,
+      pageIndex,
+    } = this.state;
 
     const licenseType = (md.global.Account.projects.find(o => o.projectId === Config.projectId) || {}).licenseType;
 
@@ -254,8 +266,7 @@ export default class LoginLog extends Component {
         key: 'loginLogOutDate',
         label: _l('登录/登出时间'),
         placeholder: _l('最近30天'),
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
-        limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
+        maxRange: window.platformENV.isOverseas || window.platformENV.isLocal ? { value: 6, unit: 'month' } : undefined,
         timeMode: 'minute',
         timePicker: true,
         suffixIcon: <Icon icon="person" className="Font16" />,
@@ -277,10 +288,14 @@ export default class LoginLog extends Component {
           { label: _l('登出'), value: 2 },
         ].filter(
           v =>
-            window.platformENV.isLocal ||
-            window.platformENV.isOverseas ||
-            (!window.platformENV.isLocal && !window.platformENV.isOverseas && v.value !== -1),
+            window.platformENV.isLocal || window.platformENV.isOverseas || (window.platformENV.isHap && v.value !== -1),
         ),
+      },
+      {
+        type: 'input',
+        key: 'ip',
+        label: 'IP',
+        placeholder: _l('请输入IP'),
       },
     ];
 
@@ -308,7 +323,9 @@ export default class LoginLog extends Component {
             )}
             <i
               className="icon-task-later textTertiary hoverText mRight26 Font17"
-              onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
+              onClick={() =>
+                this.setState({ searchValues: {}, pageIndex: 1, searchResetKey: searchResetKey + 1 }, this.getLogList)
+              }
             />
             <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
               <Button
@@ -328,6 +345,7 @@ export default class LoginLog extends Component {
         <div className="orgManagementContent pTop0 flexColumn">
           <div ref={ele => (this.seatchWrap = ele)}>
             <SearchWrap
+              key={searchResetKey}
               showExpandBtn={true}
               hideReset={true}
               projectId={Config.projectId}

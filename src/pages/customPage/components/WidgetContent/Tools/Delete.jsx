@@ -1,61 +1,15 @@
 import React from 'react';
-import { useToggle } from 'react-use';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-
-const DelVerify = styled.div`
-  box-sizing: border-box;
-  width: 240px;
-  background-color: var(--color-background-primary);
-  padding: 16px;
-  border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
-  p {
-    margin: 0;
-    font-size: 14px;
-    font-weight: bold;
-  }
-  .delComponent {
-    margin-top: 20px;
-    text-align: right;
-    color: var(--color-error);
-    cursor: pointer;
-  }
-  .btnGroup {
-    text-align: right;
-    margin-top: 16px;
-    cursor: pointer;
-    span {
-      color: var(--color-text-tertiary);
-    }
-    .cancel {
-    }
-    .del {
-      margin-left: 12px;
-      background-color: var(--color-error);
-      color: var(--color-white);
-      padding: 6px 12px;
-      border-radius: 3px;
-      text-align: center;
-      line-height: 36px;
-      &:hover {
-        background-color: var(--color-error-hover);
-      }
-    }
-  }
-`;
+import { DeleteReconfirm as DeleteConfirm, Modal } from 'ming-ui/antd-components';
 
 export default props => {
-  const { widgetType, widget, toolItem, allComponents, handleToolClick, renderItem } = props;
-  const { type } = toolItem;
-  const [visible, toggle] = useToggle(false);
+  const { widgetType, widget, allComponents, handleToolClick, handleUpdateDropdownVisible, renderItem } = props;
 
   if (['tabs', 'card'].includes(widgetType)) {
     const { componentConfig = {} } = widget;
 
     const handleDeleteConfirm = () => {
+      handleUpdateDropdownVisible(false);
       const relevance = allComponents.filter(c => c.sectionId === _.get(widget, 'config.objectId'));
       const name = ['tabs'].includes(widgetType) ? _l('标签') : _l('容器');
 
@@ -65,8 +19,7 @@ export default props => {
       }
 
       DeleteConfirm({
-        clickOmitText: true,
-        title: <div className="Bold">{_l('删除 “%0”', componentConfig.name)}</div>,
+        title: _l('删除 “%0”', componentConfig.name),
         description: (
           <div>
             <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
@@ -84,40 +37,17 @@ export default props => {
 
     return renderItem({ onClick: handleDeleteConfirm });
   } else {
-    return (
-      <Trigger
-        key={type}
-        popupVisible={visible}
-        action={['click']}
-        onPopupVisibleChange={visible => toggle(visible)}
-        getPopupContainer={() => document.body}
-        popupAlign={{
-          points: ['tc', 'bc'],
-          offset: [-40, 10],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={
-          <DelVerify className="disableDrag">
-            <p>{_l('确定要删除此组件')}</p>
-            <div className="btnGroup">
-              <span className="cancel" onClick={() => toggle(false)}>
-                {_l('取消')}
-              </span>
-              <span
-                className="del"
-                onClick={() => {
-                  handleToolClick('del');
-                  toggle(false);
-                }}
-              >
-                {_l('删除')}
-              </span>
-            </div>
-          </DelVerify>
-        }
-      >
-        {renderItem({ onClick: () => toggle(true) })}
-      </Trigger>
-    );
+    const handleDeleteConfirm = () => {
+      handleUpdateDropdownVisible(false);
+      Modal.confirm({
+        title: _l('删除组件'),
+        content: _l('确定要删除此组件？'),
+        okText: _l('删除'),
+        okButtonProps: { danger: true },
+        onOk: () => handleToolClick('del'),
+      });
+    };
+
+    return renderItem({ onClick: handleDeleteConfirm });
   }
 };

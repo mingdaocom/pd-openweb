@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 
 const OPTIONS = [
   {
@@ -27,27 +26,6 @@ const OPTIONS = [
   },
 ];
 
-const OperateWrap = styled.div``;
-
-const OptionWrap = styled.div`
-  width: 220px;
-  padding: 16px 0;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  .optionItem {
-    padding: 0 20px;
-    height: 40px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-  }
-`;
-
 function OperatePicker(props) {
   const { value = 0, onChange } = props;
   const [visible, setVisible] = useState(false);
@@ -65,32 +43,29 @@ function OperatePicker(props) {
   };
 
   return (
-    <Trigger
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        setVisible(visible);
+    <Dropdown
+      open={visible}
+      onOpenChange={setVisible}
+      trigger={['click']}
+      placement="bottomLeft"
+      menu={{
+        style: { width: 220 },
+        selectable: true,
+        selectedKeys: selected ? [String(selected.value)] : [],
+        items: OPTIONS.map(item => ({
+          key: String(item.value),
+          label: item.label,
+          onClick: () => onSelect(item),
+        })),
       }}
-      action={['click']}
-      popupAlign={{ points: ['tl', 'bl'], offset: [0, 5] }}
-      popup={
-        <OptionWrap>
-          {OPTIONS.map(l => {
-            return (
-              <div className="optionItem" onClick={() => onSelect(l)}>
-                {l.label}
-              </div>
-            );
-          })}
-        </OptionWrap>
-      }
     >
-      <OperateWrap className={cx('selectOperate', { selectLight: !!selected })}>
+      <div className={cx('selectOperate', { selectLight: !!selected })}>
         <Icon icon="ads_click" />
         <span className="selectConText">{selected ? selected.label : _l('操作')}</span>
         <Icon icon="arrow-down" style={selected ? {} : { display: 'inline-block' }} />
         {selected && <Icon icon="cancel" onClick={onClear} />}
-      </OperateWrap>
-    </Trigger>
+      </div>
+    </Dropdown>
   );
 }
 

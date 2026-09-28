@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import { IMPORT_EXPORT_SHOWLIST } from 'src/pages/Admin/user/membersDepartments/structure/constant';
 import Config from '../../../../../config';
 import { loadDepartments, updateImportExportResult, updateImportType, updateShowExport } from '../../actions/entities';
@@ -83,17 +84,6 @@ const ImportWrap = styled.div`
           align-items: center;
           line-height: 37px;
         }
-        .downloadBtn {
-          display: inline-block;
-          height: 32px;
-          font-size: 16px;
-          font-weight: 600;
-          line-height: 32px;
-          text-align: center;
-          border: none;
-          border-radius: 32px;
-          background-color: var(--color-background-primary);
-        }
       }
       .importExcelBox {
         height: 271px;
@@ -108,28 +98,6 @@ const ImportWrap = styled.div`
         }
         .uploadBtnStyle {
           margin-top: 33px !important;
-          width: 108px;
-          height: 32px;
-          border-radius: 32px;
-          border: 1px solid var(--color-primary);
-          background-color: var(--color-background-primary);
-          color: var(--color-primary);
-        }
-      }
-      .importBtn {
-        width: 193px;
-        height: 34px;
-        margin: 44px auto 0;
-        text-align: center;
-        line-height: 34px;
-        background: var(--color-link-hover);
-        border-radius: 32px;
-        font-size: 14px;
-        font-family: FZLanTingHeiS;
-        font-weight: 600;
-        color: --color-text-inverse;
-        &.notAllowed {
-          cursor: not-allowed;
         }
       }
       .colErrorInfo {
@@ -159,18 +127,6 @@ const ColErrorInfo = styled.div`
       vertical-align: middle;
     }
   }
-  .backact {
-    width: 193px;
-    height: 34px;
-    line-height: 34px;
-    text-align: center;
-    background: var(--color-link-hover);
-    border-radius: 32px;
-    margin-top: 50px;
-    color: var(--color-white);
-    font-size: 14px;
-    font-weight: 600;
-  }
 `;
 const ListErrorInfo = styled.div`
   height: calc(100% - 56px);
@@ -195,19 +151,19 @@ const ListErrorInfo = styled.div`
   }
   .errorList {
     width: 100%;
-    .ant-table-thead {
+    .hap-table-thead {
       tr {
         th {
           background-color: var(--color-background-primary);
           padding: 14px 10px;
           color: var(--color-text-secondary);
           font-weight: 400;
-          .ant-checkbox-wrapper {
-            .ant-checkbox {
-              &.ant-checkbox-checked::after {
+          .hap-checkbox-wrapper {
+            .hap-checkbox {
+              &.hap-checkbox-checked::after {
                 border: none;
               }
-              .ant-checkbox-inner {
+              .hap-checkbox-inner {
                 top: -8px;
               }
             }
@@ -215,9 +171,9 @@ const ListErrorInfo = styled.div`
         }
       }
     }
-    .ant-table-tbody {
-      .ant-table-row {
-        .ant-table-cell {
+    .hap-table-tbody {
+      .hap-table-row {
+        .hap-table-cell {
           padding: 18px 10px;
           border: none;
           color: var(--color-text-title);
@@ -229,32 +185,32 @@ const ListErrorInfo = styled.div`
             vertical-align: middle;
             margin-right: 10px;
           }
-          .ant-checkbox-wrapper {
-            .ant-checkbox {
-              &.ant-checkbox-checked::after {
+          .hap-checkbox-wrapper {
+            .hap-checkbox {
+              &.hap-checkbox-checked::after {
                 border: none;
               }
-              .ant-checkbox-inner {
+              .hap-checkbox-inner {
                 top: -8px;
               }
             }
           }
-          &.ant-table-selection-column {
+          &.hap-table-selection-column {
             padding: 0;
           }
         }
-        &.ant-table-row-selected {
-          .ant-table-cell {
+        &.hap-table-row-selected {
+          .hap-table-cell {
             background: var(--color-background-primary);
           }
         }
-        &.ant-table-row-selected:hover {
-          .ant-table-cell {
+        &.hap-table-row-selected:hover {
+          .hap-table-cell {
             background: var(--color-background-hover);
           }
         }
       }
-      .ant-table-placeholder {
+      .hap-table-placeholder {
         display: none;
       }
     }
@@ -276,19 +232,10 @@ const SuccessInfo = styled.div`
     color: #00c345;
     margin-right: 19px;
   }
-  .backact {
-    width: 193px;
-    height: 34px;
-    line-height: 34px;
-    text-align: center;
-    background: var(--color-link-hover);
-    border-radius: 32px;
-    margin-top: 50px;
-    color: var(--color-white);
-    font-size: 14px;
-    font-weight: 600;
-  }
 `;
+
+const IMPORT_BUTTON_STYLE = { display: 'block', width: 193, margin: '44px auto 0' };
+const BACK_BUTTON_STYLE = { width: 193, marginTop: 50 };
 
 // 导入部门模版
 const dptTemplatePaths = {
@@ -341,19 +288,29 @@ class ImportDepAndPosition extends Component {
             <span className="Font20 mRight10 mBottom2 icon-new_excel color_gr TxtMiddle" />
             <span className="Font17">{_l('导入部门模板')}</span>
           </div>
-          <a className="Font16 downloadBtn" href={dptTemplatePaths[getCurrentLangCode()]} target="_blank">
+          <Button
+            type="link"
+            shape="round"
+            className="Font16 Bold"
+            href={dptTemplatePaths[getCurrentLangCode()]}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {_l('下载')}
-          </a>
+          </Button>
         </div>
         <div className="serialTitle mTop32 mBottom14">{_l('2.上传完善后的表格')}</div>
         {this.renderUpload()}
         {fileName && (
-          <div
-            className={cx('importBtn', { notAllowed: importFileLoading, Hand: !importFileLoading })}
-            onClick={importFileLoading ? () => {} : this.importAction}
+          <Button
+            type="primary"
+            shape="round"
+            style={IMPORT_BUTTON_STYLE}
+            loading={importFileLoading}
+            onClick={this.importAction}
           >
             {importFileLoading ? _l('正在导入...') : _l('导入')}
-          </div>
+          </Button>
         )}
       </div>
     );
@@ -373,6 +330,8 @@ class ImportDepAndPosition extends Component {
   };
   // 导入
   importAction = () => {
+    if (this.state.importFileLoading) return;
+
     const { importExportType } = this.props;
     this.setState({ importFileLoading: true });
     const _this = this;
@@ -446,9 +405,14 @@ class ImportDepAndPosition extends Component {
             <Icon icon="check_circle" className="successIcon" />
             <span>{_l('成功导入%0条记录', successCount)}</span>
           </div>
-          <div className="backact Hand" onClick={() => this.props.updateShowExport(false)}>
+          <Button
+            type="primary"
+            shape="round"
+            style={BACK_BUTTON_STYLE}
+            onClick={() => this.props.updateShowExport(false)}
+          >
             {_l('返回')}
-          </div>
+          </Button>
         </SuccessInfo>
       );
     } else if (actionResultStatus === 3) {
@@ -458,9 +422,9 @@ class ImportDepAndPosition extends Component {
             <Icon icon="cancel" className="errorIcon" />
             <span>{_l('超出导入数量限制,单次导入上限1000行记录！')}</span>
           </div>
-          <div className="backact Hand" onClick={this.backAct}>
+          <Button type="primary" shape="round" style={BACK_BUTTON_STYLE} onClick={this.backAct}>
             {_l('返回')}
-          </div>
+          </Button>
         </ColErrorInfo>
       );
     } else if (actionResultStatus === 5) {
@@ -470,9 +434,9 @@ class ImportDepAndPosition extends Component {
             <Icon icon="cancel" className="errorIcon" />
             <span>{_l('导入文件列名有误，请检查，或从导入模版中重新下载！')}</span>
           </div>
-          <div className="backact Hand" onClick={this.backAct}>
+          <Button type="primary" shape="round" style={BACK_BUTTON_STYLE} onClick={this.backAct}>
             {_l('返回')}
-          </div>
+          </Button>
         </ColErrorInfo>
       );
     } else {

@@ -2,9 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import lookPng from './img/s.png';
 import { formatFields, getDecryptCheckboxProps, getFunction, getSectionIds } from './util';
 
@@ -150,12 +149,16 @@ export default class extends React.PureComponent {
               checked={showAdd ? !notAdd : false}
               disabled={!showAdd}
               value={fieldId}
-              onClick={this.changeFieldAddAuth}
+              onChange={event => this.changeFieldAddAuth(!event.target.checked, fieldId, event)}
             />
           )}
         </div>
         <div className={'filedSetting flex'}>
-          <Checkbox checked={!notRead} value={fieldId} onClick={this.changeFieldReadAuth} />
+          <Checkbox
+            checked={!notRead}
+            value={fieldId}
+            onChange={event => this.changeFieldReadAuth(!event.target.checked, fieldId, event)}
+          />
         </div>
         <div className={'filedSetting flex'}>
           {![52].includes(type) && (
@@ -163,14 +166,20 @@ export default class extends React.PureComponent {
               checked={showEdit ? !notEdit : false}
               disabled={!showEdit}
               value={fieldId}
-              onClick={this.changeFieldEditAuth}
+              onChange={event => this.changeFieldEditAuth(!event.target.checked, fieldId, event)}
             />
           )}
         </div>
         {/* 解密 */}
         {showDecrypt && (
           <div className={'filedSetting flex'}>
-            {isDecryptField && <Checkbox checked={isDecrypt} value={fieldId} onClick={this.changeFieldDecryptAuth} />}
+            {isDecryptField && (
+              <Checkbox
+                checked={isDecrypt}
+                value={fieldId}
+                onChange={event => this.changeFieldDecryptAuth(!event.target.checked, fieldId, event)}
+              />
+            )}
           </div>
         )}
       </div>
@@ -212,8 +221,8 @@ export default class extends React.PureComponent {
             <Checkbox
               checked={showAdd ? addProps.isAll : false}
               disabled={!showAdd}
-              clearselected={showAdd ? addProps.isPart : false}
-              onClick={this.changeFieldAddAuth}
+              indeterminate={showAdd ? addProps.isPart : false}
+              onChange={event => this.changeFieldAddAuth(!event.target.checked, undefined, event)}
             >
               {_l('新增')}
             </Checkbox>
@@ -222,7 +231,11 @@ export default class extends React.PureComponent {
             </Tooltip>
           </div>
           <div className={'filedSetting flex Bold'}>
-            <Checkbox checked={readProps.isAll} clearselected={readProps.isPart} onClick={this.changeFieldReadAuth}>
+            <Checkbox
+              checked={readProps.isAll}
+              indeterminate={readProps.isPart}
+              onChange={event => this.changeFieldReadAuth(!event.target.checked, undefined, event)}
+            >
               {_l('查看')}
             </Checkbox>
           </div>
@@ -230,8 +243,8 @@ export default class extends React.PureComponent {
             <Checkbox
               checked={showEdit ? editProps.isAll : false}
               disabled={!showEdit}
-              clearselected={showEdit ? editProps.isPart : false}
-              onClick={this.changeFieldEditAuth}
+              indeterminate={showEdit ? editProps.isPart : false}
+              onChange={event => this.changeFieldEditAuth(!event.target.checked, undefined, event)}
             >
               {_l('编辑')}
             </Checkbox>
@@ -240,8 +253,8 @@ export default class extends React.PureComponent {
             <div className={'filedSetting flex Bold'}>
               <Checkbox
                 checked={decryptProps.isAll}
-                clearselected={decryptProps.isPart}
-                onClick={this.changeFieldDecryptAuth}
+                indeterminate={decryptProps.isPart}
+                onChange={event => this.changeFieldDecryptAuth(!event.target.checked, undefined, event)}
               >
                 {_l('解码')}
               </Checkbox>

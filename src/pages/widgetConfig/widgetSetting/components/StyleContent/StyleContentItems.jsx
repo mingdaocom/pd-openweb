@@ -1,11 +1,15 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox, MultiSegmented, Segmented } from 'ming-ui/antd-components';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
-import { AnimationWrap, DisplayMode, SettingItem } from '../../../styled';
-import { fixedBottomWidgets, getAdvanceSetting, isCustomWidget } from '../../../util';
-import { canSetWidgetStyle, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { fixedBottomWidgets } from 'src/utils/domain/control/editorLayout';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { canSetWidgetStyle } from 'src/utils/domain/control/style';
+import { DisplayMode, SettingItem } from '../../../styled';
 import { SectionItem } from '../SplitLineConfig/style';
 import WidgetColor from '../WidgetColor';
 
@@ -55,6 +59,14 @@ const StyleDefault = props => {
       : editKey.startsWith('title')
         ? 'var(--color-text-primary)'
         : 'var(--color-text-title)');
+  const styleValues = defaultConfig.style || '0000';
+  const styleOptions = DISPLAY_STYLE_TYPES.filter(({ value }) => !_.includes(ignoreFormat, value)).map(
+    ({ icon, value }) => ({ value, icon: <Icon icon={icon} className="Font24" /> }),
+  );
+  const selectedStyleValues = DISPLAY_STYLE_TYPES.filter(({ value }) => styleValues[value] === '1').map(
+    ({ value }) => value,
+  );
+
   return (
     <Fragment>
       <SectionItem key={editKey}>
@@ -78,68 +90,54 @@ const StyleDefault = props => {
             }}
           />
 
-          <AnimationWrap className="flex mLeft8">
-            {DISPLAY_STYLE_TYPES.map(({ icon, value }) => {
-              if (_.includes(ignoreFormat, value)) return null;
-              const styleValues = defaultConfig.style || '0000';
-              const isActive = styleValues[value] === '1';
-              return (
-                <div
-                  className={cx('animaItem', { active: isActive })}
-                  onClick={() => {
-                    const result = updateConfig({
-                      config: styleValues,
-                      value: isActive ? '0' : '1',
-                      index: value,
-                    });
+          <MultiSegmented
+            className="flex mLeft8"
+            options={styleOptions}
+            value={selectedStyleValues}
+            onChange={(value, selected) => {
+              const result = updateConfig({
+                config: styleValues,
+                value: selected ? '1' : '0',
+                index: value,
+              });
 
-                    if (isOldConfig) {
-                      const styleKey = editKey.startsWith('title') ? 'titlestyle' : 'valuestyle';
-                      onChange(handleAdvancedSettingChange(data, { [styleKey]: result }));
-                      return;
-                    }
+              if (isOldConfig) {
+                const styleKey = editKey.startsWith('title') ? 'titlestyle' : 'valuestyle';
+                onChange(handleAdvancedSettingChange(data, { [styleKey]: result }));
+                return;
+              }
 
-                    onChange(
-                      handleAdvancedSettingChange(data, {
-                        [editKey]: JSON.stringify({ ...defaultConfig, style: result }),
-                      }),
-                    );
-                  }}
-                >
-                  <Icon icon={icon} className="Font24" />
-                </div>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  [editKey]: JSON.stringify({ ...defaultConfig, style: result }),
+                }),
               );
-            })}
-          </AnimationWrap>
+            }}
+          />
         </div>
       </SectionItem>
       {!fixedBottomWidgets(data) && (
         <SectionItem className="mTop10">
           <div className="label textSecondary">{_l('字号')}</div>
-          <AnimationWrap className="flex">
-            {DISPLAY_SIZE_TYPES.map(({ text, value }) => (
-              <div
-                className={cx('animaItem', {
-                  active: sizeResult === value,
-                })}
-                onClick={() => {
-                  if (isOldConfig) {
-                    const sizeKey = editKey.startsWith('title') ? 'titlesize' : 'valuesize';
-                    onChange(handleAdvancedSettingChange(data, { [sizeKey]: value }));
-                    return;
-                  }
+          <Segmented
+            block
+            className="flex"
+            value={sizeResult}
+            options={DISPLAY_SIZE_TYPES.map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={value => {
+              if (isOldConfig) {
+                const sizeKey = editKey.startsWith('title') ? 'titlesize' : 'valuesize';
+                onChange(handleAdvancedSettingChange(data, { [sizeKey]: value }));
+                return;
+              }
 
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      [editKey]: JSON.stringify({ ...defaultConfig, size: value }),
-                    }),
-                  );
-                }}
-              >
-                {text}
-              </div>
-            ))}
-          </AnimationWrap>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  [editKey]: JSON.stringify({ ...defaultConfig, size: value }),
+                }),
+              );
+            }}
+          />
         </SectionItem>
       )}
     </Fragment>
@@ -214,15 +212,13 @@ const OtherDefault = props => {
           <div className="flexRow flexCenter flex">
             <Checkbox
               className="mRight20"
-              size="small"
-              text={text}
               checked={!!color}
-              onClick={checked =>
+              onChange={event =>
                 onChange(
                   handleAdvancedSettingChange(data, {
                     [editKey]: JSON.stringify({
                       ...defaultConfig,
-                      [key]: checked
+                      [key]: !event.target.checked
                         ? ''
                         : key === 'background'
                           ? 'var(--color-background-secondary)'
@@ -231,7 +227,10 @@ const OtherDefault = props => {
                   }),
                 )
               }
-            />
+              size="small"
+            >
+              {text}
+            </Checkbox>
             <WidgetColor
               color={color}
               handleChange={color => {

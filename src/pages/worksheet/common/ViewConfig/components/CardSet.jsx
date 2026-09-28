@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
 import Abstract from './Abstract';
 import CoverSetting from './CoverSettingCon';
 import DisplayControl from './DisplayControl';

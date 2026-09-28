@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Dropdown, Icon, RadioGroup, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 
 export const Wrapper = styled.div`
   padding: 35px 40px 32px;
@@ -22,21 +22,21 @@ export const Wrapper = styled.div`
 `;
 
 const LOCK_TIME = [
-  { text: _l('1分钟'), value: '1' },
-  { text: _l('2分钟'), value: '2' },
-  { text: _l('5分钟'), value: '5' },
-  { text: _l('10分钟'), value: '10' },
-  { text: _l('15分钟'), value: '15' },
-  { text: _l('20分钟'), value: '20' },
-  { text: _l('25分钟'), value: '25' },
-  { text: _l('30分钟'), value: '30' },
+  { label: _l('1分钟'), value: '1' },
+  { label: _l('2分钟'), value: '2' },
+  { label: _l('5分钟'), value: '5' },
+  { label: _l('10分钟'), value: '10' },
+  { label: _l('15分钟'), value: '15' },
+  { label: _l('20分钟'), value: '20' },
+  { label: _l('25分钟'), value: '25' },
+  { label: _l('30分钟'), value: '30' },
 ];
 
 const COUNT_DOWN = [
-  { text: _l('不显示'), value: '0' },
-  { text: _l('前1分钟'), value: '1' },
-  { text: _l('前2分钟'), value: '2' },
-  { text: _l('前3分钟'), value: '3' },
+  { label: _l('不显示'), value: '0' },
+  { label: _l('前1分钟'), value: '1' },
+  { label: _l('前2分钟'), value: '2' },
+  { label: _l('前3分钟'), value: '3' },
 ];
 
 const EXPIRED_RADIO_GROUP = [
@@ -76,7 +76,8 @@ export default function EditProtect(props) {
         <div className="flex bold Font17">{_l('编辑保护')}</div>
         <Switch
           checked={lock.isopen === '1'}
-          onClick={() => {
+          onClick={(checked, event) => {
+            event.stopPropagation();
             if (getFeatureStatus(projectId, VersionProductType.editProtect) !== '1') {
               buriedUpgradeVersionDialog(projectId, VersionProductType.editProtect);
               return;
@@ -84,8 +85,15 @@ export default function EditProtect(props) {
 
             onEditSetting(
               lock.isopen === '1'
-                ? { isopen: '0' }
-                : { isopen: '1', expiretime: '10', countdown: '0', expiredaction: '1' },
+                ? {
+                    isopen: '0',
+                  }
+                : {
+                    isopen: '1',
+                    expiretime: '10',
+                    countdown: '0',
+                    expiredaction: '1',
+                  },
             );
           }}
         />
@@ -112,30 +120,35 @@ export default function EditProtect(props) {
                 <Icon icon="help" className="textTertiary Font16 mLeft10" />
               </Tooltip>
             </div>
-            <Dropdown
+            <Select
               className="Width300"
-              border
-              data={['meihua.mingdao.com', 'www.mingdao.com'].includes(location.host) ? LOCK_TIME.slice(2) : LOCK_TIME}
+              options={
+                ['meihua.mingdao.com', 'www.mingdao.com'].includes(location.host) ? LOCK_TIME.slice(2) : LOCK_TIME
+              }
               value={lock.expiretime}
               onChange={value => onEditSetting({ ...lock, expiretime: value })}
             />
           </div>
           <div className="settingItem">
             <div className="labelText">{_l('超时前显示倒计时')}</div>
-            <Dropdown
+            <Select
               className="Width300"
-              border
-              data={COUNT_DOWN}
+              options={COUNT_DOWN}
               value={lock.countdown}
               onChange={value => onEditSetting({ ...lock, countdown: value })}
             />
           </div>
           <div className="settingItem">
             <div className="labelText">{_l('超时后')}</div>
-            <RadioGroup
-              checkedValue={lock.expiredaction}
-              data={EXPIRED_RADIO_GROUP}
-              onChange={value => onEditSetting({ ...lock, expiredaction: value })}
+            <Radio.Group
+              value={lock.expiredaction}
+              options={(EXPIRED_RADIO_GROUP || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
+                onEditSetting({
+                  ...lock,
+                  expiredaction: event.target.value,
+                })
+              }
             />
           </div>
           <div className="mTop24 textTertiary">

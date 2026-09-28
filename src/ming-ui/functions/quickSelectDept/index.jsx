@@ -1,25 +1,30 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { createRoot } from 'react-dom/client';
-import { useSetState } from 'react-use';
-import { useClickAway } from 'react-use';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { useClickAway, useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
+import { any, bool, func, number, object, string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
 import departmentController from 'src/api/department';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import {
+  findDepartmentPathById,
+  findDepartmentById as getDepartmentById,
+  formatDepartmentTree as getDepartmentTree,
+  formatSearchDepartmentTree as getSearchDepartmentTree,
+} from 'src/utils/domain/project/department';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { createControllableOpenHandler, getMergedTriggerEventHandlers } from 'src/utils/platform/react/interaction';
+import { checkPermission } from 'src/utils/services/security/permission';
 import dialogSelectDept from '../dialogSelectDept';
 
 const PAGE_SIZE = 100;
+const DEFAULT_IDS = [];
 
 const DeptSelectWrap = styled.div`
   overflow: hidden;
   width: 360px;
-  background-color: var(--color-background-card);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
   .searchRoleWrap {
     padding: 0 16px;
     line-height: 40px;
@@ -75,22 +80,8 @@ const DeptSelectWrap = styled.div`
   }
 `;
 
-const getDepartmentTree = (data, parentId) => {
-  return data.map(item => {
-    let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
-    return {
-      departmentId,
-      departmentName,
-      userCount,
-      haveSubDepartment,
-      open: subDepartments.length > 0,
-      subDepartments,
-      parentId,
-    };
-  });
-};
-
 export function DeptSelect(props) {
+  const selectedDepartmentValue = props.selectedDepartment || DEFAULT_IDS;
   const {
     projectId = '',
     unique = true,
@@ -101,8 +92,8 @@ export function DeptSelect(props) {
     minHeight = 358,
     allPath,
     departrangetype = '0',
-    appointedDepartmentIds = [],
-    appointedUserIds = [],
+    appointedDepartmentIds = DEFAULT_IDS,
+    appointedUserIds = DEFAULT_IDS,
     immediate = true,
     onClose = () => {},
     selectFn = () => {},
@@ -110,11 +101,13 @@ export function DeptSelect(props) {
 
   const inputRef = useRef();
   const conRef = useRef();
+  const requestRef = useRef();
+  const searchRequestRef = useRef();
   const [
     {
       loading,
       keywords,
-      selectedDepartment,
+      selectedDepartment: internalSelectedDepartment,
       departmentMoreIds,
       list,
       rootPageIndex,
@@ -129,18 +122,74 @@ export function DeptSelect(props) {
     rootLoading: false,
     loading: true,
     keywords: '',
-    selectedDepartment: props.selectedDepartment || [],
+    selectedDepartment: selectedDepartmentValue,
     departmentMoreIds: [],
     showProjectAll: false,
     activeIds: [],
     activeIndex: 0,
   });
+  const selectedDepartment =
+    immediate && _.has(props, 'selectedDepartment') ? selectedDepartmentValue : internalSelectedDepartment;
+  const dataRef = useRef({ keywords, list, rootPageIndex });
+  const appointedDepartmentIdsKey = JSON.stringify(appointedDepartmentIds.filter(Boolean));
+  const appointedUserIdsKey = JSON.stringify(appointedUserIds.filter(Boolean));
+  const requestAppointedDepartmentIds = React.useMemo(
+    () => safeParse(appointedDepartmentIdsKey, 'array'),
+    [appointedDepartmentIdsKey],
+  );
+  const requestAppointedUserIds = React.useMemo(() => safeParse(appointedUserIdsKey, 'array'), [appointedUserIdsKey]);
 
   const projectInfo =
     ((md.global.Account.projects || []).filter(project => project.projectId === props.projectId).length &&
       md.global.Account.projects.filter(project => project.projectId === props.projectId)[0]) ||
     {};
-  let promiseFn = null;
+
+  const getDepartmentPath = React.useCallback(
+    dept => {
+      const pathData = findDepartmentPathById(list || [], dept.departmentId) || [];
+
+      return pathData
+        .filter(item => item.departmentId !== dept.departmentId)
+        .map((item, index) => ({
+          departmentId: item.departmentId,
+          departmentName: item.departmentName,
+          depth: index + 1,
+        }));
+    },
+    [list],
+  );
+
+  const onSelect = React.useCallback(
+    value => {
+      const selected = value || selectedDepartment;
+      selectFn.call(
+        null,
+        _.map(
+          selected.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1),
+          dept => ({
+            departmentId: dept.departmentId,
+            departmentName: dept.departmentName,
+            haveSubDepartment: dept.haveSubDepartment,
+            userCount: dept.userCount,
+            ...(allPath ? { departmentPath: getDepartmentPath(dept) } : {}),
+          }),
+        ),
+        checkIncludeChilren
+          ? _.map(
+              selected.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0),
+              dept => ({
+                departmentId: dept.departmentId,
+                departmentName: dept.departmentName,
+                haveSubDepartment: dept.haveSubDepartment,
+                userCount: dept.userCount,
+                ...(allPath ? { departmentPath: getDepartmentPath(dept) } : {}),
+              }),
+            )
+          : null,
+      );
+    },
+    [allPath, checkIncludeChilren, getDepartmentPath, selectFn, selectedDepartment],
+  );
 
   useClickAway(conRef, () => {
     onSelect();
@@ -148,131 +197,58 @@ export function DeptSelect(props) {
   });
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
+    dataRef.current = { keywords, list, rootPageIndex };
+  }, [keywords, list, rootPageIndex]);
 
-  useEffect(() => {
-    debouncedSearch();
-
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [keywords]);
-
-  useEffect(() => {
-    if (!rootLoading) return;
-    fetchData();
-  }, [rootLoading]);
-
-  const getDepartmentPath = dept => {
-    const pathData = getParentId(list, dept.departmentId) || [];
-
-    return pathData
-      .filter(item => item.departmentId !== dept.departmentId)
-      .map((item, index) => ({
-        departmentId: item.departmentId,
-        departmentName: item.departmentName,
-        depth: index + 1,
-      }));
-  };
-
-  const onSelect = value => {
-    const selected = value || selectedDepartment;
-    selectFn.call(
-      null,
-      _.map(
-        selected.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1),
-        dept => ({
-          departmentId: dept.departmentId,
-          departmentName: dept.departmentName,
-          haveSubDepartment: dept.haveSubDepartment,
-          userCount: dept.userCount,
-          ...(allPath ? { departmentPath: getDepartmentPath(dept) } : {}),
-        }),
-      ),
-      checkIncludeChilren
-        ? _.map(
-            selected.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0),
-            dept => ({
-              departmentId: dept.departmentId,
-              departmentName: dept.departmentName,
-              haveSubDepartment: dept.haveSubDepartment,
-              userCount: dept.userCount,
-              ...(allPath ? { departmentPath: getDepartmentPath(dept) } : {}),
-            }),
-          )
-        : null,
-    );
-  };
-
-  const getSearchDepartmentTree = data => {
-    return data.map(item => {
-      let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
-
-      if (subDepartments.length) {
-        subDepartments = getSearchDepartmentTree(subDepartments);
-      }
-
-      return {
-        departmentId,
-        departmentName,
-        userCount,
-        haveSubDepartment,
-        open: subDepartments && subDepartments.length,
-        subDepartments,
-      };
-    });
-  };
-
-  const fetchData = () => {
+  const fetchData = React.useCallback(() => {
+    const currentData = dataRef.current;
+    const currentKeywords = currentData.keywords;
+    const currentList = currentData.list || [];
+    const currentRootPageIndex = currentData.rootPageIndex;
     setState({ loading: true });
     const isAdmin = projectId && checkPermission(projectId, PERMISSION_ENUM.DEPARTMENT) && fromAdmin;
 
-    if (promiseFn) {
-      promiseFn.abort();
+    if (requestRef.current) {
+      requestRef.current.abort();
     }
 
-    let getTree;
-
-    if (keywords) {
-      getTree = getSearchDepartmentTree;
-    } else {
-      getTree = getDepartmentTree;
-    }
-
+    const getTree = currentKeywords ? getSearchDepartmentTree : getDepartmentTree;
     let param = {
-      projectId: projectId,
-      returnCount: returnCount,
-      [isAnalysis && departrangetype === '0' ? 'keyword' : 'keywords']: keywords.trim(),
+      projectId,
+      returnCount,
+      [isAnalysis && departrangetype === '0' ? 'keyword' : 'keywords']: currentKeywords.trim(),
       includeDisabled: false,
     };
-    let usePageDepartment = !keywords;
+    const usePageDepartment = !currentKeywords;
 
     if (usePageDepartment) {
-      param.pageIndex = rootPageIndex;
+      param.pageIndex = currentRootPageIndex;
       param.pageSize = PAGE_SIZE;
     }
 
     if (departrangetype !== '0') {
-      param.appointedDepartmentIds = appointedDepartmentIds.filter(l => l);
-      param.appointedUserIds = appointedUserIds.filter(l => l);
+      param.appointedDepartmentIds = requestAppointedDepartmentIds;
+      param.appointedUserIds = requestAppointedUserIds;
       param.rangeTypeId = [10, 20, 30][departrangetype - 1];
     }
 
-    promiseFn = departmentController[
-      departrangetype !== '0'
-        ? 'appointedDepartment'
-        : isAnalysis && isAdmin
-          ? 'pagedProjectDepartmentTrees'
-          : isAnalysis
-            ? 'pagedDepartmentTrees'
-            : isAdmin
-              ? 'searchProjectDepartment2'
-              : 'searchDepartment2'
-    ](param)
+    const request =
+      departmentController[
+        departrangetype !== '0'
+          ? 'appointedDepartment'
+          : isAnalysis && isAdmin
+            ? 'pagedProjectDepartmentTrees'
+            : isAnalysis
+              ? 'pagedDepartmentTrees'
+              : isAdmin
+                ? 'searchProjectDepartment2'
+                : 'searchDepartment2'
+      ](param);
+    requestRef.current = request;
+    request
       .then(res => {
+        if (requestRef.current !== request) return;
+
         let showProjectAll = true;
         let data = res;
 
@@ -283,19 +259,22 @@ export function DeptSelect(props) {
           data = res.item2;
         }
 
-        let _list = !usePageDepartment
+        let nextList = !usePageDepartment
           ? getTree(data)
-          : usePageDepartment && rootPageIndex <= 1
+          : usePageDepartment && currentRootPageIndex <= 1
             ? getTree(data)
-            : list.concat(getTree(data));
+            : currentList.concat(getTree(data));
 
         if (departrangetype === '3') {
-          _list = _list.map(l => ({ ...l, disabled: appointedDepartmentIds.includes(l.departmentId) }));
+          nextList = nextList.map(l => ({
+            ...l,
+            disabled: requestAppointedDepartmentIds.includes(l.departmentId),
+          }));
         }
 
-        let states = !keywords
+        const states = !currentKeywords
           ? {
-              allList: _list,
+              allList: nextList,
             }
           : {
               rootPageIndex: 1,
@@ -303,41 +282,52 @@ export function DeptSelect(props) {
             };
 
         setState({
-          list: _list,
-          activeIds: !_.isEmpty(_list) ? [_list[0].departmentId] : [],
+          list: nextList,
+          activeIds: !_.isEmpty(nextList) ? [nextList[0].departmentId] : [],
           loading: false,
           rootLoading: false,
-          rootPageAll: usePageDepartment && (_list.length % PAGE_SIZE > 0 || data.length <= 0),
+          rootPageAll: usePageDepartment && (nextList.length % PAGE_SIZE > 0 || data.length <= 0),
           showProjectAll,
-          // selectedDepartment: selectedDepartment.concat()
           ...states,
         });
       })
       .catch(() => {
+        if (requestRef.current !== request) return;
+
         setState({
           loading: false,
           rootLoading: false,
         });
       });
-  };
+  }, [
+    departrangetype,
+    fromAdmin,
+    isAnalysis,
+    projectId,
+    requestAppointedDepartmentIds,
+    requestAppointedUserIds,
+    returnCount,
+    setState,
+  ]);
 
-  const debouncedSearch = useCallback(_.debounce(fetchData, 500), [fetchData]);
-
-  const getDepartmentById = (departmentTree, id) => {
-    for (let i = 0; i < departmentTree.length; i++) {
-      let department = departmentTree[i];
-
-      if (department.departmentId === id) {
-        return department;
-      } else if (department.subDepartments.length) {
-        let oDepartment = getDepartmentById(department.subDepartments, id);
-
-        if (oDepartment) {
-          return getDepartmentById(department.subDepartments, id);
-        }
-      }
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const searchRequest = _.debounce(fetchData, 500);
+    searchRequestRef.current = searchRequest;
+
+    return () => {
+      searchRequest.cancel();
+    };
+  }, [fetchData]);
+
+  useEffect(() => {
+    searchRequestRef.current && searchRequestRef.current();
+  }, [fetchData, keywords]);
 
   const fetchSubDepartment = id => {
     let departmentTree = [...list];
@@ -433,22 +423,6 @@ export function DeptSelect(props) {
     }
   };
 
-  const getParentId = (list, id) => {
-    for (let i in list) {
-      if (list[i].departmentId == id) {
-        return [list[i]];
-      }
-
-      if (list[i].subDepartments) {
-        let node = getParentId(list[i].subDepartments, id);
-
-        if (node !== undefined) {
-          return node.concat(list[i]);
-        }
-      }
-    }
-  };
-
   const toggle = (department, notIncludeChilren) => {
     const departmentIndex = _.findIndex(list, { departmentId: department.departmentId });
 
@@ -493,7 +467,7 @@ export function DeptSelect(props) {
             selectedDepartments = [];
           } else {
             selectedDepartment.map(o => {
-              let l = getParentId(allList, o.departmentId) || [];
+              let l = findDepartmentPathById(allList, o.departmentId) || [];
               l = l.map(it => it.departmentId);
               if (l.includes(department.departmentId)) {
                 selectedDepartments = selectedDepartments.filter(it => it.departmentId !== o.departmentId);
@@ -515,7 +489,7 @@ export function DeptSelect(props) {
   };
 
   const getIsIncludesByParent = department => {
-    let _list = getParentId(list, department.departmentId).map(o => o.departmentId);
+    let _list = findDepartmentPathById(list, department.departmentId).map(o => o.departmentId);
     let isIncludesByParent = selectedDepartment.filter(
       o =>
         (_list.includes(o.departmentId) || o.departmentId.indexOf('orgs_') > -1) &&
@@ -573,7 +547,7 @@ export function DeptSelect(props) {
         {data.map(item => {
           const checked = getChecked(item);
           return (
-            <React.Fragment>
+            <React.Fragment key={item.departmentId}>
               <div className={cx('quick-department', { active: checked, disabled: !!item.disabled })}>
                 {departrangetype !== '1' && (
                   <div
@@ -624,10 +598,13 @@ export function DeptSelect(props) {
             <span
               className="mLeft24 Hand moreBtn"
               onClick={() => {
+                const nextRootPageIndex = rootPageIndex + 1;
+                dataRef.current = { ...dataRef.current, rootPageIndex: nextRootPageIndex };
                 setState({
-                  rootPageIndex: rootPageIndex + 1,
+                  rootPageIndex: nextRootPageIndex,
                   rootLoading: true,
                 });
+                fetchData();
               }}
             >
               {rootLoading && <LoadDiv size="small" />}
@@ -667,80 +644,106 @@ export function DeptSelect(props) {
   );
 }
 
-export default function quickSelectDept(target, props = {}) {
-  const panelWidth = 360;
-  const panelHeight = 41 + (props.minHeight || 358);
-  let targetLeft;
-  let targetTop;
-  let x = 0;
-  let y = 0;
-  let height = 0;
-  const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
-  const $con = document.createElement('div');
-
-  function setPosition() {
-    if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
-      const rect = target.getBoundingClientRect();
-      height = rect.height;
-      targetLeft = rect.x;
-      targetTop = rect.y;
-      x = targetLeft + (offset.left || 0);
-      y = targetTop + height + (offset.top || 0);
-      if (x + panelWidth > window.innerWidth) {
-        x = targetLeft - 10 - panelWidth;
-      }
-
-      if (y + panelHeight > window.innerHeight) {
-        y = targetTop - panelHeight - 4;
-        if (y < 0) {
-          y = 0;
-        }
-
-        if (targetTop < panelHeight) {
-          x = targetLeft - 10 - panelWidth;
-          if (x < panelWidth) {
-            x = targetLeft + 10 + 36;
-          }
-        }
-      }
-
-      $con.style.position = 'absolute';
-      $con.style.left = x + 'px';
-      $con.style.top = y + 'px';
-      $con.style.zIndex = zIndex;
-    }
-  }
-
-  setPosition();
-  document.body.appendChild($con);
-  const root = createRoot($con);
-
-  function destory() {
-    root.unmount();
-    if ($con && $con.parentNode === document.body && document.body.contains($con)) {
-      document.body.removeChild($con);
-    }
-  }
-
-  root.render(
-    <DeptSelect
-      {...props}
-      onClose={force => {
-        if (!force && props.isDynamic) {
-          setTimeout(setPosition, 100);
-          return;
-        }
-
-        if (_.isFunction(props.onClose)) {
-          props.onClose();
-        }
-
-        destory();
-      }}
-    />,
-  );
-
-  return {
-    destory,
+export const DeptSelectPopover = forwardRef(function DeptSelectPopover(props, ref) {
+  const {
+    align,
+    arrow = false,
+    children,
+    destroyOnHidden,
+    getPopupContainer,
+    isDynamic,
+    offset,
+    onBlur,
+    onClick,
+    onClose = () => {},
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
+    onOpenChange = () => {},
+    open,
+    placement = 'bottomLeft',
+    styles = {},
+    trigger = 'click',
+    zIndex,
+    ...deptSelectProps
+  } = props;
+  const [visible, setVisible] = useState(false);
+  const isControlled = _.has(props, 'open');
+  const mergedVisible = isControlled ? open : visible;
+  const mergedAlign = align || (offset ? { offset: [offset.left || 0, offset.top || 0] } : undefined);
+  const childTriggerEvents = {
+    onBlur,
+    onClick,
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
   };
-}
+  const triggerNode = React.isValidElement(children)
+    ? React.cloneElement(children, getMergedTriggerEventHandlers(children.props, childTriggerEvents))
+    : children;
+
+  const handleOpenChange = createControllableOpenHandler({ isControlled, onOpenChange, setOpen: setVisible });
+
+  const handleClose = force => {
+    if (!force && isDynamic) return;
+
+    handleOpenChange(false);
+    onClose(force);
+  };
+
+  return (
+    <Popover
+      ref={ref}
+      align={mergedAlign}
+      arrow={arrow}
+      destroyOnHidden={destroyOnHidden}
+      getPopupContainer={getPopupContainer}
+      open={!!mergedVisible}
+      onOpenChange={handleOpenChange}
+      placement={placement}
+      noPadding
+      styles={{
+        ..._.omit(styles, 'body'),
+        container: { ...styles.body, ...styles.container },
+      }}
+      trigger={trigger}
+      zIndex={zIndex}
+      content={<DeptSelect {...deptSelectProps} onClose={handleClose} />}
+    >
+      {triggerNode}
+    </Popover>
+  );
+});
+
+DeptSelectPopover.propTypes = {
+  align: object,
+  arrow: any,
+  children: any,
+  destroyOnHidden: bool,
+  getPopupContainer: func,
+  offset: object,
+  onBlur: func,
+  onClick: func,
+  onClose: func,
+  onContextMenu: func,
+  onFocus: func,
+  onMouseDown: func,
+  onMouseEnter: func,
+  onMouseLeave: func,
+  onMouseMove: func,
+  onMouseUp: func,
+  onOpenChange: func,
+  open: bool,
+  placement: string,
+  styles: object,
+  trigger: any,
+  zIndex: number,
+};

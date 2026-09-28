@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Card, Dialog, Input, SpinLoading } from 'antd-mobile';
+import { Card, Input, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { ROLE_CONFIG, sysRoleType } from 'src/pages/Role/config.js';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { pathCompletion } from 'src/utils/common';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Back from '../components/Back';
 import * as actions from './redux/actions';
 import './index.less';
@@ -27,8 +28,8 @@ class Members extends Component {
   }
   handleExitApp = () => {
     const { detail } = this.props.memberData;
-    Dialog.confirm({
-      title: <span className="Font17 bold">{_l('确认删除应用吗？')}</span>,
+    Modal.confirm({
+      title: <span className="Font17 textError">{_l('确认删除应用吗？')}</span>,
       content: (
         <div className="TxtCenter">
           <span className="Font13 textPrimary mBottom5">
@@ -36,16 +37,21 @@ class Members extends Component {
           </span>
           <Input
             className="mTop10 pAll5 appNameInput"
-            style={{ borderRadius: 4, border: '1px solid var(--color-border-secondary)', '--font-size': 13 }}
+            style={{
+              borderRadius: 4,
+              border: '1px solid var(--color-border-secondary)',
+              '--font-size': 13,
+            }}
             placeholder={_l('输入应用名称以确定删除')}
           />
         </div>
       ),
       cancelText: _l('取消'),
-      confirmText: <span className="Red">{_l('确认')}</span>,
-      onConfirm: () => {
+      okText: _l('确认'),
+      okButtonProps: { danger: true },
+      manualClose: true,
+      onOk: close => {
         const { value } = document.querySelector('.appNameInput input');
-
         if (detail.name === value) {
           this.props.dispatch(
             actions.deleteApp(
@@ -56,11 +62,16 @@ class Members extends Component {
               },
               ({ data }) => {
                 if (data) {
-                  this.props.history.push(pathCompletion('/mobile/dashboard', { hasDomain: false }));
+                  this.props.history.push(
+                    pathCompletion('/mobile/dashboard', {
+                      hasDomain: false,
+                    }),
+                  );
                 }
               },
             ),
           );
+          close();
         } else {
           alert(_l('应用名称错误'), 2);
         }

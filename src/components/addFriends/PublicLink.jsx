@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Dropdown, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import InviteController from 'src/api/invitation';
 import projectSettingController from 'src/api/projectSetting';
 import ShareUrl from 'worksheet/components/ShareUrl';
@@ -10,11 +11,11 @@ import { DETAIL_MODE, FROM_TYPE } from './enum';
 
 const DISPLAY_OPTIONS = [
   {
-    text: _l('永久'),
+    label: _l('永久'),
     value: 0,
   },
   {
-    text: _l('24小时'),
+    label: _l('24小时'),
     value: 24,
   },
 ];
@@ -118,11 +119,10 @@ export default class PublicLink extends Component {
             {url && (
               <Fragment>
                 <span className="textTertiary Font12">{_l('链接有效期：')}</span>
-                <Dropdown
+                <Select
                   className="inviteDrop mRight16"
-                  border
                   value={expireHours}
-                  data={DISPLAY_OPTIONS}
+                  options={DISPLAY_OPTIONS}
                   onChange={this.updateHours}
                 />
               </Fragment>

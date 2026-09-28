@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dialog, Input, RadioGroup } from 'ming-ui';
+import { Input, Modal, Radio } from 'ming-ui/antd-components';
 import './SaveWorksheetFilter.less';
 
 export default class SaveWorksheetFilter extends Component {
@@ -30,14 +30,13 @@ export default class SaveWorksheetFilter extends Component {
     const { title, visible, isCharge, onClose, onSave } = this.props;
     const { filterName, filterType } = this.state;
     return (
-      <Dialog
+      <Modal
         className="saveWorksheetFilter workSheetForm"
-        visible={visible}
-        anim={false}
+        open={visible}
         title={title || _l('保存筛选器')}
         width={480}
         onCancel={onClose}
-        onText={_l('保存')}
+        okText={_l('保存')}
         onOk={() => {
           if (!_.trim(filterName)) {
             alert(_l('请输入筛选器名称'), 3);
@@ -55,8 +54,8 @@ export default class SaveWorksheetFilter extends Component {
               <Input
                 className="sheetName w100"
                 value={filterName}
-                onChange={value => {
-                  this.setState({ filterName: value });
+                onChange={event => {
+                  this.setState({ filterName: event.target.value });
                 }}
               />
             </div>
@@ -67,21 +66,25 @@ export default class SaveWorksheetFilter extends Component {
           <div className="formItem flexRow">
             <div className="label">{_l('使用范围')}</div>
             <div className="content">
-              <RadioGroup
-                data={[
+              <Radio.Group
+                options={[
                   { text: _l('个人'), value: 1 },
                   { text: _l('公共'), value: 2, disabled: !isCharge },
-                ]}
-                checkedValue={filterType}
-                onChange={value => {
-                  this.setState({ filterType: value });
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                value={filterType}
+                onChange={event => {
+                  const value = event.target.value;
+
+                  this.setState({
+                    filterType: value,
+                  });
                 }}
                 size="small"
               />
             </div>
           </div>
         )}
-      </Dialog>
+      </Modal>
     );
   }
 }

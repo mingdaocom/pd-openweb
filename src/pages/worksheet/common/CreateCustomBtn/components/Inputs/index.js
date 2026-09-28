@@ -1,7 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
-import './style.less';
 
 export default function Input(props) {
   // [1, 2, 5].includes(type); //文本、邮箱
@@ -42,6 +41,7 @@ export default function Input(props) {
       from={1}
       writeObject={props.writeObject}
       showEmpty={true}
+      emptyTip={props.emptyTip}
     />
   );
 }

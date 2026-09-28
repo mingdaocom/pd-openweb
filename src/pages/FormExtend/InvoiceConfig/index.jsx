@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Dropdown, Input, LoadDiv, RadioGroup, Support, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, Support } from 'ming-ui';
+import { Button, Input, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import worksheetSettingApi from 'src/api/worksheetSetting';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
+import DynamicFieldTextarea from '../common/DynamicFieldTextarea';
 import MapField from '../common/MapField';
-import CustomRemark from './CustomRemark';
 import '../common/payAndInvoice.less';
 
 export default class InvoiceConfig extends Component {
@@ -29,6 +29,7 @@ export default class InvoiceConfig extends Component {
       fieldMaps: {},
       invoiceCustomRemark: '',
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -46,7 +47,7 @@ export default class InvoiceConfig extends Component {
       this.setState({
         ...settings,
         taxList: taxInfos.map(item => ({
-          text: item.companyName,
+          label: item.companyName,
           value: item.taxNo,
           disabled: item.planType === 99, //已过期
           hasPay: item.planType !== 5,
@@ -63,7 +64,7 @@ export default class InvoiceConfig extends Component {
     const { projectId, appId } = this.props.worksheetInfo || {};
     merchantInvoiceApi.getSimpleInvoiceProducts({ projectId, appId, taxNo }).then(res => {
       const list = _.uniqBy(res, 'categoryName').map(item => ({
-        text: item.categoryName,
+        label: item.categoryName,
         value: item.productId,
       }));
 
@@ -79,6 +80,8 @@ export default class InvoiceConfig extends Component {
   };
 
   onSave = () => {
+    if (this.requestPending) return;
+
     const { projectId, worksheetId } = this.props.worksheetInfo || {};
     const { taxNo, scenes, productId, remark, fieldMaps, invoiceCustomRemark } = this.state;
 
@@ -87,7 +90,8 @@ export default class InvoiceConfig extends Component {
       return;
     }
 
-    worksheetSettingApi
+    this.requestPending = true;
+    return worksheetSettingApi
       .saveInvoiceSetting({
         projectId,
         worksheetId,
@@ -106,6 +110,9 @@ export default class InvoiceConfig extends Component {
         } else {
           alert(_l('保存失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
@@ -155,7 +162,14 @@ export default class InvoiceConfig extends Component {
                                 disabled={true}
                                 size="small"
                                 checked={checked}
-                                onClick={() => this.onChangeConfig({ scenes: { [item.key]: !checked } })}
+                                onClick={(checked, event) => {
+                                  event.stopPropagation();
+                                  return this.onChangeConfig({
+                                    scenes: {
+                                      [item.key]: checked,
+                                    },
+                                  });
+                                }}
                               />
                             </span>
                           </Tooltip>
@@ -164,7 +178,14 @@ export default class InvoiceConfig extends Component {
                         <Switch
                           size="small"
                           checked={checked}
-                          onClick={() => this.onChangeConfig({ scenes: { [item.key]: !checked } })}
+                          onClick={(checked, event) => {
+                            event.stopPropagation();
+                            return this.onChangeConfig({
+                              scenes: {
+                                [item.key]: checked,
+                              },
+                            });
+                          }}
                         />
                       )}
                     </div>
@@ -185,21 +206,19 @@ export default class InvoiceConfig extends Component {
                     {_l('创建开票税号')}
                   </div>
                 ) : (
-                  <Dropdown
+                  <Select
                     className="w100"
-                    menuClass="w100"
-                    border
                     placeholder={_l('选择开票主体')}
                     value={taxNo}
-                    data={taxList}
+                    options={taxList}
                     onChange={value => {
                       this.onChangeConfig({ taxNo: value });
                       this.getProductList(value);
                     }}
-                    renderItem={item => {
+                    optionRender={({ data: item }) => {
                       return (
                         <div className="flexRow justifyContentBetween alignItemsCenter">
-                          <div className="overflow_ellipsis">{item.text}</div>
+                          <div className="overflow_ellipsis">{item.label}</div>
                           {item.hasPay && (
                             <div
                               className="Hand colorPrimary hoverColorPrimaryDark"
@@ -233,33 +252,35 @@ export default class InvoiceConfig extends Component {
                 <div className="textTertiary mBottom16">
                   {_l('目前仅支持按类目汇总开具发票，税率与编码随类目自动匹配。')}
                 </div>
-                <RadioGroup
+                <Radio.Group
                   size="middle"
-                  checkedValue={contentType}
-                  data={[
+                  value={contentType}
+                  options={[
                     { text: _l('按类目汇总'), value: 1 },
                     { text: _l('明细（开发中）'), value: 2, disabled: true },
-                  ]}
-                  onChange={value => this.onChangeConfig({ contentType: value })}
+                  ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                  onChange={event =>
+                    this.onChangeConfig({
+                      contentType: event.target.value,
+                    })
+                  }
                 />
 
                 <div className="subTitle">{_l('选择开票类目')}</div>
                 <div className="textTertiary mBottom16">
                   {_l('从组织后台的商品管理表选择默认开票类目，管理员审核时会依据编码/名称重新选择并以选择结果为准')}
                 </div>
-                <Dropdown
+                <Select
                   className="w100"
-                  menuClass="w100"
-                  border
-                  cancelAble
-                  data={productList}
+                  allowClear
+                  options={productList}
                   value={productId || undefined}
                   onChange={value => this.onChangeConfig({ productId: value })}
                 />
 
                 <div className="subTitle">{_l('自定义发票备注')}</div>
                 <div className="textTertiary mBottom16">{_l('可自定义发票备注的显示内容，仅支持文本字段')}</div>
-                <CustomRemark
+                <DynamicFieldTextarea
                   value={invoiceCustomRemark}
                   onChange={value => this.onChangeConfig({ invoiceCustomRemark: value })}
                   controlList={controls.filter(
@@ -279,7 +300,7 @@ export default class InvoiceConfig extends Component {
                   placeholder={_l('请输入')}
                   maxLength={100}
                   value={remark}
-                  onChange={value => this.onChangeConfig({ remark: value })}
+                  onChange={event => this.onChangeConfig({ remark: event.target.value })}
                 />
 
                 <div className="subTitle">{_l('字段映射')}</div>

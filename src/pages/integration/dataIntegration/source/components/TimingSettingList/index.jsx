@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Drawer, Modal } from 'ming-ui/antd-components';
 import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig.js';
 import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting';
 
@@ -56,9 +56,15 @@ const TimingSettingListWrapper = styled.div`
   }
 `;
 
-const SettingDrawer = styled(Drawer)`
-  .ant-drawer-header {
-    .ant-drawer-close {
+const SettingDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-header {
+    .hap-drawer-close {
       display: none;
     }
   }
@@ -107,44 +113,54 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
   };
 
   const onDelete = scheduleConfigId => {
-    Dialog.confirm({
-      title: _l('删除'),
-      description: _l('删除后，再使用此数据源表创建同步任务的时候，将会耗费更多的时间。'),
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="textError">{_l('删除')}</span>,
+      content: _l('删除后，再使用此数据源表创建同步任务的时候，将会耗费更多的时间。'),
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
-        scheduleConfigApi.delete({ projectId, scheduleConfigId }).then(res => {
-          if (res && !res.errorMsg && !res.errorMsgList) {
-            alert(_l('删除成功'));
-            setTimingList(timingList.filter(item => item.id !== scheduleConfigId));
-          } else {
-            if (res.resultCode === 800017) {
-              Dialog.confirm({
-                title: _l('删除失败'),
-                description: (
-                  <React.Fragment>
-                    <span>{_l('有正在被使用的同步任务，请在')}</span>
-                    <span
-                      className="mLeft5 mRight5 pointer colorPrimary hoverColorPrimaryDark"
-                      onClick={() => {
-                        const confirmElement = document.getElementsByClassName('delErrorConfirm')[0];
-                        confirmElement && document.body.removeChild(confirmElement.parentNode);
-                        onViewUseDetail();
-                      }}
-                    >
-                      {_l('使用详情')}
-                    </span>
-                    <span>{_l('中查看')}</span>
-                  </React.Fragment>
-                ),
-                removeOkBtn: true,
-                cancelText: _l('关闭'),
-                dialogClasses: 'delErrorConfirm',
-              });
+        scheduleConfigApi
+          .delete({
+            projectId,
+            scheduleConfigId,
+          })
+          .then(res => {
+            if (res && !res.errorMsg && !res.errorMsgList) {
+              alert(_l('删除成功'));
+              setTimingList(timingList.filter(item => item.id !== scheduleConfigId));
             } else {
-              alert(res.errorMsg || res.errorMsgList[0] || _l('删除失败'), 2);
+              if (res.resultCode === 800017) {
+                const errorModal = Modal.confirm({
+                  title: <span className="textError">{_l('删除失败')}</span>,
+                  content: (
+                    <React.Fragment>
+                      <span>{_l('有正在被使用的同步任务，请在')}</span>
+                      <span
+                        className="mLeft5 mRight5 pointer colorPrimary hoverColorPrimaryDark"
+                        onClick={() => {
+                          errorModal.destroy();
+                          onViewUseDetail();
+                        }}
+                      >
+                        {_l('使用详情')}
+                      </span>
+                      <span>{_l('中查看')}</span>
+                    </React.Fragment>
+                  ),
+                  okButtonProps: {
+                    style: {
+                      display: 'none',
+                    },
+                  },
+                  cancelText: _l('关闭'),
+                  wrapClassName: 'delErrorConfirm',
+                });
+              } else {
+                alert(res.errorMsg || res.errorMsgList[0] || _l('删除失败'), 2);
+              }
             }
-          }
-        });
+          });
       },
     });
   };
@@ -198,7 +214,7 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
 
         {settingDetail && (
           <SettingDrawer
-            visible={true}
+            open={true}
             width={600}
             placement="right"
             mask={false}

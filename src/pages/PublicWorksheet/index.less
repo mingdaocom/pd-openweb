@@ -17,6 +17,9 @@ body,
     right: 42px;
     height: auto;
   }
+  .publicWorksheetQr {
+    z-index: 3;
+  }
   .qrIcon {
     cursor: pointer;
     width: 40px;
@@ -161,7 +164,8 @@ body,
   display: flex;
   margin-left: -19px;
   .formContainer {
-    overflow: hidden;
+    flex: 1;
+    min-width: 0;
   }
   &.isFixedRight {
     margin-left: 0;
@@ -182,7 +186,7 @@ body,
 }
 
 .preFillDescDialog {
-  > .mui-dialog-mask {
+  > .hap-modal-mask {
     background-color: rgba(0, 0, 0, 0.85) !important;
   }
 }
@@ -244,13 +248,6 @@ body,
 }
 
 .filledRecordDialog {
-  .mui-dialog-default-title {
-    font-weight: 600;
-  }
-  .mui-dialog-body {
-    background: var(--color-background-secondary);
-    padding: 0px !important;
-  }
   .recordItem {
     display: flex;
     flex-direction: column;

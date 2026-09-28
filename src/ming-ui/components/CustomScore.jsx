@@ -4,19 +4,19 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getDefaultData } from 'src/pages/widgetConfig/config/score.js';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
-import { browserIsMobile } from 'src/utils/common';
-import { getStringBytes } from 'src/utils/common';
+import { getStringBytes } from 'src/utils/core/string';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getDefaultData } from 'src/utils/domain/control/score';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import Icon from './Icon';
-import './less/Score.less';
+import './less/CustomScore.less';
 
 const CustomScoreIcon = styled.div`
   .scoreIcon {
     transition: 0.3s;
-    color: ${props => props.color || 'var(--color-text-placeholder)'};
+    color: ${props => props.$color || 'var(--color-text-placeholder)'};
     &:hover {
-      color: ${props => props.color || 'var(--color-border-primary)'};
+      color: ${props => props.$color || 'var(--color-border-primary)'};
     }
   }
 `;
@@ -162,7 +162,7 @@ class CustomScore extends Component {
                   })}
             >
               <CustomScoreIcon
-                color={score > 0 && index < score ? selectColor : backgroundColor || 'var(--color-text-disabled)'}
+                $color={score > 0 && index < score ? selectColor : backgroundColor || 'var(--color-text-disabled)'}
               >
                 <Tooltip title={this.props.disabled || hideTip ? '' : <span>{tipText}</span>} {...tipProps}>
                   <Icon className={cx('scoreIcon', from === 'recordInfo' ? 'Font24' : 'Font18')} icon={itemicon} />

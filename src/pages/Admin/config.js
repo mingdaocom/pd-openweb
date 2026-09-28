@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import AdminController from 'src/api/adminManage';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 
 const Config = {
   params: null, // parameters from url， eg: /admin/:routeType/:projectId

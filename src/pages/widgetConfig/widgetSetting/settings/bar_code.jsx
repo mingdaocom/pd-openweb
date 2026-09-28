@@ -1,13 +1,9 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Input } from 'antd';
-import cx from 'classnames';
+import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
-import { Dropdown, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import WidgetDropdown from '../../components/Dropdown';
+import { Input, Radio, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getIconByType, parseDataSource } from 'src/utils/domain/control/metadata';
 import { SettingItem } from '../../styled';
-import { getIconByType, parseDataSource } from '../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const CODE_DISPLAY_OPTION = [
   {
@@ -21,23 +17,19 @@ const CODE_DISPLAY_OPTION = [
 const CODE_DATA_OPTION = [
   {
     value: 1,
-    text: _l('记录内部访问链接'),
+    label: _l('记录内部访问链接'),
   },
-  { value: 3, text: _l('字段值') },
+  { value: 3, label: _l('字段值') },
 ];
 
-const CODE_FAULTRATE_OPTION = ['7%', '15%', '25%', '30%'];
+const CODE_FAULTRATE_OPTIONS = ['7%', '15%', '25%', '30%'].map(value => ({ value, label: value }));
 
 const CAN_AS_DATA_SOURCE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 
-export default function BarCode({ data, onChange, allControls, from, subListData }) {
-  const { enumDefault, enumDefault2, dataSource, controlId } = data;
+function BarCodeContent({ data, onChange, allControls, from, subListData }) {
+  const { enumDefault, enumDefault2, dataSource } = data;
   const { width, faultrate } = getAdvanceSetting(data);
   const [tempWidth, setTempWidth] = useState(width);
-
-  useEffect(() => {
-    setTempWidth(width);
-  }, [controlId]);
 
   const filterControls = allControls
     .filter(
@@ -45,22 +37,33 @@ export default function BarCode({ data, onChange, allControls, from, subListData
         _.includes(CAN_AS_DATA_SOURCE_CONTROL, item.type) ||
         (item.type === 30 && _.includes(CAN_AS_DATA_SOURCE_CONTROL, item.sourceControlType)),
     )
-    .map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
+    .map(item => ({ value: item.controlId, label: item.controlName, icon: getIconByType(item.type) }));
+  const dataSourceValue = parseDataSource(dataSource);
+  const dataSourceOptions = [{ value: 'rowid', label: _l('记录ID'), icon: 'text_bold2' }, ...filterControls];
+  const dataSourceDeleted = dataSourceValue && !dataSourceOptions.some(item => item.value === dataSourceValue);
 
   return (
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('类型')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={enumDefault}
-          data={CODE_DISPLAY_OPTION}
-          onChange={value => {
+          value={enumDefault}
+          options={(CODE_DISPLAY_OPTION || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             if (value === 1) {
-              onChange({ enumDefault: value, enumDefault2: 0, dataSource: '' });
+              onChange({
+                enumDefault: value,
+                enumDefault2: 0,
+                dataSource: '',
+              });
             } else {
               onChange({
-                ...handleAdvancedSettingChange(data, { faultrate: '30%' }),
+                ...handleAdvancedSettingChange(data, {
+                  faultrate: '30%',
+                }),
                 enumDefault: value,
                 enumDefault2: 0,
                 dataSource: '',
@@ -77,9 +80,9 @@ export default function BarCode({ data, onChange, allControls, from, subListData
       <SettingItem>
         <div className="settingItemTitle">{_l('数据源')}</div>
         {enumDefault === 2 && (
-          <Dropdown
-            border
-            data={
+          <Select
+            className="w100"
+            options={
               from === 'subList' && _.get(subListData, 'advancedSetting.detailworksheettype') === '2'
                 ? CODE_DATA_OPTION.filter(c => c.value !== 1)
                 : CODE_DATA_OPTION
@@ -89,19 +92,23 @@ export default function BarCode({ data, onChange, allControls, from, subListData
           />
         )}
         {(enumDefault === 1 || (enumDefault === 2 && enumDefault2 === 3)) && (
-          <WidgetDropdown
-            border
-            searchable
-            data={[{ value: 'rowid', text: _l('记录ID'), icon: 'text_bold2' }].concat(filterControls)}
-            value={parseDataSource(dataSource)}
+          <Select
+            className="w100 mTop10"
+            showPopupSearch
+            optionFilterProp="label"
+            options={dataSourceOptions}
+            value={dataSourceValue || undefined}
             placeholder={_l('请选择字段')}
-            renderDisplay={value => {
-              const originControl = filterControls.find(item => item.value === value);
-              const controlName = value === 'rowid' ? _l('记录ID') : _.get(originControl, 'text');
-              return (
-                <div className={cx('text', { Red: !controlName })}>{!controlName ? _l('字段已删除') : controlName}</div>
-              );
-            }}
+            status={dataSourceDeleted ? 'error' : undefined}
+            labelRender={({ label }) =>
+              dataSourceDeleted ? <span className="textError">{_l('字段已删除')}</span> : label
+            }
+            optionRender={({ data: item }) => (
+              <div className="flexRow alignItemsCenter">
+                <i className={`icon-${item.icon} Font16 textTertiary mRight8`} />
+                <span className="overflow_ellipsis">{item.label}</span>
+              </div>
+            )}
             onChange={value => onChange({ dataSource: `$${value}$` })}
           />
         )}
@@ -123,9 +130,9 @@ export default function BarCode({ data, onChange, allControls, from, subListData
               <i className="icon-help textTertiary Font16 pointer"></i>
             </Tooltip>
           </div>
-          <Dropdown
-            border
-            data={CODE_FAULTRATE_OPTION.map(i => ({ value: i, text: i }))}
+          <Select
+            className="w100"
+            options={CODE_FAULTRATE_OPTIONS}
             value={faultrate}
             onChange={value => onChange(handleAdvancedSettingChange(data, { faultrate: value }))}
           />
@@ -157,4 +164,8 @@ export default function BarCode({ data, onChange, allControls, from, subListData
       </SettingItem>
     </Fragment>
   );
+}
+
+export default function BarCode(props) {
+  return <BarCodeContent key={props.data.controlId} {...props} />;
 }

@@ -97,7 +97,7 @@ const processmanagecontroller = {
    * null
    * @param {Object} options 配置参数
    */
-  batch: function(args, options) {
+  batch_1: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/batch';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1processbatch', args, $.extend({}, base, options));

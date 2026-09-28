@@ -30,59 +30,49 @@
 }
 .FieldRecycleBinDialog {
   width: 80% !important;
-  .mui-dialog-header {
+  .hap-modal-header {
     padding-bottom: 14px !important;
     border-bottom: 1px solid var(--color-border-primary);
-  }
-  .mui-dialog-close-btn {
-    right: 10px !important;
-    top: 20px !important;
-  }
-  .mui-dialog-body {
-    padding: 0 0 0 13px !important;
   }
   .FieldRecycleBinHeader {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    .searchContainer {
-      box-sizing: border-box;
-      border-radius: 16px;
-      position: relative;
-      margin-right: 30px;
+  }
+  .searchContainer {
+    box-sizing: border-box;
+    position: relative;
+    margin-top: -13px;
+
+    .inputCon {
+      padding: 0px 6px;
+    }
+
+    .icon-search {
+      margin-top: 2px;
+      color: var(--color-text-disabled) !important;
+    }
+
+    .icon-cancel {
+      font-size: 14px;
+      position: absolute;
+      cursor: pointer;
+      color: var(--color-text-placeholder) !important;
+      top: 6px;
+      right: 8px;
+      &:hover {
+        color: rgba(204, 204, 204, 0.8);
+      }
+    }
+
+    .input {
+      line-height: 25px;
+      width: 184px;
       height: 25px;
-
-      .inputCon {
-        padding: 0px 6px;
-      }
-
-      .icon-search {
-        margin-top: 2px;
-        color: var(--color-text-disabled) !important;
-      }
-
-      .icon-cancel {
-        font-size: 14px;
-        position: absolute;
-        cursor: pointer;
-        color: var(--color-text-placeholder) !important;
-        top: 6px;
-        right: 8px;
-        &:hover {
-          color: rgba(204, 204, 204, 0.8);
-        }
-      }
-
-      .input {
-        line-height: 25px;
-        width: 184px;
-        height: 25px;
-        font-size: 13px;
-        padding: 0 24px 0 30px;
-        border: none;
-        outline: none;
-        background: transparent;
-      }
+      font-size: 13px;
+      padding: 0 24px 0 30px;
+      border: none;
+      outline: none;
+      background: transparent;
     }
   }
   .FieldRecycleBinContent {

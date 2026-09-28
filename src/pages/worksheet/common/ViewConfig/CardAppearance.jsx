@@ -2,17 +2,19 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/styled';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 import { NavSet } from './components';
 import StructureSet from './components/StructureSet';
 import { ViewSettingWrap } from './style';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
@@ -40,23 +42,6 @@ const WrapBoard = styled.div`
     line-height: 36px;
     border: 1px solid var(--color-border-primary);
     padding: 0 13px;
-  }
-`;
-
-const SwitchStyle = styled.div`
-  display: inline-block;
-  .switchText {
-    margin-right: 6px;
-    line-height: 24px;
-  }
-  .icon {
-    vertical-align: middle;
-    &-ic_toggle_on {
-      color: #00c345;
-    }
-    &-ic_toggle_off {
-      color: var(--color-text-disabled);
-    }
   }
 `;
 
@@ -153,6 +138,8 @@ export default class CardAppearance extends Component {
         : allCanSelectFieldsInBoardControls;
     };
 
+    const viewSelectFields = getViewSelectFields();
+
     return (
       <ViewSettingWrap>
         {!isMultiHierarchyView && (
@@ -161,12 +148,22 @@ export default class CardAppearance extends Component {
               {isHierarchyView ? _l('关联本表字段') : _l('分组字段')}
             </div>
             <div className="settingContent">
-              <Dropdown
-                data={getViewSelectFields()}
+              <Select
+                options={viewSelectFields}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={viewControl}
                 className="allCanSelectFields"
-                hoverTheme
-                renderTitle={obj => {
+                optionRender={option => {
+                  const { icon, text } = option.data || {};
+                  return (
+                    <DisplayControlOption>
+                      <Icon icon={icon} />
+                      <span>{text}</span>
+                    </DisplayControlOption>
+                  );
+                }}
+                labelRender={({ value }) => {
+                  const obj = viewSelectFields.find(item => item.value === value);
                   const { icon, text } = obj || {};
                   const groupControl = worksheetControls.find(o => o.controlId === viewControl);
                   const isErr = viewControl && !groupControl;
@@ -210,7 +207,6 @@ export default class CardAppearance extends Component {
                     editAttrs: ['viewControl', 'advancedSetting'],
                   });
                 }}
-                border
                 style={{ width: '100%' }}
                 placeholder={_l('请选择')}
               />
@@ -223,14 +219,14 @@ export default class CardAppearance extends Component {
               />
             )}
             {isBoardView && (
-              <WrapBoard>
+              <WrapBoard className="mTop8">
                 <div className="flexRow alignItemsCenter">
                   <div className="flex">
-                    <SwitchStyle>
-                      <Icon
-                        icon={navempty === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                        className="Font28 Hand"
-                        onClick={() => {
+                    <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+                      <Switch
+                        size="mini"
+                        checked={navempty === '1'}
+                        onChange={() => {
                           updateCurrentView({
                             ...view,
                             appId,
@@ -242,7 +238,7 @@ export default class CardAppearance extends Component {
                           });
                         }}
                       />
-                      <div className="switchText InlineBlock Normal mLeft12 mTop8">
+                      <div className="InlineBlock Normal mLeft12">
                         {_l('启用“未指定”看板')}
                         <Tooltip
                           title={
@@ -257,7 +253,7 @@ export default class CardAppearance extends Component {
                           <i className="icon-help Font16 textTertiary mLeft3 TxtMiddle" />
                         </Tooltip>
                       </div>
-                    </SwitchStyle>
+                    </div>
                   </div>
                   {navempty === '1' && (
                     <Tooltip title={_l('重命名')}>
@@ -271,14 +267,12 @@ export default class CardAppearance extends Component {
                   )}
                 </div>
                 <div className="mTop4" />
-                <SwitchStyle>
-                  <Icon
-                    icon={freezenav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className={cx(
-                      'Font28',
-                      _.get(safeParse(groupsetting, 'array'), '[0].controlId') ? 'cursorNotAllowed' : 'Hand',
-                    )}
-                    onClick={() => {
+                <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+                  <Switch
+                    size="mini"
+                    checked={freezenav === '1'}
+                    className={_.get(safeParse(groupsetting, 'array'), '[0].controlId') ? 'cursorNotAllowed' : 'Hand'}
+                    onChange={() => {
                       if (_.get(safeParse(groupsetting, 'array'), '[0].controlId')) return;
                       updateCurrentView({
                         ...view,
@@ -289,13 +283,13 @@ export default class CardAppearance extends Component {
                       });
                     }}
                   />
-                  <div className="switchText InlineBlock Normal mLeft12">
+                  <div className="InlineBlock Normal mLeft12">
                     {_l('固定第1个看板')}
                     <Tooltip title={_l('当看板滚动时，始终固定第1个看板在左侧，方便向其他看板中拖拽记录。')}>
                       <i className="icon-help Font16 textTertiary mLeft3 TxtMiddle" />
                     </Tooltip>
                   </div>
-                </SwitchStyle>
+                </div>
               </WrapBoard>
             )}
             <div className="line mTop32 mBottom32" />

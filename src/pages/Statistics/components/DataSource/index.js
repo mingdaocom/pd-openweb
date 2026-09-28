@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Collapse, Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
+import { Collapse, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isTimeControl } from 'statistics/common/controlUtils';
 import { getAlreadySelectControlId } from 'statistics/common/reportConfigUtils';
 import { formatrChartTimeText } from 'statistics/common/timeUtils';
 import * as actions from 'statistics/redux/actions';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { controlState } from 'src/utils/control';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import CalculateControlItem from './components/CalculateControlItem';
 import CalculateControlModal from './components/CalculateControlModal';
 import ControlItem from './components/ControlItem';
@@ -168,6 +168,7 @@ let DataSource = class DataSource extends Component {
 
     const { appType } = base;
     const { sheetModalVisible } = this.state;
+
     return (
       <Fragment>
         <div className="mTop20 horizontalPaddingWrapper">
@@ -180,24 +181,27 @@ let DataSource = class DataSource extends Component {
             }}
           >
             {worksheetInfo.resultCode !== 1 ? (
-              <span className="flex Font13 Bold WordBreak textError">
-                {worksheetInfo.errorMessage || _l('工作表无权限或者已删除')}
-              </span>
+              <DeletedSourceMessage
+                deletedText={worksheetInfo.errorMessage || _l('工作表无权限或者已删除')}
+                worksheetId={currentReport.appId}
+              />
             ) : (
-              <span className="flex Font13 Bold WordBreak">
-                {worksheetInfo.name}
-                {appType === 1 &&
-                  (view ? (
-                    `(${view.name})`
-                  ) : filter.viewId ? (
-                    <span className="textError">({_l('视图已被删除')})</span>
-                  ) : (
-                    `(${_l('所有记录')})`
-                  ))}
-                {appType === 2 && `(${_l('聚合表')})`}
-              </span>
+              <Fragment>
+                <span className="flex Font13 Bold WordBreak">
+                  {worksheetInfo.name}
+                  {appType === 1 &&
+                    (view ? (
+                      `(${view.name})`
+                    ) : filter.viewId ? (
+                      <span className="textError">({_l('视图已被删除')})</span>
+                    ) : (
+                      `(${_l('所有记录')})`
+                    ))}
+                  {appType === 2 && `(${_l('聚合表')})`}
+                </span>
+                <Icon className="textTertiary Font18" icon="swap_horiz" />
+              </Fragment>
             )}
-            <Icon className="textTertiary Font18" icon="swap_horiz" />
           </div>
         </div>
         {sheetModalVisible && (
@@ -260,6 +264,8 @@ let DataSource = class DataSource extends Component {
       }
     }
 
+    const chartTimeText = formatrChartTimeText(filter);
+
     return (
       <div className="mTop15 horizontalPaddingWrapper">
         <div className="Bold Font13 textPrimary mBottom10">{_l('时间')}</div>
@@ -278,7 +284,7 @@ let DataSource = class DataSource extends Component {
                 mLeft5: ![20, 21].includes(filter.rangeType),
               })}
             >
-              ({formatrChartTimeText(filter)})
+              {chartTimeText ? `(${chartTimeText})` : null}
             </span>
           </div>
           <Icon className="textTertiary Font14" icon="arrow-down-border" />
@@ -312,33 +318,29 @@ let DataSource = class DataSource extends Component {
     const { auth = 0 } = currentReport;
     const isDeveloper = permissionType === 1;
 
-    const renderOverlay = () => {
-      return (
-        <Menu className="chartMenu">
-          {authList.map(data => (
-            <Menu.Item
-              key={data.value}
-              disabled={isDeveloper && data.value === 0}
-              onClick={() =>
+    return (
+      <div className="mTop15 horizontalPaddingWrapper">
+        <div className="Bold Font13 textPrimary mBottom10">{_l('权限')}</div>
+        <Dropdown
+          menu={{
+            selectable: true,
+            selectedKeys: [String(auth)],
+            items: authList.map(data => ({
+              key: String(data.value),
+              disabled: isDeveloper && data.value === 0,
+              label: data.name,
+              onClick: () =>
                 changeCurrentReport(
                   {
                     auth: data.value,
                   },
                   true,
-                )
-              }
-            >
-              {data.name}
-            </Menu.Item>
-          ))}
-        </Menu>
-      );
-    };
-
-    return (
-      <div className="mTop15 horizontalPaddingWrapper">
-        <div className="Bold Font13 textPrimary mBottom10">{_l('权限')}</div>
-        <Dropdown overlay={renderOverlay()} trigger={['click']} placement="bottomRight">
+                ),
+            })),
+          }}
+          trigger={['click']}
+          placement="bottomRight"
+        >
           <div className="timeWrapper flexRow valignWrapper pointer">
             <div className="flex Font13 Bold">
               {_.get(
@@ -417,19 +419,18 @@ let DataSource = class DataSource extends Component {
     const { axisControls, currentReport, changeCurrentReport } = this.props;
     const { calculateControlModalVisible, editCalculateControl } = this.state;
     const { formulas = [] } = currentReport;
-    return (
-      <Collapse.Panel
-        className={cx({
-          hide: _.isEmpty(formulas),
-        })}
-        key="calculateControl"
-        header={
-          <Fragment>
-            {this.renderAddCalculateControl()}
-            <div className="flex textTertiary">{_l('计算值')}</div>
-          </Fragment>
-        }
-      >
+    return {
+      className: cx({
+        hide: _.isEmpty(formulas),
+      }),
+      key: 'calculateControl',
+      label: (
+        <Fragment>
+          {this.renderAddCalculateControl()}
+          <div className="flex textTertiary">{_l('计算值')}</div>
+        </Fragment>
+      ),
+      children: (
         <div>
           <div className="chartCollapse">
             {formulas.map(item => (
@@ -468,8 +469,8 @@ let DataSource = class DataSource extends Component {
             }}
           />
         </div>
-      </Collapse.Panel>
-    );
+      ),
+    };
   }
 
   renderExpandIcon(panelProps) {
@@ -488,6 +489,37 @@ let DataSource = class DataSource extends Component {
     const { reportType } = currentReport;
     const alreadySelectControlId = getAlreadySelectControlId(currentReport);
     const { currentAxisControls } = this.state;
+    const items = [
+      {
+        key: 'sheetControl',
+        label: <div className="flex textTertiary">{_l('工作表')}</div>,
+        children: (
+          <div>
+            {currentAxisControls
+              .filter(c => {
+                if (reportType === reportTypes.WorldMap) {
+                  return true;
+                }
+
+                return c.type !== 40;
+              })
+              .map(item => (
+                <ControlItem
+                  key={item.controlId}
+                  item={item}
+                  isActive={alreadySelectControlId.includes(item.controlId)}
+                  onChangeCheckbox={event => {
+                    this.handleChangeCheckbox(event, item);
+                  }}
+                />
+              ))}
+            {_.isEmpty(currentAxisControls) && <div className="centerAlign pTop30">{_l('无搜索结果')}</div>}
+          </div>
+        ),
+      },
+      this.renderCalculateControl(alreadySelectControlId),
+    ].filter(Boolean);
+
     return (
       <Fragment>
         <Collapse
@@ -495,32 +527,8 @@ let DataSource = class DataSource extends Component {
           className="dataSourceCollapse"
           defaultActiveKey={['sheetControl', 'calculateControl']}
           expandIcon={this.renderExpandIcon}
-        >
-          <Collapse.Panel header={<div className="flex textTertiary">{_l('工作表')}</div>} key="sheetControl">
-            <div>
-              {currentAxisControls
-                .filter(c => {
-                  if (reportType === reportTypes.WorldMap) {
-                    return true;
-                  }
-
-                  return c.type !== 40;
-                })
-                .map(item => (
-                  <ControlItem
-                    key={item.controlId}
-                    item={item}
-                    isActive={alreadySelectControlId.includes(item.controlId)}
-                    onChangeCheckbox={event => {
-                      this.handleChangeCheckbox(event, item);
-                    }}
-                  />
-                ))}
-              {_.isEmpty(currentAxisControls) && <div className="centerAlign pTop30">{_l('无搜索结果')}</div>}
-            </div>
-          </Collapse.Panel>
-          {this.renderCalculateControl(alreadySelectControlId)}
-        </Collapse>
+          items={items}
+        />
       </Fragment>
     );
   }

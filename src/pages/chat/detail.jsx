@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import qs from 'query-string';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import ConnectChatWindow from 'src/pages/chat/containers/ChatWindow';
 import store from 'src/redux/configureStore';
 

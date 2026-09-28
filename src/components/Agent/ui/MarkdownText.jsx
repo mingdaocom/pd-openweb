@@ -53,6 +53,10 @@ const Root = styled.div`
   line-height: 24px;
   word-break: break-word;
 
+  body.mobileMingoPage & {
+    font-size: 16px;
+  }
+
   .md-body {
     > *:first-child {
       margin-top: 0;

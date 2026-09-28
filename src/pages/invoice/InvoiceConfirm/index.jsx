@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import userApi from 'src/api/user';
-import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import { INVOICE_STATUS } from '../constant';
 import InvoiceStatus from '../InvoiceStatus';
 import Confirm from './Confirm';
@@ -62,7 +64,7 @@ const InvoiceConfirm = props => {
   const getProductList = (taxNo, projectId, cb = () => {}) => {
     merchantInvoiceApi.getInvoiceProducts({ taxNo, projectId }).then(res => {
       const list = _.uniqBy(res.products, 'categoryName').map(item => ({
-        text: item.categoryName,
+        label: item.categoryName,
         value: item.productId,
       }));
       setProductList(list);
@@ -76,11 +78,11 @@ const InvoiceConfirm = props => {
         <LoadDiv />
       </div>
     ) : (
-      <Dialog visible width={800} footer={null}>
+      <Modal open width={800}>
         <div className="Height80 flexRow alignItemsCenter">
           <LoadDiv />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 
@@ -127,4 +129,6 @@ const InvoiceConfirm = props => {
 
 export default InvoiceConfirm;
 
-export const InvoiceConfirmDialog = props => FunctionWrap(InvoiceConfirm, { ...props });
+export function useInvoiceConfirmDialog() {
+  return useFunctionWrapComponent(InvoiceConfirm);
+}

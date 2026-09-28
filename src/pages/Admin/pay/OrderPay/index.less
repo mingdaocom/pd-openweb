@@ -52,18 +52,28 @@
   .weChatPay,
   .aliPay {
     height: 44px;
-    line-height: 44px;
     border-radius: 25px !important;
     color: var(--color-white);
     padding: 0 24px;
     font-size: 15px;
   }
-  .weChatPay {
-    background-color: @weChartThemeColor!important;
-  }
   .aliPay {
+    line-height: 44px;
     background-color: @aliThemeColor!important;
     text-align: center;
+  }
+  .payMethods {
+    gap: 10px;
+    > .weChatPay,
+    > .aliPay {
+      flex: none !important;
+      min-width: 0 !important;
+      width: calc(50% - 5px) !important;
+      box-sizing: border-box;
+    }
+    > :only-child {
+      width: 100% !important;
+    }
   }
   .mobilePayErrorIcon {
     margin: 0 auto;
@@ -110,6 +120,12 @@
         display: none;
       }
     }
+    .payMethods {
+      .weChatPay,
+      .aliPay {
+        padding: 0 10px;
+      }
+    }
   }
   .orderInfoItem {
     margin-bottom: 20px;
@@ -126,18 +142,28 @@
 }
 
 .qrCodeWrap {
-  width: 80% !important;
+  width: calc(100% - 32px) !important;
+  max-width: 346px;
   border-radius: 10px !important;
   &.pcQrCodeWrap {
     width: auto !important;
+    .hap-modal-body {
+      padding: 32px 24px 16px !important;
+    }
   }
-  .mui-dialog-body {
-    padding: 0 24px 16px !important;
+  .hap-modal-body {
+    padding: 24px 8px 16px !important;
   }
   .qrCode {
     margin: 0 auto;
     width: 250px;
-    height: 250px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    > img,
+    > div {
+      width: 100% !important;
+      height: 100% !important;
+    }
   }
 }
 

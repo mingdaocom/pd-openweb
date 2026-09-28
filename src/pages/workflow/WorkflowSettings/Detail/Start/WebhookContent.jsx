@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Checkbox, Radio, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Input, Radio, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
 import { CustomTextarea, KeyPairs, ParameterList } from '../components';
@@ -14,6 +13,7 @@ const STATUS = {
   COMPLETE: 3,
   PAIRS: 4,
 };
+const JSON_EXAMPLE_TEXTAREA_STYLE = { minHeight: 250, maxHeight: 250 };
 
 export default class WebhookContent extends Component {
   constructor(props) {
@@ -122,7 +122,7 @@ export default class WebhookContent extends Component {
           <div className="Font13 bold">{_l('Webhook URL')}</div>
           <div className="Font13 textSecondary mTop5">{_l('我们为您生成了一个用来接收请求的URL')}</div>
           <div className="mTop10 flexRow">
-            <input type="text" className="webhookLink flex" value={data.hookUrl} disabled />
+            <Input className="flex" value={data.hookUrl} disabled />
             <div
               className="mLeft10 webhookLinkCopy"
               onClick={() => {
@@ -140,33 +140,54 @@ export default class WebhookContent extends Component {
               <div className="Font13 textSecondary mTop5">{_l('系统将根据生成的参数列表来抓取请求中的数据')}</div>
               <div className="mTop15">
                 <Radio
-                  text={_l('从请求范例生成')}
                   checked={type === STATUS.POST}
-                  onClick={() => {
+                  onChange={() => {
                     this.loopGetParameter();
-                    this.setState({ type: STATUS.POST });
+                    this.setState({
+                      type: STATUS.POST,
+                    });
                   }}
-                />
+                  title={_l('从请求范例生成')}
+                >
+                  {_l('从请求范例生成')}
+                </Radio>
               </div>
               <div className="Font13 textSecondary mTop5 mLeft30">{_l('请准备一条GET或POST请求')}</div>
               <div className="mTop15">
                 <Radio
-                  text={_l('从JSON数据范例生成')}
                   checked={type === STATUS.CUSTOM}
-                  onClick={() => this.setState({ type: STATUS.CUSTOM })}
-                />
+                  onChange={() =>
+                    this.setState({
+                      type: STATUS.CUSTOM,
+                    })
+                  }
+                  title={_l('从JSON数据范例生成')}
+                >
+                  {_l('从JSON数据范例生成')}
+                </Radio>
               </div>
               <div className="mTop15">
                 <Radio
-                  text={_l('从key-value pairs生成')}
                   checked={type === STATUS.PAIRS}
-                  onClick={() => {
-                    this.setState({ type: STATUS.PAIRS });
+                  onChange={() => {
+                    this.setState({
+                      type: STATUS.PAIRS,
+                    });
                     if (!data.params.length) {
-                      updateSource({ params: [{ name: '', value: '' }] });
+                      updateSource({
+                        params: [
+                          {
+                            name: '',
+                            value: '',
+                          },
+                        ],
+                      });
                     }
                   }}
-                />
+                  title={_l('从key-value pairs生成')}
+                >
+                  {_l('从key-value pairs生成')}
+                </Radio>
               </div>
             </Fragment>
           )}
@@ -201,9 +222,17 @@ export default class WebhookContent extends Component {
                     <Checkbox
                       className="mLeft10"
                       checked={data.hooksBody}
-                      text={_l('生成Body全文参数')}
-                      onClick={checked => updateSource({ hooksBody: !checked }, onSave)}
-                    />
+                      onChange={event =>
+                        updateSource(
+                          {
+                            hooksBody: event.target.checked,
+                          },
+                          onSave,
+                        )
+                      }
+                    >
+                      {_l('生成Body全文参数')}
+                    </Checkbox>
                     <Tooltip title={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}>
                       <i className="Font14 icon-help textTertiary mLeft5" />
                     </Tooltip>
@@ -217,13 +246,13 @@ export default class WebhookContent extends Component {
             <Fragment>
               <div className="mTop20 bold">{_l('从JSON数据范例生成')}</div>
               <div className="Font13 textSecondary mTop5">{_l('请提供一个请求数据示例 （JSON格式）')}</div>
-              <Textarea
+              <Input.TextArea
+                autoSize
                 className="mTop15"
-                maxHeight={250}
-                minHeight={250}
+                style={JSON_EXAMPLE_TEXTAREA_STYLE}
                 value={data.jsonParam}
-                onChange={value => {
-                  updateSource({ jsonParam: value });
+                onChange={event => {
+                  updateSource({ jsonParam: event.target.value });
                 }}
               />
               <div className="mTop15 flexRow">
@@ -319,13 +348,25 @@ export default class WebhookContent extends Component {
                       return (
                         <div className="flex" key={i}>
                           <Radio
-                            text={item.text}
                             checked={contentType === item.value}
-                            onClick={() => {
-                              this.setState({ contentType: item.value });
-                              updateSource({ returns: [{ name: '', value: '' }], returnJson: '' });
+                            onChange={() => {
+                              this.setState({
+                                contentType: item.value,
+                              });
+                              updateSource({
+                                returns: [
+                                  {
+                                    name: '',
+                                    value: '',
+                                  },
+                                ],
+                                returnJson: '',
+                              });
                             }}
-                          />
+                            title={item.text}
+                          >
+                            {item.text}
+                          </Radio>
                         </div>
                       );
                     })}

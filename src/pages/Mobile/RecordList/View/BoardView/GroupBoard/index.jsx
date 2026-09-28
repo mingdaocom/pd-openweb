@@ -4,15 +4,15 @@ import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
 import GroupByControl from 'mobile/components/GroupByControl';
 import { getGroupOpenKeys, getGroupOptions, groupByOptionKey } from 'worksheet/views/BoardView/GroupBoard/core/util';
-import { canEditForGroupControl, dealBoardViewData } from 'worksheet/views/BoardView/util';
-import { getCardWidth } from 'src/utils/worksheet';
+import { getCardWidth } from 'src/pages/worksheet/common/ViewConfig/getCardWidth';
+import { canEditForGroupControl, dealBoardViewData } from 'src/utils/services/worksheet/board';
 import SecondGroupItem from './SecondGroupItem';
 import './index.less';
 
 const GroupBoardWrap = styled.div`
   .groupHeaderItemWrap,
   .secondGroupItemWrap {
-    width: ${props => `${props.width}px`};
+    width: ${props => `${props.$width}px`};
   }
 `;
 
@@ -156,7 +156,7 @@ const GroupBoard = props => {
   return (
     <GroupBoardWrap
       className="mobileGroupBoardWrap"
-      width={view?.advancedSetting?.cardwidth ? getCardWidth(view) : 280}
+      $width={view?.advancedSetting?.cardwidth ? getCardWidth(view) : 280}
     >
       <ScrollView
         className="groupBoardScroll"

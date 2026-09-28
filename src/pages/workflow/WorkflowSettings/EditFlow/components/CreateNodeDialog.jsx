@@ -1,19 +1,19 @@
-﻿import React, { Component, Fragment } from 'react';
-import { Drawer } from 'antd';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Radio, ScrollView, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { dialogSelectIntegrationApi } from 'ming-ui/functions';
+import { Icon, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Drawer, Input, Radio, Tooltip } from 'ming-ui/antd-components';
 import pluginAPI from '../../../api/Plugin';
 import { checkCertification } from 'src/components/checkCertification';
-import { checkPermission } from 'src/components/checkPermission';
+import { dialogSelectIntegrationApi } from 'src/components/dialogSelectIntegrationApi';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
+import { checkPermission } from 'src/utils/services/security/permission';
 import CodeSnippet from '../../../components/CodeSnippet';
 import SelectProcess from '../../../components/SelectProcess';
 import { ACTION_ID, APP_TYPE, NODE_TYPE, TRIGGER_ID } from '../../enum';
@@ -202,6 +202,13 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#FFA340',
               iconName: 'icon-hr_delete',
               describe: _l('删除流程中获取的工作表单条或多条数据'),
+            },
+            {
+              type: 35,
+              name: _l('跳转'),
+              iconColor: '#1677ff',
+              iconName: 'icon-goto',
+              describe: _l('跳转到指定节点继续执行流程'),
             },
             {
               type: 1,
@@ -616,6 +623,15 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-global_variable',
               describe: _l('在流程中修改应用下或组织下的全局变量值'),
             },
+            {
+              type: 6,
+              appType: APP_TYPE.RECORD_FOLLOWER,
+              actionId: ACTION_ID.UPDATE_RECORD_FOLLOWERS,
+              name: _l('更新记录关注者'),
+              iconColor: '#4C7D9E',
+              iconName: 'icon-people_alt_6',
+              describe: _l('添加或移除记录关注用户，关注者可接收记录相关通知'),
+            },
           ],
         },
         {
@@ -912,7 +928,7 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#4C7D9E',
               iconName: 'icon-Invoice',
               describe: _l('为记录自动开具电子发票'),
-              typeText: _l('开票内容'),
+              typeText: _l('开票'),
               secondList: [
                 {
                   type: 6,
@@ -929,8 +945,26 @@ export default class CreateNodeDialog extends Component {
                   appId: props.flowInfo.id,
                   featureId: VersionProductType.invoice,
                   actionId: '4',
-                  name: _l('明细开票'),
-                  describe: _l('按订单/商品明细逐条生成发票明细行，便于与订单——对账。'),
+                  name: _l('普通行业明细开票'),
+                  describe: _l('按订单/商品明细逐条生成发票明细行，便于与订单一一对账；'),
+                },
+                {
+                  type: 6,
+                  appType: 50,
+                  appId: props.flowInfo.id,
+                  featureId: VersionProductType.invoice,
+                  actionId: '201',
+                  name: _l('货物运输服务明细开票'),
+                  describe: _l('仅限货物运输服务行业的明细开票'),
+                },
+                {
+                  type: 6,
+                  appType: 50,
+                  appId: props.flowInfo.id,
+                  featureId: VersionProductType.invoice,
+                  actionId: '202',
+                  name: _l('发票冲红'),
+                  describe: _l('针对通过开票节点开具的蓝票进行冲红操作。'),
                 },
               ],
             },
@@ -1231,6 +1265,7 @@ export default class CreateNodeDialog extends Component {
           branchDialogModel: 0,
           showProcessDialog: false,
           keywords: '',
+          currentSectionIndex: 0,
         });
       } // 审批流程过滤节点
 
@@ -1534,7 +1569,9 @@ export default class CreateNodeDialog extends Component {
                               );
                             }}
                           >
-                            <Radio className="Font15" text={o.name} disabled />
+                            <Radio className="Font15" title={o.name}>
+                              {o.name}
+                            </Radio>
                             {o.describe && <div className="textSecondary mLeft30 mTop5">{o.describe}</div>}
                           </li>
                         );
@@ -1547,7 +1584,9 @@ export default class CreateNodeDialog extends Component {
                   {(selectItem.secondList || []).map((item, i) => {
                     return (
                       <li key={i} onClick={() => this.onCreateNode(item)}>
-                        <Radio className="Font15" text={item.name} disabled />
+                        <Radio className="Font15" title={item.name}>
+                          {item.name}
+                        </Radio>
                         <div className="textSecondary mLeft30 mTop5">{item.describe}</div>
                       </li>
                     );
@@ -1697,7 +1736,7 @@ export default class CreateNodeDialog extends Component {
             </ul>
           </ScrollView>
 
-          {tab === 2 && (
+          {tab === 2 && !isSandboxEnvironment() && (
             <div
               className="createNodeFooterBtn hoverColorPrimary pointer"
               onClick={() => window.open(pathCompletion('/plugin/node'))}
@@ -1721,23 +1760,26 @@ export default class CreateNodeDialog extends Component {
         </div>
         <div className="flex flexColumn">
           <div className="mLeft32 mRight20 mTop15 flexRow alignItemsCenter">
-            <div className="createNodeSearch flex">
-              <input
-                type="text"
-                ref={keywordsInput => (this.keywordsInput = keywordsInput)}
-                placeholder={_l('搜索')}
-                value={keywords}
-                onChange={e => this.setState({ keywords: e.target.value })}
-              />
-              <Icon icon="search" className="Font18 textTertiary" />
-              {keywords.trim() && (
-                <Icon
-                  icon="cancel"
-                  className="Font24 textTertiary hoverColorPrimary"
-                  onClick={() => this.setState({ keywords: '' })}
-                />
-              )}
-            </div>
+            <Input
+              className="createNodeSearch flex"
+              ref={keywordsInput => (this.keywordsInput = keywordsInput)}
+              placeholder={_l('搜索')}
+              value={keywords}
+              radius
+              variant="filled"
+              prefix={<Icon icon="search" className="Font18 textTertiary" />}
+              suffix={
+                keywords.trim() ? (
+                  <Icon
+                    icon="cancel"
+                    className="Font24 textTertiary hoverColorPrimary pointer"
+                    onMouseDown={event => event.preventDefault()}
+                    onClick={() => this.setState({ keywords: '' })}
+                  />
+                ) : null
+              }
+              onChange={e => this.setState({ keywords: e.target.value })}
+            />
 
             <ul className="createNodeDialogMode flexRow">
               {MODE.map(o => (
@@ -1858,7 +1900,14 @@ export default class CreateNodeDialog extends Component {
     const isApprovalProcess = selectItemType === NODE_TYPE.APPROVAL_PROCESS;
 
     return (
-      <Drawer placement="right" visible={!!nodeId} closable={false} mask={false} bodyStyle={{ padding: 0 }} width={840}>
+      <Drawer
+        placement="right"
+        open={!!nodeId}
+        closable={false}
+        mask={false}
+        size={840}
+        styles={{ body: { padding: 0 } }}
+      >
         <div className="createNodeDialog flexColumn h100">
           {selectSecond ? this.renderSecondContent() : this.renderContent()}
 

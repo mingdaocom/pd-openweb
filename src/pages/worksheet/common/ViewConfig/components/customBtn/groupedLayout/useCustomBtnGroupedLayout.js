@@ -3,16 +3,14 @@ import _ from 'lodash';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import { GROUP_ICON_DIALOG_REF_FLUSH_MS } from './constants';
 import { normalizeGroupIconForStorage } from './icon';
+import { isTypedCompositeLayout, layoutToPayload, segmentsFromView } from './layoutUtils';
 import {
   addGroupSegment,
-  isTypedCompositeLayout,
-  layoutToPayload,
   moveIdBetweenSegments,
   moveIdToSegmentBoundary,
   moveSegmentToIndex,
   removeGroupSegment,
-  segmentsFromView,
-} from './layoutUtils';
+} from './segmentUtils';
 
 export default function useCustomBtnGroupedLayout({
   btnData,

@@ -25,7 +25,6 @@ const SyncTaskWrapper = styled.div`
     .searchInput {
       width: 360px;
       min-width: 360px;
-      height: 36px;
     }
     .filterIcon {
       display: flex;

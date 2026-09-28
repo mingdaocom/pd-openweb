@@ -2,11 +2,14 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox, Dialog, LoadDiv } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import AppManagement from 'src/pages/workflow/api/ApiManagement.js';
 import PackageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import APITable from 'src/pages/integration/components/APITable.jsx';
+
+const EXPORT_MODAL_STYLES = { body: { overflowY: 'auto' } };
 
 const Wrap = styled.div`
   .exportBottomOption {
@@ -66,9 +69,9 @@ function ExportDialog(props) {
         return (
           <Checkbox
             className="mLeft5"
-            size="small"
             disabled={disabled}
             checked={(selectedList.includes(item.id) || isCheckAll) && !disabled}
+            size="small"
           />
         );
       },
@@ -114,12 +117,44 @@ function ExportDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('导出连接')}
-      visible={true}
-      footer={null}
+      open
+      type="fixed"
+      mask={{ closable: false }}
+      keyboard
+      styles={EXPORT_MODAL_STYLES}
+      footer={loading ? null : undefined}
+      footerLeftElement={
+        loading ? null : (
+          <Checkbox
+            key="notCheck"
+            checked={notCheck}
+            onChange={() => {
+              const param = { notCheck: !notCheck };
+
+              if (!notCheck) {
+                param.selectedList = selectedList.filter(
+                  id =>
+                    !list
+                      .filter(item => !item.enabled)
+                      .map(item => item.id)
+                      .includes(id),
+                );
+                param.isCheckAll = false;
+              }
+
+              setState(param);
+            }}
+          >
+            {_l('不导出关闭中的 API')}
+          </Checkbox>
+        )
+      }
+      okText={_l('立即导出')}
+      okDisabled={!selectedList.length}
+      onOk={exportConnect}
       width={640}
-      overlayClosable={false}
       onCancel={() => onClose()}
     >
       {loading ? (
@@ -156,52 +191,12 @@ function ExportDialog(props) {
               });
             }}
           />
-          <div className="exportBottomOption mTop16">
-            <div className="flex">
-              <Checkbox
-                key="notCheck"
-                text={<span style={{ paddingTop: '3px', display: 'inline-block' }}>{_l('不导出关闭中的 API')}</span>}
-                checked={notCheck}
-                onClick={() => {
-                  let param = { notCheck: !notCheck };
-
-                  if (!notCheck) {
-                    param.selectedList = selectedList.filter(
-                      o =>
-                        !list
-                          .filter(o => !o.enabled)
-                          .map(o => o.id)
-                          .includes(o),
-                    );
-                    param.isCheckAll = false;
-                  }
-
-                  setState(param);
-                }}
-              />
-            </div>
-            <button
-              type="button"
-              className="ming Button Button--link hoverColorPrimaryLight Bold"
-              onClick={() => onClose()}
-            >
-              {_l('取消')}
-            </button>
-            <button
-              type="button"
-              className={cx(
-                'ming Button Button--primary  importBtn Bold mLeft20',
-                selectedList.length <= 0 ? 'Button--disabled' : 'hoverColorPrimaryLight',
-              )}
-              onClick={() => exportConnect()}
-            >
-              {_l('立即导出')}
-            </button>
-          </div>
         </Wrap>
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(ExportDialog, { ...props });
+export function useExportDialog() {
+  return useFunctionWrapComponent(ExportDialog);
+}

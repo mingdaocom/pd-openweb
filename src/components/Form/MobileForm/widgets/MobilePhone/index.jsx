@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import PhoneNumberInput from 'ming-ui/components/PhoneNumberInput';
-import { ADD_EVENT_ENUM } from '../../../core/enum';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
 import ClearValueIcon, { CLEAR_ICON_SAFE_AREA, CLEAR_ICON_SAFE_CLASS } from '../../components/ClearValueIcon';
 import { FIELD_SIZE_OPTIONS } from '../../tools/config';
 
@@ -17,8 +17,8 @@ const PhoneNumberWrap = styled.div`
   .customFormControlBox.controlDisabled {
     background: var(--color-background-primary) !important;
     border-color: transparent !important;
-    .ant-input {
-      ${props => (props.hiddenCountry ? 'padding-left: 0 !important;' : '')}
+    .hap-input {
+      ${props => (props.$hiddenCountry ? 'padding-left: 0 !important;' : '')}
     }
   }
 
@@ -27,25 +27,25 @@ const PhoneNumberWrap = styled.div`
   }
 
   &.customFormControlMobileHover .customFormControlBox {
-    ${props => (props.isEditing ? 'background: transparent !important' : '')}
+    ${props => (props.$isEditing ? 'background: transparent !important' : '')}
   }
 
-  && .ant-input {
-    ${props => (props.showTelBtn ? 'padding-right: 32px !important;' : '')};
+  && .hap-input {
+    ${props => (props.$showTelBtn ? 'padding-right: 32px !important;' : '')};
   }
 
   && .maskPhoneContent {
-    ${props => (props.showTelBtn ? 'padding-right: 32px;' : '')};
+    ${props => (props.$showTelBtn ? 'padding-right: 32px;' : '')};
   }
 
   &.${CLEAR_ICON_SAFE_CLASS} {
-    && .ant-input,
+    && .hap-input,
     && .maskPhoneContent {
       padding-right: ${CLEAR_ICON_SAFE_AREA}px !important;
     }
   }
 
-  && .ant-input,
+  && .hap-input,
   && .maskPhoneContent,
   && .countryTrigger {
     font-size: inherit !important;
@@ -121,9 +121,9 @@ const MobilePhone = props => {
         customFormControlMobileHover: !disabled,
         [CLEAR_ICON_SAFE_CLASS]: showClear,
       })}
-      isEditing={isEditing}
-      showTelBtn={showTelBtn}
-      hiddenCountry={enumDefault === 1}
+      $isEditing={isEditing}
+      $showTelBtn={showTelBtn}
+      $hiddenCountry={enumDefault === 1}
     >
       <PhoneNumberInput
         control={{ value, hint, disabled, enumDefault, advancedSetting, type, showMaskValue }}

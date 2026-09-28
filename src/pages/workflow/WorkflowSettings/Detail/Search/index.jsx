@@ -1,14 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Radio, Select } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID, APP_TYPE, OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { checkConditionsIsNull, clearFlowNodeMapParameter, getControlTypeName } from '../../utils';
 import {
   AddOptions,
+  AppSelectTitle,
   CustomTextarea,
   DetailFooter,
   DetailHeader,
@@ -275,7 +277,7 @@ export default class Search extends Component {
       o => _.includes([2, 3, 4, 5, 6, 7, 8, 31, 32, 33], o.type) || (o.type === 37 && o.enumDefault2 === 6),
     ).map(item => {
       return {
-        text: this.renderFieldsTitle(item),
+        label: this.renderFieldsTitle(item),
         value: item.controlId,
         disabled: !!_.find(data.findFields, o => o.fieldId === item.controlId),
       };
@@ -311,14 +313,12 @@ export default class Search extends Component {
         {data.findFields.length ? (
           <Fragment>
             <div className="mTop20 bold">{_l('选择字段')}</div>
-            <Dropdown
+            <Select
               className="flowDropdown mTop10"
-              data={list}
+              options={list}
               value={singleItem.fieldId || undefined}
-              border
-              isAppendToBody
               placeholder={_l('请选择字段')}
-              renderTitle={() =>
+              labelRender={() =>
                 singleItem.fieldId &&
                 this.renderFieldsTitle(_.find(data.controls, obj => obj.controlId === singleItem.fieldId))
               }
@@ -379,10 +379,16 @@ export default class Search extends Component {
             {GET_TYPE.map(item => (
               <div className="mTop15" key={item.value}>
                 <Radio
-                  text={item.text}
                   checked={data.returnNew === item.value}
-                  onClick={() => this.updateSource({ returnNew: item.value })}
-                />
+                  onChange={() =>
+                    this.updateSource({
+                      returnNew: item.value,
+                    })
+                  }
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
                 <div className="mTop5 mLeft30 textSecondary">{item.desc}</div>
               </div>
             ))}
@@ -394,20 +400,30 @@ export default class Search extends Component {
             <div className="mTop20 flexRow">
               <Checkbox
                 className="InlineFlex"
-                text={_l('获取记录数据')}
                 checked={data.returnNew === false}
-                onClick={checked => this.updateSource({ returnNew: !checked ? false : null })}
-              />
+                onChange={event =>
+                  this.updateSource({
+                    returnNew: event.target.checked ? false : null,
+                  })
+                }
+              >
+                {_l('获取记录数据')}
+              </Checkbox>
             </div>
             <div className="Font13 textSecondary mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
 
             <div className="mTop20 flexRow">
               <Checkbox
                 className="InlineFlex"
-                text={_l('彻底删除记录，不放入回收站')}
                 checked={data.destroy}
-                onClick={checked => this.updateSource({ destroy: !checked })}
-              />
+                onChange={event =>
+                  this.updateSource({
+                    destroy: event.target.checked,
+                  })
+                }
+              >
+                {_l('彻底删除记录，不放入回收站')}
+              </Checkbox>
             </div>
             <div className="Font13 textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
           </Fragment>
@@ -458,52 +474,38 @@ export default class Search extends Component {
       .filter(item => !item.otherApkId)
       .map(item => {
         return {
-          text: item.name,
+          label: item.name,
           value: item.id,
-          className: item.id === data.appId ? 'colorPrimary' : '',
         };
       });
     const otherWorksheet = [
       {
-        text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
+        label: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
         className: 'textSecondary',
       },
     ];
 
     return (
-      <Dropdown
+      <Select
         className={cx('flowDropdown mTop10', {
           flowDropdownBorder: _.includes(
             [ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE],
             data.actionId,
           ),
         })}
-        data={[appList, this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet]}
+        options={appList.concat(this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet)}
         value={data.appId}
-        renderTitle={
-          !data.appId
-            ? () => (
-                <span className="textSecondary">{isAggregationSheet ? _l('请选择聚合表') : _l('请选择工作表')}</span>
-              )
-            : data.appId && !selectAppItem
-              ? () => (
-                  <span className="errorColor">
-                    {isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
-                  </span>
-                )
-              : () => (
-                  <Fragment>
-                    <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && (
-                      <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
-                    )}
-                  </Fragment>
-                )
-        }
-        border
-        openSearch
-        noData={isAggregationSheet ? _l('暂无聚合表，请先在应用里创建') : _l('暂无工作表，请先在应用里创建')}
+        labelRender={() => (
+          <AppSelectTitle
+            data={data}
+            selectAppItem={selectAppItem}
+            invalidText={isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
+          />
+        )}
+        showSearch
+        optionFilterProp="label"
+        notFoundContent={isAggregationSheet ? _l('暂无聚合表，请先在应用里创建') : _l('暂无工作表，请先在应用里创建')}
         onChange={appId => {
           if (appId === 'other') {
             this.setState({ showOtherWorksheet: true });

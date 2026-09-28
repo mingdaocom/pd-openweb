@@ -1,4 +1,4 @@
-import { addOtherParam, ajax, getRequest, login } from 'src/utils/sso';
+import { addOtherParam, ajax, getRequest, login } from 'src/utils/services/auth/sso';
 
 const { url, p } = getRequest();
 const currentUrl = location.href.split('#')[0];

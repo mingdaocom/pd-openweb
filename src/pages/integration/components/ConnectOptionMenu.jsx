@@ -1,12 +1,11 @@
 ﻿import React from 'react';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import exportDialog from '../apiIntegration/ConnectWrap/content/Export';
-import upgradeDialog from '../apiIntegration/ConnectWrap/content/Upgrade';
-import { MenuItemWrap, MenuWrap, RedMenuItemWrap } from '../apiIntegration/style';
-import publishDialog from './PublishDialog';
+import { useExportDialog } from '../apiIntegration/ConnectWrap/content/Export';
+import { useUpgradeDialog } from '../apiIntegration/ConnectWrap/content/Upgrade';
+import { usePublishDialog } from './PublishDialog';
 
 function ConnectOptionMenu(props) {
   const {
@@ -16,7 +15,7 @@ function ConnectOptionMenu(props) {
     onCopySuccess,
     onDeleteSuccess,
     onUpgradeSuccess,
-    popupAlign,
+    placement = 'bottomRight',
     trigger,
   } = props;
 
@@ -26,6 +25,9 @@ function ConnectOptionMenu(props) {
   const [{ popupVisible }, setState] = useSetState({
     popupVisible: false,
   });
+  const { open: openExportDialog, holder: exportDialogHolder } = useExportDialog();
+  const { open: openUpgradeDialog, holder: upgradeDialogHolder } = useUpgradeDialog();
+  const { open: openPublishDialog, holder: publishDialogHolder } = usePublishDialog();
 
   // 如果没有权限，不显示菜单
   if (!isConnectOwner && !hasAuth) {
@@ -38,6 +40,8 @@ function ConnectOptionMenu(props) {
   const showUpgrade = !isAuthorizedFromOther && isConnectOwner; // 非授权连接有权限就可以导入
   const showExport = type === 1 && !isAuthorizedFromOther && isConnectOwner; //自建的连接
   const showCopy = type === 1 && !isAuthorizedFromOther && isConnectOwner; //自建的连接
+
+  const stopPropagation = domEvent => domEvent.stopPropagation();
 
   // 删除连接
   const onDel = () => {
@@ -69,115 +73,101 @@ function ConnectOptionMenu(props) {
     });
   };
 
+  const menuItems = [
+    showPublish && {
+      key: 'publish',
+      icon: <Icon icon="publish" className="Font17" />,
+      label: status === 3 || info ? _l('申请上架新版本') : _l('申请上架到API库'),
+      onClick: ({ domEvent }) => {
+        stopPropagation(domEvent);
+        openPublishDialog({
+          currentProjectId,
+          id,
+          hasManageAuth,
+        });
+      },
+    },
+    showUpgrade && {
+      key: 'upgrade',
+      icon: <Icon icon="upload_file" className="Font17" />,
+      label: _l('导入升级'),
+      onClick: ({ domEvent }) => {
+        stopPropagation(domEvent);
+        openUpgradeDialog({
+          projectId: currentProjectId,
+          info: connectData,
+          onUpgrade: () => {
+            onUpgradeSuccess && onUpgradeSuccess();
+          },
+        });
+      },
+    },
+    showExport && {
+      key: 'export',
+      icon: <Icon icon="cloud_download" className="Font17" />,
+      label: _l('导出'),
+      onClick: ({ domEvent }) => {
+        stopPropagation(domEvent);
+        openExportDialog({
+          info: connectData,
+          projectId: currentProjectId,
+        });
+      },
+    },
+    showCopy && {
+      key: 'copy',
+      icon: <Icon icon="copy" className="Font17" />,
+      label: _l('复制'),
+      onClick: ({ domEvent }) => {
+        stopPropagation(domEvent);
+        Modal.confirm({
+          title: _l('复制“%0”连接', name),
+          width: 500,
+          content: _l('将复制目标连接的所有配置信息'),
+          okText: _l('复制'),
+          onOk: onCopy,
+        });
+      },
+    },
+    {
+      key: 'delete',
+      danger: true,
+      icon: <Icon icon="trash" className="Font17" />,
+      label: _l('删除'),
+      onClick: ({ domEvent }) => {
+        stopPropagation(domEvent);
+        Modal.confirm({
+          title: (
+            <span className="Red textError">{isAuthorizedFromOther ? _l('确认删除') : _l('删除“%0”连接', name)}</span>
+          ),
+          okButtonProps: {
+            danger: true,
+          },
+          width: 500,
+          content: isAuthorizedFromOther
+            ? _l('删除连接后，连接下授权的账户信息也会被删除。')
+            : _l('删除后将不可恢复，确认删除吗？'),
+          onOk: onDel,
+        });
+      },
+    },
+  ].filter(Boolean);
+
   return (
-    <React.Fragment>
-      <Trigger
-        action="click"
-        popupVisible={popupVisible}
-        onPopupVisibleChange={popupVisible => setState({ popupVisible })}
-        popupAlign={popupAlign}
-        popup={
-          <MenuWrap>
-            {/* 申请上架到API库/申请上架新版本 */}
-            {showPublish && (
-              <MenuItemWrap
-                icon={<Icon icon="publish" className="Font17 mLeft5" />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setState({ popupVisible: false });
-                  publishDialog({
-                    currentProjectId,
-                    id,
-                    hasManageAuth: hasManageAuth,
-                  });
-                }}
-              >
-                <span>{status === 3 || info ? _l('申请上架新版本') : _l('申请上架到API库')}</span>
-              </MenuItemWrap>
-            )}
-            {/* 导入升级 */}
-            {showUpgrade && (
-              <MenuItemWrap
-                icon={<Icon icon="upload_file" className="Font17 mLeft5" />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setState({ popupVisible: false });
-                  upgradeDialog({
-                    projectId: currentProjectId,
-                    info: connectData,
-                    onUpgrade: () => {
-                      onUpgradeSuccess && onUpgradeSuccess();
-                    },
-                  });
-                }}
-              >
-                <span>{_l('导入升级')}</span>
-              </MenuItemWrap>
-            )}
-            {/* 导出 */}
-            {showExport && (
-              <MenuItemWrap
-                icon={<Icon icon="cloud_download" className="Font17 mLeft5" />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setState({ popupVisible: false });
-                  exportDialog({
-                    info: connectData,
-                    projectId: currentProjectId,
-                  });
-                }}
-              >
-                <span>{_l('导出')}</span>
-              </MenuItemWrap>
-            )}
-            {/* 复制连接 */}
-            {showCopy && (
-              <MenuItemWrap
-                icon={<Icon icon="copy" className="Font17 mLeft5" />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setState({ popupVisible: false });
-
-                  Dialog.confirm({
-                    title: _l('复制“%0”连接', name),
-                    width: 500,
-                    description: _l('将复制目标连接的所有配置信息'),
-                    okText: _l('复制'),
-                    onOk: onCopy,
-                  });
-                }}
-              >
-                {_l('复制')}
-              </MenuItemWrap>
-            )}
-            {/* 删除连接 */}
-            <RedMenuItemWrap
-              icon={<Icon icon="trash" className="Font17 mLeft5" />}
-              onClick={e => {
-                e.stopPropagation();
-                setState({ popupVisible: false });
-
-                Dialog.confirm({
-                  title: (
-                    <span className="Red">{isAuthorizedFromOther ? _l('确认删除') : _l('删除“%0”连接', name)}</span>
-                  ),
-                  buttonType: 'danger',
-                  width: 500,
-                  description: isAuthorizedFromOther
-                    ? _l('删除连接后，连接下授权的账户信息也会被删除。')
-                    : _l('删除后将不可恢复，确认删除吗？'),
-                  onOk: onDel,
-                });
-              }}
-            >
-              {_l('删除')}
-            </RedMenuItemWrap>
-          </MenuWrap>
-        }
+    <>
+      {exportDialogHolder}
+      {upgradeDialogHolder}
+      {publishDialogHolder}
+      <Dropdown
+        trigger={['click']}
+        open={popupVisible}
+        onOpenChange={popupVisible => setState({ popupVisible })}
+        placement={placement}
+        menu={{ items: menuItems, style: { width: 200 } }}
       >
         {trigger}
-      </Trigger>
-    </React.Fragment>
+      </Dropdown>
+    </>
   );
 }
 

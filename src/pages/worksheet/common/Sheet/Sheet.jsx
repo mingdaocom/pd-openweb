@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
@@ -6,20 +6,21 @@ import cx from 'classnames';
 import _, { get, isEqual, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import DragMask from 'worksheet/common/DragMask';
-import { getSheetFilterIdFromUrl } from 'worksheet/common/WorkSheetFilter/util';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import * as actions from 'worksheet/redux/actions';
-import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
-import View from 'worksheet/views';
+import View, { ViewLoadingContent } from 'worksheet/views';
 import { defaultNavCloseW, defaultNavOpenW, MaxNavW, MinNavW } from 'src/pages/worksheet/common/ViewConfig/config.js';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { emitter as globalEmitter } from 'src/utils/common';
-import { needHideViewFilters } from 'src/utils/filter';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { needHideViewFilters } from 'src/utils/domain/worksheet/filter';
+import { emitter as globalEmitter } from 'src/utils/platform/browser/dom';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
+import { getSheetFilterIdFromUrl } from '../WorkSheetFilter/urlState';
 import GroupFilter from './GroupFilter';
 import QuickFilter from './QuickFilter';
 import SheetContext from './SheetContext';
@@ -28,7 +29,6 @@ import ViewControl from './ViewControl';
 import './style.less';
 
 const { sheet, gallery, board, calendar, gunter, detail, customize, map, resource, structure } = VIEW_DISPLAY_TYPE;
-
 const Con = styled.div`
   flex: 1;
   display: flex;
@@ -45,11 +45,9 @@ const Con = styled.div`
     }
   }
 `;
-
 const Loading = styled.div`
   height: 75px;
 `;
-
 const ConView = styled.div`
   flex: 1;
   display: flex;
@@ -58,18 +56,16 @@ const ConView = styled.div`
   min-height: 0;
   flex-shrink: 0;
 `;
-
 const QuickFilterCon = styled.div`
   max-height: 50%;
   overflow-y: auto;
   border-bottom: 1px solid var(--color-border-secondary);
 `;
-
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 2;
-  left: ${left}px;
+  left: ${$left}px;
   width: 10px;
   height: 100%;
   cursor: ew-resize;
@@ -79,7 +75,6 @@ const Drag = styled.div(
   }
 `,
 );
-
 const EmptyStatus = styled.div`
   color: var(--color-text-tertiary);
   font-size: 17px;
@@ -88,14 +83,12 @@ const EmptyStatus = styled.div`
   justify-content: center;
   align-items: center;
 `;
-
 function getKeyOfFiltersGroup(filtersGroup) {
   function getKey(f) {
     return JSON.stringify(
-      _.pick(f, ['controlId', 'value', 'values', 'minValue', 'maxValue', 'filterType', 'dateRange']),
+      _.pick(f, ['controlId', 'value', 'values', 'minValue', 'maxValue', 'filterType', 'dateRange', 'advancedSetting']),
     );
   }
-
   if (_.isEmpty(filtersGroup)) {
     return '';
   } else if (_.get(filtersGroup, '0.groupFilters')) {
@@ -104,9 +97,12 @@ function getKeyOfFiltersGroup(filtersGroup) {
     return _.map(filtersGroup, getKey).join('|');
   }
 }
-
-const previewFallbackView = { viewId: '__preview_all__', viewType: 0, name: _l('全部'), advancedSetting: {} };
-
+const previewFallbackView = {
+  viewId: '__preview_all__',
+  viewType: 0,
+  name: _l('全部'),
+  advancedSetting: {},
+};
 function Sheet(props) {
   const {
     loading,
@@ -146,6 +142,15 @@ function Sheet(props) {
     sheetSwitchPermit,
     viewRowsLoading,
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const handleOpenNewRecord = useCallback(
+    options =>
+      openNewRecord({
+        ...(options?.nativeEvent ? {} : options),
+        openAddRecord,
+      }),
+    [openAddRecord, openNewRecord],
+  );
   const isDevAndOps = canEditApp(appPkg.permissionType) || canEditData(appPkg.permissionType);
   const cache = useRef({});
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
@@ -167,7 +172,9 @@ function Sheet(props) {
   // 这里在预览态放宽：命不中就退回首个可用视图；连 views 都空则合成一个内置「全部」表格视图。
   const isAIPreview = /[?&]previewMode=ai(?:&|$)/.test(_.get(window, 'location.search') || '');
   const view =
-    _.find(views, { viewId }) ||
+    _.find(views, {
+      viewId,
+    }) ||
     ((!viewId || isAIPreview) && !chartId && (showViews.length ? showViews : views)[0]) ||
     (isAIPreview && !chartId ? previewFallbackView : {});
   const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
@@ -216,7 +223,7 @@ function Sheet(props) {
     isCharge,
     isDevAndOps,
     authRefreshTime,
-    openNewRecord,
+    openNewRecord: handleOpenNewRecord,
     viewConfigVisible,
     setViewConfigVisible,
     setViewConfigTab,
@@ -267,14 +274,18 @@ function Sheet(props) {
       loadWorksheet(loadWorksheetId, setLoadRequest);
     }
   }, [loadWorksheetId, flag]);
-
   useEffect(() => {
     if (
       _.isArray(filtersGroup) &&
       (!_.isEmpty(filtersGroup) || !_.isEmpty(cache.current.prevFiltersGroup)) &&
       !loading
     ) {
-      updateFilters({ filtersGroup }, view);
+      updateFilters(
+        {
+          filtersGroup,
+        },
+        view,
+      );
     }
   }, [filtersGroupKey, loading]);
   useEffect(() => {
@@ -321,7 +332,6 @@ function Sheet(props) {
     if (_.get(cache, 'current.prevFastFilters.length') > 0 && _.get(view, 'fastFilters.length') === 0) {
       updateQuickFilter([], view);
     }
-
     cache.current.prevFastFilters = quickFilterWithDefault;
   }, [quickFilterWithDefault]);
   useEffect(() => {
@@ -336,12 +346,10 @@ function Sheet(props) {
     w = !w ? _.get(view, 'advancedSetting.navwidth') || defaultNavOpenW : w;
     setGroupFilterWidth(w);
   };
-
   useEffect(() => {
     if (type === 'single') {
       return;
     }
-
     globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet', {
       ...worksheetInfo,
       isCharge,
@@ -352,14 +360,12 @@ function Sheet(props) {
       setViewConfigVisible(true);
       setViewConfigTab('DebugConfig');
     };
-
     return () => {
       updateGroupFilter([], view);
       delete window.openViewConfig;
       if (type === 'single') {
         return;
       }
-
       globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet');
     };
   }, []);
@@ -382,6 +388,7 @@ function Sheet(props) {
       }}
     >
       <Con className="worksheetSheet">
+        {addRecordHolder}
         {type === 'common' && worksheetName && (
           <DocumentTitle
             title={`${worksheetName || ''} - ${(window.appInfo && window.appInfo.showName) || _l('应用')}`}
@@ -389,13 +396,15 @@ function Sheet(props) {
         )}
         {loading ? (
           <Loading>
-            <Skeleton direction="row" widths={['140px']} active itemStyle={{ margin: '10px 0 9px' }} />
             <Skeleton
-              direction="row"
-              widths={['26px', '64px', '64px', '64px']}
+              className="pAll20 pBottom0"
               active
-              itemStyle={{ margin: '10px 10px 10px 0' }}
+              paragraph={{
+                rows: 1,
+                width: ['140px'],
+              }}
             />
+            <ViewLoadingContent />
           </Loading>
         ) : (
           <React.Fragment>
@@ -415,12 +424,29 @@ function Sheet(props) {
                 emitter={emitter}
               />
             )}
-            <Con id="worksheetRightContentBox" className={cx({ viewConfigVisible })}>
+            <Con
+              id="worksheetRightContentBox"
+              className={cx({
+                viewConfigVisible,
+              })}
+            >
               {showQuickFilter && (
                 <QuickFilterCon>
                   {worksheetInfo.isRequestingRelationControls ? (
-                    <div style={{ height: 50, overflow: 'hidden' }}>
-                      <Skeleton direction="row" widths={['140px']} active itemStyle={{ margin: '20px 0' }} />
+                    <div
+                      style={{
+                        height: 50,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Skeleton
+                        className="pAll20"
+                        active
+                        paragraph={{
+                          rows: 1,
+                          width: ['140px'],
+                        }}
+                      />
                     </div>
                   ) : (
                     <QuickFilter
@@ -461,7 +487,7 @@ function Sheet(props) {
                     }}
                   />
                   {!(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
-                    isOpenGroup && <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />}
+                    isOpenGroup && <Drag $left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />}
                   {viewComp}
                 </ConView>
               ) : (
@@ -474,7 +500,6 @@ function Sheet(props) {
     </SheetContext.Provider>
   );
 }
-
 Sheet.propTypes = {
   flag: PropTypes.string,
   type: PropTypes.string,
@@ -492,7 +517,6 @@ Sheet.propTypes = {
   views: PropTypes.arrayOf(PropTypes.shape({})),
   loadWorksheet: PropTypes.func,
 };
-
 export default connect(
   state => ({
     appId: state.sheet.base.appId,

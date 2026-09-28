@@ -5,11 +5,12 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
+import globalEvents from 'src/common/entries/globalEvents';
 import 'src/pages/chat/containers/ChatList/index.less';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
 import SessionListDrawer from 'src/pages/chat/containers/SessionListDrawer';
+import { registerChatEvents } from 'src/pages/chat/runtime/chatEvents';
 import * as socket from 'src/pages/chat/utils/socketEvent';
-import globalEvents from 'src/router/globalEvents';
 
 const Wrap = styled.div`
   .sessionListWrap {
@@ -31,10 +32,10 @@ const Wrap = styled.div`
   }
 `;
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 99;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -54,11 +55,13 @@ let WindowChat = class WindowChat extends Component {
 
   componentDidMount() {
     globalEvents();
+    this.unregisterChatEvents = registerChatEvents();
     socket.socketInitEvent.call(this);
     document.body.addEventListener('keydown', this.closeChatPanel);
   }
 
   componentWillUnmount() {
+    this.unregisterChatEvents?.();
     document.body.removeEventListener('keydown', this.closeChatPanel);
   }
 
@@ -97,7 +100,7 @@ let WindowChat = class WindowChat extends Component {
           />
         )}
         <Drag
-          left={sessionListWidth}
+          $left={sessionListWidth}
           onMouseDown={() => {
             this.setState({
               dragMaskVisible: true,

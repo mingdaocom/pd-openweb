@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Skeleton, Support, Switch } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Button, Skeleton, Switch } from 'ming-ui/antd-components';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { checkCertification } from 'src/components/checkCertification';
 import { VISIBLE_TYPE } from '../enum';
@@ -82,21 +83,32 @@ function PublicWorksheetConfig(props) {
       location.hash = '';
     }
 
-    loadPublicWorksheet({ worksheetId });
+    loadPublicWorksheet({
+      worksheetId,
+    });
     return () => {
       clear();
     };
   }, []);
+
   if (_.isEmpty(worksheetInfo)) {
     return (
       <div class="publicWorksheetEnablePanel">
-        <div style={{ padding: 10 }}>
+        <div
+          style={{
+            padding: 10,
+          }}
+        >
           <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['40%', '60%', '80%']}
+            className="pAll20"
+            style={{
+              flex: 1,
+            }}
             active
-            itemStyle={{ marginBottom: '10px' }}
+            paragraph={{
+              rows: 3,
+              width: ['40%', '60%', '80%'],
+            }}
           />
         </div>
       </div>
@@ -120,9 +132,17 @@ function PublicWorksheetConfig(props) {
 
   return (
     <div class="publicWorksheetEnablePanel">
-      <div className="flexRow alignCenter">
+      <div className="flexRow alignItemsCenter">
         <h1 className="flex">{_l('公开表单')}</h1>
-        <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
+        <Switch
+          size="small"
+          className="publishSwitch"
+          checked={enabled}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return onSwitchChange(!checked, event);
+          }}
+        />
         <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
       </div>
 
@@ -152,7 +172,9 @@ function PublicWorksheetConfig(props) {
               },
             ]}
           />
-          <Button onClick={() => updateFormVisible(true)}>{_l('表单设置')}</Button>
+          <Button type="primary" onClick={() => updateFormVisible(true)}>
+            {_l('表单设置')}
+          </Button>
         </React.Fragment>
       )}
     </div>
@@ -178,5 +200,4 @@ const mapStateToProps = state => ({
   ]),
 });
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
 export default connect(mapStateToProps, mapDispatchToProps)(PublicWorksheetConfig);

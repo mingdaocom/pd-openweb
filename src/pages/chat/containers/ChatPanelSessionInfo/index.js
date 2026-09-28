@@ -85,9 +85,9 @@ class ChatPanelSessionInfo extends Component {
     });
   }
   handleGotoMessage(message) {
-    const { id } = message;
+    const messageId = typeof message === 'object' ? message.id : message;
     const { session } = this.props;
-    this.props.dispatch(actions.setGotoMessage(session.id, id));
+    this.props.dispatch(actions.setGotoMessage(session.id, messageId));
   }
   handleOpenSession(user) {
     const { accountId, fullname, avatar } = user;
@@ -150,7 +150,9 @@ class ChatPanelSessionInfo extends Component {
           {panelType === 'feeds' ? (
             <FeedsPanel session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} />
           ) : undefined}
-          {panelType === 'files' ? <FilesPanel session={session} /> : undefined}
+          {panelType === 'files' ? (
+            <FilesPanel session={session} onGotoMessage={this.handleGotoMessage.bind(this)} />
+          ) : undefined}
           {panelType === 'search' ? (
             <SearchPanel
               onOpenSession={this.handleOpenSession.bind(this)}

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../styled';
-import { handleAdvancedSettingChange } from '../../util/setting';
 import DepartmentConfig from '../components/WidgetHighSetting/ControlSetting/DepartmentConfig';
 import WidgetUserPermission from '../components/WidgetUserPermission';
 
@@ -23,13 +23,26 @@ export default function Department(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={enumDefault}
-          data={DEPARTMENT_TYPES}
-          onChange={type => {
+          value={enumDefault}
+          options={(DEPARTMENT_TYPES || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const type = event.target.value;
+
             if (type !== enumDefault) {
-              onChange(handleAdvancedSettingChange({ ...data, enumDefault: type, unique: false }, { defsource: '' }));
+              onChange(
+                handleAdvancedSettingChange(
+                  {
+                    ...data,
+                    enumDefault: type,
+                    unique: false,
+                  },
+                  {
+                    defsource: '',
+                  },
+                ),
+              );
             }
           }}
         />

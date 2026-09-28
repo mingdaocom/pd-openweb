@@ -1,11 +1,12 @@
 ﻿import React, { Component, Fragment } from 'react';
-import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import doT from 'dot';
 import _ from 'lodash';
 import { UserHead } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import createTask from 'src/components/createTask/load';
 import config from '../../config/config';
 import { updateMyTaskDataSource, updateSearchTaskCount } from '../../redux/actions';
@@ -163,8 +164,12 @@ class TaskList extends Component {
           size={26}
           operation={
             auth === config.auth.Charger ? (
-              <span
-                className="updateChargeBtn colorPrimary"
+              <Button
+                block
+                className="updateChargeBtn"
+                ellipsis
+                color="primary"
+                variant="outlined"
                 onClick={() => {
                   dialogSelectUser({
                     sourceId: folderId,
@@ -190,7 +195,7 @@ class TaskList extends Component {
                 }}
               >
                 {_l('将任务托付给他人')}
-              </span>
+              </Button>
             ) : null
           }
         />,

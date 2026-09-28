@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Icon, PopupWrapper } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import { useAgentBus } from 'src/components/Agent/agentBus';
 import {
   entryByKey,

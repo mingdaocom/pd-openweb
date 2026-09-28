@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import projectSettingAjax from 'src/api/projectSetting';
 import UserBaseInfoSetting from './components/UserBaseInfoSetting';
 import './index.less';
@@ -100,7 +100,7 @@ export default class UseInfoDisplaySettings extends Component {
               <Button className="mRight24" type="primary" disabled={saveLoading} onClick={this.handleSave}>
                 {saveLoading ? _l('处理中...') : _l('保存')}
               </Button>
-              <Button type="link" onClick={() => this.setState({ editStatus: 0, flag: Date.now() })}>
+              <Button color="primary" variant="link" onClick={() => this.setState({ editStatus: 0, flag: Date.now() })}>
                 {_l('取消')}
               </Button>
             </Fragment>

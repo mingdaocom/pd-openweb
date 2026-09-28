@@ -4,27 +4,39 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Icon, SortableList, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { filterSysControls } from 'src/pages/widgetConfig/util';
-import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import { Icon, SortableList, Support } from 'ming-ui';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import { getCanSelectColumnsForSort } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { getSortData } from 'src/utils/control';
+import { filterSysControls } from 'src/utils/domain/control/filters';
+import { isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { getSortData } from 'src/utils/domain/control/sort';
+import { SYSTEM_DATE_CONTROL } from 'src/utils/domain/control/widget';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
 
 const Wrap = styled.div`
-  .addCondition .Dropdown--input {
-    padding: 0 !important;
+  .addCondition {
+    width: 28px;
   }
 `;
+const ADD_CONDITION_SELECT_STYLES = {
+  root: { paddingInline: 0 },
+  content: { marginInlineEnd: 0 },
+  placeholder: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  popup: { root: { minWidth: 200 } },
+};
 const ConditionsWrap = styled.div`
   .operateBtn {
     cursor: pointer;
     font-size: 20px;
     color: var(--color-text-tertiary);
     margin: 0 4px;
-    line-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
       color: var(--color-primary);
@@ -38,11 +50,19 @@ const ConditionsWrap = styled.div`
     left: -38px;
     line-height: 36px;
   }
-  .ming.Dropdown,
-  .dropdownTrigger {
-    overflow: hidden;
+  .hap-select {
+    min-width: 0;
   }
 `;
+
+const getSelectOptions = data => data.map(({ text, ...option }) => ({ ...option, label: text }));
+
+const renderSelectOption = ({ data }) => (
+  <div className="flexRow alignItemsCenter">
+    {data.iconName && <Icon className="mRight8 textTertiary" icon={data.iconName} />}
+    <span className="overflow_ellipsis">{data.label}</span>
+  </div>
+);
 
 const Item = props => {
   const { sortConditions = [], columns, condition = {}, info = {}, DragHandle, canClear } = props;
@@ -51,12 +71,15 @@ const Item = props => {
   const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
   const control = _.find(columns, i => i.controlId === condition.controlId);
   let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
+  const controlOptions = getSelectOptions(props.getCanSelectColumns(condition.controlId));
+  const sortTypeOptions = getSelectOptions(props.getSortTypes(condition.controlId));
+  const addControlOptions = getSelectOptions(props.getCanSelectColumns());
   return (
     <Wrap className="flexRow alignItemsCenter mBottom10">
       <DragHandle className="alignItemsCenter flexRow">
-        <Icon className="mRight5 Font14 Hand" icon="drag" />
+        <Icon className="mRight5 Font14 Hand textSecondary" icon="drag" />
       </DragHandle>
-      <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
+      <div className="flexRow alignItemsCenter flex" style={{ position: 'relative' }} key={condition.controlId}>
         {[9, 10, 11].includes(controlType) && (
           <Tooltip
             placement="bottom"
@@ -77,34 +100,35 @@ const Item = props => {
             <i className="icon-info tipsIcon Font16 Absolute textTertiary" />
           </Tooltip>
         )}
-        <Dropdown
-          border
-          openSearch
-          isAppendToBody
-          menuStyle={{ width: 200 }}
+        <Select
+          showPopupSearch
+          optionFilterProp="label"
           className="flex mRight10 filterColumns"
           value={condition.controlId}
-          data={props.getCanSelectColumns(condition.controlId)}
-          searchNull={() => {
-            return <div className="TxtCenter">{_l('暂无搜索结果')}</div>;
+          options={controlOptions}
+          optionRender={renderSelectOption}
+          notFoundContent={<div className="TxtCenter">{_l('暂无搜索结果')}</div>}
+          labelRender={({ label }) => {
+            if (isOtherShowFeild(control)) {
+              return <span className="Red">{_l('%0(无效类型)', control.controlName)}</span>;
+            }
+
+            if (!control) {
+              return <span className="Red">{_l('字段已删除')}</span>;
+            }
+
+            return label;
           }}
           onChange={value => {
             if (value !== condition.controlId) {
               props.handleChangeSortControl(index, value);
             }
           }}
-          {...(isOtherShowFeild(control)
-            ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
-            : !control
-              ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
-              : {})}
         />
-        <Dropdown
-          border
-          isAppendToBody
+        <Select
           className="flex mRight6"
           value={condition.isAsc ? 2 : 1}
-          data={props.getSortTypes(condition.controlId)}
+          options={sortTypeOptions}
           onChange={value => {
             if (value !== (condition.isAsc ? 2 : 1)) {
               props.handleChangeSortType(index, value);
@@ -120,16 +144,20 @@ const Item = props => {
           }}
         />
         {props.forViewControl ? (
-          <Dropdown
-            openSearch
-            isAppendToBody
-            menuStyle={{ width: 200 }}
+          <Select
+            showPopupSearch
+            optionFilterProp="label"
             className="addCondition"
-            data={props.getCanSelectColumns()}
+            styles={ADD_CONDITION_SELECT_STYLES}
+            variant="borderless"
+            value={null}
+            disabled={!canAdd}
+            suffixIcon={null}
+            placeholder={<Icon className={cx('operateBtn', { disabled: !canAdd })} icon="add_circle_outline" />}
+            options={addControlOptions}
+            optionRender={renderSelectOption}
+            notFoundContent={<div className="TxtCenter">{_l('暂无搜索结果')}</div>}
             onChange={value => props.handleAddConditionByValue(index, value)}
-            renderPointer={() => {
-              return <Icon className={cx('operateBtn', { disabled: !canAdd })} icon="add_circle_outline" />;
-            }}
           />
         ) : (
           <Icon
@@ -293,6 +321,7 @@ export default class SortConditions extends React.Component {
     return (
       <div className={this.props.forViewControl ? 'mTop16' : 'mTop24'}>
         <SortableList
+          renderBody
           itemKey="controlId"
           items={sortConditions}
           useDragHandle

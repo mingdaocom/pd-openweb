@@ -2,13 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Menu, MenuItem } from 'ming-ui';
-import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import { emitter } from 'src/utils/common';
-import { getSortData } from 'src/utils/control';
-import { fieldCanSort } from 'src/utils/control';
+import { isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { fieldCanSort, getSortData } from 'src/utils/domain/control/sort';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 export default function ColumnHead(props) {
   const {
@@ -43,41 +41,41 @@ export default function ColumnHead(props) {
       isAsc={isAsc}
       changeSort={changeSort}
       updateSheetColumnWidths={updateSheetColumnWidths}
-      renderPopup={({ closeMenu }) => (
-        <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
-          {canSort &&
-            !isShowOtherField &&
-            getSortData(itemType, control).map(item => (
-              <MenuItem
-                key={item.value}
-                onClick={() => {
+      renderPopup={({ closeMenu }) => ({
+        style: { minWidth: 180 },
+        items: [
+          ...(canSort && !isShowOtherField
+            ? getSortData(itemType, control).map(item => ({
+                key: `sort-${item.value}`,
+                icon: (
+                  <i className={cx('icon', item.value === 1 ? 'icon-descending-order2' : 'icon-ascending-order2')} />
+                ),
+                label: item.text,
+                onClick: () => {
                   changeSort(item.value === 2);
                   closeMenu();
-                }}
-              >
-                <i className={cx('icon', item.value === 1 ? 'icon-descending-order2' : 'icon-ascending-order2')}></i>
-                {item.text}
-              </MenuItem>
-            ))}
-          {maskData && (
-            <MenuItem onClick={onShowFullValue}>
-              <i className="icon icon-eye_off"></i>
-              {_l('解码')}
-            </MenuItem>
-          )}
-          {canFilter && !selected && !isShowOtherField && (
-            <MenuItem
-              onClick={() => {
+                },
+              }))
+            : []),
+          maskData && {
+            key: 'decode',
+            icon: <i className="icon icon-eye_off" />,
+            label: _l('解码'),
+            onClick: onShowFullValue,
+          },
+          canFilter &&
+            !selected &&
+            !isShowOtherField && {
+              key: 'filter',
+              icon: <i className="icon icon-worksheet_filter" />,
+              label: _l('筛选'),
+              onClick: () => {
                 emitter.emit('FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + 'trash', control);
                 closeMenu();
-              }}
-            >
-              <i className="icon icon-worksheet_filter"></i>
-              {_l('筛选')}
-            </MenuItem>
-          )}
-        </Menu>
-      )}
+              },
+            },
+        ].filter(Boolean),
+      })}
     />
   );
 }

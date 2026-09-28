@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
-import { Button, ConfigProvider, Modal, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import { relevanceImageSize } from 'statistics/common/reportConfigUtils';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const SearchControlWrapper = styled.div`
   padding: 8px 5px;
   border-bottom: 1px solid var(--color-border-primary) ff;
   input {
     color: var(--color-white);
-    border: none;
   }
   .icon-close:hover {
     color: var(--color-primary) !important;
@@ -37,9 +36,8 @@ const ButtonWrapper = styled.div`
 const SelectWrapper = styled(Select)`
   width: 120px;
   margin-right: 10px !important;
-  &.ant-select-sm {
-    .ant-select-selector,
-    .ant-select-selection-item {
+  &.hap-select-sm {
+    .hap-select-selection-item {
       height: 28px !important;
       line-height: 26px !important;
       box-shadow: none !important;
@@ -74,20 +72,17 @@ const renderSortableItem = ({ DragHandle, item, otherProps }) => {
       </div>
       {column.type === 14 && control && (
         <SelectWrapper
-          className="chartSelect"
           value={control.size}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           size="small"
+          options={relevanceImageSize.map(item => ({
+            value: item.value,
+            label: item.text,
+          }))}
           onChange={value => {
             handleChangeSize(control.controlId, value);
           }}
-        >
-          {relevanceImageSize.map(item => (
-            <Select.Option key={item.value} className="selectOptionWrapper" value={item.value}>
-              {item.text}
-            </Select.Option>
-          ))}
-        </SelectWrapper>
+        />
       )}
       <DragHandle>
         <Icon
@@ -217,25 +212,6 @@ export default class ShowControlModal extends Component {
       }),
     });
   };
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.props.onHideDialogVisible(false);
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSave}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   render() {
     const { dialogVisible, relationControls } = this.props;
     const { searchValue, columns, selected } = this.state;
@@ -253,18 +229,18 @@ export default class ShowControlModal extends Component {
         title={_l('显示字段')}
         width={580}
         className="chartModal"
-        visible={dialogVisible}
-        destroyOnClose={true}
+        open={dialogVisible}
         centered={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderFooter()}
+        onOk={this.handleSave}
         onCancel={() => {
           this.props.onHideDialogVisible(false);
         }}
       >
         <SearchControlWrapper className="flexRow valignWrapper textTertiary">
           <Icon icon="search" className="Font18 mRight3" />
-          <input
+          <Input
+            variant="borderless"
             value={searchValue}
             className="flex"
             placeholder={_l('搜索字段')}
@@ -284,6 +260,7 @@ export default class ShowControlModal extends Component {
           <div className="columnCheckList">
             {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
             <SortableList
+              renderBody
               useDragHandle
               dragPreviewImage
               items={filteredColumns}

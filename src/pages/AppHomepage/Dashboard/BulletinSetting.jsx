@@ -1,22 +1,15 @@
 import React, { useState } from 'react';
-import { Input as AntdInput, Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, LoadDiv, QiniuUpload, SortableList } from 'ming-ui';
-import RegExpValidator from 'src/utils/expression';
+import { Icon, LoadDiv, QiniuUpload, SortableList } from 'ming-ui';
+import { Input as AntdInput, Button, Modal, Popover } from 'ming-ui/antd-components';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import suggestImg from './image/suggest.png';
 import { coverUrls } from './utils';
 import './style.less';
 
-const BulletinDialog = styled(Dialog)`
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
-    display: flex;
-    padding: 0 !important;
-  }
+const BulletinModal = styled(Modal)`
   .leftWrapper {
     width: 320px;
     border-right: 1px solid var(--color-border-secondary);
@@ -33,11 +26,6 @@ const BulletinDialog = styled(Dialog)`
       .addBtn {
         margin-top: 32px;
         margin-left: 36px;
-        &.disabled {
-          background: var(--color-background-secondary) !important;
-          color: var(--color-text-tertiary) !important;
-          border-color: var(--color-border-secondary) !important;
-        }
       }
     }
   }
@@ -107,15 +95,6 @@ const BulletinDialog = styled(Dialog)`
     .linkInput {
       width: 100%;
       margin: 8px 0 20px;
-      &:hover {
-        border-color: var(--color-primary) !important;
-      }
-    }
-    .saveBtn {
-      &.disabled {
-        background: var(--color-primary-light) !important;
-        color: var(--color-white);
-      }
     }
   }
 `;
@@ -165,7 +144,7 @@ const ItemWrapper = styled.div`
 `;
 
 const TitleInput = styled(AntdInput)`
-  &.ant-input-affix-wrapper {
+  &.hap-input-affix-wrapper {
     transition: none !important;
     border-color: var(--color-border-tertiary) !important;
     border-radius: 3px !important;
@@ -174,7 +153,7 @@ const TitleInput = styled(AntdInput)`
       border-color: var(--color-primary) !important;
     }
   }
-  &.ant-input-affix-wrapper-focused {
+  &.hap-input-affix-wrapper-focused {
     box-shadow: none !important;
     border-color: var(--color-primary) !important;
   }
@@ -246,10 +225,12 @@ export default function BulletinSetting(props) {
         return;
       }
 
-      Dialog.confirm({
-        title: _l('删除此项'),
-        buttonType: 'danger',
-        description: _l('删除后无法恢复'),
+      Modal.confirm({
+        title: <span className="textError">{_l('删除此项')}</span>,
+        okButtonProps: {
+          danger: true,
+        },
+        content: _l('删除后无法恢复'),
         onOk: () => deleteItem(true),
       });
     }
@@ -317,7 +298,20 @@ export default function BulletinSetting(props) {
   };
 
   return (
-    <BulletinDialog visible={true} width={1000} type="fixed" showFooter={false} onCancel={onClose}>
+    <BulletinModal
+      open
+      mask={{ closable: true }}
+      keyboard
+      width={1000}
+      type="fixed"
+      footer={null}
+      styles={{
+        header: { display: 'none' },
+        body: { display: 'flex', padding: 0 },
+        container: { padding: 0 },
+      }}
+      onCancel={onClose}
+    >
       <div className="leftWrapper">
         <div className="title">
           <span className="Font17 bold">{_l('宣传栏')}</span>
@@ -325,6 +319,7 @@ export default function BulletinSetting(props) {
         </div>
         <div className="listContent">
           <SortableList
+            renderBody
             flag={flag}
             items={bulletins}
             renderItem={renderItem}
@@ -343,12 +338,7 @@ export default function BulletinSetting(props) {
             }}
           />
           {bulletins.length < 10 && (
-            <Button
-              type="ghost"
-              className={cx('addBtn', { disabled: editStatus.editing })}
-              disabled={editStatus.editing}
-              onClick={onAdd}
-            >
+            <Button color="primary" variant="outlined" className="addBtn" disabled={editStatus.editing} onClick={onAdd}>
               {_l('添加')}
             </Button>
           )}
@@ -361,7 +351,8 @@ export default function BulletinSetting(props) {
             {_l('支持 jpg、jpeg、png、gif格式，2MB以内')} <span></span>
           </span>
           <Popover
-            overlayClassName="suggestWrapper"
+            arrow={true}
+            classNames={{ root: 'suggestWrapper' }}
             placement="bottom"
             align={{
               overflow: { adjustX: true, adjustY: true },
@@ -445,11 +436,11 @@ export default function BulletinSetting(props) {
         </div>
 
         <div className="bold mTop4">{_l('链接')}</div>
-        <Input
+        <AntdInput
           className="linkInput"
           placeholder={_l('例如：') + location.origin}
           value={bulletins[activeIndex].link}
-          onChange={value => onChangeData({ link: value })}
+          onChange={event => onChangeData({ link: event.target.value })}
         />
         <div className="bold">{_l('标题')}</div>
         <div className="mTop8 mBottom20">
@@ -462,16 +453,11 @@ export default function BulletinSetting(props) {
         </div>
 
         {(editStatus.editing || editStatus.saved) && (
-          <Button
-            type="primary"
-            className={cx('saveBtn', { disabled: editStatus.saved })}
-            disabled={editStatus.saved}
-            onClick={onSave}
-          >
+          <Button type="primary" disabled={editStatus.saved} onClick={onSave}>
             {editStatus.saved ? _l('已保存') : _l('保存')}
           </Button>
         )}
       </div>
-    </BulletinDialog>
+    </BulletinModal>
   );
 }

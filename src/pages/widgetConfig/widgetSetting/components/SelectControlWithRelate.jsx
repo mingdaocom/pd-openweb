@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import _ from 'lodash';
+import { Input } from 'ming-ui/antd-components';
+import { isSingleRelateSheet } from 'src/utils/domain/control/editorSetting';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { SelectFieldsWrap } from '../../styled';
-import { getIconByType } from '../../util';
-import { isSingleRelateSheet } from '../../util/setting';
 
 const getAvailableControlCount = list => {
   return _.keys(list).reduce((p, c) => p + (list[c] || []).length, 0);
@@ -76,11 +77,12 @@ export default function SelectControlWithRelate({
       {searchable && (
         <div className="search">
           <i className="icon-search textTertiary" />
-          <input
+          <Input
+            variant="underlined"
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             placeholder={_l('搜索字段')}
-          ></input>
+          />
         </div>
       )}
       <div className="fieldsWrap">

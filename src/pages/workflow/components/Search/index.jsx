@@ -2,21 +2,22 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
+import { Input } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
-import './index.less';
 
 export default class Search extends Component {
   static propTypes = {
     handleChange: func,
     className: string,
     placeholder: string,
+    value: string,
     onFocus: func,
   };
   static defaultProps = {
     handleChange: _.noop,
     onFocus: _.noop,
   };
-  state = { value: '' };
+  state = { value: this.props.value || '' };
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
@@ -36,19 +37,22 @@ export default class Search extends Component {
     const { value } = this.state;
     return (
       <div className={cx('workflowSearchWrap', className)}>
-        <input
-          type="text"
-          className="borderColorPrimary"
+        <Input
           onFocus={onFocus}
           value={value}
           placeholder={placeholder}
           onChange={e => this.handleChange(e.target.value)}
-        />
-        <Icon icon="search" className="search textSecondary Font16" />
-        <Icon
-          icon="close"
-          onClick={() => this.handleChange('')}
-          className={cx('close pointer', { hide: !value.length })}
+          prefix={<Icon icon="search" className="textSecondary Font16" />}
+          suffix={
+            value ? (
+              <Icon
+                icon="close"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => this.handleChange('')}
+                className="pointer textTertiary"
+              />
+            ) : null
+          }
         />
       </div>
     );

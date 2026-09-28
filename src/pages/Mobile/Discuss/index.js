@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import MobilePopup from 'ming-ui/components/MobilePopup';
+import { MobilePopup } from 'ming-ui/antd-mobile-components';
 import DiscussInfo from './DiscussInfo';
 
 export default props => {

@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import { checkConditionsIsNull, getIcons } from '../../utils';
 import {
+  AppSelectTitle,
   DetailFooter,
   DetailHeader,
   FilterAndSort,
@@ -312,6 +313,7 @@ export default class GetMoreRecord extends Component {
       (data.actionId === ACTION_ID.FROM_ADD && data.selectNodeId) ||
       (data.actionId === ACTION_ID.FROM_RECORD && data.selectNodeId && !!(data.fields || []).length);
     const limitCount = data.actionId === ACTION_ID.FROM_WORKSHEET ? _l('100万') : workflowSubProcessDataLimitCount;
+    const isHapSaas = window.platformENV.isHap;
 
     return (
       <div className="workflowDetailBox">
@@ -336,27 +338,46 @@ export default class GetMoreRecord extends Component {
             {!_.includes(
               [ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
               data.actionId,
-            ) &&
-              _l(
-                '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
-                workflowBatchGetDataLimitCount,
-                limitCount,
-              )}
+            ) && (
+              <Fragment>
+                {isHapSaas
+                  ? _l(
+                      '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。被子流程节点使用，最多支持1万条。',
+                    )
+                  : _l(
+                      '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
+                      workflowBatchGetDataLimitCount,
+                      limitCount,
+                    )}
+              </Fragment>
+            )}
 
             {data.actionId === ACTION_ID.FROM_RECORD &&
               _l('注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。')}
 
-            {data.actionId === ACTION_ID.BATCH_UPDATE &&
-              _l(
-                '在本节点内更新最大支持%0行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
-                worktableBatchOperateDataLimitCount,
-              )}
+            {data.actionId === ACTION_ID.BATCH_UPDATE && (
+              <Fragment>
+                {isHapSaas
+                  ? _l(
+                      '在本节点内更新最大支持1000行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
+                    )
+                  : _l(
+                      '在本节点内更新最大支持%0行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
+                      worktableBatchOperateDataLimitCount,
+                    )}
+              </Fragment>
+            )}
 
-            {data.actionId === ACTION_ID.BATCH_DELETE &&
-              _l(
-                '在本节点内删除，最大支持%0行。此节点对象不能被流程中其他节点使用',
-                worktableBatchOperateDataLimitCount,
-              )}
+            {data.actionId === ACTION_ID.BATCH_DELETE && (
+              <Fragment>
+                {isHapSaas
+                  ? _l('在本节点内删除，最大支持1000行。此节点对象不能被流程中其他节点使用')
+                  : _l(
+                      '在本节点内删除，最大支持%0行。此节点对象不能被流程中其他节点使用',
+                      worktableBatchOperateDataLimitCount,
+                    )}
+              </Fragment>
+            )}
 
             {data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA &&
               _l(
@@ -447,14 +468,14 @@ export default class GetMoreRecord extends Component {
     const { flowInfo, isPlugin } = this.props;
     const { data, noAction } = this.state;
     const list = [
-      { text: _l('发送API请求数组'), value: ACTION_ID.FROM_ARRAY },
-      { text: _l('调用已集成API数组'), value: ACTION_ID.FROM_API_ARRAY },
-      { text: _l('代码块数组'), value: ACTION_ID.FROM_CODE_ARRAY },
-      { text: _l('业务流程输入数组'), value: ACTION_ID.FROM_PBC_INPUT_ARRAY },
-      { text: _l('业务流程输出数组'), value: ACTION_ID.FROM_PBC_OUTPUT_ARRAY },
-      { text: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
-      { text: _l('插件数组'), value: ACTION_ID.FROM_PLUGIN_ARRAY },
-      { text: _l('向量知识库数组'), value: ACTION_ID.FROM_VECTOR_ARRAY },
+      { label: _l('发送API请求数组'), value: ACTION_ID.FROM_ARRAY },
+      { label: _l('调用已集成API数组'), value: ACTION_ID.FROM_API_ARRAY },
+      { label: _l('代码块数组'), value: ACTION_ID.FROM_CODE_ARRAY },
+      { label: _l('业务流程输入数组'), value: ACTION_ID.FROM_PBC_INPUT_ARRAY },
+      { label: _l('业务流程输出数组'), value: ACTION_ID.FROM_PBC_OUTPUT_ARRAY },
+      { label: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
+      { label: _l('插件数组'), value: ACTION_ID.FROM_PLUGIN_ARRAY },
+      { label: _l('向量知识库数组'), value: ACTION_ID.FROM_VECTOR_ARRAY },
     ];
 
     if (flowInfo.startAppType !== APP_TYPE.PBC || flowInfo.child) {
@@ -472,12 +493,11 @@ export default class GetMoreRecord extends Component {
     return (
       <Fragment>
         <div className={cx('bold', { mTop20: !isPlugin })}>{_l('选择数据类型')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={list}
+          options={list}
           value={data.actionId}
           disabled={!noAction}
-          border
           onChange={actionId => {
             this.updateSource({ actionId });
             this.getNodeDetail(this.props, { actionId });
@@ -554,12 +574,12 @@ export default class GetMoreRecord extends Component {
     const list = data.appList
       .filter(item => !item.otherApkId)
       .map(({ name, id }) => ({
-        text: name,
+        label: name,
         value: id,
       }));
     const otherWorksheet = [
       {
-        text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
+        label: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
         className: 'textSecondary',
       },
@@ -579,30 +599,19 @@ export default class GetMoreRecord extends Component {
           )}
         </div>
 
-        <Dropdown
+        <Select
           className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
-          data={[list, otherWorksheet]}
+          options={list.concat(otherWorksheet)}
           value={data.appId}
-          renderTitle={
-            !data.appId
-              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
-              : data.appId && !selectAppItem
-                ? () => (
-                    <span className="errorColor">
-                      {isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
-                    </span>
-                  )
-                : () => (
-                    <Fragment>
-                      <span>{selectAppItem.name}</span>
-                      {selectAppItem.otherApkName && (
-                        <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
-                      )}
-                    </Fragment>
-                  )
-          }
-          border
-          openSearch
+          labelRender={() => (
+            <AppSelectTitle
+              data={data}
+              selectAppItem={selectAppItem}
+              invalidText={isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
+            />
+          )}
+          showSearch
+          optionFilterProp="label"
           onChange={appId => {
             if (appId === 'other') {
               this.setState({ showOtherWorksheet: true });
@@ -625,7 +634,7 @@ export default class GetMoreRecord extends Component {
     const fieldId = ((data.fields || [])[0] || {}).fieldId || '';
     const item = data.relationControls.find(({ controlId }) => controlId === fieldId);
     const list = data.relationControls.map(({ controlId, controlName, sourceEntityName }) => ({
-      text: (
+      label: (
         <span>
           {controlName}
           <span className="textSecondary">（{_l('关联表“%0”', sourceEntityName)}）</span>
@@ -655,11 +664,11 @@ export default class GetMoreRecord extends Component {
         {data.selectNodeId && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择关联类型的字段')}</div>
-            <Dropdown
+            <Select
               className={cx('flowDropdown mTop10', { 'errorBorder errorBG': fieldId && !item })}
-              data={list}
+              options={list}
               value={fieldId}
-              renderTitle={
+              labelRender={
                 !fieldId
                   ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : fieldId && !item
@@ -671,7 +680,6 @@ export default class GetMoreRecord extends Component {
                         </span>
                       )
               }
-              border
               onChange={fieldId => {
                 this.updateSource({ fields: [{ fieldId }], conditions: [] }, () => {
                   this.getWorksheetFields(
@@ -725,7 +733,7 @@ export default class GetMoreRecord extends Component {
     const fieldId = ((data.fields || [])[0] || {}).fieldId || '';
     const item = data.relationControls.find(({ controlId }) => controlId === fieldId);
     const list = data.relationControls.map(({ controlId, controlName }) => ({
-      text: controlName,
+      label: controlName,
       value: controlId,
     }));
     const ArrayTitle = {
@@ -760,18 +768,17 @@ export default class GetMoreRecord extends Component {
         {data.selectNodeId && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择数组')}</div>
-            <Dropdown
+            <Select
               className={cx('flowDropdown mTop10', { 'errorBorder errorBG': fieldId && !item })}
-              data={list}
+              options={list}
               value={fieldId}
-              renderTitle={
+              labelRender={
                 !fieldId
                   ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : fieldId && !item
                     ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                     : () => <span>{item.controlName}</span>
               }
-              border
               onChange={fieldId => {
                 this.updateSource({ fields: [{ fieldId }], conditions: [] }, () => {
                   this.getArrayFields(data.selectNodeObj.appType, data.selectNodeId, fieldId);
@@ -848,7 +855,9 @@ export default class GetMoreRecord extends Component {
 
         <div className="mTop30 bold">{_l('获取后，更新记录')}</div>
         <div className="mTop5 textSecondary">
-          {_l('最大更新%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
+          {window.platformENV.isHap
+            ? _l('最大更新1000行数据')
+            : _l('最大更新%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
         </div>
 
         <UpdateFields
@@ -878,18 +887,24 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
-
         <div className="mTop5 textSecondary">
-          {_l('最大删除%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
+          {window.platformENV.isHap
+            ? _l('最大删除1000行数据')
+            : _l('最大删除%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
         </div>
 
         <div className="mTop15 flexRow">
           <Checkbox
             className="InlineFlex"
-            text={_l('彻底删除记录，不放入回收站')}
             checked={data.destroy}
-            onClick={checked => this.updateSource({ destroy: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                destroy: event.target.checked,
+              })
+            }
+          >
+            {_l('彻底删除记录，不放入回收站')}
+          </Checkbox>
         </div>
         <div className="Font13 textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Dropdown, Menu, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Dropdown, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import AppSettingHeader from '../AppSettingHeader';
@@ -13,12 +12,12 @@ import AddLangModal from './AddLangModal';
 const Wrap = styled.div`
   .header {
     padding: 10px 0;
-    border-bottom: 1px solid --color-background-disabled;
+    border-bottom: 1px solid var(--color-background-disabled);
   }
   .item {
     cursor: pointer;
     padding: 20px 0;
-    border-bottom: 1px solid --color-background-disabled;
+    border-bottom: 1px solid var(--color-background-disabled);
     &:hover {
       .langName {
         color: var(--color-primary);
@@ -32,10 +31,6 @@ const Wrap = styled.div`
   .icon-more_horiz:hover {
     color: var(--color-primary) !important;
   }
-  .ant-select-selector {
-    border-radius: 4px !important;
-    box-shadow: none !important;
-  }
 `;
 
 export default function LingualList(props) {
@@ -45,10 +40,12 @@ export default function LingualList(props) {
   const [originalLang, setOriginalLang] = useState(null);
 
   const handleDelete = data => {
-    Dialog.confirm({
-      title: _l('确认是否删除 %0 ?', renderLangName(data)),
-      description: _l('删除后无法恢复语言'),
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="textError">{_l('确认是否删除 %0 ?', renderLangName(data))}</span>,
+      content: _l('删除后无法恢复语言'),
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         appManagementApi
           .deleteAppLang({
@@ -115,10 +112,9 @@ export default function LingualList(props) {
         description={_l('设置用户在访问应用时可以使用的语言')}
         extraElement={
           <Tooltip title={_l('将引用的跨应用语言资源(如选项集、关联表)同步至本应用')}>
-            <div className="textSecondary hoverColorPrimary pointer flexRow alignItemsCenter" onClick={asyncLangs}>
-              <Icon icon="synchronization" className="Font18 mRight5" />
-              <span>{_l('同步引用语言')}</span>
-            </div>
+            <Button color="default" variant="text" icon={<Icon icon="synchronization" />} onClick={asyncLangs}>
+              {_l('同步引用语言')}
+            </Button>
           </Tooltip>
         }
         handleAdd={() => setVisible(true)}
@@ -150,17 +146,14 @@ export default function LingualList(props) {
         }}
         value={originalLang || app.originalLang || null}
         placeholder={_l('未设置')}
-        suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" style={{ marginRight: -4 }} />}
         onChange={value => {
           handleSetOriginalLang(value || '');
         }}
-      >
-        {systemLangList.concat(portionLangList).map(item => (
-          <Select.Option key={item.langCode} value={item.langCode}>
-            {renderLangName(item)}
-          </Select.Option>
-        ))}
-      </Select>
+        options={systemLangList.concat(portionLangList).map(item => ({
+          value: item.langCode,
+          label: renderLangName(item),
+        }))}
+      />
       <div className="Font14 bold mTop10">{_l('其他语言')}</div>
       <div className="flex flexColumn">
         <div className="header flexRow Font14 textTertiary">
@@ -183,16 +176,22 @@ export default function LingualList(props) {
                 <div className="operate">
                   <Dropdown
                     trigger={['click']}
-                    overlay={
-                      <Menu style={{ width: 100 }}>
-                        <Menu.Item key="edit" onClick={() => onChangeLangInfo(data)}>
-                          {_l('编辑')}
-                        </Menu.Item>
-                        <Menu.Item key="delete" danger onClick={() => handleDelete(data)}>
-                          {_l('删除')}
-                        </Menu.Item>
-                      </Menu>
-                    }
+                    menu={{
+                      style: { minWidth: 100 },
+                      items: [
+                        {
+                          key: 'edit',
+                          label: _l('编辑'),
+                          onClick: () => onChangeLangInfo(data),
+                        },
+                        {
+                          key: 'delete',
+                          danger: true,
+                          label: _l('删除'),
+                          onClick: () => handleDelete(data),
+                        },
+                      ],
+                    }}
                   >
                     <Icon className="textSecondary Font20" icon="more_horiz" />
                   </Dropdown>

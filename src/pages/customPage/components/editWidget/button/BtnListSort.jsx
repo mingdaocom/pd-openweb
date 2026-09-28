@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react';
-import { Modal } from 'antd';
 import styled from 'styled-components';
-import { Button, Icon, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 
 const SortableBtnIconWrap = styled.div`
   display: flex;
@@ -12,9 +11,6 @@ const SortableBtnIconWrap = styled.div`
   cursor: pointer;
 `;
 const SortableBtnListWrap = styled.ul`
-  /* box-shadow: 0 0 2px rgba(0, 0, 0, 0.25); */
-  background-color: var(--color-background-primary);
-  padding: 6px 24px;
   min-height: 205px;
   max-height: 560px;
   overflow: auto;
@@ -23,7 +19,6 @@ const SortableBtnListWrap = styled.ul`
     align-items: center;
     min-width: 180px;
     line-height: 36px;
-
     cursor: pointer;
     background-color: var(--color-background-primary);
     color: var(--color-text-title);
@@ -31,23 +26,8 @@ const SortableBtnListWrap = styled.ul`
       margin: 0 7px;
     }
     transition: padding 0.25s;
-    // &:hover {
-    //   padding-left: 12px;
-    //   background-color: var(--color-background-hover);
-    // }
   }
 `;
-const ModalContentWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  button {
-    margin-top: 26px;
-    margin-right: 24px;
-    align-self: flex-end;
-  }
-`;
-
 const renderSortableBtn = ({ item, DragHandle }) => (
   <li className="overflow_ellipsis">
     <DragHandle>
@@ -57,39 +37,47 @@ const renderSortableBtn = ({ item, DragHandle }) => (
     <span>{item.name}</span>
   </li>
 );
+const cloneButtonList = buttonList => (buttonList || []).slice();
 
 export default function BtnListSort({ buttonList, onSortEnd }) {
   const [visible, setVisible] = useState(false);
+  const [sortedButtonList, setSortedButtonList] = useState(() => cloneButtonList(buttonList));
+
+  const handleOpen = () => {
+    setSortedButtonList(cloneButtonList(buttonList));
+    setVisible(true);
+  };
+
+  const handleOk = () => {
+    onSortEnd(sortedButtonList);
+    setVisible(false);
+  };
+
   return (
     <Fragment>
       <Tooltip title={_l('按钮排序')}>
-        <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
+        <SortableBtnIconWrap className="mLeft10" onClick={handleOpen}>
           <Icon className="Font24 textTertiary hoverColorPrimary" icon="import_export" />
         </SortableBtnIconWrap>
       </Tooltip>
       <Modal
         title={_l('自定义按钮排序')}
-        maskStyle={{ zIndex: 1051 }}
         width={400}
         centered
-        closable={false}
-        wrapClassName="customPageBtnSortModalWrap"
-        visible={visible}
+        open={visible}
         onCancel={() => setVisible(false)}
-        footer={null}
+        onOk={handleOk}
       >
-        <ModalContentWrap>
-          <SortableBtnListWrap>
-            <SortableList
-              useDragHandle
-              items={buttonList}
-              itemKey="id"
-              renderItem={options => renderSortableBtn({ ...options })}
-              onSortEnd={newItems => onSortEnd(newItems)}
-            />
-          </SortableBtnListWrap>
-          <Button onClick={() => setVisible(false)}>{_l('完成')}</Button>
-        </ModalContentWrap>
+        <SortableBtnListWrap>
+          <SortableList
+            renderBody
+            useDragHandle
+            items={sortedButtonList}
+            itemKey="id"
+            renderItem={options => renderSortableBtn({ ...options })}
+            onSortEnd={setSortedButtonList}
+          />
+        </SortableBtnListWrap>
       </Modal>
     </Fragment>
   );

@@ -3,8 +3,8 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import fixedDataApi from 'src/api/fixedData';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getRequest } from 'src/utils/platform/browser/device';
 import EditLingual from './EditLingual';
 import LingualList from './LingualList';
 

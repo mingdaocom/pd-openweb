@@ -1,22 +1,35 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { LoadDiv, Modal, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-
-const Header = styled.div`
-  height: 52px;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.09) !important;
-`;
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
 
 const Content = styled.div`
-  height: calc(100% - 53px);
+  height: 100%;
+`;
+
+const TrashHeader = styled.div`
+  width: 100%;
+  padding-right: 25px;
+  .headerTop {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .title {
+    flex: 1;
+    min-width: 0;
+  }
+  .search {
+    flex: none;
+  }
+  .desc {
+    margin-top: 6px;
+    line-height: 20px;
+    white-space: normal;
+  }
 `;
 
 const TableRow = styled.div`
@@ -36,10 +49,6 @@ const TableRow = styled.div`
   }
 `;
 
-const TableHeaderCon = styled.div`
-  padding: 0 20px;
-`;
-
 const TableHeader = styled(TableRow)`
   padding: 0 142px 0 12px;
   height: 40px;
@@ -53,7 +62,6 @@ const TableBody = styled(ScrollView)`
   overflow-y: auto;
 `;
 const TableBodyPadding = styled.div`
-  padding: 0 20px;
   height: 100%;
 `;
 
@@ -67,7 +75,7 @@ const EmptyCon = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: calc(100% - 60px) !important;
+  height: 100% !important;
   .emptyIcon {
     display: flex;
     justify-content: center;
@@ -98,34 +106,48 @@ export default function AppTrash(props) {
     onKeyWordChange = () => {},
     onScrollEnd = () => {},
   } = props;
-  const debounceOnKeyWordChange = useCallback(_.debounce(onKeyWordChange, 300), []);
+  const [searchValue, setSearchValue] = useState(keyword);
+  const debounceOnKeyWordChange = useMemo(() => _.debounce(onKeyWordChange, 300), [onKeyWordChange]);
+
+  useEffect(() => () => debounceOnKeyWordChange.cancel(), [debounceOnKeyWordChange]);
+
   return (
     <Modal
-      visible
+      open
       width={976}
       type="fixed"
-      bodyStyle={{ padding: 0, position: 'relative' }}
-      closeStyle={{ width: '52px', height: '52px', lineHeight: '52px' }}
+      title={
+        <TrashHeader>
+          <div className="headerTop">
+            <div className="title Font17 textPrimary ellipsis">{title}</div>
+            <Input
+              allowClear
+              radius
+              variant="filled"
+              className="search"
+              placeholder={searchPlaceholder}
+              prefix={<Icon icon="search" className="textSecondary Font16" />}
+              value={searchValue}
+              style={{ width: 184, height: 30 }}
+              onChange={event => {
+                const value = event.target.value;
+
+                setSearchValue(value);
+                if (!value) {
+                  debounceOnKeyWordChange.cancel();
+                  onKeyWordChange(value);
+                } else {
+                  debounceOnKeyWordChange(value);
+                }
+              }}
+            />
+          </div>
+          {desc && <div className="desc Font13 textTertiary">{desc}</div>}
+        </TrashHeader>
+      }
+      styles={{ body: { padding: 0, position: 'relative' } }}
       onCancel={onCancel}
     >
-      <Header>
-        <div className="title Font17 textPrimary">{title}</div>
-        <div className="desc flex Font13 textTertiary mTop4">{desc}</div>
-        <div className="search mRight20">
-          <SearchInput
-            clickShowInput
-            placeholder={searchPlaceholder}
-            value={keyword}
-            onChange={v => {
-              if (!v) {
-                onKeyWordChange(v);
-              } else {
-                debounceOnKeyWordChange(v);
-              }
-            }}
-          />
-        </div>
-      </Header>
       {loading && !data.length && <LoadDiv className="mTop80" />}
       {!loading && !data.length && (
         <EmptyCon>
@@ -140,21 +162,19 @@ export default function AppTrash(props) {
       {!!data.length && (
         <Content>
           {!!data.length && (
-            <TableHeaderCon>
-              <TableHeader>
-                {columns.map((c, i) => (
-                  <Cell
-                    key={i}
-                    className={cx('Font14 textSecondary', { flex: c.flex })}
-                    style={{
-                      width: c.width,
-                    }}
-                  >
-                    {c.name}
-                  </Cell>
-                ))}
-              </TableHeader>
-            </TableHeaderCon>
+            <TableHeader>
+              {columns.map((c, i) => (
+                <Cell
+                  key={i}
+                  className={cx('Font14 textSecondary', { flex: c.flex })}
+                  style={{
+                    width: c.width,
+                  }}
+                >
+                  {c.name}
+                </Cell>
+              ))}
+            </TableHeader>
           )}
           <TableBody onScrollEnd={onScrollEnd}>
             <TableBodyPadding>

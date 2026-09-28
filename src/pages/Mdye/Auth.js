@@ -1,5 +1,5 @@
 import globalApi from 'src/api/global';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 // mdye-cli 的回调服务只监听本机端口，回调地址必须是回环地址。
 // config 完全来自 URL 上的 ?p=，放行任意绝对外链等于把 md_pss_id 交给攻击者指定的域名。

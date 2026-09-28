@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, PriceTip, Radio } from 'ming-ui';
+import { PriceTip } from 'ming-ui';
+import { Checkbox, Radio } from 'ming-ui/antd-components';
 import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
 import BasicSet from './BasicSet';
@@ -122,10 +123,9 @@ export default function BaseSet(props) {
             const { registerMode = {} } = portalSetModel;
             return (
               <Checkbox
-                className="mTop16 InlineBlock mRight60 setCheckbox"
-                text={o.txt}
+                className="mTop16 mRight60 setCheckbox"
                 checked={registerMode[o.key]}
-                onClick={() => {
+                onChange={() => {
                   if (registerMode[o.key]) {
                     alert(_l('取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置'), 3);
                   }
@@ -134,7 +134,9 @@ export default function BaseSet(props) {
                     alert(_l('至少选择一种注册方式'), 3);
                   });
                 }}
-              />
+              >
+                {o.txt}
+              </Checkbox>
             );
           })}
         </div>
@@ -146,15 +148,16 @@ export default function BaseSet(props) {
             const { loginMode = {} } = portalSetModel;
             return (
               <Checkbox
-                className="mTop16 InlineBlock mRight60 setCheckbox"
-                text={o.txt}
+                className="mTop16 mRight60 setCheckbox"
                 checked={loginMode[o.key]}
-                onClick={() => {
+                onChange={() => {
                   changeMode(!loginMode[o.key], o.key, 'loginMode', LOGIN_WAY_LIST, () => {
                     alert(_l('至少选择一种登录方式'), 3);
                   });
                 }}
-              />
+              >
+                {o.txt}
+              </Checkbox>
             );
           })}
           {!md.global.SysSettings.hideWeixin && (
@@ -202,9 +205,8 @@ export default function BaseSet(props) {
             return (
               <Radio
                 className=""
-                text={o}
                 checked={allowUserType === (i + 1) * 3}
-                onClick={() => {
+                onChange={() => {
                   const { portalSet = {} } = props;
                   const { portalSetModel = {} } = portalSet;
                   onChangePortalSet({
@@ -214,7 +216,10 @@ export default function BaseSet(props) {
                     },
                   });
                 }}
-              />
+                title={o}
+              >
+                {o}
+              </Radio>
             );
           })}
         </div>

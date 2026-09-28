@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, QiniuUpload, Support, SvgIcon } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon, QiniuUpload, Support, SvgIcon } from 'ming-ui';
+import { Button, Input, Modal, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import fileApi from 'src/api/file';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import { formatFileSize } from 'src/utils/common';
-import { fileCheckErrorMsg } from '../config';
-import { API_EXTENDS, pluginApiConfig } from '../config';
+import { formatFileSize } from 'src/utils/core/file';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { API_EXTENDS, fileCheckErrorMsg, PLUGIN_TYPE, pluginApiConfig } from '../config';
 
 const IMPORT_PLUGIN_HELP_LINK =
   'https://help.mingdao.com/extensions/developer/view/#10-%E6%8F%92%E4%BB%B6%E7%9A%84%E5%AF%BC%E5%87%BA%E5%AF%BC%E5%85%A5';
@@ -47,18 +47,6 @@ const PluginInfoItem = styled.div`
   .selectItem {
     flex: 1;
     font-size: 13px;
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border: 1px solid var(--color-border-tertiary) !important;
-      border-radius: 3px !important;
-      box-shadow: none !important;
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
   }
 `;
 
@@ -76,19 +64,16 @@ function ExistPluginDialog(props) {
       pluginApi.getPluginListBySourece({ projectId, sourceId: pluginSourceId }, API_EXTENDS).then(res => {
         res && setPluginList(res);
       });
-  }, [pluginSourceId]);
+  }, [pluginApi, pluginSourceId, projectId]);
 
-  const footer = (
-    <div className="flexRow alignItemsCenter justifyContentRight">
-      <Button type="link" onClick={onClose}>
-        {_l('取消')}
-      </Button>
-      <Button
-        onClick={() => {
-          setIsCreateLoading(false);
-          onImport(false, pluginId === 'create' ? undefined : pluginId);
-        }}
-      >
+  return (
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
+      width={580}
+      title={_l('检测到已有插件')}
+      okText={
         <div className="flexRow alignItemsCenter">
           {importing && !isCreateLoading && (
             <div className="notificationIconWrap mRight8">
@@ -97,20 +82,17 @@ function ExistPluginDialog(props) {
           )}
           {_l('确认')}
         </div>
-      </Button>
-    </div>
-  );
-
-  return (
-    <Dialog
-      visible
-      width={580}
-      title={_l('检测到已有插件')}
-      description={_l('检测到当前组织中存在相同的插件，您可以选择导入已有插件或者创建一个新插件')}
-      footer={footer}
+      }
+      onOk={() => {
+        setIsCreateLoading(false);
+        onImport(false, pluginId === 'create' ? undefined : pluginId);
+      }}
       onCancel={onClose}
     >
-      <PluginInfoItem className="mTop24">
+      <div className="textSecondary mBottom16">
+        {_l('检测到当前组织中存在相同的插件，您可以选择导入已有插件或者创建一个新插件')}
+      </div>
+      <PluginInfoItem>
         <div className="labelText">{_l('将插件')}</div>
         <div className="bold">{[name, versionCode, `(${releaseTime})`].join(' ')}</div>
       </PluginInfoItem>
@@ -133,10 +115,10 @@ function ExistPluginDialog(props) {
           )}
           notFoundContent={_l('暂无发布历史')}
           value={pluginId}
-          onChange={value => setPluginId(value)}
+          onChange={setPluginId}
         />
       </PluginInfoItem>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -153,12 +135,13 @@ function ImportPlugin(props) {
   const [existVisible, setExistVisible] = useState(false);
 
   const pluginApi = pluginApiConfig[pluginType];
+  const fileCheckApi = pluginType === PLUGIN_TYPE.WORKFLOW ? pluginApiConfig.workflow : fileApi;
 
   const onCheckFile = async (url, alertError) => {
     setFileChecking(true);
     let checkSuccess = false;
-    await fileApi
-      .check({ projectId, source: 1, url, pluginId, password: isEncrypt ? password : undefined })
+    await fileCheckApi
+      .check({ projectId, source: 1, url, pluginId, password: isEncrypt ? password : undefined }, API_EXTENDS)
       .then(res => {
         setFileChecking(false);
         switch (res.resultCode) {
@@ -180,8 +163,8 @@ function ImportPlugin(props) {
             break;
         }
       })
-      .catch(() => {
-        alertError ? alert(_l('文件解析错误'), 2) : setErrorTip(_l('文件解析错误'));
+      .catch(_requestError => {
+        alertError ? alertIfNotUnauthorized(_requestError, _l('文件解析错误'), 2) : setErrorTip(_l('文件解析错误'));
         setFileChecking(false);
       });
     return checkSuccess;
@@ -194,7 +177,10 @@ function ImportPlugin(props) {
 
     if (checkSuccess) {
       pluginApi
-        .import({ projectId, url, pluginId }, API_EXTENDS)
+        .import(
+          { projectId, url, pluginId, ...(pluginType === PLUGIN_TYPE.WORKFLOW && isEncrypt ? { password } : {}) },
+          API_EXTENDS,
+        )
         .then(res => {
           setImporting(false);
           if (res === 1) {
@@ -261,7 +247,7 @@ function ImportPlugin(props) {
           </PluginInfoItem>
           <PluginInfoItem className="flex">
             <div className="labelText">{_l('插件类型')}</div>
-            <div className="bold">{type === 1 ? _l('视图') : ''}</div>
+            <div className="bold">{type === 1 ? _l('视图') : type === 2 ? _l('工作流节点') : ''}</div>
           </PluginInfoItem>
         </div>
         <div className="flexRow">
@@ -289,7 +275,7 @@ function ImportPlugin(props) {
               className="flex"
               placeholder={_l('请输入导出时设置的密码')}
               value={password}
-              onChange={value => setPassword(value)}
+              onChange={event => setPassword(event.target.value)}
             />
           </PluginInfoItem>
         )}
@@ -298,12 +284,14 @@ function ImportPlugin(props) {
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={580}
       title={_l('导入插件')}
-      showFooter={!_.isEmpty(pluginInfo)}
-      okDisabled={isEncrypt && !password}
+      footer={_.isEmpty(pluginInfo) ? null : undefined}
+      okDisabled={isEncrypt && !password.trim()}
       okText={
         <div className="flexRow alignItemsCenter">
           {importing && (
@@ -355,7 +343,7 @@ function ImportPlugin(props) {
             {!(fileChecking || uploading) &&
               (_.isEmpty(file)
                 ? renderUpload(
-                    <Button type="primary" radius>
+                    <Button type="primary" shape="round">
                       {_l('上传文件')}
                     </Button>,
                   )
@@ -376,8 +364,10 @@ function ImportPlugin(props) {
           pluginType={pluginType}
         />
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => functionWrap(ImportPlugin, { ...props });
+export function useImportPlugin() {
+  return useFunctionWrapComponent(ImportPlugin);
+}

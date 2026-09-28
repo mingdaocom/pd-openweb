@@ -2,19 +2,9 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 
 const EmptyHierarchyWrap = styled.div`
-  .ming.Input {
-    border: none;
-    padding: 0;
-    height: 28px;
-    border-radius: 0;
-    border-bottom: 2px solid var(--color-primary);
-    background-color: transparent;
-    font-size: 14px;
-    font-weight: bold;
-  }
   .titleWrap {
     margin-bottom: 4px;
     height: 36px;
@@ -57,9 +47,10 @@ export default function EmptyHierarchy({ allowAdd, onAdd, layersName, updateLaye
         <div className="titleWrap">
           {isEdit ? (
             <Input
+              variant="underlined"
               value={value}
               autoFocus
-              onChange={setValue}
+              onChange={event => setValue(event.target.value)}
               onBlur={() => {
                 setEdit(false);
                 updateLayersName([value]);

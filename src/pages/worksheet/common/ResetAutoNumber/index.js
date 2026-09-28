@@ -1,5 +1,9 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import ResetAutoNumber from './ResetAutoNumber';
 
+const getResetAutoNumberProps = props => ({ ...props, closeFnName: 'onHide' });
+
 export default ResetAutoNumber;
-export const openResetAutoNumber = props => functionWrap(ResetAutoNumber, { ...props, closeFnName: 'onHide' });
+export function useResetAutoNumber() {
+  return useFunctionWrapComponent(ResetAutoNumber, getResetAutoNumberProps);
+}

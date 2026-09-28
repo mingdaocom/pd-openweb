@@ -1,17 +1,14 @@
 import React from 'react';
 import { useSetState } from 'react-use';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 
 const Popup = styled.div`
   position: relative;
-  background-color: var(--color-background-primary);
   padding: 15px 15px 12px;
   width: 230px;
-  box-shadow: 0px 1px 6px 1px rgba(0, 0, 0, 0.24);
-  border-radius: 6px;
   .error {
     color: var(--color-error);
     text-align: center;
@@ -88,16 +85,17 @@ export default function QrPopup(props) {
   };
 
   return (
-    <Trigger
-      popupVisible={popupVisible}
-      onPopupVisibleChange={newVisible => handleVisible(newVisible)}
-      popupAlign={{
+    <Popover
+      noPadding
+      open={popupVisible}
+      onOpenChange={newVisible => handleVisible(newVisible)}
+      align={{
         offset: [0, popupPosition === 'bottom' ? 13 : -13],
         points: popupPosition === 'bottom' ? ['tc', 'bc'] : ['bc', 'tc'],
       }}
-      destroyPopupOnHide
-      action={['click']}
-      popup={
+      destroyOnHidden
+      trigger="click"
+      content={
         <Popup className={popupPosition}>
           {tip && <div className="tip">{tip}</div>}
           {loading ? (
@@ -111,7 +109,7 @@ export default function QrPopup(props) {
       }
     >
       {children}
-    </Trigger>
+    </Popover>
   );
 }
 

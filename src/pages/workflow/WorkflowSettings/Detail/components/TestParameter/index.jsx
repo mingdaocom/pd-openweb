@@ -2,10 +2,11 @@ import React, { Fragment, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import { Button, Dialog, Icon, Input, QiniuUpload } from 'ming-ui';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { Icon, QiniuUpload } from 'ming-ui';
+import { Button, Input, Modal } from 'ming-ui/antd-components';
 import Oauth2Ajax from 'src/pages/workflow/apiV2/oauth2';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
 import { ACTION_ID } from '../../../enum';
 import SelectAuthAccount from '../SelectAuthAccount';
 
@@ -87,7 +88,7 @@ export default ({
               className="flex"
               placeholder={_l('请输入测试值')}
               value={cacheTestMap[key]}
-              onChange={value => setTestMap(Object.assign({}, cacheTestMap, { [key]: value }))}
+              onChange={event => setTestMap(Object.assign({}, cacheTestMap, { [key]: event.target.value }))}
               onBlur={e => setTestMap(Object.assign({}, cacheTestMap, { [key]: e.target.value.trim() }))}
             />
           ) : (
@@ -97,7 +98,8 @@ export default ({
           {(formulaMap[nodeId] || {}).actionId === ACTION_ID.CREDENTIALS && controlId === 'code' && (
             <Button
               className="mLeft10"
-              type="ghost"
+              color="primary"
+              variant="outlined"
               onClick={() => getOpenUrl(value => setTestMap(Object.assign({}, cacheTestMap, { [key]: value })))}
             >
               {_l('获取 code')}
@@ -209,15 +211,17 @@ export default ({
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       width={720}
       className="workflowDialogBox"
-      style={{ overflow: 'initial' }}
-      overlayClosable={false}
-      type="scroll"
-      title={title}
-      description={description}
+      mask={{ closable: false }}
+      title={
+        <Fragment>
+          <div>{title}</div>
+          {description && <div className="Font13 Normal textSecondary mTop8">{description}</div>}
+        </Fragment>
+      }
       onCancel={onClose}
       onOk={() => {
         if (isRequired) {
@@ -265,6 +269,6 @@ export default ({
           <PreviewBox className="mTop10" dangerouslySetInnerHTML={{ __html: getPreviewContent(previewContent) }} />
         </Fragment>
       )}
-    </Dialog>
+    </Modal>
   );
 };

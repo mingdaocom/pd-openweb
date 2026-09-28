@@ -2,11 +2,11 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Checkbox, Dialog, Icon, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support } from 'ming-ui';
+import { Checkbox, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
-import { generateRandomPassword } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
 import AppSettings from './AppSettings';
 import './index.less';
 
@@ -120,7 +120,7 @@ export default class ExportApp extends React.Component {
     let reason;
     let copyErrors = { ...this.state.errors };
 
-    if (!RegExpValidator.isPasswordValid(password)) {
+    if (!isPasswordValid(password)) {
       reason = _.get(md, 'global.SysSettings.passwordRegexTip') || _l('密码，至少8-20位，且含字母+数字');
     }
 
@@ -145,9 +145,9 @@ export default class ExportApp extends React.Component {
           <div className={cx('flexRow TxtMiddle alignItemsCenter', { mTop50: index === 0, mTop20: index !== 0 })}>
             <Checkbox
               checked={this.state[checkFiled]}
-              onClick={checked => {
+              onChange={event => {
                 this.setState({
-                  [checkFiled]: !checked,
+                  [checkFiled]: event.target.checked,
                   [`${key}Edit`]: true,
                   [password]: '',
                 });
@@ -173,12 +173,13 @@ export default class ExportApp extends React.Component {
           {this.state[checkFiled] && (
             <div className={cx('passwordInputBox', { mTop6: key === 'appKey' && this.state.locked })}>
               <div className="flexColumn">
-                <input
+                <Input
                   type="text"
-                  className={cx('inputBox', { editInput: canEdit })}
+                  className="inputBox"
+                  variant={canEdit ? 'outlined' : 'filled'}
+                  status={errors[checkFiled] ? 'error' : undefined}
                   placeholder={placeholder}
                   value={this.state[password]}
-                  ref={input => (this[`${key}Input`] = input)}
                   onChange={e => this.setState({ [password]: e.target.value })}
                   onFocus={() => this.setState({ [`${key}Edit`]: true })}
                   onBlur={e => {
@@ -267,18 +268,17 @@ export default class ExportApp extends React.Component {
 
   render() {
     const { relation, disabledExportBtn = false } = this.state;
-    const options = {
-      title: this.renderHeader(),
-      visible: true,
-      footer: null,
-      className: 'exportSingleAppDialog',
-      width: '920',
-      type: 'scroll',
-      overlayClosable: false,
-      onCancel: () => this.props.closeDialog(),
-    };
     return (
-      <Dialog {...options}>
+      <Modal
+        title={this.renderHeader()}
+        open
+        width={920}
+        okText={_l('立即导出')}
+        okDisabled={disabledExportBtn}
+        keyboard
+        onCancel={() => this.props.closeDialog()}
+        onOk={() => this.handleExportApp()}
+      >
         <div className="exportSingleAppContainer">
           <div className="pBottom8">
             <span className="textSecondary">
@@ -294,28 +294,11 @@ export default class ExportApp extends React.Component {
           )}
           {this.renderAppSettingContent()}
           {this.renderPassword()}
-          <div className="mTop32 mBottom20 clearfix selectAppOptionBtns">
-            {(this.state.isNeed || this.state.locked) && (
-              <div className="LineHeight36 textSecondary Left">{_l('请保存密码，或导出后在导出记录中查看')}</div>
-            )}
-            <button
-              type="button"
-              className={cx('ming Button Right Button--primary nextBtn Bold', {
-                'Button--disabled': disabledExportBtn,
-              })}
-              onClick={() => this.handleExportApp()}
-            >
-              {_l('立即导出')}
-            </button>
-            <div
-              className="Right mRight40 textTertiary hoverColorPrimaryLight Hand LineHeight36"
-              onClick={() => this.props.closeDialog()}
-            >
-              {_l('取消')}
-            </div>
-          </div>
+          {(this.state.isNeed || this.state.locked) && (
+            <div className="mTop32 textSecondary">{_l('请保存密码，或导出后在导出记录中查看')}</div>
+          )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

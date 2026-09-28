@@ -7,7 +7,7 @@ import appManagementAjax from 'src/api/appManagement';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchApp from 'src/pages/Admin/components/SearchApp';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import AppDisplay from './modules/AppDisplay';
 
 const SearchWrap = styled.div`
@@ -22,7 +22,7 @@ const TableColumn = styled(PageTableCon)`
     visibility: hidden;
     color: var(--color-text-tertiary);
   }
-  .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+  .hap-table-tbody > tr > td.hap-table-cell-row-hover {
     .showVisibilityIcon {
       visibility: visible;
     }
@@ -248,10 +248,11 @@ export default function ExportRecords({ projectId, type }) {
           <SearchApp
             className="w180"
             projectId={projectId}
+            value={appId}
             onChange={value => setState({ appId: value, pageIndex: 1 })}
           />
           <SelectUser
-            className="mdAntSelect w180 mLeft15"
+            className="w180 mLeft15"
             placeholder={_l('搜索操作者')}
             projectId={projectId}
             unique

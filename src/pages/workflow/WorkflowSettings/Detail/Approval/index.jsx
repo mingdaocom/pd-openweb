@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Checkbox, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
@@ -26,6 +26,8 @@ import {
 import CallbackSettings from './CallbackSettings';
 import NoticeTemplate from './NoticeTemplate';
 import OpinionTemplate from './OpinionTemplate';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const GraduallyMemberBox = styled.div`
   padding: 5px 10px;
@@ -344,42 +346,50 @@ export default class Approval extends Component {
 
         <div className="flexRow mTop10">
           {list.map((item, i) => (
-            <div className={cx({ mLeft80: i > 0 })} key={i}>
+            <div className={cx('flexRow alignItemsCenter', { mLeft80: i > 0 })} key={i}>
               <Radio
-                text={item.text}
+                className={cx({ mRight0: item.value === 11 })}
                 checked={
                   data.multipleLevelType === item.value ||
                   (item.value === 3 && _.includes([1, 2, 3, 4], data.multipleLevelType))
                 }
-                onClick={() => {
+                onChange={() => {
                   this.updateSource({
                     multipleLevelType: item.value,
                     callBackMultipleLevel: -1,
                     accounts: [],
                     multipleLevel: 1,
-                    schedule: Object.assign({}, data.schedule, { enable: false }),
-                    candidateUserMap: item.value === 3 && isApproval ? { 11: [] } : {},
+                    schedule: Object.assign({}, data.schedule, {
+                      enable: false,
+                    }),
+                    candidateUserMap:
+                      item.value === 3 && isApproval
+                        ? {
+                            11: [],
+                          }
+                        : {},
                     countersignType: item.value === 11 && data.countersignType === 0 ? 3 : data.countersignType,
                   });
-                  this.setState({ tabIndex: 1 });
+                  this.setState({
+                    tabIndex: 1,
+                  });
                 }}
-              />
+                title={item.text}
+              >
+                {item.text}
+              </Radio>
 
               {item.value === 11 && (
                 <Tooltip
                   title={
                     <span>
                       {_l(
-                        '当上一节点审批人同意后，从设置的选择范围中选择本节点的审批人。若涉及多人审批，仅在或签模式下支持此操作。',
+                        '当上一节点审批人同意后，从设置的选择范围中选择本节点审批人。上一审批节点必须配置“通过意见”，否则此配置不生效。若涉及多人审批，仅在或签模式下支持此操作。',
                       )}
                     </span>
                   }
                 >
-                  <Icon
-                    className="Font16 textTertiary InlineBlock mTop4"
-                    style={{ verticalAlign: 'top', marginLeft: -15 }}
-                    icon="info"
-                  />
+                  <Icon className="Font16 textTertiary" icon="info" />
                 </Tooltip>
               )}
             </div>
@@ -482,9 +492,9 @@ export default class Approval extends Component {
       ],
     };
     const USER_TYPE = [
-      { text: _l('发起人'), value: '11' },
-      { text: _l('指定人员'), value: '12' },
-      { text: _l('指定部门'), value: '13' },
+      { label: _l('发起人'), value: '11' },
+      { label: _l('指定人员'), value: '12' },
+      { label: _l('指定部门'), value: '13' },
     ];
     const userType = Object.keys(data.candidateUserMap || {}).filter(key => key !== '0')[0] || '12';
 
@@ -497,11 +507,10 @@ export default class Approval extends Component {
         <div className="Font13 bold mTop20">{_l('审批起点')}</div>
 
         <div className="flexRow alignItemsCenter mTop10">
-          <Dropdown
+          <Select
             style={{ minWidth: 180 }}
-            data={USER_TYPE}
+            options={USER_TYPE}
             value={userType}
-            border
             onChange={type => {
               this.updateSource({ candidateUserMap: { [type]: [] }, accounts: [] });
             }}
@@ -554,15 +563,14 @@ export default class Approval extends Component {
 
         <div className="Font13 bold mTop20">{_l('审批终点')}</div>
         <div className="flexRow alignItemsCenter mTop10">
-          <Dropdown
+          <Select
             className="flowDropdown"
             style={{ width: 240 }}
-            data={[
-              { text: _l('通讯录指定层级'), value: 'down' },
-              { text: _l('起点向上的级数'), value: 'up' },
+            options={[
+              { label: _l('通讯录指定层级'), value: 'down' },
+              { label: _l('起点向上的级数'), value: 'up' },
             ]}
             value={_.includes([1, 2], data.multipleLevelType) ? 'up' : 'down'}
-            border
             onChange={value => {
               let multipleLevelType = data.multipleLevelType;
 
@@ -575,12 +583,12 @@ export default class Approval extends Component {
               this.updateSource({ multipleLevelType, multipleLevel: _.includes([1, 2], multipleLevelType) ? 2 : 1 });
             }}
           />
-          <Dropdown
+          <Select
             className="flowDropdown mLeft10 mRight10 flex"
-            data={multipleLevelList[_.includes([1, 2], data.multipleLevelType) ? 'up' : 'down']}
+            options={multipleLevelList[_.includes([1, 2], data.multipleLevelType) ? 'up' : 'down']}
+            fieldNames={SELECT_FIELD_NAMES}
             value={data.multipleLevel}
-            border
-            renderTitle={
+            labelRender={
               _.includes([1, 2], data.multipleLevelType) && data.multipleLevel === -1
                 ? () => <span>{_l('直到通讯录的最高级')}</span>
                 : null
@@ -595,20 +603,23 @@ export default class Approval extends Component {
           <div className="flexRow alignItemsCenter mTop20">
             <Checkbox
               className="InlineFlex"
-              text={_l('仅主部门负责人需要审批')}
               checked={_.includes([2, 4], data.multipleLevelType)}
-              onClick={checked => {
+              onChange={event => {
                 let multipleLevelType = data.multipleLevelType;
 
-                if (checked) {
+                if (!event.target.checked) {
                   multipleLevelType = multipleLevelType === 2 ? 1 : 3;
                 } else {
                   multipleLevelType = multipleLevelType === 1 ? 2 : 4;
                 }
 
-                this.updateSource({ multipleLevelType });
+                this.updateSource({
+                  multipleLevelType,
+                });
               }}
-            />
+            >
+              {_l('仅主部门负责人需要审批')}
+            </Checkbox>
             <Tooltip title={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}>
               <i className="Font14 icon-help textTertiary mLeft5" />
             </Tooltip>
@@ -624,32 +635,31 @@ export default class Approval extends Component {
   renderApprovalMode() {
     const { data } = this.state;
     const personsPassing = [
-      { text: _l('或签（一名审批人通过或否决即可）'), value: 3, includeType: [6, 7, 13] },
-      { text: _l('会签（需所有审批人通过）'), value: 1, includeType: [6, 13, 16] },
-      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2, includeType: [13, 16] },
-      { text: _l('会签（按比例投票通过）'), value: 4, includeType: [6, 13, 16] },
+      { label: _l('或签（一名审批人通过或否决即可）'), value: 3, includeType: [6, 7, 13] },
+      { label: _l('会签（需所有审批人通过）'), value: 1, includeType: [6, 13, 16] },
+      { label: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2, includeType: [13, 16] },
+      { label: _l('会签（按比例投票通过）'), value: 4, includeType: [6, 13, 16] },
     ];
     const conditionList = [
-      { text: '10%', value: '10' },
-      { text: '20%', value: '20' },
-      { text: '30%', value: '30' },
-      { text: '40%', value: '40' },
-      { text: '50%', value: '50' },
-      { text: '60%', value: '60' },
-      { text: '70%', value: '70' },
-      { text: '80%', value: '80' },
-      { text: '90%', value: '90' },
-      { text: '100%', value: '100' },
+      { label: '10%', value: '10' },
+      { label: '20%', value: '20' },
+      { label: '30%', value: '30' },
+      { label: '40%', value: '40' },
+      { label: '50%', value: '50' },
+      { label: '60%', value: '60' },
+      { label: '70%', value: '70' },
+      { label: '80%', value: '80' },
+      { label: '90%', value: '90' },
+      { label: '100%', value: '100' },
     ];
 
     return (
       <Fragment>
         <div className="Font13 bold mTop20">{_l('多人审批时采用的审批方式')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={personsPassing}
-          value={data.countersignType}
-          border
+          options={personsPassing}
+          value={personsPassing.find(item => item.value === data.countersignType) ? data.countersignType : undefined}
           placeholder={
             data.multipleLevelType === 0 ? _l('或签（一名审批人通过或否决即可）') : _l('会签（需所有审批人通过）')
           }
@@ -676,12 +686,11 @@ export default class Approval extends Component {
           <Fragment>
             <div className="Font13 bold mTop25">{_l('通过比例')}</div>
             <div className="mTop10 flexRow alignItemsCenter">
-              <Dropdown
+              <Select
                 className="flowDropdown mRight10"
                 style={{ width: 120 }}
-                data={conditionList}
+                options={conditionList}
                 value={data.condition}
-                border
                 onChange={condition => {
                   this.updateSource({ condition });
                 }}
@@ -739,39 +748,49 @@ export default class Approval extends Component {
 
         <Checkbox
           className="mTop15 flexRow"
-          text={_l('暂存')}
           checked={_.includes(data.operationTypeList, 13)}
-          onClick={checked => this.switchApprovalSettings(!checked, 13)}
-        />
+          onChange={event => this.switchApprovalSettings(event.target.checked, 13)}
+        >
+          {_l('暂存')}
+        </Checkbox>
 
         <Checkbox
           className="mTop15 flexRow"
-          text={_l('拒绝')}
           checked={!_.includes(data.operationTypeList, -5)}
-          onClick={checked => this.switchApprovalSettings(checked, -5)}
-        />
+          onChange={event => this.switchApprovalSettings(!event.target.checked, -5)}
+        >
+          {_l('拒绝')}
+        </Checkbox>
 
         {data.countersignType !== 2 && (
           <Fragment>
             <div className="flexRow alignItemsCenter mTop15">
               <Checkbox
                 className="flex flexRow"
-                text={_l('退回')}
                 disabled={data.countersignType === 2}
                 checked={data.isCallBack}
-                onClick={checked => {
-                  this.updateSource({ isCallBack: !checked, callBackType: 0, callBackMultipleLevel: -1 }, () => {
-                    // 允许审批人退回时默认勾选退回意见
-                    if (!checked) {
-                      this.opinionRequiredChange(true, 'overruleTypeList');
-                    }
-                  });
-
-                  if (data.selectNodeId && !checked) {
+                onChange={event => {
+                  const checked = event.target.checked;
+                  this.updateSource(
+                    {
+                      isCallBack: checked,
+                      callBackType: 0,
+                      callBackMultipleLevel: -1,
+                    },
+                    () => {
+                      // 允许审批人退回时默认勾选退回意见
+                      if (checked) {
+                        this.opinionRequiredChange(true, 'overruleTypeList');
+                      }
+                    },
+                  );
+                  if (data.selectNodeId && checked) {
                     this.getCallBackNodeNames(data.selectNodeId, 0);
                   }
                 }}
-              />
+              >
+                {_l('退回')}
+              </Checkbox>
             </div>
             {data.isCallBack && (
               <div className="flowBackBox Font12 mTop10">
@@ -816,10 +835,11 @@ export default class Approval extends Component {
             <div className="mTop15">
               <Checkbox
                 className="InlineFlex"
-                text={_l('转审')}
                 checked={_.includes(data.operationTypeList, 6)}
-                onClick={checked => this.switchApprovalSettings(!checked, 6)}
-              />
+                onChange={event => this.switchApprovalSettings(event.target.checked, 6)}
+              >
+                {_l('转审')}
+              </Checkbox>
             </div>
             {_.includes(data.operationTypeList, 6) && (
               <UserRange
@@ -846,10 +866,11 @@ export default class Approval extends Component {
             <div className="mTop15">
               <Checkbox
                 className="InlineFlex"
-                text={_l('加签')}
                 checked={_.includes(data.operationTypeList, 7)}
-                onClick={checked => this.switchApprovalSettings(!checked, 7)}
-              />
+                onChange={event => this.switchApprovalSettings(event.target.checked, 7)}
+              >
+                {_l('加签')}
+              </Checkbox>
             </div>
             {_.includes(data.operationTypeList, 7) && (
               <Fragment>
@@ -859,10 +880,16 @@ export default class Approval extends Component {
                     {SIGN_TYPE.map((item, i) => (
                       <div className="mRight40" key={i}>
                         <Radio
-                          text={item.text}
                           checked={data.signOperationType === item.value}
-                          onClick={() => this.updateSource({ signOperationType: item.value })}
-                        />
+                          onChange={() =>
+                            this.updateSource({
+                              signOperationType: item.value,
+                            })
+                          }
+                          title={item.text}
+                        >
+                          {item.text}
+                        </Radio>
                       </div>
                     ))}
                   </div>
@@ -890,10 +917,11 @@ export default class Approval extends Component {
             <div className="mTop15">
               <Checkbox
                 className="InlineFlex"
-                text={_l('添加审批人')}
                 checked={_.includes(data.operationTypeList, 16)}
-                onClick={checked => this.switchApprovalSettings(!checked, 16)}
-              />
+                onChange={event => this.switchApprovalSettings(event.target.checked, 16)}
+              >
+                {_l('添加审批人')}
+              </Checkbox>
             </div>
             {_.includes(data.operationTypeList, 16) && (
               <UserRange
@@ -1045,10 +1073,15 @@ export default class Approval extends Component {
               {o.source.map(item => (
                 <div className="flexRow mTop10 alignItemsCenter" key={item.key}>
                   <Checkbox
-                    text={item.text}
                     checked={data[item.key]}
-                    onClick={checked => this.updateSource({ [item.key]: !checked })}
-                  />
+                    onChange={event =>
+                      this.updateSource({
+                        [item.key]: event.target.checked,
+                      })
+                    }
+                  >
+                    {item.text}
+                  </Checkbox>
                   {data[item.key] && (
                     <CustomMessageBox className="flex mLeft10 flexRow">
                       <div className="flex mRight20 ellipsis Font12">
@@ -1097,10 +1130,15 @@ export default class Approval extends Component {
     return (
       <Fragment>
         {seniorSettings.map(o => (
-          <Checkbox
-            key={o.key}
-            className="mTop15 flexRow"
-            text={
+          <div className="mTop15 flexRow" key={o.key}>
+            <Checkbox
+              checked={data[o.key]}
+              onChange={event =>
+                this.updateSource({
+                  [o.key]: event.target.checked,
+                })
+              }
+            >
               <span>
                 {o.text}
                 {o.tips && (
@@ -1109,10 +1147,8 @@ export default class Approval extends Component {
                   </Tooltip>
                 )}
               </span>
-            }
-            checked={data[o.key]}
-            onClick={checked => this.updateSource({ [o.key]: !checked })}
-          />
+            </Checkbox>
+          </div>
         ))}
 
         <EmailApproval
@@ -1127,12 +1163,17 @@ export default class Approval extends Component {
           <Fragment>
             <Checkbox
               className="mTop15 flexRow"
-              text={_l('开启限时处理')}
               checked={(data.schedule || {}).enable}
-              onClick={checked =>
-                this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
+              onChange={event =>
+                this.updateSource({
+                  schedule: Object.assign({}, data.schedule, {
+                    enable: event.target.checked,
+                  }),
+                })
               }
-            />
+            >
+              {_l('开启限时处理')}
+            </Checkbox>
             <Schedule
               {...this.props}
               schedule={data.schedule}
@@ -1144,10 +1185,15 @@ export default class Approval extends Component {
 
         <Checkbox
           className="mTop15 flexRow"
-          text={_l('允许审批时上传附件')}
           checked={data.allowUploadAttachment}
-          onClick={checked => this.updateSource({ allowUploadAttachment: !checked })}
-        />
+          onChange={event =>
+            this.updateSource({
+              allowUploadAttachment: event.target.checked,
+            })
+          }
+        >
+          {_l('允许审批时上传附件')}
+        </Checkbox>
       </Fragment>
     );
   }
@@ -1237,7 +1283,7 @@ export default class Approval extends Component {
                 <Fragment>
                   {this.renderApprovalSettings()}
 
-                  <div className="Font13 bold mTop25">
+                  <div className="Font13 bold mTop25 flexRow alignItemsCenter">
                     {_l('节点结果通知')}
                     <Tooltip
                       title={_l(
@@ -1253,30 +1299,34 @@ export default class Approval extends Component {
                     <div className="flex flexRow">
                       <Checkbox
                         className="InlineFlex"
-                        text={_l('通过时填写')}
                         checked={!_.includes(data.auth.passTypeList, 101)}
-                        onClick={checked => this.opinionRequiredChange(!checked, 'passTypeList')}
-                      />
+                        onChange={event => this.opinionRequiredChange(event.target.checked, 'passTypeList')}
+                      >
+                        {_l('通过时填写')}
+                      </Checkbox>
                       <Checkbox
                         className="InlineFlex mLeft25"
-                        text={_l('必填')}
                         checked={_.includes(data.auth.passTypeList, 100)}
-                        onClick={checked => this.opinionRequiredChange(!checked, 'passTypeList', 100)}
-                      />
+                        onChange={event => this.opinionRequiredChange(event.target.checked, 'passTypeList', 100)}
+                      >
+                        {_l('必填')}
+                      </Checkbox>
                     </div>
                     <div className="flex flexRow">
                       <Checkbox
                         className="InlineFlex"
-                        text={_l('否决/退回时填写')}
                         checked={!_.includes(data.auth.overruleTypeList, 101)}
-                        onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList')}
-                      />
+                        onChange={event => this.opinionRequiredChange(event.target.checked, 'overruleTypeList')}
+                      >
+                        {_l('否决/退回时填写')}
+                      </Checkbox>
                       <Checkbox
                         className="InlineFlex mLeft25"
-                        text={_l('必填')}
                         checked={_.includes(data.auth.overruleTypeList, 100)}
-                        onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList', 100)}
-                      />
+                        onChange={event => this.opinionRequiredChange(event.target.checked, 'overruleTypeList', 100)}
+                      >
+                        {_l('必填')}
+                      </Checkbox>
                     </div>
                   </div>
                   <CustomMessageBox className="mTop15 flexRow">
@@ -1329,16 +1379,18 @@ export default class Approval extends Component {
                   <div className="flexRow mTop15">
                     <Checkbox
                       className="InlineFlex flex"
-                      text={_l('通过时必须认证')}
                       checked={!!data.auth.passTypeList.filter(i => !this.checkHasOpinion(i)).length}
-                      onClick={checked => this.authRequiredChange(!checked, 'passTypeList')}
-                    />
+                      onChange={event => this.authRequiredChange(event.target.checked, 'passTypeList')}
+                    >
+                      {_l('通过时必须认证')}
+                    </Checkbox>
                     <Checkbox
                       className="InlineFlex flex"
-                      text={_l('否决/退回时必须认证')}
                       checked={!!data.auth.overruleTypeList.filter(i => !this.checkHasOpinion(i)).length}
-                      onClick={checked => this.authRequiredChange(!checked, 'overruleTypeList')}
-                    />
+                      onChange={event => this.authRequiredChange(event.target.checked, 'overruleTypeList')}
+                    >
+                      {_l('否决/退回时必须认证')}
+                    </Checkbox>
                   </div>
 
                   {data.authTypeList.length === 1 ||
@@ -1347,17 +1399,16 @@ export default class Approval extends Component {
                     0 ? null : (
                     <Fragment>
                       <div className="Font13 bold mTop25">{_l('认证等级')}</div>
-                      <Dropdown
+                      <Select
                         className="flowDropdown mTop10"
-                        data={data.authTypeList.map(({ value, disabled }) => {
-                          return { value, text: authTypeListText[value], disabled };
+                        options={data.authTypeList.map(({ value, disabled }) => {
+                          return { value, label: authTypeListText[value], disabled };
                         })}
                         value={
                           data.auth.passTypeList
                             .concat(data.auth.overruleTypeList)
                             .filter(item => !this.checkHasOpinion(item))[0]
                         }
-                        border
                         onChange={this.authRankChange}
                       />
                     </Fragment>
@@ -1366,10 +1417,26 @@ export default class Approval extends Component {
                   <div className="Font13 mTop25 bold">{_l('安全')}</div>
                   <Checkbox
                     className="mTop15 flexRow alignItemsCenter"
-                    text={
+                    checked={data.encrypt}
+                    onChange={event =>
+                      this.updateSource(
+                        {
+                          encrypt: event.target.checked,
+                        },
+                        () => {
+                          this.updateFlowMapSource(OPERATION_TYPE.EMAIL, {
+                            batch: false,
+                          });
+                        },
+                      )
+                    }
+                  >
+                    {
                       <span>
-                        {_l('登录密码验证')}
-                        <Tooltip title={_l('启用后，用户输入登录密码后才可进行通过/否决')}>
+                        {_l('启用安全验证')}
+                        <Tooltip
+                          title={_l('开启后，执行该操作时需完成身份校验，验证方式以操作人个人账户的安全设置为准。')}
+                        >
                           <Icon
                             className="Font16 textTertiary mLeft5"
                             style={{ verticalAlign: 'text-bottom' }}
@@ -1378,15 +1445,9 @@ export default class Approval extends Component {
                         </Tooltip>
                       </span>
                     }
-                    checked={data.encrypt}
-                    onClick={checked =>
-                      this.updateSource({ encrypt: !checked }, () => {
-                        this.updateFlowMapSource(OPERATION_TYPE.EMAIL, { batch: false });
-                      })
-                    }
-                  />
+                  </Checkbox>
 
-                  <div className="Font13 bold mTop25">
+                  <div className="Font13 bold mTop25 flexRow alignItemsCenter">
                     {_l('审批说明')}
                     <Tooltip title={_l('在审批记录详情页，右侧的当前节点卡片内会显示对审批内容或操作的提示信息')}>
                       <Icon className="Font16 textTertiary mLeft5" icon="info" />

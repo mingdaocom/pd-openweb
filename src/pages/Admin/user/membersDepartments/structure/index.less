@@ -26,30 +26,7 @@
       border-right: 1px solid var(--color-border-secondary);
 
       .searchContainer {
-        box-sizing: border-box;
-        background: var(--color-background-secondary);
-        border-radius: 15px;
         margin: 0 12px;
-
-        .btnSearch {
-          font-size: 18px;
-
-          position: absolute;
-
-          margin: 7px 14px;
-        }
-
-        .searchInput {
-          line-height: 32px;
-
-          width: 155px;
-          height: 32px;
-          padding-left: 38px;
-
-          border: none;
-          outline: none;
-          background: transparent;
-        }
 
         .searchResult {
           background: var(--color-background-primary);
@@ -131,10 +108,6 @@
           }
         }
       }
-      .searchContainer:hover {
-        background-color: var(--color-border-secondary);
-      }
-
       .labelContainer {
         display: flex;
         flex-direction: row;
@@ -191,10 +164,6 @@
         .noDepartment {
           padding: 2px 8px 2px 8px;
           border-radius: 6px;
-          .Checkbox-box {
-            transform: scale(0.7);
-            vertical-align: middle;
-          }
         }
         .noDepartment.bgColorHover:hover {
           background-color: var(--color-background-hover);
@@ -213,44 +182,6 @@
       }
       .actList {
         flex-wrap: wrap;
-        .actBtn {
-          height: 32px;
-          border-radius: 3px;
-          line-height: 30px;
-          text-align: center;
-          border: 1px solid var(--color-border-secondary);
-          background-color: var(--color-background-primary);
-          margin-right: 8px;
-          margin-bottom: 10px;
-          padding: 0 16px;
-          font-size: 14px;
-          cursor: pointer;
-          &.disabledBtn {
-            border: 1px solid var(--color-border-secondary);
-            color: var(--color-text-tertiary);
-          }
-        }
-        .actBtn.primaryBtn {
-          color: var(--color-white);
-          background: var(--color-primary);
-          border: 1px solid var(--color-primary);
-        }
-        .actBtn:hover {
-          color: var(--color-link-hover);
-          border: 1px solid var(--color-link-hover);
-          cursor: pointer;
-        }
-        .actBtn.primaryBtn:hover {
-          color: var(--color-white);
-          background: var(--color-link-hover);
-          border: 1px solid var(--color-link-hover);
-        }
-        .disabledBtn:hover {
-          border: 1px solid var(--color-border-secondary);
-          color: var(--color-text-tertiary);
-          background-color: var(--color-background-primary);
-          cursor: not-allowed;
-        }
       }
       .listInfo {
         flex: 1;
@@ -348,35 +279,6 @@
                 }
                 .checkBox {
                   border-bottom: none;
-                  // opacity: 1;
-                  .Checkbox-box {
-                    border: 1px solid var(--color-border-primary);
-                    margin-right: 0;
-                    margin-top: -2px;
-                  }
-                  .multi-dropdown {
-                    display: inline-block;
-                    width: 0px;
-                    margin-left: 0 !important;
-
-                    .dropdown-btn {
-                      vertical-align: top;
-                      padding-left: 1px;
-
-                      i.icon {
-                        color: var(--color-text-secondary);
-                      }
-                    }
-                    .multi-dropdown-menu {
-                      top: 100%;
-                      bottom: auto;
-                    }
-                  }
-                }
-                .showCheckBox.checkBox {
-                  .Checkbox-box {
-                    border: 1px solid var(--color-primary);
-                  }
                 }
                 .visibiliityIcon {
                   color: var(--color-text-tertiary);
@@ -501,50 +403,9 @@
                   .fixedRight {
                     border-left: 1px solid var(--color-border-secondary);
                   }
-                  .checkBox {
-                    // border-bottom: none;
-                    .Checkbox-box {
-                      border: 1px solid var(--color-border-primary);
-                      margin-right: 0;
-                      margin-top: -2px;
-                    }
-
-                    .multi-dropdown {
-                      display: inline-block;
-                      width: 0px;
-                      margin-left: 0 !important;
-
-                      .dropdown-btn {
-                        vertical-align: top;
-                        padding-left: 1px;
-
-                        i.icon {
-                          color: var(--color-text-secondary);
-                        }
-                      }
-
-                      .multi-dropdown-menu {
-                        top: 100%;
-                        bottom: auto;
-                      }
-                    }
-                  }
-                  .showCheckBox.checkBox {
-                    .Checkbox-box {
-                      border: 1px solid var(--color-primary);
-                    }
-                  }
                   &:hover {
                     .checkBox {
                       opacity: 1;
-                      .Checkbox-box {
-                        border: 1px solid var(--color-border-primary);
-                      }
-                    }
-                    .showCheckBox.checkBox {
-                      .Checkbox-box {
-                        border: 1px solid var(--color-primary);
-                      }
                     }
                     .nameTh {
                       color: var(--color-primary) !important;
@@ -628,32 +489,6 @@
       height: calc(~'100% - 56px');
       padding-top: 34px;
       overflow-y: auto;
-      .tabs {
-        width: 260px;
-        margin: 0 auto 34px;
-        background: var(--color-background-secondary);
-        border-radius: 9px;
-        display: flex;
-        text-align: center;
-        padding: 3px;
-        .tabItem {
-          width: 130px;
-          height: 32px;
-          line-height: 32px;
-          text-align: center;
-          font-size: 14px;
-          font-weight: 600;
-          border-radius: 7px;
-        }
-        .activeTab {
-          background: var(--color-background-primary);
-          color: var(--color-primary);
-        }
-        .tabItem:hover {
-          color: var(--color-primary);
-          cursor: pointer;
-        }
-      }
       .Font46 {
         font-size: 46px !important;
       }
@@ -673,32 +508,6 @@
           margin-bottom: 34px;
           padding: 0 24px;
           font-size: 17px;
-          .importTemplate {
-            font-weight: 400;
-          }
-          .downLoad {
-            font-size: 16px;
-            color: var(--color-primary);
-            cursor: pointer;
-            cursor: pointer;
-          }
-          .exportBtn {
-            display: inline-block;
-            height: 32px;
-            line-height: 32px;
-            text-align: center;
-            border: 1px solid var(--color-primary);
-            border-radius: 32px;
-            background-color: var(--color-background-primary);
-            padding: 0 24px;
-            margin-top: 10px;
-            color: var(--color-primary);
-            cursor: pointer;
-          }
-          .exportBtn:hover {
-            color: var(--color-white);
-            background-color: var(--color-primary);
-          }
         }
       }
       .color_b {
@@ -749,22 +558,6 @@
             align-items: center;
             line-height: 37px;
           }
-          .downloadBtn {
-            display: inline-block;
-            padding: 0 24px;
-            height: 32px;
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 32px;
-            text-align: center;
-            border: none;
-            border-radius: 32px;
-            background-color: var(--color-background-primary);
-          }
-          .downloadBtn:hover {
-            color: var(--color-white);
-            background-color: var(--color-primary);
-          }
         }
       }
       .importExcelBox {
@@ -777,18 +570,6 @@
         justify-content: center;
         .icon-new_excel {
           font-size: 50px;
-        }
-        .uploadBtnStyle {
-          width: 108px;
-          height: 36px;
-          border: 1px solid var(--color-border-primary);
-          border-radius: 32px;
-          background-color: var(--color-background-primary);
-          color: var(--color-text-primary);
-          &:hover {
-            color: var(--color-primary-light) !important;
-            border-color: var(--color-primary-light) !important;
-          }
         }
       }
       .importBtnBorder {
@@ -823,11 +604,6 @@
 
 .showColumnsBox {
   width: 300px;
-  z-index: 1;
-  background-color: var(--color-background-primary);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-  padding: 24px 24px 12px;
-  border-radius: 3px;
   .statistics {
     margin-bottom: 24px;
     font-size: 17px;
@@ -839,18 +615,12 @@
       margin-bottom: 16px;
       font-size: 13px;
       line-height: 20px;
-      .ming.Checkbox.Checkbox--disabled.checked {
-        .Checkbox-box {
-          background-color: var(--color-primary-light);
-          border-color: var(--color-primary-light);
-        }
-      }
     }
   }
 }
 
 .removeUserErr {
-  .ant-notification-notice-description .antNotificationDescription {
+  .hap-notification-notice-description .notificationDescription {
     max-height: unset !important;
     -webkit-line-clamp: unset !important;
   }

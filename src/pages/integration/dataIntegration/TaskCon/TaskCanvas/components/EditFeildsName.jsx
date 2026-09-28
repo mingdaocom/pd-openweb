@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
-  .ming.Input {
+  .hap-input {
     height: 30px;
   }
 `;

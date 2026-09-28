@@ -3,10 +3,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import DatePicker from 'ming-ui/components/DatePicker';
-import Dropdown from 'ming-ui/components/Dropdown';
+import { DatePicker, Select } from 'ming-ui/antd-components';
 import { formatRecur } from '../../common';
 import { FREQUENCY, RECURLAYERS, RECURTYPE, WEEKDAYS } from '../../constant';
+
+const REPEAT_DATE_PICKER_CLASS_NAMES = { popup: { root: 'calendarRepeatDatePickerPopup' } };
+const REPEAT_SELECT_CLASS_NAMES = { popup: { root: 'calendarRepeatSelectPopup' } };
 
 export default class RepeatBox extends Component {
   static propTypes = {
@@ -80,14 +82,16 @@ export default class RepeatBox extends Component {
     } = this.props;
     // dropDown props required value is string
     const data = [
-      { text: _l('无'), value: FREQUENCY.NONE + '' },
-      { text: _l('每天'), value: FREQUENCY.DAY + '' },
-      { text: _l('每周'), value: FREQUENCY.WEEK + '' },
-      { text: _l('每月'), value: FREQUENCY.MONTH + '' },
-      { text: _l('每年'), value: FREQUENCY.YEAR + '' },
+      { label: _l('无'), value: FREQUENCY.NONE + '' },
+      { label: _l('每天'), value: FREQUENCY.DAY + '' },
+      { label: _l('每周'), value: FREQUENCY.WEEK + '' },
+      { label: _l('每月'), value: FREQUENCY.MONTH + '' },
+      { label: _l('每年'), value: FREQUENCY.YEAR + '' },
     ];
     const dropDownProps = {
-      data,
+      classNames: REPEAT_SELECT_CLASS_NAMES,
+      options: data,
+      variant: 'borderless',
       value: frequency + '',
       onChange: this.changeFrequency.bind(this),
       key: 'frequency-input',
@@ -96,7 +100,7 @@ export default class RepeatBox extends Component {
       <div>
         <div className="LineHeight30">
           <span className="formLabel">{_l('重复:')}</span>
-          <Dropdown {...dropDownProps} />
+          <Select {...dropDownProps} />
         </div>
         {frequency === FREQUENCY.NONE ? null : this.renderInterval()}
         {frequency === FREQUENCY.NONE ? null : this.renderRecur()}
@@ -158,18 +162,20 @@ export default class RepeatBox extends Component {
     } = this.props;
     // dropDown props required value is string
     const data = [
-      { text: _l('永不'), value: RECURTYPE.NONE },
-      { text: _l('次数'), value: RECURTYPE.COUNT },
-      { text: _l('日期'), value: RECURTYPE.DATE },
+      { label: _l('永不'), value: RECURTYPE.NONE },
+      { label: _l('次数'), value: RECURTYPE.COUNT },
+      { label: _l('日期'), value: RECURTYPE.DATE },
     ];
     const dropDownProps = {
-      data,
+      classNames: REPEAT_SELECT_CLASS_NAMES,
+      options: data,
+      variant: 'borderless',
       value: recurType,
     };
     return (
       <div className="LineHeight30">
         <span className="formLabel">{_l('结束:')}</span>
-        <Dropdown {...dropDownProps} onChange={this.changeRecur.bind(this)} key="recur-input" />
+        <Select {...dropDownProps} onChange={this.changeRecur.bind(this)} key="recur-input" />
         {recurType === RECURTYPE.NONE ? null : this.renderRecurEdit()}
       </div>
     );
@@ -195,32 +201,20 @@ export default class RepeatBox extends Component {
       );
     } else {
       return (
-        <span
-          className="mLeft10 Relative untilDateBox borderColorPrimary"
-          ref={el => {
-            this.untilDateBox = el;
+        <DatePicker
+          className="mLeft10"
+          classNames={REPEAT_DATE_PICKER_CLASS_NAMES}
+          disabledDate={date => date && date.isSameOrBefore(moment(end), 'day')}
+          format="YYYY-MM-DD"
+          inputReadOnly
+          value={untilDate === '0' ? null : moment(untilDate)}
+          variant="borderless"
+          onChange={selectDate => {
+            this.props.change({
+              untilDate: selectDate ? selectDate.format('YYYY-MM-DD') : '0',
+            });
           }}
-        >
-          <DatePicker
-            popupParentNode={() => this.untilDateBox}
-            format={'YYYY-MM-DD'}
-            selectedValue={moment(untilDate)}
-            disabledDate={date => {
-              if (date.isSameOrBefore(moment(end), 'day')) return true;
-            }}
-            onSelect={selectDate => {
-              if (selectDate) {
-                this.props.change({
-                  untilDate: selectDate.format('YYYY-MM-DD'),
-                });
-              } else {
-                this.props.change({
-                  untilDate: '0',
-                });
-              }
-            }}
-          />
-        </span>
+        />
       );
     }
   }

@@ -83,35 +83,10 @@
 
   .addBtn {
     color: var(--color-primary);
-    // margin-top: 24px;
     display: inline-block;
-    position: relative;
 
     &:hover {
       color: var(--color-link-hover);
-    }
-
-    .moreActionDia {
-      position: absolute;
-      top: 20px;
-      left: 0;
-      z-index: 1;
-      line-height: 30px;
-      text-align: left;
-      width: 180px;
-      background: var(--color-background-card);
-      box-shadow: var(--shadow-sm);
-      border-radius: 3px;
-      padding: 10px 0;
-      box-sizing: border-box;
-
-      li {
-        padding: 0 24px;
-
-        &:hover {
-          background: var(--color-border-secondary);
-        }
-      }
     }
   }
 
@@ -186,33 +161,6 @@
       &.active,
       &:hover {
         background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
-      }
-    }
-
-    .saveBtn {
-      width: 74px;
-      height: 28px;
-      line-height: 28px;
-      background: var(--color-primary);
-      border-radius: 14px;
-      margin-top: 32px;
-      color: var(--color-white);
-      display: inline-block;
-      cursor: pointer;
-      margin-left: 24px;
-      text-align: center;
-
-      &.disable {
-        background: var(--color-text-disabled);
-        cursor: pointer;
-
-        &:hover {
-          background: var(--color-text-disabled) !important;
-        }
-      }
-
-      &:hover {
-        background: var(--color-link-hover);
       }
     }
   }

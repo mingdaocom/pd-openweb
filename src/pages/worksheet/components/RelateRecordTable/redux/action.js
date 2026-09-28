@@ -1,4 +1,4 @@
-﻿import _, {
+import _, {
   assign,
   find,
   get,
@@ -13,21 +13,21 @@
   pick,
 } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import addRecord from 'worksheet/common/newRecord/addRecord';
 import { getTreeExpandSize, handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import DataFormat from 'src/components/Form/core/DataFormat';
-import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { deleteRecord, updateRecordControl, updateRelateRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
-import { formatValuesOfCondition, getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { getFilledRequestParams } from 'src/utils/common';
-import { controlState, replaceByIndex } from 'src/utils/control';
-import { handleRowData } from 'src/utils/record';
-import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { controlState, replaceByIndex } from 'src/utils/domain/control/state';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { handleRowData } from 'src/utils/services/worksheet/record';
 import { getVisibleControls } from '../utils';
 
 /**
@@ -84,6 +84,7 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
                 value: row.rowid,
               },
             ],
+
             // 草稿箱下需与首屏取数同口径，传 getType: 21，否则异步展开拉取子节点接口取数不对
             getType: from === RECORD_INFO_FROM.DRAFT || isDraft ? 21 : undefined,
             instanceId,
@@ -462,8 +463,24 @@ export function init() {
       );
     }
 
+    // 勾选「列样式与工作表保持一致」时才拉数据管理视图（viewId === worksheetId），
+    // 它不在 getWorksheetInfo 返回的 views 里，列样式只能单独取。与下面两个请求并发，不占串行耗时
+    const manageViewPromise =
+      get(control, 'advancedSetting.usecolumnstyle') === '1'
+        ? worksheetAjax
+            .getWorksheetViewById(
+              {
+                appId: base.appId,
+                worksheetId: relateWorksheetInfo.worksheetId,
+                viewId: relateWorksheetInfo.worksheetId,
+              },
+              { silent: true },
+            )
+            .catch(() => undefined)
+        : undefined;
     const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId: control.dataSource });
     const sheetQuery = await worksheetAjax.getQueryBySheetId({ worksheetId: control.dataSource });
+    const manageView = await manageViewPromise;
     const searchConfig = formatSearchConfigs(sheetQuery);
     const tableConfig = getTableConfigFromControl(get(getState(), 'base.control'), {
       from,
@@ -501,6 +518,7 @@ export function init() {
         isTab,
         isInForm: String(RELATE_RECORD_SHOW_TYPE.TABLE) === get(control, 'advancedSetting.showtype'),
         relateWorksheetInfo,
+        manageView,
         sheetSwitchPermit,
         searchConfig,
       },
@@ -865,7 +883,7 @@ export function getDefaultRelatedSheetValue(formData = [], recordId) {
   };
 }
 
-export function handleRecreateRecord(record, { openRecord = () => {}, isDraft } = {}) {
+export function handleRecreateRecord(record, { openRecord = () => {}, openAddRecord, isDraft } = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const { base = {}, controls } = state;
@@ -877,7 +895,7 @@ export function handleRecreateRecord(record, { openRecord = () => {}, isDraft } 
       columns: controls,
     }).then(res => {
       const { defaultData, defcontrols } = res;
-      addRecord({
+      openAddRecord({
         worksheetId: control.dataSource,
         masterRecord: {
           rowId: recordId,
@@ -906,7 +924,7 @@ export function handleRecreateRecord(record, { openRecord = () => {}, isDraft } 
   };
 }
 
-export function handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting } = {}) {
+export function handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting, skipWidths } = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const { base = {}, tableState = {} } = state;
@@ -914,7 +932,8 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
     const { sheetColumnWidths, fixedColumnCount, sheetHiddenColumnIds } = tableState;
     const newControl = omit(base.control, ['relationControls']);
 
-    if (!isEmpty(sheetColumnWidths)) {
+    // 勾选「列样式与工作表保持一致」时，列宽由关联视图托管，拖拽列宽不写回字段配置
+    if (!skipWidths && !isEmpty(sheetColumnWidths)) {
       const newWidths = JSON.stringify(
         pick(
           { ...columnWidthsOfSetting, ...sheetColumnWidths },
@@ -983,7 +1002,7 @@ export function handleRemoveRelation(recordIds) {
         dispatch(refresh({ doNotResetPageIndex: records.length - recordIds.length > 0, doNotClearKeywords: true }));
       } catch (err) {
         console.log(err);
-        alert(_l('取消关联失败！'), 2);
+        alertIfNotUnauthorized(err, _l('取消关联失败！'), 2);
       }
     } else {
       dispatch(deleteRecords(recordIds));
@@ -1027,7 +1046,7 @@ export function handleAddRelation(records) {
         alert(_l('添加记录成功！'));
       } catch (err) {
         console.log(err);
-        alert(_l('添加记录失败！'), 2);
+        alertIfNotUnauthorized(err, _l('添加记录失败！'), 2);
       }
     } else {
       dispatch(appendRecords(records));
@@ -1071,8 +1090,8 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
           dispatch(refresh());
         }
       })
-      .catch(() => {
-        alert(_l('删除失败！'), 3);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('删除失败！'), 3);
       });
   };
 }
@@ -1104,7 +1123,7 @@ export function updateFilter() {
   };
 }
 
-export function batchUpdateRecords({ selectedRowIds = [], records = [], activeControl } = {}) {
+export function batchUpdateRecords({ selectedRowIds = [], records = [], activeControl, openBatchEditRecord } = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const { isCharge, base = {}, controls } = state;
@@ -1124,7 +1143,7 @@ export function batchUpdateRecords({ selectedRowIds = [], records = [], activeCo
     }
 
     const columns = getVisibleControls(control, controls);
-    batchEditRecord({
+    openBatchEditRecord({
       appId: relateWorksheetInfo.appId,
       worksheetId: control.dataSource,
       projectId: relateWorksheetInfo.projectId,

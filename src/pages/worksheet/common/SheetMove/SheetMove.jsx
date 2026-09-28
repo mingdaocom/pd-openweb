@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Dialog, Dropdown, Icon, ScrollView, SvgIcon } from 'ming-ui';
+import { Icon, ScrollView, SvgIcon } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import homeApp from 'src/api/homeApp';
-import { canEditApp } from 'worksheet/redux/actions/util';
 import store from 'src/redux/configureStore';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import './SheetMove.less';
 
 const formatApps = function (validProject, projectId) {
@@ -17,7 +18,7 @@ const formatApps = function (validProject, projectId) {
 
       if (isCharge) {
         appList.push({
-          text: app.name,
+          label: app.name,
           value: app.id,
         });
       }
@@ -82,24 +83,6 @@ export default class SheetMove extends Component {
     });
     this.props.onClose();
   }
-  renderFooter() {
-    const { groupingValue } = this.state;
-    return (
-      <div>
-        <Button type="link" onClick={this.handleCancel.bind(this)}>
-          {_l('取消')}
-        </Button>
-        <Button
-          type="primary"
-          onClick={this.handleOk.bind(this)}
-          disabled={!groupingValue}
-          className={cx({ 'Button--disabled': !groupingValue })}
-        >
-          {_l('确认')}
-        </Button>
-      </div>
-    );
-  }
   renderGroupingItem(data) {
     const { appItem } = this.props;
     const { groupingValue, grouping, searchValue } = this.state;
@@ -151,17 +134,20 @@ export default class SheetMove extends Component {
   }
   render() {
     const { appItem } = this.props;
-    const { appList, appValue, grouping, searchValue } = this.state;
+    const { appList, appValue, grouping, groupingValue, searchValue } = this.state;
     const { workSheetName, iconUrl, type } = appItem;
     return (
-      <Dialog
+      <Modal
         className="SheetMove"
-        visible={true}
-        anim={false}
-        title={<span className="bold">{_l('移动到')}</span>}
+        open
+        title={_l('移动到')}
         width={640}
         onCancel={this.handleCancel.bind(this)}
-        footer={this.renderFooter()}
+        onOk={this.handleOk.bind(this)}
+        okText={_l('确认')}
+        cancelText={_l('取消')}
+        okDisabled={!groupingValue}
+        styles={{ body: { overflow: 'hidden' } }}
       >
         <div className="flexRow alignItemsCenter textSecondary">
           {_l('将')}
@@ -175,15 +161,13 @@ export default class SheetMove extends Component {
         </div>
         <div className="flexColumn mTop10">
           <span className="mBottom8">{_l('应用')}</span>
-          <Dropdown
-            isAppendToBody
+          <Select
+            showSearch
+            optionFilterProp="label"
             placeholder={_l('请选择你作为管理员或开发者的应用')}
-            menuClass="sheetMoveApp"
-            className={cx('flex', { empty: !appValue })}
-            border
-            openSearch
-            value={appValue}
-            data={appList}
+            className="flex"
+            value={appValue || undefined}
+            options={appList}
             onChange={value => {
               this.handleChangeApp(value);
             }}
@@ -193,11 +177,11 @@ export default class SheetMove extends Component {
           <span className="mBottom8">{_l('选择分组')}</span>
           <div className="groupingWrap flexColumn">
             <div className="searchWrap flexRow alignItemsCenter mBottom8 pBottom10">
-              <Icon icon="search" className="Font18 textTertiary mRight3" />
-              <input
+              <Input
                 className="w100"
+                variant="borderless"
+                prefix={<Icon icon="search" className="Font18 textTertiary" />}
                 placeholder={_l('搜索')}
-                type="text"
                 value={searchValue}
                 onChange={e => {
                   this.setState({
@@ -210,7 +194,7 @@ export default class SheetMove extends Component {
               {type === 2 &&
                 this.renderGroupingItem({
                   appSectionId: appValue,
-                  name: _.get(_.find(appList, { value: appValue }), 'text') || '',
+                  name: _.get(_.find(appList, { value: appValue }), 'label') || '',
                   subName: _l('(作为一级分组移动)'),
                 })}
               {grouping.map(data => (
@@ -224,7 +208,7 @@ export default class SheetMove extends Component {
             </ScrollView>
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

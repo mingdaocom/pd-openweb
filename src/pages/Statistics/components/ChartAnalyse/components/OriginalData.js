@@ -1,17 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Button, ConfigProvider, Modal, Radio, Space } from 'antd';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Input, Modal, Radio, Space } from 'ming-ui/antd-components';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-
-const ShowControlIdWrapper = styled.div`
-  border-radius: 4px;
-  padding: 5px 9px;
-  border: 1px solid var(--color-border-primary);
-  background-color: var(--color-border-secondary);
-`;
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
 
 export default class OriginalData extends Component {
   constructor(props) {
@@ -80,27 +72,6 @@ export default class OriginalData extends Component {
       showControlIds: newShowControls,
     });
   };
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.setState({
-                showControlVisible: false,
-              });
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSaveShowControlIds}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   renderShowControls() {
     const { showControlVisible, showControlIds } = this.state;
     const { displaySetup } = this.props;
@@ -110,7 +81,7 @@ export default class OriginalData extends Component {
         <div className="mBottom10 Font13">{_l('显示数据')}</div>
         <div className="mBottom16">
           <Radio.Group onChange={this.handleChange} value={displaySetup.showControlIds.length ? 2 : 1}>
-            <Space direction="vertical">
+            <Space orientation="vertical">
               <Radio value={1} className="Font13">
                 {_l('按照权限查看')}
               </Radio>
@@ -120,27 +91,33 @@ export default class OriginalData extends Component {
             </Space>
           </Radio.Group>
           {!_.isEmpty(displaySetup.showControlIds) && (
-            <ShowControlIdWrapper className="flexRow valignWrapper mTop10">
-              <div className="flex">{_l('显示%0个字段', displaySetup.showControlIds.length)}</div>
-              <Icon
-                className="textTertiary pointer"
-                icon="edit"
-                onClick={() => {
-                  this.setState({ showControlVisible: true });
-                }}
-              />
-            </ShowControlIdWrapper>
+            <Input
+              readOnly
+              className="mTop10"
+              value={_l('显示%0个字段', displaySetup.showControlIds.length)}
+              suffix={
+                <Icon
+                  className="textTertiary pointer"
+                  icon="edit"
+                  onClick={() => {
+                    this.setState({ showControlVisible: true });
+                  }}
+                />
+              }
+            />
           )}
         </div>
         <Modal
           title={_l('自定义显示字段')}
           width={580}
+          style={{
+            header: { marginBottom: 10 },
+          }}
           className="chartModal"
-          visible={showControlVisible}
+          open={showControlVisible}
           centered={true}
-          destroyOnClose={true}
           closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-          footer={this.renderFooter()}
+          onOk={this.handleSaveShowControlIds}
           onCancel={() => {
             this.setState({
               showControlVisible: false,
@@ -172,7 +149,7 @@ export default class OriginalData extends Component {
       <Fragment>
         <div className="flexColumn mBottom16">
           <Radio.Group onChange={this.handleChangeViewDataType} value={viewDataType}>
-            <Space direction="vertical">
+            <Space orientation="vertical">
               <Radio value={1} className="Font13">
                 {_l('在图表中分栏查看')}
               </Radio>

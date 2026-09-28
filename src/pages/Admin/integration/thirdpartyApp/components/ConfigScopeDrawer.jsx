@@ -1,37 +1,32 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import { Drawer } from 'ming-ui/antd-components';
 import openAuthorAjax from 'src/api/openAuthor';
 import { SCOPE_LIST } from 'src/pages/Admin/components/ApiScopeList/enum';
 import AuthScope from './AuthScope';
 import UseScope from './UseScope';
 
-const DrawerWrap = styled(Drawer)`
-  .ant-drawer-content-wrapper {
+const DrawerWrap = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-content-wrapper {
     box-shadow: -7px 0px 6px 1px rgba(0, 0, 0, 0.08);
   }
-  .ant-drawer-header {
-    border-color: var(--color-border-secondary);
+  .hap-drawer-header {
     padding: 14px 24px;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-title {
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .ant-drawer-close {
-        margin-right: -12px;
-      }
-    }
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 0;
     overflow: hidden;
   }
-  .ant-drawer-footer {
+  .hap-drawer-footer {
     border: none;
   }
 `;
@@ -92,10 +87,9 @@ export default function ConfigScopeDrawer(props) {
     <DrawerWrap
       title={_l('集成应用')}
       width={685}
-      visible
+      open
       onClose={onClose}
       placement="right"
-      destroyOnClose={true}
       closeIcon={<i className="icon-close Font18" />}
     >
       {loading ? (

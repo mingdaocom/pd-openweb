@@ -5,10 +5,11 @@ import { LoadDiv } from 'ming-ui';
 import loginController from 'src/api/login';
 import { LoginResult } from 'src/pages/AuthService/login/config.js';
 import { getDataByFilterXSS, getMingoAnonymousReturnUrl } from 'src/pages/AuthService/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest, pathCompletion } from 'src/utils/common';
-import { setPssId } from 'src/utils/pssId';
-import { checkLogin } from 'src/utils/sso';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { checkLogin } from 'src/utils/services/auth/sso';
 import { Wrap } from './style';
 
 const request = getRequest();
@@ -75,7 +76,7 @@ function Container() {
             // preall 会立即请求 GetGlobalMeta，需先写入 md_pss_id 避免被识别为未登录
             setPssId(data.sessionId, autoLogin);
 
-            import('src/common/preall').then(preall => {
+            import('src/common/entries/preall').then(preall => {
               preall.default({ type: 'function' }, { skipLanguageReload: true });
 
               // preall 后 HttpOnly 等全局配置已刷新，再按完整策略补写一次登录态

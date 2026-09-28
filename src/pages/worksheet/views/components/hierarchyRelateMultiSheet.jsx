@@ -1,12 +1,12 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import { Dropdown, Input } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 import VerifyDel from './VerifyDel';
 
 const ControlsWrap = styled.div`
@@ -65,30 +65,6 @@ const ControlsWrap = styled.div`
     cursor: pointer;
   }
 `;
-const EmptyHint = styled.div`
-  padding: 12px;
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
-  width: 280px;
-  color: var(--color-text-tertiary);
-  font-size: 13px;
-  font-weight: 500;
-`;
-
-const InputWrap = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0 12px;
-  border-bottom: 1px solid --color-background-disabled;
-  input {
-    line-height: 32px;
-    border: none;
-    outline: none;
-    padding-left: 8px;
-  }
-`;
 
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
@@ -121,6 +97,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
 
   const [delIndex, setIndex] = useState(-1);
   const [searchValue, setValue] = useState('');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
   const addRelateRef = useRef(null);
 
   const getPlacement = () => {
@@ -192,47 +169,73 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
     });
   };
 
-  const renderRelate = () => {
-    if (controlLoading) return <LoadDiv />;
+  const getRelateMenuItems = () => {
+    if (controlLoading) {
+      return [
+        {
+          key: 'loading',
+          disabled: true,
+          style: { padding: 0 },
+          label: <LoadDiv />,
+        },
+      ];
+    }
+
     const filterData = searchValue
       ? availableControls.filter(i => i.controlName.includes(searchValue))
       : availableControls;
-    return (
-      <Menu style={{ maxHeight: 300, overflowY: 'auto' }}>
-        <InputWrap>
-          <i className="icon-search textSecondary Font16"></i>
-          <input
+
+    return [
+      {
+        key: 'search',
+        style: { padding: 0, cursor: 'default' },
+        label: (
+          <Input
             autoFocus
+            className="w100"
+            variant="underlined"
             value={searchValue}
+            prefix={<i className="icon-search textSecondary Font16" />}
             placeholder={_l('搜索')}
+            onClick={e => e.stopPropagation()}
             onChange={e => {
               setValue(e.target.value);
             }}
           />
-        </InputWrap>
-        {filterData.length > 0 ? (
-          <Fragment>
-            {filterData.map(item => {
-              const { controlId, controlName } = item;
-              return (
-                <Menu.Item
-                  key={controlId}
-                  onClick={() => {
-                    addViewControl(item);
-                  }}
-                >
+        ),
+        onClick: ({ domEvent }) => {
+          domEvent.stopPropagation();
+        },
+      },
+    ].concat(
+      filterData.length > 0
+        ? filterData.map(item => {
+            const { controlId, controlName } = item;
+
+            return {
+              key: controlId,
+              label: (
+                <React.Fragment>
                   <i className="icon-link2 textTertiary Font15"></i>
                   <span style={{ marginLeft: '6px' }} className="controlName Bold">
                     {controlName}
                   </span>
-                </Menu.Item>
-              );
-            })}
-          </Fragment>
-        ) : (
-          <EmptyHint>{_l('没有可选择的关联字段')}</EmptyHint>
-        )}
-      </Menu>
+                </React.Fragment>
+              ),
+              onClick: () => {
+                addViewControl(item);
+                setDropdownVisible(false);
+              },
+            };
+          })
+        : [
+            {
+              key: 'empty',
+              disabled: true,
+              style: { padding: 0 },
+              label: <div className="centerAlign pAll10">{_l('没有可选择的关联字段')}</div>,
+            },
+          ],
     );
   };
 
@@ -293,10 +296,16 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         })}
       </ul>
       <Dropdown
-        overlayClassName="addHierarchyRelate"
+        classNames={{ root: 'addHierarchyRelate' }}
         trigger={['click']}
-        overlay={renderRelate()}
         placement={getPlacement()}
+        open={dropdownVisible}
+        onOpenChange={(visible, info) => {
+          if (_.get(info, 'source') === 'menu') return;
+
+          setDropdownVisible(visible);
+        }}
+        menu={{ items: getRelateMenuItems(), style: { maxHeight: 300, overflowY: 'auto' } }}
       >
         <div className={'addRelate'} ref={addRelateRef} onClick={getAvailableControls}>
           <i className="icon-add"></i>

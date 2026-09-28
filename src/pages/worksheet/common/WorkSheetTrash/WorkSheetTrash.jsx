@@ -4,13 +4,14 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Modal, VerifyPasswordConfirm } from 'ming-ui';
+import { VerifyPasswordConfirm } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
-import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { controlState } from 'src/utils/control';
+import { controlState } from 'src/utils/domain/control/state';
+import { SHEET_VIEW_HIDDEN_TYPES } from 'src/utils/domain/worksheet/constants';
 import Header from './Header';
 import TrashBatchOperate from './TrashBatchOperate';
 import ColumnHead from './TrashColumnHead';
@@ -171,6 +172,7 @@ export default function WorkSheetTrash(props) {
     errorCode,
   } = state;
   const lineNumberBegin = (pageIndex - 1) * pageSize;
+  const numberWidth = Math.max(String(lineNumberBegin + records.length).length * 8, 14);
   const hasAuthRows = selectRows.filter(item => item.allowedit || item.allowEdit);
   const hasAuthRowIds = hasAuthRows.map(item => item.rowid);
   const actions = createActions(dispatch);
@@ -216,12 +218,11 @@ export default function WorkSheetTrash(props) {
   return (
     <BrowserRouter>
       <Modal
-        visible
+        open
         closable={false}
         width={document.body.clientWidth * 0.9}
         type="fixed"
-        bodyStyle={{ paddingTop: 0, position: 'relative' }}
-        closeStyle={{ margin: '16px', width: '30px', height: '30px', lineHeight: '30px' }}
+        styles={{ container: { padding: '0 24px', overflow: 'hidden' } }}
       >
         <Con>
           <TrashBatchOperate
@@ -280,16 +281,17 @@ export default function WorkSheetTrash(props) {
                 };
 
                 if (controls.find(c => c.type === 29)) {
-                  Dialog.confirm({
+                  Modal.confirm({
                     title: _l('恢复记录'),
-                    description: (
+                    content: (
                       <Checkbox
                         defaultChecked={!!needRestoreRelation.current}
-                        text={_l('恢复记录同时恢复关联关系')}
-                        onClick={checked => {
-                          needRestoreRelation.current = checked;
+                        onChange={event => {
+                          needRestoreRelation.current = event.target.checked;
                         }}
-                      />
+                      >
+                        {_l('恢复记录同时恢复关联关系')}
+                      </Checkbox>
                     ),
                     onOk: restore,
                   });
@@ -396,6 +398,7 @@ export default function WorkSheetTrash(props) {
                 lineNumberBegin={lineNumberBegin}
                 columns={controlsForShow}
                 rowHeight={34}
+                rowHeadWidth={numberWidth + 72}
                 selectedIds={selected}
                 data={records}
                 renderColumnHead={({ control, ...rest }) => (
@@ -439,12 +442,14 @@ export default function WorkSheetTrash(props) {
                     }}
                   />
                 )}
-                renderRowHead={({ className, style, rowIndex }) => (
+                renderRowHead={({ className, style, rowIndex, openAddRecord }) => (
                   <RowHead
+                    openAddRecord={openAddRecord}
                     isTrash
                     canSelectAll
                     className={className}
-                    style={{ ...style, width: String(lineNumberBegin + rowIndex).length * 8 + 64 }}
+                    style={style}
+                    numberWidth={numberWidth}
                     lineNumberBegin={lineNumberBegin}
                     allWorksheetIsSelected={isAll}
                     selectedIds={selected}

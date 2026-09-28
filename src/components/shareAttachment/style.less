@@ -1,12 +1,4 @@
-@shareBoderColor: #cccccc;
-.darkHeader .header {
-  margin: 0 !important;
-  padding-left: 24px;
-  background-color: var(--color-background-secondary);
-  border-radius: 3px 3px 0 0;
-}
 .shareAttachmentDialogContainer {
-  padding: 0 0 10px;
   * {
     box-sizing: border-box;
   }
@@ -16,13 +8,15 @@
   }
   .filePreview {
     position: relative;
-    height: 140px;
-    margin: 0px -24px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    margin-bottom: 24px;
     text-align: center;
-    background-color: var(--color-background-secondary);
     .fileIcon {
       position: relative;
-      margin-top: -13px;
+      margin: 0;
       width: 85px;
       height: 97px;
       background-size: cover !important;
@@ -60,21 +54,24 @@
       text-indent: 0;
     }
     .thumbnailCon {
-      position: absolute;
-      top: -40px;
-      display: table;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
-      height: 185px;
     }
     .thumbnail {
-      display: table-cell;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
       text-align: center;
-      vertical-align: middle;
       line-height: 1;
       img {
         max-width: 60%;
         max-height: 100px;
+        object-fit: contain;
       }
     }
     .process {
@@ -104,51 +101,46 @@
   }
   .dList {
     .dItem {
-      position: relative;
-      padding: 0 10px 0 100px;
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      align-items: start;
+      column-gap: 20px;
+      padding: 0 10px;
       margin-bottom: 24px;
       .itemLabel {
-        position: absolute;
-        left: 0px;
-        min-width: 80px;
-        max-width: max-content;
-        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        min-width: 0;
+        min-height: 36px;
         font-size: 14px;
         color: var(--color-text-tertiary);
-        line-height: 36px;
-        height: 36px;
+        line-height: 20px;
+        text-align: right;
       }
       .itemContent {
-        input,
-        textarea {
-          width: 334px;
-          &:-ms-input-placeholder {
-            color: var(--color-text-tertiary) !important;
-          }
-          &::-ms-input-placeholder {
-            color: var(--color-text-tertiary);
-          }
-          &::placeholder {
-            color: var(--color-text-tertiary);
-          }
-          &:focus {
-            border-color: var(--color-primary-focus);
-          }
-        }
-        textarea {
-          height: 90px;
-          padding: 8px 12px;
-        }
+        min-width: 0;
+        width: 100%;
       }
     }
     .selectTargetCon {
-      padding: 0 10px;
+      grid-template-columns: minmax(0, 1fr);
+      .itemLabel {
+        display: none;
+      }
+    }
+    .changeShare {
+      .itemContent {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
     }
   }
   .fileNameText {
     display: inline-block;
     line-height: 36px;
-    max-width: 80%;
+    max-width: 100%;
     font-size: 14px;
   }
   .closedTip {
@@ -161,9 +153,9 @@
     position: relative;
     .prev,
     .next {
-      display: none;
       position: absolute;
       top: 22px;
+      z-index: 1;
       font-size: 26px;
       color: var(--color-border-secondary);
       cursor: pointer;
@@ -174,39 +166,23 @@
     .next {
       right: -38px;
     }
-    .overfllowHidden {
-      overflow: hidden;
-    }
     .listBox {
       display: flex;
-      position: relative;
       height: 88px;
       padding: 10px 10px 0 10px;
       margin: -10px -10px -3px;
-    }
-    .listCon {
-      position: absolute;
-      width: 1000px;
-      margin-left: 1px;
-      transform: translateZ(0px);
-      &:after {
-        content: '';
-        clear: both;
-        visibility: hidden;
-        border-top: 0px;
-        margin-top: -1px !important;
-      }
+      overflow: hidden;
     }
     .contentCon {
-      display: inline-block;
+      display: flex;
+      flex: none;
+      gap: 36px;
+      min-width: min-content;
+      margin: 0 auto;
     }
     .targetBtn {
-      float: left;
       text-align: center;
       cursor: pointer;
-      &:not(:last-child) {
-        margin-right: 36px;
-      }
       &:hover {
         .icon {
           transform: scale(1.1);
@@ -273,48 +249,9 @@
     }
   }
   .downloadableCon {
+    display: flex;
+    align-items: center;
     padding: 5px 0;
-  }
-  .switchBtnCon {
-    display: inline-block;
-    line-height: 1;
-    input[type='checkbox'] {
-      display: none;
-      &:checked + .switchBtn {
-        background-color: var(--color-success);
-        &:before {
-          left: 22px;
-        }
-      }
-      &:checked:disabled + .switchBtn {
-        cursor: default;
-        &:before {
-          cursor: default;
-        }
-      }
-    }
-    .switchBtn {
-      position: relative;
-      display: inline-block;
-      vertical-align: middle;
-      cursor: pointer;
-      width: 46px;
-      height: 26px;
-      border-radius: 26px;
-      background-color: var(--color-text-placeholder);
-      transition: 0.4s ease;
-      &:before {
-        content: '';
-        position: absolute;
-        left: 2px;
-        top: 2px;
-        width: 22px;
-        height: 22px;
-        background-color: var(--color-background-primary);
-        border-radius: 22px;
-        transition: 0.4s ease;
-      }
-    }
   }
   .canDownloadTip {
     margin-left: 15px;
@@ -329,124 +266,22 @@
     }
   }
   .sendToTarget {
-    display: inline-block;
-    width: 80px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    line-height: 34px;
-    height: 36px;
-    vertical-align: middle;
-    .customSelect {
-      padding: 0 5px 0 10px;
-    }
-    .icon-arrow-down-border {
-      font-size: 24px;
-    }
-    .csList {
-      margin-top: 10px;
-    }
+    flex: 0 0 80px;
   }
   .selectSharePermission {
-    position: relative;
-    display: inline-block;
-    width: 280px;
-    font-size: 13px;
-    line-height: 36px;
-    height: 36px;
-    .customSelect {
-      margin-left: -10px;
-      vertical-align: middle;
-      z-index: 2 !important;
-    }
-    .spanShow {
-      font-size: 13px !important;
-    }
-    &:after {
-      content: '';
-      display: none;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      z-index: 11;
-    }
-    &.noPermission:after {
-      display: block;
-    }
+    flex: 1;
+    min-width: 0;
   }
   .copyLinkCon {
-    position: absolute;
-    right: 0;
-    top: 0;
-    display: inline-block;
-    width: 100px;
-    font-size: 13px;
-    color: var(--color-text-title);
-    .copyLinkHover {
-      display: inline-block;
-      cursor: pointer;
-      width: 100px;
-      height: 34px;
-      border-radius: 3px;
-      text-align: center;
-      line-height: 34px;
-      border: 1px solid @shareBoderColor;
-    }
-    .copyLinkContent {
-      display: none;
-      position: relative;
-      z-index: 11;
-      margin-left: -246px;
-      margin-top: 16px;
-      right: 0px;
-      width: 346px;
-      box-sizing: border-box;
-      padding: 15px;
-      background-color: var(--color-background-primary);
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
-      border-radius: 3px;
-      &:before,
-      &:after {
-        content: '';
-        position: absolute;
-        right: 30px;
-        top: -20px;
-        width: 0px;
-        height: 0px;
-        border: 10px solid transparent;
-        border-bottom-color: rgba(156, 156, 156, 0.13);
-      }
-      &:after {
-        border-bottom-color: var(--color-background-primary);
-        top: -19px;
-      }
-      input {
-        flex: 1;
-        min-width: 0;
-        width: auto !important;
-      }
-      .copyLinkBtn {
-        display: inline-block;
-        cursor: pointer;
-        text-align: center;
-        margin-left: 12px;
-        height: 34px;
-        line-height: 34px;
-        color: var(--color-white);
-        border-radius: 3px;
-        white-space: nowrap;
-        padding: 0 8px;
-      }
-    }
-    &:hover {
-      .copyLinkContent {
-        display: flex;
-        align-items: center;
-      }
-    }
+    min-width: 100px;
   }
   .sendToContent {
+    flex: 1;
+    min-width: 0;
+    vertical-align: middle;
+    .shareAttachmentDestinationSelect {
+      width: 100%;
+    }
     .kcPath {
       margin-left: 13px;
       font-size: 13px;
@@ -463,119 +298,10 @@
     color: var(--color-text-disabled);
     cursor: pointer;
   }
-  .searchListCon {
-    display: inline-block;
-    height: 36px;
-    width: 200px;
-    color: var(--color-text-title);
-    vertical-align: middle;
-    width: 279px;
-    .selected {
-      font-size: 13px;
-      line-height: 34px;
-      padding: 0 10px;
-      border: 1px solid @shareBoderColor;
-      border-radius: 3px;
-      cursor: pointer;
-      img {
-        width: 24px;
-        height: 24px;
-        border-radius: 20px;
-        margin-right: 6px;
-        vertical-align: middle;
-      }
-    }
-    .searchInput {
-      display: none;
-      width: 100% !important;
-    }
-    .listPanel {
-      display: none;
-      position: absolute;
-      width: 279px;
-      width: 279px;
-      margin-top: 10px;
-      border: 1px solid var(--color-border-tertiary);
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
-      border-radius: 3px;
-      background-color: var(--color-background-primary);
-      z-index: 2;
-    }
-    .searchList {
-      max-height: 279px;
-      min-height: 100px;
-      overflow: scroll;
-      .listItem {
-        line-height: 34px;
-        font-size: 13px;
-        color: var(--color-text-title);
-        padding: 0 10px;
-        background-color: var(--color-background-primary) !important;
-        cursor: pointer;
-        &.active {
-          background-color: inherit !important;
-          color: var(--color-white);
-        }
-        .itemName {
-          max-width: 185px;
-          display: inline-block;
-        }
-        img {
-          width: 24px;
-          height: 24px;
-          border-radius: 20px;
-          margin-right: 6px;
-          vertical-align: middle;
-        }
-      }
-      .listTip {
-        padding: 40px 0;
-        text-align: center;
-        color: var(--color-text-disabled);
-      }
-    }
-    .footerBtn {
-      cursor: pointer;
-      border-top: 1px solid @shareBoderColor;
-      height: 40px;
-      padding: 9px 13px;
-      font-size: 13px;
-      i {
-        font-size: 20px;
-        vertical-align: middle;
-      }
-      .footerStr {
-        vertical-align: middle;
-      }
-    }
-  }
   .shareAttachmentFooter {
-    margin: 24px 0;
-    text-align: right;
-    .yes {
-      position: relative;
-      line-height: 35px;
-      display: inline-block;
-      height: 35px;
-      padding: 0 24px;
-      cursor: pointer;
-      text-align: center;
-      color: var(--color-white);
-      &:hover:after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.18);
-        left: 0;
-        border-radius: 4px;
-      }
-    }
-    .no {
-      margin-right: 32px;
-      cursor: pointer;
-      color: var(--color-text-tertiary);
-    }
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
   }
   &.isWorksheet {
     .selectTargetBtnList {
@@ -589,7 +315,7 @@
         display: inline-block;
       }
       .next {
-        display: none !important;
+        display: none;
       }
     }
   }
@@ -605,8 +331,54 @@
         display: inline-block;
       }
       .next {
-        display: none !important;
+        display: none;
       }
+    }
+  }
+}
+.shareAttachmentCopyLinkPopover {
+  .copyLinkContent {
+    display: flex;
+    align-items: center;
+    width: 322px;
+    .linkContentInput {
+      flex: 1;
+      min-width: 0;
+      input {
+        width: 100% !important;
+      }
+    }
+    .copyLinkBtn {
+      flex: none;
+      margin-left: 12px;
+    }
+  }
+}
+.shareAttachmentDestinationPopup {
+  .destinationOption {
+    min-width: 0;
+    img {
+      flex: 0 0 auto;
+      width: 24px;
+      height: 24px;
+      margin-right: 6px;
+      border-radius: 50%;
+    }
+  }
+  .destinationCreate {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 12px;
+    cursor: pointer;
+    font-size: 13px;
+    gap: 6px;
+    &.disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+    .icon {
+      font-size: 20px;
     }
   }
 }
@@ -651,35 +423,5 @@
     position: absolute;
     bottom: -50px;
     color: var(--color-text-disabled);
-  }
-}
-
-.shareAttachmentDialog > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header {
-  background: var(--color-background-secondary);
-}
-
-.shareAttachmentDialog > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-  overflow: visible !important;
-}
-
-.sendToTargetDropdown {
-  .Dropdown--input {
-    height: 36px !important;
-    font-size: 12px;
-    padding: 0 !important;
-    text-align: center;
-  }
-  .icon-arrow-down-border {
-    font-size: 12px !important;
-    margin-left: 5px !important;
-    vertical-align: middle;
-  }
-}
-
-.selectSharePermissionDropdown {
-  .Dropdown--input {
-    height: 30px;
-    line-height: 30px;
-    padding: 0;
   }
 }

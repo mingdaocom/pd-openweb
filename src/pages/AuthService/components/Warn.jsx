@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { shouldShowVerificationHelp, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
 import { isTel } from 'src/pages/AuthService/util.js';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 // 'code',//验证码计时与报错提示
 export default function (props) {

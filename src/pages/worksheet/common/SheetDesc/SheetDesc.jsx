@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Modal } from 'antd';
 import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
 import EditAppIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export default class SheetDesc extends Component {
   constructor(props) {
@@ -41,36 +42,37 @@ export default class SheetDesc extends Component {
             remark,
           })
           .then(() => {
-            this.props.onSave(desc, resume);
+            this.props.onSave({ desc, resume, remark });
             alert(_l('修改成功'));
           })
-          .catch(() => {
-            alert(_l('修改描述失败'), 2);
+          .catch(_requestError => {
+            alertIfNotUnauthorized(_requestError, _l('修改描述失败'), 2);
           });
       } else {
-        this.props.onSave(desc, resume);
+        this.props.onSave({ desc, resume, remark });
       }
     }
   };
   render() {
-    const { cacheKey, title, visible, onClose, isEditing, setDescIsEditing, permissionType, data } = this.props;
+    const { cacheKey, title, visible, onClose, isEditing, setDescIsEditing, permissionType, data, showRemark } =
+      this.props;
     const { desc, resume, remark } = this.state;
     return (
       <Modal
-        zIndex={1000}
         className="appIntroDialog"
         wrapClassName="appIntroDialogWrapCenter"
-        visible={visible}
+        open={visible}
         onCancel={onClose}
-        animation="zoom"
+        animated
         width={800}
         footer={null}
         centered={true}
-        maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-        bodyStyle={{ minHeight: '480px', padding: 0 }}
-        maskAnimation="fade"
         mousePosition={{ x: 139, y: 23 }}
         closeIcon={<Icon icon="close" />}
+        styles={{
+          body: { minHeight: '480px', padding: 0 },
+          container: { padding: 0 },
+        }}
       >
         <EditAppIntro
           title={title}
@@ -81,6 +83,7 @@ export default class SheetDesc extends Component {
           // isEditing={!desc}
           data={data}
           remark={remark}
+          showRemark={showRemark}
           isEditing={isEditing}
           changeSetting={() => {}}
           changeEditState={setDescIsEditing}

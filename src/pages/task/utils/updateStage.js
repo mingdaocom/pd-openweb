@@ -1,8 +1,9 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { Score } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Rate } from 'ming-ui/antd-components';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import Store from 'src/redux/configureStore';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
 import { returnCustonValue } from './utils';
 
 // 更新阶段视图下的任务列表自定义数据自动更新
@@ -56,9 +57,12 @@ export default (taskId, controls) => {
       $li.find('.listStageDate').after(`<div class="listStageCustomBox">${content}</div>`);
     }
 
-    if (!$li.find('.Score-wrapper').length) {
-      const type = $li.find('.listStageCustomItemStar').data('enum');
-      const score = $li.find('.listStageCustomItemStar').data('score');
+    $li.find('.listStageCustomItemStar[data-type=score]').each((i, item) => {
+      if ($(item).find('.mdRate').length) return;
+
+      const type = $(item).data('enum');
+      const score = $(item).data('score');
+
       let foregroundColor = 'var(--color-error)';
 
       if (score === 6 || type === 1) {
@@ -67,18 +71,21 @@ export default (taskId, controls) => {
         foregroundColor = 'var(--color-success)';
       }
 
-      const root = createRoot($li.find('.listStageCustomItemStar')[0]);
+      const root = createRoot(item);
 
       root.render(
-        <Score
+        <Rate
+          style={{ '--hap-margin-xs': '3px' }}
           type={type === 1 ? 'star' : 'line'}
           score={score}
+          size="small"
           foregroundColor={foregroundColor}
           backgroundColor={type === 1 ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'}
+          character={<Icon icon={type === 1 ? 'star' : 'rectangle'} className={type === 1 ? '' : 'Font12'} />}
           disabled
           count={type === 1 ? 5 : 10}
         />,
       );
-    }
+    });
   }
 };

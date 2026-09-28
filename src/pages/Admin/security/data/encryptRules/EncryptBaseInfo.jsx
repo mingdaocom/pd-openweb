@@ -1,31 +1,15 @@
-import React, { Component, createRef, Fragment, useEffect, useState } from 'react';
+import React, { Component, createRef, Fragment, useEffect, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { handleMask } from 'src/pages/Admin/util';
 import AddEditRulesDialog from './AddEditRulesDialog';
 import { encryptList } from './constant';
 
-const BaseInfoWrap = styled(Dialog)`
-  .ming.Input {
-    height: 34px;
-    border: 1px solid var(--color-border-secondary);
-    background: var(--color-background-primary);
-    border-radius: 4px;
-  }
-  .ming.Textarea {
-    border: 1px solid var(--color-border-secondary);
-  }
-  .ming.Input:hover,
-  .ming.Input:focus,
-  .ming.Textarea:hover:not(:disabled),
-  .ming.Textarea:focus {
-    border-color: var(--color-primary);
-  }
-`;
+const REMARK_TEXTAREA_AUTO_SIZE = { minRows: 3 };
 
 const Wrap = styled.div`
   width: 100%;
@@ -47,6 +31,7 @@ function EditBaseInfo(props) {
   const [ruleName, setRuleName] = useState(ruleDetail.name);
   const [remark, setRemark] = useState(ruleDetail.remark);
   const ruleNameInput = createRef();
+  const requestPending = useRef(false);
 
   useEffect(() => {
     if (ruleNameInput && ruleNameInput.current) {
@@ -61,13 +46,18 @@ function EditBaseInfo(props) {
   }, [ruleDetail.remark]);
 
   return (
-    <BaseInfoWrap
+    <Modal
       title={_l('修改信息')}
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       onCancel={onCancel}
       okText={_l('保存')}
       onOk={() => {
-        projectEncryptAjax
+        if (requestPending.current) return;
+
+        requestPending.current = true;
+        return projectEncryptAjax
           .editEncryptRule({
             projectId,
             encryptRuleId: ruleDetail.encryptRuleId,
@@ -85,28 +75,31 @@ function EditBaseInfo(props) {
             } else {
               alert(errors[res.code] || _l('保存失败'), 2);
             }
+          })
+          .finally(() => {
+            requestPending.current = false;
           });
       }}
     >
       <div className="bold mBottom10">{_l('规则名称')}</div>
       <Input
-        manualRef={ruleNameInput}
+        ref={ruleNameInput}
         className="mBottom30 w100"
         maxLength={50}
         value={ruleName}
         placeholder={_l('请输入')}
-        onChange={val => setRuleName(val)}
+        onChange={e => setRuleName(e.target.value)}
         disabled={ruleDetail.isDefault}
       />
       <div className="bold mBottom10">{_l('备注')}</div>
-      <Textarea
-        className="remarkTextarea"
+      <Input.TextArea
+        autoSize={REMARK_TEXTAREA_AUTO_SIZE}
         placeholder={_l('请输入')}
         maxLength={200}
         value={remark}
-        onChange={val => setRemark(val)}
+        onChange={event => setRemark(event.target.value)}
       />
-    </BaseInfoWrap>
+    </Modal>
   );
 }
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { dealData } from 'src/pages/worksheet/redux/actions/util.js';
 import { dealChildren } from 'src/pages/worksheet/redux/reducers/util.js';
-import { renderText as renderCellText } from 'src/utils/control';
-import { getAdvanceSetting } from 'src/utils/control';
+import { dealData } from 'src/pages/worksheet/redux/util.js';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
 import { AREA, TYPES } from './constants.js';
 
 export function sortDataByCustomNavs(data, view = {}, controls = []) {

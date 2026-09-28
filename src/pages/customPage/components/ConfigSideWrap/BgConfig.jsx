@@ -1,20 +1,18 @@
 import React, { Fragment } from 'react';
-import { ReactSVG } from 'react-svg';
 import { generate } from '@ant-design/colors';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { isLightColor } from 'src/utils/control';
-import { replaceColor } from '../../util';
-import { bgImages } from './bgImages';
+import { Segmented, Tooltip } from 'ming-ui/antd-components';
+import BgPicker from 'statistics/components/ChartStyle/components/BgPicker';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { replaceColor } from 'src/utils/domain/customPage/model';
 import { defaultTitleStyles } from './util';
 
-export { bgImages };
+const BG_PICKER_TYPES = ['image', 'shape', 'custom'];
 
 export default props => {
-  const { themeColors, appPkg, config, handleChangeConfig } = props;
+  const { themeColors, appPkg, config, imageUrl, previewUrl, handleChangeConfig, handleChangeImage } = props;
   const {
     chartColorIndex = 1,
     pivoTableColorIndex = 1,
@@ -96,54 +94,69 @@ export default props => {
     }
   };
 
+  const handleChangePageStyleType = value => {
+    if (value === 'light') {
+      handleChangeColor(lightColors[0].value, {
+        pageStyleType: 'light',
+        pivoTableColor: lightColors[0].value,
+        pivoTableColorIndex: pivoTableColorIndex + 1,
+        numberChartColor: 'iconColor',
+        numberChartColorIndex: numberChartColorIndex + 1,
+        titleStyles: {
+          ...titleStyles,
+          color: '#333',
+          index: Date.now(),
+        },
+      });
+      return;
+    }
+
+    handleChangeColor(darkColors[0].value, {
+      pageStyleType: 'dark',
+      pivoTableColor: 'iconColor',
+      pivoTableColorIndex: pivoTableColorIndex + 1,
+      numberChartColor: lightColors[0].value,
+      numberChartColorIndex: numberChartColorIndex + 1,
+      titleStyles: {
+        ...titleStyles,
+        color: '#fff',
+        isInitial: true,
+        index: Date.now(),
+      },
+    });
+  };
+
   return (
     <Fragment>
       {!window.themeModeVisible && (
         <Fragment>
           <div className="textPrimary Font14 bold mBottom10">{_l('风格')}</div>
-          <div className="typeSelect flexRow valignWrapper w100 mBottom20">
-            <div
-              className={cx('flex centerAlign pointer textSecondary', { active: pageStyleType === 'light' })}
-              onClick={() => {
-                handleChangeColor(lightColors[0].value, {
-                  pageStyleType: 'light',
-                  pivoTableColor: lightColors[0].value,
-                  pivoTableColorIndex: pivoTableColorIndex + 1,
-                  numberChartColor: 'iconColor',
-                  numberChartColorIndex: numberChartColorIndex + 1,
-                  titleStyles: {
-                    ...titleStyles,
-                    color: '#333',
-                    index: Date.now(),
-                  },
-                });
-              }}
-            >
-              <Icon className="Font15" icon="light_mode" />
-              <span className="mLeft5">{_l('浅色')}</span>
-            </div>
-            <div
-              className={cx('flex centerAlign pointer textSecondary', { active: pageStyleType === 'dark' })}
-              onClick={() => {
-                handleChangeColor(darkColors[0].value, {
-                  pageStyleType: 'dark',
-                  pivoTableColor: 'iconColor',
-                  pivoTableColorIndex: pivoTableColorIndex + 1,
-                  numberChartColor: lightColors[0].value,
-                  numberChartColorIndex: numberChartColorIndex + 1,
-                  titleStyles: {
-                    ...titleStyles,
-                    color: '#fff',
-                    isInitial: true,
-                    index: Date.now(),
-                  },
-                });
-              }}
-            >
-              <Icon className="Font15" icon="dark_mode" />
-              <span className="mLeft5">{_l('深色')}</span>
-            </div>
-          </div>
+          <Segmented
+            block
+            className="mBottom20"
+            options={[
+              {
+                label: (
+                  <span className="flexRow alignItemsCenter">
+                    <Icon className="Font15" icon="light_mode" />
+                    <span className="mLeft5">{_l('浅色')}</span>
+                  </span>
+                ),
+                value: 'light',
+              },
+              {
+                label: (
+                  <span className="flexRow alignItemsCenter">
+                    <Icon className="Font15" icon="dark_mode" />
+                    <span className="mLeft5">{_l('深色')}</span>
+                  </span>
+                ),
+                value: 'dark',
+              },
+            ]}
+            value={pageStyleType}
+            onChange={handleChangePageStyleType}
+          />
         </Fragment>
       )}
       <div className="textPrimary Font14 bold mBottom10">{_l('背景')}</div>
@@ -173,77 +186,24 @@ export default props => {
         </div>
         <div className="flex flexRow alignItemsCenter">
           <div className="textSecondary Font13 bold mRight10">{_l('图形')}</div>
-          <div className="flexRow alignItemsCenter">
-            <Popover
-              placement="bottomRight"
-              content={
-                <div className="flexColumn">
-                  <span className="mBottom5">{_l('选择图形')}</span>
-                  <div className="flexRow alignItemsCenter" style={{ width: 570, flexWrap: 'wrap' }}>
-                    {bgImages.map(item => (
-                      <div
-                        key={item.name}
-                        className="mRight10 mBottom10 pointer overflowHidden"
-                        style={{
-                          backgroundColor,
-                          borderRadius: 6,
-                          border: `1px solid ${pageBgImage === item.name ? 'var(--color-primary)' : 'transparent'}`,
-                        }}
-                        onClick={() => {
-                          handleChangeConfig({ pageBgImage: item.name });
-                        }}
-                      >
-                        <ReactSVG
-                          style={{ width: 178, height: 100 }}
-                          src={item.value}
-                          beforeInjection={svg => {
-                            svg.setAttribute(
-                              'fill',
-                              backgroundColor === appPkg.iconColor ? appPkg.lightColor : appPkg.iconColor,
-                            );
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              }
-            >
-              {pageBgImage ? (
-                <div
-                  className="colorWrap overflowHidden"
-                  style={{
-                    width: 50,
-                    backgroundColor,
-                  }}
-                >
-                  <ReactSVG
-                    style={{ width: '100%', height: '100%' }}
-                    src={_.get(_.find(bgImages, { name: pageBgImage }), 'value')}
-                    beforeInjection={svg => {
-                      svg.setAttribute(
-                        'fill',
-                        backgroundColor === appPkg.iconColor ? appPkg.lightColor : appPkg.iconColor,
-                      );
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="colorWrap" style={{ width: 50 }}>
-                  <Icon icon="add" className="Font20 textSecondary hoverColorPrimary" />
-                </div>
-              )}
-            </Popover>
-            {pageBgImage && (
-              <Icon
-                icon="trash"
-                className="pointer textTertiary Font20"
-                onClick={() => {
-                  handleChangeConfig({ pageBgImage: undefined });
-                }}
-              />
-            )}
-          </div>
+          <BgPicker
+            themeColor={appPkg.iconColor}
+            types={BG_PICKER_TYPES}
+            config={{
+              ...config,
+              bgStyleValue: _.isUndefined(config.bgStyleValue) ? (pageBgImage ? 'shape' : '') : config.bgStyleValue,
+            }}
+            previewUrl={previewUrl || imageUrl}
+            shapeConfig={{
+              backgroundColor,
+              color: backgroundColor === appPkg.iconColor ? appPkg.lightColor : appPkg.iconColor,
+            }}
+            onChange={handleChangeConfig}
+            onChangeImage={handleChangeImage}
+            onClear={() => {
+              handleChangeConfig({ bgStyleValue: '', pageBgImage: undefined });
+            }}
+          />
         </div>
       </div>
     </Fragment>

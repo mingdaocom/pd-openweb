@@ -8,15 +8,16 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
-import preall from 'src/common/preall';
+import globalEvents from 'src/common/entries/globalEvents';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { changeAppColor, syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import store from 'src/redux/configureStore';
-import globalEvents from 'src/router/globalEvents';
-import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/services/app';
 import './index.less';
 
 const Wrap = styled.div`
@@ -278,4 +279,8 @@ const Entry = () => {
 };
 
 const root = createRoot(document.getElementById('app'));
-root.render(<Entry />);
+root.render(
+  <AntdThemeProvider>
+    <Entry />
+  </AntdThemeProvider>,
+);

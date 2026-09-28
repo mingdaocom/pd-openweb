@@ -1,40 +1,32 @@
-import React, { createRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, Input, Radio, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { dialogSelectApp } from 'ming-ui/functions';
+import { Icon } from 'ming-ui';
+import { Button, Checkbox, Drawer, Input, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import variableApi from 'src/api/variable';
+import { useSelectAppDialog } from 'src/ming-ui/functions/dialogSelectApp';
 import AuthAppList from 'src/pages/Admin/components/AuthAppList';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { ALLOW_UPDATE_RADIOS, AUTH_SCOPE_RADIOS, REFRESH_TYPE } from '../constant';
 
-const VarDrawer = styled(Drawer)`
+const VARIABLE_TEXTAREA_AUTO_SIZE = { minRows: 3 };
+
+const VarDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
   color: var(--color-text-title);
-  .ant-drawer-mask {
+  .hap-drawer-mask {
     background-color: transparent;
   }
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: -7px 0px 6px 1px rgba(0, 0, 0, 0.08);
   }
-  .ant-drawer-header {
-    border-bottom: 0;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-title {
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .ant-drawer-close {
-        padding: 0;
-        margin-top: -24px;
-        margin-right: -12px;
-      }
-    }
-  }
-  .ant-drawer-body {
+  .hap-drawer-body {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -69,36 +61,13 @@ const FormItem = styled.div`
     width: 100%;
     &:disabled {
       background: var(--color-background-secondary);
-      border-color: var(--color-background-secondary);
-      &:hover {
-        border-color: var(--color-background-hover);
-      }
     }
   }
-  .ming.Radio {
+  .ant-radio-wrapper {
     width: 150px;
   }
-  .ant-select {
+  .hap-select {
     width: 100%;
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border: 1px solid var(--color-border-tertiary) !important;
-      border-radius: 3px !important;
-      box-shadow: none !important;
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
-    &.ant-select-disabled {
-      .ant-select-selector {
-        color: var(--color-text-title) !important;
-        background: var(--color-background-secondary) !important;
-        border-color: var(--color-background-secondary) !important;
-      }
-    }
   }
 `;
 
@@ -159,20 +128,21 @@ const VAR_TYPE_OPTIONS = [
 
 const initFormData = { name: '', value: '', description: '', controlType: 2, allowEdit: 0, scope: 1, maskType: 0 };
 
+const getInitialFormData = defaultFormValue =>
+  _.isEmpty(defaultFormValue) ? initFormData : { ...initFormData, ..._.omit(defaultFormValue, ['apps', 'projectId']) };
+
+const getInitialAuthApps = defaultFormValue =>
+  (defaultFormValue?.apps || []).filter(item => _.includes(defaultFormValue.appIds, item.appId));
+
 export default function VarAddOrEditModal(props) {
   const { visible, onClose, isEdit, projectId, appId, defaultFormValue = {}, onRefreshVarList } = props;
-  const [formData, setFormData] = useSetState(initFormData);
-  const [authApps, setAuthApps] = useState([]);
+  const [formData, setFormData] = useSetState(getInitialFormData(defaultFormValue));
+  const [authApps, setAuthApps] = useState(() => getInitialAuthApps(defaultFormValue));
   const [valueFocused, setValueFocused] = useState(false);
-  const inputRef = createRef();
-
-  useEffect(() => {
-    if (!_.isEmpty(defaultFormValue)) {
-      setFormData({ ...formData, ..._.omit(defaultFormValue, ['apps', 'projectId']) });
-      !!(defaultFormValue.apps || []).length &&
-        setAuthApps(defaultFormValue.apps.filter(item => _.includes(defaultFormValue.appIds, item.appId)));
-    }
-  }, [defaultFormValue]);
+  const inputRef = useRef(null);
+  const requestPending = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { open: openSelectApp, holder: selectAppHolder } = useSelectAppDialog();
 
   useEffect(() => {
     if (inputRef.current) {
@@ -187,6 +157,8 @@ export default function VarAddOrEditModal(props) {
   };
 
   const onSave = () => {
+    if (requestPending.current) return;
+
     if (!formData.name) {
       alert(_l('变量名称不能为空'), 3);
       return;
@@ -221,34 +193,42 @@ export default function VarAddOrEditModal(props) {
             }),
     };
 
-    (isEdit ? variableApi.edit({ ...params, id: defaultFormValue.id }) : variableApi.create(params)).then(res => {
-      if (isEdit) {
-        if (res) {
-          onRefreshVarList(REFRESH_TYPE.UPDATE, { ...formData, id: defaultFormValue.id, name: validName });
-          onCloseAndClearData();
-          alert(_l('修改成功'));
-        } else {
-          alert(_l('修改失败'), 2);
-        }
-      } else {
-        switch (res.resultCode) {
-          case 1:
-            onRefreshVarList(REFRESH_TYPE.ADD, { ...formData, id: res.id, name: validName });
+    requestPending.current = true;
+    setSubmitting(true);
+
+    return (isEdit ? variableApi.edit({ ...params, id: defaultFormValue.id }) : variableApi.create(params))
+      .then(res => {
+        if (isEdit) {
+          if (res) {
+            onRefreshVarList(REFRESH_TYPE.UPDATE, { ...formData, id: defaultFormValue.id, name: validName });
             onCloseAndClearData();
-            alert(_l('添加成功'));
-            break;
-          case 2:
-            alert(_l('名称已被占用'), 2);
-            break;
-          case 7:
-            alert(_l('无权限'), 2);
-            break;
-          default:
-            alert(_l('添加失败'), 2);
-            break;
+            alert(_l('修改成功'));
+          } else {
+            alert(_l('修改失败'), 2);
+          }
+        } else {
+          switch (res.resultCode) {
+            case 1:
+              onRefreshVarList(REFRESH_TYPE.ADD, { ...formData, id: res.id, name: validName });
+              onCloseAndClearData();
+              alert(_l('添加成功'));
+              break;
+            case 2:
+              alert(_l('名称已被占用'), 2);
+              break;
+            case 7:
+              alert(_l('无权限'), 2);
+              break;
+            default:
+              alert(_l('添加失败'), 2);
+              break;
+          }
         }
-      }
-    });
+      })
+      .finally(() => {
+        requestPending.current = false;
+        setSubmitting(false);
+      });
   };
 
   const drawerTitle = isEdit
@@ -262,7 +242,7 @@ export default function VarAddOrEditModal(props) {
   return (
     <VarDrawer
       autoFocus={false}
-      visible={visible}
+      open={visible}
       width={600}
       placement="right"
       mask={false}
@@ -270,6 +250,7 @@ export default function VarAddOrEditModal(props) {
       closeIcon={<i className="icon-close Font18" />}
       onClose={onCloseAndClearData}
     >
+      {selectAppHolder}
       <div className="formContent">
         <FormItem>
           <div className="labelText">
@@ -286,9 +267,9 @@ export default function VarAddOrEditModal(props) {
           </div>
           <Input
             disabled={isEdit}
-            manualRef={inputRef}
+            ref={inputRef}
             value={formData.name}
-            onChange={name => setFormData({ name })}
+            onChange={e => setFormData({ name: e.target.value })}
           />
         </FormItem>
         <FormItem>
@@ -312,11 +293,16 @@ export default function VarAddOrEditModal(props) {
             {formData.controlType === 2 && (
               <div className="flexRow mBottom10 alignItemsCenter">
                 <Checkbox
-                  size="small"
-                  text={_l('掩码显示')}
                   checked={!!formData.maskType}
-                  onClick={() => setFormData({ maskType: formData.maskType ? 0 : 1 })}
-                />
+                  onChange={() =>
+                    setFormData({
+                      maskType: formData.maskType ? 0 : 1,
+                    })
+                  }
+                  size="small"
+                >
+                  {_l('掩码显示')}
+                </Checkbox>
                 <Tooltip title={_l('在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看')} placement="topRight">
                   <Icon icon="info_outline" className="textDisabled mLeft4 pointer" />
                 </Tooltip>
@@ -324,10 +310,10 @@ export default function VarAddOrEditModal(props) {
             )}
           </div>
           {formData.controlType === 2 ? (
-            <Textarea
-              minHeight={80}
+            <Input.TextArea
+              autoSize={VARIABLE_TEXTAREA_AUTO_SIZE}
               value={formData.maskType === 1 && !valueFocused ? '*'.repeat(formData.value.length) : formData.value}
-              onChange={value => setFormData({ value })}
+              onChange={event => setFormData({ value: event.target.value })}
               onFocus={() => setValueFocused(true)}
               onBlur={() => setValueFocused(false)}
             />
@@ -335,7 +321,9 @@ export default function VarAddOrEditModal(props) {
             <VarNumberContainer>
               <Input
                 value={formData.value}
-                onChange={value => {
+                onChange={e => {
+                  const value = e.target.value;
+
                   if (!value) {
                     setFormData({ value: '' });
                     return;
@@ -376,10 +364,10 @@ export default function VarAddOrEditModal(props) {
           <div className="labelText">
             <span>{_l('描述')}</span>
           </div>
-          <Textarea
-            minHeight={80}
+          <Input.TextArea
+            autoSize={VARIABLE_TEXTAREA_AUTO_SIZE}
             value={formData.description}
-            onChange={description => setFormData({ description })}
+            onChange={event => setFormData({ description: event.target.value })}
           />
         </FormItem>
         <FormItem>
@@ -390,10 +378,16 @@ export default function VarAddOrEditModal(props) {
             {ALLOW_UPDATE_RADIOS.map(item => {
               return (
                 <Radio
-                  text={item.text}
                   checked={item.value === formData.allowEdit}
-                  onClick={() => setFormData({ allowEdit: item.value })}
-                />
+                  onChange={() =>
+                    setFormData({
+                      allowEdit: item.value,
+                    })
+                  }
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               );
             })}
           </div>
@@ -408,10 +402,16 @@ export default function VarAddOrEditModal(props) {
                 {AUTH_SCOPE_RADIOS.map(item => {
                   return (
                     <Radio
-                      text={item.text}
                       checked={item.value === formData.scope}
-                      onClick={() => setFormData({ scope: item.value })}
-                    />
+                      onChange={() =>
+                        setFormData({
+                          scope: item.value,
+                        })
+                      }
+                      title={item.text}
+                    >
+                      {item.text}
+                    </Radio>
                   );
                 })}
                 <div className="flex" />
@@ -419,7 +419,7 @@ export default function VarAddOrEditModal(props) {
                   <div
                     className="colorPrimary Hand"
                     onClick={() => {
-                      dialogSelectApp({
+                      openSelectApp({
                         projectId,
                         title: _l('添加应用'),
                         onOk: selectedApps => {
@@ -444,10 +444,10 @@ export default function VarAddOrEditModal(props) {
 
       <div className="footer flexRow">
         <div className="flex">
-          <Button type="primary" onClick={onSave}>
+          <Button type="primary" loading={submitting} onClick={onSave}>
             {isEdit ? _l('保存') : _l('添加')}
           </Button>
-          <Button type="link" onClick={onCloseAndClearData}>
+          <Button color="primary" variant="link" onClick={onCloseAndClearData}>
             {_l('取消')}
           </Button>
         </div>

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
+import { Divider, Input } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { SelectFieldsWrap } from '../../styled';
-import { getIconByType } from '../../util';
 
 export default function SelectControl({ className, list, searchable = true, onClick, onClickAway = _.noop }) {
   const ref = useRef(null);
@@ -19,16 +20,18 @@ export default function SelectControl({ className, list, searchable = true, onCl
   return (
     <SelectFieldsWrap ref={ref} className={className}>
       {searchable && (
-        <div className="search" onClick={e => e.stopPropagation()}>
-          <i className="icon-search textTertiary" />
-          <input
+        <Fragment>
+          <Input
+            variant="borderless"
+            prefix={<i className="icon-search Font16 textTertiary" />}
             autoFocus
             ref={inputEl}
             value={keyword}
             onChange={e => setKeyWord(e.target.value)}
             placeholder={_l('搜索字段')}
-          ></input>
-        </div>
+          />
+          <Divider className="mTop3 mBottom3" />
+        </Fragment>
       )}
       {isEmpty(controls) ? (
         <div className="emptyText">{keyword ? _l('没有搜索结果') : _l('没有可选控件')}</div>

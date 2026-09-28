@@ -1,28 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { DeleteReconfirm, Dialog, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { DeleteReconfirm, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import Search from 'src/pages/workflow/components/Search';
 import { START_APP_TYPE, TYPES } from 'src/pages/workflow/WorkflowList/utils/index.js';
-import './index.less';
 
 const WrapHeader = styled.div`
   height: 53px;
   padding: 0 68px 0 26px;
   .trashSearch {
-    .icon {
-      top: 8px;
-    }
-    input {
-      width: 184px;
-      height: 30px;
-      background: var(--color-background-secondary);
-      border-radius: 16px 16px 16px 16px;
-    }
+    width: 184px;
+    height: 30px;
   }
 `;
 const Wrap = styled.div`
@@ -110,49 +101,53 @@ const Wrap = styled.div`
 
 //回收站
 export default function TrashDialog(props) {
-  const [{ loading, pageSize, list }, setState] = useSetState({
+  const [{ loading, pageSize, pageIndex, list, searchValue }, setState] = useSetState({
     loading: true,
     pageSize: 30,
+    pageIndex: 1,
     list: [],
+    searchValue: '',
   });
-  const cache = useRef({ pgIndex: 1 });
-  useEffect(() => {
-    fetchList();
-  }, []);
-  const fetchList = () => {
-    cache.current.pgIndex = 1;
-    cache.current.keyWords = '';
-    cache.current.isMore = true;
-    getList();
-  };
+  const cache = useRef({ isMore: true, keyWords: '' });
 
-  const getList = () => {
-    if (
-      (cache.current.pgIndex > 1 && ((loading && cache.current.isMore) || !cache.current.isMore)) ||
-      !cache.current.isMore
-    ) {
-      return;
-    }
-
-    setState({ loading: true });
-    processAjax
-      .list({
-        processListType: 100,
-        keyWords: cache.current.keyWords,
-        pageIndex: cache.current.pgIndex,
-        pageSize,
-        relationId: props.appId,
-      })
-      .then(res => {
-        const processList = (res[0] || {}).processList || [];
-        setState({
-          list: cache.current.pgIndex > 1 ? list.concat(processList) : processList,
-          data: res[0],
-          loading: false,
+  const loadList = useCallback(
+    ({ currentPageIndex, keyWords }) => {
+      processAjax
+        .list({
+          processListType: 100,
+          keyWords,
+          pageIndex: currentPageIndex,
+          pageSize,
+          relationId: props.appId,
+        })
+        .then(res => {
+          const processList = (res[0] || {}).processList || [];
+          setState(state => ({
+            list: currentPageIndex > 1 ? state.list.concat(processList) : processList,
+            data: res[0],
+            loading: false,
+          }));
+          cache.current.isMore = processList.length >= pageSize;
         });
-        cache.current.isMore = (processList || []).length >= pageSize;
-      });
-  };
+    },
+    [pageSize, props.appId, setState],
+  );
+
+  const fetchList = useCallback(() => {
+    clearTimeout(cache.current.searchTimer);
+    cache.current.isMore = true;
+    cache.current.keyWords = '';
+    setState({ loading: true, pageIndex: 1, searchValue: '' });
+    loadList({ currentPageIndex: 1, keyWords: '' });
+  }, [loadList, setState]);
+
+  useEffect(() => {
+    const cacheValue = cache.current;
+    cacheValue.isMore = true;
+    cacheValue.keyWords = '';
+    loadList({ currentPageIndex: 1, keyWords: '' });
+    return () => clearTimeout(cacheValue.searchTimer);
+  }, [loadList]);
 
   const reply = (processId, processListType) => {
     processAjax
@@ -307,45 +302,47 @@ export default function TrashDialog(props) {
     );
   };
 
+  const handleSearch = keyWords => {
+    cache.current.isMore = true;
+    cache.current.keyWords = keyWords;
+    setState({ loading: true, pageIndex: 1 });
+    loadList({ currentPageIndex: 1, keyWords });
+  };
+
+  const onSearch = event => {
+    const keywords = event.target.value;
+    setState({ searchValue: keywords });
+    clearTimeout(cache.current.searchTimer);
+    cache.current.searchTimer = setTimeout(() => handleSearch(keywords), 500);
+  };
+
+  const handleScrollEnd = () => {
+    if (loading || !cache.current.isMore) return;
+
+    const nextPageIndex = pageIndex + 1;
+    setState({ loading: true, pageIndex: nextPageIndex });
+    loadList({ currentPageIndex: nextPageIndex, keyWords: cache.current.keyWords });
+  };
+
   const renderCon = () => {
     return (
       <React.Fragment>
         {renderHeader()}
-        <ScrollView
-          className="flex"
-          onScrollEnd={() => {
-            if (loading) {
-              return;
-            }
-
-            cache.current.pgIndex = cache.current.pgIndex + 1;
-            getList();
-          }}
-        >
+        <ScrollView className="flex" onScrollEnd={handleScrollEnd}>
           {list.map(item => renderList(item))}
-          {loading && cache.current.pgIndex > 1 && <LoadDiv />}
+          {loading && pageIndex > 1 && <LoadDiv />}
         </ScrollView>
       </React.Fragment>
     );
   };
 
-  const handleSearch = keyWords => {
-    cache.current.pgIndex = 1;
-    cache.current.keyWords = keyWords;
-    cache.current.isMore = true;
-    getList();
-  };
-
-  const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
-
   return (
-    <Dialog
-      className="workflowTrashDialog"
-      width="1000"
-      headerClass="pAll0"
-      visible={true}
+    <Modal
+      width={1000}
+      open={true}
       title={null}
       footer={null}
+      styles={{ body: { padding: 0 }, container: { padding: 0 } }}
       onCancel={props.onCancel}
     >
       <Wrap className="flexColumn">
@@ -354,15 +351,19 @@ export default function TrashDialog(props) {
             {_l('回收站')}（ {_l('工作流')}）
             <span className="textSecondary Font13 mLeft10">{_l('可恢复60天内删除的工作流')}</span>
           </div>
-          <Search
+          <Input
+            allowClear
             className="trashSearch"
             placeholder={_l('工作流名称')}
-            value={cache.current.keyWords}
-            handleChange={onSearch}
+            prefix={<Icon icon="search" className="textSecondary Font16" />}
+            value={searchValue}
+            radius
+            variant="filled"
+            onChange={onSearch}
           />
         </WrapHeader>
         <div className="table flex flexColumn pLeft20 pRight20 pTop10 pBottom10 overflowHidden">
-          {loading && cache.current.pgIndex <= 1 ? (
+          {loading && pageIndex <= 1 ? (
             <LoadDiv />
           ) : list.length <= 0 ? (
             <div className="nullData TxtCenter flex">
@@ -370,7 +371,7 @@ export default function TrashDialog(props) {
                 <i className="icon icon-recycle"></i>
               </div>
               <p className="TxtCenter textSecondary Font17 mTop10">
-                {cache.current.keyWords ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}
+                {searchValue ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}
               </p>
             </div>
           ) : (
@@ -378,6 +379,6 @@ export default function TrashDialog(props) {
           )}
         </div>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

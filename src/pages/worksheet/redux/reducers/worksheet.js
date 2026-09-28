@@ -196,6 +196,8 @@ export function navGroupFilters(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_UPDATE_GROUP_FILTER':
       return action.navGroupFilters || [];
+    case 'WORKSHEET_UPDATE_BASE':
+      return action.resetNavGroupFilters ? [] : state;
     default:
       return state;
   }

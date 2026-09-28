@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import api from 'api/homeApp';
 import _ from 'lodash';
+import EnvironmentBadge from 'src/components/AppSandbox/environment/EnvironmentBadge';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
-import { browserIsMobile, getCurrentSubPath, pathCompletion } from 'src/utils/common';
-import { navigateTo } from '../../../router/navigateTo';
-import { getIds } from '../util';
+import { getIds } from 'src/utils/domain/app/model';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getCurrentSubPath, pathCompletion } from 'src/utils/platform/navigation/path';
+import { navigateTo } from '../../../router/navigation/navigateTo';
 import AppDetail from './AppDetail';
 import './index.less';
 
@@ -101,11 +103,15 @@ let AppPkgHeader = class AppPkgHeader extends Component {
   };
 
   render() {
-    const { ...props } = this.props;
-    return <AppDetail {...props} />;
+    return (
+      <Fragment>
+        <AppDetail {...this.props} />
+        <EnvironmentBadge />
+      </Fragment>
+    );
   }
 };
-AppPkgHeader = connect(undefined, dispatch => ({
+AppPkgHeader = connect(null, dispatch => ({
   updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
 }))(AppPkgHeader);
 export default AppPkgHeader;

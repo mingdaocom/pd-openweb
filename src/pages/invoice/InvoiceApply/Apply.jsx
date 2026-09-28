@@ -3,10 +3,10 @@ import FocusLock from 'react-focus-lock';
 import { useSetState } from 'react-use';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
-import { Button, Dialog } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import 'src/pages/Mobile/index.less';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import InvoiceForm from '../components/InvoiceForm';
 import '../common.less';
 
@@ -135,11 +135,17 @@ export default function Apply(props) {
         {(isLandPage || isMobile) && (
           <div className="flexRow justifyContentCenter pBottom30 pLeft20 pRight20">
             {!isMobile && (isEdit || invoiceDetail.invoiceId) && (
-              <Button type="link" className="cancelBtn" onClick={() => onChangeStatusType('status')}>
+              <Button color="primary" variant="link" onClick={() => onChangeStatusType('status')}>
                 {_l('取消')}
               </Button>
             )}
-            <Button onClick={onOk} radius={isMobile} fullWidth={isMobile} disabled={submitting}>
+            <Button
+              type="primary"
+              shape={isMobile ? 'round' : undefined}
+              block={isMobile}
+              loading={submitting}
+              onClick={onOk}
+            >
               {_l('确认')}
             </Button>
           </div>
@@ -158,22 +164,22 @@ export default function Apply(props) {
   }
 
   return !isMobile ? (
-    <Dialog
-      visible
+    <Modal
+      open
       title={title}
-      description={_l('管理员审核确认之后，发票将由合作服务商百望发送至您的邮箱')}
-      overlayClosable={false}
-      className="invoiceDialog"
+      mask={{ closable: false }}
+      keyboard
       width={800}
       onCancel={onCancel}
       okText={_l('确认')}
-      okDisabled={submitting}
+      confirmLoading={submitting}
       onOk={onOk}
     >
       <FocusLock returnFocus lockProps={{ onKeyDownCapture: e => e.key === 'Tab' && e.stopPropagation() }}>
+        <div className="textSecondary mBottom16">{_l('管理员审核确认之后，发票将由合作服务商百望发送至您的邮箱')}</div>
         {renderContent()}
       </FocusLock>
-    </Dialog>
+    </Modal>
   ) : (
     <Popup position="bottom" className="mobileModal topRadius invoicePopup" visible onMaskClick={onCancel}>
       <div className="flexRow header LineHeight24">

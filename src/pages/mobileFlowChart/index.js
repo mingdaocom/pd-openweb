@@ -1,9 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import { FlowChart } from 'src/pages/workflow/components/FlowChart';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
 
 const LayoutContent = styled.div`
   background-color: var(--color-background-secondary);

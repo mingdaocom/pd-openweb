@@ -36,7 +36,6 @@ const Con = styled.div`
       background: var(--color-background-secondary);
     }
     .customFieldsContainer .customFormItemControl .customAntPicker,
-    .customAntSelect .ant-select-selector,
     .customFieldsContainer .customFormItemControl .customFormControlBox,
     .customFieldsContainer .customFormItemControl > div {
       border-color: var(--color-border-secondary) !important;

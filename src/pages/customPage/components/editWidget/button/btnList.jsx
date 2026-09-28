@@ -1,9 +1,9 @@
 import React from 'react';
-import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, SvgIcon } from 'ming-ui';
+import { SvgIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { ButtonListWrap, GraphWrap } from './styled';
 
@@ -36,17 +36,6 @@ const BtnWrap = styled.div`
   &.isFullWidth {
     flex-grow: 1;
   }
-  .ming.Button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    div {
-      display: flex;
-    }
-    .injected-svg {
-      margin-right: 5px;
-    }
-  }
   .btnBox {
     box-sizing: border-box;
     transition: border 0.25s;
@@ -69,28 +58,16 @@ const BtnWrap = styled.div`
     }
   }
 
-  button.ming {
-    padding: 0 14px;
-    background-color: ${props => props.color};
-    &:hover {
-      background-color: ${props => new TinyColor(props.color).darken(20).toString()};
-    }
-    .icon {
-      font-size: 20px;
-      margin-right: 6px;
-    }
-  }
-
   .adjustText {
-    button {
+    .customPageButton {
       background-color: var(--color-background-tertiary);
-      color: ${props => props.color};
+      color: ${props => props.$color};
       &:hover {
         background-color: var(--color-background-hover);
       }
     }
     .iconWrap {
-      color: ${props => props.color};
+      color: ${props => props.$color};
       background-color: var(--color-background-secondary);
     }
   }
@@ -163,7 +140,7 @@ export default function BtnList({
                     <BtnWrap
                       key={index}
                       style={{ ...getWidth() }}
-                      color={color}
+                      $color={color}
                       onClick={() => onClick({ index: actualIndex })}
                     >
                       <div
@@ -179,8 +156,8 @@ export default function BtnList({
                         {btnType === 2 ? (
                           <GraphWrap
                             className={cx('valignWrapper', direction === 1 ? 'column' : 'row')}
-                            color={color}
-                            radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
+                            $color={color}
+                            $radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
                           >
                             {iconUrl && (
                               <div className="iconWrap flexRow valignWrapper">
@@ -196,8 +173,21 @@ export default function BtnList({
                             </div>
                           </GraphWrap>
                         ) : (
-                          <Button fullWidth={isFullWidth} radius={style === 2} icon={iconUrl ? null : item.icon}>
-                            {iconUrl && <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={20} />}
+                          <Button
+                            color="var(--custom-page-button-color)"
+                            variant="solid"
+                            block={isFullWidth}
+                            shape={style === 2 ? 'round' : 'default'}
+                            className="customPageButton"
+                            style={{ '--custom-page-button-color': color }}
+                            icon={
+                              iconUrl ? (
+                                <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={16} />
+                              ) : item.icon ? (
+                                <i className={`icon icon-${item.icon}`} />
+                              ) : null
+                            }
+                          >
                             <span className="overflow_ellipsis">{name}</span>
                           </Button>
                         )}

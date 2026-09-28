@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, Menu, MenuItem, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support, SvgIcon } from 'ming-ui';
+import { Dropdown as AntdDropdown, Button, Select, Tooltip } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const OPTIONS = [
-  { text: _l('或'), value: 0 },
-  { text: _l('且'), value: 1 },
+  { label: _l('或'), value: 0 },
+  { label: _l('且'), value: 1 },
 ];
 
 const UserInfoCon = styled.div`
@@ -25,31 +25,9 @@ const UserInfoCon = styled.div`
     align-items: center;
     padding: 0 26px;
   }
-  .editBtn {
-    width: 66px;
-    height: 31px;
-    background: var(--color-background-primary);
-    border-radius: 16px;
-    border: 1px solid var(--color-border-primary);
-    text-align: center;
-    line-height: 31px;
-    margin-left: auto;
-    cusor: pointer;
-  }
   .checkbox-userinfo {
     width: fit-content;
     margin-bottom: 16px;
-  }
-  .selectBtn {
-    padding: 0 16px;
-    height: 36px;
-    line-height: 36px;
-    border: 1px solid var(--color-border-secondary);
-    border-radius: 3px;
-    width: fit-content;
-    &:hover {
-      border-color: var(--color-primary);
-    }
   }
   .tagList {
     display: flex;
@@ -80,15 +58,6 @@ const UserInfoCon = styled.div`
         }
       }
     }
-  }
-`;
-
-const Item = styled(MenuItem)`
-  height: 36px;
-  line-height: 36px;
-  &.ming.MenuItem .Item-content:not(.disabled):hover {
-    background: var(--color-background-secondary) !important;
-    color: var(--color-text-title) !important;
   }
 `;
 
@@ -123,7 +92,7 @@ export default function UserExtendInfo(props) {
         ...param,
       })
       .then(() => {})
-      .catch(err => alert(err));
+      .catch(err => alertIfNotUnauthorized(err, err));
   };
 
   const handleChange = (id, value, isAnd) => {
@@ -157,36 +126,33 @@ export default function UserExtendInfo(props) {
 
   const renderSelectTag = () => {
     return (
-      <Trigger
-        popupVisible={visible}
-        onPopupVisibleChange={value => setVisible(value)}
-        action={['click']}
-        popup={() => {
-          return (
-            <Menu style={{ left: 'initial', right: 0, width: 287, position: 'relative' }}>
-              {optionsControls.map(item => (
-                <Item
-                  key={`select-option-${item.id}`}
-                  disabled={checked.includes(item.id)}
-                  onClick={() => handleSelectOption(item.id)}
-                  style={{}}
-                >
-                  <div>
-                    {item.name} {item.id === 'currentworkshet' && _l('(本表)')}
-                  </div>
-                </Item>
-              ))}
-            </Menu>
-          );
+      <AntdDropdown
+        open={visible}
+        onOpenChange={(open, info) => {
+          if (!open && info.source === 'menu') {
+            return;
+          }
+
+          setVisible(open);
         }}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 0],
-          overflow: { adjustX: true, adjustY: true },
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          style: { width: 287 },
+          items: optionsControls.map(item => ({
+            key: `select-option-${item.id}`,
+            disabled: checked.includes(item.id),
+            label: (
+              <div>
+                {item.name} {item.id === 'currentworkshet' && _l('(本表)')}
+              </div>
+            ),
+            onClick: () => handleSelectOption(item.id),
+          })),
         }}
       >
-        <div className="Font13 Bold colorPrimary selectBtn Hand mBottom32">{_l('+ 选择权限标签字段')}</div>
-      </Trigger>
+        <Button className="mBottom32">{_l('+ 选择权限标签字段')}</Button>
+      </AntdDropdown>
     );
   };
 
@@ -201,12 +167,10 @@ export default function UserExtendInfo(props) {
               <span className="mRight8 flex text overflow_ellipsis">
                 {item.name} {item.id === 'currentworkshet' && _l('(本表)')}
               </span>
-              <Dropdown
+              <Select
                 className="optionBox mRight8"
-                menuClass="w100"
-                border
                 value={isAnd ? 1 : 0}
-                data={OPTIONS}
+                options={OPTIONS}
                 onChange={value => handleChange(item.id, value, isAnd)}
               />
               <span className="removeBtn Hand" onClick={() => onRemove(item.id, isAnd)}>
@@ -236,9 +200,10 @@ export default function UserExtendInfo(props) {
           className="mLeft8 textSecondary pointer hoverColorPrimary"
           onClick={openWorksheet}
         />
-        <span className="editBtn pointer hoverColorPrimary hoverBorderColorPrimary" onClick={() => onChangeStep(2)}>
+        <div className="flex" />
+        <Button shape="round" onClick={() => onChangeStep(2)}>
           {_l('编辑')}
-        </span>
+        </Button>
       </div>
       <div className="mTop30 Font14 Bold">{_l('作为权限标签的扩展信息字段')}</div>
       <div className="desc textSecondary mBottom25 mTop16">

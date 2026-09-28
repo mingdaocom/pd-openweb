@@ -8,26 +8,27 @@ import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import BarCode from 'src/components/Form/MobileForm/widgets/BarCode/index.jsx';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { isDocument } from 'src/components/UploadFiles/utils';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { getClassNameByExt } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import { checkCellIsEmpty, getControlStyles } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { compatibleMDJS } from 'src/utils/project';
-import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
+import { isDocument } from 'src/utils/core/file';
+import { isIframeControl } from 'src/utils/domain/control/dynamicValue';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { getControlStyles } from 'src/utils/domain/control/style';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
+import { compatibleMDJS } from 'src/utils/services/project';
 import OperateButtons from './components/OperateButtons';
 import { getMobileCardTitle } from './util';
 import './index.less';
 
 const Con = styled.div`
   width: 100%;
-  ${({ controlStyles }) => controlStyles || ''}
+  ${({ $controlStyles }) => $controlStyles || ''}
 `;
 
 function getCoverControlData(data) {
@@ -503,7 +504,7 @@ export default class RecordCard extends Component {
       <div className={cx('mobileViewRecordCardContainer', { batchOptStyle: batchOptChecked })}>
         <Con
           ref={node => (this.cardWrap = node)}
-          controlStyles={controlStyles}
+          $controlStyles={controlStyles}
           className={cx('mobileWorksheetRecordCard', className, {
             coverRight: ['0'].includes(coverPosition),
             converTop: ['2'].includes(coverPosition),

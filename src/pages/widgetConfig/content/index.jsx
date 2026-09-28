@@ -5,7 +5,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { useGlobalStore } from 'src/common/GlobalStore';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
 import WidgetDisplay from '../widgetDisplay';
 import WidgetList from '../widgetList';
 import WidgetSetting from '../widgetSetting';
@@ -129,7 +129,7 @@ export default function Content(props) {
             placement="left"
             mask={false}
             zIndex={9}
-            visible={widgetVisible}
+            open={widgetVisible}
             getContainer={false}
             closeIcon={null}
             footer={null}
@@ -170,7 +170,7 @@ export default function Content(props) {
             placement="right"
             zIndex={9}
             mask={false}
-            visible={settingVisible}
+            open={settingVisible}
             getContainer={false}
             closeIcon={null}
             footer={null}

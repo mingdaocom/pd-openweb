@@ -11,19 +11,8 @@
   text-align: left;
 }
 
-/* 只对一级操作菜单做右对齐；二级子菜单要沿用 Menu 算出的 left(100%/-100%) 展开到父菜单项右侧 */
-.postOperatorListContainer .Menu:not(.Menu--subMenu) {
-  z-index: 2;
-  left: auto !important;
-  right: 0;
-}
-
-.fastCreateTaskSchedule {
-  z-index: 2;
-  padding: 5px 0;
-  background-color: var(--color-background-primary);
-  border: 1px solid var(--color-border-primary);
+.fastCreateTaskScheduleTrigger {
   position: absolute;
-  display: block;
-  border-radius: 5px;
+  width: 0;
+  height: 0;
 }

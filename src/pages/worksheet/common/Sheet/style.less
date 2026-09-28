@@ -35,42 +35,6 @@
         border-top: none;
         margin: 3px 0;
       }
-      .moveSheetActive .Item-content {
-        color: var(--color-white);
-        background-color: var(--color-primary) !important;
-        .icon {
-          color: var(--color-white);
-        }
-        .icon-arrow-right-tip {
-          color: rgba(255, 255, 255, 0.7) !important;
-        }
-      }
-      .settingSheet .Item-content,
-      .importMenu .Item-content {
-        overflow: inherit !important;
-      }
-      .Menu {
-        left: 0px;
-        right: 0px;
-        width: max-content;
-        min-width: 220px;
-        .Item-content {
-          padding: 0 45px;
-        }
-      }
-      .sheetMoveMenu,
-      .subMenu {
-        min-width: 180px;
-        max-height: 550px;
-        .Item-content {
-          padding-left: 16px;
-        }
-      }
-      .icon-arrow-right-tip {
-        color: var(--color-text-disabled);
-        left: auto !important;
-        right: 10px;
-      }
       .borderBottom {
         border-bottom: 1px solid var(--color-border-primary);
         padding-bottom: 6px;
@@ -79,17 +43,6 @@
       }
       .borderTop {
         border-top: 1px solid var(--color-border-primary);
-      }
-      .MenuItem {
-        .Icon {
-          margin: 0 6px;
-          vertical-align: middle;
-          color: var(--color-text-tertiary);
-        }
-        .text {
-          font-size: 13px;
-          margin-left: 0;
-        }
       }
     }
     .fullRotate {
@@ -117,6 +70,9 @@
   position: relative;
   &.noSelect {
     * {
+      // 构建链路没有 autoprefixer，less 里的 user-select 不会补前缀，
+      // 少了它 Safari 上按住 Shift 勾选记录仍会把整片单元格文字选中
+      -webkit-user-select: none !important;
       user-select: none !important;
     }
   }

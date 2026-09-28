@@ -6,8 +6,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
+import { canShowMingoEntry } from 'src/components/Mingo/permission';
 import * as actions from 'src/pages/chat/redux/actions';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 import mingoActiveHover from './images/mingo-active-hover.gif';
 import mingoActive from './images/mingo-active.png';
 import buildTipImg from './images/mingo-build-tip.svg';
@@ -26,7 +27,7 @@ const Wrap = styled.div`
     width: 4px;
     border-radius: 3px;
     transform: translateY(-50%);
-    background-color: ${props => props.aiColor};
+    background-color: ${props => props.$aiColor};
   }
   .logo {
     width: 100%;
@@ -49,7 +50,8 @@ const Mingo = props => {
   const [buildTipPos, setBuildTipPos] = useState(null);
 
   const { aiBrandName, aiBrandLogoUrl, aiBrandThemeColor } = md.global.SysSettings;
-  const showBuildTip = isOpenMingoAI && !mingoVisible && buildTipVisible;
+  // 组织禁用 MingoAI 时外层容器已整体隐藏，引导气泡是 portal 到 body 的，需一并跟随，避免定位到屏幕外仍露出
+  const showBuildTip = isOpenMingoAI && canShowMingoEntry() && !mingoVisible && buildTipVisible;
 
   const dismissBuildTip = () => {
     setBuildTipVisible(false);
@@ -63,6 +65,7 @@ const Mingo = props => {
       localStorage.removeItem('toolBarOpenType');
     } else {
       setToolbarConfig({
+        organizationDrawerVisible: false,
         mingoVisible: true,
         sessionListVisible: false,
         favoriteVisible: false,
@@ -114,7 +117,7 @@ const Mingo = props => {
       className={cx('mingo flexColumn alignItemsCenter justifyContentCenter pointer pTop6 Relative', {
         active: mingoVisible,
       })}
-      aiColor={aiBrandThemeColor || 'var(--color-mingo)'}
+      $aiColor={aiBrandThemeColor || 'var(--color-mingo)'}
       onClick={handleOpenMingo}
       onMouseEnter={() => {
         setClickNow(null);
@@ -174,7 +177,7 @@ const Mingo = props => {
             title={aiBrandName || _l('AI助手')}
             shortcut="M"
             placement="left"
-            align={{ offset: [10, 0] }}
+            align={{ offset: [3, 0] }}
             mouseLeaveDelay={0.1}
           >
             {Content}

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
-import { fixedBottomWidgets } from '../../../../../util';
+import { Modal } from 'ming-ui/antd-components';
+import { fixedBottomWidgets } from 'src/utils/domain/control/editorLayout';
 import { CustomActionWrap } from '../../style';
 import SelectFields from '../SelectFields';
 
@@ -22,14 +22,15 @@ export default function ActivateTab(props) {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={_.isEmpty(actionItems)}
       className="SearchWorksheetDialog"
       title={_l('激活标签页')}
       onCancel={() => setState({ visible: false })}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, actionType, actionItems });
         setState({ visible: false });
@@ -45,6 +46,6 @@ export default function ActivateTab(props) {
           onSelectField={value => setState({ actionItems: _.isEmpty(value) ? value : [_.last(value)] })}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

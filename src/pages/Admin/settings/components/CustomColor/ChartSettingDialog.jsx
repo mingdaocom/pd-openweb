@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { ColorPicker, Dialog, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ColorPicker, Icon } from 'ming-ui';
+import { Input, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import IllustrationTrigger from './IllustrationTrigger';
 
 const CustomChartContentWrap = styled.div`
@@ -150,10 +149,6 @@ const CustomChartContentWrap = styled.div`
 
 const CustomColorsWrap = styled.div`
   width: 360px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  opacity: 1;
-  border-radius: 5px;
   padding: 24px;
   .customColors {
     display: flex;
@@ -310,11 +305,12 @@ export default function ChartSettingDialog(props) {
   const onAdd = () => setColors(colors.concat(undefined));
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      hight={640}
       className="customChartDialog"
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={editable ? _l('自定义图表配色') : _l('预设颜色')}
       onCancel={onCancel}
       onOk={editCustomChart}
@@ -329,11 +325,11 @@ export default function ChartSettingDialog(props) {
         <Input
           placeholder={_l('请填写自定义图表配色名称')}
           disabled={!editable}
-          className="nameInput placeholderColor"
+          className="nameInput"
           value={name}
-          onChange={value => setName(value)}
-          maxlength="15"
-          manualRef={inputRef}
+          onChange={e => setName(e.target.value)}
+          maxLength={15}
+          ref={inputRef}
         />
         <div className="label mBottom16 mTop24">{_l('颜色')}</div>
         <div className="colorList">
@@ -383,25 +379,22 @@ export default function ChartSettingDialog(props) {
             </div>
           ))}
           {editable && (
-            <Trigger
-              popup={renderMenu(customColors)}
-              popupVisible={customThemeVisible}
-              onPopupVisibleChange={visible => {
+            <Popover
+              content={renderMenu(customColors)}
+              open={customThemeVisible}
+              onOpenChange={visible => {
                 setCustomThemeVisible(visible);
               }}
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                overflow: { adjustX: true, adjustY: true },
-              }}
+              trigger="click"
+              noPadding
             >
               <div className="colorItem addColorWrap">
                 <Icon icon="add" className="Font16 textTertiary" />
               </div>
-            </Trigger>
+            </Popover>
           )}
         </div>
       </CustomChartContentWrap>
-    </Dialog>
+    </Modal>
   );
 }

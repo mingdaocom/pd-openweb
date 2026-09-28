@@ -4,8 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { isFormulaResultAsSubtotal } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { isFormulaResultAsSubtotal } from 'src/utils/domain/control/dynamicValue';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { canAgg, canChooseForParent, formatControls, getCanSelectControls, isIn, sourceIsMax } from '../util';
 
 const Wrap = styled.div`

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import _ from 'lodash';
 import { Gmap, GmapOverlayView } from 'ming-ui/components/amap/components/GoogleMap';
 import PinMarker from '../components/PinMarker';
@@ -8,6 +8,8 @@ const wrapperStyle = {
   height: '100%',
   position: 'relative',
 };
+
+const noop = () => {};
 
 const GMap = forwardRef((props, ref) => {
   const {
@@ -19,14 +21,19 @@ const GMap = forwardRef((props, ref) => {
     setOriginalCenter,
     getLatLngOnClick,
     isCurrentPosition,
-    resetAddRecordBtn = () => {},
+    resetAddRecordBtn = noop,
     onZoomChange,
   } = props;
   const mapRef = useRef(null);
   const isLockRef = useRef(false);
   const isZoomingRef = useRef(false);
+  const onZoomChangeRef = useRef(onZoomChange);
 
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    onZoomChangeRef.current = onZoomChange;
+  });
 
   const handleMapClick = e => {
     const lat = e.latLng.lat();
@@ -67,7 +74,7 @@ const GMap = forwardRef((props, ref) => {
     getAddress,
   }));
 
-  const getCurrentPosition = () => {
+  const getCurrentPosition = useCallback(() => {
     // 获取当前位置
     if (isCurrentPosition && navigator.geolocation && mapRef.current && !isLockRef.current) {
       isLockRef.current = true;
@@ -84,46 +91,46 @@ const GMap = forwardRef((props, ref) => {
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
       );
     }
-  };
+  }, [isCurrentPosition, setCenter, setOriginalCenter]);
 
   useEffect(() => {
     getCurrentPosition();
-  }, [isCurrentPosition]);
+  }, [getCurrentPosition]);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    const map = mapRef.current;
 
-    const dargStartListener = mapRef.current.addListener('dragstart', () => {
+    if (!isLoaded || !map) return;
+
+    const dargStartListener = map.addListener('dragstart', () => {
       resetAddRecordBtn();
     });
 
-    const dragEndListener = mapRef.current.addListener('dragend', () => {
-      const c = mapRef.current.getCenter();
+    const dragEndListener = map.addListener('dragend', () => {
+      const c = map.getCenter();
       setCenter([c.lng(), c.lat()]);
     });
 
-    const zoomChangeListener = mapRef.current.addListener('zoom_changed', () => {
+    const zoomChangeListener = map.addListener('zoom_changed', () => {
       if (isZoomingRef.current) return;
 
       isZoomingRef.current = true;
       resetAddRecordBtn();
     });
 
-    const idleListener = mapRef.current.addListener('idle', () => {
-      if (isZoomingRef.current && onZoomChange) {
-        onZoomChange(mapRef.current.getZoom());
+    const idleListener = map.addListener('idle', () => {
+      if (isZoomingRef.current && onZoomChangeRef.current) {
+        onZoomChangeRef.current(map.getZoom());
       }
 
       isZoomingRef.current = false;
     });
 
     return () => {
-      dargStartListener.remove();
-      dragEndListener.remove();
-      zoomChangeListener.remove();
-      idleListener.remove();
+      [dargStartListener, dragEndListener, zoomChangeListener, idleListener].forEach(listener => listener?.remove?.());
+      isZoomingRef.current = false;
     };
-  }, [isLoaded, onZoomChange]);
+  }, [isLoaded, resetAddRecordBtn, setCenter]);
 
   return (
     <Gmap

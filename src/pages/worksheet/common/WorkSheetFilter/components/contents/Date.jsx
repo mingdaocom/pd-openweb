@@ -2,10 +2,10 @@ import React from 'react';
 import _, { find, flatten, get, includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { Checkbox, Dropdown, MdAntDateRangePicker } from 'ming-ui';
-import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
+import { Checkbox, DateRangePicker, Input, Select, Space } from 'ming-ui/antd-components';
+import TimeZoneTag, { shouldShowTimeZoneTag } from 'ming-ui/components/TimeZoneTag';
 import DatePicker from 'src/components/Form/DesktopForm/widgets/Date';
-import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { getDatePickerConfigs, getShowFormat } from 'src/utils/domain/control/date';
 import {
   DATE_COMPARE_FILTER_TYPES,
   DATE_COMPARE_RANGE_LABELS,
@@ -14,7 +14,18 @@ import {
   DATE_RANGE_TYPE_OPTIONS,
   FILTER_CONDITION_TYPE,
   getDateCompareRangeValues,
-} from '../../enum';
+} from 'src/utils/domain/worksheet/filterConstants';
+
+const HIDDEN_OPTION_STYLE = { display: 'none' };
+const DATE_SELECT_STYLES = { popup: { root: { width: 220 } } };
+const DATE_RANGE_TYPE_SELECT_STYLES = { popup: { root: { width: 80 } } };
+
+const getSelectOptions = (options, hiddenValues = []) =>
+  flatten(options).map(({ text, ...option }) => ({
+    ...option,
+    label: text,
+    style: includes(hiddenValues, option.value) ? HIDDEN_OPTION_STYLE : option.style,
+  }));
 
 function getPicker(type) {
   return {
@@ -118,11 +129,20 @@ export default function Date(props) {
     dateOptions = getDateOptionsByCompareType(type, dateOptions);
   }
 
+  // 时区一致时 TimeZoneTag 不渲染内容，此处必须回退成 undefined，否则会顶掉控件默认的下拉箭头/日期图标
+  const timeZoneSuffixIcon = shouldShowTimeZoneTag(appId) ? <TimeZoneTag appId={appId} /> : undefined;
+  const isUnavailableDateRange = isDateCompareFilter && dateRange && !find(flatten(dateOptions), { value: dateRange });
+  const unavailableDateRangeLabel =
+    isUnavailableDateRange &&
+    (DATE_COMPARE_RANGE_LABELS[dateRange] ||
+      get(find(flatten(DATE_OPTIONS), { value: dateRange }), 'text') ||
+      _l('请选择'));
+
   return (
     <div className="worksheetFilterDateCondition">
       {type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN ? (
         <div className="dateInputCon customDate">
-          <MdAntDateRangePicker
+          <DateRangePicker
             disabled={disabled}
             value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
             showTime={timeFormat ? { format: timeFormat } : false}
@@ -138,17 +158,17 @@ export default function Date(props) {
                 maxValue: moments[1] && moments[1].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
               });
             }}
+            suffixIcon={timeZoneSuffixIcon}
           />
-          <TimeZoneTag appId={appId} />
         </div>
       ) : (
         <div>
           {from !== 'subTotal' && (
             <div className="dateType dateInputCon">
-              <Dropdown
+              <Select
+                className="dateRangeType w100"
                 disabled={disabled}
-                data={dateOptions}
-                hiddenValue={[10, 11]}
+                options={getSelectOptions(dateOptions, [10, 11])}
                 value={
                   includes([1, 2], dateRangeType) &&
                   includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type) &&
@@ -156,8 +176,11 @@ export default function Date(props) {
                     ? dateRange + 0.1 * dateRangeType
                     : dateRange
                 }
-                isAppendToBody
-                menuStyle={{ width: 220 }}
+                showSearch={false}
+                popupMatchSelectWidth={false}
+                styles={DATE_SELECT_STYLES}
+                labelRender={unavailableDateRangeLabel ? () => unavailableDateRangeLabel : undefined}
+                suffixIcon={dateRange === 18 ? undefined : timeZoneSuffixIcon}
                 onChange={newDateRange => {
                   const item = find(flatten(dateOptions), o => o.value === newDateRange);
                   if (!item) return;
@@ -184,47 +207,48 @@ export default function Date(props) {
                   onChange(Object.assign({ dateRange: newDateRange }, changes));
                 }}
               />
-              {dateRange !== 18 && <TimeZoneTag appId={appId} />}
             </div>
           )}
           {includes([101, 102, 10, 11], dateRange) && (
-            <div className="dateValue mTop10">
-              <input
-                className="ming Input"
-                value={dayNum || ''}
-                placeholder={_l('请输入数字')}
-                disabled={disabled}
-                onBlur={() => {
-                  let dayNumToChange = dayNum;
+            <div className="dateValue mTop10 flexRow alignItemsCenter">
+              <Space.Compact className="flex">
+                <Input
+                  value={dayNum || ''}
+                  placeholder={_l('请输入数字')}
+                  disabled={disabled}
+                  onBlur={() => {
+                    let dayNumToChange = dayNum;
 
-                  if (dateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
-                    dayNumToChange = 100;
-                  }
-
-                  if (dayNum !== '0') {
-                    onChange({ value: dayNumToChange, dateRangeType });
-                  }
-                }}
-                onChange={e => onChange({ value: get(e, 'target.value', '').replace(/[^\d]/g, ''), dateRangeType })}
-              />
-              {(dateRange === 101 || dateRange === 102) && (
-                <Dropdown
-                  isAppendToBody
-                  className="dateRangeType"
-                  data={DATE_RANGE_TYPE_OPTIONS}
-                  value={dateRangeType || 3}
-                  menuStyle={{ width: 80, marginLeft: -1, marginTop: 6 }}
-                  onChange={newDateRangeType => {
-                    const changes = { dateRangeType: newDateRangeType };
-
-                    if (newDateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
-                      changes.value = 100;
+                    if (dateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
+                      dayNumToChange = 100;
                     }
 
-                    onChange(changes);
+                    if (dayNum !== '0') {
+                      onChange({ value: dayNumToChange, dateRangeType });
+                    }
                   }}
+                  onChange={e => onChange({ value: get(e, 'target.value', '').replace(/[^\d]/g, ''), dateRangeType })}
                 />
-              )}
+                {(dateRange === 101 || dateRange === 102) && (
+                  <Select
+                    className="dateRangeType w100"
+                    options={getSelectOptions(DATE_RANGE_TYPE_OPTIONS)}
+                    value={dateRangeType || 3}
+                    showSearch={false}
+                    popupMatchSelectWidth={false}
+                    styles={DATE_RANGE_TYPE_SELECT_STYLES}
+                    onChange={newDateRangeType => {
+                      const changes = { dateRangeType: newDateRangeType };
+
+                      if (newDateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
+                        changes.value = 100;
+                      }
+
+                      onChange(changes);
+                    }}
+                  />
+                )}
+              </Space.Compact>
               {(!includes([DATE_RANGE_TYPE.HOUR, DATE_RANGE_TYPE.MINUTE], dateRangeType) ||
                 includes([10, 11], dateRange)) &&
                 includes(
@@ -240,17 +264,20 @@ export default function Date(props) {
                 ) && (
                   <Checkbox
                     className="includeToday"
-                    text={
-                      {
-                        [DATE_RANGE_TYPE.DAY]: _l('包括今天'),
-                        [DATE_RANGE_TYPE.MONTH]: _l('包括本月'),
-                        [DATE_RANGE_TYPE.YEAR]: _l('包括今年'),
-                        [DATE_RANGE_TYPE.QUARTER]: _l('包括本季度'),
-                      }[dateRangeType] || _l('包括今天')
-                    }
                     checked={_.isEqual(values, ['today'])}
-                    onClick={() => onChange({ values: _.isEqual(values, ['today']) ? [] : ['today'] })}
-                  />
+                    onChange={() =>
+                      onChange({
+                        values: _.isEqual(values, ['today']) ? [] : ['today'],
+                      })
+                    }
+                  >
+                    {{
+                      [DATE_RANGE_TYPE.DAY]: _l('包括今天'),
+                      [DATE_RANGE_TYPE.MONTH]: _l('包括本月'),
+                      [DATE_RANGE_TYPE.YEAR]: _l('包括今年'),
+                      [DATE_RANGE_TYPE.QUARTER]: _l('包括本季度'),
+                    }[dateRangeType] || _l('包括今天')}
+                  </Checkbox>
                 )}
             </div>
           )}
@@ -277,6 +304,7 @@ export default function Date(props) {
                 value={value && moment(value)}
                 showTime={showTime}
                 dropdownClassName="scrollInTable"
+                suffixIcon={timeZoneSuffixIcon}
                 onChange={date => {
                   let formattedDate;
 
@@ -297,11 +325,11 @@ export default function Date(props) {
                   });
                 }}
                 compProps={{
+                  inheritFieldStyle: false,
                   placeholder: _l('请选择'),
                 }}
                 notConvertZone={true}
               />
-              <TimeZoneTag appId={appId} />
             </div>
           )}
         </div>

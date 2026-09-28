@@ -21,6 +21,9 @@ import Constant from '../../utils/constant';
 import * as socket from '../../utils/socket';
 import './index.less';
 
+// 链接卡片：md 为 url，或移动端发来的不带 md 的卡片（cardDisposeName 对未知 md 也按「链接」处理）
+const isLinkCard = (card = {}) => !card.md || card.md === 'url';
+
 class Message extends Component {
   constructor(props) {
     super(props);
@@ -80,6 +83,7 @@ class Message extends Component {
     const { currentSession, message } = this.props;
     this.props.dispatch(actions.setReferMessage(currentSession.value, message));
     utils.highlightReferMessage(currentSession.value);
+    this.props.onRequestTextareaFocus && this.props.onRequestTextareaFocus();
   }
   handleRetry() {
     const { message, session } = this.props;
@@ -122,7 +126,9 @@ class Message extends Component {
           return (
             <KcFileMessage onUpdateKcFile={this.handleUpdateKcFile.bind(this)} message={message} session={session} />
           );
-        } else if (message.card.md === 'worksheet') {
+        } else if (message.card.md === 'worksheet' || isLinkCard(message.card)) {
+          // 链接卡片（md 为 url，或移动端发来的不带 md 的卡片）与应用卡片同为「图标 + 标题」形态，
+          // 复用同一个组件呈现；它按 card.extra 取来源，链接卡片没有 extra 时只显示标题
           return <WorksheetFileMessage message={message} session={session} />;
         } else {
           return <CardMessage session={session} message={message} />;

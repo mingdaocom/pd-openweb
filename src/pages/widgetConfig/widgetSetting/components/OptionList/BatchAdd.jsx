@@ -2,22 +2,20 @@ import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Textarea } from 'ming-ui';
-import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
+import { Input, Modal } from 'ming-ui/antd-components';
+import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from 'src/utils/domain/control/config';
+
+const BATCH_TEXTAREA_AUTO_SIZE = { minRows: 14, maxRows: 27 };
 
 const BatchAddContent = styled.div`
   .hint {
     margin-bottom: 12px;
   }
-  .textareaWrap {
-    height: 320px;
-    overflow-y: auto;
-  }
   .footerBox {
-    display: flex
+    display: flex;
     justify-content: flex-end;
     .countBox {
-      color: ${props => (props.disabled ? '#F52222' : 'var(--color-text-tertiary)')};
+      color: ${props => (props.$disabled ? '#F52222' : 'var(--color-text-tertiary)')};
     }
   }
 `;
@@ -43,10 +41,12 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
   const okDisabled = !addOptions.length || totalNum > MAX_OPTIONS_COUNT;
 
   return (
-    <Dialog
-      bodyClass="batchAddOptionDialog"
+    <Modal
       width={640}
-      visible
+      styles={{ header: { marginBottom: 8 } }}
+      open
+      mask={{ closable: true }}
+      keyboard
       title={_l('批量添加')}
       okDisabled={okDisabled}
       onOk={() => {
@@ -76,22 +76,22 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
       }}
       {...rest}
     >
-      <BatchAddContent disabled={totalNum > MAX_OPTIONS_COUNT}>
+      <BatchAddContent $disabled={totalNum > MAX_OPTIONS_COUNT}>
         <div className="hint textTertiary">
           {_l(
             '每个选项单列一行。若选项与选项列表重复，保存时将忽略重复选项；若选项与回收站内选项重复，保存时将自动恢复回收站的选项',
           )}
         </div>
-        <Textarea
+        <Input.TextArea
+          autoSize={BATCH_TEXTAREA_AUTO_SIZE}
           name="textarea"
-          style={{ maxHeight: '600px', minHeight: '320px' }}
           value={value}
-          onChange={setValue}
+          onChange={event => setValue(event.target.value)}
         />
         <div className="footerBox">
           <span className="countBox">{`${totalNum} / ${MAX_OPTIONS_COUNT}`}</span>
         </div>
       </BatchAddContent>
-    </Dialog>
+    </Modal>
   );
 }

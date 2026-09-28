@@ -1,20 +1,24 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 
 const PanelWrap = styled.div`
-  width: ${props => props.$panelWidth}px;
-  max-height: ${props => (props.$maxPanelHeight ? `${props.$maxPanelHeight}px` : 'none')};
-  box-sizing: border-box;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  border: 1px solid var(--color-border-primary);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  width: min(${props => props.$panelWidth}px, calc(100vw - 16px));
+  max-height: ${props => (props.$maxPanelHeight ? `${props.$maxPanelHeight}px` : 'calc(100vh - 16px)')};
+  ${props =>
+    !props.$inPopover &&
+    `
+      box-sizing: border-box;
+      background: var(--color-background-primary);
+      border-radius: 4px;
+      border: 1px solid var(--color-border-primary);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    `}
   .searchWrap {
     display: flex;
     align-items: center;
@@ -35,7 +39,10 @@ const PanelWrap = styled.div`
   .listWrap {
     position: relative;
     display: flex;
-    max-height: ${props => (props.$maxPanelHeight ? `${Math.max(props.$maxPanelHeight - 45, 0)}px` : '400px')};
+    max-height: ${props =>
+      props.$maxPanelHeight
+        ? `${Math.max(props.$maxPanelHeight - 45, 0)}px`
+        : 'min(400px, max(0px, calc(100vh - 61px)))'};
   }
   .countryList {
     flex: 1;
@@ -91,6 +98,11 @@ const PanelWrap = styled.div`
     padding: 16px 12px;
     color: var(--color-text-tertiary);
   }
+  @media (max-width: 415px), (max-height: 460px) {
+    .indexBar {
+      display: none;
+    }
+  }
 `;
 
 const DEFAULT_COUNTRY_OPTIONS = [];
@@ -105,6 +117,8 @@ export default function DialCodePanel({
   panelWidth = 400,
   maxPanelHeight,
   hideIndexBar = false,
+  inPopover = false,
+  onClose = _.noop,
 }) {
   const [searchValue, setSearchValue] = useState('');
   const listRef = useRef(null);
@@ -140,8 +154,9 @@ export default function DialCodePanel({
       className="mdPhoneDialCodePanel"
       $panelWidth={panelWidth}
       $maxPanelHeight={maxPanelHeight}
+      $inPopover={inPopover}
       onMouseDown={e => {
-        const isSearchInput = !!e.target?.closest?.('.searchWrap .ant-input, .searchWrap input');
+        const isSearchInput = !!e.target?.closest?.('.searchWrap .hap-input, .searchWrap input');
 
         if (!isSearchInput) {
           e.preventDefault();
@@ -156,7 +171,13 @@ export default function DialCodePanel({
           autoFocus
           placeholder={_l('搜索地区或区号')}
           onChange={e => setSearchValue(e.target.value)}
-          onKeyDown={e => e.stopPropagation()}
+          onKeyDown={e => {
+            e.stopPropagation();
+
+            if (e.key === 'Escape') {
+              onClose();
+            }
+          }}
         />
       </div>
       <div className="listWrap">
@@ -225,4 +246,6 @@ DialCodePanel.propTypes = {
   panelWidth: PropTypes.number,
   maxPanelHeight: PropTypes.number,
   hideIndexBar: PropTypes.bool,
+  inPopover: PropTypes.bool,
+  onClose: PropTypes.func,
 };

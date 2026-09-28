@@ -2,7 +2,6 @@ import React, { Component, lazy, Suspense } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, oneOf, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
@@ -10,13 +9,13 @@ import { dialogSelectIcon } from 'ming-ui/functions';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
-import { compareProps } from 'src/pages/PageHeader/util';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import { addBehaviorLog } from 'src/utils/project';
-import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
+import { getAppIconColors } from 'src/utils/domain/app/color';
+import { compareProps } from 'src/utils/domain/app/model';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/utils/services/appCenter';
+import { addBehaviorLog } from 'src/utils/services/project';
 import AppOperator from './AppOperator';
 import AppStatusComp from './AppStatus';
-import 'rc-trigger/assets/index.css';
 
 const LoadableExternalLinkDialog = lazy(() => import('./ExternalLinkDialog'));
 const LoadableManageUserDialog = lazy(() => import('src/pages/Role/AppRoleCon/ManageUserDialog.jsx'));
@@ -187,7 +186,6 @@ let MyAppItem = class MyAppItem extends Component {
       groupId,
       groupType,
       type,
-      lightColor,
       iconUrl,
       name,
       permissionType,
@@ -217,10 +215,7 @@ let MyAppItem = class MyAppItem extends Component {
       isGoodsStatus,
       exported,
     } = this.props;
-    const iconColor = this.props.iconColor || 'var(--color-primary)';
-    const navColor = this.props.navColor || iconColor;
-    const black = '#1b2025' === navColor;
-    const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
+    const { backgroundColor, iconColor } = getAppIconColors(this.props);
     const appName =
       _.get(
         _.find(appLang, {
@@ -258,10 +253,10 @@ let MyAppItem = class MyAppItem extends Component {
             <div
               className="myAppItemDetail"
               style={{
-                backgroundColor: light ? lightColor : navColor || iconColor,
+                backgroundColor,
               }}
             >
-              <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={48} />
+              <SvgIcon url={iconUrl} fill={iconColor} size={48} />
               <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} />
             </div>
             {type === 'external' ? (
@@ -299,60 +294,40 @@ let MyAppItem = class MyAppItem extends Component {
             canEditData(permissionType) ||
             (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) &&
             !hideTrigger && (
-              <Trigger
-                popupVisible={editAppVisible}
-                popupClassName="myAppItemOperatorTriggerWrap"
-                popup={
-                  <AppOperator
-                    groupType={type}
-                    projectId={projectId}
-                    disabledCopy={type === 'external' || isExternalApp}
-                    groups={groups}
-                    selectedGroupIds={groupIds}
-                    role={permissionType}
-                    isLock={isLock}
-                    createType={createType}
-                    onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
-                    onClick={id =>
-                      this.switchVisible(
-                        {
-                          editAppVisible: false,
-                        },
-                        () => this.handleMoreClick(id),
-                      )
-                    }
-                    onClickAway={() =>
-                      this.switchVisible({
-                        editAppVisible: false,
-                      })
-                    }
-                    isDashboard={isDashboard}
-                    allowCreate={allowCreate}
-                    myPermissions={myPermissions}
-                    sourceType={sourceType}
-                    isGoodsStatus={isGoodsStatus}
-                    isExternalApp={isExternalApp}
-                    exported={exported}
-                  />
+              <AppOperator
+                open={editAppVisible}
+                onOpenChange={visible =>
+                  this.switchVisible({
+                    editAppVisible: visible,
+                  })
                 }
-                popupAlign={{
-                  points: ['tl', 'bl'],
-                  offset: [0, 0],
-                  overflow: {
-                    adjustX: true,
-                  },
-                }}
                 getPopupContainer={() => this.$myAppItem.current}
-                destroyPopupOnHide
+                groupType={type}
+                projectId={projectId}
+                disabledCopy={type === 'external' || isExternalApp}
+                groups={groups}
+                selectedGroupIds={groupIds}
+                role={permissionType}
+                isLock={isLock}
+                createType={createType}
+                onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
+                onClick={id =>
+                  this.switchVisible(
+                    {
+                      editAppVisible: false,
+                    },
+                    () => this.handleMoreClick(id),
+                  )
+                }
+                isDashboard={isDashboard}
+                allowCreate={allowCreate}
+                myPermissions={myPermissions}
+                sourceType={sourceType}
+                isGoodsStatus={isGoodsStatus}
+                isExternalApp={isExternalApp}
+                exported={exported}
               >
-                <div
-                  className="myAppItemMore appItemIcon"
-                  onClick={() =>
-                    this.switchVisible({
-                      editAppVisible: true,
-                    })
-                  }
-                >
+                <div className="myAppItemMore appItemIcon">
                   <Icon
                     className={cx('moreOperation Font18', {
                       active: editAppVisible,
@@ -360,7 +335,7 @@ let MyAppItem = class MyAppItem extends Component {
                     icon="more_horiz"
                   />
                 </div>
-              </Trigger>
+              </AppOperator>
             )}
           {delAppConfirmVisible && (
             <VerifyDel

@@ -32,6 +32,7 @@ export default function FilterListSort({ filters, onSortEnd }) {
   return (
     <SortableBtnListWrap>
       <SortableList
+        renderBody
         useDragHandle
         items={filters}
         itemKey="filterId"

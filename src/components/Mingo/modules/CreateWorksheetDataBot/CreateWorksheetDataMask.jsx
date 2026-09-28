@@ -3,11 +3,12 @@ import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import { flatten, isEmpty, noop } from 'lodash';
 import styled from 'styled-components';
-import { BgIconButton, Button } from 'ming-ui';
+import { BgIconButton } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
-import { putControlByOrder } from 'src/pages/widgetConfig/util';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
+import { putControlByOrder } from 'src/utils/domain/control/editorLayout';
 
 const SideMaskWrap = styled.div`
   position: absolute;
@@ -31,12 +32,6 @@ const SideMaskWrap = styled.div`
     color: var(--color-text-tertiary);
     text-align: center;
   }
-  .append-button {
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-  }
   &:not(.disabled).clean-button {
     &:hover {
       background: var(--color-background-primary);
@@ -57,10 +52,21 @@ export default function CreateWorksheetDataMask({
   const cache = useRef({
     prevData: [],
   });
+  const appendPendingRef = useRef(false);
+  const mountedRef = useRef(true);
   const [isAppending, setIsAppending] = useState(false);
   const [tableColumnWidths, setTableColumnWidth] = useState({});
-  const disabled = isLoading || isAppending || data.length === 0;
+  const disabled = isLoading || data.length === 0;
   const columns = flatten(putControlByOrder(controls));
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     if (isEmpty(cache.current.prevData) && !isEmpty(data)) {
       try {
@@ -72,6 +78,24 @@ export default function CreateWorksheetDataMask({
 
     cache.current.prevData = data;
   }, [data]);
+
+  const handleAppend = () => {
+    if (disabled || appendPendingRef.current) return;
+
+    appendPendingRef.current = true;
+    setIsAppending(true);
+
+    return Promise.resolve()
+      .then(onAppendToWorksheet)
+      .catch(error => console.error(error))
+      .finally(() => {
+        appendPendingRef.current = false;
+        if (mountedRef.current) {
+          setIsAppending(false);
+        }
+      });
+  };
+
   return createPortal(
     <SideMaskWrap>
       <div className="title t-flex t-items-center t-justify-between">
@@ -85,16 +109,8 @@ export default function CreateWorksheetDataMask({
             icon="clean"
             onClick={isLoading ? noop : onClean}
           />
-          <Button
-            type="primary"
-            className={cx('append-button', { disabled })}
-            onClick={() => {
-              if (disabled) return;
-              setIsAppending(true);
-              onAppendToWorksheet();
-            }}
-          >
-            {isAppending ? _l('添加中...') : _l('添加到工作表')}
+          <Button type="primary" disabled={disabled} loading={isAppending} onClick={handleAppend}>
+            {_l('添加到工作表')}
           </Button>
         </div>
       </div>

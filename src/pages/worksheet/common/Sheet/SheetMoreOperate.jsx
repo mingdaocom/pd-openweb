@@ -1,24 +1,27 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { openResetAutoNumber } from 'worksheet/common/ResetAutoNumber';
-import { openWorkSheetTrash } from 'worksheet/common/WorkSheetTrash';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
-import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
-import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { saveSelectExtensionNavType } from 'src/utils/worksheet';
-import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
-import ImportMenu from './ImportMenu';
+import { Icon } from 'ming-ui';
+import { DeleteReconfirm as DeleteConfirm, Dropdown } from 'ming-ui/antd-components';
+import { useResetAutoNumber } from 'worksheet/common/ResetAutoNumber';
+import { useImportAttachmentsDialog } from 'worksheet/common/WorksheetBody/ImportAttachments';
+import { useImportDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
+import { useWorkSheetTrash } from 'worksheet/common/WorkSheetTrash';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
+import WorksheetReference, {
+  useWorksheetReferenceDialog,
+} from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { canEditApp, canEditData, isHaveCharge } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getHighAuthSheetSwitchPermit } from 'src/utils/domain/worksheet/helpers';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { saveSelectExtensionNavType } from 'src/utils/platform/storage/worksheet';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { getImportMenuItems } from './ImportMenu';
 
 const settingMenuList = [
   { type: 'submitForm', text: _l('提交表单'), navType: 'settingNav', subPath: 'formSet' },
@@ -61,7 +64,12 @@ export default function SheetMoreOperate(props) {
   } = props;
   const { setSheetDescVisible, selectIcon, reloadWorksheet, deleteSheet } = props;
   const { name, projectId, worksheetId, allowAdd } = worksheetInfo;
-  const [menuVisible, setMenuVisible] = useState();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const { open: openResetAutoNumber, holder: resetAutoNumberHolder } = useResetAutoNumber();
+  const { open: openWorkSheetTrash, holder: workSheetTrashHolder } = useWorkSheetTrash();
+  const { open: importDataFromExcel, holder: importDataFromExcelHolder } = useImportDataFromExcel();
+  const { open: importAttachmentsDialog, holder: importAttachmentsDialogHolder } = useImportAttachmentsDialog();
+  const { open: openWorksheetReferenceDialog, holder: worksheetReferenceDialogHolder } = useWorksheetReferenceDialog();
   const autoNumberControls = _.filter(controls, item => item.type === 33);
   const canDelete = isCharge && !isLock;
   const lastSheetSwitchPermit =
@@ -78,285 +86,262 @@ export default function SheetMoreOperate(props) {
 
   const clickSettingSheet = () => {
     const sheetConfigNavInfoStr = localStorage.getItem('sheetConfigNavInfo');
-    const sheetConfigNavInfo = sheetConfigNavInfoStr ? safeParse(sheetConfigNavInfoStr) || {} : {};
+    const sheetConfigNavInfo = sheetConfigNavInfoStr ? safeParse(sheetConfigNavInfoStr, 'object') || {} : {};
     const { settingNav = 'submitForm' } = sheetConfigNavInfo[worksheetId] || {};
 
     navigateTo(`/worksheet/formSet/edit/${worksheetId}${settingNav ? '/' + settingNav : ''}`);
   };
 
+  const closeMenu = () => setMenuVisible(false);
+  const renderMenuLabel = text => <span className="text">{text}</span>;
+  const renderMenuIcon = (icon, danger) => <Icon icon={icon} className={danger ? 'Font18' : 'Font18 textTertiary'} />;
+
+  const settingMenuItems = settingMenuList
+    .map(({ type, text, navType, subPath, featureId, featureIds }, index) => {
+      if (
+        (md.global.SysSettings.hideAIBasicFun && type === 'aiAction') ||
+        (featureId && !getFeatureStatus(projectId, featureId)) ||
+        (featureIds && featureIds.every(id => !getFeatureStatus(projectId, id)))
+      ) {
+        return null;
+      }
+
+      return type === 'splitLine'
+        ? {
+            key: `settingSplitLine-${index}`,
+            type: 'divider',
+            className: 'mTop5 mBottom5',
+          }
+        : {
+            key: type,
+            style: { minWidth: 180 },
+            label: renderMenuLabel(text),
+            onClick: () => {
+              closeMenu();
+              saveSelectExtensionNavType(worksheetId, navType, type);
+              navigateTo(`/worksheet/${subPath}/edit/${worksheetId}/${type}`);
+            },
+          };
+    })
+    .filter(Boolean);
+
+  const importMenuItems = getImportMenuItems({
+    isCharge: canEdit,
+    allowAdd,
+    controls,
+    projectId,
+    appId,
+    worksheetId,
+    worksheetName: name,
+    viewId,
+    onMenuClick: closeMenu,
+    renderMenuLabel,
+    itemStyle: { width: 180 },
+    importDataFromExcel,
+    importAttachmentsDialog,
+  });
+
+  const menuItems = [
+    isCharge &&
+      !isLock && {
+        key: 'editSheet',
+        icon: renderMenuIcon('settings'),
+        label: renderMenuLabel(_l('编辑表单%02036')),
+        onClick: () => {
+          closeMenu();
+          toEditWidgetPage(
+            { sourceId: worksheetId, fromURL: `/app/${appId}/${groupId}/${worksheetId}/${viewId}` },
+            false,
+          );
+        },
+      },
+    isCharge &&
+      !isLock && {
+        key: 'setSheet',
+        className: 'settingSheet',
+        popupOffset: [0, -41],
+        icon: renderMenuIcon('table'),
+        label: renderMenuLabel(_l('设置工作表%02035')),
+        children: settingMenuItems,
+        onTitleClick: () => {
+          closeMenu();
+          clickSettingSheet();
+        },
+      },
+    canEdit && {
+      key: 'editNameIcon',
+      icon: renderMenuIcon('edit'),
+      label: renderMenuLabel(_l('修改名称和图标%02034')),
+      onClick: () => {
+        closeMenu();
+        selectIcon();
+      },
+    },
+    canEdit && {
+      key: 'editIntro',
+      icon: renderMenuIcon('info'),
+      label: renderMenuLabel(_l('工作表说明')),
+      onClick: () => {
+        closeMenu();
+        setSheetDescVisible(true);
+      },
+    },
+    canEdit &&
+      !_.isEmpty(autoNumberControls) && {
+        key: 'resetNumber',
+        icon: renderMenuIcon('auto_number'),
+        label: renderMenuLabel(_l('重置自动编号')),
+        onClick: () => {
+          closeMenu();
+          openResetAutoNumber({ worksheetInfo });
+        },
+      },
+    canEdit && {
+      key: 'editDivider',
+      type: 'divider',
+      className: 'mTop5 mBottom5',
+    },
+    canEdit &&
+      canEditApp(permissionType, isLock) && {
+        key: 'workflow',
+        icon: renderMenuIcon('workflow'),
+        label: renderMenuLabel(_l('查看工作流')),
+        onClick: () => {
+          closeMenu();
+          window.open(pathCompletion(`/app/${appId}/workflow` + `/${worksheetId}`), '__blank');
+        },
+      },
+    canEdit &&
+      canEditApp(permissionType, isLock) && {
+        key: 'reference',
+        icon: renderMenuIcon('db_index'),
+        label: renderMenuLabel(_l('查看引用关系')),
+        onClick: () => {
+          closeMenu();
+          openWorksheetReferenceDialog({ globalSheetInfo: { appId, worksheetId, name, controls }, type: 2 });
+        },
+      },
+    canEdit &&
+      canEditData(permissionType) && {
+        key: 'logs',
+        icon: renderMenuIcon('wysiwyg'),
+        label: renderMenuLabel(_l('查看日志')),
+        onClick: () => {
+          closeMenu();
+          window.open(pathCompletion(`/app/${appId}/logs/${projectId}/${worksheetId}`), '__blank');
+        },
+      },
+    canEdit && {
+      key: 'copyID',
+      icon: renderMenuIcon('ID'),
+      label: renderMenuLabel(_l('复制 ID')),
+      onClick: () => {
+        closeMenu();
+        copy(worksheetId);
+        alert(_l('复制成功'));
+      },
+    },
+    canEdit && {
+      key: 'importDivider',
+      type: 'divider',
+      className: 'mTop5 mBottom5',
+    },
+    canImportSwitch && {
+      key: 'import',
+      className: 'importMenu',
+      popupOffset: [0, 0],
+      icon: renderMenuIcon('worksheet_import'),
+      label: renderMenuLabel(_l('导入')),
+      children: importMenuItems,
+    },
+    canSheetTrash && {
+      key: 'recycle',
+      icon: renderMenuIcon('recycle'),
+      label: renderMenuLabel(_l('回收站%02030')),
+      onClick: () => {
+        openWorkSheetTrash({
+          appId,
+          worksheetInfo,
+          projectId,
+          isCharge: isHaveCharge(permissionType),
+          isAdmin: isCharge,
+          controls,
+          worksheetId: worksheetId,
+          reloadWorksheet,
+        });
+        closeMenu();
+      },
+    },
+    canDelete && {
+      key: 'delete',
+      danger: true,
+      className: 'delete',
+      icon: renderMenuIcon('trash', true),
+      label: renderMenuLabel(_l('删除工作表%02029')),
+      onClick: () => {
+        closeMenu();
+        DeleteConfirm({
+          title: _l('删除工作表 “%0”', name),
+          description: (
+            <div>
+              <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
+                {_l('注意：工作表下所有配置和数据将被删除。')}
+              </span>
+              {_l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
+            </div>
+          ),
+          expandBtn: (
+            <WorksheetReference
+              type={2}
+              globalSheetInfo={{
+                appId,
+                worksheetId,
+                name,
+                controls,
+              }}
+            />
+          ),
+          data: [{ text: _l('我确认删除工作表和所有数据'), value: 1 }],
+          onOk: () => {
+            deleteSheet({
+              type: sheet.type,
+              appId,
+              groupId,
+              projectId,
+              worksheetId,
+              parentGroupId: sheet.parentGroupId,
+            });
+          },
+        });
+      },
+    },
+  ].filter(Boolean);
+
   return (
-    <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
-      <Icon className="textTertiary Font20" icon="more_horiz" />
-      {menuVisible && (
-        <Menu
-          className="sheetHeaderOperate"
-          style={{ zIndex: 999 }}
-          onClick={e => e.stopPropagation()}
-          onClickAway={() => setMenuVisible(false)}
-        >
-          {isCharge && !isLock && (
-            <React.Fragment>
-              <MenuItem
-                data-event="editSheet"
-                icon={<Icon icon="settings" className="Font18" />}
-                onClick={() => {
-                  toEditWidgetPage(
-                    { sourceId: worksheetId, fromURL: `/app/${appId}/${groupId}/${worksheetId}/${viewId}` },
-                    false,
-                  );
-                }}
-              >
-                <span className="text">{_l('编辑表单%02036')}</span>
-              </MenuItem>
-              <Trigger
-                getPopupContainer={() => document.querySelector('.moreOperate .settingSheet .Item-content')}
-                action={['hover']}
-                popupAlign={{ points: ['tl', 'tr'], offset: [0, -41] }}
-                popup={
-                  <Menu className="subMenu sheetHeaderOperate_subMenu">
-                    {settingMenuList.map(({ type, text, navType, subPath, featureId, featureIds }, index) => {
-                      if (
-                        (md.global.SysSettings.hideAIBasicFun && type === 'aiAction') ||
-                        (featureId && !getFeatureStatus(projectId, featureId)) ||
-                        (featureIds && featureIds.every(id => !getFeatureStatus(projectId, id)))
-                      ) {
-                        return null;
-                      }
-
-                      return type === 'splitLine' ? (
-                        <hr className="splitLine" key={`splitLine-${index}`} />
-                      ) : (
-                        <MenuItem
-                          data-event={type}
-                          key={type}
-                          onClick={() => {
-                            saveSelectExtensionNavType(worksheetId, navType, type);
-                            navigateTo(`/worksheet/${subPath}/edit/${worksheetId}/${type}`);
-                          }}
-                        >
-                          <span className="text">{text}</span>
-                        </MenuItem>
-                      );
-                    })}
-                  </Menu>
-                }
-              >
-                <MenuItem
-                  data-event="setSheet"
-                  className="settingSheet"
-                  icon={<Icon icon="table" className="Font18" />}
-                  onClick={clickSettingSheet}
-                >
-                  <span className="text">{_l('设置工作表%02035')}</span>
-                  <Icon className="Font15" icon="arrow-right-tip" />
-                </MenuItem>
-              </Trigger>
-            </React.Fragment>
-          )}
-
-          {canEdit && (
-            <Fragment>
-              <MenuItem
-                data-event="editNameIcon"
-                icon={<Icon icon="edit" className="Font18" />}
-                onClick={() => {
-                  setMenuVisible(false);
-                  selectIcon();
-                }}
-              >
-                <span className="text">{_l('修改名称和图标%02034')}</span>
-              </MenuItem>
-              <MenuItem
-                data-event="editIntro"
-                icon={<Icon icon="info" className="Font18" />}
-                onClick={() => {
-                  setMenuVisible(false);
-                  setSheetDescVisible(true);
-                }}
-              >
-                <span className="text">{_l('工作表说明')}</span>
-              </MenuItem>
-
-              {!_.isEmpty(autoNumberControls) && (
-                <MenuItem
-                  data-event="resetNumber"
-                  icon={<Icon icon="auto_number" className="Font18" />}
-                  onClick={() => {
-                    setMenuVisible(false);
-                    openResetAutoNumber({ worksheetInfo });
-                  }}
-                >
-                  <span className="text">{_l('重置自动编号')}</span>
-                </MenuItem>
-              )}
-
-              <hr className="splitLine" />
-
-              {canEditApp(permissionType, isLock) && (
-                <>
-                  <MenuItem
-                    data-event="workflow"
-                    icon={<Icon icon="workflow" className="Font18" />}
-                    onClick={() => {
-                      setMenuVisible(false);
-                      window.open(pathCompletion(`/app/${appId}/workflow` + `/${worksheetId}`), '__blank');
-                    }}
-                  >
-                    <span className="text">{_l('查看工作流')}</span>
-                  </MenuItem>
-
-                  <MenuItem
-                    data-event="reference"
-                    icon={<Icon icon="db_index" className="Font18" />}
-                    onClick={() => {
-                      setMenuVisible(false);
-                      renderDialog({ globalSheetInfo: { appId, worksheetId, name, controls }, type: 2 });
-                    }}
-                  >
-                    <span className="text">{_l('查看引用关系')}</span>
-                  </MenuItem>
-                </>
-              )}
-
-              {canEditData(permissionType) && (
-                <MenuItem
-                  data-event="logs"
-                  icon={<Icon icon="wysiwyg" className="Font18" />}
-                  onClick={() => {
-                    setMenuVisible(false);
-                    window.open(pathCompletion(`/app/${appId}/logs/${projectId}/${worksheetId}`), '__blank');
-                  }}
-                >
-                  <span className="text">{_l('查看日志')}</span>
-                </MenuItem>
-              )}
-
-              <MenuItem
-                data-event="copyID"
-                icon={<Icon icon="ID" className="Font18" />}
-                onClick={() => {
-                  setMenuVisible(false);
-                  copy(worksheetId);
-                  alert(_l('复制成功'));
-                }}
-              >
-                <span className="text">{_l('复制 ID')}</span>
-              </MenuItem>
-
-              <hr className="splitLine" />
-            </Fragment>
-          )}
-
-          {/* 导入数据权限 */}
-          {canImportSwitch && (
-            <Trigger
-              getPopupContainer={() => document.querySelector('.moreOperate .importMenu .Item-content')}
-              action={['hover']}
-              popupAlign={{ points: ['tl', 'tr'], offset: [0, -5] }}
-              popup={
-                <ImportMenu
-                  className="subMenu sheetHeaderOperate_subMenu"
-                  isCharge={canEdit}
-                  allowAdd={allowAdd}
-                  controls={controls}
-                  projectId={projectId}
-                  appId={appId}
-                  worksheetId={worksheetId}
-                  viewId={viewId}
-                  worksheetName={name}
-                  onMenuClick={() => setMenuVisible(false)}
-                />
-              }
-            >
-              <MenuItem
-                data-event="import"
-                className="importMenu"
-                icon={<Icon icon="worksheet_import" className="Font18" />}
-              >
-                <span className="text">{_l('导入')}</span>
-                <Icon className="Font15" icon="arrow-right-tip" />
-              </MenuItem>
-            </Trigger>
-          )}
-
-          {canSheetTrash && (
-            <MenuItem
-              data-event="recycle"
-              icon={<Icon icon="recycle" className="Font18" />}
-              onClick={() => {
-                openWorkSheetTrash({
-                  appId,
-                  worksheetInfo,
-                  projectId,
-                  isCharge: isHaveCharge(permissionType),
-                  isAdmin: isCharge,
-                  controls,
-                  worksheetId: worksheetId,
-                  reloadWorksheet,
-                });
-                setMenuVisible(false);
-              }}
-            >
-              <span className="text">{_l('回收站%02030')}</span>
-            </MenuItem>
-          )}
-
-          {canDelete && (
-            <MenuItem
-              data-event="delete"
-              icon={<Icon icon="trash" className="Font18" />}
-              className="delete"
-              onClick={() => {
-                setMenuVisible(false);
-                DeleteConfirm({
-                  clickOmitText: true,
-                  title: (
-                    <div className="Bold">
-                      <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
-                      {_l('删除工作表 “%0”', name)}
-                    </div>
-                  ),
-                  description: (
-                    <div>
-                      <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
-                        {_l('注意：工作表下所有配置和数据将被删除。')}
-                      </span>
-                      {_l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
-                    </div>
-                  ),
-                  expandBtn: (
-                    <span className="Left">
-                      <WorksheetReference
-                        type={2}
-                        globalSheetInfo={{
-                          appId,
-                          worksheetId,
-                          name,
-                          controls,
-                        }}
-                      />
-                    </span>
-                  ),
-                  data: [{ text: _l('我确认删除工作表和所有数据'), value: 1 }],
-                  onOk: () => {
-                    deleteSheet({
-                      type: sheet.type,
-                      appId,
-                      groupId,
-                      projectId,
-                      worksheetId,
-                      parentGroupId: sheet.parentGroupId,
-                    });
-                  },
-                });
-              }}
-            >
-              <span className="text">{_l('删除工作表%02029')}</span>
-            </MenuItem>
-          )}
-        </Menu>
-      )}
-    </span>
+    <React.Fragment>
+      {resetAutoNumberHolder}
+      {workSheetTrashHolder}
+      {importDataFromExcelHolder}
+      {importAttachmentsDialogHolder}
+      {worksheetReferenceDialogHolder}
+      <Dropdown
+        trigger={['click']}
+        open={menuVisible}
+        onOpenChange={setMenuVisible}
+        placement="bottomLeft"
+        menu={{
+          items: menuItems,
+          selectable: false,
+          selectedKeys: [],
+          style: { minWidth: 220 },
+          onClick: ({ domEvent }) => domEvent.stopPropagation(),
+        }}
+      >
+        <span className="moreOperate mLeft6 pointer">
+          <Icon className="textTertiary Font20" icon="more_horiz" />
+        </span>
+      </Dropdown>
+    </React.Fragment>
   );
 }
 

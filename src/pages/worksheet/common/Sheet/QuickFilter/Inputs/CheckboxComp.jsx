@@ -2,25 +2,29 @@ import React from 'react';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, RadioGroup, Switch as SwitchComponent } from 'ming-ui';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { getSwitchItemNames } from 'src/utils/control';
+import { Checkbox, Radio, Switch } from 'ming-ui/antd-components';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 const Con = styled.div`
   display: flex;
   height: 32px;
   align-items: center;
-  .RadioGroup {
+  .quickFilterRadioGroup {
+    display: flex;
     width: 100%;
     flex-wrap: nowrap;
     label {
-      display: inline-block;
+      display: inline-flex;
       max-width: 50%;
       margin-right: 0;
       padding-right: 20px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      > span:last-child {
+        min-width: 0;
+      }
+      .ellipsis {
+        display: block;
+      }
     }
   }
 `;
@@ -42,7 +46,13 @@ export default function CheckboxComp(props) {
     const text = isChecked ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
     return (
       <Con>
-        <SwitchComponent checked={isChecked} onClick={handleChange} />
+        <Switch
+          checked={isChecked}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return handleChange(!checked, event);
+          }}
+        />
         {text && <span className="mLeft6 flex overflow_ellipsis">{text}</span>}
       </Con>
     );
@@ -51,11 +61,21 @@ export default function CheckboxComp(props) {
   if (advancedSetting.showtype === '2') {
     return (
       <Con>
-        <RadioGroup
+        <Radio.Group
+          className="quickFilterRadioGroup"
           size="middle"
-          checkedValue={filterType === 0 || _.isUndefined(filterType) ? undefined : isChecked ? '1' : '0'}
-          data={itemnames.map(item => ({ text: item.value, value: item.key }))}
-          onChange={type => handleChange(type !== '1')}
+          value={filterType === 0 || _.isUndefined(filterType) ? undefined : isChecked ? '1' : '0'}
+          options={(itemnames.map(item => ({ text: item.value, value: item.key })) || []).map(
+            ({ text, ...option }) => ({
+              ...option,
+              label: (
+                <span className="ellipsis" title={text}>
+                  {text}
+                </span>
+              ),
+            }),
+          )}
+          onChange={event => handleChange(event.target.value !== '1')}
         />
       </Con>
     );
@@ -63,7 +83,7 @@ export default function CheckboxComp(props) {
 
   return (
     <Con style={{ fontSize: 0 }}>
-      <Checkbox checked={isChecked} onClick={handleChange} />
+      <Checkbox checked={isChecked} onChange={event => handleChange(!event.target.checked, undefined, event)} />
     </Con>
   );
 }

@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Support } from 'ming-ui';
 import agentApi from 'src/api/agent';
-import { buildFormFieldsControls } from 'src/components/Mingo/ChatBot/utils';
 import CreateAIDialog from 'src/pages/worksheet/components/CreateAIDialog';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { buildFormFieldsControls } from 'src/utils/services/ai/formFields';
 
 export default function CreateAIActionDialog(props) {
   const { worksheetInfo = {}, onCancel, onSuccess } = props;
@@ -85,7 +85,7 @@ export default function CreateAIActionDialog(props) {
       okText={_l('创建')}
       okDisabled={!remark}
       description={
-        !window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+        window.platformENV.isHap ? (
           <span>
             <span>{_l('AI 动作消耗的Token将从组织信用点扣除')}</span>
             <Support type={3} text={_l('了解模型价格')} href={pathCompletion('/billingrules')} />

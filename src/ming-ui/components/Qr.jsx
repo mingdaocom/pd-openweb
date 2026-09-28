@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { number, string } from 'prop-types';
-import genQr from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
+import { generateQrDataUrl as genQr } from 'src/utils/platform/browser/qrCode';
 
 export default function Qr(props) {
   const { content, width = 100, height = 100, gap = 0, correctLevel } = props;

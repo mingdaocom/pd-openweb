@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import customApi from 'statistics/api/custom.js';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../../config';
 import { filterHtmlTag } from '../../util';
 import EditDescription from '../EditDescription';

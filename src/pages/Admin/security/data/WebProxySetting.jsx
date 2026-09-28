@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Input } from 'antd';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, Switch } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Checkbox, Input, Switch, Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
-import { encrypt } from 'src/utils/common';
+import { encrypt } from 'src/utils/services/security/encryption';
 
 const ipRegExp =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9])$/;
@@ -12,77 +12,20 @@ const portRegExp = new RegExp(
 );
 
 const FormBox = styled.div`
-  flex: 1;
-  min-height: 0;
   padding: 0 32px 24px 32px;
-  display: flex;
-  flex-direction: column;
   .formModuleTitle {
-    color: var(--color-text-title);
-    font-size: 15px;
     font-weight: 600;
-    margin: 25px 0 32px 30px;
   }
-  .formItem {
-    display: flex;
-    color: var(--color-text-title);
-    font-size: 13px;
-    margin-bottom: 10px;
-    .formLabel {
-      width: 140px;
-      text-align: right;
-      margin-right: 8px;
-      margin-top: 8px;
-      &.width135 {
-        width: 135px;
-        margin-right: 20px;
-      }
-    }
-    .formRight {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      .formInput {
-        display: flex;
-        align-items: center;
-        & > input,
-        & > .ant-select {
-          width: 40%;
-          height: 36px;
-          .ant-select-selector {
-            width: 100%;
-            height: 100%;
-          }
-        }
-      }
-      &.directionRow {
-        flex-direction: row;
-      }
-    }
-    .errorMsg {
-      padding-top: 4px;
-      height: 25px;
-      color: var(--color-error);
-    }
+  .formRight {
+    width: 560px;
   }
-
-  .enableBtn {
-    background: var(--color-success);
-    &:hover {
-      background: var(--color-success-hover);
-    }
+  .proxyPortInput {
+    flex: 0 0 112px;
+    width: 112px;
   }
-  .closeBtn {
-    border-color: var(--color-error);
-    color: var(--color-error);
-    &:hover {
-      background: var(--color-error);
-    }
-    &.Button--disabled {
-      color: var(--color-error);
-      background: transparent !important;
-    }
+  .errorMsg {
+    padding-top: 4px;
+    height: 25px;
   }
 `;
 
@@ -207,17 +150,21 @@ export default class WebProxySetting extends Component {
             <LoadDiv />
           </div>
         ) : (
-          <FormBox className="formBox">
+          <FormBox className="flex flexColumn minHeight0">
             <div className="flex">
-              <div className="formModuleTitle">{_l('代理服务器设置')}</div>
-              <div className="formItem">
-                <div className="formLabel width135">
-                  <span className="TxtMiddle Red">*</span>
+              <div className="formModuleTitle textTitle Font15 mTop25 mBottom32">{_l('代理服务器设置')}</div>
+              <div className="formItem textTitle Font14 mBottom8">
+                <div className="formLabel flexRow alignItemsCenter mBottom12">
+                  <span className="Red">*</span>
                   {_l('接口类型')}
+                  <Tooltip title={_l('是指通过代理访问的目标 URL 的协议类型')}>
+                    <Icon icon="info_outline" className="Font16 textTertiary mLeft5 pointer" />
+                  </Tooltip>
                 </div>
-                <div className="formRight flexRow">
-                  <div className="formInput directionRow pTop8">
+                <div className="formRight flexColumn wMax100 minWidth0">
+                  <div className="formInput flexRow alignItemsCenter w100">
                     <Checkbox
+                      className="mRight40"
                       checked={http}
                       onChange={checked => {
                         this.changeValue(checked, 'http', 'checkbox');
@@ -234,35 +181,47 @@ export default class WebProxySetting extends Component {
                       HTTPS
                     </Checkbox>
                   </div>
-                  <div className="errorMsg">{isSaveWebProxy && !http && !https ? _l('请选择接口类型') : ''}</div>
+                  <div className="errorMsg textError">
+                    {isSaveWebProxy && !http && !https ? _l('请选择接口类型') : ''}
+                  </div>
                 </div>
               </div>
-              <div className="formItem">
-                <div className="formLabel width135">
-                  <span className="TxtMiddle Red">*</span>
-                  {_l('服务器地址')}
+              <div className="formItem textTitle Font14 mBottom8">
+                <div className="formLabel flexRow alignItemsCenter mBottom12">
+                  <span className="Red">*</span>
+                  {_l('代理地址')}
+                  <Tooltip
+                    title={_l(
+                      '填写代理服务器的 IP 地址或域名，如 192.168.1.10 或 proxy.example.com，不包含 http://、https://',
+                    )}
+                  >
+                    <Icon icon="info_outline" className="Font16 textTertiary mLeft5 pointer" />
+                  </Tooltip>
                 </div>
-                <div className="formRight">
-                  <div className="formInput flexRow directionRow">
+                <div className="formRight flexColumn wMax100 minWidth0">
+                  <div className="formInput flexRow alignItemsCenter w100">
                     <Input
-                      style={{ width: 180 }}
-                      placeholder={_l('IP、域名')}
+                      className="flex minWidth0 Height36"
+                      placeholder={_l('IP地址或域名地址')}
                       value={ip}
                       onChange={e => {
                         this.changeValue(e, 'ip', 'input');
                       }}
+                      onBlur={e => {
+                        this.setState({ ip: e.target.value.trim().replace(/^https?:\/\//i, '') });
+                      }}
                     />
                     <span className="mLeft10 mRight10 LineHeight32">:</span>
                     <Input
-                      style={{ width: 100 }}
-                      placeholder={_l('端口号')}
+                      className="proxyPortInput Height36"
+                      placeholder={_l('端口')}
                       value={portNumber}
                       onChange={e => {
                         this.changeValue(e, 'portNumber', 'input');
                       }}
                     />
                   </div>
-                  <div className="errorMsg">
+                  <div className="errorMsg textError">
                     {isSaveWebProxy &&
                       (!ip || !portNumber
                         ? _l('请输入服务器地址')
@@ -274,15 +233,16 @@ export default class WebProxySetting extends Component {
                   </div>
                 </div>
               </div>
-              <div className="formItem">
-                <div className="formLabel width135">{_l('身份验证')}</div>
-                <div className="formRight pTop8">
-                  <div className="formInput">
+              <div className="formItem textTitle Font14 mBottom8">
+                <div className="formLabel flexRow alignItemsCenter mBottom12">{_l('身份验证')}</div>
+                <div className="formRight flexColumn wMax100 minWidth0">
+                  <div className="formInput flexRow alignItemsCenter w100">
                     <Switch
                       size="small"
                       checked={openIdentityValidate}
-                      onClick={checked => {
-                        this.changeValue(checked, 'openIdentityValidate', 'switch');
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
+                        this.changeValue(!checked, 'openIdentityValidate', 'switch');
                       }}
                     />
                   </div>
@@ -290,39 +250,39 @@ export default class WebProxySetting extends Component {
                 </div>
               </div>
               {openIdentityValidate && (
-                <div className="formItem">
-                  <div className="formLabel width135">
-                    <span className="TxtMiddle Red">*</span>
+                <div className="formItem textTitle Font14 mBottom8">
+                  <div className="formLabel flexRow alignItemsCenter mBottom12">
+                    <span className="Red">*</span>
                     {_l('用户名')}
                   </div>
-                  <div className="formRight">
-                    <div className="formInput">
+                  <div className="formRight flexColumn wMax100 minWidth0">
+                    <div className="formInput flexRow alignItemsCenter w100">
                       <Input
+                        className="w100 Height36"
                         placeholder={_l('用户名')}
-                        style={{ width: 302 }}
                         value={userName}
                         onChange={e => {
                           this.changeValue(e, 'userName', 'input');
                         }}
                       />
                     </div>
-                    <div className="errorMsg">
+                    <div className="errorMsg textError">
                       {isSaveWebProxy && openIdentityValidate && !userName ? _l('请输入用户名') : ''}
                     </div>
                   </div>
                 </div>
               )}
               {openIdentityValidate && (
-                <div className="formItem">
-                  <div className="formLabel width135">
-                    <span className="TxtMiddle Red">*</span>
+                <div className="formItem textTitle Font14 mBottom8">
+                  <div className="formLabel flexRow alignItemsCenter mBottom12">
+                    <span className="Red">*</span>
                     {_l('密码')}
                   </div>
-                  <div className="formRight">
-                    <div className="formInput">
+                  <div className="formRight flexColumn wMax100 minWidth0">
+                    <div className="formInput flexRow alignItemsCenter w100">
                       <Input.Password
+                        className="w100 Height36"
                         placeholder={_l('密码')}
-                        style={{ width: 302 }}
                         value={webProxyPassword}
                         autocomplete="new-password"
                         onChange={e => {
@@ -330,7 +290,7 @@ export default class WebProxySetting extends Component {
                         }}
                       />
                     </div>
-                    <div className="errorMsg">
+                    <div className="errorMsg textError">
                       {isSaveWebProxy && openIdentityValidate && !webProxyPassword ? _l('请输入密码') : ''}
                     </div>
                   </div>
@@ -349,8 +309,8 @@ export default class WebProxySetting extends Component {
                     {_l('更新设置')}
                   </Button>
                   <Button
-                    type="ghost"
-                    className="closeBtn"
+                    color="primary"
+                    variant="outlined"
                     onClick={this.updateWebProxyState}
                     disabled={this.state.saveDisabled}
                   >
@@ -359,8 +319,8 @@ export default class WebProxySetting extends Component {
                 </Fragment>
               ) : (
                 <Button
-                  type="primary"
-                  className="enableBtn"
+                  color="var(--color-success)"
+                  variant="solid"
                   onClick={() => this.handleSaveWebProxy(true)}
                   disabled={this.state.saveDisabled}
                 >

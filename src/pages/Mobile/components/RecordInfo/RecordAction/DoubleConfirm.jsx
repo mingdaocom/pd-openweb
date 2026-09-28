@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Textarea, VerifyPasswordInput } from 'ming-ui';
+import { Icon, VerifyPasswordInput } from 'ming-ui';
+import { Button, Input } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import verifyPassword from 'src/components/verifyPassword';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
+
+const REMARK_TEXTAREA_AUTO_SIZE = { minRows: 1 };
 
 const ConfirmDialogWrap = styled(Popup)`
   .adm-popup-body {
@@ -22,42 +25,20 @@ const ConfirmDialogWrap = styled(Popup)`
     min-height: 38px;
     max-height: 10000px;
   }
-  .ming.Textarea {
-    padding: 8px;
-    border: 1px solid var(--color-border-secondary);
-    min-height: 39px !important;
-  }
-  .ming.Textarea:hover:not(:disabled),
-  .ming.Textarea:focus,
-  .ant-input-affix-wrapper:focus,
-  .ant-input-affix-wrapper-focused,
-  .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
+  .hap-input-affix-wrapper:focus,
+  .hap-input-affix-wrapper-focused,
+  .hap-input-affix-wrapper:not(.hap-input-affix-wrapper-disabled):hover {
     border: 1px solid var(--color-primary);
     box-shadow: none !important;
   }
-  .ant-input-password-icon,
-  .ant-input-password-icon:hover {
+  .hap-input-password-icon,
+  .hap-input-password-icon:hover {
     color: var(--color-text-tertiary) !important;
-  }
-  .ming.Textarea::-webkit-input-placeholder {
-    color: var(--color-text-disabled);
   }
   .actionsWrap {
     margin-bottom: 10px;
-    .ming.Button {
-      height: 36px;
-      line-height: 36px;
+    button {
       flex: 1;
-      border-radius: 18px;
-    }
-    .ming.Button--link {
-      border: 1px solid var(--color-border-primary);
-    }
-    .ming.Button--primary {
-      background: var(--color-primary);
-    }
-    .ming.Button--primary:hover {
-      background: var(--color-primary);
     }
   }
 `;
@@ -104,32 +85,12 @@ const RemarkModeModal = styled(Popup)`
         border: none;
       }
     }
-    .ant-input:focus,
-    .ant-input-focused {
-      border: none;
-      box-shadow: unset !important;
-    }
   }
   .modeItem {
     border-bottom: 1px solid var(--color-background-secondary);
     padding: 16px 8px 16px 0;
     margin-left: 6px;
     text-align: left;
-  }
-  .ming.Button {
-    width: 100%;
-    height: 36px;
-    line-height: 36px;
-    border-radius: 18px;
-  }
-  .ming.Button--link {
-    border: 1px solid var(--color-border-primary);
-  }
-  .ming.Button--primary {
-    background: var(--color-primary);
-  }
-  .ming.Button--primary:hover {
-    background: var(--color-primary);
   }
 `;
 
@@ -185,13 +146,14 @@ function RemarkMode(props) {
               onClose();
             }}
             type="primary"
-            className="w100"
+            shape="round"
+            block
           >
             {_l('自由输入')}
           </Button>
         )}
         {!isFreeInput && (
-          <Button onClick={onClose} type="link" className="w100">
+          <Button color="primary" variant="link" shape="round" block onClick={onClose}>
             {_l('取消')}
           </Button>
         )}
@@ -227,31 +189,31 @@ function DoubleConfirm(props) {
   } = props;
 
   const [remarkValue, setRemarkValue] = useState(getInitRemark(remarkoptions) || '');
-  const [password, setPassword] = useState('');
+  const [verifyInfo, setVerifyInfo] = useState({});
   const [isInput, setIsInput] = useState(false);
   const [remarkModeVisible, setRemarkModeVisible] = useState(false);
   const [showModeText, setShowModeText] = useState(false);
-  const [isNoneVerification, setIsNoneVerification] = useState(false);
   const [needPassWord, setNeedPassWord] = useState(false);
-  const [checkIsPending, setCheckIsPending] = useState(false);
+  const [checkIsPending, setCheckIsPending] = useState(!!verifyPwd);
   const [removeNoneVerification, setRemoveNoneVerification] = useState(false);
   const template = _.get(safeParse(remarkoptions), 'template') || [];
 
   useEffect(() => {
-    setCheckIsPending(true);
-    verifyPassword({
-      projectId,
-      checkNeedAuth: true,
-      success: () => {
-        setCheckIsPending(false);
-      },
-      fail: result => {
-        setCheckIsPending(false);
-        setNeedPassWord(true);
-        setRemoveNoneVerification(result === 'showPassword');
-      },
-    });
-  }, []);
+    if (verifyPwd) {
+      verifyPassword({
+        projectId,
+        checkNeedAuth: true,
+        success: () => {
+          setCheckIsPending(false);
+        },
+        fail: result => {
+          setCheckIsPending(false);
+          setNeedPassWord(true);
+          setRemoveNoneVerification(result === 'showPassword');
+        },
+      });
+    }
+  }, [projectId, verifyPwd]);
   const isFreeInput = remarktype !== '1';
 
   return (
@@ -268,15 +230,13 @@ function DoubleConfirm(props) {
       )}
       {verifyPwd && needPassWord && (
         <VerifyPasswordInput
-          className="mBottom25"
+          className="mBottom20"
           showSubTitle={false}
           autoFocus={false}
           isRequired={false}
+          showVerifyType={true}
           allowNoVerify={!removeNoneVerification}
-          onChange={({ password, isNoneVerification }) => {
-            setPassword(password);
-            setIsNoneVerification(isNoneVerification);
-          }}
+          onChange={setVerifyInfo}
         />
       )}
       {enableRemark && (
@@ -290,10 +250,12 @@ function DoubleConfirm(props) {
             )}
           </SectionName>
           {isInput || !remarkoptions || (isFreeInput && _.isEmpty(template)) ? (
-            <Textarea
+            <Input.TextArea
+              autoSize={REMARK_TEXTAREA_AUTO_SIZE}
+              size="large"
               placeholder={remarkHint || ''}
               className="mBottom24 textPrimary"
-              onChange={val => setRemarkValue(val)}
+              onChange={event => setRemarkValue(event.target.value)}
               value={remarkValue}
             />
           ) : (
@@ -308,12 +270,19 @@ function DoubleConfirm(props) {
       )}
 
       <div className="actionsWrap flexRow">
-        <Button type="link" onClick={onClose} className="textSecondary Font14 mRight10">
+        <Button
+          color="default"
+          variant="outlined"
+          shape="round"
+          onClick={onClose}
+          className="textSecondary Font14 mRight10"
+        >
           {cancelText || _l('取消')}
         </Button>
         <Button
           type="primary"
-          disabled={checkIsPending}
+          shape="round"
+          loading={checkIsPending}
           onClick={() => {
             if (enableRemark && remarkRequired && !remarkValue.trim()) {
               alert(_l('%0不能为空', remarkName), 3);
@@ -321,15 +290,17 @@ function DoubleConfirm(props) {
             }
 
             if (verifyPwd && needPassWord) {
-              if (!password || !password.trim()) {
-                alert(_l('请输入密码'), 3);
+              const error = getVerifyValueError(verifyInfo);
+
+              if (error) {
+                alert(error, 3);
                 return;
               }
 
               verifyPassword({
                 projectId,
-                password,
-                isNoneVerification,
+                ...verifyInfo,
+                showVerifyType: true,
                 closeImageValidation: true,
                 success: () => {
                   onOk(enableRemark ? { remark: remarkValue } : {});

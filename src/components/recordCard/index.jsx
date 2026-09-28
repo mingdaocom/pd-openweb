@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { getTitleTextFromControls } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import './RecordCard.less';
 
 const FROMS = {
@@ -23,6 +24,7 @@ function getCoverControlData(data) {
 }
 
 export default class RecordCard extends Component {
+  static contextType = RecordInfoContext;
   static propTypes = {
     from: PropTypes.number,
     disabled: PropTypes.bool,
@@ -52,7 +54,9 @@ export default class RecordCard extends Component {
       return;
     }
 
-    previewAttachments(
+    const openPreviewAttachments = this.context?.openPreviewAttachments || previewAttachments;
+
+    openPreviewAttachments(
       transformQiniuUrl(cover.previewUrl.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
         disableDownload,
         ext: (cover.previewUrl.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',

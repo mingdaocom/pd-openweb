@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, UpgradeIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Search from 'src/pages/workflow/components/Search';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import GlobalVarTable from './GlobalVarTable';
 import VarAddOrEditModal from './VarAddOrEditModal';
 import '../index.less';
@@ -17,6 +17,16 @@ export default function GlobalVarRight(props) {
   const [defaultFormValue, setDefaultFormValue] = useState({});
   const [activeId, setActiveId] = useState('');
   const featureType = getFeatureStatus(projectId, VersionProductType.globalVariable);
+  const needUpgrade = featureType === '2';
+
+  const handleAdd = () => {
+    if (needUpgrade) {
+      buriedUpgradeVersionDialog(projectId, VersionProductType.globalVariable);
+      return;
+    }
+
+    setAddOrEditVar({ visible: true, isEdit: false });
+  };
 
   return (
     <div className="globalVarRight flexColumn overflowHidden">
@@ -28,18 +38,18 @@ export default function GlobalVarRight(props) {
             setKeyWord(value);
           }, 500)}
         />
-        <div
-          className={cx('addBtn', { needUpgrade: featureType === '2' })}
-          onClick={() => {
-            featureType === '2'
-              ? buriedUpgradeVersionDialog(projectId, VersionProductType.globalVariable)
-              : setAddOrEditVar({ visible: true, isEdit: false });
-          }}
+        <Button
+          type={needUpgrade ? undefined : 'primary'}
+          color={needUpgrade ? 'default' : undefined}
+          variant={needUpgrade ? 'filled' : undefined}
+          shape="round"
+          className="Bold"
+          icon={<Icon icon="add" />}
+          onClick={handleAdd}
         >
-          <Icon icon="add" />
-          <span>{activeItem === 'project' ? _l('组织变量') : _l('应用变量')}</span>
-          {featureType === '2' && <UpgradeIcon />}
-        </div>
+          {activeItem === 'project' ? _l('组织变量') : _l('应用变量')}
+          {needUpgrade && <UpgradeIcon />}
+        </Button>
       </div>
       <div className="flex mTop8 overflowHidden">
         <GlobalVarTable

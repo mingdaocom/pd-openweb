@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { SvgIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 
 const UpgradeContentItem = styled.div`
   padding: 0 12px;
@@ -155,9 +156,9 @@ export default function UpgradeItemWrap(props) {
                     )}
                     <div className="w50 TxtLeft">
                       {type === 'worksheets' && !isDelete ? (
-                        <span className="Hand colorPrimary" onClick={() => openShowUpgradeDetail(it)}>
+                        <Button color="primary" variant="link" size="small" onClick={() => openShowUpgradeDetail(it)}>
                           {_l('详情')}
-                        </span>
+                        </Button>
                       ) : (
                         ''
                       )}

@@ -1,8 +1,27 @@
-﻿import React from 'react';
+import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Button, Flex, Image, Progress, Typography } from 'ming-ui/antd-components';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
+import { getVoteFileUrl } from './utils';
 import VoteOptionMemberList from './voteOptionMemberList';
+
+const { Text } = Typography;
+const VOTE_IMAGE_STYLE = {
+  objectFit: 'contain',
+  borderRadius: 4,
+  cursor: 'pointer',
+};
+const RESULT_META_STYLE = { marginTop: 8 };
+const RESULT_PROGRESS_STYLE = {
+  flex: 1,
+  minWidth: 160,
+  maxWidth: 420,
+  margin: 0,
+};
+const RESULT_COUNT_STYLE = { whiteSpace: 'nowrap' };
+const COUNT_BUTTON_STYLE = { height: 'auto', paddingInline: 0, marginRight: 2 };
+const DETAIL_BUTTON_STYLE = { marginLeft: 'auto', paddingInline: 0 };
 
 /**
  * 投票结果
@@ -13,57 +32,84 @@ class VoteResult extends React.Component {
   };
 
   state = {
-    memberElements: {},
+    expandedOptions: [],
   };
 
   handleToggleVoteMembers = optionIndex => {
-    const memberElements = this.state.memberElements;
-
-    if (!memberElements[optionIndex]) {
-      const option = _.find(this.props.voteItem.Options, o => o.optionIndex === optionIndex);
-      memberElements[optionIndex] = React.createElement(VoteOptionMemberList, { members: option.member });
-    } else {
-      delete memberElements[optionIndex];
-    }
-
-    this.setState({ memberElements });
+    this.setState(prevState => ({
+      expandedOptions: prevState.expandedOptions.includes(optionIndex)
+        ? prevState.expandedOptions.filter(index => index !== optionIndex)
+        : [...prevState.expandedOptions, optionIndex],
+    }));
   };
 
   render() {
     const voteItem = this.props.voteItem;
     return (
-      <ul className="voteResult">
-        {_.map(_.orderBy(voteItem.Options, ['count', 'optionIndex'], [false, true]), o => (
-          <li key={o.optionIndex}>
-            <div>{o.name}</div>
-            {o.file && o.file !== 'undefined' ? (
-              <div onClick={() => previewAttachments(transformQiniuUrl(o.file))}>
-                <img width={130} height={90} src={o.thumbnailFile} />
-              </div>
-            ) : undefined}
-            <div className="clearfix">
-              <div className="left outBar bgColorPrimaryTransparent">
-                <div className="inBar bgColorPrimary" style={{ width: o.percentage + '%' }} />
-              </div>
-              <div className="left">
-                {o.count && !voteItem.Anonymous ? (
-                  <a onClick={() => this.handleToggleVoteMembers(o.optionIndex)}>{o.count}</a>
-                ) : (
-                  <span>{o.count}</span>
-                )}
-                <span>{_l('票')}</span>
-                {o.count ? <span>{'(' + o.percentage + '%)'}</span> : undefined}
-              </div>
-              {o.count && !voteItem.Anonymous ? (
-                <div className="right mRight30">
-                  <a onClick={() => this.handleToggleVoteMembers(o.optionIndex)}>{_l('详细结果')}</a>
+      <Flex vertical gap={12}>
+        {_.map(_.orderBy(voteItem.Options, ['count', 'optionIndex'], [false, true]), option => {
+          const canShowMembers = !!option.count && !voteItem.Anonymous;
+          const percentage = Number(option.percentage) || 0;
+
+          return (
+            <div key={option.optionIndex}>
+              <div className="voteResultTitle">{option.name}</div>
+              {option.file && option.file !== 'undefined' ? (
+                <div className="voteResultImage">
+                  <Image
+                    preview={false}
+                    width={130}
+                    height={90}
+                    src={option.thumbnailFile}
+                    alt={option.name}
+                    style={VOTE_IMAGE_STYLE}
+                    onClick={() => previewAttachments(transformQiniuUrl(getVoteFileUrl(option.file)))}
+                  />
                 </div>
               ) : undefined}
+              <Flex align="center" gap={10} wrap style={RESULT_META_STYLE}>
+                <Progress
+                  percent={percentage}
+                  showInfo={false}
+                  size={[-1, 6]}
+                  strokeColor="var(--color-primary)"
+                  railColor="var(--color-border-secondary)"
+                  style={RESULT_PROGRESS_STYLE}
+                />
+                <Text style={RESULT_COUNT_STYLE}>
+                  {canShowMembers ? (
+                    <Button
+                      type="link"
+                      size="small"
+                      style={COUNT_BUTTON_STYLE}
+                      onClick={() => this.handleToggleVoteMembers(option.optionIndex)}
+                    >
+                      {option.count}
+                    </Button>
+                  ) : (
+                    option.count
+                  )}
+                  {_l('票')}
+                  {option.count ? ` (${percentage}%)` : undefined}
+                </Text>
+                {canShowMembers ? (
+                  <Button
+                    type="link"
+                    size="small"
+                    style={DETAIL_BUTTON_STYLE}
+                    onClick={() => this.handleToggleVoteMembers(option.optionIndex)}
+                  >
+                    {_l('详细结果')}
+                  </Button>
+                ) : undefined}
+              </Flex>
+              {this.state.expandedOptions.includes(option.optionIndex) ? (
+                <VoteOptionMemberList members={option.member} />
+              ) : undefined}
             </div>
-            {this.state.memberElements[o.optionIndex]}
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </Flex>
     );
   }
 }

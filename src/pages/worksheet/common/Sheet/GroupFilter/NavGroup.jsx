@@ -2,9 +2,9 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import { AREA, TYPES } from './constants.js';
 import { isSourceTree, sortDataByCustomNavs } from './util';
 

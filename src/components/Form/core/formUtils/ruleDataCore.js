@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { controlState } from 'src/utils/controlCommon';
+import { controlState } from 'src/utils/domain/control/state';
 import { FORM_ERROR_TYPE } from '../config';
 
 const removeRequireError = (controls = [], checkRuleValidator = () => {}) => {

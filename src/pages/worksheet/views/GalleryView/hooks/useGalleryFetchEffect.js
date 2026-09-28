@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import _ from 'lodash';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 
 const notFetchAttr = [
   'name',

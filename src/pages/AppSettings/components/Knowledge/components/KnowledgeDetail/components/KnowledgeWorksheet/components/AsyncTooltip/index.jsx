@@ -72,7 +72,7 @@ const AsyncTooltip = props => {
   };
 
   return (
-    <Tooltip visible={visible} title={loading ? _l('加载中...') : formattedCondition || ''}>
+    <Tooltip open={visible} title={loading ? _l('加载中...') : formattedCondition || ''}>
       <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} style={{ cursor: 'pointer' }}>
         {children}
       </span>

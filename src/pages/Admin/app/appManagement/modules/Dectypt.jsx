@@ -3,9 +3,9 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, QiniuUpload } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { QiniuUpload } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import appManagementAjax from 'src/api/appManagement';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
@@ -15,16 +15,6 @@ const passwordData = [
   { title: _l('应用锁密码'), key: 'lockPassword' },
 ];
 
-const DialogWrap = styled(Dialog)`
-  .mui-dialog-default-title {
-    .title {
-      font-weight: 500;
-    }
-  }
-  .mui-dialog-body {
-    padding: 0 20px 30px;
-  }
-`;
 const Wrap = styled.div`
   width: 648px;
   height: 432px;
@@ -117,8 +107,10 @@ export default class Dectypt extends Component {
     const loading = analyzeLoading || checkLoading;
 
     return (
-      <DialogWrap
-        visible
+      <Modal
+        open
+        mask={{ closable: true }}
+        keyboard
         onCancel={onCancel}
         footer={null}
         width={696}
@@ -169,7 +161,9 @@ export default class Dectypt extends Component {
               });
             }}
           >
-            <Button radius>{_l('上传文件')}</Button>
+            <Button type="primary" shape="round">
+              {_l('上传文件')}
+            </Button>
           </QiniuUpload>
           <div className="Font15 textPrimary w100 pLeft10 pRight10 ellipsis TxtCenter">{file.name}</div>
           {loading && file.name && (
@@ -204,9 +198,11 @@ export default class Dectypt extends Component {
             })}
           </div>
         </Wrap>
-      </DialogWrap>
+      </Modal>
     );
   }
 }
 
-export const decryptFunc = props => FunctionWrap(Dectypt, props);
+export function useDecrypt() {
+  return useFunctionWrapComponent(Dectypt);
+}

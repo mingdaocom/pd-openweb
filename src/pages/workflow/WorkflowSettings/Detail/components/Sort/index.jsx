@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { getControlTypeName } from '../../../utils';
 
 export default ({ controls, sorts, updateSource }) => {
@@ -9,13 +9,13 @@ export default ({ controls, sorts, updateSource }) => {
   };
 
   let ruleSort = [];
-  let ruleControls = (controls || [])
+  const ruleControls = (controls || [])
     .filter(
       item => _.includes([2, 6, 8, 15, 16, 31, 37, 38, 46], item.type) || (item.type === 29 && item.enumDefault === 2),
     )
     .map(item => {
       return {
-        text: (
+        label: (
           <div className="ellipsis">
             <span className="field">[{getControlTypeName(item)}]</span>
             <span>{item.controlName}</span>
@@ -38,52 +38,38 @@ export default ({ controls, sorts, updateSource }) => {
       (type === 38 && enumDefault === 1)
     ) {
       ruleSort = [
-        { text: '1 → 9', value: true },
-        { text: '9 → 1', value: false },
+        { label: '1 → 9', value: true },
+        { label: '9 → 1', value: false },
       ];
     } else if (type === 2) {
       ruleSort = [
-        { text: _l('A → Z'), value: true },
-        { text: _l('Z → A'), value: false },
+        { label: _l('A → Z'), value: true },
+        { label: _l('Z → A'), value: false },
       ];
     } else if (type === 46) {
       ruleSort = [
-        { text: _l('最早的在前'), value: true },
-        { text: _l('最晚的在前'), value: false },
+        { label: _l('最早的在前'), value: true },
+        { label: _l('最晚的在前'), value: false },
       ];
     } else {
       ruleSort = [
-        { text: _l('最新的在前'), value: false },
-        { text: _l('最旧的在前'), value: true },
+        { label: _l('最新的在前'), value: false },
+        { label: _l('最旧的在前'), value: true },
       ];
     }
-
-    ruleControls = [ruleControls].concat([
-      {
-        text: (
-          <div className="ellipsis">
-            <span className="field">
-              <i className="Font16 icon-workflow_empty" />
-            </span>
-            <span>{_l('清空')}</span>
-          </div>
-        ),
-        value: '',
-        searchText: _l('清空'),
-      },
-    ]);
   }
 
   return (
     <div className="mTop15 flexRow">
-      <Dropdown
+      <Select
+        allowClear
         className="flowDropdown flex"
         disabled={!ruleControls.length}
-        data={ruleControls}
+        options={ruleControls}
         value={sorts.length ? sorts[0].controlId : undefined}
-        border
-        openSearch
-        renderTitle={() => !!sorts.length && sorts[0].controlId && renderTitle(sorts[0].controlId)}
+        showSearch
+        optionFilterProp="searchText"
+        labelRender={() => !!sorts.length && sorts[0].controlId && renderTitle(sorts[0].controlId)}
         placeholder={_l('选择字段')}
         onChange={controlId =>
           updateSource({
@@ -93,12 +79,11 @@ export default ({ controls, sorts, updateSource }) => {
           })
         }
       />
-      <Dropdown
+      <Select
         className="flowDropdown flex mLeft10"
         disabled={!sorts.length}
-        data={ruleSort}
+        options={ruleSort}
         value={sorts.length ? sorts[0].isAsc : undefined}
-        border
         placeholder={_l('选择规则')}
         onChange={isAsc => updateSource({ sorts: [Object.assign({}, sorts[0], { isAsc })] })}
       />

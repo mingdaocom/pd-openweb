@@ -1,23 +1,10 @@
 import React from 'react';
-import cx from 'classnames';
+import { Input } from 'ming-ui/antd-components';
 import { checkForm } from '../../constant';
 
 export default function TextInput(props) {
   const { label, field, error, value, placeholder, onChange, onFocus, maxLength, ref, disabled, isRequired, type } =
     props;
-  const inputProps = {
-    ref,
-    value,
-    disabled,
-    placeholder,
-    onChange,
-    onFocus,
-    type,
-  };
-
-  if (type === 'password') {
-    inputProps.autoComplete = 'new-password';
-  }
 
   return (
     <div className="formGroup">
@@ -25,11 +12,19 @@ export default function TextInput(props) {
         {label}
         {isRequired ? <span className="TxtMiddle Red">*</span> : null}
       </div>
-      <input
+      <Input
         type="text"
-        className={cx('formControl', { error, disabled, noBorder: disabled })}
-        {...inputProps}
-        maxLength={maxLength || Infinity}
+        className="formControl"
+        status={error ? 'error' : undefined}
+        ref={ref}
+        value={value}
+        disabled={disabled}
+        placeholder={placeholder}
+        onChange={onChange}
+        onFocus={onFocus}
+        type={type}
+        autoComplete={type === 'password' ? 'new-password' : undefined}
+        maxLength={maxLength}
       />
       {props.children}
       {error && checkForm[field] && <div className="Block Red LineHeight25 Hidden">{checkForm[field](value)}</div>}

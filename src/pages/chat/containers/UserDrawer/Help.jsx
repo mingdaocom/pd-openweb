@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { emitter } from 'src/utils/common';
+import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { PopoverWrap } from '../ChatList/Avatar/styled';
 
 const collections = () => {
@@ -15,12 +16,6 @@ const collections = () => {
         ? [
             { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.nocoly.com' },
             { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.nocoly.com' },
-            {
-              id: 'communityQuestions',
-              text: _l('社区提问'),
-              icon: 'forum',
-              href: 'https://nocoly.zendesk.com/hc/en-001',
-            },
             { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.nocoly.com/partner' },
             { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
           ]
@@ -29,7 +24,7 @@ const collections = () => {
             { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
             { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
             { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
-            { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+            { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
           ],
     },
     {
@@ -99,14 +94,11 @@ const renderProjectsPopover = ({ onClose = () => {}, onCloseHelpPopover = () => 
                         onCloseHelpPopover(); // 先关闭帮助浮层
                         onClose(); // 再关闭侧边抽屉
 
-                        if (window.platformENV.isOverseas) {
-                          emitter.emit('SET_MINGO_VISIBLE', { mingoVisible: true });
-                        } else {
-                          setTimeout(() => {
-                            window.mingoPendingStartTask = { callFromHelp: true };
-                            emitter.emit('SET_MINGO_VISIBLE');
-                          }, 20);
-                        }
+                        // 智能客服：打开 Mingo 帮助会话（单会话续接），转人工入口在会话面板内提供
+                        setTimeout(() => {
+                          window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.MINGDAO_HELP_CHAT };
+                          emitter.emit('SET_MINGO_VISIBLE');
+                        }, 20);
                       }
                     }}
                   >

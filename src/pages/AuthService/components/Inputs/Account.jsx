@@ -1,134 +1,208 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
-import { getDialCode, getEmailOrTel, isTel } from 'src/pages/AuthService/util.js';
+import { Icon } from 'ming-ui';
+import DialCodeSelectInstance from 'ming-ui/components/PhoneNumberInput/DialCodeSelect';
+import {
+  buildCountryOptions,
+  getDefaultCode,
+  parseFullNumberInput,
+} from 'ming-ui/components/PhoneNumberInput/DialCodeSelect/utils';
+import {
+  getDefaultCountry,
+  getPhoneInputLocale,
+  getPreferredCountries,
+  initIntlTelInput,
+} from 'ming-ui/components/PhoneNumberInput/util';
 
-// 无区号时的输入框左内边距（区号 trigger 隐藏或邮箱态），与 .title left 及 dialCodeInputGap 保持一致
-const INPUT_PADDING_LEFT = 12;
+const isPhoneAccount = value => {
+  const normalized = String(value || '').replace(/\s*/g, '');
+  return !!normalized && !normalized.includes('@') && !isNaN(normalized);
+};
 
 // 'inputAccount',//手机邮箱输入框
 export default function (props) {
-  const { keys, onlyRead, type, emailOrTel, onChange = () => {}, canChangeEmailOrTel, focusDiv, warnList } = props;
-
-  const cache = useRef({});
-  const mobileInput = useRef();
-  const isTelMode = keys.includes('tel') && !keys.includes('email');
-
-  const resetToInitialState = () => {
-    if (window.initIntlTelInput) {
-      window.initIntlTelInput.setNumber('');
-    }
-
-    if (mobileInput.current) {
-      mobileInput.current.value = '';
-      mobileInput.current.style.paddingLeft = `${INPUT_PADDING_LEFT}px`;
-    }
-  };
+  const {
+    keys,
+    onlyRead,
+    type,
+    emailOrTel,
+    dialCode,
+    onChange = () => {},
+    canChangeEmailOrTel,
+    focusDiv,
+    warnList = [],
+  } = props;
+  const dialCodeTriggerRef = useRef(null);
+  const dialCodeInstanceRef = useRef(null);
+  const onChangeRef = useRef(onChange);
+  const isComposingRef = useRef(false);
+  const [compositionValue, setCompositionValue] = useState(null);
+  const defaultCountry = useMemo(getDefaultCountry, []);
+  const preferredCountries = useMemo(getPreferredCountries, []);
+  const locale = useMemo(getPhoneInputLocale, []);
+  const countryOptions = useMemo(
+    () => buildCountryOptions({ preferredCountries, locale }),
+    [preferredCountries, locale],
+  );
+  const rawAccountValue = String(emailOrTel || '');
+  const normalizedAccountValue = rawAccountValue.replace(/\s/g, '');
+  const parsedAccount = useMemo(
+    () =>
+      parseFullNumberInput({
+        inputValue: normalizedAccountValue,
+        defaultCountry,
+        fallbackCode: dialCode || getDefaultCode(defaultCountry),
+      }),
+    [normalizedAccountValue, defaultCountry, dialCode],
+  );
+  const accountValue = parsedAccount?.numberValue || normalizedAccountValue;
+  const currentDialCode = parsedAccount?.code || dialCode || getDefaultCode(defaultCountry);
+  const isPhone = isPhoneAccount(accountValue);
+  const normalizedDialCode = isPhone ? currentDialCode : '';
+  const shouldNormalizeAccount =
+    !!rawAccountValue && (accountValue !== rawAccountValue || dialCode !== normalizedDialCode);
+  const dialCodeStateRef = useRef({
+    value: `${currentDialCode}${accountValue}`,
+    code: currentDialCode,
+  });
 
   useEffect(() => {
-    const prevValue = cache.current.emailOrTel;
-    cache.current.emailOrTel = emailOrTel;
-    if (emailOrTel) {
-      setInputValue(emailOrTel);
-    } else if (isTelMode || isTel(prevValue)) {
-      resetToInitialState();
-    }
-  }, [emailOrTel, isTelMode]);
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
-    renderItiInput();
-  }, []);
+    if (!shouldNormalizeAccount) return;
 
-  let autoCompleteData = { autoComplete: type !== 'login' ? 'new-password' : 'on' };
+    onChangeRef.current({
+      emailOrTel: accountValue,
+      dialCode: normalizedDialCode,
+    });
+  }, [shouldNormalizeAccount, accountValue, normalizedDialCode]);
 
-  const renderItiInput = () => {
-    if (mobileInput.current) {
-      window.initIntlTelInput = null;
-      window.initIntlTelInput = createIntlTelInput(mobileInput.current, {
-        separateDialCode: false,
-        showSelectedDialCode: true,
-        showDialCodeInput: true,
-        dialCodeInputGap: 12,
-      });
-      window.initIntlTelInput.dialCodeTrigger.tabIndex = -1;
-      emailOrTel && setInputValue(emailOrTel);
-      $(mobileInput.current).on('close:countrydropdown keyup', () => {
-        cache.current.emailOrTel && setInputValue(cache.current.emailOrTel);
-        safeLocalStorageSetItem('DefaultCountry', window.initIntlTelInput.getSelectedCountryData().iso2);
-      });
+  useEffect(() => {
+    const value = `${currentDialCode}${accountValue}`;
+
+    dialCodeStateRef.current = { value, code: currentDialCode };
+
+    if (dialCodeInstanceRef.current) {
+      dialCodeInstanceRef.current.value = value;
+      dialCodeInstanceRef.current.code = currentDialCode;
     }
-  };
+  }, [accountValue, currentDialCode]);
 
-  const setInputValue = emailOrTel => {
-    const isPhone = isTel(emailOrTel);
+  useEffect(() => {
+    if (!isPhone || onlyRead || !dialCodeTriggerRef.current) return;
 
-    if (isPhone) {
-      window.initIntlTelInput.setNumber(emailOrTel || '');
-    } else if (mobileInput.current) {
-      // 区号组件会写入行内 padding，切换为邮箱时需恢复普通输入间距。
-      mobileInput.current.style.paddingLeft = `${INPUT_PADDING_LEFT}px`;
+    const { value, code } = dialCodeStateRef.current;
+    const instance = new DialCodeSelectInstance({
+      dom: dialCodeTriggerRef.current,
+      value,
+      defaultCountry,
+      preferredCountries,
+      locale,
+      onSelectCode: nextCode => {
+        const selectedCountry = _.find(countryOptions, item => item.code === nextCode);
+
+        onChangeRef.current({ dialCode: nextCode });
+
+        if (selectedCountry?.iso2) {
+          safeLocalStorageSetItem('DefaultCountry', selectedCountry.iso2.toLowerCase());
+        }
+      },
+    });
+
+    instance.value = value;
+    instance.code = code;
+    dialCodeInstanceRef.current = instance;
+
+    return () => {
+      instance._destroy?.();
+
+      if (dialCodeInstanceRef.current === instance) {
+        dialCodeInstanceRef.current = null;
+      }
+    };
+  }, [isPhone, onlyRead, defaultCountry, preferredCountries, locale, countryOptions]);
+
+  useEffect(() => {
+    initIntlTelInput().setCode(currentDialCode);
+  }, [currentDialCode]);
+
+  const onChangeAccount = (e, forceCommit = false) => {
+    const inputValue = e.target.value;
+
+    if (!forceCommit && (isComposingRef.current || e.nativeEvent?.isComposing)) {
+      setCompositionValue(inputValue);
+      return;
     }
 
-    const value = getEmailOrTel(emailOrTel);
-    onChange({ emailOrTel: value, dialCode: isPhone ? getDialCode() : '' });
-    mobileInput.current.value = value;
-  };
-
-  const onChangeAccount = e => {
-    const { keys, warnList } = props;
-    const prevValue = cache.current.emailOrTel;
-    let data = _.filter(warnList, it => 'inputAccount' !== it.tipDom);
-    let value = getEmailOrTel(e.target.value);
-
-    if (!value && (isTelMode || isTel(prevValue))) {
-      resetToInitialState();
-    }
+    const normalizedValue = String(inputValue || '').replace(/\s/g, '');
+    const parsed = parseFullNumberInput({
+      inputValue: normalizedValue,
+      defaultCountry,
+      fallbackCode: currentDialCode,
+    });
+    const value = parsed ? parsed.numberValue : normalizedValue;
+    const nextIsPhone = isPhoneAccount(value);
 
     onChange({
       emailOrTel: value,
-      warnList: data,
-      dialCode: keys.includes('email') ? '' : getDialCode(value.indexOf('@') < 0 && !isNaN(value.replace(/\s*/g, ''))),
+      warnList: _.filter(warnList, it => 'inputAccount' !== it.tipDom),
+      dialCode: keys.includes('email') || !nextIsPhone ? '' : parsed?.code || currentDialCode,
     });
-    mobileInput.current.value = value;
-    mobileInput.current && mobileInput.current.focus();
   };
 
   const warn = _.find(warnList, it => it.tipDom === 'inputAccount');
+
   return (
     <div
       className={cx('mesDiv', {
-        hasValue: !!emailOrTel || focusDiv === 'inputAccount',
+        hasValue: !!accountValue || focusDiv === 'inputAccount',
         errorDiv: warn,
         warnDiv: warn && warn.noErr,
         errorDivCu: !!focusDiv && focusDiv === 'inputAccount',
-        showIti: isTel(emailOrTel),
       })}
     >
-      <input
-        type="text"
-        id="txtMobilePhone"
-        className={cx({ onlyRead: onlyRead, showIti: isTel(emailOrTel) })}
-        disabled={onlyRead ? 'disabled' : ''}
-        ref={mobileInput}
-        onBlur={() => onChange({ focusDiv: '' })}
-        onFocus={() => {
-          if (!emailOrTel && mobileInput.current) {
-            mobileInput.current.style.paddingLeft = `${INPUT_PADDING_LEFT}px`;
-          }
-
-          onChange({ focusDiv: 'inputAccount' });
-        }}
-        onPaste={e => onChangeAccount(e)}
-        onChange={e => onChangeAccount(e)}
-        {...autoCompleteData}
-      />
+      <div className={cx('authAccountControl', { onlyRead })}>
+        {isPhone && (
+          <div
+            className="authAccountDialCodeTrigger"
+            ref={dialCodeTriggerRef}
+            role="button"
+            tabIndex="-1"
+            aria-haspopup="dialog"
+          >
+            <span className="authAccountDialCodeValue">{currentDialCode}</span>
+            <Icon icon="arrow-down" className="authAccountDialCodeArrow" />
+          </div>
+        )}
+        <input
+          type="text"
+          id="txtMobilePhone"
+          disabled={onlyRead}
+          value={compositionValue === null ? accountValue : compositionValue}
+          autoComplete={type !== 'login' ? 'new-password' : 'on'}
+          onBlur={() => onChange({ focusDiv: '' })}
+          onFocus={() => onChange({ focusDiv: 'inputAccount' })}
+          onChange={onChangeAccount}
+          onCompositionStart={e => {
+            isComposingRef.current = true;
+            setCompositionValue(e.currentTarget.value);
+          }}
+          onCompositionEnd={e => {
+            isComposingRef.current = false;
+            setCompositionValue(null);
+            onChangeAccount(e, true);
+          }}
+        />
+      </div>
       {canChangeEmailOrTel && (
         <Icon
           type="swap_horiz"
           className="textTertiary Hand hoverColorPrimary changeEmailOrTel Font20"
           onClick={() => {
-            const { dialCode, mobilephone, email } = props;
+            const { mobilephone, email } = props;
             let mobile = mobilephone;
 
             if (dialCode) {

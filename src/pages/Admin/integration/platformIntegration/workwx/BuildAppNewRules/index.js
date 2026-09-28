@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import workWeiXinAjax from 'src/api/workWeiXin.js';
 import { checkClearIntergrationData } from '../../utils';
 import gearImg from '../img/gear.gif';
@@ -71,18 +72,6 @@ const BuildAppBox = styled.div`
   .subTitle {
     font-size: 13px;
     color: var(--color-text-tertiary);
-  }
-  .confirmBtn {
-    width: 132px;
-    height: 36px;
-    line-height: 36px;
-    background: var(--color-primary);
-    opacity: 1;
-    border-radius: 18px;
-    color: var(--color-white);
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 36px;
   }
   .line {
     width: 100%;
@@ -199,14 +188,17 @@ export default class BuildAppNewRules extends Component {
         <div className="erweima">{isLoading ? <LoadDiv /> : <img src={url} />}</div>
 
         <div className="tip">
-          {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+          {window.platformENV.isPlatform && window.platformENV.isHap
             ? _l('将明道云应用安装企业微信工作台')
             : _l('将应用安装企业微信工作台')}
         </div>
 
         <div className="subTip">{_l('企业微信管理员扫码并完成授权')}</div>
         <Button
-          className="confirmBtn"
+          wide
+          type="primary"
+          shape="round"
+          className="mTop36"
           onClick={() => {
             checkClearIntergrationData({
               projectId: this.props.projectId,

@@ -2,17 +2,17 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { generate } from '@ant-design/colors';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import reportRequestAjax from '../api/report';
 import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { countryLayerCodeMap } from 'statistics/enum';
 import * as actions from 'statistics/redux/actions';
 import { version } from '../common/reportConfigUtils';
 import { fillValueMap } from '../common/reportDataUtils';
+import { chartContextMenuProps } from './ChartContextMenu';
 import { formatrChartValue, formatYaxisList, getChartColors, getControlMinAndMax, getStyleColor } from './common';
 
 const PathWrapper = styled.div`
@@ -665,46 +665,48 @@ export class CountryLayer extends Component {
       count,
     });
   }
-  renderOverlay() {
+  getMenuItems() {
     const { reportData, isThumbnail } = this.props;
     const { path, drillDownLoading, drillDownCode } = this.state;
     const { style, country } = reportData || {};
 
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Fragment>
-          {this.isLinkageData && _.isEmpty(path) && (
-            <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-              <div className="flexRow valignWrapper">
-                <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-                <span>{_l('联动')}</span>
-              </div>
-            </Menu.Item>
-          )}
-          {this.isViewOriginalData && (isThumbnail ? _.isEmpty(path) : true) && (
-            <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-              <div className="flexRow valignWrapper">
-                <Icon icon="table" className="mRight8 textTertiary Font18" />
-                <span>{_l('查看原始数据')}</span>
-              </div>
-            </Menu.Item>
-          )}
-        </Fragment>
-        {_.get(style, 'isDrillDownLayer') &&
-          [1, 2].includes(country.particleSizeType) &&
-          path.length < (country.particleSizeType === 1 ? 3 : 2) &&
-          !municipality.includes(drillDownCode) && (
-            <Menu.Item onClick={this.handleDrillDownTriggerData} key="dataDrill">
-              <div className="flexRow valignWrapper">
-                <Icon icon="drill_down" className="mRight8 textTertiary Font20" />
-                <span>{_l('数据钻取')}</span>
-                {drillDownLoading && <LoadDiv size="small" />}
-              </div>
-            </Menu.Item>
-          )}
-      </Menu>
-    );
+    return [
+      this.isLinkageData &&
+        _.isEmpty(path) && {
+          key: 'autoLinkage',
+          icon: <Icon icon="link1" className="textTertiary Font20 autoLinkageIcon" />,
+          label: _l('联动'),
+        },
+      this.isViewOriginalData &&
+        (isThumbnail ? _.isEmpty(path) : true) && {
+          key: 'viewOriginalData',
+          icon: <Icon icon="table" className="textTertiary Font18" />,
+          label: _l('查看原始数据'),
+        },
+      _.get(style, 'isDrillDownLayer') &&
+        [1, 2].includes(country.particleSizeType) &&
+        path.length < (country.particleSizeType === 1 ? 3 : 2) &&
+        !municipality.includes(drillDownCode) && {
+          key: 'dataDrill',
+          icon: <Icon icon="drill_down" className="textTertiary Font20" />,
+          label: _l('数据钻取'),
+          extra: drillDownLoading && <LoadDiv size="small" />,
+        },
+    ].filter(Boolean);
   }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+
+    if (key === 'dataDrill') {
+      this.handleDrillDownTriggerData();
+    }
+  };
   render() {
     const { count, originalCount, dropdownVisible, offset, path } = this.state;
     const { xaxes = {}, displaySetup = {}, country = {}, summary } = this.props.reportData;
@@ -712,13 +714,17 @@ export class CountryLayer extends Component {
     return (
       <div className="flex flexColumn chartWrapper countryLayerChart Relative">
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: this.getMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }} />
         </Dropdown>

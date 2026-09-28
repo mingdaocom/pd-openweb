@@ -1,7 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Dropdown, FunctionWrap, LoadDiv, Support } from 'ming-ui';
+import { LoadDiv, Support } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import { getControlTypeName, getIcons } from '../../../utils';
 
 const NoData = styled.div`
@@ -52,10 +54,10 @@ const SelectToolsFields = props => {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       className="workflowDialogBox"
       width={640}
-      visible
+      open
       title={_l('工具调用的工作表字段')}
       onOk={() => {
         if (!selectNodeId) {
@@ -108,49 +110,47 @@ const SelectToolsFields = props => {
       {list && !!list.length && (
         <Fragment>
           <div className="bold">{_l('AI Agent工具')}</div>
-          <Dropdown
+          <Select
             className="w100 mTop10"
-            menuClass="w100"
-            data={list.map(o => {
+            options={list.map(o => {
               return {
-                text: toolTitle(o),
+                label: toolTitle(o),
                 value: o.nodeId,
               };
             })}
             value={selectNodeId || undefined}
             placeholder={_l('选择工具')}
-            border
-            renderTitle={() => selectNodeId && toolTitle(list.find(o => o.nodeId === selectNodeId))}
-            onChange={nodeId => setSelectNodeId(nodeId)}
+            labelRender={() => selectNodeId && toolTitle(list.find(o => o.nodeId === selectNodeId))}
+            onChange={setSelectNodeId}
           />
 
           <div className="mTop20 bold">{_l('字段')}</div>
-          <Dropdown
+          <Select
             className="w100 mTop10"
-            menuClass="w100"
             disabled={!selectNodeId}
-            data={fieldList.map(o => {
+            options={fieldList.map(o => {
               return {
-                text: fieldTitle(o),
+                label: fieldTitle(o),
                 value: o.controlId,
               };
             })}
             value={selectControlId || undefined}
             placeholder={_l('选择字段')}
-            border
-            renderTitle={() =>
+            labelRender={() =>
               selectControlId &&
               fieldTitle(
                 fieldList.find(o => o.controlId === selectControlId),
                 false,
               )
             }
-            onChange={controlId => setSelectControlId(controlId)}
+            onChange={setSelectControlId}
           />
         </Fragment>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 
-export default props => FunctionWrap(SelectToolsFields, { ...props });
+export function useSelectToolsFields() {
+  return useFunctionWrapComponent(SelectToolsFields);
+}

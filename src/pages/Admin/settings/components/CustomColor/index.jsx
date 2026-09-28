@@ -3,24 +3,25 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectColor } from 'ming-ui/functions';
 import projectAjax from 'src/api/projectSetting';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { navigateTo } from 'src/router/navigateTo';
-import { SYS_CHART_COLORS, SYS_COLOR } from '../../config';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { SYS_CHART_COLORS, SYS_COLOR } from 'src/utils/domain/project/colors';
 import ChartColorSetting from './ChartColorSetting';
 import ChartSettingDialog from './ChartSettingDialog';
 import IllustrationTrigger from './IllustrationTrigger';
 import '../index.less';
 
 const ColorBox = styled.div(
-  ({ color, select = false, hasRemove = false }) => `
+  ({ $color, $select = false, $hasRemove = false }) => `
   width: 36px;
   height: 36px;
   background: var(--color-background-primary);
   border: 1px solid;
-  border-color: ${select ? 'var(--color-border-primary)' : 'transparent'};
+  border-color: ${$select ? 'var(--color-border-primary)' : 'transparent'};
   border-radius: 4px;
   padding: 3px;
   position: relative;
@@ -28,14 +29,14 @@ const ColorBox = styled.div(
   &:hover {
     border-color: var(--color-primary);
     .removeIcon {
-      opacity: ${hasRemove ? 1 : 0};
+      opacity: ${$hasRemove ? 1 : 0};
     }
   }
   .colorBg {
     width: 100%;
     height: 100%;
     border-radius: 4px;
-    background: ${color};
+    background: ${$color};
 
     display: flex;
     align-items: center;
@@ -192,11 +193,11 @@ export default class CustomColor extends Component {
         {list.map(item => {
           return (
             <ColorBox
-              color={item.color}
-              select={item.enable}
+              $color={item.color}
+              $select={item.enable}
               key={`${key}-${item.color}`}
               onClick={() => this.selected(item, key)}
-              hasRemove={editable}
+              $hasRemove={editable}
             >
               <div className="colorBg">
                 <i className={cx('icon-done selectIcon', { hide: !item.enable })}></i>
@@ -360,9 +361,9 @@ export default class CustomColor extends Component {
             <div className="Font15 textPrimary Bold flexRow chartSettingHeader">
               {_l('图表配色')}
               <Button
-                className="createChartColorBtn"
-                icon="add"
-                radius
+                type="primary"
+                icon={<Icon icon="add" />}
+                shape="round"
                 onClick={() => {
                   if (custom_char.length > 9) {
                     alert(_l('最多添加十个自定义图标配色'), 3);
@@ -372,7 +373,7 @@ export default class CustomColor extends Component {
                   this.setState({ customChartDialog: { visible: true, data: null, editable: true } });
                 }}
               >
-                <span className="mLeft6">{_l('创建自定义颜色')}</span>
+                {_l('创建自定义颜色')}
               </Button>
             </div>
             <div className="Font14 textPrimary Bold mBottom16">{_l('系统预设')}</div>

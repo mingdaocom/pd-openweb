@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Input, Select, Tag } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes, roundTypes } from 'statistics/Charts/common';
+import { Checkbox, Input, InputNumber, Select, Tooltip } from 'ming-ui/antd-components';
+import { roundTypes } from 'statistics/Charts/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import RuleColor from './Color/RuleColor';
 
 export default class Label extends Component {
@@ -43,60 +43,34 @@ export default class Label extends Component {
         {percent.enable && (
           <div className="mBottom15 mLeft25">
             <div className="mBottom8">{_l('保留小数')}</div>
-            <Input
-              className="chartInput"
+            <InputNumber
+              className="w100"
+              min={0}
+              max={9}
+              precision={0}
               value={percent.dot}
-              onChange={event => {
-                const count = Number(event.target.value.replace(/-/g, ''));
+              onChange={value => {
                 onChangeDisplayValue('percent', {
                   ...percent,
-                  dot: count >= 9 ? 9 : count,
+                  dot: _.clamp(value || 0, 0, 9),
                 });
               }}
-              suffix={
-                <div className="flexColumn">
-                  <Icon
-                    icon="expand_less"
-                    className="textTertiary Font20 pointer mBottom2"
-                    onClick={() => {
-                      let newYdot = Number(percent.dot);
-                      onChangeDisplayValue('percent', {
-                        ...percent,
-                        dot: newYdot >= 9 ? 9 : newYdot + 1,
-                      });
-                    }}
-                  />
-                  <Icon
-                    icon="expand_more"
-                    className="textTertiary Font20 pointer mTop2"
-                    onClick={() => {
-                      let newYdot = Number(percent.dot);
-                      onChangeDisplayValue('percent', {
-                        ...percent,
-                        dot: newYdot ? newYdot - 1 : 0,
-                      });
-                    }}
-                  />
-                </div>
-              }
             />
             <Select
-              className="chartSelect w100 mTop10"
+              className="w100 mTop10"
               value={percent.roundType}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={roundTypes.map(item => ({
+                value: item.value,
+                label: item.text,
+              }))}
               onChange={value => {
                 onChangeDisplayValue('percent', {
                   ...percent,
                   roundType: value,
                 });
               }}
-            >
-              {roundTypes.map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                  {item.text}
-                </Select.Option>
-              ))}
-            </Select>
+            />
             <div className="flexRow valignWrapper mTop10">
               <Checkbox
                 className="flexRow"
@@ -114,7 +88,7 @@ export default class Label extends Component {
               <Tooltip
                 title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
                 placement="bottom"
-                arrowPointAtCenter
+                arrow={{ pointAtCenter: true }}
               >
                 <Icon className="textTertiary Font18 pointer" icon="info" />
               </Tooltip>
@@ -221,7 +195,7 @@ export default class Label extends Component {
             <div className="flexRow valignWrapper mBottom13">
               <Checkbox
                 checked={isApplyGaugeColor}
-                onChange={() => {
+                onChange={event => {
                   onChangeStyle({ isApplyGaugeColor: event.target.checked });
                 }}
               >
@@ -315,9 +289,10 @@ export default class Label extends Component {
             </div>
             {displaySetup.showNumber && (
               <Input
-                className="chartInput mBottom16"
-                value={currentValueName}
-                onChange={event => {
+                className="mBottom16"
+                defaultValue={currentValueName}
+                onPressEnter={event => event.currentTarget.blur()}
+                onBlur={event => {
                   onChangeStyle({ currentValueName: event.target.value });
                 }}
               />
@@ -337,9 +312,10 @@ export default class Label extends Component {
             </div>
             {displaySetup.showDimension && (
               <Input
-                className="chartInput mBottom16"
-                value={targetValueName}
-                onChange={event => {
+                className="mBottom16"
+                defaultValue={targetValueName}
+                onPressEnter={event => event.currentTarget.blur()}
+                onBlur={event => {
                   onChangeStyle({ targetValueName: event.target.value });
                 }}
               />
@@ -457,7 +433,7 @@ export default class Label extends Component {
               </Checkbox>
             </div>
             {(displaySetup.showNumber || mobileShowNumber) && (
-              <div className="mBottom16" style={{ marginLeft: 25 }}>
+              <div className="mBottom16 mLeft25">
                 <div className="mBottom5 textSecondary">{_l('显示端')}</div>
                 <div className="flexRow valignWrapper">
                   <Checkbox
@@ -578,12 +554,13 @@ export default class Label extends Component {
         )}
         {reportType === reportTypes.FunnelChart &&
           (displaySetup.showDimension || displaySetup.showNumber || mobileShowNumber) && (
-            <div className="mLeft20 mBottom12">
+            <div className="mLeft25 mBottom12">
               <Input
-                className="chartInput"
                 defaultValue={style.funnelConversionText || _l('转化率')}
+                maxLength={10}
+                onPressEnter={event => event.currentTarget.blur()}
                 onBlur={event => {
-                  onChangeStyle({ funnelConversionText: event.target.value.slice(0, 10) });
+                  onChangeStyle({ funnelConversionText: event.target.value });
                 }}
               />
             </div>
@@ -591,29 +568,9 @@ export default class Label extends Component {
         {reportType === reportTypes.LineChart && displaySetup.showNumber && (
           <Select
             mode="multiple"
-            className="chartSelect mBottom16 w100"
+            className="mBottom16 w100"
             value={_.isEmpty(style.chartShowLabelIds) ? ['all'] : style.chartShowLabelIds}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-            tagRender={props => {
-              const { label, value, closable, onClose } = props;
-              const isExist = value == 'all' ? true : _.find(yaxisList, { controlId: value });
-
-              const onPreventMouseDown = event => {
-                event.preventDefault();
-                event.stopPropagation();
-              };
-
-              return (
-                <Tag
-                  color={isExist ? undefined : 'error'}
-                  onMouseDown={onPreventMouseDown}
-                  closable={closable}
-                  onClose={onClose}
-                >
-                  {isExist ? label : _l('字段已删除')}
-                </Tag>
-              );
-            }}
             onDeselect={value => {
               const chartShowLabelIds = style.chartShowLabelIds || [];
               onChangeStyle({ chartShowLabelIds: chartShowLabelIds.filter(n => n !== value) });
@@ -626,14 +583,17 @@ export default class Label extends Component {
                 onChangeStyle({ chartShowLabelIds: chartShowLabelIds.filter(n => n !== 'all').concat(value) });
               }
             }}
-          >
-            <Select.Option value="all">{_l('全部')}</Select.Option>
-            {yaxisList.map(item => (
-              <Select.Option key={item.controlId} value={item.controlId}>
-                {item.controlName}
-              </Select.Option>
-            ))}
-          </Select>
+            options={[
+              {
+                value: 'all',
+                label: _l('全部'),
+              },
+              ...yaxisList.map(item => ({
+                value: item.controlId,
+                label: item.controlName,
+              })),
+            ]}
+          />
         )}
         {getShowLabelPercent() && labelPercent}
         {[reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) && displaySetup.isPile && (

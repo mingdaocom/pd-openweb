@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Dropdown, Tooltip } from 'ming-ui/antd-components';
 
 const ChartColorSettingBox = styled.div(
-  ({ select = false }) => `
+  ({ $select = false }) => `
   width: 150px;
   height: 110px;
   background: var(--color-background-primary);
@@ -30,16 +29,9 @@ const ChartColorSettingBox = styled.div(
     gap: 6px;
     align-items: end;
     cursor: pointer;
-    opacity: ${select ? 1 : 0.6};
+    opacity: ${$select ? 1 : 0.6};
     &.minGap {
       gap: 2px;
-    }
-    &:hover {
-      & + .ChartColorSetting_checkbox {
-        .Checkbox-box {
-          border: 1px solid var(--color-primary);
-        }
-      }
     }
     .colorBox {
       width: 11px;
@@ -54,7 +46,7 @@ const ChartColorSettingBox = styled.div(
     align-items: center;
     line-height: 1;
     cursor: pointer;
-    opacity: ${select ? 1 : 0.6};
+    opacity: ${$select ? 1 : 0.6};
     .option {
       width: 24px;
       height: 24px;
@@ -75,37 +67,8 @@ const ChartColorSettingBox = styled.div(
     top: 0;
     right: 6px;
   }
-  .ming.Checkbox .Checkbox-box {
-    margin-right: 0;
-  }
 `,
 );
-
-const Menu = styled.div`
-  width: 120px;
-  padding: 6px 0;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  opacity: 1;
-  border-radius: 4px;
-  font-size: 13px;
-  line-height: 1;
-  .item {
-    padding: 9px 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-  }
-  .deleteItem {
-    color: var(--color-error);
-    .icon {
-      color: var(--color-error);
-    }
-  }
-`;
 
 const COLOR_BOX_HEIGHT = [48, 24, 32, 24, 13, 29, 22, 41];
 
@@ -124,62 +87,8 @@ export default function ChartColorSetting(props) {
 
   const [visible, setVisible] = useState(false);
 
-  const menu = (
-    <Menu>
-      {editable ? (
-        <React.Fragment>
-          <div
-            className="item"
-            onClick={e => {
-              e.stopPropagation();
-              setVisible(false);
-              openDialog();
-            }}
-          >
-            <Icon icon="edit" className="Font18 textTertiary mRight10" />
-            {_l('编辑')}
-          </div>
-          <div
-            className="item"
-            onClick={e => {
-              e.stopPropagation();
-              setVisible(false);
-              copy();
-            }}
-          >
-            <Icon icon="copy" className="Font18 textTertiary mRight10" />
-            {_l('复制')}
-          </div>
-          <div
-            className="item deleteItem"
-            onClick={e => {
-              e.stopPropagation();
-              setVisible(false);
-              remove();
-            }}
-          >
-            <Icon icon="delete_12" className="Font18 mRight10" />
-            {_l('删除')}
-          </div>
-        </React.Fragment>
-      ) : (
-        <div
-          className="item"
-          onClick={e => {
-            e.stopPropagation();
-            setVisible(false);
-            openDialog();
-          }}
-        >
-          <Icon icon="follow" className="Font18 textTertiary mRight10" />
-          {_l('查看')}
-        </div>
-      )}
-    </Menu>
-  );
-
   return (
-    <ChartColorSettingBox select={selected}>
+    <ChartColorSettingBox $select={selected}>
       <div className={cx('chartWrap flex', { minGap: colors.length > 8 })} onClick={() => handleSelect(!selected)}>
         {colors.map((color, index) => (
           <span className="colorBox" style={{ background: color, height: COLOR_BOX_HEIGHT[(index + 1) % 8] }}></span>
@@ -188,11 +97,12 @@ export default function ChartColorSetting(props) {
       {!disablechecked && (
         <Checkbox
           className="ChartColorSetting_checkbox"
-          size="small"
-          text={null}
           checked={selected}
-          onClick={checked => handleSelect(!checked)}
-        />
+          onChange={event => handleSelect(event.target.checked)}
+          size="small"
+        >
+          {null}
+        </Checkbox>
       )}
       <div className="titleWrap" onClick={openDialog}>
         <span className="ellipsis flex Bold">
@@ -200,22 +110,57 @@ export default function ChartColorSetting(props) {
             <span>{name}</span>
           </Tooltip>
         </span>
-        <Trigger
-          popup={menu}
-          popupVisible={visible}
-          onPopupVisibleChange={visible => {
+        <Dropdown
+          menu={{
+            items: editable
+              ? [
+                  {
+                    key: 'edit',
+                    icon: <Icon icon="edit" className="Font18 textTertiary" />,
+                    label: _l('编辑'),
+                  },
+                  {
+                    key: 'copy',
+                    icon: <Icon icon="copy" className="Font18 textTertiary" />,
+                    label: _l('复制'),
+                  },
+                  {
+                    key: 'delete',
+                    danger: true,
+                    icon: <Icon icon="delete_12" className="Font18" />,
+                    label: _l('删除'),
+                  },
+                ]
+              : [
+                  {
+                    key: 'view',
+                    icon: <Icon icon="follow" className="Font18 textTertiary" />,
+                    label: _l('查看'),
+                  },
+                ],
+            onClick: ({ key, domEvent }) => {
+              domEvent.stopPropagation();
+              setVisible(false);
+              if (key === 'copy') {
+                copy();
+              } else if (key === 'delete') {
+                remove();
+              } else {
+                openDialog();
+              }
+            },
+            style: { minWidth: 120 },
+          }}
+          open={visible}
+          onOpenChange={visible => {
             setVisible(visible);
           }}
-          action={['click']}
-          popupAlign={{
-            points: ['tr', 'br'],
-            overflow: { adjustX: true, adjustY: true },
-          }}
+          trigger={['click']}
         >
           <span className="option" onClick={e => e.stopPropagation()}>
             <i className="icon-more_horiz Font16"></i>
           </span>
-        </Trigger>
+        </Dropdown>
       </div>
     </ChartColorSettingBox>
   );

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { bool, func, node, oneOf, oneOfType, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Popover } from 'ming-ui/antd-components';
 
 const Con = styled.div`
-  position: absolute;
+  position: ${({ $inPopup }) => ($inPopup ? 'relative' : 'absolute')};
   z-index: 1002;
-  ${({ pos }) => `${pos === 'top' ? 'top' : 'bottom'}: -26px;`}
+  ${({ $inPopup, $pos }) => !$inPopup && `${$pos === 'top' ? 'top' : 'bottom'}: -26px;`}
   left: 0;
   white-space: nowrap;
   padding: 0 8px;
@@ -15,7 +15,7 @@ const Con = styled.div`
   line-height: 26px;
   font-size: 12px;
   color: var(--color-white);
-  background-color: ${({ color }) => color || 'var(--color-error)'};
+  background-color: ${({ $color }) => $color || 'var(--color-error)'};
   .delIcon {
     cursor: pointer;
     color: rgba(0, 0, 0, 0.24);
@@ -26,27 +26,50 @@ const Con = styled.div`
   }
 `;
 
+const ERROR_TIP_POPOVER_STYLES = {
+  container: {
+    padding: 0,
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+};
+
+// 提示要像原来内联渲染时那样紧贴单元格边缘（三角压在单元格边框上），因此去掉浮层默认的间距；
+// 朝上、朝下由调用方按行位置指定，不做自动翻转，否则三角方向会和提示位置相反
+const ERROR_TIP_POPOVER_PLACEMENTS = {
+  topLeft: {
+    points: ['bl', 'tl'],
+    offset: [0, 0],
+    overflow: { adjustX: true },
+  },
+  bottomLeft: {
+    points: ['tl', 'bl'],
+    offset: [0, 0],
+    overflow: { adjustX: true },
+  },
+};
+
 const Angle = styled.div`
   position: absolute;
-  ${({ pos }) => `${pos === 'top' ? 'bottom' : 'top'}: -6px;`}
+  ${({ $pos }) => `${$pos === 'top' ? 'bottom' : 'top'}: -6px;`}
   left: 0;
   border: 3px solid transparent;
-  border-left-color: ${({ color }) => color || 'var(--color-error)'};
-  ${({ pos, color }) =>
-    pos === 'top'
-      ? `border-top-color: ${color || 'var(--color-error)'};`
-      : `border-bottom-color: ${color || 'var(--color-error)'};`}
+  border-left-color: ${({ $color }) => $color || 'var(--color-error)'};
+  ${({ $pos, $color }) =>
+    $pos === 'top'
+      ? `border-top-color: ${$color || 'var(--color-error)'};`
+      : `border-bottom-color: ${$color || 'var(--color-error)'};`}
 `;
 
 function CellErrorTipContent(props) {
-  const { pos = 'top', error, color } = props;
+  const { pos = 'top', error, color, inPopup } = props;
   const [closed, setClosed] = useState(false);
 
   if (closed) return null;
 
   return (
-    <Con pos={pos} color={color}>
-      <Angle color={color} pos={pos} />
+    <Con $pos={pos} $color={color} $inPopup={inPopup}>
+      <Angle $color={color} $pos={pos} />
       {error}
       <i className="icon-close mLeft8 delIcon" onClick={() => setClosed(true)} />
     </Con>
@@ -65,6 +88,7 @@ export default function CellErrorTip(props) {
 CellErrorTip.propTypes = {
   pos: oneOf(['top', 'bottom']),
   error: string,
+  inPopup: bool,
   updateErrorState: func,
 };
 
@@ -78,26 +102,25 @@ function getErrorTipContainer(popupContainer) {
 }
 
 /**
- * 把错误提示以浮层方式渲染在表格根容器上，用于提示朝下展示、会被底部统计行遮挡的单元格（如子表第一行）
+ * 把错误提示以浮层方式渲染在表格根容器上。
+ * 单元格编辑浮层自身是 overflow: hidden 的，提示不论朝上还是朝下都会溢出被裁剪，因此表格内的提示都走这里
  */
 export function CellErrorTipTrigger(props) {
-  const { visible, error, color, popupContainer, children } = props;
+  const { visible, error, color, pos = 'bottom', popupContainer, children } = props;
 
   return (
-    <Trigger
-      popupVisible={!!visible && !!error}
-      popup={<CellErrorTip error={error} color={color} pos="bottom" />}
+    <Popover
+      noPadding
+      builtinPlacements={ERROR_TIP_POPOVER_PLACEMENTS}
+      trigger={[]}
+      open={!!visible && !!error}
+      content={<CellErrorTip inPopup error={error} color={color} pos={pos} />}
       getPopupContainer={() => getErrorTipContainer(popupContainer)}
-      destroyPopupOnHide
-      zIndex={1051}
-      popupAlign={{
-        points: ['tl', 'bl'],
-        offset: [0, 0],
-        overflow: { adjustX: true },
-      }}
+      placement={pos === 'top' ? 'topLeft' : 'bottomLeft'}
+      styles={ERROR_TIP_POPOVER_STYLES}
     >
       {children}
-    </Trigger>
+    </Popover>
   );
 }
 
@@ -105,6 +128,7 @@ CellErrorTipTrigger.propTypes = {
   visible: bool,
   error: string,
   color: string,
+  pos: oneOf(['top', 'bottom']),
   popupContainer: oneOfType([func, node]),
   children: node,
 };

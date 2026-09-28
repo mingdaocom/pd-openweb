@@ -1,12 +1,11 @@
 .manageBackupFilesDrawer {
-  .ant-drawer-mask {
+  .hap-drawer-mask {
     background-color: rgba(255, 255, 255, 0);
   }
-  .ant-drawer-content-wrapper {
-    .ant-drawer-content {
-      .ant-drawer-header {
+  .hap-drawer-content-wrapper {
+    .hap-drawer-content {
+      .hap-drawer-header {
         padding: 0px;
-        border-bottom: none;
         .headerInfo {
           position: relative;
           padding: 24px 24px 8px;
@@ -43,7 +42,7 @@
           }
         }
       }
-      .ant-drawer-body {
+      .hap-drawer-body {
         padding: 0;
       }
     }
@@ -74,39 +73,8 @@
   }
 }
 
-.moreActionDropdown {
-  width: 180px;
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.24);
-  ul {
-    li {
-      .mRight13 {
-        margin-right: 13px;
-      }
-      .icon {
-        color: var(--color-text-tertiary);
-      }
-    }
-    li.delete {
-      color: var(--color-error);
-      .icon {
-        color: var(--color-error);
-      }
-    }
-  }
-}
-
-.restoreAppDialog {
-  width: 570px !important;
-  .mui-dialog-header {
-    .mui-dialog-default-title {
-      font-weight: 600 !important;
-    }
-  }
-}
-
 .createIndexDialog {
-  width: 580px !important;
-  .mui-dialog-body {
+  .hap-modal-body {
     position: relative;
     .warning {
       position: absolute;
@@ -115,64 +83,5 @@
       width: 580px;
       padding-left: 24px;
     }
-  }
-}
-
-.backupRestoreDialogFooter {
-  font-size: 14px;
-  line-height: 36px;
-  min-height: 36px;
-  span {
-    font-size: 14px;
-    line-height: 36px;
-    min-height: 36px;
-    display: inline-block;
-    box-sizing: border-box;
-    text-shadow: none;
-    border: none;
-    outline: none;
-    border-radius: 3px;
-    color: var(--color-white);
-    vertical-align: middle;
-    cursor: pointer;
-    width: 92px;
-    text-align: center;
-  }
-  .cancelBtn {
-    color: var(--color-text-tertiary);
-  }
-  .cancelBtn:hover {
-    color: var(--color-primary);
-  }
-  .disabledConfirmBtn {
-    color: var(--color-white);
-    background: var(--color-text-disabled);
-  }
-  .confirmBtn {
-    background: var(--color-primary);
-    cursor: pointer;
-  }
-  .confirmBtn:hover {
-    background-color: var(--color-link-hover);
-  }
-}
-
-.deleteBackupDialog {
-  .ming.Button--primary {
-    background-color: var(--color-error);
-  }
-  .ming.Button--primary:hover {
-    background-color: var(--color-error-hover);
-  }
-}
-
-.restoreNewAppDialog {
-  .mui-dialog-header {
-    font-size: 13px;
-    line-height: 17px;
-    color: var(--color-text-secondary);
-  }
-  .mui-dialog-body {
-    padding: 0;
   }
 }

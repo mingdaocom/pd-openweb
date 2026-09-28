@@ -1,9 +1,9 @@
 import React, { Fragment, lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Button, Dropdown, Modal } from 'ming-ui/antd-components';
 import delegationApi from '../../api/delegation';
 import delegationtodoApi from '../../api/delegationtodo';
 import Card from '../Card';
@@ -34,7 +34,7 @@ const CardWrapper = styled.div`
   margin-bottom: 12px;
   box-sizing: border-box;
   background-color: var(--color-background-primary);
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid var(--color-border-secondary);
 
   &.active {
@@ -46,7 +46,7 @@ const CardWrapper = styled.div`
   }
 
   .title {
-    margin-bottom: 6;
+    margin-bottom: 6px;
     color: var(--color-text-title);
     font-size: 13px;
     font-weight: bold;
@@ -240,10 +240,12 @@ function TodoEntrustList(props) {
   };
 
   const onFinishEntrust = item => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('结束委托'),
-      description: _l('确定结束该委托吗?'),
-      buttonType: 'danger',
+      content: _l('确定结束该委托吗?'),
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         const params = {
           id: item.id,
@@ -276,17 +278,16 @@ function TodoEntrustList(props) {
             <ScrollView className="listWrapper">
               <div className="bold Font20">{_l('我的委托')}</div>
               <Button
-                type="ghost"
+                color="primary"
+                variant="outlined"
                 className="w100 mTop20 mBottom10"
+                icon={<Icon icon="add" className="Font20" />}
                 onClick={event => {
                   event.stopPropagation();
                   createEntrust();
                 }}
               >
-                <div className="flexRow alignItemsCenter justifyContentCenter">
-                  <Icon icon="add" className="Font20" />
-                  <span className="mLeft5">{_l('新建委托')}</span>
-                </div>
+                {_l('新建委托')}
               </Button>
               {delegationList.map(item => {
                 const count = getTodoCount(visibleTodoCountList, item.id);
@@ -313,50 +314,37 @@ function TodoEntrustList(props) {
                       <Dropdown
                         trigger={['click']}
                         placement="bottomRight"
-                        overlay={
-                          <Menu
-                            expandIcon={<Icon icon="arrow-right-tip" />}
-                            style={{
-                              width: 180,
-                            }}
-                          >
-                            <Menu.Item
-                              data-event="edit"
-                              className="pLeft10"
-                              style={{
-                                padding: '7px 12px',
-                              }}
-                              onClick={({ domEvent }) => {
+                        menu={{
+                          style: { minWidth: 180 },
+                          items: [
+                            {
+                              key: 'edit',
+                              'data-event': 'edit',
+                              className: 'pLeft10',
+                              style: { padding: '7px 12px' },
+                              icon: <Icon className="textTertiary Font18" icon="edit" />,
+                              label: _l('编辑委托'),
+                              onClick: ({ domEvent }) => {
                                 domEvent.stopPropagation();
                                 onCardItemClick(item);
-                              }}
-                            >
-                              <div className="flexRow valignWrapper">
-                                <Icon className="textTertiary Font18 mLeft5 mRight5" icon="edit" />
-                                <div className="flex">{_l('编辑委托')}</div>
-                              </div>
-                            </Menu.Item>
-                            <Menu.Item
-                              data-event="cancel"
-                              className="pLeft10"
-                              style={{
-                                padding: '7px 12px',
-                              }}
-                              onClick={({ domEvent }) => {
+                              },
+                            },
+                            {
+                              key: 'cancel',
+                              'data-event': 'cancel',
+                              className: 'pLeft10',
+                              style: { padding: '7px 12px' },
+                              icon: (
+                                <Icon className="textTertiary Font18" icon={isStartDate ? 'back' : 'finish_delegate'} />
+                              ),
+                              label: isStartDate ? _l('取消委托') : _l('结束委托'),
+                              onClick: ({ domEvent }) => {
                                 domEvent.stopPropagation();
                                 onFinishEntrust(item);
-                              }}
-                            >
-                              <div className="flexRow valignWrapper">
-                                <Icon
-                                  className="textTertiary Font18 mLeft5 mRight5"
-                                  icon={isStartDate ? 'back' : 'finish_delegate'}
-                                />
-                                <div className="flex">{isStartDate ? _l('取消委托') : _l('结束委托')}</div>
-                              </div>
-                            </Menu.Item>
-                          </Menu>
-                        }
+                              },
+                            },
+                          ],
+                        }}
                       >
                         <Icon
                           icon="more_horiz"
@@ -467,11 +455,12 @@ function TodoEntrustList(props) {
                     <Icon icon="lift" className="Font50 textTertiary" />
                   </div>
                   <div className="Font18 mTop20 mBottom3">{_l('您还没有发起委托')}</div>
-                  <Button type="ghostgray" className="mTop20 mBottom10" onClick={createEntrust}>
-                    <div className="flexRow alignItemsCenter justifyContentCenter">
-                      <Icon icon="add" className="Font20" />
-                      <span className="mLeft5">{_l('新建委托')}</span>
-                    </div>
+                  <Button
+                    className="mTop20 mBottom10"
+                    icon={<Icon icon="add" className="Font20" />}
+                    onClick={createEntrust}
+                  >
+                    {_l('新建委托')}
                   </Button>
                 </div>
               </Fragment>

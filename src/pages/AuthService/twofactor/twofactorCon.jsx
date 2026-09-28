@@ -8,9 +8,9 @@ import loginAjax from 'src/api/login';
 import OtpInput from 'src/pages/AuthService/components/Inputs/OtpInput';
 import { LoginResult } from 'src/pages/AuthService/login/config.js';
 import { loginSuccessRedirect } from 'src/pages/AuthService/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile } from 'src/utils/common';
-import { setPssId } from 'src/utils/pssId';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { TwofactorType } from './config';
 
 const WrapOtherLogin = styled.div`
@@ -27,7 +27,7 @@ const MethodItem = styled.div`
     color: var(--color-text-tertiary);
   }
   ${props =>
-    !props.isMobile &&
+    !props.$isMobile &&
     `
     &:hover {
       color: var(--color-primary) !important;
@@ -325,7 +325,7 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
                 .map((method, index) => (
                   <MethodItem
                     key={index}
-                    isMobile={browserIsMobile()}
+                    $isMobile={browserIsMobile()}
                     className={cx('Font15 Hand flexRow alignItemsCenter', index === 0 ? 'mTop30' : 'mTop20')}
                     onClick={() => {
                       if (props.onSwitchType) {

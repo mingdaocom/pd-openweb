@@ -12,23 +12,20 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
-import { browserIsMobile } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
-import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+import { getSheetOperateButtonIds, getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from 'src/utils/services/worksheet/view';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
-import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from '../util';
 import DragLayer from './components/DragLayer';
 import LayerTitle from './components/LayerTitle';
 import LeftBoundary from './components/LeftBoundary';
@@ -43,7 +40,7 @@ const RecordStructureWrap = styled.div`
   padding-left: 48px;
   height: 100%;
   overflow: auto;
-  ::-webkit-scrollbar-x {
+  &::-webkit-scrollbar:horizontal {
     height: 14px;
   }
 `;
@@ -51,7 +48,7 @@ const RecordStructureWrap = styled.div`
 const SortableTreeWrap = styled.div`
   position: relative;
   transform-origin: left top;
-  transform: ${props => (props.scale ? `scale(${props.scale / 100})` : 'scale(1)')};
+  transform: ${props => (props.$scale ? `scale(${props.$scale / 100})` : 'scale(1)')};
   .nodeWrap {
     position: relative;
     display: flex;
@@ -59,14 +56,17 @@ const SortableTreeWrap = styled.div`
     canvas.nodeItemCanvas {
       position: absolute;
       top: 50%;
-      left: ${props => (props.isStraightLine ? '-100px' : '-120px')};
-      width: ${props => (props.isStraightLine ? '100px' : '120px')};
+      left: ${props => (props.$isStraightLine ? '-100px' : '-120px')};
+      width: ${props => (props.$isStraightLine ? '100px' : '120px')};
     }
   }
   .childNodeWrap {
-    transform: ${props => (props.isStraightLine ? 'translateX(100px)' : 'translateX(120px)')};
+    transform: ${props => (props.$isStraightLine ? 'translateX(100px)' : 'translateX(120px)')};
   }
 `;
+
+const waitForHierarchyCardsRender = () =>
+  new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
 function Hierarchy(props) {
   const {
@@ -175,6 +175,7 @@ function Hierarchy(props) {
   const $wrapRef = useRef(null);
   const cache = useRef({});
   const [refreshFlag, setRefreshFlag] = useState();
+  const [forceRenderAll, setForceRenderAll] = useState(false);
 
   useEffect(() => {
     if (!cache.current.didMount) return;
@@ -234,25 +235,28 @@ function Hierarchy(props) {
     }
   }, []);
 
-  const genScreenshot = () => {
-    const $wrap = document.querySelector('.hierarchyViewWrap');
-    const height = $wrap.scrollHeight;
-    const width = $wrap.scrollWidth;
-    let copyDom = $wrap.cloneNode(true);
-    copyDom.style.width = width;
-    copyDom.style.height = height;
-    document.querySelector('body').appendChild(copyDom);
-    const name = (view.name || 'scrennshot') + '.png';
+  const genScreenshot = async () => {
+    setForceRenderAll(true);
 
+    await waitForHierarchyCardsRender();
+
+    const $wrap = document.querySelector('.hierarchyViewWrap');
+    let copyDom;
     try {
-      domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width: width, height: height }).then(function (blob) {
-        saveAs(blob, name);
-        document.querySelector('body').removeChild(copyDom);
-      });
+      const height = $wrap.scrollHeight;
+      const width = $wrap.scrollWidth;
+      copyDom = $wrap.cloneNode(true);
+      copyDom.style.width = width;
+      copyDom.style.height = height;
+      document.body.appendChild(copyDom);
+      const blob = await domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width, height });
+      saveAs(blob, `${view.name || 'scrennshot'}.png`);
     } catch (error) {
       console.log(error);
       alert(_l('生成失败'), 2);
-      document.querySelector('body').removeChild(copyDom);
+    } finally {
+      copyDom?.remove();
+      setForceRenderAll(false);
     }
   };
 
@@ -581,7 +585,11 @@ function Hierarchy(props) {
               isStraightLine={advancedSetting.hierarchyViewConnectLine === '1'}
             />
           )}
-          <SortableTreeWrap scale={scale} id={viewId} isStraightLine={advancedSetting.hierarchyViewConnectLine === '1'}>
+          <SortableTreeWrap
+            $scale={scale}
+            id={viewId}
+            $isStraightLine={advancedSetting.hierarchyViewConnectLine === '1'}
+          >
             {_.isEmpty(hierarchyViewState) ? (
               <EmptyHierarchy
                 layersName={layersName}
@@ -629,6 +637,7 @@ function Hierarchy(props) {
                     allowAdd={worksheetInfo.allowAdd}
                     recordInfoId={recordInfoId}
                     createTextTitleRecord={createTextTitleRecord}
+                    forceRenderAll={forceRenderAll}
                     buttonsCheckStatus={buttonsCheckStatus}
                   />
                 );
@@ -679,6 +688,7 @@ function Hierarchy(props) {
         currentView={view}
         hierarchyRelateSheetControls={hierarchyRelateSheetControls}
       />
+
       {(viewControl || !_.isEmpty(viewControls)) && (
         <ToolBar
           currentView={view}

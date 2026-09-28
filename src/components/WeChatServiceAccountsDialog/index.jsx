@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, FunctionWrap, Radio } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const TextWrap = styled.div`
   display: inline-block;
@@ -27,32 +28,22 @@ function WeChatServiceAccountsDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('设置微信服务号')}
-      visible
+      open
+      mask={{ closable: true }}
+      keyboard
       onCancel={onClose}
-      footer={
-        <div className="flexRow alignItemsCenter">
-          {weChatServiceAccounts.length > 0 && (
-            <div className="Hand colorPrimary hoverColorPrimaryLight" onClick={toLinkSystemService}>
-              {_l('添加微信服务号')}
-            </div>
-          )}
-          <div className="flex"></div>
-          <Button type="link" onClick={onClose}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            className="mLeft10"
-            onClick={() => {
-              onClose();
-              onOk(selectedAppId);
-            }}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
+      onOk={() => {
+        onClose();
+        onOk(selectedAppId);
+      }}
+      footerLeftElement={
+        weChatServiceAccounts.length > 0 ? (
+          <div className="Hand colorPrimary hoverColorPrimaryLight" onClick={toLinkSystemService}>
+            {_l('添加微信服务号')}
+          </div>
+        ) : null
       }
     >
       <div className="textSecondary mBottom30">
@@ -76,27 +67,31 @@ function WeChatServiceAccountsDialog(props) {
             <div key={item.appId} className="mBottom10">
               <Radio
                 checked={item.appId === selectedAppId}
-                text={`${item.nickName} (${item.appId})`}
-                onClick={() => setSelectedAppId(item.appId)}
-              />
+                onChange={() => setSelectedAppId(item.appId)}
+                title={`${item.nickName} (${item.appId})`}
+              >{`${item.nickName} (${item.appId})`}</Radio>
             </div>
           );
         })
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
-export const setWeChatServiceAccountsDialog = props => FunctionWrap(WeChatServiceAccountsDialog, { ...props });
+export function useWeChatServiceAccountsDialog() {
+  return useFunctionWrapComponent(WeChatServiceAccountsDialog);
+}
 
 export default function WeChatServiceAccount(props) {
   const { className, projectId, appId, unbindContent, noRequest = false, updateWeChatServiceInfo = () => {} } = props;
   const [loading, setLoading] = useState(true);
   const [weChatServiceAccounts, setWeChatServiceAccounts] = useState(props?.weChatServiceAccounts || []);
   const [selectedServiceAppId, setSelectedServiceAppId] = useState(props?.selectedServiceAppId);
+  const { open: openWeChatServiceAccountsDialog, holder: weChatServiceAccountsDialogHolder } =
+    useWeChatServiceAccountsDialog();
 
   const handleChangeWeChatServiceAccount = () => {
-    setWeChatServiceAccountsDialog({
+    openWeChatServiceAccountsDialog({
       projectId,
       weChatServiceAccounts,
       appId: selectedServiceAppId,
@@ -177,6 +172,7 @@ export default function WeChatServiceAccount(props) {
           : ''
       }`}
     >
+      {weChatServiceAccountsDialogHolder}
       {weChatServiceAccounts.length === 0 ? (
         <Fragment>
           {_l('暂未绑定认证的服务号，')}

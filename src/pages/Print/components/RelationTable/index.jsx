@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import DragMask from 'worksheet/common/DragMask';
-import { emitter } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { BASE_PRINT_CONTENT_WIDTH, DEFAULT_FONT_SIZE } from '../../core/config';
 import STYLE_PRINT from '../../core/exportWordPrintTemCssString';
 import getPrintContent from '../../core/getPrintContent';
@@ -28,7 +28,7 @@ export default class RelationTable extends React.Component {
   componentDidMount() {
     this.setData(this.props);
     const { printData } = this.props;
-    $('.ant-table').css({
+    $('.hap-table').css({
       fontSize: printData.font || DEFAULT_FONT_SIZE,
     });
     emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + this.mdTabledId, this.showColumnWidthChangeMask);
@@ -49,7 +49,7 @@ export default class RelationTable extends React.Component {
     }
 
     const { printData } = this.props;
-    $('.ant-table').css({
+    $('.hap-table').css({
       fontSize: printData.font || DEFAULT_FONT_SIZE,
     });
   }

@@ -2,10 +2,10 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Qr } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Qr } from 'ming-ui';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import mingoHead from 'src/pages/chat/containers/ChatList/Mingo/images/mingo.png';
-import { pathCompletion } from 'src/utils/common';
+import { getAccountPersonalUrl, pathCompletion } from 'src/utils/platform/navigation/path';
 import mingoWordmark from './images/mingo-logo.png';
 
 const Con = styled.div`
@@ -83,40 +83,13 @@ const Right = styled.div`
   gap: 6px;
 `;
 
-const WrappedButton = styled(Button)`
-  padding: 0 10px !important;
-  color: var(--color-text-primary) !important;
-  border-color: var(--color-border-tertiary) !important;
-  min-width: auto !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
+const QrTrigger = styled.div`
+  position: relative;
+  display: flex;
 
-  .icon {
-    font-size: 18px;
-    color: var(--color-text-tertiary) !important;
-    margin-right: 5px;
-  }
-  &.icon {
-    padding: 0px !important;
-    width: 36px !important;
-    .icon {
-      margin-right: 0px !important;
-      font-size: 22px !important;
-    }
-  }
-  &.new-chat {
-    color: var(--color-white) !important;
-    .icon {
-      color: var(--color-white) !important;
-    }
-  }
-  &.urlQrCode {
-    position: relative;
-    &:hover {
-      .urlQrCode {
-        display: block;
-      }
+  &:hover {
+    .urlQrCode {
+      display: block;
     }
   }
 `;
@@ -191,22 +164,20 @@ export default function Header({
       <Right className="t-flex t-items-center">
         {isShare && (!isSmallMode || isFooter) && !error && !window.callFromHelp && (
           <Fragment>
-            <WrappedButton type="ghostgray" onClick={onCopyLink}>
-              <i className="icon icon-copy"></i>
+            <Button icon={<i className="icon icon-copy" />} onClick={onCopyLink}>
               {_l('复制链接')}
-            </WrappedButton>
+            </Button>
             {!isSmallMode && (
-              <WrappedButton type="ghostgray" className="urlQrCode icon">
-                <i className="icon icon-qr_code"></i>
+              <QrTrigger>
+                <Button aria-label={_l('二维码')} icon={<i className="icon icon-qr_code" />} />
                 <QrCode className="urlQrCode">
                   <Qr content={window.location.href} />
                 </QrCode>
-              </WrappedButton>
+              </QrTrigger>
             )}
-            <WrappedButton className="new-chat" onClick={onContinueChat}>
-              <i className="icon icon-new_chat"></i>
+            <Button type="primary" icon={<i className="icon icon-new_chat" />} onClick={onContinueChat}>
               {_l('对话')}
-            </WrappedButton>
+            </Button>
           </Fragment>
         )}
         {!isShare && md?.global?.Account?.avatar && (
@@ -217,7 +188,7 @@ export default function Header({
                 if (isSmallMode) {
                   location.href = pathCompletion('/mobile/myHome');
                 } else {
-                  location.href = pathCompletion('/personal');
+                  location.href = getAccountPersonalUrl();
                 }
               }}
             >

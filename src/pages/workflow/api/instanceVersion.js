@@ -204,6 +204,19 @@ const instanceVersion = {
     return mdyAPI(controllerName, 'v1instancegetTodoListFilter', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 获取待处理计数
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestTodo} {apkId:应用id(string),archivedId:归档服务地址(string),complete:是否是已完成(boolean),createAccountId:发起人id(string),endDate:结束时间 yyyy-MM-dd(string),keyword:null(string),operationType:操作类型 默认0 1填写/通过 2加签 3委托 4否决 5取消（非会签用）WorkItemOperationType(integer),pageIndex:null(integer),pageSize:null(integer),processId:流程id(string),startAppId:触发器实体id(string),startDate:开始时间 yyyy-MM-dd(string),startSourceId:触发器数据源id(string),status:状态  1运行中，2完成，3否决，4 终止 失败(integer),type:0:我发起的 -1待处理 包含(3:待填写 4:待审批) 5:待查看(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getDoneTypeCount: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/getDoneTypeCount';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'v1instancegetDoneTypeCount', JSON.stringify(args), $.extend({}, base, options));
+  },
+  /**
    * 获取流程实例对应实体
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

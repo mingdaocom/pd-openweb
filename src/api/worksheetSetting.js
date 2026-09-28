@@ -12,6 +12,7 @@ export default {
    * @param {string} args.mapWorksheetId 关联的工作表
    * @param {object} args.fieldMaps 关联的工作表映射字段
    * @param {integer} args.expireTime 订单过期时长
+   * @param {integer} args.refundTime 退款时效 天
    * @param {boolean} args.enableOrderVisible 是否启用订单可见
    * @param {string} args.orderVisibleViewId 订单可见视图id
    * @param {} args.worksheetPaymentSetting

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import './less/Textarea.less';
 
@@ -99,26 +100,29 @@ class Textarea extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      const $textarea = $(this.textarea); // 处理 isFocus 变化
+    const $textarea = $(this.textarea);
 
-      // 处理 isFocus 变化
-      if (this.props.isFocus && !prevProps.isFocus) {
-        this.textarea.focus({
-          preventScroll: true,
-        });
-        this.moveCaretToEnd($textarea[0]);
+    if (this.props.isFocus && !prevProps.isFocus) {
+      this.textarea.focus({
+        preventScroll: true,
+      });
+      this.moveCaretToEnd($textarea[0]);
+    }
+
+    if (
+      prevProps.value !== this.props.value ||
+      prevProps.defaultValue !== this.props.defaultValue ||
+      prevProps.minHeight !== this.props.minHeight ||
+      prevProps.maxHeight !== this.props.maxHeight ||
+      prevProps.chat !== this.props.chat ||
+      prevProps.className !== this.props.className ||
+      prevProps.style !== this.props.style
+    ) {
+      if (!this.props.chat) {
+        $textarea.trigger('input');
       }
 
-      this.setState(
-        {
-          defaultValue: this.props.defaultValue,
-        },
-        () => {
-          $(this.textarea).trigger('input');
-          this.adjustHeight($textarea, prevProps.chat);
-        },
-      );
+      this.adjustHeight($textarea, this.props.chat);
     }
   }
 
@@ -141,11 +145,12 @@ class Textarea extends Component {
 
   render() {
     const { minHeight, maxHeight, className, style, value, defaultValue, manualRef, ...rest } = this.props;
+    const textareaProps = omit(rest, ['isSelect', 'isFocus', 'resizeAfterBlur', 'chat']);
     const obj = value !== undefined ? { value } : { defaultValue };
 
     return (
       <textarea
-        {...rest}
+        {...textareaProps}
         {...obj}
         className={cx('ming Textarea', className)}
         ref={textarea => {

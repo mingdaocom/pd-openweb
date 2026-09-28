@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { Icon, SvgIcon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Switch, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { SUPPORT_FIELD_TYPES, SYSTEM_FIELD_IDS } from '../../core/config';
 import { externalSupportField, getControlIcon, isCustomField, isSupportFilterField } from '../../core/utils';
 import FieldConditions from './components/FieldConditions';
@@ -105,7 +105,12 @@ const CollapsePanel = props => {
               <Switch
                 size="small"
                 checked={attachmentParseEnhanced}
-                onClick={() => onSetAttachmentParseEnhanced({ worksheetId })}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return onSetAttachmentParseEnhanced({
+                    worksheetId,
+                  });
+                }}
               />
               <Tooltip title={attachmentEnhancedTip}>
                 <span className="switchText">{_l('附件解析增强')}</span>
@@ -176,7 +181,15 @@ const CollapsePanel = props => {
             {_l('记录讨论')}
           </div>
           <div className="right">
-            <Switch checked={discussionEnabled} onClick={() => onSetWorksheetDiscuss({ worksheetId })} />
+            <Switch
+              checked={discussionEnabled}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return onSetWorksheetDiscuss({
+                  worksheetId,
+                });
+              }}
+            />
           </div>
         </div>
       </div>

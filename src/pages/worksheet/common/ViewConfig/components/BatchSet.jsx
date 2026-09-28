@@ -1,20 +1,20 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Checkbox, InputNumber, Modal } from 'antd';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
-import { Button, Dropdown, Icon } from 'ming-ui';
-import Tooltip from 'ming-ui/antd-components/Tooltip';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon } from 'ming-ui';
+import { Dropdown as AntdDropdown, Checkbox, InputNumber, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION } from 'src/pages/worksheet/common/ViewConfig/config';
 import { sortControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { controlIsNumber } from 'src/utils/control';
-import { getSummaryInfo } from 'src/utils/record';
-import BatchShowtypeDrop from './BatchShowtypeDrop';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { controlIsNumber } from 'src/utils/domain/control/type';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'src/utils/domain/worksheet/constants';
+import { getSummaryInfo } from 'src/utils/domain/worksheet/record';
+import BatchShowtypeSelect from './BatchShowtypeSelect';
 
 const WrapCon = styled.div`
   overflow: auto;
@@ -29,32 +29,8 @@ const Wrap = styled.div`
   .liInput {
     width: 110px;
     margin-left: 8px;
-    .ant-input-number-handler-wrap {
+    .hap-input-number-handler-wrap {
       display: none;
-    }
-    .liInputPx {
-      top: 7px;
-      right: 12px;
-    }
-    .isText {
-      &.ming.Dropdown.disabled,
-      .dropdownTrigger.disabled {
-        border-radius: 4px;
-      }
-      &.ming.Dropdown .Dropdown--border,
-      .dropdownTrigger .Dropdown--border {
-        border-color: var(--color-background-secondary);
-        border-radius: 4px;
-        overflow: hidden;
-      }
-      .icon-arrow-down-border {
-        display: none;
-      }
-    }
-  }
-  .operate {
-    width .Dropdown--input {
-      width: 20px;
     }
   }
 `;
@@ -71,9 +47,9 @@ export const showTypeData = [
 ];
 
 export const directionData = [
-  { value: 0, text: _l('左对齐') },
-  { value: 1, text: _l('居中') },
-  { value: 2, text: _l('右对齐') },
+  { value: 0, label: _l('左对齐') },
+  { value: 1, label: _l('居中') },
+  { value: 2, label: _l('右对齐') },
 ];
 
 const getListstyle = (a, b) => {
@@ -110,7 +86,7 @@ export default function BatchSetDialog(props) {
   const { showControls = [] } = view;
   const isTreeTableView = view.viewType === 2 && get(view, 'advancedSetting.hierarchyViewType') === '3';
   const list = sortControls(
-    columns.filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51, 52], c.type)),
+    columns.filter(c => !!c.controlName && !_.includes(VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION, c.type)),
   );
 
   const showList =
@@ -213,11 +189,7 @@ export default function BatchSetDialog(props) {
                     <div className="liInput">
                       {/* 单选，附件 */}
                       {[9, 10, 11, 14].includes(o.type === 30 ? o.sourceControlType : o.type) && (
-                        <BatchShowtypeDrop
-                          border
-                          placeholder={_l('样式')}
-                          menuStyle={{ width: 'auto', 'min-width': '110px' }}
-                          className="flex w100"
+                        <BatchShowtypeSelect
                           info={info}
                           control={o}
                           data={showTypeData.filter(a =>
@@ -233,17 +205,15 @@ export default function BatchSetDialog(props) {
                     </div>
                     <div className="liInput">
                       {/* // 文本、电话、数值、金额、邮件、日期、日期时间、时间、证件、地区、自动编号、检查框、公式、文本组合、等级、创建时间、最近修改时间、汇总、定位、级联选择、他表字段（根据关联的字段判断是否支持对齐） */}
-                      <Dropdown
-                        border
-                        isAppendToBody
+                      <Select
                         className={'flex w100'}
-                        menuStyle={{ width: 'auto', 'min-width': '110px' }}
                         value={info.direction}
-                        data={directionDataConfig}
-                        renderItem={item => {
+                        options={directionDataConfig}
+                        optionRender={option => {
+                          const item = option.data;
                           return (
                             <div>
-                              {item.text}
+                              {item.label}
                               {item.value === 1 && !canSetDirection(o) && (
                                 <span className="Alpha7 Font12">({_l('仅字段名称')})</span>
                               )}
@@ -273,22 +243,21 @@ export default function BatchSetDialog(props) {
                         }}
                         max={1000}
                         min={20}
+                        suffix="px"
+                        styles={{ actions: { width: 32 } }}
                       />
-                      <span className="Absolute textTertiary liInputPx">px</span>
                     </div>
                     {!isTreeTableView && (
                       <div className="liInput">
-                        <Dropdown
-                          border
-                          cancelAble
+                        <Select
+                          allowClear
                           disabled={hideReport}
                           placeholder={_l('统计')}
-                          isAppendToBody
                           className="flex w100"
                           value={info.report}
-                          data={(summaryInfo.list || [])
+                          options={(summaryInfo.list || [])
                             .map(a => {
-                              return { ...a, text: (a || {}).label || '' };
+                              return { ...a, label: (a || {}).label || '' };
                             })
                             .filter(o => !!o.value)}
                           onChange={value => {
@@ -375,26 +344,19 @@ export default function BatchSetDialog(props) {
   return (
     <Modal
       title={_l('编辑列样式')}
-      visible={visible}
+      open={visible}
       onCancel={onClose}
+      onOk={onSave}
+      okText={_l('保存')}
+      okButtonProps={{ disabled: loading }}
       centered={true}
-      maskClosable={false}
+      mask={{ closable: false }}
       width={720}
-      footer={[
-        <div className="flexRow alignItemsCenter pTop6 pBottom6 pLeft8 pRight8">
-          <div className="flex flexRow alignItemsCenter justifyContentLeft">
-            <Checkbox checked={applyToAll} onChange={() => setState({ applyToAll: !applyToAll })}>
-              {_l('同时应用到其它所有表格视图')}
-            </Checkbox>
-          </div>
-          <Button type="link" onClick={onClose}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" disabled={loading} onClick={onSave}>
-            {_l('保存')}
-          </Button>
-        </div>,
-      ]}
+      footerLeftElement={
+        <Checkbox checked={applyToAll} onChange={() => setState({ applyToAll: !applyToAll })}>
+          {_l('同时应用到其它所有表格视图')}
+        </Checkbox>
+      }
     >
       <div className="flexColumn">
         <WrapCon className="flex w100">
@@ -408,56 +370,47 @@ export default function BatchSetDialog(props) {
               </div>
               <div className="liInput flexRow alignItemsCenter">
                 <span className="flex">{_l('对齐')}</span>
-                <Dropdown
-                  isAppendToBody
-                  menuStyle={{ width: 180 }}
-                  points={['tl', 'bl']}
-                  offset={[-75, 0]}
-                  className="operate"
-                  data={[
-                    {
-                      value: 'sys',
-                      text: (
-                        <Tooltip title={_l('数值类型的字段右对齐，其他字段左对齐')} zIndex={10000} placement="left">
-                          <div>{_l('系统默认')}</div>
-                        </Tooltip>
-                      ),
-                    },
-                    ...directionData,
-                  ]}
-                  onChange={onChangeBatchDirection}
-                  renderPointer={() => {
-                    return (
-                      <Tooltip title={_l('批量设置')}>
-                        <Icon className={'operateBtn Font18 hoverText'} icon="align_setting" />
-                      </Tooltip>
-                    );
+                <AntdDropdown
+                  trigger={['click']}
+                  placement="bottomRight"
+                  menu={{
+                    items: [
+                      {
+                        key: 'sys',
+                        label: (
+                          <Tooltip title={_l('数值类型的字段右对齐，其他字段左对齐')} placement="left">
+                            <div>{_l('系统默认')}</div>
+                          </Tooltip>
+                        ),
+                      },
+                      ...directionData.map(item => ({ key: String(item.value), label: item.label })),
+                    ],
+                    onClick: ({ key }) => onChangeBatchDirection(key === 'sys' ? key : Number(key)),
                   }}
-                />
+                >
+                  <span className="InlineBlock">
+                    <Tooltip title={_l('批量设置')}>
+                      <Icon className={'operateBtn Font18 hoverText'} icon="align_setting" />
+                    </Tooltip>
+                  </span>
+                </AntdDropdown>
               </div>
               <div className="liInput flexRow alignItemsCenter">
                 <span className="flex">{_l('列宽')}</span>
-                <Dropdown
-                  isAppendToBody
-                  menuStyle={{ width: 180 }}
-                  points={['tl', 'bl']}
-                  offset={[-75, 0]}
-                  className="operate"
-                  data={[
-                    {
-                      value: 'autoWidth',
-                      text: _l('列宽适合内容'),
-                    },
-                  ]}
-                  onChange={value => onChangeBatchAutoWidth(value)}
-                  renderPointer={() => {
-                    return (
-                      <Tooltip title={_l('批量设置')}>
-                        <Icon className={'operateBtn Font18 hoverText'} icon="align_setting" />
-                      </Tooltip>
-                    );
+                <AntdDropdown
+                  trigger={['click']}
+                  placement="bottomRight"
+                  menu={{
+                    items: [{ key: 'autoWidth', label: _l('列宽适合内容') }],
+                    onClick: ({ key }) => onChangeBatchAutoWidth(key),
                   }}
-                />
+                >
+                  <span className="InlineBlock">
+                    <Tooltip title={_l('批量设置')}>
+                      <Icon className={'operateBtn Font18 hoverText'} icon="align_setting" />
+                    </Tooltip>
+                  </span>
+                </AntdDropdown>
               </div>
               {!isTreeTableView && (
                 <div className="liInput">
@@ -474,4 +427,6 @@ export default function BatchSetDialog(props) {
   );
 }
 
-export const renderBatchSetDialog = props => functionWrap(BatchSetDialog, props);
+export function useBatchSetDialog() {
+  return useFunctionWrapComponent(BatchSetDialog);
+}

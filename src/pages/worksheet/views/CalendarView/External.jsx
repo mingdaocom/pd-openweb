@@ -6,8 +6,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { renderText } from 'src/utils/control';
+import { renderText } from 'src/utils/domain/control/display';
 import { EVENT_TAB_KEY_BY_INDEX } from './constants';
 
 let External = class External extends Component {
@@ -270,10 +271,12 @@ let External = class External extends Component {
         {this.props.showExternal ? (
           <div className="listBox flexColumn flex">
             <div className="searchWrapper">
-              <Icon icon="search" className="Font18" />
-              <input
-                type="text"
-                className="cursorText"
+              <Input
+                allowClear
+                className="flex cursorText"
+                radius
+                variant="filled"
+                prefix={<Icon icon="search" className="Font18" />}
                 placeholder={_l('搜索%0', (this.props.tabList.find(o => o.key === typeEvent) || {}).txt)}
                 onChange={event => {
                   const searchValue = event.target.value;
@@ -296,20 +299,14 @@ let External = class External extends Component {
                   }
                 }}
                 value={keyWords}
+                onClear={() => {
+                  this.props.searchEventArgs('', 1);
+                  this.handleScrollTo(0);
+                  this.setState({
+                    isSearch: false,
+                  });
+                }}
               />
-              {keyWords && (
-                <Icon
-                  icon="cancel"
-                  className="Font18 Hand"
-                  onClick={() => {
-                    this.props.searchEventArgs('', 1);
-                    this.handleScrollTo(0);
-                    this.setState({
-                      isSearch: false,
-                    });
-                  }}
-                />
-              )}
             </div>
             {!this.state.isSearch && (
               <div className="tab">

@@ -5,7 +5,7 @@ import moment from 'moment';
 import filterXSS from 'xss';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { renderText } from 'src/utils/control';
+import { renderText } from 'src/utils/domain/control/display';
 import {
   EDIT_TYPE_TEXT,
   FILTER_FIELD_BY_ATTR,
@@ -116,6 +116,46 @@ export function getDepartmentName(control = {}, value) {
   return pathValue.concat([value.departmentName]).join('/');
 }
 
+/**
+ * 关联记录日志的 rows[].name 保存的是标题控件原始值，成员等结构化控件可能直接返回 JSON。
+ * 标题格式化属于展示数据转换，必须与 allowlink/needPreview 等预览权限保持独立。
+ */
+export function formatRelationLogTitle(value, control = {}, appId) {
+  if (!value || value === _l('未命名')) return value;
+
+  const relationControls = control.relationControls || [];
+  // 优先使用接口明确返回的标题控件 ID，旧数据缺少该字段时再兼容标题属性和首个控件。
+  const titleControl =
+    relationControls.find(item => item.controlId === control.sourceTitleControlId) ||
+    relationControls.find(item => item.attribute === 1) ||
+    relationControls[0];
+
+  if (!titleControl) return value;
+
+  const isStructuredValue = typeof value === 'object' || (typeof value === 'string' && ['[', '{'].includes(value[0]));
+
+  // 历史日志可能已经返回格式化后的标题文本，此时不再按控件原始值重复解析。
+  if ([26, 27, 40, 48].includes(titleControl.type) && !isStructuredValue) return value;
+
+  const parsedValue = safeParse(value, 'array');
+
+  if ([26, 27, 48].includes(titleControl.type)) {
+    return parsedValue
+      .map(item => item.departmentName || item.fullname || item.organizeName)
+      .filter(Boolean)
+      .join('、');
+  }
+
+  if (titleControl.type === 40) {
+    if (parsedValue.address) return parsedValue.address;
+    if (_.isNil(parsedValue.x) || _.isNil(parsedValue.y)) return value;
+
+    return `${_l('经度')}：${_.round(parsedValue.x, 6)} ${_l('纬度')}：${_.round(parsedValue.y, 6)}`;
+  }
+
+  return renderText({ ...titleControl, value }, { appId }) || value;
+}
+
 export function handleSelectTagsValue(param) {
   const { id, type, oldValue, newValue, control, requestType, oldText, newText, editType, appId } = param;
   let onlyNew = false;
@@ -215,16 +255,18 @@ export function handleSelectTagsValue(param) {
 }
 
 export function diffSelectTagsValue(param) {
-  const { oldList, newList, type, editType, control } = param;
+  const { oldList, newList, type, editType, control, appId } = param;
 
   let _oldValue = [];
   let _newValue = [];
   let _defaultValue = [];
 
   if (type === 29) {
-    _oldValue = _.differenceBy(oldList, newList, 'recordId').map(l => l.name || _l('未命名'));
-    _newValue = _.differenceBy(newList, oldList, 'recordId').map(l => l.name || _l('未命名'));
-    _defaultValue = _.intersectionBy(oldList, newList, 'recordId').map(l => l.name || _l('未命名'));
+    const getRelationTitle = item => formatRelationLogTitle(item.name, control, appId) || _l('未命名');
+
+    _oldValue = _.differenceBy(oldList, newList, 'recordId').map(getRelationTitle);
+    _newValue = _.differenceBy(newList, oldList, 'recordId').map(getRelationTitle);
+    _defaultValue = _.intersectionBy(oldList, newList, 'recordId').map(getRelationTitle);
   } else if ((type === 6 || type === 8) && editType !== 0) {
     _defaultValue = oldList;
     _newValue = editType === 1 ? newList : [];

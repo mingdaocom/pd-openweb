@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import classNames from 'classnames';
 import _ from 'lodash';
-import { Dialog, Dropdown } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import fixedDataAjax from 'src/api/fixedData';
 import projectController from 'src/api/project';
 import OrgNameMultipleLanguages from '../../../components/OrgNameMultipleLanguages';
@@ -42,6 +41,7 @@ export default class SetInfoDialog extends Component {
       regionConfigInfo: [],
       country: [],
     };
+    this.requestPending = false;
     this.searchRequest = null;
   }
 
@@ -55,7 +55,7 @@ export default class SetInfoDialog extends Component {
     const timeZones = [];
     fixedDataAjax.loadTimeZones().then(res => {
       Object.keys(res).forEach(key => {
-        timeZones.push({ text: res[key], value: parseInt(key) });
+        timeZones.push({ label: res[key], value: parseInt(key) });
       });
       this.setState({ timeZones: timeZones.sort((a, b) => a.value - b.value) });
     });
@@ -73,7 +73,7 @@ export default class SetInfoDialog extends Component {
       keywords,
     });
     this.searchRequest.then(res => {
-      const data = _.get(res, 'citys', []).map(l => ({ ...l, text: l.name, value: l.id }));
+      const data = _.get(res, 'citys', []).map(l => ({ ...l, label: l.name, value: l.id }));
 
       this.setState({
         country: !keywords ? data : this.state.country,
@@ -141,10 +141,11 @@ export default class SetInfoDialog extends Component {
             <span className="TxtMiddle Red">*</span>
           </span>
           <div className="formDescribe">{_l('用于账单和发票抬头，请确保准确')}</div>
-          <input
+          <Input
             type="text"
-            className={classNames('formControl', { error: errors.companyName && errors.companyName.msg })}
-            defaultValue={companyName}
+            className="formControl"
+            status={errors.companyName?.msg ? 'error' : undefined}
+            value={companyName}
             onChange={this.handleFieldInput.bind(this, 'companyName')}
             onBlur={this.handleFieldBlur.bind(this, 'companyName')}
             onFocus={this.clearError.bind(this, 'companyName')}
@@ -157,27 +158,25 @@ export default class SetInfoDialog extends Component {
             <span className="TxtMiddle Red">*</span>
           </span>
           <div className="formDescribe">{_l('用于网站页头的显示，请尽量简短')}</div>
-          <div className="formControl flexRow alignItemsCenter shortName">
-            <input
-              type="text"
-              className={classNames('flex', {
-                error: errors.companyDisplayName && errors.companyDisplayName.msg,
-              })}
-              defaultValue={companyDisplayName}
-              value={companyDisplayName}
-              onChange={this.handleFieldInput.bind(this, 'companyDisplayName')}
-              onBlur={this.handleFieldBlur.bind(this, 'companyDisplayName')}
-              onFocus={this.clearError.bind(this, 'companyDisplayName')}
-            />
-            <OrgNameMultipleLanguages
-              projectId={this.props.projectId}
-              type={0}
-              currentLangName={companyDisplayName}
-              updateName={data =>
-                this.props.updateValue({ companyDisplayName: _.get(data, 'data[0].value'), visibleType: 1 })
-              }
-            />
-          </div>
+          <Input
+            type="text"
+            className="formControl"
+            status={errors.companyDisplayName?.msg ? 'error' : undefined}
+            value={companyDisplayName}
+            onChange={this.handleFieldInput.bind(this, 'companyDisplayName')}
+            onBlur={this.handleFieldBlur.bind(this, 'companyDisplayName')}
+            onFocus={this.clearError.bind(this, 'companyDisplayName')}
+            suffix={
+              <OrgNameMultipleLanguages
+                projectId={this.props.projectId}
+                type={0}
+                currentLangName={companyDisplayName}
+                updateName={data =>
+                  this.props.updateValue({ companyDisplayName: _.get(data, 'data[0].value'), visibleType: 1 })
+                }
+              />
+            }
+          />
           {!!_.get(errors, 'companyDisplayName.msg') && (
             <div className="Block Red errorBox">{errors.companyDisplayName.msg}</div>
           )}
@@ -188,6 +187,8 @@ export default class SetInfoDialog extends Component {
 
   // 公共
   handleFieldSubmit() {
+    if (this.requestPending) return;
+
     if (this.state.errors && _.keys(this.state.errors).length) {
       return;
     }
@@ -202,52 +203,57 @@ export default class SetInfoDialog extends Component {
       timeZones,
       country,
     } = this.state;
-    Promise.all([
+    this.requestPending = true;
+    return Promise.all([
       fixedDataAjax.checkSensitive({ content: companyDisplayName }),
       fixedDataAjax.checkSensitive({ content: companyName }),
-    ]).then(results => {
-      if (!results.find(result => result)) {
-        const { projectId } = this.props;
+    ])
+      .then(results => {
+        if (!results.find(result => result)) {
+          const { projectId } = this.props;
 
-        projectController
-          .setProjectInfo({
-            companyName,
-            companyDisplayName,
-            industryId,
-            geographyId,
-            projectId,
-            geoCountryRegionCode,
-            timeZone: String(timeZone),
-          })
-          .then(data => {
-            if (data == 0) {
-              alert(_l('保存失败'), 2);
-            } else if (data == 1) {
-              const timeZoneName = (_.find(timeZones, v => v.value === +timeZone) || {}).text;
-              const geoCountryRegionName = (_.find(country, v => v.value === geoCountryRegionCode) || {}).text;
+          return projectController
+            .setProjectInfo({
+              companyName,
+              companyDisplayName,
+              industryId,
+              geographyId,
+              projectId,
+              geoCountryRegionCode,
+              timeZone: String(timeZone),
+            })
+            .then(data => {
+              if (data == 0) {
+                alert(_l('保存失败'), 2);
+              } else if (data == 1) {
+                const timeZoneName = (_.find(timeZones, v => v.value === +timeZone) || {}).label;
+                const geoCountryRegionName = (_.find(country, v => v.value === geoCountryRegionCode) || {}).label;
 
-              this.props.updateValue({
-                companyDisplayName,
-                companyName,
-                industryId,
-                geographyId,
-                geoCountryRegionCode,
-                timeZone,
-                timeZoneName,
-                geoCountryRegionName,
-              });
-              const project = md.global.Account.projects.find(l => l.projectId === projectId);
-              project.geoCountryRegionCode = geoCountryRegionCode;
-              project.timeZone = timeZone;
-              alert(_l('保存成功'));
-            } else if (data == 3) {
-              alert(_l('您输入的信息含有禁用词汇'), 3);
-            }
-          });
-      } else {
-        alert(_l('输入内容包含敏感词，请重新填写'), 3);
-      }
-    });
+                this.props.updateValue({
+                  companyDisplayName,
+                  companyName,
+                  industryId,
+                  geographyId,
+                  geoCountryRegionCode,
+                  timeZone,
+                  timeZoneName,
+                  geoCountryRegionName,
+                });
+                const project = md.global.Account.projects.find(l => l.projectId === projectId);
+                project.geoCountryRegionCode = geoCountryRegionCode;
+                project.timeZone = timeZone;
+                alert(_l('保存成功'));
+              } else if (data == 3) {
+                alert(_l('您输入的信息含有禁用词汇'), 3);
+              }
+            });
+        } else {
+          alert(_l('输入内容包含敏感词，请重新填写'), 3);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   }
 
   onChangRegionCode = code => {
@@ -274,32 +280,28 @@ export default class SetInfoDialog extends Component {
         <div className="formGroup">
           <span className="formLabel">{_l('国家和地区')}</span>
           <div className="formDescribe">{_l('作为应用中地区、金额和手机号字段的默认国家、区号和货币类型')}</div>
-          <Dropdown
+          <Select
             className="w100"
-            border
             value={geoCountryRegionCode}
-            data={keywords ? searchResultCountry : country}
-            openSearch
-            showItemTitle
-            isAppendToBody
-            renderTitle={() => <span title={currentCountry.text}>{currentCountry.text}</span>}
+            options={keywords ? searchResultCountry : country}
+            showPopupSearch
+            filterOption={false}
+            labelRender={() => <span title={currentCountry.label}>{currentCountry.label}</span>}
             onSearch={keywords => this.setState({ keywords }, this.onSearch)}
             onChange={this.onChangRegionCode}
-            noData={!!keywords && _.isEmpty(searchResultCountry) ? _l('暂无搜索结果') : _l('无数据')}
+            notFoundContent={!!keywords && _.isEmpty(searchResultCountry) ? _l('暂无搜索结果') : _l('无数据')}
           />
         </div>
         <div className="formGroup">
           <span className="formLabel">{_l('时区')}</span>
           <div className="formDescribe">{_l('作为应用的默认时区')}</div>
-          <Dropdown
+          <Select
             className="w100"
-            border
             value={parseInt(timeZone)}
-            data={timeZones}
-            openSearch
-            showItemTitle
-            isAppendToBody
-            renderTitle={(selectedData = {}) => <span title={selectedData.text}>{selectedData.text}</span>}
+            options={timeZones}
+            showPopupSearch
+            optionFilterProp="label"
+            labelRender={({ label }) => <span title={label}>{label}</span>}
             onChange={value => this.setState({ timeZone: value })}
           />
         </div>
@@ -321,13 +323,14 @@ export default class SetInfoDialog extends Component {
   render() {
     const { visible } = this.state;
     return (
-      <Dialog
-        visible={visible}
+      <Modal
+        open={visible}
         title={<span className="Font17 Bold">{_l('修改组织信息')}</span>}
         cancelText={_l('取消')}
         okText={_l('确定')}
-        width="480"
-        overlayClosable={false}
+        width={480}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => {
           this.hideDialog();
         }}
@@ -335,7 +338,7 @@ export default class SetInfoDialog extends Component {
       >
         {this.renderOrgName()}
         {this.renderPreferences()}
-      </Dialog>
+      </Modal>
     );
   }
 }

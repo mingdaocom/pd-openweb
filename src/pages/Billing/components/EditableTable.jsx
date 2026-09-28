@@ -58,7 +58,7 @@ const TableWrap = styled.div`
     height: 28px;
     line-height: 28px;
 
-    .ant-input-number-input {
+    .hap-input-number-input {
       height: 26px;
       line-height: 26px;
     }

@@ -6,13 +6,13 @@ import styled from 'styled-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 
 const SelectionIndicatorWrapper = styled.div(
-  ({ color }) => `
+  ({ $color }) => `
   width: 100%;
   height: 32px;
   position: absolute;
   top: 0;
   left: 0;
-  background: ${color};
+  background: ${$color};
   pointer-events: none;
 `,
 );
@@ -120,7 +120,7 @@ let SelectionIndicator = class SelectionIndicator extends React.Component {
       <Fragment>
         {top !== null && (
           <SelectionIndicatorWrapper
-            color="rgba(0, 0, 0, .04)"
+            $color="rgba(0, 0, 0, .04)"
             style={{
               top,
               height,
@@ -129,7 +129,7 @@ let SelectionIndicator = class SelectionIndicator extends React.Component {
         )}
         {editIndex !== null && (
           <SelectionIndicatorWrapper
-            color={searchRecordId ? 'rgba(255, 147, 0, .09);' : 'rgba(33, 150, 243, .06)'}
+            $color={searchRecordId ? 'rgba(255, 147, 0, .09);' : 'rgba(33, 150, 243, .06)'}
             style={{
               top: editIndex * rowHeight + headerHeight + chartScroll.y,
               height: rowHeight,

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
@@ -7,8 +7,8 @@ import datalimitAjax from 'src/api/dataLimit';
 import workflowDataLimitAjax from 'src/pages/workflow/api/DataLimit';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { VersionProductType } from 'src/utils/enum.js';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { QUOTA_LIST_CONTENT } from './config.js';
 import Settings from './Settings.jsx';
 import './index.less';
@@ -27,7 +27,7 @@ export default function Quota(props) {
     currentInfo: {},
   });
 
-  const getListPage = () => {
+  const getListPage = useCallback(() => {
     Promise.all([
       datalimitAjax.getListPage({ projectId }),
       workflowDataLimitAjax.GetUageLimits({ entityIds: [projectId], projectId }),
@@ -35,7 +35,7 @@ export default function Quota(props) {
       const size = _.get(workflowRes, 'data[0].size') || -1;
       setData({ data: { ...res, workflowLimit: { [size]: workflowRes.total } } });
     });
-  };
+  }, [projectId, setData]);
 
   const handleSetting = item => {
     const featureType = getFeatureStatus(projectId, VersionProductType.quota);
@@ -51,7 +51,7 @@ export default function Quota(props) {
 
   useEffect(() => {
     getListPage();
-  }, []);
+  }, [getListPage]);
 
   if (settingVisible) {
     return (

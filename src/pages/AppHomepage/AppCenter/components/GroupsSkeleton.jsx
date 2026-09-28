@@ -9,7 +9,7 @@ const Row = styled.div`
 `;
 
 const Cell = styled.div`
-  ${({ width }) => (width ? `width: ${width}px;` : 'width: 100%;')}
+  ${({ $width }) => ($width ? `width: ${$width}px;` : 'width: 100%;')}
   height: 17px;
   border-radius: 17px;
   background-color: var(--color-background-secondary);
@@ -20,9 +20,9 @@ export default function GroupsSkeleton(props) {
   return [...new Array(repeat)].map((_, i) => (
     <Con key={i}>
       <Row>
-        <Cell width={64} />
+        <Cell $width={64} />
         <div className="flex"></div>
-        <Cell width={17} />
+        <Cell $width={17} />
       </Row>
       <Row>
         <Cell />

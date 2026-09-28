@@ -1,6 +1,6 @@
 import React from 'react';
-import { Dropdown, Menu } from 'antd';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { SORT_LIST } from '../config';
 
 export default props => {
@@ -9,27 +9,25 @@ export default props => {
     <Dropdown
       trigger={['click']}
       placement="bottomLeft"
-      overlay={
-        <Menu className="" expandIcon={<Icon icon="arrow-right-tip" />} style={{ width: 180 }}>
-          {SORT_LIST.map(item => (
-            <Menu.Item
-              item={item.value}
-              data-event={item.icon}
-              className="pLeft10"
-              style={{ padding: '7px 12px' }}
-              onClick={() => {
-                handleChange(item.value);
-              }}
-            >
-              <div className="flexRow valignWrapper">
-                <Icon className="textTertiary Font18 mLeft5 mRight5" icon={item.icon} />
-                <div className="flex">{item.name}</div>
-                {isAsc === item.value && <Icon icon="done" className="colorPrimary Font18" />}
-              </div>
-            </Menu.Item>
-          ))}
-        </Menu>
-      }
+      menu={{
+        style: { minWidth: 180 },
+        items: SORT_LIST.map(item => ({
+          key: item.value,
+          'data-event': item.icon,
+          className: 'pLeft10',
+          style: { padding: '7px 12px' },
+          icon: <Icon className="textTertiary Font18" icon={item.icon} />,
+          label: (
+            <div className="flexRow valignWrapper">
+              <div className="flex">{item.name}</div>
+              {isAsc === item.value && <Icon icon="done" className="colorPrimary Font18" />}
+            </div>
+          ),
+          onClick: () => {
+            handleChange(item.value);
+          },
+        })),
+      }}
     >
       <Icon icon="import_export" className="textSecondary pointer Font20" />
     </Dropdown>

@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useKeyPressEvent } from 'react-use';
 import cx from 'classnames';
 import {
@@ -18,28 +18,29 @@ import {
   values,
 } from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Menu, MenuItem, Modal } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { Button, Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import QuickFilter from 'worksheet/common/Sheet/QuickFilter/QuickFilter';
+import ColumnHead from 'worksheet/components/BaseColumnHead';
+import Pagination from 'worksheet/components/Pagination';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
+import emptyPng from 'src/pages/worksheet/assets/record.png';
+import 'src/pages/worksheet/components/WorksheetTable/components/ColumnHead/ColumnHead.less';
+import { checkIsTextControl, isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { validate } from 'src/utils/domain/worksheet/filterQuick';
+import { getSheetStylesOfRelateRecordTable } from 'src/utils/domain/worksheet/helpers';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import {
   formatFilterValues,
   formatFilterValuesToServer,
   handleConditionsDefault,
-  validate,
-} from 'worksheet/common/Sheet/QuickFilter/utils';
-import ColumnHead from 'worksheet/components/BaseColumnHead';
-import Pagination from 'worksheet/components/Pagination';
-import WorksheetTable from 'worksheet/components/WorksheetTable';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import emptyPng from 'src/pages/worksheet/assets/record.png';
-import 'src/pages/worksheet/components/WorksheetTable/components/ColumnHead/ColumnHead.less';
-import { checkIsTextControl, isRelateRecordTableControl } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import { getSheetStylesOfRelateRecordTable } from 'src/utils/worksheet';
+} from 'src/utils/services/worksheet/quickFilter';
 import Header from './Header';
 import RowHead from './RowHeadForSelectRecords';
 import SelectDialogList from './SelectDialogList';
@@ -54,12 +55,32 @@ import {
   getTitleControl,
 } from './util';
 
+const SELECT_ALL_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 6, paddingInlineEnd: 0 },
+};
+
 const Con = styled.div`
-  padding: 0 24px;
   display: flex;
   flex-direction: column;
   height: 100%;
 `;
+
+function SelectDialogContent({ children }) {
+  const parentRecordInfoContext = useContext(RecordInfoContext);
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
+  const recordInfoContext = useMemo(
+    () => ({ ...parentRecordInfoContext, openPreviewAttachments }),
+    [openPreviewAttachments, parentRecordInfoContext],
+  );
+
+  // 附件预览必须由选择弹窗内部持有，避免复用外层记录详情的 opener 后被当前弹窗遮挡。
+  return (
+    <RecordInfoContext.Provider value={recordInfoContext}>
+      {previewAttachmentsHolder}
+      <Con>{children}</Con>
+    </RecordInfoContext.Provider>
+  );
+}
 
 const ListModeSelectStatus = styled.div`
   margin-right: 8px;
@@ -128,7 +149,7 @@ const Loading = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 60px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -155,19 +176,6 @@ const SearchIcon = styled.div`
     background-size: 130px 130px;
     background-color: var(--color-background-secondary);
   }
-`;
-
-const RefreshBtn = styled.div`
-  position: absolute;
-  font-size: 22px;
-  color: var(--color-text-tertiary);
-  width: 32px;
-  height: 40px;
-  right: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
 `;
 
 const PAGE_SIZE = 50;
@@ -199,12 +207,15 @@ export default function SelectDialog({ ...args }) {
     onClose,
     onOk,
   } = args;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
   const worksheetId = control.dataSource || args.worksheetId;
   const listMode = get(control, 'advancedSetting.chooselisttype') === '2'; // '1' 表格，'2' 列表
   const {
     loading,
     recordsLoading,
     worksheetInfo,
+    manageView,
     error,
     records,
     total,
@@ -241,6 +252,17 @@ export default function SelectDialog({ ...args }) {
     formData,
     listMode,
   });
+  const refreshIconButtons = useMemo(
+    () => [
+      {
+        type: 'refresh',
+        icon: 'task-later',
+        tip: _l('刷新'),
+        onClick: refresh,
+      },
+    ],
+    [refresh],
+  );
   const recordsCache = useRef({});
   const tableRef = useRef();
   const cache = useRef({});
@@ -321,6 +343,7 @@ export default function SelectDialog({ ...args }) {
       control,
       viewId: control.viewId,
       worksheetInfo,
+      manageView,
     });
   const [fixedColumnCount, setFixedColumnCount] = useState(tableConfig.fixedColumnCount || 2);
   const summaryConfig = safeParse(get(control, 'advancedSetting.reportsetting'), 'array');
@@ -536,8 +559,9 @@ export default function SelectDialog({ ...args }) {
 
   return (
     <Modal
-      visible
+      open
       className="selectRecordsDialog contentScroll"
+      title={_l('选择%0', control.controlName || worksheetInfo.entityName || '')}
       footer={null}
       onCancel={() => {
         onClose();
@@ -545,25 +569,16 @@ export default function SelectDialog({ ...args }) {
       type="fixed"
       style={{ minWidth: width }}
       verticalAlign="bottom"
-      bodyStyle={{
-        padding: 0,
-        position: 'relative',
-        height: '100%',
-        flex: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      iconButtons={refreshIconButtons}
     >
-      <Con>
-        <RefreshBtn onClick={refresh}>
-          <i className="icon icon-task-later hoverColorPrimary"></i>
-        </RefreshBtn>
+      {addRecordHolder}
+      {recordInfoHolder}
+      <SelectDialogContent>
         <Header
           showNewRecord={showNewRecord}
           showFastFilters={showFilterControls}
           entityName={worksheetInfo.entityName}
           btnName={get(worksheetInfo, 'advancedSetting.btnname')}
-          control={control}
           searchConfig={searchConfig}
           controls={controls}
           filtersVisible={filtersVisible}
@@ -579,7 +594,7 @@ export default function SelectDialog({ ...args }) {
               return;
             }
 
-            addRecord({
+            openAddRecord({
               className: 'worksheetRelateNewRecord worksheetRelateNewRecordFromSelectRelateRecord',
               viewId,
               worksheetId,
@@ -631,6 +646,7 @@ export default function SelectDialog({ ...args }) {
                   showTextAdvanced
                   {...param}
                   controls={controls}
+                  viewRowsLoading={recordsLoading}
                   updateQuickFilter={newFilters => {
                     handleUpdateQuickFilters(newFilters);
                     setIsFiltered(true);
@@ -657,6 +673,8 @@ export default function SelectDialog({ ...args }) {
                       watchHeight
                       ref={tableRef}
                       enableRules={false}
+                      // 与关联表格、子表一致：注入字段的名称颜色与值颜色（表单配置的 titlecolor / valuecolor）
+                      showControlStyle
                       triggerClickImmediate
                       rowHeadWidth={66}
                       appId={appId}
@@ -710,51 +728,46 @@ export default function SelectDialog({ ...args }) {
                             control={control}
                             worksheetId={worksheetId}
                             showDropdown={showDropdown}
-                            renderPopup={({ closeMenu }) => (
-                              <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
-                                {showFrozen && (
-                                  <MenuItem
-                                    onClick={() => {
-                                      if (window.isPublicApp) {
-                                        alert(_l('预览模式下，不能操作'), 3);
-                                        return;
-                                      }
+                            renderPopup={({ closeMenu }) => ({
+                              style: { width: 180 },
+                              items: [
+                                showFrozen && {
+                                  key: 'freeze',
+                                  icon: <i className="icon icon-lock" />,
+                                  label: _l('冻结'),
+                                  onClick: () => {
+                                    if (window.isPublicApp) {
+                                      alert(_l('预览模式下，不能操作'), 3);
+                                      return;
+                                    }
 
-                                      setFixedColumnCount(columnIndex);
-                                      closeMenu();
-                                    }}
-                                  >
-                                    <i className="icon icon-lock"></i>
-                                    {_l('冻结')}
-                                  </MenuItem>
-                                )}
-                                {showUnFrozen && (
-                                  <MenuItem
-                                    onClick={() => {
-                                      setFixedColumnCount(0);
-                                      closeMenu();
-                                    }}
-                                  >
-                                    <i className="icon icon-task-new-no-locked"></i>
-                                    {_l('解冻')}
-                                  </MenuItem>
-                                )}
-                                {showRemoveMask && (
-                                  <MenuItem
-                                    onClick={() => {
-                                      addBehaviorLog('worksheetBatchDecode', worksheetId, {
-                                        controlId: control.controlId,
-                                      });
-                                      setDisableMaskDataControls(prev => ({ ...prev, [control.controlId]: true }));
-                                      closeMenu();
-                                    }}
-                                  >
-                                    <i className="icon icon-eye_off"></i>
-                                    {_l('解码')}
-                                  </MenuItem>
-                                )}
-                              </Menu>
-                            )}
+                                    setFixedColumnCount(columnIndex);
+                                    closeMenu();
+                                  },
+                                },
+                                showUnFrozen && {
+                                  key: 'unfreeze',
+                                  icon: <i className="icon icon-task-new-no-locked" />,
+                                  label: _l('解冻'),
+                                  onClick: () => {
+                                    setFixedColumnCount(0);
+                                    closeMenu();
+                                  },
+                                },
+                                showRemoveMask && {
+                                  key: 'decode',
+                                  icon: <i className="icon icon-eye_off" />,
+                                  label: _l('解码'),
+                                  onClick: () => {
+                                    addBehaviorLog('worksheetBatchDecode', worksheetId, {
+                                      controlId: control.controlId,
+                                    });
+                                    setDisableMaskDataControls(prev => ({ ...prev, [control.controlId]: true }));
+                                    closeMenu();
+                                  },
+                                },
+                              ].filter(Boolean),
+                            })}
                             selected={!!selectedRowIds.length}
                             isAsc={
                               control.controlId === (sortControl || {}).controlId
@@ -928,19 +941,20 @@ export default function SelectDialog({ ...args }) {
                         >
                           <ListModeSelectStatus className="Hand">
                             <Checkbox
-                              noMargin
                               checked={isAllSelected}
-                              clearselected={!isAllSelected && displayCount > 0 && selectedRowIds.length > 0}
+                              indeterminate={!isAllSelected && displayCount > 0 && selectedRowIds.length > 0}
                               className="mRight6"
-                              onClick={() => {
+                              styles={SELECT_ALL_CHECKBOX_STYLES}
+                              onChange={() => {
                                 if (!isAllSelected && displayCount > 0 && selectedRowIds.length > 0) {
                                   setSelectedRowIds([]);
                                 } else {
                                   handleToggleSelectAll();
                                 }
                               }}
-                            />
-                            <span className="mRight6">{_l('全选')}</span>
+                            >
+                              {_l('全选')}
+                            </Checkbox>
                             {!!displayCount && selectedRowIds.length > 0 && (
                               <span>{_l('（已选择%0/%1条）', selectedRowIds.length, displayCount)}</span>
                             )}
@@ -991,7 +1005,9 @@ export default function SelectDialog({ ...args }) {
                 {multiple && (
                   <Fragment>
                     <Button
-                      type="link"
+                      wide
+                      color="primary"
+                      variant="link"
                       onClick={() => {
                         setSelectedRowIds([]);
                         onClose();
@@ -1001,7 +1017,7 @@ export default function SelectDialog({ ...args }) {
                     </Button>
                     <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
                       <div>
-                        <Button type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
+                        <Button wide type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
                           {_l('确定')}
                         </Button>
                       </div>
@@ -1012,7 +1028,7 @@ export default function SelectDialog({ ...args }) {
             )}
           </Fragment>
         )}
-      </Con>
+      </SelectDialogContent>
     </Modal>
   );
 }

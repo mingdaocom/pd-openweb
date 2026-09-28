@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { ScrollView } from 'ming-ui';
-import Dropdown from 'ming-ui/components/Dropdown';
+import { Select } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import GroupController from 'src/api/group';
 import InviteOrAddUsers from './InviteOrAddUsers';
@@ -46,8 +46,8 @@ export default class MembersPanel extends Component {
       loading: false,
       members: [],
       dropdownData: [
-        { text: _l('全部'), value: 1 },
-        { text: _l('仅显示其他协作关系'), value: 4 },
+        { label: _l('全部'), value: 1 },
+        { label: _l('仅显示其他协作关系'), value: 4 },
       ],
       dropdownValue: 1,
       groupMemberCount: 0,
@@ -134,10 +134,11 @@ export default class MembersPanel extends Component {
           {!hideChat && <InviteOrAddUsers {...session} />}
         </div>
         <div className="filter">
-          <Dropdown
+          <Select
             className="dropdown"
+            variant="borderless"
             value={dropdownValue}
-            data={dropdownData}
+            options={dropdownData}
             onChange={this.handleDropdownChange.bind(this)}
           />
         </div>

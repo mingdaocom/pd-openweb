@@ -4,21 +4,22 @@ import { bindActionCreators } from 'redux';
 import { useDrag } from 'react-dnd-latest';
 import { useInView } from 'react-intersection-observer';
 import { useSetState } from 'react-use';
-import { Skeleton } from 'antd';
 import cx from 'classnames';
 import { get, includes } from 'lodash';
 import _ from 'lodash';
+import { Skeleton } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import * as boardActions from 'worksheet/redux/actions/boardView';
-import { emitter } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
-import { handleRecordClick } from 'src/utils/record';
+import { CAN_AS_BOARD_OPTION } from 'src/utils/domain/worksheet/board';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { getSecondGroupDefaultValue, getTargetName } from 'src/utils/services/worksheet/board';
 import EditableCard from '../../../components/EditableCard';
 import EditingRecordItem from '../../../components/EditingRecordItem';
 import RecordPortal from '../../../components/RecordPortal';
-import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../../config';
-import { getSecondGroupDefaultValue, getTargetName } from '../../util';
+import { ITEM_TYPE } from '../../config';
 import useHoverDelay from './useHoverDelay';
 import './index.less';
 
@@ -251,7 +252,9 @@ function SortableRecordItem(props) {
   return (
     <div
       ref={drag}
-      onClick={() => {
+      onClick={event => {
+        if (!event.currentTarget.contains(event.target)) return;
+
         handleRecordClick(currentView, safeParse(rawRow), () => {
           if (!recordInfoVisible) {
             showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
@@ -267,6 +270,7 @@ function SortableRecordItem(props) {
           <EditableCard
             ref={$ref}
             data={data}
+            worksheetInfo={worksheetInfo}
             type="board"
             hoverShowAll
             fieldShowCount={fieldShowCount}
@@ -317,6 +321,7 @@ function SortableRecordItem(props) {
         <RecordPortal closeEdit={closeEdit}>
           <EditingRecordItem
             type="board"
+            worksheetInfo={worksheetInfo}
             currentView={{
               ...currentView,
               projectId: worksheetInfo.projectId,

@@ -2,26 +2,24 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, UserHead } from 'ming-ui';
+import { Icon, LoadDiv, UserHead } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import orderController from 'src/api/order';
 import paymentAjax from 'src/api/payment';
-import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import EmptyIndexContent from 'src/pages/Admin/pay/components/EmptyIndexContent';
-import { VersionProductType } from 'src/utils/enum';
-import { PAY_CHANNEL_TXT, STATUS } from '../../config';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { hasPermission } from 'src/utils/services/security/permission';
+import { isMerchantWithdrawVisible, PAY_CHANNEL_TXT, PAY_CHANNEL_TYPE, STATUS } from '../../config';
 import CreateMerchant from './CreateMerchant';
 import WithdrawalsRecord from './WithdrawalsRecord';
 
 const TableWrap = styled(PageTableCon)`
   overflow: hidden;
-  .ant-table-body {
-    height: calc(100% - 60px) !important;
-  }
-  .ant-table .ant-table-thead tr th {
+  .hap-table .hap-table-thead tr th {
     padding-top: 0;
   }
   .dot {
@@ -60,7 +58,7 @@ function SuccessDialog(props) {
   const { visible, loading, onCancel } = props;
 
   return (
-    <Dialog visible={visible} onCancel={onCancel} height={300} footer={null}>
+    <Modal width={480} open={visible} mask={{ closable: true }} keyboard onCancel={onCancel}>
       <SuccessWrap className="pTop100 pBottom100">
         {!loading ? (
           <Fragment>
@@ -74,7 +72,7 @@ function SuccessDialog(props) {
           </Fragment>
         )}
       </SuccessWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -119,7 +117,7 @@ export default class MerchantCom extends Component {
 
   // 获取商户可创建数量（私有部署创建商户提示）
   getMerchantUsage = () => {
-    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) return;
+    if (window.platformENV.isHap) return;
 
     const { projectId } = this.props;
     paymentAjax.getMerchantUsage({ projectId }).then(res => {
@@ -135,15 +133,17 @@ export default class MerchantCom extends Component {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       width: 560,
       title: _l('您确定开通试用？'),
-      description: (
+      content: (
         <span className="textPrimary Bold">{_l('开通后此商户号有 7 天免费试用期，试用期间单笔订单交易最高1元')}</span>
       ),
       okText: _l('下一步'),
       onOk: () => {
-        this.setState({ successDialogVisible: true });
+        this.setState({
+          successDialogVisible: true,
+        });
         orderController
           .addMerchantPaymentOrder({
             projectId,
@@ -155,7 +155,9 @@ export default class MerchantCom extends Component {
           })
           .then(data => {
             if (data) {
-              this.setState({ success: true });
+              this.setState({
+                success: true,
+              });
               this.getDataList();
             }
           });
@@ -213,25 +215,36 @@ export default class MerchantCom extends Component {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       width: 560,
-      title: _l('是否删除当前商户'),
+      title: <span className="textError">{_l('是否删除当前商户')}</span>,
       okText: _l('确认'),
-      buttonType: 'danger',
-      description: _l('删除后，待支付的订单不能继续收款，待退款的订单不能继续退款'),
+      okButtonProps: {
+        danger: true,
+      },
+      content: _l('删除后，待支付的订单不能继续收款，待退款的订单不能继续退款'),
       onOk: () => {
-        paymentAjax.deleteMerchant({ projectId, merchantId: record.id, merchantNo: record.merchantNo }).then(res => {
-          if (res) {
-            alert(_l('删除成功'));
-            const newList = _.filter(merchantList, v => v.id !== record.id);
-            this.setState({ merchantList: newList, count: count - 1 });
-            if (_.isEmpty(newList)) {
-              this.props.changeShowCreateMerchant(false);
+        paymentAjax
+          .deleteMerchant({
+            projectId,
+            merchantId: record.id,
+            merchantNo: record.merchantNo,
+          })
+          .then(res => {
+            if (res) {
+              alert(_l('删除成功'));
+              const newList = _.filter(merchantList, v => v.id !== record.id);
+              this.setState({
+                merchantList: newList,
+                count: count - 1,
+              });
+              if (_.isEmpty(newList)) {
+                this.props.changeShowCreateMerchant(false);
+              }
+            } else {
+              alert(_l('删除失败'), 2);
             }
-          } else {
-            alert(_l('删除失败'), 2);
-          }
-        });
+          });
       },
     });
   };
@@ -253,7 +266,7 @@ export default class MerchantCom extends Component {
                 '1.支付功能服务费：按商户号收取，年费999元/商户，月费199元/商户；新商户可申请一周免费试用，试用期间单笔订单限额1元。',
               )}
             </div>
-            <div>{_l('2.支付渠道：聚合支付(费率0.25%)、微信支付/支付宝支付(费率以签约渠道为准)。')}</div>
+            <div>{_l('2.支付渠道：拉卡拉(费率0.3%)、微信支付/支付宝支付(费率以签约渠道为准)。')}</div>
             <div>{_l('3.提现说明：微信/支付宝直连商户号，需在对应官方平台操作提现。')}</div>
           </Fragment>
         )}
@@ -279,7 +292,7 @@ export default class MerchantCom extends Component {
 
     const columns = [
       { title: _l('商户编号'), dataIndex: 'merchantNo', width: 200, fixed: 'left' },
-      { title: _l('商户简称'), dataIndex: 'shortName', ellipsis: true, fixed: 'left' },
+      { title: _l('商户简称'), dataIndex: 'shortName', ellipsis: true, width: 220, fixed: 'left' },
       {
         title: _l('支付通道'),
         dataIndex: 'merchantPaymentChannel',
@@ -293,6 +306,7 @@ export default class MerchantCom extends Component {
       {
         title: _l('状态'),
         dataIndex: 'status',
+        width: 140,
         render: (text, record) => {
           return (
             <Fragment>
@@ -308,6 +322,7 @@ export default class MerchantCom extends Component {
       {
         title: _l('付费状态'),
         dataIndex: 'subscribeMerchant',
+        width: 140,
         render: (value, record) => {
           return (
             <span style={{ color: value ? 'var(--color-success)' : 'var(--color-primary)' }}>
@@ -317,15 +332,9 @@ export default class MerchantCom extends Component {
         },
       },
       {
-        title: _l('余额'),
-        dataIndex: 'banlance',
-        render: (text, record) => {
-          return <div>{_.isNumber(text) && record.status === 3 ? text : '-'}</div>;
-        },
-      },
-      {
         title: _l('到期时间'),
         dataIndex: 'planExpiredTime',
+        width: 180,
         render: (value, record) => {
           return <span>{record.status === 3 && !!value ? moment(value).format('YYYY.MM.DD') : '-'}</span>;
         },
@@ -333,6 +342,7 @@ export default class MerchantCom extends Component {
       {
         title: _l('支付渠道'),
         dataIndex: 'paymentMethod',
+        width: 160,
         render: (text, record) => {
           const { aliPayStatus, wechatPayStatus } = record;
 
@@ -373,17 +383,19 @@ export default class MerchantCom extends Component {
       {
         title: _l('操作'),
         dataIndex: 'accountId',
-        width: 'fit-content',
+        width: 300,
         fixed: 'right',
         render: (text, record) => {
           const { status, merchantPaymentChannel } = record;
+
+          if (merchantPaymentChannel === PAY_CHANNEL_TYPE.AGGREGATE) return null;
 
           // 0-注册中 1-待开通 2-开通中 3-已开通 4-已禁用
           if (window.platformENV.isOverseas || window.platformENV.isLocal) {
             return (
               hasManageMerchantAuth && (
                 <Fragment>
-                  {_.includes([0, 3], status) && (
+                  {merchantPaymentChannel !== PAY_CHANNEL_TYPE.LAKALA && _.includes([0, 3], status) && (
                     <span
                       className="Hand colorPrimary mRight24 Hover_51"
                       onClick={() => this.openCreateMerchant(status == 0 ? 1 : status, record)}
@@ -392,7 +404,8 @@ export default class MerchantCom extends Component {
                     </span>
                   )}
                   {(_.includes([0, 1, 2], status) ||
-                    (_.includes([1, 2], record.merchantPaymentChannel) && !record.subscribeMerchant)) && (
+                    (_.includes([PAY_CHANNEL_TYPE.ALIPAY, PAY_CHANNEL_TYPE.WECHAT], record.merchantPaymentChannel) &&
+                      !record.subscribeMerchant)) && (
                     <span className="Hand Red" onClick={() => this.deleteMerchant(record)}>
                       {_l('删除')}
                     </span>
@@ -407,12 +420,14 @@ export default class MerchantCom extends Component {
               return (
                 hasManageMerchantAuth && (
                   <Fragment>
-                    <span
-                      className="Hand colorPrimary mRight24 Hover_51"
-                      onClick={() => this.openCreateMerchant(1, record)}
-                    >
-                      {_l('商户详情')}
-                    </span>
+                    {merchantPaymentChannel !== PAY_CHANNEL_TYPE.LAKALA && (
+                      <span
+                        className="Hand colorPrimary mRight24 Hover_51"
+                        onClick={() => this.openCreateMerchant(1, record)}
+                      >
+                        {_l('商户详情')}
+                      </span>
+                    )}
                     <span className="Hand Red" onClick={() => this.deleteMerchant(record)}>
                       {_l('删除')}
                     </span>
@@ -439,7 +454,7 @@ export default class MerchantCom extends Component {
             case 3:
               return (
                 <Fragment>
-                  {hasManageMerchantAuth && (
+                  {hasManageMerchantAuth && merchantPaymentChannel !== PAY_CHANNEL_TYPE.LAKALA && (
                     <span
                       className="Hand colorPrimary mRight24 Hover_51"
                       onClick={() => this.openCreateMerchant(3, record)}
@@ -447,7 +462,7 @@ export default class MerchantCom extends Component {
                       {_l('商户详情')}
                     </span>
                   )}
-                  {hasWithdrawAuth && !_.includes([1, 2], merchantPaymentChannel) && (
+                  {hasWithdrawAuth && isMerchantWithdrawVisible(merchantPaymentChannel) && (
                     <span
                       className="Hand colorPrimary Hover_51 mRight24"
                       onClick={() => {
@@ -481,11 +496,12 @@ export default class MerchantCom extends Component {
                           }
                         />
                       )}
-                      {_.includes([1, 2], record.merchantPaymentChannel) && !record.subscribeMerchant && (
-                        <span className="Hand Red mLeft24" onClick={() => this.deleteMerchant(record)}>
-                          {_l('删除')}
-                        </span>
-                      )}
+                      {_.includes([PAY_CHANNEL_TYPE.ALIPAY, PAY_CHANNEL_TYPE.WECHAT], record.merchantPaymentChannel) &&
+                        !record.subscribeMerchant && (
+                          <span className="Hand Red mLeft24" onClick={() => this.deleteMerchant(record)}>
+                            {_l('删除')}
+                          </span>
+                        )}
                     </Fragment>
                   )}
                 </Fragment>

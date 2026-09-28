@@ -37,3 +37,12 @@ export function isThirdPartyIntegration() {
 
   return Object.keys(flags).some(key => flags[key]);
 }
+
+export function isMingoEntryMobileClient({
+  browserIsMobile = false,
+  userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '',
+  platform = typeof navigator !== 'undefined' ? navigator.platform : '',
+  maxTouchPoints = typeof navigator !== 'undefined' ? navigator.maxTouchPoints : 0,
+} = {}) {
+  return browserIsMobile || /iPad|iPod/i.test(userAgent || '') || (platform === 'MacIntel' && maxTouchPoints > 1);
+}

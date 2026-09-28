@@ -1,19 +1,32 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { isRelateRecordTableControl } from 'src/utils/control';
-import { controlState } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project.js';
+import { Icon, LoadDiv } from 'ming-ui';
+import { isUnTextWidget } from 'src/utils/domain/control/capabilities';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { controlState } from 'src/utils/domain/control/state';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { addBehaviorLog } from 'src/utils/services/project';
 import FreeField from '../../components/FreeField';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FROM, MASK_ADVANCEDSETTING } from '../../core/config';
-import { ADD_EVENT_ENUM } from '../../core/enum';
-import { convertControl, isUnTextWidget } from '../../core/utils';
+import { createWidgetPropsEqual } from '../../core/renderDataUtils';
+import { convertControl } from '../../core/utils';
 import widgets from '../widgets';
 
-export default function MobileFormWidget(props) {
+const COMPARE_FUNCTION_PROP_KEYS = new Set([
+  'checkControlUnique',
+  'handleChange',
+  'onBlur',
+  'openRelateSheet',
+  'registerCell',
+  'submitFormData',
+  'triggerCustomEvent',
+]);
+const arePropsEqual = createWidgetPropsEqual(COMPARE_FUNCTION_PROP_KEYS, isCustomWidget);
+
+function MobileFormWidget(props) {
   const {
     disabled,
     initSource,
@@ -27,9 +40,7 @@ export default function MobileFormWidget(props) {
     openRelateSheet = () => {},
     registerCell,
     sheetSwitchPermit = [],
-    systemControlData,
     popupContainer,
-    getMasterFormData,
     isCharge,
     widgetStyle = {},
     mobileApprovalRecordInfo = {},
@@ -40,6 +51,7 @@ export default function MobileFormWidget(props) {
     formDidMountFlag,
     onBlur = () => {},
     renderData,
+    formData,
     item: originItem,
     triggerCustomEvent = () => {},
     handleChange,
@@ -48,8 +60,6 @@ export default function MobileFormWidget(props) {
     dataFormat,
     submitFormData,
   } = props;
-  const [showMaskValue, setShowMaskValue] = useState(false);
-  const itemRef = useRef(null);
 
   // controlItem 处理
   const item = useMemo(() => {
@@ -77,9 +87,13 @@ export default function MobileFormWidget(props) {
 
     return originItem;
   }, [originItem]);
+  const eventItemRef = useRef(item);
 
   const { advancedSetting = {}, controlId } = item;
-  itemRef.current = item;
+
+  useLayoutEffect(() => {
+    eventItemRef.current = item;
+  }, [item]);
 
   const isEditable = controlState(item, from).editable;
   const controlDisabled =
@@ -101,6 +115,12 @@ export default function MobileFormWidget(props) {
       item.value
     );
   }, [item.type, item.enumDefault, advancedSetting.datamask, item.value]);
+  const maskStateKey = controlCanMask ? `${controlId}-${item.value}` : controlId;
+  const [maskState, setMaskState] = useState({
+    key: maskStateKey,
+    showMaskValue: controlCanMask,
+  });
+  const showMaskValue = maskState.key === maskStateKey ? maskState.showMaskValue : controlCanMask;
 
   // 是否有解码权限
   const maskPermissions = useMemo(() => {
@@ -131,26 +151,22 @@ export default function MobileFormWidget(props) {
         });
       }
 
-      setShowMaskValue(!showMaskValue);
+      setMaskState({ key: maskStateKey, showMaskValue: !showMaskValue });
     }
   };
 
   useEffect(() => {
     if (_.isFunction(triggerCustomEvent)) {
       const showEventTimer = setTimeout(() => {
-        triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.SHOW });
+        triggerCustomEvent({ ...eventItemRef.current, triggerType: ADD_EVENT_ENUM.SHOW });
         clearTimeout(showEventTimer);
       }, 500);
 
       return () => {
-        triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.HIDE });
+        triggerCustomEvent({ ...eventItemRef.current, triggerType: ADD_EVENT_ENUM.HIDE });
       };
     }
-  }, [formDidMountFlag]);
-
-  useEffect(() => {
-    setShowMaskValue(controlCanMask);
-  }, [controlCanMask]);
+  }, [formDidMountFlag, triggerCustomEvent]);
 
   // 渲染表单项
   const renderWidgetsContent = () => {
@@ -229,8 +245,7 @@ export default function MobileFormWidget(props) {
       handleMaskClick,
       renderMaskContent,
       onChange: (value, cid = controlId, searchByChange) => {
-        // 使用 ref 获取最新的 item，自动避开闭包问题
-        const currentItem = itemRef.current;
+        const currentItem = item;
         handleChange(value, cid, currentItem, searchByChange);
         // 非文本change校验重复、文本失焦校验
         if (currentItem.unique && value && isUnTextWidget(currentItem)) {
@@ -254,8 +269,7 @@ export default function MobileFormWidget(props) {
         }
       },
       onBlur: (originValue, newVal) => {
-        // 使用 ref 获取最新的 item，自动避开闭包问题
-        const currentItem = itemRef.current;
+        const currentItem = item;
         // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
         const newValue = newVal || (`${currentItem.value || ''}` ? `${currentItem.value || ''}`.trim() : '');
         const isTextWidget = !isUnTextWidget(currentItem);
@@ -290,17 +304,19 @@ export default function MobileFormWidget(props) {
         registerCell({ item, cell });
       },
       getControlRef: key => controlRefs.current[key],
-      formData: dataFormat.current
-        .getDataSource()
-        .concat(systemControlData || [])
-        .concat(getMasterFormData() || []),
+      formData,
+      // 子表打开关联记录选择器时需要读取动态字段回填后的最新值，不能依赖当前渲染周期的 formData 快照。
+      getCurrentFormData: () =>
+        dataFormat.current ? _.unionBy(dataFormat.current.getDataSource(), formData, 'controlId') : formData,
       triggerCustomEvent: triggerType => triggerCustomEvent({ ...item, triggerType }),
       submitChildTableCheckData: submitFormData,
     };
 
     return (
       <Fragment>
-        <Widgets {...widgetProps} />
+        <Suspense fallback={<LoadDiv className="mTop10" />}>
+          <Widgets {...widgetProps} />
+        </Suspense>
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
       </Fragment>
     );
@@ -308,3 +324,5 @@ export default function MobileFormWidget(props) {
 
   return renderWidgetsContent();
 }
+
+export default React.memo(MobileFormWidget, arePropsEqual);

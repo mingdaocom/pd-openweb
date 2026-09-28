@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { CustomActionWrap } from '../../style';
 import SelectFields from '../SelectFields';
 
@@ -26,14 +26,15 @@ export default function RefreshValue(props) {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={_.isEmpty(actionItems)}
       className="SearchWorksheetDialog"
       title={_l('刷新字段值')}
       onCancel={() => setState({ visible: false })}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, actionItems });
         setState({ visible: false });
@@ -49,6 +50,6 @@ export default function RefreshValue(props) {
           onSelectField={value => setState({ actionItems: value })}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

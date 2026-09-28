@@ -2,12 +2,12 @@ import React, { Fragment } from 'react';
 import DocumentTitle from 'react-document-title';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, Menu, MenuItem, Support } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import { APPROVAL_SYS } from 'src/pages/Print/core/config';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 import { createEditFileLink } from './utils';
 import './index.less';
 
@@ -353,12 +353,13 @@ export default class UploadTemplateSheet extends React.Component {
 
         {/** 弹层显示关联表格的所有字段 */}
         {it.showDialog && (
-          <Dialog
-            showFooter={false}
-            type="scroll"
+          <Modal
+            footer={null}
             width={880}
             title={<span className="Bold">{it.controlName + _l('所有字段')}</span>}
-            visible={it.showDialog}
+            open={it.showDialog}
+            mask={{ closable: true }}
+            keyboard
             onCancel={() => this.closeDialog(it)}
             onOk={() => this.closeDialog(it)}
           >
@@ -385,7 +386,7 @@ export default class UploadTemplateSheet extends React.Component {
                 return !isRelationList && !isNotSupport ? this.renderRelaItem(it, o, true) : '';
               })}
             </div>
-          </Dialog>
+          </Modal>
         )}
       </React.Fragment>
     );
@@ -583,12 +584,13 @@ export default class UploadTemplateSheet extends React.Component {
 
                 {/** 弹层显示字段 */}
                 {it.showDialog && (
-                  <Dialog
-                    showFooter={false}
-                    type="scroll"
+                  <Modal
+                    footer={null}
                     width={880}
                     title={<span className="Bold">{it.controlName + _l('所有字段')}</span>}
-                    visible={it.showDialog}
+                    open={it.showDialog}
+                    mask={{ closable: true }}
+                    keyboard
                     onCancel={() => this.closeDialog(it)}
                     onOk={() => this.closeDialog(it)}
                   >
@@ -615,7 +617,7 @@ export default class UploadTemplateSheet extends React.Component {
                         return !isRelationList && !isNotSupport ? this.renderRelaItem(it, o, false) : '';
                       })}
                     </div>
-                  </Dialog>
+                  </Modal>
                 )}
               </React.Fragment>
             ))}
@@ -711,28 +713,21 @@ export default class UploadTemplateSheet extends React.Component {
     const { popupVisible } = this.state;
 
     return (
-      <Trigger
-        popupVisible={!!popupVisible}
-        onPopupVisibleChange={visible => !visible && this.setState({ popupVisible: visible })}
-        action={['click']}
-        popup={() => {
-          return (
-            <Menu style={{ left: 'initial', right: 0, width: 180 }}>
-              {(md.global.Config.EnableDocEdit === false || popupVisible === 'Xlsx'
-                ? OPTIONS.slice(0, 1)
-                : OPTIONS
-              ).map((item, index) => (
-                <MenuItem key={index} onClick={() => this.onEdit(item.value)}>
-                  <span>{item.label}</span>
-                </MenuItem>
-              ))}
-            </Menu>
-          );
-        }}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        open={!!popupVisible}
+        onOpenChange={visible => !visible && this.setState({ popupVisible: visible })}
+        trigger={['click']}
+        placement="bottomRight"
+        menu={{
+          style: { width: 180 },
+          items: (md.global.Config.EnableDocEdit === false || popupVisible === 'Xlsx'
+            ? OPTIONS.slice(0, 1)
+            : OPTIONS
+          ).map(item => ({
+            key: item.value,
+            label: item.label,
+            onClick: () => this.onEdit(item.value),
+          })),
         }}
       >
         <span>
@@ -743,7 +738,7 @@ export default class UploadTemplateSheet extends React.Component {
             {_l('Excel 模板')}
           </span>
         </span>
-      </Trigger>
+      </Dropdown>
     );
   };
 

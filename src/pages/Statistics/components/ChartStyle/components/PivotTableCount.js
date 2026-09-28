@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Collapse, Input, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Checkbox, Input, Switch } from 'ming-ui/antd-components';
 import { isNumberControl } from 'statistics/common/controlUtils';
 import { Count, Location } from './Count';
 import PreinstallStyle from './PreinstallStyle';
@@ -9,7 +9,7 @@ import SubLineCount from './SubLineCount';
 import TitleStyle from './TitleStyle';
 
 export default function pivotTableCountPanelGenerator(props) {
-  const { currentReport, onChangeStyle, changeCurrentReport, themeColor, customPageConfig, ...collapseProps } = props;
+  const { currentReport, onChangeStyle, changeCurrentReport, themeColor, customPageConfig } = props;
   const { style, pivotTable = {}, yaxisList = [], displaySetup } = currentReport;
 
   const handleChangeLineSummary = (data, isRequest = true) => {
@@ -43,16 +43,18 @@ export default function pivotTableCountPanelGenerator(props) {
   };
 
   const renderPreinstallStyle = () => {
-    return (
-      <Collapse.Panel key="preinstallStyle" header={_l('表')} {...collapseProps}>
-        <PreinstallStyle style={style} customPageConfig={customPageConfig} onChangeStyle={onChangeStyle} />
-      </Collapse.Panel>
-    );
+    return {
+      key: 'preinstallStyle',
+      label: _l('表'),
+      children: <PreinstallStyle style={style} customPageConfig={customPageConfig} onChangeStyle={onChangeStyle} />,
+    };
   };
 
   const renderCell = () => {
-    return (
-      <Collapse.Panel key="cell" header={_l('单元格')} {...collapseProps}>
+    return {
+      key: 'cell',
+      label: _l('单元格'),
+      children: (
         <TitleStyle
           type="cell"
           style={style}
@@ -62,13 +64,15 @@ export default function pivotTableCountPanelGenerator(props) {
           currentReport={currentReport}
           changeCurrentReport={changeCurrentReport}
         />
-      </Collapse.Panel>
-    );
+      ),
+    };
   };
 
   const renderLineTitleStyle = () => {
-    return (
-      <Collapse.Panel key="lineTitleStyle" header={_l('行标题')} {...collapseProps}>
+    return {
+      key: 'lineTitleStyle',
+      label: _l('行标题'),
+      children: (
         <TitleStyle
           type="line"
           style={style}
@@ -77,13 +81,15 @@ export default function pivotTableCountPanelGenerator(props) {
           customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
         />
-      </Collapse.Panel>
-    );
+      ),
+    };
   };
 
   const renderColumnTitleStyle = () => {
-    return (
-      <Collapse.Panel key="columnTitleStyle" header={_l('列标题')} {...collapseProps}>
+    return {
+      key: 'columnTitleStyle',
+      label: _l('列标题'),
+      children: (
         <TitleStyle
           type="column"
           style={style}
@@ -91,8 +97,8 @@ export default function pivotTableCountPanelGenerator(props) {
           customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
         />
-      </Collapse.Panel>
-    );
+      ),
+    };
   };
 
   const renderSubLineCount = () => {
@@ -103,90 +109,86 @@ export default function pivotTableCountPanelGenerator(props) {
       return null;
     }
 
-    return (
-      <Collapse.Panel
-        key="subLineCount"
-        header={_l('行小计')}
-        className={cx({ collapsible: !switchChecked })}
-        {...collapseProps}
-        extra={
-          <Switch
-            size="small"
-            checked={switchChecked}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              const param = {
-                pivotTable: {
-                  ...currentReport.pivotTable,
-                },
-              };
-              const newLines = lines.map((n, index) => {
-                return index ? { ...n, subTotal: checked } : n;
+    return {
+      key: 'subLineCount',
+      label: _l('行小计'),
+      className: cx({ collapsible: !switchChecked }),
+      extra: (
+        <Switch
+          size="small"
+          checked={switchChecked}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            const param = {
+              pivotTable: {
+                ...currentReport.pivotTable,
+              },
+            };
+            const newLines = lines.map((n, index) => {
+              return index ? { ...n, subTotal: checked } : n;
+            });
+
+            if (!newLines.filter(n => n.subTotal).length) {
+              param.yaxisList = yaxisList.map(n => {
+                return {
+                  ...n,
+                  showPercent: 0,
+                };
               });
+            }
 
-              if (!newLines.filter(n => n.subTotal).length) {
-                param.yaxisList = yaxisList.map(n => {
-                  return {
-                    ...n,
-                    showPercent: 0,
-                  };
-                });
-              }
-
-              param.pivotTable.lines = newLines;
-              changeCurrentReport(param, true);
-            }}
-          />
-        }
-      >
-        <SubLineCount currentReport={currentReport} onChangeCurrentReport={changeCurrentReport} />
-      </Collapse.Panel>
-    );
+            param.pivotTable.lines = newLines;
+            changeCurrentReport(param, true);
+          }}
+        />
+      ),
+      children: <SubLineCount currentReport={currentReport} onChangeCurrentReport={changeCurrentReport} />,
+    };
   };
 
   const renderPivotTableLineCount = () => {
     const { yaxisList } = currentReport;
     const { showLineTotal, lineSummary = {} } = pivotTable;
     const { controlList = [], rename } = lineSummary;
-    return (
-      <Collapse.Panel
-        key="lineCount"
-        header={_l('行总计')}
-        className={cx({ collapsible: !showLineTotal })}
-        {...collapseProps}
-        extra={
-          <Switch
-            size="small"
-            checked={showLineTotal}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...pivotTable,
-                    showLineTotal: checked,
-                  },
+    return {
+      key: 'lineCount',
+      label: _l('行总计'),
+      className: cx({ collapsible: !showLineTotal }),
+      extra: (
+        <Switch
+          size="small"
+          checked={showLineTotal}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            changeCurrentReport(
+              {
+                pivotTable: {
+                  ...pivotTable,
+                  showLineTotal: checked,
                 },
-                true,
-              );
-            }}
-          />
-        }
-      >
+              },
+              true,
+            );
+          }}
+        />
+      ),
+      children: (
         <Fragment>
           <div className="mBottom16">
             <div className="mBottom8">{_l('名称')}</div>
             <Input
               defaultValue={rename || _l('行汇总')}
-              className="chartInput w100"
-              onChange={event => {
+              maxLength={20}
+              className="w100"
+              onPressEnter={event => event.currentTarget.blur()}
+              onBlur={event => {
                 handleChangeLineSummary(
                   {
-                    rename: event.target.value.slice(0, 20),
+                    rename: event.target.value,
                   },
                   false,
                 );
@@ -276,8 +278,8 @@ export default function pivotTableCountPanelGenerator(props) {
               />
             ))}
         </Fragment>
-      </Collapse.Panel>
-    );
+      ),
+    };
   };
 
   const renderPivotTableColumnCount = () => {
@@ -307,7 +309,7 @@ export default function pivotTableCountPanelGenerator(props) {
           true,
         );
       } else {
-        this.props.changeCurrentReport(
+        changeCurrentReport(
           {
             pivotTable: {
               ...pivotTable,
@@ -396,60 +398,61 @@ export default function pivotTableCountPanelGenerator(props) {
 
     const countYaxisList = yaxisList.filter(item => (isNumberControl(item.controlType) ? true : item.normType !== 7));
 
-    return (
-      <Collapse.Panel
-        key="columnCount"
-        header={_l('列总计')}
-        className={cx({ collapsible: !showColumnTotal })}
-        extra={
-          <Switch
-            size="small"
-            checked={showColumnTotal}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              const data = {
-                ...pivotTable,
-                showColumnTotal: checked,
+    return {
+      key: 'columnCount',
+      label: _l('列总计'),
+      className: cx({ collapsible: !showColumnTotal }),
+      extra: (
+        <Switch
+          size="small"
+          checked={showColumnTotal}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            const data = {
+              ...pivotTable,
+              showColumnTotal: checked,
+            };
+
+            if (checked) {
+              data.columnSummary = {
+                ...columnSummary,
+                controlList: countYaxisList.map(item => {
+                  return {
+                    controlId: item.controlId,
+                    name: '',
+                    sum: 0,
+                    type: 1,
+                    number: true,
+                    percent: false,
+                  };
+                }),
               };
+            }
 
-              if (checked) {
-                data.columnSummary = {
-                  ...columnSummary,
-                  controlList: countYaxisList.map(item => {
-                    return {
-                      controlId: item.controlId,
-                      name: '',
-                      sum: 0,
-                      type: 1,
-                      number: true,
-                      percent: false,
-                    };
-                  }),
-                };
-              }
-
-              changeCurrentReport(
-                {
-                  pivotTable: data,
-                },
-                true,
-              );
-            }}
-          />
-        }
-      >
+            changeCurrentReport(
+              {
+                pivotTable: data,
+              },
+              true,
+            );
+          }}
+        />
+      ),
+      children: (
         <Fragment>
           <div className="mBottom16">
             <div className="mBottom8">{_l('名称')}</div>
             <Input
               defaultValue={rename || _l('列汇总')}
-              className="chartInput w100"
-              onChange={event => {
+              maxLength={20}
+              className="w100"
+              onPressEnter={event => event.currentTarget.blur()}
+              onBlur={event => {
                 handleChangeColumnSummary(
                   {
-                    rename: event.target.value.slice(0, 20),
+                    rename: event.target.value,
                   },
                   false,
                 );
@@ -471,19 +474,17 @@ export default function pivotTableCountPanelGenerator(props) {
             />
           ))}
         </Fragment>
-      </Collapse.Panel>
-    );
+      ),
+    };
   };
 
-  return (
-    <Fragment>
-      {renderPreinstallStyle()}
-      {renderCell()}
-      {renderLineTitleStyle()}
-      {renderColumnTitleStyle()}
-      {renderSubLineCount()}
-      {renderPivotTableLineCount()}
-      {renderPivotTableColumnCount()}
-    </Fragment>
-  );
+  return [
+    renderPreinstallStyle(),
+    renderCell(),
+    renderLineTitleStyle(),
+    renderColumnTitleStyle(),
+    renderSubLineCount(),
+    renderPivotTableLineCount(),
+    renderPivotTableColumnCount(),
+  ].filter(Boolean);
 }

@@ -1,39 +1,41 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
-import { getTitleControlId } from '../../../core/utils';
+import { getTitleControlId, getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
 import { getRecordCardStyle } from '../../tools/utils';
 import CardCellControls from './CardCellControls';
 
 const Con = styled.div`
   position: relative;
   width: 100%;
-  border-radius: 3px;
-  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--color-background-card)'};
+  border-radius: 8px;
+  background-color: ${({ $backgroundColor }) => $backgroundColor || 'var(--color-background-secondary)'};
+  box-shadow: var(--shadow-sm);
   border: 1px solid
-    ${({ borderColor, canSelect, selected }) => {
-      if (canSelect) {
-        return selected ? 'var(--color-primary)' : 'var(--color-border-primary)';
+    ${({ $borderColor, $canSelect, $selected }) => {
+      if ($canSelect) {
+        return $selected ? 'var(--color-primary)' : 'var(--color-background-secondary)';
       }
 
-      return borderColor || 'var(--color-border-primary)';
+      return $borderColor || 'var(--color-border-primary)';
     }};
 
   & + & {
-    margin-top: ${props => (props.disabled ? 10 : 14)}px;
+    margin-top: ${props => (props.$disabled ? 10 : 14)}px;
   }
 
   .selectIcon {
     position: absolute;
     top: 0;
     right: 0;
-    border: 17px solid ${({ selected }) => (selected ? 'var(--color-primary)' : 'var(--color-border-primary)')};
+    border: 17px solid ${({ $selected }) => ($selected ? 'var(--color-primary)' : 'var(--color-border-primary)')};
     border-left-color: transparent;
     border-bottom-color: transparent;
+    border-radius: 0 8px 0 0;
   }
 
   .icon-ok {
@@ -79,7 +81,7 @@ const Title = styled.div`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   word-break: break-all;
-  ${({ titleStyle }) => titleStyle}
+  ${({ $titleStyle }) => $titleStyle}
 `;
 
 const ControlCon = styled.div`
@@ -96,7 +98,7 @@ const ControlCon = styled.div`
     border-radius: 3px;
     object-fit: contain;
     border: 1px solid var(--color-border-secondary);
-    ${({ small }) => (small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
+    ${({ $small }) => ($small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
   }
 `;
 
@@ -109,6 +111,7 @@ function click(func) {
 }
 
 export default function RecordCoverCard(props) {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const {
     className,
     hideTitle,
@@ -157,7 +160,7 @@ export default function RecordCoverCard(props) {
       src={cover}
       onClick={e => {
         e.stopPropagation();
-        previewAttachments(
+        openPreviewAttachments(
           transformQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
             disableDownload: true,
             ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
@@ -171,12 +174,11 @@ export default function RecordCoverCard(props) {
       onClick={onClick}
       style={style}
       className={cx(className, allowlink !== '0')}
-      canView={allowlink !== '0'}
-      disabled={disabled}
-      backgroundColor={get(recordCardStyle, 'cardStyle.backgroundColor')}
-      borderColor={get(recordCardStyle, 'cardStyle.borderColor')}
-      canSelect={canSelect}
-      selected={selected}
+      $disabled={disabled}
+      $backgroundColor={get(recordCardStyle, 'cardStyle.backgroundColor')}
+      $borderColor={get(recordCardStyle, 'cardStyle.borderColor')}
+      $canSelect={canSelect}
+      $selected={selected}
     >
       {canSelect && (
         <Fragment>
@@ -205,7 +207,7 @@ export default function RecordCoverCard(props) {
                 marginBottom: controls.length ? 8 : 0,
                 fontSize: get(recordCardStyle, 'recordTitleStyle.size'),
               }}
-              titleStyle={get(recordCardStyle, 'recordTitleStyle.valueStyle', {})}
+              $titleStyle={get(recordCardStyle, 'recordTitleStyle.valueStyle', {})}
             >
               {title}
               {titleMasked && !forceShowFullValue && (

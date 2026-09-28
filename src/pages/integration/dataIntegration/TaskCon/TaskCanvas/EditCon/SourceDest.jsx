@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement.js';
 import homeAppAjax from 'src/api/homeApp.js';
 import DataSourceApi from 'src/pages/integration/api/datasource';
@@ -11,24 +11,15 @@ import SelectTables from 'src/pages/integration/dataIntegration/components/Selec
 import SheetGroupSelect from 'src/pages/integration/dataIntegration/connector/components/OnlySyncStep/SheetGroupSelect.jsx';
 import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
 import AddSourceOrDest from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/AddSourceOrDest';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { WrapL } from './style';
 
 const Wrap = styled.div`
   .mTop14 {
     margin-top: 14px;
   }
-  .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    background: var(--color-background-primary);
-  }
-  .ant-select-arrow {
+  .hap-select-arrow {
     display: none;
-  }
-  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-radius: 4px;
-  }
-  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-    height: 36px;
   }
 `;
 const WrapTopic = styled.div`
@@ -146,7 +137,7 @@ export default class SourceDest extends Component {
         this.setState({
           loading: false,
           dbList: (res || []).map(a => {
-            return { ...a, text: a.appName, value: a.appId };
+            return { ...a, label: a.appName, value: a.appId };
           }),
         });
       });
@@ -190,7 +181,7 @@ export default class SourceDest extends Component {
     const data = (childSectionsWorkSheetInfo || [])
       .filter(o => o.type === 0) //只能是工作表
       .map(a => {
-        return { ...a, text: a.workSheetName, value: a.workSheetId, icon: '' };
+        return { ...a, label: a.workSheetName, value: a.workSheetId, icon: '' };
       });
     const list = this.filterSheet(data);
     this.setState({
@@ -248,7 +239,7 @@ export default class SourceDest extends Component {
       }).then(res => {
         this.setState({
           dbList: (res || []).map(a => {
-            return { text: a, value: a, disabled: !isValidName(a, true) }; //允许横线
+            return { label: a, value: a, disabled: !isValidName(a, true) }; //允许横线
           }),
         });
       });
@@ -272,7 +263,7 @@ export default class SourceDest extends Component {
     }).then(res => {
       this.setState({
         schemaList: res.map(a => {
-          return { text: a, value: a };
+          return { label: a, value: a };
         }),
         sheetList: [], //数据表列表
       });
@@ -387,7 +378,7 @@ export default class SourceDest extends Component {
         } else {
           return {
             ...o,
-            disabled: !isValidName(o.text),
+            disabled: !isValidName(o.label),
           }; //数据库表 不合法的表 不可选
         }
       });
@@ -398,7 +389,7 @@ export default class SourceDest extends Component {
             {
               iconName: 'add1',
               value: 'add',
-              text: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('新建工作表') : _l('新建数据表'),
+              label: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('新建工作表') : _l('新建数据表'),
             },
           ].concat(data)
         : data;
@@ -472,7 +463,7 @@ export default class SourceDest extends Component {
           tableName:
             dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
               ? value
-              : (sheetList.find(it => it.value === value) || {}).text,
+              : (sheetList.find(it => it.value === value) || {}).label,
           workSheetId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
           createTable: false, //是否新建工作表
           isOurCreateTable: false,
@@ -579,23 +570,24 @@ export default class SourceDest extends Component {
               <div className="title mTop20">
                 {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('应用') : _l('数据库')}
               </div>
-              <Dropdown
-                {...dbParam}
+              <Select
+                value={dbParam.value}
+                labelRender={() => dbParam.renderValue}
                 placeholder={_l('请选择')}
-                onVisibleChange={visible => {
+                onOpenChange={visible => {
                   if (visible) {
                     dsType === DATABASE_TYPE.APPLICATION_WORKSHEET
                       ? this.getAppList(projectId)
                       : this.getDatasourceList(node, projectId);
                   }
                 }}
-                itemLoading={loading}
+                loading={loading}
                 className="mRight12 dropWorksheet"
                 onChange={value => {
                   const dnName =
                     dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
                       ? value
-                      : (dbList.find(it => it.value === value) || {}).text;
+                      : (dbList.find(it => it.value === value) || {}).label;
                   this.onChangeConfig(
                     {
                       dbName: dnName,
@@ -622,20 +614,18 @@ export default class SourceDest extends Component {
                     },
                   );
                 }}
-                border
-                openSearch
-                cancelAble
-                isAppendToBody
-                data={dbList}
+                showPopupSearch
+                optionFilterProp="label"
+                allowClear
+                options={dbList}
               />
               {schemaTypes.includes(className) && (
                 <React.Fragment>
                   <div className="title mTop20">schema</div>
-                  <Dropdown
+                  <Select
                     placeholder={_l('请选择')}
                     value={!schema ? undefined : schema}
-                    renderValue={schema}
-                    onVisibleChange={visible => {
+                    onOpenChange={visible => {
                       if (visible) {
                         this.getSchemasList(projectId);
                       }
@@ -659,11 +649,10 @@ export default class SourceDest extends Component {
                         },
                       );
                     }}
-                    border
-                    openSearch
-                    cancelAble
-                    isAppendToBody
-                    data={schemaList}
+                    showPopupSearch
+                    optionFilterProp="label"
+                    allowClear
+                    options={schemaList}
                   />
                 </React.Fragment>
               )}
@@ -738,40 +727,42 @@ export default class SourceDest extends Component {
                   />
                 </Wrap>
               ) : (
-                <Dropdown
-                  {...tbParam}
+                <Select
+                  value={tbParam.value}
                   placeholder={_l('请选择')}
                   className="mRight12 dropWorksheet"
-                  onVisibleChange={visible => {
+                  onOpenChange={visible => {
                     if (visible) {
                       this.getSheetList();
                     }
                   }}
-                  renderItem={item => {
+                  optionRender={({ data: item }) => {
                     return (
                       <div className={cx('itemText', { disabled: item.disabled })}>
-                        {item.text}
+                        {item.label}
                         {item.disabled && (
-                          <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex={100000}>
+                          <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top">
                             <Icon icon="info" className="textDisabled mLeft5 disabledIcon" />
                           </Tooltip>
                         )}
                       </div>
                     );
                   }}
-                  itemLoading={loading}
+                  loading={loading}
                   onChange={this.onChangeTables}
-                  renderTitle={() => {
+                  labelRender={() => {
                     return (
                       <div className="flexRow alignItemsCenter">
-                        <div className="flex overflow_ellipsis WordBreak" style={{ maxWidth: 446 }}>
+                        <div className="overflow_ellipsis WordBreak" style={{ maxWidth: 430 }}>
                           {tbParam.renderValue}
                         </div>
                         {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET &&
                           !_.get(node, 'nodeConfig.config.createTable') && (
                             <Icon
                               icon="task-new-detail"
-                              className="mLeft10 Font12 colorPrimary hoverColorPrimaryDark Hand"
+                              className="mLeft10 Font12 colorPrimary hoverColorPrimaryDark Hand Relative"
+                              style={{ zIndex: 1 }}
+                              onMouseDown={e => e.stopPropagation()}
                               onClick={e => {
                                 e.stopPropagation();
                                 window.open(pathCompletion(`/worksheet/${workSheetId}`));
@@ -781,12 +772,12 @@ export default class SourceDest extends Component {
                       </div>
                     );
                   }}
-                  border
-                  menuClass={'dropWorksheetIntegration'}
-                  cancelAble
-                  isAppendToBody
-                  openSearch
-                  data={sheetList}
+                  classNames={{ popup: { root: 'dropWorksheetIntegration' } }}
+                  allowClear
+                  showPopupSearch
+                  optionFilterProp="label"
+                  options={sheetList}
+                  notFoundContent={tbParam.searchNull?.() || _l('暂无数据')}
                 />
               )}
             </React.Fragment>

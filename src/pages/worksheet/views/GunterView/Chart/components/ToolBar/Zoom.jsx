@@ -8,7 +8,7 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIOD_TYPE, PERIODS } from 'worksheet/views/GunterView/config';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const IconWrap = styled(Icon)`
   &.disable {

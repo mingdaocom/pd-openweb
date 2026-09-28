@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import filterXSS from 'xss';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Input, Popover, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
 import Config from '../../../config';
 import './index.less';
 
@@ -32,6 +31,8 @@ const optionTypeIcon = {
   8: 'icon-restart',
 };
 
+const SEARCH_POPOVER_STYLES = { container: { width: 280 } };
+
 export default class AppLog extends React.Component {
   constructor(props) {
     super(props);
@@ -39,7 +40,6 @@ export default class AppLog extends React.Component {
       activeTab: 'logs',
       list: [],
       visible: false,
-      datePickerVisible: false,
       searchVisible: false,
       viewVisible: false,
       handleType: 0,
@@ -67,6 +67,7 @@ export default class AppLog extends React.Component {
           keyword: '',
           start: '',
           end: '',
+          searchVisible: false,
           handleType: 0,
           handleTypeLabel: _l('所有类型'),
           expendList: [],
@@ -117,71 +118,51 @@ export default class AppLog extends React.Component {
   };
 
   renderSearchBar(isLog) {
-    const { handleTypeLabel, visible, datePickerVisible, start, end, searchVisible, keyword } = this.state;
+    const { handleTypeLabel, visible, start, end, searchVisible, keyword } = this.state;
     return (
-      <div className={cx('searchBarContainer', searchVisible ? 'extand' : 'close')}>
+      <div className="searchBarContainer">
         <div className="searchBaseBox">
           {isLog ? (
-            <Trigger
-              popupVisible={visible}
-              onPopupVisibleChange={visible => this.setState({ visible: visible })}
-              action={['click']}
-              popup={() => {
-                return (
-                  <ul className="optionPanelTrigger">
-                    {optionTypeData.map(item => {
-                      return (
-                        <li
-                          key={item.type}
-                          onClick={() => {
-                            this.updateState({
-                              handleType: item.type,
-                              handleTypeLabel: item.label,
-                              visible: false,
-                            });
-                          }}
-                        >
-                          {item.label}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                );
+            <Dropdown
+              open={visible}
+              onOpenChange={visible => this.setState({ visible: visible })}
+              trigger={['click']}
+              menu={{
+                items: optionTypeData.map(item => ({
+                  key: item.type,
+                  label: item.label,
+                  onClick: () => {
+                    this.updateState({
+                      handleType: item.type,
+                      handleTypeLabel: item.label,
+                      visible: false,
+                    });
+                  },
+                })),
               }}
-              popupAlign={{ points: ['tl', 'tl'] }}
             >
               <div className="optionItem Hand hoverColorPrimaryLight Width90">
                 <span>{handleTypeLabel}</span>
                 <span className="icon-expand_more mLeft8 textTertiary"></span>
               </div>
-            </Trigger>
+            </Dropdown>
           ) : (
             <span className="textTertiary">{_l('导出的应用文件有效期为30天，请尽快下载')}</span>
           )}
 
           <div className="optionItem">
             {isLog && (
-              <Trigger
-                popupVisible={datePickerVisible}
-                onPopupVisibleChange={visible => this.setState({ datePickerVisible: visible })}
-                action={['click']}
-                popupAlign={{ points: ['tr', 'bl'], offset: [20, 5] }}
-                popup={
-                  <DatePickerFilter
-                    updateData={data => {
-                      this.updateState({
-                        datePickerVisible: false,
-                        start: data.startDate,
-                        end: data.endDate,
-                      });
-                    }}
-                  />
-                }
+              <DatePickerFilter
+                tooltipProps={{ placement: 'top', title: _l('按日期筛选') }}
+                updateData={data => {
+                  this.updateState({
+                    start: data.startDate,
+                    end: data.endDate,
+                  });
+                }}
               >
-                <Tooltip placement="top" title={_l('按日期筛选')}>
-                  <span className="Font18 textTertiary hoverColorPrimaryLight icon-event Hand"></span>
-                </Tooltip>
-              </Trigger>
+                <span className="Font18 textTertiary hoverColorPrimaryLight icon-event Hand"></span>
+              </DatePickerFilter>
             )}
             {start && isLog ? (
               <div className="dateRange">
@@ -191,29 +172,33 @@ export default class AppLog extends React.Component {
             ) : null}
 
             <Tooltip placement="top" title={_l('搜索')}>
-              <span
-                className="mLeft24 Font18 hoverColorPrimaryLight textTertiary icon-search Hand"
-                onClick={() => this.setState({ searchVisible: true }, () => this.search.focus())}
-              ></span>
+              <Popover
+                open={searchVisible}
+                onOpenChange={open => this.setState({ searchVisible: open })}
+                trigger="click"
+                placement="bottomRight"
+                styles={SEARCH_POPOVER_STYLES}
+                content={
+                  <Input
+                    autoFocus
+                    allowClear
+                    value={keyword}
+                    placeholder={_l('搜索应用名称/操作者')}
+                    onChange={e => this.updateState({ keyword: e.target.value })}
+                    prefix={<Icon icon="search" className="textTertiary Font16" />}
+                  />
+                }
+              >
+                <Icon
+                  icon="search"
+                  className={cx('mLeft24 Font18 hoverColorPrimaryLight Hand', {
+                    textTertiary: !keyword,
+                    colorPrimary: keyword,
+                  })}
+                />
+              </Popover>
             </Tooltip>
           </div>
-        </div>
-
-        <div className="workflowSearchWrap">
-          <input
-            type="text"
-            className="borderColorPrimary"
-            value={keyword}
-            ref={con => (this.search = con)}
-            placeholder={_l('搜索应用名称/操作者')}
-            onChange={_.throttle(e => this.updateState({ keyword: e.target.value }), 500)}
-          />
-          <Icon icon="search" className="search textTertiary Font16" />
-          <Icon
-            icon="close"
-            onClick={() => this.updateState({ keyword: '', searchVisible: false })}
-            className="close pointer"
-          />
         </div>
       </div>
     );

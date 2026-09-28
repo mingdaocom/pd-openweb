@@ -2,7 +2,7 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { UserHead, UserName } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import postEnum from '../../../constants/postEnum';
 import PostFooter from './postFooter';
 import PostMain from './postMain';

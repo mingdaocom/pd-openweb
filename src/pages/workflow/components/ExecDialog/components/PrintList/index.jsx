@@ -1,45 +1,17 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Icon, MenuItem } from 'ming-ui';
+import { v4 as uuidv4 } from 'uuid';
+import { Icon } from 'ming-ui';
 import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
-import { handleSystemPrintRecord } from 'worksheet/common/recordInfo/RecordForm/PrintList.jsx';
+import { handleSystemPrintRecord } from 'worksheet/common/recordInfo/RecordForm/RecordPrint/recordPrintActions';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
+import './index.less';
 
-const MenuBox = styled.div`
-  max-width: 280px;
-  padding: 5px 0;
-  border-radius: 3px;
-  background: var(--color-background-primary);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  max-height: 500px;
-  overflow-y: scroll;
-  .icon-new_word {
-    color: var(--color-primary) !important;
-  }
-  .icon-new_excel {
-    color: var(--color-success) !important;
-  }
-  .icon-doc {
-    color: #465a65 !important;
-  }
-  .actionText {
-    margin-left: 20px;
-  }
-  .printListLine {
-    width: 100%;
-    height: 1px;
-    background: var(--color-background-secondary);
-    margin: 5px 0;
-  }
-`;
+const EMPTY_PRINT_LIST = [];
 
 /**
  * 系统打印
@@ -67,7 +39,7 @@ const systemPrint = props => {
  * 模板打印
  */
 const templatePrint = async (props, item) => {
-  const { projectId, data, worksheetId, rowId, viewId, onClose } = props;
+  const { projectId, data, worksheetId, rowId, viewId, attriData, onClose } = props;
   const { id, name, describe, entityName, allowEditAfterPrint } = item;
   const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
 
@@ -86,11 +58,12 @@ const templatePrint = async (props, item) => {
     viewId: viewId,
     appId: data.app.id,
     name,
+    attriData,
     fileTypeNum: parseInt(describe),
     allowDownloadPermission: parseInt(entityName),
     allowEditAfterPrint: allowEditAfterPrint,
   };
-  const printKey = Math.random().toString(36).substring(2);
+  const printKey = uuidv4();
 
   try {
     await webCacheAjax.add({
@@ -107,75 +80,98 @@ const templatePrint = async (props, item) => {
   onClose();
 };
 
-export default props => {
-  const { data } = props;
+export const getPrintMenuItem = (props, printList) => {
+  const { data, systemPrintEnabled } = props;
   const { disabledPrint } = data;
-  const [printList, setPrintList] = useState([]);
+  const canSystemPrint = systemPrintEnabled && !disabledPrint;
 
-  useEffect(() => {
-    if (data.printList.length) {
-      sheetAjax
-        .getPrintList({
-          worksheetId: props.worksheetId,
-          rowIds: [props.rowId].filter(Boolean),
-        })
-        .then(result => {
-          setPrintList(
-            data.printList.filter(o => {
-              const it = result.find(item => item.id === o.id && !item.disabled);
-              o.allowEditAfterPrint = _.get(it, 'allowEditAfterPrint');
-              return !!it;
-            }),
-          );
-        });
-    }
-  }, []);
-
-  if (disabledPrint && !printList.length) {
+  if (!canSystemPrint && !printList.length) {
     return null;
   }
 
-  // 仅系统打印 || 仅一个模板打印
-  if ((!disabledPrint && !printList.length) || (disabledPrint && printList.length === 1)) {
-    return (
-      <MenuItem
-        onClick={() => (!disabledPrint && !printList.length ? systemPrint(props) : templatePrint(props, printList[0]))}
-      >
-        <Icon icon="print" />
-        <span className="actionText">{_l('打印')}</span>
-      </MenuItem>
+  const printMenuItem = {
+    key: 'print',
+    icon: <Icon icon="print" />,
+    label: _l('打印'),
+  };
+
+  // 仅系统打印时直接打印；存在模板时始终保留模板菜单
+  if (canSystemPrint && !printList.length) {
+    return {
+      ...printMenuItem,
+      onClick: () => systemPrint(props),
+    };
+  }
+
+  const children = printList.map(o => ({
+    key: o.id,
+    icon: (
+      <Icon
+        icon={o.describe === '2' ? 'new_word' : o.describe === '5' ? 'new_excel' : 'doc'}
+        className={o.describe === '2' ? 'colorPrimary' : o.describe === '5' ? 'Green' : 'textSecondary'}
+      />
+    ),
+    label: o.name,
+    onClick: () => templatePrint(props, o),
+  }));
+
+  if (canSystemPrint) {
+    children.push(
+      { key: 'divider', type: 'divider' },
+      {
+        key: 'system',
+        type: 'group',
+        label: _l('系统默认打印'),
+        children: [{ key: 'system-print', label: _l('打印记录'), onClick: () => systemPrint(props) }],
+      },
     );
   }
 
-  return (
-    <Trigger
-      popupClassName="workflowExecPrintTrigger"
-      action={['hover']}
-      mouseEnterDelay={0.1}
-      popupAlign={{ points: ['br', 'tr'], offset: [-180, 41], overflow: { adjustX: 1, adjustY: 2 } }}
-      popup={
-        <MenuBox>
-          {printList.map(o => (
-            <MenuItem key={o.id} onClick={() => templatePrint(props, o)}>
-              <Icon icon={o.describe === '2' ? 'new_word' : o.describe === '5' ? 'new_excel' : 'doc'} />
-              <span className="actionText">{o.name}</span>
-            </MenuItem>
-          ))}
-          {!!printList.length && !disabledPrint && <div className="printListLine" />}
-          {!disabledPrint && (
-            <Fragment>
-              <div className="mBottom5 mTop10 mLeft16 textTertiary Font12">{_l('系统默认打印')}</div>
-              <MenuItem onClick={() => systemPrint(props)}>{_l('打印记录')}</MenuItem>
-            </Fragment>
-          )}
-        </MenuBox>
-      }
-    >
-      <MenuItem>
-        <Icon icon="print" />
-        <span className="actionText">{_l('打印')}</span>
-        <Icon icon="arrow-right-tip" style={{ position: 'absolute', right: 10, left: 'initial' }} />
-      </MenuItem>
-    </Trigger>
-  );
+  return {
+    ...printMenuItem,
+    popupClassName: 'workflowExecPrintMenu',
+    children,
+  };
+};
+
+export default props => {
+  const { children, data } = props;
+  const sourcePrintList = data.printList || EMPTY_PRINT_LIST;
+  const printListIds = sourcePrintList.map(item => item.id).join(',');
+  // 工作表开关只控制系统默认打印，不能阻止审批节点配置的打印模板加载
+  const requestKey = printListIds ? `${props.worksheetId}-${props.rowId || ''}-${printListIds}` : '';
+  const [printListState, setPrintListState] = useState({ requestKey: '', items: [] });
+  const printList = printListState.requestKey === requestKey ? printListState.items : [];
+
+  useEffect(() => {
+    if (!requestKey) return;
+
+    let cancelled = false;
+
+    sheetAjax
+      .getPrintList({
+        worksheetId: props.worksheetId,
+        rowIds: [props.rowId].filter(Boolean),
+      })
+      .then(result => {
+        if (cancelled) return;
+
+        setPrintListState({
+          requestKey,
+          items: sourcePrintList
+            .map(item => {
+              const printItem = result.find(resultItem => resultItem.id === item.id && !resultItem.disabled);
+
+              return printItem ? { ...item, allowEditAfterPrint: _.get(printItem, 'allowEditAfterPrint') } : null;
+            })
+            .filter(Boolean),
+        });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [props.rowId, props.worksheetId, requestKey, sourcePrintList]);
+
+  return children(getPrintMenuItem(props, printList));
 };

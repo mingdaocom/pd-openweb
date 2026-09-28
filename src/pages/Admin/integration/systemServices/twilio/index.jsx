@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import { Button, Dialog, Icon, Input, Support, Switch } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
+import { Input, Modal, Switch } from 'ming-ui/antd-components';
 import smsAjax from 'src/api/sms';
-import { encrypt } from 'src/utils/common';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { encrypt } from 'src/utils/services/security/encryption';
 import Config from '../../../config';
 
 const FORM_KEYS = ['keySid', 'keySecret', 'verifyServiceSid', 'messagingServiceSid'];
@@ -116,7 +118,7 @@ export default function Twilio(props) {
           alert(_l('保存失败'), 2);
         }
       })
-      .catch(() => alert(_l('保存失败'), 2))
+      .catch(_requestError2 => alertIfNotUnauthorized(_requestError2, _l('保存失败'), 2))
       .finally(() => setSaving(false));
   };
 
@@ -124,21 +126,23 @@ export default function Twilio(props) {
     smsAjax
       .removeTwilioProvider({ projectId: Config.projectId, id: twilioInfo?.id })
       .then(() => onRemoveSuccess?.())
-      .catch(() => alert(_l('删除失败'), 2));
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('删除失败'), 2));
 
   const handleSwitchChange = checked =>
     checked &&
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('确认关闭服务?'),
-      description: _l('关闭后,将立即停止该服务的使用,已配置的相关功能将无法继续生效。如需恢复,需重新确认配置。'),
+      content: _l('关闭后,将立即停止该服务的使用,已配置的相关功能将无法继续生效。如需恢复,需重新确认配置。'),
       okText: _l('确认'),
       cancelText: _l('取消'),
       onOk: handleRemove,
     });
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       width={640}
       title={
         <div className="flexRow alignItemsCenter">
@@ -147,25 +151,24 @@ export default function Twilio(props) {
         </div>
       }
       onCancel={handleCancel}
-      footer={
-        <div className="flexRow alignItemsCenter justifyContentBetween w100">
+      onOk={handleSave}
+      okText={_l('保存')}
+      confirmLoading={saving}
+      footerLeftElement={
+        twilioInfo ? (
           <div className="flexRow alignItemsCenter">
-            {twilioInfo && (
-              <>
-                <Switch checked={!!twilioInfo} size="small" onClick={handleSwitchChange} className="mRight8" />
-                <span className={twilioInfo ? 'Font14 Green' : 'Font14 textSecondary'}>{_l('已连接')}</span>
-              </>
-            )}
+            <Switch
+              checked
+              size="small"
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return handleSwitchChange(!checked, event);
+              }}
+              className="mRight8"
+            />
+            <span className="Font14 Green">{_l('已连接')}</span>
           </div>
-          <div className="flexRow">
-            <Button type="link" onClick={handleCancel}>
-              {_l('取消')}
-            </Button>
-            <Button type="primary" onClick={handleSave} loading={saving} disabled={saving}>
-              {_l('保存')}
-            </Button>
-          </div>
-        </div>
+        ) : null
       }
     >
       <div className="pAll0">
@@ -192,7 +195,7 @@ export default function Twilio(props) {
               ) : (
                 <Input
                   value={form[key]}
-                  onChange={v => handleInputChange(key, v)}
+                  onChange={e => handleInputChange(key, e.target.value)}
                   placeholder={placeholder}
                   className="w100"
                 />
@@ -207,7 +210,7 @@ export default function Twilio(props) {
             <FieldRow key={key} label={label} hint={hint}>
               <Input
                 value={form[key]}
-                onChange={value => handleInputChange(key, value)}
+                onChange={e => handleInputChange(key, e.target.value)}
                 placeholder={placeholder}
                 className="w100"
               />
@@ -215,6 +218,6 @@ export default function Twilio(props) {
           ))}
         </div>
       </div>
-    </Dialog>
+    </Modal>
   );
 }

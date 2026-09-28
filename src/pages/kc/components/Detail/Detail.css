@@ -30,7 +30,7 @@
 .detailType li {
   font-size: 13px;
   border-bottom: 3px solid transparent;
-  height: 43px;
+  height: 45px;
   line-height: 46px;
   text-align: center;
   width: 148px;
@@ -122,7 +122,8 @@
   border-top: 1px solid var(--color-border-primary);
 }
 .detailAuth .detailAuthM {
-  display: block;
+  display: flex;
+  align-items: center;
   margin-left: -4px;
   margin-top: 12px;
   cursor: pointer;
@@ -209,11 +210,6 @@
   position: absolute;
   bottom: 0;
   left: 0;
-}
-.pinDetailCon .Checkbox-box {
-  margin-right: 8px !important;
-  width: 16px !important;
-  height: 16px !important;
 }
 .pinDetailCon .icon {
   line-height: 14px !important;

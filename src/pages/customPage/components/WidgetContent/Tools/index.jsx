@@ -1,21 +1,19 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
-import { getEnumType } from '../../../util';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { getEnumType } from 'src/utils/domain/customPage/model';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import CardSetting from './CardSetting';
 import ChangeFontSize from './ChangeFontSize';
 import ContainerSetting from './ContainerSetting';
 import Delete from './Delete';
 import ImageTool from './Image';
 import MobileFilter from './MobileFilter';
-import Move from './Move';
+import useMoveMenuItems from './Move';
 import RichTextTool from './RichText';
-import 'rc-trigger/assets/index.css';
 
 const WEB_CONTENT_TOOLS = [
   { type: 'setting', icon: 'settings', tip: _l('设置') },
@@ -39,10 +37,14 @@ const TOOLS_BY_LAYOUT_TYPE = {
   mobile: MOBILE_CONTENT_TOOLS,
 };
 
-const ToolsWrap = styled.ul`
+const INTERACTIVE_MENU_TOOL_TYPES = ['cardSetting', 'del'];
+const MENU_STYLE = { minWidth: 180 };
+const SUB_MENU_POPUP_STYLE = { minWidth: 180 };
+
+const ToolsWrap = styled.div`
   position: absolute;
   z-index: 12;
-  top: ${props => (props.titleVisible ? '40px' : '0')};
+  top: ${props => (props.$titleVisible ? '40px' : '0')};
   left: auto;
   right: 0px;
   display: flex;
@@ -57,7 +59,7 @@ const ToolsWrap = styled.ul`
   &.richText {
     top: 1px;
   }
-  li {
+  .toolItem {
     line-height: 20px;
     padding: 0 8px;
     cursor: pointer;
@@ -95,10 +97,8 @@ const ToolsWrap = styled.ul`
   }
   .changeFontSizePopover {
     width: 250px;
-    .ant-input {
+    .hap-input {
       width: 60px;
-      border-radius: 4px !important;
-      box-shadow: none !important;
     }
   }
 `;
@@ -169,7 +169,6 @@ export default function Tools(props) {
   const { reportType } = widget;
   const objectId = _.get(widget, 'config.objectId');
   const widgetType = getEnumType(widget.type);
-  const [placement, setPlacement] = useState('bottomRight');
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const ref = useRef(null);
 
@@ -190,26 +189,19 @@ export default function Tools(props) {
   const containerComponents = allComponents.filter(c => [9, 10, 'tabs', 'card'].includes(c.type));
   const TOOLS = getTools({ widget, widgetType, layoutType, reportType, containerComponents });
 
-  const handleUpdateDropdownVisible = visible => {
+  const handleUpdateDropdownVisible = (visible, info) => {
+    if (info?.source === 'menu') return;
     setDropdownVisible(visible);
-    if (visible) {
-      const className = `${widgetType}-${['tabs', 'card'].includes(widgetType) ? objectId : widget.id || widget.uuid}`;
-      const container = document.querySelector('#componentsWrap');
-      const card = _.get(
-        document.querySelector(`.${className}`),
-        widget.sectionId || widget.tabId ? 'parentNode.parentNode.parentNode' : 'parentNode.parentNode',
-      );
-      const moreIcon = card.querySelector('.widgetContentTools .icon-more_horiz');
-
-      if (container && moreIcon) {
-        const elementRect = moreIcon.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const elementBottomToContainerTop = elementRect.bottom - containerRect.top;
-        const containerVisibleHeight = container.clientHeight;
-        setPlacement(containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight');
-      }
-    }
   };
+
+  const { items: moveMenuItems, holder: moveMenuHolder } = useMoveMenuItems({
+    ..._.pick(props, ['appId', 'pageId', 'updatePageInfo']),
+    widgetType,
+    widget,
+    allComponents,
+    handleToolClick,
+    handleUpdateDropdownVisible,
+  });
 
   const getTip = (type, tip) => {
     if (type === 'insertTitle' && titleVisible) return _l('取消标题行');
@@ -286,30 +278,31 @@ export default function Tools(props) {
   const renderItem = (toolItem, onClick) => {
     const { icon, type, tip, renderType } = toolItem;
 
-    if (renderType == 'li') {
+    if (renderType === 'item') {
       return (
-        <Tooltip title={getTip(type, tip)} placement="bottom">
-          <li
-            className={cx(type, { switchButton: isSwitchButton(type) })}
-            key={type}
-            onClick={() => {
-              if (onClick) {
-                onClick();
-              } else {
-                handleToolClick(type);
-              }
-            }}
-          >
-            <i className={`icon-${getIcon(type, icon)} Font18 current`}></i>
-            {isSwitchButton(type) && <i className={`icon-${getIcon(type, icon, true)} Font18 next`}></i>}
-          </li>
-        </Tooltip>
+        <div key={type}>
+          <Tooltip title={getTip(type, tip)} placement="bottom">
+            <div
+              className={cx('toolItem', type, { switchButton: isSwitchButton(type) })}
+              onClick={() => {
+                if (onClick) {
+                  onClick();
+                } else {
+                  handleToolClick(type);
+                }
+              }}
+            >
+              <i className={`icon-${getIcon(type, icon)} Font18 current`}></i>
+              {isSwitchButton(type) && <i className={`icon-${getIcon(type, icon, true)} Font18 next`}></i>}
+            </div>
+          </Tooltip>
+        </div>
       );
     } else {
       return (
-        <Menu.Item
+        <div
           key={type}
-          className={`toolItem-${type}`}
+          className={`flexRow valignWrapper toolItem-${type}`}
           onClick={() => {
             if (onClick) {
               onClick();
@@ -318,11 +311,8 @@ export default function Tools(props) {
             }
           }}
         >
-          <div className="flexRow valignWrapper">
-            <Icon className="textTertiary Font18 mLeft5 mRight5" icon={icon} />
-            <span>{tip}</span>
-          </div>
-        </Menu.Item>
+          <span>{tip}</span>
+        </div>
       );
     }
   };
@@ -364,8 +354,8 @@ export default function Tools(props) {
 
     if (type === 'setting' && ['subsection'].includes(widgetType)) {
       return (
-        <li
-          className="setting"
+        <div
+          className="toolItem setting"
           onClick={() => {
             updateWidget({
               widget,
@@ -374,7 +364,7 @@ export default function Tools(props) {
           }}
         >
           <Icon icon="edit" className="Font18" />
-        </li>
+        </div>
       );
     }
 
@@ -387,52 +377,75 @@ export default function Tools(props) {
       return <CardSetting {...itemProps} getChartData={getChartData} setChartData={setChartData} />;
     }
 
-    if (type === 'move') {
-      return <Move {..._.pick(props, ['appId', 'pageId', 'updatePageInfo'])} {...itemProps} />;
-    }
-
     return itemProps.renderItem();
   };
 
-  const widgetTools = TOOLS.filter(n => n.type !== 'setting').map(item => renderTool({ ...item, renderType: 'menu' }));
+  const menuItems = TOOLS.filter(item => item.type !== 'setting').map(item => {
+    if (item.type === 'move') {
+      return {
+        key: item.type,
+        icon: <Icon className="Font18" icon={item.icon} />,
+        label: item.tip,
+        popupStyle: SUB_MENU_POPUP_STYLE,
+        children: moveMenuItems,
+      };
+    }
+
+    if (INTERACTIVE_MENU_TOOL_TYPES.includes(item.type)) {
+      return {
+        key: item.type,
+        danger: item.type === 'del',
+        icon: <Icon className="Font18" icon={item.icon} />,
+        label: renderTool({ ...item, renderType: 'menu' }),
+      };
+    }
+
+    return {
+      key: item.type,
+      icon: <Icon className="Font18" icon={item.icon} />,
+      label: item.tip,
+      onClick: () => {
+        handleToolClick(item.type);
+        setDropdownVisible(false);
+      },
+    };
+  });
 
   return (
-    <ToolsWrap
-      ref={ref}
-      titleVisible={titleVisible}
-      layoutType={layoutType}
-      className={cx(
-        'widgetContentTools disableDrag',
-        { show: (activeContainerInfo.sectionId && activeContainerInfo.sectionId === objectId) || dropdownVisible },
-        widgetType,
-      )}
-    >
-      {layoutType === 'web' ? (
-        <Fragment>
-          {renderTool({ ..._.find(WEB_CONTENT_TOOLS, { type: 'setting' }), renderType: 'li' })}
-          {widgetTools.length > 1 ? (
-            <Dropdown
-              trigger={['hover']}
-              placement={placement}
-              visible={dropdownVisible}
-              onVisibleChange={handleUpdateDropdownVisible}
-              overlay={
-                <Menu className="chartMenu widgetToolMenu" style={{ width: 180 }}>
-                  {widgetTools}
-                </Menu>
-              }
-            >
-              <li className="more">
-                <Icon icon="more_horiz" className="Font18 current" />
-              </li>
-            </Dropdown>
-          ) : (
-            renderTool({ ..._.find(WEB_CONTENT_TOOLS, { type: 'del' }), renderType: 'li' })
-          )}
-        </Fragment>
-      ) : (
-        TOOLS.map(item => renderTool({ ...item, renderType: 'li' }))
-      )}
-    </ToolsWrap>
+    <Fragment>
+      <ToolsWrap
+        ref={ref}
+        $titleVisible={titleVisible}
+        className={cx(
+          'widgetContentTools disableDrag',
+          { show: (activeContainerInfo.sectionId && activeContainerInfo.sectionId === objectId) || dropdownVisible },
+          widgetType,
+        )}
+      >
+        {layoutType === 'web' ? (
+          <Fragment>
+            {renderTool({ ..._.find(WEB_CONTENT_TOOLS, { type: 'setting' }), renderType: 'item' })}
+            {menuItems.length > 1 ? (
+              <Dropdown
+                trigger={['hover']}
+                placement="bottomRight"
+                open={dropdownVisible}
+                onOpenChange={handleUpdateDropdownVisible}
+                menu={{ subMenuOpenDelay: 0.2, items: menuItems, style: MENU_STYLE }}
+              >
+                <div className="toolItem more">
+                  <Icon icon="more_horiz" className="Font18 current" />
+                </div>
+              </Dropdown>
+            ) : (
+              renderTool({ ..._.find(WEB_CONTENT_TOOLS, { type: 'del' }), renderType: 'item' })
+            )}
+          </Fragment>
+        ) : (
+          TOOLS.map(item => renderTool({ ...item, renderType: 'item' }))
+        )}
+      </ToolsWrap>
+      {moveMenuHolder}
+    </Fragment>
   );
 }

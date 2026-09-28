@@ -7,10 +7,10 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import appManagementApi from 'src/api/appManagement';
 import ChartContent from 'mobile/CustomPage/ChartContent';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import { configureStore } from 'src/redux/configureStore';
-import { getRequest } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { mdAppResponse } from 'src/utils/services/project';
 
 const store = configureStore();
 

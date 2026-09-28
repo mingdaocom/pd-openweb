@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import moment from 'moment';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import './updateTimeError.less';
 
 const errorMessage = startTime => {
@@ -25,7 +25,7 @@ const errorMessage = startTime => {
 const singleErrorDialog = (startTime, updateTypes, callback) => {
   const message = errorMessage(startTime);
 
-  Dialog.confirm({
+  Modal.confirm({
     closable: false,
     title: message[updateTypes[0]],
     okText: _l('确定'),
@@ -45,11 +45,11 @@ const moreErrorDialog = (startTime, updateTypes, callback) => {
   const message = errorMessage(startTime);
   let updateType = updateTypes[0];
 
-  Dialog.confirm({
+  Modal.confirm({
     closable: false,
-    dialogClasses: 'moreErrorDialog',
+    wrapClassName: 'moreErrorDialog',
     title: _l('修改后的母任务开始时间晚于子任务的开始时间。'),
-    children: (
+    content: (
       <React.Fragment>
         {updateTypes.map((item, i) => (
           <div className="tanttRadio" data-type={item}>
@@ -114,10 +114,10 @@ export const updateTimeError = source => {
  * 修改任务状态二次确认
  */
 export const updateTaskErrorDialog = callback => {
-  Dialog.confirm({
+  Modal.confirm({
     closable: false,
     title: _l('任务还未开始，是否仍要完成此任务？'),
-    children: (
+    content: (
       <span style="font-size: 12px;color: var(--color-text-secondary);">
         {_l('开始时间不可以晚于结束时间，如果您仍要完成任务，开始时间将被置空')}
       </span>

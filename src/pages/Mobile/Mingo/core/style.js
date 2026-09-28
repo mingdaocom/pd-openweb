@@ -1,95 +1,26 @@
-import styled, { createGlobalStyle, css } from 'styled-components';
-
-export const mobileMingoPromptInputCss = css`
-  .textAreaCon {
-    flex-shrink: 0;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 18px;
-    padding: 12px 12px 8px;
-  }
-  .textAreaCon.focused {
-    border-color: var(--color-mingo);
-  }
-  .textAreaCon:not(.focused):hover {
-    border-color: var(--color-border-primary) !important;
-  }
-  .mentionEditor {
-    min-height: 70px;
-    padding: 8px 12px 12px;
-  }
-  .mentionEditor[data-empty='true']::before {
-    top: 8px;
-  }
-  .mobileMingoPromptInput {
-    > div:last-child {
-      height: 40px;
-    }
-    .footerStart,
-    > div:last-child > div {
-      gap: 12px;
-    }
-    .mobileMingoAttachmentButton,
-    .promptVoiceButton {
-      flex: none;
-      width: 36px;
-      height: 36px;
-      padding: 0 !important;
-      border-radius: 50% !important;
-      background: var(--color-background-tertiary);
-      .btnIcon {
-        font-size: 20px;
-        color: var(--color-text-secondary);
-      }
-    }
-    .promptMentionButton {
-      flex: none;
-      height: 40px;
-      padding: 0 16px !important;
-      border-radius: 20px !important;
-      background: var(--color-background-tertiary);
-      .btnIcon {
-        font-size: 20px;
-        color: var(--color-text-secondary);
-      }
-      .btnText {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--color-text-secondary);
-        margin-left: initial !important;
-      }
-    }
-    .promptSendButton {
-      flex: none;
-      width: 34px;
-      height: 34px;
-      padding: 0 !important;
-      border-radius: 8px !important;
-      .btnIcon {
-        font-size: 20px;
-      }
-    }
-  }
-  .mobileMingoWelcomeInput {
-    .promptMentionButton .btnIcon {
-      display: none;
-    }
-  }
-`;
+import styled, { createGlobalStyle } from 'styled-components';
 
 export const MobileMingoGlobalStyle = createGlobalStyle`
   html.mobileMingoPage,
   body.mobileMingoPage,
   html.mobileMingoPage #app {
     background: var(--color-background-primary) !important;
+    ${props => (props.$embeddedInApp ? 'padding-bottom: 0;' : '')}
   }
 `;
 
 const Wrapper = styled.div`
+  position: relative;
   height: 100%;
   background: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   --color-mingo: var(--color-primary);
+  --mobile-mingo-bottom-inset: ${props => `${props.$safeAreaBottom + (props.$showAiGeneratedNotice ? 18 : 0)}px`};
+  --mobile-mingo-welcome-bottom-gap: ${props => (props.$showAiGeneratedNotice ? '12px' : '20px')};
+  --mobile-mingo-composer-bottom-gap: ${props => (props.$showAiGeneratedNotice ? '12px' : '16px')};
+  --mobile-mingo-recording-glow-offset: ${props => `${props.$safeAreaBottom / 2}px`};
+  --mobile-mingo-recording-glow-size: ${props => `${props.$safeAreaBottom}px`};
   ${() => (md.global.SysSettings.aiBrandThemeColor ? `--color-mingo: ${md.global.SysSettings.aiBrandThemeColor};` : '')}
   .mobileAiHeader {
     height: 58px;
@@ -142,11 +73,27 @@ const Wrapper = styled.div`
     flex: 1;
     min-height: 0;
     overflow: hidden;
+
+    .agentMessageRow {
+      margin-bottom: 16px;
+    }
   }
   .mobileMingoBody {
     flex: 1;
     min-height: 0;
     display: flex;
+  }
+  .agentComposerArea {
+    position: relative;
+    z-index: 1;
+    background: var(--color-background-primary);
+    padding-bottom: calc(var(--mobile-mingo-composer-bottom-gap) + var(--mobile-mingo-bottom-inset));
+  }
+  .agentSelectionBar {
+    position: relative;
+    z-index: 1;
+    background: var(--color-background-primary);
+    padding-bottom: calc(var(--mobile-mingo-composer-bottom-gap) + var(--mobile-mingo-bottom-inset));
   }
   .mobileMingoMain {
     flex: 1;
@@ -175,7 +122,20 @@ const Wrapper = styled.div`
       flex-basis: 300px;
     }
   }
-  ${mobileMingoPromptInputCss}
+`;
+
+export const AiGeneratedNotice = styled.div`
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: ${props => `${props.$safeAreaBottom}px`};
+  left: 0;
+  display: flex;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  line-height: 18px;
+  pointer-events: none;
 `;
 
 export default Wrapper;

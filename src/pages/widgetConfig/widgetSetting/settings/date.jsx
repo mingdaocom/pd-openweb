@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
 import _ from 'lodash';
-import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
-import { getTimeZoneText } from 'src/utils/control';
+import { Checkbox, Radio, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getTimeZoneText } from 'src/utils/domain/control/date';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import { DateHour12, ShowFormat } from '../components/WidgetHighSetting/ControlSetting/DateConfig';
 
 const DISPLAY_OPTIONS = [
@@ -20,25 +20,25 @@ const DISPLAY_OPTIONS = [
 const DATE_DISPLAY_OPTION = [
   {
     value: '5',
-    text: _l('年'),
+    label: _l('年'),
   },
-  { value: '4', text: _l('年-月') },
-  { value: '3', text: _l('年-月-日') },
+  { value: '4', label: _l('年-月') },
+  { value: '3', label: _l('年-月-日') },
 ];
 
 const DATE_TIME_DISPLAY_OPTION = [
   {
     value: '2',
-    text: _l('时'),
+    label: _l('时'),
   },
-  { value: '1', text: _l('时:分') },
-  { value: '6', text: _l('时:分:秒') },
+  { value: '1', label: _l('时:分') },
+  { value: '6', label: _l('时:分:秒') },
 ];
 
 const getTimeZoneDisplay = timeZoneText => {
   return [
-    { value: '0', text: _l('跟随当前用户的个人时区') },
-    { value: '1', text: _l('跟随应用时区%0', timeZoneText) },
+    { value: '0', label: _l('跟随当前用户的个人时区') },
+    { value: '1', label: _l('跟随应用时区%0', timeZoneText) },
   ];
 };
 
@@ -62,9 +62,9 @@ export default function Text(props) {
       return (
         <Fragment>
           <SettingItem>
-            <Dropdown
-              border
-              data={DATE_DISPLAY_OPTION}
+            <Select
+              className="w100"
+              options={DATE_DISPLAY_OPTION}
               value={showtype}
               onChange={value => onChange(handleAdvancedSettingChange(data, { showtype: value }))}
             />
@@ -79,9 +79,9 @@ export default function Text(props) {
         <ShowFormat {...props} />
         <SettingItem>
           <div className="settingItemTitle">{_l('时间格式')}</div>
-          <Dropdown
-            border
-            data={DATE_TIME_DISPLAY_OPTION}
+          <Select
+            className="w100"
+            options={DATE_TIME_DISPLAY_OPTION}
             value={showtype}
             onChange={value => onChange(handleAdvancedSettingChange(data, { showtype: value }))}
           />
@@ -96,19 +96,28 @@ export default function Text(props) {
       {type !== 53 && (
         <SettingItem>
           <div className="settingItemTitle">{_l('类型')}</div>
-          <RadioGroup
+          <Radio.Group
             size="middle"
-            checkedValue={data.type}
-            data={DISPLAY_OPTIONS}
-            onChange={value =>
-              onChange({
+            value={data.type}
+            options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
+              return onChange({
                 ...handleAdvancedSettingChange(
                   data,
-                  value === 15 ? { showtype: '3', showtimezone: '0' } : { showtype: '1' },
+                  value === 15
+                    ? {
+                        showtype: '3',
+                        showtimezone: '0',
+                      }
+                    : {
+                        showtype: '1',
+                      },
                 ),
                 type: value,
-              })
-            }
+              });
+            }}
           />
         </SettingItem>
       )}
@@ -117,20 +126,27 @@ export default function Text(props) {
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('时区')}</div>
-            <Dropdown
-              border
+            <Select
+              className="w100"
               value={timezonetype}
-              data={getTimeZoneDisplay(appTimeZoneText)}
+              options={getTimeZoneDisplay(appTimeZoneText)}
               onChange={value => onChange(handleAdvancedSettingChange(data, { timezonetype: value }))}
             />
           </SettingItem>
           <div className="labelWrap mTop12">
             <Checkbox
-              size="small"
               checked={showtimezone === '1'}
-              text={_l('显示时区标识%0', timeZoneText)}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { showtimezone: checked ? '0' : '1' }))}
-            />
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    showtimezone: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
+            >
+              {_l('显示时区标识%0', timeZoneText)}
+            </Checkbox>
           </div>
         </Fragment>
       )}

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
 import externalPortalAjax from 'src/api/externalPortal';
 import { validation } from 'src/pages/AuthService/util.js';
-import { encrypt } from 'src/utils/common';
+import { encrypt } from 'src/utils/services/security/encryption';
 import { setAutoLoginKey, toApp } from '../util';
 import Form from './Form';
 

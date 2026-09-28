@@ -8,7 +8,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const dndAccept = 'navigationGroup';
 

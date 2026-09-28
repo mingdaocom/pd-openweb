@@ -33,6 +33,9 @@ export default {
    * @param {} args.generalSystemPrinting
    * @param {} args.generalAttachmentDownload
    * @param {} args.generalLogging
+   * @param {} args.generalFilter
+   * @param {} args.generalStats
+   * @param {} args.generalButtons
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -456,28 +459,32 @@ export default {
     return mdyAPI('AppManagement', 'GetAddRoleTemplate', args, options);
   },
   /**
-   * 获取网络下用户为应用管理员的应用信息
-   * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
-   * @param {} args.type
-   * @param {boolean} args.containsLinks 是否包含链接类型
-   * @param {boolean} args.getLock 是否获取锁定应用（默认不获取）
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
+  * 获取网络下用户为应用管理员的应用信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {} args.type
+  * @param {boolean} args.containsLinks 是否包含链接类型
+  * @param {boolean} args.getLock 是否获取锁定应用（默认不获取）
+  * @param {boolean} args.filterSandbox 是否过滤掉已开启应用沙盒的应用（含初始化中），默认 false 不过滤。
+开启沙盒后应用结构改动须在沙盒环境进行，需要选择可直接改结构的应用时传 true。
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
   getAppForManager: function (args, options = {}) {
     return mdyAPI('AppManagement', 'GetAppForManager', args, options);
   },
   /**
-   * 网络下用户为管理员的应用集合
-   * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
-   * @param {boolean} args.containsLinks 是否包含链接类型
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
+  * 网络下用户为管理员的应用集合
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.containsLinks 是否包含链接类型
+  * @param {boolean} args.filterSandbox 是否过滤掉已开启应用沙盒的应用（含初始化中），默认 false 不过滤。
+开启沙盒后应用结构改动须在沙盒环境进行，需要选择可直接改结构的应用时传 true。
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
   getManagerApps: function (args, options = {}) {
     return mdyAPI('AppManagement', 'GetManagerApps', args, options);
   },
@@ -558,6 +565,7 @@ export default {
    * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
    * @param {string} args.dbInstanceId 数据库实例id
    * @param {array} args.createrIds 创建者ids
+   * @param {} args.sandboxStatus
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -580,6 +588,7 @@ export default {
    * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
    * @param {string} args.dbInstanceId 数据库实例id
    * @param {array} args.createrIds 创建者ids
+   * @param {} args.sandboxStatus
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -593,7 +602,7 @@ export default {
    * @param {string} args.projectId 组织id
    * @param {array} args.appIds 应用ids
    * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
-   * @param {boolean} args.isFilterChatBot 是否过滤对话机器人
+   * @param {boolean} args.isFilterChatBot 是否过滤对话机器人，默认 true（不传时结果中不返回对话机器人，需要机器人时显式传 false）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1260,6 +1269,8 @@ export default {
    * @param {string} args.password 密码
    * @param {string} args.validTime 有效时间
    * @param {string} args.pageTitle 页面标题
+   * @param {integer} args.scope 分享范围：0 表示所有人，1 表示指定组织成员。
+   * @param {string} args.shareProjectId 限制访问的组织 Id；公开分享时应为空。
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1552,6 +1563,7 @@ export default {
    * @param {boolean} args.isSingle 是否是单个应用
    * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 界面操作，2 = OAuth 应用，3 = 个人访问令牌，4 = 应用密钥）
    * @param {array} args.sourceIds 操作来源ids
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1579,6 +1591,7 @@ export default {
    * @param {boolean} args.isSingle 是否是单个应用
    * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 界面操作，2 = OAuth 应用，3 = 个人访问令牌，4 = 应用密钥）
    * @param {array} args.sourceIds 操作来源ids
+   * @param {string} args.ip IP 地址（前端输入的文本，模糊匹配）
    * @param {string} args.archivedId 归档id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1605,7 +1618,7 @@ export default {
    * @param {string} args.projectId 组织id
    * @param {array} args.appIds 应用ids
    * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
-   * @param {boolean} args.isFilterChatBot 是否过滤对话机器人
+   * @param {boolean} args.isFilterChatBot 是否过滤对话机器人，默认 true（不传时结果中不返回对话机器人，需要机器人时显式传 false）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1977,6 +1990,18 @@ export default {
    **/
   getAppLangDetail: function (args, options = {}) {
     return mdyAPI('AppManagement', 'GetAppLangDetail', args, options);
+  },
+  /**
+   * 获取应用名称多语言
+   * @param {Object} args 请求参数
+   * @param {string} args.appId
+   * @param {string} args.appLangId
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAppLangForPortalAppInfo: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetAppLangForPortalAppInfo', args, options);
   },
   /**
    * 加载关联应用语言数据

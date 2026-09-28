@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Support } from 'ming-ui';
-import { HAS_WARNING_CONTROL } from 'src/pages/widgetConfig/config';
+import { HAS_WARNING_CONTROL } from 'src/utils/domain/control/config';
 
 const WarningWrap = styled.div`
   font-size: 12px;
@@ -10,7 +10,7 @@ const WarningWrap = styled.div`
   line-height: 21px;
   border-radius: 2px;
   ${props =>
-    props.isBg
+    props.$isBg
       ? 'margin-top: 10px;background: var(--color-yellow-black);'
       : 'margin: 12px 0;background: var(--color-background-secondary);border: 1px solid var(--color-border-primary);'}
 `;
@@ -49,7 +49,7 @@ export default function WidgetWarning({ type }) {
   const detail = _.includes(HAS_WARNING_CONTROL, type) ? DEFAULT_TEXT : OTHER_TEXT[type];
   const isBg = _.includes(['widgetStyle'], type);
   return (
-    <WarningWrap isBg={isBg}>
+    <WarningWrap $isBg={isBg}>
       {detail.text}
       {detail.href && <Support type={3} href={detail.href} text={<span className="Font12">{_l('了解更多')}</span>} />}
     </WarningWrap>

@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
+import { RELATION_SEARCH_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 import { TIME_PERIOD_TYPE, TIME_TYPE, WEEKS } from './enum';
 import CountDown from './PublicWorksheetConfig/CountDown';
 

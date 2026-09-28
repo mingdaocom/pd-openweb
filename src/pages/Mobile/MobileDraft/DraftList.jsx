@@ -4,17 +4,17 @@ import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
-import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/Form/core/config';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { controlState, getTitleTextFromControls } from 'src/utils/control';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { controlState } from 'src/utils/domain/control/state';
+import { SHEET_VIEW_HIDDEN_TYPES } from 'src/utils/domain/worksheet/constants';
 
 const Wrap = styled.div`
   &.recordCardContent {
     padding: 5px 12px;
     margin: 0 10px 10px;
     background-color: var(--color-background-primary);
-    border: 1px solid var(--color-white);
     border-radius: 3px;
     box-shadow: 0px 1px 3px rgb(0 0 0 / 16%);
     position: relative;

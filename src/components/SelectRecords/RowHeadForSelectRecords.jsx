@@ -2,7 +2,7 @@ import React from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import propTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Radio } from 'ming-ui';
+import { Checkbox, Radio } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   width: 40px;
@@ -47,17 +47,16 @@ export default function RowHeadForSelectRecords({
       <Con className={className} style={style}>
         <Checkbox
           disabled={!data.length}
-          size="small"
-          noMargin
-          clearselected={data.length && selectedRowIds.length && !isAllSelected}
+          indeterminate={data.length && selectedRowIds.length && !isAllSelected}
           checked={isAllSelected}
-          onClick={() => {
+          onChange={() => {
             if (selectedRowIds.length) {
               onUpdateSelectedRowIds([]);
             } else {
               onUpdateSelectedRowIds(data.map(item => item.rowid));
             }
           }}
+          size="small"
         />
       </Con>
     );
@@ -66,9 +65,14 @@ export default function RowHeadForSelectRecords({
   return (
     <Con className={className} style={style}>
       {type === 0 ? (
-        <Checkbox checked={checked} noMargin size="small" onClick={() => onToggleSelect(row.rowid, rowIndex)} />
+        <Checkbox checked={checked} onChange={() => onToggleSelect(row.rowid, rowIndex)} size="small" />
       ) : (
-        <Radio checked={checked} noMargin size="small" onClick={() => onToggleSelect(row.rowid, rowIndex)} />
+        <Radio
+          checked={checked}
+          size="small"
+          onChange={() => onToggleSelect(row.rowid, rowIndex)}
+          style={{ marginInlineEnd: 0 }}
+        />
       )}
     </Con>
   );

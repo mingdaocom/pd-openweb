@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog, FunctionWrap, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio } from 'ming-ui/antd-components';
 import organizeAjax from 'src/api/organize';
 import './index.less';
 
@@ -9,11 +10,8 @@ class DialogSelectOrgRole extends Component {
   static defaultProps = {
     projectId: '',
     showCompanyName: false,
-    orgRoleDialogVisible: false,
     showCurrentOrgRole: false,
     unique: false,
-    onSave: () => {},
-    onClose: () => {},
   };
 
   state = {
@@ -197,18 +195,21 @@ class DialogSelectOrgRole extends Component {
                 mLeft14: !keywords && !onlyOneGroup,
               })}
               checked={checked}
-              text={null}
-            />
+              title={null}
+            >
+              {null}
+            </Radio>
           ) : (
             <Checkbox
               className={cx('GSelect-department-row pointer', {
                 mLeft14: !keywords && !onlyOneGroup,
               })}
               checked={checked}
-              text={null}
-            />
+            >
+              {null}
+            </Checkbox>
           )}
-          <span className="mLeft4 flex overflow_ellipsis">{roleItem.organizeName}</span>
+          <span className="mLeft10 flex overflow_ellipsis">{roleItem.organizeName}</span>
         </div>
       );
     });
@@ -289,8 +290,8 @@ class DialogSelectOrgRole extends Component {
       return (
         <div className="GSelect-result-subItem" key={`subItem-${i}`}>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.organizeName}</div>
-          <div class="GSelect-result-subItem__remove" onClick={() => this.onRemove(item)}>
-            <span class="icon-close"></span>
+          <div className="GSelect-result-subItem__remove" onClick={() => this.onRemove(item)}>
+            <span className="icon-close"></span>
           </div>
         </div>
       );
@@ -314,86 +315,101 @@ class DialogSelectOrgRole extends Component {
   };
 
   render() {
-    const { onClose, projectId, onSave, showCompanyName, orgRoleDialogVisible, overlayClosable } = this.props;
-    const { keywords, selectData } = this.state;
+    const { projectId, showCompanyName } = this.props;
+    const { keywords } = this.state;
     let isShowRole =
       !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
 
     return (
-      <Dialog
-        visible={orgRoleDialogVisible}
-        title={_l('选择组织角色')}
-        className="dialogSelectOrgRole"
-        width={480}
-        type="scroll"
-        onCancel={onClose}
-        overlayClosable={overlayClosable}
-        onOk={() => {
-          onSave(selectData);
-          onClose();
-        }}
-      >
-        <div className="selectJobContainer">
-          <div className="selectJobContainer_search pLeft5">
-            <span className="searchIcon icon-search" />
-            <input
-              type="text"
-              className="searchInput"
-              placeholder={_l('搜索组织角色')}
-              value={keywords}
-              onChange={this.handleSearch}
-            />
-            <span
-              className={cx('searchClose icon-cancel', { Block: !!keywords.trim() })}
-              onClick={() => this.setState({ keywords: '', searchList: [], pageIndex: 1 })}
-            />
+      <div className="selectJobContainer">
+        <Input
+          allowClear
+          placeholder={_l('搜索组织角色')}
+          prefix={<Icon icon="search" className="textTertiary Font20" />}
+          value={keywords}
+          onChange={this.handleSearch}
+        />
+        {isShowRole && this.props.showCurrentOrgRole && (
+          <div className="mTop24 Font13 overflow_ellipsis Hand pBottom10 pLeft5">
+            {this.props.unique ? (
+              <Radio
+                className="GSelect-department--checkbox mRight0"
+                checked={this.getCurrentUserOrgRoleChecked()}
+                onChange={event =>
+                  this.toggle(
+                    {
+                      organizeId: 'user-role',
+                      organizeName: _l('当前用户所在的组织角色'),
+                    },
+                    event.target.checked,
+                  )
+                }
+                title={_l('当前用户所在的组织角色')}
+              >
+                {_l('当前用户所在的组织角色')}
+              </Radio>
+            ) : (
+              <Checkbox
+                className="GSelect-department--checkbox"
+                checked={this.getCurrentUserOrgRoleChecked()}
+                onChange={event =>
+                  this.toggle(
+                    { organizeId: 'user-role', organizeName: _l('当前用户所在的组织角色') },
+                    event.target.checked,
+                  )
+                }
+              >
+                {_l('当前用户所在的组织角色')}
+              </Checkbox>
+            )}
           </div>
-          {isShowRole && this.props.showCurrentOrgRole && (
-            <div className="mTop24 Font13 overflow_ellipsis Hand pBottom10 pLeft5">
-              {this.props.unique ? (
-                <Radio
-                  className="GSelect-department--checkbox mRight0"
-                  checked={this.getCurrentUserOrgRoleChecked()}
-                  text={_l('当前用户所在的组织角色')}
-                  onClick={checked =>
-                    this.toggle(
-                      {
-                        organizeId: 'user-role',
-                        organizeName: _l('当前用户所在的组织角色'),
-                      },
-                      !checked,
-                    )
-                  }
-                />
-              ) : (
-                <Checkbox
-                  className="GSelect-department--checkbox"
-                  checked={this.getCurrentUserOrgRoleChecked()}
-                  text={_l('当前用户所在的组织角色')}
-                  onClick={checked =>
-                    this.toggle(
-                      {
-                        organizeId: 'user-role',
-                        organizeName: _l('当前用户所在的组织角色'),
-                      },
-                      !checked,
-                    )
-                  }
-                />
-              )}
-            </div>
-          )}
-          {showCompanyName && (
-            <div className="mTop12 Font13 overflow_ellipsis pLeft5">
-              {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
-            </div>
-          )}
-          <div className="selectJobContent">{this.renderContent()}</div>
-          <div className="GSelect-result-box selectResultCon">{this.renderResult()}</div>
-        </div>
-      </Dialog>
+        )}
+        {showCompanyName && (
+          <div className="mTop12 Font13 overflow_ellipsis pLeft5">
+            {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
+          </div>
+        )}
+        <div className="selectJobContent">{this.renderContent()}</div>
+        <div className="GSelect-result-box selectResultCon">{this.renderResult()}</div>
+      </div>
     );
   }
 }
 
-export default props => FunctionWrap(DialogSelectOrgRole, { ...props, visibleName: 'orgRoleDialogVisible' });
+export function dialogSelectOrgRole(options = {}) {
+  let modal;
+  const dialogRef = React.createRef();
+  const handlePopState = () => modal.destroy();
+
+  modal = Modal.info({
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    className: 'dialogSelectOrgRole',
+    content: <DialogSelectOrgRole {...options} ref={dialogRef} />,
+    mask: { closable: options.overlayClosable !== false },
+    okCancel: true,
+    onCancel: () => {
+      if (_.isFunction(options.onClose)) {
+        options.onClose();
+      }
+    },
+    onOk: () => {
+      if (_.isFunction(options.onSave)) {
+        options.onSave(dialogRef.current.state.selectData);
+      }
+
+      if (_.isFunction(options.onClose)) {
+        options.onClose();
+      }
+    },
+    title: _l('选择组织角色'),
+    width: 480,
+    zIndex: options.zIndex,
+  });
+
+  window.addEventListener('popstate', handlePopState);
+
+  return modal;
+}
+
+export default dialogSelectOrgRole;

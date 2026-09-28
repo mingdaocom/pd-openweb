@@ -1,25 +1,22 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { RadioGroup } from 'ming-ui';
+import { Popover, Radio } from 'ming-ui/antd-components';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getControlsSorts } from 'src/utils/domain/control/editorSetting';
+import { getFilterRelateControls } from 'src/utils/domain/control/filters';
 import { SettingItem } from '../../../../styled';
-import { getFilterRelateControls } from '../../../../util';
-import { getAdvanceSetting, getControlsSorts, handleAdvancedSettingChange } from '../../../../util/setting';
 import DropdownCover from './DropdownCover';
 
 const DropdownShowControlsWrap = styled.div`
-  .ming.Radio {
-    margin-right: 0;
-    margin-top: 10px;
-    &:last-child {
-      margin-top: 16px;
-    }
-    display: flex;
-    .Radio-text {
-      margin-top: -6px;
+  .hap-radio-wrapper {
+    align-items: flex-start;
+
+    .hap-radio {
+      align-self: flex-start;
+      margin-top: 5px;
     }
   }
   .relateCoverSetting {
@@ -66,20 +63,36 @@ export default function DropdownShowControls(props) {
     <DropdownShowControlsWrap>
       <SettingItem>
         <div className="settingItemTitle">{_l('辅助选择方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          disableTitle={true}
           vertical={true}
-          checkedValue={chooseshow}
-          data={DISPLAY_OPTIONS}
-          onChange={value => {
+          value={chooseshow}
+          options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             let nextData = handleAdvancedSettingChange(data, {
-              ...(value === '0' ? { openfastfilters: '0', ddset: '1' } : { openfastfilters: '1', ddset: '0' }),
+              ...(value === '0'
+                ? {
+                    openfastfilters: '0',
+                    ddset: '1',
+                  }
+                : {
+                    openfastfilters: '1',
+                    ddset: '0',
+                  }),
             });
 
             if (enumDefault === 2) {
               nextData = handleAdvancedSettingChange(nextData, {
-                ...(value === '0' ? { chooseshow: '0', chooseshowids: '' } : { chooseshow: '1' }),
+                ...(value === '0'
+                  ? {
+                      chooseshow: '0',
+                      chooseshowids: '',
+                    }
+                  : {
+                      chooseshow: '1',
+                    }),
               });
               if (value === '1') {
                 nextData.showControls = [];
@@ -95,14 +108,11 @@ export default function DropdownShowControls(props) {
         <div className="settingItemTitle flexCenter" style={{ justifyContent: 'space-between' }}>
           {_l('显示字段')}
           {_.includes(['0', '1'], chooseshow) && (
-            <Trigger
-              popup={() => <DropdownCover data={data} filterControls={filterControls} handleChange={handleChange} />}
-              action={['click']}
-              popupAlign={{
-                points: ['tr', 'br'],
-                offset: [0, 2],
-                overflow: { adjustX: true, adjustY: true },
-              }}
+            <Popover
+              noPadding
+              content={() => <DropdownCover data={data} filterControls={filterControls} handleChange={handleChange} />}
+              trigger="click"
+              placement="bottomRight"
               getPopupContainer={() => document.body}
             >
               <div className={cx('relateCoverSetting', { active: !!coverCid })}>
@@ -119,7 +129,7 @@ export default function DropdownShowControls(props) {
                   )}
                 </span>
               </div>
-            </Trigger>
+            </Popover>
           )}
         </div>
         {enumDefault === 1 || (enumDefault === 2 && chooseshow !== '1') ? (

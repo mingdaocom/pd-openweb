@@ -7,10 +7,10 @@ import { Icon } from 'ming-ui';
 import { ACTION_LIST, JOIN_TYPE, NODE_TYPE_LIST, UNION_TYPE_LIST } from '../config';
 
 const Wrap = styled.div(
-  ({ width, height }) => `{
+  ({ $width, $height }) => `
     text-align: center;
-    width: ${width || 28}px;
-    height: ${height || 28}px;
+    width: ${$width || 28}px;
+    height: ${$height || 28}px;
     line-height: 28px;
     position: relative;
     .iconImg {
@@ -39,24 +39,23 @@ const Wrap = styled.div(
         height:28px;
       }
     }
-  }
-`,
+  `,
 );
 
 export default function Avator(props) {
+  const propNodeData = props.nodeData;
   const [{ nodeData, isAct, defaultInfo }, setState] = useSetState({
-    nodeData: props.nodeData,
-    isAct: ACTION_LIST.map(o => o.type).includes(props.nodeData.nodeType),
-    defaultInfo: NODE_TYPE_LIST.find(it => it.nodeType === props.nodeData.nodeType),
+    nodeData: propNodeData,
+    isAct: ACTION_LIST.map(o => o.type).includes(propNodeData.nodeType),
+    defaultInfo: NODE_TYPE_LIST.find(it => it.nodeType === propNodeData.nodeType),
   });
   useEffect(() => {
-    const { nodeData } = props;
     setState({
-      nodeData,
-      isAct: ACTION_LIST.map(o => o.type).includes(nodeData.nodeType),
-      defaultInfo: NODE_TYPE_LIST.find(it => it.nodeType === nodeData.nodeType),
+      nodeData: propNodeData,
+      isAct: ACTION_LIST.map(o => o.type).includes(propNodeData.nodeType),
+      defaultInfo: NODE_TYPE_LIST.find(it => it.nodeType === propNodeData.nodeType),
     });
-  }, [props.nodeData]);
+  }, [propNodeData, setState]);
   return isAct ? (
     <Wrap className="iconCon flexColumn justifyContentCenter mLeft10">
       {nodeData.nodeType === 'UNION' ? (

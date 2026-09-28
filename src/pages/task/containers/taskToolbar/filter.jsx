@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, Dropdown, MultipleDropdown, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ScrollView } from 'ming-ui';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import ajaxRequest from 'src/api/taskCenter';
 import config from '../../config/config';
@@ -168,17 +168,23 @@ class Filter extends Component {
     const { lastMyProjectId, filterUserId } = this.props.taskConfig;
     const data = md.global.Account.projects.map(item => {
       return {
-        text: item.companyName,
+        label: item.companyName,
         value: item.projectId,
       };
     });
 
-    data.unshift({ text: _l('全部组织'), value: 'all' });
-    data.push({ text: _l('个人'), value: '' });
+    data.unshift({ label: _l('全部组织'), value: 'all' });
+    data.push({ label: _l('个人'), value: '' });
 
     return (
       <div className="mTop10">
-        <Dropdown data={data} value={lastMyProjectId} onChange={this.switchNetwork} disabled={!!filterUserId} />
+        <Select
+          variant="borderless"
+          options={data}
+          value={lastMyProjectId}
+          onChange={this.switchNetwork}
+          disabled={!!filterUserId}
+        />
       </div>
     );
   }
@@ -240,26 +246,26 @@ class Filter extends Component {
   renderCompleteList() {
     const { completeTime } = this.props.taskConfig;
     const data = [
-      { text: _l('所有已完成任务'), value: '' },
-      { text: _l('查看近期完成任务'), disabled: true },
-      { text: _l('今天'), value: moment().format('YYYY-MM-DD') },
+      { label: _l('所有已完成任务'), value: '' },
+      { label: _l('查看近期完成任务'), disabled: true },
+      { label: _l('今天'), value: moment().format('YYYY-MM-DD') },
       {
-        text: _l('昨天'),
+        label: _l('昨天'),
         value: moment().add(-1, 'd').format('YYYY-MM-DD'),
       },
       {
-        text: _l('一周'),
+        label: _l('一周'),
         value: moment().add(-7, 'd').format('YYYY-MM-DD'),
       },
       {
-        text: _l('一个月'),
+        label: _l('一个月'),
         value: moment().add(-30, 'd').format('YYYY-MM-DD'),
       },
     ];
 
     return (
       <div className="mTop10">
-        <Dropdown data={data} value={completeTime} onChange={this.switchCompleteTime} />
+        <Select variant="borderless" options={data} value={completeTime} onChange={this.switchCompleteTime} />
       </div>
     );
   }
@@ -283,14 +289,14 @@ class Filter extends Component {
   renderListSort() {
     const { listSort, folderId, listStatus, filterUserId } = this.props.taskConfig;
     const data = [
-      { text: _l('优先级'), value: 0 },
-      { text: _l('最近更新'), value: 10 },
-      { text: _l('结束时间'), value: 2 },
-      { text: _l('完成时间'), value: 8 },
-      { text: _l('创建时间'), value: 3 },
-      { text: _l('负责人'), value: 5 },
-      { text: _l('项目'), value: 4 },
-      { text: _l('名称A-Z'), value: 1 },
+      { label: _l('优先级'), value: 0 },
+      { label: _l('最近更新'), value: 10 },
+      { label: _l('结束时间'), value: 2 },
+      { label: _l('完成时间'), value: 8 },
+      { label: _l('创建时间'), value: 3 },
+      { label: _l('负责人'), value: 5 },
+      { label: _l('项目'), value: 4 },
+      { label: _l('名称A-Z'), value: 1 },
     ];
 
     // 项目 无按项目排序 无优先级
@@ -314,10 +320,11 @@ class Filter extends Component {
 
     return (
       <div className="mTop10">
-        <Dropdown
-          data={data}
+        <Select
+          variant="borderless"
+          options={data}
           value={listSort}
-          renderValue={`${_l('按%0排序', '{{value}}')}`}
+          labelRender={({ label }) => _l('按%0排序', label)}
           onChange={this.switchListSort}
         />
       </div>
@@ -459,13 +466,16 @@ class Filter extends Component {
     if (tags.length) {
       return (
         <div className="mTop10">
-          <MultipleDropdown
+          <Select
+            className="w100"
+            mode="multiple"
+            variant="borderless"
             value={filterSettings.tags}
             options={options}
-            multipleSelect
-            label={label}
-            multipleLevel={false}
-            multipleHideDropdownNav
+            placeholder={label}
+            showSearch={false}
+            maxTagCount={0}
+            maxTagPlaceholder={() => label}
             onChange={this.switchTags}
           />
           <div className="mTop10">
@@ -515,7 +525,7 @@ class Filter extends Component {
   /**
    * 切换标签
    */
-  switchTags = (evt, ids) => {
+  switchTags = ids => {
     this.props.dispatch(updateTaskTags(ids));
   };
 
@@ -553,14 +563,17 @@ class Filter extends Component {
       <div key={i}>
         {this.renderLabel(item.controlName, customs.length > 0 ? () => this.clearAllCustoms(item.controlId) : false)}
         <div className="mTop10">
-          <MultipleDropdown
+          <Select
+            className="w100"
+            mode="multiple"
+            variant="borderless"
             value={customs}
             options={options}
-            multipleSelect
-            label={label}
-            multipleLevel={false}
-            multipleHideDropdownNav
-            onChange={(evt, keys) => this.switchCustoms(item.controlId, keys)}
+            placeholder={label}
+            showSearch={false}
+            maxTagCount={0}
+            maxTagPlaceholder={() => label}
+            onChange={keys => this.switchCustoms(item.controlId, keys)}
           />
           <div className="mTop10">
             {customs.map((key, i) =>
@@ -715,7 +728,7 @@ class Filter extends Component {
               <div className="filterFolderSearch">
                 <Checkbox
                   checked={folderSearchRange === 7}
-                  onClick={checked => this.switchFolderRange(checked ? 6 : 7)}
+                  onChange={event => this.switchFolderRange(!event.target.checked ? 6 : 7)}
                 >
                   {_l('仅看与我有关的任务')}
                 </Checkbox>

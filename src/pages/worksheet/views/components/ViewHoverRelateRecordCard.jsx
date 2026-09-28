@@ -1,29 +1,15 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
+import { Popover } from 'ming-ui/antd-components';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import RecordCoverCard from 'src/pages/worksheet/components/RelateRecordCards/RecordCoverCard.jsx';
-import { browserIsMobile } from 'src/utils/common';
-import { completeControls } from 'src/utils/control';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import { getCoverUrl } from 'src/utils/view.js';
+import { completeControls } from 'src/utils/domain/control/state';
+import { getCoverUrl } from 'src/utils/domain/worksheet/view.js';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
-const CardWrapper = styled.div`
-  width: 300px;
-  max-height: 480px;
-  background-color: var(--color-background-primary);
-  border-color: var(--color-border-secondary);
-  overflow: hidden auto;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 6px 16px 0 rgba(0, 0, 0, 0.08),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
-
-  .hoverRelateRecordCard {
-    border: none;
-  }
-`;
+const POPOVER_STYLES = { container: { width: 300, maxHeight: 480, overflow: 'hidden auto' } };
+const RECORD_CARD_STYLE = { border: 'none' };
 
 // 关联记录卡片和下拉框支持在视图中hover显示卡片
 export default class ViewHoverRelateRecordCard extends Component {
@@ -74,11 +60,17 @@ export default class ViewHoverRelateRecordCard extends Component {
       this.setState({ previewRecordId: record.rowid });
     };
 
+    // 卡片经 Portal 渲染，React 事件仍会沿组件树冒泡到关联下拉的 Select，
+    // 触发 toggleOpen 让单元格进入编辑态并销毁卡片，click 就走不到打开记录详情
+    const handleMouseDown = e => {
+      e.stopPropagation();
+    };
+
     return (
-      <CardWrapper onClick={handleClick}>
+      <div onMouseDown={handleMouseDown} onClick={handleClick}>
         <RecordCoverCard
-          className="hoverRelateRecordCard"
           disabled={true}
+          style={RECORD_CARD_STYLE}
           containerWidth={300}
           cover={cover}
           appId={appId}
@@ -115,7 +107,7 @@ export default class ViewHoverRelateRecordCard extends Component {
             isRelateRecord={true}
           />
         )}
-      </CardWrapper>
+      </div>
     );
   };
 
@@ -136,23 +128,20 @@ export default class ViewHoverRelateRecordCard extends Component {
     }
 
     return (
-      <Trigger
-        action={['hover']}
+      <Popover
+        noPadding
+        trigger="hover"
         mouseEnterDelay={0.5}
-        popup={this.renderCard}
-        popupStyle={{ zIndex: 1000 }}
-        popupVisible={popupVisible}
-        onPopupVisibleChange={visible => {
+        content={this.renderCard}
+        styles={POPOVER_STYLES}
+        open={popupVisible}
+        onOpenChange={visible => {
           this.setState({ popupVisible: !!previewRecordId || visible });
         }}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 5],
-          overflow: { adjustX: true, adjustY: true },
-        }}
+        placement="bottomLeft"
       >
         {children}
-      </Trigger>
+      </Popover>
     );
   }
 }

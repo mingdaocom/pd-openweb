@@ -17,13 +17,15 @@ export async function createWorksheetSuggestionSSE({ message, agentParams, conte
   return response;
 }
 
-export async function generateWorksheetWidgetsSSE({ agentParams, context, sessionId, abortController }) {
+export async function generateWorksheetWidgetsSSE({ agentParams, appId, context, sessionId, abortController }) {
   const response = await agentApi.agentExecuteStream(
     {
       agentName: 'worksheet-generator-agent',
       forceReroute: false,
       context,
       sessionId,
+      // appId 为该 agent 的必传参数（缺失服务端直接拒绝），同时决定扣费流水归属哪个应用
+      appId,
       ...agentParams,
     },
     { abortController },

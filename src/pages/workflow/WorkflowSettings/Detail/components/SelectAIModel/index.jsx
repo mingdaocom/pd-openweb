@@ -1,22 +1,24 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Dropdown } from 'ming-ui';
+import { Checkbox, Modal, Select } from 'ming-ui/antd-components';
 import aIService from 'src/api/aIService';
-import selectAIModelDialog from '../../../../components/selectAIModelDialog';
+import { useSelectAIModelDialog } from '../../../../components/selectAIModelDialog';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 
 export default ({
   appId,
   projectId,
   data,
-  showAutoModel = false,
+  emptyModelText = _l('选择模型'),
+  showImageRecognition = false,
   showModelSettings = false,
   updateSource = () => {},
 }) => {
   const [modelDetail, setModelDetail] = useState({});
   const [modelParameterDialog, setModelParameterDialog] = useState(false);
   const [modelParameter, setModelParameter] = useState({});
+  const { open: openSelectAIModelDialog, holder: selectAIModelDialogHolder } = useSelectAIModelDialog();
 
   const renderModelInfo = info => {
     const ICONS = {
@@ -58,17 +60,20 @@ export default ({
     );
   };
 
-  const list = (showAutoModel ? [{ text: renderTitle({ name: _l('自动选择模型') }), value: '' }] : []).concat(
-    data.appList.map(o => ({
-      text: renderTitle(o),
-      value: o.id,
-    })),
-  );
+  const list = data.appList.map(o => ({
+    label: renderTitle(o),
+    value: o.id,
+    searchText: o.name,
+  }));
 
   useEffect(() => {
+    let cancelled = false;
+
     if (data.platformConfigModel) {
       if (data.model) {
         aIService.getModelDetail({ name: data.model }).then(res => {
+          if (cancelled) return;
+
           if (res) {
             setModelDetail({
               status: true,
@@ -84,24 +89,30 @@ export default ({
       } else {
         setModelDetail({
           status: true,
-          name: showAutoModel ? _l('自动选择模型') : _l('选择模型'),
-          type: showAutoModel ? 0 : -1,
+          name: emptyModelText,
+          type: -1,
         });
       }
+    } else {
+      setModelDetail({});
     }
-  }, [data.model]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [data.model, data.platformConfigModel, emptyModelText]);
 
   return (
     <Fragment>
+      {selectAIModelDialogHolder}
       <div className="flexRow mTop10">
         {data.platformConfigModel ? (
           <div
             className={cx('flowSelectModel flex flexRow alignItemsCenter', { clearBorderRadius: showModelSettings })}
             onClick={() =>
-              selectAIModelDialog({
+              openSelectAIModelDialog({
                 appId,
                 projectId,
-                showAutoModel,
                 onOk: settings => updateSource({ model: settings?.name || '' }),
               })
             }
@@ -109,20 +120,24 @@ export default ({
             {_.isEmpty(modelDetail) ? null : modelDetail.status ? (
               renderModelInfo(modelDetail)
             ) : (
-              <span style={{ color: 'var(--color-error)' }}>{_l('模型未开启或已删除')}</span>
+              <span style={{ color: 'var(--color-error)' }}>{_l('原模型已下架，将使用系统替代模型')}</span>
             )}
           </div>
         ) : (
-          <Dropdown
+          <Select
             className={cx('flowDropdown flex flowDropdownModel', { clearBorderRadius: showModelSettings })}
-            data={list}
+            options={list}
             value={data.model}
-            noData={_l('暂无可用模型')}
-            border
-            openSearch
-            renderTitle={() =>
-              list.find(o => o.value === data.model)?.text || (
-                <span style={{ color: 'var(--color-error)' }}>{_l('模型已删除')}</span>
+            notFoundContent={_l('暂无可用模型')}
+            showSearch
+            optionFilterProp="searchText"
+            labelRender={() =>
+              !data.model ? (
+                <span className="Font13 textTertiary">{emptyModelText}</span>
+              ) : (
+                list.find(o => o.value === data.model)?.label || (
+                  <span style={{ color: 'var(--color-error)' }}>{_l('模型已删除')}</span>
+                )
               )
             }
             onChange={model => {
@@ -144,9 +159,9 @@ export default ({
         )}
 
         {modelParameterDialog && (
-          <Dialog
+          <Modal
             className="workflowDialogBox"
-            visible
+            open
             width={660}
             title={_l('模型参数')}
             onOk={() => {
@@ -179,15 +194,18 @@ export default ({
               data={{ fieldValue: modelParameter.maxTokens }}
               updateSource={({ fieldValue }) => setModelParameter({ ...modelParameter, maxTokens: fieldValue })}
             />
-          </Dialog>
+          </Modal>
         )}
       </div>
 
-      {modelDetail.caps && !_.includes(modelDetail.caps, 1) && (
-        <div className="mTop5">
-          <i className="Font14 icon-info_outline textTertiary" />
-          <span className="textSecondary mLeft3">{_l('该模型不支持图片识别能力')}</span>
-        </div>
+      {showImageRecognition && data.model && modelDetail.caps && !_.includes(modelDetail.caps, 1) && (
+        <Checkbox
+          className="mTop5"
+          checked={!!data.enableImageRecognition}
+          onChange={event => updateSource({ enableImageRecognition: event.target.checked })}
+        >
+          {_l('当前模型不支持图片输入，启用图片识别')}
+        </Checkbox>
       )}
     </Fragment>
   );

@@ -1,11 +1,11 @@
 import React from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { AS_ABSTRACT_CONTROL, filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { SYS } from 'src/utils/domain/control/widget';
+import { AS_ABSTRACT_CONTROL, filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 import NumInput from './NumInput';
 
 const MaxLineWrap = styled.div`
@@ -27,6 +27,7 @@ export default class Abstract extends React.Component {
           !((_.includes([48], item.sourceControlType) || item.strDefault === '10') && item.type === 30), //排除他表字段 组织角色控件
       ),
       filter: item => _.includes(AS_ABSTRACT_CONTROL, item.type === 30 ? item.sourceControlType : item.type),
+      formatter: ({ controlName, controlId }) => ({ label: controlName, value: controlId }),
     });
     abstractControls = abstractControls.map(it => {
       return {
@@ -41,14 +42,23 @@ export default class Abstract extends React.Component {
         <div className="title Font13 bold">{_l('摘要')}</div>
         <div className="settingContent">
           <p className="mTop6 mBottom8 textSecondary viewSetText Font13">{_l('用于显示长文本，最多可显示5行')}</p>
-          <Dropdown
-            className={cx('dropAbstract', { placeholder: !abstract || !isExistAbstract })}
-            data={abstractControls}
-            value={isExistAbstract ? abstract : ''}
-            border
-            openSearch
-            cancelAble={!!(isExistAbstract ? abstract : '')}
-            maxHeight={260}
+          <Select
+            className="w100"
+            options={abstractControls}
+            optionRender={option => {
+              const item = option.data || {};
+              return (
+                <div className="flexRow alignItemsCenter">
+                  <Icon icon={item.iconName} className="Font16 textTertiary" />
+                  <span className="mLeft10">{item.label}</span>
+                </div>
+              );
+            }}
+            value={isExistAbstract ? abstract : undefined}
+            showPopupSearch
+            optionFilterProp="label"
+            allowClear={!!(isExistAbstract ? abstract : '')}
+            listHeight={260}
             style={{ width: '100%' }}
             onChange={value => {
               if (value === abstract) {

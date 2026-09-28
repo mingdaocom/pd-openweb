@@ -2,39 +2,13 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import _, { debounce } from 'lodash';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Input, Modal, Skeleton } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Skeleton } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import emptyImg from './empty.png';
 import RecordCoverCardList from './RecordCoverCardList';
 
-const Title = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text-title);
-  margin-left: 24px;
-`;
-
-const SearchCon = styled.div`
-  display: flex;
-  margin: 16px 24px 0px;
-  align-items: center;
-  border-radius: 3px;
-  border: 1px solid var(--color-border-primary);
-  padding: 0 10px;
-  .ming.Input {
-    padding: 0 6px;
-    border: none;
-  }
-  input::placeholder {
-    color: var(--color-text-disabled);
-  }
-  &.focus {
-    border-color: var(--color-primary);
-  }
-`;
-
 const RecordsCon = styled.div`
-  padding: 10px 24px;
   flex: 1;
   overflow: auto;
 `;
@@ -71,40 +45,23 @@ const NewRecordButton = styled.div`
 function Search(props) {
   const { enableClear = true, onChange = () => {} } = props;
   const [value, setValue] = useState('');
-  const [focus, setFocus] = useState(false);
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
   }, []);
   return (
-    <SearchCon className={focus ? 'focus' : ''}>
-      <Icon icon="search" className="textTertiary Font18" />
-      <Input
-        value={value}
-        manualRef={ref => {
-          inputRef.current = ref;
-        }}
-        placeholder={_l('搜索')}
-        className="flex"
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        onChange={v => {
-          setValue(v);
-          onChange(v);
-        }}
-      />
-      {enableClear && value && (
-        <Icon
-          icon="cancel"
-          className="Hand textTertiary Font16"
-          onClick={() => {
-            inputRef.current.value = '';
-            onChange('');
-            setValue('');
-          }}
-        />
-      )}
-    </SearchCon>
+    <Input
+      allowClear={enableClear}
+      ref={inputRef}
+      value={value}
+      prefix={<Icon icon="search" className="textTertiary Font18" />}
+      placeholder={_l('搜索')}
+      className="w100"
+      onChange={event => {
+        setValue(event.target.value);
+        onChange(event.target.value);
+      }}
+    />
   );
 }
 
@@ -141,20 +98,19 @@ export default function SearchRelateRecords(props) {
     controlId,
     pageSize: 20,
   });
+
   const load = useCallback(
     debounce((args, cb = () => {}) => {
       setLoading(true);
       if (from === 21) {
         args.getType = 21;
       }
-
       sheetAjax.getRowRelationRows(args).then(res => {
         setLoading(false);
         if (res.resultCode !== 1) {
           setAbnormal(true);
           return;
         }
-
         setTotal(res.count);
         setList(old => _.uniqBy([...old, ...(res.data || [])], 'rowid'));
         cb(res.data || []);
@@ -164,17 +120,25 @@ export default function SearchRelateRecords(props) {
   );
 
   function initLoad() {
-    load({ ...queryArgs, pageIndex: 1 }, data => {
-      if (data.length < 20) {
-        return;
-      }
-
-      setQueryArgs(old => ({
-        ...old,
-        pageIndex: 2,
-      }));
-      load({ ...queryArgs, pageIndex: 2 });
-    });
+    load(
+      {
+        ...queryArgs,
+        pageIndex: 1,
+      },
+      data => {
+        if (data.length < 20) {
+          return;
+        }
+        setQueryArgs(old => ({
+          ...old,
+          pageIndex: 2,
+        }));
+        load({
+          ...queryArgs,
+          pageIndex: 2,
+        });
+      },
+    );
   }
 
   useEffect(() => {
@@ -182,17 +146,23 @@ export default function SearchRelateRecords(props) {
       initLoad();
     }
   }, []);
+
   return (
     <Modal
-      visible
+      open
       className="searchRelateRecordsModal"
       type="fixed"
       footer={null}
       onCancel={onCancel}
+      title={title}
       width={1095}
-      bodyStyle={{ padding: '14px 0px', display: 'flex', flexDirection: 'column' }}
+      styles={{
+        body: {
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
     >
-      <Title>{title}</Title>
       {!abnormal && (
         <Search
           className="flex"
@@ -207,7 +177,6 @@ export default function SearchRelateRecords(props) {
                 return;
               }
             }
-
             setLoading(true);
             load({
               ...queryArgs,
@@ -239,13 +208,21 @@ export default function SearchRelateRecords(props) {
         }}
       >
         {loading && !list.length && (
-          <div style={{ padding: 10 }}>
+          <div
+            style={{
+              padding: 10,
+            }}
+          >
             <Skeleton
-              style={{ flex: 1 }}
-              direction="column"
-              widths={['30%', '40%', '90%', '60%']}
+              className="pAll20"
+              style={{
+                flex: 1,
+              }}
               active
-              itemStyle={{ marginBottom: '10px' }}
+              paragraph={{
+                rows: 4,
+                width: ['30%', '40%', '90%', '60%'],
+              }}
             />
           </div>
         )}

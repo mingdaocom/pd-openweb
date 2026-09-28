@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import jobAjax from 'src/api/job';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
+import { useUserBoardDialog } from 'src/pages/Admin/components/userBoardDialog';
 import * as actions from '../../../../../redux/position/action';
 import RoleUserList from './RoleUserList';
 
@@ -74,7 +75,7 @@ class PositionContent extends Component {
   handleExportUser = () => {
     const { projectId, selectUserIds = [] } = this.props;
     if (_.isEmpty(selectUserIds)) return;
-    dialogUserBoard({
+    this.props.openUserBoardDialog({
       projectId,
       accountIds: selectUserIds,
       updateSelectUserIds: () => {
@@ -90,6 +91,7 @@ class PositionContent extends Component {
   };
   render() {
     const { currentPosition, allUserCount, userPageIndex, userLoading, selectUserIds, projectId } = this.props;
+    const isActionDisabled = _.isEmpty(selectUserIds);
     return (
       <Fragment>
         <div className="positionContentHeader Font15">
@@ -97,15 +99,15 @@ class PositionContent extends Component {
           {allUserCount ? <span className="textTertiary mLeft10">{allUserCount}</span> : ''}
         </div>
         <div className="actUserBox">
-          <div className="actBtn addUser Hand" onClick={this.addUser}>
+          <Button type="primary" className="mRight8" onClick={this.addUser}>
             {_l('添加成员')}
-          </div>
-          <div className={cx('actBtn', { disabledBtn: _.isEmpty(selectUserIds) })} onClick={this.removeUsers}>
+          </Button>
+          <Button className="mRight8" disabled={isActionDisabled} onClick={this.removeUsers}>
             {_l('移出')}
-          </div>
-          <div className={cx('actBtn', { disabledBtn: _.isEmpty(selectUserIds) })} onClick={this.handleExportUser}>
+          </Button>
+          <Button className="mRight8" disabled={isActionDisabled} onClick={this.handleExportUser}>
             {_l('导出')}
-          </div>
+          </Button>
         </div>
         <div className="userList">
           {userLoading ? <LoadDiv className="mTop30" /> : <RoleUserList projectId={projectId} />}
@@ -123,12 +125,20 @@ class PositionContent extends Component {
   }
 }
 
-export default connect(
-  state => {
-    const { currentPosition, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId } =
-      state.orgManagePage.position;
-    return { currentPosition, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId };
+export default withOpeners(
+  connect(
+    state => {
+      const { currentPosition, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId } =
+        state.orgManagePage.position;
+      return { currentPosition, userList, allUserCount, userPageIndex, userLoading, selectUserIds, projectId };
+    },
+    dispatch =>
+      bindActionCreators(
+        { ..._.pick(actions, ['getUserList', 'updateUserPageIndex', 'updateSelectUserIds']) },
+        dispatch,
+      ),
+  )(PositionContent),
+  {
+    openUserBoardDialog: useUserBoardDialog,
   },
-  dispatch =>
-    bindActionCreators({ ..._.pick(actions, ['getUserList', 'updateUserPageIndex', 'updateSelectUserIds']) }, dispatch),
-)(PositionContent);
+);

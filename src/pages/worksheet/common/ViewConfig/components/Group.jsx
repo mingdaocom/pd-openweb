@@ -1,6 +1,6 @@
 import React from 'react';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import DropDownSet from './DropDownSet';
 
 const GUNTER_GROUP_CONTROL_TYPES = [9, 11, 26, 27, 28, 48];

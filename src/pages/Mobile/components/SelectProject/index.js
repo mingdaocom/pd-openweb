@@ -1,25 +1,46 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, PopupWrapper } from 'ming-ui';
-import { getCurrentProject } from 'src/utils/project';
+import { Icon } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
+import { getCurrentProject } from 'src/utils/services/project';
 import './index.less';
 
 export default function SelectProject(props) {
-  const { changeProject = () => {}, noCache = false, filterExternal = false, projectId, className } = props;
-  const projects = (md.global.Account.projects || []).concat(
+  const {
+    changeProject = () => {},
+    noCache = false,
+    filterExternal = false,
+    projectId,
+    className,
+    projects: projectOptions,
+    onBeforeOpen,
+  } = props;
+  const projects = (projectOptions || md.global.Account.projects || []).concat(
     filterExternal ? [] : [{ companyName: _l('外部协作'), projectId: 'external' }],
   );
-  const projectObj = getCurrentProject(
-    projectId || localStorage.getItem('currentProjectId') || ((md.global.Account.projects || [])[0] || {}).projectId,
-  );
+  const projectObj = projectOptions
+    ? _.find(projects, { projectId }) || projects[0]
+    : getCurrentProject(
+        projectId ||
+          localStorage.getItem('currentProjectId') ||
+          ((md.global.Account.projects || [])[0] || {}).projectId,
+      );
 
   const [currentProject, setCurrentProject] = useState(
-    !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') },
+    !_.isEmpty(projectObj)
+      ? projectObj
+      : projectOptions
+        ? { projectId: '', companyName: _l('暂无组织') }
+        : { projectId: 'external', companyName: _l('外部协作') },
   );
   const [visible, setVisible] = useState(false);
 
-  const handleSelectProject = () => setVisible(true);
+  const handleSelectProject = () => {
+    if (onBeforeOpen?.() === false) return;
+
+    setVisible(true);
+  };
 
   const handleProjectClick = project => {
     // 人员选择层不需要真实修改组织

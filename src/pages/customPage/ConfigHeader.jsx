@@ -2,8 +2,8 @@ import React, { lazy, Suspense, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
@@ -48,11 +48,6 @@ const ConfigHeader = styled(FlexCenter)`
       border-bottom: 1px dashed var(--color-text-tertiary);
       cursor: pointer;
     }
-    input {
-      border: none;
-      font-size: 17px;
-      border-bottom: 2px solid var(--color-primary);
-    }
   }
   .displayType {
     position: relative;
@@ -92,13 +87,7 @@ const ConfigHeader = styled(FlexCenter)`
     }
   }
   .close {
-    background-color: var(--color-background-tertiary);
-    color: var(--color-text-tertiary);
     margin-right: 10px;
-    &:hover {
-      background-color: var(--color-border-secondary);
-      color: var(--color-text-tertiary);
-    }
   }
   .complete {
     width: 80px;
@@ -166,12 +155,11 @@ export default props => {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       width: 520,
-      onlyClose: true,
       className: 'customButtonConfirm',
       title: _l('您是否要保存本次更改'),
-      description: _l('当前有未保存的更改，您在离开页面前是否要保存这些更改'),
+      content: _l('当前有未保存的更改，您在离开页面前是否要保存这些更改'),
       okText: _l('是，保存修改'),
       cancelText: _l('否，放弃保存'),
       onOk: save,
@@ -189,7 +177,8 @@ export default props => {
       <div className="pageName">
         <span className="Bold mRight10">{_l('编辑自定义页面：')}</span>
         {isEdit ? (
-          <input
+          <Input
+            variant="underlined"
             autoFocus
             value={name}
             onChange={e => {
@@ -226,11 +215,11 @@ export default props => {
         <div className="mLeft5 Font13 bold">{_l('页面配置')}</div>
       </div>
       {apk.appId && (
-        <Button type="link" className="close" onClick={handleClose}>
+        <Button wide color="default" variant="filled" className="close" onClick={handleClose}>
           {_l('关闭')}
         </Button>
       )}
-      <Button onClick={save} loading={saveLoading}>
+      <Button wide color="var(--app-primary-color)" onClick={save} loading={saveLoading}>
         {_l('保存')}
       </Button>
       {configVisible && (

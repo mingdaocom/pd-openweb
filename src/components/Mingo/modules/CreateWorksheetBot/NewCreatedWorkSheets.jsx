@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
 
 const Con = styled.div`
   .createWorksheetTitle {

@@ -1,6 +1,6 @@
 import { getRowDetail } from 'worksheet/api';
-import { openShareDialog } from 'src/pages/worksheet/components/Share';
-import { getTitleTextFromControls } from 'src/utils/control';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { isOwner } from './crtl';
 
 export async function handleShare({
@@ -12,6 +12,7 @@ export async function handleShare({
   hidePublicShare,
   privateShare = true,
   title,
+  openShareDialog,
   ...rest
 }) {
   try {
@@ -37,7 +38,7 @@ export async function handleShare({
       getCopyContent: (type, url) => `${url} ${row.entityName}：${recordTitle}`,
     });
   } catch (err) {
-    alert(_l('分享失败'), 2);
+    alertIfNotUnauthorized(err, _l('分享失败'), 2);
     console.log(err);
   }
 }

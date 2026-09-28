@@ -1,27 +1,40 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Checkbox, Divider, Dropdown, Input, Space } from 'antd';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Divider, Input, Popover, Space } from 'ming-ui/antd-components';
 import reportApi from 'statistics/api/report';
 import { AddTagWrap, getFilterObject, TagWrap } from '../filter/FilterObject';
 
 const CallBackRefresh = props => {
   const { pageId, components, refreshObjects = [], onChange } = props;
-  const [filterObject, setFilterObject] = useState([]);
   const [addTagVisible, setAddTagVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [reportState, setReportState] = useState({ loaded: false, pageId: null, data: [] });
   const [search, setSearch] = useState('');
+  const { loaded, pageId: loadedPageId, data: reports } = reportState;
+  const loading = !loaded || loadedPageId !== pageId;
+  const filterObject = useMemo(() => getFilterObject(components, reports), [components, reports]);
 
   useEffect(() => {
-    setLoading(true);
+    let active = true;
+
     reportApi
       .listByPageId({ appId: pageId })
       .then(data => {
-        setFilterObject(getFilterObject(components, data));
+        if (active) {
+          setReportState({ loaded: true, pageId, data });
+        }
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => {
+        if (active) {
+          setReportState({ loaded: true, pageId, data: [] });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [pageId]);
 
   const addFilterObject = id => {
     const { ...data } = filterObject.filter(item => item.objectId == id)[0];
@@ -37,10 +50,11 @@ const CallBackRefresh = props => {
   const renderOverlay = () => {
     return (
       <AddTagWrap>
-        <div className="valignWrapper pLeft10 pRight10">
-          <Icon className="textTertiary Font20" icon="search" />
+        <div className="valignWrapper">
           <Input
             autoFocus
+            variant="borderless"
+            prefix={<Icon className="textTertiary Font18" icon="search" />}
             value={search}
             placeholder={_l('搜索')}
             onChange={e => {
@@ -49,7 +63,7 @@ const CallBackRefresh = props => {
           />
         </div>
         <Divider className="mTop5 mBottom5" />
-        <Space direction="vertical">
+        <Space orientation="vertical">
           <Checkbox
             checked={filterObject.length === refreshObjects.length}
             onChange={e => {
@@ -135,28 +149,20 @@ const CallBackRefresh = props => {
       </div>
       <TagWrap>
         {refreshObjects.map(item => renderObject(item))}
-        <div
-          className="tag add valignWrapper pointer"
-          onClick={() => {
-            setAddTagVisible(true);
-          }}
+        <Popover
+          open={addTagVisible}
+          onOpenChange={setAddTagVisible}
+          trigger="click"
+          placement="bottomLeft"
+          noPadding
+          content={renderOverlay()}
         >
-          <Icon className="Font17" icon="add" />
-          <span className="bold">{_l('组件')}</span>
-        </div>
+          <div className="tag add valignWrapper pointer">
+            <Icon className="Font17" icon="add" />
+            <span className="bold">{_l('组件')}</span>
+          </div>
+        </Popover>
       </TagWrap>
-      <Dropdown
-        visible={addTagVisible}
-        destroyPopupOnHide={true}
-        onVisibleChange={visible => {
-          setAddTagVisible(visible);
-        }}
-        getPopupContainer={() => document.querySelector('.editWidgetDialogWrap .settingsBox')}
-        trigger={['click']}
-        overlay={renderOverlay()}
-      >
-        <div className="Relative" style={{ top: '-15px' }}></div>
-      </Dropdown>
     </div>
   );
 };

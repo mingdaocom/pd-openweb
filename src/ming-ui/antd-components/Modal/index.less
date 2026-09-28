@@ -1,0 +1,33 @@
+.hap-modal {
+  .hap-modal-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    .hap-modal-body {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+  .hap-modal-footer .hap-btn,
+  .hap-modal-confirm-btns .hap-btn {
+    --hap-button-padding-inline: 32px;
+  }
+  &.fullScreen {
+    .hap-modal-container {
+      max-height: unset !important;
+    }
+  }
+  &.contentScroll {
+    .hap-modal-container {
+      max-height: unset !important;
+    }
+  }
+}
+
+.hap-modal-confirm-with-footer-left {
+  .hap-modal-confirm-btns {
+    display: flex;
+    align-items: center;
+  }
+}

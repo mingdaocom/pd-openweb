@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Dialog, Dropdown, Icon, Radio } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox, Modal, Radio, Select } from 'ming-ui/antd-components';
 import MembersName from '../../../EditFlow/components/MembersName';
 import { DATE_TYPE, EXEC_TIME_TYPE, NODE_TYPE, RELATION_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
 import CustomTextarea from '../CustomTextarea';
@@ -11,6 +12,8 @@ import Deadline from '../Deadline';
 import Member from '../Member';
 import SelectUserDropDown from '../SelectUserDropDown';
 import SpecificFieldsValue from '../SpecificFieldsValue';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const Button = styled.span`
   border: 1px solid var(--color-primary);
@@ -65,13 +68,13 @@ export default ({
   const [isShowDialog, showDialog] = useState(false);
   const [userDialogState, showUserDialog] = useState({});
   const TYPE_List = [
-    { text: _l('自定义'), value: 1 },
-    { text: _l('指定的日期时间'), value: 2 },
+    { label: _l('自定义'), value: 1 },
+    { label: _l('指定的日期时间'), value: 2 },
   ];
   const UNIT_List = [
-    { text: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
-    { text: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
-    { text: TIME_TYPE_NAME[TIME_TYPE.DAY], value: TIME_TYPE.DAY },
+    { label: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
+    { label: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
+    { label: TIME_TYPE_NAME[TIME_TYPE.DAY], value: TIME_TYPE.DAY },
   ];
   const FREQUENCY_TYPE = [
     { text: _l('分钟'), value: DATE_TYPE.MINUTE },
@@ -153,24 +156,23 @@ export default ({
                 updateSource={executeTime => changeAction(item.id, { executeTime })}
               />
             </div>
-            <Dropdown
+            <Select
               className="mLeft10"
               style={{ width: 110 }}
-              data={UNIT_List}
+              options={UNIT_List}
               value={item.unit}
-              border
               onChange={unit => {
                 changeAction(item.id, { unit, repeat: Object.assign({}, item.repeat, resetRepeatParameter(unit)) });
               }}
             />
           </Fragment>
         )}
-        <Dropdown
+        <Select
           className={cx('mLeft10', { flex: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass })}
           style={{ width: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass ? 'auto' : 110 }}
-          data={EXECUTE_TIME_TYPE_LIST.filter(o => o.value !== EXEC_TIME_TYPE.BEFORE || !autoPass)}
+          options={EXECUTE_TIME_TYPE_LIST.filter(o => o.value !== EXEC_TIME_TYPE.BEFORE || !autoPass)}
+          fieldNames={SELECT_FIELD_NAMES}
           value={item.executeTimeType}
-          border
           onChange={executeTimeType => {
             changeAction(item.id, {
               executeTimeType,
@@ -280,9 +282,9 @@ export default ({
       )}
 
       {isShowDialog && (
-        <Dialog
+        <Modal
           className="workflowDialogBox"
-          visible
+          open
           width={800}
           title={_l('限时处理')}
           onCancel={() => {
@@ -316,11 +318,10 @@ export default ({
         >
           <div className="bold mTop10">{_l('截止时刻')}</div>
           <div className="mTop10">
-            <Dropdown
+            <Select
               style={{ width: 240 }}
-              data={TYPE_List}
+              options={TYPE_List}
               value={data.type}
-              border
               onChange={type => {
                 changeData(
                   Object.assign({}, data, {
@@ -367,19 +368,20 @@ export default ({
                   {item.executeTimeType === EXEC_TIME_TYPE.BEFORE && (
                     <RepeatBox className="mTop10 flexRow alignItemsCenter">
                       <Checkbox
-                        className="InlineBlock"
-                        text={_l('重复提醒')}
                         checked={_.get(item, 'repeat.repeatType') === 6}
-                        onClick={checked => {
+                        onChange={event => {
                           const repeat = {
-                            repeatType: checked ? 0 : 6,
+                            repeatType: !event.target.checked ? 0 : 6,
                             ...resetRepeatParameter(item.unit),
                             loopLimit: 10,
                           };
-
-                          changeAction(item.id, { repeat });
+                          changeAction(item.id, {
+                            repeat,
+                          });
                         }}
-                      />
+                      >
+                        {_l('重复提醒')}
+                      </Checkbox>
                       {_.get(item, 'repeat.repeatType') === 6 && (
                         <Fragment>
                           <div className="mLeft25 mRight10">{_l('每')}</div>
@@ -396,18 +398,18 @@ export default ({
                               }
                             />
                           </div>
-                          <Dropdown
+                          <Select
                             className="mLeft10"
                             style={{ width: 80 }}
-                            data={FREQUENCY_TYPE.filter(
+                            options={FREQUENCY_TYPE.filter(
                               o =>
                                 (item.unit === TIME_TYPE.MINUTE && o.value === DATE_TYPE.MINUTE) ||
                                 (item.unit === TIME_TYPE.HOUR &&
                                   _.includes([DATE_TYPE.MINUTE, DATE_TYPE.HOUR], o.value)) ||
                                 item.unit === TIME_TYPE.DAY,
                             )}
+                            fieldNames={SELECT_FIELD_NAMES}
                             value={item.repeat.frequency}
-                            border
                             onChange={frequency =>
                               changeAction(item.id, {
                                 repeat: Object.assign({}, item.repeat, {
@@ -508,11 +510,14 @@ export default ({
               (item, index) => (
                 <Radio
                   key={index}
-                  text={item.text}
                   checked={
-                    ((data.actions || []).find(o => _.includes([2, 3, 4], o.type)) || { type: 0 }).type === item.value
+                    (
+                      (data.actions || []).find(o => _.includes([2, 3, 4], o.type)) || {
+                        type: 0,
+                      }
+                    ).type === item.value
                   }
-                  onClick={() => {
+                  onChange={() => {
                     const actions = data.actions || [];
                     changeData(
                       Object.assign({}, data, {
@@ -531,14 +536,17 @@ export default ({
                       }),
                     );
                   }}
-                />
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               ),
             )}
           </div>
           {(data.actions || [])
             .filter(o => _.includes([2, 3, 4], o.type))
             .map(item => renderDeadlineContent(item, true))}
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

@@ -3,14 +3,16 @@ import { useDrop } from 'react-dnd-latest';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
+import { getCardWidth } from 'worksheet/common/ViewConfig/getCardWidth';
 import GroupByControl from 'worksheet/components/GroupByControl';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
-import { filterButtonBySheetSwitchPermit, getCardWidth, getSheetOperatesButtons } from 'src/utils/worksheet';
+import { getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
+import { canEditForGroupControl, dealBoardViewData, viewSortRecord } from 'src/utils/services/worksheet/board';
 import ViewEmpty from '../../components/ViewEmpty';
 import BoardTitle from '../components/BoardTitle';
 import CustomDragLayer from '../components/CustomDragLayer';
 import { ITEM_TYPE } from '../config';
-import { canEditForGroupControl, dealBoardViewData, viewSortRecord } from '../util';
 import { handleAutoScroll } from './core/autoScroll';
 import { getGroupOpenKeys, getGroupOptions, groupByOptionKey } from './core/util';
 import SecondGroupItem from './SecondGroupItem';
@@ -19,7 +21,7 @@ import './index.less';
 const GroupBoardWrap = styled.div`
   .groupHeaderItemWrap,
   .secondGroupItemWrap {
-    width: ${props => `${props.width}px`};
+    width: ${props => `${props.$width}px`};
   }
 `;
 
@@ -255,7 +257,7 @@ const GroupBoard = props => {
   return (
     <GroupBoardWrap
       className="groupBoardWrap"
-      width={view?.advancedSetting?.cardwidth ? getCardWidth(view) : 280}
+      $width={view?.advancedSetting?.cardwidth ? getCardWidth(view) : 280}
       ref={drop}
     >
       <ScrollView className="groupBoardScroll" ref={scrollViewRef}>

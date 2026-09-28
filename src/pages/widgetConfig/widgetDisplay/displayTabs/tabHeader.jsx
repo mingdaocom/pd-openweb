@@ -1,18 +1,19 @@
 import React, { useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd-latest';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import { deleteSection } from 'src/pages/widgetConfig/internal/editorData';
+import { batchCopyWidgets } from 'src/pages/widgetConfig/internal/editorData';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { fixedBottomWidgets, putControlByOrder } from 'src/utils/domain/control/editorLayout';
+import { getTitleStyle } from 'src/utils/domain/control/style';
 import { DRAG_ACCEPT, DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
-import { DropdownOverlay } from '../../styled';
-import { fixedBottomWidgets, putControlByOrder } from '../../util';
-import { createTemplateDialog, supportCreateTemplate } from '../../util/createTemplate';
-import { deleteSection } from '../../util/data';
-import { batchCopyWidgets } from '../../util/data';
+import { supportCreateTemplate, useCreateTemplateDialog } from '../../util/createTemplate';
 import { batchRemoveItems, insertNewLine } from '../../util/drag';
-import { getAdvanceSetting, getTitleStyle } from '../../util/setting';
 import WidgetStatus from '../components/WidgetStatus';
 
 const TabHeaderItemWrap = styled.div`
@@ -34,8 +35,8 @@ const TabHeaderItemWrap = styled.div`
     cursor: pointer;
   }
   .tabHeaderTitle {
-    ${props => props.titleStyle || ''}
-    color: ${props => props.titleColor};
+    ${props => props.$titleStyle || ''}
+    color: ${props => props.$titleColor};
   }
 `;
 
@@ -74,7 +75,7 @@ const DragItemWrap = styled.div`
   }
 `;
 
-export function TabHeaderItem(props) {
+function TabHeaderItemBase(props) {
   const { data, styleInfo, setWidgets } = props;
   const [visible, setVisible] = useState(false);
   const isCollapse = _.get(styleInfo, 'info.sectionshow') === '2';
@@ -102,7 +103,7 @@ export function TabHeaderItem(props) {
   };
 
   return (
-    <TabHeaderItemWrap titleStyle={titleStyle} titleColor={titlecolor}>
+    <TabHeaderItemWrap $titleStyle={titleStyle} $titleColor={titlecolor}>
       {renderIcon()}
       <span className="Font15 Bold ellipsis tabHeaderTitle">{data.controlName}</span>
       <WidgetStatus data={data} style={{ lineHeight: '16px' }} />
@@ -110,46 +111,42 @@ export function TabHeaderItem(props) {
       {isCollapse && (
         <Dropdown
           trigger={['click']}
-          visible={visible}
-          onVisibleChange={visible => setVisible(visible)}
-          overlay={
-            <DropdownOverlay>
-              <div
-                className="dropdownContent"
-                onClick={e => {
-                  e.stopPropagation();
+          open={visible}
+          onOpenChange={setVisible}
+          placement="bottom"
+          menu={{
+            items: [
+              {
+                key: 'copy',
+                icon: <Icon icon="copy" />,
+                label: _l('复制'),
+                onClick: ({ domEvent }) => {
+                  domEvent.stopPropagation();
                   if (fixedBottomWidgets(data)) {
                     batchCopyWidgets(props, [data]);
                     setVisible(false);
                   }
-                }}
-              >
-                <div className="item">
-                  <Icon icon="copy" />
-                  {_l('复制')}
-                </div>
-              </div>
-              {supportCreateTemplate(data) && (
-                <div
-                  className="dropdownContent"
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (fixedBottomWidgets(data)) {
-                      createTemplateDialog({ ...props, templateControls: [data] });
-                      setVisible(false);
-                    }
-                  }}
-                >
-                  <div className="item">
-                    <Icon icon="borg" />
-                    {_l('创建字段模板')}
-                  </div>
-                </div>
-              )}
-              <div
-                className="dropdownContent"
-                onClick={e => {
-                  e.stopPropagation();
+                },
+              },
+              supportCreateTemplate(data) && {
+                key: 'createTemplate',
+                icon: <Icon icon="borg" />,
+                label: _l('创建字段模板'),
+                onClick: ({ domEvent }) => {
+                  domEvent.stopPropagation();
+                  if (fixedBottomWidgets(data)) {
+                    props.openCreateTemplateDialog({ ...props, templateControls: [data] });
+                    setVisible(false);
+                  }
+                },
+              },
+              {
+                key: 'delete',
+                danger: true,
+                icon: <Icon icon="trash" />,
+                label: _l('删除'),
+                onClick: ({ domEvent }) => {
+                  domEvent.stopPropagation();
                   if (fixedBottomWidgets(data)) {
                     if (data.type === 52) {
                       deleteSection({ widgets: props.widgets, data }, props);
@@ -159,16 +156,10 @@ export function TabHeaderItem(props) {
 
                     setVisible(false);
                   }
-                }}
-              >
-                <div className="item delete">
-                  <Icon icon="trash" />
-                  {_l('删除')}
-                </div>
-              </div>
-            </DropdownOverlay>
-          }
-          placement="bottom"
+                },
+              },
+            ].filter(Boolean),
+          }}
         >
           <div className="tabDeleteIcon">
             <Icon icon="arrow-down" className="textTertiary" />
@@ -178,6 +169,10 @@ export function TabHeaderItem(props) {
     </TabHeaderItemWrap>
   );
 }
+
+export const TabHeaderItem = withOpeners(TabHeaderItemBase, {
+  openCreateTemplateDialog: useCreateTemplateDialog,
+});
 
 export function DragHeaderItem(props) {
   const { data, path, isActive, isOpen, widgets, setWidgets, setActiveWidget, handleClick } = props;

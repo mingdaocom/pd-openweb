@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import AddCollectApp from './AddCollectApp';
+import { useAddCollectApp } from './AddCollectApp';
 import RecentOrCollectAppList from './RecentOrCollectAppList';
 
 const Wrapper = styled.div`
@@ -25,6 +25,7 @@ export default function CollectionApps(props) {
   const { projectId, markedApps, onMarkApp, apps, appLang, onMarkApps, loading, onAppSorted, currentTheme } = props;
   const [isExpand, setIsExpand] = useState(localStorage.getItem(`collectAppExpand_${projectId}`) === 'true');
   const [isOverflow, setIsOverflow] = useState(false);
+  const { open: openAddCollectApp, holder: addCollectAppHolder } = useAddCollectApp();
 
   useEffect(() => {
     setIsExpand(localStorage.getItem(`collectAppExpand_${projectId}`) === 'true');
@@ -32,6 +33,7 @@ export default function CollectionApps(props) {
 
   return (
     <Wrapper>
+      {addCollectAppHolder}
       <div className="cardTitle alignItemsCenter">
         <div className="titleText">
           {currentTheme.appCollectIcon && <img src={currentTheme.appCollectIcon} />}
@@ -40,7 +42,7 @@ export default function CollectionApps(props) {
         <div
           className="titleBtn mLeft12"
           onClick={() => {
-            AddCollectApp({ apps, markedApps, onMarkApps, projectId, appLang });
+            openAddCollectApp({ apps, markedApps, onMarkApps, projectId, appLang });
           }}
         >
           <Icon icon="add" className="mRight4" />

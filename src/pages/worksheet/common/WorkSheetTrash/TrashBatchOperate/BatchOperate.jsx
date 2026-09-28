@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import DropMotion from 'worksheet/components/Animations/DropMotion';
 import IconText from '../../../components/IconText';
 import './BatchOperate.less';
@@ -26,14 +26,21 @@ export default function BatchOperate(props) {
           text={_l('恢复')}
           onClick={() => {
             if (selectedLength > 1000) {
-              Dialog.confirm({
+              Modal.confirm({
                 title: (
-                  <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
+                  <span
+                    style={{
+                      lineHeight: '1.5em',
+                    }}
+                  >
                     {_l('最大支持批量恢复1000条记录，是否只选中并恢复前1000条数据？')}
                   </span>
                 ),
                 onOk: () => {
-                  setState({ ...state, select1000: true });
+                  setState({
+                    ...state,
+                    select1000: true,
+                  });
                   onRestore();
                 },
               });

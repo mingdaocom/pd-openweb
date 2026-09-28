@@ -3,8 +3,10 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { colorGroup, getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
+import { colorGroup } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common/reportDataUtils';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { getProjectChartColors } from 'src/utils/services/project';
 import BaseColor from './BaseColor';
 import RuleColor from './RuleColor';
 
@@ -72,7 +74,7 @@ export default class ColorEntrance extends Component {
         return isAlienationColor ? _l('选项配色') : defaultColorName;
       } else if (colorType === 1) {
         let name = null;
-        const chartColors = getPorjectChartColors(projectId);
+        const chartColors = getProjectChartColors(projectId);
 
         if (colorGroupId === 'adaptThemeColor') {
           name = _l('适应主题');

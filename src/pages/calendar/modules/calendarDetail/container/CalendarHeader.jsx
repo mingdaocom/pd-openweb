@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import { Dropdown, Input } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import Textarea from 'ming-ui/components/Textarea';
+import { htmlDecodeReg } from 'src/utils/core/string';
 import { Config, getCalendarColor, getUserAllCalCategories } from '../common';
+
+const TITLE_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 3 };
 
 export default class CalendarHeader extends Component {
   static propTypes = {
@@ -49,10 +50,6 @@ export default class CalendarHeader extends Component {
         });
       });
     }
-
-    if (this.props.children) {
-      $('.calendarAction').addClass('action-bar-active');
-    }
   }
 
   handleChangeCategory(item) {
@@ -70,7 +67,9 @@ export default class CalendarHeader extends Component {
     this.setState({ isShowOpList: false });
   }
 
-  handleChangeTitle(value) {
+  handleChangeTitle(event) {
+    const { value } = event.target;
+
     if (value.trim().length <= 266) {
       this.props.changeTitle(value);
       this.setState({ title: value });
@@ -88,11 +87,10 @@ export default class CalendarHeader extends Component {
       <div className="calendarTopBar">
         <div className="calendarHeader">
           {this.renderCategory(showEdit)}
-          <Textarea
-            resizeAfterBlur={true}
+          <Input.TextArea
+            autoSize={TITLE_TEXTAREA_AUTO_SIZE}
+            variant="borderless"
             value={this.state.title}
-            minHeight={26}
-            maxHeight={100}
             onChange={this.handleChangeTitle.bind(this)}
             onBlur={() => {
               this.setState({ title });
@@ -107,60 +105,49 @@ export default class CalendarHeader extends Component {
     );
   }
 
-  renderCategoryList(showEdit) {
-    const { isCategoryReady, isShowCategory, categories } = this.state;
-    return showEdit && isShowCategory ? (
-      <Menu
-        onClickAway={() => {
-          this.setState({ isShowCategory: false });
-        }}
-        onClickAwayExceptions={[this.catBtn]}
-      >
-        {(() => {
-          if (!isCategoryReady) {
-            return (
-              <MenuItem>
-                <LoadDiv />
-              </MenuItem>
-            );
-          } else if (categories) {
-            return categories.map(category => {
-              const catName = $('<div>').html(category.catName).text();
-              const colorClassName = getCalendarColor(category.color);
-              return (
-                <MenuItem onClick={this.handleChangeCategory(category)} key={category.catID}>
-                  <span className={cx('calendarCatInput', 'mRight5', colorClassName)} />
-                  {catName}
-                </MenuItem>
-              );
-            });
-          }
-        })()}
-      </Menu>
-    ) : null;
+  getCategoryMenuItems() {
+    const { isCategoryReady, categories } = this.state;
+
+    if (!isCategoryReady) {
+      return [{ key: 'loading', disabled: true, label: <LoadDiv /> }];
+    }
+
+    return (categories || []).map(category => {
+      const catName = htmlDecodeReg(category.catName);
+      const colorClassName = getCalendarColor(category.color);
+
+      return {
+        key: category.catID,
+        label: (
+          <span>
+            <span className={cx('calendarCatInput', 'mRight5', colorClassName)} />
+            {catName}
+          </span>
+        ),
+        onClick: this.handleChangeCategory(category),
+      };
+    });
   }
 
   renderCategory(showEdit) {
     if (!this.props.canLook) return null;
     const colorClassName = getCalendarColor(this.props.color);
+    const { isShowCategory } = this.state;
+
     return (
       <span className="categoryContainer Font16 Relative mTop10">
-        <span
-          className={cx('calendarCatInput', colorClassName)}
-          ref={btn => {
-            this.catBtn = btn;
-          }}
-        />
+        <span className={cx('calendarCatInput', colorClassName)} />
         {showEdit ? (
-          <Icon
-            icon={'arrow-down-border'}
-            className="categoryArrow pointer"
-            onClick={() => {
-              this.setState({ isShowCategory: true });
-            }}
-          />
+          <Dropdown
+            trigger={['click']}
+            open={isShowCategory}
+            onOpenChange={open => this.setState({ isShowCategory: open })}
+            getPopupContainer={triggerNode => triggerNode.parentElement}
+            menu={{ style: { width: 180 }, items: this.getCategoryMenuItems() }}
+          >
+            <Icon icon="arrow-down-border" className="categoryArrow pointer" />
+          </Dropdown>
         ) : null}
-        {this.renderCategoryList(showEdit)}
       </span>
     );
   }
@@ -169,6 +156,43 @@ export default class CalendarHeader extends Component {
     const { auth, openDetailPage, postMessage, deleteCalendar, exitCalendar, createTask, reFetchData } = this.props;
     const { showExit, showDelete, showEdit } = auth;
     const { isShowOpList } = this.state;
+    const operationItems = [
+      (showExit || showDelete) &&
+        !md.global.SysSettings.forbidSuites.includes('2') && {
+          key: 'create-task',
+          label: _l('创建为新任务'),
+          onClick: createTask,
+        },
+      {
+        key: 'join-outlook',
+        label: _l('加入Outlook'),
+        onClick: () => this.handleJoinOutLook(),
+      },
+      showEdit && {
+        key: 'post-message',
+        label: _l('群发消息'),
+        onClick: postMessage,
+      },
+      !Config.isDetailPage && {
+        key: 'open-detail-page',
+        label: _l('新页面打开'),
+        onClick: openDetailPage,
+      },
+      showExit && {
+        key: 'exit-calendar',
+        className: 'exitCalendar',
+        label: _l('退出日程'),
+        onClick: exitCalendar,
+      },
+      showDelete && {
+        key: 'delete-calendar',
+        danger: true,
+        className: 'deleteCalendar',
+        label: _l('删除日程'),
+        onClick: deleteCalendar,
+      },
+    ].filter(Boolean);
+
     return (
       <div className="calendarOperations pLeft15">
         <span
@@ -178,44 +202,21 @@ export default class CalendarHeader extends Component {
         ></span>
 
         <span className="Relative mLeft20 calMoreOp">
-          <span
-            className="icon-more_horiz Font19 hoverColorPrimary pointer"
-            ref={btn => {
-              this.opBtn = btn;
+          <Dropdown
+            trigger={['click']}
+            open={isShowOpList}
+            onOpenChange={open => this.setState({ isShowOpList: open })}
+            placement="bottomRight"
+            getPopupContainer={triggerNode => triggerNode.parentElement}
+            classNames={{ root: 'calendarOpDrowDown' }}
+            menu={{
+              style: { width: 180 },
+              items: operationItems,
+              onClick: () => this.setState({ isShowOpList: false }),
             }}
-            onClick={() => {
-              this.setState({ isShowOpList: true });
-            }}
-          />
-
-          {isShowOpList ? (
-            <Menu
-              className="calendarOpDrowDown"
-              parentMenuItem={this.opBtn}
-              onClickAway={() => {
-                this.setState({ isShowOpList: false });
-              }}
-              onClickAwayExceptions={[this.opBtn]}
-              con={'.calendarHeader'}
-            >
-              {(showExit || showDelete) && !md.global.SysSettings.forbidSuites.includes('2') ? (
-                <MenuItem onClick={createTask}>{_l('创建为新任务')}</MenuItem>
-              ) : null}
-              <MenuItem onClick={this.handleJoinOutLook.bind(this)}>{_l('加入Outlook')}</MenuItem>
-              {showEdit ? <MenuItem onClick={postMessage}>{_l('群发消息')}</MenuItem> : null}
-              {Config.isDetailPage ? null : <MenuItem onClick={openDetailPage}>{_l('新页面打开')}</MenuItem>}
-              {showExit ? (
-                <MenuItem className="exitCalendar" onClick={exitCalendar}>
-                  {_l('退出日程')}
-                </MenuItem>
-              ) : null}
-              {showDelete ? (
-                <MenuItem className="deleteCalendar" onClick={deleteCalendar}>
-                  {_l('删除日程')}
-                </MenuItem>
-              ) : null}
-            </Menu>
-          ) : null}
+          >
+            <span className="icon-more_horiz Font19 hoverColorPrimary pointer" />
+          </Dropdown>
         </span>
         {Config.isDetailPage ? null : (
           <span className="mLeft20 icon-close Font20 hoverColorPrimary pointer" onClick={Config.closeDialog} />

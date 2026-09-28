@@ -2,11 +2,12 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { DEFAULT_CONFIG } from '../../../../../config/widget';
-import { enumWidgetType } from '../../../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import SelectSheetFromApp from '../../../SelectSheetFromApp';
 import { HAS_DYNAMIC_TYPE } from '../../config';
@@ -61,14 +62,15 @@ export default function CreateRecord(props) {
   const selectControls = (controls || []).filter(i => _.includes(HAS_DYNAMIC_TYPE, i.type));
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={isEmpty || !advancedSetting.sheetId}
       title={_l('创建新记录')}
       onCancel={() => setState({ visible: false })}
       className="SearchWorksheetDialog"
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, actionItems, advancedSetting });
         setState({ visible: false });
@@ -140,6 +142,6 @@ export default function CreateRecord(props) {
           text={_l('字段默认值')}
         />
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

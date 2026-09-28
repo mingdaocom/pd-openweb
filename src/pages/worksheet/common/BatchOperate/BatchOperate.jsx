@@ -3,29 +3,30 @@ import cx from 'classnames';
 import _, { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
+import { DeleteReconfirm as DeleteConfirm, Modal, Tooltip } from 'ming-ui/antd-components';
 import { mdNotification } from 'ming-ui/functions';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/process';
-import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
-import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
+import { useBatchEditRecord } from 'worksheet/common/BatchEditRecord';
+import { usePrintQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { useRefreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import DropMotion from 'worksheet/components/Animations/DropMotion';
 import IconText from 'worksheet/components/IconText';
-import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import { copyRow } from 'worksheet/controllers/record';
-import { canEditApp, canEditData, isHaveCharge } from 'worksheet/redux/actions/util';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth';
-import { emitter, getFilledRequestParams } from 'src/utils/common';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { formatQuickFilter } from 'src/utils/filter';
-import { handleRecordError } from 'src/utils/record';
-import { replaceBtnsTranslateInfo } from 'src/utils/translate';
-import { getGroupControlId } from 'src/utils/worksheet';
+import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtons/CustomButtonsAutoWidth';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { canEditApp, canEditData, isHaveCharge } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { CUSTOM_BUTTOM_CLICK_TYPE } from 'src/utils/domain/worksheet/constants';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { replaceBtnsTranslateInfo } from 'src/utils/services/translation/app';
+import { handleRecordError } from 'src/utils/services/worksheet/record';
 import ExportList from './ExportList';
 import PrintList from './PrintList';
 import SubButton from './SubButton';
@@ -44,6 +45,9 @@ const CancelTextContent = styled.div`
 
 const ButtonsCon = styled.div`
   position: relative;
+  /* flex 子项默认 min-width: auto 不会被压缩，自定义按钮会把自己撑开并溢出操作栏，
+     导致按宽度折叠时量到的是内容宽度而不是剩余空间 */
+  min-width: 0;
   margin-left: 12px;
   padding-left: 12px;
   &:before {
@@ -71,6 +75,9 @@ class BatchOperate extends React.Component {
     permission: PropTypes.shape({}),
     updateViewPermission: PropTypes.func,
     refreshWorksheetControls: PropTypes.func,
+    openBatchEditRecord: PropTypes.func,
+    openPrintQrBarCode: PropTypes.func,
+    openRefreshRecord: PropTypes.func,
   };
   static defaultProps = {
     clearSelect: () => {},
@@ -247,7 +254,7 @@ class BatchOperate extends React.Component {
       this.triggerCustomBtn(btn, allWorksheetIsSelected);
     } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM) {
       // 二次确认
-      Dialog.confirm({
+      Modal.confirm({
         className: 'customButtonConfirm',
         title: btn.confirmMsg,
         okText: btn.sureName,
@@ -374,7 +381,7 @@ class BatchOperate extends React.Component {
       return;
     }
 
-    printQrBarCode({
+    this.props.openPrintQrBarCode({
       isCharge,
       printType,
       appId,
@@ -440,6 +447,8 @@ class BatchOperate extends React.Component {
     const { projectId, entityName, roleType } = worksheetInfo;
     const { loading, select1000, customButtonLoading } = this.state;
     let { customButtons } = this.state;
+    const batchOperateLimit = md.global.SysSettings.worktableBatchOperateDataLimitCount || 1000;
+    const worksheetRowRecycleDays = md.global.SysSettings.worksheetRowRecycleDays || 60;
     customButtons = customButtons.filter(b => !b.disabled);
     const selectedRow = selectedRows.length === 1 && selectedRows[0];
     const showExport = isOpenPermit(permitList.export, sheetSwitchPermit, viewId);
@@ -454,8 +463,8 @@ class BatchOperate extends React.Component {
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId);
     const canCopy =
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.copy, sheetSwitchPermit, viewId);
-    const showCodePrint = isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId);
     const showSystemPrint = isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId);
+    const showCodePrint = showSystemPrint && isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId);
     const customButtonComp = (
       <ButtonsCon className="flex" style={buttonsConStyle}>
         <Buttons
@@ -484,7 +493,7 @@ class BatchOperate extends React.Component {
           {(() => {
             if (allWorksheetIsSelected) {
               if (select1000) {
-                return _l(`已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据`);
+                return _l('已选择 %0 条数据', batchOperateLimit);
               }
 
               if (selectedLength === -1) {
@@ -551,8 +560,8 @@ class BatchOperate extends React.Component {
             alert(isLock ? _l('锁定失败') : _l('解锁失败'), 3);
           }
         })
-        .catch(() => {
-          alert(isLock ? _l('锁定失败') : _l('解锁失败'), 3);
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, isLock ? _l('锁定失败') : _l('解锁失败'), 3);
         });
     }
 
@@ -576,15 +585,14 @@ class BatchOperate extends React.Component {
                 icon="hr_edit"
                 text={_l('编辑')}
                 onClick={() => {
-                  const _this = this;
-
                   if (window.isPublicApp) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
 
-                  function handleEdit() {
-                    batchEditRecord({
+                  // 必须用箭头函数：函数声明有自己的 this 绑定，裸调用时 this 为 undefined
+                  const handleEdit = () => {
+                    this.props.openBatchEditRecord({
                       appId,
                       viewId,
                       projectId,
@@ -600,28 +608,28 @@ class BatchOperate extends React.Component {
                       getWorksheetSheetViewSummary,
                       reloadWorksheet: () => {
                         reload();
-                        _this.setState({ select1000: false });
+                        this.setState({ select1000: false });
                       },
                       selectedRows,
                       worksheetInfo: worksheetInfo,
                     });
-                  }
+                  };
 
-                  if (
-                    selectedLength > md.global.SysSettings.worktableBatchOperateDataLimitCount ||
-                    selectedLength === -1
-                  ) {
-                    Dialog.confirm({
+                  if (selectedLength > batchOperateLimit || selectedLength === -1) {
+                    Modal.confirm({
                       title: (
-                        <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
-                          {_l(
-                            '最大支持批量执行%0行记录，是否只选中并执行前%0行数据？',
-                            md.global.SysSettings.worktableBatchOperateDataLimitCount,
-                          )}
+                        <span
+                          style={{
+                            lineHeight: '1.5em',
+                          }}
+                        >
+                          {_l('最大支持批量执行%0行记录，是否只选中并执行前%0行数据？', batchOperateLimit)}
                         </span>
                       ),
                       onOk: () => {
-                        this.setState({ select1000: true });
+                        this.setState({
+                          select1000: true,
+                        });
                         handleEdit();
                       },
                     });
@@ -647,7 +655,7 @@ class BatchOperate extends React.Component {
                     return;
                   }
 
-                  Dialog.confirm({
+                  Modal.confirm({
                     title: _l('您确认复制这%0条记录吗？', selectedRows.length),
                     onOk: () => {
                       const rowIds = selectedRows.map(r => r.rowid);
@@ -759,45 +767,40 @@ class BatchOperate extends React.Component {
                             }
                           }
                         })
-                        .catch(() => {
-                          alert(_l('批量删除失败'), 3);
+                        .catch(_requestError2 => {
+                          alertIfNotUnauthorized(_requestError2, _l('批量删除失败'), 3);
                         });
                     }
                   }
 
                   const configOptions = {
-                    title: <span className="Red">{_l('批量删除%0', entityName)}</span>,
-                    buttonType: 'danger',
-                    description:
-                      selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount &&
-                      selectedLength !== -1
+                    width: 480,
+                    title: <span className="textError">{_l('批量删除%0', entityName)}</span>,
+                    okButtonProps: { danger: true },
+                    content:
+                      selectedLength <= batchOperateLimit && selectedLength !== -1
                         ? _l(
                             '%0天内可在 回收站 找回已删除%1。未锁定且有删除权限的%1才可被删除。',
-                            md.global.SysSettings.worksheetRowRecycleDays,
+                            worksheetRowRecycleDays,
                             entityName,
                           )
                         : _l(
                             '批量操作单次最大支持%0行记录。点击“确认”将删除前%0行未锁定且有删除权限的记录，删除后%1天内可在 回收站 找回。',
-                            md.global.SysSettings.worktableBatchOperateDataLimitCount,
-                            md.global.SysSettings.worksheetRowRecycleDays,
+                            batchOperateLimit,
+                            worksheetRowRecycleDays,
                           ),
                     onOk: handleDelete,
                   };
 
-                  if (
-                    isHaveCharge(permissionType) &&
-                    selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount
-                  ) {
-                    configOptions.onlyClose = true;
-                    configOptions.cancelType = 'danger-gray';
+                  if (isHaveCharge(permissionType) && selectedLength >= batchOperateLimit) {
+                    configOptions.cancelButtonProps = { danger: true };
                     configOptions.onCancel = () => {
                       DeleteConfirm({
                         footer: isCharge ? undefined : null,
-                        clickOmitText: false,
                         style: { width: 560 },
                         bodyStyle: { marginLeft: 36 },
                         title: (
-                          <div className="Bold flexRow alignItemsCenter">
+                          <div className="flexRow alignItemsCenter">
                             <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }} />
                             {_l('彻底删除所有%0行记录', selectedLength)}
                           </div>
@@ -809,7 +812,7 @@ class BatchOperate extends React.Component {
                             </span>
                             {_l(
                               '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
-                              md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                              batchOperateLimit,
                             )}
                             <div className="Bold textPrimary mTop18">{_l('注意:')}</div>
                             <ul className="mTop10 9 mLeft4 Font14">
@@ -837,7 +840,7 @@ class BatchOperate extends React.Component {
                     );
                   }
 
-                  Dialog.confirm(configOptions);
+                  Modal.confirm(configOptions);
                 }}
               />
             )}
@@ -867,7 +870,7 @@ class BatchOperate extends React.Component {
                         return;
                       }
 
-                      refreshRecord({
+                      this.props.openRefreshRecord({
                         controls,
                         appId,
                         viewId,
@@ -898,9 +901,9 @@ class BatchOperate extends React.Component {
                               return;
                             }
 
-                            Dialog.confirm({
+                            Modal.confirm({
                               title: _l('批量锁定%0', entityName),
-                              description: _l('已选中%0条记录。一次最多处理1000条记录。', selectedLength),
+                              content: _l('已选中%0条记录。一次最多处理%1条记录。', selectedLength, batchOperateLimit),
                               onOk: () => handleLock(true),
                             });
                           },
@@ -914,9 +917,9 @@ class BatchOperate extends React.Component {
                               return;
                             }
 
-                            Dialog.confirm({
+                            Modal.confirm({
                               title: _l('批量解锁%0', entityName),
-                              description: _l('已选中%0条记录。一次最多处理1000条记录。', selectedLength),
+                              content: _l('已选中%0条记录。一次最多处理%1条记录。', selectedLength, batchOperateLimit),
                               onOk: () => handleLock(false),
                             });
                           },
@@ -935,4 +938,8 @@ class BatchOperate extends React.Component {
   }
 }
 
-export default BatchOperate;
+export default withOpeners(BatchOperate, {
+  openBatchEditRecord: useBatchEditRecord,
+  openPrintQrBarCode: usePrintQrBarCode,
+  openRefreshRecord: useRefreshRecord,
+});

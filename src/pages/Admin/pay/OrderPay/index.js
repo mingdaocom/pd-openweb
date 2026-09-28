@@ -4,14 +4,16 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import { match } from 'path-to-regexp';
-import { Button, Dialog, LoadDiv, Qr } from 'ming-ui';
+import { LoadDiv, Qr } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
-import { browserIsMobile, getPathWithoutSubPath, getRequest } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 import PayErrorIcon from '../components/PayErrorIcon';
-import { getOrderStatusInfo } from '../config';
+import { getOrderStatusInfo, PAY_CHANNEL_TYPE } from '../config';
 import { formatDate } from '../util';
 import './index.less';
 
@@ -125,7 +127,7 @@ export default class OrderPay extends Component {
         this.setState({ payLoading: false });
 
         // 支付宝直连支付
-        if (orderInfo.merchantPaymentChannel) {
+        if (orderInfo.merchantPaymentChannel === PAY_CHANNEL_TYPE.ALIPAY) {
           document.write(res.codeUrl);
           return;
         }
@@ -230,11 +232,11 @@ export default class OrderPay extends Component {
 
     paymentAjax
       .getPayOrderStatus({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
-      .then(({ status, expireCountdown, msg, amount, description }) => {
+      .then(({ status, expireCountdown, msg, amount = orderInfo.amount, description = orderInfo.description }) => {
         msg = _.includes([7, 8], status) ? _l('订单已取消') : msg;
 
         if (_.includes([7, 8], status) && $('.qrCodeWrap')) {
-          $('.qrCodeWrap').parents('.mui-dialog-container').parents('div').remove();
+          $('.qrCodeWrap').closest('.hap-modal-root').remove();
         }
 
         if (_.includes([1, 4], status)) {
@@ -408,18 +410,18 @@ export default class OrderPay extends Component {
     const isMobile = browserIsMobile();
     const params = getOrderPayParams();
 
-    Dialog.confirm({
-      overlayClosable: true,
+    Modal.confirm({
+      mask: {
+        closable: true,
+      },
       closable: !isMobile,
       className: `qrCodeWrap ${!isMobile ? 'pcQrCodeWrap' : ''}`,
-      noFooter: true,
-      children: (
+      footer: null,
+      content: (
         <Fragment>
           <div className="qrCode">
             <Qr
-              content={`${md.global.Config.WebUrl}orderpay/${orderId}${
-                params.paymentModule ? '/' + params.paymentModule : ''
-              }`}
+              content={`${md.global.Config.WebUrl}orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`}
               width={250}
               height={250}
             />
@@ -504,7 +506,8 @@ export default class OrderPay extends Component {
             {isMobile && <div className="flex"></div>}
             {window.isWeiXin || isAli || amount <= 0 ? (
               <Button
-                radius
+                type="primary"
+                shape="round"
                 className="w100 pLeft24 pRight24 payBtn"
                 onClick={() => {
                   if (payLoading) return;
@@ -540,20 +543,22 @@ export default class OrderPay extends Component {
                 {amount <= 0 ? _l('确认') : payLoading ? _l('正在发起支付，请稍候…') : _l('立即支付')}
               </Button>
             ) : (
-              <div className="flexRow pTop20">
+              <div className="payMethods flexRow pTop20">
                 {wechatPayStatus === 2 && (
                   <Button
-                    radius
-                    className="mRight10 weChatPay pLeft24 pRight24 flex"
+                    color="var(--color-success)"
+                    variant="solid"
+                    shape="round"
+                    className="weChatPay"
+                    icon={<i className="icon-wechat_pay Font28" />}
                     onClick={() => this.renderOrderQrCode(orderId, 1)}
                   >
-                    <i className="icon-wechat_pay mRight10  Font28 TxtMiddle" />
-                    <span className="flex">{_l('微信支付')}</span>
+                    {_l('微信支付')}
                   </Button>
                 )}
                 {aliPayStatus === 2 && (
                   <a
-                    className="aliPay pLeft24 pRight24 flex"
+                    className="aliPay pLeft24 pRight24"
                     href={
                       !isMobile || merchantPaymentChannel === 1 || location.pathname.includes('orderpay/mp-')
                         ? '#'

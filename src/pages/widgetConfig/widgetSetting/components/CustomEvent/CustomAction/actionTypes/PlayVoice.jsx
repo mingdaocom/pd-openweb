@@ -2,7 +2,8 @@ import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import fileAjax from 'src/api/file';
 import { SettingItem } from '../../../../../styled';
 import { VOICE_FILE_LIST } from '../../config';
@@ -45,9 +46,10 @@ export default function PlayVoice(props) {
 
   return (
     <Fragment>
-      <Dialog
+      <Modal
         width={480}
-        visible={visible}
+        open={visible}
+        keyboard
         okDisabled={!advancedSetting.fileKey}
         className="SearchWorksheetDialog"
         title={_l('播放声音')}
@@ -55,7 +57,7 @@ export default function PlayVoice(props) {
           setState({ visible: false });
           window.customEditPlayer = '';
         }}
-        overlayClosable={false}
+        mask={{ closable: false }}
         onOk={() => {
           handleOk({ ...actionData, advancedSetting });
           setState({ visible: false });
@@ -103,12 +105,14 @@ export default function PlayVoice(props) {
             {_l('上传mp3')}
           </DynamicBtn>
         </CustomActionWrap>
-      </Dialog>
+      </Modal>
 
-      <Dialog
+      <Modal
         width={800}
         title={_l('上传mp3')}
-        visible={fieldVisible}
+        open={fieldVisible}
+        mask={{ closable: true }}
+        keyboard
         footer={null}
         onCancel={() => setState({ fieldVisible: false })}
       >
@@ -124,7 +128,7 @@ export default function PlayVoice(props) {
             });
           }}
         />
-      </Dialog>
+      </Modal>
     </Fragment>
   );
 }

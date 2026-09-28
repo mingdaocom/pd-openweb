@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Skeleton } from 'ming-ui';
+import { Button, Skeleton } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import FilterDetailName from 'worksheet/common/WorkSheetFilter/components/FilterDetailName';
-import saveTemplateConfirm from 'src/pages/Print/components/SaveDia/saveTemplateConfirm';
-import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { pathCompletion } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
+import useSaveTemplateConfirm from 'src/pages/Print/components/SaveDia/saveTemplateConfirm';
+import { FILTER } from 'src/utils/domain/control/dynamicValue';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
 import {
   A4_LAYOUT,
   BAR_LAYOUT,
@@ -17,7 +17,7 @@ import {
   SOURCE_TYPE,
   SOURCE_URL_TYPE,
 } from './enum';
-import { generatePdf } from './GeneratingPdf';
+import { useGeneratePdf } from './GeneratingPdf';
 import Preview from './Preview';
 import Sider from './Sider';
 import {
@@ -29,12 +29,11 @@ import {
 } from './util';
 
 const Con = styled.div`
-  height: 100vh
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--color-background-disabled);
 `;
-
 const Header = styled.div`
   padding: 0 24px 0 3px;
   height: 50px;
@@ -58,7 +57,6 @@ const Header = styled.div`
     }
   }
 `;
-
 const TemplateName = styled.div`
   display: inline;
   input {
@@ -66,13 +64,11 @@ const TemplateName = styled.div`
     text-align: left;
   }
 `;
-
 const Main = styled.div`
   flex: 1;
   display: flex;
   overflow: hidden;
 `;
-
 function getDefaultConfig(printType) {
   return {
     sourceType: 1,
@@ -93,8 +89,9 @@ function getDefaultConfig(printType) {
     position: 1,
   };
 }
-
 export default function PrintQrBarCode(props) {
+  const requestPending = useRef(false);
+  const { open: openSaveTemplateConfirm, holder: saveTemplateConfirmHolder } = useSaveTemplateConfirm();
   const {
     isCharge,
     mode,
@@ -112,6 +109,7 @@ export default function PrintQrBarCode(props) {
     navGroupFilters,
     onClose = () => {},
   } = props;
+  const { open: generatePdf, holder: generatePdfHolder } = useGeneratePdf();
   const [base, setBase] = useState({
     id: props.id,
     name: props.id ? '' : printType === PRINT_TYPE.BAR ? _l('打印条形码') : _l('打印二维码'),
@@ -140,7 +138,6 @@ export default function PrintQrBarCode(props) {
     ].filter(_.identity),
   });
   let labelObject;
-
   if (config.printType === PRINT_TYPE.QR || config.printType === PRINT_TYPE.A4) {
     labelObject = createQrLabeObjectFromConfig(
       config,
@@ -197,12 +194,15 @@ export default function PrintQrBarCode(props) {
       },
     );
   }
-
   const maxLineNumber = (labelObject || {}).maxLineNumber || 0;
-
   function handlePrint() {
-    const printTypeObj = { 1: 'printQRCode', 3: 'printBarCode' };
-    addBehaviorLog(printTypeObj[config.printType], worksheetId, { msg: [allowLoadMore ? count : selectedRows.length] }); // 埋点
+    const printTypeObj = {
+      1: 'printQRCode',
+      3: 'printBarCode',
+    };
+    addBehaviorLog(printTypeObj[config.printType], worksheetId, {
+      msg: [allowLoadMore ? count : selectedRows.length],
+    }); // 埋点
 
     generatePdf({
       config,
@@ -220,13 +220,11 @@ export default function PrintQrBarCode(props) {
       navGroupFilters,
     });
   }
-
   function handleKeyDown(e) {
     if (e.keyCode === 27) {
       onClose();
     }
   }
-
   function updatePreviewRowShareUrl(recordId) {
     if (viewId) {
       worksheetAjax
@@ -243,7 +241,6 @@ export default function PrintQrBarCode(props) {
       setPreviewRowPublicUrl('error');
     }
   }
-
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     (async () => {
@@ -252,11 +249,13 @@ export default function PrintQrBarCode(props) {
           id,
           projectId,
         });
-        setConfig({ ...config, ...data.config });
+        setConfig({
+          ...config,
+          ...data.config,
+        });
         setBase(_.omit(data, 'config'));
         setLoading(false);
       }
-
       if (_.isEmpty(previewRow)) {
         const resData = await worksheetAjax.getFilterRows({
           worksheetId,
@@ -267,24 +266,23 @@ export default function PrintQrBarCode(props) {
           searchType: 1,
           getType: 7,
         });
-
         if (!_.isEmpty(resData.data)) {
           setPreviewRow(resData.data[0]);
           updatePreviewRowShareUrl(resData.data[0].rowid);
         }
       }
     })();
-
     if (!_.isEmpty(previewRow)) {
       updatePreviewRowShareUrl(previewRow.rowid);
     }
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
   return (
     <Con className="doNotTriggerClickAway">
+      {generatePdfHolder}
+      {saveTemplateConfirmHolder}
       <Header>
         <span className="backIcon" onClick={onClose}>
           <i className="icon icon-backspace"></i>
@@ -301,8 +299,10 @@ export default function PrintQrBarCode(props) {
                   alert(_l('名称不能为空'), 3);
                   return;
                 }
-
-                setBase({ ...base, name: value });
+                setBase({
+                  ...base,
+                  name: value,
+                });
               }}
             />
           ) : (
@@ -312,8 +312,8 @@ export default function PrintQrBarCode(props) {
         <div className="spacer"></div>
         {isCharge && (
           <Button
-            size="mdnormal"
-            type={mode === 'editTemplate' || mode === 'newTemplate' ? 'primary' : 'ghostgray'}
+            size="large"
+            type={mode === 'editTemplate' || mode === 'newTemplate' ? 'primary' : 'default'}
             onClick={() => {
               let args = {
                 id: id || '',
@@ -325,23 +325,31 @@ export default function PrintQrBarCode(props) {
                   sourceControlId: config.sourceControlId || '',
                 },
               };
-
               function update(cb = () => {}) {
-                worksheetAjax.saveRecordCodePrintConfig(args).then(data => {
-                  alert(_l('保存成功'));
-                  if (!id) {
-                    setBase({ ...base, id: data });
-                  }
+                if (requestPending.current) return;
 
-                  cb();
-                });
+                requestPending.current = true;
+                return worksheetAjax
+                  .saveRecordCodePrintConfig(args)
+                  .then(data => {
+                    alert(_l('保存成功'));
+                    if (!id) {
+                      setBase({
+                        ...base,
+                        id: data,
+                      });
+                    }
+                    cb();
+                  })
+                  .finally(() => {
+                    requestPending.current = false;
+                  });
               }
-
               if (id) {
                 args = Object.assign(args, base);
                 update();
               } else {
-                saveTemplateConfirm({
+                openSaveTemplateConfirm({
                   className: 'doNotTriggerClickAway',
                   worksheetId,
                   viewId,
@@ -366,7 +374,7 @@ export default function PrintQrBarCode(props) {
           </Button>
         )}
         {!_.includes(['newTemplate', 'editTemplate', 'preview'], mode) && (
-          <Button size="mdnormal" type="primary" className="mLeft10" onClick={handlePrint}>
+          <Button size="large" type="primary" className="mLeft10" onClick={handlePrint}>
             {_l('打印')}
           </Button>
         )}
@@ -375,13 +383,15 @@ export default function PrintQrBarCode(props) {
         {mode !== 'preview' &&
           (loading ? (
             <Skeleton
+              className="pAll20"
               style={{
                 width: 320,
               }}
-              direction="column"
-              widths={['30%', '40%', '90%', '60%']}
               active
-              itemStyle={{ marginBottom: '10px' }}
+              paragraph={{
+                rows: 4,
+                width: ['30%', '40%', '90%', '60%'],
+              }}
             />
           ) : (
             <Sider
@@ -389,14 +399,30 @@ export default function PrintQrBarCode(props) {
               maxLineNumber={maxLineNumber}
               controls={controls.filter(
                 c =>
-                  FILTER[2]({ ...c, type: c.type === 30 ? c.sourceControlType : c.type }) || _.includes([37], c.type),
+                  FILTER[2]({
+                    ...c,
+                    type: c.type === 30 ? c.sourceControlType : c.type,
+                  }) || _.includes([37], c.type),
               )}
               onUpdate={changes => {
-                setConfig(oldConfig => ({ ...oldConfig, ...changes }));
+                setConfig(oldConfig => ({
+                  ...oldConfig,
+                  ...changes,
+                }));
               }}
             />
           ))}
-        <Preview style={loading ? { visibility: 'hidden' } : {}} config={config} labelObject={labelObject} />
+        <Preview
+          style={
+            loading
+              ? {
+                  visibility: 'hidden',
+                }
+              : {}
+          }
+          config={config}
+          labelObject={labelObject}
+        />
       </Main>
     </Con>
   );

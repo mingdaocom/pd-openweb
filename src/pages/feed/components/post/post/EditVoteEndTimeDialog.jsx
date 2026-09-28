@@ -2,11 +2,11 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import Button from 'ming-ui/components/Button';
-import DatePicker from 'ming-ui/components/DatePicker';
-import Dialog from 'ming-ui/components/Dialog';
-import Input from 'ming-ui/components/Input';
+import { DatePicker, Modal } from 'ming-ui/antd-components';
 import postAjax from 'src/api/post';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+
+const HOUR_PICKER_CONFIG = { format: 'HH' };
 
 export default class EditVoteEndTimeDialog extends React.Component {
   static propType = {
@@ -28,7 +28,11 @@ export default class EditVoteEndTimeDialog extends React.Component {
       }, 100);
     };
 
-    root.render(<EditVoteEndTimeDialog postItem={postItem} callback={callback} dispose={() => dispose()} />);
+    root.render(
+      <AntdConfigProvider>
+        <EditVoteEndTimeDialog postItem={postItem} callback={callback} dispose={() => dispose()} />
+      </AntdConfigProvider>,
+    );
   }
   constructor(props) {
     super(props);
@@ -55,32 +59,20 @@ export default class EditVoteEndTimeDialog extends React.Component {
   }
   render() {
     return (
-      <Dialog
-        visible
-        title={_l('修改截止日期')}
-        footer={
-          <div className="footer">
-            <Button type="link" onClick={() => this.props.dispose()}>
-              {_l('取消')}
-            </Button>
-            <Button action={() => this.submit()}>{_l('确定')}</Button>
-          </div>
-        }
-        onCancel={() => this.props.dispose()}
-      >
+      <Modal open title={_l('修改截止日期')} onOk={() => this.submit()} onCancel={() => this.props.dispose()}>
         <span className="mRight10">{_l('截止日期')}: </span>
         <div className="InlineBlock">
           <DatePicker
-            selectedValue={this.state.deadline}
-            timePicker
-            timeMode="hour"
             allowClear={false}
-            onSelect={deadline => this.setState({ deadline })}
-          >
-            <Input size="small" value={this.state.deadline.format('LL') + ' ' + this.state.deadline.format('LT')} />
-          </DatePicker>
+            format="LL LT"
+            needConfirm
+            showTime={HOUR_PICKER_CONFIG}
+            size="small"
+            value={this.state.deadline}
+            onChange={deadline => this.setState({ deadline: deadline.clone().startOf('hour') })}
+          />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

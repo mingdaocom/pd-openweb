@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
-
-const EditShowNameCon = styled.div`
-  .title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-`;
+import { Input, Modal } from 'ming-ui/antd-components';
 
 export default function ChangeName(props) {
   const { name, onCancel, onChange, title, deduplication, list } = props;
   const [value, setValue] = useState(name);
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       title={title || _l('重命名')}
       onCancel={onCancel}
       onOk={() => {
@@ -33,9 +24,15 @@ export default function ChangeName(props) {
         onCancel();
       }}
     >
-      <EditShowNameCon>
-        <Input className="w100" value={value} onChange={setValue} autoFocus maxLength={60} />
-      </EditShowNameCon>
-    </Dialog>
+      <div>
+        <Input
+          className="w100"
+          value={value}
+          onChange={event => setValue(event.target.value)}
+          autoFocus
+          maxLength={60}
+        />
+      </div>
+    </Modal>
   );
 }

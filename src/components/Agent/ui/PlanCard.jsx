@@ -1,10 +1,8 @@
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { SvgIcon } from 'ming-ui';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
 import { colors, radii, spacing } from './tokens';
-
-// plan 产出的 appIcon 是 HAP customIcon 字体类（sys_ 前缀），按 URL 渲染 SVG。
-const customIconUrl = fileName => `https://fp1.mingdaoyun.cn/customIcon/${fileName}.svg`;
 
 const flow = keyframes`
   0% { background-position: 0% 50%; }
@@ -133,6 +131,7 @@ export function PlanCard({
   appColor,
   versionLabel,
   built = false,
+  hideIcon = false,
   onClick,
 }) {
   const displayTitle = title || _l('应用搭建方案');
@@ -148,9 +147,12 @@ export function PlanCard({
       onClick={onClick}
       role={onClick ? 'button' : undefined}
     >
-      <IconBox $color={showPlaceholder ? 'var(--color-background-disabled)' : appColor}>
-        {appIcon ? <SvgIcon url={customIconUrl(appIcon)} fill="#fff" size={22} /> : null}
-      </IconBox>
+      {/* 分享页等场景不拉 app meta，图标区整体不渲染（占位块也不留） */}
+      {!hideIcon && (
+        <IconBox $color={showPlaceholder ? 'var(--color-background-disabled)' : appColor}>
+          {appIcon ? <SvgIcon url={getCustomIconUrl(appIcon)} fill="#fff" size={22} /> : null}
+        </IconBox>
+      )}
       <Body>
         <Title title={displayTitle}>{displayTitle}</Title>
         {isDone ? (

@@ -1,12 +1,14 @@
-﻿import React from 'react';
+import React from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
-import { element, string } from 'prop-types';
+import { node, object, string } from 'prop-types';
+import { Button } from 'ming-ui/antd-components';
 import projectApi from 'src/api/project';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 
 export default function PurchaseExpandPack(props) {
-  const { className, text, type, projectId, routePath = 'expansionservice', extraParam, onClick } = props;
+  const { buttonProps, className, text, type, projectId, routePath = 'expansionservice', extraParam, onClick } = props;
   const { version, licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
   const handleClick = e => {
@@ -64,16 +66,21 @@ export default function PurchaseExpandPack(props) {
     return null;
   }
 
-  return (
-    <span className={`Normal colorPrimary Hand ${className}`} onClick={handleClick}>
+  return buttonProps ? (
+    <Button {...buttonProps} className={cx(className, buttonProps.className)} onClick={handleClick}>
+      {text}
+    </Button>
+  ) : (
+    <span className={cx('Normal colorPrimary Hand', className)} onClick={handleClick}>
       {text}
     </span>
   );
 }
 
-PurchaseExpandPack.prototypes = {
+PurchaseExpandPack.propTypes = {
+  buttonProps: object,
   className: string,
-  text: element,
+  text: node,
   type: string,
   projectId: string,
   routePath: string,

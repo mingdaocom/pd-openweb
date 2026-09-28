@@ -2,21 +2,36 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
-import { Button, Dialog, Icon, Menu, MenuItem, SvgIcon, VerifyPasswordInput } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
+import { Icon, SvgIcon, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import instance from '../../api/instance';
-import verifyPassword from 'src/components/verifyPassword';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
-import { getTranslateInfo } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
 import AddApproveWay from './components/AddApproveWay';
 import OtherAction from './components/OtherAction';
 import PrintList from './components/PrintList';
 import { ACTION_LIST, ACTION_TO_METHOD, OPERATION_LIST } from './config';
 import { canDirectSubmitApproveAction } from './utils';
+import './Header.less';
+
+const ACTION_BUTTON_PROPS = {
+  overrule: { color: 'danger', variant: 'solid' },
+  revoke: { color: 'danger', variant: 'solid' },
+  taskRevokeEntrust: { color: 'danger', variant: 'solid' },
+  pass: { color: 'var(--color-success)', variant: 'solid' },
+  return: { color: 'var(--color-warning)', variant: 'solid' },
+  taskRevoke: { color: 'var(--color-warning)', variant: 'solid' },
+  transferApprove: { color: 'default', variant: 'outlined' },
+  sign: { color: 'default', variant: 'outlined' },
+  transfer: { color: 'default', variant: 'outlined' },
+  stash: { color: 'default', variant: 'outlined' },
+};
+const DEFAULT_ACTION_BUTTON_PROPS = { type: 'primary' };
 
 export default class Header extends Component {
   static propTypes = {
@@ -25,6 +40,7 @@ export default class Header extends Component {
       flowNode: shape({ name: string, type: number }),
       operationTypeList: arrayOf(arrayOf(number)),
     }),
+    currentWork: shape({ workItems: arrayOf(object) }),
     currentWorkItem: shape({ operationTime: string }),
     errorMsg: string,
     instanceId: string,
@@ -35,6 +51,7 @@ export default class Header extends Component {
   static defaultProps = {
     projectId: '',
     data: {},
+    currentWork: {},
     currentWorkItem: {},
     errorMsg: '',
     instanceId: '',
@@ -51,15 +68,64 @@ export default class Header extends Component {
     isUrged: false,
   };
 
-  password = '';
-
   /**
    * 头部更多操作的处理逻辑
    */
   handleMoreOperation = action => {
-    if (action === 'addApprove') {
+    if (_.includes(['addCC', 'addApprove'], action)) {
       this.setState({ action, otherActionVisible: true });
     }
+  };
+
+  closeMoreOperation = () => {
+    this.setState({ moreOperationVisible: false });
+  };
+
+  getMoreOperationItems = printMenuItem => {
+    const { data, id, workId } = this.props;
+    const { operationTypeList, app } = data;
+
+    return [
+      ...operationTypeList[1].map(item => {
+        const operation = OPERATION_LIST[item];
+
+        return {
+          key: operation.id,
+          icon: <Icon icon={operation.icon} />,
+          label: operation.text,
+          onClick: () => this.handleMoreOperation(operation.id),
+        };
+      }),
+      printMenuItem,
+      {
+        key: 'openInNewPage',
+        icon: <Icon icon="launch" />,
+        label: _l('新页面打开'),
+        onClick: () => window.open(pathCompletion(`/app/${app.id}/workflowdetail/record/${id}/${workId}`)),
+      },
+    ].filter(Boolean);
+  };
+
+  renderMoreOperation = printMenuItem => {
+    const { moreOperationVisible } = this.state;
+
+    return (
+      <Dropdown
+        trigger={['click']}
+        open={moreOperationVisible}
+        placement="bottomRight"
+        menu={{ items: this.getMoreOperationItems(printMenuItem), onClick: this.closeMoreOperation }}
+        onOpenChange={open => this.setState({ moreOperationVisible: open })}
+      >
+        <div className="flexRow mLeft15">
+          <Tooltip title={_l('更多操作')} placement="bottom">
+            <div className="iconWrap flexRow pointer">
+              <Icon icon="more_horiz textSecondary hoverColorPrimary" />
+            </div>
+          </Tooltip>
+        </div>
+      </Dropdown>
+    );
   };
 
   handleClick = id => {
@@ -150,7 +216,7 @@ export default class Header extends Component {
     } else {
       onSubmit({
         noSave: true,
-        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], id),
+        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after', 'revoke', 'taskRevoke'], id),
         callback: err => {
           if (!err) {
             openOperatorDialog();
@@ -205,6 +271,13 @@ export default class Header extends Component {
     }
 
     /**
+     * 添加抄送人
+     */
+    if (action === 'addCC') {
+      this.request('operation', { opinion: content, forwardAccountId: userId, operationType: 11 }, true);
+    }
+
+    /**
      * 审批人撤回
      */
     if (action === 'taskRevoke') {
@@ -216,9 +289,10 @@ export default class Header extends Component {
    * 请求后台接口，因参数一致故统一处理
    */
   request = (action, restPara = {}, noSave = false) => {
-    const { id, workId, onSave, onLoad, onClose, onSubmit } = this.props;
+    const { id, workId, onSave, onLoad, onClose, onSubmit, onRefresh } = this.props;
     const { isRequest } = this.state;
     const isStash = restPara.operationType === 13;
+    const keepDialogOpen = _.includes([11, 13, 18], restPara.operationType);
 
     const saveFunction = ({ error, logId }) => {
       if (error && error !== 'empty') {
@@ -229,24 +303,26 @@ export default class Header extends Component {
           workId: restPara.operationType === 18 ? '' : workId,
           logId,
           ...restPara,
-        }).then(() => {
-          if (_.includes([13, 18], restPara.operationType)) {
-            if (isStash) {
-              alert(_l('保存成功'));
-              this.setState({ isRequest: false });
+        })
+          .then(() => {
+            if (keepDialogOpen) {
+              if (isStash) {
+                alert(_l('保存成功'));
+                this.setState({ isRequest: false });
+              } else if (restPara.operationType === 18) {
+                this.setState({ isRequest: false, isUrged: true });
+              } else {
+                onRefresh();
+                this.setState({ isRequest: false });
+              }
             } else {
-              this.setState({ isRequest: false, isUrged: true });
+              onLoad ? onLoad() : onSave();
+              onClose();
             }
-          } else if (onLoad) {
-            onLoad();
-            onClose();
-          }
-        });
-
-        if (!_.includes([13, 18], restPara.operationType) && !onLoad) {
-          onSave();
-          onClose();
-        }
+          })
+          .catch(() => {
+            this.setState({ isRequest: false });
+          });
       }
     };
 
@@ -292,42 +368,14 @@ export default class Header extends Component {
   verifyPasswordDialog(removeNoneVerification, callback = () => {}) {
     const { projectId } = this.props;
 
-    Dialog.confirm({
+    VerifyPasswordConfirm.confirm({
       title: _l('安全认证'),
-      description: (
-        <VerifyPasswordInput
-          showSubTitle={false}
-          isRequired={true}
-          autoFocus={true}
-          allowNoVerify={!removeNoneVerification}
-          onChange={({ password, isNoneVerification }) => {
-            if (password !== undefined) this.password = password;
-            if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
-          }}
-        />
-      ),
-      onOk: () => {
-        return new Promise((resolve, reject) => {
-          if (!this.password || !this.password.trim()) {
-            alert(_l('请输入密码'), 3);
-            return;
-          }
-
-          verifyPassword({
-            projectId,
-            password: this.password,
-            closeImageValidation: true,
-            isNoneVerification: this.isNoneVerification,
-            success: () => {
-              callback();
-              resolve();
-            },
-            fail: () => {
-              reject(true);
-            },
-          });
-        });
-      },
+      projectId,
+      isRequired: true,
+      showVerifyType: true,
+      allowNoVerify: !removeNoneVerification,
+      closeImageValidation: true,
+      onOk: callback,
     });
   }
 
@@ -352,18 +400,18 @@ export default class Header extends Component {
       currentWorkItem,
       data,
       errorMsg,
-      id,
       workId,
       onSubmit,
       sheetSwitchPermit = [],
       viewId,
       works,
+      currentWork,
       noAuth,
       instanceId,
     } = this.props;
     const { flowNode, operationTypeList, app, processName } = data;
     const btnMap = data.btnMap || {};
-    const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
+    const { addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
     const translateInfo = getTranslateInfo(app.id, data.parentId, flowNode.id);
 
     if (errorMsg) {
@@ -439,14 +487,15 @@ export default class Header extends Component {
                           isRequest && id === action ? _l('处理中...') : isUrged && id === 'urge' ? _l('已催办') : text;
                         return (
                           <Button
-                            disabled={isRequest || (isUrged && id === 'urge')}
+                            {...(ACTION_BUTTON_PROPS[id] || DEFAULT_ACTION_BUTTON_PROPS)}
+                            disabled={(isRequest && id !== action) || (isUrged && id === 'urge')}
+                            loading={isRequest && id === action}
                             key={id}
-                            size={'tiny'}
                             title={buttonText}
+                            icon={<Icon icon={icon} className="Font16" />}
                             onClick={() => this.handleClick(id)}
-                            className={cx('headerBtn mLeft10', id)}
+                            className="headerBtn mLeft10"
                           >
-                            <Icon type={icon} className="Font16 mRight3" />
                             <span className="headerBtnText">{buttonText}</span>
                           </Button>
                         );
@@ -454,44 +503,13 @@ export default class Header extends Component {
                   </div>
                 )}
 
-                <div
-                  className="more flexRow mLeft15"
-                  onClick={() => this.setState({ moreOperationVisible: !moreOperationVisible })}
+                <PrintList
+                  {...this.props}
+                  systemPrintEnabled={isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)}
+                  onClose={this.closeMoreOperation}
                 >
-                  <Tooltip title={_l('更多操作')} placement="bottom">
-                    <div className="iconWrap flexRow">
-                      <Icon icon="more_horiz textSecondary hoverColorPrimary" />
-                    </div>
-                  </Tooltip>
-
-                  {moreOperationVisible && (
-                    <Menu
-                      className="moreOperation"
-                      onClickAwayExceptions={['.workflowExecPrintTrigger']}
-                      onClickAway={() => this.setState({ moreOperationVisible: false })}
-                    >
-                      {operationTypeList[1].map((item, index) => (
-                        <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
-                          <Icon icon={OPERATION_LIST[item].icon} />
-                          <span className="actionText">{OPERATION_LIST[item].text}</span>
-                        </MenuItem>
-                      ))}
-
-                      {isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && (
-                        <PrintList {...this.props} onClose={() => this.setState({ moreOperationVisible: false })} />
-                      )}
-
-                      <MenuItem
-                        onClick={() =>
-                          window.open(pathCompletion(`/app/${app.id}/workflowdetail/record/${id}/${workId}`))
-                        }
-                      >
-                        <Icon icon="launch" />
-                        <span className="actionText">{_l('新页面打开')}</span>
-                      </MenuItem>
-                    </Menu>
-                  )}
-                </div>
+                  {this.renderMoreOperation}
+                </PrintList>
               </Fragment>
             )}
           </header>
@@ -508,6 +526,7 @@ export default class Header extends Component {
             <OtherAction
               projectId={projectId}
               data={data}
+              currentWork={currentWork}
               action={action}
               instanceId={instanceId}
               workId={workId}

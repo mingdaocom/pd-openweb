@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { reportTypes } from '../Charts/reportTypes';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 const normalizeBidirectionalBarChartAxes = report => {
   if (!report || report.reportType !== reportTypes.BidirectionalBarChart) {

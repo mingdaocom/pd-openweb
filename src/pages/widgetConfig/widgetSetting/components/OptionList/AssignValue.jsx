@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { InputNumber, Switch } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { InputNumber, Modal, Switch } from 'ming-ui/antd-components';
+
+const ASSIGN_VALUE_MODAL_STYLES = {
+  body: { overflowX: 'hidden', padding: '0 0 20px' },
+};
 
 const AssignValueContent = styled.div`
-  .hint {
-    padding: 0 20px;
-  }
   .switchWrap {
-    margin: 12px 0 20px 20px;
+    margin: 12px 0 0 0;
     .switch {
       margin-right: 12px;
     }
@@ -18,7 +18,7 @@ const AssignValueContent = styled.div`
   .content {
     display: flex;
     max-height: 445px;
-    padding: 0 20px;
+    margin-top: 20px;
     box-sizing: border-box;
     ul {
       width: 50%;
@@ -66,34 +66,34 @@ const AssignValueContent = styled.div`
       padding-left: 0;
     }
   }
-  .ant-input-number {
+  .hap-input-number {
     border: none;
-    box-shadow: none;
     width: 100%;
-    .ant-input-number-handler-wrap {
+    .hap-input-number-handler-wrap {
       display: none;
     }
   }
 `;
 
 export default function AssignValue(props) {
-  const { enableScore, onOk, ...rest } = props;
-  const [options, setOptions] = useState(props.options);
+  const { enableScore, onOk, options: defaultOptions, ...modalProps } = props;
+  const [options, setOptions] = useState(defaultOptions);
   const [checked, setChecked] = useState(enableScore);
 
   return (
-    <Dialog
-      {...rest}
+    <Modal
+      {...modalProps}
       width={640}
-      bodyClass="assignValueBody"
+      styles={ASSIGN_VALUE_MODAL_STYLES}
       onOk={() => {
         onOk({
           enableScore: checked,
           options,
         });
       }}
-      visible
-      title={<span className="Bold">{_l('赋分值')}</span>}
+      open
+      title={_l('赋分值')}
+      keyboard
     >
       <AssignValueContent>
         <div className="hint textTertiary">
@@ -141,6 +141,6 @@ export default function AssignValue(props) {
           </ul>
         </div>
       </AssignValueContent>
-    </Dialog>
+    </Modal>
   );
 }

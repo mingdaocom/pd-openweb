@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { Button, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Switch } from 'ming-ui';
+import { Button, Input, Switch } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
-import { encrypt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import { encrypt } from 'src/utils/services/security/encryption';
 import Config from '../../../config';
 
 const SetInitialPassword = styled.div`
@@ -35,8 +34,7 @@ const SetInitialPassword = styled.div`
       color: var(--color-error);
       padding-left: 80px;
     }
-    .ant-btn-primary {
-      height: 36px;
+    .hap-btn-primary {
       position: absolute;
       top: 0;
       bottom: 0;
@@ -50,7 +48,11 @@ export default class IntegrationSetPassword extends Component {
     this.state = {
       password: props.password,
       isSetPassword: props.isSetPassword,
+      requestPending: false,
     };
+    this.requestPending = null;
+    this.currentPassword = undefined;
+    this.nextPassword = undefined;
   }
 
   // 改变初始密码值
@@ -73,7 +75,14 @@ export default class IntegrationSetPassword extends Component {
 
   // 改变初始密码值
   changeInitialPassword = password => {
-    Ajax.editIntergrationAccountInitializeInfo({
+    if (this.requestPending) {
+      this.nextPassword = password === this.currentPassword ? undefined : password;
+      return this.requestPending;
+    }
+
+    this.currentPassword = password;
+    this.setState({ requestPending: true });
+    const request = Ajax.editIntergrationAccountInitializeInfo({
       projectId: Config.projectId,
       password: password ? encrypt(password) : '',
     }).then(res => {
@@ -85,6 +94,21 @@ export default class IntegrationSetPassword extends Component {
         }
       }
     });
+
+    this.requestPending = request.finally(() => {
+      this.requestPending = null;
+      this.currentPassword = undefined;
+
+      if (this.nextPassword !== undefined) {
+        const nextPassword = this.nextPassword;
+        this.nextPassword = undefined;
+        return this.changeInitialPassword(nextPassword);
+      }
+
+      this.setState({ requestPending: false });
+    });
+
+    return this.requestPending;
   };
 
   // 开始未同步账号设置初始密码
@@ -100,7 +124,7 @@ export default class IntegrationSetPassword extends Component {
   savePassword = () => {
     let { password } = this.state;
 
-    if (RegExpValidator.isPasswordValid(password)) {
+    if (isPasswordValid(password)) {
       this.setState({ passwordError: false });
       this.changeInitialPassword(password);
     } else {
@@ -109,13 +133,21 @@ export default class IntegrationSetPassword extends Component {
   };
   render() {
     let { disabled } = this.props;
+    const { requestPending } = this.state;
     const { passwordRegexTip } = md.global.SysSettings;
 
     return (
       <SetInitialPassword>
         <div className="flex">
           <h3 className="stepTitle Font16 textPrimary mBottom24">{_l('为同步账号设置初始密码')}</h3>
-          <Switch disabled={disabled} checked={this.state.isSetPassword} onClick={this.changeSetInitialPassword} />
+          <Switch
+            disabled={disabled || requestPending}
+            checked={this.state.isSetPassword}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return this.changeSetInitialPassword(!checked, event);
+            }}
+          />
           <div className="mTop16 syncBox">
             <span className="Font13 textSecondary info">
               {_l('开启后，为同步到系统的账号设置初始密码，用户可以使用系统创建的账号和密码（初始密码）进行登录')}
@@ -139,7 +171,7 @@ export default class IntegrationSetPassword extends Component {
                   });
                 }}
               />
-              <Button type="primary" onClick={this.savePassword}>
+              <Button type="primary" loading={requestPending} disabled={requestPending} onClick={this.savePassword}>
                 {_l('保存')}
               </Button>
               {this.state.passwordError && (

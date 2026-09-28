@@ -67,8 +67,13 @@ const VoiceInput = forwardRef((props, ref) => {
             >
               {_l('取消')}
             </div>
-            <div className="basicBtn primary flex" onClick={onStart}>
-              {_l('开始语音识别')}
+            <div
+              className={cx('basicBtn primary flex', { disabled: loading })}
+              aria-busy={loading}
+              aria-disabled={loading}
+              onClick={loading ? undefined : onStart}
+            >
+              {loading ? _l('加载中...') : _l('开始语音识别')}
             </div>
           </div>
         );
@@ -90,7 +95,7 @@ const VoiceInput = forwardRef((props, ref) => {
     }
   };
 
-  if (!visible || loading) return null;
+  if (!visible) return null;
 
   return (
     <div className="voiceInputWrapper toastWrapper">

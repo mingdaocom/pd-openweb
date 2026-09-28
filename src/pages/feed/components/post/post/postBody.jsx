@@ -5,7 +5,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import postEnum from '../../../constants/postEnum';
 import { addFavorite, addLike, removeFavorite, removeLike } from '../../../redux/postActions';
 import PostCommentList from '../comment/postCommentList';
@@ -13,7 +14,6 @@ import PostFooter from './postFooter';
 import PostMain from './postMain';
 import PostOperator from './postOperator';
 import PostUsernameGroup from './postUsernameGroup';
-import { pathCompletion } from 'src/utils/common';
 
 /**
  * 动态卡片内部内容, 包括动态、相应类型动态的附加信息、操作项、回复/标签等

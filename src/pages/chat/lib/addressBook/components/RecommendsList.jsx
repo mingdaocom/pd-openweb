@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import Button from 'ming-ui/components/Button';
+import { Button } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { addFriendConfirm } from 'ming-ui/functions';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import API, { editIgnoreRecommends } from '../api';
-import { pathCompletion } from 'src/utils/common';
 
 export default class RecommendsList extends React.Component {
   constructor() {
@@ -14,24 +14,33 @@ export default class RecommendsList extends React.Component {
       pageIndex: 1,
       hasMore: true,
       listData: null,
+      pendingActions: {},
     };
 
     this.fetch = this.fetch.bind(this);
+    this.pendingActions = {};
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.fetch();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.isLoaded !== prevProps.isLoaded && this.props.isLoaded === false) {
+        this.pendingActions = {};
         this.setState(
           {
             isLoading: false,
             pageIndex: 1,
             hasMore: true,
             listData: null,
+            pendingActions: {},
           },
           this.fetch,
         );
@@ -53,6 +62,23 @@ export default class RecommendsList extends React.Component {
         }
       }),
     });
+  }
+
+  runAction(accountId, actionType, action) {
+    if (this.pendingActions[accountId]) return;
+
+    this.pendingActions = { ...this.pendingActions, [accountId]: actionType };
+    this.setState({ pendingActions: this.pendingActions });
+
+    return Promise.resolve()
+      .then(action)
+      .catch(error => console.error(error))
+      .finally(() => {
+        this.pendingActions = _.omit(this.pendingActions, accountId);
+        if (this.mounted) {
+          this.setState({ pendingActions: this.pendingActions });
+        }
+      });
   }
 
   add(accountId) {
@@ -100,7 +126,7 @@ export default class RecommendsList extends React.Component {
   }
 
   render() {
-    const { listData, isLoading, pageIndex, hasMore } = this.state;
+    const { listData, isLoading, pageIndex, hasMore, pendingActions } = this.state;
     if (!isLoading && (listData === null || !listData.length)) return null;
     if (isLoading && pageIndex === 1) return null;
     return (
@@ -120,10 +146,17 @@ export default class RecommendsList extends React.Component {
           <tbody className="textSecondary">
             {listData.length &&
               listData.map(item => {
+                const pendingAction = pendingActions[item.accountId];
+
                 return (
                   <tr key={item.accountId}>
                     <td className="userItem pRight24">
-                      <a href={pathCompletion('/user_' + item.accountId)} className="Hand NoUnderline" target="_blank">
+                      <a
+                        href={pathCompletion('/user_' + item.accountId)}
+                        className="Hand NoUnderline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <img className="circle avatar" src={item.avatar} />
                       </a>
                       <a
@@ -142,10 +175,20 @@ export default class RecommendsList extends React.Component {
                     </td>
                     {item.added === undefined ? (
                       <td className="TxtCenter">
-                        <Button type="primary" size="small" onClick={() => this.add(item.accountId)}>
+                        <Button
+                          type="primary"
+                          disabled={Boolean(pendingAction)}
+                          onClick={() => this.add(item.accountId)}
+                        >
                           {_l('添加')}
                         </Button>
-                        <Button type="link" size="small" action={() => this.ignore(item.accountId)}>
+                        <Button
+                          color="primary"
+                          variant="link"
+                          loading={pendingAction === 'ignore'}
+                          disabled={Boolean(pendingAction) && pendingAction !== 'ignore'}
+                          onClick={() => this.runAction(item.accountId, 'ignore', () => this.ignore(item.accountId))}
+                        >
                           {_l('忽略')}
                         </Button>
                       </td>

@@ -1,10 +1,11 @@
 import _ from 'lodash';
-import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { controlState } from 'src/utils/control';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { controlState } from 'src/utils/domain/control/state';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+
+const isStaleRequest = (getState, requestId) => requestId && getState().mobile.base.requestId !== requestId;
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
@@ -49,7 +50,7 @@ export const updateBase = base => dispatch => {
 
 export const loadRow = (control, getType) => (dispatch, getState) => {
   const { base, rowInfo } = getState().mobile;
-  const { instanceId, workId, worksheetId, rowId } = base;
+  const { instanceId, requestId, workId, worksheetId, rowId } = base;
   const params = {};
 
   if (instanceId && workId) {
@@ -72,7 +73,9 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
   }
 
   if (_.isEmpty(rowInfo)) {
-    sheetAjax.getRowDetail(params).then(result => {
+    return worksheetAjax.getRowDetail(params).then(result => {
+      if (isStaleRequest(getState, requestId)) return { stale: true };
+
       dispatch({
         type: 'MOBILE_RELATION_ROW_INFO',
         data: {
@@ -82,17 +85,17 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
           ),
         },
       });
-      dispatch(loadRowRelationRows(control, getType));
+      return dispatch(loadRowRelationRows(control, getType));
     });
   } else {
-    dispatch(loadRowRelationRows(control));
+    return dispatch(loadRowRelationRows(control));
   }
 };
 
 export const loadRowRelationRows = (relationControl, getType) => async (dispatch, getState) => {
   const { base, loadParams, relationRows, rowInfo } = getState().mobile;
   const { pageIndex, keywords } = loadParams;
-  const { instanceId, workId, rowId, worksheetId, controlId } = base;
+  const { controlId, instanceId, requestId, rowId, workId, worksheetId } = base;
   const PAGE_SIZE = 10;
   const params = {
     controlId,
@@ -119,6 +122,9 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     getTemplate: true,
     relationWorksheetId: worksheetId,
   });
+
+  if (isStaleRequest(getState, requestId)) return { stale: true };
+
   relationControls = replaceControlsTranslateInfo(
     base.appId,
     control.dataSource,
@@ -144,12 +150,12 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
         isMore: false,
       },
     });
-    return;
+    return { stale: false };
   }
 
   params.filterControls = filterControls || [];
 
-  sheetAjax
+  return worksheetAjax
     .getRowRelationRows({
       ...params,
       pageIndex,
@@ -158,6 +164,8 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
       getRules: pageIndex === 1,
     })
     .then(result => {
+      if (isStaleRequest(getState, requestId)) return { stale: true };
+
       if (pageIndex === 1) {
         dispatch({
           type: 'MOBILE_RELATION_ROW',
@@ -189,6 +197,8 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
           isMore: result.data.length === PAGE_SIZE,
         },
       });
+
+      return { stale: false };
     });
 };
 

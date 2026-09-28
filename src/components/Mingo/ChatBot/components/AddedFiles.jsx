@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import FileCard from './FileCard';
 
 const Con = styled.div`
@@ -17,7 +18,8 @@ const Con = styled.div`
   -webkit-overflow-scrolling: touch;
 `;
 
-export default function AddedFiles({ files, onRemove, readonly = false }) {
+export default function AddedFiles({ files, onRemove, readonly = false, disableActions = false, hideShare = false }) {
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
   const conRef = useRef(null);
   useEffect(() => {
     if (conRef.current) {
@@ -26,20 +28,27 @@ export default function AddedFiles({ files, onRemove, readonly = false }) {
   }, [files]);
   return (
     <Con ref={conRef} $noRightPadding={readonly}>
+      {previewAttachmentsHolder}
       {files.map(item => (
         <FileCard
           allowRemove={!readonly}
+          readonly={readonly}
+          disableActions={disableActions}
+          hideShare={hideShare}
           key={item.id}
           className="file"
           id={item.id}
           commonAttachment={item.commonAttachment}
+          source={item.source}
           name={item.name}
+          size={item.size}
           type={item.type}
           url={item.url}
           status={item.status}
           errorText={item.errorText}
           progress={item.progress}
           onRemove={onRemove}
+          openPreviewAttachments={openPreviewAttachments}
         />
       ))}
     </Con>

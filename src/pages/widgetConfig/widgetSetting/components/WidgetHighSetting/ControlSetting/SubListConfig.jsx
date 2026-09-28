@@ -1,15 +1,15 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
 import SetHiddenControls from '../components/SetHiddenControls';
 import SubListStatisticsConfig from '../components/SubListStatisticsConfig';
 
 export default function SubListConfig(props) {
   const { data, onChange } = props;
   const { controlId = [], strDefault } = data;
-  const { showcount = '0', layercontrolid } = getAdvanceSetting(data);
+  const { showcount = '0', layercontrolid, rcsorttype = '2' } = getAdvanceSetting(data);
   const { mode, sheetInfo = {} } = window.subListSheetConfig[controlId] || {};
   const [isHiddenOtherViewRecord] = (strDefault || '000').split('');
   const controls = _.get(sheetInfo, 'template.controls') || _.get(sheetInfo, 'relationControls');
@@ -21,17 +21,17 @@ export default function SubListConfig(props) {
           <div className="labelWrap">
             <Checkbox
               className="allowSelectRecords"
-              size="small"
-              text={_l('显示计数')}
               checked={showcount !== '1'}
-              onClick={checked =>
+              onChange={event =>
                 onChange(
                   handleAdvancedSettingChange(data, {
-                    showcount: checked ? '1' : '0',
+                    showcount: !event.target.checked ? '1' : '0',
                   }),
                 )
               }
+              size="small"
             >
+              {_l('显示计数')}
               <Tooltip placement="bottom" title={_l('在表单中显示子表的数量')}>
                 <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
               </Tooltip>
@@ -45,19 +45,29 @@ export default function SubListConfig(props) {
           {!layercontrolid && (
             <div className="labelWrap">
               <Checkbox
-                size="small"
-                text={_l('按用户权限访问')}
                 checked={!!+isHiddenOtherViewRecord}
-                onClick={checked => {
-                  onChange({
+                onChange={event => {
+                  const checked = +event.target.checked;
+                  const nextData = {
+                    ...data,
                     strDefault: updateConfig({
                       config: strDefault,
-                      value: +!checked,
+                      value: checked,
                       index: 0,
                     }),
-                  });
+                  };
+
+                  onChange(
+                    checked && rcsorttype === '1'
+                      ? handleAdvancedSettingChange(nextData, {
+                          rcsorttype: '2',
+                        })
+                      : nextData,
+                  );
                 }}
+                size="small"
               >
+                {_l('按用户权限访问')}
                 <Tooltip
                   placement="bottom"
                   title={

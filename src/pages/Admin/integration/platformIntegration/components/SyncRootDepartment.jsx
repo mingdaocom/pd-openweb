@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, Switch } from 'ming-ui';
+import { Modal, Switch } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export default function SyncRootDepartment(props) {
   const [syncRootDepartment, setSyncRootDepartment] = useState(props.syncRootDepartment || false);
@@ -28,16 +29,16 @@ export default function SyncRootDepartment(props) {
             alert(_l('操作失败'), 2);
           }
         })
-        .catch(() => {
+        .catch(_requestError => {
           setIsLoading(false);
-          alert(_l('操作失败'), 2);
+          alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
         });
     };
 
     if (syncRootDepartment) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('确认关闭 “同步根部门”'),
-        description: _l('关闭后，已同步的根部门将在下次同步时被移除'),
+        content: _l('关闭后，已同步的根部门将在下次同步时被移除'),
         onOk: request,
       });
     } else {
@@ -48,7 +49,14 @@ export default function SyncRootDepartment(props) {
   return (
     <div className="stepItem">
       <h3 className="stepTitle Font16 textPrimary mBottom24">{_l('同步根部门')}</h3>
-      <Switch disabled={isLoading} checked={syncRootDepartment} onClick={handleSyncRootDeptment} />
+      <Switch
+        disabled={isLoading}
+        checked={syncRootDepartment}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+          return handleSyncRootDeptment(!checked, event);
+        }}
+      />
       <div className="Font14 textSecondary mTop16">
         {_l('开启后，将第三方平台组织架构的根节点（通常为组织名称），作为一级部门进行同步')}
       </div>

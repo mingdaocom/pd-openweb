@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { Loading } from '../components/ChartStatus';
-import { reportTypes } from './reportTypes';
 import VerificationDataLength from './VerificationDataLength';
 
 const createChart = (loader, { verifyLength = false } = {}) => {

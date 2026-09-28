@@ -28,7 +28,7 @@ const UsageDetailWrapper = styled.div`
       color: var(--color-text-placeholder);
       font-size: 20px;
     }
-    .ant-switch-checked {
+    .hap-switch-checked {
       background-color: rgba(40, 202, 131, 1);
     }
   }

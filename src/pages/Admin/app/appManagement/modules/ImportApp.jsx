@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
-import { Progress } from 'antd';
 import cx from 'classnames';
-import { Checkbox, Icon, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Input, Progress, Tooltip } from 'ming-ui/antd-components';
 import createUploader from 'src/library/plupload/createUploader';
-import { formatFileSize } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import Config from '../../../config';
 import './index.less';
 
@@ -194,23 +193,24 @@ export default class ImportApp extends React.Component {
           >
             <Icon className="uploadIcon" icon="mdy" />
             {this.renderFileInfo()}
-            <button
-              type="button"
-              className={cx('ming Button exportBtn mTop24 Bold', { Hidden: !errTip && file.name })}
+            <Button
+              type="primary"
+              shape="round"
+              className={cx('mTop24 Bold', { Hidden: !errTip && file.name })}
               ref={input => {
                 this.uploadFile = input;
               }}
             >
               {errTip ? _l('重新上传') : _l('上传文件')}
-            </button>
+            </Button>
 
             {file.name && (
               <div className={cx('flexRow mTop16', { Hidden: file.loaded === file.size })}>
                 <Progress
                   style={{ width: 250 }}
-                  trailColor="var(--color-border-secondary)"
+                  railColor="var(--color-border-secondary)"
                   strokeColor="#1677ff"
-                  strokeWidth={8}
+                  size={[-1, 8]}
                   percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
                 />
                 <span
@@ -240,20 +240,15 @@ export default class ImportApp extends React.Component {
         return (
           <div className="importAppContent solidBorder importAppContentCenter">
             <div className="Font14">{_l('文件已加密，需验证通过才能导入')}</div>
-            <input
+            <Input
               className="passwordInputBox mTop16 mBottom16"
               placeholder={_l('请输入密码')}
               value={password}
               onChange={e => this.setState({ password: e.target.value })}
             />
-            <button
-              type="button"
-              disabled={!password}
-              className={cx('ming Button Button--primary submitPassword Bold', { disabled: !password })}
-              onClick={() => this.checkPassword()}
-            >
+            <Button type="primary" disabled={!password} className="Bold" onClick={() => this.checkPassword()}>
               {_l('确认')}
-            </button>
+            </Button>
           </div>
         );
       case 3:
@@ -295,7 +290,11 @@ export default class ImportApp extends React.Component {
               <Checkbox
                 className="TxtMiddle mRight6"
                 checked={matchOffice}
-                onClick={checked => this.setState({ matchOffice: !checked })}
+                onChange={event =>
+                  this.setState({
+                    matchOffice: event.target.checked,
+                  })
+                }
               >
                 {_l('导入时匹配人员部门职位')}
               </Checkbox>
@@ -306,13 +305,9 @@ export default class ImportApp extends React.Component {
                 <span className="textDisabled icon-help1 Font15"></span>
               </Tooltip>
             </div>
-            <button
-              type="button"
-              className="ming Button Button--primary hoverColorPrimaryLight importBtn Bold"
-              onClick={() => this.importApp()}
-            >
+            <Button type="primary" className="Bold" onClick={() => this.importApp()}>
               {_l('立即导入')}
-            </button>
+            </Button>
           </div>
         )}
       </div>

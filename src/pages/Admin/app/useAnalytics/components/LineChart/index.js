@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize } from 'src/utils/core/file';
 import { formatter } from '../../util';
 
 let g2plotPromise;

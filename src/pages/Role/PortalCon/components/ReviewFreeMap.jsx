@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet/config.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);
 const Wrap = styled.div`
@@ -29,26 +30,9 @@ const Wrap = styled.div`
       width: 10%;
       text-align: center;
     }
-    .Dropdown {
+    .freeMapSelect {
       flex: 1;
       max-width: 45%;
-    }
-    .Dropdown--input {
-      display: flex;
-      line-height: 36px;
-      padding: 0 10px !important;
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-border-secondary);
-      border-radius: 3px;
-      .value,
-      .Dropdown--placeholder {
-        flex: 1;
-      }
-      i {
-        &::before {
-          line-height: 36px;
-        }
-      }
     }
   }
 `;
@@ -107,10 +91,9 @@ export default function ReviewFreeMap(props) {
                 <span className="iconBox InlineBlock TxtBottom LineHeight36">
                   <Icon className="Font18 colorPrimary" type="arrow_forward" />
                 </span>
-                <Dropdown
+                <Select
                   key={o.controlId + '_Dropdown_' + props.type}
-                  isAppendToBody
-                  data={
+                  options={
                     props.type === 1
                       ? cells
                           .filter(a => {
@@ -125,10 +108,10 @@ export default function ReviewFreeMap(props) {
                             if (a.type === o.type) return a;
                           }) //必须类型相同
                           .map(item => {
+                            // 字段自身的 options 不能透传，否则 Select 会将字段识别为分组。
                             return {
-                              ...item,
                               value: item.controlId,
-                              text: item.controlName,
+                              label: item.controlName,
                               disabled: !!(_.get(query, ['configs']) || []).find(
                                 o => o.subCid === item.controlId && controls.map(it => it.controlId).includes(o.cid),
                               ),
@@ -136,9 +119,8 @@ export default function ReviewFreeMap(props) {
                           })
                       : cells.map(item => {
                           return {
-                            ...item,
                             value: item.columnNum,
-                            text: item.columnName,
+                            label: item.columnName,
                             disabled: cellConfigs.map(o => o.columnNum).includes(item.columnNum),
                           };
                         })
@@ -149,7 +131,7 @@ export default function ReviewFreeMap(props) {
                       ? ((_.get(query, ['configs']) || []).find(item => o.controlId === item.cid) || {}).subCid
                       : (cellConfigs.find(item => item.controlId === o.controlId) || {}).columnNum
                   }
-                  className={cx('flex InlineBlock')}
+                  className={cx('flex freeMapSelect')}
                   onChange={newValue => {
                     if (props.type === 1) {
                       //worksheet

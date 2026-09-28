@@ -116,7 +116,7 @@
   .workflowItem {
     width: 261px;
     background: var(--color-background-card);
-    border-radius: 6px;
+    border-radius: 8px;
     position: relative;
     box-shadow: var(--shadow-sm);
     display: flex;
@@ -226,6 +226,11 @@
             display: inline-block;
             max-width: 100%;
           }
+        }
+        .workflowGotoTarget {
+          margin: 0 -8px 12px;
+          padding: 4px 8px 12px;
+          border-bottom: 1px solid var(--color-border-primary);
         }
         .conditionSplit {
           text-align: center;
@@ -352,6 +357,12 @@
         display: inline-block;
         margin-top: 1px;
       }
+      .workflowWorksheetLink {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
     }
     .workflowNodeDel {
       color: var(--color-text-secondary);
@@ -440,6 +451,13 @@
       right: 8px;
       top: 6px;
     }
+    .workflowNotes,
+    .workflowOperate {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
   }
   .workflowLineBtn {
     padding: 16px 0;
@@ -477,17 +495,6 @@
         &:hover {
           text-decoration: underline;
         }
-      }
-    }
-    .ming.Menu {
-      transform: translateX(-50%);
-      left: 50% !important;
-    }
-    .ming.MenuItem .Item-content {
-      color: var(--color-text-secondary) !important;
-
-      &:hover {
-        background: var(--color-background-hover) !important;
       }
     }
   }
@@ -554,28 +561,6 @@
   &.workflowError {
     background: var(--color-error-bg);
     color: var(--color-error);
-  }
-}
-
-.deleteNodeConfirm {
-  .mui-dialog-default-title {
-    color: var(--color-error) !important;
-  }
-  .Dialog-footer-btns {
-    .Button--primary {
-      background: var(--color-error) !important;
-    }
-  }
-}
-
-.switchDetailConfirm {
-  .Dialog-footer-btns {
-    .Button--medium {
-      float: right;
-    }
-    .Button--primary {
-      margin-left: 20px !important;
-    }
   }
 }
 
@@ -652,40 +637,17 @@
         background: var(--color-background-hover);
       }
       &:not(.disabled) {
-        .Radio-box {
+        .ant-radio-inner {
           background: var(--color-background-primary) !important;
         }
       }
-      .Radio-text {
+      .ant-radio-label {
         color: var(--color-text-primary) !important;
         font-size: 16px;
       }
-      .Radio--disabled {
+      .ant-radio-wrapper-disabled {
         cursor: pointer;
       }
-    }
-  }
-  .createNodeSearch {
-    height: 40px;
-    position: relative;
-    input {
-      padding: 8px 32px;
-      height: 40px;
-      background: var(--color-background-secondary);
-      border-radius: 18px;
-      border: none;
-      width: 100%;
-    }
-    .icon-search {
-      position: absolute;
-      top: 11px;
-      left: 11px;
-    }
-    .icon-cancel {
-      position: absolute;
-      top: 8px;
-      right: 11px;
-      cursor: pointer;
     }
   }
   .createNodeSearchEmpty {
@@ -717,7 +679,7 @@
     > li {
       cursor: pointer;
       height: 40px;
-      border-radius: 4px;
+      border-radius: 6px;
       position: relative;
       padding-left: 40px;
       &::before {
@@ -802,32 +764,10 @@
 }
 
 .flowNodeOperateList {
+  overflow: hidden;
   background: var(--color-background-card);
   border-radius: 4px;
   box-shadow: var(--shadow-lg);
-  padding: 5px 0;
-  li {
-    height: 36px;
-    display: flex;
-    align-items: center;
-    padding: 0 32px 0 16px;
-    cursor: pointer;
-    &:hover {
-      background-color: var(--color-background-hover);
-    }
-    &.flowNodeDel {
-      color: var(--color-error);
-      i {
-        color: var(--color-error);
-        font-size: 16px;
-      }
-    }
-    i {
-      font-size: 14px;
-      color: var(--color-text-secondary);
-      margin-right: 10px;
-    }
-  }
   .flowNodeOperateMove {
     padding-top: 8px;
     padding-left: 16px;
@@ -872,19 +812,6 @@
 }
 
 .processNodeBox {
-  .processNodeAlias {
-    padding: 5px 12px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-primary);
-    height: 36px;
-    line-height: 36px;
-    width: 100%;
-    font-size: 13px;
-    color: var(--color-text-title);
-    &:focus {
-      border-color: var(--color-primary);
-    }
-  }
   .processNodeErrorMessage {
     position: absolute;
     bottom: 36px;
@@ -915,17 +842,10 @@
   bottom: 0;
   width: 290px;
   height: 290px;
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: none !important;
   }
-  .ant-drawer-content {
+  .hap-drawer-content {
     background: transparent;
-  }
-}
-
-.workflowExceedDialog {
-  .Dialog-footer-btns {
-    text-align: center;
-    margin-bottom: 25px;
   }
 }

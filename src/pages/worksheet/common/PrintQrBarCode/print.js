@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import PDFObject from 'pdfobject';
+import { generateQrDataUrl as genQrDataurl, QRErrorCorrectLevel } from 'src/utils/platform/browser/qrCode';
 import {
   BAR_LABEL_SIZE,
   BAR_LABEL_SIZES,
@@ -9,7 +10,6 @@ import {
   QR_LABEL_SIZES,
   QR_LAYOUT,
 } from './enum';
-import genQrDataurl, { QRErrorCorrectLevel } from './genQrDataurl';
 import { A4_OPTS, A4_SIZE } from './printConfig';
 import { createBarLabeObjectFromConfig, createQrLabeObjectFromConfig } from './util';
 
@@ -136,7 +136,7 @@ export class QrPdf {
   async render() {
     return new Promise(async resolve => {
       import('jspdf').then(jsPDF => {
-        this.jsPDF = jsPDF.default;
+        this.jsPDF = jsPDF.jsPDF || jsPDF.default;
         if (this.printType === PRINT_TYPE.A4) {
           resolve(this.renderA4());
         } else if (this.printType === PRINT_TYPE.QR) {

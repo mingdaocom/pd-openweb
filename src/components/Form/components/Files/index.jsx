@@ -1,5 +1,4 @@
 import React, { Fragment, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ConfigProvider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -9,14 +8,17 @@ import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { isWpsPreview } from 'src/pages/kc/utils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
+import { formatFileSize } from 'src/utils/core/file';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/services/project';
 import ImageCard from './ImageCard';
 import LargeImageCard from './LargeImageCard';
 import ListCard, { ListCardHeader } from './ListCard';
 import SmallCard from './SmallCard';
+import { isDeletedAttachment } from './utils';
 import WaitingUpload from './WaitingUpload';
 import './index.less';
 
@@ -71,28 +73,34 @@ const renderSortableItem = props => {
     onOpenControlAttachmentInNewTab,
     item,
   } = props;
-  const data = item;
+  const isDeleted = isDeletedAttachment(item);
+  const data = isDeleted && !item.fileID ? { ...item, fileID: item.fileId } : item;
   const { accountId, sourceID } = data;
-  const isMdFile = accountId || sourceID;
+  const isMdFile = accountId || sourceID || isDeleted;
   const isKc = !!data.refId;
 
   const FileComponent = CardComponent[showType];
   const fileProps = {
     isMdFile,
     isKc,
-    wpsEditUrl: allowEditName ? wpsEditUrls[data.fileID] : undefined,
-    allowShare: (data.ext || '').includes('url') ? false : allowShare,
+    isDeleted,
+    wpsEditUrl: !isDeleted && allowEditName ? wpsEditUrls[data.fileID] : undefined,
+    allowShare: isDeleted || (data.ext || '').includes('url') ? false : allowShare,
+    allowDownload: isDeleted ? false : allowDownload,
+    allowEditName: isDeleted ? false : allowEditName,
+    onOpenControlAttachmentInNewTab: isDeleted ? undefined : onOpenControlAttachmentInNewTab,
   };
 
   if (isMdFile) {
     const isPicture = isKc ? !!data.shareUrl : RegExpValidator.fileIsPicture(data.ext);
     Object.assign(fileProps, {
       isPicture,
-      browse: isKc ? !!data.shareUrl : true,
+      browse: !isDeleted && (isKc ? !!data.shareUrl : true),
       fileClassName: getClassNameByExt(data.attachmentType === 5 ? false : data.ext),
-      fileSize: formatFileSize(data.filesize),
+      fileSize: isDeleted ? '' : formatFileSize(data.filesize),
       isUrlPreview: window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(data.ext?.toLocaleUpperCase()),
       isMore:
+        !isDeleted &&
         (fileProps.wpsEditUrl ||
           allowShare ||
           allowDownload ||
@@ -100,9 +108,11 @@ const renderSortableItem = props => {
           (recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState))) &&
         md.global.Account.accountId &&
         !_.get(window, 'shareState.shareId'),
-      isDownload: isKc
-        ? data.allowDown === 'ok'
-        : data.accountId === md.global.Account.accountId || isPicture || data.allowDown === 'ok',
+      isDownload: isDeleted
+        ? false
+        : isKc
+          ? data.allowDown === 'ok'
+          : data.accountId === md.global.Account.accountId || isPicture || data.allowDown === 'ok',
     });
   } else {
     Object.assign(fileProps, {
@@ -154,6 +164,7 @@ const SortableListWrap = props => {
     >
       <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
         <SortableList
+          renderBody
           dragPreviewImage
           canDrag={canDrag}
           useDragHandle={isListCard}
@@ -163,19 +174,10 @@ const SortableListWrap = props => {
           renderItem={options => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={otherProps.onSortEnd}
         />
+
         {isMobile &&
           waitingAttachments?.map(item => (
             <WaitingUpload key={item.id} type={showType} file={item} removeUploadingFile={removeUploadingFile} />
-          ))}
-        {!isMobile &&
-          ['1', '2'].includes(showType) &&
-          Array.from({ length: 10 }).map((_, index) => (
-            <i
-              key={index}
-              className={cx('fileEmpty', showCardTypes[showType], {
-                mobile: isMobile,
-              })}
-            />
           ))}
       </div>
     </div>
@@ -201,14 +203,19 @@ const Files = props => {
   const { knowledgeAtts, onChangeKnowledgeAtts } = props;
   const { attachments, onChangeAttachments, from } = props;
   const allAttachments = useMemo(() => {
-    return sortFiles(attachments.concat(knowledgeAtts).concat(attachmentData));
+    return sortFiles(
+      attachments
+        .concat(knowledgeAtts)
+        .concat(attachmentData)
+        .map(file => (isDeletedAttachment(file) && !file.fileID ? { ...file, fileID: file.fileId } : file)),
+    );
   }, [attachments, knowledgeAtts, attachmentData]);
   const [sortAllAttachments, setSortAllAttachments] = useState(allAttachments);
   const [viewMoreVisible, setViewMoreVisible] = useState(false);
   const [viewMore, setViewMore] = useState(props.viewMore);
   const [smallSize, setSmallSize] = useState(false);
   const [wpsEditUrls, setWpsEditUrls] = useState({});
-  const { recordBaseInfo = {} } = useContext(RecordInfoContext) || props;
+  const { recordBaseInfo = {}, openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const ref = useRef(null);
 
   const { showType, allowSort } = props;
@@ -271,7 +278,7 @@ const Files = props => {
 
   // 删除明道云附件
   const handleDeleteMDFile = data => {
-    const files = attachmentData.filter(item => item.fileID !== data.fileID);
+    const files = attachmentData.filter(item => (item.fileID || item.fileId) !== data.fileID);
     onChangeAttachmentData(files);
   };
 
@@ -366,7 +373,7 @@ const Files = props => {
           isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true), // @11.1 文档在线编辑
       },
       () => {
-        previewAttachments(
+        openPreviewAttachments(
           {
             theme: `attachmentsPreview-${controlId}`,
             attachments: attachmentData,
@@ -420,7 +427,7 @@ const Files = props => {
         controlId,
       },
       () => {
-        previewAttachments({
+        openPreviewAttachments({
           theme: `attachmentsPreview-${controlId}`,
           attachments: res,
           index: _.findIndex(res, { id: data.fileID }),
@@ -459,7 +466,7 @@ const Files = props => {
         controlId,
       },
       () => {
-        previewAttachments({
+        openPreviewAttachments({
           theme: `attachmentsPreview-${controlId}`,
           attachments: res,
           index: _.findIndex(attachments, { fileID: data.fileID }),
@@ -476,7 +483,7 @@ const Files = props => {
     const attachmentData = [];
     files.forEach((data, index) => {
       const { accountId, sourceID, refId } = data;
-      const isMdFile = accountId || sourceID;
+      const isMdFile = accountId || sourceID || isDeletedAttachment(data);
       const isKc = !!refId;
       data.index = index;
       if (isMdFile) {
@@ -579,7 +586,7 @@ const Files = props => {
   };
 
   return (
-    <ConfigProvider autoInsertSpaceInButton={false}>
+    <Fragment>
       {isListCard && !!sortAllAttachments.length && <ListCardHeader />}
       <SortableListWrap
         ref={ref}
@@ -629,6 +636,7 @@ const Files = props => {
         onTriggerMore={handleTriggerMore}
         {...otherProps}
       />
+
       {viewMoreVisible && (
         <Fragment>
           <div
@@ -642,7 +650,7 @@ const Files = props => {
           </div>
         </Fragment>
       )}
-    </ConfigProvider>
+    </Fragment>
   );
 };
 

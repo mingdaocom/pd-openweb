@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import useHistoryBackClose from 'src/utils/mobileNavigation';
+import { useHistoryBackClose } from 'src/utils/platform/navigation/mobileNavigation';
 import { RecordInfoModal } from './index';
 
 // 处理打开记录详情通过浏览器返回逐层关闭

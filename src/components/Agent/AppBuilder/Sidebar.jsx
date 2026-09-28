@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { getCustomIconUrl } from 'src/utils/domain/shared/applicationIcons';
 import { transitions } from '../ui/tokens';
 
 // 搭建中状态点呼吸动画：不透明度 1 ↔ 0.3，周期 1s
@@ -9,8 +10,10 @@ const dotBreath = keyframes`
   50% { opacity: 0.3; }
 `;
 
-// plan 产出的 appIcon 是 HAP customIcon 字体类（sys_ 前缀），按 URL 渲染 SVG。
-const customIconUrl = fileName => `https://fp1.mingdaoyun.cn/customIcon/${fileName}.svg`;
+// 内容正在流式生成的 tab：图标外圈转一道弧
+const ringSpin = keyframes`
+  to { transform: rotate(360deg); }
+`;
 
 const Wrap = styled.div`
   width: 238px;
@@ -162,6 +165,7 @@ const NavItem = styled.div`
 `;
 
 const IconCircle = styled.div`
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -178,6 +182,24 @@ const IconCircle = styled.div`
     font-size: 18px !important;
     color: ${p => (p.$active ? 'var(--color-mingo)' : 'var(--color-text-tertiary)')};
   }
+
+  /* 该 tab 内容正在流式生成：一圈灰色渐变直接叠在原描边上转，不外扩留缝。
+     渐变环用 conic-gradient + radial mask 挖空内圈实现（border 不支持渐变）；
+     mask 里的 #000 只是遮罩通道取值，不是视觉颜色。 */
+  ${p =>
+    p.$streaming &&
+    css`
+      &::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 50%;
+        background: conic-gradient(from 0turn, transparent 0turn, var(--color-text-tertiary) 1turn);
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1px), #000 calc(100% - 1px));
+        mask: radial-gradient(farthest-side, transparent calc(100% - 1px), #000 calc(100% - 1px));
+        animation: ${ringSpin} 0.9s linear infinite;
+      }
+    `}
 `;
 
 const NavLabel = styled.div`
@@ -234,7 +256,12 @@ const navShimmer = keyframes`
 `;
 
 const SkelShimmer = styled.div`
-  background: linear-gradient(90deg, var(--skeleton-start), var(--skeleton-middle), var(--skeleton-end));
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-start, rgba(245, 245, 245, 0.8) 25%),
+    var(--skeleton-middle, rgba(245, 245, 245, 0.4) 37%),
+    var(--skeleton-end, rgba(245, 245, 245, 0.8) 63%)
+  );
   background-size: 400% 100%;
   animation: ${navShimmer} 2s ease infinite;
 `;
@@ -310,7 +337,7 @@ export default function Sidebar({
           </ExpandSidebarBtn>
         )}
         <AppIcon $color={appColor}>
-          {appIcon ? <SvgIcon url={customIconUrl(appIcon)} fill="#fff" size={22} /> : <AppEmblem icon="book" />}
+          {appIcon ? <SvgIcon url={getCustomIconUrl(appIcon)} fill="#fff" size={22} /> : <AppEmblem icon="book" />}
         </AppIcon>
         <AppName title={appName}>{appName}</AppName>
       </AppInfo>
@@ -331,7 +358,7 @@ export default function Sidebar({
             const active = activeKey === item.key;
             return (
               <NavItem key={item.key} $active={active} onClick={() => onSelect(item.key)}>
-                <IconCircle $active={active}>
+                <IconCircle $active={active} $streaming={!!item.streaming}>
                   <Icon icon={item.icon} />
                 </IconCircle>
                 <NavLabel>

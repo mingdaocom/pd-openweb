@@ -1,135 +1,69 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import _ from 'lodash';
-import { arrayOf, func, string } from 'prop-types';
-import styled from 'styled-components';
-import { quickSelectDept } from 'ming-ui/functions';
-import { BaseSelectedItem } from './Styles';
-
-const Con = styled.div`
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-  line-height: 32px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
-  .clearIcon {
-    display: none;
-  }
-  &:hover {
-    .clearIcon {
-      display: inline-block;
-    }
-  }
-  ${({ isEmpty }) => (!isEmpty ? '&:hover { .downIcon { display: none;} }' : '')}
-`;
-
-const DepartmentsCon = styled.div`
-  cursor: pointer;
-  flex: 1;
-  overflow: hidden;
-  font-size: 13px;
-  min-height: 32px;
-  padding: 0 0 0 10px;
-`;
-
-const DepartmentsText = styled.div`
-  font-size: 13px;
-  color: var(--color-text-title);
-`;
-
-const Icon = styled.i`
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  margin-right: 8px;
-`;
-
-const Empty = styled.span`
-  color: var(--color-text-disabled);
-`;
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import { Select } from 'ming-ui/antd-components';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
 
 export default function Departments(props) {
   const { values = [], projectId, isMultiple, onChange = () => {} } = props;
-  const [active, setActive] = useState();
   const valueRef = useRef();
+  const options = values.map(value => ({ label: value.departmentName, value: value.departmentId }));
+  const selectedValue = isMultiple ? values.map(value => value.departmentId) : values[0]?.departmentId;
 
   useEffect(() => {
     valueRef.current = values;
   }, [values]);
 
   return (
-    <Con
-      isEmpty={!values.length}
-      active={active}
-      onClick={e => {
-        if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+    <DeptSelectPopover
+      unique={!isMultiple}
+      projectId={projectId}
+      isIncludeRoot={false}
+      showCurrentUserDept
+      selectedDepartment={values}
+      onOpenChange={visible => {
+        if (visible && !_.find(md.global.Account.projects, item => item.projectId === projectId)) {
           alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+          return false;
+        }
+      }}
+      selectFn={(data, isCancel = false) => {
+        if (!data.length) {
           return;
         }
 
-        setActive(true);
-        quickSelectDept(e.target, {
-          unique: !isMultiple,
-          projectId,
-          isIncludeRoot: false,
-          showCurrentUserDept: true,
-          selectedDepartment: values,
-          onClose: () => setActive(false),
-          selectFn: (data, isCancel = false) => {
-            if (!data.length) {
-              return;
-            }
-
-            setActive(false);
-            onChange({
-              values: isMultiple
-                ? isCancel
-                  ? valueRef.current.filter(l => l.departmentId !== data[0].departmentId)
-                  : _.uniqBy([...valueRef.current, ...data], 'departmentId')
-                : data,
-            });
-          },
+        onChange({
+          values: isMultiple
+            ? isCancel
+              ? valueRef.current.filter(l => l.departmentId !== data[0].departmentId)
+              : _.uniqBy([...valueRef.current, ...data], 'departmentId')
+            : data,
         });
       }}
     >
-      <DepartmentsCon>
-        {!values.length && <Empty>{_l('请选择')}</Empty>}
-        {!isMultiple && !!values.length && (
-          <DepartmentsText className="departmentsText ellipsis" title={values[0].departmentName}>
-            {values[0].departmentName}
-          </DepartmentsText>
-        )}
-        {isMultiple &&
-          values.map((v, i) => (
-            <BaseSelectedItem key={i}>
-              <span className="name ellipsis">{v.departmentName}</span>
-              <i
-                className="icon icon-delete textTertiary Font10 Hand"
-                onClick={e => {
-                  e.stopPropagation();
-                  onChange({ values: values.filter(d => d.departmentId !== v.departmentId) });
-                }}
-              />
-            </BaseSelectedItem>
-          ))}
-      </DepartmentsCon>
-      <Icon className="icon icon-arrow-down-border downIcon" />
-      {!!values.length && (
-        <Icon
-          className="icon icon-cancel clearIcon"
-          onClick={e => {
-            onChange({ values: [] });
-            e.stopPropagation();
-          }}
-        />
-      )}
-    </Con>
+      <Select
+        className="w100"
+        mode={isMultiple ? 'multiple' : undefined}
+        open={false}
+        showSearch={false}
+        allowClear
+        options={options}
+        value={selectedValue}
+        onClear={() => onChange({ values: [] })}
+        onDeselect={departmentId => onChange({ values: values.filter(value => value.departmentId !== departmentId) })}
+      />
+    </DeptSelectPopover>
   );
 }
 
 Departments.propTypes = {
+  isMultiple: bool,
   projectId: string,
-  values: arrayOf(string),
+  values: arrayOf(
+    shape({
+      departmentId: string,
+      departmentName: string,
+    }),
+  ),
   onChange: func,
 };

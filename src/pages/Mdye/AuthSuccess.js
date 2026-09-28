@@ -1,5 +1,5 @@
 import globalApi from 'src/api/global';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 globalApi.getGlobalMeta().then(res => {
   try {

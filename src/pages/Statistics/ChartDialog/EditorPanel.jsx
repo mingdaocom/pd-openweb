@@ -1,16 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
-import { Tabs } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Tabs, Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import store from 'src/redux/configureStore';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { reportTypes } from '../Charts/common';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { chartNav } from '../common/chartNav';
 import ChartAnalyse from '../components/ChartAnalyse';
 import ChartSetting from '../components/ChartSetting';
@@ -136,24 +135,40 @@ export default class EditorPanel extends Component {
           </div>
           <ScrollView className="flex">
             {this.renderCharts()}
-            <Tabs className="chartTabs pLeft20 pRight20" defaultActiveKey="setting">
-              <Tabs.TabPane tab={_l('配置')} key="setting">
-                <ChartSetting projectId={projectId} sourceType={sourceType} />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab={_l('样式')} key="style" disabled={reportData.status <= 0}>
-                <ChartStyle
-                  projectId={projectId}
-                  sourceType={sourceType}
-                  themeColor={themeColor || _.get(store.getState(), 'appPkg.iconColor')}
-                  customPageConfig={customPageConfig}
-                />
-              </Tabs.TabPane>
-              {getAnalyseVisible && (
-                <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={reportData.status <= 0}>
-                  <ChartAnalyse sourceType={sourceType} reportId={reportId} />
-                </Tabs.TabPane>
-              )}
-            </Tabs>
+            <Tabs
+              className="chartTabs pLeft20 pRight20"
+              defaultActiveKey="setting"
+              items={[
+                {
+                  key: 'setting',
+                  label: _l('配置'),
+                  children: <ChartSetting projectId={projectId} sourceType={sourceType} />,
+                },
+                {
+                  key: 'style',
+                  label: _l('样式'),
+                  disabled: reportData.status <= 0,
+                  children: (
+                    <ChartStyle
+                      projectId={projectId}
+                      sourceType={sourceType}
+                      themeColor={themeColor || _.get(store.getState(), 'appPkg.iconColor')}
+                      customPageConfig={customPageConfig}
+                    />
+                  ),
+                },
+                ...(getAnalyseVisible
+                  ? [
+                      {
+                        key: 'analyse',
+                        label: _l('分析'),
+                        disabled: reportData.status <= 0,
+                        children: <ChartAnalyse sourceType={sourceType} reportId={reportId} />,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           </ScrollView>
         </div>
       </div>

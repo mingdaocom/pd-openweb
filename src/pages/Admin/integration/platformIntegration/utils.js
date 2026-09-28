@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import roleAjax from 'src/api/role.js';
 import workwxAjax from 'src/api/workWeiXin';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { checkClearIntegrationDialog } from './components/ClearISaventergrationModal';
 
 const INTERGRATION_FAILED_INFO = {

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Drawer, Modal } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import WorksheetRocordLog from './WorksheetRocordLog';
 import './WorksheetRecordLogDialog.less';
 
@@ -46,13 +46,13 @@ class WorksheetRecordLogDialog extends Component {
       return (
         <Drawer
           placement="right"
-          width={'85%'}
-          className="sheetWorkflowDrawer"
+          size={'85%'}
+          rootClassName="sheetWorkflowDrawer"
           closable={false}
           mask={true}
-          style={{ position: 'absolute' }}
+          rootStyle={{ position: 'absolute' }}
           onClose={onClose}
-          visible={visible}
+          open={visible}
         >
           <div className="h100 flexColumn">
             <div className="flexRow alignItemsCenter mTop20 mRight20 mBottom5 pLeft10">
@@ -65,19 +65,21 @@ class WorksheetRecordLogDialog extends Component {
       );
     } else {
       return (
-        <Dialog
-          className="worksheetRecordDialog"
-          bodyClass="worksheetRecordDialogBody"
+        <Modal
+          rootClassName="worksheetRecordDialog"
           title={_l('更新记录')}
           width={560}
-          showFooter={false}
+          footer={null}
           onCancel={onClose}
-          visible={visible}
-          overlayClosable={false}
-          onScroll={this.handleScroll}
+          open={visible}
+          mask={{ closable: false }}
+          keyboard
+          styles={{ container: { minHeight: 500, padding: 0 }, header: { padding: '16px 24px 0' } }}
         >
-          {Content}
-        </Dialog>
+          <div className="worksheetRecordDialogBody" onScroll={this.handleScroll}>
+            {Content}
+          </div>
+        </Modal>
       );
     }
   }

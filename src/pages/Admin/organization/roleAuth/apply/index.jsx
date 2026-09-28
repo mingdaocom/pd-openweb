@@ -66,7 +66,7 @@ export default class ApplyRole extends React.Component {
       <Wrap>
         <div className="roleAuthHeader">
           <div className="detailTitle">
-            <span className="Font17 Bold">{_l('申请角色权限')}</span>
+            <span className="Font17 Bold">{_l('申请权限组')}</span>
           </div>
         </div>
         <div className="roleAuthContent pLeft24 pRight24">

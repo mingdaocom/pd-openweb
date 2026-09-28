@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Input, LoadDiv, Switch } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Input, Switch } from 'ming-ui/antd-components';
 import workWeiXinAjax from 'src/api/workWeiXin';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 // 流程待办同步
 export default function ProcessSync(props) {
-  const { projectId, isLark, updateState = () => { }, getFeishuProjectSettingInfo = () => { } } = props;
+  const { projectId, isLark, updateState = () => {}, getFeishuProjectSettingInfo = () => {} } = props;
   const [isSync, setIsSync] = useState(props.enableTodo);
   const [approveName, setApproveName] = useState(props.approveName);
   const [originApproveName, setOriginApproveName] = useState(props.approveName);
@@ -28,9 +30,9 @@ export default function ProcessSync(props) {
           alert(_l('请先开通飞书待办权限'), 3);
         }
       })
-      .catch(() => {
+      .catch(_requestError => {
         setIsLoading(false);
-        alert(_l('请先开通飞书待办权限'), 3);
+        alertIfNotUnauthorized(_requestError, _l('请先开通飞书待办权限'), 3);
       });
   };
 
@@ -65,7 +67,14 @@ export default function ProcessSync(props) {
         {isLoading ? (
           <LoadDiv size="small" />
         ) : (
-          <Switch disabled={isLoading} checked={isSync} onClick={handleChangeScanEnabled} />
+          <Switch
+            disabled={isLoading}
+            checked={isSync}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return handleChangeScanEnabled(!checked, event);
+            }}
+          />
         )}
       </div>
 
@@ -89,7 +98,7 @@ export default function ProcessSync(props) {
           <Input
             className="mRight12"
             value={approveName}
-            onChange={val => setApproveName(val)}
+            onChange={e => setApproveName(e.target.value)}
             onBlur={e => onChangeApproveName(e)}
           />
         </div>

@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import { MDIntlTelInput } from './DialCodeSelect';
 
-export const specialTelVerify = value => {
-  return /\+61\d{9,10}$|\+861[3-9]\d{9}$|\+84\d{9,10}$/.test(value || '');
-};
-
 export const getDefaultCountry = () => {
   return window.localStorage.getItem('DefaultCountry') || _.get(md, 'global.Config.DefaultRegion') || 'cn';
+};
+
+export const specialTelVerify = value => {
+  return /\+61\d{9,10}$|\+861[3-9]\d{9}$|\+84\d{9,10}$/.test(value || '');
 };
 
 export const getPhoneInputLocale = () => {

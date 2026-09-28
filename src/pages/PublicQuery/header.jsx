@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const PublicqueryHeader = styled.div`
   width: 100%;

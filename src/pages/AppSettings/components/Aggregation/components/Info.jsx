@@ -1,19 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import CheckBox from 'ming-ui/components/Checkbox';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Button, Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import SyncTask from 'src/pages/integration/api/syncTask.js';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import 'src/pages/workflow/components/Switch/index.less';
-import { getTranslateInfo } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
-import { AGG_CONTROL_MAX, GROUPMAX, GROUPMAXBYREL, systemControls } from '../config';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { AGG_CONTROL_MAX, getGroupMaxByRel, GROUPMAX, systemControls } from '../config';
 import {
   getAllSourceList,
   getGroupFields,
@@ -33,11 +31,17 @@ import { Header, Wrap } from './style';
 import './style.less';
 
 const renderErrerDialog = errorMsgList => {
-  return Dialog.confirm({
+  return Modal.confirm({
     title: _l('报错信息'),
     className: 'connectorErrorDialog',
-    description: (
-      <div className="errorInfo" style={{ 'max-height': 400, overflow: 'auto' }}>
+    content: (
+      <div
+        className="errorInfo"
+        style={{
+          'max-height': 400,
+          overflow: 'auto',
+        }}
+      >
         {errorMsgList.map((error, index) => {
           return (
             <div key={index} className="mTop5">
@@ -47,9 +51,13 @@ const renderErrerDialog = errorMsgList => {
         })}
       </div>
     ),
-    removeCancelBtn: true,
+    cancelButtonProps: {
+      style: {
+        display: 'none',
+      },
+    },
     okText: _l('关闭'),
-  });
+  }).destroy;
 };
 
 export default function Info(props) {
@@ -393,9 +401,14 @@ export default function Info(props) {
       />
       <Header className="flexRow alignItemsCenter">
         <div className="flex mLeft24 pageName">
-          <div className="iconWrap Hand" onClick={() => onClose()}>
-            <i className="back icon-backspace Font24"></i>
-          </div>
+          <Button
+            className="mRight24"
+            color="default"
+            variant="text"
+            size="small"
+            icon={<Icon icon="backspace" className="Font24" />}
+            onClick={onClose}
+          />
           {isEdit ? (
             <input
               autoFocus
@@ -439,24 +452,16 @@ export default function Info(props) {
             className="mRight20 textDisabled"
           />
           {hasChange && flowData.aggTableTaskStatus === 1 && (
-            <span
-              className={cx('reset InlineBlock mRight24 textTertiary', { 'hoverColorPrimary Hand': !isPreviewRunning })}
-              onClick={() => {
-                if (isPreviewRunning) return;
-                reset();
-              }}
-            >
+            <Button className="mRight24" disabled={isPreviewRunning} onClick={reset}>
               {_l('撤销更改')}
-            </span>
+            </Button>
           )}
           {!!flowData.id && (
-            <span
-              className={cx('publishBtn InlineBlock Hand mRight24', { disable: updating })}
+            <Button
+              className="mRight24"
+              type="primary"
+              loading={updating}
               onClick={() => {
-                if (updating) {
-                  return;
-                }
-
                 if (flowData.aggTableTaskStatus === 0 || hasChange) {
                   publishTask();
                 } else {
@@ -471,7 +476,7 @@ export default function Info(props) {
                 : updating
                   ? _l('保存中...')
                   : _l('保存')}
-            </span>
+            </Button>
           )}
         </div>
       </Header>
@@ -490,7 +495,7 @@ export default function Info(props) {
                 <span className="textSecondary mLeft10">
                   {getAllSourceList(flowData).length}/{getSourceMaxCountByVersion(projectId)}
                 </span>
-                {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+                {window.platformENV.isHap && (
                   <Tooltip
                     placement="bottom"
                     title={<span className="">{_l('标准版支持5个、专业版和旗舰版支持10个')}</span>}
@@ -526,17 +531,17 @@ export default function Info(props) {
                       placement="bottom"
                       title={
                         <span className="">
-                          {_l('上限添加%0个归组字段，关联记录下数组类型字段最多%1个', GROUPMAX, GROUPMAXBYREL)}
+                          {_l('上限添加%0个归组字段，关联记录下数组类型字段最多%1个', GROUPMAX, getGroupMaxByRel())}
                         </span>
                       }
                     >
                       <Icon icon="info" className="Hand textTertiary hoverColorPrimary mLeft5 Font16" />
                     </Tooltip>
                   </span>
-                  <CheckBox
+                  <Checkbox
                     className="Hand textSecondary hoverColorPrimary"
                     checked={_.get(groupDt, 'nodeConfig.config.displayNull') !== false}
-                    onClick={() => {
+                    onChange={() => {
                       onUpdate(
                         [
                           updateConfig(groupDt, {
@@ -549,7 +554,7 @@ export default function Info(props) {
                     }}
                   >
                     <span className="">{_l('显示空值')}</span>
-                  </CheckBox>
+                  </Checkbox>
                 </div>
                 {/* 归组 */}
                 {/* 关联记录限制10个，选择了下一级字段才算使用1个。 */}

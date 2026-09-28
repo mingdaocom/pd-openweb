@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { Checkbox, Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
+import { Checkbox, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isNumberControl, isOptionControl } from 'statistics/common/controlUtils';
 import { addCalculateControlHighlight, emptyShowTypes } from 'statistics/common/reportConfigUtils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { normTypes } from '../../../enum';
 import RenameModal from './RenameModal';
 import WithoutFidldItem from './WithoutFidldItem';
@@ -41,7 +40,7 @@ function arrayMove(array, oldIndex, newIndex) {
   return newArray;
 }
 
-const renderOverlay = props => {
+const getMenuItems = props => {
   const { item, onNormType, onEmptyShowType, onChangeControlId, allControls, currentReport } = props;
   const { reportType, xaxes, yaxisList } = currentReport;
   const { controlId, controlType, normType } = item;
@@ -51,95 +50,83 @@ const renderOverlay = props => {
   const hideVisible = isNumberChart ? oneNumber : true;
   const emptyShowType = isNumberChart && !oneNumber && item.emptyShowType === 0 ? 1 : item.emptyShowType;
   const { enumDefault } = control;
-  return (
-    <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
-      <Menu.Item
-        onClick={() => {
-          onChangeControlId(controlId);
-        }}
-      >
-        {_l('重命名')}
-      </Menu.Item>
-      {isNumberControl(controlType, false) && (
-        <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {normTypes.map(item => (
-            <Menu.Item
-              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
-              key={item.value}
-              onClick={() => {
-                onNormType(controlId, item.value);
-              }}
-            >
-              {item.alias || item.text}
-            </Menu.Item>
-          ))}
-        </Menu.SubMenu>
-      )}
-      {!isNumberControl(controlType) && (
-        <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {(isOptionControl(controlType) && enumDefault === 1
-            ? normTypes
-            : [
-                {
-                  text: _l('计数'),
-                  value: 5,
-                },
-                {
-                  text: _l('去重计数'),
-                  value: 6,
-                },
-              ]
-          ).map(item => (
-            <Menu.Item
-              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
-              key={item.value}
-              onClick={() => {
-                onNormType(controlId, item.value);
-              }}
-            >
-              {item.text}
-            </Menu.Item>
-          ))}
-        </Menu.SubMenu>
-      )}
-      {[
-        reportTypes.BarChart,
-        reportTypes.LineChart,
-        reportTypes.DualAxes,
-        reportTypes.RadarChart,
-        reportTypes.FunnelChart,
-        reportTypes.NumberChart,
-        reportTypes.BidirectionalBarChart,
-      ].includes(reportType) && (
-        <Menu.SubMenu
-          popupClassName="chartMenu"
-          title={
-            <div className="flexRow valignWrapper w100">
-              <div className="flex">{_l('空值显示')}</div>
-              <div className="Font12 textSecondary emptyTypeName">
-                {_.get(_.find(emptyShowTypes, { value: emptyShowType }), 'text')}
-              </div>
-            </div>
-          }
-          popupOffset={[0, -15]}
-        >
-          {emptyShowTypes
-            .filter(data => (data.value ? true : hideVisible))
-            .map(item => (
-              <Menu.Item
-                style={{ width: 120, color: item.value === emptyShowType ? 'var(--color-primary) !important' : null }}
-                key={item.value}
-                onClick={() => {
-                  onEmptyShowType(controlId, item.value);
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
-        </Menu.SubMenu>
-      )}
-    </Menu>
-  );
+  const normTypeItems = isNumberControl(controlType, false)
+    ? normTypes.map(item => ({
+        key: item.value,
+        style: { color: item.value === normType ? 'var(--color-primary)' : null },
+        label: item.alias || item.text,
+        onClick: () => {
+          onNormType(controlId, item.value);
+        },
+      }))
+    : (isOptionControl(controlType) && enumDefault === 1
+        ? normTypes
+        : [
+            {
+              text: _l('计数'),
+              value: 5,
+            },
+            {
+              text: _l('去重计数'),
+              value: 6,
+            },
+          ]
+      ).map(item => ({
+        key: item.value,
+        style: { color: item.value === normType ? 'var(--color-primary)' : null },
+        label: item.text,
+        onClick: () => {
+          onNormType(controlId, item.value);
+        },
+      }));
+
+  return [
+    {
+      key: 'rename',
+      label: _l('重命名'),
+      onClick: () => {
+        onChangeControlId(controlId);
+      },
+    },
+    {
+      key: 'normType',
+      label: _l('计算'),
+      popupOffset: [0, -15],
+      style: { minWidth: 120 },
+      children: normTypeItems,
+    },
+    [
+      reportTypes.BarChart,
+      reportTypes.LineChart,
+      reportTypes.DualAxes,
+      reportTypes.RadarChart,
+      reportTypes.FunnelChart,
+      reportTypes.NumberChart,
+      reportTypes.BidirectionalBarChart,
+    ].includes(reportType) && {
+      key: 'emptyShowType',
+      label: (
+        <div className="flexRow valignWrapper w100">
+          <div className="flex">{_l('空值显示')}</div>
+          <div className="Font12 textSecondary emptyTypeName">
+            {_.get(_.find(emptyShowTypes, { value: emptyShowType }), 'text')}
+          </div>
+        </div>
+      ),
+
+      popupOffset: [0, -15],
+      children: emptyShowTypes
+        .filter(data => (data.value ? true : hideVisible))
+        .map(item => ({
+          key: item.value,
+          style: { color: item.value === emptyShowType ? 'var(--color-primary)' : null },
+          label: item.text,
+          onClick: () => {
+            onEmptyShowType(controlId, item.value);
+          },
+        })),
+    },
+  ].filter(Boolean);
 };
 
 const renderSortableItem = props => {
@@ -169,7 +156,15 @@ const renderSortableItem = props => {
             <span className="Red flex ellipsis">{_l('字段已删除')}</span>
           </Tooltip>
         )}
-        <Dropdown overlay={renderOverlay(props)} trigger={['click']} placement="bottomRight">
+        <Dropdown
+          menu={{
+            style: { minWidth: 200 },
+            subMenuOpenDelay: 0.2,
+            items: getMenuItems(props),
+          }}
+          trigger={['click']}
+          placement="bottomRight"
+        >
           <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon
@@ -388,29 +383,22 @@ export default class YAxis extends Component {
             </span>
             {isScatterChart && (
               <Dropdown
-                overlay={
-                  <Menu
-                    className="chartControlMenu chartMenu"
-                    expandIcon={<Icon icon="arrow-right-tip" />}
-                    subMenuOpenDelay={0.2}
-                  >
-                    {allYaxisList.map((item, index) => (
-                      <Menu.Item
-                        style={{ color: index === inheritLastYaxisIndex ? 'var(--color-primary) !important' : null }}
-                        onClick={() => {
-                          this.props.onChangeStyle({
-                            inheritLastYaxisIndex: index,
-                          });
-                        }}
-                      >
-                        <div className="flexRow valignWrapper w100">
-                          <div className="flex">{item.rename || item.controlName}</div>
-                          {index === inheritLastYaxisIndex && <Icon className="colorPrimary" icon="done" />}
-                        </div>
-                      </Menu.Item>
-                    ))}
-                  </Menu>
-                }
+                menu={{
+                  style: { minWidth: 200 },
+                  subMenuOpenDelay: 0.2,
+                  items: allYaxisList.map((item, index) => ({
+                    key: item.controlId || index,
+                    style: { color: index === inheritLastYaxisIndex ? 'var(--color-primary)' : null },
+                    label: item.rename || item.controlName,
+                    extra: index === inheritLastYaxisIndex && <Icon className="colorPrimary" icon="done" />,
+
+                    onClick: () => {
+                      this.props.onChangeStyle({
+                        inheritLastYaxisIndex: index,
+                      });
+                    },
+                  })),
+                }}
                 trigger={['click']}
                 placement="bottomRight"
               >
@@ -451,6 +439,7 @@ export default class YAxis extends Component {
           renderInheritLastYaxis()
         ) : (
           <SortableList
+            renderBody
             useDragHandle
             items={yaxisList || []}
             itemKey="controlId"

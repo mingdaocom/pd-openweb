@@ -3,17 +3,21 @@ import { useKey, useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Checkbox from 'ming-ui/components/Checkbox';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import appManagementController from 'src/api/appManagement';
 import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
 import { InviteFromType } from 'src/pages/AuthService/config.js';
 import { registerAction } from 'src/pages/AuthService/register/util.js';
 import { getAccountTypes, hasCaptcha, isTel, validation } from 'src/pages/AuthService/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest, htmlDecodeReg } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { htmlDecodeReg } from 'src/utils/core/string';
+import { getRequest } from 'src/utils/platform/browser/device';
 import Form from './Form.jsx';
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 // 'privacyText'  注册 需要勾选 使用条款 与 隐私条款
 export default function (props) {
@@ -163,7 +167,6 @@ export default function (props) {
   const isPrivateDeployment = window.platformENV.isOverseas || window.platformENV.isLocal;
   const termsUrl = isPrivateDeployment ? `${md.global.Config.PlatformUrl}legalportal/terms` : '/terms';
   const privacyUrl = isPrivateDeployment ? `${md.global.Config.PlatformUrl}legalportal/privacy` : '/privacy';
-
   if (loading) return <LoadDiv />;
   return (
     <React.Fragment>
@@ -259,8 +262,9 @@ export default function (props) {
                 }
               }}
             >
-              <Checkbox checked={canSendCodeByTel} className="InlineBlock" />
-              {_l('我同意接收短信')}
+              <Checkbox checked={canSendCodeByTel} styles={CHECKBOX_LABEL_STYLES}>
+                {_l('我同意接收短信')}
+              </Checkbox>
             </span>
           </div>
         </div>
@@ -286,8 +290,9 @@ export default function (props) {
                 }
               }}
             >
-              <Checkbox checked={hasCheckPrivacy} className="InlineBlock" />
-              {_l('同意')}
+              <Checkbox checked={hasCheckPrivacy} styles={CHECKBOX_LABEL_STYLES}>
+                {_l('同意')}
+              </Checkbox>
               <span
                 className="terms Hand mLeft3 mRight3"
                 onClick={e => {

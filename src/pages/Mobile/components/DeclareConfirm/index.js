@@ -3,9 +3,14 @@ import DocumentTitle from 'react-document-title';
 import { Button, CenterPopup, Popup, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import styled from 'styled-components';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import { Modal } from 'ming-ui/antd-components';
 import privateLegalApi from 'src/api/privateLegal';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+
+const DECLARE_MODAL_STYLES = {
+  container: { padding: 0 },
+  body: { padding: 0 },
+};
 
 const Con = styled.div`
   text-align: left;
@@ -17,7 +22,7 @@ const Con = styled.div`
     width: 100px;
     color: #0097ef;
     background-color: #f5f5f5;
-    ::before {
+    &::before {
       border-color: #f5f5f5 !important;
     }
   }
@@ -25,14 +30,14 @@ const Con = styled.div`
     width: 100px;
     color: red;
     background-color: #ffe9e7;
-    ::before {
+    &::before {
       border-color: #ffe9e7 !important;
     }
   }
   .agree {
     color: #fff;
     background-color: #0097ef;
-    ::before {
+    &::before {
       border-color: #0097ef !important;
     }
   }
@@ -68,6 +73,7 @@ const declareConfirm = Component => {
         loading: enableDeclareConfirm,
         confirm: enableDeclareConfirm,
         reject: false,
+        agreeing: false,
         declareId: null,
         type: null,
         declareModal: false,
@@ -90,6 +96,9 @@ const declareConfirm = Component => {
         });
       }
     }
+    componentWillUnmount() {
+      this.unmounted = true;
+    }
     handleOpenModal = event => {
       const { target } = event;
 
@@ -102,16 +111,24 @@ const declareConfirm = Component => {
       }
     };
     handleAgree = () => {
+      if (this.agreeRequest) return this.agreeRequest;
+
       const { declareId } = this.state;
-      privateLegalApi
+      this.setState({ agreeing: true });
+      this.agreeRequest = privateLegalApi
         .addDeclareAgreeLog({
           declareId,
         })
         .then(data => {
-          if (data) {
+          if (data && !this.unmounted) {
             this.setState({ confirm: false });
           }
+        })
+        .finally(() => {
+          this.agreeRequest = null;
+          if (!this.unmounted) this.setState({ agreeing: false });
         });
+      return this.agreeRequest;
     };
     renderDeclare() {
       const { type, declareModal } = this.state;
@@ -154,7 +171,7 @@ const declareConfirm = Component => {
       );
     }
     renderConfirm() {
-      const { reject } = this.state;
+      const { reject, agreeing } = this.state;
       const isMobile = browserIsMobile();
       return (
         <Con className="pAll20">
@@ -222,6 +239,8 @@ const declareConfirm = Component => {
                   color="primary"
                   size="small"
                   inline
+                  loading={agreeing}
+                  disabled={agreeing}
                   onClick={this.handleAgree}
                 >
                   {_l('同意并继续')}
@@ -259,9 +278,17 @@ const declareConfirm = Component => {
         } else {
           return (
             <>
-              <DialogBase visible={true} width={500}>
+              <Modal
+                open
+                width={500}
+                title={null}
+                footer={null}
+                closable={false}
+                mask={{ closable: false }}
+                styles={DECLARE_MODAL_STYLES}
+              >
                 {this.renderConfirm()}
-              </DialogBase>
+              </Modal>
               {this.renderDeclare()}
             </>
           );

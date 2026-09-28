@@ -8,10 +8,10 @@ import { getPageConfig } from '../../utils';
 import AppearanceConfig from '../AppearanceConfig';
 
 const Con = styled.div`
-  :hover .delete {
+  &:hover .delete {
     display: inline-block;
   }
-  :hover .index {
+  &:hover .index {
     display: none;
   }
 `;

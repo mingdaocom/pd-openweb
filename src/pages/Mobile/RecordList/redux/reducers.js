@@ -68,7 +68,7 @@ export const activeSavedFilter = (state = {}, action) => {
   }
 };
 
-export const filters = (state = { keyWords: '', quickFilterKeyWords: '', visible: false }, action) => {
+export const filters = (state = { keyWords: '', visible: false }, action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_FILTERS':
       return { ...state, ...action.filters };
@@ -342,6 +342,8 @@ export const calendarView = (
       return { ...state, calendarData: action.data };
     case 'MOBILE_CHANGE_CALENDAR_LOADING':
       return { ...state, loading: action.data };
+    case 'MOBILE_CHANGE_CALENDAR_REQUEST_RANGE':
+      return { ...state, requestRange: action.data };
     default:
       return state;
   }
@@ -358,10 +360,36 @@ export const calenderNotScheduled = (
   action,
 ) => {
   switch (action.type) {
+    case 'MOBILE_UPDATE_BASE': {
+      const requestScope = {
+        ...state.requestScope,
+        ..._.pick(action.base, ['worksheetId', 'viewId']),
+      };
+
+      if (_.isEqual(requestScope, state.requestScope)) return state;
+
+      return {
+        ...state,
+        requestScope,
+        requestVersion: (state.requestVersion || 0) + 1,
+        list: [],
+        total: 0,
+        hasMore: true,
+        loading: false,
+      };
+    }
+
     case 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED':
       return { ...state, ...action.data };
+    case 'MOBILE_UPDATE_FILTERS_GROUP':
     case 'MOBILE_RESET_CALENDAR_NOT_SCHEDULED':
-      return { ...state, list: [], hasMore: true };
+      return {
+        ...state,
+        requestVersion: (state.requestVersion || 0) + 1,
+        list: [],
+        hasMore: true,
+        loading: false,
+      };
     case 'MOBILE_UPDATE_CALENDAR_NOT_SCHEDULED': {
       const index = state.list.findIndex(item => item.rowid === action.rowid);
       if (index === -1) return state;

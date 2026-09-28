@@ -7,10 +7,10 @@ import styled from 'styled-components';
 import { Icon, MdLink, SortableList, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { navigateTo } from 'src/router/navigateTo';
-import { addBehaviorLog } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getAppItemUrl, getAppNavigateUrl, transferExternalLinkUrl } from 'src/utils/services/appCenter';
+import { addBehaviorLog } from 'src/utils/services/project';
 import AppStatusComp from '../AppCenter/components/AppStatus';
-import { getAppItemUrl, getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
 import { getAppOrItemColor } from './utils';
 import './style.less';
 

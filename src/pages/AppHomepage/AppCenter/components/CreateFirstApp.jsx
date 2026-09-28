@@ -1,9 +1,7 @@
 import React from 'react';
-import _ from 'lodash';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import AddAppItem from './AddAppItem';
 
 const FullCon = styled.div`
@@ -36,8 +34,7 @@ const FullCon = styled.div`
 // 新用户 /app/my 无应用时的引导页：欢迎文案 + 复用「创建应用」入口内容（AI 创建 + 更多创建方式）。
 export default function CreateFirstApp(props) {
   const { projectId, myPermissions, createAppFromEmpty } = props;
-  const project = _.find(md.global.Account.projects, { projectId });
-  const canCreate = !_.get(project, 'cannotCreateApp') || hasPermission(myPermissions, PERMISSION_ENUM.CREATE_APP);
+  const canCreate = hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP);
 
   return (
     <FullCon>

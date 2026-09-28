@@ -1,25 +1,16 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { ShowChoose, TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { Icon } from 'ming-ui';
+import { Checkbox, Segmented, Select } from 'ming-ui/antd-components';
+import { TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { resourceTypes, weekObj } from 'src/pages/worksheet/views/ResourceView/config.js';
+import WeekdaySegmented from '../WeekdaySegmented';
 import BaseInfo from './BaseInfo';
 import EditTimes from './EditTimes';
 
 const Wrap = styled.div`
-  .ming.Dropdown.isDelete .Dropdown--input .value,
-  .dropdownTrigger .Dropdown--input .value {
-    color: var(--color-error);
-  }
-  .ming.Dropdown.isDelete .Dropdown--border,
-  .dropdownTrigger .Dropdown--border {
-    border-color: var(--color-error);
-  }
   .showtimeCon {
     border: 1px solid var(--color-border-primary);
     border-radius: 3px;
@@ -37,14 +28,14 @@ const Wrap = styled.div`
 
 const changePickerContainerLeft = () => {
   const changeLeft = () => {
-    $('.ant-picker-range-arrow').css({ transition: 'none' });
-    $('.ant-picker-panel-container').css({
-      marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
+    $('.hap-picker-range-arrow').css({ transition: 'none' });
+    $('.hap-picker-panel-container').css({
+      marginLeft: parseInt($('.hap-picker-range-arrow').css('left')),
     });
   };
 
   setTimeout(() => {
-    $('.ant-picker-input input').on({
+    $('.hap-picker-input input').on({
       click: () => changeLeft(),
       focus: () => changeLeft(),
     });
@@ -52,15 +43,15 @@ const changePickerContainerLeft = () => {
 };
 
 export default function ResourceSet(props) {
-  const { appId, view, updateCurrentView } = props;
+  const { appId, view, updateCurrentView, worksheetControls = [] } = props;
   const { rowHeight = 0 } = view;
   const [{ timeControls, show }, setState] = useSetState({
     timeControls: [],
     show: false,
   });
+  const calendarType = _.get(view, 'advancedSetting.calendarType') || '0';
 
   useEffect(() => {
-    const { worksheetControls = [] } = props;
     const timeControls = worksheetControls
       .filter(
         item =>
@@ -71,12 +62,12 @@ export default function ResourceSet(props) {
           (item.type === 37 && [15, 16].includes(item.enumDefault2)),
       )
       .map(o => {
-        return { ...o, text: o.controlName, value: o.controlId };
+        return { label: o.controlName, value: o.controlId };
       });
     setState({
       timeControls,
     });
-  }, [props.view]);
+  }, [worksheetControls, setState]);
 
   useEffect(() => {
     changePickerContainerLeft();
@@ -88,14 +79,12 @@ export default function ResourceSet(props) {
       <div className="flexRow mTop24">
         <div className="flex">
           <div className="Bold">{_l('开始')}</div>
-          <Dropdown
+          <Select
             className="mTop8"
-            isAppendToBody
             style={{ width: '100%' }}
-            data={timeControls.filter(o => o.value !== _.get(props, 'view.advancedSetting.enddate'))}
+            options={timeControls.filter(o => o.value !== _.get(props, 'view.advancedSetting.enddate'))}
             value={_.get(props, 'view.advancedSetting.begindate')}
-            border
-            cancelAble
+            allowClear
             onChange={value => {
               if (_.get(props, 'view.advancedSetting.begindate') !== value) {
                 updateCurrentView({
@@ -111,14 +100,12 @@ export default function ResourceSet(props) {
         </div>
         <div className="flex mLeft12">
           <div className="Bold">{_l('结束')}</div>
-          <Dropdown
+          <Select
             className="mTop8"
-            isAppendToBody
             style={{ width: '100%' }}
-            data={timeControls.filter(o => o.value !== _.get(props, 'view.advancedSetting.begindate'))}
+            options={timeControls.filter(o => o.value !== _.get(props, 'view.advancedSetting.begindate'))}
             value={_.get(props, 'view.advancedSetting.enddate')}
-            border
-            cancelAble
+            allowClear
             onChange={value => {
               if (_.get(props, 'view.advancedSetting.enddate') !== value) {
                 updateCurrentView({
@@ -135,84 +122,54 @@ export default function ResourceSet(props) {
       </div>
       <div className="commonConfigItem Font13 bold mTop24">{_l('行高')}</div>
       <div className="commonConfigItem mTop6">
-        <AnimationWrap>
-          {[
+        <Segmented
+          block
+          value={rowHeight}
+          options={[
             { text: _l('紧凑'), value: 0 }, // 34
             { text: _l('中等'), value: 1 }, // 50
             { text: _l('宽松'), value: 2 }, // 70
             // { text: _l('超高'), value: 3 }, // 100
-          ].map(item => {
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', {
-                  active: rowHeight === item.value,
-                })}
-                onClick={() => {
-                  const { value } = item;
-
-                  if (rowHeight !== value) {
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      rowHeight: value,
-                      editAttrs: ['rowHeight'],
-                    });
-                  }
-                }}
-              >
-                {item.text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={value => {
+            updateCurrentView({
+              ...view,
+              appId,
+              rowHeight: value,
+              editAttrs: ['rowHeight'],
+            });
+          }}
+        />
       </div>
       <div className="commonConfigItem Font13 bold mTop24">{_l('默认视图')}</div>
       <div className="commonConfigItem mTop6">
-        <AnimationWrap>
-          {resourceTypes.map(item => {
-            const calendarType = !_.get(props, 'view.advancedSetting.calendarType')
-              ? '0'
-              : _.get(props, 'view.advancedSetting.calendarType');
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', {
-                  active: calendarType === item.value,
-                })}
-                onClick={() => {
-                  const { value } = item;
-
-                  if (calendarType !== value) {
-                    safeLocalStorageSetItem(
-                      `${view.viewId}_resource_type`,
-                      resourceTypes.find(o => o.value === value).key,
-                    );
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      advancedSetting: { calendarType: value },
-                      editAdKeys: ['calendarType'],
-                      editAttrs: ['advancedSetting'],
-                    });
-                  }
-                }}
-              >
-                {item.text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Segmented
+          block
+          value={calendarType}
+          options={resourceTypes.map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={value => {
+            safeLocalStorageSetItem(`${view.viewId}_resource_type`, resourceTypes.find(o => o.value === value).key);
+            updateCurrentView({
+              ...view,
+              appId,
+              advancedSetting: { calendarType: value },
+              editAdKeys: ['calendarType'],
+              editAttrs: ['advancedSetting'],
+            });
+          }}
+        />
       </div>
       <div className="title Font13 bold mTop24">{_l('每周的第一天')}</div>
       <TimeDropdownChoose>
         <Select
-          className={cx('timeDropdown', {})}
+          className="timeDropdown"
           value={[
             !_.get(props, 'view.advancedSetting.weekbegin') ? '1' : _.get(props, 'view.advancedSetting.weekbegin'),
           ]}
           optionLabelProp="label"
           placeholder={_l('请选择')}
           suffixIcon={<Icon icon="arrow-down-border Font14" />}
-          dropdownClassName="dropConOption"
+          classNames={{ popup: { root: 'dropConOption' } }}
           onChange={value => {
             const weekbegin = !_.get(props, 'view.advancedSetting.weekbegin')
               ? '0'
@@ -230,89 +187,72 @@ export default function ResourceSet(props) {
               editAttrs: ['advancedSetting'],
             });
           }}
-        >
-          {weekObj.map((o, i) => {
-            return (
-              <Select.Option value={i + 1 + ''} key={i} label={o} className="select_drop">
-                {o}
-              </Select.Option>
-            );
-          })}
-        </Select>
+          options={weekObj.map((o, i) => ({
+            value: i + 1 + '',
+            label: o,
+            className: 'select_drop',
+          }))}
+        />
       </TimeDropdownChoose>
-      <ShowChoose>
+      <div>
         <Checkbox
           checked={!!_.get(props, 'view.advancedSetting.unweekday')}
           className="mTop16"
-          onClick={() => {
+          onChange={() => {
             updateCurrentView({
               ...view,
               appId,
-              advancedSetting: { unweekday: !_.get(props, 'view.advancedSetting.unweekday') ? '67' : undefined },
+              advancedSetting: {
+                unweekday: !_.get(props, 'view.advancedSetting.unweekday') ? '67' : undefined,
+              },
               editAdKeys: ['unweekday'],
               editAttrs: ['advancedSetting'],
             });
           }}
-          text={_l('只显示工作日')}
-        />
+        >
+          {_l('只显示工作日')}
+        </Checkbox>
         {!!_.get(props, 'view.advancedSetting.unweekday') && (
-          <AnimationWrap className="hiddenDaysBox mTop16">
-            {weekObj.map((it, i) => {
-              let n = i + 1;
-              return (
-                <div
-                  className={cx('animaItem overflow_ellipsis', {
-                    active: (_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) < 0,
-                  })}
-                  onClick={() => {
-                    let str = _.get(props, 'view.advancedSetting.unweekday');
-
-                    if ((_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) >= 0) {
-                      str = str.replace(n, '');
-                    } else {
-                      str = `${str}` + n;
-                    }
-
-                    if (str.length >= 7) {
-                      //不能全部选中
-                      return;
-                    }
-
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      advancedSetting: { unweekday: str },
-                      editAdKeys: ['unweekday'],
-                      editAttrs: ['advancedSetting'],
-                    });
-                  }}
-                >
-                  {it}
-                </div>
-              );
-            })}
-          </AnimationWrap>
+          <WeekdaySegmented
+            className="mTop16"
+            weekdays={weekObj}
+            hiddenDays={_.get(props, 'view.advancedSetting.unweekday')}
+            onChange={unweekday => {
+              updateCurrentView({
+                ...view,
+                appId,
+                advancedSetting: { unweekday },
+                editAdKeys: ['unweekday'],
+                editAttrs: ['advancedSetting'],
+              });
+            }}
+          />
         )}
-      </ShowChoose>
+      </div>
       <Checkbox
         checked={!!_.get(props, 'view.advancedSetting.showtime')}
         className="mTop16"
-        onClick={() => {
+        onChange={() => {
           if (!_.get(props, 'view.advancedSetting.showtime')) {
-            return setState({ show: true });
+            return setState({
+              show: true,
+            });
           }
 
           updateCurrentView({
             ...view,
             appId,
-            advancedSetting: { showtime: !_.get(props, 'view.advancedSetting.showtime') ? '08:00-18:00' : undefined },
+            advancedSetting: {
+              showtime: !_.get(props, 'view.advancedSetting.showtime') ? '08:00-18:00' : undefined,
+            },
             editAdKeys: ['showtime'],
             editAttrs: ['advancedSetting'],
           });
           !_.get(props, 'view.advancedSetting.showtime') && changePickerContainerLeft();
         }}
-        text={_l('只显示工作时间')}
-      />
+      >
+        {_l('只显示工作时间')}
+      </Checkbox>
       {!!_.get(props, 'view.advancedSetting.showtime') && (
         <div className="showtimeCon mTop10" onClick={() => setState({ show: true })}>
           <div className="flex LineHeight22">
@@ -327,18 +267,21 @@ export default function ResourceSet(props) {
       )}
       <Checkbox
         checked={_.get(props, 'view.advancedSetting.hour24') === '1'}
-        className="mTop16"
-        onClick={() => {
+        className="mTop16 flexRow"
+        onChange={() => {
           updateCurrentView({
             ...view,
             appId,
-            advancedSetting: { hour24: _.get(props, 'view.advancedSetting.hour24') === '1' ? '0' : '1' },
+            advancedSetting: {
+              hour24: _.get(props, 'view.advancedSetting.hour24') === '1' ? '0' : '1',
+            },
             editAdKeys: ['hour24'],
             editAttrs: ['advancedSetting'],
           });
         }}
-        text={_l('24小时制')}
-      />
+      >
+        {_l('24小时制')}
+      </Checkbox>
       {show && (
         <EditTimes
           showtime={_.get(props, 'view.advancedSetting.showtime') || ''}

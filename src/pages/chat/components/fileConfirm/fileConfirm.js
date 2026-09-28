@@ -1,9 +1,12 @@
 import React from 'react';
 import moment from 'moment';
-import { Button, Dialog } from 'ming-ui';
-import { formatFileSize, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { Input, Modal } from 'ming-ui/antd-components';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import './style.less';
+
+const FILE_NAME_INPUT_STYLE = { width: 334 };
 
 var FileConfirm = function (file, callback) {
   var FC = this;
@@ -31,11 +34,12 @@ FileConfirm.prototype = {
 
     FC.dialogBoxID = 'fileConfirmDialog_' + Math.random().toString(16).slice(2);
 
-    Dialog.confirm({
-      dialogClasses: `${FC.dialogBoxID} fileConfirmDialog darkHeader`,
+    const modal = Modal.confirm({
+      wrapClassName: `${FC.dialogBoxID} fileConfirmDialog`,
       width: 540,
       title: _l('上传文件'),
-      children: (
+      closable: false,
+      content: (
         <div className="fileConfirmDialogContainer">
           <div className="filePreview">
             <div className="fileIcon">
@@ -49,40 +53,33 @@ FileConfirm.prototype = {
             <div className="dItem">
               <div className="itemLabel">{_l('名称')}</div>
               <div className="itemContent">
-                <input type="text" id="fileName" placeholder={_l('名称')} />
+                <Input
+                  type="text"
+                  id="fileName"
+                  style={FILE_NAME_INPUT_STYLE}
+                  placeholder={_l('名称')}
+                  defaultValue={name}
+                />
               </div>
             </div>
           </div>
         </div>
       ),
-      footer: (
-        <div className="Dialog-footer-btns">
-          <Button
-            type="link"
-            onClick={() => {
-              $(document).off('keyup.fileConfirm.upload');
-              if (FC.callback && typeof FC.callback.noFn === 'function') {
-                FC.callback.noFn(FC.file);
-              }
-
-              document.querySelector(`.${FC.dialogBoxID} .mui-dialog-close-btn`).click();
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              if (FC.yesFn()) {
-                $(document).off('keyup.fileConfirm.upload');
-                document.querySelector(`.${FC.dialogBoxID} .mui-dialog-close-btn`).click();
-              }
-            }}
-          >
-            {_l('上传')}
-          </Button>
-        </div>
-      ),
+      cancelText: _l('取消'),
+      okText: _l('上传'),
+      manualClose: true,
+      onCancel: () => {
+        $(document).off('keyup.fileConfirm.upload');
+        if (FC.callback && typeof FC.callback.noFn === 'function') {
+          FC.callback.noFn(FC.file);
+        }
+      },
+      onOk: close => {
+        if (FC.yesFn()) {
+          $(document).off('keyup.fileConfirm.upload');
+          close();
+        }
+      },
     });
 
     setTimeout(() => {
@@ -93,14 +90,13 @@ FileConfirm.prototype = {
       FC.dialogEle.$thumbnailCon = FC.$dialog.find('.thumbnailCon');
       FC.dialogEle.$thumbnail = FC.$dialog.find('.thumbnail');
       FC.dialogEle.$fileName = FC.$dialog.find('#fileName');
-      FC.dialogEle.$fileName.val(name);
       FC.dialogEle.$fileName.focus();
       $(document).on('keyup.fileConfirm.upload', function (e) {
         e.stopPropagation();
         if (e.keyCode === 13) {
           if (FC.yesFn()) {
             $(document).off('keyup.fileConfirm.upload');
-            document.querySelector(`.${FC.dialogBoxID} .mui-dialog-close-btn`).click();
+            modal.destroy();
             $('.chatMessage-textarea textarea').focus();
           } else {
             return false;
@@ -112,6 +108,8 @@ FileConfirm.prototype = {
           if (FC.callback && typeof FC.callback.noFn === 'function') {
             FC.callback.noFn(FC.file);
           }
+
+          modal.destroy();
         }
       });
       FC.previewFile();

@@ -6,21 +6,21 @@ import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { filterButtonBySheetSwitchPermit } from 'src/pages/worksheet/common/filterButtonBySheetSwitchPermit';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
-import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
-import { getRequest } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
-import { mdAppResponse } from 'src/utils/project';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isHaveCharge } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
 import {
-  filterButtonBySheetSwitchPermit,
   getHighAuthSheetSwitchPermit,
   getSheetOperateButtonIds,
   getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+} from 'src/utils/domain/worksheet/helpers';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { mdAppResponse } from 'src/utils/services/project';
 import GroupFilter from '../GroupFilter';
 import GroupFilterList from '../GroupFilter/GroupFilterList';
 import MobileSheetContext from '../MobileSheetContext';
@@ -77,7 +77,11 @@ class View extends Component {
       });
     }
 
-    if (_.includes([0, 3, 6], view.viewType)) {
+    // 视图类型可能在处理过程中转换为字符串，兼容数字和字符串形式。
+    const mountViewType = view.viewType;
+    const supportedByMount = _.includes(['0', '3', '6'], String(mountViewType));
+
+    if (supportedByMount) {
       if (this.props.mobileNavGroupFilters.length) {
         this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
       } else if (base.type !== 'single') {
@@ -295,7 +299,41 @@ class View extends Component {
       buttonsCheckStatus,
       appDetail: appDetail.detail,
     };
-    const ViewComponent = <Component ref={this.viewComRef} {...viewProps} />;
+    const quickFilterElement = (
+      <QuickFilterSearch
+        className={
+          String(viewType) === calendar
+            ? 'calendarQuickFilter'
+            : String(viewType) === customize
+              ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}`
+              : ''
+        }
+        showSearch={!_.includes([customize, calendar], String(viewType))}
+        isFilter={isFilter}
+        filters={filters}
+        detail={detail}
+        view={view}
+        worksheetInfo={worksheetInfo}
+        filterControls={filterControls}
+        sheetControls={sheetControls}
+        updateFilters={updateFilters}
+        quickFilterWithDefault={quickFilterWithDefault}
+        savedFilters={savedFilters}
+        activeSavedFilter={activeSavedFilter}
+        updateActiveSavedFilter={updateActiveSavedFilter}
+        base={base}
+        config={config}
+        canFilter={canFilter}
+      />
+    );
+    const ViewComponent = (
+      <Component
+        key={String(viewType) === calendar ? `${base.worksheetId}:${base.viewId}` : undefined}
+        ref={this.viewComRef}
+        {...viewProps}
+        {...(String(viewType) === calendar ? { quickFilterElement } : {})}
+      />
+    );
 
     if (
       hasGroupFilter &&
@@ -337,29 +375,8 @@ class View extends Component {
           )}
           {(_.includes([gallery, resource, board, sheet], String(viewType)) ||
             (String(viewType) === detail && view.childType !== 1) ||
-            (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
-            <QuickFilterSearch
-              className={
-                String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''
-              }
-              showSearch={String(viewType) === customize ? false : true}
-              isFilter={isFilter}
-              filters={filters}
-              detail={detail}
-              view={view}
-              worksheetInfo={worksheetInfo}
-              filterControls={filterControls}
-              sheetControls={sheetControls}
-              updateFilters={updateFilters}
-              quickFilterWithDefault={quickFilterWithDefault}
-              savedFilters={savedFilters}
-              activeSavedFilter={activeSavedFilter}
-              updateActiveSavedFilter={updateActiveSavedFilter}
-              base={base}
-              config={config}
-              canFilter={canFilter}
-            />
-          )}
+            (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) &&
+            quickFilterElement}
           {_.includes(
             [gallery, resource, customize, board],
             String(viewType) || (String(viewType) === detail && view.childType !== 1),

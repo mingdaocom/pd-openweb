@@ -2,14 +2,14 @@ import React, { useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
 import { setAutoLoginKey } from 'src/pages/AuthService/portalAccount/util';
-import { browserIsMobile } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { encrypt } from 'src/utils/services/security/encryption';
 
 const AccountWrap = styled.div`
   margin-top: 20px;
@@ -98,7 +98,7 @@ const AccountDialogWrap = styled.div``;
 let sendVerifyCodeTimer = null;
 
 const isPasswordRule = str => {
-  return RegExpValidator.isPasswordValid(str);
+  return isPasswordValid(str);
 };
 
 export default function TelDialog(props) {
@@ -319,36 +319,18 @@ export default function TelDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={<span className="Bold">{_l('设置密码')}</span>}
       className={cx('userInfoDialog', classNames)}
-      headerClass="userInfoDialogTitle"
-      bodyClass="telDialogCon"
+      classNames={{ header: 'userInfoDialogTitle', body: 'telDialogCon' }}
       width={560}
-      footer={
-        <div className="footer">
-          <Button
-            type={'link'}
-            onClick={() => {
-              setShow(false);
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button
-            type={'primary'}
-            onClick={() => {
-              changePwd();
-            }}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
-      }
+      onOk={() => changePwd()}
       onCancel={() => {
         setShow(false);
       }}
-      visible={show}
+      open={show}
+      mask={{ closable: true }}
+      keyboard
     >
       <AccountDialogWrap>
         <AccountWrap>
@@ -411,6 +393,6 @@ export default function TelDialog(props) {
           </div>
         </AccountWrap>
       </AccountDialogWrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -3,13 +3,13 @@ import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import { compile, pathToRegexp } from 'path-to-regexp';
-import Trigger from 'rc-trigger';
 import { MdLink, UpgradeIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
-import { getPathWithoutSubPath } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { isSandboxSupportedProject } from 'src/utils/domain/app/sandbox';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
 import './index.less';
 
 const isRoutePathMatched = (path, pathname) => pathToRegexp(path).test(getPathWithoutSubPath(pathname));
@@ -71,7 +71,11 @@ let AdminLeftMenu = class AdminLeftMenu extends Component {
     }
   }
 
-  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false, featureIds }) => {
+  renderLinkItem = (
+    { icon, name, menuPath, routes, featureId, key, hasBeta = false, featureIds },
+    asMenuItem = false,
+  ) => {
+    const renderAsMenuItem = asMenuItem === true;
     const { subListVisible, isExtend } = this.state;
     const {
       location: { pathname },
@@ -146,6 +150,42 @@ let AdminLeftMenu = class AdminLeftMenu extends Component {
     const licenseType = (md.global.Account.projects.find(o => o.projectId === projectId) || {}).licenseType;
 
     const isFreeUpgrade = licenseType === 0 && _.includes(['groups', 'orgothers', 'loginlog', 'orglog'], key);
+    const isSandboxUpgradeRequired =
+      ['appSandbox', 'reviewUpgrade'].includes(key) && !isSandboxSupportedProject(projectId);
+
+    const link = (
+      <MdLink
+        to={path}
+        className={cx('stopPropagation', {
+          pLeft12: isHome,
+          pLeft42: !isHome && !renderAsMenuItem,
+          'activeItem bold': isActive(),
+          activeExtend: isActive() && isExtend,
+        })}
+        onClick={() =>
+          this.setState({
+            subListVisible: false,
+            menuGroupKey: null,
+          })
+        }
+      >
+        {icon && <i className={cx('Font20 textPrimary mRight10 homeIcon', icon)} />}
+        {!isExtend && key === 'home' ? (
+          ''
+        ) : (
+          <div className="subName">
+            {name}
+            {hasBeta && <i className="icon-beta1 betaIcon" />}
+            {(featureType === '2' ||
+              (key === 'platformintegration' && platIntegrationUpgrade) ||
+              isFreeUpgrade ||
+              isSandboxUpgradeRequired) && <UpgradeIcon />}
+          </div>
+        )}
+      </MdLink>
+    );
+
+    if (renderAsMenuItem) return link;
 
     return (
       <li
@@ -154,34 +194,7 @@ let AdminLeftMenu = class AdminLeftMenu extends Component {
           active: isActive() && subListVisible,
         })}
       >
-        <MdLink
-          to={path}
-          className={cx('stopPropagation', {
-            pLeft12: isHome,
-            pLeft42: !isHome,
-            'activeItem bold': isActive(),
-            activeExtend: isActive() && isExtend,
-          })}
-          onClick={() =>
-            this.setState({
-              subListVisible: false,
-              menuGroupKey: null,
-            })
-          }
-        >
-          {icon && <i className={cx('Font20 textPrimary mRight10 homeIcon', icon)} />}
-          {!isExtend && key === 'home' ? (
-            ''
-          ) : (
-            <div className="subName">
-              {name}
-              {hasBeta && <i className="icon-beta1 betaIcon" />}
-              {(featureType === '2' || (key === 'platformintegration' && platIntegrationUpgrade) || isFreeUpgrade) && (
-                <UpgradeIcon />
-              )}
-            </div>
-          )}
-        </MdLink>
+        {link}
       </li>
     );
   };
@@ -214,13 +227,7 @@ let AdminLeftMenu = class AdminLeftMenu extends Component {
             >
               {currentCompanyName}
             </div>
-            <Tooltip
-              placement="right"
-              align={{
-                offset: [10, 0],
-              }}
-              title={isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}
-            >
+            <Tooltip placement="right" title={isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}>
               <span
                 className={cx(
                   'Hand Font12 textSecondary titleIconBox Block',
@@ -306,34 +313,30 @@ let AdminLeftMenu = class AdminLeftMenu extends Component {
                       {key === 'home' ? (
                         _.map(subMenuList, this.renderLinkItem)
                       ) : (
-                        <Trigger
-                          action={['click']}
-                          popupVisible={subListVisible && menuGroupKey === key}
-                          onPopupVisibleChange={visible =>
+                        <Dropdown
+                          trigger={['click']}
+                          placement="rightTop"
+                          open={subListVisible && menuGroupKey === key}
+                          onOpenChange={visible =>
                             this.setState({
                               subListVisible: visible,
                             })
                           }
-                          popup={
-                            <div className="hoverMenuWrap">
-                              <div className="textTertiary Font12 pLeft20 mBottom10">{title}</div>
-                              <ul
-                                className="manageItems overflowHidden"
-                                style={{
-                                  height: subMenuList.length * 48,
-                                }}
-                              >
-                                {_.map(subMenuList, this.renderLinkItem)}
-                              </ul>
-                            </div>
-                          }
-                          popupAlign={{
-                            points: ['tr', 'br'],
-                            offset: [-40, -40],
-                            overflow: {
-                              adjustX: true,
-                              adjustY: true,
-                            },
+                          menu={{
+                            style: { minWidth: 180 },
+                            items: [
+                              {
+                                key: `${key}-group`,
+                                type: 'group',
+                                label: title,
+                                children: subMenuList
+                                  .map(item => {
+                                    const label = this.renderLinkItem(item, true);
+                                    return label ? { key: item.key, label } : null;
+                                  })
+                                  .filter(Boolean),
+                              },
+                            ],
                           }}
                         >
                           <div
@@ -349,7 +352,7 @@ let AdminLeftMenu = class AdminLeftMenu extends Component {
                           >
                             <i className={cx('Font20 textPrimary mRight10', icon)} />
                           </div>
-                        </Trigger>
+                        </Dropdown>
                       )}
                     </div>
                   );

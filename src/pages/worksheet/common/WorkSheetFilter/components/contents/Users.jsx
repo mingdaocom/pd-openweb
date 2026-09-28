@@ -1,11 +1,14 @@
-import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { UserHead } from 'ming-ui';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FILTER_CONDITION_TYPE } from '../../enum';
+import { Select } from 'ming-ui/antd-components';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+
+const USER_SELECT_STYLES = { root: { '--hap-select-multi-item-height': '28px' } };
 
 export default class Users extends Component {
   static propTypes = {
@@ -64,64 +67,24 @@ export default class Users extends Component {
     });
   }
 
-  addUser = () => {
-    const { projectId, from = '', control = {}, appId, filterResigned } = this.props;
+  canOpenUserSelect = () => {
+    const { projectId, control = {} } = this.props;
     const tabType = getTabTypeBySelectUser(control);
 
     if (
       tabType === 1 &&
       md.global.Account.isPortal &&
-      !find(md.global.Account.projects, item => item.projectId === projectId)
+      !_.find(md.global.Account.projects, item => item.projectId === projectId)
     ) {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
-      return;
+      return false;
     }
-
-    const _this = this;
 
     if (this.props.disabled) {
-      return;
+      return false;
     }
 
-    quickSelectUser(this.userscon, {
-      showMoreInvite: false,
-      isTask: false,
-      includeUndefinedAndMySelf: !_.includes(['rule', 'portal', 'subTotal'], from),
-      includeSystemField: !_.includes(['rule', 'portal', 'subTotal'], from),
-      ...(_.includes(['rule'], from)
-        ? {
-            prefixAccounts: [
-              {
-                accountId: 'user-self',
-                fullname: _l('当前用户'),
-                avatar:
-                  md.global.FileStoreConfig.pictureHost + '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
-              },
-            ],
-          }
-        : {}),
-      isHidAddUser: md.global.Account.isPortal,
-      tabType,
-      offset: {
-        top: 0,
-        left: 1,
-      },
-      zIndex: 10001,
-      appId,
-      selectedAccountIds: this.state.users.map(l => l.accountId),
-      SelectUserSettings: {
-        unique: this.selectSingle,
-        projectId,
-        filterResigned: filterResigned,
-        hideResignedTab: true,
-        callback(users) {
-          _this.addUsers(users);
-        },
-      },
-      selectCb(users) {
-        _this.addUsers(users);
-      },
-    });
+    return true;
   };
 
   addUsers = selectusers => {
@@ -183,7 +146,7 @@ export default class Users extends Component {
     } else {
       return (
         <UserHead
-          className="userHead"
+          className="worksheetFilterUserHead"
           user={{
             userHead: user.avatar,
             accountId: user.accountId,
@@ -196,34 +159,69 @@ export default class Users extends Component {
     }
   }
   render() {
-    const { disabled } = this.props;
+    const { appId, control = {}, disabled, filterResigned, from = '', projectId } = this.props;
     const { users } = this.state;
+    const includeSpecialUsers = !_.includes(['rule', 'portal', 'subTotal'], from);
+    const triggerNode = (
+      <Select
+        className="w100"
+        mode="multiple"
+        open={false}
+        showSearch={false}
+        disabled={disabled}
+        placeholder={_l('请选择')}
+        styles={USER_SELECT_STYLES}
+        options={users.map(user => ({
+          label: (
+            <span className="flexRow alignItemsCenter minWidth0">
+              {this.renderHead(user)}
+              <span className="mLeft6 ellipsis">{user.fullname}</span>
+            </span>
+          ),
+          value: user.accountId,
+        }))}
+        value={users.map(user => user.accountId)}
+        onDeselect={accountId => this.removeUser({ accountId })}
+      />
+    );
+
     return (
       <div className="worksheetFilterUsersCondition">
-        <div className={cx('usersCon', { disabled })} ref={con => (this.userscon = con)} onClick={this.addUser}>
-          {users.length ? (
-            users.map((user, index) => (
-              <div className="userItem" key={index}>
-                {this.renderHead(user)}
-                <span className="fullname breakAll">{user.fullname}</span>
-                <span
-                  className="remove"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.removeUser(user);
-                  }}
-                >
-                  <i className="icon icon-delete"></i>
-                </span>
-              </div>
-            ))
-          ) : (
-            <Fragment>
-              <span className="placeholder">{_l('请选择')}</span>
-              <i className="icon icon-arrow-down-border Font15 textTertiary Right mTop5"></i>
-            </Fragment>
-          )}
-        </div>
+        <UserSelectPopover
+          showMoreInvite={false}
+          includeUndefinedAndMySelf={includeSpecialUsers}
+          includeSystemField={includeSpecialUsers}
+          prefixAccounts={
+            from === 'rule'
+              ? [
+                  {
+                    accountId: 'user-self',
+                    fullname: _l('当前用户'),
+                    avatar:
+                      md.global.FileStoreConfig.pictureHost + '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
+                  },
+                ]
+              : []
+          }
+          isHidAddUser={md.global.Account.isPortal}
+          tabType={getTabTypeBySelectUser(control)}
+          offset={{ top: 0, left: 1 }}
+          appId={appId}
+          selectedAccountIds={users.map(l => l.accountId)}
+          SelectUserSettings={{
+            unique: this.selectSingle,
+            projectId,
+            filterResigned,
+            hideResignedTab: true,
+            callback: this.addUsers,
+          }}
+          onSelect={this.addUsers}
+          onOpenChange={visible => {
+            if (visible && !this.canOpenUserSelect()) return false;
+          }}
+        >
+          {triggerNode}
+        </UserSelectPopover>
       </div>
     );
   }

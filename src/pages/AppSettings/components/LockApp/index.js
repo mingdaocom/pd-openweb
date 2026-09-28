@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { Button, Switch } from 'ming-ui';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import { navigateTo } from 'src/router/navigateTo';
+import { Button, Switch } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
 import AppSettingHeader from '../AppSettingHeader';
 import { closeLockFunc, lockAppFunc, modifyAppLockPassword, unlockAppLockPassword } from './AppLockPasswordDialog';
 
@@ -38,6 +38,7 @@ export default function LockAppCom(props) {
         <div className="flexRow recoverAction">
           <div>
             <Button
+              type="primary"
               onClick={() => {
                 unlockAppLockPassword({
                   appId,
@@ -53,8 +54,10 @@ export default function LockAppCom(props) {
               {_l('恢复锁定')}
             </Button>
             {isOwner && (
-              <span
-                className="colorPrimary Hand mLeft20"
+              <Button
+                className="mLeft20"
+                color="primary"
+                variant="link"
                 onClick={() =>
                   modifyAppLockPassword({
                     appId,
@@ -63,7 +66,7 @@ export default function LockAppCom(props) {
                 }
               >
                 {_l('修改应用锁密码')}
-              </span>
+              </Button>
             )}
           </div>
         </div>
@@ -83,14 +86,18 @@ export default function LockAppCom(props) {
         <Switch
           disabled={isRecovery && !(isNormalApp && isOwner)}
           checked={isRecovery}
-          onClick={checked => {
-            if (!checked) {
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            if (checked) {
               lockAppFunc({
                 appId,
                 refreshPage,
               });
             } else {
-              closeLockFunc({ appId, refreshPage });
+              closeLockFunc({
+                appId,
+                refreshPage,
+              });
             }
           }}
         />

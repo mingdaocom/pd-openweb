@@ -5,9 +5,9 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
-import { renderCellText } from '../../components/CellControls';
 
 class RelateWorksheet extends Component {
   static propTypes = {

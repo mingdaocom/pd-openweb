@@ -1,37 +1,40 @@
 import React from 'react';
-import { Collapse } from 'antd';
 import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { SearchFn } from 'src/pages/widgetConfig/util';
-import { checkTypeSupportForFunction } from 'src/utils/control';
+import { Collapse } from 'ming-ui/antd-components';
+import { SearchFn } from 'src/utils/domain/control/capabilities';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { checkTypeSupportForFunction } from 'src/utils/domain/control/type';
 
 const Con = styled.div`
   padding: 10px 0;
-  .ant-collapse,
-  .ant-collapse-borderless {
+  .hap-collapse,
+  .hap-collapse-borderless {
     background-color: transparent !important;
   }
   .fnTitle {
     font-weight: bold;
     color: var(--color-text-primary);
   }
-  .ant-collapse-header {
+  .hap-collapse-header {
     padding: 12px 14px !important;
+    .hap-collapse-expand-icon {
+      margin-inline-end: 0px !important;
+    }
   }
-  .ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+  .hap-collapse > .hap-collapse-item > .hap-collapse-header .hap-collapse-arrow {
     margin-right: 4px;
     vertical-align: middle;
   }
-  .ant-collapse-item {
+  .hap-collapse-item {
     border-bottom: none !important;
   }
-  .ant-collapse-arrow {
+  .hap-collapse-arrow {
     top: 15px !important;
     padding: 0px !important;
     left: 14px !important;
   }
-  .ant-collapse-content-box {
+  .hap-collapse-body {
     padding: 0px !important;
   }
 `;
@@ -53,7 +56,7 @@ const ExpandIcon = styled.i`
   font-size: 16px;
   color: var(--color-text-tertiary);
   vertical-align: middle !important;
-  transform: ${({ isActive }) => `rotate(${isActive ? 0 : -90}deg)`};
+  transform: ${({ $isActive }) => `rotate(${$isActive ? 0 : -90}deg)`};
 `;
 
 const Icon = styled.i`
@@ -85,7 +88,7 @@ export default function ControlList(props) {
           bordered={false}
           expandIcon={({ isActive }) => (
             <span>
-              <ExpandIcon isActive={isActive} className="icon icon-worksheet_fall" />
+              <ExpandIcon $isActive={isActive} className="icon icon-worksheet_fall" />
             </span>
           )}
           // {...(keywords
@@ -93,31 +96,30 @@ export default function ControlList(props) {
           //       // activeKey: types,
           //     }
           //   : {})}
-        >
-          {controlGroups.map(group => (
-            <Collapse.Panel key={group.id} header={<span className="fnTitle">{group.name}</span>}>
-              {group.controls
-                .filter(c => c.controlName && checkTypeSupportForFunction(c))
-                .filter(c => SearchFn(keywords, c.controlName))
-                .map((c, i) => (
-                  <ControlItem
-                    key={i}
-                    onClick={() => {
-                      insertTagToEditor({
-                        value: group.id + '-' + c.controlId,
-                        text: c.controlName,
-                      });
-                    }}
-                  >
-                    <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
-                    <span className="ellipsis" title={c.controlName}>
-                      {c.controlName}
-                    </span>
-                  </ControlItem>
-                ))}
-            </Collapse.Panel>
-          ))}
-        </Collapse>
+          items={controlGroups.map(group => ({
+            key: group.id,
+            label: <span className="fnTitle">{group.name}</span>,
+            children: group.controls
+              .filter(c => c.controlName && checkTypeSupportForFunction(c))
+              .filter(c => SearchFn(keywords, c.controlName))
+              .map((c, i) => (
+                <ControlItem
+                  key={i}
+                  onClick={() => {
+                    insertTagToEditor({
+                      value: group.id + '-' + c.controlId,
+                      text: c.controlName,
+                    });
+                  }}
+                >
+                  <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
+                  <span className="ellipsis" title={c.controlName}>
+                    {c.controlName}
+                  </span>
+                </ControlItem>
+              )),
+          }))}
+        />
       </Con>
     );
   } else {

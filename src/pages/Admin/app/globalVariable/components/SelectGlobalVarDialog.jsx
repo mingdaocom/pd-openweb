@@ -2,22 +2,18 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { SearchInput } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import variableApi from 'src/api/variable';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import GlobalVarTable from './GlobalVarTable';
 
-const SelectVarDialog = styled(Dialog)`
+const SelectVarModal = styled(Modal)`
   position: relative;
-  .mui-dialog-body {
-    padding: 0 !important;
-  }
   .selectVarWrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0 20px;
     .searchCon {
       width: 100%;
       height: 36px;
@@ -74,8 +70,10 @@ function SelectGlobalVar(props) {
   }, [currentTab]);
 
   return (
-    <SelectVarDialog
-      visible
+    <SelectVarModal
+      open
+      mask={{ closable: true }}
+      keyboard
       type="fixed"
       width={800}
       title={_l('选择全局变量')}
@@ -125,8 +123,10 @@ function SelectGlobalVar(props) {
           />
         </div>
       </div>
-    </SelectVarDialog>
+    </SelectVarModal>
   );
 }
 
-export default props => FunctionWrap(SelectGlobalVar, { ...props });
+export function useSelectGlobalVar() {
+  return useFunctionWrapComponent(SelectGlobalVar);
+}

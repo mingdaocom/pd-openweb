@@ -1,12 +1,11 @@
 import React, { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import chunkAjax from '../../../../api/chunks';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import {
   ATTACHMENT_TYPE,
   ATTACHMENT_TYPE_FILTERS,
@@ -26,6 +25,8 @@ const CHUNK_DETAIL_PAGE_SIZE = 20;
 const ChunkPreview = props => {
   const { knowledgeDetail, knowledgeCollection, backToList } = props;
   const { worksheet, id: collectionId } = knowledgeCollection;
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
 
   const mainContentBoxRef = useLinkTargetBlank();
 
@@ -180,7 +181,7 @@ const ChunkPreview = props => {
     if (activeTab === TAB_TYPE.ATTACHMENT) {
       const { attachment } = chunkHeader;
       if (!attachment) return;
-      previewAttachments({
+      openPreviewAttachments({
         index: 0,
         callFrom: 'player',
         attachments: [attachment],
@@ -222,6 +223,8 @@ const ChunkPreview = props => {
 
   return (
     <div className="chunkPreviewContainer">
+      {recordInfoHolder}
+      {previewAttachmentsHolder}
       <div className="chunkPreviewHeader">
         <Icon icon="backspace" onClick={backToList} />
         <span className="knowledgeName">{knowledgeDetail.name}</span>
@@ -262,9 +265,10 @@ const ChunkPreview = props => {
             {/* 附件筛选器 */}
             {activeTab === TAB_TYPE.ATTACHMENT && (
               <div className={cx('filterBox', { hasFilter: attachmentTypes.length > 0 })}>
-                <Trigger
-                  popupVisible={showAttachmentTypesFilter}
-                  popup={
+                <Popover
+                  noPadding
+                  open={showAttachmentTypesFilter}
+                  content={
                     <div className="attachmentTypesFilterPopup">
                       {ATTACHMENT_TYPE_FILTERS.map(item => (
                         <div
@@ -278,14 +282,10 @@ const ChunkPreview = props => {
                       ))}
                     </div>
                   }
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tr', 'br'],
-                    offset: [0, 5],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
+                  trigger="click"
+                  placement="bottomRight"
                   getPopupContainer={() => document.body}
-                  onPopupVisibleChange={showDropOption => {
+                  onOpenChange={showDropOption => {
                     setShowAttachmentTypesFilter(showDropOption);
                   }}
                 >
@@ -307,7 +307,7 @@ const ChunkPreview = props => {
                       </div>
                     )}
                   </div>
-                </Trigger>
+                </Popover>
               </div>
             )}
           </div>

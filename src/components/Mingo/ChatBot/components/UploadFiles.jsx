@@ -17,11 +17,16 @@ function UploadFiles(
     removeFile = () => {},
     allowMultiSelection = true,
     allowMimeTypes = [{ title: 'image', extensions: 'jpg,jpeg,png,heic' }],
+    capture = false,
   },
   ref,
 ) {
   const uploaderRef = useRef(null);
   const cache = useRef({});
+  const getFileInput = useCallback(
+    () => uploaderRef.current?.upload?.nextElementSibling?.querySelector('input') || null,
+    [],
+  );
   const handleClear = useCallback(() => {
     try {
       uploaderRef.current.uploader.disableBrowse(false);
@@ -32,6 +37,18 @@ function UploadFiles(
   useImperativeHandle(ref, () => ({
     clear: handleClear,
     uploader: uploaderRef.current,
+    open: () => {
+      const fileInput = getFileInput();
+
+      if (!fileInput) return;
+
+      if (capture) {
+        fileInput.setAttribute('accept', 'image/*');
+        fileInput.setAttribute('capture', 'environment');
+      }
+
+      fileInput.click();
+    },
   }));
   useEffect(() => {
     cache.current.existingFiles = existingFiles;
@@ -48,7 +65,7 @@ function UploadFiles(
         filters: {
           mime_types: allowMimeTypes,
         },
-        max_file_size: '10m',
+        max_file_size: '20m',
         error_callback: () => {
           handleClear();
           alert(_l('有不合法的文件格式，请重新选择图片上传'), 3);
@@ -83,6 +100,16 @@ function UploadFiles(
         handleClear();
         up.disableBrowse(false);
         onError(err.file);
+      }}
+      onInit={() => {
+        if (!capture) return;
+
+        const fileInput = getFileInput();
+
+        if (fileInput) {
+          fileInput.setAttribute('accept', 'image/*');
+          fileInput.setAttribute('capture', 'environment');
+        }
       }}
     >
       {children}

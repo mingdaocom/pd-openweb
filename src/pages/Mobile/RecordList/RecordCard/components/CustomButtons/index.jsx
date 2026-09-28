@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import RecordAction from 'mobile/components/RecordInfo/RecordAction';
-import { getTranslateInfo } from 'src/utils/app';
-import { getButtonColor } from 'src/utils/control';
+import { getButtonColor } from 'src/utils/domain/control/style';
+import { getTranslateInfo } from 'src/utils/services/app';
 import GroupButton from './GroupButton';
 
 const CustomButtonInCard = styled.div`
@@ -19,16 +19,26 @@ const CustomButtonInCard = styled.div`
   padding: 0 8px;
   height: 32px;
   border-radius: 3px;
-  ${props => props.disabled && 'opacity: 0.5;'}
+  ${props => props.$disabled && 'opacity: 0.5;'}
   &.operates-text,
   &.operates-icon {
     border: none !important;
     background: transparent !important;
   }
   &.operates-icon {
+    /* 仅图标：可点击态跟随按钮自身配色（由 getButtonIcon 注入），未配置时回退主题色 */
     .icon {
-      color: var(--color-text-secondary) !important;
+      color: var(--color-primary);
     }
+    ${props =>
+      props.$disabled &&
+      `
+      /* 停用态靠禁用灰表达不可点击，不再叠加整体半透明，否则灰色上再压透明会看不清 */
+      opacity: 1;
+      .icon {
+        color: var(--color-text-disabled) !important;
+      }
+    `}
   }
   .icon {
     font-size: 18px;
@@ -55,7 +65,7 @@ const OperatesDivider = styled.div`
 const CustomButtonInPopup = styled.div`
   display: flex;
   align-items: center;
-  ${props => props.disabled && 'opacity: 0.5;'}
+  ${props => props.$disabled && 'opacity: 0.5;'}
   height: 50px;
   .icon {
     font-size: 20px;
@@ -92,6 +102,7 @@ const CustomButtons = props => {
   const recordId = row.rowid;
   const { entityName = _l('记录'), switches } = worksheetInfo;
   const recordRef = useRef(null);
+  const viewTranslateInfo = getTranslateInfo(appId, worksheetId, view?.viewId);
 
   const getButtonName = button => {
     const translateInfo = getTranslateInfo(appId, null, button.btnId);
@@ -111,7 +122,8 @@ const CustomButtons = props => {
         fillColor =
           !button.color || button.color === 'transparent' || disabled ? 'var(--color-text-disabled)' : button.color;
       } else if (!button.showAsPrimary) {
-        fillColor = button.color;
+        // 仅图标样式停用态统一压成禁用灰，其余样式保持原有配色口径
+        fillColor = disabled && button.style === 'icon' ? 'var(--color-text-disabled)' : button.color;
       }
 
       return (
@@ -189,9 +201,14 @@ const CustomButtons = props => {
   };
 
   const renderGroupButton = button => {
+    const translatedButton = {
+      ...button,
+      name: viewTranslateInfo[button.id] || button.name,
+    };
+
     return (
       <GroupButton
-        button={button}
+        button={translatedButton}
         disabled={btnDisable[button.btnId] || button.disabled}
         isInCard={isInCard}
         showType={showType}
@@ -225,7 +242,7 @@ const CustomButtons = props => {
               ) : (
                 <CustomButtonInCard
                   className={`operates-${showType}`}
-                  disabled={btnDisable[button.btnId] || button.disabled}
+                  $disabled={btnDisable[button.btnId] || button.disabled}
                   style={{
                     ...buttonColor,
                     ...(!button.showAsPrimary && button.style === 'text' && { color: button.color }),
@@ -249,7 +266,7 @@ const CustomButtons = props => {
                 renderGroupButton(button)
               ) : (
                 <CustomButtonInPopup
-                  disabled={btnDisable[button.btnId] || button.disabled}
+                  $disabled={btnDisable[button.btnId] || button.disabled}
                   onClick={() => handleButtonClick(button)}
                 >
                   {getButtonIcon(button, buttonColor)}

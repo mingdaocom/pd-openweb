@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dropdown, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { Icon } from 'ming-ui';
+import { Input, Select, Tooltip } from 'ming-ui/antd-components';
+import { isCustomOptions } from 'src/utils/domain/control/dynamicValue';
+import { getConditionOverrideValue, getFilterTypes } from 'src/utils/domain/worksheet/filterCondition';
 import {
   API_ENUM_TO_TYPE,
   CONDITION_OPTIONS,
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
   FILTER_RELATION_TYPE,
-} from '../enum';
-import { getConditionOverrideValue, getFilterTypes } from '../util';
+} from 'src/utils/domain/worksheet/filterConstants';
 import renderConditionValue from './contents';
 
 // 为空 不为空  在范围内 不在范围内
@@ -29,6 +28,19 @@ const listType = [
 ];
 // 附件 检查框 地区 地区 地区
 const listControlType = [API_ENUM_TO_TYPE.ATTACHMENT, API_ENUM_TO_TYPE.SWITCH, API_ENUM_TO_TYPE.LOCATION];
+const FILTER_RELATION_OPTIONS = [
+  { label: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
+  { label: _l('或'), value: FILTER_RELATION_TYPE.OR },
+];
+const HIDDEN_OPTION_STYLE = { display: 'none' };
+
+const getSelectOptions = (options, hiddenValues = []) =>
+  options.map(({ text, ...option }) => ({
+    ...option,
+    label: text,
+    style: _.includes(hiddenValues, option.value) ? HIDDEN_OPTION_STYLE : option.style,
+  }));
+
 export default class Condition extends Component {
   static propTypes = {
     isRules: PropTypes.bool,
@@ -115,15 +127,14 @@ export default class Condition extends Component {
     return (
       <React.Fragment>
         {index === 0 ? (
-          <Dropdown
+          <Select
             disabled={!canEdit}
-            defaultValue={relationType}
-            isAppendToBody
-            menuStyle={{ width: 'auto' }}
-            data={[
-              { text: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
-              { text: _l('或'), value: FILTER_RELATION_TYPE.OR },
-            ]}
+            value={relationType}
+            options={FILTER_RELATION_OPTIONS}
+            popupMatchSelectWidth={false}
+            showSearch={false}
+            size="small"
+            variant="borderless"
             onChange={value => {
               onUpdateFilter({ relationType: value });
             }}
@@ -210,13 +221,14 @@ export default class Condition extends Component {
               </span>
               {conditionGroupType !== CONTROL_FILTER_WHITELIST.BOOL.value && (
                 <span className="relation">
-                  <Dropdown
-                    defaultValue={condition.type || conditionFilterTypes[0].value}
+                  <Select
+                    value={condition.type || conditionFilterTypes[0].value}
                     disabled={!canEdit}
-                    data={conditionFilterTypes}
-                    hiddenValue={hiddenValue}
-                    isAppendToBody
-                    menuStyle={{ width: 'auto' }}
+                    options={getSelectOptions(conditionFilterTypes, hiddenValue)}
+                    popupMatchSelectWidth={false}
+                    showSearch={false}
+                    size="small"
+                    variant="borderless"
                     onChange={this.changeConditionType}
                   />
                 </span>
@@ -234,7 +246,7 @@ export default class Condition extends Component {
             <div className="deletedColumn">
               <i className="icon icon-info"></i>
               <Tooltip
-                overlayInnerStyle={{ padding: '8px 10px' }}
+                styles={{ body: { padding: '8px 10px' } }}
                 title={_l('ID: %0', condition.controlId)}
                 placement="bottom"
               >
@@ -257,7 +269,6 @@ export default class Condition extends Component {
             <Select
               className="dynamicSource"
               disabled={!isDynamicValue}
-              dropdownClassName="dynamicSelectDropdown"
               value={this.state.isDynamicsource ? 2 : 1}
               options={isDynamicValue ? CONDITION_OPTIONS : CONDITION_OPTIONS.filter(o => o.value === 1)}
               suffixIcon={<Icon icon="arrow-down-border Font14" />}

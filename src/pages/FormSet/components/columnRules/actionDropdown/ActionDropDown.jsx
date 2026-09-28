@@ -2,9 +2,9 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Checkbox, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Checkbox, Divider, Input, Popover, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import {
   deepSearch,
   getNewDropDownData,
@@ -14,11 +14,11 @@ import {
   showArrowSetting,
   TAB_TYPES,
 } from '../config';
-import openSettingDialog from './SettingDialog';
-import openStyleSettingDialog from './StyleSettingDialog';
+import { useSettingDialog } from './SettingDialog';
+import { useStyleSettingDialog } from './StyleSettingDialog';
 import './ActionDropDown.less';
 
-export default class DropDownItem extends Component {
+class DropDownItem extends Component {
   static propTypes = {
     values: PropTypes.arrayOf(PropTypes.shape({})),
     dropDownData: PropTypes.array,
@@ -204,7 +204,7 @@ export default class DropDownItem extends Component {
                   onClick={e => {
                     e.stopPropagation();
                     if (actionType === 11) {
-                      openStyleSettingDialog({
+                      this.props.openStyleSettingDialog({
                         data: this.props.originData,
                         values,
                         id: item.controlId,
@@ -213,7 +213,7 @@ export default class DropDownItem extends Component {
                       return;
                     }
 
-                    openSettingDialog({
+                    this.props.openSettingDialog({
                       data: this.state.originData,
                       values,
                       id: item.controlId,
@@ -266,15 +266,16 @@ export default class DropDownItem extends Component {
         ((parentControl.type === 52 && findChildItem(parentControl.controlId)) ||
           (hasParentControl && parentControl.sectionId && findChildItem(parentControl.sectionId))));
     return (
-      <Checkbox
-        checked={!!checked}
-        disabled={disabled}
-        onClick={(checked, value, e) => {
-          e.stopPropagation();
-          if (disabled) return;
-          this.updateValues(hasParentControl ? parentControl.controlId : '', item.controlId);
-        }}
-      />
+      <span className="mRight8" onClick={event => event.stopPropagation()}>
+        <Checkbox
+          checked={!!checked}
+          disabled={disabled}
+          onChange={() => {
+            if (disabled) return;
+            this.updateValues(hasParentControl ? parentControl.controlId : '', item.controlId);
+          }}
+        />
+      </span>
     );
   }
 
@@ -412,18 +413,20 @@ export default class DropDownItem extends Component {
       <Fragment>
         {!this.state.keyword && this.props.showSelectAll && (
           <div className="quickOperate">
-            <button
-              className="hoverColorPrimary"
+            <Button
+              size="small"
+              color="default"
+              variant="filled"
               onClick={() => {
                 const newValue = this.getAllControls(dropDownData);
                 this.props.onChange('controls', newValue);
               }}
             >
               {_l('全选')}
-            </button>
-            <button className="hoverColorPrimary" onClick={() => this.props.onChange('controls', [])}>
+            </Button>
+            <Button size="small" color="default" variant="filled" onClick={() => this.props.onChange('controls', [])}>
               {_l('清空')}
-            </button>
+            </Button>
           </div>
         )}
         {this.renderList(dropDownData)}
@@ -437,24 +440,19 @@ export default class DropDownItem extends Component {
     const menu = (
       <div className="ruleDropDownItemCon">
         <Fragment>
-          <div className="ruleSearchWrap">
-            <input
-              type="text"
+          <div>
+            <Input
+              className="w100"
+              variant="borderless"
               autoFocus
+              allowClear
               value={keyword}
               placeholder={_l('搜索字段')}
+              prefix={<Icon icon="search" className="search textTertiary Font16" />}
               onChange={e => this.setState({ keyword: e.target.value }, this.handleSearch)}
             />
-            <Icon icon="search" className="search textTertiary Font16" />
-            {keyword && (
-              <Icon
-                icon="close"
-                onClick={() => this.setState({ keyword: '' }, this.handleSearch)}
-                className="close pointer Font16"
-              />
-            )}
           </div>
-
+          <Divider className="mTop2 mBottom2" />
           {dropDownData.length > 0 ? (
             this.renderContent(dropDownData)
           ) : (
@@ -465,22 +463,18 @@ export default class DropDownItem extends Component {
     );
 
     return (
-      <Trigger
-        popupVisible={visible}
-        onPopupVisibleChange={visible => {
+      <Popover
+        open={visible}
+        onOpenChange={visible => {
           if (disabled) return;
           this.setState({ visible });
         }}
-        action={['click']}
-        mouseEnterDelay={0.1}
-        popupAlign={{ points: ['tl', 'bl'], offset: [0, 4] }}
-        popup={menu}
-        getPopupContainer={() => this.box}
+        trigger={disabled ? [] : 'click'}
+        placement="bottomLeft"
+        noPadding
+        content={menu}
       >
-        <div
-          className={cx('fixedRuleDropdownSelected', { errorBorder: actionError, disabled })}
-          ref={con => (this.box = con)}
-        >
+        <div className={cx('fixedRuleDropdownSelected', { errorBorder: actionError, disabled })}>
           <span className="dropDownLabel">
             {!_.isEmpty(values) ? (
               this.getTextByValue()
@@ -494,7 +488,12 @@ export default class DropDownItem extends Component {
             <i className="icon-arrow-down-border textTertiary" />
           </span>
         </div>
-      </Trigger>
+      </Popover>
     );
   }
 }
+
+export default withOpeners(DropDownItem, {
+  openSettingDialog: useSettingDialog,
+  openStyleSettingDialog: useStyleSettingDialog,
+});

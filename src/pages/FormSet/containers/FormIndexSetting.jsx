@@ -1,15 +1,12 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Drawer } from 'antd';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Drawer, Input, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import CreateIndex from 'worksheet/common/CreateIndex';
 import MoreOption from '../components/MoreOption';
-import '../components/MoreOption.less';
 
 const Con = styled.div`
   width: 100%;
@@ -24,22 +21,6 @@ const Con = styled.div`
     padding: 35px 40px 32px;
     display: flex;
     flex-direction: column;
-    .add {
-      padding: 0 16px;
-      line-height: 38px;
-      height: 38px;
-      background: var(--color-primary) 0% 0% no-repeat padding-box;
-      border-radius: 32px;
-      text-align: center;
-      font-size: 13px;
-      letter-spacing: 0px;
-      color: var(--color-white);
-      cursor: pointer;
-      &.disabled {
-        background-color: var(--color-text-tertiary);
-        cursor: not-allowed;
-      }
-    }
     .noData {
       width: 130px;
       height: 130px;
@@ -124,9 +105,6 @@ const Con = styled.div`
             }
           }
         }
-        .more {
-          position: relative;
-        }
       }
       .printTemplatesList-header,
       .printTemplatesList-tr {
@@ -182,10 +160,19 @@ const ArrowDown = styled.span`
 const sortRules = { 1: _l('升序'), '-1': _l('降序'), text: _l('文本索引') };
 const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50, 51, 52, 54];
 
+export const getMoreOptionOpenState = ({ open, source, targetId }) => {
+  if (!open && source === 'menu') return null;
+
+  return {
+    showMoreOption: open,
+    templateId: open ? targetId : '',
+  };
+};
+
 function FormIndexSetting(props) {
   const { worksheetInfo } = props;
   const { worksheetId, appId } = worksheetInfo;
-  const input = React.createRef();
+  const input = useRef(null);
   const [showCreateIndex, setShowCreateIndex] = useState(false);
   const [isRename, setIsRename] = useState(false);
   const [currentIndexInfo, setCurrentIndexInfo] = useState({});
@@ -195,6 +182,7 @@ function FormIndexSetting(props) {
   const [showMoreOption, setShowMoreOption] = useState();
   const [isloading, setIsloading] = useState(true);
   const [selectedIndexList, setSelectedIndexList] = useState([{}]);
+  const [worksheetFields, setWorksheetFields] = useState([]);
   const [worksheetAvailableFields, setWorksheetAvailableFields] = useState([]);
   const [worksheetRowIndexLimit, setWorksheetRowIndexLimit] = useState(0);
   const [sort, setSort] = useState('');
@@ -206,15 +194,18 @@ function FormIndexSetting(props) {
 
   useEffect(() => {
     if (isRename) {
-      input.current.focus();
+      input.current?.focus();
     }
   }, [isRename]);
 
   const getIndexesInfo = () => {
     worksheetAjax.getRowIndexes({ worksheetId }).then(res => {
       setIndexList(res.worksheetRowIndexConfigs || []);
-      let worksheetAvailableFields = (res.worksheetAvailableFields || []).filter(
-        item => !_.includes(FILTER_TYPE_LIST, item.controlType),
+      setWorksheetFields(res.worksheetAvailableFields || []);
+      let worksheetAvailableFields = (res.worksheetAvailableFields || []).filter(item =>
+        item.controlType === 30
+          ? (item.strDefault || '').split('')[0] !== '1'
+          : !_.includes(FILTER_TYPE_LIST, item.controlType),
       );
       setWorksheetAvailableFields(worksheetAvailableFields);
       setIsloading(false);
@@ -292,12 +283,12 @@ function FormIndexSetting(props) {
                 <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/index-acceleration" />
               </p>
             </div>
-            <span
-              className={cx('add Relative bold', {
-                disabled: (indexList || []).filter(item => !item.isSystem).length >= worksheetRowIndexLimit,
-              })}
+            <Button
+              type="primary"
+              shape="round"
+              icon={<Icon icon="plus" />}
+              disabled={(indexList || []).filter(item => !item.isSystem).length >= worksheetRowIndexLimit}
               onClick={() => {
-                if ((indexList || []).filter(item => !item.isSystem).length >= worksheetRowIndexLimit) return;
                 setShowCreateIndex(true);
                 setIsEdit(false);
                 setCurrentIndexInfo({});
@@ -312,9 +303,8 @@ function FormIndexSetting(props) {
                 ]);
               }}
             >
-              <Icon icon="plus" className="mRight8" />
               {_l('创建索引')}
-            </span>
+            </Button>
           </div>
           {_.isEmpty(indexList) ? (
             <div className="noData">
@@ -365,7 +355,7 @@ function FormIndexSetting(props) {
                           )}
                         />
                         {isRename && templateId === item.indexConfigId ? (
-                          <input
+                          <Input
                             type="text"
                             ref={input}
                             defaultValue={item.customeIndexName}
@@ -374,7 +364,7 @@ function FormIndexSetting(props) {
                               setIsRename(false);
                               if (!_.trim(e.target.value)) {
                                 alert(_l('请输入索引名称'), 3);
-                                input.current.focus();
+                                input.current?.focus();
                                 return;
                               }
 
@@ -414,21 +404,32 @@ function FormIndexSetting(props) {
                       </div>
                       <div className="field flex mRight20">
                         <div className="viewsBox">
-                          {(item.indexFields || []).map((it, i) => (
-                            <span className="ruleItem" key={it.fieldId}>
-                              <span className={cx('filed', { Red: it.isDelete && !item.isSystem })}>
-                                {it.isDelete && !item.isSystem
-                                  ? _l('字段已删除')
-                                  : _.get(getFieldObjById(it.fieldId), 'name')
-                                    ? _.get(getFieldObjById(it.fieldId), 'name')
-                                    : it.fieldId}
+                          {(item.indexFields || []).map((it, i) => {
+                            const availableField = getFieldObjById(it.fieldId);
+                            const worksheetField = _.find(worksheetFields, field => field.id === it.fieldId) || {};
+                            const isDelete = it.isDelete && !item.isSystem;
+                            const isUnsupported =
+                              worksheetField.controlType === 30 && (worksheetField.strDefault || '')[0] === '1';
+                            const fieldName =
+                              availableField.name || (isUnsupported && worksheetField.name) || it.fieldId;
+
+                            return (
+                              <span className="ruleItem flexCenter" key={it.fieldId}>
+                                <span className={cx('filed', { Red: isDelete || isUnsupported })}>
+                                  {isDelete ? _l('字段已删除') : fieldName}
+                                  {!isDelete && isUnsupported && (
+                                    <Tooltip title={_l('字段类型不支持索引')}>
+                                      <Icon icon="error1" className="Font15 textTertiary mLeft5 Red" />
+                                    </Tooltip>
+                                  )}
+                                </span>
+                                <span className="rule textTertiary">
+                                  {!isSpecial ? `（${sortRules[it.indexType]}）` : `（${it.indexType}）`}
+                                </span>
+                                {i < item.indexFields.length - 1 ? '、' : ''}
                               </span>
-                              <span className="rule textTertiary">
-                                {!isSpecial ? `（${sortRules[it.indexType]}）` : `（${it.indexType}）`}
-                              </span>
-                              {i < item.indexFields.length - 1 ? '、' : ''}
-                            </span>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                       <div className="activeCon mRight8 w80px">
@@ -442,8 +443,7 @@ function FormIndexSetting(props) {
                                 (item1, item2) => item1.id === item2.fieldId,
                               );
                               let newFields = (item.indexFields || []).map(n => {
-                                let currentAvailableFileds =
-                                  worksheetAvailableFields.filter(t => t.id === n.fieldId) || [];
+                                let currentAvailableFileds = worksheetFields.filter(t => t.id === n.fieldId) || [];
                                 return {
                                   ...n,
                                   type: _.get(getFieldObjById(n.fieldId), 'type'),
@@ -461,64 +461,58 @@ function FormIndexSetting(props) {
                         )}
                       </div>
                       <div className="more w80px TxtCenter">
-                        <Trigger
-                          popupVisible={
+                        <MoreOption
+                          open={
                             showMoreOption &&
                             (templateId === item.indexConfigId ||
                               (item.isSystem && templateId === item.systemIndexName))
                           }
-                          action={['click']}
-                          popupAlign={{
-                            points: ['tr', 'br'],
-                            overflow: { adjustX: true, adjustY: true },
+                          placement="bottomRight"
+                          onOpenChange={(open, info) => {
+                            const nextState = getMoreOptionOpenState({
+                              open,
+                              source: info?.source,
+                              targetId: item.indexConfigId || item.systemIndexName,
+                            });
+                            if (!nextState) return;
+
+                            setShowMoreOption(nextState.showMoreOption);
+                            setTemplateId(nextState.templateId);
                           }}
-                          getPopupContainer={() => document.body}
-                          onPopupVisibleChange={showDropOption => {
-                            setShowMoreOption(showDropOption);
-                            setTemplateId(
-                              showDropOption ? (item.indexConfigId ? item.indexConfigId : item.systemIndexName) : '',
-                            );
+                          disabledRename={item.isSystem}
+                          delTxt={_l('删除')}
+                          description={_l('确定删除索引吗？删除后将无法恢复')}
+                          setFn={data => {
+                            data.isRename && setIsRename(true);
+                            setShowMoreOption(false);
                           }}
-                          popup={
-                            <MoreOption
-                              disabledRename={item.isSystem}
-                              delTxt={_l('删除')}
-                              description={_l('确定删除索引吗？删除后将无法恢复')}
-                              showMoreOption={showMoreOption}
-                              setFn={data => {
-                                data.isRename && setIsRename(true);
-                                setShowMoreOption(false);
-                              }}
-                              deleteFn={() => {
-                                worksheetAjax
-                                  .removeRowIndex({
-                                    appId,
-                                    worksheetId: item.worksheetId,
-                                    indexConfigId: item.indexConfigId,
-                                    isSystemIndex: item.isSystem,
-                                    systemIndexName: item.systemIndexName,
-                                  })
-                                  .then(res => {
-                                    if (res.responseEnum === 0) {
-                                      alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
-                                      getIndexesInfo();
-                                    } else if (res.responseEnum === -1) {
-                                      alert(_l('删除失败'), 2);
-                                    }
-                                  });
-                              }}
-                            />
-                          }
+                          deleteFn={() => {
+                            worksheetAjax
+                              .removeRowIndex({
+                                appId,
+                                worksheetId: item.worksheetId,
+                                indexConfigId: item.indexConfigId,
+                                isSystemIndex: item.isSystem,
+                                systemIndexName: item.systemIndexName,
+                              })
+                              .then(res => {
+                                if (res.responseEnum === 0) {
+                                  alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
+                                  getIndexesInfo();
+                                } else if (res.responseEnum === -1) {
+                                  alert(_l('删除失败'), 2);
+                                }
+                              });
+                          }}
                         >
-                          <Icon
-                            icon="more_horiz"
-                            className="moreActive Hand Font18 textTertiary hoverColorPrimary"
-                            onClick={() => {
-                              setShowMoreOption(true);
-                              setTemplateId(item.indexConfigId ? item.indexConfigId : item.systemIndexName);
-                            }}
+                          <Button
+                            color="default"
+                            variant="text"
+                            size="small"
+                            icon={<Icon icon="more_horiz" />}
+                            onClick={event => event.stopPropagation()}
                           />
-                        </Trigger>
+                        </MoreOption>
                       </div>
                     </div>
                   );
@@ -528,16 +522,15 @@ function FormIndexSetting(props) {
           )}
         </div>
         <Drawer
-          width={497}
-          className="Absolute"
-          zIndex={9}
+          size={497}
           placement="right"
+          zIndex={10}
           onClose={() => setShowCreateIndex(false)}
-          visible={showCreateIndex}
-          maskClosable={false}
+          open={showCreateIndex}
+          mask={{ enabled: false, closable: false }}
           getContainer={false}
-          mask={false}
           closable={false}
+          styles={{ body: { padding: 0 } }}
         >
           {showCreateIndex && (
             <CreateIndex

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { getCheckAndOther } from '../../../core/utils';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 
 const OtherInputWrap = styled.div`
   .customFormTextarea {

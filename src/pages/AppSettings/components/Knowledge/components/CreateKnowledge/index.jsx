@@ -1,9 +1,8 @@
-import React, { createContext, Fragment, useContext, useEffect, useMemo, useReducer } from 'react';
-import { Modal } from 'ming-ui';
+import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import { Button, Modal } from 'ming-ui/antd-components';
 import knowledgeAjax from '../../api/knowledge';
 import worksheetAjax from 'src/api/worksheet';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import Button from '../../components/Button';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
 import BaseInfo from './components/BaseInfo';
 import FieldConfig from './components/FieldConfig';
 import SheetSelector from './components/SheetSelector';
@@ -114,10 +113,21 @@ const CreateKnowledge = props => {
     if (aiEnabled && worksheetIsLoaded) {
       generateKnowledgeBasePlan(dispatch, { appId, allWorksheetList });
     }
-  }, [aiEnabled, worksheetIsLoaded, appId]);
+  }, [aiEnabled, worksheetIsLoaded, appId, allWorksheetList]);
+
+  const isFirstStep = activeStep.id === 'selectSheet';
+  const isLastStep = activeStep.id === 'setNameAndDesc';
+  const footer = [
+    <Button key="previous" type="text" disabled={loading} onClick={isFirstStep ? onClose : handleToPrevStep}>
+      {isFirstStep ? _l('取消') : _l('上一步')}
+    </Button>,
+    <Button key="next" type="primary" loading={loading} onClick={isLastStep ? handleCreateKnowledge : handleToNextStep}>
+      {isLastStep ? _l('创建') : _l('下一步')}
+    </Button>,
+  ];
 
   return (
-    <Modal visible className="createKnowledgeModal" width={1000} onCancel={onClose}>
+    <Modal open className="createKnowledgeModal" width={1000} footer={footer} onCancel={onClose}>
       <CreateKnowledgeContext.Provider value={contextValue}>
         <div className="createRagContainer">
           <div className="header">
@@ -125,47 +135,11 @@ const CreateKnowledge = props => {
             <span> - {activeStep.title}</span>
           </div>
           {/* 选择工作表 */}
-          {activeStep.id === 'selectSheet' && (
-            <Fragment>
-              <SheetSelector />
-              <div className="footer">
-                <Button type="text" onClick={onClose}>
-                  {_l('取消')}
-                </Button>
-                <Button type="primary" onClick={handleToNextStep}>
-                  {_l('下一步')}
-                </Button>
-              </div>
-            </Fragment>
-          )}
+          {activeStep.id === 'selectSheet' && <SheetSelector />}
           {/* 配置字段 */}
-          {activeStep.id === 'configFields' && (
-            <Fragment>
-              <FieldConfig attachmentEnhancedTip={attachmentEnhancedTip} />
-              <div className="footer">
-                <Button type="text" onClick={handleToPrevStep}>
-                  {_l('上一步')}
-                </Button>
-                <Button type="primary" onClick={handleToNextStep}>
-                  {_l('下一步')}
-                </Button>
-              </div>
-            </Fragment>
-          )}
+          {activeStep.id === 'configFields' && <FieldConfig attachmentEnhancedTip={attachmentEnhancedTip} />}
           {/* 设置名称和说明 */}
-          {activeStep.id === 'setNameAndDesc' && (
-            <Fragment>
-              <BaseInfo />
-              <div className="footer">
-                <Button type="text" onClick={handleToPrevStep}>
-                  {_l('上一步')}
-                </Button>
-                <Button type="primary" onClick={handleCreateKnowledge}>
-                  {_l('创建')}
-                </Button>
-              </div>
-            </Fragment>
-          )}
+          {activeStep.id === 'setNameAndDesc' && <BaseInfo />}
         </div>
       </CreateKnowledgeContext.Provider>
       {loading && <div className="createRagLoading"></div>}

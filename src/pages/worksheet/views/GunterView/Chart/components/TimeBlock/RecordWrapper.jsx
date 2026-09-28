@@ -4,9 +4,9 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { isRecordDragging } from 'worksheet/views/GunterView/scrollState';
-import { pathCompletion } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
-import { handleRecordClick } from 'src/utils/record';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
 import RecordBlock from './RecordBlock';
 
 const LoadableRecordInfo = lazy(() => import('worksheet/views/GunterView/components/RecordInfo'));

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
 import { SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
@@ -11,7 +11,7 @@ import appManagementApi from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import { routerConfigs } from 'src/pages/AppSettings/routerConfig.js';
 import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -107,7 +107,11 @@ function AppPkgSimpleHeader(props) {
       />
 
       <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
-        <div className="applicationIcon" style={{ backgroundColor: appDetail.iconColor }}>
+        <div
+          className="applicationIcon pointer"
+          style={{ backgroundColor: appDetail.iconColor }}
+          onClick={handleBackToApp}
+        >
           <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
         </div>
       </Tooltip>

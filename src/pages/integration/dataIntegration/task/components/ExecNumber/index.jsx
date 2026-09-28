@@ -1,6 +1,6 @@
 ﻿import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dialog, Switch } from 'ming-ui';
+import { Modal, Switch } from 'ming-ui/antd-components';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
@@ -60,9 +60,9 @@ export default ({ projectId }) => {
 
   const handleAutoOrder = checked => {
     if (!checked) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('是否开启自动订购？'),
-        description: _l('开启后，当月剩余执行额度为2%时，自动购买 10信用点/1万行 的单月包，从账户信用点余额中扣款。'),
+        content: _l('开启后，当月剩余执行额度为2%时，自动购买 10信用点/1万行 的单月包，从账户信用点余额中扣款。'),
         onOk: () => setAutoPurchaseDataPipelineExtPack(!checked),
       });
       return;
@@ -136,9 +136,17 @@ export default ({ projectId }) => {
             ))}
         </div>
       )}
-      {!window.platformENV.isOverseas && !window.platformENV.isLocal && !_.includes([0, 2], licenseType) && (
+      {window.platformENV.isHap && !_.includes([0, 2], licenseType) && (
         <div>
-          <Switch className="TxtMiddle mLeft24" checked={autoOrder} size="small" onClick={handleAutoOrder} />
+          <Switch
+            className="TxtMiddle mLeft24"
+            checked={autoOrder}
+            size="small"
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return handleAutoOrder(!checked, event);
+            }}
+          />
           <span> {_l('自动订购')}</span>
         </div>
       )}

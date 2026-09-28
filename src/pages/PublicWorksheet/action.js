@@ -7,22 +7,23 @@ import globalApi from 'src/api/global';
 import loginApi from 'src/api/login';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import { themes } from 'src/pages/FormExtend/enum';
 import { getDisabledControls, overridePos } from 'src/pages/FormExtend/utils';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
-import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
-import { formatAttachmentValue } from 'src/utils/control';
-import { setPssId } from 'src/utils/pssId';
+import { formatAttachmentValue } from 'src/utils/domain/control/attachment';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/services/app';
 import {
   replaceAdvancedSettingTranslateInfo,
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
-} from 'src/utils/translate';
+} from 'src/utils/services/translation/app';
 import { WECHAT_FIELD_KEY } from '../FormExtend/enum';
-import { isSheetDisplay } from '../widgetConfig/util';
 import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
 import { getInfo } from './utils';
 import { canSubmitByLimitFrequency } from './utils';
@@ -305,6 +306,7 @@ function fillWxInfo(formData, weChatSetting) {
                                 (wxUserInfo.avatarAttachment.url.indexOf('?') > -1 ? '' : '?'),
                             },
                           ],
+
                           knowledgeAtts: [],
                           attachmentData: [],
                         }
@@ -587,6 +589,7 @@ function getInfoControl(formData, publicWorksheetInfo) {
     publicWorksheetInfo.extendSourceId,
     publicWorksheetInfo.ipControlId,
   ];
+
   const staticControls = originalControls.filter(control =>
     _.find(staticControlIds, scid => scid && scid === control.controlId),
   );

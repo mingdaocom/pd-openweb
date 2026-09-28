@@ -1,0 +1,454 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import _ from 'lodash';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Button, Popover, Tooltip } from 'ming-ui/antd-components';
+import sheetAjax from 'src/api/worksheet';
+import { usePrintQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { sendCloudPrint } from 'src/components/print/sendCloudPrint';
+import { useSelectRecords } from 'src/components/SelectRecords';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+import { PRINT_TYPE } from 'src/pages/Print/core/config';
+import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
+import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
+import MoreOption from '../../../components/MoreOption';
+import RangeDrop from '../../../components/RangeDrop';
+import { PrintCountLimitModal } from './PrintCountSetting';
+import PrintTemplateIcon from './PrintTemplateIcon';
+
+const RANGE_POPOVER_AUTO_ADJUST_OVERFLOW = { adjustX: true, adjustY: true, shiftY: true };
+
+export default function PrintSortableItem(props) {
+  const {
+    item,
+    printLimit,
+    printLimitCount,
+    worksheetInfo = {},
+    worksheetControls = [],
+    updatePrint,
+    changeState,
+    loadPrint,
+    onPrintLimitChange,
+    onPrintCountUpgrade,
+    printCountFeatureDisabled,
+    DragHandle,
+  } = props;
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
+  const { open: printQrBarCode, holder: printQrBarCodeHolder } = usePrintQrBarCode();
+  const { views = [], worksheetId } = worksheetInfo;
+  const printInfo = getPrintCardInfoOfTemplate(item);
+  const isCustom = [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(item.type);
+  const isCloudPrint = item.type === PRINT_TYPE.CLOUD_PRINT;
+  const inputRef = useRef();
+
+  const [inputName, setInputName] = useState(item.name);
+  const [isRename, setIsRename] = useState(false);
+  const [showMoreOption, setShowMoreOption] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showDropOption, setShowDropOption] = useState(false);
+  const [isChangeDrop, setIsChangeDrop] = useState(false);
+  const [showPrintCountLimitModal, setShowPrintCountLimitModal] = useState(false);
+  const printCountLimitOptions = useMemo(() => {
+    const openPrintCountUpgradeDialog = () => {
+      setShowMoreOption(false);
+      onPrintCountUpgrade?.();
+    };
+
+    return [
+      {
+        key: 'printCountLimit',
+        icon: 'counting',
+        label: <span className="textPrimary">{_l('打印次数限制')}</span>,
+        disabled: printCountFeatureDisabled,
+        suffix: printCountFeatureDisabled ? <UpgradeIcon /> : null,
+        onDisabledClick: openPrintCountUpgradeDialog,
+        onClick: () => setShowPrintCountLimitModal(true),
+      },
+    ];
+  }, [onPrintCountUpgrade, printCountFeatureDisabled]);
+
+  useEffect(() => {
+    isRename && inputRef.current && inputRef.current.focus();
+  }, [isRename]);
+
+  const onPreview = (isEdit = false, options) => {
+    if ($('.printTemplatesList-tr .name input')[0] && isEdit) return;
+
+    !isEdit && setIsRename(false);
+
+    if (isEdit) {
+      changeState({
+        templateId: '',
+        type: 'edit',
+        showEditPrint: false,
+        showCloudPrint: false,
+        showPrintTemDialog: false,
+        showCreatePrintTemp: false,
+      });
+    }
+
+    if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], item.type)) {
+      printQrBarCode({
+        isCharge: isEdit,
+        mode: isEdit ? 'editTemplate' : 'preview',
+        id: item.id,
+        printType: item.printType,
+        projectId: worksheetInfo.projectId,
+        worksheetId,
+        controls: _.get(worksheetInfo, 'template.controls'),
+        selectedRows: options?.selectedRows,
+        onClose: () => {
+          isEdit && loadPrint({ worksheetId });
+        },
+      });
+    } else {
+      let params = {};
+
+      if (isCloudPrint && !isEdit) {
+        // 处理测试云打印
+        sendCloudPrint({
+          id: item.id,
+          projectId: worksheetInfo.projectId,
+          appId: worksheetInfo.appId,
+          worksheetId,
+          rowIds: [options.previewRowId],
+        });
+        return;
+      } else if (!isEdit) {
+        params = { name: item.name, fileTypeNum: item.type, isDefault: item.type === PRINT_TYPE.SYS_PRINT };
+      } else if (isCustom) {
+        params = { fileType: item.type === 5 ? 'Excel' : 'Word' };
+      } else if (isCloudPrint) {
+        params = {};
+      } else {
+        params = { isDefault: item.type === PRINT_TYPE.SYS_PRINT };
+      }
+
+      changeState({
+        templateId: item.id,
+        type: isEdit ? 'edit' : 'preview',
+        [isEdit && isCustom ? 'showEditPrint' : isCloudPrint ? 'showCloudPrint' : 'showPrintTemDialog']: true,
+        ...params,
+        ...options,
+      });
+    }
+  };
+
+  const getViewText = () => {
+    let viewText = '';
+
+    if (item.range === 1) {
+      viewText = _l('所有记录');
+    } else if (item.views.length <= 0) {
+      viewText = _l('未指定视图');
+    } else if (item.range === 3 && item.views.length > 0) {
+      viewText = item.views.map(item => item.name || item.viewName).join('、');
+    }
+
+    return viewText;
+  };
+
+  const getFiltersLength = () => {
+    const filters = filterData(
+      worksheetControls.filter(item => {
+        return item.viewDisplay || !('viewDisplay' in item);
+      }) || [],
+      item.filters || [],
+    );
+    const filtersLength = _.flatMap(filters, l => l.groupFilters).length;
+
+    return filtersLength === 0 ? '' : `(${filtersLength})`;
+  };
+
+  const editPrintName = e => {
+    e.stopPropagation();
+    if (_.isEqual(inputName, item.name)) {
+      setIsRename(false);
+      return;
+    }
+
+    if (!_.trim(inputName)) {
+      alert(_l('请输入模板名称'), 3);
+      inputRef.current.focus();
+      return;
+    }
+
+    sheetAjax
+      .editPrintName({
+        id: item.id,
+        name: inputName,
+      })
+      .then(res => {
+        if (res) {
+          let cloudExtraParams = [];
+
+          if (item.type === PRINT_TYPE.CLOUD_PRINT) {
+            cloudExtraParams = _.cloneDeep(item.cloudExtraParams);
+            const index = cloudExtraParams.findIndex(item => item.fieldKey === 'name');
+            cloudExtraParams[index].value = inputName;
+          }
+
+          setIsRename(false);
+          updatePrint(item.id, {
+            name: inputName,
+            cloudExtraParams: item.type === PRINT_TYPE.CLOUD_PRINT ? cloudExtraParams : undefined,
+          });
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+      });
+  };
+
+  const editPrintFilters = ({ filters, isShowBtnFilterDialog, isOk }) => {
+    setShowFilters(isShowBtnFilterDialog);
+
+    if (isOk) {
+      const isEmptyFilter =
+        filterData(
+          worksheetControls.filter(item => {
+            return item.viewDisplay || !('viewDisplay' in item);
+          }) || [],
+          filters || [],
+        ).length === 0;
+      const _filters = isEmptyFilter ? [] : filters || [];
+
+      sheetAjax.editPrintFilter({ id: item.id, filters: _filters.map(formatValuesOfCondition) }).then(res => {
+        if (!res) {
+          alert(_l('修改失败'), 2);
+        } else {
+          loadPrint({ worksheetId });
+        }
+      });
+    }
+  };
+
+  const deletePrint = () => {
+    sheetAjax.deletePrint({ id: item.id }).then(res => {
+      res && loadPrint({ worksheetId });
+    });
+  };
+
+  const editPrintRange = showDropOption => {
+    setShowDropOption(showDropOption);
+
+    if (isChangeDrop) {
+      sheetAjax
+        .editPrintRange({
+          id: item.id,
+          range: item.range,
+          viewsIds: item.views.map(o => o.viewId),
+          worksheetId,
+        })
+        .then(res => {
+          if (!res) {
+            alert(_l('修改失败'), 2);
+            loadPrint({ worksheetId });
+          }
+        });
+    }
+  };
+
+  const onRename = ({ isRename, showMoreOption }) => {
+    if (isRename) {
+      setInputName(item.name);
+      $(inputRef).focus();
+    }
+
+    setIsRename(isRename);
+    setShowMoreOption(showMoreOption);
+  };
+
+  const onClickPreview = () => {
+    openSelectRecords({
+      canSelectAll: false,
+      pageSize: 25,
+      multiple: false,
+      singleConfirm: true,
+      onText: _l('开始预览'),
+      allowNewRecord: true,
+      allowAdd: true,
+      worksheetId,
+      onOk: selectedRecords => {
+        const rowId = _.get(selectedRecords, '[0].rowid');
+        onPreview(false, { previewRowId: rowId, selectedRows: selectedRecords });
+      },
+    });
+  };
+
+  //复制打印模板
+  const onCopy = id => {
+    sheetAjax.copyPrint({ id }).then(res => {
+      if (res) {
+        alert({
+          msg: _l('复制成功'),
+          onClose: () => {
+            loadPrint({ worksheetId });
+          },
+        });
+      } else {
+        alert(_l('复制失败'), 2);
+      }
+    });
+  };
+
+  const renderMoreOption = () => {
+    return (
+      <MoreOption
+        open={showMoreOption}
+        placement="bottomRight"
+        onOpenChange={setShowMoreOption}
+        setFn={onRename}
+        deleteFn={deletePrint}
+        showCopy
+        onCopy={() => onCopy(item.id)}
+        extraOptions={printCountLimitOptions}
+      >
+        <Button
+          color="default"
+          variant="text"
+          size="small"
+          icon={<Icon icon="more_horiz" />}
+          onClick={e => {
+            e.stopPropagation();
+            setIsRename(false);
+          }}
+        />
+      </MoreOption>
+    );
+  };
+
+  const renderDropOption = () => {
+    return (
+      <Popover
+        open={showDropOption}
+        onOpenChange={visible => {
+          if (visible) {
+            setIsRename(false);
+          }
+
+          editPrintRange(visible);
+        }}
+        trigger="click"
+        placement="bottomLeft"
+        destroyOnHidden
+        autoAdjustOverflow={RANGE_POPOVER_AUTO_ADJUST_OVERFLOW}
+        noPadding
+        content={
+          <RangeDrop
+            className="printRangeDrop"
+            printData={item}
+            views={views}
+            onClose={() => editPrintRange(false)}
+            setData={data => {
+              updatePrint(data.printData.id, { ...data.printData });
+              setIsChangeDrop(true);
+            }}
+          />
+        }
+      >
+        <span className="Hand Bold">{_l('使用范围')}</span>
+      </Popover>
+    );
+  };
+
+  const renderFilter = () => {
+    return (
+      <React.Fragment>
+        <span
+          className="Hand Bold"
+          onClick={() => {
+            setIsRename(false);
+            setShowFilters(true);
+          }}
+        >
+          {_l('筛选条件')}
+          {getFiltersLength()}
+        </span>
+        {showFilters && (
+          <ShowBtnFilterDialog
+            title={_l('筛选条件')}
+            description={_l('设置筛选条件，当满足条件时才显示打印模板。未设置条件始终显示')}
+            sheetSwitchPermit={worksheetInfo.switches}
+            projectId={worksheetInfo.projectId}
+            appId={worksheetInfo.appId}
+            columns={worksheetControls
+              .filter(item => {
+                return item.viewDisplay || !('viewDisplay' in item);
+              })
+              .map(control => redefineComplexControl(control))}
+            filters={item.filters}
+            isShowBtnFilterDialog={showFilters}
+            setValue={editPrintFilters}
+          />
+        )}
+      </React.Fragment>
+    );
+  };
+
+  return (
+    <React.Fragment>
+      {selectRecordsHolder}
+      {printQrBarCodeHolder}
+      <div className="printTemplatesList-tr" onClick={() => onPreview(true)}>
+        <DragHandle>
+          <Icon className="Font15 Hand textTertiary hoverColorPrimary dragIcon mRight10" icon="drag" />
+        </DragHandle>
+        <div className="name flex mRight20 valignWrapper overflowHidden">
+          <PrintTemplateIcon template={item} className="iconTitle mRight8" />
+          <div className="flex overflow_ellipsis">
+            {isRename ? (
+              <input
+                type="text"
+                className="Font13 renameInput"
+                ref={inputRef}
+                value={inputName}
+                onChange={e => {
+                  e.stopPropagation();
+                  setInputName(e.target.value);
+                }}
+                onBlur={editPrintName}
+              />
+            ) : (
+              <Tooltip title={item.name}>
+                <span className="overflow_ellipsis printName Font13">{item.name}</span>
+              </Tooltip>
+            )}
+            {[PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT].includes(item.type) && (
+              <div className="printSize">{printInfo.text}</div>
+            )}
+          </div>
+        </div>
+        <div className="views flex mRight20">
+          <span className="viewText printName WordBreak">{getViewText()}</span>
+        </div>
+        <div className="printCountLimit w120px TxtCenter">
+          {printLimit === undefined || printLimit === null ? (
+            <span className="unlimited">{_l('无限制')}</span>
+          ) : (
+            <span>{_l('%0次', printLimit)}</span>
+          )}
+        </div>
+        <div className="activeCon mRight8 w180px flexRow " onClick={e => e.stopPropagation()}>
+          {renderDropOption()}
+          {renderFilter()}
+          <span className="Hand Bold" onClick={() => onPreview(true)}>
+            {_l('编辑')}
+          </span>
+          <span className="Hand Bold" onClick={onClickPreview}>
+            {isCloudPrint ? _l('测试') : _l('预览')}
+          </span>
+        </div>
+        <div className="more w80px TxtCenter">{renderMoreOption()}</div>
+      </div>
+      {showPrintCountLimitModal && (
+        <PrintCountLimitModal
+          value={printLimit}
+          defaultValue={printLimitCount}
+          onCancel={() => setShowPrintCountLimitModal(false)}
+          onSave={(value, previousCount) => onPrintLimitChange?.(item.id, value, previousCount)}
+        />
+      )}
+    </React.Fragment>
+  );
+}

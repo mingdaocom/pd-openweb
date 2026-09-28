@@ -3,9 +3,10 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, SvgIcon } from 'ming-ui';
+import { SvgIcon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { ButtonListWrap, GraphWrap } from './styled';
 
 const ButtonDisplayWrap = styled.div`
@@ -35,49 +36,29 @@ const BtnWrap = styled.div`
   &.isFullWidth {
     flex-grow: 1;
   }
-  .ming.Button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    div {
-      display: flex;
-    }
-    .injected-svg {
-      margin-right: 5px;
-    }
-  }
-  button.ming {
-    padding: 0 14px;
-    background-color: ${props => props.color};
+  .customPageButton {
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.26);
-    &:hover {
-      background-color: ${props => new TinyColor(props.color).darken(20).toString()};
-    }
-    .icon {
-      font-size: 20px;
-      margin-right: 6px;
-    }
   }
   &.edit {
     &:hover {
       border: 1px dashed var(--color-border-primary);
     }
     &.active {
-      border: 1px solid ${props => new TinyColor(props.color).darken(20).toString()};
+      border: 1px solid ${props => new TinyColor(props.$color).darken(20).toString()};
     }
   }
   &.adjustText {
-    button {
+    .customPageButton {
       background-color: var(--color-background-tertiary);
-      color: ${props => props.color};
+      color: ${props => props.$color};
       box-shadow: none;
       &:hover {
         background-color: var(--color-background-hover);
       }
     }
     .iconWrap {
-      color: ${props => props.color};
+      color: ${props => props.$color};
       background-color: var(--color-background-secondary);
     }
   }
@@ -141,7 +122,7 @@ export default function ButtonDisplay({
                   <BtnWrap
                     key={i}
                     style={{ ...getWidth() }}
-                    color={color}
+                    $color={color}
                     className={cx(displayMode, {
                       active: activeIndex === index,
                       adjustText: style === 3,
@@ -162,8 +143,8 @@ export default function ButtonDisplay({
                             ((direction === 1 && [3, 4].includes(mobileCount)) ||
                               (direction === 2 && [2].includes(mobileCount))),
                         })}
-                        color={color}
-                        radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
+                        $color={color}
+                        $radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
                       >
                         {iconUrl && (
                           <div className="iconWrap flexRow valignWrapper">
@@ -184,11 +165,20 @@ export default function ButtonDisplay({
                       </GraphWrap>
                     ) : (
                       <Button
-                        fullWidth={isFullWidth || isMobile}
-                        radius={style === 2}
-                        icon={iconUrl ? null : item.icon}
+                        color="var(--custom-page-button-color)"
+                        variant="solid"
+                        block={isFullWidth || isMobile}
+                        shape={style === 2 ? 'round' : 'default'}
+                        className="customPageButton"
+                        style={{ '--custom-page-button-color': color }}
+                        icon={
+                          iconUrl ? (
+                            <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={16} />
+                          ) : item.icon ? (
+                            <i className={`icon icon-${item.icon}`} />
+                          ) : null
+                        }
                       >
-                        {iconUrl && <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={20} />}
                         <span className="overflow_ellipsis">{translateInfo[item.id] || name}</span>
                       </Button>
                     )}

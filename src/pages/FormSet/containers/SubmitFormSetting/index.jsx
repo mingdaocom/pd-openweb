@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import OtherSettings from './OtherSettings';
 import { Con } from './style';
@@ -61,8 +62,7 @@ function SubmitFormSetting(props) {
     <ScrollView>
       <Con className="">
         <h5>{_l('表单标题')}</h5>
-        <input
-          type="text"
+        <Input
           className="title mTop12"
           placeholder={_l('创建记录')}
           defaultValue={_.get(advancedSetting, 'title')}

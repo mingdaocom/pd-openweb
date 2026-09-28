@@ -2,6 +2,11 @@ import React, { Fragment, lazy, memo, Suspense } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { downloadFile } from 'src/utils/platform/browser/download';
 
 const CircleProgress = lazy(() => import('ming-ui/components/Progress/CircleProgress'));
 
@@ -83,6 +88,70 @@ const Con = styled.div`
       font-size: 16px;
     }
   }
+  /* 只读态（消息里的附件）hover 面板：与附件字段（Form/components/Files/ImageCard）保持一致的信息与按钮样式 */
+  .file-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background-color: var(--color-background-secondary);
+    &.image {
+      background-color: rgba(0, 0, 0, 0.6);
+      .panel-file-name {
+        color: var(--color-white);
+      }
+      .panel-file-size {
+        color: var(--color-white);
+        opacity: 0.7;
+      }
+    }
+    .panel-file-info {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .panel-file-name {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 16px;
+      color: var(--color-primary);
+      word-break: break-all;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .panel-file-size {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 16px;
+      color: var(--color-text-disabled);
+    }
+    .panel-btn {
+      height: 24px;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-background-primary);
+      border-radius: 2px;
+      box-shadow: 0 1px 1px #0000001f;
+      cursor: pointer;
+      .icon {
+        font-size: 17px;
+        color: var(--color-text-tertiary);
+      }
+      &:hover .icon {
+        color: var(--color-primary);
+      }
+    }
+  }
   &.isPicture {
     justify-content: center;
     align-items: center;
@@ -91,83 +160,55 @@ const Con = styled.div`
     .close-icon {
       visibility: visible;
     }
+    .file-panel {
+      opacity: 1;
+    }
   }
   body.mobileMingoPage & {
     .close-icon {
       visibility: visible;
     }
+    .file-panel {
+      display: none;
+    }
   }
 `;
 
-function getExt(name = '') {
-  return String(name || '')
-    .split('.')
-    .pop()
-    .toLowerCase();
+function decodeName(name = '') {
+  try {
+    return decodeURIComponent(name);
+  } catch {
+    return name;
+  }
 }
 
-function getIconNameByExt(ext = '') {
-  if (['xls', 'xlsx'].includes(ext)) return 'excel';
-  if (['doc', 'docx', 'dot'].includes(ext)) return 'word';
-  if (['ppt', 'pptx', 'pps'].includes(ext)) return 'ppt';
-  if (['url'].includes(ext)) return 'link';
-  if (['js', 'ts', 'java', 'py', 'html', 'css', 'json', 'xml', 'ini', 'yml', 'yaml', 'less', 'scss'].includes(ext)) {
-    return 'code';
+// 有 downloadUrl 直接下载；明道云正式附件走 downDocument，七牛临时文件走 downChatFile 代理（与附件预览弹层的下载口径一致）
+function downloadFileCard({ source, name, url }) {
+  if (source && source.downloadUrl) {
+    window.open(downloadFile(source.downloadUrl));
+    return;
   }
 
-  if (
-    [
-      'mmap',
-      'xmind',
-      'zip',
-      'rar',
-      '7z',
-      'pdf',
-      'txt',
-      'md',
-      'ai',
-      'psd',
-      'vsd',
-      'mp3',
-      'mp4',
-      'aep',
-      'apk',
-      'ascx',
-      'db',
-      'dmg',
-      'dwg',
-      'eps',
-      'exe',
-      'html',
-      'indd',
-      'iso',
-      'key',
-      'ma',
-      'max',
-      'numbers',
-      'obj',
-      'pages',
-      'prt',
-      'rp',
-      'skp',
-      'xd',
-      'mdy',
-    ].includes(ext)
-  ) {
-    return ext;
+  if (source && source.filepath && source.filename) {
+    window.open(downloadFile(`${md.global.Config.AjaxApiUrl}file/downDocument?fileID=${source.fileID}`));
+    return;
   }
 
-  return 'doc';
+  if (!url) return;
+
+  const link = document.createElement('a');
+  link.href = url;
+  window.open(
+    downloadFile(
+      `${md.global.Config.AjaxApiUrl}file/downChatFile?domain=${link.origin}&key=${link.pathname + link.search}&attname=${encodeURIComponent(decodeName(name))}`,
+    ),
+  );
 }
 
-function getClassNameByExt(ext) {
-  return `fileIcon-${getIconNameByExt(getExt(ext))}`;
-}
-
-async function previewFile({ source, id, name, url }) {
-  const previewAttachments = (await import('src/components/previewAttachments/previewAttachments')).default;
-
-  previewAttachments({
+function previewFile(openPreviewAttachments, { source, id, name, url }, { hideShare } = {}) {
+  openPreviewAttachments({
+    // 会话内的临时附件不属于知识中心文件，预览层不提供分享入口
+    ...(hideShare ? { hideFunctions: ['share'] } : {}),
     attachments: [
       source
         ? {
@@ -188,27 +229,39 @@ async function previewFile({ source, id, name, url }) {
 function FileCard({
   className,
   allowRemove = false,
+  readonly = false,
+  disableActions = false,
+  hideShare = false,
   id,
   source,
   name = '',
+  size,
   type = '',
   url,
   status = 'uploaded',
   errorText,
   progress,
   onRemove,
+  openPreviewAttachments,
 }) {
   const isPicture = type.startsWith('image');
   const ext = name.split('.').pop() || '';
   const classNameByExt = getClassNameByExt('.' + ext);
+  // 只读态（已发送消息里的附件）才展示 hover 面板，输入区待发送附件仍保持删除入口；
+  // 预览与下载都依赖登录态接口，分享页（匿名访问）调用只会报服务异常，整块面板一起隐藏
+  const showPanel = readonly && !disableActions && status === 'uploaded' && (url || source);
   return (
     <Con
       className={cx(className, { isPicture })}
-      onClick={e => {
-        e.stopPropagation();
-        e.preventDefault();
-        previewFile({ source, id, name, url });
-      }}
+      onClick={
+        disableActions
+          ? undefined
+          : e => {
+              e.stopPropagation();
+              e.preventDefault();
+              previewFile(openPreviewAttachments, { source, id, name, url }, { hideShare });
+            }
+      }
     >
       {isPicture && status === 'uploaded' ? (
         <img src={url} alt={name} />
@@ -243,8 +296,29 @@ function FileCard({
             )}
             {status === 'uploaded' && <span className={cx('fileIcon', classNameByExt)} />}
           </div>
-          <div className="file-name">{decodeURIComponent(name)}</div>
+          <div className="file-name">{decodeName(name)}</div>
         </Fragment>
+      )}
+      {showPanel && (
+        <div className={cx('file-panel', { image: isPicture })}>
+          <div className="panel-file-info">
+            <div className="panel-file-name">{decodeName(name)}</div>
+            {!!size && <div className="panel-file-size">{formatFileSize(size)}</div>}
+          </div>
+          <div className="t-flex t-justify-end">
+            <Tooltip title={_l('下载')} placement="bottom">
+              <div
+                className="panel-btn"
+                onClick={e => {
+                  e.stopPropagation();
+                  downloadFileCard({ source, name, url });
+                }}
+              >
+                <Icon icon="download" />
+              </div>
+            </Tooltip>
+          </div>
+        </div>
       )}
       {allowRemove && (
         <div className="close-icon">
@@ -263,13 +337,19 @@ function FileCard({
 
 FileCard.propTypes = {
   className: PropTypes.string,
+  readonly: PropTypes.bool,
+  // 分享页等匿名场景：禁用预览与下载，卡片只做展示
+  disableActions: PropTypes.bool,
+  hideShare: PropTypes.bool,
   id: PropTypes.string,
   name: PropTypes.string,
+  size: PropTypes.number,
   type: PropTypes.string,
   url: PropTypes.string,
   status: PropTypes.string,
   progress: PropTypes.number,
   onRemove: PropTypes.func,
+  openPreviewAttachments: PropTypes.func,
 };
 
 export default memo(FileCard);

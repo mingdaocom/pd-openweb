@@ -1,17 +1,16 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, QiniuUpload, Radio, ScrollView, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, QiniuUpload, ScrollView } from 'ming-ui';
+import { Drawer, Radio, Switch, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectColor } from 'ming-ui/functions';
 import { Absolute, CustomButton, H1, H3, Hr } from 'worksheet/components/Basics';
-import { getThemeColors } from 'src/utils/project';
+import { getThemeColors } from 'src/utils/services/project';
 import { coverurls, LAYOUT_OPTIONS } from '../enum';
 import * as actions from '../PublicWorksheetConfig/redux/actions';
 import { getPageConfig } from '../utils';
@@ -124,20 +123,20 @@ const UploadBtn = styled(CustomButton)`
 `;
 
 const ClearCover = styled(CustomButton)`
-  :hover {
+  &:hover {
     background-color: var(--color-error-bg);
     color: var(--color-error);
   }
 `;
 
 const LayoutSettingWrap = styled.div`
-  .layoutRadio.ming.Radio {
+  .layoutRadio.ant-radio-wrapper {
     line-height: 1;
-    .Radio-text {
+    .ant-radio-label {
       font-size: 13px !important;
       font-weight: bold !important;
     }
-    .Radio-box {
+    .ant-radio-inner {
       margin-right: 6px !important;
     }
   }
@@ -262,10 +261,17 @@ class AppearanceConfig extends React.Component {
                 <Radio
                   className="layoutRadio"
                   size="small"
-                  text={l.title}
                   checked={checked}
-                  onClick={() => !checked && this.handleChangePageConfig({ layout: l.value })}
-                />
+                  onChange={() =>
+                    !checked &&
+                    this.handleChangePageConfig({
+                      layout: l.value,
+                    })
+                  }
+                  title={l.title}
+                >
+                  {l.title}
+                </Radio>
                 <div className="desc mTop6 Font12 textSecondary">{l.desc}</div>
               </div>
             );
@@ -346,7 +352,7 @@ class AppearanceConfig extends React.Component {
     const config = getPageConfig(pageConfigs, pageConfigKey);
 
     return (
-      <Drawer visible={open} width={640} bodyStyle={{ padding: 0 }} headerStyle={{ display: 'none' }} onClose={onClose}>
+      <Drawer open={open} size={640} onClose={onClose} styles={{ body: { padding: 0 }, header: { display: 'none' } }}>
         <ScrollView>
           <Con>
             <Absolute right="24" top="-2">
@@ -392,7 +398,12 @@ class AppearanceConfig extends React.Component {
             <div className="flexCenter mBottom40">
               <Switch
                 checked={config.showQrcode}
-                onClick={() => this.handleChangePageConfig({ showQrcode: !config.showQrcode })}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return this.handleChangePageConfig({
+                    showQrcode: !config.showQrcode,
+                  });
+                }}
                 size={'small'}
               />
               <span className="Font13 textPrimary mLeft12">{_l('显示公开表单访问二维码')}</span>

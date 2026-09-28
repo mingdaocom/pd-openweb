@@ -1,16 +1,19 @@
 import React, { lazy, PureComponent, Suspense } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import _ from 'lodash';
-import { navigateTo } from 'router/navigateTo';
-import { LoadDiv, WaterMark } from 'ming-ui';
+import { navigateTo } from 'router/navigation/navigateTo';
+import { LoadDiv } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
 import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
-import { addSubPathOfRoute } from 'src/utils/common';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { isSandboxEnvironment, isSandboxFeatureEnvironment } from 'src/utils/domain/app/sandbox';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { addSubPathOfRoute } from 'src/utils/platform/navigation/path';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
 import AdminCommon from './common/common';
 import Empty from './common/TableEmpty';
 import Config from './config';
-import { PERMISSION_ENUM, ROUTE_CONFIG } from './enum';
-import Menu from './menu';
+import { ROUTE_CONFIG } from './enum';
+import AdminMenu from './menu';
 import ApplyRole from './organization/roleAuth/apply';
 import MyRole from './organization/roleAuth/myRole';
 import { menuList } from './router.config.js';
@@ -53,6 +56,11 @@ export default class AdminEntryPoint extends PureComponent {
   };
 
   componentDidMount() {
+    if (isSandboxEnvironment()) {
+      navigateTo('/dashboard', true);
+      return;
+    }
+
     if (_.isNull(localStorage.getItem('adminList_isUp'))) {
       safeLocalStorageSetItem('adminList_isUp', true);
     }
@@ -82,6 +90,8 @@ export default class AdminEntryPoint extends PureComponent {
 
   init() {
     AdminCommon.getAuthority().then(authority => {
+      if (!authority) return;
+
       this.setState({
         isLoading: false,
         authority,
@@ -109,7 +119,7 @@ export default class AdminEntryPoint extends PureComponent {
           if (key === 'platformintegration' && allPlatformsHidden()) return;
         }
 
-        if (!window.platformENV.isOverseas && !window.platformENV.isLocal && key === 'quota') return;
+        if (window.platformENV.isHap && key === 'quota') return;
         const itemMenu = subMenuArray.filter(sub => sub.key === key)[0] || {};
         let featureType = getFeatureStatus(projectId, itemMenu.featureId);
         let hasFeatureIdsAuth = false;
@@ -163,7 +173,7 @@ export default class AdminEntryPoint extends PureComponent {
       <WaterMark projectId={projectId}>
         <div className="adminMainContent w100">
           <div className="flexRow w100 mainContainerWrapper">
-            <Menu isExtend={isExtend} menuList={filteredRoutes} />
+            <AdminMenu isExtend={isExtend} menuList={filteredRoutes} />
             <div id="mainContainer" className="Relative">
               <Switch>
                 {childRoutes.map(({ path, exact, component }) => {
@@ -188,9 +198,10 @@ export default class AdminEntryPoint extends PureComponent {
 
   renderRoutes() {
     const { routeKeys, authority = [] } = this.state; // 根据权限控制模块展示
+    const visibleMenuList = menuList.filter(({ key }) => key !== 'sandbox' || isSandboxFeatureEnvironment());
 
     const routesWithAuthority = _.reduce(
-      menuList,
+      visibleMenuList,
       (result, { title, subMenuList = [], key, icon }) => {
         let item = {
           title,

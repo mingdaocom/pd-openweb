@@ -10,18 +10,18 @@ import worksheetApi from 'src/api/worksheet';
 import sheetSetAjax from 'src/api/worksheetSetting';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { SHARECARDTYPS, WX_ICON_LIST } from 'src/components/ShareCardConfig/config.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { pathCompletion } from 'src/utils/common';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { renderText } from 'src/utils/control';
-import { compatibleMDJS } from 'src/utils/project';
-import { replaceBtnsTranslateInfo } from 'src/utils/translate';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { renderText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { replaceBtnsTranslateInfo } from 'src/utils/services/translation/app';
 import AiActionButtons from './RecordAction/AiActionButtons';
 import CustomButtons from './RecordAction/CustomButtons';
 
 const CustomBtnBox = styled.div`
-  ${({ load }) => !load && 'display: none !important;'}
+  ${({ $load }) => !$load && 'display: none !important;'}
   flex: 1;
   display: flex;
   gap: 6px;
@@ -307,7 +307,7 @@ export default class RecordFooter extends Component {
         appId,
         ownerName: _.get(safeParse(rowData.ownerid), '[0].fullname'),
         entityName: worksheetInfo.entityName,
-        url: publicShare ? shareLink : `/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`,
+        url: publicShare ? shareLink : pathCompletion(`/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`),
         public: publicShare,
       },
       //  mdItem{type=1, title, rowId, sheetId, viewId, appId, url, public, ownerName(拥有者姓名), entityName(实体名称 如"记录")}
@@ -491,10 +491,12 @@ export default class RecordFooter extends Component {
         {!isDraft && !loading && (
           <Fragment>
             <CustomBtnBox
-              load={customBtns.length > 0 || (aiActionBtns.length > 0 && !md.global.SysSettings.hideAIBasicFun)}
+              $load={customBtns.length > 0 || (aiActionBtns.length > 0 && !md.global.SysSettings.hideAIBasicFun)}
               id={`actionBar-${recordBase.recordId}`}
             >
               <CustomButtons
+                appId={recordBase.appId}
+                worksheetId={recordBase.worksheetId}
                 classNames="customBtnItem flexRow ellipsis justifyContentCenter"
                 customBtns={customBtns}
                 view={view}

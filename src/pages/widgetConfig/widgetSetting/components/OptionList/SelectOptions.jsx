@@ -2,21 +2,15 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import cx from 'classnames';
 import { has } from 'lodash';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown as AntdDropdown, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getDefaultCheckedOption, getDefaultOptions, getOptions } from 'src/utils/domain/control/options';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import AutoIcon from '../../../components/Icon';
 import { SettingItem } from '../../../styled';
-import {
-  getDefaultCheckedOption,
-  getDefaultOptions,
-  getOptions,
-  handleAdvancedSettingChange,
-} from '../../../util/setting';
 import EditOptionList from './EditOptionList';
 import MoreOption from './MoreOption';
 import Options from './Options';
@@ -25,32 +19,13 @@ import SelectOptionList from './SelectOptionList';
 const OPTION_TYPE = [
   {
     value: 1,
-    text: _l('自定义'),
+    label: _l('自定义'),
   },
   {
     value: 2,
-    text: _l('使用选项集'),
+    label: _l('使用选项集'),
   },
 ];
-
-const MenuWrap = styled(Menu)`
-  width: 160px !important;
-  position: relative !important;
-  &.List--withIconFront {
-    .Item-content {
-      padding-left: 16px !important;
-      &:hover {
-        i {
-          color: var(--color-white);
-        }
-      }
-      i {
-        font-size: 16px;
-        margin-right: 5px;
-      }
-    }
-  }
-`;
 
 const OptionsWrap = styled.div`
   .title {
@@ -112,7 +87,7 @@ const OptionListItem = styled.div`
 
   ul {
     position: relative;
-    ${props => (props.isMore ? 'max-height: 289px;overflow: hidden;' : '')}
+    ${props => (props.$isMore ? 'max-height: 289px;overflow: hidden;' : '')}
     padding: 8px 0;
   }
   li {
@@ -234,10 +209,10 @@ export default function SelectOptions(props) {
       return;
     }
 
-    Dialog.confirm({
-      title: <span className="Bold">{_l('转为自定义选项')}</span>,
+    Modal.confirm({
+      title: _l('转为自定义选项'),
       width: 480,
-      description: (
+      content: (
         <span>
           {_l('转换后将解除与原选项集的引用关系，并基于原选项集创建一组自定义选项，所有历史数据也将转为自定义选项。')}
           <span className="Red">{_l('该操作不可逆，请谨慎。')}</span>
@@ -253,11 +228,11 @@ export default function SelectOptions(props) {
     <SettingItem>
       <OptionsWrap>
         <div className="title Bold">{_l('选项')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           disabled={!isNewControl}
           value={dataSource ? 2 : 1}
-          data={OPTION_TYPE}
+          options={OPTION_TYPE}
           onChange={value => {
             if (value === 2) {
               setVisible({ selectVisible: true });
@@ -310,7 +285,7 @@ export default function SelectOptions(props) {
         )}
         {dataSource ? (
           <Fragment>
-            <OptionListItem isMore={isMore}>
+            <OptionListItem $isMore={isMore}>
               <div className="title Bold">
                 <div className="name flexColumn breakAll">
                   <span>
@@ -329,57 +304,48 @@ export default function SelectOptions(props) {
                       <AutoIcon icon="edit" onClick={() => setVisible({ editVisible: true })} />
                     </Tooltip>
                   )}
-                  <Trigger
-                    action={['click']}
-                    popupAlign={{
-                      points: ['tr', 'br'],
-                      offset: [5, 5],
-                      overflow: { adjustX: true, adjustY: true },
-                    }}
-                    popupVisible={optionVisible}
-                    onPopupVisibleChange={visible => setVisible({ optionVisible: visible })}
-                    popup={
-                      <MenuWrap>
-                        {isNewControl && (
-                          <MenuItem
-                            key="newSelect"
-                            icon={<AutoIcon icon="refresh1" />}
-                            onClick={e => {
-                              e.stopPropagation();
-                              setVisible({ selectVisible: true, optionVisible: false });
-                            }}
-                          >
-                            {_l('重新选择')}
-                          </MenuItem>
-                        )}
-                        {deleteStatus && !isNewControl && (
-                          <MenuItem
-                            key="recover"
-                            icon={<AutoIcon icon="repeal-o" />}
-                            onClick={e => {
-                              e.stopPropagation();
+                  <AntdDropdown
+                    trigger={['click']}
+                    placement="bottomRight"
+                    open={optionVisible}
+                    onOpenChange={visible => setVisible({ optionVisible: visible })}
+                    menu={{
+                      style: { width: 160 },
+                      items: [
+                        isNewControl && {
+                          key: 'newSelect',
+                          icon: <AutoIcon icon="refresh1" />,
+                          label: _l('重新选择'),
+                          onClick: ({ domEvent }) => {
+                            domEvent.stopPropagation();
+                            setVisible({ selectVisible: true, optionVisible: false });
+                          },
+                        },
+                        deleteStatus &&
+                          !isNewControl && {
+                            key: 'recover',
+                            icon: <AutoIcon icon="repeal-o" />,
+                            label: _l('恢复'),
+                            onClick: ({ domEvent }) => {
+                              domEvent.stopPropagation();
                               setVisible({ recoverVisible: true, optionVisible: false });
-                            }}
-                          >
-                            {_l('恢复')}
-                          </MenuItem>
-                        )}
-                        <MenuItem
-                          key="custom"
-                          icon={<AutoIcon icon="swap_horiz" />}
-                          onClick={e => {
-                            e.stopPropagation();
+                            },
+                          },
+                        {
+                          key: 'custom',
+                          icon: <AutoIcon icon="swap_horiz" />,
+                          label: _l('转为自定义'),
+                          onClick: ({ domEvent }) => {
+                            domEvent.stopPropagation();
                             setVisible({ optionVisible: false });
                             handleToCustom();
-                          }}
-                        >
-                          {_l('转为自定义')}
-                        </MenuItem>
-                      </MenuWrap>
-                    }
+                          },
+                        },
+                      ].filter(Boolean),
+                    }}
                   >
                     <AutoIcon icon="more_horiz" className="mLeft15" />
-                  </Trigger>
+                  </AntdDropdown>
                 </div>
               </div>
               <ul>

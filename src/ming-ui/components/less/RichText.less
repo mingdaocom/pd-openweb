@@ -50,6 +50,28 @@
 .ck.ck-splitbutton {
   display: flex;
 }
+
+.mdRichTextBodyCollectionHost {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ck-z-panel, 1000);
+  pointer-events: none;
+  --md-rich-text-body-collection-offset-x: 0px;
+  --md-rich-text-body-collection-offset-y: 0px;
+
+  .ck-body {
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+
+    > :not(.ck-dialog-overlay) {
+      translate: var(--md-rich-text-body-collection-offset-x) var(--md-rich-text-body-collection-offset-y);
+    }
+  }
+}
+
 .ck-content {
   .image img {
     display: block;

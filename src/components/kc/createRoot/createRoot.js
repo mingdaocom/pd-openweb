@@ -1,12 +1,15 @@
 ﻿import React from 'react';
-import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import _ from 'lodash';
-import { Dialog, ScrollView, UserHead } from 'ming-ui';
+import { ScrollView, UserHead } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { getLegacyStaticModalZIndex } from 'ming-ui/antd-components/zIndex';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import kcAjax from 'src/api/kc';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { existAccountHint } from 'src/utils/inviteCommon';
+import { existAccountHint } from 'src/utils/services/inviteCommon';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import addMemberTpl from './tpl/addMember.html';
 import htmlTpl from './tpl/createRoot.html';
 import '../layerMain.css';
@@ -109,22 +112,32 @@ $.extend(RootSettings.prototype, {
         }
       }
 
-      Dialog.confirm({
-        dialogClasses: 'createFolderBox kcDialogBox',
+      _this.modal = Modal.confirm({
+        wrapClassName: 'createFolderBox kcDialogBox',
         width: 520,
         title: isEdit ? _l('编辑文件夹') : _l('创建文件夹'),
-        children: (
+        content: (
           <ScrollView class="rootScrollView scrollViewContainer os-scrollbar-scale os-theme-common">
             <div
               dangerouslySetInnerHTML={{
-                __html: doT.template(htmlTpl)($.extend({}, root, defaultProject ? { project: defaultProject } : null)),
+                __html: doT.template(htmlTpl)(
+                  $.extend(
+                    {},
+                    root,
+                    defaultProject
+                      ? {
+                          project: defaultProject,
+                        }
+                      : null,
+                  ),
+                ),
               }}
             ></div>
           </ScrollView>
         ),
         okText: _l('创建'),
         cancelText: _l('取消'),
-        noFooter: isEdit,
+        footer: isEdit ? null : undefined,
         onOk: () => {
           var $createFolderBox = $('.createFolderBox'),
             $txtFolderName = $createFolderBox.find('.txtFolderName'),
@@ -133,7 +146,6 @@ $.extend(RootSettings.prototype, {
             if (!_this.verifyName(name, root.name)) {
               return false;
             }
-
             var members = [],
               inviteMembers = [];
             $createFolderBox
@@ -157,7 +169,6 @@ $.extend(RootSettings.prototype, {
                   });
                 }
               });
-
             var star = $createFolderBox.find('.addFolderStar').hasClass('icon-task-star'),
               projectId = $createFolderBox.find('.dropBox .seleted').data('projectId');
             kcAjax
@@ -174,7 +185,6 @@ $.extend(RootSettings.prototype, {
                   if (projectId) {
                     safeLocalStorageSetItem('createRoot.projectId', projectId);
                   }
-
                   _this.settings.resolve(res);
                 } else {
                   _this.settings.reject();
@@ -273,7 +283,8 @@ $.extend(RootSettings.prototype, {
           fromType: 'KC',
           showMoreInvite: true,
           projectId: (root.project && root.project.projectId) || '',
-          zIndex: 10001,
+          // quickSelectUser 使用独立 Root，无法继承当前 Modal 的 ZIndexContext。
+          zIndex: getLegacyStaticModalZIndex(),
           selectCb: function (users) {
             _this.addRootMemers(users, root);
           },
@@ -444,11 +455,11 @@ $.extend(RootSettings.prototype, {
                         permission: changePermision,
                       }),
                     );
-                    $('.createFolderBox').parent().remove();
+                    _this.modal.destroy();
                   }
                 })
-                .catch(function () {
-                  alert(_l('操作失败，请稍后重试!'), 3);
+                .catch(function (_requestError5) {
+                  alertIfNotUnauthorized(_requestError5, _l('操作失败，请稍后重试!'), 3);
                 });
             }
           },
@@ -496,17 +507,19 @@ $.extend(RootSettings.prototype, {
               .find('i')
               .data('memberStatus', MEMBER_STATUS.NORMAL);
           })
-          .catch(function () {
-            alert(_l('操作失败，请稍后重试!'), 3);
+          .catch(function (_requestError) {
+            alertIfNotUnauthorized(_requestError, _l('操作失败，请稍后重试!'), 3);
           });
       } else {
-        Dialog.confirm({
-          zIndex: 1009,
-          title: _l('操作提示'),
-          children: <div class="Font14">{_l('拒绝后将移除该用户')}</div>,
+        Modal.confirm({
+          title: <span className="textError">{_l('操作提示')}</span>,
+          content: <div class="Font14">{_l('拒绝后将移除该用户')}</div>,
           onOk: () => {
             kcAjax
-              .removeRootMember({ id: rootId, memberId: memberId })
+              .removeRootMember({
+                id: rootId,
+                memberId: memberId,
+              })
               .then(function (data) {
                 if (data && data.result) {
                   $checkMemberLi.slideUp(function () {
@@ -525,7 +538,7 @@ $.extend(RootSettings.prototype, {
                 }
               })
               .catch(function (err) {
-                alert(err || _l('操作失败, 请稍后重试'), 3);
+                alertIfNotUnauthorized(err, err || _l('操作失败, 请稍后重试'), 3);
               });
           },
         });
@@ -561,8 +574,8 @@ $.extend(RootSettings.prototype, {
               );
               _this.settings.resolve(newRoot);
             })
-            .catch(function () {
-              alert(_l('操作失败,请稍后重试'), 3);
+            .catch(function (_requestError2) {
+              alertIfNotUnauthorized(_requestError2, _l('操作失败,请稍后重试'), 3);
             });
         } else {
           $this.removeClass('icon-task-star icon-star-hollow').addClass(star ? 'icon-task-star' : 'icon-star-hollow');
@@ -603,8 +616,8 @@ $.extend(RootSettings.prototype, {
                 }),
               );
             })
-            .catch(function () {
-              alert(_l('操作失败，请稍后重试'), 3);
+            .catch(function (_requestError3) {
+              alertIfNotUnauthorized(_requestError3, _l('操作失败，请稍后重试'), 3);
             });
         },
         keydown: function (evt) {
@@ -664,9 +677,9 @@ $.extend(RootSettings.prototype, {
             });
 
             if (membersLi.length) {
-              Dialog.confirm({
-                title: _l('归属变更'),
-                children: <div class="Font14">{_l('您变更了文件夹的归属,要清空成员列表吗?')}</div>,
+              Modal.confirm({
+                title: <span className="textError">{_l('归属变更')}</span>,
+                content: <div class="Font14">{_l('您变更了文件夹的归属,要清空成员列表吗?')}</div>,
                 okText: _l('清空成员'),
                 onOk: () => {
                   membersLi.slideUp(function () {
@@ -674,7 +687,6 @@ $.extend(RootSettings.prototype, {
                   });
                 },
                 cancelText: _l('保留'),
-                zIndex: 1003,
               });
             }
           })
@@ -727,13 +739,15 @@ $.extend(RootSettings.prototype, {
           conFirmStr = isExit ? '是否确定退出该共享文件夹?' : _l('是否确定移除该成员');
 
         if (isEdit) {
-          Dialog.confirm({
-            title: _l('操作提示'),
-            zIndex: 1003,
-            children: <div class="Font14">{conFirmStr}</div>,
+          Modal.confirm({
+            title: <span className="textError">{_l('操作提示')}</span>,
+            content: <div class="Font14">{conFirmStr}</div>,
             onOk: () => {
               kcAjax
-                .removeRootMember({ id: rootId, memberID: removeMemberId })
+                .removeRootMember({
+                  id: rootId,
+                  memberID: removeMemberId,
+                })
                 .then(function (data) {
                   if (data && data.result) {
                     // 成员自己退出root
@@ -742,12 +756,11 @@ $.extend(RootSettings.prototype, {
                     });
                     if (isExit) {
                       _this.settings.resolve(null);
-                      $('.createFolderBox').parent().remove();
+                      _this.modal.destroy();
                     } else {
                       $this.closest('.memberItem').slideUp(function () {
                         $(this).remove();
                       });
-
                       _this.settings.resolve(
                         $.extend({}, root, {
                           members: newMembers,
@@ -759,7 +772,7 @@ $.extend(RootSettings.prototype, {
                   }
                 })
                 .catch(function (err) {
-                  alert(err || _l('操作失败, 请稍后重试'), 3);
+                  alertIfNotUnauthorized(err, err || _l('操作失败, 请稍后重试'), 3);
                 });
             },
           });
@@ -822,11 +835,11 @@ $.extend(RootSettings.prototype, {
                   root.members = members;
                   _this.settings.resolve(root);
                 })
-                .catch(function () {
+                .catch(function (_requestError7) {
                   if (root.project && root.project.projectId) {
-                    alert(_l('操作失败, 只能托付给本组织的成员'), 2);
+                    alertIfNotUnauthorized(_requestError7, _l('操作失败, 只能托付给本组织的成员'), 2);
                   } else {
-                    alert(_l('操作失败，只能托付给好友或同事'), 2);
+                    alertIfNotUnauthorized(_requestError7, _l('操作失败，只能托付给好友或同事'), 2);
                   }
                 });
             },
@@ -845,8 +858,8 @@ $.extend(RootSettings.prototype, {
 
             alert(_l('邀请成功'));
           })
-          .catch(function () {
-            alert(_l('邀请失败, 请勿多次发送邀请'), 3);
+          .catch(function (_requestError4) {
+            alertIfNotUnauthorized(_requestError4, _l('邀请失败, 请勿多次发送邀请'), 3);
           });
       });
   },
@@ -1008,8 +1021,8 @@ $.extend(RootSettings.prototype, {
             ],
           });
         })
-        .catch(function () {
-          alert(_l('邀请失败，请稍后重试'), 2);
+        .catch(function (_requestError6) {
+          alertIfNotUnauthorized(_requestError6, _l('邀请失败，请稍后重试'), 2);
           if (callbackInviteResult && _.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
           }

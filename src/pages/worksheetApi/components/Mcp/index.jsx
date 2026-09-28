@@ -1,7 +1,7 @@
-import React, { memo, useEffect, useState } from 'react';
-import { Empty, Select } from 'antd';
+import React, { memo, useState } from 'react';
 import JsonView from '@mingdaocom/json-view';
 import { Support } from 'ming-ui';
+import { Empty, Select } from 'ming-ui/antd-components';
 
 const maskString = (str, startW, endW, middleW) => {
   if (typeof str !== 'string') return '';
@@ -11,41 +11,29 @@ const maskString = (str, startW, endW, middleW) => {
   return start + middle + end;
 };
 
-const formatMcpData = ({ appKey, sign, appName }) => {
+const formatMcpData = ({ appKey, sign, appName }, defaultAppName) => {
   const url = appKey
     ? `${md.global.Config.MCPUrl}?HAP-Appkey=${maskString(appKey, 4, 4, 8)}&HAP-Sign=${maskString(sign, 6, 4, 78)}`
     : `${md.global.Config.MCPUrl}?HAP-Appkey=YOUR_APP_KEY&HAP-Sign=YOUR_SIGN`;
 
-  return { [`hap-mcp-${appName}`]: { url } };
+  return { [`hap-mcp-${appName || defaultAppName}`]: { url } };
 };
 
-const formatRealMcpData = ({ appKey, sign, appName }) => {
+const formatRealMcpData = ({ appKey, sign, appName }, defaultAppName) => {
   const url = appKey
     ? `${md.global.Config.MCPUrl}?HAP-Appkey=${appKey}&HAP-Sign=${sign}`
     : `${md.global.Config.MCPUrl}?HAP-Appkey=YOUR_APP_KEY&HAP-Sign=YOUR_SIGN`;
 
-  return { [`hap-mcp-${appName}`]: { url } };
+  return { [`hap-mcp-${appName || defaultAppName}`]: { url } };
 };
 
-const Mcp = ({ authorizes = [] }) => {
-  const [appItem, setAppItem] = useState({});
+const Mcp = ({ authorizes = [], appName, canManageAuthorize = false }) => {
+  const [appKey, setAppKey] = useState();
+  const appItem = authorizes.find(item => item.appKey === appKey) || authorizes[0] || {};
 
   const handleChange = value => {
-    const appItem = authorizes.find(item => item.appKey === value);
-    setAppItem(appItem);
+    setAppKey(value);
   };
-
-  useEffect(() => {
-    if (!authorizes.length) {
-      setAppItem({});
-      return;
-    }
-
-    // 如果已有 appKey，则检查它是否在列表中
-    const found = appItem?.appKey ? authorizes.find(item => item.appKey === appItem.appKey) : null;
-
-    setAppItem(found || authorizes[0]);
-  }, [authorizes]);
 
   return (
     <div className="flexRow worksheetApiLi" id="mcpServer-content">
@@ -60,19 +48,25 @@ const Mcp = ({ authorizes = [] }) => {
         <div className="mTop20 Font17 bold">{_l('应用')}</div>
         <div className="flexRow justifyContentBetween alignItemsCenter mTop10">
           <div>{_l('包含应用、工作表、聚合表、应用角色、选项集 API、工作流')}</div>
-          <div className="flexRow alignItemsCenter mLeft30 nowrap flex-shrink-0">
-            {_l('选择密钥：')}
-            <Select
-              value={appItem.appKey}
-              style={{ minWidth: 150, maxWidth: 220, fontSize: 13 }}
-              notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={_l('请先创建授权密钥')} />}
-              onChange={handleChange}
-              options={authorizes.map(item => ({ value: item.appKey, label: item.name }))}
-            />
-          </div>
+          {canManageAuthorize && (
+            <div className="flexRow alignItemsCenter mLeft30 nowrap flex-shrink-0">
+              {_l('选择密钥：')}
+              <Select
+                value={appItem.appKey}
+                style={{ minWidth: 150, maxWidth: 220, fontSize: 13 }}
+                notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={_l('请先创建授权密钥')} />}
+                onChange={handleChange}
+                options={authorizes.map(item => ({ value: item.appKey, label: item.name }))}
+              />
+            </div>
+          )}
         </div>
         <div className="worksheetApiContentJsonViewBox mTop15">
-          <JsonView bodyClassName="pAll15" data={formatMcpData(appItem)} copyData={formatRealMcpData(appItem)} />
+          <JsonView
+            bodyClassName="pAll15"
+            data={formatMcpData(appItem, appName)}
+            copyData={formatRealMcpData(appItem, appName)}
+          />
         </div>
       </div>
     </div>

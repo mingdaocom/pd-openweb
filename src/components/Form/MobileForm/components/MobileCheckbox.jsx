@@ -1,0 +1,209 @@
+import React, { Component, Fragment } from 'react';
+import { List } from 'antd-mobile';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { MobileSearch } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
+import { MAX_OPTIONS_COUNT } from 'src/utils/domain/control/config';
+import './MobileCheckbox.less';
+
+const CHECKBOX_STYLES = {
+  label: { flex: 1, paddingInlineStart: 14, paddingInlineEnd: 0, fontSize: 16 },
+};
+
+export default class MobileCheckbox extends Component {
+  static propTypes = {
+    disabled: PropTypes.bool,
+    allowAdd: PropTypes.bool,
+    callback: PropTypes.func,
+    data: PropTypes.array,
+    checked: PropTypes.array,
+    renderText: PropTypes.any,
+  };
+
+  static defaultProps = {
+    disabled: false,
+    allowAdd: false,
+    callback: () => {},
+    data: [],
+    checked: [],
+  };
+
+  state = {
+    visible: false,
+    selectChecked: [],
+    keywords: '',
+  };
+
+  onChange = key => {
+    const { chooseothertype } = this.props;
+    const { selectChecked } = this.state;
+
+    if (_.includes(selectChecked, key)) {
+      _.remove(selectChecked, o => o === key);
+    } else {
+      selectChecked.push(key);
+      if (chooseothertype === '1') {
+        _.remove(selectChecked, item => (key === 'other' ? !item.startsWith('other') : item.startsWith('other')));
+      }
+    }
+
+    this.setState({ selectChecked });
+  };
+
+  handleSelectAll = (options, isChecked) => {
+    const { chooseothertype } = this.props;
+
+    if (isChecked) {
+      this.setState({ selectChecked: [] });
+    } else {
+      const filteredOptions = chooseothertype === '1' ? options.filter(v => v.key !== 'other') : options;
+      this.setState({
+        selectChecked: filteredOptions.map(v => v.key),
+      });
+    }
+  };
+
+  onClose = () => {
+    this.setState({ visible: false });
+  };
+
+  onClear = () => {
+    const { callback = () => {} } = this.props;
+    this.setState({ selectChecked: [], visible: false });
+    callback([]);
+  };
+
+  handleSave = selectChecked => {
+    const { callback = () => {} } = this.props;
+    this.setState({ visible: false });
+    callback(selectChecked);
+  };
+
+  render() {
+    const {
+      disabled,
+      allowAdd,
+      children,
+      data,
+      checked,
+      renderText,
+      controlName,
+      delOptions = [],
+      showselectall,
+      chooseothertype,
+    } = this.props;
+    const { visible, selectChecked, keywords } = this.state;
+    let source = [].concat(data).filter(item => !item.isDeleted && !item.hide);
+    const canAddOption = source.length < MAX_OPTIONS_COUNT;
+
+    selectChecked.forEach(item => {
+      if ((item || '').indexOf('add_') > -1) {
+        source.push({ key: item, color: '#1677ff', value: item.split('add_')[1] });
+      }
+    });
+
+    return (
+      <Fragment>
+        <span onClick={() => !disabled && this.setState({ visible: true, selectChecked: [].concat(checked) })}>
+          {children ||
+            source.map(item => {
+              return (
+                <Checkbox
+                  className="flexRow alignItemsCenter"
+                  key={item.key}
+                  value={item.key}
+                  checked={_.includes(checked, item.key)}
+                  styles={CHECKBOX_STYLES}
+                >
+                  {item.value}
+                </Checkbox>
+              );
+            })}
+        </span>
+
+        <PopupWrapper
+          className="mobileCheckboxDialog"
+          bodyClassName="heightPopupBody40"
+          visible={visible}
+          title={controlName}
+          confirmDisable={!selectChecked.length}
+          onClose={this.onClose}
+          onConfirm={() => this.handleSave(selectChecked)}
+          onClear={this.onClear}
+        >
+          <div className="flexColumn h100">
+            <MobileSearch
+              placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
+              onSearch={keywords => this.setState({ keywords })}
+            />
+            <List className="flex" style={{ overflow: 'auto' }}>
+              {showselectall === '1' && (
+                <List.Item
+                  className="bold"
+                  arrowIcon={false}
+                  onClick={() => {
+                    const options = keywords.length
+                      ? source.filter(
+                          item =>
+                            `${item.value || ''}|${item.pinYin || ''}`.search(
+                              new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                            ) !== -1,
+                        )
+                      : source;
+                    let threshold = 0;
+                    if (chooseothertype === '1') threshold = 1;
+                    this.handleSelectAll(options, selectChecked.length === options.length - threshold);
+                  }}
+                >
+                  <span className="Font15 colorPrimary">{_l('全选')}</span>
+                </List.Item>
+              )}
+
+              {source
+                .filter(
+                  item =>
+                    `${item.value || ''}|${item.pinYin || ''}`.search(
+                      new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                    ) !== -1,
+                )
+                .map(item => (
+                  <List.Item
+                    className="mobileCheckboxListItem"
+                    key={item.key}
+                    arrowIcon={false}
+                    onClick={() => this.onChange(item.key)}
+                  >
+                    <Checkbox
+                      className="flexRow alignItemsCenter"
+                      value={item.key}
+                      checked={_.includes(selectChecked, item.key)}
+                      styles={CHECKBOX_STYLES}
+                    >
+                      {renderText ? renderText(item) : item.value}
+                    </Checkbox>
+                  </List.Item>
+                ))}
+
+              {!!keywords.length && allowAdd && !source.find(item => item.value === keywords) && canAddOption && (
+                <List.Item
+                  arrowIcon={false}
+                  onClick={() => {
+                    if (!_.trim(keywords)) return;
+                    this.setState({ keywords: '' });
+                    const opt = _.find(delOptions, v => v.value === keywords);
+                    if (opt) return alert(_l('不得与已有选项（包括回收站）重复'), 2);
+                    this.onChange(`add_${keywords}`);
+                  }}
+                >
+                  <span className="ellipsis colorPrimary Font15">{_l('添加新的选项：') + keywords}</span>
+                </List.Item>
+              )}
+            </List>
+          </div>
+        </PopupWrapper>
+      </Fragment>
+    );
+  }
+}

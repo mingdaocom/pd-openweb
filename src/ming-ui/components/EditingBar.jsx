@@ -5,8 +5,8 @@ import cx from 'classnames';
 import { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Tooltip from 'ming-ui/antd-components/Tooltip';
-import { getLatestCreateTimestampOfWithSaveShortcut } from 'src/utils/common';
+import { Tooltip } from 'ming-ui/antd-components';
+import { getLatestCreateTimestampOfWithSaveShortcut } from 'src/utils/platform/browser/dom';
 
 const ConBox = styled.div`
   position: absolute;

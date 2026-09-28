@@ -1,10 +1,10 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import _ from 'lodash';
-import { Button, Dialog } from 'ming-ui';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import { Modal } from 'ming-ui/antd-components';
+import { SelectGroupPopover } from 'ming-ui/functions/quickSelectGroup';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import editFolderTpl from './tpl/editFolder.html';
 import './css/editFolder.less';
 
@@ -17,6 +17,7 @@ const EditFolder = function (opts) {
     projectId: null,
     projectName: '',
     scope: undefined,
+    groupInfo: [],
   };
 
   this.settings = $.extend(defaults, opts);
@@ -30,28 +31,24 @@ $.extend(EditFolder.prototype, {
     // 数据
     const editFolderHtml = doT.template(editFolderTpl)(settings);
     // 创建弹出层
-    Dialog.confirm({
-      dialogClasses: 'editFolder',
+    Modal.confirm({
+      wrapClassName: 'editFolder',
       title: settings.projectName === _l('个人') ? _l('编辑项目') : _l('在组织 “%0” 下编辑项目', settings.projectName),
       okText: _l('保存'),
-      children: <div dangerouslySetInnerHTML={{ __html: editFolderHtml }}></div>,
-      footer: (
-        <div className="Dialog-footer-btns">
-          <Button type="link" onClick={() => $('.editFolder').parent().remove()}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              let sign = _this.edit();
-              if (sign === false) return;
-              $('.editFolder').parent().remove();
-            }}
-          >
-            {_l('保存')}
-          </Button>
-        </div>
+      styles: { body: { overflow: 'visible' } },
+      content: (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: editFolderHtml,
+          }}
+        ></div>
       ),
+      manualClose: true,
+      onOk: close => {
+        const sign = _this.edit();
+
+        if (sign !== false) close();
+      },
       width: 570,
     });
 
@@ -77,7 +74,7 @@ $.extend(EditFolder.prototype, {
 
     const root = createRoot(document.getElementById('privateGroupRange'));
     root.render(
-      <SelectGroupTrigger
+      <SelectGroupPopover
         className="editFolderSelectGroup"
         defaultValue={defaultValue}
         projectId={settings.projectId}
@@ -98,7 +95,7 @@ $.extend(EditFolder.prototype, {
     });
   },
 
-  handleChangeGroup(value) {
+  handleChangeGroup(value, selectedGroups) {
     const settings = this.settings;
 
     settings.scope =
@@ -107,6 +104,15 @@ $.extend(EditFolder.prototype, {
       !(value.radioProjectIds || []).length
         ? undefined
         : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']);
+    settings.groupInfo = (value.shareGroupIds || []).map(groupId => {
+      const selectedGroup = _.find(selectedGroups, { id: groupId });
+      const currentGroup = _.find(settings.groupInfo, { groupID: groupId });
+
+      return {
+        groupID: groupId,
+        groupName: _.get(selectedGroup, 'value') || _.get(currentGroup, 'groupName') || '',
+      };
+    });
   },
 
   // 验证部分数据
@@ -138,6 +144,7 @@ $.extend(EditFolder.prototype, {
     return {
       visibility,
       groupIds: groupIds.join(','),
+      groupInfo: visibility === 1 ? settings.groupInfo : [],
     };
   },
 
@@ -149,20 +156,6 @@ $.extend(EditFolder.prototype, {
 
     if (!folderObj) {
       return false;
-    }
-
-    // 群组可见
-    if (folderObj.visibility === 1) {
-      folderObj.groupInfo = [];
-      $('.editFolderSelectGroup')
-        .next()
-        .find('.select.item')
-        .each(function () {
-          folderObj.groupInfo.push({
-            groupID: $(this).attr('data-groupid'),
-            groupName: $(this).attr('data-name'),
-          });
-        });
     }
 
     // 编辑项目

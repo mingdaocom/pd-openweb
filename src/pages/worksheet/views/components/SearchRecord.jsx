@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Dropdown } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
-import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
+import { AutoComplete, Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/core/string';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const Wrapper = styled.div`
   background-color: var(--color-background-primary);
@@ -16,17 +15,17 @@ const Wrapper = styled.div`
     0 9px 28px 8px rgb(0 0 0 / 5%);
   border-radius: 4px;
   margin-right: -33px;
-  .ant-select-auto-complete {
+  .hap-select-auto-complete {
     z-index: 2;
   }
-  .ant-select-open .ant-select-selection-search-input {
+  .hap-select-open .hap-select-selection-search-input {
     border-radius: 4px 4px 0 0;
   }
-  .ant-select-dropdown {
+  .hap-select-dropdown {
     z-index: 1;
     top: 43px !important;
   }
-  .ant-select-item {
+  .hap-select-item {
     font-weight: initial !important;
   }
   .highlig {
@@ -35,6 +34,8 @@ const Wrapper = styled.div`
 `;
 
 const InputWrapper = styled.div`
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px 15px;
   background-color: var(--color-background-primary);
   border-bottom: 1px solid var(--color-background-disabled);
@@ -84,7 +85,7 @@ const searchResult = (query, queryKey, data) => {
 };
 
 const SearchRecord = props => {
-  const { queryKey, data, overlayClassName, viewId = '', onSearch, onClose } = props;
+  const { queryKey, data, popupClassName, viewId = '', onSearch, onClose } = props;
   const [visible, setVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -213,13 +214,11 @@ const SearchRecord = props => {
 
   return (
     <Dropdown
-      overlayClassName={overlayClassName}
+      classNames={{ root: popupClassName }}
       trigger={['click']}
-      overlay={renderOverlay()}
-      visible={visible}
+      open={visible}
       placement="bottomRight"
-      zIndex={1000}
-      onVisibleChange={visible => {
+      onOpenChange={visible => {
         setVisible(visible);
         if (visible) {
           setTimeout(() => {
@@ -228,8 +227,10 @@ const SearchRecord = props => {
           }, 200);
         }
       }}
+      menu={{ items: [] }}
+      popupRender={() => renderOverlay()}
     >
-      {props.children}
+      <span className="InlineBlock">{props.children}</span>
     </Dropdown>
   );
 };

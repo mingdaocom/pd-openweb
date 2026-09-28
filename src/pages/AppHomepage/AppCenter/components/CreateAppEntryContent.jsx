@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { BgIconButton, Icon, Skeleton } from 'ming-ui';
+import { BgIconButton, Icon } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import { AttachmentTooltip, PromptInput } from 'src/components/Agent/ui';
 import AddedFiles from 'src/components/Mingo/ChatBot/components/AddedFiles';
 import { useDailyBuildSuggestions } from 'src/components/Mingo/ChatBot/components/buildRecommender';
 import UploadFiles from 'src/components/Mingo/ChatBot/components/UploadFiles';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
 
 const ATTACHMENT_TOKEN_TYPE = 71;
 const MAX_ATTACHMENTS = 5;
 const ALLOWED_MIME_TYPES = [
-  { title: 'image', extensions: 'jpg,jpeg,png,webp,gif' },
-  { title: 'doc', extensions: 'pdf,doc,docx,xls,xlsx,pptx,txt,md,csv,json,xml,html' },
+  {
+    title: 'image',
+    extensions: 'jpg,jpeg,png,webp,gif',
+  },
+  {
+    title: 'doc',
+    extensions: 'pdf,doc,docx,xls,xlsx,pptx,txt,md,csv,json,xml,html',
+  },
 ];
-
 const Wrapper = styled.div`
   ${() => (md.global.SysSettings.aiBrandThemeColor ? `--color-mingo: ${md.global.SysSettings.aiBrandThemeColor};` : '')}
   .aiLabel {
@@ -170,19 +176,16 @@ export default function CreateAppEntryContent(props) {
   const handlePickSample = text => {
     onAiSubmit(text, draftAttachments);
   };
-
   const runAction = action => {
     if (action.disabled) return;
     action.onClick && action.onClick();
     onClose();
   };
-
   const handleSubmit = () => {
     // 必须有正文才能提交：仅有附件（无文本内容）不支持发送，与 MingoWelcome / ChatPanel 一致
     if (!draft.trim()) return;
     onAiSubmit(draft, draftAttachments);
   };
-
   return (
     <Wrapper>
       {showAi && (
@@ -231,29 +234,56 @@ export default function CreateAppEntryContent(props) {
                 }}
                 onUploadProgress={(up, file) => {
                   const progress = ((file.loaded / file.size) * 100).toFixed(0);
-
                   setDraftAttachments(prev =>
-                    prev.map(f => (f.id === file.id ? { ...f, status: 'uploading', file, progress } : f)),
+                    prev.map(f =>
+                      f.id === file.id
+                        ? {
+                            ...f,
+                            status: 'uploading',
+                            file,
+                            progress,
+                          }
+                        : f,
+                    ),
                   );
                 }}
                 onUploaded={(up, file, response) => {
                   const commonAttachment = formatResponseData(file, response);
-
                   setDraftAttachments(prev =>
                     prev.map(f =>
-                      f.id === file.id ? { ...f, status: 'uploaded', file, commonAttachment, url: file.url } : f,
+                      f.id === file.id
+                        ? {
+                            ...f,
+                            status: 'uploaded',
+                            file,
+                            commonAttachment,
+                            url: file.url,
+                          }
+                        : f,
                     ),
                   );
                 }}
                 onError={file => {
-                  setDraftAttachments(prev => prev.map(f => (f.id === file?.id ? { ...f, status: 'error' } : f)));
+                  setDraftAttachments(prev =>
+                    prev.map(f =>
+                      f.id === file?.id
+                        ? {
+                            ...f,
+                            status: 'error',
+                          }
+                        : f,
+                    ),
+                  );
                 }}
                 removeFile={file => {
                   setDraftAttachments(prev => prev.filter(f => f.id !== file.id));
                 }}
               >
                 <BgIconButton
-                  style={{ borderRadius: '8px', padding: '6px' }}
+                  style={{
+                    borderRadius: '8px',
+                    padding: '6px',
+                  }}
                   icon="attachment"
                   tooltip={<AttachmentTooltip max={MAX_ATTACHMENTS} />}
                   popupPlacement="top"
@@ -264,12 +294,12 @@ export default function CreateAppEntryContent(props) {
           />
           {samplesStatus === 'loading' ? (
             <Skeleton
-              className="chipSkeleton"
-              direction="row"
+              className="chipSkeleton pAll20"
               active
-              widths={['132px', '168px', '120px']}
-              height="33px"
-              itemStyle={{ borderRadius: '22px', margin: 0 }}
+              paragraph={{
+                rows: 3,
+                width: ['132px', '168px', '120px'],
+              }}
             />
           ) : (
             !!samples.length && (
@@ -291,12 +321,17 @@ export default function CreateAppEntryContent(props) {
         {cards.map(action => (
           <div
             key={action.id}
-            className={cx('bigCard createMethod', { disabled: action.disabled })}
+            className={cx('bigCard createMethod', {
+              disabled: action.disabled,
+            })}
             onClick={() => runAction(action)}
           >
             <div
               className="cardIcon"
-              style={{ color: action.iconColor, background: action.iconBg || 'var(--color-background-hover)' }}
+              style={{
+                color: action.iconColor,
+                background: action.iconBg || 'var(--color-background-hover)',
+              }}
             >
               <Icon icon={action.icon} />
             </div>
@@ -309,7 +344,9 @@ export default function CreateAppEntryContent(props) {
             {rows.map(action => (
               <div
                 key={action.id}
-                className={cx('secondaryRow createMethod', { disabled: action.disabled })}
+                className={cx('secondaryRow createMethod', {
+                  disabled: action.disabled,
+                })}
                 onClick={() => runAction(action)}
               >
                 <Icon icon={action.icon} className="rowIcon" />

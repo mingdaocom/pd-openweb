@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, RadioGroup } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Radio } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import AuthAppList from 'src/pages/Admin/components/AuthAppList';
 
@@ -14,10 +15,10 @@ const UseScopeWrap = styled.div`
   min-height: 0;
   padding: 26px 16px 16px;
   overflow: hidden;
-  .Radio {
+  .ant-radio-wrapper {
     margin-right: 26px !important;
   }
-  .Radio-box {
+  .ant-radio-inner {
     margin-right: 8px !important;
   }
   .appListWrapper {
@@ -92,13 +93,17 @@ export default function UseScope(props) {
     <UseScopeWrap>
       <div className="mBottom10">{_l('允许访问的应用')}</div>
       <div className="flexRow alignItemsCenter mBottom10">
-        <RadioGroup
-          data={[
+        <Radio.Group
+          options={[
             { value: 1, text: _l('全部应用') },
             { value: 2, text: _l('指定应用') },
-          ]}
-          checkedValue={authAppType}
-          onChange={value => setState({ authAppType: value })}
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={authAppType}
+          onChange={event =>
+            setState({
+              authAppType: event.target.value,
+            })
+          }
         />
         <div className="flex"></div>
         {authAppType === 2 && (

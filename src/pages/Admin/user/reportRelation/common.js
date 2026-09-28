@@ -1,6 +1,7 @@
 import { dialogSelectUser } from 'ming-ui/functions';
 import projectSettingController from 'src/api/projectSetting';
 import structureController from 'src/api/structure';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import Config from '../../config';
 
 export function setStructureForAll(params) {
@@ -13,8 +14,8 @@ export function setStructureForAll(params) {
       res => {
         return res;
       },
-      () => {
-        alert(_l('操作失败'), 2);
+      _requestError => {
+        alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
       },
     );
 }
@@ -29,8 +30,8 @@ export function setStructureSelfEdit(params) {
       res => {
         return res;
       },
-      () => {
-        alert(_l('操作失败'), 2);
+      _requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('操作失败'), 2);
       },
     );
 }

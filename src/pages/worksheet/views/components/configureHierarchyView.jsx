@@ -2,7 +2,7 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, RadioGroup } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
 import { Button } from 'worksheet/styled';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import StructureType from 'src/pages/worksheet/common/ViewConfig/components/StructureType';
@@ -12,6 +12,7 @@ const RELATE_TYPE = [
   { text: _l('本表关联'), value: 1 },
   { text: _l('多表关联'), value: 2 },
 ];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 const VerifyButton = styled(Button)`
   margin-top: 12px;
 `;
@@ -26,8 +27,10 @@ const HierarchyViewConfigWrap = styled.div`
   }
   padding: 0 30px 24px;
   .relateTypeRadio {
-    .Radio:last-child {
-      margin-left: 88px;
+    display: flex;
+    .hap-radio-wrapper {
+      flex: 1;
+      margin-inline-end: 0;
     }
   }
   .multiSheetRelate {
@@ -120,7 +123,7 @@ export default function HierarchyViewConfig({
     if (!isRelateOtherSheet && fields.length <= 0) {
       window.clearLocalDataTime({
         requestData: { worksheetId: worksheetInfo.worksheetId },
-        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
       });
     }
 
@@ -131,14 +134,18 @@ export default function HierarchyViewConfig({
     <HierarchyViewConfigWrap>
       <SettingItem>
         <div className="settingItemTitle">{_l('层级结构关系')}</div>
-        <RadioGroup
+        <Radio.Group
           className="relateTypeRadio"
           size="small"
-          data={RELATE_TYPE}
-          checkedValue={relateType}
-          onChange={value => {
+          options={(RELATE_TYPE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={relateType}
+          onChange={event => {
+            const value = event.target.value;
+
             if (value !== relateType) {
-              setRelate({ relateType: value });
+              setRelate({
+                relateType: value,
+              });
               updateView({
                 childType: value,
                 advancedSetting: {
@@ -164,12 +171,12 @@ export default function HierarchyViewConfig({
         ) : (
           <div className="currentSheetRelate">
             {fields.length > 0 ? (
-              <Dropdown
-                style={{ maxWidth: '400px' }}
-                border
+              <Select
+                style={{ width: '100%', maxWidth: '400px' }}
                 placeholder={_l('选择关联字段')}
                 value={singleRelate}
-                data={fields}
+                options={fields}
+                fieldNames={SELECT_FIELD_NAMES}
                 onChange={value => setRelate({ singleRelate: value })}
               />
             ) : (

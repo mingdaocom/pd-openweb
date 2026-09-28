@@ -38,6 +38,13 @@
         width: auto;
         align-items: flex-start;
       }
+      .customFormControlSwitch {
+        min-height: 36px !important;
+        align-items: center;
+        .customFormCheck {
+          margin-top: 0 !important;
+        }
+      }
       &::after {
         display: none;
       }
@@ -117,15 +124,8 @@
       }
     }
 
-    .optionDisabled.ant-select-disabled {
+    .optionDisabled.hap-select-disabled {
       cursor: text;
-      .ant-select-selector {
-        pointer-events: none;
-        .ant-select-selection-item {
-          cursor: text !important;
-          user-select: all !important;
-        }
-      }
     }
     .scaleContent .scaleText {
       cursor: text !important;
@@ -266,14 +266,6 @@
       }
     }
 
-    .iti--allow-dropdown {
-      width: 100%;
-    }
-
-    .iti__country-list {
-      max-height: 300px;
-    }
-
     .customFormNull {
       width: 22px;
       height: 6px;
@@ -296,11 +288,6 @@
           margin-right: 0;
           margin-bottom: 8px;
         }
-      }
-      .Button {
-        width: 110px;
-        padding: 0;
-        font-size: 13px;
       }
     }
 
@@ -346,8 +333,8 @@
       min-width: 0;
       align-items: center;
       height: auto !important;
-      background: var(--color-background-primary) !important;
-      border-color: var(--color-background-primary) !important;
+      background: transparent !important;
+      border: unset !important;
       padding: 0 !important;
     }
 
@@ -383,20 +370,18 @@
       }
 
       &.readOnlyDisabled {
-        .Checkbox--disabled,
-        .Radio--disabled {
+        .ant-radio-wrapper-disabled {
           cursor: pointer !important;
-          &.checked {
-            .Radio-box {
+          &.ant-radio-wrapper-checked {
+            .ant-radio-inner {
               border-color: var(--color-primary) !important;
               opacity: 0.7;
             }
-            .Radio-box-round {
+            .ant-radio-inner::after {
               background-color: var(--color-primary) !important;
             }
           }
-          .Checkbox-box,
-          .Radio-box {
+          .ant-radio-inner {
             display: inline-block !important;
           }
         }
@@ -408,14 +393,10 @@
         border-color: transparent !important;
         padding-left: 0;
         padding-right: 0;
-        .Dropdown--input {
-          padding-left: 0 !important;
-        }
         .mdEditorContent {
           max-height: inherit !important;
         }
-        .Radio--disabled,
-        .Checkbox--disabled {
+        .ant-radio-wrapper-disabled {
           cursor: unset !important;
         }
       }
@@ -430,26 +411,6 @@
       &.customFormFileBox:not(.controlDisabled) {
         color: var(--color-text-secondary);
         padding: 8px 10px 7px;
-      }
-
-      &.dateTimeIcon {
-        .dateClearIcon {
-          display: none;
-          cursor: pointer;
-          color: var(--color-text-disabled);
-          &:hover {
-            color: var(--color-text-secondary) !important;
-          }
-        }
-        &:hover,
-        &:focus {
-          .dateClearIcon {
-            display: inline-block;
-          }
-          .bellScheduleIcon {
-            display: none;
-          }
-        }
       }
 
       .worksheetRecordCard {
@@ -481,53 +442,36 @@
 
       &.formBoxNoBorder {
         padding: 5px 0 0;
-        background: var(--color-background-primary) !important;
-        border-color: var(--color-background-primary) !important;
+        background: transparent !important;
+        border-color: transparent !important;
         width: auto;
+
+        &.controlDisabled:not(.readOnlyDisabled):not(.cellControlOptionsCheckbox):has(> .CheckboxGroup) {
+          min-height: 36px;
+          padding-bottom: 5px;
+
+          .CheckboxGroup {
+            row-gap: 10px;
+          }
+
+          /* 用行间距保留换行留白，避免末行外边距撑高只读值区域。 */
+          .formCheckboxOption {
+            margin-bottom: 0 !important;
+          }
+        }
       }
 
       &.customDropdownBox {
         padding: 0;
         height: auto;
         min-height: 36px;
-        .Dropdown--border {
-          height: auto !important;
-          border: none !important;
-          min-height: 34px;
-          padding-top: 0;
-          padding-bottom: 0;
-          .value {
-            white-space: normal !important;
-          }
-          .Dropdown--placeholder {
-            line-height: 34px;
-          }
-        }
       }
 
-      &.customFormControlOCR {
-        padding: 0 16px;
-        display: inline-flex !important;
-        align-items: center;
-        cursor: pointer;
-        border-color: var(--color-border-primary) !important;
-        background: var(--color-background-primary);
-        justify-content: center;
-        max-width: 320px;
-        &:hover {
-          background: var(--color-background-secondary) !important;
-        }
-        .customOCRLoading {
-          display: block;
-          animation: rotate 2s linear infinite;
-          color: var(--color-primary);
-        }
-      }
       &.customFormSwitchColumn {
         height: auto;
         .customFormCheck {
           flex-wrap: wrap;
-          label.Radio {
+          .ant-radio-wrapper {
             max-width: 100%;
             margin-top: 6px;
             margin-bottom: 6px;
@@ -536,18 +480,9 @@
       }
       &.customFormControlSwitch {
         height: auto !important;
-        .Checkbox {
-          margin-top: 8px;
-        }
       }
       .mobileFormSwitchDisabled {
         opacity: 0.4;
-        &.ming.Switch--off {
-          background-color: var(--color-text-placeholder) !important;
-        }
-        &.ming.Switch--on {
-          background: var(--color-task) !important;
-        }
       }
       &.customFormControlSwitch,
       &.customFormControlScore {
@@ -629,7 +564,7 @@
       width: 100%;
       display: flex;
       flex-wrap: nowrap;
-      label.Radio {
+      .ant-radio-wrapper {
         display: inline-block;
         max-width: 50%;
         margin-right: 0;
@@ -638,18 +573,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      &.Checkbox {
-        display: flex;
-        white-space: normal !important;
-      }
-      .Checkbox-box {
-        flex-shrink: 0;
-      }
     }
 
     .customFormReadonly {
-      border-color: var(--color-background-primary) !important;
-      background: var(--color-background-primary) !important;
+      border-color: transparent !important;
+      background: transparent !important;
       padding-left: 0 !important;
       line-height: 20px;
       &.spacing {
@@ -669,85 +597,15 @@
       z-index: 1;
     }
 
-    .customFormRelationBtn {
-      background: transparent;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      outline: none;
-      width: max-content;
-      padding: 0 16px;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 3px;
-      font-weight: 500;
-      font-size: 13px;
-      &:hover {
-        background-color: var(--color-background-hover);
-      }
-    }
-
-    > .ming.Dropdown {
-      &.controlDisabled {
-        .Dropdown--border {
-          &:not(:hover):not(.active),
-          &:hover {
-            border-color: var(--color-background-primary) !important;
-          }
-        }
-
-        .icon-arrow-down-border {
-          display: none;
-        }
-      }
-
-      .Dropdown--input {
-        > .value {
-          max-width: 100%;
-        }
-      }
-
-      .Dropdown--border {
-        &:not(:hover):not(.active) {
-          border-color: var(--color-background-secondary) !important;
-        }
-
-        &:hover,
-        &.active {
-          border-color: var(--color-background-secondary) !important;
-        }
-      }
-
-      .List {
-        width: 100%;
-
-        .MenuItem {
-          height: 36px;
-          line-height: 36px;
-
-          .Item-content:not(.disabled):hover {
-            background: var(--color-background-secondary) !important;
-            color: var(--color-text-primary) !important;
-          }
-        }
-      }
-    }
-
     .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupRow,
     .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupColumn {
       &.ming.CheckboxGroup {
         flex-direction: column;
-        .Checkbox {
-          width: 100% !important;
-          margin-right: 0 !important;
-          &.selectAllCheckbox {
-            width: fit-content !important;
-          }
-        }
       }
 
       .RadioGroupCon {
         flex-direction: column;
-        .Radio {
+        .ant-radio-wrapper {
           width: 100% !important;
           margin-right: 0 !important;
         }
@@ -769,13 +627,10 @@
     .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupRow {
       &.ming.CheckboxGroup {
         flex-direction: row !important;
-        .Checkbox {
-          margin-right: 20px !important;
-        }
       }
       .RadioGroupCon {
         flex-direction: row !important;
-        .Radio {
+        .ant-radio-wrapper {
           margin-right: 20px !important;
         }
       }
@@ -786,7 +641,7 @@
         display: flex;
         flex-wrap: wrap;
 
-        .Radio {
+        .ant-radio-wrapper {
           display: flex;
           min-width: 0;
           margin-bottom: 10px;
@@ -794,7 +649,7 @@
           &--disabled {
             color: var(--color-text-primary);
 
-            .Radio-box {
+            .ant-radio-inner {
               display: none;
             }
           }
@@ -820,7 +675,7 @@
       }
       .horizonArrangementRadio {
         flex-direction: row !important;
-        .Radio {
+        .ant-radio-wrapper {
           margin-right: 20px !important;
         }
       }
@@ -834,47 +689,6 @@
         flex: 1;
         min-width: 0;
       }
-
-      .Checkbox {
-        display: flex;
-        min-width: 0;
-        margin-bottom: 10px;
-        margin-right: 20px;
-
-        &--disabled {
-          color: var(--color-text-primary);
-
-          .Checkbox-box {
-            display: none;
-          }
-        }
-
-        &-box {
-          margin-right: 8px;
-          vertical-align: top;
-          margin-top: 3px;
-          min-width: 18px;
-        }
-
-        .ellipsis {
-          display: inline-block;
-          height: 24px;
-          line-height: 24px;
-        }
-      }
-    }
-
-    .addBtn {
-      width: 26px;
-      height: 26px;
-      line-height: 26px;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 50%;
-      display: inline-flex;
-      vertical-align: top;
-      margin: 4px 0;
-      align-items: center;
-      justify-content: center;
     }
 
     .dropdownTitle {
@@ -896,19 +710,19 @@
       background: var(--color-background-secondary);
       border-radius: 4px;
       transition: none;
-      &.ant-picker-focused {
+      &.hap-picker-focused {
         box-shadow: none;
       }
-      &.ant-picker-focused:not(.controlDisabled) {
+      &.hap-picker-focused:not(.controlDisabled) {
         border-color: var(--color-primary) !important;
         background: var(--color-background-primary) !important;
-        .ant-picker-clear {
+        .hap-picker-clear {
           opacity: 1;
           background: var(--color-background-primary);
           color: var(--color-text-disabled);
         }
       }
-      .ant-picker-input {
+      .hap-picker-input {
         padding: 0;
         height: 34px !important;
         input {
@@ -918,8 +732,8 @@
     }
 
     .customTreeSelect {
-      .ant-select-selection-placeholder,
-      .ant-select-selection-item {
+      .hap-select-selection-placeholder,
+      .hap-select-selection-item {
         line-height: 34px;
         overflow: hidden;
         white-space: nowrap;
@@ -927,10 +741,18 @@
     }
   }
 
+  .customFormItemControl:not(.customFormItemControlCreate) .customFormProgressInput:not(:focus):hover {
+    background: var(--color-background-secondary);
+  }
+
   // 新建样式
   .customFormItemControlCreate.customFormItemControl:not(.customFormItemTabFocus) {
-    .customFormControlBox:not(.customFormMarkdown),
-    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+    .customFormProgressInput:not(:focus) {
+      background: var(--color-background-input);
+      border-color: var(--color-border-primary);
+    }
+
+    .customFormControlBox:not(.customFormMarkdown) {
       border: 1px solid var(--color-border-primary);
       background-color: var(--color-background-input);
       &:not(.controlDisabled):hover {
@@ -961,26 +783,14 @@
       }
     }
 
-    .customAntSelect:not(.optionDisabled) {
-      .ant-select-selector {
-        border: 1px solid var(--color-border-primary) !important;
+    .customFormControlUser {
+      .controlAddButton {
         background-color: var(--color-background-input) !important;
-        &:hover {
-          border-color: var(--color-text-placeholder) !important;
-        }
-      }
-      &.ant-select-open {
-        .ant-select-selector {
-          border-color: var(--color-primary) !important;
-        }
       }
     }
 
-    .cascader-input {
+    .pcSectionItemWrap {
       background-color: var(--color-background-input) !important;
-      &.focused:not(.disabled) {
-        background-color: transparent !important;
-      }
     }
   }
 
@@ -988,11 +798,7 @@
   .customFormItemControl.customFormItemTabFocus {
     .customFormLocation,
     .customAntPicker,
-    .CityPicker-input-container .customFormButton,
-    .customCascader.custom-cascader .cascader-input,
-    .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector,
-    // 关联下拉选中区域高亮
-    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+    .CityPicker-input-container .customFormButton {
       border-color: var(--color-primary-focus) !important;
       background-color: var(--color-background-input) !important;
     }
@@ -1002,7 +808,7 @@
       color: var(--color-primary-focus) !important;
     }
 
-    .customFormRelationBtn,
+    .relationControlAddButton,
     .location {
       outline: 3px solid var(--color-primary-focus-outer);
       outline-offset: 1px;
@@ -1015,26 +821,22 @@
     .signature {
       .customFormCheck {
         overflow: unset;
-        .Checkbox-text {
-          overflow: hidden;
-        }
       }
 
       .customFormCheck > label:first-child {
         overflow: unset;
-        .Radio-text {
+        .ant-radio-label {
           overflow: hidden;
         }
       }
 
       .signatureDisplay,
-      &.customFormControlSwitch .Switch,
+      &.customFormControlSwitch .hap-switch,
       .addSignature,
       .relateRecordBtn,
       &.customFormAttachmentBox .triggerTraget,
-      .customFormCheck .Checkbox-box,
-      .customFormCheck > label:first-child .Radio-box,
-      &.customFormControlUser .addBtn {
+      .customFormCheck > label:first-child .ant-radio-inner,
+      &.customFormControlUser .controlAddButton {
         outline: 3px solid var(--color-primary-focus-outer);
         outline-offset: 1px;
         transition:
@@ -1066,7 +868,7 @@
 .customFormErrorMessage {
   position: absolute;
   bottom: 100%;
-  transform: translateY(-5px);
+  transform: translateY(2px);
   z-index: 3;
   left: 0;
   color: var(--color-white);
@@ -1126,111 +928,44 @@ input.customFormControlBox:disabled {
 }
 
 .customAntSelect {
-  &.ant-select-open {
-    .ant-select-selector {
-      border-color: var(--color-primary) !important;
-      background-color: var(--color-background-primary) !important;
-    }
-    .ant-select-arrow {
-      display: none;
-    }
-    .ant-select-selection-item {
-      opacity: 0.4;
+  &.optionDisabled.hap-select-disabled {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    &.hap-select-multiple .hap-select-selection-item.customAntDropdownTitle {
+      padding-left: 0 !important;
     }
   }
 
-  .ant-select-arrow {
-    color: var(--color-text-tertiary) !important;
-  }
-  .ant-select-clear {
-    border-radius: 50%;
-  }
-
-  .ant-select-selection-item {
-    color: var(--color-text-primary) !important;
-  }
-
-  &.ant-select-multiple {
-    .ant-select-selection-item {
+  &.hap-select-multiple {
+    .hap-select-selection-item.customAntDropdownTitleWithBG {
       border-radius: 12px;
       padding: 0 12px !important;
-      line-height: 24px !important;
-      background-color: var(--color-border-secondary) !important;
-      border-color: var(--color-border-secondary) !important;
-      .ant-select-selection-item-content {
-        margin-right: 6px !important;
-      }
-      .ant-select-selection-item-remove {
-        line-height: 22px !important;
-        cursor: pointer;
-        .anticon-close {
-          color: var(--color-text-secondary) !important;
-          &:hover {
-            color: var(--color-primary) !important;
-          }
-        }
-      }
+      --hap-select-multi-item-height: 24px;
     }
-  }
-
-  .ant-select-selection-item,
-  .ant-select-selection-placeholder {
-    line-height: 34px !important;
-    font-size: 13px !important;
-  }
-
-  &.ant-select-disabled {
-    .ant-select-selector {
-      color: var(--color-text-primary) !important;
-      border-color: var(--color-background-primary) !important;
-      background: var(--color-background-primary) !important;
-      padding: 0 !important;
-    }
-    .ant-select-selection-item {
-      color: var(--color-text-primary) !important;
-      padding: 0;
-    }
-    .ant-select-arrow {
-      display: none;
-    }
-  }
-
-  &:not(.ant-select-open):not(.ant-select-disabled) {
-    .ant-select-selector {
-      &:hover {
-        border-color: var(--color-background-secondary) !important;
-        background-color: var(--color-background-secondary) !important;
-      }
-    }
-  }
-
-  .ant-select-selector {
-    min-height: 36px;
-    padding: 0 12px !important;
-    height: auto !important;
-    border-radius: 4px !important;
-    box-shadow: none !important;
-    border-color: var(--color-background-secondary) !important;
-    background-color: var(--color-background-secondary) !important;
-  }
-
-  &.ant-select-multiple {
-    .ant-select-selector {
-      > span {
-        max-width: 95%;
-      }
-    }
-    .ant-select-selection-search {
-      left: 0 !important;
-      margin-left: -1px;
-    }
-    .ant-select-selection-search-input {
-      margin-left: 0 !important;
+    .hap-select-selection-item.customAntDropdownTitle {
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 0;
+      border-radius: 0;
+      background-color: transparent;
+      --hap-select-multi-item-height: 24px;
     }
     .customAntDropdownTitle,
     .customAntDropdownTitleWithBG {
       max-width: 100%;
       display: inline-flex;
+      align-items: center;
+      --hap-select-multi-item-border-color: transparent;
+      &.multiLineDropdownTitle {
+        height: auto;
+        min-height: var(--hap-select-multi-item-height);
+        .multiSelectTagText {
+          padding: 2px 0;
+          line-height: 20px;
+          white-space: normal;
+          word-break: break-all;
+        }
+      }
       .icon-close {
         opacity: 0.7;
         &:hover {
@@ -1239,48 +974,45 @@ input.customFormControlBox:disabled {
       }
     }
   }
-
-  .ant-select-selection-search {
-    left: 12px !important;
+  .singleSelectLabel {
+    line-height: 24px;
   }
 
-  .ant-select-selection-search-input {
-    padding: 0;
-    height: 34px !important;
-  }
-
-  .customAntSelectPlaceHolder {
-    display: inline-block;
-    height: 20px;
-    line-height: 20px;
-    box-sizing: initial;
-    padding-top: 8px;
-    font-size: 13px;
-  }
-
-  .anticon {
-    color: var(--color-text-tertiary);
-    background: transparent;
-    &:hover {
-      color: var(--color-text-secondary);
+  &.hap-select-disabled {
+    .hap-select-suffix {
+      display: none;
     }
   }
-  .ant-select-selection-placeholder {
-    color: var(--color-text-disabled);
+}
+
+.controlDisabled:not(.readOnlyDisabled) .RadioGroup2 {
+  .hap-radio {
+    display: none;
+  }
+
+  .hap-radio-label {
+    padding-inline-start: 0 !important;
+  }
+}
+
+.controlDisabled:not(.readOnlyDisabled) .CheckboxGroup {
+  .hap-checkbox {
+    display: none;
+  }
+
+  .hap-checkbox-label {
+    padding-inline-start: 0 !important;
   }
 }
 
 .customAntDropdownTitle,
 .customAntDropdownTitleWithBG {
-  height: 24px;
-  line-height: 24px;
-  border-radius: 12px;
   display: inline-block;
-  vertical-align: top;
   max-width: 95%;
 }
 
 .customAntDropdownTitleWithBG {
+  border-radius: 12px;
   padding: 0 12px;
   box-sizing: border-box;
 }
@@ -1349,38 +1081,38 @@ input.customFormControlBox:disabled {
 }
 
 .quickConfigPopover {
-  .ant-popover-inner-content {
+  .hap-popover-container {
     padding: 6px 0;
     width: 180px;
     max-height: 300px;
     overflow-x: hidden;
   }
-  &.ant-popover-placement-bottomLeft {
+  &.hap-popover-placement-bottomLeft {
     padding-top: 0px !important;
   }
-  &.ant-popover-placement-rightTop {
+  &.hap-popover-placement-rightTop {
     padding-left: 0px !important;
   }
-  .ant-popover-arrow {
+  .hap-popover-arrow {
     display: none !important;
   }
 }
 
 .customTreeSelectDropdown {
-  .ant-select-tree {
+  .hap-select-tree {
     background-color: var(--color-background-card) !important;
-    .ant-select-tree-title {
+    .hap-select-tree-title {
       color: var(--color-text-primary) !important;
     }
-    .ant-select-tree-node-content-wrapper:hover {
+    .hap-select-tree-node-content-wrapper:hover {
       background-color: var(--color-background-hover) !important;
     }
-    .ant-select-tree-checkbox:not(.ant-select-tree-checkbox-checked) {
-      .ant-select-tree-checkbox-inner {
+    .hap-select-tree-checkbox:not(.hap-select-tree-checkbox-checked) {
+      .hap-select-tree-checkbox-inner {
         background: transparent !important;
       }
     }
-    .ant-select-tree-switcher {
+    .hap-select-tree-switcher {
       color: #9e9e9e !important;
     }
   }

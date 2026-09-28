@@ -2,19 +2,15 @@ import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, Input, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Input, Popover, Select, Tooltip } from 'ming-ui/antd-components';
 import dataMirrorAjax from 'src/pages/integration/api/dw.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { emitter } from 'src/utils/common';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 const WrapPopup = styled.div`
   width: 620px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 2px 9px 1px rgba(0, 0, 0, 0.25);
-  border-radius: 5px 5px 5px 5px;
   padding: 18px;
   .controlCon {
     max-height: 200px;
@@ -121,15 +117,15 @@ const Wrap = styled.div`
 const dateArr = [
   {
     value: 'wsId',
-    text: _l('工作表ID'),
+    label: _l('工作表ID'),
   },
   {
     value: 'wsName',
-    text: _l('工作表名称'),
+    label: _l('工作表名称'),
   },
   {
     value: 'alias',
-    text: _l('工作表别名'),
+    label: _l('工作表别名'),
   },
 ];
 
@@ -272,21 +268,21 @@ function Controls(props) {
   };
 
   return (
-    <Trigger
-      action={['click']}
-      popupClassName="moreOption"
+    <Popover
+      noPadding
+      trigger="click"
       getPopupContainer={() => document.body}
       // popupVisible={visibleId === item.value}
       // onPopupVisibleChange={visible => setState({ visibleId: visible ? item.value : '' })}
-      popupAlign={{
+      align={{
         points: ['tr', 'bl'],
         offset: [25, 5],
         overflow: { adjustX: true, adjustY: true },
       }}
-      popup={() => renderPopup(data)}
+      content={() => renderPopup(data)}
     >
       <span className="Font13 optionTxt Hand">{_l('预览')}</span>
-    </Trigger>
+    </Popover>
   );
 }
 
@@ -382,15 +378,15 @@ export default function Tables(props) {
         return (
           <div className="flexRow alignItemsCenter pointer">
             <span className="flex flexShrink0">{_l('数据库表')}</span>
-            <Dropdown
+            <Select
               className="timeDrop mLeft20 mRight10"
-              menuStyle={{ width: '150px', right: 0, left: 'initial' }}
-              data={dateArr}
+              variant="borderless"
+              options={dateArr}
               value={dropType}
-              renderTitle={() => (
+              labelRender={({ label }) => (
                 <span className="textSecondary bold TxtTop">
                   {_l('使用')}
-                  {dateArr.find(o => o.value === dropType).text}
+                  {label}
                 </span>
               )}
               onChange={dropType => {

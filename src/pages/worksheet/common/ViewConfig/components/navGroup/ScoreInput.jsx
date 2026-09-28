@@ -1,18 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Popover } from 'ming-ui/antd-components';
 
 const DropWrap = styled.div`
   padding: 5px 0;
-  border-radius: 3px;
   width: 360px;
-  z-index: 1000;
-  background: var(--color-background-primary);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
   .dropLi {
     line-height: 32px;
     padding: 0 12px;
@@ -78,9 +72,11 @@ export default function ScoreInput(props) {
   const list = new Array(parseInt(_.get(control, ['advancedSetting', 'max']) || '1', 10));
 
   return (
-    <Trigger
-      action={['click']}
-      popup={
+    <Popover
+      trigger="click"
+      placement="bottomLeft"
+      noPadding
+      content={
         <DropWrap className="dropList">
           {list.fill(1).map((o, i) => {
             let num = i + 1;
@@ -102,14 +98,6 @@ export default function ScoreInput(props) {
           })}
         </DropWrap>
       }
-      popupClassName={cx('dropdownTrigger scoreDrop')}
-      popupAlign={{
-        points: ['tl', 'bl'],
-        overflow: {
-          adjustX: true,
-          adjustY: true,
-        },
-      }}
     >
       <Wrap className="inputBox flexRow Hand">
         <span className={cx('flex', { textDisabled: (props.values || []).length <= 0 })}>
@@ -125,6 +113,6 @@ export default function ScoreInput(props) {
           />
         </div>
       </Wrap>
-    </Trigger>
+    </Popover>
   );
 }

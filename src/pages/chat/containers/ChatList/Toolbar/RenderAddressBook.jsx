@@ -2,13 +2,14 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
-import { dialogKeyboardShortcuts } from 'src/pages/chat/components/KeyboardShortcuts';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import { useKeyboardShortcutsDialog } from 'src/pages/chat/components/KeyboardShortcuts';
 import * as actions from 'src/pages/chat/redux/actions';
 import Constant from 'src/pages/chat/utils/constant';
 import { createDiscussion } from 'src/pages/chat/utils/group';
 import * as socket from 'src/pages/chat/utils/socket';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
-import { getPathWithoutSubPath } from 'src/utils/common';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 
 const LoadableAddressBook = lazy(() => import('src/pages/chat/lib/addressBook'));
 
@@ -66,7 +67,7 @@ const RenderAddressBook = props => {
           let ele = $('.keyboardShortcutsDialog');
 
           if (!ele.length) {
-            dialogKeyboardShortcuts();
+            props.openKeyboardShortcutsDialog();
           }
 
           break;
@@ -177,19 +178,24 @@ const RenderAddressBook = props => {
   );
 };
 
-export default connect(
-  state => ({
-    showAddressBook: state.chat.showAddressBook,
-  }),
-  dispatch =>
-    bindActionCreators(
-      _.pick(actions, [
-        'addUserSession',
-        'setShowAddressBook',
-        'addGroupSession',
-        'updateSessionList',
-        'addSysSession',
-      ]),
-      dispatch,
-    ),
-)(RenderAddressBook);
+export default withOpeners(
+  connect(
+    state => ({
+      showAddressBook: state.chat.showAddressBook,
+    }),
+    dispatch =>
+      bindActionCreators(
+        _.pick(actions, [
+          'addUserSession',
+          'setShowAddressBook',
+          'addGroupSession',
+          'updateSessionList',
+          'addSysSession',
+        ]),
+        dispatch,
+      ),
+  )(RenderAddressBook),
+  {
+    openKeyboardShortcutsDialog: useKeyboardShortcutsDialog,
+  },
+);

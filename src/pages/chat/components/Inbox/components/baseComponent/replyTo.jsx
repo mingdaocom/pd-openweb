@@ -1,11 +1,11 @@
-﻿import React from 'react';
+import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import DiscussionController from 'src/api/discussion';
 import PostController from 'src/api/post';
-import { SOURCE_TYPE } from '../../constants';
+import { SOURCE_TYPE } from 'src/components/comment/config';
 
 export default class ReplyTo extends React.Component {
   static propTypes = {

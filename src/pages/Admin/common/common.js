@@ -1,10 +1,12 @@
 ﻿import projectSettingApi from 'src/api/projectSetting';
 import roleApi from 'src/api/role';
-import { canPurchase, getMyPermissions, hasBackStageAdminAuth } from 'src/components/checkPermission';
+import { canPurchase, hasBackStageAdminAuth } from 'src/components/checkPermission';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getCurrentProject } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getCurrentProject } from 'src/utils/services/project';
+import { isUnauthorizedError } from 'src/utils/services/request/error';
+import { getMyPermissions } from 'src/utils/services/security/permission';
 import Config from '../config';
-import { PERMISSION_ENUM } from '../enum';
 import './common.less';
 
 const AdminCommon = {};
@@ -13,18 +15,16 @@ AdminCommon.getAuthority = async () => {
   Config.getParams();
   Config.project = getCurrentProject(Config.projectId, true);
   let res = [];
-  let isNotProjectUser = false;
 
   // 不在这个网络
   if (!Config.project.projectId) {
     return [PERMISSION_ENUM.NOT_MEMBER];
   }
 
-  await roleApi.getProjectPermissionsByUser({ projectId: Config.projectId }, { silent: true }).catch(() => {
-    isNotProjectUser = true;
-  });
-
-  if (isNotProjectUser) {
+  try {
+    await roleApi.getProjectPermissionsByUser({ projectId: Config.projectId }, { silent: true });
+  } catch (error) {
+    if (isUnauthorizedError(error)) return;
     return [PERMISSION_ENUM.NOT_MEMBER]; //不是组织成员
   }
 

@@ -2,11 +2,12 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { get, omit, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, LoadDiv, QiniuUpload } from 'ming-ui';
+import { LoadDiv, QiniuUpload } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import attachmentAjax from 'src/api/attachment';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils';
-import { getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 const AttachmentsWrap = styled.div`
   width: 100%;
@@ -73,14 +74,6 @@ const AttachmentsList = styled.div`
 const Footer = styled.div`
   display: flex;
   padding: 0 15px;
-  .selectFile {
-    height: 44px;
-    border-radius: 44px;
-    width: 100% !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 `;
 
 const AttachmentItem = function AttachmentItem({ attachment = {} }) {
@@ -213,8 +206,14 @@ const Attachments = ({ disabled, scanId, scanInfo, defaultAttachments }) => {
                 },
               })}
         >
-          <Button type="primary" onClick={() => {}} className="selectFile" disabled={disabled}>
-            <i className="icon icon-ic_attachment_black mRight10 Font18"></i>
+          <Button
+            type="primary"
+            shape="round"
+            block
+            icon={<i className="icon icon-ic_attachment_black Font18" />}
+            onClick={() => {}}
+            disabled={disabled}
+          >
             {_l('添加附件')}
           </Button>
         </UploadWrapper>

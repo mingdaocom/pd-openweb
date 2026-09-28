@@ -63,9 +63,6 @@
       margin-left: 8px;
       line-height: 24px;
     }
-    .Button {
-      font-weight: 500;
-    }
   }
 
   .publicWorksheetConfigPanel {
@@ -76,22 +73,7 @@
 
     .publishSwitch {
       margin-left: 12px;
-      width: 35px;
-      height: 18px;
       vertical-align: middle;
-
-      .dot {
-        width: 14px;
-        height: 14px;
-      }
-
-      &.Switch--on {
-        background-color: var(--color-success);
-
-        .dot {
-          left: 18px;
-        }
-      }
     }
 
     .publicConfig {
@@ -279,14 +261,6 @@
   }
 }
 
-.queryConfigControlsDropdown {
-  .Dropdown--input {
-    padding: 2px 10px !important;
-    height: auto !important;
-    min-height: 36px;
-  }
-}
-
 #publicConfig_extendInput::placeholder {
   color: var(--color-text-disabled);
 }
@@ -306,27 +280,45 @@
 }
 
 .publicConfigSettingDrawer {
-  .ant-drawer-header {
+  .hap-drawer-header {
     background: var(--color-background-secondary);
-    border-bottom: 0;
     padding: 24px 24px 16px;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-close {
-        padding: 0;
-        margin-top: -24px;
-        margin-right: -12px;
-      }
-    }
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     display: flex;
     flex-direction: column;
     height: 100%;
     padding: 0;
     .headerTab {
-      > div {
-        padding: 0 24px !important;
+      .hap-tabs-nav {
+        margin: 0;
+        padding: 0 24px;
+        &::before {
+          border-bottom: 0;
+        }
+      }
+      .hap-tabs-tab {
+        margin: 0;
+        padding: 0 30px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+        &:hover {
+          color: var(--color-primary);
+        }
+      }
+      .hap-tabs-tab-active .hap-tabs-tab-btn {
+        color: var(--color-primary);
+      }
+      .hap-tabs-tab-btn {
+        line-height: 34px;
+      }
+      .hap-tabs-ink-bar {
+        height: 3px;
+        background: var(--color-primary);
+      }
+      .hap-tabs-content-holder {
+        display: none;
       }
     }
     .settingContent {
@@ -365,15 +357,6 @@
         display: flex;
         align-items: center;
         margin: 10px 0px 0 44px;
-        .Dropdown {
-          width: 240px;
-          &.deleteCode {
-            .Dropdown--border {
-              border-color: var(--color-error);
-              background-color: var(--color-error-bg);
-            }
-          }
-        }
       }
 
       .commonMargin {
@@ -381,9 +364,6 @@
 
         .monthDropdown {
           width: 320px;
-          .Dropdown--input {
-            height: 32px;
-          }
         }
         .mRight4 {
           margin-right: 4px;
@@ -397,13 +377,6 @@
         .effectiveTimeDropdown {
           width: 180px;
           margin-left: 5px;
-          .Dropdown--border {
-            height: 32px;
-          }
-          .ming.Menu {
-            min-width: 100%;
-            width: unset;
-          }
         }
       }
       .passwordInput {
@@ -411,43 +384,22 @@
         font-size: 13px;
         border-color: var(--color-border-primary);
       }
-      .ant-picker {
+      .hap-picker {
         width: 380px;
         height: 36px;
         border-radius: 4px !important;
         border-color: var(--color-border-primary);
         box-shadow: none;
         &:hover,
-        &.ant-picker-focused {
+        &.hap-picker-focused {
           border-color: var(--color-primary);
         }
       }
       .Width380 {
         width: 380px;
       }
-      .ming.Radio {
+      .ant-radio-wrapper {
         margin-right: 32px;
-      }
-      .btnPositionSwitch {
-        display: flex;
-        background: var(--color-background-secondary);
-        border-radius: 5px;
-        padding: 4px;
-        .positionItem {
-          min-width: 45px;
-          height: 30px;
-          padding: 0 12px;
-          line-height: 30px;
-          text-align: center;
-          white-space: nowrap;
-          box-sizing: border-box;
-          cursor: pointer;
-          &.isActive {
-            background: var(--color-background-primary);
-            color: var(--color-primary);
-            font-weight: bold;
-          }
-        }
       }
     }
     .footer {
@@ -455,34 +407,6 @@
       justify-content: flex-end;
       padding: 10px 24px 20px;
       text-align: left;
-    }
-  }
-}
-
-.customFieldDropdown {
-  width: 380px;
-  .ming.Menu {
-    width: 320px;
-    padding: 12px 0;
-
-    .customFieldSearch {
-      &.ming.MenuItem {
-        .Item-content {
-          &:hover {
-            color: var(--color-text-title) !important;
-            background: var(--color-background-primary) !important;
-          }
-        }
-        .itemText {
-          border-bottom: 1px solid var(--color-border-primary);
-        }
-      }
-      .searchInput {
-        width: 100%;
-        background: var(--color-background-primary);
-        border-radius: 0;
-        padding: 0;
-      }
     }
   }
 }

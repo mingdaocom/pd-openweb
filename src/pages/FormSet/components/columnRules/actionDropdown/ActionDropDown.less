@@ -12,14 +12,6 @@
   padding: 0 12px;
   box-sizing: border-box;
   position: relative;
-  & > div {
-    top: 100% !important;
-    margin-top: 3px;
-    .rc-trigger-popup {
-      top: 0 !important;
-      right: 0;
-    }
-  }
   &.disabled {
     background-color: var(--color-background-secondary);
   }
@@ -91,73 +83,12 @@
   flex-direction: column;
   padding: 6px 0;
   font-size: 13px;
-  color: var(--color-text-title);
-  background: var(--color-background-primary);
-  border-radius: 2px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
-  margin-bottom: 10px;
+  color: var(--color-text-primary);
   .quickOperate {
     box-sizing: border-box;
     display: flex;
     gap: 6px;
     padding: 5px 16px;
-    button {
-      cursor: pointer;
-      border: none;
-      outline: none;
-      border-radius: 3px;
-      padding: 0 16px;
-      text-align: center;
-      line-height: 28px;
-      height: 28px;
-      color: var(--color-text-secondary);
-      background-color: var(--color-background-tertiary);
-      &:hover {
-        color: var(--color-text-title);
-        background-color: var(--color-background-disabled);
-      }
-    }
-  }
-  .ruleSearchWrap {
-    position: relative;
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      height: 36px;
-      padding: 0px 16px 0 35px;
-      border: none;
-      border-bottom: 1px solid var(--color-border-primary);
-      margin-bottom: 5px;
-      &:focus {
-        border-color: var(--color-border-primary) !important;
-      }
-      &::-webkit-input-placeholder {
-        color: var(--color-text-disabled);
-      }
-      &::-moz-placeholder {
-        color: var(--color-text-disabled);
-      }
-      &::-moz-placeholder {
-        color: var(--color-text-disabled);
-      }
-      &::-ms-input-placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
-    .icon {
-      position: absolute;
-      top: 10px;
-    }
-    .search {
-      left: 16px;
-    }
-    .close {
-      right: 16px;
-      color: var(--color-text-disabled);
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
   }
   .ruleDropDownItem {
     line-height: 36px;
@@ -175,55 +106,12 @@
     .selectAllBox {
       visibility: hidden;
     }
-    &.active {
-      background: var(--color-primary-transparent);
-      color: var(--color-primary) !important;
-      i {
-        color: var(--color-primary) !important;
-      }
-    }
     .iconDown {
       margin: 0 0 0 auto;
     }
   }
-  .ruleLabel {
-    justify-content: space-between;
-  }
   .controlNameBox {
     flex: 1;
     min-width: 0;
-  }
-  .childItem {
-    line-height: 33px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px 0 42px;
-    box-sizing: border-box;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-    .icon {
-      color: var(--color-primary);
-    }
-  }
-}
-
-.ruleControlDropDown {
-  &::-webkit-scrollbar {
-    background: var(--color-background-primary) !important;
-  }
-  .ant-dropdown-menu-item {
-    line-height: 26px;
-    height: 36px;
-    font-size: 13px;
-    transition: none !important;
-  }
-  .ant-dropdown-menu-item-active {
-    color: var(--color-white);
-    background-color: var(--color-primary) !important;
-  }
-  .ant-dropdown-menu-item-selected {
-    color: var(--color-primary) !important;
-    background-color: var(--color-background-primary) !important;
   }
 }

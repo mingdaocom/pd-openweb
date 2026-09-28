@@ -57,10 +57,6 @@
     }
   }
   .deit {
-    border: none;
-    border-radius: 4px;
-    background-color: var(--color-border-secondary);
-    padding: 2px 10px;
     width: 120px;
   }
   &:hover {
@@ -98,149 +94,16 @@
   }
 }
 
-.workSheetViewsMenu {
-  max-height: 400px;
-  overflow-y: scroll;
-  .active {
-    color: var(--color-primary);
-  }
-}
-
-.viewItemMoreOperate {
-  position: relative;
-  top: 3px;
-  .splitLine {
-    border: 1px solid var(--color-border-secondary);
-    border-top: none;
-    margin: 3px 0;
-  }
-  .Item-content {
-    padding: 0 45px !important;
-  }
-
-  .MenuItem {
-    .disabled {
-      .icon,
-      .text {
-        color: var(--color-text-disabled);
-      }
-    }
-    .Icon {
-      margin: 0 6px;
-      vertical-align: middle;
-      color: var(--color-text-tertiary);
-    }
-    .Icon.Font16 {
-      margin: 0 3px;
-    }
-    .text {
-      font-size: 13px;
-      margin-left: 0 !important;
-    }
-    &:hover {
-      .disabled {
-        .icon,
-        .text {
-          color: var(--color-text-disabled);
-        }
-      }
-    }
-    &.delete {
-      .Icon,
-      .text {
-        color: var(--color-error) !important;
-      }
-    }
-  }
-}
-
-.changeViewDisplayTypeMenuWrap {
-  & > .Item-content {
-    overflow: visible !important;
-    position: relative !important;
-    .viewTypeMenuWrap {
-      position: absolute;
-      .viewTypeItem.ant-menu-item {
-        span.viewName {
-          margin-left: 30px;
-        }
-      }
-    }
-  }
-}
-.viewTypeMenuWrap.ant-menu {
-  background-color: var(--color-background-card);
-  padding: 6px 0;
-  box-shadow: var(--shadow-lg);
-  border-right: none;
-  .viewTypeItem.ant-menu-item {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    height: 36px;
-    min-width: 180px;
-    line-height: 36px;
-    padding: 0;
-    padding-left: 12px;
-    cursor: pointer;
-    margin: 0;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-    &.current {
-      background-color: var(--color-primary-transparent) !important;
-      .ming.Icon.icon.icon-done {
-        font-size: 18px;
-        left: unset;
-        right: 13px;
-        color: var(--color-primary) !important;
-      }
-    }
-
-    .ant-menu-title-content {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    span.viewName {
-      margin-left: 12px;
-      color: var(--color-text-title);
-    }
-    .newIcon {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 24px;
-      height: 16px;
-      margin-right: 12px;
-      border-radius: 2px 2px 2px 2px;
-      background: rgba(33, 150, 243, 0.12);
-    }
-  }
-}
 .drawerWorksheetHidden {
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 6px 8px;
-  }
-  .drawerWorksheetHiddenSearch {
-    border: none;
   }
   .searchBox {
     height: 36px;
     display: flex;
     align-items: center;
-    padding-left: 20px;
     color: var(--color-text-title);
     margin-bottom: 6px;
-    input {
-      padding-left: 9px;
-      border: none;
-      &::-webkit-input-placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
   }
   .drawerWorksheetHiddenListTitle,
   .drawerWorksheetRecycleListTitle {
@@ -290,50 +153,6 @@
   }
 }
 
-.hiddenTypeMenuWrap {
-  & > .Item-content {
-    overflow: visible !important;
-    position: relative !important;
-    .hiddenMenu {
-      position: absolute;
-    }
-  }
-}
-.hiddenMenu.ant-menu {
-  background-color: var(--color-background-card);
-  padding: 6px 0;
-  box-shadow: var(--shadow-lg);
-  .hiddenMenuItem.ant-menu-item {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    height: 36px;
-    min-width: 180px;
-    line-height: 36px;
-    padding: 0 12px;
-    cursor: pointer;
-    margin: 0;
-    &:hover,
-    &:active {
-      color: inherit;
-      background: var(--color-background-hover);
-    }
-  }
-  .current.ant-menu-item {
-    background-color: var(--color-primary-transparent) !important;
-    .ming.Icon.icon.icon-done {
-      font-size: 18px;
-      left: unset;
-      right: 13px;
-      color: var(--color-primary) !important;
-    }
-  }
-  .splitLine {
-    border: 1px solid var(--color-border-primary);
-    border-top: none;
-    margin: 6px 0;
-  }
-}
 .drawerWorksheetShowList {
   pointer-events: bounding-box;
 }
@@ -423,38 +242,6 @@
   }
 }
 
-.viewItemMoreOperate .ming.MenuItem > .Item-content:not(.disabled):hover {
-  background-color: var(--color-background-hover) !important;
-  & > span > .icon {
-    color: var(--color-text-tertiary) !important;
-  }
-  &.delete {
-    .Icon,
-    .text {
-      color: var(--color-error) !important;
-    }
-  }
-}
-
-.viewItemMoreOperate .ming.MenuItem.delete .Item-content:not(.disabled):hover {
-  .Icon,
-  .text {
-    color: var(--color-error) !important;
-  }
-}
-
-.hiddenTypeMenuWrap {
-  & > .Item-content {
-    overflow: visible !important;
-    position: relative !important;
-    .hiddenMenu {
-      position: absolute;
-      border-radius: 3px;
-      font-size: 13px;
-    }
-  }
-}
-
 .worksheetSheet {
   .addViewIcon:hover,
   .allVieListwIcon:hover,
@@ -485,11 +272,4 @@
   .currentIsHide {
     color: var(--color-primary) !important;
   }
-}
-
-.HiddenItemTrigger .viewItemMoreOperate .splitLine {
-  margin: 6px 0;
-}
-.HiddenItemTrigger .viewItemMoreOperate {
-  position: relative !important;
 }

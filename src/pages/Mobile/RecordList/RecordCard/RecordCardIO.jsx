@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import RecordCard from './index';
 
 const RecordCardIOWrap = styled.div`
-  ${({ colNum }) =>
-    colNum > 1
+  ${({ $colNum }) =>
+    $colNum > 1
       ? `
         margin: 0 5px;
-        width: calc(${100 / colNum}% - ${5 * colNum}px);
+        width: calc(${100 / $colNum}% - ${5 * $colNum}px);
 
         &:nth-child(odd) {
           border-left: 5px solid transparent;
@@ -32,7 +32,7 @@ const SkeletonWrap = styled.div`
   background-color: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
-  height: ${props => props.realCardHeight}px;
+  height: ${props => props.$realCardHeight}px;
 `;
 
 const RecordCardIO = props => {
@@ -44,10 +44,12 @@ const RecordCardIO = props => {
 
   const [realCardHeight, setRealCardHeight] = useState(skeletonHeight);
   const [skeletonRows, setSkeletonRows] = useState(Math.floor(skeletonHeight / 40));
+  // Android 微信聚焦输入框时会调整可视区域，扩大观察区避免来源卡片被误回收并连带关闭弹层。
+  const [rootMargin] = useState(() => (window.isAndroid && window.isWeiXin ? `${window.innerHeight}px 0px` : '100px'));
 
   const { ref, inView } = useInView({
     root: observerEnabled ? viewRootEl : undefined,
-    rootMargin: '100px',
+    rootMargin,
     threshold: 0,
     skip: !observerEnabled,
   });
@@ -66,11 +68,11 @@ const RecordCardIO = props => {
   }, [shouldRender]);
 
   return (
-    <RecordCardIOWrap className="recordCardIOWrap overflowHidden" ref={observerEnabled ? ref : null} colNum={colNum}>
+    <RecordCardIOWrap className="recordCardIOWrap overflowHidden" ref={observerEnabled ? ref : null} $colNum={colNum}>
       {shouldRender ? (
         <RecordCard ref={recordCardRef} {...rest} />
       ) : (
-        <SkeletonWrap realCardHeight={realCardHeight}>
+        <SkeletonWrap $realCardHeight={realCardHeight}>
           <Skeleton.Paragraph className="recordCardSkeleton" lineCount={skeletonRows} />
         </SkeletonWrap>
       )}

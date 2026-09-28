@@ -27,19 +27,6 @@
     .w180 {
       width: 180px;
     }
-    .mdAntSelect {
-      .ant-select-selector {
-        padding-right: 5px;
-        cursor: pointer;
-      }
-      .ant-select-arrow {
-        right: 5px;
-        color: var(--color-text-tertiary);
-        .icon-person {
-          color: rgba(0, 0, 0, 0.25);
-        }
-      }
-    }
   }
   .manageList {
     margin: 0 24px;
@@ -211,28 +198,6 @@
   }
 }
 
-.moreOptionPanelTrigger {
-  min-width: 160px !important;
-}
-
-.importAppTrigger {
-  min-width: 438px !important;
-  li {
-    display: block !important;
-    height: unset !important;
-    padding: 10px 16px !important;
-    .desc {
-      color: var(--color-text-secondary) !important;
-    }
-    &:hover,
-    &:active {
-      .desc {
-        color: var(--color-white) !important;
-      }
-    }
-  }
-}
-
 .optionPanelTrigger {
   min-width: 135px;
   padding: 6px 0;
@@ -272,14 +237,7 @@
 }
 
 .appLogDrawerContainer {
-  .ant-drawer-header {
-    border-bottom: none;
-    .ant-drawer-title {
-      font-size: 17px;
-      font-weight: bold;
-    }
-  }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding-top: 0 !important;
   }
 }
@@ -288,13 +246,8 @@
 .importTotalAppDialog {
   max-height: inherit !important;
   height: inherit !important;
-  .mui-dialog-body {
+  .hap-modal-body {
     overflow: initial !important;
     padding-bottom: 0 !important;
   }
-}
-
-.actionAppTrigger {
-  width: 176px;
-  height: 84px;
 }

@@ -3,9 +3,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4, validate } from 'uuid';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Select } from 'ming-ui/antd-components';
 import { ACTION_ID, FIELD_TYPE_LIST } from '../../../enum';
 import SingleControlValue from '../SingleControlValue';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const List = styled.div`
   .w120 {
@@ -19,17 +22,6 @@ const List = styled.div`
   }
   .w45 {
     width: 45px;
-  }
-  .fieldName {
-    padding: 5px 12px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-tertiary);
-    height: 36px;
-    line-height: 36px;
-    font-size: 13px;
-    &:focus {
-      border-color: var(--color-primary);
-    }
   }
   .fieldDelBtn {
     cursor: pointer;
@@ -81,18 +73,16 @@ export default props => {
 
           return (
             <div key={index} className="flexRow mTop4 relative">
-              <Dropdown
+              <Select
                 className="w120 mTop8"
-                menuStyle={{ width: '100%' }}
-                data={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27, 48], o.value))}
+                options={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27, 48], o.value))}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={item.type}
                 disabled={isDisabled || !validate(item.controlId)}
-                border
                 onChange={value => updateItem(item.controlId, 'type', value)}
               />
-              <input
-                type="text"
-                className="mLeft10 fieldName flex mTop8 minWidth0"
+              <Input
+                className="mLeft10 flex mTop8 minWidth0"
                 disabled={isDisabled}
                 value={item.controlName}
                 onChange={e => updateItem(item.controlId, 'controlName', e.target.value)}
@@ -117,9 +107,8 @@ export default props => {
                   updateItem(item.controlId, 'controlName', value);
                 }}
               />
-              <input
-                type="text"
-                className="mLeft10 fieldName w160 mTop8"
+              <Input
+                className="mLeft10 w160 mTop8"
                 disabled={isDisabled}
                 placeholder={_l('请输入说明')}
                 value={item.desc}
@@ -146,9 +135,8 @@ export default props => {
                 </div>
               ) : (
                 <Fragment>
-                  <input
-                    type="text"
-                    className="mLeft10 fieldName w265 mTop8"
+                  <Input
+                    className="mLeft10 w265 mTop8"
                     disabled={item.type !== 6}
                     placeholder={item.type !== 6 ? '' : _l('请输入默认值')}
                     value={item.workflowDefaultValue}

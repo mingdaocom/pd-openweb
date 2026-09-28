@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import accountController from 'src/api/account';
-import { getRequest, pathCompletion } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './style.css';
 
 var ACTIONRESULTS = {

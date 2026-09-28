@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Skeleton } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, LoadDiv, ScrollView, WaterMark } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Skeleton, WaterMark } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import smartSearchAjax from 'src/api/smartSearch';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import AppList from './components/AppList';
 import DateFilter from './components/DateFilter';
 import FilterPosition from './components/FilterPosition';
@@ -249,10 +250,15 @@ class GlobalSearch extends Component {
         } else {
           _state.data = _data;
           if (pageIndex !== 1) {
-            _state.data[0][searchType + 'List'] = (data && data[0] ? data[0][searchType + 'List'] || [] : []).concat(
-              _data && _data[0] ? _data[0][searchType + 'List'] || [] : [],
+            if (_state.data && _state.data[0]) {
+              _state.data[0][searchType + 'List'] = (data && data[0] ? data[0][searchType + 'List'] || [] : []).concat(
+                _data[0][searchType + 'List'] || [],
+              );
+            }
+
+            _state.loadEnd = !(
+              _state.total > (_state.data && _state.data[0] ? _state.data[0][searchType + 'List'].length : 0)
             );
-            _state.loadEnd = !(_state.total > (_state.data[0] ? _state.data[0][searchType + 'List'].length : 0));
           }
         }
 
@@ -478,13 +484,22 @@ class GlobalSearch extends Component {
                     }
                   />
                   <Checkbox
-                    text={_l('只搜索记录标题')}
                     className="textTertiary"
                     checked={onlyTitle}
-                    onClick={() => {
-                      this.setState({ onlyTitle: !onlyTitle }, () => this.updateSearchApp({ type: 8 }));
+                    onChange={() => {
+                      this.setState(
+                        {
+                          onlyTitle: !onlyTitle,
+                        },
+                        () =>
+                          this.updateSearchApp({
+                            type: 8,
+                          }),
+                      );
                     }}
-                  />
+                  >
+                    {_l('只搜索记录标题')}
+                  </Checkbox>
                 </div>,
               );
             }
@@ -604,7 +619,8 @@ class GlobalSearch extends Component {
       projectId: proId,
     });
 
-    const { allowSuperSearch, companyName } = getCurrentProject(projectId);
+    const { companyName } = getCurrentProject(projectId);
+    const allowSuperSearch = hasFeaturePermission(projectId, FEATURE_PERMISSION.SUPER_SEARCH);
 
     return (
       <WaterMark projectId={getCurrentProjectId()}>
@@ -644,13 +660,17 @@ class GlobalSearch extends Component {
                             }
                           />
                           <Checkbox
-                            text={_l('只搜索记录标题')}
                             className="textTertiary mLeft20"
                             checked={onlyTitle}
-                            onClick={() => {
-                              this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
+                            onChange={() => {
+                              this.updateSearchParam({
+                                onlyTitle: !onlyTitle,
+                                pageIndex: 1,
+                              });
                             }}
-                          />
+                          >
+                            {_l('只搜索记录标题')}
+                          </Checkbox>
                           <SelectApp
                             className="mLeft16"
                             projectId={projectId}

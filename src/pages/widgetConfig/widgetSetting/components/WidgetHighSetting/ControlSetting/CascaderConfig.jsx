@@ -1,39 +1,38 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { EditInfo, SettingItem, SheetViewWrap } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import DynamicDefaultValue from '../../DynamicDefaultValue';
 import SearchConfig from '../../relateSheet/SearchConfig';
 
 const TOP_SHOW_OPTIONS = [
-  { text: _l('全部顶层'), value: '0' },
-  { text: _l('满足条件的项'), value: '3' },
-  { text: _l('指定项'), value: '2' },
+  { label: _l('全部顶层'), value: '0' },
+  { label: _l('满足条件的项'), value: '3' },
+  { label: _l('指定项'), value: '2' },
 ];
 
 const BOTTOM_SHOW_OPTIONS = [
-  { text: _l('末层'), value: '0' },
-  { text: _l('向后指定层数'), value: '1' },
+  { label: _l('末层'), value: '0' },
+  { label: _l('向后指定层数'), value: '1' },
 ];
 
 const RANGE_OPTIONS = [
-  { text: _l('全部'), value: '1' },
-  { text: _l('有查看权限的'), value: '0' },
+  { label: _l('全部'), value: '1' },
+  { label: _l('有查看权限的'), value: '0' },
 ];
 
 const LEVEL_OPTIONS = [
-  { text: _l('必须选择到最后一级'), value: '1' },
-  { text: _l('任意选择'), value: '0' },
+  { label: _l('必须选择到最后一级'), value: '1' },
+  { label: _l('任意选择'), value: '0' },
 ];
 
 const LAYER_OPTIONS = Array.from({ length: 10 }).map((item, index) => ({
   value: `${index + 1}`,
-  text: `${index + 1}层`,
+  label: `${index + 1}层`,
 }));
 
 const topFiltersToDefsource = data => {
@@ -115,10 +114,10 @@ export default function CascaderConfig(props) {
       <SettingItem>
         <div className="settingItemTitle">{_l('过滤数据源')}</div>
         <SheetViewWrap>
-          <Dropdown
-            border
+          <Select
             className="flex"
-            data={RANGE_OPTIONS}
+            variant="borderless"
+            options={RANGE_OPTIONS}
             value={searchrange}
             onChange={value => onChange(handleAdvancedSettingChange(data, { searchrange: value }))}
           />
@@ -146,10 +145,10 @@ export default function CascaderConfig(props) {
       <SettingItem>
         <div className="settingItemTitle">{_l('选择范围')}</div>
         <div className="settingItemTitle Normal">{_l('开始')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           value={topshow}
-          data={TOP_SHOW_OPTIONS}
+          options={TOP_SHOW_OPTIONS}
           onChange={value => {
             if (value === topshow) {
               if (value === '3') {
@@ -188,19 +187,17 @@ export default function CascaderConfig(props) {
 
         <div className="settingItemTitle Normal mTop8">{_l('结束')}</div>
         <div className="flexCenter">
-          <Dropdown
+          <Select
             className="flex"
-            border
             value={isEndLayer ? '1' : '0'}
-            data={BOTTOM_SHOW_OPTIONS}
+            options={BOTTOM_SHOW_OPTIONS}
             onChange={value => onChange(handleAdvancedSettingChange(data, { limitlayer: value }))}
           />
           {isEndLayer && (
-            <Dropdown
+            <Select
               className="Width70 mLeft10"
-              border
               value={limitlayer}
-              data={LAYER_OPTIONS}
+              options={LAYER_OPTIONS}
               onChange={value => onChange(handleAdvancedSettingChange(data, { limitlayer: value }))}
             />
           )}
@@ -208,10 +205,10 @@ export default function CascaderConfig(props) {
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择方式')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           value={anylevel}
-          data={LEVEL_OPTIONS}
+          options={LEVEL_OPTIONS}
           onChange={value => {
             if (value === '1') {
               onChange(handleAdvancedSettingChange(data, { anylevel: value }));
@@ -224,18 +221,24 @@ export default function CascaderConfig(props) {
           <Fragment>
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={!!Number(minlayer)}
-                text={_l('至少向后选到的层数')}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { minlayer: checked ? '' : '1' }))}
-              />
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      minlayer: !event.target.checked ? '' : '1',
+                    }),
+                  )
+                }
+                size="small"
+              >
+                {_l('至少向后选到的层数')}
+              </Checkbox>
             </div>
             {!!Number(minlayer) && (
-              <Dropdown
-                className="mTop8"
-                border
+              <Select
+                className="mTop8 w100"
                 value={minlayer}
-                data={LAYER_OPTIONS}
+                options={LAYER_OPTIONS}
                 onChange={value => onChange(handleAdvancedSettingChange(data, { minlayer: value }))}
               />
             )}
@@ -246,9 +249,15 @@ export default function CascaderConfig(props) {
         <div className="settingItemTitle">{_l('其他')}</div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={allpath === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allpath: String(+!checked) }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allpath: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('选择结果显示层级路径')}</span>
             <Tooltip
@@ -263,9 +272,15 @@ export default function CascaderConfig(props) {
         </div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={storelayer === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { storelayer: String(+!checked) }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  storelayer: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('存储层级路径')}</span>
             <Tooltip
@@ -280,9 +295,8 @@ export default function CascaderConfig(props) {
         </div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={!!searchcontrol}
-            onClick={() => {
+            onChange={() => {
               if (searchcontrol) {
                 onChange(
                   handleAdvancedSettingChange(data, {
@@ -292,8 +306,11 @@ export default function CascaderConfig(props) {
                 );
               }
 
-              setVisibleInfo({ searchVisible: !searchcontrol });
+              setVisibleInfo({
+                searchVisible: !searchcontrol,
+              });
             }}
+            size="small"
           >
             <span>{_l('搜索设置')}</span>
             <Tooltip placement="bottom" title={_l('设置按数据源表中记录的具体字段进行搜索。未设置时，按记录搜索。')}>

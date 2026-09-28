@@ -1,13 +1,14 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
+import { formatControlsToDropdown } from 'src/utils/domain/control/filters';
 import { SettingItem } from '../../../styled';
-import { formatControlsToDropdown } from '../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import SheetDealDataType from '../SheetDealDataType';
 
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 // 移动端设置
 export default function WidgetRelate(props) {
@@ -32,20 +33,24 @@ export default function WidgetRelate(props) {
           </Tooltip>
         </div>
         <Checkbox
-          size="small"
           checked={!!+onlyRelateByScanCode}
-          onClick={checked =>
-            onChange({
-              ...handleAdvancedSettingChange(data, { scancontrolid: checked ? '' : scancontrolid }),
+          onChange={event => {
+            const checked = !event.target.checked;
+            return onChange({
+              ...handleAdvancedSettingChange(data, {
+                scancontrolid: checked ? '' : scancontrolid,
+              }),
               strDefault: updateConfig({
                 config: strDefault,
                 value: +!checked,
                 index: 2,
               }),
-            })
-          }
-          text={_l('扫码添加关联')}
-        />
+            });
+          }}
+          size="small"
+        >
+          {_l('扫码添加关联')}
+        </Checkbox>
       </SettingItem>
       {!!+onlyRelateByScanCode && (
         <Fragment>
@@ -55,34 +60,43 @@ export default function WidgetRelate(props) {
             </div>
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={scanlink === '1'}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { scanlink: String(+!checked) }))}
-                text={_l('记录链接')}
-              />
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      scanlink: String(+event.target.checked),
+                    }),
+                  )
+                }
+                size="small"
+              >
+                {_l('记录链接')}
+              </Checkbox>
             </div>
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={scancontrol === '1'}
-                onClick={checked =>
-                  onChange(
+                onChange={event => {
+                  const checked = !event.target.checked;
+                  return onChange(
                     handleAdvancedSettingChange(data, {
                       scancontrol: String(+!checked),
                       scancontrolid: checked ? '' : scancontrolid,
                     }),
-                  )
-                }
-                text={_l('字段值')}
-              />
+                  );
+                }}
+                size="small"
+              >
+                {_l('字段值')}
+              </Checkbox>
             </div>
             {scancontrol === '1' && (
-              <Dropdown
-                border
-                className="mTop8"
-                cancelAble
+              <Select
+                className="mTop8 w100"
+                allowClear
                 placeholder={isScanControlDelete ? <span className="Red">{_l('已删除')}</span> : _l('所有文本类型字段')}
-                data={scanControls}
+                options={scanControls}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={isScanControlDelete ? undefined : scancontrolid || undefined}
                 onChange={value => {
                   onChange(handleAdvancedSettingChange(data, { scancontrolid: value || '' }));
@@ -96,30 +110,38 @@ export default function WidgetRelate(props) {
             </div>
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={dismanual === '1'}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
-                text={_l('禁止手动输入')}
-              />
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      dismanual: String(+event.target.checked),
+                    }),
+                  )
+                }
+                size="small"
+              >
+                {_l('禁止手动输入')}
+              </Checkbox>
               <Tooltip placement="bottom" title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
                 <i className="icon-help textTertiary Font16 pointer mLeft8"></i>
               </Tooltip>
             </div>
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={!!+disableAlbum}
-                onClick={checked =>
+                onChange={event =>
                   onChange({
                     strDefault: updateConfig({
                       config: strDefault,
-                      value: +!checked,
+                      value: +event.target.checked,
                       index: 1,
                     }),
                   })
                 }
-                text={_l('禁用相册')}
-              />
+                size="small"
+              >
+                {_l('禁用相册')}
+              </Checkbox>
             </div>
             <SheetDealDataType {...props} />
           </SettingItem>

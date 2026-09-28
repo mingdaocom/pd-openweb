@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import { Button, Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
 import AccountCon from './AccountCon';
@@ -93,7 +93,7 @@ export default function TelDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={
         <span className="Bold">
           {props.isBind
@@ -106,43 +106,25 @@ export default function TelDialog(props) {
         </span>
       }
       className={cx('userInfoDialog', classNames)}
-      headerClass="userInfoDialogTitle"
-      bodyClass="telDialogCon"
+      classNames={{ header: 'userInfoDialogTitle', body: 'telDialogCon' }}
       width={560}
-      footer={
-        <div className="footer">
-          <Button
-            type={'link'}
-            onClick={() => {
-              setCode('');
-              if (!hasVerification) {
-                setShow(false);
-              } else {
-                setHasVerification(false);
-                setCode('');
-              }
-            }}
-          >
-            {hasVerification ? _l('上一步') : _l('取消')}
-          </Button>
-          <Button
-            type={'primary'}
-            onClick={() => {
-              if (hasVerification) {
-                bindNew();
-              } else {
-                verificationOld();
-              }
-            }}
-          >
-            {hasVerification ? _l('绑定') : _l('下一步')}
-          </Button>
-        </div>
-      }
-      onCancel={() => {
-        setShow(false);
+      cancelText={hasVerification ? _l('上一步') : _l('取消')}
+      okText={hasVerification ? _l('绑定') : _l('下一步')}
+      onOk={hasVerification ? bindNew : verificationOld}
+      cancelButtonProps={{
+        onClick: () => {
+          setCode('');
+          if (!hasVerification) {
+            setShow(false);
+          } else {
+            setHasVerification(false);
+          }
+        },
       }}
-      visible={show}
+      onCancel={() => setShow(false)}
+      open={show}
+      mask={{ closable: true }}
+      keyboard
     >
       <AccountCon
         isBind={isBind}
@@ -157,6 +139,6 @@ export default function TelDialog(props) {
         setIsValidNumber={setIsValidNumber}
         setCountry={setCountry}
       />
-    </Dialog>
+    </Modal>
   );
 }

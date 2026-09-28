@@ -1,53 +1,29 @@
 .validityDateConfig {
   .dateSelect {
     width: 220px;
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-      .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
-    .ant-select-selector {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-select-clear {
+    .hap-select-clear {
       width: 20px;
       height: 20px;
       margin-top: -10px;
     }
-    .ant-select-arrow {
+    .hap-select-arrow {
       width: auto;
       height: auto;
       top: 40%;
     }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
-    .ant-select-selection-placeholder {
+    &.hap-select-single.hap-select-show-arrow .hap-select-selection-item,
+    .hap-select-selection-placeholder {
       opacity: 1;
       font-size: 13px;
       display: flex;
       align-items: center;
     }
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
+    &.hap-select-single.hap-select-open .hap-select-selection-item {
       color: inherit;
     }
   }
-  .ant-picker {
+  .hap-picker {
     width: 220px;
-  }
-  .ant-input,
-  .ant-picker {
-    font-size: 13px;
-    border-radius: 3px;
-    &:focus,
-    &.ant-input-focused,
-    &.ant-picker-focused {
-      box-shadow: none;
-    }
-  }
-  .ant-select-selector,
-  .ant-input,
-  .ant-picker {
-    height: 36px !important;
   }
   .labelName {
     min-width: 80px;
@@ -55,7 +31,7 @@
 }
 
 .validityDateOption {
-  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  &.hap-select-item-option-selected:not(.hap-select-item-option-disabled) {
     font-weight: unset;
     color: var(--color-white);
     background-color: var(--color-primary);

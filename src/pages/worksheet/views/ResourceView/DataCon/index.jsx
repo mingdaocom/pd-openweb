@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import GroupCon from './GroupCon';
 
 const Wrap = styled.div`
-  width: ${props => (!props.width ? '100%' : props.width + 'px')};
+  width: ${props => (!props.$width ? '100%' : props.$width + 'px')};
   height: 100%;
   border-right: 2px solid var(--color-border-primary);
   background-color: var(--color-background-primary);
@@ -97,7 +97,7 @@ export default function DataCon(props) {
   };
 
   return (
-    <Wrap width={props.directoryWidth} className={cx('resourceViewLeftCon', { mobileResourceViewLeftCon: isMobile })}>
+    <Wrap $width={props.directoryWidth} className={cx('resourceViewLeftCon', { mobileResourceViewLeftCon: isMobile })}>
       {!loading &&
         (_.get(props, 'resourceview.loading') && props.renderLoading ? props.renderLoading() : renderContent())}
     </Wrap>

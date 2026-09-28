@@ -1,14 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import RecordLoggingSettingDialog, { getRecordLoggingRangeText, LOGGING_RANGE } from '../RecordLoggingSettingDialog';
 import lookPng from './img/e.png';
+
+const SUB_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 10, paddingInlineEnd: 0 },
+};
+
+const ACTION_CHECKBOX_STYLE = { flex: 1, minWidth: 0 };
+const ACTION_CHECKBOX_STYLES = {
+  label: {
+    flex: 1,
+    minWidth: 0,
+    paddingInlineStart: 10,
+    paddingInlineEnd: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+};
 
 const Wrap = styled.div`
   text-align: left;
@@ -26,15 +43,6 @@ const Wrap = styled.div`
     margin-top: 20px;
     margin-right: 16px;
     vertical-align: middle;
-    :global(.ming.Checkbox) {
-      display: inline-flex !important;
-      align-items: center;
-      line-height: 1;
-    }
-    :global(.ming.Checkbox .Checkbox-box) {
-      flex-shrink: 0;
-      align-self: center;
-    }
     :global(.ming.Icon) {
       display: inline-flex;
       align-items: center;
@@ -46,9 +54,6 @@ const Wrap = styled.div`
     width: 100%;
     border-bottom: 1px solid var(--color-border-secondary);
     margin: 30px 0;
-  }
-  .OptionInfo .ming.Checkbox {
-    width: 100%;
   }
   .optionTxt {
     font-size: 12px;
@@ -124,8 +129,7 @@ export default function Set(props) {
                   <Checkbox
                     className="TxtMiddle"
                     checked={(sheet[o.key] || {}).enable}
-                    size="small"
-                    onClick={() => {
+                    onChange={() => {
                       const prev = sheet[o.key] || {};
                       const nextEnable = !prev.enable;
                       changeSheetOptionInfo({
@@ -143,6 +147,8 @@ export default function Set(props) {
                               },
                       });
                     }}
+                    size="small"
+                    styles={SUB_CHECKBOX_STYLES}
                   >
                     {o.txt}
                   </Checkbox>
@@ -205,12 +211,11 @@ export default function Set(props) {
               }
 
               return (
-                <div className="subCheckbox InlineBlock flexRow alignItemsCenter">
+                <div key={o.id} className="subCheckbox InlineFlex alignItemsCenter">
                   <Checkbox
-                    className={'mTop20 InlineBlock TxtMiddle'}
+                    className={'mTop20 TxtMiddle'}
                     checked={!unableList.includes(o.id)}
-                    size="small"
-                    onClick={() => {
+                    onChange={() => {
                       changeSheetOptionInfo({
                         [key]: (unableList.includes(o.id)
                           ? unableList.filter(it => o.id !== it)
@@ -222,6 +227,9 @@ export default function Set(props) {
                         }),
                       });
                     }}
+                    size="small"
+                    style={ACTION_CHECKBOX_STYLE}
+                    styles={ACTION_CHECKBOX_STYLES}
                   >
                     {o.description ? (
                       <Tooltip title={o.description}>
@@ -261,16 +269,17 @@ export default function Set(props) {
         <div className="">
           <div className="subCheckbox mTop20 InlineBlock flexRow alignItemsCenter">
             <Checkbox
-              className={'InlineBlock TxtMiddle'}
+              className={'TxtMiddle'}
               checked={_.get(sheet, 'payment.enable')}
-              size="small"
-              onClick={() => {
+              onChange={() => {
                 changeSheetOptionInfo({
                   payment: {
                     enable: !_.get(sheet, 'payment.enable'),
                   },
                 });
               }}
+              size="small"
+              styles={SUB_CHECKBOX_STYLES}
             >
               {_l('付款')}
             </Checkbox>

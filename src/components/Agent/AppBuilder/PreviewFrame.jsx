@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 // 预览外框呼吸：mingo 紫描边阴影在最浅 / 最深之间 3s 缓动循环（外扩光环，不遮挡预览内容）。
 // 用 color-mix(var(--color-mingo)) 取各档透明度，兼容自定义品牌色，不写死色值。
@@ -47,7 +47,7 @@ function withPreviewMode(path) {
   return `${path}${path.includes('?') ? '&' : '?'}previewMode=ai`;
 }
 
-// 主应用启动时会把 react-router 的 history 挂到 window.reactRouterHistory（见 src/router/App.jsx），
+// 主应用启动时会把 react-router 的 history 挂到 window.reactRouterHistory（见 src/router/layouts/MainLayout.jsx），
 // navigateTo() 也是靠它做前端跳转。预览 iframe 与主站同源（sandbox 带 allow-same-origin），
 // 因此父窗口可直接拿 iframe.contentWindow.reactRouterHistory.push(path) 做 SPA 内部跳转。
 function navigateInFrame(win, path, refreshFirst = false) {
@@ -81,7 +81,7 @@ function navigateInFrame(win, path, refreshFirst = false) {
     }
 
     return true;
-  } catch (e) {
+  } catch {
     // iframe 跨域时访问 contentWindow 属性抛 SecurityError，静默处理让轮询超时兜底整页 reload
     return false;
   }

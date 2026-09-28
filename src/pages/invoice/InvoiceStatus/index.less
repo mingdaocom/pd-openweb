@@ -27,29 +27,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  .cancelBtn {
-    background: var(--color-background-primary) !important;
-    border: 1px solid var(--color-border-secondary);
-    color: var(--color-text-secondary);
-    &:hover {
-      color: var(--color-primary);
-      border-color: var(--color-primary);
-    }
-  }
 }
 
 .invoiceStatusDialog {
-  .mui-dialog-header {
-    padding: 24px 24px 22px !important;
-  }
-  .mui-dialog-desc {
-    padding-top: 8px !important;
-    color: var(--color-text-tertiary) !important;
-  }
-  .mui-dialog-body {
-    padding: 0 24px 16px !important;
-  }
-  .mui-dialog-footer .invoiceStatusFooterBtns {
+  .hap-modal-footer .invoiceStatusFooterBtns {
     gap: 0;
     justify-content: end;
   }
@@ -57,10 +38,6 @@
 
 .mobileModal .invoiceStatusFooterBtns {
   padding: 24px 15px;
-  .cancelBtn {
-    border-color: var(--color-border-secondary) !important;
-    color: var(--color-text-secondary) !important;
-  }
   button {
     flex: 1;
   }

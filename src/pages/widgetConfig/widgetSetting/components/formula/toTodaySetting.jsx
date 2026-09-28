@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { parseDataSource } from 'src/utils/domain/control/metadata';
 import { SettingItem } from '../../../styled';
-import { parseDataSource } from '../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import DynamicSelectDateControl from '../DynamicSelectDateControl';
 import PointerConfig from '../PointerConfig';
 import PreSuffix from '../PreSuffix';
@@ -11,9 +11,9 @@ import InputSuffix from './InputSuffix';
 const COMPUTE_MODE = [
   {
     value: '1',
-    text: _l('目标日期 减去 此刻'),
+    label: _l('目标日期 减去 此刻'),
   },
-  { value: '2', text: _l('此刻 减去 目标日期') },
+  { value: '2', label: _l('此刻 减去 目标日期') },
 ];
 
 export default function ToTodaySetting({ data, onChange, ...rest }) {
@@ -26,9 +26,9 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
       </div>
       <SettingItem>
         <div className="settingItemTitle">{_l('计算')}</div>
-        <Dropdown
-          border
-          data={COMPUTE_MODE}
+        <Select
+          className="w100"
+          options={COMPUTE_MODE}
           value={dateformulatype}
           onChange={value => onChange(handleAdvancedSettingChange(data, { dateformulatype: value }))}
         />

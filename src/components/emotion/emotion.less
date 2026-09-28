@@ -1,0 +1,93 @@
+.emotion-twemoji {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+}
+
+.emotionTriggerButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.emotionPicker {
+  width: 380px;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--color-background-card);
+}
+
+.emotionPickerContent {
+  box-sizing: border-box;
+  height: 188px;
+  padding: 4px 2px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  font-size: 0;
+}
+
+.emotionPickerItem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 29px;
+  height: 29px;
+  margin: 2px;
+  padding: 2px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  vertical-align: top;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.emotionPickerItem:hover,
+.emotionPickerItem:focus-visible {
+  outline: none;
+  background: var(--color-background-hover);
+}
+
+.emotionPickerItem img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.emotionPickerEmojiItem .emotion-twemoji {
+  width: 22px;
+  height: 22px;
+}
+
+.emotionPickerStickerItem {
+  width: 57px;
+  height: 57px;
+  padding: 2px;
+}
+
+.emotionPickerStickerItem img {
+  width: 53px;
+  height: 53px;
+}
+
+.emotionPickerFooter {
+  box-sizing: border-box;
+  min-height: 42px;
+  border-top: 1px solid var(--color-border-secondary);
+  background: var(--color-background-primary);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.emotionPickerGroupIcon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}

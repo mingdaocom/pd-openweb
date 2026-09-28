@@ -5,16 +5,16 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Dialog, LoadDiv, MenuItem } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Button, Dropdown, Modal } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment.js';
-import { agreeOrRefuseRefundConfirm } from 'src/pages/Admin/pay/components/MobileRefundModal';
-import { refundConfirmFunc } from 'src/pages/Admin/pay/components/MobileRefundModal';
-import reimburseDialogFunc from 'src/pages/Admin/pay/Merchant/components/WithdrawReimburseDialog';
+import { useAgreeOrRefuseRefundConfirm, useRefundConfirm } from 'src/pages/Admin/pay/components/MobileRefundModal';
+import { useWithdrawReimburseDialog } from 'src/pages/Admin/pay/Merchant/components/WithdrawReimburseDialog';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
 import { INVOICE_STATUS } from 'src/pages/invoice/constant';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { infoKeys, refundInfoKeys, refundStatusList, selectPayStatusList, sourceTypeInfo, statusList } from './config';
 
 const WrapCon = styled.div`
@@ -150,21 +150,6 @@ const SelectPayStatusWrap = styled.span`
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
   }
 `;
-const PopupWrap = styled.div`
-  width: 220px;
-  padding: 6px 0;
-  background: var(--color-background-primary);
-  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
-  .popupItem {
-    height: 40px;
-    line-height: 40px;
-    padding: 0 20px;
-    cursor: pointer;
-    &:hover {
-      background: var(--color-background-hover);
-    }
-  }
-`;
 const More = styled.div`
   width: 36px;
   height: 36px;
@@ -190,17 +175,11 @@ const More = styled.div`
   }
 `;
 
-const MobileBtn = styled(Button)`
-  border: 1px solid var(--color-border-secondary) !important;
-  background-color: var(--color-background-primary) !important;
-  &.delete {
-    background-color: var(--color-error) !important;
-    border: 1px solid var(--color-error);
-    color: var(--color-white);
-  }
-`;
-
 export default function PayLog(props) {
+  const { open: openAgreeOrRefuseRefundConfirm, holder: agreeOrRefuseRefundConfirmHolder } =
+    useAgreeOrRefuseRefundConfirm();
+  const { open: openRefundConfirm, holder: refundConfirmHolder } = useRefundConfirm();
+  const { open: openWithdrawReimburseDialog, holder: withdrawReimburseDialogHolder } = useWithdrawReimburseDialog();
   const { projectId, worksheetId, rowId, appId, viewId, isCharge, updatePayConfig = () => {} } = props;
   const [
     {
@@ -301,16 +280,15 @@ export default function PayLog(props) {
           alert(_l('取消订单失败'), 2);
         }
       })
-      .catch(() => {
-        alert(_l('取消订单失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('取消订单失败'), 2);
       });
   };
 
   // 确认取消订单
   const confirmCancelOrder = orderId => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('取消后无法恢复，是否确认取消？'),
-      confirm: 'danger',
       onOk: () => handleCancelPayOrder(orderId),
     });
   };
@@ -337,7 +315,7 @@ export default function PayLog(props) {
   const onOk = item => {
     if (editing) return;
     if (isMobile) {
-      agreeOrRefuseRefundConfirm({
+      openAgreeOrRefuseRefundConfirm({
         status: 6,
         amount: item.amount,
         onOk: () => {
@@ -347,10 +325,10 @@ export default function PayLog(props) {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('是否同意退款？'),
       okText: _l('同意'),
-      description: _l('同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中', item.amount),
+      content: _l('同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中', item.amount),
       onOk: () => {
         changeStatus(item.refundOrderId, 6);
       },
@@ -360,7 +338,7 @@ export default function PayLog(props) {
   const onRefuse = item => {
     if (editing) return;
     if (isMobile) {
-      agreeOrRefuseRefundConfirm({
+      openAgreeOrRefuseRefundConfirm({
         status: 4,
         onOk: () => {
           changeStatus(item.refundOrderId, 4);
@@ -369,10 +347,12 @@ export default function PayLog(props) {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('是否拒绝退款？'),
       okText: _l('拒绝'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         changeStatus(item.refundOrderId, 4);
       },
@@ -384,7 +364,7 @@ export default function PayLog(props) {
     const { amount, refundAmount, orderId, merchantOrderId, taxAmount, description, merchantNo } = payOrder;
 
     if (isMobile) {
-      refundConfirmFunc({
+      openRefundConfirm({
         max: amount - refundAmount > 0 ? (amount - refundAmount).toFixed(2) : undefined,
         projectId,
         merchantNo,
@@ -399,7 +379,7 @@ export default function PayLog(props) {
       return;
     }
 
-    reimburseDialogFunc({
+    openWithdrawReimburseDialog({
       type: 'reimburse',
       title: <span className="Red">{_l('是否确定退款?')}</span>,
       buttonType: 'danger',
@@ -610,29 +590,29 @@ export default function PayLog(props) {
               </Btn>
               {/* 下单人和管理员都可以取消订单 */}
               {(isCharge || md.global.Account.accountId === _.get(payOrder, 'payAccountInfo.accountId')) && (
-                <Trigger
-                  popupVisible={!isMobile && showCancelOrder}
-                  onPopupVisibleChange={visible => setState({ showCancelOrder: visible })}
-                  popupAlign={{ points: ['tr', 'br'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
-                  action={['click']}
-                  popup={() => (
-                    <PopupWrap
-                      onClick={() => {
-                        setState({ showCancelOrder: false });
-                        confirmCancelOrder(payOrder.orderId);
-                      }}
-                    >
-                      <MenuItem>
-                        <span className="icon icon-cancel textTertiary mRight6 Font16 TxtMiddle" />
-                        <span className="TxtMiddle">{_l('取消订单')}</span>
-                      </MenuItem>
-                    </PopupWrap>
-                  )}
+                <Dropdown
+                  open={!isMobile && showCancelOrder}
+                  onOpenChange={showCancelOrder => setState({ showCancelOrder })}
+                  placement="bottomRight"
+                  trigger={['click']}
+                  menu={{
+                    items: [
+                      {
+                        key: 'cancel',
+                        icon: <span className="icon icon-cancel Font16" />,
+                        label: _l('取消订单'),
+                        onClick: () => {
+                          setState({ showCancelOrder: false });
+                          confirmCancelOrder(payOrder.orderId);
+                        },
+                      },
+                    ],
+                  }}
                 >
                   <More>
                     <i className="icon icon-more_horiz Font20 LineHeight36" />
                   </More>
-                </Trigger>
+                </Dropdown>
               )}
             </div>
           )}
@@ -641,40 +621,34 @@ export default function PayLog(props) {
     });
   };
 
-  const renderPopup = () => {
-    return (
-      <PopupWrap>
-        {selectPayStatusList.map(item => (
-          <div
-            key={item.key}
-            className="popupItem"
-            onClick={() => {
-              setState({ selectStatus: item.key, popupVisible: false });
-            }}
-          >
-            {item.text}
-          </div>
-        ))}
-      </PopupWrap>
-    );
-  };
-
   return (
     <Fragment>
+      {agreeOrRefuseRefundConfirmHolder}
+      {refundConfirmHolder}
+      {withdrawReimburseDialogHolder}
       <WrapCon className={cx('h100', { pAll10: isMobile })}>
         {!isMobile && (
-          <Trigger
-            popupAlign={{ points: ['tl', 'bl'], offset: [0, 2] }}
-            action={['click']}
-            popupVisible={popupVisible}
-            onPopupVisibleChange={visible => setState({ popupVisible: visible })}
-            popup={renderPopup}
+          <Dropdown
+            open={popupVisible}
+            onOpenChange={popupVisible => setState({ popupVisible })}
+            trigger={['click']}
+            placement="bottomLeft"
+            menu={{
+              style: { minWidth: 220 },
+              items: selectPayStatusList.map(item => ({
+                key: String(item.key),
+                label: item.text,
+                onClick: () => {
+                  setState({ selectStatus: item.key, popupVisible: false });
+                },
+              })),
+            }}
           >
             <SelectPayStatusWrap>
               <span>{(_.find(selectPayStatusList, v => v.key === selectStatus) || { text: _l('待支付') }).text}</span>
               <i className="icon icon-arrow-down mLeft4" />
             </SelectPayStatusWrap>
-          </Trigger>
+          </Dropdown>
         )}
         {_.includes([4, 7, 100], selectStatus) && !filterPayOrders.length ? (
           renderEmpty()
@@ -709,23 +683,25 @@ export default function PayLog(props) {
       <Popup position="bottom" className="mobileModal topRadius" visible={showConfirmCancelOrderDialog}>
         <div className="Font16 bold header textPrimary LineHeight24">{_l('取消后无法恢复，是否确认取消？')}</div>
         <div className="flexRow mBottom10 pLeft15 pRight15">
-          <MobileBtn
-            radius
+          <Button
+            shape="round"
             className="flex mRight6 bold textSecondary Font13"
             onClick={() => setState({ showConfirmCancelOrderDialog: false })}
           >
             {_l('取消')}
-          </MobileBtn>
-          <MobileBtn
-            radius
-            className="flex mLeft6 bold Font13 delete"
+          </Button>
+          <Button
+            shape="round"
+            color="danger"
+            variant="solid"
+            className="flex mLeft6 bold Font13"
             onClick={() => {
               setState({ showConfirmCancelOrderDialog: false });
               handleCancelPayOrder(cancelOrderId);
             }}
           >
             {_l('确定')}
-          </MobileBtn>
+          </Button>
         </div>
       </Popup>
     </Fragment>

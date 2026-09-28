@@ -3,16 +3,17 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { checkIsAppAdmin } from 'ming-ui/functions';
+import { Icon, SvgIcon, UserHead } from 'ming-ui';
+import { Button, Segmented, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import downloadAjax from 'src/api/download';
+import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import Search from 'src/pages/workflow/components/Search';
-import { formatFileSize, pathCompletion } from 'src/utils/common';
-import { formatter, selectDateList } from '../../util';
+import { formatFileSize } from 'src/utils/core/file';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { formatter, getDayRangeByDateValue, USE_ANALYTICS_HIDDEN_DATE_VALUES } from '../../util';
 
 const ByAppWrap = styled.div`
   background-color: var(--color-background-primary);
@@ -23,34 +24,25 @@ const ByAppWrap = styled.div`
   .byAppHeader {
     display: flex;
     justify-content: space-between;
-    .tabsWrap {
-      height: 36px;
-      line-height: 36px;
-      margin-left: 24px;
-      background-color: var(--color-background-secondary);
-      border-radius: 3px;
-      .tabItem {
-        padding: 0 20px;
-        height: 32px;
-        text-align: center;
-        line-height: 32px;
-        margin: 2px;
-        font-size: 14px;
-        border-radius: 3px;
-      }
-      .currentTab {
-        color: var(--color-primary);
-        background-color: var(--color-background-primary);
-      }
-    }
     .searchWrap {
       padding-right: 24px;
-      .w200 {
+      align-items: center;
+      flex-shrink: 0;
+      .dateFilter {
         width: 200px;
+        flex-shrink: 0;
+        margin-right: 10px;
+      }
+      .appSearch {
+        width: 200px;
+        flex-shrink: 0;
+        .ant-input-affix-wrapper {
+          box-sizing: border-box;
+        }
       }
       .export {
+        flex-shrink: 0;
         margin-left: 26px;
-        min-width: 76px;
         padding: 0 16px;
       }
     }
@@ -100,9 +92,9 @@ const ByAppWrap = styled.div`
   }
 `;
 
-const tabs = [
-  { tab: 1, name: _l('汇总概览') },
-  { tab: 2, name: _l('使用情况') },
+const getTabOptions = () => [
+  { value: 1, label: _l('汇总概览') },
+  { value: 2, label: _l('使用情况') },
 ];
 
 export default class ByApp extends Component {
@@ -120,9 +112,33 @@ export default class ByApp extends Component {
       useagePageIndex: 1,
       currentAppInfo: {},
       disabledExportBtn: true,
-      startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-      endTime: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      startTime: moment().subtract(29, 'days').format('YYYY-MM-DD'),
+      endTime: moment().format('YYYY-MM-DD'),
     };
+    this.tabOptions = getTabOptions();
+    const getOwnerColumn = getCreateAccount => ({
+      dataIndex: 'owner',
+      title: _l('拥有者'),
+      className: 'width120 overflowHidden pRight16',
+      render: item => {
+        const createAccount = getCreateAccount(item) || {};
+        const fullName = createAccount.fullname || '';
+
+        return (
+          <div className="flexRow alignItemsCenter overflowHidden">
+            <UserHead
+              className="circle"
+              user={{ userHead: createAccount.avatar, accountId: createAccount.accountId }}
+              size={28}
+              projectId={props.projectId}
+            />
+            <span className="mLeft10 overflow_ellipsis" title={fullName}>
+              {fullName}
+            </span>
+          </div>
+        );
+      },
+    });
     this.columns = [
       {
         dataIndex: 'appName',
@@ -153,6 +169,7 @@ export default class ByApp extends Component {
           }
         },
       },
+      getOwnerColumn(item => item?.createAccount),
       {
         dataIndex: 'status',
         title: _l('状态'),
@@ -223,6 +240,21 @@ export default class ByApp extends Component {
         className: 'flex overflowHidden pRight16 minWidth120 pLeft10',
         render: item => {
           const { app = {} } = item;
+          const isMingoSaas = window.platformENV.isHap;
+
+          if (!isMingoSaas && this.state.currentTab === 2 && !item.id) {
+            return (
+              <div className="flexRow overflowHidden alignItemsCenter">
+                <div className="iconWrap flexRow alignItemsCenter justifyContentCenter bgSecondary">
+                  <Icon icon="more_horiz" className="textSecondary Font14" />
+                </div>
+                <div className="Font14 textSecondary">{_l('其他')}</div>
+                <Tooltip title={_l('包含无法归属到具体应用的功能用量，例如 API 集成')}>
+                  <Icon icon="info_outline" className="textSecondary Font16 mLeft4 pointer" />
+                </Tooltip>
+              </div>
+            );
+          }
 
           if (this.state.currentTab === 2 && !item.id) {
             return (
@@ -262,6 +294,7 @@ export default class ByApp extends Component {
           }
         },
       },
+      getOwnerColumn(item => item?.app?.createAccount),
       {
         dataIndex: 'addRow',
         title: _l('记录创建次数'),
@@ -499,29 +532,29 @@ export default class ByApp extends Component {
     }
   };
 
-  changeTab = item => {
+  changeTab = tab => {
     const { pageIndex, useagePageIndex, list = [], useageList = [] } = this.state;
 
     if (
-      (item.tab === 1 && pageIndex === 1 && !_.isEmpty(list)) ||
-      (item.tab === 2 && useagePageIndex === 1 && !_.isEmpty(useageList))
+      (tab === 1 && pageIndex === 1 && !_.isEmpty(list)) ||
+      (tab === 2 && useagePageIndex === 1 && !_.isEmpty(useageList))
     ) {
-      this.setState({ currentTab: item.tab });
+      this.setState({ currentTab: tab });
       return;
     }
 
     this.setState(
       {
-        currentTab: item.tab,
-        pageIndex: item.tab === 1 ? 1 : pageIndex,
-        useagePageIndex: item.tab === 2 ? 1 : useagePageIndex,
-        sorterInfo: item.tab === 2 ? { sortFiled: 'appAccessNumber', order: 'desc' } : { sortFiled: '', order: '' },
+        currentTab: tab,
+        pageIndex: tab === 1 ? 1 : pageIndex,
+        useagePageIndex: tab === 2 ? 1 : useagePageIndex,
+        sorterInfo: tab === 2 ? { sortFiled: 'appAccessNumber', order: 'desc' } : { sortFiled: '', order: '' },
         total: 0,
       },
       () => {
-        if (item.tab === 1) {
+        if (tab === 1) {
           this.getList();
-        } else if (item.tab === 2) {
+        } else if (tab === 2) {
           this.getUseageList();
         }
       },
@@ -564,39 +597,33 @@ export default class ByApp extends Component {
     return (
       <ByAppWrap>
         <div className="byAppHeader">
-          <div className="tabsWrap flexRow">
-            {tabs.map(item => (
-              <div
-                key={item.tab}
-                className={cx('tabItem fontWeight600 Hand', { currentTab: currentTab === item.tab })}
-                onClick={() => {
-                  this.changeTab(item);
-                }}
-              >
-                {item.name}
-              </div>
-            ))}
-          </div>
+          <Segmented
+            className="mLeft24 flex-shrink-0"
+            options={this.tabOptions}
+            value={currentTab}
+            onChange={this.changeTab}
+          />
           <div className="searchWrap flexRow">
             {currentTab === 2 && (
-              <CustomSelectDate
-                className="mdAntSelect mRight10 w200"
-                dateFormat={'YYYY-MM-DD HH:mm:ss'}
-                searchDateList={selectDateList}
-                dateInfo={dateInfo}
-                min={moment().subtract(1, 'year')}
-                changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
-                  this.setState(
-                    {
-                      dateInfo: { startDate, endDate, searchDateStr },
-                      selectedDate: dayRange,
-                      startTime: startDate,
-                      endTime: endDate,
-                    },
-                    this.getUseageList,
-                  );
-                }}
-              />
+              <div className="dateFilter">
+                <CustomSelectDate
+                  className="w100"
+                  hiddenDateValues={USE_ANALYTICS_HIDDEN_DATE_VALUES}
+                  dateInfo={dateInfo}
+                  min={moment().subtract(1, 'year')}
+                  changeDate={({ startDate, endDate, searchDateStr, value }) => {
+                    this.setState(
+                      {
+                        dateInfo: { startDate, endDate, searchDateStr },
+                        selectedDate: getDayRangeByDateValue(value),
+                        startTime: startDate,
+                        endTime: endDate,
+                      },
+                      this.getUseageList,
+                    );
+                  }}
+                />
+              </div>
             )}
             <Search
               className="appSearch"

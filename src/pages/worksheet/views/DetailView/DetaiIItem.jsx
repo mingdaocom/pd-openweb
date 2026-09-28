@@ -2,14 +2,14 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
-import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { transferValue } from 'src/utils/domain/control/value';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { getTitleControlForCard } from 'src/utils/services/worksheet/view';
+import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from 'src/utils/services/worksheet/view';
 import EditableCard from '../components/EditableCard';
-import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
 
 export default function DetailItem(props) {
   const {
@@ -143,6 +143,7 @@ export default function DetailItem(props) {
       <EditableCard
         data={data}
         type="board"
+        worksheetInfo={worksheetInfo}
         className="detailCardItem"
         isCharge={isCharge}
         currentView={{

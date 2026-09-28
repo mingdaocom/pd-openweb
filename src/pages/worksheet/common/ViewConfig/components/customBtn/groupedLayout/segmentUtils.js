@@ -173,24 +173,6 @@ export function removeGroupSegment(segments, groupSegmentIndex) {
   return normalizeSegments(next);
 }
 
-export function moveGroupSegment(segments, groupSegmentIndex, direction) {
-  const s = segments[groupSegmentIndex];
-
-  if (!s || s.type !== 'group' || !s.ids.length) {
-    return segments;
-  }
-
-  const j = groupSegmentIndex + direction;
-
-  if (j < 0 || j >= segments.length) {
-    return segments;
-  }
-
-  const next = segments.map(cloneSegment);
-  [next[groupSegmentIndex], next[j]] = [next[j], next[groupSegmentIndex]];
-  return next;
-}
-
 /**
  * 将整段（分组或未分组）拖到新的位置。insertBefore 为 0..segments.length，
  * 表示插入到该下标之前（与「第 n 个间隙」对应）。

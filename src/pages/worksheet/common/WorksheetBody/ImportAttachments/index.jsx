@@ -2,36 +2,47 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Dialog, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon } from 'ming-ui';
+import { Button, Checkbox, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetApi from 'src/api/worksheet';
 import { checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
 import UploadFiles from 'src/components/UploadFiles';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
-import { generateRandomPassword } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
 import './index.less';
 
 const SEPARATOR_OPTIONS = [
-  { text: '_', value: '_' },
-  { text: '-', value: '-' },
-  { text: '.', value: '.' },
-  { text: '+', value: '+' },
+  { label: '_', value: '_' },
+  { label: '-', value: '-' },
+  { label: '.', value: '.' },
+  { label: '+', value: '+' },
 ];
 
 const WRITE_MODE_OPTIONS = [
-  { text: _l('追加'), value: 1 },
-  { text: _l('覆盖'), value: 2 },
+  { label: _l('追加'), value: 1 },
+  { label: _l('覆盖'), value: 2 },
 ];
+
+const renderFieldOption = option => {
+  const { iconName, label } = option.data || {};
+
+  return (
+    <div className="flexRow alignItemsCenter">
+      <Icon icon={iconName} className="textSecondary" />
+      <span className="mLeft12">{label}</span>
+    </div>
+  );
+};
 
 const getFiledOptions = controls => {
   const controlOptions = controls
     .filter(({ controlId }) => ![...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT].includes(controlId))
     .map(({ controlName, controlId, type, sourceControlType, advancedSetting }) => ({
       iconName: getIconByType(type),
-      text: controlName,
+      label: controlName,
       value: controlId,
       type,
       sourceControlType,
@@ -69,18 +80,25 @@ function ImportAttachments(props) {
 
   const dialogProps = {
     width: step === 1 ? 560 : 960,
-    title:
-      step === 1
-        ? _l('导入设置')
-        : _l(
-            '上传文件（%0）',
-            controls.find(control => control.controlId === setting.attachmentControlId)?.controlName,
-          ),
-    description:
-      step === 1
-        ? _l('使用文件名匹配工作表记录，匹配成功后将文件写入对应记录的附件字段')
-        : _l('单次最多上传100个文件，总大小不超过2G'),
+    title: (
+      <Fragment>
+        <div>
+          {step === 1
+            ? _l('导入设置')
+            : _l(
+                '上传文件（%0）',
+                controls.find(control => control.controlId === setting.attachmentControlId)?.controlName,
+              )}
+        </div>
+        <div className="Font13 Normal textSecondary mTop8">
+          {step === 1
+            ? _l('使用文件名匹配工作表记录，匹配成功后将文件写入对应记录的附件字段')
+            : _l('单次最多上传100个文件，总大小不超过2G')}
+        </div>
+      </Fragment>
+    ),
     footer: step === 2 ? null : undefined,
+    styles: step === 2 ? { container: { padding: 0 }, header: { padding: '16px 24px 0' } } : undefined,
   };
 
   const handleFocus = () => {
@@ -102,13 +120,14 @@ function ImportAttachments(props) {
   };
 
   return (
-    <Dialog
-      visible
-      className={cx('importAttachmentsDialog', { uploadFilesStep: step === 2 })}
+    <Modal
+      open
+      rootClassName={cx('importAttachmentsDialog', { uploadFilesStep: step === 2 })}
       {...dialogProps}
-      overlayClosable={false}
+      mask={{ closable: false }}
+      keyboard
       onCancel={onCancel}
-      showCancel={false}
+      cancelButtonProps={{ style: { display: 'none' } }}
       okText={_l('下一步')}
       okDisabled={!setting.matchControlId}
       onOk={() => setStep(2)}
@@ -120,12 +139,10 @@ function ImportAttachments(props) {
               <span>{_l('文件名匹配字段')}</span>
               <span className="requiredStar">*</span>
             </div>
-            <Dropdown
-              border
-              isAppendToBody
+            <Select
               className="w100"
-              menuClass="fieldMenuWrap"
-              data={matchFieldOptions}
+              options={matchFieldOptions}
+              optionRender={renderFieldOption}
               value={setting.matchControlId}
               placeholder={_l('选择匹配字段')}
               onChange={value => setSetting({ matchControlId: value })}
@@ -143,12 +160,10 @@ function ImportAttachments(props) {
               </Tooltip>
             </div>
             <div className="flexRow alignItemsCenter">
-              <Dropdown
-                border
-                isAppendToBody
-                cancelAble
+              <Select
+                allowClear
                 className="Width120"
-                data={SEPARATOR_OPTIONS}
+                options={SEPARATOR_OPTIONS}
                 value={setting.separator}
                 placeholder={_l('选择分隔符')}
                 onChange={value => setSetting({ separator: value })}
@@ -161,13 +176,11 @@ function ImportAttachments(props) {
               <div className="labelText">
                 <span>{_l('文件写入字段')}</span>
               </div>
-              <Dropdown
-                border
-                isAppendToBody
+              <Select
                 className="w100"
-                menuClass="fieldMenuWrap"
                 disabled={!!attachments.length}
-                data={writeFieldOptions}
+                options={writeFieldOptions}
+                optionRender={renderFieldOption}
                 value={setting.attachmentControlId}
                 placeholder={_l('选择附件类型字段')}
                 onChange={value => setSetting({ attachmentControlId: value })}
@@ -187,11 +200,9 @@ function ImportAttachments(props) {
                   <Icon icon="help" className="tipsIcon" />
                 </Tooltip>
               </div>
-              <Dropdown
-                border
-                isAppendToBody
+              <Select
                 className="w100"
-                data={WRITE_MODE_OPTIONS}
+                options={WRITE_MODE_OPTIONS}
                 value={setting.writeMode}
                 onChange={value => setSetting({ writeMode: value })}
               />
@@ -202,7 +213,11 @@ function ImportAttachments(props) {
             <Checkbox
               className="mBottom12 flexRow alignItemsCenter"
               checked={setting.createWhenNoMatch}
-              onClick={() => setSetting({ createWhenNoMatch: !setting.createWhenNoMatch })}
+              onChange={() =>
+                setSetting({
+                  createWhenNoMatch: !setting.createWhenNoMatch,
+                })
+              }
             >
               <span>{_l('匹配不到时新建记录')}</span>
               <Tooltip
@@ -220,7 +235,11 @@ function ImportAttachments(props) {
 
           <Checkbox
             checked={setting.triggerWorkflow}
-            onClick={() => setSetting({ triggerWorkflow: !setting.triggerWorkflow })}
+            onChange={() =>
+              setSetting({
+                triggerWorkflow: !setting.triggerWorkflow,
+              })
+            }
           >
             {_l('触发工作流')}
           </Checkbox>
@@ -308,8 +327,10 @@ function ImportAttachments(props) {
           {importLoading && <div className="importLoadingMask" />}
         </div>
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
-export const importAttachmentsDialog = props => functionWrap(ImportAttachments, { ...props });
+export function useImportAttachmentsDialog() {
+  return useFunctionWrapComponent(ImportAttachments);
+}

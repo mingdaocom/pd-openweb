@@ -4,49 +4,37 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
-import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { Button } from 'ming-ui/antd-components';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { formatQuickFilterValueToControlValue } from 'src/utils/domain/worksheet/filterQuick';
+import { validate } from 'src/utils/domain/worksheet/filterQuick';
+import { formatFilterValuesToServer } from 'src/utils/services/worksheet/quickFilter';
 import FilterInput, { NumberTypes, TextTypes } from './Inputs';
-import { validate } from './utils';
-import { formatFilterValuesToServer } from './utils';
 
 const Con = styled.div`
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  // 同一行的筛选项按行高居中：某个筛选项变高时（选中值多的关联记录、多选），
+  // 顶部对齐会让旁边的筛选项贴在顶上、下方留出大片空白
+  align-items: center;
   flex: 1;
-  padding: ${({ isConfigMode }) => (isConfigMode ? '0 10px' : '0 10px 0 20px')};
-  &.isDark {
-    .buttons {
-      .Button--ghostgray {
-        color: rgba(255, 255, 255, 0.6) !important;
-        border-color: rgba(255, 255, 255, 0.6) !important;
-      }
-      .Button--ghostgray:hover {
-        color: rgba(255, 255, 255, 1) !important;
-        border-color: rgba(255, 255, 255, 1) !important;
-        background: inherit !important;
-      }
-    }
-  }
+  padding: ${({ $isConfigMode }) => ($isConfigMode ? '0 10px' : '0 10px 0 20px')};
 `;
 
 const Item = styled.div(
-  ({ maxWidth, isConfigMode, isLastLine, highlight, requiredError }) => `
+  ({ $maxWidth, $isConfigMode, $highlight }) => `
   display: flex;
-  margin-bottom: ${isLastLine ? 0 : 8}px;
-  width: ${maxWidth};
-  --border-color: ${requiredError ? 'var(--color-error)' : 'var(--color-border-primary)'};
+  margin-bottom: 8px;
+  width: ${$maxWidth};
   ${
-    isConfigMode
+    $isConfigMode
       ? `
     cursor: pointer;
     padding: 10px 0;
     margin-bottom: 0px;
     box-sizing: border-box;
-    border: 1px solid ${highlight ? 'var(--color-primary)' : 'transparent'};
+    border: 1px solid ${$highlight ? 'var(--color-primary)' : 'transparent'};
     > * {
       pointer-events: none;
       user-select: none;
@@ -56,40 +44,9 @@ const Item = styled.div(
   }
   &.isFirstFullLine {
     width: auto;
-    max-width: ${maxWidth};
+    max-width: ${$maxWidth};
     .content {
       width: auto;
-    }
-  }
-  &.isDark {
-    .content,
-    .ant-select,
-    .departmentsText,
-    .singleUserItem,
-    .relateRecordOption,
-    .label {
-      color: var(--color-white) !important;
-    }
-    .ant-select.ant-select-open .ant-select-selector {
-      background-color: transparent !important;
-      color: var(--color-text-tertiary) !important;
-    }
-    input {
-      background: transparent !important;
-      color: var(--color-white) !important;
-    }
-    .ant-picker,
-    .customFormControlBox,
-    .customAntPicker {
-        background: transparent !important;
-    }
-    .Checkbox:not(.checked) {
-      .Checkbox-box {
-        background-color: transparent !important;
-      }
-    }
-    .RelateRecordDropdown-selected .normalSelectedItem {
-      color: var(--color-white) !important;
     }
   }
 `,
@@ -122,38 +79,29 @@ const Content = styled.div`
 `;
 
 const Operate = styled.div`
-  position: relative;
   height: 32px;
   text-align: left;
   margin-bottom: 12px;
   margin-left: 16px;
-  ${({ isConfigMode }) =>
-    isConfigMode
+  ${({ $isConfigMode }) =>
+    $isConfigMode
       ? `
       padding: 10px 0;
       height: 52px;
       `
       : ''}
-  ${({ isFilterComp }) =>
-    isFilterComp
+  ${({ $isFilterComp }) =>
+    $isFilterComp
       ? `
           margin-bottom: 0px;
           `
       : ''}
-  .Button {
-    font-weight: 500;
-  }
   &.operateIsNewLine {
     padding-left: 54px;
   }
 `;
 
-const ExpandBtn = styled.div(
-  ({ showQueryBtn }) => `
-  // position: absolute;
-  // top: 6px;
-  // right: -${showQueryBtn ? 64 : 43}px;
-  display: inline-block;
+const ExpandBtn = styled.div`
   margin-left: 20px;
   cursor: pointer;
   color: var(--color-primary);
@@ -165,8 +113,7 @@ const ExpandBtn = styled.div(
   &:hover {
     color: var(--color-link-hover);
   }
-`,
-);
+`;
 
 function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
@@ -225,7 +172,6 @@ export default function Conditions(props) {
     from,
     defaultTriggerUpdate = false,
     showTextAdvanced,
-    isDark,
     worksheetId,
     isConfigMode,
     isFilterComp,
@@ -251,8 +197,8 @@ export default function Conditions(props) {
     viewRowsLoading,
   } = props;
   const [values, setValues] = useState({});
+  const [relateRecordResetKey, setRelateRecordResetKey] = useState(0);
   const [isQuerying, setIsQuerying] = useState(false);
-  const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
   const didMount = useRef();
   const showQueryBtn = _.isUndefined(props.showQueryBtn)
     ? _.get(view, 'advancedSetting.enablebtn') === '1'
@@ -308,13 +254,11 @@ export default function Conditions(props) {
       const emptyItems = itemsWithValues.filter(item => item.isRequired && !validate(item));
 
       if (emptyItems.length) {
-        setRequiredErrorVisible(true);
         alert(_l('请填写%0筛选值', _.get(emptyItems, '0.control.controlName')), 3);
         return;
       }
     }
 
-    setRequiredErrorVisible(false);
     const quickFilter = itemsWithValues.filter(validate).map(conditionAdapter);
 
     if (quickFilter.length) {
@@ -353,7 +297,6 @@ export default function Conditions(props) {
 
   useEffect(() => {
     didMount.current = false;
-    setRequiredErrorVisible(false);
     setValues(getValues(filters));
   }, [view.viewId]);
   useEffect(() => {
@@ -420,26 +363,17 @@ export default function Conditions(props) {
     );
   store.current.values = values;
   return (
-    <Con className={cx(className, { isDark })} isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
+    <Con className={className} $isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
       {visibleItems.map((item, i) => (
         <Item
-          isConfigMode={isConfigMode}
-          requiredError={
-            requiredErrorVisible &&
-            item.isRequired &&
-            !validate({
-              ...item,
-              ...values[`${item.control.controlId}-${i}`],
-            })
-          }
-          highlight={activeFilterId === item.fid}
+          $isConfigMode={isConfigMode}
+          $highlight={activeFilterId === item.fid}
           key={i}
           className={cx(
             'conditionItem ' + (i === 0 && firstIsFullLine && !fullShow ? 'isFirstFullLine' : ''),
             item.className,
-            { isDark },
           )}
-          maxWidth={
+          $maxWidth={
             isFullLine(item)
               ? i === 0 && firstIsFullLine && !fullShow
                 ? showQueryBtn
@@ -460,13 +394,13 @@ export default function Conditions(props) {
           </Label>
           <Content className="content">
             <FilterInput
+              key={item.dataType === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET ? relateRecordResetKey : undefined}
               showTextAdvanced={showTextAdvanced}
               from={from}
               appendToBody={isFilterComp}
               projectId={projectId}
               worksheetId={worksheetId}
               appId={appId}
-              isDark={isDark}
               viewId={view.viewId}
               {...item}
               {...values[`${item.control.controlId}-${i}`]}
@@ -496,14 +430,13 @@ export default function Conditions(props) {
       {(showQueryBtn || showExpand) && !!visibleItems.length && (
         <Operate
           className={cx('buttons flexCenter', operateIsNewLine ? 'operateIsNewLine' : '')}
-          isConfigMode={isConfigMode}
-          isFilterComp={isFilterComp}
+          $isConfigMode={isConfigMode}
+          $isFilterComp={isFilterComp}
         >
           {showQueryBtn && (
             <Button
-              type="primary"
-              className="mRight10"
-              size="mdnormal"
+              color="var(--app-primary-color)"
+              className="quickFilterButton mRight10"
               onClick={() => {
                 if (viewRowsLoading && isQuerying) {
                   return;
@@ -512,19 +445,19 @@ export default function Conditions(props) {
                 setIsQuerying(true);
                 update(undefined, { noDebounce: true });
               }}
-              disabled={viewRowsLoading && isQuerying}
+              loading={viewRowsLoading && isQuerying}
             >
               {viewRowsLoading && isQuerying ? _l('查询中...') : queryText || _l('查询')}
             </Button>
           )}
           {showQueryBtn && (
             <Button
-              type="ghostgray"
-              size="mdnormal"
+              className="quickFilterButton quickFilterReset"
               onClick={() => {
                 setValues(getValues(items, { includeDefaultValues: false }));
+                // 搜索词由关联记录组件内部维护，未选记录时 values 也不会变化，重置时一并重新初始化。
+                setRelateRecordResetKey(key => key + 1);
                 resetQuickFilter(view);
-                setRequiredErrorVisible(false);
               }}
             >
               {_l('重置')}
@@ -532,7 +465,6 @@ export default function Conditions(props) {
           )}
           {showExpand && (
             <ExpandBtn
-              showQueryBtn={showQueryBtn}
               onClick={() => {
                 setFullShow(!fullShow);
                 safeLocalStorageSetItem('QUICK_FILTER_FULL_SHOW', !fullShow);

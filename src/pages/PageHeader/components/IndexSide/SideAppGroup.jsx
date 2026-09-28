@@ -1,6 +1,6 @@
 import React, { Component, createRef } from 'react';
 import cx from 'classnames';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import SideAppItem from './SideAppItem';
 
 const TYPE_TO_TITLE = {

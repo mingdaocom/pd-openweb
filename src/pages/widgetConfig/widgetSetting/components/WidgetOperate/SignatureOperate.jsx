@@ -1,6 +1,6 @@
 import React from 'react';
-import { Checkbox } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 
 // 操作设置
 export default function SignatureOperate(props) {
@@ -10,11 +10,18 @@ export default function SignatureOperate(props) {
   return (
     <div className="labelWrap">
       <Checkbox
-        size="small"
-        text={_l('允许从移动设备扫码上传')}
         checked={allowappupload !== '0'}
-        onClick={checked => onChange(handleAdvancedSettingChange(data, { allowappupload: String(+!checked) }))}
-      />
+        onChange={event =>
+          onChange(
+            handleAdvancedSettingChange(data, {
+              allowappupload: String(+event.target.checked),
+            }),
+          )
+        }
+        size="small"
+      >
+        {_l('允许从移动设备扫码上传')}
+      </Checkbox>
     </div>
   );
 }

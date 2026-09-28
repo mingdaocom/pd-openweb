@@ -3,8 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { getTitleTextFromControls } from 'src/utils/control';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 import { Option } from './Options';
 
 const useCompare = value => {

@@ -1,7 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 import OpinionTemplate from 'src/pages/workflow/WorkflowSettings/Detail/Approval/OpinionTemplate.jsx';
 
 const Wrap = styled.div`
@@ -13,7 +14,7 @@ const Wrap = styled.div`
     input {
       flex: 1;
     }
-    span {
+    > span {
       width: 80px;
     }
   }
@@ -80,11 +81,13 @@ class DoubleConfirmDialog extends React.Component {
       remarkoptions = '[]',
     } = advancedSetting;
     return (
-      <Dialog
+      <Modal
         title={_l('确认层设置')}
         okText={_l('保存')}
         cancelText={_l('取消')}
-        className="doubleConfirmDialog"
+        rootClassName="doubleConfirmDialog"
+        mask={{ closable: true }}
+        keyboard
         width="560px"
         onCancel={() => {
           this.props.onCancel();
@@ -106,11 +109,11 @@ class DoubleConfirmDialog extends React.Component {
             },
           });
         }}
-        visible={this.props.visible}
+        open={this.props.visible}
       >
         <Wrap>
           <p className="Bold">{_l('标题')}</p>
-          <input
+          <Input
             className="mTop10"
             value={_.get(this.state, 'doubleConfirm.confirmMsg')}
             onChange={event => {
@@ -123,7 +126,7 @@ class DoubleConfirmDialog extends React.Component {
             }}
           />
           <p className="mTop24 bold">{_l('说明')}</p>
-          <input
+          <Input
             className="mTop10"
             value={confirmcontent}
             onChange={event => {
@@ -137,7 +140,7 @@ class DoubleConfirmDialog extends React.Component {
           />
           <div className="flexRow btnTxt alignItemsCenter mTop10">
             <span className="bold400">{_l('确认按钮')}</span>
-            <input
+            <Input
               value={_.get(this.state, 'doubleConfirm.sureName')}
               onChange={event => {
                 this.setState({
@@ -151,7 +154,7 @@ class DoubleConfirmDialog extends React.Component {
           </div>
           <div className="flexRow btnTxt alignItemsCenter mTop10">
             <span className="bold400">{_l('取消按钮')}</span>
-            <input
+            <Input
               value={_.get(this.state, 'doubleConfirm.cancelName')}
               onChange={event => {
                 this.setState({
@@ -182,7 +185,7 @@ class DoubleConfirmDialog extends React.Component {
             <React.Fragment>
               <div className="flexRow btnTxt alignItemsCenter mTop10">
                 <span className="bold400">{_l('备注名称')}</span>
-                <input
+                <Input
                   value={remarkname}
                   onChange={event => {
                     this.setState({
@@ -196,7 +199,7 @@ class DoubleConfirmDialog extends React.Component {
               </div>
               <div className="flexRow btnTxt alignItemsCenter mTop10">
                 <span className="bold400">{_l('引导文字')}</span>
-                <input
+                <Input
                   value={remarkhint}
                   onChange={event => {
                     this.setState({
@@ -212,10 +215,9 @@ class DoubleConfirmDialog extends React.Component {
               <div className="flexRow btnTxt alignItemsCenter mTop10">
                 <span></span>
                 <Checkbox
-                  className="checkBox InlineBlock flex"
-                  text={<span>{_l('必填')}</span>}
+                  className="checkBox flex"
                   checked={remarkrequired === '1'}
-                  onClick={() => {
+                  onChange={() => {
                     this.setState({
                       advancedSetting: {
                         ...advancedSetting,
@@ -223,25 +225,32 @@ class DoubleConfirmDialog extends React.Component {
                       },
                     });
                   }}
-                />
+                >
+                  {<span>{_l('必填')}</span>}
+                </Checkbox>
               </div>
 
               <div className="flexRow btnTxt alignItemsCenter mTop10">
                 <span></span>
                 <Checkbox
-                  className="checkBox InlineBlock flex"
-                  text={<span>{_l('设置模板')}</span>}
+                  className="checkBox flex"
                   checked={!!safeParse(remarkoptions).template}
-                  onClick={() => {
+                  onChange={() => {
                     this.setState({
                       advancedSetting: {
                         ...advancedSetting,
-                        remarkoptions: safeParse(remarkoptions).template ? '' : JSON.stringify({ template: [] }),
+                        remarkoptions: safeParse(remarkoptions).template
+                          ? ''
+                          : JSON.stringify({
+                              template: [],
+                            }),
                       },
                       showApprovalTemplate: !safeParse(remarkoptions).template,
                     });
                   }}
-                />
+                >
+                  {<span>{_l('设置模板')}</span>}
+                </Checkbox>
               </div>
               {!!safeParse(remarkoptions).template && (
                 <div className="flexRow btnTxt alignItemsCenter mTop10">
@@ -283,7 +292,7 @@ class DoubleConfirmDialog extends React.Component {
             />
           )}
         </Wrap>
-      </Dialog>
+      </Modal>
     );
   }
 }

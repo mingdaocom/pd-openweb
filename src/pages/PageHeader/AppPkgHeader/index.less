@@ -309,6 +309,7 @@
         }
       }
     }
+    .editInput,
     .moreIcon,
     .arrowIcon,
     .openIcon {
@@ -378,12 +379,6 @@
     max-width: 520px;
     flex-shrink: 0;
 
-    .Item-content {
-      .icon {
-        color: var(--color-text-tertiary);
-      }
-    }
-
     .homepageIconWrap {
       display: flex;
       align-items: center;
@@ -433,11 +428,6 @@
       .icon {
         color: @delColor !important;
         left: 16px !important;
-      }
-
-      .Item-content {
-        color: @delColor !important;
-        padding-left: 48px !important;
       }
     }
 
@@ -741,30 +731,6 @@
     border: 1px solid var(--color-text-disabled);
     border-radius: 4px;
     margin-left: 12px;
-
-    .Dropdown--input {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  }
-}
-
-.appGroupConfigWrap {
-  .Item .Item-content {
-    .icon {
-      color: var(--color-text-tertiary);
-    }
-  }
-
-  .delApp.Item {
-    color: @delColor !important;
-
-    .Item-content {
-      .icon {
-        color: @delColor !important;
-      }
-    }
   }
 }
 

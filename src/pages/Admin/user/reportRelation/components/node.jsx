@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import {
   addSubordinates,
   fetchSubordinates,
@@ -166,19 +167,22 @@ class Node extends Component {
 
   remove() {
     const { id, parentId, fullname, dispatch, dataFromProps, onChangeData } = this.props;
-    Dialog.confirm({
-      title: _l('确认移除 %0 ?', fullname),
-      description: _l('移除后，其下属成员也将从汇报关系中移除'),
+    Modal.confirm({
+      title: <span className="textError">{_l('确认移除 %0 ?', fullname)}</span>,
+      content: _l('移除后，其下属成员也将从汇报关系中移除'),
       onOk: () => {
         let param = {
           parentId,
           accountId: id,
         };
-
         if (dataFromProps) {
-          param.callback = () => onChangeData({ type: 'REMOVE', id: parentId, values: id });
+          param.callback = () =>
+            onChangeData({
+              type: 'REMOVE',
+              id: parentId,
+              values: id,
+            });
         }
-
         dispatch(removeStructure(param));
       },
     });

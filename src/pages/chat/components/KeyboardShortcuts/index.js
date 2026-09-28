@@ -1,20 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import fixedDataController from 'src/api/fixedData';
 
-const DialogWrap = styled(Dialog)`
-  height: 560px !important;
-  max-height: 560px !important;
-  .mui-dialog-header {
-    border-bottom: 1px solid var(--color-border-primary);
-    display: none;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
+const ModalWrap = styled(Modal)`
   .container {
     height: 100%;
     display: flex;
@@ -150,13 +141,20 @@ export default function KeyboardShortcuts(props) {
   };
 
   return (
-    <DialogWrap
+    <ModalWrap
       className="keyboardShortcutsDialog"
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={null}
       onCancel={onClose}
       width={800}
       footer={null}
+      styles={{
+        header: { display: 'none' },
+        body: { padding: 0, overflow: 'hidden' },
+        container: { height: 560, maxHeight: 560, padding: 0 },
+      }}
     >
       {loading ? (
         <div className="container justifyCenter alignItemsCenter">
@@ -179,8 +177,10 @@ export default function KeyboardShortcuts(props) {
           {renderSection(shortcutsData[activeSection], activeSection)}
         </div>
       )}
-    </DialogWrap>
+    </ModalWrap>
   );
 }
 
-export const dialogKeyboardShortcuts = props => functionWrap(KeyboardShortcuts, { ...props });
+export function useKeyboardShortcutsDialog() {
+  return useFunctionWrapComponent(KeyboardShortcuts);
+}

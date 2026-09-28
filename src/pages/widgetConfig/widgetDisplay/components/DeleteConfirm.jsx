@@ -1,16 +1,15 @@
 import React from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import { Button, Popover } from 'ming-ui/antd-components';
 import WorksheetReference from '../../widgetSetting/components/WorksheetReference';
-import 'rc-trigger/assets/index.css';
+
+const POPOVER_ALIGN = {
+  offset: [0, 5],
+};
 
 const DeleteConfirmWrap = styled.div`
   width: 320px;
   padding: 22px 24px;
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.24);
   .title {
     font-size: 15px;
     color: var(--color-text-title);
@@ -47,17 +46,14 @@ export default function DeleteConfirm({
   ...rest
 }) {
   return (
-    <Trigger
-      popupVisible={visible}
-      onPopupVisibleChange={onVisibleChange}
-      action={['click']}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [0, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      zIndex={1000}
-      popup={
+    <Popover
+      open={visible}
+      onOpenChange={onVisibleChange}
+      trigger="click"
+      placement="bottomRight"
+      align={POPOVER_ALIGN}
+      noPadding
+      content={
         content || (
           <DeleteConfirmWrap>
             <div className="title">{title}</div>
@@ -75,7 +71,8 @@ export default function DeleteConfirm({
                   {cancelText}
                 </div>
                 <Button
-                  type="danger"
+                  color="danger"
+                  variant="solid"
                   size="small"
                   onClick={e => {
                     e.stopPropagation();
@@ -89,10 +86,9 @@ export default function DeleteConfirm({
           </DeleteConfirmWrap>
         )
       }
-      onCancel={onCancel}
       {...rest}
     >
-      {children}
-    </Trigger>
+      <div onClick={e => e.stopPropagation()}>{children}</div>
+    </Popover>
   );
 }

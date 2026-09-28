@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useSetState } from 'react-use';
-import { Skeleton } from 'antd';
 import _ from 'lodash';
+import { Skeleton } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import EditableCard from '../components/EditableCard';
 import EditingRecordItem from '../components/EditingRecordItem';
@@ -92,6 +92,7 @@ const GalleryItem = props => {
           type="board"
           ref={$ref}
           data={data}
+          worksheetInfo={worksheetInfo}
           currentView={{
             ...view,
             projectId: projectId,
@@ -142,6 +143,7 @@ const GalleryItem = props => {
             type="board"
             currentView={view}
             data={data}
+            worksheetInfo={worksheetInfo}
             fieldShowCount={fieldShowCount}
             style={{
               ...getStyle(),

@@ -63,9 +63,11 @@ const printGunter = name => {
     const groupingScroller = document.querySelector('.gunterGroupingScroller');
     const chartHeader = document.querySelector('.gunterChartHeader .headerScroll');
     const chartScroller = document.querySelector('.gunterChartScroller');
+    const directoryWidth = directoryHeader.offsetWidth;
+    const chartWidth = chartHeader.offsetWidth;
 
     const gunter = new Canvas({
-      bgWidth: groupingScroller.offsetWidth + chartHeader.offsetWidth,
+      bgWidth: directoryWidth + chartWidth,
       bgHeight: directoryHeader.offsetHeight + groupingScroller.offsetHeight,
       title: name,
     });
@@ -84,12 +86,12 @@ const printGunter = name => {
         },
         {
           el: chartHeader,
-          x: directoryHeader.offsetWidth,
+          x: directoryWidth,
           y: 0,
         },
         {
           el: chartScroller,
-          x: directoryHeader.offsetWidth,
+          x: directoryWidth,
           y: chartHeader.offsetHeight,
         },
       ])

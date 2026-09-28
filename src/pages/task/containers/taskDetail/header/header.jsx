@@ -1,15 +1,15 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import ajaxRequest from 'src/api/taskCenter';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import ShareFolderOrTask from '../../../components/shareFolderOrTask/shareFolderOrTask';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
@@ -42,9 +42,6 @@ class Header extends Component {
       showChecklistDialog: false,
     };
   }
-
-  checkboxRef = React.createRef();
-  taskStatusCheckboxRef = React.createRef();
 
   componentDidUpdate() {
     if (this.state.showChecklistDialog) {
@@ -81,21 +78,24 @@ class Header extends Component {
 
     taskStatusDialog(status, () => {
       if (data.subTask.length) {
-        Dialog.confirm({
+        let isAllSubTask = false;
+
+        Modal.confirm({
           title: status ? _l('标记该任务为已完成') : _l('当前任务下有子任务'),
           okText: _l('确定'),
           closable: false,
-          children: (
+          content: (
             <Checkbox
               className="textTertiary"
               defaultChecked={false}
-              ref={this.taskStatusCheckboxRef}
-              text={status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
-            />
+              onChange={event => {
+                isAllSubTask = event.target.checked;
+              }}
+            >
+              {status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
+            </Checkbox>
           ),
           onOk: () => {
-            let isAllSubTask = this.taskStatusCheckboxRef.current.state.checked;
-
             if (isAllSubTask && data.auth !== config.auth.Charger) {
               isAllSubTask = false;
               alert(status ? _l('仅负责人可一键标记完成所有子任务') : _l('仅负责人可一键标记未完成所有子任务'));
@@ -204,13 +204,15 @@ class Header extends Component {
       const root = createRoot(document.createElement('div'));
 
       root.render(
-        <CopyTask
-          name={_l('%0-副本', data.taskName)}
-          taskId={taskId}
-          folderID={data.folderID}
-          projectId={checkIsProject(data.projectID) ? data.projectID : ''}
-          chargeUser={data.charge.accountID}
-        />,
+        <AntdConfigProvider>
+          <CopyTask
+            name={_l('%0-副本', data.taskName)}
+            taskId={taskId}
+            folderID={data.folderID}
+            projectId={checkIsProject(data.projectID) ? data.projectID : ''}
+            chargeUser={data.charge.accountID}
+          />
+        </AntdConfigProvider>,
       );
     });
   };
@@ -234,11 +236,13 @@ class Header extends Component {
     const root = createRoot(document.createElement('div'));
 
     root.render(
-      <ShareFolderOrTask
-        shareUrl={pathCompletion('/apps/task/task_' + this.props.taskId)}
-        shareMessage={_l('打开App扫一扫，在手机上快速显示查看任务详情')}
-        linkText={_l('复制任务链接')}
-      />,
+      <AntdConfigProvider>
+        <ShareFolderOrTask
+          shareUrl={pathCompletion('/apps/task/task_' + this.props.taskId)}
+          shareMessage={_l('打开App扫一扫，在手机上快速显示查看任务详情')}
+          linkText={_l('复制任务链接')}
+        />
+      </AntdConfigProvider>,
     );
   };
 
@@ -266,12 +270,16 @@ class Header extends Component {
 
     const { taskId, taskConfig, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
+    let deleteAllSubTask = false;
 
-    Dialog.confirm({
-      title: _l('彻底删除任务'),
+    Modal.confirm({
+      title: <span className="textError">{_l('彻底删除任务')}</span>,
       okText: _l('删除'),
+      okButtonProps: {
+        danger: true,
+      },
       closable: false,
-      children: (
+      content: (
         <div>
           <div className="Font14 mBottom20">
             {_l('注意：此操作将彻底删除任务数据，无法恢复。')}
@@ -281,15 +289,16 @@ class Header extends Component {
             <Checkbox
               className="textTertiary"
               defaultChecked={false}
-              ref={this.checkboxRef}
-              text={_l('同时删除该任务下的所有子任务')}
-            />
+              onChange={event => {
+                deleteAllSubTask = event.target.checked;
+              }}
+            >
+              {_l('同时删除该任务下的所有子任务')}
+            </Checkbox>
           )}
         </div>
       ),
       onOk: () => {
-        const deleteAllSubTask = data.subTask.length ? this.checkboxRef.current.state.checked : false;
-
         if (
           !deleteAllSubTask &&
           data.subTask.length &&
@@ -299,36 +308,42 @@ class Header extends Component {
           taskTreeAfterDeleteTask(taskId, taskConfig.listSort);
         }
 
-        ajaxRequest.deleteTask({ taskID: taskId, isSubTask: deleteAllSubTask }).then(result => {
-          if (result.status) {
-            alert(_l('删除成功'));
-
-            const parentId = this.props.taskDetails[taskId].data.parentID;
-            this.props.dispatch(destroyTask(taskId));
-
-            if (openType === OPEN_TYPE.detail) {
-              setTimeout(() => {
-                navigateTo('/apps/task/center');
-              }, 300);
-            } else {
-              this.props.closeDetail();
-              if (openType === OPEN_TYPE.slide) {
-                _.remove(result.data, id => id === taskId);
-                result.data.unshift(taskId);
-                afterDeleteTask(result.data, parentId);
-
-                // 不是查看他人时重新拉取计数
-                if (!this.props.taskConfig.filterUserId) {
-                  getLeftMenuCount('', 'all');
-                }
+        ajaxRequest
+          .deleteTask({
+            taskID: taskId,
+            isSubTask: deleteAllSubTask,
+          })
+          .then(result => {
+            if (result.status) {
+              alert(_l('删除成功'));
+              const parentId = this.props.taskDetails[taskId].data.parentID;
+              this.props.dispatch(destroyTask(taskId));
+              if (openType === OPEN_TYPE.detail) {
+                setTimeout(() => {
+                  navigateTo('/apps/task/center');
+                }, 300);
               } else {
-                this.props.updateCallback({ type: 'DELETE_TASK', taskId });
+                this.props.closeDetail();
+                if (openType === OPEN_TYPE.slide) {
+                  _.remove(result.data, id => id === taskId);
+                  result.data.unshift(taskId);
+                  afterDeleteTask(result.data, parentId);
+
+                  // 不是查看他人时重新拉取计数
+                  if (!this.props.taskConfig.filterUserId) {
+                    getLeftMenuCount('', 'all');
+                  }
+                } else {
+                  this.props.updateCallback({
+                    type: 'DELETE_TASK',
+                    taskId,
+                  });
+                }
               }
+            } else {
+              errorMessage(result.error);
             }
-          } else {
-            errorMessage(result.error);
-          }
-        });
+          });
       },
     });
   };
@@ -339,6 +354,81 @@ class Header extends Component {
     const { data } = this.props.taskDetails[taskId];
     const isCharge = data.auth === config.auth.Charger;
     const isMember = data.auth === config.auth.Member;
+    const operatorItems = [
+      (isCharge || isMember) && {
+        key: 'add-checklist',
+        icon: <i className="icon-list" />,
+        label: _l('添加清单'),
+        onClick: () => this.setState({ showOperator: false, showChecklistDialog: true }),
+      },
+      {
+        key: 'add-tags',
+        icon: <i className="icon-task-label" />,
+        label: _l('添加标签'),
+        onClick: () => {
+          this.setState({ showOperator: false });
+          this.props.addTags();
+        },
+      },
+      (isCharge || isMember) && {
+        key: 'relate-project',
+        icon: <i className="icon-project-new" />,
+        label: _l('关联项目'),
+        onClick: () => {
+          this.setState({ showOperator: false });
+          this.props.showRelationControl(RELATION_TYPES.folder);
+        },
+      },
+      (isCharge || isMember) && {
+        key: 'relate-parent-task',
+        icon: <i className="icon-task-new-parent" />,
+        label: _l('关联母任务'),
+        onClick: () => {
+          this.setState({ showOperator: false });
+          this.props.showRelationControl(RELATION_TYPES.task);
+        },
+      },
+      { key: 'main-divider', type: 'divider' },
+      {
+        key: 'copy-task',
+        icon: <i className="icon-task-new-copy" />,
+        label: _l('复制任务'),
+        onClick: this.copyTask,
+      },
+      {
+        key: 'print-task',
+        icon: <i className="icon-task-new-print" />,
+        label: _l('打印任务'),
+        onClick: this.printTask,
+      },
+      {
+        key: 'share-task',
+        icon: <i className="icon-link2" />,
+        label: _l('获取链接与二维码'),
+        onClick: this.shareTask,
+      },
+      {
+        key: 'open-task',
+        icon: <i className="icon-task-new-detail" />,
+        label: _l('新页面打开'),
+        onClick: this.openNewPage,
+      },
+      data.isTaskMember && { key: 'member-divider', type: 'divider' },
+      data.isTaskMember &&
+        data.charge.accountID !== md.global.Account.accountId && {
+          key: 'exit-task',
+          icon: <i className="icon-groupExit" />,
+          label: _l('退出任务'),
+          onClick: this.exitTask,
+        },
+      isCharge && {
+        key: 'delete-task',
+        danger: true,
+        icon: <i className="icon-trash" />,
+        label: _l('删除任务'),
+        onClick: this.delTask,
+      },
+    ].filter(Boolean);
 
     return (
       <div className={cx('taskDetailHeader boxSizing flexRow')}>
@@ -391,14 +481,21 @@ class Header extends Component {
           </Tooltip>
         )}
 
-        <Tooltip title={_l('更多操作')} placement="bottomLeft">
-          <div
-            className="taskDetailHeaderBtn colorPrimary mLeft15 taskDetailHeaderMoreBtn"
-            onClick={() => this.setState({ showOperator: !showOperator })}
-          >
-            <i className="Font16 icon-moreop" />
+        <Dropdown
+          trigger={['click']}
+          open={showOperator}
+          onOpenChange={open => this.setState({ showOperator: open })}
+          placement="bottomRight"
+          getPopupContainer={triggerNode => triggerNode.parentElement}
+          classNames={{ root: 'detaiOperator' }}
+          menu={{ style: { width: 180 }, items: operatorItems }}
+        >
+          <div className="taskDetailHeaderBtn colorPrimary mLeft15 taskDetailHeaderMoreBtn">
+            <Tooltip title={_l('更多操作')} placement="bottomLeft">
+              <i className="Font16 icon-moreop" />
+            </Tooltip>
           </div>
-        </Tooltip>
+        </Dropdown>
 
         {openType === OPEN_TYPE.dialog && (
           <Tooltip title={_l('关闭')} placement="bottomLeft">
@@ -409,85 +506,6 @@ class Header extends Component {
         )}
 
         <div className="taskContentShadow" />
-
-        {showOperator && (
-          <Menu
-            className="detaiOperator"
-            onClickAway={() => {
-              this.setState({ showOperator: false });
-            }}
-            onClickAwayExceptions={['.taskDetailHeaderMoreBtn']}
-          >
-            {(isCharge || isMember) && (
-              <MenuItem
-                icon={<i className="icon-list" />}
-                onClick={() => this.setState({ showOperator: false, showChecklistDialog: true })}
-              >
-                {_l('添加清单')}
-              </MenuItem>
-            )}
-
-            <MenuItem
-              icon={<i className="icon-task-label" />}
-              onClick={() => {
-                this.setState({ showOperator: false });
-                this.props.addTags();
-              }}
-            >
-              {_l('添加标签')}
-            </MenuItem>
-
-            {isCharge || isMember ? (
-              <Fragment>
-                <MenuItem
-                  icon={<i className="icon-project-new" />}
-                  onClick={() => {
-                    this.setState({ showOperator: false });
-                    this.props.showRelationControl(RELATION_TYPES.folder);
-                  }}
-                >
-                  {_l('关联项目')}
-                </MenuItem>
-                <MenuItem
-                  icon={<i className="icon-task-new-parent" />}
-                  onClick={() => {
-                    this.setState({ showOperator: false });
-                    this.props.showRelationControl(RELATION_TYPES.task);
-                  }}
-                >
-                  {_l('关联母任务')}
-                </MenuItem>
-              </Fragment>
-            ) : null}
-
-            <div className="detaiOperatorLine" />
-            <MenuItem icon={<i className="icon-task-new-copy" />} onClick={this.copyTask}>
-              {_l('复制任务')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-task-new-print" />} onClick={this.printTask}>
-              {_l('打印任务')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-link2" />} onClick={this.shareTask}>
-              {_l('获取链接与二维码')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-task-new-detail" />} onClick={this.openNewPage}>
-              {_l('新页面打开')}
-            </MenuItem>
-
-            {data.isTaskMember && <div className="detaiOperatorLine" />}
-
-            {data.isTaskMember && data.charge.accountID !== md.global.Account.accountId && (
-              <MenuItem icon={<i className="icon-groupExit" />} onClick={this.exitTask}>
-                {_l('退出任务')}
-              </MenuItem>
-            )}
-            {isCharge && (
-              <MenuItem icon={<i className="icon-trash" />} onClick={this.delTask}>
-                {_l('删除任务')}
-              </MenuItem>
-            )}
-          </Menu>
-        )}
 
         {showChecklistDialog && (
           <ClickAwayable

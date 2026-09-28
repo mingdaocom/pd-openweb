@@ -1,21 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { Icon, SearchInput } from 'ming-ui';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { AddWrap, WrapNav } from 'src/pages/Role/style';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import ItemCon from './ItemCon';
 
-const WrapL = styled.div`
-  .roleSearch {
-    background: var(--color-background-primary);
-    border-radius: 0;
-    width: 100%;
-    padding-left: 0;
-  }
-`;
 const Wrap = styled.p`
   font-size: 12px;
   font-weight: bold;
@@ -67,7 +58,7 @@ export default class Con extends React.Component {
     const otherList = roleList.filter(o => !sysRoleType.includes(o.roleType));
     return (
       <React.Fragment>
-        <WrapL className="">
+        <div>
           {/* 非管理员无法操作，不能查看“申请加入”“设置”“全部”“外协用户” */}
           {canEditUser && (
             <div className="navCon bTBorder">
@@ -105,7 +96,7 @@ export default class Con extends React.Component {
           )}
           <div className="search mTop16">
             <SearchInput
-              className="roleSearch"
+              className="roleSearch w100"
               placeholder={_l('搜索角色')}
               value={keywords}
               onChange={keywords => {
@@ -118,7 +109,7 @@ export default class Con extends React.Component {
               }}
             />
           </div>
-        </WrapL>
+        </div>
         <div className="navCon flex navConList">
           {roleList.length <= 0 ? (
             <div className="TxtCenter textDisabled mTop20">{_l('无相关角色')}</div>
@@ -164,7 +155,7 @@ export default class Con extends React.Component {
                 <span className={cx({ Red: roleLimitInfo.currentCount > roleLimitInfo.maxCount })}>
                   {roleLimitInfo.currentCount || 0}
                 </span>
-                /<span className="">{roleLimitInfo.maxCount || 0}</span>)
+                /<span>{roleLimitInfo.maxCount || 0}</span>)
               </span>
             </span>
           </WrapTips>

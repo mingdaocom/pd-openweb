@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { renderText as renderCellText } from 'src/utils/control';
-import { CUR_DEPARTMENT, CUR_ROLE, CUR_USER } from '../config';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { getControlType, getDateType, getTypeList, showClear } from 'src/utils/domain/control/dynamicValue';
+import { CUR_DEPARTMENT, CUR_ROLE, CUR_USER } from 'src/utils/domain/control/dynamicValueConfig';
 import { FieldInfo, OtherFieldList, RelateControl } from '../styled';
-import { getControlType, getDateType, getTypeList, showClear } from '../util';
 import OtherField from './OtherField';
 
 const isOnlySelect = (dynamicValue, data) => {
@@ -77,8 +77,8 @@ export default ({
   <OtherFieldList
     isHaveField={isOnlySelect(dynamicValue, data)}
     onClick={onClick}
-    isHaveClear={showClear(data, dynamicValue)}
-    totalWidth={totalWidth}
+    $isHaveClear={showClear(data, dynamicValue)}
+    $totalWidth={totalWidth}
   >
     <Fragment>
       {_.isEmpty(dynamicValue) ? (

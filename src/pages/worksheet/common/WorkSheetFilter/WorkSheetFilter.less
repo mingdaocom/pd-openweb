@@ -45,10 +45,6 @@
   position: absolute;
 }
 
-.rc-trigger-popup-hidden {
-  display: none;
-}
-
 .workSheetFilter {
   width: 400px;
   border-radius: 4px;
@@ -99,14 +95,6 @@
     color: var(--color-white);
     line-height: 36px;
     cursor: pointer;
-
-    .filterNameInput {
-      font-size: 13px;
-      border: none;
-      height: 20px;
-      padding: 0;
-      background-color: transparent;
-    }
 
     .moreOperateBtn {
       cursor: pointer;
@@ -235,7 +223,7 @@
         border-radius: 4px;
         color: var(--color-text-title);
 
-        .Dropdown--input .icon {
+        .hap-select-arrow {
           visibility: hidden;
         }
 
@@ -287,15 +275,6 @@
           display: inline-block;
           padding: 5px 20px 5px 0px;
         }
-
-        .Dropdown--input .icon {
-          margin-left: 4px !important;
-        }
-
-        .ming .List {
-          width: 50px;
-          text-align: center;
-        }
       }
     }
 
@@ -307,7 +286,7 @@
       }
 
       .conditionRelation {
-        .Dropdown--input .icon {
+        .hap-select-arrow {
           visibility: hidden;
         }
       }
@@ -318,7 +297,7 @@
         visibility: visible;
       }
 
-      .relation .Dropdown--input .icon {
+      .relation .hap-select-arrow {
         visibility: visible;
       }
     }
@@ -382,42 +361,14 @@
 }
 
 .addFilterPopup {
-  background-color: var(--color-background-card);
-  border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-
   .columnsFilter {
-    padding: 0 10px;
     border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     flex-direction: row;
-
-    .icon-search {
-      width: 20px;
-      margin: 10px 0 0;
-      text-align: center;
-      font-size: 18px;
-      color: var(--color-text-tertiary);
-    }
-
-    .Input {
-      flex: 1;
-      width: 124px;
-      border: none;
-      font-size: 13px;
-      padding: 0 10px;
-
-      &::placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
   }
 
-  .Menu {
+  .worksheetFilterColumnOptionList {
     width: 100%;
-    box-shadow: none !important;
   }
 
   .tip {
@@ -427,143 +378,42 @@
 
   &.inEmpty {
     box-shadow: none;
-    margin-top: 6px;
 
     .columnsFilter {
-      margin: 0 20px;
+      margin: 0 20px 6px;
       padding: 0px;
-
-      .Input {
-        padding: 0 7px;
-      }
     }
 
-    .worksheetFilterColumnOptionList.Menu {
+    .worksheetFilterColumnOptionList {
       width: 100% !important;
-      padding: 5px 6px 6px;
-
-      .ming.MenuItem .Item-content {
-        font-size: 14px;
-        border-radius: 3px;
-
-        &:hover {
-          .icon {
-            color: var(--color-text-tertiary) !important;
-          }
-
-          span {
-            color: var(--color-text-title) !important;
-          }
-        }
-      }
     }
   }
 }
 
-.worksheetFilterColumnOptionList.Menu {
+.worksheetFilterColumnOptionList.hap-menu {
   width: 220px !important;
-}
-
-.worksheetFilterOperateList.Menu,
-.worksheetFilterColumnOptionList.Menu {
-  position: static !important;
   overflow: auto;
   max-height: 260px;
-
-  .ming.Item {
-    &.selected {
-      .Item-content {
-        background-color: var(--color-primary-transparent);
-        color: var(--color-primary);
-
-        .icon {
-          color: var(--color-primary);
-        }
-      }
-    }
-  }
-
-  .Item-content {
-    text-align: left;
-
-    .icon {
-      color: var(--color-text-tertiary);
-      margin-right: 10px;
-      font-size: 14px;
-      vertical-align: middle;
-    }
-
-    > span {
-      vertical-align: middle;
-    }
-  }
-
-  .ming.Item .Item-content.disabled {
-    .icon {
-      color: var(--color-text-disabled) !important;
-    }
-  }
-
-  .ming.Item.disabled .Item-content {
-    cursor: not-allowed;
-    background-color: var(--color-background-primary) !important;
-    color: var(--color-text-disabled) !important;
-
-    .icon {
-      color: var(--color-text-disabled) !important;
-    }
-  }
-
-  .segmentationLine {
-    border-top: 1px solid var(--color-border-primary);
-    margin: 8px 0;
-    padding-top: 8px;
-  }
-
-  .Item-content {
-    padding: 0 14px;
-  }
-}
-
-.worksheetFilterOperateList.Menu {
-  .icon {
-    color: var(--color-text-tertiary);
-    margin-right: 10px;
-    font-size: 16px;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--color-border-secondary);
-    margin: 6px 0;
-  }
 }
 
 .worksheetFilterTextCondition {
   outline: none;
 
-  .ant-select-selector {
-    min-height: 36px;
-    border-color: var(--color-border-primary) !important;
-    box-shadow: none !important;
-    padding: 3px 4px !important;
-
-    .ant-select-selection-overflow {
-      gap: 6px;
-    }
+  .hap-select-suffix {
+    visibility: hidden;
   }
 
-  &.ant-select-focused {
-    .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
+  // antd 运行时生成的 placeholder 类为 hap-select-placeholder，需覆盖其默认颜色（兼容 selection-placeholder 命名）
+  .hap-select-placeholder,
+  .hap-select-selection-placeholder {
+    color: var(--color-text-disabled) !important;
   }
 }
 
 .worksheetFilterYesNoCondition {
   padding: 8px 0;
 
-  .RadioGroup label {
+  .ant-radio-group label {
     margin: 0;
     width: 40%;
   }
@@ -571,13 +421,6 @@
 
 .worksheetFilterNumberCondition {
   .numberRange {
-    input {
-      border-color: var(--color-border-primary) !important;
-    }
-    input::placeholder {
-      color: var(--color-text-disabled);
-    }
-
     .split {
       line-height: 36px;
       color: var(--color-text-secondary);
@@ -587,73 +430,7 @@
 }
 
 .worksheetFilterDateCondition {
-  .dateInputCon {
-    border: 1px solid var(--color-border-tertiary);
-    box-sizing: border-box;
-    height: 36px;
-    border-radius: 3px;
-    font-size: 12px;
-    background: var(--color-background-primary);
-    position: relative;
-
-    .ant-picker {
-      input {
-        font-size: 12px !important;
-      }
-
-      &.ant-picker-range {
-        padding: 0 8px;
-      }
-    }
-
-    .ming.Dropdown {
-      width: 100%;
-      height: 34px;
-
-      .Dropdown--input {
-        padding: 8px;
-        height: inherit;
-      }
-
-      .ming.Icon {
-        float: right;
-        margin: 4px;
-      }
-    }
-
-    .customFormControlBox:not(.ant-picker) {
-      height: 34px;
-    }
-  }
-
-  .dateValue input {
-    width: 90px !important;
-    border-radius: 3px 0 0 3px;
-    vertical-align: middle;
-  }
-
-  .dateRangeType {
-    border: 1px solid var(--color-border-tertiary);
-    height: 36px;
-    line-height: 24px;
-    border-radius: 0 3px 3px 0;
-    vertical-align: middle;
-    width: 70px !important;
-    border-left: none;
-
-    .Dropdown--input {
-      height: 100%;
-    }
-
-    .icon {
-      float: right;
-      margin-top: 5px;
-      margin-right: 4px;
-    }
-  }
-
   .includeToday {
-    display: inline-block !important;
     margin-left: 16px;
     vertical-align: middle;
   }
@@ -664,12 +441,6 @@
 
     > * {
       flex: 1;
-    }
-
-    .mui-datetime-picker {
-      width: 100%;
-      display: inline-block;
-      padding: 0 8px;
     }
 
     .customAntPicker {
@@ -715,7 +486,7 @@
     font-size: 12px;
     background: var(--color-background-primary);
 
-    .ant-picker {
+    .hap-picker {
       margin: 4px 0;
       border: none;
       box-shadow: none;
@@ -725,132 +496,21 @@
       }
     }
 
-    .ant-picker-range {
+    .hap-picker-range {
       width: 100%;
     }
   }
 }
 
 .filterDateRangeInputPopup {
-  .ant-picker-time-panel-column {
+  .hap-picker-time-panel-column {
     width: 64px;
-  }
-}
-
-.worksheetFilterRelateRecordCondition,
-.worksheetFilterUsersCondition {
-  .recordsCon,
-  .usersCon {
-    padding: 6px 8px 0 8px;
-    box-sizing: border-box;
-    min-height: 36px;
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: 3px;
-    font-size: 14px;
-    color: var(--color-text-tertiary);
-    background-color: var(--color-background-primary);
-
-    &.disabled {
-      cursor: not-allowed;
-      background-color: var(--color-background-secondary);
-
-      .userItem {
-        .remove {
-          .icon {
-            display: none;
-          }
-        }
-      }
-
-      &:hover {
-        border-color: var(--color-border-tertiary);
-      }
-    }
-  }
-
-  .recordItem,
-  .userItem {
-    display: inline-block;
-    font-size: 12px;
-    margin: 0 6px 6px 0;
-    background: var(--tag-bg);
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: 12px;
-    color: var(--color-text-primary);
-
-    .iconCon {
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .userHead {
-      display: inline-block !important;
-      vertical-align: middle;
-    }
-
-    .filterCustomUserHead {
-      font-size: 25px;
-      margin-right: -1px;
-    }
-
-    .fullname {
-      margin-left: 6px;
-      display: inline;
-      vertical-align: middle;
-    }
-
-    .remove {
-      cursor: pointer;
-      color: var(--color-text-tertiary);
-      margin: 0 8px 0 4px;
-      font-size: 12px;
-
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
-  }
-
-  .recordItem {
-    padding: 2px 0px 2px 8px;
-
-    .icon {
-      font-size: 14px;
-      margin-right: 4px;
-    }
-  }
-}
-
-.worksheetFilterRelateRecordCondition {
-  .recordItem {
-    max-width: 360px;
-
-    .recordname {
-      display: inline-block;
-      max-width: calc(~'100% - 28px');
-    }
   }
 }
 
 .worksheetFilterCascaderCondition {
   .cascaderDropdown {
     margin-top: 0px !important;
-    .ant-select-selector {
-      background-color: transparent !important;
-      border-color: var(--color-border-primary) !important;
-    }
-    .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector:hover {
-      background-color: transparent !important;
-      border-color: var(--color-text-placeholder) !important;
-    }
-    .cascader-input {
-      background-color: transparent !important;
-    }
-
-    .cascader-selected-tag {
-      background-color: var(--tag-bg) !important;
-      border-color: var(--color-border-tertiary) !important;
-    }
   }
 }
 
@@ -862,63 +522,8 @@
   vertical-align: middle;
 }
 
-.filterTagCon {
-  padding: 6px 8px;
-  box-sizing: border-box;
-  min-height: 36px;
-  border: 1px solid var(--color-border-tertiary);
-  border-radius: 3px;
-  font-size: 14px;
-  background-color: var(--color-background-primary);
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-
-  .placeholder {
-    color: var(--color-text-disabled);
-  }
-
-  .fiterTagItem {
-    display: inline-block;
-    background-color: var(--tag-bg);
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: 12px;
-
-    .text {
-      font-size: 12px;
-      margin: 2px 0 2px 10px;
-      display: inline-block;
-      color: var(--color-text-primary);
-    }
-
-    .remove {
-      cursor: pointer;
-      color: var(--color-text-tertiary);
-      margin: 0 8px 0 4px;
-      font-size: 12px;
-
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
-  }
-
-  &.disabled {
-    cursor: not-allowed;
-    background-color: var(--color-background-secondary);
-
-    .fiterTagItem {
-      .remove {
-        .icon {
-          display: none;
-        }
-      }
-    }
-
-    &:hover {
-      border-color: var(--color-border-tertiary);
-    }
-  }
+.worksheetFilterUserHead {
+  line-height: 0;
 }
 
 .worksheetFilterOptionsCondition {
@@ -928,45 +533,6 @@
 
     .CityPicker-input-tagSearchBox {
       height: auto;
-    }
-  }
-
-  .optionCheckboxs {
-    .optionCheckbox {
-      cursor: pointer;
-      background: var(--color-background-primary);
-      box-sizing: border-box;
-      display: inline-flex;
-      align-items: center;
-      margin: 6px 6px 0 0;
-      padding: 0 10px;
-      height: 26px;
-      color: var(--color-text-tertiary);
-      font-size: 13px;
-      border-radius: 26px;
-      border: 1px solid var(--color-border-tertiary);
-      max-width: 100%;
-
-      &.checked {
-        color: var(--color-white);
-
-        &.multiple {
-          .selectedIcon {
-            font-size: 16px;
-            margin: 0 5px 0 -4px;
-          }
-
-          color: var(--color-link-hover);
-          background-color: var(--color-primary-transparent) !important;
-          border: 1px solid rgba(21, 101, 192, 0.17) !important;
-        }
-      }
-    }
-
-    .showMore {
-      line-height: 26px;
-      display: inline-block;
-      margin: 7px 0 0 6px;
     }
   }
 }
@@ -995,10 +561,6 @@
       margin: 12px 0 6px;
     }
   }
-}
-
-.ming.Input.disabled {
-  background-color: var(--color-background-secondary);
 }
 
 .worksheetFilterRelateCondition {
@@ -1103,23 +665,6 @@
       width: 100%;
       border-bottom: 1px solid var(--color-border-secondary);
       display: flex;
-
-      .searchIcon {
-        line-height: 40px;
-        padding-left: 16px;
-      }
-
-      input {
-        font-size: 12px;
-        box-sizing: border-box;
-        padding: 8px 16px 8px 8px;
-        border: 0;
-        flex: 1;
-
-        &::placeholder {
-          color: var(--color-text-disabled);
-        }
-      }
     }
 
     .selectBoxCom {

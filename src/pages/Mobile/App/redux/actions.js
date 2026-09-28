@@ -3,7 +3,7 @@ import _ from 'lodash';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
+import { getAppLangDetail, getTranslateInfo } from 'src/utils/services/app';
 
 export const getAppDetail =
   (appId, cb, isPullRefresh = false) =>

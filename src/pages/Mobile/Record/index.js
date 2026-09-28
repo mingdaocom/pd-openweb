@@ -1,13 +1,13 @@
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
 import cx from 'classnames';
+import { MobilePopup } from 'ming-ui/antd-mobile-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import MobilePopup from 'ming-ui/components/MobilePopup';
 import Back from 'mobile/components/Back';
 import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { configureStore } from 'src/redux/configureStore';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
 
 const RecordInfoPage = props => {
   const { params } = props.match;

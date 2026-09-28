@@ -2,12 +2,12 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, PriceTip, Radio, ScrollView, Support, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, PriceTip, ScrollView, Support, TagTextarea } from 'ming-ui';
+import { Button, Input, Radio, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import smsApi from 'src/api/sms';
 import SmsSignSet from 'src/components/SmsSignSet';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { RELATION_TYPE } from '../../enum';
 import { getControlTypeName, handleGlobalVariableName } from '../../utils';
 import {
@@ -442,14 +442,13 @@ export default class Message extends Component {
         </div>
 
         <div className="mTop10 relative flexRow">
-          <input
-            type="text"
+          <Input
             placeholder={_l('搜索')}
-            className="borderColorPrimary actionControlBox flex pLeft35 pRight10 pTop0 pBottom0"
+            className="flex"
             value={keywords}
+            prefix={<i className="icon-search Font20 textSecondary" />}
             onChange={evt => this.setState({ keywords: evt.currentTarget.value.trim() })}
           />
-          <i className="icon-search Font20 textSecondary Absolute mTop8 mLeft10" />
         </div>
 
         {templates.length ? (
@@ -578,11 +577,17 @@ export default class Message extends Component {
             <Tooltip title={item.desc}>
               <span>
                 <Radio
-                  text={item.text}
                   disabled={item.disabled}
                   checked={type === item.value}
-                  onClick={() => this.setState({ type: item.value })}
-                />
+                  onChange={() =>
+                    this.setState({
+                      type: item.value,
+                    })
+                  }
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               </span>
             </Tooltip>
           </div>
@@ -671,7 +676,7 @@ export default class Message extends Component {
       return;
     }
 
-    flowNode
+    const request = flowNode
       .createSMSTemplate({
         companyId: this.props.companyId,
         processId: this.props.processId,
@@ -699,11 +704,14 @@ export default class Message extends Component {
           messageContent: '',
           type: 0,
           templateId: '',
-          saveRequest: false,
         });
+      })
+      .finally(() => {
+        this.setState({ saveRequest: false });
       });
 
     this.setState({ saveRequest: true, showTestDialog: false });
+    return request;
   };
 
   /**

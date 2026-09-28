@@ -1,0 +1,213 @@
+.enterpriseCardItem {
+  width: 100%;
+  padding: 0 20px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-secondary);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  &.currentProject {
+    overflow: visible;
+  }
+  .currentProjectTag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 2px 7px;
+    border-radius: 0 4px 0 4px;
+    color: var(--color-primary);
+    background-color: var(--color-primary-transparent);
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 20px;
+  }
+  &:hover,
+  &.active {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.08);
+  }
+  &:hover {
+    .dragIcon {
+      display: block;
+    }
+  }
+
+  .dragIcon {
+    cursor: pointer;
+    display: none;
+    position: absolute;
+    left: 6px;
+    top: 48px;
+    color: var(--color-text-disabled);
+    &:hover {
+      color: var(--color-text-tertiary);
+    }
+  }
+
+  .cardHeaderActionGroup {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 12px;
+
+    &:empty {
+      display: none;
+    }
+  }
+  .trialText {
+    font-weight: bold;
+    color: var(--color-warning);
+  }
+  .cardItemHeader {
+    padding: 24px 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .cardItemInfo {
+      display: flex;
+      align-items: center;
+    }
+    .textSecondary {
+      color: var(--color-text-secondary);
+    }
+    .color_gr {
+      color: var(--color-success);
+    }
+    .cardItemLeft {
+      .itemTag {
+        padding: 2px 9px;
+        font-weight: bold;
+        border-radius: 12px;
+        flex-shrink: 0;
+        &.active {
+          color: var(--color-primary);
+          background-color: var(--color-primary-transparent);
+        }
+        &.grayActive {
+          color: var(--color-success);
+          background-color: rgba(71, 177, 75, 0.08);
+        }
+        &.closeActive {
+          color: var(--color-text-tertiary);
+          background: var(--color-background-secondary);
+        }
+      }
+      .itemDivice {
+        width: 1px;
+        height: 8px;
+        background-color: var(--color-border-secondary);
+      }
+    }
+    .cardItemRight {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      .cancelApplication {
+        color: var(--color-error);
+      }
+      .cancelApplication:hover {
+        color: var(--color-error-hover) !important;
+      }
+    }
+  }
+
+  .infoContent {
+    overflow: hidden;
+    transition: height 0.5s;
+    .extendItemBox {
+      border-top: 1px solid var(--color-border-secondary);
+      padding: 24px 0;
+      box-sizing: border-box;
+      display: flex;
+      .extendItemLabel {
+        width: 100px;
+        text-align: left;
+      }
+      .extendRight {
+        flex: 1;
+        min-width: 0;
+        .extendRightLabel {
+          color: var(--color-text-secondary);
+          width: 76px;
+          text-align: left;
+        }
+      }
+    }
+  }
+  .extendInfo {
+    height: auto;
+  }
+
+  .closeInfo {
+    height: 0;
+  }
+}
+
+.lastSuperAdminModal {
+  .footer {
+    display: flex;
+    flex-direction: row-reverse;
+    margin-top: 50px;
+  }
+}
+
+.dialogBoxValidate .inputBox {
+  width: 340px;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+  line-height: 38px;
+  height: 38px;
+  background-color: var(--color-background-secondary);
+  border-radius: 3px;
+  padding-left: 10px;
+  border: 0px;
+}
+
+.dialogBoxTransferAdminProject {
+  .exitProject {
+    margin-top: 26px;
+    margin-left: auto;
+    margin-right: 0;
+    display: block;
+  }
+  .userTag {
+    .user {
+      background-color: var(--color-border-primary);
+      border-radius: 15px;
+      display: inline-block;
+      padding: 5px 20px 5px 5px;
+      img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        vertical-align: middle;
+      }
+      .userfullname {
+        margin-left: 10px;
+        white-space: nowrap;
+        max-width: 200px;
+        display: inline-block;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+.editEnterpriseCardInfo {
+  input {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+  }
+}
+
+.projectCardSortHelper {
+  .enterpriseCardItem {
+    .dragIcon {
+      display: block;
+      color: var(--color-text-tertiary);
+    }
+  }
+}

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, Icon, Radio } from 'ming-ui';
+import { Modal, Radio, Switch } from 'ming-ui/antd-components';
 import WaterMarkDialog from 'src/pages/Role/PortalCon/components/WaterMarkDialog';
 import { DIS_SET } from './config';
-import { SwitchStyle } from './style';
 
 // 门户水印仅支持：姓名、手机号、邮箱 + 自定义文本
 const PORTAL_WATERMARK_CONTROLS = [
@@ -19,18 +18,18 @@ export default function (props) {
     <>
       <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('功能设置')}</h6>
       <div className="mTop12">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.allowExAccountDiscuss ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.allowExAccountDiscuss}
+            onChange={checked => {
               const { portalSet = {} } = props;
               const { portalSetModel = {} } = portalSet;
               let data = {
-                allowExAccountDiscuss: !portalSetModel.allowExAccountDiscuss,
+                allowExAccountDiscuss: checked,
               };
 
-              if (portalSetModel.allowExAccountDiscuss) {
+              if (!checked) {
                 //关闭外部门户讨论，同时关闭外部门户的消息通知
                 data = {
                   ...data,
@@ -46,8 +45,10 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('允许参与记录讨论')}</div>
-        </SwitchStyle>
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
+            {_l('允许参与记录讨论')}
+          </div>
+        </div>
         <div style={{ 'margin-left': '36px' }}>
           {portalSetModel.allowExAccountDiscuss && (
             <React.Fragment>
@@ -57,9 +58,8 @@ export default function (props) {
                     <div className="">
                       <Radio
                         className="Font13"
-                        text={o}
                         checked={portalSetModel.exAccountDiscussEnum === i}
-                        onClick={() => {
+                        onChange={() => {
                           const { portalSet = {} } = props;
                           const { portalSetModel = {} } = portalSet;
 
@@ -67,13 +67,13 @@ export default function (props) {
                             return;
                           }
 
-                          Dialog.confirm({
+                          Modal.confirm({
                             title:
                               portalSetModel.exAccountDiscussEnum === 0
                                 ? _l('确定切换为不可见内部讨论？')
                                 : _l('确定切换为可见全部讨论？'),
                             width: 480,
-                            description:
+                            content:
                               portalSetModel.exAccountDiscussEnum === 0 ? (
                                 <div className="Font13">
                                   <div>
@@ -110,7 +110,10 @@ export default function (props) {
                             },
                           });
                         }}
-                      />
+                        title={o}
+                      >
+                        {o}
+                      </Radio>
                       <p className="textTertiary mTop6 mLeft30 Font13">
                         {i === 0
                           ? _l('外部用户与成员共用一个讨论区域，可见全部讨论内容')
@@ -125,40 +128,40 @@ export default function (props) {
         </div>
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.approved ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.approved}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  approved: !portalSetModel.approved,
+                  approved: checked,
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('允许查看审批流转详情')}
           </div>
-        </SwitchStyle>
+        </div>
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={!!portalSetModel.watermark && portalSetModel.watermark !== 0 ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.watermark && portalSetModel.watermark !== 0}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  watermark: portalSetModel.watermark === 1 ? 0 : 1,
+                  watermark: checked ? 1 : 0,
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('屏幕水印')}</div>
-        </SwitchStyle>
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('屏幕水印')}</div>
+        </div>
         {portalSetModel.watermark === 1 && (
           <div style={{ 'margin-left': '44px' }}>
             <div className="textTertiary Font13 mBottom8">
@@ -171,42 +174,42 @@ export default function (props) {
         )}
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.editPersonalInfo ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.editPersonalInfo}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  editPersonalInfo: !portalSetModel.editPersonalInfo,
+                  editPersonalInfo: checked,
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('允许外部用户修改账号信息')}
           </div>
-        </SwitchStyle>
+        </div>
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={portalSetModel.editPersonalExtInfo ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!portalSetModel.editPersonalExtInfo}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  editPersonalExtInfo: !portalSetModel.editPersonalExtInfo,
+                  editPersonalExtInfo: checked,
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('允许外部用户修改个人扩展信息')}
           </div>
-        </SwitchStyle>
+        </div>
       </div>
       {showWaterMarkSetting && (
         <WaterMarkDialog

@@ -8,20 +8,8 @@ export default class CalendarComments extends Component {
     super(props);
     this.state = {
       activeTab: 'topic',
+      hoveredTab: '',
     };
-  }
-
-  componentDidMount() {
-    const $tab = $(this.tab);
-    const $bottomLine = $tab.find('.bottomLine');
-    $tab.find('li').hover(
-      function () {
-        $bottomLine.css('left', $(this).index() * 90 + 25);
-      },
-      function () {
-        $bottomLine.css('left', $tab.find('li.active').index() * 90 + 25);
-      },
-    );
   }
 
   render() {
@@ -64,28 +52,28 @@ export default class CalendarComments extends Component {
   };
 
   renderTabList() {
-    const { activeTab } = this.state;
+    const { activeTab, hoveredTab } = this.state;
     const listData = [
       { id: 'topic', value: _l('讨论') },
       { id: 'file', value: _l('文件') },
     ];
     return (
-      <ul
-        className="calendarTabList clearfix"
-        ref={elem => {
-          this.tab = elem;
-        }}
-      >
+      <ul className="calendarTabList clearfix">
         {listData.map(item => (
           <li
             key={item.id}
             onClick={this.handleTabClick.bind(this, item)}
+            onMouseEnter={() => this.setState({ hoveredTab: item.id })}
+            onMouseLeave={() => this.setState({ hoveredTab: '' })}
             className={cx('calendarTab', { 'colorPrimary active': item.id === activeTab })}
           >
             {item.value}
           </li>
         ))}
-        <i className="bottomLine bgColorPrimary" />
+        <i
+          className="bottomLine bgColorPrimary"
+          style={{ left: `${listData.findIndex(item => item.id === (hoveredTab || activeTab)) * 90 + 25}px` }}
+        />
       </ul>
     );
   }

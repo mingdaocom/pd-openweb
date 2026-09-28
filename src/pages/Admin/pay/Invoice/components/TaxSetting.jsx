@@ -1,8 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
-import { Dialog, FunctionWrap, Icon, Switch } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal, Select, Switch } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import AuthAppList from 'src/pages/Admin/components/AuthAppList';
 
@@ -19,6 +20,7 @@ function TaxSetting(props) {
   const [saveLoading, setSaveLoading] = useState(false);
   const [isOpenRemark, setIsOpenRemark] = useState(taxInfo.isOpenRemark);
   const [remarks, setRemarks] = useState(taxInfo.invoiceRemarkTypes || []);
+  const [modal, modalContextHolder] = Modal.useModal();
 
   const SETTING_CONFIG = [
     {
@@ -78,13 +80,15 @@ function TaxSetting(props) {
     }
 
     if ((taxInfo.isOpenAppAuth && !isOpenAppAuth) || !_.isEqual(taxInfo.authAppInfos, authApps)) {
-      Dialog.confirm({
-        title: <span className="Red">{_l('您确定要变更电子开票授权吗？')}</span>,
-        description: _l(
+      modal.confirm({
+        title: <span className="textError">{_l('您确定要变更电子开票授权吗？')}</span>,
+        content: _l(
           '关闭电子开票节点授权或调整授权范围后，未获授权应用中已配置电子开票节点的工作流将无法使用当前开票税号开具电子发票。',
         ),
-        buttonType: 'danger',
-        okDisabled: saveLoading,
+        okButtonProps: {
+          danger: true,
+          disabled: saveLoading,
+        },
         onOk: handleSave,
       });
     } else {
@@ -93,14 +97,18 @@ function TaxSetting(props) {
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={800}
       title={_l('设置')}
-      okDisabled={!hasChanged || saveLoading}
+      okDisabled={!hasChanged}
+      confirmLoading={saveLoading}
       onCancel={onCancel}
       onOk={onOk}
     >
+      {modalContextHolder}
       {SETTING_CONFIG.map(item => {
         return (
           <div key={item.key} className={item.key === 'remark' ? 'mBottom24' : ''}>
@@ -108,7 +116,8 @@ function TaxSetting(props) {
             <div className="flexRow alignItemsCenter mTop20">
               <Switch
                 checked={item.checked}
-                onClick={() => {
+                onClick={(checked, event) => {
+                  event.stopPropagation();
                   item.key === 'remark' ? setIsOpenRemark(!isOpenRemark) : setIsOpenAppAuth(!isOpenAppAuth);
                   setHasChanged(true);
                 }}
@@ -124,7 +133,7 @@ function TaxSetting(props) {
                   mode="multiple"
                   allowClear
                   placeholder={_l('请选择')}
-                  className="w100 mdAntSelect"
+                  className="w100"
                   options={REMARK_OPTIONS}
                   value={remarks}
                   onChange={value => {
@@ -169,8 +178,10 @@ function TaxSetting(props) {
           </div>
         );
       })}
-    </Dialog>
+    </Modal>
   );
 }
 
-export const TaxSettingDialog = props => FunctionWrap(TaxSetting, { ...props });
+export function useTaxSettingDialog() {
+  return useFunctionWrapComponent(TaxSetting);
+}

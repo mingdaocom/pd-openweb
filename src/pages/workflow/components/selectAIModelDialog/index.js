@@ -3,25 +3,28 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, FunctionWrap, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import aIService from 'src/api/aIService';
 import appManagement from 'src/api/appManagement';
 
-const DialogWrapper = styled(Dialog)`
-  .mui-dialog-header {
-    border-bottom: 1px solid var(--color-border-primary);
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    flex-basis: 500px !important;
-    display: flex;
-  }
-  .mui-dialog-footer {
-    border-top: 1px solid var(--color-border-primary);
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
-  }
+const AI_MODEL_MODAL_STYLES = {
+  header: {
+    borderBottom: '1px solid var(--color-border-primary)',
+    padding: 16,
+    margin: 0,
+  },
+  body: { display: 'flex' },
+  container: { padding: 0, height: 500 },
+  footer: {
+    borderTop: '1px solid var(--color-border-primary)',
+    padding: 16,
+    margin: 0,
+  },
+};
+
+const DialogContent = styled.div`
   .emptyContent {
     flex: 1;
     display: flex;
@@ -245,14 +248,12 @@ const MODEL_DESCRIPTIONS = {
 
 class SelectAIModelDialog extends Component {
   static propTypes = {
-    showAutoModel: PropTypes.bool,
     isMultiple: PropTypes.bool,
     selectedModels: PropTypes.array, // isMultiple 模式下回显已选：[{ modelId, developerId, ... }]
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
   };
   static defaultProps = {
-    showAutoModel: false,
     isMultiple: false,
     selectedModels: [],
     onOk: () => {},
@@ -273,7 +274,7 @@ class SelectAIModelDialog extends Component {
   }
 
   componentDidMount() {
-    const { showAutoModel, projectId, appId } = this.props;
+    const { projectId, appId } = this.props;
     const request =
       projectId && appId
         ? appManagement.getAppAllowDeveloperWithModes({ projectId, appId })
@@ -282,7 +283,7 @@ class SelectAIModelDialog extends Component {
     request.then(res => {
       const list = res || [];
 
-      this.setState({ list, selectVendor: showAutoModel || _.isEmpty(list) ? '' : list[0].developer.id });
+      this.setState({ list, selectVendor: _.get(list, '[0].developer.id', '') });
     });
   }
 
@@ -359,13 +360,15 @@ class SelectAIModelDialog extends Component {
               >
                 {isMultiple && (
                   <Checkbox
-                    size="small"
                     checked={checkedModelIds.has(item.id)}
-                    onClick={(checked, value, e) => {
-                      e.stopPropagation();
+                    onChange={event => {
+                      event.stopPropagation();
                       this.toggleModel(item.id);
-                      this.setState({ selectModel: item.id });
+                      this.setState({
+                        selectModel: item.id,
+                      });
                     }}
+                    size="small"
                   />
                 )}
                 <Tooltip title={item.alias} placement="topLeft">
@@ -391,13 +394,7 @@ class SelectAIModelDialog extends Component {
     const { list, selectVendor, selectModel } = this.state;
 
     if (!selectVendor) {
-      return (
-        <ContentBox className="flex flexColumn alignItemsCenter justifyContentCenter">
-          <i className="icon-AI_Agent Font50 colorPrimary"></i>
-          <div className="textSecondary mTop30 Font13">{_l('系统会根据任务需求智能匹配最佳模型')}</div>
-          <div className="textSecondary Font13">{_l('适合大多数用户')}</div>
-        </ContentBox>
-      );
+      return null;
     }
 
     if (!list.find(o => o.developer.id === selectVendor).models.length) {
@@ -520,7 +517,7 @@ class SelectAIModelDialog extends Component {
   }
 
   render() {
-    const { showAutoModel, isMultiple, onOk, onClose } = this.props;
+    const { isMultiple, onOk, onClose } = this.props;
     const { list, selectVendor, selectModel, checkedModelIds } = this.state;
 
     const handleOk = () => {
@@ -555,26 +552,29 @@ class SelectAIModelDialog extends Component {
     };
 
     return (
-      <DialogWrapper
+      <Modal
         width={960}
         title={isMultiple ? _l('选择模型') : _l('选择一个模型')}
-        visible
+        open
+        styles={AI_MODEL_MODAL_STYLES}
+        okButtonProps={{ disabled: !isMultiple && !selectModel }}
         onOk={handleOk}
         onCancel={onClose}
       >
-        {list === null && <LoadDiv className="mTop15" />}
-        {list && list.length === 0 && (
-          <div className="emptyContent Font17 textTertiary">
-            <div className="emptyIcon">
-              <i className="icon-AI_Agent"></i>
+        <DialogContent className="flexRow h100 w100">
+          {list === null && <LoadDiv className="mTop15" />}
+          {list && list.length === 0 && (
+            <div className="emptyContent Font17 textTertiary">
+              <div className="emptyIcon">
+                <i className="icon-AI_Agent"></i>
+              </div>
+              <div>{_l('暂无可用模型')}</div>
             </div>
-            <div>{_l('暂无可用模型')}</div>
-          </div>
-        )}
-        {list && list.length > 0 && (
-          <Fragment>
-            <NavBox>
-              {/* <div className="flexRow pLeft20 pRight20 alignItemsCenter mTop15">
+          )}
+          {list && list.length > 0 && (
+            <Fragment>
+              <NavBox>
+                {/* <div className="flexRow pLeft20 pRight20 alignItemsCenter mTop15">
                 <i className="icon-search textTertiary Font20" />
                 <input
                   className="flex mLeft5 Font13"
@@ -583,52 +583,45 @@ class SelectAIModelDialog extends Component {
                   onChange={e => this.setState({ keyword: e.target.value })}
                 />
               </div> */}
-              <ScrollView className="flex mTop10">
-                {showAutoModel && (
-                  <div
-                    className={cx('listItem', { active: !selectVendor })}
-                    onClick={() => this.setState({ selectVendor: '', selectModel: '' })}
-                  >
-                    <div className="listItemIcon">
-                      <i className="icon-AI_Agent Font20 colorPrimary" />
-                    </div>
-                    <div className="flex mLeft10 ellipsis Font14">{_l('自动选择模型')}</div>
-                  </div>
-                )}
-
-                {list.map((item, index) => {
-                  const brandState = isMultiple ? this.getBrandCheckState(item.developer.id) : null;
-                  return (
-                    <div
-                      className={cx('listItem', { active: selectVendor === item.developer.id })}
-                      key={index}
-                      onClick={() => this.setState({ selectVendor: item.developer.id, selectModel: '' })}
-                    >
-                      {isMultiple && (
-                        <Checkbox
-                          size="small"
-                          checked={brandState === 'all'}
-                          clearselected={brandState === 'some'}
-                          onClick={(checked, value, e) => {
-                            e.stopPropagation();
-                            this.toggleBrand(item.developer.id);
-                          }}
-                        />
-                      )}
-                      <div className="listItemIcon">{this.renderModelIcon(item.developer)}</div>
-                      <div className="flex mLeft10 ellipsis Font14">{item.developer.name}</div>
-                    </div>
-                  );
-                })}
-              </ScrollView>
-            </NavBox>
-            {selectVendor && !!list.find(o => o.developer.id === selectVendor).models.length && this.renderModelList()}
-            {this.renderContent()}
-          </Fragment>
-        )}
-      </DialogWrapper>
+                <ScrollView className="flex mTop10">
+                  {list.map((item, index) => {
+                    const brandState = isMultiple ? this.getBrandCheckState(item.developer.id) : null;
+                    return (
+                      <div
+                        className={cx('listItem', { active: selectVendor === item.developer.id })}
+                        key={index}
+                        onClick={() => this.setState({ selectVendor: item.developer.id, selectModel: '' })}
+                      >
+                        {isMultiple && (
+                          <Checkbox
+                            checked={brandState === 'all'}
+                            indeterminate={brandState === 'some'}
+                            onChange={event => {
+                              event.stopPropagation();
+                              this.toggleBrand(item.developer.id);
+                            }}
+                            size="small"
+                          />
+                        )}
+                        <div className="listItemIcon">{this.renderModelIcon(item.developer)}</div>
+                        <div className="flex mLeft10 ellipsis Font14">{item.developer.name}</div>
+                      </div>
+                    );
+                  })}
+                </ScrollView>
+              </NavBox>
+              {selectVendor &&
+                !!list.find(o => o.developer.id === selectVendor).models.length &&
+                this.renderModelList()}
+              {this.renderContent()}
+            </Fragment>
+          )}
+        </DialogContent>
+      </Modal>
     );
   }
 }
 
-export default props => FunctionWrap(SelectAIModelDialog, { ...props });
+export function useSelectAIModelDialog() {
+  return useFunctionWrapComponent(SelectAIModelDialog);
+}

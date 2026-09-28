@@ -32,9 +32,9 @@ const Wrapper = styled.div`
       }
       &.isCur {
         font-weight: bold;
-        color: ${({ themeColor }) => themeColor};
+        color: ${({ $themeColor }) => $themeColor};
         &::after {
-          background-color: ${({ themeColor }) => themeColor};
+          background-color: ${({ $themeColor }) => $themeColor};
         }
         &:hover {
           background: var(--color-background-primary) !important;
@@ -60,7 +60,7 @@ export default function RecentApps(props) {
   const [currentTab, setCurrentTab] = useState('app');
 
   return (
-    <Wrapper themeColor={dashboardColor.themeColor}>
+    <Wrapper $themeColor={dashboardColor.themeColor}>
       <div className="cardTitle">
         <div className="titleText">
           {currentTheme.recentIcon && <img src={currentTheme.recentIcon} />}

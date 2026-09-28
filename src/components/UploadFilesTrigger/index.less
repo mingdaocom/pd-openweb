@@ -1,22 +1,7 @@
-.UploadFilesTriggerWrap {
-  &.rc-trigger-popup {
-    position: absolute;
-    left: -9999px;
-    top: -9999px;
-    z-index: 1000;
-  }
-  &.rc-trigger-popup-hidden {
-    display: none;
-  }
-}
-
 .UploadFilesTriggerPanel {
   width: 480px;
   min-height: 253px;
   max-height: 370px;
-  background-color: var(--color-background-card);
-  border-radius: 4px;
-  box-shadow: var(--shadow-xl);
   &.compatibilityIe .UploadFiles-wrapper {
     position: absolute;
     top: 56px;
@@ -90,7 +75,7 @@
     }
     &-filesWrapper {
       flex: 1;
-      padding: 0 13px 0 20px;
+      padding: 0 13px 10px 20px;
       margin-right: 0;
       overflow-y: auto;
       z-index: 1;

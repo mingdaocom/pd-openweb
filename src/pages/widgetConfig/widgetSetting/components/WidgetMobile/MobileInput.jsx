@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
 import { SettingItem } from '../../../styled';
-import { handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import SheetDealDataType from '../SheetDealDataType';
 
 const SCAN_CODE_CONFIG = [
@@ -50,9 +50,9 @@ export default ({ data, onChange }) => {
           return (
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={_.includes(['0', i.value], scantype)}
-                onClick={checked => {
+                onChange={event => {
+                  const checked = !event.target.checked;
                   let newScanType;
                   const filterValue = _.get(
                     _.find(SCAN_CODE_CONFIG, o => o.value !== i.value),
@@ -66,12 +66,20 @@ export default ({ data, onChange }) => {
                   }
 
                   onChange({
-                    ...handleAdvancedSettingChange(data, { scantype: newScanType }),
-                    strDefault: updateConfig({ config: strDefault, value: +!checked, index: 1 }),
+                    ...handleAdvancedSettingChange(data, {
+                      scantype: newScanType,
+                    }),
+                    strDefault: updateConfig({
+                      config: strDefault,
+                      value: +!checked,
+                      index: 1,
+                    }),
                   });
                 }}
-                text={i.text}
-              />
+                size="small"
+              >
+                {i.text}
+              </Checkbox>
             </div>
           );
         })}
@@ -83,21 +91,35 @@ export default ({ data, onChange }) => {
           </div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={dismanual === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
-              text={_l('禁止手动输入')}
-            />
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    dismanual: String(+event.target.checked),
+                  }),
+                )
+              }
+              size="small"
+            >
+              {_l('禁止手动输入')}
+            </Checkbox>
           </div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={disableAlbum === '1'}
-              onClick={checked =>
-                onChange({ strDefault: updateConfig({ config: strDefault, value: +!checked, index: 0 }) })
+              onChange={event =>
+                onChange({
+                  strDefault: updateConfig({
+                    config: strDefault,
+                    value: +event.target.checked,
+                    index: 0,
+                  }),
+                })
               }
-              text={_l('禁用相册')}
-            />
+              size="small"
+            >
+              {_l('禁用相册')}
+            </Checkbox>
           </div>
           <SheetDealDataType data={data} onChange={onChange} />
         </SettingItem>

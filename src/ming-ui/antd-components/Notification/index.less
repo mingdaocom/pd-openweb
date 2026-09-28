@@ -1,0 +1,78 @@
+@success-color: var(--color-success);
+@error-color: var(--color-error);
+@warning-color: var(--color-warning);
+@info-color: var(--color-info);
+
+.mdNotification {
+  min-height: 100px;
+  border-top: 4px solid var(--color-primary);
+  &.error {
+    border-top-color: @error-color;
+  }
+  &.success {
+    border-top-color: @success-color;
+  }
+  &.warning {
+    border-top-color: @warning-color;
+  }
+  &.info {
+    border-top-color: @info-color;
+  }
+  &.closable .hap-notification-notice-close {
+    display: none;
+  }
+  .hap-notification-notice-icon {
+    margin-left: 0px;
+    .success {
+      color: @success-color;
+    }
+    .error {
+      color: @error-color;
+    }
+    .warning {
+      color: @warning-color;
+    }
+    .info {
+      color: @info-color;
+    }
+  }
+  .hap-notification-notice-message,
+  .hap-notification-notice-title {
+    font-weight: 500;
+  }
+  .hap-notification-notice-description {
+    .notificationDescription {
+      white-space: pre-wrap;
+      word-break: normal;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      max-height: 210px; // 最多显示 10行 不支持webkit-line-clamp时 托底逻辑
+      -webkit-line-clamp: 10;
+      /*! autoprefixer: off */
+      -webkit-box-orient: vertical;
+      /* autoprefixer: on */
+    }
+  }
+  .hap-notification-notice-btn,
+  .hap-notification-notice-actions {
+    margin-top: 8px;
+  }
+  .hap-notification-notice-close {
+    font-size: 20px;
+  }
+}
+
+.notificationIconWrap {
+  animation: rotate 3s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -89,10 +89,6 @@ export const Wrap = styled.div`
       font-size: 14px;
       color: var(--color-text-title);
     }
-    .ming.Slider {
-      width: 100%;
-      padding: 0;
-    }
     .logoHeightNumInput {
       box-sizing: border-box;
       width: 50px;
@@ -164,27 +160,6 @@ export const Wrap = styled.div`
       }
     }
   }
-  .bgTypeUl {
-    .bgTypeUlLi {
-      height: 36px;
-      padding: 0 20px;
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-background-secondary);
-      border-radius: 0px 3px 3px 0px;
-      line-height: 34px;
-      text-align: center;
-      margin-right: -1px;
-      &:nth-child(1) {
-        border-radius: 3px 0px 0px 3px;
-      }
-      &.current {
-        background: var(--color-primary);
-        color: var(--color-white);
-        position: relative;
-        z-index: 1;
-      }
-    }
-  }
   .colorLi {
     width: 28px;
     height: 28px;
@@ -241,8 +216,8 @@ export const WrapDemo = styled.div`
   display: flex;
   background-color: rgb(245, 245, 245);
   width: calc(100% - 64px);
-  height: 80%
-  border-radius:8px;
+  height: 80%;
+  border-radius: 8px;
   position: relative;
   left: 50%;
   top: 46%;

@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import groupAjax from 'src/api/group';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 
@@ -64,8 +64,8 @@ export default ({ session, onChangeIsPost }) => {
       </Box>
 
       {visible && (
-        <Dialog
-          visible
+        <Modal
+          open
           title={_l('转换为长期群组')}
           okDisabled={isDisabled}
           onOk={updateGroup}
@@ -74,12 +74,13 @@ export default ({ session, onChangeIsPost }) => {
           <div className="mTop15 textSecondary flexRow alignItemsCenter">
             <div>{_l('所属组织')}</div>
             <div className="mLeft15 flex">
-              <Dropdown
-                border
-                isAppendToBody
+              <Select
                 className="w100"
                 value={orgId}
-                data={_.get(md, 'global.Account.projects', []).map(l => ({ value: l.projectId, text: l.companyName }))}
+                options={_.get(md, 'global.Account.projects', []).map(l => ({
+                  value: l.projectId,
+                  label: l.companyName,
+                }))}
                 onChange={id => {
                   checkProject(id);
                   setOrgId(id);
@@ -88,7 +89,7 @@ export default ({ session, onChangeIsPost }) => {
             </div>
           </div>
           <p className="mTop15 textSecondary">{_l('点选转换后，该长期群组将永久隶属于此组织，不可更改')}</p>
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

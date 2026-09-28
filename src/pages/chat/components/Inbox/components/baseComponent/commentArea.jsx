@@ -1,21 +1,22 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import { UserCard } from 'ming-ui';
-import confirm from 'ming-ui/components/Dialog/Confirm';
+import { Modal } from 'ming-ui/antd-components';
 import DiscussionController from 'src/api/discussion';
 import postAjax from 'src/api/post';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import Commenter from 'src/components/comment/commenter';
+import { SOURCE_TYPE } from 'src/components/comment/config';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import UploadFile from 'src/components/UploadFiles';
 import { formatMsgDate } from 'src/pages/chat/utils';
-import { htmlDecodeReg } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import { dateConvertToUserZone } from 'src/utils/project';
-import { SOURCE_TYPE } from '../../constants';
+import { htmlDecodeReg } from 'src/utils/core/string';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { buildSourceLink, formatTopic, splitSourceId } from '../../util';
 import Avatar from './avatar';
 import ReplyTo from './replyTo';
@@ -27,7 +28,7 @@ const removeTopicConfirm = props => {
   const header = isDeleteAttachment
     ? _l('%0带有的附件会被删除，确认要删除此%0吗？', title)
     : _l('确认要删除此%0吗？', title);
-  confirm({
+  Modal.confirm({
     title: header,
     onOk: () => {
       removeTopic(props);
@@ -71,8 +72,8 @@ const removeTopic = function (props) {
           Promise.reject(false);
         }
       })
-      .catch(() => {
-        alert(_l('操作失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
       });
   }
 };
@@ -83,7 +84,7 @@ const getComponentProps = function (props) {
   } = props;
   var commonProps = {
     placeholder: _l('请输入回复内容'),
-    textareaMinHeight: 22,
+    textareaMinHeight: 20,
     autoFocus: true,
     shrinkAfterSubmit: true,
   };
@@ -262,6 +263,7 @@ class CommentItem extends React.Component {
               {formatMsgDate(createTime)}
             </a>
           );
+
         case SOURCE_TYPE.TASK:
           return (
             <a
@@ -272,6 +274,7 @@ class CommentItem extends React.Component {
               {formatMsgDate(createTime)}
             </a>
           );
+
         case SOURCE_TYPE.FOLDER:
           return (
             <a
@@ -282,6 +285,7 @@ class CommentItem extends React.Component {
               {formatMsgDate(createTime)}
             </a>
           );
+
         case SOURCE_TYPE.CALENDAR: {
           return (
             <a
@@ -438,6 +442,12 @@ export default class CommentArea extends React.Component {
       });
   }
 
+  handleReply = () => {
+    this.setState({ showComments: true, commenterIsFocus: true }, () => {
+      this.commenter && this.commenter.focus();
+    });
+  };
+
   renderCommenter() {
     const props = {
       ...getComponentProps({
@@ -448,7 +458,15 @@ export default class CommentArea extends React.Component {
       autoFocus: this.state.commenterIsFocus,
       onSubmit: this.addCommentCallback,
     };
-    return <Commenter {...props} mentionsOptions={{ getPopupContainer: () => document.body }} />;
+    return (
+      <Commenter
+        ref={commenter => {
+          this.commenter = commenter;
+        }}
+        {...props}
+        mentionsOptions={{ getPopupContainer: () => document.body }}
+      />
+    );
   }
 
   renderComments() {
@@ -519,12 +537,7 @@ export default class CommentArea extends React.Component {
       <div className="Font12">
         <div>
           {!md.global.Account.isPortal && ( //外部门户没有回复
-            <a
-              href="javascript:void 0;"
-              onClick={() => {
-                this.setState({ showComments: true, commenterIsFocus: true });
-              }}
-            >
+            <a href="javascript:void 0;" onClick={this.handleReply}>
               {_l('回复')}
             </a>
           )}

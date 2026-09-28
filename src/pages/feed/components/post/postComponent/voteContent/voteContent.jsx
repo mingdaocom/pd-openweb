@@ -1,11 +1,19 @@
 ﻿import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Card } from 'ming-ui/antd-components';
 import { getPostDetail } from '../../../../redux/postActions';
 import VoteAction from './voteAction';
 import VoteList from './voteList';
 import VoteResult from './voteResult';
 import './voteContent.css';
+
+const VOTE_CARD_STYLE = {
+  maxWidth: 640,
+  marginTop: 12,
+  borderColor: 'var(--color-border-secondary)',
+};
+const VOTE_CARD_STYLES = { body: { padding: '14px 16px' } };
 
 /**
  * 投票动态所带的投票内容
@@ -54,7 +62,7 @@ class VoteContent extends React.Component {
 
   render() {
     return (
-      <div className="voteContent">
+      <Card className="voteContent" size="small" style={VOTE_CARD_STYLE} styles={VOTE_CARD_STYLES}>
         {this.state.isShowResult ? (
           <VoteResult {...this.props} />
         ) : (
@@ -66,7 +74,7 @@ class VoteContent extends React.Component {
           handleReloadVote={this.handleReloadVote}
           {...this.props}
         />
-      </div>
+      </Card>
     );
   }
 }

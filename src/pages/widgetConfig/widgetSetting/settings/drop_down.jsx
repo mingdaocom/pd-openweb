@@ -1,24 +1,24 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import SelectOptions from '../components/OptionList/SelectOptions';
 
 const OPTIONS_DISPLAY = [
   {
     value: '0',
-    text: _l('下拉菜单'),
+    label: _l('下拉菜单'),
     type: 11,
   },
   {
     value: '1',
-    text: _l('平铺'),
+    label: _l('平铺'),
     type: 9,
   },
   {
     value: '2',
-    text: _l('进度'),
+    label: _l('进度'),
     type: 11,
   },
 ];
@@ -26,11 +26,11 @@ const OPTIONS_DISPLAY = [
 const MULTI_SELECT_DISPLAY = [
   {
     value: '0',
-    text: _l('横向'),
+    label: _l('横向'),
   },
   {
     value: '1',
-    text: _l('纵向'),
+    label: _l('纵向'),
   },
 ];
 
@@ -42,9 +42,9 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
       <SettingItem>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <div className="labelWrap">
-          <Dropdown
-            border
-            data={FILTER_OPTIONS_DISPLAY}
+          <Select
+            className="w100"
+            options={FILTER_OPTIONS_DISPLAY}
             value={showtype}
             onChange={value => {
               onChange({
@@ -68,10 +68,10 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
       {showtype === '2' && (
         <SettingItem>
           <div className="settingItemTitle">{_l('移动端显示')}</div>
-          <Dropdown
-            border
+          <Select
+            className="w100"
             value={direction || '0'}
-            data={MULTI_SELECT_DISPLAY}
+            options={MULTI_SELECT_DISPLAY}
             onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
           />
         </SettingItem>

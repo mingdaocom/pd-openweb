@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { isEmpty } from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
-import { getAdvanceSetting } from '../../../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import EmptyRuleConfig from '../EmptyRuleConfig';
 import '../FilterData/FilterDialog.less';
 
@@ -23,8 +23,10 @@ export default function FilterDialog(props) {
   const ruleRef = useRef(null);
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={560}
       title={_l('设置筛选条件')}
       okDisabled={isEmpty(filters)}
@@ -64,6 +66,6 @@ export default function FilterDialog(props) {
       />
 
       <EmptyRuleConfig {...props} filters={filters} handleChange={value => (ruleRef.current = value)} />
-    </Dialog>
+    </Modal>
   );
 }

@@ -2,30 +2,13 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dialog, Dropdown } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import reportApi from 'statistics/api/report.js';
 import 'src/pages/widgetConfig/styled/style.less';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/utils/domain/permission/app';
 
-const SelectItem = styled.div`
-  .ming.Dropdown,
-  .ming.Menu {
-    width: 100%;
-    &.disabled {
-      background-color: var(--color-background-secondary);
-      .Dropdown--input {
-        &:hover {
-          border-color: var(--color-border-tertiary);
-        }
-      }
-    }
-  }
-  .ming.Menu {
-    max-height: 160px;
-  }
-`;
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const initialConfig = [
   {
@@ -155,18 +138,27 @@ export default function SelectStaticChartFromSheet({
   };
 
   return (
-    <Dialog width={560} visible={true} title={_l('选择统计图表')} onOk={handleOk} onCancel={onCancel}>
+    <Modal
+      width={560}
+      open
+      title={_l('选择统计图表')}
+      mask={{ closable: true }}
+      keyboard
+      onOk={handleOk}
+      onCancel={onCancel}
+    >
       {initialConfig.map(({ text, key, listKey, placeholder }, index) => (
-        <SelectItem key={key}>
+        <div key={key}>
           <div className={cx('title Bold', { mTop20: index !== 0 })}>{text}</div>
-          <Dropdown
-            className="mTop5"
+          <Select
+            className="mTop5 w100"
             value={data[listKey].length && _.find(data[listKey], o => o.value === ids[key]) ? ids[key] : undefined}
-            border
-            openSearch
-            isAppendToBody
+            showPopupSearch
+            optionFilterProp="text"
+            listHeight={160}
             placeholder={placeholder}
-            data={data[listKey]}
+            options={data[listKey]}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => {
               if (key === 'appId') {
                 setIds({ appId: value, sheetId: '', reportId: '' });
@@ -177,8 +169,8 @@ export default function SelectStaticChartFromSheet({
               }
             }}
           />
-        </SelectItem>
+        </div>
       ))}
-    </Dialog>
+    </Modal>
   );
 }

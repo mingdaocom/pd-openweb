@@ -1,13 +1,10 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse } from 'antd';
 import { LoadDiv } from 'ming-ui';
-import { EXPAND_ITEMS } from '../../config/widget';
-import { supportSettingCollapse } from '../../util';
+import { supportSettingCollapse } from 'src/utils/domain/control/capabilities';
+import { EXPAND_ITEMS } from 'src/utils/domain/control/widget';
 import WorksheetReference from '../components/WorksheetReference';
 import { SettingCollapseWrap } from './styled';
-
-const { Panel } = Collapse;
 
 const totalExpandKeys = EXPAND_ITEMS.map(i => i.key);
 const collapseComponents = {
@@ -44,6 +41,13 @@ export default function SettingContent(props) {
     return defaultItems;
   };
 
+  const items = getPanelData().map(item => ({
+    key: item.key,
+    label: item.label,
+    children: item.children,
+    ...(item.key === 'base' && from !== 'subList' ? { extra: <WorksheetReference {...props} /> } : {}),
+  }));
+
   useEffect(() => {
     setExpandKeys(totalExpandKeys);
   }, [controlId]);
@@ -53,21 +57,10 @@ export default function SettingContent(props) {
       bordered={false}
       activeKey={expandKeys}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+      items={items}
       onChange={value => {
         setExpandKeys(value);
       }}
-    >
-      {getPanelData().map(item => {
-        return (
-          <Panel
-            header={item.label}
-            key={item.key}
-            {...(item.key === 'base' && from !== 'subList' ? { extra: <WorksheetReference {...props} /> } : {})}
-          >
-            {item.children}
-          </Panel>
-        );
-      })}
-    </SettingCollapseWrap>
+    />
   );
 }

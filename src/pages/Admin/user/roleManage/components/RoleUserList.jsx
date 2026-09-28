@@ -2,13 +2,13 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, UserHead } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
 import OrganizeAjax from 'src/api/organize';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import EmptyStatus from './EmptyStatus';
-import { pathCompletion } from 'src/utils/common';
 
 const Departments = styled.div`
   width: fit-content;
@@ -139,12 +139,12 @@ class RoleUserList extends Component {
         <tr>
           <th className="checkBoxCol">
             <Checkbox
-              clearselected={!_.isEmpty(temp) && !isSelectAll}
+              indeterminate={!_.isEmpty(temp) && !isSelectAll}
               checked={isSelectAll || !_.isEmpty(temp)}
-              onClick={checked => {
+              onChange={event => {
                 let ids = [];
 
-                if (!checked) {
+                if (event.target.checked) {
                   ids = userList.map(item => item.accountId);
                 } else {
                   ids = [];
@@ -186,10 +186,10 @@ class RoleUserList extends Component {
           <td className="checkBoxCol">
             <Checkbox
               checked={_.includes(selectUserIds, item.accountId)}
-              onClick={checked => {
+              onChange={event => {
                 let ids = [...selectUserIds];
 
-                if (!checked) {
+                if (event.target.checked) {
                   ids.push(item.accountId);
                 } else {
                   ids = ids.filter(it => item.accountId !== it);

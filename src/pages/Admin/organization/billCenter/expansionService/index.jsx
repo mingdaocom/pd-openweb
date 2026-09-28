@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Checkbox } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Icon, LoadDiv, Switch } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Checkbox, Input, Modal, Switch } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import orderController from 'src/api/order';
 import paymentAjax from 'src/api/payment';
@@ -12,10 +12,10 @@ import projectAjax from 'src/api/project';
 import projectSetting from 'src/api/projectSetting';
 import { VERSION_CARD_LIST } from 'src/components/pay/versionUpgrade/config';
 import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../config';
 import PortalProgress from './PortalProgress';
 import './style.less';
@@ -37,13 +37,17 @@ const EXPAND_TYPE = {
   CHUNKS: 'chunks',
 };
 const PAGE_TITLE = {
-  user: window.platformENV.isOverseas ? _l('调整座席数') : _l('用户自助购买用户包'),
+  get user() {
+    return window.platformENV.isOverseas ? _l('调整座席数') : _l('用户自助购买用户包');
+  },
   workflow: _l('用户自助购买工作流'),
   storage: _l('用户自助购买应用附件上传量'),
   portalexpand: _l('用户自助购买外部门户用户包'),
   portalupgrade: _l('用户自助购买外部门户用户包'),
   dataSync: _l('用户自助购买数据同步算力升级包'),
-  computing: !window.platformENV.isPlatform ? _l('创建专属算力') : _l('购买专属算力'),
+  get computing() {
+    return !window.platformENV.isPlatform ? _l('创建专属算力') : _l('购买专属算力');
+  },
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: _l('开通商户号收款'),
@@ -54,13 +58,17 @@ const PAGE_TITLE = {
 }; //主操作标题名称
 
 const HeaderTitle = {
-  user: window.platformENV.isOverseas ? _l('调整您的座席订阅方案') : _l('扩充成员数量'),
+  get user() {
+    return window.platformENV.isOverseas ? _l('调整您的座席订阅方案') : _l('扩充成员数量');
+  },
   workflow: _l('购买工作流执行数升级包'),
   storage: _l('购买应用附件上传量扩充包'),
   portalexpand: _l('购买外部用户人数'),
   portalupgrade: _l('购买外部用户人数'),
   dataSync: _l('购买数据同步算力升级包'),
-  computing: !window.platformENV.isPlatform ? _l('创建专属算力') : _l('购买专属算力'),
+  get computing() {
+    return !window.platformENV.isPlatform ? _l('创建专属算力') : _l('购买专属算力');
+  },
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: {
@@ -75,7 +83,9 @@ const HeaderTitle = {
 }; //第一步标题名称
 
 const HeaderSubTitle = {
-  user: window.platformENV.isOverseas ? _l('调整座席数') : _l('扩充成员数量'),
+  get user() {
+    return window.platformENV.isOverseas ? _l('调整座席数') : _l('扩充成员数量');
+  },
   workflow: _l('选择升级包'),
   storage: _l('选择类型'),
   portalexpand: _l('选择增补人数'),
@@ -160,12 +170,13 @@ const DATASYNC_TYPE_LIST = [
     key: 2,
   },
 ];
-const EXCLUSIVE_TYPE_LIST = !window.platformENV.isPlatform
-  ? [{ title: _l('授权到期时间'), key: 1 }]
-  : [
-      { title: _l('组织到期时间'), key: 1 },
-      { title: _l('当月有效'), key: 0 },
-    ];
+const getExclusiveTypeList = () =>
+  !window.platformENV.isPlatform
+    ? [{ title: _l('授权到期时间'), key: 1 }]
+    : [
+        { title: _l('组织到期时间'), key: 1 },
+        { title: _l('当月有效'), key: 0 },
+      ];
 const MERCHANT_TYPE_LIST = [
   {
     title: _l('组织到期时间'),
@@ -784,9 +795,10 @@ let ExpansionService = class ExpansionService extends Component {
           >
             －
           </span>
-          <input
+          <Input
             type="text"
             className="colorPrimary bagNum"
+            variant="borderless"
             value={hasUnit ? value + 'GB' : value}
             disabled={disabled}
             onChange={e => {
@@ -999,7 +1011,7 @@ let ExpansionService = class ExpansionService extends Component {
             {!window.platformENV.isPlatform ? _l('有效时长') : _l('购买时长')}
           </div>
           <div className="flexRow">
-            {EXCLUSIVE_TYPE_LIST.map(item => (
+            {getExclusiveTypeList().map(item => (
               <div
                 className={cx('exclusiveTypeCard flexColumn justifyContentCenter', {
                   active: item.key === exclusiveInfo.type,
@@ -1297,7 +1309,7 @@ let ExpansionService = class ExpansionService extends Component {
             </div>
             <div className="mBottom16">
               <span className="mRight40">{_l('时长')}</span>
-              <span>{EXCLUSIVE_TYPE_LIST.find(l => l.key === exclusiveInfo.type).title}</span>
+              <span>{getExclusiveTypeList().find(l => l.key === exclusiveInfo.type).title}</span>
             </div>
             <div className="mBottom16">
               <span className="mRight40">{_l('数量')}</span>
@@ -1328,7 +1340,7 @@ let ExpansionService = class ExpansionService extends Component {
             </div>
             <div className="mBottom16">
               <span className="mRight40">{_l('时长')}</span>
-              <span>{EXCLUSIVE_TYPE_LIST.find(l => l.key === 1).title}</span>
+              <span>{getExclusiveTypeList().find(l => l.key === 1).title}</span>
             </div>
             <div className="mBottom16">
               <span className="mRight40">{_l('数量')}</span>
@@ -1367,18 +1379,19 @@ let ExpansionService = class ExpansionService extends Component {
             checked={
               showWorkflowExtPack ? this.state.autoPurchaseWorkflowExtPack : this.state.autoPurchaseDataPipelineExtPack
             }
-            onClick={checked => {
+            onClick={(checked, event) => {
+              event.stopPropagation();
               if (showWorkflowExtPack) {
                 projectSetting
                   .setAutoPurchaseWorkflowExtPack({
                     projectId: Config.projectId,
-                    autoPurchaseWorkflowExtPack: !checked,
+                    autoPurchaseWorkflowExtPack: !!checked,
                   })
                   .then(res => {
                     if (res) {
                       this.setState(
                         {
-                          autoPurchaseWorkflowExtPack: !checked,
+                          autoPurchaseWorkflowExtPack: !!checked,
                         },
                         () => {
                           if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
@@ -1396,13 +1409,13 @@ let ExpansionService = class ExpansionService extends Component {
               projectSetting
                 .setAutoPurchaseDataPipelineExtPack({
                   projectId: Config.projectId,
-                  autoPurchaseDataPipelineExtPack: !checked,
+                  autoPurchaseDataPipelineExtPack: !!checked,
                 })
                 .then(res => {
                   if (res) {
                     this.setState(
                       {
-                        autoPurchaseDataPipelineExtPack: !checked,
+                        autoPurchaseDataPipelineExtPack: !!checked,
                       },
                       () => {
                         if (this.state.autoPurchaseDataPipelineExtPack && this.state.balance < 100) {
@@ -1441,7 +1454,7 @@ let ExpansionService = class ExpansionService extends Component {
         return workflowType === 1 ? _l('每月额度升级包') : _l('本月额度升级包');
 
       case EXPAND_TYPE.COMPUTING:
-        return EXCLUSIVE_TYPE_LIST.find(l => l.key === exclusiveInfo.type).title;
+        return getExclusiveTypeList().find(l => l.key === exclusiveInfo.type).title;
 
       case EXPAND_TYPE.MERCHANT:
         return MERCHANT_TYPE_LIST[merchantType].title;
@@ -1556,9 +1569,9 @@ let ExpansionService = class ExpansionService extends Component {
 
                   {(showWorkflowExtPack || showDataSyncExtPack) && this.renderAutoOrder()}
                   <div className="pTop30">
-                    <button
-                      type="button"
-                      className="ming Button Button--primary nextBtn"
+                    <Button
+                      type="primary"
+                      shape="round"
                       onClick={() => {
                         if (!window.platformENV.isOverseas) {
                           expandType === 'computing' && !window.platformENV.isPlatform
@@ -1583,7 +1596,8 @@ let ExpansionService = class ExpansionService extends Component {
                           });
                         }
                       }}
-                      disabled={isPay || limitNumber === addUserCount}
+                      loading={isPay}
+                      disabled={limitNumber === addUserCount}
                     >
                       {!window.platformENV.isOverseas
                         ? expandType === 'computing' && !window.platformENV.isPlatform
@@ -1592,7 +1606,7 @@ let ExpansionService = class ExpansionService extends Component {
                         : expandType === EXPAND_TYPE.USER
                           ? _l('更新订阅')
                           : _l('下一步')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -1612,13 +1626,9 @@ let ExpansionService = class ExpansionService extends Component {
                       ￥{totalPrince}
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    className="ming Button Button--link colorPrimary pAll0 hoverColorPrimaryLight"
-                    onClick={() => this.setStep(1)}
-                  >
+                  <Button color="primary" variant="link" onClick={() => this.setStep(1)}>
                     {_l('修改')}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -1655,14 +1665,9 @@ let ExpansionService = class ExpansionService extends Component {
                     <span className="Font24 Bold color_b">￥{totalPrince}</span>
                   </div>
                   <div className="pTop40">
-                    <button
-                      type="button"
-                      disabled={isPay}
-                      className="ming Button Button--primary nextBtn"
-                      onClick={() => this.handlePay()}
-                    >
+                    <Button type="primary" shape="round" loading={isPay} onClick={() => this.handlePay()}>
                       {_l('确认下单')}
-                    </button>
+                    </Button>
                   </div>
                   <div className="warpNeedHelp">
                     <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>
@@ -1675,9 +1680,10 @@ let ExpansionService = class ExpansionService extends Component {
           )}
         </div>
 
-        <Dialog
-          dialogClasses="updateLicenseLoadingDialog"
-          visible={updateLicenseLoading}
+        <Modal
+          open={updateLicenseLoading}
+          mask={{ closable: true }}
+          keyboard
           width={220}
           title={null}
           footer={null}
@@ -1687,7 +1693,7 @@ let ExpansionService = class ExpansionService extends Component {
             <LoadDiv size="small" />
             <div className="bold mLeft4">{_l('更新中，请不要刷新页面')}</div>
           </div>
-        </Dialog>
+        </Modal>
       </div>
     );
   }

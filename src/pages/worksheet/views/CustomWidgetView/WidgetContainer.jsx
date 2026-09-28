@@ -6,9 +6,14 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import filterXSS from 'xss';
 import { LoadDiv } from 'ming-ui';
-import { emitter } from 'src/utils/common';
-import { formatQuickFilter } from 'src/utils/filter';
+import { useExportSheet } from 'worksheet/common/ExportSheet';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { useImportDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
+import { useSelectRecords } from 'src/components/SelectRecords';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { emitter } from 'src/utils/platform/browser/dom';
 import WidgetBridge from './bridge';
+import { useSelectLocation } from './selectLocation';
 
 const Con = styled.div`
   width: 100%;
@@ -27,6 +32,7 @@ const CustomWidget = styled.iframe`
   border-right: 1px solid var(--color-border-secondary);
 `;
 const LoadableRecordInfoWrapper = lazy(() => import('worksheet/common/recordInfo/RecordInfoWrapper'));
+const noop = () => {};
 
 function getFilters(filters = {}, quickFilter = [], navGroupFilters = []) {
   return { ...filters, fastFilters: formatQuickFilter(quickFilter), navGroupFilters };
@@ -48,8 +54,13 @@ export default function WidgetContainer(props) {
     filters,
     quickFilter,
     navGroupFilters,
-    onLoadScript = () => {},
+    onLoadScript = noop,
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
+  const { open: openSelectLocation, holder: selectLocationHolder } = useSelectLocation();
+  const { open: openImportDataFromExcel, holder: importDataFromExcelHolder } = useImportDataFromExcel();
+  const { open: openExportSheet, holder: exportSheetHolder } = useExportSheet();
   let scriptUrl = props.scriptUrl;
   // 调试模式：通过 ?bundle= 指定本地/沙箱构建的插件脚本地址进行调试
   let isDebugBundle = false;
@@ -71,11 +82,16 @@ export default function WidgetContainer(props) {
   const pluginRuntimeUrl = isLocalScript ? '' : rawPluginRuntimeUrl;
   const iframeRef = useRef();
   const cache = useRef({});
-  const containerId = useRef(uuidv4());
+  const [containerId] = useState(uuidv4);
   const bridge = useRef(
     new WidgetBridge({
       cache: cache,
-      containerId: containerId.current,
+      containerId,
+      openAddRecord,
+      openSelectRecords,
+      openSelectLocation,
+      openImportDataFromExcel,
+      openExportSheet,
     }),
   );
   const [reloadFlag, setReloadFlag] = useState(props.flag);
@@ -86,7 +102,7 @@ export default function WidgetContainer(props) {
     isServerUrl: isDebugBundle ? false : isServerUrl,
     paramsMap,
     config: {
-      containerId: containerId.current,
+      containerId,
       customWidgetViewVersion: 1,
       appId,
       projectId: worksheetInfo.projectId,
@@ -119,7 +135,7 @@ export default function WidgetContainer(props) {
         }),
       );
     },
-    [bridge.current],
+    [bridge],
   );
   useEffect(() => {
     if (reloadFlag && iframeRef.current) {
@@ -127,7 +143,7 @@ export default function WidgetContainer(props) {
         action: 'reload',
       });
     }
-  }, [scriptUrl, reloadFlag]);
+  }, [bridge, scriptUrl, reloadFlag]);
   useEffect(() => {
     setReloadFlag(Math.random().toString());
   }, [JSON.stringify(paramsMap)]);
@@ -135,7 +151,7 @@ export default function WidgetContainer(props) {
     bridge.current.mountPropertyOnWindow('env', { ...cache.current.paramsMap });
     bridge.current.mountPropertyOnWindow('config', cache.current.config);
     setReloadFlag(flag + viewId);
-  }, [flag, viewId]);
+  }, [bridge, flag, viewId]);
   useEffect(() => {
     // 筛选条件更新，发送更新消息到插件
     emitWidgetDataUpdate({
@@ -159,13 +175,18 @@ export default function WidgetContainer(props) {
       bridge.current.destroy();
       emitter.removeListener('POST_MESSAGE_TO_CUSTOM_WIDGET', emitWidgetDataUpdate);
     };
-  }, []);
+  }, [bridge, emitWidgetDataUpdate, onLoadScript]);
   return (
     <Con>
+      {addRecordHolder}
+      {selectRecordsHolder}
+      {selectLocationHolder}
+      {importDataFromExcelHolder}
+      {exportSheetHolder}
       <CustomWidget
         className="customWidgetIframe"
         allow="geolocation; microphone; camera; fullscreen; clipboard-read; clipboard-write;"
-        allowFullscreen
+        allowFullScreen
         ref={iframeRef}
         src={`${(pluginRuntimeUrl || window.__customSubPath__ || '').replace(/\/+$/, '')}/widgetview`}
       />

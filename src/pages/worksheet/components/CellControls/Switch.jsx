@@ -5,11 +5,10 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Checkbox, RadioGroup, Switch as SwitchComponent } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
-import { getSwitchItemNames } from 'src/utils/control';
-import { FROM } from './enum';
+import { Checkbox, Radio, Switch as SwitchComponent, Tooltip } from 'ming-ui/antd-components';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 export default class Switch extends React.Component {
   static propTypes = {
@@ -95,7 +94,10 @@ export default class Switch extends React.Component {
             disabled={!editable}
             checked={value}
             className={cx('InlineBlock', { mobileFormSwitchDisabled: !editable })}
-            onClick={this.handleChange}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return this.handleChange(!checked, event);
+            }}
           />
           {text && <span className="mLeft6">{text}</span>}
         </Fragment>
@@ -104,13 +106,15 @@ export default class Switch extends React.Component {
 
     if (showtype === '2') {
       return (
-        <RadioGroup
+        <Radio.Group
           size="middle"
           disabled={!editable}
           className="InlineBlock"
-          checkedValue={checkedValue}
-          data={itemnames.map(item => ({ text: item.value, value: item.key }))}
-          onChange={type => this.handleChange(type !== '1')}
+          value={checkedValue}
+          options={(itemnames.map(item => ({ text: item.value, value: item.key })) || []).map(
+            ({ text, ...option }) => ({ ...option, label: text }),
+          )}
+          onChange={event => this.handleChange(event.target.value !== '1')}
         />
       );
     }
@@ -118,7 +122,11 @@ export default class Switch extends React.Component {
     return (
       <Tooltip title={hint ? <span>{hint}</span> : ''} placement="bottom">
         <div className="flexCenter">
-          <Checkbox className="InlineBlock" disabled={!editable} checked={value} onClick={this.handleChange} />
+          <Checkbox
+            disabled={!editable}
+            checked={value}
+            onChange={event => this.handleChange(!event.target.checked, undefined, event)}
+          />
         </div>
       </Tooltip>
     );

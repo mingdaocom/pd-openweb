@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { Button, Checkbox, ConfigProvider, Dropdown, Form, Input, Menu, Modal, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
+import { Checkbox, Dropdown, Form, Input, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetColor';
-import { formatNumberFromInput } from 'src/utils/control';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 const AddLine = styled.div`
   color: var(--color-primary);
@@ -18,9 +17,6 @@ const AddLine = styled.div`
 
 const InputWrap = styled.div`
   &:hover {
-    .ant-input {
-      background-color: var(--color-background-secondary) !important;
-    }
     .icon-edit {
       display: block;
     }
@@ -50,25 +46,23 @@ const ModalContent = styled(Form)`
   .percentValue {
     width: 160px;
   }
-  .ant-checkbox-input {
+  .hap-checkbox-input {
     position: absolute !important;
   }
-  .requiredItem .ant-form-item-label {
+  .requiredItem .hap-form-item-label {
     margin-left: -10px;
   }
-  .percentInput.ant-input-affix-wrapper {
-    .ant-input {
+  .percentInput.hap-input-affix-wrapper {
+    .hap-input {
       height: 34px !important;
     }
-    .ant-input-suffix {
+    .hap-input-suffix {
       border-left: none !important;
     }
   }
-  .footer {
-    align-items: center;
-    justify-content: flex-end;
-  }
 `;
+
+const AUXILIARY_LINE_OK_BUTTON_PROPS = { htmlType: 'submit', form: 'auxiliaryLineForm' };
 
 const auxiliaryLineTypes = [
   {
@@ -132,21 +126,6 @@ class LineConfigModal extends Component {
       },
     });
   };
-  renderFooter() {
-    const { onCancel } = this.props;
-    return (
-      <div className="mTop32 mBottom20 footer flexRow">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button type="link" onClick={onCancel}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" htmlType="submit">
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   render() {
     const { lineConfig } = this.state;
     const { visible, onCancel, yaxisList, rightYaxisList, reportType } = this.props;
@@ -158,14 +137,14 @@ class LineConfigModal extends Component {
         title={type && _.find(auxiliaryLineTypes, { type }).name}
         width={580}
         className="chartModal"
-        visible={visible}
+        open={visible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={null}
+        okText={_l('确认')}
+        okButtonProps={AUXILIARY_LINE_OK_BUTTON_PROPS}
         onCancel={onCancel}
       >
-        <ModalContent layout="vertical" onFinish={this.handleSave}>
+        <ModalContent id="auxiliaryLineForm" layout="vertical" onFinish={this.handleSave}>
           <Form.Item
             initialValue={lineConfig.name}
             label={_l('名称')}
@@ -177,7 +156,6 @@ class LineConfigModal extends Component {
             ]}
           >
             <Input
-              className="chartInput"
               onChange={e => {
                 this.handleChangeConfig({ name: e.target.value });
               }}
@@ -194,7 +172,6 @@ class LineConfigModal extends Component {
                   rules={[{ required: true, message: _l('请输入固定值') }]}
                 >
                   <Input
-                    className="chartInput"
                     placeholder={_l('请输入数值')}
                     onChange={e => {
                       const value = formatNumberFromInput(e.target.value);
@@ -207,20 +184,23 @@ class LineConfigModal extends Component {
                 <div className="flex mLeft10">
                   <Form.Item label={_l('位置')}>
                     <Select
-                      className="chartSelect w100"
+                      className="w100"
                       value={lineConfig.location}
                       suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                      options={[
+                        {
+                          value: 'left',
+                          label: _l('左轴'),
+                        },
+                        {
+                          value: 'right',
+                          label: _l('右轴'),
+                        },
+                      ]}
                       onChange={value => {
                         this.handleChangeConfig({ location: value });
                       }}
-                    >
-                      <Select.Option className="selectOptionWrapper" value={'left'}>
-                        {_l('左轴')}
-                      </Select.Option>
-                      <Select.Option className="selectOptionWrapper" value={'right'}>
-                        {_l('右轴')}
-                      </Select.Option>
-                    </Select>
+                    />
                   </Form.Item>
                 </div>
               )}
@@ -230,7 +210,7 @@ class LineConfigModal extends Component {
               <div className="flex">
                 <div className="mBottom12">{_l('参考字段')}</div>
                 <Select
-                  className="chartSelect w100"
+                  className="w100"
                   value={
                     _.find(allYaxisList, { controlId: lineConfig.controlId }) ? (
                       lineConfig.controlId
@@ -239,22 +219,20 @@ class LineConfigModal extends Component {
                     )
                   }
                   suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                  options={allYaxisList.map(item => ({
+                    value: item.controlId,
+                    label: item.controlName || <span className="Red">{_l('当前字段已删除')}</span>,
+                  }))}
                   onChange={value => {
                     this.handleChangeConfig({ controlId: value });
                   }}
-                >
-                  {allYaxisList.map(item => (
-                    <Select.Option className="selectOptionWrapper" value={item.controlId}>
-                      {item.controlName || <span className="Red">{_l('当前字段已删除')}</span>}
-                    </Select.Option>
-                  ))}
-                </Select>
+                />
               </div>
               {type === 'percentLine' && (
                 <div className="mLeft10 percentValue">
                   <div className="mBottom12">{_l('百分位数')}</div>
                   <Input
-                    className="chartInput percentInput"
+                    className="percentInput"
                     value={lineConfig.percent}
                     suffix="%"
                     onChange={e => {
@@ -273,23 +251,27 @@ class LineConfigModal extends Component {
             <div className="lineStyle flex mRight10">
               <div className="mBottom12">{_l('线条样式')}</div>
               <Select
-                className="chartSelect w100"
+                className="w100"
                 value={lineConfig.style}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                options={[
+                  {
+                    value: 1,
+                    label: _l('实线'),
+                  },
+                  {
+                    value: 2,
+                    label: _l('虚线'),
+                  },
+                  {
+                    value: 3,
+                    label: _l('点线'),
+                  },
+                ]}
                 onChange={value => {
                   this.handleChangeConfig({ style: value });
                 }}
-              >
-                <Select.Option className="selectOptionWrapper" value={1}>
-                  {_l('实线')}
-                </Select.Option>
-                <Select.Option className="selectOptionWrapper" value={2}>
-                  {_l('虚线')}
-                </Select.Option>
-                <Select.Option className="selectOptionWrapper" value={3}>
-                  {_l('点线')}
-                </Select.Option>
-              </Select>
+              />
             </div>
             {type !== 'tendencyLine' && (
               <div className="flex">
@@ -311,7 +293,7 @@ class LineConfigModal extends Component {
               <Checkbox
                 className="mRight10"
                 checked={lineConfig.showName}
-                onChange={() => {
+                onChange={event => {
                   this.handleChangeConfig({ showName: event.target.checked });
                 }}
               >
@@ -319,7 +301,7 @@ class LineConfigModal extends Component {
               </Checkbox>
               <Checkbox
                 checked={lineConfig.showValue}
-                onChange={() => {
+                onChange={event => {
                   this.handleChangeConfig({ showValue: event.target.checked });
                 }}
               >
@@ -327,7 +309,6 @@ class LineConfigModal extends Component {
               </Checkbox>
             </div>
           )}
-          {this.renderFooter()}
         </ModalContent>
       </Modal>
     );
@@ -372,7 +353,7 @@ export default class AuxiliaryLine extends Component {
       auxiliaryLines: auxiliaryLines.filter(l => l.id !== id),
     });
   };
-  renderMenu = () => {
+  getMenuItems = () => {
     const { yaxisList, displaySetup, reportType } = this.props.currentReport;
     const { isPile, isPerPile, isAccumulate } = displaySetup;
     const defaultConfig = {
@@ -382,40 +363,34 @@ export default class AuxiliaryLine extends Component {
       showName: false,
       value: undefined,
     };
-    return (
-      <Menu>
-        {auxiliaryLineTypes
-          .filter(item => {
-            return isPile || isPerPile || isAccumulate ? item.type === 'constantLine' : true;
-          })
-          .filter(item => {
-            if (reportTypes.RadarChart === reportType) {
-              return !['averageLine', 'tendencyLine'].includes(item.type);
-            }
 
-            return true;
-          })
-          .map(item => (
-            <Menu.Item
-              key={item.type}
-              className="pTop7 pBottom7 pLeft20"
-              onClick={() => {
-                this.setState({
-                  editLineConfig: {
-                    ...item,
-                    ...defaultConfig,
-                    showValue: item.type === 'tendencyLine' ? false : true,
-                    location: item.type === 'constantLine' ? 'left' : null,
-                    percent: item.type === 'percentLine' ? 50 : 0,
-                  },
-                });
-              }}
-            >
-              {item.name}
-            </Menu.Item>
-          ))}
-      </Menu>
-    );
+    return auxiliaryLineTypes
+      .filter(item => {
+        return isPile || isPerPile || isAccumulate ? item.type === 'constantLine' : true;
+      })
+      .filter(item => {
+        if (reportTypes.RadarChart === reportType) {
+          return !['averageLine', 'tendencyLine'].includes(item.type);
+        }
+
+        return true;
+      })
+      .map(item => ({
+        key: item.type,
+        className: 'pTop7 pBottom7 pLeft20',
+        label: item.name,
+        onClick: () => {
+          this.setState({
+            editLineConfig: {
+              ...item,
+              ...defaultConfig,
+              showValue: item.type === 'tendencyLine' ? false : true,
+              location: item.type === 'constantLine' ? 'left' : null,
+              percent: item.type === 'percentLine' ? 50 : 0,
+            },
+          });
+        },
+      }));
   };
   render() {
     const { currentReport } = this.props;
@@ -428,7 +403,7 @@ export default class AuxiliaryLine extends Component {
         {auxiliaryLines.map(item => (
           <div className="valignWrapper flex mBottom12" key={item.id}>
             <InputWrap className="valignWrapper w100 Relative">
-              <Input readOnly value={item.name} className="chartInput flex mRight5" />
+              <Input readOnly value={item.name} className="flex mRight5" />
               <Icon
                 className="textTertiary pointer"
                 icon="edit"
@@ -452,7 +427,7 @@ export default class AuxiliaryLine extends Component {
         ))}
         <Dropdown
           trigger={['click']}
-          overlay={this.renderMenu}
+          menu={{ items: this.getMenuItems() }}
           getPopupContainer={() => document.querySelector('.ChartDialogSetting .chartTabs')}
         >
           <AddLine className="Font13 valignWrapper pointer" onClick={e => e.preventDefault()}>

@@ -3,18 +3,17 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import SheetView from 'worksheet/views/SheetView';
 import TreeTableView from 'worksheet/views/TreeTableView';
 import { REFRESH_TIME_VALUES } from 'src/pages/worksheet/common/ViewConfig/config';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
 import ViewContext from './ViewContext';
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
-
 const Con = styled.div`
   height: 100%;
   flex: 1;
@@ -26,9 +25,7 @@ const Con = styled.div`
     }
   }
 `;
-
 const Loading = styled.div``;
-
 const BoardView = lazy(() => import('./BoardView'));
 const CalendarView = lazy(() => import('worksheet/views/CalendarView'));
 const CustomWidgetView = lazy(() => import('./CustomWidgetView'));
@@ -40,7 +37,6 @@ const HierarchyVerticalView = lazy(() => import('./HierarchyVerticalView'));
 const HierarchyView = lazy(() => import('./HierarchyView'));
 const MapView = lazy(() => import('./MapView'));
 const ResourceView = lazy(() => import('./ResourceView'));
-
 const TYPE_TO_COMP = {
   [board]: BoardView,
   [sheet]: SheetView,
@@ -57,29 +53,41 @@ const TYPE_TO_COMP = {
   [resource]: ResourceView,
 };
 
-function ViewLoadingContent() {
+export function ViewLoadingContent() {
   return (
     <Loading>
       <Skeleton
-        style={{ flex: 1 }}
-        direction="column"
-        widths={['30%', '40%', '90%', '60%']}
+        className="pAll20 pBottom0"
+        style={{
+          flex: 1,
+        }}
         active
-        itemStyle={{ marginBottom: '10px' }}
+        paragraph={{
+          rows: 4,
+          width: ['30%', '40%', '90%', '60%'],
+        }}
       />
       <Skeleton
-        style={{ flex: 1 }}
-        direction="column"
-        widths={['40%', '55%', '100%', '80%']}
+        className="pAll20 pBottom0"
+        style={{
+          flex: 1,
+        }}
         active
-        itemStyle={{ marginBottom: '10px' }}
+        paragraph={{
+          rows: 4,
+          width: ['40%', '55%', '100%', '80%'],
+        }}
       />
       <Skeleton
-        style={{ flex: 2 }}
-        direction="column"
-        widths={['45%', '100%', '100%', '100%']}
+        className="pAll20"
+        style={{
+          flex: 2,
+        }}
         active
-        itemStyle={{ marginBottom: '10px' }}
+        paragraph={{
+          rows: 4,
+          width: ['45%', '100%', '100%', '100%'],
+        }}
       />
     </Loading>
   );
@@ -94,7 +102,13 @@ export function updateHierarchyConfigLevel(view) {
 
   if (defaultlayer && defaultlayertime) {
     if (!levelUpdateTime || Number(defaultlayertime) > Number(levelUpdateTime)) {
-      safeLocalStorageSetItem(`hierarchyConfig-${viewId}`, JSON.stringify({ ...config, level: Number(defaultlayer) }));
+      safeLocalStorageSetItem(
+        `hierarchyConfig-${viewId}`,
+        JSON.stringify({
+          ...config,
+          level: Number(defaultlayer),
+        }),
+      );
     }
   }
 }
@@ -104,9 +118,7 @@ function View(props) {
   const { advancedSetting = {} } = view;
   const authRefreshTime = props.authRefreshTime || get(view, 'advancedSetting.refreshtime');
   const cache = useRef({});
-
   let activeViewStatus = props.activeViewStatus;
-
   const viewProps = _.pick(props, [
     'type',
     'isCharge',
@@ -177,14 +189,17 @@ function View(props) {
       cache.current.refreshTimer = setInterval(
         () => {
           if (
-            document.querySelector('.workSheetNewRecord.mdModal') ||
-            document.querySelector('.workSheetRecordInfo.mdModal') ||
-            document.querySelector('.fillRecordControls.mdModal')
+            document.querySelector('.workSheetNewRecord.hap-modal') ||
+            document.querySelector('.workSheetRecordInfo.hap-modal') ||
+            document.querySelector('.fillRecordControls.hap-modal')
           ) {
             return;
           }
 
-          refreshSheet(view, { noLoading: true, isAutoRefresh: true });
+          refreshSheet(view, {
+            noLoading: true,
+            isAutoRefresh: true,
+          });
         },
         Number(authRefreshTime) * 1000,
       );
@@ -197,12 +212,22 @@ function View(props) {
     };
   }, [view.viewId, authRefreshTime]);
 
+  useEffect(() => {
+    props.embedNeedUpdate &&
+      refreshSheet(view, {
+        isRefreshBtn: true,
+      });
+  }, [props.embedNeedUpdate]);
+
   useLayoutEffect(() => {
     cache.current.viewId = view.viewId;
   }, [view.viewId]);
-
   return (
-    <ViewContext.Provider value={{ isCharge: props.isCharge }}>
+    <ViewContext.Provider
+      value={{
+        isCharge: props.isCharge,
+      }}
+    >
       <Con className={cx('viewCon', `viewType-${viewType}`)}>
         {!Component || activeViewStatus !== 1 ? (
           <UnNormal resultCode={error ? -999999 : activeViewStatus} />

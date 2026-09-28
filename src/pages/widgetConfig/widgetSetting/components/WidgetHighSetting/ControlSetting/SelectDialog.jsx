@@ -1,31 +1,11 @@
 import React, { useState } from 'react';
-import { Dropdown } from 'antd';
-import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import { DropdownContentWrap } from '../../../../styled';
+import { Modal, Select } from 'ming-ui/antd-components';
 import allData from './telData';
 import '../../../../styled/style.less';
 
 const SelectInfoWrap = styled.div`
-  .countryList {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    min-height: 36px;
-    padding-bottom: 6px;
-    line-height: 36px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 4px;
-    &:hover {
-      border-color: var(--color-primary);
-    }
-    .text {
-      margin: 6px 0 0 12px;
-      line-height: 22px;
-    }
-  }
   .countryItem {
     display: flex;
     align-items: center;
@@ -48,187 +28,114 @@ const SelectInfoWrap = styled.div`
   }
 `;
 
-export const SelectCountryDropdown = ({ unique, data, setData, selectableData, style }) => {
-  const [value, setValue] = useState('');
-  const filteredData = value
-    ? selectableData.filter(
-        item => item.dialCode.includes(value) || (item.name || '').toLowerCase().includes(value.toLowerCase()),
-      )
-    : selectableData;
-  return (
-    <DropdownContentWrap style={style}>
-      <div className="searchWrap" onClick={e => e.stopPropagation()}>
-        <i className="icon-search Font16 textSecondary"></i>
-        <input
-          autoFocus
-          value={value}
-          placeholder={_l('搜索')}
-          onChange={e => {
-            setValue(e.target.value);
-          }}
-        />
-      </div>
-      {filteredData.length > 0 ? (
-        <div className="countryContent">
-          {filteredData.map(item => {
-            return (
-              <div
-                key={item.iso2}
-                className="item"
-                onClick={e => {
-                  if (unique) {
-                    setData(item);
-                    return;
-                  }
-
-                  e.stopPropagation();
-                  if (!data.some(({ iso2 }) => iso2 === item.iso2)) {
-                    setData(update(data, { $push: [item] }));
-                  }
-                }}
-              >
-                <span className="countryName overflow_ellipsis">{item.name}</span>
-                <span className="textSecondary">{`(+${item.dialCode})`}</span>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="emptyText">{_l(value ? '暂无搜索结果' : _l('暂无可选项'))}</div>
-      )}
-    </DropdownContentWrap>
-  );
-};
+const SELECT_STYLES = { root: { width: '100%', minHeight: 36 } };
+export const getCountryOptions = data =>
+  data.map(item => ({
+    value: item.iso2,
+    label: item.name,
+    searchText: `+${item.dialCode} ${item.name}`,
+    country: item,
+  }));
+const getAreaOptions = data =>
+  data.map(item => ({
+    value: item.id,
+    label: item.name,
+    searchText: item.name,
+  }));
+export const renderCountryOption = ({ data }) => (
+  <div className="flexRow alignItemsCenter">
+    <span className="flex overflow_ellipsis">{data.label}</span>
+    <span className="textSecondary">{`(+${data.country.dialCode})`}</span>
+  </div>
+);
+const renderSelectTag = ({ label, closable, onClose }) => (
+  <div
+    className="countryItem"
+    onMouseDown={event => {
+      event.preventDefault();
+      event.stopPropagation();
+    }}
+  >
+    <span className="countryName overflow_ellipsis">{label}</span>
+    {closable && (
+      <i
+        className="icon-close"
+        onClick={event => {
+          event.stopPropagation();
+          onClose();
+        }}
+      ></i>
+    )}
+  </div>
+);
 
 export default function SelectCountryDialog(props) {
   const { type, title, onOk, onCancel } = props;
   const [data, setData] = useState(props.data || []);
-
-  const getSelectableData = () => {
-    const initData = props.selectableData || allData;
-
-    if (type === 'common') {
-      return initData.filter(item => !data.some(({ iso2 }) => item.iso2 === iso2));
-    }
-
-    return initData;
-  };
+  const [searchValue, setSearchValue] = useState('');
+  const options = getCountryOptions(_.uniqBy(data.concat(props.selectableData || allData), 'iso2'));
 
   return (
-    <Dialog title={title} visible onOk={() => onOk(data)} onCancel={onCancel} dialogClasses="selectDialogZIndex">
-      <Dropdown
-        trigger={['click']}
-        overlay={<SelectCountryDropdown data={data} setData={setData} selectableData={getSelectableData()} />}
-      >
-        <SelectInfoWrap>
-          <div className="countryList">
-            {data.length > 0 ? (
-              data.map((item, index) => (
-                <div key={item.name} className="countryItem">
-                  <span className="countryName overflow_ellipsis">{item.name}</span>
-                  <i
-                    className="icon-close"
-                    onClick={e => {
-                      e.stopPropagation();
-                      const nextData = update(data, { $splice: [[index, 1]] });
-                      setData(nextData);
-                    }}
-                  ></i>
-                </div>
-              ))
-            ) : (
-              <div className="text textDisabled">{type === 'allowData' ? _l('全部') : _l('请选择')}</div>
-            )}
-          </div>
-        </SelectInfoWrap>
-      </Dropdown>
-    </Dialog>
+    <Modal
+      width={480}
+      wrapClassName="selectDialogZIndex"
+      title={title}
+      open
+      mask={{ closable: true }}
+      keyboard
+      onOk={() => onOk(data)}
+      onCancel={onCancel}
+    >
+      <SelectInfoWrap>
+        <Select
+          mode="multiple"
+          value={data.map(item => item.iso2)}
+          options={options}
+          placeholder={type === 'allowData' ? _l('全部') : _l('请选择')}
+          showPopupSearch
+          optionFilterProp="searchText"
+          styles={SELECT_STYLES}
+          tagRender={renderSelectTag}
+          optionRender={renderCountryOption}
+          notFoundContent={_l(searchValue ? '暂无搜索结果' : '暂无可选项')}
+          onSearch={setSearchValue}
+          onChange={(_, selectedOptions) => setData(selectedOptions.map(item => item.country))}
+        />
+      </SelectInfoWrap>
+    </Modal>
   );
 }
-
-const SelectAreaCountryDropdown = ({ data, setData, selectableData, style }) => {
-  const [value, setValue] = useState('');
-  const filteredData = value
-    ? data.filter(item => (item.name || '').toLowerCase().includes(value.toLowerCase()))
-    : data;
-  return (
-    <DropdownContentWrap style={style}>
-      <div className="searchWrap" onClick={e => e.stopPropagation()}>
-        <i className="icon-search Font16 textSecondary"></i>
-        <input
-          autoFocus
-          value={value}
-          placeholder={_l('搜索')}
-          onChange={e => {
-            setValue(e.target.value);
-          }}
-        />
-      </div>
-      {filteredData.length > 0 ? (
-        <div className="countryContent">
-          {filteredData.map(item => {
-            return (
-              <div
-                key={item.id}
-                className="item"
-                onClick={e => {
-                  e.stopPropagation();
-                  if (!selectableData.some(id => id === item.id)) {
-                    setData(update(selectableData, { $push: [item.id] }));
-                  }
-                }}
-              >
-                <span className="countryName overflow_ellipsis">{item.name}</span>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="emptyText">{_l(value ? '暂无搜索结果' : _l('暂无可选项'))}</div>
-      )}
-    </DropdownContentWrap>
-  );
-};
 
 export function SelectAreaCountryDialog(props) {
   const { title, data, onOk, onCancel } = props;
   const [selectableData, setSelectData] = useState(props.selectableData || []);
+  const [searchValue, setSearchValue] = useState('');
 
   return (
-    <Dialog title={title} visible onOk={() => onOk(selectableData)} onCancel={onCancel}>
-      <Dropdown
-        trigger={['click']}
-        overlay={<SelectAreaCountryDropdown data={data} setData={setSelectData} selectableData={selectableData} />}
-      >
-        <SelectInfoWrap>
-          <div className="countryList">
-            {selectableData.length > 0 ? (
-              selectableData.map((id, index) => {
-                const name = _.get(
-                  _.find(data, d => d.id === id),
-                  'name',
-                );
-                if (!name) return null;
-                return (
-                  <div key={id} className="countryItem">
-                    <span className="countryName overflow_ellipsis">{name}</span>
-                    <i
-                      className="icon-close"
-                      onClick={e => {
-                        e.stopPropagation();
-                        const nextData = update(selectableData, { $splice: [[index, 1]] });
-                        setSelectData(nextData);
-                      }}
-                    ></i>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text textDisabled">{_l('请选择')}</div>
-            )}
-          </div>
-        </SelectInfoWrap>
-      </Dropdown>
-    </Dialog>
+    <Modal
+      width={480}
+      title={title}
+      open
+      mask={{ closable: true }}
+      keyboard
+      onOk={() => onOk(selectableData)}
+      onCancel={onCancel}
+    >
+      <SelectInfoWrap>
+        <Select
+          mode="multiple"
+          value={selectableData}
+          options={getAreaOptions(data)}
+          placeholder={_l('请选择')}
+          showPopupSearch
+          optionFilterProp="searchText"
+          styles={SELECT_STYLES}
+          tagRender={renderSelectTag}
+          notFoundContent={_l(searchValue ? '暂无搜索结果' : '暂无可选项')}
+          onSearch={setSearchValue}
+          onChange={setSelectData}
+        />
+      </SelectInfoWrap>
+    </Modal>
   );
 }

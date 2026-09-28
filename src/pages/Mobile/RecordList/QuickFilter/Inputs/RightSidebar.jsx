@@ -12,7 +12,7 @@ const Con = styled.div`
   left: 0;
   background: var(--color-background-primary);
   z-index: 1;
-  // transform: ${props => `translateX(${-props.width}px)`};
+  // transform: ${props => `translateX(${-props.$width}px)`};
   .rightSidebar-content {
     overflow-y: auto;
     z-index: 1;
@@ -25,7 +25,7 @@ export default function RightSidebar(props) {
   const { onHideSidebar, children } = props;
   const width = document.documentElement.clientWidth - 60;
   return (
-    <Con className="flexColumn" width={width}>
+    <Con className="flexColumn" $width={width}>
       <div className="pLeft15 pRight15 flexRow valignWrapper mBottom10">
         <Icon className="textTertiary Font22" icon="backspace" onClick={onHideSidebar} />
         <div className="flex textTertiary Font13 mLeft20 ellipsis">{props.name}</div>

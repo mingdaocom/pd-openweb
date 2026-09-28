@@ -1,8 +1,8 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 
 const FORM_CONFIG = [
@@ -21,19 +21,17 @@ const FORM_CONFIG = [
   },
 ];
 
-const DialogWrap = styled(Dialog)`
+const DialogWrap = styled(Modal)`
   .icon-wechat {
     font-size: 110px;
     color: var(--color-success);
   }
   .desTxt {
     line-height: 29px;
-    width: 580px;
     margin: 0 auto;
     font-size: 14px;
   }
   .formGroup {
-    width: 520px;
     margin: 0 auto;
     .required {
       color: var(--color-error);
@@ -54,7 +52,6 @@ const DialogWrap = styled(Dialog)`
     }
   }
   .desc {
-    width: 520px;
     margin: 0 auto;
     text-align: left;
   }
@@ -63,6 +60,7 @@ const DialogWrap = styled(Dialog)`
 export default function PrivateAuthDialog(props) {
   const { visible, projectId, onCancel, getWeiXinBindingInfo } = props;
   const [state, setState] = useState({ name: '', appId: '', appSecret: '' });
+  const requestPending = useRef(false);
   const { name, appId, appSecret } = state;
 
   const changeFormData = (value, item) => {
@@ -71,21 +69,37 @@ export default function PrivateAuthDialog(props) {
 
   // 提交授权
   const handleSubmit = () => {
+    if (requestPending.current) return;
+
     if ([name, appId, appSecret].some(item => !_.trim(item))) {
       setState({ ...state, nameError: !_.trim(name), appIdError: !_.trim(appId), appSecretError: !_.trim(appSecret) });
       return;
     }
 
-    projectAjax.addTpAuthorizerInfo({ projectId, name, appId, appSecret }).then(res => {
-      if (res) {
-        onCancel();
-        getWeiXinBindingInfo();
-      }
-    });
+    requestPending.current = true;
+    return projectAjax
+      .addTpAuthorizerInfo({ projectId, name, appId, appSecret })
+      .then(res => {
+        if (res) {
+          onCancel();
+          getWeiXinBindingInfo();
+        }
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   return (
-    <DialogWrap visible={visible} onCancel={onCancel} title={_l('绑定微信服务号')} width={680} onOk={handleSubmit}>
+    <DialogWrap
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onCancel}
+      title={_l('绑定微信服务号')}
+      width={680}
+      onOk={handleSubmit}
+    >
       <div className="TxtCenter">
         <span className="icon-wechat icon" />
       </div>
@@ -106,15 +120,14 @@ export default function PrivateAuthDialog(props) {
               {item.type == 'text' ? (
                 <Input
                   className={cx('w100', { error: state[`${item.key}Error`] })}
-                  onChange={val => changeFormData(val, item)}
+                  onChange={e => changeFormData(e.target.value, item)}
                 />
               ) : (
                 <Input
                   className={cx('w100', { error: state[`${item.key}Error`] })}
                   type="password"
                   autoComplete="new-password"
-                  onChange={val => changeFormData(val, item)}
-                  visibilityToggle={false}
+                  onChange={e => changeFormData(e.target.value, item)}
                 />
               )}
             </div>

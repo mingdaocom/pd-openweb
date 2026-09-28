@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { FILTER_CONDITION_TYPE } from '../../enum';
+import { Input } from 'ming-ui/antd-components';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 export default class Number extends Component {
   static propTypes = {
@@ -89,41 +90,36 @@ export default class Number extends Component {
         {type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN ? (
           <div className="numberRange flexRow">
             <div className="flex">
-              <input
+              <Input
                 disabled={disabled}
-                type="text"
-                className="ming Input"
                 value={minValue}
                 placeholder={_l('最小值')}
                 onChange={e => this.setValue('minValue', e.target.value)}
                 onBlur={this.handleChange}
-                maxlength={18}
+                maxLength={18}
               />
             </div>
             <span className="split">-</span>
             <div className="flex">
-              <input
+              <Input
                 disabled={disabled}
-                type="text"
-                className="ming Input"
                 value={maxValue}
                 placeholder={_l('最大值')}
                 onChange={e => this.setValue('maxValue', e.target.value)}
                 onBlur={this.handleChange}
-                maxlength={18}
+                maxLength={18}
               />
             </div>
           </div>
         ) : (
-          <input
+          <Input
             disabled={disabled}
-            type="text"
-            className="ming Input w100"
+            className="w100"
             value={value}
             placeholder={_l('请输入数值')}
             onChange={e => this.setValue('value', e.target.value)}
             onBlur={this.handleChange}
-            maxlength={18}
+            maxLength={18}
           />
         )}
       </div>

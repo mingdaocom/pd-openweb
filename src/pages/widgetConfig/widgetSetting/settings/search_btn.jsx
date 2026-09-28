@@ -1,18 +1,17 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Radio, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import ApiSearchConfig from '../components/ApiSearchConfig';
 import AttachmentConfig from '../components/AttachmentConfig';
 
 const SEARCH_DISPLAY_OPTION = [
   {
     value: 0,
-    text: _l('按钮'),
+    label: _l('按钮'),
   },
-  { value: 1, text: _l('下拉框') },
-  { value: 2, text: _l('搜索下拉框') },
+  { value: 1, label: _l('下拉框') },
+  { value: 2, label: _l('搜索下拉框') },
 ];
 
 const SEARCH_TYPES = [
@@ -52,10 +51,10 @@ export default function SearchBtn(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('显示方式')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           disabled={isBtn && isSaved}
-          data={FILTER_SEARCH_DISPLAY_OPTION}
+          options={FILTER_SEARCH_DISPLAY_OPTION}
           value={enumDefault}
           onChange={value => {
             // 按钮
@@ -90,11 +89,17 @@ export default function SearchBtn(props) {
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('搜索方式')}</div>
-            <RadioGroup
+            <Radio.Group
               size="middle"
-              checkedValue={clicksearch}
-              data={SEARCH_TYPES}
-              onChange={value => onChange(handleAdvancedSettingChange(data, { clicksearch: value }))}
+              value={clicksearch}
+              options={(SEARCH_TYPES || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    clicksearch: event.target.value,
+                  }),
+                )
+              }
             />
           </SettingItem>
           <SettingItem>
@@ -122,9 +127,15 @@ export default function SearchBtn(props) {
               </Tooltip>
             </div>
             <Checkbox
-              size="small"
               checked={searchfirst === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { searchfirst: String(+!checked) }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    searchfirst: String(+event.target.checked),
+                  }),
+                )
+              }
+              size="small"
             >
               <span>{_l('在搜索前先进行一次请求')}</span>
             </Checkbox>
@@ -134,11 +145,13 @@ export default function SearchBtn(props) {
 
       <SettingItem>
         <div className="settingItemTitle">{_l('调用来源')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={enumDefault2}
-          data={SOURCE_TYPES}
-          onChange={value => {
+          value={enumDefault2}
+          options={(SOURCE_TYPES || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             if (enumDefault2 === value) return;
             onChange({
               ...handleAdvancedSettingChange(data, {

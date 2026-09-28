@@ -1,3 +1,33 @@
+.formContainer {
+  --form-control-disabled-bg: transparent;
+  --form-control-disabled-border: transparent;
+  --form-control-disabled-text: currentColor;
+
+  /* 仅重置 Ant Design 写入的禁用光标，保留子元素自定义 cursor */
+  .hap-input.hap-input-disabled,
+  .hap-input-affix-wrapper.hap-input-affix-wrapper-disabled,
+  .hap-select.hap-select-disabled,
+  .hap-picker.hap-picker-disabled {
+    cursor: auto;
+  }
+
+  .hap-input-affix-wrapper-disabled input,
+  .hap-input-affix-wrapper-disabled textarea,
+  .hap-input-affix-wrapper-disabled .hap-input-password-icon,
+  .hap-select-disabled .hap-select-selection-item,
+  .hap-picker-disabled input,
+  .hap-picker-disabled .hap-picker-selection-item,
+  .hap-picker-disabled .hap-picker-separator {
+    cursor: inherit;
+  }
+
+  // 禁用 Select 的搜索框不参与命中，让选中项文本可以拖拽选择
+  .hap-select-disabled input {
+    z-index: -1;
+    cursor: inherit;
+  }
+}
+
 .ignoreErrorMessage {
   background: var(--color-warning);
   .customFormErrorArrow {
@@ -18,27 +48,11 @@
 .ruleErrorMsgDialog {
   width: 98% !important;
   max-width: 480px;
-  .mui-dialog-desc {
-    padding-top: 16px !important;
-  }
 }
 
 .newRuleErrorMsgDialog {
   width: 98% !important;
   max-width: 510px;
-  .mui-dialog-header {
-    height: inherit;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    .mui-dialog-default-title {
-      margin-bottom: 16px;
-    }
-    .mui-dialog-desc {
-      padding-top: 0px !important;
-      overflow-x: hidden;
-    }
-  }
   .errorItem {
     display: flex;
     align-items: center;

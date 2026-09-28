@@ -3,8 +3,8 @@ import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
-import { formatNumberFromInput } from 'src/utils/control';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const isMobile = browserIsMobile();
 
@@ -22,8 +22,8 @@ const Con = styled.div`
   padding-left: 7px;
   padding-right: 7px;
   user-select: none;
-  ${({ hasScale }) => (hasScale ? 'padding-bottom: 44px;' : '')}
-  ${({ isMobile }) => (isMobile ? 'padding-left: 0px;' : '')}
+  ${({ $hasScale }) => ($hasScale ? 'padding-bottom: 44px;' : '')}
+  ${({ $isMobile }) => ($isMobile ? 'padding-left: 0px;' : '')}
 `;
 const Bar = styled.div`
   flex: 1;
@@ -33,9 +33,9 @@ const Bar = styled.div`
   margin: 7px 0;
   border-radius: 3px;
   background: var(--color-border-secondary);
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
   &:hover {
-    ${({ disabled }) => (disabled ? '' : 'background: var(--color-border-hover)')}
+    ${({ $disabled }) => ($disabled ? '' : 'background: var(--color-border-hover)')}
   }
 `;
 
@@ -53,7 +53,7 @@ const Drag = styled.span`
   width: 14px;
   height: 14px;
   border-radius: 10px;
-  border: 2px solid ${({ color }) => color};
+  border: 2px solid ${({ $color }) => $color};
   &::before,
   &::after {
     transition: none;
@@ -76,15 +76,15 @@ const ScalePoint = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 8px;
-  border: 2px solid ${({ color }) => color};
+  border: 2px solid ${({ $color }) => $color};
   > span {
     font-size: 12px;
     user-select: none;
     white-space: nowrap;
     transform: translateX(calc(-50% + 2px));
-    ${({ percent }) => `
-      ${percent < 10 ? 'transform: translateX(-3px);' : ''}
-      ${percent > 90 ? 'transform: translateX(calc(-100% + 3px));' : ''}
+    ${({ $percent }) => `
+      ${$percent < 10 ? 'transform: translateX(-3px);' : ''}
+      ${$percent > 90 ? 'transform: translateX(calc(-100% + 3px));' : ''}
     `}
     margin-top: 10px;
     display: inline-block;
@@ -128,12 +128,12 @@ const Input = styled.input`
   padding: 0 12px;
   border-radius: 4px;
   background: var(--color-background-secondary);
-  ${({ showAsPercent }) => (showAsPercent ? 'padding-right: 28px;' : '')}
+  ${({ $showAsPercent }) => ($showAsPercent ? 'padding-right: 28px;' : '')}
   &:active {
     border-color: var(--color-primary);
   }
-  ${({ active }) =>
-    active
+  ${({ $active }) =>
+    $active
       ? `
   border-color: var(--color-primary);
   background: var(--color-background-primary);
@@ -145,7 +145,7 @@ const Input = styled.input`
 `;
 const NumberValue = styled.span`
   margin-left: 12px;
-  ${({ disabled }) => (disabled ? 'color: rgba(0,0,0,.3);' : '')}
+  ${({ $disabled }) => ($disabled ? 'color: rgba(0,0,0,.3);' : '')}
 `;
 
 function getColor(config, value, showAsPercent) {
@@ -406,8 +406,8 @@ export default function Slider(props) {
     <Con
       className={className}
       style={style}
-      hasScale={itemnames && itemnames.length && showScaleText}
-      isMobile={isMobile}
+      $hasScale={itemnames && itemnames.length && showScaleText}
+      $isMobile={isMobile}
       onClick={
         disabled
           ? _.noop
@@ -418,7 +418,7 @@ export default function Slider(props) {
       }
     >
       <Bar
-        disabled={disabled}
+        $disabled={disabled}
         ref={barRef}
         style={barStyle}
         onClick={
@@ -463,8 +463,8 @@ export default function Slider(props) {
                   <ScalePoint
                     className={'scale'}
                     value={scale.value}
-                    color={scale.percent < valuePercent ? color : 'var(--color-background-disabled)'}
-                    percent={scale.percent}
+                    $color={scale.percent < valuePercent ? color : 'var(--color-background-disabled)'}
+                    $percent={scale.percent}
                   ></ScalePoint>
                 </Tooltip>
               </ScalePointClick>
@@ -539,7 +539,7 @@ export default function Slider(props) {
             <Drag
               className={`${isDragging ? 'hover' : ''}`}
               ref={dragRef}
-              color={
+              $color={
                 !_.isUndefined(value)
                   ? disabled
                     ? 'var(--color-text-disabled)'
@@ -569,8 +569,8 @@ export default function Slider(props) {
         <InputCon>
           <Input
             className={inputClassName}
-            showAsPercent={showAsPercent && numberIsFocusing && !_.isUndefined(valueForInput)}
-            active={numberIsFocusing}
+            $showAsPercent={showAsPercent && numberIsFocusing && !_.isUndefined(valueForInput)}
+            $active={numberIsFocusing}
             ref={inputRef}
             type="text"
             {...inputAttribute}
@@ -596,7 +596,7 @@ export default function Slider(props) {
         </InputCon>
       )}
       {showNumber && (!showInput || disabled) && (
-        <NumberValue style={{ ...numStyle, width: numberWidth }} disabled={props.disabled} isMobile={isMobile}>
+        <NumberValue style={{ ...numStyle, width: numberWidth }} $disabled={props.disabled}>
           {!_.isUndefined(value) && (
             <Fragment>
               {value}

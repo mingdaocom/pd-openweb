@@ -1,14 +1,14 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui/antd-components';
-import { validateFnExpression } from 'src/utils/common';
+import { Button, Tooltip } from 'ming-ui/antd-components';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { validateFnExpression } from '../validation';
 import FunctionEditor from './FunctionEditor';
 
 const Con = styled.div`
-  padding: ${({ readOnly }) => (readOnly ? '4px 6px;' : '20px 0 0;')};
+  padding: ${({ $readOnly }) => ($readOnly ? '4px 6px;' : '20px 0 0;')};
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -64,28 +64,11 @@ const PlaceHolder = styled.div`
   font-size: 14px;
 `;
 
-const TestButton = styled.div`
-  display: inline-flex;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  width: 48px;
-  height: 24px;
-  line-height: 22px;
-  background: var(--color-background-primary);
-  border-radius: 2px 2px 2px 2px;
-  border: 1px solid var(--color-primary);
-  font-size: 12px;
-  color: var(--color-primary);
-  &:hover {
-    background: var(--color-primary);
-    color: var(--color-white);
-  }
-`;
+const TEST_BUTTON_STYLE = { minWidth: 48, flexShrink: 0 };
 
 const Editor = styled.div`
   flex: 1;
-  padding: ${({ readOnly }) => (readOnly ? '0px' : '20px 0;')}
+  padding: ${({ $readOnly }) => ($readOnly ? '0px' : '20px 0')};
   overflow: hidden;
   .CodeMirror {
     font-family: Monaco, monospace;
@@ -139,6 +122,7 @@ function CodeEdit(props, ref) {
     title,
     placeholder,
     controls,
+    selectableControls,
     renderTag,
     appId,
     worksheetId,
@@ -184,6 +168,7 @@ function CodeEdit(props, ref) {
         },
         getControlName: controlId => (_.find(controls, { controlId }) || {}).controlName,
         controls,
+        selectableControls,
         renderTag,
         type,
         onChange: handleChange,
@@ -221,7 +206,7 @@ function CodeEdit(props, ref) {
   }));
   const subListHelpUrl = 'https://help.mingdao.com/worksheet/function-examples/#sumform';
   return (
-    <Con readOnly={readOnly} onClick={onClick}>
+    <Con $readOnly={readOnly} onClick={onClick}>
       {!readOnly && (
         <Title ref={ref}>
           <div className="controlName">
@@ -253,7 +238,11 @@ function CodeEdit(props, ref) {
             </Tooltip>
           )}
           {showTestButton && (
-            <TestButton
+            <Button
+              color="primary"
+              size="small"
+              style={TEST_BUTTON_STYLE}
+              variant="outlined"
               onClick={() => {
                 openTestFunctionDialog({
                   isWorksheetFlow,
@@ -265,6 +254,7 @@ function CodeEdit(props, ref) {
                   value: editorRef.current.getValue(),
                   title,
                   controls,
+                  selectableControls,
                   editorRef: editorRef.current,
                   renderTag,
                   onChange,
@@ -276,13 +266,13 @@ function CodeEdit(props, ref) {
               }}
             >
               {_l('测试')}
-            </TestButton>
+            </Button>
           )}
         </Title>
       )}
       {description && <div className="description">{description}</div>}
       {readOnly && !value && placeholder && <PlaceHolder>{placeholder}</PlaceHolder>}
-      <Editor readOnly={readOnly} ref={editorDomRef} />
+      <Editor $readOnly={readOnly} ref={editorDomRef} />
       {error && !readOnly && (
         <Error>
           <i className="icon icon-error1" />
@@ -306,6 +296,7 @@ CodeEdit.propTypes = {
   value: string,
   placeholder: string,
   controls: arrayOf(shape({})),
+  selectableControls: arrayOf(shape({})),
   renderTag: func,
   onClick: func,
   onChange: func,

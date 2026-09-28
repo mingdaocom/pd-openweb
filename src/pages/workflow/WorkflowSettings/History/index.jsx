@@ -8,7 +8,7 @@ import { MdLink, ScrollView } from 'ming-ui';
 import api from '../../api/instance';
 import processVersion from '../../api/processVersion';
 import ArchivedList from 'src/components/ArchivedList';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import chatbot from '../../apiV2/chatbot';
 import Detail from '../Detail';
 import { APP_TYPE } from '../enum';
@@ -429,7 +429,8 @@ let History = class History extends Component {
             key={cacheKey}
             isPlugin={isPlugin}
             processId={flowInfo.id}
-            isSerial={_.includes([2, 3], flowInfo.executeType)}
+            isSerial={_.includes([2, 3, 4], flowInfo.executeType)}
+            isPartitionSerial={flowInfo.executeType === 4}
             batchIds={batchIds}
             onFilter={this.handleFilter}
             archivedItem={archivedItem}

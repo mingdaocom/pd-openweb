@@ -1,17 +1,15 @@
 import React, { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import doT from 'dot';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import { LoadDiv, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Dropdown, Input, Menu, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import CopyFolder from '../../components/copyFolder/copyFolder';
 import FolderTemplate from '../../components/folderTemplate/folderTemplate';
 import config from '../../config/config';
@@ -47,6 +45,16 @@ import './taskNavigation.less';
 
 const loading = renderToString(<LoadDiv />);
 
+const TASK_MENU_SELECTED_KEYS = {
+  1: 'participate',
+  2: 'responsible',
+  3: 'trust',
+  7: 'otherAndMe',
+  8: 'star',
+  9: 'subordinate',
+  10: 'otherResponsible',
+};
+
 const taskNavigationSettings = {
   globalEvent: null,
   timer: null,
@@ -56,39 +64,15 @@ const taskNavigationSettings = {
   pointGapY: 0,
 };
 
-const SearchFolderCon = styled.ul`
-  width: 360px;
-  max-height: 400px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  background: var(--color-background-primary);
-  padding: 6px 0;
-  overflow-y: scroll;
-  li {
-    cursor: pointer;
-    height: 40px;
-    line-height: 40px;
-    overflow: hidden;
-    padding-left: 15px;
-    padding-right: 10px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    .icon {
-      color: var(--color-text-placeholder);
-      display: inline-block;
-      font-size: 14px;
-      margin-right: 8px;
-    }
-    &.selected {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-`;
+const FOLDER_SETTINGS_DROPDOWN_CLASS_NAMES = { root: 'folderSettingsDropdown' };
+const PROJECT_FOLDER_SETTINGS_DROPDOWN_CLASS_NAMES = { root: 'projectFolderSettingsDropdown' };
+const SEARCH_INPUT_STYLE = { display: 'flex', width: 220, margin: '6px auto 7px' };
+const SEARCH_DROPDOWN_MENU_STYLE = { width: 360, maxHeight: 400, overflowY: 'auto' };
+const SEARCH_TASK_KEY = 'task';
+const getProjectFolderSettingsItems = () => [
+  { key: 'rename', label: _l('重命名项目文件夹') },
+  { key: 'abort', label: _l('解散项目文件夹') },
+];
 
 function SearchFolder(props) {
   const { onSelect, filterUserId } = props;
@@ -96,25 +80,94 @@ function SearchFolder(props) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({ folders: [], labels: [] });
   const [search, setSearch] = useState('');
-  const [highlight, setHighlight] = useState({
-    id: 0,
-    data: {},
-  });
+  const [highlightKey, setHighlightKey] = useState(SEARCH_TASK_KEY);
   const requestRef = useRef(null);
   const requestIdRef = useRef(0);
+  const debouncedSearchRef = useRef(null);
 
-  const hideSearch = () => {
+  const closeSearch = useCallback(() => {
     setVisible(false);
-    setHighlight({
-      id: 0,
-      data: {},
-    });
-  };
+    setHighlightKey(SEARCH_TASK_KEY);
+  }, []);
+
+  const searchResults = useMemo(() => {
+    const results = [
+      {
+        key: SEARCH_TASK_KEY,
+        icon: <i className="icon-search" />,
+        label: _l('搜索和“%0”相关的任务>', search),
+        data: { type: 'task', searchText: search },
+      },
+      ...data.folders.map(folder => ({
+        key: `folder-${folder.folderID}`,
+        icon: <i className="icon-project-new" />,
+        label: folder.folderName,
+        data: {
+          ...folder,
+          type: 'folder',
+          text: folder.folderName,
+          searchText: search,
+        },
+      })),
+      ...data.labels.map(label => ({
+        key: `category-${label.categoryID}`,
+        icon: <i className="icon-task-label" />,
+        label: label.categoryName,
+        data: {
+          ...label,
+          type: 'category',
+          text: label.categoryName,
+          searchText: search,
+        },
+      })),
+    ];
+
+    return results.map(result => ({
+      ...result,
+      onMouseEnter: () => setHighlightKey(result.key),
+    }));
+  }, [data.folders, data.labels, search]);
+
+  const selectSearchResult = useCallback(
+    key => {
+      const result = searchResults.find(item => item.key === key);
+
+      if (!result) return;
+
+      onSelect(result.data);
+      closeSearch();
+    },
+    [closeSearch, onSelect, searchResults],
+  );
+
+  const handleSearchKeyDown = useCallback(
+    event => {
+      if (!visible) return;
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        selectSearchResult(highlightKey);
+        return;
+      }
+
+      if (loading) return;
+      if (!['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+
+      event.preventDefault();
+      const currentIndex = searchResults.findIndex(item => item.key === highlightKey);
+      const nextIndex = Math.max(
+        0,
+        Math.min(searchResults.length - 1, currentIndex + (event.key === 'ArrowUp' ? -1 : 1)),
+      );
+      setHighlightKey(searchResults[nextIndex].key);
+    },
+    [highlightKey, loading, searchResults, selectSearchResult, visible],
+  );
 
   const searchFetch = useCallback(
-    (value, requestId) => {
+    (keywords, requestId) => {
       const request = ajaxRequest.searchFolderList({
-        keywords: value,
+        keywords,
         otherAccountID: filterUserId,
         pageIndex: 1,
       });
@@ -132,10 +185,7 @@ function SearchFolder(props) {
         .catch(() => {
           if (requestId !== requestIdRef.current) return;
 
-          setData({
-            folders: [],
-            labels: [],
-          });
+          setData({ folders: [], labels: [] });
         })
         .finally(() => {
           if (requestId === requestIdRef.current) {
@@ -146,225 +196,79 @@ function SearchFolder(props) {
     [filterUserId],
   );
 
-  const handleSearch = useMemo(() => _.debounce(searchFetch, 500), [searchFetch]);
+  useEffect(() => {
+    const debouncedSearch = _.debounce(searchFetch, 500);
+    debouncedSearchRef.current = debouncedSearch;
 
-  useEffect(
-    () => () => {
-      handleSearch.cancel();
+    return () => {
+      debouncedSearch.cancel();
+      debouncedSearchRef.current = null;
       requestIdRef.current += 1;
       requestRef.current?.abort?.();
-    },
-    [handleSearch],
-  );
+    };
+  }, [searchFetch]);
 
   const handleSearchChange = value => {
-    const trimmedValue = value.trim();
-    const requestId = requestIdRef.current + 1;
+    const keywords = value.trim();
+    const requestId = ++requestIdRef.current;
 
-    requestIdRef.current = requestId;
     requestRef.current?.abort?.();
-    setSearch(trimmedValue);
-    setHighlight({
-      id: 0,
-      data: {},
-    });
+    setSearch(keywords);
+    setHighlightKey(SEARCH_TASK_KEY);
 
-    if (!trimmedValue) {
-      handleSearch.cancel();
+    if (!keywords) {
+      debouncedSearchRef.current?.cancel();
       setLoading(false);
-      setData({
-        folders: [],
-        labels: [],
-      });
-      setVisible(false);
+      setData({ folders: [], labels: [] });
+      closeSearch();
+      onSelect({ type: 'task', searchText: '' });
       return;
     }
 
     setLoading(true);
     setVisible(true);
-    handleSearch(trimmedValue, requestId);
+    debouncedSearchRef.current?.(keywords, requestId);
   };
 
-  const handleKeyDown = e => {
-    if (!visible) return;
-
-    switch (e.keyCode) {
-      case 13:
-        if (highlight.id === 0) {
-          onSelect({
-            type: 'task',
-            searchText: search,
-          });
-        } else {
-          onSelect(highlight.data);
-        }
-
-        hideSearch();
-        return;
-      case 38: //up
-      case 40: //down
-        let item = {};
-
-        if (highlight.id === 0) {
-          if (e.keyCode === 38 || (!data.folders[0] && !data.labels[0])) return;
-          item = data.folders.concat(data.labels)[0];
-        } else {
-          let last = _.last(data.folders.concat(data.labels));
-          if (e.keyCode === 40 && [last.folderID, last.categoryID].includes(highlight.id)) return;
-          let list = data.folders.concat(data.labels);
-          let index = _.findIndex(list, l => (l.folderID || l.categoryID) === highlight.id);
-
-          if (index === 0 && e.keyCode === 38) {
-            setHighlight({
-              id: 0,
-              data: {},
-            });
-            return;
-          }
-
-          item = list[e.keyCode === 38 ? index - 1 : index + 1];
-        }
-
-        setHighlight({
-          id: item.folderID || item.categoryID,
-          data: {
-            ...item,
-            type: item.folderID ? 'folder' : 'category',
-            text: item.folderName || item.categoryName,
-            searchText: search,
-          },
-        });
-        return;
-    }
-  };
+  const menuItems = useMemo(
+    () =>
+      loading
+        ? [{ key: 'loading', disabled: true, label: <LoadDiv size="middle" /> }]
+        : searchResults.map(({ key, icon, label, onMouseEnter }) => ({ key, icon, label, onMouseEnter })),
+    [loading, searchResults],
+  );
 
   return (
-    <Trigger
-      zIndex={10}
-      popup={
-        <SearchFolderCon>
-          {loading ? (
-            <LoadDiv size="middle" />
-          ) : (
-            <React.Fragment>
-              <li
-                className={cx('searchTask', { selected: highlight.id === 0 })}
-                data-type="task"
-                onClick={() => {
-                  onSelect({
-                    type: 'task',
-                    searchText: search,
-                  });
-                  hideSearch();
-                }}
-                onMouseOver={() => {
-                  if (highlight.id === 0) return;
-                  setHighlight({
-                    id: 0,
-                    data: {},
-                  });
-                }}
-              >
-                <span className="icon-search icon" title={_l('搜索')}></span>
-                {_l('搜索和“%0”相关的任务>', search)}
-              </li>
-              {data.folders.map(folder => (
-                <li
-                  className={cx('searchFolders', { selected: highlight.id === folder.folderID })}
-                  data-type="folder"
-                  data-id={folder.folderID}
-                  onClick={() => {
-                    onSelect({
-                      ...folder,
-                      type: 'folder',
-                      text: folder.folderName,
-                      searchText: search,
-                    });
-                    hideSearch();
-                  }}
-                  onMouseOver={() => {
-                    if (highlight.id === folder.folderID) return;
-                    setHighlight({
-                      id: folder.folderID,
-                      data: {
-                        ...folder,
-                        type: 'folder',
-                        text: folder.folderName,
-                        searchText: search,
-                      },
-                    });
-                  }}
-                >
-                  <i className="icon-project-new icon"></i>
-                  {folder.folderName}
-                </li>
-              ))}
-              {data.labels.map(label => (
-                <li
-                  className={cx('searchCategorys', { selected: highlight.id === label.categoryID })}
-                  data-type="category"
-                  data-id={label.categoryID}
-                  onClick={() => {
-                    onSelect({
-                      ...label,
-                      type: 'category',
-                      text: label.categoryName,
-                      searchText: search,
-                    });
-                    hideSearch();
-                  }}
-                  onMouseOver={() => {
-                    if (highlight.id === label.categoryID) return;
-                    setHighlight({
-                      id: label.categoryID,
-                      data: {
-                        ...label,
-                        type: 'category',
-                        text: label.categoryName,
-                        searchText: search,
-                      },
-                    });
-                  }}
-                >
-                  <i className="icon-task-label"></i>
-                  {label.categoryName}
-                </li>
-              ))}
-            </React.Fragment>
-          )}
-        </SearchFolderCon>
-      }
-      popupStyle={{ width: 374 }}
-      popupVisible={visible}
-      onPopupVisibleChange={nextVisible => {
-        if (nextVisible && data.folders.length === 0 && data.labels.length === 0) return;
+    <Dropdown
+      menu={{
+        items: menuItems,
+        selectable: !loading,
+        selectedKeys: loading ? [] : [highlightKey],
+        style: SEARCH_DROPDOWN_MENU_STYLE,
+        onClick: ({ key }) => selectSearchResult(key),
+      }}
+      open={visible}
+      onOpenChange={nextVisible => {
         if (nextVisible) {
-          setVisible(true);
+          if (search) setVisible(true);
         } else {
-          hideSearch();
+          closeSearch();
         }
       }}
-      action={['click']}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [0, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
+      trigger={['click']}
+      placement="bottomRight"
     >
-      <div className="folderSearch boderRadAll_5 borderSecondary">
-        <span className="icon-search btnFolderSearch textSecondary Font17" />
-        <input
-          type="text"
-          id="leftSearchTaskOrFolder"
-          className="txtSearch boxSizing textPrimary"
-          placeholder={_l('搜索')}
-          onChange={e => {
-            handleSearchChange(e.target.value);
-          }}
-          onKeyDown={handleKeyDown}
-        />
-      </div>
-    </Trigger>
+      <Input
+        allowClear
+        variant="underlined"
+        id="leftSearchTaskOrFolder"
+        prefix={<i className="icon-search textSecondary" />}
+        placeholder={_l('搜索')}
+        style={SEARCH_INPUT_STYLE}
+        onChange={e => handleSearchChange(e.target.value)}
+        onKeyDown={handleSearchKeyDown}
+      />
+    </Dropdown>
   );
 }
 
@@ -379,6 +283,8 @@ class TaskNavigation extends Component {
       folderName: '',
       chargeUser: '',
       isAdmin: false,
+      folderSettings: null,
+      projectFolderSettings: null,
     };
   }
 
@@ -474,6 +380,53 @@ class TaskNavigation extends Component {
     });
   }
 
+  selectTaskType = dataType => {
+    let taskFilter;
+
+    if (dataType == 'myTask') {
+      taskFilter = getTaskState(6).taskFilter || 6;
+    } else if (dataType == 'star') {
+      taskFilter = 8;
+    } else if (dataType == 'subordinate') {
+      taskFilter = 9;
+    } else if (dataType == 'responsible') {
+      taskFilter = 2;
+    } else if (dataType == 'trust') {
+      taskFilter = 3;
+    } else if (dataType == 'participate') {
+      taskFilter = 1;
+    } else if (dataType == 'otherAndMe') {
+      taskFilter = 7;
+    } else if (dataType == 'otherResponsible') {
+      taskFilter = 10;
+    }
+
+    $('#taskNavigator .folderList li').removeClass('bgColorPrimaryTransparent');
+
+    const taskConfig = Object.assign(
+      {},
+      this.props.taskConfig,
+      this.props.taskConfig.filterUserId ? {} : getTaskState(taskFilter),
+      { taskFilter, folderId: '', projectId: '' },
+      config.clearFilterSettings,
+    );
+
+    if (taskFilter === 8) {
+      taskConfig.listSort = 10;
+    }
+
+    if (dataType == 'myTask' || dataType == 'star' || dataType == 'subordinate') {
+      setStateToStorage(taskFilter, taskConfig);
+    }
+
+    if (_.isEqual(taskConfig, this.props.taskConfig)) {
+      config.isGetData = true;
+    }
+
+    this.props.dispatch(updateStateConfig(taskConfig));
+    navigateTo('/apps/task/' + (taskFilter === 8 ? 'star' : taskFilter === 9 ? 'subordinate' : 'center'));
+  };
+
   /**
    * 操作绑定
    */
@@ -481,73 +434,9 @@ class TaskNavigation extends Component {
     const that = this;
     const $taskNavigator = $('#taskNavigator');
 
-    // 搜索
-    const $search = $('#leftSearchTaskOrFolder');
-    $search.on({
-      focus() {
-        $(this).closest('.folderSearch').addClass('borderColorPrimary').removeClass('borderSecondary');
-      },
-      blur() {
-        $(this).closest('.folderSearch').removeClass('borderColorPrimary').addClass('borderSecondary');
-      },
-    });
-
     // 我负责的任务 我托付 我参与
     $taskNavigator.on('click', '.taskType li', function () {
-      const dataType = $(this).attr('data-type');
-      let taskFilter;
-
-      if (dataType == 'myTask') {
-        taskFilter = getTaskState(6).taskFilter || 6;
-      } else if (dataType == 'star') {
-        // 星标任务
-        taskFilter = 8;
-      } else if (dataType == 'subordinate') {
-        // 我的下属
-        taskFilter = 9;
-      } else if (dataType == 'responsible') {
-        // 他负责的任务
-        taskFilter = 2;
-      } else if (dataType == 'trust') {
-        // 他托付的任务
-        taskFilter = 3;
-      } else if (dataType == 'participate') {
-        // 他参与的任务
-        taskFilter = 1;
-      } else if (dataType == 'otherAndMe') {
-        // 协作的任务
-        taskFilter = 7;
-      } else if (dataType == 'otherResponsible') {
-        // 我可见他负责的任务
-        taskFilter = 10;
-      }
-
-      $taskNavigator.find('.folderList li').removeClass('bgColorPrimaryTransparent');
-
-      const taskConfig = Object.assign(
-        {},
-        that.props.taskConfig,
-        that.props.taskConfig.filterUserId ? {} : getTaskState(taskFilter),
-        { taskFilter, folderId: '', projectId: '' },
-        config.clearFilterSettings,
-      );
-
-      // 星标任务排序按最近更新
-      if (taskFilter === 8) {
-        taskConfig.listSort = 10;
-      }
-
-      if (dataType == 'myTask' || dataType == 'star' || dataType == 'subordinate') {
-        setStateToStorage(taskFilter, taskConfig);
-      }
-
-      // 相同的点击也重新拉取数据
-      if (_.isEqual(taskConfig, that.props.taskConfig)) {
-        config.isGetData = true;
-      }
-
-      that.props.dispatch(updateStateConfig(taskConfig));
-      navigateTo('/apps/task/' + (taskFilter === 8 ? 'star' : taskFilter === 9 ? 'subordinate' : 'center'));
+      that.selectTaskType($(this).attr('data-type'));
     });
 
     // 置顶项目展开隐藏
@@ -558,11 +447,6 @@ class TaskNavigation extends Component {
 
       visible ? $folderList.slideUp() : $folderList.slideDown();
       $this.find('.topFolderState').text(visible ? _l('展开') : _l('隐藏'));
-    });
-
-    // 创建项目
-    $taskNavigator.on('click', '.createNew', () => {
-      that.setState({ showFolderTemplate: true });
     });
 
     // 网络名称点击隐藏和显示项目列表
@@ -616,9 +500,8 @@ class TaskNavigation extends Component {
       {
         click(event) {
           // 项目设置选项和设置齿轮隐藏
-          $('.folderList .sinSettings').addClass('Hidden');
-          $('.folderSettingsList').hide();
-          $('#taskNavigator .folderUnfinished.folderIcon').removeClass('Hidden');
+          that.closeFolderSettings();
+          that.closeProjectFolderSettings();
 
           const _this = $(this);
           const projectId =
@@ -738,8 +621,6 @@ class TaskNavigation extends Component {
     $taskNavigator.on(
       {
         click(event) {
-          const $folderSettingBox = $('.folderSettingsList');
-
           event.stopPropagation();
 
           // 隐藏所有的设置按钮
@@ -748,8 +629,7 @@ class TaskNavigation extends Component {
 
           // 已经显示了二次点击隐藏
           if (!$(this).hasClass('Hidden')) {
-            $(this).addClass('Hidden');
-            $('.folderSettingsList').hide();
+            that.closeFolderSettings();
             return;
           }
 
@@ -757,279 +637,47 @@ class TaskNavigation extends Component {
           $(this).removeClass('Hidden');
           $(this).parent().find('.folderUnfinished').addClass('Hidden');
 
-          // 设为未生成文件夹列表
-          $folderSettingBox.find('.addFileBox').data('build', false);
-
           const $li = $(this).closest('li');
           const projectId = $li.data('projectid');
           const $projectFolder = $li.closest('.projectFolder');
           const folderId = $li.data('id');
+          const fileId = $projectFolder.length ? $projectFolder.data('fileid') : undefined;
+          const rect = this.getBoundingClientRect();
 
-          if ($projectFolder.length > 0) {
-            $folderSettingBox.data('fileid', $projectFolder.data('fileid'));
-          } else {
-            $folderSettingBox.removeData('fileid');
-          }
-
-          // 新建文件夹时候
-          $folderSettingBox.data('folderid', folderId).data('projectid', projectId).data('auth', $li.data('auth'));
-
-          if (md.global.Account.accountId === $li.data('charge')) {
-            const text = $li.data('ispigeonhole') ? _l('取消归档项目') : _l('归档项目');
-            $folderSettingBox.find('.pigeonhole').show().find('span').text(text);
-          } else {
-            $folderSettingBox.find('.pigeonhole').hide();
-          }
-
-          const $importantProject = $folderSettingBox.find('.importantProject').show();
-
-          // 置顶
-          if ($li.data('istop')) {
-            $importantProject.data('istop', 1).find('span').text(_l('取消置顶'));
-          } else {
-            $importantProject.data('istop', 0).find('span').text(_l('置顶'));
-          }
-
-          if (
-            $li.closest('.topFolderList').length ||
-            $li.closest('.pigeonholeFolder').length ||
-            $li.closest('.slideFolders').length
-          ) {
-            $folderSettingBox.find('.addFileBox').hide();
-          } else {
-            $folderSettingBox.find('.addFileBox').show();
-          }
-
-          // 项目权限
-          if ($li.data('auth') === config.auth.FolderCharger || $li.data('auth') === config.auth.FolderAdmin) {
-            $folderSettingBox.find('.copyFolder').show();
-          } else {
-            $folderSettingBox.find('.copyFolder').hide();
-          }
-
-          // 删除权限
-          if ($li.data('auth') === config.auth.FolderCharger) {
-            $folderSettingBox.find('.chargeAuth').show();
-          } else {
-            $folderSettingBox.find('.chargeAuth').hide();
-          }
-
-          // 退出项目
-          if ($li.data('auth') !== config.auth.FolderCharger && $li.data('ismember')) {
-            $folderSettingBox.find('.exitFolder').show();
-          } else {
-            $folderSettingBox.find('.exitFolder').hide();
-          }
-
-          // 退出文件夹
-          if ($li.parent().is('.projectFolderUl') && !$li.parent().is('.pigeonholeFolderList')) {
-            $folderSettingBox.find('.exitFile').removeClass('Hidden');
-          } else {
-            $folderSettingBox.find('.exitFile').addClass('Hidden');
-          }
-
-          // 归档不可以分文件��折叠
-          if ($li.parent().is('.pigeonholeFolderList')) {
-            $folderSettingBox.find('.addFileBox').addClass('Hidden');
-            $folderSettingBox.find('.slideFolders').addClass('Hidden');
-          } else {
-            $folderSettingBox.find('.addFileBox').removeClass('Hidden');
-            $folderSettingBox.find('.slideFolders').removeClass('Hidden');
-          }
-
-          // 隐藏/取消隐藏 项目
-          $folderSettingBox.find('.slideFolders span').text($li.data('ishidden') ? _l('取消隐藏项目') : _l('隐藏项目'));
-
-          const winHeight = $(window).height();
-          const folderSettingBoxHeight = $folderSettingBox.show().height();
-          $folderSettingBox.hide();
-          // 单个项目设置
-          const offset = $(this).offset();
-          let top = offset.top;
-          const left = offset.left - 16;
-
-          if (top + folderSettingBoxHeight + 24 > winHeight) {
-            top = top - folderSettingBoxHeight - 24;
-          } else {
-            top += 24;
-          }
-
-          $folderSettingBox
-            .css({
-              top: top - 50,
-              left,
-            })
-            .show();
-
-          // 分割线
-          const $dividerLine = $folderSettingBox.find('.dividerLine');
-
-          if (
-            _.toArray($dividerLine.nextAll())
-              .map(el => {
-                return $(el).is(':visible');
-              })
-              .reduce((pre, cur) => {
-                return pre + cur;
-              })
-          ) {
-            $folderSettingBox.find('.dividerLine').show();
-          } else {
-            $folderSettingBox.find('.dividerLine').hide();
-          }
+          that.folderSettingsTrigger = this;
+          that.folderSettingsTarget = $li[0];
+          that.setState({
+            folderSettings: {
+              projectId,
+              folderId,
+              fileId,
+              moveTargets: that.getFolderMoveTargets(projectId, fileId),
+              auth: $li.data('auth'),
+              chargeUser: $li.data('charge'),
+              folderName: $li.find('.folderName').text(),
+              isMember: $li.data('ismember'),
+              isTop: $li.data('istop'),
+              isArchived: $li.data('ispigeonhole'),
+              isHidden: $li.data('ishidden'),
+              isInTopList: !!$li.closest('.topFolderList').length,
+              isInArchivedSection: !!$li.closest('.pigeonholeFolder').length,
+              isInArchivedList: $li.parent().is('.pigeonholeFolderList'),
+              isInHiddenList: !!$li.closest('.slideFolders').length,
+              isInProjectFile: $li.parent().is('.projectFolderUl') && !$li.parent().is('.pigeonholeFolderList'),
+              position: {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+              },
+            },
+          });
         },
         mousedown() {
-          $('.projectFolderOp').addClass('Hidden');
+          that.closeProjectFolderSettings();
         },
       },
       '.folderList li .sinSettings',
-    );
-
-    // 放到body中了  项目设置
-    $('body').on(
-      {
-        'click.task': function () {
-          const projectId = $('.folderSettingsList').data('projectid');
-          const folderId = $('.folderSettingsList').data('folderid');
-          const auth = $('.folderSettingsList').data('auth');
-          const isAdmin = auth === config.auth.FolderCharger || auth === config.auth.FolderAdmin;
-          const $li = $(".folderList li[data-id='" + folderId + "']:last");
-          const istop = $li.data('istop');
-          const ispigeonhole = $li.data('ispigeonhole');
-          const ishidden = $li.data('ishidden');
-          const folderName = $li.find('.folderName').text();
-          const chargeUser = $li.data('charge');
-
-          const callback = () => {
-            if (that.props.taskConfig.folderId === folderId) {
-              that.props.dispatch(updateFolderTopState(!istop));
-            }
-
-            that.renderFolderAvatar();
-          };
-
-          const archivedCallback = () => {
-            if (that.props.taskConfig.folderId === folderId) {
-              that.props.dispatch(updateFolderArchivedState(!ispigeonhole));
-            }
-          };
-
-          switch ($(this).data('type')) {
-            // 置顶项目
-            case 'popTop':
-              updateFolderTop(folderId, !istop, callback);
-              break;
-            // 删除项目
-            case 'del':
-              deleteFolder(folderId);
-              break;
-            // 归档项目
-            case 'pigeonhole':
-              updateFolderArchived(projectId, folderId, !ispigeonhole, archivedCallback);
-              break;
-            // 退出项目
-            case 'exit':
-              exitFolder(folderId);
-              break;
-            // 隐藏项目
-            case 'slide':
-              that.updateFolderDisplay(projectId, folderId, !ishidden);
-              break;
-            // 复制项目
-            case 'copyFolder':
-              // 监测网络是否过期
-              expireDialogAsync(projectId).then(() => {
-                that.setState({
-                  showCopyFolder: true,
-                  projectId,
-                  folderId,
-                  isAdmin,
-                  folderName,
-                  chargeUser,
-                });
-              });
-              break;
-          }
-        },
-        'mouseover.task': function () {
-          const $this = $(this);
-          const $ul = $this.find('.fileFolders');
-          let projectId = $('.folderSettingsList').data('projectid');
-
-          if (!checkIsProject(projectId)) {
-            projectId = '';
-          }
-
-          // 生成 添加到的文件�如果生成过不在生成
-          if ($this.hasClass('addFileBox') && !$this.data('build')) {
-            $ul.find('.moveToFileBox').remove();
-            $this.data('build', true);
-
-            const $projectFolder = $('.networkFolderList[data-projectid=' + projectId + ']').find('.projectFolder');
-            const fileId = $('.folderSettingsList ').data('fileid');
-            let sb = '';
-            let $item;
-            let fileName;
-            $.each($projectFolder, (i, item) => {
-              $item = $(item);
-              if ((fileId && $item.data('fileid') == fileId) || !$item.find('.txtProjectNameEdit').val().trim()) {
-                return true;
-              }
-
-              fileName = $('<span/>').text($item.find('.txtProjectNameEdit').val()).html();
-              sb =
-                sb +
-                `
-              <li data-id="${$item.data('fileid')}" class="bgColorPrimary overflow_ellipsis">
-              ${fileName}
-              </li>
-              `;
-            });
-
-            if (sb.length > 0) {
-              $ul
-                .find('.exitFile')
-                .after('<ul class="moveToFileBox"> <li class="moveToFile">' + _l('移动到') + '</li></ul>');
-              $ul.find('.moveToFileBox .moveToFile').after(sb);
-            }
-
-            $ul.removeClass('Hidden');
-
-            // 项目文件夹移�
-            const $fileFoldersBox = $('.fileFoldersBox');
-            $fileFoldersBox.css('top', '-6px'); // 重置top 重新计算
-            const $boxOffset = $fileFoldersBox.offset();
-            const boxHeight = $fileFoldersBox.height();
-            const pageHeight = $(window).height();
-
-            if ($boxOffset.top + boxHeight > pageHeight) {
-              const newHeight = pageHeight * 0.8 < 300 ? 300 : pageHeight * 0.8;
-              let newTop = 0;
-
-              if (newHeight > boxHeight) {
-                newTop = pageHeight - boxHeight - $boxOffset.top;
-              } else {
-                newTop = pageHeight - newHeight - $boxOffset.top - 10;
-              }
-
-              $fileFoldersBox.css({
-                top: newTop - 16 + 'px',
-              });
-              $ul.find('.moveToFileBox').css({
-                'max-height': newHeight - $ul.find('>li').length * 32 + 'px',
-              });
-            } else {
-              $fileFoldersBox.css('top', '-6px');
-            }
-          } else {
-            $ul.removeClass('Hidden');
-          }
-        },
-        'mouseout.task': function () {
-          $(this).find('.fileFolders').addClass('Hidden');
-        },
-      },
-      '.folderSettingsList > li',
     );
 
     // mousedown
@@ -1070,104 +718,47 @@ class TaskNavigation extends Component {
       '.folderList li',
     );
 
-    // 项目文件夹操作
-    $('body').on('click.task', '.fileFoldersBox li', function () {
-      // 移动 或者新增文件夹
-      let projectId = $('.folderSettingsList').data('projectid');
-      const folderId = $('.folderSettingsList').data('folderid');
-      const fileId = $(this).data('id');
-
-      if (!checkIsProject(projectId)) {
-        projectId = '';
-      }
-
-      // 新增文件夹
-      if (fileId == 'new') {
-        const $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
-        const $selLi = $networkFolderList.find('li[data-id=' + folderId + ']');
-        const $parent = $selLi.parent();
-
-        // 创建新文件夹
-        that.createNewFile('', $selLi);
-
-        // 如果项目文件夹没有项目了
-        if ($parent.find('li').length <= 0 && $parent.is('.projectFolderUl')) {
-          // 解散项目文件夹
-          that.abortProjectFolder(projectId, $parent.parent().data('fileid'));
-        }
-      } else {
-        // 直接移出
-        if ($(this).data('type') == 'exitfile') {
-          that.updateFolderIntoFile(projectId, folderId, '');
-          return;
-        }
-
-        // 点击移动title
-        if (!fileId) {
-          return false;
-        }
-
-        // 移动文件夹
-        that.updateFolderIntoFile(projectId, folderId, fileId);
-      }
-    });
-
     // 项目文件夹弹出层
     $taskNavigator.on(
       {
         mousedown(event) {
-          const top = event.clientY + 10 - $('#topBarContent').height();
-          const left = event.clientX - 50;
-          const fileId = $(this).closest('.projectFolder').data('fileid');
+          const $projectFolder = $(this).closest('.projectFolder');
+          const fileId = $projectFolder.data('fileid');
           const projectId = $(this).closest('.networkFolderList').data('projectid');
-          const $projectFolderOp = $('.projectFolderOp');
 
           event.stopPropagation();
 
-          if ($projectFolderOp.data('fileid') === fileId && !$projectFolderOp.hasClass('Hidden')) {
-            $projectFolderOp.addClass('Hidden');
+          if (that.state.projectFolderSettings && that.state.projectFolderSettings.fileId === fileId) {
+            that.closeProjectFolderSettings();
             return;
           }
 
           // 新建文件夹更名未完成时，取不到fileId,若打开弹出层点击解散无�
           if (!fileId) return;
-          $projectFolderOp
-            .css({
-              top,
-              left,
-            })
-            .data('fileid', fileId)
-            .data('projectid', projectId)
-            .removeClass('Hidden');
+
+          const rect = this.getBoundingClientRect();
+
+          that.closeFolderSettings();
+          that.projectFolderSettingsTarget = $projectFolder[0];
+          that.setState({
+            projectFolderSettings: {
+              fileId,
+              projectId,
+              position: {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+              },
+            },
+          });
         },
         click(event) {
-          $('.folderSettingsList').hide();
           event.stopPropagation();
         },
       },
       '.folderList li .moreOp',
     );
-
-    // 放到body中了  项目文件夹操作
-    $('body').on('click.task', '.projectFolderOp li', function () {
-      const $this = $(this);
-      const fileId = $this.parent().data('fileid');
-      const projectId = $this.parent().data('projectid');
-      const dataType = $(this).data('type');
-
-      if (dataType == 'rename') {
-        // 重命名文件夹
-        const $txtProjectNameEdit = $('.networkFolderList[data-projectid=' + projectId + ']').find(
-          "li[data-fileid='" + fileId + "'] .txtProjectNameEdit",
-        );
-        $('.projectFolderOp').addClass('Hidden');
-        // 获取焦点即可 失去焦点自动保存
-        $txtProjectNameEdit.removeClass('Hidden').focus().select().siblings('.txtProjectName').addClass('Hidden');
-      } else if (dataType == 'abort') {
-        // 解散
-        that.abortProjectFolder(projectId, fileId);
-      }
-    });
 
     // 归档文件夹修改名称
     $taskNavigator.on(
@@ -1212,25 +803,8 @@ class TaskNavigation extends Component {
     );
 
     $('#taskNavigator .navContent').on('scroll', () => {
-      $('.folderSettingsList').hide();
-      $('.folderList li .sinSettings').addClass('Hidden');
-      $('.projectFolderOp').addClass('Hidden');
-    });
-
-    $(document).on('click', event => {
-      const $target = $(event.target);
-
-      // 项目设置
-      if (!$target.is('.folderList li .sinSettings') && !$target.closest('.folderList li .sinSettings').length) {
-        $('.folderSettingsList').hide();
-        $('#taskNavigator .folderUnfinished.folderIcon').removeClass('Hidden');
-        $('.folderList li .sinSettings').addClass('Hidden');
-      }
-
-      // 项目文件夹操做
-      if (!$target.is('.folderList li .moreOp') && !$target.closest('.projectFolderOp').length) {
-        $('.projectFolderOp').addClass('Hidden');
-      }
+      that.closeFolderSettings();
+      that.closeProjectFolderSettings();
     });
   }
 
@@ -1901,8 +1475,7 @@ class TaskNavigation extends Component {
             $networkFolderList.find('.folderList').prepend($lis.slideDown());
           }
 
-          // 文件夹操作层
-          $('.projectFolderOp').addClass('Hidden');
+          this.closeProjectFolderSettings();
         } else {
           errorMessage(source.error);
         }
@@ -2091,8 +1664,8 @@ class TaskNavigation extends Component {
     const type = $this.type || 'task';
     const searchText = $this.searchText;
 
-    // 相当于清空
     if (searchText === '') {
+      this.selectTaskType('myTask');
       return;
     }
 
@@ -2134,139 +1707,446 @@ class TaskNavigation extends Component {
   /**
    * 左侧顶部菜单项
    */
+  renderTaskTypeMenu(items, selectedKey) {
+    return (
+      <Menu
+        mode="vertical"
+        className="taskType"
+        selectedKeys={selectedKey ? [selectedKey] : []}
+        styles={{
+          root: { border: 0 },
+          item: { '--hap-menu-item-height': '40px', margin: 0, width: '100%', borderRadius: 0 },
+          itemIcon: { width: 16, fontSize: 16, textAlign: 'center' },
+          itemContent: { flex: 1, minWidth: 0, marginLeft: 15 },
+        }}
+      >
+        {items.map(item => (
+          <Menu.Item
+            key={item.type}
+            className={cx(item.className)}
+            data-type={item.type}
+            icon={
+              <Tooltip title={item.tooltip} placement={item.placement}>
+                <i className={cx(item.icon, item.iconClassName, 'typeIcon textSecondary')} />
+              </Tooltip>
+            }
+          >
+            <span className={cx('typeName textPrimary', item.textClassName)}>{item.text}</span>
+            <span className="allCountTask Right textTertiary" />
+          </Menu.Item>
+        ))}
+      </Menu>
+    );
+  }
+
   renderNavMenu() {
     const { filterUserId, isSubUser, taskFilter, keyWords } = this.props.taskConfig;
 
     // 下属
     if (filterUserId && isSubUser) {
-      return (
-        <ul className="taskType">
-          <li
-            className={cx('otherAndMe hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 7 })}
-            data-type="otherAndMe"
-          >
-            <Tooltip title={_l('我与他共同参与的任务')} placement="bottomLeft">
-              <span>
-                <i className="icon-charger typeIcon textSecondary" />
-              </span>
-            </Tooltip>
-            <span className="typeName responsibleText textPrimary">{_l('与他协作的任务')}</span>
-            <span className="allCountTask Right textTertiary" />
-          </li>
-          <li
-            className={cx('responsible hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 2 })}
-            data-type="responsible"
-          >
-            <Tooltip title={_l('他作为负责人的任务')} placement="bottomLeft">
-              <span>
-                <i className="icon-task-responsible typeIcon textSecondary" />
-              </span>
-            </Tooltip>
-            <span className="typeName responsibleText textPrimary">{_l('他负责的任务')}</span>
-            <span className="allCountTask Right textTertiary" />
-          </li>
-          <li
-            className={cx('trust hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 3 })}
-            data-type="trust"
-          >
-            <Tooltip title={_l('他托付给其他人负责的任务')} placement="bottomLeft">
-              <span>
-                <i className="icon-task-trust typeIcon typeIconTrust textSecondary" />
-              </span>
-            </Tooltip>
-            <span className="typeName textPrimary">{_l('他托付的任务')}</span>
-            <span className="allCountTask Right textTertiary" />
-          </li>
-          <li
-            className={cx('participate hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 1 })}
-            data-type="participate"
-          >
-            <Tooltip title={_l('他仅作为任务参与者的任务')} placement="bottomRight">
-              <span>
-                <i className="icon-double-loop typeIcon typeIconParticipate textSecondary" />
-              </span>
-            </Tooltip>
-            <span className="typeName textPrimary">{_l('他参与的任务')}</span>
-            <span className="allCountTask Right textTertiary" />
-          </li>
-        </ul>
+      return this.renderTaskTypeMenu(
+        [
+          {
+            type: 'otherAndMe',
+            className: 'otherAndMe',
+            icon: 'icon-charger',
+            tooltip: _l('我与他共同参与的任务'),
+            placement: 'bottomLeft',
+            text: _l('与他协作的任务'),
+            textClassName: 'responsibleText',
+          },
+          {
+            type: 'responsible',
+            className: 'responsible',
+            icon: 'icon-task-responsible',
+            tooltip: _l('他作为负责人的任务'),
+            placement: 'bottomLeft',
+            text: _l('他负责的任务'),
+            textClassName: 'responsibleText',
+          },
+          {
+            type: 'trust',
+            className: 'trust',
+            icon: 'icon-task-trust',
+            iconClassName: 'typeIconTrust',
+            tooltip: _l('他托付给其他人负责的任务'),
+            placement: 'bottomLeft',
+            text: _l('他托付的任务'),
+          },
+          {
+            type: 'participate',
+            className: 'participate',
+            icon: 'icon-double-loop',
+            iconClassName: 'typeIconParticipate',
+            tooltip: _l('他仅作为任务参与者的任务'),
+            placement: 'bottomRight',
+            text: _l('他参与的任务'),
+          },
+        ],
+        TASK_MENU_SELECTED_KEYS[taskFilter],
       );
     }
 
     // 同事
     if (filterUserId && !isSubUser) {
-      return (
-        <ul className="taskType">
-          <li
-            className={cx('otherAndMe hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 7 })}
-            data-type="otherAndMe"
-          >
-            <Tooltip title={_l('我与他共同参与的任务')} placement="bottomRight">
-              <span>
-                <i className="icon-charger typeIcon textSecondary" />
-              </span>
-            </Tooltip>
-            <span className="typeName responsibleText textPrimary">{_l('与他协作的任务')}</span>
-            <span className="allCountTask Right textTertiary" />
-          </li>
-          <li
-            className={cx('otherResponsible hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 10 })}
-            data-type="otherResponsible"
-          >
-            <Tooltip title={_l('我可见的由他负责的任务')} placement="bottomRight">
-              <span>
-                <i className="icon-task_custom_personnel typeIcon textSecondary" />
-              </span>
-            </Tooltip>
-            <span className="typeName responsibleText textPrimary">{_l('他负责的任务')}</span>
-            <span className="allCountTask Right textTertiary" />
-          </li>
-        </ul>
+      return this.renderTaskTypeMenu(
+        [
+          {
+            type: 'otherAndMe',
+            className: 'otherAndMe',
+            icon: 'icon-charger',
+            tooltip: _l('我与他共同参与的任务'),
+            placement: 'bottomRight',
+            text: _l('与他协作的任务'),
+            textClassName: 'responsibleText',
+          },
+          {
+            type: 'otherResponsible',
+            className: 'otherResponsible',
+            icon: 'icon-task_custom_personnel',
+            tooltip: _l('我可见的由他负责的任务'),
+            placement: 'bottomRight',
+            text: _l('他负责的任务'),
+            textClassName: 'responsibleText',
+          },
+        ],
+        TASK_MENU_SELECTED_KEYS[taskFilter],
       );
     }
 
+    const selectedKey =
+      (taskFilter === 6 && !keyWords) || taskFilter === 1 || taskFilter === 2 || taskFilter === 3
+        ? 'myTask'
+        : TASK_MENU_SELECTED_KEYS[taskFilter];
+
+    return this.renderTaskTypeMenu(
+      [
+        {
+          type: 'myTask',
+          className: 'myTask',
+          icon: 'icon-charger',
+          tooltip: _l('我的任务'),
+          placement: 'bottomRight',
+          text: _l('我的任务'),
+          textClassName: 'responsibleText',
+        },
+        {
+          type: 'star',
+          className: 'aboutMeStar',
+          icon: 'icon-task-star',
+          tooltip: _l('所有添加星标的任务'),
+          placement: 'bottomRight',
+          text: _l('星标任务'),
+        },
+        {
+          type: 'subordinate',
+          className: 'taskSubordinate',
+          icon: 'icon-group',
+          tooltip: _l('下属任务'),
+          placement: 'bottomRight',
+          text: _l('下属任务'),
+        },
+      ],
+      selectedKey,
+    );
+  }
+
+  closeFolderSettings = () => {
+    if (this.folderSettingsTrigger) {
+      $(this.folderSettingsTrigger).addClass('Hidden');
+    }
+
+    this.folderSettingsTrigger = null;
+    this.folderSettingsTarget = null;
+    $('#taskNavigator .folderUnfinished.folderIcon').removeClass('Hidden');
+    $('.folderList li .sinSettings').addClass('Hidden');
+
+    if (this.state.folderSettings) {
+      this.setState({ folderSettings: null });
+    }
+  };
+
+  getFolderMoveTargets = (folderProjectId, fileId) => {
+    const projectId = checkIsProject(folderProjectId) ? folderProjectId : '';
+    const moveTargets = [];
+
+    $('.networkFolderList')
+      .filter((index, element) => String($(element).attr('data-projectid') || '') === String(projectId))
+      .find('.projectFolder')
+      .each((index, element) => {
+        const $projectFolder = $(element);
+        const targetFileId = $projectFolder.data('fileid');
+        const fileName = ($projectFolder.find('.txtProjectNameEdit').val() || '').trim();
+
+        if ((!fileId || String(targetFileId) !== String(fileId)) && fileName) {
+          moveTargets.push({ fileId: targetFileId, fileName });
+        }
+      });
+
+    return moveTargets;
+  };
+
+  getFolderMoveItems = folderSettings => {
+    const { isInProjectFile, moveTargets } = folderSettings;
+    const items = [];
+
+    if (isInProjectFile) {
+      items.push({ key: 'exitFile', label: _l('直接移出') });
+    }
+
+    items.push({ key: 'newFile', label: _l('新建项目文件夹') });
+
+    const moveItems = moveTargets.map(item => ({ key: `moveFile:${item.fileId}`, label: item.fileName }));
+
+    if (moveItems.length) {
+      items.push({ type: 'divider' }, { type: 'group', label: _l('移动到'), children: moveItems });
+    }
+
+    return items;
+  };
+
+  getFolderSettingsItems = folderSettings => {
+    const {
+      auth,
+      chargeUser,
+      isArchived,
+      isHidden,
+      isInArchivedList,
+      isInArchivedSection,
+      isInHiddenList,
+      isInTopList,
+      isMember,
+      isTop,
+    } = folderSettings;
+    const isAdmin = auth === config.auth.FolderCharger || auth === config.auth.FolderAdmin;
+    const canAddToFile = !isInTopList && !isInArchivedSection && !isInArchivedList && !isInHiddenList;
+    const primaryItems = [
+      {
+        key: 'popTop',
+        icon: <i className="icon-set_top" />,
+        label: isTop ? _l('取消置顶') : _l('置顶'),
+      },
+      canAddToFile
+        ? {
+            key: 'addFile',
+            icon: <i className="icon-addto-folder" />,
+            label: _l('添加到文件夹'),
+            children: this.getFolderMoveItems(folderSettings),
+          }
+        : null,
+      isAdmin
+        ? {
+            key: 'copyFolder',
+            icon: <i className="icon-task-new-copy" />,
+            label: _l('复制项目'),
+          }
+        : null,
+    ].filter(Boolean);
+    const secondaryItems = [
+      !isInArchivedList
+        ? {
+            key: 'slide',
+            icon: <i className="icon-public-folder-hidden" />,
+            label: isHidden ? _l('取消隐藏项目') : _l('隐藏项目'),
+          }
+        : null,
+      md.global.Account.accountId === chargeUser
+        ? {
+            key: 'pigeonhole',
+            icon: <i className="icon-task-pigeonhole" />,
+            label: isArchived ? _l('取消归档项目') : _l('归档项目'),
+          }
+        : null,
+      auth === config.auth.FolderCharger
+        ? {
+            key: 'delete',
+            danger: true,
+            icon: <i className="icon-trash" />,
+            label: _l('删除项目'),
+          }
+        : null,
+      auth !== config.auth.FolderCharger && isMember
+        ? {
+            key: 'exit',
+            icon: <i className="icon-groupExit" />,
+            label: _l('退出项目'),
+          }
+        : null,
+    ].filter(Boolean);
+
+    return [...primaryItems, ...(secondaryItems.length ? [{ type: 'divider' }] : []), ...secondaryItems];
+  };
+
+  handleFolderSettingsClick = ({ key, domEvent }) => {
+    const folderSettings = this.state.folderSettings;
+    const folderSettingsTarget = this.folderSettingsTarget;
+
+    if (!folderSettings) return;
+
+    domEvent.stopPropagation();
+    this.closeFolderSettings();
+
+    const { auth, chargeUser, folderId, folderName, isArchived, isHidden, isTop, projectId } = folderSettings;
+    const isAdmin = auth === config.auth.FolderCharger || auth === config.auth.FolderAdmin;
+    const moveProjectId = checkIsProject(projectId) ? projectId : '';
+
+    const callback = () => {
+      if (this.props.taskConfig.folderId === folderId) {
+        this.props.dispatch(updateFolderTopState(!isTop));
+      }
+
+      this.renderFolderAvatar();
+    };
+
+    const archivedCallback = () => {
+      if (this.props.taskConfig.folderId === folderId) {
+        this.props.dispatch(updateFolderArchivedState(!isArchived));
+      }
+    };
+
+    if (key.startsWith('moveFile:')) {
+      this.updateFolderIntoFile(moveProjectId, folderId, key.slice('moveFile:'.length));
+      return;
+    }
+
+    switch (key) {
+      case 'popTop':
+        updateFolderTop(folderId, !isTop, callback);
+        break;
+      case 'newFile': {
+        const $folder = $(folderSettingsTarget);
+        const $parent = $folder.parent();
+
+        this.createNewFile('', $folder);
+        if ($parent.find('li').length <= 0 && $parent.is('.projectFolderUl')) {
+          this.abortProjectFolder(moveProjectId, $parent.parent().data('fileid'));
+        }
+
+        break;
+      }
+
+      case 'exitFile':
+        this.updateFolderIntoFile(moveProjectId, folderId, '');
+        break;
+      case 'copyFolder':
+        expireDialogAsync(projectId).then(() => {
+          this.setState({
+            showCopyFolder: true,
+            projectId,
+            folderId,
+            isAdmin,
+            folderName,
+            chargeUser,
+          });
+        });
+        break;
+      case 'slide':
+        this.updateFolderDisplay(projectId, folderId, !isHidden);
+        break;
+      case 'pigeonhole':
+        updateFolderArchived(projectId, folderId, !isArchived, archivedCallback);
+        break;
+      case 'delete':
+        deleteFolder(folderId);
+        break;
+      case 'exit':
+        exitFolder(folderId);
+        break;
+    }
+  };
+
+  renderFolderSettingsDropdown() {
+    const { folderSettings } = this.state;
+
+    if (!folderSettings) return null;
+
+    const { position } = folderSettings;
+
     return (
-      <ul className="taskType">
-        <li
-          className={cx('myTask hoverBgTertiary', {
-            bgColorPrimaryTransparent:
-              (taskFilter === 6 && !keyWords) || taskFilter === 1 || taskFilter === 2 || taskFilter === 3,
-          })}
-          data-type="myTask"
-        >
-          <Tooltip title={_l('我的任务')} placement="bottomRight">
-            <span>
-              <i className="icon-charger typeIcon textSecondary" />
-            </span>
-          </Tooltip>
-          <span className="typeName responsibleText textPrimary">{_l('我的任务')}</span>
-          <span className="allCountTask Right textTertiary" />
-        </li>
-        <li
-          className={cx('aboutMeStar hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 8 })}
-          data-type="star"
-        >
-          <Tooltip title={_l('所有添加星标的任务')} placement="bottomRight">
-            <span>
-              <i className="icon-task-star typeIcon textSecondary" />
-            </span>
-          </Tooltip>
-          <span className="typeName textPrimary">{_l('星标任务')}</span>
-          <span className="allCountTask Right textTertiary" />
-        </li>
-        <li
-          className={cx('taskSubordinate hoverBgTertiary', { bgColorPrimaryTransparent: taskFilter === 9 })}
-          data-type="subordinate"
-        >
-          <Tooltip title={_l('下属任务')} placement="bottomRight">
-            <span>
-              <i className="icon-group typeIcon textSecondary" />
-            </span>
-          </Tooltip>
-          <span className="typeName textPrimary">{_l('下属任务')}</span>
-          <span className="allCountTask Right textTertiary" />
-        </li>
-      </ul>
+      <Dropdown
+        open
+        placement="bottomLeft"
+        classNames={FOLDER_SETTINGS_DROPDOWN_CLASS_NAMES}
+        menu={{
+          items: this.getFolderSettingsItems(folderSettings),
+          onClick: this.handleFolderSettingsClick,
+        }}
+        onOpenChange={(open, info) => !open && info.source !== 'menu' && this.closeFolderSettings()}
+      >
+        <span
+          aria-hidden
+          style={{
+            position: 'fixed',
+            top: position.top,
+            left: position.left,
+            width: position.width,
+            height: position.height,
+            pointerEvents: 'none',
+          }}
+        />
+      </Dropdown>
+    );
+  }
+
+  closeProjectFolderSettings = () => {
+    this.projectFolderSettingsTarget = null;
+    if (this.state.projectFolderSettings) {
+      this.setState({ projectFolderSettings: null });
+    }
+  };
+
+  handleProjectFolderSettingsClick = ({ key, domEvent }) => {
+    const projectFolderSettings = this.state.projectFolderSettings;
+    const projectFolderSettingsTarget = this.projectFolderSettingsTarget;
+
+    if (!projectFolderSettings) return;
+
+    domEvent.stopPropagation();
+    this.closeProjectFolderSettings();
+
+    if (key === 'rename') {
+      $(projectFolderSettingsTarget)
+        .find('.txtProjectNameEdit')
+        .removeClass('Hidden')
+        .focus()
+        .select()
+        .siblings('.txtProjectName')
+        .addClass('Hidden');
+      return;
+    }
+
+    if (key === 'abort') {
+      this.abortProjectFolder(projectFolderSettings.projectId, projectFolderSettings.fileId);
+    }
+  };
+
+  renderProjectFolderSettingsDropdown() {
+    const { projectFolderSettings } = this.state;
+
+    if (!projectFolderSettings) return null;
+
+    const { position } = projectFolderSettings;
+
+    return (
+      <Dropdown
+        open
+        placement="bottomLeft"
+        classNames={PROJECT_FOLDER_SETTINGS_DROPDOWN_CLASS_NAMES}
+        menu={{ items: getProjectFolderSettingsItems(), onClick: this.handleProjectFolderSettingsClick }}
+        onOpenChange={(open, info) => !open && info.source !== 'menu' && this.closeProjectFolderSettings()}
+      >
+        <span
+          aria-hidden
+          style={{
+            position: 'fixed',
+            top: position.top,
+            left: position.left,
+            width: position.width,
+            height: position.height,
+            pointerEvents: 'none',
+          }}
+        />
+      </Dropdown>
     );
   }
 
@@ -2298,75 +2178,26 @@ class TaskNavigation extends Component {
             {_l('返回下属任务')}
           </div>
         </div>
-        <div className="folderSearchBox boxSizing">
-          <SearchFolder
-            filterUserId={this.props.taskConfig.filterUserId}
-            onSelect={param => this.searchSelect(param)}
-          />
-        </div>
+        <SearchFolder filterUserId={this.props.taskConfig.filterUserId} onSelect={param => this.searchSelect(param)} />
 
         {this.renderNavMenu()}
 
         <div className="navContent boxSizing flex" />
 
         <div className="createNewBox">
-          <span className="createNew textSecondary borderSecondary hoverBgTertiary">
-            <i className="icon-plus" />
+          <Button
+            shape="round"
+            color="default"
+            variant="textBordered"
+            icon={<i className="icon-plus" />}
+            onClick={() => this.setState({ showFolderTemplate: true })}
+          >
             {_l('创建项目')}
-          </span>
+          </Button>
         </div>
 
-        <ul className="folderSettingsList boderRadAll_3 boxShadow5 Hidden">
-          <li data-type="popTop" className="bgColorPrimary importantProject">
-            <i className="icon-set_top" />
-            <span>{_l('置顶')}</span>
-          </li>
-          <li data-type="addfile" className="bgColorPrimary addFileBox">
-            <i className="icon-addto-folder" />
-            {_l('添加到文件夹')}
-            <i className="arrorwRight Right " />
-            <div className="fileFoldersBox">
-              <ul className="fileFolders boderRadAll_3 boxShadow5 Hidden">
-                <li data-type="exitfile" className="bgColorPrimary Hidden exitFile">
-                  {_l('直接移出')}
-                </li>
-                <li data-id="new" className="bgColorPrimary newFile">
-                  {_l('新建项目文件夹')}
-                </li>
-              </ul>
-            </div>
-          </li>
-          <li data-type="copyFolder" className="bgColorPrimary copyFolder">
-            <i className="icon-task-new-copy" />
-            <span>{_l('复制项目')}</span>
-          </li>
-          <li className="dividerLine" />
-          <li data-type="slide" className="bgColorPrimary slideFolders">
-            <i className="icon-public-folder-hidden" />
-            <span>{_l('隐藏项目')}</span>
-          </li>
-          <li data-type="pigeonhole" className="bgColorPrimary pigeonhole">
-            <i className="icon-task-pigeonhole" />
-            <span>{_l('归档项目')}</span>
-          </li>
-          <li data-type="del" className="bgColorPrimary chargeAuth">
-            <i className="icon-trash" />
-            {_l('删除项目')}
-          </li>
-          <li data-type="exit" className="bgColorPrimary Hidden exitFolder">
-            <i className="icon-groupExit" />
-            {_l('退出项目')}
-          </li>
-        </ul>
-
-        <ul className="projectFolderOp boderRadAll_3 boxShadow5 Hidden">
-          <li className="bgColorPrimary" data-type="rename">
-            {_l('重命名项目文件夹')}
-          </li>
-          <li className="bgColorPrimary" data-type="abort">
-            {_l('解散项目文件夹')}
-          </li>
-        </ul>
+        {this.renderFolderSettingsDropdown()}
+        {this.renderProjectFolderSettingsDropdown()}
 
         {showFolderTemplate && <FolderTemplate callback={this.createFolderCallback} onClose={this.onCloseDialog} />}
         {showCopyFolder && (

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { isTimeControl } from './controlUtils';
 
 export const defaultDropdownScopeData = 18;
@@ -20,6 +20,7 @@ export const formatContrastTypes = ({ rangeType, today }) => {
         { text: _l('上月同期'), value: 4 },
         { text: _l('去年同期'), value: 2 },
       ];
+
       break;
     // 本周
     case 4:

@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
 import { createDiscussion } from 'src/pages/chat/utils/group';
 import createGroup from 'src/pages/Group/createGroup/load';
@@ -53,22 +53,25 @@ const CreateGroup = props => {
     <Fragment>
       <Dropdown
         placement="topRight"
-        overlay={
-          <Menu style={{ width: 180, padding: '8px 0' }}>
-            <Menu.Item key="addSession" style={{ padding: '7px 12px' }} onClick={handleAddSession}>
-              <div className="flexRow alignItemsCenter">
-                <Icon icon="task-reply-msg" className="textSecondary Font18 mRight10" />
-                <div>{`${_l('发起聊天')} (Q)`}</div>
-              </div>
-            </Menu.Item>
-            <Menu.Item key="createGroup" style={{ padding: '7px 12px' }} onClick={() => createGroup({})}>
-              <div className="flexRow alignItemsCenter">
-                <Icon icon="group" className="textSecondary Font20 mRight10" />
-                <div>{_l('创建群组')}</div>
-              </div>
-            </Menu.Item>
-          </Menu>
-        }
+        menu={{
+          style: { minWidth: 180, padding: '8px 0' },
+          items: [
+            {
+              key: 'addSession',
+              style: { padding: '7px 12px' },
+              icon: <Icon icon="task-reply-msg" className="textSecondary Font18" />,
+              label: `${_l('发起聊天')} (Q)`,
+              onClick: handleAddSession,
+            },
+            {
+              key: 'createGroup',
+              style: { padding: '7px 12px' },
+              icon: <Icon icon="group" className="textSecondary Font20" />,
+              label: _l('创建群组'),
+              onClick: () => createGroup({}),
+            },
+          ],
+        }}
       >
         <CreateWrap className="flexRow alignItemsCenter justifyContentCenter pointer">
           <Icon icon="add" className="Font30 textWhite" />

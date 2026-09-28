@@ -4,8 +4,8 @@ import tabLeftImg from '/staticfiles/images/tab_left.png';
 import tabTopImg from '/staticfiles/images/tab_top.png';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 
 const TAB_POSITION_TYPE = [
   { value: '2', text: _l('顶部'), img: tabTopImg },
@@ -28,9 +28,11 @@ function AddTabWidget(props) {
   );
 
   return (
-    <Dialog
+    <Modal
       width={720}
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={_l('添加标签页')}
       className="sectionConfirmDialog"
       okText={_l('添加')}
@@ -62,10 +64,10 @@ function AddTabWidget(props) {
         <div className="textSecondary">{_l('使用标签页归类字段，保持页面简洁')}</div>
         <img src={imgSrc} height="100%" width="100%" />
       </Fragment>
-    </Dialog>
+    </Modal>
   );
 }
 
-export default function addTabWidget(props) {
-  return functionWrap(AddTabWidget, props);
+export function useAddTabWidget() {
+  return useFunctionWrapComponent(AddTabWidget);
 }

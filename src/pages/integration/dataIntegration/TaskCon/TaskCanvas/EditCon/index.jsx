@@ -13,6 +13,8 @@ import EditFeildsName from 'src/pages/integration/dataIntegration/TaskCon/TaskCa
 import { formatControls, getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 import 'src/pages/integration/svgIcon.js';
 import 'src/pages/worksheet/components/CellControls/CellControls.less';
+import { sanitizeHtml } from 'src/utils/core/sanitizeHtml';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import AddSourceOrDest from '../components/AddSourceOrDest';
 import { ACTION_LIST, JOIN_TYPE, NODE_TYPE_LIST, UNION_TYPE_LIST } from '../config';
 import Aggregate from './Aggregate';
@@ -292,13 +294,13 @@ export default class EditorCon extends Component {
             alert(str, 2);
           }
         },
-        () => {
+        _requestError => {
           this.setState({
             fieldNames: [],
             rows: [],
             loading: false,
           });
-          alert(_l('相关工作表已删除，或存在异常'), 2);
+          alertIfNotUnauthorized(_requestError, _l('相关工作表已删除，或存在异常'), 2);
         },
       );
     }
@@ -649,7 +651,7 @@ export default class EditorCon extends Component {
                               return (
                                 <div
                                   className="itemCon flexRow alignItemsCenter InlineBlock"
-                                  dangerouslySetInnerHTML={{ __html: o[item] }}
+                                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(o[item]) }}
                                 ></div>
                               );
                             }

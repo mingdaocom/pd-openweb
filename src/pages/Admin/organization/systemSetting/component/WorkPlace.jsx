@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { ConfigProvider, Spin, Table } from 'antd';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, ConfigProvider, Input, Modal, Spin } from 'ming-ui/antd-components';
 import workSiteController from 'src/api/workSite';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import Config from '../../../config';
 import CreateOrEditDialog from '../modules/CreateOrEditDialog';
@@ -40,28 +41,21 @@ export default class WorkPlace extends Component {
         key: 'workSiteId',
         render: (text, record) => {
           return (
-            <div className="colorPrimary">
-              <button
-                type="button"
-                className="ming Button Button--link colorPrimary adminHoverColor"
-                onClick={this.showSiteDialog.bind(this, record)}
-              >
+            <div>
+              <Button color="primary" variant="link" onClick={this.showSiteDialog.bind(this, record)}>
                 {_l('编辑')}
-              </button>
-              <button
-                type="button"
-                className="ming Button Button--link colorPrimary mLeft24 mRight24 adminHoverColor"
+              </Button>
+              <Button
+                color="primary"
+                variant="link"
+                className="mLeft24 mRight24"
                 onClick={this.showMemberDialog.bind(this, record)}
               >
                 {_l('添加成员')}
-              </button>
-              <button
-                type="button"
-                className="ming Button Button--link colorPrimary adminHoverColor"
-                onClick={this.deleteSite.bind(this, record.workSiteId)}
-              >
+              </Button>
+              <Button color="primary" variant="link" onClick={this.deleteSite.bind(this, record.workSiteId)}>
                 {_l('删除')}
-              </button>
+              </Button>
             </div>
           );
         },
@@ -136,8 +130,8 @@ export default class WorkPlace extends Component {
     };
 
     if (reqData.workSiteIds.length > 0) {
-      Dialog.confirm({
-        title: _l('确认删除所选择的工作地点？'),
+      Modal.confirm({
+        title: <span className="textError">{_l('确认删除所选择的工作地点？')}</span>,
         onOk: () => {
           workSiteController.deleteWorkSites(reqData).then(data => {
             if (data) {
@@ -287,38 +281,32 @@ export default class WorkPlace extends Component {
                     </div>
                   </div>
                 ) : (
-                  <button
-                    className="ming Button Button--primary Button--small itemCreate"
-                    onClick={this.showSiteDialog.bind(this)}
-                  >
+                  <Button type="primary" shape="round" onClick={this.showSiteDialog.bind(this)}>
                     {_l('新建')}
-                  </button>
+                  </Button>
                 )}
               </div>
-              <div className="searchContainer Right Relative" ref={box => (this.box = box)}>
-                <span
-                  className="icon-search btnSearch textSecondary"
-                  title={_l('搜索')}
-                  onClick={this.handleKeyDown.bind(this)}
-                />
-                <input
+              <div className="searchContainer Right">
+                <Input
+                  radius
+                  variant="filled"
                   value={keywords}
                   onKeyDown={this.handleKeyDown.bind(this)}
                   onChange={e => this.handleChange(e)}
-                  type="text"
                   className="searchInput textPrimary"
                   placeholder={_l('搜索')}
+                  prefix={<Icon icon="search" className="textSecondary Font18" />}
+                  suffix={
+                    keywords ? (
+                      <Icon
+                        icon="cancel"
+                        className="Font14 textPlaceholder pointer"
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={() => this.handleClear()}
+                      />
+                    ) : null
+                  }
                 />
-                {keywords && (
-                  <span
-                    className="Font14 icon-cancel textPlaceholder Hand Absolute"
-                    style={{
-                      top: '8px',
-                      right: '8px',
-                    }}
-                    onClick={() => this.handleClear()}
-                  />
-                )}
               </div>
             </div>
             <div className="dataView">
@@ -332,7 +320,7 @@ export default class WorkPlace extends Component {
                     pagination={
                       allCount > pageSize
                         ? {
-                            position: ['bottomCenters'],
+                            placement: ['bottomCenter'],
                             pageSize,
                             total: allCount,
                             current: pageIndex,

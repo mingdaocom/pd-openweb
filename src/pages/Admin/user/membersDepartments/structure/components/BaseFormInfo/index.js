@@ -1,29 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { Divider, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { quickSelectDept, quickSelectRole } from 'ming-ui/functions';
+import { Icon } from 'ming-ui';
+import { Divider, Dropdown, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
+import { RoleSelectPopover } from 'ming-ui/functions/quickSelectRole';
 import departmentController from 'src/api/department';
 import jobAjax from 'src/api/job';
 import workSiteController from 'src/api/workSite';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { pathCompletion } from 'src/utils/common';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { hasPermission } from 'src/utils/services/security/permission';
 import { getEllipsisDep } from '../../constant';
 import TextInput from '../TextInput';
-
-const { Option } = Select;
-
-const SelectWrap = styled(Select)`
-  &:not(.ant-select-customize-input) .ant-select-selector {
-    height: unset !important;
-  }
-`;
 
 const RoleTagsWrap = styled.div`
   display: flex;
@@ -141,10 +132,10 @@ export default class BaseFormInfo extends Component {
             ];
 
     if (!useMultiJobs) {
-      Dialog.confirm({
+      Modal.confirm({
         width: 520,
         title: _l('添加多任职'),
-        description: (
+        content: (
           <div className="textPrimary">
             {_l(
               '添加后，支持设置部门对应的职位信息，设置后在成员的个人资料中展示。原本的“职位”将显示为“全部职位”汇总多任职信息中的职位信息，并在系统中使用。',
@@ -153,7 +144,10 @@ export default class BaseFormInfo extends Component {
         ),
         okText: _l('添加'),
         onOk: () => {
-          this.setState({ useMultiJobs: true, departmentJobInfos: newData });
+          this.setState({
+            useMultiJobs: true,
+            departmentJobInfos: newData,
+          });
         },
       });
     } else {
@@ -162,77 +156,52 @@ export default class BaseFormInfo extends Component {
   };
 
   // 添加部门
-  dialogSelectDeptFn = (e, selectedDepartment) => {
+  handleDepartmentSelect = (departments, isCancel = false, selectedDepartment) => {
     const { useMultiJobs, departmentJobInfos } = this.state;
 
-    quickSelectDept(e.target, {
-      offset: { left: -167 },
-      projectId: this.props.projectId,
-      unique: useMultiJobs,
-      fromAdmin: true,
-      selectedDepartment: useMultiJobs
-        ? selectedDepartment.departmentId
-          ? [selectedDepartment]
-          : []
-        : this.state.departmentInfos,
-      showCreateBtn: false,
-      selectFn: (departments, isCancel = false) => {
-        if (useMultiJobs) {
-          if (isCancel || !departments.length) return;
+    if (useMultiJobs) {
+      if (isCancel || !departments.length) return;
 
-          if (
-            departmentJobInfos.filter(
-              item =>
-                item.departmentId === departments[0].departmentId &&
-                departments[0].departmentId !== selectedDepartment.departmentId,
-            ).length
-          ) {
-            alert(_l('已存在该部门，请勿重复选择'), 3);
-            return;
-          }
+      if (
+        departmentJobInfos.filter(
+          item =>
+            item.departmentId === departments[0].departmentId &&
+            departments[0].departmentId !== selectedDepartment.departmentId,
+        ).length
+      ) {
+        alert(_l('已存在该部门，请勿重复选择'), 3);
+        return;
+      }
 
-          const newData = departmentJobInfos.map(item => {
-            return item.key === selectedDepartment.key
-              ? { ...item, ...departments[0], key: departments[0].departmentId }
-              : item;
-          });
-          this.setState({ departmentJobInfos: newData });
-        } else {
-          if (isCancel) {
-            const newDepartmentInfos = this.state.departmentInfos.filter(
-              l => l.departmentId !== departments[0].departmentId,
-            );
-            this.setState({ departmentInfos: newDepartmentInfos });
-            return;
-          }
+      const newData = departmentJobInfos.map(item => {
+        return item.key === selectedDepartment.key
+          ? { ...item, ...departments[0], key: departments[0].departmentId }
+          : item;
+      });
+      this.setState({ departmentJobInfos: newData });
+    } else {
+      if (isCancel) {
+        const newDepartmentInfos = this.state.departmentInfos.filter(
+          l => l.departmentId !== departments[0].departmentId,
+        );
+        this.setState({ departmentInfos: newDepartmentInfos });
+        return;
+      }
 
-          const data = _.uniqBy((this.state.departmentInfos || []).concat(departments), 'departmentId');
-          const ids = data.map(it => it.departmentId);
-          this.getDepartmentFullName(ids, 'all', data);
-        }
-      },
-    });
+      const data = _.uniqBy((this.state.departmentInfos || []).concat(departments), 'departmentId');
+      const ids = data.map(it => it.departmentId);
+      this.getDepartmentFullName(ids, 'all', data);
+    }
   };
 
-  //添加角色
-  dialogSelectRoleFn = e => {
-    const { projectId } = this.props;
+  handleRoleSave = (data, isCancel = false) => {
+    if (!data.length) return;
 
-    quickSelectRole(e.target, {
-      projectId,
-      unique: false,
-      offset: { left: -167 },
-      value: this.state.orgRoles.map(l => ({ organizeId: l.id, organizeName: l.name })),
-      onSave: (data, isCancel = false) => {
-        if (!data.length) return;
-
-        let roles = data.map(l => ({ id: l.organizeId, name: l.organizeName }));
-        this.setState({
-          orgRoles: isCancel
-            ? this.state.orgRoles.filter(l => l.id !== data[0].organizeId)
-            : _.uniqBy(this.state.orgRoles.concat(roles), 'id'),
-        });
-      },
+    let roles = data.map(l => ({ id: l.organizeId, name: l.organizeName }));
+    this.setState({
+      orgRoles: isCancel
+        ? this.state.orgRoles.filter(l => l.id !== data[0].organizeId)
+        : _.uniqBy(this.state.orgRoles.concat(roles), 'id'),
     });
   };
 
@@ -397,26 +366,30 @@ export default class BaseFormInfo extends Component {
     };
 
     return (
-      <Trigger
-        popupClassName="moreActionTrigger"
-        action={['click']}
-        popupAlign={{ points: ['tl', 'bl'], offset: [10, 10] }}
-        popupVisible={visible && currentDepartmentId === (item.departmentId || item.key)}
-        onPopupVisibleChange={visible => this.setState({ visible })}
-        popup={
-          <ul>
-            {useMultiJobs && i !== 0 && (
-              <Fragment>
-                {i > 1 && <li onClick={() => onMoveDepart('forward')}>{_l('上移')}</li>}
-                {i !== departmentJobInfos.length - 1 && <li onClick={() => onMoveDepart('backward')}>{_l('下移')}</li>}
-              </Fragment>
-            )}
-            {i !== 0 && <li onClick={() => onMoveDepart('toFirst')}>{_l('设为主任职部门')}</li>}
-            <li onClick={() => this.onDeleteMultiJobItem(item)} className="Red">
-              {_l('删除')}
-            </li>
-          </ul>
-        }
+      <Dropdown
+        classNames={{ root: 'moreActionTrigger' }}
+        trigger={['click']}
+        open={visible && currentDepartmentId === (item.departmentId || item.key)}
+        onOpenChange={visible => this.setState({ visible })}
+        menu={{
+          items: [
+            ...(useMultiJobs && i > 1
+              ? [{ key: 'forward', label: _l('上移'), onClick: () => onMoveDepart('forward') }]
+              : []),
+            ...(useMultiJobs && i !== 0 && i !== departmentJobInfos.length - 1
+              ? [{ key: 'backward', label: _l('下移'), onClick: () => onMoveDepart('backward') }]
+              : []),
+            ...(i !== 0
+              ? [{ key: 'toFirst', label: _l('设为主任职部门'), onClick: () => onMoveDepart('toFirst') }]
+              : []),
+            {
+              key: 'delete',
+              label: _l('删除'),
+              danger: true,
+              onClick: () => this.onDeleteMultiJobItem(item),
+            },
+          ],
+        }}
       >
         <Icon
           className="Font16 Hand textTertiary TxtMiddle hoverColorPrimary"
@@ -426,7 +399,7 @@ export default class BaseFormInfo extends Component {
             this.setState({ visible: true, currentDepartmentId: item.departmentId || item.key });
           }}
         />
-      </Trigger>
+      </Dropdown>
     );
   };
 
@@ -483,6 +456,23 @@ export default class BaseFormInfo extends Component {
         jobResult.push({ jobId: '', jobName: item.split('add_')[1] });
       }
     });
+
+    const jobOptions = jobResult.map(item => ({ value: item.jobId, label: item.jobName }));
+
+    if (!!keywords && _.isEmpty(jobList)) {
+      jobOptions.unshift({
+        value: 'empty',
+        disabled: true,
+        label: <span className="ellipsis customRadioItem textTertiary">{_l('可直接输入创建新的职位')}</span>,
+      });
+    }
+
+    if (keywords && !jobResult.find(item => item.jobName === keywords)) {
+      jobOptions.push({
+        value: `add_${keywords}`,
+        label: <span>{_l('创建新职位：%0', keywords)}</span>,
+      });
+    }
 
     const onJobsChange = idValues => {
       let newJob = idValues.find(item => item.indexOf('add_') > -1);
@@ -547,11 +537,24 @@ export default class BaseFormInfo extends Component {
                   : this.renderDepartItem(departmentItem)}
 
                 {typeCursor !== 2 && (
-                  <Icon
-                    className="Font26 Hand textTertiary mAll5 TxtMiddle hoverColorPrimary"
-                    icon={useMultiJobs && departmentItem.departmentId ? 'Circle-replace' : 'task_add-02'}
-                    onClick={e => this.dialogSelectDeptFn(e, departmentItem)}
-                  />
+                  <DeptSelectPopover
+                    offset={{ left: -167 }}
+                    projectId={this.props.projectId}
+                    unique={useMultiJobs}
+                    fromAdmin
+                    selectedDepartment={
+                      useMultiJobs ? (departmentItem.departmentId ? [departmentItem] : []) : this.state.departmentInfos
+                    }
+                    showCreateBtn={false}
+                    selectFn={(departments, isCancel) =>
+                      this.handleDepartmentSelect(departments, isCancel, departmentItem)
+                    }
+                  >
+                    <Icon
+                      className="Font26 Hand textTertiary mAll5 TxtMiddle hoverColorPrimary"
+                      icon={useMultiJobs && departmentItem.departmentId ? 'Circle-replace' : 'task_add-02'}
+                    />
+                  </DeptSelectPopover>
                 )}
               </Fragment>
             ) : (
@@ -572,10 +575,10 @@ export default class BaseFormInfo extends Component {
               </span>
             )}
           </div>
-          <SelectWrap
+          <Select
             disabled={typeCursor === 2}
             ref={select => (this.select = select)}
-            className={cx('w100 mdAntSelect', { noBorder: typeCursor === 2 })}
+            className={cx('w100', { noBorder: typeCursor === 2 })}
             showSearch
             allowClear={type === 'multiple' ? departmentItem.jobIds.length > 0 : jobIds.length > 0}
             listHeight={285}
@@ -588,30 +591,14 @@ export default class BaseFormInfo extends Component {
             onSearch={keywords =>
               this.setState({ keywords, jobIds: jobIds.filter(item => item.indexOf('add_') === -1) })
             }
-            onDropdownVisibleChange={open => {
+            onOpenChange={open => {
               this.setState({ keywords: '' });
               !open && this.select.blur();
             }}
             mode="multiple"
+            options={jobOptions}
             onChange={onJobsChange}
-          >
-            {!!keywords && _.isEmpty(jobList) && (
-              <Option disabled>
-                <span className="ellipsis customRadioItem textTertiary">{_l('可直接输入创建新的职位')}</span>
-              </Option>
-            )}
-            {jobResult.map(item => (
-              <Option key={item.jobId} value={item.jobId} label={item.jobName}>
-                {item.jobName}
-              </Option>
-            ))}
-
-            {keywords && !jobResult.find(item => item.jobName === keywords) && (
-              <Option value={`add_${keywords}`} label={keywords}>
-                <span>{_l('创建新职位：%0', keywords)}</span>
-              </Option>
-            )}
-          </SelectWrap>
+          />
         </div>
       </div>
     );
@@ -634,6 +621,23 @@ export default class BaseFormInfo extends Component {
 
     if (worksiteKeywords) {
       worksiteResult = worksiteResult.filter(item => item.workSiteName.indexOf(worksiteKeywords) > -1);
+    }
+
+    const worksiteOptions = worksiteResult.map(item => ({ value: item.workSiteId, label: item.workSiteName }));
+
+    if (!!worksiteKeywords && _.isEmpty(worksiteList)) {
+      worksiteOptions.unshift({
+        value: 'empty',
+        disabled: true,
+        label: <span className="ellipsis customRadioItem textTertiary">{_l('可直接输入创建新的工作地点')}</span>,
+      });
+    }
+
+    if (worksiteKeywords && !worksiteResult.find(item => item.workSiteName === worksiteKeywords)) {
+      worksiteOptions.push({
+        value: `add_${worksiteKeywords}`,
+        label: <span>{_l('创建新工作地点：%0', worksiteKeywords)}</span>,
+      });
     }
 
     return (
@@ -675,11 +679,15 @@ export default class BaseFormInfo extends Component {
                 );
               })}
               {typeCursor !== 2 && (
-                <Icon
-                  className="Font26 Hand textTertiary mAll5 TxtMiddle hoverColorPrimary"
-                  icon="task_add-02"
-                  onClick={e => this.dialogSelectRoleFn(e)}
-                />
+                <RoleSelectPopover
+                  projectId={projectId}
+                  unique={false}
+                  value={orgRoles.map(l => ({ organizeId: l.id, organizeName: l.name }))}
+                  onSave={this.handleRoleSave}
+                  placement="bottom"
+                >
+                  <Icon className="Font26 Hand textTertiary mAll5 TxtMiddle hoverColorPrimary" icon="task_add-02" />
+                </RoleSelectPopover>
               )}
             </RoleTagsWrap>
           ) : (
@@ -705,7 +713,7 @@ export default class BaseFormInfo extends Component {
               this.worksiteSelect = select;
             }}
             disabled={typeCursor === 2}
-            className={cx('w100 mdAntSelect', { noBorder: typeCursor === 2 })}
+            className={cx('w100', { noBorder: typeCursor === 2 })}
             showSearch
             allowClear
             listHeight={285}
@@ -716,10 +724,11 @@ export default class BaseFormInfo extends Component {
             filterOption={() => true}
             notFoundContent={<span className="textTertiary">{_l('可直接输入创建新的工作地点')}</span>}
             onSearch={worksiteKeywords => this.setState({ worksiteKeywords })}
-            onDropdownVisibleChange={open => {
+            onOpenChange={open => {
               this.setState({ worksiteKeywords: '' });
               !open && this.worksiteSelect.blur();
             }}
+            options={worksiteOptions}
             onChange={workSiteId => {
               if (workSiteId && workSiteId.indexOf('add_') > -1) {
                 const worksiteName = workSiteId.split('add_')[1];
@@ -731,24 +740,7 @@ export default class BaseFormInfo extends Component {
               let val = !!workSiteId && workSiteId.indexOf('add_') > -1 ? workSiteId.split('add_')[1] : workSiteId;
               this.setState({ workSiteId: val });
             }}
-          >
-            {!!worksiteKeywords && _.isEmpty(worksiteList) && (
-              <Option disabled>
-                <span className="ellipsis customRadioItem textTertiary">{_l('可直接输入创建新的工作地点')}</span>
-              </Option>
-            )}
-            {worksiteResult.map(item => (
-              <Option key={item.workSiteId} value={item.workSiteId} label={item.workSiteName}>
-                {item.workSiteName}
-              </Option>
-            ))}
-
-            {worksiteKeywords && !worksiteResult.find(item => item.workSiteName === worksiteKeywords) && (
-              <Option value={`add_${worksiteKeywords}`} label={worksiteKeywords}>
-                <span>{_l('创建新工作地点：%0', worksiteKeywords)}</span>
-              </Option>
-            )}
-          </Select>
+          />
         </div>
         <TextInput
           label={_l('工号')}

@@ -3,13 +3,14 @@ import { useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
 import _, { get, pick } from 'lodash';
 import styled from 'styled-components';
-import { useGlobalStore } from 'src/common/GlobalStore';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
 import CreateByMingoButton from 'src/components/Mingo/ChatBot/CreateByMingoButton';
 import { MINGO_TASK_STATUS, MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
+import { canUseMingoOtherAssistant } from 'src/components/Mingo/permission';
 import { EmptyControl } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/style';
-import { emitter } from 'src/utils/common';
+import { notInsetSectionTab } from 'src/utils/domain/control/capabilities';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { DRAG_ACCEPT, DRAG_MODE } from '../../config/Drag';
-import { notInsetSectionTab } from '../../util';
 
 const DragPointer = styled.div`
   flex: 1;
@@ -50,6 +51,8 @@ export default function BottomDragPointer({
   globalSheetInfo,
 }) {
   window.globalSheetInfo = globalSheetInfo;
+  // 组织关掉「应用内其它 Mingo 辅助」后不再提供 AI 生成字段
+  const allowCreateByMingo = showCreateByMingo && canUseMingoOtherAssistant(get(globalSheetInfo, 'projectId'));
   const {
     store: { mingoCreateWorksheetAction },
   } = useGlobalStore();
@@ -80,12 +83,12 @@ export default function BottomDragPointer({
   return (
     <DragPointer ref={ref} className={cx('flexColumn', { isOver, canDrop })}>
       {showEmpty ? (
-        <EmptyControl style={!isDialog && showCreateByMingo ? {} : { lineHeight: '86px' }}>
+        <EmptyControl style={!isDialog && allowCreateByMingo ? {} : { lineHeight: '86px' }}>
           {!mingoCreateWorksheetAction ? (
             <Fragment>
               <div className="line"></div>
               <div className="emptyText">{_l('从左侧列表拖拽或点击添加字段')}</div>
-              {!isDialog && showCreateByMingo && (
+              {!isDialog && allowCreateByMingo && (
                 <CreateByMingoButton
                   className="mingoGenWidgets"
                   onClick={() => {

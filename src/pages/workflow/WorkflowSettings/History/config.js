@@ -171,6 +171,7 @@ export const NODE_TYPE = {
   32: { type: 'plugin', text: _l('插件') },
   33: { type: 'agent', text: _l('Agent') },
   34: { type: 'vector', text: _l('向量知识库') },
+  35: { type: 'goto', text: _l('跳转') },
   101: { type: 'tools', text: _l('工具') },
   1000: { type: 'singleInfo', text: _l('获取单条信息') },
   1001: { type: 'moreInfo', text: _l('获取多条信息') },
@@ -279,12 +280,14 @@ export const NODE_ICON = {
       1: 'playlist_add',
       2: 'workflow_update',
       3: 'hr_delete',
+      8: 'people_alt_6',
       20: 'workflow_search',
     },
     text: {
       1: _l('新增记录'),
       2: _l('更新记录'),
       3: _l('删除记录'),
+      8: _l('更新记录关注者'),
       20: _l('获得指定关联记录'),
     },
     bgColor: '#FFA340',
@@ -434,6 +437,11 @@ export const NODE_ICON = {
     icon: 'a-knowledge_search',
     text: _l('向量知识库'),
     bgColor: '#6E09F9',
+  },
+  goto: {
+    icon: 'goto',
+    text: _l('跳转'),
+    bgColor: '#1677ff',
   },
   tools: {
     icon: {

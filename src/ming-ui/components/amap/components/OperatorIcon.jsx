@@ -6,10 +6,11 @@ const ToolbarIconWrap = styled.div`
   width: 30px;
   text-align: center;
   right: 10px;
-  top: ${({ isMobile, icon }) => (icon === 'gpsFixed' ? (isMobile ? '140px' : '470px') : isMobile ? '180px' : '520px')};
+  top: ${({ $isMobile, $icon }) =>
+    $icon === 'gpsFixed' ? ($isMobile ? '140px' : '470px') : $isMobile ? '180px' : '520px'};
   z-index: 10;
   padding: 6px;
-  border-radius: ${icon => (icon === 'gpsFixed' ? ' 50%' : 'unset')};
+  border-radius: ${({ $icon }) => ($icon === 'gpsFixed' ? '50%' : 'unset')};
   background: var(--color-background-primary);
   box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
 `;
@@ -44,8 +45,8 @@ export default class OperatorIcon extends Component {
 
         {defaultLocation && defaultLocation.position && (
           <ToolbarIconWrap
-            isMobile={isMobile}
-            icon="gpsFixed"
+            $isMobile={isMobile}
+            $icon="gpsFixed"
             className="textTertiary Absolute hoverColorPrimary pointer flexRow gpsFixedIcon"
             onClick={() => setPosition(defaultLocation.position.lng, defaultLocation.position.lat)}
           >
@@ -55,8 +56,8 @@ export default class OperatorIcon extends Component {
         {defaultLocation && defaultLocation.position && (
           <ToolbarIconWrap
             className="textTertiary Absolute pointer flexColumn zoomWrap"
-            isMobile={isMobile}
-            icon="plusMinus"
+            $isMobile={isMobile}
+            $icon="plusMinus"
           >
             <div className="hoverColorPrimary" onClick={() => setZoom('plus')}>
               <Icon icon="plus" className="Font14" />

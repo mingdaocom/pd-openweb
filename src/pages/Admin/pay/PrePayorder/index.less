@@ -1,13 +1,10 @@
 // pc
 .payOrderDialog {
   text-align: center !important;
-  .mui-dialog-close-btn {
+  .hap-modal-close {
     top: 10px !important;
   }
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
+  .hap-modal-body {
     padding: 0px 24px 56px !important;
   }
   .cancelPay {
@@ -26,23 +23,8 @@
   }
 
   .okPay {
-    height: 44px;
-    line-height: 44px;
-    background-color: var(--color-primary);
-    &:hover {
-      background-color: var(--color-primary);
-    }
     &.mTop106 {
       margin-top: 106px;
-    }
-    &.invoiceBtn {
-      background-color: var(--color-background-primary);
-      border: 1px solid var(--color-border-secondary);
-      color: var(--color-text-primary);
-      &:hover {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-      }
     }
   }
   .loadingWrap {
@@ -137,12 +119,6 @@
       border-radius: 6px;
       color: var(--color-white);
       margin-right: 8px;
-      &.wechatBgColor {
-        color: var(--color-success);
-      }
-      &.aliBgColor {
-        color: var(--color-primary);
-      }
     }
   }
 }
@@ -161,19 +137,12 @@
   border-top-left-radius: 8px !important;
   border-top-right-radius: 8px !important;
   text-align: center !important;
-  .mui-dialog-header {
-    display: none;
-  }
-
   .preOrderWrap {
     height: 100%;
     display: flex;
     flex-direction: column;
   }
   .mobileOkPay {
-    height: 44px;
-    line-height: 44px;
-    background-color: var(--color-primary);
     border-radius: 22px;
     font-size: 15px;
   }
@@ -185,7 +154,6 @@
   }
   .mobilePay {
     padding: 0;
-    min-width: 0;
     border-radius: 22px;
   }
   .amount {
@@ -214,22 +182,16 @@
       border-radius: 6px;
       color: var(--color-white);
       margin-right: 8px;
-      &.wechatBgColor {
-        background-color: var(--color-success);
-      }
-      &.aliBgColor {
-        background-color: var(--color-primary);
-      }
     }
   }
 }
 
 .payNowContainer {
-  .mui-dialog-scroll-container {
+  .hap-modal-wrap {
     text-align: left;
     padding: 0;
   }
-  .mui-dialog-mask {
+  .hap-modal-mask {
     background: var(--color-background-primary) !important;
   }
   .payOrderDialog {
@@ -237,16 +199,11 @@
     vertical-align: top !important;
     max-height: unset !important;
     height: 100% !important;
-    .mui-dialog-body {
+    .hap-modal-body {
       padding: 0 24px !important;
       .orderPayWrap {
         padding-top: 0 !important;
       }
     }
   }
-}
-
-.cancelPayBtn {
-  border: 1px solid var(--color-border-secondary) !important;
-  background-color: var(--color-background-primary) !important;
 }

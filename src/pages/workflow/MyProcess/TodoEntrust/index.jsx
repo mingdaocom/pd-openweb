@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import delegationApi from '../../api/delegation';
 import TodoEntrustList from './TodoEntrustList';
-import TodoEntrustModal from './TodoEntrustModal';
 
 const IconWrapper = styled.div`
   display: inline-flex;
@@ -29,7 +28,6 @@ const IconWrapper = styled.div`
 
 export default function TodoEntrust() {
   const [entrustListVisible, setEntrustListVisible] = useState(false);
-  const [todoEntrustModalVisible, setTodoEntrustModalVisible] = useState(false);
   const [delegationList, setDelegationList] = useState([]);
   const entrustCount = delegationList.length;
 
@@ -55,25 +53,24 @@ export default function TodoEntrust() {
         </IconWrapper>
       </Tooltip>
 
-      <Dialog
-        className="todoEntrustDialog"
-        visible={entrustListVisible}
-        width={1280}
-        type="fixed"
-        footer={null}
-        onOk={() => {}}
-        onCancel={() => setEntrustListVisible(false)}
-      >
-        <TodoEntrustList
-          visible={entrustListVisible}
-          delegationList={delegationList}
-          onUpdate={getData}
-          onClose={() => setEntrustListVisible(false)}
-        />
-      </Dialog>
-
-      {todoEntrustModalVisible && (
-        <TodoEntrustModal setTodoEntrustModalVisible={setTodoEntrustModalVisible} onUpdate={getData} />
+      {entrustListVisible && (
+        <Modal
+          open
+          width={1280}
+          type="fixed"
+          footer={null}
+          keyboard
+          mask={{ closable: true }}
+          styles={{ body: { padding: 0, overflow: 'hidden' }, container: { padding: 0 } }}
+          onCancel={() => setEntrustListVisible(false)}
+        >
+          <TodoEntrustList
+            visible
+            delegationList={delegationList}
+            onUpdate={getData}
+            onClose={() => setEntrustListVisible(false)}
+          />
+        </Modal>
       )}
     </React.Fragment>
   );

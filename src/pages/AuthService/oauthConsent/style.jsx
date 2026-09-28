@@ -20,10 +20,6 @@ export const PageWrap = styled.div`
     border-top: 1px solid #e0e0e0;
   }
 
-  .cancelBtn {
-    border-color: #eaeaea !important;
-  }
-
   @media (max-width: ${MOBILE_BREAKPOINT}) {
     background-color: #fff;
     padding: 16px;
@@ -84,17 +80,6 @@ export const ErrorIconWrap = styled.div`
 export const ErrorContent = styled.div`
   padding: 46px 0 46px;
   text-align: center;
-`;
-
-export const BtnGroup = styled.div`
-  .authorizeBtn {
-    background-color: var(--color-primary) !important;
-    border-color: var(--color-primary) !important;
-    &:hover {
-      background-color: var(--color-primary-dark) !important;
-      border-color: var(--color-primary-dark) !important;
-    }
-  }
 `;
 
 export const ScopeListWrap = styled.ul`

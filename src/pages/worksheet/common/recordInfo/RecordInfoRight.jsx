@@ -1,8 +1,6 @@
 import React from 'react';
-import { get, pick } from 'lodash';
+import { pick } from 'lodash';
 import PropTypes from 'prop-types';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import DiscussLogFile from '../../components/DiscussLogFile';
 
 export default function RecordInfoRight(props) {
@@ -16,62 +14,19 @@ export default function RecordInfoRight(props) {
     workflow,
     approval,
     isOpenNewAddedRecord,
-    sheetSwitchPermit,
     onFold,
     projectId,
     formFlag,
     formdata,
-    payConfig,
+    hiddenTabs = [],
     instanceId,
     workId,
     isCharge,
     updatePayConfig = () => {},
+    updateDiscussCount = () => {},
     worksheetOperationLogPermission,
   } = props;
-  const { isSubList, appId, viewId, viewType, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
-  let hiddenTabs = [];
-  const noApproved =
-    !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) ||
-    (md.global.Account.isPortal && !props.approved);
-
-  if (!payConfig.rowDetailIsShowOrder) {
-    hiddenTabs.push('pay');
-  }
-
-  if (isSubList) {
-    hiddenTabs.push('discuss', 'files');
-  }
-
-  // 查看讨论和文件权限 默认true
-  if (!isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)) {
-    hiddenTabs.push('discuss', 'files');
-  }
-
-  // 查看日志权限
-  if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
-    hiddenTabs.push('logs');
-  }
-
-  // 审批权限 || 流程详情不需要显示表审批
-  if (noApproved || workflow) {
-    hiddenTabs.push('approval');
-  }
-
-  if (!workflow) {
-    hiddenTabs.push('workflow');
-  }
-
-  if (md.global.Account.isPortal || get(window, 'shareState.isPublicChatbot')) {
-    // 外部门户不显示文件，日志由 recordLogSwitch 开关控制
-    hiddenTabs.push('files');
-    if (!props.allowExAccountDiscuss) {
-      hiddenTabs.push('discuss');
-    }
-  }
-
-  if ([...new Set(hiddenTabs)].length >= 6) {
-    return '';
-  }
+  const { appId, viewId, viewType, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
 
   const recordLogPermissionProps = worksheetOperationLogPermission
     ? pick(worksheetOperationLogPermission, ['allowExport', 'showRequestTypeFilter', 'showOperatorFilter'])
@@ -109,6 +64,7 @@ export default function RecordInfoRight(props) {
         workId={workId}
         isCharge={isCharge}
         updatePayConfig={updatePayConfig}
+        updateDiscussCount={updateDiscussCount}
         isHide={props.isHide}
       />
     </div>
@@ -121,6 +77,6 @@ RecordInfoRight.propTypes = {
   workflow: PropTypes.element,
   approval: PropTypes.element,
   recordbase: PropTypes.shape({}),
-  sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
+  hiddenTabs: PropTypes.arrayOf(PropTypes.string),
   onFold: PropTypes.func,
 };

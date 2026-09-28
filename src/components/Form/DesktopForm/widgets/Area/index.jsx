@@ -2,8 +2,9 @@ import React, { useCallback, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { CityPicker, Icon, Input } from 'ming-ui';
-import { getAreaHintText } from 'src/utils/controlCommon';
+import { CityPicker, Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
+import { getAreaHintText } from 'src/utils/domain/control/style';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 export default function AreaWidgets(props) {
@@ -112,12 +113,14 @@ export default function AreaWidgets(props) {
         disabled={disabled}
       >
         <Input
-          manualRef={inputRef}
+          ref={inputRef}
           className={cx('flex minWidth0 mRight20 ellipsis CityPicker-input-textCon')}
+          variant="borderless"
           placeholder={city.name || getAreaHintText(props)}
           value={visible ? search || '' : city.name || ''}
           title={city.name || ''}
-          onChange={value => {
+          onChange={event => {
+            const value = event.target.value;
             setSearch(value);
             onFetchData(value);
           }}
@@ -139,7 +142,7 @@ export default function AreaWidgets(props) {
                 }}
               />
             )}
-            <Icon icon="map" className="Font16 textDisabled" />
+            <Icon icon="map" className="Font16 textTertiary" />
           </>
         )}
       </button>

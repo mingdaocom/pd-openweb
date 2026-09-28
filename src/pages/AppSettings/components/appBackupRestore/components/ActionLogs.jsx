@@ -1,13 +1,13 @@
-import React, { Fragment, useRef } from 'react';
+import React, { Fragment } from 'react';
 import { useEffect } from 'react';
-import { useSetState } from 'react-use';
+import { useLatest, useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Button } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import appManagementAjax from 'src/api/appManagement';
 import DatePickSelect from 'src/pages/worksheet/components/DatePickerSelect';
 import EmptyStatus from '../../EmptyStatus';
@@ -130,9 +130,36 @@ const OPERATION_DATA_LIST = {
 
 const PAGESIZE = 10;
 
+function fetchActionLogs({ appId, projectId, state, setState, options = {} }) {
+  const { pageIndex = 1, ...rest } = options;
+  const { actLogList = [], endTime, isLoading, selectUser, startTime } = state;
+  if (isLoading) return;
+
+  setState({ isLoading: true });
+  appManagementAjax
+    .pageGetBackupRestoreOperationLog({
+      pageIndex: pageIndex || 1,
+      pageSize: PAGESIZE,
+      projectId,
+      appId,
+      isBackup: false,
+      startTime,
+      endTime,
+      accountId: selectUser && !_.isEmpty(selectUser) && selectUser[0].accountId,
+      ...rest,
+    })
+    .then(({ list = [], total }) => {
+      setState({
+        isLoading: false,
+        actLogList: pageIndex === 1 ? list : actLogList.concat(list),
+        pageIndex,
+        total,
+      });
+    });
+}
+
 export default function ActionLogs(props) {
   const { appId, projectId, onClose = () => {} } = props;
-  const selectUserRef = useRef();
   const [{ selectUser, selectDate, isLoading, pageIndex, actLogList, startTime, endTime, total }, setPara] =
     useSetState({
       selectUser: undefined,
@@ -148,36 +175,15 @@ export default function ActionLogs(props) {
       pageIndex: 1,
       actLogList: [],
     });
+  const latestState = useLatest({ actLogList, endTime, isLoading, selectUser, startTime });
+
+  const getList = options => {
+    fetchActionLogs({ appId, projectId, state: latestState.current, setState: setPara, options });
+  };
 
   useEffect(() => {
-    getList();
-  }, []);
-
-  const getList = ({ pageIndex = 1, ...rest } = {}) => {
-    if (isLoading) return;
-    setPara({ isLoading: true });
-    appManagementAjax
-      .pageGetBackupRestoreOperationLog({
-        pageIndex: pageIndex || 1,
-        pageSize: PAGESIZE,
-        projectId,
-        appId,
-        isBackup: false,
-        startTime,
-        endTime,
-        accountId: selectUser && !_.isEmpty(selectUser) && selectUser[0].accountId,
-        ...rest,
-      })
-      .then(({ list = [], total }) => {
-        let temp = pageIndex === 1 ? list : actLogList.concat(list);
-        setPara({
-          isLoading: false,
-          actLogList: temp,
-          pageIndex,
-          total,
-        });
-      });
-  };
+    fetchActionLogs({ appId, projectId, state: {}, setState: setPara });
+  }, [appId, projectId, setPara]);
 
   const selectUserCallback = value => {
     setPara({
@@ -185,36 +191,6 @@ export default function ActionLogs(props) {
       pageIndex: 1,
     });
     getList({ accountId: value[0].accountId });
-  };
-
-  const pickUser = () => {
-    const filterIds = ['user-sub', 'user-undefined'];
-    quickSelectUser(selectUserRef.current, {
-      hidePortalCurrentUser: true,
-      selectRangeOptions: false,
-      includeSystemField: true,
-      prefixOnlySystemField: true,
-      prefixAccountIds: ['user-system'],
-      rect: selectUserRef.current.getBoundingClientRect(),
-      tabType: 3,
-      appId: appId,
-      showMoreInvite: false,
-      isTask: false,
-      filterAccountIds: filterIds,
-      selectedAccountIds: (selectUser || []).map(item => item.accountId),
-      offset: {
-        top: 2,
-      },
-      zIndex: 10001,
-      SelectUserSettings: {
-        unique: true,
-        projectId: projectId,
-        filterAccountIds: filterIds,
-        selectedAccountIds: (selectUser || []).map(item => item.accountId),
-        callback: selectUserCallback,
-      },
-      selectCb: selectUserCallback,
-    });
   };
 
   const clearSelectUser = e => {
@@ -250,22 +226,45 @@ export default function ActionLogs(props) {
     <Fragment>
       <Header>
         <div className="Font17 bold flex">{_l('操作日志')}</div>
-        <Icon icon="close" className="Hand Font18" onClick={onClose} />
+        <Button color="default" variant="text" size="small" icon={<Icon icon="close" />} onClick={onClose} />
       </Header>
       <Content>
         <ScrollView className="h100" onScrollEnd={onScrollEnd}>
           <SelectCon>
             <div className="left">
-              <span className={cx({ selectLight: selectUser }, 'selectUser')} onClick={pickUser} ref={selectUserRef}>
-                <Icon icon="person" />
-                <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
-                <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
-                {selectUser && <Icon onClick={clearSelectUser} icon="cancel" />}
-              </span>
+              <UserSelectPopover
+                hidePortalCurrentUser
+                selectRangeOptions={false}
+                includeSystemField
+                prefixOnlySystemField
+                prefixAccountIds={['user-system']}
+                tabType={3}
+                appId={appId}
+                showMoreInvite={false}
+                filterAccountIds={['user-sub', 'user-undefined']}
+                selectedAccountIds={(selectUser || []).map(item => item.accountId)}
+                offset={{ top: 2, left: 0 }}
+                SelectUserSettings={{
+                  unique: true,
+                  projectId,
+                  filterAccountIds: ['user-sub', 'user-undefined'],
+                  selectedAccountIds: (selectUser || []).map(item => item.accountId),
+                  callback: selectUserCallback,
+                }}
+                onSelect={selectUserCallback}
+              >
+                <span className={cx({ selectLight: selectUser }, 'selectUser')}>
+                  <Icon icon="person" />
+                  <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
+                  <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
+                  {selectUser && <Icon onClick={clearSelectUser} icon="cancel" />}
+                </span>
+              </UserSelectPopover>
             </div>
-            <Trigger
-              popupVisible={selectDate.visible}
-              onPopupVisibleChange={visible =>
+            <DatePickSelect
+              open={selectDate.visible}
+              selectedValue={selectDate.range?.value}
+              onOpenChange={visible =>
                 setPara({
                   selectDate: {
                     ...selectDate,
@@ -273,33 +272,27 @@ export default function ActionLogs(props) {
                   },
                 })
               }
-              action={['click']}
-              popupAlign={{ points: ['tr', 'br'] }}
-              popup={
-                <DatePickSelect
-                  onChange={data => {
-                    setPara({
-                      selectDate: {
-                        visible: false,
-                        range: !data.value
-                          ? undefined
-                          : {
-                              ...data,
-                              value: [data.value[0], data.value[1]],
-                            },
-                      },
-                      startTime: !data.value ? undefined : data.value[0],
-                      endTime: !data.value ? undefined : data.value[1],
-                      pageIndex: 1,
-                    });
-                    getList({
-                      startTime: !data.value ? undefined : moment(data.value[0]).format('YYYY-MM-DD HH:mm:ss'),
-                      endTime: !data.value ? undefined : moment(data.value[1]).format('YYYY-MM-DD HH:mm:ss'),
-                      pageIndex: 1,
-                    });
-                  }}
-                />
-              }
+              onChange={data => {
+                setPara({
+                  selectDate: {
+                    visible: false,
+                    range: !data.value
+                      ? undefined
+                      : {
+                          ...data,
+                          value: [data.value[0], data.value[1]],
+                        },
+                  },
+                  startTime: !data.value ? undefined : data.value[0],
+                  endTime: !data.value ? undefined : data.value[1],
+                  pageIndex: 1,
+                });
+                getList({
+                  startTime: !data.value ? undefined : moment(data.value[0]).format('YYYY-MM-DD HH:mm:ss'),
+                  endTime: !data.value ? undefined : moment(data.value[1]).format('YYYY-MM-DD HH:mm:ss'),
+                  pageIndex: 1,
+                });
+              }}
             >
               <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
                 <Icon icon="event" />
@@ -307,7 +300,7 @@ export default function ActionLogs(props) {
                 {selectDate.range && <Icon icon="arrow-down" />}
                 {selectDate.range && <Icon icon="cancel" onClick={clearSelectDate} />}
               </span>
-            </Trigger>
+            </DatePickSelect>
           </SelectCon>
 
           {_.isEmpty(actLogList) ? (

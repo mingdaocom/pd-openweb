@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Checkbox, ConfigProvider, Input, Modal, Select } from 'antd';
 import { ColorPicker, Icon } from 'ming-ui';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Checkbox, Input, Modal, Select } from 'ming-ui/antd-components';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
 
 export default class DataBarColor extends Component {
   constructor(props) {
@@ -37,21 +37,6 @@ export default class DataBarColor extends Component {
       onlyShowBar,
     });
   };
-  renderRuleColorFooter() {
-    const { onCancel } = this.props;
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button type="link" onClick={onCancel}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSave}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   renderContent() {
     const { min, max, positiveNumberColor, negativeNumberColor, axisColor, direction, onlyShowBar } = this.state;
     return (
@@ -61,7 +46,7 @@ export default class DataBarColor extends Component {
             <div className="mBottom8">{_l('最小值')}</div>
             <Input
               value={min}
-              className="chartInput mRight10"
+              className="mRight10"
               placeholder={_l('最小值')}
               onChange={() => {
                 const value = formatNumberFromInput(event.target.value);
@@ -112,7 +97,7 @@ export default class DataBarColor extends Component {
             <div className="mBottom8">{_l('最大值')}</div>
             <Input
               value={max}
-              className="chartInput mRight10"
+              className="mRight10"
               placeholder={_l('最大值')}
               onChange={() => {
                 const value = formatNumberFromInput(event.target.value);
@@ -125,20 +110,23 @@ export default class DataBarColor extends Component {
             <div className="mTop12 mBottom8">{_l('条形图方向')}</div>
             <Select
               style={{ width: 230 }}
-              className="chartSelect mRight10"
+              className="mRight10"
               value={direction}
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={[
+                {
+                  value: 1,
+                  label: _l('从左到右'),
+                },
+                {
+                  value: 2,
+                  label: _l('从右到左'),
+                },
+              ]}
               onChange={type => {
                 this.setState({ direction: type });
               }}
-            >
-              <Select.Option className="selectOptionWrapper" value={1}>
-                {_l('从左到右')}
-              </Select.Option>
-              <Select.Option className="selectOptionWrapper" value={2}>
-                {_l('从右到左')}
-              </Select.Option>
-            </Select>
+            />
             <div className="mTop12 mBottom8">{_l('轴')}</div>
             <ColorPicker
               isPopupBody
@@ -164,11 +152,10 @@ export default class DataBarColor extends Component {
         title={_l('数据条')}
         width={580}
         className="chartModal chartRuleColorModal"
-        visible={visible}
+        open={visible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderRuleColorFooter()}
+        onOk={this.handleSave}
         onCancel={onCancel}
       >
         {this.renderContent()}

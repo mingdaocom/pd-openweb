@@ -3,7 +3,8 @@ import { assign, isEmpty, isObject, trim } from 'lodash';
 import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
-import Dialog from 'ming-ui/components/Dialog';
+import { Modal } from 'ming-ui/antd-components';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
 import { NODE_SORT_BY, NODE_SORT_TYPE, PICK_TYPE, ROOT_PERMISSION_TYPE } from '../constant/enum';
 
 function smi(i32) {
@@ -245,9 +246,19 @@ export function getDefaultSortType(sortBy) {
  * @param  {String}  minorContent     注脚
  * @param  {Boolean|String} yesText   确认按钮的内容，如果为 false 不显示确认按钮
  * @param  {Boolean|String} noText    取消按钮的内容，如果为 false 不显示取消按钮
+ * @param  {Object}  options          Modal.confirm 额外配置
  * @return {Promise}                  [description]
  */
-export function confirm(header, content, showClose, ckText, minorContent, yesText = undefined, noText = undefined) {
+export function confirm(
+  header,
+  content,
+  showClose,
+  ckText,
+  minorContent,
+  yesText = undefined,
+  noText = undefined,
+  options = {},
+) {
   return new Promise((resolve, reject) => {
     const container = {};
 
@@ -265,10 +276,17 @@ export function confirm(header, content, showClose, ckText, minorContent, yesTex
       container.cancelText = noText;
     }
 
-    Dialog.confirm({
-      dialogClasses: Math.random(),
+    Modal.confirm({
+      ...options,
+      wrapClassName: Math.random(),
       title: header,
-      children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
+      content: (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: sanitizePostMessageHtml(content),
+          }}
+        ></div>
+      ),
       ...container,
     });
   });

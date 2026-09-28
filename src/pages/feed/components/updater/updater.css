@@ -2,6 +2,7 @@
 .updaterCard {
   font-size: 12px;
   padding: 10px;
+  border-radius: 6px;
   margin: 0 0 14px 0 !important;
   overflow: visible !important;
 }
@@ -24,16 +25,9 @@
 .myUpdateItem_Content {
   margin: 15px 10px 11px 15px;
 }
-.myUpdateItem .Button {
-  width: 52px;
-  height: 24px;
-}
 .myUpdateItem .faceArea {
   border-bottom: 1px solid var(--color-background-disabled);
   height: 26px;
-}
-.myUpdateItem .faceArea .mdEmotion {
-  z-index: 9;
 }
 .myUpdateItem .myUpdateType {
   float: left;
@@ -57,25 +51,6 @@
 }
 .myUpdateItem .myUpdateType a:hover {
   text-decoration: none;
-}
-.myUpdateItem .update_close {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  cursor: pointer;
-  line-height: 1;
-  border-radius: 2px;
-}
-.myUpdateItem .update_close i {
-  position: absolute;
-  left: 0.5px;
-  top: -0.5px;
-}
-.myUpdateItem .update_close:hover i {
-  color: var(--color-white) !important;
-}
-.myUpdateItem .update_close:not(:hover) {
-  background-color: var(--color-background-primary) !important;
 }
 .msgContainer {
   zoom: 1;
@@ -148,6 +123,27 @@
   clear: both;
   padding-bottom: 0px;
 }
+.updaterCard .updaterTabs {
+  --hap-tabs-horizontal-item-padding: 6px 0;
+  --hap-tabs-horizontal-item-gutter: 15px;
+}
+.updaterCard .updaterTabIcon {
+  display: inline-flex;
+  padding: 0 8px;
+  color: var(--color-text-tertiary);
+}
+.updaterCard .hap-tabs-tab-active .updaterTabIcon {
+  color: var(--color-primary);
+}
+.updaterCard .updaterTabsInactive .hap-tabs-ink-bar {
+  display: none;
+}
+.updaterCard .updaterTabsInactive .hap-tabs-nav::before {
+  border-bottom: 0;
+}
+.updaterCard .updaterTabsInactive .hap-tabs-tab-active .updaterTabIcon {
+  color: var(--color-text-tertiary);
+}
 .myUpdateItem .borderTopHidden {
   border: 1px solid --color-background-disabled;
 }
@@ -169,29 +165,6 @@
 .Comment_middleContent .promptDoc {
   margin-left: 5px;
   color: var(--color-text-tertiary);
-}
-.updaterDialog_Main .ThumbPages {
-  margin-top: -32px;
-  text-align: center;
-  height: 30px;
-  line-height: 30px;
-  background-color: var(--color-border-primary);
-  _filter: alpha(opacity=40);
-  opacity: 0.4;
-}
-.updaterDialog_Main .imagearea {
-  width: 160px;
-  height: 118px;
-  background: var(--color-background-primary);
-  border: 1px solid var(--color-border-primary);
-}
-.updaterDialog_Main .updater_LinkTitle {
-  width: 330px;
-}
-.updaterDialog_Main .uploadLinkContent {
-  margin: 0px 10px;
-  padding-bottom: 10px;
-  overflow: hidden;
 }
 .updaterDialog_Main {
   border-right: 0px;
@@ -224,15 +197,6 @@
 .updaterDialog_Main .line {
   margin: 0px 10px;
 }
-.updaterDialog_Main .visualDocTextBox {
-  margin: 10px;
-  height: 35px;
-  line-height: 35px;
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border-primary);
-  cursor: pointer;
-  overflow: hidden;
-}
 .updaterDialog_Main .visualPicTextBox {
   width: 150px;
   height: 110px;
@@ -246,33 +210,11 @@
   margin-right: -10px;
   background-color: var(--color-error-bg);
 }
-.updaterCard .updaterDialog_Main .linkTextBox {
-  height: 33px;
-  line-height: 33px;
-  border: 0px;
-  width: 580px;
-}
-.updaterDialog_Main .linkBtnArea {
-  padding: 0px 3px;
-  border-left: 1px solid var(--color-border-tertiary);
-}
-.updaterDialog_Main .linkBtn {
-  padding: 3px 6px;
-  margin: 0px;
-  margin-top: -2px;
-}
-
 #Attachment_updater .attachmentList {
   margin-top: 10px;
 }
 #Attachment_updater .kcAttachmentList {
   margin-top: 10px;
-}
-#Attachment_updater .updaterAttachmentSplitter {
-  border: none;
-  padding: 0;
-  margin: 12px 0 2px;
-  border-top: 1px solid;
 }
 #Attachment_updater .uploadAttachmentLink {
   color: var(--color-text-tertiary);
@@ -326,10 +268,6 @@
 }
 #Attachment_updater .kcDocItem .shareUrl {
   max-width: 200px;
-}
-
-#Div_JoinKnowledge .Knowledge_Search_Node .Knowledge_Search_Ico {
-  padding-left: 0px !important;
 }
 
 .updaterCard .updaterBottomRightCon {

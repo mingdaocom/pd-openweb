@@ -1,11 +1,19 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
+import { SelectGroupPopover } from 'ming-ui/functions/quickSelectGroup';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import './less/createFolder.less';
+
+const CREATE_FOLDER_MODAL_STYLES = {
+  container: { padding: 0 },
+  body: { padding: 0 },
+};
+const PERSONAL_NETWORK_KEY = 'personal';
+const NETWORK_MENU_STYLE = { minWidth: 222, maxHeight: 180, overflowY: 'auto' };
+const RANGE_MENU_STYLE = { minWidth: 260 };
 
 export default class CreateFolder extends Component {
   static defaultProps = {
@@ -57,40 +65,15 @@ export default class CreateFolder extends Component {
     this.state = {
       projectId,
       companyName,
-      showNetworkList: false,
-      showRangeBox: false,
       onlyMemberLook: true,
       visible: true,
+      submitting: false,
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
-    const that = this;
-
     $('#folderName').select();
-
-    $(document)
-      .off('.createFolder')
-      .on('click.createFolder', event => {
-        const $target = $(event.target);
-
-        // 隐藏所属网络
-        if (
-          !$target.closest('.createFolderNetworkList').length &&
-          !$target.closest('.createFolderNetwork').length &&
-          $('.createFolderNetworkList').is(':visible')
-        ) {
-          that.setState({ showNetworkList: false });
-        }
-
-        if (
-          !$target.closest('.createFolderRangeBox').length &&
-          !$target.closest('.createFolderBox').length &&
-          $('.createFolderRangeBox').is(':visible')
-        ) {
-          that.setState({ showRangeBox: false });
-        }
-      });
   }
 
   /**
@@ -110,8 +93,21 @@ export default class CreateFolder extends Component {
         });
     }
 
-    this.setState({ showNetworkList: false, onlyMemberLook: true });
+    this.setState({ onlyMemberLook: true });
   }
+
+  handleNetworkSelect = ({ key }) => {
+    if (key === PERSONAL_NETWORK_KEY) {
+      this.networkSelect('', _l('个人'));
+      return;
+    }
+
+    const project = md.global.Account.projects.find(item => item.projectId === key);
+
+    if (project) {
+      this.networkSelect(project.projectId, project.companyName);
+    }
+  };
 
   /**
    * 分享范围选择
@@ -135,6 +131,8 @@ export default class CreateFolder extends Component {
    * 创建项目
    */
   create() {
+    if (this.requestPending) return;
+
     const { scope } = this.state;
     const folderName = $('#folderName').val().trim();
     let visibility;
@@ -164,8 +162,10 @@ export default class CreateFolder extends Component {
       groupIds = scope.shareGroupIds;
     }
 
+    this.requestPending = true;
+    this.setState({ submitting: true });
     // 创建项目
-    ajaxRequest
+    return ajaxRequest
       .addFolder({
         mdAppId: this.props.mdAppId,
         folderName,
@@ -186,25 +186,67 @@ export default class CreateFolder extends Component {
         } else {
           alert(_l('操作失败，请稍后再试！'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
+        this.setState({ submitting: false });
       });
   }
 
   handleScope = value => this.setState({ scope: value });
 
   render() {
+    const networkItems = [
+      ...md.global.Account.projects.map(project => ({
+        key: project.projectId,
+        icon: <i className="icon-business" />,
+        label: project.companyName,
+      })),
+      { key: PERSONAL_NETWORK_KEY, icon: <i className="icon-charger" />, label: _l('个人') },
+    ];
+    const rangeItems = [
+      {
+        key: 'members',
+        label: (
+          <div>
+            <div>{_l('仅项目成员可见')}</div>
+            <div className="createFolderRangeDescription">{_l('只有添加为项目成员才可以查看项目')}</div>
+          </div>
+        ),
+      },
+      { type: 'divider' },
+      {
+        key: 'groups',
+        label: (
+          <div>
+            <div>{_l('公开给指定群组')}</div>
+            <div className="createFolderRangeDescription">{_l('所选范围内的所有人都可以查看项目')}</div>
+          </div>
+        ),
+      },
+    ];
+    const networkTrigger = (
+      <div className={cx('createFolderNetwork', { cursorDefault: this.props.projectId })}>
+        <span className="createFolderNetworkName">{this.state.companyName}</span>
+        {!this.props.projectId && <i className="icon-arrow-down-border" />}
+      </div>
+    );
     const sliderHeight = {
       height: $(window).height() - 180,
       overflow: 'hidden',
     };
     const dialogOpts = {
-      overlayClosable: false,
-      visible: this.state.visible,
+      open: this.state.visible,
       width: 1000,
-      onClose: this.props.onClose,
+      title: null,
+      footer: null,
+      closable: false,
+      mask: { closable: false },
+      styles: CREATE_FOLDER_MODAL_STYLES,
     };
 
     return (
-      <DialogBase {...dialogOpts}>
+      <Modal {...dialogOpts}>
         <div className="flexRow" id="createFolder">
           <div className="flex">
             <div className="createFolderHead relative Font13">
@@ -244,70 +286,48 @@ export default class CreateFolder extends Component {
             {md.global.Account.projects.length ? (
               <div className="folderBoxPadding">
                 <div className="folderBoxDesc">{_l('归属')}</div>
-                <div
-                  className={cx('createFolderNetwork', { cursorDefault: this.props.projectId })}
-                  onClick={() =>
-                    !this.props.projectId && this.setState({ showNetworkList: !this.state.showNetworkList })
-                  }
-                >
-                  <span className="createFolderNetworkName">{this.state.companyName}</span>
-                  {!this.props.projectId && <i className="icon-arrow-down-border" />}
-                </div>
-                <ul
-                  className={cx('createFolderNetworkList boxShadow5 boderRadAll_3', {
-                    Hidden: !this.state.showNetworkList,
-                  })}
-                >
-                  {md.global.Account.projects.map((project, i) => {
-                    return (
-                      <li
-                        className="bgColorPrimary"
-                        key={i}
-                        onClick={() => this.networkSelect(project.projectId, project.companyName)}
-                      >
-                        <i className="icon-business" />
-                        {project.companyName}
-                      </li>
-                    );
-                  })}
-                  <li className="bgColorPrimary" onClick={() => this.networkSelect('', _l('个人'))}>
-                    <i className="icon-charger" />
-                    {_l('个人')}
-                  </li>
-                </ul>
+                {this.props.projectId ? (
+                  networkTrigger
+                ) : (
+                  <Dropdown
+                    trigger={['click']}
+                    placement="bottomLeft"
+                    menu={{
+                      items: networkItems,
+                      selectable: true,
+                      selectedKeys: [this.state.projectId || PERSONAL_NETWORK_KEY],
+                      style: NETWORK_MENU_STYLE,
+                      onClick: this.handleNetworkSelect,
+                    }}
+                  >
+                    {networkTrigger}
+                  </Dropdown>
+                )}
               </div>
             ) : undefined}
 
             <div className="folderBoxPadding folderBoxDesc folderBoxMargin">{_l('公开范围：')}</div>
             <div className="folderBoxPadding valignWrapper">
-              <span
-                className="createFolderBox"
-                onClick={() => this.setState({ showRangeBox: !this.state.showRangeBox })}
+              <Dropdown
+                trigger={['click']}
+                placement="bottomLeft"
+                menu={{
+                  items: rangeItems,
+                  selectable: true,
+                  selectedKeys: [this.state.onlyMemberLook ? 'members' : 'groups'],
+                  style: RANGE_MENU_STYLE,
+                  onClick: ({ key }) => this.rangeSelect(key === 'members'),
+                }}
               >
-                <div className="createFolderRange">
-                  {this.state.onlyMemberLook ? _l('仅项目成员可见') : _l('公开给指定群组')}
-                </div>
-                <i className="icon-arrow-down-border" />
-                <ul
-                  className={cx('createFolderRangeBox boderRadAll_3 boxShadow5', { Hidden: !this.state.showRangeBox })}
-                >
-                  <li className="bgColorPrimary" onClick={() => this.rangeSelect(true)}>
-                    <div className={cx('text', { colorPrimary: this.state.onlyMemberLook })}>
-                      {_l('仅项目成员可见')}
-                    </div>
-                    <div className="descTip">{_l('只有添加为项目成员才可以查看项目')}</div>
-                  </li>
-                  <li className="createFolderLine" />
-                  <li className="bgColorPrimary" onClick={() => this.rangeSelect(false)}>
-                    <div className={cx('text', { colorPrimary: !this.state.onlyMemberLook })}>
-                      {_l('公开给指定群组')}
-                    </div>
-                    <div className="descTip">{_l('所选范围内的所有人都可以查看项目')}</div>
-                  </li>
-                </ul>
-              </span>
+                <span className="createFolderBox">
+                  <div className="createFolderRange">
+                    {this.state.onlyMemberLook ? _l('仅项目成员可见') : _l('公开给指定群组')}
+                  </div>
+                  <i className="icon-arrow-down-border" />
+                </span>
+              </Dropdown>
               {!this.state.onlyMemberLook && (
-                <SelectGroupTrigger
+                <SelectGroupPopover
                   hideIcon
                   minHeight={260}
                   projectId={this.state.projectId}
@@ -321,13 +341,16 @@ export default class CreateFolder extends Component {
               <span className="createFolderBtnCancel colorPrimary" onClick={() => this.props.onClose()}>
                 {_l('取消')}
               </span>
-              <span className="createFolderBtnSave bgColorPrimary" onClick={() => this.create()}>
+              <span
+                className={cx('createFolderBtnSave bgColorPrimary', { disabled: this.state.submitting })}
+                onClick={() => this.create()}
+              >
                 {_l('确定')}
               </span>
             </div>
           </div>
         </div>
-      </DialogBase>
+      </Modal>
     );
   }
 }

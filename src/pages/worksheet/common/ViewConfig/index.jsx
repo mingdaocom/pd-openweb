@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Icon, Support, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
 import ViewConfigCon from './ViewConfig';
 import './ViewConfig.less';
 

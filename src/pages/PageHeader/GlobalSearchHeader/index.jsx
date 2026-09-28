@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { navigateTo } from 'src/router/navigateTo';
-import { getPathWithoutSubPath, getRequest } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Input, Tooltip } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
 
@@ -26,14 +27,12 @@ const HomeEntry = styled.div`
   }
 `;
 const MODULE_TO_TEXT = {
-  account: _l('个人账户'),
   admin: _l('组织管理'),
   user: _l('个人资料'),
   group: _l('群组信息'),
   search: _l('超级搜索'),
 };
 const PAGE_HEADER_ROUTE = {
-  account: ['/personal'],
   admin: ['/admin/:roleType/:projectId'],
   group: ['/group/groupValidate'],
   user: ['user', '/user_:userId?'],
@@ -60,7 +59,6 @@ let GlobalSearchHeader = class GlobalSearchHeader extends Component {
     const firstPath = _.isArray(this.props.path) ? this.props.path[0] : this.props.path || '';
     const path = getPathWithoutSubPath(firstPath);
     if (_.includes(PAGE_HEADER_ROUTE.user, path)) return 'user';
-    if (_.includes(PAGE_HEADER_ROUTE.account, path)) return 'account';
     if (_.includes(PAGE_HEADER_ROUTE.admin, path)) return 'admin';
     if (_.includes(PAGE_HEADER_ROUTE.group, path)) return 'group';
     if (_.includes(PAGE_HEADER_ROUTE.search, path)) return 'search';
@@ -99,27 +97,32 @@ let GlobalSearchHeader = class GlobalSearchHeader extends Component {
         </div>
         <div className="searchCon">
           <div className="search">
-            <span className="searchIconCon" onClick={this.onSearch}>
-              <Icon
-                icon="search"
-                className="Font20"
-                style={{
-                  color: 'var(--color-text-title)',
-                }}
-              />
-            </span>
             <Input
-              className="flex borderNone"
+              className="flex"
+              size="small"
+              variant="borderless"
+              prefix={
+                <Icon
+                  icon="search"
+                  className="Font20"
+                  onClick={this.onSearch}
+                  style={{
+                    color: 'var(--color-text-title)',
+                  }}
+                />
+              }
+              suffix={
+                searchValue ? <Icon icon="cancel" className="textDisabled Font14" onClick={this.onClearSearch} /> : null
+              }
               value={searchValue}
               placeholder={_l('输入关键词搜索')}
-              onChange={this.onSearchChange}
+              onChange={event => this.onSearchChange(event.target.value)}
               onKeyUp={e => {
                 if (e.keyCode === 13) {
                   this.onSearch();
                 }
               }}
             />
-            {searchValue && <Icon icon="cancel" className="textDisabled Font14" onClick={this.onClearSearch} />}
           </div>
         </div>
         <CommonUserHandle />

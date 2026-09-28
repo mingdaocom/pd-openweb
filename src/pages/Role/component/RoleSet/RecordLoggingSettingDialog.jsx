@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Radio } from 'ming-ui';
+import { Checkbox, Modal, Radio } from 'ming-ui/antd-components';
 
 export const LOGGING_RANGE = {
   ALL: 1,
@@ -52,12 +52,12 @@ const Wrap = styled.div`
   .rangeOptionItem {
     flex: 1;
     min-width: 0;
-    .ming.Radio {
+    .hap-radio-wrapper {
       display: inline-flex;
       align-items: center;
       margin-right: 0;
     }
-    .ming.Radio .Radio-box {
+    .hap-radio-wrapper .hap-radio-inner {
       margin-right: 6px;
     }
   }
@@ -68,7 +68,7 @@ const Wrap = styled.div`
   .hintArrow {
     position: absolute;
     top: -6px;
-    left: ${props => props.arrowLeft};
+    left: ${props => props.$arrowLeft};
     width: 10px;
     height: 10px;
     background: var(--color-background-secondary);
@@ -123,25 +123,29 @@ function RecordLoggingSettingDialog({ visible = false, value = DEFAULT_LOGGING_V
   const arrowLeft = `calc(${activeIndex * optionWidthPercent}% + ${RADIO_BOX_CENTER}px)`;
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       width={640}
       title={_l('可查看哪些记录日志？')}
+      mask={{ closable: true }}
+      keyboard
       onCancel={onClose}
       onOk={onClose}
       okText={_l('保存')}
       cancelText={_l('取消')}
     >
-      <Wrap arrowLeft={arrowLeft} className="mTop5">
+      <Wrap $arrowLeft={arrowLeft} className="mTop5">
         <div className="rangeOptions">
           {RANGE_OPTIONS.map(item => {
             return (
               <div key={item.value} className="rangeOptionItem">
                 <Radio
-                  text={item.text}
                   checked={logging.Range === item.value}
-                  onClick={() => handleRangeChange(item.value)}
-                />
+                  onChange={() => handleRangeChange(item.value)}
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               </div>
             );
           })}
@@ -152,10 +156,15 @@ function RecordLoggingSettingDialog({ visible = false, value = DEFAULT_LOGGING_V
         </div>
         <div className="mTop24 Bold">{_l('其他')}</div>
         <div className="mTop12">
-          <Checkbox checked={logging.AllowExport} onClick={handleAllowExportClick} text={_l('允许导出日志')} />
+          <Checkbox
+            checked={logging.AllowExport}
+            onChange={event => handleAllowExportClick(!event.target.checked, undefined, event)}
+          >
+            {_l('允许导出日志')}
+          </Checkbox>
         </div>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }
 

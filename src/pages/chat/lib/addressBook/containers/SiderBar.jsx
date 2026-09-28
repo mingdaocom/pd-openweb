@@ -1,7 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import addFriends from 'src/components/addFriends';
 import SiderBarTabItem from '../components/SiderBarTabItem';
 import SiderBarTabList from '../components/SiderBarTabList';
@@ -75,14 +76,13 @@ export default class SideBar extends React.Component {
         <div className="pLeft24 pRight24 mBottom12 Relative">
           <Button
             type="primary"
-            style={{ width: '100%' }}
-            className="invite-btn"
+            block
+            icon={<Icon icon="plus" />}
             onClick={() => {
               addFriends({ selectProject: true });
             }}
           >
-            <Icon icon="plus" className="mRight5 TxtMiddle" />
-            <span className="TxtMiddle">{_l('添加联系人')}</span>
+            {_l('添加联系人')}
           </Button>
         </div>
         <div className="contacts-tabs minHeight0">

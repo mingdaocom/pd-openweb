@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Dropdown } from 'ming-ui/antd-components';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
 import { addWorkSheet, createAppItem, getSheetList } from 'src/pages/worksheet/redux/actions/sheetList.js';
@@ -43,7 +43,7 @@ class WorksheetEmpty extends Component {
 
   renderCreate() {
     const { sheetList, appId, groupId, isCharge } = this.props;
-    const { createType, visible, dialogImportExcel } = this.state;
+    const { createType, dialogImportExcel } = this.state;
     const { appGroups = [], projectId, workflowAgentFeatureType } = store.getState().appPkg;
     const sheetCount = sheetList.length;
     const isAdd = !(appGroups.length > 1 && !sheetCount);
@@ -75,7 +75,9 @@ class WorksheetEmpty extends Component {
               {_l('从空白创建')}
             </Button>
             <Button
-              className="excelCreateBtn bold"
+              color="default"
+              variant="filled"
+              className="bold"
               onClick={() => {
                 this.setState({ dialogImportExcel: true });
               }}
@@ -89,48 +91,33 @@ class WorksheetEmpty extends Component {
               <span
                 className="flex w117 bold hover14"
                 onClick={() => {
-                  this.setState({ visible: false, createType: 'worksheet' });
+                  this.setState({ createType: 'worksheet' });
                 }}
               >
                 {_l('创建工作表%12031')}
               </span>
               <div className="line"></div>
-              <Trigger
-                popupVisible={visible}
-                onPopupVisibleChange={visible => this.setState({ visible })}
-                popupPlacement="bottom"
-                popupAlign={{ points: ['tl', 'bl'], offset: [-116, 0] }}
-                action={['click']}
-                popup={
-                  <div className="createlist">
-                    {createWorksheetList.map(item => (
-                      <div
-                        className="createWorksheetItem Hand"
-                        onClick={() => {
-                          if (item.createType === 'importExcel') {
-                            this.setState({ visible: false, dialogImportExcel: true });
-                          } else {
-                            this.setState({ visible: false, createType: 'worksheet' });
-                          }
-                        }}
-                      >
-                        <Icon icon={item.icon} className="mRight8" /> {item.name}
-                      </div>
-                    ))}
-                  </div>
-                }
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                menu={{
+                  items: createWorksheetList.map(item => ({
+                    key: item.type,
+                    label: item.name,
+                    icon: <Icon icon={item.icon} />,
+                  })),
+                  onClick: ({ key }) => {
+                    const item = createWorksheetList.find(item => item.type === key);
+                    this.setState(
+                      item.createType === 'importExcel' ? { dialogImportExcel: true } : { createType: 'worksheet' },
+                    );
+                  },
+                }}
               >
-                <span style={{ width: 42 }} className="hover14">
-                  <Icon
-                    icon="arrow-down"
-                    className="createMoreIcon"
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.setState({ visible: true });
-                    }}
-                  />
+                <span className="w42 hover14">
+                  <Icon icon="arrow-down" className="createMoreIcon" />
                 </span>
-              </Trigger>
+              </Dropdown>
             </div>
             <div
               className="createBtn createCustom Hand mRight20"

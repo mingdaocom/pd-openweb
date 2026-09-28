@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import sseAjax from 'src/api/sse';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { SpeechSynthesizer } from 'src/utils/audio';
+import { SpeechSynthesizer } from 'src/utils/platform/browser/audio';
 import MessageList from '../../ChatBot/components/MessageList';
 import Send from '../../ChatBot/components/Send';
 

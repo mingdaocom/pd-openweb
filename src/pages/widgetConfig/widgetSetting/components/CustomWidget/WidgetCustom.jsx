@@ -1,15 +1,16 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import { SetConfig, SettingItem } from '../../../styled';
-import { openDevelopWithAI } from '../DevelopWithAI';
+import { useDevelopWithAI } from '../DevelopWithAI';
 import CustomReference from './CustomReference';
 
-export default function WidgetCustom(props) {
-  const { data, globalSheetInfo, onChange, from } = props;
+function WidgetCustom(props) {
+  const { data, globalSheetInfo, onChange, from, openDevelopWithAI } = props;
   const { customtype, custom_js, height } = getAdvanceSetting(data);
   const reference = getAdvanceSetting(data, 'reference') || [];
   return (
@@ -27,7 +28,7 @@ export default function WidgetCustom(props) {
         </div>
         <SetConfig
           className="mTop20"
-          hasSet={!!custom_js}
+          $hasSet={!!custom_js}
           onClick={() =>
             openDevelopWithAI({
               worksheetId: globalSheetInfo.worksheetId,
@@ -92,3 +93,7 @@ export default function WidgetCustom(props) {
     </Fragment>
   );
 }
+
+export default withOpeners(WidgetCustom, {
+  openDevelopWithAI: useDevelopWithAI,
+});

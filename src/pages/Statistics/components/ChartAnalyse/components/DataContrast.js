@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, DatePicker, Select } from 'antd';
-import locale from 'antd/es/date-picker/locale/zh_CN';
 import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import { Icon } from 'ming-ui';
+import { Checkbox, DatePicker, Select } from 'ming-ui/antd-components';
 import { formatContrastTypes, formatLineChartContrastTypes } from 'statistics/common/timeUtils';
 
 const { RangePicker } = DatePicker;
@@ -77,7 +76,7 @@ export default class DataContrast extends Component {
         )}
         {!!displaySetup.contrastType && !!contrastTypes.length && (
           <Select
-            className="chartSelect w100"
+            className="w100"
             // value={_.findIndex(contrastTypes, { value: customRangeVisible ? 5 : displaySetup.contrastType, ignoreToday: ignoreToday ? ignoreToday : undefined })}
             // value={customRangeVisible ? 5 : displaySetup.contrastType}
             value={
@@ -88,6 +87,10 @@ export default class DataContrast extends Component {
                   : displaySetup.contrastType
             }
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            options={contrastTypes.map(item => ({
+              value: item.ignoreToday ? `${item.value}-ignoreToday` : item.value,
+              label: item.text,
+            }))}
             onChange={value => {
               if (value === 5) {
                 this.setState({ customRangeVisible: true });
@@ -124,24 +127,13 @@ export default class DataContrast extends Component {
                 );
               }
             }}
-          >
-            {contrastTypes.map(item => (
-              <Select.Option
-                className="selectOptionWrapper"
-                key={item.ignoreToday ? `${item.value}-ignoreToday` : item.value}
-                value={item.ignoreToday ? `${item.value}-ignoreToday` : item.value}
-              >
-                {item.text}
-              </Select.Option>
-            ))}
-          </Select>
+          />
         )}
         {customRangeVisible && (
           <RangePicker
-            className="chartInput w100 mTop10"
+            className="w100 mTop10"
             allowClear={false}
             suffixIcon={null}
-            locale={locale}
             format="YYYY/MM/DD"
             value={
               customRangeValue
@@ -177,19 +169,18 @@ export default class DataContrast extends Component {
     return (
       <div className="mBottom16">
         <Select
-          className="chartSelect w100"
+          className="w100"
           value={displaySetup.contrastType || 0}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+          options={contrastTypes.map(item => ({
+            disabled: item.disabled,
+            value: item.value,
+            label: item.text,
+          }))}
           onChange={valaue => {
             this.handleChangeDropdown({ contrastType: valaue });
           }}
-        >
-          {contrastTypes.map(item => (
-            <Select.Option className="selectOptionWrapper" disabled={item.disabled} key={item.value} value={item.value}>
-              {item.text}
-            </Select.Option>
-          ))}
-        </Select>
+        />
       </div>
     );
   }

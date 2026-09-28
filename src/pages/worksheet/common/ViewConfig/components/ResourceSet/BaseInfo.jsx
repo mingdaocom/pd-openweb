@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { Select, Switch } from 'ming-ui/antd-components';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import { COVER_DISPLAY_MODE } from 'src/pages/worksheet/common/ViewConfig/config.js';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import DisplayControl from '../DisplayControl';
 import DropDownSet from '../DropDownSet';
-import { SwitchStyle } from '../style';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const WrapNullTxt = styled.div`
   font-weight: 400;
@@ -47,7 +47,6 @@ export default function BaseInfo(props) {
   });
 
   useEffect(() => {
-    const { view, worksheetControls = [] } = props;
     const { viewControl = '' } = view;
     const viewControlInfo = worksheetControls.find(it => it.controlId === viewControl) || {};
     const { relationControls = [], type, sourceControlType } = viewControlInfo;
@@ -57,11 +56,14 @@ export default function BaseInfo(props) {
       coverControls: relationControls
         .filter(o => o.type === 14 && _.get(o, 'advancedSetting.hide') !== '1')
         .map(o => {
-          return { ...o, value: o.controlId, text: o.controlName };
+          // 附件字段的 options 不是 Select 的分组选项。
+          return { value: o.controlId, label: o.controlName };
         }),
       navshow: _.get(view, 'advancedSetting.navshow'),
     });
-  }, [props.view]);
+  }, [view, worksheetControls, setState]);
+
+  const isCoverDeleted = !!coverCid && !coverControls.find(o => o.value === coverCid);
 
   return (
     <React.Fragment>
@@ -204,11 +206,11 @@ export default function BaseInfo(props) {
           <div className="settingContent mTop24 flexRow">
             <div className="flex">
               <div className="subTitle Font13 bold">{_l('封面')}</div>
-              <Dropdown
-                data={coverControls.concat({ value: 'notDisplay', text: _l('不显示') })}
-                value={!coverCid ? 'notDisplay' : coverCid}
-                className={cx('mTop8', { isDelete: !!coverCid && !coverControls.find(o => o.value === coverCid) })}
-                border
+              <Select
+                options={coverControls.concat({ value: 'notDisplay', label: _l('不显示') })}
+                value={isCoverDeleted ? undefined : !coverCid ? 'notDisplay' : coverCid}
+                className="mTop8"
+                status={isCoverDeleted ? 'error' : undefined}
                 style={{ width: '100%' }}
                 onChange={value => {
                   updateCurrentView({
@@ -218,18 +220,14 @@ export default function BaseInfo(props) {
                     editAttrs: ['coverCid'],
                   });
                 }}
-                placeholder={
-                  !!coverCid && !coverControls.find(o => o.value === coverCid)
-                    ? _l('控件已删除，请重新配置')
-                    : _l('不显示')
-                }
+                placeholder={isCoverDeleted ? _l('控件已删除，请重新配置') : _l('不显示')}
               />
               <div className="configSwitch mTop10">
-                <SwitchStyle className="flexRow alignItemsCenter">
-                  <Icon
-                    icon={opencover === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font28 Hand"
-                    onClick={() => {
+                <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+                  <Switch
+                    size="mini"
+                    checked={opencover === '1'}
+                    onChange={() => {
                       updateCurrentView({
                         ...view,
                         appId,
@@ -239,19 +237,19 @@ export default function BaseInfo(props) {
                       });
                     }}
                   />
-                  <div className="switchText InlineBlock Normal mLeft10">{_l('允许点击查看')}</div>
-                </SwitchStyle>
+                  <div className="InlineBlock Normal mLeft12">{_l('允许点击查看')}</div>
+                </div>
               </div>
             </div>
             <div className="flex mLeft12">
               <div className="bold">{_l('显示方式')}</div>
-              <Dropdown
+              <Select
                 className="mTop8"
                 disabled={!coverCid}
                 style={{ width: '100%' }}
-                data={COVER_DISPLAY_MODE.filter(o => [0, 1].includes(o.value))}
+                options={COVER_DISPLAY_MODE.filter(o => [0, 1].includes(o.value))}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={coverType}
-                border
                 onChange={value => {
                   if (coverType !== value) {
                     updateCurrentView({

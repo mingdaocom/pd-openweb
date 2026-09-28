@@ -2,7 +2,7 @@ import _ from 'lodash';
 import addressBookController from 'src/api/addressBook';
 import externalPortalCotroller from 'src/api/externalPortal';
 import userController from 'src/api/user';
-import { wrapAjax } from 'worksheet/redux/actions/util';
+import { wrapAjax } from 'src/utils/services/request/requestControl';
 
 const getUsersByApp = wrapAjax(externalPortalCotroller.getUsersByApp);
 const getProjectContactUserListByApp = wrapAjax(userController.getProjectContactUserListByApp);

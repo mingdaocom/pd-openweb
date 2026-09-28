@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { generate } from '@ant-design/colors';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
-import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import { SYS_CHART_COLORS } from 'src/utils/domain/project/colors';
 import { formatNumberValue, formatrChartValue, getChartColors, getStyleColor } from './common';
 import loadG2Plot from './loadG2Plot';
 

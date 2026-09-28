@@ -1,13 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Dropdown, Popover, Tooltip } from 'ming-ui/antd-components';
+
+const SHEET_CHECKBOX_STYLES = {
+  root: { flex: 1, minWidth: 0, marginTop: -2 },
+  label: { display: 'flex', flex: 1, minWidth: 0, paddingInlineEnd: 0 },
+};
 
 const SheetTabWrap = styled.div`
-  padding: ${props => (props.disabled ? '' : '0 20px')};
+  padding: ${props => (props.$disabled ? '' : '0 20px')};
   height: 36px;
   border-bottom: 1px solid var(--color-border-secondary);
   display: -webkit-box;
@@ -157,17 +161,16 @@ export default class WorksheetItem extends Component {
         : 20000;
 
     return (
-      <SheetTabWrap disabled={disabled}>
+      <SheetTabWrap $disabled={disabled}>
         {!disabled && (
           <div className="selectSheetIcon Relative">
-            <Trigger
-              popupClassName="selectImportSheetWrap"
-              action={['click']}
-              popupPlacement="bottom"
-              builtinPlacements={{
-                bottom: { points: ['tl', 'bl'] },
+            <Popover
+              trigger="click"
+              placement="bottomLeft"
+              styles={{
+                container: { minWidth: 180 },
               }}
-              popup={
+              content={
                 <Fragment>
                   <div className="Font14 bold">{_l('选择导入的sheet')}</div>
                   {(sheetList || []).map(item => {
@@ -187,11 +190,12 @@ export default class WorksheetItem extends Component {
                         <Checkbox
                           checked={_.includes(selectedImportSheetIds, item.sheetId)}
                           disabled={item.disabled}
-                          onClick={checked => {
+                          styles={SHEET_CHECKBOX_STYLES}
+                          onChange={event => {
                             let copySelectedSheetIds = [...selectedImportSheetIds];
                             let copySheetList = [];
 
-                            if (!checked) {
+                            if (event.target.checked) {
                               copySelectedSheetIds.push(item.sheetId);
                               if (
                                 versionLimitSheetCount !== 0 &&
@@ -199,7 +203,10 @@ export default class WorksheetItem extends Component {
                               ) {
                                 copySheetList = [...sheetList].map(m => {
                                   if (!_.includes(copySelectedSheetIds, m.sheetId)) {
-                                    return { ...m, disabled: true };
+                                    return {
+                                      ...m,
+                                      disabled: true,
+                                    };
                                   }
 
                                   return m;
@@ -225,7 +232,10 @@ export default class WorksheetItem extends Component {
                                       (m.rows && m.rows.some(v => v.cells && v.cells.length > 200))
                                     )
                                   ) {
-                                    return { ...m, disabled: false };
+                                    return {
+                                      ...m,
+                                      disabled: false,
+                                    };
                                   }
 
                                   return m;
@@ -247,30 +257,30 @@ export default class WorksheetItem extends Component {
                               this.computeDirectionVisible();
                             });
                           }}
-                        />
-                        <span className={cx('flex ellipsis', { textDisabled: item.disabled })}>
-                          {item.sheetName}
-                          {item.disabled && (
-                            <Tooltip placement="bottom" title={tipsTxt}>
+                        >
+                          <span className={cx('flex ellipsis', { textDisabled: item.disabled })}>{item.sheetName}</span>
+                        </Checkbox>
+                        {item.disabled && (
+                          <Tooltip placement="bottom" title={tipsTxt}>
+                            <span>
                               <Icon
                                 icon="info_outline"
                                 className={cx('mLeft2 Font16', {
-                                  Colorff9: item.rows.length,
+                                  textWarning: item.rows.length,
                                   textDisabled: !item.rows.length,
                                 })}
                               />
-                            </Tooltip>
-                          )}
-                        </span>
+                            </span>
+                          </Tooltip>
+                        )}
                       </div>
                     );
                   })}
                 </Fragment>
               }
-              popupAlign={{ offset: [0, 0] }}
             >
-              <Icon icon="menu" className="Font20 textSecondary" />
-            </Trigger>
+              <Icon icon="menu" className="Font20 textSecondary pointer" />
+            </Popover>
             {showDisabledDot && <div className="showDisabledDot"></div>}
           </div>
         )}
@@ -341,25 +351,26 @@ export default class WorksheetItem extends Component {
                       )}
                     </span>
                     {!currentSheetInfo.isEditSheetName && !disabled && (
-                      <Trigger
-                        popupVisible={this.state.sheetItemOperateVisible}
-                        onPopupVisibleChange={sheetItemOperateVisible => {
+                      <Dropdown
+                        open={this.state.sheetItemOperateVisible}
+                        onOpenChange={sheetItemOperateVisible => {
                           this.setState({ sheetItemOperateVisible });
                         }}
-                        popupClassName="DropdownPanelTrigger"
-                        action={['click']}
-                        popupAlign={{
-                          points: ['tl', 'bl'],
-                          offset: [-80, 13],
-                        }}
-                        popup={
-                          <Menu>
-                            <MenuItem icon={<Icon icon="edit" />} onClick={() => this.editCurrentSheetName(item)}>
-                              <span className="text">{_l('修改表名称')}</span>
-                            </MenuItem>
-                            <MenuItem
-                              icon={<Icon icon="file_upload_off" />}
-                              onClick={() => {
+                        trigger={['click']}
+                        placement="bottomLeft"
+                        menu={{
+                          items: [
+                            {
+                              key: 'rename',
+                              icon: <Icon icon="edit" className="textTertiary Font16" />,
+                              label: <span className="text">{_l('修改表名称')}</span>,
+                              onClick: () => this.editCurrentSheetName(item),
+                            },
+                            {
+                              key: 'skipImport',
+                              icon: <Icon icon="file_upload_off" className="textTertiary Font16" />,
+                              label: <span className="text">{_l('不导入此sheet')}</span>,
+                              onClick: () => {
                                 if (selectedImportSheetIds.length === 1) {
                                   return alert(_l('至少导入1张Sheet'), 3);
                                 }
@@ -375,15 +386,13 @@ export default class WorksheetItem extends Component {
                                 this.setState({ sheetItemOperateVisible: false }, () => {
                                   this.computeDirectionVisible();
                                 });
-                              }}
-                            >
-                              <span className="text">{_l('不导入此sheet')}</span>
-                            </MenuItem>
-                          </Menu>
-                        }
+                              },
+                            },
+                          ],
+                        }}
                       >
                         <Icon icon="arrow-down" className="textTertiary" />
-                      </Trigger>
+                      </Dropdown>
                     )}
                   </div>
                 ) : (

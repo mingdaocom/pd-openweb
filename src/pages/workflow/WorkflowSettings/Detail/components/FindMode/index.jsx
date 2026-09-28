@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 
 export default ({ execute, onChange, isFormula = false }) => {
   let TYPE = [
@@ -35,7 +35,9 @@ export default ({ execute, onChange, isFormula = false }) => {
       <div className="mTop20 bold">{isFormula ? _l('运算方式') : _l('获取方式')}</div>
       {TYPE.map(item => (
         <div className="mTop15" key={item.value}>
-          <Radio text={item.text} checked={execute === item.value} onClick={() => onChange(item.value)} />
+          <Radio checked={execute === item.value} onChange={() => onChange(item.value)} title={item.text}>
+            {item.text}
+          </Radio>
           {item.desc && <div className="mTop5 mLeft30 textSecondary">{item.desc}</div>}
         </div>
       ))}

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import agentApi from 'src/api/agent';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
-import { genBotSessionId } from 'src/utils/agentSession';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
 
 const Con = styled.div`
   display: flex;

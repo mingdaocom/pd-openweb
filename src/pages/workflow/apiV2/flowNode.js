@@ -43,6 +43,15 @@ const flowNode = {
    * null
    * @param {Object} options 配置参数
    */
+  recommendAgentModel: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/flowNode/recommendAgentModel';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'flowNoderecommendAgentModel', args, $.extend({}, base, options));
+  },
+  /**
+   * null
+   * @param {Object} options 配置参数
+   */
   nodeDesc: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/flowNode/nodeDesc';
     base.ajaxOptions.type = 'POST';

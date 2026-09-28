@@ -2,37 +2,15 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import { Icon } from 'ming-ui';
 import { LoadDiv, PreferenceTime, UserHead, UserName } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import confirm from 'ming-ui/components/Dialog/Confirm';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import discussionAjax from 'src/api/discussion';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import UploadFiles from 'src/components/UploadFiles';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { SOURCE_TYPE } from './config';
-
-const Menu = styled.ul`
-  width: 140px;
-  padding: 5px 0;
-  border-radius: 3px;
-  background: var(--color-background-primary);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  li {
-    padding: 0 16px;
-    height: 36px;
-    line-height: 36px;
-    width: 100%;
-    &:hover {
-      background-color: var(--color-background-disabled) !important;
-    }
-  }
-`;
 
 const newWhiteList = Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] });
 
@@ -84,8 +62,9 @@ export default class CommentListItem extends React.Component {
 
     this.setState({ popupVisible: false });
 
-    confirm({
-      title: _l('您确定要删除该讨论吗？'),
+    Modal.confirm({
+      title: <span className="textError">{_l('您确定要删除该讨论吗？')}</span>,
+      okButtonProps: { danger: true },
       onOk: () => {
         return discussionAjax
           .removeDiscussion({
@@ -131,25 +110,25 @@ export default class CommentListItem extends React.Component {
     const { popupVisible } = this.state;
 
     return (
-      <Trigger
-        popupVisible={popupVisible}
-        onPopupVisibleChange={visible => this.setState({ popupVisible: visible })}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        open={popupVisible}
+        onOpenChange={visible => this.setState({ popupVisible: visible })}
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          style: { width: 140 },
+          items: [
+            {
+              key: 'delete',
+              danger: true,
+              label: _l('删除讨论'),
+              onClick: () => this.delComment(),
+            },
+          ],
         }}
-        popup={() => (
-          <Menu>
-            <li className="overflow_ellipsis Hand Red" onClick={() => this.delComment()}>
-              {_l('删除讨论')}
-            </li>
-          </Menu>
-        )}
       >
         <Icon className="hoverColorPrimary TxtMiddle Font18" icon="more_horiz" />
-      </Trigger>
+      </Dropdown>
     );
   }
 

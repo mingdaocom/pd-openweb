@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import Dialog from 'ming-ui/components/Dialog';
+import { Modal } from 'ming-ui/antd-components';
 import config from '../config/config';
 
 // 请求错误处理
@@ -370,10 +370,14 @@ export const taskStatusDialog = (status, callback) => {
   if (status) {
     callback();
   } else {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('将任务设为未完成'),
-      children: (
-        <div style={{ color: 'var(--color-text-tertiary)' }}>
+      content: (
+        <div
+          style={{
+            color: 'var(--color-text-tertiary)',
+          }}
+        >
           {_l('您在修改一个已被标记为完成的任务，若将其设为未完成，则当前的“任务完成时间”数据将被删除。是否确认修改？')}
         </div>
       ),

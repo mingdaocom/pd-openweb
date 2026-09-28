@@ -2,16 +2,19 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, RadioGroup } from 'ming-ui';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { getAdvanceSetting } from 'src/utils/control';
+import { Icon } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
+import { VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION } from 'src/pages/worksheet/common/ViewConfig/config';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
 import Abstract from '../Abstract';
 import CoverSetting from '../CoverSettingCon';
 import DisplayControl from '../DisplayControl';
 
 const Wrap = styled.div`
   .rowColumns {
+    display: flex;
     label {
       flex: 1;
     }
@@ -78,7 +81,7 @@ export default class MobileSet extends React.Component {
           {/* 显示字段 */}
           <DisplayControl
             {...this.props}
-            disableTypes={[22, 10010, 43, 45, 49, 51, 52]} //不支持的类型
+            disableTypes={VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION}
             hideShowControlName
             maxCount3={appshowtype === '0'} // 移动端设置 一行三列时 最多只能设置3个
             text={_l('一行三列时，最多可设置3个显示字段。如果要显示更多字段请使用其他布局方式')}
@@ -149,7 +152,7 @@ export default class MobileSet extends React.Component {
       switchList.length > 0
         ? _.map(switchList, it => {
             return {
-              text: it.controlName,
+              label: it.controlName,
               value: it.controlId,
             };
           })
@@ -161,10 +164,9 @@ export default class MobileSet extends React.Component {
           <p className="mTop6 mBottom8 textSecondary viewSetText">
             {_l('选择一个检查框字段在标题前显示，可快速在卡片标记状态')}
           </p>
-          <Dropdown
-            data={switchData.concat({ value: '', text: _l('不显示') })}
+          <Select
+            options={switchData.concat({ value: '', label: _l('不显示') })}
             value={checkradioid || ''}
-            border
             style={{ width: '100%' }}
             onChange={value => {
               this.updateView(
@@ -215,11 +217,11 @@ export default class MobileSet extends React.Component {
           <p className="mTop6 mBottom8 textSecondary viewSetText">
             {_l('当封面显示位置在上时，为手机竖屏(屏幕宽度大于480px)设置每行显示的记录数量')}
           </p>
-          <RadioGroup
+          <Radio.Group
             size="middle"
             className="mBottom20 rowColumns"
-            checkedValue={_.get(view, 'advancedSetting.rowcolumns') === '2' ? '2' : '1'}
-            data={[
+            value={_.get(view, 'advancedSetting.rowcolumns') === '2' ? '2' : '1'}
+            options={[
               {
                 text: _l('一个'),
                 value: '1',
@@ -228,13 +230,17 @@ export default class MobileSet extends React.Component {
                 text: _l('两个'),
                 value: '2',
               },
-            ]}
-            onChange={value => {
+            ].map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
               this.updateView(
                 {
                   ...view,
                   appId,
-                  advancedSetting: { rowcolumns: value },
+                  advancedSetting: {
+                    rowcolumns: value,
+                  },
                   editAdKeys: ['rowcolumns'],
                   editAttrs: ['advancedSetting'],
                 },

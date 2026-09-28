@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import { canSetAsTitle, enumWidgetType } from 'src/pages/widgetConfig/util';
+import { Icon } from 'ming-ui';
+import { Input, Popover, Select, Tooltip } from 'ming-ui/antd-components';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
+import { canSetAsTitle } from 'src/utils/domain/control/metadata';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 
 const Wrapper = styled.div`
   width: 348px;
@@ -21,23 +20,6 @@ const Wrapper = styled.div`
   .selectItem {
     width: 100% !important;
     font-size: 13px;
-    .ant-select-selector {
-      min-height: 36px;
-      padding: 2px 11px !important;
-      border: 1px solid var(--color-border-tertiary) !important;
-      border-radius: 3px !important;
-      box-shadow: none !important;
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
-    &.disabled {
-      .ant-select-selector {
-        border: 0;
-      }
-    }
   }
 
   .commonInput {
@@ -120,18 +102,14 @@ export default function SelectType(props) {
 
   return (
     <div className="flexRow alignItemsCenter">
-      <Trigger
-        action={['click']}
-        popupClassName="moreOption"
+      <Popover
+        noPadding
+        trigger="click"
         getPopupContainer={() => selectRef.current}
-        popupVisible={visible}
-        onPopupVisibleChange={onPopupVisibleChange}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 5],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={
+        open={visible}
+        onOpenChange={onPopupVisibleChange}
+        placement="bottomRight"
+        content={
           isDestDbType ? (
             <Wrapper>
               <p className="bold mBottom10">{_l('类型')}</p>
@@ -165,7 +143,8 @@ export default function SelectType(props) {
                   <Input
                     className="commonInput"
                     value={destField.precision || ''}
-                    onChange={value => {
+                    onChange={event => {
+                      const value = event.target.value;
                       const validPrecision =
                         parseInt(value) > currentOption.maxLength
                           ? currentOption.maxLength
@@ -191,7 +170,8 @@ export default function SelectType(props) {
                   <Input
                     className="commonInput"
                     value={destField.scale === 0 ? 0 : destField.scale || ''}
-                    onChange={value => {
+                    onChange={event => {
+                      const value = event.target.value;
                       const validScale =
                         parseInt(value) > currentOption.maximumScale
                           ? currentOption.maximumScale
@@ -259,7 +239,7 @@ export default function SelectType(props) {
             options={options}
           />
         </div>
-      </Trigger>
+      </Popover>
       <div className="numberTips">
         {!isDestDbType && destField.mdType === 6 && (
           <Tooltip title={_l('数值最大支持16位数字')} placement="top">

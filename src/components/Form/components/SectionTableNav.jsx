@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getTitleStyle } from 'src/utils/controlCommon';
+import { getTitleStyle } from 'src/utils/domain/control/style';
 
 const Con = styled.div`
   display: flex;
@@ -59,8 +59,8 @@ const Tab = styled.div`
     bottom: 0px;
   }
   .tabName {
-    ${props => props.titleColor && `color: ${props.titleColor};`};
-    ${props => props.titleStyle && `${props.titleStyle};`};
+    ${props => props.$titleColor && `color: ${props.$titleColor};`};
+    ${props => props.$titleStyle && `${props.$titleStyle};`};
   }
 `;
 const Num = styled.div`
@@ -87,7 +87,8 @@ const SplitBtn = styled.div`
 const IconCon = styled.span`
   line-height: 18px;
   display: inline-block;
-  ${props => (props.isFixedRight ? 'margin-left: 10px;' : ' margin-right: 10px;')}
+  pointer-events: none;
+  ${props => (props.$isFixedRight ? 'margin-left: 10px;' : ' margin-right: 10px;')}
 `;
 
 export function renderTabs(props) {
@@ -107,7 +108,7 @@ export function renderTabs(props) {
       if (!icon) {
         const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'subheader';
         return (
-          <IconCon isFixedRight={isFixedRight}>
+          <IconCon $isFixedRight={isFixedRight}>
             <Icon icon={defaultIcon} className="Font20" style={{ color: 'var(--color-text-secondary)' }} />
           </IconCon>
         );
@@ -118,7 +119,7 @@ export function renderTabs(props) {
 
     return (
       iconUrl && (
-        <IconCon isFixedRight={isFixedRight}>
+        <IconCon $isFixedRight={isFixedRight}>
           <SvgIcon
             url={iconUrl}
             fill={isFixedActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
@@ -146,11 +147,10 @@ export function renderTabs(props) {
 
         const titleStyle = getTitleStyle(control.advancedSetting.titlestyle);
         return (
-          <Tooltip placement="right" title={!showTip ? '' : control.controlName}>
+          <Tooltip key={control.controlId || i} placement="right" title={!showTip ? '' : control.controlName}>
             <Tab
-              key={i}
-              titleStyle={titleStyle}
-              titleColor={control.advancedSetting.titlecolor}
+              $titleStyle={titleStyle}
+              $titleColor={control.advancedSetting.titlecolor}
               title={control.controlName}
               className={cx('ellipsis sectionTabItem', activeControlId === control.controlId ? 'active' : '')}
               onClick={() => {
@@ -210,6 +210,26 @@ export default function SectionTableNav(props) {
   useEffect(() => {
     setScrollLeft(0);
   }, [sideVisible, formWidth]);
+  useEffect(() => {
+    const tabCon = tabConRef.current;
+    if (!tabCon || !scrollBtnVisible) return;
+
+    function handleWheel(e) {
+      // 触摸板横滑产生 deltaX；shift+滚轮在部分浏览器仍是 deltaY + shiftKey
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.shiftKey ? e.deltaY : 0;
+
+      if (!delta) return;
+
+      e.preventDefault();
+      // deltaMode 为行模式时（Firefox）换算成像素
+      const step = delta * (e.deltaMode === 1 ? 40 : 1);
+      setScrollLeft(prev => Math.max(0, Math.min(prev + step, scrollWidth - clientWidth)));
+    }
+
+    // React 的 onWheel 以 passive 注册，preventDefault 无效，需原生监听阻止横滑触发浏览器返回手势
+    tabCon.addEventListener('wheel', handleWheel, { passive: false });
+    return () => tabCon.removeEventListener('wheel', handleWheel);
+  }, [clientWidth, scrollWidth, scrollBtnVisible]);
 
   return (
     <Con style={style}>

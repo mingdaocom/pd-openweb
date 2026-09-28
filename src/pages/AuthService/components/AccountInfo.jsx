@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import AjaxLogin from 'src/api/login.js';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
 
 const Wrap = styled.div`
   .userAvatar {
@@ -20,6 +20,7 @@ const types = {
   2: 'QQ',
   13: 'Google',
   14: 'Microsoft',
+  15: _l('华为'),
 };
 
 export default function () {

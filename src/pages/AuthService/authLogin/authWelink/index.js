@@ -1,5 +1,5 @@
-import { pathCompletion } from 'src/utils/common';
-import { setPssId } from 'src/utils/pssId';
+import { setPssId } from 'src/utils/platform/auth/pssId';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import {
   ajax,
   browserIsMobile,
@@ -9,7 +9,7 @@ import {
   getRequest,
   getScript,
   login,
-} from 'src/utils/sso';
+} from 'src/utils/services/auth/sso';
 
 const { url, p } = getRequest();
 const isMobile = browserIsMobile();

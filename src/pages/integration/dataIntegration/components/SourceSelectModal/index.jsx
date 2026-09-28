@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, Modal, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView, SearchInput } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../api/datasource';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { DATABASE_TYPE, ROLE_TYPE, SOURCE_FROM_TYPE, SOURCE_FROM_TYPE_TAB_LIST } from '../../constant';
 
 const Wrapper = styled.div`
@@ -20,7 +20,6 @@ const Wrapper = styled.div`
       align-items: center;
     }
     .searchInput {
-      height: 36px;
       width: 240px;
     }
   }
@@ -97,6 +96,9 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
   const [currentTab, setCurrentTab] = useState(SOURCE_FROM_TYPE.COMMON);
   const [searchKeyWords, setSearchKeyWords] = useState('');
   const [dataSourceList, setDataSourceList] = useState([]);
+  const debouncedSearch = useMemo(() => _.debounce(setSearchKeyWords, 500), []);
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
   useEffect(() => {
     const params = {
@@ -146,7 +148,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
   };
 
   return (
-    <Modal visible type="fixed" width={900} bodyStyle={{ padding: '32px' }} onCancel={onClose}>
+    <Modal open type="fixed" width={900} onCancel={onClose}>
       <Wrapper>
         <div className="headerWrapper">
           <h5 className="Font17 textPrimary bold mBottom20">{_l('选择数据源类型')}</h5>
@@ -176,10 +178,14 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
             <SearchInput
               className="searchInput"
               placeholder={_l('搜索')}
-              value={searchKeyWords}
-              onChange={_.debounce(value => {
-                setSearchKeyWords(value);
-              }, 500)}
+              onChange={value => {
+                if (value) {
+                  debouncedSearch(value);
+                } else {
+                  debouncedSearch.cancel();
+                  setSearchKeyWords('');
+                }
+              }}
             />
           </div>
         </div>

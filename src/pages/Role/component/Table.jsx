@@ -2,17 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import url from 'src/pages/worksheet/assets/record.png';
 
 const Wrap = styled.div`
   .opacity0 {
     opacity: 0 !important;
-  }
-  .Checkbox-box {
-    margin-right: 0 !important;
-  }
-  &:hover {
   }
   overflow-x: auto;
   background: var(--color-background-primary);
@@ -159,7 +155,7 @@ const WrapSort = styled.div`
 `;
 const ascList = ['', 'ascend', 'descend'];
 
-function SortToll(props) {
+export function SortToll(props) {
   const [asc, setAsc] = useState(props.item.sorterType || '');
   useEffect(() => {
     setAsc(props.item.sorterType || '');
@@ -176,7 +172,12 @@ function SortToll(props) {
           props.handleChangeSortHeader({ field: props.item.id, column: props.item, order: ascN });
       }}
     >
-      <span className="InlineBlock">{props.name}</span>
+      <span
+        className={cx('InlineBlock', { customHeaderContent: props.isCustomHeader })}
+        onClick={props.isCustomHeader ? event => event.stopPropagation() : undefined}
+      >
+        {props.name}
+      </span>
       {!!asc && <Icon type={asc !== 'descend' ? 'gonext' : 'goprev'} className={cx('Hand mLeft3', { cur: !!asc })} />}
     </WrapSort>
   );
@@ -234,16 +235,16 @@ export default function PorTalTable(props) {
             })}
           >
             <Checkbox
-              className="TxtMiddle InlineBlock mRight0 checked_selected checkBox mLeft4"
+              className="TxtMiddle mRight0 checked_selected checkBox mLeft4"
               checked={(props.selectedIds.length >= listCell.length || !!props.selectedAll) && !props.loading}
-              clearselected={
+              indeterminate={
                 props.selectedIds.length < listCell.length &&
                 props.selectedIds.length > 0 &&
                 props.selectedAll !== undefined &&
                 !props.selectedAll
               }
               disabled={(listCell.length <= 1 && (listCell[0] || {}).isOwner) || listCell.length <= 0} //只有拥有者的情况下，全选禁用
-              onClick={() => {
+              onChange={() => {
                 props.setSelectedIds(
                   props.selectedIds.length >= listCell.length || !!props.selectedAll
                     ? []
@@ -260,9 +261,10 @@ export default function PorTalTable(props) {
           </div>
         )}
         {columnsCell.map(o => {
-          let isSort = o.sorter && props.handleChangeSortHeader;
+          const isSort = o.sorter && props.handleChangeSortHeader;
           return (
             <div
+              key={o.id}
               className={cx('wrapTr overflow_ellipsis WordBreak textTertiary Bold', o.className, {
                 isSort: isSort,
                 Hand: isSort,
@@ -270,9 +272,9 @@ export default function PorTalTable(props) {
             >
               {isSort ? (
                 <SortToll
-                  key={o.id}
                   item={o}
                   name={o.renderHeader ? o.renderHeader(o) : o.name}
+                  isCustomHeader={!!o.renderHeader}
                   handleChangeSortHeader={props.handleChangeSortHeader}
                 />
               ) : o.renderHeader ? (
@@ -323,9 +325,10 @@ export default function PorTalTable(props) {
                     })}
                   >
                     <Checkbox
-                      className="TxtMiddle InlineBlock mRight0 checked_selected checkBox mLeft4"
+                      className="TxtMiddle mRight0 checked_selected checkBox mLeft4"
                       checked={isChecked}
-                      onClick={() => {
+                      onClick={event => event.stopPropagation()}
+                      onChange={() => {
                         if (props.ownerNoOption && item.isOwner) {
                           return;
                         }

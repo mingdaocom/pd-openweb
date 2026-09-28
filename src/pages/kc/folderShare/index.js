@@ -3,14 +3,18 @@ import { renderToString } from 'react-dom/server';
 import doT from 'dot';
 import _ from 'lodash';
 import qs from 'query-string';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import shareajax from 'src/api/share';
 import shareFolderAjax from 'src/api/shareFolder';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { browserIsMobile, downloadFile, getClassNameByExt, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import MobileSharePreview from '../shareMobile/shareMobile';
 import fileItemHtml from './tpl/fileItem.html';
 import frameTplHtml from './tpl/frame.html';
@@ -459,9 +463,9 @@ ShareFolder.prototype = {
       });
   },
   handleLogin() {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('保存到'),
-      children: <div>{_l('请先登录')}</div>,
+      content: <div>{_l('请先登录')}</div>,
       okText: _l('登录'),
       onOk: () => {
         if (location.href.indexOf('.mingdao.net') > -1) {

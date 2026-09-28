@@ -21,6 +21,7 @@ export default {
   * @param {string} args.licenseId 套餐id
   * @param {string} args.merchantNo 商户号
   * @param {boolean} args.atOnce 立即支付
+  * @param {string} args.backUrlForTicket 商家小票返回地址
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -38,6 +39,7 @@ export default {
    * @param {string} args.licenseId 套餐id
    * @param {string} args.merchantNo 商户号
    * @param {boolean} args.atOnce 立即支付
+   * @param {string} args.backUrlForTicket 商家小票返回地址
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -232,6 +234,7 @@ export default {
    * 创建商户
    * @param {Object} args 请求参数
    * @param {string} args.merchantNo
+   * @param {string} args.lakalaMerchantNo
    * @param {string} args.name
    * @param {string} args.projectId
    * @param {string} args.accountId
@@ -247,6 +250,21 @@ export default {
    **/
   createMerchant: function (args, options = {}) {
     return mdyAPI('Payment', 'CreateMerchant', args, options);
+  },
+  /**
+   * 为已有商户更新拉卡拉配置并切换到拉卡拉渠道
+   * @param {Object} args 请求参数
+   * @param {string} args.merchantId
+   * @param {string} args.merchantNo
+   * @param {string} args.projectId
+   * @param {string} args.lakalaMerchantNo
+   * @param {} args.merchantPaymentChannel
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateLakalaMerchantConfig: function (args, options = {}) {
+    return mdyAPI('Payment', 'UpdateLakalaMerchantConfig', args, options);
   },
   /**
    * 获取商户余额

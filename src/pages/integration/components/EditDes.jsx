@@ -8,7 +8,7 @@ const Wrap = styled.div`
     background: var(--color-background-primary) !important;
   }
   // .ck-editor__main {
-  //   max-height: ${props => `${props.richTextHeight}px`};
+  //   max-height: ${props => `${props.$richTextHeight}px`};
   // }
   .editAppIntro {
     opacity: 0;
@@ -75,7 +75,7 @@ export default class EditDes extends Component {
 
     if (!isEditing) {
       return (
-        <Wrap className={cx('mdEditor', className, { pBottom15: summary })} richTextHeight={richTextHeight}>
+        <Wrap className={cx('mdEditor', className, { pBottom15: summary })} $richTextHeight={richTextHeight}>
           <header className="appIntroHeader">
             <div className="caption">{title || _l('说明')}</div>
             {!isEditing && canEditing && (
@@ -104,7 +104,7 @@ export default class EditDes extends Component {
     }
 
     return (
-      <Wrap className={cx('mdEditor', className)} richTextHeight={richTextHeight}>
+      <Wrap className={cx('mdEditor', className)} $richTextHeight={richTextHeight}>
         <div className="flexRow mdEditorHeader">
           <div className="caption">{title || _l('应用说明')}</div>
           <div className="flex" />

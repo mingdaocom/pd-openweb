@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Button, ConfigProvider, Modal } from 'antd';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import { EditWidgetContent, Header } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
@@ -10,34 +9,6 @@ import Setting from './Setting';
 const Wrap = styled.div`
   height: 100%;
   display: flex;
-
-  .btnStyle {
-    display: flex;
-    border-radius: 3px;
-    padding: 3px;
-    background-color: var(--color-background-disabled);
-    .item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-      height: 30px;
-      line-height: 30px;
-      padding: 0 10px;
-      color: var(--color-text-tertiary);
-      font-size: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      &:last-child {
-        border: none;
-      }
-      &.active {
-        color: var(--color-primary);
-        border-radius: 3px;
-        background-color: var(--color-background-card);
-      }
-    }
-  }
 `;
 
 const defaultComponentConfig = {
@@ -69,25 +40,24 @@ export default function Carousel(props) {
 
   return (
     <Modal
-      maskStyle={{ zIndex: 999 }}
-      wrapClassName="customPageCarouselWrap"
       className="editWidgetDialogWrap"
-      visible
-      transitionName=""
-      maskTransitionName=""
+      classNames={{ container: 'pAll0', body: 'pAll0' }}
+      styles={{ body: { padding: 0, position: 'relative' } }}
+      verticalAlign="bottom"
+      open
       width="100%"
+      type="fixed"
       footer={null}
+      closable={false}
       centered={true}
       onCancel={onClose}
     >
       <Header>
         <div className="typeName">{_l('轮播图')}</div>
         <div className="flexRow valignWrapper">
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
-              {_l('保存')}
-            </Button>
-          </ConfigProvider>
+          <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+            {_l('保存')}
+          </Button>
           <Tooltip title={_l('关闭')} placement="bottom">
             <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>

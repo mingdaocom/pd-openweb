@@ -10,13 +10,13 @@ import sheetAjax from 'src/api/worksheet';
 import { FlexCenter } from 'worksheet/components/Basics';
 import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
+import { checkPermission } from 'src/utils/services/security/permission';
 import emptyImg from './img/null.png';
 
 const getAppInfo = appId => {

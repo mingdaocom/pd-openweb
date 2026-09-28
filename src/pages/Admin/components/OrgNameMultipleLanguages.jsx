@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import appManagementAjax from 'src/api/appManagement';
-import langConfig from 'src/common/langConfig';
+import langConfig from 'src/utils/platform/i18n/langConfig';
 
 const InputWrap = styled(Input)`
   &:disabled {
@@ -11,6 +13,7 @@ const InputWrap = styled(Input)`
     cursor: not-allowed;
   }
 `;
+const TEXTAREA_STYLE = { minHeight: 36, maxHeight: 120 };
 
 class SetOrgNameMultipleLanguages extends Component {
   constructor(props) {
@@ -19,6 +22,7 @@ class SetOrgNameMultipleLanguages extends Component {
       loading: false,
       settingLanguageData: [],
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -60,6 +64,8 @@ class SetOrgNameMultipleLanguages extends Component {
   };
 
   onOk = () => {
+    if (this.requestPending) return;
+
     const { projectId, type, correlationId, onCancel = () => {}, updateName = () => {} } = this.props;
     const { settingLanguageData = [] } = this.state;
     let AjaxFetch = null;
@@ -78,7 +84,8 @@ class SetOrgNameMultipleLanguages extends Component {
       });
     }
 
-    AjaxFetch.then(res => {
+    this.requestPending = true;
+    return AjaxFetch.then(res => {
       if (res) {
         const currentLang = _.find(settingLanguageData, v => v.langType === getCurrentLangCode());
 
@@ -88,6 +95,8 @@ class SetOrgNameMultipleLanguages extends Component {
       } else {
         alert(_l('设置失败'), 2);
       }
+    }).finally(() => {
+      this.requestPending = false;
     });
   };
 
@@ -97,7 +106,16 @@ class SetOrgNameMultipleLanguages extends Component {
     const defaultLangCode = md.global.SysSettings.defaultLang;
 
     return (
-      <Dialog title={_l('设置语言')} visible onCancel={onCancel} okText={_l('保存')} onOk={this.onOk}>
+      <Modal
+        width={480}
+        open
+        title={_l('设置语言')}
+        okText={_l('保存')}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onCancel}
+        onOk={this.onOk}
+      >
         {loading ? (
           <LoadDiv />
         ) : (
@@ -134,33 +152,37 @@ class SetOrgNameMultipleLanguages extends Component {
               <div key={code} className="mBottom15">
                 <div className="mBottom5">{value}</div>
                 {type === 30 ? (
-                  <Textarea
+                  <Input.TextArea
                     {...param}
+                    autoSize
                     className={'w100 pTop6 pBottom6'}
-                    minHeight={36}
-                    maxHeight={120}
+                    style={TEXTAREA_STYLE}
                     defaultValue={currentName || ''}
+                    onChange={event => param.onChange(event.target.value)}
                   />
                 ) : (
-                  <InputWrap {...param} value={currentName} />
+                  <InputWrap {...param} value={currentName} onChange={e => param.onChange(e.target.value)} />
                 )}
               </div>
             );
           })
         )}
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-const setLanguages = props => FunctionWrap(SetOrgNameMultipleLanguages, { ...props });
-
 export default function OrgNameMultipleLanguages(props) {
+  const { open: openSetLanguages, holder } = useFunctionWrapComponent(SetOrgNameMultipleLanguages);
+
   return (
-    <Icon
-      icon="language"
-      className={`colorPrimary Hand Font18 textSecondary hoverText ${props.className}`}
-      onClick={() => setLanguages(props)}
-    />
+    <>
+      {holder}
+      <Icon
+        icon="language"
+        className={`colorPrimary Hand Font18 textSecondary hoverText ${props.className}`}
+        onClick={() => openSetLanguages(props)}
+      />
+    </>
   );
 }

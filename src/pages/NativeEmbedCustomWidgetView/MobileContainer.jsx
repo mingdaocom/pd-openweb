@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import * as actions from 'src/pages/worksheet/redux/actions';
 import CustomWidgetView from 'src/pages/worksheet/views/CustomWidgetView';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
 
 const data = getRequest();
 let MobileContainer = class MobileContainer extends Component {

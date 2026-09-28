@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import { NODE_TYPE } from '../../../enum';
 
 export default ({ selectNodeType, data, updateSource }) => {
@@ -15,9 +15,14 @@ export default ({ selectNodeType, data, updateSource }) => {
       <div className="mTop5">
         <Checkbox
           checked={data.fromTrigger}
-          text={TEXT[selectNodeType]}
-          onClick={checked => updateSource({ fromTrigger: !checked })}
-        />
+          onChange={event =>
+            updateSource({
+              fromTrigger: event.target.checked,
+            })
+          }
+        >
+          {TEXT[selectNodeType]}
+        </Checkbox>
       </div>
     </Fragment>
   );

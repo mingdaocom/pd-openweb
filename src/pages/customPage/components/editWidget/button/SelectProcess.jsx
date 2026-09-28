@@ -1,22 +1,24 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dropdown, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import processApi from 'src/pages/workflow/api/process';
 import processVersionApi from 'src/pages/workflow/api/processVersion';
 import customApi from 'statistics/api/custom';
-import selectPBPDialog from 'src/pages/workflow/components/selectPBPDialog';
+import { useSelectPBPDialog } from 'src/pages/workflow/components/selectPBPDialog';
 import ProcessInput from './ProcessInput';
 
 const otherPBC = [
   {
-    text: _l('其它应用下的封装业务流程'),
+    label: _l('其它应用下的封装业务流程'),
     value: 'other',
     className: 'textSecondary',
   },
 ];
 
 export default function SelectProcess(props) {
+  const { open: openSelectPBPDialog, holder: selectPBPDialogHolder } = useSelectPBPDialog();
   const { appId, projectId, btnSetting, setBtnSetting } = props;
   const { processId, config = {} } = btnSetting;
 
@@ -36,7 +38,7 @@ export default function SelectProcess(props) {
         setProcessList(
           processList.map(item => {
             return {
-              text: item.name,
+              label: item.name,
               value: item.id,
             };
           }),
@@ -148,14 +150,15 @@ export default function SelectProcess(props) {
 
   return (
     <Fragment>
+      {selectPBPDialogHolder}
       <div className="settingItem">
         <div className="settingTitle">{_l('选择业务流程')}</div>
-        <Dropdown
-          border
-          openSearch
+        <Select
+          showPopupSearch
+          optionFilterProp="label"
           value={processId}
-          data={[processList, otherPBC]}
-          renderTitle={
+          options={[...processList, ...otherPBC]}
+          labelRender={
             otherAppProcess
               ? () => (
                   <Fragment>
@@ -168,15 +171,14 @@ export default function SelectProcess(props) {
           onChange={value => {
             if (value === processId) return;
             if (value === 'other') {
-              selectPBPDialog({ appId, companyId: projectId, onOk: data => changeProcessId(data.selectPBCId) });
+              openSelectPBPDialog({ appId, companyId: projectId, onOk: data => changeProcessId(data.selectPBCId) });
             } else {
               changeProcessId(value);
             }
           }}
           style={{ width: '100%', background: 'var(--color-background-primary)' }}
-          menuStyle={{ width: '100%' }}
           placeholder={_l('请选择业务流程')}
-          noData={_l('暂无业务流程，请先在应用里创建')}
+          notFoundContent={_l('暂无业务流程，请先在应用里创建')}
         />
       </div>
       {processLoading ? (

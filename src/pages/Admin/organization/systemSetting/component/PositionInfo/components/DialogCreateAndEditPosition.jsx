@@ -1,7 +1,6 @@
 import React from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import fixedDataAjax from 'src/api/fixedData.js';
 import jobAjax from 'src/api/job';
 import './dialogCreateAndEditRole.less';
@@ -12,6 +11,7 @@ class DialogCreateAndEditPosition extends React.Component {
     this.state = {
       jobName: props.filed === 'edit' ? props.currentPosition.jobName : '',
     };
+    this.requestPending = false;
   }
 
   handleSubmit = () => {
@@ -73,84 +73,74 @@ class DialogCreateAndEditPosition extends React.Component {
     });
   };
 
-  footer = () => {
-    const { filed, positionList, projectId, currentPosition } = this.props;
+  handleOk = () => {
+    const { positionList } = this.props;
     const { exsistCurrentName, submitLoading } = this.state;
-    let jobName = this.state.jobName.trim();
+    const jobName = this.state.jobName.trim();
 
-    return (
-      <div className="createPositionDialogFooter">
-        {filed === 'edit' ? (
-          <span
-            className="LineHeight20 Left mTop5 Hand deleteBtn"
-            onClick={() => {
-              jobAjax
-                .deleteJobs({
-                  jobIds: [currentPosition.jobId],
-                  projectId,
-                })
-                .then(res => {
-                  if (res) {
-                    alert(_l('删除成功'));
-                    this.props.getPositionList();
-                    this.props.onCancel();
-                  } else {
-                    alert(_l('职位存在成员，无法删除'), 2);
-                  }
-                });
-            }}
-          >
-            <i class="icon-trash Font16 mRight10"></i>
-            <span>{_l('删除')}</span>
-          </span>
-        ) : (
-          ''
-        )}
-        <span class="noText hoverColorPrimary Hand" onClick={() => this.props.onCancel()}>
-          {_l('取消')}
-        </span>
-        <span
-          class={cx('nyesText ', {
-            bgColorPrimary: !exsistCurrentName,
-            boderRadAll_3: !exsistCurrentName,
-            disabledComfrim: exsistCurrentName || submitLoading,
-          })}
-          onClick={() => {
-            if (!jobName) {
-              alert(_l('请输入职位名称'), 3);
-              return;
-            } else if (exsistCurrentName || submitLoading) {
-              return;
-            } else if (positionList.find(it => it.jobName === jobName)) {
-              alert(_l('该职位名称已存在'), 3);
-              this.setState({ exsistCurrentName: true });
-              return;
-            }
+    if (!jobName) {
+      alert(_l('请输入职位名称'), 3);
+    } else if (exsistCurrentName || submitLoading) {
+      return;
+    } else if (positionList.find(it => it.jobName === jobName)) {
+      alert(_l('该职位名称已存在'), 3);
+      this.setState({ exsistCurrentName: true });
+    } else {
+      this.setState({ submitLoading: true }, this.handleSubmit);
+    }
+  };
 
-            this.setState({ submitLoading: true }, this.handleSubmit);
-          }}
-        >
-          {_l('保存')}
-        </span>
-      </div>
-    );
+  handleDelete = () => {
+    if (this.requestPending) return;
+
+    const { filed, projectId, currentPosition } = this.props;
+    if (filed !== 'edit') return;
+
+    this.requestPending = true;
+    return jobAjax
+      .deleteJobs({ jobIds: [currentPosition.jobId], projectId })
+      .then(res => {
+        if (res) {
+          alert(_l('删除成功'));
+          this.props.getPositionList();
+          this.props.onCancel();
+        } else {
+          alert(_l('职位存在成员，无法删除'), 2);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
 
   render() {
     const { filed, showRoleDialog } = this.props;
-    const { jobName } = this.state;
+    const { jobName, exsistCurrentName, submitLoading } = this.state;
     return (
-      <Dialog
+      <Modal
+        mask={{ closable: true }}
+        keyboard
         title={filed === 'create' ? _l('新建职位') : _l('编辑职位')}
-        footer={this.footer()}
         className="createPositionDialog"
         onCancel={() => this.props.onCancel()}
-        visible={showRoleDialog}
+        onOk={this.handleOk}
+        okText={_l('保存')}
+        okDisabled={exsistCurrentName}
+        confirmLoading={submitLoading}
+        footerLeftElement={
+          filed === 'edit' ? (
+            <span className="LineHeight20 Hand deleteBtn" onClick={this.handleDelete}>
+              <i className="icon-trash Font16 mRight10" />
+              <span>{_l('删除')}</span>
+            </span>
+          ) : null
+        }
+        open={showRoleDialog}
       >
         <div>
           <div className="mTop5 mBottom12 Font14">{_l('职位名称')}</div>
-          <input
-            class="inputBox"
+          <Input
+            className="inputBox"
             maxLength={32}
             value={jobName}
             autoFocus
@@ -163,7 +153,7 @@ class DialogCreateAndEditPosition extends React.Component {
             }}
           />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

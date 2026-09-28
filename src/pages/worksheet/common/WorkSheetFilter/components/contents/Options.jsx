@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { CityPicker } from 'ming-ui';
-import { quickSelectDept, quickSelectRole } from 'ming-ui/functions';
-import { FILTER_CONDITION_TYPE } from '../../enum';
-import TagCon from './TagCon';
+import { CityPicker, Icon } from 'ming-ui';
+import { Button, Select } from 'ming-ui/antd-components';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
+import { RoleSelectPopover } from 'ming-ui/functions/quickSelectRole';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 const SCORE_TEXT = [
   _l('一级'),
@@ -19,6 +19,16 @@ const SCORE_TEXT = [
   _l('九级'),
   _l('十级'),
 ];
+const OPTION_BUTTON_STYLE = {
+  maxWidth: 200,
+  '--hap-control-height-sm': '26px',
+  '--hap-button-padding-inline-sm': '10px',
+};
+const SELECTED_MULTIPLE_OPTION_BUTTON_STYLE = {
+  ...OPTION_BUTTON_STYLE,
+  borderColor: 'var(--hap-color-primary-border)',
+};
+
 export default class Options extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
@@ -47,6 +57,10 @@ export default class Options extends Component {
         });
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.onFetchData.cancel();
   }
 
   getDefaultSelectedOptions(values, control) {
@@ -161,9 +175,21 @@ export default class Options extends Component {
   renderSelect = () => {
     const { type, disabled, folded, control, projectId, onChange, from } = this.props;
     const { selectedOptions, search, keywords } = this.state;
+    const selectedOptionItems = selectedOptions.map(item => ({ label: item.name, value: item.id }));
+    const selectedOptionValues = selectedOptions.map(item => item.id);
 
     if (disabled) {
-      return <TagCon disabled={disabled} data={selectedOptions} onRemove={this.removeItem} />;
+      return (
+        <Select
+          className="w100"
+          mode="multiple"
+          open={false}
+          showSearch={false}
+          disabled
+          options={selectedOptionItems}
+          value={selectedOptionValues}
+        />
+      );
     }
 
     if (_.includes([19, 23, 24], control.type)) {
@@ -203,13 +229,21 @@ export default class Options extends Component {
               search && this.setState({ keywords: undefined, search: '' });
             }}
           >
-            <TagCon
-              data={selectedOptions}
-              onRemove={this.removeItem}
-              needInput={true}
-              search={search}
-              keywords={keywords}
-              onChangeInput={value => this.setState(value)}
+            <Select
+              className="w100"
+              mode="multiple"
+              open={false}
+              showSearch
+              autoClearSearchValue={false}
+              filterOption={false}
+              options={selectedOptionItems}
+              value={selectedOptionValues}
+              searchValue={search || ''}
+              onSearch={value => {
+                this.setState({ search: value });
+                this.onFetchData(value);
+              }}
+              onDeselect={id => this.removeItem({ id })}
             />
           </CityPicker>
         </div>
@@ -218,75 +252,85 @@ export default class Options extends Component {
       const selectSingle =
         control.enumDefault === 0 && _.includes([FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE], type);
       return (
-        <div
-          className="filterSelectDepartment"
-          onClick={e => {
+        <DeptSelectPopover
+          unique={selectSingle}
+          projectId={projectId}
+          isIncludeRoot={false}
+          immediate={false}
+          showCurrentUserDept={!_.includes(['rule', 'portal'], from)}
+          onOpenChange={visible => {
+            if (!visible) return;
+
             if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
               alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+              return false;
+            }
+          }}
+          selectFn={data => {
+            if (!data.length) {
               return;
             }
 
-            quickSelectDept(e.target, {
-              unique: selectSingle,
-              projectId,
-              isIncludeRoot: false,
-              immediate: false,
-              showCurrentUserDept: !_.includes(['rule', 'portal'], from),
-              selectFn: data => {
-                if (!data.length) {
-                  return;
-                }
-
-                this.addItem(
-                  (selectSingle ? data.slice(0, 1) : data).map(item => ({
-                    id: item.departmentId,
-                    name: item.departmentName,
-                  })),
-                  { clearSelected: selectSingle },
-                );
-              },
-            });
+            this.addItem(
+              (selectSingle ? data.slice(0, 1) : data).map(item => ({
+                id: item.departmentId,
+                name: item.departmentName,
+              })),
+              { clearSelected: selectSingle },
+            );
           }}
         >
-          <TagCon data={selectedOptions} onRemove={this.removeItem} />
-        </div>
+          <Select
+            className="w100"
+            mode="multiple"
+            open={false}
+            showSearch={false}
+            options={selectedOptionItems}
+            value={selectedOptionValues}
+            onDeselect={id => this.removeItem({ id })}
+          />
+        </DeptSelectPopover>
       );
     } else if (control.type === 48) {
       const selectSingle =
         control.enumDefault === 0 && _.includes([FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE], type);
       return (
-        <div
-          className="filterSelectDepartment"
-          onClick={e => {
-            if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+        <RoleSelectPopover
+          projectId={projectId}
+          unique={selectSingle}
+          showCurrentOrgRole={!_.includes(['rule', 'portal'], from)}
+          showCompanyName
+          immediate={false}
+          onOpenChange={visible => {
+            if (visible && !_.find(md.global.Account.projects, item => item.projectId === projectId)) {
               alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+              return false;
+            }
+          }}
+          onSave={data => {
+            if (!data.length) {
               return;
             }
 
-            quickSelectRole(e.target, {
-              projectId,
-              unique: selectSingle,
-              showCurrentOrgRole: !_.includes(['rule', 'portal'], from),
-              showCompanyName: true,
-              immediate: false,
-              onSave: data => {
-                if (!data.length) {
-                  return;
-                }
-
-                this.addItem(
-                  (selectSingle ? data.slice(0, 1) : data).map(item => ({
-                    id: item.organizeId,
-                    name: item.organizeName,
-                  })),
-                  { clearSelected: selectSingle },
-                );
-              },
-            });
+            this.addItem(
+              (selectSingle ? data.slice(0, 1) : data).map(item => ({
+                id: item.organizeId,
+                name: item.organizeName,
+              })),
+              { clearSelected: selectSingle },
+            );
           }}
         >
-          <TagCon data={selectedOptions} onRemove={this.removeItem} />
-        </div>
+          <Select
+            className="w100"
+            mode="multiple"
+            open={false}
+            showSearch={false}
+            options={selectedOptionItems}
+            value={selectedOptionValues}
+            onDeselect={id => this.removeItem({ id })}
+          />
+        </RoleSelectPopover>
       );
     } else {
       const controlIsSingle = _.includes([9, 11], control.type);
@@ -316,44 +360,49 @@ export default class Options extends Component {
       }
 
       return (
-        <div className="optionCheckboxs">
-          {shortOptions.map((option, i) => (
-            <div
-              className={cx('optionCheckbox ellipsis', {
-                'bgColorPrimary borderColorPrimary checked': _.find(selectedOptions, o => o.id === option.id),
-                multiple: !selectSingle,
-              })}
-              key={i}
-              onClick={() => {
-                if (selectSingle) {
-                  this.addItem(option, { clearSelected: true });
-                  return;
-                }
+        <div className="optionButtons">
+          {shortOptions.map(option => {
+            const checked = !!_.find(selectedOptions, o => o.id === option.id);
 
-                const checked = _.find(selectedOptions, o => o.id === option.id);
-
-                if (checked) {
-                  this.removeItem(option);
-                } else {
-                  this.addItem(option);
-                }
-              }}
-            >
-              {!selectSingle && _.find(selectedOptions, o => o.id === option.id) && (
-                <span className="icon-hr_ok selectedIcon"></span>
-              )}
-              {option.name}
-            </div>
-          ))}
+            return (
+              <Button
+                className="mTop6 mRight6 Normal"
+                color={checked ? 'primary' : 'default'}
+                variant={checked ? (selectSingle ? 'solid' : 'filled') : 'outlined'}
+                shape="round"
+                size="small"
+                ellipsis
+                style={checked && !selectSingle ? SELECTED_MULTIPLE_OPTION_BUTTON_STYLE : OPTION_BUTTON_STYLE}
+                title={option.name}
+                key={option.id}
+                aria-pressed={checked}
+                icon={!selectSingle && checked ? <Icon icon="hr_ok" className="Font13" /> : undefined}
+                onClick={() => {
+                  if (selectSingle) {
+                    this.addItem(option, { clearSelected: true });
+                  } else if (checked) {
+                    this.removeItem(option);
+                  } else {
+                    this.addItem(option);
+                  }
+                }}
+              >
+                {option.name}
+              </Button>
+            );
+          })}
           {options.length > 5 && (
-            <span
-              className="showMore colorPrimary Hand"
+            <Button
+              className="mTop6"
+              color="primary"
+              variant="link"
+              size="small"
               onClick={() => {
                 onChange({ folded: !folded });
               }}
             >
               {folded ? _l('更多') : _l('收起')}
-            </span>
+            </Button>
           )}
         </div>
       );

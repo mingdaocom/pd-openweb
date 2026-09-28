@@ -2,13 +2,12 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, MenuItem, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { canArraySplit, DEFAULT_COLORS } from '../config';
 import {
   getAllSourceList,
@@ -19,7 +18,6 @@ import {
   isDelStatus,
   setResultFieldSettingByAggFuncType,
 } from '../util';
-import { WrapS } from './style';
 
 const WrapItem = styled.div`
   height: 36px;
@@ -72,6 +70,105 @@ export default function GroupCon(props) {
 
     const index = getSourceIndex(flowData, item);
     const color = DEFAULT_COLORS[index];
+    const defaultGroupOperations = getDefaultOperationForGroup(item);
+    const currentGroupOperation = defaultGroupOperations.find(
+      operation => operation.value === _.get(item, 'resultField.aggFuncType'),
+    );
+    const currentArraySplit = arraySplitList.find(operation => !operation.value === !item.arraySplit);
+    const menuItems = [
+      {
+        key: 'rename',
+        label: _l('重命名'),
+        onClick: () => {
+          setState({
+            showChangeName: true,
+            popupVisible: false,
+          });
+        },
+      },
+      isDateTimeGroup(item) && {
+        key: 'group',
+        label: (
+          <div className="flexRow alignItemsCenter">
+            <span className="flex">{_l('归组')}</span>
+            <span className="textSecondary">{currentGroupOperation?.text}</span>
+          </div>
+        ),
+        children: defaultGroupOperations.map(operation => ({
+          key: `group-${operation.value}`,
+          label: operation.text,
+          className: cx({
+            colorPrimary: operation.value === _.get(item, 'resultField.aggFuncType'),
+          }),
+          onClick: () => {
+            if (operation.value === item.aggFuncType) {
+              return;
+            }
+
+            const hasSameGroup = !!list.find(
+              groupItem => groupItem.oid === item.oid && groupItem.aggFuncType === operation.value,
+            );
+
+            if (hasSameGroup) {
+              alert(_l('不能重复添加相同归组方式的相同字段'), 3);
+              return;
+            }
+
+            onUpdate(
+              items.map(groupItem => {
+                if (_.get(groupItem, 'resultField.id') === _.get(item, 'resultField.id')) {
+                  return {
+                    ...groupItem,
+                    resultField: setResultFieldSettingByAggFuncType({
+                      ...groupItem.resultField,
+                      aggFuncType: operation.value,
+                      alias: getRuleAlias(`${_.get(groupItem, 'resultField.name')}-${operation.text}`, props.flowData),
+                    }),
+                  };
+                }
+
+                return groupItem;
+              }),
+            );
+            setState({ popupVisible: false });
+          },
+        })),
+      },
+      canArraySplit(item.resultField.controlSetting) && {
+        key: 'arraySplit',
+        label: (
+          <div className="flexRow alignItemsCenter">
+            <span className="flex">{_l('归组')}</span>
+            <span className="textSecondary">{currentArraySplit?.txt}</span>
+          </div>
+        ),
+        children: arraySplitList.map(operation => ({
+          key: `arraySplit-${operation.value}`,
+          label: operation.txt,
+          className: cx({ colorPrimary: !operation.value === !item.arraySplit }),
+          onClick: () => {
+            if (!operation.value === !item.arraySplit) {
+              return;
+            }
+
+            onUpdate(
+              items.map(groupItem => {
+                if (_.get(groupItem, 'resultField.id') === _.get(item, 'resultField.id')) {
+                  return {
+                    ...groupItem,
+                    arraySplit: operation.value,
+                  };
+                }
+
+                return groupItem;
+              }),
+            );
+            setState({ popupVisible: false });
+          },
+        })),
+      },
+    ].filter(Boolean);
+
     return (
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
         {sourceTables.length <= 1 && (getAllSourceList(flowData) || []).length > 1 && (
@@ -119,177 +216,13 @@ export default function GroupCon(props) {
               <Icon icon="info_outline" className="Hand textTertiary hoverColorPrimary Font16" />
             </Tooltip>
           )}
-          <Trigger
-            action={['click']}
-            popupVisible={popupVisible}
-            onPopupVisibleChange={popupVisible => {
-              setState({ popupVisible });
-            }}
+          <Dropdown
+            open={popupVisible}
+            onOpenChange={popupVisible => setState({ popupVisible })}
+            trigger={['click']}
+            placement="bottomLeft"
             getPopupContainer={() => document.body}
-            popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-            popup={
-              <WrapS className={cx('Relative')}>
-                <MenuItem
-                  className="settingSheet"
-                  onClick={() => {
-                    setState({
-                      showChangeName: true,
-                      popupVisible: false,
-                    });
-                  }}
-                >
-                  <span className="text Font14">{_l('重命名')}</span>
-                </MenuItem>
-                {isDateTimeGroup(item) && (
-                  <React.Fragment>
-                    <Trigger
-                      action={['hover']}
-                      popupAlign={{
-                        points: ['tl', 'tr'],
-                        offset: [0, -5],
-                        overflow: { adjustX: true, adjustY: true },
-                      }}
-                      popup={
-                        <WrapS className="Relative">
-                          {getDefaultOperationForGroup(item).map(o => {
-                            return (
-                              <MenuItem
-                                className={cx('settingSheet flexRow Font14', {
-                                  colorPrimary: o.value === _.get(item, 'resultField.aggFuncType'),
-                                })}
-                                onClick={() => {
-                                  if (o.value === item.aggFuncType) {
-                                    return;
-                                  }
-
-                                  const hs = !!list.find(it => it.oid === item.oid && it.aggFuncType === o.value);
-
-                                  if (hs) {
-                                    alert(_l('不能重复添加相同归组方式的相同字段'), 3);
-                                    return;
-                                  }
-
-                                  onUpdate(
-                                    items.map(a => {
-                                      if (_.get(a, 'resultField.id') === _.get(item, 'resultField.id')) {
-                                        return {
-                                          ...a,
-                                          resultField: setResultFieldSettingByAggFuncType({
-                                            ...a.resultField,
-                                            aggFuncType: o.value,
-                                            alias: getRuleAlias(
-                                              `${_.get(a, 'resultField.name')}-${o.text}`,
-                                              props.flowData,
-                                            ),
-                                          }),
-                                        };
-                                      }
-
-                                      return a;
-                                    }),
-                                  );
-                                  setState({
-                                    popupVisible: false,
-                                  });
-                                }}
-                              >
-                                <span className="flexRow w100">
-                                  <span className="flex"> {o.text}</span>
-                                </span>
-                              </MenuItem>
-                            );
-                          })}
-                        </WrapS>
-                      }
-                    >
-                      <MenuItem
-                        className="flexRow alignItemsCenter"
-                        onClick={() => {
-                          setState({
-                            popupVisible: true,
-                          });
-                        }}
-                      >
-                        <span className="text flex Font14">{_l('归组')}</span>
-                        <span className="textSecondary">
-                          {
-                            getDefaultOperationForGroup(item).find(
-                              o => o.value === _.get(item, 'resultField.aggFuncType'),
-                            ).text
-                          }
-                        </span>
-                        <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
-                      </MenuItem>
-                    </Trigger>
-                  </React.Fragment>
-                )}
-                {canArraySplit(item.resultField.controlSetting) && (
-                  <React.Fragment>
-                    <Trigger
-                      action={['hover']}
-                      popupAlign={{
-                        points: ['tl', 'tr'],
-                        offset: [0, -5],
-                        overflow: { adjustX: true, adjustY: true },
-                      }}
-                      popup={
-                        <WrapS className="Relative">
-                          {arraySplitList.map(o => {
-                            return (
-                              <MenuItem
-                                className={cx('settingSheet flexRow Font14', {
-                                  colorPrimary: !o.value === !item.arraySplit,
-                                })}
-                                onClick={() => {
-                                  if (!o.value === !item.arraySplit) {
-                                    return;
-                                  }
-
-                                  onUpdate(
-                                    items.map(a => {
-                                      if (_.get(a, 'resultField.id') === _.get(item, 'resultField.id')) {
-                                        return {
-                                          ...a,
-                                          arraySplit: o.value,
-                                        };
-                                      }
-
-                                      return a;
-                                    }),
-                                  );
-                                  setState({
-                                    popupVisible: false,
-                                  });
-                                }}
-                              >
-                                <span className="flexRow w100">
-                                  <span className="flex"> {o.txt}</span>
-                                </span>
-                              </MenuItem>
-                            );
-                          })}
-                        </WrapS>
-                      }
-                    >
-                      <MenuItem
-                        className="flexRow alignItemsCenter"
-                        onClick={() => {
-                          setState({
-                            popupVisible: true,
-                          });
-                        }}
-                      >
-                        <span className="text flex Font14">{_l('归组')}</span>
-                        <span className="textSecondary">
-                          {arraySplitList.find(o => !o.value === !item.arraySplit).txt}
-                        </span>
-                        <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
-                      </MenuItem>
-                    </Trigger>
-                  </React.Fragment>
-                )}
-              </WrapS>
-            }
+            menu={{ items: menuItems }}
           >
             <Icon
               icon="arrow-down-border"
@@ -300,7 +233,7 @@ export default function GroupCon(props) {
                 })
               }
             />
-          </Trigger>
+          </Dropdown>
           <Tooltip title={_l('删除')}>
             <Icon
               icon="clear"

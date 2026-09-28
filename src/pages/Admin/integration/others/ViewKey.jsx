@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import AuthorizationController from 'src/api/authorization';
 
 export default class ViewKey extends Component {
@@ -67,27 +68,29 @@ export default class ViewKey extends Component {
     return (
       <Fragment>
         {visible ? (
-          <Dialog
-            visible={visible}
+          <Modal
+            open={visible}
             title={<span className="updateTitle">{_l('确定要重新生成？')}</span>}
             cancelText={_l('取消')}
             okText={_l('确定')}
-            width="480"
-            overlayClosable={false}
+            width={480}
+            mask={{ closable: false }}
+            keyboard
             onCancel={() => {
               this.handleChangeVisible(false);
             }}
             onOk={() => VerifyPasswordConfirm.confirm({ onOk: this.updateKey })}
           >
             <div className="subLabel">{_l('重新生成将会影响到已经使用该密钥信息的服务，请确认操作')}</div>
-          </Dialog>
+          </Modal>
         ) : (
-          <Dialog
-            visible={this.props.visible}
+          <Modal
+            open={this.props.visible}
             title={_l('查看密钥')}
-            width="480"
+            width={480}
             footer={null}
-            overlayClosable={false}
+            mask={{ closable: false }}
+            keyboard
             onCancel={() => {
               this.props.handleChangeVisible(false);
             }}
@@ -118,16 +121,17 @@ export default class ViewKey extends Component {
                 );
               })}
               <div>
-                <button
-                  type="button"
-                  className="ming Button Button--link colorPrimary mTop16 adminHoverColor"
+                <Button
+                  color="primary"
+                  variant="link"
+                  className="mTop16"
                   onClick={this.handleChangeVisible.bind(this, true)}
                 >
                   {_l('重新生成')}
-                </button>
+                </Button>
               </div>
             </div>
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );

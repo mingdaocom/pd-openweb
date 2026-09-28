@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { UserHead } from 'ming-ui';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectJob, dialogSelectOrgRole } from 'ming-ui/functions';
 import { DEPARTMENT_ORGANIZE, USER_ORGANIZE, USER_TYPE } from '../../../enum';
 import { handleGlobalVariableName } from '../../../utils';
@@ -69,33 +69,28 @@ export default class Member extends Component {
   renderControl(item, index) {
     const { removeOrganization } = this.props;
     const list = [
-      [
-        { text: USER_ORGANIZE[11], value: 11 },
-        { text: item.controlType !== 27 ? USER_ORGANIZE[12] : DEPARTMENT_ORGANIZE[12], value: 12 },
-        { text: item.controlType !== 27 ? USER_ORGANIZE[13] : DEPARTMENT_ORGANIZE[13], value: 13 },
-        { text: item.controlType !== 27 ? USER_ORGANIZE[14] : DEPARTMENT_ORGANIZE[14], value: 14 },
-        {
-          text: (
-            <span>
-              {item.controlType !== 27 ? USER_ORGANIZE[15] : DEPARTMENT_ORGANIZE[15]}
-              {this.renderOrgRoleInfo()}
-            </span>
-          ),
-          value: 15,
-        },
-      ],
-      [{ text: _l('移除'), value: 0 }],
+      { label: USER_ORGANIZE[11], value: 11 },
+      { label: item.controlType !== 27 ? USER_ORGANIZE[12] : DEPARTMENT_ORGANIZE[12], value: 12 },
+      { label: item.controlType !== 27 ? USER_ORGANIZE[13] : DEPARTMENT_ORGANIZE[13], value: 13 },
+      { label: item.controlType !== 27 ? USER_ORGANIZE[14] : DEPARTMENT_ORGANIZE[14], value: 14 },
+      {
+        label: (
+          <span>
+            {item.controlType !== 27 ? USER_ORGANIZE[15] : DEPARTMENT_ORGANIZE[15]}
+            {this.renderOrgRoleInfo()}
+          </span>
+        ),
+        value: 15,
+      },
     ];
 
-    if (!item.roleTypeId) {
-      _.remove(list, (o, i) => i === 1);
+    if (item.roleTypeId) {
+      list.push({ label: _l('移除'), value: 0 });
     }
 
     // 部门控件
     if (item.controlType === 27) {
-      list.forEach(arr => {
-        _.remove(arr, o => o.value === 11);
-      });
+      _.remove(list, option => option.value === 11);
     }
 
     return (
@@ -116,14 +111,14 @@ export default class Member extends Component {
           !!item.roleName &&
           !removeOrganization && (
             <Fragment>
-              <Dropdown
+              <Select
                 className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
-                data={list}
+                variant="borderless"
+                suffixIcon={null}
+                popupMatchSelectWidth={false}
+                options={list}
                 value={item.roleTypeId}
-                isAppendToBody
-                menuStyle={{ width: 'auto !important' }}
-                border
-                renderTitle={() => this.renderOrganize(item.controlType, item.roleTypeId)}
+                labelRender={() => this.renderOrganize(item.controlType, item.roleTypeId)}
                 onChange={roleTypeId => this.onChange(roleTypeId, index)}
               />
               {_.includes([14, 15], item.roleTypeId) && this.renderExtensionInfo(item, index)}
@@ -312,25 +307,22 @@ export default class Member extends Component {
   renderDepartment(item, index) {
     const { removeOrganization } = this.props;
     const list = [
-      [
-        { text: DEPARTMENT_ORGANIZE[12], value: 12 },
-        { text: DEPARTMENT_ORGANIZE[13], value: 13 },
-        { text: DEPARTMENT_ORGANIZE[14], value: 14 },
-        {
-          text: (
-            <span>
-              {DEPARTMENT_ORGANIZE[15]}
-              {this.renderOrgRoleInfo()}
-            </span>
-          ),
-          value: 15,
-        },
-      ],
-      [{ text: _l('移除'), value: 0 }],
+      { label: DEPARTMENT_ORGANIZE[12], value: 12 },
+      { label: DEPARTMENT_ORGANIZE[13], value: 13 },
+      { label: DEPARTMENT_ORGANIZE[14], value: 14 },
+      {
+        label: (
+          <span>
+            {DEPARTMENT_ORGANIZE[15]}
+            {this.renderOrgRoleInfo()}
+          </span>
+        ),
+        value: 15,
+      },
     ];
 
-    if (!item.roleTypeId) {
-      _.remove(list, (o, i) => i === 1);
+    if (item.roleTypeId) {
+      list.push({ label: _l('移除'), value: 0 });
     }
 
     return (
@@ -338,14 +330,14 @@ export default class Member extends Component {
         {this.renderTags(item)}
         {!!item.entityName && !removeOrganization && (
           <Fragment>
-            <Dropdown
+            <Select
               className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
-              data={list}
+              variant="borderless"
+              suffixIcon={null}
+              popupMatchSelectWidth={false}
+              options={list}
               value={item.roleTypeId || ''}
-              isAppendToBody
-              menuStyle={{ width: 'auto !important' }}
-              border
-              renderTitle={() => this.renderOrganize(27, item.roleTypeId)}
+              labelRender={() => this.renderOrganize(27, item.roleTypeId)}
               onChange={roleTypeId => this.onChange(roleTypeId, index)}
             />
             {_.includes([14, 15], item.roleTypeId) && this.renderExtensionInfo(item, index)}

@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { updateRulesByRuleId } from '../actions/action';
-import MoreActionDia from './moreActionDia';
 import PeopleAvatar from './peopleAvatar';
 import '../container/index.less';
+
+const MORE_ACTION_MENU_STYLE = { minWidth: 180 };
 
 const targetType = {
   user: 10, // 10=人员、20=部门
@@ -20,14 +22,6 @@ const ruleItemType = {
   whiteList: 20,
 };
 class EditCon extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showMoreActionSelf: false,
-      showMoreActionExtra: false,
-    };
-  }
-
   updateData = data => {
     const { dispatch } = this.props;
     dispatch(updateRulesByRuleId(data));
@@ -119,6 +113,45 @@ class EditCon extends React.Component {
     this.updateData(dataByRuleId.concat(ids));
   };
 
+  getMoreActionItems = (list, type) => [
+    {
+      key: 'user',
+      label: _l('添加成员'),
+      onClick: () =>
+        this.addUser(
+          list.filter(it => it.targetType === targetType.user),
+          type,
+        ),
+    },
+    {
+      key: 'department',
+      label: _l('添加部门'),
+      onClick: () =>
+        this.addDept(
+          list.filter(it => it.targetType === targetType.dept),
+          type,
+        ),
+    },
+    {
+      key: 'orgRole',
+      label: _l('组织角色'),
+      onClick: () => this.addOrgRoles(type),
+    },
+  ];
+
+  renderMoreAction = (list, type, className) => (
+    <Dropdown
+      trigger={['click']}
+      placement="bottomLeft"
+      menu={{ items: this.getMoreActionItems(list, type), style: MORE_ACTION_MENU_STYLE }}
+    >
+      <span className={className}>
+        <Icon className="Font16 mRight5" icon="add" />
+        {_l('添加')}
+      </span>
+    </Dropdown>
+  );
+
   renderRuleItem = (list, type) => {
     const { dataByRuleId, errorIds, projectId } = this.props;
     return (
@@ -172,87 +205,27 @@ class EditCon extends React.Component {
     return (
       <React.Fragment>
         {this.renderRuleItem(list, type)}
-        <span
-          className="addBtn Font13 Hand mLeft15"
-          onClick={() => {
-            if (currentEditRule.type === 'hideForAllUser') {
-              this.addUser(
-                list.filter(it => it.targetType === targetType.user),
-                type,
-              );
-            } else if (type === ruleItemType.self) {
-              this.setState({
-                showMoreActionSelf: true,
-              });
-            } else {
-              this.setState({
-                showMoreActionExtra: true,
-              });
-            }
-          }}
-        >
-          <Icon className="Font16 mRight5" icon="add" />
-          {_l('添加')}
-          <MoreActionDia
-            onClickAway={() => {
-              if (type === ruleItemType.self) {
-                this.setState({
-                  showMoreActionSelf: false,
-                });
-              } else {
-                this.setState({
-                  showMoreActionExtra: false,
-                });
-              }
-            }}
-            showMoreAction={type === ruleItemType.self ? this.state.showMoreActionSelf : this.state.showMoreActionExtra}
-            addUser={() =>
+        {currentEditRule.type === 'hideForAllUser' ? (
+          <span
+            className="addBtn Font13 Hand mLeft15"
+            onClick={() =>
               this.addUser(
                 list.filter(it => it.targetType === targetType.user),
                 type,
               )
             }
-            addDept={() =>
-              this.addDept(
-                list.filter(it => it.targetType === targetType.dept),
-                type,
-              )
-            }
-            addOrgRoles={() => this.addOrgRoles(type)}
-          />
-        </span>
+          >
+            <Icon className="Font16 mRight5" icon="add" />
+            {_l('添加')}
+          </span>
+        ) : (
+          this.renderMoreAction(list, type, 'addBtn Font13 Hand mLeft15')
+        )}
         {type === ruleItemType.self && depOrRoleIndex !== -1 && (
           <div className="whitelist">
             <div className="textTertiary mBottom15">{_l('白名单')}</div>
             {this.renderRuleItem(whiteDataList, ruleItemType.whiteList)}
-            <span
-              className="addBtn Font13 Hand"
-              onClick={() => {
-                this.setState({ showMoreActionWhiteList: true });
-              }}
-            >
-              <Icon className="Font16 mRight5" icon="add" />
-              {_l('添加')}
-              <MoreActionDia
-                onClickAway={() => {
-                  this.setState({ showMoreActionWhiteList: false });
-                }}
-                showMoreAction={this.state.showMoreActionWhiteList}
-                addUser={() =>
-                  this.addUser(
-                    list.filter(it => it.targetType === targetType.user),
-                    ruleItemType.whiteList,
-                  )
-                }
-                addDept={() =>
-                  this.addDept(
-                    list.filter(it => it.targetType === targetType.dept),
-                    ruleItemType.whiteList,
-                  )
-                }
-                addOrgRoles={() => this.addOrgRoles(ruleItemType.whiteList)}
-              />
-            </span>
+            {this.renderMoreAction(list, ruleItemType.whiteList, 'addBtn Font13 Hand')}
           </div>
         )}
       </React.Fragment>

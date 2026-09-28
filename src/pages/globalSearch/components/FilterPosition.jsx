@@ -2,11 +2,11 @@ import React, { Fragment, useEffect } from 'react';
 import { useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import smartSearchAjax from 'src/api/smartSearch';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { getCurrentProjectId } from '../utils';
 import OrgSelect from './OrgSelect';
 
@@ -26,7 +26,7 @@ const FilterCountWrap = styled.span`
   }
 `;
 
-const FilterDialog = styled(Dialog)`
+const FilterModal = styled(Modal)`
   .orgSelect {
     width: fit-content;
   }
@@ -155,10 +155,12 @@ export default function FilterPosition(props) {
           {filterCount}
         </FilterCountWrap>
       </Tooltip>
-      <FilterDialog
+      <FilterModal
         className="filterPositionDialog"
         width="580"
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={<span className="Font17 Bold">{_l('不搜索的位置')}</span>}
         onCancel={() => {
           setVisible(false);
@@ -230,7 +232,7 @@ export default function FilterPosition(props) {
             </Fragment>
           )}
         </div>
-      </FilterDialog>
+      </FilterModal>
     </Fragment>
   );
 }

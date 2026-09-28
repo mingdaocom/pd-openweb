@@ -1,12 +1,10 @@
-import React, { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Drawer } from 'antd';
+import React, { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import { Icon, LoadDiv, Menu, MenuItem, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Drawer, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
@@ -14,9 +12,9 @@ import OtherAction from 'src/pages/workflow/components/ExecDialog/components/Oth
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getTranslateInfo } from 'src/utils/services/app';
 import StepHeader from '../ExecDialog/StepHeader';
 import WorkflowAction, { TaskRevokeAction } from './Action';
 import './index.less';
@@ -131,28 +129,27 @@ const renderSurplusTime = data => {
   );
 };
 
-function CurrentWorkItems(props) {
-  const { formWidth, data, appId, projectId } = props;
-  const { type } = data.flowNode || {};
-  const allCurrentWorkItems = (data.currentWorkItems || []).filter(c => c.operationType !== 5);
-  const [currentWorkItems, setCurrentWorkItems] = useState(allCurrentWorkItems);
+function CurrentWorkItemRow(props) {
+  const { formWidth, label, workItems, appId, projectId } = props;
+  const [currentWorkItems, setCurrentWorkItems] = useState(workItems);
   const wrapRef = useRef();
   useEffect(() => {
-    if (currentWorkItems.length && wrapRef.current) {
+    if (wrapRef.current) {
       const { clientWidth } = wrapRef.current;
       const accountWidth = 24;
       const accountRightMargin = 8;
       const count = Math.floor(clientWidth / (accountWidth + accountRightMargin));
-      setCurrentWorkItems(allCurrentWorkItems.slice(0, count - 1));
+      setCurrentWorkItems(workItems.slice(0, count - 1));
     }
-  }, [formWidth]);
+  }, [formWidth, workItems]);
+
   return (
     !!(currentWorkItems || []).length && (
       <div className="flexRow valignWrapper mBottom12">
-        <div className="Font13 textSecondary label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
+        <div className="Font13 textSecondary label">{label}</div>
         <div className="flex flexRow valignWrapper flexWrap" ref={wrapRef}>
           {currentWorkItems.map(data => (
-            <span className="InlineBlock Relative mRight8">
+            <span className="InlineBlock Relative mRight8" key={data.workItemId || data.workItemAccount.accountId}>
               {data.workItemAccount.accountId === md.global.Account.accountId ? (
                 <div className="flexRow valignWrapper myAvatar">{_l('我')}</div>
               ) : (
@@ -180,16 +177,46 @@ function CurrentWorkItems(props) {
               </Fragment>
             </span>
           ))}
-          {allCurrentWorkItems.length && allCurrentWorkItems.length !== currentWorkItems.length && (
+          {workItems.length && workItems.length !== currentWorkItems.length && (
             <span className="InlineBlock Relative mRight8">
-              <div className="flexRow valignWrapper hideAvatar">
-                +{allCurrentWorkItems.length - currentWorkItems.length}
-              </div>
+              <div className="flexRow valignWrapper hideAvatar">+{workItems.length - currentWorkItems.length}</div>
             </span>
           )}
         </div>
       </div>
     )
+  );
+}
+
+export function CurrentWorkItems(props) {
+  const { formWidth, data, appId, projectId } = props;
+  const { type } = data.flowNode || {};
+  const { approvalWorkItems, ccWorkItems } = useMemo(() => {
+    const currentWorkItems = (data.currentWorkItems || []).filter(item => item.operationType !== 5);
+    const showCcWorkItems = _.includes([0, 3, 4], type);
+    return {
+      approvalWorkItems: showCcWorkItems ? currentWorkItems.filter(item => item.type !== 5) : currentWorkItems,
+      ccWorkItems: showCcWorkItems ? currentWorkItems.filter(item => item.type === 5) : [],
+    };
+  }, [data.currentWorkItems, type]);
+
+  return (
+    <Fragment>
+      <CurrentWorkItemRow
+        formWidth={formWidth}
+        label={type === 4 ? _l('审批人') : _l('填写人')}
+        workItems={approvalWorkItems}
+        appId={appId}
+        projectId={projectId}
+      />
+      <CurrentWorkItemRow
+        formWidth={formWidth}
+        label={_l('抄送人')}
+        workItems={ccWorkItems}
+        appId={appId}
+        projectId={projectId}
+      />
+    </Fragment>
   );
 }
 
@@ -387,6 +414,8 @@ export default function SheetWorkflow(props) {
     refreshBtnNeedLoading,
     appId,
     controls = [],
+    isWorksheetRowLand,
+    isDetailView,
     reloadRecord,
   } = props;
   const [loading, setLoading] = useState(true);
@@ -399,6 +428,7 @@ export default function SheetWorkflow(props) {
   const [archivedList, setArchivedList] = useState([]);
   const [selecteArchived, setSelecteArchived] = useState({});
   const [filterVisible, setFilterVisible] = useState(false);
+  const [disableDrawerMotion, setDisableDrawerMotion] = useState(false);
 
   const getList = () => {
     return new Promise(resolve => {
@@ -447,9 +477,9 @@ export default function SheetWorkflow(props) {
               const userIds = n.currentWorkItems.map(n => n.workItemAccount.accountId);
               return userIds.includes(md.global.Account.accountId);
             });
-            handleViewFlowStep(data[0] || firstData.currents[0]);
+            handleViewFlowStep(data[0] || firstData.currents[0], true);
           } else {
-            handleViewFlowStep(firstData);
+            handleViewFlowStep(firstData, true);
           }
         } else {
           resolve(list);
@@ -463,7 +493,7 @@ export default function SheetWorkflow(props) {
       const list = data.reverse();
       const current = {
         id: '',
-        text: _l('%0年至今天', moment(list[0].end).format('YYYY')),
+        text: _l('%0年至今天', moment(list[0]?.end).format('YYYY')),
       };
       setSelecteArchived(current);
       setArchivedList([current].concat(list));
@@ -594,6 +624,7 @@ export default function SheetWorkflow(props) {
 
   const handleCloseDrawer = () => {
     setAllowTaskRevokeBackNodeId(null);
+    setDisableDrawerMotion(false);
     setWorkflowVisible(false);
     setCurrentWorkflow({});
   };
@@ -767,12 +798,13 @@ export default function SheetWorkflow(props) {
       });
   };
 
-  const handleViewFlowStep = data => {
+  const handleViewFlowStep = (data, disableMotion = false) => {
     getWorkflow(data, {
       processId: data.process.id,
       workItem: data.workItem,
       completed: data.completed,
     }).then(() => {
+      setDisableDrawerMotion(disableMotion);
       setWorkflowVisible(true);
     });
   };
@@ -822,9 +854,11 @@ export default function SheetWorkflow(props) {
     getList();
     getArchivedList();
   }, [recordId]);
+
   useEffect(() => {
     selecteArchived.sourceId && getList();
   }, [selecteArchived.sourceId]);
+
   useEffect(() => {
     if (refreshBtnNeedLoading) {
       handleCloseDrawer();
@@ -969,7 +1003,7 @@ export default function SheetWorkflow(props) {
           }
         }}
       >
-        <Tooltip title={_l('查看历史数据')} visible={isMobile ? false : undefined}>
+        <Tooltip title={_l('查看历史数据')} open={isMobile ? false : undefined}>
           <Icon
             icon="article"
             className={cx('Font20 hoverColorPrimary Hand', {
@@ -986,119 +1020,96 @@ export default function SheetWorkflow(props) {
         {isMobile ? (
           content
         ) : (
-          <Trigger
-            popupVisible={filterVisible}
-            popupClassName="discussionFilterCon"
-            onPopupVisibleChange={visible => setFilterVisible(visible)}
-            action={['click']}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 10],
-              overflow: {
-                adjustX: true,
-                adjustY: true,
-              },
+          <Dropdown
+            open={filterVisible}
+            classNames={{ root: 'discussionFilterCon' }}
+            onOpenChange={setFilterVisible}
+            trigger={['click']}
+            placement="bottomRight"
+            menu={{
+              style: { minWidth: 180 },
+              selectedKeys: [String(selecteArchived.id)],
+              onClick: ({ domEvent }) => domEvent.stopPropagation(),
+              items: archivedList.map((item, index) => ({
+                key: String(item.id),
+                label: item.text,
+                extra:
+                  item.id === selecteArchived.id ? <Icon icon="done" className="Font14 colorPrimary" /> : undefined,
+                onClick: () => {
+                  setSelecteArchived({ ...item, sourceId: `clickTrigger-${index}` });
+                  setFilterVisible(false);
+                },
+              })),
             }}
-            popup={
-              <Menu
-                style={{
-                  left: 'initial',
-                  right: 0,
-                  width: 180,
-                }}
-                onClick={e => e.stopPropagation()}
-              >
-                {archivedList.map((item, index) => (
-                  <MenuItem
-                    key={index}
-                    className={cx('Relative', {
-                      selected: item.id === selecteArchived.id,
-                    })}
-                    onClick={() => {
-                      setSelecteArchived({ ...item, sourceId: `clickTrigger-${index}` });
-                      setFilterVisible(false);
-                    }}
-                    style={{
-                      lineHeight: '40px',
-                      height: 40,
-                    }}
-                  >
-                    {item.text}
-                    {item.id === selecteArchived.id && (
-                      <Icon
-                        icon="done"
-                        className="Font14 colorPrimary"
-                        style={{
-                          right: 10,
-                          left: 'auto',
-                        }}
-                      />
-                    )}
-                  </MenuItem>
-                ))}
-              </Menu>
-            }
           >
             {content}
-          </Trigger>
+          </Dropdown>
         )}
       </div>
     );
   };
 
-  const Wrap = isMobile ? Fragment : ScrollView;
+  const Content = (
+    <div className={cx(isMobile ? 'pAll10 h100' : 'pAll20')}>
+      {list.length ? (
+        list.map(data => (
+          <WorkflowCard
+            key={data.id}
+            projectId={projectId}
+            appId={appId}
+            isCharge={isCharge}
+            isRecordLock={isRecordLock}
+            formWidth={formWidth}
+            data={data}
+            currentWorkflow={currentWorkflow}
+            onAction={handleQuickAction}
+            onRevoke={handleRevoke}
+            onUrge={handleUrge}
+            onReset={handleReset}
+            onViewFlowStep={handleViewFlowStep}
+            onViewExecDialog={handleViewExecDialog}
+          />
+        ))
+      ) : isMobile ? (
+        <div className="flexColumn valignWrapper h100 withoutData">
+          <Icon className="Font70" icon="examination_approval_color" />
+          <div className="Font18 textDisabled mTop20">{_l('暂无审批流程')}</div>
+        </div>
+      ) : (
+        <div className="mTop5 mLeft4 textDisabled Font13">{_l('暂无审批流程')}</div>
+      )}
+    </div>
+  );
+
   return (
     <div className="h100 w100 sheetWorkflowWrapper Relative">
       {renderFilter()}
       {loading ? (
         <LoadDiv className="pTop20" />
+      ) : isMobile ? (
+        Content
       ) : (
-        <Wrap>
-          <div className={cx(isMobile ? 'pAll10 h100' : 'pAll20')}>
-            {list.length ? (
-              list.map(data => (
-                <WorkflowCard
-                  key={data.id}
-                  projectId={projectId}
-                  appId={appId}
-                  isCharge={isCharge}
-                  isRecordLock={isRecordLock}
-                  formWidth={formWidth}
-                  data={data}
-                  currentWorkflow={currentWorkflow}
-                  onAction={handleQuickAction}
-                  onRevoke={handleRevoke}
-                  onUrge={handleUrge}
-                  onReset={handleReset}
-                  onViewFlowStep={handleViewFlowStep}
-                  onViewExecDialog={handleViewExecDialog}
-                />
-              ))
-            ) : isMobile ? (
-              <div className="flexColumn valignWrapper h100 withoutData">
-                <Icon className="Font70" icon="examination_approval_color" />
-                <div className="Font18 textDisabled mTop20">{_l('暂无审批流程')}</div>
-              </div>
-            ) : (
-              <div className="mTop5 mLeft4 textDisabled Font13">{_l('暂无审批流程')}</div>
-            )}
-          </div>
-        </Wrap>
+        <ScrollView className="flex">{Content}</ScrollView>
       )}
       <Drawer
         placement="right"
-        width={isMobile ? '85%' : '100%'}
-        zIndex={isMobile ? 1000 : 10}
-        className="sheetWorkflowDrawer"
+        size={isMobile ? '85%' : '100%'}
+        zIndex={!isMobile && (isWorksheetRowLand || isDetailView) ? 99 : undefined}
+        rootClassName={cx('sheetWorkflowDrawer', {
+          sheetWorkflowDrawerNoMotion: !isMobile && disableDrawerMotion,
+        })}
         closable={false}
         getContainer={isMobile ? () => document.body : false}
         mask={isMobile}
         push={false}
-        style={{
+        rootStyle={{
           position: 'absolute',
+          top: 0,
+          bottom: 0,
+          height: '100%',
         }}
         onClose={handleCloseDrawer}
-        visible={workflowVisible}
+        open={workflowVisible}
       >
         {renderStepItem()}
       </Drawer>

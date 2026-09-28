@@ -1,28 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Checkbox, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Divider, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import reportApi from 'statistics/api/report';
-import { enumWidgetType } from 'src/pages/customPage/util';
 import store from 'src/redux/configureStore';
-
-const Con = styled(Modal)`
-  .ant-modal-header {
-    padding: 20px 24px 10px !important;
-  }
-  .searchWrap {
-    padding: 5px 0;
-    border-bottom: 1px solid var(--color-background-secondary);
-    margin-bottom: 20px;
-    input {
-      padding: 3px;
-      border: none;
-      min-width: 0;
-    }
-  }
-`;
+import { enumWidgetType } from 'src/utils/domain/customPage/model';
 
 const getReportObject = (components, reports) => {
   return components
@@ -98,24 +80,10 @@ export default class AutoLinkage extends Component {
       autoLinkageChartObjectIds: value,
     });
   };
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button type="link" onClick={() => this.setState({ modalVisible: false })}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSave}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   renderModal() {
     const { modalVisible, components, selectIds, searchValue } = this.state;
     return (
-      <Con
+      <Modal
         title={
           <Fragment>
             {_l('选择联动筛选相关组件')}({selectIds.length}/{components.length})
@@ -126,16 +94,16 @@ export default class AutoLinkage extends Component {
         }
         width={480}
         className="chartModal"
-        visible={modalVisible}
+        open={modalVisible}
         centered={true}
-        destroyOnClose={true}
         closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-        footer={this.renderFooter()}
+        onOk={this.handleSave}
         onCancel={() => this.setState({ modalVisible: false })}
       >
         <div className="searchWrap flexRow alignItemsCenter">
-          <Icon className="textTertiary Font20 mRight5" icon="search" />
-          <input
+          <Input
+            prefix={<Icon className="textTertiary Font20" icon="search" />}
+            variant="borderless"
             placeholder={_l('搜索组件名称')}
             className="flex"
             value={searchValue}
@@ -144,6 +112,7 @@ export default class AutoLinkage extends Component {
             }}
           />
         </div>
+        <Divider className="mTop3 mBottom20" />
         <Checkbox
           className="mBottom8"
           indeterminate={!!selectIds.length && selectIds.length < components.length}
@@ -176,7 +145,7 @@ export default class AutoLinkage extends Component {
               </Checkbox>
             </div>
           ))}
-      </Con>
+      </Modal>
     );
   }
   renderState() {

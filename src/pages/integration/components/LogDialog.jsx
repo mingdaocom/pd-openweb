@@ -5,7 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
@@ -119,10 +120,12 @@ export default function LogDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       className=""
-      width="740"
-      visible={true}
+      width={740}
+      open
+      mask={{ closable: true }}
+      keyboard
       title={_l('查看 API 请求日志详情')}
       footer={null}
       onCancel={props.onCancel}
@@ -194,6 +197,6 @@ export default function LogDialog(props) {
           </React.Fragment>
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -1,20 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import bg from 'staticfiles/images/query.png';
 import styled from 'styled-components';
-import { Dropdown, Icon, Menu, ScrollView, Support } from 'ming-ui';
+import { Icon, ScrollView, SearchInput, Support } from 'ming-ui';
+import { Dropdown as AntdDropdown, Select } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { MenuItemWrap } from 'src/pages/integration/apiIntegration/style.js';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission, hasPermission } from 'src/utils/services/security/permission';
 import { PageSize } from '../../config';
 import ConnectWrap from '../ConnectWrap';
 import ImportDialog from './ImportDialog';
@@ -87,20 +85,20 @@ const WrapListHeader = styled.div`
       background: var(--color-link-hover);
     }
   }
-  .searchCon {
-    height: 36px;
-  }
 `;
-let ajaxPromise = null;
 
 function Con(props) {
   const cache = useRef({ pgIndex: 1 });
+  const mountedRef = useRef(true);
+  const requestRef = useRef();
+  const requestSeqRef = useRef(0);
   const initData = {
     loading: false,
     pageIndex: 1,
     noMore: false,
     listData: [],
     keywords: '',
+    searchValue: '',
     showConnect: false,
     connectData: null,
     countSort: 0,
@@ -117,6 +115,7 @@ function Con(props) {
       pageIndex,
       listData,
       keywords,
+      searchValue,
       showConnect,
       connectData,
       hasChange,
@@ -130,21 +129,17 @@ function Con(props) {
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
   const featureType = getFeatureStatus(props.currentProjectId, VersionProductType.apiIntergration);
-  const canCreateAPIConnect =
-    _.get(
-      _.find(md.global.Account.projects, item => item.projectId === props.currentProjectId),
-      'allowAPIIntegration',
-    ) || hasPermission(props.myPermissions, [PERMISSION_ENUM.CREATE_API_CONNECT, PERMISSION_ENUM.MANAGE_API_CONNECTS]);
+  const canCreateAPIConnect = hasFeaturePermission(props.currentProjectId, FEATURE_PERMISSION.API_INTEGRATION);
   const hasManageAuth = hasPermission(props.myPermissions, PERMISSION_ENUM.MANAGE_API_CONNECTS);
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     if (!props.currentProjectId) {
       return;
     }
 
-    if (ajaxPromise) {
-      ajaxPromise.abort();
-    }
+    requestRef.current && requestRef.current.abort && requestRef.current.abort();
+    const requestSeq = requestSeqRef.current + 1;
+    requestSeqRef.current = requestSeq;
 
     setState({ loading: true });
     let sorter = {
@@ -156,7 +151,7 @@ function Con(props) {
       sorter = undefined;
     }
 
-    ajaxPromise =
+    const request =
       tab === 3
         ? packageVersionAjax.getInstallList(
             {
@@ -183,16 +178,30 @@ function Con(props) {
             },
             { isIntegration: true },
           );
-    ajaxPromise.then(res => {
-      ajaxPromise = null;
-      setState({
-        loading: false,
-        listData: pageIndex <= 1 ? res : listData.concat(res),
-        noMore: res.length <= 0,
+    requestRef.current = request;
+    request
+      .then(res => {
+        if (!mountedRef.current || requestSeq !== requestSeqRef.current) {
+          return;
+        }
+
+        requestRef.current = null;
+        setState(prevState => ({
+          loading: false,
+          listData: pageIndex <= 1 ? res : prevState.listData.concat(res),
+          noMore: res.length <= 0,
+        }));
+        cache.current.pgIndex = pageIndex;
+      })
+      .catch(() => {
+        if (!mountedRef.current || requestSeq !== requestSeqRef.current) {
+          return;
+        }
+
+        requestRef.current = null;
+        setState({ loading: false });
       });
-      cache.current.pgIndex = pageIndex;
-    });
-  };
+  }, [props.currentProjectId, setState, timeSort, countSort, tab, pageIndex, keywords, searchType]);
 
   // 刷新当前数据
   const onFresh = () => {
@@ -202,6 +211,7 @@ function Con(props) {
       pageIndex: 1,
       noMore: false,
       keywords: '',
+      searchValue: '',
       showConnect: false,
       connectData: null,
       hasChange: (prevState.hasChange || 0) + 1,
@@ -211,13 +221,18 @@ function Con(props) {
     }));
   };
 
-  const handleSearch = _.debounce(v => {
-    setState({
-      keywords: v,
-      pageIndex: 1,
-      noMore: false,
-    });
-  }, 500);
+  // 搜索输入值需要即时更新；真正触发接口查询的关键词做防抖，避免输入时反复请求和受控值回弹。
+  const handleSearch = useMemo(
+    () =>
+      _.debounce(keyword => {
+        setState({
+          keywords: keyword,
+          pageIndex: 1,
+          noMore: false,
+        });
+      }, 500),
+    [setState],
+  );
 
   const onScrollEnd = () => {
     if (loading || noMore) {
@@ -229,7 +244,17 @@ function Con(props) {
 
   useEffect(() => {
     fetchData();
-  }, [props.currentProjectId, pageIndex, keywords, hasChange, countSort, timeSort, searchType, tab]);
+  }, [fetchData, hasChange]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+      handleSearch.cancel();
+      requestRef.current && requestRef.current.abort && requestRef.current.abort();
+    };
+  }, [handleSearch]);
 
   useEffect(() => {
     packageVersionAjax
@@ -248,7 +273,7 @@ function Con(props) {
           listCount: res['1'] + res['2'],
         });
       });
-  }, [hasChange]);
+  }, [props.currentProjectId, searchType, setState, hasChange]);
 
   const renderBtn = () => {
     return (
@@ -275,9 +300,28 @@ function Con(props) {
       <React.Fragment>
         <WrapListHeader className={cx('headCon flexRow', { pBottom12: !hasManageAuth })}>
           <div className="flex flexRow">
-            <SearchInput className="searchCon" placeholder={_l('搜索连接')} value={keywords} onChange={handleSearch} />
+            <SearchInput
+              placeholder={_l('搜索连接')}
+              value={searchValue}
+              onChange={value => {
+                const nextKeyword = value.trim();
+
+                setState({ searchValue: value });
+                if (!nextKeyword) {
+                  handleSearch.cancel();
+                  setState({
+                    keywords: '',
+                    pageIndex: 1,
+                    noMore: false,
+                  });
+                  return;
+                }
+
+                handleSearch(nextKeyword);
+              }}
+            />
             {hasManageAuth && (
-              <Dropdown
+              <Select
                 value={searchType}
                 className="dropSearchType mLeft18"
                 onChange={value => {
@@ -291,15 +335,13 @@ function Con(props) {
                     hasChange: hasChange + 1,
                   });
                 }}
-                border
-                isAppendToBody
-                data={[
+                options={[
                   {
-                    text: _l('所有连接'),
+                    label: _l('所有连接'),
                     value: 0,
                   },
                   {
-                    text: _l('我的连接'),
+                    label: _l('我的连接'),
                     value: 1,
                   },
                 ]}
@@ -312,43 +354,38 @@ function Con(props) {
             (featureType === '2' ? (
               renderBtn()
             ) : (
-              <Trigger
-                action={['click']}
-                popupVisible={showMenu}
-                popupAlign={{
-                  points: ['tr', 'br'],
-                  offset: [0, 5],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                onPopupVisibleChange={visible => {
+              <AntdDropdown
+                trigger={['click']}
+                open={showMenu}
+                placement="bottomRight"
+                onOpenChange={visible => {
                   setState({
                     showMenu: visible,
                   });
                 }}
-                popup={
-                  <Menu>
-                    <MenuItemWrap
-                      icon={<Icon icon="add" className="Font17 mLeft5" />}
-                      onClick={() => {
+                menu={{
+                  items: [
+                    {
+                      key: 'create',
+                      icon: <Icon icon="add" className="Font17" />,
+                      label: _l('创建自定义连接'),
+                      onClick: () => {
                         setState({ showConnect: true, connectData: null, showMenu: false });
-                      }}
-                    >
-                      <span>{_l('创建自定义连接')}</span>
-                    </MenuItemWrap>
-                    <MenuItemWrap
-                      icon={<Icon icon="worksheet_import" className="Font17 mLeft5" />}
-                      onClick={() => {
+                      },
+                    },
+                    {
+                      key: 'import',
+                      icon: <Icon icon="worksheet_import" className="Font17" />,
+                      label: _l('导入连接'),
+                      onClick: () => {
                         setState({ isCreate: true, showMenu: false, connectData: null });
-                      }}
-                    >
-                      <span>{_l('导入连接')}</span>
-                    </MenuItemWrap>
-                  </Menu>
-                }
-                popupClassName={cx('dropdownTrigger')}
+                      },
+                    },
+                  ],
+                }}
               >
                 {renderBtn()}
-              </Trigger>
+              </AntdDropdown>
             ))}
         </WrapListHeader>
       </React.Fragment>

@@ -3,7 +3,7 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
-import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
+import { getControls, getControlType } from 'src/utils/domain/control/dynamicValue';
 import {
   CUR_EMPTY_TYPES,
   CUR_LOCATION_TYPES,
@@ -19,9 +19,9 @@ import {
   SYSTEM_LIST,
   USER_LIST,
   WATER_MASK_TYPES,
-} from '../config';
+} from 'src/utils/domain/control/dynamicValueConfig';
+import { SYS_CONTROLS } from 'src/utils/domain/control/widget';
 import { OtherFieldWrap } from '../styled';
-import { getControls, getControlType } from '../util';
 
 export default function OtherField(props) {
   const {

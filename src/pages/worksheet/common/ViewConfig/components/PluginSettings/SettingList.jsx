@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Input, SortableList } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { PARAM_TYPES } from './config';
 import './index.less';
@@ -34,7 +35,7 @@ const Item = data => {
     if (fieldId && $refFieldId.current) {
       $refFieldId.current.value = fieldId;
     }
-  }, [data]);
+  }, [controlName, fieldId]);
   return (
     <WrapLi className="flexRow alignItemsCenter mBottom10 itemSortLi" key={key}>
       <DragHandle className="alignItemsCenter flexRow">
@@ -59,7 +60,7 @@ const Item = data => {
         }
       </div>
       <Input
-        className="flex mLeft12 placeholderColor"
+        className="flex mLeft12"
         defaultValue={controlName}
         placeholder={_l('请输入')}
         onBlur={e => {
@@ -71,18 +72,18 @@ const Item = data => {
 
           e.stopPropagation();
         }}
-        manualRef={ref => {
-          $ref.current = ref;
+        ref={ref => {
+          $ref.current = ref?.input;
         }}
       />
       {[22, 201].includes(type) ? (
         <div className="flex mLeft12" style={{ minWidth: 130 }}></div>
       ) : (
         <Input
-          className="flex mLeft12 placeholderColor"
+          className="flex mLeft12"
           defaultValue={fieldId}
-          manualRef={ref => {
-            $refFieldId.current = ref;
+          ref={ref => {
+            $refFieldId.current = ref?.input;
           }}
           onBlur={e => {
             let newFieldId = e.target.value.trim();

@@ -11,7 +11,7 @@ export const QUOTA_LIST_CONTENT = [
     columns: [
       { title: _l('工作表'), dataIndex: 'worksheet', className: 'flex' },
       { title: _l('所属应用'), dataIndex: 'app', className: 'flex' },
-      { title: _l('添加时间'), dataIndex: 'createTime', width: 185 },
+      { title: _l('添加时间'), dataIndex: 'createTime', width: 185, sorter: true },
       { title: _l('添加人'), dataIndex: 'user', width: 185 },
       {
         title: _l('工作表行记录数量上限'),
@@ -19,8 +19,9 @@ export const QUOTA_LIST_CONTENT = [
         className: 'alignItemsCenter',
         width: 185,
         unit: _l('千行'),
+        sorter: true,
       },
-      { title: '', dataIndex: 'action', width: 95 },
+      { title: '', dataIndex: 'action', width: 150 },
     ],
   },
   {
@@ -34,16 +35,16 @@ export const QUOTA_LIST_CONTENT = [
     globalUnit: _l('千次 / 每日'),
     columns: [
       { title: _l('应用'), dataIndex: 'app', className: 'flex' },
-      { title: _l('添加时间'), dataIndex: 'createTime', width: 185 },
+      { title: _l('添加时间'), dataIndex: 'createTime', width: 185, sorter: true },
       { title: _l('添加人'), dataIndex: 'user', width: 185 },
       {
         title: _l('每日工作流执行次数上限'),
         dataIndex: 'size',
         className: 'alignItemsCenter',
-        width: 215,
+        width: 220,
         unit: _l('千次 / 每日'),
       },
-      { title: '', dataIndex: 'action', width: 95 },
+      { title: '', dataIndex: 'action', width: 150 },
     ],
   },
   {
@@ -57,10 +58,17 @@ export const QUOTA_LIST_CONTENT = [
     globalUnit: 'GB',
     columns: [
       { title: _l('应用'), dataIndex: 'app', className: 'flex' },
-      { title: _l('添加时间'), dataIndex: 'createTime', width: 185 },
+      { title: _l('添加时间'), dataIndex: 'createTime', width: 185, sorter: true },
       { title: _l('添加人'), dataIndex: 'user', width: 185 },
-      { title: _l('附件上传总量'), dataIndex: 'size', className: 'alignItemsCenter', width: 185, unit: 'GB' },
-      { title: '', dataIndex: 'action', width: 95 },
+      {
+        title: _l('附件上传总量'),
+        dataIndex: 'size',
+        className: 'alignItemsCenter',
+        width: 185,
+        unit: 'GB',
+        sorter: true,
+      },
+      { title: '', dataIndex: 'action', width: 150 },
     ],
   },
   {
@@ -75,10 +83,17 @@ export const QUOTA_LIST_CONTENT = [
     globalUnit: 'MB',
     columns: [
       { title: _l('应用'), dataIndex: 'app', className: 'flex' },
-      { title: _l('添加时间'), dataIndex: 'createTime', width: 185 },
+      { title: _l('添加时间'), dataIndex: 'createTime', width: 185, sorter: true },
       { title: _l('添加人'), dataIndex: 'user', width: 185 },
-      { title: _l('单个附件大小'), dataIndex: 'size', className: 'alignItemsCenter', width: 185, unit: 'MB' },
-      { title: '', dataIndex: 'action', width: 95 },
+      {
+        title: _l('单个附件大小'),
+        dataIndex: 'size',
+        className: 'alignItemsCenter',
+        width: 185,
+        unit: 'MB',
+        sorter: true,
+      },
+      { title: '', dataIndex: 'action', width: 150 },
     ],
   },
 ];

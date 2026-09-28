@@ -1,7 +1,7 @@
 ### 添加页面注意
 
 ```javascript
-<script src="webpack[index]?src/router/"></script>
+<script src="webpack[index]?src/router/RootRouter.jsx"></script>
 <script src="webpack[singleExtractModules]?src/pages/Mobile/index.jsx"></script>
 ```
 

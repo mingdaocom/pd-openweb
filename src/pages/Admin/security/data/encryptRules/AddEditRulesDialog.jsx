@@ -1,15 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Input, Support, Switch, Textarea } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Input, Modal, Select, Switch } from 'ming-ui/antd-components';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getUnUniqName } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { getUnUniqName } from 'src/utils/core/string';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { encryptList } from './constant';
+
+const REMARK_TEXTAREA_AUTO_SIZE = { minRows: 3 };
 
 const FormItem = styled.div`
   margin-bottom: 30px;
@@ -33,31 +35,6 @@ const FormItem = styled.div`
     top: 3px;
     color: var(--color-error);
   }
-  .ming.Input {
-    height: 34px;
-    border: 1px solid var(--color-border-secondary);
-    border-radius: 4px;
-  }
-  .ming.Textarea {
-    padding: 16px 15px;
-    &.keyTextarea {
-      min-height: 120px !important;
-    }
-    &.ivTextarea {
-      min-height: 60px !important;
-    }
-    &.remarkTextarea {
-      min-height: 85px !important;
-      padding: 8px 12px !important;
-    }
-  }
-  .ming.Textarea:hover:not(:disabled),
-  .ming.Textarea:focus,
-  .ming.Textarea,
-  .ming.Input:hover,
-  .ming.Input:focus {
-    border: 1px solid var(--color-primary);
-  }
 `;
 const errors = {
   0: _l('新建失败'),
@@ -67,7 +44,19 @@ const errors = {
   23: _l('连接测试成功才可保存'),
 };
 
-const { Option } = Select;
+const CIPHER_MODE_OPTIONS = [
+  { value: 1, label: 'CBC' },
+  { value: 2, label: 'ECB' },
+];
+const PADDING_OPTIONS = [
+  { value: 1, label: 'NoPadding' },
+  { value: 2, label: 'PKCS7/PKCS5' },
+];
+const ENCODE_MODE_OPTIONS = [
+  { value: 10, label: 'Hex' },
+  { value: 20, label: 'Base64' },
+];
+
 export default class AddEditRulesDialog extends Component {
   constructor(props) {
     super(props);
@@ -78,6 +67,7 @@ export default class AddEditRulesDialog extends Component {
       ruleName: '',
       cipherMode: 1,
     };
+    this.requestPending = false;
   }
   componentDidMount() {
     this.handleDefaultRuleName();
@@ -110,6 +100,8 @@ export default class AddEditRulesDialog extends Component {
   };
 
   onOk = () => {
+    if (this.requestPending) return;
+
     const { projectId, type, ruleDetail, updateCurrentRow = () => {} } = this.props;
     const {
       encryptWay,
@@ -199,22 +191,27 @@ export default class AddEditRulesDialog extends Component {
           }
         : { addEncryptRule: addEncryptRuleParams };
 
-    promiseRequest({
+    this.requestPending = true;
+    return promiseRequest({
       projectId,
       ...params,
-    }).then(res => {
-      if (res.code === 1) {
-        alert(type === 'edit' ? _l('保存成功') : _l('新建成功'));
-        if (type === 'edit') {
-          updateCurrentRow(addEncryptRuleParams);
-        }
+    })
+      .then(res => {
+        if (res.code === 1) {
+          alert(type === 'edit' ? _l('保存成功') : _l('新建成功'));
+          if (type === 'edit') {
+            updateCurrentRow(addEncryptRuleParams);
+          }
 
-        this.props.getDataList();
-        this.props.onCancel();
-      } else {
-        alert(errors[res.code] || _l('新建失败'), 2);
-      }
-    });
+          this.props.getDataList();
+          this.props.onCancel();
+        } else {
+          alert(errors[res.code] || _l('新建失败'), 2);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
 
   handleTest = () => {
@@ -292,46 +289,34 @@ export default class AddEditRulesDialog extends Component {
     const featureType = getFeatureStatus(projectId, VersionProductType.customEncrypt);
 
     return (
-      <Dialog
+      <Modal
         width={580}
         className="addEditRuleDialog"
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={type === 'edit' ? _l('编辑加密规则') : _l('新建加密规则')}
         onCancel={onCancel}
-        footer={
-          <div className="flexRow alignItemsCenter">
-            {encryptWay === 1000 && (
-              <div className="colorPrimary hoverColorPrimaryDark Hand" onClick={this.handleTest}>
-                {_l('连接测试')}
-              </div>
-            )}
-            <div className="flex"></div>
-            <Button type="link" onClick={onCancel}>
-              {_l('取消')}
-            </Button>
-            <Button type="primary" onClick={this.onOk}>
-              {type === 'edit' ? _l('保存') : _l('新建')}
-            </Button>
-          </div>
+        onOk={this.onOk}
+        okText={type === 'edit' ? _l('保存') : _l('新建')}
+        footerLeftElement={
+          encryptWay === 1000 ? (
+            <div className="colorPrimary hoverColorPrimaryDark Hand" onClick={this.handleTest}>
+              {_l('连接测试')}
+            </div>
+          ) : null
         }
       >
         <div className="flexRow">
           <FormItem className={cx('flex3', { mBottom16: encryptWay === 1000 })}>
             <div className="bold mBottom10">{_l('加密方式')}</div>
             <Select
-              className="w100 mdAntSelect"
+              className="w100"
               value={encryptWay}
               onChange={val => this.changeForm('encryptWay', val)}
               disabled={type === 'edit'}
-            >
-              {encryptList
-                .filter(it => it.value && ((!featureType && it.value !== 1000) || featureType))
-                .map(it => (
-                  <Option key={it.value} value={it.value}>
-                    {it.label}
-                  </Option>
-                ))}
-            </Select>
+              options={encryptList.filter(it => it.value && ((!featureType && it.value !== 1000) || featureType))}
+            />
           </FormItem>
           {type === 'edit' ? (
             <FormItem className="flex2"></FormItem>
@@ -341,8 +326,12 @@ export default class AddEditRulesDialog extends Component {
               <Switch
                 className="w72"
                 checked={status === 1}
-                text={status ? _l('启用') : _l('停用')}
-                onClick={checked => this.changeForm('status', checked ? 2 : 1)}
+                checkedChildren={status ? _l('启用') : _l('停用')}
+                unCheckedChildren={status ? _l('启用') : _l('停用')}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return this.changeForm('status', !checked ? 2 : 1);
+                }}
               />
             </FormItem>
           )}
@@ -361,7 +350,7 @@ export default class AddEditRulesDialog extends Component {
             maxLength={50}
             value={ruleName}
             placeholder={_l('请输入')}
-            onChange={val => this.changeForm('ruleName', val)}
+            onChange={e => this.changeForm('ruleName', e.target.value)}
           />
         </FormItem>
         {encryptWay === 50 && (
@@ -369,40 +358,24 @@ export default class AddEditRulesDialog extends Component {
             <FormItem className="flex mRight10">
               <div className="bold mBottom10">{_l('工作模式')}</div>
               <Select
-                className="w100 mdAntSelect"
+                className="w100"
                 value={cipherMode}
                 onChange={val => this.changeForm('cipherMode', val)}
                 placeholder={_l('请选择')}
-              >
-                {[
-                  { value: 1, label: 'CBC' },
-                  { value: 2, label: 'ECB' },
-                ].map(it => (
-                  <Option key={it.value} value={it.value}>
-                    {it.label}
-                  </Option>
-                ))}
-              </Select>
+                options={CIPHER_MODE_OPTIONS}
+              />
             </FormItem>
             {cipherMode === 1 && (
               <FormItem className="flex mLeft10">
                 <div className="bold mBottom10">{_l('填充模式')}</div>
                 <Select
-                  className="w100 mdAntSelect"
+                  className="w100"
                   value={padding}
                   onChange={val => this.changeForm('padding', val)}
                   placeholder={_l('请选择')}
                   disabled={true}
-                >
-                  {[
-                    { value: 1, label: 'NoPadding' },
-                    { value: 2, label: 'PKCS7/PKCS5' },
-                  ].map(it => (
-                    <Option key={it.value} value={it.value}>
-                      {it.label}
-                    </Option>
-                  ))}
-                </Select>
+                  options={PADDING_OPTIONS}
+                />
               </FormItem>
             )}
           </div>
@@ -419,7 +392,8 @@ export default class AddEditRulesDialog extends Component {
               placeholder={_l('请输入%0位字符', encryptWay === 2 ? 24 : _.includes([3, 50], encryptWay) ? 32 : 16)}
               maxLength={encryptWay === 2 ? 24 : _.includes([3, 50], encryptWay) ? 32 : 16}
               value={key}
-              onChange={val => {
+              onChange={e => {
+                let val = e.target.value;
                 val = val.replace(/[\u4e00-\u9fa5]/gi, '');
                 this.changeForm('key', val);
               }}
@@ -438,7 +412,8 @@ export default class AddEditRulesDialog extends Component {
               placeholder={_l('请输入%0位字符', encryptWay === 50 ? 32 : 16)}
               maxLength={encryptWay === 50 ? 32 : 16}
               value={iv}
-              onChange={val => {
+              onChange={e => {
+                let val = e.target.value;
                 val = val.replace(/[\u4e00-\u9fa5]/gi, '');
                 this.changeForm('iv', val);
               }}
@@ -450,20 +425,12 @@ export default class AddEditRulesDialog extends Component {
             <div className="bold mBottom10">{_l('输出格式')}</div>
             <Select
               defaultValue={20}
-              className="w100 mdAntSelect"
+              className="w100"
               value={encodeMode}
               onChange={val => this.changeForm('encodeMode', val)}
               placeholder={_l('请选择')}
-            >
-              {[
-                { value: 10, label: 'Hex' },
-                { value: 20, label: 'Base64' },
-              ].map(it => (
-                <Option key={it.value} value={it.value}>
-                  {it.label}
-                </Option>
-              ))}
-            </Select>
+              options={ENCODE_MODE_OPTIONS}
+            />
           </FormItem>
         )}
 
@@ -476,8 +443,8 @@ export default class AddEditRulesDialog extends Component {
                 className="w100"
                 placeholder={_l('请输入')}
                 value={encryptUrl}
-                onChange={val => {
-                  this.changeForm('encryptUrl', val);
+                onChange={e => {
+                  this.changeForm('encryptUrl', e.target.value);
                 }}
               />
             </FormItem>
@@ -488,8 +455,8 @@ export default class AddEditRulesDialog extends Component {
                 className="w100"
                 placeholder={_l('请输入')}
                 value={decryptUrl}
-                onChange={val => {
-                  this.changeForm('decryptUrl', val);
+                onChange={e => {
+                  this.changeForm('decryptUrl', e.target.value);
                 }}
               />
             </FormItem>
@@ -499,8 +466,8 @@ export default class AddEditRulesDialog extends Component {
                 className="w100"
                 placeholder={_l('请输入')}
                 value={token}
-                onChange={val => {
-                  this.changeForm('token', val.replace(/[^\x00-\x7F]/g, ''));
+                onChange={e => {
+                  this.changeForm('token', e.target.value.replace(/[^\x00-\x7F]/g, ''));
                 }}
               />
             </FormItem>
@@ -508,15 +475,15 @@ export default class AddEditRulesDialog extends Component {
         )}
         <FormItem className="lastFormItem">
           <div className="bold mBottom10">{_l('备注')}</div>
-          <Textarea
-            className="remarkTextarea"
+          <Input.TextArea
+            autoSize={REMARK_TEXTAREA_AUTO_SIZE}
             placeholder={_l('请输入')}
             value={remark}
             maxLength={200}
-            onChange={val => this.changeForm('remark', val)}
+            onChange={event => this.changeForm('remark', event.target.value)}
           />
         </FormItem>
-      </Dialog>
+      </Modal>
     );
   }
 }

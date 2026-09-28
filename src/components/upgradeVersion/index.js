@@ -1,13 +1,14 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import 'src/pages/PageHeader/components/NetState/index.less';
-import { getCurrentProject, getSyncLicenseInfo } from 'src/utils/project';
+import { getCurrentProject, getSyncLicenseInfo } from 'src/utils/services/project';
 
 /**
  * 升级版本dialog
  */
 export const upgradeVersionDialog = options => {
+  const modal = options.modal || Modal;
   const hint = options.hint || _l('当前版本无法使用此功能');
   const explainText = options.explainText || _l('请升级至专业版或旗舰版解锁开启');
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
@@ -30,11 +31,12 @@ export const upgradeVersionDialog = options => {
     return <div className="upgradeWrap">{descFunc()}</div>;
   }
 
-  Dialog.confirm({
+  modal.confirm({
     className: options.className || 'upgradeVersionDialogBtn',
+    width: 560,
     title: '',
-    description: descFunc(),
-    noFooter: true,
+    content: descFunc(),
+    footer: null,
   });
 };
 
@@ -47,7 +49,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
   const { explainText = '', dialogType } = extra || {};
   let upgradeName, versionType;
 
-  if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
+  if (window.platformENV.isHap) {
     const TYPE_NAME = { 1: _l('标准版'), 2: _l('专业版'), 3: _l('旗舰版') };
 
     const getFeatureType = versionIdV2 => {
@@ -91,7 +93,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
 }
 
 // 验证网络是否到期异步
-export const expireDialogAsync = function (projectId) {
+export const expireDialogAsync = function (projectId, options = {}) {
   return new Promise((resolve, reject) => {
     // 个人
     if (!projectId) {
@@ -99,6 +101,7 @@ export const expireDialogAsync = function (projectId) {
     } else {
       if (getCurrentProject(projectId, true).licenseType === 0) {
         upgradeVersionDialog({
+          modal: options.modal,
           projectId,
           explainText: _l('请升级至付费版解锁开启'),
           isFree: true,

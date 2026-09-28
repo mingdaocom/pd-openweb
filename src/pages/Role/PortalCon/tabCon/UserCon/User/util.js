@@ -1,25 +1,30 @@
 import React from 'react';
 import cx from 'classnames';
-import { Dropdown } from 'ming-ui';
-import { Dialog } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { renderText } from 'src/pages/Role/PortalCon/tabCon/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { userStatusList } from './config';
 
-const renderHeader = (filterStatus, setFilterStatus, setFastFilters, filterStatusNum) => {
+const ALL_STATUS_KEY = 'all';
+
+const renderHeader = (setFastFilters, filterStatusNum) => {
   return (
-    <React.Fragment>
-      <Dropdown
-        isAppendToBody
-        data={[{ value: '', text: _l('所有状态') }].concat(userStatusList)}
-        value={filterStatus}
-        renderValue={_l('状态')}
-        menuClass="Width120"
-        className={cx('InlineBlock topActDrop', { isCurmemberType: !!filterStatusNum.current })}
-        onChange={newValue => {
-          setFilterStatus(newValue);
+    <Dropdown
+      trigger={['click']}
+      placement="bottomLeft"
+      getPopupContainer={() => document.body}
+      menu={{
+        selectable: false,
+        style: { minWidth: 120 },
+        items: [{ key: ALL_STATUS_KEY, label: _l('所有状态') }].concat(
+          userStatusList.map(({ value, text }) => ({ key: value, label: text })),
+        ),
+        onClick: ({ key }) => {
+          const newValue = key === ALL_STATUS_KEY ? '' : key;
+
           setFastFilters({
             controlId: 'portal_status',
             value: newValue,
@@ -29,32 +34,29 @@ const renderHeader = (filterStatus, setFilterStatus, setFastFilters, filterStatu
             DateRange: 0,
             DateRangeType: 1,
           });
-        }}
-      />
-    </React.Fragment>
+        },
+      }}
+    >
+      <span
+        className={cx('portalStatusFilter Hand InlineFlex alignItemsCenter', {
+          isCurmemberType: !!filterStatusNum.current,
+        })}
+      >
+        {_l('状态')}
+        <Icon type="arrow-down" className="Font12 mLeft4" />
+      </span>
+    </Dropdown>
   );
 };
 
 const renderControl = (text, data) => {
-  let portal_status = safeParse(data.portal_status, 'array')[0];
+  const portalStatus = safeParse(data.portal_status, 'array')[0];
+  const status = userStatusList.find(item => item.value === portalStatus);
 
-  //正常、未激活（添加用户后用户未注册）停用
-  if (portal_status === '5') {
-    return <span className="textTertiary">{_l('未激活')}</span>;
-  }
-
-  return (userStatusList.filter(o => o.value + '' !== '5').find(o => o.value === portal_status) || {}).text;
+  return <span className={cx('portalStatusText', { textTertiary: portalStatus === '5' })}>{status?.text}</span>;
 };
 
-export const getColumns = (
-  controls,
-  roleList,
-  filterStatus,
-  setFilterStatus,
-  setFastFilters,
-  filterStatusNum,
-  appId,
-) => {
+export const getColumns = (controls, roleList, setFastFilters, filterStatusNum, appId) => {
   let columns = [];
   let controlsFormat = controls
     .filter(o => !['portal_avatar', 'partal_id'].includes(o.controlId))
@@ -132,7 +134,7 @@ export const getColumns = (
         ...o,
         id: o.controlId,
         name: _l('状态'),
-        renderHeader: () => renderHeader(filterStatus, setFilterStatus, setFastFilters, filterStatusNum),
+        renderHeader: () => renderHeader(setFastFilters, filterStatusNum),
         render: renderControl,
       });
     } else {
@@ -216,15 +218,22 @@ export const getColumnsShowControls = ({
           if (!data.rowid) return;
           if (portal_status === '5') {
             if (o.value === '7') {
-              Dialog.confirm({
-                title: <span className="Red">{_l('确认取消邀请该用户吗')}</span>,
-                buttonType: 'danger',
+              Modal.confirm({
+                title: <span className="textError">{_l('确认取消邀请该用户吗')}</span>,
+                okButtonProps: {
+                  danger: true,
+                },
                 okText: _l('确定'),
                 onOk: () => {
-                  externalPortalAjax.removeUsers({ appId, rowIds: [data.rowid] }).then(() => {
-                    setSelectedIds([]); //清除选择
-                    getList(); //重新获取当前页面数据
-                  });
+                  externalPortalAjax
+                    .removeUsers({
+                      appId,
+                      rowIds: [data.rowid],
+                    })
+                    .then(() => {
+                      setSelectedIds([]); //清除选择
+                      getList(); //重新获取当前页面数据
+                    });
                 },
               });
             } else if (o.value === '1') {
@@ -252,16 +261,7 @@ export const getColumnsShowControls = ({
           }
         };
 
-        return (
-          <DropOption
-            dataList={dataList}
-            onAction={onAction}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [-180, 0],
-            }}
-          />
-        );
+        return <DropOption dataList={dataList} onAction={onAction} placement="bottomRight" />;
       },
     });
 };

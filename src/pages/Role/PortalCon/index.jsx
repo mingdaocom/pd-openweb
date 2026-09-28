@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
+import { Button } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import PortalSetting from 'src/pages/Role/PortalCon/setting';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
 import { WrapCon, WrapContext, WrapHeader } from '../style';
 import EditPortalUrlDialog from './components/EditPortalUrlDialog';
 import CustomUrlDrawer from './customUrl';
@@ -44,20 +46,6 @@ const Wrap = styled.div`
     }
     .icon-qr_code {
       line-height: 32px !important;
-    }
-  }
-  .setBtn {
-    margin-left: 6px;
-    line-height: 32px;
-    padding: 0 20px;
-    background: var(--color-primary);
-    border-radius: 3px;
-    text-align: center;
-    color: var(--color-white);
-    font-weight: 700;
-    overflow: hidden;
-    &:hover {
-      background: var(--color-primary);
     }
   }
 `;
@@ -166,6 +154,7 @@ class PortalCon extends React.Component {
   render() {
     const { appDetail, appId, closePortal, canEditApp, canEditUser, portal, setQuickTag } = this.props;
     const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab, showCustomUrlSet } = this.state;
+    const sandboxEnvironment = isSandboxEnvironment();
     let tablist = conList;
 
     if (!canEditApp) {
@@ -215,11 +204,15 @@ class PortalCon extends React.Component {
                 className="mainShareUrl"
                 theme="light"
                 url={_.get(portalSet, ['portalSetModel', 'portalUrl'])}
-                editUrl={() => {
-                  this.setState({
-                    showEditUrl: true,
-                  });
-                }}
+                editUrl={
+                  sandboxEnvironment
+                    ? undefined
+                    : () => {
+                        this.setState({
+                          showEditUrl: true,
+                        });
+                      }
+                }
                 editTip={_l('自定义域名')}
                 customBtns={[
                   {
@@ -252,23 +245,25 @@ class PortalCon extends React.Component {
               />
 
               {canEditApp && (
-                <span
-                  className="setBtn Hand flexRow alignItemsCenter"
+                <Button
+                  type="primary"
+                  style={{ height: 32 }}
+                  className="mLeft6 Bold"
+                  icon={<i className="icon icon-settings Font18" />}
                   onClick={() =>
                     this.setState({
                       showPortalSetting: true,
                     })
                   }
                 >
-                  <i className="icon icon-settings Font18 mRight5" />
                   {_l('门户设置')}
-                </span>
+                </Button>
               )}
             </div>
           </Wrap>
         </WrapHeader>
         <WrapContext className={cx('flex', { overflowAuto: tab === 'statistics' })}>{this.renderCon()}</WrapContext>
-        {showEditUrl && (
+        {showEditUrl && !sandboxEnvironment && (
           <EditPortalUrlDialog
             show={showEditUrl}
             appId={appId}

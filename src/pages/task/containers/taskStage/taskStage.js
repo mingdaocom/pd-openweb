@@ -1,14 +1,15 @@
 ﻿import React, { Component, Fragment } from 'react';
-import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import doT from 'dot';
 import _ from 'lodash';
-import { Dialog, Score, UserHead } from 'ming-ui';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { Icon, UserHead } from 'ming-ui';
+import { Button, Modal, Rate } from 'ming-ui/antd-components';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import 'src/components/autoTextarea/autoTextarea';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
+import TaskDateRangePicker from 'src/pages/task/components/TaskDateRangePicker';
 import config from '../../config/config';
 import { updateTaskCharge } from '../../redux/actions';
 import { listLoadingContent } from '../../utils/taskComm';
@@ -179,8 +180,12 @@ class TaskStage extends Component {
           size={26}
           operation={
             auth === config.auth.Charger ? (
-              <span
-                className="updateChargeBtn colorPrimary"
+              <Button
+                block
+                className="updateChargeBtn"
+                ellipsis
+                color="primary"
+                variant="outlined"
                 onClick={() => {
                   dialogSelectUser({
                     sourceId: folderId,
@@ -206,7 +211,7 @@ class TaskStage extends Component {
                 }}
               >
                 {_l('将任务托付给他人')}
-              </span>
+              </Button>
             ) : null
           }
         />,
@@ -730,7 +735,7 @@ class TaskStage extends Component {
    */
   customScore() {
     $('.listStageCustomItemStar[data-type=score]').map((i, item) => {
-      if (!$(item).find('.Score-wrapper').length) {
+      if (!$(item).find('.mdRate').length) {
         const type = $(item).data('enum');
         const score = $(item).data('score');
         let foregroundColor = 'var(--color-error)';
@@ -744,11 +749,14 @@ class TaskStage extends Component {
         const root = createRoot($(item)[0]);
 
         root.render(
-          <Score
+          <Rate
+            style={{ '--hap-margin-xs': '3px' }}
             type={type === 1 ? 'star' : 'line'}
             score={score}
+            size="small"
             foregroundColor={foregroundColor}
             backgroundColor={type === 1 ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'}
+            character={<Icon icon={type === 1 ? 'star' : 'rectangle'} className={type === 1 ? '' : 'Font12'} />}
             disabled
             count={type === 1 ? 5 : 10}
           />,
@@ -875,13 +883,13 @@ class TaskStage extends Component {
 
     const { folderId } = this.props.taskConfig;
 
-    Dialog.confirm({
-      title: _l('确认删除此看板吗？1'),
+    Modal.confirm({
+      title: <span className="textError">{_l('确认删除此看板吗？1')}</span>,
+      okButtonProps: { danger: true },
       closable: false,
       okText: _l('删除'),
       onOk: () => {
         const stageId = $li.data('stageid');
-
         ajaxRequest
           .deleteFolderStage({
             folderID: folderId,
@@ -891,7 +899,6 @@ class TaskStage extends Component {
           .then(source => {
             if (source.status) {
               alert(_l('删除成功'));
-
               const $newLi = $li.prev().length > 0 ? $li.prev() : $li.next();
               $newLi.find('.listStageContent ul').append($li.find('.listStageContent li'));
               $li.fadeOut(function () {
@@ -1262,12 +1269,8 @@ class TaskStage extends Component {
         const root = createRoot($stageDate[0]);
 
         root.render(
-          <DateTimeRange
+          <TaskDateRangePicker
             selectedValue={[defaultStart, defaultEnd]}
-            mode="task"
-            timePicker
-            separator={_l('至')}
-            timeMode="hour"
             placeholder={_l('未指定起止时间')}
             onOk={selectedValue => {
               let [start, end] = selectedValue;
@@ -1282,16 +1285,7 @@ class TaskStage extends Component {
               $stageDate.data('start', start);
               $stageDate.data('end', end);
             }}
-            onClear={() => {
-              delete $stageDate.data().start;
-              delete $stageDate.data().end;
-
-              root.unmount();
-              bindDate();
-            }}
-          >
-            <span class="icon-bellSchedule"></span>
-          </DateTimeRange>,
+          />,
         );
       };
 

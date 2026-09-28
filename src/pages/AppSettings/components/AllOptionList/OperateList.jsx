@@ -1,31 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import DeleteOptionList from './DeleteOptionList';
-
-const OperateWrap = styled(Menu)`
-  &.optWrap {
-    width: 160px !important;
-  }
-  .ming.MenuItem .Item-content:not(.disabled):hover {
-    color: var(--color-text-title) !important;
-  }
-  .ming.Item .Item-content:not(.disabled):hover .icon {
-    color: var(--color-text-tertiary) !important;
-  }
-  .del,
-  .del .icon,
-  .del.MenuItem .Item-content:not(.disabled):hover,
-  .del.Item .Item-content:not(.disabled):hover .icon {
-    color: var(--color-error) !important;
-  }
-`;
 
 export default function OperateList(props) {
   const {
@@ -56,14 +36,22 @@ export default function OperateList(props) {
     setPopupVisible(false);
     // 没有字段引用的选项集直接删,否则需要二次确认
     if (_.isEmpty(data)) {
-      Dialog.confirm({
+      Modal.confirm({
         title: (
-          <span className="Bold" style={{ color: 'var(--color-error)', wordBreak: 'break-all' }}>
+          <span
+            style={{
+              color: 'var(--color-error)',
+              wordBreak: 'break-all',
+            }}
+            className="textError"
+          >
             {_l('删除选项集 “%0”', name)}
           </span>
         ),
-        buttonType: 'danger',
-        description: (
+        okButtonProps: {
+          danger: true,
+        },
+        content: (
           <span className="textPrimary">{_l('此选项集未被任何选项字段引用，删除后不可恢复、不可再被引用。')}</span>
         ),
         onOk: () => {
@@ -126,78 +114,82 @@ export default function OperateList(props) {
     };
     worksheetAjax.saveOptionsCollection(params).then(({ code, data, msg }) => {
       if (code === 1) {
-        items.splice(index + 1, 0, data);
-        updateList(items);
+        updateList(update(items, { $splice: [[index + 1, 0, data]] }));
       } else {
         alert(msg);
       }
     });
   };
 
+  const handleMenuClick = ({ key, domEvent }) => {
+    domEvent.stopPropagation();
+    setPopupVisible(false);
+
+    if (key === 'copy') {
+      handleCopy();
+    } else if (key === 'move') {
+      setShowOtherWorksheet(true);
+    } else if (key === 'toggleStatus') {
+      deleteOptions({
+        status: status === 9 ? 1 : 9,
+        fail: () => alert(status === 9 ? _l('启用失败') : _l('停用失败'), 2),
+      });
+    } else if (key === 'delete') {
+      onDelete(collectionId);
+    }
+  };
+
+  const menuItems = [
+    {
+      key: 'copy',
+      icon: <Icon icon="content-copy" className="Font16 textTertiary" />,
+      label: _l('复制'),
+    },
+    {
+      key: 'move',
+      icon: <Icon icon="swap_horiz" className="Font18 textTertiary" />,
+      label: _l('移动至其他应用'),
+    },
+    {
+      key: 'toggleStatus',
+      icon: (
+        <Icon icon={status === 9 ? 'play_circle_outline' : 'arrow_drop_down_circle'} className="Font18 textTertiary" />
+      ),
+      label: (
+        <Tooltip
+          title={status === 9 ? _l('启用后支持被新字段引用') : _l('停用不影响已引用字段的使用，但是新字段无法再引用')}
+        >
+          <div>{status === 9 ? _l('启用') : _l('停用')}</div>
+        </Tooltip>
+      ),
+    },
+    {
+      key: 'delete',
+      danger: true,
+      icon: <Icon icon="hr_delete" className="Font18" />,
+      label: _l('删除'),
+    },
+  ];
+
   return (
     <Fragment>
-      <Trigger
-        action={['click']}
-        popupVisible={popupVisible}
-        onPopupVisibleChange={setPopupVisible}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [-160, 0],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
+      <Dropdown
+        trigger={['click']}
+        open={popupVisible}
+        onOpenChange={setPopupVisible}
+        placement="bottomRight"
+        menu={{
+          items: menuItems,
+          onClick: handleMenuClick,
+          style: { minWidth: 160 },
         }}
-        popup={
-          <OperateWrap className="optWrap" onClick={e => e.stopPropagation()}>
-            <MenuItem icon={<Icon icon="content-copy" className="Font16" />} onClick={handleCopy}>
-              {_l('复制')}
-            </MenuItem>
-            <MenuItem
-              icon={<Icon icon="swap_horiz" className="Font18" />}
-              onClick={() => {
-                setPopupVisible(false);
-                setShowOtherWorksheet(true);
-              }}
-            >
-              {_l('移动至其他应用')}
-            </MenuItem>
-            <Tooltip
-              title={
-                status === 9 ? _l('启用后支持被新字段引用') : _l('停用不影响已引用字段的使用，但是新字段无法再引用')
-              }
-            >
-              <MenuItem
-                icon={
-                  <Icon icon={status === 9 ? 'play_circle_outline' : 'arrow_drop_down_circle'} className="Font18" />
-                }
-                onClick={() => {
-                  setPopupVisible(false);
-                  deleteOptions({
-                    status: status === 9 ? 1 : 9,
-                    fail: () => alert(status === 9 ? _l('启用失败') : _l('停用失败'), 2),
-                  });
-                }}
-              >
-                {status === 9 ? _l('启用') : _l('停用')}
-              </MenuItem>
-            </Tooltip>
-            <MenuItem
-              className="del"
-              icon={<Icon icon="hr_delete" className="Font18" />}
-              onClick={() => onDelete(collectionId)}
-            >
-              {_l('删除')}
-            </MenuItem>
-          </OperateWrap>
-        }
       >
         <Icon
           icon="more_horiz"
           className="textTertiary hoverColorPrimary Font16 pointer mLeft16"
           onClick={e => e.stopPropagation()}
         />
-      </Trigger>
+      </Dropdown>
 
       {deleteConfirmVisible && (
         <DeleteOptionList
@@ -223,7 +215,7 @@ export default function OperateList(props) {
           projectId={projectId}
           selectedAppId={appId}
           currentAppId={appId}
-          onHide={setShowOtherWorksheet}
+          onHide={() => setShowOtherWorksheet(false)}
           onOk={removeOtherApp}
         />
       )}

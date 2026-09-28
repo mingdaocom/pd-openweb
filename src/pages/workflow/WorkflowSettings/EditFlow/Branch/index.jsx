@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { CreateNode } from '../components';
+import { Icon } from 'ming-ui';
+import { Modal, Radio, Tooltip } from 'ming-ui/antd-components';
+import { CreateNode, SimplifyNode } from '../components';
 import BranchItem from './BranchItem';
 import './index.less';
 
@@ -13,45 +13,67 @@ export default class Branch extends Component {
   }
 
   state = {
-    showTips: true,
     showBranchTypeDialog: false,
     gatewayType: 1,
   };
 
-  renderTips = () => {
-    const { processId, item, isCopy } = this.props;
+  openBranchTypeDialog = () => {
+    const { item, isCopy, disabled } = this.props;
 
-    if (isCopy) return null;
+    if (isCopy || disabled) return;
+
+    this.setState({ showBranchTypeDialog: true, gatewayType: item.gatewayType });
+  };
+
+  renderGateway = () => {
+    const { processId, item, isCopy } = this.props;
+    const gatewayTypeName = item.gatewayType === 1 ? _l('并行分支') : _l('唯一分支');
+    const gatewayName = item.name || gatewayTypeName;
 
     return (
-      <div className="flexRow alignItemsCenter">
-        <Tooltip title={_l('收起')}>
-          <span className="workflowBranchBtnSmall textSecondary hoverColorPrimary" onClick={this.changeShrink}>
-            <i className={'icon-arrow-up-border'} />
-          </span>
-        </Tooltip>
+      <div className="workflowGatewayNode">
+        {!isCopy && (
+          <Tooltip title={_l('收起')}>
+            <span
+              className="workflowGatewayAction workflowGatewayFold textSecondary hoverColorPrimary"
+              onClick={this.changeShrink}
+            >
+              <Icon icon="arrow-up-border" />
+            </span>
+          </Tooltip>
+        )}
 
-        <Tooltip title={item.gatewayType === 1 ? _l('并行分支') : _l('唯一分支')}>
-          <span
-            className="workflowBranchBtnBig mLeft8 mRight8"
-            onClick={() => {
-              this.handleTipsPosition();
-              this.setState({ showBranchTypeDialog: true, gatewayType: item.gatewayType });
-            }}
-          />
-        </Tooltip>
+        <SimplifyNode
+          {...this.props}
+          item={{ ...item, name: gatewayName }}
+          nodeClassName="workflowGatewayCard"
+          IconClassName={cx('workflowGatewayIcon', { pointer: !isCopy })}
+          IconTriggerFunc={this.openBranchTypeDialog}
+          IconElement={
+            <Tooltip title={gatewayTypeName}>
+              <Icon icon={item.gatewayType === 1 ? 'branch-parallel' : 'branch-exclusive'} />
+            </Tooltip>
+          }
+          allowMoreOperator={!isCopy}
+          extraOperatorList={[
+            {
+              text: _l('修改分支类型'),
+              icon: 'workflow_branch',
+              events: this.openBranchTypeDialog,
+            },
+          ]}
+        />
 
-        <Tooltip title={_l('添加分支')}>
-          <span
-            className="workflowBranchBtnSmall textSecondary hoverColorPrimary"
-            onClick={() => {
-              this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
-              this.handleTipsPosition();
-            }}
-          >
-            <i className="icon-add" />
-          </span>
-        </Tooltip>
+        {!isCopy && (
+          <Tooltip title={_l('添加分支')}>
+            <span
+              className="workflowGatewayAction workflowGatewayAdd textSecondary hoverColorPrimary"
+              onClick={() => this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 })}
+            >
+              <Icon icon="add" />
+            </span>
+          </Tooltip>
+        )}
       </div>
     );
   };
@@ -72,7 +94,6 @@ export default class Branch extends Component {
     updateHideNodes(workflowHideNodes);
     safeLocalStorageSetItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
     updateRefreshThumbnail();
-    this.handleTipsPosition();
   };
 
   /**
@@ -84,20 +105,9 @@ export default class Branch extends Component {
     updateBranchGatewayType(processId, item.id, gatewayType);
   };
 
-  /**
-   * 处理tips位置问题
-   */
-  handleTipsPosition() {
-    this.setState({ showTips: false });
-
-    setTimeout(() => {
-      this.setState({ showTips: true });
-    }, 50);
-  }
-
   render() {
     const { data, item, hideNodes, disabled } = this.props;
-    const { showTips, showBranchTypeDialog, gatewayType } = this.state;
+    const { showBranchTypeDialog, gatewayType } = this.state;
     const showAddBtn = !item.resultTypeId && !disabled;
     const isHide = _.includes(hideNodes, item.id);
     const BRANCH_TYPE = [
@@ -116,22 +126,16 @@ export default class Branch extends Component {
     return (
       <div className={cx('flexColumn', { workflowBranchHide: isHide })}>
         <div className={cx('workflowBranch', { pTop0: !showAddBtn })} data-id={item.id}>
-          {showAddBtn && showTips && (
+          {showAddBtn && (
             <Fragment>
               {isHide ? (
                 <Tooltip title={_l('展开')}>
-                  <i className={cx('workflowBranchBtn icon-milestone1', { colorPrimary: isHide })}>
-                    <span className="Font16 workflowBranchNumber bold pointer" onClick={this.changeShrink}>
-                      {item.flowIds.length}
-                    </span>
-                  </i>
+                  <span className="workflowGatewayCollapsed pointer" onClick={this.changeShrink}>
+                    <span className="Font16 bold">{item.flowIds.length}</span>
+                  </span>
                 </Tooltip>
               ) : (
-                <Tooltip title={this.renderTips} overlayClassName="workflowBranchTips" align={{ offset: [0, 34] }}>
-                  <i className="workflowBranchBtn icon-milestone1">
-                    <span className={cx('Font16', item.gatewayType === 1 ? 'icon-all_run2' : 'icon-clear_bold')} />
-                  </i>
-                </Tooltip>
+                this.renderGateway()
               )}
             </Fragment>
           )}
@@ -154,8 +158,8 @@ export default class Branch extends Component {
         <CreateNode {...this.props} />
 
         {showBranchTypeDialog && (
-          <Dialog
-            visible
+          <Modal
+            open
             width={560}
             title={_l('分支类型')}
             onOk={() => {
@@ -168,14 +172,20 @@ export default class Branch extends Component {
               <div className={cx('flexColumn', { mTop15: index > 0 })} key={index}>
                 <Radio
                   className="Font15 bold"
-                  text={o.text}
                   checked={o.value === gatewayType}
-                  onClick={() => this.setState({ gatewayType: o.value })}
-                />
+                  onChange={() =>
+                    this.setState({
+                      gatewayType: o.value,
+                    })
+                  }
+                  title={o.text}
+                >
+                  {o.text}
+                </Radio>
                 <div className="mTop5 mLeft30 textSecondary">{o.desc}</div>
               </div>
             ))}
-          </Dialog>
+          </Modal>
         )}
       </div>
     );

@@ -4,8 +4,9 @@ import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import DocumentTitle from 'mobile/components/DocumentTitle';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
-import { generateRandomPassword } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { getCurrentProject } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import Back from '../../components/Back';
 import showAddAppActionSheet from '../components/AddAppActionSheet';
 import './index.less';
@@ -84,7 +85,7 @@ class AppList extends Component {
           {_.map(currentGroupList || [], item => {
             return this.renderItem(item);
           })}
-          {!(_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp &&
+          {hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP) &&
             this.renderItem({
               id: 'add',
               iconColor: 'var(--color-background-secondary)',

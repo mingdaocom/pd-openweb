@@ -3,12 +3,13 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Button } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 import FixedContent from 'src/components/FixedContent';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { canEditApp } from 'src/utils/domain/permission/app';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
 import './WorksheetRowLand.less';
 
@@ -25,8 +26,14 @@ class WorksheetRowLand extends Component {
       viewId: match.params.viewId,
       sheetSwitchPermit: [],
       loadingSwitchPermit: true,
+      loadError: false,
     };
   }
+
+  handleLoadError = () => {
+    this.setState({ loading: false, loadingSwitchPermit: false, loadError: true });
+  };
+
   componentDidMount() {
     const { loading, appId, worksheetId, rowId } = this.state;
     worksheetAjax
@@ -46,7 +53,8 @@ class WorksheetRowLand extends Component {
             }
           },
         );
-      });
+      })
+      .catch(this.handleLoadError);
   }
 
   componentDidUpdate(prevProps) {
@@ -57,6 +65,7 @@ class WorksheetRowLand extends Component {
       if (!nextParams.appId && nextParams.rowId !== params.rowId) {
         this.setState({
           loading: true,
+          loadError: false,
         });
         this.navigate(nextParams.worksheetId, nextParams.rowId);
       } else if (nextParams.appId && nextParams.rowId !== params.rowId) {
@@ -65,25 +74,36 @@ class WorksheetRowLand extends Component {
           worksheetId: nextParams.worksheetId,
           viewId: nextParams.viewId,
           rowId: nextParams.rowId,
+          loadError: false,
         });
       }
     }
   }
   navigate(worksheetId, rowId) {
-    homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId }).then(data => {
-      if (data.appId) {
-        navigateTo(`/app/${data.appId}/${worksheetId}/row/${rowId}${location.search || ''}`, true);
-      }
-    });
+    return homeAppAjax
+      .getAppSimpleInfo({ workSheetId: worksheetId })
+      .then(data => {
+        if (data.appId) {
+          navigateTo(`/app/${data.appId}/${worksheetId}/row/${rowId}${location.search || ''}`, true);
+        } else {
+          this.handleLoadError();
+        }
+      })
+      .catch(this.handleLoadError);
   }
   render() {
-    const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit, landRightComp } = this.state;
+    const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit, loadError, landRightComp } = this.state;
     const { appPkg } = this.props;
     const { fixed, permissionType, pcDisplay, projectId } = appPkg;
     const isAuthorityApp = canEditApp(permissionType);
     return (
       <div className={cx('worksheetRowLand', { hasLandRightComp: !!landRightComp })}>
-        {loading || loadingSwitchPermit || _.isEmpty(appPkg) ? (
+        {loadError ? (
+          <div className="h100 flexColumn flexCenter">
+            <div className="mBottom16 textSecondary">{_l('加载失败，请重试')}</div>
+            <Button onClick={() => location.reload()}>{_l('重新加载')}</Button>
+          </div>
+        ) : loading || loadingSwitchPermit || _.isEmpty(appPkg) ? (
           <div className="workSheetRecordInfo">
             <LoadDiv className="mTop32" />
           </div>

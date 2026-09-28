@@ -2,27 +2,40 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, shape, string } from 'prop-types';
-import { Input, Menu, MenuItem } from 'ming-ui';
-import { VerticalMiddle } from 'worksheet/components/Basics';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Input, Menu } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import '../WorkSheetFilter.less';
 
 export default function SelectControls(props) {
-  const {
-    style,
-    maxHeight,
-    footer,
-    className,
-    filterColumnClassName,
-    selected = [],
-    onAdd = () => {},
-    onClose = () => {},
-  } = props;
+  const { style, maxHeight, footer, className, filterColumnClassName, selected = [], onAdd = () => {} } = props;
   const inputRef = useRef(null);
   const [keyword, setKeyword] = useState('');
   const controls = keyword
     ? props.controls.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
     : props.controls;
+  const menuItems = controls.flatMap((control, index) => {
+    const controlItem = {
+      key: control.controlId,
+      title: control.controlName,
+      icon: (
+        <i
+          className={cx(
+            'Font16 icon textTertiary',
+            `icon-${getIconByType(control.originType === 37 ? 37 : control.type)}`,
+          )}
+        />
+      ),
+      label: <span className="ellipsis">{control.controlName}</span>,
+      onClick: () => {
+        onAdd(control);
+        setKeyword('');
+      },
+    };
+
+    return control.segmentation && index > 0
+      ? [{ key: `${control.controlId}-divider`, type: 'divider', className: 'mTop8 mBottom8' }, controlItem]
+      : [controlItem];
+  });
 
   useEffect(() => {
     // 延迟聚焦，防止页面重排，导致外层滚动条跳动
@@ -37,46 +50,27 @@ export default function SelectControls(props) {
   return (
     <div className={cx('addFilterPopup', className)} style={style}>
       <div className="columnsFilter">
-        <i className="icon-search"></i>
         <Input
+          style={{ '--hap-input-padding-block': '10px' }}
+          ref={inputRef}
+          className="flex"
+          variant="borderless"
+          prefix={<i className="icon-search textTertiary Font18" />}
           placeholder={_l('搜索字段')}
-          manualRef={inputRef}
           value={keyword}
-          onChange={() => {
-            setKeyword(inputRef.current.value);
-          }}
+          onChange={event => setKeyword(event.target.value)}
         />
       </div>
-      <Menu
-        className={cx('worksheetFilterColumnOptionList', filterColumnClassName)}
-        onClickAwayExceptions={['.columnsFilter']}
-        onClickAway={() => {
-          setKeyword('');
-          onClose();
-        }}
-        style={{ ...style, maxHeight: maxHeight ? maxHeight - 90 : undefined }}
-      >
-        {controls.length ? (
-          controls.map((c, i) => (
-            <MenuItem
-              className={cx({ segmentationLine: 'segmentation' in c, selected: _.includes(selected, c.controlId) })}
-              title={c.controlName}
-              onClick={() => {
-                onAdd(c);
-                setKeyword('');
-              }}
-              key={i}
-            >
-              <VerticalMiddle>
-                <i className={cx('Font16 icon', `icon-${getIconByType(c.originType === 37 ? 37 : c.type)}`)}></i>
-                <span className="ellipsis">{c.controlName}</span>
-              </VerticalMiddle>
-            </MenuItem>
-          ))
-        ) : (
-          <div className="tip TxtCenter">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
-        )}
-      </Menu>
+      {controls.length ? (
+        <Menu
+          className={cx('worksheetFilterColumnOptionList', filterColumnClassName)}
+          items={menuItems}
+          selectedKeys={_.castArray(selected)}
+          style={{ ...style, maxHeight: maxHeight ? maxHeight - 90 : undefined }}
+        />
+      ) : (
+        <div className="tip TxtCenter">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
+      )}
       {footer}
     </div>
   );
@@ -87,5 +81,4 @@ SelectControls.propTypes = {
   classNamePopup: string,
   filterColumnClassName: string,
   onAdd: func,
-  onClose: func,
 };

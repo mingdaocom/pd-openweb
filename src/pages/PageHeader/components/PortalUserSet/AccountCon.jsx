@@ -5,18 +5,10 @@ import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
-import { browserIsMobile } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { encrypt } from 'src/utils/services/security/encryption';
 
 const AccountWrap = styled.div`
-  .iti {
-    width: 100%;
-    height: 36px;
-    .telInput {
-      width: 100%;
-      padding-left: 52px !important;
-    }
-  }
   .isMobile {
     display: block !important;
     .title {
@@ -35,7 +27,6 @@ const AccountWrap = styled.div`
   }
   .hidInput {
     .telInputWrap,
-    .iti,
     .telInput {
       display: none;
     }

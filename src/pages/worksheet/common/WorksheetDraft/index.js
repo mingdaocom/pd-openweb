@@ -1,54 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, Modal } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Icon } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
-import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/Form/core/config';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { resortControlByColRow } from 'src/pages/widgetConfig/util';
-import { emitter } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
+import { resortControlByColRow } from 'src/utils/domain/control/editorLayout';
+import { controlState } from 'src/utils/domain/control/state';
+import { SHEET_VIEW_HIDDEN_TYPES } from 'src/utils/domain/worksheet/constants';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { updateDraftTotalInfo } from './utils';
-import WorksheetDraftOperate from './WorksheetDraftOperate';
 
 const Con = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const Header = styled.div`
-  height: 56px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 -24px;
-  padding: 0 16px 0 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.09) !important;
-  .title {
-    font-size: 17px;
-    font-weight: 500;
-  }
-  .closeBtn,
-  .refreshBtn {
-    cursor: pointer;
-    line-height: 1em;
-    font-size: 22px;
-    color: var(--color-text-tertiary);
-    &:hover {
-      color: var(--color-primary);
-    }
-  }
 `;
 
 const Body = styled.div`
@@ -67,23 +43,30 @@ const TotalNumWrap = styled.span`
 
 function DraftModal(props) {
   const {
-    onCancel = () => {},
+    onCancel = _.noop,
     appId,
     view = {},
     worksheetInfo = {},
     sheetSwitchPermit,
     isCharge,
     allowAdd,
-    setHighLightOfRows = () => {},
-    updateDraftTotal = () => {},
+    setHighLightOfRows = _.noop,
+    updateDraftTotal = _.noop,
   } = props;
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
+  const parentRecordInfoContext = useContext(RecordInfoContext);
+  const { open: openPreviewAttachments, holder: previewAttachmentsHolder } = usePreviewAttachments();
+  const recordInfoContext = useMemo(
+    () => ({ ...parentRecordInfoContext, openPreviewAttachments }),
+    [openPreviewAttachments, parentRecordInfoContext],
+  );
 
   const { worksheetId, projectId, rules = [], isWorksheetQuery, advancedSetting = {}, enablePayment } = worksheetInfo;
   const [selected, setSelected] = useState([]);
   const [recordInfoVisible, setRecordInfoVisible] = useState(false);
   const [activeRelateTableControlIdOfRecord, setActiveRelateTableControlIdOfRecord] = useState({});
   const [recordId, setRecordId] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState(props.draftData || []);
   const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
   const [errorCode, setErrorCode] = useState(0);
@@ -113,34 +96,44 @@ function DraftModal(props) {
   const recordInfoRef = useRef(null);
   const numberWidth = 16;
 
-  useEffect(() => {
-    loadRows();
-  }, []);
-
-  const loadRows = () => {
-    setLoading(true);
-    worksheetAjax
-      .getFilterRows({
+  const requestRows = useCallback(
+    () =>
+      worksheetAjax.getFilterRows({
         appId,
         worksheetId,
         getType: 21,
         pageIndex: 1,
         pageSize: 10,
-      })
-      .then(res => {
-        setRecords(res.data);
-        setLoading(false);
-        updateDraftTotal(res.data.length);
-        emitter.emit('UPDATE_DRAFT_TOTAL', {
-          worksheetId,
-          total: res.data.length,
-        });
-      })
-      .catch(err => {
-        setLoading(false);
-        setErrorCode(err.errorCode);
+      }),
+    [appId, worksheetId],
+  );
+
+  const handleLoadSuccess = useCallback(
+    res => {
+      setRecords(res.data);
+      setLoading(false);
+      updateDraftTotal(res.data.length);
+      emitter.emit('UPDATE_DRAFT_TOTAL', {
+        worksheetId,
+        total: res.data.length,
       });
-  };
+    },
+    [updateDraftTotal, worksheetId],
+  );
+
+  const handleLoadError = useCallback(err => {
+    setLoading(false);
+    setErrorCode(err.errorCode);
+  }, []);
+
+  const loadRows = useCallback(() => {
+    setLoading(true);
+    requestRows().then(handleLoadSuccess).catch(handleLoadError);
+  }, [handleLoadError, handleLoadSuccess, requestRows]);
+
+  useEffect(() => {
+    requestRows().then(handleLoadSuccess).catch(handleLoadError);
+  }, [handleLoadError, handleLoadSuccess, requestRows]);
 
   const renderColumnHead = ({ className, style, control, isLast, updateSheetColumnWidths }) => {
     const maskData =
@@ -165,207 +158,235 @@ function DraftModal(props) {
         isLast={isLast}
         selected={!!selected.length}
         updateSheetColumnWidths={updateSheetColumnWidths}
-        renderPopup={({ closeMenu }) => (
-          <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
-            {maskData && (
-              <MenuItem
-                onClick={() => {
-                  setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
-                }}
-              >
-                <i className="icon icon-eye_off"></i>
-                {_l('解码')}
-              </MenuItem>
-            )}
-          </Menu>
-        )}
+        renderPopup={() => ({
+          style: { width: 180 },
+          items: [
+            maskData && {
+              key: 'decode',
+              icon: <i className="icon icon-eye_off" />,
+              label: _l('解码'),
+              onClick: () => {
+                setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
+              },
+            },
+          ].filter(Boolean),
+        })}
       />
     );
   };
 
-  const deleteSelete = ids => {
-    worksheetAjax
-      .deleteWorksheetRows({
-        appId,
-        worksheetId,
-        rowIds: ids,
-        deleteType: 21,
-      })
-      .then(res => {
-        if (res.successCount === ids.length) {
-          alert(_l('删除成功'));
-          const data = records.filter(it => !_.includes(ids, it.rowid));
-          setRecords(data);
-          setSelected([]);
-          updateDraftTotal(data.length);
-          updateDraftTotalInfo({ worksheetId, total: data.length });
-          emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total: data.length });
-        } else {
-          alert(_l('删除失败'), 2);
-        }
-      });
-  };
+  const deleteSelected = useCallback(
+    ids => {
+      worksheetAjax
+        .deleteWorksheetRows({
+          appId,
+          worksheetId,
+          rowIds: ids,
+          deleteType: 21,
+        })
+        .then(res => {
+          if (res.successCount === ids.length) {
+            alert(_l('删除成功'));
+            const data = records.filter(it => !_.includes(ids, it.rowid));
+            setRecords(data);
+            setSelected([]);
+            updateDraftTotal(data.length);
+            updateDraftTotalInfo({ worksheetId, total: data.length });
+            emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total: data.length });
+          } else {
+            alert(_l('删除失败'), 2);
+          }
+        });
+    },
+    [appId, records, updateDraftTotal, worksheetId],
+  );
 
   return (
-    <BrowserRouter>
+    <>
+      {recordInfoHolder}
       <Modal
-        visible
-        closable={false}
+        open
         width={document.body.clientWidth * 0.9}
         type="fixed"
-        bodyStyle={{ paddingTop: 0, position: 'relative' }}
-        closeStyle={{ margin: '16px', width: '30px', height: '30px', lineHeight: '30px' }}
-        onCancel={onCancel}
-      >
-        <Con>
-          <WorksheetDraftOperate
-            selected={selected}
-            deleteSelete={deleteSelete}
-            total={records.length}
-            onCancel={() => {
-              setSelected([]);
-            }}
-          />
-          <Header>
-            <div className="title">{records.length ? `${_l('草稿箱')}（${records.length}/10）` : _l('草稿箱')}</div>
-            <div className="flex"></div>
-            {errorCode !== 300016 && (
-              <span className="refreshBtn mRight10" onClick={() => loadRows()}>
-                <i className="icon icon-refresh1" />
-              </span>
-            )}
-            <span className="closeBtn" onClick={onCancel}>
-              <i className="icon icon-close" />
-            </span>
-          </Header>
-          {errorCode === 300016 ? (
-            <Con>
-              <RestrictAccessStatus />
-            </Con>
+        title={
+          selected.length ? (
+            <div className="flexRow alignItemsCenter">
+              <span className="Font16 mRight24">{_l('已选择%0条草稿', selected.length)}</span>
+              <Button
+                danger
+                type="text"
+                size="small"
+                icon={<Icon icon="trash" />}
+                onClick={() => deleteSelected(selected)}
+              >
+                {_l('删除')}
+              </Button>
+            </div>
+          ) : records.length ? (
+            `${_l('草稿箱')}（${records.length}/10）`
           ) : (
-            <Body>
-              <WorksheetTable
-                loading={loading}
-                worksheetId={worksheetId}
-                appId={appId}
-                lineNumberBegin={0}
-                emptyIcon={<Icon icon="drafts_approval" />}
-                emptyText={_l('暂无草稿')}
-                noRenderEmpty={true}
-                columns={columns}
-                rowHeight={34}
-                rowHeadWidth={88}
-                selectedIds={selected}
-                data={records}
-                controls={controls}
-                from={21}
-                rules={rules}
-                renderColumnHead={renderColumnHead}
-                sheetSwitchPermit={sheetSwitchPermit}
-                projectId={projectId}
-                renderRowHead={({ className, style, rowIndex }) => (
-                  <RowHead
-                    isDraftTable
-                    className={className}
-                    style={style}
-                    numberWidth={numberWidth}
-                    lineNumberBegin={0}
-                    allowEdit={false}
-                    selectedIds={selected}
-                    onSelectAllWorksheet={() => {
-                      setSelected(records.map(row => row.rowid));
-                    }}
-                    onSelect={newSelected => {
-                      const selectRows = [];
-                      newSelected.forEach(rowId => {
-                        const row = _.find(records, trashRow => trashRow.rowid === rowId);
+            _l('草稿箱')
+          )
+        }
+        styles={{
+          header: { marginBottom: 15 },
+        }}
+        iconButtons={
+          errorCode === 300016 || selected.length
+            ? []
+            : [
+                {
+                  type: 'refresh',
+                  icon: 'refresh1',
+                  tip: _l('刷新'),
+                  onClick: loadRows,
+                },
+              ]
+        }
+        onCancel={() => {
+          if (selected.length) {
+            setSelected([]);
+            return;
+          }
 
-                        if (row && (row.allowedit || row.allowEdit)) {
-                          selectRows.push(row);
-                        }
-                      });
-                      setSelected(newSelected);
-                    }}
-                    rowIndex={rowIndex}
-                    data={records}
-                  />
-                )}
-                onCellClick={(cell, row) => {
-                  if (cell.type === 29 && cell.enumDefault === 2) {
-                    setActiveRelateTableControlIdOfRecord(cell.controlId);
-                  }
+          onCancel();
+        }}
+      >
+        <RecordInfoContext.Provider value={recordInfoContext}>
+          {previewAttachmentsHolder}
+          <Con>
+            {errorCode === 300016 ? (
+              <Con>
+                <RestrictAccessStatus />
+              </Con>
+            ) : (
+              <Body>
+                <WorksheetTable
+                  loading={loading}
+                  worksheetId={worksheetId}
+                  appId={appId}
+                  lineNumberBegin={0}
+                  emptyIcon={<Icon icon="drafts_approval" />}
+                  emptyText={_l('暂无草稿')}
+                  noRenderEmpty={true}
+                  columns={columns}
+                  rowHeight={34}
+                  rowHeadWidth={88}
+                  selectedIds={selected}
+                  data={records}
+                  controls={controls}
+                  from={21}
+                  rules={rules}
+                  renderColumnHead={renderColumnHead}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  projectId={projectId}
+                  renderRowHead={({ className, style, rowIndex, openAddRecord }) => (
+                    <RowHead
+                      openAddRecord={openAddRecord}
+                      isDraftTable
+                      className={className}
+                      style={style}
+                      numberWidth={numberWidth}
+                      lineNumberBegin={0}
+                      allowEdit={false}
+                      selectedIds={selected}
+                      onSelectAllWorksheet={() => {
+                        setSelected(records.map(row => row.rowid));
+                      }}
+                      onSelect={newSelected => {
+                        const selectRows = [];
+                        newSelected.forEach(rowId => {
+                          const row = _.find(records, trashRow => trashRow.rowid === rowId);
 
-                  setRecordId(row.rowid);
-                  setRecordInfoVisible(true);
-                }}
-              />
-            </Body>
+                          if (row && (row.allowedit || row.allowEdit)) {
+                            selectRows.push(row);
+                          }
+                        });
+                        setSelected(newSelected);
+                      }}
+                      rowIndex={rowIndex}
+                      data={records}
+                    />
+                  )}
+                  onCellClick={(cell, row) => {
+                    if (cell.type === 29 && cell.enumDefault === 2) {
+                      setActiveRelateTableControlIdOfRecord(cell.controlId);
+                    }
+
+                    setRecordId(row.rowid);
+                    setRecordInfoVisible(true);
+                  }}
+                />
+              </Body>
+            )}
+          </Con>
+          {recordInfoVisible && (
+            <RecordInfo
+              ref={recordInfoRef}
+              enablePayment={enablePayment}
+              controls={controls}
+              sheetSwitchPermit={sheetSwitchPermit}
+              projectId={projectId}
+              showPrevNext
+              needUpdateRows
+              rules={rules}
+              isWorksheetQuery={isWorksheetQuery}
+              isCharge={isCharge}
+              allowAdd={allowAdd || advancedSetting.closedrafts !== '1'}
+              appId={appId}
+              view={{ ...view, controls: [] }}
+              from={21}
+              visible={recordInfoVisible}
+              worksheetInfo={worksheetInfo}
+              hideRecordInfo={closeId => {
+                if (!closeId || closeId === recordId) {
+                  setRecordInfoVisible(false);
+                }
+              }}
+              recordId={recordId}
+              activeRelateTableControlId={activeRelateTableControlIdOfRecord}
+              worksheetId={worksheetId}
+              rowStatus={21}
+              currentSheetRows={records}
+              addNewRecord={props.addNewRecord}
+              setHighLightOfRows={setHighLightOfRows}
+              loadRowsWhenChildTableStoreCreated={true}
+              updateDraftList={(rowId, rowData) => {
+                let data = _.clone(records);
+
+                if (!rowData) {
+                  data = data.filter(it => it.rowid !== rowId);
+                } else {
+                  const index = _.findIndex(data, it => it.rowid === rowId);
+                  data[index] = rowData;
+                }
+
+                updateDraftTotal(data.length);
+                setRecords(data);
+                emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total: data.length });
+
+                if (rowId && _.get(worksheetInfo, 'advancedSetting.subafter') === '3') {
+                  openRecordInfo({
+                    appId: appId,
+                    worksheetId: worksheetId,
+                    recordId: rowId,
+                    viewId: _.get(worksheetInfo, 'advancedSetting.subview'),
+                    isOpenNewAddedRecord: true,
+                    enablePayment: worksheetInfo.enablePayment,
+                  });
+                }
+              }}
+            />
           )}
-        </Con>
-        {recordInfoVisible && (
-          <RecordInfo
-            ref={recordInfoRef}
-            enablePayment={enablePayment}
-            controls={controls}
-            sheetSwitchPermit={sheetSwitchPermit}
-            projectId={projectId}
-            showPrevNext
-            needUpdateRows
-            rules={rules}
-            isWorksheetQuery={isWorksheetQuery}
-            isCharge={isCharge}
-            allowAdd={allowAdd || advancedSetting.closedrafts !== '1'}
-            appId={appId}
-            view={{ ...view, controls: [] }}
-            from={21}
-            visible={recordInfoVisible}
-            worksheetInfo={worksheetInfo}
-            hideRecordInfo={closeId => {
-              if (!closeId || closeId === recordId) {
-                setRecordInfoVisible(false);
-              }
-            }}
-            recordId={recordId}
-            activeRelateTableControlId={activeRelateTableControlIdOfRecord}
-            worksheetId={worksheetId}
-            rowStatus={21}
-            currentSheetRows={records}
-            addNewRecord={props.addNewRecord}
-            setHighLightOfRows={setHighLightOfRows}
-            loadRowsWhenChildTableStoreCreated={true}
-            updateDraftList={(rowId, rowData) => {
-              let data = _.clone(records);
-
-              if (!rowData) {
-                data = data.filter(it => it.rowid !== rowId);
-              } else {
-                const index = _.findIndex(data, it => it.rowid === rowId);
-                data[index] = rowData;
-              }
-
-              updateDraftTotal(data.length);
-              setRecords(data);
-              emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total: data.length });
-
-              if (rowId && _.get(worksheetInfo, 'advancedSetting.subafter') === '3') {
-                openRecordInfo({
-                  appId: appId,
-                  worksheetId: worksheetId,
-                  recordId: rowId,
-                  viewId: _.get(worksheetInfo, 'advancedSetting.subview'),
-                  isOpenNewAddedRecord: true,
-                  enablePayment: worksheetInfo.enablePayment,
-                });
-              }
-            }}
-          />
-        )}
+        </RecordInfoContext.Provider>
       </Modal>
-    </BrowserRouter>
+    </>
   );
 }
 
-export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
+export function useWorkSheetDraftModal() {
+  return useFunctionWrapComponent(DraftModal);
+}
 
 let request = null;
 
@@ -380,13 +401,17 @@ function WorksheetDraft(props) {
     setHighLightOfRows,
     isNewRecord,
     className = '',
+    openWorkSheetDraft: openWorkSheetDraftFromProps,
+    onTotalChange = _.noop,
   } = props;
   const { worksheetId } = worksheetInfo;
   const [total, setTotal] = useState(_.get(window, `draftTotalNumInfo[${worksheetId}]`));
   const draftEntryRef = useRef(null);
+  const { open: openLocalWorkSheetDraft, holder: workSheetDraftHolder } = useWorkSheetDraftModal();
+  const openWorkSheetDraft = openWorkSheetDraftFromProps || openLocalWorkSheetDraft;
 
   // 获取草稿箱计数
-  const loadDraftDataCount = () => {
+  const loadDraftDataCount = useCallback(() => {
     if (window.draftTotalNumInfo && window.draftTotalNumInfo[worksheetId]) return;
 
     if (request && request.abort) {
@@ -409,17 +434,20 @@ function WorksheetDraft(props) {
       updateDraftTotalInfo({ worksheetId, total });
       setTotal(total);
     });
-  };
+  }, [appId, isNewRecord, worksheetId]);
 
   useEffect(() => {
     loadDraftDataCount();
-  }, []);
+  }, [loadDraftDataCount]);
 
-  const updateTotal = (obj = {}) => {
-    if (worksheetId === obj.worksheetId) {
-      setTotal(obj.total);
-    }
-  };
+  const updateTotal = useCallback(
+    (obj = {}) => {
+      if (worksheetId === obj.worksheetId) {
+        setTotal(obj.total);
+      }
+    },
+    [worksheetId],
+  );
 
   useEffect(() => {
     emitter.addListener('UPDATE_DRAFT_TOTAL', updateTotal);
@@ -427,38 +455,50 @@ function WorksheetDraft(props) {
     return () => {
       emitter.removeListener('UPDATE_DRAFT_TOTAL', updateTotal);
     };
-  }, []);
+  }, [updateTotal]);
+
+  useEffect(() => {
+    onTotalChange(Number(total) || 0);
+  }, [onTotalChange, total]);
 
   // v11.1变更: 草稿箱入口不受存草稿开关限制（有草稿记录就显示草稿箱列表入口）
   if ((isNewRecord && !total) || (_.get(worksheetInfo, 'advancedSetting.closedrafts') === '1' && !Number(total))) {
-    return <div ref={draftEntryRef}></div>;
+    return (
+      <>
+        <div ref={draftEntryRef}></div>
+        {workSheetDraftHolder}
+      </>
+    );
   }
 
   return (
-    <Tooltip placement="bottom" title={_l('草稿箱')}>
-      <span
-        className={`Relative Hand draftEntry inlineFlex alignItemsCenter ${className}`}
-        onClick={() => {
-          openWorkSheetDraft({
-            view,
-            appId,
-            worksheetInfo,
-            sheetSwitchPermit,
-            isCharge,
-            allowAdd,
-            addNewRecord: props.addNewRecord,
-            setHighLightOfRows,
-            updateDraftTotal: total => {
-              setTotal(total);
-              updateDraftTotalInfo({ worksheetId, total });
-            },
-          });
-        }}
-      >
-        <Icon icon="drafts_approval" className="Font18 textTertiary" />
-        {total ? <TotalNumWrap className="mLeft5 Font13">{total}</TotalNumWrap> : ''}
-      </span>
-    </Tooltip>
+    <>
+      <Tooltip placement="bottom" title={_l('草稿箱')}>
+        <span
+          className={`Relative Hand draftEntry inlineFlex alignItemsCenter ${className}`}
+          onClick={() => {
+            openWorkSheetDraft({
+              view,
+              appId,
+              worksheetInfo,
+              sheetSwitchPermit,
+              isCharge,
+              allowAdd,
+              addNewRecord: props.addNewRecord,
+              setHighLightOfRows,
+              updateDraftTotal: total => {
+                setTotal(total);
+                updateDraftTotalInfo({ worksheetId, total });
+              },
+            });
+          }}
+        >
+          <Icon icon="drafts_approval" className="Font18 textTertiary" />
+          {total ? <TotalNumWrap className="mLeft5 Font13">{total}</TotalNumWrap> : ''}
+        </span>
+      </Tooltip>
+      {workSheetDraftHolder}
+    </>
   );
 }
 

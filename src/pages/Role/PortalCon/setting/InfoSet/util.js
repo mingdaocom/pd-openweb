@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 
 export const initData = (enumType, type, controlId) => {
   const tempDefault = {

@@ -2,18 +2,20 @@ import React, { Component, Fragment } from 'react';
 import { ActionSheet, TextArea } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
-import MobilePopup from 'ming-ui/components/MobilePopup';
+import { Icon, VerifyPasswordInput } from 'ming-ui';
+import { MobilePopup } from 'ming-ui/antd-mobile-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import SelectUser from 'mobile/components/SelectUser';
-import verifyPassword from 'src/components/verifyPassword';
+import Signature from 'src/components/Signature';
 import instanceAJAX from 'src/pages/workflow/apiV2/instance';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
-import functionTemplateModal from '../FunctionTemplateModal';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
+import { useFunctionTemplateModal } from '../FunctionTemplateModal';
 import './index.less';
 
-export default class extends Component {
+class OtherAction extends Component {
   constructor(props) {
     super(props);
     const { instance } = this.props;
@@ -69,7 +71,9 @@ export default class extends Component {
       });
     }
 
-    this.getOperationDetail();
+    if (action !== 'addCC') {
+      this.getOperationDetail();
+    }
   }
 
   componentWillUnmount() {
@@ -127,7 +131,10 @@ export default class extends Component {
       nextApprovalUser[_.keys(nextUserRange)[0]] = selectedUsers.map(o => o.accountId);
     }
 
-    if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action) && !forwardAccountId) {
+    if (
+      _.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove', 'addCC'], action) &&
+      !forwardAccountId
+    ) {
       alert(_l('必须选择一个人员'), 2);
       return;
     }
@@ -175,22 +182,28 @@ export default class extends Component {
         });
       }
 
-      if (this.isNoneVerification) {
+      if ((this.verifyInfo || {}).isNoneVerification) {
         this.setState({ showPassword: false });
       }
     };
 
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
-      if (showPassword && (!this.password || !this.password.trim())) {
-        alert(_l('请输入密码'), 3);
-        return;
+      const verifyInfo = this.verifyInfo || {};
+
+      if (showPassword) {
+        const error = getVerifyValueError(verifyInfo);
+
+        if (error) {
+          alert(error, 3);
+          return;
+        }
       }
 
       verifyPassword({
         projectId,
-        password: this.password,
+        ...verifyInfo,
+        showVerifyType: true,
         closeImageValidation: true,
-        isNoneVerification: this.isNoneVerification,
         checkNeedAuth: !showPassword,
         success: submitFun,
         fail: () => {
@@ -219,9 +232,9 @@ export default class extends Component {
       });
   };
   handleOpenTemplate = data => {
-    const { instanceId } = this.props;
+    const { instanceId, openFunctionTemplateModal } = this.props;
 
-    functionTemplateModal({
+    openFunctionTemplateModal({
       ...data,
       instanceId,
       onSelect: content => this.setState({ content, customApproveContent: content ? true : false }),
@@ -341,10 +354,10 @@ export default class extends Component {
       );
     }
 
-    if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action)) {
+    if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove', 'addCC'], action)) {
       return (
         <div className="itemWrap flexRow valignWrapper">
-          <div className="textPrimary Font13 bold">{currentAction.headerText}</div>
+          <div className="textPrimary Font13 bold">{action === 'addCC' ? _l('抄送给') : currentAction.headerText}</div>
           {selectedUser.length ? (
             <div className="flex flexRow valignWrapper flexEnd mRight10 mLeft30">
               {_l('已选 %0 人', selectedUser.length)}
@@ -409,6 +422,7 @@ export default class extends Component {
       const TYPES = {
         transferApprove: 6,
         addApprove: 16,
+        addCC: 11,
         after: 7,
         before: 7,
         transfer: 10,
@@ -418,13 +432,27 @@ export default class extends Component {
       const appointedAccountIds = ((operationUserRange || {})[TYPES[action]] || _.flatten(_.map(nextUserRange))).filter(
         id => action === 'pass' || id !== md.global.Account.accountId,
       );
-      const unique = !_.includes(['after', 'before', 'addApprove', 'pass'], action);
+      const unique = !_.includes(['after', 'before', 'addApprove', 'addCC', 'pass'], action);
+      const filterAccountIds =
+        action === 'addCC'
+          ? _.uniq(
+              [md.global.Account.accountId]
+                .concat(
+                  (_.get(instance, 'currentWork.workItems') || []).map(item =>
+                    _.get(item, 'workItemAccount.accountId'),
+                  ),
+                  (_.isArray(selectedUser) ? selectedUser : [selectedUser]).map(item => item && item.accountId),
+                )
+                .filter(Boolean),
+            )
+          : undefined;
       return (
         <SelectUser
           projectId={projectId}
           visible={selectUserVisible}
           selectedUsers={_.isArray(selectedUser) ? selectedUser : [selectedUser]}
           selectRangeOptions={isUserRange ? { appointedAccountIds } : ''}
+          filterAccountIds={filterAccountIds}
           type="user"
           onlyOne={unique}
           onClose={() => {
@@ -434,7 +462,7 @@ export default class extends Component {
           }}
           onSave={user => {
             this.setState({ selectedUser: user });
-            action !== 'pass' && this.checkEntrust(user);
+            !_.includes(['pass', 'addCC'], action) && this.checkEntrust(user);
           }}
         />
       );
@@ -515,15 +543,15 @@ export default class extends Component {
 
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword) {
       return (
-        <div className="flexRow am-textarea-item pTop20 pBottom0">
+        <div className="flexRow am-textarea-item pTop0 pBottom0">
           <div className="flex verifyPasswordInputWrap">
             <VerifyPasswordInput
               showSubTitle={false}
               isRequired={true}
+              showVerifyType={true}
               allowNoVerify={!removeNoneVerification}
-              onChange={({ password, isNoneVerification }) => {
-                if (password !== undefined) this.password = password;
-                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+              onChange={verifyInfo => {
+                this.verifyInfo = verifyInfo;
               }}
             />
           </div>
@@ -546,6 +574,7 @@ export default class extends Component {
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
     const hideContent =
+      action === 'addCC' ||
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
       (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const isSignature = passSignature || overruleSignature;
@@ -575,7 +604,7 @@ export default class extends Component {
 
     return (
       <Fragment>
-        <div className="flex otherActionContent">
+        <div className={cx({ flex: action !== 'addCC' }, 'otherActionContent')}>
           <div className="title textPrimary bold Font15 pTop13">
             {currentAction.headerText}
             {action === 'pass' && (btnMap[4] || _l('同意'))}
@@ -593,7 +622,9 @@ export default class extends Component {
                       *
                     </div>
                   )}
-                  <div className="Font13 bold flex textPrimary">{_l('意见')}</div>
+                  <div className="Font13 bold flex textPrimary">
+                    {_.includes(['revoke', 'taskRevoke'], action) ? _l('撤回理由') : _l('意见')}
+                  </div>
                   {customApproveContent &&
                     _.includes(['pass', 'after', 'overrule', 'return'], action) &&
                     (!_.isEmpty(opinions) || !!opinionList.length) && (
@@ -614,15 +645,13 @@ export default class extends Component {
                       {content ? (
                         <div className="flex Font14 textPrimary">{content}</div>
                       ) : (
-                        <div className="flex Font14" style={{ color: 'var(--color-text-disabled)' }}>
-                          {currentAction.placeholder}
-                        </div>
+                        <div className="flex Font14 textDisabled">{currentAction.placeholder}</div>
                       )}
-                      <Icon icon="arrow-right-border" />
+                      <Icon icon="arrow-right-border" className="textTertiary" />
                     </div>
                   ) : (
                     <TextArea
-                      className="flex"
+                      className="flex flexRow alignItemsCenter"
                       placeholder={currentAction.placeholder}
                       rows={1}
                       autoSize={{ minRows: 1, maxRows: 12 }}
@@ -703,11 +732,11 @@ export default class extends Component {
   }
   render() {
     const { backFlowNodesVisible, edit } = this.state;
-    const { visible, onHide } = this.props;
+    const { visible, onHide, action, functionTemplateModalHolder } = this.props;
     return (
       <MobilePopup
         visible={visible}
-        layerId={`otherAction-${this.props.action}`}
+        layerId={`otherAction-${action}`}
         className={cx('otherActionModal mobileModal', { backFlowNodeModal: backFlowNodesVisible })}
         onClose={() => {
           if (edit) return;
@@ -715,10 +744,20 @@ export default class extends Component {
         }}
         closeOnMaskClick={true}
       >
-        <div className="otherActionWrapper flexColumn leftAlign" style={{ height: edit ? 300 : 'auto' }}>
+        {functionTemplateModalHolder}
+        <div
+          className={cx('otherActionWrapper flexColumn leftAlign', { compact: action === 'addCC' })}
+          style={{ height: edit ? 300 : 'auto' }}
+        >
           {backFlowNodesVisible ? this.renderBackFlowNodes() : this.renderContent()}
         </div>
       </MobilePopup>
     );
   }
 }
+
+export default React.forwardRef(function OtherActionWithTemplateModal(props, ref) {
+  const { open, holder } = useFunctionTemplateModal();
+
+  return <OtherAction {...props} ref={ref} openFunctionTemplateModal={open} functionTemplateModalHolder={holder} />;
+});

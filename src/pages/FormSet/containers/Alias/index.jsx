@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
+import { Button, Input } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import AliasDialog from '../../components/AliasDialog';
 import './index.less';
 
@@ -66,7 +68,7 @@ export default function Alias(props) {
       .then(() => {
         onChange({ ...worksheetInfo, entityName: name || defaultName });
       })
-      .catch(() => alert(_l('修改失败'), 2));
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('修改失败'), 2));
   };
 
   const changeAlias = e => {
@@ -106,8 +108,7 @@ export default function Alias(props) {
             <p>
               {_l('设置在添加按钮，消息通知等需要指代记录时所使用的名称，如：可以修改“客户管理”表的记录名称为“客户”。')}
             </p>
-            <input
-              type="text"
+            <Input
               className="name mTop6"
               placeholder={_l('请输入')}
               value={name}
@@ -117,8 +118,7 @@ export default function Alias(props) {
             />
             <h6 className="Font14 mTop24">{_l('新建按钮名称')}</h6>
             <p>{_l('设置新建记录时的按钮名称，未设置时默认使用记录名称')}</p>
-            <input
-              type="text"
+            <Input
               className="name mTop6"
               placeholder={name || _l('请输入')}
               value={btnname}
@@ -128,10 +128,9 @@ export default function Alias(props) {
             <div className="preview mTop18">
               <div className="btn">
                 <span className="title WordBreak">{_l('按钮预览')}</span>
-                <span className="btnCon TxtTop WordBreak">
-                  <Icon icon="plus" className="mRight8" />
-                  <span className="Bold">{(btnname || '').trim() || name}</span>
-                </span>
+                <Button className="aliasButtonPreview" type="primary" shape="round" icon={<Icon icon="plus" />}>
+                  <span className="overflow_ellipsis">{(btnname || '').trim() || name}</span>
+                </Button>
               </div>
               <div className="notice mTop18">
                 <span className="title WordBreak">{_l('通知预览')}</span>
@@ -162,23 +161,26 @@ export default function Alias(props) {
             <h5 className="Font17">{_l('工作表/字段别名')}</h5>
             <p>{_l('通过设置工作表和字段别名，使得它们在API、webhook、自定义打印等场景使用的时候更具有辨识度。')}</p>
             <h6 className="Font14 mTop24">{_l('工作表别名')}</h6>
-            <input
-              type="text"
+            <Input
               className="name mTop6"
               placeholder={_l('请输入')}
               defaultValue={worksheetInfo.alias}
               onBlur={changeAlias}
             />
             <h6 className="Font14 mTop24">{_l('字段别名')}</h6>
-            <div className="btnAlias mTop6" onClick={() => setState({ showAliasDialog: !showAliasDialog })}>
+            <Button
+              className="mTop6"
+              color="primary"
+              variant="outlined"
+              onClick={() => setState({ showAliasDialog: !showAliasDialog })}
+            >
               {_l('设置字段别名')}
-            </div>
+            </Button>
             <span className="line"></span>
             <h5 className="Font17">{_l('开发者备注')}</h5>
             <p>{_l('设置开发者备注，仅应用管理员、开发者和API中可见')}</p>
             <h6 className="Font14 mTop24">{_l('开发者备注')}</h6>
-            <input
-              type="text"
+            <Input
               className="name mTop6"
               placeholder={_l('请输入')}
               defaultValue={worksheetInfo.developerNotes}

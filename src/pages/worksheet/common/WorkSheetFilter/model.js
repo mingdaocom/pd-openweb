@@ -1,13 +1,13 @@
 import update from 'immutability-helper';
 import _, { get } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { FILTER_RELATION_TYPE, FILTER_TYPE } from './enum';
 import {
   checkConditionAvailable,
   formatConditionForSave,
   formatOriginFilterGroupValue,
   getDefaultCondition,
-} from './util';
+} from 'src/utils/domain/worksheet/filterCondition';
+import { FILTER_RELATION_TYPE, FILTER_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 export const initialState = {
   filters: [],
@@ -132,13 +132,6 @@ class Actions {
 
   addCondition = (control, groupIndex = 0, from) => {
     const condition = getDefaultCondition(control, from);
-    setTimeout(() => {
-      const dom = document.querySelector('.keyStr_' + condition.keyStr + ' .ant-select-selector');
-
-      if (dom) {
-        dom.click();
-      }
-    }, 100);
     this.dispatch({
       type: 'ADD_CONDITION',
       condition: condition,
@@ -354,13 +347,44 @@ export function createReducer(state = {}, action) {
           $apply: filter => ({ ...(filter || {}), ...action.value }),
         },
       });
-    case 'ADD_CONDITION':
+    case 'ADD_CONDITION': {
       if (!state.editingFilter) return state;
+      const conditionsGroups = state.editingFilter.conditionsGroups || [];
+
+      // 清空条件（CLEAR_CONDITIONS）后 conditionsGroups 为空数组，此时列头筛选入口传进来的
+      // groupIndex 是 length - 1 = -1，直接按下标 update 会踩到 undefined.conditions。
+      // 分组不存在时补建一个默认分组，越界下标收敛到现有分组，保证新条件有处可放。
+      if (!conditionsGroups.length) {
+        return updateWithLastAction(state, {
+          needSave: { $set: true },
+          editingFilterVersion: { $set: Math.random() },
+          editingFilter: {
+            conditionsGroups: {
+              $set: [
+                {
+                  spliceType: FILTER_RELATION_TYPE.AND,
+                  conditionSpliceType: FILTER_RELATION_TYPE.AND,
+                  conditions: [action.condition],
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      const groupIndex = _.clamp(_.isNumber(action.groupIndex) ? action.groupIndex : 0, 0, conditionsGroups.length - 1);
+
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
-        editingFilter: { conditionsGroups: { [action.groupIndex]: { conditions: { $push: [action.condition] } } } },
+        editingFilter: {
+          conditionsGroups: {
+            [groupIndex]: { conditions: { $apply: conditions => (conditions || []).concat(action.condition) } },
+          },
+        },
       });
+    }
+
     case 'UPDATE_CONDITION':
       if (!state.editingFilter) return state;
       return updateWithLastAction(state, {

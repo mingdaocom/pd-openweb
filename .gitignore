@@ -18,6 +18,7 @@ Thumbs.db
 
 # Generated files and build output
 /build
+/outputs/
 node_modules
 .cache-loader/
 *.less.js
@@ -32,7 +33,9 @@ package-lock.json
 # Tool output
 .codegraph/
 .scannerwork
+/static_analysis_semgrep_*/
 *.llog
 
 # Test files
 *.test.js
+/docs/

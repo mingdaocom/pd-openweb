@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Select } from 'antd';
 import JsonView from '@mingdaocom/json-view';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { formatFilters } from '../../core/utils';
 
@@ -54,6 +54,7 @@ const formatConditionsValue = conditions => {
   });
   return formatValue;
 };
+
 const normalizeValues = values => {
   return _.isArray(values)
     ? values.map(v => {
@@ -108,12 +109,20 @@ export default function FiltersGenerate(props) {
       </div>
 
       {visible && (
-        <Dialog
-          visible={true}
+        <Modal
+          open
+          mask={{ closable: true }}
+          keyboard
           width={800}
-          showFooter={false}
-          title={<span className="Font20">{_l('筛选条件生成器')}</span>}
-          description={_l('生成 API 可以直接用的筛选条件，可直接传入 filter 字段中')}
+          footer={null}
+          title={
+            <React.Fragment>
+              <div className="Font20">{_l('筛选条件生成器')}</div>
+              <div className="Font13 Normal textSecondary mTop8">
+                {_l('生成 API 可以直接用的筛选条件，可直接传入 filter 字段中')}
+              </div>
+            </React.Fragment>
+          }
           onCancel={() => {
             setVisible(false);
             setFilters([]);
@@ -149,27 +158,26 @@ export default function FiltersGenerate(props) {
               <div className="selectWrapper">
                 <Select
                   value={apiVersion}
-                  onChange={value => setApiVersion(value)}
+                  onChange={setApiVersion}
                   style={{ width: 80, backgroundColor: 'var(--color-background-secondary)' }}
-                  bordered={false}
+                  variant="borderless"
                   size="small"
-                >
-                  {[
+                  options={[
                     { value: 'apiV2', label: 'API2.0' },
                     { value: 'apiV3', label: 'API3.0' },
-                  ].map(item => (
-                    <Select.Option className={apiVersion === item.value ? 'selectOptionActive' : ''} value={item.value}>
-                      <span className="label">{item.label}</span>
-                    </Select.Option>
-                  ))}
-                </Select>
+                  ].map(item => ({
+                    value: item.value,
+                    label: <span className="label">{item.label}</span>,
+                    className: apiVersion === item.value ? 'selectOptionActive' : '',
+                  }))}
+                />
               </div>
               <div className="jsonViewWrapper">
                 <JsonView theme="light" data={apiVersion === 'apiV3' ? apiV3Filters : filters} />
               </div>
             </div>
           </Wrapper>
-        </Dialog>
+        </Modal>
       )}
     </React.Fragment>
   );

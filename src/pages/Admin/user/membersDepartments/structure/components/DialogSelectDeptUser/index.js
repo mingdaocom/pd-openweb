@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
-import Checkbox from 'ming-ui/components/Checkbox';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import departmentController from 'src/api/department';
 import './index.less';
+
+const USER_CHECKBOX_STYLES = {
+  root: { flex: 1, minWidth: 0 },
+  label: { display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, paddingInlineEnd: 0 },
+};
 
 export default class SelectDeptUser extends Component {
   constructor(props) {
@@ -81,13 +86,23 @@ export default class SelectDeptUser extends Component {
     const { dataList, loading, selectedUsersIds, keywords = '' } = this.state;
 
     return (
-      <Dialog title={_l('设置部门负责人')} visible={visible} onCancel={onCancel} onOk={this.onOk}>
+      <Modal
+        width={480}
+        open={visible}
+        title={_l('设置部门负责人')}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onCancel}
+        onOk={this.onOk}
+      >
         <div className="selectDepartmentUserContainer overflowHidden">
-          <div className="selectDepartmentUserContainer_search">
-            <span className="searchIcon icon-search"></span>
-            <input
+          <div>
+            <Input
               type="text"
               className="searchInput"
+              value={keywords}
+              allowClear
+              prefix={<span className="icon-search textTertiary Font20" />}
               placeholder={_l('搜索成员')}
               onChange={e =>
                 this.setState(
@@ -96,7 +111,6 @@ export default class SelectDeptUser extends Component {
                 )
               }
             />
-            <span className="searchClose icon-cancel"></span>
           </div>
           {!loading && _.isEmpty(dataList) ? (
             <div className="selectDepartmentUserContent emptyUserWrap flexColumn justifyContentCenter alignItemsCenter">
@@ -114,11 +128,13 @@ export default class SelectDeptUser extends Component {
                     <div className="userItem">
                       <Checkbox
                         checked={_.includes(selectedUsersIds, accountId)}
-                        onClick={checked => this.checkedCurrentUser(checked, item)}
-                      />
-                      <img className="circle userAvatar InlineBlock" src={avatar} alt={fullname} />
-                      <span className="userName overflow_ellipsis">{fullname}</span>
-                      <span className="profession overflow_ellipsis">{job}</span>
+                        styles={USER_CHECKBOX_STYLES}
+                        onChange={event => this.checkedCurrentUser(!event.target.checked, item)}
+                      >
+                        <img className="circle userAvatar InlineBlock" src={avatar} alt={fullname} />
+                        <span className="userName overflow_ellipsis">{fullname}</span>
+                        <span className="profession overflow_ellipsis">{job}</span>
+                      </Checkbox>
                     </div>
                   );
                 })}
@@ -127,9 +143,11 @@ export default class SelectDeptUser extends Component {
             </div>
           )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export const dialogSelectDeptUser = props => FunctionWrap(SelectDeptUser, { ...props });
+export function useDialogSelectDeptUser() {
+  return useFunctionWrapComponent(SelectDeptUser);
+}

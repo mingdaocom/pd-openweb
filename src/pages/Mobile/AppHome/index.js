@@ -3,14 +3,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
+import { PullToRefreshWrapper } from 'ming-ui/antd-mobile-components';
 import MobileChart from 'mobile/CustomPage/ChartContent';
 import { RecordInfoModal } from 'mobile/Record';
 import TextScanQRCode from 'src/components/Form/MobileForm/components/TextScanQRCode';
+import { canShowMingoEntry } from 'src/components/Mingo/permission';
 import BulletinBoard from 'src/pages/AppHomepage/Dashboard/BulletinBoard';
-import { MODULE_TYPES } from 'src/pages/AppHomepage/Dashboard/utils';
-import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog, getCurrentProject } from 'src/utils/project';
+import { MODULE_TYPES, normalizeSortModuleIds } from 'src/pages/AppHomepage/Dashboard/utils';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { addBehaviorLog, getCurrentProject } from 'src/utils/services/project';
 import * as appActions from '../App/redux/actions';
 import SelectProject from '../components/SelectProject';
 import TabBar from '../components/TabBar';
@@ -168,12 +171,15 @@ class AppHome extends React.Component {
             }}
           />
         </div>
-        <div
-          className="mingoEntry flexRow alignItemsCenter justifyContentCenter"
-          onClick={() => window.mobileNavigateTo('/mobile/mingo')}
-        >
-          <img src={md.global.SysSettings.aiBrandLogoUrl || mingoImg} alt="Mingo" />
-        </div>
+        {/* 账号下所有组织都禁用 MingoAI 时不再提供入口 */}
+        {canShowMingoEntry() && (
+          <div
+            className="mingoEntry flexRow alignItemsCenter justifyContentCenter"
+            onClick={() => window.mobileNavigateTo('/mobile/mingo')}
+          >
+            <img src={md.global.SysSettings.aiBrandLogoUrl || mingoImg} alt="Mingo" />
+          </div>
+        )}
       </div>
     );
   };
@@ -465,6 +471,7 @@ class AppHome extends React.Component {
       todoDisplay,
       reportAutoRefreshTimer,
       displayApp,
+      displayChart,
       sortItems = [],
     } = homeSetting;
     const { boardSwitch } = platformSetting;
@@ -473,8 +480,7 @@ class AppHome extends React.Component {
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
     const isExternal = currentProject.projectId === 'external';
-    let sortModuleTypes = sortItems.map(item => item.moduleType);
-    sortModuleTypes = _.isEmpty(sortModuleTypes) ? [0, 1, 2, 3] : sortModuleTypes;
+    const sortModuleTypes = normalizeSortModuleIds(sortItems);
 
     if (isHomeLoading) {
       return <AppGroupSkeleton />;
@@ -500,34 +506,47 @@ class AppHome extends React.Component {
 
           <Fragment>
             {sortModuleTypes.map(moduleType => {
+              let content;
+
               switch (moduleType) {
                 case MODULE_TYPES.APP_COLLECTION:
                   // 应用收藏
-                  return displayMark && !isExternal ? this.renderCollectAppList() : '';
+                  content = displayMark && !isExternal ? this.renderCollectAppList() : null;
+                  break;
                 case MODULE_TYPES.RECENT:
                   // 最近使用
-                  return displayCommonApp && !isExternal ? this.renderRecent() : '';
+                  content = displayCommonApp && !isExternal ? this.renderRecent() : null;
+                  break;
                 case MODULE_TYPES.ROW_COLLECTION:
                   // 记录收藏
-                  return rowCollect && !isExternal ? this.renderCollectRecords() : '';
+                  content = rowCollect && !isExternal ? this.renderCollectRecords() : null;
+                  break;
                 case MODULE_TYPES.CHART_COLLECTION:
                   // 图表收藏
-                  return this.renderCollectCharts(currentProject.projectId, reportAutoRefreshTimer);
+                  content =
+                    displayChart && !isExternal
+                      ? this.renderCollectCharts(currentProject.projectId, reportAutoRefreshTimer)
+                      : null;
+                  break;
+                case MODULE_TYPES.APP:
+                  // 应用
+                  content =
+                    displayApp || isExternal ? (
+                      <ApplicationList
+                        myAppData={myPlatformData}
+                        myPlatformLang={myPlatformLang}
+                        projectId={currentProject.projectId}
+                        projectGroupsNameLang={projectGroupsNameLang}
+                      />
+                    ) : null;
+                  break;
                 default:
-                  return null;
+                  content = null;
               }
+
+              return <Fragment key={moduleType}>{content}</Fragment>;
             })}
           </Fragment>
-
-          {/* 应用 */}
-          {(displayApp || isExternal) && (
-            <ApplicationList
-              myAppData={myPlatformData}
-              myPlatformLang={myPlatformLang}
-              projectId={currentProject.projectId}
-              projectGroupsNameLang={projectGroupsNameLang}
-            />
-          )}
         </PullToRefreshWrapper>
       </div>
     );

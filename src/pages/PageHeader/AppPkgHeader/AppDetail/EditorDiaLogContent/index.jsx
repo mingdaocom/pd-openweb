@@ -1,29 +1,26 @@
 ﻿import React, { Component, Fragment } from 'react';
-import { Button, Divider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ColorPicker, Icon, Input, LoadDiv, RadioGroup, RichText, SvgIcon, Textarea, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ColorPicker, Icon, LoadDiv, RichText, SvgIcon, UserHead } from 'ming-ui';
+import { Button, Divider, Input, Radio, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import { generateAppOrWorksheetDescription } from 'src/utils/app';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { generateAppOrWorksheetDescription } from 'src/utils/services/app';
 import './index.less';
+
+const REMARK_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 5 };
 
 const Wrap = styled.div`
   .ck-editor__main {
-    max-height: ${props => (props.richTextHeight ? `${props.richTextHeight}px` : `100%`)};
+    max-height: ${props => (props.$richTextHeight ? `${props.$richTextHeight}px` : `100%`)};
   }
   .flexShrink0 {
     flex-shrink: 0;
     min-width: 0;
   }
   .createRemarkWrap {
-    .ming.Textarea {
-      padding: 5px 12px;
-      line-height: 24px;
-    }
     .withdraw,
     .active {
       padding: 2px 5px;
@@ -40,9 +37,6 @@ const Wrap = styled.div`
       }
     }
     .error {
-      .ming.Textarea {
-        border-color: var(--color-error) !important;
-      }
       .TxtRight {
         color: var(--color-error);
       }
@@ -182,10 +176,17 @@ export default class Editor extends Component {
    */
   recovery = () => {
     const { cacheKey } = this.props;
+    const { showType, resume, resumeColor, remark } = this.state;
     const cacheSummary = localStorage.getItem('mdEditor_' + cacheKey);
+    const resumeInfo = JSON.stringify({
+      value: resume,
+      color: resumeColor,
+    });
 
     this.props.onSave({
       description: cacheSummary,
+      resume: showType ? resumeInfo : '',
+      remark,
     });
     this.setState({ showCache: false });
   };
@@ -216,7 +217,7 @@ export default class Editor extends Component {
     }
 
     if (remark && remark.length > remarkMaxLength) {
-      alert(_l('描述文字超出上限'), 2);
+      alert(_l('备注文字超出上限'), 2);
       return;
     }
 
@@ -316,12 +317,14 @@ export default class Editor extends Component {
       maxHeight,
       minHeight,
       cacheKey,
+      showRemark,
       data = {},
       renderLeftContent,
     } = this.props;
 
     const isAppIntroDescription = cacheKey === 'appIntroDescription';
     const isSheetIntroDescription = cacheKey === 'sheetIntroDescription';
+    const shouldShowRemark = showRemark !== false && cacheKey !== 'appMultilingual';
     const clientHeight = document.body.clientHeight;
     const distance = isEditing ? (isSheetIntroDescription ? (showType ? 455 : 380) : 198) : 135;
     const richTextHeight = isAppIntroDescription && !isEditing ? 0 : clientHeight - distance;
@@ -336,7 +339,7 @@ export default class Editor extends Component {
         <Wrap
           className={cx('mdEditor', { Alpha8: !auth }, className, { pBottom15: summary })}
           onClick={joinEditing}
-          richTextHeight={richTextHeight}
+          $richTextHeight={richTextHeight}
         >
           {isAppIntroDescription && !_.isEmpty(data) ? (
             <header className="appDescriptionHeader flexColumn alignItemsCenter justifyContentCenter">
@@ -370,8 +373,7 @@ export default class Editor extends Component {
               )}
               {isEditAppDescription && (
                 <Divider className="mBottom5">
-                  <Button size="small" onClick={() => changeEditState(true)}>
-                    <Icon className="mRight2" icon="edit" />
+                  <Button size="small" icon={<Icon icon="edit" />} onClick={() => changeEditState(true)}>
                     <span className="Font13">{_l('编辑')}</span>
                   </Button>
                 </Divider>
@@ -449,7 +451,7 @@ export default class Editor extends Component {
     return (
       <Wrap
         className={cx('mdEditor', className, { sheetEditor: isSheetIntroDescription })}
-        richTextHeight={richTextHeight}
+        $richTextHeight={richTextHeight}
       >
         {toorIsBottom && (
           <RichText
@@ -471,33 +473,31 @@ export default class Editor extends Component {
           <div className="flex" />
           {!isSheetIntroDescription && renderFooter()}
         </div>
-        {(isAppIntroDescription || isSheetIntroDescription) && (
+        {shouldShowRemark && (
           <div className="pLeft24 pRight24 pBottom10 createRemarkWrap">
             <div className="flexRow alignItemsCenter justifyContentBetween pBottom10">
               <div className="flexRow alignItemsCenter">
-                <span className="bold">{_l('描述')}</span>
+                <span className="bold">{_l('备注')}</span>
                 <Tooltip
                   title={
                     isAppIntroDescription
-                      ? _l(
-                          '用于概括应用的主要用途和业务定位，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
-                        )
-                      : _l(
-                          '用于定义工作表的用途和业务背景，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
-                        )
+                      ? _l('用于概括应用的主要用途和业务定位，便于AI正确理解和使用。备注内容不会直接展示给普通用户。')
+                      : _l('备注用途和业务背景，便于AI正确理解和使用。备注内容不会直接展示给普通用户。')
                   }
                 >
                   <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
                 </Tooltip>
               </div>
-              {!md.global.SysSettings.hideAIBasicFun && this.renderState()}
+              {!md.global.SysSettings.hideAIBasicFun &&
+                (isAppIntroDescription || isSheetIntroDescription) &&
+                this.renderState()}
             </div>
             <div className={cx('w100', { error: isError })}>
-              <Textarea
-                minHeight={36}
-                maxHeight={36 * 2}
+              <Input.TextArea
+                autoSize={REMARK_TEXTAREA_AUTO_SIZE}
                 value={remark}
                 disabled={aiCreateLoading}
+                status={isError ? 'error' : undefined}
                 placeholder={
                   aiCreateLoading
                     ? _l('AI 生成中...')
@@ -505,9 +505,9 @@ export default class Editor extends Component {
                       ? _l('例如: 跟进销售线索的客户管理系统')
                       : _l('例如：记录和管理订单信息的数据表')
                 }
-                onChange={value => {
+                onChange={event => {
                   this.setState({
-                    remark: value,
+                    remark: event.target.value,
                     sourceAi: false,
                   });
                 }}
@@ -532,9 +532,9 @@ export default class Editor extends Component {
           <div className="sheetIntroInfo">
             <div className="mBottom10 flexRow alignItemsCenter">
               <div className="Font13 mRight20">{_l('显示方式')}</div>
-              <RadioGroup
+              <Radio.Group
                 size="middle"
-                data={[
+                options={[
                   {
                     text: _l('图标'),
                     value: 0,
@@ -543,10 +543,14 @@ export default class Editor extends Component {
                     text: _l('文字'),
                     value: 1,
                   },
-                ]}
-                checkedValue={showType}
-                onChange={value => {
-                  this.setState({ showType: value });
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                value={showType}
+                onChange={event => {
+                  const value = event.target.value;
+
+                  this.setState({
+                    showType: value,
+                  });
                 }}
               />
             </div>
@@ -561,8 +565,8 @@ export default class Editor extends Component {
                     <Input
                       className="w100"
                       value={this.state.resume}
-                      onChange={value => {
-                        this.setState({ resume: value.slice(0, 80).trim() });
+                      onChange={event => {
+                        this.setState({ resume: event.target.value.slice(0, 80).trim() });
                       }}
                     />
                     <span className="resumeLength Font13 textTertiary">{`${this.state.resume.length}/80`}</span>

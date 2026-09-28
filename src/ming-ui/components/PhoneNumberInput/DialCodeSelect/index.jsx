@@ -1,7 +1,8 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import { isValidPhoneNumber } from 'libphonenumber-js/max';
 import _ from 'lodash';
+import DialCodePanelLayer from 'ming-ui/antd-components/PhoneNumberInput/DialCodePanelLayer';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import DialCodePanel from './DialCodePanel';
 import { buildCountryOptions, getDefaultCode, parseDialCode, parseFullNumberInput } from './utils';
 
@@ -118,7 +119,6 @@ export class DialCodeSelectInstance {
     if (this.container) return;
     this.container = document.createElement('div');
     this.container.style.position = 'fixed';
-    this.container.style.zIndex = '1050';
     document.body.appendChild(this.container);
     this.root = createRoot(this.container);
   };
@@ -179,21 +179,35 @@ export class DialCodeSelectInstance {
     }
   };
 
+  _setPanelZIndex = zIndex => {
+    if (this.container) this.container.style.zIndex = String(zIndex);
+  };
+
   _renderPanel = () => {
     if (!this.root || !this.isOpen) return;
+    // 命令式入口的独立 Root 无法继承 owner Context，从触发器祖先恢复层级后交给 Antd 计算。
+    let parentZIndex = 0;
+
+    for (let element = this.element?.parentElement; element; element = element.parentElement) {
+      const zIndex = Number(window.getComputedStyle(element).zIndex);
+      if (Number.isFinite(zIndex)) parentZIndex = Math.max(parentZIndex, zIndex);
+    }
+
     this.root.render(
-      <DialCodePanel
-        countryOptions={this.getCountryOptions()}
-        code={this.code}
-        preferredCountries={this.preferredCountries}
-        locale={this.locale}
-        {...this.panelLayout}
-        onSelectCode={nextCode => {
-          this.code = nextCode;
-          this.onSelectCode(nextCode);
-          this._closePanel();
-        }}
-      />,
+      <DialCodePanelLayer onZIndexChange={this._setPanelZIndex} parentZIndex={parentZIndex}>
+        <DialCodePanel
+          countryOptions={this.getCountryOptions()}
+          code={this.code}
+          preferredCountries={this.preferredCountries}
+          locale={this.locale}
+          {...this.panelLayout}
+          onSelectCode={nextCode => {
+            this.code = nextCode;
+            this.onSelectCode(nextCode);
+            this._closePanel();
+          }}
+        />
+      </DialCodePanelLayer>,
     );
   };
 
@@ -222,7 +236,7 @@ export class DialCodeSelectInstance {
     document.removeEventListener('scroll', this._onReposition, true);
     window.removeEventListener('resize', this._onReposition, true);
     window.removeEventListener('scroll', this._onReposition, true);
-    this.root?.render(<></>);
+    this.root?.render(null);
   };
 
   _togglePanel = () => {
@@ -299,6 +313,7 @@ export class IntlTelInputAdapter {
     this.dialCodeTrigger = null;
     this.dialCodeLabel = null;
     this.showDialCodeInput = !!options.showDialCodeInput && this.element?.tagName === 'INPUT';
+    this.allowDropdown = options.allowDropdown !== false;
     this.dialCodeInputGap = Number.isFinite(options.dialCodeInputGap) ? options.dialCodeInputGap : 24;
     this.defaultCountry = String(options.initialCountry || 'cn').toLowerCase();
     this.preferredCountries = options.preferredCountries || [];
@@ -313,7 +328,7 @@ export class IntlTelInputAdapter {
     this.setupDialCodeInput();
 
     this.instance = new DialCodeSelectInstance({
-      dom: this.dialCodeTrigger || element,
+      dom: this.allowDropdown ? this.dialCodeTrigger || element : null,
       value: element?.value || '',
       defaultCountry: this.defaultCountry,
       preferredCountries: this.preferredCountries,
@@ -386,7 +401,7 @@ export class IntlTelInputAdapter {
     this.dialCodeTrigger = document.createElement('div');
     this.dialCodeTrigger.className = 'mdIntlTelDialCodeTrigger';
     this.dialCodeTrigger.setAttribute('role', 'button');
-    this.dialCodeTrigger.tabIndex = this.element.disabled ? -1 : 0;
+    this.dialCodeTrigger.tabIndex = this.element.disabled || !this.allowDropdown ? -1 : 0;
     this.dialCodeTrigger.style.cssText = [
       'position:absolute',
       'padding-left:12px',
@@ -395,7 +410,7 @@ export class IntlTelInputAdapter {
       'align-items:center',
       'gap:4px',
       'padding-right:4px',
-      'cursor:pointer',
+      `cursor:${this.allowDropdown ? 'pointer' : 'default'}`,
       'z-index:2',
       'user-select:none',
       'line-height:normal',
@@ -406,7 +421,7 @@ export class IntlTelInputAdapter {
 
     const arrow = document.createElement('span');
     arrow.className = 'mdIntlTelDialCodeArrow';
-    arrow.style.cssText = 'font-size:12px;line-height:1;';
+    arrow.style.cssText = `font-size:12px;line-height:1;${this.allowDropdown ? '' : 'display:none;'}`;
     arrow.textContent = '▾';
 
     this.dialCodeTrigger.appendChild(this.dialCodeLabel);

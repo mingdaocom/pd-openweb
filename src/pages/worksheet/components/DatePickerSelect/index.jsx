@@ -1,13 +1,27 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
-import { DatePicker } from 'ming-ui';
-import './index.less';
+import { DatePicker, Dropdown } from 'ming-ui/antd-components';
 
 const TODAY = new Date();
 const CUSTOM_TIME_FORMAT = {
   hour: 'YYYY-MM-DD HH',
   minute: 'YYYY-MM-DD HH:mm',
   second: 'YYYY-MM-DD HH:mm:ss',
+};
+const CUSTOM_TIME_PICKER_FORMAT = {
+  hour: 'HH',
+  minute: 'HH:mm',
+  second: 'HH:mm:ss',
+};
+const DROPDOWN_MENU_STYLE = { width: 239 };
+const RANGE_PICKER_STYLES = {
+  root: {
+    pointerEvents: 'none',
+    opacity: 0,
+    position: 'absolute',
+    bottom: 0,
+    insetInlineStart: 0,
+  },
 };
 
 const DEFAULT_OPTIONS = [
@@ -72,41 +86,102 @@ function getCustomRangeLabel(value, timeMode) {
 }
 
 export default function DatePickSelect(props) {
-  const { options = DEFAULT_OPTIONS, onChange, selectedValue, timePicker = false, timeMode = 'minute' } = props;
-  const ref = useRef(null);
+  const {
+    options = DEFAULT_OPTIONS,
+    onChange,
+    onOpenChange,
+    open,
+    selectedValue,
+    timePicker = false,
+    timeMode = 'minute',
+    align,
+    children,
+  } = props;
+  const [innerOpen, setInnerOpen] = useState(false);
+  const [panelVisible, setPanelVisible] = useState(false);
+  const dropdownOpen = open ?? innerOpen;
+  const dateTimeFormat = CUSTOM_TIME_FORMAT[timeMode] || CUSTOM_TIME_FORMAT.minute;
+  const timeFormat = CUSTOM_TIME_PICKER_FORMAT[timeMode] || CUSTOM_TIME_PICKER_FORMAT.minute;
+
+  const updateOpen = (nextOpen, info) => {
+    setInnerOpen(nextOpen);
+    if (!nextOpen) {
+      setPanelVisible(false);
+    }
+
+    if (info?.source !== 'menu') {
+      onOpenChange?.(nextOpen);
+    }
+  };
+
+  const handleOptionChange = item => {
+    updateOpen(false);
+    onChange(item);
+  };
+
+  const handleCustomChange = (item, value) => {
+    if (value && (value.length !== 2 || value.some(time => !time))) {
+      return;
+    }
+
+    handleOptionChange({
+      ...item,
+      label: timePicker && value ? getCustomRangeLabel(value, timeMode) : item.label,
+      value: value?.map(time => moment(time).format()),
+    });
+  };
+
+  const menuItems = options.map(item => {
+    if (item.key !== 'custom') {
+      return {
+        key: item.key,
+        label: item.label,
+        onClick: () => handleOptionChange(item),
+      };
+    }
+
+    return {
+      key: item.key,
+      label: (
+        <div
+          onClick={event => {
+            event.stopPropagation();
+            setPanelVisible(true);
+          }}
+        >
+          <span>{_l('自定义日期')}</span>
+          <div onClick={event => event.stopPropagation()}>
+            <DatePicker.RangePicker
+              open={panelVisible}
+              value={selectedValue}
+              format={timePicker ? dateTimeFormat : 'YYYY-MM-DD'}
+              showTime={timePicker ? { format: timeFormat } : false}
+              needConfirm={timePicker}
+              placement="bottomRight"
+              styles={RANGE_PICKER_STYLES}
+              onOpenChange={nextOpen => {
+                if (!nextOpen) {
+                  setPanelVisible(false);
+                }
+              }}
+              onChange={value => handleCustomChange(item, value)}
+            />
+          </div>
+        </div>
+      ),
+    };
+  });
 
   return (
-    <ul className="worksheet-data-pick-select">
-      {options.map(item => {
-        return item.key !== 'custom' ? (
-          <li key={`data-pick-select-${item.key}`} onClick={() => onChange(item)}>
-            {item.label}
-          </li>
-        ) : (
-          <div key={`data-pick-select-${item.key}`} ref={ref}>
-            <DatePicker.RangePicker
-              offset={{ left: -533, top: 0 }}
-              popupParentNode={() => ref.current}
-              selectedValue={selectedValue}
-              timePicker={timePicker}
-              timeMode={timeMode}
-              onOk={value => {
-                const rangeValue = value.map(time => moment(time).format());
-
-                onChange({
-                  ...item,
-                  label: timePicker ? getCustomRangeLabel(value, timeMode) : item.label,
-                  value: rangeValue,
-                });
-              }}
-              onClear={() => onChange({ ...item, value: undefined })}
-              onSelect={() => {}}
-            >
-              <li>{_l('自定义日期')}</li>
-            </DatePicker.RangePicker>
-          </div>
-        );
-      })}
-    </ul>
+    <Dropdown
+      open={dropdownOpen}
+      trigger={['click']}
+      placement="bottomRight"
+      align={align}
+      onOpenChange={updateOpen}
+      menu={{ items: menuItems, style: DROPDOWN_MENU_STYLE }}
+    >
+      {children}
+    </Dropdown>
   );
 }

@@ -5,16 +5,16 @@ import cx from 'classnames';
 import _, { pick } from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
-import { getTitleControlIdFromRelateControl } from 'src/components/Form/core/utils';
-import { selectRecords } from 'src/components/SelectRecords';
-import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
+import { useSelectRecords } from 'src/components/SelectRecords';
+import { useSearchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
 import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
-import { browserIsMobile, htmlEncodeReg } from 'src/utils/common';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { getTitleControlIdFromRelateControl, getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addBehaviorLog } from 'src/utils/services/project';
 
 function getCellHeight(texts = [], width) {
   let result;
@@ -79,7 +79,7 @@ const Tag = styled.div`
   position: relative;
   display: inline-block;
   line-height: 21px;
-  background-color: rgba(0, 100, 240, 0.08);
+  background-color: var(--color-primary-transparent);
   border-radius: 3px;
   padding: 0 10px;
   margin: 6px 0 0 6px;
@@ -162,6 +162,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     disabled,
     isediting,
     rowIndex,
+    isSubList,
     allowOpenRecord,
     style = {},
     control,
@@ -172,6 +173,10 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     onCloseDialog = () => {},
     onOpenDialog = () => {},
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
+  const { open: searchRecordInDialog, holder: searchRecordInDialogHolder } = useSearchRecordInDialog();
   const { rows } = useContext(ChildTableContext) || {};
   const [changed, setChanged] = useState(false);
   const [count, setCount] = useState(props.count || 0);
@@ -269,7 +274,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       control.unique || control.uniqueInRecord
         ? (rows || []).map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid')).filter(_.identity)
         : [];
-    selectRecords({
+    openSelectRecords({
       // canSelectAll: true,
       appId,
       projectId,
@@ -318,7 +323,9 @@ export default forwardRef(function RelateRecordTags(props, ref) {
         isediting
           ? {
               width: style.width,
-              ...(rowIndex === 0 && style.height < 56
+              // 子表容器可能只有一两行高，第一行浮层向下展开会被裁掉，固定 56 + 内部滚动兜底；
+              // 表视图空间充足，走 minHeight 由内容自然撑开即可
+              ...(isSubList && rowIndex === 0 && style.height < 56
                 ? {
                     height: 56,
                     overflow: 'auto',
@@ -332,6 +339,10 @@ export default forwardRef(function RelateRecordTags(props, ref) {
             }
       }
     >
+      {addRecordHolder}
+      {recordInfoHolder}
+      {selectRecordsHolder}
+      {searchRecordInDialogHolder}
       {(!maxShowNum || maxShowNum >= count || isediting ? records : records.slice(0, maxShowNum - 1)).map(
         (record, i) => {
           const text = getTitleTextFromRelateControl(control, record);
@@ -407,7 +418,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                 handleSelectRecords();
               } else if (allowNewRecord) {
                 openDialogCallback();
-                addRecord({
+                openAddRecord({
                   showFillNext: true,
                   directAdd: true,
                   className: 'worksheetRelateNewRecordFromTags',

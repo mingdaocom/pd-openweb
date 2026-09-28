@@ -11,16 +11,16 @@ import moment from 'moment';
 import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
-import { pathCompletion } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { RECORD_COLOR_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import DailySchedule from './components/DailySchedule';
 import EventContent from './components/EventContent';
 import IconDimension from './components/IconDimension';
 import SchedulePopup from './components/SchedulePopup';
 import WeeklyCalendar from './components/WeeklyCalendar';
-import { filterDailyScheduleData, WEEK_DAYS } from './util';
+import { filterDailyScheduleData, getCachedCalendarDimension, WEEK_DAYS } from './util';
 import './index.less';
 
 const initData = {
@@ -31,9 +31,6 @@ const initData = {
   dateInfo: {},
   dimension: 'month',
   isNotScheduled: false,
-  isChangeWeekOrMonth: false,
-  weekStartMonth: null,
-  monthDay: moment().format('YYYY-MM-DD'),
 };
 
 const Calendar = memo(
@@ -57,12 +54,14 @@ const Calendar = memo(
       resetCalendarNotScheduled,
       updateCalendarNotScheduled,
       deleteCalendarNotScheduled,
+      quickFilterElement,
     } = props;
     const { calendarData = [], calendarFormatData = [] } = calendarView;
     const { unweekday = '' } = calendarData;
     const { weekbegin, showall = '0', unlunar, hour24 = '0' } = getAdvanceSetting(props.view);
     const weekBegin = weekbegin ? Number(weekbegin) % 7 : 1;
     const colortype = getAdvanceSetting(props.view).colortype || RECORD_COLOR_SHOW_TYPE.BG;
+    const dimensionCacheKey = `mobileCalendarDimension:${base.worksheetId}:${viewId}`;
 
     const calendarRef = useRef(null);
     const lastRangeRef = useRef('');
@@ -79,14 +78,14 @@ const Calendar = memo(
         dateInfo,
         dimension,
         isNotScheduled,
-        isChangeWeekOrMonth,
-        weekStartMonth, // 月视图第一天（包含前后补的周）
-        monthDay, // 月内的某一天
+        monthDay, // 月／周共用的基准日期，切换维度时保持不变
       },
       setState,
-    ] = useSetState({
+    ] = useSetState(() => ({
       ...initData,
-    });
+      dimension: getCachedCalendarDimension(dimensionCacheKey),
+      monthDay: moment().format('YYYY-MM-DD'),
+    }));
 
     const getCalendarApi = () => {
       return calendarRef.current?.getApi();
@@ -134,8 +133,6 @@ const Calendar = memo(
 
     // 上月、下月、今天
     const navigateByType = action => {
-      setState({ isChangeWeekOrMonth: action !== 'today' });
-
       if (dimension === 'month') {
         const calendarApi = getCalendarApi();
         if (!calendarApi) return;
@@ -152,6 +149,8 @@ const Calendar = memo(
             break;
         }
 
+        // 与 PC FullCalendar 一致：翻月取目标月 1 日，“今天”取当天。
+        setState({ monthDay: moment(calendarApi.getDate()).format('YYYY-MM-DD') });
         return;
       }
 
@@ -172,6 +171,7 @@ const Calendar = memo(
 
     const getMonthCalendarData = () => {
       const calendarApi = getCalendarApi();
+      if (!calendarApi) return;
       const { view } = calendarApi;
       getEventsFn({
         view,
@@ -260,7 +260,9 @@ const Calendar = memo(
     };
 
     const changeCalendarDimension = () => {
-      setState({ dimension: dimension === 'month' ? 'week' : 'month', showTodayBtn: false });
+      const nextDimension = dimension === 'month' ? 'week' : 'month';
+      safeLocalStorageSetItem(dimensionCacheKey, nextDimension);
+      setState({ dimension: nextDimension, showTodayBtn: false });
     };
 
     const changeMonthDay = day => {
@@ -269,9 +271,6 @@ const Calendar = memo(
 
     useLayoutEffect(() => {
       lastRangeRef.current = '';
-      setState({
-        ...initData,
-      });
       getCalendarData();
       getNotScheduledEventList({ onlyGetCount: true });
       return () => {
@@ -279,7 +278,7 @@ const Calendar = memo(
           clearTimeout(clickTimerRef.current);
         }
       };
-    }, [viewId]);
+    }, [viewId, dimensionCacheKey]);
 
     useEffect(() => {
       if (dimension === 'month') {
@@ -329,13 +328,14 @@ const Calendar = memo(
               <div className="toolbarItem" onClick={() => navigateByType('next')}>
                 <Icon icon="navigate_next" />
               </div>
+              {quickFilterElement}
             </div>
           </div>
         </div>
         {dimension === 'month' ? (
           <div className="fullCalendarWrapper">
             <FullCalendar
-              key={`calendar-${viewId}-${monthDay}`}
+              key={`calendar-${viewId}`}
               ref={calendarRef}
               themeSystem="bootstrap"
               plugins={[dayGridPlugin, interactionPlugin]}
@@ -393,11 +393,7 @@ const Calendar = memo(
                 // 避免重复执行业务逻辑
                 if (rangeKey === lastRangeRef.current) return;
                 lastRangeRef.current = rangeKey;
-                // 月发生变化，记录视图的第一天和月的第一天
-                setState({
-                  weekStartMonth: moment(info.start),
-                  monthDay: moment(info.view.currentStart).format('YYYY-MM-DD'),
-                });
+                // 可见范围包含月外补位日期，只用于取数，不覆盖月／周切换的基准日期。
                 // 执行数据请求
                 getEventsFn(info);
               }}
@@ -431,7 +427,7 @@ const Calendar = memo(
             worksheetInfo={worksheetInfo}
             calendarView={calendarView}
             openRecord={openRecordWithDailySchedule}
-            weekOneOfDate={isChangeWeekOrMonth ? weekStartMonth : moment()} // 周的某一天，如果切换过月，则取的是月的第一周的第一天，否则是今天
+            weekOneOfDate={moment(monthDay)}
             changeMonthDay={changeMonthDay}
           />
         )}

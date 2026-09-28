@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Radio } from 'ming-ui';
+import { Modal, Radio, Select } from 'ming-ui/antd-components';
 import { rolePropType } from 'src/pages/Role/config';
 
 const Wrap = styled.div`
@@ -12,14 +12,6 @@ const Wrap = styled.div`
     flex-flow: row nowrap;
     align-items: center;
     margin-bottom: 16px;
-
-    :global(.Dropdown--input) {
-      padding-left: 15px;
-    }
-  }
-
-  .roleDialogDangerTitle {
-    color: var(--color-error);
   }
 `;
 
@@ -27,6 +19,8 @@ const DELETE_TYPES = {
   DELETE: 1,
   MOVE: 2,
 };
+
+const DANGER_BUTTON_PROPS = { danger: true };
 
 export default class extends React.PureComponent {
   static propTypes = {
@@ -48,7 +42,7 @@ export default class extends React.PureComponent {
         <span className={cx('mRight15 textSecondary mLeft30')} style={{ whiteSpace: 'nowrap' }}>
           {_l('移动到')}
         </span>
-        <Dropdown {...props} />
+        <Select {...props} />
       </div>
     );
   }
@@ -58,13 +52,11 @@ export default class extends React.PureComponent {
     const { selectedRole, deleteType } = this.state;
     const props = {
       className: 'w100',
-      border: true,
-      isAppendToBody: true,
       placeholder: _l('请选择角色'),
-      menuClass: 'roleDialogDropdownMenu',
-      data: _.map(roleList, ({ roleId, name }) => ({ value: roleId, text: name })),
+      classNames: { popup: { root: 'roleDialogDropdownMenu' } },
+      options: _.map(roleList, ({ roleId, name }) => ({ value: roleId, label: name })),
       value: selectedRole,
-      noData: _l('暂无可选的角色'),
+      notFoundContent: _l('暂无可选的角色'),
       onChange: value => {
         this.setState({
           selectedRole: value,
@@ -76,18 +68,30 @@ export default class extends React.PureComponent {
         <React.Fragment>
           <div className="mBottom16 textSecondary">{_l('如何安排此角色下的用户')}</div>
           <Radio
-            className="Bold Block mBottom16"
-            text={_l('同时将此角色下的所有用户移动到其他角色')}
+            className="Bold mBottom16"
             checked={deleteType === DELETE_TYPES.MOVE}
-            onClick={() => this.setState({ deleteType: DELETE_TYPES.MOVE })}
-          />
+            onChange={() =>
+              this.setState({
+                deleteType: DELETE_TYPES.MOVE,
+              })
+            }
+            title={_l('同时将此角色下的所有用户移动到其他角色')}
+          >
+            {_l('同时将此角色下的所有用户移动到其他角色')}
+          </Radio>
           {deleteType === DELETE_TYPES.MOVE && this.renderMove(props)}
           <Radio
-            className="Bold Block"
-            text={_l('同时删除此角色下的所有用户')}
+            className="Bold"
             checked={deleteType === DELETE_TYPES.DELETE}
-            onClick={() => this.setState({ deleteType: DELETE_TYPES.DELETE })}
-          />
+            onChange={() =>
+              this.setState({
+                deleteType: DELETE_TYPES.DELETE,
+              })
+            }
+            title={_l('同时删除此角色下的所有用户')}
+          >
+            {_l('同时删除此角色下的所有用户')}
+          </Radio>
         </React.Fragment>
       </Wrap>
     );
@@ -108,16 +112,21 @@ export default class extends React.PureComponent {
 
   render() {
     const { onCancel } = this.props;
-    const dialogProps = {
-      okText: _l('删除'),
-      buttonType: 'danger',
-      title: <div className={'roleDialogDangerTitle'}>{_l('你确认删除此角色吗？')}</div>,
-      visible: true,
-      dialogClasses: 'roleDialogClassName',
-      onCancel,
-      onOk: this.handleMoveUser,
-    };
 
-    return <Dialog {...dialogProps}>{this.renderContent()}</Dialog>;
+    return (
+      <Modal
+        width={480}
+        open
+        title={<span className="textError">{_l('你确认删除此角色吗？')}</span>}
+        okText={_l('删除')}
+        okButtonProps={DANGER_BUTTON_PROPS}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onCancel}
+        onOk={this.handleMoveUser}
+      >
+        {this.renderContent()}
+      </Modal>
+    );
   }
 }

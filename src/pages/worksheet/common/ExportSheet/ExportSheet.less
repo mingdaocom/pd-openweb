@@ -1,11 +1,5 @@
 .exportSheet {
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-    flex-basis: 800px !important;
-    display: flex;
+  .hap-modal-body {
     > .flexRow > .flex {
       min-width: 0;
     }
@@ -13,35 +7,13 @@
   .exportSheetMessage {
     color: #af6815;
   }
-  .Checkbox {
-    width: 100%;
-    display: inline-block !important;
-    margin-bottom: 5px;
-    .Font13 {
-      font-size: 14px !important;
-    }
-  }
   .search_container {
     display: flex;
     align-items: center;
     margin: 15px 18px 10px 25px;
+    justify-content: space-between;
     .search_input {
-      display: flex;
-      padding: 3px 6px;
-      border-radius: 28px;
-      height: 28px;
-      background-color: var(--color-background-secondary);
-      font-size: 13px;
-      align-items: center;
       width: 180px;
-      input {
-        width: 180px;
-        border: none;
-        padding: 0;
-        color: var(--color-text-title);
-        text-indent: 5px;
-        background-color: transparent;
-      }
     }
   }
   .no_data {
@@ -58,8 +30,8 @@
     border-bottom-right-radius: 3px;
     padding: 50px 0 20px 30px;
   }
-  .RadioGroup {
-    .Radio {
+  .ant-radio-group {
+    .ant-radio-wrapper {
       margin-right: 50px;
     }
   }

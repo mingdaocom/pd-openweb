@@ -19,7 +19,7 @@ const Wrap = styled.div`
     flex-wrap: wrap;
     border-bottom: 1px solid var(--color-border-primary);
     .materialInfoItem {
-      width: ${({ rowNum }) => (rowNum ? `calc((100% - 0px) / ${rowNum})` : '100%')};
+      width: ${({ $rowNum }) => ($rowNum ? `calc((100% - 0px) / ${$rowNum})` : '100%')};
       overflow: hidden;
       line-height: 30px;
     }
@@ -116,7 +116,7 @@ export default function UserMoreProfile(props) {
   // 教育经历list
 
   return (
-    <Wrap className={className} rowNum={rowNum}>
+    <Wrap className={className} $rowNum={rowNum}>
       {visible && (
         <div className="infoList">
           <div

@@ -1,18 +1,21 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Input } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, RadioGroup, Textarea } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv } from 'ming-ui';
+import { Input, Modal, Radio } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getCurrentProject } from 'src/utils/project';
-import { ALL_SYS, DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
+import { formatControlsData } from 'src/utils/domain/control/normalization';
+import { ALL_SYS, DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType, WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getCurrentProject } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { getMyPermissions, hasPermission } from 'src/utils/services/security/permission';
 import { SettingItem } from '../styled';
-import { enumWidgetType } from '../util';
-import { formatControlsData } from './data';
+
+const DESCRIPTION_TEXTAREA_AUTO_SIZE = { minRows: 4 };
 
 const TemplateRelationNotice = styled.div`
   margin-top: 10px;
@@ -55,20 +58,14 @@ const TemplateFieldsList = styled.div`
   }
 `;
 
-const TemplateDialogWrap = styled(Dialog)`
+const TemplateDialogWrap = styled(Modal)`
   .selectConfigRadioGroup {
-    .ming.Radio {
-      margin-right: 0;
-      margin-top: 10px;
-      &:last-child {
-        margin-top: 16px;
-      }
-      display: flex;
-      .Radio-box {
-        flex-shrink: 0;
-      }
-      .Radio-text {
-        margin-top: -6px;
+    .hap-radio-wrapper {
+      align-items: flex-start;
+
+      .hap-radio {
+        align-self: flex-start;
+        margin-top: 5px;
       }
     }
   }
@@ -84,6 +81,7 @@ const TEMPLATE_TYPE_LIST = [
         </span>
       </Fragment>
     ),
+
     value: 1,
   },
   {
@@ -93,6 +91,7 @@ const TEMPLATE_TYPE_LIST = [
         <span className="textSecondary InlineBlock w100">{_l('全组织所有应用可见，可使用')}</span>
       </Fragment>
     ),
+
     value: 2,
   },
 ];
@@ -104,6 +103,7 @@ const WORKSHEET_ROLE_CONTROL_TYPES = [
   WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD,
   WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL,
 ];
+
 const PERMISSION_WORKSHEET_ROLE_TYPES = [2, 4, 6];
 const MAX_REFERENCE_DEPTH = 3;
 
@@ -860,8 +860,8 @@ function CreateTemplateDialog(props) {
             alert(_l('创建失败'), 2);
           }
         })
-        .catch(() => {
-          alert(_l('创建失败'), 2);
+        .catch(_requestError2 => {
+          alertIfNotUnauthorized(_requestError2, _l('创建失败'), 2);
         })
         .finally(() => {
           setSaving(false);
@@ -926,8 +926,8 @@ function CreateTemplateDialog(props) {
           alert(_l('保存失败'), 2);
         }
       })
-      .catch(() => {
-        alert(_l('保存失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
       })
       .finally(() => {
         setSaving(false);
@@ -944,7 +944,9 @@ function CreateTemplateDialog(props) {
   return (
     <TemplateDialogWrap
       width={560}
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       okDisabled={!name}
       title={templateInfo.templateId ? _l('编辑字段模板') : _l('添加字段模板')}
       onCancel={() => setVisible(false)}
@@ -965,24 +967,29 @@ function CreateTemplateDialog(props) {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('说明')}</div>
-            <Textarea
+            <Input.TextArea
+              autoSize={DESCRIPTION_TEXTAREA_AUTO_SIZE}
               placeholder={_l('便于后续搜索和判断使用场景')}
               value={desc}
-              onChange={value => setTemplateInfoState({ desc: value })}
+              onChange={event => setTemplateInfoState({ desc: event.target.value })}
             />
           </SettingItem>
           {hasCreateTemplatePermission && (
             <SettingItem>
               <div className="settingItemTitle">{_l('归属')}</div>
-              <RadioGroup
+              <Radio.Group
                 size="middle"
                 className="selectConfigRadioGroup"
-                disableTitle={true}
                 vertical={true}
-                checkedValue={type}
-                data={TEMPLATE_TYPE_LIST}
-                onChange={value => setTemplateInfoState({ type: value })}
+                value={type}
+                options={(TEMPLATE_TYPE_LIST || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+                onChange={event =>
+                  setTemplateInfoState({
+                    type: event.target.value,
+                  })
+                }
               />
+
               {showOrgRelationNotice && (
                 <TemplateRelationNotice>
                   <span className="icon-info Font16" />
@@ -1019,31 +1026,40 @@ function CreateTemplateDialog(props) {
   );
 }
 
-export const createTemplateDialog = props => {
-  const { allControls = [], templateInfo = {}, templateControls = [], queryConfigs = [] } = props || {};
+export function useCreateTemplateDialog() {
+  const { open: openCreateTemplateDialog, holder: createTemplateDialogHolder } =
+    useFunctionWrapComponent(CreateTemplateDialog);
+  const open = useCallback(
+    props => {
+      const { allControls = [], templateInfo = {}, templateControls = [], queryConfigs = [] } = props || {};
 
-  if (!templateInfo.templateId) {
-    const supportedTemplateControls = templateControls.filter(
-      control => isValidControl(control) && supportCreateTemplate(control),
-    );
+      if (!templateInfo.templateId) {
+        const supportedTemplateControls = templateControls.filter(
+          control => isValidControl(control) && supportCreateTemplate(control),
+        );
 
-    if (_.isEmpty(supportedTemplateControls)) {
-      alert(_l('所选字段均不支持创建字段模板'), 2);
-      return;
-    }
+        if (_.isEmpty(supportedTemplateControls)) {
+          alert(_l('所选字段均不支持创建字段模板'), 2);
+          return;
+        }
 
-    const { noPermissionSheetNames, deletedWorksheetControlNames } = getAllReferencedControlInfo(
-      allControls,
-      supportedTemplateControls,
-      queryConfigs,
-    );
+        const { noPermissionSheetNames, deletedWorksheetControlNames } = getAllReferencedControlInfo(
+          allControls,
+          supportedTemplateControls,
+          queryConfigs,
+        );
 
-    if (alertPermissionError({ noPermissionSheetNames, deletedWorksheetControlNames })) {
-      return;
-    }
+        if (alertPermissionError({ noPermissionSheetNames, deletedWorksheetControlNames })) {
+          return;
+        }
 
-    return functionWrap(CreateTemplateDialog, { ...props, templateControls: supportedTemplateControls });
-  }
+        return openCreateTemplateDialog({ ...props, templateControls: supportedTemplateControls });
+      }
 
-  return functionWrap(CreateTemplateDialog, props);
-};
+      return openCreateTemplateDialog(props);
+    },
+    [openCreateTemplateDialog],
+  );
+
+  return { open, holder: createTemplateDialogHolder };
+}

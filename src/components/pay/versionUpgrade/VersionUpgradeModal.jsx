@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import projectApi from 'src/api/project';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { PRODUCT_TYPE_ENUM, SUBSCRIPTION_TABS, VERSION_CARD_LIST } from './config';
 
-const DialogWrap = styled(Dialog)`
-  .mui-dialog-close-btn {
+const DialogWrap = styled(Modal)`
+  .hap-modal-container {
+    padding-inline: 40px;
+  }
+  .hap-modal-close {
     right: 22px !important;
     top: 20px !important;
     .Icon {
@@ -18,10 +22,6 @@ const DialogWrap = styled(Dialog)`
       color: #757575 !important;
     }
   }
-  .mui-dialog-body {
-    padding: 0 40px !important;
-  }
-
   .headerTab {
     display: flex;
     align-items: center;
@@ -238,7 +238,7 @@ export default function VersionUpgrade(props) {
   //是线下购买
   if ((isOffLine || showOffLine) && type !== 'recharge') {
     return (
-      <DialogWrap visible width={420} showFooter={false} onCancel={onCancel}>
+      <DialogWrap open mask={{ closable: true }} keyboard width={420} footer={null} onCancel={onCancel}>
         <div className="contactWrapper">
           <Icon icon="history_edu" className="Font48" />
           <div className="Font17 bold mTop16">{_l('请联系销售购买')}</div>
@@ -251,7 +251,7 @@ export default function VersionUpgrade(props) {
   if (type) return null;
 
   return (
-    <DialogWrap visible width={1100} showFooter={false} onCancel={onCancel}>
+    <DialogWrap open mask={{ closable: true }} keyboard width={1100} footer={null} onCancel={onCancel}>
       <div className="headerTab">
         {SUBSCRIPTION_TABS.map(item => (
           <div className={cx('tabItem', { isActive: currentTab === item.key })} onClick={() => setCurrentTab(item.key)}>

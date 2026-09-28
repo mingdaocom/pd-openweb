@@ -1,7 +1,8 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
-import { Button, Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 
 const SuccessDialogContent = styled.div`
   padding: 8px 0 4px;
@@ -65,17 +66,13 @@ export default function SuccessDialog({ visible, secretInfo, onClose }) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={520}
       className="cloudServiceCreateSuccessDialog"
-      visible={visible}
-      title=""
-      overlayClosable={false}
-      showFooter={false}
-      onCancel={e => {
-        if (e && (e.key === 'Escape' || e.keyCode === 27)) return;
-      }}
-      handleClose={onClose}
+      open={visible}
+      mask={{ closable: false }}
+      keyboard={false}
+      onCancel={onClose}
     >
       <SuccessDialogContent>
         <div className="successHeader flexRow alignItemsCenter justifyContentCenter mBottom16">
@@ -93,6 +90,6 @@ export default function SuccessDialog({ visible, secretInfo, onClose }) {
           {_l('复制')}
         </Button>
       </SuccessDialogContent>
-    </Dialog>
+    </Modal>
   );
 }

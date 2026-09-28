@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { Input } from 'antd';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { Button, Input, Modal, Space } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../../config';
 import './index.less';
@@ -21,6 +21,7 @@ export default class SubDomain extends Component {
       isUploading: false,
       isLoading: false,
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -95,28 +96,38 @@ export default class SubDomain extends Component {
   }
 
   handleSubmit() {
+    if (this.requestPending) return;
+
+    this.requestPending = true;
     if (this.state.subDomain) {
-      this.handleHomeImageSubmit().then(images => {
-        if (images) {
-          alert(_l('设置成功'));
-          this.props.setLevel(1);
-        } else {
-          alert(_l('设置失败'), 2);
-        }
-      });
-      return;
+      return this.handleHomeImageSubmit()
+        .then(images => {
+          if (images) {
+            alert(_l('设置成功'));
+            this.props.setLevel(1);
+          } else {
+            alert(_l('设置失败'), 2);
+          }
+        })
+        .finally(() => {
+          this.requestPending = false;
+        });
     }
 
-    Promise.all([this.handleHomeImageSubmit(), this.handleSubDomainSubmit()]).then(([images, name]) => {
-      if (images && name === 1) {
-        alert(_l('设置成功'));
-        this.props.setLevel(1);
-      } else if (name === 2) {
-        alert(_l('您设置的别名已经被占用'), 3);
-      } else if (!images || name === 3) {
-        alert(_l('设置失败'), 2);
-      }
-    });
+    return Promise.all([this.handleHomeImageSubmit(), this.handleSubDomainSubmit()])
+      .then(([images, name]) => {
+        if (images && name === 1) {
+          alert(_l('设置成功'));
+          this.props.setLevel(1);
+        } else if (name === 2) {
+          alert(window.platformENV.isHap ? _l('您设置的域名已经被占用') : _l('您设置的别名已经被占用'), 3);
+        } else if (!images || name === 3) {
+          alert(_l('设置失败'), 2);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   }
 
   handleHomeImageSubmit() {
@@ -164,10 +175,13 @@ export default class SubDomain extends Component {
           this.setState({ isUploading: true });
           up.disableBrowse();
         }}
-        onError={() => {}}
+        onError={up => {
+          this.setState({ isUploading: false });
+          up.disableBrowse(false);
+        }}
       >
         <div className="avatar-uploader" id="upload_file">
-          <input ref={con => (this.upload = con)} type="hidden" />
+          <Input type="hidden" />
           {isCustomImage ? (
             <img src={currentHomeImage} alt="avatar" />
           ) : (
@@ -179,7 +193,7 @@ export default class SubDomain extends Component {
   };
 
   render() {
-    const { domainName, isLoading, currentHomeImage, visible } = this.state;
+    const { subDomain, domainName, isLoading, currentHomeImage, visible } = this.state;
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader justifyContentLeft">
@@ -187,59 +201,94 @@ export default class SubDomain extends Component {
             icon="backspace"
             className="Hand mRight18 TxtMiddle Font24 adminHeaderIconColor"
             onClick={() => this.props.setLevel(1)}
-          />
-          <span className="Font17">{_l('扩展信息设置')}</span>
+          ></Icon>
+          <span className="Font17">{window.platformENV.isHap ? _l('二级域名设置') : _l('扩展信息设置')}</span>
         </div>
         <div className="orgManagementContent">
           {isLoading ? (
             <LoadDiv />
           ) : (
             <div className="sub-domain">
-              <Dialog
-                visible={visible}
-                title={_l('设置组织别名')}
+              <Modal
+                open={visible}
+                title={window.platformENV.isHap ? _l('设置二级域名') : _l('设置组织别名')}
                 cancelText={_l('取消')}
                 okText={_l('确定')}
-                width="480"
-                overlayClosable={false}
+                width={480}
+                mask={{ closable: false }}
+                keyboard
                 onCancel={this.updateVisible.bind(this, false)}
                 onOk={() => {
                   this.updateVisible(false, 'update');
                 }}
               >
-                <Input
-                  defaultValue={domainName}
-                  className={`w100 mTop25`}
-                  ref={con => (this.inputValue = con)}
-                  onChange={this.handleChange.bind(this)}
-                />
-              </Dialog>
+                {window.platformENV.isHap ? (
+                  <Fragment>
+                    <div className="domain-describe">
+                      {subDomain
+                        ? _l('您已设置一次域名。若二次修改，请使用管理员的邮箱向')
+                        : _l('只能设置一次域名。若二次修改，请使用管理员的邮箱向')}
+                    </div>
+                    <div className="domain-describe">{_l('feedback@mingdao.com 发送修改申请')}</div>
+                    <Space.Compact block className={`mTop25 ${subDomain ? 'Hidden' : ''}`}>
+                      <Input
+                        defaultValue={domainName}
+                        style={{ flex: 1 }}
+                        ref={con => (this.inputValue = con)}
+                        onChange={this.handleChange.bind(this)}
+                      />
+                      <Input
+                        readOnly
+                        tabIndex={-1}
+                        value=".mingdao.com"
+                        style={{ width: 120, color: 'var(--color-text-secondary)' }}
+                      />
+                    </Space.Compact>
+                  </Fragment>
+                ) : (
+                  <Input
+                    defaultValue={domainName}
+                    className="w100 mTop25"
+                    ref={con => (this.inputValue = con)}
+                    onChange={this.handleChange.bind(this)}
+                  />
+                )}
+              </Modal>
 
               <div className="common-info-row">
-                <div className="common-info-row-label">{_l('组织别名')}</div>
+                <div className="common-info-row-label">
+                  {window.platformENV.isHap ? _l('二级域名') : _l('组织别名')}
+                </div>
                 <div className="common-info-row-content">
                   <div>
                     {domainName ? (
-                      <span className="color_b">{domainName}</span>
+                      <span className="color_b">
+                        {window.platformENV.isHap ? `${domainName}.mingdao.com` : domainName}
+                      </span>
                     ) : (
                       <span className="domain-describe">
-                        {_l('可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。')}
+                        {window.platformENV.isHap
+                          ? _l('付费版下的网络支持直接通过二级域名访问网络。')
+                          : _l('可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。')}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      className="ming Button Button--link colorPrimary adminHoverColor"
-                      onClick={this.updateVisible.bind(this, true)}
-                    >
+                    <Button color="primary" variant="link" onClick={this.updateVisible.bind(this, true)}>
                       {domainName ? _l('修改') : _l('设置')}
-                    </button>
+                    </Button>
                   </div>
+                  {window.platformENV.isHap && (
+                    <div className={`domain-describe ${domainName ? 'Hidden' : ''}`}>
+                      {_l('如：company.mingdao.com')}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="split-line" />
 
-              <div className="common-info-row Font14 Bold">{_l('登录背景图片')}</div>
+              <div className="common-info-row Font14 Bold">
+                {window.platformENV.isHap ? _l('二级域名封面') : _l('登录背景图片')}
+              </div>
               <div className="common-info-row mTop40">
                 <div className="common-info-row-label">{_l('系统默认')}</div>
                 <div className="common-images">
@@ -267,14 +316,10 @@ export default class SubDomain extends Component {
                 </div>
               </div>
               <div className="common-info-row pTop54">
-                <div className="common-info-row-label" />
-                <button
-                  className="ming Button Button--primary Button--small"
-                  type="button"
-                  onClick={() => this.handleSubmit()}
-                >
+                <div className="common-info-row-label"></div>
+                <Button type="primary" shape="round" onClick={() => this.handleSubmit()}>
                   {_l('保存')}
-                </button>
+                </Button>
               </div>
             </div>
           )}

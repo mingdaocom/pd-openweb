@@ -1,505 +1,161 @@
-#createTask.dialogBox .header {
-  margin-left: 26px;
+.createTaskForm {
+  width: 100%;
 }
-#createTask.dialogBox .dialogContent {
-  padding: 0;
-  padding-bottom: 35px;
+
+.createTaskForm .createTaskFormRow {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: start;
+  margin-top: 20px;
 }
-.p82 {
-  padding: 0 82px 0 116px;
+
+.createTaskForm .createTaskFormRow.Hidden {
+  display: none;
 }
-.pLeft26 {
-  padding-left: 26px;
-}
-.pRight26 {
-  padding-right: 26px;
-}
-.spanChecked,
-.spanUnChecked {
-  background: url('../images/checkBg.png') no-repeat;
-  height: 17px;
-  display: inline-block;
-  cursor: pointer;
-  padding-left: 25px;
-  color: var(--color-text-tertiary);
-  background-position: 0 1px;
-  background-size: 16px;
-}
-.spanChecked {
-  background-position: 0 -18px;
-}
-.boxShadow5 {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13);
-}
-.createTaskLabel {
+
+.createTaskForm .createTaskLabel {
+  padding-top: 10px;
   color: var(--color-text-tertiary);
   font-size: 14px;
+  line-height: 20px;
   text-align: right;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 96px;
-  height: 20px;
-  line-height: 20px;
-}
-.topHeight {
-  height: 20px;
-}
-.createTaskNetwork {
-  height: 20px;
-  line-height: 20px;
-  cursor: pointer;
-  width: 160px;
-}
-.createTaskNetwork .createTaskNetworkName {
-  max-width: 140px;
-  height: 20px;
-  line-height: 20px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
 }
-.createTaskNetwork .icon-arrow-down-border {
-  display: inline-block;
-  font-size: 12px;
-  color: var(--color-text-tertiary);
-  vertical-align: top;
-  margin-left: 5px;
-  margin-top: 5px;
+
+.createTaskForm .createTaskControl,
+.createTaskFolderOption {
+  min-width: 0;
 }
-.createTaskNetworkList {
-  position: absolute;
-  top: 22px;
-  left: 116px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  max-height: 165px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  z-index: 100;
-}
-.createTaskNetworkList li {
-  height: 32px;
-  line-height: 32px;
-  padding: 0 10px;
-  width: 222px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-}
-.createTaskNetworkList li i {
-  font-size: 14px;
-  width: 20px;
-  display: inline-block;
-}
-.createTaskNetworkList li i.icon-charger {
-  vertical-align: top;
-  margin-top: 10px;
-}
-.createTaskNetworkList li:not(:hover) {
-  background-color: var(--color-background-primary) !important;
-}
-.createTaskNetworkList li:hover {
-  color: var(--color-white);
-}
-.createTaskNetworkList li:first-child {
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-}
-.createTaskNetworkList li:last-child {
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
-}
-.createTaskFolder {
-  position: absolute;
-  top: -9px;
-  left: 295px;
-  line-height: 38px;
-  vertical-align: top;
-}
-.createTaskFolder.createUpdatePosition {
-  left: 69px;
-}
-.createTaskFolder.createUpdatePosition .createTaskFolderName {
-  margin-left: 14px;
-  width: 428px;
-}
-.createTaskFolder.createUpdatePosition .txtTaskFolder {
-  margin-left: 15px;
-  width: 428px;
-}
-.createTaskFolder.createUpdatePosition .linkageFolder {
-  left: 47px;
-}
-.createTaskFolder.createUpdatePosition .folderListName {
-  max-width: 330px;
-}
-.createTaskFolderColor {
-  color: var(--color-text-tertiary);
-}
-.createTaskFolderName {
-  width: 181px;
-  margin-left: 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  display: inline-block;
-  vertical-align: top;
-}
-.txtTaskFolder {
-  height: 37px;
-  padding: 8px 5px;
-  width: 207px;
-  margin-left: 10px;
-  border-width: 1px;
-  border-style: solid;
-  box-sizing: border-box;
-}
-.linkageFolder {
-  position: absolute;
-  width: 260px;
-  background-color: var(--color-background-card);
-  left: 42px;
-  top: 40px;
-  z-index: 10;
-  padding: 5px 0;
-}
-.linkageFolder ul {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 220px;
-}
-.createTaskFolder.createUpdatePosition .linkageFolder {
-  width: 428px;
-}
-.linkageFolder li {
-  height: 40px;
-  line-height: 40px;
-  padding-left: 10px;
-  padding-right: 10px;
-  display: block;
-  cursor: pointer;
-  position: relative;
-}
-.linkageFolder li.hover,
-.linkageFolder .nullFolder:hover {
-  color: var(--color-white);
-}
-.linkageFolder li:not(.hover),
-.linkageFolder .nullFolder:not(:hover) {
-  background-color: var(--color-background-primary) !important;
-}
-.linkageFolder .chargeUser {
+
+.createTaskFolderCharge {
+  flex: none;
   width: 26px;
   height: 26px;
-  margin-top: 7px;
-  vertical-align: top;
 }
 
-.linkageFolder .folderListName {
-  line-height: 40px;
-  margin-left: 5px;
-  vertical-align: top;
-  max-width: 160px;
+.createTaskForm .createTaskAvatarControl {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.createTaskForm #taskUserBox {
   display: inline-block;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.linkageFolder .icon-folder-private,
-.linkageFolder .icon-folder-public {
-  font-size: 16px;
-  margin-left: 5px;
-  display: inline-block;
-  vertical-align: top;
-  margin-top: 12px;
-}
-
-.linkageFolder .folderMemberCount {
-  position: absolute;
-  right: 5px;
-  top: 0;
-  line-height: 40px;
-  font-size: 14px;
-  color: var(--color-text-tertiary);
-}
-.linkageFolder li.hover .textTertiary {
-  color: var(--color-white) !important;
-}
-.linkageFolder li.hover .folderMemberCount {
-  color: var(--color-white);
-}
-.linkageFolder .nullFolder {
-  padding-left: 10px;
-  line-height: 42px;
-  height: 42px;
-  border-top: 1px solid var(--color-border-primary);
-  cursor: pointer;
-}
-.linkageFolder .nullFolder.clearBorder {
-  border-top-width: 0;
-}
-.linkageFolder .nullFolder .folderListName {
-  line-height: 42px;
-  height: 42px;
-  margin-left: 0;
-}
-.createTaskTitle {
-  margin-top: 22px;
-}
-#txtTaskName {
-  height: 38px;
-  width: 100%;
-  padding: 8px;
-  border-width: 1px;
-  border-style: solid;
-}
-#txtTaskName:not(:focus),
-#txtDescriptionbox:not(:focus) {
-  border-color: var(--color-text-disabled) !important;
-}
-#txtTaskName:hover:not(:focus),
-#txtDescriptionbox:hover:not(:focus) {
-  border-color: var(--color-text-tertiary) !important;
-}
-.createTaskTitle .createTaskLabel {
-  top: 9px;
-}
-.taskUpdateChargeMain {
-  margin-top: 22px;
-}
-.taskUpdateChargeMain .createTaskLabel {
-  top: 6px;
-}
-#taskUserBox {
   width: 32px;
   height: 32px;
-  overflow: hidden;
-  display: inline-block;
+  margin-right: 8px;
   vertical-align: top;
-  margin-right: 6px;
 }
-.imgWidth {
+
+.createTaskForm .imgWidth {
   width: 32px;
   height: 32px;
 }
-.taskUpdateCharge {
+
+.createTaskForm .taskUpdateCharge {
   font-size: 32px;
 }
-.taskUpdateCharge:not(:hover) .colorPrimary {
-  color: var(--color-text-title) !important;
+
+.createTaskForm #taskMembersBox .createTaskLabel {
+  padding-top: 6px;
 }
-.taskTabs {
-  margin-top: 20px;
-}
-.taskTabs span {
-  border-bottom: 1px solid var(--color-text-tertiary);
-  margin-right: 36px;
-  cursor: pointer;
-}
-.taskTabs span:not(:hover) {
-  border-color: var(--color-text-tertiary) !important;
-  color: var(--color-text-tertiary) !important;
-}
-#createTaskDesc {
-  margin-top: 20px;
-}
-#createTaskDesc .createTaskLabel {
-  top: 10px;
-}
-.txtDescriptionbox {
-  width: 100%;
-  border: 1px solid var(--color-text-tertiary);
-  padding: 7px;
-  line-height: 24px;
-  resize: none;
-}
-.addAttachment {
-  margin-top: 10px;
-  display: inline-block;
-  cursor: pointer;
-}
-#Attachment_updater_createTask {
-  margin-top: 10px;
-  font-size: 13px;
-}
-#Attachment_updater_createTask .uploadDocList,
-#Attachment_updater_createTask .uploadPicList {
-  margin-left: 0;
-}
-#taskMembersBox {
-  margin-top: 22px;
-}
-#taskMembersBox .createTaskLabel {
-  top: 6px;
-}
-.createTaskAddMemberBox .imgMemberBox .imgCharge,
-.createTaskAddMemberBox .imgMemberBox {
+
+.createTaskForm .createTaskAddMemberBox .imgMemberBox {
   width: 32px;
   height: 32px;
 }
-.createTaskAddMemberBox .imgMemberBox {
+
+.createTaskForm .createTaskAddMemberBox .imgMemberBox {
   display: inline-block;
-  vertical-align: top;
   margin-right: 8px;
   margin-bottom: 8px;
-}
-.createTaskAddMemberBox .removeTaskMember {
-  cursor: pointer;
-  display: none;
   vertical-align: top;
+}
+
+.createTaskForm .createTaskAddMemberBox .removeTaskMember {
+  position: absolute;
+  display: none;
   width: 32px;
   height: 32px;
-  background-color: var(--color-text-secondary);
-  position: absolute;
   margin-right: -32px;
-  text-align: center;
   color: var(--color-white);
   font-size: 16px;
+  text-align: center;
+  vertical-align: top;
+  background-color: var(--color-text-secondary);
   opacity: 0.7;
+  cursor: pointer;
 }
-.createTaskAddMemberBox .imgMemberBox:hover .removeTaskMember {
+
+.createTaskForm .createTaskAddMemberBox .imgMemberBox:hover .removeTaskMember {
   display: inline-block !important;
 }
-.createTaskAddMemberBox .removeTaskMember .Icon {
+
+.createTaskForm .createTaskAddMemberBox .removeTaskMember .Icon {
   display: inline-block;
-  vertical-align: top;
   height: 7px;
   margin-top: 10px;
+  vertical-align: top;
 }
-.createTaskAddMember {
-  font-size: 32px;
+
+.createTaskForm .createTaskAddMember {
   display: inline-block;
   height: 32px;
+  margin-bottom: 8px;
+  font-size: 32px;
   vertical-align: top;
   cursor: pointer;
-  margin-bottom: 11px;
 }
-.taskUpdateCharge:not(:hover),
-.createTaskAddMember:not(:hover) {
+
+.createTaskForm .taskUpdateCharge:not(:hover),
+.createTaskForm .createTaskAddMember:not(:hover) {
   color: var(--color-text-tertiary) !important;
 }
-#createTaskDate {
-  margin-top: 18px;
-}
-#createTaskDate .createTaskLabel {
-  top: 10px;
-}
-#txtLastDate {
+
+.createTaskForm #createTaskStage .hap-select {
   width: 100%;
-  border-width: 1px;
-  border-style: solid;
-  height: 40px;
-  line-height: 40px;
-  padding: 0 10px;
+}
+
+.createTaskForm .UploadFiles-wrapper {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.createTaskForm .UploadFiles-wrapper .UploadFiles-header {
+  border-radius: 6px;
+}
+
+.createTaskForm .UploadFiles-wrapper .uploadDocList,
+.createTaskForm .UploadFiles-wrapper .uploadPicList {
+  margin-left: 0;
+}
+
+.createTaskForm .addAttachment {
+  display: inline-block;
+  margin-top: 10px;
   cursor: pointer;
 }
-#txtLastDate span {
-  color: var(--color-text-title) !important;
+
+.createTaskForm .taskTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin-top: 18px;
+  margin-left: 86px;
 }
-#txtLastDate:not(:hover) {
+
+.createTaskForm .taskTabs span {
+  border-bottom: 1px solid var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.createTaskForm .taskTabs span:not(:hover) {
+  color: var(--color-text-tertiary) !important;
   border-color: var(--color-text-tertiary) !important;
 }
-#createTaskStage {
-  margin-top: 16px;
-}
-#createTaskStage .createTaskLabel {
-  top: 10px;
-}
-#createTaskStage .customSelect {
-  width: 100%;
-}
-#createTaskStage .spanShow {
-  width: 100%;
-  box-sizing: border-box;
-  height: 40px !important;
-  line-height: 40px !important;
-  border-color: var(--color-text-tertiary);
-  padding-right: 30px;
-}
-#createTaskStage .spanShow .txtBox {
-  height: 40px !important;
-  line-height: 38px !important;
-}
-#createTaskStage .spanShow:hover {
-  border-color: var(--color-text-tertiary);
-}
-#createTaskStage .spanShow .icon-arrow-down-border {
-  position: absolute;
-  top: 4px;
-  right: 10px;
-  font-size: 14px;
-}
-#createTaskStage .csList {
-  width: 100%;
-  top: 42px !important;
-}
-#createTaskStage .csList li {
-  box-sizing: border-box;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.createTaskOperator {
-  margin-top: 40px;
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  padding-top: 11px;
-  height: 30px;
-}
-#chToFeed {
-  cursor: pointer;
-}
-.createTaskOperator .spanUnChecked {
-  display: inline-block;
-  vertical-align: top;
-}
-#createTaskView .viewTo {
-  float: none;
-  max-width: 200px;
-  display: inline-block;
-  vertical-align: top;
-  margin-top: -5px;
-}
-#createTaskView .updaterFor {
-  max-width: 160px;
-  word-wrap: break-word;
-  word-break: break-all;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#taskSubmitBtn {
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  right: 26px;
-  height: 40px;
-  line-height: 40px;
-  font-size: 15px;
-  padding: 0 35px;
-  color: var(--color-white);
-  cursor: pointer;
-}
 
-#createTask .UploadFiles-attachmentProgress {
+.createTaskForm .UploadFiles-attachmentProgress {
   display: none;
-}
-
-.createTaskConfirm .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-  padding: 0 0 38px !important;
-}
-
-#folderStageBox .Dropdown--border {
-  height: 38px;
-  border-color: var(--color-text-disabled);
-}
-
-#folderStageBox .Dropdown--border:hover {
-  border-color: var(--color-primary);
 }

@@ -1,14 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, SearchInput } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import Oauth2Ajax from 'src/pages/workflow/api/oauth2';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import ChangeName from 'src/pages/integration/components/ChangeName';
-import { MenuItemWrap, MenuWrap, MoreOperate, RedMenuItemWrap } from '../../style';
+import { MoreOperate } from '../../style';
 import TokenLog from './TokenLog/index';
 
 const Wrap = styled.div`
@@ -92,82 +91,70 @@ function Option(props) {
   });
 
   return (
-    <React.Fragment>
-      <Trigger
-        action={['click']}
-        popupClassName="moOption"
-        getPopupContainer={() => document.body}
-        popupVisible={popupVisible}
-        onPopupVisibleChange={popupVisible => {
-          setState({ popupVisible });
+    <Dropdown
+      trigger={['click']}
+      open={popupVisible}
+      onOpenChange={popupVisible => setState({ popupVisible })}
+      placement="bottomRight"
+      menu={{
+        style: { width: 200 },
+        items: [
+          {
+            key: 'log',
+            icon: <Icon icon="knowledge-log" className="Font17" />,
+            label: _l('查看日志'),
+            onClick: ({ domEvent }) => {
+              domEvent.stopPropagation();
+              onLog();
+            },
+          },
+          {
+            key: 'refresh',
+            icon: <Icon icon="refresh" className="Font17" />,
+            label: _l('刷新 token'),
+            onClick: ({ domEvent }) => {
+              domEvent.stopPropagation();
+              refreshToken();
+            },
+          },
+          {
+            key: 'rename',
+            icon: <Icon icon="edit" className="Font17" />,
+            label: _l('重命名'),
+            onClick: ({ domEvent }) => {
+              domEvent.stopPropagation();
+              onReName();
+            },
+          },
+          {
+            key: 'delete',
+            danger: true,
+            icon: <Icon icon="trash" className="Font17" />,
+            label: _l('删除'),
+            onClick: ({ domEvent }) => {
+              domEvent.stopPropagation();
+              onDel();
+            },
+          },
+        ],
+      }}
+    >
+      <MoreOperate
+        className="moreOperate mTop3"
+        style={popupVisible ? { display: 'inline-block' } : {}}
+        onClick={e => {
+          e.stopPropagation();
         }}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={
-          <MenuWrap>
-            <MenuItemWrap
-              icon={<Icon icon="knowledge-log" className="Font17 mLeft5" />}
-              onClick={e => {
-                setState({ popupVisible: false });
-                onLog();
-                e.stopPropagation();
-              }}
-            >
-              {_l('查看日志')}
-            </MenuItemWrap>
-            <MenuItemWrap
-              icon={<Icon icon="refresh" className="Font17 mLeft5" />}
-              onClick={e => {
-                setState({ popupVisible: false });
-                e.stopPropagation();
-                refreshToken();
-              }}
-            >
-              {_l('刷新 token')}
-            </MenuItemWrap>
-            <MenuItemWrap
-              icon={<Icon icon="edit" className="Font17 mLeft5" />}
-              onClick={e => {
-                e.stopPropagation();
-                setState({ popupVisible: false });
-                onReName();
-              }}
-            >
-              {_l('重命名')}
-            </MenuItemWrap>
-
-            <RedMenuItemWrap
-              icon={<Icon icon="trash" className="Font17 mLeft5" />}
-              onClick={e => {
-                e.stopPropagation();
-                setState({ popupVisible: false });
-                onDel();
-              }}
-            >
-              {_l('删除')}
-            </RedMenuItemWrap>
-          </MenuWrap>
-        }
       >
-        <MoreOperate
-          className="moreOperate mTop3"
-          style={popupVisible ? { display: 'inline-block' } : {}}
-          onClick={e => {
-            e.stopPropagation();
-          }}
-        >
-          <i className="icon icon-more_horiz"></i>
-        </MoreOperate>
-      </Trigger>
-    </React.Fragment>
+        <i className="icon icon-more_horiz"></i>
+      </MoreOperate>
+    </Dropdown>
   );
 }
 
 //连接设置
 function AccountList(props) {
+  const requestPending = useRef(false);
   const [{ listSearch, list, loading, refreshLoading, keywords, data, logId }, setState] = useSetState({
     listSearch: [],
     list: [],
@@ -223,14 +210,21 @@ function AccountList(props) {
 
   //添加授权账户
   const getOpenUrl = () => {
-    Oauth2Ajax.authorize(
+    if (requestPending.current) return;
+
+    requestPending.current = true;
+    return Oauth2Ajax.authorize(
       {
         id: props.connectId,
       },
       { isIntegration: true },
-    ).then(res => {
-      window.open(res.oauth2Url, '_blank', 'width=800,height=600');
-    });
+    )
+      .then(res => {
+        window.open(res.oauth2Url, '_blank', 'width=800,height=600');
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   // 编辑名称｜删除

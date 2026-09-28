@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { checkIsAppAdmin } from 'ming-ui/functions';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
-import { navigateTo } from 'src/router/navigateTo';
+import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import ExecutionDetails from './ExecutionDetails';
 import HistoryChart from './HistoryChart';
 import RealTimeData from './RealTimeData';

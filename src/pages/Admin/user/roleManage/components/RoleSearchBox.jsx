@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 
 export default class RoleSearchBox extends Component {
   constructor(props) {
@@ -11,8 +12,6 @@ export default class RoleSearchBox extends Component {
     };
     this.ajaxObj = null;
   }
-  handleFocus = () => {};
-  handleBlur = () => {};
   handChange = _.debounce(value => {
     this.props.updateSearchValue(value);
     if (!value) {
@@ -33,10 +32,9 @@ export default class RoleSearchBox extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchContainer Relative">
-        <Icon icon="search" className=" btnSearch textSecondary Font18" />
-        <input
-          defaultValue={searchValue}
-          ref={input => (this.input = input)}
+        <Input
+          radius
+          variant="filled"
           onChange={e => {
             this.props.updateIsRequestList(false);
             this.setState({ searchValue: e.target.value.trim() });
@@ -47,23 +45,21 @@ export default class RoleSearchBox extends Component {
 
             this.handChange(e.target.value.trim());
           }}
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
-          type="text"
           className="searchInput textPrimary w100"
           placeholder={_l('搜索')}
           value={searchValue}
+          prefix={<Icon icon="search" className="textSecondary Font18" />}
+          suffix={
+            searchValue ? (
+              <Icon
+                icon="cancel"
+                className="Font14 textPlaceholder pointer"
+                onMouseDown={e => e.preventDefault()}
+                onClick={this.handleClear}
+              />
+            ) : null
+          }
         />
-        {searchValue !== '' ? (
-          <span
-            className="Font14 icon-cancel textPlaceholder Hand Absolute"
-            style={{
-              top: '8px',
-              right: '8px',
-            }}
-            onClick={this.handleClear}
-          />
-        ) : null}
       </div>
     );
   }

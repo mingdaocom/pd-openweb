@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { ConfigProvider, Dropdown, Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, ConfigProvider, Popover, Tooltip } from 'ming-ui/antd-components';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import PaginationWrap from '../PaginationWrap';
 import './index.less';
 
@@ -17,6 +17,7 @@ export default class PageTableCon extends Component {
       searchParams: {},
       columns: props.columns || [],
       checkedCols: props.columns.map(it => it.dataIndex),
+      dropDownVisible: false,
     };
   }
 
@@ -61,12 +62,12 @@ export default class PageTableCon extends Component {
       <div className="customColsWrap">
         <div className="statistics">
           <Checkbox
-            clearselected={checkedCols.length && checkedCols.length !== columns.length}
+            indeterminate={checkedCols.length && checkedCols.length !== columns.length}
             checked={_.every(columns, item => _.includes(checkedCols, item.dataIndex))}
-            onClick={checked => {
+            onChange={event => {
               let checkedCols = [];
 
-              if (checked) {
+              if (!event.target.checked) {
                 checkedCols = columns.filter(it => it.disabled).map(it => it.dataIndex);
               } else {
                 checkedCols = columns.map(it => it.dataIndex);
@@ -85,10 +86,10 @@ export default class PageTableCon extends Component {
                 <Checkbox
                   checked={_.includes(checkedCols, item.dataIndex)}
                   disabled={item.disabled}
-                  onClick={checked => {
+                  onChange={event => {
                     let copyCheckedCols = [...checkedCols];
 
-                    if (checked) {
+                    if (!event.target.checked) {
                       copyCheckedCols = copyCheckedCols.filter(it => it !== item.dataIndex);
                     } else {
                       copyCheckedCols = copyCheckedCols.concat(item.dataIndex);
@@ -126,23 +127,23 @@ export default class PageTableCon extends Component {
       moreAction && !fixedShowCols
         ? columns.concat({
             title: hideMoreActionTitle ? null : (
-              <Dropdown
-                overlay={this.renderShowColumns}
-                trigger={['click']}
-                visible={dropDownVisible}
-                onVisibleChange={visible => this.setState({ dropDownVisible: visible })}
-                placement="bottomRight"
-              >
-                <Tooltip title={_l('自定义显示列')}>
+              <Tooltip title={_l('自定义显示列')}>
+                <Popover
+                  trigger="click"
+                  open={dropDownVisible}
+                  onOpenChange={visible => this.setState({ dropDownVisible: visible })}
+                  placement="bottomRight"
+                  content={this.renderShowColumns()}
+                >
                   <Icon
                     icon="visibility"
-                    className={cx('hoverColorPrimary', {
+                    className={cx('pointer hoverColorPrimary', {
                       textDisabled: checkedCols.length === this.state.columns.length,
                       colorPrimary: checkedCols.length !== this.state.columns.length,
                     })}
                   />
-                </Tooltip>
-              </Dropdown>
+                </Popover>
+              </Tooltip>
             ),
             width: 80,
             fixed: 'right',
@@ -164,7 +165,7 @@ export default class PageTableCon extends Component {
         };
 
     return (
-      <div className={`tableWrap flexColumn Relative ${className}`}>
+      <div className={`tableWrap adminPageTableCon flexColumn Relative ${className}`}>
         <div className="flex" style={{ overflow: 'hidden', minHeight: 0 }}>
           {loading ? (
             <LoadDiv className="mTop40" />
@@ -213,23 +214,25 @@ export default class PageTableCon extends Component {
         )}
         {fixedShowCols && (
           <div className="showColsWrap">
-            <Dropdown
-              overlay={this.renderShowColumns}
-              trigger={['click']}
-              visible={dropDownVisible}
-              onVisibleChange={visible => this.setState({ dropDownVisible: visible })}
-              placement="bottomRight"
-            >
-              <Tooltip title={_l('自定义显示列')}>
+            <Tooltip title={_l('自定义显示列')}>
+              <Popover
+                trigger="click"
+                open={dropDownVisible}
+                onOpenChange={visible => this.setState({ dropDownVisible: visible })}
+                placement="bottomRight"
+                noPadding
+                styles={{ container: { boxShadow: 'none' } }}
+                content={this.renderShowColumns()}
+              >
                 <Icon
                   icon="visibility"
-                  className={cx('hoverColorPrimary', {
+                  className={cx('pointer hoverColorPrimary', {
                     textDisabled: checkedCols.length === this.state.columns.length,
                     colorPrimary: checkedCols.length !== this.state.columns.length,
                   })}
                 />
-              </Tooltip>
-            </Dropdown>
+              </Popover>
+            </Tooltip>
           </div>
         )}
       </div>

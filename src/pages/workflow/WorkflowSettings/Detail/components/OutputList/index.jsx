@@ -3,16 +3,19 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4, validate } from 'uuid';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Select } from 'ming-ui/antd-components';
 import { FIELD_TYPE_LIST } from '../../../enum';
 
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
 const OutputListItem = styled.div(
-  ({ isHeader }) => `
+  ({ $isHeader }) => `
   font-size: 13px;
   height: 36px;
   display: flex;
   align-items: center;
-  ${isHeader ? 'color: var(--color-text-secondary);' : 'margin-bottom: 10px;'}
+  ${$isHeader ? 'color: var(--color-text-secondary);' : 'margin-bottom: 10px;'}
   .width150 {
     width: 150px;
   }
@@ -24,19 +27,6 @@ const OutputListItem = styled.div(
   }
   .width50 {
     width: 50px;
-  }
-  input {
-    width: 100%;
-    height: 36px;
-    line-height: 36px;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 4px;
-    border-color: var(--color-border-primary);
-    padding: 0 10px;
-    &:focus {
-      border-color: var(--color-primary);
-    }
   }
 `,
 );
@@ -66,7 +56,7 @@ export default class OutputList extends Component {
 
     return (
       <Fragment>
-        <OutputListItem isHeader className="mTop5">
+        <OutputListItem $isHeader className="mTop5">
           <div className="width150 mRight10">{_l('参数名称')}</div>
           <div className="width120 mRight10">{_l('类型')}</div>
           <div className="flex mRight10">{outputType === OUTPUT_TYPE.JSON_PARSE ? 'JSON Path' : _l('参数说明')} </div>
@@ -99,8 +89,7 @@ export default class OutputList extends Component {
         <Fragment key={item.controlId}>
           <OutputListItem>
             <div className={cx('width150 mRight10', { pLeft20: item.dataSource })}>
-              <input
-                type="text"
+              <Input
                 value={item.controlName}
                 placeholder={_l('请填写参数名称')}
                 onChange={e => this.updateOutputParameters('controlName', e.target.value, item)}
@@ -115,17 +104,17 @@ export default class OutputList extends Component {
               />
             </div>
             <div className="width120 mRight10">
-              <Dropdown
+              <Select
                 className="flowDropdown"
                 style={{ width: 120 }}
-                data={FIELD_TYPE_LIST.filter(
+                options={FIELD_TYPE_LIST.filter(
                   o =>
                     _.includes([2, 6, 16, 26, 27, 48, 10000007, 10000008], o.value) &&
                     (!item.dataSource || (item.dataSource && o.value !== 10000008)) &&
                     (outputType === OUTPUT_TYPE.JSON_PARSE || !_.includes([16, 26, 27, 48], o.value)),
                 )}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={item.type}
-                border
                 disabled={!validate(item.controlId)}
                 onChange={type => {
                   this.updateOutputParameters('type', type, item);
@@ -134,16 +123,16 @@ export default class OutputList extends Component {
             </div>
             {item.type === 10000007 && (
               <div className="width100 mRight10">
-                <Dropdown
+                <Select
                   className="flowDropdown"
                   style={{ width: 100 }}
-                  data={FIELD_TYPE_LIST.filter(o =>
+                  options={FIELD_TYPE_LIST.filter(o =>
                     outputType === OUTPUT_TYPE.JSON_PARSE
                       ? _.includes([2, 6, 16, 26, 27], o.value)
                       : _.includes([2, 6], o.value),
                   )}
+                  fieldNames={SELECT_FIELD_NAMES}
                   value={subItem.type}
-                  border
                   disabled={!validate(subItem.controlId)}
                   onChange={type => {
                     this.updateOutputParameters('type', type, subItem);
@@ -158,16 +147,14 @@ export default class OutputList extends Component {
             )}
             <div className="flex mRight10">
               {outputType === OUTPUT_TYPE.JSON_PARSE ? (
-                <input
-                  type="text"
+                <Input
                   value={item.jsonPath}
                   placeholder={_l('请填写 JSON Path 值')}
                   onChange={e => this.updateOutputParameters('jsonPath', e.target.value, item)}
                   onBlur={e => this.updateOutputParameters('jsonPath', e.target.value.trim(), item)}
                 />
               ) : (
-                <input
-                  type="text"
+                <Input
                   placeholder={_l('说明')}
                   value={item.desc}
                   onChange={evt => this.updateOutputParameters('desc', evt.target.value, item)}
@@ -191,9 +178,8 @@ export default class OutputList extends Component {
 
           {isIntegration && (
             <div className={cx('mBottom10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
-              <input
-                type="text"
-                className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+              <Input
+                className="flex"
                 placeholder={_l('说明')}
                 value={item.desc}
                 onChange={evt => this.updateOutputParameters('desc', evt.target.value, item)}

@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { Icon } from 'ming-ui';
+import { Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
 
 const Row = styled.div`
   display: flex;
@@ -112,7 +112,7 @@ export default class MapField extends Component {
       .filter(({ controlId }) => !_.includes([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT], controlId))
       .map(({ controlName, controlId, type }) => ({
         iconName: getIconByType(type),
-        text: controlName,
+        label: controlName,
         value: controlId,
         type: _.includes([6, 31, 37], type) ? 8 : type === 9 ? 11 : type,
       }));
@@ -136,19 +136,23 @@ export default class MapField extends Component {
           )}
         </div>
         <Icon icon="arrow_forward" className="Font16 colorPrimary mLeft16 mRight16" />
-        <Dropdown
+        <Select
           className="flex"
-          menuClass="mapFieldMenuWrap"
-          isAppendToBody
-          border
-          cancelAble
-          data={columns.filter(
+          classNames={{ popup: { root: 'mapFieldMenuWrap' } }}
+          allowClear
+          options={columns.filter(
             v =>
               _.includes(item.type || [], v.type) &&
               !_.includes(
                 filterControlIds.filter(t => t !== item.mapFieldControlId),
                 v.value,
               ),
+          )}
+          optionRender={({ data }) => (
+            <div className="flexRow alignItemsCenter">
+              <Icon className="Font16 textTertiary" icon={data.iconName} />
+              <span className="itemText">{data.label}</span>
+            </div>
           )}
           value={item.mapFieldControlId}
           onChange={value => {
@@ -187,19 +191,20 @@ export default class MapField extends Component {
             </Fragment>
           )}
         </div>
-        <Dialog
+        <Modal
           width={726}
-          visible={showDialog}
+          open={showDialog}
           title={_l('建立字段映射')}
           okText={_l('保存')}
-          overlayClosable={false}
+          mask={{ closable: false }}
+          keyboard
           onCancel={() => this.setState({ showDialog: false })}
           onOk={this.onSave}
         >
           {mapFields.map(item => {
             return item.isTitle ? <div className="textTertiary mBottom10">{item.title}</div> : this.renderRow(item);
           })}
-        </Dialog>
+        </Modal>
       </Fragment>
     );
   }

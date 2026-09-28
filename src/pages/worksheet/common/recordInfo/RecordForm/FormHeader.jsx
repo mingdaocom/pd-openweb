@@ -1,17 +1,19 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, UserHead, UserName } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getTranslateInfo } from 'src/utils/app';
-import { controlState } from 'src/utils/control';
-import { dateConvertToUserZone } from 'src/utils/project';
-import { handleChangeOwner, updateRecordOwner } from '../crtl';
-import { pathCompletion } from 'src/utils/common';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { updateRecordOwner } from '../crtl';
 
 export default function FormHeader(props) {
   const {
@@ -46,7 +48,6 @@ export default function FormHeader(props) {
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicPage');
   const { maskPermissions, handleUnMask } = maskinfo;
-  const ownerRef = useRef();
   const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
   const showOwner =
     ownerControl &&
@@ -64,7 +65,52 @@ export default function FormHeader(props) {
       from !== RECORD_INFO_FROM.DRAFT &&
       !window.isPublicApp &&
       !editLockedUser,
-    [allowEdit, isLock, isRecordLock, recordinfo.isLock, editLockedUser],
+    [allowEdit, editLockedUser, from, isLock, isRecordLock, ownerControl, recordinfo.isLock],
+  );
+  const handleOwnerSelect = useCallback(
+    async users => {
+      const accountId = _.get(users, '0.accountId');
+
+      if (!accountId) return;
+
+      try {
+        const { account, record } = await updateRecordOwner({
+          worksheetId,
+          recordId,
+          accountId: accountId === 'user-self' ? _.get(md, ['global', 'Account', 'accountId']) : accountId,
+        });
+        updateRecordDialogOwner(account, record);
+        alert(_l('修改成功'));
+      } catch (err) {
+        if (err && err.resultCode === 72) {
+          alert(_l('%0已锁定，修改失败', entityName), 3);
+          return;
+        }
+
+        console.log(err);
+        alertIfNotUnauthorized(err, _l('修改失败'), 2);
+      }
+    },
+    [entityName, recordId, updateRecordDialogOwner, worksheetId],
+  );
+  const ownerContent = (
+    <span className={cx('ownerBlock', { disabled: !ownerEditable, Hand: ownerEditable })}>
+      <span className="InlineBlock">
+        <UserHead
+          className="cursorDefault"
+          size={24}
+          user={{
+            accountId: ownerAccount.accountId,
+            userHead: ownerAccount.avatar,
+          }}
+          appId={appId}
+          projectId={projectId}
+          headClick={() => {}}
+        />
+      </span>
+      <span className="textPrimary mLeft4">{ownerAccount.fullname}</span>
+      <i className="icon icon-arrow-down Hand Font12 textSecondary mLeft4"></i>
+    </span>
   );
 
   let isOpenLogs = true;
@@ -78,7 +124,11 @@ export default function FormHeader(props) {
       {!isPublicShare && !hideFormHeader && (
         <div className="worksheetNameCon mTop12">
           {!(window.isPublicApp || md.global.Account.isPortal) ? (
-            <a className="worksheetName textTertiary InlineBlock" target="_blank" href={pathCompletion(`/worksheet/${worksheetId}`)}>
+            <a
+              className="worksheetName textTertiary InlineBlock"
+              target="_blank"
+              href={pathCompletion(`/worksheet/${worksheetId}`)}
+            >
               {getTranslateInfo(appId, null, worksheetId).name || worksheetName}
             </a>
           ) : (
@@ -103,57 +153,30 @@ export default function FormHeader(props) {
             {showOwner && (
               <span className={cx('owner Font12 textTertiary', { noBorder: !isOpenLogs })}>
                 {_l('拥有者')}：
-                <span
-                  className={cx('ownerBlock', { disabled: !ownerEditable, Hand: ownerEditable })}
-                  ref={ownerRef}
-                  onClick={() => {
-                    if (ownerEditable) {
-                      handleChangeOwner({
-                        recordId,
-                        appId,
-                        ownerAccountId: ownerAccount.accountId,
-                        projectId,
-                        target: ownerRef.current,
-                        changeOwner: async (users, accountId) => {
-                          try {
-                            const { account, record } = await updateRecordOwner({
-                              worksheetId,
-                              recordId,
-                              accountId:
-                                accountId === 'user-self' ? _.get(md, ['global', 'Account', 'accountId']) : accountId,
-                            });
-                            updateRecordDialogOwner(account, record);
-                            alert(_l('修改成功'));
-                          } catch (err) {
-                            if (err && err.resultCode === 72) {
-                              alert(_l('%0已锁定，修改失败', entityName), 3);
-                              return;
-                            }
-
-                            console.log(err);
-                            alert(_l('修改失败'), 2);
-                          }
-                        },
-                      });
-                    }
-                  }}
-                >
-                  <span className="InlineBlock">
-                    <UserHead
-                      className="cursorDefault"
-                      size={24}
-                      user={{
-                        accountId: ownerAccount.accountId,
-                        userHead: ownerAccount.avatar,
-                      }}
-                      appId={appId}
-                      projectId={projectId}
-                      headClick={() => { }}
-                    />
-                  </span>
-                  <span className="textPrimary mLeft4">{ownerAccount.fullname}</span>
-                  <i className="icon icon-arrow-down Hand Font12 textSecondary mLeft4"></i>
-                </span>
+                {ownerEditable ? (
+                  <UserSelectPopover
+                    sourceId={recordId}
+                    projectId={projectId}
+                    showMoreInvite={false}
+                    isTask={false}
+                    tabType={3}
+                    appId={appId}
+                    includeUndefinedAndMySelf
+                    selectedAccountIds={[ownerAccount.accountId]}
+                    offset={{ top: 16, left: 0 }}
+                    SelectUserSettings={{
+                      unique: true,
+                      projectId,
+                      selectedAccountIds: [ownerAccount.accountId],
+                      callback: handleOwnerSelect,
+                    }}
+                    onSelect={handleOwnerSelect}
+                  >
+                    {ownerContent}
+                  </UserSelectPopover>
+                ) : (
+                  ownerContent
+                )}
               </span>
             )}
           </div>
@@ -190,6 +213,7 @@ export default function FormHeader(props) {
             appId={appId}
             className="userName"
           />
+
           <div className="mLeft5 textSecondary">{_l('编辑中···')}</div>
         </div>
       )}

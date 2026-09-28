@@ -2,8 +2,9 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, RadioGroup, Switch } from 'ming-ui';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { Icon } from 'ming-ui';
+import { Radio, Select, Switch } from 'ming-ui/antd-components';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 import { defaultDoubleConfirm } from './config';
 import DoubleConfirmationDialog from './DoubleConfirmDialog';
 import { WrapTxt } from './style';
@@ -11,8 +12,7 @@ import { WrapTxt } from './style';
 export default function (props) {
   const { worksheetId, advancedSetting, onChangeSetting } = props;
 
-  const [{ dropDownVisible, showDoubleConfirm }, setState] = useSetState({
-    dropDownVisible: false,
+  const [{ showDoubleConfirm }, setState] = useSetState({
     showDoubleConfirm: false,
   });
 
@@ -61,66 +61,15 @@ export default function (props) {
           ].includes(o.type),
       )
       .map(o => {
-        return { text: o.controlName, value: o.controlId };
+        return { label: o.controlName, value: o.controlId };
       });
   };
 
-  const handChange = value => {
-    if (!value) {
-      onChangeSetting({ reservecontrols: JSON.stringify([]) });
-      return;
-    }
-
-    let data = safeParse(advancedSetting.reservecontrols);
-
-    if (data.includes(value)) {
-      data = data.filter(o => o !== value);
-    } else {
-      data = [...data, value];
-    }
-
-    onChangeSetting({ reservecontrols: JSON.stringify(data) });
-  };
-
-  const renderItem = item => {
-    const reservecontrols = safeParse(advancedSetting.reservecontrols);
-    const isCur = reservecontrols.includes(item.value);
-    return (
-      <div className={cx('itemText flexRow alignItemsCenter', { isCur })}>
-        <Checkbox className="Hand" checked={isCur} />
-        <span className="mLeft10 flex textPrimary overflow_ellipsis">{item.text}</span>
-      </div>
-    );
-  };
-
-  const renderTitle = () => {
-    const reservecontrols = safeParse(advancedSetting.reservecontrols);
-    return (
-      <div className="">
-        {reservecontrols.map(it => {
-          const control = props.worksheetControls.find(o => o.controlId === it);
-          return (
-            <div className="itemT flexRow alignItemsCenter">
-              <span className={cx('flex overflow_ellipsis', { Red: !control })}>
-                {!control ? _l('字段已删除') : control.controlName}
-              </span>
-              <Icon
-                icon={'close'}
-                className="Hand mLeft3 hoverColorPrimary"
-                onClick={e => {
-                  e.stopPropagation();
-                  let data = reservecontrols.filter(a => a !== it);
-                  onChangeSetting({
-                    reservecontrols: JSON.stringify(data),
-                  });
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  const reserveControlIds = isReserve() ? safeParse(advancedSetting.reservecontrols) : [];
+  const reserveControlOptions = formatReserveControls();
+  const deletedControlOptions = reserveControlIds
+    .filter(id => !reserveControlOptions.some(option => option.value === id))
+    .map(value => ({ label: <span className="Red">{_l('字段已删除')}</span>, value }));
 
   return (
     <>
@@ -136,7 +85,12 @@ export default function (props) {
           <div className="mRight16 mLeft40 Relative">
             <Switch
               checked={advancedSetting.aifillin !== '1'}
-              onClick={() => onChangeSetting({ aifillin: advancedSetting.aifillin === '1' ? '0' : '1' })}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return onChangeSetting({
+                  aifillin: advancedSetting.aifillin === '1' ? '0' : '1',
+                });
+              }}
             />
           </div>
         </div>
@@ -149,7 +103,12 @@ export default function (props) {
         <div className="mRight16 mLeft40 Relative">
           <Switch
             checked={advancedSetting.closedrafts !== '1'}
-            onClick={() => onChangeSetting({ closedrafts: advancedSetting.closedrafts === '1' ? '0' : '1' })}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return onChangeSetting({
+                closedrafts: advancedSetting.closedrafts === '1' ? '0' : '1',
+              });
+            }}
           />
         </div>
       </div>
@@ -163,17 +122,22 @@ export default function (props) {
             <Switch
               className={cx('Hand TxtMiddle')}
               checked={advancedSetting.showcontinue !== '0'}
-              onClick={() => onChangeSetting({ showcontinue: advancedSetting.showcontinue === '0' ? '1' : '0' })}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return onChangeSetting({
+                  showcontinue: advancedSetting.showcontinue === '0' ? '1' : '0',
+                });
+              }}
             />
           </div>
         </div>
         {advancedSetting.showcontinue !== '0' && (
           <div className="mLeft12">
             <div className="flexRow mTop16 pRight16">
-              <Dropdown
-                data={[
-                  { text: _l('保留所有提交内容'), value: 'all' },
-                  { text: _l('保留指定字段'), value: 'reserve' },
+              <Select
+                options={[
+                  { label: _l('保留所有提交内容'), value: 'all' },
+                  { label: _l('保留指定字段'), value: 'reserve' },
                 ]}
                 value={!isReserve() ? 'all' : 'reserve'}
                 className={cx('act', !isReserve() ? 'flex' : 'w200')}
@@ -182,42 +146,31 @@ export default function (props) {
                     reservecontrols: value === 'all' ? 'all' : '[]',
                   });
                 }}
-                border
-                isAppendToBody
               />
               {isReserve() && (
-                <Dropdown
+                <Select
+                  mode="multiple"
                   key={worksheetId}
-                  data={formatReserveControls()}
-                  border
-                  value={
-                    safeParse(advancedSetting.reservecontrols).length <= 0
-                      ? undefined
-                      : safeParse(advancedSetting.reservecontrols)
-                  }
+                  options={[...deletedControlOptions, ...reserveControlOptions]}
+                  value={reserveControlIds}
                   className={cx('flex mLeft10 controlsDropdown')}
-                  onChange={handChange}
+                  onChange={values => onChangeSetting({ reservecontrols: JSON.stringify(values) })}
                   placeholder={_l('请选择')}
-                  renderItem={renderItem}
-                  cancelAble
-                  popupVisible={dropDownVisible}
-                  onVisibleChange={dropDownVisible => setState({ dropDownVisible })}
-                  selectClose={false}
-                  menuClass={'reserveControlsDropdownMenuSet'}
-                  renderTitle={renderTitle}
-                  isAppendToBody
+                  allowClear
                 />
               )}
             </div>
             <div className="mTop12 textSecondary Font13 Bold">{_l('保留方式')}</div>
-            <RadioGroup
+            <Radio.Group
               className="autoreserveCon flexColumn"
-              data={[
+              options={[
                 { value: '0', text: _l('显示“保留上次提交内容”选项，由用户决定是否保留') },
                 { value: '1', text: _l('无需询问，自动保留') },
-              ]}
-              checkedValue={advancedSetting.autoreserve === '1' ? '1' : '0'}
-              onChange={autoreserve => {
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
+              value={advancedSetting.autoreserve === '1' ? '1' : '0'}
+              onChange={event => {
+                const autoreserve = event.target.value;
+
                 onChangeSetting({
                   autoreserve: autoreserve,
                 });
@@ -235,12 +188,17 @@ export default function (props) {
           <div className="mRight16 mLeft40 Relative">
             <Switch
               checked={advancedSetting.enableconfirm === '1'}
-              onClick={() => {
+              onClick={(checked, event) => {
+                event.stopPropagation();
                 let info;
 
                 if (advancedSetting.enableconfirm !== '1' && !_.get(advancedSetting, 'doubleconfirm')) {
-                  info = { doubleconfirm: JSON.stringify(defaultDoubleConfirm) };
-                  setState({ showDoubleConfirm: true });
+                  info = {
+                    doubleconfirm: JSON.stringify(defaultDoubleConfirm),
+                  };
+                  setState({
+                    showDoubleConfirm: true,
+                  });
                 }
 
                 onChangeSetting({
@@ -278,7 +236,8 @@ export default function (props) {
         <div className="mRight16 mLeft40 Relative">
           <Switch
             checked={advancedSetting.executeworkflow === '1'}
-            onClick={() => {
+            onClick={(checked, event) => {
+              event.stopPropagation();
               onChangeSetting({
                 executeworkflow: advancedSetting.executeworkflow === '1' ? '0' : '1',
               });

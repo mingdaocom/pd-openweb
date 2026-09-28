@@ -2,8 +2,9 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { find, get, includes, isEmpty } from 'lodash';
 import { v4 } from 'uuid';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getRelateRecordTableAllowEdit } from '../utils';
 import { init, updateTreeTableViewData } from './action';
 import reducer from './reducer';
 
@@ -45,7 +46,7 @@ export default function generateStore(
       control,
       appId,
       recordId,
-      allowEdit: allowEdit && !get(window, 'shareState.isPublicWorkflowRecord') && !(control && control.disabled),
+      allowEdit: getRelateRecordTableAllowEdit(allowEdit, control),
       direction: get(control, 'advancedSetting.direction') === '1' ? 'vertical' : 'horizontal',
       formData,
       instanceId,
@@ -107,10 +108,26 @@ export default function generateStore(
   };
 
   store.init = () => store.dispatch(init());
+  // 大表单保存成功后调用：本地增删已随记录落库，把当前结果确立为新基线——
+  // 清空 changes（残留会重复提交、并让 loadRecords 一直跳过基线刷新），
+  // 同时把撤销快照 originFirstPageResult 刷成保存后的 records/count，
+  // 保证之后再编辑点取消恢复到最近一次保存的状态，而不是打开记录时的初始数据
   store.reset = () => {
+    const state = store.getState();
+    const { records = [], tableState = {} } = state;
+    // 兜底 records.length：若 reset 恰好在 refresh 的 RESET 之后、loadRecords 返回之前执行，
+    // tableState.count 已被清零而 records 还是旧数据，直接取 0 会把撤销基线污染成「共0行」
+    const count =
+      (typeof tableState.countForShow === 'undefined' ? tableState.count : tableState.countForShow) || records.length;
+
+    store.dispatch({ type: 'CLEAR_CHANGES' });
+    store.dispatch({
+      type: 'INIT_FIRST_PAGE_RESULT',
+      value: { count, records },
+    });
     store.dispatch({
       type: 'UPDATE_TABLE_STATE',
-      value: { highlightRows: {} },
+      value: { highlightRows: {}, count },
     });
   };
 

@@ -1,17 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView, SearchInput } from 'ming-ui';
+import { Popover, Select } from 'ming-ui/antd-components';
 import homeApp from 'src/api/homeApp';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const PopupWrapper = styled.div`
   width: 400px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  border-radius: 2px;
   padding: 10px;
 
   .searchInput {
@@ -113,17 +108,15 @@ export default function SheetGroupSelect(props) {
   };
 
   return (
-    <Trigger
-      action={['click']}
+    <Popover
+      noPadding
+      trigger="click"
       getPopupContainer={() => groupRef.current}
-      popupVisible={groupPopupVisible}
-      onPopupVisibleChange={visible => setGroupPopupVisible(visible)}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [0, -15],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      popup={
+      open={groupPopupVisible}
+      onOpenChange={setGroupPopupVisible}
+      placement="bottomRight"
+      align={{ offset: [0, -15] }}
+      content={
         <PopupWrapper>
           <SearchInput
             placeholder={_l('搜索')}
@@ -165,6 +158,6 @@ export default function SheetGroupSelect(props) {
           suffixIcon={suffixIcon}
         />
       </div>
-    </Trigger>
+    </Popover>
   );
 }

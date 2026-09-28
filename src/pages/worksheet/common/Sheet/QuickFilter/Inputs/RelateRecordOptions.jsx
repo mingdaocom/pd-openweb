@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
-import Option from './StyledOption';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 
 const Con = styled.div`
   position: relative;
-  min-height: 32px;
 `;
 
 const MAX_COUNT = 20;
+const OPTION_BUTTON_STYLE = {
+  maxWidth: 200,
+  '--hap-control-height-sm': '28px',
+  '--hap-button-padding-inline-sm': '12px',
+};
+const SELECTED_MULTIPLE_OPTION_BUTTON_STYLE = {
+  ...OPTION_BUTTON_STYLE,
+  borderColor: 'var(--hap-color-primary-border)',
+};
 
 export default function RelateRecordOptions(props) {
   const {
@@ -80,10 +88,18 @@ export default function RelateRecordOptions(props) {
           const title = record.rowid === 'isEmpty' ? record.name : getTitleTextFromRelateControl(control, record);
           const checked = _.find(selected, { rowid: record.rowid });
           return (
-            <Option
-              className={cx('relateRecordOption ellipsis', { multiple, checked })}
+            <Button
+              className="mTop2 mRight6 mBottom2 Normal"
+              color={checked ? 'primary' : 'default'}
+              variant={checked ? (multiple ? 'filled' : 'solid') : 'outlined'}
+              shape="round"
+              size="small"
+              ellipsis
+              style={checked && multiple ? SELECTED_MULTIPLE_OPTION_BUTTON_STYLE : OPTION_BUTTON_STYLE}
               title={title}
               key={i}
+              aria-pressed={!!checked}
+              icon={multiple && checked ? <Icon icon="hr_ok" className="Font13" /> : undefined}
               onClick={() => {
                 if (record.rowid === 'isEmpty') {
                   onChange(selected.length === 1 && selected[0].rowid === 'isEmpty' ? [] : [record]);
@@ -94,9 +110,8 @@ export default function RelateRecordOptions(props) {
                 }
               }}
             >
-              {multiple && checked && <span className="icon-hr_ok selectedIcon"></span>}
-              <div className="ellipsis">{title}</div>
-            </Option>
+              {title}
+            </Button>
           );
         })}
     </Con>

@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import AppAjax from 'src/api/appManagement';
 import DeleRoleDialog from 'src/pages/Role/AppRoleCon/component/DeleRoleDialog.jsx';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { sysRoleType } from 'src/pages/Role/config.js';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
 import RoleNav from './RoleNav';
 import UserListCon from './UserListCon';
 
@@ -204,14 +205,16 @@ class Con extends React.Component {
 
       this.setState({ showDeleRoleByMoveUser: true, delId: data.roleId });
     } else {
-      return Dialog.confirm({
-        title: <span className="Red">{_l('你确认删除此角色吗？')}</span>,
-        buttonType: 'danger',
-        description: '',
+      return Modal.confirm({
+        title: <span className="Red textError">{_l('你确认删除此角色吗？')}</span>,
+        okButtonProps: {
+          danger: true,
+        },
+        content: '',
         onOk: () => {
           this.onRemoveRole(data);
         },
-      });
+      }).destroy;
     }
   };
   onRemoveRole = data => {
@@ -257,11 +260,23 @@ class Con extends React.Component {
 
           location.reload();
         } else {
-          Dialog.confirm({
-            title: <span style={{ color: 'var(--color-error)' }}>{_l('无法退出非“人员”类型成员加入的角色')}</span>,
-            description: _l('非“人员”类型的成员，只能由管理员或运营者操作'),
+          Modal.confirm({
+            title: (
+              <span
+                style={{
+                  color: 'var(--color-error)',
+                }}
+              >
+                {_l('无法退出非“人员”类型成员加入的角色')}
+              </span>
+            ),
+            content: _l('非“人员”类型的成员，只能由管理员或运营者操作'),
             closable: false,
-            removeCancelBtn: true,
+            cancelButtonProps: {
+              style: {
+                display: 'none',
+              },
+            },
             okText: _l('关闭'),
           });
           SetAppRolePagingModel(null);

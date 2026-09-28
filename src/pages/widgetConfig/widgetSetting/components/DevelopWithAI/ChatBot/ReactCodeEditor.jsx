@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { useMeasure } from 'react-use';
 import styled from 'styled-components';
+import {
+  CUSTOM_FIELD_CODE_MAX_SIZE_IN_KB,
+  isCustomFieldCodeTooLarge,
+} from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/codeSize';
 
 let codeMirrorPromise;
 
@@ -285,10 +289,9 @@ const CodeEditor = ({ value = '', onChange = () => {} }) => {
 
       editorRef.current.on('change', editor => {
         const value = editor.getValue();
-        const blobSizeOfKb = new Blob([value]).size / 1024;
 
-        if (blobSizeOfKb > 64) {
-          alert(_l('代码无法保存，代码长度不能超过64KB'), 3);
+        if (isCustomFieldCodeTooLarge(value)) {
+          alert(_l('代码无法保存，代码长度不能超过%0KB', CUSTOM_FIELD_CODE_MAX_SIZE_IN_KB), 3);
           return;
         }
 

@@ -1,6 +1,6 @@
-import React, { Fragment } from 'react';
-import { Checkbox, Collapse, Switch } from 'antd';
+import React from 'react';
 import cx from 'classnames';
+import { Checkbox, Switch } from 'ming-ui/antd-components';
 import goldCrown from 'statistics/assets/topChart/gold_crown.png';
 import goldMedal from 'statistics/assets/topChart/gold_medal.png';
 import one from 'statistics/assets/topChart/one.png';
@@ -67,46 +67,42 @@ const ValueProgressVisible = props => {
 export default function topChartPanelGenerator(props) {
   const { currentReport, onChangeStyle } = props;
   const { topStyle = 'crown', valueProgressVisible = true } = currentReport.style || {};
-  return (
-    <Fragment>
-      <Collapse.Panel
-        key="valueProgress"
-        header={_l('数据条')}
-        className={cx({ collapsible: !valueProgressVisible })}
-        extra={
-          <Switch
-            size="small"
-            checked={valueProgressVisible}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              onChangeStyle({ valueProgressVisible: checked });
-            }}
-          />
-        }
-      >
-        <ValueProgressVisible style={currentReport.style} onChangeStyle={onChangeStyle} />
-      </Collapse.Panel>
-      <Collapse.Panel
-        key="topStyle"
-        header={_l('TOP样式')}
-        className={cx({ collapsible: !topStyle })}
-        extra={
-          <Switch
-            size="small"
-            checked={topStyle}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              onChangeStyle({ topStyle: checked ? 'crown' : false });
-            }}
-          />
-        }
-      >
-        <TopStyle style={currentReport.style} onChangeStyle={onChangeStyle} />
-      </Collapse.Panel>
-    </Fragment>
-  );
+  return [
+    {
+      key: 'valueProgress',
+      label: _l('数据条'),
+      className: cx({ collapsible: !valueProgressVisible }),
+      extra: (
+        <Switch
+          size="small"
+          checked={valueProgressVisible}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            onChangeStyle({ valueProgressVisible: checked });
+          }}
+        />
+      ),
+      children: <ValueProgressVisible style={currentReport.style} onChangeStyle={onChangeStyle} />,
+    },
+    {
+      key: 'topStyle',
+      label: _l('TOP样式'),
+      className: cx({ collapsible: !topStyle }),
+      extra: (
+        <Switch
+          size="small"
+          checked={topStyle}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+          }}
+          onChange={checked => {
+            onChangeStyle({ topStyle: checked ? 'crown' : false });
+          }}
+        />
+      ),
+      children: <TopStyle style={currentReport.style} onChangeStyle={onChangeStyle} />,
+    },
+  ];
 }

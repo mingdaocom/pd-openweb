@@ -36,7 +36,7 @@ const Content = styled.div`
   padding: 20px 0 30px;
 
   @media (max-width: 768px) {
-    padding: 20px 0;
+    padding: 0 0 20px;
   }
 `;
 

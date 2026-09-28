@@ -3,21 +3,24 @@ import { ActionSheet, Button, Dialog, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/process';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import { RecordInfoModal } from 'mobile/Record';
 import { getRowDetail } from 'worksheet/api';
-import verifyPassword from 'src/components/verifyPassword';
-import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import MobileVerifyPassword from 'src/pages/Mobile/components/MobileVerifyPassword';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
-import { getTranslateInfo } from 'src/utils/app';
-import { appendDataToLocalPushUniqueId, emitter, getRequest } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
-import { handleRecordError } from 'src/utils/record';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { appendDataToLocalPushUniqueId } from 'src/utils/platform/storage/local';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getCurrentProject } from 'src/utils/services/project';
+import { handleRecordError } from 'src/utils/services/worksheet/record';
 import MobilePrintList from '../MobilePrintList';
 import AiActionButtons from './AiActionButtons';
 import CustomButtons from './CustomButtons';
@@ -59,6 +62,7 @@ class RecordAction extends Component {
     this.isSubList = isSubList == 'true';
     this.editable = editable == 'true';
     this.actionDeleteHandler = null;
+    this.requestPending = false;
   }
   componentDidMount() {
     if (this.props.isBatchOperate && !this.props.recordActionVisible) return;
@@ -231,16 +235,19 @@ class RecordAction extends Component {
 
       function verifyAndRun() {
         if (btn.verifyPwd) {
+          const projectId = !isBatchOperate ? sheetRow.projectId : worksheetInfo.projectId;
+
           verifyPassword({
-            projectId: !isBatchOperate ? sheetRow.projectId : worksheetInfo.projectId,
+            projectId,
             checkNeedAuth: true,
-            closeImageValidation: true,
             success: run,
             fail: result => {
-              MobileVertifyPassword.confirm({
+              MobileVerifyPassword.confirm({
+                projectId,
                 showSubTitle: true,
                 autoFocus: true,
                 isRequired: true,
+                showVerifyType: true,
                 allowNoVerify: result !== 'showPassword',
                 onOk: run,
               });
@@ -260,9 +267,10 @@ class RecordAction extends Component {
     };
 
     if (batchOptCheckedData.length > 1000) {
-      Dialog.confirm({
+      Modal.confirm({
+        title: _l('批量执行'),
         content: _l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？'),
-        onConfirm: () => handleTrigger(),
+        onOk: () => handleTrigger(),
       });
     } else {
       handleTrigger();
@@ -548,8 +556,11 @@ class RecordAction extends Component {
     hideRecordActionVisible();
   };
   handleDelete = () => {
+    if (this.requestPending) return;
+
     const { appId, worksheetId, viewId, rowId, handleDeleteSuccess = () => {} } = this.props;
-    worksheetAjax
+    this.requestPending = true;
+    return worksheetAjax
       .deleteWorksheetRows({
         worksheetId,
         viewId,
@@ -563,6 +574,9 @@ class RecordAction extends Component {
         } else {
           alert(_l('删除失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
   fillRecordControls = (newControls, targetOptions, customwidget, cb = () => {}) => {
@@ -660,6 +674,7 @@ class RecordAction extends Component {
           projectId={!isBatchOperate ? sheetRow.projectId : worksheetInfo.projectId}
           recordId={fillRecordId}
           worksheetId={btnRelateWorksheetId}
+          isBatchOperate={isBatchOperate}
           isBatchRecordLock={isBatchRecordLock}
           writeControls={activeBtn.writeControls}
           continueFill={this.continueFill}
@@ -814,6 +829,7 @@ class RecordAction extends Component {
                   <div className="customBtnLists">
                     <CustomButtons
                       appId={appId}
+                      worksheetId={worksheetId}
                       isBatch={isBatchOperate}
                       classNames="flex customBtnItem"
                       customBtns={customBtns}

@@ -3,10 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { MdLink } from 'ming-ui';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { hasPermission } from 'src/utils/services/security/permission';
 import { dataIntegrationList, list } from './config';
 
 const Wrap = styled.div`
@@ -66,9 +66,11 @@ class Sidenav extends React.Component {
     const hasDataIntegrationAuth =
       !_.get(window, 'md.global.SysSettings.hideDataPipeline') &&
       hasPermission(myPermissions, [
+        PERMISSION_ENUM.CREATE_SYNC_TASK_FEATURE,
         PERMISSION_ENUM.CREATE_SYNC_TASK,
         PERMISSION_ENUM.MANAGE_SYNC_TASKS,
         PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+        PERMISSION_ENUM.MANAGE_DATA_MIRROR,
       ]);
 
     return (
@@ -99,7 +101,9 @@ class Sidenav extends React.Component {
                   (o.type === 'dataConnect' && menuAuth.noCreateTaskMenu) ||
                   (o.type === 'task' && menuAuth.noSyncTaskMenu) ||
                   (o.type === 'source' && menuAuth.noSourceMenu) ||
-                  (o.type === 'dataMirror' && !getFeatureStatus(currentProjectId, VersionProductType.dataMirror))
+                  (o.type === 'dataMirror' &&
+                    (menuAuth.noMirrorMenu || !getFeatureStatus(currentProjectId, VersionProductType.dataMirror))) ||
+                  (o.type === 'stats' && menuAuth.noStatsMenu)
                 ) {
                   return null;
                 }

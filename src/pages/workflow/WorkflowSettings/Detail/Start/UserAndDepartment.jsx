@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Radio, Tooltip } from 'ming-ui/antd-components';
 import { TRIGGER_ID } from '../../enum';
 import { TriggerCondition } from '../components';
 
@@ -48,10 +47,17 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
         {TYPES[data.appType].actions.map(item => (
           <div className="mTop15" key={item.value}>
             <Radio
-              text={item.text}
               checked={data.triggerId === item.value}
-              onClick={() => updateSource({ triggerId: item.value, operateCondition: [] })}
-            />
+              onChange={() =>
+                updateSource({
+                  triggerId: item.value,
+                  operateCondition: [],
+                })
+              }
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
             {item.value === TRIGGER_ID.DELETE && (
               <Tooltip title={_l('包括用户自行注销或被管理员注销')}>
                 <span

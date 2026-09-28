@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useDrag, useDrop } from 'react-dnd-latest';
 import { useInView } from 'react-intersection-observer';
-import { Skeleton } from 'antd';
 import cx from 'classnames';
 import { noop, pick } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
-import { browserIsMobile } from 'src/utils/common';
-import { getRecordColorConfig } from 'src/utils/record';
+import { getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isDisabledCreate, isTextTitle } from 'src/utils/services/worksheet/view';
 import EditableCard from '../../components/EditableCard';
 import EditingRecordItem from '../../components/EditingRecordItem';
 import RecordPortal from '../../components/RecordPortal';
@@ -17,7 +17,6 @@ import AddRecord from '../../HierarchyView/components/AddRecord';
 import CountTip from '../../HierarchyView/components/CountTip';
 import { ITEM_TYPE } from '../../HierarchyView/config';
 import { dealHierarchyData, getRelateDefaultValue } from '../../HierarchyView/util';
-import { isDisabledCreate, isTextTitle } from '../../util';
 
 const OperationWrap = styled(FlexCenter)`
   position: absolute;
@@ -73,7 +72,7 @@ export default function DraggableRecord(props) {
     onClick,
     stateTree,
     width,
-    hierarchyTopLevelDataCount = 0,
+    forceRenderAll = false,
     buttonsCheckStatus,
   } = props;
   const { rowId, visible, path = [], pathId = [], children = [] } = data;
@@ -144,23 +143,20 @@ export default function DraggableRecord(props) {
 
   const [isEditTitle, setEditTitle] = useState(false);
   const [realCardHeight, setRealCardHeight] = useState(skeletonHeight);
-  const [skeletonRows, setSkeletonRows] = useState(Math.floor(skeletonHeight / 40));
-  const shouldSkip = hierarchyTopLevelDataCount < 200;
-  const { ref, inView: inViewRaw } = useInView({
+  const { ref, inView } = useInView({
     root: null,
     rootMargin: '100px',
     threshold: 0,
-    skip: shouldSkip,
+    skip: forceRenderAll,
   });
-  const inView = shouldSkip ? true : inViewRaw;
+  const shouldRenderCard = forceRenderAll || inView;
 
   useEffect(() => {
-    if (inView && $ref.current && !shouldSkip) {
-      const height = $ref.current.getBoundingClientRect().height;
+    if (shouldRenderCard && $ref.current) {
+      const height = $ref.current.offsetHeight;
       setRealCardHeight(height);
-      setSkeletonRows(Math.floor(height / 50));
     }
-  }, [inView]);
+  }, [shouldRenderCard]);
 
   useEffect(() => {
     if (connectDragPreview) {
@@ -233,10 +229,11 @@ export default function DraggableRecord(props) {
         className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}
         style={STYLE}
       >
-        {inView ? (
+        {shouldRenderCard ? (
           <EditableCard
             {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
             data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
+            worksheetInfo={worksheetInfo}
             stateData={data}
             ref={$ref}
             currentView={{
@@ -255,15 +252,14 @@ export default function DraggableRecord(props) {
             buttonsCheckStatus={buttonsCheckStatus}
           />
         ) : (
-          <div className="skeletonBox" style={{ height: realCardHeight }}>
-            <Skeleton paragraph={{ rows: skeletonRows }} />
-          </div>
+          <div className="skeletonBox" style={{ height: realCardHeight }} />
         )}
       </div>
       {isEditTitle && (
         <RecordPortal closeEdit={closeEdit}>
           <EditingRecordItem
             data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
+            worksheetInfo={worksheetInfo}
             stateData={data}
             currentView={view}
             allowCopy={allowAdd}

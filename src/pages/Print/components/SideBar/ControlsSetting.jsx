@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Radio, Tooltip } from 'ming-ui/antd-components';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { PRINT_FILE_OPTIONS, SYST_PRINT, TIME_FORMAT, UN_PRINT_CONTROL, USER_CONTROLS } from '../../core/config';
 import { isRelation, sortByShowControls } from '../../core/util';
@@ -162,11 +162,13 @@ export default function ControlsSetting(props) {
           <span key={`fileRadioGroup-${id}-${i}`} className="mRight24 InlineFlex alignItemsCenter">
             <Radio
               className="fileRadio"
-              text={l.text}
               size="small"
               checked={(fileStyle[id] || '0') === l.value}
-              onClick={() => handleFileRadio(id, l.value)}
-            />
+              onChange={() => handleFileRadio(id, l.value)}
+              title={l.text}
+            >
+              {l.text}
+            </Radio>
             {l.tips && (
               <Tooltip title={l.tips}>
                 <Icon icon="help" className="textTertiary hoverText Font16" />
@@ -207,15 +209,21 @@ export default function ControlsSetting(props) {
             >
               <Checkbox
                 checked={isChecked}
-                clearselected={isClearSelected}
+                indeterminate={isClearSelected}
                 key={it.controlId}
                 className="mTop12"
-                onClick={() => {
+                onChange={() => {
                   handleClick();
-                  isChecked && handleUserInfo(it.controlId, { jobNumber: false, email: false, mobilePhone: false });
+                  isChecked &&
+                    handleUserInfo(it.controlId, {
+                      jobNumber: false,
+                      email: false,
+                      mobilePhone: false,
+                    });
                 }}
-                text={it.controlName || _l('未命名')}
-              />
+              >
+                {it.controlName || _l('未命名')}
+              </Checkbox>
               {(isRelationControls ||
                 (it.type === 52 && sectionLi.length) ||
                 (it.type === 26 && !systemControl.find(l => l.controlId === it.controlId))) && (
@@ -276,7 +284,7 @@ export default function ControlsSetting(props) {
           checked={orderNumberList.checked}
           key={`${orderNumberList.receiveControlId}-0`}
           className="mTop12"
-          onClick={() =>
+          onChange={() =>
             handChange({
               receiveControls: setReceiveControls(list, !orderNumberList.checked),
               orderNumber: orderNumber.map(it => {
@@ -287,8 +295,9 @@ export default function ControlsSetting(props) {
               }),
             })
           }
-          text={_l('序号')}
-        />
+        >
+          {_l('序号')}
+        </Checkbox>
         {liControls.map(it => {
           const uniqueId = `${list.controlId}_${it.controlId}`;
           const hasExpandKey = expandKey.includes(uniqueId);
@@ -303,12 +312,18 @@ export default function ControlsSetting(props) {
                 checked={it.checked}
                 key={it.controlId}
                 className="mTop12"
-                onClick={() => {
+                onChange={() => {
                   handleClick();
-                  it.checked && handleUserInfo(uniqueId, { jobNumber: false, email: false, mobilePhone: false });
+                  it.checked &&
+                    handleUserInfo(uniqueId, {
+                      jobNumber: false,
+                      email: false,
+                      mobilePhone: false,
+                    });
                 }}
-                text={it.controlName || _l('未命名')}
-              />
+              >
+                {it.controlName || _l('未命名')}
+              </Checkbox>
               {it.type === 26 && (
                 <div className={cx({ mLeft24: it.type !== 52 })}>
                   <Icon
@@ -336,18 +351,20 @@ export default function ControlsSetting(props) {
           const checked = !!config[it.controlId];
 
           return (
-            <React.Fragment key={`${uniqueId}-${it.controlId}`}>
+            <div key={`${uniqueId}-${it.controlId}`}>
               <Checkbox
                 checked={checked}
-                key={uniqueId}
                 className="mTop12"
-                onClick={() => {
+                onChange={() => {
                   !checked && !item.checked && callback();
-                  handleUserInfo(uniqueId, { [it.controlId]: !checked });
+                  handleUserInfo(uniqueId, {
+                    [it.controlId]: !checked,
+                  });
                 }}
-                text={it.controlName || _l('未命名')}
-              />
-            </React.Fragment>
+              >
+                {it.controlName || _l('未命名')}
+              </Checkbox>
+            </div>
           );
         })}
       </React.Fragment>

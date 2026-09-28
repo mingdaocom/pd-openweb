@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { isTimeStyle } from 'src/utils/control';
-import { SYS } from '../../../../../widgetConfig/config/widget';
+import { Select } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { SYS } from 'src/utils/domain/control/widget';
+import { isIllegal } from 'src/utils/services/worksheet/calendar';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import AddControlDiaLog from './AddControlDiaLog';
 import './SelectStartOrEnd.less';
 
@@ -62,7 +62,7 @@ const TimeSelect = ({
       labelInValue
       optionLabelProp="label"
       suffixIcon={<Icon icon="arrow-down-border Font14" />}
-      dropdownClassName="dropConOption"
+      classNames={{ popup: { root: 'dropConOption' } }}
       onChange={(selectedValue = {}) => {
         if (selectedValue.value === (value || {}).controlId) return;
         if (selectedValue.value === 'add') {
@@ -78,24 +78,24 @@ const TimeSelect = ({
           {_l('添加日期字段')}
         </div>
       }
-    >
-      {options.map(item => (
-        <Select.Option
-          value={item.controlId}
-          key={item.controlId}
-          label={renderOptionLabel(item)}
-          disabled={isIllegal(item)}
-        >
-          {renderOptionLabel(item)}
-        </Select.Option>
-      ))}
-      {canAddControl && (
-        <Select.Option className="addControl" value="add">
-          <i className={cx('icon mRight12 Font16', 'icon-plus')} />
-          {_l('添加日期字段')}
-        </Select.Option>
-      )}
-    </Select>
+      options={[
+        ...options.map(item => ({
+          value: item.controlId,
+          label: renderOptionLabel(item),
+          disabled: isIllegal(item),
+        })),
+        canAddControl && {
+          value: 'add',
+          label: (
+            <React.Fragment>
+              <i className={cx('icon mRight12 Font16', 'icon-plus')} />
+              {_l('添加日期字段')}
+            </React.Fragment>
+          ),
+          className: 'addControl',
+        },
+      ].filter(Boolean)}
+    />
   );
 };
 

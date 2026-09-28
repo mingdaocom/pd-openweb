@@ -2,8 +2,9 @@ import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import { playPromptSound } from 'src/pages/workflow/socket/promptSound';
 import { PUSH_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
-import { equalToLocalPushUniqueId, pathCompletion } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { equalToLocalPushUniqueId } from 'src/utils/platform/storage/local';
+import { compatibleMDJS } from 'src/utils/services/project';
 import modalMessage from './modalMessage';
 
 const getAppSimpleInfo = workSheetId => {

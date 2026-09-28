@@ -1,12 +1,11 @@
 import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
-import { getTranslateInfo } from 'src/utils/app';
-import SettingMenu from './SettingMenu';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
+import getViewSettingMenuItems from './SettingMenu';
 
 export default function HideItem(props) {
   const {
@@ -31,28 +30,25 @@ export default function HideItem(props) {
     setVisible(false);
   };
 
-  const renderSettingMenu = () => {
-    return (
-      <SettingMenu
-        {...props}
-        editName={true}
-        clickEditName={clickEditName}
-        onChangeHidden={async showhiden => {
-          setVisible(false);
-          await toView();
-          updateAdvancedSetting({
-            ...item,
-            advancedSetting: {
-              showhide: showhiden,
-            },
-            editAttrs: ['advancedSetting'],
-            editAdKeys: ['showhide'],
-          });
-        }}
-        handleClose={() => setVisible(false)}
-      />
-    );
-  };
+  const getSettingMenuItems = () =>
+    getViewSettingMenuItems({
+      ...props,
+      editName: true,
+      clickEditName,
+      onChangeHidden: async showhiden => {
+        setVisible(false);
+        await toView();
+        updateAdvancedSetting({
+          ...item,
+          advancedSetting: {
+            showhide: showhiden,
+          },
+          editAttrs: ['advancedSetting'],
+          editAdKeys: ['showhide'],
+        });
+      },
+      handleClose: () => setVisible(false),
+    });
 
   const handleSaveName = event => {
     const value = event.target.value.trim();
@@ -128,16 +124,20 @@ export default function HideItem(props) {
           />
         )}
       {isCharge && !isSimple && (
-        <Trigger
-          popupVisible={visible}
-          onPopupVisibleChange={value => setVisible(value)}
-          popupClassName="HiddenItemTrigger"
-          action={['click']}
-          popup={renderSettingMenu()}
-          popupAlign={{ points: ['tl', 'bl'], overflow: { adjustX: true, adjustY: true } }}
+        <Dropdown
+          open={visible}
+          onOpenChange={setVisible}
+          trigger={['click']}
+          placement="bottomLeft"
+          menu={{
+            items: getSettingMenuItems(),
+            selectable: false,
+            selectedKeys: [],
+            style: { minWidth: 220 },
+          }}
         >
           <Icon className="Font20 textTertiary more" icon="more_horiz" />
-        </Trigger>
+        </Dropdown>
       )}
       {isSimple && (
         <span className="recycleWrap">

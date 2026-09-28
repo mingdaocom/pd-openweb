@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { reportTypes } from 'statistics/Charts/common';
 import { isTimeControl } from 'statistics/common/controlUtils';
 import { formatSorts, getSortData } from 'statistics/common/reportConfigUtils';
 import { timeParticleSizeDropdownData } from 'statistics/common/timeUtils';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 const defaultSort = {
   value: 0,

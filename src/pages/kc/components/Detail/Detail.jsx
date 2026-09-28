@@ -3,9 +3,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { Checkbox, Switch, UserHead, UserName } from 'ming-ui';
+import { UserHead, UserName } from 'ming-ui';
+import { Checkbox, Radio, Switch } from 'ming-ui/antd-components';
 import service from '../../api/service';
-import { getClassNameByExt } from 'src/utils/common';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
 import { LOG_TYPE, NODE_TYPE, NODE_VISIBLE_TYPE } from '../../constant/enum';
 import { humanDateTime, humanFileSize, shallowEqual } from '../../utils';
@@ -131,8 +133,8 @@ class Detail extends React.Component {
       service
         .getNodeById(this.props.data.id)
         .then(node => this._isMounted && this.setState({ shareUrl: node.shareUrl }))
-        .catch(() => {
-          alert(_l('获取分享链接失败'));
+        .catch(_requestError3 => {
+          alertIfNotUnauthorized(_requestError3, _l('获取分享链接失败'));
         });
     }
   };
@@ -175,7 +177,7 @@ class Detail extends React.Component {
             });
           }
         })
-        .catch(() => alert(_l('操作失败，请稍后重试！'), 2));
+        .catch(_requestError2 => alertIfNotUnauthorized(_requestError2, _l('操作失败，请稍后重试！'), 2));
     } else {
       let folderCount = 0;
       let fileSize = 0;
@@ -208,9 +210,9 @@ class Detail extends React.Component {
           this.props.performUpdateItem(item);
           this.editDownloadablePromise = '';
         })
-        .catch(() => {
+        .catch(_requestError6 => {
           this.editDownloadablePromise = '';
-          alert(_l('修改失败'), 2);
+          alertIfNotUnauthorized(_requestError6, _l('修改失败'), 2);
         });
     }
   };
@@ -235,9 +237,9 @@ class Detail extends React.Component {
           this.props.performUpdateItem(item);
           this.editEditablePromise = '';
         })
-        .catch(() => {
+        .catch(_requestError5 => {
           this.editEditablePromise = '';
-          alert(_l('修改失败'), 2);
+          alertIfNotUnauthorized(_requestError5, _l('修改失败'), 2);
         });
     }
   };
@@ -266,9 +268,9 @@ class Detail extends React.Component {
             this.props.performUpdateItem(node);
           });
         })
-        .catch(() => {
+        .catch(_requestError4 => {
           this.editNodePrimise = '';
-          alert(_l('修改失败'), 2);
+          alertIfNotUnauthorized(_requestError4, _l('修改失败'), 2);
         });
     }
   };
@@ -333,7 +335,7 @@ class Detail extends React.Component {
           item = _.assign({}, item, { visibleType });
           this.props.performUpdateItem(item);
         })
-        .catch(() => alert(_l('修改失败'), 2));
+        .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('修改失败'), 2));
     }
   };
 
@@ -578,9 +580,12 @@ class Detail extends React.Component {
                     <div className="switchCon">
                       <Switch
                         checked={data.isDownloadable}
-                        onClick={() => {
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
                           if (data.canChangeDownloadable) {
-                            this.editNodeAttribute({ isDownloadable: !data.isDownloadable });
+                            this.editNodeAttribute({
+                              isDownloadable: !data.isDownloadable,
+                            });
                           }
                         }}
                       />
@@ -595,9 +600,12 @@ class Detail extends React.Component {
                     <div className="switchCon">
                       <Switch
                         checked={data.isEditable}
-                        onClick={() => {
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
                           if (data.canChangeEditable) {
-                            this.editNodeAttribute({ isEditable: !data.isEditable });
+                            this.editNodeAttribute({
+                              isEditable: !data.isEditable,
+                            });
                           }
                         }}
                       />
@@ -608,51 +616,41 @@ class Detail extends React.Component {
                 </div>
                 <div className="detailAuth">
                   <span className="greyColor">{_l('分享链接浏览权限')}</span>
-                  <label className="detailAuthM">
-                    <input
-                      type="radio"
-                      name="shareAuth"
-                      disabled={!data.canChangeSharable}
-                      className={cx({ checked: data.visibleType === NODE_VISIBLE_TYPE.CLOSE })}
-                      checked={data.visibleType == NODE_VISIBLE_TYPE.CLOSE}
-                      onChange={() => {
-                        this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.CLOSE });
-                      }}
-                    />
+                  <Radio
+                    className="detailAuthM"
+                    name="shareAuth"
+                    disabled={!data.canChangeSharable}
+                    checked={data.visibleType == NODE_VISIBLE_TYPE.CLOSE}
+                    onChange={() => {
+                      this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.CLOSE });
+                    }}
+                  >
                     {_l('关闭该文件的分享')}
-                  </label>
-                  <label className={cx('detailAuthM', { hide: isFolder })}>
-                    <input
-                      type="radio"
-                      name="shareAuth"
-                      disabled={!data.canChangeSharable}
-                      className={cx({ checked: data.visibleType === NODE_VISIBLE_TYPE.PROJECT })}
-                      checked={data.visibleType == NODE_VISIBLE_TYPE.PROJECT}
-                      onChange={() => {
-                        this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.PROJECT });
-                      }}
-                    />
+                  </Radio>
+                  <Radio
+                    className={cx('detailAuthM', { hide: isFolder })}
+                    name="shareAuth"
+                    disabled={!data.canChangeSharable}
+                    checked={data.visibleType == NODE_VISIBLE_TYPE.PROJECT}
+                    onChange={() => {
+                      this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.PROJECT });
+                    }}
+                  >
                     {!this.props.rootProjectId ? _l('允许所有联系人查看') : _l('允许本组织的成员查看')}
-                  </label>
-                  <label className="detailAuthM">
-                    <input
-                      type="radio"
-                      name="shareAuth"
-                      disabled={!data.canChangeSharable}
-                      className={cx({
-                        checked:
-                          data.visibleType === NODE_VISIBLE_TYPE.PUBLIC ||
-                          data.visibleType === NODE_VISIBLE_TYPE.MDUSER,
-                      })}
-                      checked={
-                        data.visibleType == NODE_VISIBLE_TYPE.PUBLIC || data.visibleType == NODE_VISIBLE_TYPE.MDUSER
-                      }
-                      onChange={() => {
-                        this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.PUBLIC });
-                      }}
-                    />
+                  </Radio>
+                  <Radio
+                    className="detailAuthM"
+                    name="shareAuth"
+                    disabled={!data.canChangeSharable}
+                    checked={
+                      data.visibleType == NODE_VISIBLE_TYPE.PUBLIC || data.visibleType == NODE_VISIBLE_TYPE.MDUSER
+                    }
+                    onChange={() => {
+                      this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.PUBLIC });
+                    }}
+                  >
                     {_l('允许任何人查看')}
-                  </label>
+                  </Radio>
                 </div>
               </div>
             </div>
@@ -665,11 +663,12 @@ class Detail extends React.Component {
           </div>
           <span className="pinDetailCon">
             <Checkbox
-              text={_l('保持展开')}
-              size="middle"
               checked={this.props.isPinned}
-              onClick={this.props.togglePinned}
-            />
+              onChange={event => this.props.togglePinned(!event.target.checked, undefined, event)}
+              size="middle"
+            >
+              {_l('保持展开')}
+            </Checkbox>
           </span>
         </div>
       </div>
@@ -677,11 +676,12 @@ class Detail extends React.Component {
       <div className="slideDetail flexColumn">
         <span className="pinDetailCon abs">
           <Checkbox
-            text={_l('保持展开')}
-            size="middle"
             checked={this.props.isPinned}
-            onClick={this.props.togglePinned}
-          />
+            onChange={event => this.props.togglePinned(!event.target.checked, undefined, event)}
+            size="middle"
+          >
+            {_l('保持展开')}
+          </Checkbox>
         </span>
         {!this.props.data.size ? (
           <div className="slideDetailNoItem Font14">

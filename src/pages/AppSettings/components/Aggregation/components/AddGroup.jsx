@@ -2,11 +2,11 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import 'src/pages/integration/dataIntegration/connector/style.less';
-import { getTranslateInfo } from 'src/utils/app';
-import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, GROUPMAXBYREL, isUnique } from '../config';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { canArraySplit, getGroupMaxByRel, GROUPLIMITTYPES, GROUPMAX, isUnique } from '../config';
 import {
   getGroupFields,
   getGroupInfo,
@@ -34,15 +34,15 @@ export default function (props) {
   }
 
   return (
-    <Trigger
-      action={['click']}
+    <Popover
+      noPadding
+      trigger="click"
       key={`groupFields_${(getGroupFields(flowData) || []).length}`}
       getPopupContainer={() => document.body}
-      popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-      popupVisible={showList}
-      onPopupVisibleChange={showList => setState({ showList })}
-      popupClassName="aggregationChooseControlTriggerWrap"
-      popup={
+      placement="bottomLeft"
+      open={showList}
+      onOpenChange={showList => setState({ showList })}
+      content={
         (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 || !showList ? (
           <span />
         ) : (
@@ -67,7 +67,7 @@ export default function (props) {
                     .map(o => {
                       if (o.relationControls) {
                         o.relationControls = o.relationControls.map(o => {
-                          if (limitNum >= GROUPMAXBYREL && GROUPLIMITTYPES.includes(o.type)) {
+                          if (limitNum >= getGroupMaxByRel() && GROUPLIMITTYPES.includes(o.type)) {
                             o.isLimit = true;
                           } else {
                             o = _.omit(o, ['isLimit']);
@@ -143,6 +143,6 @@ export default function (props) {
       >
         <Icon icon="add" className="Font16" /> <span>{_l('字段')}</span>
       </div>
-    </Trigger>
+    </Popover>
   );
 }

@@ -2,15 +2,11 @@
 import cx from 'classnames';
 import _, { includes } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Menu, MenuItem } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
-import { emitter } from 'src/utils/common';
-import { getSummaryInfo } from 'src/utils/record';
+import { Dropdown } from 'ming-ui/antd-components';
+import { getSummaryInfo } from 'src/utils/domain/worksheet/record';
+import { emitter } from 'src/utils/platform/browser/dom';
 import SummaryContent from './SummaryContent';
 import './SummaryCell.less';
-
-const ClickAwayable = ClickAway;
 
 export default class extends React.Component {
   static propTypes = {
@@ -49,29 +45,21 @@ export default class extends React.Component {
     changeWorksheetSheetViewSummaryType({ controlId: control.controlId, value });
   };
 
-  renderMenu() {
+  getMenuItems() {
     const { control } = this.props;
     let type = includes([29, 34], control.type) ? control.type : control.sourceControlType || control.type;
     const summaryInfo = getSummaryInfo(type, control);
-    return (
-      <Menu>
-        <div className="title">{_l('选择统计方式')}</div>
-        {summaryInfo.list.map((item, index) =>
-          item ? (
-            <MenuItem
-              key={index}
-              onClick={e => {
-                e.stopPropagation();
-                this.handleChange(item.value);
-              }}
-            >
-              {item.label}
-            </MenuItem>
-          ) : (
-            <hr key={index} />
-          ),
-        )}
-      </Menu>
+    return summaryInfo.list.map((item, index) =>
+      item
+        ? {
+            key: String(item.value),
+            label: item.label,
+            onClick: ({ domEvent }) => {
+              domEvent.stopPropagation();
+              this.handleChange(item.value);
+            },
+          }
+        : { key: `divider-${index}`, type: 'divider' },
     );
   }
 
@@ -138,42 +126,36 @@ export default class extends React.Component {
     }
 
     return (
-      <ClickAwayable
-        className={cx('sheetSummaryInfo ellipsis', className, {
-          withBackground: !isGroupTitle && !noBackground,
-          'cell groupTitleSummary': isGroupTitle,
-          disabled,
-        })}
-        onClickAwayExceptions={['.summaryCellMenu']}
-        style={style}
-        onClick={() => {
-          if (disabled) {
-            return;
-          }
-
-          this.setState({ menuVisible: true });
-        }}
-        onClickAway={() => this.setState({ menuVisible: false })}
-      >
-        <Trigger
-          style={style}
-          action={['click']}
-          popupVisible={!disabled && menuVisible}
-          popupClassName={'summaryCellMenu'}
-          popup={this.renderMenu()}
-          popupAlign={{
-            points: ['bl', 'tl'],
-            offset: [0, 0],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
+      <Dropdown
+        disabled={disabled}
+        open={!disabled && menuVisible}
+        trigger={['click']}
+        placement="topLeft"
+        menu={{
+          selectedKeys: summaryType ? [String(summaryType)] : [],
+          items: [
+            {
+              key: 'summaryType',
+              type: 'group',
+              label: _l('选择统计方式'),
+              children: this.getMenuItems(),
             },
-          }}
-          onPopupVisibleChange={newVisible => {
-            if (newVisible) {
-              this.addListener();
-            }
-          }}
+          ],
+        }}
+        onOpenChange={open => {
+          this.setState({ menuVisible: open });
+          if (open) {
+            this.addListener();
+          }
+        }}
+      >
+        <div
+          className={cx('sheetSummaryInfo ellipsis', className, {
+            withBackground: !isGroupTitle && !noBackground,
+            'cell groupTitleSummary': isGroupTitle,
+            disabled,
+          })}
+          style={style}
         >
           <SummaryContent
             isChildTableSummaryCell={isChildTableSummaryCell}
@@ -186,8 +168,8 @@ export default class extends React.Component {
             selectedIds={selectedIds}
             allWorksheetIsSelected={allWorksheetIsSelected}
           />
-        </Trigger>
-      </ClickAwayable>
+        </div>
+      </Dropdown>
     );
   }
 }

@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, updateConfig } from '../../../../util/setting';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
 import SubListStatisticsConfig from '../components/SubListStatisticsConfig';
 
 export default function RelateSearchConfig(props) {
@@ -19,17 +19,17 @@ export default function RelateSearchConfig(props) {
       <div className="labelWrap">
         <Checkbox
           className="allowSelectRecords"
-          size="small"
           checked={!!+isHiddenOtherViewRecord}
-          onClick={checked => {
+          onChange={event => {
             onChange({
               strDefault: updateConfig({
                 config: strDefault,
-                value: +!checked,
+                value: +event.target.checked,
                 index: 0,
               }),
             });
           }}
+          size="small"
         >
           <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
           <Tooltip

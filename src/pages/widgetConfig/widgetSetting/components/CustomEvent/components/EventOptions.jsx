@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Icon } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { FILTER_VALUE_TYPE, getActionDisplay, SPLICE_TYPE_ENUM } from '../config';
-import renderCustomAction from '../CustomAction';
-import renderCustomFilter from '../CustomFilter';
+import { useCustomAction } from '../CustomAction';
+import { useCustomFilter } from '../CustomFilter';
 import { AddEventWrap, IconWrap } from '../style';
 
-export default function EventOptions(props) {
-  const { data, eventKey, eventId, index, childIndex, onChange, isItemOptions = false } = props;
+function EventOptions(props) {
+  const {
+    data,
+    eventKey,
+    eventId,
+    index,
+    childIndex,
+    onChange,
+    isItemOptions = false,
+    openCustomAction,
+    openCustomFilter,
+  } = props;
   const [filterVisible, setFilterVisible] = useState(false);
   const [actionVisible, setActionVisible] = useState(false);
   const customEvent = getAdvanceSetting(data, 'custom_event') || [];
@@ -79,9 +89,9 @@ export default function EventOptions(props) {
             onClick={e => {
               e.stopPropagation();
               if (eventKey === 'filters') {
-                renderCustomFilter({ ...props, filterData: viewData, handleOk });
+                openCustomFilter({ ...props, filterData: viewData, handleOk });
               } else {
-                renderCustomAction({ ...props, actionData: viewData, handleOk });
+                openCustomAction({ ...props, actionData: viewData, handleOk });
               }
             }}
           />
@@ -89,7 +99,7 @@ export default function EventOptions(props) {
         <Tooltip title={_l('删除')} placement="bottom">
           <IconWrap
             className="icon-trash"
-            type="danger"
+            $type="danger"
             onClick={e => {
               e.stopPropagation();
               handleOk(viewData, true);
@@ -101,91 +111,81 @@ export default function EventOptions(props) {
   }
 
   if (eventKey === 'filters') {
-    const filterMenu = (
-      <Menu style={{ width: 200 }}>
-        {FILTER_VALUE_TYPE.map(i => (
-          <MenuItem
-            onClick={e => {
-              e.stopPropagation();
-              renderCustomFilter({
-                ...props,
-                filterData: { ...getData(), valueType: i.value, spliceType: getSpliceType() },
-                handleOk,
-              });
-              setFilterVisible(false);
-            }}
-          >
-            {i.text}
-          </MenuItem>
-        ))}
-      </Menu>
-    );
+    const filterItems = FILTER_VALUE_TYPE.map(item => ({
+      key: item.value,
+      label: item.text,
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        openCustomFilter({
+          ...props,
+          filterData: { ...getData(), valueType: item.value, spliceType: getSpliceType() },
+          handleOk,
+        });
+        setFilterVisible(false);
+      },
+    }));
     return (
-      <Trigger
-        popup={filterMenu}
-        popupVisible={filterVisible}
-        onPopupVisibleChange={visible => {
-          setFilterVisible(visible);
-        }}
-        action={['click']}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [-180, 5],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        getPopupContainer={() => document.body}
+      <Dropdown
+        open={filterVisible}
+        onOpenChange={setFilterVisible}
+        trigger={['click']}
+        placement="bottomRight"
+        menu={{ items: filterItems, style: { width: 200 } }}
       >
-        <Tooltip title={_l('添加条件')} placement="bottom">
-          <IconWrap className="icon-add_circle_outline" onClick={e => e.stopPropagation()} />
-        </Tooltip>
-      </Trigger>
+        <div>
+          <Tooltip title={_l('添加条件')} placement="bottom">
+            <IconWrap
+              className="icon-add_circle_outline"
+              onClick={e => {
+                e.stopPropagation();
+                setFilterVisible(true);
+              }}
+            />
+          </Tooltip>
+        </div>
+      </Dropdown>
     );
   }
 
   if (eventKey === 'actions') {
     const ACTION_DISPLAY = getActionDisplay(data);
 
-    const actionMenu = (
-      <Menu style={{ width: 286, position: 'relative' }}>
-        {ACTION_DISPLAY.filter(v => !(v.value === '8' && md.global.SysSettings.hideIntegration)).map(i => (
-          <MenuItem
-            onClick={e => {
-              e.stopPropagation();
-              renderCustomAction({
-                ...props,
-                actionData: { ...getData(), actionType: i.value },
-                handleOk,
-              });
-              setActionVisible(false);
-            }}
-          >
-            {i.text}
-          </MenuItem>
-        ))}
-      </Menu>
-    );
+    const actionItems = ACTION_DISPLAY.filter(
+      item => !(item.value === '8' && md.global.SysSettings.hideIntegration),
+    ).map(item => ({
+      key: item.value,
+      label: item.text,
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        openCustomAction({
+          ...props,
+          actionData: { ...getData(), actionType: item.value },
+          handleOk,
+        });
+        setActionVisible(false);
+      },
+    }));
     return (
-      <Trigger
-        popup={actionMenu}
-        popupVisible={actionVisible}
-        onPopupVisibleChange={visible => {
-          setActionVisible(visible);
-        }}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 5],
-          overflow: { adjustX: true, adjustY: true },
-        }}
+      <Dropdown
+        open={actionVisible}
+        onOpenChange={setActionVisible}
+        trigger={['click']}
+        placement="bottomLeft"
         getPopupContainer={() => document.body}
+        menu={{ items: actionItems, style: { width: 286 } }}
       >
-        <AddEventWrap type="action">
+        <AddEventWrap $type="action">
           <Icon icon="add" />
           {_l('执行动作')}
         </AddEventWrap>
-      </Trigger>
+      </Dropdown>
     );
   }
 
   return null;
 }
+
+export default withOpeners(EventOptions, {
+  openCustomFilter: useCustomFilter,
+  openCustomAction: useCustomAction,
+});

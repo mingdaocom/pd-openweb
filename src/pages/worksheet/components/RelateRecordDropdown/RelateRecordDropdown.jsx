@@ -2,31 +2,30 @@
 import cx from 'classnames';
 import _, { find, get, uniq } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { ClickAway, SortableList } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { FROM } from 'src/components/Form/core/config';
-import { selectRecords } from 'src/components/SelectRecords';
+import { useSelectRecords } from 'src/components/SelectRecords';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
 import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
-import { getTranslateInfo } from 'src/utils/app';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
-import { checkIsTextControl } from 'src/utils/control';
-import AutoWidthInput from './AutoWidthInput';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { checkIsTextControl } from 'src/utils/domain/control/type';
+import { withKeepShowRowIds } from 'src/utils/domain/control/value';
+import { getTranslateInfo } from 'src/utils/services/app';
 import RelateRecordList from './RelateRecordList';
 import './style.less';
 
+const getDefaultPopupContainer = () => document.body;
+
 const OnlyScanTip = styled.div`
-  width: 310px;
   padding: 10px 16px;
   color: var(--color-text-tertiary);
-  border-radius: 3px;
-  background-color: var(--color-background-primary);
-  box-shadow: var(--shadow-lg);
   .clearBtn {
     padding: 6px 16px;
     margin: 0 -16px 6px;
@@ -38,23 +37,18 @@ const OnlyScanTip = styled.div`
   }
 `;
 
-const PlaceHolder = styled.div`
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  margin-top: -6px;
-  color: var(--color-text-disabled);
-  line-height: 1em;
-  width: calc(100% - 10px);
-`;
-
 const MAX_COUNT = 50;
+const DEFAULT_SELECT_PROPS = { hideRemoveIconOnBlur: true };
 
-export default class RelateRecordDropdown extends React.Component {
+// 仅在下拉由关闭转为展开时自增，避免同一次展开内 openPopup 被重复调用（表格内 didMount 与 didUpdate 各触发一次）时列表二次加载
+const getNextPopupKey = ({ listvisible, popupKey }) => (listvisible ? popupKey : popupKey + 1);
+
+class RelateRecordDropdown extends React.Component {
   static propTypes = {
     disableNewRecord: PropTypes.bool,
     isQuickFilter: PropTypes.bool,
     insheet: PropTypes.bool,
+    isFormDetail: PropTypes.bool,
     isediting: PropTypes.bool,
     disabled: PropTypes.bool,
     multiple: PropTypes.bool,
@@ -64,13 +58,14 @@ export default class RelateRecordDropdown extends React.Component {
     selected: PropTypes.arrayOf(PropTypes.shape({})),
     selectedClassName: PropTypes.string,
     selectedStyle: PropTypes.shape({}),
+    selectProps: PropTypes.shape({}),
     popupContainer: PropTypes.func,
     prefixRecords: PropTypes.arrayOf(PropTypes.shape({})),
     staticRecords: PropTypes.arrayOf(PropTypes.shape({})),
     onChange: PropTypes.func,
     onClick: PropTypes.func,
     onVisibleChange: PropTypes.func,
-    renderSelected: PropTypes.func,
+    openSelectRecords: PropTypes.func,
   };
 
   static defaultProps = {
@@ -84,7 +79,12 @@ export default class RelateRecordDropdown extends React.Component {
     this.state = {
       active: false,
       listvisible: false,
+      // 每次展开自增，作为下拉列表的 key 强制重建：
+      // rc-trigger 的 PopupContent 在关闭后会 memo 冻结 popup 内容(cache = !open && !fresh)，
+      // 且 antd Select 不透传 fresh，导致条件渲染无法卸载列表，重新展开会复用旧实例而不再拉数据
+      popupKey: 0,
       newrecordVisible: false,
+      selectDialogVisible: false,
       selected: props.selected || [],
       defaultSelected: props.selected || [],
       keywords: '',
@@ -102,8 +102,9 @@ export default class RelateRecordDropdown extends React.Component {
       if (this.canSelect) {
         setTimeout(() => {
           this.openPopup();
+          this.focusEditingInput();
         }, 10);
-      } else {
+      } else if (this.canCreateRecord) {
         if (this.props.selected.length > 0 && this.props.multiple) {
           return;
         }
@@ -113,7 +114,7 @@ export default class RelateRecordDropdown extends React.Component {
           return;
         }
 
-        this.setState({ newrecordVisible: true });
+        this.openNewRecord();
       }
     }
   }
@@ -146,14 +147,26 @@ export default class RelateRecordDropdown extends React.Component {
       ) {
         this.initSearchControl(this.props);
       }
+
+      if (this.props.insheet && prevProps.isediting !== this.props.isediting) {
+        if (this.props.isediting && this.canSelect && !this.state.newrecordVisible) {
+          this.openPopup();
+          this.focusEditingInput();
+        } else if (!this.props.isediting && this.state.listvisible) {
+          this.setState({ listvisible: false });
+        }
+      }
     }
   }
 
   inputForIOSKeyboardRef = React.createRef();
   cell = React.createRef();
   list = React.createRef();
+  select = React.createRef();
   // 面板内累积、尚未向外提交的变更
   pendingChange = false;
+  // 标记选择弹层是否完成了确认选择，用于区分单选确认和单纯关闭弹层。
+  selectDialogHasSelection = false;
 
   get active() {
     const { isediting } = this.props;
@@ -161,26 +174,12 @@ export default class RelateRecordDropdown extends React.Component {
     return isediting || listvisible;
   }
 
-  get isMobile() {
-    return this.props.from === FROM.H5_ADD || this.props.from === FROM.H5_EDIT;
-  }
-
   get canSelect() {
     return this.props.enumDefault2 !== 10 && this.props.enumDefault2 !== 11;
   }
 
-  get popupWidth() {
-    const { insheet } = this.props;
-
-    if (!insheet && this.cell.current) {
-      return Math.max(this.cell.current.clientWidth, 480);
-    } else {
-      if (this.cell.current && this.cell.current.clientWidth < 480) {
-        return Math.max(this.cell.current.clientWidth, 313);
-      } else {
-        return 480;
-      }
-    }
+  get canCreateRecord() {
+    return this.props.enumDefault2 === 10;
   }
 
   get allowRemove() {
@@ -262,35 +261,29 @@ export default class RelateRecordDropdown extends React.Component {
     }
   }
 
-  getXOffset() {
-    const { popupWidth } = this;
-
-    if (
-      this.cell &&
-      this.cell.current &&
-      window.innerWidth - this.cell.current.getBoundingClientRect().left < popupWidth
-    ) {
-      return window.innerWidth - popupWidth - 10 - this.cell.current.getBoundingClientRect().left;
-    }
-
-    return 0;
-  }
-
   openPopup = () => {
     if (!this.cell.current) {
-      this.setState({
-        listvisible: true,
-      });
+      this.setState(
+        oldState => ({
+          listvisible: true,
+          popupKey: getNextPopupKey(oldState),
+        }),
+        this.focusInput,
+      );
       return;
     }
 
     const cellToTop = this.cell.current.getBoundingClientRect().top;
     let isTop = window.innerHeight - this.cell.current.clientHeight - cellToTop < 360;
-    this.setState({
-      renderToTop: isTop,
-      listvisible: true,
-      cellToTop,
-    });
+    this.setState(
+      oldState => ({
+        renderToTop: isTop,
+        listvisible: true,
+        cellToTop,
+        popupKey: getNextPopupKey(oldState),
+      }),
+      this.focusInput,
+    );
   };
 
   // 提供给表单 Tab 事件调用的关闭方法
@@ -379,6 +372,17 @@ export default class RelateRecordDropdown extends React.Component {
     );
   };
 
+  handleClearMouseDown = event => {
+    // Ant Design 6 的单选 Select 会在 clear 按钮 mousedown 时先关闭下拉，
+    // showDialogSelect 场景随即卸载 clear 按钮，导致它收不到真正执行清除的 click。
+    if (event.target.closest?.('.hap-select-clear')) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    this.handleClear();
+  };
+
   handleDelete = (record, { defer } = {}) => {
     const { selected, deletedIds = [] } = this.state;
     this.setState(
@@ -415,26 +419,34 @@ export default class RelateRecordDropdown extends React.Component {
     }
   };
 
-  handleInputKeyDown = e => {
-    const { control } = this.props;
+  openNewRecord = () => {
+    const { multiple } = this.props;
     const { selected } = this.state;
-    if (!get(this, 'list.current')) return;
-    if (e.key === 'ArrowUp') {
-      this.list.current.updateActiveId(-1);
-    } else if (e.key === 'ArrowDown') {
-      this.list.current.updateActiveId(1);
-    } else if (e.key === 'Enter') {
-      this.list.current.handleEnter();
-    } else if (e.key === 'Backspace') {
-      if (_.get(this, 'inputRef.current.value') || !this.allowRemove) {
-        return;
-      }
 
-      const needDelete = selected.slice(-1)[0];
+    if (multiple && selected.length >= MAX_COUNT) {
+      alert(_l('最多关联%0条', MAX_COUNT), 3);
+      return;
+    }
 
-      if (needDelete && control.enumDefault !== 1) {
-        this.handleDelete(needDelete, { defer: true });
-      }
+    this.commitChange();
+    this.setState({ newrecordVisible: true, listvisible: false });
+  };
+
+  handleInputKeyDown = e => {
+    const list = get(this, 'list.current');
+
+    if (e.key === 'ArrowUp' && list) {
+      e.preventDefault();
+      e.stopPropagation();
+      list.updateActiveId(-1);
+    } else if (e.key === 'ArrowDown' && list) {
+      e.preventDefault();
+      e.stopPropagation();
+      list.updateActiveId(1);
+    } else if (e.key === 'Enter' && list) {
+      e.preventDefault();
+      e.stopPropagation();
+      list.handleEnter();
     }
   };
 
@@ -465,7 +477,10 @@ export default class RelateRecordDropdown extends React.Component {
       this.focusInput();
     }
 
-    if (!doNotClearKeywordsWhenChange) {
+    if (
+      !doNotClearKeywordsWhenChange ||
+      this.list.current?.areSearchResultsSelected(this.state.keywords, this.state.selected)
+    ) {
       this.setState({ keywords: '' });
     }
 
@@ -480,216 +495,154 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   focusInput() {
-    if (this.inputRef && this.inputRef.current) {
-      this.inputRef.current.focus();
-    }
+    this.select.current?.focus();
   }
 
-  handleClick = () => {
-    const { insheet, disabled, onClick } = this.props;
-
-    if (insheet) {
-      if (this.active) {
-        this.focusInput();
-      } else {
-        onClick();
-      }
-    } else {
-      this.setState({ listvisible: !disabled });
+  // 表格内的下拉由单元格编辑态（isediting）受控展开，Select 并没有被用户直接点到，
+  // 不显式 focus 就拿不到焦点、也落不到搜索框，键盘输入无处可去。
+  focusEditingInput() {
+    if (!this.props.insheet || this.props.disabled) {
+      return;
     }
+
+    this.focusInput();
+  }
+
+  canOpenRecord(record) {
+    const { allowOpenRecord, isMobileTable } = this.props;
+    return !!record && allowOpenRecord && !isMobileTable && !/^temp/.test(record.rowid);
+  }
+
+  getSelectValue(record, index) {
+    return record.rowid || record.sid || `current-record-${index}`;
+  }
+
+  get canDragRecords() {
+    const { control, disabled, multiple } = this.props;
+    const { selected } = this.state;
+
+    return (
+      multiple &&
+      get(control, 'advancedSetting.allowdrag') === '1' &&
+      this.active &&
+      selected.length > 1 &&
+      selected.length <= MAX_COUNT &&
+      !disabled
+    );
+  }
+
+  handleSortRecords = (draggedRecord, targetRecord) => {
+    const { control, formIsEditing, from, isDraft, isSubList, parentWorksheetId, recordId } = this.props;
+    const { selected } = this.state;
+    const draggedIndex = selected.indexOf(draggedRecord);
+    const targetIndex = selected.indexOf(targetRecord);
+
+    if (draggedIndex < 0 || targetIndex < 0 || draggedIndex === targetIndex) {
+      return;
+    }
+
+    const newSelected = [...selected];
+    const [record] = newSelected.splice(draggedIndex, 1);
+
+    newSelected.splice(targetIndex, 0, record);
+    if (formIsEditing || !recordId || isSubList) {
+      this.setState({ selected: newSelected }, this.handleChange);
+      return;
+    }
+
+    this.setState({ selected: newSelected });
+    updateRelateRecordSorts({
+      worksheetId: parentWorksheetId,
+      recordId,
+      isDraft: isDraft || from === FROM.DRAFT,
+      changes: [
+        {
+          ...control,
+          editType: 31,
+          value: JSON.stringify(newSelected.map(item => ({ sid: item.rowid }))),
+        },
+      ],
+    });
   };
 
-  renderSingle() {
-    const { insheet, isediting, isQuickFilter, control, allowOpenRecord, staticRecords, isMobileTable } = this.props;
-    const { selected, keywords } = this.state;
-    const { canSelect, active } = this;
-    const title = getTitleTextFromRelateControl(this.control, selected[0]);
-    const entityName = this.entityName;
-    return (
-      <React.Fragment>
-        {!!selected.length && !keywords && (
-          <ViewHoverRelateRecordCard record={selected[0]} {...this.props}>
-            <span
-              title={title}
-              className="normalSelectedItem placeholder ellipsis"
-              onClick={e => {
-                if (!allowOpenRecord || isMobileTable) {
-                  return;
-                }
+  renderRecordLabel(record) {
+    const { multiple } = this.props;
+    const title = getTitleTextFromRelateControl(this.control, record);
+    const text = record.rowid ? title : _l('关联当前%0', this.entityName);
+    const canOpenRecord = this.canOpenRecord(record);
+    const canDrag = this.canDragRecords;
 
-                this.setState({ previewRecord: { recordId: selected[0]?.rowid } });
-                e.stopPropagation();
-              }}
-            >
-              {selected[0]?.rowid ? title : _l('关联当前%0', entityName)}
-            </span>
-          </ViewHoverRelateRecordCard>
-        )}
-        {((_.isEmpty(staticRecords) && canSelect) || isQuickFilter) && active && (
-          <AutoWidthInput
-            mountRef={ref => (this.inputRef = ref)}
-            value={keywords}
-            onChange={value => this.setState({ keywords: value })}
-            onKeyDown={this.handleInputKeyDown}
-          />
-        )}
-        {!active && _.isEmpty(selected) && !insheet && control.hint && (
-          <PlaceHolder className="ellipsis" onClick={this.focusInput}>
-            {control.hint}
-          </PlaceHolder>
-        )}
-        {_.isEmpty(staticRecords) && canSelect && !selected.length && active && !keywords && this.searchControl && (
-          <PlaceHolder className="ellipsis" onClick={this.focusInput}>
-            {this.isAssignedSearchControl ? _l('搜索%0', this.searchControl.controlName) : _l('搜索')}
-          </PlaceHolder>
-        )}
-        {insheet && isediting && !canSelect && selected.length === 0 && (
-          <span
-            className="activeSelectedItem addBtn Hand"
-            onClick={e => {
-              e.stopPropagation();
-              if (this.props.multiple && this.props.selected.length >= MAX_COUNT) {
-                alert(_l('最多关联%0条', MAX_COUNT), 3);
-                return;
-              }
+    if (!canOpenRecord && !canDrag) {
+      return text;
+    }
 
-              this.setState({ newrecordVisible: true });
-            }}
-          >
-            <i className="icon icon-plus" />
-          </span>
-        )}
-      </React.Fragment>
+    const label = (
+      <span
+        className={cx('RelateRecordDropdown-recordLabel', { clickable: canOpenRecord, normalSelectedItem: !multiple })}
+        title={title}
+        draggable={canDrag}
+        onMouseDown={e => {
+          const canOpenUnfocusedRecord = canOpenRecord && !e.currentTarget.closest('.hap-select-focused');
+
+          if (canOpenUnfocusedRecord || canDrag) {
+            e.stopPropagation();
+          }
+
+          if (canOpenUnfocusedRecord) {
+            e.preventDefault();
+          }
+        }}
+        onClick={e => {
+          if (canOpenRecord && !e.currentTarget.closest('.hap-select-focused')) {
+            e.stopPropagation();
+            this.setState({ previewRecord: { recordId: record.rowid } });
+          }
+        }}
+        onDragStart={e => {
+          this.draggedRecord = record;
+          e.stopPropagation();
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', record.rowid || 'relate-record');
+        }}
+        onDragOver={e => {
+          if (canDrag) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+        onDrop={e => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.handleSortRecords(this.draggedRecord, record);
+          this.draggedRecord = undefined;
+        }}
+        onDragEnd={() => {
+          this.draggedRecord = undefined;
+        }}
+      >
+        {text}
+      </span>
+    );
+
+    return canOpenRecord ? (
+      <ViewHoverRelateRecordCard record={record} {...this.props}>
+        {label}
+      </ViewHoverRelateRecordCard>
+    ) : (
+      label
     );
   }
 
-  renderMultipe() {
-    const {
-      insheet,
-      isSubList,
-      isQuickFilter,
-      disabled,
-      isediting,
-      formIsEditing,
-      control,
-      parentWorksheetId,
-      allowOpenRecord,
-      recordId,
-    } = this.props;
-    const canDrag = get(control, 'advancedSetting.allowdrag') === '1';
-    const { selected, keywords } = this.state;
-    const { active } = this;
-    const length = selected.length;
-    return (
-      <React.Fragment>
-        {!active && _.isEmpty(selected) && !insheet && control.hint && (
-          <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
-        )}
-        {!!selected.length && (
-          <SortableList
-            dragPreviewImage
-            items={selected}
-            itemKey="rowid"
-            canDrag={canDrag && active && selected.length > 1 && selected.length <= 50 && !disabled}
-            helperClass="draggingItem"
-            itemClassName="itemContainer"
-            onSortEnd={newItems => {
-              if (formIsEditing || !recordId || isSubList) {
-                this.setState({ selected: newItems }, this.handleChange);
-              } else {
-                updateRelateRecordSorts({
-                  worksheetId: parentWorksheetId,
-                  recordId,
-                  changes: [
-                    {
-                      ...control,
-                      editType: 31,
-                      value: JSON.stringify(newItems.map(item => ({ sid: item.rowid }))),
-                    },
-                  ],
-                });
-              }
-            }}
-            renderItem={options => {
-              const { index } = options;
-              const record = options.item;
-              const title = getTitleTextFromRelateControl(this.control, record);
-              return active || insheet ? (
-                <ViewHoverRelateRecordCard record={record} {...this.props}>
-                  <div
-                    key={record.rowid}
-                    className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
-                    onClick={e => {
-                      e.stopPropagation();
-                      if (!allowOpenRecord || active || /^temp/.test(record.rowid) || active) {
-                        return;
-                      }
+  getSelectOptions() {
+    const { multiple } = this.props;
+    const { selected } = this.state;
 
-                      this.setState({ previewRecord: { recordId: record.rowid } });
-                    }}
-                  >
-                    <span className="name InlineBlock ellipsis">
-                      {record.rowid ? title : _l('关联当前%0', this.entityName)}
-                    </span>
-                    {active && (this.allowRemove || record.isNewAdd) && (
-                      <i
-                        className="icon icon-close"
-                        onClick={e => {
-                          e.stopPropagation();
-                          this.handleDelete(record);
-                        }}
-                      ></i>
-                    )}
-                  </div>
-                </ViewHoverRelateRecordCard>
-              ) : (
-                <ViewHoverRelateRecordCard record={record} {...this.props}>
-                  <div
-                    key={record.rowid}
-                    className={cx('normalSelectedItem ellipsis multiple', { isEnd: index === length - 1 })}
-                    title={title}
-                    onClick={e => {
-                      if (!allowOpenRecord) {
-                        return;
-                      }
-
-                      this.setState({ previewRecord: { recordId: record.rowid } });
-                      e.stopPropagation();
-                    }}
-                  >
-                    {title}
-                  </div>
-                </ViewHoverRelateRecordCard>
-              );
-            }}
-          />
-        )}
-        {(this.canSelect || isQuickFilter) && active && (
-          <AutoWidthInput
-            mountRef={ref => (this.inputRef = ref)}
-            value={keywords}
-            onChange={value => this.setState({ keywords: value })}
-            onKeyDown={this.handleInputKeyDown}
-          />
-        )}
-        {insheet && isediting && !this.canSelect && (
-          <span
-            className="activeSelectedItem addBtn Hand"
-            onClick={e => {
-              e.stopPropagation();
-              if (this.props.multiple && this.props.selected.length >= MAX_COUNT) {
-                alert(_l('最多关联%0条', MAX_COUNT), 3);
-                return;
-              }
-
-              this.setState({ newrecordVisible: true });
-            }}
-          >
-            <i className="icon icon-plus" />
-          </span>
-        )}
-      </React.Fragment>
-    );
+    return selected.map((record, index) => ({
+      value: this.getSelectValue(record, index),
+      label: this.renderRecordLabel(record),
+      disabled: multiple && !(this.allowRemove || record.isNewAdd),
+      record,
+    }));
   }
 
   renderPopup({ disabledManualWrite }) {
@@ -713,27 +666,21 @@ export default class RelateRecordDropdown extends React.Component {
       keywords,
       selected,
       listvisible,
-      newrecordVisible,
+      popupKey,
       renderToTop,
       cellToTop,
       activeIndex,
       deletedIds,
       defaultSelected,
     } = this.state;
-    const xOffset = this.isMobile ? 0 : this.getXOffset();
     return (
-      <ClickAway
-        onClickAwayExceptions={['.selectRecordsDialog', '.worksheetRelateNewRecordFromSelectRelateRecord']}
-        onClickAway={() => {
-          if (!newrecordVisible) {
-            this.commitChange();
-            onVisibleChange(false);
-          }
-        }}
+      <div
         className="scrollInTable"
-        style={!this.isMobile ? {} : { position: 'relative', marginLeft: -20 }}
+        onMouseDown={e => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       >
-        {(insheet || isQuickFilter) && this.renderSelected(true)}
         {disabledManualWrite && (
           <OnlyScanTip>
             {!insheet && !!selected.length && (
@@ -746,6 +693,7 @@ export default class RelateRecordDropdown extends React.Component {
         )}
         {listvisible && !disabledManualWrite && (
           <RelateRecordList
+            key={popupKey}
             appId={appId}
             ref={this.list}
             isSubList={isSubList}
@@ -761,25 +709,13 @@ export default class RelateRecordDropdown extends React.Component {
             prefixRecords={prefixRecords}
             staticRecords={staticRecords}
             ignoreRowIds={
+              // 自定义填写、自定义事件清空关联记录后，仍需把源记录原关联的 rowid 放行，服务端才会返回这些记录
               multiple
-                ? uniq(deletedIds.concat(selected.map(r => r.rowid)))
-                : // 自定义填写清空关联记录后，仍需把源记录原关联的 rowid 放行，服务端才会返回这些记录
-                  uniq((defaultSelected || []).map(r => r.rowid).concat(control.keepShowRowIds || []))
+                ? withKeepShowRowIds(uniq(deletedIds.concat(selected.map(r => r.rowid))), control)
+                : withKeepShowRowIds(uniq((defaultSelected || []).map(r => r.rowid)), control)
             }
             maxHeight={renderToTop && cellToTop}
             entityName={this.entityName}
-            style={{
-              ...(renderToTop
-                ? {
-                    bottom: (_.get(this, 'cell.current.clientHeight') || 30) + (insheet ? 0 : 3),
-                  }
-                : {
-                    top: '100%',
-                  }),
-              left: xOffset,
-              position: 'absolute',
-              width: this.popupWidth,
-            }}
             {..._.pick(this.props, [
               'from',
               'viewId',
@@ -793,7 +729,6 @@ export default class RelateRecordDropdown extends React.Component {
               'showCoverAndControls',
               'fastSearchControlArgs',
             ])}
-            isMobile={this.isMobile}
             selectedIds={selected.map(r => r.rowid)}
             onItemClick={this.handleItemClick}
             onChange={records => {
@@ -807,25 +742,31 @@ export default class RelateRecordDropdown extends React.Component {
             }}
             onClear={this.handleClear}
             allowNewRecord={this.props.enumDefault2 !== 1 && this.props.enumDefault2 !== 11 && !disableNewRecord}
-            onNewRecord={() => {
-              if (multiple && selected.length >= MAX_COUNT) {
-                alert(_l('最多关联%0条', MAX_COUNT), 3);
-                return;
-              }
-
-              this.commitChange();
-              this.setState({ newrecordVisible: true, listvisible: false });
-            }}
+            onNewRecord={this.openNewRecord}
             focusInput={() => {
               this.focusInput();
             }}
           />
         )}
-      </ClickAway>
+      </div>
     );
   }
 
-  renderSelected(free) {
+  getPlaceholder() {
+    const { control, insheet, isQuickFilter } = this.props;
+
+    if (!this.active && !insheet && control.hint) {
+      return control.hint;
+    }
+
+    if (this.active && this.canSelect && this.searchControl) {
+      return this.isAssignedSearchControl ? _l('搜索%0', this.searchControl.controlName) : _l('搜索');
+    }
+
+    return isQuickFilter ? _l('请选择') : null;
+  }
+
+  renderSelectDialogSuffix() {
     const {
       control,
       recordId,
@@ -834,117 +775,105 @@ export default class RelateRecordDropdown extends React.Component {
       appId,
       parentWorksheetId,
       viewId,
-      isDark,
-      isQuickFilter,
       isediting,
       insheet,
       multiple,
       formData,
-      selectedClassName,
-      selectedStyle,
+      from,
       disabled,
-      allowOpenRecord,
-      renderSelected,
-      onVisibleChange,
       onChange,
     } = this.props;
-    const { selected, keywords, listvisible, deletedIds } = this.state;
-    let content;
-
-    if (_.isFunction(renderSelected) && !(isQuickFilter && listvisible)) {
-      content = renderSelected(selected, { handleDelete: this.handleDelete });
-    } else if (multiple && !isQuickFilter) {
-      content = this.renderMultipe();
-    } else {
-      content = _.isArray(selected) && selected.length > 1 ? this.renderMultipe() : this.renderSingle();
-    }
-
+    const { selected, deletedIds } = this.state;
     const showDialogSelect =
       get(control, 'advancedSetting.openfastfilters') === '1' || this.props.forceShowDialogSelect;
-    const showClearIcon =
-      !disabled &&
-      this.allowRemove &&
-      (!!selected.length || keywords) &&
-      (!insheet || this.active) &&
-      !!selected.length &&
-      (listvisible || !showDialogSelect);
+
+    if (disabled) {
+      return null;
+    }
+
+    if (this.canCreateRecord && (!insheet || isediting)) {
+      return (
+        <i
+          className="icon icon-plus hoverColorPrimary"
+          onMouseDown={e => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onClick={e => {
+            e.stopPropagation();
+            this.openNewRecord();
+          }}
+        />
+      );
+    }
+
+    if (!showDialogSelect || (insheet && !isediting)) {
+      return undefined;
+    }
+
     const formDataArray = typeof formData === 'function' ? formData() : formData;
     return (
-      <div
-        className={cx('RelateRecordDropdown-selected', selectedClassName, {
-          free,
-          active: listvisible || isediting,
-          emptyRecord: !selected.length,
-          readonly: disabled,
-          allowOpenRecord: allowOpenRecord,
-          isDark,
-          'customFormControlBox mobile': this.isMobile,
-          showDialogSelect,
-        })}
-        ref={this.cell}
-        style={selectedStyle}
-        onClick={this.handleClick}
-      >
-        {content}
-        {!disabled && !(this.active && keywords) && !showDialogSelect && (
-          <i className={`icon ${this.isMobile ? 'icon-arrow-right-border' : 'icon-arrow-down-border'} dropIcon`}></i>
-        )}
-        {!disabled && showDialogSelect && (insheet ? isediting : true) && (
-          <i
-            className={cx('icon icon-table selectDialogIcon hoverColorPrimary', { clearVisible: showClearIcon })}
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              selectRecords({
-                // projectId: worksheet?.projectId,
-                control,
-                controlId: control.controlId,
-                recordId,
-                isCharge: control.isCharge,
-                multiple,
-                // allowNewRecord:
-                //   allowNewRecord &&
-                //   allowAdd &&
-                //   !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')),
-                coverCid,
-                appId,
-                viewId,
-                formData: formDataArray,
-                relateSheetId: control.dataSource,
-                parentWorksheetId: parentWorksheetId,
-                showControls: showControls,
-                needHideRowIds: selected.map(r => r.rowid),
-                ignoreRowIds: deletedIds,
-                onOk: records => {
-                  this.setState({ keywords: '' });
-                  if (multiple) {
-                    this.handleAddRecords(records.map(record => _.assign({}, record, { isNewAdd: true })));
-                  } else {
-                    onChange(records);
-                    onVisibleChange(false);
-                  }
-                },
-                isDraft: control.isDraft,
-              });
-            }}
-          ></i>
-        )}
-        {showClearIcon && (
-          <i
-            className="icon icon-cancel Hand clearIcon"
-            onClick={e => {
-              e.stopPropagation();
-              if (keywords) {
-                this.setState({ keywords: '' }, () => {
-                  this.focusInput();
+      <i
+        className="icon icon-table hoverColorPrimary"
+        onMouseDown={e => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onClick={e => {
+          e.stopPropagation();
+          this.setState({
+            selectDialogVisible: true,
+            // 公开表单的弹层与下拉不共用层级容器，展开弹层时需要彻底关闭下拉而不只是让位
+            ...(from === FROM.PUBLIC_ADD ? { listvisible: false } : null),
+          });
+          this.selectDialogHasSelection = false;
+          this.props.openSelectRecords({
+            control,
+            controlId: control.controlId,
+            recordId,
+            isCharge: control.isCharge,
+            multiple,
+            coverCid,
+            appId,
+            viewId,
+            formData: formDataArray,
+            relateSheetId: control.dataSource,
+            parentWorksheetId,
+            showControls,
+            needHideRowIds: selected.map(r => r.rowid),
+            ignoreRowIds: withKeepShowRowIds(deletedIds, control),
+            onOk: records => {
+              this.selectDialogHasSelection = true;
+              this.setState({ keywords: '' });
+              if (multiple) {
+                this.handleAddRecords(records.map(record => _.assign({}, record, { isNewAdd: true })));
+              } else {
+                onChange(records);
+              }
+            },
+            onClose: () => {
+              const shouldCloseAfterSelect = !multiple && this.selectDialogHasSelection;
+              this.selectDialogHasSelection = false;
+
+              if (shouldCloseAfterSelect) {
+                // 单选弹层确认选择后结束当前单元格编辑态；
+                // 与 listvisible 合并成一次 setState：分两次会有中间帧 selectDialogVisible 已 false
+                // 而 listvisible 仍为 true，浮层会闪现一下再收起
+                this.commitChange();
+                this.setState({ selectDialogVisible: false, listvisible: false }, () => {
+                  this.props.onVisibleChange(false);
                 });
               } else {
-                this.handleClear();
+                // 取消弹层或多选操作后保留下拉面板，支持继续选择记录
+                this.setState({ selectDialogVisible: false }, () => {
+                  this.openPopup();
+                });
               }
-            }}
-          ></i>
-        )}
-      </div>
+            },
+            isDraft: control.isDraft,
+          });
+        }}
+      />
     );
   }
 
@@ -955,13 +884,13 @@ export default class RelateRecordDropdown extends React.Component {
       multiple,
       isDraft,
       insheet,
-      popupOffset,
-      zIndex,
+      isFormDetail,
       isediting,
       control = {},
+      selectedClassName,
       selectedStyle,
+      selectProps,
       className,
-      popupClassName,
       disabled,
       dataSource,
       allowOpenRecord,
@@ -969,11 +898,27 @@ export default class RelateRecordDropdown extends React.Component {
       popupContainer,
       onVisibleChange,
     } = this.props;
-    const { keywords, selected, isTop, listvisible, previewRecord, newrecordVisible } = this.state;
+    const { keywords, selected, listvisible, previewRecord, newrecordVisible, selectDialogVisible } = this.state;
     const [, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
     const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
     const popup = this.renderPopup({ disabledManualWrite });
-    const popupVisible = insheet ? isediting : listvisible;
+    // 浮层、新建记录、记录详情和表格选择弹窗都挂在 body 上且互不嵌套，浮层层级天然更高；
+    // 表格内浮层只跟随 isediting，弹窗显示期间必须显式让位，否则浮层会压在弹窗上
+    const hideForDialog = newrecordVisible || !!previewRecord || selectDialogVisible;
+    const popupVisible = this.canSelect && !hideForDialog && (insheet ? isediting : listvisible);
+    const showDialogSelect =
+      get(control, 'advancedSetting.openfastfilters') === '1' || this.props.forceShowDialogSelect;
+    const showClearIcon =
+      !disabled &&
+      this.allowRemove &&
+      !!selected.length &&
+      (!insheet || this.active) &&
+      (listvisible || !showDialogSelect);
+    const showSearch = multiple
+      ? this.canSelect || isQuickFilter
+      : (_.isEmpty(this.props.staticRecords) && this.canSelect) || isQuickFilter;
+    const selectOptions = this.getSelectOptions();
+    const selectValue = multiple ? selectOptions.map(option => option.value) : selectOptions[0]?.value;
     const chooseShowIds = safeParse(control.advancedSetting.chooseshowids, 'array').filter(id =>
       _.find(control.relationControls, { controlId: id }),
     );
@@ -988,43 +933,78 @@ export default class RelateRecordDropdown extends React.Component {
         }}
       >
         {!(showCards && disabled) && (
-          <Trigger
-            action={insheet ? [] : ['click']}
-            popupVisible={popupVisible}
-            onPopupVisibleChange={visilbe => {
-              if (!disabled && visilbe) {
-                this.openPopup();
-                // 处理iOS下无法自动激活键盘
-                if (this.inputForIOSKeyboardRef.current) {
-                  this.inputForIOSKeyboardRef.current.focus();
-                }
-              } else {
-                this.commitChange();
-                this.setState({ listvisible: false });
+          <div ref={this.cell}>
+            <Select
+              {...DEFAULT_SELECT_PROPS}
+              {...selectProps}
+              copyable
+              ref={this.select}
+              mode={multiple ? 'multiple' : undefined}
+              className={selectedClassName}
+              style={{ width: '100%', ...selectedStyle }}
+              popupMatchSelectWidth={320}
+              variant={insheet ? 'borderless' : isFormDetail ? 'filled' : 'outlined'}
+              disabled={disabled}
+              value={selectValue}
+              options={selectOptions}
+              placeholder={this.getPlaceholder()}
+              showSearch={showSearch}
+              searchValue={keywords}
+              autoClearSearchValue={false}
+              filterOption={false}
+              open={popupVisible}
+              // 让位给弹窗时禁用离场动画，否则弹窗已经盖上来了浮层还在淡出；
+              // getTransitionName 对显式传入值直接透传，空串即不走 slide-up 动画
+              transitionName={hideForDialog ? '' : undefined}
+              // options 仅承载已选记录；保留默认空状态，否则空值时 Select 会阻止 popupRender 打开
+              popupRender={() => popup}
+              getPopupContainer={popupContainer || getDefaultPopupContainer}
+              allowClear={
+                showClearIcon
+                  ? {
+                      clearIcon: <Icon icon="cancel" className="Font16" onMouseDown={this.handleClearMouseDown} />,
+                    }
+                  : false
               }
+              suffix={this.renderSelectDialogSuffix()}
+              suffixIcon={disabled || insheet ? null : undefined}
+              onSearch={value => this.setState({ keywords: value })}
+              onInputKeyDown={this.handleInputKeyDown}
+              onDeselect={value => {
+                const option = selectOptions.find(item => item.value === value);
 
-              onVisibleChange(visilbe);
-            }}
-            popupClassName={cx('relateRecordDropdownPopup filterTrigger', popupClassName, { isQuickFilter })}
-            getPopupContainer={popupContainer || (() => document.body)}
-            popupAlign={{
-              points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
-              offset: popupOffset || [0, 2],
-              overflow: {
-                adjustX: !this.isMobile,
-                adjustY: true,
-              },
-            }}
-            zIndex={zIndex || (this.isMobile ? 999 : 1000)}
-            destroyPopupOnHide
-            popup={popup}
-          >
-            {(!insheet || !isediting) && (!isQuickFilter || !listvisible) ? (
-              this.renderSelected()
-            ) : (
-              <div style={selectedStyle} ref={this.cell} />
-            )}
-          </Trigger>
+                if (option?.record) {
+                  this.handleDelete(option.record, { defer: true });
+                }
+              }}
+              onClear={this.handleClear}
+              onClick={e => {
+                if (insheet && !this.active) {
+                  this.props.onClick(e);
+                }
+              }}
+              onOpenChange={visible => {
+                if (!visible && this.state.selectDialogVisible) {
+                  return;
+                }
+
+                if (!disabled && visible) {
+                  if (this.canSelect) {
+                    this.openPopup();
+                    // 处理 iOS 下无法自动激活键盘
+                    this.inputForIOSKeyboardRef.current?.focus();
+                  } else if (this.canCreateRecord && (!insheet || isediting)) {
+                    this.openNewRecord();
+                  }
+                } else {
+                  this.commitChange();
+                  this.setState({ listvisible: false });
+                }
+
+                onVisibleChange(visible);
+              }}
+            />
+          </div>
         )}
         {showCards && !!selected.length && (
           <div className="mTop10">
@@ -1078,7 +1058,12 @@ export default class RelateRecordDropdown extends React.Component {
                 defaultRelatedSheet={this.getDefaultRelateSheetValue()}
                 visible={newrecordVisible}
                 hideNewRecord={() => {
-                  this.setState({ newrecordVisible: false });
+                  this.setState({ newrecordVisible: false }, () => {
+                    // 表格内单元格仍处于编辑态时浮层不会重新挂载，需主动恢复被新建记录挤掉的下拉列表
+                    if (insheet && isediting && this.canSelect) {
+                      this.openPopup();
+                    }
+                  });
                 }}
                 onAdd={record => this.handleItemClick(record)}
                 updateWorksheetControls={newOptionsControlsForRelationControls => {
@@ -1121,3 +1106,7 @@ export default class RelateRecordDropdown extends React.Component {
     );
   }
 }
+
+export default withOpeners(RelateRecordDropdown, {
+  openSelectRecords: useSelectRecords,
+});

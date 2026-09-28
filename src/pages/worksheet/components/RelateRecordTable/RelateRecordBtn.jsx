@@ -1,16 +1,16 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import BatchOperate from 'worksheet/common/BatchOperate/BatchOperate';
 import PrintList from 'worksheet/common/BatchOperate/PrintList';
-import { importDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { useImportDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+
+const RELATE_RECORD_MAIN_BUTTON_STYLE = { maxWidth: 150 };
 
 const Con = styled.div`
   position: relative;
@@ -19,82 +19,6 @@ const Con = styled.div`
   flex-shrink: 0;
   &.isBatchEditing {
     width: 100%;
-  }
-`;
-
-const MenuCon = styled.div`
-  > .Menu {
-    position: relative !important;
-  }
-`;
-
-export const Button = styled.div`
-  overflow: hidden;
-  display: inline-flex;
-  font-weight: 500;
-  border-radius: 4px;
-  cursor: pointer;
-  height: 36px;
-  line-height: 36px;
-  color: var(--color-text-title);
-  border: 1px solid var(--color-border-primary);
-  font-size: 13px;
-  .content {
-    padding: 0 16px;
-    display: inline-flex;
-    align-items: center;
-    font-weight: bold;
-    max-width: 150px;
-    > .icon {
-      color: var(--color-text-tertiary);
-      font-weight: normal;
-    }
-  }
-  &.printButton {
-    .content {
-      padding: 0 12px;
-    }
-  }
-  &.importFromFile {
-    width: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    &:hover {
-      background-color: var(--color-background-hover);
-    }
-  }
-  &:not(.disabled) {
-    .content:hover {
-      background-color: var(--color-background-hover);
-    }
-  }
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: transparent;
-  }
-`;
-
-const DropIcon = styled.span`
-  position: relative;
-  display: inline-block;
-  width: 36px;
-  text-align: center;
-  cursor: pointer;
-  color: var(--color-text-title);
-  height: 34px;
-  &:hover {
-    background-color: var(--color-background-hover);
-  }
-  &:before {
-    position: absolute;
-    content: '';
-    width: 1px;
-    height: 16px;
-    top: 10px;
-    left: -0.5px;
-    background-color: var(--color-border-primary);
   }
 `;
 
@@ -136,71 +60,63 @@ export default function RelateRecordBtn(props) {
     btnVisible;
   const isShareState = !!get(window, 'shareState.shareId');
   const [menuVisible, setMenuVisible] = useState();
-  const [selectedRecords, setSelectedRecords] = useState([]);
+  const selectedRecords = useMemo(
+    () => (records || []).filter(record => (selectedRowIds || []).includes(record.rowid)),
+    [records, selectedRowIds],
+  );
+  const { open: importDataFromExcel, holder: importDataFromExcelHolder } = useImportDataFromExcel();
   const conRef = useRef();
   const btnText = addVisible ? btnName || entityName : _l('选择%0', entityName);
   const iconName = addVisible ? 'icon-plus' : 'icon-link_record';
   const btnClick = addVisible ? onNew : onSelect;
   const noSelected = isEmpty(selectedRowIds);
-  const showCodePrint = isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, view?.id);
   const showSystemPrint = isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, view?.id);
+  const showCodePrint = showSystemPrint && isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, view?.id);
   const canImportSwitch = isOpenPermit(permitList.importSwitch, sheetSwitchPermit, view?.id);
   const showCustomButton = isOpenPermit(permitList.execute, sheetSwitchPermit, view?.id);
 
-  useEffect(() => {
-    if (!isEmpty(records) && !isEmpty(selectedRowIds)) {
-      setSelectedRecords(records.filter(record => selectedRowIds.includes(record.rowid)));
-    }
-  }, [records, selectedRowIds]);
   return (
     <Con ref={conRef} className={cx({ isBatchEditing })}>
+      {importDataFromExcelHolder}
       {!isBatchEditing && (
         <Fragment>
           {(addVisible || selectVisible) && (
-            <Trigger
-              zIndex={999}
-              popupVisible={menuVisible && addVisible && selectVisible}
-              actions={['click']}
-              getPopupContainer={() => conRef.current}
-              onPopupVisibleChange={setMenuVisible}
-              popup={
-                <MenuCon>
-                  <Menu
-                    style={{ top: 0 }}
-                    onClickAwayExceptions={['.relateRecordBtnDropIcon']}
-                    onClickAway={() => setMenuVisible(false)}
-                  >
-                    <MenuItem onClick={onNew}>{_l('新建%0', entityName)}</MenuItem>
-                    <MenuItem onClick={onSelect}>{_l('关联已有%0', entityName)}</MenuItem>
-                  </Menu>
-                </MenuCon>
-              }
-              popupClassName="filterTrigger"
-              destroyPopupOnHide
-              popupAlign={{
-                offset: [0, 4],
-                points: ['tl', 'bl'],
-                overflow: { adjustY: true },
-              }}
-            >
-              <Button className="relateRecordMainBtn" onClick={btnClick}>
-                <div className="content">
-                  <i className={`icon ${iconName} mRight5 Font16`}></i>
-                  <span className="overflow_ellipsis WordBreak">{btnText || _l('记录')}</span>
-                </div>
-                {addVisible && selectVisible && (
-                  <DropIcon
-                    className="relateRecordBtnDropIcon"
-                    onClick={e => {
-                      e.stopPropagation();
-                      setMenuVisible(true);
-                    }}
-                  >
-                    <i className="icon icon-arrow-down"></i>
-                  </DropIcon>
-                )}
+            <Button.Group>
+              <Button
+                className="relateRecordMainBtn"
+                color="default"
+                variant="textBordered"
+                style={RELATE_RECORD_MAIN_BUTTON_STYLE}
+                icon={<i className={`icon ${iconName} Font16`} />}
+                onClick={btnClick}
+              >
+                <span className="overflow_ellipsis WordBreak">{btnText || _l('记录')}</span>
               </Button>
-            </Trigger>
+              {addVisible && selectVisible && (
+                <Dropdown
+                  open={menuVisible}
+                  trigger={['click']}
+                  placement="bottomLeft"
+                  onOpenChange={open => {
+                    setMenuVisible(open);
+                  }}
+                  menu={{
+                    items: [
+                      { key: 'new', label: _l('新建%0', entityName), onClick: onNew },
+                      { key: 'select', label: _l('关联已有%0', entityName), onClick: onSelect },
+                    ],
+                  }}
+                >
+                  <Button
+                    aria-label={_l('更多操作')}
+                    className="relateRecordBtnDropIcon"
+                    color="default"
+                    variant="textBordered"
+                    icon={<i className="icon icon-arrow-down" />}
+                  />
+                </Dropdown>
+              )}
+            </Button.Group>
           )}
           {!get(window, 'shareState.isPublicForm') &&
             !!recordId &&
@@ -211,6 +127,9 @@ export default function RelateRecordBtn(props) {
               <Tooltip title={_l('导入数据')} placement="top">
                 <Button
                   className="importFromFile mLeft10"
+                  color="default"
+                  variant="textBordered"
+                  icon={<i className="icon icon-worksheet_import Font16" />}
                   onClick={() => {
                     if (window.isPublicApp) {
                       alert(_l('预览模式下，不能操作'), 3);
@@ -231,16 +150,18 @@ export default function RelateRecordBtn(props) {
                       },
                     });
                   }}
-                >
-                  <i className="icon icon-worksheet_import Font16 textSecondary"></i>
-                </Button>
+                />
               </Tooltip>
             )}
           {(addVisible || selectVisible) && enterBatchEdit && <Splitter />}
           {enterBatchEdit && (
             <Fragment>
-              <Button onClick={() => onBatchOperate({ action: 'enterBatchEditing' })}>
-                <div className="content">{_l('批量操作')}</div>
+              <Button
+                color="default"
+                variant="textBordered"
+                onClick={() => onBatchOperate({ action: 'enterBatchEditing' })}
+              >
+                {_l('批量操作')}
               </Button>
             </Fragment>
           )}
@@ -249,16 +170,22 @@ export default function RelateRecordBtn(props) {
       {isBatchEditing && (
         <Fragment>
           {enterBatchEdit && (
-            <Button className="mRight10" onClick={() => onBatchOperate({ action: 'exitBatchEditing' })}>
-              <div className="content" style={{ paddingLeft: 10 }}>
-                <i className="icon icon-close textTertiary Font18 mRight5"></i>
-                {_l('退出')}
-              </div>
+            <Button
+              className="mRight10"
+              color="default"
+              variant="textBordered"
+              icon={<i className="icon icon-close Font18" />}
+              onClick={() => onBatchOperate({ action: 'exitBatchEditing' })}
+            >
+              {_l('退出')}
             </Button>
           )}
           {removeRelation && (
             <Button
-              className={cx('mRight10', { disabled: noSelected })}
+              className="mRight10"
+              color="default"
+              variant="textBordered"
+              disabled={noSelected}
               onClick={() => {
                 if (noSelected) {
                   return;
@@ -267,12 +194,15 @@ export default function RelateRecordBtn(props) {
                 onBatchOperate({ action: 'removeRelation' });
               }}
             >
-              <div className="content">{_l('取消关联')}</div>
+              {_l('取消关联')}
             </Button>
           )}
           {edit && !get(window, 'shareState.shareId') && (
             <Button
-              className={cx('mRight10', { disabled: noSelected })}
+              className="mRight10"
+              color="default"
+              variant="textBordered"
+              disabled={noSelected}
               onClick={() => {
                 if (noSelected) {
                   return;
@@ -281,7 +211,7 @@ export default function RelateRecordBtn(props) {
                 onBatchOperate({ action: 'edit' });
               }}
             >
-              <div className="content">{_l('编辑')}</div>
+              {_l('编辑')}
             </Button>
           )}
           {print && !isShareState && (
@@ -300,7 +230,10 @@ export default function RelateRecordBtn(props) {
               count={selectedRecords.length}
             >
               <Button
-                className={cx('printButton mRight10', { disabled: noSelected })}
+                className="printButton mRight10"
+                color="default"
+                variant="textBordered"
+                disabled={noSelected}
                 onClick={() => {
                   if (noSelected) {
                     return;
@@ -309,16 +242,17 @@ export default function RelateRecordBtn(props) {
                   onBatchOperate({ action: 'print' });
                 }}
               >
-                <div className="content">
-                  {_l('打印')}
-                  <i className="icon icon-arrow-down-border mLeft5 textTertiary"></i>
-                </div>
+                {_l('打印')}
+                <i className="icon icon-arrow-down-border mLeft5 textTertiary"></i>
               </Button>
             </PrintList>
           )}
           {deleteRecords && !isShareState && (
             <Button
-              className={cx('mRight10', { disabled: noSelected })}
+              className="mRight10"
+              color="default"
+              variant="textBordered"
+              disabled={noSelected}
               onClick={() => {
                 if (noSelected) {
                   return;
@@ -327,12 +261,15 @@ export default function RelateRecordBtn(props) {
                 onBatchOperate({ action: 'deleteRecords' });
               }}
             >
-              <div className="content">{_l('删除')}</div>
+              {_l('删除')}
             </Button>
           )}
           {exportRecords && !isShareState && (
             <Button
-              className={cx('mRight10', { disabled: noSelected })}
+              className="mRight10"
+              color="default"
+              variant="textBordered"
+              disabled={noSelected}
               onClick={() => {
                 if (noSelected) {
                   return;
@@ -341,7 +278,7 @@ export default function RelateRecordBtn(props) {
                 onBatchOperate({ action: 'exportRecords' });
               }}
             >
-              <div className="content">{_l('导出')}</div>
+              {_l('导出')}
             </Button>
           )}
           {showCustomButton && !noSelected && !!customButton && (

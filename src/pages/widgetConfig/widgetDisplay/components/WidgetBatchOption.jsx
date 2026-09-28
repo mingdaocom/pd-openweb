@@ -1,17 +1,17 @@
 import React from 'react';
-import { Dropdown } from 'antd';
 import _, { find, flatten } from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
+import { batchCopyWidgets, batchResetWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/internal/editorData';
+import { notInsetSectionTab } from 'src/utils/domain/control/capabilities';
+import { UN_REQUIRED_WIDGET } from 'src/utils/domain/control/config';
+import { putControlByOrder } from 'src/utils/domain/control/editorLayout';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
 import AutoIcon from '../../components/Icon';
-import { UN_REQUIRED_WIDGET } from '../../config';
-import { DropdownOverlay, SettingItem } from '../../styled';
-import { isSheetDisplay, notInsetSectionTab, putControlByOrder } from '../../util';
-import { createTemplateDialog } from '../../util/createTemplate';
-import { batchCopyWidgets, batchResetWidgets, handleMoveWidgets } from '../../util/data';
+import { SettingItem } from '../../styled';
 import { batchRemoveItems } from '../../util/drag';
-import { updateConfig } from '../../util/setting';
 import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
 
 const WidgetBatchWrap = styled.div`
@@ -101,7 +101,7 @@ function WidgetBatch(props) {
   };
 
   return (
-    <WidgetBatchWrap hasSection={sectionData.length > 0}>
+    <WidgetBatchWrap>
       <div className="titleBox">
         <div className="flexCenter">
           <Tooltip placement="bottom" title={_l('取消选中')}>
@@ -113,24 +113,23 @@ function WidgetBatch(props) {
           {sectionData.length > 0 && (
             <Dropdown
               trigger={['click']}
-              overlay={
-                <DropdownOverlay>
-                  <div className="dropdownContent Width250">
-                    {sectionData.length > 0 ? (
-                      sectionData.map(item => {
-                        return (
-                          <div className="item " onClick={() => handleOperate('move', item.controlId)}>
-                            <div className="text overflow_ellipsis">{item.controlName}</div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="emptyText">{_l('暂无分段字段')}</div>
-                    )}
-                  </div>
-                </DropdownOverlay>
-              }
               placement="bottom"
+              menu={{
+                style: { minWidth: 250 },
+                items: sectionData.length
+                  ? sectionData.map(item => ({
+                      key: item.controlId,
+                      label: <div className="text overflow_ellipsis">{item.controlName}</div>,
+                      onClick: () => handleOperate('move', item.controlId),
+                    }))
+                  : [
+                      {
+                        key: 'empty',
+                        disabled: true,
+                        label: _l('暂无分段字段'),
+                      },
+                    ],
+              }}
             >
               <Tooltip placement="bottom" title={_l('移动到标签页')}>
                 <Icon className="titleBtn" icon="drive_file_move" />
@@ -155,14 +154,19 @@ function WidgetBatch(props) {
           <div className="settingItemTitle">{_l('验证')}</div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               className="customWidgetCheckbox"
               disabled={getDisabledStatus('required')}
               checked={isRequiredAll}
-              clearselected={isRequiredNotAll}
-              text={_l('必填')}
-              onClick={checked => handleChange({ required: !checked })}
-            />
+              indeterminate={isRequiredNotAll}
+              onChange={event =>
+                handleChange({
+                  required: event.target.checked,
+                })
+              }
+              size="small"
+            >
+              {_l('必填')}
+            </Checkbox>
           </div>
         </SettingItem>
 
@@ -173,12 +177,20 @@ function WidgetBatch(props) {
             return (
               <div className="labelWrap">
                 <Checkbox
-                  size="small"
                   className="customWidgetCheckbox"
                   disabled={getDisabledStatus(mode)}
                   checked={_.get(getAllSelect(index), 'isAll')}
-                  clearselected={_.get(getAllSelect(index), 'isNotAll')}
-                  onClick={checked => handleChange({ value: +checked, index }, 'fieldPermission')}
+                  indeterminate={_.get(getAllSelect(index), 'isNotAll')}
+                  onChange={event =>
+                    handleChange(
+                      {
+                        value: +!event.target.checked,
+                        index,
+                      },
+                      'fieldPermission',
+                    )
+                  }
+                  size="small"
                 >
                   <span style={{ marginRight: '4px' }}>{text}</span>
                   <Tooltip placement="bottom" title={tips}>
@@ -220,7 +232,7 @@ export default function WidgetBatchOption(props) {
     }
 
     if (mode === 'template') {
-      createTemplateDialog({ ...props, templateControls: selectWidgets });
+      props.openCreateTemplateDialog({ ...props, templateControls: selectWidgets });
       setBatchActive([]);
       return;
     }
@@ -232,12 +244,14 @@ export default function WidgetBatchOption(props) {
     }
 
     if (mode === 'delete') {
-      Dialog.confirm({
-        title: _l('确定要删除%0字段？', batchActive.length),
-        description: _l('删除后可在字段回收站保留60天（免费版删除后无法恢复）'),
+      Modal.confirm({
+        title: <span className="textError">{_l('确定要删除%0字段？', batchActive.length)}</span>,
+        content: _l('删除后可在字段回收站保留60天（免费版删除后无法恢复）'),
         okText: _l('删除'),
         cancelText: _l('取消'),
-        buttonType: 'danger',
+        okButtonProps: {
+          danger: true,
+        },
         onOk: () => {
           const deleteWidgets = [];
           selectWidgets.map(i => {

@@ -2,8 +2,7 @@ import React from 'react';
 import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
+import { Icon, PersonalStatus } from 'ming-ui';
 
 const isChecked = (id, ids) => {
   let result = false;

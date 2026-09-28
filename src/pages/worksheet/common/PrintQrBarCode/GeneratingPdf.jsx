@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _, { includes } from 'lodash';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import BatchPrintErrorModal from '../BatchPrintErrorModal';
+import { normalizePrintableRows } from '../printRowUtils';
 import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import GeneratingPopup from './GeneratingPopup';
 import { QrPdf } from './print';
@@ -27,20 +30,26 @@ export default function GeneratingPdf(props) {
     filterControls,
     fastFilters,
     navGroupFilters,
+    precheckError: initialPrecheckError,
+    precheckEnabled,
+    onAllPrecheckFailed,
     onClose,
   } = props;
   const [printConfig, setPrintConfig] = useState(config && { ...config });
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState();
   const rows = useRef(selectedRows);
+  const shouldLoadDataOnOpen = useRef(allowLoadMore && selectedRows.length !== count);
   const [pageIndex, setPageIndex] = useState(1);
   const [embedUrl, setEmbedUrl] = useState();
   const [name, setName] = useState(props.name);
+  const [precheckError, setPrecheckError] = useState(initialPrecheckError);
 
-  function loadData(pageIndex = 1, cb = () => {}) {
+  async function loadData(pageIndex = 1, cb = () => {}) {
     setLoading(true);
-    worksheetAjax
-      .getFilterRows(
+    setEmbedUrl(undefined);
+    try {
+      const res = await worksheetAjax.getFilterRows(
         getFilledRequestParams({
           worksheetId,
           viewId,
@@ -52,11 +61,47 @@ export default function GeneratingPdf(props) {
           fastFilters,
           navGroupFilters,
         }),
-      )
-      .then(res => {
-        rows.current = res.data;
-        cb();
-      });
+      );
+      let printableRows = normalizePrintableRows(res.data);
+
+      if (precheckEnabled) {
+        const rowIds = printableRows.map(row => row.rowid);
+        const { successRows, failedRows } = await worksheetAjax.precheckPrint({
+          projectId,
+          worksheetId,
+          printId: templateId,
+          rowIds,
+        });
+
+        if (rowIds.length === 1 && failedRows.length) {
+          alert(_l('当前模板已达到打印上限'), 2);
+          onClose();
+          return;
+        }
+
+        const successRowIdSet = new Set(successRows.map(row => row.rowId));
+        const currentPrecheckError = failedRows.length
+          ? {
+              templateName: name || _l('未命名'),
+              recordNames: failedRows.map(row => row.rowTitle),
+            }
+          : undefined;
+
+        printableRows = printableRows.filter(row => successRowIdSet.has(row.rowid));
+        if (!printableRows.length) {
+          onClose();
+          onAllPrecheckFailed(currentPrecheckError);
+          return;
+        }
+
+        setPrecheckError(currentPrecheckError);
+      }
+
+      rows.current = printableRows;
+      cb();
+    } catch {
+      onClose();
+    }
   }
 
   async function handlePrint(config) {
@@ -133,7 +178,7 @@ export default function GeneratingPdf(props) {
 
   useEffect(() => {
     function print(config) {
-      if (allowLoadMore) {
+      if (shouldLoadDataOnOpen.current) {
         loadData(1, () => handlePrint(config));
       } else {
         handlePrint(config);
@@ -156,27 +201,38 @@ export default function GeneratingPdf(props) {
     }
   }, []);
   return (
-    <GeneratingPopup
-      allowLoadMore={allowLoadMore}
-      pageIndex={pageIndex}
-      pageSize={PAGE_SIZE}
-      count={count}
-      zIndex={zIndex}
-      loading={loading}
-      loadingText={loadingText}
-      name={name}
-      embedUrl={embedUrl}
-      onPrev={() => {
-        setPageIndex(pageIndex - 1);
-        loadData(pageIndex - 1, () => handlePrint(printConfig));
-      }}
-      onNext={() => {
-        setPageIndex(pageIndex + 1);
-        loadData(pageIndex + 1, () => handlePrint(printConfig));
-      }}
-      onClose={onClose}
-    />
+    <>
+      <GeneratingPopup
+        allowLoadMore={allowLoadMore}
+        pageIndex={pageIndex}
+        pageSize={PAGE_SIZE}
+        count={count}
+        zIndex={zIndex}
+        loading={loading}
+        loadingText={loadingText}
+        name={name}
+        embedUrl={embedUrl}
+        onPrev={() => {
+          setPageIndex(pageIndex - 1);
+          loadData(pageIndex - 1, () => handlePrint(printConfig));
+        }}
+        onNext={() => {
+          setPageIndex(pageIndex + 1);
+          loadData(pageIndex + 1, () => handlePrint(printConfig));
+        }}
+        onClose={onClose}
+      />
+      {embedUrl && precheckError && (
+        <BatchPrintErrorModal
+          {...precheckError}
+          zIndex={(zIndex || 1000) + 1}
+          onClose={() => setPrecheckError(undefined)}
+        />
+      )}
+    </>
   );
 }
 
-export const generatePdf = props => functionWrap(GeneratingPdf, props);
+export function useGeneratePdf() {
+  return useFunctionWrapComponent(GeneratingPdf);
+}

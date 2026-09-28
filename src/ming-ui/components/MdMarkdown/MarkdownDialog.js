@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import MdMarkdown from '.';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   width: 100%;
@@ -10,25 +10,8 @@ const Con = styled.div`
   flex-direction: column;
 `;
 
-const Header = styled.div`
-  height: 50px;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  .inner {
-    width: 100%;
-  }
-  .main {
-    font-size: 17px;
-    color: var(--color-text-title);
-    font-weight: bold;
-  }
-`;
-
 const Content = styled.div`
   position: relative;
-  padding: 0 25px 36px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -42,32 +25,30 @@ const Content = styled.div`
 export default function MarkdownDialog(props) {
   const { data, controlName, handleClose } = props;
   const [value, setValue] = useState(data);
+
   return (
     <Modal
-      visible
+      open
       type="fixed"
       verticalAlign="bottom"
       className="openMarkdownDialog"
-      closeIcon={<span />}
-      bodyStyle={{ padding: 0, position: 'relative' }}
+      title={controlName}
+      iconButtons={[
+        {
+          type: 'fullScreen',
+          icon: 'worksheet_narrow',
+          tip: _l('退出'),
+          onClick: () => handleClose(value),
+        },
+      ]}
+      closable={false}
       fullScreen={true}
     >
       <Con>
-        <Header>
-          <div className="inner flexRow">
-            <div className="main ellipsis" title={controlName}>
-              {controlName}
-            </div>
-            <div className="flex"></div>
-            <span
-              className="icon-worksheet_narrow Font20 hoverColorPrimary pointer"
-              onClick={() => handleClose(value)}
-            />
-          </div>
-        </Header>
         <Content>
           <MdMarkdown
             {...props}
+            data={value}
             mode="sv"
             isFullScreen={true}
             handleChange={value => {

@@ -2,24 +2,11 @@ import React, { useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Input } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
+import { Button, Input } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const Wrap = styled.div`
   padding: 20px 24px 0;
-  .ming.Button {
-    padding: 0 16px !important;
-    min-width: 116px !important;
-  }
-  input {
-    font-size: 12px !important;
-    &::-webkit-input-placeholder,
-    &:-moz-placeholder,
-    &::-moz-placeholder,
-    &:-ms-input-placeholder {
-      color: var(--color-text-disabled);
-    }
-  }
 `;
 
 export default function ChartSetting(props) {
@@ -58,9 +45,10 @@ export default function ChartSetting(props) {
           placeholder={_l('将视图链接复制到输入框内')}
           className="flex"
           value={url}
-          onChange={val => setUrl(val)}
+          onChange={e => setUrl(e.target.value)}
         />
         <Button
+          type="primary"
           disabled={!newURL}
           className="mLeft20"
           onClick={() => {
@@ -74,6 +62,7 @@ export default function ChartSetting(props) {
       <div className="flexRow">
         <Input disabled={true} className="flex" value={copyValue} />
         <Button
+          type="primary"
           disabled={!copyValue}
           className="mLeft20"
           onClick={() => {

@@ -1,6 +1,6 @@
 import React from 'react';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import IconSetting from '../components/SplitLineConfig/IconSetting';
 import { SectionItem } from '../components/SplitLineConfig/style';
 

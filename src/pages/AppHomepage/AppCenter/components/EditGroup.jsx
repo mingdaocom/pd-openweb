@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { func, number, string } from 'prop-types';
 import styled from 'styled-components';
-import { Modal, RadioGroup, SvgIcon } from 'ming-ui';
+import { SvgIcon } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import OrgNameMultipleLanguages from 'src/pages/Admin/components/OrgNameMultipleLanguages.jsx';
 
-const RadioGroupComp = styled(RadioGroup)`
-  .ming.Radio {
+const RadioGroupComp = styled(Radio.Group)`
+  .ant-radio-wrapper {
     flex: 1;
   }
 `;
@@ -112,9 +113,8 @@ export default function EditGroup(props) {
 
   return (
     <Modal
-      visible
+      open
       width={480}
-      bodyStyle={{ padding: '16px 24px' }}
       onOk={() => {
         if (!(name || '').trim()) {
           alert(_l('请填写名称'), 3);
@@ -148,12 +148,12 @@ export default function EditGroup(props) {
       <RadioGroupComp
         className="mBottom20"
         // disabled={disabled}
-        data={[
-          { text: _l('个人'), value: 0 },
-          { text: _l('组织'), value: 1, disabled: !hasManageAppAuth },
+        options={[
+          { label: _l('个人'), value: 0 },
+          { label: _l('组织'), value: 1, disabled: !hasManageAppAuth },
         ]}
-        checkedValue={Number(groupType)}
-        onChange={setGroupType}
+        value={Number(groupType)}
+        onChange={event => setGroupType(event.target.value)}
         size="small"
       />
     </Modal>

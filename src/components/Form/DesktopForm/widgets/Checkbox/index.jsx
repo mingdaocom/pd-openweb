@@ -1,41 +1,51 @@
-import React, { Fragment, memo, useCallback, useRef, useState } from 'react';
-import { Select } from 'antd';
+import React, { Fragment, memo, useCallback, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
-import { isLightColor } from 'src/utils/control';
+import { MAX_OPTIONS_COUNT } from 'src/utils/domain/control/config';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
-import { getCheckAndOther } from '../../../core/utils';
 import OtherInput from './OtherInput';
+
+const CHECKBOX_LABEL_STYLE = { paddingInlineEnd: 0 };
+const CHECKBOX_ICON_STYLE = { marginTop: 3 };
+const HORIZONTAL_CHECKBOX_STYLES = {
+  root: { marginRight: 20, marginBottom: 10 },
+  icon: CHECKBOX_ICON_STYLE,
+  label: CHECKBOX_LABEL_STYLE,
+};
+const VERTICAL_CHECKBOX_STYLES = {
+  root: { marginBottom: 10 },
+  icon: CHECKBOX_ICON_STYLE,
+  label: CHECKBOX_LABEL_STYLE,
+};
+const SELECT_LIST_ITEM_STYLE = { padding: '5.5px 12px' };
+
+const mergeSelectStyles = styles => {
+  const mergeStyles = currentStyles => ({
+    ...currentStyles,
+    popup: {
+      ...currentStyles?.popup,
+      listItem: {
+        ...SELECT_LIST_ITEM_STYLE,
+        ...currentStyles?.popup?.listItem,
+      },
+    },
+  });
+
+  return typeof styles === 'function' ? info => mergeStyles(styles(info)) : mergeStyles(styles);
+};
 
 const CheckboxWidgetWrapper = styled.div`
   .selectAllCheckbox {
     display: inline-flex;
     width: fit-content;
     max-width: 100%;
-  }
-
-  .ming.CheckboxGroup > div:nth-child(${props => props.activeIndex}) {
-    .ming.Checkbox {
-      overflow: unset;
-      .Checkbox-text {
-        overflow: hidden;
-      }
-    }
-    .Checkbox-box {
-      ${props =>
-        props.activeIndex
-          ? `outline: 3px solid var(--color-primary-focus-outer);
-        outline-offset: 1px;
-        transition:
-          outline-offset 0s,
-          outline 0s;`
-          : ''}
-    }
   }
 `;
 
@@ -57,12 +67,14 @@ const CheckboxWidgets = props => {
     width,
     type,
     formItemId,
+    isFormDetail,
     createEventHandler = () => {},
   } = props;
   const [isFocus, setIsFocus] = useState(initialIsFocus);
   const [keywords, setKeywords] = useState('');
   const selectRef = useRef(null);
   const checkRef = useRef(null);
+  const selectStyles = useMemo(() => mergeSelectStyles(selectProps?.styles), [selectProps?.styles]);
 
   const {
     direction = '2',
@@ -73,6 +85,7 @@ const CheckboxWidgets = props => {
     chooseothertype,
     allowadd,
   } = advancedSetting;
+  const checkboxStyles = direction === '1' ? VERTICAL_CHECKBOX_STYLES : HORIZONTAL_CHECKBOX_STYLES;
   const [activeIndex, setActiveIndex] = useState(0);
 
   useWidgetEvent(
@@ -105,7 +118,7 @@ const CheckboxWidgets = props => {
               return;
             }
 
-            const optionElements = checkRef.current.querySelectorAll('.ming.Checkbox');
+            const optionElements = checkRef.current.querySelectorAll('.formCheckboxOption');
             const options = [...optionElements];
 
             if (triggerType === 'ArrowRight') {
@@ -144,6 +157,7 @@ const CheckboxWidgets = props => {
         <span
           className={cx(
             'customRadioItem WordBreak ellipsis',
+            { textPrimary: disabled && enumDefault2 !== 1 },
             { textWhite: enumDefault2 === 1 && !isLightColor(item.color) },
             { textBlack: enumDefault2 === 1 && isLightColor(item.color) },
             {
@@ -160,7 +174,7 @@ const CheckboxWidgets = props => {
         </span>
       );
     },
-    [enumDefault2],
+    [disabled, enumDefault2],
   );
 
   const onSave = values => {
@@ -222,25 +236,23 @@ const CheckboxWidgets = props => {
         <div className="flexColumn w100">
           <Checkbox
             key="select-all"
-            className="selectAllCheckbox"
+            className="selectAllCheckbox formCheckboxOption"
             title={_l('全选')}
-            text={<span style={{ paddingTop: '3px', display: 'inline-block' }}>{_l('全选')}</span>}
             value="select-all"
-            clearselected={clearselected}
+            indeterminate={clearselected}
             checked={isChecked}
-            onClick={() => {
+            styles={checkboxStyles}
+            onChange={() => {
               handleSelectAll(displayOptions, isChecked);
             }}
-          />
+          >
+            {<span style={{ paddingTop: '3px', display: 'inline-block' }}>{_l('全选')}</span>}
+          </Checkbox>
         </div>
       );
     }
 
-    return (
-      <Select.Option value="select-all" key="select-all">
-        <span className="ellipsis customRadioItem colorPrimary">{_l('全选')}</span>
-      </Select.Option>
-    );
+    return null;
   };
 
   const pcContent = checkIds => {
@@ -259,16 +271,18 @@ const CheckboxWidgets = props => {
               <div className="flexColumn" style={direction === '0' ? { width: getItemWidth(displayOptions) } : {}}>
                 <div className="flexColumn" style={direction === '0' ? { width: `${itemWidth}px` } : {}}>
                   <Checkbox
-                    className={cx('w100', {
+                    className={cx('w100 formCheckboxOption', {
                       flexWidth: noMaxWidth,
                     })}
                     disabled={disabled}
                     title={item.value}
-                    text={renderList(item, noMaxWidth)}
                     value={item.key}
                     checked={_.includes(checkIds, item.key)}
-                    onClick={handleChange}
-                  />
+                    styles={checkboxStyles}
+                    onChange={event => handleChange(!event.target.checked, item.key, event)}
+                  >
+                    {renderList(item, noMaxWidth)}
+                  </Checkbox>
                 </div>
               </div>
               {item.key === 'other' && (
@@ -309,36 +323,80 @@ const CheckboxWidgets = props => {
       );
     }
 
+    const shouldClearSearchAfterSelect = !!keywords.length && noDelOptions.length === 1;
+
+    const dropdownOptions = [
+      !keywords.length &&
+        allowadd === '1' &&
+        canAddOption && {
+          value: '__allow_add_tip__',
+          disabled: true,
+          className: 'cursorDefault',
+          label: (
+            <span className="ellipsis customRadioItem textTertiary" title={_l('或直接输入添加新选项')}>
+              {_l('或直接输入添加新选项')}
+            </span>
+          ),
+        },
+      !disabled &&
+        showselectall === '1' && {
+          value: 'select-all',
+          label: <span className="ellipsis customRadioItem colorPrimary">{_l('全选')}</span>,
+        },
+      ...noDelOptions.map(item => ({
+        value: item.key,
+        label: renderList(item, true),
+        className: cx({ isEmpty: item.key === 'isEmpty' }),
+      })),
+      !!keywords.length &&
+        !noDelOptions.find(item => item.value === keywords) &&
+        allowadd === '1' &&
+        canAddOption && {
+          value: `add_${keywords}`,
+          label: (
+            <span className="ellipsis customRadioItem colorPrimary" title={_l('添加新的选项：') + keywords}>
+              {_l('添加新的选项：') + keywords}
+            </span>
+          ),
+        },
+    ].filter(Boolean);
+
     return (
       <Fragment>
         <Select
           ref={selectRef}
           mode="multiple"
-          dropdownClassName={dropdownClassName}
+          variant={isFormDetail ? 'filled' : 'outlined'}
+          classNames={{ popup: { root: dropdownClassName } }}
           className={cx('w100 customAntSelect', { optionDisabled: disabled })}
           disabled={disabled}
           showSearch
+          copyable
           allowClear={checkIds.length > 0}
           autoClearSearchValue={false}
           listHeight={320}
           placeholder={hint}
           value={checkIds}
+          searchValue={keywords}
           tagRender={tagRender}
-          showArrow
-          suffixIcon={<Icon icon="arrow-down-border Font14" />}
           filterOption={() => true}
           notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
           onSearch={keywords => setKeywords(keywords.trim())}
           onKeyDown={createEventHandler}
-          onDropdownVisibleChange={open => {
+          onOpenChange={open => {
             setKeywords('');
-            setIsFocus(open);
+            setIsFocus(!disabled && open);
             !open && selectRef.current.blur();
-            if (open && checkIds.indexOf('isEmpty') > -1) {
+            if (!disabled && open && checkIds.indexOf('isEmpty') > -1) {
               onChange(JSON.stringify([]));
             }
           }}
+          onSelect={() => {
+            if (shouldClearSearchAfterSelect) setKeywords('');
+          }}
           onChange={value => {
+            if (disabled) return;
+
             if (value.indexOf('isEmpty') > -1) {
               onChange(JSON.stringify(['isEmpty']));
               selectRef.current?.blur();
@@ -362,36 +420,9 @@ const CheckboxWidgets = props => {
             onChange(JSON.stringify(value));
           }}
           {...selectProps}
-        >
-          {!keywords.length && allowadd === '1' && canAddOption && (
-            <Select.Option disabled className="cursorDefault">
-              <span className="ellipsis customRadioItem textTertiary" title={_l('或直接输入添加新选项')}>
-                {_l('或直接输入添加新选项')}
-              </span>
-            </Select.Option>
-          )}
-
-          {renderSelectAll()}
-
-          {noDelOptions.map(item => {
-            return (
-              <Select.Option value={item.key} key={item.key} className={cx({ isEmpty: item.key === 'isEmpty' })}>
-                {renderList(item, true)}
-              </Select.Option>
-            );
-          })}
-
-          {!!keywords.length &&
-            !noDelOptions.find(item => item.value === keywords) &&
-            allowadd === '1' &&
-            canAddOption && (
-              <Select.Option value={`add_${keywords}`}>
-                <span className="ellipsis customRadioItem colorPrimary" title={_l('添加新的选项：') + keywords}>
-                  {_l('添加新的选项：') + keywords}
-                </span>
-              </Select.Option>
-            )}
-        </Select>
+          styles={selectStyles}
+          options={dropdownOptions}
+        />
         {!isSheet && (
           <OtherInput
             disabled={disabled}
@@ -418,23 +449,27 @@ const CheckboxWidgets = props => {
       <span
         key={tagValue}
         className={cx(
-          'mTop5 mBottom5 mRight5',
+          enumDefault2 === 1 ? (isLightColor(currentItem.color) ? 'textBlack' : 'textWhite') : '',
           {
-            textWhite: enumDefault2 === 1 && !isLightColor(currentItem.color),
             isEmpty: tagValue === 'isEmpty',
           },
-          enumDefault2 === 1 || isFocus ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
+          enumDefault2 === 1 || isFocus
+            ? 'customAntDropdownTitleWithBG multiLineDropdownTitle hap-select-selection-item'
+            : 'customAntDropdownTitle multiLineDropdownTitle hap-select-selection-item',
         )}
         style={{
           background: enumDefault2 === 1 ? currentItem.color : isFocus ? 'var(--color-background-tertiary)' : '',
         }}
         title={label}
       >
-        <div className="Font13" style={{ color: enumDefault2 !== 1 ? 'var(--color-text-primary)' : '' }}>
+        <div
+          className="Font13 multiSelectTagText"
+          style={{ color: enumDefault2 !== 1 ? 'var(--color-text-primary)' : '' }}
+        >
           {label}
           {enumDefault2 !== 1 && !isFocus && tagValue !== checkIds[checkIds.length - 1] && ','}
         </div>
-        {isFocus && (
+        {isFocus && !disabled && (
           <Icon
             icon={cx('close Font14 mLeft5 pointer', {
               textWhite: enumDefault2 === 1 ? !isLightColor(currentItem.color) : window.themeMode === 'dark',
@@ -445,7 +480,7 @@ const CheckboxWidgets = props => {
             }}
             onClick={onClose}
             hint={_l('删除')}
-            style={{ marginRight: -3, lineHeight: '24px' }}
+            style={{ marginRight: -3 }}
           />
         )}
       </span>
@@ -469,7 +504,7 @@ const CheckboxWidgets = props => {
       )}
       style={{ height: 'auto' }}
       onClick={onConClick}
-      activeIndex={activeIndex}
+      $activeIndex={activeIndex}
     >
       <div
         className={cx('ming CheckboxGroup', {
@@ -500,13 +535,14 @@ CheckboxWidgets.propTypes = {
   onConClick: PropTypes.func,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   type: PropTypes.number,
+  isFormDetail: PropTypes.bool,
 };
 
 const CheckboxComp = autoSize(CheckboxWidgets, { onlyWidth: true });
 
 export default memo(CheckboxComp, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'width', 'disabled', 'options']),
-    _.pick(nextProps, ['value', 'width', 'disabled', 'options']),
+    _.pick(prevProps, ['value', 'width', 'disabled', 'options', 'isFormDetail', 'selectProps']),
+    _.pick(nextProps, ['value', 'width', 'disabled', 'options', 'isFormDetail', 'selectProps']),
   );
 });

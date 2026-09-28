@@ -1,34 +1,18 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Divider } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { CAN_NOT_AS_VIEW_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { Icon } from 'ming-ui';
+import { Checkbox, Divider, Select, Tooltip } from 'ming-ui/antd-components';
 import { getCanSelectColumnsForSort, getSortTypes } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { SYSTEM_CONTROL_WITH_UAID } from 'src/utils/domain/control/widget';
+import { CAN_NOT_AS_VIEW_SORT } from 'src/utils/domain/worksheet/view';
 import SortConditions from '../SortConditions';
 
-const Wrap = styled.div`
-  .custom {
-    padding: 0 12px;
-    height: 36px;
-    line-height: 36px;
-    background: var(--color-background-primary);
-    border-radius: 3px 3px 3px 3px;
-    border: 1px solid var(--color-border-primary);
-    display: inline-block;
-    &:hover {
-      border: 1px solid var(--color-primary);
-      color: var(--color-primary);
-    }
-  }
-  .AddSortCon .Dropdown--input {
-    padding: 0 !important;
-  }
-`;
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
+const Wrap = styled.div``;
 
 export default function (props) {
   const { appId, columns, view = {}, updateCurrentView } = props;
@@ -53,7 +37,7 @@ export default function (props) {
         ? safeParse(_.get(view, 'advancedSetting.defaultsort'))
         : { controlId: 'ctime', isAsc: false },
     });
-  }, [view]);
+  }, [view, setState]);
 
   const handleAddCondition = value => {
     const newSortCondition = {
@@ -87,23 +71,30 @@ export default function (props) {
       <div className="commonConfigItem">
         <div className="Bold Font14 mTop24">{_l('自定义排序')}</div>
         {moreSort.length <= 0 ? (
-          <Dropdown
-            openSearch
-            isAppendToBody
-            menuStyle={{ width: 200 }}
-            className="flex mRight10 AddSortCon"
-            data={canSortLIst.map(c => ({
-              text: c.controlName,
+          <Select
+            showPopupSearch
+            optionFilterProp="label"
+            style={{ width: 150 }}
+            className="mTop16 mRight10"
+            value={undefined}
+            placeholder={
+              <span className="textPrimary">
+                <Icon type="add" />
+                <span className="mLeft3">{_l('自定义排序')}</span>
+              </span>
+            }
+            options={canSortLIst.map(c => ({
+              label: c.controlName,
               value: c.controlId,
-              itemContentStyle: { padding: '0 0 0 30px' },
               iconName: getIconByType(c.type),
             }))}
-            renderPointer={() => {
+            optionRender={option => {
+              const { iconName, label } = option.data || {};
               return (
-                <span className={'custom mTop16 hoverColorPrimary TxtCenter Hand textPrimary'}>
-                  <Icon type="add" className="" />
-                  <span className="mLeft3">{_l('自定义排序')}</span>
-                </span>
+                <div className="flexRow alignItemsCenter">
+                  <Icon icon={iconName} className="Font16 textTertiary" />
+                  <span className="mLeft10">{label}</span>
+                </div>
               );
             }}
             onChange={value => handleAddCondition(value)}
@@ -144,15 +135,24 @@ export default function (props) {
           )}
         </div>
         <div className="flexRow mTop16">
-          <Dropdown
-            border
-            openSearch
-            isAppendToBody
+          <Select
+            showPopupSearch
+            optionFilterProp="text"
             disabled={_.get(view, 'advancedSetting.closedefsort') === '1'}
-            menuStyle={{ width: 200 }}
+            popupMatchSelectWidth={200}
             className="flex mRight10 filterColumns"
             value={defaultsort.controlId}
-            data={getCanSelectColumnsForSort(defaultsort.controlId, defaultColumns)}
+            options={getCanSelectColumnsForSort(defaultsort.controlId, defaultColumns)}
+            fieldNames={SELECT_FIELD_NAMES}
+            optionRender={option => {
+              const item = option.data || {};
+              return (
+                <div className="flexRow alignItemsCenter">
+                  <Icon icon={item.iconName} className="Font16 textTertiary" />
+                  <span className="mLeft10">{item.text}</span>
+                </div>
+              );
+            }}
             onChange={value => {
               if (value !== defaultsort.controlId) {
                 changeAdvancedSettingForView({
@@ -164,13 +164,12 @@ export default function (props) {
               }
             }}
           />
-          <Dropdown
-            border
-            isAppendToBody
+          <Select
             disabled={_.get(view, 'advancedSetting.closedefsort') === '1'}
             className="flex mRight6"
             value={defaultsort.isAsc ? 2 : 1}
-            data={getSortTypes(defaultsort.controlId, defaultColumns)}
+            options={getSortTypes(defaultsort.controlId, defaultColumns)}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => {
               if (value !== (defaultsort.isAsc ? 2 : 1)) {
                 changeAdvancedSettingForView({
@@ -184,25 +183,26 @@ export default function (props) {
           />
         </div>
         {moreSort.length > 0 && (
-          <div className="mTop13 flowRow alignItemsCenter justifyContentCenter">
+          <div className="mTop13 flexRow alignItemsCenter">
             <Checkbox
               disabled={moreSort.length <= 0}
               className="checkBox InlineFlex"
-              text={_l('不追加默认排序')}
               checked={_.get(view, 'advancedSetting.closedefsort') === '1'}
-              onClick={() => {
+              onChange={() => {
                 changeAdvancedSettingForView({
                   closedefsort: _.get(view, 'advancedSetting.closedefsort') === '1' ? '0' : '1',
                 });
               }}
-            />
+            >
+              {_l('不追加默认排序')}
+            </Checkbox>
             <Tooltip
               placement="bottom"
               title={_l(
                 '当可以保证配置的自定义排序严格有序，或已经为自定义排序创建了索引时，可以勾选不追加默认排序。注意：如果不满足以上条件就取消了追加的默认排序，可能会因为同顺序下有多条记录，而导致翻页时数据缺少或重复。',
               )}
             >
-              <Icon icon="info" className="textTertiary helpIcon Font18 mLeft8 " />
+              <Icon icon="help" className="textTertiary helpIcon Font18" />
             </Tooltip>
           </div>
         )}

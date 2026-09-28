@@ -1,7 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog, FunctionWrap, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Modal, Radio } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import homeApp from 'src/api/homeApp';
 
 const SelectWorksheet = props => {
@@ -21,9 +23,9 @@ const SelectWorksheet = props => {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={640}
-      visible
+      open
       title={_l('使用范围')}
       onOk={() => {
         onOk(
@@ -37,25 +39,31 @@ const SelectWorksheet = props => {
         return (
           <Fragment key={o.type}>
             <div className={cx({ mTop15: o.type !== 0 })}>
-              <Radio className="bold" text={o.name} checked={type === o.type} onClick={() => setType(o.type)} />
+              <Radio className="bold" checked={type === o.type} onChange={() => setType(o.type)} title={o.name}>
+                {o.name}
+              </Radio>
             </div>
 
             {o.type === 1 && type === 1 && (
-              <ScrollView>
+              <ScrollView style={{ maxHeight: 400 }}>
                 {!worksheetList.length ? (
                   <LoadDiv className="mTop15" />
                 ) : (
                   worksheetList.map(o => (
-                    <Checkbox
-                      className="mTop15 mLeft30"
-                      text={o.workSheetName}
-                      checked={_.includes(worksheetIds, o.workSheetId)}
-                      onClick={checked =>
-                        setWorksheetIds(
-                          checked ? worksheetIds.filter(id => id !== o.workSheetId) : [...worksheetIds, o.workSheetId],
-                        )
-                      }
-                    />
+                    <div className="mTop15 mLeft30" key={o.workSheetId}>
+                      <Checkbox
+                        checked={_.includes(worksheetIds, o.workSheetId)}
+                        onChange={event =>
+                          setWorksheetIds(
+                            !event.target.checked
+                              ? worksheetIds.filter(id => id !== o.workSheetId)
+                              : [...worksheetIds, o.workSheetId],
+                          )
+                        }
+                      >
+                        {o.workSheetName}
+                      </Checkbox>
+                    </div>
                   ))
                 )}
               </ScrollView>
@@ -63,8 +71,10 @@ const SelectWorksheet = props => {
           </Fragment>
         );
       })}
-    </Dialog>
+    </Modal>
   );
 };
 
-export default props => FunctionWrap(SelectWorksheet, { ...props });
+export function useSelectWorksheetDialog() {
+  return useFunctionWrapComponent(SelectWorksheet);
+}

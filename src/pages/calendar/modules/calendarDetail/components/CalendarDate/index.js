@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
-import CheckBox from 'ming-ui/components/Checkbox';
+import { Checkbox, DatePicker } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import DatePicker from 'ming-ui/components/DatePicker';
 import Icon from 'ming-ui/components/Icon';
 import { formatRecur, formatShowTime } from '../../common';
 import RepeatBox from './RepeatBox';
 
-const RangePicker = DatePicker.RangePicker;
+const TIME_PICKER_CONFIG = { format: 'HH:mm' };
+const RANGE_PICKER_CLASS_NAMES = { popup: { root: 'calendarDateRangePickerPopup' } };
+
 let EditBlock = class EditBlock extends Component {
   constructor() {
     super();
@@ -19,14 +20,21 @@ let EditBlock = class EditBlock extends Component {
 
   handleDateChange(selectValue) {
     const {
-      calendar: { allDay },
+      calendar: { allDay, start, end },
       change,
     } = this.props;
-    const [startTime, endTime] = selectValue;
+    let [startTime, endTime] = selectValue.map(value => value.clone());
 
     if (allDay) {
       startTime.startOf('day');
       endTime.endOf('day');
+    } else if (
+      startTime.isSame(start, 'day') &&
+      !startTime.isSame(start, 'minute') &&
+      endTime.isSame(end, 'minute') &&
+      startTime.isSame(endTime, 'day')
+    ) {
+      endTime = startTime.clone().add(1, 'hour');
     }
 
     this.setState(
@@ -42,69 +50,41 @@ let EditBlock = class EditBlock extends Component {
     );
   }
 
-  renderResult() {
-    const { unSelected } = this.state;
-
-    if (unSelected) {
-      return <span className="editWrapper">{_l('请选择')}</span>;
-    } else {
-      const {
-        calendar: { start, end, allDay },
-      } = this.props;
-      const format = allDay ? 'YYYY-MM-DD (ddd)' : 'YYYY-MM-DD (ddd) HH:mm';
-      return (
-        <span className="editWrapper">
-          {moment(start).format(format)}
-          <span className="mLeft5 mRight5">{_l('至')}</span>
-          {moment(end).format(format)}
-        </span>
-      );
-    }
-  }
-
   render() {
     const {
       calendar: { start, allDay, end, isChildCalendar },
       change,
     } = this.props;
     const { unSelected } = this.state;
-    const rangePickerProps = {
-      offset: {
-        left: -48,
-        top: 5,
-      },
-      popupParentNode: () => this.box,
-      selectedValue: unSelected ? [] : [moment(start), moment(end)],
-      timePicker: !allDay,
-      onOk: selectValue => {
-        this.handleDateChange(selectValue);
-      },
-      onClear: () => {
-        this.setState({
-          unSelected: true,
-        });
-      },
-      autoFillEndTime: 1,
-    };
+
     return (
       <div className="calLine pTop5 pBottom5">
-        <div
-          className="Relative"
-          ref={el => {
-            this.box = el;
+        <DatePicker.RangePicker
+          variant="borderless"
+          classNames={RANGE_PICKER_CLASS_NAMES}
+          format={allDay ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'}
+          showTime={allDay ? false : TIME_PICKER_CONFIG}
+          value={unSelected ? null : [moment(start), moment(end)]}
+          onChange={range => {
+            if (!range) {
+              this.setState({ unSelected: true });
+              return;
+            }
+
+            if (range[0] && range[1]) {
+              this.handleDateChange(range);
+            }
           }}
-        >
-          <RangePicker {...rangePickerProps}>{this.renderResult()}</RangePicker>
-        </div>
+        />
 
         <div className="LineHeight30">
           <span className="formLabel">{_l('全天:')}</span>
           <div className="FormControl TxtMiddle">
-            <CheckBox
+            <Checkbox
               checked={allDay}
-              onClick={checked => {
+              onChange={event => {
                 change({
-                  allDay: !checked,
+                  allDay: event.target.checked,
                 });
               }}
               className="TxtMiddle"
@@ -123,31 +103,6 @@ export default class CalendarDate extends Component {
     this.state = {
       isEditing: false,
     };
-  }
-
-  getSnapshotBeforeUpdate() {
-    if (!this.elem) return null;
-    return $(this.elem).height();
-  }
-
-  componentDidUpdate(prevProps, prevState, prevHeight) {
-    if (!this.elem || prevHeight === null) return;
-    var $elem = $(this.elem);
-    var height = prevHeight;
-    this.elem.style.height = 'auto';
-
-    var _newHeight = $elem.height();
-
-    if (_newHeight !== height) {
-      $elem.height(height);
-      $elem.width();
-      $elem
-        .height(_newHeight)
-        .addClass('overflowHidden')
-        .one('transitionend', function () {
-          $elem.removeClass('overflowHidden');
-        });
-    }
   }
 
   handleClick() {
@@ -189,8 +144,13 @@ export default class CalendarDate extends Component {
           })
         }
         specialFilter={target => {
-          const $el = $(target);
-          return $el.closest('.warpDatePicker').length || $el.closest('.ui-timepicker-list').length;
+          if (!(target instanceof Element)) return false;
+          return (
+            !!target.closest('.calendarDateRangePickerPopup') ||
+            !!target.closest('.calendarRepeatDatePickerPopup') ||
+            !!target.closest('.calendarRepeatSelectPopup') ||
+            !!target.closest('.ui-timepicker-list')
+          );
         }}
       />
     );
@@ -199,14 +159,7 @@ export default class CalendarDate extends Component {
   render() {
     const { isEditing } = this.state;
     return (
-      <div
-        className={cx('calendarDate calRow', {
-          isEditing,
-        })}
-        ref={elem => {
-          this.elem = elem;
-        }}
-      >
+      <div className={cx('calendarDate calRow', { isEditing })}>
         <Icon icon={'bellSchedule'} className="Font19 calIcon" />
         {isEditing ? this.renderEditBlock() : this.renderShowBlock()}
       </div>

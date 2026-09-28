@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import { useDrag } from 'react-dnd-latest';
-import { Checkbox } from 'antd';
 import cx from 'classnames';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 
 const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -18,8 +18,8 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) =
       return;
     }
 
-    Dialog.confirm({
-      title: <span className="Red">{_l('您确定要删除计算字段“%0” ?', item.controlName)}</span>,
+    Modal.confirm({
+      title: <span className="Red textError">{_l('您确定要删除计算字段“%0” ?', item.controlName)}</span>,
       onOk: () => {
         onDelete(item.controlId);
       },

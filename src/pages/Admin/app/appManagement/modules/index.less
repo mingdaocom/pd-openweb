@@ -18,21 +18,10 @@
     display: flex;
     align-items: center;
     margin-top: 14px;
-    line-height: 34px;
     box-sizing: border-box;
-    font-size: 12px;
-    border-radius: 2px;
     .inputBox {
-      border: none;
-      background: var(--color-background-secondary);
-      padding-left: 16px;
       width: 166px;
-      height: 36px;
       margin-right: 16px;
-      &.editInput {
-        background: var(--color-background-primary);
-        border: 1px solid var(--color-primary);
-      }
     }
     // .icon-edit,
     // .icon-content-copy {
@@ -97,36 +86,6 @@
       div {
         height: 14px;
       }
-    }
-  }
-}
-
-.singleItemOption {
-  .selectWrapper {
-    width: 300px;
-    height: 36px;
-    line-height: 34px;
-    .ant-select-selector {
-      height: 36px;
-      display: flex;
-      align-items: center;
-      border-radius: 2px;
-      box-shadow: none !important;
-      font-size: 13px;
-    }
-    .ant-select-arrow {
-      top: 55%;
-      font-size: 8px;
-    }
-    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-      font-weight: unset;
-      color: var(--color-primary);
-      background-color: var(--color-background-primary);
-    }
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-      .ant-select-selector {
-      border-color: var(--color-primary) !important;
     }
   }
 }
@@ -235,37 +194,8 @@
       animation: rotate 3s ease-in-out infinite;
     }
 
-    .exportBtn {
-      width: 95px;
-      height: 36px;
-      line-height: 36px;
-      background: var(--color-primary);
-      border-radius: 18px;
-      &:hover {
-        background: var(--color-link-hover);
-      }
-    }
-
     .passwordInputBox {
       width: 250px;
-      line-height: 34px;
-      border: 1px solid var(--color-primary);
-      border-radius: 3px;
-      padding: 0 12px;
-      box-sizing: border-box;
-    }
-
-    .submitPassword {
-      width: 95px;
-      height: 36px;
-      line-height: 36px;
-      background: var(--color-primary);
-      &.disabled {
-        background: var(--color-text-disabled) !important;
-      }
-      &:hover {
-        background: var(--color-link-hover);
-      }
     }
   }
   .exportBottomOption {
@@ -275,12 +205,6 @@
     .flexCenter {
       display: flex;
       align-items: center;
-    }
-    .importBtn {
-      width: 107px;
-      height: 36px;
-      border-radius: 2px;
-      color: var(--color-white) !important;
     }
   }
 }
@@ -319,18 +243,6 @@
       height: 454px;
       border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
-      .workflowSearchWrap {
-        border-bottom: 1px solid var(--color-border-secondary);
-        margin-bottom: 12px;
-        input {
-          width: 100%;
-          border: none;
-          height: 45px;
-        }
-        i {
-          line-height: 25px;
-        }
-      }
     }
   }
   .selectAppCenterContent {
@@ -341,17 +253,6 @@
     color: var(--color-border-primary);
   }
 }
-.selectAppOptionBtns {
-  .nextBtn {
-    width: 107px;
-    height: 36px;
-    border-radius: 2px;
-    &.disabled {
-      background: var(--color-text-disabled);
-      cursor: not-allowed;
-    }
-  }
-}
 .selectAppSortableItem {
   width: 100%;
   display: flex !important;
@@ -359,6 +260,13 @@
   padding: 6px 12px;
   border-radius: 2px;
   box-sizing: border-box;
+  .selectAppLabel {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    vertical-align: middle;
+  }
   &:hover {
     background: var(--color-background-secondary);
     .grabIcon {
@@ -448,93 +356,14 @@
       width: 432px;
       height: 32px;
       box-sizing: border-box;
-      position: relative;
       display: flex;
       align-items: center;
-      overflow: hidden;
-
-      &.extand {
-        .workflowSearchWrap {
-          opacity: 1;
-          width: 432px;
-          z-index: 1;
-        }
-        .searchBaseBox {
-          opacity: 0;
-        }
-      }
-      &.close {
-        .workflowSearchWrap {
-          opacity: 0;
-          width: 0;
-          z-index: -1;
-        }
-        .searchBaseBox {
-          opacity: 1;
-        }
-      }
 
       .searchBaseBox {
-        position: absolute;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        right: 0;
-        left: 0;
-      }
-      .workflowSearchWrap {
-        position: absolute;
-        width: 0;
-        right: 0;
-        opacity: 0;
-        white-space: nowrap;
-        transition: all 0.4s;
-
-        input {
-          width: 100%;
-          box-sizing: border-box;
-          height: 36px;
-          padding: 0px 28px;
-          border-radius: 4px;
-          border-width: 1px;
-          border-style: solid;
-          &:hover:not(:focus) {
-            border-color: var(--color-text-disabled) !important;
-          }
-          &:not(:hover):not(:focus) {
-            border-color: var(--color-border-primary) !important;
-          }
-          &::-webkit-input-placeholder {
-            font-size: 12px;
-            color: var(--color-text-placeholder);
-          }
-          &::-moz-placeholder {
-            font-size: 12px;
-            color: var(--color-text-placeholder);
-          }
-          &::-moz-placeholder {
-            font-size: 12px;
-            color: var(--color-text-placeholder);
-          }
-          &::-ms-input-placeholder {
-            font-size: 12px;
-            color: var(--color-text-placeholder);
-          }
-        }
-        .icon {
-          position: absolute;
-          top: 11px;
-        }
-        .search {
-          left: 8px;
-        }
-        .close {
-          right: 8px;
-          color: var(--color-text-disabled);
-          &:hover {
-            color: var(--color-text-secondary);
-          }
-        }
+        width: 100%;
       }
 
       .optionItem {

@@ -1,5 +1,5 @@
 import React, { forwardRef, Fragment, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { compatibleMDJS } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/services/project';
 import UploadFiles from '../UploadFiles';
 
 const PhotoRecognition = forwardRef((props, ref) => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
+import { Modal } from 'ming-ui/antd-components';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import WorksheetRecordLogSubTable from './WorksheetRecordLogSubTable';
 import '../WorksheetRecordLogValue.less';
 
@@ -61,15 +61,19 @@ function WorksheetRecordLogSubList(props) {
       <span className={cx('WorksheetRecordLogOpen', { hideEle: isMobile })} onClick={() => setDialog(true)}>
         {_l('查看详情')}
       </span>
-      <Dialog
-        className="worksheetRecordLogSubDialog"
-        style={{ width: '90%', height: '90%', minHeight: '90%', maxWidth: '1600px' }}
-        visible={dialog}
+      <Modal
+        rootClassName="worksheetRecordLogSubDialog"
+        width="90%"
+        styles={{ container: { height: '90%', minHeight: '90%', maxWidth: 1600 } }}
+        open={dialog}
+        mask={{ closable: true }}
+        keyboard
+        footer={null}
         onCancel={() => setDialog(false)}
       >
         <h3 className="tableTitle">{name}</h3>
         <WorksheetRecordLogSubTable {...props} />
-      </Dialog>
+      </Modal>
     </div>
   );
 }

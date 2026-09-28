@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Icon } from 'ming-ui';
-import { useAutoFocus } from '../../../../core/hooks';
+import { useAutoFocus } from 'src/utils/platform/react/interaction';
 import { useCreateKnowledgeStore } from '../../index';
 import { setKnowledgeDesc, setKnowledgeName } from '../../store/actions';
 import './index.less';

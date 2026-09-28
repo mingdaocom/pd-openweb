@@ -5,12 +5,14 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import 'src/pages/AuthService/components/form.less';
 import { WrapCom } from 'src/pages/AuthService/style.jsx';
-import { browserIsMobile } from 'src/utils/common';
-import { getRequest } from 'src/utils/sso';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getRequest } from 'src/utils/services/auth/sso';
 import Container from './Container';
 import Info from './Info';
 import { Wrap, WrapWx } from './style';
@@ -192,6 +194,7 @@ function ContainerCon(props) {
       request = paramForPcWx;
     }
 
+    const lang = getCurrentLang();
     const param = customLink ? { customLink } : {};
     const { mdAppId = '', accountId = '' } = request;
 
@@ -220,10 +223,20 @@ function ContainerCon(props) {
     }
 
     ajaxPromise &&
-      ajaxPromise.then(res => {
-        const { portalSetResult = {}, authorizerInfo = {}, isExist, status, isWXOfficialExist } = res;
+      ajaxPromise.then(async res => {
+        const { portalSetResult = {}, authorizerInfo = {}, isExist, status, isWXOfficialExist, appLangs } = res;
         const { isEnable, appId } = portalSetResult;
-        setAppId(appId);
+        const appLang = _.find(appLangs, { langCode: lang });
+
+        if (appLang?.id) {
+          const data = await appManagementApi
+            .getAppLangForPortalAppInfo({ appId, appLangId: appLang.id }, { silent: true })
+            .catch(() => []);
+          window[`langData-${appId}`] = data;
+        }
+
+        portalSetResult.pageTitle = getTranslateInfo(appId, null, appId).portalTitle || portalSetResult.pageTitle;
+
         setState({
           documentTitle: portalSetResult.pageTitle ? _l('登录/注册 - %0', portalSetResult.pageTitle) : _l('登录/注册'),
         });
@@ -247,7 +260,7 @@ function ContainerCon(props) {
         }
 
         setState({ fixInfo: { fixAccount: res.fixAccount, fixRemark: res.fixRemark }, authorizerInfo });
-        setBaseSetInfo(portalSetResult);
+        setBaseSetInfo({ ...portalSetResult, appLangId: appLang?.id });
         // setBaseSetInfo({ ...portalSetResult, autoLogin: !false });
         setIsWXOfficialExist(isWXOfficialExist);
         if (statusList.includes(status)) {
@@ -371,7 +384,7 @@ function ContainerCon(props) {
   };
 
   return (
-    <WrapCom className="h100">
+    <WrapCom className={cx({ h100: window.platformENV.isOverseas || window.platformENV.isLocal })}>
       <Wrap
         style={
           baseSetInfo.backGroundType !== 6

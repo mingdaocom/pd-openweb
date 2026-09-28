@@ -1,14 +1,12 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import antd from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Dropdown, Icon } from 'ming-ui';
-import Config from 'src/pages/chat/utils/config';
+import { Icon } from 'ming-ui';
+import { Dropdown, Popover } from 'ming-ui/antd-components';
 import * as socket from 'src/pages/chat/utils/socket';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import * as actions from '../../../redux/actions';
 import { TYPE_GROUP, TYPES } from '../constants';
 import InboxFilter from './baseComponent/inboxFilter';
@@ -36,31 +34,43 @@ class InboxHeader extends React.Component {
     const parsedData = _.map(dropdownData, key => {
       const dict = TYPE_GROUP[inboxType];
       return {
-        text: dict[key],
+        label: dict[key],
         value: key,
       };
     });
 
     if (parsedData.length <= 1) {
-      return <span>{parsedData[0].text}</span>;
+      return <span>{parsedData[0].label}</span>;
     } else {
+      const currentLabel = _.get(
+        _.find(parsedData, item => item.value === type),
+        'label',
+      );
+
       return (
-        <span>
-          {_.get(
-            _.find(parsedData, l => l.value === type),
-            'text',
-          )}
-          <Dropdown
-            value={type}
-            data={parsedData}
-            menuStyle={{ left: '0 !important', transform: 'translateX(-50%)' }}
-            renderTitle={() => ''}
-            onChange={data => {
-              this.handleClick(false);
-              changeType(data);
-            }}
-          />
-        </span>
+        <Dropdown
+          trigger={['click']}
+          placement="bottom"
+          menu={{
+            selectable: true,
+            selectedKeys: [type],
+            items: parsedData.map(item => ({
+              key: item.value,
+              label: item.label,
+              onClick: () => {
+                this.handleClick(false);
+                changeType(item.value);
+              },
+            })),
+          }}
+        >
+          <span className="flexRow alignItemsCenter">
+            <span>{currentLabel}</span>
+            <span className="InlineBlock mLeft6">
+              <Icon icon="arrow-down-border" className="Font12 textTertiary" />
+            </span>
+          </span>
+        </Dropdown>
       );
     }
   }
@@ -124,7 +134,7 @@ class InboxHeader extends React.Component {
     }
   };
 
-  renderMenu = () => {
+  renderMenuItems = () => {
     const { currentSession } = this.props;
     const { top_info, type, isPush, isSilent } = currentSession;
     const isTop = top_info ? top_info.isTop : false;
@@ -132,46 +142,47 @@ class InboxHeader extends React.Component {
     const isPushNoticeValue = type === 2 ? isPush : !isSilent;
 
     if (md.global.Account.isPortal && !isPushNotice) {
-      return null;
+      return [];
     }
 
-    return (
-      <div className="ChatPanel-addToolbar-menu">
-        {!md.global.Account.isPortal && (
-          <div className="menuItem" onClick={this.handleStick.bind(this)}>
-            <i className="icon-set_top" />
-            <div className="menuItem-text ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
-          </div>
-        )}
-
-        {isPushNotice && (
-          <div className="menuItem" onClick={this.handleUpdatePushNotice.bind(this)}>
-            <Icon icon={isPushNoticeValue ? 'notifications_off' : 'notifications'} className="Font16" />
-            <div className="menuItem-text ellipsis">{isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒')}</div>
-          </div>
-        )}
-      </div>
-    );
+    return [
+      !md.global.Account.isPortal
+        ? {
+            key: 'stick',
+            icon: <Icon icon="set_top" className="Font16 textSecondary" />,
+            label: isTop ? _l('取消置顶') : _l('置顶'),
+            onClick: this.handleStick.bind(this),
+          }
+        : null,
+      isPushNotice
+        ? {
+            key: 'pushNotice',
+            icon: (
+              <Icon icon={isPushNoticeValue ? 'notifications_off' : 'notifications'} className="Font16 textSecondary" />
+            ),
+            label: isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒'),
+            onClick: this.handleUpdatePushNotice.bind(this),
+          }
+        : null,
+    ].filter(Boolean);
   };
 
   renderSetting() {
     const { settingVisible } = this.state;
-    const menu = this.renderMenu();
-    if (!menu) return null;
+    const items = this.renderMenuItems();
+    if (!items.length) return null;
 
     return (
-      <Trigger
-        popupVisible={settingVisible}
-        onPopupVisibleChange={this.handleTriggerChange.bind(this)}
-        popupClassName="ChatPanel-Trigger"
-        action={['click']}
-        popupPlacement="bottom"
-        popup={menu}
-        builtinPlacements={Config.builtinPlacements}
-        popupAlign={{ offset: [80, 10] }}
+      <Dropdown
+        align={{ offset: [80, 10] }}
+        menu={{ items, style: { width: 180 } }}
+        open={settingVisible}
+        placement="bottom"
+        trigger={['click']}
+        onOpenChange={this.handleTriggerChange.bind(this)}
       >
         <i className={cx('icon-settings mLeft10 Hand iconSetting', { colorPrimary: settingVisible })} />
-      </Trigger>
+      </Dropdown>
     );
   }
 
@@ -224,12 +235,7 @@ class InboxHeader extends React.Component {
             }}
           />
           {!md.global.Account.isPortal && (
-            <antd.Dropdown
-              overlay={this.renderOverlay()}
-              trigger={['click']}
-              placement="bottomRight"
-              overlayClassName="inboxFilterDropdown"
-            >
+            <Popover trigger="click" placement="bottomRight" destroyOnHidden={false} content={this.renderOverlay()}>
               <div className={cx('filterWrapper flexRow valignWrapper mRight15', { transparent: _.isEmpty(filter) })}>
                 {filter ? (
                   <Fragment>
@@ -248,7 +254,7 @@ class InboxHeader extends React.Component {
                   <Icon className="Font20 textTertiary pointer" icon="filter" />
                 )}
               </div>
-            </antd.Dropdown>
+            </Popover>
           )}
           {!md.global.Account.isPortal && (
             <Icon

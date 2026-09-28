@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { getSummaryInfo } from 'src/utils/record';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Icon } from 'ming-ui';
+import { Popover, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { getSummaryInfo } from 'src/utils/domain/worksheet/record';
 import SelectControl from '../../SelectControl';
 
 const TotalConfigWrap = styled.div`
@@ -36,12 +36,8 @@ const TotalConfigWrap = styled.div`
       height: 36px;
       line-height: 36px;
       border-radius: 3px;
+      background: var(--color-background-tertiary);
       border: 1px solid var(--color-border-primary);
-    }
-    .ming.Dropdown {
-      .Menu.List {
-        width: 100%;
-      }
     }
     .deleteBtn {
       color: var(--color-text-tertiary);
@@ -76,19 +72,18 @@ export default function ReportConfig(props) {
     const currentControl = _.find(controls, c => c.controlId === item.controlId) || {};
     const dropData = getTypeList(item.controlId)
       .filter(_.identity)
-      .map(i => ({ text: i.label, value: i.value }));
+      .map(i => ({ label: i.label, value: i.value }));
     const isDelete = !currentControl.controlName;
     return (
       <div className="totalItem">
         <div className={cx('controlName overflow_ellipsis', { Red: isDelete })}>
           {currentControl.controlName || _l('已删除')}
         </div>
-        <Dropdown
+        <Select
           className="flex"
-          border
           value={isDelete ? undefined : item.type}
           placeholder={isDelete ? <span className="Red">{_l('已删除')}</span> : _l('请选择')}
-          data={dropData}
+          options={dropData}
           onChange={value => {
             const newSettings = reportsetting.map(i => (i.controlId === item.controlId ? { ...i, type: value } : i));
             handleChange(handleAdvancedSettingChange(data, { reportsetting: JSON.stringify(newSettings) }));
@@ -109,15 +104,14 @@ export default function ReportConfig(props) {
   return (
     <TotalConfigWrap>
       {reportsetting.length > 0 && reportsetting.map(r => renderItem(r))}
-      <Trigger
-        action={['click']}
-        popupVisible={visible}
-        onPopupVisibleChange={visible => {
+      <Popover
+        trigger="click"
+        open={visible}
+        onOpenChange={visible => {
           if (isDisabled) return;
           setVisible(visible);
         }}
-        popupStyle={{ width: 350 }}
-        popup={
+        content={
           <SelectControl
             list={filterOnlyShowField(controls).filter(({ controlId, type, sourceControlType, strDefault }) => {
               let currentType = type === 30 ? sourceControlType : type;
@@ -145,20 +139,15 @@ export default function ReportConfig(props) {
             }}
           />
         }
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 3],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
+        placement="bottomLeft"
+        noPadding
+        styles={{ container: { width: 350 } }}
       >
         <div className={cx('addTotalControl pointer', { disabled: isDisabled })}>
           <span className="icon-add Font18" />
           {_l('添加字段')}
         </div>
-      </Trigger>
+      </Popover>
     </TotalConfigWrap>
   );
 }

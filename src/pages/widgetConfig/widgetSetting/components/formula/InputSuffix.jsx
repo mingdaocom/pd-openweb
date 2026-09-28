@@ -1,11 +1,11 @@
 import React from 'react';
 import _ from 'lodash';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { UNIT_TYPE } from '../../../config/setting';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { UNIT_TYPE } from 'src/utils/domain/control/setting';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting } from '../../../util';
-import { handleAdvancedSettingChange } from '../../../util/setting';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function InputSuffix({ data, onChange }) {
   const { unit, dot } = data;
@@ -17,16 +17,22 @@ export default function InputSuffix({ data, onChange }) {
         {_l('单位')}
         {!_.includes(['5'], unit) && (
           <Checkbox
-            size="small"
             checked={setting.autocarry === '1'}
-            onClick={checked => {
+            onChange={event => {
+              const checked = !event.target.checked;
               onChange(
                 handleAdvancedSettingChange(data, {
                   autocarry: checked ? '0' : '1',
-                  ...(!checked ? { prefix: '', suffix: '' } : {}),
+                  ...(!checked
+                    ? {
+                        prefix: '',
+                        suffix: '',
+                      }
+                    : {}),
                 }),
               );
             }}
+            size="small"
           >
             <span style={{ marginRight: '6px' }}>{_l('自动进位')}</span>
             <Tooltip
@@ -44,10 +50,11 @@ export default function InputSuffix({ data, onChange }) {
           </Checkbox>
         )}
       </div>
-      <Dropdown
-        border
+      <Select
+        className="w100"
         value={unit}
-        data={UNIT_TYPE}
+        options={UNIT_TYPE}
+        fieldNames={SELECT_FIELD_NAMES}
         onChange={value => {
           onChange(
             handleAdvancedSettingChange(

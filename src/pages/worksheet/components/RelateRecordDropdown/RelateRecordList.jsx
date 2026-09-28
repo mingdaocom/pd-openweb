@@ -2,15 +2,18 @@
 import _, { find, get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import { Divider } from 'ming-ui/antd-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import ReacordItem from './RecordItem';
+
+const MAX_LIST_HEIGHT = 323;
 
 export default class RelateRecordList extends React.PureComponent {
   static contextType = ChildTableContext;
@@ -94,6 +97,32 @@ export default class RelateRecordList extends React.PureComponent {
         this.handleSearch(this.props.keyWords);
       }
     }
+  }
+
+  get visibleRecords() {
+    const { staticRecords, prefixRecords = [] } = this.props;
+    const { loading, keyWords, records } = this.state;
+
+    if (!_.isEmpty(staticRecords) && keyWords) {
+      return _.filter(staticRecords, row => new RegExp(keyWords, 'i').test(row.name));
+    }
+
+    return (loading ? [] : prefixRecords).concat(records);
+  }
+
+  // 只使用当前搜索词的完整结果，避免防抖、加载和分页期间误清空搜索词。
+  areSearchResultsSelected(keywords, selected) {
+    const { loading, error, keyWords, searchResultKeywords, searchResultsComplete } = this.state;
+    const query = keywords.trim();
+
+    if (!query || loading || error || query !== keyWords) return false;
+    if (_.isEmpty(this.props.staticRecords) && (!searchResultsComplete || searchResultKeywords !== query)) {
+      return false;
+    }
+
+    const records = this.visibleRecords.filter(record => record.rowid !== 'isEmpty');
+    const selectedIds = new Set(selected.map(record => record.rowid));
+    return records.length > 0 && records.every(record => selectedIds.has(record.rowid));
   }
 
   handleEnter = () => {
@@ -322,6 +351,8 @@ export default class RelateRecordList extends React.PureComponent {
             records: newRecords,
             loading: false,
             loadouted: res.data.length < 20,
+            searchResultKeywords: keyWords,
+            searchResultsComplete: res.data.length < args.pageSize,
             controls: res.template ? res.template.controls : [],
             worksheet: res.worksheet || {},
             activeId:
@@ -374,12 +405,10 @@ export default class RelateRecordList extends React.PureComponent {
   render() {
     const {
       appId,
-      style,
       entityName,
       maxHeight,
       isCharge,
       recordId,
-      isMobile,
       control,
       coverCid,
       showControls,
@@ -388,7 +417,6 @@ export default class RelateRecordList extends React.PureComponent {
       selectedIds,
       showCoverAndControls,
       staticRecords,
-      prefixRecords = [],
       onItemClick,
       allowNewRecord,
       onNewRecord,
@@ -401,11 +429,7 @@ export default class RelateRecordList extends React.PureComponent {
       allowNewRecord &&
       allowAdd &&
       !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm'));
-    let records = (loading ? [] : prefixRecords).concat(this.state.records);
-
-    if (!_.isEmpty(staticRecords) && keyWords) {
-      records = _.filter(staticRecords, row => new RegExp(keyWords, 'i').test(row.name));
-    }
+    const records = this.visibleRecords;
 
     // if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
     //   return null;
@@ -413,23 +437,17 @@ export default class RelateRecordList extends React.PureComponent {
     const createRecordName =
       getTranslateInfo(appId, null, control.dataSource).createBtnName || _.get(worksheet, 'advancedSetting.btnname');
     const recordItemHeight = showCoverAndControls && showControls.length ? 56 : 36;
+    // 向上展开时浮层只能用单元格上方的空间，这里只作为高度上限。
+    // 直接拿它当 height 会让 loading 阶段先撑到固定高，数据回来后再缩回实际高度
+    const listMaxHeight = Math.min(maxHeight ? maxHeight - 48 - 10 : MAX_LIST_HEIGHT, MAX_LIST_HEIGHT);
     let recordListHeight = records.length * recordItemHeight + 12;
-
-    if (maxHeight) {
-      recordListHeight = maxHeight - 48 - 10;
-    }
 
     if (records.length === 1) {
       recordListHeight = 'auto';
     }
 
     return (
-      <div
-        className="RelateRecordList flexColumn"
-        ref={this.con}
-        style={_.assign({}, style, isMobile ? { width: window.innerWidth } : {})}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="RelateRecordList flexColumn" ref={this.con} onClick={e => e.stopPropagation()}>
         <div
           className="flexColumn"
           style={{
@@ -440,7 +458,7 @@ export default class RelateRecordList extends React.PureComponent {
                   ? 300
                   : 100
                 : 50,
-            height: recordListHeight > 323 ? 323 : recordListHeight,
+            height: recordListHeight > listMaxHeight ? listMaxHeight : recordListHeight,
           }}
         >
           <div className="flex flexColumn listCon minHeight0" onClick={e => e.stopPropagation()}>
@@ -522,26 +540,28 @@ export default class RelateRecordList extends React.PureComponent {
             </ScrollView>
           </div>
         </div>
-        <div style={{ borderTop: '1px solid var(--color-border-primary)' }} />
         {(!error || error === 'notCorrectCondition') && (showCreateRecord || showDialogSelect) && (
-          <div className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}>
-            {showCreateRecord && (
-              <div
-                onClick={e => {
-                  e.stopPropagation();
-                  this.setState({ activeId: undefined });
-                  onNewRecord(e);
-                }}
-              >
-                <i className="icon icon-plus mRight5"></i>
-                {createRecordName ||
-                  (control && control.sourceBtnName) ||
-                  entityName ||
-                  worksheet.entityName ||
-                  (control && control.sourceEntityName)}
-              </div>
-            )}
-          </div>
+          <>
+            <Divider style={{ margin: 0 }} />
+            <div className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}>
+              {showCreateRecord && (
+                <div
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.setState({ activeId: undefined });
+                    onNewRecord(e);
+                  }}
+                >
+                  <i className="icon icon-plus mRight5"></i>
+                  {createRecordName ||
+                    (control && control.sourceBtnName) ||
+                    entityName ||
+                    worksheet.entityName ||
+                    (control && control.sourceEntityName)}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     );

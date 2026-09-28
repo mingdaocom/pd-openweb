@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { includes } from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, Modal } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
 import RecordCard from 'src/components/recordCard';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getFilterRelateControls } from 'src/pages/widgetConfig/util';
-import { controlState } from 'src/utils/control';
+import { getFilterRelateControls } from 'src/utils/domain/control/filters';
+import { controlState } from 'src/utils/domain/control/state';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { useRecords } from './useRecords';
 
 const Title = styled.div`
@@ -23,6 +24,8 @@ const RecordsCon = styled.div`
   padding: 0 16px;
   overflow-y: auto;
 `;
+
+const noop = () => {};
 
 function getFilterControls(searchId, keyWords) {
   return searchId && keyWords
@@ -52,7 +55,8 @@ export default function SearchRecordResult({
   filterId,
   searchId,
   keyWords,
-  onClose = () => {},
+  onClose = noop,
+  openRecordInfo,
 } = {}) {
   const [error, setError] = useState(false);
   const { loading, records, controls } = useRecords({
@@ -77,17 +81,16 @@ export default function SearchRecordResult({
       });
       onClose();
     }
-  }, [records]);
+  }, [appId, onClose, openRecordInfo, records, viewId, worksheetId]);
   return (
     <Modal
-      visible
+      open
       verticalAlign="bottom"
       width={window.innerWidth - 20 > 960 ? 960 : window.innerWidth - 20}
-      closeSize={50}
       onCancel={() => {
         onClose();
       }}
-      bodyStyle={{ padding: '0 0 26px', position: 'relative' }}
+      styles={{ body: { padding: '0 0 26px', position: 'relative' } }}
     >
       <Title>{_l('扫码结果')}</Title>
       <RecordsCon>
@@ -129,6 +132,22 @@ export default function SearchRecordResult({
   );
 }
 
-export function showFilteredRecords(props) {
-  functionWrap(SearchRecordResult, props);
+export function useSearchRecordResult() {
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
+  const { open: openSearchRecordResult, holder: searchRecordResultHolder } =
+    useFunctionWrapComponent(SearchRecordResult);
+  const open = useCallback(
+    props => openSearchRecordResult({ ...props, openRecordInfo }),
+    [openRecordInfo, openSearchRecordResult],
+  );
+
+  return {
+    open,
+    holder: (
+      <React.Fragment>
+        {searchRecordResultHolder}
+        {recordInfoHolder}
+      </React.Fragment>
+    ),
+  };
 }

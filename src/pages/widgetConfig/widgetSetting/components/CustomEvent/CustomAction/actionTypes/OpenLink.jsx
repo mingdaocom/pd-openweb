@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, RadioGroup } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../../../../styled';
-import { getAdvanceSetting } from '../../../../../util/setting';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { CustomActionWrap } from '../../style';
 
@@ -33,12 +33,13 @@ export default function OpenLink(props) {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={!message}
       className="SearchWorksheetDialog"
-      overlayClosable={false}
+      mask={{ closable: false }}
       title={_l('打开链接')}
       onCancel={() => setState({ visible: false })}
       onOk={() => {
@@ -69,14 +70,21 @@ export default function OpenLink(props) {
         </SettingItem>
         <SettingItem>
           <div className="settingItemTitle">{_l('打开方式')}</div>
-          <RadioGroup
+          <Radio.Group
             size="middle"
-            checkedValue={advancedSetting.opentype}
-            data={DISPLAY_OPTIONS}
-            onChange={value => setState({ advancedSetting: { ...advancedSetting, opentype: value } })}
+            value={advancedSetting.opentype}
+            options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event =>
+              setState({
+                advancedSetting: {
+                  ...advancedSetting,
+                  opentype: event.target.value,
+                },
+              })
+            }
           />
         </SettingItem>
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

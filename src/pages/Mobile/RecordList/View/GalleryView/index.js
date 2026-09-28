@@ -3,11 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import SheetRows, { WithoutRows } from '../../SheetRows';
 
 class MobileGalleryView extends Component {
@@ -61,12 +62,14 @@ class MobileGalleryView extends Component {
             isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
             worksheetInfo.allowAdd && (
               <Button
+                type="primary"
+                shape="round"
                 className="addRecordBtn valignWrapper mTop10"
+                icon={<Icon icon="add" className="Font22" />}
                 onClick={() => {
                   window.mobileNavigateTo(`/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
                 }}
               >
-                <Icon icon="add" className="Font22 textWhite" />
                 {worksheetInfo.entityName}
               </Button>
             )

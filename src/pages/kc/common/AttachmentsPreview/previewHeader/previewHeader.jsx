@@ -4,8 +4,8 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { defaultWpsPreview, isWpsPreview, validateFileName } from '../../../utils';
 import {
   changePreviewService,
@@ -15,9 +15,12 @@ import {
   updateAllowDownload,
 } from '../actions/action';
 import { LOADED_STATUS, PREVIEW_TYPE } from '../constant/enum';
-import * as previewUtil from '../constant/util';
+import * as previewUtil from '../utils/previewAttachmentHelper';
 import CommonHeader from './CommonHeader';
-import 'rc-trigger/assets/index.css';
+
+// viewUrl 上没有媒体处理指令，追加时必须用 ? / & 另起 query 段；
+// 用 | 会被当成上一个 query 参数（如 token）值的一部分，服务端解析不到指令，静默返回原图
+const getShareImgSrc = viewUrl => `${viewUrl}${String(viewUrl).includes('?') ? '&' : '?'}imageView2/2/w/490`;
 
 class PreviewHeader extends React.Component {
   static propTypes = {
@@ -65,22 +68,24 @@ class PreviewHeader extends React.Component {
         params.name = sourceNode.name;
         params.ext = '.' + sourceNode.ext;
         params.size = sourceNode.size;
-        params.imgSrc = isPicture ? `${attachment.viewUrl}|imageView2/2/w/490` : undefined;
+        params.imgSrc = isPicture ? getShareImgSrc(attachment.viewUrl) : undefined;
         params.node = sourceNode;
       } else if (attachment.previewAttachmentType === 'COMMON') {
         params.id = sourceNode.fileID;
         params.name = sourceNode.originalFilename;
         params.ext = sourceNode.ext;
         params.size = sourceNode.filesize;
-        params.imgSrc = isPicture ? `${attachment.viewUrl}|imageView2/2/w/490` : undefined;
+        params.imgSrc = isPicture ? getShareImgSrc(attachment.viewUrl) : undefined;
         params.node = '';
       } else if (attachment.previewAttachmentType === 'QINIU') {
         params.name = attachment.name;
         params.ext = attachment.ext;
         params.size = sourceNode.size || 0;
-        params.imgSrc = isPicture ? `${attachment.viewUrl}|imageView2/2/w/490` : undefined;
+        params.imgSrc = isPicture ? attachment.viewUrl : undefined;
         params.qiniuPath = sourceNode.path;
-        params.node = sourceNode;
+        params.node = isPicture
+          ? { ...sourceNode, previewUrl: attachment.viewUrl || sourceNode.previewUrl }
+          : sourceNode;
       }
 
       share.default(params, {
@@ -158,12 +163,28 @@ class PreviewHeader extends React.Component {
     const isRecordFileNewTab =
       location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1; // 记录内附件新开页
     const showEdit =
-      md.global.Config.EnableDocEdit &&
+      (md.global.Config.EnableDocEdit || window.platformENV.isHap) &&
       allowEdit &&
       (featureType || isRecordFileNewTab) &&
       wpsEditUrl &&
       isWpsPreview(ext, true) &&
       !isDraft; // （编辑授权指标||新开页）&可编辑权限&可编辑文档类型&非草稿箱
+    const kcVersionPanel =
+      showKcVersionPanel && _.isFunction(extra.renderKcVersionPanel)
+        ? extra.renderKcVersionPanel({
+            attachment: attachment.sourceNode,
+            downloadAttachment: this.downloadAttachment,
+            callback: item => this.props.replaceAttachment(item, this.props.index, 'kc'),
+            onClose: this.props.onClose,
+            performRemoveItems: extra.performRemoveItems || this.props.performRemoveItems,
+            replaceAttachment: (item, outerItem) => {
+              this.props.replaceAttachment(item, this.props.index, 'kc');
+              if (outerItem) {
+                this.props.performUpdateItem(outerItem);
+              }
+            },
+          })
+        : null;
 
     return (
       <CommonHeader
@@ -175,19 +196,7 @@ class PreviewHeader extends React.Component {
           changeEditName: value => this.props.renameFile(value),
           validateFileName: value => validateFileName(value, true, {}, { extLength: ext.length }),
         }}
-        showKcVersionPanel={showKcVersionPanel}
-        attachment={attachment}
-        historyPanelInfo={{
-          performRemoveItems: this.props.performRemoveItems,
-          downloadAttachment: this.downloadAttachment,
-          callback: item => this.props.replaceAttachment(item, this.props.index, 'kc'),
-          replaceAttachment: (item, outerItem) => {
-            this.props.replaceAttachment(item, this.props.index, 'kc');
-            if (outerItem) {
-              this.props.performUpdateItem(outerItem);
-            }
-          },
-        }}
+        kcVersionPanel={kcVersionPanel}
         attachmentActionInfo={{
           cauUseWpsPreview: isWpsPreview(ext) || defaultWpsPreview(ext),
           userWps: isWps,
@@ -206,25 +215,6 @@ class PreviewHeader extends React.Component {
               location.href = wpsEditUrl;
             }
           },
-        }}
-        uploadNewVersion={item => {
-          this.props.replaceAttachment(item, this.props.index, 'kc');
-          this.props.performUpdateItem(item);
-          const mdReplaceAttachment = this.props.extra.mdReplaceAttachment;
-
-          if (typeof mdReplaceAttachment === 'function') {
-            const originAttachment = this.props.originAttachments[this.props.index];
-
-            if (originAttachment) {
-              mdReplaceAttachment(
-                Object.assign({}, originAttachment, {
-                  originalFilename: item.name,
-                  filesize: item.size,
-                  downloadUrl: item.downloadUrl,
-                }),
-              );
-            }
-          }
         }}
         clickShare={() => this.handleShareNode(attachment)}
         addKc={
@@ -287,7 +277,6 @@ class PreviewHeader extends React.Component {
 function mapStateToProps(state) {
   return {
     attachment: state.attachments[state.index],
-    originAttachments: state.originAttachments,
     index: state.index,
     error: state.error,
     extra: state.extra,

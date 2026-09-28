@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Checkbox, Input, Select } from 'antd';
+import React, { useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Icon, MdAntDatePicker } from 'ming-ui';
-import { generateRandomPassword } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Checkbox, DatePicker, Input, Select } from 'ming-ui/antd-components';
+import { generateRandomPassword } from 'src/utils/core/string';
 import './Validity.less';
 
 const alwaysValue = '9999-12-31 23:59:59';
+const DATE_SELECT_STYLES = { root: { paddingInlineStart: 12 } };
 
 const validityDateTypes = [
   {
@@ -57,12 +58,6 @@ export default function Validity(props) {
   const [customPassword, setCustomPassword] = useState(password);
   const isAlways = validTime === alwaysValue || _.isEmpty(validTime);
 
-  useEffect(() => {
-    if (type === 5) {
-      setOpen(true);
-    }
-  }, [type]);
-
   const handleChangePassword = () => {
     if (customPassword.length < 4 || customPassword.length > 8) {
       alert(_l('密码长度4~8位'), 2);
@@ -82,7 +77,7 @@ export default function Validity(props) {
       <div className="flex flexRow alignItemsCenter mRight10">
         <div className="labelName mRight8 nowrap">{_l('链接有效期')}</div>
         {type === 5 ? (
-          <MdAntDatePicker
+          <DatePicker
             showTime={{ format: 'HH:mm' }}
             showNow={false}
             autoFocus={true}
@@ -91,7 +86,6 @@ export default function Validity(props) {
             onOpenChange={setOpen}
             format={'YYYY-MM-DD HH:mm'}
             value={customDate}
-            clearIcon={<Icon icon="cancel" className="textDisabled Font17" />}
             disabledDate={current => {
               if (current) {
                 return current < moment();
@@ -114,9 +108,9 @@ export default function Validity(props) {
           <Select
             value={isAlways ? alwaysValue : validTime ? moment(validTime).format('YYYY-MM-DD HH:mm') : null}
             className="dateSelect"
+            styles={DATE_SELECT_STYLES}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-            allowClear={validTime ? true : false}
-            clearIcon={<Icon icon="cancel" className="textDisabled Font17" />}
+            allowClear={Boolean(validTime)}
             onChange={(value = alwaysValue) => {
               const target = _.find(validityDateTypes, { value });
 
@@ -128,17 +122,21 @@ export default function Validity(props) {
               }
 
               setType(value);
+              if (value === 5) {
+                setOpen(true);
+              }
             }}
-          >
-            {validityDateTypes.map(data => (
-              <Select.Option key={data.value} value={data.value} className="validityDateOption pLeft20 pRight20">
+            options={validityDateTypes.map(data => ({
+              value: data.value,
+              label: (
                 <div className="Font13 ellipsis">
                   <span>{data.label}</span>
                   {data.getSubLabel && <span className="textTertiary mLeft5">{data.getSubLabel()}</span>}
                 </div>
-              </Select.Option>
-            ))}
-          </Select>
+              ),
+              className: 'validityDateOption',
+            }))}
+          />
         )}
       </div>
       <div className="flex flexRow alignItemsCenter">

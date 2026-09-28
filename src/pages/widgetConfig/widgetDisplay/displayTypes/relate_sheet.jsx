@@ -1,11 +1,12 @@
 import React from 'react';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { SYSTEM_CONTROL } from '../../config/widget';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SYSTEM_FIELD_TO_TEXT } from 'src/utils/domain/control/dynamicValueConfig';
+import { getShowControls } from 'src/utils/domain/control/options';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import { CommonDisplay, EditModelWrap } from '../../styled';
-import { isSheetDisplay } from '../../util';
-import { getAdvanceSetting, getShowControls } from '../../util/setting';
 
 export default function RelateSheet({ data = {}, isTab }) {
   const { enumDefault, hint = '', relationControls = [] } = data;
@@ -53,7 +54,7 @@ export default function RelateSheet({ data = {}, isTab }) {
 
     if (isSheetDisplay(data)) {
       return (
-        <EditModelWrap isTab={isTab}>
+        <EditModelWrap $isTab={isTab}>
           {showControls.length > 0 ? (
             <div className="tableWrap" onMouseDown={e => e.stopPropagation()} onMouseMove={e => e.stopPropagation()}>
               <table style={{ width: `${width}px` }}>

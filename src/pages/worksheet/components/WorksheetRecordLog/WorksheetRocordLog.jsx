@@ -1,21 +1,20 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Divider } from 'antd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import filterXSS from 'xss';
-import { Icon, LoadDiv, PreferenceTime, PullToRefreshWrapper, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, PreferenceTime, ScrollView, UserHead } from 'ming-ui';
+import { Divider, Tooltip } from 'ming-ui/antd-components';
+import { PullToRefreshWrapper } from 'ming-ui/antd-mobile-components';
 import sheetAjax from 'src/api/worksheet';
 import ArchivedList from 'src/components/ArchivedList';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getFeatureStatus } from 'src/utils/services/project';
 import AddCondition from '../../common/WorkSheetFilter/components/AddCondition';
 import DatePickSelect from '../DatePickerSelect';
 import ExportTrigger from './component/ExportTrigger';
@@ -141,10 +140,8 @@ function WorksheetRecordLog(props, ref) {
   }, [needWorksheetInfo, worksheetId]);
 
   useEffect(() => {
-    if (!worksheetInfoLoading) {
-      initLog();
-    }
-  }, [props.rowId, props.filterUniqueIds, worksheetInfoLoading]);
+    initLog();
+  }, [props.rowId, props.filterUniqueIds]);
 
   useEffect(() => {
     if (
@@ -500,11 +497,7 @@ function WorksheetRecordLog(props, ref) {
   const renderSelectCon = () => {
     if (!showFilter) return null;
     if (worksheetInfoLoading) {
-      return (
-        <div className={cx('selectCon', 'selectConLoading', { hideEle: isMobile })}>
-          <LoadDiv />
-        </div>
-      );
+      return <div className={cx('selectCon', 'selectConLoading', { hideEle: isMobile })} />;
     }
 
     const featureStatus = getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
@@ -556,9 +549,10 @@ function WorksheetRecordLog(props, ref) {
               }}
               offset={[0, 5]}
             />
-            <Trigger
-              popupVisible={selectDate.visible}
-              onPopupVisibleChange={visible =>
+            <DatePickSelect
+              timePicker
+              open={selectDate.visible}
+              onOpenChange={visible =>
                 setPara({
                   selectDate: {
                     ...selectDate,
@@ -566,15 +560,9 @@ function WorksheetRecordLog(props, ref) {
                   },
                 })
               }
-              action={['click']}
-              popupAlign={{ points: ['tr', 'br'], offset: [0, 5] }}
-              popup={
-                <DatePickSelect
-                  selectedValue={selectDate.range && selectDate.range.value}
-                  timePicker
-                  onChange={onChangeData}
-                />
-              }
+              align={{ offset: [0, 5] }}
+              selectedValue={selectDate.range && selectDate.range.value}
+              onChange={onChangeData}
             >
               <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
                 <Icon icon="event" />
@@ -600,7 +588,7 @@ function WorksheetRecordLog(props, ref) {
                   </React.Fragment>
                 )}
               </span>
-            </Trigger>
+            </DatePickSelect>
           </div>
         )}
         <div className={cx('rightCon', { w100: !_.isEmpty(archivedItem) })}>

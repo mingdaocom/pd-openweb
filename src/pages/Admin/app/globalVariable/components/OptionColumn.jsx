@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -17,36 +17,19 @@ const Wrapper = styled.div`
     }
   }
 `;
-const OptionMenu = styled.div`
-  position: relative !important;
-  width: 220px !important;
-  padding: 6px 0 !important;
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px;
-  background: var(--color-background-card);
-`;
-const MenuItem = styled.div`
-  padding: 0 20px;
-  line-height: 36px;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--color-background-hover);
-  }
-`;
-const RedMenuItem = styled(MenuItem)`
-  color: var(--color-error);
-`;
 
-export default function OptionColumn({ isDirOption, onAdd, onEdit, onDelete, onLog }) {
+export default function OptionColumn({ isDirOption, hideDelete, onAdd, onEdit, onDelete, onLog }) {
   const [visible, setVisible] = useState(false);
 
   const onDeleteVar = () => {
     setVisible(false);
 
-    Dialog.confirm({
-      title: _l('确定删除这个变量？'),
-      buttonType: 'danger',
-      description: (
+    Modal.confirm({
+      title: <span className="textError">{_l('确定删除这个变量？')}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: (
         <div>
           <span>{_l('删除变量后，无法恢复')}</span>
         </div>
@@ -58,54 +41,36 @@ export default function OptionColumn({ isDirOption, onAdd, onEdit, onDelete, onL
 
   return (
     <Wrapper>
-      <Trigger
-        action={['click']}
-        popupClassName="moreOption"
+      <Dropdown
+        trigger={['click']}
+        placement="bottomRight"
         getPopupContainer={() => document.body}
-        popupVisible={visible}
-        onPopupVisibleChange={visible => setVisible(visible)}
-        popupAlign={{
-          points: ['tr', 'bl'],
-          offset: [25, 5],
-          overflow: { adjustX: true, adjustY: true },
+        open={visible}
+        onOpenChange={setVisible}
+        menu={{
+          items: isDirOption
+            ? [{ key: 'add', label: _l('添加变量') }]
+            : [
+                { key: 'edit', label: _l('编辑') },
+                { key: 'log', label: _l('日志') },
+                ...(!hideDelete ? [{ key: 'delete', danger: true, label: _l('删除') }] : []),
+              ],
+          onClick: ({ key }) => {
+            setVisible(false);
+            if (key === 'add') {
+              onAdd();
+            } else if (key === 'edit') {
+              onEdit();
+            } else if (key === 'log') {
+              onLog();
+            } else if (key === 'delete') {
+              onDeleteVar();
+            }
+          },
         }}
-        popup={
-          <OptionMenu>
-            {isDirOption ? (
-              <MenuItem
-                onClick={() => {
-                  setVisible(false);
-                  onAdd();
-                }}
-              >
-                {_l('添加变量')}
-              </MenuItem>
-            ) : (
-              <React.Fragment>
-                <MenuItem
-                  onClick={() => {
-                    setVisible(false);
-                    onEdit();
-                  }}
-                >
-                  {_l('编辑')}
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    setVisible(false);
-                    onLog();
-                  }}
-                >
-                  {_l('日志')}
-                </MenuItem>
-                <RedMenuItem onClick={onDeleteVar}>{_l('删除')}</RedMenuItem>
-              </React.Fragment>
-            )}
-          </OptionMenu>
-        }
       >
         <Icon icon="moreop" className="optionIcon" />
-      </Trigger>
+      </Dropdown>
     </Wrapper>
   );
 }

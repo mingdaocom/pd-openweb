@@ -1,21 +1,18 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { bool, func, number, string } from 'prop-types';
-import Trigger from 'rc-trigger';
+import { any, bool, func, number, object, string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import groupAjax from 'src/api/group';
+import { createControllableOpenHandler, getMergedTriggerEventHandlers } from 'src/utils/platform/react/interaction';
 
 const SelectGroupWrap = styled.div(
-  ({ showType }) => `
+  ({ $showType }) => `
     overflow: hidden;
-    width: ${showType === 1 ? '360px' : '100%'};
-    background-color: var(--color-background-card);
-    border-radius: 4px;
-    box-shadow: ${showType === 1 ? 'var(--shadow-lg)' : 'none'};
+    width: ${$showType === 1 ? '360px' : '100%'};
     padding-top: 16px;
     text-align: left;
     .item,
@@ -57,6 +54,49 @@ const DefaultChildWrap = styled.div`
   margin-right: 10px;
 `;
 
+function getInitialSelectedGroups(defaultValue) {
+  if (!defaultValue) return [];
+
+  const groupIds = _.get(defaultValue, 'shareGroupIds') || [];
+  const projectIds = _.get(defaultValue, 'shareProjectIds') || [];
+  const radioIds = _.get(defaultValue, 'radioProjectIds') || [];
+
+  if (!groupIds.length && !projectIds.length && !radioIds.length) {
+    return [{ id: md.global.Account.accountId, value: _l('仅自己可见'), extra: { isMe: true } }];
+  }
+
+  return groupIds
+    .map(id => ({ id, value: '' }))
+    .concat(projectIds.map(id => ({ id, value: _l('所有同事'), extra: { isProject: true } })));
+}
+
+function getSelectIds(value) {
+  const currentValue = value || {};
+
+  return {
+    shareGroupIds: currentValue.shareGroupIds || [],
+    shareProjectIds: currentValue.shareProjectIds || [],
+    radioProjectIds: currentValue.radioProjectIds || [],
+    isMe: currentValue.isMe !== undefined ? currentValue.isMe : false,
+  };
+}
+
+function getControlledSelectedGroups(value, currentGroups) {
+  if (_.isEmpty(value)) return [];
+
+  const groups = getInitialSelectedGroups(value);
+  if (value.isMe === false && groups.length === 1 && _.get(groups, '0.extra.isMe')) return [];
+
+  return groups.map(group => currentGroups.find(item => item.id === group.id) || group);
+}
+
+function requestGroup(item) {
+  return groupAjax.selectGroup({
+    projectId: item.projectId === 'common' ? '' : item.projectId,
+    withRadio: false,
+  });
+}
+
 export function SelectGroup(props) {
   const {
     projectId,
@@ -67,6 +107,7 @@ export function SelectGroup(props) {
     filterDisabledGroup = false,
     defaultValueAllowChange = true,
     defaultValue = {},
+    lockedValue = defaultValue,
     value,
     showType = 1,
     onChange = () => {},
@@ -75,81 +116,96 @@ export function SelectGroup(props) {
   } = props;
   const projects = (_.get(md, 'global.Account.projects') || []).filter(l => l.licenseType);
   const conRef = useRef();
-  const [loading, setLoading] = useState(false);
+  const requestedListKeyRef = useRef();
+  const [loading, setLoading] = useState(true);
+  const [loadedListKey, setLoadedListKey] = useState();
   const [commonList, setCommonList] = useState([]);
   const [groupData, setGroupData] = useState({});
   const [groupLoading, setGroupLoading] = useState(false);
   const [expandKeys, setExpandKeys] = useState([]);
-  const [selectIds, setSelectIds] = useState({
-    shareGroupIds: defaultValue.shareGroupIds || [],
-    shareProjectIds: defaultValue.shareProjectIds || [],
-    radioProjectIds: defaultValue.radioProjectIds || [],
-    isMe: defaultValue.isMe !== undefined ? defaultValue.isMe : false,
-  });
-
-  useEffect(() => {
-    projectId !== undefined ? getGroup({ projectId }) : getCommonList();
-  }, [projectId]);
-
-  useEffect(() => {
-    if (
-      _.isEmpty(value) &&
-      value &&
-      (selectIds.shareGroupIds.length || selectIds.shareProjectIds.length || selectIds.isMe)
-    ) {
-      setSelectIds({ shareGroupIds: [], shareProjectIds: [], radioProjectIds: [], isMe: false });
-    }
-  }, [value]);
+  const [selectIds, setSelectIds] = useState(() => getSelectIds(defaultValue));
 
   useClickAway(conRef, () => {
     onSave();
     onClose(true);
   });
 
-  const getGroup = item => {
-    projectId !== undefined ? setLoading(true) : setGroupLoading(item.projectId);
-    groupAjax
-      .selectGroup({
-        projectId: item.projectId === 'common' ? '' : item.projectId,
-        withRadio: false,
-      })
-      .then(res => {
-        let data = res.filter(
-          l =>
-            (_.get(l, 'extra.licenseType') !== 0 || !filterDisabledGroup) && (isMe || _.get(l, 'extra.isMe') !== true),
-        );
-
-        if (isAll && item.projectId !== 'common' && item.projectId) {
-          data = [{ id: item.projectId, value: item.companyName, extra: { isProject: true } }].concat(data);
-        }
-
-        if (['common', ''].includes(item.projectId) && isMe) {
-          data = [{ id: md.global.Account.accountId, value: _l('仅自己可见'), extra: { isMe: true } }].concat(data);
-        }
-
-        projectId !== undefined ? setLoading(false) : setGroupLoading(undefined);
-        projectId !== undefined
-          ? setCommonList(data)
-          : setGroupData({
-              ...groupData,
-              [item.projectId]: data,
-            });
-      });
-  };
-
-  const getCommonList = () => {
-    setLoading(true);
-    groupAjax.selectGroupMostFrequent().then(res => {
-      _.remove(res, l => _.get(l, 'extra.isMe'));
-      setCommonList(
-        isMe ? res.concat({ id: md.global.Account.accountId, value: _l('仅自己可见'), extra: { isMe: true } }) : res,
+  const handleGroupResult = React.useCallback(
+    (item, result) => {
+      let data = result.filter(
+        l => (_.get(l, 'extra.licenseType') !== 0 || !filterDisabledGroup) && (isMe || _.get(l, 'extra.isMe') !== true),
       );
-      setLoading(false);
-    });
-  };
+
+      if (isAll && item.projectId !== 'common' && item.projectId) {
+        data = [{ id: item.projectId, value: item.companyName, extra: { isProject: true } }].concat(data);
+      }
+
+      if (['common', ''].includes(item.projectId) && isMe) {
+        data = [{ id: md.global.Account.accountId, value: _l('仅自己可见'), extra: { isMe: true } }].concat(data);
+      }
+
+      projectId !== undefined ? setLoading(false) : setGroupLoading(undefined);
+      projectId !== undefined
+        ? setCommonList(data)
+        : setGroupData(currentGroupData => ({
+            ...currentGroupData,
+            [item.projectId]: data,
+          }));
+    },
+    [filterDisabledGroup, isAll, isMe, projectId],
+  );
+
+  const getGroup = React.useCallback(
+    item => {
+      requestGroup(item).then(res => handleGroupResult(item, res));
+    },
+    [handleGroupResult],
+  );
+
+  const getInitialGroup = React.useCallback(
+    (item, requestKey) => {
+      requestGroup(item).then(res => {
+        if (requestedListKeyRef.current !== requestKey) return;
+
+        handleGroupResult(item, res);
+        setLoadedListKey(requestKey);
+      });
+    },
+    [handleGroupResult],
+  );
+
+  const getCommonList = React.useCallback(
+    requestKey => {
+      groupAjax.selectGroupMostFrequent().then(res => {
+        if (requestKey && requestedListKeyRef.current !== requestKey) return;
+
+        const groups = res.filter(l => !_.get(l, 'extra.isMe'));
+        setCommonList(
+          isMe
+            ? groups.concat({ id: md.global.Account.accountId, value: _l('仅自己可见'), extra: { isMe: true } })
+            : groups,
+        );
+        setLoading(false);
+        requestKey && setLoadedListKey(requestKey);
+      });
+    },
+    [isMe],
+  );
+
+  const listRequestKey = [projectId === undefined ? 'all' : projectId, filterDisabledGroup, isAll, isMe].join('|');
+  const isListLoading = loading || loadedListKey !== listRequestKey;
+
+  useEffect(() => {
+    if (requestedListKeyRef.current === listRequestKey) return;
+
+    requestedListKeyRef.current = listRequestKey;
+    projectId !== undefined ? getInitialGroup({ projectId }, listRequestKey) : getCommonList(listRequestKey);
+  }, [getCommonList, getInitialGroup, listRequestKey, projectId]);
+
+  const currentSelectIds = value === undefined ? selectIds : getSelectIds(value);
 
   const handleSelect = (item, checked) => {
-    let selectObj = _.cloneDeep(selectIds);
+    let selectObj = _.cloneDeep(currentSelectIds);
     let list = [];
 
     if (md.global.Account.accountId === item.id) {
@@ -169,13 +225,13 @@ export function SelectGroup(props) {
 
     if (
       !defaultValueAllowChange &&
-      !_.isEmpty(defaultValue) &&
-      ((md.global.Account.accountId === item.id && !checked) || selectIds.isMe)
+      !_.isEmpty(lockedValue) &&
+      ((md.global.Account.accountId === item.id && !checked) || currentSelectIds.isMe)
     ) {
       selectObj = {
-        shareGroupIds: _.concat(selectObj.shareGroupIds || [], defaultValue.shareGroupIds || []),
-        shareProjectIds: _.concat(selectObj.shareProjectIds || [], defaultValue.shareProjectIds || []),
-        radioProjectIds: _.concat(selectObj.radioProjectIds || [], defaultValue.radioProjectIds || []),
+        shareGroupIds: _.concat(selectObj.shareGroupIds || [], lockedValue.shareGroupIds || []),
+        shareProjectIds: _.concat(selectObj.shareProjectIds || [], lockedValue.shareProjectIds || []),
+        radioProjectIds: _.concat(selectObj.radioProjectIds || [], lockedValue.radioProjectIds || []),
         isMe: selectObj.isMe,
       };
       list = _.concat(selectObj.shareGroupIds, selectObj.shareProjectIds, selectObj.radioProjectIds);
@@ -186,10 +242,13 @@ export function SelectGroup(props) {
   };
 
   const handleExpand = (item, expand) => {
-    setExpandKeys(expand ? expandKeys.concat(item.projectId) : expandKeys.filter(l => l !== item.projectId));
+    setExpandKeys(currentKeys =>
+      expand ? currentKeys.concat(item.projectId) : currentKeys.filter(l => l !== item.projectId),
+    );
 
     if (groupData[item.projectId]) return;
 
+    setGroupLoading(item.projectId);
     getGroup(item);
   };
 
@@ -198,13 +257,15 @@ export function SelectGroup(props) {
       <ul>
         {data.map(l => {
           const checked = (
-            selectIds.isMe ? [md.global.Account.accountId] : selectIds.shareProjectIds.concat(selectIds.shareGroupIds)
+            currentSelectIds.isMe
+              ? [md.global.Account.accountId]
+              : currentSelectIds.shareProjectIds.concat(currentSelectIds.shareGroupIds)
           ).includes(l.id);
           const allProject = _.get(l, 'extra.isProject');
           const showProjectName = key === 'commonList' && allProject;
           const disabled =
             !defaultValueAllowChange &&
-            (defaultValue.shareProjectIds || []).concat(defaultValue.shareGroupIds || []).includes(l.id);
+            (lockedValue.shareProjectIds || []).concat(lockedValue.shareGroupIds || []).includes(l.id);
 
           return (
             <li
@@ -280,8 +341,8 @@ export function SelectGroup(props) {
   };
 
   return (
-    <SelectGroupWrap className="quickSelectGroup" ref={conRef} style={{ height: minHeight }} showType={showType}>
-      {loading ? (
+    <SelectGroupWrap className="quickSelectGroup" ref={conRef} style={{ height: minHeight }} $showType={showType}>
+      {isListLoading ? (
         <LoadDiv />
       ) : (
         <ScrollView className="flex h100">
@@ -294,133 +355,225 @@ export function SelectGroup(props) {
   );
 }
 
-export function SelectGroupTrigger(props) {
+function SelectGroupPopoverContent(props) {
   const {
-    offset = { top: 0, left: 0 },
-    zIndex = 1001,
-    destroyPopupOnHide = false,
+    align,
+    arrow = false,
+    children,
+    className = '',
     defaultValue,
+    destroyOnHidden,
+    destroyPopupOnHide,
+    getPopupContainer,
     hideIcon = false,
     everyoneOnly = false,
+    isDynamic,
+    onBlur,
+    onClick,
+    onClose = () => {},
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
+    onOpenChange = () => {},
+    onChange = () => {},
+    offset,
+    open,
+    placement,
     projectId,
-    className = '',
-    getPopupContainer = triggerNode => triggerNode.parentElement,
+    styles = {},
+    trigger = 'click',
+    uncontrolledVisible,
+    value: externalValue,
+    zIndex,
+    setUncontrolledVisible,
+    ...selectGroupProps
   } = props;
-  const [visible, setVisible] = useState(false);
-  const popupOffset = [offset.left, offset.top];
-  const [value, setValue] = useState([]);
+  const [initialSelectionValue] = useState(() => (externalValue === undefined ? defaultValue : externalValue));
+  const [selectionState, setSelectionState] = useState(() => ({
+    selectedGroups:
+      externalValue === undefined
+        ? getInitialSelectedGroups(defaultValue)
+        : getControlledSelectedGroups(externalValue, []),
+    selectedValue: externalValue !== undefined && _.isEmpty(externalValue) ? undefined : initialSelectionValue,
+  }));
+  const isControlled = _.has(props, 'open');
+  const mergedVisible = isControlled ? open : uncontrolledVisible;
+  const mergedDestroyOnHidden = destroyPopupOnHide === undefined ? destroyOnHidden : destroyPopupOnHide;
+  const mergedAlign = align || (offset ? { offset: [offset.left || 0, offset.top || 0] } : undefined);
+  const mergedPlacement = placement ?? (children ? 'bottomLeft' : 'bottomRight');
+  const selectedGroups =
+    externalValue === undefined
+      ? selectionState.selectedGroups
+      : getControlledSelectedGroups(externalValue, selectionState.selectedGroups);
+  const selectedValue = externalValue === undefined ? selectionState.selectedValue : externalValue;
+
+  const unresolvedGroupId = selectedGroups.length === 1 && !selectedGroups[0].value ? selectedGroups[0].id : undefined;
 
   useEffect(() => {
-    if (!defaultValue) return;
+    if (!unresolvedGroupId) return;
 
-    const group = _.get(defaultValue, 'shareGroupIds') || [];
-    const project = _.get(defaultValue, 'shareProjectIds') || [];
-    const radio = _.get(defaultValue, 'radioProjectIds') || [];
+    let active = true;
+    groupAjax.getGroupInfo({ groupId: unresolvedGroupId }).then(res => {
+      if (!active) return;
 
-    if (!group.length && !project.length && !radio.length) {
-      setValue([{ id: md.global.Account.accountId, value: _l('仅自己可见'), extra: { isMe: true } }]);
-    } else {
-      setValue(
-        group
-          .map(l => ({ id: l, value: '' }))
-          .concat(project.map(l => ({ id: l, value: _l('所有同事'), extra: { isProject: true } }))),
-      );
-    }
-  }, []);
+      setSelectionState(currentState => ({
+        ...currentState,
+        selectedGroups: [{ id: unresolvedGroupId, value: res.name }],
+      }));
+    });
 
-  useEffect(() => {
-    if (projectId === undefined) return;
+    return () => {
+      active = false;
+    };
+  }, [unresolvedGroupId]);
 
-    !defaultValue && setValue([]);
-  }, [projectId]);
-
-  useEffect(() => {
-    if (_.isEmpty(props.value) && props.value && value.length) {
-      setValue([]);
-    }
-  }, [props.value]);
-
-  useEffect(() => {
-    if (value.length !== 1 || value[0].value) return;
-
-    getGroupInfo(value[0].id);
-  }, [value]);
-
-  const getGroupInfo = groupId => {
-    groupAjax.getGroupInfo({ groupId }).then(res => setValue([{ id: groupId, value: res.name }]));
-  };
-
-  const onChange = (selected, item) => {
-    props.onChange(selected, value);
+  const handleChange = (selected, item) => {
+    let nextSelectedGroups;
 
     if (_.isArray(item)) {
-      setValue(item.map(l => ({ id: l, value: '' })));
-      return;
+      nextSelectedGroups = item.map(id => ({ id, value: '' }));
+    } else if (item.id === md.global.Account.accountId || (everyoneOnly && _.get(item, 'extra.isProject'))) {
+      nextSelectedGroups = item.checked ? [item] : [];
+    } else {
+      nextSelectedGroups = item.checked
+        ? selectedGroups
+            .filter(l => l.id !== md.global.Account.accountId && (!everyoneOnly || !_.get(l, 'extra.isProject')))
+            .concat(item)
+        : selectedGroups.filter(l => ![item.id, md.global.Account.accountId].includes(l.id));
     }
 
-    if (item.id === md.global.Account.accountId || (everyoneOnly && _.get(item, 'extra.isProject'))) {
-      setValue(item.checked ? [item] : []);
-    } else {
-      setValue(
-        item.checked
-          ? value
-              .filter(l => l.id !== md.global.Account.accountId && (!everyoneOnly || !_.get(l, 'extra.isProject')))
-              .concat(item)
-          : value.filter(l => ![item.id, md.global.Account.accountId].includes(l.id)),
-      );
-    }
+    setSelectionState({ selectedGroups: nextSelectedGroups, selectedValue: selected });
+    onChange(selected, nextSelectedGroups);
   };
 
+  const handleOpenChange = createControllableOpenHandler({
+    isControlled,
+    onOpenChange,
+    setOpen: setUncontrolledVisible,
+  });
+
+  const handleClose = force => {
+    if (!force && isDynamic) return;
+
+    handleOpenChange(false);
+    onClose(force);
+  };
+
+  const childTriggerEvents = {
+    onBlur,
+    onClick,
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
+  };
+  const childElement = children || (
+    <DefaultChildWrap className={cx('Hand', className)}>
+      {!hideIcon && <Icon icon="eye" className="Font16 textTertiary mRight5" />}
+      <span className="colorPrimary">
+        {selectedGroups.length
+          ? selectedGroups.length === 1
+            ? _.get(selectedGroups[0], 'extra.isProject')
+              ? _l('所有同事')
+              : selectedGroups[0].value
+            : _l('已选择 %0 项', selectedGroups.length)
+          : _l('选择分享范围')}
+      </span>
+      {!hideIcon && <Icon icon="arrow-down-border" className="textTertiary" />}
+    </DefaultChildWrap>
+  );
+  const triggerNode = React.isValidElement(childElement)
+    ? React.cloneElement(
+        childElement,
+        getMergedTriggerEventHandlers(
+          childElement.props,
+          childTriggerEvents,
+          children ? { className: cx(childElement.props.className, className) } : {},
+        ),
+      )
+    : childElement;
+
   return (
-    <Trigger
-      zIndex={zIndex}
-      popupVisible={visible}
-      action={['click']}
-      destroyPopupOnHide={destroyPopupOnHide}
-      popupAlign={{
-        offset: popupOffset,
-        points: ['tl', 'bl'],
-        overflow: { adjustX: true, adjustY: true },
+    <Popover
+      align={mergedAlign}
+      arrow={arrow}
+      destroyOnHidden={mergedDestroyOnHidden}
+      getPopupContainer={getPopupContainer}
+      open={!!mergedVisible}
+      onOpenChange={handleOpenChange}
+      placement={mergedPlacement}
+      noPadding
+      styles={{
+        ..._.omit(styles, 'body'),
+        container: { ...styles.body, ...styles.container },
       }}
-      className={className}
-      popup={
+      trigger={trigger}
+      zIndex={zIndex}
+      content={
         <SelectGroup
-          {...props}
-          onClose={force => {
-            if (!force && props.isDynamic) {
-              return;
-            }
-
-            if (_.isFunction(props.onClose)) {
-              props.onClose();
-            }
-
-            setVisible(false);
-          }}
-          onChange={onChange}
+          {...selectGroupProps}
+          defaultValue={selectedValue}
+          everyoneOnly={everyoneOnly}
+          key={projectId || 'all'}
+          lockedValue={initialSelectionValue}
+          projectId={projectId}
+          value={externalValue}
+          onClose={handleClose}
+          onChange={handleChange}
         />
       }
-      onPopupVisibleChange={setVisible}
-      getPopupContainer={getPopupContainer}
     >
-      {props.children || (
-        <DefaultChildWrap className="Hand">
-          {!hideIcon && <Icon icon="eye" className="Font16 textPlaceholder mRight5" />}
-          <span className="colorPrimary">
-            {value.length
-              ? value.length === 1
-                ? _.get(value[0], 'extra.isProject')
-                  ? _l('所有同事')
-                  : value[0].value
-                : _l('已选择 %0 项', value.length)
-              : _l('选择分享范围')}
-          </span>
-          {!hideIcon && <Icon icon="arrow-down-border" className="font8 textSecondary" />}
-        </DefaultChildWrap>
-      )}
-    </Trigger>
+      {triggerNode}
+    </Popover>
   );
 }
+
+export function SelectGroupPopover(props) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <SelectGroupPopoverContent
+      {...props}
+      key={props.projectId === undefined ? 'all' : props.projectId}
+      uncontrolledVisible={visible}
+      setUncontrolledVisible={setVisible}
+    />
+  );
+}
+
+SelectGroupPopover.propTypes = {
+  align: object,
+  arrow: any,
+  children: any,
+  className: string,
+  destroyOnHidden: bool,
+  destroyPopupOnHide: bool,
+  getPopupContainer: func,
+  onBlur: func,
+  onClick: func,
+  onClose: func,
+  onContextMenu: func,
+  onFocus: func,
+  onMouseDown: func,
+  onMouseEnter: func,
+  onMouseLeave: func,
+  onMouseMove: func,
+  onMouseUp: func,
+  onOpenChange: func,
+  offset: object,
+  open: bool,
+  placement: string,
+  styles: object,
+  trigger: any,
+  zIndex: number,
+};
 
 SelectGroup.propTypes = {
   minHeight: number,
@@ -428,79 +581,7 @@ SelectGroup.propTypes = {
   isAll: bool, // 上是否显示所有同事
   isMe: bool, // 显示我自己
   filterDisabledGroup: bool, // 过滤掉到期网络或群组
-  everyoneOnly: false, // 选择所有同事是否与选择群组互斥
+  everyoneOnly: bool, // 选择所有同事是否与选择群组互斥
   onSave: func, //关闭保存
   onClose: func, //关闭
 };
-
-export default function quickSelectGroup(target, props = {}) {
-  const panelWidth = 360;
-  const panelHeight = 41 + (props.minHeight || 400);
-  let targetLeft;
-  let targetTop;
-  let x = 0;
-  let y = 0;
-  let height = 0;
-  const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
-  const $con = document.createElement('div');
-
-  function setPosition() {
-    if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
-      const rect = target.getBoundingClientRect();
-      height = rect.height;
-      targetLeft = rect.x;
-      targetTop = rect.y;
-      x = targetLeft + (offset.left || 0);
-      y = targetTop + height + (offset.top || 0);
-      if (x + panelWidth > window.innerWidth) {
-        x = targetLeft - 10 - panelWidth;
-      }
-
-      if (y + panelHeight > window.innerHeight) {
-        y = targetTop - panelHeight - 4;
-        if (y < 0) {
-          y = 0;
-        }
-
-        if (targetTop < panelHeight) {
-          x = targetLeft - 10 - panelWidth;
-          if (x < panelWidth) {
-            x = targetLeft + 10 + 36;
-          }
-        }
-      }
-
-      $con.style.position = 'absolute';
-      $con.style.left = x + 'px';
-      $con.style.top = y + 'px';
-      $con.style.zIndex = zIndex;
-    }
-  }
-
-  setPosition();
-  document.body.appendChild($con);
-  const root = createRoot($con);
-
-  function destory() {
-    root.unmount();
-    document.body.removeChild($con);
-  }
-
-  root.render(
-    <SelectGroup
-      {...props}
-      onClose={force => {
-        if (!force && props.isDynamic) {
-          setTimeout(setPosition, 100);
-          return;
-        }
-
-        if (_.isFunction(props.onClose)) {
-          props.onClose();
-        }
-
-        destory();
-      }}
-    />,
-  );
-}

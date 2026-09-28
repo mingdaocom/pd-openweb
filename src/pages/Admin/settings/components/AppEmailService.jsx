@@ -8,7 +8,8 @@ import emailAjax from 'src/api/email';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import AuthAppList from 'src/pages/Admin/components/AuthAppList';
 import SearchApp from 'src/pages/Admin/components/SearchApp/index.js';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const PageWrap = styled.div`
   .filterAppWrap {
@@ -179,8 +180,8 @@ export default function AppEmailService(props) {
               alert(_l('添加应用失败'), 2);
             }
           })
-          .catch(() => {
-            alert(_l('添加应用失败'), 2);
+          .catch(_requestError2 => {
+            alertIfNotUnauthorized(_requestError2, _l('添加应用失败'), 2);
           })
           .finally(() => {
             setServiceOperateLoading(service.id, false);
@@ -206,8 +207,8 @@ export default function AppEmailService(props) {
           alert(_l('移除应用失败'), 2);
         }
       })
-      .catch(() => {
-        alert(_l('移除应用失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('移除应用失败'), 2);
       })
       .finally(() => {
         setServiceOperateLoading(serviceId, false);
@@ -292,6 +293,7 @@ export default function AppEmailService(props) {
             className="filterAppWrap"
             projectId={projectId}
             mode="multiple"
+            value={filterSceneEntityIds}
             onChange={value => {
               setFilterSceneEntityIds(value);
             }}

@@ -1,10 +1,10 @@
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import _ from 'lodash';
-import { LoadDiv, ScrollView, SvgIcon, Switch } from 'ming-ui';
+import { LoadDiv, ScrollView, SearchInput, SvgIcon } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import './iconfont/iconly.css';
 import './index.less';
 
@@ -75,9 +75,14 @@ function IconTabs(props) {
     customIcon: [],
     searchIcon: [],
   });
+  // 输入框即时受控，接口关键词单独防抖，避免输入值被旧关键词反复回写。
+  const [searchValue, setSearchValue] = useState('');
   const [keyword, setKeyword] = useState('');
   const currentIcon = useRef(null);
   const scrollRef = useRef(null);
+  const debouncedSearch = useMemo(() => _.debounce(setKeyword, 500), []);
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
   useEffect(() => {
     return () => {
@@ -375,7 +380,9 @@ function IconTabs(props) {
                 key={item.value}
                 className={cx('navTab', { active: setting.tab === item.value })}
                 onClick={() => {
+                  debouncedSearch.cancel();
                   setSetting({ ...setting, tab: item.value });
+                  setSearchValue('');
                   setKeyword('');
                 }}
               >
@@ -396,17 +403,27 @@ function IconTabs(props) {
               <SearchInput
                 className="searchCon"
                 placeholder={_l('搜索')}
-                value={keyword}
-                onChange={_.debounce(value => {
-                  setKeyword(value);
-                }, 500)}
+                value={searchValue}
+                onChange={value => {
+                  setSearchValue(value);
+
+                  if (value) {
+                    debouncedSearch(value);
+                  } else {
+                    debouncedSearch.cancel();
+                    setKeyword('');
+                  }
+                }}
               />
               <div className="switchCon">
                 <Switch
-                  primaryColor="#1677ff"
                   checked={setting.isLine}
-                  onClick={handleSwitch}
-                  text={setting.isLine ? _l('线框') : _l('填充')}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return handleSwitch(!checked, event);
+                  }}
+                  checkedChildren={setting.isLine ? _l('线框') : _l('填充')}
+                  unCheckedChildren={setting.isLine ? _l('线框') : _l('填充')}
                 />
               </div>
             </Fragment>

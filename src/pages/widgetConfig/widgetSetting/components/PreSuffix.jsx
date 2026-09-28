@@ -1,65 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
-import _ from 'lodash';
-import styled from 'styled-components';
-import WidgetDropdown from '../../components/Dropdown';
-import { UNIT_TYPE } from '../../config/setting';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-
-const PreSuffixWrap = styled.div`
-  display: flex;
-  align-items: center;
-  .selectDropdown {
-    border-radius: 4px 0 0 4px;
-    width: 120px;
-    margin-top: 0;
-  }
-  input {
-    height: 36px;
-    border-left: 0;
-    border-radius: 0 4px 4px 0;
-  }
-`;
+import React, { useState } from 'react';
+import { Input, Select, Space } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { UNIT_TYPE } from 'src/utils/domain/control/setting';
 
 const TYPES = [
   {
-    text: _l('前缀'),
+    label: _l('前缀'),
     value: 'prefix',
   },
   {
-    text: _l('后缀'),
+    label: _l('后缀'),
     value: 'suffix',
   },
 ];
 const types = ['suffix', 'prefix'];
 
-export default function PreSuffix({ data, value, onChange }) {
+function PreSuffixContent({ data, value, onChange }) {
   const setting = getAdvanceSetting(data);
-
-  const getDefaultType = () => {
-    const type = types.find(item => !!setting[item]);
-    return type || 'suffix';
-  };
-
-  const [type, setType] = useState(getDefaultType());
-
-  useEffect(() => {}, [data.controlId]);
-
-  useEffect(() => {
-    if (setting.suffix || setting.prefix) {
-      setType(getDefaultType());
-    }
-  }, [setting.suffix, setting.prefix]);
+  const configuredType = types.find(item => !!setting[item]);
+  const [emptyType, setEmptyType] = useState(configuredType || 'suffix');
+  const type = configuredType || emptyType;
 
   return (
-    <PreSuffixWrap>
-      <WidgetDropdown
-        className="selectDropdown"
+    <Space.Compact block>
+      <Select
+        className="Width120"
         value={type}
-        data={TYPES}
+        options={TYPES}
         onChange={t => {
           if (t === type) return;
-          setType(t);
+          setEmptyType(t);
           const prev = t === 'suffix' ? 'prefix' : 'suffix';
           const text = setting[prev];
           const nextSetting = { [prev]: '', [t]: text };
@@ -67,11 +37,9 @@ export default function PreSuffix({ data, value, onChange }) {
         }}
       />
       <Input
+        className="flex"
         value={value || setting[type]}
-        placeholder={_.get(
-          _.find(UNIT_TYPE, u => u.value === data.unit),
-          'text',
-        )}
+        placeholder={UNIT_TYPE.find(item => item.value === data.unit)?.text}
         onChange={e => {
           onChange(handleAdvancedSettingChange(data, { [type]: e.target.value }));
         }}
@@ -84,6 +52,10 @@ export default function PreSuffix({ data, value, onChange }) {
           }
         }}
       />
-    </PreSuffixWrap>
+    </Space.Compact>
   );
+}
+
+export default function PreSuffix(props) {
+  return <PreSuffixContent key={props.data.controlId} {...props} />;
 }

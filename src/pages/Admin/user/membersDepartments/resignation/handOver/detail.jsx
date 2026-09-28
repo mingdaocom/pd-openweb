@@ -2,11 +2,13 @@ import React from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Button, Checkbox, LoadDiv, UserCard, UserHead } from 'ming-ui';
+import { LoadDiv, UserCard, UserHead } from 'ming-ui';
+import { Button, Checkbox, Dropdown } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import TransferController from 'src/api/transfer';
-import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import Empty from '../../../../common/TableEmpty';
 import PaginationWrap from '../../../../components/PaginationWrap';
 
@@ -60,7 +62,7 @@ const defaultWorksheetState = {
   currentWorksheetType: 5,
 };
 
-export const callDialogSelectUser = function (projectId, callback = () => { }) {
+export const callDialogSelectUser = function (projectId, callback = () => {}) {
   dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
@@ -402,12 +404,15 @@ export default class Detail extends React.Component {
               </li>
             );
           })}
-          <Trigger
-            action={['click']}
-            popupVisible={showMenuList}
-            onPopupVisibleChange={visible => this.setState({ showMenuList: visible })}
-            popupAlign={{ points: ['tl', 'bl'], offset: [0, -30] }}
-            popup={this.renderOATabs}
+          <Dropdown
+            trigger={['click']}
+            open={showMenuList}
+            onOpenChange={visible => this.setState({ showMenuList: visible })}
+            menu={{
+              items: this.getOATabItems(),
+              selectable: true,
+              selectedKeys: [`${this.state.currentOAType}`],
+            }}
           >
             <li
               className={classNames('listItem Relative', { active: currentType === TYPES.OA })}
@@ -432,7 +437,7 @@ export default class Detail extends React.Component {
                 <i className="icon-arrow-down-border Font10"></i>
               </span>
             </li>
-          </Trigger>
+          </Dropdown>
         </ul>
         <span
           className="Right  colorPrimary Font13 Hand adminHoverColor"
@@ -446,53 +451,47 @@ export default class Detail extends React.Component {
     );
   }
 
-  renderOATabs = () => {
-    const { currentType, currentOAType } = this.state;
-    if (currentType !== TYPES.OA) return null;
-    return (
-      <div className="clearfix oaFilterList Font13">
-        <div className="typeList">
-          <span
-            onClick={() => {
-              this.setState({
-                pageIndex: 1,
-                currentOAType: 1,
-                currentOACompleteType: OA_COMPLETE_TYPES.ALL,
-                showMenuList: !this.state.showMenuList,
-              });
-            }}
-          >
-            {_l('表单')}
-          </span>
-          <span
-            className={classNames('colorPrimary', { active: currentOAType === 2 })}
-            onClick={() => {
-              this.setState({
-                pageIndex: 1,
-                currentOAType: 2,
-                currentOACompleteType: OA_COMPLETE_TYPES.UNDONE,
-                showMenuList: !this.state.showMenuList,
-              });
-            }}
-          >
-            {_l('流程')}
-          </span>
-          <span
-            className={classNames('colorPrimary', { active: currentOAType === 3 })}
-            onClick={() => {
-              this.setState({
-                pageIndex: 1,
-                currentOAType: 3,
-                currentOACompleteType: OA_COMPLETE_TYPES.UNDONE,
-                showMenuList: !this.state.showMenuList,
-              });
-            }}
-          >
-            {_l('角色')}
-          </span>
-        </div>
-      </div>
-    );
+  getOATabItems = () => {
+    if (this.state.currentType !== TYPES.OA) return [];
+
+    return [
+      {
+        key: '1',
+        label: _l('表单'),
+        onClick: () => {
+          this.setState({
+            pageIndex: 1,
+            currentOAType: 1,
+            currentOACompleteType: OA_COMPLETE_TYPES.ALL,
+            showMenuList: !this.state.showMenuList,
+          });
+        },
+      },
+      {
+        key: '2',
+        label: _l('流程'),
+        onClick: () => {
+          this.setState({
+            pageIndex: 1,
+            currentOAType: 2,
+            currentOACompleteType: OA_COMPLETE_TYPES.UNDONE,
+            showMenuList: !this.state.showMenuList,
+          });
+        },
+      },
+      {
+        key: '3',
+        label: _l('角色'),
+        onClick: () => {
+          this.setState({
+            pageIndex: 1,
+            currentOAType: 3,
+            currentOACompleteType: OA_COMPLETE_TYPES.UNDONE,
+            showMenuList: !this.state.showMenuList,
+          });
+        },
+      },
+    ];
   };
 
   renderWorkSheetTabs() {
@@ -563,7 +562,8 @@ export default class Detail extends React.Component {
               <td width="10%">
                 <Checkbox
                   checked={!!(selectItems && selectItems[item.sourceId])}
-                  onClick={checked => {
+                  onChange={event => {
+                    const checked = !event.target.checked;
                     this.setState(prevState => {
                       if (checked) {
                         const { [item.sourceId]: others } = prevState.selectItems;
@@ -571,7 +571,12 @@ export default class Detail extends React.Component {
                           selectItems: others,
                         };
                       } else {
-                        return { selectItems: { ...prevState.selectItems, [item.sourceId]: item } };
+                        return {
+                          selectItems: {
+                            ...prevState.selectItems,
+                            [item.sourceId]: item,
+                          },
+                        };
                       }
                     });
                   }}
@@ -661,7 +666,8 @@ export default class Detail extends React.Component {
               <th width="10%">
                 <Checkbox
                   checked={isAllChecked}
-                  onClick={checked => {
+                  onChange={event => {
+                    const checked = !event.target.checked;
                     _.isArray(list) &&
                       _.each(list, item => {
                         this.setState(prevState => {
@@ -671,7 +677,12 @@ export default class Detail extends React.Component {
                               selectItems: others,
                             };
                           } else {
-                            return { selectItems: { ...prevState.selectItems, [item.sourceId]: item } };
+                            return {
+                              selectItems: {
+                                ...prevState.selectItems,
+                                [item.sourceId]: item,
+                              },
+                            };
                           }
                         });
                       });
@@ -728,8 +739,8 @@ export default class Detail extends React.Component {
           <div className="flexRow originalCharger">{this.renderUser()}</div>
           <div>
             <Button
-              className="postBtn"
-              size="medium"
+              type="primary"
+              shape="round"
               onClick={() => {
                 callDialogSelectUser(projectId, users => {
                   TransferController.transferAllOneClick({
@@ -746,8 +757,8 @@ export default class Detail extends React.Component {
                         throw new Error();
                       }
                     })
-                    .catch(() => {
-                      alert(_l('操作失败'), 2);
+                    .catch(_requestError => {
+                      alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
                     });
                 });
               }}

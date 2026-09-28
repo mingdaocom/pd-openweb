@@ -2,9 +2,15 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { Popover } from 'ming-ui/antd-components';
+import { ROW_ID_CONTROL } from 'src/utils/domain/control/widget';
 import SelectControls from './SelectControls';
+
+const SELECT_CONTROLS_POPOVER_STYLES = {
+  container: {
+    overflow: 'hidden',
+  },
+};
 
 export default class AddCondition extends Component {
   static propTypes = {
@@ -65,12 +71,21 @@ export default class AddCondition extends Component {
       columns = columns.filter(item => !_.includes(['ownerid', 'caid', 'uaid'], item.controlId));
     }
 
+    const popupAlign = this.props.popupAlign || {
+      offset: this.props.offset || [2, 2],
+    };
+
     return (
       <div className={cx('Hand addFilterCondition', { nodata: !conditionCount, active: columnListVisible })}>
-        <Trigger
-          action={['click']}
-          popupVisible={columnListVisible}
-          popup={
+        <Popover
+          trigger="click"
+          open={columnListVisible}
+          onOpenChange={visible => {
+            if (!disabled) {
+              this.setState({ columnListVisible: visible });
+            }
+          }}
+          content={
             <SelectControls
               style={this.props.style}
               controls={columns}
@@ -83,22 +98,13 @@ export default class AddCondition extends Component {
                   this.setState({ columnListVisible: false });
                 }
               }}
-              onClose={() => {
-                this.setState({ columnListVisible: false });
-              }}
             />
           }
           getPopupContainer={() => (renderInParent && !isAppendToBody ? this.box : document.body)}
-          popupAlign={
-            this.props.popupAlign || {
-              points: ['tl', 'bl'],
-              offset: this.props.offset ? this.props.offset : [0, 12],
-              overflow: {
-                adjustX: true,
-                adjustY: true,
-              },
-            }
-          }
+          placement="bottom"
+          align={popupAlign}
+          noPadding
+          styles={SELECT_CONTROLS_POPOVER_STYLES}
         >
           <div
             ref={con => (this.box = con)}
@@ -120,7 +126,7 @@ export default class AddCondition extends Component {
                 </React.Fragment>
               ))}
           </div>
-        </Trigger>
+        </Popover>
       </div>
     );
   }

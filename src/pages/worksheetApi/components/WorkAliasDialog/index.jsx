@@ -1,22 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/worksheet';
-
-const Wrap = styled.div`
-  input {
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    height: 36px;
-    line-height: 36px;
-    padding: 0 6px;
-    width: 100%;
-    box-sizing: border-box;
-    &:focus {
-      border: 1px solid var(--color-primary);
-    }
-  }
-`;
 
 export default function WorkAliasDialog(props) {
   const { type = 'worksheet', appId, worksheetId, updateAlias, onClose } = props;
@@ -41,18 +25,23 @@ export default function WorkAliasDialog(props) {
   };
 
   return (
-    <Dialog className="" visible={true} onCancel={onClose} title={_l('设置%0别名', workType)} onOk={() => onOk()}>
-      <Wrap>
-        <input
-          type="text"
-          className="name mTop6"
-          placeholder={_l('请输入')}
-          value={alias}
-          onChange={e => {
-            setAlias(e.target.value.trim());
-          }}
-        />
-      </Wrap>
-    </Dialog>
+    <Modal
+      width={480}
+      open
+      title={_l('设置%0别名', workType)}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onClose}
+      onOk={onOk}
+    >
+      <Input
+        className="name mTop6"
+        placeholder={_l('请输入')}
+        value={alias}
+        onChange={e => {
+          setAlias(e.target.value.trim());
+        }}
+      />
+    </Modal>
   );
 }

@@ -3,16 +3,16 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { UserHead } from 'ming-ui';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
 import downloadAjax from 'src/api/download';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
-import { formatFileSize } from 'src/utils/common';
-import { formatter, selectDateList } from '../../util';
+import { formatFileSize } from 'src/utils/core/file';
+import { formatter, getDayRangeByDateValue, USE_ANALYTICS_HIDDEN_DATE_VALUES } from '../../util';
 import ViewInactive from '../ViewInactive';
 
 const ByUserWrap = styled.div`
@@ -27,7 +27,6 @@ const ByUserWrap = styled.div`
     }
     .export {
       margin-left: 26px;
-      min-width: 76px;
       padding: 0 16px;
     }
   }
@@ -46,8 +45,8 @@ export default class ByUser extends Component {
       pageIndex: 1,
       fullDepartmentInfo: {},
       disabledExportBtn: true,
-      startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-      endTime: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      startTime: moment().subtract(29, 'days').format('YYYY-MM-DD'),
+      endTime: moment().format('YYYY-MM-DD'),
     };
     this.columns = [
       {
@@ -273,7 +272,7 @@ export default class ByUser extends Component {
       <ByUserWrap>
         <div className="searchWrap flexRow alignItemsCenter">
           <SelectUser
-            className="userSelect mdAntSelect"
+            className="userSelect"
             style={{ width: '200px' }}
             projectId={projectId}
             userInfo={userInfo}
@@ -288,16 +287,15 @@ export default class ByUser extends Component {
           />
           <div className="w200">
             <CustomSelectDate
-              className="mdAntSelect mLeft16 w100"
-              dateFormat={'YYYY-MM-DD HH:mm:ss'}
-              searchDateList={selectDateList}
+              className="mLeft16 w100"
+              hiddenDateValues={USE_ANALYTICS_HIDDEN_DATE_VALUES}
               dateInfo={dateInfo}
               min={moment().subtract(1, 'year')}
-              changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
+              changeDate={({ startDate, endDate, searchDateStr, value }) => {
                 this.setState(
                   {
                     dateInfo: { startDate, endDate, searchDateStr },
-                    selectedDate: dayRange,
+                    selectedDate: getDayRangeByDateValue(value),
                     startTime: startDate,
                     endTime: endDate,
                   },

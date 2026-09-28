@@ -4,22 +4,28 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, Support, UpgradeIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { hasPermission } from 'src/components/checkPermission';
-import { getMyPermissions } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { setFavicon } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
-import Beta from './components/Beta';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import {
+  isAppSandboxInProduction,
+  isSandboxEnvironment,
+  isSandboxFeatureEnvironment,
+  isSandboxSupportedProject,
+} from 'src/utils/domain/app/sandbox';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { setFavicon } from 'src/utils/services/app';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import { routerConfigs } from './routerConfig';
 import { getAppConfig } from './util';
 import './index.less';
+
+const SANDBOX_PRODUCTION_HIDDEN_TYPES = ['lock', 'upgrade', 'del'];
+const LAZY_SETTING_COMPONENTS = new Map(routerConfigs.map(config => [config.type, lazy(config.component)]));
 
 function UpgradeCom({ projectId, featureId }) {
   return (
@@ -41,7 +47,6 @@ class AppSettings extends Component {
       data: {},
       delAppConfirmVisible: false,
       collapseAppManageNav: localStorage.getItem('collapseAppManageNav') === 'true' ? true : false,
-      myPermissions: [],
       allowDelete: true,
     };
   }
@@ -72,19 +77,23 @@ class AppSettings extends Component {
     }
   }
 
-  getFilteredRouterConfigs = (routerConfigs, projectId, permissionType) => {
+  getFilteredRouterConfigs = (routerConfigs, projectId, permissionType, sandboxStatus) => {
     const { hideRagEmbedFun } = md.global.SysSettings;
+    const sandboxEnvironment = isSandboxEnvironment();
+    const isSandboxProduction = isAppSandboxInProduction(sandboxStatus);
     const filtered = hideRagEmbedFun
       ? routerConfigs.filter(item => item.featureId !== VersionProductType.vectorKnowledgeBase)
       : routerConfigs;
-    return getAppConfig(filtered, permissionType).filter(
-      item => !item.featureId || getFeatureStatus(projectId, item.featureId),
-    );
+    return getAppConfig(filtered, permissionType)
+      .filter(item => !item.featureId || getFeatureStatus(projectId, item.featureId))
+      .filter(item => item.type !== 'sandbox' || isSandboxFeatureEnvironment())
+      .filter(item => !sandboxEnvironment || item.type !== 'knowledge')
+      .filter(item => !isSandboxProduction || !SANDBOX_PRODUCTION_HIDDEN_TYPES.includes(item.type));
   };
   getData = () => {
     const { appId } = _.get(this.props, 'match.params');
 
-    homeAppApi
+    return homeAppApi
       .getApp({
         appId: md.global.Account.isPortal ? md.global.Account.appId : appId,
         getSection: true,
@@ -93,8 +102,8 @@ class AppSettings extends Component {
       })
       .then(data => {
         setFavicon(data.iconUrl, data.iconColor);
-        const { permissionType, id, isLock, isPassword, projectId } = data;
-        const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType);
+        const { permissionType, id, isLock, isPassword, projectId, sandboxStatus } = data;
+        const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType, sandboxStatus);
 
         if (!permissionType || (isLock && isPassword) || _.isEmpty(list)) {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
@@ -109,10 +118,12 @@ class AppSettings extends Component {
             loading: false,
           },
           () => {
-            this.getMyPermissions();
+            this.updateDeletePermission();
             this.getConfigList();
           },
         );
+
+        return data;
       })
       .catch(() => {
         this.setState({
@@ -144,7 +155,7 @@ class AppSettings extends Component {
   };
   getConfigList = () => {
     const { data } = this.state;
-    const { permissionType, isLock, isPassword, projectId, sourceType, id, license = {} } = data;
+    const { permissionType, isLock, isPassword, projectId, sourceType, id, sandboxStatus, license = {} } = data;
     const isNormalApp = sourceType === 1;
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
 
@@ -158,7 +169,7 @@ class AppSettings extends Component {
       permissionType,
     );
 
-    const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType);
+    const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType, sandboxStatus);
     const configList = list
       .filter(it => {
         if (it.type === 'lock') {
@@ -211,17 +222,13 @@ class AppSettings extends Component {
       location.href = pathCompletion(`/app/${id}/settings/options`);
     }
   };
-  getMyPermissions = () => {
+  updateDeletePermission = () => {
     const { data } = this.state;
     const { projectId } = data;
-    getMyPermissions(projectId, false).then(permissionIds =>
-      this.setState({
-        myPermissions: permissionIds,
-        allowDelete:
-          !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
-          hasPermission(permissionIds, PERMISSION_ENUM.CREATE_APP),
-      }),
-    );
+
+    this.setState({
+      allowDelete: hasFeaturePermission(projectId, FEATURE_PERMISSION.DELETE_APP),
+    });
   };
 
   render() {
@@ -234,15 +241,20 @@ class AppSettings extends Component {
       collapseAppManageNav,
       allowDelete,
     } = this.state;
-    const { id: appId, name, permissionType, projectId, fixed } = data;
+    const {
+      id: appId,
+      name,
+      permissionType,
+      projectId,
+      fixed,
+      sandboxStatus: appSandboxStatus,
+      sandboxRecordId,
+    } = data;
+    const isSandboxUpgradeRequired = !isSandboxSupportedProject(projectId);
     const featureId = (_.find(configList, it => it.type === currentConfigType) || {})['featureId'];
     const featureType = featureId && getFeatureStatus(projectId, featureId);
-    const currentComp =
-      _.get(
-        _.find(routerConfigs, menu => menu.type === currentConfigType),
-        'component',
-      ) || routerConfigs[0].component;
-    const Component = lazy(currentComp);
+    const Component =
+      LAZY_SETTING_COMPONENTS.get(currentConfigType) || LAZY_SETTING_COMPONENTS.get(routerConfigs[0].type);
     const componentProps = {
       ...this.props,
       data,
@@ -252,11 +264,13 @@ class AppSettings extends Component {
       fixed,
       permissionType,
       appName: name,
+      sandboxStatus: appSandboxStatus,
+      sandboxRecordId,
       featureId: featureType && featureType === '2' ? featureId : undefined,
       onChangeData: obj =>
-        this.setState({
-          data: { ...data, ...obj },
-        }),
+        this.setState(state => ({
+          data: { ...state.data, ...obj },
+        })),
     };
     return (
       <div className="manageAppWrap flexRow">
@@ -272,7 +286,7 @@ class AppSettings extends Component {
                 const { type, icon, text } = item;
                 return (
                   <Fragment>
-                    {_.includes(['publish', 'language', 'recyclebin', 'appOfflineSubmit'], type) && (
+                    {_.includes(['sandbox', 'language', 'recyclebin', 'appOfflineSubmit'], type) && (
                       <div className="line"></div>
                     )}
                     <div
@@ -312,16 +326,14 @@ class AppSettings extends Component {
                       )}
                       {!collapseAppManageNav && (
                         <Fragment>
-                          <span className="flex">
-                            {text}
-                            {['appOfflineSubmit', 'knowledge'].includes(type) && <Beta className="mRight15" />}
-                          </span>
-                          {item.featureId &&
+                          <span className="flex">{text}</span>
+                          {((item.featureId &&
                             getFeatureStatus(projectId, item.featureId) === '2' &&
                             _.includes(
                               ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregations', 'knowledge'],
                               type,
-                            ) && <UpgradeIcon />}
+                            )) ||
+                            (type === 'sandbox' && isSandboxUpgradeRequired)) && <UpgradeIcon />}
                         </Fragment>
                       )}
                     </div>

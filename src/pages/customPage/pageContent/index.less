@@ -1,56 +1,14 @@
-.menuItem() {
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  height: 36px;
-  line-height: 36px;
-  padding: 0px 15px;
-  margin: 0 !important;
-  &:hover {
-    color: inherit;
-    background-color: var(--color-background-hover);
-  }
-  .ant-menu-title-content {
-    margin: 0;
-    display: flex;
-    align-items: center;
-  }
-  i {
-    font-size: 17px;
-    color: var(--color-text-tertiary);
-  }
-  &.delete {
-    color: var(--color-error);
-    i {
-      color: var(--color-error);
-    }
-  }
-  &.otherApp {
-    color: var(--color-text-title);
-    &:hover {
-      color: var(--color-white);
-    }
-  }
-  &.ant-menu-item-active,
-  &.ant-menu-item-selected {
-    background-color: var(--color-background-hover);
-  }
-  span {
-    margin-left: 12px;
-  }
-}
-
 .customPageAutoLinkagePopoverWrap {
-  &.ant-popover-placement-bottom {
+  &.hap-popover-placement-bottom {
     padding-top: 0 !important;
   }
-  &.ant-popover-placement-top {
+  &.hap-popover-placement-top {
     padding-bottom: 0 !important;
   }
-  .ant-popover-arrow {
+  .hap-popover-arrow {
     display: none;
   }
-  .ant-popover-inner {
+  .hap-popover-inner {
     border-radius: 6px;
   }
   .icon-trash:hover {
@@ -81,67 +39,14 @@
   }
 }
 
-.customPageOperateMenu {
-  box-sizing: border-box;
-  width: 220px;
-  padding: 5px 0;
-  border: none;
-  background-color: var(--color-background-card);
-  cursor: pointer;
-  color: var(--color-text-title);
-  border-radius: 4px;
-  box-shadow:
-    0 4px 16px 1px rgba(0, 0, 0, 0.24),
-    0 0px 1px 0px rgba(0, 0, 0, 0.12) !important;
-  .ant-menu-item {
-    .menuItem();
-  }
-  .ant-menu-item-divider {
-    margin: 6px 0;
-    border-color: var(--color-border-tertiary);
-  }
-  .ant-menu-submenu {
-    .ant-menu-title-content {
-      margin: 0 !important;
-      display: flex;
-      align-items: center;
-    }
-    .ant-menu-submenu-title {
-      display: flex;
-      align-items: center;
-      height: 36px;
-      box-sizing: border-box;
-      padding: 10px 16px;
-      i {
-        font-size: 18px;
-        color: var(--color-text-tertiary) !important;
-      }
-      span {
-        margin-left: 12px;
-        color: var(--color-text-primary) !important;
-      }
-    }
-    &.ant-menu-submenu-active,
-    &.ant-menu-submenu-selected {
-      .ant-menu-submenu-title {
-        background-color: var(--color-background-hover);
-      }
-    }
-  }
-}
-
-.customPageSubMenu {
-  z-index: 10001;
-  box-shadow:
-    0 4px 16px 1px rgba(0, 0, 0, 0.24),
-    0 0px 1px 0px rgba(0, 0, 0, 0.12) !important;
-  .ant-menu-sub {
-    margin-left: -4px;
-    padding: 6px 0;
-    border: none;
-  }
-  .ant-menu-item {
-    .menuItem();
+.displaySettingContentItem {
+  cursor: default;
+  &:hover,
+  &.hap-menu-item-active,
+  &.hap-menu-item-selected,
+  &.hap-dropdown-menu-item-active,
+  &.hap-dropdown-menu-item-selected {
+    background-color: transparent !important;
   }
 }
 
@@ -150,22 +55,19 @@
   .workSheetLeft,
   #chat,
   .CustomPageContentWrap > header,
-  .ant-drawer-right {
+  .hap-drawer-right {
     display: none;
   }
 }
 
 .tabsSettingPopover {
-  .ant-popover-arrow {
+  .hap-popover-arrow {
     display: none;
   }
-  .ant-popover-inner-content {
-    padding: 0;
-  }
-  .ant-popover-content {
+  .hap-popover-content {
     border-radius: 6px;
   }
-  .ant-popover-inner {
+  .hap-popover-inner {
     border-radius: 6px;
     max-height: 610px;
     overflow: auto;

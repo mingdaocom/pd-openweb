@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import TextScanQRCode from './components/TextScanQrCode';
 
 const InputCon = styled.input`

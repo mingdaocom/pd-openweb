@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import ChildTable from 'worksheet/components/ChildTable';
 import 'src/pages/widgetConfig/styled/style.less';
-import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 
 export default class CustomDefaultValue extends Component {
   constructor(props) {
@@ -35,8 +35,10 @@ export default class CustomDefaultValue extends Component {
     const isBlankSubList =
       _.get(data, 'advancedSetting.detailworksheettype') === '2' || _.includes(data.dataSource, '-');
     return (
-      <Dialog
-        visible={true}
+      <Modal
+        open={true}
+        mask={{ closable: true }}
+        keyboard
         className="CustomDefaultValueDialog"
         title={<span className="Bold">{_l('自定义默认值')}</span>}
         width={1000}
@@ -104,7 +106,7 @@ export default class CustomDefaultValue extends Component {
             }}
           />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

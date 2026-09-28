@@ -1,19 +1,10 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import NoData from './NoData';
+import { isAccountChecked, isAccountIncluded } from './selection';
 import User from './User';
 
 export default class ExtraUserList extends Component {
-  getChecked(user) {
-    return (
-      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
-    );
-  }
-
-  getIncluded(user) {
-    return _.includes(this.props.selectedAccountIds || [], user.accountId);
-  }
-
   render() {
     let data = this.props.data;
 
@@ -32,10 +23,10 @@ export default class ExtraUserList extends Component {
                   user={user}
                   projectId={this.props.projectId}
                   onChange={this.props.onChange}
-                  checked={this.getChecked(user)}
+                  checked={isAccountChecked(user, this.props.selectedUsers, this.props.selectedAccountIds)}
                   key={'user' + user.accountId}
                   currentId={currentId}
-                  disabled={this.getIncluded(user)}
+                  disabled={isAccountIncluded(user, this.props.selectedAccountIds)}
                 />
               ))}
             </div>

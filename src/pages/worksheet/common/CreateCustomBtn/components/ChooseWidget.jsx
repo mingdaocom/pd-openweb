@@ -2,106 +2,94 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input } from 'ming-ui/antd-components';
 import {
   canNotForCustomWrite,
   formatControlsChildBySectionId,
   getFormatCustomWriteData,
   getRealData,
 } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 
 const ChooseWidgetWrap = styled.div`
-   {
-    z-index: 1;
-    width: 300px;
-    padding-bottom: 10px;
-    height: auto;
-    background: var(--color-background-primary);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
-    border-radius: 3px;
-    max-height: ${window.innerHeight - 24}px;
-    .searchWrapper {
-      border-bottom: 1px solid var(--color-border-secondary);
-      margin: 8px 16px 0;
-      display: flex;
-      height: 38px;
+  width: 300px;
+  padding-bottom: 10px;
+  height: auto;
+  max-height: calc(100vh - 200px);
+  .searchWrapper {
+    border-bottom: 1px solid var(--color-border-secondary);
+    margin: 8px 16px 0;
+    display: flex;
+    height: 38px;
+    line-height: 38px;
+    overflow: hidden;
+    flex-shrink: 0;
+    min-height: 0;
+    .icon {
+      width: 20px;
       line-height: 38px;
-      overflow: hidden;
-      flex-shrink: 0;
-      min-height: 0;
-      .cursorText {
-        border: none;
-        flex: 1;
-        margin: 0;
-        padding: 0;
-      }
-      .icon {
-        width: 20px;
-        line-height: 38px;
-        color: var(--color-text-disabled);
-      }
+      color: var(--color-text-disabled);
     }
-    .selectAll,
-    .clearAll {
-      background: var(--color-background-secondary);
-      border-radius: 3px;
+  }
+  .selectAll,
+  .clearAll {
+    background: var(--color-background-secondary);
+    border-radius: 3px;
+  }
+  .listBox {
+    overflow: auto;
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
     }
-    .listBox {
-      overflow: auto;
-      &::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+    .widgetList {
+      padding: 8px 16px;
+      .childCon {
+        position: relative;
+        padding-left: 8px;
+        &::before {
+          content: '';
+          position: absolute;
+          left: 6px;
+          top: 10px;
+          width: 8px;
+          height: calc(100% - 30px);
+          border-left: 1px solid var(--color-border-secondary);
+          border-bottom: 1px solid var(--color-border-secondary);
+          border-radius: 2px;
+        }
       }
-      .widgetList {
-        padding: 8px 16px;
-        .childCon {
-          position: relative;
-          padding-left: 8px;
-          &::before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 10px;
-            width: 8px;
-            height: calc(100% - 30px);
-            border-left: 1px solid var(--color-border-secondary);
-            border-bottom: 1px solid var(--color-border-secondary);
-            border-radius: 2px;
-          }
+      .widgetIcon {
+        margin-right: 13px;
+      }
+      .hap-switch-small {
+        min-width: 18px;
+        height: 9px;
+        line-height: 9px;
+        vertical-align: middle;
+        margin-right: 18px;
+        .hap-switch-handle {
+          width: 5px;
+          height: 5px;
         }
-        .widgetIcon {
-          margin-right: 13px;
+        .hap-switch-inner {
+          margin: 0;
         }
-        .ant-switch-small {
-          min-width: 18px;
-          height: 9px;
-          line-height: 9px;
-          vertical-align: middle;
-          margin-right: 18px;
-          .ant-switch-handle {
-            width: 5px;
-            height: 5px;
+        &.hap-switch-checked {
+          .hap-switch-handle {
+            left: calc(100% - 5px - 2px);
           }
-          .ant-switch-inner {
+          .hap-switch-inner {
             margin: 0;
-          }
-          &.ant-switch-checked {
-            .ant-switch-handle {
-              left: calc(100% - 5px - 2px);
-            }
-            .ant-switch-inner {
-              margin: 0;
-            }
           }
         }
       }
     }
   }
 `;
-let ChooseWidget = class ChooseWidget extends React.Component {
+class ChooseWidget extends React.Component {
   constructor(props) {
     super(props);
     const { writeControls = [] } = props;
@@ -112,7 +100,6 @@ let ChooseWidget = class ChooseWidget extends React.Component {
       writeControls,
       closeList: [],
     };
-    this.chooseDia = null;
   }
 
   componentDidMount() {
@@ -123,7 +110,6 @@ let ChooseWidget = class ChooseWidget extends React.Component {
       initData: this.getData(this.props),
       writeControls,
     });
-    this.setPoint();
     $('.cursorText').focus();
   }
 
@@ -146,20 +132,6 @@ let ChooseWidget = class ChooseWidget extends React.Component {
     }
   }
 
-  setPoint = () => {
-    let wh = $(window).height();
-    let ot = $('.noAppointFilter').offset().top;
-    let ol = $('.noAppointFilter').offset().left;
-    let ds = $(document.documentElement).scrollTop();
-    let btnH = $('.noAppointFilter').height();
-    let bh = wh - btnH - [ot - ds];
-    let diaH = $(this.chooseDia).height();
-    $(this.chooseDia).css({
-      top: diaH + 24 > bh ? 'initial' : ot + btnH,
-      bottom: diaH + 24 > bh ? 24 : 'initial',
-      left: ol,
-    });
-  };
   getData = props => {
     const { writeObject, relationControls = [], widgetList = [] } = props;
     return (writeObject !== 1 ? relationControls : widgetList).filter(o => !canNotForCustomWrite(o));
@@ -228,13 +200,10 @@ let ChooseWidget = class ChooseWidget extends React.Component {
               this.handSet(item, !isChecked);
             }}
           >
-            <Checkbox
-              className="InlineBlock"
-              checked={isChecked}
-              clearselected={checkedChildNum > 0 && child.length > checkedChildNum}
-              text={null}
-            />
-            <span className="textSecondary flex flexRow alignItemsCenter">
+            <Checkbox checked={isChecked} indeterminate={checkedChildNum > 0 && child.length > checkedChildNum}>
+              {null}
+            </Checkbox>
+            <span className="textSecondary flex flexRow alignItemsCenter mLeft8">
               <Icon icon={getIconByType(item.type)} className={cx('Font14 textTertiary widgetIcon')} />
               <span className="Font13 textPrimary WordBreak overflow_ellipsis">
                 {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
@@ -268,100 +237,77 @@ let ChooseWidget = class ChooseWidget extends React.Component {
   };
 
   render() {
-    const { onClose } = this.props;
     const { data = [], keyWords, initData = [] } = this.state;
     const list = keyWords ? data : formatControlsChildBySectionId(data);
     return (
-      <div
-        className="ChooseWidgetDialogWrap"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          zIndex: 1000,
-        }}
-        onClick={onClose}
-      >
-        <ChooseWidgetWrap
-          className="flexColumn Absolute"
-          ref={chooseDia => {
-            this.chooseDia = chooseDia;
-          }}
-          onClick={e => {
-            e.stopPropagation();
-          }}
-        >
-          <div className="searchWrapper h100">
-            <Icon icon="search" className="Font18" />
-            <input
-              type="text"
-              className="cursorText"
-              placeholder={_l('搜索')}
-              onChange={event => {
-                const searchValue = _.trim(event.target.value);
+      <ChooseWidgetWrap className="flexColumn">
+        <div className="searchWrapper h100">
+          <Input
+            className="flex"
+            variant="borderless"
+            prefix={<Icon icon="search" className="Font18" />}
+            placeholder={_l('搜索')}
+            onChange={event => {
+              const searchValue = _.trim(event.target.value);
 
-                if (!searchValue) {
-                  this.setState({
-                    keyWords: '',
-                    data: this.getData(this.props),
-                  });
-                } else {
-                  this.setState({
-                    keyWords: searchValue,
-                    data: initData.filter(
-                      it => it.controlName.toLocaleLowerCase().indexOf(searchValue.toLocaleLowerCase()) >= 0,
-                    ),
-                  });
-                }
+              if (!searchValue) {
+                this.setState({
+                  keyWords: '',
+                  data: this.getData(this.props),
+                });
+              } else {
+                this.setState({
+                  keyWords: searchValue,
+                  data: initData.filter(
+                    it => it.controlName.toLocaleLowerCase().indexOf(searchValue.toLocaleLowerCase()) >= 0,
+                  ),
+                });
+              }
+            }}
+            value={keyWords || ''}
+          />
+          {keyWords && (
+            <Icon
+              icon="cancel"
+              className="Font18 Hand"
+              onClick={() => {
+                this.setState({
+                  keyWords: '',
+                  data: this.getData(this.props),
+                });
               }}
-              value={keyWords || ''}
             />
-            {keyWords && (
-              <Icon
-                icon="cancel"
-                className="Font18 Hand"
-                onClick={() => {
-                  this.setState({
-                    keyWords: '',
-                    data: this.getData(this.props),
-                  });
-                }}
-              />
-            )}
-          </div>
-          {!keyWords && (
-            <div className="con flexRow mTop15">
-              <span
-                className="selectAll Hand textSecondary hoverColorPrimary pTop8 pBottom8 pLeft16 pRight16 mLeft16"
-                onClick={() => this.selectOrClearAll(true)}
-              >
-                {_l('全选')}
-              </span>
-              <span
-                className="clearAll Hand textSecondary hoverColorPrimary pTop8 pBottom8 pLeft16 pRight16 mLeft10"
-                onClick={() => this.selectOrClearAll()}
-              >
-                {_l('清空')}
-              </span>
-            </div>
           )}
-          <div className="listBox flex mTop10">
-            {list.length > 0 ? (
-              list
-                .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
-                .map(item => {
-                  return this.renderCon(item);
-                })
-            ) : (
-              <div className="textSecondary TxtCenter pTop20 Font14 pBottom20">{_l('无可填写字段')}</div>
-            )}
+        </div>
+        {!keyWords && (
+          <div className="con flexRow mTop15">
+            <span
+              className="selectAll Hand textSecondary hoverColorPrimary pTop8 pBottom8 pLeft16 pRight16 mLeft16"
+              onClick={() => this.selectOrClearAll(true)}
+            >
+              {_l('全选')}
+            </span>
+            <span
+              className="clearAll Hand textSecondary hoverColorPrimary pTop8 pBottom8 pLeft16 pRight16 mLeft10"
+              onClick={() => this.selectOrClearAll()}
+            >
+              {_l('清空')}
+            </span>
           </div>
-        </ChooseWidgetWrap>
-      </div>
+        )}
+        <div className="listBox flex mTop10">
+          {list.length > 0 ? (
+            list
+              .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
+              .map(item => {
+                return this.renderCon(item);
+              })
+          ) : (
+            <div className="textSecondary TxtCenter pTop20 Font14 pBottom20">{_l('无可填写字段')}</div>
+          )}
+        </div>
+      </ChooseWidgetWrap>
     );
   }
-};
-ChooseWidget = ClickAway.wrap(ChooseWidget);
+}
 export default ChooseWidget;

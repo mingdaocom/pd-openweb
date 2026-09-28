@@ -1,8 +1,8 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
+import { Input } from 'ming-ui/antd-components';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
-import { DYNAMIC_FROM_MODE } from '../config';
 import { DynamicValueInputWrap } from '../styled';
 
 export default function (props) {

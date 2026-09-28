@@ -1,4 +1,4 @@
-import { addSubPathOfRoutes } from 'src/utils/common';
+import { addSubPathOfRoutes } from 'src/utils/platform/navigation/path';
 
 export const PAGE_HEADER_ROUTE_CONFIG = addSubPathOfRoutes({
   worksheetRecord: {

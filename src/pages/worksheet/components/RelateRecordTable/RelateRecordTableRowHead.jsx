@@ -3,11 +3,20 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, ConfirmPanel, Dialog } from 'ming-ui';
+import { Button, Checkbox, Flex, Modal, Popover } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+
+const ROW_CHECKBOX_STYLE = { marginRight: -2 };
+
+const CONFIRM_POPOVER_STYLES = {
+  container: {
+    width: 280,
+    padding: 20,
+  },
+};
 
 const Con = styled.span`
   padding: 0 16px !important;
@@ -24,9 +33,6 @@ const Con = styled.span`
   }
   .deleteRowIcon {
     margin-top: 2px;
-  }
-  .Checkbox-box {
-    margin-right: -2px !important;
   }
   &.hideNumber {
     .number {
@@ -51,8 +57,8 @@ const Con = styled.span`
   }
   &.hover,
   &.moreOperateVisible {
-    ${({ hideOperate }) =>
-      !hideOperate &&
+    ${({ $hideOperate }) =>
+      !$hideOperate &&
       `
     .number {
       display: none;
@@ -99,7 +105,7 @@ const OpenRecordBtn = styled(FlexCenter)`
 `;
 
 export default function RowHead(props) {
-  const [confirmVisible, setConfirmVisible] = useState();
+  const [confirmVisible, setConfirmVisible] = useState(false);
   const [moreOperateVisible, setMoreOperateVisible] = useState(false);
   const {
     tableId,
@@ -114,6 +120,7 @@ export default function RowHead(props) {
     allowOpenRecord,
     layoutChangeVisible,
     allowRemoveRelation,
+    isCharge,
     className,
     style,
     rowIndex,
@@ -124,6 +131,7 @@ export default function RowHead(props) {
     viewId,
     view,
     worksheetId,
+    printCountEnabled,
     sheetSwitchPermit,
     relateRecordControlPermission,
     showQuickFromSetting,
@@ -158,6 +166,7 @@ export default function RowHead(props) {
         allowCopy={allowAdd}
         allowAdd={allowAdd}
         allowRecreate={allowAdd}
+        isCharge={isCharge}
         isRelateRecordTable
         disableCustomButtons={!showQuickFromSetting}
         isDraft={isDraft}
@@ -171,13 +180,11 @@ export default function RowHead(props) {
             : cx({ removeRelation: allowRemoveRelation })
         }
         formdata={tableControls.map(c => ({ ...c, value: row[c.controlId] }))}
+        printCountEnabled={printCountEnabled}
         allowDelete={allowDelete && row.allowdelete}
         showTask={false}
         sheetSwitchPermit={sheetSwitchPermit}
-        popupAlign={{
-          offset: !isColumnPopup ? [0, 4] : [-2, 0],
-          points: !isColumnPopup ? ['tl', 'bl'] : ['tr', 'tl'],
-        }}
+        placement={isColumnPopup ? 'leftTop' : 'bottomLeft'}
         onPopupVisibleChange={visible => {
           if (isColumnPopup && !visible) {
             emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
@@ -188,10 +195,11 @@ export default function RowHead(props) {
         onRemoveRelation={({ confirm = true } = {}) => {
           if (confirm) {
             if (isColumnPopup) {
-              Dialog.confirm({
-                onlyClose: true,
-                title: _l('你确定要取消关联吗？'),
-                buttonType: 'danger',
+              Modal.confirm({
+                title: <span className="textError">{_l('你确定要取消关联吗？')}</span>,
+                okButtonProps: {
+                  danger: true,
+                },
                 onOk: () => deleteRelateRow(row.rowid),
               });
             } else {
@@ -217,10 +225,11 @@ export default function RowHead(props) {
           key="deleteRowIcon"
           onClick={() => {
             if (isColumnPopup) {
-              Dialog.confirm({
-                onlyClose: true,
-                title: _l('你确定要取消关联吗？'),
-                buttonType: 'danger',
+              Modal.confirm({
+                title: <span className="textError">{_l('你确定要取消关联吗？')}</span>,
+                okButtonProps: {
+                  danger: true,
+                },
                 onOk: () => deleteRelateRow(row.rowid),
               });
             } else {
@@ -240,23 +249,47 @@ export default function RowHead(props) {
   return isColumnPopup ? (
     <ColumnPopupCon className="box">{operateContent}</ColumnPopupCon>
   ) : (
-    <ConfirmPanel
-      visible={confirmVisible}
-      angleLeft={style.width / 2 - 8}
+    <Popover
+      arrow={true}
+      open={confirmVisible}
+      onOpenChange={visible => !visible && setConfirmVisible(false)}
+      trigger="click"
       placement="bottomLeft"
-      content={_l('你确定要取消关联吗？')}
-      onPopupVisibleChange={value => !value && setConfirmVisible(false)}
-      onOk={e => {
-        e.stopPropagation();
-        deleteRelateRow(row.rowid);
-      }}
-      okText={_l('确定')}
-      cancelText={_l('取消')}
+      align={{ offset: [8, 2] }}
+      styles={CONFIRM_POPOVER_STYLES}
+      content={
+        <Flex vertical>
+          <div className="Font14 textTitle">{_l('你确定要取消关联吗？')}</div>
+          <Flex justify="flex-end" gap={8} className="mTop30">
+            <Button
+              type="text"
+              className="textTertiary"
+              onClick={e => {
+                e.stopPropagation();
+                setConfirmVisible(false);
+              }}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              color="danger"
+              variant="solid"
+              onClick={e => {
+                e.stopPropagation();
+                deleteRelateRow(row.rowid);
+                setConfirmVisible(false);
+              }}
+            >
+              {_l('确定')}
+            </Button>
+          </Flex>
+        </Flex>
+      }
     >
       <Con
         className={cx(className, { isNew: row.isNew, moreOperateVisible, hideNumber: !showNumber })}
         style={style}
-        hideOperate={!recordId && !allowRemoveRelation}
+        $hideOperate={!recordId && !allowRemoveRelation}
       >
         {layoutChangeVisible && rowIndex === -1 && !isBatchEditing && (
           <ChangeSheetLayout
@@ -267,15 +300,20 @@ export default function RowHead(props) {
         )}
         {isBatchEditing && (rowIndex === -1 || row.rowid) && (
           <Checkbox
-            size="small"
             checked={rowIndex === -1 ? allIsSelected : selected}
-            onClick={() => {
+            onChange={() => {
               if (rowIndex === -1) {
-                onSelect({ action: allIsSelected ? 'clearSelectAll' : 'selectAll' });
+                onSelect({
+                  action: allIsSelected ? 'clearSelectAll' : 'selectAll',
+                });
               } else {
-                onSelect({ action: 'toggleSelectRow' });
+                onSelect({
+                  action: 'toggleSelectRow',
+                });
               }
             }}
+            size="small"
+            style={ROW_CHECKBOX_STYLE}
           />
         )}
         {!isBatchEditing && (
@@ -298,7 +336,7 @@ export default function RowHead(props) {
           </Fragment>
         )}
       </Con>
-    </ConfirmPanel>
+    </Popover>
   );
 }
 
@@ -311,6 +349,7 @@ RowHead.propTypes = {
   allowOpenRecord: PropTypes.bool,
   layoutChangeVisible: PropTypes.bool,
   allowRemoveRelation: PropTypes.bool,
+  isCharge: PropTypes.bool,
   allowEdit: PropTypes.bool,
   allowAdd: PropTypes.bool,
   projectId: PropTypes.string,
@@ -322,6 +361,7 @@ RowHead.propTypes = {
   appId: PropTypes.string,
   viewId: PropTypes.string,
   worksheetId: PropTypes.string,
+  printCountEnabled: PropTypes.bool,
   sheetSwitchPermit: PropTypes.shape({
     editable: PropTypes.any,
   }),

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Popover, Tooltip } from 'ming-ui/antd-components';
 import { getCurrentProjectId } from '../utils';
 import './OrgSelect.less';
 
@@ -73,20 +72,29 @@ export default function OrgSelect(props) {
 
   return (
     <OrgSelectCon className="Font12 Bold" style={style}>
-      <Trigger
+      <Popover
+        noPadding
         className="orgSelectTrigger"
-        popupVisible={visible}
-        onPopupVisibleChange={visible => setVisible(visible)}
-        action={['click']}
-        popupAlign={{ points: ['tl', 'bl'] }}
-        popup={
+        open={visible}
+        onOpenChange={setVisible}
+        trigger="click"
+        placement="bottomLeft"
+        content={
           <div className="orgDrowSelectCon">
             <div className="orgSearchCon">
-              <Icon icon="search Font16 textTertiary" />
-              <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
-              <Tooltip title={_l('记录仅支持单个组织搜索，且不支持外部协作组织')}>
-                <Icon icon="info_outline" className="Font14 textTertiary" />
-              </Tooltip>
+              <Input
+                variant="borderless"
+                prefix={<Icon icon="search Font16 textTertiary" />}
+                suffix={
+                  <Tooltip title={_l('记录仅支持单个组织搜索，且不支持外部协作组织')}>
+                    <Icon icon="info_outline" className="Font14 textTertiary" />
+                  </Tooltip>
+                }
+                placeholder={_l('搜索')}
+                className="flex"
+                value={search}
+                onChange={event => searchHandle(event.target.value)}
+              />
             </div>
             <ul className="orgList">
               {orgList.filter(filterFucntion).map(item => {
@@ -113,7 +121,7 @@ export default function OrgSelect(props) {
           <span className="ellipsis">{selected && selected.companyName}</span>{' '}
           <Icon icon="expand_more" className="Font20 textDisabled mLeft9" />
         </div>
-      </Trigger>
+      </Popover>
     </OrgSelectCon>
   );
 }

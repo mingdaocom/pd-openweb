@@ -2,11 +2,11 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { pathCompletion } from 'src/utils/common';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import RelateDetailInfo from '../components/RelateDetailInfo';
 import SelectDataSource from '../components/SelectDataSource';
 
@@ -185,22 +185,32 @@ export default function Cascader(props) {
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择方式')}</div>
-        <RadioGroup
+        <Radio.Group
           className="singleLineRadio"
           size="middle"
-          data={DISPLAY_OPTIONS}
-          checkedValue={enumDefault}
-          onChange={value => onChange({ enumDefault: value })}
+          options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={enumDefault}
+          onChange={event =>
+            onChange({
+              enumDefault: event.target.value,
+            })
+          }
         />
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('下拉菜单样式')}</div>
-        <RadioGroup
+        <Radio.Group
           className="singleLineRadio"
           size="middle"
-          data={MENU_STYLE}
-          checkedValue={showtype}
-          onChange={value => onChange(handleAdvancedSettingChange(data, { showtype: value }))}
+          options={(MENU_STYLE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={showtype}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                showtype: event.target.value,
+              }),
+            )
+          }
         />
       </SettingItem>
       {editVisible && (

@@ -2,12 +2,12 @@ import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, us
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import sheetSetAjax from 'src/api/worksheetSetting';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { SHARECARDTYPS, VIEW_TYPE_ICON_LIST, WX_ICON_LIST } from 'src/components/ShareCardConfig/config';
 import Input from './Input';
-import { Con, UploadBtn } from './style';
+import { Con } from './style';
 
 const ShareCardSet = forwardRef((props, ref) => {
   const {
@@ -116,30 +116,30 @@ const ShareCardSet = forwardRef((props, ref) => {
           }}
           onError={(up, err) => {
             if (err.code === -600) alert(_l('上传失败，只允许上传1M以内的文件'), 2);
+            setIsUploading(false);
+            up.disableBrowse(false);
           }}
         >
-          <UploadBtn
-            className={isUploading ? 'disabled' : ''}
-            height="44"
-            bg="var(--color-background-card)"
-            color="var(--color-text-title)"
-            hoverBg="var(--color-background-hover)"
-            borderRadius="6"
+          <Button
+            size="large"
+            loading={isUploading}
+            disabled={isUploading}
+            icon={!isUploading && <Icon icon="file_upload" />}
           >
-            <Icon
-              icon={isUploading ? 'loading_button' : 'file_upload'}
-              className={cx('textTertiary', { rotate: isUploading })}
-            />
-            <span className="Bold">{_l('上传自定义图标')}</span>
-          </UploadBtn>
+            {_l('上传自定义图标')}
+          </Button>
         </QiniuUpload>
         {isCustomImg && (
           <div className="customImgWrap mTop8 flexRow alignItemsCenter justifyContentCenter">
             <img className="fileImage" src={iconUrl} />
             <div className="mask">
-              <div className="deleteBtn Hand" onClick={() => handleUpdateData({ icon: '', iconUrl: '' })}>
-                <Icon icon="trash" className="textTertiary Font17" />
-              </div>
+              <Button
+                className="deleteBtn"
+                danger
+                size="small"
+                icon={<Icon icon="trash" />}
+                onClick={() => handleUpdateData({ icon: '', iconUrl: '' })}
+              />
             </div>
           </div>
         )}
@@ -170,7 +170,7 @@ const ShareCardSet = forwardRef((props, ref) => {
           worksheetInfo={worksheetInfo}
           canUseControl={canUseControl}
           controls={controls}
-          className="w100 fillInput"
+          className="w100"
           placeholder={props.titlePlaceholder || _l('请输入')}
           defaultValue={shareConfigValue?.title}
           onChangeValue={value => {
@@ -190,7 +190,7 @@ const ShareCardSet = forwardRef((props, ref) => {
           worksheetInfo={worksheetInfo}
           canUseControl={canUseControl}
           controls={controls}
-          className="w100 fillInput"
+          className="w100"
           placeholder={props.desPlaceholder || _l('请输入')}
           defaultValue={shareConfigValue?.desc}
           onChangeValue={value => {

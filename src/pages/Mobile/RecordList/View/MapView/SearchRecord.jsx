@@ -3,18 +3,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
-import { AutoComplete } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getSearchData } from 'worksheet/views/util';
+import { AutoComplete, Tooltip } from 'ming-ui/antd-components';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
-import { browserIsMobile } from 'src/utils/common';
-import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/core/string';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getSearchData } from 'src/utils/services/worksheet/view';
 
 const Wrapper = styled.div`
   border-radius: 4px;
@@ -24,7 +23,7 @@ const Wrapper = styled.div`
   z-index: 9;
   top: 6px;
   padding: 0 10px;
-  .ant-select-auto-complete {
+  .hap-select-auto-complete {
     z-index: 2;
     width: 100%;
     box-shadow:
@@ -32,14 +31,14 @@ const Wrapper = styled.div`
       0 6px 16px 0 rgb(0 0 0 / 8%),
       0 9px 28px 8px rgb(0 0 0 / 5%);
   }
-  .ant-select-open .ant-select-selection-search-input {
+  .hap-select-open .hap-select-selection-search-input {
     border-radius: 4px 4px 0 0;
   }
-  .ant-select-dropdown {
+  .hap-select-dropdown {
     z-index: 1;
     top: 43px !important;
   }
-  .ant-select-item {
+  .hap-select-item {
     font-weight: initial !important;
   }
   .highlig {
@@ -48,6 +47,8 @@ const Wrapper = styled.div`
 `;
 
 const InputWrapper = styled.div`
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px 15px;
   background-color: var(--color-background-primary);
   border-bottom: 1px solid var(--color-background-disabled);

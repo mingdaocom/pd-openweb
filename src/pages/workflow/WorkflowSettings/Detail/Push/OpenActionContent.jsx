@@ -1,12 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, Radio } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
 import homeApp from 'src/api/homeApp';
 import worksheet from 'src/api/worksheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { PUSH_TYPE } from '../../enum';
 import { CustomTextarea, SelectNodeObject, SpecificFieldsValue } from '../components';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default class OpenActionContent extends Component {
   state = {
@@ -79,13 +81,14 @@ export default class OpenActionContent extends Component {
           {isCustomPage ? _l('自定义页面') : _l('工作表')}
           <span className="mLeft5 red">*</span>
         </div>
-        <Dropdown
+        <Select
           className={cx('flowDropdown mTop10', {
             'errorBorder errorBG': data.appId && worksheetInfo !== null && _.isEmpty(worksheetInfo),
           })}
-          data={[currentAppList.filter(item => item.type === (isCustomPage ? 1 : 0)), otherWorksheet]}
+          options={currentAppList.filter(item => item.type === (isCustomPage ? 1 : 0)).concat(otherWorksheet)}
+          fieldNames={SELECT_FIELD_NAMES}
           value={data.appId}
-          renderTitle={
+          labelRender={
             !data.appId || worksheetInfo === null
               ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.appId && _.isEmpty(worksheetInfo)
@@ -101,8 +104,8 @@ export default class OpenActionContent extends Component {
                     </Fragment>
                   )
           }
-          border
-          openSearch
+          showSearch
+          optionFilterProp="text"
           onChange={appId => {
             if (appId === 'other') {
               this.setState({ showOtherWorksheet: true });
@@ -127,9 +130,8 @@ export default class OpenActionContent extends Component {
     }
 
     const views = worksheetInfo.views.map(o => ({
-      text: o.name,
+      label: o.name,
       value: o.viewId,
-      className: data.viewId === o.viewId ? 'colorPrimary' : '',
     }));
     const selectView = _.find(views, o => o.value === data.viewId);
 
@@ -146,20 +148,19 @@ export default class OpenActionContent extends Component {
           </div>
         )}
 
-        <Dropdown
+        <Select
           className={cx('flowDropdown mTop10', {
             'errorBorder errorBG': data.viewId && !selectView,
           })}
-          data={views}
+          options={views}
           value={data.viewId}
-          renderTitle={
+          labelRender={
             !data.viewId
               ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.viewId && !selectView
                 ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
-                : () => <span>{selectView.text}</span>
+                : () => <span>{selectView.label}</span>
           }
-          border
           onChange={viewId => updateSource({ viewId })}
         />
       </Fragment>
@@ -227,10 +228,16 @@ export default class OpenActionContent extends Component {
             return (
               <div className="mTop15" key={item.value}>
                 <Radio
-                  text={item.text}
                   checked={item.value === data.openMode}
-                  onClick={() => updateSource({ openMode: item.value })}
-                />
+                  onChange={() =>
+                    updateSource({
+                      openMode: item.value,
+                    })
+                  }
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               </div>
             );
           })}

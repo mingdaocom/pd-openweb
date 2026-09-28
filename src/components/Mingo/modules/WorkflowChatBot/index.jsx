@@ -1,7 +1,7 @@
 ﻿import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useMeasure } from 'react-use';
 import cx from 'classnames';
-import { chain, findLast, findLastIndex, flatten, get, identity, isArray, isEmpty, omit } from 'lodash';
+import { findLast, findLastIndex, get, identity, isEmpty, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BgIconButton } from 'ming-ui';
@@ -11,17 +11,25 @@ import chatbotAjax from 'src/pages/workflow/apiV2/chatbot';
 import chatbotSSEApi from 'src/pages/workflow/apiV2/chatbotsse';
 import { getToolName } from 'src/pages/workflow/WorkflowSettings/utils';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { SpeechSynthesizer } from 'src/utils/audio';
-import { emitter } from 'src/utils/common';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { SpeechSynthesizer } from 'src/utils/platform/browser/audio';
+import { emitter } from 'src/utils/platform/browser/dom';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { resolveStreamError } from '../../ChatBot/utils';
 import MobileShareOperate from '../MobileShareOperate';
+import {
+  contentIsEmpty,
+  formatMessage,
+  formatMessages,
+  sortMessagesByCtimeAsc,
+  sumPrice,
+} from '../shared/messageUtils';
+import { renderToolCalls } from '../shared/ToolCalls';
+import { filterToolCalls } from '../shared/toolCallUtils';
 import ShareOperate from '../ShareOperate';
 import Guide from './Guide';
-import { filterToolCalls, renderToolCalls } from './ToolCalls';
 
 const MingoContentWrap = styled.div`
   height: 100%;
@@ -134,106 +142,7 @@ const OperateHeader = styled.div`
   justify-content: space-between;
 `;
 
-function contentIsEmpty(content) {
-  if (content === '') return true;
-  if (isArray(content)) {
-    return (
-      content.filter(item => {
-        if (item.type === 'text' && item.text === '') return;
-        if (item.type === 'tool_calls' && filterToolCalls(item.toolCalls).length === 0) return;
-        return true;
-      }).length === 0
-    );
-  }
-
-  return false;
-}
-
-function getContentOfMessage(message) {
-  let content = isArray(message.content)
-    ? message.content
-    : [
-        {
-          type: 'text',
-          text: message.content,
-        },
-      ];
-  const toolMap = message.tool_map || {};
-  const filteredToolCalls = filterToolCalls(message.tool_calls || []);
-
-  if (!isEmpty(filteredToolCalls)) {
-    content = [
-      ...content,
-      {
-        type: 'tool_calls',
-        toolCalls: filteredToolCalls.map(toolCall => ({ function: toolCall, toolName: toolMap[toolCall.id] })),
-      },
-    ];
-  }
-
-  return content;
-}
-
-export function formatMessage(message) {
-  if (!['user', 'assistant'].includes(message.role)) {
-    return;
-  }
-
-  const result = {};
-  result.id = get(message, 'metadata.id');
-  result.instanceId = message.instanceId;
-  result.workId = message.workId;
-  result.role = message.role === 'user' ? 'user' : 'assistant';
-  result.content = message.role === 'user' ? message.content : getContentOfMessage(message);
-  result.media = message.media;
-  result.hasSubmit = message.hasSubmit;
-  result.modelMessageId = get(message, 'metadata.id');
-  if (isEmpty(result.content) && isEmpty(result.media)) {
-    return;
-  }
-
-  return result;
-}
-
-export function formatMessages(messages) {
-  let result = [];
-  let latestMessageId;
-  messages.forEach(message => {
-    if (message.role === 'user') {
-      message.workId = message.id;
-      latestMessageId = undefined;
-    } else if (!latestMessageId) {
-      latestMessageId = message.id;
-      if (message.workId === null) {
-        message.workId = latestMessageId;
-      }
-    } else {
-      if (message.workId === null) {
-        message.workId = latestMessageId;
-      }
-    }
-  });
-  chain(messages.map(message => ({ ...message, workId: message.workId || message.id })))
-    .groupBy('workId')
-    .map(items => items)
-    .value()
-    .forEach(messages => {
-      if (messages.length === 1) {
-        result.push(formatMessage(messages[0]));
-      } else {
-        const content = [];
-        messages = messages.filter(message => message.role === 'assistant');
-        messages.forEach(message => {
-          content.push(getContentOfMessage(message));
-        });
-        result.push({
-          ...formatMessage(messages[0]),
-          content: flatten(content),
-        });
-      }
-    });
-  return result;
-}
+export { formatMessage, formatMessages, sortMessagesByCtimeAsc };
 
 function getLoadingText(name = '') {
   const toolName = getToolName(name);
@@ -245,9 +154,23 @@ function getLoadingText(name = '') {
   return _l('思考中');
 }
 
+// 拉会话消息：取原始信封（{ status, data, msg }）自行判定。会话不存在 / 不可访问（已删除、无权访问）时
+// 后端不抛异常，而是返回 status=0 + data=[]，标准契约解析只拿得到空数组，与「这个会话本来就没消息」
+// 无从区分，界面会静默渲染成一个空会话。silent 关掉全局 toast，异常态交给调用方呈现。
+// 返回 { unavailable, list }：只把明确的 status=0 当不可访问，其余取值一律按成功处理，避免误伤非 0/1 的信封。
+function fetchMessageList(params) {
+  return chatbotAjax.getMessageList(params, { customParseResponse: true, silent: true }).then(res => {
+    const { status, data } = res || {};
+
+    return { unavailable: Number(status) === 0, list: Array.isArray(data) ? data : [] };
+  });
+}
+
 function MingoContent(props, ref) {
   const {
     appId,
+    // 分享会话时按应用所属组织提交可见范围，缺省会回退到「当前组织」而挂错组织
+    projectId,
     chatbotId,
     isCharge,
     isMobile,
@@ -265,6 +188,7 @@ function MingoContent(props, ref) {
     updateIsChatting = () => {},
     onOpenMessageLog = () => {},
     onGenerateConversation = () => {},
+    onConversationUnavailable = () => {},
     onClose = () => {},
   } = props;
   const shareId = new URLSearchParams(window.location.search).get('share');
@@ -272,6 +196,13 @@ function MingoContent(props, ref) {
   const messageListRef = useRef(null);
   const sendRef = useRef(null);
   const cache = useRef({});
+  // 会话不可访问的回调不进加载副作用的依赖：调用方多是内联箭头函数，每次渲染都是新引用，
+  // 进依赖会让加载会话的副作用反复重跑。每次渲染把最新回调写进 ref，用时只读 ref。
+  const onConversationUnavailableRef = useRef(onConversationUnavailable);
+
+  useEffect(() => {
+    onConversationUnavailableRef.current = onConversationUnavailable;
+  });
   const [isGuideVisible, setIsGuideVisible] = useState(!!sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`));
   const [loadingStatus, setLoadingStatus] = useState();
   const [shareMode, setShareMode] = useState();
@@ -314,7 +245,8 @@ function MingoContent(props, ref) {
           chatbotId: chatbotId,
           conversationId,
           messages: messages.slice(-1).map(item => {
-            const result = omit(item, ['id']);
+            // time 是前端为展示补的本地时间（后端有自己的 ctime），不回传
+            const result = omit(item, ['id', 'time']);
 
             if (result.role === 'user') {
               delete result.media;
@@ -324,7 +256,8 @@ function MingoContent(props, ref) {
           }),
           prevUserMessageId,
           toolMessageId,
-          ...(isTest ? { pushUniqueId: get(md, 'global.Config.pushUniqueId'), debugEvents: [-1, 0, 1, 2, 3] } : {}),
+          pushUniqueId: get(md, 'global.Config.pushUniqueId'),
+          ...(isTest ? { debugEvents: [-1, 0, 1, 2, 3] } : {}),
         },
         {
           abortController,
@@ -333,8 +266,49 @@ function MingoContent(props, ref) {
         },
       );
     },
-    onMessagePipe: (messageContent, messageData) => {
+    onMessagePipe: (messageContent, messageData, messageId) => {
       setIsExecutingToolCalls(false);
+      // 定位本轮在途的助手气泡：工具调用确认后的续跑不会新建气泡（见 useChat 的 toolMessageId 分支），
+      // 此时下发的 messageId 是一个列表里不存在的新 id，回退到最后一条 assistant
+      const findStreamMessageIndex = list => {
+        const indexById = messageId ? findLastIndex(list, item => item.id === messageId) : -1;
+
+        return indexById === -1 ? findLastIndex(list, item => item.role === 'assistant') : indexById;
+      };
+
+      // 消息时间：后端的 ctime 要等消息落库、下次拉列表才拿得到，刚发出的提问和在途回答先用本地时间
+      // 占位，刷新后由 ctime 覆盖。已经有时间的消息（含历史消息）不动
+      setMessages(prev => {
+        const indexes = [findStreamMessageIndex(prev), findLastIndex(prev, item => item.role === 'user')].filter(
+          index => index !== -1 && !prev[index].time,
+        );
+
+        if (!indexes.length) return prev;
+
+        const now = Date.now();
+
+        return prev.map((item, index) => (indexes.includes(index) ? { ...item, time: now } : item));
+      });
+
+      // 信用点：一轮 LLM 调用会在多个帧上重复下发同一份 usage（price 是该轮的累计值），逐帧相加会把同一笔
+      // 费用算很多次，生成中的数字远大于落库真值。这里按模型消息 id 覆盖记账、再对各轮求和，与历史消息
+      // 逐条累加 metadata.price 的口径保持一致
+      const price = get(messageData, 'usage.price') || 0;
+
+      if (price > 0) {
+        const priceMap = cache.current.streamPriceMap || (cache.current.streamPriceMap = {});
+        priceMap[messageData.id || messageData.instanceId || 'current'] = price;
+        const totalPrice = sumPrice(Object.values(priceMap));
+
+        setMessages(prev => {
+          const targetIndex = findStreamMessageIndex(prev);
+
+          if (targetIndex === -1) return prev;
+
+          return prev.map((item, index) => (index === targetIndex ? { ...item, price: totalPrice } : item));
+        });
+      }
+
       try {
         if (cache.current.autoPlay) {
           speechSynthesizer.current.speakStream(messageContent);
@@ -354,7 +328,9 @@ function MingoContent(props, ref) {
 
       if (messageData.step === 'TOOL') {
         setLoadingStatus({ statusText: getLoadingText(messageData.name), type: 'TOOL' });
-      } else {
+      } else if (messageContent) {
+        // 仅在有真实回答内容时展示底部「生成中」提示。推理阶段穿插的空增量（content:null）不触发，
+        // 交由气泡内推理块的「思考中」独立呈现，避免最外层再叠一个多余的 loading。
         setLoadingStatus({});
       }
     },
@@ -362,12 +338,27 @@ function MingoContent(props, ref) {
       setLoadingStatus();
       console.log('onMessageDone', messages);
     },
-    // 后端通过独立的 thinking 事件下发思考/工具调用进度，这类事件没有 choices / text-delta，
+    // 后端通过独立的 thinking / reasoning 事件下发思考/工具调用进度，这类事件没有 choices / text-delta，
     // 在 useChat 中会被提前 return，不会进入 onMessagePipe。此时首条消息尚未产生、isRequesting
-    // 也已置 false，界面会出现一段空白。这里单独兜住 thinking 事件，让思考阶段同样展示 loading。
+    // 也已置 false，界面会出现一段空白。这里单独兜住这些事件：thinking 展示底部 loading，reasoning 交给
+    // 气泡内推理块展示（清掉底部重复的 loading）。同时尽早从事件里同步 conversationId 到 URL，
+    // 避免推理阶段中途报错/中止时 URL 仍停留在空会话（reasoning 不再走 onMessagePipe，需在此补上）。
     onEvent: event => {
-      if (event.event !== 'thinking') return;
-      const data = safeParse(event.data);
+      if (!['reasoning', 'thinking'].includes(event.event)) return;
+      const data = safeParse(event.data) || {};
+
+      if (!cache.current.conversationId && data.conversationId) {
+        setConversationId(data.conversationId);
+        cache.current.conversationId = data.conversationId;
+        onGenerateConversation(data.conversationId);
+      }
+
+      if (event.event === 'reasoning') {
+        // 推理内容已在气泡内以「思考中」实时展示，无需底部再重复 loading 提示
+        setLoadingStatus();
+        return;
+      }
+
       setLoadingStatus(
         data.step === 'TOOL'
           ? { statusText: getLoadingText(data.name), type: 'TOOL' }
@@ -398,17 +389,20 @@ function MingoContent(props, ref) {
     const scrollViewInfo = messageListRef.current?.scrollViewRef?.current?.getScrollInfo();
     const oldScrollHeight = scrollViewInfo?.scrollHeight || 0;
 
-    chatbotAjax
-      .getMessageList({
-        chatbotId,
-        conversationId,
-        pageIndex: nextPageIndex,
-        pageSize: 50,
-      })
-      .then(getMessageListData => {
-        const newMessages = formatMessages(
-          getMessageListData.sort((a, b) => new Date(a.ctime) - new Date(b.ctime)),
-        ).filter(identity);
+    fetchMessageList({
+      chatbotId,
+      conversationId,
+      pageIndex: nextPageIndex,
+      pageSize: 50,
+    })
+      .then(({ unavailable, list }) => {
+        // 翻页途中会话被删 / 失权：停在已加载的内容上，不再继续往前拉
+        if (unavailable) {
+          setHasMore(false);
+          return;
+        }
+
+        const newMessages = formatMessages(sortMessagesByCtimeAsc(list)).filter(identity);
 
         if (newMessages.length < 50) {
           setHasMore(false);
@@ -442,6 +436,8 @@ function MingoContent(props, ref) {
     setError();
     setIsChatting(true);
     setHasScrolledToBottom(true);
+    // 每轮回答的信用点单独记账，重新生成时同样从零开始
+    cache.current.streamPriceMap = {};
     sendMessage(newMessage, {
       fromMessageId,
       media: files.map(file => file.commonAttachment),
@@ -529,18 +525,27 @@ function MingoContent(props, ref) {
           shareId
             ? chatbotAjax.shareToConversation({ chatbotId, shareConversationId: shareId }).then(res => {
                 conversationIdForShare = res.conversationId;
-                return res.messages;
+                return { unavailable: false, list: res.messages || [] };
               })
-            : chatbotAjax.getMessageList({
+            : fetchMessageList({
                 chatbotId,
                 conversationId: props.conversationId,
                 pageIndex: 1,
                 pageSize: 50,
               }),
         ]),
-      ).then(([chatbotConfigData, getMessageListData]) => {
+      ).then(([chatbotConfigData, { unavailable, list }]) => {
         if (!isEmpty(chatbotConfigData)) {
           setChatbotConfig(chatbotConfigData);
+        }
+
+        // 会话不存在 / 无权访问：不能落成一个可继续提问的空会话，清空消息交给调用方渲染异常态
+        if (unavailable) {
+          setMessages([]);
+          setHasMore(false);
+          setIsLoadingMessages(false);
+          onConversationUnavailableRef.current(props.conversationId);
+          return;
         }
 
         setConversationId(shareId ? conversationIdForShare : props.conversationId);
@@ -548,12 +553,10 @@ function MingoContent(props, ref) {
           cache.current.conversationId = props.conversationId;
         }
 
-        const formattedMessages = formatMessages(
-          getMessageListData.sort((a, b) => new Date(a.ctime) - new Date(b.ctime)),
-        ).filter(identity);
+        const formattedMessages = formatMessages(sortMessagesByCtimeAsc(list)).filter(identity);
         setMessages(formattedMessages);
         // 如果返回的消息数量小于pageSize，说明没有更多消息了
-        setHasMore(getMessageListData.length === 50);
+        setHasMore(list.length === 50);
         setIsLoadingMessages(false);
         // 延迟设置已滚动到底部的标记，确保初始滚动完成
         setTimeout(() => {
@@ -620,6 +623,8 @@ function MingoContent(props, ref) {
       )}
       <MessageList
         width={width}
+        recordInfoAppId={appId}
+        recordInfoIsCharge={isCharge}
         allowShare={!get(window, 'shareState.isPublicChatbot') && !shareId && !isTest}
         shareMode={shareMode}
         isSelectAll={isSelectAll}
@@ -627,11 +632,16 @@ function MingoContent(props, ref) {
         setSelectedMessageIds={setSelectedMessageIds}
         loading={loading}
         isMobile={isMobile}
-        allowRegenerate={!showMessagesOnly}
+        allowRegenerate={!showMessagesOnly && !shareId}
         useAppThemeColor
         lastMessageShowTool={isTest}
         showTokenUsage={isTest}
+        showCredits
+        showTime
+        foldWorkPhase
         showFeedback={!isTest && !showMessagesOnly}
+        // 分享页匿名访问，附件预览与下载都要打登录态接口，点开只会报服务异常，这里直接禁掉交互
+        disableAttachmentActions={showMessagesOnly}
         listContentStyle={{ paddingTop: 0 }}
         activeMessageId={activeMessageId}
         assistantName={name}
@@ -740,6 +750,9 @@ function MingoContent(props, ref) {
         onSend={handleSend}
         chatbotId={chatbotId}
         handleRegenerate={async ({ messageId }) => {
+          // 缺少会话 / 消息 id 时无法定位要重置到的位置，直接返回，避免漏传参数请求接口
+          if (!conversationId || !messageId) return;
+
           const { prevUserMessageId } = await chatbotAjax.resetConversation({
             chatbotId,
             conversationId,
@@ -811,6 +824,7 @@ function MingoContent(props, ref) {
         <ShareOperateComponent
           from="chatbot"
           appId={appId}
+          projectId={projectId}
           chatbotId={chatbotId}
           conversationId={conversationId}
           isCharge={isCharge}
@@ -831,6 +845,8 @@ MingoContent.propTypes = {
   className: PropTypes.string,
   maxWidth: PropTypes.number,
   updateIsChatting: PropTypes.func.isRequired,
+  // 会话不存在 / 无权访问时回传该会话 id，由调用方决定异常态怎么展示
+  onConversationUnavailable: PropTypes.func,
 };
 
 export default forwardRef(MingoContent);

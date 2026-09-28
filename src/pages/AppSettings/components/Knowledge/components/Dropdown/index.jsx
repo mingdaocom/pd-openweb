@@ -1,37 +1,14 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
-import { Dropdown } from 'antd';
-import cx from 'classnames';
+import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
-import { useAutoFocus } from '../../core/hooks';
-
-export const Container = styled.div`
-  display: flex;
-  align-items: center;
-  color: var(--color-link);
-  font-weight: 700;
-  cursor: pointer;
-
-  &.disabled {
-    color: var(--color-text-disabled);
-    cursor: not-allowed;
-  }
-
-  .icon {
-    margin-right: 4px;
-    margin-bottom: 2px;
-  }
-`;
+import { Button, Popover } from 'ming-ui/antd-components';
+import { useAutoFocus } from 'src/utils/platform/react/interaction';
 
 export const DropdownPanel = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 4px;
   width: 300px;
   max-height: 320px;
-  box-shadow: var(--shadow-lg);
-  background-color: var(--color-background-primary);
-  border-radius: 3px;
 `;
 
 export const SearchInputWrapper = styled.div`
@@ -91,11 +68,33 @@ export const Item = styled.div`
   }
 `;
 
-const DROPDOWN_HEIGHT = 320;
-const DROPDOWN_WIDTH = 300;
+const DropdownTrigger = React.forwardRef(({ disabled, children, triggerText, className, ...props }, ref) => {
+  if (children) {
+    return (
+      <span {...props} ref={ref} className={className}>
+        {children}
+      </span>
+    );
+  }
 
-const SelectDropdown = ({
-  disabled = false,
+  return (
+    <Button
+      {...props}
+      ref={ref}
+      className={className}
+      color="primary"
+      variant="link"
+      disabled={disabled}
+      icon={<Icon icon="plus" />}
+    >
+      {triggerText}
+    </Button>
+  );
+});
+
+DropdownTrigger.displayName = 'DropdownTrigger';
+
+const SelectDropdownPopover = ({
   data = [],
   getKey,
   getLabel,
@@ -110,12 +109,10 @@ const SelectDropdown = ({
   abortVisibleChange,
   children,
 }) => {
-  const triggerRef = useRef(null);
   const inputRef = useRef(null);
 
   const [visible, setVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [placement, setPlacement] = useState('bottomLeft');
 
   useAutoFocus(inputRef, visible);
 
@@ -124,37 +121,7 @@ const SelectDropdown = ({
 
     const keyword = searchText.toLowerCase();
     return data.filter(item => String(getLabel(item)).toLowerCase().includes(keyword));
-  }, [data, searchText, searchable]);
-
-  useEffect(() => {
-    if (disabled) {
-      setVisible(false);
-    }
-  }, [disabled]);
-
-  const getPlacement = () => {
-    const rect = triggerRef.current?.getBoundingClientRect();
-    if (!rect) return 'bottomLeft';
-
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
-    const spaceRight = window.innerWidth - rect.left;
-    const spaceLeft = rect.right;
-
-    let vertical = 'bottom';
-
-    if (spaceBelow >= DROPDOWN_HEIGHT) vertical = 'bottom';
-    else if (spaceAbove >= DROPDOWN_HEIGHT) vertical = 'top';
-    else vertical = spaceBelow > spaceAbove ? 'bottom' : 'top';
-
-    let horizontal = 'Left';
-
-    if (spaceRight < DROPDOWN_WIDTH && spaceLeft >= DROPDOWN_WIDTH) {
-      horizontal = 'Right';
-    }
-
-    return `${vertical}${horizontal}`;
-  };
+  }, [data, getLabel, searchText, searchable]);
 
   const handleItemClick = item => {
     onSelect(item);
@@ -202,36 +169,37 @@ const SelectDropdown = ({
   );
 
   return (
-    <Dropdown
-      overlay={overlay}
-      trigger={['click']}
-      disabled={disabled}
-      visible={visible}
-      placement={placement}
+    <Popover
+      trigger="click"
+      open={visible}
+      placement="bottomLeft"
       getPopupContainer={() => document.body}
-      onVisibleChange={v => {
+      noPadding
+      onOpenChange={v => {
         if (abortVisibleChange?.()) {
           setVisible(false);
           return;
         }
 
-        if (v) {
-          setPlacement(getPlacement());
-        }
-
         setVisible(v);
       }}
+      content={overlay}
     >
-      <Container className={cx({ disabled })} ref={triggerRef}>
-        {children || (
-          <Fragment>
-            <Icon icon="plus" className="icon" />
-            {triggerText}
-          </Fragment>
-        )}
-      </Container>
-    </Dropdown>
+      <DropdownTrigger triggerText={triggerText}>{children}</DropdownTrigger>
+    </Popover>
   );
+};
+
+const SelectDropdown = props => {
+  if (props.disabled) {
+    return (
+      <DropdownTrigger disabled triggerText={props.triggerText}>
+        {props.children}
+      </DropdownTrigger>
+    );
+  }
+
+  return <SelectDropdownPopover {...props} />;
 };
 
 export default SelectDropdown;

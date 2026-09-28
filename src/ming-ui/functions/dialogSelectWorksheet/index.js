@@ -2,54 +2,17 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, FunctionWrap, Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { canSelectAppWorksheets, getAppSelectionState, toggleAppWorksheets, toggleWorksheet } from './selection';
 
 const ContentWrapper = styled.div`
-  height: 100%;
+  height: calc(100vh - 190px);
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  .appSearchInput {
-    display: flex;
-    position: relative;
-    height: 36px;
-    margin-top: 8px;
-
-    input {
-      flex: 1;
-      border: none;
-      border-radius: 26px;
-      background-color: var(--color-background-secondary);
-      padding: 0 18px 0 40px;
-      &:hover {
-        background-color: var(--color-background-hover);
-      }
-      &:focus {
-        background-color: var(--color-background-primary);
-        box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-      }
-    }
-    .searchIcon {
-      position: absolute;
-      top: 10px;
-      left: 18px;
-    }
-    .searchClear {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      right: 3px;
-      top: 3px;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      &:hover {
-        background: var(--color-background-hover);
-      }
-    }
-  }
   .emptyText {
     flex: 1;
     display: flex;
@@ -80,13 +43,6 @@ const Item = styled.div`
       color: var(--color-primary);
     }
   }
-  .ming.Checkbox {
-    min-width: 18px;
-    .Checkbox-box {
-      margin: 0 !important;
-    }
-  }
-
   .appIcon {
     width: 24px;
     height: 24px;
@@ -106,30 +62,28 @@ const Item = styled.div`
   &:hover {
     background: var(--color-background-hover);
   }
+  &.disabled {
+    cursor: not-allowed;
+    color: var(--color-text-disabled);
+    &:hover {
+      background: transparent;
+    }
+    .appIcon {
+      opacity: 0.5;
+    }
+  }
 `;
 
 function SelectWorksheet(props) {
-  const { projectId, title, onClose, onOk = () => {} } = props;
-  const searchRef = useRef();
+  const { projectId, onSelectionChange } = props;
+  const onSearch = useRef();
   const [
-    {
-      keywords,
-      expandIds,
-      items,
-      selectApps,
-      selectWorksheets,
-      appPageIndex,
-      loadingApp,
-      isMoreApp,
-      appList,
-      itemLoading,
-    },
+    { keywords, expandIds, items, selectWorksheets, appPageIndex, loadingApp, isMoreApp, appList, itemLoading },
     setData,
   ] = useSetState({
     keywords: undefined,
     expandIds: [],
     items: {},
-    selectApps: [],
     selectWorksheets: [],
     appPageIndex: 1,
     loadingApp: true,
@@ -137,68 +91,103 @@ function SelectWorksheet(props) {
     appList: [],
     itemLoading: {},
   });
-  let appPromise = null;
+  const appPromise = useRef(null);
+  const appRequestId = useRef(0);
+  const appState = useRef({ appPageIndex, appList, isMoreApp, loadingApp, keywords });
 
-  const getAppList = (params = {}) => {
-    // 加载更多
-    if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
-      return;
-    }
+  useEffect(() => {
+    onSelectionChange(selectWorksheets);
+  }, [onSelectionChange, selectWorksheets]);
 
-    setData({ loadingApp: true });
-    if (appPromise) {
-      appPromise.abort();
-    }
+  useEffect(() => {
+    appState.current = { appPageIndex, appList, isMoreApp, loadingApp, keywords };
+  }, [appList, appPageIndex, isMoreApp, keywords, loadingApp]);
 
-    const pageIndex = params.appPageIndex || appPageIndex;
-    appPromise = appManagementAjax.getAppsByProject({
-      projectId,
-      status: '',
-      order: 3,
-      pageIndex,
-      pageSize: 50,
-      keyword: params.keyword,
-    });
+  const getAppList = useCallback(
+    (params = {}) => {
+      const { appPageIndex, appList, isMoreApp, loadingApp, keywords } = appState.current;
+      const keyword = typeof params.keyword === 'string' ? params.keyword : keywords;
 
-    appPromise
-      .then(({ apps }) => {
-        setData({
-          appList: pageIndex === 1 ? [].concat(apps) : appList.concat(apps),
-          isMoreApp: apps.length >= 50,
-          loadingApp: false,
-          appPageIndex: pageIndex,
-        });
-      })
-      .catch(() => {
-        setData({ loadingApp: false });
+      if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
+        return;
+      }
+
+      appState.current = { ...appState.current, loadingApp: true };
+      setData({ loadingApp: true });
+      if (appPromise.current) {
+        appPromise.current.abort();
+      }
+
+      const requestId = ++appRequestId.current;
+      const pageIndex = params.appPageIndex || appPageIndex;
+      appPromise.current = appManagementAjax.getAppsByProject({
+        projectId,
+        status: '',
+        order: 3,
+        pageIndex,
+        pageSize: 50,
+        keyword,
       });
-  };
+
+      appPromise.current
+        .then(({ apps = [] }) => {
+          if (requestId !== appRequestId.current) return;
+          const nextAppList = pageIndex === 1 ? apps : appList.concat(apps);
+          appState.current = {
+            ...appState.current,
+            appList: nextAppList,
+            isMoreApp: apps.length >= 50,
+            loadingApp: false,
+            appPageIndex: pageIndex,
+            keywords: keyword,
+          };
+          setData({
+            appList: nextAppList,
+            isMoreApp: apps.length >= 50,
+            loadingApp: false,
+            appPageIndex: pageIndex,
+          });
+        })
+        .catch(() => {
+          if (requestId !== appRequestId.current) return;
+          appState.current = { ...appState.current, loadingApp: false };
+          setData({ loadingApp: false });
+        });
+    },
+    [projectId, setData],
+  );
 
   const onScrollEnd = () => {
     if (isMoreApp && !loadingApp) {
-      getAppList({ appPageIndex: appPageIndex + 1 });
+      getAppList({ appPageIndex: appPageIndex + 1, keyword: keywords });
     }
   };
 
-  const onSearch = useCallback(
-    _.debounce(value => {
+  useEffect(() => {
+    onSearch.current = _.debounce(value => {
       getAppList({ appPageIndex: 1, keyword: value });
-    }, 500),
-    [],
-  );
+    }, 500);
+
+    return () => onSearch.current && onSearch.current.cancel();
+  }, [getAppList]);
 
   const fetchItemList = (appId, { allSelect, app } = {}) => {
-    setData({ itemLoading: { [appId]: true } });
-    appManagementAjax.getAppItems({ appIds: [appId], isFilterCustomPage: true, projectId }).then(res => {
-      if (res) {
-        const sheets = res[appId] || [];
-        setData({
-          items: { ...items, [appId]: sheets },
-          selectWorksheets: allSelect ? selectWorksheets.concat(sheets.map(v => ({ ...v, app }))) : selectWorksheets,
-          itemLoading: { [appId]: false },
-        });
-      }
-    });
+    setData(previous => ({ itemLoading: { ...previous.itemLoading, [appId]: true } }));
+    appManagementAjax
+      .getAppItems({ appIds: [appId], isFilterCustomPage: true, projectId })
+      .then(res => {
+        const sheets = (res && res[appId]) || [];
+        setData(previous => ({
+          items: { ...previous.items, [appId]: sheets },
+          selectWorksheets: allSelect
+            ? toggleAppWorksheets({ worksheets: sheets, selectedWorksheets: previous.selectWorksheets, app })
+            : previous.selectWorksheets,
+          itemLoading: { ...previous.itemLoading, [appId]: false },
+        }));
+      })
+      .catch(() => {
+        setData(previous => ({ itemLoading: { ...previous.itemLoading, [appId]: false } }));
+      });
   };
 
   const expandApp = (e, app) => {
@@ -210,38 +199,26 @@ function SelectWorksheet(props) {
   };
 
   const handleSelectApps = app => {
-    const isAppChecked = !!_.find(selectApps, item => item.appId === app.appId);
-    const newSelected = isAppChecked ? selectApps.filter(i => i.appId !== app.appId) : selectApps.concat(app);
-
     if (items[app.appId]) {
-      const currentAppWorksheets = items[app.appId].map(item => ({ ...item, app }));
-      const newSelectWorksheets = !isAppChecked
-        ? selectWorksheets.concat(currentAppWorksheets)
-        : selectWorksheets.filter(
-            v =>
-              !_.includes(
-                currentAppWorksheets.map(i => i.workSheetId),
-                v.workSheetId,
-              ),
-          );
-      setData({ selectApps: newSelected, selectWorksheets: newSelectWorksheets });
+      setData(previous => ({
+        selectWorksheets: toggleAppWorksheets({
+          worksheets: previous.items[app.appId] || [],
+          selectedWorksheets: previous.selectWorksheets,
+          app,
+        }),
+      }));
     } else {
-      setData({ selectApps: newSelected });
       fetchItemList(app.appId, { allSelect: true, app });
     }
   };
 
   const handleSelectWorksheets = (item, app) => {
-    const isItemChecked = !!_.find(selectWorksheets, v => v.workSheetId === item.workSheetId);
-    const newSelected = isItemChecked
-      ? selectWorksheets.filter(v => v.workSheetId !== item.workSheetId)
-      : selectWorksheets.concat({ ...item, app });
-    setData({ selectWorksheets: newSelected });
+    setData(previous => ({ selectWorksheets: toggleWorksheet(previous.selectWorksheets, item, app) }));
   };
 
   useEffect(() => {
     getAppList();
-  }, []);
+  }, [getAppList]);
 
   const renderAppList = () => {
     if (loadingApp && appPageIndex === 1 && !appList.length) {
@@ -260,16 +237,26 @@ function SelectWorksheet(props) {
       <ScrollView className="appList" onScrollEnd={onScrollEnd}>
         {appList.map((app, index) => {
           const isExpand = _.includes(expandIds, app.appId);
-          const isAppChecked = !!_.find(selectApps, item => item.appId === app.appId);
+          const worksheets = items[app.appId];
+          const appSelectionState = getAppSelectionState(worksheets, selectWorksheets);
+          const appSelectable = canSelectAppWorksheets(worksheets);
           return (
             <React.Fragment>
-              <Item key={index} onClick={() => handleSelectApps(app)}>
+              <Item
+                key={index}
+                className={appSelectable ? '' : 'disabled'}
+                onClick={() => appSelectable && handleSelectApps(app)}
+              >
                 <Icon
                   icon={isExpand ? 'arrow-down' : 'arrow-right-tip'}
                   className="expandIcon"
                   onClick={e => expandApp(e, app)}
                 />
-                <Checkbox checked={isAppChecked} />
+                <Checkbox
+                  checked={appSelectionState.checked}
+                  disabled={!appSelectable}
+                  indeterminate={appSelectionState.indeterminate}
+                />
                 <div className="appIcon" style={{ backgroundColor: app.iconColor }}>
                   <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
                 </div>
@@ -304,50 +291,83 @@ function SelectWorksheet(props) {
   };
 
   return (
-    <Dialog
-      visible={true}
-      type="fixed"
-      width={480}
-      title={title}
-      okText={_l('确认')}
-      onOk={() => {
-        onOk(selectWorksheets);
-        onClose();
-      }}
-      onCancel={onClose}
-    >
-      <ContentWrapper>
-        <div className="appSearchInput">
-          <Icon icon="search" className="searchIcon Font16 textSecondary" />
-          <input
-            type="text"
-            autoFocus
-            value={keywords}
-            onChange={e => {
-              setData({ keywords: e.target.value.trim(), appPageIndex: 1 });
-              onSearch(e.target.value.trim());
-            }}
-            ref={searchRef}
-            placeholder={_l('搜索应用名称')}
-          />
-          {keywords && (
-            <div
-              className="searchClear"
-              onClick={() => {
-                searchRef.current.value = '';
-                setData({ keywords: '' });
-                onSearch('');
-              }}
-            >
-              <Icon type="cancel" className="textTertiary Font16" />
-            </div>
-          )}
-        </div>
+    <ContentWrapper>
+      <Input
+        allowClear
+        autoFocus
+        radius
+        variant="filled"
+        value={keywords || ''}
+        placeholder={_l('搜索应用名称')}
+        prefix={<Icon icon="search" className="textTertiary Font18" />}
+        onChange={event => {
+          const value = event.target.value.trim();
+          setData({ keywords: value, appPageIndex: 1 });
+          if (onSearch.current) onSearch.current(value);
+        }}
+      />
 
-        {renderAppList()}
-      </ContentWrapper>
-    </Dialog>
+      {renderAppList()}
+    </ContentWrapper>
   );
 }
 
-export default props => FunctionWrap(SelectWorksheet, { ...props });
+export function dialogSelectWorksheet(options = {}) {
+  let modal;
+  let selectedWorksheets = [];
+  const handlePopState = () => !browserIsMobile() && modal.destroy();
+
+  const handleCancel = () => {
+    if (_.isFunction(options.onClose)) {
+      options.onClose();
+    }
+  };
+
+  const handleConfirm = () => {
+    const result = _.isFunction(options.onOk) ? options.onOk(selectedWorksheets) : undefined;
+
+    if (result && _.isFunction(result.then)) {
+      return result.then(value => {
+        handleCancel();
+        return value;
+      });
+    }
+
+    handleCancel();
+    return result;
+  };
+
+  const renderFooterLeftElement = () =>
+    options.extraFooter ||
+    (!!selectedWorksheets.length && (
+      <div className="textTertiary">{_l('已选择%0个工作表', selectedWorksheets.length)}</div>
+    ));
+
+  const handleSelectionChange = worksheets => {
+    selectedWorksheets = worksheets;
+    modal.update({ okButtonProps: { ...options.okButtonProps, disabled: !selectedWorksheets.length } });
+  };
+
+  modal = Modal.info({
+    afterClose: () => window.removeEventListener('popstate', handlePopState),
+    centered: true,
+    cancelText: _l('取消'),
+    content: <SelectWorksheet {...options} onSelectionChange={handleSelectionChange} />,
+    footerLeftElement: renderFooterLeftElement,
+    mask: { closable: options.overlayClosable !== false },
+    okButtonProps: { ...options.okButtonProps, disabled: true },
+    okCancel: true,
+    okText: _l('确认'),
+    onCancel: handleCancel,
+    onOk: handleConfirm,
+    title: options.title ?? _l('选择工作表'),
+    width: 520,
+    zIndex: options.zIndex,
+  });
+
+  window.addEventListener('popstate', handlePopState);
+
+  return modal;
+}
+
+export default dialogSelectWorksheet;

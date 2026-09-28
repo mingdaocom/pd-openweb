@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 
 const EditInputCon = styled.div`
@@ -15,10 +15,6 @@ const EditInputCon = styled.div`
     border: none;
     border-bottom: 2px solid var(--color-primary);
     padding: 4px 0;
-  }
-  .ant-input:focus,
-  .ant-input-focused {
-    box-shadow: unset;
   }
   .editIcon {
     display: inline-block;

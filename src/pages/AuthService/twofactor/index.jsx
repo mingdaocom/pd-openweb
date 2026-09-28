@@ -4,15 +4,15 @@ import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import loginAjax from 'src/api/login';
-import ChangeLang from 'src/components/ChangeLang';
 import WrapBg from 'src/pages/AuthService/components/Bg.jsx';
+import ChangeLang from 'src/pages/AuthService/components/ChangeLang';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import Header from 'src/pages/AuthService/components/Header.jsx';
 import { Wrap } from 'src/pages/AuthService/login/style.jsx';
 import { WrapCom } from 'src/pages/AuthService/style.jsx';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getRequest } from 'src/utils/platform/browser/device';
 import { TwofactorVerifyCodeActionResult } from '../login/config';
 import { TwofactorType } from './config';
 import Twofactor from './twofactorCon';
@@ -279,7 +279,13 @@ export default class TwofactorContainer extends React.Component {
   render() {
     return (
       <WrapCom>
-        <DocumentTitle title={_l('两步验证')} />
+        {!(window.platformENV.isOverseas || window.platformENV.isLocal) ? (
+          <DocumentTitle
+            title={_l('两步验证 - 明道云 | APaaS平台、零代码、hpaPaaS、iPaaS、BaaS、快速开发工具、中台应用')}
+          />
+        ) : (
+          <DocumentTitle title={_l('两步验证')} />
+        )}
         <WrapBg />
         <div className="loginBox">
           <div className="loginContainer">

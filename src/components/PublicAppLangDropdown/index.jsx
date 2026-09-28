@@ -1,27 +1,20 @@
 import React, { useState } from 'react';
-import { Dropdown, Menu } from 'antd';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import fixedDataApi from 'src/api/fixedData';
-import langConfig, { getAppLangCode, getSystemLangKey } from 'src/common/langConfig';
 import 'src/pages/Mobile/mobileModal.less';
-import { PUBLIC_APP_BASE_LANG } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import langConfig, { getAppLangCode, getSystemLangKey } from 'src/utils/platform/i18n/langConfig';
+import { PUBLIC_APP_BASE_LANG } from 'src/utils/services/app';
 
 const Wrapper = styled.div`
   display: inline-flex;
   align-items: center;
   height: 100%;
-`;
-
-const MenuWrap = styled(Menu)`
-  width: 200px;
-  max-height: 380px;
-  overflow-y: auto;
 `;
 
 const IconWrap = styled(Icon)`
@@ -170,51 +163,52 @@ export default function PublicAppLangDropdown(props) {
     );
   }
 
+  const langMenuItems = loading
+    ? [
+        {
+          key: 'loading',
+          label: (
+            <div className="flexRow alignItemsCenter justifyContentCenter" style={{ height: 36 }}>
+              <LoadDiv size="small" />
+            </div>
+          ),
+        },
+      ]
+    : langOptions.map(item => ({
+        key: item.key,
+        className: cx({ active: item.key === currentAppLang }),
+        style: item.key === currentAppLang ? { backgroundColor: 'var(--color-background-secondary)' } : undefined,
+        label: (
+          <div className="flexRow alignItemsCenter">
+            <div className="flex">{item.text}</div>
+            {item.key === currentAppLang && <Icon icon="done" className="colorPrimary Font19" />}
+          </div>
+        ),
+        onClick: () => updateAppLang(item.key),
+      }));
+
   return (
     <Wrapper className={className}>
       <Dropdown
-        overlay={
-          <MenuWrap>
-            {loading ? (
-              <li className="flexRow alignItemsCenter justifyContentCenter" style={{ height: 36 }}>
-                <LoadDiv size="small" />
-              </li>
-            ) : (
-              <React.Fragment>
-                {langOptions.map(item => (
-                  <Menu.Item
-                    key={item.key}
-                    className={cx({ active: item.key === currentAppLang })}
-                    onClick={() => updateAppLang(item.key)}
-                  >
-                    <div className="flexRow alignItemsCenter">
-                      <div className="flex">{item.text}</div>
-                      {item.key === currentAppLang && <Icon icon="done" className="colorPrimary Font19" />}
-                    </div>
-                  </Menu.Item>
-                ))}
-              </React.Fragment>
-            )}
-          </MenuWrap>
-        }
         placement={placement}
         trigger={['click']}
-        onVisibleChange={value => {
+        onOpenChange={value => {
           setTooltipVisible(false);
 
           if (value) {
             loadLangList();
           }
         }}
+        menu={{
+          items: langMenuItems,
+          style: { minWidth: 200, maxHeight: 380, overflowY: 'auto' },
+        }}
       >
-        <Tooltip
-          title={_l('语言')}
-          placement="bottom"
-          visible={tooltipVisible}
-          onVisibleChange={value => setTooltipVisible(value)}
-        >
-          <IconWrap icon="language" />
-        </Tooltip>
+        <span className="InlineBlock">
+          <Tooltip title={_l('语言')} placement="bottom" open={tooltipVisible} onOpenChange={setTooltipVisible}>
+            <IconWrap icon="language" />
+          </Tooltip>
+        </span>
       </Dropdown>
     </Wrapper>
   );

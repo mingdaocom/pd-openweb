@@ -161,6 +161,7 @@ let SpeedCreateTime = class SpeedCreateTime extends Component {
       this.gunterViewEl.addEventListener('mousemove', this.debounceHandleMouseMove);
       this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
     }
+
     gunterView.chartScroll.on('scrollStart', this.handleMouseLeave);
     this.initPeriodList(gunterView);
     this.setState({
@@ -170,10 +171,12 @@ let SpeedCreateTime = class SpeedCreateTime extends Component {
 
   componentWillUnmount() {
     const { chartScroll } = this.props.gunterView;
+
     if (this.gunterViewEl) {
       this.gunterViewEl.removeEventListener('mousemove', this.debounceHandleMouseMove);
       this.gunterViewEl.removeEventListener('mouseleave', this.handleMouseLeave);
     }
+
     chartScroll.off('scrollStart', this.handleMouseLeave);
   }
 

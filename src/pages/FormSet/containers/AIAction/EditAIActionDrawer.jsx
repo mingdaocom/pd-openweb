@@ -1,29 +1,36 @@
-import React, { Fragment, lazy, Suspense, useEffect, useRef } from 'react';
+import React, { Fragment, lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input, LoadDiv, RadioGroup, TagTextarea } from 'ming-ui';
+import { Icon, LoadDiv, TagTextarea } from 'ming-ui';
+import { Button, Drawer, Input, Radio } from 'ming-ui/antd-components';
 import flowNode from 'src/pages/workflow/api/flowNode';
 import processAjax from 'src/pages/workflow/api/process';
 import AiActionChatBot from 'src/components/Mingo/modules/AiActionChatBot';
-import { selectRecords } from 'src/components/SelectRecords';
+import { useSelectRecords } from 'src/components/SelectRecords';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import DrawerFooter from 'src/pages/FormSet/components/DrawerFooter';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { AGENT_TOOLS } from 'src/pages/workflow/WorkflowSettings/enum';
+import { useWorkflowLogDialog } from 'src/pages/workflow/WorkflowSettings/History/components/logDialog';
 import { handleGlobalVariableName } from 'src/pages/workflow/WorkflowSettings/utils';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
-import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
 
-const DrawerWrapper = styled(Drawer)`
-  & > .ant-drawer-content-wrapper {
+const DrawerWrapper = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  & > .hap-drawer-content-wrapper {
     padding-top: 50px;
   }
   @media screen and (max-width: 1200px) {
-    &.ant-drawer {
-      width: ${({ showChatbotDialog }) => (showChatbotDialog ? 1000 : 800)}px!important;
+    &.hap-drawer {
+      width: ${({ $showChatbotDialog }) => ($showChatbotDialog ? 1000 : 800)}px!important;
     }
   }
 `;
@@ -86,20 +93,6 @@ const Wrapper = styled.div`
       line-height: 44px;
     }
   }
-  .actionBtn {
-    padding: 0 32px;
-    border-radius: 30px;
-    line-height: 28px;
-    cursor: pointer;
-    &.testBtn {
-      color: #50ae54;
-      border: 1px solid #50ae54;
-    }
-    &.settingBtn {
-      color: var(--color-primary);
-      border: 1px solid var(--color-primary);
-    }
-  }
   .toolTxtColor {
     color: var(--color-text-tertiary);
   }
@@ -130,6 +123,7 @@ const LoadableDetail = lazy(() => import('src/pages/workflow/WorkflowSettings/De
 const LoadableTag = lazy(() => import('src/pages/workflow/WorkflowSettings/Detail/components/Tag/index.jsx'));
 
 export default function EditAIActionDrawer(props) {
+  const { open: openWorkflowLogDialog, holder: workflowLogDialogHolder } = useWorkflowLogDialog();
   const {
     appId,
     worksheetId,
@@ -141,6 +135,7 @@ export default function EditAIActionDrawer(props) {
     currentActionItem = {},
     handleSave = () => {},
   } = props;
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
   const [state, setState] = useSetState({
     loadingProcess: false,
     name: currentActionItem.name || '',
@@ -182,8 +177,8 @@ export default function EditAIActionDrawer(props) {
 
   const promptRef = useRef(null);
 
-  const getProcessInfo = async () => {
-    if (loadingProcess || !btnId || !worksheetId) {
+  const getProcessInfo = useCallback(async () => {
+    if (!btnId || !worksheetId) {
       return;
     }
 
@@ -207,13 +202,13 @@ export default function EditAIActionDrawer(props) {
     });
 
     setState({ info, nodeDetail, loadingProcess: false });
-  };
+  }, [btnId, setState, worksheetId]);
 
   /**
    * 选择记录
    */
   const selectRecord = () => {
-    selectRecords({
+    openSelectRecords({
       canSelectAll: false,
       pageSize: 25,
       multiple: false,
@@ -231,7 +226,7 @@ export default function EditAIActionDrawer(props) {
 
   useEffect(() => {
     getProcessInfo();
-  }, [btnId]);
+  }, [getProcessInfo]);
 
   useEffect(() => {
     if (promptRef && promptRef.current) {
@@ -257,17 +252,13 @@ export default function EditAIActionDrawer(props) {
           worksheetInfo={worksheetInfo}
           recordData={recordInfo}
           onClose={() => setState({ showChatbotDialog: false })}
-          onOpenMessageLog={({ instanceId }) => {
-            import('src/pages/workflow/WorkflowSettings/History/components/logDialog')
-              .then(({ default: logDialog }) => {
-                logDialog({
-                  processId: info.id,
-                  nodeId: info?.flowNodeMap?.[info.startEventId]?.nextId,
-                  instanceId,
-                });
-              })
-              .catch(_.noop);
-          }}
+          onOpenMessageLog={({ instanceId }) =>
+            openWorkflowLogDialog({
+              processId: info.id,
+              nodeId: info?.flowNodeMap?.[info.startEventId]?.nextId,
+              instanceId,
+            })
+          }
         />
       </BotBox>
     );
@@ -275,22 +266,22 @@ export default function EditAIActionDrawer(props) {
 
   return (
     <Fragment>
+      {workflowLogDialogHolder}
       <DrawerWrapper
-        className="Absolute editAIActionDrawer"
-        showChatbotDialog={showChatbotDialog}
+        rootClassName="editAIActionDrawer"
+        $showChatbotDialog={showChatbotDialog}
         width={showChatbotDialog ? 1200 : 800}
-        visible
+        open
         mask={false}
         placement="right"
         closable={false}
-        maskClosable={false}
         zIndex={2}
         getContainer={false}
-        bodyStyle={{ padding: 0 }}
-        maskStyle={{ background: 'rgba(0, 0, 0, 0.32)' }}
-        style={{ transform: 'translateX(1px)' }}
+        styles={{ body: { padding: 0 } }}
+        rootStyle={{ transform: 'translateX(1px)' }}
         onClose={onClose}
       >
+        {selectRecordsHolder}
         <div className="flexRow h100">
           <div className="flex">
             {loadingProcess ? (
@@ -315,13 +306,23 @@ export default function EditAIActionDrawer(props) {
                   <Input
                     className="w100"
                     value={name}
-                    onChange={val => setState({ name: val, params: { ...params, name: val } })}
+                    onChange={event =>
+                      setState({
+                        name: event.target.value,
+                        params: { ...params, name: event.target.value },
+                      })
+                    }
                   />
                   <div className="title">{_l('说明')}</div>
                   <Input
                     className="w100"
                     value={desc}
-                    onChange={val => setState({ desc: val, params: { ...params, desc: val } })}
+                    onChange={event =>
+                      setState({
+                        desc: event.target.value,
+                        params: { ...params, desc: event.target.value },
+                      })
+                    }
                   />
                   <div className="title">{_l('动作')}</div>
                   <div className="actionWrap">
@@ -330,12 +331,23 @@ export default function EditAIActionDrawer(props) {
                         <Icon icon="AI_Agent" className="Font22" />
                       </div>
                       <div className="flex Font17 bold">{_l('执行AI Agent')}</div>
-                      <div className="actionBtn mRight20 testBtn" onClick={selectRecord}>
+                      <Button
+                        color="#50ae54"
+                        variant="outlined"
+                        shape="round"
+                        className="mRight20"
+                        onClick={selectRecord}
+                      >
                         {_l('测试')}
-                      </div>
-                      <div className="actionBtn settingBtn" onClick={() => setState({ showSettingDrawer: true })}>
+                      </Button>
+                      <Button
+                        color="primary"
+                        variant="outlined"
+                        shape="round"
+                        onClick={() => setState({ showSettingDrawer: true })}
+                      >
                         {_l('配置')}
-                      </div>
+                      </Button>
                     </div>
                     <div className="flexRow">
                       <div className="label">{_l('模型')}</div>
@@ -389,24 +401,31 @@ export default function EditAIActionDrawer(props) {
                     )}
                   </div>
                   <div className="title">{_l('启用按钮')}</div>
-                  <RadioGroup
-                    data={[
+                  <Radio.Group
+                    options={[
                       { value: 1, text: _l('一直') },
                       { value: 2, text: _l('满足筛选条件') },
-                    ]}
+                    ].map(({ text, ...option }) => ({ ...option, label: text }))}
                     size="small"
-                    onChange={value => {
+                    onChange={event => {
+                      const value = event.target.value;
+
                       setState({
                         showType: value,
                         isShowBtnFilterDialog: value === 2 && filters.length <= 0,
-                        params: { ...params, showType: value },
+                        params: {
+                          ...params,
+                          showType: value,
+                        },
                       });
                     }}
-                    checkedValue={showType}
+                    value={showType}
                   />
                   {filterItemTexts.length > 0 && showType === 2 && (
                     <FilterItemTexts
                       filterItemTexts={filterItemTexts}
+                      filters={filters}
+                      controls={columns}
                       loading={false}
                       editFn={() => setState({ isShowBtnFilterDialog: true })}
                     />

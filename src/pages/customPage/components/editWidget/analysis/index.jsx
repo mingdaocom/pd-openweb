@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import ChartDialog from 'statistics/ChartDialog';
-import { replaceColor } from 'src/pages/customPage/util';
+import { replaceColor } from 'src/utils/domain/customPage/model';
 import CreateAnalysis from './CreateAnalysis';
 
 export default function Analysis(props) {

@@ -5,8 +5,9 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import orderController from 'src/api/order';
-import preall from 'src/common/preall';
-import { getRequest, pathCompletion } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import PayHeader from '../payHeader';
 
 const PaySuccessWrap = styled.div`

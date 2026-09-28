@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { Icon, LoadDiv, QiniuUpload, Slider } from 'ming-ui';
+import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { Segmented, Slider } from 'ming-ui/antd-components';
 import { BGTYPE, COLORS } from 'src/pages/Role/PortalCon/tabCon/util';
-import { formatNumberFromInput } from 'src/utils/control';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
 import { Wrap, WrapCon, WrapDemo } from './style';
 
 function parseLogoHeightPx(text) {
@@ -14,6 +15,11 @@ function parseLogoHeightPx(text) {
 function normalizeLogoHeight(value) {
   const n = Number(value);
   return Number.isFinite(n) && n >= 16 && n <= 72 ? n : 40;
+}
+
+/** backGroundType 非 3/6（含缺失/历史脏值）时按 3（颜色）处理，与 Segmented 默认回退一致 */
+function normalizeBackGroundType(value) {
+  return Number(value) === 6 ? 6 : 3;
 }
 
 export default function LoginSet(props) {
@@ -119,6 +125,8 @@ export default function LoginSet(props) {
     );
   };
 
+  const backGroundType = normalizeBackGroundType(portalSetModel.backGroundType);
+
   return (
     <Wrap>
       <div className="content">
@@ -165,13 +173,10 @@ export default function LoginSet(props) {
             <div className="contentText mRight16">{_l('高度')}</div>
             <div className="flex">
               <Slider
-                showInput={false}
-                showNumber={false}
                 min={16}
                 max={72}
                 step={1}
                 value={normalizeLogoHeight(portalSetModel.logoHeight)}
-                liveUpdate={false}
                 onChange={value => {
                   const n = Number(value);
                   setLogoHeightText(String(n));
@@ -243,28 +248,22 @@ export default function LoginSet(props) {
         {portalSetModel.pageMode !== 6 ? (
           <React.Fragment>
             <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('背景设置')}</h6>
-            <ul className="bgTypeUl mTop16">
-              {BGTYPE.map((o, i) => {
-                return (
-                  <li
-                    className={cx('InlineBlock bgTypeUlLi Hand', {
-                      current: portalSetModel.backGroundType / 3 - 1 === i,
-                    })}
-                    onClick={() => {
-                      onChangePortalSet({
-                        portalSetModel: {
-                          ...portalSetModel,
-                          backGroundType: (i + 1) * 3,
-                        },
-                      });
-                    }}
-                  >
-                    {o}
-                  </li>
-                );
-              })}
-            </ul>
-            {portalSetModel.backGroundType / 3 - 1 === 0 ? (
+            <Segmented
+              block
+              className="mTop16"
+              style={{ width: 240, height: 40 }}
+              options={BGTYPE.map((o, i) => ({ label: o, value: (i + 1) * 3 }))}
+              value={backGroundType}
+              onChange={value => {
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    backGroundType: value,
+                  },
+                });
+              }}
+            />
+            {backGroundType === 3 ? (
               <React.Fragment>
                 <ul className="mTop6" style={{ 'max-width': 400 }}>
                   {COLORS.map((item, i) => {
@@ -300,7 +299,7 @@ export default function LoginSet(props) {
       <div className="loginDemo">
         <WrapDemo
           style={
-            portalSetModel.backGroundType === 3
+            backGroundType === 3
               ? { 'background-color': portalSetModel.backColor }
               : portalSetModel.pageMode === 3
                 ? { 'background-image': `url(${portalSetModel.backImageUrl})` }

@@ -2,27 +2,21 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { find } from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Dropdown, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
+import { formatAppsToDropdown } from 'src/utils/domain/control/filters';
 import { useGetApps } from '../../../hooks';
 import { SettingItem } from '../../../styled';
-import { formatAppsToDropdown } from '../../../util';
 import EditOptionList from './EditOptionList';
 
-const DialogFooter = styled.div`
-  margin-top: 24px;
-  justify-content: space-between;
-  .addOptionList {
-    cursor: pointer;
-    color: var(--color-primary);
-    &:hover {
-      color: var(--color-link-hover);
-    }
-  }
-  .btns {
-    .text {
-      margin-right: 24px;
-    }
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+
+const AddOptionList = styled.div`
+  cursor: pointer;
+  color: var(--color-primary);
+  &:hover {
+    color: var(--color-link-hover);
   }
 `;
 
@@ -49,12 +43,21 @@ export default function SelectOptionList(props) {
   }, [getList]);
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={560}
       title={<span className="Bold">{_l('使用选项集')}</span>}
-      footer={null}
       onCancel={onCancel}
+      okButtonProps={{ disabled: !listId }}
+      onOk={() => onOk({ app, listId, listItem })}
+      footerLeftElement={() => (
+        <AddOptionList className="flexCenter Bold" onClick={() => setVisible(true)}>
+          <i className="icon-add Font18"></i>
+          {_l('新建选项集')}
+        </AddOptionList>
+      )}
     >
       <Fragment>
         <div className="hint textTertiary">
@@ -63,41 +66,28 @@ export default function SelectOptionList(props) {
         </div>
         <SettingItem>
           <div className="settingItemTitle">{_l('应用')}</div>
-          <Dropdown
-            isAppendToBody
-            border
-            openSearch
+          <Select
+            className="w100"
+            showPopupSearch
+            optionFilterProp="text"
             value={app}
-            data={formatAppsToDropdown(apps, appId)}
+            options={formatAppsToDropdown(apps, appId)}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => setInfo({ app: value })}
           />
         </SettingItem>
         <SettingItem>
           <div className="settingItemTitle">{_l('选项集')}</div>
-          <Dropdown
+          <Select
+            className="w100"
             value={listId || undefined}
-            isAppendToBody
-            border
-            openSearch
-            data={list.map(({ name, collectionId }) => ({ text: name, value: collectionId }))}
+            showPopupSearch
+            optionFilterProp="label"
+            options={list.map(({ name, collectionId }) => ({ label: name, value: collectionId }))}
             onChange={value => setInfo({ listId: value, listItem: find(list, item => item.collectionId === value) })}
           />
         </SettingItem>
       </Fragment>
-      <DialogFooter className="flexCenter">
-        <div className="flexCenter addOptionList Bold" onClick={() => setVisible(true)}>
-          <i className="icon-add Font18"></i>
-          {_l('新建选项集')}
-        </div>
-        <div className="btns flexCenter">
-          <div className="text hoverText textTertiary pointer" onClick={onCancel}>
-            {_l('取消')}
-          </div>
-          <Button disabled={!listId} onClick={() => onOk({ app, listId, listItem })}>
-            {_l('确定')}
-          </Button>
-        </div>
-      </DialogFooter>
       {visible && (
         <EditOptionList
           projectId={projectId}
@@ -109,6 +99,6 @@ export default function SelectOptionList(props) {
           onCancel={() => setVisible(false)}
         />
       )}
-    </Dialog>
+    </Modal>
   );
 }

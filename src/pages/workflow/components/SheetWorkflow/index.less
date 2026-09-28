@@ -1,4 +1,9 @@
 .sheetWorkflowWrapper {
+  // 将内嵌审批抽屉的层级限制在当前区域，避免遮挡全局侧栏。
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   .workflowCard {
     font-size: 13px;
     border-radius: 8px;
@@ -98,13 +103,13 @@
 }
 
 .sheetWorkflowDrawer {
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: none !important;
   }
-  .ant-drawer-content {
+  .hap-drawer-content {
     background-color: var(--color-background-secondary);
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     height: 100%;
     padding: 0;
   }
@@ -122,6 +127,13 @@
   }
   .icon-arrow-left-border:hover {
     color: var(--color-primary) !important;
+  }
+}
+
+.sheetWorkflowDrawerNoMotion.hap-drawer-open {
+  .hap-drawer-content-wrapper {
+    transform: none !important;
+    transition: none !important;
   }
 }
 

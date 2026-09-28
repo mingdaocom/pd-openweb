@@ -2,24 +2,18 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, UserHead } from 'ming-ui';
+import { Icon, PersonalStatus, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import dialogSelectUser from '../dialogSelectUser';
 import { openManageOftenUserDialog } from '../dialogSelectUser/GeneralSelect/ManageOftenUserDialog';
 
 export const Con = styled.div`
   overflow: hidden;
   width: 360px;
-  background-color: var(--color-background-card);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
   .moduleName {
     color: var(--color-text-tertiary);
     font-size: 13px;
     margin: 10px 16px;
-  }
-  .searchUser {
   }
 `;
 
@@ -29,7 +23,7 @@ export const Content = styled.div`
   hr {
     margin: 12px 7px;
     border: none;
-    border-top: 1px solid --color-background-disabled;
+    border-top: 1px solid var(--color-background-disabled);
   }
   .moreBtn {
     color: var(--color-primary);
@@ -157,7 +151,7 @@ export function UserItem(props) {
               ))}
         </div>
       </div>
-      {select && <Icon icon="done" className="Font12 textTertiary" />}
+      {select && <Icon icon="done" className="colorPrimary Font13" />}
     </UserItemCon>
   );
 }
@@ -174,6 +168,7 @@ export function UserList(props) {
     onSelect,
     appId,
     projectId,
+    selectedAccountIds = [],
     showManageBtn = false,
     onClose = () => {},
     onShowMore = () => {},
@@ -181,7 +176,6 @@ export function UserList(props) {
 
   const hasManageBtn = showManageBtn && !window.isPublicApp && !md.global.Account.isPortal;
   const [isShowMore, setIsShowMore] = useState(false);
-  const [select, setSelect] = useState([]);
 
   const openManageDialog = () => {
     openManageOftenUserDialog({
@@ -198,16 +192,13 @@ export function UserList(props) {
           <UserItem
             notShowCurrentUserName
             className={cx({ focused: activeIndex === i })}
-            select={select.includes(user.accountId)}
+            select={selectedAccountIds.includes(user.accountId)}
             user={user}
             type={type}
-            key={i}
+            key={user.accountId}
             appId={appId}
             projectId={projectId}
-            onClick={() => {
-              onSelect(user);
-              setSelect(select.concat(user.accountId));
-            }}
+            onClick={() => onSelect(user)}
           />
         ))}
       {!loading && !list.length && (
@@ -260,7 +251,7 @@ export function Search(props) {
       />
       {keywords && <i className="icon icon-cancel close" onClick={() => setKeywords('')} />}
       {!isHidAddUser && type !== 'external' && type !== 'range' && (
-        <Tooltip zIndex={10002} placement="bottom" title={_l('从通讯录中选择')}>
+        <Tooltip placement="bottom" title={_l('从通讯录中选择')}>
           <i
             className="icon icon-topbar-addressList openAddress"
             onClick={e => {

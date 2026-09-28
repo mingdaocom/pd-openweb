@@ -3,8 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { CustomScore } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
-import { FROM } from './enum';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 function levelSafeParse(value) {
   let levelValue = parseInt(value, 10);

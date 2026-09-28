@@ -131,21 +131,37 @@ export const PAID_VERSION_TO_TEXT = {
   singleApp: {
     app: {
       hint: _l('当前版本的应用数已达上限'),
-      explain: _l('当前版本最多只能存在1个应用，请联系顾问提供支持'),
+      get explain() {
+        return window.platformENV.isHap
+          ? _l('当前版本最多只能存在1个应用，请联系明道顾问提供支持')
+          : _l('当前版本最多只能存在1个应用，请联系顾问提供支持');
+      },
     },
     worksheet: {
       hint: _l('工作表数量已达到最大值'),
-      explain: _l('开发版最多可创建100个工作表，请联系顾问提供支持'),
+      get explain() {
+        return window.platformENV.isHap
+          ? _l('开发版最多可创建100个工作表，请升级版本以创建更多工作表')
+          : _l('开发版最多可创建100个工作表，请联系顾问提供支持');
+      },
       btnText: _l('立即升级'),
     },
     sheetRecordTotal: {
       hint: _l('工作表总行记录数量已达到最大值'),
-      explain: _l('开发版最多可创建5万条行记录，请联系顾问提供支持'),
+      get explain() {
+        return window.platformENV.isHap
+          ? _l('开发版最多可创建5万条行记录，请升级以继续')
+          : _l('开发版最多可创建5万条行记录，请联系顾问提供支持');
+      },
       btnText: _l('立即升级'),
     },
     sheetRecord: {
       hint: _l('工作表行记录数量已达到最大值'),
-      explain: _l('开发版单个工作表下最多可创建1万条行记录，请联系顾问提供支持'),
+      get explain() {
+        return window.platformENV.isHap
+          ? _l('开发版单个工作表下最多可创建1万条行记录，请升级版本以创建更多行记录')
+          : _l('开发版单个工作表下最多可创建1万条行记录，请联系顾问提供支持');
+      },
       btnText: _l('立即升级'),
     },
     portaluser: {

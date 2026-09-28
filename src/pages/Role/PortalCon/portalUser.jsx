@@ -1,17 +1,16 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import Api from 'api/homeApp';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import Dialog from 'ming-ui/components/Dialog';
+import { Button, Modal } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import externalPortalAjax from 'src/api/externalPortal';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
 import { translatePortalRoleOptions } from 'src/pages/Role/PortalCon/tabCon/util-pure';
 import { formatDataForPortalControl, formatPortalData } from 'src/pages/Role/PortalCon/tabCon/util.js';
-import { canEditData } from 'src/pages/worksheet/redux/actions/util';
+import { canEditData } from 'src/utils/domain/permission/app';
 
 const WrapHasPend = styled.div`
   width: 100%;
@@ -32,29 +31,6 @@ const WrapHasPend = styled.div`
       line-height: 100px;
       font-size: 60px;
     }
-  }
-`;
-const Wrap = styled.div`
-  .saveBtn {
-    width: 45%;
-    border-radius: 22px !important;
-    float: right;
-    margin-right: 12px;
-  }
-`;
-const WrapRejectBtn = styled.div`
-  width: 45%;
-  background: var(--color-background-primary);
-  border-radius: 22px !important;
-  opacity: 1;
-  border: 1px solid var(--color-border-primary);
-  color: var(--color-error);
-  &:hover {
-    color: var(--color-error);
-  }
-  &.disable {
-    opacity: 0.5;
-    cursor: not-allowed !important;
   }
 `;
 
@@ -123,15 +99,19 @@ export default function User(props) {
   };
 
   const rejectDialog = rowIds => {
-    return Dialog.confirm({
-      title: <span className="Red">{_l('你确认拒绝吗？')}</span>,
-      buttonType: 'danger',
-      description: _l('拒绝后会从列表中删除此用户'),
+    return Modal.confirm({
+      title: <span className="textError">{_l('你确认拒绝吗？')}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: _l('拒绝后会从列表中删除此用户'),
       onOk: () => {
         editAppApplyStatus(rowIds);
       },
-      style: { width: '90%' },
-    });
+      style: {
+        width: '90%',
+      },
+    }).destroy;
   };
 
   if (loading) {
@@ -152,7 +132,7 @@ export default function User(props) {
   }
 
   return (
-    <Wrap>
+    <div>
       <UserInfoWrap
         show={true}
         isPage
@@ -197,8 +177,11 @@ export default function User(props) {
         title={_l('用户信息')}
         renderCancel={() => {
           return (
-            <WrapRejectBtn
-              className={cx('btn rejectBtn Hand', { disable })}
+            <Button
+              danger
+              shape="round"
+              className="flex mLeft10"
+              disabled={disable}
               onClick={() => {
                 if (disable) {
                   return;
@@ -208,10 +191,10 @@ export default function User(props) {
               }}
             >
               {_l('拒绝')}
-            </WrapRejectBtn>
+            </Button>
           );
         }}
       />
-    </Wrap>
+    </div>
   );
 }

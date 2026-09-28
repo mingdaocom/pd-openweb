@@ -1,28 +1,10 @@
 import React, { useRef } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
-import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal.js';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
-const Load = styled.div`
-  width: 15px;
-  height: 15px;
-  border: 2px solid var(--color-white);
-  border-top-color: transparent;
-  border-radius: 100%;
-  animation: circle infinite 0.75s linear;
-  display: inline-block;
-  @keyframes circle {
-    0% {
-      transform: rotate(0);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
 const Wrap = styled.div`
   .urlPre {
     background: var(--color-border-primary);
@@ -30,7 +12,6 @@ const Wrap = styled.div`
     line-height: 34px;
     padding: 0 10px;
     border-radius: 3px 0 0 3px;
-    // width: 197px;
   }
   input {
     border-radius: 0 3px 3px 0;
@@ -41,9 +22,6 @@ const Wrap = styled.div`
       border: 1px solid var(--color-primary);
     }
   }
-  .errTxt {
-    // margin-left: 197px;
-  }
 `;
 
 // 不能以中划线开头或结束（前端校验）
@@ -53,12 +31,12 @@ const Wrap = styled.div`
 // 不能和HAP地址冲突（点击确定按钮，或失焦时校验，提示：此名称和系统地址冲突，请重新输入
 export default function EditPortalUrlDialog(props) {
   const { onOk, onCancel, urlPre, appId } = props;
-  const inputRef = useRef(null);
   const [{ urlSuffix, loading, errStr }, setState] = useSetState({
     urlSuffix: props.urlSuffix,
     loading: false,
     errStr: '',
   });
+  const requestPending = useRef(false);
 
   const verify = str => {
     if (!str.match(/[\d|\w]/g) || str.match(/[\d|\w]/g).length < 4) {
@@ -80,16 +58,15 @@ export default function EditPortalUrlDialog(props) {
     }
   };
 
-  const editAddressSuffix = _.debounce(cb => {
-    externalPortalAjax
+  const editAddressSuffix = cb => {
+    if (requestPending.current) return Promise.resolve();
+    requestPending.current = true;
+    return externalPortalAjax
       .editCustomAddressSuffix({
         appId,
         customAddressSuffix: urlSuffix,
       })
       .then(res => {
-        setState({
-          loading: false,
-        });
         switch (res.resultEnum) {
           case 1:
             cb && cb(res.portalUrl);
@@ -108,46 +85,49 @@ export default function EditPortalUrlDialog(props) {
             alert(_l('操作失败，请稍后再试'), 3);
             break;
         }
+      })
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('操作失败，请稍后再试'), 3);
+      })
+      .finally(() => {
+        requestPending.current = false;
+        setState({ loading: false });
       });
-  }, 500);
-  return (
-    <Dialog
-      title={_l('自定义域名')}
-      className={cx('')}
-      headerClass=""
-      bodyClass=""
-      onCancel={onCancel}
-      visible={props.show}
-      width={640}
-      footer={
-        <React.Fragment>
-          <Button type="link" onClick={onCancel}>
-            {_l('取消')}
-          </Button>
-          <Button
-            className={cx({ Alpha5: !!errStr || loading })}
-            onClick={() => {
-              if (props.urlSuffix === urlSuffix) {
-                return onCancel();
-              }
+  };
 
-              if (!errStr) {
-                setState({
-                  loading: true,
-                });
-                editAddressSuffix(url => {
-                  onOk(urlSuffix, url);
-                });
-              } else {
-                alert(_l('请正确输入后缀'), 2);
-                return;
-              }
-            }}
-          >
-            {loading ? <Load class="loading"></Load> : _l('确认')}
-          </Button>
-        </React.Fragment>
-      }
+  const handleOk = () => {
+    if (props.urlSuffix === urlSuffix) {
+      onCancel();
+      return;
+    }
+
+    if (errStr) {
+      alert(_l('请正确输入后缀'), 2);
+      return;
+    }
+
+    setState({ loading: true });
+    return editAddressSuffix(url => {
+      onOk(urlSuffix, url);
+    });
+  };
+
+  const handleCancel = () => {
+    if (!requestPending.current) onCancel();
+  };
+
+  return (
+    <Modal
+      title={_l('自定义域名')}
+      open={props.show}
+      width={640}
+      okText={_l('确认')}
+      cancelText={_l('取消')}
+      confirmLoading={loading}
+      mask={{ closable: !loading }}
+      keyboard={!loading}
+      onCancel={handleCancel}
+      onOk={handleOk}
     >
       <Wrap>
         <p className="textSecondary">{_l('可定义域名后缀，支持输入字母、数字、中划线')}</p>
@@ -156,8 +136,7 @@ export default function EditPortalUrlDialog(props) {
           <input
             className="flex"
             value={urlSuffix}
-            maxLength={'60'} //最大60个字
-            ref={inputRef}
+            maxLength={60} //最大60个字
             onChange={e => {
               const str = e.target.value.trim().replace(/[^\w-]|_/gi, '');
               setState({ urlSuffix: str, errStr: '' });
@@ -171,6 +150,6 @@ export default function EditPortalUrlDialog(props) {
         </div>
         {!!errStr && <span className="Red errTxt mTop5 InlineBlock">{errStr}</span>}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

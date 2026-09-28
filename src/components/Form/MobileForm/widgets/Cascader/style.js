@@ -4,7 +4,7 @@ export const CustomMobileCascadeControl = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
-  ${props => (props.hasMultipleValues ? 'padding-top: 4px !important; padding-bottom: 4px !important;' : '')}
+  ${props => (props.$hasMultipleValues ? 'padding-top: 4px !important; padding-bottom: 4px !important;' : '')}
   .cascadeMultipleContentBox {
     flex: 1;
     display: flex;
@@ -22,15 +22,6 @@ export const OptionWrap = styled.div`
   .splitLine {
     height: 18px;
     border-right: 1px solid var(--color-border-primary);
-  }
-  .Radio,
-  .Checkbox {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    &-box {
-      flex-shrink: 0;
-    }
   }
   .simpleContent {
     flex: 1;
@@ -54,23 +45,6 @@ export const PopupContentBox = styled.div`
       }
     }
   }
-  .Radio,
-  .Checkbox {
-    display: flex !important;
-    align-items: center;
-    margin-top: initial !important;
-    margin-right: 20px;
-    &-box {
-      flex-shrink: 0;
-      margin-right: 12px !important;
-    }
-    &-text {
-      font-size: 15px !important;
-      word-break: break-all;
-      white-space: wrap !important;
-    }
-  }
-
   .highlight {
     color: var(--color-primary);
     vertical-align: initial !important;

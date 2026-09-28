@@ -1,32 +1,73 @@
 ﻿import React from 'react';
 import { Dialog as MobileDialog } from 'antd-mobile';
 import _, { isEmpty } from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { getExpandWidgetIdsMap } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
-import { browserIsMobile } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import { replaceRulesTranslateInfo } from 'src/utils/translate';
+import { getExpandWidgetIdsMap } from 'src/utils/domain/control/editorLayout';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { controlState } from 'src/utils/domain/control/state';
+import { getControlUniqueValue } from 'src/utils/domain/control/value';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { replaceRulesTranslateInfo } from 'src/utils/services/translation/app';
 import { FORM_ERROR_TYPE, FROM } from '../core/config';
 import { dealCustomEvent } from '../core/customEvent';
 import { checkAllValueAvailable, checkRequired, getRuleErrorInfo } from '../core/formUtils';
-import { mergeFormDataWidthSystem, replaceStr } from '../core/formUtils/helper';
+import { mergeFormDataWidthSystem } from '../core/formUtils/helper';
+import { getRuleUpdateContext } from '../core/formUtils/ruleDependency';
+import { replaceStr } from '../core/formUtils/ruleUtils';
 import { updateRulesData } from '../core/formUtils/updateRulesData';
-import { formatControlValue, getServiceError } from '../core/utils';
+import { mergePartialRuleRenderData, reuseRenderData } from '../core/renderDataUtils';
+import { getServiceError } from '../core/utils';
+
+const cloneErrorItems = (items = []) => (_.isArray(items) ? items : []).map(item => ({ ...item }));
+
+const removeUniqueErrorItem = (items = [], controlId) =>
+  items.filter(item => !(item && item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.UNIQUE));
+
+const scrollToErrorControl = (worksheetId, controlId, getFormContainer) => {
+  if (!worksheetId || !controlId || typeof document === 'undefined') return;
+
+  const scroll = () => {
+    const formContainer = getFormContainer && getFormContainer();
+    const formItemId = `formItem-${worksheetId}-${controlId}`;
+    const ele =
+      formContainer &&
+      Array.from(formContainer.getElementsByClassName('customFormItem')).find(
+        item => item.id === formItemId && item.closest('.formContainer') === formContainer,
+      );
+
+    if (!ele) return;
+
+    ele.scrollIntoView({ block: 'center', inline: 'nearest' });
+    ele.querySelector('.customFormErrorMessage')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  };
+
+  const scrollAfterRender = () => {
+    if (typeof window !== 'undefined' && _.isFunction(window.requestAnimationFrame)) {
+      window.requestAnimationFrame(() => window.requestAnimationFrame(scroll));
+      return;
+    }
+
+    scroll();
+  };
+
+  setTimeout(scrollAfterRender, 350);
+};
+
+const showErrorItems = (items = []) => items.map(item => ({ ...item, showError: true }));
 
 export const updateErrorItemsAction = (dispatch, items) => {
   dispatch({
     type: 'SET_ERROR_ITEMS',
-    payload: items,
+    payload: cloneErrorItems(items),
   });
 };
 
 export const updateUniqueErrorItemsAction = (dispatch, items) => {
   dispatch({
     type: 'SET_UNIQUE_ERROR_ITEMS',
-    payload: items,
+    payload: cloneErrorItems(items),
   });
 };
 
@@ -58,13 +99,6 @@ export const updateConfigLockAction = (dispatch, lock) => {
   });
 };
 
-export const updateEmSizeNumAction = (dispatch, num) => {
-  dispatch({
-    type: 'SET_EM_SIZE_NUM',
-    payload: num,
-  });
-};
-
 export const getFilterDataByRuleAction = (
   dispatch,
   {
@@ -78,16 +112,27 @@ export const getFilterDataByRuleAction = (
   },
 ) => {
   const { ignoreHideControl, recordId, from, systemControlData, verifyAllControls } = props;
-  const { rules = [], searchConfig = [], uniqueErrorItems = [] } = getState();
+  const { rules = [], searchConfig = [], renderData = [] } = getState();
+  const updateRuleControlIds = dataFormat.getUpdateRuleControlIds();
+  const currentRuleControlIds = dataFormat.getCurrentRuleControlIds();
+  const ruleDependencyIndex = dataFormat.getRuleDependencyIndex(rules);
+  const ruleUpdateContext = getRuleUpdateContext({
+    rules,
+    updateControlIds: updateRuleControlIds,
+    currentRuleControlIds,
+    ruleDependencyIndex,
+  });
   let lastRuleSetValueChange;
+  let compareControlIds;
 
   let tempRenderData = updateRulesData({
-    rules,
+    rules: ruleUpdateContext.rules,
     recordId,
     data: mergeFormDataWidthSystem(dataFormat.getDataSource(), systemControlData),
     from,
-    updateControlIds: dataFormat.getUpdateRuleControlIds(),
-    currentRuleControlIds: dataFormat.getCurrentRuleControlIds(),
+    updateControlIds: updateRuleControlIds,
+    currentRuleControlIds,
+    ruleDependencyIndex,
     disabledRuleSet,
     ignoreHideControl,
     checkRuleValidator: (controlId, errorType, errorMessage, rule) => {
@@ -125,11 +170,14 @@ export const getFilterDataByRuleAction = (
       };
 
       if (valueChanged) {
+        let nextUniqueErrorItems = getState().uniqueErrorItems || [];
+
         dataFormat.updateDataSource({
           controlId: cid,
           value,
           removeUniqueItem: id => {
-            _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
+            nextUniqueErrorItems = removeUniqueErrorItem(nextUniqueErrorItems, id);
+            updateUniqueErrorItemsAction(dispatch, nextUniqueErrorItems);
           },
           searchByChange: searchByChange,
         });
@@ -171,9 +219,21 @@ export const getFilterDataByRuleAction = (
     }
   });
 
+  if (ruleUpdateContext.isPartial) {
+    const partialRenderResult = mergePartialRuleRenderData({
+      prevRenderData: renderData,
+      nextRenderData: tempRenderData,
+      affectedControlIds: ruleUpdateContext.affectedControlIds,
+      updateControlIds: updateRuleControlIds,
+      currentRuleControlIds,
+    });
+    tempRenderData = partialRenderResult.renderData;
+    compareControlIds = partialRenderResult.compareControlIds;
+  }
+
   dispatch({
     type: 'SET_RENDER_DATA',
-    payload: tempRenderData,
+    payload: reuseRenderData(renderData, tempRenderData, compareControlIds),
   });
 };
 
@@ -258,17 +318,22 @@ export const errorDialog = errors => {
       confirmText: _l('取消'),
     });
   } else {
-    Dialog.confirm({
+    Modal.confirm({
       className: 'ruleErrorMsgDialog',
-      title: <span className="Bold Font17 Red">{_l('错误提示')}</span>,
-      description: (
+      title: <span className="Font17 Red">{_l('错误提示')}</span>,
+      styles: { body: { paddingTop: 16 } },
+      content: (
         <div>
           {errors.map(item => (
             <div className="textSecondary mBottom6 WordBreak">{item}</div>
           ))}
         </div>
       ),
-      removeCancelBtn: true,
+      cancelButtonProps: {
+        style: {
+          display: 'none',
+        },
+      },
     });
   }
 };
@@ -331,20 +396,28 @@ export const getSubmitDataAction = (
       error: c.store && getSubListErrorOfStore(c.store, c),
     }))
     .filter(c => !isEmpty(c.error));
-  const currentErrorItems = _.uniqBy(
-    errorItems.concat(dataFormat.getErrorControls ? dataFormat.getErrorControls() : []),
-    item => [item.controlId, item.errorType, item.ruleId].filter(_.identity).join('-'),
+  const dataFormatErrorItems = dataFormat.getErrorControls ? dataFormat.getErrorControls() : [];
+  const currentErrorItems = _.uniqBy(errorItems.concat(dataFormatErrorItems), item =>
+    [item.controlId, item.errorType, item.ruleId].filter(_.identity).join('-'),
   );
   const totalErrors = currentErrorItems
     .concat(uniqueErrorItems)
     .concat(subListErrorControls)
     .filter(it => _.includes(ids, it.controlId) && !it.ignoreErrorMessage);
+  const errorControls = totalErrors
+    .map(t => _.find(data, d => d.controlId === t.controlId))
+    .filter(_.identity)
+    .sort((a, b) => a.row - b.row);
   const hasError = !!totalErrors.length;
   const hasRuleError = (ignoreDialog ? errors.filter(e => !e.ignoreErrorMessage) : errors).length;
 
   // 提交时所有错误showError更新为true
   if (!noTriggerError) {
-    updateErrorStateAction(dispatch, { getState, isShow: true });
+    dataFormatErrorItems.forEach(item => {
+      item.showError = true;
+    });
+    updateErrorItemsAction(dispatch, showErrorItems(currentErrorItems));
+    updateUniqueErrorItemsAction(dispatch, showErrorItems(uniqueErrorItems));
   }
 
   // 标签页内报错，展开标签页
@@ -368,35 +441,22 @@ export const getSubmitDataAction = (
 
     // 标签页
     // 定位到第一个报错
-    const firstErrorItem = _.head(
-      totalErrors.map(t => _.find(data, d => d.controlId === t.controlId)).sort((a, b) => a.row - b.row),
-    );
+    const firstErrorItem = _.head(errorControls);
 
-    if (firstErrorItem && !firstErrorItem.isSubList) {
-      // 详情页与审批弹层可能同时存在相同 id 的表单，只在当前表单实例内定位错误控件。
-      const formContainer = getFormContainer && getFormContainer();
-      const formItemId = `formItem-${worksheetId}-${firstErrorItem.controlId}`;
-      const ele =
-        formContainer &&
-        Array.from(formContainer.getElementsByClassName('customFormItem')).find(
-          item => item.id === formItemId && item.closest('.formContainer') === formContainer,
-        );
-      ele && ele.scrollIntoView({ block: 'center' });
-    }
+    // 第一个报错所属标签页
+    const firstErrorTabControl =
+      firstErrorItem && firstErrorItem.sectionId ? _.find(data, d => d.controlId === firstErrorItem.sectionId) : null;
 
-    // 所有报错附属标签页
-    const tabErrorControls = data
-      .filter(d => _.find(totalErrors, t => t.controlId === d.controlId) && d.sectionId)
-      .map(t => _.find(data, d => d.controlId === t.sectionId))
-      .filter(_.identity)
-      .sort((a, b) => a.row - b.row);
-
-    if (!!tabErrorControls.length && !_.find(tabErrorControls, t => t.controlId === activeTabControlId)) {
-      const tempId = _.get(tabErrorControls, '0.controlId');
+    if (firstErrorTabControl && firstErrorTabControl.controlId !== activeTabControlId) {
+      const tempId = firstErrorTabControl.controlId;
       updateActiveTabControlIdAction(dispatch, tempId);
       if (_.isFunction(tabControlProp.handleSectionClick)) {
         tabControlProp.handleSectionClick(tempId);
       }
+    }
+
+    if (firstErrorItem && !firstErrorItem.isSubList) {
+      scrollToErrorControl(worksheetId, firstErrorItem.controlId, getFormContainer);
     }
   }
 
@@ -551,7 +611,6 @@ export const handleChangeAction = (
     searchByChange = true,
   },
 ) => {
-  const { uniqueErrorItems } = getState();
   const { onWidgetChange = () => {}, onManualWidgetChange = () => {} } = props;
   let disabledRuleSet = false;
 
@@ -573,11 +632,14 @@ export const handleChangeAction = (
       value = value.value;
     }
 
+    let nextUniqueErrorItems = getState().uniqueErrorItems || [];
+
     dataFormat.updateDataSource({
       controlId: cid,
       value,
       removeUniqueItem: id => {
-        _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
+        nextUniqueErrorItems = removeUniqueErrorItem(nextUniqueErrorItems, id);
+        updateUniqueErrorItemsAction(dispatch, nextUniqueErrorItems);
       },
       searchByChange: searchByChange,
     });
@@ -661,21 +723,23 @@ export const triggerCustomEventAction = (
  * 验证唯一值
  */
 export const checkControlUniqueAction = (dispatch, { props, getState, controlId, controlType, controlValue }) => {
-  const { uniqueErrorItems } = getState();
   const { worksheetId, recordId, checkCellUnique, onError = () => {} } = props;
 
   if (_.isFunction(checkCellUnique)) {
+    const { uniqueErrorItems = [] } = getState();
+    let nextUniqueErrorItems;
+
     if (checkCellUnique(controlId, controlValue)) {
-      _.remove(uniqueErrorItems, item => item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.UNIQUE);
+      nextUniqueErrorItems = removeUniqueErrorItem(uniqueErrorItems, controlId);
     } else {
-      uniqueErrorItems.push({
+      nextUniqueErrorItems = removeUniqueErrorItem(uniqueErrorItems, controlId).concat({
         controlId,
         errorType: FORM_ERROR_TYPE.UNIQUE,
         showError: true,
       });
     }
 
-    updateUniqueErrorItemsAction(dispatch, uniqueErrorItems);
+    updateUniqueErrorItemsAction(dispatch, nextUniqueErrorItems);
     return;
   }
 
@@ -686,23 +750,25 @@ export const checkControlUniqueAction = (dispatch, { props, getState, controlId,
       worksheetId,
       controlId,
       controlType,
-      controlValue: formatControlValue(controlValue, controlType),
+      controlValue: getControlUniqueValue(controlValue, controlType),
     })
     .then(res => {
+      const { uniqueErrorItems = [] } = getState();
       const isError = !res.isSuccess && res.data && res.data.rowId !== recordId;
+      let nextUniqueErrorItems = uniqueErrorItems;
 
       if (isError) {
-        uniqueErrorItems.push({
+        nextUniqueErrorItems = removeUniqueErrorItem(uniqueErrorItems, controlId).concat({
           controlId,
           errorType: FORM_ERROR_TYPE.UNIQUE,
           showError: true,
         });
         onError();
       } else if (res.isSuccess) {
-        _.remove(uniqueErrorItems, item => item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.UNIQUE);
+        nextUniqueErrorItems = removeUniqueErrorItem(uniqueErrorItems, controlId);
       }
 
-      updateUniqueErrorItemsAction(dispatch, uniqueErrorItems);
+      updateUniqueErrorItemsAction(dispatch, nextUniqueErrorItems);
       updateLoadingItemsAction(dispatch, { [controlId]: false });
     });
 };

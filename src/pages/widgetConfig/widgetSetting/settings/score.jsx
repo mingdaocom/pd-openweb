@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Dialog, Dropdown } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/index.less';
-import { getColor, getDefaultData, getDynamicColors } from '../../config/score';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getColor, getDefaultData, getDynamicColors } from 'src/utils/domain/control/score';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import AttachmentConfig from '../components/AttachmentConfig';
 import WidgetColor from '../components/WidgetColor';
 import WidgetIcon from '../components/WidgetIcon';
 
 const SCORE_COLOR_TYPE = [
-  { text: _l('固定'), value: 1 },
-  { text: _l('动态%04028'), value: 2 },
+  { label: _l('固定'), value: 1 },
+  { label: _l('动态%04028'), value: 2 },
 ];
 
 export default function Score({ data, onChange }) {
@@ -70,11 +70,9 @@ export default function Score({ data, onChange }) {
       <SettingItem>
         <div className="settingItemTitle">{_l('颜色')}</div>
         <div className="labelWrap flexRow">
-          <Dropdown
-            border
-            isAppendToBody
+          <Select
             style={{ width: '90px', marginRight: '10px' }}
-            data={SCORE_COLOR_TYPE}
+            options={SCORE_COLOR_TYPE}
             value={_.get(itemcolor, 'type') || 1}
             onChange={type => {
               handleChangeColor({ type });
@@ -95,11 +93,13 @@ export default function Score({ data, onChange }) {
         </div>
       </SettingItem>
 
-      <Dialog
+      <Modal
         width={500}
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         title={_l('动态颜色')}
-        dialogClasses="dynamicSettingColorDialog"
+        rootClassName="dynamicSettingColorDialog"
         onCancel={() => {
           setColors(itemcolor.colors);
           setVisible(false);
@@ -132,7 +132,7 @@ export default function Score({ data, onChange }) {
             })}
           </div>
         </Fragment>
-      </Dialog>
+      </Modal>
     </Fragment>
   );
 }

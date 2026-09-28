@@ -1,31 +1,16 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Checkbox, Input, Spin } from 'antd';
+import Spin from 'antd/es/spin';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import 'rc-trigger/assets/index.css';
+import Checkbox from '../Checkbox';
+import Popover from '../Popover';
+import Select from '../Select';
 import './index.less';
 
-const CascaderWrapper = styled.div`
-  .cascader-selected-value,
-  .cascader-selected-tag {
-    ${({ isFocused }) => (isFocused ? 'opacity: 0.4;' : '')}
-  }
-  .cascader-clear-icon {
-    display: none;
-  }
-  &:hover {
-    .cascader-arrow {
-      ${({ selectedKeys }) => (selectedKeys.length > 0 ? 'display: none !important;' : '')}
-    }
-    .cascader-clear-icon {
-      display: block;
-    }
-  }
-`;
+const CASCADER_POPOVER_STYLES = { container: { overflow: 'hidden' } };
+const getDefaultPopupContainer = () => document.body;
 
 const Cascader = React.forwardRef(
   (
@@ -36,6 +21,7 @@ const Cascader = React.forwardRef(
       placeholder = '请选择',
       allowClear = true,
       multiple = false,
+      maxTagCount,
       showSearch = true,
       loadData, // 异步加载函数: (node) => Promise
       disabled = false,
@@ -49,8 +35,9 @@ const Cascader = React.forwardRef(
       changeOnSelect = false, // 是否允许选择非叶子节点
       getPopupContainer, // 弹出层挂载的容器
       popupAlign, // 弹出层对齐配置
-      zIndex = 1050, // 弹出层 z-index
-      onDropdownVisibleChange, // 弹出层显示/隐藏回调
+      popupPlacement = 'bottomLeft',
+      zIndex,
+      onOpenChange, // 弹出层显示/隐藏回调
     },
     ref,
   ) => {
@@ -81,25 +68,46 @@ const Cascader = React.forwardRef(
     const [searchValue, setSearchValue] = useState(''); // 搜索值，内部完全控制
     const [loadingNode, setLoadingNode] = useState(''); // 正在加载的节点
     const [popupVisible, setPopupVisible] = useState(false);
-    const [isFocus, setFocus] = useState(false);
     const containerRef = useRef(null);
-    const searchInputRef = useRef(null);
-    const measureRef = useRef(null);
-    const [inputWidth, setInputWidth] = useState(3);
+    const focusTimerRef = useRef(null);
+    const selectRef = useRef(null);
 
-    const isFocused = useMemo(() => popupVisible || isFocus, [popupVisible, isFocus]);
+    // 处理弹出层显示/隐藏
+    const handlePopupVisibleChange = useCallback(
+      (visible, skipDisabled = false) => {
+        if (disabled && !skipDisabled) return;
+
+        setPopupVisible(visible);
+        if (visible) {
+          clearTimeout(focusTimerRef.current);
+          focusTimerRef.current = setTimeout(() => {
+            selectRef.current?.focus();
+          }, 0);
+        }
+
+        onOpenChange?.(visible);
+        if (!visible) {
+          clearTimeout(focusTimerRef.current);
+          setLoadingNode('');
+          setExpandedKeys([]);
+          setSearchValue(''); // 关闭时清空搜索
+          selectRef.current?.blur();
+        }
+      },
+      [onOpenChange, disabled],
+    );
+
+    useEffect(() => () => clearTimeout(focusTimerRef.current), []);
 
     // 合并内部 ref 和外部 ref
     React.useImperativeHandle(
       ref,
       () => ({
         focus: () => {
-          setFocus(true);
-          searchInputRef.current?.focus();
+          selectRef.current?.focus();
         },
         blur: () => {
-          setFocus(false);
-          searchInputRef.current?.blur();
+          selectRef.current?.blur();
         },
       }),
       [],
@@ -111,28 +119,21 @@ const Cascader = React.forwardRef(
         setSelectedKeys(value);
       }
 
-      if (isFocused) {
-        searchInputRef.current?.focus();
+      if (popupVisible) {
+        selectRef.current?.focus();
       }
-    }, [value, selectedKeys]);
+    }, [value, selectedKeys, popupVisible]);
 
     // 同步外部 searchValue 变化
     useEffect(() => {
-      if (searchValue !== externalSearchValue) {
-        setSearchValue(externalSearchValue);
+      if (_.isUndefined(externalSearchValue)) return;
+
+      const nextSearchValue = externalSearchValue || '';
+
+      if (searchValue !== nextSearchValue) {
+        setSearchValue(nextSearchValue);
       }
     }, [externalSearchValue, searchValue]);
-
-    // 根据 searchValue 的渲染宽度动态设置 input 宽度
-    useEffect(() => {
-      if (multiple && measureRef.current) {
-        // 使用隐藏元素测量文本宽度
-        const measureWidth = measureRef.current.offsetWidth;
-        // 最小宽度 3px，加上一些边距
-        const newWidth = Math.max(3, measureWidth + 2);
-        setInputWidth(newWidth);
-      }
-    }, [searchValue, multiple]);
 
     // 监听 options 变化，如果正在加载的节点有了子节点，清空加载状态
     useEffect(() => {
@@ -150,7 +151,7 @@ const Cascader = React.forwardRef(
       if (disabled && popupVisible) {
         handlePopupVisibleChange(false, true);
       }
-    }, [disabled]);
+    }, [disabled, popupVisible, handlePopupVisibleChange]);
 
     // 处理搜索过滤
     const filteredTreeData = useMemo(() => {
@@ -180,7 +181,7 @@ const Cascader = React.forwardRef(
       };
 
       return filterNode(options);
-    }, [options, searchValue]);
+    }, [options, searchValue, multiple]);
 
     // 处理节点展开
     const handleExpand = useCallback(
@@ -236,39 +237,14 @@ const Cascader = React.forwardRef(
         setSelectedKeys(newSelectedKeys);
         onChange?.(newSelectedKeys);
       },
-      [multiple, selectedKeys, onChange],
-    );
-
-    // 处理弹出层显示/隐藏
-    const handlePopupVisibleChange = useCallback(
-      (visible, skipDisabled = false) => {
-        if (disabled && !skipDisabled) return;
-
-        setFocus(visible);
-        setPopupVisible(visible);
-        if (visible && showSearch) {
-          // 延迟聚焦搜索框
-          setTimeout(() => {
-            searchInputRef.current?.focus();
-          }, 0);
-        }
-
-        onDropdownVisibleChange?.(visible);
-        if (!visible) {
-          setLoadingNode('');
-          setExpandedKeys([]);
-          setSearchValue(''); // 关闭时清空搜索
-          searchInputRef.current?.blur();
-        }
-      },
-      [onDropdownVisibleChange, showSearch, disabled],
+      [multiple, selectedKeys, onChange, handlePopupVisibleChange],
     );
 
     useEffect(() => {
       if (!_.isUndefined(open) && open !== popupVisible) {
         handlePopupVisibleChange(open);
       }
-    }, [open, handlePopupVisibleChange]);
+    }, [open, popupVisible, handlePopupVisibleChange]);
 
     // 清空所有选择
     const handleClear = useCallback(
@@ -280,7 +256,7 @@ const Cascader = React.forwardRef(
           handlePopupVisibleChange(false);
         }
       },
-      [onChange],
+      [onChange, multiple, popupVisible, handlePopupVisibleChange],
     );
 
     // 移除单个标签
@@ -365,7 +341,7 @@ const Cascader = React.forwardRef(
           </div>
         );
       },
-      [selectedKeys, loadingNode, multiple, disabled, changeOnSelect, handleExpand, handleSelect],
+      [selectedKeys, expandedKeys, loadingNode, multiple, changeOnSelect, handleExpand, handleSelect],
     );
 
     // 排序搜索结果
@@ -466,159 +442,88 @@ const Cascader = React.forwardRef(
       };
 
       return <div className="cascader-content">{renderPanelsRecursive(filteredTreeData)}</div>;
-    }, [searchValue, filteredTreeData, expandedKeys, renderCascaderPanels]);
+    }, [
+      searchValue,
+      filteredTreeData,
+      expandedKeys,
+      multiple,
+      loadingNode,
+      notFoundContent,
+      handleSelect,
+      renderCascaderPanels,
+      renderSearchLabel,
+      sortSearchResults,
+    ]);
 
-    // 默认弹出层对齐配置
-    const defaultPopupAlign = useMemo(() => {
-      return {
-        points: ['tl', 'bl'],
-        offset: [0, 4],
-        overflow: {
-          adjustX: true,
-          adjustY: true,
-        },
-        ...popupAlign,
-      };
-    }, [popupAlign]);
+    const popoverClassNames = useMemo(() => ({ root: cx('cascader-trigger-popup', popupClassName) }), [popupClassName]);
+    const selectOptions = useMemo(
+      () => selectedKeys.map(item => ({ label: item.label, value: item.value })),
+      [selectedKeys],
+    );
+    const selectedValue = useMemo(
+      () => (multiple ? selectedKeys.map(item => item.value) : selectedKeys[0]?.value),
+      [multiple, selectedKeys],
+    );
 
-    /**
-     *  输入框
-     */
-    const renderCascaderInputContent = () => {
-      if (!selectedKeys.length) {
-        return isFocused ? null : <span className="cascader-placeholder">{placeholder}</span>;
-      }
+    const handleSearchChange = useCallback(
+      value => {
+        setSearchValue(value);
+        onSearch?.(value);
+        setExpandedKeys([]);
+      },
+      [onSearch],
+    );
 
-      return (
-        <Fragment>
-          {multiple ? (
-            <div className="cascader-selected-tags">
-              {selectedKeys.map(item => (
-                <div key={item.value} className="cascader-selected-tag overflow_ellipsis">
-                  <span className="cascader-selected-tag-label overflow_ellipsis">{item.label}</span>
-                  {!disabled && (
-                    <Icon
-                      icon="close Font14"
-                      className="cascader-selected-tag-close"
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleRemoveTag(item.value);
-                      }}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : showSearch && searchValue ? null : (
-            <span className="cascader-selected-value breakAll" title={selectedKeys[0]?.label || ''}>
-              {selectedKeys[0]?.label || ''}
-            </span>
-          )}
-        </Fragment>
-      );
-    };
-
-    const renderCascaderInputSuffix = () => {
-      if (disabled) return null;
-
-      return (
-        <div className="cascader-input-suffix">
-          {allowClear && selectedKeys.length > 0 && (
-            <Icon
-              icon="cancel Font14"
-              className="cascader-clear-icon"
-              onClick={e => {
-                e.stopPropagation();
-                handleClear();
-              }}
-            />
-          )}
-          {!multiple && !isFocused && (
-            <Icon
-              icon="arrow-down-border Font14 textPrimary"
-              className={cx('cascader-arrow', { expanded: popupVisible })}
-            />
-          )}
-        </div>
-      );
-    };
+    const handleInputKeyDown = useCallback(
+      event => {
+        if (
+          event.key === 'Escape' ||
+          ((window.isMacOs ? event.metaKey : event.ctrlKey) && ['s', 'S'].includes(event.key))
+        ) {
+          handlePopupVisibleChange(false);
+        }
+      },
+      [handlePopupVisibleChange],
+    );
 
     return (
-      <Trigger
-        popupVisible={popupVisible}
-        onPopupVisibleChange={handlePopupVisibleChange}
-        action={disabled ? [] : ['click']}
-        popupAlign={defaultPopupAlign}
-        popup={renderCascaderContent}
-        getPopupContainer={getPopupContainer || (() => document.body)}
+      <Popover
+        open={popupVisible}
+        onOpenChange={handlePopupVisibleChange}
+        trigger={disabled ? [] : 'click'}
+        placement={popupPlacement}
+        align={popupAlign}
+        content={renderCascaderContent}
+        getPopupContainer={getPopupContainer || getDefaultPopupContainer}
         zIndex={zIndex}
-        popupClassName={`cascader-trigger-popup ${popupClassName}`}
-        destroyPopupOnHide={true}
+        classNames={popoverClassNames}
+        noPadding
+        styles={CASCADER_POPOVER_STYLES}
       >
-        <CascaderWrapper
-          ref={containerRef}
-          className={cx('custom-cascader', className)}
-          style={style}
-          multiple={multiple}
-          selectedKeys={selectedKeys}
-          isFocused={isFocused}
-        >
-          {/* 隐藏的测量元素，用于测量文本宽度 */}
-          {multiple && (
-            <span
-              ref={measureRef}
-              style={{
-                position: 'absolute',
-                visibility: 'hidden',
-                whiteSpace: 'pre',
-                fontSize: '14px',
-                fontFamily: 'inherit',
-                padding: 0,
-                margin: 0,
-                height: 'auto',
-                width: 'auto',
-              }}
-            >
-              {searchValue || ' '}
-            </span>
-          )}
-          <div className={cx('cascader-input', { focused: isFocused, disabled })}>
-            <div className="cascader-input-content">
-              {renderCascaderInputContent()}
-              {showSearch && !disabled && (
-                <Input
-                  ref={searchInputRef}
-                  className="cascader-search-input"
-                  value={searchValue}
-                  autoFocus={false}
-                  style={
-                    multiple
-                      ? { flexBasis: `${inputWidth}px`, minWidth: `${inputWidth}px` }
-                      : !isFocused && !searchValue
-                        ? { pointerEvents: 'none' }
-                        : undefined
-                  }
-                  onChange={e => {
-                    const textValue = e.target.value;
-                    setSearchValue(textValue);
-                    onSearch?.(textValue);
-                    setExpandedKeys([]);
-                  }}
-                  onKeyDown={e => {
-                    if (
-                      _.includes(['Escape'], e.key) ||
-                      ((window.isMacOs ? e.metaKey : e.ctrlKey) && ['s', 'S'].includes(e.key))
-                    ) {
-                      handlePopupVisibleChange(false);
-                    }
-                  }}
-                />
-              )}
-            </div>
-            {renderCascaderInputSuffix()}
-          </div>
-        </CascaderWrapper>
-      </Trigger>
+        <div ref={containerRef} className={cx('custom-cascader w100', className)} style={style}>
+          <Select
+            ref={selectRef}
+            className="w100"
+            mode={multiple ? 'multiple' : undefined}
+            maxTagCount={maxTagCount}
+            open={false}
+            showSearch={showSearch}
+            autoClearSearchValue={false}
+            filterOption={false}
+            allowClear={allowClear}
+            disabled={disabled}
+            {...(disabled ? { suffixIcon: null } : {})}
+            placeholder={placeholder}
+            options={selectOptions}
+            value={selectedValue}
+            searchValue={searchValue}
+            onSearch={handleSearchChange}
+            onClear={handleClear}
+            onDeselect={handleRemoveTag}
+            onInputKeyDown={handleInputKeyDown}
+          />
+        </div>
+      </Popover>
     );
   },
 );

@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Icon, LoadDiv, ScrollView, Switch, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
@@ -13,10 +12,10 @@ import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import TableEmpty from 'src/pages/Admin/common/TableEmpty';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Search from 'src/pages/workflow/components/Search';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
 import PaginationWrap from '../../components/PaginationWrap';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
 import SelectUser from '../../components/SelectUser';
@@ -212,7 +211,7 @@ export default class AggregationTable extends Component {
         <AdminTitle prefix={_l('应用管理 - 聚合表')} />
         <div className="orgManagementHeader">{_l('聚合表')}</div>
         <div className="orgManagementContent flexColumn">
-          {!window.platformENV.isLocal && !window.platformENV.isOverseas && (
+          {window.platformENV.isHap && (
             <div className="appManagementCount">
               {featureType === '2' ? (
                 <Fragment>
@@ -250,7 +249,7 @@ export default class AggregationTable extends Component {
 
           <div className="flexRow">
             <Select
-              className="w180 mdAntSelect"
+              className="w180"
               showSearch
               defaultValue={appId}
               options={appList}
@@ -278,7 +277,7 @@ export default class AggregationTable extends Component {
             />
 
             <Select
-              className="w180 mdAntSelect mLeft16"
+              className="w180 mLeft16"
               defaultValue={taskStatus}
               options={[
                 { label: _l('全部状态'), value: '' },
@@ -289,7 +288,7 @@ export default class AggregationTable extends Component {
               onChange={value => this.setState({ taskStatus: value, pageIndex: 1 }, this.searchDataList)}
             />
             <SelectUser
-              className="mdAntSelect w180 mLeft15 "
+              className="w180 mLeft15"
               placeholder={_l('搜索创建人')}
               projectId={projectId}
               userInfo={userInfo}
@@ -396,8 +395,10 @@ export default class AggregationTable extends Component {
                         <Switch
                           className="TxtMiddle tableSwitch mRight10"
                           checked={taskStatus === TASK_STATUS_TYPE.RUNNING}
-                          text={taskStatus === TASK_STATUS_TYPE.RUNNING ? _l('开启') : _l('关闭')}
-                          onClick={() => {
+                          checkedChildren={taskStatus === TASK_STATUS_TYPE.RUNNING ? _l('开启') : _l('关闭')}
+                          unCheckedChildren={taskStatus === TASK_STATUS_TYPE.RUNNING ? _l('开启') : _l('关闭')}
+                          onClick={(checked, event) => {
+                            event.stopPropagation();
                             if (
                               limitAggregationTableCount &&
                               effectiveAggregationTableCount > limitAggregationTableCount

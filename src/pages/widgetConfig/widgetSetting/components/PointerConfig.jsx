@@ -1,48 +1,20 @@
 import React, { useEffect } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, InputNumber, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-
-const PointerConfigWrap = styled(SettingItem)`
-  input {
-    width: 70px;
-  }
-  .settingContent {
-    display: flex;
-  }
-  .numberControlBox {
-    display: flex;
-    flex-direction: column;
-    .iconWrap {
-      padding: 0 6px;
-      border: 1px solid var(--color-border-primary);
-      border-left: none;
-      height: 18px;
-      &:first-child {
-        border-bottom: none;
-      }
-      i {
-        color: var(--color-text-tertiary);
-      }
-    }
-  }
-`;
 
 const ROUND_TYPE = [
   {
-    text: _l('向上舍入'),
+    label: _l('向上舍入'),
     value: '1',
   },
   {
-    text: _l('向下舍入'),
+    label: _l('向下舍入'),
     value: '0',
   },
   {
-    text: _l('四舍五入'),
+    label: _l('四舍五入'),
     value: '2',
   },
 ];
@@ -61,65 +33,40 @@ export default function PointConfig({ data = {}, onChange }) {
     if (dot > maxDot) {
       onChange({ dot: 12 });
     }
-  }, [data.controlId, numshow]);
-
-  const dealValue = value => {
-    const parsedValue = parseFloat(value);
-    if (isNaN(value)) return 0;
-    const fixedValue = Number(parsedValue).toFixed(0);
-    return Math.max(0, Math.min(maxDot, fixedValue));
-  };
-
-  const handleChange = event => {
-    const value = event.target.value;
-
-    if (!value) {
-      onChange({ dot: '' });
-      return;
-    }
-
-    onChange({ dot: dealValue(value) });
-  };
-
-  const addNumber = () => {
-    onChange({ dot: Math.min(maxDot, dot + 1) });
-  };
-
-  const reduceNumber = () => {
-    onChange({ dot: Math.max(0, dot - 1) });
-  };
+  }, [dot, maxDot, onChange]);
 
   return (
-    <PointerConfigWrap>
+    <SettingItem>
       <div className="settingItemTitle">{_l('小数位数')}</div>
       <div className="flexCenter">
-        <div className="settingContent">
-          <Input value={dot} onChange={handleChange} />
-          <div className="numberControlBox">
-            <div className="iconWrap addIcon" onClick={addNumber}>
-              <i className="icon-arrow-up-border pointer" />
-            </div>
-            <div className="iconWrap subIcon" onClick={reduceNumber}>
-              <i className="icon-arrow-down-border pointer" />
-            </div>
-          </div>
-        </div>
+        <InputNumber
+          value={dot}
+          min={0}
+          max={maxDot}
+          precision={0}
+          onChange={value => onChange({ dot: value ?? '' })}
+        />
         {_.includes([6, 8], data.type) ? null : (
-          <Dropdown
-            className="mLeft12"
-            border
+          <Select
+            className="mLeft12 flex"
             value={roundtype}
-            data={ROUND_TYPE}
+            options={ROUND_TYPE}
             onChange={value => onChange(handleAdvancedSettingChange(data, { roundtype: value }))}
           />
         )}
       </div>
       {dot ? (
         <Checkbox
-          size="small"
           className="mTop8"
           checked={dotformat === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { dotformat: checked ? '0' : '1' }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                dotformat: !event.target.checked ? '0' : '1',
+              }),
+            )
+          }
+          size="small"
         >
           <span style={{ marginRight: '4px' }}>{_l('省略末尾的 0')}</span>
           <Tooltip
@@ -129,6 +76,6 @@ export default function PointConfig({ data = {}, onChange }) {
           </Tooltip>
         </Checkbox>
       ) : null}
-    </PointerConfigWrap>
+    </SettingItem>
   );
 }

@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Tree } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Dropdown, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import organizeAjax from 'src/api/organize.js';
 import projectSettingAjax from 'src/api/projectSetting';
-import { hasPermission } from 'src/components/checkPermission';
 import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
+import { Tree } from 'src/ming-ui/antd-components/AsyncAntd';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { CLEAR_CACHE_PROCESS_TYPE, PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { CLEAR_CACHE_PROCESS_TYPE } from 'src/pages/Admin/enum';
 import { downloadFile } from 'src/pages/Admin/util';
-import { getCurrentProject } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { getCurrentProject } from 'src/utils/services/project';
+import { hasPermission } from 'src/utils/services/security/permission';
 import ImportDeptAndRole from '../../components/ImportDeptAndRole';
 import * as actions from '../../redux/roleManage/action';
 import DialogCreateAndEditRole from './components/DialogCreateAndEditRole';
@@ -29,26 +29,29 @@ import './index.less';
 const PAGE_SIZE = 50;
 
 const TreeWrap = styled(Tree)`
-  .ant-tree-node-content-wrapper {
-    width: 185px;
+  .hap-tree-node-content-wrapper {
+    width: 100%;
     display: flex;
     align-items: center;
   }
-  .ant-tree-node-content-wrapper:hover,
-  .ant-tree-node-content-wrapper.ant-tree-node-selected {
+  .hap-tree-node-content-wrapper:hover,
+  .hap-tree-node-content-wrapper.hap-tree-node-selected {
     background-color: transparent !important;
   }
-  .ant-tree-switcher-noop {
+  .hap-tree-treenode-disabled.hap-tree-treenode-selected .hap-tree-node-content-wrapper {
+    background-color: transparent !important;
+  }
+  .hap-tree-switcher-noop {
     display: none !important;
   }
-  .ant-tree-title {
+  .hap-tree-title {
     flex: 1;
   }
   .nodeName {
     color: var(--color-text-title) !important;
   }
-  .ant-tree-treenode {
-    width: 233px;
+  .hap-tree-treenode {
+    width: 100%;
     padding: 6px 0 !important;
     border-radius: 3px;
     position: relative;
@@ -91,7 +94,7 @@ const TreeWrap = styled(Tree)`
     display: inline-block;
     opacity: 0;
   }
-  .ant-tree-draggable-icon {
+  .hap-tree-draggable-icon {
     width: auto !important;
   }
 `;
@@ -454,10 +457,12 @@ class RoleManage extends Component {
   showDeleteDialog = item => {
     this.setState({ actionPopupVisible: false });
 
-    Dialog.confirm({
-      title: _l('删除“%0”', item.organizeName || item.orgRoleGroupName),
-      children: <DeleteText className="Font13">{_l('删除后无法恢复，请谨慎操作')}</DeleteText>,
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="textError">{_l('删除“%0”', item.organizeName || item.orgRoleGroupName)}</span>,
+      content: <DeleteText className="Font13">{_l('删除后无法恢复，请谨慎操作')}</DeleteText>,
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => this.handleDelete(item),
     });
   };
@@ -688,84 +693,82 @@ class RoleManage extends Component {
             </span>
             {!isDefault && (l.isLeaf || hasRoleAuth) && (
               <span className="moreActionButton Hand">
-                <Trigger
-                  popupVisible={l.key === actionPopupVisible}
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
+                <Dropdown
+                  open={l.key === actionPopupVisible}
+                  trigger={['click']}
                   getPopupContainer={() => document.body}
-                  onPopupVisibleChange={visible => {
+                  onOpenChange={visible => {
                     this.setState({ actionPopupVisible: visible ? l.key : false });
                   }}
-                  popup={
-                    <Menu className="Static">
-                      {hasRoleAuth && !l.disabled ? (
-                        <MenuItem
-                          key="0"
-                          onClick={() => {
-                            l.isLeaf && this.createAndEdit('edit');
-                            this.setState(
-                              l.isLeaf
-                                ? { actionPopupVisible: false }
-                                : {
-                                    actionPopupVisible: false,
-                                    roleFolderDialog: {
-                                      visible: true,
-                                      id: l.orgRoleGroupId,
-                                      name: l.orgRoleGroupName,
-                                    },
-                                  },
-                            );
-                          }}
-                        >
-                          {_l('编辑')}
-                        </MenuItem>
-                      ) : null}
-                      {l.isLeaf && (
-                        <MenuItem
-                          key="3"
-                          onClick={() =>
-                            this.clearRoleCache({
-                              itemId: l.organizeId,
-                              processType: CLEAR_CACHE_PROCESS_TYPE.ORG_ROLE,
-                            })
-                          }
-                        >
-                          {_l('刷新角色成员信息')}
-                        </MenuItem>
-                      )}
-                      {hasRoleAuth && (
-                        <Fragment>
-                          <MenuItem
-                            key="2"
-                            onClick={e =>
-                              !l.disabled
-                                ? this.handleDisableOrgRoleConfirm(e, l)
-                                : this.disabledAndEnabledOrgRole(e, l)
-                            }
-                          >
-                            {l.disabled ? _l('恢复使用') : _l('停用')}
-                          </MenuItem>
-                          <MenuItem key="1" className="delRole" onClick={() => this.showDeleteDialog(l)}>
-                            {_l('删除')}
-                          </MenuItem>
-                        </Fragment>
-                      )}
-                    </Menu>
-                  }
+                  menu={{
+                    items: [
+                      ...(hasRoleAuth && !l.disabled
+                        ? [
+                            {
+                              key: 'edit',
+                              label: _l('编辑'),
+                              onClick: () => {
+                                l.isLeaf && this.createAndEdit('edit');
+                                this.setState(
+                                  l.isLeaf
+                                    ? { actionPopupVisible: false }
+                                    : {
+                                        actionPopupVisible: false,
+                                        roleFolderDialog: {
+                                          visible: true,
+                                          id: l.orgRoleGroupId,
+                                          name: l.orgRoleGroupName,
+                                        },
+                                      },
+                                );
+                              },
+                            },
+                          ]
+                        : []),
+                      ...(l.isLeaf
+                        ? [
+                            {
+                              key: 'refresh',
+                              label: _l('刷新角色成员信息'),
+                              onClick: () =>
+                                this.clearRoleCache({
+                                  itemId: l.organizeId,
+                                  processType: CLEAR_CACHE_PROCESS_TYPE.ORG_ROLE,
+                                }),
+                            },
+                          ]
+                        : []),
+                      ...(hasRoleAuth
+                        ? [
+                            {
+                              key: 'toggleStatus',
+                              label: l.disabled ? _l('恢复使用') : _l('停用'),
+                              onClick: ({ domEvent }) =>
+                                !l.disabled
+                                  ? this.handleDisableOrgRoleConfirm(domEvent, l)
+                                  : this.disabledAndEnabledOrgRole(domEvent, l),
+                            },
+                            {
+                              key: 'delete',
+                              danger: true,
+                              label: _l('删除'),
+                              onClick: () => this.showDeleteDialog(l),
+                            },
+                          ]
+                        : []),
+                    ],
+                  }}
                 >
                   <Icon
                     icon="moreop"
                     className="textTertiary Font18 TxtMiddle editIcon hoverColorPrimary"
                     onClick={e => e.stopPropagation()}
                   />
-                </Trigger>
+                </Dropdown>
               </span>
             )}
             {l.isLeaf && l.remark && l.organizeId !== showDeleteId && (
-              <Tooltip placement="rightTop" align={{ offset: [0, -15] }} title={l.remark}>
+              <Tooltip placement="right" title={l.remark} mouseEnterDelay={0.3}>
                 <Icon icon="info_outline" className="remarkTooptip textTertiary Font16 TxtMiddle mLeft2" />
               </Tooltip>
             )}
@@ -794,9 +797,7 @@ class RoleManage extends Component {
     });
   };
 
-  onExpand = (keys, { node }) => {
-    if (!node.loaded) return;
-
+  onExpand = keys => {
     this.setState({ expandedKeys: _.uniq(keys) });
   };
 
@@ -812,12 +813,14 @@ class RoleManage extends Component {
     e.stopPropagation();
     this.setState({ actionPopupVisible: false });
     const name = orgRole.organizeName || orgRole.orgRoleGroupName;
-    Dialog.confirm({
+    Modal.confirm({
       className: 'disabledOrgRoleDialog',
       okText: _l('停用'),
       title: _l('停用“%0”', name),
-      buttonType: 'danger',
-      description: orgRole.organizeId ? (
+      okButtonProps: {
+        danger: true,
+      },
+      content: orgRole.organizeId ? (
         <div>
           <div>{_l('停用后，当前停用的角色将对用户隐藏，角色下的成员不会移除。')}</div>
           <div className="mBottom10">
@@ -912,63 +915,64 @@ class RoleManage extends Component {
             handleClear={this.handleClear}
             updateIsRequestList={this.props.updateIsRequestList}
           />
-          <input type="text" style={{ width: 0, height: 0, border: 0 }} />
+          <Input type="hidden" />
 
           {hasRoleAuth && (
             <div className="actBox flexRow">
-              <span className="creatRole Hand mRight12 ellipsis" onClick={() => this.createAndEdit('create')}>
-                <Icon icon="add" className="Font18 Bold TxtMiddle" />
+              <Button
+                size="small"
+                className="mRight12"
+                icon={<Icon icon="add" className="Font18 Bold" />}
+                onClick={() => this.createAndEdit('create')}
+              >
                 {_l('角色')}
-              </span>
-              <span
-                className="creatRole Hand ellipsis"
+              </Button>
+              <Button
+                size="small"
+                className="mRight12"
+                icon={<Icon icon="add" className="Font18 Bold" />}
                 onClick={() => this.setState({ roleFolderDialog: { visible: true, id: undefined } })}
               >
-                <Icon icon="add" className="Font18 Bold TxtMiddle" />
                 {_l('角色组')}
-              </span>
-              <div className="flex"></div>
-              <Trigger
-                action={['click']}
-                popupAlign={{
-                  points: ['tl', 'bl'],
-                  offset: [0, 0],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                popupVisible={popupVisible}
-                onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
-                popup={
-                  <Menu className="importExportAction">
-                    <MenuItem onClick={this.handleShowDisabledOrgRole}>
-                      <Checkbox text={_l('显示停用角色')} checked={showDisabledOrgRole} />
-                    </MenuItem>
-                    <MenuItem
-                      key="0"
-                      onClick={() => {
+              </Button>
+              <div className="flex" />
+              <Dropdown
+                trigger={['click']}
+                open={popupVisible}
+                onOpenChange={popupVisible => this.setState({ popupVisible })}
+                menu={{
+                  items: [
+                    {
+                      key: 'showDisabled',
+                      label: <Checkbox checked={showDisabledOrgRole}>{_l('显示停用角色')}</Checkbox>,
+                      onClick: this.handleShowDisabledOrgRole,
+                    },
+                    {
+                      key: 'import',
+                      label: _l('导入角色'),
+                      onClick: () => {
                         this.setState({ popupVisible: false });
                         this.props.updateIsImportRole(true);
-                      }}
-                    >
-                      {_l('导入角色')}
-                    </MenuItem>
-                    <MenuItem key="1" onClick={this.exportRoleList}>
-                      {_l('导出角色')}
-                    </MenuItem>
-                    <MenuItem
-                      key="2"
-                      className="mBottom4"
-                      onClick={() => this.clearRoleCache({ processType: CLEAR_CACHE_PROCESS_TYPE.ALL_ORG_ROLE })}
-                    >
-                      {_l('刷新角色列表')}
-                    </MenuItem>
-                  </Menu>
-                }
+                      },
+                    },
+                    { key: 'export', label: _l('导出角色'), onClick: this.exportRoleList },
+                    {
+                      key: 'refresh',
+                      label: _l('刷新角色列表'),
+                      onClick: () => this.clearRoleCache({ processType: CLEAR_CACHE_PROCESS_TYPE.ALL_ORG_ROLE }),
+                    },
+                  ],
+                  onClick: () => this.setState({ popupVisible: false }),
+                }}
               >
-                <i
-                  className="icon icon-moreop ant-dropdown-trigger textTertiary Hand Font20 iconHover LineHeight28"
+                <Button
+                  size="small"
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="moreop" className="Font20 Bold" />}
                   onClick={() => this.setState({ popupVisible: true })}
-                />
-              </Trigger>
+                ></Button>
+              </Dropdown>
             </div>
           )}
 
@@ -984,14 +988,11 @@ class RoleManage extends Component {
                   treeData={treeData}
                   expandedKeys={expandedKeys}
                   selectedKeys={currentRole.organizeId ? [currentRole.organizeId] : []}
-                  draggable={treeNode => {
-                    if (!hasRoleAuth || (!treeNode.isLeaf && treeNode.key === 'defaultGroup')) return false;
-                    return {
-                      icon: <Icon icon="indicator" className="dragIcon textTertiary" />,
-                    };
+                  draggable={{
+                    icon: <Icon icon="indicator" className="dragIcon textTertiary" />,
+                    nodeDraggable: treeNode => hasRoleAuth && (treeNode.isLeaf || treeNode.key !== 'defaultGroup'),
                   }}
                   showIcon
-                  switcherIcon={null}
                   icon={l => {
                     if (!l.isLeaf || l.data.key === 'isMore') return null;
                     return (

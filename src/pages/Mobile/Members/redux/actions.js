@@ -1,7 +1,7 @@
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getTranslateInfo } from 'src/utils/app';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 // 申请状况
 const getAppApplyInfo = appId => (dispatch, getState) => {

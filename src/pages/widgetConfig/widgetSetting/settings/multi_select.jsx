@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { RadioGroup } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
 import { SettingItem } from '../../styled';
-import { isCustomWidget } from '../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import DisplayOptions from '../components/OptionList/DisplayOptions';
 import SelectOptions from '../components/OptionList/SelectOptions';
 
@@ -23,13 +23,15 @@ export default function MultiSelect(props) {
 
   return (
     <Fragment>
-      <SettingItem hide={isCustomWidget(data)}>
+      <SettingItem $hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
-          checkedValue={checktype}
-          data={OPTIONS_DISPLAY}
-          onChange={type => {
+          value={checktype}
+          options={(OPTIONS_DISPLAY || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const type = event.target.value;
+
             if (type !== checktype) {
               onChange(
                 handleAdvancedSettingChange(data, {

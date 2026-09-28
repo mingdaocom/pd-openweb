@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { Checkbox } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 
 // 操作设置
 export default function AttachmentOperate(props) {
@@ -20,68 +20,115 @@ export default function AttachmentOperate(props) {
     <Fragment>
       <div className="labelWrap">
         <Checkbox
-          size="small"
-          text={_l('允许上传')}
           checked={allowupload === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowupload: String(+!checked) }))}
-        />
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                allowupload: String(+event.target.checked),
+              }),
+            )
+          }
+          size="small"
+        >
+          {_l('允许上传')}
+        </Checkbox>
       </div>
       {allowupload === '1' && (
         <div className="labelWrap pLeft24">
           <Checkbox
-            size="small"
-            text={_l('PC端拍摄照片')}
             checked={allowcamera === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowcamera: String(+!checked) }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowcamera: String(+event.target.checked),
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('PC端拍摄照片')}
+          </Checkbox>
         </div>
       )}
       <div className="labelWrap">
         <Checkbox
-          size="small"
-          text={_l('允许从移动设备扫码上传')}
           checked={allowappupload !== '0'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowappupload: String(+!checked) }))}
-        />
-      </div>
-      <div className="labelWrap">
-        <Checkbox
-          size="small"
-          text={_l('允许删除')}
-          checked={allowdelete === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowdelete: String(+!checked) }))}
-        />
-      </div>
-      <div className="labelWrap">
-        <Checkbox
-          size="small"
-          text={_l('允许下载')}
-          checked={isDownload}
-          onClick={checked =>
+          onChange={event =>
             onChange(
-              handleAdvancedSettingChange(data, { allowdownload: String(+!checked), alldownload: String(+!checked) }),
+              handleAdvancedSettingChange(data, {
+                allowappupload: String(+event.target.checked),
+              }),
             )
           }
-        />
+          size="small"
+        >
+          {_l('允许从移动设备扫码上传')}
+        </Checkbox>
+      </div>
+      <div className="labelWrap">
+        <Checkbox
+          checked={allowdelete === '1'}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                allowdelete: String(+event.target.checked),
+              }),
+            )
+          }
+          size="small"
+        >
+          {_l('允许删除')}
+        </Checkbox>
+      </div>
+      <div className="labelWrap">
+        <Checkbox
+          checked={isDownload}
+          onChange={event => {
+            const checked = !event.target.checked;
+            return onChange(
+              handleAdvancedSettingChange(data, {
+                allowdownload: String(+!checked),
+                alldownload: String(+!checked),
+              }),
+            );
+          }}
+          size="small"
+        >
+          {_l('允许下载')}
+        </Checkbox>
       </div>
 
       {isDownload && (
         <div className="pLeft24">
           <div className="labelWrap">
             <Checkbox
-              size="small"
-              text={_l('单个文件')}
               checked={allowdownload === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowdownload: String(+!checked) }))}
-            />
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowdownload: String(+event.target.checked),
+                  }),
+                )
+              }
+              size="small"
+            >
+              {_l('单个文件')}
+            </Checkbox>
           </div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
-              text={_l('全部下载')}
               checked={alldownload === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { alldownload: String(+!checked) }))}
-            />
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    alldownload: String(+event.target.checked),
+                  }),
+                )
+              }
+              size="small"
+            >
+              {_l('全部下载')}
+            </Checkbox>
           </div>
         </div>
       )}

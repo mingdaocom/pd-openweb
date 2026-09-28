@@ -5,15 +5,22 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Textarea, UserHead } from 'ming-ui';
+import { SearchInput, UserHead } from 'ming-ui';
+import { Button, Input, Modal, Space } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement.js';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import ApplyAction from 'src/pages/Role/AppRoleCon/component/ApplyAction';
 import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import Table from 'src/pages/Role/component/Table';
 import { sysRoleType } from 'src/pages/Role/config.js';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+
+const REFUSE_TEXTAREA_STYLE = { minHeight: 100 };
+const ACTION_BUTTON_STYLE = { height: 32 };
+
+const SearchInputCon = styled(SearchInput)`
+  width: 244px;
+`;
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
@@ -28,15 +35,6 @@ const Wrap = styled.div`
     display: flex;
     align-items: center;
     white-space: nowrap;
-  }
-`;
-const WrapBar = styled.div`
-  .search .roleSearch {
-    width: 244px;
-    height: 37px;
-    background: var(--color-background-primary);
-    border-radius: 3px;
-    border: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -186,11 +184,17 @@ function Apply(props) {
   };
 
   const dialogRefuse = ({ appId, ids }) => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('拒绝'),
       closable: false,
-      anim: false,
-      description: <Textarea height={120} id="applyRoleRefuse" placeholder={_l('请填写拒绝原因')} />,
+      content: (
+        <Input.TextArea
+          autoSize
+          id="applyRoleRefuse"
+          style={REFUSE_TEXTAREA_STYLE}
+          placeholder={_l('请填写拒绝原因')}
+        />
+      ),
       onOk: () => {
         const remark = document.getElementById('applyRoleRefuse').value.trim();
         appManagementAjax
@@ -202,7 +206,12 @@ function Apply(props) {
           })
           .then(() => {
             setSelectedIds([]);
-            getApplyList({ appId }, true);
+            getApplyList(
+              {
+                appId,
+              },
+              true,
+            );
           });
       },
     });
@@ -218,9 +227,11 @@ function Apply(props) {
           )}
         </div>
         {selectedIds.length > 0 && (
-          <div>
-            <span
-              className={cx('toOthers InlineBlock Hand mLeft10')}
+          <Space size={10}>
+            <Button
+              color="primary"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
               onClick={() => {
                 setState({
                   show: true,
@@ -228,22 +239,23 @@ function Apply(props) {
               }}
             >
               {_l('通过')}
-            </span>
-            <span
-              className={cx('del InlineBlock Hand mLeft10')}
+            </Button>
+            <Button
+              color="danger"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
               onClick={() => {
                 dialogRefuse({ appId, ids: selectedIds });
               }}
             >
               {_l('拒绝')}
-            </span>
-          </div>
+            </Button>
+          </Space>
         )}
         {selectedIds.length <= 0 && (
-          <WrapBar>
+          <div>
             <div className="search InlineBlock">
-              <SearchInput
-                className="roleSearch"
+              <SearchInputCon
                 placeholder={props.placeholder || _l('搜索')}
                 value={keyWords}
                 onChange={keyWords => {
@@ -258,7 +270,7 @@ function Apply(props) {
                 }}
               />
             </div>
-          </WrapBar>
+          </div>
         )}
       </div>
       <Table

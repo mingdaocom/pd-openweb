@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const RoleName = styled.span`
   &.disabled {

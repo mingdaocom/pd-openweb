@@ -1,5 +1,5 @@
 import React from 'react';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import { formatInboxItem } from '../../util';
 import BaseMessageComponent from '../baseComponent/messageContent';
 

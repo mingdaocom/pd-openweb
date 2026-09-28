@@ -1,17 +1,16 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Pagination } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dropdown, LoadDiv } from 'ming-ui';
+import { LoadDiv, SearchInput } from 'ming-ui';
+import { Pagination, Select } from 'ming-ui/antd-components';
 import StatsAjax from 'src/pages/integration/api/stats.js';
 import loadingSvg from 'src/pages/Admin/app/useAnalytics/components/loading.svg';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { formatDate } from 'src/pages/integration/config.js';
 import ExecNumber from 'src/pages/integration/dataIntegration/task/components/ExecNumber/index.jsx';
-import { pathCompletion } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Sort from './Sort';
 import { Wrap } from './style';
 
@@ -22,6 +21,7 @@ export default function (props) {
   const chantRef = useRef();
   const g2plotComponent = useRef({});
   const cache = useRef({});
+  const listLoadingRef = useRef(false);
   const { currentProjectId: projectId } = props;
   const [
     {
@@ -64,46 +64,13 @@ export default function (props) {
     historyLoading: true,
   });
   const dateArr = [
-    { text: _l('最近1小时'), value: 1 },
-    { text: _l('最近1天'), value: 2 },
-    { text: _l('最近1个月'), value: 3 },
-    { text: _l('最近6个月'), value: 4 },
+    { label: _l('最近1小时'), value: 1 },
+    { label: _l('最近1天'), value: 2 },
+    { label: _l('最近1个月'), value: 3 },
+    { label: _l('最近6个月'), value: 4 },
   ];
 
-  useEffect(() => {
-    getG2plotComponent();
-    () => {
-      g2plotComponent.current.value = null;
-      lineChart && lineChart.destroy();
-    };
-  }, []);
-
-  useEffect(() => {
-    chantRef.current && g2plotComponent.current.value && renderChart(history);
-  }, [chantRef.current, g2plotComponent.current.value, history]);
-
-  useEffect(() => {
-    cache.current = { dimension, sort, keyWords, startTime, endTime, pageNum };
-    getList();
-  }, [dimension, sort, keyWords, startTime, endTime, pageNum]);
-
-  const getData = () => {
-    getInfo();
-    getDetailInfo();
-  };
-
-  const getDetailInfo = dimension => {
-    getHistory(dimension);
-  };
-
-  const getG2plotComponent = () => {
-    import('@antv/g2plot').then(data => {
-      g2plotComponent.current.value = data;
-      getData();
-    });
-  };
-
-  const getInfo = () => {
+  const getInfo = useCallback(() => {
     StatsAjax.realtime({ projectId })
       .then(res => {
         const { readCount, writeCount } = res;
@@ -112,147 +79,201 @@ export default function (props) {
       .catch(() => {
         setState({ readCount: 0, writeCount: 0 });
       });
-  };
+  }, [projectId, setState]);
 
-  const getHistory = (dimension = 1) => {
-    setState({ historyLoading: true });
-    StatsAjax.history({ projectId, dimension }).then(res => {
-      const { totalWriteCount, totalReadCount, historicalData = {} } = res;
-      let initChartData = [];
-      _.mapKeys(historicalData.readHistoricalData, (value, key) => {
-        let date = moment(Number(key)).format('YYYY-MM-DD HH:mm');
-        initChartData.push(
-          { category: _l('读取'), date, value, time: key },
-          {
-            category: _l('写入'),
-            date,
-            time: key,
-            value: historicalData.writeHistoricalData[key],
-          },
-        );
+  const getHistory = useCallback(
+    (dimension = 1) => {
+      setState({ historyLoading: true });
+      StatsAjax.history({ projectId, dimension }).then(res => {
+        const { totalWriteCount, totalReadCount, historicalData = {} } = res;
+        let initChartData = [];
+        _.mapKeys(historicalData.readHistoricalData, (value, key) => {
+          let date = moment(Number(key)).format('YYYY-MM-DD HH:mm');
+          initChartData.push(
+            { category: _l('读取'), date, value, time: key },
+            {
+              category: _l('写入'),
+              date,
+              time: key,
+              value: historicalData.writeHistoricalData[key],
+            },
+          );
+        });
+        setState({
+          historyLoading: false,
+          history: initChartData,
+          totalWriteCount,
+          totalReadCount,
+        });
       });
-      setState({
-        historyLoading: false,
-        history: initChartData,
-        totalWriteCount,
-        totalReadCount,
-      });
-    });
-  };
+    },
+    [projectId, setState],
+  );
 
-  const getList = data => {
-    if (listLoading && ajaxFetch) {
-      ajaxFetch.abort();
-    }
+  const getDetailInfo = useCallback(
+    dimension => {
+      getHistory(dimension);
+    },
+    [getHistory],
+  );
 
-    setState({ listLoading: true });
-    ajaxFetch = StatsAjax.details({
-      projectId,
-      dimension: cache.current.dimension || 1,
-      pageNum: cache.current.pageNum || 1,
-      pageSize,
-      taskNameOrCreator: cache.current.keyWords || '',
-      sortQuery: cache.current.sort || {},
-      startTime: cache.current.startTime || '',
-      endTime: cache.current.endTime || '',
+  const getData = useCallback(() => {
+    getInfo();
+    getDetailInfo();
+  }, [getDetailInfo, getInfo]);
+
+  const getG2plotComponent = useCallback(() => {
+    import('@antv/g2plot').then(data => {
+      g2plotComponent.current.value = data;
+      getData();
     });
-    ajaxFetch.then(res => {
-      setState({
-        ...data,
-        list: res.content,
-        totalElements: res.totalElements,
-        totalPages: res.totalPages,
-        listLoading: false,
+  }, [getData]);
+
+  const getList = useCallback(
+    data => {
+      if (listLoadingRef.current && ajaxFetch) {
+        ajaxFetch.abort();
+      }
+
+      setState({ listLoading: true });
+      ajaxFetch = StatsAjax.details({
+        projectId,
+        dimension: cache.current.dimension || 1,
+        pageNum: cache.current.pageNum || 1,
+        pageSize,
+        taskNameOrCreator: cache.current.keyWords || '',
+        sortQuery: cache.current.sort || {},
+        startTime: cache.current.startTime || '',
+        endTime: cache.current.endTime || '',
       });
-    });
-  };
+      ajaxFetch.then(res => {
+        setState({
+          ...data,
+          list: res.content,
+          totalElements: res.totalElements,
+          totalPages: res.totalPages,
+          listLoading: false,
+        });
+      });
+    },
+    [pageSize, projectId, setState],
+  );
 
   const isDark = window.themeMode === 'dark';
 
-  const renderChart = (initChartData = []) => {
-    const { Line } = g2plotComponent.current.value;
-    lineChart && lineChart.destroy();
-    lineChart = new Line(chantRef.current, {
-      data: initChartData,
-      xField: 'date',
-      yField: 'value',
-      seriesField: 'category',
-      smooth: true,
-      color: ['#61DDAA', '#1677ff'],
-      xAxis: {
-        label: {
-          style: { fill: isDark ? '#ffffffb0' : '#2C3542', opacity: 0.45 },
-          formatter: date => moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'HH:mm'),
-        },
-        line: { style: { stroke: isDark ? '#484848' : '#416180', opacity: 0.45, lineWidth: 0.5 } },
-        tickLine: { style: { fill: isDark ? '#484848' : '#BDBDBD', opacity: 1 } },
-      },
-      yAxis: {
-        label: {
-          type: 'inner',
-          offsetY: -3,
-          // 数值格式化为千分位
-          formatter: v => `${v}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`),
-          style: { fill: isDark ? '#ffffffb0' : '#2C3542', opacity: 0.45 },
-          grid: { line: { style: { stroke: 'rgba(65, 97, 128, 0.15)', lineWidth: 0.5 } } },
-        },
-      },
-      legend: {
-        position: 'bottom',
-        offsetY: 10,
-      },
-      tooltip: {
-        fields: ['category', 'value'],
-        formatter: datum => {
-          return { name: datum.category, value: formatNumberThousand(datum.value) };
-        },
-        showTitle: true,
-        title: v => `${moment(v).format([3, 4].includes(dimension) ? 'MMMDo' : 'MMMDo HH:mm')}`,
-        showContent: true,
-        domStyles: {
-          'g2-tooltip-list-item': { textAlign: 'left', color: 'var(--color-text-title)' },
-          'g2-tooltip-title': { color: 'var(--color-text-secondary)' },
-        },
-      },
-      slider: {
-        height: 16,
-        start: 0, // 1/ 24,
-        end: 1,
-        formatter: date =>
-          moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'YYYY-MM-DD HH:mm'),
-        foregroundStyle: {
-          fill: isDark ? '#ffffffb0' : '#1677ff',
-          opacity: 0.11,
-        },
-        TrendCfg: {
-          backgroundStyle: {
-            fill: '#F5F7F9',
-            opacity: 1,
+  const renderChart = useCallback(
+    (initChartData = []) => {
+      const { Line } = g2plotComponent.current.value;
+      lineChart && lineChart.destroy();
+      lineChart = new Line(chantRef.current, {
+        data: initChartData,
+        xField: 'date',
+        yField: 'value',
+        seriesField: 'category',
+        smooth: true,
+        color: ['#61DDAA', '#1677ff'],
+        xAxis: {
+          label: {
+            style: { fill: isDark ? '#ffffffb0' : '#2C3542', opacity: 0.45 },
+            formatter: date => moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'HH:mm'),
           },
-          lineStyle: {
-            fill: '#DBDBDB',
-            opacity: 1,
+          line: { style: { stroke: isDark ? '#484848' : '#416180', opacity: 0.45, lineWidth: 0.5 } },
+          tickLine: { style: { fill: isDark ? '#484848' : '#BDBDBD', opacity: 1 } },
+        },
+        yAxis: {
+          label: {
+            type: 'inner',
+            offsetY: -3,
+            // 数值格式化为千分位
+            formatter: v => `${v}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`),
+            style: { fill: isDark ? '#ffffffb0' : '#2C3542', opacity: 0.45 },
+            grid: { line: { style: { stroke: 'rgba(65, 97, 128, 0.15)', lineWidth: 0.5 } } },
           },
         },
-      },
-    });
-    lineChart.on('slider:mouseup', (e = {}) => {
-      const { filteredData = [] } = e.view;
-      setState({
-        startTime: (filteredData[0] || {}).time || '',
-        endTime: (filteredData[filteredData.length - 1] || {}).time || '',
-        pageNum: 1,
+        legend: {
+          position: 'bottom',
+          offsetY: 10,
+        },
+        tooltip: {
+          fields: ['category', 'value'],
+          formatter: datum => {
+            return { name: datum.category, value: formatNumberThousand(datum.value) };
+          },
+          showTitle: true,
+          title: v => `${moment(v).format([3, 4].includes(dimension) ? 'MMMDo' : 'MMMDo HH:mm')}`,
+          showContent: true,
+          domStyles: {
+            'g2-tooltip-list-item': { textAlign: 'left', color: 'var(--color-text-title)' },
+            'g2-tooltip-title': { color: 'var(--color-text-secondary)' },
+          },
+        },
+        slider: {
+          height: 16,
+          start: 0, // 1/ 24,
+          end: 1,
+          formatter: date =>
+            moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'YYYY-MM-DD HH:mm'),
+          foregroundStyle: {
+            fill: isDark ? '#ffffffb0' : '#1677ff',
+            opacity: 0.11,
+          },
+          TrendCfg: {
+            backgroundStyle: {
+              fill: '#F5F7F9',
+              opacity: 1,
+            },
+            lineStyle: {
+              fill: '#DBDBDB',
+              opacity: 1,
+            },
+          },
+        },
       });
-    });
-    lineChart.render();
-  };
-
-  const onSearch = useCallback(
-    _.debounce(value => {
-      setState({ keyWords: value, pageNum: 1 });
-    }, 500),
-    [],
+      lineChart.on('slider:mouseup', (e = {}) => {
+        const { filteredData = [] } = e.view;
+        setState({
+          startTime: (filteredData[0] || {}).time || '',
+          endTime: (filteredData[filteredData.length - 1] || {}).time || '',
+          pageNum: 1,
+        });
+      });
+      lineChart.render();
+    },
+    [dimension, isDark, setState],
   );
+
+  useEffect(() => {
+    listLoadingRef.current = listLoading;
+  }, [listLoading]);
+
+  useEffect(() => {
+    const g2plotCache = g2plotComponent.current;
+
+    getG2plotComponent();
+    return () => {
+      g2plotCache.value = null;
+      lineChart && lineChart.destroy();
+    };
+  }, [getG2plotComponent]);
+
+  useEffect(() => {
+    chantRef.current && g2plotComponent.current.value && renderChart(history);
+  }, [history, renderChart]);
+
+  useEffect(() => {
+    cache.current = { dimension, sort, keyWords, startTime, endTime, pageNum };
+    getList();
+  }, [dimension, getList, keyWords, pageNum, sort, startTime, endTime]);
+
+  const onSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setState({ keyWords: value, pageNum: 1 });
+      }, 500),
+    [setState],
+  );
+
+  useEffect(() => () => onSearch.cancel(), [onSearch]);
 
   const getNumStr = num => {
     return Number.isInteger(num / 10000) ? num / 10000 : (num / 10000).toFixed(4);
@@ -293,14 +314,12 @@ export default function (props) {
       </ul>
       <span className="title Bold Font16 mTop30">{_l('历史')}</span>
       <div className="flexRow mTop10 alignItemsCenter">
-        <Dropdown
+        <Select
           className="timeDrop"
-          menuStyle={{ width: '100%' }}
-          data={dateArr}
           defaultValue={1}
           placeholder={_l('自定义')}
           value={startTime || endTime ? undefined : dimension}
-          border
+          options={dateArr}
           onChange={value => {
             setState({ dimension: value, pageNum: 1, startTime: '', endTime: '' });
             getDetailInfo(value);
@@ -322,7 +341,7 @@ export default function (props) {
 
       <div className="title Bold Font16 mTop30 flexRow">
         <span className="flex">{_l('详情')}</span>
-        <SearchInput className="searchCon" placeholder={_l('任务名称/创建人')} onChange={onSearch} />
+        <SearchInput placeholder={_l('任务名称/创建人')} onChange={onSearch} />
       </div>
       <div className="listTable">
         <div className="header trCon flexRow alignItemsCenter mTop16">

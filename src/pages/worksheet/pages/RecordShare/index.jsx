@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
-import preall from 'src/common/preall';
+import globalEvents from 'src/common/entries/globalEvents';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import globalEvents from 'src/router/globalEvents';
-import { shareGetAppLangDetail } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { shareGetAppLangDetail } from 'src/utils/services/app';
 import RecordShare from './RecordShare';
 
 const Entry = () => {
@@ -24,6 +25,37 @@ const Entry = () => {
   } else {
     shareId = location.pathname.match(/.*\/public\/record\/(.*)/)[1];
   }
+
+  const getShareInfoByShareId = useCallback(
+    data => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
+          const clientId = _.get(result, 'data.identity');
+          const printClientId = _.get(result, 'data.clientId');
+          const { appId, projectId } = result.data || {};
+          window.clientId = printClientId;
+          clientId && sessionStorage.setItem(shareId, clientId);
+          if (printClientId) {
+            window.clientId = printClientId;
+            !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
+          }
+
+          if (result.resultCode === 1 && projectId && appId) {
+            await shareGetAppLangDetail({
+              projectId,
+              appId,
+            });
+          }
+
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    [shareId],
+  );
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
@@ -61,35 +93,7 @@ const Entry = () => {
           errorMessage: error.errorMessage || _l('网络错误，请稍后重试'),
         });
       });
-  }, []);
-
-  const getShareInfoByShareId = data => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
-        const clientId = _.get(result, 'data.identity');
-        const printClientId = _.get(result, 'data.clientId');
-        const { appId, projectId } = result.data || {};
-        window.clientId = printClientId;
-        clientId && sessionStorage.setItem(shareId, clientId);
-        if (printClientId) {
-          window.clientId = printClientId;
-          !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
-        }
-
-        if (result.resultCode === 1 && projectId && appId) {
-          await shareGetAppLangDetail({
-            projectId,
-            appId,
-          });
-        }
-
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  };
+  }, [getShareInfoByShareId, printId, shareId]);
 
   if (loading) {
     return (
@@ -140,4 +144,8 @@ const Entry = () => {
 
 const root = createRoot(document.getElementById('app'));
 
-root.render(<Entry />);
+root.render(
+  <AntdThemeProvider>
+    <Entry />
+  </AntdThemeProvider>,
+);

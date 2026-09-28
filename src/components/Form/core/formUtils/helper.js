@@ -1,47 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { toFixed } from 'src/utils/controlCommon';
-import { getContactInfo } from 'src/utils/project';
-import { filterEmptyChildTableRows } from 'src/utils/record';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
 import { FORM_ERROR_TYPE } from '../config';
-
-export { flattenArr, getAvailableFilters, getResult, isRelateMoreList, replaceStr } from './ruleUtils';
-
-export const getEmbedValue = (embedData = {}, id) => {
-  switch (id) {
-    case 'userId':
-      return md.global.Account.accountId;
-    case 'phone':
-      return getContactInfo('mobilePhone');
-    case 'email':
-      return getContactInfo('email');
-    case 'language':
-      return window.getCurrentLang();
-    case 'ua':
-      return window.navigator.userAgent;
-    case 'timestamp':
-      return new Date().getTime();
-    default:
-      return embedData[id] || '';
-  }
-};
-
-export const compareWithTime = (start, end, type) => {
-  if (!start || !end) return false;
-  const startTime = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
-  const endTime = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
-
-  switch (type) {
-    case 'isBefore':
-      return startTime < endTime;
-    case 'isSameAndBefore':
-      return startTime <= endTime;
-    case 'isAfter':
-      return startTime > endTime;
-    case 'isSameAndAfter':
-      return startTime >= endTime;
-  }
-};
 
 export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
   const formatValue = value => parseFloat(value.replace(/,/g, ''));
@@ -147,44 +107,18 @@ export const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId 
   }
 };
 
-/**
- * ignoreAddZero 不走补零逻辑
- */
-export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
-  const isNegative = value < 0;
-  value = Math.abs(value);
-  const roundType = currentItem.advancedSetting.roundtype || (_.includes([6, 8, 31, 37], currentItem.type) ? '2' : '0');
-  // 取整方式 空或者0 向下取整 1 向上取整 2 代表四舍五入
-  let dot = Number(currentItem.dot);
-
-  if (!dot || _.isNaN(dot)) {
-    dot = 0;
-  }
-
-  if (roundType === '2') {
-    value = String((Math.round(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-  } else if (roundType === '1') {
-    value = String((Math.ceil(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-  } else {
-    value = String(toFixed(Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
-  }
-
-  const ignoreZero = currentItem.advancedSetting.dotformat === '1';
-
-  if (!ignoreZero && dot !== 0 && ignoreAddZero) {
-    value = (value + (value.indexOf('.') > -1 ? '' : '.') + '0000000000000').replace(
-      new RegExp(`(\\d+\\.\\d{${dot}})(0+)$`),
-      '$1',
-    );
-  }
-
-  return value;
-}
-
 // 获取控件的值（处理特殊选项控件）
 // objValue是外层新值，覆盖obj.value
 export const getControlValue = (data, currentItem, controlId, objValue) => {
-  const obj = _.find(data, o => o.controlId === controlId) || {};
+  const sourceObj = _.find(data, o => o.controlId === controlId) || {};
+  const obj =
+    sourceObj.type === 30
+      ? {
+          ...sourceObj,
+          type: sourceObj.sourceControlType,
+          options: (sourceObj.sourceControl || {}).options || [],
+        }
+      : sourceObj;
   const value = objValue || obj.value;
 
   // 非同选项集选项默认值文本匹配
@@ -263,12 +197,21 @@ export const getAttachmentData = (control = {}) => {
 
 export const mergeFormDataWidthSystem = (data = [], systemControlData = []) => {
   const mergedData = [...data];
-  (systemControlData || []).forEach(systemItem => {
-    const existingIndex = mergedData.findIndex(d => d.controlId === systemItem.controlId);
+  const controlIndexMap = new Map();
 
-    if (existingIndex !== -1) {
+  mergedData.forEach((item, index) => {
+    if (!controlIndexMap.has(item.controlId)) {
+      controlIndexMap.set(item.controlId, index);
+    }
+  });
+
+  (systemControlData || []).forEach(systemItem => {
+    const existingIndex = controlIndexMap.get(systemItem.controlId);
+
+    if (!_.isUndefined(existingIndex)) {
       mergedData[existingIndex] = { ...mergedData[existingIndex], ...systemItem };
     } else {
+      controlIndexMap.set(systemItem.controlId, mergedData.length);
       mergedData.push(systemItem);
     }
   });

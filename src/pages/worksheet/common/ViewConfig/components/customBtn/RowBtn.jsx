@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
+import { Button } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { PRINT_TEMP } from 'src/pages/Print/core/config';
 import { SYS_BTN_LIST } from './config';
@@ -8,6 +9,8 @@ import { actionColumnOptionsFromLayouts, getActionColumnKey } from './groupedLay
 import SortableRowActionList from './rowAction/SortableRowActionList';
 import RowBtnList from './RowBtnList.jsx';
 import './CustomBtn.less';
+
+const ADD_BUTTON_STYLE = { '--hap-button-default-color': 'var(--color-primary)' };
 
 export default function (props) {
   const {
@@ -134,16 +137,23 @@ export default function (props) {
         <div>
           {items.length > 0 && <SortableRowActionList items={items} onSortEnd={handleMoveApp} onDelete={onDelete} />}
         </div>
-        <div
-          className="addBtn Hand mTop10 Relative"
-          onClick={() => {
-            setState({
-              showBtn: !showBtn,
-            });
-          }}
-        >
-          <i className="icon icon-add Font18 mRight5 TxtMiddle InlineBlock"></i>
-          <span className="Bold TxtMiddle InlineBlock">{_l('按钮')}</span>
+        <div className="addBtnWrapper mTop10 Relative">
+          <Button
+            block
+            className="Bold Font13"
+            color="default"
+            variant="filled"
+            size="large"
+            style={ADD_BUTTON_STYLE}
+            icon={<i className="icon icon-add Font18" />}
+            onClick={() => {
+              setState({
+                showBtn: !showBtn,
+              });
+            }}
+          >
+            {_l('按钮')}
+          </Button>
           {showBtn && (
             <RowBtnList
               {...props}

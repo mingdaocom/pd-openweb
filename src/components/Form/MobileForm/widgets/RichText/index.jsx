@@ -1,16 +1,17 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useContext, useRef } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { RichText } from 'ming-ui';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { ADD_EVENT_ENUM } from '../../../core/enum';
+import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
 
 const RichTextWrap = styled.div`
   .ck .ck-content {
     background: ${props =>
-      props.disabled ? 'var(--color-background-primary)' : 'var(--color-background-input)'} !important;
-    border: 1px solid var(--color-border-primary) !important;
+      props.$disabled ? 'var(--color-background-primary)' : 'var(--color-background-input)'} !important;
+    border: ${props => (props.$disabled ? 'none' : '1px solid var(--color-border-primary)')} !important;
   }
   .ck .ck-content.ck-focused {
     background: var(--color-background-input) !important;
@@ -18,6 +19,7 @@ const RichTextWrap = styled.div`
 `;
 
 const RichTextWidget = props => {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const {
     disabled,
     value,
@@ -56,7 +58,7 @@ const RichTextWidget = props => {
     // 判断是否点击的是 img
     if (target && target.tagName === 'IMG') {
       console.log(target.src);
-      previewAttachments({
+      openPreviewAttachments({
         index: 0,
         attachments: [
           {
@@ -72,7 +74,7 @@ const RichTextWidget = props => {
   };
 
   return (
-    <RichTextWrap disabled={disabled} onClick={handleClick}>
+    <RichTextWrap $disabled={disabled} onClick={handleClick}>
       <RichText
         projectId={projectId}
         appId={appId}

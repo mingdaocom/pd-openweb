@@ -39,6 +39,11 @@
     top: -25px;
     background: var(--color-background-primary);
     z-index: 1;
+    // 子表配了「说明」时，说明会作为独立一行插在字段名和子表之间（FormLabel 中 type 34 的分支），
+    // 而这里的负偏移是以控件区顶边为基准的，需要再让出说明这一行，否则提示会被顶到字段名上
+    .customFormItem:has(> .descBox) & {
+      top: -50px;
+    }
   }
   .childTableColumnHead {
     color: var(--color-text-tertiary) !important;
@@ -63,41 +68,15 @@
     .cell.readonly:not(.highlight):not(.highlightFromProps) {
       background-color: var(--color-background-secondary) !important;
     }
+    /* 拖拽排序时被拖拽的源行淡化 */
+    .cell.childTableRowDragSource {
+      opacity: 0.4;
+    }
   }
   .operate {
     margin: 0 0 12px;
     display: flex;
     align-items: center;
-    .operateButton,
-    .addRowByLine,
-    .importFromFile,
-    .addRowByDialog,
-    .batchEditBtn {
-      font-weight: bold;
-      border-radius: 4px;
-      margin-right: 8px;
-      color: var(--color-text-title);
-      cursor: pointer;
-      padding: 0 16px;
-      font-size: 13px;
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid var(--color-border-primary);
-      .icon {
-        color: var(--color-text-tertiary);
-      }
-      &.disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        background: transparent;
-      }
-      &.h5,
-      &.h5:not(.disabled):hover {
-        margin: 4px 0 0;
-        background-color: transparent;
-      }
-    }
     .splitter {
       width: 0;
       height: 18px;
@@ -105,37 +84,7 @@
       margin: 0 17px 0 9px;
     }
     .importFromFile {
-      display: inline-flex;
-      justify-content: center;
       z-index: 1;
-      opacity: 1 !important;
-      padding: 0;
-      .content {
-        line-height: 34px;
-        border-radius: 4px 0 0 4px;
-      }
-      .icon-worksheet_import {
-        margin: 0 10px;
-      }
-      .content:hover,
-      .dropdownButtonIcon:hover {
-        background-color: var(--color-background-hover);
-      }
-      &.disabled {
-        border-color: rgba(221, 221, 221, 0.6);
-        i.icon {
-          opacity: 0.6;
-        }
-      }
-    }
-    .addRowByLine:not(.disabled):hover,
-    .exitBatch:not(.disabled):hover {
-      background-color: var(--color-background-hover);
-    }
-    .addRowByDialog {
-      &:not(.disabled):hover {
-        background-color: var(--color-background-hover);
-      }
     }
   }
   .addRowBtnOfVertical {
@@ -158,25 +107,93 @@
   }
 }
 
+/* 子表整行拖拽排序进行中：全局强制移动光标并禁止选中 */
+html.childTableRowDragging,
+html.childTableRowDragging * {
+  cursor: move !important;
+  user-select: none !important;
+}
+
+/* 拖拽手柄（挂在 body）：位于表格左缘外侧、垂直居中于所在行，hover 光标 pointer */
+.childTableDragFloat {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  z-index: 99998;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  .icon {
+    font-size: 16px;
+  }
+  &:hover {
+    color: var(--color-text-secondary);
+  }
+  /* 拖拽态：跟随幽灵行，不吃指针事件，需盖在幽灵行之上 */
+  &.dragging {
+    pointer-events: none;
+    z-index: 100002;
+  }
+}
+
+/* 插入行悬浮加号（挂在 body，骑在行上分割线上，默认灰、hover 变蓝放大 2px） */
+.childTableInsertFloat {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  z-index: 99998;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  /* 圆底垫在描边加号图标下面，填住其透明中心，避免透出表格分割线/内容 */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-background-primary);
+  }
+  .icon {
+    position: relative;
+    font-size: 18px;
+    transition:
+      font-size 0.15s ease-out,
+      color 0.15s ease-out;
+  }
+  &.active {
+    color: var(--color-primary);
+    .icon {
+      font-size: 20px;
+    }
+  }
+}
+/* 插入行 hover 时从加号右侧延伸到表格右缘的蓝线（无左侧圆点） */
+.childTableInsertFloatLine {
+  display: none;
+  position: fixed;
+  height: 2px;
+  z-index: 99997;
+  background: var(--color-primary);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
 .childTableRowDetailDialog {
-  padding: 0 !important;
-  .ant-modal-close {
-    display: none;
-  }
-  .ant-modal-body {
-    padding: 0px !important;
-    background-color: var(--color-background-primary);
-  }
   .header {
     flex-shrink: 0;
     padding: 10px 24px 30px;
     background-color: var(--color-background-primary);
     .switchButton {
-      padding: 0 16px;
       margin-right: 8px;
       .icon {
         font-size: 16px;
-        margin-right: 6px;
         vertical-align: middle;
       }
       .text {

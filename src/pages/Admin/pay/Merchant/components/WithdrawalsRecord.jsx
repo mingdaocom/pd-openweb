@@ -2,15 +2,16 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 import Empty from '../../../common/TableEmpty';
 import { BALANCE_INFO } from '../../config';
 import withdrawalsEmptyImg from '../../images/withdrawals.png';
-import WithdrawalsDialogFunc from './WithdrawReimburseDialog';
+import { useWithdrawReimburseDialog } from './WithdrawReimburseDialog';
 
 const BalanceWrap = styled.div`
   padding: 36px 0 25px 32px;
@@ -45,7 +46,7 @@ const FlexWrap = styled.div`
   overflow: hidden;
 `;
 
-export default class WithdrawalsRecord extends Component {
+class WithdrawalsRecord extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -171,7 +172,7 @@ export default class WithdrawalsRecord extends Component {
       return;
     }
 
-    WithdrawalsDialogFunc({
+    this.props.openWithdrawReimburseDialog({
       type: 'withdrawals',
       title: _l('提现'),
       okText: _l('提现'),
@@ -280,7 +281,6 @@ export default class WithdrawalsRecord extends Component {
                     type: 'selectTime',
                     label: _l('提现时间'),
                     placeholder: _l('选择日期范围'),
-                    dateFormat: 'YYYY-MM-DD HH:mm:ss',
                     suffixIcon: <Icon icon="person" className="Font16" />,
                   },
                 ]}
@@ -321,3 +321,7 @@ export default class WithdrawalsRecord extends Component {
     );
   }
 }
+
+export default withOpeners(WithdrawalsRecord, {
+  openWithdrawReimburseDialog: useWithdrawReimburseDialog,
+});

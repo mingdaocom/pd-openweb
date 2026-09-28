@@ -23,84 +23,14 @@
       margin-right: 3px;
     }
   }
-  .taskStatusList {
-    position: absolute;
-    top: 42px;
-    left: 3px;
-    width: 170px;
-    background: var(--color-background-card);
-    box-shadow: var(--shadow-lg);
-    padding: 6px 0;
-    z-index: 10;
-    li {
-      height: 32px;
-      padding-left: 16px;
-      line-height: 32px;
-      padding-right: 10px;
-      width: 100%;
-      box-sizing: border-box;
-      vertical-align: top;
-      cursor: pointer;
-      &:not(.colorPrimary) {
-        i {
-          color: var(--color-text-tertiary);
-        }
-      }
-      &:not(:hover),
-      &.colorPrimary {
-        background: var(--color-background-card) !important;
-      }
-      &:hover:not(.colorPrimary) {
-        color: var(--color-white);
-        i {
-          color: var(--color-white);
-        }
-      }
-      i {
-        margin-right: 8px;
-      }
-    }
-  }
-
   .folderGanttBtn {
     margin-left: 8px;
-    display: inline-block;
     vertical-align: top;
     margin-top: 2px;
-    li {
-      display: inline-block;
-      width: 26px;
-      height: 26px;
-      line-height: 26px;
-      border-width: 1px 1px 1px 0;
-      border-style: solid;
-      border-color: var(--color-text-disabled);
-      text-align: center;
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      box-sizing: border-box;
-      cursor: pointer;
-      &:first-child {
-        border-left: 1px solid var(--color-text-disabled);
-        border-radius: 4px 0 0 4px;
-      }
-      &:last-child {
-        border-radius: 0 4px 4px 0;
-      }
-      &.active {
-        color: var(--color-white);
-        background: var(--color-text-secondary);
-        border-color: var(--color-text-secondary);
-      }
-    }
   }
 
   .folderGanttWeekBtn {
     margin-left: 16px;
-    li {
-      width: auto;
-      padding: 0 12px;
-    }
   }
 
   .folderGanttLevelBtn {
@@ -116,36 +46,6 @@
     border: 1px solid var(--color-text-disabled);
     color: var(--color-text-tertiary);
     border-radius: 4px;
-  }
-
-  .taskLevel {
-    display: inline-block;
-    position: absolute;
-    top: 42px;
-    margin-left: -16px;
-    overflow: hidden;
-    padding: 6px 0;
-    background: var(--color-background-card);
-    z-index: 10;
-    li {
-      height: 32px;
-      line-height: 32px;
-      padding-left: 16px;
-      padding-right: 32px;
-      cursor: pointer;
-      &:first-child {
-        border-bottom: 1px solid var(--color-text-disabled);
-      }
-      &.colorPrimary {
-        background: var(--color-background-card) !important;
-      }
-      &:not(:hover) {
-        background: var(--color-background-card) !important;
-      }
-      &:hover {
-        color: var(--color-white);
-      }
-    }
   }
 
   .ganttAddNewTask {

@@ -3,15 +3,18 @@ import { ActionSheet, Button, Checkbox, Popup, Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, VerifyPasswordInput } from 'ming-ui';
+import { MobilePopup } from 'ming-ui/antd-mobile-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import 'mobile/ProcessRecord/OtherAction/index.less';
-import verifyPassword from 'src/components/verifyPassword';
+import Signature from 'src/components/Signature';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
+import { getRequest } from 'src/utils/platform/browser/device';
 import Back from '../components/Back';
 import Card from './Card';
 import Filter from './Filter';
@@ -113,7 +116,8 @@ export default class ProcessMatters extends Component {
     const savedTabs = localStorage.getItem('currentProcessTab')
       ? JSON.parse(localStorage.getItem('currentProcessTab'))
       : {};
-    const bottomTab = savedTabs.bottomTab || _.find(tabs, { id: tab }) || tabs[0] || {};
+    const routeBottomTab = tab ? _.find(tabs, item => item.id === tab || _.some(item.tabs, { id: tab })) : undefined;
+    const bottomTab = routeBottomTab || savedTabs.bottomTab || tabs[0] || {};
     this.state = {
       pageIndex: 1,
       pageSize: 30,
@@ -121,11 +125,9 @@ export default class ProcessMatters extends Component {
       loading: false,
       isMore: true,
       bottomTab: bottomTab,
-      topTab: savedTabs.topTab
-        ? savedTabs.topTab
-        : tab
-          ? _.find(bottomTab.tabs, { id: tab }) || bottomTab.tabs[0]
-          : bottomTab.tabs[0],
+      topTab: routeBottomTab
+        ? _.find(bottomTab.tabs, { id: tab }) || bottomTab.tabs[0]
+        : savedTabs.topTab || bottomTab.tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},
@@ -466,11 +468,13 @@ export default class ProcessMatters extends Component {
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
-      <Popup
+      <MobilePopup
         visible={true}
+        layerId="batchApproveSignature"
         className="mobileModal topRadius"
         onClose={() => {
           this.setState({ approveType: null, encryptType: null });
+          this.verifyInfo = undefined;
         }}
       >
         <div className="otherActionWrapper flexColumn">
@@ -479,7 +483,7 @@ export default class ProcessMatters extends Component {
               {_l('其中')}
               {!!signatureApproveCards.length && _l('%0个事项需要签名', signatureApproveCards.length)}
               {!!(signatureApproveCards.length && encryptCard.length) && '，'}
-              {!!encryptCard.length && _l('%0个事项需要验证登录密码', encryptCard.length)}
+              {!!encryptCard.length && _l('%0个事项需要安全验证', encryptCard.length)}
             </div>
             {!!signatureApproveCards.length && (
               <Signature
@@ -493,9 +497,10 @@ export default class ProcessMatters extends Component {
                 <VerifyPasswordInput
                   showSubTitle={false}
                   isRequired={true}
+                  showVerifyType={true}
                   allowNoVerify={false}
-                  onChange={({ password }) => {
-                    if (password !== undefined) this.password = password;
+                  onChange={verifyInfo => {
+                    this.verifyInfo = verifyInfo;
                   }}
                 />
               </div>
@@ -506,6 +511,7 @@ export default class ProcessMatters extends Component {
               className="flex actionBtn"
               onClick={() => {
                 this.setState({ approveType: null, encryptType: null });
+                this.verifyInfo = undefined;
               }}
             >
               {_l('取消')}
@@ -519,6 +525,8 @@ export default class ProcessMatters extends Component {
                 }
 
                 const submitFun = () => {
+                  this.verifyInfo = undefined;
+
                   if (signatureApproveCards.length) {
                     this.signature.saveSignature(signature => {
                       this.handleBatchApprove(signature, this.state.approveType);
@@ -531,13 +539,17 @@ export default class ProcessMatters extends Component {
                 };
 
                 if (encryptCard.length) {
-                  if (!this.password || !this.password.trim()) {
-                    alert(_l('请输入密码'), 3);
+                  const verifyInfo = this.verifyInfo || {};
+                  const error = getVerifyValueError(verifyInfo);
+
+                  if (error) {
+                    alert(error, 3);
                     return;
                   }
 
                   verifyPassword({
-                    password: this.password,
+                    ...verifyInfo,
+                    showVerifyType: true,
                     closeImageValidation: true,
                     success: submitFun,
                   });
@@ -550,7 +562,7 @@ export default class ProcessMatters extends Component {
             </div>
           </div>
         </div>
-      </Popup>
+      </MobilePopup>
     );
   }
   renderRejectDialog() {

@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import GroupContent from 'worksheet/views/GunterView/components/GroupContent';
+import { getVisibleGunterGroups } from 'worksheet/views/GunterView/virtual';
 import RecordWrapper from './RecordWrapper';
 import './index.less';
 
@@ -33,13 +34,13 @@ let TimeBlock = class TimeBlock extends Component {
     );
   }
 
-  renderGroupingItem(item) {
-    const { gunterView, updateGroupSubVisible } = this.props;
-    const { withoutArrangementVisible } = gunterView;
+  renderGroupingItem(visibleGroup) {
+    const { updateGroupSubVisible } = this.props;
+    const { groupVisible, group: item, rows } = visibleGroup;
     const { groupingIndex } = item;
     return (
       <Fragment key={item.key}>
-        {!item.hide && (
+        {groupVisible && (
           <div
             className="groupingBlock"
             style={{
@@ -55,21 +56,19 @@ let TimeBlock = class TimeBlock extends Component {
             <span className="recordTitle textPrimary">{<GroupContent group={item} />}</span>
           </div>
         )}
-        {item.subVisible &&
-          item.rows
-            .filter(item => (withoutArrangementVisible ? true : item.diff > 0))
-            .map(
-              (row, index) =>
-                row.width > 0 && this.renderRow(row, item.key, item.hide ? index : groupingIndex + index + 1),
-            )}
+        {item.subVisible && rows.map(({ row, rowIndex }) => row.width > 0 && this.renderRow(row, item.key, rowIndex))}
       </Fragment>
     );
   }
 
   render() {
-    const { grouping } = this.props.gunterView;
+    const { visibleRange } = this.props;
+    const { grouping, withoutArrangementVisible } = this.props.gunterView;
+    const visibleGroups = getVisibleGunterGroups(grouping, visibleRange, withoutArrangementVisible);
     return (
-      <div className="timeBlockWrapper">{grouping.map(item => item.width > 0 && this.renderGroupingItem(item))}</div>
+      <div className="timeBlockWrapper">
+        {visibleGroups.map(item => item.group.width > 0 && this.renderGroupingItem(item))}
+      </div>
     );
   }
 };

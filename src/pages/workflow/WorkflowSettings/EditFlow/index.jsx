@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, EditingBar, LoadDiv, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { EditingBar, LoadDiv, SvgIcon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import {
   addFlowNode,
   deleteFlowNode,
@@ -441,16 +441,15 @@ class EditFlow extends Component {
   /**
    * 详情有更新弹层
    */
-  detailUpdateConfirm(onOk = () => {}) {
-    Dialog.confirm({
-      className: 'switchDetailConfirm',
+  detailUpdateConfirm(onDiscard = () => {}) {
+    Modal.confirm({
       title: _l('要保存对节点的修改吗？'),
-      description: _l('当前节点中有尚未保存的修改，你在继续操作前是否需要保存这些修改？'),
-      okText: _l('否，放弃修改'),
-      buttonType: 'ghost',
-      cancelText: _l('是，前往保存'),
-      cancelType: 'primary',
-      onOk,
+      content: _l('当前节点中有尚未保存的修改，你在继续操作前是否需要保存这些修改？'),
+      okText: _l('是，前往保存'),
+      cancelText: _l('否，放弃修改'),
+      closable: false,
+      keyboard: false,
+      onCancel: onDiscard,
     });
   }
 

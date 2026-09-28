@@ -5,8 +5,7 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
-import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
+import { Input, Modal } from 'ming-ui/antd-components';
 import departmentApi from 'src/api/department';
 import homeAppApi from 'src/api/homeApp';
 import organizeApi from 'src/api/organize';
@@ -17,13 +16,15 @@ import { RecordInfoModal } from 'mobile/Record';
 import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { showFilteredRecords } from 'worksheet/components/SearchRecordResult';
+import { useSearchRecordResult } from 'worksheet/components/SearchRecordResult';
 import ScanQRCode from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { hrefReg } from 'src/pages/customPage/components/previewContent';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile, getRequest, pathCompletion } from 'src/utils/common';
-import { addBehaviorLog, dateConvertToServerZone, mdAppResponse } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { browserIsMobile, getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { dateConvertToServerZone } from 'src/utils/platform/runtime/timeZone';
+import { addBehaviorLog, mdAppResponse } from 'src/utils/services/project';
 import { genUrl } from '../../util';
 import ButtonDisplay from '../editWidget/button/ButtonDisplay';
 
@@ -137,6 +138,7 @@ export function ButtonList({
   const scanQRCodeRef = useRef();
   const [currentScanBtn, setCurrentScanBtn] = useState();
   const [previewRecord, setPreviewRecord] = useState({});
+  const { open: showFilteredRecords, holder: searchRecordResultHolder } = useSearchRecordResult();
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
   const projectId = info.projectId || _.get(info, 'apk.projectId');
@@ -268,7 +270,17 @@ export function ButtonList({
 
       if (window.isMingDaoApp) {
         const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
-        window.location.href = pathCompletion(btnId ? `${url}?btnId=${btnId}` : url);
+        const query = new URLSearchParams({ customPageButton: '1' });
+
+        if (btnId) {
+          query.set('btnId', btnId);
+        }
+
+        if (name) {
+          query.set('customPageButtonName', name);
+        }
+
+        window.location.href = pathCompletion(`${url}?${query.toString()}`);
         return;
       }
 
@@ -348,27 +360,28 @@ export function ButtonList({
       } else {
         const { placeholder, text } = item.config || {};
 
-        const onOk = ({ eventSource } = {}) => {
-          const value = _.get(scanQRCodeRef, 'current.state.value');
+        const onOk = ({ eventSource, close = dialogConfirm } = {}) => {
+          const input = scanQRCodeRef.current?.input;
+          const value = input?.value;
 
           if (value) {
             handleScanQRCodeResult(value, item);
             if (eventSource === 'pressEnter' && text === 2) {
-              scanQRCodeRef.current.setState({ value: '' });
+              input.value = '';
               document.querySelector('.confirmSubmitHint').classList.remove('hide');
               return;
             }
 
-            dialogConfirm();
+            close();
           } else {
             alert(_l('请输入内容'), 3);
           }
         };
 
-        const dialogConfirm = Dialog.confirm({
+        const dialogConfirm = Modal.confirm({
           width: 480,
-          title: <span className="bold">{name}</span>,
-          description: (
+          title: name,
+          content: (
             <div className="flexColumn">
               <Input
                 autoFocus={true}
@@ -378,29 +391,27 @@ export function ButtonList({
                 ref={scanQRCodeRef}
                 onKeyDown={e => {
                   if (e.keyCode === 13) {
-                    onOk({ eventSource: 'pressEnter' });
+                    onOk({
+                      eventSource: 'pressEnter',
+                    });
                   }
                 }}
               />
-              <div className="mTop10 confirmSubmitHint hide" style={{ color: 'var(--color-success)' }}>
+
+              <div
+                className="mTop10 confirmSubmitHint hide"
+                style={{
+                  color: 'var(--color-success)',
+                }}
+              >
                 {_l('已提交，请输入下一条')}
               </div>
             </div>
           ),
-          footer: (
-            <div className="Dialog-footer-btns">
-              <ConfirmButton
-                onClose={_.noop}
-                action={() => {
-                  onOk();
-                }}
-                type="primary"
-              >
-                {_l('确定')}
-              </ConfirmButton>
-            </div>
-          ),
-        });
+
+          manualClose: true,
+          onOk: close => onOk({ close }),
+        }).destroy;
       }
     }
 
@@ -422,8 +433,9 @@ export function ButtonList({
             onConfirm: () => runStartProcessByPBC(item),
           });
         } else {
-          Dialog.confirm({
+          Modal.confirm({
             title: <div className="mTop10">{confirmMsg}</div>,
+            focusable: { autoFocusButton: 'ok' },
             onOk: () => {
               runStartProcessByPBC(item);
             },
@@ -509,7 +521,7 @@ export function ButtonList({
           },
         });
       } else {
-        Dialog.confirm({
+        Modal.confirm({
           title: <div className="mTop10">{result}</div>,
           onOk: () => {
             copy(result);
@@ -559,6 +571,7 @@ export function ButtonList({
 
   return (
     <ButtonListWrap>
+      {searchRecordResultHolder}
       <ButtonDisplay
         themeColor={themeColor}
         customPageConfig={customPageConfig}
@@ -569,6 +582,7 @@ export function ButtonList({
         onClick={handleClick}
         {...button}
       />
+
       {includeScanQRCode && (isMobile || isIPad) && (
         <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />
       )}

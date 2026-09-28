@@ -1,6 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
+
+const CHECKBOX_STYLES = {
+  left: {
+    root: { display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-end' },
+    label: { paddingInlineStart: 0, paddingInlineEnd: 8 },
+  },
+  right: {
+    root: { display: 'flex' },
+    label: { paddingInlineEnd: 0 },
+  },
+};
 
 export const AddButton = styled.div`
   height: 36px;
@@ -47,49 +58,39 @@ const Con = styled.div`
   }
 `;
 
-const AiCheckbox = styled(Checkbox)`
-  &.checked .Checkbox-box {
-    background-color: var(--color-mingo) !important;
-  }
-  &.Checkbox--disabled .Checkbox-box {
-    border-color: var(--color-border-primary) !important;
-  }
-  &.Checkbox--disabled.checked .Checkbox-box {
-    border-color: var(--color-border-primary) !important;
-  }
-`;
-
 export function ConfigPanel({ config, checkboxTextPosition = 'right', onConfigChange, disabled = false }) {
   const { includeAppName, includeAppIcon } = config;
   return (
     <div>
-      <AiCheckbox
-        textPosition={checkboxTextPosition}
-        text={_l('名称')}
+      <Checkbox
         checked={includeAppName}
         disabled={disabled}
-        onClick={() => {
+        styles={CHECKBOX_STYLES[checkboxTextPosition]}
+        onChange={event => {
           if (disabled) return;
           onConfigChange({
             ...config,
-            includeAppName: includeAppName && !includeAppIcon ? true : !includeAppName,
+            includeAppName: !event.target.checked && !includeAppIcon ? true : event.target.checked,
           });
         }}
-      />
-      <AiCheckbox
+      >
+        {_l('名称')}
+      </Checkbox>
+      <Checkbox
         className="mTop15"
-        textPosition={checkboxTextPosition}
-        text={_l('图标')}
         checked={includeAppIcon}
         disabled={disabled}
-        onClick={() => {
+        styles={CHECKBOX_STYLES[checkboxTextPosition]}
+        onChange={event => {
           if (disabled) return;
           onConfigChange({
             ...config,
-            includeAppIcon: includeAppIcon && !includeAppName ? true : !includeAppIcon,
+            includeAppIcon: !event.target.checked && !includeAppName ? true : event.target.checked,
           });
         }}
-      />
+      >
+        {_l('图标')}
+      </Checkbox>
     </div>
   );
 }

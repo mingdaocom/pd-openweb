@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
+import React from 'react';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import './index.less';
 
 const SORT_TYPE = [
@@ -32,50 +31,47 @@ const SORT_TYPE = [
   },
 ];
 
+const SORT_MENU_ITEMS = [
+  {
+    key: 'update-time',
+    type: 'group',
+    label: _l('按更新时间'),
+    children: [1, 2].map(key => ({
+      key: String(key),
+      label: key === 1 ? _l('降序') : _l('升序'),
+      icon: <Icon icon={SORT_TYPE[key].icon} className="Font16" />,
+    })),
+  },
+  {
+    key: 'create-time',
+    type: 'group',
+    label: _l('按创建时间'),
+    children: [3, 4].map(key => ({
+      key: String(key),
+      label: key === 3 ? _l('降序') : _l('升序'),
+      icon: <Icon icon={SORT_TYPE[key].icon} className="Font16" />,
+    })),
+  },
+];
+
 export default function SelectSort(props) {
   const { value = 0, onChange, className = '' } = props;
 
-  const [visible, setVisible] = useState(false);
-
-  const onChangeValue = value => {
-    onChange(value);
-    setVisible(false);
-  };
-
   return (
-    <Trigger
-      className="appSelectTrigger"
-      popupVisible={visible}
-      onPopupVisibleChange={visible => setVisible(visible)}
-      action={['click']}
-      popupAlign={{ points: ['tr', 'br'] }}
-      popup={
-        <div className="SelectSortDrowCon">
-          <div className="title">{_l('按更新时间')}</div>
-          <div className={cx('item valignWrapper', { lighthigh: value === 1 })} onClick={() => onChangeValue(1)}>
-            {_l('降序')}
-            <Icon icon="score-down" className="Font16 mLeft4" />
-          </div>
-          <div className={cx('item valignWrapper', { lighthigh: value === 2 })} onClick={() => onChangeValue(2)}>
-            {_l('升序')}
-            <Icon icon="score-up" className="Font16 mLeft4" />
-          </div>
-          <div className="title">{_l('按创建时间')}</div>
-          <div className={cx('item valignWrapper', { lighthigh: value === 3 })} onClick={() => onChangeValue(3)}>
-            {_l('降序')}
-            <Icon icon="score-down" className="Font16 mLeft4" />
-          </div>
-          <div className={cx('item valignWrapper', { lighthigh: value === 4 })} onClick={() => onChangeValue(4)}>
-            {_l('升序')}
-            <Icon icon="score-up" className="Font16 mLeft4" />
-          </div>
-        </div>
-      }
+    <Dropdown
+      trigger={['click']}
+      placement="bottomRight"
+      menu={{
+        items: SORT_MENU_ITEMS,
+        selectable: true,
+        selectedKeys: [String(value)],
+        onClick: ({ key }) => onChange(Number(key)),
+      }}
     >
       <span className={`selectSort textTertiary ${className} ${value === 0 ? '' : 'lighthigh'}`}>
         {value === 0 ? _l('更新时间') : SORT_TYPE[value].label}
         <Icon icon={SORT_TYPE[value].icon} className="textTertiary" />
       </span>
-    </Trigger>
+    </Dropdown>
   );
 }

@@ -5,6 +5,12 @@ import { ACTION_ID, APP_TYPE } from '../../enum';
 import { getIcons } from '../../utils';
 import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
+const FOLLOWER_UPDATE_TYPES = {
+  0: _l('覆盖关注者'),
+  1: _l('添加关注者'),
+  2: _l('移除关注者'),
+};
+
 export default class Action extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +33,21 @@ export default class Action extends Component {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
-    // 更新记录
+    // 更新关注者
+    if (item.actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS) {
+      const followerField = (item.fields || [])[0] || {};
+
+      return (
+        <Fragment>
+          <div className="workflowContentInfo ellipsis workflowContentBG">
+            <span className="textSecondary">{_l('更新方式')}：</span>
+            {FOLLOWER_UPDATE_TYPES[followerField.addType]}
+          </div>
+          <div className="pLeft8 pRight8 mTop4">{this.getMemberName(followerField)}</div>
+        </Fragment>
+      );
+    }
+
     if (
       _.includes([APP_TYPE.SHEET, APP_TYPE.EXTERNAL_USER], item.appType) &&
       _.includes([ACTION_ID.EDIT, ACTION_ID.REFRESH_SINGLE_DATA], item.actionId)
@@ -280,10 +300,10 @@ export default class Action extends Component {
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
-    const bgClassName = _.includes(
-      [APP_TYPE.INVOICE, APP_TYPE.REFUND, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE],
-      item.appType,
-    )
+    const isBlueAsh =
+      _.includes([APP_TYPE.INVOICE, APP_TYPE.REFUND, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType) ||
+      item.actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS;
+    const bgClassName = isBlueAsh
       ? 'BGBlueAsh'
       : item.appType === APP_TYPE.TASK || item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
         ? 'BGGreen'

@@ -1,40 +1,12 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Button, Dialog, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import ConnectDataBase from '../component/ConnectDataBase';
 import DataBaseImg from '../images/database.png';
 import './DataBase.less';
-
-const MoreOperateMenu = styled.ul`
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px 3px 3px 3px;
-  width: 160px;
-  font-size: 13px;
-  color: var(--color-text-title);
-  padding: 4px 0;
-  li {
-    line-height: 36px;
-    padding: 0 24px;
-    cursor: pointer;
-    a {
-      color: var(--color-text-title);
-      transition: none !important;
-    }
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-      a {
-        color: var(--color-white);
-      }
-    }
-  }
-`;
 
 const DISPLAY_DATA = [
   {
@@ -125,8 +97,8 @@ function DataBase(props) {
 
   const removeDialog = item => {
     setPopupVisibleId(false);
-    Dialog.confirm({
-      title: _l('请确认是否删除%0数据库？', item.name),
+    Modal.confirm({
+      title: <span className="textError">{_l('请确认是否删除%0数据库？', item.name)}</span>,
       onOk: () => onRemove(item),
       okText: _l('确定'),
     });
@@ -135,22 +107,13 @@ function DataBase(props) {
   const toManage = item =>
     history.push(pathCompletion(`/admin/database/${projectId}/${item.id}`, { hasDomain: false }), item);
 
-  const renderPopup = item => {
-    return (
-      <MoreOperateMenu>
-        <li onClick={() => onEdit(item)}>{_l('编辑')}</li>
-        {item.numberOfApp === 0 && <li onClick={() => removeDialog(item)}>{_l('删除')}</li>}
-      </MoreOperateMenu>
-    );
-  };
-
   const renderEmpty = () => {
     return (
       <div className="emptyWrap">
         <img src={DataBaseImg} />
         <div className="Font22 Bold mBottom24">{_l('数据库')}</div>
         <div className="textCon">
-          {window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
+          {window.platformENV.isPlatform && window.platformENV.isHap
             ? _l(
                 '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，系统默认支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
                 limit,
@@ -160,7 +123,7 @@ function DataBase(props) {
                 limit,
               )}
         </div>
-        <Button icon="add" radius className="dataBaseCreateButton Font14" onClick={onCreate}>
+        <Button type="primary" icon={<Icon icon="add" />} shape="round" onClick={onCreate}>
           {_l('创建')}
         </Button>
       </div>
@@ -172,7 +135,7 @@ function DataBase(props) {
       <Fragment>
         <div className="dataBaseExplain">
           <span className="textCon flex">
-            {window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
+            {window.platformENV.isPlatform && window.platformENV.isHap
               ? _l(
                   '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，系统默认支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
                   limit,
@@ -182,10 +145,9 @@ function DataBase(props) {
                   limit,
                 )}
           </span>
-          <span className="createDataBaseButton Hand" onClick={onCreate}>
-            <Icon icon="add" className="mRight3" />
+          <Button color="primary" variant="text" size="small" icon={<Icon icon="add" />} onClick={onCreate}>
             {_l('创建')}
-          </span>
+          </Button>
         </div>
         <ul className="exclusiveCompList">
           {list.map(item => (
@@ -205,20 +167,33 @@ function DataBase(props) {
                   )}
                 </div>
                 <div className="right">
-                  <span className="manageBtn" onClick={() => toManage(item)}>
+                  <Button
+                    color="default"
+                    variant="outlined"
+                    shape="round"
+                    className="mLeft24 Bold"
+                    onClick={() => toManage(item)}
+                  >
                     {_l('应用管理')}
-                  </span>
-                  <Trigger
-                    popupVisible={popupVisibleId === item.id}
-                    action={['click']}
-                    popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
-                    popup={renderPopup(item)}
-                    onPopupVisibleChange={visible => {
+                  </Button>
+                  <Dropdown
+                    open={popupVisibleId === item.id}
+                    trigger={['click']}
+                    menu={{
+                      items: [
+                        { key: 'edit', label: _l('编辑'), onClick: () => onEdit(item) },
+                        ...(item.numberOfApp === 0
+                          ? [{ key: 'delete', label: _l('删除'), danger: true, onClick: () => removeDialog(item) }]
+                          : []),
+                      ],
+                      style: { minWidth: 160 },
+                    }}
+                    onOpenChange={visible => {
                       setPopupVisibleId(visible ? item.id : undefined);
                     }}
                   >
                     <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverColorPrimaryLight Hand" />
-                  </Trigger>
+                  </Dropdown>
                 </div>
               </div>
               <div className="content Font13 valignWrapper">

@@ -5,9 +5,10 @@ import copy from 'copy-to-clipboard';
 import { Icon } from 'ming-ui';
 import { getRecordUrl, getWorksheetShareUrl } from 'mobile/components/RecordInfo/RecordFooter';
 import { deleteRecord } from 'worksheet/common/recordInfo/crtl';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { getTitleTextFromControls } from 'src/utils/control';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export const handleDeleteRecord = ({ worksheetId, recordId, onDeleteSuccess }) => {
   const deleteRow = async () => {
@@ -17,7 +18,7 @@ export const handleDeleteRecord = ({ worksheetId, recordId, onDeleteSuccess }) =
       onDeleteSuccess();
     } catch (err) {
       console.log(err);
-      alert(_l('删除失败'), 2);
+      alertIfNotUnauthorized(err, _l('删除失败'), 2);
     }
   };
 
@@ -115,6 +116,7 @@ export const handleShareRecord = ({ switchPermit, recordBase, controls, rowData 
         </div>
       </div>
     ),
+
     onAction: () => {
       shareSheetHandler.close();
     },

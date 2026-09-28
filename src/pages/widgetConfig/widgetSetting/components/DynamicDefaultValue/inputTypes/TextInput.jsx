@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import { TagTextarea } from 'ming-ui';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { handleAdvancedSettingChange } from '../../../../util/setting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { transferValue } from 'src/utils/domain/control/value';
 import { DynamicInput, OtherField, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import { transferValue } from '../util';
 
 export default class TextInput extends Component {
   static propTypes = {
@@ -113,7 +113,7 @@ export default class TextInput extends Component {
   render() {
     const { defaultType, from } = this.props;
     return (
-      <DynamicValueInputWrap ref={con => (this.$textinput = con)} triggerStyle={true}>
+      <DynamicValueInputWrap ref={con => (this.$textinput = con)}>
         {defaultType ? (
           <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
         ) : (

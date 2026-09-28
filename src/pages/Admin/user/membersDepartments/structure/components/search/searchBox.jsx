@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
+import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import { updateCursor, updateSelectedAccountIds, updateType, updateTypeCursor } from '../../actions/current';
 import { expandedKeysUpdate, getFullTree, loadAllUsers, loadDepartments } from '../../actions/entities';
 import { clearSearchKeywords, fetchSearchResult, getCustomList } from '../../actions/search';
@@ -11,7 +13,6 @@ class SearchBox extends Component {
     super(props);
     this.ajaxObj = null;
     this.handleFocus = this.handleFocus.bind(this);
-    this.handleBlur = this.handleBlur.bind(this);
     this.handleClear = this.handleClear.bind(this);
     this.state = {
       showResult: false,
@@ -53,13 +54,11 @@ class SearchBox extends Component {
 
         dispatch(loadDepartments('', 1, afterRequest));
         this.handleReset();
-        this.input.value = '';
       },
     );
   };
 
   handleFocus() {
-    $(this.box).addClass('borderColorPrimary').removeClass('borderSecondary');
     this.handleReset();
     const { result: { departments = [], users = [] } = {} } = this.props;
 
@@ -77,10 +76,6 @@ class SearchBox extends Component {
       dispatch(updateTypeCursor(0)); //全公司0/未分配1/未审核2/待激活3
       dispatch(loadAllUsers(projectId, 1));
     }
-  }
-
-  handleBlur() {
-    $(this.box).addClass('borderSecondary').removeClass('borderColorPrimary');
   }
 
   renderResult = () => {
@@ -115,7 +110,6 @@ class SearchBox extends Component {
           );
         }}
         onDepartmentClick={({ id: departmentId, name }) => {
-          this.input.value = name;
           this.setState(
             {
               showResult: false,
@@ -133,23 +127,11 @@ class SearchBox extends Component {
 
   render() {
     const { searchValue } = this.state;
-    let clearBtn =
-      searchValue !== '' ? (
-        <span
-          className="Font14 icon-cancel textPlaceholder Hand Absolute"
-          style={{
-            top: '8px',
-            right: '8px',
-          }}
-          onClick={this.handleClear}
-        />
-      ) : null;
     return (
-      <div className="searchContainer Relative" ref={box => (this.box = box)}>
-        <span className="icon-search btnSearch textSecondary" title={_l('搜索')} />
-        <input
-          defaultValue={searchValue}
-          ref={input => (this.input = input)}
+      <div className="searchContainer Relative">
+        <Input
+          radius
+          variant="filled"
           onChange={e => {
             this.setState({ searchValue: e.target.value });
             if (this.ajaxObj && this.ajaxObj.abort) {
@@ -160,12 +142,21 @@ class SearchBox extends Component {
             this.handChange(e.target.value);
           }}
           onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
-          type="text"
           className="searchInput textPrimary w100"
           placeholder={_l('搜索')}
+          value={searchValue}
+          prefix={<Icon icon="search" className="textSecondary Font18" />}
+          suffix={
+            searchValue ? (
+              <Icon
+                icon="cancel"
+                className="Font14 textPlaceholder pointer"
+                onMouseDown={e => e.preventDefault()}
+                onClick={this.handleClear}
+              />
+            ) : null
+          }
         />
-        {clearBtn}
         {this.renderResult()}
       </div>
     );

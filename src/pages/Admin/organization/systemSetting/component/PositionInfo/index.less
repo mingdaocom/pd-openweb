@@ -12,26 +12,7 @@
   padding: 0 0 20px 0;
   .searchContainer {
     width: 197px;
-    box-sizing: border-box;
-    background: var(--color-background-secondary);
-    border-radius: 15px;
     margin: 0 0 24px 19px;
-    .btnSearch {
-      font-size: 20px;
-      position: absolute;
-      margin: 7px 14px;
-    }
-    .searchInput {
-      line-height: 30px;
-      height: 30px;
-      padding-left: 38px;
-      border: none;
-      outline: none;
-      background: transparent;
-    }
-    &:hover {
-      background-color: var(--color-border-secondary);
-    }
   }
   .actBox {
     padding: 0 24px;
@@ -106,42 +87,6 @@
   .actUserBox {
     display: flex;
     margin-bottom: 10px;
-    .actBtn {
-      height: 32px;
-      border-radius: 3px;
-      line-height: 30px;
-      text-align: center;
-      border: 1px solid var(--color-border-secondary);
-      background-color: var(--color-background-primary);
-      margin-right: 8px;
-      padding: 0 16px;
-      font-size: 14px;
-      &.addUser {
-        color: var(--color-white);
-        background: var(--color-primary);
-        border: 1px solid var(--color-primary);
-      }
-      &:hover {
-        color: var(--color-link-hover);
-        border: 1px solid var(--color-link-hover);
-        cursor: pointer;
-      }
-      &.addUser:hover {
-        color: var(--color-white);
-        background: var(--color-link-hover);
-        border: 1px solid var(--color-link-hover);
-      }
-      &.disabledBtn {
-        cursor: not-allowed;
-        color: var(--color-text-tertiary);
-      }
-      &.disabledBtn:hover {
-        cursor: not-allowed;
-        color: var(--color-text-tertiary);
-        background-color: var(--color-background-primary);
-        border: 1px solid var(--color-border-secondary);
-      }
-    }
   }
   .userList {
     flex: 1;
@@ -203,7 +148,7 @@
 .createMoreDropDown {
   width: 100px;
   height: 86px;
-  .ant-dropdown-menu-item {
+  .hap-dropdown-menu-item {
     font-size: 13px;
   }
 }

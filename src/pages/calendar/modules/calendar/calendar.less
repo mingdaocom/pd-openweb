@@ -1,848 +1,412 @@
-﻿.AppCalendar {
-  .pointer {
-    cursor: pointer;
+.AppCalendar {
+  .reactCalendarRoot {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: var(--color-background-secondary);
   }
 
-  .fc-toolbar {
-    background-color: var(--color-background-primary);
+  .reactCalendarToolbar {
+    display: grid;
+    flex: none;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
     height: 45px;
     padding: 0 20px;
-    position: relative;
+    background: var(--color-background-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
     box-shadow: var(--shadow-sm);
   }
 
-  .fc-toolbar .fc-center {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    margin-left: -102px;
+  .reactCalendarToolbarLeft {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
   }
 
-  .fc-toolbar .fc-left {
-    line-height: 45px;
-  }
-
-  .fc-toolbar .fc-left h2 {
-    display: inline-block;
-    margin-left: 20px;
-    font-size: 16px;
-    font-weight: normal;
-  }
-
-  .fc-toolbar .fc-center .fc-state-active {
-    color: var(--color-white);
-  }
-
-  .fc-toolbar .fc-button-group {
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  .fc-button-group .fc-agendaDay-button,
-  .fc-button-group .fc-agendaWeek-button,
-  .fc-button-group .fc-month-button,
-  .fc-button-group .fc-list-button {
-    height: 30px;
-    line-height: 30px;
-    width: 50px;
-    color: var(--color-text-secondary);
-    text-align: center;
-    background: var(--color-background-primary);
-    outline: none;
-    margin-right: 1px !important;
-    border: 0;
-    border-right: 1px solid var(--color-border-secondary);
-    box-shadow: none;
-  }
-
-  .fc-button-group .fc-list-button {
-    border-right: 0;
-  }
-
-  .fc-left .fc-today-button {
-    width: 46px;
-    height: 30px;
-    line-height: 30px;
-    background: var(--color-background-primary);
-    border: 0;
-    padding: 0;
-    margin-top: 8px;
+  .reactCalendarTitle {
+    overflow: hidden;
+    margin-left: 8px;
     color: var(--color-text-title);
-    text-align: center;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    outline: none;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .fc-left .fc-today-button:hover {
+  .reactCalendarToolbarCenter {
+    align-self: stretch;
+    justify-self: center;
+  }
+
+  .reactCalendarViewTabs {
+    --hap-tabs-horizontal-item-gutter: 20px;
+    --hap-tabs-horizontal-item-padding: 12px 10px;
+    --hap-line-width-bold: 3px;
+
+    height: 100%;
+  }
+
+  .reactCalendarViewTabs > [class*='-tabs-nav'] {
+    height: 100%;
+    margin: 0;
+  }
+
+  .reactCalendarViewTabs [role='tablist'],
+  .reactCalendarViewTabs [role='tab'] {
+    height: 100%;
+  }
+
+  .reactCalendarViewTabs [role='tab'] {
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .reactCalendarToolbarRight {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+    gap: 12px;
+  }
+
+  .reactCalendarCreateButton {
+    padding-inline: 18px;
+  }
+
+  .reactFullCalendar {
+    flex: 1;
+    min-height: 0;
+    padding: 15px 20px 15px;
+  }
+
+  .reactFullCalendar > .fc {
+    height: 100%;
+    color: var(--color-text-primary);
+  }
+
+  .reactCalendarCreateHint {
+    position: fixed;
+    z-index: 110;
+    width: 90px;
+    height: 25px;
     color: var(--color-white);
+    font-size: 12px;
+    text-align: center;
+    pointer-events: none;
+    background: var(--color-background-inverse);
+    border-radius: 5px;
+    box-shadow: var(--shadow-sm);
   }
 
-  .fc-left .fc-state-disabled {
-    opacity: 1;
-    cursor: default;
-    background: var(--color-background-primary) !important;
+  // FullCalendar 默认为 9999，会覆盖 Antd Modal；仅需高于日历内部事件层级。
+  .reactFullCalendar .fc .fc-popover {
+    z-index: 11;
   }
 
-  .fc-left .fc-state-disabled:hover {
-    background: var(--color-background-primary);
-    color: var(--color-text-secondary);
-  }
-
-  .fc-toolbar .fc-left .fc-button {
-    border: 1px solid var(--color-border-primary);
-    box-shadow: none;
-    border-left: 0;
-  }
-  .fc-toolbar .fc-left .fc-button:first-child {
-    border-left: 1px solid var(--color-border-primary);
-  }
-
-  .fc-toolbar .fc-center .fc-button-group {
-    box-shadow: none;
-  }
-
-  .fc-toolbar .fc-center .fc-button-group button {
-    box-shadow: none;
-    border: 0;
-    border-bottom: 3px solid transparent;
-    line-height: 48px;
+  .reactFullCalendar .fc .fc-more-popover {
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
-    height: 45px;
-    border-radius: 0;
-    padding: 0;
-    width: 34px;
-    margin: 0 15px;
-    transition: border-color 0.3s ease-in-out;
+
+    .fc-popover-header {
+      flex: none;
+    }
+
+    .fc-popover-body {
+      overflow-y: auto;
+      min-height: 0;
+      overscroll-behavior: contain;
+    }
   }
 
-  .fc-toolbar .fc-center .fc-button-group button:not(.fc-state-active):not(:hover) {
-    border-bottom: 3px solid transparent !important;
-    color: var(--color-text-secondary) !important;
+  .reactFullCalendar table {
+    line-height: 1.5;
   }
 
-  .fc-left .fc-prev-button,
-  .fc-left .fc-next-button {
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
+  .reactFullCalendar .fc-scrollgrid {
+    overflow: hidden;
     background: var(--color-background-primary);
-    border: 0;
-    border-right: 1px solid var(--color-border-secondary);
-    padding: 0;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .reactFullCalendar .fc-scrollgrid,
+  .reactFullCalendar td,
+  .reactFullCalendar th {
+    border-color: var(--color-border-secondary);
+  }
+
+  .reactFullCalendar .fc-col-header-cell {
+    height: 32px;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    line-height: 32px;
+    background: var(--color-background-primary);
+  }
+
+  .reactFullCalendar .fc-col-header-cell-cushion {
+    padding: 0 4px;
+    color: var(--color-text-primary);
+    cursor: initial;
+  }
+
+  .reactFullCalendar .fc-daygrid-day-number {
     color: var(--color-text-secondary);
-    text-align: center;
-    box-shadow: none;
-    outline: none;
-    color: var(--color-text-disabled);
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
   }
 
-  .fc-left .fc-prev-button {
-    border-radius: 4px 0 0 4px;
+  .reactFullCalendar .fc-daygrid-day.fc-day-today,
+  .reactFullCalendar .fc-timegrid-col.fc-day-today {
+    background: rgb(20 118 255 / 5%) !important;
   }
 
-  .fc-left .fc-next-button {
-    border-radius: 0 4px 4px 0;
-    border: 0;
+  .reactFullCalendar .fc-dayGridMonth-view .fc-daygrid-day.fc-day-today {
+    box-shadow: inset 0 2px 0 var(--color-primary);
   }
 
-  .fc-left .fc-prev-button:hover,
-  .fc-left .fc-next-button:hover {
-    color: var(--color-white);
-  }
+  .reactFullCalendar .fc-dayGridMonth-view {
+    .fc-daygrid-day-number {
+      padding: 2px 8px;
+      font-size: 12px;
+    }
 
-  .fcOld button .fc-icon {
-    top: 5px !important;
-    vertical-align: top;
-  }
+    .reactCalendarEventContent {
+      padding-block: 0;
+      font-size: 12px;
+      line-height: 16px;
+    }
 
-  .fc-view-container-box {
-    padding: 0 20px;
-    margin-top: 13px;
-  }
-
-  .fc-view-container {
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-    -moz-box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-    -webkit-box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    .fc-view {
-      background: var(--color-background-primary);
-      &.fc-agendaDay-view > table > tbody > tr > td.fc-widget-content {
-        border-top: none;
-      }
+    .fc-daygrid-more-link {
+      line-height: 16px;
     }
   }
 
-  .fc-view-container td.fc-widget-header {
-    border: 0;
-    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1);
-    .fc-widget-header {
-      border-right-width: 0 !important;
-    }
+  .reactFullCalendar .fc-timegrid-divider {
+    padding: 0;
   }
 
-  .fc-widget-header .fc-day-header {
-    border-top: 0;
-    height: 28px;
-    line-height: 28px;
-    border-width: 0;
-  }
-
-  .fc-widget-header .fc-day-header:first-child {
-    border-left: 1px solid var(--color-border-primary);
-  }
-
-  .fc-ltr .fc-basic-view .fc-day-number {
+  .reactFullCalendar .fc-timegrid-slot-label-cushion {
     color: var(--color-text-tertiary);
-    padding-right: 5px;
   }
 
-  .fc-ltr .fc-day-grid-event.fc-not-end,
-  .fc-rtl .fc-day-grid-event.fc-not-start {
-    margin-left: 2px;
+  .reactFullCalendar .fc-timegrid-slot-minor {
+    border-top-style: none;
+  }
+
+  .reactFullCalendar .fc-direction-ltr .fc-timegrid-col-events {
     margin-right: 2px;
   }
 
-  .fc-content-skeleton .fc-day-grid-event {
-    border: 0;
+  .reactFullCalendar .fc-direction-rtl .fc-timegrid-col-events {
+    margin-left: 2px;
   }
 
-  .fc-agendaDay-view .fc-day-grid-event.fc-not-end,
-  .fc-agendaDay-view .fc-day-grid-event.fc-not-start {
+  .reactFullCalendar .fc-timegrid-now-indicator-line {
+    border-color: var(--color-primary);
+  }
+
+  .reactFullCalendar .fc-timegrid-now-indicator-arrow {
+    border-color: transparent transparent transparent var(--color-primary);
+  }
+
+  .reactFullCalendar .fc-event {
+    overflow: hidden;
+    border: 0;
     border-radius: 3px;
-  }
-
-  .fc-day-grid-event > .fc-content {
-    text-overflow: ellipsis;
-    line-height: 20px;
-  }
-
-  .fc-event-container .fc-day-grid-event {
-    margin: 2px 2px 0;
-  }
-
-  .fc-day-grid-event .fc-time {
-    font-weight: normal;
-  }
-
-  .fc-event {
-    border: 0;
     color: var(--color-text-primary);
     cursor: pointer;
-    overflow: hidden !important;
+    transition: 0.2s;
   }
 
-  .fc-event:hover {
-    color: var(--color-text-title);
+  .reactFullCalendar .fc-event:hover {
+    filter: saturate(1.15) brightness(0.96);
   }
 
-  .fc-agendaDay-view .fc-event {
-    filter: alpha(opacity=75);
-    opacity: 0.75;
+  .reactCalendarEventContent {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    width: 100%;
+    min-width: 0;
+    padding: 1px 3px;
+    font-weight: 600;
   }
 
-  .fc-content-skeleton .fc-event {
-    border: 1px solid var(--color-border-primary);
-    border-color: var(--color-border-primary) !important;
+  .reactCalendarSelectionTime {
+    display: block;
+    padding: 1px 3px;
+    color: var(--color-white);
+    font-weight: 400;
   }
 
-  .fc-agendaDay-view .fc-content-skeleton .fc-event {
-    border: 0;
-    margin-left: 0;
-    margin-right: 0;
+  .reactCalendarEventIcon {
+    flex: none;
+    font-size: 14px;
   }
 
-  .fc-more-popover .fc-widget-header {
-    display: none;
+  .reactCalendarEventAvatar {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
-  .fc-more-popover .fc-widget-content {
-    background: var(--color-background-primary);
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-  }
-
-  .fc-ltr .fc-time-grid .fc-event-container {
-    margin: 0 !important;
-  }
-
-  .fc-popover .fc-day-grid-event {
-    border: 0 !important;
-  }
-
-  .fc-more-popover .fc-event-container {
-    padding: 5px;
-  }
-
-  .fc-unthemed .fc-popover {
-    border-style: none;
-    box-shadow: 0 0 10px var(--color-border-tertiary);
-    -moz-box-shadow: 0 0 10px var(--color-border-tertiary);
-    -webkit-box-shadow: 0 0 10px var(--color-border-tertiary);
-  }
-
-  .fc-popover {
-    box-shadow: none;
-  }
-
-  .fc-title .fcTitleFont {
-    font-weight: normal;
-    display: none;
-  }
-
-  .fc-content .fc-time {
-    display: none;
-  }
-
-  .fc-time {
-    line-height: 20px;
-    font-size: 12px;
-  }
-
-  .fc-helper-skeleton .fc-time {
-    display: inline-block;
-  }
-
-  .fc-agendaDay-view .fc-time-grid tr,
-  .fc-agendaWeek-view .fc-time-grid tr {
-    height: 20px;
-  }
-
-  .fc-event-container .fc-day-grid-event .fc-content {
-    padding-left: 3px;
-    padding-right: 3px;
-    width: 97%;
-  }
-
-  #calendar .fc-month-view {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  #calendar .fc-month-view > table > thead {
-    top: 117px;
-    left: 270px;
-    right: 19px;
-    z-index: 11;
-    background: var(--color-background-primary);
-  }
-
-  #calendar .fc-month-view > table > tbody > tr > .fc-widget-content {
-    border-width: 1px 1px 0 1px;
-  }
-
-  .fc-event-container .fc-content {
-    font-size: 12px !important;
-  }
-
-  /*滚动条样式*/
-
-  // .fc-scroller::-webkit-scrollbar-button {
-  //   height: 0;
-  //   width: 0
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track {
-  //   background-clip: padding-box;
-  //   border: solid transparent;
-  //   border-width: 0 0 0 7px
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track {
-  //   border-width: 0 5px 0 2px
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track:horizontal {
-  //   border-width: 7px 0 0
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track:hover {
-  //   background-color: rgba(0, 0, 0, .05);
-  //   box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track:active {
-  //   background-color: rgba(0, 0, 0, .05);
-  //   box-shadow: inset 1px -1px 0 rgba(0, 0, 0, .14), inset -1px 1px 0 rgba(0, 0, 0, .07)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track:horizontal:hover {
-  //   box-shadow: inset -1px 1px 0 rgba(0, 0, 0, .14), inset 1px -1px 0 rgba(0, 0, 0, .07)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-track:vertical:hover {
-  //   box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .14), inset -1px -1px 0 rgba(0, 0, 0, .07)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-thumb {
-  //   background-color: rgba(0, 0, 0, .2);
-  //   background-clip: padding-box;
-  //   min-height: 28px;
-  //   padding: 100px 0 0;
-  //   box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1), inset -1px -1px 0 rgba(0, 0, 0, .07)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-thumb {
-  //   border-width: 0 5px 0 2px
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-thumb:hover {
-  //   background-color: rgba(0, 0, 0, .4);
-  //   box-shadow: inset 1px 1px 1px rgba(0, 0, 0, .25)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-thumb:horizontal {
-  //   border-width: 7px 0 0;
-  //   padding: 0 0 0 100px;
-  //   box-shadow: inset -1px 1px 0 rgba(0, 0, 0, .1), inset 1px -1px 0 rgba(0, 0, 0, .07)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-thumb:active {
-  //   background-color: rgba(0, 0, 0, 0.5);
-  //   box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.35)
-  // }
-
-  // .fc-scroller::-webkit-scrollbar-corner {
-  //   background: transparent
-  // }
-
-  .fc-widget-content .fc-widget-header,
-  .fc-widget-content {
-    border: 1px solid var(--color-border-primary);
-    padding: 0;
-  }
-
-  .fc-more-popover .fc-widget-header,
-  .fc-widget-content {
-    border: 0;
-  }
-
-  .fc-agendaDay-view .fc-state-highlight {
-    background: none !important;
-  }
-
-  .fcOld .fc-agendaDay-view td,
-  .fcOld .fc-agendaWeek-view .fc-widget-header {
-    border-left-width: 0;
-    border-right-width: 0;
-  }
-
-  .fc-agenda-divider-inner {
-    height: auto;
-  }
-
-  .fc-agenda-allday .fc-day-content {
-    border-bottom: 2px var(--color-border-primary) solid;
-  }
-
-  .fc-agenda-days tbody .fc-agenda-gutter {
-    border-width: 0 0 0 1px;
-    border-bottom: 0;
-  }
-
-  .fc-agenda-allday .fc-agenda-gutter {
-    border-width: 0;
-  }
-
-  .fc-agenda-days thead .fc-agenda-gutter {
-    border-width: 0 0 0 1px;
-    border-bottom: 0;
-  }
-
-  .rect {
+  .reactCalendarEventColorDot {
+    flex: none;
     width: 7px;
     height: 7px;
-    background-color: var(--color-error);
-    border-radius: 50%;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    float: left;
-  }
-
-  .rectLine {
-    width: 99%;
-    border-bottom: 1px red solid;
-    padding-top: 3px;
-    float: left;
-  }
-
-  .fc-slats .fc-axis {
-    color: var(--color-text-tertiary);
-  }
-
-  .fc-unthemed .fc-today {
-    background: none;
-  }
-
-  .fc-widget-content .fc-widget-header {
-    margin-left: 58px;
-  }
-
-  .fc-agendaWeek-view .fc-widget-content .fc-widget-header {
-    margin-left: 55px;
-  }
-
-  .fc-view > table > tbody,
-  .fc-row {
-    background-color: var(--color-background-primary);
-  }
-
-  .fcOld .fc-view-container .fc-axis {
-    padding: 0 18px 0 7px;
-  }
-
-  .fcOld .fc-widget-content .fc-slats .fc-minor .fc-widget-content {
-    border-top: 0;
-    border-left: 0;
-  }
-
-  .fcOld .fc-widget-content .fc-slats .fc-minor .fc-axis {
-    border: 0;
-  }
-
-  .fcOld td.fc-today {
-    border-style: none;
-  }
-
-  .fc-ltr .fc-axis {
-    border-color: var(--color-background-primary);
-    text-align: left;
-  }
-
-  .fc-view-container .fc-time-grid-event .fc-resizer:after {
-    content: '';
-  }
-
-  .fc-widget-content .fc-more-popover .fc-widget-header {
-    margin: 0;
-    width: auto;
-  }
-
-  .fc-title {
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .fc-time-grid-event .fc-time {
-    font-size: 12px;
-  }
-
-  .fc-time img,
-  .fc-title img {
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
+    background: var(--color-primary);
     border-radius: 50%;
   }
 
-  .jsEventSelectmy .fc-time,
-  .jsEventSelectmy .fc-title {
-    color: var(--color-text-primary);
-  }
-
-  .fc-agendaDay-view thead {
-    display: none;
-  }
-
-  .fc-content-skeleton .fc-more {
-    color: var(--color-text-tertiary);
-    font-size: 12px;
-  }
-
-  .fc-agenda-view .fc-day-grid .fc-row .fc-content-skeleton {
-    padding: 6px 0;
-  }
-
-  .fc-day-grid > .fc-widget-content {
-    border-right-width: 0 !important;
-  }
-
-  .fc-month-view .fc-event {
-    border: 0 !important;
-  }
-
-  .fc-agendaDay-view .fc-title,
-  .fc-agendaWeek-view .fc-title {
-    line-height: 20px;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-  }
-
-  .fc-helper {
-    background: var(--color-cyan-blue);
-    color: var(--color-text-title) !important;
-    border: 0 !important;
-  }
-
-  .addNewCalendarBox {
-    float: right;
-    cursor: pointer;
-    height: 32px;
-    line-height: 32px;
-    margin-top: 7px;
-    color: var(--color-white);
-    padding: 0 18px 0 14px;
-    border-radius: 18px;
-    .icon-plus {
-      font-size: 13px;
-      margin-right: 5px;
-      display: inline-block;
-      vertical-align: top;
-      margin-top: 9px;
-    }
-  }
-
-  .hoverContentColor .notAllDayMark {
-    background: var(--color-white) !important;
-  }
-
-  .hoverContentColor {
-    color: var(--color-white) !important;
-  }
-
-  .hoverTitleMessage,
-  .showActiveTitleMessage {
-    position: absolute;
-    color: var(--color-white);
-    background: var(--color-background-inverse);
-    box-shadow: var(--shadow-sm);
-    height: 25px;
-    line-height: 25px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    text-align: center;
-    width: 90px;
-    z-index: 110;
-  }
-
-  .showActiveTitleMessage {
-    width: auto;
-    padding: 4px 5px;
-    text-align: left;
-    line-height: 18px;
-    height: auto;
-  }
-
-  .showActiveTitleMessage img {
-    border-radius: 50%;
-  }
-
-  /*----------------- calendarList -----------------*/
-  .calendarListHeader {
-    height: 46px;
-    line-height: 46px;
-    border-bottom: 1px solid var(--color-border-primary);
-    font-weight: bold;
-  }
-
-  .calendarListHeader li {
-    height: 46px;
-    line-height: 46px;
-  }
-
-  .calendarListHeader .calendarListColor {
-    width: 95px;
-    float: left;
-    text-align: center;
-  }
-
-  .calendarListHeader .calendarListDate {
-    width: 105px;
-    float: left;
-  }
-
-  .calendarListHeader .calendarListName {
-    width: 95px;
-    float: left;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .calendarListHeader .calendarListTime {
-    width: 110px;
-    float: left;
-  }
-
-  .calendarListModel {
-    width: 100%;
-    border-bottom: 1px solid var(--color-border-secondary);
-  }
-
-  .calendarListModel li {
-    height: 52px;
-    line-height: 52px;
-    border-bottom: 1px dotted var(--color-border-secondary);
-    display: -webkit-flex;
-    display: flex;
-    background: var(--color-background-primary);
-  }
-
-  .calendarListModel li:last-child {
-    border-bottom: 0;
-  }
-
-  .calendarListModel li:hover {
-    background: var(--color-background-hover);
-  }
-
-  .calendarListModel .calendarListColor {
-    width: 10px;
-    height: 10px;
-    padding-top: 21px;
-    font-size: 0;
-    float: left;
-    margin: 0 43px 0 42px;
-  }
-
-  .calendarListModel li div {
-    float: none !important;
-  }
-
-  .calendarListColorRed,
-  .calendarListColorViolet,
-  .calendarListColorBrown,
-  .calendarListColorOrange,
-  .calendarListColorBlue,
-  .calendarListColorGreen,
-  .calendarListColorYellow,
-  .calendarListColorGrey {
-    width: 9px;
-    height: 9px;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
-    display: block;
-  }
-
-  .calendarListModel .calendarListColor .calendarListColorRed {
+  .reactCalendarEventColorRed {
     background: var(--color-error);
   }
 
-  .calendarListModel .calendarListColor .calendarListColorViolet {
+  .reactCalendarEventColorViolet {
     background: #9c27b0;
   }
 
-  .calendarListModel .calendarListColor .calendarListColorBrown {
+  .reactCalendarEventColorBrown {
     background: #795548;
   }
 
-  .calendarListModel .calendarListColor .calendarListColorOrange {
+  .reactCalendarEventColorOrange {
     background: var(--color-warning);
   }
 
-  .calendarListModel .calendarListColor .calendarListColorBlue {
+  .reactCalendarEventColorBlue {
     background: var(--color-primary);
   }
 
-  .calendarListModel .calendarListColor .calendarListColorGreen {
+  .reactCalendarEventColorGreen {
     background: var(--color-success);
   }
 
-  .calendarListModel .calendarListColor .calendarListColorYellow {
+  .reactCalendarEventColorYellow {
     background: var(--color-yellow);
   }
 
-  .calendarListModel .calendarListColor .calendarListColorGrey {
-    background: var(--color-border-secondary);
+  .reactCalendarEventColorGrey {
+    background: var(--color-border-strong);
   }
 
-  .calendarListModel .calendarListDate {
-    width: 105px;
-    float: left;
-  }
-
-  .calendarListModel .calendarListName {
-    width: 80px;
-    float: left;
+  .reactCalendarEventTitle {
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    margin-right: 15px;
-  }
-
-  .calendarListModel .calendarListTime {
-    width: 110px;
-    float: left;
-  }
-
-  .calendarListModel .calendarListTitle {
-    -webkit-flex: 1;
     flex: 1;
-    overflow: hidden;
-    white-space: nowrap;
     text-overflow: ellipsis;
-    margin-right: 15px;
+    white-space: nowrap;
   }
 
-  .calendarListMore {
-    text-indent: 40px;
-    height: 30px;
-    line-height: 30px;
-    padding: 10px 0 20px;
-    box-sizing: initial;
+  .reactCalendarEventTitleOther {
+    color: var(--color-text-secondary);
   }
 
-  .calendarListMore a {
-    font-size: 14px;
+  .reactFullCalendarWeek .reactCalendarEventContent {
+    align-items: flex-start;
   }
 
-  .calendarNoList {
-    text-align: center;
-    color: var(--color-text-tertiary);
-    font-size: 16px;
-    line-height: 30px;
-    padding-top: 140px;
-    -moz-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-    box-sizing: border-box;
+  .reactFullCalendarWeek .reactCalendarEventTitle {
+    line-height: 18px;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
   }
 
-  .calendarNoList .calendarNoListC {
-    border: 1px solid var(--color-text-tertiary);
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -ms-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-    width: 20px;
-    height: 20px;
-    display: inline-block;
-    line-height: 20px;
-    margin: 0 10px;
+  .reactFullCalendarWeek .reactCalendarEventIcon,
+  .reactFullCalendarWeek .reactCalendarEventAvatar {
+    margin-top: 2px;
   }
 
-  .calendarNoList .calendarNoListBtn {
-    border: 1px solid #6f9cc3;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    -ms-border-radius: 5px;
-    -o-border-radius: 5px;
-    border-radius: 5px;
-    width: 110px;
-    height: 36px;
-    display: inline-block;
-    line-height: 36px;
-    margin-top: 30px;
-    font-size: 14px;
-    color: #6f9cc3;
+  .reactCalendarList {
+    overflow: hidden;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    margin: 15px 20px 15px;
+    background: var(--color-background-primary);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
   }
 
-  .calendarNoList .calendarNoListBtn:hover {
-    color: var(--color-link-hover);
+  .reactCalendarListTable {
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+
+    &,
+    .hap-spin,
+    .hap-spin-container,
+    .hap-table,
+    .hap-table-container {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .hap-table-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hap-table-header {
+      flex: none;
+    }
+
+    .hap-table-body {
+      overflow-y: auto !important;
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
+  .reactCalendarList tbody > tr {
+    cursor: pointer;
+  }
+
+  .reactCalendarListMore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    color: var(--color-text-secondary);
+    border-top: 1px solid var(--color-border-secondary);
+  }
+
+  .reactCalendarListMoreCell {
+    padding: 0 !important;
+  }
+
+  .reactCalendarEmpty {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 15px 20px 15px;
+    background: var(--color-background-primary);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .calendarListColorDot {
+    display: block;
+    width: 16px;
+    height: 16px;
+    margin: 0 auto;
+    border-radius: 50%;
+  }
+
+  .calendarListColorCell {
+    vertical-align: middle;
+  }
+
+  .reactCalendarInlineLoading {
+    display: none;
   }
 }

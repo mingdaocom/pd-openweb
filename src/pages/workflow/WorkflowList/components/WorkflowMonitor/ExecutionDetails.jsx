@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Dropdown, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Checkbox, Dropdown, Input, Tooltip } from 'ming-ui/antd-components';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
@@ -19,6 +18,7 @@ export default class ExecutionDetails extends Component {
       sorter: {},
       routerList: {},
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -27,10 +27,13 @@ export default class ExecutionDetails extends Component {
 
   // 批量设置（暂停、恢复）流程
   batchPauseRecover = (isPause, hours) => {
+    if (this.requestPending) return;
+
     const { checkedIds = [] } = this.state;
     const { detailList, projectId } = this.props;
 
-    flowMonitor
+    this.requestPending = true;
+    return flowMonitor
       .batch({
         hours,
         processIds: checkedIds,
@@ -71,14 +74,20 @@ export default class ExecutionDetails extends Component {
         } else {
           alert(_l('操作失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
   // 批量重新排队计数
   resetQueue = () => {
+    if (this.requestPending) return;
+
     const { checkedIds = [] } = this.state;
     const { projectId } = this.props;
-    flowMonitor
+    this.requestPending = true;
+    return flowMonitor
       .reset({
         processIds: checkedIds,
         companyId: projectId,
@@ -91,6 +100,9 @@ export default class ExecutionDetails extends Component {
         } else {
           alert(_l('操作失败'));
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
@@ -298,13 +310,17 @@ export default class ExecutionDetails extends Component {
                 <Checkbox
                   className="checkFlow"
                   checked={_.includes(checkedIds, item.id)}
-                  onClick={checked => {
-                    if (!checked) {
+                  onChange={event => {
+                    if (event.target.checked) {
                       let copyCheckedIds = [...checkedIds];
                       copyCheckedIds.push(item.id);
-                      this.setState({ checkedIds: copyCheckedIds });
+                      this.setState({
+                        checkedIds: copyCheckedIds,
+                      });
                     } else {
-                      this.setState({ checkedIds: checkedIds.filter(it => it !== item.id) });
+                      this.setState({
+                        checkedIds: checkedIds.filter(it => it !== item.id),
+                      });
                     }
                   }}
                 />
@@ -480,43 +496,39 @@ export default class ExecutionDetails extends Component {
                 trigger={['click']}
                 placement="bottomLeft"
                 getPopupContainer={() => this.props.monitorContainer}
-                overlay={
-                  <div className="runoOperateBox">
-                    {runDateList.map(v => (
-                      <div
-                        className="runDateItem Font13"
-                        key={v.value}
-                        onClick={() => this.batchPauseRecover(true, v.value)}
-                      >
-                        {v.label}
-                      </div>
-                    ))}
-                  </div>
-                }
+                menu={{
+                  items: runDateList.map(v => ({
+                    key: v.value,
+                    label: v.label,
+                    onClick: () => this.batchPauseRecover(true, v.value),
+                  })),
+                }}
               >
-                <Button type="ghostgray" className="mRight10">
-                  {_l('暂停')}
-                </Button>
+                <Button className="mRight10">{_l('暂停')}</Button>
               </Dropdown>
-              <Button type="ghostgray" className="mRight10" onClick={() => this.batchPauseRecover(false)}>
+              <Button className="mRight10" onClick={() => this.batchPauseRecover(false)}>
                 {_l('恢复')}
               </Button>
-              <Button type="ghostgray" className="mRight10" onClick={this.resetQueue}>
+              <Button
+                className="mRight10"
+                icon={
+                  <Tooltip
+                    title={_l(
+                      '将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0',
+                    )}
+                  >
+                    <Icon icon="info_outline" className="textTertiary" />
+                  </Tooltip>
+                }
+                iconPlacement="end"
+                onClick={this.resetQueue}
+              >
                 {_l('重置排队计数')}
-                <Tooltip
-                  title={
-                    <span>
-                      {_l('将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0')}
-                    </span>
-                  }
-                >
-                  <Icon icon="info_outline" className="mLeft8 textTertiary" />
-                </Tooltip>
               </Button>
               {window.platformENV.isOverseas ||
                 (window.platformENV.isLocal &&
                   Object.keys(routerList).map(v => (
-                    <Button type="ghostgray" className="mRight10" onClick={() => this.updateRouterIndex(v)}>
+                    <Button className="mRight10" onClick={() => this.updateRouterIndex(v)}>
                       {_l(`通道：${routerList[v]}`)}
                     </Button>
                   )))}
@@ -527,7 +539,7 @@ export default class ExecutionDetails extends Component {
               allowClear
               placeholder={_l('流程名称')}
               className="searchFlow"
-              prefix={<Icon icon="search" className="searchIcon" />}
+              prefix={<Icon icon="search" className="searchIcon Font18" />}
               onPressEnter={this.props.changeFlowName}
               onChange={this.props.changeFlowName}
             />

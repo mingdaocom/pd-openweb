@@ -1,12 +1,11 @@
 import _ from 'lodash';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
-import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { ensureAppLangData } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
-import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { FORM_HIDDEN_CONTROL_IDS, SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { ensureAppLangData } from 'src/utils/services/app';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
 function getTableAdvancedSettingOfControl(control) {
   let { advancedSetting = {} } = control;

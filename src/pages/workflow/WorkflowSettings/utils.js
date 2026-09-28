@@ -85,6 +85,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-playlist_add';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.DELETE) {
         icon = 'icon-hr_delete';
+      } else if (actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS) {
+        icon = 'icon-people_alt_6';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.RELATION) {
         icon = 'icon-workflow_search';
       } else if (appType === APP_TYPE.EXTERNAL_USER && actionId === ACTION_ID.EDIT) {
@@ -205,6 +207,9 @@ export const getIcons = (type, appType, actionId) => {
       break;
     case NODE_TYPE.VECTOR:
       icon = 'icon-a-knowledge_search';
+      break;
+    case NODE_TYPE.GOTO:
+      icon = 'icon-goto';
       break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {

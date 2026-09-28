@@ -1,48 +1,17 @@
-import { generate } from '@ant-design/colors';
-import { TinyColor } from '@ctrl/tinycolor';
-import { get } from 'lodash';
 import _ from 'lodash';
-import maxBy from 'lodash/maxBy';
-import moment from 'moment';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { SYS_COLOR } from 'src/pages/Admin/settings/config';
 import { defaultTitleStyles } from 'src/pages/customPage/components/ConfigSideWrap/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import {
-  formatConditionForSave,
-  getDefaultCondition,
-  redefineComplexControl,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { isLightColor as utilsIsLightColor } from 'src/utils/control';
+import { sanitizeIframeHtml } from 'src/utils/core/sanitizeHtml';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { enumWidgetType, getEnumType } from 'src/utils/domain/customPage/model';
+import { MAX_COMPONENT_COUNT } from './config';
 import { containerWidgets, widgets } from './enum';
 
 export const FlexCenter = styled.div`
   display: flex;
   align-items: center;
 `;
-
-const enumObj = obj => {
-  _.keys(obj).forEach(key => (obj[obj[key]] = key));
-  return obj;
-};
-
-export const enumWidgetType = enumObj({
-  analysis: 1,
-  richText: 2,
-  embedUrl: 3,
-  button: 4,
-  view: 5,
-  filter: 6,
-  carousel: 7,
-  ai: 8,
-  tabs: 9,
-  card: 10,
-  image: 11,
-  subsection: 12,
-});
 
 export const CUSTOM_PAGE_IFRAME_ALLOW_LIST = [
   'geolocation',
@@ -71,73 +40,32 @@ export const getMergedIframeAllow = allow => {
 };
 
 export const addIframePermissions = html => {
-  if (!html || typeof document === 'undefined') return html;
+  const safeHtml = sanitizeIframeHtml(html);
+  if (!safeHtml || typeof document === 'undefined') return safeHtml;
 
   const wrap = document.createElement('div');
-  wrap.innerHTML = html;
+  wrap.innerHTML = safeHtml;
 
   wrap.querySelectorAll('iframe').forEach(iframe => {
     iframe.setAttribute('allow', getMergedIframeAllow(iframe.getAttribute('allow')));
     iframe.setAttribute('allowfullscreen', 'true');
   });
 
-  return wrap.innerHTML;
+  return sanitizeIframeHtml(wrap.innerHTML);
 };
 
-export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
   const id = component.id || component.uuid;
   return _.findIndex(components, item => item.id === id || item.uuid === id);
 };
 
-export const getDefaultLayout = ({
-  components = [],
-  index = components.length,
-  layoutType = 'web',
-  titleVisible,
-  type,
-}) => {
-  if (layoutType === 'web') {
-    if (['view', 'tabs'].includes(type)) {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 6 };
-    } else if (type === 'filter') {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 3 };
-    } else if (type === 'image') {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 4 };
-    } else if (type === 'subsection') {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 3, minW: 48, minH: 2 };
-    } else {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 4 };
-    }
-  }
-
-  if (layoutType === 'mobile') {
-    const { type } = _.pick(components[index], 'type');
-    const { y = 0, h = 6 } = maxBy(components, item => get(item, ['mobile', 'layout', 'y'])) || {};
-    const enumType = getEnumType(type);
-    const minW = _.includes(['button'], enumType) ? 2 : 1;
-
-    if (['view', 'tabs'].includes(enumType)) {
-      return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 4 };
-    } else if (enumType === 'filter') {
-      return { x: 0, y: y + h, w: 4, h: 2, minW, minH: 1 };
-    } else if (enumType === 'image') {
-      return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 2 };
-    } else if (enumType === 'subsection') {
-      return { x: 0, y: y + h, w: 4, h: 1, minW: 4, minH: 1 };
-    } else {
-      return { x: 0, y: y + h, w: 4, h: titleVisible ? 7 : 6, minW, minH: 2 };
-    }
-  }
-};
-
 // export const formatComponents = components => components.map(item => ({ ...item, layout: JSON.parse(item.layout || '{}') }));
 
-export const componentCountLimit = () => {
-  // if (components.length >= MAX_COMPONENT_COUNT) {
-  //   alert(_l('自定义页面最多只能添加%0个组件', MAX_COMPONENT_COUNT), 3);
-  //   return false;
-  // }
+export const componentCountLimit = (components = []) => {
+  if (window.platformENV.isHap && components.length >= MAX_COMPONENT_COUNT) {
+    alert(_l('自定义页面最多只能添加%0个组件', MAX_COMPONENT_COUNT), 3);
+    return false;
+  }
 
   return true;
 };
@@ -170,31 +98,7 @@ export const getComponentTitleText = component => {
   return value;
 };
 
-export const reorderComponents = components => {
-  if (_.every(components, item => _.get(item, ['mobile', 'layout']))) return false;
-
-  // 先按y的从小到大排序 再按x的从小到大排序
-  const groups = _.groupBy(components, item => _.get(item, ['web', 'layout', 'y']));
-
-  return _.flattenDeep(
-    _.sortBy(_.keys(groups), item => +item).map(key => {
-      const group = groups[key];
-      return _.sortBy(group, item => _.get(item, ['web', 'layout', 'x']));
-    }),
-  );
-};
-
 //  获取layout布局, 如果没有设置好的layout,则生成一个默认的
-export const getLayout = (components, layoutType) => {
-  return components.map((item = {}, index) => {
-    const { id } = item;
-    const { layout, titleVisible } = item[layoutType] || {};
-    return layout
-      ? { ...layout, i: `${id || index}` }
-      : { ...getDefaultLayout({ components, index, layoutType, titleVisible }), i: `${id || index}` };
-  });
-};
-
 export const computeWidth = ({ count, margin = 20 }) => {
   return { width: `calc(${100 / count}% - ${margin}px)` };
 };
@@ -289,272 +193,6 @@ export const formatNavfilters = data => {
   }
 
   return navfilters;
-};
-
-export const replaceColor = (config, iconColor) => {
-  const iconColors = iconColor ? generate(iconColor) : [];
-  const lightColor = iconColors[0];
-  const data = { ...config };
-
-  if (config.pageStyleType === 'dark') {
-    if (data.pageBgColor === 'iconColor10' || data.pageBgColor === 'iconColor') {
-      data.widgetBgColor = iconColors[8];
-    } else {
-      data.widgetBgColor = '#2A2D2F';
-    }
-  } else {
-    data.widgetBgColor = '#fff';
-  }
-
-  if (data.pageBgColor === 'iconColor10') {
-    data.pageBgColor = iconColors[9];
-  }
-
-  if (data.widgetBgColor === data.pageBgColor) {
-    data.widgetBgColor = iconColors[7];
-    data.pageBgColor = iconColors[8];
-  }
-
-  if (data.pageBgColor === 'iconColor') {
-    data.pageBgColor = iconColor;
-    data.darkenPageBgColor = new TinyColor(iconColor).darken(6).toRgbString();
-  }
-
-  if (data.pageBgColor === 'lightColor') {
-    data.pageBgColor = lightColor;
-  }
-
-  if (data.pivoTableColor === 'iconColor') {
-    data.pivoTableColor = iconColor;
-  }
-
-  if (data.pivoTableColor === 'lightColor') {
-    data.pivoTableColor = lightColor;
-  }
-
-  if (data.numberChartColor === 'iconColor') {
-    data.numberChartColor = iconColor;
-  }
-
-  if (data.numberChartColor === 'lightColor') {
-    data.numberChartColor = lightColor;
-  }
-
-  return data;
-};
-
-export const isLightColor = color => {
-  if (_.find(SYS_COLOR, { color: color.toLocaleUpperCase() })) {
-    return false;
-  }
-
-  return utilsIsLightColor(color);
-};
-
-function getQuarterDateRange(year, quarter) {
-  let startMonth, endMonth;
-
-  switch (quarter) {
-    case 1:
-      startMonth = 1;
-      endMonth = 3;
-      break;
-    case 2:
-      startMonth = 4;
-      endMonth = 6;
-      break;
-    case 3:
-      startMonth = 7;
-      endMonth = 9;
-      break;
-    case 4:
-      startMonth = 10;
-      endMonth = 12;
-      break;
-    default:
-      throw new Error('Invalid quarter');
-  }
-
-  const startOfQuarter = moment()
-    .year(year)
-    .month(startMonth - 1)
-    .startOf('month');
-  const endOfQuarter = moment()
-    .year(year)
-    .month(endMonth - 1)
-    .endOf('month');
-
-  return [startOfQuarter, endOfQuarter];
-}
-
-export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linkageFiltersGroup) => {
-  const result = [];
-
-  for (let key in linkageFiltersGroup) {
-    const data = linkageFiltersGroup[key];
-    const { onlyChartIds = [] } = data;
-
-    if (
-      data.sheetId === sheetId &&
-      reportId !== data.reportId &&
-      (onlyChartIds.length ? onlyChartIds.includes(objectId) : true)
-    ) {
-      result.push({
-        ...data,
-        filters: data.filters.map(item => {
-          const { control } = item;
-          const { dataType, filterType } = formatConditionForSave(getDefaultCondition(redefineComplexControl(item)));
-          const data = {
-            ...item,
-            type: undefined,
-            controlName: undefined,
-            controlValue: undefined,
-            control: undefined,
-            spliceType: 1,
-            dataType,
-            filterType,
-          };
-
-          // 如果内容为空，按照为空查找
-          if (_.isNull(data.values[0]) || _.isUndefined(data.values[0]) || data.values[0] === '') {
-            data.filterType = FILTER_CONDITION_TYPE.ISNULL;
-            data.values = [];
-            return data;
-          }
-
-          // 处理维度作为数值字段查找
-          if (
-            item.type === WIDGETS_TO_API_TYPE_ENUM.NUMBER ||
-            item.type === WIDGETS_TO_API_TYPE_ENUM.MONEY ||
-            item.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER
-          ) {
-            data.filterType = FILTER_CONDITION_TYPE.EQ;
-            data.value = data.values[0];
-            data.values = [];
-            return data;
-          }
-
-          // 子表和关联表按照关联表查找
-          if (item.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST || item.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
-            data.dataType = WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET;
-            data.filterType = FILTER_CONDITION_TYPE.RCEQ;
-            return data;
-          }
-
-          // 处理日期格式字段
-          if (
-            item.type === WIDGETS_TO_API_TYPE_ENUM.DATE ||
-            (item.type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME && control)
-          ) {
-            const { particleSizeType = 1 } = control;
-            const value = data.values[0];
-
-            // 日、分、秒
-            if ([1, 7, 13].includes(particleSizeType)) {
-              data.dateRangeType = 1;
-              data.filterType = FILTER_CONDITION_TYPE.DATE_EQ;
-              data.value = moment(value).format('YYYY-MM-DD');
-              data.values = [];
-            }
-
-            // 周
-            if (particleSizeType === 2) {
-              const [year, week] = value.split('W');
-              const start = moment().year(year).week(week).startOf('week');
-              const end = moment().year(year).week(week).endOf('week');
-              data.filterType = FILTER_CONDITION_TYPE.DATE_BETWEEN;
-              data.minValue = start.format('YYYY-MM-DD');
-              data.maxValue = end.format('YYYY-MM-DD');
-              data.values = [];
-            }
-
-            // 月
-            if (particleSizeType === 3) {
-              const [year, month] = value.split('/');
-              const start = moment()
-                .year(year)
-                .month(month - 1)
-                .startOf('month');
-              const end = moment()
-                .year(year)
-                .month(month - 1)
-                .endOf('month');
-              data.filterType = FILTER_CONDITION_TYPE.DATE_BETWEEN;
-              data.minValue = start.format('YYYY-MM-DD');
-              data.maxValue = end.format('YYYY-MM-DD');
-              data.values = [];
-            }
-
-            // 季度
-            if (particleSizeType === 4) {
-              const [year, quarter] = value.split('Q');
-              const [start, end] = getQuarterDateRange(year, Number(quarter));
-              data.filterType = FILTER_CONDITION_TYPE.DATE_BETWEEN;
-              data.minValue = start.format('YYYY-MM-DD');
-              data.maxValue = end.format('YYYY-MM-DD');
-              data.values = [];
-            }
-
-            // 年
-            if (particleSizeType === 5) {
-              const year = value;
-              const start = moment().year(year).startOf('year');
-              const end = moment().year(year).endOf('year');
-              data.filterType = FILTER_CONDITION_TYPE.DATE_BETWEEN;
-              data.minValue = start.format('YYYY-MM-DD');
-              data.maxValue = end.format('YYYY-MM-DD');
-              data.values = [];
-            }
-
-            // 时
-            if (particleSizeType === 6) {
-              data.dateRangeType = 1;
-              data.filterType = FILTER_CONDITION_TYPE.DATE_EQ;
-              data.value = moment(`${value}:00`).format('YYYY-MM-DD');
-              data.values = [];
-            }
-
-            return data;
-          }
-
-          // 处理时间格式字段
-          if (item.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
-            const value = data.values[0];
-            data.filterType = FILTER_CONDITION_TYPE.DATEENUM;
-            data.value = value;
-            data.values = [];
-          }
-
-          // 地区改为在范围内
-          if (
-            item.type === WIDGETS_TO_API_TYPE_ENUM.AREA_CITY ||
-            item.type === WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY ||
-            item.type === WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE
-          ) {
-            data.filterType = FILTER_CONDITION_TYPE.BETWEEN;
-          }
-
-          // 级联选择改为在范围内
-          if (item.type === WIDGETS_TO_API_TYPE_ENUM.CASCADER) {
-            data.filterType = FILTER_CONDITION_TYPE.BETWEEN;
-          }
-
-          return data;
-        }),
-      });
-    }
-  }
-
-  const filters = _.flatten(
-    result.map(item => {
-      return item.filters;
-    }),
-  );
-  const initiateChartIds = result.map(item => item.widgetId);
-  return {
-    linkageFiltersGroup: filters,
-    initiateChartIds,
-  };
 };
 
 export const updateLayout = (components, config) => {

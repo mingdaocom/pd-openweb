@@ -1,9 +1,9 @@
 import React, { cloneElement, Fragment, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Drawer } from 'ming-ui/antd-components';
 import DragMask from 'worksheet/common/DragMask';
 import Favorite from 'src/pages/chat/containers/FavoriteDrawer';
 import Mingo from 'src/pages/chat/containers/MingoDrawer';
@@ -15,10 +15,10 @@ const FixingWrap = styled.div`
 `;
 
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: fixed;
   z-index: 99;
-  left: ${left}px;
+  left: ${$left}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -94,7 +94,7 @@ const ToolbarDrawer = props => {
           />
         )}
         <Drag
-          left={dragLeft}
+          $left={dragLeft}
           onMouseDown={() => {
             setDragMaskVisible(true);
           }}
@@ -115,25 +115,28 @@ const ToolbarDrawer = props => {
       ) : (
         <Drawer
           placement="right"
-          visible={visible}
-          destroyOnClose={false}
+          open={visible}
+          destroyOnHidden={false}
+          focusable={{ trap: false }}
           closable={false}
-          maskStyle={{
-            backgroundColor: 'transparent',
-          }}
           onClose={() => {
             onClose();
             localStorage.removeItem('toolBarOpenType');
           }}
           getContainer={() => document.querySelector('#containerWrapper')}
-          width={drawerWidht}
-          style={{
+          size={drawerWidht}
+          rootStyle={{
             // position: 'absolute',
             zIndex: 20,
             right: 52,
           }}
-          bodyStyle={{
-            padding: 0,
+          styles={{
+            mask: {
+              backgroundColor: 'transparent',
+            },
+            body: {
+              padding: 0,
+            },
           }}
         >
           {renderDrag()}

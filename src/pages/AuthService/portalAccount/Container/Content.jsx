@@ -3,17 +3,23 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { navigateTo } from 'router/navigateTo';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { navigateTo } from 'router/navigation/navigateTo';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import { validation } from 'src/pages/AuthService/util.js';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { WrapWXCon } from '../style';
 import Form from './Form';
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 export default function (props) {
   const {
     appId = '',
+    appLangId = '',
     registerMode = {},
     paramForPcWx,
     isAutoLogin,
@@ -45,6 +51,7 @@ export default function (props) {
   } = props;
 
   const [{ hasCheck }, setState] = useSetState({ hasCheck: false });
+  const appLangQuery = appLangId ? `&appLangId=${encodeURIComponent(appLangId)}` : '';
 
   // { key: 'phone', txt: _l('验证码') },
   // { key: 'password', txt: _l('密码') },
@@ -160,16 +167,22 @@ export default function (props) {
               <div className="mTop12 textPrimary Bold Font14 TxtTop LineHeight22 flexRow">
                 <Checkbox
                   checked={hasCheck}
-                  onClick={() => setState({ hasCheck: !hasCheck })}
+                  onChange={() =>
+                    setState({
+                      hasCheck: !hasCheck,
+                    })
+                  }
                   className="Hand"
                   name=""
-                />
-                <div className="flex alignItemsCenter">
+                  styles={CHECKBOX_LABEL_STYLES}
+                >
                   {_l('同意')}
+                </Checkbox>
+                <div className="flex alignItemsCenter">
                   <span
                     className="colorPrimary Hand mRight5 mLeft5"
                     onClick={() => {
-                      window.open(pathCompletion(`/agreen?appId=${appId}`));
+                      window.open(pathCompletion(`/agreen?appId=${appId}${appLangQuery}`));
                     }}
                   >
                     《{_l('用户协议')}》
@@ -178,7 +191,7 @@ export default function (props) {
                   <span
                     className="colorPrimary Hand mLeft5"
                     onClick={() => {
-                      window.open(`/privacy?appId=${appId}`);
+                      window.open(`/privacy?appId=${appId}${appLangQuery}`);
                     }}
                   >
                     《{_l('隐私政策')}》
@@ -189,8 +202,9 @@ export default function (props) {
             {!paramForPcWx && autoLogin && (
               <div className="mTop12 flexRow alignItemsCenter">
                 <div className="flexRow alignItemsCenter" onClick={() => setAutoLogin(!isAutoLogin)}>
-                  <Checkbox checked={isAutoLogin} className="Hand" name="" />
-                  <span className="textPrimary Font14 Bold Hand">{_l('7天内免登录')}</span>
+                  <Checkbox checked={isAutoLogin} className="Hand" name="" styles={CHECKBOX_LABEL_STYLES}>
+                    <span className="textPrimary Font14 Bold Hand">{_l('7天内免登录')}</span>
+                  </Checkbox>
                 </div>
               </div>
             )}
@@ -277,8 +291,9 @@ export default function (props) {
               className="mTop32 flexRow alignItemsCenter Hand justifyContentCenter"
               onClick={() => setAutoLogin(!isAutoLogin)}
             >
-              <Checkbox checked={isAutoLogin} className="" name="" />
-              <span className="textTertiary Font14 Bold Hand">{_l('7天内免登录')}</span>
+              <Checkbox checked={isAutoLogin} className="" name="" styles={CHECKBOX_LABEL_STYLES}>
+                <span className="textTertiary Font14 Bold Hand">{_l('7天内免登录')}</span>
+              </Checkbox>
             </div>
           )}
           {footerNotice(true)}

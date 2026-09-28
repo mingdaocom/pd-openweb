@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { browserIsMobile } from 'src/utils/common.js';
-import { getPssId } from 'src/utils/pssId';
+import { getPssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 export const isThirdPartyBrowser = () =>
   browserIsMobile() && (window.isDingTalk || window.isWxWork || window.isFeiShu || window.isWeLink || window.isWeiXin);

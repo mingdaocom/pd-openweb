@@ -6,12 +6,13 @@ import { isEmpty } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
-import { isRelateRecordTableControl, parseAdvancedSetting } from 'src/utils/control';
-import { getSubListUniqueError } from 'src/utils/record';
-import { handleUpdateDefsourceOfControl } from 'src/utils/record';
+import { parseAdvancedSetting } from 'src/utils/domain/control/advancedSetting';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
+import { canAsUniqueWidget } from 'src/utils/domain/control/style';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { handleUpdateDefsourceOfControl } from 'src/utils/domain/worksheet/record';
 import { clearRows, loadRows, resetRows, updateTreeTableViewData } from './actions';
+import { getSubListUniqueError } from './getSubListUniqueError';
 import reducer from './reducer';
 
 function loadWorksheetInfo(worksheetId, { controlId, relationWorksheetId, recordId, instanceId, workId } = {}) {
@@ -39,6 +40,7 @@ function loadWorksheetInfo(worksheetId, { controlId, relationWorksheetId, record
 export default function generateStore(
   control,
   {
+    appId,
     from,
     relationWorksheetId,
     controls,
@@ -108,10 +110,26 @@ export default function generateStore(
         });
       }
 
+      // 数据管理视图（viewId === worksheetId）不在 getWorksheetInfo 返回的 views 里，勾选
+      // 「列样式与工作表保持一致」时只能单独取它的列样式；worksheetInfo 上的 liststyle 只是
+      // 「应用到所有表格视图」时写的工作表级样式，仅作兜底。公开表单接口不支持，跳过后回退工作表级样式。
+      // 与下面的 getQueryBySheetId 并发，不额外占用串行耗时
+      const manageViewPromise =
+        get(control, 'advancedSetting.usecolumnstyle') === '1' && !get(window, 'shareState.isPublicForm')
+          ? sheetAjax
+              .getWorksheetViewById(
+                { appId: get(worksheetInfo, 'appId') || appId, worksheetId, viewId: worksheetId },
+                { silent: true },
+              )
+              .catch(() => undefined)
+          : undefined;
+
       if (!searchConfig) {
         const queryRes = await sheetAjax.getQueryBySheetId({ worksheetId });
         searchConfig = formatSearchConfigs(queryRes).filter(i => i.eventType !== 1);
       }
+
+      const manageView = await manageViewPromise;
 
       const { uniqueControlIds } = parseAdvancedSetting(control.advancedSetting);
       controls = controls.map(c => ({
@@ -140,6 +158,7 @@ export default function generateStore(
           instanceId,
           workId,
           worksheetInfo,
+          manageView,
           initRowIsCreate,
           discussId: control.discussId,
           isTreeTableView:

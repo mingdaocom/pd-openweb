@@ -1,13 +1,14 @@
 import React, { Fragment, useState } from 'react';
-import { isEqual } from 'lodash';
-import _ from 'lodash';
+import _, { isEqual } from 'lodash';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { CONTROL_FILTER_WHITELIST } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
-import { SYSTEM_CONTROL } from '../../../../config/widget';
-import { filterControlsFromAll } from '../../../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange, isSingleRelateSheet } from '../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isSingleRelateSheet } from 'src/utils/domain/control/editorSetting';
+import { filterControlsFromAll } from 'src/utils/domain/control/filters';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { getTypeKey } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
 import EmptyRuleConfig from '../../EmptyRuleConfig';
 
 const formatCondition = ({ filters = [], relationControls = [], ruleValue }) => {

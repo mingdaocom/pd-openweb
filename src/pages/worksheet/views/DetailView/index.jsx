@@ -6,28 +6,28 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
+import { getCardWidth } from 'worksheet/common/ViewConfig/getCardWidth';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as detailActions from 'src/pages/worksheet/redux/actions/detailView';
-import { getAdvanceSetting } from 'src/utils/control';
-import { getCardWidth } from 'src/utils/worksheet';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import ViewEmpty from '../components/ViewEmpty';
 import DetailItem from './DetaiIItem';
 import './index.less';
 
 const LeftListWrapper = styled.div(
-  ({ width }) => `
+  ({ $width }) => `
   display: flex;
   flex-direction: column;
   transition: width 0.2s;
   position: relative;
   z-index: 3;
   border-right: 1px solid var(--color-border-primary);
-  width: ${width}px;
+  width: ${$width}px;
   box-sizing: content-box;
 
   .searchBar {
-    width: ${width}px;
+    width: ${$width}px;
     padding: 0 12px;
     height: 51px;
     .icon {
@@ -61,10 +61,10 @@ const LeftListWrapper = styled.div(
 );
 
 const Drag = styled.div(
-  ({ left }) => `
+  ({ $left }) => `
   position: absolute;
   z-index: 2;
-  left: ${left}px;
+  left: ${$left}px;
   width: 10px;
   height: 100%;
   cursor: ew-resize;
@@ -76,6 +76,17 @@ const Drag = styled.div(
 );
 
 let preViewId = '';
+const DETAIL_VIEW_SIDE_VISIBLE_KEY = 'detailViewSideVisible';
+
+function getDetailViewSideVisible(defaultSideVisible, getItem = key => localStorage.getItem(key)) {
+  const cachedSideVisible = getItem(DETAIL_VIEW_SIDE_VISIBLE_KEY);
+
+  return cachedSideVisible === null ? defaultSideVisible : Boolean(cachedSideVisible);
+}
+
+function saveDetailViewSideVisible(sideVisible, setItem = safeLocalStorageSetItem) {
+  setItem(DETAIL_VIEW_SIDE_VISIBLE_KEY, sideVisible ? 'true' : '');
+}
 
 function DetailView(props) {
   const {
@@ -100,6 +111,8 @@ function DetailView(props) {
   const currentView = views.find(o => o.viewId === viewId) || {};
   const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
   const { showtoolbar, showtitle } = getAdvanceSetting(currentView);
+  const defaultSideVisible = _.get(currentView, 'advancedSetting.closesidebar') !== '1';
+  const enableSideVisibleCache = showtoolbar !== '0' && defaultSideVisible;
   const inputRef = useRef();
   const cardWidth = getCardWidth(currentView);
 
@@ -281,7 +294,7 @@ function DetailView(props) {
 
       {currentView.childType === 2 && (
         <div className="leftList">
-          <LeftListWrapper width={groupFilterWidth}>
+          <LeftListWrapper $width={groupFilterWidth}>
             <div
               className={cx('searchBar flexRow', {
                 pAll0: !isOpenGroup,
@@ -320,7 +333,7 @@ function DetailView(props) {
             </div>
             {renderLeftList()}
           </LeftListWrapper>
-          <Drag className="detailNavDrag" left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />
+          <Drag className="detailNavDrag" $left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />
         </div>
       )}
       <div
@@ -352,6 +365,11 @@ function DetailView(props) {
               projectId={worksheetInfo.projectId}
               currentSheetRows={detailViewRows}
               showPrevNext={currentView.childType === 2}
+              defaultSideVisible={
+                enableSideVisibleCache ? getDetailViewSideVisible(defaultSideVisible) : defaultSideVisible
+              }
+              onSideVisibleChange={enableSideVisibleCache ? saveDetailViewSideVisible : undefined}
+              disableSideVisibleCache
               appId={appId}
               viewId={viewId}
               from={1}

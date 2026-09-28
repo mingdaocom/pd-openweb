@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import roleApi from 'src/api/role';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 
 export default function RoleItem(props) {
   const { role, projectId, isApply, onRefreshRoleList, onOpenDrawer, selectedRole } = props;
@@ -14,16 +14,24 @@ export default function RoleItem(props) {
   const [isMembersOverflow, setIsMembersOverflow] = useState(false);
   const [isAuthOverflow, setIsAuthOverflow] = useState(false);
   const { isHrVisible, isSuperAdmin, projectStatus } = getCurrentProject(projectId, true);
-  const membersRef = useRef();
-  const authRef = useRef();
+  const memberNames = role.memberNames || [];
+  const permissionNames = role.permissionNames || [];
+  const memberNamesText = memberNames.join('、');
+  const permissionNamesText = permissionNames.join('、');
 
-  useEffect(() => {
-    setIsMembersOverflow(membersRef.current && membersRef.current.scrollHeight > 40);
-  }, [membersRef.current]);
+  const membersRef = useCallback(
+    node => {
+      node && setIsMembersOverflow(Boolean(memberNamesText) && node.scrollHeight > 40);
+    },
+    [memberNamesText],
+  );
 
-  useEffect(() => {
-    setIsAuthOverflow(authRef.current && authRef.current.scrollHeight > 40);
-  }, [authRef.current]);
+  const authRef = useCallback(
+    node => {
+      node && setIsAuthOverflow(Boolean(permissionNamesText) && node.scrollHeight > 40);
+    },
+    [permissionNamesText],
+  );
 
   const onClickHandle = (e, type) => {
     e.stopPropagation();
@@ -72,7 +80,7 @@ export default function RoleItem(props) {
               setHasApply(true);
               alert(_l('申请成功'));
             } else if (data === -1) {
-              alert(_l('不允许申请管理员'), 3);
+              alert(_l('不允许申请权限组'), 3);
             } else if (data === 0) {
               alert(_l('申请失败'), 2);
             }
@@ -80,10 +88,12 @@ export default function RoleItem(props) {
         break;
       case 'delete':
         setPopupVisibleId(null);
-        Dialog.confirm({
-          title: <span className="Red">{_l('确定删除角色') + `"${role.roleName}"?`}</span>,
-          description: <span className="textPrimary">{_l('删除后无法恢复')}</span>,
-          buttonType: 'danger',
+        Modal.confirm({
+          title: <span className="Red textError">{_l('确定删除权限组') + `"${role.roleName}"?`}</span>,
+          content: <span className="textPrimary">{_l('删除后无法恢复')}</span>,
+          okButtonProps: {
+            danger: true,
+          },
           onOk: () => {
             roleApi
               .removeRole({
@@ -105,10 +115,12 @@ export default function RoleItem(props) {
         break;
       case 'editRole':
         onOpenDrawer(type);
+
         setPopupVisibleId(null);
         break;
       case 'editHrRole':
         onOpenDrawer(type);
+
         setPopupVisibleId(null);
         break;
       default:
@@ -125,15 +137,15 @@ export default function RoleItem(props) {
         </div>
         <div className="roleMembers">
           <span className="content" ref={membersRef}>
-            {(role.memberNames || []).join('、')}
+            {memberNamesText}
           </span>
-          {isMembersOverflow && <span>{_l('等') + role.memberNames.length + _l('人')}</span>}
+          {isMembersOverflow && <span>{_l('等') + memberNames.length + _l('人')}</span>}
         </div>
         <div className="roleAuth">
           <span className="content" ref={authRef}>
-            {role.isSuperAdmin ? _l('所有权限') : (role.permissionNames || []).join('、')}
+            {role.isSuperAdmin ? _l('所有权限') : permissionNamesText}
           </span>
-          {isAuthOverflow && <span>{_l('等') + role.permissionNames.length + _l('项')}</span>}
+          {isAuthOverflow && <span>{_l('等') + permissionNames.length + _l('项')}</span>}
         </div>
         {isApply && projectStatus !== 2 ? (
           <div className="roleOperation">
@@ -152,33 +164,25 @@ export default function RoleItem(props) {
               </span>
             )}
             {isSuperAdmin && !role.isSuperAdmin && (
-              <Trigger
-                popupVisible={role.entityId === popupVisibleId}
-                onPopupVisibleChange={visible => setPopupVisibleId(visible ? role.entityId : null)}
-                action={['click']}
-                popupAlign={{
-                  offset: [0, 5],
-                  points: ['tr', 'br'],
-                  overflow: { adjustX: true, adjustY: true },
+              <Dropdown
+                open={role.entityId === popupVisibleId}
+                onOpenChange={visible => setPopupVisibleId(visible ? role.entityId : null)}
+                trigger={['click']}
+                menu={{
+                  items: [
+                    { key: 'editRole', label: _l('编辑权限') },
+                    ...(isHrVisible ? [{ key: 'editHrRole', label: _l('编辑人事权限') }] : []),
+                    { key: 'delete', danger: true, label: _l('删除') },
+                  ],
+                  onClick: ({ key, domEvent }) => onClickHandle(domEvent, key),
                 }}
-                popup={
-                  <Menu style={{ minWidth: 120, maxWidth: 200, position: 'unset' }}>
-                    <MenuItem onClick={e => onClickHandle(e, 'editRole')}>{_l('编辑权限')}</MenuItem>
-                    {isHrVisible && (
-                      <MenuItem onClick={e => onClickHandle(e, 'editHrRole')}>{_l('编辑人事权限')}</MenuItem>
-                    )}
-                    <MenuItem className="Red" onClick={e => onClickHandle(e, 'delete')}>
-                      {_l('删除')}
-                    </MenuItem>
-                  </Menu>
-                }
               >
                 <Icon
                   icon="moreop"
                   className="textTertiary Hand Font18 hoverColorPrimaryLight TxtMiddle"
                   onClick={e => e.stopPropagation()}
                 />
-              </Trigger>
+              </Dropdown>
             )}
           </div>
         )}

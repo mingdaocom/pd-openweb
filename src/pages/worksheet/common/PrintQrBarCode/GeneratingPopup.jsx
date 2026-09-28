@@ -103,7 +103,7 @@ const Loading = styled.div`
 const Embed = styled.div`
   width: 100%;
   height: 100%;
-  ${({ loading }) => (loading ? 'display: none;' : '')}
+  ${({ $loading }) => ($loading ? 'display: none;' : '')}
 `;
 
 export default function GeneratingPopup(props) {
@@ -191,7 +191,7 @@ export default function GeneratingPopup(props) {
             <p>{loadingText}</p>
           </Loading>
         )}
-        <Embed loading={loading} ref={embedRef} />
+        <Embed $loading={loading} ref={embedRef} />
       </Body>
     </Con>
   );

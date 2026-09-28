@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import Textarea from 'ming-ui/components/Textarea';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import config, { OPEN_TYPE } from '../../../config/config';
 import { addSubTask, editTaskStatus, taskFoldStatus, updateTaskCharge, updateTaskName } from '../../../redux/actions';
@@ -54,12 +55,16 @@ class SingleItem extends Component {
     const { charge, taskID, projectID } = this.props.item;
 
     return (
-      <span
-        className="textTertiary hoverColorPrimary pointer w100 oaButton updateSubTaskCharge"
+      <Button
+        block
+        className="updateSubTaskCharge"
+        ellipsis
+        color="primary"
+        variant="outlined"
         onClick={() => this.props.clickOp(projectID, taskID, charge.accountID)}
       >
         {_l('更改负责人')}
-      </span>
+      </Button>
     );
   }
 
@@ -69,6 +74,19 @@ class SingleItem extends Component {
     const hasAuth = auth === config.auth.Charger || auth === config.auth.Member;
     let subTaskStatus = '';
     let tipMessage = '';
+    const chargeTrigger = (
+      <span className="subTaskMembers">
+        <UserHead
+          className={cx({ gray: charge.status !== 1 }, { opacity6: status })}
+          user={{
+            userHead: charge.avatar,
+            accountId: charge.accountID,
+          }}
+          size={26}
+          operation={hasAuth ? this.renderOpHtml() : null}
+        />
+      </span>
+    );
 
     if (auth === config.auth.None || auth === config.auth.Look) {
       if (status) {
@@ -119,20 +137,7 @@ class SingleItem extends Component {
               __html: formatTaskTime(status, startTime, deadline, actualStartTime, completeTime),
             }}
           />
-          <span
-            className="subTaskMembers"
-            onClick={evt => hasAuth && this.props.clickChargeAvatar(evt, charge.accountID, taskID)}
-          >
-            <UserHead
-              className={cx({ gray: charge.status !== 1 }, { opacity6: status })}
-              user={{
-                userHead: charge.avatar,
-                accountId: charge.accountID,
-              }}
-              size={26}
-              operation={hasAuth ? this.renderOpHtml() : null}
-            />
-          </span>
+          {hasAuth ? this.props.renderChargeSelector(chargeTrigger, charge.accountID, taskID) : chargeTrigger}
           <Tooltip title={_l('查看子任务详情和评论')} placement="bottomLeft">
             <span className="subTaskLink" onClick={() => this.props.switchTaskDetail(taskID)}>
               {item.totalItemCount || item.topicCount || item.subCount ? (
@@ -258,9 +263,12 @@ class Subtask extends Component {
           onChange={value => this.setState({ value: value.replace(/[\r\n]/, '') })}
         />
         <div className="subTaskOperator">
-          <span className="subTaskMembers">
-            <img className="subChargeAvatar" src={avatar} onClick={evt => this.clickChargeAvatar(evt, accountId)} />
-          </span>
+          {this.renderChargeSelector(
+            <span className="subTaskMembers">
+              <img className="subChargeAvatar" src={avatar} />
+            </span>,
+            accountId,
+          )}
           <span className="subTaskLink" />
         </div>
       </ClickAwayable>
@@ -281,28 +289,20 @@ class Subtask extends Component {
   /**
    * 点击切换负责人
    */
-  clickChargeAvatar = (evt, accountId, taskId = '') => {
+  handleChargeSelect = (users, taskId = '') => {
+    const user = users[0];
+
+    if (taskId) {
+      this.props.dispatch(updateTaskCharge(this.props.taskId, user, taskId, () => this.callback(user, taskId)));
+    } else {
+      this.setState({ accountId: user.accountId, avatar: user.avatar });
+    }
+  };
+
+  getChargeSelectProps = (accountId, taskId = '') => {
     const { data } = this.props.taskDetails[this.props.taskId];
 
-    const updateChargeCallback = user => {
-      if (this.props.openType === OPEN_TYPE.slide) {
-        afterUpdateTaskCharge(taskId, user.avatar, user.accountId);
-      } else {
-        this.props.updateCallback({ type: 'UPDATE_CHARGE', user });
-      }
-    };
-
-    const callback = users => {
-      const user = users[0];
-
-      if (taskId) {
-        this.props.dispatch(updateTaskCharge(this.props.taskId, user, taskId, () => updateChargeCallback(user)));
-      } else {
-        this.setState({ accountId: user.accountId, avatar: user.avatar });
-      }
-    };
-
-    quickSelectUser(evt.target, {
+    return {
       sourceId: data.taskID,
       projectId: data.projectID,
       fromType: 2,
@@ -312,10 +312,14 @@ class Subtask extends Component {
       SelectUserSettings: {
         selectedAccountIds: [accountId],
         projectId: checkIsProject(data.projectID) ? data.projectID : '',
-        callback,
+        callback: users => this.handleChargeSelect(users, taskId),
       },
-      selectCb: callback,
-    });
+      onSelect: users => this.handleChargeSelect(users, taskId),
+    };
+  };
+
+  renderChargeSelector = (children, accountId, taskId = '') => {
+    return <UserSelectPopover {...this.getChargeSelectProps(accountId, taskId)}>{children}</UserSelectPopover>;
   };
 
   /**
@@ -459,7 +463,7 @@ class Subtask extends Component {
                     item={item}
                     editTaskStatus={this.editTaskStatus}
                     updateTaskName={this.updateTaskName}
-                    clickChargeAvatar={this.clickChargeAvatar}
+                    renderChargeSelector={this.renderChargeSelector}
                     switchTaskDetail={this.props.switchTaskDetail}
                     clickOp={this.clickOp}
                   />

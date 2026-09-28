@@ -34,6 +34,15 @@ const instanceversioncontroller = {
    * null
    * @param {Object} options 配置参数
    */
+  getDoneTypeCount: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/getDoneTypeCount';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'v1instancegetDoneTypeCount', args, $.extend({}, base, options));
+  },
+  /**
+   * null
+   * @param {Object} options 配置参数
+   */
   endInstanceList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/endInstanceList';
     base.ajaxOptions.type = 'POST';
@@ -43,7 +52,7 @@ const instanceversioncontroller = {
    * null
    * @param {Object} options 配置参数
    */
-  batch_1: function(args, options) {
+  batch_2: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/batch';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1instancebatch', args, $.extend({}, base, options));

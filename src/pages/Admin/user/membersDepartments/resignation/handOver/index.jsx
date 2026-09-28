@@ -1,15 +1,22 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dialog, LoadDiv, UserCard, UserHead } from 'ming-ui';
+import { LoadDiv, UserCard, UserHead } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import transferController from 'src/api/transfer';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Empty from '../../../../common/TableEmpty';
 import PaginationWrap from '../../../../components/PaginationWrap';
-import SearchInput from '../SearchInput';
 import Detail from './detail';
 import './style.less';
-import { pathCompletion } from 'src/utils/common';
+
+const HANDOVER_MODAL_STYLES = {
+  container: { height: 'calc(100vh - 64px)' },
+  body: { display: 'flex', flexDirection: 'column', overflowY: 'hidden' },
+};
+
+const SEARCH_INPUT_STYLE = { width: 197 };
 
 export default class HandOver extends React.Component {
   static propTypes = {
@@ -31,6 +38,7 @@ export default class HandOver extends React.Component {
       isLoading: false,
       list: null,
       allCount: null,
+      keywords: '',
 
       selectAccount: null,
       ajaxMap: {},
@@ -110,7 +118,11 @@ export default class HandOver extends React.Component {
         {user.accountId ? (
           <span className="flexColumn TxtLeft personBox ellipsis pRight10">
             <UserCard sourceId={user.accountId}>
-              <a className="Bold overflow_ellipsis" href={pathCompletion(`/user_${user.accountId}`)} title={user.fullname}>
+              <a
+                className="Bold overflow_ellipsis"
+                href={pathCompletion(`/user_${user.accountId}`)}
+                title={user.fullname}
+              >
                 {user.fullname}
               </a>
             </UserCard>
@@ -239,34 +251,45 @@ export default class HandOver extends React.Component {
   }
 
   render() {
-    const { selectAccount } = this.state;
-    const { visible, onCancel = () => { } } = this.props;
+    const { keywords, selectAccount } = this.state;
+    const { visible, onCancel = () => {} } = this.props;
+    const title = selectAccount ? (
+      <div className="flexRow alignItemsCenter">
+        <i className="icon icon-backspace mRight10 Hand" onClick={() => this.setState({ selectAccount: null })} />
+        {_l('交接协作相关数据:%0', selectAccount.fullname)}
+      </div>
+    ) : (
+      _l('交接协作相关数据')
+    );
 
     return (
-      <Dialog title="" width={1000} className="handoverDialog" visible={visible} showFooter={false} onCancel={onCancel}>
-        {selectAccount ? (
-          <Fragment>
-            <div className="flexRow">
-              <div className="flex bold Font17">
-                <i
-                  className="icon icon-backspace mRight10 Hand"
-                  onClick={() => this.setState({ selectAccount: null })}
-                />
-                {_l('交接协作相关数据:%0', (selectAccount || {}).fullname)}
-              </div>
-            </div>
-            {this.renderDetail()}
-          </Fragment>
-        ) : (
-          <Fragment>
-            <div className="flexRow">
-              <div className="flex bold Font17">{_l('交接协作相关数据')}</div>
-              <SearchInput onSearch={val => this.setState({ keywords: val }, this.fetchList)} />
-            </div>
-            {this.renderContent()}
-          </Fragment>
-        )}
-      </Dialog>
+      <Modal
+        width={1000}
+        className="handoverDialog"
+        open={visible}
+        title={title}
+        headerRightElement={
+          !selectAccount ? (
+            <Input
+              allowClear
+              radius
+              variant="filled"
+              style={SEARCH_INPUT_STYLE}
+              value={keywords}
+              placeholder={_l('搜索')}
+              prefix={<i className="icon icon-search textTertiary Font18" />}
+              onPressEnter={e => this.setState({ keywords: e.target.value, pageIndex: 1 }, this.fetchList)}
+              onChange={e => this.setState({ keywords: e.target.value })}
+            />
+          ) : null
+        }
+        styles={HANDOVER_MODAL_STYLES}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onCancel}
+      >
+        {selectAccount ? this.renderDetail() : this.renderContent()}
+      </Modal>
     );
   }
 }

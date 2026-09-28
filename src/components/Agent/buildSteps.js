@@ -1,14 +1,16 @@
 // build-app-agent 工作流步骤元数据。stepId 对齐 assets/agents/prod/build-app/build-app-agent.yaml workflow 节点。
 // kind=loop 的 step 走 workflow-loop-* 事件序列，UI 展示 {index}/{count} 进度；kind=step 走 workflow-step-* 单次事件。
 
-// 执行顺序对齐 build-app-agent.yaml：建应用 → 建表 → 补表关联 → 视图与动作
+// 执行顺序对齐 build-app-agent.yaml：建应用 → 建表 → 补表关联
+// →（并行 step-build-views-and-rules：视图与动作 ∥ 业务规则）
 // →（示例数据 / AI 助手两路 async 后台跑）→ 建页面空壳 → 建角色
 // →（并行 step-config-and-design：页面组件配置 ∥ 工作流设计）
 // →（并行 step-build-workflows：系统工作流 ∥ 自定义动作工作流）。
 
-// 两个 parallel 容器步：自身只发 workflow-step-start/completed 作分组，UI 不单独渲染它们（见 BuildProgress 的 filter），
+// parallel 容器步：自身只发 workflow-step-start/completed 作分组，UI 不单独渲染它们（见 BuildProgress 的 filter），
 // 只渲染其下分支。分支 stepId 一律为复合 "{并行步}:{分支}"——loop 分支走 workflow-loop-*，单 agent 分支走 workflow-step-*。
 export const BUILD_PARALLEL_STEP_IDS = new Set([
+  'step-build-views-and-rules',
   'step-create-pages-and-chatbots',
   'step-config-and-design',
   'step-build-workflows',
@@ -22,7 +24,12 @@ export const BUILD_STEPS = {
   'step-update-app-desc': { title: _l('应用描述'), kind: 'step' },
   'step-build-worksheets': { title: _l('工作表'), kind: 'loop' },
   'step-build-relations': { title: _l('表关联'), kind: 'loop' },
+  // V5.x（2026-08 后端调整）：视图步并入并行容器 step-build-views-and-rules，与新增的「业务规则」分支并发，
+  // 事件 stepId 变为复合形式；旧顶层 step-build-views 保留，兼容调整前发起的历史会话回放。
   'step-build-views': { title: _l('视图与动作'), kind: 'loop' },
+  'step-build-views-and-rules:step-build-views': { title: _l('视图与动作'), kind: 'loop' },
+  // 业务规则：逐表把 plan 的 businessRulesNotes 翻译成交互/校验/锁定规则（business-rule-build-sub-agent）。
+  'step-build-views-and-rules:build-business-rules': { title: _l('业务规则'), kind: 'loop' },
   'step-build-sample-data': { title: _l('示例数据'), kind: 'step' },
   // AI 助手：async-agent 后台 fire-and-forget（与示例数据同阶段），只发 step-start/completed；
   // 与 sample-data 一样以独立行嵌进 worksheets loop 末尾展示（见 BuildProgress 的 AiAssistantRow）。

@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { CONTROL_FILTER_WHITELIST } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { getTypeKey } from 'src/utils/domain/worksheet/filterCondition';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
 
 export function formatCondition(condition, relationControls, fromCondition) {
   if ((_.get(condition, 'groupFilters') || []).length > 0) {

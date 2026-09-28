@@ -3,9 +3,9 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 function getCoverControlData(data) {
   return _.find(data, file => RegExpValidator.fileIsPicture(file.ext) || file.previewUrl);
@@ -19,13 +19,13 @@ const SIZE = {
 const baseCle = 'RelateRecordListItem';
 
 const Cover = styled.div(
-  ({ size }) => `
-  width: ${size}px;
-  height: ${size}px;
-  margin-right: ${size === SIZE.BIG ? 12 : 8}px;
+  ({ $size }) => `
+  width: ${$size}px;
+  height: ${$size}px;
+  margin-right: ${$size === SIZE.BIG ? 12 : 8}px;
   img {
-    width: ${size}px;
-    height: ${size}px;
+    width: ${$size}px;
+    height: ${$size}px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 4px;
   }
@@ -104,16 +104,17 @@ export default class RecordItem extends React.PureComponent {
     const { data, appId } = this.props;
     const { cardControls = [] } = this;
     const texts = cardControls
-      .map(control => renderCellText({ ...control, value: data[control.controlId] }, { appId }))
-      .filter(text => !!text);
+      .map(control => ({
+        controlId: control.controlId,
+        text: renderCellText({ ...control, value: data[control.controlId] }, { appId }),
+      }))
+      .filter(({ text }) => !!text);
     return (
-      <div
-        style={{
-          marginLeft: '-7px',
-        }}
-      >
-        {texts.map(text => (
-          <div className={`${baseCle}-control`}>{text}</div>
+      <div className={`${baseCle}-controls`}>
+        {texts.map(({ controlId, text }) => (
+          <div key={controlId} className={`${baseCle}-control`} title={_.truncate(text, { length: 300 })}>
+            {text}
+          </div>
         ))}
       </div>
     );
@@ -168,7 +169,7 @@ export default class RecordItem extends React.PureComponent {
         style={{ ...style, minHeight: height }}
       >
         {showCoverAndControls && coverCid && (
-          <Cover size={coverSize}>
+          <Cover $size={coverSize}>
             {coverUrl && !coverError && <img src={coverUrl} onError={() => this.setState({ coverError: true })} />}
           </Cover>
         )}

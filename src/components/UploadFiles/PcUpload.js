@@ -3,9 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Modal } from 'ming-ui';
-import Tooltip from 'ming-ui/antd-components/Tooltip';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 
 const PcUploadModalWrap = styled(Modal)`
   .bgCloseIcon {
@@ -111,7 +110,6 @@ const PcUploadModalWrap = styled(Modal)`
       .uploadButton {
         grid-column: 3;
         justify-self: end;
-        min-width: 114px;
       }
     }
 
@@ -354,7 +352,7 @@ function PcUpload(props) {
               <i className="icon icon-camera_alt" />
             </button>
             {photoList.length > 0 && (
-              <Button className="primary uploadButton" onClick={handleComplete} size="large">
+              <Button type="primary" className="uploadButton" onClick={handleComplete} size="large">
                 {_l('上传')}
               </Button>
             )}
@@ -395,13 +393,14 @@ function PcUpload(props) {
 
           <div className="previewFooter">
             <Button
-              className="ghost"
+              color="primary"
+              variant="outlined"
               onClick={() => setCameraStatus(CAMERA_STATUS.CAMERA_OPENED)}
               disabled={photoList.length >= MAX_PHOTO_COUNT}
             >
               {_l('继续拍照')}
             </Button>
-            <Button className="primary" onClick={handleComplete}>
+            <Button type="primary" onClick={handleComplete}>
               {_l('上传')}
             </Button>
           </div>
@@ -414,12 +413,11 @@ function PcUpload(props) {
 
   return (
     <PcUploadModalWrap
-      visible
+      open
       width={640}
       title={null}
       footer={null}
       centered={true}
-      destroyOnClose={true}
       className="pcUploadModal"
       onCancel={() => {
         props.onClose && props.onClose();
@@ -439,6 +437,6 @@ function PcUpload(props) {
   );
 }
 
-export default function openPcCamera(props) {
-  return functionWrap(PcUpload, props);
+export function usePcCamera() {
+  return useFunctionWrapComponent(PcUpload);
 }

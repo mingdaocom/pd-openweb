@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Radio } from 'ming-ui';
-import { getCheckAndOther } from '../../../core/utils';
+import { Radio } from 'ming-ui/antd-components';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 import { CustomOptionCapsule } from '../../style';
 import OtherInput from '../Checkbox/OtherInput';
 
@@ -21,7 +21,7 @@ const RadioWidget = props => {
     const content = otherValue && disabled ? otherValue : item.value;
 
     if (enumDefault2 === 1) {
-      return <CustomOptionCapsule tagColor={item.color}>{content}</CustomOptionCapsule>;
+      return <CustomOptionCapsule $tagColor={item.color}>{content}</CustomOptionCapsule>;
     }
 
     return (
@@ -54,15 +54,15 @@ const RadioWidget = props => {
             style={{ width: item.key === 'other' && checkIds.includes('other') && !disabled ? '100%' : 'auto' }}
           >
             <Radio
-              needDefaultUpdate
               key={index}
               disabled={disabled}
-              text={renderItem(item, checkIds)}
               value={item.key}
               checked={_.includes(checkIds, item.key)}
               title={item.value}
-              onClick={onChange}
-            />
+              onChange={event => onChange(event.target.value, event)}
+            >
+              {renderItem(item, checkIds)}
+            </Radio>
             {!disabled && item.key === 'other' && <OtherInput {...props} isSelect />}
           </div>
         );

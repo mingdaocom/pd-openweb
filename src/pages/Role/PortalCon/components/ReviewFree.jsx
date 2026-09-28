@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, QiniuUpload, Radio } from 'ming-ui';
+import { Icon, QiniuUpload } from 'ming-ui';
+import { Modal, Radio, Switch } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import noVerifyAjax from 'src/api/noVerify';
-import { SwitchStyle } from 'src/pages/Role/PortalCon/setting/BaseSet/style';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import ReviewFreeByWorksheetWrap from './ReviewFreeByWorksheetWrap';
 import ReviewFreeMap from './ReviewFreeMap';
 
@@ -43,10 +44,6 @@ const Wrap = styled.div`
         display: flex;
         align-items: center;
       }
-      .dateInputCon .ming.Dropdown {
-        height: 34px;
-        background: none;
-      }
     }
   }
   .conditionValue {
@@ -75,8 +72,6 @@ const Wrap = styled.div`
     }
   }
   .List {
-    h6 {
-    }
     .listLiHeader {
       color: var(--color-text-tertiary);
       font-size: 12px;
@@ -95,27 +90,6 @@ const Wrap = styled.div`
       width: 10%;
       text-align: center;
     }
-    .Dropdown {
-      flex: 1;
-      max-width: 45%;
-    }
-    .Dropdown--input {
-      display: flex;
-      line-height: 36px;
-      padding: 0 10px !important;
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-border-secondary);
-      border-radius: 3px;
-      .value,
-      .Dropdown--placeholder {
-        flex: 1;
-      }
-      i {
-        &::before {
-          line-height: 36px;
-        }
-      }
-    }
   }
 `;
 const list = [_l('导入Excel数据'), _l('从工作表获取数据')];
@@ -132,6 +106,9 @@ export default function ReviewFree(props) {
   const [fileName, setFileName] = useState(''); //免审文件名
   const [uploadLoading, setUploadLoading] = useState(false); //
   const [canDown, setCanDown] = useState(false); //
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const requestPending = useRef(false);
+  const deleteRequestPending = useRef(false);
 
   const getControls = () => {
     externalPortalAjax
@@ -177,6 +154,8 @@ export default function ReviewFree(props) {
   }, [fileUrl]);
 
   const update = () => {
+    if (requestPending.current) return;
+
     if (cellConfigs.length <= 0 && status === 0 && type === 0) {
       return alert(_l('还未设置免审'), 3);
     }
@@ -204,25 +183,31 @@ export default function ReviewFree(props) {
               worksheetId: query?.templates?.worksheetId,
             },
           };
-    noVerifyAjax.update(param).then(res => {
-      if (res.success) {
-        props.setData({
-          ...data,
-          query,
-          fileUrl,
-          fileName,
-          cellConfigs,
-          type,
-          status,
-        });
-        onChangePortalVersion(res.version);
-        setCanDown(!!res.fileUrl);
-        onCancel();
-        props.getInfo();
-      } else {
-        alert(_l('配置失败，请稍后再试'), 3);
-      }
-    });
+    requestPending.current = true;
+    return noVerifyAjax
+      .update(param)
+      .then(res => {
+        if (res.success) {
+          props.setData({
+            ...data,
+            query,
+            fileUrl,
+            fileName,
+            cellConfigs,
+            type,
+            status,
+          });
+          onChangePortalVersion(res.version);
+          setCanDown(!!res.fileUrl);
+          onCancel();
+          props.getInfo();
+        } else {
+          alert(_l('配置失败，请稍后再试'), 3);
+        }
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   const uploadParam = {
@@ -254,32 +239,58 @@ export default function ReviewFree(props) {
       setUploadLoading(false);
     },
   };
+
+  const clearFile = () => {
+    setCellConfigs([]);
+    setCells([]);
+    setFileUrl('');
+    setFileName('');
+    setCanDown(false);
+  };
+
+  const handleDelete = () => {
+    if (!data.fileUrl) {
+      clearFile();
+      return;
+    }
+
+    if (deleteRequestPending.current) return;
+
+    deleteRequestPending.current = true;
+    setDeleteLoading(true);
+    return noVerifyAjax
+      .delete({ appId })
+      .then(clearFile)
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('删除失败'), 2))
+      .finally(() => {
+        deleteRequestPending.current = false;
+        setDeleteLoading(false);
+      });
+  };
+
   return (
-    <Dialog
-      className="showReviewFree Hand"
-      width="580"
-      visible={show}
-      title={<span className="Font17 Bold">{_l('配置免审名单')}</span>}
+    <Modal
+      width={580}
+      open={show}
+      title={_l('配置免审名单')}
+      mask={{ closable: true }}
+      keyboard
       onCancel={onCancel}
-      onOk={() => {
-        update();
-      }}
+      onOk={update}
     >
       <Wrap>
         <p className="textTertiary pAll0 mBottom2 mTop2 Font14 textSecondary">
           {_l('用户注册时填写的内容如和免审中指定字段内容一致，则无需审核直接访问应用。')}
         </p>
-        <SwitchStyle
-          className="Hand InlineBlock"
-          onClick={() => {
-            setStatus(status === 0 ? 1 : 0);
-          }}
-        >
-          <Icon icon={status === 0 ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font40" />
-          <div className="switchText switchTextP mLeft8 InlineBlock textPrimary Hand">
+        <div className="flexRow alignItemsCenter">
+          <Switch size="small" checked={status === 0} onChange={checked => setStatus(checked ? 0 : 1)} />
+          <div
+            className="switchText switchTextP Font13 mLeft8 InlineBlock textPrimary Hand"
+            onClick={() => setStatus(status === 0 ? 1 : 0)}
+          >
             {status === 0 ? _l('开启') : _l('关闭')}
           </div>
-        </SwitchStyle>
+        </div>
         {status === 0 && (
           <React.Fragment>
             <p className="pAll0 mTop20 Bold">{_l('数据源')}</p>
@@ -287,13 +298,16 @@ export default function ReviewFree(props) {
               {list.map((o, i) => {
                 return (
                   <Radio
+                    key={o}
                     className="mRight60 pRight10"
-                    text={o}
                     checked={i === type}
-                    onClick={() => {
+                    onChange={() => {
                       setType(i);
                     }}
-                  />
+                    title={o}
+                  >
+                    {o}
+                  </Radio>
                 );
               })}
             </div>
@@ -341,31 +355,9 @@ export default function ReviewFree(props) {
                     <Icon className="Font18 TxtMiddle" type="refresh" />
                     {_l('更新')}
                   </QiniuUpload>
-                  <span
-                    className="act Red"
-                    onClick={() => {
-                      if (!data.fileUrl) {
-                        setCellConfigs([]);
-                        setCells([]);
-                        setFileUrl('');
-                        setFileName(''); //免审文件名
-                        setCanDown(false);
-                      } else {
-                        noVerifyAjax
-                          .delete({
-                            appId,
-                          })
-                          .then(() => {
-                            setCellConfigs([]);
-                            setCells([]);
-                            setFileUrl('');
-                            setFileName(''); //免审文件名
-                            setCanDown(false);
-                          });
-                      }
-                    }}
-                  >
-                    <Icon className="Font18 TxtMiddle Hand" type="trash" /> {_l('删除')}
+                  <span className={cx('act Red', { disabled: deleteLoading })} onClick={handleDelete}>
+                    <Icon className="Font18 TxtMiddle Hand" type={deleteLoading ? 'loading_button' : 'trash'} />
+                    {_l('删除')}
                   </span>
                 </div>
               </React.Fragment>
@@ -392,6 +384,6 @@ export default function ReviewFree(props) {
           </React.Fragment>
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

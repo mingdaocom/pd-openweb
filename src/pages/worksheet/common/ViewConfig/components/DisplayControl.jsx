@@ -3,29 +3,13 @@ import { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { Switch } from 'ming-ui/antd-components';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
 import NumInput from './NumInput';
 
-export const SwitchStyle = styled.div`
-  display: inline-block;
-  .switchText {
-    margin-right: 6px;
-    line-height: 24px;
-  }
-  .icon {
-    vertical-align: middle;
-    &-ic_toggle_on {
-      color: #00c345;
-    }
-    &-ic_toggle_off {
-      color: var(--color-text-disabled);
-    }
-  }
-`;
 const Wrap = styled.div`
   padding-left: 28px;
   .showCount {
@@ -108,29 +92,23 @@ export default function DisplayControl(props) {
       {/* 移动端只有appshowtype==='1'才能选择是否显示字段名称 */}
       {(!hideShowControlName || (hideShowControlName && !['0', '2'].includes(appshowtype))) && (
         <div className="configSwitch mTop10">
-          <SwitchStyle className="flexRow alignItemsCenter">
-            <Icon
-              icon={showControlName ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font28 Hand"
-              onClick={() => {
-                handleChange({ showControlName: !showControlName, editAttrs: ['showControlName'] });
-              }}
+          <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+            <Switch
+              size="mini"
+              checked={!!showControlName}
+              onChange={() => handleChange({ showControlName: !showControlName, editAttrs: ['showControlName'] })}
             />
-            <div className="switchText InlineBlock Normal mLeft10">{_l('显示字段名称')}</div>
-          </SwitchStyle>
+            <div className="InlineBlock Normal mLeft12">{_l('显示字段名称')}</div>
+          </div>
         </div>
       )}
       {canShowCount && (
         <div className="configSwitch mTop4">
-          <SwitchStyle className="flexRow alignItemsCenter">
-            <Icon
-              icon={
-                !!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0
-                  ? 'ic_toggle_on'
-                  : 'ic_toggle_off'
-              }
-              className="Font28 Hand"
-              onClick={() => {
+          <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+            <Switch
+              size="mini"
+              checked={!!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0}
+              onChange={() => {
                 if (effectiveControls.length <= 0) {
                   return;
                 }
@@ -152,8 +130,8 @@ export default function DisplayControl(props) {
                 !!props.updateViewShowcount && props.updateViewShowcount(showcount);
               }}
             />
-            <div className="switchText InlineBlock Normal mLeft10">{_l('允许用户调整字段数量')}</div>
-          </SwitchStyle>
+            <div className="InlineBlock Normal mLeft12">{_l('允许用户调整字段数量')}</div>
+          </div>
           {!!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0 && (
             <Wrap className="flexRow alignItemsCenter mTop10">
               <span className="mLeft10">{_l('默认显示前')}</span>

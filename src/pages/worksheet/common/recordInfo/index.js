@@ -1,7 +1,13 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import _ from 'lodash';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent, { openFunctionWrapComponent } from 'ming-ui/hooks/useFunctionWrapComponent';
 import RecordInfo from './RecordInfoWrapper';
+
+const getRecordInfoProps = props => ({
+  ...props,
+  closeFnName: 'hideRecordInfo',
+  hideRecordInfo: props.onClose,
+});
 
 export default class Record extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -12,29 +18,10 @@ export default class Record extends React.Component {
   }
 }
 
-export function openRecordInfo(props) {
-  const div = document.createElement('div');
+export function useRecordInfo() {
+  return useFunctionWrapComponent(RecordInfo, getRecordInfoProps);
+}
 
-  document.body.appendChild(div);
-
-  const root = createRoot(div);
-  let destroyed = false;
-
-  function destory() {
-    if (destroyed) {
-      return;
-    }
-
-    destroyed = true;
-    if (_.isFunction(props.onClose)) {
-      props.onClose();
-    }
-
-    root.unmount();
-    if (div.parentNode) {
-      div.parentNode.removeChild(div);
-    }
-  }
-
-  root.render(<RecordInfo visible {...props} hideRecordInfo={destory} />);
+export function openGlobalRecordInfo(props) {
+  openFunctionWrapComponent(functionWrap, RecordInfo, props, getRecordInfoProps);
 }

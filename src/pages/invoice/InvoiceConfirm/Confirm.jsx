@@ -2,10 +2,10 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
-import { Button, Dialog } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import 'src/pages/Mobile/index.less';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import InvoiceForm from '../components/InvoiceForm';
 import '../common.less';
 
@@ -88,7 +88,7 @@ export default function InvoiceConfirm(props) {
         />
         {isLandPage && (
           <div className="TxtCenter pBottom30 pLeft20 pRight20">
-            <Button onClick={onOk} disabled={submitting}>
+            <Button type="primary" loading={submitting} onClick={onOk}>
               {_l('确认')}
             </Button>
           </div>
@@ -107,20 +107,20 @@ export default function InvoiceConfirm(props) {
   }
 
   return !isMobile ? (
-    <Dialog
-      visible
+    <Modal
+      open
       title={title}
-      description={description}
-      overlayClosable={false}
-      className="invoiceDialog"
+      mask={{ closable: false }}
+      keyboard
       width={800}
       onCancel={onCancel}
       okText={_l('确认')}
-      okDisabled={submitting}
+      confirmLoading={submitting}
       onOk={onOk}
     >
+      <div className="textSecondary mBottom16">{description}</div>
       {renderContent()}
-    </Dialog>
+    </Modal>
   ) : (
     <Popup position="bottom" className="mobileModal topRadius invoicePopup" visible onMaskClick={onCancel}>
       <div className="flexRow header LineHeight24">

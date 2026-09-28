@@ -3,14 +3,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { antNotification } from 'ming-ui';
+import { Notification } from 'ming-ui/antd-components';
 import appManagementController from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import {
   changeCreateAppLoading,
   changeDialogCreateAppVisible,
@@ -21,8 +17,12 @@ import {
   updateExcelDetailData,
   updateSelectedImportSheetIds,
 } from 'src/pages/worksheet/redux/actions/excelCreateAppAndSheet';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { checkPermission } from 'src/utils/services/security/permission';
 import DialogCreateApp from './DialogCreateApp';
 import DialogUpload from './DialogUpload';
 import SetImportExcelCreateWorksheetOrApp from './SetImportExcelCreateWorksheetOrApp';
@@ -39,6 +39,7 @@ class DialogImportExcelCreate extends Component {
       DBInstances: [],
       DBInstancesDialog: false,
     };
+    this.importRequestPending = false;
   }
   componentDidMount() {
     this.props.changeDialogUploadVisible(true);
@@ -291,22 +292,34 @@ class DialogImportExcelCreate extends Component {
     return params;
   };
 
+  handleImportError = () => {
+    Notification.close(this.state.socketId);
+    alert(_l('导入失败，请稍后重试'), 2);
+  };
+
+  finishImportRequest = () => {
+    this.importRequestPending = false;
+    this.setState({ importLoading: false });
+  };
+
   handleNext = () => {
+    if (this.importRequestPending) return;
     if (!this.getParams()) return;
     const { createType, excelDetailData = [], selectedImportSheetIds, refreshPage = () => {} } = this.props;
     const importSheets = excelDetailData.filter(it => _.includes(selectedImportSheetIds, it.sheetId));
     const isMore = importSheets.length > 10;
 
     if (createType === 'worksheet') {
-      antNotification.info({
+      Notification.info({
         key: this.state.socketId,
         loading: true,
-        message: _l('正在导入表数据'),
+        title: _l('正在导入表数据'),
         description: _l('数据将在后台持续导入，导入完成后会给您发送系统通知。'),
       });
+      this.importRequestPending = true;
       this.setState({ importLoading: true });
 
-      window
+      return window
         .mdyAPI('', '', this.getParams(), {
           ajaxOptions: {
             url: md.global.Config.WorksheetDownUrl + '/Import/Create',
@@ -314,32 +327,36 @@ class DialogImportExcelCreate extends Component {
           customParseResponse: true,
         })
         .then(() => {
-          this.props.onCancel();
           if (isMore) {
-            this.importMore();
+            return this.importMore();
           } else {
+            this.props.onCancel();
             refreshPage();
-            this.setState({ importLoading: false });
           }
-        });
+        })
+        .catch(this.handleImportError)
+        .finally(this.finishImportRequest);
     } else if (createType === 'app') {
       this.props.changeSetDataDialogVisible(false);
       this.props.changeDialogCreateAppVisible(true);
     }
   };
   createApp = dbInstanceId => {
+    if (this.importRequestPending) return;
+
     const { excelDetailData = [], selectedImportSheetIds } = this.props;
     const importSheets = excelDetailData.filter(it => _.includes(selectedImportSheetIds, it.sheetId));
     const isMore = importSheets.length > 10;
-    antNotification.info({
+    Notification.info({
       key: this.state.socketId,
       loading: true,
-      message: _l('正在导入表数据'),
+      title: _l('正在导入表数据'),
       description: _l('数据将在后台持续导入，导入完成后会给您发送系统通知。'),
     });
+    this.importRequestPending = true;
     this.setState({ importLoading: true });
 
-    window
+    return window
       .mdyAPI(
         '',
         '',
@@ -354,16 +371,18 @@ class DialogImportExcelCreate extends Component {
       .then(res => {
         this.props.updateAppInfo({ ...this.props.appInfo, appId: res.data });
         if (isMore) {
-          this.importMore();
+          return this.importMore();
         } else {
-          this.setState({ importLoading: false, createAppStatus: 1 });
+          this.setState({ createAppStatus: 1 });
         }
-      });
+      })
+      .catch(this.handleImportError)
+      .finally(this.finishImportRequest);
   };
   importMore = () => {
     const { createType, refreshPage = () => {} } = this.props;
 
-    window
+    return window
       .mdyAPI('', '', this.getParams(true), {
         ajaxOptions: {
           url: md.global.Config.WorksheetDownUrl + '/Import/CreateSheet',
@@ -372,10 +391,9 @@ class DialogImportExcelCreate extends Component {
       })
       .then(res => {
         if (createType === 'app') {
-          this.setState({ importLoading: false, createAppStatus: 1 });
+          this.setState({ createAppStatus: 1 });
           this.props.updateAppInfo({ ...this.props.appInfo, appId: res.data });
         } else {
-          this.setState({ importLoading: false });
           this.props.onCancel();
           refreshPage();
         }
@@ -386,7 +404,7 @@ class DialogImportExcelCreate extends Component {
     const { projectId } = this.props;
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+      (!window.platformENV.isPlatform || window.platformENV.isHap);
     const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     if (hasDataBase && hasAppResourceAuth) {

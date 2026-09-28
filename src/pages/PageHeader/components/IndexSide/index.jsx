@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import { bool, func, number } from 'prop-types';
 import { Icon, MdLink } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Content from './Content';
 import './index.less';
 
@@ -32,6 +32,17 @@ let IndexSide = class IndexSide extends Component {
     }
   };
 
+  handleOpenBaseSetting = () => {
+    this.props.onClose?.();
+
+    if (typeof window.openSettingDrawer === 'function') {
+      window.openSettingDrawer({ navType: 'base' });
+      return;
+    }
+
+    location.href = pathCompletion('/dashboard');
+  };
+
   render() {
     const { posX } = this.props;
     return (
@@ -44,22 +55,23 @@ let IndexSide = class IndexSide extends Component {
         <div className="indexSideHeaderWrap">
           <MdLink className="homepageWrap" to={'/dashboard'}>
             <div className="homepage">
-              <Icon icon="home_page" className="Font24" />
+              <Icon icon="home_page" className="Font20" />
               <span>{_l('工作台')}</span>
             </div>
           </MdLink>
           <Dropdown
             trigger={['click']}
             placement="bottomRight"
-            overlay={
-              <Menu
-                style={{
-                  width: 120,
-                }}
-              >
-                <Menu.Item onClick={() => navigateTo('/personal?type=system')}>{_l('偏好设置')}</Menu.Item>
-              </Menu>
-            }
+            menu={{
+              style: { minWidth: 120 },
+              items: [
+                {
+                  key: 'personalSetting',
+                  label: _l('偏好设置'),
+                  onClick: this.handleOpenBaseSetting,
+                },
+              ],
+            }}
           >
             <div className="flexRow alignItemsCenter justifyContentCenter pointer moreWrap">
               <Icon className="textTertiary Font20" icon="more_horiz" />

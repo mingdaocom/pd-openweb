@@ -1,43 +1,44 @@
 import React, { useRef, useState } from 'react';
-import { Tabs } from 'antd';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tabs, Tooltip } from 'ming-ui/antd-components';
 import { replaceColor } from 'statistics/Charts/NumberChart';
 import Color from './Color';
 import Custom from './Custom';
 import Gradient from './Gradient';
 import Image, { images } from './Image';
+import Shape, { ShapePreview } from './Shape';
 
 const Wrap = styled.div`
-  background: var(--color-background-primary);
-  border-radius: 8px;
-  width: 485px;
-  box-shadow:
-    0 6px 16px 0 rgba(0, 0, 0, 0.08),
-    0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
-  .ant-tabs {
-    .ant-tabs-nav {
+  .hap-tabs {
+    .hap-tabs-nav {
       margin: 0 !important;
     }
-    .ant-tabs-tab-active {
+    .hap-tabs-tab-active {
       font-weight: bold;
     }
-    .ant-tabs-tab-btn {
+    .hap-tabs-tab-btn {
       color: var(--color-text-secondary);
     }
-    .ant-tabs-tab {
+    .hap-tabs-tab {
       padding: 9px 0;
     }
-    .ant-tabs-nav-list {
+    .hap-tabs-nav-list {
       padding: 0 15px;
     }
-    .ant-tabs-tabpane {
+    .hap-tabs-body {
+      padding: 15px;
+    }
+    .hap-tabs-tabpane {
       padding: 10px;
     }
   }
 `;
+
+const POPOVER_STYLES = {
+  container: {
+    width: 485,
+  },
+};
 
 const ClearWrap = styled.div`
   width: 28px;
@@ -75,16 +76,30 @@ const TABS = [
     value: 'image',
   },
   {
+    name: _l('图形'),
+    value: 'shape',
+  },
+  {
     name: _l('自定义'),
     value: 'custom',
   },
 ];
 
+const DEFAULT_TYPES = ['color', 'gradient', 'image', 'custom'];
+
 export default function BgPicker(props) {
-  const { themeColor, config, onChange } = props;
-  const { bgStyleValue } = config;
-  const [tab, setTab] = useState(bgStyleValue || TABS[0].value);
+  const { themeColor, config, onClear, types = DEFAULT_TYPES } = props;
+  const shapeConfig = {
+    backgroundColor: 'var(--color-background-primary)',
+    color: themeColor,
+    ...props.shapeConfig,
+  };
+  const { bgStyleValue, pageBgImage } = config;
+  const availableTabs = TABS.filter(item => types.includes(item.value));
+  const defaultTab = availableTabs[0]?.value;
+  const [tab, setTab] = useState(bgStyleValue || defaultTab);
   const colorPickerRef = useRef();
+  const activeTab = availableTabs.some(item => item.value === tab) ? tab : defaultTab;
 
   const getBgStyle = () => {
     if (bgStyleValue === 'color') {
@@ -105,57 +120,72 @@ export default function BgPicker(props) {
     }
 
     if (bgStyleValue === 'custom') {
-      const { displaySetup } = props;
-      const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
-      return { backgroundImage: `url(${previewUrl})`, backgroundSize: 'cover' };
+      const { previewUrl } = props;
+      return previewUrl
+        ? { backgroundImage: `url(${previewUrl})`, backgroundSize: 'cover' }
+        : { backgroundColor: 'var(--color-background-primary)' };
+    }
+
+    if (bgStyleValue === 'shape') {
+      return { backgroundColor: shapeConfig.backgroundColor };
     }
 
     return { backgroundColor: 'var(--color-background-primary)' };
   };
 
   return (
-    <Trigger
-      zIndex={1000}
-      action={['click']}
-      popupAlign={{ points: ['tl', 'bl'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
-      onPopupVisibleChange={visible => {
+    <Popover
+      trigger="click"
+      placement="bottomLeft"
+      destroyOnHidden={false}
+      noPadding
+      styles={POPOVER_STYLES}
+      onOpenChange={visible => {
         if (!visible && colorPickerRef.current) {
           colorPickerRef.current.onClose();
         }
       }}
-      popup={
+      content={
         <Wrap>
           <Tabs
-            activeKey={tab}
+            activeKey={activeTab}
             onChange={tab => {
               setTab(tab);
             }}
+            items={availableTabs.map(item => ({
+              key: item.value,
+              label: item.name,
+              children: (
+                <React.Fragment>
+                  {item.value === 'color' && <Color value={item.value} {...props} colorPickerRef={colorPickerRef} />}
+                  {item.value === 'gradient' && <Gradient value={item.value} {...props} />}
+                  {item.value === 'image' && <Image value={item.value} {...props} />}
+                  {item.value === 'shape' && <Shape value={item.value} {...props} {...shapeConfig} />}
+                  {item.value === 'custom' && <Custom value={item.value} {...props} />}
+                </React.Fragment>
+              ),
+            }))}
             tabBarExtraContent={
               <Tooltip title={_l('清空')} placement="bottom">
                 <ClearWrap
                   className="pointer mRight10"
                   onClick={() => {
-                    onChange({ bgStyleValue: '', bgColor: '#fff' });
+                    onClear();
                   }}
                 />
               </Tooltip>
             }
-          >
-            {TABS.map(tab => (
-              <Tabs.TabPane tab={tab.name} key={tab.value}>
-                {tab.value === 'color' && <Color value={tab.value} {...props} colorPickerRef={colorPickerRef} />}
-                {tab.value === 'gradient' && <Gradient value={tab.value} {...props} />}
-                {tab.value === 'image' && <Image value={tab.value} {...props} />}
-                {tab.value === 'custom' && <Custom value={tab.value} {...props} />}
-              </Tabs.TabPane>
-            ))}
-          </Tabs>
+          />
         </Wrap>
       }
     >
       <div className="colorWrap pointer overflowHidden pAll0">
-        <div className="colorBlock" style={getBgStyle()}></div>
+        {bgStyleValue === 'shape' && pageBgImage ? (
+          <ShapePreview {...shapeConfig} name={pageBgImage} />
+        ) : (
+          <div className="colorBlock w100 h100" style={getBgStyle()}></div>
+        )}
       </div>
-    </Trigger>
+    </Popover>
   );
 }

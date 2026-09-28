@@ -3,7 +3,7 @@ import JsonView from '@mingdaocom/json-view';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import api from '../../api/flowNode';
 import ErrorState from 'src/components/errorPage/errorState';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './index.less';
 
 export default class WebHookCheatSheet extends Component {

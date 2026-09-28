@@ -1,21 +1,19 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import aiModelAuthAjax from 'src/api/dataLimit.js';
 import projectSettingController from 'src/api/projectSetting';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import AIModelRule from './AIModelRule';
-import limitFeatureDialogFunc from './LimitFeatureDialog';
-import PwdFreeVerifyDialog from './PwdFreeVerify';
+import { usePwdFreeVerifyDialog } from './PwdFreeVerify';
 
-export default class SecurityOthers extends Component {
+class SecurityOthers extends Component {
   constructor(props) {
     super(props);
     this.state = {
       noneVerificationEnabled: false,
-      onlyManagerCreateApp: false,
       aiModelRuleList: [],
       aiModelRuleListLoaded: false,
       aiModelRuleListLoading: false,
@@ -25,7 +23,6 @@ export default class SecurityOthers extends Component {
 
   componentDidMount() {
     this.getEnabledNoneVerification();
-    this.getOnlyManagerSettings();
     this.getAIModelAuthRuleList();
   }
 
@@ -36,30 +33,6 @@ export default class SecurityOthers extends Component {
         this.setState({ noneVerificationEnabled });
       });
   };
-
-  getOnlyManagerSettings() {
-    projectSettingController
-      .getOnlyManagerSettings({ projectId: Config.projectId })
-      .then(
-        ({
-          apiIntgOnlyManager = false,
-          dataPipeOnlyManager = false,
-          onlyManagerCreateApp = false,
-          pluginsOnlyManager = false,
-          onlyManagerDeleteApp = false,
-          superSearchOnlyManager = false,
-        }) => {
-          this.setState({
-            apiIntgOnlyManager,
-            dataPipeOnlyManager,
-            onlyManagerCreateApp,
-            pluginsOnlyManager,
-            onlyManagerDeleteApp,
-            superSearchOnlyManager,
-          });
-        },
-      );
-  }
 
   getAIModelAuthRuleList = ({ force = false } = {}) => {
     if (this.aiModelRuleListRequest) {
@@ -104,19 +77,8 @@ export default class SecurityOthers extends Component {
 
   render() {
     const projectId = Config.projectId;
-    const {
-      noneVerificationEnabled,
-      onlyManagerCreateApp,
-      apiIntgOnlyManager,
-      dataPipeOnlyManager,
-      pluginsOnlyManager,
-      onlyManagerDeleteApp,
-      superSearchOnlyManager,
-      aiModelRuleList,
-      aiModelRuleListLoaded,
-      aiModelRuleListLoading,
-      showAIModelRule,
-    } = this.state;
+    const { noneVerificationEnabled, aiModelRuleList, aiModelRuleListLoaded, aiModelRuleListLoading, showAIModelRule } =
+      this.state;
 
     if (showAIModelRule) {
       return (
@@ -132,22 +94,6 @@ export default class SecurityOthers extends Component {
       );
     }
 
-    const limitInfo = {
-      onlyManagerCreateApp: _l('创建应用'),
-      apiIntgOnlyManager: _l('创建 API 连接'),
-      // dataPipeOnlyManager: _l('数据集成'),
-      pluginsOnlyManager: _l('开发插件'),
-      onlyManagerDeleteApp: _l('删除应用'),
-      superSearchOnlyManager: _l('超级搜索 - 搜索记录'),
-    };
-
-    const settings = Object.keys(limitInfo).filter(
-      v =>
-        !(v === 'pluginsOnlyManager' && md.global.SysSettings.hidePlugin) &&
-        !(v === 'apiIntgOnlyManager' && md.global.SysSettings.hideIntegration) &&
-        this.state[v],
-    );
-    const settingsTxt = settings.map(item => limitInfo[item]).join('、');
     const isCustomRule = (aiModelRuleList || []).some(r => r.isEnable);
     const globalStatus = isCustomRule ? _l('按自定义规则控制') : _l('全部应用可用全部模型');
 
@@ -159,31 +105,6 @@ export default class SecurityOthers extends Component {
           projectId={projectId}
           configs={[
             { key: 'desc', description: _l('统一管理组织成员可使用的功能与安全相关能力') },
-            {
-              key: 'limitSystemFeature',
-              title: _l('成员功能管控'),
-              description: _l('限制全员使用的功能范围，仅允许授权的管理员使用相关功能'),
-              showSlideIcon: true,
-              customContent: !_.isEmpty(settings) ? (
-                <div>
-                  <span>{_l('已限制：')}</span>
-                  <span className="bold">{settingsTxt}</span>
-                </div>
-              ) : undefined,
-              onClick: () =>
-                limitFeatureDialogFunc({
-                  projectId,
-                  data: {
-                    onlyManagerCreateApp,
-                    apiIntgOnlyManager,
-                    dataPipeOnlyManager,
-                    pluginsOnlyManager,
-                    onlyManagerDeleteApp,
-                    superSearchOnlyManager,
-                  },
-                  updateData: data => this.setState({ ...data }),
-                }),
-            },
             {
               key: 'passwordFreeVerification',
               title: _l('密码免验证策略'),
@@ -198,7 +119,7 @@ export default class SecurityOthers extends Component {
                 </div>
               ),
               onClick: () =>
-                PwdFreeVerifyDialog({
+                this.props.openPwdFreeVerifyDialog({
                   projectId,
                   enabled: noneVerificationEnabled,
                   updateEnabled: enabled => this.setState({ noneVerificationEnabled: enabled }),
@@ -224,3 +145,7 @@ export default class SecurityOthers extends Component {
     );
   }
 }
+
+export default withOpeners(SecurityOthers, {
+  openPwdFreeVerifyDialog: usePwdFreeVerifyDialog,
+});

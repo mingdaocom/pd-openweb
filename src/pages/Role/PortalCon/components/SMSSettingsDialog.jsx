@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Input } from 'antd';
-import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox, Dialog } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 
 const { TextArea } = Input;
-
-const Wrap = styled.div``;
 
 const SmsTip = styled.div`
   color: var(--color-text-secondary);
@@ -62,7 +58,7 @@ function smsSignaturePrefix(smsContainsLink, sign) {
 
 /** 国内明道云 SaaS；私有部署、海外等环境为 false */
 function getIsMingdaoSaas() {
-  return !window.platformENV.isOverseas && !window.platformENV.isLocal;
+  return window.platformENV.isHap;
 }
 
 const getStrip = n => {
@@ -108,14 +104,14 @@ export default function Con(props) {
   const fullInvite = `${prefixInvite}${inviteSms || ''}`;
 
   return (
-    <Dialog
+    <Modal
       title={_l('短信通知内容设置')}
-      className={cx('')}
       width={640}
-      headerClass=""
-      bodyClass=""
       okText={_l('保存')}
       cancelText={_l('取消')}
+      open
+      mask={{ closable: true }}
+      keyboard
       onCancel={onCancel}
       onOk={() => {
         const { portalSet = {} } = props;
@@ -145,10 +141,8 @@ export default function Con(props) {
         });
         onCancel();
       }}
-      visible={true}
-      updateTrigger="false"
     >
-      <Wrap>
+      <div>
         {isMingdaoSaas && (
           <SmsTip>
             {_l(
@@ -182,10 +176,11 @@ export default function Con(props) {
         <CheckRow>
           {isMingdaoSaas && (
             <Checkbox
-              text={_l('包含链接')}
               checked={approvedSmsContainsLink}
-              onClick={cur => setApprovedSmsContainsLink(!cur)}
-            />
+              onChange={event => setApprovedSmsContainsLink(event.target.checked)}
+            >
+              {_l('包含链接')}
+            </Checkbox>
           )}
           <span className="countText">
             {_l('已输入 %0  个字（含签名），短信按 %1 条计费', fullApproved.length, getStrip(fullApproved.length))}
@@ -217,10 +212,11 @@ export default function Con(props) {
         <CheckRow>
           {isMingdaoSaas && (
             <Checkbox
-              text={_l('包含链接')}
               checked={refusedSmsContainsLink}
-              onClick={cur => setRefusedSmsContainsLink(!cur)}
-            />
+              onChange={event => setRefusedSmsContainsLink(event.target.checked)}
+            >
+              {_l('包含链接')}
+            </Checkbox>
           )}
           <span className="countText">
             {_l('已输入 %0  个字（含签名），短信按 %1 条计费', fullRefused.length, getStrip(fullRefused.length))}
@@ -249,16 +245,17 @@ export default function Con(props) {
         <CheckRow>
           {isMingdaoSaas && (
             <Checkbox
-              text={_l('包含链接')}
               checked={inviteSmsContainsLink}
-              onClick={cur => setInviteSmsContainsLink(!cur)}
-            />
+              onChange={event => setInviteSmsContainsLink(event.target.checked)}
+            >
+              {_l('包含链接')}
+            </Checkbox>
           )}
           <span className="countText">
             {_l('已输入 %0  个字（含签名），短信按 %1 条计费', fullInvite.length, getStrip(fullInvite.length))}
           </span>
         </CheckRow>
-      </Wrap>
-    </Dialog>
+      </div>
+    </Modal>
   );
 }

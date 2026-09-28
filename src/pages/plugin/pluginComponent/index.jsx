@@ -1,19 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import bg from 'staticfiles/images/plugin_bg.png';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { hasPermission } from 'src/components/checkPermission';
+import { Icon, LoadDiv, ScrollView, SearchInput, Support, SvgIcon } from 'ming-ui';
+import { Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { getRequest, pathCompletion } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { FEATURE_PERMISSION, hasFeaturePermission, hasPermission } from 'src/utils/services/security/permission';
 import {
   API_EXTENDS,
   enableOptionList,
@@ -24,7 +23,7 @@ import {
   tabList,
 } from '../config';
 import { getPluginOperateText } from '../util';
-import ImportPlugin from './ImportPlugin';
+import { useImportPlugin } from './ImportPlugin';
 import OperateColumn from './OperateColumn';
 import PluginConfig from './PluginConfig';
 
@@ -87,9 +86,6 @@ const Wrapper = styled.div`
       }
       .filterDropdown {
         width: 120px;
-        .Dropdown--input {
-          padding: 4px 8px 4px 12px;
-        }
       }
       .headerBtn {
         padding: 8px 24px;
@@ -133,7 +129,7 @@ const PluginListBox = styled.div`
       }
     }
 
-    .ant-switch-checked {
+    .hap-switch-checked {
       background-color: rgba(40, 202, 131, 1);
     }
   }
@@ -191,11 +187,7 @@ let getListRequest = null;
 export default function PluginComponent(props) {
   const { currentProjectId, myPermissions = [], pluginType = PLUGIN_TYPE.VIEW } = props;
   const hasManagePluginAuth = hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_PLUGINS);
-  const hasDevelopPluginAuth =
-    _.get(
-      _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
-      'allowPlugin',
-    ) || hasPermission(myPermissions, PERMISSION_ENUM.DEVELOP_PLUGIN);
+  const hasDevelopPluginAuth = hasFeaturePermission(currentProjectId, FEATURE_PERMISSION.PLUGIN);
   const request = getRequest();
 
   const [fetchState, setFetchState] = useSetState({
@@ -205,11 +197,13 @@ export default function PluginComponent(props) {
     state: 2,
     keyWords: '',
   });
+  const [searchValue, setSearchValue] = useState('');
   const [pluginList, setPluginList] = useState([]);
   const [currentTab, setCurrentTab] = useState(
     hasDevelopPluginAuth ? request.tab || localStorage.getItem('viewPluginTab') || 'myPlugin' : 'project',
   );
   const [pluginConfig, setPluginConfig] = useState({ visible: false });
+  const { open: openImportPlugin, holder: importPluginHolder } = useImportPlugin();
 
   const pluginApi = pluginApiConfig[pluginType];
 
@@ -248,24 +242,31 @@ export default function PluginComponent(props) {
     }
   };
 
-  const onSearch = useCallback(
-    _.debounce(value => {
-      setFetchState({ loading: true, pageIndex: 1, keyWords: value });
-    }, 500),
-    [],
+  const onSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setFetchState({ loading: true, pageIndex: 1, keyWords: value });
+      }, 500),
+    [setFetchState],
   );
 
+  const handleSearchChange = value => {
+    setSearchValue(value);
+    onSearch(value);
+  };
+
   useEffect(onFetch, [currentTab, fetchState.loading, fetchState.pageIndex, fetchState.keyWords, fetchState.state]);
+  useEffect(() => () => onSearch.cancel(), [onSearch]);
 
   const onCreateOrImport = () => {
-    if (pluginType === PLUGIN_TYPE.VIEW) {
-      currentTab === 'myPlugin'
-        ? setPluginConfig({ visible: true, configType: pluginConfigType.create })
-        : ImportPlugin({
-            projectId: currentProjectId,
-            pluginType,
-            onImportCreateSuccess: () => setFetchState({ loading: true, pageIndex: 1 }),
-          });
+    if (currentTab === 'project') {
+      openImportPlugin({
+        projectId: currentProjectId,
+        pluginType,
+        onImportCreateSuccess: () => setFetchState({ loading: true, pageIndex: 1 }),
+      });
+    } else if (pluginType === PLUGIN_TYPE.VIEW) {
+      setPluginConfig({ visible: true, configType: pluginConfigType.create });
     } else {
       const featureType = getFeatureStatus(currentProjectId, VersionProductType.flowPlugin);
 
@@ -403,6 +404,7 @@ export default function PluginComponent(props) {
 
   return (
     <ScrollView onScrollEnd={onScrollEnd}>
+      {importPluginHolder}
       <Wrapper>
         <div className="headerWrapper">
           <div className="headerContent">
@@ -435,6 +437,8 @@ export default function PluginComponent(props) {
                       }
 
                       safeLocalStorageSetItem(`viewPluginTab`, item.value);
+                      onSearch.cancel();
+                      setSearchValue('');
                       setCurrentTab(item.value);
                       setFetchState({ loading: true, pageIndex: 1, keyWords: '', state: 2 });
                     }}
@@ -453,23 +457,21 @@ export default function PluginComponent(props) {
               <SearchInput
                 className="searchInput"
                 placeholder={currentTab === 'myPlugin' ? _l('搜索插件') : _l('搜索插件 / 开发者')}
-                value={fetchState.keyWords}
-                onChange={onSearch}
+                value={searchValue}
+                onChange={handleSearchChange}
               />
               {currentTab === 'project' && (
-                <Dropdown
+                <Select
                   className="filterDropdown"
-                  border={true}
-                  isAppendToBody={true}
                   placeholder={_l('启用状态')}
                   value={fetchState.state}
-                  data={enableOptionList}
+                  options={enableOptionList}
                   onChange={state => setFetchState({ state, loading: true, pageIndex: 1 })}
                 />
               )}
             </div>
 
-            {!(currentTab === 'project' && (!hasManagePluginAuth || pluginType === PLUGIN_TYPE.WORKFLOW)) && (
+            {!(currentTab === 'project' && !hasManagePluginAuth) && (
               <div className="headerBtn" onClick={onCreateOrImport}>
                 <span className="bold">{currentTab === 'myPlugin' ? _l('制作插件') : _l('+ 导入')}</span>
               </div>
@@ -550,11 +552,10 @@ export default function PluginComponent(props) {
               }}
               onClickAway={() => setPluginConfig({ visible: false })}
               onClickAwayExceptions={[
-                '.mui-dialog-container',
-                '.dropdownTrigger',
-                '.ant-select-dropdown',
+                '.hap-modal-wrap',
+                '.hap-select-dropdown',
                 '.selectIconWrap',
-                '.ant-picker-dropdown',
+                '.hap-picker-dropdown',
               ]}
             />
           )}

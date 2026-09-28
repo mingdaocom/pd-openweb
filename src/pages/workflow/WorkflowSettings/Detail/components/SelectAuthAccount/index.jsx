@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Dropdown } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Modal, Select } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import oauth2 from '../../../../api/oauth2';
 import CustomTextarea from '../CustomTextarea';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const Member = styled.span`
   align-items: center;
@@ -23,19 +25,9 @@ const Member = styled.span`
   }
 `;
 
-const DropdownBox = styled(Dropdown)`
+const AccountSelect = styled(Select)`
   min-width: 0;
   width: 100%;
-  .Dropdown--border {
-    border-radius: 4px 0 0 4px !important;
-  }
-  .value {
-    display: inline-flex;
-    align-items: center;
-  }
-  .ming.Menu {
-    width: 100%;
-  }
 `;
 
 const Message = styled.div`
@@ -43,6 +35,7 @@ const Message = styled.div`
   bottom: 1px;
   left: 1px;
   right: 37px;
+  z-index: 1;
   border-radius: 4px 0 0 4px;
   background: var(--color-background-primary);
 `;
@@ -74,42 +67,6 @@ export default props => {
     });
   }, [connectId, apiId]);
 
-  useEffect(() => {
-    if (showDialog) {
-      setUsers(authIdAccounts);
-      setCacheKeywords(authIdKeywords);
-    }
-  }, [showDialog]);
-
-  const selectUser = event => {
-    quickSelectUser(event.target, {
-      offset: {
-        top: 10,
-        left: 0,
-      },
-      projectId: props.companyId,
-      unique: true,
-      filterAll: true,
-      filterFriend: true,
-      filterOthers: true,
-      filterOtherProject: true,
-      filterAccountIds: users.length ? [users[0].roleId] : [],
-      onSelect: users => {
-        setUsers(
-          users.map(o => {
-            return {
-              avatar: o.avatar,
-              roleId: o.accountId,
-              roleName: o.fullname,
-              roleTypeId: 0,
-              type: 1,
-            };
-          }),
-        );
-      },
-    });
-  };
-
   return (
     <div className={className}>
       <div className="Font13">
@@ -121,27 +78,32 @@ export default props => {
         )}
       </div>
       <div className="flexRow mTop10 relative">
-        <DropdownBox
+        <AccountSelect
           className="flex"
-          data={list}
+          options={list}
+          fieldNames={SELECT_FIELD_NAMES}
           value={authId || undefined}
-          openSearch
-          renderTitle={
+          showSearch
+          optionFilterProp="text"
+          labelRender={
             authId && list.length && !list.find(o => o.value === authId)
               ? () => {
                   return <span style={{ color: 'var(--color-error)' }}>{_l('账户已删除')}</span>;
                 }
               : null
           }
-          border
-          noData={_l('请先在集成中心添加账户')}
+          notFoundContent={_l('请先在集成中心添加账户')}
           onChange={onChange}
         />
 
         {hasMore && (
           <div
             className={cx('actionControlMore', { colorPrimary: fromType !== 2 })}
-            onClick={() => setShowDialog(true)}
+            onClick={() => {
+              setUsers(authIdAccounts);
+              setCacheKeywords(authIdKeywords);
+              setShowDialog(true);
+            }}
           >
             <i className="icon-lookup" />
           </div>
@@ -160,12 +122,16 @@ export default props => {
       </div>
 
       {showDialog && (
-        <Dialog
+        <Modal
           className="workflowDialogBox"
-          visible
+          open
           width={600}
-          title={_l('查询账户')}
-          description={_l('查询用户在连接下创建的授权账户名称')}
+          title={
+            <>
+              <div>{_l('查询账户')}</div>
+              <div className="Font13 Normal textSecondary mTop8">{_l('查询用户在连接下创建的授权账户名称')}</div>
+            </>
+          }
           onOk={() => {
             if (!users.length || !(cacheKeywords || '').trim()) {
               alert(_l('用户和账户名称不能为空'), 2);
@@ -194,13 +160,34 @@ export default props => {
               );
             })}
 
-            <i
-              className={cx(
-                'Font26 textSecondary hoverColorPrimary pointer',
-                users.length ? 'icon-task-folder-charge' : 'icon-task-add-member-circle',
-              )}
-              onClick={selectUser}
-            />
+            <UserSelectPopover
+              offset={{ top: 10, left: 0 }}
+              projectId={props.companyId}
+              unique
+              filterAll
+              filterFriend
+              filterOthers
+              filterOtherProject
+              filterAccountIds={users.length ? [users[0].roleId] : []}
+              onSelect={selectedUsers => {
+                setUsers(
+                  selectedUsers.map(o => ({
+                    avatar: o.avatar,
+                    roleId: o.accountId,
+                    roleName: o.fullname,
+                    roleTypeId: 0,
+                    type: 1,
+                  })),
+                );
+              }}
+            >
+              <i
+                className={cx(
+                  'Font26 textSecondary hoverColorPrimary pointer',
+                  users.length ? 'icon-task-folder-charge' : 'icon-task-add-member-circle',
+                )}
+              />
+            </UserSelectPopover>
           </div>
 
           <div className="Font14 bold mTop20">{_l('账户名称')}</div>
@@ -222,7 +209,7 @@ export default props => {
 
           {fromType === 2 &&
             props.renderApiAuth({ content: cacheKeywords, onChange: value => setCacheKeywords(value) })}
-        </Dialog>
+        </Modal>
       )}
     </div>
   );

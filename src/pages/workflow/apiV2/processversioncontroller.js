@@ -30,7 +30,7 @@ const processversioncontroller = {
    * @param {string} [args.keyWords] null
    * @param {Object} options 配置参数
    */
-  list: function(args, options) {
+  list_1: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/list';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'v1processlist', args, $.extend({}, base, options));

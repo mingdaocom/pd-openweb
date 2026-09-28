@@ -3,9 +3,10 @@ import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dialog, Icon, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 import WorksheetItem from 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/WorksheetItem';
 import './index.less';
 
@@ -235,10 +236,13 @@ class ErrorDialog extends Component {
 
     if (isBatch) {
       return (
-        <Dialog
-          className="importErrorDialog"
-          visible={visible}
-          width="640"
+        <Modal
+          rootClassName="importErrorDialog"
+          open={visible}
+          mask={{ closable: true }}
+          keyboard
+          width={640}
+          styles={{ container: { height: 560 } }}
           title={_l('错误报告')}
           footer={null}
           onCancel={() => {
@@ -246,21 +250,24 @@ class ErrorDialog extends Component {
           }}
         >
           {this.renderBatch()}
-        </Dialog>
+        </Modal>
       );
     }
 
     return (
-      <Dialog.confirm
-        className="importErrorDialog"
-        visible={true}
-        width="640"
+      <Modal
+        rootClassName="importErrorDialog"
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
+        width={640}
+        styles={{ container: { height: 560 } }}
         title={_l('错误报告')}
-        noFooter={true}
-        anim={false}
+        footer={null}
+        onCancel={() => this.setState({ visible: false })}
       >
         <div className="flexColumn h100">{this.renderErrorContent(data.excelLogs)}</div>
-      </Dialog.confirm>
+      </Modal>
     );
   }
 }
@@ -268,6 +275,10 @@ class ErrorDialog extends Component {
 export default function openErrorDialog({ fileKey, isBatch, isAttachment }) {
   const root = createRoot(document.createElement('div'));
 
-  root.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} isAttachment={isAttachment} />);
+  root.render(
+    <AntdConfigProvider>
+      <ErrorDialog fileKey={fileKey} isBatch={isBatch} isAttachment={isAttachment} />
+    </AntdConfigProvider>,
+  );
   return root;
 }

@@ -2,7 +2,8 @@ import { Set } from 'immutable';
 import { assign, max, min, trim } from 'lodash';
 import _ from 'lodash';
 import kcService from '../api/service';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { NODE_OPERATOR_TYPE, NODE_STATUS, NODE_TYPE } from '../constant/enum';
 import { validateFileName } from '../utils';
 
@@ -201,9 +202,9 @@ export function registerNodeItemEvent(element, args) {
                 updateNodeItem(node);
               });
             })
-            .catch(() => {
+            .catch(_requestError => {
               updateNodeItem(item);
-              alert(_l('操作失败，请核实您的权限稍后重试'), 3);
+              alertIfNotUnauthorized(_requestError, _l('操作失败，请核实您的权限稍后重试'), 3);
             })
             .finally(() => {
               showListName();
@@ -294,8 +295,6 @@ function handleItemMouseDown(args) {
     /* 右键*/
     if (evt.button === 2) {
       const rightMenuOption = {
-        clientX: evt.clientX,
-        clientY: evt.clientY,
         item,
       };
 

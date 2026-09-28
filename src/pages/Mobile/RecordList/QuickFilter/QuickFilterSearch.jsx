@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getGroupControlId } from 'src/utils/worksheet';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
 import QuickFilter from './';
 import Search from './Search';
 
@@ -107,10 +107,8 @@ export default function QuickFilterSearch(props) {
 
   return (
     <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft10 pRight10 pTop10 pBottom10 ${className}`}>
-      {showSearch && (
-        <Search inputPlaceholder={groupControlId ? _l('搜索') : ''} textFilters={[]} viewType={view.viewType} />
-      )}
-      {((canFilter && window.isMingDaoApp && allowFilter) ||
+      {showSearch && <Search inputPlaceholder={groupControlId ? _l('搜索') : ''} viewType={view.viewType} />}
+      {((canFilter && allowFilter && (window.isMingDaoApp || String(view.viewType) !== '21')) ||
         !_.isEmpty(filtersControl) ||
         (showSavedFilter && !_.isEmpty(savedFilters))) && (
         <FilterWrapper>

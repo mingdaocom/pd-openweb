@@ -1,43 +1,42 @@
-﻿import { Parser } from 'hot-formula-parser';
+import { Parser } from 'hot-formula-parser';
 import _ from 'lodash';
 import moment from 'moment';
 import { telIsValidNumber } from 'ming-ui/components/PhoneNumberInput/util';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
-import { accMul, calcDate } from 'src/utils/common';
-import {
-  controlState,
-  formatStrZero,
-  getSwitchItemNames,
-  isRelateRecordTableControl,
-  renderText as renderCellText,
-  toFixed,
-} from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { getShowFormat, isSheetDisplay } from 'src/utils/controlCommon';
-import { dateConvertToServerZone, dateServerZoneToAppZone, getContactInfo } from 'src/utils/project';
-import { filterEmptyChildTableRows } from 'src/utils/record';
+import { accMul } from 'src/utils/core/arithmetic';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
+import { calcDate } from 'src/utils/core/date';
+import { formatColumnToText } from 'src/utils/domain/control/controlValue';
+import { compareWithTime, getDatePickerConfigs, getShowFormat } from 'src/utils/domain/control/date';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { isEnableScoreOption } from 'src/utils/domain/control/dynamicValue';
+import { formatStrZero, handleDotAndRound, toFixed } from 'src/utils/domain/control/number';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { transferValue } from 'src/utils/domain/control/value';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { dateConvertToServerZone, dateServerZoneToAppZone } from 'src/utils/platform/runtime/timeZone';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { getContactInfo } from 'src/utils/services/project';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, TIME_UNIT } from '../config';
-import filterFn from './filterFn';
 import {
   checkChildTableIsEmpty,
-  compareWithTime,
-  flattenArr,
   formatTimeValue,
   getAttachmentData,
-  getAvailableFilters,
   getControlValue,
-  getEmbedValue,
   getRangeErrorType,
-  getResult,
-  isRelateMoreList,
-  replaceStr,
   validateIdCardBirthDate,
 } from './helper';
+import {
+  checkValueAvailable,
+  getFilterGroupControlIds,
+  updateDataPermission as updateRuleDataPermission,
+} from './ruleEvaluationCore';
+import { getAvailableFilters } from './ruleUtils';
+
+export { checkValueAvailable } from './ruleEvaluationCore';
 
 export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
   const filterRegex = safeParse(_.get(data, 'advancedSetting.filterregex') || '[]');
@@ -69,6 +68,17 @@ export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => 
 // 工作表查询部门、地区、用户赋值特殊处理
 export const getCurrentValue = (item, data, control) => {
   if (!item || !control) return data;
+
+  item =
+    item.type === 30
+      ? {
+          ...item,
+          type: item.sourceControlType,
+          ...(_.includes([9, 10, 11], item.sourceControlType) ? { options: _.get(item, 'sourceControl.options') } : {}),
+          advancedSetting: { ...((item.sourceControl || {}).advancedSetting || {}) },
+        }
+      : item;
+
   switch (control.type) {
     //当前控件文本
     case 2:
@@ -402,7 +412,20 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
     return currentItem.value;
   }
 
-  let value = safeParse(currentItem.advancedSetting.defsource || '[]').map(item => {
+  currentItem =
+    currentItem.type === 30
+      ? {
+          ...currentItem,
+          type: currentItem.sourceControlType,
+          ...(_.includes([9, 10, 11], currentItem.sourceControlType)
+            ? { options: _.get(currentItem, 'sourceControl.options') }
+            : {}),
+          advancedSetting: { ...((currentItem.sourceControl || {}).advancedSetting || {}) },
+        }
+      : currentItem;
+
+  const defsource = safeParse(currentItem.advancedSetting.defsource || '[]');
+  let value = (_.isArray(defsource) ? defsource : []).map(item => {
     if (item.isAsync) return '';
 
     // 关联他表字段
@@ -519,6 +542,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
             'ua',
             'timestamp',
           ],
+
           item.cid,
         )
       ) {
@@ -543,7 +567,10 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
       }
 
       if (_.includes([15, 16], currentItem.type) && item.cid === 'ctime') {
-        return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
+        const createTime = _.get(currentTargetControl, 'value');
+        return (createTime ? moment(createTime) : moment()).format(
+          item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss',
+        );
       }
 
       if (currentItem.type === 46) {
@@ -736,40 +763,6 @@ export const parseValueIframe = (data, currentItem, masterData, embedData) => {
     embedData,
   );
 };
-
-/**
- * ignoreAddZero 不走补零逻辑
- */
-export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
-  const isNegative = value < 0;
-  value = Math.abs(value);
-  const roundType = currentItem.advancedSetting.roundtype || (_.includes([6, 8, 31, 37], currentItem.type) ? '2' : '0');
-  // 取整方式 空或者0 向下取整 1 向上取整 2 代表四舍五入
-  let dot = Number(currentItem.dot);
-
-  if (!dot || _.isNaN(dot)) {
-    dot = 0;
-  }
-
-  if (roundType === '2') {
-    value = String((Math.round(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-  } else if (roundType === '1') {
-    value = String((Math.ceil(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-  } else {
-    value = String(toFixed(Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
-  }
-
-  const ignoreZero = currentItem.advancedSetting.dotformat === '1';
-
-  if (!ignoreZero && dot !== 0 && ignoreAddZero) {
-    value = (value + (value.indexOf('.') > -1 ? '' : '.') + '0000000000000').replace(
-      new RegExp(`(\\d+\\.\\d{${dot}})(0+)$`),
-      '$1',
-    );
-  }
-
-  return value;
-}
 
 // 处理日期公式
 export const parseDateFormula = (data, currentItem, recordCreateTime) => {
@@ -1119,8 +1112,12 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
               const maxDate = max
                 ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
                 : '';
+              const { formatMode } = getDatePickerConfigs(item);
+              const rangeDate = moment(mAppTime.format(formatMode), formatMode);
+              const isBeforeMin = minDate && rangeDate.isBefore(moment(moment(minDate).format(formatMode), formatMode));
+              const isAfterMax = maxDate && rangeDate.isAfter(moment(moment(maxDate).format(formatMode), formatMode));
 
-              if ((minDate && mAppTime < moment(minDate)) || (maxDate && mAppTime > moment(maxDate))) {
+              if (isBeforeMin || isAfterMax) {
                 errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
                 errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(appTimeZoneValue, minDate, maxDate);
               }
@@ -1170,7 +1167,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
         const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
         const selectOther = /^\[.*\]$/.test(item.value)
-          ? _.find(safeParse(item.value || '[]'), i => (i || '').includes('other'))
+          ? _.find(safeParse(item.value || '[]'), i => _.isString(i) && i.includes('other'))
           : false;
 
         if (
@@ -1231,116 +1228,6 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
  *********************************************************************************
  */
 
-//获取字段值
-const getFieldIds = (its = {}) => {
-  const isDynamic = its.dynamicSource && its.dynamicSource.length > 0;
-  return isDynamic ? [its.controlId, ...(its.dynamicSource || []).map(dy => dy.cid)] : [its.controlId];
-};
-
-const getIds = (arr = {}) => {
-  return (arr.groupFilters || []).reduce((total, its) => {
-    return total.concat(getFieldIds(its));
-  }, []);
-};
-
-// 提示错误：单个条件组字段、条件值隐藏过滤(补充条件为或的情况)
-const getItemGroupFilters = (arrItem = {}, data = [], recordId, from) => {
-  const isOrCondition = (arrItem.groupFilters || []).findIndex(its => its.spliceType === 2) > -1;
-  let newArr = [arrItem.groupFilters || []];
-
-  if (isOrCondition) {
-    newArr = (arrItem.groupFilters || []).map(i => [i]);
-  }
-
-  newArr = newArr.filter(its => {
-    const ids = getIds({ groupFilters: its });
-    return _.some(ids, id => {
-      const da = _.find(data, d => d.controlId === id);
-      return (
-        (recordId && id === 'rowid') ||
-        _.includes(['currenttime', 'user-self'], id) ||
-        (da && controlState(da, from).visible & !da.hidden)
-      );
-    });
-  });
-  return { ...arrItem, groupFilters: _.flatten(newArr) };
-};
-
-//判断业务规则配置条件是否满足
-export const checkValueAvailable = (rule = {}, data = [], recordId, from) => {
-  let isAvailable = false;
-  //不满足条件的id,过滤错误
-  let filterControlIds = {};
-  //满足条件的错误id合集
-  let availableControlIds = {};
-  let transFilters = rule.filters || [[]]; //条件二维数组
-
-  //条件字段或字段值都隐藏
-  // 记录id存在才参与业务规则
-  if (from) {
-    transFilters = transFilters
-      .map(arrItem => {
-        return getItemGroupFilters(arrItem, data, recordId, from);
-      })
-      .filter(i => !_.isEmpty(i.groupFilters));
-  }
-
-  transFilters.forEach((arr, pIdx) => {
-    if (!filterControlIds[pIdx]) {
-      filterControlIds[pIdx] = [];
-    }
-
-    if (!availableControlIds[pIdx]) {
-      availableControlIds[pIdx] = [];
-    }
-
-    if (arr.groupFilters && arr.groupFilters.length) {
-      let childItemAvailable = true;
-      arr.groupFilters.forEach((its, index) => {
-        let filterControl = data.find(a => a.controlId === its.controlId);
-
-        if (filterControl && !isRelateMoreList(filterControl, its)) {
-          const result = filterFn({
-            filterData: its,
-            originControl: filterControl,
-            data,
-            recordId,
-            appTimeZone: rule.appTimeZone,
-          });
-          childItemAvailable = getResult(arr.groupFilters, index, result, childItemAvailable);
-
-          const ids = getFieldIds(its);
-
-          if (!result) {
-            filterControlIds[pIdx][index] = ids;
-            availableControlIds[pIdx][index] = [];
-          } else {
-            filterControlIds[pIdx][index] = [];
-            availableControlIds[pIdx][index] = ids;
-          }
-        }
-      });
-      isAvailable = getResult(transFilters, pIdx, childItemAvailable, isAvailable);
-    }
-  });
-
-  const ids = transFilters.map(i => getIds(i));
-
-  if (isAvailable) {
-    availableControlIds = ids;
-    filterControlIds = [];
-  } else {
-    availableControlIds = [];
-    filterControlIds = ids;
-  }
-
-  return {
-    isAvailable,
-    filterControlIds: flattenArr(filterControlIds),
-    availableControlIds: flattenArr(availableControlIds),
-  };
-};
-
 //判断所有业务规则是否满足条件
 export const checkAllValueAvailable = (rules = [], data = [], recordId, from) => {
   let errors = [];
@@ -1371,7 +1258,10 @@ export const getRuleErrorInfo = (rules = [], badData = []) => {
         if (rule.ruleId === ruleId && _.find(_.get(rule, 'ruleItems') || [], r => r.type === 6)) {
           _.get(rule, 'ruleItems').forEach(item => {
             const errorIds = (_.get(item, 'controls') || []).map(c => c.controlId);
-            const curErrorIds = errorIds.length > 0 ? errorIds : _.flatten((rule.filters || []).map(i => getIds(i)));
+            const curErrorIds =
+              errorIds.length > 0
+                ? errorIds
+                : _.flatten((rule.filters || []).map(filterGroup => getFilterGroupControlIds(filterGroup)));
             curErrorIds.forEach(c => {
               errorInfo.push({
                 controlId: c,
@@ -1412,96 +1302,10 @@ export const checkRuleLocked = (rules = [], data = [], recordId) => {
 };
 
 // 更新业务规则权限属性
-export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item = {}, verifyAllControls = false }) => {
-  //子表或关联记录
-  const isSubList = _.includes([29, 34], item.type);
-  let fieldPermission = it.fieldPermission || '111';
-  let required = it.required || false;
-  let disabled = it.disabled || false;
-  const eventPermissions = it.eventPermissions || '';
-  const types = attrs.map(i => i.type);
-
-  //隐藏
-  if (_.includes(types, 2) || eventPermissions[0] === '0') {
-    fieldPermission = replaceStr(fieldPermission, 0, '0');
-    if (isSubList && _.includes(item.showControls || [], it.controlId)) {
-      item.showControls = (item.showControls || []).filter(c => c !== it.controlId);
-    }
-  } else {
-    //显示
-    if (_.includes(types, 1) || eventPermissions[0] === '1') {
-      fieldPermission = replaceStr(fieldPermission, 0, '1');
-    }
-  }
-
-  //只读
-  if (_.includes(types, 4) || eventPermissions[1] === '0') {
-    fieldPermission = replaceStr(fieldPermission, 1, '0');
-  } else {
-    // 必填、可编辑，子表、关联记录给编辑细分权限
-    const permission = _.last(attrs.map(i => i.permission).filter(_.identity));
-
-    if (!_.isUndefined(permission)) {
-      if (it.type === 34) {
-        it.advancedSetting = {
-          ...it.advancedSetting,
-          allowcancel: _.includes(permission, 'delete') ? '1' : '0',
-          allowedit: _.includes(permission, 'edit') ? '1' : '0',
-          ...(_.includes(permission, 'add')
-            ? _.get(item, 'advancedSetting.allowadd') !== '1'
-              ? { allowadd: '1', allowsingle: '1' }
-              : {}
-            : { allowadd: '0', allowsingle: '0', batchcids: JSON.stringify([]), allowimport: '0', allowcopy: '0' }),
-        };
-      } else if (isSheetDisplay(it)) {
-        if (_.includes(permission, 'add')) {
-          if (!_.includes([0, 1], it.enumDefault2)) {
-            it.enumDefault2 = it.enumDefault2 === 10 ? 0 : 1;
-            it.advancedSetting = {
-              ...it.advancedSetting,
-              searchrange: '1',
-            };
-          }
-        } else {
-          it.enumDefault2 = it.enumDefault2 === 0 ? 10 : 11;
-          it.advancedSetting = {
-            ...it.advancedSetting,
-            searchrange: '',
-          };
-        }
-
-        it.advancedSetting = {
-          ...it.advancedSetting,
-          allowcancel: _.includes(permission, 'delete') ? '1' : '0',
-          ...(_.get(it, 'advancedSetting.allowbatch') === '1'
-            ? { batchcancel: _.includes(permission, 'delete') ? '1' : '0' }
-            : {}),
-        };
-      }
-    }
-
-    //必填
-    if (_.includes(types, 5)) {
-      required = true;
-      fieldPermission = replaceStr(fieldPermission, 1, '1');
-      const { errorText } = onValidator({ item: { ...it, required, fieldPermission }, verifyAllControls });
-      item.type !== 34 && checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
-    } else {
-      //编辑
-      if (_.includes(types, 3) || eventPermissions[1] === '1') {
-        fieldPermission = replaceStr(fieldPermission, 1, '1');
-        const { errorType, errorText } = onValidator({ item: { ...it, fieldPermission }, verifyAllControls });
-        checkRuleValidator(it.controlId, errorType, errorText);
-      }
-    }
-  }
-
-  //解锁
-  if (_.includes(types, 8)) {
-    disabled = false;
-  }
-
-  it.fieldPermission = fieldPermission;
-  it.required = required;
-  it.disabled = disabled;
-};
+export const updateDataPermission = props =>
+  updateRuleDataPermission(props, {
+    getRequiredError: ({ it, required, fieldPermission, verifyAllControls }) =>
+      onValidator({ item: { ...it, required, fieldPermission }, verifyAllControls }).errorText,
+    getEditableError: ({ it, fieldPermission, verifyAllControls }) =>
+      onValidator({ item: { ...it, fieldPermission }, verifyAllControls }),
+  });

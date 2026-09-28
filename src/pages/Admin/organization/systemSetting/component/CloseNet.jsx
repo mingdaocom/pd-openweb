@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { Button, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import projectController from 'src/api/project';
 import { formatValue } from 'src/pages/Admin/homePage/utils';
-import { pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../config';
 
 export default class CloseNet extends Component {
@@ -108,12 +109,16 @@ export default class CloseNet extends Component {
                 </div>
 
                 <div className="mTop36">
-                  <Button type="danger" className="mRight12" disabled={disabled} onClick={this.onCloseProject}>
+                  <Button
+                    color="danger"
+                    variant="solid"
+                    className="mRight12"
+                    disabled={disabled}
+                    onClick={this.onCloseProject}
+                  >
                     {_l('确认关闭')}
                   </Button>
-                  <Button type="ghostgray" onClick={this.onBack}>
-                    {_l('取消操作')}
-                  </Button>
+                  <Button onClick={this.onBack}>{_l('取消操作')}</Button>
                 </div>
               </div>
             </div>

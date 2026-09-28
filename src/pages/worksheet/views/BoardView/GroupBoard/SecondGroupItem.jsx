@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import _ from 'lodash';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
+import {
+  getFirstGroupDefaultValue,
+  getSecondGroupDefaultValue,
+  isShowAddRecord,
+} from 'src/utils/services/worksheet/board';
 import { AddRecord } from '../components';
 import RecordItem from '../components/RecordItem';
 import { ITEM_TYPE } from '../config';
-import { getFirstGroupDefaultValue, getSecondGroupDefaultValue, isShowAddRecord } from '../util';
 import { parseGroupsByOptions } from './core/util';
 
 const SecondGroupItem = props => {

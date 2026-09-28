@@ -1,0 +1,57 @@
+.printCountSettingCard {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 70px;
+  padding: 0 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 3px;
+  background: var(--color-background-primary);
+
+  .printCountSettingAction {
+    margin-left: 24px;
+  }
+
+  .printCountSettingSwitchWrap {
+    position: relative;
+    display: flex;
+  }
+
+  .printCountSettingSwitchTrigger {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+}
+
+.printCountLimitModal {
+  .hap-modal-container {
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--color-background-primary);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .printCountLimitDescription {
+    line-height: 20px;
+  }
+
+  .printCountLimitEnableRow {
+    margin-top: 20px;
+  }
+
+  .printCountLimitInputRow {
+    margin-top: 18px;
+  }
+
+  .printCountLimitLabel {
+    flex-shrink: 0;
+    width: 74px;
+  }
+
+  .printCountLimitInput {
+    min-width: 0;
+  }
+}

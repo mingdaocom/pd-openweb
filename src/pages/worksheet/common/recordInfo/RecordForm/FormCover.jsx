@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Carousel } from 'antd';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
+import { Carousel } from 'ming-ui/antd-components';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { FILL_COLOR } from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStyle';
-import { addBehaviorLog } from 'src/utils/project';
-import { browserIsMobile } from 'src/utils/sso';
+import { browserIsMobile } from 'src/utils/services/auth/sso';
+import { addBehaviorLog } from 'src/utils/services/project';
 
 const videoReg = (data = {}) => {
   return /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)/i.test(data.ext || '');
@@ -20,30 +21,30 @@ const FormCoverWrap = styled.div`
   display: flex;
   .thumbnailBox {
     padding-right: 10px;
-    height: ${props => `${props.height || 600}px`};
-    width: ${props => (props.coverType === '1' ? '174px' : '176px')};
+    height: ${props => `${props.$height || 600}px`};
+    width: ${props => (props.$coverType === '1' ? '174px' : '176px')};
     .thumbnailContainer {
       width: 100%;
       height: 100%;
-      ${props => (props.coverType === '1' ? '' : 'padding-left: 2px;')}
-      background: ${props => props.bgColor || 'var(--color-text-title)'};
+      ${props => (props.$coverType === '1' ? '' : 'padding-left: 2px;')}
+      background: ${props => props.$bgColor || 'var(--color-text-title)'};
     }
   }
 `;
 
 const CoverImgWrap = styled.div`
   position: relative;
-  width: ${props => (props.fromThumbnail ? '164px' : '100%')};
-  height: ${({ isMobile, height = 600, fromThumbnail }) => {
-    return isMobile ? '240px' : fromThumbnail ? '112px' : `${height}px`;
+  width: ${props => (props.$fromThumbnail ? '164px' : '100%')};
+  height: ${({ $isMobile, $height = 600, $fromThumbnail }) => {
+    return $isMobile ? '240px' : $fromThumbnail ? '112px' : `${$height}px`;
   }};
-  background: ${props => props.bgColor || 'transparent'};
+  background: ${props => props.$bgColor || 'transparent'};
   overflow: hidden;
   cursor: pointer;
   box-sizing: border-box;
-  ${props => (props.fromThumbnail ? 'border: 3px solid transparent;' : '')}
-  ${props => (props.isActive ? 'border-color: var(--color-primary);' : '')}
-  ${({ fromThumbnail, coverType }) => (fromThumbnail && coverType !== '1' ? 'margin: 1px 0' : '')}
+  ${props => (props.$fromThumbnail ? 'border: 3px solid transparent;' : '')}
+  ${props => (props.$isActive ? 'border-color: var(--color-primary);' : '')}
+  ${({ $fromThumbnail, $coverType }) => ($fromThumbnail && $coverType !== '1' ? 'margin: 1px 0' : '')}
   &:first-child {
     margin-top: 0px;
   }
@@ -53,7 +54,7 @@ const CoverImgWrap = styled.div`
   video {
     width: 100%;
     height: 100%;
-    object-fit: ${props => (props.coverType === '1' ? 'contain' : 'cover')};
+    object-fit: ${props => (props.$coverType === '1' ? 'contain' : 'cover')};
   }
   .playIcon {
     position: absolute;
@@ -72,10 +73,10 @@ const CoverImgWrap = styled.div`
     width: 100%;
     height: 100%;
     background-position: 50%;
-    background-image: ${props => `url(${props.url})`};
-    ${props => (props.isBgBlur ? 'position: absolute;z-index: 3;' : '')};
+    background-image: ${props => `url(${props.$url})`};
+    ${props => (props.$isBgBlur ? 'position: absolute;z-index: 3;' : '')};
     ${props =>
-      props.coverType === '1' ? 'background-repeat: no-repeat;background-size: contain;' : 'background-size: cover;'}
+      props.$coverType === '1' ? 'background-repeat: no-repeat;background-size: contain;' : 'background-size: cover;'}
   }
   .bgBlur {
     width: 120%;
@@ -87,7 +88,7 @@ const CoverImgWrap = styled.div`
     top: 0px;
     background-repeat: no-repeat;
     background-size: cover !important;
-    background: ${props => `url(${props.url})`};
+    background: ${props => `url(${props.$url})`};
     background-position: 50%;
     -webkit-filter: blur(30px);
     -moz-filter: blur(30px);
@@ -101,6 +102,9 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-dots li {
     width: 10px;
     height: 10px;
+    &::after {
+      display: none;
+    }
     button {
       width: 100%;
       height: 100%;
@@ -116,7 +120,7 @@ const CarouselComponent = styled(Carousel)`
     &.slick-active {
       width: 10px;
       button {
-        opacity: 1;
+        background-color: var(--color-white);
       }
     }
   }
@@ -155,6 +159,9 @@ const CarouselComponent = styled(Carousel)`
     margin-top: -24px;
     background-color: rgb(51 51 51 / 40%);
     display: none !important;
+    &::after {
+      display: none;
+    }
     &:hover {
       background-color: rgb(51 51 51 / 60%);
       .icon {
@@ -210,6 +217,7 @@ const CarouseWrap = styled.div`
 `;
 
 export default function FormCover(props) {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const { formData = [], widgetStyle = {}, flag, worksheetId, recordId } = props;
   const {
     coverid = '',
@@ -254,7 +262,7 @@ export default function FormCover(props) {
     }
 
     // 打开图片
-    previewAttachments({
+    openPreviewAttachments({
       index: currentIndex,
       attachments: imageData,
       callFrom: 'player',
@@ -267,14 +275,14 @@ export default function FormCover(props) {
     const isVideo = videoReg(data);
     return (
       <CoverImgWrap
-        height={coverheight}
-        bgColor={bgColor}
-        url={data.viewUrl}
-        isBgBlur={covercolor === '4'}
-        isMobile={isMobile}
-        coverType={covertype}
-        fromThumbnail={fromThumbnail}
-        isActive={fromThumbnail && index === currentIndex}
+        $height={coverheight}
+        $bgColor={bgColor}
+        $url={data.viewUrl}
+        $isBgBlur={covercolor === '4'}
+        $isMobile={isMobile}
+        $coverType={covertype}
+        $fromThumbnail={fromThumbnail}
+        $isActive={fromThumbnail && index === currentIndex}
         onClick={e => {
           e.stopPropagation();
           if (fromThumbnail) {
@@ -316,7 +324,7 @@ export default function FormCover(props) {
   }
 
   return (
-    <FormCoverWrap height={coverheight} coverType={covertype} bgColor={bgColor}>
+    <FormCoverWrap $height={coverheight} $coverType={covertype} $bgColor={bgColor}>
       <CarouseWrap>
         <CarouselComponent
           ref={$cover}

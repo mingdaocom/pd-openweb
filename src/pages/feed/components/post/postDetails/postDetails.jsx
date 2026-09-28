@@ -2,7 +2,8 @@
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import store from 'src/redux/configureStore';
-import { emitter, pathCompletion } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { addSuccess } from '../../../redux/postActions';
 import PostBody from '../post/postBody';
 import PostCard from '../post/postCard';

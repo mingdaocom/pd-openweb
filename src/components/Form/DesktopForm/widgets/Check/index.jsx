@@ -2,8 +2,8 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Checkbox, RadioGroup, Switch } from 'ming-ui';
-import { getSwitchItemNames } from 'src/utils/control';
+import { Checkbox, Radio, Switch } from 'ming-ui/antd-components';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const CheckWidgets = props => {
@@ -57,7 +57,10 @@ const CheckWidgets = props => {
           <Switch
             disabled={disabled}
             checked={isChecked}
-            onClick={handleChange}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return handleChange(!checked, event);
+            }}
             size={switchSize || 'default'}
             className={cx({ mobileFormSwitchDisabled: disabled })}
           />
@@ -68,23 +71,25 @@ const CheckWidgets = props => {
 
     if (advancedSetting.showtype === '2') {
       return (
-        <RadioGroup
+        <Radio.Group
           size="middle"
           disabled={disabled}
           className="customFormCheck"
-          checkedValue={`${value}`}
-          data={itemnames.map(item => ({ text: item.value, value: item.key }))}
-          onChange={handleChange}
+          value={`${value}`}
+          options={(itemnames.map(item => ({ text: item.value, value: item.key })) || []).map(
+            ({ text, ...option }) => ({ ...option, label: text }),
+          )}
+          onChange={event => handleChange(event.target.value)}
         />
       );
     }
 
     return (
       <Checkbox
-        className="customFormCheck"
+        className="customFormCheck mTop8"
         disabled={disabled}
         checked={isChecked}
-        onClick={handleChange}
+        onChange={event => handleChange(!event.target.checked, undefined, event)}
         size={switchSize || 'default'}
       >
         {hint}

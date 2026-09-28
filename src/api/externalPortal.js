@@ -240,7 +240,8 @@ export default {
   /**
    * 获取外部用户日志
    * @param {Object} args 请求参数
-   * @param {string} args.appId
+   * @param {string} args.appId 外部门户应用 Id。
+   * @param {} args.logType
    * @param {integer} args.pageIndex 当前页码
    * @param {integer} args.pageSize 页面尺寸
    * @param {string} args.startDate 开始时间
@@ -662,6 +663,9 @@ export default {
    * @param {} args.generalSystemPrinting
    * @param {} args.generalAttachmentDownload
    * @param {} args.generalLogging
+   * @param {} args.generalFilter
+   * @param {} args.generalStats
+   * @param {} args.generalButtons
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

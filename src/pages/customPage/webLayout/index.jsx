@@ -6,9 +6,14 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import {
+  loadPresetImage,
+  normalizePresetImageIndex,
+} from 'statistics/components/ChartStyle/components/BgPicker/presetImages';
+import { bgImages } from 'statistics/components/ChartStyle/components/BgPicker/shapes';
 import { updatePageInfo } from 'src/pages/customPage/redux/action';
-import { isLightColor, replaceColor } from 'src/pages/customPage/util';
-import { bgImages } from '../components/ConfigSideWrap/bgImages';
+import { replaceColor } from 'src/utils/domain/customPage/model';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
 import WidgetContent from '../components/WidgetContent';
 
 const EditWidget = lazy(() => import('../components/editWidget'));
@@ -20,6 +25,11 @@ const BgImageWrap = styled(ReactSVG)`
     height: 100%;
     width: 100%;
   }
+`;
+
+const CustomBgImageWrap = styled.div`
+  background-position: center;
+  background-repeat: no-repeat;
 `;
 
 const ContentWrap = styled.div`
@@ -108,13 +118,29 @@ const getTabIdentifierId = (classNames = '') => {
   return match ? match[1] : null;
 };
 
+const getPageBgStyleValue = config =>
+  _.isUndefined(config.bgStyleValue) ? (config.pageBgImage ? 'shape' : '') : config.bgStyleValue;
+
 function WebLayout(props) {
-  const { editable = true, updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, ...rest } = props;
+  const {
+    editable = true,
+    updateWidget = _.noop,
+    className = '',
+    emptyPlaceholder,
+    config,
+    imageUrl,
+    previewUrl,
+    appPkg,
+    ...rest
+  } = props;
   const [editingWidget, setWidget] = useState({});
+  const [presetBgImage, setPresetBgImage] = useState({});
   const $ref = useRef(null);
   const { adjustScreen } = rest;
   const iconColor = appPkg.iconColor || rest.apk.iconColor;
   const pageConfig = replaceColor(config || {}, iconColor);
+  const bgStyleValue = getPageBgStyleValue(pageConfig);
+  const presetBgImageIndex = bgStyleValue === 'image' ? normalizePresetImageIndex(pageConfig.bgImageIndex) : null;
   const components = props.components || [];
   const bgIsDark = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
   const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
@@ -122,6 +148,24 @@ function WebLayout(props) {
     appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
   const lowAlphaIconColor =
     backgroundColor === iconColor ? appPkg.lightColor : new TinyColor(iconColor).setAlpha(0.25).toRgbString();
+
+  useEffect(() => {
+    let canceled = false;
+
+    if (presetBgImageIndex) {
+      loadPresetImage(presetBgImageIndex)
+        .then(image => {
+          if (!canceled) {
+            setPresetBgImage({ index: presetBgImageIndex, image });
+          }
+        })
+        .catch(_.noop);
+    }
+
+    return () => {
+      canceled = true;
+    };
+  }, [presetBgImageIndex]);
 
   useEffect(() => {
     const componentsWrap = document.querySelector('#componentsWrap');
@@ -162,18 +206,51 @@ function WebLayout(props) {
     };
   }, []);
 
-  const renderPageBgImage = () => {
-    return (
-      <BgImageWrap
+  const renderPageBg = () => {
+    const style = {
+      pointerEvents: 'none',
+      top: editable ? 0 : -44,
+      height: `calc(100% + ${editable ? 0 : 44}px)`,
+    };
+
+    if (bgStyleValue === 'shape') {
+      const shape = _.find(bgImages, { name: pageConfig.pageBgImage });
+
+      if (!shape) {
+        return null;
+      }
+
+      return (
+        <BgImageWrap
+          className="Absolute w100"
+          style={style}
+          src={shape.value}
+          beforeInjection={svg => {
+            svg.setAttribute('fill', lowAlphaIconColor);
+            svg.setAttribute('preserveAspectRatio', 'none');
+          }}
+        />
+      );
+    }
+
+    const customImage = previewUrl || imageUrl;
+    const image =
+      bgStyleValue === 'image' && presetBgImage.index === presetBgImageIndex
+        ? presetBgImage.image
+        : bgStyleValue === 'custom'
+          ? customImage
+          : null;
+
+    return image ? (
+      <CustomBgImageWrap
         className="Absolute w100"
-        style={{ pointerEvents: 'none', top: editable ? 0 : -44, height: `calc(100% + ${editable ? 0 : 44}px)` }}
-        src={_.get(_.find(bgImages, { name: pageConfig.pageBgImage }), 'value')}
-        beforeInjection={svg => {
-          svg.setAttribute('fill', lowAlphaIconColor);
-          svg.setAttribute('preserveAspectRatio', 'none');
+        style={{
+          ...style,
+          backgroundImage: `url(${image})`,
+          backgroundSize: bgStyleValue === 'custom' && pageConfig.fillType === 3 ? '100% 100%' : 'cover',
         }}
       />
-    );
+    ) : null;
   };
 
   const renderGrid = () => {
@@ -206,7 +283,7 @@ function WebLayout(props) {
           <WidgetList {...props} />
         </Suspense>
       )}
-      {pageConfig.pageBgImage && !editable && renderPageBgImage()}
+      {bgStyleValue && !editable && renderPageBg()}
       <ContentWrap
         ref={$ref}
         className={cx(className, {
@@ -227,7 +304,7 @@ function WebLayout(props) {
           '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#1677ff',
         }}
       >
-        {pageConfig.pageBgImage && editable && renderPageBgImage()}
+        {bgStyleValue && editable && renderPageBg()}
         {components.length > 0 ? (
           <div className="componentsWrap">
             <WidgetContent

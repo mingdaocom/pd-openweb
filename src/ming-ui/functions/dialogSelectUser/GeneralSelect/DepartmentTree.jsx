@@ -2,10 +2,11 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
 import NoData from './NoData';
+import { isAccountChecked, isAccountIncluded } from './selection';
 import User from './User';
 
 const DepartmentTreeWrapper = styled.div`
@@ -23,6 +24,10 @@ const UsersWrapper = styled.div`
     padding-left: 15px !important;
   }
 `;
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 const Department = styled.div`
   width: 100%;
@@ -78,16 +83,6 @@ export default class DepartmentTree extends Component {
     if (this.props.defaultCheckedDepId) {
       this.handleSelectGroup(this.props.defaultCheckedDepId);
     }
-  }
-
-  getChecked(user) {
-    return (
-      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
-    );
-  }
-
-  getIncluded(user) {
-    return _.includes(this.props.selectedAccountIds || [], user.accountId);
   }
 
   handleScrollEnd = () => {
@@ -301,7 +296,7 @@ export default class DepartmentTree extends Component {
         <Checkbox
           className="mBottom10 pLeft7 mTop10"
           checked={onlyJoinDepartmentChecked}
-          onClick={this.onlyShowJoinDepartment}
+          onChange={event => this.onlyShowJoinDepartment(!event.target.checked, undefined, event)}
         >
           {_l('只看我加入的部门')}
         </Checkbox>
@@ -361,13 +356,15 @@ export default class DepartmentTree extends Component {
                     <Checkbox
                       checked={res.length === reallyGroupLength}
                       disabled={this.props.unique || isAllSelectedAccountIds}
-                      onClick={() => this.handleCheckAll()}
-                    />
+                      styles={CHECKBOX_LABEL_STYLES}
+                      onChange={() => this.handleCheckAll()}
+                    >
+                      <span className="textSecondary">
+                        {res.length ? _l('已选 %0/%1', res.length, groupList.length) : _l('全选')}
+                      </span>
+                    </Checkbox>
                   </span>
                 </Tooltip>
-                <div className="textSecondary">
-                  {res.length ? _l('已选 %0/%1', res.length, groupList.length) : _l('全选')}
-                </div>
               </div>
               <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
                 {groupList.map(item => (
@@ -375,9 +372,9 @@ export default class DepartmentTree extends Component {
                     key={item.accountId}
                     user={item}
                     projectId={this.props.projectId}
-                    checked={this.getChecked(item)}
+                    checked={isAccountChecked(item, this.props.selectedUsers, this.props.selectedAccountIds)}
                     onChange={this.props.onChange}
-                    disabled={this.getIncluded(item)}
+                    disabled={isAccountIncluded(item, this.props.selectedAccountIds)}
                   />
                 ))}
                 {loading && (

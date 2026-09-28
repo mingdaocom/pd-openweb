@@ -1,0 +1,269 @@
+.selectIntegrationApi {
+  .searchBox {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 48px;
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 0 40px 0 20px;
+    cursor: pointer;
+    &.searchLink {
+      height: 40px;
+      padding: 0 20px;
+    }
+    .icon-search {
+      color: var(--color-text-tertiary);
+    }
+    input {
+      border: 0;
+      width: 100%;
+      height: 100%;
+      padding: 0 8px;
+    }
+  }
+
+  .emptyContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    img {
+      margin: 36px 0;
+    }
+    .tagList {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 0 140px;
+      .tagItem {
+        height: 32px;
+        padding: 0 16px;
+        line-height: 30px;
+        color: var(--color-text-secondary);
+        height: 32px;
+        border-radius: 28px;
+        border: 1px solid var(--color-border-secondary);
+        margin-right: 8px;
+        margin-top: 13px;
+        &:nth-child(4n + 4) {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+
+  .selectApiContent {
+    display: flex;
+    height: 600px;
+    min-height: 0;
+
+    .emptyChildContent {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      &.emptyLink {
+        .emptyIcon {
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          i {
+            font-size: 13px;
+          }
+        }
+      }
+      .emptyIcon {
+        width: 130px;
+        height: 130px;
+        line-height: 130px;
+        border-radius: 50%;
+        display: inline-block;
+        background: var(--color-background-secondary);
+        text-align: center;
+        margin-bottom: 24px;
+        i {
+          font-size: 64px;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    .linkContent {
+      width: 210px;
+      border-right: 2px solid var(--color-border-primary);
+      display: flex;
+      flex-direction: column;
+      .title {
+        height: 48px;
+        line-height: 48px;
+        padding: 0 14px;
+        font-size: 17px;
+        font-weight: bold;
+        color: var(--color-text-primary);
+      }
+      .linkBox {
+        padding: 0 7px;
+        .linkItem {
+          width: 100%;
+          height: 40px;
+          line-height: 40px;
+          margin-top: 5px;
+          padding: 0 12px;
+          font-size: 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          &.active {
+            background: var(--color-background-secondary);
+            color: var(--color-primary);
+          }
+          &:hover {
+            background: var(--color-background-hover);
+          }
+        }
+      }
+      .groupBottom {
+        cursor: pointer;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        &:hover {
+          color: var(--color-primary);
+          i {
+            color: var(--color-primary);
+          }
+        }
+        i {
+          color: var(--color-text-tertiary);
+        }
+      }
+    }
+
+    .apiContent {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .apiGroup {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      padding: 10px 0;
+      display: flex;
+      flex-direction: column;
+      .apiGroupContent {
+        flex: 1;
+        min-height: 0;
+        box-sizing: border-box;
+        .groupItem {
+          height: 48px;
+          line-height: 48px;
+          padding-left: 20px;
+          margin: 0 7px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          &:hover {
+            background-color: var(--color-background-hover);
+          }
+          &.active {
+            background: var(--color-primary-transparent);
+            color: var(--color-primary);
+            position: relative;
+            &::before {
+              content: '';
+              position: absolute;
+              width: 4px;
+              height: 22px;
+              background: var(--color-primary);
+              border-radius: 3px;
+              top: 13px;
+              left: 2px;
+            }
+            span {
+              font-weight: bold;
+            }
+            .defaultApi {
+              color: var(--color-primary);
+            }
+          }
+          .defaultApi,
+          img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+          }
+          .defaultApi {
+            text-align: center;
+            line-height: 28px;
+            background-color: var(--color-background-primary);
+            border: 1px solid var(--color-border-secondary);
+            color: var(--color-text-tertiary);
+          }
+        }
+      }
+    }
+    .childListContent {
+      flex: 1;
+      padding: 8px 12px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+
+      .childItem {
+        padding: 12px 18px;
+        cursor: pointer;
+        &:hover {
+          background-color: var(--color-background-hover);
+        }
+        display: flex;
+        align-items: center;
+
+        .iconWrap {
+          width: 48px;
+          height: 48px;
+          border-radius: 8px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 12px;
+          position: relative;
+          svg {
+            vertical-align: middle !important;
+          }
+          img,
+          .defaultIcon {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            left: -7px;
+            top: -4px;
+          }
+          img {
+            border: 1px solid var(--color-white);
+          }
+          .defaultIcon {
+            background-color: var(--color-background-primary);
+            border: 1px solid var(--color-border-secondary);
+            color: var(--color-text-tertiary);
+            text-align: center;
+            line-height: 16px;
+          }
+        }
+        .iconDesc {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+        }
+      }
+    }
+  }
+}

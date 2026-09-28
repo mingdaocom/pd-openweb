@@ -2,9 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _, { isArray } from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Icon } from 'ming-ui';
+import { Modal, Popover, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import { DEF_R_TYPES, DEF_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import {
   canNotForCustomWrite,
@@ -13,10 +12,17 @@ import {
   getSectionId,
   isOnlyRead,
 } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import Input from '../components/Inputs';
 import ChooseWidget from './ChooseWidget';
 
+const CHOOSE_WIDGET_VIEWPORT_GAP = 16;
+const CHOOSE_WIDGET_POPOVER_STYLES = {
+  root: {
+    paddingBlock: CHOOSE_WIDGET_VIEWPORT_GAP,
+  },
+};
 const Wrap = styled.div`
   .controlname {
     width: 200px;
@@ -77,7 +83,7 @@ class AppointDialog extends React.Component {
   };
 
   componentDidMount() {
-    $('.Radio').attr('title', '');
+    $('.hap-radio-wrapper').attr('title', '');
     $(document).find('.iconErr').click();
   }
 
@@ -101,13 +107,13 @@ class AppointDialog extends React.Component {
 
   renderErrerDialog = () => {
     return (
-      <Dialog
+      <Modal
         title={this.state.errerDialogTitle}
         okText={_l('确定')}
-        confirm="danger"
-        className="errerDialogForAppoint"
-        headerClass=""
-        bodyClass=""
+        okButtonProps={{ danger: true }}
+        rootClassName="errerDialogForAppoint"
+        mask={{ closable: true }}
+        keyboard
         onCancel={() => {
           this.setState({
             showErrerDialog: false,
@@ -118,11 +124,10 @@ class AppointDialog extends React.Component {
             showErrerDialog: false,
           });
         }}
-        visible={this.state.showErrerDialog}
-        updateTrigger="fasle"
+        open={this.state.showErrerDialog}
       >
         {this.state.errerDialogTxt}
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -175,6 +180,7 @@ class AppointDialog extends React.Component {
           }}
           writeObject={writeObject}
           allControls={_.get(SheetInfo, ['template', 'controls']) || []}
+          emptyTip={_l('单条执行时，空值会清空字段；批量执行时，空值表示不更新该字段。')}
           onChange={d => {
             const { advancedSetting = {} } = d;
             let { defsource } = advancedSetting;
@@ -280,16 +286,14 @@ class AppointDialog extends React.Component {
                     )}
                   </span>
                   {!isOnlyRead(type) && (
-                    <Dropdown
-                      border
-                      isAppendToBody
+                    <Select
                       className="actionListBox "
                       value={item.type}
                       key={item.controlId + '_Dropdown_'}
                       // 1：只读 2：填写 3：必填
-                      data={[_l('只读'), _l('填写'), _l('必填')].map((o, i) => {
+                      options={[_l('只读'), _l('填写'), _l('必填')].map((o, i) => {
                         return {
-                          text: o,
+                          label: o,
                           value: i + 1,
                           disabled:
                             (isOnlyRead(type) && i > 0) ||
@@ -351,12 +355,14 @@ class AppointDialog extends React.Component {
     const dataCon = this.state.writeObject === 1 ? this.state.widgetList : relationControls;
     return (
       <React.Fragment>
-        <Dialog
+        <Modal
           title={_l('设置填写内容%02060')}
           okText={_l('确定')}
           cancelText={_l('取消')}
           width={630}
-          className={cx('appointDialog', { noOverFlow: this.state.writeType !== 1 })}
+          rootClassName={cx('appointDialog', { noOverFlow: this.state.writeType !== 1 })}
+          mask={{ closable: true }}
+          keyboard
           okDisabled={
             !!(
               (this.state.writeObject === 2 && relationControl === '') ||
@@ -403,14 +409,14 @@ class AppointDialog extends React.Component {
             };
             setValue(value);
           }}
-          visible={this.state.showAppointDialog}
+          open={this.state.showAppointDialog}
         >
           <div className="appointCon">
             <p className="textTertiary Font14">{_l('用户点击按钮后，立即弹出对话框并填写指定的内容')}</p>
             <p className="textPrimary Font13 mTop32 Bold500">{_l('填写对象%02061')}</p>
-            <RadioGroup
-              className="mTop10"
-              data={[
+            <Radio.Group
+              className="mTop10 Block"
+              options={[
                 {
                   value: 1,
                   text: _l('当前记录'),
@@ -420,15 +426,20 @@ class AppointDialog extends React.Component {
                   text: _l('关联记录（单条）%02062'),
                   disabled: this.props.cannotRelate,
                 },
-              ]}
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
               size="small"
-              onChange={value => {
+              onChange={event => {
+                const value = event.target.value;
+
                 if (value === this.state.writeObject) return;
                 this.setState(
                   {
-                    writeObject: value, // 对象 1：本记录 2：关联记录
-                    writeControls: [], // 填写控件 type - 1：只读 2：填写 3：必填
-                    addRelationControlId: '', // 新建关联记录ID
+                    writeObject: value,
+                    // 对象 1：本记录 2：关联记录
+                    writeControls: [],
+                    // 填写控件 type - 1：只读 2：填写 3：必填
+                    addRelationControlId: '',
+                    // 新建关联记录ID
                     writeControlsClone: [],
                   },
                   () => {
@@ -436,22 +447,21 @@ class AppointDialog extends React.Component {
                   },
                 );
               }}
-              checkedValue={this.state.writeObject}
+              value={this.state.writeObject}
             />
             {this.state.writeObject === 2 && (
               <div className="contectBox">
                 <span className="titleLeft Font13 textPrimary">{_l('关联字段')}</span>
-                <Dropdown
-                  border
+                <Select
                   placeholder={_l('请选择')}
                   className="contectInput"
                   value={relationControl === '' ? undefined : relationControl}
-                  data={this.state.widgetList
+                  options={this.state.widgetList
                     .filter(item => item.type === 29 && item.enumDefault === 1)
                     .map(item => {
                       return {
                         value: item.controlId,
-                        text: item.controlName,
+                        label: item.controlName,
                         controltype: item.type,
                       };
                     })}
@@ -472,9 +482,9 @@ class AppointDialog extends React.Component {
               </div>
             )}
             <p className="textPrimary Font13 mTop32 Bold500">{_l('填写内容%02063')}</p>
-            <RadioGroup
-              className="mTop10"
-              data={[
+            <Radio.Group
+              className="mTop10 Block"
+              options={[
                 {
                   value: 1,
                   text: _l('填写指定字段'),
@@ -484,64 +494,64 @@ class AppointDialog extends React.Component {
                   text: _l('新建关联记录%02064'),
                   disabled: this.props.cannotRelate,
                 },
-              ]}
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
               size="small"
-              onChange={value => {
+              onChange={event => {
+                const value = event.target.value;
+
                 if (this.state.writeType === value) return;
                 this.setState({
                   writeType: value,
-                  writeControls: [], // 填写控件 type - 1：只读 2：填写 3：必填
-                  addRelationControlId: '', // 新建关联记录ID
+                  writeControls: [],
+                  // 填写控件 type - 1：只读 2：填写 3：必填
+                  addRelationControlId: '',
+                  // 新建关联记录ID
                   writeControlsClone: [],
                 });
               }}
-              checkedValue={this.state.writeType}
+              value={this.state.writeType}
             />
             {this.renderAppointFilters()}
             {this.state.writeType === 1 && (
-              <div
-                className="noAppointFilter"
-                onClick={() => {
-                  this.setState({
-                    showChooseWidgetDialog: true,
-                  });
-                }}
+              <Popover
+                open={this.state.showChooseWidgetDialog}
+                onOpenChange={showChooseWidgetDialog => this.setState({ showChooseWidgetDialog })}
+                trigger="click"
+                placement="bottomLeft"
+                noPadding
+                styles={CHOOSE_WIDGET_POPOVER_STYLES}
+                content={
+                  <ChooseWidget
+                    {...this.props}
+                    {...this.state}
+                    onChange={writeControls =>
+                      this.setState({
+                        writeControls,
+                      })
+                    }
+                  />
+                }
               >
-                <i className="icon icon-add Font16"></i>
-                {_l('选择填写字段')}
-              </div>
-            )}
-            {this.state.showChooseWidgetDialog && (
-              <ChooseWidget
-                {...this.props}
-                {...this.state}
-                onClose={() =>
-                  this.setState({
-                    showChooseWidgetDialog: false,
-                  })
-                }
-                onChange={writeControls =>
-                  this.setState({
-                    writeControls,
-                  })
-                }
-              />
+                <div className="noAppointFilter">
+                  <i className="icon icon-add Font16"></i>
+                  {_l('选择填写字段')}
+                </div>
+              </Popover>
             )}
 
             {this.state.writeType === 2 && (
               <div className="contectBox">
                 <span className="titleLeft Font13 textPrimary">{_l('关联字段')}</span>
-                <Dropdown
-                  border
+                <Select
                   placeholder={_l('请选择')}
                   className="contectInput"
                   value={this.state.addRelationControlId === '' ? undefined : this.state.addRelationControlId}
-                  data={dataCon
+                  options={dataCon
                     .filter(item => item.type === 29)
                     .map(item => {
                       return {
                         value: item.controlId,
-                        text: item.controlName,
+                        label: item.controlName,
                         controltype: item.type,
                       };
                     })}
@@ -554,7 +564,7 @@ class AppointDialog extends React.Component {
               </div>
             )}
           </div>
-        </Dialog>
+        </Modal>
         {this.state.showErrerDialog && this.renderErrerDialog()}
       </React.Fragment>
     );

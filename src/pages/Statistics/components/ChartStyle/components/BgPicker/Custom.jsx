@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, QiniuUpload } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
   .imageUpload {
@@ -77,10 +76,8 @@ const fillTypes = [
 ].filter(item => item.value !== 2);
 
 export default props => {
-  const { value, config, onChange } = props;
-  const { displaySetup, handleChangeDisplaySetup } = props;
+  const { value, config, onChange, onChangeImage, previewUrl } = props;
   const { fillType = 1 } = config || {};
-  const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
   const fillTypeRef = useRef(fillType);
 
   useEffect(() => {
@@ -119,7 +116,7 @@ export default props => {
                   className="resetBtn pointer flexRow alignItemsCenter justifyContentCenter"
                   onClick={e => {
                     e.stopPropagation();
-                    handleChangeDisplaySetup({
+                    onChangeImage({
                       imageUrl: '',
                       previewUrl: '',
                     });
@@ -145,11 +142,13 @@ export default props => {
           onUploaded={(up, file) => {
             up.disableBrowse(false);
             const url = file.serverName + file.key;
-            handleChangeDisplaySetup({
-              imageUrl: url,
-              previewUrl: file.url,
-            });
-            onChange({ bgStyleValue: value, fillType: fillTypeRef.current });
+            onChangeImage(
+              {
+                imageUrl: url,
+                previewUrl: file.url,
+              },
+              { bgStyleValue: value, fillType: fillTypeRef.current },
+            );
           }}
           onAdd={up => {
             up.disableBrowse();
@@ -166,21 +165,21 @@ export default props => {
       )}
       <div className="Font12 bold mTop15 mBottom5">{_l('填充方式')}</div>
       <Select
-        className="mdAntSelect w100"
+        className="w100"
         value={fillType}
         suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-        onChange={value => {
-          handleChange({ fillType: value });
-        }}
-      >
-        {fillTypes.map(c => (
-          <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
+        options={fillTypes.map(c => ({
+          value: c.value,
+          label: (
             <div className="valignWrapper h100">
               <span className="Font13 ellipsis">{c.name}</span>
             </div>
-          </Select.Option>
-        ))}
-      </Select>
+          ),
+        }))}
+        onChange={value => {
+          handleChange({ fillType: value });
+        }}
+      />
     </Wrap>
   );
 };

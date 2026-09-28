@@ -4,9 +4,9 @@ import { isFunction } from 'lodash';
 import { includes } from 'lodash';
 import { bool, number, string } from 'prop-types';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
-import { CUSTOM_WIDGET_VIEW_STATUS } from 'worksheet/constants/enum';
+import { Button } from 'ming-ui/antd-components';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
+import { CUSTOM_WIDGET_VIEW_STATUS } from 'src/utils/domain/worksheet/constants';
 
 const Con = styled.div`
   width: 100%;
@@ -101,6 +101,7 @@ export default function Abnormal(props) {
       {showDebugButton &&
         includes([CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING, CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR], status) && (
           <Button
+            type="primary"
             className="continueDevelop"
             onClick={() => {
               if (isFunction(window.openViewConfig)) {

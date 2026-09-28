@@ -7,10 +7,9 @@ import { TinyColor } from '@ctrl/tinycolor';
 import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, ScrollView, Skeleton, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView, SvgIcon } from 'ming-ui';
+import { Dropdown, Skeleton, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
 import Drag from 'worksheet/common/WorkSheetLeft/Drag';
@@ -23,24 +22,23 @@ import {
   getSheetList,
   updateALLSheetList,
 } from 'worksheet/redux/actions/sheetList';
-import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesVisible } from 'src/utils/common';
-import { findSheet } from 'src/utils/worksheet';
-import { getIds } from '../../util';
+import { getIds } from 'src/utils/domain/app/model';
+import { findSheet } from 'src/utils/domain/worksheet/helpers';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
 import DelAppGroup from '../AppGroup/DelAppGroup';
 import { ICON_ROLE_TYPE } from '../config';
 import SinglelLeftGroup from './SinglelLeftGroup';
 import './index.less';
 
 const LoadableDialogImportExcelCreate = lazy(() => import('worksheet/components/DialogImportExcelCreate'));
-
 const RoleSelectWrap = styled.div(
-  ({ borderColor }) => `
+  ({ $borderColor }) => `
   border-radius: 16px;
   height: 30px;
   &:hover,
   &.active {
-    border: 1px solid ${borderColor} !important;
+    border: 1px solid ${$borderColor} !important;
   }
 `,
 );
@@ -53,7 +51,6 @@ const AppSectionItem = props => {
   const { iconColor, currentPcNaviStyle, themeType, expandType } = appPkg;
   const [edit, setEdit] = useState(item.edit || false);
   const isCurrentChildren = !!findSheet(ids.worksheetId, item.items);
-
   const hideAppSection = () => {
     if (currentPcNaviStyle === 3) {
       return item.index === 0 && (appPkg.hideFirstSection || _.isEmpty(item.workSheetName)) && !item.edit;
@@ -61,25 +58,20 @@ const AppSectionItem = props => {
       return appSectionDetail.length === 1 && _.isEmpty(item.workSheetName) && !item.edit;
     }
   };
-
   const childrenHideKey = `${item.workSheetId}-hide`;
-
   const getDefaultVisible = () => {
     if (currentPcNaviStyle === 3) {
       if ((appPkg.hideFirstSection || _.isEmpty(item.workSheetName)) && item.index === 0) {
         return true;
       }
-
       if (expandType === 1) {
         return isCurrentChildren;
       }
-
       return localStorage.getItem(childrenHideKey) ? false : expandType === 0;
     } else {
       return localStorage.getItem(childrenHideKey) ? false : true;
     }
   };
-
   const [childrenVisible, setChildrenVisible] = useState(getDefaultVisible());
   const [popupVisible, setPopupVisible] = useState(false);
   const [delAppItemVisible, setDelAppItemVisible] = useState(false);
@@ -137,99 +129,95 @@ const AppSectionItem = props => {
     setCreateType('');
   };
 
-  const renderMenu = () => {
-    return (
-      <Menu className="worksheetItemOperate worksheetItemOperate-GroupList">
-        <MenuItem
-          data-event="rename"
-          icon={<Icon icon="edit" className="Font16" />}
-          onClick={() => {
-            setEdit(true);
-            setPopupVisible(false);
-          }}
-        >
-          <span className="text">{_l('重命名')}</span>
-        </MenuItem>
-        <hr className="splitter" />
-        <div class="textTertiary pLeft12 pTop7 pBottom3">{_l('新建')}</div>
-        <MenuItem
-          data-event="emptyCreate"
-          onClick={() => {
+  const handleAddSubGroup = () => {
+    setChildrenVisible(true);
+    getAppSectionRef(item.workSheetId).dispatch(
+      addAppSection({
+        appId: ids.appId,
+        groupId: item.workSheetId,
+      }),
+    );
+    setPopupVisible(false);
+  };
+
+  const menuItems = [
+    {
+      key: 'rename',
+      icon: <Icon icon="edit" className="Font16" />,
+      label: <span className="text">{_l('重命名')}</span>,
+      onClick: () => {
+        setEdit(true);
+        setPopupVisible(false);
+      },
+    },
+    { key: 'createDivider', type: 'divider' },
+    {
+      key: 'createGroup',
+      type: 'group',
+      label: _l('新建'),
+      children: [
+        {
+          key: 'emptyCreate',
+          icon: <Icon icon="plus" className="Font18" />,
+          label: <span className="text">{_l('从空白创建工作表')}</span>,
+          onClick: () => {
             setCreateType('worksheet');
             setPopupVisible(false);
-          }}
-        >
-          <Icon icon="plus" className="Font18" />
-          <span className="text">{_l('从空白创建工作表')}</span>
-        </MenuItem>
-        <MenuItem
-          data-event="excelCreate"
-          onClick={() => {
+          },
+        },
+        {
+          key: 'excelCreate',
+          icon: <Icon icon="new_excel" className="Font18" />,
+          label: <span className="text">{_l('从Excel创建工作表')}</span>,
+          onClick: () => {
             setDialogImportExcel(true);
             setPopupVisible(false);
-          }}
-        >
-          <Icon icon="new_excel" className="Font18" />
-          <span className="text">{_l('从Excel创建工作表')}</span>
-        </MenuItem>
-        <MenuItem
-          data-event="customPage"
-          icon={<Icon icon="dashboard" className="Font18" />}
-          onClick={() => {
+          },
+        },
+        {
+          key: 'customPage',
+          icon: <Icon icon="dashboard" className="Font18" />,
+          label: <span className="text">{_l('自定义页面')}</span>,
+          onClick: () => {
             setCreateType('customPage');
             setPopupVisible(false);
-          }}
-        >
-          <span className="text">{_l('自定义页面')}</span>
-        </MenuItem>
-        {(appPkg.workflowAgentFeatureType === '1') & !md.global.SysSettings.hideAIBasicFun && (
-          <MenuItem
-            data-event="chatbot"
-            icon={<Icon icon="AI_Agent" className="Font18" />}
-            onClick={() => {
+          },
+        },
+        appPkg.workflowAgentFeatureType === '1' &&
+          !md.global.SysSettings.hideAIBasicFun && {
+            key: 'chatbot',
+            icon: <Icon icon="AI_Agent" className="Font18" />,
+            label: <span className="text">{_l('对话机器人')}</span>,
+            onClick: () => {
               setCreateType('chatbot');
               setPopupVisible(false);
-            }}
-          >
-            <span className="text">{_l('对话机器人')}</span>
-          </MenuItem>
-        )}
-        <MenuItem
-          data-event="subGroup"
-          icon={<Icon icon="add-files" className="Font16" />}
-          onClick={() => {
-            setChildrenVisible(true);
-            singleRef.current.dispatch(
-              addAppSection({
-                appId: ids.appId,
-                groupId: item.workSheetId,
-              }),
-            );
-            setPopupVisible(false);
-          }}
-        >
-          <span className="text">{_l('子分组')}</span>
-        </MenuItem>
-        <hr className="splitter" />
-        <MenuItem
-          data-event="delGroup"
-          icon={<Icon icon="trash" className="Font16" />}
-          className="delete"
-          onClick={() => {
-            if (appSectionDetail.length === 1 || _.isEmpty(item.items)) {
-              onDelAppSection(item.workSheetId);
-            } else {
-              setDelAppItemVisible(true);
-            }
+            },
+          },
+        {
+          key: 'subGroup',
+          icon: <Icon icon="add-files" className="Font16" />,
+          label: <span className="text">{_l('子分组')}</span>,
+          onClick: handleAddSubGroup,
+        },
+      ].filter(Boolean),
+    },
+    { key: 'deleteDivider', type: 'divider' },
+    {
+      key: 'delGroup',
+      danger: true,
+      icon: <Icon icon="trash" className="Font16" />,
+      label: <span className="text">{_l('删除分组')}</span>,
+      onClick: () => {
+        if (appSectionDetail.length === 1 || _.isEmpty(item.items)) {
+          onDelAppSection(item.workSheetId);
+        } else {
+          setDelAppItemVisible(true);
+        }
 
-            setPopupVisible(false);
-          }}
-        >
-          <span className="text">{_l('删除分组')}</span>
-        </MenuItem>
-      </Menu>
-    );
-  };
+        setPopupVisible(false);
+      },
+    },
+  ];
 
   return (
     <div
@@ -257,7 +245,6 @@ const AppSectionItem = props => {
             }}
             onClick={e => {
               const { classList } = e.target;
-
               if (classList.contains('appGroup') || classList.contains('nameWrap') || classList.contains('arrowIcon')) {
                 props.setUnfoldAppSectionId(!childrenVisible ? item.workSheetId : null);
                 const elWrap = document.querySelector(`.appGroupWrap-${item.workSheetId} .workSheetLeft>.flex`);
@@ -267,9 +254,15 @@ const AppSectionItem = props => {
                   const groupItems = el.querySelector('.groupItems');
                   height = height + 44 + (groupItems ? parseFloat(groupItems.style.height) : 0);
                 });
-                setSectionsHeight({ ...sectionsHeight, [item.workSheetId]: height });
+                setSectionsHeight({
+                  ...sectionsHeight,
+                  [item.workSheetId]: height,
+                });
                 setTimeout(() => {
-                  setSectionsHeight({ ...sectionsHeight, [item.workSheetId]: undefined });
+                  setSectionsHeight({
+                    ...sectionsHeight,
+                    [item.workSheetId]: undefined,
+                  });
                 }, 300);
                 setTimeout(() => {
                   setChildrenVisible(!childrenVisible);
@@ -286,7 +279,6 @@ const AppSectionItem = props => {
             }}
             onMouseMove={() => {
               const now = Date.now();
-
               if (window.dragNow && now - window.dragNow > 50) {
                 setIsDrag(true);
                 setChildrenVisible(false);
@@ -301,16 +293,22 @@ const AppSectionItem = props => {
               {edit ? (
                 <input
                   autoFocus
-                  className="w100 editInput"
+                  className="w100 editInput bold"
                   defaultValue={item.workSheetName}
                   onBlur={e => {
                     setEdit(false);
-                    onUpdateAppSectionItem(item, { workSheetName: e.target.value, edit: false });
+                    onUpdateAppSectionItem(item, {
+                      workSheetName: e.target.value,
+                      edit: false,
+                    });
                   }}
                   onKeyDown={e => {
                     if (e.which === 13) {
                       setEdit(false);
-                      onUpdateAppSectionItem(item, { workSheetName: e.target.value, edit: false });
+                      onUpdateAppSectionItem(item, {
+                        workSheetName: e.target.value,
+                        edit: false,
+                      });
                     }
                   }}
                 />
@@ -333,17 +331,23 @@ const AppSectionItem = props => {
             {!edit && (
               <Fragment>
                 {sheet.isCharge && (
-                  <Trigger
-                    popupVisible={popupVisible}
-                    onPopupVisibleChange={setPopupVisible}
-                    action={['click']}
-                    popup={renderMenu()}
-                    popupAlign={{ points: ['tl', 'bl'], offset: [1, 1], overflow: { adjustX: true, adjustY: true } }}
+                  <Dropdown
+                    open={popupVisible}
+                    onOpenChange={setPopupVisible}
+                    trigger={['click']}
+                    placement="bottomLeft"
+                    classNames={{ root: 'worksheetItemOperate worksheetItemOperate-GroupList' }}
+                    menu={{
+                      items: menuItems,
+                      selectable: false,
+                      style: { minWidth: 220 },
+                      onClick: ({ domEvent }) => domEvent.stopPropagation(),
+                    }}
                   >
                     <div className="moreWrap">
                       <Icon icon="more_horiz" className="Font18 moreIcon" />
                     </div>
-                  </Trigger>
+                  </Dropdown>
                 )}
                 <Icon className="Font16 arrowIcon" icon={childrenVisible ? 'arrow-up-border' : 'arrow-down-border'} />
               </Fragment>
@@ -448,11 +452,9 @@ const LeftAppGroup = props => {
 
   const getData = () => {
     let { appId } = ids;
-
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
-
     if (!appId) return;
     setLoading(true);
     getAllAppSectionDetail(appId, () => {
@@ -497,17 +499,23 @@ const LeftAppGroup = props => {
     });
 
     if (sectionRes.length === 1) {
-      updateALLSheetList(sectionRes.map(data => Object.assign({}, data, { workSheetName: '' })));
+      updateALLSheetList(
+        sectionRes.map(data =>
+          Object.assign({}, data, {
+            workSheetName: '',
+          }),
+        ),
+      );
       homeAppApi.updateAppSectionName({
         appId: ids.appId,
         appSectionId: workSheetId,
         name: '',
       });
-
       return;
     }
-
-    const { items = [] } = _.find(sectionRes, { workSheetId });
+    const { items = [] } = _.find(sectionRes, {
+      workSheetId,
+    });
     const res = sectionRes
       .filter(data => data.workSheetId !== workSheetId)
       .map(data => {
@@ -544,17 +552,20 @@ const LeftAppGroup = props => {
     _.isEmpty(appSectionDetail[0].items) &&
     _.isEmpty(appSectionDetail[0].workSheetName) &&
     !appSectionDetail[0].edit;
-
   return (
     <React.Fragment>
       <div className="LeftAppGroupWrap flex w100 flexColumn Relative minHeight0">
         {loading || _.isEmpty(appPkg.id) || appStatus === 300016 ? (
-          <Skeleton className="w100 h100" active={true} />
+          <Skeleton className="w100 h100 pAll20" active={true} />
         ) : (
           <Fragment>
-            {skeletonVisible && <Skeleton className="w100 h100 Absolute" />}
+            {skeletonVisible && <Skeleton className="w100 h100 Absolute pAll20" />}
             <DndProvider key="navigationList" context={window} backend={HTML5Backend}>
-              <ScrollView className={cx({ hide: skeletonVisible })}>
+              <ScrollView
+                className={cx({
+                  hide: skeletonVisible,
+                })}
+              >
                 {appSectionDetail.map((data, index) => (
                   <AppSectionItem
                     key={data.workSheetId}
@@ -580,9 +591,11 @@ const LeftAppGroup = props => {
       {(appPkg.debugRole || {}).canDebug && tr && (
         <div className="mBottom2 pLeft12 pRight12 w100">
           <RoleSelectWrap
-            className={cx('pLeft16 pRight12 valignWrapper roleSelectCon Hand', { active: roleDebugVisible })}
+            className={cx('pLeft16 pRight12 valignWrapper roleSelectCon Hand', {
+              active: roleDebugVisible,
+            })}
             onClick={() => showRoleDebug()}
-            borderColor={getBorderColor()}
+            $borderColor={getBorderColor()}
           >
             <span className="overflow_ellipsis flex bold valignWrapper LineHeight20">
               {roleSelectValue.length === 1 && ICON_ROLE_TYPE[roleSelectValue[0].roleType] && (
@@ -601,7 +614,6 @@ const LeftAppGroup = props => {
                 onClick={e => {
                   !!roleSelectValue.length && e.stopPropagation();
                   if (!roleSelectValue.length) return;
-
                   appManagementApi
                     .setDebugRoles({
                       appId: ids.appId,

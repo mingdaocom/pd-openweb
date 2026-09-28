@@ -4,7 +4,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv } from 'ming-ui';
 import kcAjax from 'src/api/kc';
-import { downloadFile } from 'src/utils/common';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 class VersionList extends React.Component {
   static propTypes() {
@@ -99,8 +100,8 @@ class VersionList extends React.Component {
           );
           alert(_l('成功删除该版本'));
         })
-        .catch(() => {
-          alert(_l('删除失败'), 3);
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, _l('删除失败'), 3);
         });
     }
   };

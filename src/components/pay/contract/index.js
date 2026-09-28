@@ -2,14 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
 import moment from 'moment';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import upgradeController from 'src/api/upgrade';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { getRequest } from 'src/utils/platform/browser/device';
 import mdLogo from './images/mdLogo.png';
 import './index.less';
 
-const contactInfo = [
+const getContactInfo = () => [
   [{ key: 'companyName', text: _l('组织全称') }],
   [
     { key: 'recipientName', text: _l('联系人姓名') },
@@ -91,8 +91,9 @@ class ContractCom extends Component {
         useCORS: true,
       }).then(canvasData => {
         import('jspdf').then(jsPDF => {
+          const JsPDF = jsPDF.jsPDF || jsPDF.default;
           let pageData = canvasData.toDataURL('image/jpeg', 1.0);
-          let pdf = new jsPDF.default('', 'pt', 'a4');
+          let pdf = new JsPDF('', 'pt', 'a4');
           let contentWidth = canvasData.width;
           let contentHeight = canvasData.height;
           //一页pdf显示html页面生成的canvas高度;
@@ -165,7 +166,7 @@ class ContractCom extends Component {
               {_l('联系人信息')} <span className="mLeft5 mRight5">CONTACT</span> INFORMATION
             </div>
             <table cellpadding="0" cellspacing="0" className="contactTable LineHeight30">
-              {contactInfo.map(item => {
+              {getContactInfo().map(item => {
                 return (
                   <tr>
                     {item.map(v => {
@@ -240,9 +241,7 @@ class ContractCom extends Component {
               </span>
               <br />
               <span>
-                {window.platformENV.isOverseas
-                  ? _l('支付宝账户：payment@xxx.com')
-                  : _l('支付宝账户：payment@mingdao.com')}
+                {window.platformENV.isHap ? _l('支付宝账户：payment@mingdao.com') : _l('支付宝账户：payment@xxx.com')}
               </span>
             </span>
             <br />

@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import { any, func, string } from 'prop-types';
 import styled from 'styled-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -78,9 +79,9 @@ const Con = styled.div`
   justify-content: center;
   align-items: center;
   overflow: auto;
-  ${({ type }) => type === PREVIEW_TYPE.CODE && 'background-color: var(--color-background-inverse) !important'}
-  ${({ type }) =>
-    (type === PREVIEW_TYPE.MARKDOWN || type === PREVIEW_TYPE.TXT) &&
+  ${({ $type }) => $type === PREVIEW_TYPE.CODE && 'background-color: var(--color-background-inverse) !important'}
+  ${({ $type }) =>
+    ($type === PREVIEW_TYPE.MARKDOWN || $type === PREVIEW_TYPE.TXT) &&
     'background-color: var(--color-background-primary) !important'}
 `;
 
@@ -126,7 +127,13 @@ export default function TextViewer(props) {
   }, [content, loading, type]);
 
   return (
-    <Con className="codeViewer" onWheel={e => e.stopPropagation()} type={type}>
+    <Con
+      className={cx('codeViewer', {
+        'codeViewer-code': String(type) === String(PREVIEW_TYPE.CODE),
+      })}
+      onWheel={e => e.stopPropagation()}
+      $type={type}
+    >
       {loading ? (
         <LoadDiv size="big" />
       ) : String(type) === String(PREVIEW_TYPE.TXT) ? (

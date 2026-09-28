@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Input, LoadDiv, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import FieldMappingList from '../../../components/FieldsMappingList/index';
 import SelectTables from '../../../components/SelectTables';
 import TimingSetting from '../../../components/TimingSetting';
@@ -646,21 +645,30 @@ export default function OnlySyncStep(props) {
         </div>
         <div className="mTop20">
           <Checkbox
-            size="small"
-            text={_l('在本次同步数据之前，彻底清空目标表数据')}
             checked={_.get(sheetData, [currentTab.db, currentTab.table, 'isCleanDestTableData'])}
-            onClick={checked => {
+            onChange={event => {
+              const checked = !event.target.checked;
               !checked
-                ? Dialog.confirm({
-                    title: _l('清空目标表数据'),
-                    description: _l('在本次同步任务前，清空目的地表数据，清空后无法恢复。'),
-                    buttonType: 'danger',
+                ? Modal.confirm({
+                    title: <span className="textError">{_l('清空目标表数据')}</span>,
+                    content: _l('在本次同步任务前，清空目的地表数据，清空后无法恢复。'),
+                    okButtonProps: {
+                      danger: true,
+                    },
                     okText: _l('确认'),
-                    onOk: () => onChangeStateData(sheetData, setSheetData, { isCleanDestTableData: !checked }),
-                  })
-                : onChangeStateData(sheetData, setSheetData, { isCleanDestTableData: !checked });
+                    onOk: () =>
+                      onChangeStateData(sheetData, setSheetData, {
+                        isCleanDestTableData: !checked,
+                      }),
+                  }).destroy
+                : onChangeStateData(sheetData, setSheetData, {
+                    isCleanDestTableData: !checked,
+                  });
             }}
-          />
+            size="small"
+          >
+            {_l('在本次同步数据之前，彻底清空目标表数据')}
+          </Checkbox>
         </div>
       </React.Fragment>
     );
@@ -870,13 +878,11 @@ export default function OnlySyncStep(props) {
                 (destHasSchema && _.get(sheetData, [currentTab.db, currentTab.table, 'schemaName']))) && (
                 <div className="flexColumn flex">
                   <p className="mBottom16 bold">{isDestAppType ? _l('工作表') : _l('数据表')}</p>
-                  <RadioGroup
+                  <Radio.Group
                     className="mBottom20"
-                    data={CREATE_TYPE_RADIO_LIST}
-                    checkedValue={
-                      _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) || CREATE_TYPE.NEW
-                    }
-                    onChange={sheetCreateType => onChangeSheetCreateType(sheetCreateType)}
+                    options={(CREATE_TYPE_RADIO_LIST || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+                    value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) || CREATE_TYPE.NEW}
+                    onChange={event => onChangeSheetCreateType(event.target.value)}
                   />
 
                   <div className="flexRow">
@@ -932,7 +938,9 @@ export default function OnlySyncStep(props) {
                                 sheetName: event.target.value.replace(namePattern, ''),
                               })
                             }
-                            onChange={sheetName => onChangeStateData(sheetData, setSheetData, { sheetName })}
+                            onChange={event =>
+                              onChangeStateData(sheetData, setSheetData, { sheetName: event.target.value })
+                            }
                           />
                         )}
                       </div>
@@ -1015,12 +1023,14 @@ export default function OnlySyncStep(props) {
                                       return (
                                         <Checkbox
                                           key={item.key}
-                                          size="small"
                                           className="pRight30"
                                           checked={isChecked}
-                                          onClick={() =>
-                                            onChangeStateData(sheetData, setSheetData, { [item.key]: !isChecked })
+                                          onChange={() =>
+                                            onChangeStateData(sheetData, setSheetData, {
+                                              [item.key]: !isChecked,
+                                            })
                                           }
+                                          size="small"
                                         >
                                           {item.text}
                                           {item.key === 'deleteTrigger' && (

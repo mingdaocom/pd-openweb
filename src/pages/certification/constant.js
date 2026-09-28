@@ -26,9 +26,9 @@ export const ENTERPRISE_TYPE = {
 };
 
 export const ENTERPRISE_TYPE_OPTIONS = [
-  { text: _l('企业'), value: 1 },
-  { text: _l('政府/事业单位'), value: 2 },
-  { text: _l('社会组织'), value: 3 },
+  { label: _l('企业'), value: 1 },
+  { label: _l('政府/事业单位'), value: 2 },
+  { label: _l('社会组织'), value: 3 },
 ];
 
 export const ENTERPRISE_FIELD_LABEL = {
@@ -102,9 +102,15 @@ export const VERIFY_STATUS = {
 };
 
 export const CERT_PAGE_TITLE = {
-  personal: _l('个人认证'),
-  enterprise: _l('企业认证'),
-  success: _l('认证成功'),
+  get personal() {
+    return window.platformENV.isHap ? _l('个人认证 - 明道云HAP') : _l('个人认证');
+  },
+  get enterprise() {
+    return window.platformENV.isHap ? _l('企业认证 - 明道云HAP') : _l('企业认证');
+  },
+  get success() {
+    return window.platformENV.isHap ? _l('认证成功 - 明道云HAP') : _l('认证成功');
+  },
 };
 
 export const CERT_STATUS = {

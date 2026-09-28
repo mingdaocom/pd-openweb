@@ -1,7 +1,16 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import React, { lazy, Suspense } from 'react';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 
-export const batchEditRecord = props => {
-  import('./BatchEditRecord').then(({ default: BatchEditRecord }) => {
-    functionWrap(BatchEditRecord, { ...props });
-  });
-};
+const LoadableBatchEditRecord = lazy(() => import('./BatchEditRecord'));
+
+function BatchEditRecordLoader(props) {
+  return (
+    <Suspense fallback={null}>
+      <LoadableBatchEditRecord {...props} />
+    </Suspense>
+  );
+}
+
+export function useBatchEditRecord() {
+  return useFunctionWrapComponent(BatchEditRecordLoader);
+}

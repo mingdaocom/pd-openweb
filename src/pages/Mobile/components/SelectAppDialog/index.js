@@ -2,7 +2,8 @@ import React, { Fragment, useCallback, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Button, Popup } from 'antd-mobile';
 import _ from 'lodash';
-import { Input, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import './index.less';
 
@@ -71,10 +72,14 @@ export default function SelectAppDialog(props) {
         <LoadDiv className="mTop50" />
       ) : (
         <Fragment>
-          <div className="searchWrap flexRow">
-            <i className="icon icon-search textTertiary" />
-            <Input className="flex" placeholder={_l('搜索')} onChange={onSearch} />
-          </div>
+          <Input
+            className="searchWrap"
+            radius
+            variant="filled"
+            prefix={<i className="icon icon-search textTertiary" />}
+            placeholder={_l('搜索')}
+            onChange={event => onSearch(event.target.value)}
+          />
           <ScrollView className="appListWrap flex overflowHidden" onScrollEnd={onScrollEnd}>
             {appList
               .filter(item => !NO_PAGE.includes(ajaxFun) || item.appName.toLowerCase().includes(keyWords.toLowerCase()))

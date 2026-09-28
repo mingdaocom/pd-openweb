@@ -1,17 +1,16 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
-import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
-import { addBehaviorLog, getCurrentProject } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/utils/services/appCenter';
+import { addBehaviorLog, getCurrentProject } from 'src/utils/services/project';
 import * as actions from '../../redux/actions';
 import { PopoverWrap } from '../ChatList/Avatar/styled';
 
@@ -180,10 +179,11 @@ const Apps = props => {
             ))}
             {!!popoverApps.length && (
               <Popover
+                arrow={true}
                 title={null}
                 placement="leftBottom"
-                overlayClassName="userConfigPopover"
-                overlayStyle={{ padding: 0 }}
+                classNames={{ root: 'userConfigPopover' }}
+                styles={{ root: { padding: 0 }, body: { padding: '5px 0' } }}
                 content={
                   <PopoverWrap
                     style={{

@@ -7,6 +7,9 @@ import { Icon } from 'ming-ui';
 import Amap from 'ming-ui/components/amap/Amap';
 import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
 import MDMap from 'ming-ui/components/amap/MDMap';
+import { wgs84togcj02 } from 'src/utils/core/geo';
+import { toFixed } from 'src/utils/domain/control/number';
+import { getMapConfig } from 'src/utils/platform/runtime/config';
 import {
   bindDing,
   bindFeishu,
@@ -16,7 +19,6 @@ import {
   handleTriggerEvent,
 } from '../../../core/authentication';
 import { getCurrentPos } from '../../../core/mapUtils';
-import { getMapConfig, toFixed, wgs84togcj02 } from '../../tools/utils';
 import StaticMap from './StaticMap';
 
 const LocationWrap = styled.div`
@@ -39,8 +41,9 @@ const LocationWrap = styled.div`
   }
 `;
 
-const isWx = window.isWeiXin && !window.platformENV.isOverseas && !window.platformENV.isLocal && !window.isWxWork;
-const isApp = window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu || window.isMingDaoApp;
+const getIsWx = () => window.isWeiXin && window.platformENV.isHap && !window.isWxWork;
+const getIsApp = () =>
+  window.isWxWork || getIsWx() || window.isWeLink || window.isDingTalk || window.isFeiShu || window.isMingDaoApp;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -92,7 +95,7 @@ export default class Widgets extends Component {
       return;
     }
 
-    if (isWx) {
+    if (getIsWx()) {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
@@ -412,7 +415,7 @@ export default class Widgets extends Component {
         <div
           className="customFormControlBox customFormButton"
           onClick={() => {
-            if (isApp) {
+            if (getIsApp()) {
               this.handleAuthentication();
             } else {
               this.handleH5Location();
@@ -431,7 +434,7 @@ export default class Widgets extends Component {
           <div
             className="customFormControlBox customFormButton flexRow"
             onClick={() => {
-              if (isApp) {
+              if (getIsApp()) {
                 this.handleAuthentication();
               } else {
                 this.setState({ visible: true });
@@ -456,7 +459,7 @@ export default class Widgets extends Component {
 
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
               } else {
-                if (isApp) {
+                if (getIsApp()) {
                   this.handleAuthentication();
                 } else {
                   this.setState({ visible: true });

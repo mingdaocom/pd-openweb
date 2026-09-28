@@ -1,7 +1,8 @@
 import React from 'react';
 import filterXSS from 'xss';
-import { antNotification, Icon } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
+import { Icon } from 'ming-ui';
+import { Notification } from 'ming-ui/antd-components';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { KNOWLEDGE_STATUS } from '../core/config';
 
 const getAction = status => {
@@ -74,9 +75,9 @@ export default () => {
     const baseUrl = `/app/${appId}/settings/knowledge`;
     const targetUrl = `${baseUrl}#kid=${knowledgeId}`;
 
-    antNotification[action]({
+    Notification[action]({
       ...getCommon(data),
-      btn: [
+      actions: [
         KNOWLEDGE_STATUS.CHUNK_SUCCESS,
         KNOWLEDGE_STATUS.CHUNK_FAILED,
         KNOWLEDGE_STATUS.VECTOR_SUCCESS,
@@ -92,7 +93,7 @@ export default () => {
         </span>
       ) : undefined,
       onBtnClick: () => {
-        antNotification.close(knowledgeId);
+        Notification.close(knowledgeId);
       },
     });
   });

@@ -2,14 +2,15 @@ import React, { Fragment } from 'react';
 import _ from 'lodash';
 import { Qr } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
-import { getDateToEn } from 'src/pages/widgetConfig/util/setting';
-import { getTranslateInfo } from 'src/utils/app';
-import { pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { getDateToEn } from 'src/utils/domain/control/date';
+import { putControlByOrder, replaceHalfWithSizeControls } from 'src/utils/domain/control/editorLayout';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getAppTimeZone } from 'src/utils/platform/runtime/config';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getTranslateInfo } from 'src/utils/services/app';
 import {
   BASE_PRINT_CONTENT_WIDTH,
   DEFAULT_FONT_SIZE,
@@ -26,10 +27,11 @@ import {
 import { SYST_PRINT_TXT } from '../../core/config';
 import STYLE_PRINT from '../../core/exportWordPrintTemCssString';
 import getPrintContent from '../../core/getPrintContent';
+import { mergeRelationControl } from '../../core/relationControl';
 import { isRelation, sortByShowControls } from '../../core/util';
 import RelationTable from '../RelationTable';
 import { getRelationTilePrintData } from '../RelationTable/utils';
-import { getPrintOperationLogActionText } from './utils';
+import { dateConvertToAppZone, getPrintOperationLogActionText } from './utils';
 import './index.less';
 
 const RELATION_SHOW_TYPES = [
@@ -570,8 +572,7 @@ export default class Con extends React.Component {
         if (controls.length > 0) {
           let data = controls.find(o => o.controlId === it.controlId) || [];
           return {
-            ...it,
-            ...data,
+            ...mergeRelationControl(it, data),
             checked: it.checked, //relations 中的checked 是错的
           };
         } else {
@@ -626,7 +627,7 @@ export default class Con extends React.Component {
           }}
           className="relationsTitle"
         >
-          {hideTitle ? '' : tableList.controlName || _l('未命名')}
+          <span className="relationTitleText">{hideTitle ? '' : tableList.controlName || _l('未命名')}</span>
           {type !== typeForCon.PREVIEW && (
             <ul
               className="noPrint relationShowType"
@@ -1193,6 +1194,13 @@ export default class Con extends React.Component {
       advanceSettings.find(l => l.key === 'printTime'),
       'value',
     );
+    const currentTime = new Date();
+    const appTimeZone = getAppTimeZone(params.appId);
+    const hasAppTimeZone =
+      !_.isUndefined(appTimeZone) && appTimeZone !== null && appTimeZone !== '' && Number.isFinite(Number(appTimeZone));
+    const printTime = hasAppTimeZone
+      ? dateConvertToAppZone(currentTime, appTimeZone)
+      : dateConvertToUserZone(currentTime);
     const placeholderMode = this.getPlaceholderMode();
 
     return (
@@ -1327,9 +1335,7 @@ export default class Con extends React.Component {
             {printData.printTime && (
               <span>
                 {_l('打印时间：')}
-                {printFormatText
-                  ? getDateToEn(printFormatText, dateConvertToUserZone(new Date()))
-                  : dateConvertToUserZone(new Date())}
+                {printFormatText ? getDateToEn(printFormatText, printTime) : printTime}
               </span>
             )}
           </p>

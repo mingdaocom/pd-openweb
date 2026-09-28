@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import { getControlTypeName } from '../../../utils';
 
 export default ({ data, controls, showRequired, updateSource, hideControlType }) => {
@@ -24,16 +24,17 @@ export default ({ data, controls, showRequired, updateSource, hideControlType })
                 <div className="mLeft15">
                   <Checkbox
                     checked={item.required}
-                    onClick={checked => {
+                    onChange={event => {
+                      const checked = event.target.checked;
                       const newControls = [].concat(data);
-
                       newControls.forEach(o => {
                         if (o.controlId === item.controlId) {
-                          o.required = !checked;
+                          o.required = checked;
                         }
                       });
-
-                      updateSource({ controls: newControls });
+                      updateSource({
+                        controls: newControls,
+                      });
                     }}
                   />
                 </div>

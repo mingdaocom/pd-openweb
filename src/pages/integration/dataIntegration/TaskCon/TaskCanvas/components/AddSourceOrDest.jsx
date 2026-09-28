@@ -1,14 +1,14 @@
 import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
 import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const Wrap = styled.div`
   .addSource {
@@ -37,13 +37,13 @@ const Wrap = styled.div`
   }
 `;
 const PopupWrap = styled.div(
-  ({ width }) => `
+  ({ $width }) => `
   padding: 6px 0;
   box-shadow: var(--shadow-lg);
   opacity: 1;
   background: var(--color-background-primary);
   border-radius: 4px;
-  width:${width}px;
+  width:${$width}px;
   .item {
     padding: 12px 20px;
     background: var(--color-background-primary);
@@ -76,7 +76,7 @@ function AddSourceOrDest(props) {
 
   const renderPopup = () => {
     return (
-      <PopupWrap width={props.width}>
+      <PopupWrap className="dropTriggerWrap" $width={props.width}>
         <div
           className="item Hand"
           onClick={() => {
@@ -123,20 +123,16 @@ function AddSourceOrDest(props) {
 
   return (
     <Wrap>
-      <Trigger
-        popupVisible={visible}
-        action={['click']}
-        popupClassName="dropTriggerWrap"
-        popup={renderPopup()}
+      <Popover
+        noPadding
+        open={visible}
+        trigger="click"
+        content={renderPopup()}
         getPopupContainer={() => document.body}
-        onPopupVisibleChange={visible => {
+        onOpenChange={visible => {
           props.canEdit && setState({ visible });
         }}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 0],
-          overflow: { adjustX: true, adjustY: true },
-        }}
+        placement="bottomLeft"
       >
         {!dsType ? (
           <div
@@ -177,7 +173,7 @@ function AddSourceOrDest(props) {
             {props.canEdit && <i className="icon icon-expand_more Font20 Hand Block" />}
           </div>
         )}
-      </Trigger>
+      </Popover>
       {show && (
         <ExistSourceModal
           {...props}

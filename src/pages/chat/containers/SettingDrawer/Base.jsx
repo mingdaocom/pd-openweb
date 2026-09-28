@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, LoadDiv, RadioGroup } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox, Radio, Select } from 'ming-ui/antd-components';
 import fixedDataApi from 'src/api/fixedData';
 import privateMapApi from 'src/api/privateMap';
 
@@ -8,10 +9,6 @@ const Wrap = styled.div`
   .systemSettingsDropdown {
     width: 500px;
     max-width: 600px;
-    .ming.Menu {
-      width: auto;
-      right: 0;
-    }
   }
 `;
 
@@ -27,23 +24,30 @@ export default props => {
     fixedDataApi.loadTimeZones().then(res => {
       const timeZones = [];
       Object.keys(res).forEach(key => {
-        timeZones.push({ text: res[key], value: parseInt(key) });
+        timeZones.push({ label: res[key], value: parseInt(key) });
       });
       setTimeZones(
-        [{ text: _l('跟随设备时区（配置时区，依据您正在使用设备的系统时区设置）'), value: 1 }].concat(
+        [{ label: _l('跟随设备时区（配置时区，依据您正在使用设备的系统时区设置）'), value: 1 }].concat(
           timeZones.sort((a, b) => a.value - b.value),
         ),
       );
       setLoading(false);
     });
     if (md.global.SysSettings.enableMap) {
-      privateMapApi.getAvailableMapList({}).then(res => {
-        const list = (res || []).map(item => ({
-          text: item.type === 0 ? _l('高德地图') : _l('Google地图'),
-          value: item.type,
-        }));
-        setMapList(list);
-      });
+      if (window.platformENV.isHap) {
+        setMapList([
+          { label: _l('高德地图'), value: 0 },
+          { label: _l('Google地图'), value: 1 },
+        ]);
+      } else {
+        privateMapApi.getAvailableMapList({}).then(res => {
+          const list = (res || []).map(item => ({
+            label: item.type === 0 ? _l('高德地图') : _l('Google地图'),
+            value: item.type,
+          }));
+          setMapList(list);
+        });
+      }
     }
   }, []);
 
@@ -62,14 +66,13 @@ export default props => {
         <div className="Font12 textSecondary mTop8 mBottom10">
           {_l('当您在应用中输入和查看时间数据时，将按照设定的个人时区转换')}
         </div>
-        <Dropdown
+        <Select
           className="systemSettingsDropdown textPrimary w100"
-          border
           value={currentTimeZone}
-          data={timeZones}
-          openSearch
-          showItemTitle
-          renderTitle={(selectedData = {}) => <span title={selectedData.text}>{selectedData.text}</span>}
+          options={timeZones}
+          showPopupSearch
+          optionFilterProp="label"
+          labelRender={({ label }) => <span title={label}>{label}</span>}
           onChange={value => {
             handleSureSettings('timeZone', value, () => {
               setCurrentTimeZone(value);
@@ -86,11 +89,10 @@ export default props => {
       <Fragment>
         <div className="Font14 textPrimary bold mTop25">{_l('地图服务')}</div>
         <div className="Font13 textSecondary mTop8 mBottom10">{_l('设置定位字段和地图视图中使用的地图服务')}</div>
-        <Dropdown
+        <Select
           className="systemSettingsDropdown w100 textPrimary"
-          border
           value={map}
-          data={mapList}
+          options={mapList}
           onChange={value => {
             handleSureSettings('map', value, () => {
               setMap(value);
@@ -114,10 +116,10 @@ export default props => {
     return (
       <Fragment>
         <div className="Font14 textPrimary bold mTop25 mBottom10">{_l('应用返回首页方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
           vertical={true}
-          data={[
+          options={[
             {
               text: _l('点击直接返回'),
               value: 1,
@@ -126,9 +128,11 @@ export default props => {
               text: _l('悬停时先侧滑打开应用列表'),
               value: 2,
             },
-          ]}
-          checkedValue={accountSettings.backHomepageWay}
-          onChange={value => {
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={accountSettings.backHomepageWay}
+          onChange={event => {
+            const value = event.target.value;
+
             handleSureSettings('backHomepageWay', value, () => {
               window.backHomepageWay = value;
               handleChangeAccountSettings({
@@ -149,7 +153,8 @@ export default props => {
         <div className="mBottom10">
           <Checkbox
             checked={accountSettings.isOpenMessageSound}
-            onClick={isOpenMessageSound => {
+            onChange={event => {
+              const isOpenMessageSound = !event.target.checked;
               handleSureSettings('isOpenMessageSound', !isOpenMessageSound ? 1 : 0, () => {
                 window.isOpenMessageSound = !isOpenMessageSound;
                 handleChangeAccountSettings({
@@ -164,7 +169,8 @@ export default props => {
         <div>
           <Checkbox
             checked={accountSettings.isOpenMessageTwinkle}
-            onClick={isOpenMessageTwinkle => {
+            onChange={event => {
+              const isOpenMessageTwinkle = !event.target.checked;
               handleSureSettings('isOpenMessageTwinkle', !isOpenMessageTwinkle ? 1 : 0, () => {
                 window.isOpenMessageTwinkle = !isOpenMessageTwinkle;
                 handleChangeAccountSettings({

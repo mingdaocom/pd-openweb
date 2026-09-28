@@ -4,10 +4,10 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { getAppOrItemColor } from 'src/pages/AppHomepage/Dashboard/utils.js';
-import { generateRandomPassword } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { transferExternalLinkUrl } from 'src/utils/services/appCenter';
+import { addBehaviorLog } from 'src/utils/services/project';
 
 const AppItemWrap = styled.div`
   display: flex;
@@ -23,8 +23,8 @@ const AppItemWrap = styled.div`
     background-color: var(--color-background-primary);
   }
   .iconWrap {
-    width: ${({ radius }) => radius + 'px'};
-    height: ${({ radius }) => radius + 'px'};
+    width: ${({ $radius }) => $radius + 'px'};
+    height: ${({ $radius }) => $radius + 'px'};
     border-radius: 50%;
     color: var(--color-white);
     font-size: 32px;
@@ -103,7 +103,7 @@ export default function ApplicationItem(props) {
 
     return (
       <AppItemWrap
-        radius={radius}
+        $radius={radius}
         className={cx(`appItem ${className}`, { mRight10: index % 2 === 0 })}
         key={id}
         onClick={e => {

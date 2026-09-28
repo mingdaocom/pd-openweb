@@ -10,7 +10,7 @@
     width: 0;
     height: 0;
     border: 9px solid;
-    border-color: transparent transparent var(--color-background-secondary) transparent;
+    border-color: transparent transparent var(--color-background-tertiary) transparent;
     position: absolute;
     top: -8px;
     left: 0;
@@ -37,7 +37,7 @@
     justify-content: space-between;
     > div {
       cursor: pointer;
-      color: var(--color-text-secondary);
+      color: var(--color-text-tertiary);
       margin-right: 15px;
       span {
         padding-left: 5px;
@@ -82,17 +82,41 @@
 
   /* 图片列表 start */
   &-filesWrapper {
-    margin-right: -6px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--upload-file-min-width), 1fr));
+    gap: 6px;
+    padding-bottom: 6px;
+
+    &:not(.rowDisplay) > .UploadFiles-file-wrapper,
+    &:not(.rowDisplay) > .UploadFiles-sortableItem > .UploadFiles-file-wrapper {
+      width: 100%;
+      margin: 0;
+    }
 
     &.rowDisplay {
       padding-bottom: 5px;
       margin-right: 0;
+      display: flex;
       flex-wrap: nowrap;
+      gap: 6px;
       overflow-x: auto;
       overflow-y: hidden;
+
+      > .UploadFiles-sortableItem {
+        flex: none;
+      }
+
+      > .UploadFiles-file-wrapper,
+      > .UploadFiles-sortableItem > .UploadFiles-file-wrapper {
+        margin: 0;
+      }
+    }
+  }
+  &-sortableItem {
+    min-width: 0;
+
+    > .UploadFiles-file-wrapper {
+      display: block;
     }
   }
   &-file-wrapper {
@@ -109,11 +133,6 @@
     border: 1px solid var(--color-border-secondary);
     box-sizing: border-box;
     position: relative;
-  }
-  &-fileEmpty {
-    height: 0 !important;
-    margin-top: 0;
-    margin-bottom: 0;
   }
   &-fileImage {
     width: 100%;
@@ -248,7 +267,7 @@
     padding: 12px;
     opacity: 0;
     transition: opacity 0.2s;
-    cursor: pointer;
+    cursor: grab;
     &:hover {
       /*opacity: 1;*/
     }
@@ -441,16 +460,6 @@
       align-items: center;
       color: var(--color-text-secondary);
       font-size: 18px;
-    }
-  }
-  &-menuWrapper {
-    .icon {
-      color: var(--color-text-tertiary);
-      font-size: 16px;
-    }
-    &-text {
-      margin-left: 20px;
-      color: var(--color-text-title);
     }
   }
   /* 图片列表 end */

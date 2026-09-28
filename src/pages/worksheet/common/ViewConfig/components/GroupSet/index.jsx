@@ -2,23 +2,22 @@
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import ChangeName from 'src/pages/integration/components/ChangeName';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import ButtonTabs from 'src/pages/worksheet/common/ViewConfig/components/ButtonTabs';
 import { getSetDefault } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet';
-import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
-import { getGroupControlId } from 'src/utils/worksheet';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { canSetGroup } from 'src/utils/domain/worksheet/board';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
+import { filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 import { GROUP_OPEN_OPTIONS } from './config';
 import bg from './img/bg.png';
 import { SelectValue, Wrap } from './style';
-import { canSetGroup } from './util';
 
 const NAV_GROUP_MAPPING = {
   navfilters: 'groupfilters',
@@ -123,7 +122,7 @@ export default function (props) {
       controls: columns,
       filter: o => canSetGroup(o, worksheetId, view),
       formatter: ({ controlName, controlId, type }) => ({
-        text: controlName,
+        label: controlName,
         value: controlId,
         icon: getIconByType(type, false),
       }),
@@ -136,7 +135,8 @@ export default function (props) {
 
   const groupControlId = getGroupControlId(view);
   const groupControl = _.find(worksheetControls, { controlId: groupControlId });
-  const isValidField = !!groupControl && getViewSelectFields().find(o => o.value === groupControlId);
+  const viewSelectFields = getViewSelectFields();
+  const isValidField = !!groupControl && viewSelectFields.find(o => o.value === groupControlId);
 
   return (
     <Wrap>
@@ -147,19 +147,28 @@ export default function (props) {
           <React.Fragment>
             <div className="con">
               <div className="title mTop25 textPrimary Bold">{_l('分组字段')}</div>
-              <div className="settingContent">
-                <Dropdown
-                  cancelAble
-                  data={getViewSelectFields()}
+              <div className="settingContent mTop8">
+                <Select
+                  allowClear
+                  options={viewSelectFields}
                   value={_.get(safeParse(_.get(view, 'advancedSetting.groupsetting'), 'array'), '[0].controlId')}
                   className="allCanSelectFields"
-                  hoverTheme
-                  renderTitle={obj => {
-                    const { icon, text } = obj || {};
+                  optionRender={option => {
+                    const { icon, label } = option.data || {};
+                    return (
+                      <SelectValue>
+                        <Icon icon={icon} />
+                        <span>{label}</span>
+                      </SelectValue>
+                    );
+                  }}
+                  labelRender={({ value }) => {
+                    const obj = viewSelectFields.find(item => item.value === value);
+                    const { icon, label } = obj || {};
                     return (
                       <SelectValue className={cx({ Red: !isValidField })}>
                         <Icon icon={isValidField ? icon : 'error1'} className={cx({ Red: !isValidField })} />
-                        <span>{isValidField ? text : !groupControl ? _l('字段已删除') : _l('该字段不支持')}</span>
+                        <span>{isValidField ? label : !groupControl ? _l('字段已删除') : _l('该字段不支持')}</span>
                       </SelectValue>
                     );
                   }}
@@ -184,7 +193,6 @@ export default function (props) {
                     let advanced = getInfo(worksheetControls.find(o => o.controlId === value) || {});
                     updateAdvancedSetting(advanced);
                   }}
-                  border
                   style={{ width: '100%' }}
                   placeholder={_l('请选择')}
                 />
@@ -220,19 +228,19 @@ export default function (props) {
               )}
             </div>
             {isValidField && (
-              <div className="flexRow alignItemsCenter">
-                <SwitchStyle className="flex">
-                  <Icon
-                    icon={_.get(view, 'advancedSetting.groupempty') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font28 Hand"
-                    onClick={() => {
+              <div className="flexRow alignItemsCenter mTop8">
+                <div className="flex flexRow alignItemsCenter viewConfigSwitchRow">
+                  <Switch
+                    size="mini"
+                    checked={_.get(view, 'advancedSetting.groupempty') === '1'}
+                    onChange={() => {
                       updateAdvancedSetting({
                         groupempty: _.get(view, 'advancedSetting.groupempty') === '1' ? '' : '1',
                       });
                     }}
                   />
-                  <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“未分组”')}</div>
-                </SwitchStyle>
+                  <div className="InlineBlock Normal mLeft12">{_l('显示“未分组”')}</div>
+                </div>
                 <Tooltip title={_l('重命名')}>
                   <i
                     className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
@@ -268,10 +276,9 @@ export default function (props) {
           {renderAdd({
             comp: () => {
               return (
-                <span className="addIcon">
-                  <i className="icon icon-add Font16 mRight5"></i>
+                <Button wide color="primary" variant="solid" size="large" icon={<Icon icon="add" className="Font16" />}>
                   {_l('添加分组字段')}
-                </span>
+                </Button>
               );
             },
           })}

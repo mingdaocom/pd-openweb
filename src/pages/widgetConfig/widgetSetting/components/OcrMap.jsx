@@ -1,14 +1,14 @@
-import React, { Fragment, useRef, useState } from 'react';
-import { Dropdown } from 'antd';
-import cx from 'classnames';
+import React, { Fragment, useState } from 'react';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { COMMON, TEMPLATE_TYPE } from '../../config/ocr';
-import { DropdownPlaceholder, SelectFieldsWrap } from '../../styled';
-import { getAdvanceSetting, getIconByType } from '../../util';
-import { handleAdvancedSettingChange } from '../../util/setting';
+import { SelectFieldsWrap } from '../../styled';
+
+const SELECT_STYLES = { root: { width: '100%', height: 36 } };
 
 const ConfigRelation = styled.div`
   .title {
@@ -20,15 +20,8 @@ const ConfigRelation = styled.div`
     align-items: center;
     justify-content: space-between;
     margin-top: 10px;
-    .ant-dropdown-trigger {
-      margin: 0;
-    }
     .mapIcon {
       color: var(--color-primary);
-    }
-    .Dropdown,
-    .ming.Menu {
-      width: 100%;
     }
     .item,
     .field {
@@ -56,8 +49,6 @@ const ConfigRelation = styled.div`
   }
 `;
 
-const MAP_FIELDS_DROPDOWN_HEIGHT = 260;
-
 // 获取映射类型
 const getMapByType = type => {
   const { map } = TEMPLATE_TYPE.find(item => item.value === type);
@@ -66,20 +57,7 @@ const getMapByType = type => {
 
 function MapItem(props) {
   const { allControls, ocrMap, value, text, match, withSubList, setMap } = props;
-  const placeholderRef = useRef(null);
-  const [isHover, setHover] = useState(false);
-  const [placement, setPlacement] = useState('bottomLeft');
   const getSubList = () => allControls.filter(item => item.type === 34);
-
-  const updatePlacement = () => {
-    const rect = placeholderRef.current && placeholderRef.current.getBoundingClientRect();
-
-    if (!rect) return;
-
-    const bottomSpace = window.innerHeight - rect.bottom;
-    const shouldShowOnTop = bottomSpace < MAP_FIELDS_DROPDOWN_HEIGHT && rect.top > bottomSpace;
-    setPlacement(shouldShowOnTop ? 'topLeft' : 'bottomLeft');
-  };
 
   // 获取所有可选的映射字段
   const getSelectableControls = (match, withSubList = false) => {
@@ -122,6 +100,14 @@ function MapItem(props) {
   const selectableControls = getSelectableControls(match, withSubList);
   const isHaveSelectableControls = selectableControls.some(item => item.controls.length > 0);
   const info = getControlInfo(value);
+
+  const clearMap = () => {
+    const index = ocrMap.findIndex(item => item.type === value);
+
+    if (index > -1) {
+      setMap(update(ocrMap, { $splice: [[index, 1]] }));
+    }
+  };
 
   const renderControlItem = ({ id, name, controls }) => {
     if (!isHaveSelectableControls) {
@@ -178,47 +164,36 @@ function MapItem(props) {
       <div className="item">{text}</div>
       <i className="mapIcon icon-arrow_forward Font20"></i>
       <div className="field">
-        <Dropdown
-          trigger={['click']}
-          placement={placement}
-          overlay={
+        <Select
+          value={isEmpty(info) ? undefined : info.controlId}
+          options={
+            isEmpty(info)
+              ? []
+              : [
+                  {
+                    value: info.controlId,
+                    label: (
+                      <div className="infoWrap">
+                        <div className="name">
+                          <i className={`textTertiary Font14 icon-${getIconByType(info.type)}`}></i>
+                          {info.controlName}
+                        </div>
+                      </div>
+                    ),
+                  },
+                ]
+          }
+          placeholder={_l('请选择')}
+          showSearch={false}
+          allowClear={!isEmpty(info)}
+          styles={SELECT_STYLES}
+          onClear={clearMap}
+          popupRender={() => (
             <SelectFieldsWrap className="mapFieldsWrap">
               <div className="fieldsWrap">{selectableControls.map(renderControlItem)}</div>
             </SelectFieldsWrap>
-          }
-        >
-          <DropdownPlaceholder
-            ref={placeholderRef}
-            onClick={updatePlacement}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-          >
-            {isEmpty(info) ? (
-              <div className="infoWrap">
-                <div className="name textTertiary">{_l('请选择')}</div>
-                <i className={'Font14 icon-arrow-down-border textTertiary'}></i>
-              </div>
-            ) : (
-              <div className="infoWrap">
-                <div className="name">
-                  <i className={`textTertiary Font14 icon-${getIconByType(info.type)}`}></i>
-                  {info.controlName}
-                </div>
-                <i
-                  className={cx(`Font14 icon-${isHover ? 'cancel textSecondary' : 'arrow-down-border textTertiary'} `)}
-                  onClick={e => {
-                    e.stopPropagation();
-                    const index = ocrMap.findIndex(item => item.type === value);
-
-                    if (index > -1) {
-                      setMap(update(ocrMap, { $splice: [[index, 1]] }));
-                    }
-                  }}
-                ></i>
-              </div>
-            )}
-          </DropdownPlaceholder>
-        </Dropdown>
+          )}
+        />
       </div>
     </div>
   );
@@ -248,9 +223,11 @@ export default function OcrMap({ data, onChange, onClose, ...rest }) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={640}
-      visible
+      open
+      mask={{ closable: true }}
+      keyboard
       title={_l('建立字段映射')}
       onOk={() => {
         onChange(handleAdvancedSettingChange(data, { ocrmap: JSON.stringify(ocrMap) }));
@@ -259,6 +236,6 @@ export default function OcrMap({ data, onChange, onClose, ...rest }) {
       onCancel={() => onClose()}
     >
       <ConfigRelation>{renderMapDetail()}</ConfigRelation>
-    </Dialog>
+    </Modal>
   );
 }

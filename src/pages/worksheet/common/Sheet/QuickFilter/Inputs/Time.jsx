@@ -1,134 +1,31 @@
 import React from 'react';
-import { TimePicker } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
-import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { func, shape, string } from 'prop-types';
-import styled from 'styled-components';
-
-const Con = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 32px;
-  line-height: 32px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  .ant-picker {
-    width: 100%;
-    box-shadow: none;
-    border: none;
-    border-radius: 4px;
-    .ant-picker-clear {
-      display: none;
-    }
-    .ant-picker-input input {
-      font-size: 13px;
-    }
-  }
-  &:hover:not(.active) {
-    border-color: var(--color-border-tertiary);
-  }
-  &.active {
-    border-color: var(--color-primary);
-  }
-  &:hover {
-    .clearIcon {
-      display: inline-block;
-    }
-  }
-`;
-
-const Content = styled.div`
-  flex: 1;
-  width: 0;
-  .Dropdown {
-    width: 100%;
-    .Dropdown--input {
-      padding: 0 10px !important;
-    }
-    .Icon.ming {
-      position: absolute;
-      right: 10px;
-      line-height: 32px;
-    }
-  }
-  &.isEmpty {
-    .Dropdown--input .value,
-    .mui-datetime-picker {
-      color: var(--color-text-disabled);
-    }
-  }
-`;
-
-const RangePickerCon = styled.div`
-  .ant-picker-input > input {
-    font-size: 13px !important;
-  }
-  .ant-picker-suffix {
-    display: none;
-  }
-`;
-
-const Icon = styled.i`
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  margin-right: 8px;
-  &.icon-cancel {
-    cursor: pointer;
-    &:hover {
-      color: var(--color-text-secondary);
-    }
-  }
-  &.clearIcon {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: var(--color-background-primary);
-  }
-`;
+import { TimePicker } from 'ming-ui/antd-components';
 
 export default function Time(props) {
-  const { control, dateRange, minValue, maxValue, onChange = () => {} } = props;
-  const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
-  const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
+  const { control, minValue, maxValue, onChange = () => {} } = props;
   const unit = String(control.unit);
   const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
-  const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
   return (
-    <Con>
-      <Content className={cx({ isEmpty })}>
-        <RangePickerCon>
-          <TimePicker.RangePicker
-            format={timeFormat}
-            locale={datePickerLocale}
-            value={minValue && maxValue ? [moment(minValue, timeFormat), moment(maxValue, timeFormat)] : []}
-            onChange={moments => {
-              if (!moments || !_.isArray(moments)) {
-                moments = [];
-              }
+    <TimePicker.RangePicker
+      className="w100"
+      format={timeFormat}
+      value={minValue && maxValue ? [moment(minValue, timeFormat), moment(maxValue, timeFormat)] : []}
+      onChange={moments => {
+        if (!moments || !_.isArray(moments)) {
+          moments = [];
+        }
 
-              onChange({
-                dateRange: 18,
-                filterType: 31,
-                minValue: moments[0] && moments[0].format(timeFormat),
-                maxValue: moments[1] && moments[1].format(timeFormat),
-              });
-            }}
-          />
-        </RangePickerCon>
-      </Content>
-      <Icon
-        className={cx('icon', minValue || maxValue ? 'icon-cancel' : 'icon-event')}
-        onClick={() => {
-          onChange({ dateRange: 0, minValue: undefined, maxValue: undefined });
-        }}
-      />
-    </Con>
+        onChange({
+          dateRange: 18,
+          filterType: 31,
+          minValue: moments[0] && moments[0].format(timeFormat),
+          maxValue: moments[1] && moments[1].format(timeFormat),
+        });
+      }}
+    />
   );
 }
 

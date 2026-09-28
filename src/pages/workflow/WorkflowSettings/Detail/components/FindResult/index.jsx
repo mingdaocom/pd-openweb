@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Radio, Tooltip } from 'ming-ui/antd-components';
 import { APP_TYPE, NODE_TYPE } from '../../../enum';
 
 export default ({ executeType, updateSource, allowAdd = false, nodeType, appType, ignoreError }) => {
@@ -46,19 +45,30 @@ export default ({ executeType, updateSource, allowAdd = false, nodeType, appType
         <div className="mTop15" key={item.value}>
           <div className="flexRow alignItemsCenter">
             <Radio
-              text={item.text}
               checked={executeType === item.value}
-              onClick={() => updateSource({ executeType: item.value })}
-            />
+              onChange={() =>
+                updateSource({
+                  executeType: item.value,
+                })
+              }
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
             <div className="flex " />
             {item.value === 1 && executeType === 1 && (
               <Fragment>
                 <Checkbox
                   className="InlineFlex mRight5"
-                  text={_l('新增失败时继续执行')}
                   checked={ignoreError}
-                  onClick={checked => updateSource({ ignoreError: !checked })}
-                />
+                  onChange={event =>
+                    updateSource({
+                      ignoreError: event.target.checked,
+                    })
+                  }
+                >
+                  {_l('新增失败时继续执行')}
+                </Checkbox>
                 <Tooltip
                   placement="topLeft"
                   title={_l(

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
-import { pathCompletion } from 'src/utils/common';
-import { removePssId } from 'src/utils/pssId';
+import { removePssId } from 'src/utils/platform/auth/pssId';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import AccountCon from './AccountCon';
 
 const DelDialogWrap = styled.div``;
@@ -13,6 +13,7 @@ const DelDialogWrap = styled.div``;
 export default function DelDialog(props) {
   const { setShow, show, appId, classNames, account, type } = props;
   const [code, setCode] = useState('');
+  const [modal, modalContextHolder] = Modal.useModal();
 
   const verificationOld = () => {
     if (!code) {
@@ -27,13 +28,15 @@ export default function DelDialog(props) {
         })
         .then(data => {
           if (data.actionResult === 1) {
-            Dialog.confirm({
-              title: <span className="Font17 Bold">{_l('您是否确认注销账号？')}</span>,
-              description: _l(
+            modal.confirm({
+              title: <span className="Font17 textError">{_l('您是否确认注销账号？')}</span>,
+              content: _l(
                 '账号一旦注销将无法登录平台，且会解除与第三方账号的绑定关系、身份、账号信息等将被清空且无法找回',
               ),
               okText: _l('注销'),
-              buttonType: 'danger',
+              okButtonProps: {
+                danger: true,
+              },
               className: cx('userInfoDialog', classNames),
               onOk: () => {
                 externalPortalAjax
@@ -76,13 +79,12 @@ export default function DelDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('注销账户')}
       okText={_l('下一步')}
       cancelText={_l('取消')}
       className={cx('userInfoDialog', classNames)}
-      headerClass="userInfoDialogTitle"
-      bodyClass="delDialogCon"
+      classNames={{ header: 'userInfoDialogTitle', body: 'delDialogCon' }}
       width={560}
       onCancel={() => {
         setShow(false);
@@ -94,8 +96,11 @@ export default function DelDialog(props) {
           alert(_l('请输入验证码'), 3);
         }
       }}
-      visible={show}
+      open={show}
+      mask={{ closable: true }}
+      keyboard
     >
+      {modalContextHolder}
       <DelDialogWrap>
         <AccountCon
           inputType={type}
@@ -106,6 +111,6 @@ export default function DelDialog(props) {
           appId={appId}
         />
       </DelDialogWrap>
-    </Dialog>
+    </Modal>
   );
 }

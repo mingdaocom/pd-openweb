@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Tree } from 'antd';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
+import { DirectoryTree } from 'src/ming-ui/antd-components/AsyncAntd';
 import { updateCursor } from '../../actions/current';
 import {
   departmentUpdate,
@@ -20,6 +19,8 @@ import { getParentsId } from '../../modules/util';
 import DiaActionTree from './diaActionTree';
 import './departmentTree.less';
 
+const getTreeNodeProps = treeNode => treeNode?.props || treeNode || {};
+
 const loop = (data, key, callback) => {
   data.forEach((item, index, arr) => {
     if (item.departmentId === key) {
@@ -32,7 +33,6 @@ const loop = (data, key, callback) => {
   });
 };
 
-const { TreeNode, DirectoryTree } = Tree;
 class DepartmentTree extends React.Component {
   constructor(props) {
     super(props);
@@ -50,30 +50,11 @@ class DepartmentTree extends React.Component {
     };
     this.timer = null;
     this.handleResize = _.throttle(() => this.getHeight(), 500);
-
-    this.handleTreeSwitcherMouseOver = e => {
-      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle');
-    };
-
-    this.handleTreeSwitcherMouseLeave = e => {
-      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle');
-    };
   }
 
   componentDidMount() {
     this.init();
-    this.lisentHover();
     window.addEventListener('resize', this.handleResize);
-  }
-
-  lisentHover() {
-    $(document).on('mouseover', '.ant-tree-switcher', this.handleTreeSwitcherMouseOver);
-    $(document).on('mouseleave', '.ant-tree-switcher', this.handleTreeSwitcherMouseLeave);
-  }
-
-  unBindHover() {
-    $(document).off('mouseover', '.ant-tree-switcher', this.handleTreeSwitcherMouseOver);
-    $(document).off('mouseleave', '.ant-tree-switcher', this.handleTreeSwitcherMouseLeave);
   }
 
   componentDidUpdate(prevProps) {
@@ -106,7 +87,6 @@ class DepartmentTree extends React.Component {
     clearTimeout(this.timer);
     window.removeEventListener('resize', this.handleResize);
     this.handleResize.cancel();
-    this.unBindHover();
   }
 
   init = () => {
@@ -135,9 +115,11 @@ class DepartmentTree extends React.Component {
   onDrop = info => {
     let sortedDepartmentIds = []; //拖拽后排序
     let moveToParentId = '';
-    const dropKey = info.node.props.eventKey; //拖dao ID
-    const dragKey = info.dragNode.props.eventKey; //拖动的ID
-    const dropPos = info.node.props.pos.split('-');
+    const dropNodeProps = getTreeNodeProps(info.node);
+    const dragNodeProps = getTreeNodeProps(info.dragNode);
+    const dropKey = dropNodeProps.eventKey || dropNodeProps.key; //拖dao ID
+    const dragKey = dragNodeProps.eventKey || dragNodeProps.key; //拖动的ID
+    const dropPos = dropNodeProps.pos.split('-');
     const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
     let data = [..._.cloneDeep(this.state.newDepartments)];
 
@@ -161,8 +143,8 @@ class DepartmentTree extends React.Component {
       });
       moveToParentId = dropKey;
     } else if (
-      (info.node.props.subDepartments || []).length > 0 && // Has children subDepartments
-      info.node.props.expanded && // Is expanded
+      (dropNodeProps.subDepartments || []).length > 0 && // Has children subDepartments
+      dropNodeProps.expanded && // Is expanded
       dropPosition === 1 // On the bottom gap
     ) {
       sortedDepartmentIds = [];
@@ -199,7 +181,7 @@ class DepartmentTree extends React.Component {
 
   loadDataFn = (treeNode = {}, isMore) => {
     const { projectId } = this.props;
-    const { props = {} } = treeNode;
+    const props = getTreeNodeProps(treeNode);
     return new Promise(resolve => {
       if (props.subDepartments && !isMore) {
         resolve();
@@ -279,114 +261,99 @@ class DepartmentTree extends React.Component {
     this.props.loadUsers(id);
   };
 
-  renderTreeNodes = (data, hasMore, parentData) => {
+  renderTreeData = (data, hasMore, parentData) => {
     const { expandedKeys, showDisabledDepartment, hasDepartmentAuth } = this.props;
     const { showAction } = this.state;
 
-    let htmlDiv = () => {
-      return data.map(item => {
+    const treeData = data
+      .map(item => {
         const subDepartments = item.subDepartments || [];
 
         if (item.disabled && !showDisabledDepartment) {
           return null;
         }
 
-        return (
-          <TreeNode
-            {...item}
-            disabled={false}
-            disabledDepartment={item.disabled}
-            key={item.departmentId}
-            title={
-              <React.Fragment>
-                <span className="departmentName WordBreak">
-                  <Tooltip title={item.departmentName}>
-                    <span className="InlineBlock wMax100 ellipsis">{item.departmentName}</span>
-                  </Tooltip>
-                  <Trigger
-                    action={['click']}
-                    popupVisible={showAction && item.departmentId === this.props.cursor}
-                    onPopupVisibleChange={visible => this.setState({ showAction: visible })}
-                    popupAlign={{ points: ['tl', 'br'], overflow: { adjustX: true, adjustY: true } }}
-                    popup={
-                      <DiaActionTree
-                        item={item}
-                        parentData={parentData?.props}
-                        onClickAwayExceptions={[]}
-                        closeAction={() => this.setState({ showAction: false })}
-                        hasDepartmentAuth={hasDepartmentAuth}
-                      />
+        return {
+          ...item,
+          disabled: false,
+          disabledDepartment: item.disabled,
+          key: item.departmentId,
+          title: (
+            <div className="departmentName flexRow alignItemsCenter">
+              <Tooltip title={item.departmentName} mouseEnterDelay={0.5}>
+                <div className="flex ellipsis">{item.departmentName}</div>
+              </Tooltip>
+              <DiaActionTree
+                item={item}
+                parentData={parentData}
+                open={showAction && item.departmentId === this.props.cursor}
+                onOpenChange={visible => this.setState({ showAction: visible })}
+                closeAction={() => this.setState({ showAction: false })}
+                hasDepartmentAuth={hasDepartmentAuth}
+              >
+                <Icon
+                  icon="moreop"
+                  className="Font20 textTertiary departmentAction treeNodeIcon"
+                  onClick={e => {
+                    localStorage.removeItem('columnsInfoData');
+                    //当前departmentId===选中departmentId，阻止冒泡
+                    if (item.departmentId === this.props.cursor) {
+                      e.stopPropagation();
                     }
-                  >
-                    <span
-                      className="departmentAction"
-                      onClick={e => {
-                        localStorage.removeItem('columnsInfoData');
-                        //当前departmentId===选中departmentId，阻止冒泡
-                        if (item.departmentId === this.props.cursor) {
-                          e.stopPropagation();
-                        }
-                      }}
-                    >
-                      <Icon className="Font20 textTertiary treeNodeIcon" icon="moreop" />
-                    </span>
-                  </Trigger>
-                </span>
-              </React.Fragment>
-            }
-            icon={
-              <Icon
-                icon={item.disabled ? 'folder_off' : 'folder'}
-                className={`Font16 textTertiary treeNodeIcon ${item.disabled ? 'disabledDepartmentIcon' : ''}`}
-              />
-            }
-            dataRef={item}
-            isLeaf={
-              _.includes(expandedKeys, item.departmentId)
-                ? !subDepartments.length
-                : !item.haveSubDepartment && !subDepartments.length
-            }
-          >
-            {item.subDepartments && item.subDepartments.length
-              ? this.renderTreeNodes(
+                  }}
+                />
+              </DiaActionTree>
+            </div>
+          ),
+          icon: (
+            <Icon
+              icon={item.disabled ? 'folder_off' : 'folder'}
+              className={`Font16 textTertiary treeNodeIcon ${item.disabled ? 'disabledDepartmentIcon' : ''}`}
+            />
+          ),
+          dataRef: item,
+          isLeaf: _.includes(expandedKeys, item.departmentId)
+            ? !subDepartments.length
+            : !item.haveSubDepartment && !subDepartments.length,
+          children:
+            item.subDepartments && item.subDepartments.length
+              ? this.renderTreeData(
                   item.subDepartments,
                   this.state.moreIds.map(o => o.departmentId).includes(item.departmentId),
-                  { props: { ...item, dataRef: item } },
+                  { ...item, dataRef: item },
                 )
-              : ''}
-          </TreeNode>
-        );
-      });
-    };
+              : undefined,
+        };
+      })
+      .filter(Boolean);
 
-    return (
-      <React.Fragment>
-        {htmlDiv()}
-        {((!this.props.searchValue && hasMore) ||
-          (!parentData && data.length >= this.state.pageSize && !this.state.rootIsAll)) && (
-          <TreeNode
-            key={`more_${_.get(parentData, ['props', 'departmentId']) || 'all'}`}
-            isLeaf={true}
-            icon={
-              <div className="mTop5 moreListIcon">
-                {this.state.moreIdLoading && _.get(parentData, ['props', 'departmentId']) && <LoadDiv size="small" />}
-              </div>
-            }
-            title={
-              <div
-                className="moreList Hand mLeft10"
-                onClick={e => {
-                  e.stopPropagation();
-                  this.loadDataFn(parentData, true);
-                }}
-              >
-                {this.state.moreIdLoading === _.get(parentData, ['props', 'departmentId']) ? _l('加载中') : _l('更多')}
-              </div>
-            }
-          ></TreeNode>
-        )}
-      </React.Fragment>
-    );
+    if (
+      (!this.props.searchValue && hasMore) ||
+      (!parentData && data.length >= this.state.pageSize && !this.state.rootIsAll)
+    ) {
+      treeData.push({
+        key: `more_${parentData?.departmentId || 'all'}`,
+        isLeaf: true,
+        icon: (
+          <div className="mTop5 moreListIcon">
+            {this.state.moreIdLoading && parentData?.departmentId && <LoadDiv size="small" />}
+          </div>
+        ),
+        title: (
+          <div
+            className="moreList Hand mLeft10"
+            onClick={e => {
+              e.stopPropagation();
+              this.loadDataFn(parentData, true);
+            }}
+          >
+            {this.state.moreIdLoading === parentData?.departmentId ? _l('加载中') : _l('更多')}
+          </div>
+        ),
+      });
+    }
+
+    return treeData;
   };
 
   onExpand = expandedKeys => {
@@ -436,16 +403,18 @@ class DepartmentTree extends React.Component {
           expandedKeys={expandedKeys} //（受控）展开指定的树节点
           loadedKeys={expandedKeys} //已经加载的节点，需要配合 loadData 使用
           autoExpandParent={autoExpandParent} //是否自动展开父节点
-          draggable={node => !node.disabledDepartment && hasDepartmentAuth}
+          draggable={{
+            icon: false,
+            nodeDraggable: node => !getTreeNodeProps(node).disabledDepartment && hasDepartmentAuth,
+          }}
           blockNode
           onDragEnter={this.onDragEnter}
-          allowDrop={({ dropNode }) => !dropNode.disabledDepartment}
+          allowDrop={({ dropNode }) => !getTreeNodeProps(dropNode).disabledDepartment}
           onDrop={this.onDrop}
           loadData={this.loadDataFn}
           height={height}
-        >
-          {this.renderTreeNodes(newDepartments)}
-        </DirectoryTree>
+          treeData={this.renderTreeData(newDepartments)}
+        />
       </div>
     );
   }

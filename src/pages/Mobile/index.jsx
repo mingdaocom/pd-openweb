@@ -4,20 +4,21 @@ import { Route, BrowserRouter as Router, Switch, withRouter } from 'react-router
 import { Provider } from 'react-redux';
 import { Dialog, Modal } from 'antd-mobile';
 import _ from 'lodash';
-import preall from 'src/common/preall';
-import { loadSDK } from 'src/components/Form/core/utils';
+import preall from 'src/common/entries/preall';
 import { formatPortalHref } from 'src/pages/Portal/util';
 import store from 'src/redux/configureStore';
-import genRouteComponent from 'src/router/genRouteComponent';
-import { navigateTo } from 'src/router/navigateTo';
-import { socketInit } from 'src/socket/mobileSocketInit';
-import { getPathWithoutSubPath, getRequest, pathCompletion } from 'src/utils/common';
+import { createRouteElements } from 'src/router/components/LazyRoute';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { createSocketConnection } from 'src/socket/connection';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { loadIntegrationSdk } from 'src/utils/platform/browser/integrationSdk';
+import { getPathWithoutSubPath, pathCompletion } from 'src/utils/platform/navigation/path';
 import DeclareConfirm from './components/DeclareConfirm';
 import { PORTAL, ROUTE_CONFIG } from './config';
 import './index.less';
 
 let App = class App extends Component {
-  genRouteComponent = genRouteComponent();
+  createRouteElements = createRouteElements();
 
   componentDidMount() {
     this.switchPath(this.props.location);
@@ -49,8 +50,8 @@ let App = class App extends Component {
   }
 
   initPageEnv() {
-    socketInit();
-    loadSDK();
+    createSocketConnection();
+    loadIntegrationSdk();
     document.body.classList.add('bgPrimary');
   }
 
@@ -95,7 +96,7 @@ let App = class App extends Component {
     const ROUTER = isPortal ? _.pick(ROUTE_CONFIG, PORTAL) : ROUTE_CONFIG;
     return (
       <Switch>
-        {this.genRouteComponent(ROUTER, params => {
+        {this.createRouteElements(ROUTER, params => {
           formatPortalHref(params);
         })}
         <Route

@@ -5,13 +5,14 @@ import { bool, func, string } from 'prop-types';
 import styled from 'styled-components';
 import { SvgIcon, UserHead, VerifyPasswordConfirm } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import BaseTrash from './BaseTrash';
 
 const AppIcon = styled.div`
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background-color: ${({ color }) => color};
+  background-color: ${({ $color }) => $color};
   border-radius: 6px;
   width: 38px;
   height: 38px;
@@ -70,7 +71,10 @@ export default function AppTrash(props) {
         loading={loading}
         title={_l('回收站（应用）')}
         searchPlaceholder={_l('应用名称')}
-        desc={_l('可恢复%0天内删除的应用', md.global.SysSettings.appRecycleDays)}
+        desc={_l(
+          '可恢复%0天内删除的应用，超过%0天以上的应用会被物理删除，应用和数据不可恢复',
+          md.global.SysSettings.appRecycleDays || 60,
+        )}
         columns={[
           {
             name: _l('应用名称'),
@@ -92,7 +96,7 @@ export default function AppTrash(props) {
         keyword={keyword}
         data={apps.map(app => [
           [
-            <AppIcon color={app.iconColor}>
+            <AppIcon $color={app.iconColor}>
               <SvgIcon
                 url={
                   app.iconUrl.startsWith('http')
@@ -161,8 +165,8 @@ export default function AppTrash(props) {
                 throw new Error();
               }
             })
-            .catch(() => {
-              alert(_l('恢复失败'), 2);
+            .catch(_requestError2 => {
+              alertIfNotUnauthorized(_requestError2, _l('恢复失败'), 2);
               setPendingCache(app.id, false);
             });
         }}
@@ -195,8 +199,8 @@ export default function AppTrash(props) {
                     throw new Error();
                   }
                 })
-                .catch(() => {
-                  alert(_l('彻底删除失败'), 2);
+                .catch(_requestError => {
+                  alertIfNotUnauthorized(_requestError, _l('彻底删除失败'), 2);
                 });
             },
           });

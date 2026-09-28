@@ -1,14 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import projectAjax from 'src/api/project';
 import smsAjax from 'src/api/sms';
 import systemIntegrationAjax from 'src/api/systemIntegration';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import openKuaiMaiDialog from 'src/pages/FormSet/containers/Print/BindKuaiMaiDialog.jsx';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { useBindKuaiMaiDialog } from 'src/pages/FormSet/containers/Print/components/BindKuaiMaiDialog.jsx';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import Config from '../../config';
 import CloudPrint from './cloudPrint';
 import KuaiMaiIcon from './image/kuaimai.png';
@@ -21,7 +23,7 @@ import './index.less';
 const TWILIO_HELP_URL = 'https://help.mingdao.com/org/link-twilio-international-sms';
 
 // isPlatform 覆盖 SaaS 与私有部署平台版(server-platform)，普通私有 server 不展示 Twilio。
-const showTwilioSystemService = window.platformENV.isPlatform;
+const getShowTwilioSystemService = () => window.platformENV.isPlatform;
 
 const SERVICE_CARDS = [
   {
@@ -75,7 +77,7 @@ class SystemServices extends Component {
   componentDidMount() {
     this.getWeiXinBindInfo();
     this.getPrintList();
-    if (showTwilioSystemService) {
+    if (getShowTwilioSystemService()) {
       this.getTwilioProvider();
     }
   }
@@ -129,7 +131,7 @@ class SystemServices extends Component {
       if (printList.length) {
         navigateTo(`/admin/cloudprint/${Config.projectId}`);
       } else {
-        openKuaiMaiDialog({
+        this.props.openBindKuaiMaiDialog({
           projectId: Config.projectId,
           onOk: () => {
             this.getPrintList();
@@ -147,6 +149,11 @@ class SystemServices extends Component {
   handleEditClick = (e, serviceKey) => {
     e.stopPropagation(); // 阻止事件冒泡，避免触发卡片点击
     this.setState({ currentService: serviceKey });
+  };
+
+  handleServiceButtonClick = (event, serviceKey) => {
+    event.stopPropagation();
+    this.handleCardClick(serviceKey);
   };
 
   handleBack = () => {
@@ -201,7 +208,7 @@ class SystemServices extends Component {
         </div>
         <div className="systemServicesContent">
           <div className="serviceCardsGrid">
-            {SERVICE_CARDS.filter(card => !(card.key === 'twilio' && !showTwilioSystemService)).map(card => {
+            {SERVICE_CARDS.filter(card => !(card.key === 'twilio' && !getShowTwilioSystemService())).map(card => {
               // nocoly隐藏快麦云
               if (card.key === 'cloudPrint' && (printLoading || !featureType || window.platformENV.isOverseas)) {
                 return null;
@@ -242,10 +249,15 @@ class SystemServices extends Component {
                   <div className="flexRow alignItemsCenter justifyContentBetween">
                     {isConnected ? (
                       <>
-                        <div className="serviceCardConnected flexRow alignItemsCenter">
-                          <i className="icon-check_circle Font16 Green"></i>
-                          <span className="mLeft4 Font14 Green">{_l('已连接')}</span>
-                        </div>
+                        <Button
+                          color="green"
+                          variant="outlined"
+                          shape="round"
+                          icon={<Icon icon="check_circle" />}
+                          onClick={event => this.handleServiceButtonClick(event, card.key)}
+                        >
+                          {_l('已连接')}
+                        </Button>
                         {card.key === 'twilio' && (
                           <span
                             className="serviceCardEdit flexRow alignItemsCenter Font14 textSecondary adminHoverColor Hand"
@@ -256,7 +268,9 @@ class SystemServices extends Component {
                         )}
                       </>
                     ) : (
-                      <div className="serviceCardButton InlineBlock Font14 TxtCenter Hand">{card.buttonText}</div>
+                      <Button shape="round" onClick={event => this.handleServiceButtonClick(event, card.key)}>
+                        {card.buttonText}
+                      </Button>
                     )}
 
                     {card.key === 'weixin' && weiXinInfo.length ? (
@@ -327,7 +341,7 @@ class SystemServices extends Component {
     return (
       <>
         {this.renderServiceCards()}
-        {showTwilioSystemService && (
+        {getShowTwilioSystemService() && (
           <Twilio
             visible={currentService === 'twilio'}
             twilioInfo={this.state.twilioInfo}
@@ -347,4 +361,8 @@ class SystemServices extends Component {
   }
 }
 
-export default withRouter(SystemServices);
+export default withRouter(
+  withOpeners(SystemServices, {
+    openBindKuaiMaiDialog: useBindKuaiMaiDialog,
+  }),
+);

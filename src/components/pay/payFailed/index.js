@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import PayHeader from '../payHeader';
 
 const PayFailedWrap = styled.div`

@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { TagTextarea } from 'ming-ui';
+import { Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import { ControlTag, SelectFieldsWrap } from 'src/pages/widgetConfig/styled/index';
 
 const WaterMarkTextarea = styled(TagTextarea)`
@@ -55,22 +54,27 @@ function WaterMarkDialog(props) {
   );
 
   return (
-    <Dialog width={550} visible={visible} title={_l('屏幕水印')} onOk={handleOk} onCancel={onClose}>
+    <Modal
+      width={550}
+      open={visible}
+      title={_l('屏幕水印')}
+      mask={{ closable: true }}
+      keyboard
+      onOk={handleOk}
+      onCancel={onClose}
+    >
       <div>
         <div className="bold mBottom8">{_l('自定义水印文字')}</div>
         <div className="Font13 textSecondary mBottom18">
           {_l('为空时显示默认水印文字（姓名+手机或邮箱）。可自定义，建议文字在20个字符以内，超出可能显示不全')}
         </div>
-        <Trigger
-          popupVisible={selectVisible}
-          onPopupVisibleChange={visible => setSelectVisible(visible)}
-          action={['click']}
-          popup={renderSelect()}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 0],
-            overflow: { adjustX: true, adjustY: true },
-          }}
+        <Popover
+          noPadding
+          open={selectVisible}
+          onOpenChange={setSelectVisible}
+          trigger="click"
+          content={renderSelect()}
+          placement="bottomLeft"
         >
           <WaterMarkTextarea
             className="waterMarkTextarea"
@@ -96,9 +100,9 @@ function WaterMarkDialog(props) {
             }}
             onFocus={() => setSelectVisible(true)}
           />
-        </Trigger>
+        </Popover>
       </div>
-    </Dialog>
+    </Modal>
   );
 }
 

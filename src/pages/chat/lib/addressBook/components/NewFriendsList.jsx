@@ -1,9 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
-import Button from 'ming-ui/components/Button';
+import { Button } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import API, { editAgreeFriend, editRefuseFriend } from '../api';
-import { pathCompletion } from 'src/utils/common';
 
 export default class NewFriendsList extends React.Component {
   constructor() {
@@ -13,20 +13,24 @@ export default class NewFriendsList extends React.Component {
       pageIndex: 1,
       hasMore: true,
       listData: null,
+      pendingActions: {},
     };
 
     this.fetch = this.fetch.bind(this);
+    this.pendingActions = {};
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.isLoaded !== prevProps.isLoaded && this.props.isLoaded === false) {
+        this.pendingActions = {};
         this.setState(
           {
             isLoading: false,
             pageIndex: 1,
             hasMore: true,
             listData: null,
+            pendingActions: {},
           },
           this.fetch,
         );
@@ -35,7 +39,29 @@ export default class NewFriendsList extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.fetch();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  runAction(accountId, actionType, action) {
+    if (this.pendingActions[accountId]) return;
+
+    this.pendingActions = { ...this.pendingActions, [accountId]: actionType };
+    this.setState({ pendingActions: this.pendingActions });
+
+    return Promise.resolve()
+      .then(action)
+      .catch(error => console.error(error))
+      .finally(() => {
+        this.pendingActions = _.omit(this.pendingActions, accountId);
+        if (this.mounted) {
+          this.setState({ pendingActions: this.pendingActions });
+        }
+      });
   }
 
   fetch() {
@@ -103,7 +129,7 @@ export default class NewFriendsList extends React.Component {
   }
 
   render() {
-    const { listData, isLoading, pageIndex, hasMore } = this.state;
+    const { listData, isLoading, pageIndex, hasMore, pendingActions } = this.state;
     if (!isLoading && (listData === null || !listData.length)) return null;
     if (isLoading && pageIndex === 1) return null;
     return (
@@ -123,13 +149,17 @@ export default class NewFriendsList extends React.Component {
           <tbody className="textSecondary">
             {listData.length &&
               listData.map(item => {
+                const accountId = item.createAccount.accountId;
+                const pendingAction = pendingActions[accountId];
+
                 return (
-                  <tr key={item.createAccount.accountId}>
+                  <tr key={accountId}>
                     <td className="pRight24 userItem">
                       <a
                         href={pathCompletion('/user_' + item.createAccount.accountId)}
                         className="Hand NoUnderline TxtMiddle"
                         target="_blank"
+                        rel="noopener noreferrer"
                       >
                         <img className="circle avatar" src={item.createAccount.avatar} />
                       </a>
@@ -149,10 +179,21 @@ export default class NewFriendsList extends React.Component {
                     </td>
                     {item.added === undefined ? (
                       <td className="TxtCenter">
-                        <Button type="primary" size="small" action={() => this.add(item.createAccount.accountId)}>
+                        <Button
+                          type="primary"
+                          loading={pendingAction === 'add'}
+                          disabled={Boolean(pendingAction) && pendingAction !== 'add'}
+                          onClick={() => this.runAction(accountId, 'add', () => this.add(accountId))}
+                        >
                           {_l('同意')}
                         </Button>
-                        <Button type="link" size="small" action={() => this.refuse(item.createAccount.accountId)}>
+                        <Button
+                          color="danger"
+                          variant="link"
+                          loading={pendingAction === 'refuse'}
+                          disabled={Boolean(pendingAction) && pendingAction !== 'refuse'}
+                          onClick={() => this.runAction(accountId, 'refuse', () => this.refuse(accountId))}
+                        >
                           {_l('拒绝')}
                         </Button>
                       </td>

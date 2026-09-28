@@ -1,21 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { Button, ConfigProvider, Dropdown, Modal } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
+import { Modal, Popover } from 'ming-ui/antd-components';
 import reportConfig from 'statistics/api/reportConfig';
-import { reportTypes } from '../../Charts/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { isDisplayModes, isTimeControl, renderFieldStyleValue } from '../../common/controlUtils';
 import { formatSorts, getSortData, isCustomSort } from '../../common/reportConfigUtils';
 import { timeParticleSizeDropdownData } from '../../common/timeUtils';
 
 const SortContent = styled.div`
-  border-radius: 3px;
-  background-color: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
   width: auto !important;
-  padding: 20px !important;
   max-height: 360px;
   overflow-y: auto;
   .sortItem {
@@ -87,19 +83,12 @@ const customSort = {
 const Y_AXIS_SORT_SUFFIX = '-yaxis';
 const RIGHT_AXIS_SORT_SUFFIX = '-right';
 const SAME_AXIS_SORT_SUFFIXES = [RIGHT_AXIS_SORT_SUFFIX, Y_AXIS_SORT_SUFFIX];
-
 // 排序层最大展开宽度预估，用于打开前判断靠左时是否需要向右展开。
 const SORT_PANEL_SAFE_WIDTH = 360;
 // 排序层与可视边界保留的安全距离，避免贴边或被容器边缘遮挡。
 const SORT_PANEL_EDGE_GAP = 12;
 // antd bottomLeft/bottomRight 默认水平偏移量，参与展开方向的边界计算。
-const SORT_DROPDOWN_OFFSET = 20;
-const SORT_DROPDOWN_ALIGN = {
-  overflow: {
-    adjustX: 1,
-    adjustY: 1,
-  },
-};
+const SORT_POPOVER_OFFSET = 20;
 
 const renderSortableItem = ({ item, DragHandle }) => {
   return (
@@ -123,7 +112,7 @@ export default class Sort extends Component {
       customSortLoading: false,
       customSortControl: null,
       customSortValue: null,
-      dropdownPlacement: 'bottomRight',
+      popoverPlacement: 'bottomRight',
       rightYaxisList: rightY ? this.setYaxisList(props) : [],
     };
   }
@@ -300,7 +289,7 @@ export default class Sort extends Component {
       visible,
     });
   };
-  getDropdownBoundaryLeft = triggerNode => {
+  getPopoverBoundaryLeft = triggerNode => {
     const boundaryNode = triggerNode.closest('.StatisticsPanel, .GlobalStatisticsPanel, .chartModal, .statisticsCard');
 
     if (!boundaryNode) {
@@ -309,7 +298,7 @@ export default class Sort extends Component {
 
     return Math.max(boundaryNode.getBoundingClientRect().left, 0);
   };
-  updateDropdownPlacement = triggerNode => {
+  updatePopoverPlacement = triggerNode => {
     if (!triggerNode || !triggerNode.getBoundingClientRect) {
       return;
     }
@@ -317,16 +306,16 @@ export default class Sort extends Component {
     const rect = triggerNode.getBoundingClientRect();
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
     const triggerCenterX = rect.left + rect.width / 2;
-    const boundaryLeft = this.getDropdownBoundaryLeft(triggerNode);
-    const bottomRightLeft = triggerCenterX + SORT_DROPDOWN_OFFSET - SORT_PANEL_SAFE_WIDTH;
-    const bottomLeftRight = triggerCenterX - SORT_DROPDOWN_OFFSET + SORT_PANEL_SAFE_WIDTH;
-    const dropdownPlacement =
+    const boundaryLeft = this.getPopoverBoundaryLeft(triggerNode);
+    const bottomRightLeft = triggerCenterX + SORT_POPOVER_OFFSET - SORT_PANEL_SAFE_WIDTH;
+    const bottomLeftRight = triggerCenterX - SORT_POPOVER_OFFSET + SORT_PANEL_SAFE_WIDTH;
+    const popoverPlacement =
       bottomRightLeft < boundaryLeft + SORT_PANEL_EDGE_GAP && bottomLeftRight <= viewportWidth - SORT_PANEL_EDGE_GAP
         ? 'bottomLeft'
         : 'bottomRight';
 
-    if (dropdownPlacement !== this.state.dropdownPlacement) {
-      this.setState({ dropdownPlacement });
+    if (popoverPlacement !== this.state.popoverPlacement) {
+      this.setState({ popoverPlacement });
     }
   };
   renderTrigger = () => {
@@ -334,7 +323,7 @@ export default class Sort extends Component {
 
     return React.cloneElement(child, {
       onClick: event => {
-        this.updateDropdownPlacement(event.currentTarget);
+        this.updatePopoverPlacement(event.currentTarget);
 
         if (_.isFunction(child.props.onClick)) {
           child.props.onClick(event);
@@ -573,25 +562,6 @@ export default class Sort extends Component {
       </div>
     );
   }
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.setState({ currentCustomSort: null, visible: true });
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSaveSortList}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   renderContent() {
     const { rightYaxisList } = this.state;
     const { reportType, currentReport } = this.props;
@@ -688,65 +658,68 @@ export default class Sort extends Component {
     ].includes(reportType);
   };
   render() {
-    const { visible, currentCustomSort, customSortValue, sortList, customSortLoading, dropdownPlacement } = this.state;
+    const { visible, currentCustomSort, customSortValue, sortList, customSortLoading, popoverPlacement } = this.state;
     const sortListHeight = sortList.length * 38;
     const Content = this.renderContent();
     if (!this.isRenderSort) return null;
     return (
       <Fragment>
         {this.getIsSort() && (
-          <Dropdown
-            visible={visible}
-            onVisibleChange={this.handleChangeVisible}
-            overlay={Content}
-            trigger={['click']}
-            placement={dropdownPlacement}
-            align={SORT_DROPDOWN_ALIGN}
+          <Popover
+            open={visible}
+            onOpenChange={this.handleChangeVisible}
+            content={Content}
+            trigger="click"
+            placement={popoverPlacement}
             getPopupContainer={() => document.body}
           >
             {this.renderTrigger()}
-          </Dropdown>
+          </Popover>
         )}
-        <Modal
-          title={
-            <div className="valignWrapper">
-              <div className="flex">{_l('自定义排序')}</div>
-              <CustomSortIconWrapper
-                className={cx('valignWrapper pointer', { active: customSortValue })}
-                onClick={this.handleChangeCustomSortValue}
-              >
-                <Icon className="mRight5 textTertiary Font20" icon="import_export" />
-                <span className="textPrimary Font13 Normal">
-                  {customSortValue ? (customSortValue === 2 ? 'Z → A' : 'A → Z') : _l('自定义')}
-                </span>
-              </CustomSortIconWrapper>
-            </div>
-          }
-          className="chartModal"
-          visible={!!currentCustomSort}
-          centered={true}
-          width={400}
-          footer={this.renderFooter()}
-          closable={false}
-        >
-          <div className="valignWrapper" style={{ height: sortListHeight > 520 ? 520 : sortListHeight }}>
-            <ScrollView>
-              {customSortLoading ? (
-                <LoadDiv />
-              ) : (
-                currentCustomSort && (
+        {!!currentCustomSort && (
+          <Modal
+            title={
+              <div className="valignWrapper">
+                <div className="flex">{_l('自定义排序')}</div>
+                <CustomSortIconWrapper
+                  className={cx('valignWrapper pointer', { active: customSortValue })}
+                  onClick={this.handleChangeCustomSortValue}
+                >
+                  <Icon className="mRight5 textTertiary Font20" icon="import_export" />
+                  <span className="textPrimary Font13 Normal">
+                    {customSortValue ? (customSortValue === 2 ? 'Z → A' : 'A → Z') : _l('自定义')}
+                  </span>
+                </CustomSortIconWrapper>
+              </div>
+            }
+            className="chartModal"
+            open
+            centered={true}
+            width={400}
+            onOk={this.handleSaveSortList}
+            onCancel={() => {
+              this.setState({ currentCustomSort: null, visible: true });
+            }}
+            closable={false}
+          >
+            <div className="valignWrapper" style={{ height: sortListHeight > 520 ? 520 : sortListHeight }}>
+              <ScrollView>
+                {customSortLoading ? (
+                  <LoadDiv />
+                ) : (
                   <SortableList
+                    renderBody
                     useDragHandle
                     items={sortList || []}
                     itemKey="id"
                     renderItem={options => renderSortableItem({ ...options })}
                     onSortEnd={this.handleSortEnd}
                   />
-                )
-              )}
-            </ScrollView>
-          </div>
-        </Modal>
+                )}
+              </ScrollView>
+            </div>
+          </Modal>
+        )}
       </Fragment>
     );
   }

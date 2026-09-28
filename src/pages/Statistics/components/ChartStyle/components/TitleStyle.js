@@ -1,20 +1,12 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ColorPicker, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
 import { replaceColor } from 'statistics/Charts/PivotTable';
 import { defaultPivotTableStyle } from '../../../enum';
 
 const Wrap = styled.div`
-  .chartTypeSelect {
-    & > div,
-    .active {
-      padding: 3px 8px !important;
-    }
-  }
   .lable {
     width: 80px;
   }
@@ -78,26 +70,23 @@ const TitleStyle = props => {
     return (
       <div className="flexRow valignWrapper mBottom12">
         <div className="lable">{_l('对齐方式')}</div>
-        <div>
-          <div className="chartTypeSelect flexRow valignWrapper">
-            {alignTypes.map(item => (
-              <Tooltip key={item.value} arrowPointAtCenter title={item.tooltip} placement="bottom">
-                <div
-                  className={cx('flex centerAlign pointer textSecondary', {
-                    active: item.value === pivotTableStyle[key],
-                  })}
-                  onClick={() => {
-                    handleChangePivotTableStyle({
-                      [key]: item.value,
-                    });
-                  }}
-                >
-                  <Icon className="Font20" icon={item.icon} />
-                </div>
+        <Segmented
+          className="bgDisabled"
+          value={pivotTableStyle[key] ?? ''}
+          options={alignTypes.map(item => ({
+            value: item.value,
+            label: (
+              <Tooltip arrow={{ pointAtCenter: true }} title={item.tooltip} placement="bottom">
+                <Icon className="Font20" icon={item.icon} />
               </Tooltip>
-            ))}
-          </div>
-        </div>
+            ),
+          }))}
+          onChange={value => {
+            handleChangePivotTableStyle({
+              [key]: value,
+            });
+          }}
+        />
       </div>
     );
   };
@@ -274,24 +263,24 @@ const TitleStyle = props => {
                 </Checkbox>
                 <Select
                   style={{ width: 130 }}
-                  className="chartSelect"
                   value={_.isNumber(style.pivotTableLineFreezeIndex) ? style.pivotTableLineFreezeIndex : 'all'}
                   suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                  options={[
+                    {
+                      value: 'all',
+                      label: _l('全部列'),
+                    },
+                    ...lines.slice(0, lines.length - 1).map((data, index) => ({
+                      value: index,
+                      label: _l('%0列', index + 1),
+                    })),
+                  ]}
                   onChange={value => {
                     onChangeStyle({
                       pivotTableLineFreezeIndex: value,
                     });
                   }}
-                >
-                  <Select.Option className="selectOptionWrapper" value="all">
-                    {_l('全部列')}
-                  </Select.Option>
-                  {lines.slice(0, lines.length - 1).map((data, index) => (
-                    <Select.Option className="selectOptionWrapper" value={index} key={index}>
-                      {_l('%0列', index + 1)}
-                    </Select.Option>
-                  ))}
-                </Select>
+                />
               </div>
               <div className="flexRow valignWrapper">
                 <Checkbox
@@ -308,30 +297,31 @@ const TitleStyle = props => {
                 </Checkbox>
                 <Select
                   style={{ width: 130 }}
-                  className="chartSelect mRight10"
+                  className="mRight10"
                   value={
                     _.isNumber(style.mobilePivotTableLineFreezeIndex) ? style.mobilePivotTableLineFreezeIndex : 'all'
                   }
                   suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+                  options={[
+                    {
+                      value: 'all',
+                      label: _l('全部列'),
+                    },
+                    ...lines.slice(0, lines.length - 1).map((data, index) => ({
+                      value: index,
+                      label: _l('%0列', index + 1),
+                    })),
+                  ]}
                   onChange={value => {
                     onChangeStyle({
                       mobilePivotTableLineFreezeIndex: value,
                     });
                   }}
-                >
-                  <Select.Option className="selectOptionWrapper" value="all">
-                    {_l('全部列')}
-                  </Select.Option>
-                  {lines.slice(0, lines.length - 1).map((data, index) => (
-                    <Select.Option className="selectOptionWrapper" value={index} key={index}>
-                      {_l('%0列', index + 1)}
-                    </Select.Option>
-                  ))}
-                </Select>
+                />
                 <Tooltip
                   title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')}
                   placement="bottomRight"
-                  arrowPointAtCenter
+                  arrow={{ pointAtCenter: true }}
                 >
                   <Icon className="textTertiary Font18 pointer" icon="info" />
                 </Tooltip>
@@ -366,7 +356,7 @@ const TitleStyle = props => {
                 <Tooltip
                   title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')}
                   placement="bottomRight"
-                  arrowPointAtCenter
+                  arrow={{ pointAtCenter: true }}
                 >
                   <Icon className="textTertiary Font18 pointer" icon="info" />
                 </Tooltip>

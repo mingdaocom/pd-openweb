@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import { Dialog } from 'ming-ui';
-import { addToken } from 'src/utils/common';
+import { Modal } from 'ming-ui/antd-components';
+import { addToken } from 'src/utils/platform/browser/download';
 import './less/exportFolder.less';
 
 export default class ExportFolder extends Component {
@@ -55,8 +55,10 @@ export default class ExportFolder extends Component {
 
   render() {
     return (
-      <Dialog
-        visible
+      <Modal
+        open
+        mask={{ closable: true }}
+        keyboard
         className="exportFolder"
         title={_l('选择您需要导出的部分')}
         okText={_l('导出')}
@@ -132,7 +134,7 @@ export default class ExportFolder extends Component {
             return <li key={i} />;
           })}
         </ul>
-      </Dialog>
+      </Modal>
     );
   }
 }

@@ -7,9 +7,9 @@ import { CustomScore } from 'ming-ui';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const RangeWrapper = styled.div`
-  .Score-wrapper .StarScore-item:nth-child(${props => props.activeIndex}) {
+  .Score-wrapper .StarScore-item:nth-child(${props => props.$activeIndex}) {
     ${props =>
-      props.activeIndex
+      props.$activeIndex
         ? `outline: 2px dashed var(--color-primary-focus-outer);
         outline-offset: 1px;
         transition:
@@ -69,7 +69,7 @@ const Range = props => {
       className={cx('customFormControlBox customFormButton flexRow customFormControlScore', {
         controlDisabled: disabled,
       })}
-      activeIndex={activeIndex}
+      $activeIndex={activeIndex}
     >
       <CustomScore
         from={'recordInfo'}

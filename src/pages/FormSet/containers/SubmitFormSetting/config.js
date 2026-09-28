@@ -12,14 +12,14 @@ export const btnList = [
 export const SUBMIT_NEXT_ACTION_LIST = [
   {
     value: '1',
-    text: _l('关闭弹层'),
+    label: _l('关闭弹层'),
   },
   {
     value: '2',
-    text: _l('继续创建下一条'),
+    label: _l('继续创建下一条'),
   },
   {
     value: '3',
-    text: _l('打开刚刚创建的记录'),
+    label: _l('打开刚刚创建的记录'),
   },
 ];

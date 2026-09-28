@@ -2,10 +2,11 @@ import React, { Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
-import { compareProps } from 'pages/PageHeader/util.js';
 import qs from 'query-string';
 import { LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { compareProps } from 'src/utils/domain/app/model';
 import { getIntegrationHomeUrl } from '../../utils';
 import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
 import fsImg4 from './img/4.png';
@@ -85,7 +86,9 @@ export default class WorkwxSyncCourse extends React.Component {
                 <br />
               </Fragment>
             )}
-            {_l('填入应用名称、应用描述')}
+            {window.platformENV.isHap
+              ? _l('填入应用名称（建议名称为：明道云）、应用描述')
+              : _l('填入应用名称、应用描述')}
             <br />
             {_l('应用Logo建议：')}
             <a
@@ -114,7 +117,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <p className="Font14 textSecondary mTop10 LineHeight22 mLeft15">{_l('b.“安全设置”，填写重定向URL')}</p>
           <div className="inputList mTop20">
             <span className="inputTitle">{_l('主页地址：')}</span>
-            <input type="text" className="inputBox" readOnly value={homeUrl} />
+            <Input type="text" className="inputBox" radius variant="filled" readOnly value={homeUrl} />
             <span
               className="copyBtn"
               onClick={() => {
@@ -130,7 +133,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={require(`./img/${isLark ? 'lark_3_1' : '3_1'}.png`)} />
           <img src={require('./img/lark_3_2.png')} />
           <p className="Font14 textSecondary mTop24 LineHeight22">
-            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            {window.platformENV.isHap
               ? _l(
                   '2.切换到“机器人”，启用机器人功能，这样在%0消息测就能直接收到明道云内部的流程、应用消息',
                   PlatformName[type],
@@ -170,7 +173,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={fsImg7} />
           <h3 className="Font18 textPrimary mTop40">{_l('4. 如何获取App ID和App Secret')}</h3>
           <p className="Font14 textSecondary mTop24 LineHeight22">
-            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            {window.platformENV.isHap
               ? _l('“凭证与基础信息”可以查看该App的ID和Secret；回到明道云管理后台，下一步录入信息将会用到')
               : _l('“凭证与基础信息”可以查看该App的ID和Secret；回到该系统管理后台，下一步录入信息将会用到')}
           </p>
@@ -194,7 +197,7 @@ export default class WorkwxSyncCourse extends React.Component {
         <p className="Font14 textSecondary mTop24 LineHeight22">{_l('2.添加重定向 URL')}</p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('重定向 URL')}</span>
-          <input type="text" className="inputBox" readOnly value={scanSafeDomain} />
+          <Input type="text" className="inputBox" radius variant="filled" readOnly value={scanSafeDomain} />
           <span
             className="copyBtn"
             onClick={() => {

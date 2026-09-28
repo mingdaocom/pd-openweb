@@ -1,7 +1,6 @@
 import { assign, endsWith, find, forEach, trim } from 'lodash';
-import qiniuAjax from 'src/api/qiniu';
-import { getToken } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getToken } from 'src/utils/services/request/authenticated';
 
 const validateFileName = str => {
   str = trim(str);
@@ -17,15 +16,6 @@ const validateFileName = str => {
   }
 
   return true;
-
-  const illegalChars = /[\/\\:\*\?"<>\|]/g;
-  const valid = !illegalChars.test(str);
-
-  if (!valid) {
-    alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
-  }
-
-  return valid;
 };
 
 // 上传错误类型
@@ -47,7 +37,7 @@ export default option => {
       xap_url: '/staticfiles/plupload/Moxie.xap',
       dragdrop: true,
       chunk_size: '4mb',
-      max_file_size: md.global.SysSettings.fileUploadLimitSize + 'mb',
+      max_file_size: window.platformENV.isHap ? '2g' : md.global.SysSettings.fileUploadLimitSize + 'mb',
       bucket: 0,
       type: 0,
     },
@@ -375,6 +365,10 @@ export default option => {
         errTip = _l('无法上传，不支持该格式的文件');
         break;
       case plupload.HTTP_ERROR:
+        if (/limited mimeType/i.test(safeParse(err.response, 'object').error || '')) {
+          errTip = _l('不支持此文件格式，请转换后重试。') + (err.status ? `(${err.status})` : '');
+          break;
+        }
         errorObj = JSON.stringify(err.response);
         errorText = errorObj.error;
         switch (err.status) {

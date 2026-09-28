@@ -9,10 +9,10 @@ import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const PhoneNumberWrap = styled.div`
   &.customFormControlMobileHover .customFormControlBox {
-    ${props => (props.isEditing ? 'background: transparent !important' : '')}
+    ${props => (props.$isEditing ? 'background: transparent !important' : '')}
   }
 
-  .customFormControlBox .ant-input {
+  .customFormControlBox .hap-input {
     transition: none !important;
     animation: none !important;
   }
@@ -81,7 +81,7 @@ const MobilePhone = props => {
   };
 
   return (
-    <PhoneNumberWrap className={cx({ customFormControlMobileHover: !disabled })} isEditing={isEditing}>
+    <PhoneNumberWrap className={cx({ customFormControlMobileHover: !disabled })} $isEditing={isEditing}>
       <PhoneNumberInput
         control={_.pick(props, [
           'value',

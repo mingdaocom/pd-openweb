@@ -1,16 +1,13 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Input } from 'antd';
 import cx from 'classnames';
-import update from 'immutability-helper';
-import { findIndex, includes, isEmpty, keys } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { compareWithTime } from 'src/components/Form/core/formUtils/helper';
-import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { DropdownContent, DropdownPlaceholder } from '../../../styled';
+import { Checkbox, Dropdown, Input, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { compareWithTime } from 'src/utils/domain/control/date';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { DropdownContent } from '../../../styled';
 
 const WeekWrap = styled(DropdownContent)`
   max-height: 280px;
@@ -61,14 +58,17 @@ const WEEKDAYS = {
   6: _l('周六'),
   7: _l('周日'),
 };
+const WEEK_OPTIONS = Object.keys(WEEKDAYS).map(value => ({ value, label: WEEKDAYS[value] }));
+const WEEK_SELECT_STYLES = { root: { width: '100%', minHeight: 36, margin: '12px 0' } };
+const renderWeekPlaceholder = values =>
+  values.length === 7 ? _l('每天') : values.map(({ value }) => WEEKDAYS[value]).join('     ');
 
 export default function DateVerify({ data, onChange }) {
   const { type } = data;
   const { allowweek = '', allowtime = '', showtype } = getAdvanceSetting(data);
   const needHide = _.includes(['4', '5'], showtype);
   const [originStart, originEnd] = allowtime.split('-');
-  const [{ weekVisible, startTimeVisible, endTimeVisible }, setVisible] = useSetState({
-    weekVisible: false,
+  const [{ startTimeVisible, endTimeVisible }, setVisible] = useSetState({
     startTimeVisible: false,
     endTimeVisible: false,
   });
@@ -76,23 +76,6 @@ export default function DateVerify({ data, onChange }) {
     startTime: originStart,
     endTime: originEnd,
   });
-
-  const handleWeekChange = key => {
-    const weeks = allowweek.split('');
-
-    if (isEmpty(weeks)) {
-      return key;
-    }
-
-    const index = findIndex(weeks, item => item === key);
-
-    if (index > -1) {
-      return update(weeks, { $splice: [[index, 1]] }).join('');
-    }
-
-    const idx = findIndex(weeks, item => +item > +key);
-    return update(weeks, { $splice: [[idx, 0, key]] }).join('');
-  };
 
   const handleTimeChange = (e, key) => {
     let value = e.target.value.trim();
@@ -143,56 +126,37 @@ export default function DateVerify({ data, onChange }) {
           {!isCustomWidget(data) && (
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 checked={allowweek}
-                onClick={checked =>
-                  onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      allowweek: !event.target.checked ? '' : '1234567',
+                    }),
+                  )
                 }
+                size="small"
               >
                 <span>{_l('允许选择的星期')}</span>
               </Checkbox>
             </div>
           )}
           {allowweek && (
-            <Dropdown
-              trigger={['click']}
-              visible={weekVisible}
-              onVisibleChange={visible => setVisible({ weekVisible: visible })}
-              overlay={
-                <WeekWrap onClick={e => e.stopPropagation()}>
-                  {keys(WEEKDAYS).map(key => (
-                    <div key={key} className="weekItem">
-                      <Checkbox
-                        checked={includes(allowweek, key)}
-                        onClick={() =>
-                          onChange(
-                            handleAdvancedSettingChange(data, {
-                              allowweek: handleWeekChange(key),
-                            }),
-                          )
-                        }
-                      >
-                        {WEEKDAYS[key]}
-                      </Checkbox>
-                    </div>
-                  ))}
-                </WeekWrap>
+            <Select
+              mode="multiple"
+              value={allowweek.split('')}
+              options={WEEK_OPTIONS}
+              showSearch={false}
+              maxTagCount={0}
+              maxTagPlaceholder={renderWeekPlaceholder}
+              styles={WEEK_SELECT_STYLES}
+              onChange={values =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowweek: [...values].sort((a, b) => Number(a) - Number(b)).join(''),
+                  }),
+                )
               }
-            >
-              <DropdownPlaceholder
-                className={cx({ active: weekVisible })}
-                style={{ marginBottom: '12px' }}
-                color="var(--color-text-title)"
-              >
-                {allowweek.length === 7
-                  ? _l('每天')
-                  : allowweek
-                      .split('')
-                      .map(key => WEEKDAYS[key])
-                      .join('     ')}
-                <i className="icon-arrow-down-border Font16 textTertiary"></i>
-              </DropdownPlaceholder>
-            </Dropdown>
+            />
           )}
         </Fragment>
       )}
@@ -200,21 +164,27 @@ export default function DateVerify({ data, onChange }) {
         <Fragment>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={allowtime}
-              onClick={checked =>
-                onChange(handleAdvancedSettingChange(data, { allowtime: checked ? '' : '00:00-24:00' }))
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowtime: !event.target.checked ? '' : '00:00-24:00',
+                  }),
+                )
               }
-              text={_l('允许选择的时段')}
-            />
+              size="small"
+            >
+              {_l('允许选择的时段')}
+            </Checkbox>
           </div>
           {allowtime && (
             <div className="timeFieldWrap flexRow">
               <Dropdown
-                visible={startTimeVisible}
-                onVisibleChange={v => setVisible({ startTimeVisible: v })}
+                open={startTimeVisible}
+                onOpenChange={v => setVisible({ startTimeVisible: v })}
                 trigger="click"
-                overlay={
+                menu={{ items: [] }}
+                popupRender={() => (
                   <WeekWrap>
                     {TIME_FIELD.map(v => {
                       const nextVal = allowtime.split('-')[1];
@@ -235,7 +205,7 @@ export default function DateVerify({ data, onChange }) {
                       );
                     })}
                   </WeekWrap>
-                }
+                )}
               >
                 <Input
                   className="mTop12 allowTimeSelect1"
@@ -250,9 +220,10 @@ export default function DateVerify({ data, onChange }) {
               <span>-</span>
               <Dropdown
                 trigger="click"
-                visible={endTimeVisible}
-                onVisibleChange={v => setVisible({ endTimeVisible: v })}
-                overlay={
+                open={endTimeVisible}
+                onOpenChange={v => setVisible({ endTimeVisible: v })}
+                menu={{ items: [] }}
+                popupRender={() => (
                   <WeekWrap>
                     {TIME_FIELD.map(v => {
                       const preVal = allowtime.split('-')[0];
@@ -273,7 +244,7 @@ export default function DateVerify({ data, onChange }) {
                       );
                     })}
                   </WeekWrap>
-                }
+                )}
               >
                 <Input
                   className="mTop12 allowTimeSelect2"

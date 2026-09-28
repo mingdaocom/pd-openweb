@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import postAjax from 'src/api/post';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
-import { getClassNameByExt } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import { formatMsgDate } from '../../utils';
 import * as ajax from '../../utils/ajax';
 import './index.less';
@@ -74,10 +76,8 @@ export class FeesItem extends Component {
   }
   handlePreviewFeed(item) {
     const { postID } = item;
-
-    const removeFn = function () {
-      $('.chatFeedDialog').parent().remove();
-    };
+    let modal;
+    const removeFn = () => modal?.destroy();
 
     postAjax
       .getPostDetail({
@@ -85,12 +85,17 @@ export class FeesItem extends Component {
       })
       .then(postItem => {
         if (postItem.success === '1') {
-          Dialog.confirm({
+          modal = Modal.confirm({
             width: 800,
-            dialogClasses: 'chatFeedDialog',
+            wrapClassName: 'chatFeedDialog',
             title: _l('动态详情'),
-            noFooter: true,
-            children: <PostDetails onRemove={removeFn} postItem={postItem} />,
+            footer: null,
+            styles: {
+              body: {
+                borderTop: '1px solid var(--color-border-primary)',
+              },
+            },
+            content: <PostDetails onRemove={removeFn} postItem={postItem} />,
           });
         } else {
           return alert(_l('您的权限不足或此动态已被删除，无法查看'), 2);
@@ -140,7 +145,10 @@ export class FeesItem extends Component {
           <div className="feed-creator-info flex ellipsis">{user.userName}</div>
         </div>
         <div className="feed-body">
-          <div className="feed-content" dangerouslySetInnerHTML={{ __html: item.content }}></div>
+          <div
+            className="feed-content"
+            dangerouslySetInnerHTML={{ __html: sanitizePostMessageHtml(item.content) }}
+          ></div>
           {imagelist && imagelist.length ? this.renderImage(imagelist) : undefined}
           {filelist && filelist.length ? this.renderFile(filelist) : undefined}
         </div>

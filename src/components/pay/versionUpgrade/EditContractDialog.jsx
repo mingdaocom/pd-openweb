@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import { Dialog, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import upgradeAjax from 'src/api/upgrade';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 const formData = [
   { key: 'companyName', label: _l('组织全称'), type: 'input', placeholder: _l('组织名称'), isRequired: true },
@@ -21,8 +21,8 @@ const getDataFilterXSS = summary =>
     whiteList: Object.assign({}, whiteList, { span: ['style'] }),
   });
 
-const DialogWrap = styled(Dialog)`
-  .mui-dialog-body {
+const DialogWrap = styled(Modal)`
+  .hap-modal-body {
     overflow-x: hidden !important;
   }
 `;
@@ -35,22 +35,6 @@ const FormGroup = styled.div`
     color: var(--color-error);
     font-size: 14px;
     vertical-align: text-top;
-  }
-  .formBox {
-    background: var(--color-background-secondary);
-    border: 1px solid var(--color-background-secondary);
-    border-radius: 4px;
-    input {
-      background: transparent;
-      border: 1px solid transparent;
-      &:hover {
-        border-color: transparent;
-      }
-      &:focus {
-        background-color: var(--color-background-primary);
-        border: 1px solid var(--color-primary);
-      }
-    }
   }
 `;
 
@@ -138,7 +122,15 @@ export default function EditContractDialog(props) {
   }, []);
 
   return (
-    <DialogWrap width={560} title={_l('组织信息')} visible={visible} onOk={onOk} onCancel={onCancel}>
+    <DialogWrap
+      width={560}
+      title={_l('组织信息')}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
+      onOk={onOk}
+      onCancel={onCancel}
+    >
       {formData.map(item => {
         const { key, label, placeholder, isRequired } = item;
         return (
@@ -150,9 +142,11 @@ export default function EditContractDialog(props) {
             <div className="formBox">
               <Input
                 className="w100"
+                radius
+                variant="filled"
                 placeholder={placeholder}
                 value={contractInfo[key]}
-                onChange={val => setContractInfo({ ...contractInfo, [key]: val })}
+                onChange={event => setContractInfo({ ...contractInfo, [key]: event.target.value })}
               />
             </div>
           </FormGroup>

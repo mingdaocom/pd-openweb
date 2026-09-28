@@ -2,15 +2,17 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import SignatureComp from 'src/components/Form/DesktopForm/widgets/Signature';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { browserIsMobile } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
+import { WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { compatibleMDJS } from 'src/utils/services/project';
 import EditableCellCon from '../EditableCellCon';
-import { FROM } from './enum';
 
 export default class Signature extends React.Component {
+  static contextType = RecordInfoContext;
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.shape({}),
@@ -82,7 +84,9 @@ export default class Signature extends React.Component {
     } = this.props;
 
     compatibleMDJS('previewSignature', { url: value }, () => {
-      previewAttachments({
+      const openPreviewAttachments = this.context?.openPreviewAttachments || previewAttachments;
+
+      openPreviewAttachments({
         index: 0,
         attachments: [
           {
@@ -141,49 +145,48 @@ export default class Signature extends React.Component {
     }
 
     return (
-      <SignatureComp
-        projectId={projectId}
-        appId={appId}
-        worksheetId={worksheetId}
-        controlId={cell.controlId}
-        ref={this.editRef}
-        onlySignature
-        isEdit
-        advancedSetting={cell.advancedSetting}
-        destroyPopupOnHide={!window.isSafari} // 不是 Safari
-        popupAlign={{
-          offset: [1, 2],
-          points: ['tl', 'bl'],
-          overflow: { adjustX: true, adjustY: true },
+      <EditableCellCon
+        onClick={this.props.onClick}
+        className={cx(className, { canedit: editable })}
+        style={style}
+        iconRef={this.editIcon}
+        iconName="hr_edit"
+        iconClassName="dateEditIcon"
+        isediting={isediting}
+        onIconClick={() => {
+          updateEditingStatus(true);
         }}
-        visible={isediting}
-        popupContainer={
-          tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-          tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD ||
-          fromEmbed
-            ? document.body
-            : popupContainer()
-        }
-        onClose={() => {
-          updateEditingStatus(false);
-        }}
-        onChange={this.handleChange}
       >
-        <EditableCellCon
-          onClick={this.props.onClick}
-          className={cx(className, { canedit: editable })}
-          style={style}
-          iconRef={this.editIcon}
-          iconName="hr_edit"
-          iconClassName="dateEditIcon"
-          isediting={isediting}
-          onIconClick={() => {
-            updateEditingStatus(true);
+        <SignatureComp
+          projectId={projectId}
+          appId={appId}
+          worksheetId={worksheetId}
+          controlId={cell.controlId}
+          ref={this.editRef}
+          onlySignature
+          isEdit
+          advancedSetting={cell.advancedSetting}
+          destroyPopupOnHide={!window.isSafari} // 不是 Safari
+          visible={isediting}
+          popupContainer={
+            tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
+            tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD ||
+            fromEmbed
+              ? document.body
+              : popupContainer()
+          }
+          onClose={() => {
+            updateEditingStatus(false);
           }}
+          onChange={this.handleChange}
         >
-          {!!value && <div className="cellAttachments cellControl"> {this.renderCommon()} </div>}
-        </EditableCellCon>
-      </SignatureComp>
+          {value ? (
+            <div className="cellAttachments cellControl"> {this.renderCommon()} </div>
+          ) : (
+            <div className="w100 h100"></div>
+          )}
+        </SignatureComp>
+      </EditableCellCon>
     );
   }
 }

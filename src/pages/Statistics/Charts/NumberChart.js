@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { generate } from '@ant-design/colors';
-import { Col, Dropdown, Menu, Row } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
-import { toFixed } from 'src/utils/control';
+import { Col, Dropdown, Row, Tooltip } from 'ming-ui/antd-components';
+import { toFixed } from 'src/utils/domain/control/number';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { isFormatNumber, isTimeControl } from '../common/controlUtils';
 import { formatContrastTypes } from '../common/timeUtils';
 import { loadPresetImage, normalizePresetImageIndex } from '../components/ChartStyle/components/BgPicker/presetImages';
 import { defaultNumberChartStyle, sizeTypes } from '../enum';
+import { chartContextMenuProps, getChartContextMenuItems } from './ChartContextMenu';
 import { formatrChartValue, getStyleColor } from './common';
 
 const isMobile = browserIsMobile();
@@ -45,7 +45,7 @@ const Wrap = styled.div`
     }
     &.hover:hover {
       cursor: pointer;
-      background-color: ${props => (props.bgStyleValue ? 'transparent' : 'var(--color-background-hover)')};
+      background-color: ${props => (props.$bgStyleValue ? 'transparent' : 'var(--color-background-hover)')};
     }
   }
   .wrap-center {
@@ -106,12 +106,12 @@ const Wrap = styled.div`
       }
     }
   }
-  .ant-row {
+  .hap-row {
     width: 100%;
   }
-  .ant-col {
+  .hap-col {
     position: relative;
-    &:nth-child(${props => props.columnCount}n)::after {
+    &:nth-child(${props => props.$columnCount}n)::after {
       display: none;
     }
     &:last-child::after {
@@ -128,7 +128,7 @@ const Wrap = styled.div`
       background-color: var(--color-border-secondary);
     }
   }
-  .ant-col-5 {
+  .hap-col-5 {
     flex: 0 0 20%;
     max-width: 20%;
   }
@@ -176,8 +176,8 @@ const NumberChartContent = styled.div`
     align-items: center !important;
   }
   .count {
-    font-size: ${props => props.fontSize}px !important;
-    line-height: ${props => props.fontSize + 5}px !important;
+    font-size: ${props => props.$fontSize}px !important;
+    line-height: ${props => props.$fontSize + 5}px !important;
     width: 100%;
     color: var(--color-text-title);
     font-weight: 500;
@@ -577,12 +577,8 @@ export default class extends Component {
           {isContrastValue && tipsText && ` (${tipsText})`}
         </div>
         {contrastValue && percentage ? (
-          <Tooltip title={contrastValue} overlayInnerStyle={{ textAlign: 'center' }}>
-            <div
-              className={`${
-                positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : contrastColor ? 'DepGreen' : 'Red'
-              }`}
-            >
+          <Tooltip title={contrastValue} styles={{ body: { textAlign: 'center' } }}>
+            <div className={`${positiveNumber ? (contrastColor ? 'Red' : 'Green') : contrastColor ? 'Green' : 'Red'}`}>
               <div className="valignWrapper flexRow alignItemsCenter justifyContentCenter flexWrap">
                 {isEquality ? null : (
                   <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />
@@ -634,11 +630,11 @@ export default class extends Component {
     const { numberChartStyle = defaultNumberChartStyle } = style;
     const {
       iconVisible,
-      textAlign,
+      textAlign = 'center',
       icon,
       iconColor,
       shape,
-      fontSize,
+      fontSize = 28,
       fontColor,
       titleColor,
       lastContrastText,
@@ -690,10 +686,10 @@ export default class extends Component {
               <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#fff" size={32} />
             </div>
           )}
-          <NumberChartContent className={cx('flex', `numberChartAlign-${textAlign}`)} fontSize={newFontSize}>
+          <NumberChartContent className={cx('flex', `numberChartAlign-${textAlign}`)} $fontSize={newFontSize}>
             <Tooltip
               title={value.toLocaleString() == formatrValue ? null : value.toLocaleString()}
-              overlayInnerStyle={{ textAlign: 'center' }}
+              styles={{ body: { textAlign: 'center' } }}
             >
               <div className="contentWrapper textWrap flexColumn">
                 {name && (oneNumber ? displaySetup.showTitle : true) && (
@@ -742,28 +738,17 @@ export default class extends Component {
       </Col>
     );
   }
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   render() {
-    const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail, customPageConfig } = this.props;
-    const { pageStyleType = 'light' } = customPageConfig;
-    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
+    const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail } = this.props;
     const {
       name,
       xaxes,
@@ -797,9 +782,8 @@ export default class extends Component {
           `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`,
           { oneNumberWrap: oneNumber && !isThumbnail },
         )}
-        columnCount={newColumnCount}
-        isDark={isDark}
-        bgStyleValue={oneNumber ? numberChartStyle.bgStyleValue : undefined}
+        $columnCount={newColumnCount}
+        $bgStyleValue={oneNumber ? numberChartStyle.bgStyleValue : undefined}
         onClick={event => (oneNumber ? this.handleClick(event, list[0]) : _.noop())}
         style={oneNumber ? this.getBgStyles() : {}}
       >
@@ -855,13 +839,17 @@ export default class extends Component {
             )}
         </Row>
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>

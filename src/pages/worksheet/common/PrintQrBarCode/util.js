@@ -1,7 +1,7 @@
 import JsBarcode from 'jsbarcode';
 import _ from 'lodash';
-import genQrDataURL from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { generateQrDataUrl as genQrDataURL } from 'src/utils/platform/browser/qrCode';
 import {
   BAR_LABEL_SIZE,
   BAR_LABEL_SIZES,

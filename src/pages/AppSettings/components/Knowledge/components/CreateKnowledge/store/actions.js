@@ -2,9 +2,9 @@ import _ from 'lodash';
 import agentApi from 'src/api/agent';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
 export const setLoading = (dispatch, loading) => {
   dispatch({ type: 'SET_LOADING', loading });

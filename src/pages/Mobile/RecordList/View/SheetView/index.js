@@ -5,15 +5,17 @@ import { Popup, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/process';
 import RecordAction from 'mobile/components/RecordInfo/RecordAction';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { replaceBtnsTranslateInfo } from 'src/utils/translate';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { replaceBtnsTranslateInfo } from 'src/utils/services/translation/app';
 import SheetRows, { WithoutRows } from '../../SheetRows';
 
 const BatchOptBtn = styled.div`
@@ -53,16 +55,6 @@ const BatchOptBtn = styled.div`
     i {
       line-height: 36px;
     }
-  }
-`;
-
-const Btn = styled(Button)`
-  border: 1px solid var(--color-border-secondary) !important;
-  background-color: var(--color-background-primary) !important;
-  &.delete {
-    background-color: var(--color-error) !important;
-    border: 1px solid var(--color-error);
-    color: var(--color-white);
   }
 `;
 
@@ -125,12 +117,14 @@ class SheetView extends Component {
             isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
             worksheetInfo.allowAdd && (
               <Button
+                type="primary"
+                shape="round"
                 className="addRecordBtn valignWrapper mTop10"
+                icon={<Icon icon="add" className="Font22" />}
                 onClick={() => {
                   window.mobileNavigateTo(`/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
                 }}
               >
-                <Icon icon="add" className="Font22 textWhite" />
                 {worksheetInfo.entityName}
               </Button>
             )
@@ -257,8 +251,8 @@ class SheetView extends Component {
             this.props.changeBatchOptData([]);
           }
         })
-        .catch(() => {
-          alert(_l('批量删除失败'), 2);
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, _l('批量删除失败'), 2);
         });
       this.props.changeBatchOptVisible(false);
     }
@@ -493,20 +487,24 @@ class SheetView extends Component {
               {_l('60天内可在 回收站 内找回已删除%0，无编辑权限及锁定记录无法删除。', worksheetInfo.entityName)}
             </div>
             <div className="flexRow mBottom10">
-              <Btn
-                radius
-                className="flex mRight6 bold textSecondary Font13"
+              <Button
+                color="default"
+                variant="filled"
+                shape="round"
+                className="flex mRight6 bold textSecondary"
                 onClick={() => this.setState({ deleteVisible: false })}
               >
                 {_l('取消')}
-              </Btn>
-              <Btn
-                radius
-                className="flex mLeft6 bold Font13 delete"
+              </Button>
+              <Button
+                color="danger"
+                variant="solid"
+                shape="round"
+                className="flex mLeft6 bold"
                 onClick={() => this.setState({ deleteVisible: false }, this.comfirmDelete)}
               >
                 {_l('确定')}
-              </Btn>
+              </Button>
             </div>
           </Popup>
         )}

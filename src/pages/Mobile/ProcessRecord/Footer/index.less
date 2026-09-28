@@ -53,13 +53,13 @@
         color: @hastenColor;
       }
     }
+    &.revoke,
     &.overrule,
     &.taskRevokeEntrust {
       color: var(--color-white);
       background-color: @refuseColor;
       border: 1px solid @refuseColor;
     }
-    &.revoke,
     &.pass {
       color: var(--color-white);
       background-color: @passColor;
@@ -96,5 +96,16 @@
   .processRecordFooterHandle {
     position: absolute;
     bottom: 0;
+  }
+}
+
+.appProcessRecord {
+  .recordScroll {
+    margin-bottom: 60px;
+  }
+  .processRecordFooterHandle {
+    height: 60px;
+    box-sizing: border-box;
+    padding-bottom: 10px;
   }
 }

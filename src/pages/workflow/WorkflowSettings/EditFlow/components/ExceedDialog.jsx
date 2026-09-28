@@ -1,13 +1,12 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import exceedImg from '../../../asset/exceed.png';
 
 export default () => {
-  Dialog.confirm({
-    className: 'workflowExceedDialog',
+  Modal.confirm({
     width: 640,
     title: '',
-    description: (
+    content: (
       <div className="flexColumn alignItemsCenter">
         <img src={exceedImg} width={110} className="mTop20" />
         <div className="Font20 bold mTop20">{_l('工作流节点数已达上限')}</div>
@@ -17,6 +16,11 @@ export default () => {
     ),
     okText: _l('我知道了'),
     closable: false,
-    removeCancelBtn: true,
+    cancelButtonProps: {
+      style: {
+        display: 'none',
+      },
+    },
+    styles: { footer: { textAlign: 'center', marginBottom: 25 } },
   });
 };

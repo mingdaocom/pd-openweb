@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import appGroupIntroPic from './images/appGroupIntro.gif';
 
@@ -55,18 +56,14 @@ let AppGroupIntro = class AppGroupIntro extends Component {
         </div>
         <div className="btnWrap">
           <Button
-            size="small"
-            style={{
-              height: 36,
-              padding: '0 24px',
-            }}
+            type="primary"
+            icon={<Icon icon="add" />}
             onClick={e => {
               e.stopPropagation();
               addAppGroup();
             }}
           >
-            <Icon className="Font16" icon="add" />
-            <span className="bold">{_l('添加分组')}</span>
+            {_l('添加分组')}
           </Button>
         </div>
       </div>

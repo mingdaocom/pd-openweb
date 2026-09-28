@@ -1,12 +1,15 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { ConfigProvider } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { SETTING_MODE_DISPLAY } from '../config/setting';
-import { DEFAULT_CONFIG } from '../config/widget';
-import { enumWidgetType, supportWidgetIntroOptions } from '../util';
-import { getAdvanceSetting } from '../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { supportWidgetIntroOptions } from 'src/utils/domain/control/capabilities';
+import { SETTING_MODE_DISPLAY } from 'src/utils/domain/control/setting';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+import { useCreateTemplateDialog } from '../util/createTemplate';
 import WidgetBatchOption from '../widgetDisplay/components/WidgetBatchOption';
 import { CloseIcon, FixedIcon, WidgetStyleSetting } from '../widgetDisplay/components/WidgetStyle';
 import StyleContent from '../widgetSetting/components/StyleContent';
@@ -14,6 +17,10 @@ import WidgetIntro from './components/WidgetIntro';
 import CustomEvent from './content/CustomEvent';
 import ExplainContent from './content/ExplainContent';
 import SettingContent from './content/SettingContent';
+
+const CHECKBOX_CONFIG = {
+  classNames: { label: 'widgetSettingCheckboxLabel' },
+};
 
 const SettingWrap = styled.div`
   position: relative;
@@ -23,7 +30,7 @@ const SettingWrap = styled.div`
   display: flex;
   flex-direction: column;
   background-color: var(--color-background-primary);
-  ${props => (!props.showSetting ? 'display: none;' : '')}
+  ${props => (!props.$showSetting ? 'display: none;' : '')}
   .widgetSettingHeader {
     margin: 14px 20px 0 20px;
     display: flex;
@@ -40,6 +47,9 @@ const SettingWrap = styled.div`
     margin-top: 240px;
     text-align: center;
   }
+  .hap-select-disabled.hap-select {
+    border-color: var(--color-border-primary) !important;
+  }
   .settingContentWrap {
     width: 100%;
     flex: 1;
@@ -50,31 +60,24 @@ const SettingWrap = styled.div`
   .labelWrap {
     display: flex;
     margin-top: 8px;
+    .widgetSettingCheckboxLabel {
+      padding-inline-start: 10px;
+      padding-inline-end: 0;
+    }
     .icon-help {
       margin-left: 4px;
-    }
-    .ming.Checkbox {
-      display: inline-flex;
-      align-items: center;
-      .Checkbox-box {
-        margin-right: 10px;
-        flex-shrink: 0;
-        .icon-help {
-          margin-left: 4px;
-        }
-      }
-      &.displayCover {
-        align-items: flex-start;
-        span:nth-child(2) {
-          margin-top: -2px;
-          white-space: break-spaces;
-        }
-      }
     }
   }
 `;
 
-function WidgetSetting(props) {
+function getInitialSettingMode(data, globalSheetInfo, isRecycle) {
+  const tempMode = safeParse(window.localStorage.getItem(`worksheetMode-${globalSheetInfo.worksheetId}`) || '1');
+  const canNotSet = isRecycle || (data.controlId || '').includes('-') || !supportWidgetIntroOptions(data, tempMode);
+
+  return canNotSet ? SETTING_MODE_DISPLAY.SETTING : tempMode || SETTING_MODE_DISPLAY.SETTING;
+}
+
+function WidgetSettingContent(props) {
   const {
     widgets = [],
     activeWidget: data = {},
@@ -98,6 +101,8 @@ function WidgetSetting(props) {
   const queryId = _.get(getAdvanceSetting(data, 'dynamicsrc'), 'id');
   const queryConfig = _.find(queryConfigs, item => item.id === queryId) || {};
   const customQueryConfig = queryConfigs.filter(i => i.eventType === 1);
+  const { open: openCreateTemplateDialog, holder: createTemplateDialogHolder } = useCreateTemplateDialog();
+  const [settingMode, setSettingMode] = useState(() => getInitialSettingMode(data, globalSheetInfo, isRecycle));
 
   const onChange = (obj, callback) => {
     if (isEmpty(obj)) return;
@@ -109,8 +114,6 @@ function WidgetSetting(props) {
     return settingPanelFixed && settingPanelVisible;
   }, [settingPanelFixed, settingPanelVisible]);
 
-  // 1: 设置，2: 样式， 3: 说明，4: 事件
-  const [settingMode, setSettingMode] = useState(SETTING_MODE_DISPLAY.SETTING);
   const allProps = {
     ...rest,
     data,
@@ -135,7 +138,14 @@ function WidgetSetting(props) {
 
   const getContent = () => {
     if (!_.isEmpty(batchActive)) {
-      return <WidgetBatchOption batchActive={batchActive} {...allProps} queryConfigs={queryConfigs} />;
+      return (
+        <WidgetBatchOption
+          batchActive={batchActive}
+          {...allProps}
+          queryConfigs={queryConfigs}
+          openCreateTemplateDialog={openCreateTemplateDialog}
+        />
+      );
     }
 
     if (styleInfo.activeStatus && !isRecycle)
@@ -203,18 +213,19 @@ function WidgetSetting(props) {
     );
   };
 
-  useEffect(() => {
-    const tempMode = safeParse(window.localStorage.getItem(`worksheetMode-${globalSheetInfo.worksheetId}`) || '1');
-    const canNotSet = isRecycle || (controlId || '').includes('-') || !supportWidgetIntroOptions(data, tempMode);
-    setSettingMode(canNotSet ? 1 : tempMode || settingMode);
-  }, [controlId]);
-
   return (
-    <SettingWrap id="widgetConfigSettingWrap" showSetting={showSetting}>
-      {renderHeader()}
-      <div className="settingContentWrap">{getContent()}</div>
-    </SettingWrap>
+    <ConfigProvider checkbox={CHECKBOX_CONFIG}>
+      {createTemplateDialogHolder}
+      <SettingWrap id="widgetConfigSettingWrap" $showSetting={showSetting}>
+        {renderHeader()}
+        <div className="settingContentWrap">{getContent()}</div>
+      </SettingWrap>
+    </ConfigProvider>
   );
+}
+
+function WidgetSetting(props) {
+  return <WidgetSettingContent key={_.get(props, 'activeWidget.controlId')} {...props} />;
 }
 
 export default ErrorBoundary.wrap(WidgetSetting);

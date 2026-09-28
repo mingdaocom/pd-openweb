@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isFormatNumber, isTimeControl } from 'statistics/common/controlUtils';
 import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { formatterTooltipTitle } from 'statistics/common/timeUtils';
-import { toFixed } from 'src/utils/control';
+import { toFixed } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { chartContextMenuProps, getChartContextMenuItems } from './ChartContextMenu';
 import {
   formatControlInfo,
   formatrChartAxisValue,
@@ -18,7 +18,7 @@ import {
   getLegendType,
   getMaxValue,
   getMinValue,
-  reportTypes,
+  getYAxisScale,
 } from './common';
 import loadG2Plot from './loadG2Plot';
 
@@ -392,15 +392,18 @@ export default class extends Component {
       ? 0
       : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
     const sortData = formatChartData(map, yaxisList, displaySetup, split.controlId);
+    const contrastData = contrastMap.length
+      ? formatChartData(
+          contrastMap.map(item => ({ ...item, key: lastDateText })),
+          yaxisList.map(item => ({ ...item, rename: '' })),
+          displaySetup,
+          split.controlId,
+        )
+      : [];
+    const scaleData = sortData.concat(contrastData);
     const newYaxisList = formatYaxisList(sortData, yaxisList);
-    const maxValue = getMaxValue(
-      sortData,
-      contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null,
-    );
-    const minValue = getMinValue(
-      sortData,
-      contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null,
-    );
+    const maxValue = getMaxValue(sortData, contrastData.length ? contrastData : null);
+    const minValue = getMinValue(sortData, contrastData.length ? contrastData : null);
     const { Line, Area } = this.g2plotComponent;
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
     const colors = getChartColors(style, themeColor, projectId);
@@ -408,11 +411,23 @@ export default class extends Component {
       yaxisList: isPile || isPerPile || isAccumulate || accumulatePerPile ? [] : yaxisList,
       colors,
     });
+    const hasCustomYAxisRange = Number.isFinite(ydisplay.minValue) || Number.isFinite(ydisplay.maxValue);
+    const yAxisScale = {
+      ...getYAxisScale(scaleData, 'value', {
+        tickCount: 5,
+        paddingRatio: 0.2,
+        preventNegativeWhenAllPositive: true,
+        min: ydisplay.minValue,
+        max: ydisplay.maxValue,
+      }),
+      nice: !hasCustomYAxisRange,
+    };
+    const yAxis = _.omit(yAxisScale, 'ticks');
 
     this.setState({ newYaxisList });
 
     const baseConfig = {
-      appendPadding: [15, 15, 5, 0],
+      appendPadding: [15, 0, 5, 0],
       seriesField: 'groupName',
       xField: 'originalId',
       yField: 'value',
@@ -428,9 +443,7 @@ export default class extends Component {
         groupName: {
           formatter: value => formatControlInfo(value).name,
         },
-        value: {
-          nice: false,
-        },
+        value: yAxisScale,
       },
       theme: {
         background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
@@ -460,8 +473,7 @@ export default class extends Component {
             }
           : false,
       yAxis: {
-        minLimit: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
-        maxLimit: ydisplay.maxValue || (LineValue > maxValue ? parseInt(LineValue) + parseInt(LineValue / 5) : null),
+        ...yAxis,
         title:
           ydisplay.showTitle && ydisplay.title
             ? {
@@ -628,15 +640,6 @@ export default class extends Component {
         }),
       };
     } else {
-      const contrastData = formatChartData(
-        contrastMap.map(item => {
-          item.key = lastDateText;
-          return item;
-        }),
-        yaxisList.map(item => ({ ...item, rename: '' })),
-        displaySetup,
-        split.controlId,
-      );
       const isTime = isTimeControl(xaxes.controlType);
       const newData = isTime ? mergeDataTime(sortData, contrastData) : mergeData(sortData, contrastData);
       const data = sortData.length >= contrastData.length ? sortData : contrastData;
@@ -681,24 +684,15 @@ export default class extends Component {
       };
     }
   }
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   renderCount() {
     const { newYaxisList } = this.state;
     const { summary, yaxisList } = this.props.reportData;
@@ -753,13 +747,17 @@ export default class extends Component {
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>

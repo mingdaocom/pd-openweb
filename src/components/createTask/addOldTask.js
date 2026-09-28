@@ -1,118 +1,105 @@
-import React, { useState } from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import debounce from 'lodash/debounce';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
-import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
-import './css/addOldTask.css';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
-const SearchTaskCon = styled.ul`
-  background: var(--color-background-primary);
-  display: block;
-  padding: 6px 0;
-  -webkit-box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  max-height: 300px;
-  overflow-y: scroll;
-  li {
-    cursor: pointer;
-    height: 40px;
-    line-height: 40px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 0 15px;
-    &.active {
-      color: var(--color-white);
-      background-color: var(--color-primary);
-    }
-    &:hover {
-      color: var(--color-white);
-      background-color: var(--color-primary);
-    }
-    &.noData {
-      color: var(--color-text-title) !important;
-      background-color: var(--color-background-primary) !important;
-    }
-  }
-`;
+const formatTaskOptions = tasks =>
+  tasks.map(task => ({
+    value: task.taskID,
+    label: task.taskName || '',
+    userName: task.userName || '',
+    task,
+  }));
 
-function SearchTask(props) {
-  const { onSelect } = props;
+const SearchTask = React.forwardRef(function SearchTask({ onSelect }, ref) {
   const [options, setOptions] = useState([]);
-  const [value, setValue] = useState({});
-  const [visible, setVisible] = useState(false);
+  const [value, setValue] = useState();
   const [loading, setLoading] = useState(false);
+  const requestIdRef = useRef(0);
+  const searchTasksRef = useRef(null);
 
-  const searchFetch = (value = '') => {
-    setValue({});
-    setLoading(true);
+  const fetchTasks = useCallback((keywords, requestId) => {
     ajaxRequest
       .getMyTaskList({
-        keywords: value.trim(),
+        keywords: keywords.trim(),
         projectId: 'all',
         pageIndex: 1,
       })
-      .then(res => {
-        setLoading(false);
-        setOptions(res.data || []);
-        setVisible(true);
-      });
-  };
+      .then(
+        res => {
+          if (requestId !== requestIdRef.current) return;
 
-  const handleSearch = _.debounce(searchFetch, 500);
+          setOptions(formatTaskOptions(res.data || []));
+          setLoading(false);
+        },
+        () => {
+          if (requestId !== requestIdRef.current) return;
+
+          setOptions([]);
+          setLoading(false);
+        },
+      );
+  }, []);
+
+  useEffect(() => {
+    const searchTasks = debounce(fetchTasks, 500);
+    searchTasksRef.current = searchTasks;
+
+    return () => {
+      requestIdRef.current += 1;
+      searchTasks.cancel();
+      searchTasksRef.current = null;
+    };
+  }, [fetchTasks]);
+
+  const handleSearch = useCallback(keywords => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    setOptions([]);
+    setLoading(true);
+    searchTasksRef.current?.(keywords, requestId);
+  }, []);
+
+  const handleSelect = useCallback(
+    (nextValue, option) => {
+      setValue(nextValue);
+      onSelect(option.task);
+    },
+    [onSelect],
+  );
+
+  const handleOpenChange = useCallback(
+    open => {
+      if (open && !loading && options.length === 0) {
+        handleSearch('');
+      }
+    },
+    [handleSearch, loading, options.length],
+  );
 
   return (
-    <Trigger
-      popup={
-        <SearchTaskCon>
-          {loading ? (
-            <LoadDiv size="middle" />
-          ) : (
-            <React.Fragment>
-              {options.map(l => (
-                <li
-                  key={l.taskID}
-                  className={cx({ active: l.taskID === value.taskID })}
-                  onClick={() => {
-                    setValue(l);
-                    onSelect(l);
-                    setVisible(false);
-                    $('#txtOldTaskName').val(l.taskName);
-                  }}
-                >{`${htmlEncodeReg(l.taskName)}(${htmlEncodeReg(l.userName)})`}</li>
-              ))}
-              {!loading && options.length === 0 && <li className="noData">{_l('没有搜索到结果')}</li>}
-            </React.Fragment>
-          )}
-        </SearchTaskCon>
-      }
-      popupStyle={{ width: 374 }}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        if (visible && options.length === 0) return;
-        setVisible(visible);
-      }}
-      action={['click']}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [0, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-    >
-      <input
-        type="text"
-        id="txtOldTaskName"
-        placeholder={_l('请输入任务名称...')}
-        className="TextBox mTop5 task_title_icon"
-        onChange={e => handleSearch(e.target.value)}
-      />
-    </Trigger>
+    <Select
+      ref={ref}
+      className="w100"
+      filterOption={false}
+      labelInValue
+      listHeight={300}
+      loading={loading}
+      notFoundContent={loading ? <LoadDiv size="middle" /> : _l('没有搜索到结果')}
+      optionRender={({ data }) => `${data.label}(${data.userName})`}
+      options={options}
+      placeholder={_l('请输入任务名称...')}
+      showSearch
+      value={value}
+      onOpenChange={handleOpenChange}
+      onSearch={handleSearch}
+      onSelect={handleSelect}
+    />
   );
-}
+});
 
 var AddOldTask = function (opts) {
   var defaults = {
@@ -123,6 +110,7 @@ var AddOldTask = function (opts) {
   };
   this.settings = $.extend(defaults, opts);
   this.settings.$el = $(this);
+  this.taskSelectRef = React.createRef();
   this.init();
 };
 
@@ -131,21 +119,22 @@ $.extend(AddOldTask.prototype, {
     var _this = this;
     var settings = this.settings;
 
-    Dialog.confirm({
-      dialogClasses: `${settings.frameid} addOldTaskConfirm`,
+    Modal.confirm({
+      wrapClassName: `${settings.frameid} addOldTaskConfirm`,
       width: 460,
       title: _l('加入任务'),
       okText: _l('确认'),
-      children: (
-        <div class="pAll10">
-          <div class="textTertiary">{_l('注：将动态更新作为讨论的内容加入到已有任务（包括文档、图片等）')}</div>
-          <div class="mTop5 oldTaskContainer">
+      styles: { body: { overflow: 'visible' } },
+      content: (
+        <div>
+          <div className="textTertiary">{_l('注：将动态更新作为讨论的内容加入到已有任务（包括文档、图片等）')}</div>
+          <div className="mTop10 oldTaskContainer">
             <SearchTask
+              ref={this.taskSelectRef}
               onSelect={item => {
                 settings.TaskID = item.taskID;
               }}
             />
-            <span id="spnTaskNameMessage" class="ShowMsg Hidden"></span>
           </div>
         </div>
       ),
@@ -155,7 +144,7 @@ $.extend(AddOldTask.prototype, {
     });
 
     setTimeout(() => {
-      $('#txtOldTaskName').focus();
+      this.taskSelectRef.current?.focus();
     }, 200);
   },
   send: function () {
@@ -164,7 +153,7 @@ $.extend(AddOldTask.prototype, {
     var postID = settings.PostID;
     if (!taskID) {
       alert(_l('请输入并选择一个要加入的任务名称'), 3);
-      $('#txtOldTaskName').focus();
+      this.taskSelectRef.current?.focus();
       return false;
     }
 
@@ -178,8 +167,8 @@ $.extend(AddOldTask.prototype, {
           window.location.href = pathCompletion('/apps/task/task_' + taskID);
         }
       })
-      .catch(function () {
-        alert(_l('操作失败，请稍后再试'), 2);
+      .catch(function (_requestError) {
+        alertIfNotUnauthorized(_requestError, _l('操作失败，请稍后再试'), 2);
       });
   },
 });

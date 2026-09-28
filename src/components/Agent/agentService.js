@@ -1,6 +1,7 @@
 import agentAjax from 'src/api/agent';
 import { withCaptcha as withAnonymousCaptcha } from './anonymous';
 import { extractEmbedSegments, isSilentEmbedSegment } from './ui/embed/protocol';
+import { isRecord, readField, stringValue } from './valueUtils';
 import { splitWorkPartsFromText } from './workParts';
 
 // Agent 对话附件允许的文件类型：ChatPanel 输入框与 MingoWelcome 首页共用同一份，避免两处各维护导致不同步
@@ -11,27 +12,6 @@ export const AGENT_ATTACHMENT_MIME_TYPES = [
     extensions: 'docx,doc,wps,xlsx,pptx,ppt,pdf,xls,md,markdown,txt,csv,json,jsonl,xml,htm,html,yaml,yml,log,toml,ini',
   },
 ];
-
-function isRecord(value) {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
-
-// 大小写不敏感的字段读取：后端 Pascal / camel 混用，统一兜底
-export function readField(source, key) {
-  if (!isRecord(source)) return undefined;
-  if (key in source) return source[key];
-  const target = key.toLowerCase();
-
-  for (const [k, v] of Object.entries(source)) {
-    if (k.toLowerCase() === target) return v;
-  }
-
-  return undefined;
-}
-
-export function stringValue(value) {
-  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
 
 export function summarizeUnknown(value) {
   if (value === null || value === undefined) return '';
@@ -61,6 +41,36 @@ export function getCompletedText(data) {
 
 export function createAgentSessionId() {
   return `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+// 帮助中心（智能客服）固定应答 agent：帮助面板钉住它对话（关自动路由），该 agent 不计费
+export const HELP_AGENT_NAME = 'help-agent';
+
+// 帮助会话单会话模型：会话 id 动态生成（同通用会话），按人记录在本地。
+// 进帮助面板时有记录直接进对话详情恢复该会话；无记录（或记录的会话已被删除）先落帮助首页。
+// 会话有消息时回写当前 id（ChatPanel），删除帮助会话 / 恢复发现会话已不存在时清除。
+function getHelpAgentSessionKey() {
+  const accountId =
+    (window.md && window.md.global && window.md.global.Account && window.md.global.Account.accountId) || '';
+
+  return accountId ? `md_help_agent_session_${accountId}` : '';
+}
+
+export function getSavedHelpAgentSessionId() {
+  const key = getHelpAgentSessionKey();
+
+  return key ? (window.localStorage.getItem(key) || '').trim() : '';
+}
+
+export function saveHelpAgentSessionId(sessionId) {
+  const key = getHelpAgentSessionKey();
+
+  if (!key) return;
+  if (sessionId) {
+    safeLocalStorageSetItem(key, sessionId);
+  } else {
+    window.localStorage.removeItem(key);
+  }
 }
 
 // Agent 头部图标（在 Mingo 头部、AgentBus 作用域之外）与 ChatPanel 之间用全局 emitter 通信
@@ -320,15 +330,18 @@ function toTimestamp(value) {
   return Number.isNaN(time) ? 0 : time;
 }
 
-// 拉取当前用户的会话列表（历史会话），按最近活跃时间倒序；传 keyword 时由后端按标题检索
-export async function fetchAgentSessions({ page = 1, size = 50, keyword = '' } = {}) {
+// 拉取当前用户的会话分页。hasMore 基于过滤前的接口结果计算，避免 session-bot 会话被过滤后误判为末页。
+export async function fetchAgentSessionPage({ page = 1, size = 50, keyword = '', agentName = '' } = {}) {
   const args = { page, size };
   if (keyword) args.keyword = keyword;
+  // 帮助中心等钉住 agent 的场景：按 agentName 精确过滤，只取该 agent 名下会话
+  if (agentName) args.agentName = agentName;
   const res = await agentAjax.getAgentSessions(args, { silent: true });
   const body = res && res.data !== undefined ? res.data : res;
+  const rawItems = pickList(body, ['items', 'sessions', 'list', 'data']);
 
-  return (
-    pickList(body, ['items', 'sessions', 'list', 'data'])
+  return {
+    items: rawItems
       .map(item => ({
         sessionId: stringValue(readField(item, 'sessionId')) || stringValue(readField(item, 'id')) || '',
         title:
@@ -346,8 +359,31 @@ export async function fetchAgentSessions({ page = 1, size = 50, keyword = '' } =
       // session-bot- 前缀为单轮 bot 工具调用（建表 / 填记录 / 生成示例数据 / 优化应用信息等旧功能）的会话，
       // 不属于可续接的主对话，历史会话列表里排除（见 genBotSessionId）。
       .filter(item => item.sessionId && !item.sessionId.startsWith('session-bot-'))
-      .sort((a, b) => toTimestamp(b.updateTime) - toTimestamp(a.updateTime))
-  );
+      .sort((a, b) => toTimestamp(b.updateTime) - toTimestamp(a.updateTime)),
+    hasMore: rawItems.length >= size,
+  };
+}
+
+// 拉取当前用户的会话列表（历史会话），按最近活跃时间倒序；传 keyword 时由后端按标题检索
+export async function fetchAgentSessions(args) {
+  const { items } = await fetchAgentSessionPage(args);
+
+  return items;
+}
+
+// 取单个会话的后端标题（firstMessage，含重命名）。无「单会话信息」接口，从会话列表首页按 sessionId 查找；
+// 找不到（新会话尚未入列表 / 超出首页）返回 ''，由调用方回退到本地首条用户消息。
+export async function fetchAgentSessionTitle(sessionId) {
+  if (!sessionId) return '';
+
+  try {
+    const list = await fetchAgentSessions({ size: 50 });
+
+    return (list.find(item => item.sessionId === sessionId) || {}).title || '';
+  } catch (err) {
+    console.error('[agent] fetch session title failed', err);
+    return '';
+  }
 }
 
 // 会话重命名：改的就是列表展示标题（后端 firstMessage 字段）。title 需 trim 非空、≤100 字。
@@ -374,13 +410,119 @@ export async function deleteAgentSession(sessionId) {
   return true;
 }
 
-// 从消息/用量对象里取本轮消耗的信用点：四位小数 number，0 合法（命中缓存的零成本轮）；
-// 无 usage / 非数值（未结算、user 消息、计费未开启的老会话）返回 null，渲染层据此不显示信用点行。
+// —— V6.0 会话分享 / V6.1 继续对话 ——
+// 可见范围三态（后端 SessionShareScopes）：public 任何人 / login 任何登录用户 / org 仅目标组织成员。
+// 主站 EditEntityShareStatus 侧用数字 scope 表达同一语义（0 = 全部，1 = 本网络），映射见 ui/ShareDialog。
+export const SESSION_SHARE_SCOPE = {
+  PUBLIC: 'public',
+  LOGIN: 'login',
+  ORG: 'org',
+};
+
+// 创建分享实体，返回 shareId —— 即随后登记进 MDAPI 的 appentityshare.SourceId。两步流程的第一步，顺序不能反。
+// 双锚点：整会话分享（不传 messageIds）的 shareId 恒等于 sessionId，故前端仅凭 sessionId 就能反查「这个会话分享过没」；
+// 选择性分享（传 messageIds，≤100）每次都是新的随机串，不参与反查。
+export async function createSessionShare({ sessionId, scope, projectId, messageIds } = {}) {
+  const args = { sessionId };
+
+  if (scope) args.scope = scope;
+  // projectId 仅 org 允许携带且必填，其余 scope 带了后端直接 400
+  if (scope === SESSION_SHARE_SCOPE.ORG && projectId) args.projectId = projectId;
+  if (Array.isArray(messageIds) && messageIds.length) args.messageIds = messageIds;
+
+  const res = await agentAjax.agentSessionsShares(args, { silent: true });
+
+  if (!res || res.success === false) {
+    throw new Error((res && res.errorMessage) || 'create share failed');
+  }
+
+  const shareId = stringValue(readField(res.data || res, 'shareId'));
+
+  if (!shareId) throw new Error('create share failed');
+
+  return shareId;
+}
+
+// 分享相关接口的错误码（后端统一信封 { success:false, errorCode, errorMessage }）
+export const SHARE_ERROR = {
+  ACCESS_DENIED: 'share_access_denied', // 403：clientId 失效 / 分享已关 / 组织内分享非成员，刻意不区分原因
+  SESSION_NOT_FOUND: 'session_not_found', // 404：来源会话已被删除或没有可读消息
+  RATE_LIMIT: 'rate_limit_exceeded', // 429：clientId 维度限流
+};
+
+// agent 服务非 2xx 时 reject 的是 axios response（见 window.agentAPI），2xx 也可能带 success:false。
+// 统一归一化成带 errorCode / status 的 Error，交给分享页按状态分流（403 → 无权限终态、429 → 稍后重试…）。
+function buildShareError(source) {
+  const body = (isRecord(source) && readField(source, 'data')) || source || {};
+  const error = new Error(stringValue(readField(body, 'errorMessage')) || 'share request failed');
+
+  error.errorCode = stringValue(readField(body, 'errorCode'));
+  error.status = readField(source, 'status');
+
+  return error;
+}
+
+// 读取分享内容：shareId 锚点的独立端点（不复用 {sessionId}/messages）。
+// clientId 是唯一授权载体，只在这里作为独立 Header 携带——严禁塞进全局拦截器，登录态浏览自己会话绝不能带。
+// 后端已脱敏：accountId / sessionId / traceId 恒空串、usage 恒 null，附件 url 为 1 小时签名，不要持久化。
+export async function fetchSharedSessionMessages({ shareId, clientId, page = 1, size = 100 } = {}) {
+  let res;
+
+  try {
+    res = await agentAjax.getAgentSessionsSharesMessages(
+      { shareId, page, size },
+      { header: clientId ? { clientId } : undefined, silent: true },
+    );
+  } catch (err) {
+    throw buildShareError(err);
+  }
+
+  if (res && res.success === false) {
+    throw buildShareError({ data: res });
+  }
+
+  const body = res && res.data !== undefined ? res.data : res;
+  const rawItems = pickList(body, ['items', 'messages', 'list', 'data']);
+
+  // 交给同一套归一化，拿到与登录态渲染层完全一致的 message/parts 结构（传 rawItems 不再发请求）
+  return fetchAgentSessionMessages(shareId, { rawItems, includeUsage: false });
+}
+
+// 分享页「继续对话」：登录态 + clientId 双要素（clientId 证明确实合法过闸看到过内容）。
+// 分享人本人 → 返回原会话（forked=false）；其他访客 → fork 出归属自己的新会话（forked=true）。
+// 前端无差别处理：拿 sessionId 跳正常对话页即可。
+export async function continueSharedSession({ shareId, clientId } = {}) {
+  let res;
+
+  try {
+    res = await agentAjax.agentSessionsSharesContinue(
+      { shareId },
+      { header: clientId ? { clientId } : undefined, silent: true },
+    );
+  } catch (err) {
+    throw buildShareError(err);
+  }
+
+  if (!res || res.success === false) {
+    throw buildShareError({ data: res || {} });
+  }
+
+  const data = res.data || res;
+  const sessionId = stringValue(readField(data, 'sessionId'));
+
+  if (!sessionId) throw new Error('continue share failed');
+
+  return { sessionId, forked: !!readField(data, 'forked') };
+}
+
+// 从消息/用量对象里取本轮消耗的信用点：四位小数 number。
+// 无 usage / 非数值（未结算、user 消息、计费未开启的老会话）返回 null；
+// 0（及负值）同样返回 null——历史里未产生扣费的轮次不展示「0 信用点」，渲染层据此隐藏信用点行。
 function readCredits(usage) {
   if (!isRecord(usage)) return null;
   const credits = Number(readField(usage, 'credits'));
 
-  return Number.isFinite(credits) ? credits : null;
+  return Number.isFinite(credits) && credits > 0 ? credits : null;
 }
 
 // 拉取指定会话的原始消息分页。官网免登录 plan 页用它先做“是否有历史”的门控，
@@ -468,6 +610,10 @@ export async function fetchAgentSessionMessages(
 
     return {
       id: `history-${index}`,
+      // 后端消息 id：选择性分享（messageIds）与消息去重的唯一依据。实时流出的消息没有，故不可参与勾选
+      messageId: stringValue(readField(m, 'messageId')),
+      // 历史消息若带 traceId，反馈时优先使用；匿名分享接口会按后端契约返回空值。
+      traceId: stringValue(readField(m, 'traceId')) || '',
       role,
       // 用户消息保留原始文本（含 embed 段原文）：恢复历史后意图弹层选"都不是"(none_of_these)时，
       // 须把用户最后一条原始 message 原样回传后端供重路由；从 parts 反拼会丢 embed 原文。
@@ -641,7 +787,7 @@ export async function fetchBuildEstimate(artifactId, versionId) {
   }
 }
 
-// 按 traceId 查本轮用量汇总（接口 3 usage/{traceId}）：新消息 stream 收尾后轮询用它拿「这一轮花了多少信用点」。
+// 按 traceId 查本轮用量汇总（接口 3 usage/{traceId}）：新消息 stream 收尾后轮询本轮用量。
 // 返回 { settled, credits }：settled 为 accountStatus==='settled'（已扣完、credits 为终值，含 0 合法值）；
 // pending_aggregate / traceId 未落库（接口返 credits=0+pending）/ 异常都视作未结算（settled:false），由调用方继续轮询。
 // 调用方只在 settled 时写入 credits，避免把阶段值 / 未命中的 0 误显示。
@@ -669,6 +815,9 @@ function normalizeStreamEvent(payload) {
     // 否则块间 \n\n 被砍、纯 "\n\n" chunk 整段丢弃，导致 markdown 块粘连（--- 与 ## 粘连、表格行挤在一起）。
     delta: typeof payload.delta === 'string' ? payload.delta : typeof payload.Delta === 'string' ? payload.Delta : null,
     data: payload.data !== undefined ? payload.data : payload.Data,
+    // 本轮 assistant 消息的后端 id：completed 事件顶层回传（V6.4），供分享 / 重新生成直接作锚点，
+    // 免去每轮再整拉一次消息列表。仅 completed 带，其余事件为空
+    messageId: stringValue(payload.messageId) || stringValue(payload.MessageId) || '',
     debug: payload.debug !== undefined ? payload.debug : payload.Debug,
     errorCode: stringValue(payload.errorCode) || stringValue(payload.ErrorCode) || null,
     errorMessage: stringValue(payload.errorMessage) || stringValue(payload.ErrorMessage) || null,
@@ -713,6 +862,7 @@ export async function requestAgentStream(
     confirmation,
     captchaTicket,
     captchaRandstr,
+    regenerateFromMessageId,
   },
   { onEvent, enableCaptcha = false } = {},
   externalSignal,
@@ -762,6 +912,9 @@ export async function requestAgentStream(
         confirmation: confirmation || undefined,
         captchaTicket: (extra && extra.captchaTicket) || captchaTicket || undefined,
         captchaRandstr: (extra && extra.captchaRandstr) || captchaRandstr || undefined,
+        // V6.3 重新生成：传被点那条 assistant 回复的后端 messageId，提问原文与附件由服务端从库里取。
+        // 与 message / attachments / checkpointId 互斥（同传后端 400），调用方走该分支时不传 message。
+        regenerateFromMessageId: regenerateFromMessageId || undefined,
       },
       { abortController, silent: true },
     );
@@ -793,13 +946,17 @@ export async function requestAgentStream(
   await (enableCaptcha ? withAnonymousCaptcha(requestStream) : requestStream());
 }
 
-const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif'];
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'heic', 'heif'];
 
 function toAttachmentType(file) {
-  const mime = (file && file.type) || '';
+  const type = String((file && file.type) || '').toLowerCase();
 
-  if (typeof mime === 'string' && mime.startsWith('image/')) return 'image';
-  const ext = ((file && file.name) || '').split('.').pop().toLowerCase();
+  if (type === 'image' || type.startsWith('image/')) return 'image';
+  const name = (file && file.name) || '';
+  const fileExtension = file && (file.fileExt || (file.file && file.file.fileExt));
+  const ext = String(fileExtension || name.split('.').pop() || '')
+    .replace(/^\./, '')
+    .toLowerCase();
 
   return IMAGE_EXTENSIONS.includes(ext) ? 'image' : 'doc';
 }

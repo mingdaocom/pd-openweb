@@ -2,23 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 
-const SwitchStyle = styled.div`
-  display: inline-block;
-  .switchText {
-    margin-right: 6px;
-    line-height: 24px;
-  }
-  .icon {
-    vertical-align: middle;
-    &-ic_toggle_on {
-      color: #00c345;
-    }
-    &-ic_toggle_off {
-      color: var(--color-text-disabled);
-    }
-  }
-`;
 const Wrap = styled.div`
   border: 1px solid var(--color-border-primary);
   opacity: 1;
@@ -81,19 +66,15 @@ export default function ActionBtn(props) {
               <div className="flexRow alignItemsCenter actionLi">
                 <Icon className={cx('Font18 mRight12', o.value !== 'delete' ? 'textSecondary' : 'Red')} type={o.icon} />
                 <span className="flex Bold Font13">{o.text}</span>
-                <SwitchStyle>
-                  <Icon
-                    icon={!data.includes(o.value) ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font28 Hand"
-                    onClick={() => {
-                      props.onChange(
-                        JSON.stringify(
-                          data.includes(o.value) ? data.filter(it => o.value !== it) : data.concat(o.value),
-                        ),
-                      );
-                    }}
-                  />
-                </SwitchStyle>
+                <Switch
+                  size="mini"
+                  checked={!data.includes(o.value)}
+                  onChange={() => {
+                    props.onChange(
+                      JSON.stringify(data.includes(o.value) ? data.filter(it => o.value !== it) : data.concat(o.value)),
+                    );
+                  }}
+                />
               </div>
             );
           })}

@@ -5,7 +5,7 @@ import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { UserHead } from 'ming-ui';
-import { FROM, RELATION_TYPE_NAME } from './enum';
+import { FROM, RELATION_TYPE_NAME } from 'src/utils/domain/worksheet/relation';
 
 const Icons = {
   0: '',

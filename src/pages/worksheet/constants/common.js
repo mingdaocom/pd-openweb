@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sheetAjax from 'src/api/worksheet';
-import { formatKcAttachmentData, formatTemporaryData } from 'src/components/UploadFiles/utils.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { SUB_PERMISSION_NAME, VIEW_DISPLAY_TYPE } from './enum';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { SUB_PERMISSION_NAME, VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { formatKcAttachmentData, formatTemporaryData } from 'src/utils/platform/file/attachment';
 
 // 进入配置控件页面参数处理
 export const getCustomWidgetUri = function ({ sourceName, templateId, sourceId, projectId, appconfig = {} }) {

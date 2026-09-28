@@ -11,18 +11,20 @@ const instanceversion3controller = {
    */
   getTodoList3: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v3/app/workflow/{worksheetId}/rows/{rowId}/approval/list';
-    base.ajaxOptions.type = 'GET';
+    base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v3appworkflow{worksheetId}rows{rowId}approvallist', args, $.extend({}, base, options));
   },
   /**
    * null
-   * @param {null} [args.request] *null
+   * @param {string} [args.worksheetId] *null
+   * @param {string} [args.rowId] *null
+   * @param {string} [args.instanceId] *null
    * @param {Object} options 配置参数
    */
   get3: function(args, options) {
-    base.ajaxOptions.url = base.server(options) + '/v3/app/workflow/get';
+    base.ajaxOptions.url = base.server(options) + '/v3/app/workflow/{worksheetId}/rows/{rowId}/approval/{instanceId}';
     base.ajaxOptions.type = 'GET';
-    return mdyAPI(controllerName, 'v3appworkflowget', args, $.extend({}, base, options));
+    return mdyAPI(controllerName, 'v3appworkflow{worksheetId}rows{rowId}approval{instanceId}', args, $.extend({}, base, options));
   },
 };
 export default instanceversion3controller;

@@ -2,9 +2,9 @@ import _ from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet.js';
 import { getCurrentValue } from 'src/components/Form/core/formUtils';
-import { controlState } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { compatibleMDJS } from 'src/utils/project';
+import { controlState } from 'src/utils/domain/control/state';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { compatibleMDJS } from 'src/utils/services/project';
 
 let timer = null;
 

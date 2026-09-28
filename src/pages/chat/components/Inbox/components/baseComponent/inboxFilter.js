@@ -3,8 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
-import { Icon, MdAntDateRangePicker } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Icon } from 'ming-ui';
+import { DateRangePicker } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import AppFilter from './appFilter';
 
 const customDate = 8;
@@ -113,33 +114,6 @@ export default class InboxFilter extends React.Component {
     });
   };
 
-  handlePickUser = event => {
-    const that = this;
-    const filterAccountIds = [md.global.Account.accountId];
-    const projectId = '';
-
-    quickSelectUser(event.target, {
-      showMoreInvite: false,
-      isTask: false,
-      selectRangeOptions: false,
-      filterAccountIds,
-      minHeight: 400,
-      container: $('.InboxFilterWrapper'),
-      offset: {
-        top: 16,
-        left: 0,
-      },
-      zIndex: 10001,
-      SelectUserSettings: {
-        unique: true,
-        projectId: projectId,
-        filterAccountIds,
-        callback: that.handleChangeUser,
-      },
-      selectCb: that.handleChangeUser,
-    });
-  };
-
   handleEmptyUser = () => {
     const { time, appId } = this.state;
 
@@ -195,7 +169,22 @@ export default class InboxFilter extends React.Component {
               </div>
             </div>
           ) : (
-            <Icon onClick={this.handlePickUser} className="flexRow valignWrapper pointer" icon="plus" />
+            <UserSelectPopover
+              showMoreInvite={false}
+              isTask={false}
+              selectRangeOptions={false}
+              filterAccountIds={[md.global.Account.accountId]}
+              minHeight={400}
+              SelectUserSettings={{
+                unique: true,
+                projectId: '',
+                filterAccountIds: [md.global.Account.accountId],
+                callback: this.handleChangeUser,
+              }}
+              onSelect={this.handleChangeUser}
+            >
+              <Icon className="flexRow valignWrapper pointer" icon="plus" />
+            </UserSelectPopover>
           )}
         </div>
         <div className="flexRow">
@@ -232,16 +221,25 @@ export default class InboxFilter extends React.Component {
               ))}
             </div>
             {timeLevel === customDate && (
-              <MdAntDateRangePicker
-                allowClear={false}
-                suffixIcon={null}
+              <DateRangePicker
+                allowClear
                 format="YYYY-MM-DD"
                 onChange={data => {
+                  if (!data) {
+                    this.setState(
+                      {
+                        timeLevel: null,
+                        time: null,
+                      },
+                      () => {
+                        this.state.userValue || this.state.appId ? this.handleSave() : this.props.onChange(null);
+                      },
+                    );
+                    return;
+                  }
+
                   const [start, end] = data;
-                  this.handleChangeTime([
-                    start.format('YYYY-MM-DD'),
-                    moment(end.format('YYYY-MM-DD')).add(1, 'days').format('YYYY-MM-DD'),
-                  ]);
+                  this.handleChangeTime([start.format('YYYY-MM-DD'), moment(end).add(1, 'days').format('YYYY-MM-DD')]);
                 }}
               />
             )}

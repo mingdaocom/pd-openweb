@@ -3,10 +3,12 @@ import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { LoadDiv, RichText, SvgIcon } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
-import preall from 'src/common/preall';
-import { browserIsMobile } from 'src/utils/common';
-import { getRequest } from 'src/utils/sso';
+import preall from 'src/common/entries/preall';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getRequest } from 'src/utils/services/auth/sso';
 
 const Wrap = styled.div`
   background: var(--color-background-secondary);
@@ -56,6 +58,20 @@ const Wrap = styled.div`
     }
   }
 `;
+
+const getPortalTranslateInfo = async (appId, appLangId) => {
+  if (!appLangId) {
+    return {};
+  }
+
+  const langData = await appManagementApi
+    .getAppLangForPortalAppInfo({ appId, appLangId }, { silent: true })
+    .catch(() => []);
+  window[`langData-${appId}`] = langData;
+
+  return getTranslateInfo(appId, null, appId);
+};
+
 class PrivacyOrAgreen extends React.Component {
   constructor(props) {
     super(props);
@@ -69,7 +85,8 @@ class PrivacyOrAgreen extends React.Component {
     };
   }
   componentDidMount() {
-    const { appId = '' } = getRequest();
+    const { appId = '', appLangId = '' } = getRequest();
+    const translateInfoPromise = getPortalTranslateInfo(appId, appLangId);
     this.ajax = null;
     if (location.pathname.indexOf('privacy') < 0) {
       this.ajax = externalPortalAjax.getUserAgreement({ AppId: appId });
@@ -77,19 +94,20 @@ class PrivacyOrAgreen extends React.Component {
       this.ajax = externalPortalAjax.getPrivacyTerms({ AppId: appId });
     }
 
-    this.ajax.then(res => {
+    this.ajax.then(async res => {
+      const isPrivacy = location.pathname.indexOf('privacy') >= 0;
+      const translateInfo = await translateInfoPromise;
+      const summaryKey = isPrivacy ? 'privacyTerms' : 'userAgreement';
       const {
         appColor = 'var(--color-cyan)',
         appLogoUrl = md.global.FileStoreConfig.pubHost + '/customIcon/0_lego.svg',
       } = res;
-      document.title =
-        (location.pathname.indexOf('privacy') < 0 ? _l('用户协议') : _l('隐私政策')) +
-        ' - ' +
-        (res.customizeName || _l('未命名'));
+      const customizeName = translateInfo.name || res.customizeName;
+      document.title = (isPrivacy ? _l('隐私政策') : _l('用户协议')) + ' - ' + (customizeName || _l('未命名'));
       this.setState({
-        summary: location.pathname.indexOf('privacy') < 0 ? res.userAgreement : res.privacyTerms,
+        summary: translateInfo[summaryKey] || res[summaryKey],
         logoImageUrl: res.logoImageUrl,
-        customizeName: res.customizeName,
+        customizeName,
         appColor,
         appLogoUrl,
         loading: false,

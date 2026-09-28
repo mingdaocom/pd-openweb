@@ -1,15 +1,14 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SearchInput, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import dataMirrorApi from 'src/pages/integration/api/dw.js';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { formatDate } from 'src/pages/integration/config.js';
 import { SORT_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import OptionColumn from './OptionColumn';
 
 const FilterContent = styled.div`
@@ -17,7 +16,6 @@ const FilterContent = styled.div`
   .searchInput {
     width: 360px;
     min-width: 360px;
-    height: 36px;
   }
   .filterIcon {
     display: flex;
@@ -163,18 +161,22 @@ const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
 export default function MirrorList(props) {
   const { flag } = props;
+  const fetchStateRef = useRef();
+  const onFetchRef = useRef();
   const [fetchState, setFetchState] = useSetState({
     pageNo: 0,
     loading: false,
     noMore: false,
     keyWords: '',
+    searchKeyWords: undefined,
     sort: { fieldName: '', sortDirection: null },
   });
   const [mirrorList, setMirrorList] = useState([]);
+  const searchKeyWords = fetchState.searchKeyWords;
 
   useEffect(() => {
-    onFetch(fetchState);
-  }, [flag]);
+    fetchStateRef.current = fetchState;
+  }, [fetchState]);
 
   //获取数据源列表
   const onFetch = param => {
@@ -208,12 +210,42 @@ export default function MirrorList(props) {
     });
   };
 
-  const onSearch = useCallback(
-    _.debounce(value => {
-      onFetch({ ...fetchState, pageNo: 0, keyWords: value });
-    }, 500),
-    [],
+  useEffect(() => {
+    onFetchRef.current = onFetch;
+  });
+
+  const debouncedSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setFetchState({ searchKeyWords: value });
+      }, 500),
+    [setFetchState],
   );
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  useEffect(() => {
+    if (_.isUndefined(searchKeyWords)) return;
+
+    onFetchRef.current({ ...fetchStateRef.current, loading: false, pageNo: 0, keyWords: searchKeyWords });
+  }, [searchKeyWords]);
+
+  useEffect(() => {
+    onFetchRef.current(fetchStateRef.current);
+  }, [flag]);
+
+  const onSearch = value => {
+    const nextValue = value || '';
+
+    setFetchState({ keyWords: nextValue });
+    if (!nextValue) {
+      debouncedSearch.cancel();
+      setFetchState({ searchKeyWords: '' });
+      return;
+    }
+
+    debouncedSearch(nextValue);
+  };
 
   const onScrollEnd = () => {
     if (!fetchState.noMore && !fetchState.loading) {

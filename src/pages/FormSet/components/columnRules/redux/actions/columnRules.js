@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { dealCusTomEventActions } from 'src/pages/widgetConfig/util/data';
+import { dealCusTomEventActions } from 'src/utils/domain/control/customEvent';
+import { formatSearchConfigs } from 'src/utils/domain/control/filters';
 import {
   checkConditionCanSave,
   checkConditionError,

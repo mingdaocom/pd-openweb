@@ -1,9 +1,8 @@
 import React from 'react';
-import { Switch } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Switch, Tooltip } from 'ming-ui/antd-components';
 import { LogoWrap } from 'src/pages/integration/apiIntegration/style';
 import { formatDate, publishStatus2Text } from 'src/pages/integration/config';
 
@@ -24,7 +23,7 @@ const Wrap = styled.div`
     height: 48px;
     margin: 12px 0;
   }
-  .ant-switch-checked {
+  .hap-switch-checked {
     background-color: rgba(40, 202, 131, 1);
   }
   .optionCon {

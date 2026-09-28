@@ -1,45 +1,35 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Menu, MenuItem, VCenterIconText } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import IconText from 'worksheet/components/IconText';
 
 const Con = styled.div`
   display: inline-block;
-  .dropIcon {
-  }
 `;
 
 export default function SubButton(props) {
-  const { text, icon, children, popupAlign, list = [], ...rest } = props;
+  const { text, icon, children, list = [], ...rest } = props;
   const [popupVisible, setPopupVisible] = useState(false);
   return (
     <Con {...rest}>
-      <Trigger
-        popupVisible={popupVisible}
-        action={['click']}
-        popupAlign={
-          popupAlign || {
-            points: ['tl', 'bl'],
-            overflow: { adjustX: true, adjustY: true },
-          }
-        }
-        popup={
-          <Menu className="Relative" style={{ width: 140 }} onClickAway={() => setPopupVisible(false)}>
-            {list.map((item, key) => (
-              <MenuItem
-                key={key}
-                onClick={() => {
-                  item.onClick();
-                  setPopupVisible(false);
-                }}
-              >
-                <VCenterIconText icon={item.icon} iconSize={18} text={item.text} textSize={13} />
-              </MenuItem>
-            ))}
-          </Menu>
-        }
-        onPopupVisible={setPopupVisible}
+      <Dropdown
+        open={popupVisible}
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          items: list.map((item, index) => ({
+            key: index,
+            icon: <Icon icon={item.icon} className="Font18" />,
+            label: item.text,
+            onClick: () => {
+              item.onClick();
+              setPopupVisible(false);
+            },
+          })),
+          style: { minWidth: 140 },
+        }}
+        onOpenChange={setPopupVisible}
       >
         <div
           onClick={() => {
@@ -57,7 +47,7 @@ export default function SubButton(props) {
             />
           )}
         </div>
-      </Trigger>
+      </Dropdown>
     </Con>
   );
 }

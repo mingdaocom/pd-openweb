@@ -1,107 +1,90 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import { DEFAULT_CONFIG, SYS, SYS_CONTROLS } from '../../../../config/widget';
-import { DropdownOverlay } from '../../../../styled';
-import { enumWidgetType } from '../../../../util';
+import { Dropdown } from 'ming-ui/antd-components';
+import { DEFAULT_CONFIG, SYS, SYS_CONTROLS } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import { DynamicBtn } from '../style';
 
-export default function AddFields(props) {
+const filterControlOption = (value, item) => item.control.controlName.includes(value);
+
+function AddFieldsContent(props) {
   const { handleClick, selectControls, text, disabled, showSys = false } = props;
   const filterControls = showSys
     ? selectControls
     : selectControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId));
   const [visible, setVisible] = useState(false);
   const [searchValue, setValue] = useState('');
-  const triggerRef = useRef(null);
+  const [dropdownVersion, setDropdownVersion] = useState(0);
   const $ref = useRef(null);
-
-  const filterData = searchValue
-    ? filterControls.filter(item => item.controlName.includes(searchValue))
-    : filterControls;
 
   const onItemClick = item => {
     handleClick(item);
-    // 列表变长后按钮会下移，下一帧重新对齐下拉位置
+    // Dropdown 不提供 forceAlign，列表布局稳定后重建以重新计算浮层位置
     requestAnimationFrame(() => {
-      if ($ref.current) {
-        $ref.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-      }
+      $ref.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
 
       requestAnimationFrame(() => {
-        triggerRef.current?.forcePopupAlign?.();
+        if ($ref.current) {
+          setDropdownVersion(version => version + 1);
+        }
       });
     });
   };
 
-  useEffect(() => {
-    if (disabled && visible) {
-      setVisible(false);
-    }
-  }, [disabled]);
+  const menuItems = filterControls.map(item => {
+    const enumType = enumWidgetType[item.type];
+    const { icon } = DEFAULT_CONFIG[enumType];
+
+    return {
+      key: item.controlId,
+      control: item,
+      icon: <Icon icon={icon} className="Font16 textTertiary" />,
+      label: (
+        <span className="overflow_ellipsis" title={item.controlName}>
+          {item.controlName}
+        </span>
+      ),
+      onClick: () => onItemClick(item),
+    };
+  });
 
   return (
-    <Trigger
-      ref={triggerRef}
-      popup={() => {
-        return (
-          <DropdownOverlay>
-            <div className="searchWrap" onClick={e => e.stopPropagation()}>
-              <i className="icon-search Font16 textSecondary"></i>
-              <input
-                autoFocus
-                value={searchValue}
-                placeholder={_l('搜索')}
-                onChange={e => {
-                  setValue(e.target.value);
-                }}
-              />
-            </div>
-
-            <div className="dropdownContent">
-              {filterData.length > 0 ? (
-                filterData.map(i => {
-                  const enumType = enumWidgetType[i.type];
-                  const { icon } = DEFAULT_CONFIG[enumType];
-                  return (
-                    <div className="item overflow_ellipsis" onClick={() => onItemClick(i)}>
-                      <Icon icon={icon} className="Font15" />
-                      <span className="overflow_ellipsis" title={i.controlName}>
-                        {i.controlName}
-                      </span>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="emptyText">{_l(searchValue ? '暂无搜索结果' : '无内容')}</div>
-              )}
-            </div>
-          </DropdownOverlay>
-        );
+    <Dropdown
+      key={dropdownVersion}
+      showPopupSearch
+      searchValue={searchValue}
+      onSearch={setValue}
+      filterOption={filterControlOption}
+      notFoundContent={_l(searchValue ? '暂无搜索结果' : '无内容')}
+      menu={{
+        selectable: false,
+        items: menuItems,
+        style: { maxHeight: 320, overflowY: 'auto' },
       }}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
+      open={visible}
+      onOpenChange={(visible, { source } = {}) => {
         if (disabled) return;
+        if (!visible && source === 'menu') return;
+
         setVisible(visible);
         if (!visible) {
           setValue('');
         }
       }}
-      action={['click']}
-      popupAlign={{
-        points: ['tl', 'bl'],
-        offset: [0, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      getPopupContainer={() => document.body}
-      zIndex={1060}
+      trigger={['click']}
+      placement="bottomLeft"
+      disabled={disabled}
     >
       <DynamicBtn className={cx(props.className, { disabled })} ref={$ref}>
         <Icon icon="add" className="Bold" />
         {text || _l('字段')}
       </DynamicBtn>
-    </Trigger>
+    </Dropdown>
   );
+}
+
+export default function AddFields(props) {
+  return <AddFieldsContent key={props.disabled ? 'disabled' : 'enabled'} {...props} />;
 }

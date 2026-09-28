@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
 
 export default function FilterValue(props) {
   const { filterData = {}, handleOk, globalSheetInfo = {}, allControls = [], customTitle } = props;
@@ -25,14 +25,15 @@ export default function FilterValue(props) {
   const disabled = _.isEmpty(filterItems) || !checkConditionCanSave(filterItems);
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={disabled}
       className="SearchWorksheetDialog filterDialog"
       title={customTitle || _l('配置字段值条件')}
       onCancel={() => setState({ visible: false })}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...filterData, filterItems });
         setState({ visible: false });
@@ -63,6 +64,6 @@ export default function FilterValue(props) {
           setState({ filterItems: newConditions });
         }}
       />
-    </Dialog>
+    </Modal>
   );
 }

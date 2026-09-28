@@ -1,9 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Dialog from 'ming-ui/components/Dialog';
-import Icon from 'ming-ui/components/Icon';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import './index.less';
+
+const PUBLISH_ERROR_MODAL_STYLES = {
+  body: { paddingBottom: 13 },
+};
+const DANGER_OK_BUTTON_PROPS = { danger: true };
 
 const warnTypes = {
   99: _l('你的流程中未包含可执行操作的节点,请至少添加一个'),
@@ -20,11 +25,12 @@ const FATAL_ERROR = [99, 100];
 export default ({ onOk, onCancel, info, isPlugin }) => {
   const { processWarnings, name } = info;
   return (
-    <Dialog
+    <Modal
       className="publishErrorDialog"
-      visible
+      open
       title={isPlugin ? _l('插件 “%0” 存在错误！', name) : _l('工作流 “%0” 存在错误！', name)}
-      buttonType="danger"
+      styles={PUBLISH_ERROR_MODAL_STYLES}
+      okButtonProps={DANGER_OK_BUTTON_PROPS}
       onCancel={onCancel}
       onOk={onOk}
       okText={_l('前往修改')}
@@ -42,6 +48,6 @@ export default ({ onOk, onCancel, info, isPlugin }) => {
           );
         })}
       </ul>
-    </Dialog>
+    </Modal>
   );
 };

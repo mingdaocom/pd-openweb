@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
 
 const MessageBox = styled.div`
   height: 36px;
@@ -77,12 +77,10 @@ export default ({ buttons = [], data, updateSource }) => {
       </MessageBox>
 
       {visible && (
-        <Dialog
+        <Modal
           className="workflowDialogBox workflowSettings"
-          style={{ overflow: 'initial' }}
-          overlayClosable={false}
-          type="scroll"
-          visible
+          mask={{ closable: false }}
+          open
           title={_l('按钮名称')}
           onCancel={() => setVisible(false)}
           width={580}
@@ -96,9 +94,8 @@ export default ({ buttons = [], data, updateSource }) => {
               <div className={cx('Font13 textSecondary bold', { mTop20: i !== 0 })}>{o.title}</div>
               <div className="mTop10 Font13 textSecondary">{_l('名称')}</div>
               <div className="flexRow">
-                <input
-                  type="text"
-                  className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10"
+                <Input
+                  className="flex mTop10"
                   placeholder={o.namePlaceholder || o.placeholder}
                   defaultValue={cacheData[o.nameKey || o.key]}
                   onChange={evt => setCacheData({ ...cacheData, [o.nameKey || o.key]: evt.currentTarget.value })}
@@ -115,9 +112,8 @@ export default ({ buttons = [], data, updateSource }) => {
                 <Fragment>
                   <div className="mTop10 Font13 textSecondary">{_l('说明')}</div>
                   <div className="flexRow">
-                    <input
-                      type="text"
-                      className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop10"
+                    <Input
+                      className="flex mTop10"
                       placeholder={o.descPlaceholder || _l('请输入按钮说明')}
                       defaultValue={cacheData[o.descKey]}
                       onChange={evt => setCacheData({ ...cacheData, [o.descKey]: evt.currentTarget.value })}
@@ -133,7 +129,7 @@ export default ({ buttons = [], data, updateSource }) => {
               )}
             </Fragment>
           ))}
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

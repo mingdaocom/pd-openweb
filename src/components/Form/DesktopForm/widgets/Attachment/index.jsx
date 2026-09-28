@@ -4,22 +4,23 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import attachmentApi from 'src/api/attachment';
 import downloadApi from 'src/api/download';
 import worksheetApi from 'src/api/worksheet';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
-import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
 import { checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
+import GenScanUploadQr from 'src/components/GenScanUploadQr';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getRowGetType } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { compatibleMDJS } from 'src/utils/project';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { getRowGetType } from 'src/utils/services/worksheet/access';
 import Files from '../../../components/Files';
 import FileEditModal from '../../../components/Files/FileEditModal';
+import { shouldLoadAttachmentDetails } from '../../../components/Files/utils';
 import { WidgetEventHelper } from '../../../core/useFormEventManager';
 import './index.less';
 
@@ -38,7 +39,7 @@ export default class Widgets extends Component {
     const showtype = _.get(props, 'advancedSetting.showtype') || '1';
     this.state = {
       value: props.value,
-      loading: this.checkFileNeedLoad(props.value),
+      loading: shouldLoadAttachmentDetails(props.value),
       temporaryAttachments: [],
       temporaryKnowledgeAtts: [],
       isComplete: null,
@@ -89,7 +90,7 @@ export default class Widgets extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.value !== prevProps.value) {
-        if (this.checkFileNeedLoad(this.props.value)) {
+        if (shouldLoadAttachmentDetails(this.props.value)) {
           this.loadAttachments(this.props);
         } else if (prevProps.flag !== this.props.flag) {
           const initMobileFiles = {
@@ -125,26 +126,6 @@ export default class Widgets extends Component {
       }
     }, 0);
   };
-
-  checkFileNeedLoad(value) {
-    if (!value) {
-      return false;
-    }
-
-    try {
-      const file = JSON.parse(value)[0];
-
-      if (!file) {
-        return false;
-      } else {
-        return file.fileId && !file.updateTime && !file.createUserName;
-      }
-    } catch (err) {
-      console.log(err);
-    }
-
-    return false;
-  }
 
   loadAttachments(props) {
     const { value, worksheetId, recordId, controlId, isDraft } = props || this.props;
@@ -373,15 +354,6 @@ export default class Widgets extends Component {
     });
   };
 
-  /**
-   * 获取上传组件的父级
-   */
-  getPopupContainer = () => {
-    return $(this.fileBox || document.querySelector(`.attachmentControl-${this.id}`)).closest(
-      '.customFieldsContainer',
-    )[0];
-  };
-
   handleDownloadAll = () => {
     const { downloadAllLoading } = this.state;
     const { appId, worksheetId, viewId, recordId, controlId, from, masterData } = this.props;
@@ -522,93 +494,86 @@ export default class Widgets extends Component {
 
     if (window.isMingDaoApp) {
       return (
-        <div
-          className={cx('triggerTraget mobile', className)}
-          style={{ height: 34, ...styles }}
-          onClick={this.mingDaoAppChooseImage}
-        >
+        <Button className={className} style={styles} onClick={this.mingDaoAppChooseImage}>
           {Content}
-        </div>
+        </Button>
       );
     }
 
     return (
-      <div className={cx('triggerTraget mobile', className)} style={{ height: 34, ...styles }}>
-        <UploadFileWrapper
-          controlName={this.props.controlName}
-          customUploadType={customUploadType}
-          from={from}
-          projectId={projectId}
-          appId={appId}
-          worksheetId={worksheetId}
-          className="flexRow alignItemsCenter"
-          inputType={enumDefault2}
-          advancedSetting={advancedSetting}
-          originCount={originCount}
-          disabledGallery={strDefault.split('')[0] === '1'}
-          files={[]}
-          formData={this.props.formData}
-          onChange={(files, isComplete = false) => {
-            this.setState({
-              isComplete,
-              uploadStart: isComplete ? false : true,
+      <UploadFileWrapper
+        controlName={this.props.controlName}
+        customUploadType={customUploadType}
+        from={from}
+        projectId={projectId}
+        appId={appId}
+        worksheetId={worksheetId}
+        className="flexRow alignItemsCenter"
+        inputType={enumDefault2}
+        advancedSetting={advancedSetting}
+        originCount={originCount}
+        disabledGallery={strDefault.split('')[0] === '1'}
+        files={[]}
+        formData={this.props.formData}
+        onChange={(files, isComplete = false) => {
+          this.setState({
+            isComplete,
+            uploadStart: isComplete ? false : true,
+          });
+          if (type === 'file') {
+            this.setState(
+              {
+                mobileFiles: _.uniqBy(this.state.mobileFiles.filter(n => !('progress' in n)).concat(files), 'fileName'),
+              },
+              () => {
+                this.handleMobileChangeFiles();
+              },
+            );
+          }
+
+          if (type === 'camera') {
+            this.setState(
+              {
+                mobileCameraFiles: _.uniqBy(
+                  this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files),
+                  'fileName',
+                ),
+              },
+              () => {
+                this.handleMobileChangeFiles();
+              },
+            );
+          }
+
+          if (type === 'camcorder') {
+            this.setState(
+              {
+                mobileCamcorderFiles: _.uniqBy(
+                  this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files),
+                  'fileName',
+                ),
+              },
+              () => {
+                this.handleMobileChangeFiles();
+              },
+            );
+          }
+
+          if (isComplete) {
+            this.mobileFileRef[type].setState({
+              files: [],
             });
-            if (type === 'file') {
-              this.setState(
-                {
-                  mobileFiles: _.uniqBy(
-                    this.state.mobileFiles.filter(n => !('progress' in n)).concat(files),
-                    'fileName',
-                  ),
-                },
-                () => {
-                  this.handleMobileChangeFiles();
-                },
-              );
-            }
-
-            if (type === 'camera') {
-              this.setState(
-                {
-                  mobileCameraFiles: _.uniqBy(
-                    this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files),
-                    'fileName',
-                  ),
-                },
-                () => {
-                  this.handleMobileChangeFiles();
-                },
-              );
-            }
-
-            if (type === 'camcorder') {
-              this.setState(
-                {
-                  mobileCamcorderFiles: _.uniqBy(
-                    this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files),
-                    'fileName',
-                  ),
-                },
-                () => {
-                  this.handleMobileChangeFiles();
-                },
-              );
-            }
-
-            if (isComplete) {
-              this.mobileFileRef[type].setState({
-                files: [],
-              });
-            }
-          }}
-          ref={mobileFileRef => {
-            this.mobileFileRef[type] = mobileFileRef;
-          }}
-          checkValueByFilterRegex={this.checkValueByFilterRegex}
-        >
+          }
+        }}
+        ref={mobileFileRef => {
+          this.mobileFileRef[type] = mobileFileRef;
+        }}
+        checkValueByFilterRegex={this.checkValueByFilterRegex}
+      >
+        <Button className={className} style={styles}>
           {Content}
-        </UploadFileWrapper>
-      </div>
+        </Button>
+      </UploadFileWrapper>
     );
   };
 
@@ -695,7 +660,11 @@ export default class Widgets extends Component {
 
     const coverType = advancedSetting.covertype || '0';
     const allAownload =
-      advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId') && recordId;
+      !isDraft &&
+      advancedSetting.alldownload !== '0' &&
+      recordAttachmentSwitch &&
+      !_.get(window, 'shareState.shareId') &&
+      recordId;
     const filesProps = {
       workId,
       instanceId,
@@ -754,6 +723,7 @@ export default class Widgets extends Component {
             <div className="flexRow valignWrapper">
               <UploadFilesTrigger
                 allowUploadFileFromMobile
+                buttonTrigger
                 noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
                 id={this.id}
                 from={from}
@@ -785,26 +755,28 @@ export default class Widgets extends Component {
                 onTemporaryDataUpdate={res => this.setState({ temporaryAttachments: res })}
                 kcAttachmentData={temporaryKnowledgeAtts}
                 onKcAttachmentDataUpdate={res => this.setState({ temporaryKnowledgeAtts: res })}
-                getPopupContainer={this.getPopupContainer}
                 onCancel={this.onCancelTemporary}
                 onOk={this.onSaveTemporary}
                 checkValueByFilterRegex={this.checkValueByFilterRegex}
                 popupVisible={popupVisible}
               >
-                <div className="pointer flexRow Font13 textTertiary alignItemsCenter" style={{ height: 34 }}>
-                  <Icon icon="attachment" className="Font16" />
-                  <span className="mLeft5 textPrimary addFileName overflow_ellipsis">{addFileName}</span>
+                <Button
+                  className="triggerTraget"
+                  color="default"
+                  variant="textBordered"
+                  icon={<Icon icon="attachment" className="Font16" />}
+                >
+                  <span className="addFileName overflow_ellipsis">{addFileName}</span>
                   {isComplete === false && uploadStart && (
                     <span className="mLeft5 colorPrimary fileUpdateLoading">
                       {_l(
                         '(%0/%1个附件上传中...)',
-                        $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -
-                          $dom.find('.Progress--circle').length,
-                        $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length,
+                        $dom.find('.UploadFiles-file-wrapper').length - $dom.find('.Progress--circle').length,
+                        $dom.find('.UploadFiles-file-wrapper').length,
                       )}
                     </span>
                   )}
-                </div>
+                </Button>
               </UploadFilesTrigger>
               {allowappupload && (
                 <GenScanUploadQr
@@ -824,19 +796,17 @@ export default class Widgets extends Component {
                     this.filesChanged(currentAttachments.concat(files), 'attachments');
                   }}
                 >
-                  <div className="uploadFromMobile mLeft10" style={{ padding: 0, textAlign: 'center' }}>
-                    <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
-                      <Icon
-                        icon="mobile"
-                        className="Font20 textTertiary"
-                        style={{
-                          width: 34,
-                          height: 34,
-                          lineHeight: '34px',
-                        }}
-                      />
-                    </Tooltip>
-                  </div>
+                  <Button
+                    className="uploadFromMobile mLeft10"
+                    aria-label={_l('从移动设备输入')}
+                    icon={
+                      <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
+                        <Icon icon="mobile" className="Font20" />
+                      </Tooltip>
+                    }
+                    color="default"
+                    variant="textBordered"
+                  />
                 </GenScanUploadQr>
               )}
             </div>

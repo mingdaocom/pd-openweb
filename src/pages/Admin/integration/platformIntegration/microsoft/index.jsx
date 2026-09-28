@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { Button, Dialog, Icon, Input, LoadDiv, Support, Switch, UpgradeIcon } from 'ming-ui';
+import { Icon, LoadDiv, Support, UpgradeIcon } from 'ming-ui';
+import { Button, Input, Modal, Switch } from 'ming-ui/antd-components';
 import workMicrosoftApi from 'src/api/workMicrosoft';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getRequest, pathCompletion } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import CancelIntegration from '../components/CancelIntegration';
 import SyncDialog from '../components/SyncDialog';
 import microsoftImg from '../images/microsoft.png';
@@ -171,32 +173,37 @@ export default function Microsoft(props) {
   };
 
   const onSync = ({ bindUsers, newUsers, deletedUsers, restoredUsers }) => {
-    Dialog.confirm({
+    Modal.confirm({
       width: 600,
       title: _l('确定同步？'),
-      description: (
-        <div>
-          <div>{_l('- 同步以 Microsoft Entra 为主，停用/删除用户，平台会解除账号绑定关系，并做离职处理')}</div>
-          <div>{_l('- 平台会给未绑定组织用户的 Microsoft Entra 用户创建一个组织账号绑定')}</div>
-        </div>
-      ),
-      children: (
-        <div className="Font14 bold">
-          {_l(
-            '绑定到已有组织用户：%0个；新增组织用户%1个，删除与组织用户绑定关系%2个，已恢复离职用户%3个',
-            bindUsers,
-            newUsers,
-            deletedUsers,
-            restoredUsers,
-          )}
-        </div>
+      content: (
+        <>
+          <div>
+            <div>{_l('- 同步以 Microsoft Entra 为主，停用/删除用户，平台会解除账号绑定关系，并做离职处理')}</div>
+            <div>{_l('- 平台会给未绑定组织用户的 Microsoft Entra 用户创建一个组织账号绑定')}</div>
+          </div>
+          <div className="Font14 bold">
+            {_l(
+              '绑定到已有组织用户：%0个；新增组织用户%1个，删除与组织用户绑定关系%2个，已恢复离职用户%3个',
+              bindUsers,
+              newUsers,
+              deletedUsers,
+              restoredUsers,
+            )}
+          </div>
+        </>
       ),
       okText: _l('同步'),
       onOk: () => {
-        workMicrosoftApi.syncMicrosoftToMingByApp({ projectId, userMaps: {} }).then(res => {
-          const { item1, item2 } = res;
-          !item1 ? alert(_l(item2 || '同步失败'), 2) : alert(_l('同步成功'));
-        });
+        workMicrosoftApi
+          .syncMicrosoftToMingByApp({
+            projectId,
+            userMaps: {},
+          })
+          .then(res => {
+            const { item1, item2 } = res;
+            !item1 ? alert(_l(item2 || '同步失败'), 2) : alert(_l('同步成功'));
+          });
       },
     });
   };
@@ -247,7 +254,7 @@ export default function Microsoft(props) {
               '使用 Microsoft Entra 租户管理员账号完成授权后，平台将以只读方式访问 Entra （原 Azure AD，Microsoft 365 的统一身份目录），同步用户信息用于平台创建、更新成员，平台不会修改 Entra 目录中的任何数据。授权完成后，可在「单点登录设置」中将 Microsoft Entra 设为本组织的唯一登录方式。',
             )}
           </div>
-          <Button type="primary" className="mTop36" radius loading={linkLoading} onClick={onConnectMicrosoft}>
+          <Button type="primary" className="mTop36" shape="round" loading={linkLoading} onClick={onConnectMicrosoft}>
             {_l('连接 Microsoft Entra')}
           </Button>
         </div>
@@ -259,7 +266,13 @@ export default function Microsoft(props) {
               <div className="stepItem">
                 <div className="flexRow alignItemsCenter">
                   <div className="stepTitle flex">{_l('1.授权组织')}</div>
-                  <Switch checked={setting.enable} onClick={() => onEdit('enable', !setting.enable)} />
+                  <Switch
+                    checked={setting.enable}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return onEdit('enable', !setting.enable);
+                    }}
+                  />
                 </div>
 
                 {setting.enable && (
@@ -303,7 +316,7 @@ export default function Microsoft(props) {
                         className="flex"
                         placeholder={_l('请输入GroupID')}
                         value={setting.groupId}
-                        onChange={value => setSetting({ groupId: value })}
+                        onChange={e => setSetting({ groupId: e.target.value })}
                         onBlur={() => onEdit('groupId', setting.groupId)}
                       />
                     </div>
@@ -330,7 +343,7 @@ export default function Microsoft(props) {
                   </div>
                   <Button
                     type="primary"
-                    className="Height36 mLeft50 syncBtn"
+                    className="mLeft50"
                     onClick={checkSync}
                     disabled={checkLoading || !setting.enable}
                   >
@@ -361,8 +374,9 @@ export default function Microsoft(props) {
                 })}
                 <div className="flexRow alignItemsCenter mTop32">
                   <Button
-                    type="primary"
-                    className="enableBtn"
+                    color="var(--color-success)"
+                    variant="solid"
+                    icon={setting.entraOnlyLogin ? <Icon icon="done" className="Font16" /> : null}
                     disabled={setting.entraOnlyLogin}
                     onClick={() => {
                       featureType === '2'
@@ -370,14 +384,16 @@ export default function Microsoft(props) {
                         : onChangeEntraOnlyLogin(1);
                     }}
                   >
-                    <div className="flexRow alignItemsCenter">
-                      {setting.entraOnlyLogin && <Icon icon="done" className="mRight4 Font16" />}
-                      <span>{_l('启用')}</span>
-                    </div>
+                    {_l('启用')}
                   </Button>
                   {!setting.entraOnlyLogin && featureType === '2' && <UpgradeIcon className="mLeft10" />}
                   {setting.entraOnlyLogin && (
-                    <Button type="ghost" className="mLeft10 closeBtn" onClick={() => onChangeEntraOnlyLogin(2)}>
+                    <Button
+                      color="primary"
+                      variant="outlined"
+                      className="mLeft10"
+                      onClick={() => onChangeEntraOnlyLogin(2)}
+                    >
                       {_l('关闭')}
                     </Button>
                   )}

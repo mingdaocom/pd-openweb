@@ -4,7 +4,7 @@ export const AI_TABS = [
   { key: 'Skills', label: 'Skills', icon: 'extension_black1' },
 ];
 
-export const QUICK_CONNECT_TOOLS = [
+export const getQuickConnectTools = () => [
   {
     key: 'claude-code',
     label: 'Claude Code',
@@ -37,11 +37,19 @@ export const QUICK_CONNECT_TOOLS = [
       `cursor://anysphere.cursor-deeplink/mcp/install?name=${encodeURIComponent(name)}&config=${encodeURIComponent(config)}`,
   },
   {
-    key: 'zcode',
-    label: 'ZCode',
-    icon: 'zcode',
-    iconColor: 'var(--color-text-primary)',
-    getChatUrl: () => 'zcode://',
+    key: 'qwenwork',
+    label: _l('千问办公'),
+    icon: 'qwenwork',
+    iconColor: '#39d377',
+    getChatUrl: () => 'qwenwork-cn://',
+    getMcpInstallUrl: (name, config) => {
+      // 千问办公的服务名不允许空白且最多 128 字符，截断时保留完整的 Unicode 字符。
+      const serverName = name
+        .replace(/\s/g, '_')
+        .slice(0, 128)
+        .replace(/[\uD800-\uDBFF]$/, '');
+      return `qwenwork-cn://mcp/add?name=${encodeURIComponent(serverName)}&config=${encodeURIComponent(config)}`;
+    },
   },
   {
     key: 'trae',

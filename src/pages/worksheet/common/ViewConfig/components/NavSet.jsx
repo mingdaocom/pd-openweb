@@ -1,17 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import NavShow from './navGroup/NavShow';
 import NavSort from './NavSort';
-
-const Wrap = styled.div`
-  .Dropdown {
-    .Dropdown--input {
-      padding: 0 5px 0 12px !important;
-    }
-  }
-`;
 
 export default function NavSet(props) {
   const {
@@ -32,7 +23,7 @@ export default function NavSet(props) {
   const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
   const { navshow = [26, 27, 48].includes(type) ? '1' : '0', navfilters = '[]' } = advancedSetting;
   return (
-    <Wrap>
+    <React.Fragment>
       <NavShow
         canShowAll={canShowAll}
         canShowNull={canShowNull}
@@ -104,6 +95,6 @@ export default function NavSet(props) {
           }}
         />
       )}
-    </Wrap>
+    </React.Fragment>
   );
 }

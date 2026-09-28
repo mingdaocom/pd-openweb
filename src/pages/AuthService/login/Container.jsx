@@ -2,10 +2,10 @@ import React, { useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useKey } from 'react-use';
 import _ from 'lodash';
-import { Checkbox, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';
-import { maskValue } from 'src/pages/Admin/security/account/utils';
 import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
 import { loginCallback } from 'src/pages/AuthService/login/util.js';
 import {
@@ -16,15 +16,20 @@ import {
   isTel,
   validation,
 } from 'src/pages/AuthService/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
-import { removePssId } from 'src/utils/pssId';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { maskValue } from 'src/utils/domain/account/profile';
+import { removePssId } from 'src/utils/platform/auth/pssId';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { encrypt } from 'src/utils/services/security/encryption';
 import BtnList from './BtnList.jsx';
 import FormContainer from './Form.jsx';
 import IntegrationLogin from './IntegrationLogin.jsx';
 import { Wrap } from './style.jsx';
 import VerifyCode from './verifyCode';
+
+const CHECKBOX_LABEL_STYLES = {
+  label: { paddingInlineEnd: 0 },
+};
 
 export default function (props) {
   const {
@@ -260,8 +265,9 @@ export default function (props) {
                     className="cbRememberPasswordDiv textPrimary Font14 Left Hand flexRow alignItemsCenter"
                     onClick={() => onChange({ isCheck: !isCheck })}
                   >
-                    <Checkbox checked={isCheck} className="InlineBlock" />
-                    {_l('下次自动登录')}
+                    <Checkbox checked={isCheck} styles={CHECKBOX_LABEL_STYLES}>
+                      {_l('下次自动登录')}
+                    </Checkbox>
                   </div>
                   {modeType !== 2 && verifyType === 'password' && (
                     <div className="Right">

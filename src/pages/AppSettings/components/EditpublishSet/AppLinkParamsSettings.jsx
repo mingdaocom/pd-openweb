@@ -2,17 +2,13 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Popover, Tooltip } from 'ming-ui/antd-components';
 
 const LinkParamSettings = styled.div`
   width: 324px;
   padding: 19px 20px;
   box-sizing: border-box;
-  background-color: var(--color-background-primary);
-  box-shadow: 0px 3px 12px 1px rgba(0, 0, 0, 0.16);
 `;
 
 const LinkParams = [
@@ -78,14 +74,11 @@ export default function AppLinkParamsSettings(props) {
             </span>
           </Tooltip>
         </div>
-        <Trigger
-          action={['hover']}
-          popupAlign={{
-            points: ['tr', 'br'],
-            offset: [66, 0],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          popup={
+        <Popover
+          noPadding
+          trigger="hover"
+          placement="bottomRight"
+          content={
             <LinkParamSettings>
               {LinkParams.map((item, index) => {
                 const { text, value } = item;
@@ -95,9 +88,15 @@ export default function AppLinkParamsSettings(props) {
                     <Checkbox
                       key={value}
                       checked={params[value]}
-                      text={text}
-                      onClick={checked => setParams({ ...params, [value]: !checked })}
-                    />
+                      onChange={event =>
+                        setParams({
+                          ...params,
+                          [value]: event.target.checked,
+                        })
+                      }
+                    >
+                      {text}
+                    </Checkbox>
                   </div>
                 );
               })}
@@ -105,7 +104,7 @@ export default function AppLinkParamsSettings(props) {
           }
         >
           <div className="linkParams Hand">{_l('链接参数')}</div>
-        </Trigger>
+        </Popover>
         <div
           className="copy Hand"
           onClick={() => {

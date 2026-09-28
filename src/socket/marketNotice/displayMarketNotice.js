@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, notification } from 'antd';
+import { Modal, notification } from 'ming-ui/antd-components';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
 
 export default function displayNotice({ noticeId, displayType, desc }) {
   const handleClose = () => {
@@ -22,6 +23,8 @@ export default function displayNotice({ noticeId, displayType, desc }) {
   };
 
   if (desc) {
+    const safeDesc = sanitizePostMessageHtml(desc);
+
     if (displayType === 2) {
       const modal = Modal.info({
         className: 'marketModalContainer',
@@ -30,7 +33,7 @@ export default function displayNotice({ noticeId, displayType, desc }) {
         closable: true,
         title: null,
         icon: null,
-        content: <div className="contentWrap" dangerouslySetInnerHTML={{ __html: desc }}></div>,
+        content: <div className="contentWrap" dangerouslySetInnerHTML={{ __html: safeDesc }}></div>,
         onCancel: handleClose,
       });
       // 保存引用 以便同步关闭
@@ -38,12 +41,12 @@ export default function displayNotice({ noticeId, displayType, desc }) {
     } else {
       notification.open({
         className: 'marketNotificationContainer',
-        message: null,
+        title: null,
         key: noticeId,
         icon: null,
         placement: 'bottomLeft',
         bottom: 24,
-        description: <div className="contentWrap" dangerouslySetInnerHTML={{ __html: desc }}></div>,
+        description: <div className="contentWrap" dangerouslySetInnerHTML={{ __html: safeDesc }}></div>,
         duration: null,
         onClose: handleClose,
       });

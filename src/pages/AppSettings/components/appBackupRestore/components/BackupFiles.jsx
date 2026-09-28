@@ -1,25 +1,27 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown } from 'antd';
 import HomeApiController from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Button, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { downloadFile } from 'src/utils/common';
-import { VersionProductType } from 'src/utils/enum';
-import { dateConvertToUserZone, getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { checkPermission, FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import EmptyStatus from '../../EmptyStatus';
 import EditInput from './EditInput.jsx';
 import RestoreAppDialog from './RestoreAppDialog';
-import { pathCompletion } from 'src/utils/common';
+
+const DANGER_BUTTON_PROPS = { danger: true };
 
 const ListWrap = styled.div`
   flex: 1;
@@ -108,11 +110,12 @@ export default function BackupFiles(props) {
   const {
     appId,
     projectId,
+    readonly,
     currentValid,
     validLimit,
     permissionType,
     backupInfo = {},
-    getList = () => { },
+    getList = () => {},
     data,
   } = props;
   const { sourceType } = data;
@@ -148,7 +151,7 @@ export default function BackupFiles(props) {
 
   useEffect(() => {
     setData(backupInfo);
-  }, [backupInfo]);
+  }, [backupInfo, setData]);
 
   // 获取token
   const getToken = () => {
@@ -194,11 +197,10 @@ export default function BackupFiles(props) {
 
   // 还原为新应用
   const restoreNewApp = item => {
-    Dialog.confirm({
+    Modal.confirm({
       width: 500,
-      className: 'restoreNewAppDialog',
       title: _l('还原为新应用'),
-      description: (
+      content: (
         <Fragment>
           <div className="mBottom10">{_l('确定将备份文件“%0”还原为一个新的应用吗？', item.backupFileName)}</div>
           <div className="Red">{_l('注意：还原为新应用并不会还原数据')}</div>
@@ -207,11 +209,13 @@ export default function BackupFiles(props) {
       onOk: () => {
         const hasDataBase =
           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-          (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+          (!window.platformENV.isPlatform || window.platformENV.isHap);
         const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
         if (hasDataBase && hasAppResourceAuth) {
-          HomeApiController.getMyDbInstances({ projectId }).then(res => {
+          HomeApiController.getMyDbInstances({
+            projectId,
+          }).then(res => {
             const list = res.map(l => {
               return {
                 label: l.name,
@@ -260,10 +264,11 @@ export default function BackupFiles(props) {
 
   // 删除备份
   const deleteBackup = item => {
-    Dialog.confirm({
+    Modal.confirm({
       className: 'deleteBackupDialog',
-      title: _l('删除备份'),
-      description: _l('确定将备份文件“%0”删除吗？', item.backupFileName),
+      title: <span className="textError">{_l('删除备份')}</span>,
+      content: _l('确定将备份文件“%0”删除吗？', item.backupFileName),
+      okButtonProps: DANGER_BUTTON_PROPS,
       onOk: () => {
         appManagementAjax
           .deleteBackupFile({
@@ -275,7 +280,9 @@ export default function BackupFiles(props) {
           .then(res => {
             if (res) {
               alert(_l('删除成功'));
-              getList({ pageIndex: 1 });
+              getList({
+                pageIndex: 1,
+              });
             } else {
               alert(_l('删除失败'), 2);
             }
@@ -302,7 +309,7 @@ export default function BackupFiles(props) {
     setData({ fileList: temp });
   };
 
-  const canCreateApp = !Object.assign({ cannotCreateApp: true }, getCurrentProject(projectId)).cannotCreateApp;
+  const canCreateApp = hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP);
 
   return (
     <Fragment>
@@ -365,8 +372,8 @@ export default function BackupFiles(props) {
                 const expired =
                   (window.platformENV.isOverseas || window.platformENV.isLocal
                     ? moment(item.operationDateTime)
-                      .add(md.global.SysSettings.appBackupRecycleDays, 'days')
-                      .format('YYYYMMDDHHmmss')
+                        .add(md.global.SysSettings.appBackupRecycleDays, 'days')
+                        .format('YYYYMMDDHHmmss')
                     : validLimit === -1
                       ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
                       : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
@@ -375,9 +382,9 @@ export default function BackupFiles(props) {
                 const expiredSoon =
                   (window.platformENV.isOverseas || window.platformENV.isLocal
                     ? moment(item.operationDateTime)
-                      .add(md.global.SysSettings.appBackupRecycleDays, 'days')
-                      .subtract(10, 'days')
-                      .format('YYYYMMDDHHmmss')
+                        .add(md.global.SysSettings.appBackupRecycleDays, 'days')
+                        .subtract(10, 'days')
+                        .format('YYYYMMDDHHmmss')
                     : validLimit === -1
                       ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
                       : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
@@ -451,10 +458,16 @@ export default function BackupFiles(props) {
                     {_.includes([0, 10], status) ? (
                       <div className="action">
                         <div className="pRight10 TxtRight">
-                          {!expired && status === 0 && (
-                            <span className="Hand mRight20" onClick={() => restoreApp(item)}>
+                          {!readonly && !expired && status === 0 && (
+                            <Button
+                              className="mRight20"
+                              color="default"
+                              variant="link"
+                              size="small"
+                              onClick={() => restoreApp(item)}
+                            >
                               {_l('还原')}
-                            </span>
+                            </Button>
                           )}
                           {!expired &&
                             permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
@@ -462,64 +475,76 @@ export default function BackupFiles(props) {
                             sourceType !== 60 && (
                               <Dropdown
                                 trigger={['click']}
-                                placement={['bottomRight']}
-                                overlayClassName="moreActionDropdown"
-                                overlay={
-                                  <Menu>
-                                    <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
-                                    {containData && dataStatus === 1 ? (
-                                      <MenuItem onClick={() => downloadData(item)}>
-                                        <span> {_l('下载数据')}</span>
-                                      </MenuItem>
-                                    ) : (
-                                      <Tooltip
-                                        title={
-                                          !containData ? (
-                                            ''
-                                          ) : dataStatus === 0 ? (
-                                            <span>{_l('不支持下载老数据')}</span>
-                                          ) : dataStatus === 2 ? (
-                                            <span>{_l('数据大于1GB，无法下载')}</span>
-                                          ) : (
-                                            ''
-                                          )
+                                placement="bottomRight"
+                                menu={{
+                                  items: [
+                                    {
+                                      key: 'downloadBackup',
+                                      label: _l('下载应用'),
+                                      onClick: () => downloadBackup(item),
+                                    },
+                                    containData && dataStatus === 1
+                                      ? {
+                                          key: 'downloadData',
+                                          label: _l('下载数据'),
+                                          onClick: () => downloadData(item),
                                         }
-                                      >
-                                        <MenuItem disabled={true}>
-                                          <span> {_l('下载数据')}</span>
-                                        </MenuItem>
-                                      </Tooltip>
-                                    )}
-                                  </Menu>
-                                }
+                                      : {
+                                          key: 'downloadData',
+                                          disabled: true,
+                                          label: (
+                                            <Tooltip
+                                              title={
+                                                !containData ? (
+                                                  ''
+                                                ) : dataStatus === 0 ? (
+                                                  <span>{_l('不支持下载老数据')}</span>
+                                                ) : dataStatus === 2 ? (
+                                                  <span>{_l('数据大于1GB，无法下载')}</span>
+                                                ) : (
+                                                  ''
+                                                )
+                                              }
+                                            >
+                                              <span>{_l('下载数据')}</span>
+                                            </Tooltip>
+                                          ),
+                                        },
+                                  ],
+                                }}
                               >
-                                <span className="Hand mRight20">{_l('下载')}</span>
+                                <Button className="mRight20" color="default" variant="link" size="small">
+                                  {_l('下载')}
+                                </Button>
                               </Dropdown>
                             )}
-                          <Dropdown
-                            trigger={['click']}
-                            placement={['bottomRight']}
-                            overlayClassName="moreActionDropdown"
-                            overlay={
-                              <Menu>
-                                {/* 备份文件列表中，开发者无“下载备份和还原为新应用”权限 */}
-                                {!expired &&
-                                  permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
-                                  canCreateApp &&
-                                  status === 0 &&
-                                  sourceType !== 60 && (
-                                    <MenuItem onClick={() => restoreNewApp(item)}>
-                                      <span>{_l('还原为新应用')}</span>
-                                    </MenuItem>
-                                  )}
-                                <MenuItem className="delete" onClick={() => deleteBackup(item)}>
-                                  <span>{_l('删除')}</span>
-                                </MenuItem>
-                              </Menu>
-                            }
-                          >
-                            <Icon icon="more_horiz" className="textTertiary Hand Font18 more_horiz" />
-                          </Dropdown>
+                          {!readonly && (
+                            <Dropdown
+                              trigger={['click']}
+                              placement="bottomRight"
+                              menu={{
+                                items: [
+                                  !expired &&
+                                    permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
+                                    canCreateApp &&
+                                    status === 0 &&
+                                    sourceType !== 60 && {
+                                      key: 'restoreNewApp',
+                                      label: _l('还原为新应用'),
+                                      onClick: () => restoreNewApp(item),
+                                    },
+                                  {
+                                    key: 'delete',
+                                    danger: true,
+                                    label: _l('删除'),
+                                    onClick: () => deleteBackup(item),
+                                  },
+                                ].filter(Boolean),
+                              }}
+                            >
+                              <Button color="default" variant="text" size="small" icon={<Icon icon="more_horiz" />} />
+                            </Dropdown>
+                          )}
                         </div>
                       </div>
                     ) : (

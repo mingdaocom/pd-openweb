@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import _, { head } from 'lodash';
-import { genWidgetRowAndCol } from '../../util';
+import { genWidgetRowAndCol } from 'src/utils/domain/control/editorLayout';
 import SplitLineSection from '../../widgetSetting/components/SplitLineConfig/SplitLineSection';
 
 export default function SplitLine(props) {

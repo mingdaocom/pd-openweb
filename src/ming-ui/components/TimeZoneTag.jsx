@@ -32,16 +32,23 @@ const getTimeZoneText = timeZone => {
   return utcTag + symbol + num + extra;
 };
 
+/** 应用时区与当前用户时区不一致时才需要展示时区标记 */
+export function shouldShowTimeZoneTag(appId) {
+  const appTimeZone = window[`timeZone_${appId}`];
+
+  if (_.isUndefined(appTimeZone)) return false;
+
+  const toOffset = timeZone => (timeZone === 1 ? moment().utcOffset() : timeZone);
+
+  return toOffset(md.global.Account.timeZone) !== toOffset(appTimeZone);
+}
+
 export default function TimeZoneTag(props) {
   const { appId, position = {}, displayFixedValue } = props;
 
   const appTimeZone = window[`timeZone_${appId}`];
 
-  if (
-    _.isUndefined(appTimeZone) ||
-    (md.global.Account.timeZone === 1 ? moment().utcOffset() : md.global.Account.timeZone) ===
-      (appTimeZone === 1 ? moment().utcOffset() : appTimeZone)
-  ) {
+  if (!shouldShowTimeZoneTag(appId)) {
     return '';
   }
 

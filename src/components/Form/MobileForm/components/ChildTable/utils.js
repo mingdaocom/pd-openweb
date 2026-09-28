@@ -1,38 +1,13 @@
 import _ from 'lodash';
 import DataFormat from 'src/components/Form/core/DataFormat';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { checkCellIsEmpty, controlState } from 'src/utils/control';
-import { filterEmptyChildTableRows } from 'src/utils/record';
-import { checkRulesErrorOfRow } from 'src/utils/rule';
+import { checkRulesErrorOfRow } from 'src/components/Form/core/formUtils/checkRulesError';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
+import { controlState } from 'src/utils/domain/control/state';
+import { checkCellIsEmpty, getControlCompareValue } from 'src/utils/domain/control/value';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../../core/config';
 import { checkRuleLocked } from '../../../core/formUtils';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
-
-function getControlCompareValue(c, value) {
-  if (c.type === 26) {
-    return safeParse(value, 'array')
-      .map(u => u.accountId)
-      .sort()
-      .join('');
-  } else if (c.type === 29) {
-    return safeParse(value, 'array')
-      .map(u => u.sid)
-      .sort()
-      .join('');
-  } else if (c.type === 27) {
-    return safeParse(value, 'array')
-      .map(u => u.departmentId)
-      .sort()
-      .join('');
-  } else if (c.type === 48) {
-    return safeParse(value, 'array')
-      .map(u => u.organizeId)
-      .sort()
-      .join('');
-  } else {
-    return value;
-  }
-}
 
 /**
  * 记录数据格式化为 关联表控件数据格式
@@ -144,7 +119,7 @@ export const addWidthToColumns = (columns, dataSource) => {
   const TOLERANCE = 10; // 预留10像素容错，避免计算误差
 
   const newColumns = columns.map(col => {
-    if (col.controlId === 'delete') {
+    if (_.includes(['select', 'delete'], col.controlId)) {
       return col;
     }
 
@@ -258,4 +233,24 @@ export function normalizeSDKFilterControls(filterControls) {
   const spliceType = (normalizedConditions[0] && normalizedConditions[0].spliceType) || 1;
 
   return [{ isGroup: true, spliceType, groupFilters: normalizedConditions }];
+}
+
+export function getTableScrollers(root) {
+  const scrollers = Array.from(root?.querySelectorAll('.hap-table-body, .hap-table-content') || []);
+
+  return {
+    horizontalScroller: scrollers.find(scroller => scroller.scrollWidth > scroller.clientWidth),
+    verticalScroller: scrollers.find(scroller => scroller.scrollHeight > scroller.clientHeight),
+  };
+}
+
+export function getTableBodyHeight(root) {
+  if (!root?.clientHeight) return 0;
+
+  const headerHeight = root.querySelector('.hap-table-thead')?.offsetHeight || 40;
+  const table = root.querySelector('.hap-table');
+  const tableStyle = table ? window.getComputedStyle(table) : {};
+  const borderHeight = (parseFloat(tableStyle.borderTopWidth) || 0) + (parseFloat(tableStyle.borderBottomWidth) || 0);
+
+  return Math.max(root.clientHeight - headerHeight - borderHeight, 0);
 }

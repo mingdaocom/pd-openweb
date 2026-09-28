@@ -2,15 +2,16 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { UserHead } from 'ming-ui';
+import { Button, Flex, Select, Tooltip } from 'ming-ui/antd-components';
 import RichText from 'ming-ui/components/RichText';
 import Textarea from 'ming-ui/components/Textarea';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import { navigateTo } from 'src/router/navigateTo';
-import { htmlDecodeReg } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { htmlDecodeReg } from 'src/utils/core/string';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
   addTaskAttachments,
@@ -136,7 +137,7 @@ class TaskBasic extends Component {
     const hasAuth = data.auth === config.auth.Charger || data.auth === config.auth.Member;
     const stages = (data.stages || []).map(item => {
       return {
-        text: htmlDecodeReg(item.name),
+        label: htmlDecodeReg(item.name),
         value: item.id,
       };
     });
@@ -169,9 +170,10 @@ class TaskBasic extends Component {
               </div>
             </Tooltip>
             <div className="taskDeatilFolderStage">
-              <Dropdown
-                className={cx('mLeft15', { bgColorPrimary: hasAuth && !data.parentID })}
-                data={stages}
+              <Select
+                className="mLeft15"
+                variant="borderless"
+                options={stages}
                 value={data.stageID}
                 onChange={this.switchTaskStage}
                 disabled={!hasAuth || !!data.parentID}
@@ -283,18 +285,19 @@ class TaskBasic extends Component {
   /**
    * 点击切换负责人
    */
-  clickChargeAvatar(evt) {
+  handleChargeSelect = users => {
+    const { taskId } = this.props;
+    const user = users[0];
+    this.props.dispatch(
+      updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)),
+    );
+  };
+
+  getChargeSelectProps() {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
 
-    const callback = users => {
-      const user = users[0];
-      this.props.dispatch(
-        updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)),
-      );
-    };
-
-    quickSelectUser(evt.target, {
+    return {
       sourceId: taskId,
       projectId: data.projectID,
       fromType: 2,
@@ -304,10 +307,10 @@ class TaskBasic extends Component {
       SelectUserSettings: {
         selectedAccountIds: [data.charge.accountID],
         projectId: checkIsProject(data.projectID) ? data.projectID : '',
-        callback,
+        callback: this.handleChargeSelect,
       },
-      selectCb: callback,
-    });
+      onSelect: this.handleChargeSelect,
+    };
   }
 
   /**
@@ -318,8 +321,12 @@ class TaskBasic extends Component {
     const { data } = this.props.taskDetails[taskId];
 
     return (
-      <span
-        className="textTertiary hoverColorPrimary pointer w100 oaButton updateTaskCharge"
+      <Button
+        block
+        className="updateTaskCharge"
+        ellipsis
+        color="primary"
+        variant="outlined"
         onClick={() => {
           dialogSelectUser({
             sourceId: taskId,
@@ -341,7 +348,7 @@ class TaskBasic extends Component {
         }}
       >
         {_l('更改负责人')}
-      </span>
+      </Button>
     );
   }
 
@@ -433,50 +440,67 @@ class TaskBasic extends Component {
     // 无权限经过我自己
     if (!hasAuth && md.global.Account.accountId === account.accountId) {
       return (
-        <span
-          className="textTertiary hoverColorPrimary pointer w100 oaButton removeTaskMember"
+        <Button
+          block
+          className="removeTaskMember"
+          danger
+          ellipsis
           onClick={() => this.clickMemberFn('removeTaskMember', account)}
         >
           {_l('退出任务')}
-        </span>
+        </Button>
       );
     }
 
     // 申请
     if (isApply) {
       return (
-        <Fragment>
-          <span
-            className="textTertiary hoverColorPrimary pointer oaButton addMemberAgree"
+        <Flex className="w100" align="center" gap={5}>
+          <Button
+            block
+            className="addMemberAgree"
+            ellipsis
+            color="primary"
+            variant="outlined"
             onClick={() => this.clickMemberFn('addMemberAgree', account)}
           >
             {_l('同意')}
-          </span>
-          <span
-            className="textTertiary hoverColorPrimary pointer oaButton addMemberRefuse"
+          </Button>
+          <Button
+            block
+            className="addMemberRefuse"
+            danger
+            ellipsis
             onClick={() => this.clickMemberFn('addMemberRefuse', account)}
           >
             {_l('拒绝')}
-          </span>
-        </Fragment>
+          </Button>
+        </Flex>
       );
     }
 
     return (
-      <Fragment>
-        <span
-          className="textTertiary hoverColorPrimary pointer oaButton updateTaskCharge"
+      <Flex className="w100" align="center" gap={5}>
+        <Button
+          block
+          className="updateTaskCharge"
+          ellipsis
+          color="primary"
+          variant="outlined"
           onClick={() => this.clickMemberFn('updateTaskCharge', account)}
         >
           {_l('设为负责人')}
-        </span>
-        <span
-          className="textTertiary hoverColorPrimary pointer oaButton removeTaskMember"
+        </Button>
+        <Button
+          block
+          className="removeTaskMember"
+          ellipsis
+          danger
           onClick={() => this.clickMemberFn('removeTaskMember', account)}
         >
           {md.global.Account.accountId === account.accountId ? _l('退出任务') : _l('移出任务')}
-        </span>
-      </Fragment>
+        </Button>
+      </Flex>
     );
   }
 
@@ -488,7 +512,7 @@ class TaskBasic extends Component {
     const user = {
       accountId: account.accountID,
       avatar: account.avatar,
-      fullName: account.fullname,
+      fullName: account.fullName || account.fullname,
     };
 
     switch (clickOp) {
@@ -518,30 +542,30 @@ class TaskBasic extends Component {
   /**
    * 添加成员
    */
-  addMembers = evt => {
+  handleAddMembers = (users, callbackInviteResult) => {
+    const { taskId } = this.props;
+    const userIdArr = [];
+    const specialAccounts = {};
+
+    if (_.isFunction(callbackInviteResult)) {
+      users.forEach(item => {
+        specialAccounts[item.account] = item.fullname;
+      });
+    } else {
+      users.forEach(item => {
+        userIdArr.push(item.accountId);
+      });
+    }
+
+    this.props.dispatch(addTaskMember(taskId, userIdArr, specialAccounts, callbackInviteResult));
+  };
+
+  getAddMembersSelectProps() {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
-    let existsIds = data.member.filter(item => item.type !== 3).map(item => item.account.accountID);
+    const existsIds = data.member.filter(item => item.type !== 3).map(item => item.account.accountID);
 
-    // 回调
-    const callback = (users, callbackInviteResult) => {
-      const userIdArr = [];
-      const specialAccounts = {}; // 外部用户
-
-      if (_.isFunction(callbackInviteResult)) {
-        users.forEach(item => {
-          specialAccounts[item.account] = item.fullname;
-        });
-      } else {
-        users.forEach(item => {
-          userIdArr.push(item.accountId);
-        });
-      }
-
-      this.props.dispatch(addTaskMember(taskId, userIdArr, specialAccounts, callbackInviteResult));
-    };
-
-    quickSelectUser(evt.target, {
+    return {
       sourceId: taskId,
       projectId: data.projectID,
       fromType: 2,
@@ -552,11 +576,11 @@ class TaskBasic extends Component {
         filterAccountIds: [data.charge.accountID, 'user-undefined'],
         selectedAccountIds: existsIds,
         projectId: checkIsProject(data.projectID) ? data.projectID : '',
-        callback,
+        callback: this.handleAddMembers,
       },
-      selectCb: callback,
-    });
-  };
+      onSelect: this.handleAddMembers,
+    };
+  }
 
   /**
    * 取消上传附件
@@ -634,17 +658,32 @@ class TaskBasic extends Component {
             )}
           </ul>
           <div className="flexRow mTop15">
-            <span className="chargeAvatar" onClick={evt => hasAuth && this.clickChargeAvatar(evt)}>
-              <UserHead
-                className={cx({ gray: data.charge.status !== 1 }, { opacity6: data.status })}
-                user={{
-                  userHead: data.charge.avatar,
-                  accountId: data.charge.accountID,
-                }}
-                size={32}
-                operation={hasAuth ? this.renderChargeOpHtml() : null}
-              />
-            </span>
+            {hasAuth ? (
+              <UserSelectPopover {...this.getChargeSelectProps()}>
+                <span className="chargeAvatar">
+                  <UserHead
+                    className={cx({ gray: data.charge.status !== 1 }, { opacity6: data.status })}
+                    user={{
+                      userHead: data.charge.avatar,
+                      accountId: data.charge.accountID,
+                    }}
+                    size={32}
+                    operation={this.renderChargeOpHtml()}
+                  />
+                </span>
+              </UserSelectPopover>
+            ) : (
+              <span className="chargeAvatar">
+                <UserHead
+                  className={cx({ gray: data.charge.status !== 1 }, { opacity6: data.status })}
+                  user={{
+                    userHead: data.charge.avatar,
+                    accountId: data.charge.accountID,
+                  }}
+                  size={32}
+                />
+              </span>
+            )}
             <Textarea
               disabled={!hasAuth}
               className="flex detailTaskName"
@@ -732,7 +771,6 @@ class TaskBasic extends Component {
                     kcAttachmentData={kcAttachmentData}
                     onTemporaryDataUpdate={res => this.setState({ attachmentData: res })}
                     onKcAttachmentDataUpdate={res => this.setState({ kcAttachmentData: res })}
-                    getPopupContainer={() => document.querySelector('.taskDetailContent .scroll-viewport')}
                     onCancel={this.cancelAttachment}
                     onOk={this.addTaskAttachments}
                   >
@@ -771,8 +809,12 @@ class TaskBasic extends Component {
                 {(data.member || []).map((item, i) => this.renderMemberItem(item, i, hasAuth))}
                 {hasAuth && (
                   <Tooltip title={_l('添加任务参与者')}>
-                    <span className="colorPrimary detailAddMember" onClick={this.addMembers}>
-                      <i className="icon-task-add-member-circle" />
+                    <span>
+                      <UserSelectPopover {...this.getAddMembersSelectProps()}>
+                        <span className="colorPrimary detailAddMember">
+                          <i className="icon-task-add-member-circle" />
+                        </span>
+                      </UserSelectPopover>
                     </span>
                   </Tooltip>
                 )}

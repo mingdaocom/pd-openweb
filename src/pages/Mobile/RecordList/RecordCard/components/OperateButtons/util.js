@@ -1,7 +1,11 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { getWorksheetShareUrl } from 'mobile/components/RecordInfo/RecordFooter';
-import { handleSystemPrintRecord, handleTemplateRecordPrint } from 'worksheet/common/recordInfo/RecordForm/PrintList';
+import {
+  handleSystemPrintRecord,
+  handleTemplateRecordPrint,
+  precheckTemplatePrint,
+} from 'worksheet/common/recordInfo/RecordForm/RecordPrint/recordPrintActions';
 import { handleDeleteRecord, handleShareRecord } from '../RecordOperate';
 
 const NOT_SUPPORT_BUTTON_TYPE = ['copy'];
@@ -86,6 +90,7 @@ export const setAttrToButtons = ({
   onDeleteSuccess,
   disableCustomButton,
   appDetail,
+  openGeneratePdf,
 }) => {
   const { style, showIcon, primaryNum } = operatesButtonsStyle;
   const { view, controls, base, sheetSwitchPermit, worksheetInfo } = context;
@@ -187,14 +192,30 @@ export const setAttrToButtons = ({
           worksheetId,
           rowIds: [recordId].filter(Boolean),
         })
-        .then(templates => {
+        .then(async templates => {
           if (_.find(templates, template => template.id === button.printItem.id && !template.disabled)) {
-            handleTemplateRecordPrint({
+            const isAllowed =
+              button.printItem.type === CLOUD_PRINT_TYPE ||
+              (await precheckTemplatePrint({
+                projectId: worksheetInfo.projectId,
+                worksheetId,
+                printId: button.printItem.id,
+                rowIds: [recordId],
+              }));
+
+            if (!isAllowed) {
+              disableCustomButton(button.btnId, false);
+              safeClose(customWin);
+              return;
+            }
+
+            await handleTemplateRecordPrint({
               viewId,
               worksheetId,
               recordId,
               appId,
               projectId: worksheetInfo.projectId,
+              openGeneratePdf,
               template: button.printItem,
               attriData: controls
                 .filter(o => o.attribute === 1)
@@ -215,6 +236,10 @@ export const setAttrToButtons = ({
                 disableCustomButton(button.btnId, printLoading);
               },
             });
+
+            if (button.printItem.type !== CLOUD_PRINT_TYPE) {
+              disableCustomButton(button.btnId, false);
+            }
           } else {
             alert(_l('无法打印”%0”', button.printItem.name), 3);
             disableCustomButton(button.printItem.id);

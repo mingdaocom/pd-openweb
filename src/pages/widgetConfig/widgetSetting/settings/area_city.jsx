@@ -1,18 +1,19 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
+import { Segmented, Select } from 'ming-ui/antd-components';
 import fixedDataController from 'src/api/fixedData';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import {
   AREA_DISPLAY_OPTION,
   AREA_INTERNATION_DISPLAY_OPTION,
   AREA_SPECIAL_DISPLAY_OPTION,
   COMMON_DEFAULT_COUNTRY,
-} from '../../config/setting';
-import { AnimationWrap, SettingItem } from '../../styled';
+} from 'src/utils/domain/control/setting';
+import { SettingItem } from '../../styled';
 import { SelectAreaCountryDialog } from '../components/WidgetHighSetting/ControlSetting/SelectDialog';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const ConfigWrap = styled.div`
   margin: 6px 0;
@@ -27,13 +28,13 @@ const ConfigWrap = styled.div`
   }
 `;
 
-const INTERNATIONAL_AREA_TYPE = [
+const getInternationalAreaTypeOptions = () => [
   {
-    text: _l('指定地区'),
+    label: _l('指定地区'),
     value: 0,
   },
   {
-    text: _l('国际'),
+    label: _l('国际'),
     value: 1,
   },
 ];
@@ -82,7 +83,7 @@ export default function Area(props) {
       },
       { ajaxOptions: { sync: true } },
     );
-    let list = citys.map(i => ({ ...i, text: i.name, value: i.id }));
+    let list = citys.map(i => ({ ...i, label: i.name, value: i.id }));
 
     if (!enumDefault) {
       list = list.filter(l => !l.last);
@@ -147,47 +148,40 @@ export default function Area(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择范围')}</div>
-        <AnimationWrap>
-          {INTERNATIONAL_AREA_TYPE.map(item => {
-            const active = enumDefault === item.value;
-            return (
-              <div
-                className={cx('animaItem', { active })}
-                onClick={() => {
-                  if (active) return;
-                  const defsource = getAdvanceSetting(data, 'defsource') || [];
-                  onChange({
-                    ...handleAdvancedSettingChange(data, {
-                      chooserange: '',
-                      ...(defsource.length ? { defsource: '' } : {}),
-                      commcountries: item.value === 1 ? JSON.stringify(COMMON_DEFAULT_COUNTRY) : '',
-                    }),
-                    enumDefault: item.value,
-                    enumDefault2: item.value === 1 ? 4 : isChina(item.value) ? 3 : 2,
-                  });
-                }}
-              >
-                {item.text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Segmented
+          block
+          value={enumDefault}
+          options={getInternationalAreaTypeOptions()}
+          onChange={value => {
+            const defsource = getAdvanceSetting(data, 'defsource') || [];
+            onChange({
+              ...handleAdvancedSettingChange(data, {
+                chooserange: '',
+                ...(defsource.length ? { defsource: '' } : {}),
+                commcountries: value === 1 ? JSON.stringify(COMMON_DEFAULT_COUNTRY) : '',
+              }),
+              enumDefault: value,
+              enumDefault2: value === 1 ? 4 : isChina(value) ? 3 : 2,
+            });
+          }}
+        />
       </SettingItem>
       {!enumDefault && (
         <SettingItem>
           <div className="settingItemTitle">{_l('国家/地区')}</div>
-          <Dropdown
-            border
-            openSearch
+          <Select
+            className="w100"
+            showPopupSearch
+            filterOption={false}
             onSearch={handleSearch}
             value={chooserange || undefined}
             placeholder={_l('请选择地区范围')}
-            data={searchData}
-            renderTitle={() => {
+            options={searchData}
+            labelRender={() => {
               return (
                 _.get(
                   _.find(originData, a => a.value === chooserange),
-                  'text',
+                  'label',
                 ) || ''
               );
             }}
@@ -204,9 +198,10 @@ export default function Area(props) {
 
       <SettingItem>
         <div className="settingItemTitle">{_l('选择层级')}</div>
-        <Dropdown
-          border
-          data={getAreaDisplay()}
+        <Select
+          className="w100"
+          options={getAreaDisplay()}
+          fieldNames={SELECT_FIELD_NAMES}
           value={enumDefault2}
           onChange={value => onChange({ enumDefault2: value })}
         />

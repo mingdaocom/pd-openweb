@@ -1,21 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Icon, LoadDiv, MdLink, ScrollView, Switch, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, MdLink, ScrollView, UserHead } from 'ming-ui';
+import { Modal, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { checkIsAppAdmin } from 'ming-ui/functions';
 import flowNode from '../api/flowNode';
 import processVersion from '../api/processVersion';
 import appManagement from 'src/api/appManagement';
 import projectSetting from 'src/api/projectSetting';
+import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import Config from 'src/pages/Admin/config';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import Search from '../components/Search';
 import MsgTemplate from './components/MsgTemplate';
 import PublishBtn from './components/PublishBtn';
@@ -70,6 +69,7 @@ class AdminWorkflowList extends Component {
 
       activeTab: location.href.includes('monitor') ? 'monitorTab' : workflowTab ? workflowTab : 'workflowList',
     });
+    this.requestPending = false;
     Config.setPageTitle(_l('应用管理 - 工作流'));
   }
 
@@ -213,8 +213,11 @@ class AdminWorkflowList extends Component {
    * 设置自动订购
    */
   setAutoOrderStatus() {
+    if (this.requestPending) return;
+
     const { projectId } = this.props.match.params;
-    projectSetting
+    this.requestPending = true;
+    return projectSetting
       .setAutoPurchaseWorkflowExtPack({
         projectId,
         autoPurchaseWorkflowExtPack: !this.state.autoPurchaseWorkflowExtPack,
@@ -235,6 +238,9 @@ class AdminWorkflowList extends Component {
         } else {
           alert(_l('操作失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   }
   /**
@@ -515,11 +521,16 @@ class AdminWorkflowList extends Component {
               ) : (
                 _l('加载中...')
               )}
-              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+              {window.platformENV.isHap && (
                 <div className="workflowAutoOrder">
                   <Switch
                     checked={autoPurchaseWorkflowExtPack}
-                    onClick={() => this.setState({ autoOrderVisible: true })}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return this.setState({
+                        autoOrderVisible: true,
+                      });
+                    }}
                   />
                   <Tooltip
                     placement="bottom"
@@ -532,7 +543,7 @@ class AdminWorkflowList extends Component {
             </div>
             <div className="manageListSearch flexRow">
               <Select
-                className="w180 mdAntSelect"
+                className="w180"
                 showSearch
                 defaultValue={apkId}
                 options={appList}
@@ -562,21 +573,21 @@ class AdminWorkflowList extends Component {
                 }}
               />
               <Select
-                className="w180 mdAntSelect mLeft15"
+                className="w180 mLeft15"
                 defaultValue={enabled}
                 options={enabledList}
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
                 onChange={value => this.updateState({ enabled: value })}
               />
               <Select
-                className="w180 mdAntSelect mLeft15"
+                className="w180 mLeft15"
                 defaultValue={processListType}
                 options={typeList}
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
                 onChange={value => this.updateState({ processListType: value })}
               />
               <SelectUser
-                className="mdAntSelect w180 mLeft15"
+                className="w180 mLeft15"
                 placeholder={_l('搜索创建人')}
                 projectId={params.projectId}
                 userInfo={userInfo}
@@ -647,25 +658,26 @@ class AdminWorkflowList extends Component {
           />
         )}
 
-        <Dialog
-          visible={autoOrderVisible}
+        <Modal
+          open={autoOrderVisible}
           className="publishErrorDialog"
-          buttonType={autoPurchaseWorkflowExtPack ? 'danger' : 'primary'}
-          title={autoPurchaseWorkflowExtPack ? _l('确认关闭自动订购？') : _l('是否开启自动订购？')}
-          description={
-            autoPurchaseWorkflowExtPack ? (
-              ''
-            ) : (
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: _l(
-                    '开启后，当月剩余执行额度为2%时，自动购买 %0 100信用点/1万次 %1 的单月包，从账户信用点中扣款',
-                    '<span class="Bold textPrimary">',
-                    '</span>',
-                  ),
-                }}
-              />
-            )
+          okButtonProps={{ danger: autoPurchaseWorkflowExtPack }}
+          title={
+            <Fragment>
+              <div>{autoPurchaseWorkflowExtPack ? _l('确认关闭自动订购？') : _l('是否开启自动订购？')}</div>
+              {!autoPurchaseWorkflowExtPack && (
+                <div
+                  className="Font13 Normal textSecondary mTop8"
+                  dangerouslySetInnerHTML={{
+                    __html: _l(
+                      '开启后，当月剩余执行额度为2%时，自动购买 %0 100信用点/1万次 %1 的单月包，从账户信用点中扣款',
+                      '<span class="Bold textPrimary">',
+                      '</span>',
+                    ),
+                  }}
+                />
+              )}
+            </Fragment>
           }
           okText={autoPurchaseWorkflowExtPack ? _l('关闭') : _l('确定')}
           onOk={() => this.setAutoOrderStatus()}

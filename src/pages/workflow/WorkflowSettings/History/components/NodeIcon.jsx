@@ -49,6 +49,11 @@ export default ({ type, appType, actionId, isPlugin, moduleType, isFirst, isLast
     bgColor = '#4c7d9e';
   }
 
+  // 更新记录关注者
+  if (type === 'action' && actionId === ACTION_ID.UPDATE_RECORD_FOLLOWERS) {
+    bgColor = '#4c7d9e';
+  }
+
   // 校准数据
   if (_.includes([ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFRESH_MULTIPLE_DATA], actionId)) {
     icon = 'architecture';

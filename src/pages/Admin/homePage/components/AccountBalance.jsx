@@ -1,18 +1,18 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import agentAjax from 'src/api/agent.js';
 import certificationApi from 'src/api/certification.js';
 import projectSettingAjax from 'src/api/projectSetting';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
-import SelectCertification from 'src/pages/certification/components/SelectCertification';
-import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
-import { PERMISSION_ENUM } from '../../enum';
+import { useSelectCertification } from 'src/pages/certification/components/SelectCertification';
+import { useEarlyWarningDialog } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const AccountBalanceHeader = styled.div`
   display: flex;
@@ -53,11 +53,15 @@ const AIWelfarePointValue = styled.span`
   }
 `;
 
+const PRIMARY_ROUND_BUTTON_PROPS = { type: 'primary', shape: 'round' };
+
 // 组织管理首页-账户信用点卡片
 export default function AccountBalance(props) {
   const { projectId, data, authority, isTrial, isFree, trialAuthenticate, refreshFlag, updateData = () => {} } = props;
   const isSaas = !window.platformENV.isLocal;
   const [agentBillingFreeQuota, setAgentBillingFreeQuota] = useState({});
+  const { open: openSelectCertification, holder: selectCertificationHolder } = useSelectCertification();
+  const { open: openEarlyWarningDialog, holder: earlyWarningDialogHolder } = useEarlyWarningDialog();
   const { balanceInfo } = data;
   const hasBalance = authority.includes(PERMISSION_ENUM.FINANCE);
   const hasBalanceInfo = !_.isEmpty(balanceInfo) && hasBalance;
@@ -136,7 +140,7 @@ export default function AccountBalance(props) {
   const setEarlyWarning = () => {
     const { balanceInfo = {} } = data;
 
-    settingEarlyWarning({
+    openEarlyWarningDialog({
       type: 'balance',
       projectId,
       warningValue: balanceInfo.balanceLimit,
@@ -166,22 +170,30 @@ export default function AccountBalance(props) {
 
   // 身份认证
   const handleAuthenticate = () => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('请先完成组织身份认证'),
-      description: _l('需要完成组织身份认证后才能进行信用点充值'),
+      content: _l('需要完成组织身份认证后才能进行信用点充值'),
       okText: _l('前往认证'),
       onOk: () => {
-        certificationApi.getCertInfoList({ certSource: 1, isUpgrade: false }).then(res => {
-          if (res && !!res.length) {
-            SelectCertification({
-              certList: res,
-              projectId,
-              onUpdateCertStatus: authType => updateData({ authType }),
-            });
-          } else {
-            navigateTo(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`);
-          }
-        });
+        certificationApi
+          .getCertInfoList({
+            certSource: 1,
+            isUpgrade: false,
+          })
+          .then(res => {
+            if (res && !!res.length) {
+              openSelectCertification({
+                certList: res,
+                projectId,
+                onUpdateCertStatus: authType =>
+                  updateData({
+                    authType,
+                  }),
+              });
+            } else {
+              navigateTo(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`);
+            }
+          });
       },
     });
   };
@@ -201,6 +213,8 @@ export default function AccountBalance(props) {
 
   return (
     <div className="infoCard">
+      {selectCertificationHolder}
+      {earlyWarningDialogHolder}
       <div>
         <AccountBalanceHeader className="mBottom6">
           <div className="Font16 bold textPrimary valignWrapper">
@@ -261,31 +275,41 @@ export default function AccountBalance(props) {
       </div>
       <div className="buttons">
         {trialAuthenticate ? (
-          <span className="recharge trialAuthenticate" onClick={handleAuthenticate}>
-            <Icon icon="gift" className="mRight5" />
+          <Button
+            color="orange"
+            variant="filled"
+            shape="round"
+            icon={<Icon icon="gift" />}
+            onClick={handleAuthenticate}
+          >
             {_l('认证组织+10信用点')}
-          </span>
+          </Button>
         ) : (
           <Fragment>
             {!window.platformENV.isLocal &&
               (window.platformENV.isOverseas ? (
-                <PurchaseExpandPack className="blueBtn" text={_l('充值')} type="recharge" projectId={projectId} />
+                <PurchaseExpandPack
+                  buttonProps={PRIMARY_ROUND_BUTTON_PROPS}
+                  text={_l('充值')}
+                  type="recharge"
+                  projectId={projectId}
+                />
               ) : (
                 (data.authType || !isTrial) && (
-                  <span className="blueBtn Bold" onClick={handleClickRecherge}>
+                  <Button type="primary" shape="round" onClick={handleClickRecherge}>
                     {_l('充值')}
-                  </span>
+                  </Button>
                 )
               ))}
             {hasBalance && (
               <Fragment>
-                <span className="whiteBtn Bold" onClick={() => navigateTo(`/admin/billinfo/${projectId}/recharge`)}>
+                <Button shape="round" onClick={() => navigateTo(`/admin/billinfo/${projectId}/recharge`)}>
                   {_l('使用明细')}
-                </span>
+                </Button>
                 {isSaas && (
-                  <span className="whiteBtn Bold" onClick={() => updateData({ balanceManageVisible: true })}>
+                  <Button shape="round" onClick={() => updateData({ balanceManageVisible: true })}>
                     {_l('管理')}
-                  </span>
+                  </Button>
                 )}
               </Fragment>
             )}

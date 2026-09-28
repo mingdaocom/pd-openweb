@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from '../RecordInfoContext';
-import CustomButtonsAutoWidth from './CustomButtonsAutoWidth';
+import CustomButtonsAutoWidth from './CustomButtons/CustomButtonsAutoWidth';
 
 export default class Operates extends Component {
   static contextType = RecordInfoContext;

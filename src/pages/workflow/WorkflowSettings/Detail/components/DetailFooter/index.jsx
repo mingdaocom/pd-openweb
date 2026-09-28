@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { any, func } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import flowNode from '../../../../api/flowNode';
 import { ACTION_ID, NODE_TYPE } from '../../../enum';
 
@@ -109,13 +110,19 @@ export default function DetailFooter({
           </span>
         </Footer>
         {showDialog && (
-          <Dialog
-            className="workflowDetailExecDialog"
-            visible
+          <Modal
+            open
             type="fixed"
             title={_l('查看输出数据')}
             width={1080}
             footer={null}
+            styles={{
+              body: {
+                backgroundColor: 'var(--color-background-primary)',
+                padding: '10px 0',
+                borderRadius: '0 0 3px 3px',
+              },
+            }}
             onCancel={() => setShowDialog(false)}
           >
             <div className="flexRow h100 breakAll">
@@ -127,7 +134,7 @@ export default function DetailFooter({
                 </ScrollView>
               )}
             </div>
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );

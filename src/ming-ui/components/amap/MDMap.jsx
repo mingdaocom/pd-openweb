@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
+import { Button, Popup } from 'ming-ui/antd-mobile-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { AnimationWrap } from 'src/pages/widgetConfig/styled/index.js';
-import { getMapConfig } from 'src/utils/control';
+import { getMapConfig } from 'src/utils/platform/runtime/config';
 import CustomLocation from './components/CustomLocation';
 import GoogleMap from './components/GoogleMap';
 import OperatorIcon from './components/OperatorIcon';
@@ -19,6 +19,53 @@ const MAP_TYPE = [
   { text: _l('地图位置'), value: 0 },
   { text: _l('自定义位置'), value: 1 },
 ];
+
+const AnimationWrap = styled.div`
+  display: flex;
+  padding: 2px;
+  background: var(--color-background-disabled);
+  border-radius: 3px;
+  .animaItem {
+    height: 32px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    flex: 1;
+    margin-left: 2px;
+    &:first-child {
+      margin-left: 0;
+    }
+    &:hover {
+      color: var(--color-primary);
+      i {
+        color: var(--color-primary);
+      }
+    }
+    i {
+      color: var(--color-text-secondary);
+    }
+    &.active {
+      background: var(--color-background-card);
+      color: var(--color-primary);
+      i {
+        color: var(--color-primary);
+      }
+    }
+    &.disabled {
+      color: var(--color-text-disabled) !important;
+      cursor: not-allowed;
+    }
+    &.breakText {
+      word-break: break-word;
+      text-align: center;
+      line-height: 12px;
+    }
+  }
+`;
 
 class GDMap extends Component {
   static defaultProps = {
@@ -39,6 +86,7 @@ class GDMap extends Component {
       list: [],
       zoom: 15,
       tab: 0,
+      keywords: '',
     };
   }
 
@@ -47,11 +95,7 @@ class GDMap extends Component {
     this._MapLoader.loadJs().then(() => {
       this.initMapObject();
     });
-    if (this.conRef.current) {
-      if (this.conRef.current.querySelector('.MDMapInput')) {
-        this.conRef.current.querySelector('.MDMapInput').focus();
-      }
-    }
+    this.searchRef && this.searchRef.focus();
   }
 
   componentWillUnmount() {
@@ -154,7 +198,8 @@ class GDMap extends Component {
           if (status === 'complete') {
             this.setState({
               defaultList: result.poiList.pois.filter(
-                item => item.location && item.location.lng && this.compareDistance(item.location.lng, item.location.lat),
+                item =>
+                  item.location && item.location.lng && this.compareDistance(item.location.lng, item.location.lat),
               ),
             });
           } else {
@@ -187,10 +232,9 @@ class GDMap extends Component {
     if (!this._maphHandler) return;
 
     const { distance } = this.props;
+    const { keywords } = this.state;
     const centerInfo = this._maphHandler && this._maphHandler.map && this._maphHandler.map.getCenter();
     const { lat, lng } = centerInfo || {};
-
-    const keywords = _.get(this.searchRef, 'value') || '';
 
     AMap.plugin(['AMap.PlaceSearch'], () => {
       if (!distance) {
@@ -221,13 +265,17 @@ class GDMap extends Component {
     });
   };
 
+  handleSearchChange = event => {
+    this.setState({ keywords: event.target.value });
+  };
+
   handleClearAndSet = item => {
     const { location = {}, address, name } = item;
     const { lng, lat } = location;
-    (document.getElementsByClassName('MDMapInput')[0] || {}).value = '';
     this.setPosition(lng, lat);
     this.setState({
       customLocation: { lng, lat, name, address },
+      keywords: '',
     });
   };
 
@@ -287,19 +335,23 @@ class GDMap extends Component {
 
   renderSearch() {
     const { distance, isMobile } = this.props;
+    const { keywords } = this.state;
 
     return (
       <Fragment>
         <div className={cx('mLeft16 mRight16 relative', { mTop16: !isMobile, mTop10: isMobile })}>
-          <Icon icon="search" className="textTertiary Font16 Absolute" style={{ left: 12, top: 10 }} />
           <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
-            <input
+            <Input
               type={isMobile ? 'search' : 'text'}
+              radius
+              variant="filled"
+              prefix={<Icon icon="search" className="textTertiary Font16" />}
               ref={con => (this.searchRef = con)}
               placeholder={_l('搜索地点')}
               className="MDMapInput textPrimary"
-              onKeyUp={e => e.keyCode === 13 && this.handleChange()}
-              onChange={_.debounce(() => this.handleChange(), 500)}
+              value={keywords}
+              onPressEnter={this.handleChange}
+              onChange={this.handleSearchChange}
             />
           </form>
         </div>
@@ -316,8 +368,7 @@ class GDMap extends Component {
   }
 
   renderSearchList() {
-    const { currentLocation, list, defaultList } = this.state;
-    const keywords = ((document.getElementsByClassName('MDMapInput')[0] || {}).value || '').trim();
+    const { currentLocation, list, defaultList, keywords } = this.state;
 
     return (
       <ScrollView className="flex mTop5">
@@ -345,7 +396,7 @@ class GDMap extends Component {
             </div>
           </div>
         )}
-        {(keywords ? list : defaultList).map((item, index) => {
+        {(keywords.trim() ? list : defaultList).map((item, index) => {
           if (item.address && typeof item.address === 'string') {
             return (
               <div className="MDMapList">
@@ -480,7 +531,17 @@ class GDMap extends Component {
 
     return (
       <Fragment>
-        <Dialog.DialogBase className="MDMap" width="1080" visible overlayClosable={false}>
+        <Modal
+          className="MDMap"
+          width={1080}
+          open
+          footer={null}
+          title={null}
+          closable={false}
+          mask={{ closable: false }}
+          keyboard
+          styles={{ body: { padding: 0 }, container: { padding: 0 } }}
+        >
           {this.renderOperatorIcon()}
           <div ref={this.conRef} className="flexRow" style={{ height: 600 }}>
             <div className="MDMapSidebar flexColumn">
@@ -493,28 +554,13 @@ class GDMap extends Component {
               {defaultLocation && <img src={markImg} className="markMapImg" />}
             </div>
           </div>
-        </Dialog.DialogBase>
-        <Dialog
+        </Modal>
+        <Modal
           width={600}
-          visible={locationFailedDialogVisible}
+          open={locationFailedDialogVisible}
+          mask={{ closable: true }}
+          keyboard
           title={_l('未能获取精确位置')}
-          description={
-            <Fragment>
-              <div className="Font15 mBottom8 textSecondary bold">
-                {distance
-                  ? _l('为提升定位准确性，可尝试：')
-                  : _l('当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试：')}
-              </div>
-              <div className="textSecondary LineHeight22">
-                <div>{_l('· 确认已开启系统定位服务及应用定位权限')}</div>
-                <div>{_l('· 建议开启 Wi-Fi，可提升室内定位效果')}</div>
-                <div>{_l('· 若正在使用 VPN / 代理，尝试关闭后再试')}</div>
-              </div>
-              {!distance && (
-                <div className="textPrimary bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>
-              )}
-            </Fragment>
-          }
           okText={distance ? _l('我已知晓') : _l('仍要定位')}
           onCancel={() => this.setState({ locationFailedDialogVisible: false }, onClose)}
           onOk={() =>
@@ -522,7 +568,23 @@ class GDMap extends Component {
               ? this.setState({ locationFailedDialogVisible: false }, onClose)
               : this.setState({ locationFailedDialogVisible: false })
           }
-        />
+        >
+          <Fragment>
+            <div className="Font15 mBottom8 textSecondary bold">
+              {distance
+                ? _l('为提升定位准确性，可尝试：')
+                : _l('当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试：')}
+            </div>
+            <div className="textSecondary LineHeight22">
+              <div>{_l('· 确认已开启系统定位服务及应用定位权限')}</div>
+              <div>{_l('· 建议开启 Wi-Fi，可提升室内定位效果')}</div>
+              <div>{_l('· 若正在使用 VPN / 代理，尝试关闭后再试')}</div>
+            </div>
+            {!distance && (
+              <div className="textPrimary bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>
+            )}
+          </Fragment>
+        </Modal>
       </Fragment>
     );
   }

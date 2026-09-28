@@ -2,10 +2,11 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { antNotification, Dialog } from 'ming-ui';
+import { Button, Modal, Notification } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import userAjax from 'src/api/user';
 import { checkCertification } from 'src/components/checkCertification';
-import { refuseUserJoinFunc } from '../refuseUserJoinDia';
+import { useRefuseUserJoinDialog } from '../refuseUserJoinDia';
 import UserTable from '../userList/userTable';
 
 const TabWrap = styled.div`
@@ -27,7 +28,7 @@ const tabs = [
   { tab: _l('已拒绝'), type: 2 },
 ];
 
-export default function ApprovalContent(props) {
+function ApprovalContent(props) {
   const {
     projectId,
     userStatus,
@@ -36,14 +37,16 @@ export default function ApprovalContent(props) {
     updateUserStatus = () => {},
     updateSelectedAccountIds = () => {},
     updateApplyDateOrderBy = () => {},
+    openRefuseUserJoinDialog,
   } = props;
+  const isActionDisabled = _.isEmpty(selectedAccountIds);
 
   // 批准加入
   const approve = () => {
     if (_.isEmpty(selectedAccountIds)) return;
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('批准用户加入'),
-      description: (
+      content: (
         <div className="textPrimary">
           {_l('您共勾选了')}
           <span className="colorPrimary"> {selectedAccountIds.length} </span>
@@ -63,7 +66,7 @@ export default function ApprovalContent(props) {
               loadApprovalUsers(projectId, 1);
               updateSelectedAccountIds([]);
             } else if (res.actionResult === 4) {
-              antNotification['error']({
+              Notification['error']({
                 className: 'approvalErr',
                 key: 'approvalErr',
                 duration: 5,
@@ -86,7 +89,7 @@ export default function ApprovalContent(props) {
   // 批量拒绝
   const refuse = () => {
     if (_.isEmpty(selectedAccountIds)) return;
-    refuseUserJoinFunc({
+    openRefuseUserJoinDialog({
       projectId,
       accountIds: selectedAccountIds,
       callback: () => {
@@ -114,19 +117,24 @@ export default function ApprovalContent(props) {
         ))}
       </TabWrap>
       <div className="actList flexRow pLeft0 mTop20">
-        <div
-          className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
-          onClick={() => !_.isEmpty(selectedAccountIds) && checkCertification({ projectId, checkSuccess: approve })}
+        <Button
+          className="mRight8"
+          disabled={isActionDisabled}
+          onClick={() => checkCertification({ projectId, checkSuccess: approve })}
         >
           {_l('批准加入')}
-        </div>
+        </Button>
         {userStatus === 3 && (
-          <div className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })} onClick={refuse}>
+          <Button className="mRight8 " disabled={isActionDisabled} onClick={refuse}>
             {_l('拒绝')}
-          </div>
+          </Button>
         )}
       </div>
       <UserTable projectId={projectId} />
     </Fragment>
   );
 }
+
+export default withOpeners(ApprovalContent, {
+  openRefuseUserJoinDialog: useRefuseUserJoinDialog,
+});

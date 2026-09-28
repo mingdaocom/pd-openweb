@@ -1,7 +1,8 @@
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { getAppIconColors } from 'src/utils/domain/app/color';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 
 export const getGreetingText = () => {
   const hours = new Date().getHours();
@@ -19,17 +20,11 @@ export const getGreetingText = () => {
 };
 
 export const getAppOrItemColor = (appItem, isItem) => {
-  const iconColor = appItem.iconColor || '#1677ff';
-  const navColor = appItem.navColor || iconColor;
-  const black = '#1b2025' === navColor;
-  const light = [appItem.lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
+  const { backgroundColor, iconColor, itemIconColor } = getAppIconColors(appItem, '#1677ff');
 
-  const appBgColor = light ? appItem.lightColor : navColor || iconColor;
-  const appIconColor = black || light ? iconColor : '#fff';
-  const itemIconColor = black || light ? iconColor : appBgColor;
   return {
-    bg: isItem ? getRgbaByColor(itemIconColor, '0.08') : appBgColor,
-    iconColor: isItem ? itemIconColor : appIconColor,
+    bg: isItem ? getRgbaByColor(itemIconColor, '0.08') : backgroundColor,
+    iconColor: isItem ? itemIconColor : iconColor,
   };
 };
 
@@ -113,6 +108,52 @@ export const MODULE_TYPES = {
   RECENT: 1,
   ROW_COLLECTION: 2,
   CHART_COLLECTION: 3,
+  APP: 4,
+};
+
+export const DASHBOARD_MODULES = [
+  { value: MODULE_TYPES.APP_COLLECTION, text: _l('应用收藏') },
+  { value: MODULE_TYPES.RECENT, text: _l('最近使用') },
+  { value: MODULE_TYPES.ROW_COLLECTION, text: _l('记录收藏') },
+  { value: MODULE_TYPES.CHART_COLLECTION, text: _l('图表收藏') },
+  { value: MODULE_TYPES.APP, text: _l('应用') },
+];
+
+export const DEFAULT_SORT_MODULE_IDS = DASHBOARD_MODULES.map(item => item.value);
+
+export const normalizeSortModuleIds = sortItems => {
+  const moduleIds = sortItems && sortItems.length ? sortItems.map(item => item.moduleType) : DEFAULT_SORT_MODULE_IDS;
+
+  return _.includes(moduleIds, MODULE_TYPES.APP) ? moduleIds : moduleIds.concat(MODULE_TYPES.APP);
+};
+
+export const getModuleVisible = (moduleType, data = {}) => {
+  const {
+    markedApps = [],
+    displayCommonApp,
+    recentApps = [],
+    recentAppItems = [],
+    rowCollect,
+    recordCollectCount,
+    displayChart,
+    chartCollectCount,
+    displayApp,
+  } = data;
+
+  switch (moduleType) {
+    case MODULE_TYPES.APP_COLLECTION:
+      return !!markedApps.length;
+    case MODULE_TYPES.RECENT:
+      return !!displayCommonApp && (!!recentApps.length || !!recentAppItems.length);
+    case MODULE_TYPES.ROW_COLLECTION:
+      return !!rowCollect && recordCollectCount !== 0;
+    case MODULE_TYPES.CHART_COLLECTION:
+      return !!displayChart && chartCollectCount !== 0;
+    case MODULE_TYPES.APP:
+      return !!displayApp;
+    default:
+      return false;
+  }
 };
 
 export const CardItem = styled.div`

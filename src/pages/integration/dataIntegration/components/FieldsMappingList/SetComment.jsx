@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Textarea } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Popover } from 'ming-ui/antd-components';
+
+const COMMENT_TEXTAREA_STYLE = { minHeight: 100, maxHeight: 108 };
 
 const Wrapper = styled.div`
   width: 310px;
   padding: 20px 24px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.16);
-  border-radius: 3px;
 `;
 
 export default function SetComment(props) {
@@ -17,30 +16,27 @@ export default function SetComment(props) {
   const destField = itemData.destField || {};
 
   return (
-    <Trigger
-      action={['click']}
-      popupClassName="moreOption"
+    <Popover
+      noPadding
+      trigger="click"
       getPopupContainer={() => document.body}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => setVisible(visible)}
-      popupAlign={{
-        points: ['br', 'tr'],
-        offset: [0, -5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      popup={
+      open={visible}
+      onOpenChange={setVisible}
+      placement="topRight"
+      content={
         <Wrapper>
           <p className="mBottom6">{_l('字段注释')}</p>
-          <Textarea
+          <Input.TextArea
+            autoSize
             className="Font13"
-            maxHeight={108}
+            style={COMMENT_TEXTAREA_STYLE}
             value={destField.comment || ''}
-            onChange={value => {
+            onChange={event => {
               updateFieldsMapping({
                 ...itemData,
                 destField: {
                   ...destField,
-                  comment: value,
+                  comment: event.target.value,
                 },
               });
             }}
@@ -49,6 +45,6 @@ export default function SetComment(props) {
       }
     >
       <Icon icon="info_outline" className="Font16" />
-    </Trigger>
+    </Popover>
   );
 }

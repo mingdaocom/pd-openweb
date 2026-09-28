@@ -1,10 +1,8 @@
 import React, { useRef, useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import 'rc-trigger/assets/index.css';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 
 const Box = styled.div`
   min-width: 160px;
@@ -38,6 +36,8 @@ const Box = styled.div`
   }
   .workflowOperate {
     color: var(--color-text-secondary);
+    display: inline-flex;
+    align-items: center;
     &:hover {
       color: var(--color-primary);
     }
@@ -69,6 +69,7 @@ export default props => {
     nodeTriggerFunc = () => {},
     IconTriggerFunc = () => {},
     operatorTriggerFunc = () => {},
+    extraOperatorList = [],
   } = props;
   const nodeNameRef = useRef(null);
   const [showOperate, setShowOperate] = useState(false);
@@ -79,21 +80,46 @@ export default props => {
       icon: 'edit',
       events: () => nodeNameEdit(),
     },
+    ...extraOperatorList,
     {
       text: _l('删除'),
       icon: 'trash',
       events: () => {
-        Dialog.confirm({
-          className: 'deleteApprovalProcessDialog',
-          title: <span style={{ color: 'var(--color-error)' }}>{_l('删除“%0”', item.name)}</span>,
+        Modal.confirm({
+          title: (
+            <span
+              style={{
+                color: 'var(--color-error)',
+              }}
+              className="textError"
+            >
+              {_l('删除“%0”', item.name)}
+            </span>
+          ),
+          okButtonProps: { danger: true },
           onOk: () => {
             deleteNode(processId, item.id);
           },
         });
       },
-      className: 'flowNodeDel',
+      danger: true,
     },
   ];
+  const menuItems = list.map((menuItem, index) => ({
+    key: String(index),
+    label: menuItem.text,
+    icon: <Icon icon={menuItem.icon} />,
+    danger: menuItem.danger,
+    onClick: ({ domEvent }) => {
+      domEvent.stopPropagation();
+      menuItem.events();
+      setShowOperate(false);
+
+      if (index === 1) {
+        operatorTriggerFunc();
+      }
+    },
+  }));
 
   // 节点名称编辑
   const nodeNameEdit = () => {
@@ -150,39 +176,19 @@ export default props => {
       )}
       {allowMoreOperator && (
         <span className="workflowOperate mLeft10">
-          <Trigger
-            popupVisible={showOperate}
-            action={['click']}
-            popup={
-              showOperate ? (
-                <div className="flowNodeOperateList" style={{ minWidth: 180 }}>
-                  <ul>
-                    {list.map((item, index) => (
-                      <li
-                        key={index}
-                        className={cx(item.className)}
-                        onMouseDown={e => {
-                          e.stopPropagation();
-                          item.events();
-                          setShowOperate(false);
-                          index === 1 && operatorTriggerFunc();
-                        }}
-                      >
-                        <Icon icon={item.icon} />
-                        {item.text}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <div />
-              )
-            }
-            popupAlign={{ points: ['tr', 'br'] }}
-            onPopupVisibleChange={showOperate => setShowOperate(showOperate)}
+          <Dropdown
+            open={showOperate}
+            trigger={['click']}
+            placement="bottomRight"
+            menu={{
+              items: menuItems,
+              style: { minWidth: 180 },
+              onMouseDown: event => event.stopPropagation(),
+            }}
+            onOpenChange={setShowOperate}
           >
             <i className="Font18 pointer icon-more_horiz" onMouseDown={e => e.stopPropagation()} />
-          </Trigger>
+          </Dropdown>
         </span>
       )}
     </Box>

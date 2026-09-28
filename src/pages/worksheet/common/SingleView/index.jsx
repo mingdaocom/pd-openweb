@@ -1,7 +1,8 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { arrayOf, bool, element, number, shape, string } from 'prop-types';
-import { updateBase } from 'worksheet/redux/actions';
+import { updateAppPkgData, updateBase, updateIsCharge } from 'worksheet/redux/actions';
+import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import { configureStore } from 'src/redux/configureStore';
 import ViewComp from './ViewComp';
 
@@ -24,8 +25,10 @@ function SingleView(props, ref) {
     headerLeft,
     headerRight,
     filtersGroup,
+    appPermissions = {},
   } = props;
-  const store = useMemo(configureStore, []);
+  const { isCharge = false, isLock, permissionType } = appPermissions;
+  const store = useMemo(() => configureStore(), []);
   useEffect(() => {
     store.dispatch(
       updateBase({
@@ -40,7 +43,12 @@ function SingleView(props, ref) {
         type: 'single',
       }),
     );
-  }, []);
+  }, [appId, chartId, maxCount, pageSize, showAsSheetView, singleAppId, store, viewId, worksheetId]);
+  useEffect(() => {
+    store.dispatch(updateIsCharge(isCharge));
+    store.dispatch(updateAppPkgData({ appRoleType: permissionType, isLock }));
+    store.dispatch(syncAppDetail({ permissionType, isLock }));
+  }, [isCharge, isLock, permissionType, store]);
   useImperativeHandle(ref, () => ({
     dispatch: store.dispatch,
     getState: store.getState,
@@ -84,4 +92,9 @@ SingleView.propTypes = {
   worksheetId: string,
   viewId: string,
   chartId: string,
+  appPermissions: shape({
+    isCharge: bool,
+    isLock: bool,
+    permissionType: number,
+  }),
 };

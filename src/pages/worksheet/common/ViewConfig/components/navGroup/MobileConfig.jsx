@@ -2,7 +2,8 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
 
 const MobileConfigWrap = styled.div`
@@ -52,10 +53,6 @@ const MobileConfigWrap = styled.div`
   .activeTxt {
     color: var(--color-primary);
   }
-  .ming.Radio .Radio-box {
-    margin-right: 6px !important;
-  }
-
   .inputWrap {
     .unit {
       position: absolute;
@@ -129,7 +126,7 @@ export default function MobileConfig(props) {
             <Input
               className="w100"
               value={width}
-              onChange={changeWidth}
+              onChange={e => changeWidth(e.target.value)}
               onBlur={() => {
                 setWidth(width < 60 ? 60 : width > 180 ? 180 : width);
                 onChange({ appnavwidth: width < 60 ? 60 : width > 180 ? 180 : width });

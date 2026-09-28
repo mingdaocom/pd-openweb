@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Button, ConfigProvider, Modal } from 'antd';
-import { Input } from 'antd';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import { Header } from '../../styled';
 import { FlexCenter, genUrl } from '../../util';
 import PreviewWraper from '../previewContent';
@@ -46,17 +44,6 @@ const ContentWrap = styled(FlexCenter)`
     margin-bottom: 12px;
     width: 100%;
   }
-  .previewBtn {
-    height: 36px;
-    padding: 0 15px;
-    color: var(--color-primary);
-    background-color: var(--color-background-card);
-    border: none;
-    border-radius: 24px;
-    &:hover {
-      color: var(--color-primary-dark);
-    }
-  }
 `;
 
 function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
@@ -80,63 +67,63 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
   return (
     <Modal
       className="editWidgetDialogWrap"
-      visible
-      transitionName=""
-      maskTransitionName=""
+      classNames={{ container: 'pAll0', body: 'pAll0' }}
+      styles={{ body: { padding: 0, position: 'relative' } }}
+      verticalAlign="bottom"
+      open
       width="100%"
+      type="fixed"
       footer={null}
+      closable={false}
       centered={true}
       onCancel={onClose}
     >
-      <ConfigProvider autoInsertSpaceInButton={false}>
-        <Header>
-          <div className="typeName">{_l('嵌入url')}</div>
-          <div className="flexRow valignWrapper">
-            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
-              {_l('保存')}
+      <Header>
+        <div className="typeName">{_l('嵌入url')}</div>
+        <div className="flexRow valignWrapper">
+          <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+            {_l('保存')}
+          </Button>
+          <Tooltip title={_l('关闭')} placement="bottom">
+            <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
+          </Tooltip>
+        </div>
+      </Header>
+      <ContentWrap>
+        <div className="previewWrap">
+          {preview ? (
+            <PreviewWraper reload={reload} newTab={newTab} value={urlWithPara} param={widget.param} />
+          ) : (
+            _l('嵌入网页、视频、图片链接, 你也可以嵌入一个视图、记录的分享链接')
+          )}
+        </div>
+        <div className="configWrap">
+          <div className="content">
+            <p>{_l('输入url')}</p>
+            <Input.TextArea
+              className="urlInput"
+              autoSize={{ minRows: 4, maxRows: 30 }}
+              placeholder={_l('请输入完整链接，以 http:// 或 https:// 开头')}
+              value={url}
+              onChange={e => {
+                const value = e.target.value;
+                setPreview(false);
+                setUrl(value);
+              }}
+            />
+            <Button
+              onClick={() => {
+                if (!url) return;
+                setPreview(true);
+              }}
+            >
+              <span className="bold">{_l('预览')}</span>
             </Button>
-            <Tooltip title={_l('关闭')} placement="bottom">
-              <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
-            </Tooltip>
+            <LinkPara showActionBar paras={paras} setParas={setParas} config={config} setConfig={setConfig} />
+            <div className="parasConfigWrap"></div>
           </div>
-        </Header>
-        <ContentWrap>
-          <div className="previewWrap">
-            {preview ? (
-              <PreviewWraper reload={reload} newTab={newTab} value={urlWithPara} param={widget.param} />
-            ) : (
-              _l('嵌入网页、视频、图片链接, 你也可以嵌入一个视图、记录的分享链接')
-            )}
-          </div>
-          <div className="configWrap">
-            <div className="content">
-              <p>{_l('输入url')}</p>
-              <Input.TextArea
-                className="urlInput"
-                autoSize={{ minRows: 4, maxRows: 30 }}
-                placeholder={_l('请输入完整链接，以 http:// 或 https:// 开头')}
-                value={url}
-                onChange={e => {
-                  const value = e.target.value;
-                  setPreview(false);
-                  setUrl(value);
-                }}
-              />
-              <Button
-                className="previewBtn"
-                onClick={() => {
-                  if (!url) return;
-                  setPreview(true);
-                }}
-              >
-                <span className="bold">{_l('预览')}</span>
-              </Button>
-              <LinkPara showActionBar paras={paras} setParas={setParas} config={config} setConfig={setConfig} />
-              <div className="parasConfigWrap"></div>
-            </div>
-          </div>
-        </ContentWrap>
-      </ConfigProvider>
+        </div>
+      </ContentWrap>
     </Modal>
   );
 }

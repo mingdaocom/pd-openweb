@@ -8,14 +8,6 @@
     color: var(--color-text-primary);
     padding: 14px 20px;
     border-bottom: 1px solid var(--color-border-secondary);
-    .exclusiveCompButton {
-      padding: 0 16px;
-      line-height: 32px;
-      font-size: 13px;
-      .icon {
-        margin-right: 8px;
-      }
-    }
     .refresh {
       border-radius: 50%;
       color: var(--color-text-tertiary);
@@ -45,9 +37,6 @@
       margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
-      .createComputingButton {
-        color: var(--color-primary);
-      }
     }
     .exclusiveCompList {
       li {
@@ -66,25 +55,6 @@
               width: 25px;
               margin-right: 10px;
               vertical-align: top;
-            }
-          }
-          .actionsRight {
-            .manageBtn {
-              cursor: pointer;
-              background: var(--color-background-primary);
-              border: 1px solid var(--color-border-secondary);
-              font-weight: 600;
-              color: var(--color-primary);
-              padding: 8px 18px;
-              border-radius: 16px;
-              margin-left: 24px;
-              &:hover {
-                border: 1px solid var(--color-primary);
-              }
-            }
-            .repurchaseBtn {
-              color: var(--color-primary);
-              cursor: pointer;
             }
           }
         }
@@ -122,57 +92,40 @@
     padding: 18px 24px 5px 24px;
     display: flex;
     flex-direction: column;
+    .historyWorkflowNotice {
+      min-height: 44px;
+      padding: 0 16px;
+      margin-bottom: 18px;
+      border-radius: 3px;
+      background: var(--color-warning-bg);
+      color: var(--color-text-primary);
+      > .Icon {
+        color: var(--color-warning);
+      }
+      .addHistoryWorkflow {
+        color: var(--color-primary);
+        cursor: pointer;
+        font-weight: 600;
+        &.disabled {
+          color: var(--color-text-disabled);
+          cursor: not-allowed;
+        }
+      }
+    }
     .actionCon {
       .selectItem {
         width: 160px;
         margin-right: 16px;
-        .ant-select-selector {
-          height: 36px;
-          line-height: 36px;
-        }
-        .ant-select-selection-item {
-          line-height: 36px;
-        }
-        input {
-          height: 36px !important;
-        }
-      }
-      .addBtn {
-        height: 32px;
-        padding: 0 16px;
-        .Icon {
-          margin-right: 8px;
-        }
-      }
-      .actionBtn {
-        width: 88px;
-        display: inline-block;
-        height: 32px;
-        line-height: 32px;
-        cursor: pointer;
-        text-align: center;
-        font-size: 13px;
-        border-radius: 3px;
-        border: 1px solid var(--color-border-secondary);
-      }
-      .actionBtn:hover {
-        border: 1px solid var(--color-primary);
-        color: var(--color-primary);
-      }
-      .actionBtn.disabled {
-        color: var(--color-text-tertiary) !important;
-        cursor: not-allowed;
-        border: 1px solid var(--color-border-secondary) !important;
       }
     }
     .workflowTable {
-      .ant-table-thead > tr > th {
+      .hap-table-thead > tr > th {
         font-size: 13px;
         color: var(--color-text-tertiary);
         font-weight: 600;
         background: var(--color-background-primary);
       }
-      .ant-table-thead > tr > th::before {
+      .hap-table-thead > tr > th::before {
         display: none;
       }
       .workflowTableTitleRow > td {
@@ -206,7 +159,23 @@
 }
 
 .addWorkflowDialogContainer {
-  .mui-dialog-mask {
+  .hap-modal-mask {
     background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+.exclusiveComp .workflowCheckWrap,
+.addWorkflowDialogContainer .workflowInfoWrap {
+  .iconWrap {
+    padding-top: 0;
+    .icon {
+      color: var(--color-white);
+    }
+  }
+  .nameBox {
+    min-width: 0;
+    &:not(:hover) {
+      color: var(--color-text-title);
+    }
   }
 }

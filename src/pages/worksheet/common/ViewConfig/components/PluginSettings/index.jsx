@@ -1,16 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Drawer, Dropdown, Input, Switch, Tooltip } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import { dialogSelectIcon } from 'ming-ui/functions';
-import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import AddDialog from './AddDialog';
 import { controlTypeList, defaultData, PARAM_TYPES } from './config';
 import Edit from './Edit';
@@ -24,36 +21,6 @@ const Wrap = styled.div`
   .pluginSet {
     width: 440px;
     height: 36px;
-    background: var(--color-background-primary);
-    border-radius: 3px 3px 3px 3px;
-    border: 1px solid var(--color-border-primary);
-    &:hover {
-      border: 1px solid var(--color-border-tertiary);
-    }
-    .iconCon {
-      width: 43px;
-      height: 36px;
-      border: 1px solid var(--color-border-primary);
-      margin: -1px;
-      z-index: 0;
-      border-radius: 3px 0 0 3px;
-      &:hover {
-        border: 1px solid var(--color-border-tertiary);
-        z-index: 1;
-      }
-      & > div {
-        margin: 0 auto;
-      }
-    }
-    .Input {
-      margin: -1px -1px -1px 0;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 0 3px 3px 0;
-      &:focus,
-      &:hover {
-        z-index: 1;
-      }
-    }
   }
   .paramCon {
     .w100 {
@@ -64,22 +31,6 @@ const Wrap = styled.div`
     }
     .actionCon {
       width: 60px;
-    }
-  }
-`;
-const WrapPopup = styled.div`
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  padding: 6px 0;
-  border-radius: 3px 3px 3px 3px;
-  width: 160px;
-  & > div {
-    line-height: 36px;
-    padding: 0 16px;
-    font-weight: 400;
-    &:hover {
-      background: var(--color-primary);
-      color: var(--color-white);
     }
   }
 `;
@@ -97,7 +48,6 @@ function PluginSettings(params) {
     icon: 'sys_12_4_puzzle',
     iconColor: 'var(--color-cyan-dark)',
     editInfo: null,
-    visible: false,
     addVisible: false,
     key: moment().format('YYYYMMDDhhmmss'),
     showEdit: false,
@@ -114,7 +64,7 @@ function PluginSettings(params) {
       iconUrl: iconUrl || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg',
       iconColor: iconColor || 'var(--color-cyan-dark)',
     });
-  }, [params]);
+  }, [params, setState]);
   const handleSortEnd = list => {
     onChangeView(
       {
@@ -170,47 +120,71 @@ function PluginSettings(params) {
     );
   };
 
+  const addParameter = fieldId => {
+    const parameter = PARAM_TYPES.find(item => item.fieldId === fieldId);
+    const count = paramSettings.filter(item => item.fieldId === fieldId).length;
+
+    const getAvailableCount = currentCount =>
+      paramSettings.find(item => item.fieldId === `${fieldId}${currentCount}`)
+        ? getAvailableCount(currentCount + 1)
+        : currentCount;
+
+    onChangeView(
+      {
+        paramSettings: paramSettings.concat(
+          defaultData(parameter.type, {
+            fieldId: `${fieldId}${count > 0 ? getAvailableCount(count) : ''}`,
+            paramName: parameter.paramName,
+            type: parameter.type,
+            sourceControlType: parameter.sourceControlType,
+          }),
+        ),
+      },
+      true,
+    );
+  };
+
   return (
     <Wrap className="mTop24">
       {/* <div className="title Bold mTop24">{_l('提交设置')}</div> */}
       <div className="tit mTop16 Bold">{_l('插件名称')}</div>
-      <div className="pluginSet flexRow alignItemsCenter mTop8">
-        <div
-          className="iconCon flexRow alignItemsCenter Hand TxtMiddle"
-          onClick={() => {
-            dialogSelectIcon({
-              hideInput: true,
-              iconColor,
-              icon,
-              projectId,
-              onModify: ({ iconColor, icon }) => {
-                onChangeView({ iconColor, icon }, true);
-              },
-            });
-          }}
-        >
-          <SvgIcon url={iconUrl} fill={iconColor} size={20} />
-        </div>
-        <Input
-          className="flex"
-          value={name}
-          onChange={name => {
-            setState({
-              name,
-            });
-          }}
-          onBlur={() => {
-            let value = name.trim();
+      <Input
+        className="pluginSet mTop8"
+        prefix={
+          <span
+            className="flexRow alignItemsCenter Hand TxtMiddle"
+            onClick={() => {
+              dialogSelectIcon({
+                hideInput: true,
+                iconColor,
+                icon,
+                projectId,
+                onModify: ({ iconColor, icon }) => {
+                  onChangeView({ iconColor, icon }, true);
+                },
+              });
+            }}
+          >
+            <SvgIcon url={iconUrl} fill={iconColor} size={20} />
+          </span>
+        }
+        value={name}
+        onChange={e => {
+          setState({
+            name: e.target.value,
+          });
+        }}
+        onBlur={() => {
+          let value = name.trim();
 
-            if (_.get(view, 'pluginInfo.name') !== value) {
-              onChangeView({ name: value }, true);
-            }
-          }}
-        />
-      </div>
+          if (_.get(view, 'pluginInfo.name') !== value) {
+            onChangeView({ name: value }, true);
+          }
+        }}
+      />
       <div className="tit mTop24 Bold">{_l('系统功能')}</div>
-      <SwitchStyle
-        className="Hand flexRow alignItemsCenter mTop4"
+      <div
+        className="Hand flexRow alignItemsCenter viewConfigSwitchRow mTop4"
         onClick={() => {
           onChangeView(
             {
@@ -223,14 +197,29 @@ function PluginSettings(params) {
           );
         }}
       >
-        <Icon icon={switchSettings.showRefresh === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
-        <div className="switchText switchTextP mLeft12 InlineBlock textPrimary Hand">{_l('自动刷新')}</div>
+        <Switch
+          size="mini"
+          checked={switchSettings.showRefresh === '1'}
+          onClick={(_, event) => event.stopPropagation()}
+          onChange={() => {
+            onChangeView(
+              {
+                switchSettings: {
+                  ...switchSettings,
+                  showRefresh: switchSettings.showRefresh === '1' ? '' : '1',
+                },
+              },
+              true,
+            );
+          }}
+        />
+        <div className="mLeft12 InlineBlock textPrimary Hand">{_l('自动刷新')}</div>
         <Tooltip title={_l('每隔一段时间后自动刷新当前视图')} placement="right">
           <i className="icon-help textTertiary Font16"></i>
         </Tooltip>
-      </SwitchStyle>
-      <SwitchStyle
-        className="Hand flexRow alignItemsCenter mTop4"
+      </div>
+      <div
+        className="Hand flexRow alignItemsCenter viewConfigSwitchRow mTop4"
         onClick={() => {
           onChangeView(
             {
@@ -243,11 +232,26 @@ function PluginSettings(params) {
           );
         }}
       >
-        <Icon icon={switchSettings.showFastFilter === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
-        <div className="switchText switchTextP mLeft12 InlineBlock textPrimary Hand">{_l('快速筛选')}</div>
-      </SwitchStyle>
-      <SwitchStyle
-        className="Hand flexRow alignItemsCenter"
+        <Switch
+          size="mini"
+          checked={switchSettings.showFastFilter === '1'}
+          onClick={(_, event) => event.stopPropagation()}
+          onChange={() => {
+            onChangeView(
+              {
+                switchSettings: {
+                  ...switchSettings,
+                  showFastFilter: switchSettings.showFastFilter === '1' ? '' : '1',
+                },
+              },
+              true,
+            );
+          }}
+        />
+        <div className="mLeft12 InlineBlock textPrimary Hand">{_l('快速筛选')}</div>
+      </div>
+      <div
+        className="Hand flexRow alignItemsCenter viewConfigSwitchRow"
         onClick={() => {
           onChangeView(
             {
@@ -260,9 +264,24 @@ function PluginSettings(params) {
           );
         }}
       >
-        <Icon icon={switchSettings.showNav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
-        <div className="switchText switchTextP mLeft12 InlineBlock textPrimary Hand">{_l('筛选列表')}</div>
-      </SwitchStyle>
+        <Switch
+          size="mini"
+          checked={switchSettings.showNav === '1'}
+          onClick={(_, event) => event.stopPropagation()}
+          onChange={() => {
+            onChangeView(
+              {
+                switchSettings: {
+                  ...switchSettings,
+                  showNav: switchSettings.showNav === '1' ? '' : '1',
+                },
+              },
+              true,
+            );
+          }}
+        />
+        <div className="mLeft12 InlineBlock textPrimary Hand">{_l('筛选列表')}</div>
+      </div>
       <div className="title Bold mTop32">{_l('参数设置')}</div>
       <div className="mTop4 textSecondary">
         {_l('配置使用本视图时需要的设置项，对应变量可以在插件代码中引用')}
@@ -314,62 +333,21 @@ function PluginSettings(params) {
           />
         </div>
         <div className="nextStep mTop20 flexRow alignItemsCenter">
-          <Trigger
-            // popupVisible={visible}
-            // onPopupVisibleChange={visible => {
-            //   setState({ visible });
-            // }}
-            popup={
-              <WrapPopup>
-                {PARAM_TYPES.map(o => {
-                  return (
-                    <div
-                      className="Hand Font14"
-                      onClick={() => {
-                        let num = paramSettings.filter(a => a.fieldId === o.fieldId).length;
-
-                        const getNum = num => {
-                          if (paramSettings.find(a => a.fieldId === `${o.fieldId}${num}`)) {
-                            return getNum(num + 1);
-                          } else {
-                            return num;
-                          }
-                        };
-
-                        onChangeView(
-                          {
-                            paramSettings: paramSettings.concat(
-                              defaultData(o.type, {
-                                fieldId: `${o.fieldId}${num > 0 ? getNum(num) : ''}`,
-                                paramName: o.paramName,
-                                type: o.type,
-                                sourceControlType: o.sourceControlType,
-                              }),
-                            ),
-                          },
-                          true,
-                        );
-                      }}
-                    >
-                      {o.paramName}
-                    </div>
-                  );
-                })}
-              </WrapPopup>
-            }
-            action={['click']}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 5],
-              overflow: { adjustX: true, adjustY: true },
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: PARAM_TYPES.map(item => ({
+                key: item.fieldId,
+                label: item.paramName,
+              })),
+              onClick: ({ key }) => addParameter(key),
             }}
-            getPopupContainer={() => document.body}
           >
             <span className="textTertiary Bold Hand flexRow alignItemsCenter hoverColorPrimary">
               <Icon icon={'add'} className="Font20" />
               <span className="mLeft4">{_l('参数%05037')}</span>
             </span>
-          </Trigger>
+          </Dropdown>
           <span className="mLeft8 textPlaceholder">｜</span>
           <span
             className="mLeft8 textTertiary Bold Hand hoverColorPrimary"
@@ -399,31 +377,29 @@ function PluginSettings(params) {
         </div>
       </div>
       <Drawer
-        width={400}
-        className="Absolute"
+        size={400}
+        rootClassName="Absolute"
         onClose={() => setState({ editInfo: null, showEdit: false })}
         placement="right"
-        visible={showEdit}
-        maskClosable={false}
+        open={showEdit}
+        mask={{ enabled: false, closable: false }}
         closable={false}
         getContainer={false}
-        mask={false}
       >
         {showEdit && (
           <Edit
             controls={worksheetControls.filter(o => controlTypeList.includes(o.type))}
             info={editInfo}
             onClickAwayExceptions={[
-              '.ant-select',
+              '.hap-select',
               '.scrollViewContainer',
-              '.mui-dialog-container',
-              '.ant-select-dropdown',
-              '.rc-trigger-popup',
+              '.hap-modal-wrap',
+              '.hap-select-dropdown',
               '.selectUserBox',
-              '.ant-picker-dropdown',
+              '.hap-picker-dropdown',
               '#quickSelectDept',
               '.selectRoleDialog',
-              '.ant-modal',
+              '.hap-modal',
             ]}
             onClickAway={() => setState({ editInfo: null, showEdit: false })}
             onClose={() => setState({ editInfo: null, showEdit: false })}

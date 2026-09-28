@@ -1,13 +1,17 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Radio } from 'ming-ui';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { Radio } from 'ming-ui/antd-components';
+import {
+  VIEW_CONFIG_EXCLUDED_CONTROL_TYPES,
+  VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION,
+} from 'src/pages/worksheet/common/ViewConfig/config';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/';
-import { getAdvanceSetting } from 'src/utils/control';
-import { filterHidedControls } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { filterHidedControls } from 'src/utils/domain/control/sort';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
 
 const Wrap = styled.div`
   height: 100%;
@@ -86,7 +90,7 @@ export default class Show extends React.Component {
       });
     } else {
       const filteredColumns = filterHidedControls(columns, view.controls, false)
-        .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
+        .filter(c => !!c.controlName && !_.includes(VIEW_CONFIG_EXCLUDED_CONTROL_TYPES, c.type))
         .sort((a, b) => {
           if (a.row === b.row) {
             return a.col - b.col;
@@ -156,7 +160,7 @@ export default class Show extends React.Component {
     const sysids = getAdvanceSetting(view, 'sysids') || [];
     //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
     const filteredColumns = filterHidedControls(columns, controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51, 52], c.type),
+      c => !!c.controlName && !_.includes(VIEW_CONFIG_EXCLUDED_CONTROL_TYPES_WITH_SECTION, c.type),
     );
     const showControlsForSortControl = showControls.filter(id =>
       _.find(filteredColumns, column => column.controlId === id),
@@ -174,26 +178,30 @@ export default class Show extends React.Component {
       : filteredColumns.filter(c => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, c.controlId));
 
     return (
-      <Wrap className="flexRow commonConfigItem ming Dropdown w100 mTop15 hideColumns">
+      <Wrap className="flexRow commonConfigItem w100 mTop15 hideColumns flexColumn">
         <div className="">
           <Radio
             className=""
-            text={_l('与表单字段保持一致（显示前50个）')}
             checked={customdisplay === '0'}
-            onClick={() => {
+            onChange={() => {
               this.onChange('0');
             }}
-          />
+            title={_l('与表单字段保持一致（显示前50个）')}
+          >
+            {_l('与表单字段保持一致（显示前50个）')}
+          </Radio>
         </div>
         <div className="mTop15 mBottom20">
           <Radio
             className=""
-            text={_l('自定义显示列')}
             checked={customdisplay === '1'}
-            onClick={() => {
+            onChange={() => {
               this.onChange('1');
             }}
-          />
+            title={_l('自定义显示列')}
+          >
+            {_l('自定义显示列')}
+          </Radio>
         </div>
         {customdisplay === '1' ? (
           <SortColumns

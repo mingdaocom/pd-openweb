@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import { Support, Switch } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 import workWeiXinAjax from 'src/api/workWeiXin';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import SettingIconAndName from '../../../components/SettingIconAndName';
 import dingIcon from '../images/ding.png';
 import feishuIcon from '../images/feishu.png';
 import workWxIcon from '../images/workwx.png';
-import { pathCompletion } from 'src/utils/common';
 
 const integrationIcon = { 1: dingIcon, 3: workWxIcon, 6: feishuIcon };
 const integrationText = {
@@ -43,8 +44,8 @@ export default function EnableScanLogin(props) {
     href,
     customNameIcon = {},
     customDoc,
-    updateScanEnabled = () => { },
-    updateCustomNameIcon = () => { },
+    updateScanEnabled = () => {},
+    updateCustomNameIcon = () => {},
   } = props;
   const [scanEnabled, setScanEnabled] = useState(props.scanEnabled || false);
 
@@ -63,7 +64,7 @@ export default function EnableScanLogin(props) {
       });
   };
 
-  const saveCustomName = ({ name, icon, iconUrl, success = () => { } }) => {
+  const saveCustomName = ({ name, icon, iconUrl, success = () => {} }) => {
     workWeiXinAjax
       .editThirdPartyCustomNameIcon({
         projectId,
@@ -83,7 +84,14 @@ export default function EnableScanLogin(props) {
   return (
     <Fragment>
       <h3 className="stepTitle Font16 textPrimary mBottom24">{(integrationText[integrationType] || {}).title}</h3>
-      <Switch disabled={disabled} checked={scanEnabled} onClick={handleChangeScanEnabled} />
+      <Switch
+        disabled={disabled}
+        checked={scanEnabled}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+          return handleChangeScanEnabled(!checked, event);
+        }}
+      />
       <div className="mTop16 syncBox">
         <span className="Font14 textSecondary">{(integrationText[integrationType] || {}).subTitle}</span>
       </div>
@@ -104,8 +112,9 @@ export default function EnableScanLogin(props) {
       {scanEnabled && (
         <SettingIconAndName
           className="mTop20"
-          iconClassName={`iconBg ${integrationType === 1 ? 'dingIcon' : [6, 7].includes(integrationType) ? 'feishuIcon' : 'workWxIcon'
-            }`}
+          iconClassName={`iconBg ${
+            integrationType === 1 ? 'dingIcon' : [6, 7].includes(integrationType) ? 'feishuIcon' : 'workWxIcon'
+          }`}
           defaultName={(integrationText[integrationType] || {}).defaultName}
           name={customNameIcon.name}
           iconUrl={customNameIcon.iconUrl}

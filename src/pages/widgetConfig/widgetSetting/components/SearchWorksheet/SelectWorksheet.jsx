@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Dropdown } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 
@@ -24,27 +24,8 @@ const idContrast = {
 };
 
 const SelectSheetWrap = styled.div`
-  .footerBtn {
-    text-align: right;
-    margin-top: 32px;
-  }
   .title {
     margin: 24px 0 6px 0;
-  }
-  .ming.Dropdown,
-  .ming.Menu {
-    width: 100%;
-    &.disabled {
-      background-color: var(--color-background-secondary);
-      .Dropdown--input {
-        &:hover {
-          border-color: var(--color-border-tertiary);
-        }
-      }
-    }
-  }
-  .ming.Menu {
-    max-height: 160px;
   }
 `;
 
@@ -75,8 +56,8 @@ export default function SelectWorksheetDialog(props) {
         if (appList.length < 1) return [];
         return appList.map(({ appName, appId }) =>
           appId === currentAppId
-            ? { text: _l('%0  (本应用)', appName), value: appId }
-            : { text: appName, value: appId },
+            ? { label: _l('%0  (本应用)', appName), value: appId }
+            : { label: appName, value: appId },
         );
       };
 
@@ -90,8 +71,8 @@ export default function SelectWorksheetDialog(props) {
     if (!appId) return;
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setData({
-        sheet: res.map(({ workSheetId: value, workSheetName: text }) =>
-          value === worksheetId ? { text: _l('%0  (本表)', text), value } : { text, value },
+        sheet: res.map(({ workSheetId: value, workSheetName: label }) =>
+          value === worksheetId ? { label: _l('%0  (本表)', label), value } : { label, value },
         ),
       });
       setLoading(false);
@@ -99,22 +80,29 @@ export default function SelectWorksheetDialog(props) {
   }, [appId]);
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible={true}
+      open={true}
+      mask={{ closable: true }}
+      keyboard
       title={<span className="Bold">{_l('选择工作表')}</span>}
-      footer={null}
       onCancel={onClose}
+      okButtonProps={{ disabled: !sheetId }}
+      onOk={() => {
+        onOk({ sheetId, appId, appName });
+        onClose();
+      }}
     >
       <SelectSheetWrap>
         {Config.map(({ text, key, disabled, filter = item => item }) => (
           <div key={key}>
             <div className="title Bold">{text}</div>
-            <Dropdown
+            <Select
+              className="w100"
               value={ids[idContrast[key]] || undefined}
-              border
-              openSearch
-              isAppendToBody
+              showPopupSearch
+              optionFilterProp="label"
+              listHeight={160}
               placeholder={
                 isDelete(key) && !loading ? (
                   <span className="Red">{_l('%0已删除', key === 'app' ? '应用' : '工作表')}</span>
@@ -123,7 +111,7 @@ export default function SelectWorksheetDialog(props) {
                 )
               }
               disabled={disabled}
-              data={_.filter(data[key], filter)}
+              options={_.filter(data[key], filter)}
               onChange={value => {
                 if (key === 'app') {
                   setIds({
@@ -131,7 +119,7 @@ export default function SelectWorksheetDialog(props) {
                     sheetId: '',
                     appName: _.get(
                       _.find(data.app || [], da => da.value === value),
-                      'text',
+                      'label',
                     ),
                   });
                 } else {
@@ -141,22 +129,7 @@ export default function SelectWorksheetDialog(props) {
             />
           </div>
         ))}
-        <div className="footerBtn">
-          <Button type="link" onClick={onClose}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            disabled={!sheetId}
-            onClick={() => {
-              onOk({ sheetId, appId, appName });
-              onClose();
-            }}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
       </SelectSheetWrap>
-    </Dialog>
+    </Modal>
   );
 }

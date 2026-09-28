@@ -2,20 +2,21 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
-import { navigateTo } from 'router/navigateTo';
+import { navigateTo } from 'router/navigation/navigateTo';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, WaterMark } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal, WaterMark } from 'ming-ui/antd-components';
 import AppManagementAjax from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import HomeAjax from 'src/api/homeApp';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import Portal from 'src/pages/Role/PortalCon/index';
 import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
-import { canEditApp, canEditData, getUserRole } from 'src/pages/worksheet/redux/actions/util';
-import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
-import { setFavicon } from 'src/utils/app';
-import { emitter } from 'src/utils/common';
-import { getIds } from '../PageHeader/util';
+import { getIds } from 'src/utils/domain/app/model';
+import { canEditApp, canEditData, getUserRole } from 'src/utils/domain/permission/app';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getAppLangDetail, getTranslateInfo } from 'src/utils/services/app';
+import { setFavicon } from 'src/utils/services/app';
 import Header from './Header';
 
 const RoleWrapper = styled.div`
@@ -165,7 +166,7 @@ class AppRole extends Component {
   handleChangePage = callback => {
     if (this.child && this.child.state.hasChange) {
       let isNew = !this.child.props.roleId || this.child.props.roleId === 'new';
-      return Dialog.confirm({
+      return Modal.confirm({
         title: isNew ? _l('创建当前新增的角色？') : _l('保存当前角色权限配置 ？'),
         okText: isNew ? _l('创建') : _l('保存'),
         cancelText: isNew ? _l('不创建') : _l('不保存'),
@@ -183,7 +184,7 @@ class AppRole extends Component {
           this.child.onFormat();
           callback && callback();
         },
-      });
+      }).destroy;
     } else {
       callback && callback();
     }

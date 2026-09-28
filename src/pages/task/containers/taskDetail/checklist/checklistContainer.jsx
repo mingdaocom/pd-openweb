@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 import { DragDropContext } from 'react-dnd';
 import MouseBackEnd from '@mdfe/react-dnd-mouse-backend';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import createTask from 'src/components/createTask/load';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
 import {
   addItems,
   createTaskRemoveItem,
@@ -222,9 +222,9 @@ let ChecklistContainer = class ChecklistContainer extends Component {
    */
 
   removeCheckList(checkListId) {
-    Dialog.confirm({
-      title: _l('删除清单？'),
-      children: <div>{_l('清单被删除后，将无法恢复。')}</div>,
+    Modal.confirm({
+      title: <span className="textError">{_l('删除清单？')}</span>,
+      content: <div>{_l('清单被删除后，将无法恢复。')}</div>,
       closable: false,
       onOk: () => {
         this.props.dispatch(removeCheckList(this.props.taskId, checkListId));

@@ -1,17 +1,16 @@
-import React, { Component, createRef, Fragment, useEffect, useState } from 'react';
-import { Input } from 'antd';
+import React, { Component, Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, VerifyPasswordInput } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { VerifyPasswordInput } from 'ming-ui';
+import { Button, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { captcha } from 'ming-ui/functions';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import appManagementAjax from 'src/api/appManagement';
-import verifyPassword from 'src/components/verifyPassword';
-import { generateRandomPassword } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
 
 const PasswordInputBox = styled.div`
   line-height: 34px;
@@ -32,34 +31,10 @@ const PasswordInputBox = styled.div`
       border: 1px solid var(--color-primary);
     }
   }
-  .icon-edit,
-  .icon-content-copy {
-    &:hover {
-      color: var(--color-primary) !important;
-    }
-  }
   .error {
     font-size: 12px;
     color: var(--color-error);
   }
-`;
-
-const UnLockFooter = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 25px;
-`;
-
-const IconWrap = styled.div`
-  height: 18px;
-  width: 18px;
-  font-size: 14px;
-  color: var(--color-text-tertiary);
-  text-align: center;
-  line-height: 18px;
-  cursor: pointer;
-  margin-right: 12px;
 `;
 
 const checkErrorPassword = password => {
@@ -70,7 +45,7 @@ const checkErrorPassword = password => {
     return true;
   }
 
-  if (!RegExpValidator.isPasswordValid(password)) {
+  if (!isPasswordValid(password)) {
     alert(passwordRegexTip || _l('密码，至少8-20位，且含字母+数字'), 3);
     return true;
   }
@@ -133,22 +108,22 @@ const graphicVertify = (callback = () => {}) => {
 // 锁定应用（开启应用锁）
 function LockApp(props) {
   const { visible, onCancel = () => {}, appId } = props;
-  const passwordInputRef = createRef();
+  const passwordInputRef = useRef(null);
   const [canEdit, setCanEdit] = useState(true);
   const [password, setPassword] = useState();
   const inputExtra = canEdit ? {} : { readonly: 'readonly' };
 
   useEffect(() => {
-    passwordInputRef.current.focus();
+    passwordInputRef.current?.focus();
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={670}
-      visible={visible}
-      title={<div className="textPrimary Font17">{_l('锁定应用')}</div>}
+      open={visible}
+      title={_l('锁定应用')}
       okText={_l('确定')}
-      // okDisabled={!isAddLock}
+      keyboard
       onCancel={onCancel}
       onOk={() => {
         if (checkErrorPassword(password)) {
@@ -164,15 +139,18 @@ function LockApp(props) {
         <div className="flexRow">
           <span>{_l('设置锁定密码')}</span>
           {canEdit && (
-            <span
-              className="colorPrimary Hand mLeft70"
+            <Button
+              className="mLeft70"
+              color="primary"
+              variant="link"
+              size="small"
               onClick={() => {
                 setPassword(generateRandomPassword(16));
                 setCanEdit(false);
               }}
             >
               {_l('随机生成')}
-            </span>
+            </Button>
           )}
         </div>
         <div className="flexRow alignItemsCenter">
@@ -193,34 +171,38 @@ function LockApp(props) {
             {...inputExtra}
           />
 
-          <IconWrap
-            onClick={() => {
-              setCanEdit(true);
-              passwordInputRef.current.focus();
-            }}
-          >
-            <Tooltip title={_l('编辑')} placement="bottom">
-              <i className="icon-edit textTertiary Font14" />
-            </Tooltip>
-          </IconWrap>
-          <IconWrap>
-            <Tooltip title={_l('复制')} placement="bottom" align={{ offset: [5, 0] }}>
-              <span
-                onClick={() => {
-                  copy(password);
-                  alert(_l('复制成功'));
-                }}
-              >
-                <i className="icon-content-copy Font14" />
-              </span>
-            </Tooltip>
-          </IconWrap>
+          <Tooltip title={_l('编辑')} placement="bottom">
+            <Button
+              className="mRight12"
+              color="default"
+              variant="text"
+              size="small"
+              icon={<i className="icon-edit" />}
+              onClick={() => {
+                setCanEdit(true);
+                passwordInputRef.current.focus();
+              }}
+            />
+          </Tooltip>
+          <Tooltip title={_l('复制')} placement="bottom" align={{ offset: [5, 0] }}>
+            <Button
+              className="mRight12"
+              color="default"
+              variant="text"
+              size="small"
+              icon={<i className="icon-content-copy" />}
+              onClick={() => {
+                copy(password);
+                alert(_l('复制成功'));
+              }}
+            />
+          </Tooltip>
         </div>
         <div className="textTertiary">
           {_l('不推荐设置私人的常用密码。请妥善保管密码，如果忘记密码只能关闭锁定后重新设置')}
         </div>
       </PasswordInputBox>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -252,48 +234,44 @@ class UnLockDialog extends Component {
 
     return (
       <Fragment>
-        <Dialog
+        <Modal
           width={640}
-          visible={visible}
-          anim={false}
-          title={<div className="textPrimary Font17">{isLock ? _l('解锁应用') : _l('恢复锁定')}</div>}
+          open={visible}
+          title={isLock ? _l('解锁应用') : _l('恢复锁定')}
           okText={!isLock ? _l('恢复锁定') : _l('确定')}
+          keyboard
           onCancel={onCancel}
-          footer={
-            <UnLockFooter>
-              <div className="colorPrimary Font14">
-                {isOwner && isLock && (
-                  <span
-                    className="Hand"
-                    onClick={() => {
-                      modifyAppLockPassword({ appId, refreshPage: this.props.refreshPage });
-                      onCancel();
-                    }}
-                  >
-                    {_l('修改应用锁密码')}
-                  </span>
-                )}
-                {isNormalApp && isOwner && isLock && (
-                  <span
-                    className="Hand mLeft24"
+          onOk={this.handleUnlock}
+          footerLeftElement={
+            isOwner && isLock ? (
+              <div className="flexRow">
+                <Button
+                  color="primary"
+                  variant="link"
+                  size="small"
+                  onClick={() => {
+                    modifyAppLockPassword({ appId, refreshPage: this.props.refreshPage });
+                    onCancel();
+                  }}
+                >
+                  {_l('修改应用锁密码')}
+                </Button>
+                {isNormalApp && (
+                  <Button
+                    className="mLeft24"
+                    color="primary"
+                    variant="link"
+                    size="small"
                     onClick={() => {
                       closeLockFunc({ appId, refreshPage: this.props.refreshPage });
                       onCancel();
                     }}
                   >
                     {_l('关闭应用锁定')}
-                  </span>
+                  </Button>
                 )}
               </div>
-              <div className="btns">
-                <Button type="link" onClick={onCancel}>
-                  {_l('取消')}
-                </Button>
-                <Button type="primary" onClick={this.handleUnlock}>
-                  {_l('确定')}
-                </Button>
-              </div>
-            </UnLockFooter>
+            ) : null
           }
         >
           {isLock ? (
@@ -315,7 +293,7 @@ class UnLockDialog extends Component {
               {_l('您在当前应用下的相关权限已解锁。操作恢复锁定，将重新锁定您在当前应用下的权限。')}
             </div>
           )}
-        </Dialog>
+        </Modal>
       </Fragment>
     );
   }
@@ -325,12 +303,10 @@ function AppLockPasswordDialog(props) {
   const { visible, appId, onCancel = () => {} } = props;
   const [originPassword, setOriginPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const passwordInput = createRef();
+  const passwordInput = useRef(null);
 
   useEffect(() => {
-    if (passwordInput) {
-      passwordInput.current.focus();
-    }
+    passwordInput.current?.focus();
   }, []);
 
   // 修改密码
@@ -345,11 +321,12 @@ function AppLockPasswordDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
-      title={<div className="textPrimary Font17">{_l('修改应用锁密码')}</div>}
+      open={visible}
+      title={_l('修改应用锁密码')}
       okText={_l('确定')}
+      keyboard
       onCancel={onCancel}
       onOk={() => confirmModifyPassword(originPassword, newPassword)}
     >
@@ -368,7 +345,7 @@ function AppLockPasswordDialog(props) {
         value={newPassword}
         onChange={e => setNewPassword(e.target.value.trim())}
       />
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -378,11 +355,12 @@ function CloseLock(props) {
   const [userPassword, setUserPassword] = useState('');
 
   return (
-    <Dialog
+    <Modal
       width={640}
-      visible={visible}
-      title={<div className="textPrimary Font17">{_l('关闭应用锁定')}</div>}
+      open={visible}
+      title={_l('关闭应用锁定')}
       okText={_l('确定')}
+      keyboard
       onCancel={onCancel}
       onOk={() => {
         verifyPassword({
@@ -401,7 +379,7 @@ function CloseLock(props) {
         autoFocus={true}
         onChange={({ password }) => setUserPassword(password)}
       />
-    </Dialog>
+    </Modal>
   );
 }
 

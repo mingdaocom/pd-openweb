@@ -1,7 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType, getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 
 export const NO_REQUIRED_CONTROL = [33];
 
@@ -14,7 +15,7 @@ export const EXCEL_CONTROLS = [2, [11, 9], 10, 6, 8, 5, [15, 16], 46, [3, 4], [2
 
 const backItem = [
   {
-    text: _l('返回'),
+    label: _l('返回'),
     value: 'back',
     iconName: 'arrow-left-border',
   },
@@ -22,7 +23,7 @@ const backItem = [
 
 const relateItem = [
   {
-    text: (
+    label: (
       <div className="relateItem">
         <span>{_l('关联到其他工作表')}</span>
         <span className="Font14 textTertiary icon-arrow-right-border"></span>
@@ -35,7 +36,7 @@ const relateItem = [
 
 export const getList = (step, worksheetList) => {
   if (step === 2) {
-    return backItem.concat(worksheetList.map(i => ({ text: i.workSheetName, value: i.workSheetId })));
+    return backItem.concat(worksheetList.map(i => ({ label: i.workSheetName, value: i.workSheetId })));
   }
 
   return relateItem.concat(
@@ -44,7 +45,7 @@ export const getList = (step, worksheetList) => {
       const ENUM_TYPE = enumWidgetType[type];
       const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
       return {
-        text: info.widgetName,
+        label: info.widgetName,
         value: type,
         iconName: getIconByType(type),
         total: [].concat(item),

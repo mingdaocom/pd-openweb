@@ -2,14 +2,13 @@ import React, { Fragment, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import _, { includes } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { FixedTable } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import FixedTable from '../FixedTable';
 import { getIndex } from '../WorksheetTable/components/Cell';
 
 const StyledFixedTable = styled(FixedTable)`
@@ -54,9 +53,6 @@ const SelectControlsWrap = styled(SelectControls)`
   .worksheetFilterColumnOptionList.menuList {
     width: 310px !important;
     max-height: 240px;
-    .Item-content {
-      padding: 0 16px;
-    }
   }
 `;
 
@@ -257,9 +253,9 @@ function PreviewTable(props) {
           const controlId = mapConfig[columnIndex - 1];
           const control = controlId && _.find(controls, { controlId });
           return (
-            <Trigger
-              action={['click']}
-              popup={
+            <Popover
+              trigger="click"
+              content={
                 <SelectControlsWrap
                   className="lightTheme"
                   controls={controls}
@@ -280,14 +276,8 @@ function PreviewTable(props) {
                   }}
                 />
               }
-              getPopupContainer={() => document.body}
-              popupAlign={{
-                points: ['tr', 'br'],
-                overflow: {
-                  adjustX: true,
-                  adjustY: true,
-                },
-              }}
+              placement="bottomRight"
+              noPadding
             >
               <div key={key} style={style} className="cell controlHead Hand">
                 <i
@@ -305,7 +295,7 @@ function PreviewTable(props) {
                 {!!control && <ControlTooltip control={control} />}
                 <i className="dropdownIcon icon icon-arrow-down"></i>
               </div>
-            </Trigger>
+            </Popover>
           );
         }
 

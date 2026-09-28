@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import apiKeyAjax from 'src/pages/Admin/api/cloudApi/apiKey';
 
 const WhiteListDialogContent = styled.div`
@@ -77,26 +78,19 @@ export default function WhiteListDialog({ visible, apiKeyId, onSave, onCancel })
   };
 
   return (
-    <Dialog
+    <Modal
       width={760}
       className="cloudServiceWhiteListDialog"
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={_l('IP 白名单')}
       onCancel={onCancel}
-      footer={
-        <div className="flexRow alignItemsCenter">
-          <div className="flex"></div>
-          <Button type="link" onClick={onCancel}>
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={handleSave}>
-            {_l('保存')}
-          </Button>
-        </div>
-      }
+      onOk={handleSave}
+      okText={_l('保存')}
     >
       <WhiteListDialogContent>
-        <div className="whiteListTip">{_l('可设置多个，需要用英文字符","或换行隔开')}</div>
+        <div className="whiteListTip mBottom10">{_l('可设置多个，需要用英文字符","或换行隔开')}</div>
         {loading ? (
           <LoadDiv />
         ) : (
@@ -108,6 +102,6 @@ export default function WhiteListDialog({ visible, apiKeyId, onSave, onCancel })
           />
         )}
       </WhiteListDialogContent>
-    </Dialog>
+    </Modal>
   );
 }

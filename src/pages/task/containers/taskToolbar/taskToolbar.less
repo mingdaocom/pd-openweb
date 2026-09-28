@@ -20,21 +20,7 @@
       font-size: 17px;
     }
     .createNewTaskBtn {
-      height: 32px;
-      line-height: 32px;
-      cursor: pointer;
       margin-top: 7px;
-      display: inline-block;
-      color: var(--color-white);
-      padding: 0 18px 0 14px;
-      border-radius: 18px;
-      .icon-plus {
-        font-size: 13px;
-        margin-right: 5px;
-        display: inline-block;
-        vertical-align: top;
-        margin-top: 9px;
-      }
     }
     .taskFilterBtn {
       color: var(--color-text-secondary);
@@ -149,57 +135,6 @@
       i {
         display: inline-block;
         vertical-align: top;
-      }
-    }
-    .folderOperatorList {
-      position: absolute;
-      top: 42px;
-      right: 82px;
-      background: var(--color-background-card);
-      box-shadow: var(--shadow-lg);
-      padding: 6px 0;
-      z-index: 100;
-      li {
-        height: 32px;
-        line-height: 32px;
-        padding-left: 15px;
-        width: 180px;
-        box-sizing: border-box;
-        vertical-align: top;
-        cursor: pointer;
-        white-space: nowrap;
-        &:not(.colorPrimary) {
-          i {
-            color: var(--color-text-tertiary);
-          }
-        }
-        &.delColor {
-          color: var(--color-error);
-          i {
-            color: var(--color-error);
-          }
-        }
-        &:not(:hover),
-        &.colorPrimary {
-          background: var(--color-background-card) !important;
-        }
-        &:hover:not(.colorPrimary) {
-          color: var(--color-white);
-          i {
-            color: var(--color-white);
-          }
-        }
-        i {
-          margin-right: 10px;
-          font-size: 14px;
-          width: 14px;
-          display: inline-block;
-        }
-        &.dividerLine {
-          height: 1px !important;
-          background-color: var(--color-border-secondary) !important;
-          margin: 5px 0;
-        }
       }
     }
     @keyframes filterAnimationsIn {
@@ -373,9 +308,6 @@
         color: var(--color-text-tertiary);
         font-size: 13px;
         user-select: none;
-        .Checkbox-box {
-          margin-right: 8px;
-        }
       }
       .filterTaskSolidBtn {
         padding: 0 12px;
@@ -399,29 +331,6 @@
         span:after {
           width: 150px;
           white-space: normal;
-        }
-      }
-      .Dropdown {
-        &.disabled {
-          cursor: default;
-        }
-        .Dropdown--input {
-          padding-left: 0;
-        }
-        .icon-arrow-down-border {
-          font-size: 12px !important;
-        }
-        .Item-content.disabled {
-          cursor: default;
-        }
-      }
-      .multi-dropdown {
-        .dropdown-btn {
-          padding-left: 0;
-          span,
-          i {
-            font-size: 12px !important;
-          }
         }
       }
       .filterLine {

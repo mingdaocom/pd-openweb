@@ -1,19 +1,41 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import { FlexCenter } from 'worksheet/components/Basics';
-import { emitter } from 'src/utils/common';
+import { formatOriginFilterGroupValue } from 'src/utils/domain/worksheet/filterCondition';
+import { emitter } from 'src/utils/platform/browser/dom';
 import Filters from './Filters';
 import { formatForSave } from './model';
-import {
-  clearSheetFilterIdUrl,
-  formatOriginFilterGroupValue,
-  getSheetFilterIdFromUrl,
-  saveSheetFilterIdToUrl,
-} from './util';
+import { clearSheetFilterIdUrl, getSheetFilterIdFromUrl, saveSheetFilterIdToUrl } from './urlState';
+
+const MODAL_WRAP_SELECTOR = '.hap-modal-wrap';
+const CLICK_AWAY_SPECIAL_SELECTORS = [
+  '.addFilterPopup',
+  '.filterControlOptionsList',
+  '.selectUserBox',
+  '.worksheetFilterOperateList',
+  '.hap-picker-dropdown',
+  '.CityPicker',
+  '.CityPicker-wrapper',
+  '.selectRecordsDialog',
+  // 人员条件里 hover 头像弹出的用户卡片（复制 ID、发消息等操作）挂在 body 上
+  '.userCardSite',
+  // 级联条件下拉（ming-ui/antd-components/Cascader 基于 Popover 实现）挂在 body 上
+  '.cascader-trigger-popup',
+].join(',');
+const getDefaultPopupContainer = () => document.body;
+
+function isClickAwayException(target, trigger) {
+  const $target = $(target);
+  const triggerModalWrap = $(trigger).closest(MODAL_WRAP_SELECTOR)[0];
+  const targetModalWrap = $target.closest(MODAL_WRAP_SELECTOR)[0];
+
+  return Boolean(
+    (targetModalWrap && targetModalWrap !== triggerModalWrap) || $target.closest(CLICK_AWAY_SPECIAL_SELECTORS).length,
+  );
+}
 
 const SelectedFilter = styled(FlexCenter)`
   display: inline-flex;
@@ -43,17 +65,8 @@ const SelectedFilter = styled(FlexCenter)`
 `;
 
 export default function FiltersPopup(props) {
-  const {
-    zIndex,
-    actions,
-    state,
-    onChange,
-    getPopupContainer,
-    disableAdd,
-    readOnly,
-    controlledFilterControls,
-    ...rest
-  } = props;
+  const { actions, state, onChange, getPopupContainer, disableAdd, readOnly, controlledFilterControls, ...rest } =
+    props;
   const {
     worksheetId = '',
     viewId = '',
@@ -203,34 +216,15 @@ export default function FiltersPopup(props) {
   }
 
   return (
-    <Trigger
-      zIndex={zIndex || 99}
-      action={['click']}
-      popup={
+    <Popover
+      trigger="click"
+      content={
         <ClickAway
-          specialFilter={target => {
-            const $targetTarget = $(target).closest(
-              [
-                '.dropdownTrigger',
-                '.addFilterPopup',
-                '.filterControlOptionsList',
-                '.mui-dialog-container',
-                '.mui-datetimepicker',
-                '.mui-datetimerangepicker',
-                '.selectUserBox',
-                '.worksheetFilterOperateList',
-                '.ant-picker-dropdown',
-                '.rc-trigger-popup',
-                '.CityPicker',
-                '.CityPicker-wrapper',
-                '.selectRecordsDialog',
-              ].join(','),
-            )[0];
-            return $targetTarget;
-          }}
+          specialFilter={target => isClickAwayException(target, btnRef.current)}
           onClickAwayExceptions={[
-            '.ant-cascader-menus',
-            '.ant-tree-select-dropdown',
+            '.hap-cascader-menus',
+            '.hap-select-dropdown',
+            '.hap-tree-select-dropdown',
             '#quickSelectDept',
             '.selectRoleDialog',
             '.worksheetFilterTextPopup',
@@ -255,18 +249,14 @@ export default function FiltersPopup(props) {
           </div>
         </ClickAway>
       }
-      getPopupContainer={getPopupContainer || (() => document.body)}
-      popupClassName="filterTrigger"
-      popupVisible={popupVisible}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [162, 6],
-        overflow: {
-          adjustX: true,
-          adjustY: true,
-        },
-      }}
-      onPopupVisibleChange={visible => {
+      getPopupContainer={getPopupContainer || getDefaultPopupContainer}
+      noPadding
+      open={popupVisible}
+      placement="bottom"
+      // rc-trigger 以打开时的点击坐标为锚点，trigger 宽度变化后不会重新横向定位。
+      // alignPoint
+      destroyOnHidden={false}
+      onOpenChange={visible => {
         if (visible) {
           setPopupVisible(true);
         }
@@ -306,6 +296,6 @@ export default function FiltersPopup(props) {
           </SelectedFilter>
         )}
       </div>
-    </Trigger>
+    </Popover>
   );
 }

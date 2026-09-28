@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { ActionSheet, Button, Dialog, List, SpinLoading } from 'antd-mobile';
+import { ActionSheet, Button, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import AppManagement from 'src/api/appManagement.js';
 import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import { sysRoleType } from 'src/pages/Role/config.js';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
-import { pathCompletion } from 'src/utils/common';
+import { getUserRole } from 'src/utils/domain/permission/app';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Back from '../../components/Back';
 import SelectJob from '../../components/SelectJob';
 import SelectOrgRole from '../../components/SelectOrgRole';
@@ -258,14 +259,10 @@ class MemberList extends Component {
               }
             });
           } else {
-            Dialog.confirm({
-              title: <span className="Font16 textPrimary bold">{_l('确认设置为角色负责人？')}</span>,
-              content: (
-                <div className="Font13 textPrimary pLeft15 pRight15">
-                  {_l('角色负责人可添加、移出当前角色下的成员')}
-                </div>
-              ),
-              onConfirm: () => {
+            Modal.confirm({
+              title: _l('确认设置为角色负责人？'),
+              content: _l('角色负责人可添加、移出当前角色下的成员'),
+              onOk: () => {
                 AppManagement.setRoleCharger(param).then(res => {
                   if (res) {
                     this.props.dispatch(actions.getMembersList(params.appId, params.roleId));
@@ -301,15 +298,20 @@ class MemberList extends Component {
         ) {
           if (isSysRole && isAdmin && isMe && !((detail.debugRole || {}).canDebug && !_.isEmpty(debugRoles))) {
             // 退出
-            Dialog.confirm({
+            Modal.confirm({
+              title: _l('退出角色'),
               content: _l('确认退出此角色吗 ?'),
-              onConfirm: () => {
+              onOk: () => {
                 this.props.dispatch(
                   actions.exitRole({
                     roleId: params.roleId,
                     appId: params.appId,
                     callback: () => {
-                      this.props.history.push(pathCompletion(`/mobile/dashboard`, { hasDomain: false }));
+                      this.props.history.push(
+                        pathCompletion(`/mobile/dashboard`, {
+                          hasDomain: false,
+                        }),
+                      );
                     },
                   }),
                 );
@@ -319,10 +321,11 @@ class MemberList extends Component {
           }
 
           // 移除
-          Dialog.confirm({
-            content: _l('是否移除该成员？'),
-            confirmText: <span className="Red">{_l('移除')}</span>,
-            onConfirm: () => {
+          Modal.confirm({
+            title: <span className="textError">{_l('是否移除该成员？')}</span>,
+            okText: _l('移除'),
+            okButtonProps: { danger: true },
+            onOk: () => {
               this.props.dispatch(
                 actions.removeUserFromRole({
                   projectId: detail.projectId,

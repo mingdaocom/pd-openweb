@@ -1,8 +1,7 @@
 import React, { Fragment, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { PopupWrapper } from 'ming-ui';
-import { MobileConfirmPopup } from 'ming-ui';
+import { MobileConfirmPopup, PopupWrapper } from 'ming-ui/antd-mobile-components';
 import AiActionChatBot from 'src/components/Mingo/modules/AiActionChatBot';
 import './index.less';
 
@@ -17,8 +16,8 @@ const BtnCon = styled.div`
   overflow: hidden;
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-secondary);
-  ${({ isSlice }) =>
-    isSlice &&
+  ${({ $isSlice }) =>
+    $isSlice &&
     `flex: 1;
         flex-shrink: 0;
         justify-content: center;
@@ -78,7 +77,7 @@ const AiActionButtons = props => {
         <BtnCon
           className="aiActionBtnItem"
           key={btn.btnId}
-          isSlice={isSlice}
+          $isSlice={isSlice}
           data-action-btn
           onClick={() => handleClick(btn)}
         >

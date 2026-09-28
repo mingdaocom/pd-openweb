@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import certificationApi from 'src/api/certification';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
-const SelectDialog = styled(Dialog)`
+const SelectModal = styled(Modal)`
   .certItem {
     padding: 16px;
     border-radius: 7px;
@@ -39,12 +39,6 @@ const SelectDialog = styled(Dialog)`
     background: var(--color-background-secondary);
     margin: 16px 0 6px;
   }
-
-  .addCertBtn {
-    position: absolute;
-    left: 36px;
-    bottom: 30px;
-  }
 `;
 
 function SelectCertification(props) {
@@ -70,13 +64,27 @@ function SelectCertification(props) {
   };
 
   return (
-    <SelectDialog
-      visible
+    <SelectModal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={640}
       title={_l('发现您有相关认证信息，可直接选择使用')}
       okDisabled={!current.entityId}
       onOk={onOk}
       onCancel={onClose}
+      footerLeftElement={
+        <div
+          className="Font15 bold colorPrimary hoverColorPrimaryLight pointer"
+          onClick={() =>
+            window.open(
+              pathCompletion(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`),
+            )
+          }
+        >
+          {_l('添加全新认证')}
+        </div>
+      }
     >
       {certList.map((item, index) => (
         <React.Fragment>
@@ -93,19 +101,10 @@ function SelectCertification(props) {
             _.findLastIndex(certList, c => c.authType === 1) === index && <div className="divider" />}
         </React.Fragment>
       ))}
-
-      <div
-        className="addCertBtn Font15 bold colorPrimary hoverColorPrimaryLight pointer"
-        onClick={() =>
-          window.open(
-            pathCompletion(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`),
-          )
-        }
-      >
-        {_l('添加全新认证')}
-      </div>
-    </SelectDialog>
+    </SelectModal>
   );
 }
 
-export default props => FunctionWrap(SelectCertification, { ...props });
+export function useSelectCertification() {
+  return useFunctionWrapComponent(SelectCertification);
+}

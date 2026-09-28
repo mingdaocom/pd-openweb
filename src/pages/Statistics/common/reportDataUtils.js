@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { reportTypes } from '../Charts/reportTypes';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { normTypes } from '../enum';
 import { isOptionControl, isTimeControl } from './controlUtils';
 

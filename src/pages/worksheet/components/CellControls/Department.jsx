@@ -2,14 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import ClickAway from 'ming-ui/components/ClickAway';
-import { quickSelectDept } from 'ming-ui/functions';
-import { dealRenderValue, dealUserRange } from 'src/components/Form/core/utils';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
 import DepartmentTooltip from 'src/components/Form/DesktopForm/widgets/DepartmentSelect/DepartmentTooltip';
+import { formatDepartmentDisplayValue } from 'src/utils/domain/control/department';
+import { dealUserRange } from 'src/utils/domain/control/selectionRange';
 import EditableCellCon from '../EditableCellCon';
-
-const ClickAwayable = ClickAway;
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
@@ -17,16 +14,15 @@ export default class Text extends React.Component {
     className: PropTypes.string,
     singleLine: PropTypes.bool,
     style: PropTypes.shape({}),
-    rowHeight: PropTypes.number,
     editable: PropTypes.bool,
     isediting: PropTypes.bool,
-    popupContainer: PropTypes.any,
     cell: PropTypes.shape({ value: PropTypes.string }),
     projectId: PropTypes.string,
     updateCell: PropTypes.func,
     updateEditingStatus: PropTypes.func,
     onValidate: PropTypes.func,
     onClick: PropTypes.func,
+    isMobileTable: PropTypes.bool,
   };
   constructor(props) {
     super(props);
@@ -36,43 +32,20 @@ export default class Text extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (this.props.cell.value !== prevProps.cell.value) {
-        this.setState({
-          value: safeParse(this.props.cell.value, 'array'),
-        });
-      }
+    if (this.props.cell.value !== prevProps.cell.value) {
+      this.setState({
+        value: safeParse(this.props.cell.value, 'array'),
+      });
+    }
 
-      const single = this.props.cell.enumDefault === 0;
-
-      if (this.cell.current && single && !prevProps.isediting && this.props.isediting) {
-        this.handleSelect();
-      }
-
-      if (!single && !prevProps.isediting && this.props.isediting && _.isEmpty(prevProps.cell.value)) {
-        setTimeout(() => {
-          this.handleSelect();
-        }, 200);
-      }
+    if (!prevProps.isediting && this.props.isediting) {
+      this.ensureCanSelectDepartment();
     }
   }
-  cell = React.createRef();
 
   handleTableKeyDown = e => {
-    const { updateEditingStatus } = this.props;
-
-    switch (e.key) {
-      case 'Escape':
-        updateEditingStatus(false);
-        break;
-      case 'Enter':
-        if (!this.isSelecting) {
-          this.handleSelect();
-        }
-
-        break;
-      default:
-        break;
+    if (e.key === 'Escape') {
+      this.props.updateEditingStatus(false);
     }
   };
 
@@ -90,105 +63,90 @@ export default class Text extends React.Component {
     }
   };
 
-  selectDepartments = (e, cb) => {
-    const { cell, projectId, rowFormData, masterData = () => {} } = this.props;
-    const target = (this.cell && this.cell.current) || (e || {}).target;
+  isProjectMember = () => {
+    const { projectId } = this.props;
+    return _.some(md.global.Account.projects, item => item.projectId === projectId);
+  };
 
-    if (!target) {
-      this.isSelecting = false;
-      return;
-    }
-
-    if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
-      this.isSelecting = false;
+  ensureCanSelectDepartment = () => {
+    if (!this.isProjectMember()) {
       alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
-      return;
+      this.props.updateEditingStatus(false);
+      return false;
     }
 
+    return true;
+  };
+
+  getDepartmentRange = () => {
+    const { cell, rowFormData, masterData = () => {} } = this.props;
     const deptRange = dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, masterData());
-
-    quickSelectDept(target, {
-      projectId,
-      isIncludeRoot: false,
-      offset: {
-        top: 0,
-        left: 0,
-      },
-      selectedDepartment: this.state.value,
-      unique: cell.enumDefault === 0,
-      showCreateBtn: false,
-      departrangetype: _.get(cell, 'advancedSetting.departrangetype'),
-      data: this.state.value,
-      appointedDepartmentIds: _.get(deptRange, 'appointedDepartmentIds') || [],
-      appointedUserIds: _.get(deptRange, 'appointedAccountIds') || [],
-      allPath: _.get(cell, 'advancedSetting.allpath') === '1',
-      selectFn: cb,
-      onClose: () => (this.isSelecting = false),
-    });
+    return deptRange || {};
   };
 
-  handleSelect = e => {
+  handleDepartmentOpenChange = visible => {
+    if (visible) return false;
+
+    this.props.updateEditingStatus(false);
+  };
+
+  handleDepartmentSelect = (data, isCancel = false) => {
     const { cell, updateEditingStatus } = this.props;
+    const { value } = this.state;
+    const lastIds = _.sortedUniq(value.map(l => l.departmentId));
+    const newIds = _.sortedUniq(data.map(l => l.departmentId));
 
-    this.isSelecting = true;
-    this.selectDepartments(e, (data, isCancel = false) => {
-      const { value } = this.state;
-      this.isSelecting = false;
-      const lastIds = _.sortedUniq(value.map(l => l.departmentId));
-      const newIds = _.sortedUniq(data.map(l => l.departmentId));
+    if ((_.isEmpty(data) || _.isEqual(lastIds, newIds)) && !isCancel) return;
+    if (cell.enumDefault === 0) {
+      // 单选
+      this.setState(
+        {
+          value: data,
+        },
+        () => {
+          this.handleChange();
+          updateEditingStatus(false);
+        },
+      );
+    } else {
+      let newData = [];
 
-      if ((_.isEmpty(data) || _.isEqual(lastIds, newIds)) && !isCancel) return;
-      if (cell.enumDefault === 0) {
-        // 单选
-        this.setState(
-          {
-            value: data,
-          },
-          () => {
-            this.handleChange();
-            updateEditingStatus(false);
-          },
-        );
-      } else {
-        let newData = [];
-
-        try {
-          newData = isCancel
-            ? value.filter(l => l.departmentId !== data[0].departmentId)
-            : _.uniqBy(value.concat(data), 'departmentId');
-        } catch (err) {
-          console.log(err);
-        }
-
-        this.setState(
-          {
-            value: newData,
-          },
-          this.handleChange,
-        );
+      try {
+        newData = isCancel
+          ? value.filter(l => l.departmentId !== data[0].departmentId)
+          : _.uniqBy(value.concat(data), 'departmentId');
+      } catch (err) {
+        console.log(err);
       }
-    });
+
+      this.setState(
+        {
+          value: newData,
+        },
+        this.handleChange,
+      );
+    }
   };
 
-  handleMutipleEdit = () => {
-    const { updateEditingStatus } = this.props;
-    updateEditingStatus(true);
+  handleEdit = () => {
+    if (this.ensureCanSelectDepartment()) {
+      this.props.updateEditingStatus(true);
+    }
   };
 
   deleteDepartment = departmentId => {
-    const { value } = this.state;
     this.setState(
-      {
+      ({ value }) => ({
         value: departmentId
           ? value.filter(department => department.departmentId !== departmentId)
-          : value.filter(i => !i.isDelete),
-      },
+          : value.filter(department => !department.isDelete),
+      }),
       this.handleChange,
     );
   };
 
   renderDepartmentTag(department, allowDelete) {
-    const { style, isediting, cell = {} } = this.props;
+    const { style, cell = {}, isediting } = this.props;
     const needRTL = _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete;
     const renderName = needRTL ? <bdi dir="ltr">{department.departmentName}</bdi> : department.departmentName;
 
@@ -208,8 +166,15 @@ export default class Text extends React.Component {
           {isediting && allowDelete && (
             <i
               className="Font14 textTertiary icon-close Hand mLeft4"
-              onClick={() => this.deleteDepartment(department.departmentId)}
-            ></i>
+              onMouseDown={e => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={e => {
+                e.stopPropagation();
+                this.deleteDepartment(department.departmentId);
+              }}
+            />
           )}
         </div>
       </span>
@@ -217,71 +182,37 @@ export default class Text extends React.Component {
   }
 
   render() {
-    const {
-      className,
-      style,
-      rowHeight,
-      singleLine,
-      popupContainer,
-      cell,
-      editable,
-      isediting,
-      updateEditingStatus,
-      onClick,
-      projectId,
-    } = this.props;
-    const value = dealRenderValue(this.state.value, cell.advancedSetting);
+    const { className, singleLine, style, cell, editable, isediting, onClick, projectId, isMobileTable } = this.props;
+    const { value: selectedDepartment } = this.state;
+    const value = formatDepartmentDisplayValue(this.state.value, cell.advancedSetting);
     const single = cell.enumDefault === 0;
-    const editcontent = (
-      <ClickAwayable
-        onClickAwayExceptions={['#dialogSelectDept', '#quickSelectDept']}
-        onClickAway={() => {
-          updateEditingStatus(false);
-        }}
-      >
-        <div
-          className="cellDepartments cellControl cellControlDepartmentPopup cellControlEdittingStatus"
-          style={{
-            width: style.width,
-            minHeight: rowHeight,
-          }}
-          ref={isediting && !single ? this.cell : () => {}}
-        >
-          {value.map(department => this.renderDepartmentTag(department, !(cell.required && value.length === 1)))}
-          {!single && (
-            <span className="addUserBtn" onClick={this.handleSelect}>
-              <i className="icon icon-add textSecondary Font14"></i>
-            </span>
-          )}
-        </div>
-      </ClickAwayable>
-    );
+    const isProjectMember = this.isProjectMember();
+    const deptRange = isediting && isProjectMember ? this.getDepartmentRange() : {};
+
     return (
-      <Trigger
-        action={['click']}
-        popup={editcontent}
-        getPopupContainer={popupContainer}
-        popupClassName="filterTrigger LineHeight0"
-        popupVisible={isediting}
-        popupAlign={{
-          points: ['tl', 'tl'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
+      <EditableCellCon
+        onClick={onClick}
+        className={cx(className, { canedit: editable })}
+        style={style}
+        iconName="department"
+        isediting={isediting}
+        onIconClick={this.handleEdit}
       >
-        <EditableCellCon
-          conRef={single ? this.cell : () => {}}
-          hideOutline={!single}
-          onClick={onClick}
-          className={cx(className, { canedit: editable })}
-          style={style}
-          iconName="department"
-          isediting={isediting}
-          onIconClick={this.handleMutipleEdit}
+        <DeptSelectPopover
+          projectId={projectId}
+          unique={single}
+          showCreateBtn={false}
+          departrangetype={_.get(cell, 'advancedSetting.departrangetype')}
+          selectedDepartment={selectedDepartment}
+          appointedDepartmentIds={_.get(deptRange, 'appointedDepartmentIds') || []}
+          appointedUserIds={_.get(deptRange, 'appointedAccountIds') || []}
+          allPath={_.get(cell, 'advancedSetting.allpath') === '1'}
+          isDynamic={!single}
+          open={isediting && isProjectMember}
+          onOpenChange={this.handleDepartmentOpenChange}
+          selectFn={this.handleDepartmentSelect}
         >
-          {!!value && (
+          {!_.isEmpty(value) ? (
             <div className={cx('cellDepartments cellControl', { singleLine })}>
               {value.map(department => (
                 <DepartmentTooltip
@@ -289,14 +220,17 @@ export default class Text extends React.Component {
                   item={department}
                   advancedSetting={cell?.advancedSetting}
                   projectId={projectId}
+                  disabled={isMobileTable}
                 >
-                  {this.renderDepartmentTag(department)}
+                  {this.renderDepartmentTag(department, !(cell.required && value.length === 1))}
                 </DepartmentTooltip>
               ))}
             </div>
+          ) : (
+            <div className="w100 h100"></div>
           )}
-        </EditableCellCon>
-      </Trigger>
+        </DeptSelectPopover>
+      </EditableCellCon>
     );
   }
 }

@@ -1,9 +1,8 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem, Progress } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Progress } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { handleDownload, handleShare, loadImage } from '../utils';
 import './index.less';
 
@@ -36,6 +35,7 @@ const ImageCard = props => {
     sourceControlId,
     masterData,
     isSubListFile,
+    isDeleted,
   } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload, isUrlPreview } = props;
@@ -76,77 +76,60 @@ const ImageCard = props => {
     }
   }, [allowReset, isEdit]);
 
-  const renderDropdownOverlay = (
-    <Menu style={{ width: 150 }} className="Relative" onClick={e => e.stopPropagation()}>
-      {allowNewPage && (
-        <MenuItem
-          key="newPage"
-          icon={<Icon icon="launch" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            onOpenControlAttachmentInNewTab(data.fileID);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('新页面打开')}
-        </MenuItem>
-      )}
-      {allowNewPage && (
-        <MenuItem
-          key="newWindow"
-          icon={<Icon icon="rectangle_2" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('浮窗打开')}
-        </MenuItem>
-      )}
-      {wpsEditUrl && allowNewPage && <div className="hr-line" />}
-      {wpsEditUrl && (
-        <MenuItem
-          key="onLineEdit"
-          icon={<Icon icon="edit" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            window.open(wpsEditUrl);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('在线编辑')}
-        </MenuItem>
-      )}
-      {(allowReset || allowShare) && <div className="hr-line" />}
-      {allowReset && (
-        <MenuItem
-          key="editName"
-          icon={<Icon icon="rename_input" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            setIsEdit(true);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('重命名')}
-        </MenuItem>
-      )}
-      {allowShare && (
-        <MenuItem
-          key="share"
-          icon={<Icon icon="share" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            handleShare(data, isDownload);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('分享')}
-        </MenuItem>
-      )}
-    </Menu>
-  );
+  const dropdownItems = [
+    allowNewPage && {
+      key: 'newPage',
+      icon: <Icon icon="launch" className="Font17" />,
+      label: _l('新页面打开'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onOpenControlAttachmentInNewTab(data.fileID);
+        setDropdownVisible(false);
+      },
+    },
+    allowNewPage && {
+      key: 'newWindow',
+      icon: <Icon icon="rectangle_2" className="Font17" />,
+      label: _l('浮窗打开'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
+        setDropdownVisible(false);
+      },
+    },
+    wpsEditUrl && allowNewPage && { type: 'divider' },
+    wpsEditUrl && {
+      key: 'onLineEdit',
+      icon: <Icon icon="edit" className="Font17" />,
+      label: _l('在线编辑'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        window.open(wpsEditUrl);
+        setDropdownVisible(false);
+      },
+    },
+    (allowReset || allowShare) && { type: 'divider' },
+    allowReset && {
+      key: 'editName',
+      icon: <Icon icon="rename_input" className="Font17" />,
+      label: _l('重命名'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        setIsEdit(true);
+        setDropdownVisible(false);
+      },
+    },
+    allowShare && {
+      key: 'share',
+      icon: <Icon icon="share" className="Font17" />,
+      label: _l('分享'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        handleShare(data, isDownload);
+        setDropdownVisible(false);
+      },
+    },
+  ].filter(Boolean);
 
   const handleFocus = () => {
     setTimeout(() => {
@@ -160,6 +143,8 @@ const ImageCard = props => {
       className={cx('attachmentFile', { hover: dropdownVisible || isEdit })}
       onClick={e => {
         e.stopPropagation();
+        if (isDeleted) return;
+
         if (browse) {
           if (e.shiftKey && allowNewPage && data.fileID) {
             onOpenControlAttachmentInNewTab(data.fileID);
@@ -310,32 +295,24 @@ const ImageCard = props => {
                 </Tooltip>
               )}
               {isMore && (
-                <Trigger
-                  action={['click']}
-                  popup={renderDropdownOverlay}
-                  popupVisible={dropdownVisible}
-                  onPopupVisibleChange={dropdownVisible => {
+                <Dropdown
+                  trigger={['click']}
+                  placement="bottomLeft"
+                  open={dropdownVisible}
+                  onOpenChange={dropdownVisible => {
                     dropdownVisible && !wpsEditUrl && props.onTriggerMore(data);
                     setDropdownVisible(dropdownVisible);
                   }}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    offset: [0, 5],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
+                  menu={{ items: dropdownItems, style: { width: 150 } }}
                 >
-                  <Tooltip title={_l('更多')} placement="bottom">
-                    <div
-                      onClick={e => {
-                        e.stopPropagation();
-                        setDropdownVisible(true);
-                      }}
-                      className="panelBtn"
-                    >
-                      <Icon className="textTertiary Font17" icon="more_horiz" />
-                    </div>
-                  </Tooltip>
-                </Trigger>
+                  <div onClick={e => e.stopPropagation()}>
+                    <Tooltip title={_l('更多')} placement="bottom">
+                      <div className="panelBtn">
+                        <Icon className="textTertiary Font17" icon="more_horiz" />
+                      </div>
+                    </Tooltip>
+                  </div>
+                </Dropdown>
               )}
             </div>
           </div>

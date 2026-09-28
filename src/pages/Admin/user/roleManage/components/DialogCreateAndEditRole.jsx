@@ -1,7 +1,6 @@
 import React from 'react';
-import { Select } from 'antd';
-import cx from 'classnames';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import fixedDataAjax from 'src/api/fixedData.js';
 import organizeAjax from 'src/api/organize.js';
 import './dialogCreateAndEditRole.less';
@@ -15,10 +14,6 @@ class DialogCreateAndEditRole extends React.Component {
       orgRoleGroupId: props.currentRole.orgRoleGroupId || '',
       submitLoading: false,
     };
-  }
-
-  componentDidMount() {
-    this.input.focus();
   }
 
   handleSubmit = async () => {
@@ -95,46 +90,26 @@ class DialogCreateAndEditRole extends React.Component {
     }
   };
 
-  footer = () => {
-    const { filed, roleList } = this.props;
+  handleOk = () => {
+    const { roleList } = this.props;
     const { exsistCurrentName, submitLoading } = this.state;
-    let roleName = this.state.roleName.trim();
+    const roleName = this.state.roleName.trim();
 
-    return (
-      <div className="createPositionDialogFooter">
-        <span class="noText hoverColorPrimary Hand" onClick={() => this.props.onCancel()}>
-          {_l('取消')}
-        </span>
-        <span
-          class={cx('nyesText ', {
-            bgColorPrimary: !exsistCurrentName,
-            boderRadAll_3: !exsistCurrentName,
-            disabledComfrim: exsistCurrentName || submitLoading,
-          })}
-          onClick={() => {
-            if (!roleName) {
-              alert(_l('请输入角色名称'), 3);
-              return;
-            } else if (exsistCurrentName || submitLoading) {
-              return;
-            } else if (roleList.find(it => it.roleName === roleName)) {
-              alert(_l('该角色名称已存在'), 3);
-              this.setState({ exsistCurrentName: true });
-              return;
-            }
-
-            this.setState({ submitLoading: true }, this.handleSubmit);
-          }}
-        >
-          {filed === 'edit' ? _l('保存') : _l('添加')}
-        </span>
-      </div>
-    );
+    if (!roleName) {
+      alert(_l('请输入角色名称'), 3);
+    } else if (exsistCurrentName || submitLoading) {
+      return;
+    } else if (roleList.find(it => it.roleName === roleName)) {
+      alert(_l('该角色名称已存在'), 3);
+      this.setState({ exsistCurrentName: true });
+    } else {
+      this.setState({ submitLoading: true }, this.handleSubmit);
+    }
   };
 
   render() {
     const { filed, showRoleDialog, treeData } = this.props;
-    const { roleName, remark, orgRoleGroupId } = this.state;
+    const { roleName, remark, orgRoleGroupId, exsistCurrentName, submitLoading } = this.state;
     const groupOptions = treeData.map(l => {
       return {
         ...l,
@@ -143,21 +118,26 @@ class DialogCreateAndEditRole extends React.Component {
       };
     });
     return (
-      <Dialog
+      <Modal
+        mask={{ closable: true }}
+        keyboard
         title={filed === 'create' ? _l('添加角色') : _l('编辑角色')}
-        footer={this.footer()}
         className="createPositionDialog"
         onCancel={() => this.props.onCancel()}
-        visible={showRoleDialog}
+        onOk={this.handleOk}
+        okText={filed === 'edit' ? _l('保存') : _l('添加')}
+        okDisabled={exsistCurrentName}
+        confirmLoading={submitLoading}
+        open={showRoleDialog}
       >
         <div>
           <div className="mTop5 mBottom12 Font14 require">{_l('名称')}</div>
-          <input
-            class="inputBox mBottom32"
+          <Input
+            className="inputBox mBottom32"
             maxLength={32}
             value={roleName}
+            autoFocus
             placeholder={_l('请填写角色名称')}
-            ref={node => (this.input = node)}
             onChange={e => {
               this.setState({
                 roleName: e.target.value,
@@ -183,7 +163,7 @@ class DialogCreateAndEditRole extends React.Component {
             maxLength={200}
           ></textarea>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

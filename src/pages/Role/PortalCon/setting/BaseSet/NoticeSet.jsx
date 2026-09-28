@@ -1,9 +1,8 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Icon } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
-import { SwitchStyle } from './style';
 
 let ajaxRequest = null;
 
@@ -39,69 +38,71 @@ export default function (props) {
     <>
       <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('通知设置')}</h6>
       <div className="mTop12">
-        <SwitchStyle>
-          <Icon
-            icon={admin ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!admin}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  noticeScope: { ...noticeScope, admin: !admin },
+                  noticeScope: { ...noticeScope, admin: checked },
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('新用户注册、激活时通知管理员')}
           </div>
-        </SwitchStyle>
+        </div>
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={exAccountSmsNotice ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
+        <div className="flexRow alignItemsCenter">
+          <Switch
+            size="small"
+            checked={!!exAccountSmsNotice}
+            onChange={checked => {
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
-                  noticeScope: { ...noticeScope, exAccountSmsNotice: !exAccountSmsNotice },
+                  noticeScope: { ...noticeScope, exAccountSmsNotice: checked },
                 },
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+          <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('审核结果短信通知外部用户')}
           </div>
-        </SwitchStyle>
+        </div>
       </div>
       <div className="mTop5">
-        <SwitchStyle>
-          <Icon
-            icon={noticeScope.discussionNotice ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="Font32 Hand"
-            onClick={() => {
-              //开启
-              if (!noticeScope.discussionNotice && !epDiscussWorkFlow.workFlowId) {
-                createWorkFlow();
-              } else {
-                onChangePortalSet({
-                  portalSetModel: {
-                    ...portalSetModel,
-                    noticeScope: { ...noticeScope, discussionNotice: !noticeScope.discussionNotice },
-                  },
-                });
-              }
-            }}
-          />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
-            <div>{_l('有讨论消息时（被提到、被回复）通知外部用户')}</div>
+        <div>
+          <div className="flexRow alignItemsCenter">
+            <Switch
+              size="small"
+              checked={!!noticeScope.discussionNotice}
+              onChange={checked => {
+                //开启
+                if (checked && !epDiscussWorkFlow.workFlowId) {
+                  createWorkFlow();
+                } else {
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      noticeScope: { ...noticeScope, discussionNotice: checked },
+                    },
+                  });
+                }
+              }}
+            />
+            <div className="switchText Font13 LineHeight32 InlineBlock Normal textPrimary mLeft12">
+              {_l('有讨论消息时（被提到、被回复）通知外部用户')}
+            </div>
           </div>
           <div className="textTertiary Font12" style={{ marginLeft: 44, marginTop: -5 }}>
             {_l('消息通过短信、邮件、服务号消息发送给外部用户')}
           </div>
-        </SwitchStyle>
+        </div>
       </div>
       {noticeScope.discussionNotice && (
         <div className="exAccountSendCon flexRow Font13 mTop5" style={{ marginLeft: 44 }}>

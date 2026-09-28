@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { handleAdvancedSettingChange } from '../../../../util/setting';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import AssignValue from '../../OptionList/AssignValue';
 
 export default function DropConfig(props) {
@@ -23,15 +22,19 @@ export default function DropConfig(props) {
       {!dataSource && !fromPortal && (
         <div className="labelWrap" style={{ justifyContent: 'space-between' }}>
           <Checkbox
-            size="small"
             checked={!!enumDefault}
-            onClick={checked => {
+            onChange={event => {
+              const checked = !event.target.checked;
+
               if (checked) {
-                onChange({ enumDefault: +checked });
+                onChange({
+                  enumDefault: +checked,
+                });
               } else {
                 setVisible(true);
               }
             }}
+            size="small"
           >
             <span>{_l('为选项赋分值')}</span>
           </Checkbox>
@@ -57,9 +60,15 @@ export default function DropConfig(props) {
       {(type === 9 || (type === 10 && checktype !== '1')) && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={readonlyshowall === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { readonlyshowall: checked ? '0' : '1' }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  readonlyshowall: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('只读时显示全部选项')}</span>
           </Checkbox>
@@ -68,9 +77,15 @@ export default function DropConfig(props) {
       {((type === 11 && showtype !== '2') || (type === 10 && checktype === '1')) && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={allowadd === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowadd: checked ? '0' : '1' }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowadd: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('允许用户增加选项')}</span>
             <Tooltip
@@ -87,9 +102,15 @@ export default function DropConfig(props) {
       {type === 10 && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={showselectall === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { showselectall: checked ? '0' : '1' }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  showselectall: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('显示全选操作')}</span>
           </Checkbox>

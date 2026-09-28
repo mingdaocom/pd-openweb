@@ -3,15 +3,15 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, UpgradeIcon, VCenterIconText } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import { saveWorksheetFilter } from '../../SaveWorksheetFilter';
-import { FILTER_TYPE } from '../enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { FILTER_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { useSaveWorksheetFilter } from '../../SaveWorksheetFilter';
 import { formatForSave } from '../model';
 import AddCondition from './AddCondition';
 import ConditionsGroup from './ConditionsGroup';
@@ -73,13 +73,22 @@ const Footer = styled(VerticalMiddle)`
   margin-bottom: 24px;
   font-size: 0px;
   margin-top: 19px;
-  padding: ${({ isSingleFilter }) => (isSingleFilter ? '0px 4px' : '0 24px')};
+  padding: ${({ $isSingleFilter }) => ($isSingleFilter ? '0px 4px' : '0 24px')};
 `;
 
-const AddButton = styled(VCenterIconText)`
+const AddButton = styled.div`
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   color: var(--color-text-secondary);
   font-weight: bold;
+  .Icon {
+    font-size: 18px;
+    margin-right: 4px;
+  }
+  .text {
+    font-size: 13px;
+  }
   &:hover {
     color: var(--color-primary);
   }
@@ -120,6 +129,7 @@ export default function FilterDetail(props) {
   const { conditionsGroups = [] } = filter;
   const scrollRef = useRef();
   const [foldedMap, setFoldedMap] = useState({});
+  const { open: saveWorksheetFilter, holder: saveWorksheetFilterHolder } = useSaveWorksheetFilter();
   const { projectId, appId, worksheetId, isCharge } = base;
   const featureType = supportGroup ? getFeatureStatus(projectId, VersionProductType.filterGroup) : '';
   let canEdit = props.canEdit;
@@ -180,9 +190,11 @@ export default function FilterDetail(props) {
 
   function handleBack() {
     if (needSave) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('存在未保存的变更，是否需要保存？'),
-        okDisabled: saveButtonDisabled,
+        okButtonProps: {
+          disabled: saveButtonDisabled,
+        },
         onOk: handleSave,
         onCancel: () => onBack(true),
         okText: _l('保存'),
@@ -195,6 +207,7 @@ export default function FilterDetail(props) {
 
   return (
     <Con className={cx({ isSingleFilter, canEdit })}>
+      {saveWorksheetFilterHolder}
       {!isSingleFilter && !isNew && (
         <Header>
           <BackBtn onClick={handleBack}>
@@ -285,7 +298,7 @@ export default function FilterDetail(props) {
           ))}
       </Content>
       {canEdit && (
-        <Footer className="flexRow" isSingleFilter={isSingleFilter}>
+        <Footer className="flexRow" $isSingleFilter={isSingleFilter}>
           {(!filter.isGroup || (filter.isGroup && conditionsGroups.length === 1)) && (
             <AddCondition
               columns={filterAddConditionControls(controls)}
@@ -303,25 +316,15 @@ export default function FilterDetail(props) {
                 scrollToEnd();
               }}
             >
-              <AddButton
-                className="mRight30"
-                icon="add"
-                textLeft={4}
-                iconSize={18}
-                text={_l('添加筛选条件')}
-                textSize={13}
-              />
+              <AddButton className="mRight30">
+                <Icon icon="add" />
+                <span className="text">{_l('添加筛选条件')}</span>
+              </AddButton>
             </AddCondition>
           )}
           {supportGroup && featureType && (
             <Tooltip placement="bottom" title={featureType === '2' ? _l('条件组为专业版功能') : ''}>
               <AddButton
-                icon="add"
-                textLeft={4}
-                iconSize={18}
-                text={_l('条件组')}
-                afterElement={featureType === '2' && <UpgradeIcon />}
-                textSize={13}
                 onClick={() => {
                   if (featureType === '2') {
                     if (window.isPublicApp) {
@@ -337,7 +340,11 @@ export default function FilterDetail(props) {
                     scrollToEnd();
                   }
                 }}
-              />
+              >
+                <Icon icon="add" />
+                <span className="text">{_l('条件组')}</span>
+                {featureType === '2' && <UpgradeIcon />}
+              </AddButton>
             </Tooltip>
           )}
           {supportGroup && (

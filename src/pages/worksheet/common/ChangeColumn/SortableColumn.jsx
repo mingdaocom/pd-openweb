@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Switch, Tooltip } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 export default function SortableColumn(props) {
   const {
@@ -22,6 +22,7 @@ export default function SortableColumn(props) {
     handleSortEnd,
     forbiddenScroll,
     disabled,
+    columnTexts = {},
   } = props;
   let list = items;
   let filteredShowColumns = [];
@@ -47,7 +48,7 @@ export default function SortableColumn(props) {
         scrollTopRef.current = null;
       }, 0);
     }
-  }, [selected]);
+  }, [forbiddenScroll, selected]);
 
   const onItemClick = item => {
     if (disabled) return;
@@ -88,12 +89,17 @@ export default function SortableColumn(props) {
     const tabColumns = item.type === 52 ? items.filter(l => l.sectionId === item.controlId) : undefined;
     const isRetract = retractTabControlIds.includes(item.controlId);
     const filteredColumnsLength = filteredHideColumns.length;
+    const hiddenTitle = columnTexts.unselectedTitle
+      ? columnTexts.unselectedTitle(filteredColumnsLength)
+      : `${item.controlName} ${filteredColumnsLength}`;
 
     if (item.isTab) {
       return (
         (!search || !!filteredColumnsLength) && (
           <React.Fragment>
-            <div className="textSecondary Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${item.controlName} ${filteredColumnsLength}`}</div>
+            <div className="textSecondary Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">
+              {hiddenTitle}
+            </div>
             {!filteredColumnsLength && canDrag && (
               <div className="pLeft9 dragListEmptyTip showDrafListEmptyCon">{_l('关闭或拖拽到这里')}</div>
             )}
@@ -109,11 +115,17 @@ export default function SortableColumn(props) {
             focusColumnItem: focusControlId === item.controlId,
           })}
         >
-          <Icon
-            icon={selected.indexOf(item.controlId) > -1 ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className={cx('switchIcon Font30 mRight8 Hand', { cursorNotAllowed: disabled })}
+          <div
+            className={cx('switchIcon flexRow alignItemsCenter', { cursorNotAllowed: disabled })}
             onClick={() => onItemClick(item)}
-          />
+          >
+            <Switch
+              size="mini"
+              checked={selected.indexOf(item.controlId) > -1}
+              onClick={(_, event) => event.stopPropagation()}
+              onChange={() => onItemClick(item)}
+            />
+          </div>
           {canDrag ? <DragHandle className="overflow_ellipsis">{renderSortCon(item)}</DragHandle> : renderSortCon(item)}
           {tabColumns && tabColumns.length !== 0 && !search && (
             <Icon
@@ -135,15 +147,18 @@ export default function SortableColumn(props) {
       {search && !items.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
       {sortAutoChange && isShowColumns && (!search || !!filteredShowColumns.length) && (
         <React.Fragment>
-          <div className="textSecondary Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${_l(
-            '显示',
-          )} ${filteredShowColumns.length}`}</div>
+          <div className="textSecondary Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">
+            {columnTexts.selectedTitle
+              ? columnTexts.selectedTitle(filteredShowColumns.length)
+              : `${_l('显示')} ${filteredShowColumns.length}`}
+          </div>
           {!filteredShowColumns.length && canDrag && (
             <div className="pLeft9 dragListEmptyTip showDrafListEmptyCon">{_l('开启或拖拽到这里')}</div>
           )}
         </React.Fragment>
       )}
       <SortableList
+        renderBody
         useDragHandle
         items={list.filter(l => !l.sectionId || sortAutoChange || search)}
         itemKey="controlId"

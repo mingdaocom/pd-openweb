@@ -2,9 +2,10 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import StructureController from 'src/api/structure';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../config';
 import ConnectedNode from './node';
 import SearchInput from './searchBox';
@@ -228,7 +229,7 @@ function NodeDialogWrap(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       type="fixed"
       title={
         <DialogHeaderWrap>
@@ -242,10 +243,12 @@ function NodeDialogWrap(props) {
           )}
         </DialogHeaderWrap>
       }
-      visible
+      open
+      mask={{ closable: true }}
+      keyboard
       width={1000}
       footer={null}
-      handleClose={handleClose}
+      onCancel={handleClose}
     >
       {data.length === 0 ? (
         renderEmpty()
@@ -265,7 +268,7 @@ function NodeDialogWrap(props) {
           )}
         </NodeWrap>
       )}
-    </Dialog>
+    </Modal>
   );
 }
 

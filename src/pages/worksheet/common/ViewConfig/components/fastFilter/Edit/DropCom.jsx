@@ -1,10 +1,16 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dropdown } from 'ming-ui';
-import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { getControlFormatType, getDateRangeTypeListByShowtype, getDefaultDateRangeType } from '../util';
+import { Select } from 'ming-ui/antd-components';
+import {
+  getControlFormatType,
+  getDateRangeTypeListByShowtype,
+  getDefaultDateRangeType,
+} from 'src/utils/domain/worksheet/fastFilter';
+import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/utils/domain/worksheet/fastFilterConfig';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function DropCom(props) {
   const { data, worksheetControls, control, advancedSetting, updateViewSet } = props;
@@ -28,8 +34,9 @@ export default function DropCom(props) {
   return (
     <React.Fragment>
       <div className="title">{data.txt}</div>
-      <Dropdown
-        data={dataInfo}
+      <Select
+        options={dataInfo}
+        fieldNames={SELECT_FIELD_NAMES}
         value={!dataInfo.find(o => o.value === value) ? undefined : value}
         className="flex"
         onChange={newValue => {
@@ -69,7 +76,6 @@ export default function DropCom(props) {
             ...dataNew,
           });
         }}
-        isAppendToBody
       />
       {!!conData.encryId && (
         <span className="textSecondary mTop8 Block">

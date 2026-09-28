@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
+import { Input } from 'ming-ui/antd-components';
 import ControlList from './ControlList';
 import FnList from './FnList';
 
@@ -40,8 +41,6 @@ const Search = styled.div`
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   input {
-    border: none;
-    outline: none;
     padding: 0 10px;
     height: 36px;
     line-height: 36px;
@@ -94,7 +93,12 @@ export default function SelectFnControl(props) {
       )}
       <Search>
         <Icon className="icon icon-search" />
-        <input type="text" value={keywords} placeholder={_l('搜索')} onChange={e => setKeywords(e.target.value)} />
+        <Input
+          variant="borderless"
+          value={keywords}
+          placeholder={_l('搜索')}
+          onChange={e => setKeywords(e.target.value)}
+        />
       </Search>
       <Content>
         {activeTab === 'fn' && <FnList keywords={keywords} insertFn={insertFn} control={control} />}

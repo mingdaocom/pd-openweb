@@ -3,7 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, LoadDiv, Radio } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox, Radio } from 'ming-ui/antd-components';
+import { findDepartmentPathById } from 'src/utils/domain/project/department';
 import './css/department.less';
 
 const Wrap = styled.div`
@@ -29,23 +31,8 @@ export default class DepartmentList extends Component {
     checkIncludeChilren: PropTypes.bool,
     unique: PropTypes.bool,
   };
-  getParentId = (list, id) => {
-    for (let i in list) {
-      if (list[i].departmentId == id) {
-        return [list[i]];
-      }
-
-      if (list[i].subDepartments) {
-        let node = this.getParentId(list[i].subDepartments, id);
-
-        if (node !== undefined) {
-          return node.concat(list[i]);
-        }
-      }
-    }
-  };
   getIsIncludesByParent = department => {
-    let list = this.getParentId(this.props.treeData, department.departmentId).map(o => o.departmentId);
+    let list = findDepartmentPathById(this.props.treeData, department.departmentId).map(o => o.departmentId);
     let isIncludesByParent = this.props.selectedDepartment.filter(
       o =>
         (list.includes(o.departmentId) || o.departmentId.indexOf('orgs_') > -1) &&
@@ -209,21 +196,9 @@ class Department extends Component {
             {this.props.unique ? (
               <Radio disabled={disabled} className="GSelect-department--checkbox" checked={checked} />
             ) : (
-              <Checkbox
-                disabled={disabled}
-                className="GSelect-department--checkbox"
-                styleType={
-                  checked &&
-                  checkIncludeChilren &&
-                  !(this.props.selectedDepartment.find(o => o.departmentId === department.departmentId) || {})
-                    .checkIncludeChilren
-                    ? 'light'
-                    : ''
-                }
-                checked={checked}
-              />
+              <Checkbox disabled={disabled} className="GSelect-department--checkbox" checked={checked} />
             )}
-            <div className={cx('GSelect-department__name overflow_ellipsis')}>
+            <div className={cx('GSelect-department__name mLeft10 overflow_ellipsis')}>
               {nameArr.map((item, index) => {
                 if (item === keywords) {
                   return (

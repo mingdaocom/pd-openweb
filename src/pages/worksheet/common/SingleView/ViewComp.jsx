@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import Sheet from 'worksheet/common/Sheet/Sheet';
 import { loadWorksheet, openNewRecord, refreshSheet, updateFilters, updateSearchRecord } from 'worksheet/redux/actions';
 import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
-import { getSearchData } from 'worksheet/views/util';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getSearchData } from 'src/utils/services/worksheet/view';
 import Header from './Header';
 
 const Con = styled.div`
@@ -44,9 +45,19 @@ function ViewComp(props) {
     filtersGroup,
   } = props;
   const { changePageIndex, changePageSize, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const handleOpenNewRecord = useCallback(
+    options =>
+      openNewRecord({
+        ...(options?.nativeEvent ? {} : options),
+        openAddRecord,
+      }),
+    [openAddRecord, openNewRecord],
+  );
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   return (
     <Con className="SingleViewWrap">
+      {addRecordHolder}
       {showPageTitle && worksheetInfo.name && (
         <DocumentTitle title={`${worksheetInfo.name}${view.name ? ` - ${view.name}` : ''}`} />
       )}
@@ -70,7 +81,7 @@ function ViewComp(props) {
           changePageSize={changePageSize}
           updateSearchRecord={updateSearchRecord}
           refreshSheet={refreshSheet}
-          openNewRecord={openNewRecord}
+          openNewRecord={handleOpenNewRecord}
           {..._.pick(config, [
             'fromEmbed',
             'isDraft',

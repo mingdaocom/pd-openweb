@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 export default function useListenedValue(key) {
   const [value, setValue] = useState();

@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const Wrap = styled.div`
   display: flex;
@@ -64,16 +65,6 @@ const ViewWrap = styled.div`
   .SingleViewBody {
     border: none !important;
   }
-  &.web .addRecord {
-    border-color: var(--app-primary-color);
-    background: var(--app-primary-color);
-    &:hover,
-    &:active,
-    &:focus {
-      border-color: var(--app-primary-hover-color);
-      background: var(--app-primary-hover-color);
-    }
-  }
   &.hideAddRecord .addRecord,
   &.hideAddRecord .addGunterRecord,
   &.hideAddRecord .addBoardRecord,
@@ -99,7 +90,6 @@ const ViewWrap = styled.div`
     &.mobile,
     .SingleViewHeader,
     .SingleViewBody .columnHead .dropIcon,
-    .SingleViewBody .Checkbox,
     .SingleViewBody .searchWrapper,
     .worksheetSheet .quickFilterWrap,
     .worksheetSheet .groupFilterWrap,
@@ -153,7 +143,7 @@ const navigateToView = (workSheetId, viewId) => {
 };
 
 export function View(props) {
-  const { appId, setting = {}, className, layoutType, filtersGroup = [], themeColor } = props;
+  const { appId, setting = {}, className, layoutType, filtersGroup = [], themeColor, appPermissions } = props;
   const { id, apkId, value, viewId, config = {} } = setting;
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
@@ -193,6 +183,7 @@ export function View(props) {
           authRefreshTime={config.refresh}
           filtersGroup={filtersGroup}
           config={config}
+          appPermissions={appPermissions}
           headerLeft={
             <div className="SingleViewName flexRow alignItemsCenter flex">
               <span

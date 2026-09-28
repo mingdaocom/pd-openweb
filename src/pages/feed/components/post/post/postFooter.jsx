@@ -1,7 +1,8 @@
 ﻿import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui/antd-components';
-import { pathCompletion } from 'src/utils/common';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 /**
  * 动态和回复的脚，左侧是发布时间和来源，右侧由父组件通过children传入
@@ -36,7 +37,7 @@ function PostFooter(props) {
       </a>
       {from && (
         <span>
-          <span className="textTertiary mLeft5" dangerouslySetInnerHTML={{ __html: from }} />
+          <span className="textTertiary mLeft5" dangerouslySetInnerHTML={{ __html: sanitizePostMessageHtml(from) }} />
           {source.detailType && <span className="textTertiary"> {source.detailType} </span>}
         </span>
       )}

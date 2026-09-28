@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import cx from 'classnames';
 import update from 'immutability-helper';
 import { flatten, head, isEmpty, last } from 'lodash';
 import styled from 'styled-components';
-import { WHOLE_SIZE } from '../../config/Drag';
-import { AnimationWrap, SettingItem } from '../../styled';
-import { isFullLineControl, isHaveGap } from '../../util/widgets';
+import { Segmented } from 'ming-ui/antd-components';
+import { isFullLineControl } from 'src/utils/domain/control/editorLayout';
+import { isHaveGap, WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { SettingItem } from '../../styled';
 
 const ArrangeBtn = styled.div`
   cursor: pointer;
@@ -20,21 +20,25 @@ const ArrangeBtn = styled.div`
   }
 `;
 
-const ARRANGE_TYPE = [
-  { text: _l('一列'), value: 1 },
-  { text: _l('二列'), value: 2 },
-  { text: _l('三列'), value: 3 },
-  { text: _l('四列'), value: 4 },
+const getArrangeTypeOptions = () => [
+  { label: _l('一列'), value: 1 },
+  { label: _l('二列'), value: 2 },
+  { label: _l('三列'), value: 3 },
+  { label: _l('四列'), value: 4 },
 ];
 
 export default function QuickArrange({ widgets, setWidgets, status }) {
   const $originWidgets = useRef(widgets);
+  const $saveIndex = useRef(status.saveIndex);
   const [activeColumn, setActive] = useState(-1);
 
   // 保存后重置originWidgets
   useEffect(() => {
-    $originWidgets.current = widgets;
-  }, [status.saveIndex]);
+    if ($saveIndex.current !== status.saveIndex) {
+      $saveIndex.current = status.saveIndex;
+      $originWidgets.current = widgets;
+    }
+  }, [status.saveIndex, widgets]);
 
   const quickArrange = columnNumber => {
     if (activeColumn !== columnNumber) {
@@ -134,16 +138,7 @@ export default function QuickArrange({ widgets, setWidgets, status }) {
           </ArrangeBtn>
         </div>
       </div>
-      <AnimationWrap>
-        {ARRANGE_TYPE.map(item => (
-          <div
-            className={cx('animaItem overflow_ellipsis', { active: activeColumn === item.value })}
-            onClick={() => quickArrange(item.value)}
-          >
-            {item.text}
-          </div>
-        ))}
-      </AnimationWrap>
+      <Segmented block value={activeColumn} options={getArrangeTypeOptions()} onChange={quickArrange} />
     </SettingItem>
   );
 }

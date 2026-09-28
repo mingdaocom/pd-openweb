@@ -4,22 +4,14 @@ import { find, get, isFunction, omit, uniq } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Modal } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Button, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import CustomFields from 'src/components/Form';
-import { selectRecords } from 'src/components/SelectRecords';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
+import { useSelectRecords } from 'src/components/SelectRecords';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import CodeEdit from './CodeEdit';
-
-const Header = styled.div`
-  height: 50px;
-  font-size: 17px;
-  font-weight: bold;
-  padding: 0 24px;
-  line-height: 50px;
-`;
 
 const Con = styled.div`
   display: flex;
@@ -28,7 +20,6 @@ const Con = styled.div`
 `;
 
 const EditorConCon = styled.div`
-  padding: 0 26px;
   flex: 1;
 `;
 
@@ -42,6 +33,8 @@ const EditorCon = styled.div`
   }
 `;
 
+const SELECT_RECORD_BUTTON_STYLE = { minWidth: 72, flexShrink: 0 };
+
 const TestCon = styled.div`
   height: 480px;
   padding-bottom: 26px;
@@ -50,7 +43,6 @@ const TestCon = styled.div`
   margin-top: 10px;
   overflow: hidden;
   .header {
-    padding: 0 26px;
     height: 56px;
     font-size: 17px;
     font-weight: bold;
@@ -58,25 +50,8 @@ const TestCon = styled.div`
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--color-text-disabled);
-    .selectRecord {
-      width: 72px;
-      height: 24px;
-      line-height: 22px;
-      border-radius: 2px;
-      border: 1px solid var(--color-text-disabled);
-      color: var(--color-text-disabled);
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      justify-content: center;
-      &:hover {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-      }
-    }
   }
   .controlName {
-    padding: 0 26px;
     margin-top: 12px;
     position: relative;
     display: flex;
@@ -109,13 +84,9 @@ const TestCon = styled.div`
     }
   }
   .testForm {
-    padding: 0 26px;
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-  }
-  .footer {
-    padding: 0 26px;
   }
 `;
 
@@ -140,11 +111,13 @@ export default function TestFunctionDialog(props) {
     value,
     title,
     controls,
+    selectableControls,
     renderTag,
     onChange,
     onCancel,
     onUpdate,
   } = props;
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
   const codeEditorRef = useRef();
   const [expression, setExpression] = useState(value);
   const controlIdsInExpression = uniq((expression.match(/\$(.+?)\$/g) || []).map(id => id.slice(1, -1)));
@@ -179,31 +152,39 @@ export default function TestFunctionDialog(props) {
       };
     })
     .filter(_.identity);
+
+  const handleTest = () => {
+    const testResult = execValueFunction(control, formData, {
+      defaultExpression: expression,
+    });
+    const { value: resultValue } = testResult;
+
+    setTestError(!!testResult.error);
+    setTestResultValue(
+      _.isUndefined(resultValue) || _.isNull(resultValue) || _.isNaN(resultValue) ? '' : String(resultValue),
+    );
+  };
+
+  const handleCancel = () => {
+    if (codeEditorRef.current) {
+      onUpdate(codeEditorRef.current.getValue());
+    }
+
+    onCancel();
+  };
+
   return (
     <Modal
-      visible
+      open
+      title={_l('函数测试')}
       className="testFunctionDialog contentScroll"
-      footer={null}
-      onCancel={() => {
-        if (codeEditorRef.current) {
-          onUpdate(codeEditorRef.current.getValue());
-        }
-
-        onUpdate(codeEditorRef.current.getValue());
-        onCancel();
-      }}
+      okText={_l('测试')}
+      onOk={handleTest}
+      onCancel={handleCancel}
       height={720}
       style={{ minWidth: width }}
-      bodyStyle={{
-        padding: 0,
-        position: 'relative',
-        height: 720,
-        flex: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
     >
-      <Header>{_l('函数测试')}</Header>
+      {selectRecordsHolder}
       <Con>
         <EditorConCon>
           <EditorCon className="functionEditor">
@@ -214,6 +195,7 @@ export default function TestFunctionDialog(props) {
               value={expression}
               title={title}
               controls={controls}
+              selectableControls={selectableControls}
               ref={codeEditorRef}
               renderTag={renderTag}
               onChange={() => {
@@ -232,10 +214,11 @@ export default function TestFunctionDialog(props) {
           <div className="header">
             {_l('输入参数进行测试')}
             {worksheetId && (
-              <div
-                className="selectRecord"
+              <Button
+                size="small"
+                style={SELECT_RECORD_BUTTON_STYLE}
                 onClick={() =>
-                  selectRecords({
+                  openSelectRecords({
                     canSelectAll: false,
                     pageSize: 25,
                     multiple: false,
@@ -255,7 +238,7 @@ export default function TestFunctionDialog(props) {
                 }
               >
                 {_l('选择数据')}
-              </div>
+              </Button>
             )}
           </div>
           <div className={cx('controlName', { error: testError })}>
@@ -287,22 +270,6 @@ export default function TestFunctionDialog(props) {
               }}
             />
           </div>
-          <div className="footer">
-            <Button
-              className="mTop20"
-              style={{ width: 90, padding: 0 }}
-              onClick={() => {
-                const testResult = execValueFunction(control, formData, {
-                  defaultExpression: expression,
-                });
-                const { value } = testResult;
-                setTestError(!!testResult.error);
-                setTestResultValue(_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ? '' : String(value));
-              }}
-            >
-              {_l('测试')}
-            </Button>
-          </div>
         </TestCon>
       </Con>
     </Modal>
@@ -315,6 +282,7 @@ TestFunctionDialog.propTypes = {
   value: PropTypes.shape({}),
   title: PropTypes.string,
   controls: PropTypes.arrayOf(PropTypes.shape({})),
+  selectableControls: PropTypes.arrayOf(PropTypes.shape({})),
   codeEditor: PropTypes.shape({}),
   renderTag: PropTypes.func,
   onChange: PropTypes.func,
@@ -325,6 +293,6 @@ TestFunctionDialog.propTypes = {
   onUpdate: PropTypes.func,
 };
 
-export function openTestFunctionDialog(props) {
-  return functionWrap(TestFunctionDialog, props);
+export function useTestFunctionDialog() {
+  return useFunctionWrapComponent(TestFunctionDialog);
 }

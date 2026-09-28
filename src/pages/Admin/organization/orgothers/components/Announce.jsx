@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
+import { Button, Checkbox, Input } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import messageController from 'src/api/message';
 import Attachment from 'src/components/Form/DesktopForm/widgets/Attachment';
@@ -43,22 +42,10 @@ const WrapCom = styled.div`
           color: var(--color-text-secondary);
         }
       }
-      .ming.Checkbox {
-        margin-top: 10px;
-        display: flex;
-        align-items: center;
-        color: var(--color-text-title);
-        font-size: 13px;
-      }
     }
   }
   .saveBtn {
     padding-left: 155px;
-    button {
-      width: 90px;
-      height: 36px;
-      border-radius: 18px;
-    }
   }
 `;
 
@@ -90,6 +77,7 @@ export default class Announce extends Component {
       groups: [],
       files: '',
     };
+    this.requestPending = false;
   }
   componentDidMount() {
     this.getAnnounce();
@@ -149,6 +137,8 @@ export default class Announce extends Component {
   };
 
   handleSubmit = () => {
+    if (this.requestPending) return;
+
     const {
       content,
       sendEmail,
@@ -200,8 +190,9 @@ export default class Announce extends Component {
     }
 
     alert(_l('正在发送...'));
+    this.requestPending = true;
 
-    messageController
+    return messageController
       .sendNotice({
         projectId: Config.projectId,
         content,
@@ -246,6 +237,9 @@ export default class Announce extends Component {
         } else {
           alert(_l('发送失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
@@ -311,10 +305,18 @@ export default class Announce extends Component {
           <div className="toolItem">
             <div className="toolItemLabel">{_l('群发方式')}</div>
             <div className="toolItemRight">
-              <Checkbox checked={sendEmail} onClick={value => this.handleCheck(value, 'sendEmail')}>
+              <Checkbox
+                className="mTop10"
+                checked={sendEmail}
+                onChange={event => this.handleCheck(!event.target.checked, 'sendEmail')}
+              >
                 Email
               </Checkbox>
-              <Checkbox checked={sendMessage} onClick={value => this.handleCheck(value, 'sendMessage')}>
+              <Checkbox
+                className="mTop10"
+                checked={sendMessage}
+                onChange={event => this.handleCheck(!event.target.checked, 'sendMessage')}
+              >
                 {_l('私信')}
               </Checkbox>
               {/* <Checkbox
@@ -336,15 +338,24 @@ export default class Announce extends Component {
           <div className="toolItem">
             <div className="toolItemLabel">{_l('发送范围')}</div>
             <div className="toolItemRight">
-              <Checkbox checked={allProject} onClick={value => this.handleCheck(value, 'allProject')}>
+              <Checkbox
+                className="mTop10"
+                checked={allProject}
+                onChange={event => this.handleCheck(!event.target.checked, 'allProject')}
+              >
                 {_l('全组织用户 %0 人', projectEffectUserCount)}
               </Checkbox>
-              <Checkbox checked={allAdmin} onClick={value => this.handleCheck(value, 'allAdmin')}>
+              <Checkbox
+                className="mTop10"
+                checked={allAdmin}
+                onChange={event => this.handleCheck(!event.target.checked, 'allAdmin')}
+              >
                 {_l('所有管理员 %0 人', projectAdminUserCount)}
               </Checkbox>
               <Checkbox
+                className="mTop10"
                 checked={allDepartmentChargeUser}
-                onClick={value => this.handleCheck(value, 'allDepartmentChargeUser')}
+                onChange={event => this.handleCheck(!event.target.checked, 'allDepartmentChargeUser')}
               >
                 {_l('所有部门负责人 %0 人', projectDepartmentChargeUserCount)}
               </Checkbox>
@@ -365,13 +376,9 @@ export default class Announce extends Component {
               </div>
 
               <div className="mLeft20 mTop10">
-                <button
-                  type="button"
-                  className="ming Button Button--link colorPrimary adminHoverColor"
-                  onClick={this.selectUser}
-                >
+                <Button color="primary" variant="link" onClick={this.selectUser}>
                   {_l('选择具体成员')}
-                </button>
+                </Button>
               </div>
 
               <div className={cx('FlexRow mLeft20', { hidden: !users.length })}>
@@ -391,9 +398,9 @@ export default class Announce extends Component {
             </div>
           </div>
           <div className="mTop32 saveBtn">
-            <button className="ming Button Button--primary" onClick={this.handleSubmit}>
+            <Button type="primary" shape="round" onClick={this.handleSubmit}>
               {_l('发送')}
-            </button>
+            </Button>
           </div>
         </WrapCom>
       </Fragment>

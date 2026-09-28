@@ -346,7 +346,8 @@ footer .footerTitle {
   height: 80px;
   line-height: 80px;
 }
-footer a {
+footer a,
+footer button {
   width: 100%;
   height: 50px;
   line-height: 50px;
@@ -358,23 +359,34 @@ footer a {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  font: inherit;
+  cursor: pointer;
 }
 footer a.join,
-footer a.addCalendar {
+footer a.addCalendar,
+footer button.join,
+footer button.addCalendar {
   color: var(--color-white);
   background-color: var(--color-primary);
 }
-footer a.addCalendar {
+footer a.addCalendar,
+footer button.addCalendar {
   margin-bottom: 20px;
 }
-footer a.wAddCalendar {
+footer a.wAddCalendar,
+footer button.wAddCalendar {
   color: var(--color-primary);
   margin-top: 12px;
 }
-footer a.join.leave {
+footer a.join.leave,
+footer button.join.leave {
   background-color: var(--color-error);
   border-color: var(--color-error);
   margin-top: 15px;
+}
+footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 .leaveBoxTitle,
 .leaveBoxMessage1 {
@@ -393,13 +405,13 @@ footer a.join.leave {
   padding-bottom: 5px;
   color: var(--color-text-title);
 }
-#leaveBox .qrCode img {
+.qrCode img {
   width: 180px;
   height: 180px;
   margin: 20px auto 0;
   display: block;
 }
-#leaveBox .qrCodeMessage {
+.qrCodeMessage {
   text-align: center;
   line-height: 26px;
   color: var(--color-text-tertiary);
@@ -429,6 +441,10 @@ footer a.join.leave {
   position: fixed;
   left: 0;
   top: 0;
+  z-index: 1000;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
 }
 .promptDiv img {
   position: absolute;
@@ -485,6 +501,13 @@ footer a.join.leave {
   text-align: center;
   color: var(--color-text-tertiary);
   padding-top: 60px;
+  border: 0;
+  cursor: pointer;
+}
+
+.shareCalendarDescription {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media screen and (max-width: 640px) {

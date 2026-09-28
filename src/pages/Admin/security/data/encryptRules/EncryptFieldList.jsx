@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Input, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Input, Select } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import Empty from 'src/pages/Admin/common/TableEmpty';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const Wrap = styled.div`
   padding: 12px 20px;
@@ -57,7 +57,7 @@ const Wrap = styled.div`
       }
     }
   }
-  .ant-select-clear {
+  .hap-select-clear {
     right: 14px !important;
   }
 `;
@@ -198,7 +198,7 @@ export default class EncryptFieldList extends Component {
       <Wrap>
         <div className="searchWrap flexRow mBottom20">
           <Select
-            className="width160 mRight12 mdAntSelect"
+            className="width160 mRight12"
             showSearch
             allowClear
             placeholder={_l('全部')}
@@ -234,18 +234,10 @@ export default class EncryptFieldList extends Component {
                 }
               }
             }}
-          >
-            {appList.map(it => {
-              return (
-                <Select.Option key={it.value} value={it.value}>
-                  {it.label}
-                </Select.Option>
-              );
-            })}
-          </Select>
+          />
 
           <Select
-            className="width160 mRight12 mdAntSelect"
+            className="width160 mRight12"
             showSearch
             allowClear
             placeholder={_l('全部')}
@@ -267,7 +259,7 @@ export default class EncryptFieldList extends Component {
           <Input
             placeholder={_l('搜索字段')}
             value={searchParams.keywords}
-            onChange={val => this.changeConditions('keywords', val)}
+            onChange={e => this.changeConditions('keywords', e.target.value)}
           />
         </div>
         <div className="listHeader flexRow">

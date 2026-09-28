@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Select, Tooltip } from 'ming-ui/antd-components';
 import RuleColor from '../Color/RuleColor';
 import DataBarColor from './DataBarColor';
 
@@ -156,24 +155,19 @@ export default class PivotTableFieldColor extends Component {
         <Dropdown
           placement="topLeft"
           trigger={['click']}
-          overlay={
-            <Menu className="chartMenu">
-              {data.map(data => (
-                <Menu.Item
-                  key={data.controlId}
-                  className="pTop7 pBottom7 pLeft20"
-                  onClick={() => {
-                    const rules = colorRules.concat({
-                      controlId: data.controlId,
-                    });
-                    onChangeDisplayValue('colorRules', rules);
-                  }}
-                >
-                  {data.controlName}
-                </Menu.Item>
-              ))}
-            </Menu>
-          }
+          menu={{
+            items: data.map(data => ({
+              key: data.controlId,
+              className: 'pTop7 pBottom7 pLeft20',
+              label: data.controlName,
+              onClick: () => {
+                const rules = colorRules.concat({
+                  controlId: data.controlId,
+                });
+                onChangeDisplayValue('colorRules', rules);
+              },
+            })),
+          }}
         >
           <AddLine className="Font13 valignWrapper pointer" onClick={e => e.preventDefault()}>
             <Icon icon="add" />
@@ -204,7 +198,7 @@ export default class PivotTableFieldColor extends Component {
               }}
             />
             <Select
-              className={cx('chartSelect flex mRight5', {
+              className={cx('flex mRight5', {
                 Red: data.controlId && !_.find(filterYaxisList, { controlId: data.controlId }),
               })}
               style={{ minWidth: 0 }}
@@ -216,6 +210,11 @@ export default class PivotTableFieldColor extends Component {
                   : undefined
               }
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+              options={filterYaxisList.map(item => ({
+                disabled: item.controlId !== data.controlId && selectIds.includes(item.controlId),
+                value: item.controlId,
+                label: item.controlName,
+              }))}
               onChange={value => {
                 const rules = colorRules.map(item => {
                   if (item.controlId === data.controlId) {
@@ -226,18 +225,7 @@ export default class PivotTableFieldColor extends Component {
                 });
                 onChangeDisplayValue('colorRules', rules);
               }}
-            >
-              {filterYaxisList.map(item => (
-                <Select.Option
-                  key={item.controlId}
-                  className="selectOptionWrapper"
-                  value={item.controlId}
-                  disabled={item.controlId !== data.controlId && selectIds.includes(item.controlId)}
-                >
-                  {item.controlName}
-                </Select.Option>
-              ))}
-            </Select>
+            />
             <Tooltip title={_l('字体色')}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"

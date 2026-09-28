@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isFormatNumber } from 'statistics/common/controlUtils';
 import { formatSummaryName } from 'statistics/common/reportDataUtils';
 import { formatChartData } from './BarChart';
+import { chartContextMenuProps, getChartContextMenuItems } from './ChartContextMenu';
 import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 import loadG2Plot from './loadG2Plot';
 
@@ -247,37 +246,32 @@ export default class extends Component {
       count,
     });
   }
-  renderOverlay() {
-    return (
-      <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
-          <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
-            <span>{_l('联动')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-          <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 textTertiary Font18" />
-            <span>{_l('查看原始数据')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
+  handleMenuClick = ({ key }) => {
+    if (key === 'autoLinkage') {
+      this.handleAutoLinkage();
+    }
+
+    if (key === 'viewOriginalData') {
+      this.handleRequestOriginalData();
+    }
+  };
   render() {
     const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown
-          visible={dropdownVisible}
-          onVisibleChange={dropdownVisible => {
+          open={dropdownVisible}
+          onOpenChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
           placement="bottomLeft"
-          overlay={this.renderOverlay()}
+          menu={{
+            ...chartContextMenuProps,
+            items: getChartContextMenuItems(),
+            onClick: this.handleMenuClick,
+          }}
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>

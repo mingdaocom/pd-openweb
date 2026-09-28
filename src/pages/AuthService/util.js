@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import filterXSS from 'xss';
 import { initIntlTelInput, telIsValidNumber } from 'ming-ui/components/PhoneNumberInput/util';
-import { getRequest } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { mdAppResponse } from 'src/utils/project';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { mdAppResponse } from 'src/utils/services/project';
 
 // 当前页面是否有验证码层
 export const hasCaptcha = () => {
@@ -145,18 +147,21 @@ export const registerSuc = (registerData, action) => {
   }
 };
 
-export const toMDPage = () => {
-  if (_.get(md, 'global.SysSettings.loginGotoUrl')) {
-    location.href = md.global.Config.WebUrl + md.global.SysSettings.loginGotoUrl;
+const isPrivateDeployment = () => window.platformENV.isOverseas || window.platformENV.isLocal;
+const normalizeMDPath = url => (url.startsWith('http') || url.startsWith('/') ? url : `/${url}`);
+
+export const toMDPage = url => {
+  if (isPrivateDeployment() && _.get(md, 'global.SysSettings.loginGotoUrl')) {
+    location.href = pathCompletion(normalizeMDPath(md.global.SysSettings.loginGotoUrl));
     return;
   }
 
-  if (_.get(md, 'global.SysSettings.loginGotoAppId')) {
-    window.location.replace(md.global.Config.WebUrl + `app/${md.global.SysSettings.loginGotoAppId}`);
+  if (isPrivateDeployment() && _.get(md, 'global.SysSettings.loginGotoAppId')) {
+    window.location.replace(pathCompletion(`/app/${md.global.SysSettings.loginGotoAppId}`));
     return;
   }
 
-  window.location.replace(md.global.Config.WebUrl + 'dashboard');
+  location.href = pathCompletion(url || '/dashboard');
 };
 
 export const toMDApp = ({ emailOrTel = '', dialCode = '' }) => {
@@ -194,10 +199,6 @@ export const getDialCode = (isMobile = true) => {
   return isMobile ? `+${iti.getSelectedCountryData().dialCode}` : '';
 };
 
-export const getDefaultCountry = () => {
-  return window.localStorage.getItem('DefaultCountry') || _.get(md, 'global.Config.DefaultRegion') || 'cn';
-};
-
 export const getAccountTypes = isLogin => {
   const { enableMobilePhoneRegister, enableEmailRegister, hideRegister } = _.get(md, 'global.SysSettings');
 
@@ -224,6 +225,7 @@ export const checkReturnUrl = url => {
 // 登录成功后跳转
 export const loginSuccessRedirect = () => {
   const request = getRequest();
+  const dashboardUrl = browserIsMobile() ? `/mobile/dashboard` : `/dashboard`;
   const mingoAnonymousReturnUrl = getMingoAnonymousReturnUrl();
 
   if (mingoAnonymousReturnUrl) {
@@ -237,7 +239,7 @@ export const loginSuccessRedirect = () => {
     return;
   }
 
-  toMDPage();
+  toMDPage(dashboardUrl);
 };
 
 export const validation = ({ isForSendCode, keys = [], type, info }) => {
@@ -271,7 +273,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
 
       //手机号验证
       const isTelRule = () => {
-        if (!telIsValidNumber(emailOrTel, true)) {
+        if (!telIsValidNumber(emailOrTel)) {
           warnList.push({ tipDom: 'inputAccount', warnTxt: _l('手机号格式错误') });
           isRight = false;
         }
@@ -344,7 +346,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
       } else {
         if (keys.includes('setPassword')) {
           //登录时，不需要验证密码的合法性
-          if (!RegExpValidator.isPasswordValid(password)) {
+          if (!isPasswordValid(password)) {
             warnList.push({ tipDom: 'inputPassword', warnTxt: _l('密码格式错误') });
             isRight = false;
           }

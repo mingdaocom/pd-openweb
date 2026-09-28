@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import 'mobile/MyHome/index.less';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import './index.less';
 
 let TabBar = class TabBar extends Component {

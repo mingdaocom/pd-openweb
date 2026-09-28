@@ -6,21 +6,6 @@
     &.fixedHeight {
       height: 36px;
     }
-    &.flowDropdownTags {
-      .Dropdown--input {
-        height: auto;
-        padding: 0 10px 0 0 !important;
-        position: relative;
-        > .icon {
-          position: absolute;
-          top: 11px;
-          right: 10px;
-        }
-      }
-    }
-    .Dropdown--border {
-      padding: 5px 10px;
-    }
     .flowDetailConditionTag {
       max-width: 100%;
       .flowDetailMemberNodeName,
@@ -32,9 +17,32 @@
         max-width: none;
       }
     }
-    .ming.Menu {
-      width: 100%;
+  }
+  .triggerConditionFieldSelect {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  .triggerConditionFieldSelectInput {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    height: 36px;
+    padding: 5px 10px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 4px;
+    background: var(--color-background-input);
+    &:hover {
+      border-color: var(--color-primary);
     }
+  }
+  .triggerConditionFieldSelectValue {
+    display: inline-flex;
+    align-items: center;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .triggerConditionItem {
     padding-right: 14px;
@@ -108,20 +116,12 @@
     }
     &.triggerConditionDate {
       padding: 0;
-      .mui-datetime-base {
+      .triggerConditionDatePicker {
+        width: 100%;
         height: 34px;
-        line-height: 34px;
-        .mui-datetime-picker {
-          display: block;
-          height: 100%;
-          padding: 0 10px;
-          position: relative;
-          .icon-bellSchedule {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-          }
-        }
+        padding: 0 10px;
+        background: transparent;
+        box-sizing: border-box;
       }
       .triggerConditionTime {
         height: 34px;
@@ -130,53 +130,5 @@
         padding: 4px 9px 4px;
       }
     }
-    &.triggerConditionList {
-      padding: 0;
-      height: auto;
-      line-height: normal;
-      .textDisabled {
-        height: 100%;
-        line-height: 34px;
-      }
-    }
-    &.triggerConditionDropdown {
-      height: auto;
-      line-height: normal;
-      border: none;
-      padding: 2px 0;
-      .textDisabled {
-        height: 100%;
-        line-height: 30px;
-      }
-    }
-    .tagWrap {
-      display: flex;
-      flex-wrap: wrap;
-      li {
-        align-items: center;
-        box-sizing: border-box;
-        margin: 3px 4px;
-        border-radius: 3px;
-        height: 24px;
-        padding: 6px 12px 6px 10px;
-        background-color: var(--color-border-secondary);
-        border: 1px solid var(--color-border-primary);
-        .tag {
-          margin-right: 12px;
-          font-size: 13px;
-        }
-        .delTag {
-          color: var(--color-text-disabled);
-          &:hover {
-            color: var(--color-text-secondary);
-          }
-        }
-      }
-    }
   }
-}
-
-.flowTriggerDropdown {
-  width: auto !important;
-  min-width: 140px;
 }

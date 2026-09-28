@@ -2,13 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import RoleTem from 'src/pages/Role/component/RolePermissions';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
 import DeleRoleDialog from './component/DeleRoleDialog';
 
 class Con extends React.Component {
@@ -100,14 +101,16 @@ class Con extends React.Component {
 
       this.setState({ showDeleRoleByMoveUser: true, roleId: data.roleId });
     } else {
-      return Dialog.confirm({
-        title: <span className="Red">{_l('你确认删除此角色吗？')}</span>,
-        buttonType: 'danger',
-        description: '',
+      return Modal.confirm({
+        title: <span className="Red textError">{_l('你确认删除此角色吗？')}</span>,
+        okButtonProps: {
+          danger: true,
+        },
+        content: '',
         onOk: () => {
           this.onRemoveRole(data);
         },
-      });
+      }).destroy;
     }
   };
 

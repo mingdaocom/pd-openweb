@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect } from 'react';
-import { handleAdvancedSettingChange } from '../../util/setting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import Formula from '../components/formula/Formula';
 import SwitchType from '../components/formula/SwitchType';
 

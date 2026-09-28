@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { isRelateMoreList } from 'src/components/Form/core/formUtils/helper';
+import { Button, Input, Popover, Tooltip } from 'ming-ui/antd-components';
+import { isRelateMoreList } from 'src/components/Form/core/formUtils/ruleUtils';
 import DynamicText from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/components/DynamicText';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
 import {
   checkRuleEnableLimit,
   filterData,
@@ -19,7 +19,6 @@ import {
   TAB_TYPES,
 } from './config';
 import * as actions from './redux/actions/columnRules';
-import * as columnRules from './redux/actions/columnRules';
 import { StyleDiv } from './WidgetConfigRuleItem';
 
 function renderFilterItemTexts(filters = [], disabled = false, worksheetControls = []) {
@@ -134,6 +133,7 @@ class RuleItems extends React.Component {
             dynamicValue={dynamicValue}
             data={currentControl}
             controls={worksheetControls}
+            from={DYNAMIC_FROM_MODE.RULES}
           />
         );
       }
@@ -232,7 +232,9 @@ class RuleItems extends React.Component {
       >
         <div className="ruleNameInputBox" onClick={e => e.stopPropagation()}>
           {type === 1 && <div className={cx('ruleTypeIcon', { isWarning: checkType === 3 })}></div>}
-          <input
+          <Input
+            variant="borderless"
+            spellCheck={false}
             className={cx('ruleNameInput', { textDisabled: disabled })}
             style={{ width: getNameWidth(name) }}
             value={name}
@@ -279,38 +281,39 @@ class RuleItems extends React.Component {
               />
             </Tooltip>
           )}
-          <Trigger
-            popupVisible={showDeleteBox === ruleId}
-            onPopupVisibleChange={showDeleteBox => {
-              this.setState({ showDeleteBox: showDeleteBox ? ruleId : null });
-            }}
-            action={['click']}
-            mouseEnterDelay={0.1}
-            popupAlign={{ points: ['tl', 'tr'], offset: [-30, 25], overflow: { adjustX: 1, adjustY: 2 } }}
-            popup={
-              <div className="DropdownDeleteRuleTrigger">
-                <div className="title">{_l('确定要删除此规则？')}</div>
-                <div className="deleteGroupBtns">
-                  <div className="textTertiary Hand" onClick={() => this.setState({ showDeleteBox: null })}>
-                    {_l('取消')}
-                  </div>
-                  <div
-                    className="deleteBtn"
-                    onClick={() => {
-                      deleteControlRules(ruleData);
-                      this.setState({ showDeleteBox: null });
-                    }}
-                  >
-                    {_l('删除')}
+          <Tooltip placement="bottom" title={_l('删除')}>
+            <Popover
+              noPadding
+              open={showDeleteBox === ruleId}
+              onOpenChange={showDeleteBox => {
+                this.setState({ showDeleteBox: showDeleteBox ? ruleId : null });
+              }}
+              trigger="click"
+              mouseEnterDelay={0.1}
+              placement="rightTop"
+              align={{ offset: [-30, 25] }}
+              content={
+                <div className="DropdownDeleteRuleTrigger">
+                  <div className="title">{_l('确定要删除此规则？')}</div>
+                  <div className="deleteGroupBtns">
+                    <Button onClick={() => this.setState({ showDeleteBox: null })}>{_l('取消')}</Button>
+                    <Button
+                      danger
+                      type="primary"
+                      onClick={() => {
+                        deleteControlRules(ruleData);
+                        this.setState({ showDeleteBox: null });
+                      }}
+                    >
+                      {_l('删除')}
+                    </Button>
                   </div>
                 </div>
-              </div>
-            }
-          >
-            <Tooltip placement="bottom" title={_l('删除')}>
+              }
+            >
               <Icon icon="trash" className="Font16 Red Hand RedHover" />
-            </Tooltip>
-          </Trigger>
+            </Popover>
+          </Tooltip>
         </div>
       </div>
     );
@@ -323,6 +326,6 @@ const mapStateToProps = state => ({
   columnRulesListData: state.formSet.columnRulesListData,
   activeTab: state.formSet.activeTab,
 });
-const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(RuleItems);

@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, ScrollView, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, TagTextarea } from 'ming-ui';
+import { Checkbox, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import CodeSnippet, { CodeSnippetEdit } from '../../../components/CodeSnippet';
 import { ACTION_ID } from '../../enum';
@@ -230,10 +230,15 @@ export default class Code extends Component {
         <div className="Font13 bold mTop5">{_l('自动重试')}</div>
         <div className="mTop5">
           <Checkbox
-            text={_l('代码块整体运行失败时自动重试')}
             checked={data.maxRetries > 0}
-            onClick={checked => this.updateSource({ maxRetries: !checked ? 1 : 0 })}
-          />
+            onChange={event =>
+              this.updateSource({
+                maxRetries: event.target.checked ? 1 : 0,
+              })
+            }
+          >
+            {_l('代码块整体运行失败时自动重试')}
+          </Checkbox>
         </div>
 
         <div className="Font13 bold mTop20">{_l('Output对象参数列表')}</div>
@@ -394,11 +399,11 @@ export default class Code extends Component {
                     <div>
                       {data.actionId === ACTION_ID.JAVASCRIPT ? 'Node.js' : 'Python'} {_l('版本')}
                     </div>
-                    <Dropdown
+                    <Select
                       className="textPrimary"
-                      menuStyle={{ width: '100%', minWidth: 90 }}
-                      data={data.versions.map(version => {
-                        return { text: 'v' + version, value: version };
+                      variant="borderless"
+                      options={data.versions.map(version => {
+                        return { label: 'v' + version, value: version };
                       })}
                       value={data.version || data.versions[0]}
                       onChange={version => {
@@ -481,7 +486,7 @@ export default class Code extends Component {
         />
 
         {isFullCode && (
-          <Dialog
+          <Modal
             className="workfowFullCode"
             closable={false}
             type="fixed"
@@ -492,12 +497,13 @@ export default class Code extends Component {
                 </span>
               </Tooltip>
             }
-            visible
+            open
             width={800}
             footer={null}
+            styles={{ header: { textAlign: 'right', padding: 6 }, body: { paddingBottom: 0, marginBottom: 22 } }}
           >
             {this.renderCode()}
-          </Dialog>
+          </Modal>
         )}
 
         {showCodeSnippetDialog && (

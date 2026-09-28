@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { Popup } from 'ming-ui/antd-mobile-components';
 import markImg from '../img/mark_r.png';
 import { getMapKey } from '../MapLoader';
 import CustomLocation from './CustomLocation';
+import { getGoogleMapLanguage } from './googleMapLanguage';
 import loadGoogleMapApi from './loadGoogleMapApi';
 import OperatorIcon from './OperatorIcon';
 import '../../less/MDMap.less';
@@ -15,13 +17,13 @@ const ErrorContent = styled.div`
   flex-direction: column;
   justify-content: center;
   i {
-    font-size: ${props => (props.disabled ? '40px' : '80px')};
+    font-size: ${props => (props.$disabled ? '40px' : '80px')};
     color: var(--color-border-secondary);
   }
   span {
     color: var(--color-text-tertiary);
     margin-top: 16px;
-    font-size: ${props => (props.disabled ? '13px' : '17px')};
+    font-size: ${props => (props.$disabled ? '13px' : '17px')};
     font-weight: bold;
   }
 `;
@@ -45,11 +47,12 @@ function createLoadedGoogleMap({ GoogleMap, Marker, useLoadScript }) {
     const { isLoaded, loadError } = useLoadScript({
       googleMapsApiKey: gMapKey,
       libraries: ['maps', 'places'],
+      language: getGoogleMapLanguage(),
     });
 
     if (loadError) {
       return (
-        <ErrorContent style={mapContainerStyle} className="TxtCenter" disabled={disabled}>
+        <ErrorContent style={mapContainerStyle} className="TxtCenter" $disabled={disabled}>
           <Icon icon="location_off" />
           <span>{_l('加载失败')}</span>
         </ErrorContent>
@@ -206,7 +209,7 @@ export default function GoogleMapCom(props) {
       // 根据placeId获取详细地址(包含name)
       const place = new google.maps.places.Place({
         id: e.placeId,
-        requestedLanguage: window.getCurrentLang() || 'zh-CN',
+        requestedLanguage: getGoogleMapLanguage(),
       });
 
       place.fetchFields({ fields: ['displayName', 'location', 'formattedAddress'] }).then(res => {
@@ -283,7 +286,17 @@ export default function GoogleMapCom(props) {
   }
 
   return (
-    <Dialog.DialogBase className="MDMap" width="1080" visible overlayClosable={false}>
+    <Modal
+      className="MDMap"
+      width={1080}
+      open
+      footer={null}
+      title={null}
+      closable={false}
+      mask={{ closable: false }}
+      keyboard
+      styles={{ body: { padding: 0 }, container: { padding: 0 } }}
+    >
       <OperatorIcon
         {...props}
         defaultLocation={defaultLocation}
@@ -312,6 +325,6 @@ export default function GoogleMapCom(props) {
           />
         </div>
       </div>
-    </Dialog.DialogBase>
+    </Modal>
   );
 }

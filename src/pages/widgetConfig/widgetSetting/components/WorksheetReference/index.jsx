@@ -3,17 +3,26 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import emptyBg from 'staticfiles/images/unReferenced.png';
-import { Dialog, LoadDiv, ScrollView, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
 import workflowAjax from 'src/pages/workflow/api/worksheetReference';
-import { getTranslateInfo } from 'src/utils/app';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { MODULE_TYPES, SIDEBAR_LIST, SIDEBAR_LIST_BY_WORKSHEET, SUB_MODULE_TYPES, SUBNAV_LIST } from './config';
 import { WorksheetField, WorksheetRules, WorksheetView, WorksheetWorkflow } from './ReferenceModule';
 import { ReferenceWrap } from './styled';
 import '../../../styled/style.less';
+
+const WORKSHEET_REFERENCE_MODAL_STYLES = {
+  header: { padding: '16px 40px 16px 24px', marginBottom: 0 },
+  body: { overflow: 'hidden', padding: 0 },
+  container: { padding: 0 },
+};
+
+const getWorksheetReferenceProps = props => ({ ...props, closeFnName: 'onCancel' });
+const stopPropagation = event => event.stopPropagation();
 
 const iteratee = item => {
   return item.parentId + '|' + item.id;
@@ -76,19 +85,18 @@ const renderEmptyReference = () => {
 
 function WorksheetReferenceDialog(props) {
   const { data = {}, globalSheetInfo = {}, type = 1 } = props;
+  const [modal, modalContextHolder] = Modal.useModal();
   const { worksheetId, appId, name: worksheetName } = globalSheetInfo;
   const { controlId, controlName } = data;
-  const [{ subModule, moduleType, references, loading, appType, workflowLoadings, visible, isInit }, setState] =
-    useSetState({
-      subModule: SUB_MODULE_TYPES.WIDGET,
-      moduleType: MODULE_TYPES.WIDGET,
-      references: [],
-      loading: false,
-      appType: 'sub', // 本应用
-      workflowLoadings: {}, // 工作流单条刷新
-      visible: true,
-      isInit: true,
-    });
+  const [{ subModule, moduleType, references, loading, appType, workflowLoadings, isInit }, setState] = useSetState({
+    subModule: SUB_MODULE_TYPES.WIDGET,
+    moduleType: MODULE_TYPES.WIDGET,
+    references: [],
+    loading: false,
+    appType: 'sub', // 本应用
+    workflowLoadings: {}, // 工作流单条刷新
+    isInit: true,
+  });
   const list = filterByAppId(references, appId, appType, subModule);
   const count = getGroupCount(references, type === 2 ? SUB_MODULE_TYPES.WORKFLOW : subModule);
   const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
@@ -212,14 +220,18 @@ function WorksheetReferenceDialog(props) {
   // 二次确认
   const handleConfirm = () => {
     if (loading) return;
-    Dialog.confirm({
-      title: <span className="Bold Font17">{_l('重新扫描全组织引用关系？')}</span>,
-      description: (
+    modal.confirm({
+      title: <span className="Font17">{_l('重新扫描全组织引用关系？')}</span>,
+      content: (
         <span className="mTop8 textSecondary">
           {_l('本次操作将全量扫描组织下所有工作流节点，并更新字段及工作表的引用记录，可能需要较长时间。')}
         </span>
       ),
-      onOk: () => getReferenceList({ appId: '', isRefresh: true }),
+      onOk: () =>
+        getReferenceList({
+          appId: '',
+          isRefresh: true,
+        }),
     });
   };
 
@@ -376,62 +388,81 @@ function WorksheetReferenceDialog(props) {
   };
 
   return (
-    <Dialog
-      width={960}
-      visible={visible}
-      footer={null}
-      onCancel={() => setState({ visible: false })}
-      title={
-        <Fragment>
-          {type === 2 ? _l('查看引用关系（工作表：%0）', worksheetName) : _l('查看引用关系（字段：%0）', controlName)}
+    <ReferenceWrap $height={windowHeight - 72 - 50}>
+      {modalContextHolder}
+      <div className="sidebarContainer">
+        {(type === 2 ? SIDEBAR_LIST_BY_WORKSHEET : SIDEBAR_LIST).map(item => {
+          const isActive = subModule === item.value;
+          return (
+            <div
+              className={cx('sidebarItem overflow_ellipsis', { active: isActive })}
+              onClick={() => handleSideClick(item.value)}
+            >
+              {item.text}
+              {!_.includes([SUB_MODULE_TYPES.WORKFLOW], subModule) && isActive && !!count && (
+                <span className="Num">{count}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="referenceContainer">
+        {renderTopBar()}
+        <ScrollView className="referenceContent">{renderContent()}</ScrollView>
+      </div>
+    </ReferenceWrap>
+  );
+}
+
+function WorksheetReferenceModal(props) {
+  const { data = {}, globalSheetInfo = {}, onCancel, type = 1 } = props;
+  const { name: worksheetName } = globalSheetInfo;
+  const { controlName } = data;
+
+  return (
+    <div onClick={stopPropagation}>
+      <Modal
+        open
+        className="worksheetReferenceDialog"
+        footer={null}
+        keyboard
+        mask={{ closable: true }}
+        styles={WORKSHEET_REFERENCE_MODAL_STYLES}
+        headerRightElement={
           <Support
             type={2}
             href="https://help.mingdao.com/worksheet/reference-details"
             text={_l('帮助')}
             className="Normal"
           />
-        </Fragment>
-      }
-      className="worksheetReferenceDialog"
-    >
-      <ReferenceWrap height={windowHeight - 72 - 50}>
-        <div className="sidebarContainer">
-          {(type === 2 ? SIDEBAR_LIST_BY_WORKSHEET : SIDEBAR_LIST).map(item => {
-            const isActive = subModule === item.value;
-            return (
-              <div
-                className={cx('sidebarItem overflow_ellipsis', { active: isActive })}
-                onClick={() => handleSideClick(item.value)}
-              >
-                {item.text}
-                {!_.includes([SUB_MODULE_TYPES.WORKFLOW], subModule) && isActive && !!count && (
-                  <span className="Num">{count}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="referenceContainer">
-          {renderTopBar()}
-          <ScrollView className="referenceContent">{renderContent()}</ScrollView>
-        </div>
-      </ReferenceWrap>
-    </Dialog>
+        }
+        title={
+          type === 2 ? _l('查看引用关系（工作表：%0）', worksheetName) : _l('查看引用关系（字段：%0）', controlName)
+        }
+        width={960}
+        onCancel={onCancel}
+      >
+        <WorksheetReferenceDialog {...props} />
+      </Modal>
+    </div>
   );
 }
 
-export function renderDialog(opts) {
-  functionWrap(WorksheetReferenceDialog, opts);
+export function useWorksheetReferenceDialog() {
+  return useFunctionWrapComponent(WorksheetReferenceModal, getWorksheetReferenceProps);
 }
 
 export default function WorksheetReference(props) {
+  const { open: openWorksheetReferenceDialog, holder: worksheetReferenceDialogHolder } = useWorksheetReferenceDialog();
+
   return (
     <Fragment>
+      {worksheetReferenceDialogHolder}
       <span
         className={cx('Font13 colorPrimary hoverColorPrimaryDark pointer Normal', props.className)}
         onClick={e => {
           e.stopPropagation();
-          renderDialog(props);
+          openWorksheetReferenceDialog(props);
         }}
       >
         {_l('查看引用')}

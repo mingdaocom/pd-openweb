@@ -1,6 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import { errorMessage } from '../../../utils/utils';
@@ -78,8 +77,10 @@ export default class CopyTask extends Component {
 
   render() {
     return (
-      <Dialog
-        visible={this.state.visible}
+      <Modal
+        open={this.state.visible}
+        mask={{ closable: true }}
+        keyboard
         onCancel={() => this.setState({ visible: false })}
         className="copyTask"
         width={560}
@@ -177,7 +178,7 @@ export default class CopyTask extends Component {
             </li>
           </ul>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

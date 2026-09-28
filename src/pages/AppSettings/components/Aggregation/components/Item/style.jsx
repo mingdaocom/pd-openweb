@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { Menu } from 'ming-ui';
 
 export const Wrap = styled.div`
   .flexShrink0 {
@@ -36,27 +35,11 @@ export const Wrap = styled.div`
       opacity: 1;
     }
   }
-  .ant-switch-checked {
+  .hap-switch-checked {
     background-color: var(--color-task);
   }
 `;
 
-export const WrapS = styled(Menu)`
-  .ming.Item .Item-content .Icon {
-    left: 15px;
-  }
-  .ming.MenuItem .Item-content:not(.disabled):hover {
-    .icon {
-      color: var(--color-text-tertiary) !important;
-    }
-    .Red {
-      color: var(--color-error) !important;
-    }
-  }
-  .Red.ming.MenuItem .Item-content:not(.disabled):hover {
-    color: var(--color-error) !important;
-  }
-`;
 export const WrapDialog = styled.div`
   .ic {
     span {

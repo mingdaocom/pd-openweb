@@ -1,21 +1,30 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { InputNumber, Slider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, ColorPicker, Dialog, Icon, LoadDiv, Radio, UpgradeIcon, WaterMark } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { ColorPicker, Icon, LoadDiv, UpgradeIcon } from 'ming-ui';
+import {
+  Button,
+  Checkbox,
+  InputNumber,
+  Modal,
+  Radio,
+  Segmented,
+  Select,
+  Slider,
+  Tooltip,
+  WaterMark,
+} from 'ming-ui/antd-components';
 import attachmentAjax from 'src/api/attachment.js';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
 import 'src/pages/widgetConfig/styled/style.less';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import Dropdown from '../../../../components/Dropdown';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { transferValue } from 'src/utils/domain/control/value';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import DynamicDefaultValue from '../../DynamicDefaultValue';
-import { transferValue } from '../../DynamicDefaultValue/util';
 import { SectionItem } from '../../SplitLineConfig/style';
 
 const defaultImg = `https://fp1.mingdaoyun.cn/resources/preview_background.png`;
@@ -99,7 +108,7 @@ const WaterMarkSettingWrap = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      background-image: url(${props => props.previewUrl || defaultImg});
+      background-image: url(${props => props.$previewUrl || defaultImg});
       background-repeat: no-repeat;
       background-position: center;
       background-size: 100% 100%;
@@ -132,11 +141,11 @@ const WaterMarkSettingWrap = styled.div`
           box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 6px;
         }
       }
-      .ming.Radio {
+      .ant-radio-wrapper {
         margin: 0 !important;
       }
     }
-    .ant-pro-layout-watermark {
+    .hap-pro-layout-watermark {
       background: var(--color-background-primary);
       border-radius: 3px;
     }
@@ -176,12 +185,12 @@ const MARK_STYLE_OPTIONS = [
 ];
 
 const MASK_FONT_OPTIONS = [
-  { text: _l('仿宋'), value: '0' },
-  { text: _l('书宋'), value: '2' },
-  { text: _l('黑体'), value: '1' },
-  { text: _l('楷体'), value: '3' },
-  { text: _l('正黑'), value: '4' },
-  { text: _l('米黑'), value: '5' },
+  { label: _l('仿宋'), value: '0' },
+  { label: _l('书宋'), value: '2' },
+  { label: _l('黑体'), value: '1' },
+  { label: _l('楷体'), value: '3' },
+  { label: _l('正黑'), value: '4' },
+  { label: _l('米黑'), value: '5' },
 ];
 
 const MASK_SIZE_OPTIONS = {
@@ -192,10 +201,10 @@ const MASK_SIZE_OPTIONS = {
   4: '180',
 };
 
-const MASK_DENSITY = [
-  { text: _l('疏'), value: '1' },
-  { text: _l('标准'), value: '2' },
-  { text: _l('密'), value: '3' },
+const getMaskDensityOptions = () => [
+  { label: _l('疏'), value: '1' },
+  { label: _l('标准'), value: '2' },
+  { label: _l('密'), value: '3' },
 ];
 
 const MASK_POSITION = [
@@ -249,7 +258,7 @@ function WaterMarkDialog(props) {
   const [info, setInfo] = useSetState({
     watermarkstyle,
     watermarkinfo,
-    valuesize,
+    valuesize: MASK_SIZE_OPTIONS[valuesize] || valuesize,
     valuestyle,
     valuecolor,
     position,
@@ -258,7 +267,17 @@ function WaterMarkDialog(props) {
   const [loading, setLoading] = useState(false);
   const [previewUrl, setUrl] = useState(null);
 
-  const fontSize = MASK_SIZE_OPTIONS[info.valuesize] || info.valuesize;
+  const fontSize = info.valuesize;
+
+  const handleFontSizeChange = value => {
+    setInfo({ valuesize: value == null ? '' : value.toString() });
+  };
+
+  const handleFontSizeBlur = () => {
+    const value = Number(fontSize);
+    const normalizedValue = Number.isFinite(value) ? Math.min(180, Math.max(18, value)) : 18;
+    setInfo({ valuesize: normalizedValue.toString() });
+  };
 
   useEffect(() => {
     if (showwatermark === '1') {
@@ -286,14 +305,17 @@ function WaterMarkDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={900}
-      visible={true}
+      open={true}
+      mask={{ closable: true }}
+      keyboard
       title={_l('水印设置')}
       okText={_l('保存')}
       cancelText={_l('取消')}
       onCancel={onClose}
       className="attachmentConfigDialog"
+      styles={{ header: { marginBottom: 8 } }}
       onOk={() => {
         if (!info.watermarkinfo) {
           alert(_l('水印内容不允许为空'), 3);
@@ -311,7 +333,7 @@ function WaterMarkDialog(props) {
         onClose();
       }}
     >
-      <WaterMarkSettingWrap previewUrl={previewUrl}>
+      <WaterMarkSettingWrap $previewUrl={previewUrl}>
         <div className="settingContent">
           <SettingItem className="mTop10">
             <div className="settingItemTitle">
@@ -373,7 +395,9 @@ function WaterMarkDialog(props) {
                         {...getMarkStyle(item.value)}
                       />
                     </div>
-                    <Radio {...item} size="small" checked={item.value === info.watermarkstyle} />
+                    <Radio value={item.value} size="small" checked={item.value === info.watermarkstyle}>
+                      {item.text}
+                    </Radio>
                   </div>
                 );
               })}
@@ -381,10 +405,10 @@ function WaterMarkDialog(props) {
           </SettingItem>
           <SectionItem className="mTop24">
             <div className="label">{_l('字体样式')}</div>
-            <Dropdown
+            <Select
               className="flex mTop0"
               value={info.valuestyle}
-              data={MASK_FONT_OPTIONS}
+              options={MASK_FONT_OPTIONS}
               onChange={value => setInfo({ valuestyle: value })}
             />
             <ColorPicker
@@ -407,15 +431,16 @@ function WaterMarkDialog(props) {
               className="flex"
               min={18}
               max={180}
-              value={Number(fontSize)}
-              onChange={value => setInfo({ valuesize: value.toString() })}
+              value={fontSize === '' ? 18 : Number(fontSize)}
+              onChange={handleFontSizeChange}
             />
             <InputNumber
               min={18}
               max={180}
               style={{ marginLeft: '10px' }}
-              value={Number(fontSize)}
-              onChange={value => value !== null && setInfo({ valuesize: value.toString() })}
+              value={fontSize === '' ? null : Number(fontSize)}
+              onChange={handleFontSizeChange}
+              onBlur={handleFontSizeBlur}
             />
             <span className="mLeft10">{_l('磅')}</span>
           </SectionItem>
@@ -423,18 +448,13 @@ function WaterMarkDialog(props) {
           {info.watermarkstyle === '3' ? (
             <SectionItem className="mTop24">
               <div className="label ">{_l('疏密度')}</div>
-              <AnimationWrap className="flex">
-                {MASK_DENSITY.map(item => (
-                  <div
-                    className={cx('animaItem', { active: info.watermarkdensity === item.value })}
-                    onClick={() => {
-                      setInfo({ watermarkdensity: item.value });
-                    }}
-                  >
-                    {item.text}
-                  </div>
-                ))}
-              </AnimationWrap>
+              <Segmented
+                block
+                className="flex"
+                value={info.watermarkdensity}
+                options={getMaskDensityOptions()}
+                onChange={value => setInfo({ watermarkdensity: value })}
+              />
             </SectionItem>
           ) : (
             <SectionItem className="mTop24">
@@ -470,12 +490,12 @@ function WaterMarkDialog(props) {
             )}
           </div>
 
-          <Button size="small" type="ghost" disabled={loading} onClick={() => previewImage()}>
+          <Button color="primary" variant="outlined" loading={loading} onClick={previewImage}>
             {_l('预览')}
           </Button>
         </div>
       </WaterMarkSettingWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -486,6 +506,9 @@ export default function AttachmentVerify(props) {
 
   const supportMark = !_.includes(['2', '3', '4'], safeParse(filetype || '{}').type);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, VersionProductType.waterMark);
+  const isLocalOrOverseas = window.platformENV.isOverseas || window.platformENV.isLocal;
+  const watermarkFileSize = isLocalOrOverseas ? '10M' : '20M';
+  const showDocEditSetting = isLocalOrOverseas ? md.global.Config.EnableDocEdit : true;
 
   const editFeatureType = getFeatureStatus(globalSheetInfo.projectId, VersionProductType.editAttachment);
 
@@ -494,15 +517,14 @@ export default function AttachmentVerify(props) {
       {supportMark && (
         <div className="labelWrap labelBetween">
           <Checkbox
-            size="small"
             checked={showwatermark === '1'}
-            onClick={checked => {
+            onChange={event => {
               if (featureType === '2') {
                 buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.waterMark);
                 return;
               }
 
-              if (checked) {
+              if (!event.target.checked) {
                 onChange(
                   handleAdvancedSettingChange(data, {
                     watermarkstyle: '2',
@@ -518,12 +540,14 @@ export default function AttachmentVerify(props) {
                 setMarkVisible(true);
               }
             }}
+            size="small"
           >
             <span style={{ marginRight: '4px' }}>{_l('图片水印')}</span>
             <Tooltip
               placement="bottom"
               title={_l(
-                '在文件预览和下载时叠加水印。只支持文件大小10M以内图片水印。目前支持的图片的格式为：jpeg、png、tiff、bmp、heif',
+                '在文件预览和下载时叠加水印。只支持文件大小%0以内图片水印。目前支持的图片的格式为：jpeg、png、tiff、bmp、heif',
+                watermarkFileSize,
               )}
             >
               <i className="icon-help textTertiary Font16 Hand"></i>
@@ -550,22 +574,27 @@ export default function AttachmentVerify(props) {
 
       {markVisible && <WaterMarkDialog {...props} onClose={() => setMarkVisible(false)} />}
 
-      {md.global.Config.EnableDocEdit && (
+      {showDocEditSetting && (
         <Fragment>
           <div className="labelWrap labelBetween">
             <Checkbox
-              size="small"
               checked={allowedit === '1'}
-              onClick={checked => {
+              onChange={event => {
+                const checked = !event.target.checked;
+
                 if (editFeatureType === '2') {
                   buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.editAttachment);
                   return;
                 }
 
                 onChange(
-                  handleAdvancedSettingChange(data, { allowedit: String(+!checked), onlyeditself: String(+!checked) }),
+                  handleAdvancedSettingChange(data, {
+                    allowedit: String(+!checked),
+                    onlyeditself: String(+!checked),
+                  }),
                 );
               }}
+              size="small"
             >
               <span style={{ marginRight: '4px' }}>{_l('文档在线编辑')}</span>
               <Tooltip
@@ -577,70 +606,35 @@ export default function AttachmentVerify(props) {
                 <i className="icon-help textTertiary Font16 Hand"></i>
               </Tooltip>
 
-              {editFeatureType === '2' && (
-                <Tooltip placement="bottom" title={_l('当前版本无法使用此功能，请购买或者升级')}>
-                  <UpgradeIcon />
-                </Tooltip>
-              )}
-            </Checkbox>
-          </div>
-        </Fragment>
-      )}
-
-      {allowedit === '1' && (
-        <div className="pLeft24">
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={allowedit === '1'}
-              onClick={checked => {
-                if (editFeatureType === '2') {
-                  buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.editAttachment);
-                  return;
-                }
-
-                onChange(
-                  handleAdvancedSettingChange(data, { allowedit: String(+!checked), onlyeditself: String(+!checked) }),
-                );
-              }}
-            >
-              <span style={{ marginRight: '4px' }}>{_l('文档在线编辑')}</span>
-              <Tooltip
-                placement="bottom"
-                title={_l(
-                  '基于WPS在线编辑能力，支持Office、WPS、PDF等主流文档格式编辑，最多10人在线协作编辑，最大文档尺寸100MB，具体可参考帮助文档说明。',
-                )}
-              >
-                <i className="icon-help textTertiary Font16 Hand"></i>
-              </Tooltip>
-
-              {editFeatureType === '2' && (
-                <Tooltip placement="bottom" title={_l('当前版本无法使用此功能，请购买或者升级')}>
-                  <UpgradeIcon />
-                </Tooltip>
-              )}
+              {editFeatureType === '2' && <UpgradeIcon />}
             </Checkbox>
           </div>
           {allowedit === '1' && (
             <div className="pLeft24">
               <div className="labelWrap">
                 <Checkbox
-                  size="small"
                   checked={onlyeditself === '1'}
-                  onClick={checked => onChange(handleAdvancedSettingChange(data, { onlyeditself: String(+!checked) }))}
+                  onChange={event =>
+                    onChange(
+                      handleAdvancedSettingChange(data, {
+                        onlyeditself: String(+event.target.checked),
+                      }),
+                    )
+                  }
+                  size="small"
                 >
                   <span style={{ marginRight: '4px' }}>{_l('只能编辑自己上传的附件')}</span>
                   <Tooltip
                     placement="bottom"
                     title={_l('勾选后只可编辑自己上传的文档；若不勾选则有此字段编辑权限即可编辑。')}
                   >
-                    <i className="icon-help Gray_9e Font16 Hand"></i>
+                    <i className="icon-help textTertiary Font16 Hand"></i>
                   </Tooltip>
                 </Checkbox>
               </div>
             </div>
           )}
-        </div>
+        </Fragment>
       )}
     </Fragment>
   );

@@ -1,16 +1,16 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Segmented } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../styled';
 import ColorSetting from '../components/SplitLineConfig/ColorSetting';
 import IconSetting from '../components/SplitLineConfig/IconSetting';
 import { SectionItem } from '../components/SplitLineConfig/style';
 
-const FOLD_DISPLAY = [
-  { text: _l('展开'), value: 1 },
-  { text: _l('收起'), value: 2 },
-  { text: _l('不折叠'), value: 0 },
+const getFoldDisplayOptions = () => [
+  { label: _l('展开'), value: 1 },
+  { label: _l('收起'), value: 2 },
+  { label: _l('不折叠'), value: 0 },
 ];
 
 export default function SplitLine(props) {
@@ -57,16 +57,13 @@ export default function SplitLine(props) {
       <SettingItem>
         <div className="settingItemTitle">{_l('默认状态')}</div>
         <SectionItem className="mTop0">
-          <div className="selectWrap">
-            {FOLD_DISPLAY.map(item => (
-              <div
-                className={cx('animaItem', { active: item.value === enumDefault2 })}
-                onClick={() => onChange({ enumDefault2: item.value })}
-              >
-                {item.text}
-              </div>
-            ))}
-          </div>
+          <Segmented
+            block
+            className="w100"
+            value={enumDefault2}
+            options={getFoldDisplayOptions()}
+            onChange={value => onChange({ enumDefault2: value })}
+          />
         </SectionItem>
       </SettingItem>
     </Fragment>

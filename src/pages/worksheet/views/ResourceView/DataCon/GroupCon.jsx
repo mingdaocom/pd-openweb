@@ -5,18 +5,20 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, UserHead } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import CellControl from 'src/pages/worksheet/components/CellControls/index.jsx';
-import { browserIsMobile, getClassNameByExt, getIconNameByExt } from 'src/utils/common';
-import { sortControlByIds } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog } from 'src/utils/project';
+import { getIconNameByExt } from 'src/utils/core/file';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { sortControlByIds } from 'src/utils/domain/control/sort';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { lineBottomHeight, minControlWidth, types } from '../config';
 import { getResourceRowHoverHandlers } from '../util';
 
@@ -35,11 +37,11 @@ const Wrap = styled.div`
     .tableCon {
       scrollbar-gutter: stable;
       width: 0;
-      overflow-x: ${props => (props.oneControl ? 'hidden' : 'auto')};
+      overflow-x: ${props => (props.$oneControl ? 'hidden' : 'auto')};
       overflow-y: overlay;
     }
     .head {
-      overflow-x: ${props => (props.oneControl ? 'hidden' : 'auto')};
+      overflow-x: ${props => (props.$oneControl ? 'hidden' : 'auto')};
       /* 隐藏Chrome、Safari和Opera的滚动条 */
       &::-webkit-scrollbar {
         display: none;
@@ -164,6 +166,7 @@ const TbWrap = styled.div`
 `;
 
 export default function GroupCon(props) {
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
   const headContainer = useRef(null);
   const tbodyContainer = useRef(null);
   const { resourceview, view, controls, viewId, appId, worksheetInfo, base = {} } = props;
@@ -299,7 +302,7 @@ export default function GroupCon(props) {
   const addRecordInfo = defaultFormData => {
     const { base = {}, refresh, isCharge } = props;
     const { worksheetId } = base;
-    addRecord({
+    openAddRecord({
       worksheetId: worksheetId,
       defaultFormData,
       defaultFormDataEditable: true,
@@ -388,9 +391,10 @@ export default function GroupCon(props) {
   return (
     <Wrap
       width={props.directoryWidth}
-      oneControl={displayControlsInfo.length <= 0}
+      $oneControl={displayControlsInfo.length <= 0}
       className={cx('w100 flex Relative', { isMobile: isM })}
     >
+      {addRecordHolder}
       <div className="groupTable flexColumn w100 h100 Relative">
         <div
           className={cx('head w100 flexRow alignItemsCenter titleCon Bold Font13 textSecondary TxtMiddle')}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import Table from 'src/pages/Role/component/Table';
 import AddUserByTelDialog from 'src/pages/Role/PortalCon/components/AddUserByTelDialog';
@@ -60,7 +60,6 @@ function User(props) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentData, setCurrentData] = useState([]); //当前用户详情
   const [currentId, setCurrentId] = useState(''); //当前用户详情
-  const [filterStatus, setFilterStatus] = useState('');
   const filterStatusNum = useRef();
   const filtersTag = useRef();
 
@@ -70,7 +69,6 @@ function User(props) {
   }, []);
 
   useEffect(() => {
-    setFilterStatus((props.portal.fastFilters.find(o => o.controlId === 'portal_status') || {}).value || '');
     filterStatusNum.current = (props.portal.fastFilters.find(o => o.controlId === 'portal_status') || {}).value || '';
     setSelectedIds([]);
   }, [props.portal.fastFilters]);
@@ -120,7 +118,7 @@ function User(props) {
   };
 
   useEffect(() => {
-    setColumns(getColumns(controls, roleList, filterStatus, setFilterStatus, setFastFilters, filterStatusNum, appId));
+    setColumns(getColumns(controls, roleList, setFastFilters, filterStatusNum, appId));
   }, [controls, showPortalControlIds, roleList, appId]);
 
   const [showControls, setShowControls] = useState([]); //显示列
@@ -141,11 +139,13 @@ function User(props) {
   }, [columns, showPortalControlIds, list]);
 
   const delOne = id => {
-    Dialog.confirm({
-      title: <span className="Red">{_l('注销%0个成员', 1)}</span>,
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="Red textError">{_l('注销%0个成员', 1)}</span>,
+      okButtonProps: {
+        danger: true,
+      },
       okText: _l('注销'),
-      description: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
+      content: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
       onOk: () => {
         externalPortalAjax
           .removeUsers({
@@ -185,7 +185,7 @@ function User(props) {
   };
 
   return (
-    <Wrap className="flex flexColumn overflowHidden" len={showControls.length}>
+    <Wrap className="flex flexColumn overflowHidden" $len={showControls.length}>
       <HeaderCon
         {...props}
         setSelectedIds={setSelectedIds}

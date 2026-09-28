@@ -1,5 +1,5 @@
 import React from 'react';
-import { getAreaHintText } from 'src/pages/widgetConfig/util/setting';
+import { getAreaHintText } from 'src/utils/domain/control/style';
 import { CommonDisplay } from '../../styled';
 
 export default function Area(props) {

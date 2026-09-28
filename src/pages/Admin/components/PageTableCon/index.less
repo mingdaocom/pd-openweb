@@ -1,17 +1,39 @@
+/* 保留原生滚动条行为，仅将轨道设为透明，滑块颜色跟随主题 */
+.adminPageTableCon .hap-table-body,
+.adminPageTableCon .hap-table-content {
+  scrollbar-color: var(--color-text-disabled) transparent;
+}
+
 .tableWrap {
   width: 100%;
   height: 100%;
-  .ant-table-wrapper,
-  .ant-table,
-  .ant-spin-nested-loading,
-  .ant-spin-container,
-  .ant-table-empty,
-  .ant-table-container,
-  .ant-table-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  .hap-table-wrapper,
+  .hap-table,
+  .hap-spin,
+  .hap-spin-nested-loading,
+  .hap-spin-container,
+  .hap-table-empty,
+  .hap-table-container,
+  .hap-table-content {
     height: 100%;
+    min-height: 0;
   }
-  .ant-table {
-    .ant-table-thead {
+  .hap-table {
+    .hap-table-container {
+      display: flex;
+      flex-direction: column;
+    }
+    .hap-table-header {
+      flex-shrink: 0;
+    }
+    .hap-table-body {
+      flex: 1;
+      min-height: 0;
+    }
+    .hap-table-thead {
       font-size: 13px;
       color: var(--color-text-title);
       tr {
@@ -30,57 +52,57 @@
         }
       }
     }
-    .ant-empty-normal {
+    .hap-empty-normal {
       display: none;
     }
-    .ant-table-thead
+    .hap-table-thead
       > tr
-      > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not(
+      > th:not(:last-child):not(.hap-table-selection-column):not(.hap-table-row-expand-icon-cell):not(
         [colspan]
       ):before {
       width: 0px !important;
     }
-    .ant-table-tbody > tr > td {
+    .hap-table-tbody > tr > td {
       padding-inline: 12px;
     }
   }
-  .ant-table-ping-left:not(.ant-table-has-fix-left) .ant-table-container::before,
-  .ant-table-ping-right:not(.ant-table-has-fix-right) .ant-table-container::after,
-  .ant-table-ping-left .ant-table-cell-fix-left-first::after,
-  .ant-table-ping-left .ant-table-cell-fix-left-last::after,
-  .ant-table-ping-right .ant-table-cell-fix-right-first::after,
-  .ant-table-ping-right .ant-table-cell-fix-right-last::after {
+  .hap-table-ping-left:not(.hap-table-has-fix-left) .hap-table-container::before,
+  .hap-table-ping-right:not(.hap-table-has-fix-right) .hap-table-container::after,
+  .hap-table-ping-left .hap-table-cell-fix-left-first::after,
+  .hap-table-ping-left .hap-table-cell-fix-left-last::after,
+  .hap-table-ping-right .hap-table-cell-fix-right-first::after,
+  .hap-table-ping-right .hap-table-cell-fix-right-last::after {
     width: 1px;
     box-shadow: unset;
   }
-  .ant-table-ping-left .ant-table-cell-fix-left-first::after,
-  .ant-table-ping-left .ant-table-cell-fix-left-last::after {
+  .hap-table-ping-left .hap-table-cell-fix-left-first::after,
+  .hap-table-ping-left .hap-table-cell-fix-left-last::after {
     right: 1px !important;
     border-right: 1px solid var(--color-border-secondary);
   }
-  .ant-table-cell-ellipsis.ant-table-cell-fix-right-first,
-  .ant-table-ping-right .ant-table-cell-fix-right-first::after,
-  .ant-table-ping-right .ant-table-cell-fix-right-last::after {
+  .hap-table-cell-ellipsis.hap-table-cell-fix-right-first,
+  .hap-table-ping-right .hap-table-cell-fix-right-first::after,
+  .hap-table-ping-right .hap-table-cell-fix-right-last::after {
     border-left: 1px solid var(--color-border-secondary);
   }
-  .ant-table-cell-ellipsis.ant-table-cell-fix-left-last,
-  .ant-table-ping-left .ant-table-thead .ant-table-cell-fix-left-first::after,
-  .ant-table-ping-left .ant-table-thead .ant-table-cell-fix-left-last::after,
-  .ant-table-ping-right .ant-table-thead .ant-table-cell-fix-right-first::after,
-  .ant-table-ping-right .ant-table-thead .ant-table-cell-fix-right-last::after {
+  .hap-table-cell-ellipsis.hap-table-cell-fix-left-last,
+  .hap-table-ping-left .hap-table-thead .hap-table-cell-fix-left-first::after,
+  .hap-table-ping-left .hap-table-thead .hap-table-cell-fix-left-last::after,
+  .hap-table-ping-right .hap-table-thead .hap-table-cell-fix-right-first::after,
+  .hap-table-ping-right .hap-table-thead .hap-table-cell-fix-right-last::after {
     border-right: none !important;
     border-left: none !important;
   }
 
-  .ant-table-cell-scrollbar {
+  .hap-table-cell-scrollbar {
     box-shadow: none;
   }
 
-  .ant-table-empty {
+  .hap-table-empty {
     table {
       height: 100%;
     }
-    .ant-table-tbody > tr > td {
+    .hap-table-tbody > tr > td {
       border-bottom: none;
     }
   }
@@ -116,14 +138,9 @@
     line-height: 52px;
     z-index: 99;
   }
-  .ant-table {
-    .ant-table-body {
-      height: calc(~'100% - 52px');
-    }
-  }
   .logsTable {
-    .ant-table {
-      .ant-table-thead {
+    .hap-table {
+      .hap-table-thead {
         font-size: 13px;
         color: var(--color-text-title);
         tr {
@@ -149,7 +166,7 @@
           }
         }
       }
-      .ant-table-body {
+      .hap-table-body {
         height: calc(~'100vh - 257px');
         tr {
           td:nth-child(2),
@@ -162,12 +179,12 @@
           }
         }
       }
-      .ant-empty-normal {
+      .hap-empty-normal {
         display: none;
       }
-      .ant-table-thead
+      .hap-table-thead
         > tr
-        > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not(
+        > th:not(:last-child):not(.hap-table-selection-column):not(.hap-table-row-expand-icon-cell):not(
           [colspan]
         ):before {
         width: 0px !important;
@@ -180,11 +197,6 @@
   width: 300px;
   max-height: 280px;
   overflow: auto;
-  z-index: 1;
-  background-color: var(--color-background-primary);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-  padding: 24px 24px 12px;
-  border-radius: 3px;
   .statistics {
     margin-bottom: 24px;
     font-size: 17px;
@@ -196,12 +208,6 @@
       margin-bottom: 16px;
       font-size: 13px;
       line-height: 20px;
-      .ming.Checkbox.Checkbox--disabled.checked {
-        .Checkbox-box {
-          background-color: var(--color-primary-light);
-          border-color: var(--color-primary-light);
-        }
-      }
     }
   }
 }

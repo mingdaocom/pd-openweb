@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const SelectColorWrap = styled.div(
-  ({ inputCoverStyle = true }) => `
+  ({ $inputCoverStyle = true }) => `
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
     border-radius: 3px;
     position: relative;
@@ -55,7 +55,7 @@ export const SelectColorWrap = styled.div(
       position: relative;
     }
     input ${
-      inputCoverStyle
+      $inputCoverStyle
         ? `{
       width: 24px;
       height: 24px;
@@ -85,30 +85,6 @@ export const SectionItem = styled.div`
     color: var(--color-text-secondary);
     &.Width100 {
       width: 100px;
-    }
-  }
-  .selectWrap {
-    flex: 1;
-    display: flex;
-    padding: 2px;
-    background: var(--color-background-secondary);
-    border-radius: 3px;
-    .animaItem {
-      height: 32px;
-      border-radius: 3px;
-      line-height: 32px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: bold;
-      color: var(--color-text-secondary);
-      flex: 1;
-      &:hover {
-        color: var(--color-primary);
-      }
-      &.active {
-        background: var(--color-background-primary);
-        color: var(--color-primary);
-      }
     }
   }
 `;
@@ -149,15 +125,15 @@ export const SectionItemWrap = styled.div`
     flex: 1;
     display: flex;
     justify-content: flex-start;
-    cursor: ${props => (props.hidetitle && props.enumDefault2 === 0 ? 'default' : 'pointer')};
-    ${props => (props.hidetitle ? ' align-items: center' : ' padding: 10px 0')};
+    cursor: ${props => (props.$hidetitle && props.$enumDefault2 === 0 ? 'default' : 'pointer')};
+    ${props => (props.$hidetitle ? ' align-items: center' : ' padding: 10px 0')};
     .Width20 {
       width: 20px;
     }
     .rangeIcon {
       width: 3px;
       height: 17px;
-      background: ${props => props.theme};
+      background: ${props => props.$theme};
       line-height: 40px;
       flex-shrink: 0;
       margin-right: 7px;
@@ -170,7 +146,7 @@ export const SectionItemWrap = styled.div`
       line-height: 20px;
       flex: 1;
       white-space: break-spaces;
-      color: ${props => props.color};
+      color: ${props => props.$color};
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
@@ -180,7 +156,7 @@ export const SectionItemWrap = styled.div`
   }
 
   .starIcon {
-    color: ${props => props.theme} !important;
+    color: ${props => props.$theme} !important;
     margin-right: 2px !important;
   }
 
@@ -193,9 +169,9 @@ export const SectionItemWrap = styled.div`
     text-align: center;
     margin-left: 8px;
     border-radius: 5px;
-    cursor: ${props => (props.hidetitle ? 'default' : 'pointer')};
+    cursor: ${props => (props.$hidetitle ? 'default' : 'pointer')};
     .iconBox {
-      ${props => (props.visible ? 'transform: rotate(180deg); transition: transform 0.2s ease-in-out;' : '')};
+      ${props => (props.$visible ? 'transform: rotate(180deg); transition: transform 0.2s ease-in-out;' : '')};
     }
     i {
       color: var(--color-text-primary);
@@ -213,12 +189,12 @@ export const SectionItemWrap = styled.div`
     align-items: center;
     justify-content: center;
     margin-right: 5px !important;
-    color: ${props => props.theme} !important;
+    color: ${props => props.$theme} !important;
     i {
       font-size: 20px;
       display: inline-block;
       transform-origin: center;
-      ${props => (props.visible ? 'transform: rotate(90deg)' : '')};
+      ${props => (props.$visible ? 'transform: rotate(90deg)' : '')};
     }
   }
   &.mobileSectionItemWrap {

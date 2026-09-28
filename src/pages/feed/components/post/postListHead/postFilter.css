@@ -28,38 +28,6 @@
   padding-right: 10px;
 }
 
-.homePostFilter .selectContainer {
-  margin-top: 12px;
-}
-.homePostFilter .searchFilter {
-  margin-top: 14px;
-}
-.homePostFilter .searchFilter .searchFilterKeyword {
-  position: relative;
-}
-.homePostFilter .searchFilter .searchFilterKeyword input {
-  width: 0;
-  padding: 0px 0 0 30px;
-  border-radius: 3px;
-  border: 1px solid;
-  border-color: var(--color-background-card);
-  transition:
-    0.4s border-color ease-in-out,
-    0.4s width ease-in-out;
-  height: 26px;
-}
-.homePostFilter .searchFilter .searchFilterKeyword input.expand {
-  border-color: var(--color-border-primary);
-  width: 100px;
-  height: 26px;
-}
-.homePostFilter .searchFilter .searchFilterKeyword i {
-  position: absolute;
-  left: 5px;
-  top: 6px;
-  cursor: pointer;
-}
-
 .postDateRangePicker {
   margin-top: 15px !important;
   margin-right: -75px !important;
@@ -69,45 +37,4 @@
   font-size: 12px;
   z-index: 999 !important;
   display: none;
-}
-/*.postDateRangePicker.opensleft:before {
-  position: absolute;
-  top: -10px !important;
-  right: 73px !important;
-  display: inline-block;
-  border-right: 10px solid transparent !important;
-  border-bottom: 10px solid var(--color-border-tertiary) !important;
-  border-left: 10px solid transparent !important;
-  border-bottom-color: rgba(0, 0, 0, 0.2);
-  content: '';
-}
-
-.postDateRangePicker.opensleft:after {
-  position: absolute;
-  top: -9px !important;
-  right: 74px !important;
-  display: inline-block;
-  border-right: 9px solid transparent !important;
-  border-bottom: 9px solid var(--color-white) !important;
-  border-left: 9px solid transparent !important;
-  content: '';
-}*/
-
-.fontAdd {
-  color: var(--color-text-title);
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  padding: 1px;
-  font-size: 14px;
-  cursor: pointer;
-  user-select: none;
-}
-.fontAdd:hover {
-  text-decoration: none;
-}
-.fontAdd:nth-child(2) {
-  border-left: none;
 }

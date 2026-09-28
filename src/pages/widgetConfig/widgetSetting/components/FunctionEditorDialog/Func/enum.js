@@ -2,7 +2,8 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import _ from 'lodash';
-import { calcDate, countChar } from 'src/utils/function-library';
+import { calcDate } from 'src/utils/core/date';
+import { countChar } from 'src/utils/core/string';
 import { getLang } from './local';
 
 dayjs.extend(customParseFormat);
@@ -1058,6 +1059,19 @@ export const functionTypes = {
   advanced: _l('高级函数'),
 };
 
+let isSystemExampleName;
+try {
+  isSystemExampleName = _.get(window, 'platformENV.isOverseas') || _.get(window, 'platformENV.isLocal');
+} catch (err) {
+  console.log(err);
+}
+
+const uriExampleName = isSystemExampleName ? '系统' : '明道云';
+const uriExampleValue = isSystemExampleName ? '%E7%B3%BB%E7%BB%9F' : '%E6%98%8E%E9%81%93%E4%BA%91';
+const uriExampleComponentValue = isSystemExampleName
+  ? 'name%3D%E7%B3%BB%E7%BB%9F'
+  : 'name%3D%E6%98%8E%E9%81%93%E4%BA%91';
+
 const functionDetailsMap = {
   // date 日期函数
   NETWORKDAY: {
@@ -1626,8 +1640,8 @@ const functionDetailsMap = {
     des: `
         ${_l('不转义')} , / ? : @ & = + $ # <br />
         <bb>${_l(`ENCODEURI(文本)`)}</bb><br />
-        <b>${_l(`示例：=ENCODEURI('name=系统')，结果：'name=%E7%B3%BB%E7%BB%9F'`)}</b><br />
-        ${_l(`对文本"name=系统"进行编码`)}`,
+        <b>${_l(`示例：=ENCODEURI('name=%0')，结果：'name=%1'`, uriExampleName, uriExampleValue)}</b><br />
+        ${_l(`对文本"name=%0"进行编码`, uriExampleName)}`,
   },
   DECODEURI: {
     name: _l('URI 解码'),
@@ -1635,8 +1649,8 @@ const functionDetailsMap = {
     title: _l('将URI编码转换为文本，可以对包含中文字符的网址进行解码'),
     des: `
         <bb>${_l(`DECODEURI(文本)`)}</bb><br />
-        <b>${_l(`示例：=DECODEURI('name=%E7%B3%BB%E7%BB%9F')，结果："name=系统"`)}</b><br />
-        ${_l(`对文本"name=%E7%B3%BB%E7%BB%9F"进行解码`)}`,
+        <b>${_l(`示例：=DECODEURI('name=%0')，结果："name=%1"`, uriExampleValue, uriExampleName)}</b><br />
+        ${_l(`对文本"name=%0"进行解码`, uriExampleValue)}`,
   },
   ENCODEURICOMPONENT: {
     name: _l('URI 组件编码'),
@@ -1645,8 +1659,8 @@ const functionDetailsMap = {
     des: `
         ${_l('转义')} , / ? : @ & = + $ # <br />
         <bb>${_l(`ENCODEURICOMPONENT(文本)`)}</bb><br />
-        <b>${_l(`示例：=ENCODEURICOMPONENT('name=系统')，结果：'name%3D%E7%B3%BB%E7%BB%9F'`)}</b><br />
-        ${_l(`对文本"name=系统"进行编码`)}`,
+        <b>${_l(`示例：=ENCODEURICOMPONENT('name=%0')，结果：'%1'`, uriExampleName, uriExampleComponentValue)}</b><br />
+        ${_l(`对文本"name=%0"进行编码`, uriExampleName)}`,
   },
   DECODEURICOMPONENT: {
     name: _l('URI 组件解码'),
@@ -1654,8 +1668,8 @@ const functionDetailsMap = {
     title: _l('将URI编码转换为文本，可以对包含中文字符的网址进行解码'),
     des: `
         <bb>${_l(`DECODEURICOMPONENT(文本)`)}</bb><br />
-        <b>${_l(`示例：=DECODEURICOMPONENT('name%3D%E7%B3%BB%E7%BB%9F')，结果："name=系统"`)}</b><br />
-        ${_l(`对文本"name%3D%E7%B3%BB%E7%BB%9F"进行解码`)}`,
+        <b>${_l(`示例：=DECODEURICOMPONENT('%0')，结果："name=%1"`, uriExampleComponentValue, uriExampleName)}</b><br />
+        ${_l(`对文本"%0"进行解码`, uriExampleComponentValue)}`,
   },
   DISTANCE: {
     name: _l('计算两地间的距离'),

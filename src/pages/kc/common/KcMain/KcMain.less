@@ -38,6 +38,77 @@ html.AppKc {
   position: relative;
   display: inline-block;
 }
+.kcMain .filePreviewHeader.previewHeader {
+  .historyPanel {
+    position: relative;
+    font-size: 14px;
+  }
+  .historyVersion,
+  .historyPanel {
+    display: flex;
+    align-items: center;
+    line-height: 54px;
+    padding: 0 11px;
+    i {
+      font-size: 21px;
+      vertical-align: middle;
+      line-height: inherit;
+    }
+    &:hover {
+      color: var(--color-white);
+    }
+  }
+  .versionListCon {
+    width: 364px;
+  }
+  .versionList {
+    overflow: hidden;
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+    user-select: text;
+    .versionItem {
+      line-height: 40px;
+      border-top: 1px dashed var(--color-border-tertiary);
+      margin-top: -1px;
+      display: flex;
+      &.active {
+        color: #06c;
+      }
+      .name {
+        display: inline-block;
+        width: 80px;
+      }
+      .updater {
+        display: inline-block;
+        width: 50px;
+      }
+      .createTime {
+        flex: 1;
+      }
+      .updateTime {
+        display: inline-block;
+        width: 120px;
+      }
+      .historyBtn {
+        float: right;
+        margin-left: 3px;
+        margin-right: 3px;
+        width: 14px;
+        height: 40px;
+        i {
+          font-size: 14px;
+          cursor: pointer;
+          color: var(--color-primary-light);
+        }
+      }
+    }
+  }
+}
+@media screen and (max-width: 500px) {
+  .kcMain .filePreviewHeader.previewHeader .historyPanel {
+    display: none !important;
+  }
+}
 .kcRightContent {
   width: 100%;
   height: 100%;
@@ -120,7 +191,6 @@ html.AppKc {
 .kcRightHead .kcRightHeadOperate i:not(:hover) {
   color: var(--color-text-secondary);
 }
-.kcRightHead .kcRightHeadOperate .kcRightAdd,
 .kcRightHead .kcRightHeadOperate .kcRightDel {
   cursor: pointer;
   display: inline-block;
@@ -131,25 +201,11 @@ html.AppKc {
   margin: 6px 9px 0 0;
 }
 .kcRightHead .kcRightHeadOperate .kcRightAdd {
-  padding: 0 18px 0 14px;
-  border-radius: 18px;
+  margin: 6px 9px 0 0;
 }
 .kcRightHead .kcRightHeadOperate .kcRightAdd .icon-plus {
   font-size: 13px;
-  margin-right: 5px;
-  display: inline-block;
-  vertical-align: top;
-  margin-top: 9px;
-  color: var(--color-white);
-}
-.kcAddNodeBtnMenu .createOffice {
-  border-top: 1px solid var(--color-border-tertiary);
-  padding-top: 5px;
-  margin-top: 2px;
-  .icon-arrow-right-tip {
-    right: 10px;
-    left: initial !important;
-  }
+  color: inherit;
 }
 .kcMainContent {
   width: 100%;
@@ -409,22 +465,14 @@ html.AppKc {
   vertical-align: top;
   padding-top: 1px;
 }
-.kclist .Menu {
-  z-index: 2;
+.kcUploadNewVersionMenuItem {
+  position: relative;
 }
-.kclist .Menu .Icon,
-#kclistContainer.thumbnail .Menu .Icon,
-.rightMenu.Menu .Icon {
-  color: var(--color-text-tertiary) !important;
-}
-.Menu .ming.Item .newVersionFile {
+.kcUploadNewVersionMenuItem .newVersionFile {
   position: absolute;
-  left: -32px;
-  top: -9px;
+  inset: 0;
   opacity: 0;
   cursor: pointer;
-  width: 180px;
-  height: 32px;
 }
 .kclist .createName {
   width: 65px;
@@ -556,17 +604,10 @@ html.AppKc {
   text-align: center;
   background: var(--color-background-primary);
 }
-#kclistContainer.thumbnail .thumbnailItem > .nodeActionIcons .Menu {
-  z-index: 2;
-  text-align: left;
-}
 #kclistContainer.thumbnail .actions {
   font-size: 21px;
   display: inline-block;
   color: var(--color-text-tertiary);
-}
-#kclistContainer.thumbnail .thumbnailItem .ming.Item .Item-content .Icon.icon-kc-hover-download {
-  font-size: 14px;
 }
 #kclistContainer.thumbnail li .select {
   width: 22px;
@@ -589,10 +630,6 @@ html.AppKc {
 }
 #kclistContainer.thumbnail li.active .select i {
   color: var(--color-white) !important;
-}
-.kclist .rightMenu.ming.Menu,
-#kclistContainer.thumbnail .rightMenu.ming.Menu {
-  position: fixed;
 }
 .addFolderName {
   border: 0;
@@ -789,13 +826,6 @@ html.AppKc {
 
 .kcToolbar .disabledSort {
   cursor: default !important;
-}
-
-.kcRightContent .menuLine {
-  height: 1px !important;
-  line-height: 1px !important;
-  background-color: var(--color-border-secondary);
-  margin: 2px 0;
 }
 
 .previewFileMain {

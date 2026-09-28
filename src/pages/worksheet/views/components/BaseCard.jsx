@@ -6,39 +6,42 @@ import _ from 'lodash';
 import { findIndex, get, includes, isEmpty, noop } from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import CellControl from 'worksheet/components/CellControls';
 import Switch from 'worksheet/components/CellControls/Switch';
 import OperateButtons from 'worksheet/components/OperateButtons';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import { FlexCenter, Text } from 'worksheet/styled';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { browserIsMobile } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { getControlStyles } from 'src/utils/domain/control/style';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getRecordColor } from 'src/utils/domain/worksheet/record';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { handleRowData } from 'src/utils/services/worksheet/record';
 import {
-  checkCellIsEmpty,
-  controlState,
-  getAdvanceSetting,
-  getControlStyles,
-  renderText as renderCellText,
-} from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
-import { getRecordColor, handleRowData } from 'src/utils/record';
-import { getCardDisplayPara, getCardTitleFieldForView, getMultiRelateViewConfig } from '../util';
+  getCardDisplayPara,
+  getCardTitleFieldForView,
+  getMultiRelateViewConfig,
+} from 'src/utils/services/worksheet/view';
 import CardCoverImage from './CardCoverImage';
 
 const RecordItemWrap = styled.div`
   display: flex;
-  flex-direction: ${props => props.coverDirection};
+  flex-direction: ${props => props.$coverDirection};
   justify-content: space-between;
-  cursor: ${props => (props.canDrag ? 'grab' : 'pointer')};
+  cursor: ${props => (props.$canDrag ? 'grab' : 'pointer')};
   width: 100%;
   position: relative;
   min-height: 42px;
-  ${({ controlStyles }) => controlStyles || ''}
+  ${({ $controlStyles }) => $controlStyles || ''}
   .hoverShowAll {
     display: none;
   }
@@ -263,7 +266,9 @@ const BaseCard = props => {
     entityName,
     roleType,
     buttonsCheckStatus,
+    worksheetInfo = {},
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
   const isMobile = browserIsMobile();
   let { rowId, coverImage, allowEdit, allowDelete, allowAdd, rawRow } = data;
   const row = _.isObject(rawRow) ? rawRow : safeParse(rawRow);
@@ -497,28 +502,6 @@ const BaseCard = props => {
     ) : null;
   };
 
-  const getPopAlign = () => {
-    if ($ref.current) {
-      const { right } = $ref.current.getBoundingClientRect();
-
-      /**
-       * 如果右侧放不下就放卡片的左侧
-       * 208 = 目录的宽度(200) + 间隔(8)
-       */
-      if (window.innerWidth - 208 < right) {
-        return {
-          points: ['tr', 'tr'],
-          offset: [8, 30],
-        };
-      }
-    }
-
-    return {
-      points: ['tl', 'tr'],
-      offset: [16, -8],
-    };
-  };
-
   const hideOperate = isMobile || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
   const { recordColorConfig } = data;
   const recordColor =
@@ -587,15 +570,16 @@ const BaseCard = props => {
 
   return (
     <div>
+      {addRecordHolder}
       <RecordItemWrap
         ref={$ref}
         style={{
           backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
         }}
         className={className}
-        coverDirection={includes(['0', '1'], coverPosition) ? 'row' : 'column'}
-        canDrag={canDrag}
-        controlStyles={showControlStyle && getControlStyles(showFields.concat(titleField))}
+        $coverDirection={includes(['0', '1'], coverPosition) ? 'row' : 'column'}
+        $canDrag={canDrag}
+        $controlStyles={showControlStyle && getControlStyles(showFields.concat(titleField))}
       >
         {/* // 封面图片左、上放置 */}
         {recordColor && recordColorConfig.showLine && (
@@ -638,7 +622,7 @@ const BaseCard = props => {
               isCharge={isCharge}
               isDevAndOps={isDevAndOps}
               shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav', 'lock']}
-              popupAlign={getPopAlign()}
+              placement="rightTop"
               allowDelete={allowDelete}
               allowCopy={allowCopy}
               isRecordLock={row.sys_lock}
@@ -655,6 +639,7 @@ const BaseCard = props => {
               onDelete={onDelete}
               onCopySuccess={onCopySuccess}
               entityName={entityName}
+              printCountEnabled={_.get(worksheetInfo, 'advancedSetting.print_count_enabled') === '1'}
               updateRecordLock={() => {
                 updateRecordLockStatus(
                   {
@@ -687,7 +672,7 @@ const BaseCard = props => {
                   columns: data.formData,
                 }).then(res => {
                   const { defaultData, defcontrols } = res;
-                  addRecord({
+                  openAddRecord({
                     worksheetId,
                     appId,
                     viewId,

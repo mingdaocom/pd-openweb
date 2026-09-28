@@ -1,68 +1,9 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, Menu, MenuItem, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import { Icon, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Dropdown, Input, Modal } from 'ming-ui/antd-components';
 import apiKeyAjax from 'src/pages/Admin/api/cloudApi/apiKey';
 import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import { PERMISSION_OPTIONS } from './constants';
-
-const SearchInputWrap = styled.div`
-  width: 300px;
-  height: 36px;
-  position: relative;
-  border: 1px solid ${props => (props.isFocus ? 'var(--color-primary)' : 'var(--color-border-primary)')};
-  border-radius: 4px;
-  background: var(--color-bg-primary);
-
-  .searchInput.ming.Input {
-    width: 100%;
-    height: 100%;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent;
-    line-height: 34px;
-    padding-left: 42px !important;
-    padding-right: 32px !important;
-    font-size: 14px;
-
-    &:hover,
-    &:focus,
-    &.active {
-      border: none !important;
-      box-shadow: none !important;
-    }
-
-    &::placeholder {
-      color: var(--color-text-placeholder);
-    }
-  }
-`;
-
-const SearchIcon = styled(Icon)`
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-tertiary);
-  font-size: 18px;
-  z-index: 2;
-  pointer-events: none;
-`;
-
-const ClearIcon = styled(Icon)`
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-tertiary);
-  font-size: 14px;
-  z-index: 2;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--color-text-secondary);
-  }
-`;
 
 export default function KeyListTable({
   list,
@@ -78,7 +19,6 @@ export default function KeyListTable({
   onOpenEdit,
   onCreate,
 }) {
-  const [isFocus, setIsFocus] = useState(false);
   const [actionPopupVisible, setActionPopupVisible] = useState(false);
   const [pendingActionId, setPendingActionId] = useState('');
 
@@ -99,11 +39,13 @@ export default function KeyListTable({
     };
 
     if (newStatus === 0) {
-      Dialog.confirm({
-        title: <span className="Red Bold">{_l('确定禁用此密钥?')}</span>,
-        description: _l('禁用后，此密钥提供的云服务将会调用失败，导致相关功能异常。'),
+      Modal.confirm({
+        title: <span className="textError">{_l('确定禁用此密钥?')}</span>,
+        content: _l('禁用后，此密钥提供的云服务将会调用失败，导致相关功能异常。'),
         okText: _l('禁用'),
-        buttonType: 'danger',
+        okButtonProps: {
+          danger: true,
+        },
         onOk: () => {
           // 禁用会导致调用失败，确认后仍需进行账号密码二次验证。
           VerifyPasswordConfirm.confirm({
@@ -121,18 +63,22 @@ export default function KeyListTable({
   const handleClickDelete = item => {
     if (pendingActionId) return;
 
-    Dialog.confirm({
-      title: <span className="Red Bold">{_l('确定删除此密钥?')}</span>,
-      description: _l('删除后，此密钥提供的云服务将会调用失败，导致相关功能异常。'),
+    Modal.confirm({
+      title: <span className="Red textError">{_l('确定删除此密钥?')}</span>,
+      content: _l('删除后，此密钥提供的云服务将会调用失败，导致相关功能异常。'),
       okText: _l('删除'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         VerifyPasswordConfirm.confirm({
           isRequired: true,
           onOk: () => {
             setPendingActionId(item.id);
             apiKeyAjax
-              .keysDelete({ apiKeyId: item.id })
+              .keysDelete({
+                apiKeyId: item.id,
+              })
               .then(() => {
                 alert(_l('已删除'));
                 onFetchList(pageIndex);
@@ -240,47 +186,31 @@ export default function KeyListTable({
           <span className="colorPrimary Hand mRight12 adminHoverColor" onClick={() => onOpenWhiteList(item)}>
             {_l('IP 白名单')}
           </span>
-          <Trigger
-            action={['click']}
-            popupVisible={actionPopupVisible === item.id}
-            onPopupVisibleChange={visible => setActionPopupVisible(visible ? item.id : false)}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 8],
-              overflow: { adjustX: true, adjustY: true },
+          <Dropdown
+            trigger={['click']}
+            placement="bottomRight"
+            open={actionPopupVisible === item.id}
+            onOpenChange={visible => setActionPopupVisible(visible ? item.id : false)}
+            menu={{
+              items: [
+                { key: 'edit', label: _l('编辑') },
+                { key: 'toggleStatus', label: item.status === 1 ? _l('禁用') : _l('启用') },
+                { key: 'delete', danger: true, label: _l('删除') },
+              ],
+              onClick: ({ key }) => {
+                setActionPopupVisible(false);
+                if (key === 'edit') {
+                  onOpenEdit(item);
+                } else if (key === 'toggleStatus') {
+                  handleToggleStatus(item);
+                } else if (key === 'delete') {
+                  handleClickDelete(item);
+                }
+              },
             }}
-            popup={
-              <Menu className="Static">
-                <MenuItem
-                  onClick={() => {
-                    setActionPopupVisible(false);
-                    onOpenEdit(item);
-                  }}
-                >
-                  {_l('编辑')}
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    setActionPopupVisible(false);
-                    handleToggleStatus(item);
-                  }}
-                >
-                  {item.status === 1 ? _l('禁用') : _l('启用')}
-                </MenuItem>
-                <MenuItem
-                  className="Red"
-                  onClick={() => {
-                    setActionPopupVisible(false);
-                    handleClickDelete(item);
-                  }}
-                >
-                  {_l('删除')}
-                </MenuItem>
-              </Menu>
-            }
           >
-            <Icon icon="moreop" className="Font18 Gray_9e Hand" onClick={e => e.stopPropagation()} />
-          </Trigger>
+            <Icon icon="moreop" className="Font18 textTertiary Hand" onClick={e => e.stopPropagation()} />
+          </Dropdown>
         </div>
       ),
     },
@@ -289,28 +219,26 @@ export default function KeyListTable({
   return (
     <>
       <div className="toolBar flexRow alignItemsCenter">
-        <SearchInputWrap isFocus={isFocus}>
-          <SearchIcon icon="search" />
-          <Input
-            className="searchInput"
-            placeholder={_l('密钥名称')}
-            value={searchInput}
-            onChange={onSearchChange}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
-          />
-          {!!searchInput && (
-            <ClearIcon
-              icon="cancel"
-              onMouseDown={e => {
-                e.preventDefault();
-                onSearchClear();
-              }}
-            />
-          )}
-        </SearchInputWrap>
-        <Button type="primary" className="createButton mLeft10" onClick={onCreate}>
-          <i className="icon-add Font14 mRight4" />
+        <Input
+          style={{ width: 300 }}
+          prefix={<Icon icon="search" className="Font18 textTertiary" />}
+          suffix={
+            searchInput ? (
+              <Icon
+                icon="cancel"
+                className="Font14 textTertiary pointer"
+                onMouseDown={e => {
+                  e.preventDefault();
+                  onSearchClear();
+                }}
+              />
+            ) : null
+          }
+          placeholder={_l('密钥名称')}
+          value={searchInput}
+          onChange={e => onSearchChange(e.target.value)}
+        />
+        <Button type="primary" className="mLeft10" icon={<i className="icon-add" />} onClick={onCreate}>
           {_l('创建密钥')}
         </Button>
       </div>

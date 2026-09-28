@@ -13,25 +13,7 @@
     padding: 0 0 20px 8px;
 
     .searchContainer {
-      box-sizing: border-box;
-      background: var(--color-background-secondary);
-      border-radius: 15px;
-      margin: 0 12px 24px;
-
-      .btnSearch {
-        font-size: 20px;
-        position: absolute;
-        margin: 7px 14px;
-      }
-
-      .searchInput {
-        line-height: 32px;
-        height: 32px;
-        padding-left: 38px;
-        border: none;
-        outline: none;
-        background: transparent;
-      }
+      margin: 0 12px 10px;
 
       .searchResult {
         background: var(--color-background-primary);
@@ -112,36 +94,13 @@
           }
         }
       }
-
-      &:hover {
-        background-color: var(--color-border-secondary);
-      }
     }
 
     .actBox {
-      padding: 0 0px 12px 16px;
+      padding: 10px 15px;
 
       .iconHover:hover {
         color: var(--color-primary) !important;
-      }
-
-      .creatRole {
-        padding: 0 10px;
-        height: 28px;
-        border-radius: 3px;
-        display: flex;
-        background: var(--color-background-primary);
-        justify-content: center;
-        align-items: center;
-        border: 1px solid var(--color-border-secondary);
-
-        &:hover {
-          background: var(--color-background-hover);
-        }
-
-        .icon-add {
-          margin-right: 4px;
-        }
       }
     }
 
@@ -224,41 +183,6 @@
           visibility: hidden;
         }
       }
-
-      .ant-tree-treenode {
-        .ant-tree-draggable-icon {
-          opacity: 0;
-        }
-
-        &:hover {
-          .ant-tree-draggable-icon {
-            opacity: 1;
-            color: var(--color-text-tertiary);
-          }
-        }
-
-        &[draggable='false'] {
-          .ant-tree-draggable-icon {
-            opacity: 0 !important;
-          }
-        }
-
-        .ant-tree-title {
-          width: calc(~'100% - 24px');
-        }
-
-        .ant-tree-indent {
-          display: none;
-        }
-
-        .ant-tree-node-content-wrapper {
-          flex: 1;
-        }
-      }
-
-      .ant-tree-switcher {
-        color: var(--color-text-secondary);
-      }
     }
 
     .addRoleFolderButton {
@@ -284,48 +208,6 @@
     .actUserBox {
       display: flex;
       margin-bottom: 10px;
-
-      .actBtn {
-        height: 32px;
-        border-radius: 3px;
-        line-height: 30px;
-        text-align: center;
-        border: 1px solid var(--color-border-secondary);
-        background-color: var(--color-background-primary);
-        margin-right: 8px;
-        padding: 0 16px;
-        font-size: 14px;
-
-        &.addUser {
-          color: var(--color-white);
-          background: var(--color-primary);
-          border: 1px solid var(--color-primary);
-        }
-
-        &:hover {
-          color: var(--color-link-hover);
-          border: 1px solid var(--color-link-hover);
-          cursor: pointer;
-        }
-
-        &.addUser:hover {
-          color: var(--color-white);
-          background: var(--color-link-hover);
-          border: 1px solid var(--color-link-hover);
-        }
-
-        &.disabledBtn {
-          cursor: not-allowed;
-          color: var(--color-text-tertiary);
-        }
-
-        &.disabledBtn:hover {
-          cursor: not-allowed;
-          color: var(--color-text-tertiary);
-          background-color: var(--color-background-primary);
-          border: 1px solid var(--color-border-secondary);
-        }
-      }
     }
 
     .userList {
@@ -417,10 +299,6 @@
             z-index: 2;
             min-width: 40px;
             left: 0;
-
-            .Checkbox-box {
-              margin-right: 0 !important;
-            }
           }
 
           .nameCol {
@@ -495,19 +373,9 @@
   width: 100px;
   height: 86px;
 
-  .ant-dropdown-menu-item {
+  .hap-dropdown-menu-item {
     font-size: 13px;
   }
-}
-
-.importExportAction {
-  .ming.Item .Item-content .Icon {
-    position: static;
-  }
-}
-
-.delRole {
-  color: var(--color-error) !important;
 }
 
 .roleSetDeptRangeDialog {
@@ -517,9 +385,6 @@
 }
 
 .disabledOrgRoleDialog {
-  .mui-dialog-desc {
-    color: var(--color-text-title) !important;
-  }
   .orgRoleStatusWrap {
     display: inline-block;
     padding: 0px 10px;

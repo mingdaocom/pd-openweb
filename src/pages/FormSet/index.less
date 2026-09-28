@@ -51,22 +51,6 @@
 
       .columnRuleTitle {
         padding: 35px 40px 10px 40px;
-        .addRules {
-          padding: 0 16px;
-          height: 36px;
-          line-height: 36px;
-          display: inline-block;
-          background: var(--color-primary);
-          border-radius: 32px;
-          letter-spacing: 0;
-          color: var(--color-white);
-          text-align: center;
-          font-weight: bold;
-          cursor: pointer;
-          &:hover {
-            background: var(--color-primary);
-          }
-        }
         .columnRuleTabs {
           margin-top: 16px;
           border-bottom: 1px solid var(--color-border-primary);
@@ -101,24 +85,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        .addEmptyRules {
-          padding: 0 16px;
-          height: 36px;
-          line-height: 34px;
-          display: inline-block;
-          border-radius: 32px;
-          letter-spacing: 0;
-          color: var(--color-text-secondary);
-          text-align: center;
-          font-weight: bold;
-          cursor: pointer;
-          border: 1px solid var(--color-border-primary);
-          margin-top: 20px;
-          &:hover {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-          }
-        }
         .emptyIcon {
           width: 130px;
           height: 130px;
@@ -145,47 +111,22 @@
 
 .widgetColumnRulesDrawer,
 .columnRulesDrawerContainer {
-  z-index: 9;
-  position: absolute;
-  box-shadow: 0px 18px 30px 0px rgba(0, 0, 0, 0.16);
-  .ant-drawer-header {
-    border-color: var(--color-border-primary) !important;
-  }
-  .ant-drawer-close {
-    color: var(--color-text-secondary) !important;
-  }
-
   .editRuleBox {
     .ruleNameInput {
       width: 100%;
       height: 36px;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
       padding: 0 12px;
-      &:focus {
-        border: 1px solid var(--color-primary);
-      }
-      &::placeholder {
-        color: var(--color-text-tertiary);
-      }
     }
     .errorBorder {
       border: 1px solid var(--color-error);
     }
     .conditionContainer {
       margin-top: 32px;
-      .ming.Radio:first-child {
+      .ant-radio-wrapper:first-child {
         width: 30%;
       }
       .addCondition {
-        display: inline-block;
         margin-top: 14px;
-        color: var(--color-primary);
-        cursor: pointer;
-        font-weight: bold;
-        &:hover {
-          color: var(--color-link-hover) !important;
-        }
       }
       .setFieldContainer {
         flex: 1;
@@ -203,14 +144,8 @@
         }
 
         .addField {
-          cursor: pointer;
-          color: var(--color-text-secondary);
           width: fit-content;
           margin: 6px 0 6px auto;
-          position: relative;
-          &:hover {
-            color: var(--color-primary);
-          }
         }
         &.pRight42 {
           padding-right: 42px;
@@ -247,20 +182,8 @@
             min-width: 0;
             margin-right: 0px;
           }
-          .ant-select-arrow {
+          .hap-select-arrow {
             margin-top: -8px !important;
-          }
-          .ant-select-selector {
-            border-color: var(--color-border-secondary);
-            height: 36px;
-            border-radius: 4px;
-            box-shadow: none !important;
-            .ant-select-selection-search-input {
-              height: 34px;
-            }
-            .ant-select-selection-item {
-              line-height: 34px;
-            }
           }
         }
         .conditionValue {
@@ -353,23 +276,8 @@
           min-width: 0;
           margin-right: 0px;
         }
-        .ant-select-arrow {
+        .hap-select-arrow {
           margin-top: -8px !important;
-        }
-        .ant-select-selector {
-          border-color: var(--color-border-secondary);
-          height: 36px;
-          border-radius: 4px;
-          box-shadow: none !important;
-          .ant-select-selection-search-input {
-            height: 34px;
-          }
-          .ant-select-selection-item {
-            &:not(.ant-select-open) {
-              color: var(--color-text-primary) !important;
-            }
-            line-height: 34px;
-          }
         }
       }
       .actionItemCon {
@@ -507,52 +415,24 @@
     }
   }
 
-  .ruleFooter {
-    .closeBtn {
-      color: var(--color-text-tertiary) !important;
-      background: var(--color-background-secondary) !important;
-      &:hover {
-        background: var(--color-border-secondary) !important;
-      }
-    }
-    .saveBtn {
-      background: var(--color-primary);
-      &:hover {
-        background: var(--color-primary);
-      }
-    }
-  }
-
-  .ant-drawer-mask {
+  .hap-drawer-mask {
     background-color: transparent !important;
   }
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     top: 2px;
   }
-  .ant-drawer-footer {
+  .hap-drawer-footer {
     border-top: none;
     padding: 0px !important;
   }
-  .ant-drawer-header {
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-    }
-    .ant-drawer-close {
-      margin-right: 0 !important;
-    }
-    .ant-drawer-title {
-      font-size: 17px;
-      font-weight: bold;
-    }
-  }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 0 !important;
     flex: 1;
   }
 }
 
 .widgetColumnRulesDrawer {
-  .ant-drawer-content {
+  .hap-drawer-content {
     padding-top: 50px !important;
   }
 }
@@ -669,7 +549,8 @@
   }
   .ruleNameInput {
     height: 100%;
-    border: none;
+    padding: 0;
+    border-radius: 0;
     color: var(--color-primary);
     font-weight: bold;
     border-bottom: 1px solid transparent;
@@ -710,9 +591,6 @@
 
 .DropdownDeleteRuleTrigger {
   width: 320px;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
   font-size: 14px;
   padding: 20px;
   .title {
@@ -725,113 +603,22 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    .deleteBtn {
-      width: 70px;
-      height: 28px;
-      background: var(--color-error);
-      border-radius: 2px;
-      cursor: pointer;
-      text-align: center;
-      color: var(--color-white);
-      margin-left: 37px;
-      line-height: 28px;
-      &:hover {
-        background-color: var(--color-error);
-      }
-    }
-  }
-}
-
-.ruleFilterColumnOptionList {
-  position: static;
-  width: 314px;
-  overflow-x: hidden;
-  max-height: 270px;
-  min-height: 100px;
-  border-radius: 2px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
-  .Menu {
-    width: 314px;
-    position: relative;
-    border-radius: 0;
-    box-shadow: none;
-    .Item-content {
-      padding: 0 15px;
-      .icon {
-        color: var(--color-text-tertiary);
-        margin-right: 10px;
-        font-size: 14px;
-        vertical-align: middle;
-      }
-      > span {
-        vertical-align: middle;
-      }
-    }
-  }
-
-  .ruleSearchWrap {
-    position: relative;
-    background: var(--color-background-primary) !important;
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      height: 41px;
-      padding: 0px 16px 0 35px;
-      border: none;
-      border-bottom: 1px solid var(--color-background-secondary);
-      &:focus {
-        border-color: var(--color-background-secondary) !important;
-      }
-      &::-webkit-input-placeholder {
-        color: var(--color-text-disabled);
-      }
-      &::-moz-placeholder {
-        color: var(--color-text-disabled);
-      }
-      &::-moz-placeholder {
-        color: var(--color-text-disabled);
-      }
-      &::-ms-input-placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
-    .icon {
-      position: absolute;
-      top: 13px;
-    }
-    .search {
-      left: 15px;
-    }
-    .close {
-      right: 15px;
-      color: var(--color-text-disabled);
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
+    gap: 12px;
   }
 }
 
 .ruleListSelectDropdown {
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  .hap-select-item-option-selected:not(.hap-select-item-option-disabled) {
     font-weight: normal !important;
     color: var(--color-white) !important;
     background-color: var(--color-primary) !important;
   }
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-  &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-    .ant-select-selector {
-    border-color: var(--color-primary) !important;
-  }
 }
-.addConditionTrigger {
+.addConditionMenu {
   display: flex;
   flex-direction: column;
   padding: 8px 0;
   width: 160px;
-  border-radius: 2px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
-  background: var(--color-background-primary);
   color: var(--color-text-title);
   font-weight: normal;
   margin-bottom: 10px;
@@ -845,25 +632,5 @@
     &:hover {
       background: var(--color-background-hover);
     }
-  }
-  &.rc-trigger-popup-hidden {
-    display: none !important;
-  }
-}
-.reserveControlsDropdownMenuSet {
-  .ming.MenuItem .Item-content:not(.disabled):hover {
-    background-color: var(--color-background-primary) !important;
-  }
-  .ming.Item .Item-content {
-    padding: 0;
-    .itemText {
-      padding: 0 16px;
-      .Icon {
-        left: 0;
-      }
-    }
-  }
-  .ming.MenuItem .Item-content.disabled {
-    padding: 0 16px;
   }
 }

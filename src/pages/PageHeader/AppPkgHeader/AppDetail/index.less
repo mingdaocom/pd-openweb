@@ -12,7 +12,7 @@
 .appIntroDialog {
   max-height: 100%;
   margin: 0;
-  .ant-modal-close {
+  .hap-modal-close {
     top: -2px !important;
     right: -30px !important;
     opacity: 0.8;
@@ -20,23 +20,21 @@
     text-overflow: initial;
     &:hover {
       opacity: 1;
+      background-color: transparent !important;
     }
     .icon {
       font-size: 18px;
     }
-    .ant-modal-close-x {
+    .hap-modal-close-x {
       color: var(--color-white);
       width: auto;
       width: auto;
       line-height: normal;
     }
   }
-  .ant-modal-content {
+  .hap-modal-container {
     height: 100%;
-    border-radius: 6px;
-  }
-  .ant-modal-body {
-    padding: 6px;
+    overflow: inherit;
   }
 
   .appIntroHeader {
@@ -66,9 +64,8 @@
   }
 
   .appDescriptionHeader {
-    .ant-btn-sm {
+    .hap-btn-sm {
       color: var(--color-text-secondary);
-      height: 28px;
       border-radius: 4px;
       background-color: transparent;
       &:hover {
@@ -83,8 +80,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /*padding: 32px 0;*/
   overflow: hidden;
+  /*
   &.preview {
     overflow-y: auto;
     .appIntroDialog > div {
@@ -95,30 +92,23 @@
       }
     }
   }
+  */
 }
 
 .appConfigItem {
   &.backupRestore,
   &.appManageMenu {
-    .Item-content {
-      overflow: inherit;
-    }
     .activeIcon .icon {
       left: 0;
       line-height: inherit;
       color: var(--color-white);
     }
   }
-  .Item-content {
-    padding-left: 45px !important;
 
-    .appConfigItemIcon {
-      left: 16px !important;
-    }
-    .worksheetapiIcon {
-      position: unset !important;
-    }
+  .worksheetapiIcon {
+    position: unset !important;
   }
+
   &.copy,
   &.export,
   &.lockApp,
@@ -126,46 +116,22 @@
   &.importAppUpgrade,
   &.createBackup,
   &.restore {
-    .Item-content {
-      color: var(--color-text-title) !important;
-      .icon {
-        color: var(--color-text-tertiary) !important;
-      }
+    color: var(--color-text-title) !important;
+    .icon {
+      color: var(--color-text-tertiary) !important;
     }
   }
-  .appManageMenuWrap {
-    color: var(--color-text-title);
-    width: auto;
-    min-width: 180px;
-    line-height: normal;
-    padding: 6px 0px;
-    border-radius: 3px;
-    box-shadow: var(--shadow-sm);
-    background-color: var(--color-background-primary);
-  }
 }
 
-.allOptionList {
-  .mui-dialog-header {
-    padding: 8px 24px !important;
-  }
-  .mui-dialog-body {
-    background-color: var(--color-background-secondary);
-    padding: 0 !important;
-    overflow: initial !important;
-  }
-}
-
-.assignValueBody {
-  overflow-x: hidden !important;
+.mobileViewQrCodeItem.hap-dropdown-menu-item-disabled {
   padding: 0 !important;
-  padding-bottom: 20px !important;
+  cursor: default;
+  opacity: 1;
+  color: var(--color-text-secondary) !important;
+  background: var(--color-background-primary) !important;
 }
 
 .sheetDescPopoverOverlay {
-  .ant-popover-inner-content {
-    padding: 10px 5px 10px 10px;
-  }
   .popoverContent {
     width: 625px;
     min-height: 120px;

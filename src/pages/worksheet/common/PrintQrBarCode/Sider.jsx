@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Radio } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, func, number, shape } from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Input, RadioGroup, Slider, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Slider } from 'ming-ui';
+import { Radio as _Radio, Input, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import ControlSelect from 'worksheet/components/ControlSelect';
-import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { FILTER } from 'src/utils/domain/control/dynamicValue';
 import {
   A4_LAYOUT_LIST,
   BAR_HEIGHT_LIST,
@@ -40,6 +39,7 @@ const LABEL_MIN_WIDTH = 20;
 const LABEL_MIN_HEIGHT = 20;
 const LABEL_MAX_WIDTH = 200;
 const LABEL_MAX_HEIGHT = 200;
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const Con = styled.div`
   font-size: 13px;
@@ -49,7 +49,7 @@ const Con = styled.div`
   padding: 10px 20px 30px;
   overflow: auto;
   .RadioGroupCon {
-    .ming.Radio {
+    .ant-radio-wrapper {
       width: 50%;
       display: inline-block;
       margin: 0;
@@ -78,15 +78,15 @@ const TypeLabel = styled.div`
   font-weight: 600;
 `;
 const Spacer = styled.div(
-  ({ top }) => `
-  margin-top: ${top}px;
+  ({ $top }) => `
+  margin-top: ${$top}px;
 `,
 );
 
 const ConfigItem = styled.div(
-  ({ label }) => `
+  ({ $label }) => `
   &&:before {
-    content: '${label}';
+    content: '${$label}';
     width: 80px;
   }
   margin-top: 14px;
@@ -95,16 +95,16 @@ const ConfigItem = styled.div(
   > div {
     max-width: calc(100% - 80px) !important;
   }
-  .ant-radio-group {
+  .hap-radio-group {
     width: 100%;
     display: flex;
   }
-  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  .hap-radio-button-wrapper-checked:not(.hap-radio-button-wrapper-disabled) {
     border-color: var(--color-primary) !important;
     color: var(--color-primary) !important;
     background-color: var(--color-background-hover);
   }
-  .ant-radio-button-wrapper {
+  .hap-radio-button-wrapper {
     font-size: 13px;
     box-shadow: none !important;
     flex: 1;
@@ -132,6 +132,9 @@ const InputGroup = styled.div`
 `;
 
 const SetAsTitle = styled.i`
+  position: absolute;
+  right: 24px;
+  top: 15px;
   font-size: 18px;
   color: var(--color-text-tertiary);
   cursor: pointer;
@@ -139,29 +142,6 @@ const SetAsTitle = styled.i`
     color: var(--color-primary);
   }
 `;
-
-const SetAsTitleTooltip = styled(Tooltip)`
-  position: absolute;
-  right: 24px;
-  top: 15px;
-`;
-
-function setHr(list, indexList = []) {
-  if (!_.isArray(indexList)) {
-    indexList = [indexList];
-  }
-
-  indexList.forEach(i => {
-    if (i < 0) {
-      i = list.length - 1 + i;
-    }
-
-    if (list[i] && !_.isArray(list[i])) {
-      list[i] = [list[i]];
-    }
-  });
-  return list;
-}
 
 function numberFilter(value) {
   const reg = /[^-?\d*(.\d*)?]/g;
@@ -258,14 +238,13 @@ function LabeSizeConfig(props) {
 
   return (
     <Fragment>
-      <ConfigItem label={_l('尺寸')}>
-        <Dropdown
-          menuClass="w100"
+      <ConfigItem $label={_l('尺寸')}>
+        <Select
           className="w100"
-          maxHeight={320}
-          border
+          listHeight={320}
           value={type}
-          data={setHr(QR_LABEL_SIZE_LIST, -1)}
+          options={QR_LABEL_SIZE_LIST}
+          fieldNames={SELECT_FIELD_NAMES}
           onChange={value => {
             const changes = { type: value };
 
@@ -279,13 +258,13 @@ function LabeSizeConfig(props) {
         />
       </ConfigItem>
       {type === 100 && (
-        <ConfigItem label={_l('宽/高')}>
+        <ConfigItem $label={_l('宽/高')}>
           <div>
             <InputGroup>
               <Input
                 value={size.width}
-                onChange={value => {
-                  setSize({ ...size, width: numberFilter(value) });
+                onChange={event => {
+                  setSize({ ...size, width: numberFilter(event.target.value) });
                 }}
                 onBlur={handleWidthChange}
                 onKeyUp={e => {
@@ -311,8 +290,8 @@ function LabeSizeConfig(props) {
               </Tooltip>
               <Input
                 value={size.height}
-                onChange={value => {
-                  setSize({ ...size, height: numberFilter(value) });
+                onChange={event => {
+                  setSize({ ...size, height: numberFilter(event.target.value) });
                 }}
                 onBlur={handleHeightChange}
                 onKeyUp={e => {
@@ -358,12 +337,14 @@ export default function Sider(props) {
           : _l('编码方式：QR-code，可支持汉字，最大包含150个字')}
       </Tip>
       <TypeLabel className="mTop20">{printType === PRINT_TYPE.BAR ? _l('条形码数据源') : _l('数据源')}</TypeLabel>
-      <Spacer top="15" />
+      <Spacer $top="15" />
       {printType !== PRINT_TYPE.BAR && (
-        <RadioGroup
-          checkedValue={sourceType}
-          data={SOURCE_TYPE_LIST}
-          onChange={value => {
+        <_Radio.Group
+          value={sourceType}
+          options={(SOURCE_TYPE_LIST || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             if (sourceType === value) {
               return;
             }
@@ -388,22 +369,25 @@ export default function Sider(props) {
 
             onUpdate({
               sourceType: value,
-              ...(value === SOURCE_TYPE.CONTROL ? { sourceControlId: newSourceControlId } : {}),
+              ...(value === SOURCE_TYPE.CONTROL
+                ? {
+                    sourceControlId: newSourceControlId,
+                  }
+                : {}),
               showTexts: newShowTexts,
             });
           }}
         />
       )}
-      <Spacer top="16" />
+      <Spacer $top="16" />
       {sourceType === SOURCE_TYPE.URL ? (
-        <Dropdown
-          menuClass="w100"
+        <Select
           className="w100"
-          border
           value={sourceUrlType}
-          data={
+          options={
             !md.global.Account.isPortal ? SOURCE_URL_TYPE_LIST : SOURCE_URL_TYPE_LIST.filter(item => item.value !== 1)
           }
+          fieldNames={SELECT_FIELD_NAMES}
           onChange={value => onUpdate({ sourceUrlType: value })}
         />
       ) : (
@@ -434,33 +418,39 @@ export default function Sider(props) {
           }}
         />
       )}
-      <Spacer top="12" />
+      <Spacer $top="12" />
       {printType !== PRINT_TYPE.BAR && (
         <Fragment>
           <TypeLabel>{_l('打印方式')}</TypeLabel>
-          <Spacer top="12" />
-          <RadioGroup
-            checkedValue={printType}
-            data={PRINT_TYPE_LIST.filter(t => t.value !== PRINT_TYPE.BAR)}
-            onChange={value => {
+          <Spacer $top="12" />
+          <_Radio.Group
+            value={printType}
+            options={(PRINT_TYPE_LIST.filter(t => t.value !== PRINT_TYPE.BAR) || []).map(({ text, ...option }) => ({
+              ...option,
+              label: text,
+            }))}
+            onChange={event => {
+              const value = event.target.value;
+
               if (printType === value) {
                 return;
               }
 
-              onUpdate({ printType: value });
+              onUpdate({
+                printType: value,
+              });
             }}
           />
         </Fragment>
       )}
       {/* A4 配置 */}
       {printType === PRINT_TYPE.A4 && (
-        <ConfigItem label={_l('布局')}>
-          <Dropdown
-            menuClass="w100"
+        <ConfigItem $label={_l('布局')}>
+          <Select
             className="w100"
-            border
             value={layout}
-            data={A4_LAYOUT_LIST}
+            options={A4_LAYOUT_LIST}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => onUpdate({ layout: value })}
           />
         </ConfigItem>
@@ -498,7 +488,7 @@ export default function Sider(props) {
             }}
           />
           {labelSize !== QR_LABEL_SIZE.CUSTOM && (
-            <ConfigItem label={_l('布局')}>
+            <ConfigItem $label={_l('布局')}>
               <Radio.Group
                 options={QR_LAYOUT_LIST}
                 onChange={e =>
@@ -516,7 +506,7 @@ export default function Sider(props) {
           )}
           <TypeLabel>{_l('二维码设置')}</TypeLabel>
           <React.Fragment>
-            <ConfigItem label={_l('大小')}>
+            <ConfigItem $label={_l('大小')}>
               <OptionsSlider
                 options={layout === QR_LAYOUT.PORTRAIT ? PORTRAIT_CODE_SIZE_LIST : LANDSCAPE_QR_CODE_SIZE_LIST}
                 value={codeSize}
@@ -525,7 +515,7 @@ export default function Sider(props) {
                 }}
               />
             </ConfigItem>
-            <ConfigItem label={_l('位置')}>
+            <ConfigItem $label={_l('位置')}>
               <Radio.Group
                 options={layout === QR_LAYOUT.PORTRAIT ? QR_POSITION_LIST.slice(0, 2) : QR_POSITION_LIST.slice(2)}
                 onChange={e => onUpdate({ position: e.target.value })}
@@ -538,17 +528,16 @@ export default function Sider(props) {
       )}
       {printType !== PRINT_TYPE.BAR && (
         <ConfigItem
-          label={_l('容错率')}
+          $label={_l('容错率')}
           tips={_l(
             '容错率是指二维码被遮挡多少后，仍可以扫描出来的能力。容错率越高，二维码越容易被扫描，二维码图片也越复杂。',
           )}
         >
-          <Dropdown
-            menuClass="w100"
+          <Select
             className="w100"
-            border
             value={codeFaultTolerance}
-            data={CODE_FAULT_TOLERANCE_LIST}
+            options={CODE_FAULT_TOLERANCE_LIST}
+            fieldNames={SELECT_FIELD_NAMES}
             onChange={value => onUpdate({ codeFaultTolerance: value })}
           />
         </ConfigItem>
@@ -574,7 +563,7 @@ export default function Sider(props) {
             }}
           />
           {labelSize !== BAR_LABEL_SIZE.CUSTOM && (
-            <ConfigItem label={_l('布局')}>
+            <ConfigItem $label={_l('布局')}>
               <Radio.Group
                 options={BAR_LAYOUT_LIST}
                 onChange={e =>
@@ -589,7 +578,7 @@ export default function Sider(props) {
             </ConfigItem>
           )}
           <TypeLabel>{_l('条形码设置')}</TypeLabel>
-          <ConfigItem label={_l('高度')}>
+          <ConfigItem $label={_l('高度')}>
             {/* <Radio.Group
               options={BAR_HEIGHT_LIST}
               onChange={e =>
@@ -608,7 +597,7 @@ export default function Sider(props) {
               }}
             />
           </ConfigItem>
-          <ConfigItem label={_l('位置')}>
+          <ConfigItem $label={_l('位置')}>
             <Radio.Group
               options={BAR_POSITION_LIST}
               onChange={e =>
@@ -628,14 +617,18 @@ export default function Sider(props) {
           <div className="flex"></div>
           <Switch
             size="small"
-            primaryColor="#1677ff"
             checked={showBarValue}
-            onClick={() => onUpdate({ showBarValue: !showBarValue })}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return onUpdate({
+                showBarValue: !showBarValue,
+              });
+            }}
           />
         </div>
       )}
       <TypeLabel>{_l('显示字段')}</TypeLabel>
-      <ConfigItem label={_l('字号')}>
+      <ConfigItem $label={_l('字号')}>
         <Slider
           triggerWhenMove
           className="flex"
@@ -657,19 +650,23 @@ export default function Sider(props) {
         <div className="flex"></div>
         <Switch
           size="small"
-          primaryColor="#1677ff"
           checked={showControlName}
-          onClick={() => onUpdate({ showControlName: !showControlName })}
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            return onUpdate({
+              showControlName: !showControlName,
+            });
+          }}
         />
       </div>
       <Tip>{_l('当前尺寸下最大容纳%0行文字，字段内容超过1行后，默认向下换行直到完整显示。', maxLineNumber)}</Tip>
       <div className="Relative">
-        <SetAsTitleTooltip title={_l('显示为标题')}>
+        <Tooltip title={_l('显示为标题')}>
           <SetAsTitle
             className={cx('icon-title', { on: firstIsBold })}
             onClick={() => onUpdate({ firstIsBold: !firstIsBold })}
           />
-        </SetAsTitleTooltip>
+        </Tooltip>
       </div>
       {[...new Array(maxLineNumber)].map((o, i) => (
         <SelectControlWithInput

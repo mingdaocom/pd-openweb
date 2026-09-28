@@ -73,32 +73,27 @@ const RecorderContent = styled.div`
   }
 `;
 
+let recorderAuthConfig;
+
 export function getRecorderAuthConfig() {
-  const authConfig = localStorage.getItem('RECORDER_AUTH_CONFIG');
-
-  if (authConfig) {
-    const authConfigObj = safeParse(authConfig);
-
-    if (authConfigObj.expiredTime > Date.now()) {
-      return Promise.resolve(authConfigObj);
-    } else {
-      localStorage.removeItem('RECORDER_AUTH_CONFIG');
-    }
+  if (recorderAuthConfig?.expiredTime > Date.now()) {
+    return Promise.resolve(recorderAuthConfig);
   }
+
+  recorderAuthConfig = undefined;
 
   return mingoAjax
     .getFederationToken()
     .then(data => {
       if (data.token) {
-        const authConfig = {
+        recorderAuthConfig = {
           secretId: data.tmpSecretId,
           secretKey: data.tmpSecretKey,
           token: data.token,
           appId: data.appId,
           expiredTime: data.expiredTime * 1000,
         };
-        safeLocalStorageSetItem('RECORDER_AUTH_CONFIG', JSON.stringify(authConfig));
-        return authConfig;
+        return recorderAuthConfig;
       } else {
         if (data.code === 10004) {
           throw new Error(_l('服务调用失败'));
@@ -181,7 +176,7 @@ const Recorder = forwardRef(
       },
     }));
     return (
-      <Con>
+      <Con className="promptRecorder">
         <RecorderContent className={cx('t-flex t-flex-row t-items-center', { 'error-status': error })}>
           {!error && !loading && (
             <Core

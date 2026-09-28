@@ -10,8 +10,9 @@ import {
   RELATED_RECORD_FIELDS,
   SYSTEM_FIELD_IDS,
 } from 'src/pages/integration/dataIntegration/constant.js';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import { canSetAsTitle, enumWidgetType } from 'src/pages/widgetConfig/util';
+import { canSetAsTitle } from 'src/utils/domain/control/metadata';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 
 export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) => {
   const isDestAppType = destDsType === DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -201,8 +202,8 @@ export const getInitWorkSheetFields = (
 };
 
 export const getMatchedFieldsOptions = (types, sourceField, destFields, isSourceAppType, isDestAppType) => {
-  const matchedTypeIds = _.uniq(((types || {})[sourceField.id]) || []).map(type => type.dataType);
-  const matchedMdTypeIds = _.uniq(((types || {})[sourceField.id]) || []).map(type => type.mdType);
+  const matchedTypeIds = _.uniq((types || {})[sourceField.id] || []).map(type => type.dataType);
+  const matchedMdTypeIds = _.uniq((types || {})[sourceField.id] || []).map(type => type.mdType);
 
   const matchedFieldsOptions = isDestAppType
     ? (destFields || []).filter(o => _.includes(matchedMdTypeIds, o.mdType))
@@ -262,7 +263,7 @@ export const getDefaultData = (
       }
     }
 
-    const itemOptions = ((types || {})[item.sourceField.id]) || [];
+    const itemOptions = (types || {})[item.sourceField.id] || [];
 
     //不支持类型的主键isCheck设置为false
     if (itemOptions.length === 0) {

@@ -1,19 +1,29 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Slider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Slider, Tooltip } from 'ming-ui/antd-components';
 import orderController from 'src/api/order';
 import upgradeController from 'src/api/upgrade';
-import preall from 'src/common/preall';
-import { addToken, getRequest, pathCompletion } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { hasBackStageAdminAuth } from 'src/components/checkPermission';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { addToken } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { payDialogFunc } from '../payDialog';
 import PayHeader from '../payHeader';
 import { featureDataList, payMethodList, versionIntroduction } from './config';
 import EditContractDialog from './EditContractDialog';
 import './index.less';
+
+const getVersionUpgradePayReturnUrl = projectId => {
+  if (projectId && hasBackStageAdminAuth({ projectId })) {
+    return pathCompletion(`/admin/home/${projectId}`);
+  }
+
+  return pathCompletion('/dashboard');
+};
 
 export default class VersionUpgrade extends Component {
   constructor(props) {
@@ -28,6 +38,7 @@ export default class VersionUpgrade extends Component {
       bugMethod: 'alipayPay',
     };
     this.timer = null;
+    this.requestPending = false;
   }
   componentDidMount() {
     this.getUnPaidOrder();
@@ -90,18 +101,20 @@ export default class VersionUpgrade extends Component {
       });
   };
 
-  addPayLog = () => {
+  addPayLog = orderId => {
     const { projectId } = getRequest(location.search);
-    const { orderId } = this.state;
 
     orderController.addThreePartPayOrderLog({
       projectId,
-      orderId: orderId,
+      orderId: orderId || this.state.orderId,
     });
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
-      payDialogFunc({ url: pathCompletion('/personal?type=enterprise') });
-    }, 1000);
+    return new Promise(resolve => {
+      this.timer = setTimeout(() => {
+        payDialogFunc({ url: getVersionUpgradePayReturnUrl(projectId) });
+        resolve();
+      }, 1000);
+    });
   };
 
   // 支付已有订单
@@ -109,7 +122,7 @@ export default class VersionUpgrade extends Component {
     const { projectId } = getRequest(location.search);
     const { activeVersion, selectYear, userCount, bugMethod } = this.state;
 
-    orderController
+    return orderController
       .addAuthorizeOrder({
         userNum: userCount > 750 ? 0 : userCount,
         unLimited: userCount > 750,
@@ -133,11 +146,15 @@ export default class VersionUpgrade extends Component {
         } else {
           alert(_l('订单提交失败'), 2);
         }
+
+        return res;
       });
   };
 
   // 在线支付
   handlePay = () => {
+    if (this.requestPending) return;
+
     const { projectId } = getRequest(location.search);
     const { orderId, bugMethod, contractInfo = {} } = this.state;
     const { address, companyName, email, mobilePhone, postcode, recipientName } = contractInfo;
@@ -148,16 +165,26 @@ export default class VersionUpgrade extends Component {
       return;
     }
 
+    this.requestPending = true;
+
+    let request = Promise.resolve();
+
     if (!orderId) {
-      this.addOrderPay();
+      request = this.addOrderPay().then(res => {
+        if (res) return this.addPayLog(res.orderId);
+      });
     } else if (bugMethod === 'alipayPay') {
       let url = md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + projectId + '&orderNumber=' + orderId;
       window.open(addToken(url));
+      request = this.addPayLog();
     } else if (bugMethod === 'wechartPay') {
       window.open(pathCompletion(`/wechatPay/${projectId}/${orderId}`));
+      request = this.addPayLog();
     }
 
-    this.addPayLog();
+    return request.finally(() => {
+      this.requestPending = false;
+    });
   };
 
   // 取消支付
@@ -228,7 +255,7 @@ export default class VersionUpgrade extends Component {
           <Button size="large" type="primary" className="payMDBtn" onClick={this.handlePay}>
             {_l('立即支付')}
           </Button>
-          <Button size="large" type="link" className="cancelOrderBtn" onClick={this.handleCancelPay}>
+          <Button size="large" color="primary" variant="link" className="cancelOrderBtn" onClick={this.handleCancelPay}>
             {_l('取消订单')}
           </Button>
         </div>
@@ -405,7 +432,8 @@ export default class VersionUpgrade extends Component {
                       {item.showPurchaseBtn && (
                         <Button
                           className="purchaseBtn Normal"
-                          type="ghost"
+                          color="primary"
+                          variant="outlined"
                           size="large"
                           onClick={() => this.toPurchase(item.version)}
                         >
@@ -450,8 +478,10 @@ export default class VersionUpgrade extends Component {
                     step={5}
                     defaultValue={30}
                     value={userCount}
-                    tooltipVisible={true}
-                    tipFormatter={value => (userCount <= 750 ? `${value}人` : _l('更多人数'))}
+                    tooltip={{
+                      open: true,
+                      formatter: value => (userCount <= 750 ? `${value}人` : _l('更多人数')),
+                    }}
                     onChange={value => {
                       if (value < 30) return;
                       this.setState({ userCount: value });
@@ -481,13 +511,16 @@ export default class VersionUpgrade extends Component {
                 <div className="flex"></div>
                 <div className="Font14">{_l('费用总计')}</div>
                 {userCount > 750 ? (
-                  <a
-                    className="hidePrice ming Button Button--primary"
+                  <Button
+                    type="primary"
+                    size="large"
+                    className="mTop15 bold"
                     target="_blank"
+                    rel="noopener noreferrer"
                     href="https://s.mingdao.net/form/fdff452c554747f3aa64484fdfe7a0d4?source=content2819432"
                   >
                     {_l('垂询我们')}
-                  </a>
+                  </Button>
                 ) : (
                   <div className="showPrice pBottom20">
                     <div className="colorPrimary mTop10 InlineBlock">

@@ -34,6 +34,7 @@ export const NODE_TYPE = {
   PLUGIN: 32,
   AGENT: 33,
   VECTOR: 34,
+  GOTO: 35,
   SYSTEM: 100,
   TOOLS: 101,
   FIND_SINGLE_MESSAGE: 1000,
@@ -57,6 +58,7 @@ export const ACTION_ID = {
   CREATE_RECORD: '5',
   REFRESH_SINGLE_DATA: '6',
   REFUND: '7',
+  UPDATE_RECORD_FOLLOWERS: '8',
   RELATION: '20',
   NUMBER_FORMULA: '100',
   DATE_FORMULA: '101',
@@ -150,6 +152,7 @@ export const APP_TYPE = {
   INVOICE: 50,
   REFUND: 51,
   VECTOR: 52,
+  RECORD_FOLLOWER: 54,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -768,7 +771,7 @@ export const EXPIRE_LIST = [
 
 export const SEARCH_MODE_MAP = {
   auto: _l('AI 智能选择'),
-  vector: _l('混合检索'),
-  keyword: _l('语义检索'),
-  hybrid: _l('关键词检索'),
+  vector: _l('语义检索'),
+  keyword: _l('关键词检索'),
+  hybrid: _l('混合检索'),
 };

@@ -1,5 +1,5 @@
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { getReportTypeIcon } from '../Charts/reportTypeIcons';
-import { reportTypes } from '../Charts/reportTypes';
 
 /**
  * 图表类型数据

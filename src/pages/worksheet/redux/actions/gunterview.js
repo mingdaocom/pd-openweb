@@ -21,11 +21,12 @@ import {
   groupingTimeBlock,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
-import { getFilledRequestParams } from 'src/utils/common';
-import { controlState, isTimeStyle } from 'src/utils/control';
-import { formatQuickFilter } from 'src/utils/filter';
-import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
-import { handleRecordError } from 'src/utils/record';
+import { controlState } from 'src/utils/domain/control/state';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { handleRecordError } from 'src/utils/services/worksheet/record';
 
 const updatePeriodList = ({ result, parent }) => {
   return (dispatch, getState) => {
@@ -54,6 +55,26 @@ const getExportPeriodList = (type, { startTime, endTime }, viewConfig) => {
   } else if (type === PERIOD_TYPE.year) {
     return getYears(startTime.startOf('Y'), endTime.endOf('Y').add(onlyWorkDay ? 2 : 1, 'Y'), null, viewConfig);
   }
+};
+
+const getValidPeriodType = value => {
+  if (_.isUndefined(value) || _.isNull(value) || value === '') {
+    return undefined;
+  }
+
+  const periodType = Number(value);
+  return Object.values(PERIOD_TYPE).includes(periodType) ? periodType : undefined;
+};
+
+const getGunterExportPeriodType = (viewId, calendartype) => {
+  const localPeriodType = getValidPeriodType(localStorage.getItem(`gunterViewType-${viewId}`));
+
+  if (!_.isUndefined(localPeriodType)) {
+    return localPeriodType;
+  }
+
+  const viewPeriodType = getValidPeriodType(calendartype);
+  return _.isUndefined(viewPeriodType) ? PERIOD_TYPE.day : viewPeriodType;
 };
 
 let viewRequest = new WeakMap();
@@ -139,7 +160,7 @@ export const fetchRows = callBackFun => {
           }
 
           const { gunterView } = getState().sheet;
-          const { viewId, colorId, startId, endId, startFormat, endFormat, showgroupcolor, startControl, endControl } =
+          const { colorId, startId, endId, startFormat, endFormat, showgroupcolor, startControl, endControl } =
             gunterView.viewConfig;
           const selectControlOptions = _.get(selectControl, 'options') || [];
           const isStartTimeStyle = isTimeStyle(startControl);
@@ -193,12 +214,7 @@ export const fetchRows = callBackFun => {
 
           if (isGunterExport) {
             const { calendartype } = view.advancedSetting;
-            const gunterViewType = localStorage.getItem(`gunterViewType-${viewId}`);
-            const type = gunterViewType
-              ? Number(gunterViewType)
-              : calendartype
-                ? Number(calendartype)
-                : PERIOD_TYPE.day;
+            const type = getGunterExportPeriodType(view.viewId, calendartype);
             const exportViewConfig = changeViewConfig(type, gunterView.viewConfig);
             dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: type });
             dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: exportViewConfig });

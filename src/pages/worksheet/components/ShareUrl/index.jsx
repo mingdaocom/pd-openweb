@@ -1,12 +1,11 @@
 ﻿import React, { Fragment } from 'react';
-import { Popover } from 'antd';
+import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import { TextBlock } from 'worksheet/components/Basics';
 import SendToChat from './SendToChat';
 import './ShareUrl.less';
@@ -29,92 +28,14 @@ const Url = styled(TextBlock)`
   }
 `;
 
-const Icon = styled(TextBlock)`
-  cursor: pointer;
-  padding: 0;
-  width: 36px;
-  color: var(--color-text-secondary);
-  font-size: 18px;
-  text-align: center;
-  margin-left: 6px;
-  :hover {
-    color: var(--color-primary);
-  }
-  ${({ theme }) =>
-    theme === 'light' &&
-    `
-    background: var(--color-background-card);
-    border: 1px solid var(--color-border-primary);
-    :hover {
-      border-color: var(--color-primary);
-    }
-  `}
-`;
-
 const InputIcon = styled.span`
   cursor: pointer;
   color: var(--color-text-tertiary);
   font-size: 14px;
   margin-left: 6px;
-  :hover {
+  &:hover {
     color: var(--color-primary);
   }
-`;
-
-const TextIcon = styled(TextBlock)`
-  cursor: pointer;
-  line-height: 36px;
-  display: inline-block;
-  padding: 0 20px;
-  color: var(--color-text-title);
-  font-size: 13px;
-  font-weight: 500;
-  margin-left: 6px;
-  :hover {
-    color: var(--color-primary);
-  }
-  ${({ theme }) =>
-    theme === 'light' &&
-    `
-    background: var(--color-background-card);
-    border: 1px solid var(--color-border-primary);
-    :hover {
-      border-color: var(--color-primary);
-    }
-  `}
-`;
-
-const SeparateDisplayButton = styled(TextBlock)`
-  cursor: pointer;
-  line-height: 36px;
-  width: 80px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 0 5px;
-  color: var(--color-text-title);
-  font-size: 13px;
-  font-weight: 500;
-  i {
-    color: var(--color-text-secondary);
-    font-size: 18px;
-  }
-
-  :hover {
-    color: var(--color-primary);
-    i {
-      color: var(--color-primary);
-    }
-  }
-  ${({ theme }) =>
-    theme === 'light' &&
-    `
-    background: var(--color-background-card);
-    border: 1px solid var(--color-border-primary);
-    :hover {
-      border-color: var(--color-primary);
-    }
-  `}
 `;
 
 const Danger = styled.span`
@@ -157,16 +78,21 @@ export default class ShareUrl extends React.Component {
 
   async handleCopy(content) {
     const { getCopyContent } = this.props;
-    copy(_.isFunction(getCopyContent) ? await getCopyContent(content) : content);
+    const copyContent = _.isFunction(getCopyContent) ? await getCopyContent(content) : content;
+    // 只去掉整串末尾的空问号；链接后面还跟着说明文字时必须保留问号，
+    // 否则说明文字会被 IM/动态的链接识别一起吞进 pathname，落地页取到的 id 就带上了文字
+    copy(copyContent.replace(/\?$/, ''));
     alert(_l('复制成功'));
   }
 
   handleRefreshShareUrl() {
     const { refreshShareUrl } = this.props;
-    Dialog.confirm({
-      buttonType: 'danger',
+    Modal.confirm({
+      okButtonProps: {
+        danger: true,
+      },
       title: <Danger> {_l('确认生成新链接吗？')} </Danger>,
-      description: _l('如果您选择生成新链接，则旧链接将不再可用'),
+      content: _l('如果您选择生成新链接，则旧链接将不再可用'),
       onOk: refreshShareUrl,
     });
   }
@@ -197,25 +123,42 @@ export default class ShareUrl extends React.Component {
 
     const renderButtons = (btn, index) =>
       btn.showCompletely ? (
-        <SeparateDisplayButton style={btn.style} theme={theme} onClick={btn.onClick}>
-          <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
-          <span>{btn.text}</span>
-        </SeparateDisplayButton>
+        <Button
+          key={index}
+          color="default"
+          variant={theme === 'light' ? 'outlined' : 'filled'}
+          style={btn.style}
+          icon={<i style={btn.iconStyle} className={`icon-${btn.icon}`} />}
+          onClick={btn.onClick}
+        >
+          {btn.text}
+        </Button>
       ) : (
         <Tooltip key={index} placement="bottom" title={btn.tip}>
-          <Icon style={btn.style} theme={theme} className={btn.className} onClick={btn.onClick}>
-            <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
-          </Icon>
+          <Button
+            aria-label={btn.tip}
+            className={cx('mLeft6', btn.className)}
+            color="default"
+            variant={theme === 'light' ? 'outlined' : 'filled'}
+            style={btn.style}
+            icon={<i style={btn.iconStyle} className={`icon-${btn.icon} Font18`} />}
+            onClick={btn.onClick}
+          />
         </Tooltip>
       );
 
     const renderCopy = () => {
       const renderCopyDom = () => {
         return (
-          <SeparateDisplayButton theme={theme} onClick={() => this.handleCopy(url)} style={showCompletely.style}>
-            <i className="icon-content-copy" style={showCompletely.iconStyle}></i>
-            <span className="text">{copyText || _l('复制')}</span>
-          </SeparateDisplayButton>
+          <Button
+            color="default"
+            variant={theme === 'light' ? 'outlined' : 'filled'}
+            icon={<i className="icon-content-copy" style={showCompletely.iconStyle} />}
+            onClick={() => this.handleCopy(url)}
+            style={showCompletely.style}
+          >
+            {copyText || _l('复制')}
+          </Button>
         );
       };
 
@@ -290,30 +233,44 @@ export default class ShareUrl extends React.Component {
               renderCopy()
             ) : copyShowText ? (
               !copyTip ? (
-                <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
+                <Button
+                  className="copy mLeft6"
+                  color="default"
+                  variant={theme === 'light' ? 'outlined' : 'filled'}
+                  onClick={() => this.handleCopy(url)}
+                >
                   <span className="text">{copyText || _l('复制')}</span>
-                </TextIcon>
+                </Button>
               ) : (
                 <Tooltip placement="bottom" title={copyTip}>
-                  <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
+                  <Button
+                    className="copy mLeft6"
+                    color="default"
+                    variant={theme === 'light' ? 'outlined' : 'filled'}
+                    onClick={() => this.handleCopy(url)}
+                  >
                     <span className="text">{copyText || _l('复制')}</span>
-                  </TextIcon>
+                  </Button>
                 </Tooltip>
               )
             ) : (
               <Tooltip placement="bottom" title={_l('复制链接')}>
-                <Icon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
-                  <i className="icon-content-copy"></i>
-                </Icon>
+                <Button
+                  aria-label={_l('复制链接')}
+                  className="copy mLeft6"
+                  color="default"
+                  variant={theme === 'light' ? 'outlined' : 'filled'}
+                  icon={<i className="icon-content-copy Font18" />}
+                  onClick={() => this.handleCopy(url)}
+                />
               </Tooltip>
             )}
             {qrVisible && (
               <Popover
-                overlayClassName="qrHoverPanel"
+                arrow={true}
+                classNames={{ root: 'qrHoverPanel' }}
+                noPadding
                 placement="bottomRight"
-                align={{
-                  overflow: { adjustX: true, adjustY: true },
-                }}
                 content={
                   <React.Fragment>
                     <img src={qrurl} />
@@ -331,32 +288,44 @@ export default class ShareUrl extends React.Component {
                 }
               >
                 {showCompletely.qr ? (
-                  <SeparateDisplayButton theme={theme} style={showCompletely.style}>
-                    <i className="icon-qr_code Font22 LineHeight36" style={showCompletely.iconStyle}></i>
-                    <span className="text">{_l('二维码')}</span>
-                  </SeparateDisplayButton>
+                  <Button
+                    color="default"
+                    variant={theme === 'light' ? 'outlined' : 'filled'}
+                    icon={<i className="icon-qr_code Font22" style={showCompletely.iconStyle} />}
+                    style={showCompletely.style}
+                  >
+                    {_l('二维码')}
+                  </Button>
                 ) : (
-                  <Icon theme={theme} className="Hand qrCode">
-                    <i className="icon-qr_code Font22 LineHeight36"></i>
-                  </Icon>
+                  <Button
+                    aria-label={_l('二维码')}
+                    className="qrCode mLeft6"
+                    color="default"
+                    variant={theme === 'light' ? 'outlined' : 'filled'}
+                    icon={<i className="icon-qr_code Font22" />}
+                  />
                 )}
               </Popover>
             )}
 
             {allowSendToChat && !md.global.SysSettings.forbidSuites.includes('6') && (
               <Tooltip placement="bottom" title={_l('发消息')}>
-                <Icon
+                <Button
+                  aria-label={_l('发消息')}
+                  className="mLeft6"
+                  color="default"
+                  variant={theme === 'light' ? 'outlined' : 'filled'}
                   style={chatVisible ? { borderColor: 'var(--color-primary)' } : {}}
-                  theme={theme}
+                  icon={
+                    <i
+                      style={chatVisible ? { color: 'var(--color-primary)' } : { color: 'var(--color-warning)' }}
+                      className={`icon-${chatVisible ? 'arrow-up-border' : 'replyto'} Font18`}
+                    />
+                  }
                   onClick={() => {
                     this.setState({ chatVisible: !chatVisible });
                   }}
-                >
-                  <i
-                    style={chatVisible ? { color: 'var(--color-primary)' } : { color: 'var(--color-warning)' }}
-                    className={`icon-${chatVisible ? 'arrow-up-border' : 'replyto'}`}
-                  ></i>
-                </Icon>
+                />
               </Tooltip>
             )}
           </div>

@@ -1,15 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { DatePicker } from 'antd';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { array, bool, func, string } from 'prop-types';
-import { Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { DatePicker, Select, Tooltip } from 'ming-ui/antd-components';
 import instanceVersionAjax from '../../api/instanceVersion';
 import Search from '../../components/Search';
 import { EXPIRE_LIST } from '../enum';
@@ -21,6 +16,7 @@ export default class HistoryHeader extends Component {
     isPlugin: bool,
     processId: string,
     isSerial: bool,
+    isPartitionSerial: bool,
     onFilter: func,
     onRefresh: func,
     batchIds: array,
@@ -29,6 +25,7 @@ export default class HistoryHeader extends Component {
     isPlugin: false,
     processId: '',
     isSerial: false,
+    isPartitionSerial: false,
     onFilter: () => {},
     onRefresh: () => {},
     batchIds: [],
@@ -48,7 +45,10 @@ export default class HistoryHeader extends Component {
 
     return Object.keys(data)
       .filter(key => !isPlugin || (isPlugin && key !== '6'))
-      .map(key => ({ ...data[key], value: key }));
+      .map(key => {
+        const { text: label, ...item } = data[key];
+        return { ...item, label, value: key };
+      });
   };
 
   formatTime = time => time.map(item => item && moment(item).format('YYYY/MM/DD HH:mm'));
@@ -73,16 +73,14 @@ export default class HistoryHeader extends Component {
   };
 
   render() {
-    const { onRefresh, isSerial, processId, batchIds, archivedItem, expireType } = this.props;
+    const { onRefresh, isSerial, isPartitionSerial, processId, batchIds, archivedItem, expireType } = this.props;
     const { status, isRefresh, showDialog } = this.state;
-    const lang = getCookie('i18n_langtag') || window.getDefaultLangKey();
-    const datePickerLocale = { en: en_US, ja: ja_JP, 'zh-Hans': zh_CN, 'zh-Hant': zh_TW }[lang] || en_US;
     const stopIdsCount = batchIds.filter(o => o.status === 1 && o.instanceType !== -1).length;
     const refreshIdsCount = batchIds.filter(
       o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause) && o.instanceType !== -1,
     ).length;
     const data = this.formatData(FLOW_STATUS);
-    data.unshift({ value: 'all', text: _l('所有状态') });
+    data.unshift({ value: 'all', label: _l('所有状态') });
 
     return (
       <div className="historyHeader">
@@ -134,34 +132,34 @@ export default class HistoryHeader extends Component {
               <Search handleChange={searchVal => this.handleFilter({ searchVal })} />
             </div>
             <div className="statusDropdown">
-              <Dropdown
+              <Select
+                allowClear
                 className="mLeft10 mRight10"
                 style={{ minWidth: 120 }}
-                menuStyle={{ width: '100%' }}
-                border
                 placeholder={_l('所有状态')}
-                value={status}
-                data={data}
-                onChange={status => this.handleFilter({ status })}
+                value={status === 'all' ? undefined : status}
+                options={data}
+                onChange={status => this.handleFilter({ status: status || 'all' })}
               />
             </div>
-            <DatePicker.RangePicker
-              locale={datePickerLocale}
-              showTime
-              ranges={{
-                [_l('此刻')]: () => {
-                  const now = moment();
-                  return [now, now];
-                },
-              }}
-              disabledDate={currentDate => {
-                if (_.isEmpty(archivedItem)) return currentDate > moment();
+            <div>
+              <DatePicker.RangePicker
+                showTime
+                ranges={{
+                  [_l('此刻')]: () => {
+                    const now = moment();
+                    return [now, now];
+                  },
+                }}
+                disabledDate={currentDate => {
+                  if (_.isEmpty(archivedItem)) return currentDate > moment();
 
-                return currentDate < moment(archivedItem.start) || currentDate > moment(archivedItem.end).add(1, 'd');
-              }}
-              showToday={false}
-              onChange={time => this.handleFilter({ time: time || ['', ''] })}
-            />
+                  return currentDate < moment(archivedItem.start) || currentDate > moment(archivedItem.end).add(1, 'd');
+                }}
+                showToday={false}
+                onChange={time => this.handleFilter({ time: time || ['', ''] })}
+              />
+            </div>
 
             {isSerial && (
               <div className="clearFilter colorPrimary" onClick={() => this.setState({ showDialog: true })}>
@@ -202,7 +200,11 @@ export default class HistoryHeader extends Component {
         </Tooltip>
 
         {showDialog && (
-          <SerialProcessDialog processId={processId} onClose={() => this.setState({ showDialog: false })} />
+          <SerialProcessDialog
+            processId={processId}
+            isPartitionSerial={isPartitionSerial}
+            onClose={() => this.setState({ showDialog: false })}
+          />
         )}
       </div>
     );

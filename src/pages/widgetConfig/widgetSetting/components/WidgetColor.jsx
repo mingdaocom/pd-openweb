@@ -22,7 +22,7 @@ const SelectIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.color};
+  background: ${props => props.$color};
   border-radius: 3px;
   cursor: pointer;
   position: relative;
@@ -32,7 +32,7 @@ const SelectIcon = styled.div`
     font-size: 16px;
   }
   .text {
-    color: ${props => (props.textColor >= 192 ? 'var(--color-text-title)' : '#fff')};
+    color: ${props => (props.$textColor >= 192 ? 'var(--color-text-title)' : '#fff')};
   }
   &:hover {
     .text {
@@ -66,7 +66,7 @@ const NormalIconStyle = styled.div`
     position: relative;
     width: 24px;
     height: 24px;
-    background: ${props => props.color};
+    background: ${props => props.$color};
     border-radius: 3px;
     border: 1px solid rgba(0, 0, 0, 0.15);
     .line {
@@ -96,11 +96,11 @@ export default function WidgetColor({ handleChange, color, text, isNormal = true
       }}
     >
       {isNormal ? (
-        <NormalIconStyle color={color}>
+        <NormalIconStyle $color={color}>
           <div>{!color && <div className="line"></div>}</div>
         </NormalIconStyle>
       ) : (
-        <SelectIcon color={color} textColor={getColorCountByBg(color)}>
+        <SelectIcon $color={color} $textColor={getColorCountByBg(color)}>
           <span className="text">{text}</span>
           <div className="hoverMask">
             <Icon icon="task_custom_btn_unfold" />

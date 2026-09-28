@@ -4,13 +4,15 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { BgIconButton, Button, LoadDiv } from 'ming-ui';
+import { BgIconButton, LoadDiv } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
 import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
+import { canUseMingoOtherAssistant } from 'src/components/Mingo/permission';
 import NewRecord from 'src/pages/worksheet/common/newRecord';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { emitter } from 'src/utils/platform/browser/dom';
 import successPng from './success.png';
 import './index.less';
 
@@ -121,7 +123,7 @@ let NewRecordLand = class NewRecordLand extends Component {
       >
         {status === STATUS.NORMAL && (
           <ScaleButton gap={12}>
-            {!mingoActive && !md.global.SysSettings.hideAIBasicFun && allowMingoCreate && (
+            {!mingoActive && allowMingoCreate && canUseMingoOtherAssistant(appPkg.projectId) && (
               <BgIconButton
                 className="mingoCreate"
                 text={_l('AI 填写')}
@@ -170,6 +172,7 @@ let NewRecordLand = class NewRecordLand extends Component {
                 <span className="status">{_l('创建成功')}</span>
                 <div>
                   <Button
+                    type="primary"
                     onClick={() =>
                       this.setState({
                         status: STATUS.NORMAL,
@@ -179,7 +182,8 @@ let NewRecordLand = class NewRecordLand extends Component {
                     {_l('继续创建')}
                   </Button>
                   <Button
-                    type="ghost"
+                    color="primary"
+                    variant="outlined"
                     className="mLeft10"
                     onClick={() => navigateTo(`/worksheet/${worksheetId}${viewId ? `/view/${viewId}` : ''}`)}
                   >

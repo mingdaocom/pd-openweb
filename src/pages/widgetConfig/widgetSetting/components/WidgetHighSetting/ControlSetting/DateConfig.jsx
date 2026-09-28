@@ -1,26 +1,20 @@
 import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown as MingDropdown, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { DATE_SHOW_TYPES } from '../../../../config/setting';
-import { DropdownContent, DropdownPlaceholder, EditInfo, SettingItem } from '../../../../styled';
-import { getAdvanceSetting, getDateToEn, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Support } from 'ming-ui';
+import { Checkbox, Dropdown, Input, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getDateToEn } from 'src/utils/domain/control/date';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
+import { DATE_SHOW_TYPES } from 'src/utils/domain/control/setting';
+import { SYSTEM_DATE_CONTROL } from 'src/utils/domain/control/widget';
+import { DropdownPlaceholder, EditInfo, SettingItem } from '../../../../styled';
 import DateInput from '../../DynamicDefaultValue/inputTypes/DateInput.jsx';
 
 const INTERVAL = [1, 5, 10, 15, 30, 60];
-
-const IntervalWrap = styled(DropdownContent)`
-  .item {
-    line-height: 36px;
-    padding: 0 16px;
-  }
-`;
 
 const ConfigWrap = styled.div`
   display: flex;
@@ -43,12 +37,6 @@ const ConfigWrap = styled.div`
   .display {
     flex: 1;
     padding: 16px 0 0 24px;
-  }
-`;
-
-const TimeDynamicWrap = styled.div`
-  .ming.Menu {
-    width: 100%;
   }
 `;
 
@@ -95,12 +83,17 @@ export function ShowFormatDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={720}
       className="textRegexpVerifyDialog"
-      visible={true}
+      open={true}
+      mask={{ closable: true }}
+      keyboard
       okDisabled={!value || checkError()}
-      onOk={() => onOk(checkError() ? '' : value)}
+      onOk={() => {
+        onOk(checkError() ? '' : value);
+        onClose();
+      }}
       onCancel={onClose}
       title={<span className="bold">{_l('自定义格式')}</span>}
     >
@@ -119,6 +112,11 @@ export function ShowFormatDialog(props) {
         <div className="display">
           <SettingItem style={{ margin: '0' }}>
             <div className="settingItemTitle">{_l('格式化规则')}</div>
+            <div className="textSecondary LineHeight20 mBottom8">
+              {_l(
+                '格式化规则MMM/MMMM/ddd/dddd可以依据当前用户的个人语言，呈现不同的形式。如需指定按英文的规则呈现，可以在格式后添加 #EN#。',
+              )}
+            </div>
             <Input.TextArea value={value} onChange={e => setValue(e.target.value)} />
             <div className="LineHeight20 Red mTop5">{ERROR_OPTIONS[checkError() - 1] || ''}</div>
           </SettingItem>
@@ -128,16 +126,17 @@ export function ShowFormatDialog(props) {
           </SettingItem>
         </div>
       </ConfigWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
 export function ShowFormat(props) {
   const { data, onChange } = props;
   const { showformat = '0' } = getAdvanceSetting(data);
-  const showFormatOptions = DATE_SHOW_TYPES.map(item => {
-    return { ...item, text: `${moment().format(item.format)}` + (item.text ? `（${item.text}）` : '') };
-  });
+  const showFormatOptions = DATE_SHOW_TYPES.map(item => ({
+    ...item,
+    label: `${moment().format(item.format)}${item.text ? `（${item.text}）` : ''}`,
+  }));
   const isCustom = _.isNaN(Number(showformat));
 
   const [visible, setVisible] = useState(false);
@@ -166,14 +165,13 @@ export function ShowFormat(props) {
           </div>
         </EditInfo>
       ) : (
-        <MingDropdown
-          border
+        <Select
           className="w100"
           value={showformat}
-          data={showFormatOptions.concat([
+          options={showFormatOptions.concat([
             {
               value: '5',
-              text: _l('自定义'),
+              label: _l('自定义'),
             },
           ])}
           onChange={value => {
@@ -212,9 +210,15 @@ export function DateHour12(props) {
   return (
     <div className="labelWrap mTop12">
       <Checkbox
-        size="small"
         checked={hour12 === '1'}
-        onClick={checked => onChange(handleAdvancedSettingChange(data, { hour12: checked ? '0' : '1' }))}
+        onChange={event =>
+          onChange(
+            handleAdvancedSettingChange(data, {
+              hour12: !event.target.checked ? '0' : '1',
+            }),
+          )
+        }
+        size="small"
       >
         <span>
           {_l('12小时制')}（{moment().format('h:mm A')}）
@@ -226,6 +230,10 @@ export function DateHour12(props) {
 
 function StartEndTime(props) {
   const { data, onChange, allControls } = props;
+  const controls = _.uniqBy(
+    allControls.concat(SYSTEM_DATE_CONTROL.filter(control => control.controlId === 'ctime')),
+    'controlId',
+  );
   const min = getAdvanceSetting(data, 'min');
   const max = getAdvanceSetting(data, 'max');
   const locationbegin = getAdvanceSetting(data, 'locationbegin');
@@ -235,19 +243,26 @@ function StartEndTime(props) {
   };
 
   return (
-    <TimeDynamicWrap>
+    <Fragment>
       <div className={cx('labelWrap mTop8', { mBottom8: min })}>
         <Checkbox
-          size="small"
           checked={min}
-          onClick={checked =>
+          onChange={event =>
             onChange(
               handleAdvancedSettingChange(
                 data,
-                checked ? { locationbegin: '0', min: '' } : { min: JSON.stringify([]) },
+                !event.target.checked
+                  ? {
+                      locationbegin: '0',
+                      min: '',
+                    }
+                  : {
+                      min: JSON.stringify([]),
+                    },
               ),
             )
           }
+          size="small"
         >
           <span>{_l('起始日期')}</span>
         </Checkbox>
@@ -256,16 +271,22 @@ function StartEndTime(props) {
         <Fragment>
           <DateInput
             {...props}
-            controls={allControls}
+            controls={controls}
             hideSearchAndFun
             dynamicValue={min}
             onDynamicValueChange={value => handleValueChange(value, 'min')}
           />
           <div className="labelWrap mTop8">
             <Checkbox
-              size="small"
               checked={!!locationbegin}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { locationbegin: checked ? '0' : '1' }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    locationbegin: !event.target.checked ? '0' : '1',
+                  }),
+                )
+              }
+              size="small"
             >
               <span>{_l('默认定位到起始日期')}</span>
               <Tooltip
@@ -281,9 +302,15 @@ function StartEndTime(props) {
 
       <div className={cx('labelWrap', { mTop8: min, mBottom8: max })}>
         <Checkbox
-          size="small"
           checked={max}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { max: checked ? '' : JSON.stringify([]) }))}
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                max: !event.target.checked ? '' : JSON.stringify([]),
+              }),
+            )
+          }
+          size="small"
         >
           <span>{_l('结束日期')}</span>
         </Checkbox>
@@ -292,12 +319,12 @@ function StartEndTime(props) {
         <DateInput
           {...props}
           hideSearchAndFun
-          controls={allControls}
+          controls={controls}
           dynamicValue={max}
           onDynamicValueChange={value => handleValueChange(value, 'max')}
         />
       )}
-    </TimeDynamicWrap>
+    </Fragment>
   );
 }
 
@@ -323,9 +350,15 @@ export default function DateConfig(props) {
         {/* <ShowFormat {...props} /> */}
         <div className="labelWrap mTop8">
           <Checkbox
-            size="small"
             checked={!!timeinterval}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { timeinterval: checked ? '' : '1' }))}
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  timeinterval: !event.target.checked ? '' : '1',
+                }),
+              )
+            }
+            size="small"
           >
             <span>{_l('预设分钟间隔')}</span>
             <Tooltip
@@ -339,24 +372,18 @@ export default function DateConfig(props) {
         {timeinterval && (
           <Dropdown
             trigger={'click'}
-            visible={timeIntervalVisible}
-            onVisibleChange={v => setVisible({ timeIntervalVisible: v })}
-            overlay={
-              <IntervalWrap>
-                {INTERVAL.map(v => (
-                  <div
-                    key={v}
-                    className="item"
-                    onClick={() => {
-                      onChange(handleAdvancedSettingChange(data, { timeinterval: String(v) }));
-                      setVisible({ timeIntervalVisible: false });
-                    }}
-                  >
-                    {_l('%0分钟', v)}
-                  </div>
-                ))}
-              </IntervalWrap>
-            }
+            open={timeIntervalVisible}
+            onOpenChange={v => setVisible({ timeIntervalVisible: v })}
+            menu={{
+              items: INTERVAL.map(v => ({
+                key: v,
+                label: _l('%0分钟', v),
+                onClick: () => {
+                  onChange(handleAdvancedSettingChange(data, { timeinterval: String(v) }));
+                  setVisible({ timeIntervalVisible: false });
+                },
+              })),
+            }}
           >
             <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="var(--color-text-primary)">
               {_l('%0分钟', timeinterval)}

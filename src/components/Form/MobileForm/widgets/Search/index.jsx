@@ -1,14 +1,15 @@
-import React, { Fragment, memo, useCallback, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import {
   clearValue,
   dealAuthAccount,
   getParamsByConfigs,
+  getSearchMappingControl,
   getShowValue,
   handleUpdateApi,
 } from '../../../core/searchUtils';
@@ -28,6 +29,13 @@ const SearchBox = props => {
       setData({});
       setKeywords('');
     });
+  };
+
+  const cancelSearch = () => {
+    const currentPost = postList.current;
+    postList.current = null;
+    currentPost?.abort();
+    setLoading(false);
   };
 
   const handleSearch = (props, keywords) => {
@@ -50,7 +58,9 @@ const SearchBox = props => {
     if (type === 50 && (!itemsource || !itemtitle)) return alert(_l('下拉框的必填映射项未配置(选项列表，选项名)'), 3);
     // 有配置api和请求参数
     if (postList.current) {
-      postList.current.abort();
+      const previousPost = postList.current;
+      postList.current = null;
+      previousPost.abort();
     }
 
     setLoading(true);
@@ -72,45 +82,59 @@ const SearchBox = props => {
       params.formId = window.publicWorksheetShareId;
     }
 
-    postList.current = worksheetAjax.excuteApiQuery(params);
+    const currentPost = worksheetAjax.excuteApiQuery(params);
+    postList.current = currentPost;
 
-    postList.current.then(res => {
-      if (res.code === 20008) {
-        setIsSuccess(false);
+    currentPost
+      .then(res => {
+        if (postList.current !== currentPost) return;
+
+        if (res.code === 20008) {
+          setIsSuccess(false);
+          setData({});
+          upgradeVersionDialog({
+            projectId,
+            okText: _l('立即充值'),
+            hint: _l('信用点不足，请联系管理员充值'),
+            explainText: <div></div>,
+            onOk: () => {
+              location.href = pathCompletion(`/admin/valueaddservice/${projectId}`);
+            },
+          });
+          return;
+        }
+
+        if (res.message) {
+          alert(res.message, 3);
+          setIsSuccess(false);
+          setData({});
+          return;
+        }
+
+        setIsSuccess(true);
+        setData(res.apiQueryData || {});
+
+        // 按钮直接更新
+        if (type === 49) {
+          handleUpdate(res.apiQueryData);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (postList.current !== currentPost) return;
+
+        postList.current = null;
         setLoading(false);
-        setData({});
-        upgradeVersionDialog({
-          projectId,
-          okText: _l('立即充值'),
-          hint: _l('信用点不足，请联系管理员充值'),
-          explainText: <div></div>,
-          onOk: () => {
-            location.href = pathCompletion(`/admin/valueaddservice/${projectId}`);
-          },
-        });
-        return;
-      }
-
-      if (res.message) {
-        alert(res.message, 3);
-        setIsSuccess(false);
-        setLoading(false);
-        setData({});
-        return;
-      }
-
-      setIsSuccess(true);
-      setLoading(false);
-      setData(res.apiQueryData || {});
-
-      // 按钮直接更新
-      if (type === 49) {
-        handleUpdate(res.apiQueryData);
-      }
-    });
+      });
   };
 
-  const realTimeSearch = useCallback(_.debounce(handleSearch, 500), []);
+  useEffect(
+    () => () => {
+      postList.current?.abort();
+      postList.current = null;
+    },
+    [],
+  );
 
   const getOptions = () => {
     return safeParse((data || {})[itemsource] || '[]');
@@ -130,11 +154,8 @@ const SearchBox = props => {
     handleUpdate({ ...data, ...rowData });
   };
 
-  const getMappingItem = i => {
-    const responseMap = safeParse(responsemap || '[]');
-    const curMap = _.find(responseMap, re => re.id === i && !re.pid && !re.subid);
-    return curMap ? _.find(formData, c => c.controlId === curMap.cid) : '';
-  };
+  const responseMap = safeParse(responsemap || '[]');
+  const getMappingItem = id => getSearchMappingControl(responseMap, formData, id);
 
   const renderListItem = item => {
     const itemDesc = safeParse(itemdesc || '[]');
@@ -203,12 +224,12 @@ const SearchBox = props => {
       realTimeSearch={key => {
         setKeywords(key);
         if (key.length < parseInt(min)) return;
-        realTimeSearch(props, key);
+        handleSearch(props, key);
       }}
       disabled={disabled}
       formDisabled={formDisabled}
       handleSelect={handleSelect}
-      clearData={() => setData({})}
+      cancelSearch={cancelSearch}
     />
   );
 };

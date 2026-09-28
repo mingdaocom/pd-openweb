@@ -4,8 +4,8 @@ import moment from 'moment';
 import groupController from 'src/api/group';
 import * as actions from 'src/pages/chat/redux/actions';
 import store from 'src/redux/configureStore';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getRequest } from 'src/utils/platform/browser/device';
 import './index.less';
 
 export default class GroupValidate extends React.Component {

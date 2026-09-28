@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
 import { flatten } from 'lodash';
-import { genControlsByWidgets, genWidgetsByControls } from '../util';
+import { genControlsByWidgets, genWidgetsByControls } from 'src/utils/domain/control/editorLayout';
 import DisplayRow from './displayRow';
 
 export default function PublicFormDisplay(props) {

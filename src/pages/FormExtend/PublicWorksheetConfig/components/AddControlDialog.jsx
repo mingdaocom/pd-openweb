@@ -1,17 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dialog, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { H3 } from 'worksheet/components/Basics';
 
 export default class AddConntrol extends React.Component {
   render() {
     const { defaultText, onOk, onClose } = this.props;
     return (
-      <Dialog
+      <Modal
         title={_l('新建文本字段')}
         width={480}
-        visible
-        anim={false}
+        open
         okText={_l('创建')}
         onCancel={onClose}
         onOk={() => {
@@ -29,14 +28,14 @@ export default class AddConntrol extends React.Component {
         <H3 style={{ margin: '0 0 10px' }}>{_l('字段名称')}</H3>
         <Input
           defaultValue={defaultText}
-          manualRef={input => {
-            this.input = input;
-            if (input) input.focus();
+          ref={input => {
+            this.input = input?.input;
+            if (this.input) this.input.focus();
           }}
           style={{ width: '100%' }}
           placeholder={_l('字段名称')}
         />
-      </Dialog>
+      </Modal>
     );
   }
 }

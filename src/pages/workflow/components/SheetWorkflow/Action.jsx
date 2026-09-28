@@ -1,17 +1,19 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Dropdown, Menu } from 'antd';
 import { ActionSheet, Button, Dialog as MobileDialog, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Icon, UserHead } from 'ming-ui';
+import { Icon, UserHead } from 'ming-ui';
+import { Checkbox, Dropdown, Modal } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import SelectUser from 'mobile/components/SelectUser';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const isMobile = browserIsMobile();
 
-const MenuItem = Menu.Item;
+const SELECT_ALL_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 23, paddingInlineEnd: 0 },
+};
 
 const WrapCon = styled.div`
   &.hoverBtnWrap .btn {
@@ -126,11 +128,17 @@ function UpdateUserDialog(props) {
   };
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
       width={640}
-      title={_l('调整负责人')}
-      description={_l('移除尚未进行操作的负责人，添加新的成员；您的操作仅对当前流程的本次运行生效')}
+      title={
+        <Fragment>
+          <div>{_l('调整负责人')}</div>
+          <div className="Font13 Normal textSecondary mTop8">
+            {_l('移除尚未进行操作的负责人，添加新的成员；您的操作仅对当前流程的本次运行生效')}
+          </div>
+        </Fragment>
+      }
       onCancel={onCancel}
       onOk={() => {
         const ids = selectAccountIds.concat(newAccounts.map(data => data.accountId));
@@ -150,10 +158,13 @@ function UpdateUserDialog(props) {
                 }
               }}
             >
-              <Checkbox className="flexRow bold" checked={selectAccountIds.length === currentWorkItems.length} />
-              <div className="bold mLeft15">{`${_l('原负责人')}${
-                selectAccountIds.length ? `(${selectAccountIds.length})` : ''
-              }`}</div>
+              <Checkbox
+                className="flexRow bold"
+                checked={selectAccountIds.length === currentWorkItems.length}
+                styles={SELECT_ALL_CHECKBOX_STYLES}
+              >
+                {`${_l('原负责人')}${selectAccountIds.length ? `(${selectAccountIds.length})` : ''}`}
+              </Checkbox>
             </div>
           )}
           {currentWorkItems.map(data => (
@@ -206,7 +217,7 @@ function UpdateUserDialog(props) {
           </div>
         </div>
       </UpdateUserWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -403,7 +414,9 @@ export default function WorkflowAction(props) {
   const allowApproval = allowBatch && workItem;
   const allOverrule = '5' in btnMap && fastApprove && workItem;
   const allowCallBack = callBackType !== -1 && !allOverrule && fastApprove && workItem && !!backFlowNodes.length;
+  const hasCcWorkItems = [0, 3, 4].includes(type);
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
+  const [modal, modalContextHolder] = Modal.useModal();
   const urgeDisable = window[`urgeDisable-workId-${workId}`] || data.urgeDisable || false;
   const allowReset = status === 6 && (isCharge || createAccount.accountId === md.global.Account.accountId);
   const translateInfo = getTranslateInfo(appId, data.parentId, flowNodeId);
@@ -419,9 +432,9 @@ export default function WorkflowAction(props) {
         onConfirm: () => onSkip(data),
       });
     } else {
-      Dialog.confirm({
+      modal.confirm({
         title: _l('确认跳过当前节点 ?'),
-        description,
+        content: description,
         onOk: () => onSkip(data),
       });
     }
@@ -435,7 +448,7 @@ export default function WorkflowAction(props) {
         onConfirm: () => onEndInstance(data),
       });
     } else {
-      Dialog.confirm({
+      modal.confirm({
         title: _l('确认中止此条流程 ?'),
         onOk: () => onEndInstance(data),
       });
@@ -448,59 +461,50 @@ export default function WorkflowAction(props) {
     }
   };
 
-  const renderDropdownOverlay = ({ width }) => {
-    return (
-      <Menu style={{ width, borderRadius: 4 }}>
-        <MenuItem
-          key="urge"
-          icon={<Icon icon="access_alarm" className="Font17 textSecondary pRight5" />}
-          className="pLeft15 pRight15"
-          style={{ height: 36, opacity: urgeDisable ? 0.6 : 1 }}
-          onClick={handleUrge}
-        >
-          {urgeDisable ? _l('已催') : _l('催办')}
-        </MenuItem>
-        <MenuItem
-          key="skip"
-          icon={<Icon icon="calendar-task" className="Font17 textSecondary pRight5" />}
-          className="pLeft15 pRight15"
-          style={{ height: 36 }}
-          onClick={handleSkip}
-        >
-          {_l('跳过当前节点')}
-        </MenuItem>
-        <MenuItem
-          key="user"
-          icon={<Icon icon="ic-adjust-department" className="Font17 textSecondary pRight5" />}
-          className="pLeft15 pRight15"
-          style={{ height: 36 }}
-          onClick={() => setUpdateUserDialogVisible(true)}
-        >
-          {_l('调整当前节点负责人')}
-        </MenuItem>
-        {!!backFlowNodes.length && (
-          <MenuItem
-            key="repeal"
-            icon={<Icon icon="repeal-o" className="Font17 textSecondary pRight5" />}
-            className="pLeft15 pRight15"
-            style={{ height: 36 }}
-            onClick={() => onAction(data, 'return')}
-          >
-            {_l('退回')}
-          </MenuItem>
-        )}
-        <MenuItem
-          key="end"
-          className="deleteItem pLeft15 pRight15"
-          style={{ height: 36, color: 'var(--color-error) !important' }}
-          icon={<Icon icon="close" className="Font17 pRight5" />}
-          onClick={handleEndInstance}
-        >
-          {_l('中止')}
-        </MenuItem>
-      </Menu>
-    );
-  };
+  const getDropdownMenuItems = () =>
+    [
+      {
+        key: 'urge',
+        icon: <Icon icon="access_alarm" className="Font17 textSecondary" />,
+        className: 'pLeft15 pRight15',
+        style: { height: 36, opacity: urgeDisable ? 0.6 : 1 },
+        label: urgeDisable ? _l('已催') : _l('催办'),
+        onClick: handleUrge,
+      },
+      {
+        key: 'skip',
+        icon: <Icon icon="calendar-task" className="Font17 textSecondary" />,
+        className: 'pLeft15 pRight15',
+        style: { height: 36 },
+        label: _l('跳过当前节点'),
+        onClick: handleSkip,
+      },
+      {
+        key: 'user',
+        icon: <Icon icon="ic-adjust-department" className="Font17 textSecondary" />,
+        className: 'pLeft15 pRight15',
+        style: { height: 36 },
+        label: _l('调整当前节点负责人'),
+        onClick: () => setUpdateUserDialogVisible(true),
+      },
+      !!backFlowNodes.length && {
+        key: 'repeal',
+        icon: <Icon icon="repeal-o" className="Font17 textSecondary" />,
+        className: 'pLeft15 pRight15',
+        style: { height: 36 },
+        label: _l('退回'),
+        onClick: () => onAction(data, 'return'),
+      },
+      {
+        key: 'end',
+        danger: true,
+        className: 'deleteItem pLeft15 pRight15',
+        style: { height: 36 },
+        icon: <Icon icon="close" className="Font17" />,
+        label: _l('中止'),
+        onClick: handleEndInstance,
+      },
+    ].filter(Boolean);
 
   const handleMobileMoreAction = () => {
     let actionHandler = null;
@@ -543,7 +547,9 @@ export default function WorkflowAction(props) {
       <DialogCon
         data={{
           ...data,
-          currentWorkItems: (data.currentWorkItems || []).filter(c => c.operationType === 0),
+          currentWorkItems: (data.currentWorkItems || []).filter(
+            c => c.operationType === 0 && (!hasCcWorkItems || c.type !== 5),
+          ),
         }}
         appId={appId}
         projectId={projectId}
@@ -570,10 +576,15 @@ export default function WorkflowAction(props) {
       );
       return (
         <Fragment>
+          {modalContextHolder}
           {isMobile ? (
             content
           ) : (
-            <Dropdown trigger={['click']} placement="top" overlay={renderDropdownOverlay({ width: '100%' })}>
+            <Dropdown
+              trigger={['click']}
+              placement="top"
+              menu={{ items: getDropdownMenuItems(), style: { minWidth: '100%' } }}
+            >
               {content}
             </Dropdown>
           )}
@@ -587,6 +598,7 @@ export default function WorkflowAction(props) {
 
   return (
     <WrapCon className={cx('flexRow valignWrapper approveBtnWrapper', className, { hoverBtnWrap: !isMobile })}>
+      {modalContextHolder}
       <Fragment>
         {allowApproval && (
           <div className="btn pass" onClick={() => onAction(data, 'pass')}>
@@ -646,7 +658,11 @@ export default function WorkflowAction(props) {
             <Icon className="Font20 textSecondary" icon="arrow-up-border" />
           </div>
         ) : (
-          <Dropdown trigger={['click']} placement="topRight" overlay={renderDropdownOverlay({ width: 200 })}>
+          <Dropdown
+            trigger={['click']}
+            placement="topRight"
+            menu={{ items: getDropdownMenuItems(), style: { minWidth: 200 } }}
+          >
             <Icon className="Font20 pointer textSecondary" icon="more_horiz" />
           </Dropdown>
         ))}

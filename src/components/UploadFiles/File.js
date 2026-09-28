@@ -2,23 +2,27 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
 import Progress from 'ming-ui/components/Progress';
 import { addLinkFile } from 'ming-ui/functions';
 import attachmentAjax from 'src/api/attachment';
 import kcService from 'src/pages/kc/api/service';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import { downloadFile, formatFileSize, getClassNameByExt, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { formatTime, getFileExtends, isDocument } from './utils';
+import { formatFileSize, formatMediaDuration, getFileExtends, isDocument } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
 };
+const UPLOAD_FILE_MENU_STYLE = { minWidth: 120 };
+// 带签名的图片地址不能改写缩放参数，否则签名会失效。
+const shouldPreserveImageUrl = (url, ext) => /^\.(heic|heif)$/i.test(ext) || /[?&]token=/.test(url);
 
 export default class FileComponent extends Component {
   static propTypes = {
@@ -186,7 +190,6 @@ export default class FileComponent extends Component {
       dialogTitle: _l('选择路径'),
       isFolderNode: 1,
       selectedItems: null,
-      zIndex: 9999,
     })
       .then(result => {
         saveToKnowledge(nodeType, sourceData)
@@ -194,8 +197,8 @@ export default class FileComponent extends Component {
           .then(function () {
             alert(_l('保存成功'));
           })
-          .catch(function () {
-            alert(_l('保存失败'), 2);
+          .catch(function (_requestError) {
+            alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
           });
       })
       .catch(() => {});
@@ -238,14 +241,10 @@ export default class FileComponent extends Component {
           })
           .catch(err => {
             console.error(err);
-            alert(_l('修改失败'), 3);
+            alertIfNotUnauthorized(err, _l('修改失败'), 3);
           });
       },
     });
-  };
-  handleOpenMenu = event => {
-    event.stopPropagation();
-    this.setState({ menuVisible: true });
   };
   handleConfirmDelete(fn) {
     this.setState({
@@ -287,7 +286,7 @@ export default class FileComponent extends Component {
         {this.renderFileImage(fileResponse.previewUrl)}
         <div className="UploadFiles-video">
           <i className="icon icon-video2" />
-          {formatTime(fileResponse.duration)}
+          {formatMediaDuration(fileResponse.duration)}
         </div>
       </Fragment>
     );
@@ -480,8 +479,7 @@ export default class FileComponent extends Component {
     let isPicture = RegExpValidator.fileIsPicture(fileResponse.fileExt);
     let isMDLink = fileResponse.viewType === 5;
     const url = fileResponse.previewUrl || fileResponse.url || '';
-    const isUrlPreview =
-      window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(fileResponse.fileExt?.toLocaleUpperCase());
+    const isUrlPreview = shouldPreserveImageUrl(url, fileResponse.fileExt);
     return isPicture ? (
       <Fragment>
         {isKc ? (
@@ -497,7 +495,7 @@ export default class FileComponent extends Component {
               : `${
                   url.indexOf('imageView2') > -1
                     ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-                    : url + '&imageView2/1/w/200/h/140'
+                    : `${url}${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`
                 }`,
         )}
       </Fragment>
@@ -671,7 +669,9 @@ export default class FileComponent extends Component {
           </div>
         ) : null}
         {this.renderFileImage(
-          `${fileResponse.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`)}`,
+          shouldPreserveImageUrl(fileResponse.previewUrl, fileResponse.ext)
+            ? fileResponse.previewUrl
+            : fileResponse.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140'),
         )}
       </Fragment>
     ) : (isDoc || isVid) && fileResponse.previewUrl && viewImage ? (
@@ -709,7 +709,7 @@ export default class FileComponent extends Component {
   renderMDPenel(fileResponse, index) {
     const { hideDownload = false, handleOpenControlAttachmentInNewTab } = this.props;
     let browse = true;
-    let { penelVisible, moreVisible, isDelete } = this.state;
+    let { penelVisible, moreVisible, isDelete, menuVisible } = this.state;
     let isKc = !!fileResponse.refId;
     let isPicture =
       RegExpValidator.fileIsPicture(fileResponse.ext) ||
@@ -749,6 +749,38 @@ export default class FileComponent extends Component {
     let textClass = cx('UploadFiles-panelTextName', {
       colorPrimary: !isPicture,
     });
+    const menuItems = [
+      handleOpenControlAttachmentInNewTab &&
+        _.isEmpty(window.shareState) && {
+          key: 'open-new-page',
+          icon: <Icon icon="launch" />,
+          label: _l('新页面打开'),
+          onClick: ({ domEvent }) => this.handleOpenNewPage(domEvent),
+        },
+      !isMDLink &&
+        !hideDownload && {
+          key: 'share',
+          icon: <Icon icon="share" />,
+          label: _l('分享'),
+          onClick: ({ domEvent }) => this.handleShare(domEvent, isDownload),
+        },
+      !hideDownload && {
+        key: 'save-to-knowledge',
+        icon: <Icon icon="cloud_upload" />,
+        label: _l('保存到知识'),
+        onClick: ({ domEvent }) => this.handleSaveToKc(domEvent, isDownload),
+      },
+      isMDLink &&
+        fileResponse.accountId === md.global.Account.accountId && {
+          key: 'edit-link',
+          icon: <Icon icon="hr_edit" />,
+          label: _l('编辑'),
+          onClick: ({ domEvent }) => {
+            domEvent.stopPropagation();
+            this.handleEditLink();
+          },
+        },
+    ].filter(Boolean);
 
     return (
       <div
@@ -828,69 +860,34 @@ export default class FileComponent extends Component {
                 (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
                 !md.global.Account.isPortal &&
                 !_.get(window, 'shareState.shareId') && (
-                  <div
-                    className="UploadFiles-panelBtn"
-                    onClick={event => {
-                      this.handleOpenMenu(event);
+                  <Dropdown
+                    trigger={['click']}
+                    open={menuVisible}
+                    onOpenChange={open => this.setState({ menuVisible: open })}
+                    placement="bottomRight"
+                    menu={{
+                      style: UPLOAD_FILE_MENU_STYLE,
+                      items: menuItems,
+                      onClick: () => {
+                        this.setState({ menuVisible: false });
+                      },
                     }}
                   >
-                    <i className={cx('icon-more_horiz', { colorPrimary: !!moreVisible })} />
-                    <Tooltip title={_l('更多')}>
-                      <div
-                        className="UploadFiles-panelBtnMask"
-                        onMouseEnter={() => {
-                          this.setState({ moreVisible: true });
-                        }}
-                        onMouseLeave={() => {
-                          this.setState({ moreVisible: false });
-                        }}
-                      />
-                    </Tooltip>
-                    <Menu
-                      style={{ width: 120, right: 0, left: 'inherit', top: 0, zIndex: 100 }}
-                      className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
-                      onClickAway={() => this.setState({ menuVisible: false })}
-                    >
-                      {handleOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
-                        <MenuItem
-                          onClick={event => {
-                            this.handleOpenNewPage(event);
+                    <div className="UploadFiles-panelBtn" onClick={event => event.stopPropagation()}>
+                      <i className={cx('icon-more_horiz', { colorPrimary: !!moreVisible })} />
+                      <Tooltip title={_l('更多')}>
+                        <div
+                          className="UploadFiles-panelBtnMask"
+                          onMouseEnter={() => {
+                            this.setState({ moreVisible: true });
                           }}
-                        >
-                          <Icon icon="launch" />
-                          <span className="UploadFiles-menuWrapper-text">{_l('新页面打开')}</span>
-                        </MenuItem>
-                      )}
-                      {/* 是否不可下载 且 不可保存到知识和分享 */}
-                      {!isMDLink && !hideDownload && (
-                        <MenuItem
-                          onClick={event => {
-                            this.handleShare(event, isDownload);
+                          onMouseLeave={() => {
+                            this.setState({ moreVisible: false });
                           }}
-                        >
-                          <Icon icon="share" />
-                          <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
-                        </MenuItem>
-                      )}
-                      {/* 是否不可下载 且 不可保存到知识和分享 */}
-                      {!hideDownload && (
-                        <MenuItem
-                          onClick={event => {
-                            this.handleSaveToKc(event, isDownload);
-                          }}
-                        >
-                          <Icon icon="cloud_upload" />
-                          <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
-                        </MenuItem>
-                      )}
-                      {isMDLink && fileResponse.accountId === md.global.Account.accountId && (
-                        <MenuItem onClick={this.handleEditLink}>
-                          <Icon icon="hr_edit" />
-                          <span className="UploadFiles-menuWrapper-text">{_l('编辑')}</span>
-                        </MenuItem>
-                      )}
-                    </Menu>
-                  </div>
+                        />
+                      </Tooltip>
+                    </div>
+                  </Dropdown>
                 )}
             </div>
           </div>

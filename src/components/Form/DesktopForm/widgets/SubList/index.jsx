@@ -9,7 +9,7 @@ export default class SubList extends React.Component {
   static contextType = RecordInfoContext;
   static propTypes = {
     from: PropTypes.number,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({}), PropTypes.arrayOf(PropTypes.shape({}))]),
     worksheetId: PropTypes.string,
     recordId: PropTypes.string,
     dataSource: PropTypes.string,

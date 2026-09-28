@@ -2,10 +2,12 @@ import React, { Fragment, useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Switch } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Modal, Switch } from 'ming-ui/antd-components';
 import aiModelAuthAjax from 'src/api/dataLimit.js';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import Search from 'src/pages/workflow/components/Search';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import EditRuleDrawer from './EditRuleDrawer';
 
 const Description = styled.div`
@@ -122,26 +124,32 @@ export default function AIModelRule(props) {
   };
 
   const handleDelete = record => {
-    Dialog.confirm({
-      title: <div className="ellipsis">{_l('确认删除规则"%0"', record.name)}</div>,
-      children: <div>{_l('删除后无法恢复，请谨慎操作')}</div>,
+    Modal.confirm({
+      title: <div className="ellipsis textError">{_l('确认删除规则"%0"', record.name)}</div>,
+      content: <div>{_l('删除后无法恢复，请谨慎操作')}</div>,
       okText: _l('删除'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         aiModelAuthAjax
-          .deleteAIModelAuthRule({ projectId, ruleId: record.id })
+          .deleteAIModelAuthRule({
+            projectId,
+            ruleId: record.id,
+          })
           .then(res => {
             if (res) {
               const nextList = list.filter(r => r.id !== record.id);
-
-              setState({ list: nextList });
+              setState({
+                list: nextList,
+              });
               updateDefaultList(aiModelRuleList.filter(r => r.id !== record.id));
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败'), 2);
             }
           })
-          .catch(() => alert(_l('删除失败'), 2));
+          .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('删除失败'), 2));
       },
     });
   };
@@ -162,7 +170,7 @@ export default function AIModelRule(props) {
           alert(isEnable ? _l('开启失败') : _l('关闭失败'), 2);
         }
       })
-      .catch(() => alert(isEnable ? _l('开启失败') : _l('关闭失败'), 2));
+      .catch(_requestError2 => alertIfNotUnauthorized(_requestError2, isEnable ? _l('开启失败') : _l('关闭失败'), 2));
   };
 
   const columns = useMemo(
@@ -192,7 +200,15 @@ export default function AIModelRule(props) {
         dataIndex: 'status',
         title: _l('状态'),
         width: 100,
-        render: (text, record) => <Switch checked={record.isEnable} onClick={() => handleToggleStatus(record)} />,
+        render: (text, record) => (
+          <Switch
+            checked={record.isEnable}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return handleToggleStatus(record);
+            }}
+          />
+        ),
       },
       {
         dataIndex: 'action',
@@ -256,11 +272,11 @@ export default function AIModelRule(props) {
           />
           <div className="flex" />
           <Button
-            className="pLeft16 pRight16"
+            type="primary"
+            icon={<Icon icon="add" className="Font18" />}
             onClick={() => setState({ showDrawer: true, actionType: 'add', actionRecord: {} })}
           >
-            <Icon icon="add" className="Font18 mRight3 TxtMiddle" />
-            <span className="TxtMiddle">{_l('规则')}</span>
+            {_l('规则')}
           </Button>
         </div>
 

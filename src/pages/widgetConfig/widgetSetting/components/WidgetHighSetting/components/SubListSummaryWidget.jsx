@@ -1,13 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon } from 'ming-ui';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { getSummaryInfo } from 'src/utils/record';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Icon } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { getSummaryInfo } from 'src/utils/domain/worksheet/record';
 import AddFields from '../../CustomEvent/CustomAction/AddFields';
 
-const SubListSummaryDialog = styled(Dialog)`
+const SubListSummaryDialog = styled(Modal)`
   .summaryContent {
     .summaryItem {
       display: flex;
@@ -68,9 +69,15 @@ export default function SubListSummaryWidget(props) {
 
   return (
     <SubListSummaryDialog
-      visible
-      title={_l('统计设置')}
-      description={_l('设置需要统计的字段及其统计方式')}
+      open
+      mask={{ closable: true }}
+      keyboard
+      title={
+        <Fragment>
+          <div>{_l('统计设置')}</div>
+          <div className="Font13 Normal textSecondary mTop8">{_l('设置需要统计的字段及其统计方式')}</div>
+        </Fragment>
+      }
       width={480}
       onCancel={onClose}
       onOk={() => {
@@ -91,18 +98,16 @@ export default function SubListSummaryWidget(props) {
               if (!currentControl) return null;
               const summaryTypeOptions = getTypeList(currentControl)
                 .filter(_.identity)
-                .map(i => ({ text: i.label, value: i.value }));
+                .map(i => ({ label: i.label, value: i.value }));
               return (
                 <div className="summaryItem">
                   <div className="summaryControlName overflow_ellipsis">
                     <span className="mLeft12 mRight12">{currentControl.controlName}</span>
                   </div>
-                  <Dropdown
+                  <Select
                     className="flex"
-                    border
-                    isAppendToBody
                     value={s.type}
-                    data={summaryTypeOptions}
+                    options={summaryTypeOptions}
                     onChange={value => {
                       const newList = settingList.map((item, idx) => (idx === index ? { ...item, type: value } : item));
                       setSettingList(newList);

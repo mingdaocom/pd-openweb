@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend-latest';
 import { useDrag } from 'react-dnd-latest';
-import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import { getNextOpenMoreKey, ITEM_TYPE } from './constants';
 import { renderCustomBtnStyleIcon } from './icon';
-
-const confirm = Dialog.confirm;
 
 function ActionItemRow({ btn, editBtn, deleteBtn, handleCopy, toggleEnable, disable, openMoreKey, setOpenMoreKey }) {
   const { name = '', icon = '', color = '', btnId = '', iconUrl, isAllView, status } = btn;
@@ -19,58 +16,50 @@ function ActionItemRow({ btn, editBtn, deleteBtn, handleCopy, toggleEnable, disa
     setOpenMoreKey(prev => getNextOpenMoreKey(prev, visible, moreKey));
   };
 
-  const moreMenu = (
-    <Menu className="customBtnGroupedGroupDropdownMenu" onClick={() => setOpenMoreKey(null)}>
-      <Menu.Item
-        key="edit"
-        className="customBtnGroupedGroupMenuItem"
-        onClick={() => {
-          editBtn(btnId);
-        }}
-      >
-        <Icon icon="edit" className="Font16 mRight8 textSecondary" />
-        {_l('编辑')}
-      </Menu.Item>
-      <Menu.Item
-        key="copy"
-        className="customBtnGroupedGroupMenuItem"
-        onClick={() => {
-          confirm({
-            title: <span className="WordBreak Block">{_l('复制自定义动作“%0”', name)}</span>,
-            onOk: () => {
-              handleCopy(btnId);
-            },
-          });
-        }}
-      >
-        <Icon icon="copy" className="Font16 mRight8 textSecondary" />
-        {_l('复制')}
-      </Menu.Item>
-      <Menu.Item
-        key="enable"
-        danger={!isDisabled}
-        className={cx('customBtnGroupedGroupMenuItem', { customBtnGroupedGroupMenuItemDanger: !isDisabled })}
-        onClick={() => {
-          toggleEnable(btnId, isDisabled ? 1 : 0);
-        }}
-      >
-        <Icon icon={isDisabled ? 'arrow-right-tip' : 'rounded_square'} className="Font16 mRight8 textSecondary" />
-        {isDisabled ? _l('启用') : _l('停用')}
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item
-        key="del"
-        danger
-        className="customBtnGroupedGroupMenuItem customBtnGroupedGroupMenuItemDanger"
-        onClick={() => {
-          deleteBtn(btnId, isAllView);
-        }}
-      >
-        <Icon icon="trash" className="Font18 mRight8" />
-        {_l('删除')}
-      </Menu.Item>
-    </Menu>
-  );
+  const moreMenuItems = [
+    {
+      key: 'edit',
+      icon: <Icon icon="edit" className="Font16 textSecondary" />,
+      label: _l('编辑'),
+      onClick: () => {
+        editBtn(btnId);
+      },
+    },
+    {
+      key: 'copy',
+      icon: <Icon icon="copy" className="Font16 textSecondary" />,
+      label: _l('复制'),
+      onClick: () => {
+        Modal.confirm({
+          title: <span className="WordBreak Block">{_l('复制自定义动作“%0”', name)}</span>,
+          content: _l('将复制该自定义动作及其对应工作流，复制后的工作流与原工作流配置一致'),
+          onOk: () => {
+            handleCopy(btnId);
+          },
+        });
+      },
+    },
+    {
+      key: 'enable',
+      icon: <Icon icon={isDisabled ? 'arrow-right-tip' : 'rounded_square'} className="Font16" />,
+      label: isDisabled ? _l('启用') : _l('停用'),
+      onClick: () => {
+        toggleEnable(btnId, isDisabled ? 1 : 0);
+      },
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'del',
+      danger: true,
+      icon: <Icon icon="trash" className="Font18" />,
+      label: _l('删除'),
+      onClick: () => {
+        deleteBtn(btnId, isAllView);
+      },
+    },
+  ];
 
   return (
     <div className={cx('customBtn alignItemsCenter', 'customBtnGroupedRow', { disabledCustomBtn: isDisabled })}>
@@ -97,13 +86,17 @@ function ActionItemRow({ btn, editBtn, deleteBtn, handleCopy, toggleEnable, disa
         </span>
       </span>
       <Dropdown
-        overlay={moreMenu}
         trigger={['click']}
         placement="bottomRight"
         align={{ overflow: { adjustX: true, adjustY: true } }}
         getPopupContainer={() => document.body}
-        visible={openMoreKey === moreKey}
-        onVisibleChange={handleDropdownVisibleChange}
+        open={openMoreKey === moreKey}
+        onOpenChange={handleDropdownVisibleChange}
+        menu={{
+          items: moreMenuItems,
+          style: { minWidth: 180 },
+          onClick: () => setOpenMoreKey(null),
+        }}
       >
         <span
           className="customBtnGroupedRowMore Hand InlineFlex alignItemsCenter justifyContentCenter"

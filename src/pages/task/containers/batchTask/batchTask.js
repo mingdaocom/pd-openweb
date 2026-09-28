@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Checkbox, Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import Store from 'src/redux/configureStore';
-import { htmlEncodeReg } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
 import config from '../../config/config';
 import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
 import { checkIsProject, errorMessage, taskStatusDialog } from '../../utils/utils';
@@ -204,11 +205,14 @@ BatchTask.initEvent = function () {
   $batchTask.on('click', '#batchDelTask', () => {
     BatchTask.loadBatchData(1);
 
-    Dialog.confirm({
-      dialogClasses: 'deleteTaskBox',
-      title: _l('彻底删除任务'),
+    Modal.confirm({
+      wrapClassName: 'deleteTaskBox',
+      title: <span className="textError">{_l('彻底删除任务')}</span>,
       closable: false,
-      children: (
+      okButtonProps: {
+        danger: true,
+      },
+      content: (
         <div className="Font14 mBottom20">
           {_l('注意：此操作将彻底删除任务数据，无法恢复。')}
           <span className="deleteFolderColor">{_l('请确认您和任务的其他参与者都不再需要任务中的数据再行删除')}</span>
@@ -733,20 +737,25 @@ BatchTask.updateTaskStatus = function (status) {
         });
     };
 
-    Dialog.confirm({
+    let isAllSubTask = false;
+
+    Modal.confirm({
       closable: false,
-      dialogClasses: 'updateTaskStatusDialog',
+      wrapClassName: 'updateTaskStatusDialog',
       title: status ? _l('将选中的任务标为已完成1') : _l('将选中的任务标为未完成1'),
       okText: _l('确定'),
-      children: (
+      content: (
         <Checkbox
           className="textTertiary"
           defaultChecked={false}
-          text={status ? _l('同时将子任务标为已完成') : _l('同时将子任务标为未完成')}
-        />
+          onChange={event => {
+            isAllSubTask = event.target.checked;
+          }}
+        >
+          {status ? _l('同时将子任务标为已完成') : _l('同时将子任务标为未完成')}
+        </Checkbox>
       ),
       onOk: () => {
-        const isAllSubTask = $('.updateTaskStatusDialog .Checkbox').is('.checked');
         taskStatusFun(isAllSubTask);
       },
     });
@@ -890,37 +899,13 @@ BatchTask.taskAuth = function (type, title, args, minorContent) {
   const taskCount = BatchTask.Settings.authTask.length;
 
   if (taskCount > 0) {
-    Dialog.confirm({
+    Modal.confirm({
       title: title,
-      dialogClasses: 'afterUpdate',
+      wrapClassName: 'afterUpdate',
       okText: _l('跳过，继续修改'),
       cancelText: _l('取消'),
-      footer: (
-        <div>
-          <div className="footer">
-            <a
-              className="noText hoverColorPrimary"
-              onClick={() => {
-                $('.afterUpdate').parent().remove();
-              }}
-            >
-              {_l('取消')}
-            </a>
-            <a
-              className="yesText boderRadAll_3 bgColorPrimary"
-              onClick={() => {
-                // 批量修改任务负责人
-                BatchTask[type](args, true);
-                $('.afterUpdate').parent().remove();
-              }}
-            >
-              {_l('跳过，继续修改')}
-            </a>
-          </div>
-          <div className="TxtLeft">{minorContent}</div>
-        </div>
-      ),
-      children: (
+      onOk: () => BatchTask[type](args, true),
+      content: (
         <React.Fragment>
           <div className="tipTitle">{_l('有%0条任务被锁定且你不具有负责人权限，无法被修改', taskCount)}</div>
           <div className="authTaskBox">
@@ -932,6 +917,7 @@ BatchTask.taskAuth = function (type, title, args, minorContent) {
               </div>
             ))}
           </div>
+          <div className="TxtLeft mTop16">{minorContent}</div>
         </React.Fragment>
       ),
     });
@@ -1050,10 +1036,10 @@ BatchTask.showAuthTask = function (authObj, title, type) {
   const taskCount = authObj.length;
 
   if (taskCount) {
-    Dialog.confirm({
+    Modal.confirm({
       title: title,
-      dialogClasses: 'afterUpdateMsg',
-      children: (
+      wrapClassName: 'afterUpdateMsg',
+      content: (
         <React.Fragment>
           {type === 'UpdateActualStartTime' ? (
             <div className="tipTitle">{_l('有%0条任务未设置计划开始时间，无法开始任务', taskCount)}</div>

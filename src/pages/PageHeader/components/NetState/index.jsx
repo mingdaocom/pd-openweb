@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { func, number, oneOf, string } from 'prop-types';
-import { Dialog } from 'ming-ui';
+import { bool, func, number, oneOf, string } from 'prop-types';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import projectApi from 'src/api/project';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import {
   COMMON,
   EXPERIENCE_VERSION_TO_TEXT,
@@ -36,13 +37,14 @@ class NetState extends Component {
     moduleType: oneOf([10, 20, 21, 22, 30, 31, 40, 80, 90, 100]),
     maxCount: number,
     projectId: string,
+    contentOnly: bool,
   };
   static defaultProps = {
     onClose: _.noop,
     moduleType: 20,
   };
 
-  state = { visible: true, projectInfo: {} };
+  state = { visible: true, projectInfo: {}, projectInfoLoading: !!this.props.projectId };
 
   componentDidMount() {
     this.getProjectLicenseInfo();
@@ -52,9 +54,14 @@ class NetState extends Component {
     const { projectId } = this.props;
 
     if (projectId) {
-      projectApi.getProjectLicenseInfo({ projectId }).then(data => {
-        this.setState({ projectInfo: data });
-      });
+      projectApi
+        .getProjectLicenseInfo({ projectId })
+        .then(data => {
+          this.setState({ projectInfo: data });
+        })
+        .finally(() => {
+          this.setState({ projectInfoLoading: false });
+        });
     }
   };
 
@@ -93,7 +100,12 @@ class NetState extends Component {
 
   renderContent() {
     const { projectId, moduleType, maxCount } = this.props;
-    const { projectInfo } = this.state;
+    const { projectInfo, projectInfoLoading } = this.state;
+
+    if (projectInfoLoading) {
+      return <LoadDiv className="flexCenter justifyContentCenter pTop100 pBottom100" />;
+    }
+
     const { licenseType = 0 } = projectInfo;
     const versionIdV2 = _.get(projectInfo, ['version', 'versionIdV2']);
     let versionType;
@@ -155,14 +167,14 @@ class NetState extends Component {
       <div className="netStateWrap">
         <div className="imgWrap" />
         <div className="hint">{hint}</div>
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        {window.platformENV.isHap && (
           <div className="explain">
             {_.isNumber(Number(maxCount))
               ? explain.replace(/\d+/, maxCount >= 1000 ? maxCount / 10000 : maxCount)
               : explain}
           </div>
         )}
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        {window.platformENV.isHap && (
           <div className={cx('operationWrap', versionType)}>
             {btnText && (
               <div className={cx('operationBtn', versionType)} onClick={() => this.handleClick('operationBtn', para)}>
@@ -182,7 +194,12 @@ class NetState extends Component {
 
   render() {
     const { visible } = this.state;
+    const { contentOnly } = this.props;
     const isMobile = browserIsMobile();
+
+    if (contentOnly) {
+      return this.renderContent();
+    }
 
     if (isMobile) {
       return (
@@ -192,31 +209,56 @@ class NetState extends Component {
       );
     } else {
       return (
-        <Dialog visible={visible} header={null} footer={null} onCancel={this.onCancel}>
+        <Modal width={480} open={visible} mask={{ closable: true }} keyboard onCancel={this.onCancel}>
           {this.renderContent()}
-        </Dialog>
+        </Modal>
       );
     }
   }
 }
 
 export default function initNetState(props) {
-  const div = document.createElement('div');
+  if (browserIsMobile()) {
+    const container = document.createElement('div');
+    const root = createRoot(container);
 
-  document.body.appendChild(div);
+    const handleClose = () => {
+      root.unmount();
+      document.body.removeChild(container);
 
-  const root = createRoot(div);
+      if (_.isFunction(props.onCancel)) {
+        props.onCancel();
+      }
+    };
 
-  function handleClose() {
-    root.unmount();
-    document.body.removeChild(div);
+    document.body.appendChild(container);
+    root.render(<NetState {...props} onClose={handleClose} />);
 
+    return handleClose;
+  }
+
+  let modal;
+
+  const handleCancel = () => {
     if (_.isFunction(props.onCancel)) {
       props.onCancel();
     }
-  }
+  };
 
-  root.render(<NetState onClose={handleClose} {...props} />);
+  const handleClose = () => {
+    modal.destroy();
+    handleCancel();
+  };
+
+  modal = Modal.confirm({
+    width: 480,
+    title: null,
+    content: <NetState {...props} contentOnly onClose={handleClose} />,
+    footer: null,
+    mask: { closable: true },
+    keyboard: true,
+    onCancel: handleCancel,
+  });
 
   return handleClose;
 }

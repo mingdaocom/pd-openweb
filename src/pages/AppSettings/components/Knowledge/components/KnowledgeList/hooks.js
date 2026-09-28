@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import knowledgeAjax from '../../api/knowledge';
-import { getTranslateInfo } from 'src/utils/app';
+import { usePolling } from 'src/utils/platform/react/polling';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { KNOWLEDGE_STATUS } from '../../core/config';
-import { usePolling } from '../../core/hooks';
 
 const POLLING_STATUS = [
   KNOWLEDGE_STATUS.INIT_QUEUED,
@@ -21,13 +21,6 @@ export const useKnowledgeList = appId => {
 
   const mountedRef = useRef(true);
   const requestIdRef = useRef(0);
-
-  // 卸载保护
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
 
   /**
    * 是否需要继续轮询
@@ -79,12 +72,13 @@ export const useKnowledgeList = appId => {
     },
     [appId],
   );
+  const fetchListSilently = useCallback(() => fetchList(true), [fetchList]);
 
   /**
    * 使用通用轮询
    */
   const { start, stop } = usePolling({
-    fetcher: () => fetchList(true),
+    fetcher: fetchListSilently,
     shouldContinue: hasRunningTask,
   });
 
@@ -92,25 +86,41 @@ export const useKnowledgeList = appId => {
    * 初始加载
    */
   useEffect(() => {
-    fetchList().then(data => {
-      if (hasRunningTask(data)) {
-        start();
-      }
-    });
-  }, []);
+    let active = true;
+    mountedRef.current = true;
+
+    Promise.resolve()
+      .then(fetchListSilently)
+      .then(data => {
+        if (!active || !mountedRef.current) return;
+
+        setLoading(false);
+        if (hasRunningTask(data)) {
+          start();
+        }
+      });
+
+    return () => {
+      active = false;
+      mountedRef.current = false;
+      requestIdRef.current += 1;
+      stop();
+    };
+  }, [fetchListSilently, hasRunningTask, start, stop]);
 
   /**
    * 手动刷新
    */
-  const refresh = (isSilence = false) => {
-    stop();
+  const refresh = useCallback(
+    (isSilence = false) => {
+      stop();
 
-    fetchList(isSilence).then(data => {
-      if (hasRunningTask(data)) {
-        start();
-      }
-    });
-  };
+      return fetchList(isSilence).then(data => {
+        if (hasRunningTask(data)) start();
+      });
+    },
+    [fetchList, hasRunningTask, start, stop],
+  );
 
   /**
    * 更新

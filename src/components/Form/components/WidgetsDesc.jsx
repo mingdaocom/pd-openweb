@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { Linkify } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { FROM } from '../core/config';
 
 class WidgetsDesc extends React.Component {

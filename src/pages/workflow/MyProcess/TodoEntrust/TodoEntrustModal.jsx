@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dropdown, Icon, MdAntDatePicker, Modal, Radio, ScrollView, SvgIcon, UserHead, UserName } from 'ming-ui';
+import { Icon, ScrollView, SvgIcon, UserHead, UserName } from 'ming-ui';
+import { DatePicker, Modal, Radio, Select } from 'ming-ui/antd-components';
 import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import PointImg from 'src/pages/workflow/asset/point.png';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 
 const FormItem = styled.div`
   margin-top: 25px;
@@ -148,7 +149,7 @@ export default function TodoEntrustModal(props) {
     onUpdate = () => {},
   } = props;
   const projectOptions = md.global.Account.projects.map(item => {
-    return { text: item.companyName, value: item.projectId };
+    return { label: item.companyName, value: item.projectId };
   });
   const isEdit = !_.isEmpty(editEntrustData);
   const [formData, setFormData] = useState(
@@ -197,13 +198,13 @@ export default function TodoEntrustModal(props) {
   };
 
   const onAddOrChangeMember = (userType = 'trustee') => {
-    const fromAdmin = type === 2;
+    const isTrustee = userType === 'trustee';
 
     dialogSelectUser({
-      fromAdmin: fromAdmin,
+      fromAdmin: type === 2,
       SelectUserSettings: {
-        filterAccountIds: userType === 'trustee' && type === 1 ? [md.global.Account.accountId] : [],
-        selectedAccountIds: (formData[userType] || {}).accountId ? [(formData[userType] || {}).accountId] : [],
+        filterAccountIds: isTrustee && type === 1 ? [md.global.Account.accountId] : [],
+        selectedAccountIds: formData[userType]?.accountId ? [formData[userType].accountId] : [],
         projectId: formData.companyId,
         filterAll: true,
         filterFriend: true,
@@ -219,7 +220,7 @@ export default function TodoEntrustModal(props) {
       const currentProject = getCurrentProject(formData.companyId, true);
 
       return currentProject.projectStatus === 2
-        ? projectOptions.concat({ text: currentProject.companyName, value: currentProject.projectId })
+        ? projectOptions.concat({ label: currentProject.companyName, value: currentProject.projectId })
         : projectOptions;
     }
 
@@ -333,9 +334,8 @@ export default function TodoEntrustModal(props) {
 
   return (
     <Modal
-      visible
+      open
       width={640}
-      bodyStyle={{ padding: '0 24px 16px' }}
       okDisabled={
         !formData.trustee ||
         !formData.companyId ||
@@ -359,12 +359,10 @@ export default function TodoEntrustModal(props) {
           <span className="bold">{_l('组织')}</span>
           <span className="Red bold mLeft4">*</span>
           <div>
-            <Dropdown
+            <Select
               className="mTop10 w100 Font13"
-              isAppendToBody
-              border
-              value={formData.companyId}
-              data={getProjectOptions()}
+              value={formData.companyId || undefined}
+              options={getProjectOptions()}
               onChange={companyId => {
                 updateDataSource({ companyId, trustee: '' });
                 setAuthApps([]);
@@ -384,7 +382,7 @@ export default function TodoEntrustModal(props) {
         <div className="entrustDateWrapper">
           <div className="mTop10 mRight16 dateItem">
             <div className="Font13 mBottom5">{_l('开始')}</div>
-            <MdAntDatePicker
+            <DatePicker
               style={{ width: '100%', borderRadius: '3px' }}
               placeholder={_l('此刻')}
               showTime
@@ -401,7 +399,7 @@ export default function TodoEntrustModal(props) {
               {_l('结束')}
               <span className="Red bold mLeft4">*</span>
             </div>
-            <MdAntDatePicker
+            <DatePicker
               style={{ width: '100%', borderRadius: '3px' }}
               placeholder={_l('请选择日期')}
               showTime
@@ -423,13 +421,17 @@ export default function TodoEntrustModal(props) {
           {ENTRUST_SCOPE.filter(item => (item.value === 2 ? formData.companyId : true)).map(item => {
             return (
               <Radio
-                text={item.text}
                 checked={item.value === formData.scope}
-                onClick={() => {
-                  updateDataSource({ scope: item.value });
+                onChange={() => {
+                  updateDataSource({
+                    scope: item.value,
+                  });
                   item.value === 2 && onSelectApp();
                 }}
-              />
+                title={item.text}
+              >
+                {item.text}
+              </Radio>
             );
           })}
           <div className="flex" />

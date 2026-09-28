@@ -2,18 +2,13 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { CityPicker, Input } from 'ming-ui';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { browserIsMobile } from 'src/utils/common';
-import { isKeyBoardInputChar } from 'src/utils/common';
-import { renderText } from 'src/utils/control';
+import { CityPicker } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
+import { renderText } from 'src/utils/domain/control/display';
+import { WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
 import EditableCellCon from '../EditableCellCon';
-
-const InputWrap = styled(Input)`
-  border: none !important;
-  height: 100% !important;
-`;
 
 export default class Date extends React.Component {
   static propTypes = {
@@ -61,6 +56,7 @@ export default class Date extends React.Component {
 
   con = React.createRef();
   editIcon = React.createRef();
+  inputRef = React.createRef();
 
   handleTableKeyDown = e => {
     const { isediting, updateEditingStatus } = this.props;
@@ -73,33 +69,25 @@ export default class Date extends React.Component {
       case 'Enter':
         updateEditingStatus(true);
         setTimeout(() => {
-          const input = document.querySelector('.CityPicker-input-textCon');
-
-          if (input) {
-            input.focus();
-          }
+          this.inputRef.current?.focus();
         }, 100);
         break;
-      default:
-        (() => {
-          if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
-            return;
-          }
+      default: {
+        if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
+          break;
+        }
 
-          updateEditingStatus(true);
-          setTimeout(() => {
-            const input = document.querySelector('.worksheetCellPureString .CityPicker-input-textCon');
-            this.setState({ search: e.key }, () => {
-              if (input) {
-                input.focus();
-              }
-
-              this.onFetchData(e.key);
-            });
-          }, 100);
-          e.stopPropagation();
-          e.preventDefault();
-        })();
+        updateEditingStatus(true);
+        setTimeout(() => {
+          this.setState({ search: e.key }, () => {
+            this.inputRef.current?.focus();
+            this.onFetchData(e.key);
+          });
+        }, 100);
+        e.stopPropagation();
+        e.preventDefault();
+        break;
+      }
     }
   };
 
@@ -192,75 +180,73 @@ export default class Date extends React.Component {
     const commcountries = _.get(cell, 'advancedSetting.commcountries');
 
     return (
-      <CityPicker
-        search={keywords}
-        popupVisible={isediting}
-        selectCode={tempValue ? safeParse(tempValue).code : ''}
-        chooserange={chooserange}
-        commcountries={commcountries}
-        hasContentContainer={false}
-        popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
-        defaultValue={[]}
-        level={cell.enumDefault2}
-        projectId={projectId}
-        manual={true}
-        mustLast={anylevel === '1'}
-        popupAlign={{
-          points: ['bl', 'tl'],
-          offset: [-1, -2],
-          overflow: {
-            adjustY: true,
-            adjustX: true,
-          },
-        }}
-        callback={this.handleChange}
-        handleClose={(array = []) => {
-          const last = _.last(array);
-          const valueParse = safeParse(this.tempValue);
-
-          if (
-            _.isEmpty(valueParse) ||
-            !last ||
-            (anylevel === '1' && (!last.last || last.path.split('/').length < cell.enumDefault2))
-          ) {
-            updateEditingStatus(false);
-            return;
-          }
-
-          if (last.id !== valueParse.code) {
-            this.setState(
-              {
-                tempValue: JSON.stringify({ code: last.id, name: last.path }),
-              },
-              () => {
-                this.handleExit();
-              },
-            );
-          } else {
-            this.handleExit();
-          }
-        }}
-        destroyPopupOnHide={!window.isSafari} // 不是 Safari
-        disabled={!isediting}
+      <EditableCellCon
+        conRef={this.con}
+        onClick={onClick}
+        className={cx(className, 'cellControlArea', { canedit: editable, focusInput: editable })}
+        style={style}
+        iconRef={this.editIcon}
+        iconName="map"
+        iconClassName="dateEditIcon"
+        isediting={isediting}
+        onIconClick={() => updateEditingStatus(true)}
       >
-        <EditableCellCon
-          conRef={this.con}
-          onClick={onClick}
-          className={cx(className, 'cellControlArea', { canedit: editable, focusInput: editable })}
-          style={style}
-          iconRef={this.editIcon}
-          iconName="map"
-          iconClassName="dateEditIcon"
-          isediting={isediting}
-          onIconClick={() => updateEditingStatus(true)}
+        <CityPicker
+          search={keywords}
+          popupVisible={isediting}
+          selectCode={tempValue ? safeParse(tempValue).code : ''}
+          chooserange={chooserange}
+          commcountries={commcountries}
+          hasContentContainer={false}
+          popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
+          defaultValue={[]}
+          level={cell.enumDefault2}
+          projectId={projectId}
+          manual={true}
+          mustLast={anylevel === '1'}
+          popupAlign={{
+            offset: [-5, 5],
+          }}
+          callback={this.handleChange}
+          handleClose={(array = []) => {
+            const last = _.last(array);
+            const valueParse = safeParse(this.tempValue);
+
+            if (
+              _.isEmpty(valueParse) ||
+              !last ||
+              (anylevel === '1' && (!last.last || last.path.split('/').length < cell.enumDefault2))
+            ) {
+              updateEditingStatus(false);
+              return;
+            }
+
+            if (last.id !== valueParse.code) {
+              this.setState(
+                {
+                  tempValue: JSON.stringify({ code: last.id, name: last.path }),
+                },
+                () => {
+                  this.handleExit();
+                },
+              );
+            } else {
+              this.handleExit();
+            }
+          }}
+          destroyPopupOnHide={!window.isSafari} // 不是 Safari
+          disabled={!isediting}
         >
           <div className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}>
             {isediting ? (
-              <InputWrap
-                className="CityPicker-input-textCon"
+              <Input
+                ref={this.inputRef}
+                className="CityPicker-input-textCon w100"
+                variant="borderless"
                 placeholder={tempValue ? renderText({ ...cell, value: tempValue }) : ''}
                 value={isediting ? search || '' : tempValue ? renderText({ ...cell, value: tempValue }) : ''}
-                onChange={value => {
+                onChange={event => {
+                  const value = event.target.value;
                   this.setState({ search: value });
                   this.onFetchData(value);
                 }}
@@ -288,8 +274,8 @@ export default class Date extends React.Component {
               />
             )}
           </div>
-        </EditableCellCon>
-      </CityPicker>
+        </CityPicker>
+      </EditableCellCon>
     );
   }
 }

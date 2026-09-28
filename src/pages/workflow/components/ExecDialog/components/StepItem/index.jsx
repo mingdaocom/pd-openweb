@@ -9,10 +9,11 @@ import { Icon, Linkify, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile, getIconNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { getIconNameByExt } from 'src/utils/core/file';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { getOperationLogActionText } from '../../utils';
 import './index.less';
 
@@ -100,6 +101,7 @@ export default class StepItem extends Component {
     currents: array,
     controls: array,
     onChangeCurrentWork: func,
+    openPreviewAttachments: func,
   };
   static defaultProps = {
     data: {},
@@ -121,6 +123,12 @@ export default class StepItem extends Component {
     showLogDialog: false,
     showMore: false,
   };
+
+  renderUserName = (userName, className) => (
+    <Tooltip title={userName} placement="topLeft">
+      <div className={cx('userName', className)}>{userName}</div>
+    </Tooltip>
+  );
 
   /**
    * 根据类型的不同渲染内容
@@ -150,7 +158,7 @@ export default class StepItem extends Component {
       return (
         <Fragment>
           <div className="flexRow alignItemsCenter">
-            <div className="userName actionUserName">{workItemAccount.fullName}</div>
+            {this.renderUserName(workItemAccount.fullName, 'actionUserName')}
             <div className="action ellipsis action-13">{_l('撤回')}</div>
           </div>
           {this.renderAdditionalContent({ ...item, ...{ operationTime: receiveTime } })}
@@ -167,19 +175,20 @@ export default class StepItem extends Component {
       if (workItemLog && workItemLog.action === UNNECESSARY_OPERATION_CODE) {
         return (
           <Fragment>
-            <div className="userName">
-              {workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : '')}
-            </div>
+            {this.renderUserName(workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : ''))}
             <div className="info">{UNNECESSARY_OPERATION[type]}</div>
           </Fragment>
         );
       }
 
+      const userName =
+        workItemAccount.fullName +
+        (principal ? _l('(%0委托)', principal.fullName) : '') +
+        (administrator ? _l('(%0操作)', administrator.fullName) : '');
+
       return (
         <Fragment>
-          <div className="userName">
-            {workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : '')}
-          </div>
+          {this.renderUserName(userName)}
           <div className="info">{viewTime ? _l('已查看') : _l('未查看')}</div>
         </Fragment>
       );
@@ -192,9 +201,9 @@ export default class StepItem extends Component {
       const { triggerId, triggerField } = flowNode;
       return (
         <Fragment>
-          <div className="userName">
-            {workItemAccount.accountId === 'user-undefined' ? _l('发起人为空') : workItemAccount.fullName}
-          </div>
+          {this.renderUserName(
+            workItemAccount.accountId === 'user-undefined' ? _l('发起人为空') : workItemAccount.fullName,
+          )}
           {START_TYPE_TEXT[triggerId] && (
             <div className="info">
               {START_TYPE_TEXT[triggerId]}
@@ -213,9 +222,9 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName">
-                {workItemAccount.fullName + `(${(principal?.fullName || '') + OPERATION_LOG_ACTION[action]})`}
-              </div>
+              {this.renderUserName(
+                workItemAccount.fullName + `(${(principal?.fullName || '') + OPERATION_LOG_ACTION[action]})`,
+              )}
               <div className="flex" />
             </div>
           </Fragment>
@@ -237,11 +246,12 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName actionUserName">
-                {workItemAccount.fullName +
+              {this.renderUserName(
+                workItemAccount.fullName +
                   (principal ? _l('(%0委托)', principal.fullName) : '') +
-                  (administrator ? _l('(%0操作)', administrator.fullName) : '')}
-              </div>
+                  (administrator ? _l('(%0操作)', administrator.fullName) : ''),
+                'actionUserName',
+              )}
               <div className={cx('action ellipsis', `action-${action}`)}>
                 {action === UNNECESSARY_OPERATION_CODE
                   ? UNNECESSARY_OPERATION[type]
@@ -263,11 +273,12 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName actionUserName">
-                {workItemAccount.fullName +
+              {this.renderUserName(
+                workItemAccount.fullName +
                   (principal ? _l('(%0委托)', principal.fullName) : '') +
-                  (administrator ? _l('(%0操作)', administrator.fullName) : '')}
-              </div>
+                  (administrator ? _l('(%0操作)', administrator.fullName) : ''),
+                'actionUserName',
+              )}
               <div className={cx('action ellipsis', `action-${action}`)}>
                 {action === UNNECESSARY_OPERATION_CODE ? (
                   UNNECESSARY_OPERATION[type]
@@ -292,7 +303,9 @@ export default class StepItem extends Component {
       if (type === 5) {
         return (
           <Fragment>
-            <div className="userName">{workItemAccount.fullName}</div>
+            {this.renderUserName(
+              workItemAccount.fullName + (administrator ? _l('(%0操作)', administrator.fullName) : ''),
+            )}
             <div className="timeAction flexRow textSecondary">
               {formatTime(operationTime)}
               <span className="mLeft4">{_l('查看')}</span>
@@ -436,7 +449,9 @@ export default class StepItem extends Component {
    * 预览附件
    */
   previewAttachments(file) {
-    previewAttachments({
+    const openPreviewAttachments = this.props.openPreviewAttachments || previewAttachments;
+
+    openPreviewAttachments({
       attachments: [Object.assign({}, file, { path: file.privateDownloadUrl })],
       callFrom: 'player',
       hideFunctions: ['share', 'saveToKnowlege'],
@@ -613,7 +628,7 @@ export default class StepItem extends Component {
     const {
       workId,
       flowNode,
-      workItems,
+      workItems = [],
       countersign,
       countersignType,
       condition,
@@ -627,6 +642,11 @@ export default class StepItem extends Component {
     let isCurrentWork =
       workId === (currentWork || {}).workId && _.includes([3, 4, 5], currentType) && !_.includes([2, 3, 4], status);
     const isCC = flowNode.type === 5;
+    const ccWorkItems = _.includes([0, 3, 4], flowNode.type) ? workItems.filter(item => item.type === 5) : [];
+    const normalWorkItems = _.includes([0, 3, 4], flowNode.type)
+      ? workItems.filter(item => item.type !== 5)
+      : workItems;
+    const visibleWorkItems = isCC && workItems.length > 5 && !showMore ? workItems.slice(0, 5) : normalWorkItems;
 
     return (
       <li
@@ -668,7 +688,7 @@ export default class StepItem extends Component {
               </div>
             )}
 
-            {workItems[0].type === 5 && (
+            {!ccWorkItems.length && workItems[0]?.type === 5 && (
               <Fragment>
                 <div
                   className="mTop6 mLeft14 mRight14 breakAll textSecondary"
@@ -684,13 +704,17 @@ export default class StepItem extends Component {
               <div className="mTop6 mLeft14 mRight14 WordBreak">{explain}</div>
             )}
 
-            {(isCC && workItems.length > 5 && !showMore ? workItems.slice(0, 5) : workItems).map((item, index) => {
+            {visibleWorkItems.map((item, index) => {
               let { workItemAccount } = item;
               const { avatar, accountId } = workItemAccount;
               return (
                 <div
                   key={index}
-                  className={cx('stepContent flexRow', { Border0: showMore && index === workItems.length - 1 })}
+                  className={cx('stepContent flexRow', {
+                    Border0:
+                      (showMore && index === workItems.length - 1) ||
+                      (!!ccWorkItems.length && index === visibleWorkItems.length - 1),
+                  })}
                 >
                   <div className="avatarBoxCon">
                     <UserHead size={36} user={{ userHead: avatar, accountId }} appId={appId} projectId={projectId} />
@@ -699,6 +723,29 @@ export default class StepItem extends Component {
                 </div>
               );
             })}
+
+            {!!ccWorkItems.length && (
+              <div className="ccWorkItems">
+                <div className="ccTitle bold Font15">{_l('抄送')}</div>
+                {ccWorkItems.map((item, index) => {
+                  const { workItemAccount } = item;
+                  const { avatar, accountId } = workItemAccount;
+                  return (
+                    <div key={`cc-${index}`} className="stepContent flexRow">
+                      <div className="avatarBoxCon">
+                        <UserHead
+                          size={36}
+                          user={{ userHead: avatar, accountId }}
+                          appId={appId}
+                          projectId={projectId}
+                        />
+                      </div>
+                      <div className="stepDetail flex flexColumn">{this.renderDetail(item)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {debugEventDump &&
               Object.keys(debugEventDump).map((key, index) => {

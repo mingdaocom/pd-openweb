@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, PopupWrapper, SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import { segmentsFromView } from 'worksheet/common/ViewConfig/components/customBtn/groupedLayout/layoutUtils';
-import { getTranslateInfo } from 'src/utils/app';
-import { getButtonColor } from 'src/utils/control';
+import { getButtonColor } from 'src/utils/domain/control/style';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const BtnCon = styled.div`
   height: 36px;
@@ -40,7 +41,7 @@ const PopupBtnCon = styled.div`
   display: flex;
   align-items: center;
   height: 50px;
-  ${props => props.disabled && 'opacity: 0.5;'}
+  ${props => props.$disabled && 'opacity: 0.5;'}
   .icon {
     font-size: 20px;
   }
@@ -76,7 +77,8 @@ export default class CustomButtons extends Component {
   }
 
   buildButtons = customBtns => {
-    const { view = {}, worksheetInfo = {}, enableGroup = true, isBatch } = this.props;
+    const { appId, view = {}, worksheetInfo = {}, enableGroup = true, isBatch, worksheetId, viewId } = this.props;
+    const currentWorksheetId = worksheetId || worksheetInfo.worksheetId;
     const advancedSetting = _.get(view, 'advancedSetting') || _.get(worksheetInfo, 'advancedSetting') || {};
     const btnGroups = isBatch ? advancedSetting.listgroup : advancedSetting.detailgroup;
     const flatBtnOrder = isBatch ? advancedSetting.listbtns : advancedSetting.detailbtns;
@@ -102,7 +104,7 @@ export default class CustomButtons extends Component {
           type: 'group_ref',
           btnId: `group:${isBatch ? 'list' : 'detail'}:${segment.id}`,
           id: segment.id,
-          name: segment.name,
+          name: getTranslateInfo(appId, currentWorksheetId, viewId)[segment.id] || segment.name,
           icon: segment.icon,
           iconUrl: segment.iconUrl,
           iconColor: segment.iconColor,
@@ -133,9 +135,10 @@ export default class CustomButtons extends Component {
   };
 
   getButtonName = button => {
-    const { appId } = this.props;
+    const { appId, worksheetId, worksheetInfo = {} } = this.props;
+    const currentWorksheetId = worksheetId || worksheetInfo.worksheetId;
 
-    const translateInfo = getTranslateInfo(appId, null, button.btnId);
+    const translateInfo = getTranslateInfo(appId, currentWorksheetId, button.btnId);
 
     return translateInfo.name || button.name;
   };
@@ -208,7 +211,7 @@ export default class CustomButtons extends Component {
         return (
           <PopupBtnCon
             key={btn.btnId}
-            disabled={disabled}
+            $disabled={disabled}
             onClick={() => {
               if (disabled) return;
               if (
@@ -306,6 +309,7 @@ export default class CustomButtons extends Component {
               <CustomButtons
                 customBtns={activeGroup.buttons}
                 appId={this.props.appId}
+                worksheetId={this.props.worksheetId}
                 btnDisable={btnDisable}
                 isBatch={isBatch}
                 isEditLock={isEditLock}

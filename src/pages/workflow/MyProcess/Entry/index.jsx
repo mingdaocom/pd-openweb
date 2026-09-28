@@ -63,7 +63,10 @@ export default class Entry extends Component {
           className={`myProcessHeader pointer mRight10 ${isNative ? 'textSecondary' : 'textWhite'} ${className}`}
           onClick={onClick}
         >
-          <Icon icon={cx('task_alt', { appIcon: !isNative })} className="mRight5 Font20" />
+          <Icon
+            icon={cx('task_alt', { appIcon: !isNative })}
+            className={cx('mRight5', { Font24: isNative, Font20: !isNative })}
+          />
           {!!count && (
             <span className={`count ${isNative ? 'native' : 'app'}`} style={{ color: isNative ? '' : iconColor }}>
               {count}

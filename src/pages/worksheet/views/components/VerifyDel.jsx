@@ -1,15 +1,11 @@
 import React from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import 'rc-trigger/assets/index.css';
+import { Popover } from 'ming-ui/antd-components';
 
 const DelVerify = styled.div`
   box-sizing: border-box;
   width: 240px;
-  background-color: var(--color-background-primary);
   padding: 16px;
-  border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
   p {
     margin: 0;
     font-size: 14px;
@@ -57,13 +53,14 @@ export default function VerifyDel({
   popupAlign,
 }) {
   return (
-    <Trigger
-      popupVisible={visible}
-      action={['click']}
-      onPopupVisibleChange={onVisibleChange}
+    <Popover
+      noPadding
+      open={visible}
+      trigger="click"
+      onOpenChange={onVisibleChange}
       getPopupContainer={() => document.body}
-      popupAlign={{ points: ['tc', 'bc'], overflow: { adjustX: true, adjustY: true }, ...popupAlign }}
-      popup={
+      align={{ points: ['tc', 'bc'], overflow: { adjustX: true, adjustY: true }, ...popupAlign }}
+      content={
         <DelVerify>
           <p>{title}</p>
           <div className="btnGroup">
@@ -78,6 +75,6 @@ export default function VerifyDel({
       }
     >
       {children}
-    </Trigger>
+    </Popover>
   );
 }

@@ -1,5 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react';
 import _ from 'lodash';
+import { Input } from 'ming-ui/antd-components';
 import CityPicker from 'ming-ui/components/CityPicker';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
@@ -46,7 +47,7 @@ export default function (props) {
   }, 500);
 
   return (
-    <DynamicValueInputWrap hasHoverBg={!!value}>
+    <DynamicValueInputWrap $hasHoverBg={!!value}>
       {defaultType ? (
         <DynamicInput {...props} onTriggerClick={onTriggerClick} />
       ) : isDynamic ? (
@@ -80,8 +81,7 @@ export default function (props) {
             projectId={globalSheetInfo.projectId}
             callback={handleChange}
           >
-            <input
-              className="CityPicker-input-placeholder-Gray3"
+            <Input
               placeholder={value}
               value={search}
               onChange={e => {

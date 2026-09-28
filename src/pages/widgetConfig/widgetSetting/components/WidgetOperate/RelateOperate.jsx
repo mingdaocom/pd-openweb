@@ -3,16 +3,22 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import { Checkbox, Dialog, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox, Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { SYSTEM_CONTROL } from '../../../config/widget';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { formatViewToDropdown } from 'src/utils/domain/control/filters';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import { SettingItem, SheetViewWrap } from '../../../styled';
-import { formatViewToDropdown } from '../../../util';
-import openSelectConfig from '../relateSheet/selectConfig';
+import { useSelectConfig } from '../relateSheet/selectConfig';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const SEARCH_RANGE_OPTIONS = [
+  { label: _l('全部'), value: '1' },
+  { label: _l('有查看权限的'), value: '0' },
+];
 
 const BATCH_OPTIONS = [
   {
@@ -61,17 +67,29 @@ function OperateDialog(props) {
   });
 
   return (
-    <Dialog width={480} visible={true} title={_l('批量操作设置')} onCancel={onClose} onOk={() => onOk(batchInfo)}>
+    <Modal
+      width={480}
+      open
+      title={_l('批量操作设置')}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onClose}
+      onOk={() => onOk(batchInfo)}
+    >
       <div className="flexColumn pTop8">
         {BATCH_OPTIONS.map(item => {
           const defaultValue = getAdvanceSetting(data)[item.disabledKey] || '1';
           return (
             <div className="labelWrap mBottom10 ">
               <Checkbox
-                size="small"
                 {...(item.disabledKey ? { disabled: getAdvanceSetting(data, [item.disabledKey]) === 0 } : {})}
                 checked={(batchInfo[item.key] || defaultValue) === '1'}
-                onClick={checked => setBatchInfo({ [item.key]: String(+!checked) })}
+                onChange={event =>
+                  setBatchInfo({
+                    [item.key]: String(+event.target.checked),
+                  })
+                }
+                size="small"
               >
                 <span className="textPrimary">{item.text}</span>
               </Checkbox>
@@ -82,10 +100,14 @@ function OperateDialog(props) {
           return (
             <div className="labelWrap mBottom10 flexCenter">
               <Checkbox
-                size="small"
                 disabled={!isRelateView}
                 checked={batchInfo[item.key] === '1'}
-                onClick={checked => setBatchInfo({ [item.key]: String(+!checked) })}
+                onChange={event =>
+                  setBatchInfo({
+                    [item.key]: String(+event.target.checked),
+                  })
+                }
+                size="small"
               >
                 <span className="textPrimary">{item.text}</span>
               </Checkbox>
@@ -96,13 +118,13 @@ function OperateDialog(props) {
           );
         })}
       </div>
-    </Dialog>
+    </Modal>
   );
 }
 
 // 高级设置
-export default function RelateOperate(props) {
-  const { data, allControls, globalSheetControls, onChange, globalSheetInfo = {} } = props;
+function RelateOperate(props) {
+  const { data, allControls, globalSheetControls, onChange, globalSheetInfo = {}, openSelectConfig } = props;
   const [visible, setVisible] = useState(false);
   const { enumDefault, enumDefault2 = 1, controlId, viewId } = data;
 
@@ -134,26 +156,32 @@ export default function RelateOperate(props) {
     <Fragment>
       <div className="labelWrap labelBetween">
         <Checkbox
-          className="allowSelectRecords InlineBlock textPrimary"
-          size="small"
+          className="allowSelectRecords textPrimary"
           disabled={_.includes([0, 1], enumDefault2) && showtype === '3'} // 下拉框不能取消勾选
-          text={_l('允许选择已有记录')}
           checked={_.includes([0, 1], enumDefault2)}
-          onClick={checked => {
+          onChange={event => {
             // enumDefault2使用两位数代表两个字段的布尔值 所以此处有恶心判断
-            if (checked) {
+            if (!event.target.checked) {
               onChange({
-                ...handleAdvancedSettingChange(data, { searchrange: '', filters: '' }),
+                ...handleAdvancedSettingChange(data, {
+                  searchrange: '',
+                  filters: '',
+                }),
                 enumDefault2: enumDefault2 === 0 ? 10 : 11,
               });
             } else {
               onChange({
-                ...handleAdvancedSettingChange(data, { searchrange: '1' }),
+                ...handleAdvancedSettingChange(data, {
+                  searchrange: '1',
+                }),
                 enumDefault2: enumDefault2 === 10 ? 0 : 1,
               });
             }
           }}
-        />
+          size="small"
+        >
+          {_l('允许选择已有记录')}
+        </Checkbox>
       </div>
       {_.includes([0, 1], enumDefault2) && (
         <Fragment>
@@ -168,13 +196,9 @@ export default function RelateOperate(props) {
               editFn={() => openSelectConfig(props)}
             />
           )}
-          <Dropdown
-            border
+          <Select
             className={cx('w100', { mTop10: isEmpty(filters) })}
-            data={[
-              { text: _l('全部'), value: '1' },
-              { text: _l('有查看权限的'), value: '0' },
-            ]}
+            options={SEARCH_RANGE_OPTIONS}
             value={searchrange}
             onChange={value => {
               onChange(
@@ -190,12 +214,10 @@ export default function RelateOperate(props) {
       <div className="labelWrap">
         <Checkbox
           className="allowSelectRecords "
-          size="small"
-          text={_l('允许新增记录')}
           checked={_.includes([0, 10], enumDefault2)}
-          onClick={checked => {
+          onChange={event => {
             // enumDefault2使用两位数代表两个字段的布尔值 所以此处有恶心判断
-            if (checked) {
+            if (!event.target.checked) {
               onChange({
                 enumDefault2: enumDefault2 === 0 ? 1 : 11,
               });
@@ -205,73 +227,100 @@ export default function RelateOperate(props) {
               });
             }
           }}
-        />
+          size="small"
+        >
+          {_l('允许新增记录')}
+        </Checkbox>
       </div>
       {showtype === '6' && (
         <div className="labelWrap">
           <Checkbox
             className="allowSelectRecords "
-            size="small"
-            text={_l('允许导入新增')}
             checked={allowimport === '1'}
             disabled={!excelImportSwitch && allowimport !== '1'}
-            onClick={checked => {
-              onChange(handleAdvancedSettingChange(data, { allowimport: checked ? '0' : '1' }));
+            onChange={event => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowimport: !event.target.checked ? '0' : '1',
+                }),
+              );
             }}
-          />
+            size="small"
+          >
+            {_l('允许导入新增')}
+          </Checkbox>
         </div>
       )}
       {enumDefault === 2 && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
-            text={_l('允许取消关联')}
             checked={allowcancel !== '0'}
-            onClick={checked =>
-              onChange(
+            onChange={event => {
+              const checked = !event.target.checked;
+              return onChange(
                 handleAdvancedSettingChange(data, {
                   allowcancel: checked ? '0' : '1',
-                  ...(checked && batchcancel === '1' ? { batchcancel: '0' } : {}),
+                  ...(checked && batchcancel === '1'
+                    ? {
+                        batchcancel: '0',
+                      }
+                    : {}),
                 }),
-              )
-            }
-          />
+              );
+            }}
+            size="small"
+          >
+            {_l('允许取消关联')}
+          </Checkbox>
         </div>
       )}
       {isList && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
-            text={_l('允许删除记录')}
             checked={allowdelete !== '0'}
-            onClick={checked =>
-              onChange(
+            onChange={event => {
+              const checked = !event.target.checked;
+              return onChange(
                 handleAdvancedSettingChange(data, {
                   allowdelete: String(+!checked),
-                  ...(checked && batchdelete === '1' ? { batchdelete: '0' } : {}),
+                  ...(checked && batchdelete === '1'
+                    ? {
+                        batchdelete: '0',
+                      }
+                    : {}),
                 }),
-              )
-            }
-          />
+              );
+            }}
+            size="small"
+          >
+            {_l('允许删除记录')}
+          </Checkbox>
         </div>
       )}
       <div className="labelWrap mTop8 mBottom8">
         <Checkbox
-          size="small"
-          text={_l('允许打开记录')}
           checked={+allowlink}
-          onClick={checked =>
-            onChange(handleAdvancedSettingChange(data, { allowlink: +!checked, openview: checked ? '' : openview }))
-          }
-        />
+          onChange={event => {
+            const checked = !event.target.checked;
+            return onChange(
+              handleAdvancedSettingChange(data, {
+                allowlink: +!checked,
+                openview: checked ? '' : openview,
+              }),
+            );
+          }}
+          size="small"
+        >
+          {_l('允许打开记录')}
+        </Checkbox>
       </div>
       {+allowlink ? (
         <SheetViewWrap>
           <div className="viewCon">{_l('视图')}</div>
-          <Dropdown
-            border
+          <Select
             className="flex"
-            cancelAble
+            variant="borderless"
+            allowClear
             loading={loading}
             placeholder={
               selectedOpenViewIsDelete || selectedViewIsDeleted ? (
@@ -282,7 +331,8 @@ export default function RelateOperate(props) {
                 _l('未设置')
               )
             }
-            data={formatViewToDropdown(views)}
+            options={formatViewToDropdown(views)}
+            fieldNames={SELECT_FIELD_NAMES}
             value={openview && !selectedOpenViewIsDelete ? openview : undefined}
             onChange={value => {
               onChange(handleAdvancedSettingChange(data, { openview: value }));
@@ -296,16 +346,21 @@ export default function RelateOperate(props) {
           <div className=" settingItemTitle">{_l('其他')}</div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={allowexport === '1'}
-              onClick={checked =>
-                onChange(
+              onChange={event => {
+                const checked = !event.target.checked;
+                return onChange(
                   handleAdvancedSettingChange(data, {
                     allowexport: String(+!checked),
-                    ...(checked && batchexport === '1' ? { batchexport: '0' } : {}),
+                    ...(checked && batchexport === '1'
+                      ? {
+                          batchexport: '0',
+                        }
+                      : {}),
                   }),
-                )
-              }
+                );
+              }}
+              size="small"
             >
               <span style={{ marginRight: '4px' }}>{_l('允许导出')}</span>
               <Tooltip placement="bottom" title={_l('勾选后支持在主记录详情中将已关联的记录导出为 Excel')}>
@@ -315,11 +370,9 @@ export default function RelateOperate(props) {
           </div>
           <div className="labelWrap labelBetween">
             <Checkbox
-              size="small"
-              text={_l('允许批量操作')}
               checked={allowbatch === '1'}
-              onClick={checked => {
-                if (checked) {
+              onChange={event => {
+                if (!event.target.checked) {
                   onChange(
                     handleAdvancedSettingChange(data, {
                       allowbatch: '0',
@@ -338,11 +391,19 @@ export default function RelateOperate(props) {
                   handleAdvancedSettingChange(data, {
                     allowbatch: '1',
                     batchedit: '1',
-                    ...(isRelateView ? { batchbtn: '1', batchprint: '1' } : {}),
+                    ...(isRelateView
+                      ? {
+                          batchbtn: '1',
+                          batchprint: '1',
+                        }
+                      : {}),
                   }),
                 );
               }}
-            />
+              size="small"
+            >
+              {_l('允许批量操作')}
+            </Checkbox>
             {allowbatch === '1' && (
               <Tooltip placement="bottom" title={_l('批量设置')}>
                 <i
@@ -354,9 +415,15 @@ export default function RelateOperate(props) {
           </div>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={showquick === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { showquick: String(+!checked) }))}
+              onChange={event =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    showquick: String(+event.target.checked),
+                  }),
+                )
+              }
+              size="small"
             >
               <span style={{ marginRight: '4px' }}>{_l('显示记录快捷方式')}</span>
               <Tooltip placement="bottom" title={_l('点击后可以在下拉菜单中进行记录的其他操作')}>
@@ -381,3 +448,7 @@ export default function RelateOperate(props) {
     </Fragment>
   );
 }
+
+export default withOpeners(RelateOperate, {
+  openSelectConfig: useSelectConfig,
+});

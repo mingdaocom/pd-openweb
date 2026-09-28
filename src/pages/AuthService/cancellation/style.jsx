@@ -21,29 +21,16 @@ export const Wrap = styled.div`
         width: 95%;
       }
       &.privacyHieght {
-        height: calc(~'100% - 50px');
+        height: calc(100% - 50px);
         padding-bottom: 24px;
       }
     }
     .title {
       margin-bottom: 64px;
     }
-    .protocol {
-      .Checkbox {
-        .Checkbox-box {
-          width: 16px;
-          height: 16px;
-          margin-right: 10px;
-        }
-      }
-    }
     .password {
       width: 300px;
       margin-bottom: 80px;
-    }
-    .disabled {
-      background-color: var(--color-text-tertiary);
-      cursor: not-allowed;
     }
   }
   .w300 {

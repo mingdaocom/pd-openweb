@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, QiniuUpload } from 'ming-ui';
+import { Icon, QiniuUpload } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import dingIcon from '../../integration/platformIntegration/images/ding.png';
 import feishuIcon from '../../integration/platformIntegration/images/feishu.png';
 import workWxIcon from '../../integration/platformIntegration/images/workwx.png';
 
-const DialogWrap = styled(Dialog)`
-  .mui-dialog-header {
-    padding-bottom: 10px;
-  }
+const DialogWrap = styled(Modal)`
   .uploadWrapper {
     width: 40px;
     height: 40px;
@@ -34,9 +32,6 @@ const DialogWrap = styled(Dialog)`
         display: inline-block !important;
       }
     }
-  }
-  .ming.Input {
-    border: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -106,45 +101,39 @@ export default class SettingIconAndName extends Component {
       },
     };
 
+    const handleSubmit = () => {
+      if (!name) {
+        alert(_l('名称不得为空'), 2);
+        return;
+      }
+
+      handleSave({
+        name,
+        iconUrl,
+        icon: this.state.icon,
+        file: this.state.file,
+        success: url => this.setState({ visible: false, initName: name, initIonUrl: url || iconUrl }),
+      });
+    };
+
     return (
       <DialogWrap
         title={_l('设置图标和名称')}
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         onCancel={() => this.setState({ visible: false })}
-        footer={
-          <div className="footer flexRow alignItemsCenter">
-            {iconUrl && (
-              <div
-                className=" Hand TxtLeft textSecondary"
-                onClick={() => this.setState({ name: defaultName, iconUrl: '', icon: undefined, file: {} })}
-              >
-                {_l('恢复默认')}
-              </div>
-            )}
-            <div className="flex"></div>
-            <Button type="link" onClick={() => this.setState({ visible: false })}>
-              {_l('取消')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                if (!name) {
-                  alert(_l('名称不得为空'), 2);
-                  return;
-                }
-
-                handleSave({
-                  name,
-                  iconUrl,
-                  icon: this.state.icon,
-                  file: this.state.file,
-                  success: url => this.setState({ visible: false, initName: name, initIonUrl: url || iconUrl }),
-                });
-              }}
+        onOk={handleSubmit}
+        okText={_l('保存')}
+        footerLeftElement={
+          iconUrl ? (
+            <div
+              className="Hand textSecondary"
+              onClick={() => this.setState({ name: defaultName, iconUrl: '', icon: undefined, file: {} })}
             >
-              {_l('保存')}
-            </Button>
-          </div>
+              {_l('恢复默认')}
+            </div>
+          ) : null
         }
       >
         <div className="textSecondary pBottom20">{_l('可以自定义登录页面显示的图标和名称')}</div>
@@ -161,7 +150,7 @@ export default class SettingIconAndName extends Component {
         <div className="mTop10 mBottom40 textSecondary Font12">
           {_l('可上传PNG、JPG，图片格式推荐大小 48x48 px, 文件大小在128KB以内')}
         </div>
-        <Input className="w100 input" value={name} onChange={value => this.setState({ name: value })} />
+        <Input className="w100 input" value={name} onChange={e => this.setState({ name: e.target.value })} />
       </DialogWrap>
     );
   };

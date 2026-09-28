@@ -1,15 +1,17 @@
 import React, { Fragment, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown } from 'antd';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Menu, MenuItem, SortableList } from 'ming-ui';
+import { SortableList } from 'ming-ui';
+import { Dropdown, Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getControlByControlId, getSortItems } from 'src/utils/domain/control/filters';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { isAutoNumberSelectableControl } from 'src/utils/domain/control/validation';
 import AutoIcon from '../../components/Icon';
 import { DropdownPlaceholder, InfoWrap, SettingItem } from '../../styled';
-import { getControlByControlId, getIconByType, getSortItems } from '../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange, isAutoNumberSelectableControl } from '../../util/setting';
 import AutoNumberConfig from '../components/autoId/AutoNumberConfig';
 import StrInput from '../components/autoId/StrInput';
 import TimeFormatConfig from '../components/autoId/TimeFormatConfig';
@@ -151,6 +153,10 @@ const TIME_MODE = [
     text: _l('自定义'),
   },
 ];
+const DEFAULT_TIME_FORMATS = ['YYYYMMDD', 'YYYYMM', 'MMDD', 'YYYY'];
+const TIME_MODE_OPTIONS = TIME_MODE.map(({ value, text }) => ({ value, label: text }));
+const TIME_SELECT_STYLES = { root: { width: '100%', height: 36 } };
+const renderTimeModeLabel = ({ value }) => (DEFAULT_TIME_FORMATS.includes(value) ? value : `${_l('自定义')}：${value}`);
 
 const DEFAULT_PARA = { 4: { format: 'YYYYMMDD', type: 4 } };
 
@@ -178,7 +184,6 @@ function SortableItem({
   const currentControl = getControlByControlId(rcid ? relationControls : allControls, controlId);
   const controlName = _.get(currentControl, 'controlName');
   const $addControl = useRef(null);
-  const $addTime = useRef(null);
 
   const getControlInfo = () => {
     if (!controlId) return _l('请选择字段');
@@ -238,7 +243,8 @@ function SortableItem({
           trigger="click"
           className="mTop0"
           getPopupContainer={() => $addControl.current}
-          overlay={
+          menu={{ items: [] }}
+          popupRender={() => (
             <SelectControlWithRelate
               {...rest}
               allControls={allControls}
@@ -253,7 +259,7 @@ function SortableItem({
                 })
               }
             />
-          }
+          )}
         >
           <DropdownPlaceholder ref={$addControl}>
             {getControlInfo()}
@@ -264,29 +270,16 @@ function SortableItem({
     }
 
     if (type === 4) {
-      const text = !['YYYYMMDD', 'YYYYMM', 'MMDD', 'YYYY'].includes(format) ? _l('自定义') + '：' + format : format;
       return (
-        <Dropdown
-          trigger="click"
+        <Select
           className="mTop0"
-          getPopupContainer={() => $addTime.current}
-          overlay={
-            <Menu width={'100%'}>
-              {TIME_MODE.map(({ value, text }) => (
-                <MenuItem key={value} onClick={() => handleTimeSelect(value)}>
-                  {text}
-                </MenuItem>
-              ))}
-            </Menu>
-          }
-        >
-          <DropdownPlaceholder
-            color={format ? 'var(--color-text-primary)' : 'var(--color-text-disabled)'}
-            ref={$addTime}
-          >
-            {text || 'YYYYMMDD'} <AutoIcon icon="expand_more" />
-          </DropdownPlaceholder>
-        </Dropdown>
+          value={format || undefined}
+          placeholder="YYYYMMDD"
+          options={TIME_MODE_OPTIONS}
+          styles={TIME_SELECT_STYLES}
+          labelRender={renderTimeModeLabel}
+          onChange={handleTimeSelect}
+        />
       );
     }
   };
@@ -349,6 +342,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
     <RuleList>
       {_.isEmpty(rules) ? null : (
         <SortableList
+          renderBody
           items={getSortItems(rules, true, data.controlId)}
           itemKey="key"
           useDragHandle
@@ -373,15 +367,14 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
       <Dropdown
         trigger={['click']}
         getPopupContainer={() => $addRule.current}
-        overlay={
-          <Menu style={{ width: '100%' }}>
-            {typesData.map(({ value, text }) => (
-              <MenuItem key={value} onClick={() => addRule(value)}>
-                {text}
-              </MenuItem>
-            ))}
-          </Menu>
-        }
+        menu={{
+          style: { minWidth: '100%' },
+          items: typesData.map(({ value, text }) => ({
+            key: value,
+            label: text,
+            onClick: () => addRule(value),
+          })),
+        }}
       >
         <li className="addRule" ref={$addRule}>
           <i className="icon-add Font16"></i>

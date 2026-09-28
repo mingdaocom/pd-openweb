@@ -2,9 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
+
+const HIDDEN_CANCEL_BUTTON_PROPS = { style: { display: 'none' } };
+const DANGER_OK_BUTTON_PROPS = { danger: true };
 
 const OptionQuoteWrap = styled.div`
   height: 300px;
@@ -45,17 +49,35 @@ const Empty = styled.div`
   }
 `;
 
-export default function DeleteOptionList({ collectionId, name, title, type, ...rest }) {
-  const [loading, setLoading] = useState(true);
-  const [controls, setControls] = useState(rest.controls || []);
-  const [dataInfo, setDataInfo] = useState(rest.dataInfo || {});
+export default function DeleteOptionList({
+  collectionId,
+  name,
+  title,
+  type,
+  controls: defaultControls,
+  dataInfo: defaultDataInfo,
+  onOk,
+  onCancel,
+}) {
+  const hasDefaultControls = !_.isUndefined(defaultControls);
+  const [loading, setLoading] = useState(!hasDefaultControls);
+  const [controls, setControls] = useState(defaultControls || []);
+  const [dataInfo, setDataInfo] = useState(defaultDataInfo || {});
+  const isCheckQuote = type === 'checkQuote';
 
-  const getData = () => {
+  useEffect(() => {
+    if (hasDefaultControls) return;
+
+    let cancelled = false;
+
     worksheetAjax
       .getQuoteControlsById({ collectionId })
       .then(({ code, msg, data = [] }) => {
+        if (cancelled) return;
+
         if (code === 1) {
           const obj = {};
+
           data.forEach(item => {
             if (!obj[item.appId]) {
               obj[item.appId] = { appId: item.appId, appName: item.appName, data: [].concat(item) };
@@ -72,55 +94,49 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
         setLoading(false);
       })
       .catch(() => {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       });
-  };
 
-  useEffect(() => {
-    if (!_.isUndefined(rest.controls)) {
-      setLoading(false);
-      return;
-    }
+    return () => {
+      cancelled = true;
+    };
+  }, [collectionId, hasDefaultControls]);
 
-    getData();
-  }, []);
+  const description = isCheckQuote ? (
+    controls.length ? (
+      <Fragment>
+        <div className="textPrimary">{_l('该选项集正被%0个字段引用。', controls.length)}</div>
+        <div className="textSecondary mTop16">{_l('以下为具体引用的工作表，点击跳转到表单编辑页。')}</div>
+      </Fragment>
+    ) : null
+  ) : (
+    <span className="textPrimary">
+      {_l(
+        '此选项集正在被以下%0个字段引用，无法直接删除。请先解除引用关系后再删除选项集。若仅希望选项集不再被新字段引用，可将选项集停用。停用选项集不影响已引用字段的正常使用。',
+        controls.length,
+      )}
+    </span>
+  );
 
   return (
-    <Dialog
-      visible
-      confirm={type === 'checkQuote' ? '' : 'danger'}
+    <Modal
+      open
+      width={480}
       okText={_l('关闭')}
-      showCancel={false}
-      description={
-        type === 'checkQuote' ? (
-          controls.length ? (
-            <Fragment>
-              <div className="textPrimary">{_l('该选项集正被%0个字段引用。', controls.length)}</div>
-              <div className="textSecondary mTop16">{_l('以下为具体引用的工作表，点击跳转到表单编辑页。')}</div>
-            </Fragment>
-          ) : (
-            ''
-          )
-        ) : (
-          <span className="textPrimary">
-            {_l(
-              '此选项集正在被以下%0个字段引用，无法直接删除。请先解除引用关系后再删除选项集。若仅希望选项集不再被新字段引用，可将选项集停用。停用选项集不影响已引用字段的正常使用。',
-              controls.length,
-            )}
-          </span>
-        )
-      }
+      cancelButtonProps={HIDDEN_CANCEL_BUTTON_PROPS}
+      okButtonProps={isCheckQuote ? undefined : DANGER_OK_BUTTON_PROPS}
       title={
-        title ? (
-          title
-        ) : (
-          <span className="Bold" style={{ color: 'var(--color-error)', wordBreak: 'break-all' }}>
-            {_l('无法直接删除选项集 “%0”', name)}
-          </span>
-        )
+        <span className={cx('WordBreak', { textError: !isCheckQuote })}>
+          {title || _l('无法直接删除选项集 “%0”', name)}
+        </span>
       }
-      {...rest}
+      keyboard
+      onOk={onOk}
+      onCancel={onCancel}
     >
+      {description && <div className="mBottom20">{description}</div>}
       <OptionQuoteWrap>
         <ScrollView className="h100">
           {loading ? (
@@ -170,6 +186,6 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
           )}
         </ScrollView>
       </OptionQuoteWrap>
-    </Dialog>
+    </Modal>
   );
 }

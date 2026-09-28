@@ -1,11 +1,12 @@
 ﻿import React from 'react';
-import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { UserCard } from 'ming-ui';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import createGroup from 'src/pages/Group/createGroup/load';
-import { pathCompletion } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 /**
  * 动态内容
@@ -140,7 +141,7 @@ class PostMessage extends React.Component {
       ref: node => {
         this.messageNode = node;
       },
-      dangerouslySetInnerHTML: { __html: message },
+      dangerouslySetInnerHTML: { __html: sanitizePostMessageHtml(message) },
     });
   }
 }

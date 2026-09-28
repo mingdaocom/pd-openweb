@@ -4,39 +4,18 @@ import { useKey } from 'react-use';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { BgIconButton, Button, Checkbox, Dialog, LoadDiv, Modal, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { BgIconButton, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
 import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
 import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
-import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
-import { browserIsMobile } from 'src/utils/common';
-import { getLatestCreateTimestampOfWithSaveShortcut, removeTempRecordValueFromLocal } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
+import { canUseMingoOtherAssistant } from 'src/components/Mingo/permission';
+import WorksheetDraft, { useWorkSheetDraftModal } from 'src/pages/worksheet/common/WorksheetDraft';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getLatestCreateTimestampOfWithSaveShortcut } from 'src/utils/platform/browser/dom';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { removeTempRecordValueFromLocal } from 'src/utils/services/cache/record';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import NewRecordContent from './NewRecordContent';
-
-const HeaderComp = styled.div`
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 50px;
-  width: 100%;
-  background: var(--color-background-primary);
-  .title {
-    font-size: 20px;
-    font-weight: bold;
-  }
-`;
-
-const removePromptCancelAddRecordDialog = () => {
-  if ($('.promptCancelAddRecord')) {
-    $('.promptCancelAddRecord').parent().remove();
-  }
-};
 
 function NewRecord(props) {
   const {
@@ -66,15 +45,19 @@ function NewRecord(props) {
   const cache = useRef({});
   const scrollViewRef = useRef(null);
   const recordContentRef = useRef(null);
+  const promptCancelModalRef = useRef(null);
   const [shareVisible, setShareVisible] = useState();
   const [newTitle, setNewTitle] = useState(title);
   const [modalClassName] = useState(Math.random().toString().slice(2));
   const [abnormal, setAbnormal] = useState();
   const [autoFill, setAutoFill] = useState(advancedSetting.autoreserve === '1');
   const [loading, setLoading] = useState();
+  const [draftTotal, setDraftTotal] = useState(() => Number(_.get(window, `draftTotalNumInfo[${worksheetId}]`)) || 0);
   const [promptCancelAddRecord, setPromptCancelAddRecord] = useState(
     localStorage.getItem('promptCancelAddRecord') === 'true',
   );
+  const [modal, modalContextHolder] = Modal.useModal();
+  const { open: openWorkSheetDraft, holder: workSheetDraftHolder } = useWorkSheetDraftModal();
   const continueAddVisible = showContinueAdd && advancedSetting.continueBtnVisible;
   const isEmbed = /\/embed\/view\//.test(location.pathname);
   const needConfirm = advancedSetting.enableconfirm === '1';
@@ -101,16 +84,26 @@ function NewRecord(props) {
   } = doubleConfirm;
   const handleConfirm = useCallback(
     submit => {
-      Dialog.confirm({
+      modal.confirm({
         title: <div className="breakAll">{confirmMsg}</div>,
-        description: confirmContent,
+        content: confirmContent,
         okText: (
-          <div className="breakAll ellipsis" style={{ maxWidth: 100 }}>
+          <div
+            className="breakAll ellipsis"
+            style={{
+              maxWidth: 100,
+            }}
+          >
             {sureName}
           </div>
         ),
         cancelText: (
-          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
+          <div
+            className="InlineBlock ellipsis"
+            style={{
+              maxWidth: 100,
+            }}
+          >
             {cancelName}
           </div>
         ),
@@ -119,8 +112,13 @@ function NewRecord(props) {
         },
       });
     },
-    [advancedSetting.doubleconfirm],
+    [cancelName, confirmContent, confirmMsg, modal, sureName],
   );
+
+  const closePromptCancelAddRecordDialog = () => {
+    promptCancelModalRef.current?.destroy();
+    promptCancelModalRef.current = null;
+  };
 
   const submitDraft = () => {
     if (window.isPublicApp) {
@@ -128,7 +126,7 @@ function NewRecord(props) {
       return;
     }
 
-    removePromptCancelAddRecordDialog();
+    closePromptCancelAddRecordDialog();
     newRecordContent.current.newRecord({
       autoFill,
       rowStatus: 21,
@@ -218,45 +216,28 @@ function NewRecord(props) {
           showFillNext &&
           advancedSetting.autoreserve !== '1' &&
           advancedSetting.autoFillVisible && (
-            <Checkbox
-              checked={autoFill}
-              onClick={() => setAutoFill(!autoFill)}
-              text={_l('继续创建时，保留本次提交内容')}
-            />
+            <Checkbox checked={autoFill} onChange={() => setAutoFill(!autoFill)}>
+              {_l('继续创建时，保留本次提交内容')}
+            </Checkbox>
           )}
       </span>
       <div className="flex" />
       {allowDraft && (
-        <button
-          type="button"
-          className="ming Button--medium Button saveAndContinueBtn ellipsis mRight12"
-          disabled={loading}
-          onClick={submitDraft}
-        >
+        <Button variant="outlined" className="ellipsis mRight12" loading={loading} onClick={submitDraft}>
           {_l('存草稿')}
-        </button>
+        </Button>
       )}
       {continueAddVisible && (
         <Tooltip title={_l('提交后继续创建')} shortcut={window.isMacOs ? '⌘⇧↵' : 'Ctrl+Shift+Enter'}>
-          <button
-            type="button"
-            className="ming Button--medium Button saveAndContinueBtn ellipsis"
-            disabled={loading}
-            onClick={submitNextCreate}
-          >
+          <Button variant="outlined" className="ellipsis" loading={loading} onClick={submitNextCreate}>
             {advancedSetting.continueBtnText || _l('提交并继续创建')}
-          </button>
+          </Button>
         </Tooltip>
       )}
       <Tooltip title={_l('提交')} shortcut={window.isMacOs ? '⌘S' : 'Ctrl+S'}>
-        <button
-          type="button"
-          className="ming Button--medium Button--primary Button mLeft12 ellipsis"
-          disabled={loading}
-          onClick={submitRecord}
-        >
+        <Button color="var(--app-primary-color)" className="mLeft12 ellipsis" loading={loading} onClick={submitRecord}>
           {advancedSetting.submitBtnText || _l('提交')}
-        </button>
+        </Button>
       </Tooltip>
     </div>
   );
@@ -268,36 +249,41 @@ function NewRecord(props) {
     isCharge,
     addNewRecord: props.addNewRecord,
   };
+  const mingoCreateButton =
+    showMingoCreate && canUseMingoOtherAssistant(worksheetInfo.projectId) ? (
+      <BgIconButton
+        className="mingoCreate"
+        text={_l('AI 填写')}
+        iconComponent={<img src={mingoCreateIcon} />}
+        onClick={() => {
+          hideNewRecord();
+          window.mingoPendingStartTask = {
+            type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT,
+            base: {
+              appId,
+              worksheetId,
+              projectId: worksheetInfo.projectId,
+              worksheetInfo,
+              defaultFormData: _.get(props, 'defaultFormData', {}),
+              defaultFormDataEditable: _.get(props, 'defaultFormDataEditable', false),
+              onAdd: props.onAdd,
+            },
+          };
+          emitter.emit('SET_MINGO_VISIBLE');
+        }}
+      />
+    ) : null;
   const iconButtons = [
     {
-      type: 'mingoCreate',
+      type: 'draft',
       ele: (
         <BgIconButton
-          className="mingoCreate"
-          text={_l('AI 填写')}
-          iconComponent={<img src={mingoCreateIcon} />}
-          onClick={() => {
-            hideNewRecord();
-            window.mingoPendingStartTask = {
-              type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT,
-              base: {
-                appId,
-                worksheetId,
-                projectId: worksheetInfo.projectId,
-                worksheetInfo,
-                defaultFormData: _.get(props, 'defaultFormData', {}),
-                defaultFormDataEditable: _.get(props, 'defaultFormDataEditable', false),
-                onAdd: props.onAdd,
-              },
-            };
-            emitter.emit('SET_MINGO_VISIBLE');
-          }}
+          style={{ width: draftTotal ? 48 : 32 }}
+          iconComponent={
+            <WorksheetDraft {...draftProps} openWorkSheetDraft={openWorkSheetDraft} onTotalChange={setDraftTotal} />
+          }
         />
       ),
-    },
-    {
-      type: 'draft',
-      ele: <BgIconButton iconComponent={<WorksheetDraft {...draftProps} />} />,
       onClick: () => {},
     },
     {
@@ -314,10 +300,6 @@ function NewRecord(props) {
   const getVisibleIconButtons = () => {
     const allowedTypes = [];
 
-    if (showMingoCreate && !md.global.SysSettings.hideAIBasicFun) {
-      allowedTypes.push('mingoCreate');
-    }
-
     if (showDraftList) {
       allowedTypes.push('draft');
     }
@@ -330,55 +312,61 @@ function NewRecord(props) {
   };
 
   const dialogProps = {
-    headerComp: (
-      <HeaderComp>
-        <div className="title">{newTitle}</div>
-      </HeaderComp>
-    ),
-    closeStyle: { marginTop: 5 },
+    title: <span className="Font20">{newTitle}</span>,
+    styles: {
+      header: { paddingBottom: 5, zIndex: 2 },
+    },
     className: cx('workSheetNewRecord', className, modalClassName),
     wrapClassName: 'workSheetNewRecordWrap withSaveShortcut' + ` createTimestamp-${didMountTimestamp.current}`,
     type: 'fixed',
     verticalAlign: 'bottom',
+    animated: false,
     width: browserIsMobile() ? window.innerWidth - 20 : 960,
-    onCancel: () => {
+    onCancel: event => {
       function handleClose() {
-        removePromptCancelAddRecordDialog();
+        closePromptCancelAddRecordDialog();
         onCloseDialog();
         hideNewRecord();
         removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
       }
 
+      if (promptCancelModalRef.current) {
+        return;
+      }
+
       if (cache.current.formChanged && !promptCancelAddRecord && allowDraft) {
-        Dialog.confirm({
+        // 避免 Ant Design 的 Esc 监听继续处理同一次 keydown，关闭刚创建的确认框
+        if (event?.key === 'Escape') {
+          event.stopImmediatePropagation?.();
+        }
+
+        promptCancelModalRef.current = modal.confirm({
           width: 520,
-          dialogClasses: 'promptCancelAddRecord',
-          title: <span>{_l('是否将本次已填写内容保存为草稿？')}</span>,
-          footer: (
-            <div className="mui-dialog-footer flexRow">
-              <div className="LineHeight36">
-                <Checkbox
-                  className="textSecondary hoverColorPrimary"
-                  value={promptCancelAddRecord}
-                  text={_l('不再提示')}
-                  onClick={checked => {
-                    setPromptCancelAddRecord(checked);
-                    localStorage.setItem('promptCancelAddRecord', checked);
-                  }}
-                />
-              </div>
-              <div className="flex"></div>
-              <div className="Dialog-footer-btns">
-                {allowDraft && (
-                  <Button className="ming Button--medium Button saveAndContinueBtn" onClick={submitDraft}>
-                    {_l('保存到草稿')}
-                  </Button>
-                )}
-                <Button type="primary" onClick={handleClose}>
-                  {_l('放弃')}
-                </Button>
-              </div>
-            </div>
+          wrapClassName: 'promptCancelAddRecord',
+          title: _l('是否将本次已填写内容保存为草稿？'),
+          okText: _l('放弃'),
+          onOk: handleClose,
+          onCancel: () => {
+            promptCancelModalRef.current = null;
+          },
+          footerLeftElement: (
+            <Checkbox
+              className="textSecondary hoverColorPrimary"
+              value={promptCancelAddRecord}
+              onChange={event => {
+                const checked = event.target.checked;
+                setPromptCancelAddRecord(checked);
+                safeLocalStorageSetItem('promptCancelAddRecord', checked);
+              }}
+            >
+              {_l('不再提示')}
+            </Checkbox>
+          ),
+          footer: (_, { OkBtn }) => (
+            <Fragment>
+              {allowDraft && <Button onClick={submitDraft}>{_l('保存到草稿')}</Button>}
+              <OkBtn />
+            </Fragment>
           ),
         });
       } else {
@@ -386,7 +374,8 @@ function NewRecord(props) {
       }
     },
     footer,
-    visible,
+    open: visible,
+    headerRightElement: mingoCreateButton,
     iconButtons: getVisibleIconButtons(),
   };
   useEffect(() => {
@@ -439,17 +428,15 @@ function NewRecord(props) {
         >
           <ScrollView options={{ overflow: { x: 'hidden' } }}>{content}</ScrollView>
           {footer}
+          {modalContextHolder}
+          {workSheetDraftHolder}
         </div>
       ) : (
         <BrowserRouter>
-          <Modal
-            {...dialogProps}
-            allowScale
-            bodyStyle={{ paddingBottom: 0, paddingTop: 50 }}
-            transitionName="none"
-            maskTransitionName="none"
-          >
+          <Modal {...dialogProps} allowScale>
             {content}
+            {modalContextHolder}
+            {workSheetDraftHolder}
           </Modal>
         </BrowserRouter>
       )}

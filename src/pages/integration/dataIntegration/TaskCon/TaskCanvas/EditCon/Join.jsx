@@ -2,18 +2,13 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
+import { Popover, Select } from 'ming-ui/antd-components';
 import { JOIN_TYPE } from '../config';
 import { ALL_OPERATION_TYPE_DATA, TYPE_DATA } from '../config';
 import { WrapL } from './style';
 
 const PopupWrap = styled.ul`
-  background: var(--color-background-card);
-  border: 1px solid var(--color-border-secondary);
-  box-shadow: var(--shadow-sm);
-  border-radius: 6px;
   li {
     width: 80px;
     padding: 14px 0;
@@ -115,7 +110,7 @@ export default function Join(props) {
 
   const renderPopup = () => {
     return (
-      <PopupWrap className="flexRow alignItemsCenter">
+      <PopupWrap className="joinDropTriggerWrap flexRow alignItemsCenter">
         {JOIN_TYPE.map(o => {
           return (
             <li
@@ -227,27 +222,23 @@ export default function Join(props) {
                 {renderCard(o)}
               </div>
               {i % 2 === 0 && (
-                <Trigger
-                  popupVisible={visible}
-                  action={['click']}
-                  popupClassName="joinDropTriggerWrap"
-                  popup={renderPopup()}
+                <Popover
+                  noPadding
+                  open={visible}
+                  trigger="click"
+                  content={renderPopup()}
                   getPopupContainer={() => document.body}
-                  onPopupVisibleChange={visible => {
+                  onOpenChange={visible => {
                     setState({ visible });
                   }}
-                  popupAlign={{
-                    points: ['tc', 'bc'],
-                    offset: [0, 10],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
+                  placement="bottom"
                 >
                   <DropWrap className={cx('joinDrop flexColumn alignItemsCenter Hand', { visible })}>
                     <div className="colorPrimary Bold">{typeData.txt}</div>
                     <div className={cx(`iconImg InlineBlock ${typeData.img}`)} style={{ width: 24, height: 24 }}></div>
                     <i className="icon icon-arrow-down-border textDisabled" />
                   </DropWrap>
-                </Trigger>
+                </Popover>
               )}
             </React.Fragment>
           );
@@ -258,65 +249,57 @@ export default function Join(props) {
         const { leftField, rightField } = o;
         return (
           <div className="joinCondition flexRow alignItemsCenter mTop16">
-            <Dropdown
+            <Select
               placeholder={_l('请选择')}
               value={leftField.id}
-              renderTitle={data => {
-                return renderTitle(data);
-              }}
+              labelRender={() => renderTitle(leftField)}
               className="mRight12 dropCondition"
-              menuClass="dropConditionTri"
-              border
-              openSearch
-              cancelAble
-              isAppendToBody
-              data={leftFieldNames.map(a => {
+              classNames={{ popup: { root: 'dropConditionTri' } }}
+              showPopupSearch
+              optionFilterProp="label"
+              allowClear
+              options={leftFieldNames.map(a => {
                 return {
                   ...a,
-                  text: a.alias,
+                  label: a.alias,
                   value: a.id,
                 };
               })}
-              renderItem={renderItem}
+              optionRender={({ data }) => renderItem(data)}
               onChange={id => {
                 let data = leftFieldNames.find(a => a.id === id) || {};
                 updateData('leftField', i, data);
               }}
             />
             =
-            <Dropdown
+            <Select
               placeholder={_l('请选择')}
               className="mLeft12 dropCondition"
-              menuClass="dropConditionTri"
+              classNames={{ popup: { root: 'dropConditionTri' } }}
               value={rightField.id}
               onChange={id => {
                 let data = rightFieldNames.find(a => a.id === id) || {};
                 updateData('rightField', i, data);
               }}
-              border
-              openSearch
-              cancelAble
-              isAppendToBody
-              renderTitle={data => {
-                return renderTitle(data);
-              }}
-              data={rightFieldNames
+              showPopupSearch
+              optionFilterProp="label"
+              allowClear
+              labelRender={() => renderTitle(rightField)}
+              options={rightFieldNames
                 .filter(o => o.jdbcTypeId === leftField.jdbcTypeId && leftField.jdbcTypeId) //右边需要根据左边的jdbcTypeId
                 .map(a => {
-                  return { ...a, text: a.alias, value: a.id };
+                  return { ...a, label: a.alias, value: a.id };
                 })}
-              renderItem={renderItem}
+              optionRender={({ data }) => renderItem(data)}
             />
             {conditions.length > 1 && i === 0 && (
               <div className="andOr flexRow alignItemsCenter">
-                <Dropdown
-                  dropIcon="task_custom_btn_unfold"
+                <Select
                   defaultValue={spliceType}
                   className="andOrDrop"
-                  isAppendToBody
-                  menuStyle={{ width: 46 }}
+                  variant="borderless"
                   // disabled={i > 0}
-                  data={TYPE_DATA}
+                  options={TYPE_DATA}
                   onChange={spliceType => {
                     onUpdate({
                       ...node,

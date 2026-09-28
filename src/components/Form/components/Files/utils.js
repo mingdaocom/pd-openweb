@@ -1,8 +1,20 @@
 import _ from 'lodash';
 import qs from 'query-string';
-import { getFileExtends } from 'src/components/UploadFiles/utils';
-import { downloadFile, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { getFileExtends } from 'src/utils/core/file';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+
+export const isDeletedAttachment = file => file?.isDelete === true;
+
+/** 判断附件值是否只有 fileId，需要请求完整附件信息。 */
+export const shouldLoadAttachmentDetails = value => {
+  if (!value) return false;
+
+  const file = safeParse(value, 'array')[0];
+  return !!(file && !isDeletedAttachment(file) && file.fileId && !file.updateTime && !file.createUserName);
+};
 
 export const handleShare = (data, isDownload) => {
   if (!md.global.Account.accountId) {
@@ -91,7 +103,6 @@ export const handleSaveKcCloud = (data, isDownload) => {
         dialogTitle: _l('选择路径'),
         isFolderNode: 1,
         selectedItems: null,
-        zIndex: 9999,
       })
       .then(result => {
         import('src/components/kc/saveToKnowledge/saveToKnowledge').then(saveToKnowledge => {
@@ -101,8 +112,8 @@ export const handleSaveKcCloud = (data, isDownload) => {
             .then(function () {
               alert(_l('保存成功'));
             })
-            .catch(function () {
-              alert(_l('保存失败'), 2);
+            .catch(function (_requestError) {
+              alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
             });
         });
       });

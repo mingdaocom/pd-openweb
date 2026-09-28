@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, PersonalStatus } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import GroupController from 'src/api/group';
-import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import settingGroup from 'src/pages/Group/settingGroup';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import * as actions from '../../redux/actions';
-import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import { createDiscussion } from '../../utils/group';
 import * as socket from '../../utils/socket';
@@ -35,14 +32,16 @@ class ChatPanelHeader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (!this.props.searchText) {
-        this.setState({
-          focus: false,
-          searchVisible: false,
-          value: '',
-        });
-      }
+    const searchCleared = prevProps.searchText && !this.props.searchText;
+    const filePanelOpened = !prevProps.isOpenFile && this.props.isOpenFile;
+    const sessionChanged = prevProps.currentSession?.value !== this.props.currentSession?.value;
+
+    if (searchCleared || filePanelOpened || sessionChanged) {
+      this.setState({
+        focus: false,
+        searchVisible: false,
+        value: '',
+      });
     }
   }
   handleClosePanel() {
@@ -50,6 +49,10 @@ class ChatPanelHeader extends Component {
     socket.Contact.recordAction({ id: '' });
   }
   handleSearch() {
+    if (this.props.isOpenFile) {
+      this.props.onOpenFile(false);
+    }
+
     this.setState(
       {
         searchVisible: true,
@@ -208,57 +211,56 @@ class ChatPanelHeader extends Component {
     const { session } = this.props;
 
     if (session.isPushNotice) {
-      return <i className="icon-notifications_off" />;
+      return <Icon icon="notifications_off" className="Font16 textSecondary" />;
     } else {
-      return <i className="icon-notifications" />;
+      return <Icon icon="notifications" className="Font16 textSecondary" />;
     }
   }
-  renderMenu() {
+  renderMenuItems() {
     const { session } = this.props;
     const { isGroup, isTop, groupId } = session;
     const isSet = 'isSession' in session ? (groupId ? true : false) : true;
-    // const isSet = false;
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
-    return (
-      <div className="ChatPanel-addToolbar-menu">
-        {isSet ? (
-          <div className="menuItem" onClick={this.handleStick.bind(this)}>
-            <i className="icon-set_top" />
-            <div className="menuItem-text overflow_ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
-          </div>
-        ) : undefined}
-        {isGroup ? (
-          <div className="menuItem" onClick={this.handleUpdateGroupPushNotice.bind(this)}>
-            {session.isGroup ? this.renderIcon() : undefined}
-            <div className="menuItem-text overflow_ellipsis">
-              {session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}
-            </div>
-          </div>
-        ) : undefined}
-        {!hideChat && isGroup ? (
-          <div className="menuItem" onClick={this.handleSettingGroup}>
-            <i className="icon-group" />
-            <div className="menuItem-text overflow_ellipsis">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>
-          </div>
-        ) : undefined}
-      </div>
-    );
+
+    return [
+      isSet
+        ? {
+            key: 'stick',
+            icon: <Icon icon="set_top" className="Font16 textSecondary" />,
+            label: isTop ? _l('取消置顶') : _l('置顶'),
+            onClick: this.handleStick.bind(this),
+          }
+        : null,
+      isGroup
+        ? {
+            key: 'pushNotice',
+            icon: this.renderIcon(),
+            label: session.isPushNotice ? _l('消息免打扰') : _l('允许提醒'),
+            onClick: this.handleUpdateGroupPushNotice.bind(this),
+          }
+        : null,
+      !hideChat && isGroup
+        ? {
+            key: 'groupSetting',
+            icon: <Icon icon="group" className="Font16 textSecondary" />,
+            label: session.isPost ? _l('群组设置') : _l('聊天设置'),
+            onClick: this.handleSettingGroup,
+          }
+        : null,
+    ].filter(Boolean);
   }
   renderSetting() {
     const { triggerVisible } = this.state;
     return (
-      <Trigger
-        popupVisible={triggerVisible}
-        onPopupVisibleChange={this.handleTriggerChange.bind(this)}
-        popupClassName="ChatPanel-Trigger"
-        action={['click']}
-        popupPlacement="bottom"
-        builtinPlacements={config.builtinPlacements}
-        popup={this.renderMenu()}
-        popupAlign={{ offset: [80, 10] }}
+      <Dropdown
+        menu={{ items: this.renderMenuItems(), style: { width: 180 } }}
+        open={triggerVisible}
+        placement="bottomLeft"
+        trigger={['click']}
+        onOpenChange={this.handleTriggerChange.bind(this)}
       >
         <i className={cx('icon-settings colorPrimary', { iconHover: !triggerVisible })} />
-      </Trigger>
+      </Dropdown>
     );
   }
 
@@ -325,25 +327,29 @@ class ChatPanelHeader extends Component {
         </div>
         <div className="flex" />
         <div className="other" style={{ marginRight: isWindow ? 15 : 0 }}>
-          {isFileTrsnsfer ? undefined : (
-            <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
-              <i onClick={this.handleSearch.bind(this)} className="icon-search colorPrimary iconHover" />
-              <input
-                ref={input => {
-                  this.input = input;
-                }}
-                className={cx('search-input', { borderColorPrimary: focus })}
-                placeholder={session.isGroup ? _l('搜索成员、文件或聊天记录') : _l('搜索文件或聊天记录')}
-                onFocus={this.handleFocus.bind(this)}
-                onBlur={this.handleBlur.bind(this)}
-                onChange={this.handleChange.bind(this)}
-                onKeyDown={this.handleKeyDown.bind(this)}
-                type="text"
-                value={value}
-              />
-              <i onClick={this.handleSearchHidden.bind(this)} className="icon-delete colorPrimary iconHover" />
-            </div>
-          )}
+          <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
+            <i onClick={this.handleSearch.bind(this)} className="icon-search colorPrimary iconHover" />
+            <input
+              ref={input => {
+                this.input = input;
+              }}
+              className={cx('search-input', { borderColorPrimary: focus })}
+              placeholder={
+                isFileTrsnsfer
+                  ? _l('搜索文件或文字消息')
+                  : session.isGroup
+                    ? _l('搜索成员、文件或聊天记录')
+                    : _l('搜索文件或聊天记录')
+              }
+              onFocus={this.handleFocus.bind(this)}
+              onBlur={this.handleBlur.bind(this)}
+              onChange={this.handleChange.bind(this)}
+              onKeyDown={this.handleKeyDown.bind(this)}
+              type="text"
+              value={value}
+            />
+            <i onClick={this.handleSearchHidden.bind(this)} className="icon-delete colorPrimary iconHover" />
+          </div>
           {session.isGroup || isFileTrsnsfer || hideChat ? undefined : (
             <Tooltip title={_l('发起聊天')}>
               <i onClick={this.handleAddSession.bind(this)} className="icon-invite colorPrimary iconHover" />

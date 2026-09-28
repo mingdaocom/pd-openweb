@@ -3,14 +3,15 @@ import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import ajaxRequest from 'src/api/taskCenter';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 import FileList from 'src/components/comment/FileList';
 import ErrorState from 'src/components/errorPage/errorState';
 import RelationControl from 'src/components/relationControl/relationControl';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../config/config';
 import {
   destroyTask,
@@ -33,6 +34,7 @@ import TaskTime from './taskTime/taskTime';
 import './taskDetail.less';
 
 const ClickAwayable = ClickAway;
+
 const TAB_TYPE = {
   comment: 1,
   attachment: 2,
@@ -284,13 +286,15 @@ class TaskDetail extends Component {
     const root = createRoot(document.createElement('div'));
 
     root.render(
-      <RelationControl
-        ajaxPost={ajaxPost}
-        ajaxDataFormat={ajaxDataFormat}
-        createDisable
-        types={[type]}
-        onSubmit={item => this.relationOnSubmit(item.sid, item.type)}
-      />,
+      <AntdConfigProvider>
+        <RelationControl
+          ajaxPost={ajaxPost}
+          ajaxDataFormat={ajaxDataFormat}
+          createDisable
+          types={[type]}
+          onSubmit={item => this.relationOnSubmit(item.sid, item.type)}
+        />
+      </AntdConfigProvider>,
     );
   };
 
@@ -327,9 +331,9 @@ class TaskDetail extends Component {
     };
 
     if (taskControls.length && id) {
-      Dialog.confirm({
+      Modal.confirm({
         title: type === RELATION_TYPES.task ? _l('您确定重新关联母任务吗？') : _l('您确定重新关联项目吗？'),
-        children: (
+        content: (
           <div class="Font14 mBottom20">
             {type === RELATION_TYPES.task
               ? _l(
@@ -355,29 +359,34 @@ class TaskDetail extends Component {
     const { openType } = this.props;
     const isMe = accountId === md.global.Account.accountId;
 
-    Dialog.confirm({
+    Modal.confirm({
       className: 'deleteTaskMemberDialog',
-      children: <div class="Font16 mBottom20">{isMe ? _l('是否确认退出该任务？') : _l('是否移除该任务参与者？')}</div>,
+      okButtonProps: { danger: true },
+      title: <span className="textError">{isMe ? _l('是否确认退出该任务？') : _l('是否移除该任务参与者？')}</span>,
       onOk: () => {
-        ajaxRequest.deleteTaskMember({ taskID: taskId, accountID: accountId }).then(() => {
-          alert(isMe ? _l('退出成功') : _l('移除成功'));
-
-          if (isMe) {
-            this.closeDetail();
-            this.props.dispatch(destroyTask(taskId));
-            if (openType === OPEN_TYPE.slide) {
-              afterDeleteTask([taskId]);
-              // 不是查看他人时重新拉取计数
-              if (!this.props.taskConfig.filterUserId) {
-                getLeftMenuCount('', 'all');
+        ajaxRequest
+          .deleteTaskMember({
+            taskID: taskId,
+            accountID: accountId,
+          })
+          .then(() => {
+            alert(isMe ? _l('退出成功') : _l('移除成功'));
+            if (isMe) {
+              this.closeDetail();
+              this.props.dispatch(destroyTask(taskId));
+              if (openType === OPEN_TYPE.slide) {
+                afterDeleteTask([taskId]);
+                // 不是查看他人时重新拉取计数
+                if (!this.props.taskConfig.filterUserId) {
+                  getLeftMenuCount('', 'all');
+                }
+              } else if (openType === OPEN_TYPE.detail) {
+                navigateTo('/apps/task/center');
               }
-            } else if (openType === OPEN_TYPE.detail) {
-              navigateTo('/apps/task/center');
+            } else {
+              this.props.dispatch(removeTaskMember(taskId, accountId));
             }
-          } else {
-            this.props.dispatch(removeTaskMember(taskId, accountId));
-          }
-        });
+          });
       },
     });
   };
@@ -424,19 +433,15 @@ class TaskDetail extends Component {
             '.listStageTaskContent',
             '.singleStage .listStageContent li.singleTaskStage',
             '.singleStage .listStageContent li.addNewTask',
-            '.dialogScroll',
             '.attachmentsPreview',
-            '.selectUserBox',
-            '#dialogBoxSelectUser_container',
-            '.mui-dialog-container',
-            '.PositionContainer-wrapper',
-            '.rc-trigger-popup',
             '#chat',
             '#chatPanel',
-            '.warpDatePicker',
             '.ck',
-            '.ant-select-dropdown',
-            '.ant-picker-dropdown',
+            '.hap-modal-wrap',
+            '.hap-select-dropdown',
+            '.hap-picker-dropdown',
+            '.hap-dropdown-menu',
+            '.hap-popover',
           ]}
           onClickAway={this.closeDetail}
         >
@@ -622,9 +627,18 @@ class TaskDetail extends Component {
 
     // 弹层打开
     return (
-      <Dialog.DialogBase visible width={800} type="fixed" anim={false}>
+      <Modal
+        open
+        width={800}
+        type="fixed"
+        title={null}
+        footer={null}
+        mask={{ closable: false }}
+        closable={false}
+        styles={{ container: { padding: 0 } }}
+      >
         {this.renderContentBox()}
-      </Dialog.DialogBase>
+      </Modal>
     );
   }
 }

@@ -2,7 +2,7 @@
 import kc from 'src/api/kc';
 import createShare from 'src/components/createShare/createShare';
 import kcUtil from 'src/pages/kc/util';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 var copyNode = kc.copyNode;
 var addNode = kc.addNode;

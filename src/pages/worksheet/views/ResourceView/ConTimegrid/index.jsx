@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { calculateTimePercentage } from 'src/pages/worksheet/views/ResourceView/util.js';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { dayTimeByPart, lineBottomHeight, timeWidth, timeWidthHalf, types, weekObj } from '../config';
 import RecordWrap from './RecordWrap';
 
@@ -83,15 +83,15 @@ const ScrollWrap = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   right: 0;
-  width: ${props => props.width || 10}px;
-  top: ${props => props.top}px;
-  height: ${props => `calc(100% - ${props.top}px)`};
+  width: ${props => props.$width || 10}px;
+  top: ${props => props.$top}px;
+  height: ${props => `calc(100% - ${props.$top}px)`};
   z-index: 10;
 `;
 const GridCon = styled.div`
-  width: ${props => props.width}px;
-  min-width: ${props => props.width}px;
-  max-width: ${props => props.width}px;
+  width: ${props => props.$width}px;
+  min-width: ${props => props.$width}px;
+  max-width: ${props => props.$width}px;
   .con {
     .gridOne {
       height: 28px;
@@ -106,9 +106,9 @@ const GridCon = styled.div`
       height: 28px;
       border-bottom: 1px solid var(--color-border-primary);
       box-sizing: border-box;
-      width: ${props => props.weekWidth}px;
-      min-width: ${props => props.weekWidth}px;
-      max-width: ${props => props.weekWidth}px;
+      width: ${props => props.$weekWidth}px;
+      min-width: ${props => props.$weekWidth}px;
+      max-width: ${props => props.$weekWidth}px;
     }
   }
   .gridYear {
@@ -167,10 +167,10 @@ const GridCon = styled.div`
   }
 `;
 const GridOne = styled.div`
-  width: ${props => props.gridWidth}px;
-  min-width: ${props => props.gridWidth}px;
-  max-width: ${props => props.gridWidth}px;
-  border-right: ${props => (props.isBorder2 ? 2 : 1)}px solid var(--view-border-color-thin);
+  width: ${props => props.$gridWidth}px;
+  min-width: ${props => props.$gridWidth}px;
+  max-width: ${props => props.$gridWidth}px;
+  border-right: ${props => (props.$isBorder2 ? 2 : 1)}px solid var(--view-border-color-thin);
   .todayLine {
     position: absolute;
     left: 0;
@@ -207,7 +207,7 @@ export default function Timegrid(props) {
     }, 1000);
   }, [props.canvasType]);
   const setTodayBtn = () => {
-    if ($('.ant-modal-mask').length > 0 || $('.todayLine').length <= 0) {
+    if ($('.hap-modal-mask').length > 0 || $('.todayLine').length <= 0) {
       return;
     }
 
@@ -372,8 +372,8 @@ export default function Timegrid(props) {
         >
           <GridCon
             className="gridCon flexColumn h100"
-            width={allW}
-            weekWidth={!['Month'].includes(type) && (list[0].times || []).length * timeWidth * 2}
+            $width={allW}
+            $weekWidth={!['Month'].includes(type) && (list[0].times || []).length * timeWidth * 2}
           >
             <div className="headGridCon">
               {type === 'Month'
@@ -401,14 +401,14 @@ export default function Timegrid(props) {
                       className={cx('gridOneCon h100 Relative', {
                         isBg: ['Month'].includes(type) && [6, 7].includes(o.dayOfWeek),
                       })}
-                      gridWidth={
+                      $gridWidth={
                         ['Week'].includes(type)
                           ? timeWidth * 2
                           : ['Month', 'Year'].includes(type)
                             ? timeWidth
                             : timeWidthHalf
                       }
-                      isBorder2={
+                      $isBorder2={
                         (['Week'].includes(type) && (i + 1) % (list[0].times || []).length === 0) ||
                         (['Year'].includes(type) && (i + 1) % 2 === 0)
                       }
@@ -453,10 +453,10 @@ export default function Timegrid(props) {
         </div>
         <ScrollWrap
           id={`scrollDiv_${view.viewId}`}
-          top={(type === 'Day' ? 28 + 2 : 28) + 44}
+          $top={(type === 'Day' ? 28 + 2 : 28) + 44}
           onScroll={onScroll}
           ref={scrollDiv}
-          width={Math.floor(props.mx - allW) > 0 ? Math.floor(props.mx - allW) : 10}
+          $width={Math.floor(props.mx - allW) > 0 ? Math.floor(props.mx - allW) : 10}
         >
           <div
             className="c"

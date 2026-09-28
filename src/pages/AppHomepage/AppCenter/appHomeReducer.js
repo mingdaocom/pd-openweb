@@ -1,8 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 export const initialState = {
   groupsLoading: true,
@@ -632,8 +633,8 @@ export class CreateActions {
           groupId: editingGroup.id,
         });
       })
-      .catch(() => {
-        alert(_l('更新分组失败'), 2);
+      .catch(_requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('更新分组失败'), 2);
       });
   }
   updateApp({ appId, ...rest }) {
@@ -652,8 +653,8 @@ export class CreateActions {
           res.data ? alert(_l('设置链接成功')) : alert(_l('设置链接失败!'), 2);
         }
       })
-      .catch(() => {
-        alert(isUpdateExternalLink ? _l('设置链接失败！') : _l('更新应用失败！'), 2);
+      .catch(_requestError6 => {
+        alertIfNotUnauthorized(_requestError6, isUpdateExternalLink ? _l('设置链接失败！') : _l('更新应用失败！'), 2);
       });
   }
   deleteApp(para) {
@@ -672,12 +673,12 @@ export class CreateActions {
           throw new Error();
         }
       })
-      .catch(() => {
+      .catch(_requestError8 => {
         this.dispatch({
           type: 'RESET_STATE',
           value: oldState,
         });
-        alert(_l('删除应用失败！'), 2);
+        alertIfNotUnauthorized(_requestError8, _l('删除应用失败！'), 2);
       });
   }
   quitApp(para) {
@@ -689,11 +690,23 @@ export class CreateActions {
             appId: para.appId,
           });
         } else {
-          Dialog.confirm({
-            title: <span style={{ color: 'var(--color-error)' }}>{_l('无法退出通过部门加入的应用')}</span>,
-            description: _l('您所在的部门被加入了此应用，只能由应用管理员进行操作'),
+          Modal.confirm({
+            title: (
+              <span
+                style={{
+                  color: 'var(--color-error)',
+                }}
+              >
+                {_l('无法退出通过部门加入的应用')}
+              </span>
+            ),
+            content: _l('您所在的部门被加入了此应用，只能由应用管理员进行操作'),
             closable: false,
-            removeCancelBtn: true,
+            cancelButtonProps: {
+              style: {
+                display: 'none',
+              },
+            },
             okText: _l('关闭'),
           });
         }
@@ -715,8 +728,8 @@ export class CreateActions {
         });
         alert(para.isMark ? _l('收藏成功') : _l('已取消收藏'));
       })
-      .catch(() => {
-        alert(para.isMark ? _l('收藏失败！') : _l('取消收藏失败！'), 2);
+      .catch(_requestError4 => {
+        alertIfNotUnauthorized(_requestError4, para.isMark ? _l('收藏失败！') : _l('取消收藏失败！'), 2);
       });
   }
   markApps(para) {
@@ -730,8 +743,8 @@ export class CreateActions {
         });
         alert(_l('设置成功'));
       })
-      .catch(() => {
-        alert(_l('设置失败！'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('设置失败！'), 2);
       });
   }
   copyApp({ id, groupId } = {}, newAppId) {
@@ -772,8 +785,8 @@ export class CreateActions {
             break;
         }
       })
-      .catch(() => {
-        !window.platformENV.isOverseas && !window.platformENV.isLocal && alert(_l('新建应用失败！'), 2);
+      .catch(_requestError5 => {
+        window.platformENV.isHap && alertIfNotUnauthorized(_requestError5, _l('新建应用失败！'), 2);
       });
   }
   updateAppSort({ sortType, appIds, projectId, groupId }) {
@@ -802,8 +815,8 @@ export class CreateActions {
           throw new Error();
         }
       })
-      .catch(() => {
-        alert(_l('更新应用排序失败！'), 2);
+      .catch(_requestError3 => {
+        alertIfNotUnauthorized(_requestError3, _l('更新应用排序失败！'), 2);
       });
   }
   editHomeSetting({ projectId, setting = {}, editingKey }) {
@@ -820,9 +833,9 @@ export class CreateActions {
           throw new Error();
         }
       })
-      .catch(() => {
+      .catch(_requestError7 => {
         this.dispatch({ type: 'UPDATE_SETTING', value: oldValue });
-        alert(_l('更新首页配置失败！'), 2);
+        alertIfNotUnauthorized(_requestError7, _l('更新首页配置失败！'), 2);
       });
   }
   updateGroupSorts(sortedGroups, type) {

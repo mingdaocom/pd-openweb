@@ -1,15 +1,25 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import { Button, Checkbox, Dialog, Icon, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Base64 } from 'js-base64';
+import { Icon, Support } from 'ming-ui';
+import { Button, Checkbox, Modal, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import openAuthorAjax from 'src/api/openAuthor';
-import { pathCompletion } from 'src/utils/common';
-import { AI_TABS, INSTALL_CONFIGS, INSTALL_MODE_OPTIONS, QUICK_CONNECT_TOOLS, SKILL_MODULES } from './constant';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { AI_TABS, getQuickConnectTools, INSTALL_CONFIGS, INSTALL_MODE_OPTIONS, SKILL_MODULES } from './constant';
 import { getInstallData, getInstallTip, getMcpConfigData } from './util';
 import './index.less';
+
+const SKILL_MODULE_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 10, paddingInlineEnd: 0 },
+};
+const INSTALL_MODE_SEGMENTED_OPTIONS = INSTALL_MODE_OPTIONS.map(({ key, label }) => ({ label, value: key }));
+
+const getConfigTypeSegmentedOptions = () => [
+  { label: _l('个人'), value: 'personal' },
+  { label: _l('应用'), value: 'app' },
+];
 
 function Header() {
   return (
@@ -35,7 +45,13 @@ const renderFieldLabel = text => (
   </div>
 );
 
-function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onCancel = () => {} }) {
+function ConnectAiDialog({
+  visible,
+  projectId,
+  initialPersonalTokens = null,
+  onOpenPersonalAccessTokenDrawer = () => {},
+  onCancel = () => {},
+}) {
   const [activeTab, setActiveTab] = useState('MCP');
   const [configType, setConfigType] = useState('personal');
   const [personalTokens, setPersonalTokens] = useState(initialPersonalTokens || []);
@@ -185,7 +201,7 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
 
     if (activeTab === 'MCP' && !withSkills && tool.getMcpInstallUrl) {
       const [serverName, serverConfig] = Object.entries(mcpData.config.mcpServers)[0];
-      window.location.assign(tool.getMcpInstallUrl(serverName, btoa(JSON.stringify(serverConfig))));
+      window.location.assign(tool.getMcpInstallUrl(serverName, Base64.encode(JSON.stringify(serverConfig))));
       return;
     }
 
@@ -210,7 +226,7 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
       onClick={() => {
         if (type === 'personalToken') {
           refreshFromCreateRef.current = () => fetchPersonalTokens({ keepSelected: true });
-          window.open(pathCompletion('/personal?type=pat'), '_blank');
+          onOpenPersonalAccessTokenDrawer();
           return;
         }
 
@@ -232,17 +248,7 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
 
   const renderQuickConnectCard = () => (
     <div className="quickConnectCard">
-      <div className="segmentWrap installModeWrap">
-        {INSTALL_MODE_OPTIONS.map(item => (
-          <div
-            key={item.key}
-            className={cx('segmentItem', { active: installMode === item.key })}
-            onClick={() => setInstallMode(item.key)}
-          >
-            {item.label}
-          </div>
-        ))}
-      </div>
+      <Segmented block options={INSTALL_MODE_SEGMENTED_OPTIONS} value={installMode} onChange={setInstallMode} />
 
       {installMode === 'manual' ? (
         <div className="manualInstallHint">{installData.manualInstallHint}</div>
@@ -250,7 +256,7 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
         <div className="quickConnectToolsRow">
           <div className="quickConnectLabel">{_l('连接到：')}</div>
           <div className="quickConnectList">
-            {QUICK_CONNECT_TOOLS.map(item => (
+            {getQuickConnectTools().map(item => (
               <div
                 key={item.key}
                 className={cx('toolItem', { active: selectedTool === item.key, noIcon: !item.icon })}
@@ -303,7 +309,9 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
                 className={cx('skillModuleItem', { active: checked, disabled })}
                 onClick={() => !disabled && toggleSkillModule(item.key)}
               >
-                <Checkbox noMargin disabled={disabled} checked={checked} text={label} />
+                <Checkbox disabled={disabled} checked={checked} styles={SKILL_MODULE_CHECKBOX_STYLES}>
+                  {label}
+                </Checkbox>
                 <div className="skillModuleContent">
                   <div className="textSecondary">{item.desc}</div>
                   <div className="skillModuleDivider" />
@@ -350,11 +358,13 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
     <div className="installActions">
       {['MCP', 'CLI'].includes(activeTab) && (
         <div className="installOptionRow">
-          <Checkbox checked={withSkills} onClick={checked => setWithSkills(!checked)} text={_l('同时安装配套Skills')} />
+          <Checkbox checked={withSkills} onChange={event => setWithSkills(event.target.checked)}>
+            {_l('同时安装配套Skills')}
+          </Checkbox>
           <span className="recommendTag">{_l('推荐')}</span>
         </div>
       )}
-      <Button type="primary" className="installBtn w100" disabled={!installData.canInstall} onClick={handleInstall}>
+      <Button type="primary" className="w100" disabled={!installData.canInstall} onClick={handleInstall}>
         {installData.isOtherTool ? _l('复制安装提示词') : _l('安装')}
       </Button>
       <div className="installTip">
@@ -370,12 +380,14 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
   );
 
   return (
-    <Dialog
-      dialogClasses="connectAiDialog"
-      visible={visible}
+    <Modal
+      rootClassName="connectAiDialog"
+      open={visible}
       onCancel={onCancel}
-      showFooter={false}
-      overlayClosable={false}
+      footer={null}
+      mask={{ closable: false }}
+      keyboard
+      styles={{ header: { padding: '18px 24px 0' }, body: { padding: '0 24px 24px' }, container: { padding: 0 } }}
       width={800}
       title={<Header />}
     >
@@ -399,20 +411,13 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
           <div className="configCard">
             <div className="cardTitle">{_l('MCP 配置')}</div>
 
-            <div className="segmentWrap">
-              {[
-                { key: 'personal', label: _l('个人') },
-                { key: 'app', label: _l('应用') },
-              ].map(item => (
-                <div
-                  key={item.key}
-                  className={cx('segmentItem', { active: configType === item.key })}
-                  onClick={() => setConfigType(item.key)}
-                >
-                  {item.label}
-                </div>
-              ))}
-            </div>
+            <Segmented
+              block
+              className="mTop18"
+              options={getConfigTypeSegmentedOptions()}
+              value={configType}
+              onChange={setConfigType}
+            />
 
             <div className="configHint">
               {configType === 'personal' ? _l('按个人权限操作 HAP 数据') : _l('按应用授权范围操作 HAP 数据')}
@@ -423,13 +428,13 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
                 {renderFieldLabel(_l('个人访问令牌'))}
                 <Select
                   className="connectAiSelect"
-                  dropdownClassName="connectAiSelectDropdown"
+                  classNames={{ popup: { root: 'connectAiSelectDropdown' } }}
                   placeholder={personalTokens.length ? _l('请选择个人访问令牌') : _l('当前组织暂无可用令牌')}
                   notFoundContent={_l('当前组织暂无可用令牌')}
                   value={selectedTokenId || undefined}
                   options={personalTokens.map(item => ({ label: item.name, value: item.id }))}
                   onChange={setSelectedTokenId}
-                  dropdownRender={menu => (
+                  popupRender={menu => (
                     <div className="connectAiSelectDropdownWrap">
                       {menu}
                       {renderSelectExtra('personalToken')}
@@ -442,7 +447,7 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
                 {renderFieldLabel(_l('应用'))}
                 <Select
                   className="connectAiSelect"
-                  dropdownClassName="connectAiSelectDropdown"
+                  classNames={{ popup: { root: 'connectAiSelectDropdown' } }}
                   placeholder={_l('选择应用')}
                   notFoundContent={_l('暂无数据')}
                   value={selectedAppId || undefined}
@@ -456,13 +461,13 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
                     {renderFieldLabel(_l('授权密钥'))}
                     <Select
                       className="connectAiSelect"
-                      dropdownClassName="connectAiSelectDropdown"
+                      classNames={{ popup: { root: 'connectAiSelectDropdown' } }}
                       placeholder={_l('选择授权密钥')}
                       notFoundContent={_l('暂无数据')}
                       value={selectedAuthId || undefined}
                       options={authKeys.map(item => ({ label: item.name, value: item.id }))}
                       onChange={setSelectedAuthId}
-                      dropdownRender={menu => (
+                      popupRender={menu => (
                         <div className="connectAiSelectDropdownWrap">
                           {menu}
                           {renderSelectExtra('authKey')}
@@ -492,7 +497,7 @@ function ConnectAiDialog({ visible, projectId, initialPersonalTokens = null, onC
 
         {installMode === 'dialog' && !installData.shouldHideCliInstall && renderInstallActions()}
       </div>
-    </Dialog>
+    </Modal>
   );
 }
 

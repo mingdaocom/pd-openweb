@@ -4,7 +4,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import certificationApi from 'src/api/certification';
 import Config from 'src/pages/Admin/config';
 import CertificationDisplay from 'src/pages/certification/components/CertificationDisplay';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import SmsSignature from './SmsSignature';
 
 const Wrapper = styled.div`
@@ -32,7 +32,7 @@ export default function CertInfo() {
   const [certList, setCertList] = useState([]);
 
   useEffect(() => {
-    !window.platformENV.isOverseas && !window.platformENV.isLocal && getCertList();
+    window.platformENV.isHap && getCertList();
   }, []);
 
   const getCertList = () => {
@@ -49,7 +49,7 @@ export default function CertInfo() {
 
   return (
     <Wrapper>
-      {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+      {window.platformENV.isHap && (
         <Fragment>
           <div className="flexRow alignItemsCenter mBottom16">
             <div className="bold flex">{_l('身份认证')}</div>

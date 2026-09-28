@@ -1,3 +1,18 @@
+import moment from 'moment';
+
+/** 将当前时刻按应用的 UTC 偏移格式化，仅供打印内容使用。 */
+export const dateConvertToAppZone = (date, appTimeZone) => {
+  if (!date) return '';
+  if (appTimeZone === undefined || appTimeZone === null || appTimeZone === '') return '';
+
+  const normalizedTimeZone = Number(appTimeZone);
+  if (!Number.isFinite(normalizedTimeZone)) return '';
+
+  const timeZone = normalizedTimeZone === 1 ? moment(date).utcOffset() : normalizedTimeZone;
+
+  return moment(date).utcOffset(timeZone).format('YYYY-MM-DD HH:mm:ss');
+};
+
 export const getPrintOperationLogActionText = ({
   workItem = {},
   flowNode = {},

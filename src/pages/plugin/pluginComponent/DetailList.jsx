@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { navigateToView } from 'src/pages/widgetConfig/util/data';
-import { downloadFile, pathCompletion } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
+import { navigateToView } from 'src/pages/widgetConfig/navigation';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, pluginConstants } from '../config';
-import ExportPlugin from './ExportPlugin';
+import { useExportPlugin } from './ExportPlugin';
 import PublishVersion from './PublishVersion';
 
 const ListWrapper = styled.div`
@@ -102,7 +103,8 @@ const ListWrapper = styled.div`
       flex: 6;
     }
     .publisher,
-    .description {
+    .description,
+    .pubTime {
       width: 0;
       padding-right: 5px;
     }
@@ -189,7 +191,7 @@ function SecretKeyDialog(props) {
   const expireDays = validityPeriod && moment(validityPeriod).diff(moment(nowDate), 'days');
 
   return (
-    <Dialog visible title={_l('授权密钥')} width={480} onCancel={onClose} showFooter={false}>
+    <Modal open title={_l('授权密钥')} width={480} mask={{ closable: true }} keyboard onCancel={onClose}>
       <SecretDetailItem className="alignItemsCenter">
         <div className="labelText">{_l('密码')}</div>
         <div className="flex flexRow alignItemsCenter">
@@ -230,7 +232,7 @@ function SecretKeyDialog(props) {
           </div>
         </SecretDetailItem>
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -248,6 +250,7 @@ const renderCommonColumn = ({ content, withLink, onClick = () => {} }) => {
     </div>
   );
 };
+
 const emptyInfo = {
   [pluginConfigType.commit]: { icon: 'code', text: _l('暂无提交的代码') },
   [pluginConfigType.publishHistory]: { icon: 'extension', text: _l('暂无发布历史') },
@@ -277,20 +280,36 @@ export default function DetailList(props) {
   const source = belongType === 'myPlugin' ? 0 : 1;
   const [publishDialog, setPublishDialog] = useState({ visible: false });
   const [secretKeyDetail, setSecretKeyDetail] = useState({ visible: false });
+  const { open: openExportPlugin, holder: exportPluginHolder } = useExportPlugin();
 
   const pluginApi = pluginApiConfig[pluginType];
   const isWorkflowPlugin = pluginType === PLUGIN_TYPE.WORKFLOW;
 
   const onDel = (type, id) => {
-    Dialog.confirm({
-      title: type === pluginConfigType.commit ? _l('删除提交') : _l('删除历史版本'),
-      buttonType: 'danger',
-      description:
-        type === pluginConfigType.commit ? _l('彻底删除提交的代码，不可恢复') : _l('彻底删除历史版本，不可恢复'),
+    Modal.confirm({
+      title: (
+        <span className="textError">{type === pluginConfigType.commit ? _l('删除提交') : _l('删除历史版本')}</span>
+      ),
+      okButtonProps: {
+        danger: true,
+      },
+      content: type === pluginConfigType.commit ? _l('彻底删除提交的代码，不可恢复') : _l('彻底删除历史版本，不可恢复'),
       onOk: () => {
         (type === pluginConfigType.commit
-          ? pluginApi.removeCommit({ id }, API_EXTENDS)
-          : pluginApi.removeRelease({ id, source, pluginId }, API_EXTENDS)
+          ? pluginApi.removeCommit(
+              {
+                id,
+              },
+              API_EXTENDS,
+            )
+          : pluginApi.removeRelease(
+              {
+                id,
+                source,
+                pluginId,
+              },
+              API_EXTENDS,
+            )
         ).then(res => {
           if (res) {
             alert(_l('删除成功'));
@@ -416,17 +435,17 @@ export default function DetailList(props) {
         ),
         render: item => (
           <div className="operateCon">
+            {source === 0 && (
+              <span
+                className="mRight12 colorPrimary"
+                onClick={() => openExportPlugin({ pluginId, releaseId: item.id, source, onExportSuccess, pluginType })}
+              >
+                {_l('导出')}
+              </span>
+            )}
+
             {pluginType === PLUGIN_TYPE.VIEW && (
               <React.Fragment>
-                {source === 0 && (
-                  <span
-                    className="mRight12 colorPrimary"
-                    onClick={() => ExportPlugin({ pluginId, releaseId: item.id, source, onExportSuccess, pluginType })}
-                  >
-                    {_l('导出')}
-                  </span>
-                )}
-
                 {item.versionCode === currentVersion.versionCode &&
                   item.expireDays >= 0 &&
                   (item.expireDays === 0 ? (
@@ -445,16 +464,25 @@ export default function DetailList(props) {
                   <span
                     className="colorPrimary"
                     onClick={() => {
-                      Dialog.confirm({
+                      Modal.confirm({
                         title: _l(`切换到当前版本 （%0）`, item.versionCode),
                         onOk: () => {
-                          pluginApi.rollback({ pluginId, releaseId: item.id, source }, API_EXTENDS).then(res => {
-                            if (res) {
-                              alert(_l('切换版本成功'));
-                              onRefreshList();
-                              onRefreshDetail();
-                            }
-                          });
+                          pluginApi
+                            .rollback(
+                              {
+                                pluginId,
+                                releaseId: item.id,
+                                source,
+                              },
+                              API_EXTENDS,
+                            )
+                            .then(res => {
+                              if (res) {
+                                alert(_l('切换版本成功'));
+                                onRefreshList();
+                                onRefreshDetail();
+                              }
+                            });
                         },
                       });
                     }}
@@ -530,7 +558,9 @@ export default function DetailList(props) {
               className="colorPrimary pointer hoverColorPrimaryDark"
               onClick={() =>
                 window.open(
-                  downloadFile(`${md.global.Config.AjaxApiUrl}Download/Plugin?projectId=${projectId}&id=${item.id}`),
+                  downloadFile(
+                    `${isWorkflowPlugin ? `${md.global.Config.WorkflowPluginUrl}/` : md.global.Config.AjaxApiUrl}Download/Plugin?projectId=${projectId}&id=${item.id}`,
+                  ),
                 )
               }
             >
@@ -570,6 +600,7 @@ export default function DetailList(props) {
 
   return (
     <ListWrapper>
+      {exportPluginHolder}
       {list.length ? (
         <div className={`${configType}List`}>
           <div className="headTr">

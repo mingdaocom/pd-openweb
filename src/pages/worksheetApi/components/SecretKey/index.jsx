@@ -1,13 +1,14 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Input, LoadDiv, RadioGroup, SvgIcon, Switch, VerifyPasswordInput } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon, VerifyPasswordInput } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Switch } from 'ming-ui/antd-components';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
 import appManagementAjax from 'src/api/appManagement';
-import verifyPassword from 'src/components/verifyPassword';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { getTranslateInfo } from 'src/utils/app';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
 
-const DialogWrap = styled(Dialog)`
+const DialogWrap = styled(Modal)`
   .tableHeader {
     display: flex;
     align-items: center;
@@ -194,9 +195,13 @@ export default props => {
                     <div key={item.key} className="flex">
                       <Checkbox
                         checked={isChecked}
-                        clearselected={isClearSelected}
-                        onClick={() => {
-                          onChangeAuth({ sheetId: sheet.sheetId, type: item.key, checkedValue: isChecked ? 0 : 1 });
+                        indeterminate={isClearSelected}
+                        onChange={() => {
+                          onChangeAuth({
+                            sheetId: sheet.sheetId,
+                            type: item.key,
+                            checkedValue: isChecked ? 0 : 1,
+                          });
                         }}
                       />
                     </div>
@@ -222,8 +227,12 @@ export default props => {
                     <div className="flex">
                       <Checkbox
                         checked={!!view.canRead}
-                        onClick={() =>
-                          onChangeAuth({ viewId: view.viewId, type: 'canRead', checkedValue: view.canRead ? 0 : 1 })
+                        onChange={() =>
+                          onChangeAuth({
+                            viewId: view.viewId,
+                            type: 'canRead',
+                            checkedValue: view.canRead ? 0 : 1,
+                          })
                         }
                       />
                     </div>
@@ -238,13 +247,13 @@ export default props => {
 
   return (
     <DialogWrap
-      visible={true}
-      overlayClosable={false}
+      open
+      mask={{ closable: false }}
       title={appKey ? _l('编辑授权密钥') : _l('新建授权密钥')}
       width={600}
       onOk={onOk}
       onCancel={onClose}
-      okDisabled={submitting}
+      confirmLoading={submitting}
     >
       <div className="textSecondary">{_l('应用授权密钥是极为重要的凭证，修改时需要验证身份')}</div>
 
@@ -254,8 +263,12 @@ export default props => {
           <Switch
             className="mTop10"
             checked={status === 1}
-            text={status === 1 ? _l('开启') : _l('关闭')}
-            onClick={() => setStatus(status === 1 ? 2 : 1)}
+            checkedChildren={status === 1 ? _l('开启') : _l('关闭')}
+            unCheckedChildren={status === 1 ? _l('开启') : _l('关闭')}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+              return setStatus(status === 1 ? 2 : 1);
+            }}
           />
         </Fragment>
       )}
@@ -265,20 +278,22 @@ export default props => {
           <div className="mTop20 bold">{_l('名称')}</div>
           <div className="mTop10">
             <Input
-              manualRef={nameInputRef}
+              ref={nameInputRef}
               className="w100"
               placeholder={_l('支持汉字、数字、字母、下划线，最大50个字')}
               value={name}
-              onChange={value => setName(value)}
+              onChange={event => setName(event.target.value)}
             />
           </div>
 
           <div className="mTop20 bold">{_l('接口权限')}</div>
           <div className="mTop10">
-            <RadioGroup
-              data={authTypes}
-              checkedValue={type}
-              onChange={value => {
+            <Radio.Group
+              options={(authTypes || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              value={type}
+              onChange={event => {
+                const value = event.target.value;
+
                 setType(value);
                 value === 10 && setViewNull(true);
               }}
@@ -309,11 +324,17 @@ export default props => {
                     return (
                       <div key={item.key} className="flex">
                         <Checkbox
-                          text={item.text}
                           checked={isChecked}
-                          clearselected={isClearSelected}
-                          onClick={() => onChangeAuth({ type: item.key, checkedValue: isChecked ? 0 : 1 })}
-                        />
+                          indeterminate={isClearSelected}
+                          onChange={() =>
+                            onChangeAuth({
+                              type: item.key,
+                              checkedValue: isChecked ? 0 : 1,
+                            })
+                          }
+                        >
+                          {item.text}
+                        </Checkbox>
                       </div>
                     );
                   })}
@@ -326,11 +347,12 @@ export default props => {
           <div className="mTop20 bold">{_l('其他设置')}</div>
           <Checkbox
             className="mTop10"
-            text={_l('调用获取工作表列表接口时，视图参数为空则不返回数据')}
             disabled={type === 10}
             checked={viewNull}
-            onClick={() => setViewNull(!viewNull)}
-          />
+            onChange={() => setViewNull(!viewNull)}
+          >
+            {_l('调用获取工作表列表接口时，视图参数为空则不返回数据')}
+          </Checkbox>
         </Fragment>
       )}
 

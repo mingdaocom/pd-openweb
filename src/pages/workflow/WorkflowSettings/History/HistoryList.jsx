@@ -4,10 +4,10 @@ import _ from 'lodash';
 import moment from 'moment';
 import { any, array, bool, func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, Support } from 'ming-ui';
+import { Checkbox, Dropdown, Modal, Tooltip } from 'ming-ui/antd-components';
 import processVersion from '../../api/processVersion';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { SUPPORT_HREF } from '../enum';
 import HistoryListItem from './components/HistoryListItem';
 import { STATUS2COLOR } from './config';
@@ -78,13 +78,9 @@ export default class HistoryList extends Component {
         {!accumulation.waiting && (
           <Fragment>
             <div className="relative">
-              <span
-                className="colorPrimary hoverColorPrimaryDark pointer"
-                onClick={() => this.setState({ showList: true })}
-              >
-                {_l('暂停')}
-              </span>
-              {this.renderSuspendList()}
+              {this.renderSuspendDropdown(
+                <span className="colorPrimary hoverColorPrimaryDark pointer">{_l('暂停')}</span>,
+              )}
             </div>
             {this.discardAction()}
           </Fragment>
@@ -107,10 +103,7 @@ export default class HistoryList extends Component {
         {accumulation.waiting && accumulation.dueDate && (
           <Fragment>
             <span>{_l('，将在')}</span>
-            <a className="accumulationLine relative" onClick={() => this.setState({ showList: true })}>
-              {this.renderDateText()}
-              {this.renderSuspendList()}
-            </a>
+            {this.renderSuspendDropdown(<a className="accumulationLine relative">{this.renderDateText()}</a>)}
             <span>{_l('后恢复')}</span>
           </Fragment>
         )}
@@ -130,32 +123,34 @@ export default class HistoryList extends Component {
   /**
    * 渲染暂停列表
    */
-  renderSuspendList() {
+  renderSuspendDropdown(trigger) {
     const { onRecovery } = this.props;
     const { showList } = this.state;
-    const LIST = [
+    const list = [
       { text: _l('直至手动恢复'), value: 0 },
       { text: _l('暂停1小时'), value: 1 },
       { text: _l('暂停2小时'), value: 2 },
       { text: _l('暂停3小时'), value: 3 },
     ];
 
-    if (!showList) return null;
-
     return (
-      <Menu onClickAway={() => this.setState({ showList: false })}>
-        {LIST.map((o, i) => (
-          <MenuItem
-            key={i}
-            onMouseDown={() => {
-              onRecovery(true, o.value);
+      <Dropdown
+        trigger={['click']}
+        open={showList}
+        onOpenChange={open => this.setState({ showList: open })}
+        menu={{
+          items: list.map(item => ({
+            key: item.value,
+            label: item.text,
+            onClick: () => {
+              onRecovery(true, item.value);
               this.setState({ showList: false });
-            }}
-          >
-            {o.text}
-          </MenuItem>
-        ))}
-      </Menu>
+            },
+          })),
+        }}
+      >
+        {trigger}
+      </Dropdown>
     );
   }
 
@@ -179,14 +174,26 @@ export default class HistoryList extends Component {
     const { processId, onRefreshAccumulation } = this.props;
 
     const discardFun = () => {
-      Dialog.confirm({
-        className: 'deleteApprovalProcessDialog',
-        title: <span style={{ color: 'var(--color-error)' }}>{_l('丢弃排队中的执行')}</span>,
-        description: _l('这些已触发的流程实例将不会被执行'),
+      Modal.confirm({
+        title: (
+          <span
+            style={{
+              color: 'var(--color-error)',
+            }}
+          >
+            {_l('丢弃排队中的执行')}
+          </span>
+        ),
+        content: _l('这些已触发的流程实例将不会被执行'),
+        okButtonProps: { danger: true },
         onOk: () => {
-          processVersion.remove({ processIds: [processId] }).then(() => {
-            onRefreshAccumulation();
-          });
+          processVersion
+            .remove({
+              processIds: [processId],
+            })
+            .then(() => {
+              onRefreshAccumulation();
+            });
         },
       });
     };
@@ -248,10 +255,10 @@ export default class HistoryList extends Component {
               <span className="InlineBlock" style={{ width: 18 }}>
                 <Checkbox
                   checked={!!res.batchIds.length}
-                  clearselected={!!res.batchIds.length && res.batchIds.length !== (data || []).length}
-                  onClick={checked => {
+                  indeterminate={!!res.batchIds.length && res.batchIds.length !== (data || []).length}
+                  onChange={event => {
                     res.onUpdateBatchIds(
-                      !checked || (checked && res.batchIds.length !== (data || []).length)
+                      event.target.checked || (!event.target.checked && res.batchIds.length !== (data || []).length)
                         ? (data || []).map(o => {
                             return {
                               id: o.id,

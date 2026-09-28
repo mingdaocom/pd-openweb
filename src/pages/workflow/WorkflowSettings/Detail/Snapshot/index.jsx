@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SelectStaticChartFromSheet from 'src/pages/widgetConfig/widgetSetting/components/embed/SelectStaticChartFromSheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
@@ -164,7 +164,9 @@ export default class Snapshot extends Component {
           {LIST.map((item, i) => {
             return (
               <li key={i} onClick={() => this.updateSource({ actionId: item.value, appDetails: {} })}>
-                <Radio className="Font16" text={item.text} />
+                <Radio className="Font16" title={item.text}>
+                  {item.text}
+                </Radio>
                 <div className="textSecondary Font13 mLeft30 mTop5">{item.desc}</div>
               </li>
             );
@@ -185,9 +187,9 @@ export default class Snapshot extends Component {
       3: _l('通过链接地址获取页面的快照图片，供流程中其他节点使用。'),
     };
     const list = [
-      { text: this.renderTitle('1'), value: '1' },
-      { text: this.renderTitle('2'), value: '2' },
-      { text: this.renderTitle('3'), value: '3' },
+      { label: this.renderTitle('1'), value: '1' },
+      { label: this.renderTitle('2'), value: '2' },
+      { label: this.renderTitle('3'), value: '3' },
     ];
 
     return (
@@ -195,12 +197,11 @@ export default class Snapshot extends Component {
         <div className="Font14 textSecondary workflowDetailDesc">{TEXT[data.actionId]}</div>
 
         <div className="mTop20 bold">{_l('页面类型')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={list}
+          options={list}
           value={data.actionId}
-          border
-          renderTitle={() => this.renderTitle(data.actionId)}
+          labelRender={() => this.renderTitle(data.actionId)}
           onChange={actionId => this.updateSource({ actionId, appId: '', appDetails: {} })}
         />
 
@@ -334,9 +335,14 @@ export default class Snapshot extends Component {
         <div className="mTop5">
           <Checkbox
             checked={data.openSSL}
-            text={_l('开启SSL证书验证')}
-            onClick={checked => this.updateSource({ openSSL: !checked })}
-          />
+            onChange={event =>
+              this.updateSource({
+                openSSL: event.target.checked,
+              })
+            }
+          >
+            {_l('开启SSL证书验证')}
+          </Checkbox>
         </div>
       </Fragment>
     );

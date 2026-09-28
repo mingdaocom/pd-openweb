@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import projectSettingAjax from 'src/api/projectSetting';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import BalanceManage from '../components/BalanceManage';
 import AccountBalance from './components/AccountBalance';
 import OrgQuota from './components/orgQuota';
@@ -22,7 +23,7 @@ export default function HomePage({ match, location: routerLocation, authority })
   const [refreshFlag, setRefreshFlag] = useState(0);
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
-  const isMingdaoSaas = !window.platformENV.isOverseas && !window.platformENV.isLocal;
+  const isMingdaoSaas = window.platformENV.isHap;
   const isNocolySaas = window.platformENV.isOverseas && !window.platformENV.isLocal;
   const trialAuthenticate = isMingdaoSaas && isTrial && !data.authType;
 
@@ -101,14 +102,18 @@ export default function HomePage({ match, location: routerLocation, authority })
     };
 
     if (_.includes(routerLocation.hash, 'paySuccess')) {
-      Dialog.confirm({
+      Modal.confirm({
         width: 420,
-        dialogClasses: 'paySuccessDialog',
-        removeCancelBtn: true,
+        wrapClassName: 'paySuccessDialog',
+        cancelButtonProps: {
+          style: {
+            display: 'none',
+          },
+        },
         okText: _l('好的'),
         onOk: onClose,
         onCancel: onClose,
-        children: (
+        content: (
           <div className="TxtCenter">
             <Icon icon="Finish" className="Font40 Green" />
             <div className="Font17 bold mTop24 mBottom12">{_l('您已支付成功')}</div>

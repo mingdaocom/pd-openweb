@@ -2,14 +2,16 @@ import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'src/pages/widgetConfig/util/setting';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
-import { SYSTEM_CONTROL } from '../../../../config/widget';
-import { formatViewToDropdown } from '../../../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
+import { formatViewToDropdown } from 'src/utils/domain/control/filters';
+import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import SubListStatisticsConfig from '../components/SubListStatisticsConfig';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function RelateConfig(props) {
   const { data, onChange, globalSheetControls, allControls } = props;
@@ -40,14 +42,23 @@ export default function RelateConfig(props) {
     <Fragment>
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={isRelateView}
-          onClick={checked => {
-            setState({ isRelateView: !checked });
+          onChange={event => {
+            const checked = !event.target.checked;
+            setState({
+              isRelateView: !checked,
+            });
             if (checked) {
-              onChange({ ...handleAdvancedSettingChange(data, { batchbtn: '', batchprint: '' }), viewId: '' });
+              onChange({
+                ...handleAdvancedSettingChange(data, {
+                  batchbtn: '',
+                  batchprint: '',
+                }),
+                viewId: '',
+              });
             }
           }}
+          size="small"
         >
           <span style={{ marginRight: '6px' }}>{_l('关联视图')}</span>
           <Tooltip
@@ -65,17 +76,16 @@ export default function RelateConfig(props) {
         </Checkbox>
       </div>
       {isRelateView && (
-        <Dropdown
-          border
+        <Select
           className="w100"
-          menuClass="w100"
           style={{ marginTop: '8px' }}
           loading={loading}
-          noneContent={_l('请先选择关联表')}
+          notFoundContent={_l('请先选择关联表')}
           placeholder={
             selectedViewIsDeleted ? <span className="Red">{_l('视图已删除，请重新选择')}</span> : _l('选择视图')
           }
-          data={dataSource ? formatViewToDropdown(views) : []}
+          options={dataSource ? formatViewToDropdown(views) : []}
+          fieldNames={SELECT_FIELD_NAMES}
           value={viewId && !selectedViewIsDeleted ? viewId : undefined}
           onChange={value => {
             onChange({ viewId: value });
@@ -86,23 +96,31 @@ export default function RelateConfig(props) {
         <Fragment>
           <div className="labelWrap">
             <Checkbox
-              size="small"
               checked={resultVisible}
-              onClick={checked => {
+              onChange={event => {
+                const checked = !event.target.checked;
+
                 if (checked) {
                   onChange({
-                    ...handleAdvancedSettingChange(data, { resultfilters: '' }),
+                    ...handleAdvancedSettingChange(data, {
+                      resultfilters: '',
+                    }),
                     strDefault: updateConfig({
                       config: strDefault,
                       value: +!checked,
                       index: 0,
                     }),
                   });
-                  setState({ resultVisible: false });
+                  setState({
+                    resultVisible: false,
+                  });
                 } else {
-                  setState({ resultVisible: true });
+                  setState({
+                    resultVisible: true,
+                  });
                 }
               }}
+              size="small"
             >
               <span style={{ marginRight: '6px' }}>{_l('过滤显示结果')}</span>
             </Checkbox>
@@ -111,16 +129,24 @@ export default function RelateConfig(props) {
             <div className="mLeft25">
               <div className="labelWrap">
                 <Checkbox
-                  size="small"
                   checked={resultfilters && resultfilters.length > 0}
-                  onClick={checked => {
-                    if (checked) {
-                      onChange(handleAdvancedSettingChange(data, { resultfilters: '' }));
-                      setState({ resultVisible: !!+isHiddenOtherViewRecord });
+                  onChange={event => {
+                    if (!event.target.checked) {
+                      onChange(
+                        handleAdvancedSettingChange(data, {
+                          resultfilters: '',
+                        }),
+                      );
+                      setState({
+                        resultVisible: !!+isHiddenOtherViewRecord,
+                      });
                     } else {
-                      setState({ resultFilterVisible: true });
+                      setState({
+                        resultFilterVisible: true,
+                      });
                     }
                   }}
+                  size="small"
                 >
                   <span style={{ marginRight: '6px' }}>{_l('按条件过滤')}</span>
                   <Tooltip placement="bottom" title={_l('设置筛选条件，只显示满足条件的关联记录')}>
@@ -167,9 +193,9 @@ export default function RelateConfig(props) {
               <div className="labelWrap">
                 <Checkbox
                   className="allowSelectRecords"
-                  size="small"
                   checked={!!+isHiddenOtherViewRecord}
-                  onClick={checked => {
+                  onChange={event => {
+                    const checked = !event.target.checked;
                     onChange({
                       strDefault: updateConfig({
                         config: strDefault,
@@ -177,8 +203,11 @@ export default function RelateConfig(props) {
                         index: 0,
                       }),
                     });
-                    setState({ resultVisible: (resultfilters && resultfilters.length > 0) || !!+!checked });
+                    setState({
+                      resultVisible: (resultfilters && resultfilters.length > 0) || !!+!checked,
+                    });
                   }}
+                  size="small"
                 >
                   <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
                   <Tooltip
@@ -201,17 +230,17 @@ export default function RelateConfig(props) {
             <div className="labelWrap">
               <Checkbox
                 className="allowSelectRecords"
-                size="small"
-                text={_l('显示计数')}
                 checked={showcount !== '1'}
-                onClick={checked =>
+                onChange={event =>
                   onChange(
                     handleAdvancedSettingChange(data, {
-                      showcount: checked ? '1' : '0',
+                      showcount: !event.target.checked ? '1' : '0',
                     }),
                   )
                 }
+                size="small"
               >
+                {_l('显示计数')}
                 <Tooltip placement="bottom" title={_l('在表单中显示关联记录的数量')}>
                   <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
                 </Tooltip>

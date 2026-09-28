@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import { List } from 'immutable';
 import { min } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { Drawer, Popover, Tooltip } from 'ming-ui/antd-components';
+import ClickAway from 'ming-ui/components/ClickAway';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
+import VersionList from '../../common/AttachmentsPreview/versionList';
 import Detail from '../../components/Detail';
 import KcAppItem from '../../components/KcAppItem';
 import KcListEmpty from '../../components/KcListEmpty';
@@ -97,6 +98,7 @@ class KcMain extends Component {
       previewIndex: 0,
       rightMenuOption: undefined,
       detailAttamentsPreviewActive: false,
+      showKcVersionList: false,
     };
   }
   componentDidMount() {
@@ -206,6 +208,7 @@ class KcMain extends Component {
     this.setState({
       isPreviewFile: true,
       previewIndex: index,
+      showKcVersionList: false,
     });
   };
 
@@ -213,6 +216,54 @@ class KcMain extends Component {
     const { selectAll, selectedItems, list } = this.props;
     return selectedItems.size > 1 || (selectAll && list.size > 1);
   };
+
+  renderKcVersionPanel = ({
+    attachment,
+    downloadAttachment,
+    callback,
+    onClose,
+    performRemoveItems,
+    replaceAttachment,
+  }) => {
+    const { showKcVersionList } = this.state;
+
+    return (
+      <div className="historyPanel historyVersion relative">
+        <Tooltip title={_l('查看历史版本')}>
+          <Popover
+            title={null}
+            trigger="click"
+            placement="bottomLeft"
+            arrow={{ pointAtCenter: true }}
+            open={showKcVersionList}
+            onOpenChange={visible => this.setState({ showKcVersionList: visible })}
+            getPopupContainer={triggerNode => triggerNode.parentElement}
+            noPadding
+            content={
+              <div className="versionListCon">
+                <VersionList
+                  attachment={attachment}
+                  download={downloadAttachment}
+                  callback={item => {
+                    callback(item);
+                    this.setState({ showKcVersionList: false });
+                  }}
+                  onClose={onClose}
+                  performRemoveItems={performRemoveItems}
+                  replaceAttachment={replaceAttachment}
+                />
+              </div>
+            }
+          >
+            <span className="normal">
+              <Icon icon="restore2" className="Hand Font16" />
+            </span>
+          </Popover>
+        </Tooltip>
+      </div>
+    );
+  };
+
   render() {
     const {
       path,
@@ -294,6 +345,11 @@ class KcMain extends Component {
         { noListItem: !validList.size },
       ),
       ref: kclistcon => (this.kclist = kclistcon),
+      onMouseDown: event => {
+        if (event.button === 2 && !event.target.closest?.('.nodeItem')) {
+          this.setState({ rightMenuOption: null });
+        }
+      },
     };
 
     if (!validList.size && !addFolder) {
@@ -410,6 +466,7 @@ class KcMain extends Component {
               extra={{
                 performUpdateItem: updateNodeItem,
                 performRemoveItems: removeNodeItem,
+                renderKcVersionPanel: this.renderKcVersionPanel,
                 loadMoreAttachments:
                   list.size < totalCount
                     ? () =>
@@ -435,6 +492,7 @@ class KcMain extends Component {
               onClose={() => {
                 this.setState({
                   isPreviewFile: false,
+                  showKcVersionList: false,
                 });
               }}
             />
@@ -572,20 +630,11 @@ class KcMain extends Component {
                 </Tooltip>
               </span>
             </div>
-            {kclist}
-          </div>
-          {rightMenuOption && (
             <RightMenu
-              item={rightMenuOption.item}
-              kcApp={this.kcApp}
-              permission={currentRoot.permission}
+              item={rightMenuOption && rightMenuOption.item}
               hideRightMenu={() => this.setState({ rightMenuOption: null })}
-              onClickAway={() => this.setState({ rightMenuOption: null })}
-              onClickAwayExceptions={[this.dragSelect]}
-              clientX={rightMenuOption.clientX}
-              clientY={rightMenuOption.clientY}
               isRecycle={isRecycle}
-              isMulti={rightMenuOption.isMulti}
+              isMulti={rightMenuOption && rightMenuOption.isMulti}
               removeNode={removeNode}
               moveOrCopyClick={moveOrCopyClick}
               restoreNode={restoreNode}
@@ -596,53 +645,61 @@ class KcMain extends Component {
                 navigateTo('/apps/kc' + item.position.replace(md.global.Account.accountId, 'my'));
               }}
               handlePreview={this.handlePreview}
-              handleAddLinkFile={this.handleAddLinkFile}
               download={selectedItems.size === 1 ? handleDownloadOne : batchDownload}
               showDetail={this.showDetail}
               onStarNode={starNode}
               onAddLinkFile={addLinkFile}
-            />
-          )}
+            >
+              {kclist}
+            </RightMenu>
+          </div>
         </div>
 
         <Drawer
-          className="kcMain"
-          visible={isShowDetail}
-          width={408}
+          rootClassName="kcMain"
+          open={isShowDetail}
+          size={340}
           mask={false}
-          drawerStyle={{
-            position: 'absolute',
-            top: 95,
-            bottom: 0,
-            height: 'auto',
-            right: 68,
-            width: 340,
-          }}
-          style={{ zIndex: detailAttamentsPreviewActive ? 16 : 6, overflow: 'visible' }}
-          bodyStyle={{ padding: 0 }}
-          headerStyle={{ display: 'none' }}
+          zIndex={detailAttamentsPreviewActive ? 16 : 6}
+          rootStyle={{ overflow: 'visible' }}
           onClose={isPinDetail ? null : () => this.setState({ isShowDetail: false })}
+          styles={{
+            wrapper: {
+              top: 95,
+              bottom: 0,
+              height: 'auto',
+              right: 52,
+            },
+            body: { padding: 0 },
+            header: { display: 'none' },
+          }}
         >
-          <Detail
-            data={selectedItems.size === 1 ? selectedItems.toArray()[0] : selectedItems}
-            togglePinned={this.togglePinDetail}
-            isPinned={isPinDetail}
-            performUpdateItem={updateNodeItem}
-            selectAllSize={selectAll ? selectedCount : 0}
-            selectAllUnchecked={selectAllUnchecked}
-            rootType={typeof currentRoot === 'object' ? PICK_TYPE.ROOT : currentRoot}
-            parentId={currentFolder ? currentFolder.id : null}
-            rootId={typeof currentRoot === 'object' ? currentRoot.id : null}
-            rootProjectId={
-              typeof currentRoot === 'object' ? (currentRoot.project && currentRoot.project.projectId) || '' : null
-            }
-            status={isRecycle ? NODE_STATUS.RECYCLED : NODE_STATUS.NORMAL}
-            updateDetailAttachmentsPreviewState={state => {
-              this.setState({
-                detailAttamentsPreviewActive: state,
-              });
-            }}
-          />
+          <ClickAway
+            className="h100"
+            onClickAway={isShowDetail && !isPinDetail ? () => this.setState({ isShowDetail: false }) : undefined}
+            onClickAwayExceptions={['.kcRightHeadOperate .showDetail']}
+          >
+            <Detail
+              data={selectedItems.size === 1 ? selectedItems.toArray()[0] : selectedItems}
+              togglePinned={this.togglePinDetail}
+              isPinned={isPinDetail}
+              performUpdateItem={updateNodeItem}
+              selectAllSize={selectAll ? selectedCount : 0}
+              selectAllUnchecked={selectAllUnchecked}
+              rootType={typeof currentRoot === 'object' ? PICK_TYPE.ROOT : currentRoot}
+              parentId={currentFolder ? currentFolder.id : null}
+              rootId={typeof currentRoot === 'object' ? currentRoot.id : null}
+              rootProjectId={
+                typeof currentRoot === 'object' ? (currentRoot.project && currentRoot.project.projectId) || '' : null
+              }
+              status={isRecycle ? NODE_STATUS.RECYCLED : NODE_STATUS.NORMAL}
+              updateDetailAttachmentsPreviewState={state => {
+                this.setState({
+                  detailAttamentsPreviewActive: state,
+                });
+              }}
+            />
+          </ClickAway>
         </Drawer>
       </div>
     );

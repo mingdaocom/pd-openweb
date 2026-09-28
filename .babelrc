@@ -13,29 +13,11 @@
     [
       "import",
       {
-        "libraryName": "ming-ui/antd-components",
-        "libraryDirectory": "",
-        "camel2DashComponentName": false
-      },
-      "import-ming-ui-antd-components"
-    ],
-    [
-      "import",
-      {
         "libraryName": "ming-ui",
         "libraryDirectory": "components",
         "camel2DashComponentName": false
       },
       "import-ming-ui"
-    ],
-    [
-      "import",
-      {
-        "libraryName": "antd",
-        "libraryDirectory": "es",
-        "style": "css"
-      },
-      "import-antd"
     ]
   ],
   "env": {

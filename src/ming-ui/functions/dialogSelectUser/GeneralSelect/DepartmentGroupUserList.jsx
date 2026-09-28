@@ -4,9 +4,9 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import NoData from './NoData';
+import { isAccountChecked, isAccountIncluded } from './selection';
 import User from './User';
 import './css/user.less';
 
@@ -17,16 +17,6 @@ export default class DepartmentGroupUserList extends Component {
     this.state = {
       onlyJoinGroupChecked: isCheckedGroupOnlyMyJoin ? safeParse(isCheckedGroupOnlyMyJoin) : true,
     };
-  }
-
-  getChecked(user) {
-    return (
-      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
-    );
-  }
-
-  getIncluded(user) {
-    return _.includes(this.props.selectedAccountIds || [], user.accountId);
   }
 
   onlyShowJoinGroup = checked => {
@@ -45,7 +35,11 @@ export default class DepartmentGroupUserList extends Component {
 
     return (
       <div className="flexColumn flex">
-        <Checkbox className="mBottom10 pLeft7 mTop10" checked={onlyJoinGroupChecked} onClick={this.onlyShowJoinGroup}>
+        <Checkbox
+          className="mBottom10 pLeft7 mTop10"
+          checked={onlyJoinGroupChecked}
+          onChange={event => this.onlyShowJoinGroup(!event.target.checked, undefined, event)}
+        >
           {_l('只看我加入的群组')}
         </Checkbox>
         {list.length > 0 ? (
@@ -87,7 +81,7 @@ export default class DepartmentGroupUserList extends Component {
                           className="GSelect-treeItem--checkbox"
                           disabled={this.props.unique || isAllSelectedAccountIds}
                           checked={checked}
-                          onClick={() => this.props.allSelectUserItem(department[ID], checked)}
+                          onChange={() => this.props.allSelectUserItem(department[ID], checked)}
                         />
                       </span>
                     </Tooltip>
@@ -111,11 +105,11 @@ export default class DepartmentGroupUserList extends Component {
                         return (
                           <User
                             user={user}
-                            checked={this.getChecked(user)}
+                            checked={isAccountChecked(user, this.props.selectedUsers, this.props.selectedAccountIds)}
                             projectId={this.props.projectId}
                             onChange={this.props.onChange}
                             key={user.accountId}
-                            disabled={this.getIncluded(user)}
+                            disabled={isAccountIncluded(user, this.props.selectedAccountIds)}
                           />
                         );
                       })}

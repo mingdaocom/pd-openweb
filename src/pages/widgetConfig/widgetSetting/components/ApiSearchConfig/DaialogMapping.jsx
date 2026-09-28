@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Dropdown, Icon, ScrollView, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { SYS, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { dealRequestControls } from '../../../util/data';
-import { getMapControls } from '../DynamicDefaultValue/util';
+import { Icon, ScrollView, Support } from 'ming-ui';
+import { Modal, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getMapControls } from 'src/utils/domain/control/dynamicValue';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { SYS, SYS_CONTROLS } from 'src/utils/domain/control/widget';
+import { dealRequestControls } from '../../apiSchema';
 import './DialogMapping.less';
 
 const renderHeader = showSupport => {
@@ -27,6 +27,7 @@ const renderHeader = showSupport => {
     </div>
   );
 };
+
 const getOptions = item => {
   if (item.type === 10000008) {
     return { iconType: 34, placeholder: _l('请选择子表') };
@@ -38,12 +39,14 @@ const getOptions = item => {
 
   return { iconType: item.type, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('请选择') };
 };
+
 const findCurrentValue = (item = {}, i = {}) => {
   if (item.dataSource) return i.subid;
   if (item.type === 10000007) return i.subid || i.cid;
   if (!item.dataSource && !i.subid) return i.cid;
   return undefined;
 };
+
 const renderNoData = () => {
   return (
     <div className="mappingNoDataBox">
@@ -57,6 +60,34 @@ const renderNoData = () => {
     </div>
   );
 };
+
+const getGroupedOptions = data => {
+  const options = [];
+  let currentGroup;
+
+  data.forEach(({ icon, parentId, text: label, title, value }) => {
+    const option = { icon, label, parentId, value };
+
+    if (title) {
+      currentGroup = { label: title, parentId, options: [option] };
+      options.push(currentGroup);
+    } else if (currentGroup && currentGroup.parentId === parentId) {
+      currentGroup.options.push(option);
+    } else {
+      currentGroup = undefined;
+      options.push(option);
+    }
+  });
+
+  return options;
+};
+
+const renderMappingOption = ({ data: option }) => (
+  <div className="flexRow alignItemsCenter">
+    <Icon className="Font16 textTertiary" icon={option.icon} />
+    <span className="mLeft10 ellipsis">{option.label}</span>
+  </div>
+);
 
 export default function DialogMapping(props) {
   const {
@@ -261,15 +292,16 @@ export default function DialogMapping(props) {
         </div>
 
         <div className="mappingControl">
-          <Dropdown
-            border
-            openSearch
-            cancelAble
-            data={dropData}
+          <Select
+            className="w100 mTop10"
+            showPopupSearch
+            optionFilterProp="label"
+            allowClear
             disabled={disabled}
-            isAppendToBody
+            listHeight={300}
             value={isDelete ? undefined : showValue || undefined}
-            menuClass="mappingMenuClass"
+            options={getGroupedOptions(dropData)}
+            optionRender={renderMappingOption}
             placeholder={
               isDelete ? (
                 <span className="flex flexCenter ellipsis">
@@ -282,12 +314,8 @@ export default function DialogMapping(props) {
                 placeholder
               )
             }
-            onChange={value => {
-              const parentId = _.get(
-                _.find(dropData, i => i.value === value),
-                'parentId',
-              );
-              handleChange(value, item, parentId);
+            onChange={(value, option) => {
+              handleChange(value, item, _.get(option, 'parentId'));
             }}
           />
         </div>
@@ -296,15 +324,23 @@ export default function DialogMapping(props) {
   };
 
   return (
-    <Dialog
-      visible={true}
+    <Modal
+      open={true}
+      mask={{ closable: true }}
+      keyboard
       width={720}
-      title={<span className="Bold">{_l('建立映射')}</span>}
+      title={
+        <Fragment>
+          <div>{_l('建立映射')}</div>
+          {fromOperationFlow && (
+            <div className="Font13 Normal textSecondary mTop8">
+              {_l('流程中有其他PBP、子流程、循环流程、代办、延时节点时，输出参数映射无效')}
+            </div>
+          )}
+        </Fragment>
+      }
       onCancel={onClose}
       className={cx('DialogMappingConfig', { mappingHeight: noData, mappingScrollBox: !noData })}
-      {...(fromOperationFlow
-        ? { description: _l('流程中有其他PBP、子流程、循环流程、代办、延时节点时，输出参数映射无效') }
-        : {})}
       okText={_l('保存')}
       onOk={() => {
         const filterMapping = mappingData.filter(i => i.cid);
@@ -334,6 +370,6 @@ export default function DialogMapping(props) {
           </ScrollView>
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 }

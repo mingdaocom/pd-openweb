@@ -1,5 +1,5 @@
 import React from 'react';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import { ACTION_VALUE_ENUM } from '../config';
 import ActivateTab from './actionTypes/ActivateTab';
 import CreateRecord from './actionTypes/CreateRecord';
@@ -62,4 +62,6 @@ const CustomActionConfig = props => {
   }
 };
 
-export default props => functionWrap(CustomActionConfig, { ...props });
+export function useCustomAction() {
+  return useFunctionWrapComponent(CustomActionConfig);
+}

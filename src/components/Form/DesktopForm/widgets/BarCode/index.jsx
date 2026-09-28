@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BarCode, Qr } from 'ming-ui';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
-import { parseDataSource } from 'src/pages/widgetConfig/util';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
+import { getBarCodeValue } from 'src/utils/domain/control/barCode';
+import { parseDataSource } from 'src/utils/domain/control/metadata';
 import { FROM } from '../../../core/config';
-import { getBarCodeValue } from '../../../core/utils';
 
 const QRErrorCorrectLevel = {
   '7%': 1,
@@ -18,13 +19,13 @@ const QRErrorCorrectLevel = {
 const BarCodeWrap = styled.span`
   cursor: pointer;
   display: inline-block;
-  ${({ isRecord }) => isRecord && 'border: 1px solid var(--color-border-secondary);'}
-  ${({ isView }) => (isView ? 'height: 170px;' : '')}
+  ${({ $isRecord }) => $isRecord && 'border: 1px solid var(--color-border-secondary);'}
+  ${({ $isView }) => ($isView ? 'height: 170px;' : '')}
   &:hover {
-    ${({ isRecord }) => isRecord && 'box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);'}
+    ${({ $isRecord }) => $isRecord && 'box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);'}
   }
   img {
-    ${({ width }) => width && `width: ${width}px;`}
+    ${({ $width }) => $width && `width: ${$width}px;`}
     max-width: 100% !important;
     height: auto !important;
   }
@@ -39,6 +40,7 @@ const EmptyTag = styled.div`
 `;
 
 export default function BarCodeWidgets(props) {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const {
     isCell,
     enumDefault,
@@ -97,11 +99,13 @@ export default function BarCodeWidgets(props) {
     e.stopPropagation();
     const url = imgCodeRef.current?.childNodes[0] ? imgCodeRef.current.childNodes[0].src : '';
     if (!url) return;
-    previewAttachments(transformQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }));
+    openPreviewAttachments(
+      transformQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }),
+    );
   };
 
   const { width, faultrate } = advancedSetting || {};
-  const parseWidth = parseFloat(width);
+  const parseWidth = parseFloat(width) || 160;
 
   if (!value) {
     return isCell ? (
@@ -117,9 +121,9 @@ export default function BarCodeWidgets(props) {
 
   return (
     <BarCodeWrap
-      isRecord={from === FROM.RECORDINFO}
-      isView={isView}
-      width={parseWidth}
+      $isRecord={from === FROM.RECORDINFO}
+      $isView={isView}
+      $width={parseWidth}
       onClick={onPreview}
       ref={imgCodeRef}
       className={className}

@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal, Select } from 'ming-ui/antd-components';
 
 const DropdownWrap = styled.div`
   padding: 8px 0;
@@ -30,6 +30,8 @@ const DropdownWrap = styled.div`
   }
 `;
 
+const DB_INSTANCE_SELECT_CLASS_NAMES = { popup: { root: 'dbInstanceSelect' } };
+
 function SelectDBInstance(props) {
   const { visible = false, options = [], onOk = () => {}, onCancel = () => {} } = props;
 
@@ -47,11 +49,11 @@ function SelectDBInstance(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       title={_l('存储到哪个数据库？')}
-      visible={visible}
+      open={visible}
       width={640}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={handleOk}
       onCancel={onCancel}
     >
@@ -61,24 +63,23 @@ function SelectDBInstance(props) {
         open={open}
         value={dbInstance.label}
         optionLabelProp="label"
-        popupClassName="dbInstanceSelect"
+        classNames={DB_INSTANCE_SELECT_CLASS_NAMES}
         placeholder={_l('请选择应用的存储数据库')}
-        className="w100 mdAntSelect mTop28"
+        className="w100 mTop28"
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
         notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
-        onDropdownVisibleChange={visible => setOpen(visible)}
-        dropdownRender={() => {
+        onOpenChange={setOpen}
+        popupRender={() => {
           return (
             <DropdownWrap>
               {options.map(l => (
-                <Fragment>
+                <Fragment key={`dbInstanceSelect-${l.value}`}>
                   <div
                     className={cx('item Hand overflow_ellipsis', { current: l.value === dbInstance.value })}
                     onClick={() => {
                       setDbInstance(l);
                       setOpen(false);
                     }}
-                    key={`dbInstanceSelect-${l.value}`}
                   >
                     {l.label}
                   </div>
@@ -89,7 +90,7 @@ function SelectDBInstance(props) {
           );
         }}
       />
-    </Dialog>
+    </Modal>
   );
 }
 

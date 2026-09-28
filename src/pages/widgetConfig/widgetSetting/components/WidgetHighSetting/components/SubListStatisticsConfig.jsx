@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import SubListSummaryWidget from './SubListSummaryWidget';
 
 export default function SubListStatisticsConfig(props) {
@@ -16,19 +16,25 @@ export default function SubListStatisticsConfig(props) {
       <div className="labelWrap labelBetween">
         <Checkbox
           className="allowSelectRecords"
-          size="small"
-          text={_l('显示统计行')}
           checked={openstatistics === '1'}
-          onClick={checked => {
+          onChange={event => {
+            const checked = !event.target.checked;
             if (!checked) setVisible(true);
             onChange(
               handleAdvancedSettingChange(data, {
                 openstatistics: checked ? '0' : '1',
-                ...(checked && statisticsseting ? { statisticsseting: '' } : {}),
+                ...(checked && statisticsseting
+                  ? {
+                      statisticsseting: '',
+                    }
+                  : {}),
               }),
             );
           }}
-        />
+          size="small"
+        >
+          {_l('显示统计行')}
+        </Checkbox>
         {openstatistics === '1' && (
           <i
             className={`icon-settings ${hasStatisticsSetting ? 'colorPrimary' : 'textTertiary'} Font16 Hand Right hoverColorPrimary`}

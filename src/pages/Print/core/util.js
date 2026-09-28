@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
-import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
-import { controlState } from 'src/utils/control';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { controlState } from 'src/utils/domain/control/state';
+import { SYSTEM_CONTROL_WITH_UAID } from 'src/utils/domain/control/widget';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { FILTER_SYS, SYST_PRINT } from './config';
+import { mergeRelationControl } from './relationControl';
 
 export const isRelationControl = type => {
   return [29, 34, 51].includes(type);
@@ -47,22 +48,24 @@ export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVi
 
       // 关联记录、子表、查询记录 数据处理
       if (isRelationControl(control.type)) {
-        const originalCheckedMap = Object.fromEntries(
-          (control.relationControls || []).map(rc => [rc.controlId, rc.checked]),
-        );
+        const originalControlMap = _.keyBy(control.relationControls || [], 'controlId');
         const relationData = relationMaps[control.controlId] || {};
         const relationControls = (_.get(relationData, 'template.controls') || [])
-          .map(c => ({
-            ...c,
-            checked:
-              originalCheckedMap[c.controlId] &&
-              isSupportedPrintControl({
-                control: c,
-                needVisible,
-                showControls: control.showControls,
-                isRelationControl: true,
-              }),
-          }))
+          .map(c => {
+            const originalControl = originalControlMap[c.controlId] || {};
+
+            return {
+              ...mergeRelationControl(originalControl, c),
+              checked:
+                originalControl.checked &&
+                isSupportedPrintControl({
+                  control: c,
+                  needVisible,
+                  showControls: control.showControls,
+                  isRelationControl: true,
+                }),
+            };
+          })
           .sort((a, b) => (a.row === b.row ? a.col - b.col : a.row - b.row));
 
         extendAttr.relationControls = replaceControlsTranslateInfo(

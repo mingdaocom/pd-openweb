@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 export const Con = styled.div(
-  ({ width }) => `
-  width: ${width}px;
+  ({ $width }) => `
+  width: ${$width}px;
   transition: width 0.2s;
   position:relative;
   z-index: 3;
@@ -10,7 +10,7 @@ export const Con = styled.div(
     max-height: 1000px;
   }
   .searchBar {
-    width: ${width}px;
+    width: ${$width}px;
     padding: 0 12px;
     height: 34px;
     .icon {

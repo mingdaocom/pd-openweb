@@ -1,20 +1,17 @@
 import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Steps } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, FullScreenCurtain, Icon, LoadDiv, QiniuUpload, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { FullScreenCurtain, Icon, LoadDiv, QiniuUpload, Support } from 'ming-ui';
+import { Button, Steps, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize } from 'src/utils/core/file';
 import UpgradeItemWrap from './UpgradeItemWrap';
-
-const { Step } = Steps;
 
 const Wrap = styled.div`
   width: 100%;
@@ -39,43 +36,43 @@ const Wrap = styled.div`
     .pBottom68 {
       padding-bottom: 68px;
     }
-    .ant-steps-item-icon {
+    .hap-steps-item-icon {
       width: 30px;
       height: 30px;
       font-size: 15px;
       line-height: 30px;
-      .ant-steps-icon {
+      .hap-steps-icon {
         top: -1.5px;
       }
     }
-    .ant-steps-item-wait .ant-steps-item-icon {
+    .hap-steps-item-wait .hap-steps-item-icon {
       background: var(--color-border-secondary);
       border-color: var(--color-border-secondary);
     }
-    .ant-steps-item-finish .ant-steps-item-icon {
+    .hap-steps-item-finish .hap-steps-item-icon {
       border-color: var(--color-primary-transparent);
       background: var(--color-primary-transparent);
     }
-    .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+    .hap-steps-item-finish .hap-steps-item-icon > .hap-steps-icon {
       color: var(--color-primary);
     }
-    .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+    .hap-steps-item-wait .hap-steps-item-icon > .hap-steps-icon {
       color: var(--color-text-secondary);
     }
-    .ant-steps-item-title {
+    .hap-steps-item-title {
       line-height: 30px;
     }
-    .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title,
-    .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    .hap-steps-item-process > .hap-steps-item-container > .hap-steps-item-content > .hap-steps-item-title,
+    .hap-steps-item-finish > .hap-steps-item-container > .hap-steps-item-content > .hap-steps-item-title {
       color: var(--color-text-title);
       font-weight: 600;
     }
-    .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    .hap-steps-item-wait > .hap-steps-item-container > .hap-steps-item-content > .hap-steps-item-title {
       color: var(--color-text-tertiary);
       font-weight: 600;
     }
-    .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after,
-    .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+    .hap-steps-item-process > .hap-steps-item-container > .hap-steps-item-content > .hap-steps-item-title::after,
+    .hap-steps-item-finish > .hap-steps-item-container > .hap-steps-item-content > .hap-steps-item-title::after {
       background-color: var(--color-border-secondary);
     }
   }
@@ -130,7 +127,7 @@ const Wrap = styled.div`
     }
   }
   .scopeLoadingWrap {
-    height: calc(~'100% - 68px');
+    height: calc(100% - 68px);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -287,7 +284,7 @@ function Upgrade(props) {
               }}
             >
               {_.isEmpty(file) ? (
-                <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
+                <Button type="primary" shape="round" className={cx({ Visibility: analyzeLoading })}>
                   {_l('上传文件')}
                 </Button>
               ) : (
@@ -337,7 +334,7 @@ function Upgrade(props) {
     return (
       <div className="upgradeProcessFooter">
         <div className="actionContent">
-          <Button type="primary" className="mLeft30" disabled={batchCheckUpgradeLoading} onClick={handleUpgrade}>
+          <Button type="primary" className="mLeft30" loading={batchCheckUpgradeLoading} onClick={handleUpgrade}>
             {_l('开始导入')}
           </Button>
         </div>
@@ -369,13 +366,7 @@ function Upgrade(props) {
           </div>
         </div>
         <div className={cx('upgradeProcessContent')}>
-          <Fragment>
-            <Steps current={current} className="mBottom20">
-              {ITEMS.map(item => {
-                return <Step key={item.title} title={item.title} disabled={true}></Step>;
-              })}
-            </Steps>
-          </Fragment>
+          <Steps current={current} className="mBottom20" items={ITEMS.map(item => ({ ...item, disabled: true }))} />
           {renderCon()}
           {current !== 0 && renderFooter()}
         </div>
@@ -384,4 +375,6 @@ function Upgrade(props) {
   );
 }
 
-export default props => FunctionWrap(Upgrade, { ...props });
+export function useUpgradeDialog() {
+  return useFunctionWrapComponent(Upgrade);
+}

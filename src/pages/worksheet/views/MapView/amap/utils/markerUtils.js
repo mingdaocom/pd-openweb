@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 import { getAMapPixel, getAMapPosition } from './common';
 import { isFun } from './common.js';
 
@@ -53,5 +54,9 @@ export const renderMarkerComponent = (component, marker) => {
 
   const root = createRoot(marker.getContent());
 
-  root.render(<div>{child}</div>);
+  root.render(
+    <AntdConfigProvider>
+      <div>{child}</div>
+    </AntdConfigProvider>,
+  );
 };

@@ -1,5 +1,5 @@
-import { getCardTitleFieldForView } from 'src/pages/worksheet/views/util.js';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { getCardTitleFieldForView } from 'src/utils/services/worksheet/view';
 
 export const getMobileCardTitle = (row, controls, view) => {
   const titleControl = getCardTitleFieldForView(row, controls, view) || {};

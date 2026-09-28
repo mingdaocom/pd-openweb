@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Dialog, Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+
+const DANGER_OK_BUTTON_PROPS = { danger: true };
 
 export default class DelAppGroup extends Component {
   static propTypes = {};
@@ -37,13 +40,15 @@ export default class DelAppGroup extends Component {
     const { onOk, onCancel, data } = this.props;
     const { sourceAppSectionId, searchValue } = this.state;
     return (
-      <Dialog
+      <Modal
         className="delAppItemDialog"
-        confirm="danger"
         width={640}
-        title={_l('删除一级分组')}
-        visible
-        footer={null}
+        title={<span className="textError">{_l('删除一级分组')}</span>}
+        open
+        okText={_l('删除')}
+        okButtonProps={DANGER_OK_BUTTON_PROPS}
+        okDisabled={!sourceAppSectionId}
+        onOk={() => onOk(sourceAppSectionId)}
         onCancel={onCancel}
       >
         <div className="explain">{_l('当前一级分组包含内容，必须将他们移到其他一级分组后再进行删除')}</div>
@@ -52,10 +57,10 @@ export default class DelAppGroup extends Component {
           <div className="groupingWrap flexColumn mTop10">
             <div className="searchWrap flexRow alignItemsCenter mBottom8 pBottom10">
               <Icon icon="search" className="Font18 textTertiary mRight3" />
-              <input
+              <Input
+                variant="borderless"
                 className="w100"
                 placeholder={_l('搜索')}
-                type="text"
                 value={searchValue}
                 onChange={e => {
                   this.setState({
@@ -67,19 +72,7 @@ export default class DelAppGroup extends Component {
             <ScrollView className="flex">{data.map(data => this.renderGroupingItem(data))}</ScrollView>
           </div>
         </div>
-        <div className="btnBox">
-          <button className="btnCancel" onClick={onCancel}>
-            {_l('取消')}
-          </button>
-          <button
-            onClick={() => onOk(sourceAppSectionId)}
-            disabled={!sourceAppSectionId}
-            className={cx('btnOk', { btnDel: !!sourceAppSectionId })}
-          >
-            {_l('删除')}
-          </button>
-        </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

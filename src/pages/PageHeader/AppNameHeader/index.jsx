@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import api from 'api/homeApp';
 import { SvgIcon } from 'ming-ui';
-import { navigateTo } from '../../../router/navigateTo';
+import { navigateTo } from '../../../router/navigation/navigateTo';
 import './index.less';
 
 export default class AppNameHeader extends Component {

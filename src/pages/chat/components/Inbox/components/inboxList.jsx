@@ -1,18 +1,20 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Divider } from 'antd';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
-import Button from 'ming-ui/components/Button';
+import { Button, Divider } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import inboxController from 'src/api/inbox';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import * as actions from '../../../redux/actions';
 import { LOADTYPES, NAMES, TYPES } from '../constants';
 import { isWithinOneHour } from '../util';
 import Message from './inboxMessage';
 
 let InboxList = class InboxList extends React.Component {
+  requestVersion = 0;
+
   static propTypes = {
     inboxFavorite: PropTypes.bool,
     type: PropTypes.oneOf(_.values(TYPES)),
@@ -31,6 +33,11 @@ let InboxList = class InboxList extends React.Component {
 
   componentDidMount() {
     this.fetchInboxList();
+  }
+
+  componentWillUnmount() {
+    this.requestVersion += 1;
+    this.ajaxRequest?.abort?.();
   }
 
   componentDidUpdate(prevProps) {
@@ -57,14 +64,17 @@ let InboxList = class InboxList extends React.Component {
   }
 
   fetchInboxList() {
+    const requestVersion = ++this.requestVersion;
     const { pageIndex, list } = this.state;
     const { clearUnread, inboxFavorite, type, filter } = this.props;
     const { user, startTime, endTime, appId } = filter || {};
+
+    this.ajaxRequest?.abort?.();
     this.setState({
       failed: false,
       isLoading: true,
     });
-    this.ajaxRequest = inboxController.getInboxMessage({
+    const ajaxRequest = inboxController.getInboxMessage({
       pageIndex,
       pageSize: location.href.includes('windowChat') ? 20 : 10,
       inboxFavorite: inboxFavorite ? 1 : 0,
@@ -76,9 +86,15 @@ let InboxList = class InboxList extends React.Component {
       endTime,
       appId,
     });
-    this.ajaxRequest
+    this.ajaxRequest = ajaxRequest;
+    ajaxRequest
       .then(({ inboxList }) => {
+        if (requestVersion !== this.requestVersion) {
+          return;
+        }
+
         if (pageIndex === 1) {
+          this.props.onFirstPageLoadSuccess?.(this.props.inboxType);
           this.setState({
             hasMoreData: inboxList.length > 0,
             list: inboxList,
@@ -93,12 +109,19 @@ let InboxList = class InboxList extends React.Component {
         }
       })
       .catch((jqXHR, textStatus) => {
+        if (requestVersion !== this.requestVersion) {
+          return;
+        }
+
         if (textStatus !== 'abort') {
-          alert(_l('加载失败，点击重试'), 2);
+          alertIfNotUnauthorized(jqXHR, _l('加载失败，点击重试'), 2);
           this.setState({
             failed: true,
             isLoading: false,
           });
+          if (pageIndex === 1) {
+            this.props.onFirstPageLoadError?.(this.props.inboxType);
+          }
         }
       });
   }
@@ -146,7 +169,7 @@ let InboxList = class InboxList extends React.Component {
     if (failed && !isLoading) {
       return (
         <div className="mTop10 TxtCenter">
-          <Button type={'link'} onClick={this.fetchInboxList.bind(this)}>
+          <Button color="primary" variant="link" onClick={this.fetchInboxList.bind(this)}>
             {_l('加载失败，点击重新加载')}
           </Button>
         </div>

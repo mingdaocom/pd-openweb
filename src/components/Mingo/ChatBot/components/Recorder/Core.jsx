@@ -1,7 +1,8 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef } from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import useRecorder from './useRecorder';
 import VolumeBar from './VolumeBar';
 
@@ -14,6 +15,39 @@ function secondToMMSS(seconds) {
 }
 
 const AUTO_STOP_TIME = 60 * 1000;
+const MOBILE_VOLUME_SEGMENT_COUNT = 16;
+
+const MobileVolumeBarWrap = styled.div`
+  display: flex;
+  width: 139px;
+  height: 14px;
+  align-items: center;
+  gap: 5px;
+
+  .volumeSegment {
+    width: 4px;
+    height: 14px;
+    flex: none;
+    border-radius: 4px;
+    background: var(--color-text-secondary);
+
+    &.active {
+      background: var(--color-primary);
+    }
+  }
+`;
+
+function MobileVolumeBar({ progress }) {
+  const activeCount = Math.round((Math.max(0, Math.min(100, progress)) / 100) * MOBILE_VOLUME_SEGMENT_COUNT);
+
+  return (
+    <MobileVolumeBarWrap>
+      {Array.from({ length: MOBILE_VOLUME_SEGMENT_COUNT }, (_, index) => (
+        <span key={index} className={cx('volumeSegment', { active: index < activeCount })} />
+      ))}
+    </MobileVolumeBarWrap>
+  );
+}
 
 const Core = forwardRef(
   ({ authConfig, updateStatus = () => {}, onStop = () => {}, updateRecognizedText = () => {} }, ref) => {
@@ -43,7 +77,7 @@ const Core = forwardRef(
       cache.current.autoStopTimer = setTimeout(() => {
         stop();
       }, AUTO_STOP_TIME);
-    }, []);
+    }, [start, stop]);
     useEffect(() => {
       updateRecognizedText(recognizedText);
     }, [recognizedText, updateRecognizedText]);
@@ -65,7 +99,11 @@ const Core = forwardRef(
           </Tooltip>
         )}
         <div className="recorderStatus t-flex-1">
-          <VolumeBar progress={status === 'recording' ? volume : 0} />
+          {isMobile ? (
+            <MobileVolumeBar progress={status === 'recording' ? volume : 0} />
+          ) : (
+            <VolumeBar progress={status === 'recording' ? volume : 0} />
+          )}
         </div>
         <div
           className={cx('recordTime', {

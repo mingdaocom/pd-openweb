@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Checkbox, Dropdown, LoadDiv, PriceTip, Radio, RichText, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, PriceTip, RichText, ScrollView } from 'ming-ui';
+import { Checkbox, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import agentApi from 'src/api/agent';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { ACTION_ID, RELATION_TYPE } from '../../enum';
 import { getControlTypeName } from '../../utils';
 import {
@@ -316,7 +317,7 @@ export default class Email extends Component {
       })
       .catch(error => {
         if (!this.mounted) return;
-        alert(error.message || _l('转换失败，请稍后重试'), 2);
+        alertIfNotUnauthorized(error, error.message || _l('转换失败，请稍后重试'), 2);
       })
       .finally(() => {
         if (this.mounted) {
@@ -344,17 +345,19 @@ export default class Email extends Component {
       autoConvertForEmailLoading,
     } = this.state;
     const list = [
-      { text: _l('标准（支持抄送，每个收件人都可以看到所有收件人和抄送人）'), value: ACTION_ID.SEND_EMAIL },
+      { label: _l('标准（支持抄送，每个收件人都可以看到所有收件人和抄送人）'), value: ACTION_ID.SEND_EMAIL },
       {
-        text: _l('群发单显（采用一对一单独发送，每个收件人只能看到自己的地址）'),
+        label: _l('群发单显（采用一对一单独发送，每个收件人只能看到自己的地址）'),
         value: ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY,
       },
     ];
+
     const contentTypes = [
       { text: _l('纯文本'), value: CONTENT_TYPE.TEXT },
       { text: _l('富文本编辑'), value: CONTENT_TYPE.RICH_TEXT },
       { text: _l('MJML 编辑（高级）'), value: CONTENT_TYPE.MJML },
     ];
+
     const emailContentType = getEmailContentType(data);
     const autoConvertForEmailEnabled = emailContentType === CONTENT_TYPE.RICH_TEXT && !!data.mjmlValue;
 
@@ -366,11 +369,10 @@ export default class Email extends Component {
           </div>
         )}
         <div className="mTop20 bold">{_l('发送方式')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={list}
+          options={list}
           value={data.actionId}
-          border
           onChange={actionId => {
             this.updateSource({
               actionId,
@@ -396,6 +398,7 @@ export default class Email extends Component {
           accounts={data.accounts}
           updateSource={this.updateSource}
         />
+
         <div
           className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -425,6 +428,7 @@ export default class Email extends Component {
               accounts={data.ccAccounts}
               updateSource={({ accounts }) => this.updateSource({ ccAccounts: accounts })}
             />
+
             <div
               className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
               onClick={() => this.setState({ showSelectCCUserDialog: true })}
@@ -456,6 +460,7 @@ export default class Email extends Component {
               accounts={data.bcAccounts}
               updateSource={({ accounts }) => this.updateSource({ bcAccounts: accounts })}
             />
+
             <div
               className="flexRow mTop15 colorPrimary workflowDetailAddBtn"
               onClick={() => this.setState({ showSelectBCUserDialog: true })}
@@ -494,16 +499,18 @@ export default class Email extends Component {
                   {contentTypes.map((obj, j) => (
                     <div className="workflowEmailContentType" key={j}>
                       <Radio
-                        text={obj.text}
                         checked={emailContentType === obj.value}
-                        onClick={() => {
+                        onChange={() => {
                           this.updateSource({
                             emailContentType: obj.value,
                             mjmlValue: '',
                             mjmlHtml: '',
                           });
                         }}
-                      />
+                        title={obj.text}
+                      >
+                        {obj.text}
+                      </Radio>
                     </div>
                   ))}
                   <div className="flex" />
@@ -614,12 +621,15 @@ export default class Email extends Component {
                       });
                     }}
                   />
+
                   <div className="flexRow mTop10 alignItemsCenter">
                     <Checkbox
                       className="flexRow alignItemsCenter minHeight30"
                       disabled={autoConvertForEmailLoading}
                       checked={autoConvertForEmailEnabled}
-                      text={
+                      onChange={() => this.handleAutoConvertForEmailClick(item, i)}
+                    >
+                      {
                         <Fragment>
                           {_l('自动转换为邮件兼容格式')}
                           {autoConvertForEmailLoading && (
@@ -627,8 +637,7 @@ export default class Email extends Component {
                           )}
                         </Fragment>
                       }
-                      onClick={() => this.handleAutoConvertForEmailClick(item, i)}
-                    />
+                    </Checkbox>
                     {autoConvertForEmailEnabled && data.mjmlValue && (
                       <Fragment>
                         <span
@@ -788,6 +797,7 @@ export default class Email extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
+
         <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>

@@ -33,13 +33,14 @@
   }
 
   .worksheetRecordCard {
-    box-shadow: initial;
+    box-shadow: var(--shadow-sm);
     .deleteRecord {
       display: none !important;
     }
   }
 
   .allowNewRecordBtn {
+    box-shadow: none;
     margin: 0 10px 10px;
     font-size: 15px;
     color: var(--color-primary);
@@ -47,7 +48,7 @@
     padding-left: 10px;
     border: 1px solid var(--color-border-primary);
     margin-bottom: 10px;
-    border-radius: 3px;
+    border-radius: 8px;
   }
 
   .empty {
@@ -60,10 +61,38 @@
   }
 
   .btnsWrapper {
+    flex-shrink: 0;
+    gap: 8px;
     height: 50px;
     background-color: var(--color-background-primary);
     padding: 0 10px;
     box-sizing: border-box;
+
+    .footerButton {
+      flex: 1;
+      height: 36px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 18px;
+      background-color: var(--color-background-primary);
+      color: var(--color-text-secondary);
+      font-size: 14px;
+    }
+
+    .confirmButton {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary);
+      color: var(--color-white);
+
+      &:disabled {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+.mobileRecordCardListDialogPopup {
+  .popupHeaderBox .btnCancel {
+    display: none;
   }
 }
 

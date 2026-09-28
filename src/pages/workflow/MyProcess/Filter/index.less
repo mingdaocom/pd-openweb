@@ -9,17 +9,17 @@
   transition:
     opacity 0.3s,
     margin-left 0.3s 0.1s;
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: none !important;
   }
-  .ant-drawer-content {
+  .hap-drawer-content {
     background-color: transparent;
   }
-  .ant-drawer-wrapper-body {
+  .hap-drawer-wrapper-body {
     display: flex;
     align-items: flex-end;
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding-top: 60px;
     width: 280px;
     height: 100%;
@@ -27,7 +27,7 @@
   .wrapper {
     height: 100%;
     background-color: var(--color-background-primary);
-    border-radius: 3px;
+    border-radius: 8px;
     box-shadow: var(--shadow-sm);
   }
   .header {
@@ -35,7 +35,7 @@
     padding: 0 16px;
     border-bottom: 1px solid var(--color-border-secondary);
     .reset {
-      color: var(--color-primary) e6;
+      color: var(--color-primary) !important;
       margin: 0 20px;
       &:hover {
         color: var(--color-primary) !important;
@@ -71,100 +71,9 @@
       border-color: var(--color-primary) !important;
     }
   }
-  .inputWrapper,
   .dateInput {
     input::placeholder {
       color: var(--color-text-disabled);
-    }
-  }
-  .inputWrapper {
-    input {
-      flex: 1;
-      font-size: 13px;
-      padding: 5px 45px 5px 10px;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
-      background-color: var(--color-background-input);
-      &:focus {
-        border-color: var(--color-primary);
-      }
-    }
-    .icon-close {
-      position: absolute;
-      right: 26px;
-      top: 7px;
-      &:hover {
-        color: var(--color-primary) !important;
-      }
-    }
-    .icon-search {
-      position: absolute;
-      right: 7px;
-    }
-  }
-  .filterFivider {
-    border-top: 1px solid var(--color-border-secondary);
-    padding-top: 16px;
-  }
-  .selectWrapper {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-      .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
-    .ant-select-selector {
-      border-radius: 4px;
-      box-shadow: none !important;
-    }
-    .ant-select-arrow {
-      width: auto;
-      height: auto;
-      top: 40%;
-    }
-    .ant-select-selection-placeholder {
-      font-size: 13px;
-    }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
-    .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
-      opacity: 1;
-      font-size: 13px;
-    }
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
-      color: inherit;
-    }
-  }
-  .dateInput {
-    &.ant-input-affix-wrapper {
-      padding: 0 0 0 11px;
-      .ant-input {
-        height: 30px;
-      }
-    }
-    &.ant-input-affix-wrapper:hover,
-    &:hover {
-      border-color: var(--color-primary) !important;
-    }
-    &.ant-input-affix-wrapper,
-    &.ant-input-affix-wrapper-focused,
-    & {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-input-suffix {
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 0 4px 4px 0;
-      border-left: 1px solid var(--color-border-primary);
-      background-color: var(--color-background-primary);
-    }
-    .icon-expand_less,
-    .icon-expand_more {
-      line-height: 10px;
-    }
-    &.ant-picker-range .ant-picker-input > input {
-      font-size: 13px;
     }
   }
   .appItem {
@@ -182,6 +91,9 @@
       height: 22px;
       justify-content: center;
       border-radius: 4px;
+      .svgIconRoot > div {
+        display: flex;
+      }
     }
     .processAppName {
       padding: 0 8px;
@@ -195,7 +107,7 @@
         background-color: var(--color-background-hover);
       }
       &.active {
-        background-color: var(--color-primary-focus) 1a;
+        background-color: var(--color-primary-transparent) !important;
       }
     }
   }
@@ -207,20 +119,7 @@
       background-color: var(--color-background-hover);
     }
     &.active {
-      background-color: var(--color-primary-focus) 1a;
-    }
-  }
-}
-
-.processOptionWrapper {
-  padding: 7px 12px 7px 20px;
-
-  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    font-weight: unset;
-    color: var(--color-white);
-    background-color: var(--color-primary);
-    .icon {
-      color: var(--color-white) !important;
+      background-color: var(--color-primary-transparent) !important;
     }
   }
 }

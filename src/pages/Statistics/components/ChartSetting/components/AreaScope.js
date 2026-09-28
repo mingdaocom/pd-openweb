@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Checkbox, Select } from 'antd';
 import _ from 'lodash';
-import { CityPicker, Icon, Input } from 'ming-ui';
+import { CityPicker, Icon } from 'ming-ui';
+import { Checkbox, Input, Select } from 'ming-ui/antd-components';
 
 const area = [
   {
@@ -90,17 +90,15 @@ export default class extends Component {
         <div className="title flexRow Font13 Bold valignWrapper mBottom12">{_l('范围')}</div>
         <div className="flexRow valignWrapper mBottom15">
           <Select
-            className="chartSelect w100"
+            className="w100"
             value={scopeLevel}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            options={this.filterArea().map(item => ({
+              value: item.value,
+              label: item.text,
+            }))}
             onChange={this.handleChangeParticleSizeType}
-          >
-            {this.filterArea().map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.text}
-              </Select.Option>
-            ))}
-          </Select>
+          />
         </div>
         {country.particleSizeType > 1 && (
           <CityPicker

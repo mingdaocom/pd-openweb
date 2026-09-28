@@ -1,12 +1,13 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BarCode, Qr } from 'ming-ui';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
+import { getBarCodeValue } from 'src/utils/domain/control/barCode';
+import { parseDataSource } from 'src/utils/domain/control/metadata';
 import { FROM } from '../../../core/config';
-import { getBarCodeValue } from '../../../core/utils';
-import { parseDataSource } from '../../tools/utils';
 
 const QRErrorCorrectLevel = {
   '7%': 1,
@@ -17,11 +18,11 @@ const QRErrorCorrectLevel = {
 
 const BarCodeWrap = styled.span`
   display: inline-block;
-  ${({ isRecord }) => isRecord && 'border: 1px solid var(--color-border-primary);'}
-  ${({ isView }) => (isView ? 'height: 170px;' : '')}
+  ${({ $isRecord }) => $isRecord && 'border: 1px solid var(--color-border-primary);'}
+  ${({ $isView }) => ($isView ? 'height: 170px;' : '')}
 
   img {
-    ${({ width }) => width && `width: ${width}px;`}
+    ${({ $width }) => $width && `width: ${$width}px;`}
     max-width: 100% !important;
     height: auto !important;
   }
@@ -36,6 +37,7 @@ const EmptyTag = styled.div`
 `;
 
 const BarCodeWidget = props => {
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const {
     from,
     formData,
@@ -51,7 +53,7 @@ const BarCodeWidget = props => {
     advancedSetting: { width, faultrate } = {},
     className,
   } = props;
-  const parseWidth = parseFloat(width);
+  const parseWidth = parseFloat(width) || 160;
   const timer = useRef(null);
   const imgCodeRef = useRef(null);
   const [value, setValue] = useState('');
@@ -79,7 +81,9 @@ const BarCodeWidget = props => {
     e.stopPropagation();
     const url = imgCodeRef.current.childNodes[0] ? imgCodeRef.current.childNodes[0].src : '';
     if (!url) return;
-    previewAttachments(transformQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }));
+    openPreviewAttachments(
+      transformQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }),
+    );
   };
 
   useEffect(() => {
@@ -102,9 +106,9 @@ const BarCodeWidget = props => {
 
   return (
     <BarCodeWrap
-      isRecord={from === FROM.RECORDINFO}
-      isView={isView}
-      width={parseWidth}
+      $isRecord={from === FROM.RECORDINFO}
+      $isView={isView}
+      $width={parseWidth}
       onClick={onPreview}
       ref={imgCodeRef}
       className={className}

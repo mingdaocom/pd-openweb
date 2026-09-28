@@ -3,12 +3,19 @@ import { useKey } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Steps } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
-import { isLightColor } from 'src/utils/control';
-import { FROM } from './enum';
+import { Popover } from 'ming-ui/antd-components';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+
+const OPTION_STEPS_POPOVER_MOTION = { motionName: '' };
+const OPTION_STEPS_POPOVER_STYLES = {
+  container: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+};
 
 function getOptionStyle(option, cell) {
   return cell.enumDefault2 === 1 && option.color
@@ -22,7 +29,7 @@ function getOptionStyle(option, cell) {
 const Con = styled.div`
   padding: 7px 6px !important;
   &:hover {
-    ${({ tableType }) => (tableType !== 'classic' ? 'padding-right: 34px;' : '')}
+    ${({ $tableType }) => ($tableType !== 'classic' ? 'padding-right: 34px;' : '')}
     .OperateIcon {
       display: inline-block;
     }
@@ -62,6 +69,7 @@ function OptionsSteps(props, ref) {
     isediting,
     editable,
     onClick,
+    popupContainer,
     updateEditingStatus,
     updateCell,
     onValidate,
@@ -113,7 +121,7 @@ function OptionsSteps(props, ref) {
   });
 
   if (from === FROM.CARD || mode === 'mobileSub') {
-    const option = _.find(options, op => op.key === JSON.parse(value || '[]')[0]) || {};
+    const option = _.find(options, op => op.key === safeParse(value || '[]')[0]) || {};
     return (
       <div className="cellOptions cellControl w100">
         <span
@@ -133,7 +141,7 @@ function OptionsSteps(props, ref) {
       showSelected={!isediting && rowHeight < 50}
       showTip={editable}
       showScaleText={isediting || rowHeight > 50}
-      value={JSON.parse(value || '[]')[0]}
+      value={safeParse(value || '[]')[0]}
       data={{ options, enumDefault2 }}
       onChange={v => {
         const newValue = JSON.stringify(v ? [v] : []);
@@ -148,27 +156,28 @@ function OptionsSteps(props, ref) {
   );
 
   if (isediting) {
+    const cellHeight = parseFloat(style.height) || rowHeight;
+
     return (
-      <Trigger
-        popup={
-          <ClickAway
-            onClickAway={() => {
-              updateEditingStatus(false);
-            }}
-          >
-            <EditingCon style={{ width: style.width, minHeight: style.height }}>{sliderComp}</EditingCon>
-          </ClickAway>
-        }
-        getPopupContainer={() => document.body}
-        popupClassName="filterTrigger"
-        popupVisible={isediting}
-        destroyPopupOnHide
-        popupAlign={{
-          points: ['tl', 'tl'],
+      <Popover
+        align={{ offset: [0, -cellHeight] }}
+        autoAdjustOverflow={false}
+        content={<EditingCon style={{ width: style.width, minHeight: style.height }}>{sliderComp}</EditingCon>}
+        getPopupContainer={popupContainer}
+        motion={OPTION_STEPS_POPOVER_MOTION}
+        open={isediting}
+        placement="bottomLeft"
+        noPadding
+        styles={OPTION_STEPS_POPOVER_STYLES}
+        trigger="click"
+        onOpenChange={open => {
+          if (!open) {
+            updateEditingStatus(false);
+          }
         }}
       >
         <div className={className} style={style} onClick={onClick} />
-      </Trigger>
+      </Popover>
     );
   }
 
@@ -177,7 +186,7 @@ function OptionsSteps(props, ref) {
       className={cx(className, 'cellControl flexRow', {
         canedit: editable,
       })}
-      tableType={tableType}
+      $tableType={tableType}
       style={style}
       onClick={onClick}
     >

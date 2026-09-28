@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { ConfigProvider, Table } from 'antd';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, LoadDiv, SvgIcon, UserHead } from 'ming-ui';
+import { LoadDiv, SvgIcon, UserHead } from 'ming-ui';
+import { Checkbox, ConfigProvider, Select } from 'ming-ui/antd-components';
 import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process.js';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import { TableWrap } from 'src/pages/integration/apiIntegration/style';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
 import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
@@ -97,7 +98,7 @@ const WrapCon = styled.div`
       color: var(--color-link-hover);
     }
   }
-  .ant-table-thead > tr > th {
+  .hap-table-thead > tr > th {
     color: var(--color-text-secondary) !important;
   }
   .iconWrap {
@@ -105,12 +106,12 @@ const WrapCon = styled.div`
     width: 36px;
     height: 36px;
   }
-  .ant-table.ant-table-small .ant-table-title,
-  .ant-table.ant-table-small .ant-table-footer,
-  .ant-table.ant-table-small .ant-table-thead > tr > th,
-  .ant-table.ant-table-small .ant-table-tbody > tr > td,
-  .ant-table.ant-table-small tfoot > tr > th,
-  .ant-table.ant-table-small tfoot > tr > td {
+  .hap-table.hap-table-small .hap-table-title,
+  .hap-table.hap-table-small .hap-table-footer,
+  .hap-table.hap-table-small .hap-table-thead > tr > th,
+  .hap-table.hap-table-small .hap-table-tbody > tr > td,
+  .hap-table.hap-table-small tfoot > tr > th,
+  .hap-table.hap-table-small tfoot > tr > td {
     padding: 15px 8px;
     align-items: center;
     display: flex;
@@ -305,13 +306,13 @@ function AuthorizeToApp(props) {
   };
 
   const dateArr = [
-    { text: _l('始终通知'), value: 0 },
-    { text: _l('15分钟'), value: 15 },
-    { text: _l('1小时'), value: 60 },
-    { text: _l('2小时'), value: 120 },
-    { text: _l('6小时'), value: 360 },
-    { text: _l('12小时'), value: 720 },
-    { text: _l('24小时'), value: 1440 },
+    { label: _l('始终通知'), value: 0 },
+    { label: _l('15分钟'), value: 15 },
+    { label: _l('1小时'), value: 60 },
+    { label: _l('2小时'), value: 120 },
+    { label: _l('6小时'), value: 360 },
+    { label: _l('12小时'), value: 720 },
+    { label: _l('24小时'), value: 1440 },
   ];
 
   // 授权
@@ -421,23 +422,22 @@ function AuthorizeToApp(props) {
             <i className={'icon-plus Font14'} />
           </div>
         </div>
-        <div className="topSet flexRow mTop20 LineHeight36">
+        <div className="topSet flexRow alignItemsCenter mTop20 LineHeight36">
           <Checkbox
-            size="small"
-            text={_l('API 调用失败时发送错误消息通知给拥有者')}
             checked={info.triggerType === TRIGGER_TYPE.ALLOW}
-            onClick={() => {
+            onChange={() => {
               updateSource({
                 triggerType: info.triggerType === TRIGGER_TYPE.ALLOW ? TRIGGER_TYPE.NO_ALLOW : TRIGGER_TYPE.ALLOW,
               });
             }}
-          />
-          <Dropdown
+            size="small"
+          >
+            {_l('API 调用失败时发送错误消息通知给拥有者')}
+          </Checkbox>
+          <Select
             className="timeDrop mLeft20"
-            menuStyle={{ width: '100%' }}
-            data={dateArr}
             value={info.errorInterval}
-            border
+            options={dateArr}
             onChange={errorInterval => updateSource({ errorInterval: errorInterval })}
           />
           <span className="mLeft16">{_l('内不发送同类错误通知')}</span>

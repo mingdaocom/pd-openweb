@@ -2,7 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { List } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, MobilePersonalInfo, MobileSearch, PopupWrapper, ScrollView, Switch } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, ScrollView } from 'ming-ui';
+import { Switch } from 'ming-ui/antd-components';
+import { MobilePersonalInfo, PopupWrapper } from 'ming-ui/antd-mobile-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -747,7 +749,13 @@ export default class SelectUser extends Component {
             <ScrollView className="h100">
               <div className="flexRow onlyShowJoinDepartment" onMouseDown={e => e.preventDefault()}>
                 <span className="onlySelf">{_l('只看我加入的部门')}</span>
-                <Switch checked={onlyJoinDepartmentChecked} onClick={this.onlyShowJoinDepartment} />
+                <Switch
+                  checked={onlyJoinDepartmentChecked}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return this.onlyShowJoinDepartment(!checked, event);
+                  }}
+                />
               </div>
               {departments.map(item => (
                 <Fragment key={item.departmentId}>

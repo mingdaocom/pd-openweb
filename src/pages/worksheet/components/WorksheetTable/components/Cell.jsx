@@ -5,11 +5,12 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
-import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { controlState } from 'src/utils/control';
-import { checkCellIsEmpty, controlIsNumber, isRelateRecordTableControl } from 'src/utils/control';
-import { getRecordColor } from 'src/utils/record';
+import { controlState } from 'src/utils/domain/control/state';
+import { controlIsNumber, isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'src/utils/domain/worksheet/constants';
+import { getRecordColor } from 'src/utils/domain/worksheet/record';
 import CollapseExpandButton from './CollapseExpandButton';
 import DataCell from './DataCell';
 
@@ -275,6 +276,7 @@ function Cell(props) {
     view,
     tableType,
     triggerClickImmediate,
+    clickEnterEditing,
     cache,
     rows = [],
     controls = [],
@@ -313,6 +315,7 @@ function Cell(props) {
     inView,
     direction = 'horizontal',
     cellProps = {},
+    openAddRecord,
   } = data;
   const isHorizontal = direction === 'horizontal';
   const { columnIndex, rowIndex } = getIndex({
@@ -395,6 +398,7 @@ function Cell(props) {
             WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET,
             WIDGETS_TO_API_TYPE_ENUM.CASCADER,
           ],
+
           control.type,
         ) &&
         checkCellIsEmpty(value),
@@ -502,8 +506,10 @@ function Cell(props) {
         control,
         row,
         data: rows,
+        openAddRecord,
       })
     );
+
     return recordColor && recordColorConfig.showLine ? (
       <Fragment>
         {rowHeadComp}
@@ -601,6 +607,7 @@ function Cell(props) {
       tableId={tableId}
       tableType={tableType}
       triggerClickImmediate={triggerClickImmediate}
+      clickEnterEditing={clickEnterEditing}
       fixedColumnCount={fixedColumnCount}
       lineEditable={lineEditable && !disableQuickEdit}
       className={className}
@@ -720,46 +727,44 @@ function Cell(props) {
                 if (_.isFunction(actions.handleAddNewRecord)) {
                   actions.handleAddNewRecord(row, { addParentControl, addChildControl });
                 } else {
-                  import('worksheet/common/newRecord/addRecord').then(addRecord => {
-                    addRecord.default({
-                      worksheetId,
-                      isDraft,
-                      // 关联记录表格（本表关联树形）会传入 masterRecord（外层主记录）。此时层级控件为列表(LIST)展示，
-                      // defaultRelatedSheet 会被 getFormDataForNewRecord 的 showtype 过滤掉，父级未写入，记录被错误挂到主记录。
-                      // 这里直接把层级控件默认值设为当前节点行（与 ChildTable 一致），并清除指向主记录的 masterRecord，
-                      // 确保新建子记录关联到当前行而非主记录。主表树视图（无 masterRecord）维持原逻辑不变。
-                      ...(masterRecord
-                        ? {
-                            masterRecord: undefined,
-                            defaultFormData: {
-                              [addParentControl.controlId]: JSON.stringify([
-                                { sid: row.rowid, sourcevalue: JSON.stringify(row), type: 8 },
-                              ]),
-                            },
-                            defaultFormDataEditable: true,
-                          }
-                        : { masterRecord }),
-                      defaultRelatedSheet: {
-                        worksheetId,
-                        relateSheetControlId: addParentControl.sourceControlId,
-                        value: {
-                          sid: row.rowid,
-                          sourcevalue: JSON.stringify(row),
-                          type: 8,
-                        },
-                      },
-                      directAdd: true,
-                      showFillNext: true,
-                      onAdd: actions.onTreeAddRecord
-                        ? record => actions.onTreeAddRecord(row, record)
-                        : record => {
-                            if (record) {
-                              if (isFunction(actions.updateTreeNodeExpansion)) {
-                                actions.updateTreeNodeExpansion(row, { forceUpdate: true });
-                              }
-                            }
+                  openAddRecord({
+                    worksheetId,
+                    isDraft,
+                    // 关联记录表格（本表关联树形）会传入 masterRecord（外层主记录）。此时层级控件为列表(LIST)展示，
+                    // defaultRelatedSheet 会被 getFormDataForNewRecord 的 showtype 过滤掉，父级未写入，记录被错误挂到主记录。
+                    // 这里直接把层级控件默认值设为当前节点行（与 ChildTable 一致），并清除指向主记录的 masterRecord，
+                    // 确保新建子记录关联到当前行而非主记录。主表树视图（无 masterRecord）维持原逻辑不变。
+                    ...(masterRecord
+                      ? {
+                          masterRecord: undefined,
+                          defaultFormData: {
+                            [addParentControl.controlId]: JSON.stringify([
+                              { sid: row.rowid, sourcevalue: JSON.stringify(row), type: 8 },
+                            ]),
                           },
-                    });
+                          defaultFormDataEditable: true,
+                        }
+                      : { masterRecord }),
+                    defaultRelatedSheet: {
+                      worksheetId,
+                      relateSheetControlId: addParentControl.sourceControlId,
+                      value: {
+                        sid: row.rowid,
+                        sourcevalue: JSON.stringify(row),
+                        type: 8,
+                      },
+                    },
+                    directAdd: true,
+                    showFillNext: true,
+                    onAdd: actions.onTreeAddRecord
+                      ? record => actions.onTreeAddRecord(row, record)
+                      : record => {
+                          if (record) {
+                            if (isFunction(actions.updateTreeNodeExpansion)) {
+                              actions.updateTreeNodeExpansion(row, { forceUpdate: true });
+                            }
+                          }
+                        },
                   });
                 }
               }}

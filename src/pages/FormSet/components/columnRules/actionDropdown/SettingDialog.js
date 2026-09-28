@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Switch } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Checkbox, Modal, Switch } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import { ACTION_DISPLAY, deepSearch, RELATE_PERMISSION_DISPLAY, SUBLIST_PERMISSION_DISPLAY } from '../config';
 
 const SectionConfirmWrap = styled.div`
@@ -20,12 +20,6 @@ const SectionConfirmWrap = styled.div`
     }
   }
 
-  .optionContainer {
-    .Checkbox {
-      width: 50%;
-      display: inline-block;
-    }
-  }
   .editContainer {
     max-height: 400px;
     overflow-x: hidden;
@@ -51,10 +45,11 @@ function SettingDialog(props) {
   const actionItem = _.find(ACTION_DISPLAY, a => a.value === actionType);
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
       width={640}
-      overlayClosable={false}
+      mask={{ closable: false }}
+      keyboard
       title={
         parentItem.type === 34
           ? _l('子表%0动作设置', _.get(actionItem, 'titleLabel'))
@@ -84,8 +79,17 @@ function SettingDialog(props) {
               {_l('操作设置')}
               <Switch
                 checked={parentConfig.isCustom}
-                onClick={checked => {
-                  setParentConfig({ ...parentConfig, isCustom: !checked, ...(checked ? { permission: [] } : {}) });
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  setParentConfig({
+                    ...parentConfig,
+                    isCustom: !!checked,
+                    ...(!checked
+                      ? {
+                          permission: [],
+                        }
+                      : {}),
+                  });
                 }}
               />
             </div>
@@ -98,15 +102,18 @@ function SettingDialog(props) {
                   return (
                     <Checkbox
                       className="mBottom8"
-                      text={i.text}
                       checked={_.includes(permission, i.value)}
-                      onClick={checked => {
+                      onChange={event => {
                         setParentConfig({
                           ...parentConfig,
-                          permission: checked ? permission.filter(p => p !== i.value) : permission.concat(i.value),
+                          permission: !event.target.checked
+                            ? permission.filter(p => p !== i.value)
+                            : permission.concat(i.value),
                         });
                       }}
-                    />
+                    >
+                      {i.text}
+                    </Checkbox>
                   );
                 })}
               </Fragment>
@@ -122,13 +129,13 @@ function SettingDialog(props) {
             <div className="rowTitle flex Bold">{_l('全选')}</div>
             <Checkbox
               className="flex"
-              clearselected={
+              indeterminate={
                 !!childControlIds.length && childControlIds.length !== (parentItem.relationControls || []).length
               }
               checked={childControlIds.length === (parentItem.relationControls || []).length}
-              onClick={checked => {
+              onChange={event => {
                 setChildConfig(
-                  checked
+                  !event.target.checked
                     ? {}
                     : {
                         controlId: parentItem.controlId,
@@ -145,10 +152,10 @@ function SettingDialog(props) {
                 <Checkbox
                   className="flex"
                   checked={_.includes(childControlIds, i.controlId)}
-                  onClick={checked => {
+                  onChange={event => {
                     setChildConfig({
                       controlId: parentItem.controlId,
-                      childControlIds: checked
+                      childControlIds: !event.target.checked
                         ? childControlIds.filter(c => c !== i.controlId)
                         : childControlIds.concat(i.controlId),
                     });
@@ -159,10 +166,10 @@ function SettingDialog(props) {
           })}
         </div>
       </SectionConfirmWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
-export default function openSettingDialog(props) {
-  return functionWrap(SettingDialog, props);
+export function useSettingDialog() {
+  return useFunctionWrapComponent(SettingDialog);
 }

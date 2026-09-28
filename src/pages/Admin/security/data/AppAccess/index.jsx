@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Menu, MenuItem, Switch } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Dropdown, Modal, Switch } from 'ming-ui/antd-components';
 import dataLimitAjax from 'src/api/dataLimit';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import Search from 'src/pages/workflow/components/Search';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { ACCESS_CONDITION_ENUM, ADVANCED_SETTING_ENUM, DEVICE_ENUM, POLICY_ACTION_ENUM, YES_NO_ENUM } from '../enum';
 import { arrayToObject, objectToArray } from '../utils';
 import AddAndEditAppAccess from './AddAndEditAppAccess';
@@ -116,8 +117,9 @@ export default function AppAccess(props) {
           return (
             <Switch
               checked={record.isEnable}
-              onClick={() =>
-                updateAppLimit(
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return updateAppLimit(
                   {
                     id: record.id,
                     isEnable: !record.isEnable,
@@ -125,8 +127,12 @@ export default function AppAccess(props) {
                     accessType: record.accessType,
                     accessPass: record.accessPass,
                     limitAction: record.limitAction,
-                    whiteApps: (record.whiteApps || []).map(({ appId }) => ({ appId })),
-                    blackApps: (record.blackApps || []).map(({ appId }) => ({ appId })),
+                    whiteApps: (record.whiteApps || []).map(({ appId }) => ({
+                      appId,
+                    })),
+                    blackApps: (record.blackApps || []).map(({ appId }) => ({
+                      appId,
+                    })),
                     isAllowPublicAccess: record.isAllowPublicAccess,
                     isAllowCrossApp: record.isAllowCrossApp,
                     ipRule: record.ipRule,
@@ -138,14 +144,16 @@ export default function AppAccess(props) {
                     const tempList = _.cloneDeep(list);
                     const index = _.findIndex(tempList, item => item.id === record.id);
                     tempList[index].isEnable = !record.isEnable;
-                    setState({ list: tempList });
+                    setState({
+                      list: tempList,
+                    });
                     alert(!record.isEnable ? _l('开启成功') : _l('关闭成功'));
                   },
                   () => {
                     alert(!record.isEnable ? _l('开启失败') : _l('关闭失败'), 2);
                   },
-                )
-              }
+                );
+              }}
             />
           );
         },
@@ -157,34 +165,30 @@ export default function AppAccess(props) {
         fixed: 'right',
         render: (text, record) => {
           return (
-            <Trigger
-              action={['click']}
-              popupVisible={actionId === record.limitId}
-              onPopupVisibleChange={visible => setState({ actionId: visible ? record.limitId : false })}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [-110, 2],
-                overflow: { adjustX: true, adjustY: true },
+            <Dropdown
+              trigger={['click']}
+              open={actionId === record.limitId}
+              onOpenChange={visible => setState({ actionId: visible ? record.limitId : false })}
+              menu={{
+                items: [
+                  {
+                    key: 'edit',
+                    label: _l('编辑'),
+                    onClick: () =>
+                      setState({ showAddEditDialog: true, actionType: 'edit', actionId: false, actionRecord: record }),
+                  },
+                  { key: 'delete', danger: true, label: _l('删除'), onClick: () => handleDelete(record) },
+                ],
+                onClick: () => setState({ actionId: false }),
+                style: { minWidth: 120 },
               }}
-              popup={
-                <Menu className="Static" style={{ width: 118 }}>
-                  <MenuItem
-                    onClick={() =>
-                      setState({ showAddEditDialog: true, actionType: 'edit', actionId: false, actionRecord: record })
-                    }
-                  >
-                    {_l('编辑')}
-                  </MenuItem>
-                  <MenuItem onClick={() => handleDelete(record)}>{_l('删除')}</MenuItem>
-                </Menu>
-              }
             >
               <Icon
                 icon="moreop"
                 className="textTertiary Hand Font18 hoverColorPrimaryLight"
                 onClick={() => setState({ actionId: record.limitId })}
               />
-            </Trigger>
+            </Dropdown>
           );
         },
       },
@@ -242,24 +246,31 @@ export default function AppAccess(props) {
 
   const handleDelete = record => {
     setState({ actionId: false });
-    Dialog.confirm({
-      title: _l('确认删除策略“%0”', record.name),
-      children: <div>{_l('删除后无法恢复，请谨慎操作')}</div>,
+    Modal.confirm({
+      title: <span className="textError">{_l('确认删除策略“%0”', record.name)}</span>,
+      content: <div>{_l('删除后无法恢复，请谨慎操作')}</div>,
       okText: _l('删除'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         dataLimitAjax
-          .deleteAppLimit({ projectId, limitId: record.limitId })
+          .deleteAppLimit({
+            projectId,
+            limitId: record.limitId,
+          })
           .then(res => {
             if (res) {
-              setState({ list: list.filter(item => item.limitId !== record.limitId) });
+              setState({
+                list: list.filter(item => item.limitId !== record.limitId),
+              });
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败'), 2);
             }
           })
-          .catch(() => {
-            alert(_l('删除失败'), 2);
+          .catch(_requestError => {
+            alertIfNotUnauthorized(_requestError, _l('删除失败'), 2);
           });
       },
     });
@@ -302,9 +313,8 @@ export default function AppAccess(props) {
             }, 500)}
           />
           <div className="flex"></div>
-          <Button className="pLeft16 pRight16" onClick={addPolicy}>
-            <Icon icon="add" className="Font18 mRight3 TxtMiddle" />
-            <span className="TxtMiddle">{_l('策略')}</span>
+          <Button type="primary" icon={<Icon icon="add" className="Font18" />} onClick={addPolicy}>
+            {_l('策略')}
           </Button>
         </div>
 

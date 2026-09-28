@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Button, Popup } from 'antd-mobile';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
 
 class ModalWrap extends Component {
   constructor(props) {
@@ -37,5 +38,9 @@ export default function functionModalWrap(props) {
     document.body.removeChild(div);
   }
 
-  root.render(<ModalWrap visible {...props} onClose={destory} />);
+  root.render(
+    <AntdConfigProvider>
+      <ModalWrap visible {...props} onClose={destory} />
+    </AntdConfigProvider>,
+  );
 }

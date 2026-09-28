@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 
 const Wrap = styled.div`
@@ -72,9 +72,6 @@ const Wrap = styled.div`
 const SelectWrap = styled.ul`
   width: 174px;
   padding: 7px 0;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px;
   font-size: 13px;
   color: var(--color-text-title);
   li {
@@ -158,19 +155,17 @@ export default function UpgradeSelectApp(props) {
 
   const renderSelectBtn = (item, children) => {
     return (
-      <Trigger
-        popupVisible={popupVisibleId === item.fileName}
-        onPopupVisibleChange={visible => setPopupVisibleId(visible ? item.fileName : undefined)}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [10, -20],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={renderPopup(item)}
+      <Popover
+        noPadding
+        open={popupVisibleId === item.fileName}
+        onOpenChange={visible => setPopupVisibleId(visible ? item.fileName : undefined)}
+        trigger="click"
+        placement="bottomLeft"
+        align={{ offset: [10, -20] }}
+        content={renderPopup(item)}
       >
         {children}
-      </Trigger>
+      </Popover>
     );
   };
 

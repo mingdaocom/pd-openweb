@@ -5,8 +5,10 @@ import { func, number, string } from 'prop-types';
 import styled from 'styled-components';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { browserIsMobile, emitter, pathCompletion } from 'src/utils/common';
-import { getCardWidth } from 'src/utils/worksheet';
+import { getCardWidth } from 'worksheet/common/ViewConfig/getCardWidth';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { getRelateSheetId } from '../../HierarchyView/util';
 import DraggableRecord from './DraggableRecord';
 

@@ -1,10 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import Beta from 'src/pages/AppSettings/components/Beta';
-import { navigateTo } from 'src/router/navigateTo';
 import Icon from './Icon';
-import UpgradeIcon from './UpgradeIcon';
 
 const Wrap = styled.ul`
   margin: 12px 14px 0;
@@ -61,19 +58,14 @@ export default function CardNav(props) {
   return (
     <Wrap>
       {navList.map(item => {
-        const { icon, title, description, url, showBeta, showUpgradeIcon, onClick } = item;
-        const routerKey = url.split('/').pop();
+        const { key, icon, title, description, extra, onClick } = item;
 
         return (
-          <li
-            className={cx({ current: currentNav === routerKey })}
-            onClick={() => (onClick ? onClick() : navigateTo(url))}
-          >
+          <li key={key} className={cx({ current: currentNav === key })} onClick={onClick}>
             <div className="">
               <Icon icon={icon} className="aliasIcon" />
               <span className="flex mLeft12 Bold">{title}</span>
-              {showBeta && <Beta className="verticalTxtBottom" />}
-              {showUpgradeIcon && <UpgradeIcon className="verticalTxtBottom" />}
+              {extra}
             </div>
             {description && <p className="mTop5 Font12">{description}</p>}
           </li>

@@ -73,15 +73,15 @@ export const GraphWrap = styled.div`
   .iconWrap {
     color: var(--color-white);
     font-size: 28px;
-    border-radius: ${props => props.radius};
+    border-radius: ${props => props.$radius};
     justify-content: center;
-    background-color: ${props => props.color};
+    background-color: ${props => props.$color};
     transition:
       color ease-in 0.2s,
       border-color ease-in 0.2s,
       background-color ease-in 0.2s;
     &:hover {
-      background-color: ${props => new TinyColor(props.color).darken(20).toString()};
+      background-color: ${props => new TinyColor(props.$color).darken(20).toString()};
     }
     div {
       display: flex;

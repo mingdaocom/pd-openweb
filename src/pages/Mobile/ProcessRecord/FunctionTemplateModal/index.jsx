@@ -1,33 +1,23 @@
 import React, { Component, Fragment } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Button, Popup } from 'antd-mobile';
+import { Button, Input, Popup } from 'antd-mobile';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import instanceAJAX from 'src/pages/workflow/apiV2/instance';
 
 const Wrap = styled.div`
   .searchWrap {
-    padding: 7px 15px;
+    padding: 6px 15px;
     border-radius: 25px;
     background-color: var(--color-background-secondary);
     position: relative;
     margin: 10px;
-    input {
-      width: 100%;
-      border: none;
-      padding-left: 10px;
-      background-color: var(--color-background-secondary);
-    }
-    .icon-close {
-      position: absolute;
-      right: 10px;
-    }
   }
   .opinionsWrap {
     overflow-y: auto;
     padding: 0 10px;
     .opinionItem {
-      font-size: 17px;
+      font-size: 15px;
       padding: 12px 0;
       border-bottom: 1px solid var(--color-border-secondary);
     }
@@ -46,28 +36,20 @@ class ModalWrap extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchWrap valignWrapper">
-        <Icon icon="search" className="textTertiary Font20 pointer" />
-        <input
+        <Icon icon="search" className="textTertiary Font20 mRight8" />
+        <Input
+          className="flex"
+          style={{ '--font-size': '13px' }}
+          clearable
+          onlyShowClearWhenFocus={false}
           value={searchValue}
-          type="text"
           placeholder={_l('搜索')}
-          onChange={e => {
+          onChange={value => {
             this.setState({
-              searchValue: e.target.value,
+              searchValue: value,
             });
           }}
         />
-        {searchValue && (
-          <Icon
-            icon="close"
-            className="textSecondary Font20 pointer"
-            onClick={() => {
-              this.setState({
-                searchValue: '',
-              });
-            }}
-          />
-        )}
       </div>
     );
   }
@@ -169,17 +151,6 @@ class ModalWrap extends Component {
   }
 }
 
-export default function functionTemplateModal(props) {
-  const div = document.createElement('div');
-
-  document.body.appendChild(div);
-
-  const root = createRoot(div);
-
-  function destory() {
-    root.unmount();
-    document.body.removeChild(div);
-  }
-
-  root.render(<ModalWrap visible {...props} onClose={destory} />);
+export function useFunctionTemplateModal() {
+  return useFunctionWrapComponent(ModalWrap);
 }

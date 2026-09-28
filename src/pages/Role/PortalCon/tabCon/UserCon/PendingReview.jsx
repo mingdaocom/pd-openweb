@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import noVerifyAjax from 'src/api/noVerify';
 import Table from 'src/pages/Role/component/Table';
@@ -12,7 +12,7 @@ import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDial
 import ReviewFree from 'src/pages/Role/PortalCon/components/ReviewFree';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
 import { pageSizeForPortal } from 'src/pages/Role/PortalCon/tabCon/config';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
 import * as actions from '../../redux/actions';
 import PortalBar from '../portalComponent/PortalBar';
 import { formatDataForPortalControl, formatPortalData, renderText } from '../util';
@@ -32,56 +32,6 @@ const Wrap = styled.div`
     padding-bottom: 16px;
     display: flex;
     justify-content: right;
-    .pass,
-    .reject {
-      width: 61px;
-      height: 32px;
-      background: var(--color-background-secondary);
-      border-radius: 3px;
-      color: var(--color-text-disabled);
-      line-height: 32px;
-      text-align: center;
-    }
-    .pass {
-      &.isAct {
-        background: var(--color-primary-transparent);
-        color: var(--color-primary);
-        &:hover {
-          background: var(--color-primary-transparent);
-        }
-      }
-    }
-    .reject {
-      &.isAct {
-        background: rgba(244, 67, 54, 0.1);
-        color: rgba(244, 67, 54, 1);
-        &:hover {
-          background: var(--color-error-bg);
-        }
-      }
-    }
-    .setList {
-      height: 32px;
-      color: var(--color-primary);
-      vertical-align: middle;
-      line-height: 32px;
-      padding: 0 12px;
-      background: var(--color-background-secondary);
-      border-radius: 3px;
-      &:hover {
-        color: var(--color-primary);
-      }
-      &.isOpen {
-        background: var(--color-background-primary);
-        border: 1px solid var(--color-primary);
-      }
-    }
-  }
-`;
-const WrapRejectBtn = styled.div`
-  color: var(--color-error);
-  &:hover {
-    color: var(--color-error);
   }
 `;
 
@@ -271,15 +221,17 @@ function PendingReview(props) {
       return;
     }
 
-    return Dialog.confirm({
-      title: <span className="Red">{_l('你确认拒绝吗？')}</span>,
-      buttonType: 'danger',
-      description: _l('拒绝后会从列表中删除此用户'),
+    return Modal.confirm({
+      title: <span className="textError">{_l('你确认拒绝吗？')}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: _l('拒绝后会从列表中删除此用户'),
       onOk: () => {
         editAppApplyStatus(rowIds || selectedIds);
         setShowUserInfoDialog(false);
       },
-    });
+    }).destroy;
   };
 
   return (
@@ -290,8 +242,10 @@ function PendingReview(props) {
         </div>
         {selectedIds.length > 0 && (
           <React.Fragment>
-            <span
-              className={cx('pass InlineBlock Hand', { isAct: selectedIds.length > 0 })}
+            <Button
+              color="primary"
+              variant="filled"
+              style={{ height: 32 }}
               onClick={() => {
                 if (selectedIds.length > 0) {
                   setShowPassDrop(true);
@@ -299,15 +253,18 @@ function PendingReview(props) {
               }}
             >
               {_l('同意')}
-            </span>
-            <span
-              className={cx('reject InlineBlock Hand mLeft10', { isAct: selectedIds.length > 0 })}
+            </Button>
+            <Button
+              color="danger"
+              variant="filled"
+              style={{ height: 32 }}
+              className="mLeft10"
               onClick={() => {
                 rejectDialog();
               }}
             >
               {_l('拒绝')}
-            </span>
+            </Button>
           </React.Fragment>
         )}
         {selectedIds.length <= 0 && (
@@ -318,14 +275,16 @@ function PendingReview(props) {
             appId={appId}
             comp={() => {
               return (
-                <div
-                  className={cx('setList InlineBlock TxtTop Hand', { isOpen })}
+                <Button
+                  color="primary"
+                  variant={isOpen ? 'outlined' : 'filled'}
+                  style={{ height: 32 }}
                   onClick={() => {
                     setShow(true);
                   }}
                 >
                   {isOpen ? _l('已设置免审') : _l('免审设置')}
-                </div>
+                </Button>
               );
             }}
             refresh={() => {
@@ -466,14 +425,15 @@ function PendingReview(props) {
           title={_l('用户信息')}
           renderCancel={() => {
             return (
-              <WrapRejectBtn
-                className="btn rejectBtn Hand mLeft10"
+              <Button
+                danger
+                className="mLeft10"
                 onClick={() => {
                   rejectDialog([currentId]);
                 }}
               >
                 {_l('拒绝')}
-              </WrapRejectBtn>
+              </Button>
             );
           }}
         />

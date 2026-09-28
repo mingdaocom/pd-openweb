@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Dialog, Dropdown, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Button, Modal, Select } from 'ming-ui/antd-components';
 import processVersion from '../../api/processVersion';
 import ajaxRequest from 'src/api/appManagement';
 import '../SelectUsersFromApp/index.less';
@@ -57,7 +58,7 @@ export default class SelectProcess extends Component {
 
         return {
           value: appId,
-          text: appName,
+          label: appName,
         };
       });
 
@@ -88,7 +89,7 @@ export default class SelectProcess extends Component {
           .forEach(({ id, name, triggerId }) => {
             processList.push({
               value: id,
-              text: name,
+              label: name,
               triggerId,
             });
           });
@@ -110,14 +111,14 @@ export default class SelectProcess extends Component {
         <div className="formItem flexRow mTop10">
           <div className="label">{_l('应用')}</div>
           <div className="content">
-            <Dropdown
-              border
+            <Select
               className="w100"
               placeholder={_l('请选择')}
-              noData={_l('没有可选的应用')}
-              openSearch
-              value={selectAppId}
-              data={appList}
+              notFoundContent={_l('没有可选的应用')}
+              showSearch
+              optionFilterProp="label"
+              value={selectAppId || undefined}
+              options={appList}
               onChange={id => {
                 this.setState({ selectAppId: id, selectProcessId: '' });
                 this.getProcessByApp(id);
@@ -128,23 +129,24 @@ export default class SelectProcess extends Component {
         <div className="formItem flexRow mTop15">
           <div className="label">{processListType === 11 ? _l('审批流程') : _l('循环流程')}</div>
           <div className="content">
-            <Dropdown
-              border
+            <Select
               className="w100"
               placeholder={_l('请选择')}
-              noData={processListType === 11 ? _l('没有可选的审批流程') : _l('没有可选的循环流程')}
-              openSearch
-              value={selectProcessId}
-              data={processList}
+              notFoundContent={processListType === 11 ? _l('没有可选的审批流程') : _l('没有可选的循环流程')}
+              showSearch
+              optionFilterProp="label"
+              value={selectProcessId || undefined}
+              options={processList}
               onChange={id => this.setState({ selectProcessId: id })}
             />
           </div>
         </div>
         <div className="btns TxtRight mTop20">
-          <Button type="link" onClick={onCancel}>
+          <Button color="primary" variant="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button
+            type="primary"
             disabled={!selectAppId || !selectProcessId}
             onClick={() => {
               onOk({
@@ -167,16 +169,16 @@ export default class SelectProcess extends Component {
     const { appList } = this.state;
 
     return (
-      <Dialog
+      <Modal
         className="selectUserFromAppDialog"
-        visible
+        open
         title={processListType === 11 ? _l('从已有审批流程复制') : _l('选择循环流程')}
-        overlayClosable={false}
+        mask={{ closable: false }}
         footer={null}
         onCancel={onCancel}
       >
         {appList === null ? <LoadDiv /> : this.renderContent()}
-      </Dialog>
+      </Modal>
     );
   }
 }

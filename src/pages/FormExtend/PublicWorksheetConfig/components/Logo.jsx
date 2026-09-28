@@ -20,7 +20,7 @@ const Con = styled.div`
     width: 1em;
     display: inline-block;
   }
-  :hover {
+  &:hover {
     background: var(--color-background-disabled);
   }
 `;

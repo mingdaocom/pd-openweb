@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import { UserCard } from 'ming-ui';
-import { APPLICATION_ICON } from 'src/utils/enum';
+import { APPLICATION_ICON } from 'src/utils/domain/shared/applicationIcons';
 import { MSGTYPES } from '../../constants';
 
 const formatUser = function (props) {

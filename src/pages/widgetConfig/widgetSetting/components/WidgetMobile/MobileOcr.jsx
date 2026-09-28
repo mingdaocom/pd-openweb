@@ -1,6 +1,6 @@
 import React from 'react';
-import { Checkbox } from 'ming-ui';
-import { updateConfig } from '../../../util/setting';
+import { Checkbox } from 'ming-ui/antd-components';
+import { updateConfig } from 'src/utils/domain/control/editorSetting';
 
 // 移动端设置
 export default function WidgetOcr({ data, onChange }) {
@@ -10,13 +10,20 @@ export default function WidgetOcr({ data, onChange }) {
   return (
     <div className="labelWrap">
       <Checkbox
-        size="small"
         checked={disableAlbum === '1'}
-        onClick={checked =>
-          onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 0 }) })
+        onChange={event =>
+          onChange({
+            strDefault: updateConfig({
+              config: strDefault || '00',
+              value: +event.target.checked,
+              index: 0,
+            }),
+          })
         }
-        text={_l('禁用相册')}
-      />
+        size="small"
+      >
+        {_l('禁用相册')}
+      </Checkbox>
     </div>
   );
 }

@@ -1,14 +1,13 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Drawer, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support } from 'ming-ui';
+import { Button, Checkbox, Drawer, Input, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 
 const CheckboxWrap = styled(Checkbox)`
-  &.disabled .ant-checkbox-checked {
+  &.disabled .hap-checkbox-checked {
     opacity: 0.6;
   }
 `;
@@ -81,29 +80,31 @@ const AddLangModal = props => {
       title={
         <div className="flexRow alignItemsCenter">
           <div className="flex">{_l('添加语言')}</div>
-          <Icon className="textSecondary Font20 pointer" icon="close" onClick={onCancel} />
+          <Button color="default" variant="text" size="small" icon={<Icon icon="close" />} onClick={onCancel} />
         </div>
       }
-      bodyStyle={{
-        padding: '12px 24px',
-      }}
-      footerStyle={{
-        padding: '16px',
-      }}
-      width={700}
-      visible={visible}
+      size={700}
+      open={visible}
       closable={false}
       onClose={onCancel}
       footer={
         <Fragment>
-          <Button onClick={handleSave} loading={saveLoading}>
+          <Button type="primary" onClick={handleSave} loading={saveLoading}>
             {_l('保存')}
           </Button>
-          <Button type="link" onClick={onCancel}>
+          <Button color="primary" variant="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
         </Fragment>
       }
+      styles={{
+        body: {
+          padding: '12px 24px',
+        },
+        footer: {
+          padding: '16px',
+        },
+      }}
     >
       <div className={cx('flexColumn', { h100: !(systemLangList.length + portionLangList.length) })}>
         <div
@@ -111,7 +112,7 @@ const AddLangModal = props => {
           style={{ borderBottom: '1px solid var(--color-border-secondary)' }}
         >
           <Icon className="textTertiary Font20" icon="search" />
-          <Input bordered={false} placeholder={_l('搜索')} onChange={event => setSearchValue(event.target.value)} />
+          <Input variant="borderless" placeholder={_l('搜索')} onChange={event => setSearchValue(event.target.value)} />
         </div>
         {!!systemLangList.length && (
           <Fragment>

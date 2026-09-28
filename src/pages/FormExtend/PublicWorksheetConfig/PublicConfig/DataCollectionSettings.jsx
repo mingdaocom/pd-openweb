@@ -1,33 +1,20 @@
 import React, { useState } from 'react';
-import { DatePicker, TimePicker } from 'antd';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
-import dayjs from 'dayjs';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Input } from 'ming-ui';
-import { generateRandomPassword } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Checkbox, DatePicker, Input, Popover, Select, TimePicker } from 'ming-ui/antd-components';
+import { generateRandomPassword } from 'src/utils/core/string';
 import { FFILLLIMIT_OPTIONS, MONTHS, TIME_PERIOD_OPTIONS, TIME_PERIOD_TYPE, TIME_TYPE, WEEKS } from '../../enum';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
 
 const { RangePicker } = DatePicker;
 
-const CustomPeriodDropdown = styled(Dropdown)`
+const CustomPeriodDropdown = styled(Select)`
   width: 110px;
   margin-right: 20px;
-  &.ming.Dropdown .Dropdown--border,
-  .dropdownTrigger .Dropdown--border {
-    height: 32px;
-    border-radius: 0;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-  }
 `;
 
 const TimePeriodType = styled.div`
@@ -42,25 +29,8 @@ const TimePeriodType = styled.div`
   border-bottom-left-radius: 4px;
 `;
 
-const RangeInputContainer = styled.div`
-  position: relative;
-
-  .ming.Input {
-    width: 150px;
-    height: 32px;
-    border-color: var(--color-border-primary) !important;
-
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-  }
-
-  .rangeSuffix {
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    line-height: 20px;
-  }
+const RangeInput = styled(Input)`
+  width: 150px;
 `;
 
 const CustomTimePicker = styled(TimePicker)`
@@ -70,33 +40,14 @@ const CustomTimePicker = styled(TimePicker)`
   &:hover {
     border-color: var(--color-border-primary) !important;
   }
-  &.ant-picker-focused {
+  &.hap-picker-focused {
     border-color: var(--color-primary) !important;
-  }
-`;
-
-const MonthDropdownItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .Icon {
-    color: var(--color-primary) !important;
-    position: unset !important;
-  }
-  &:hover {
-    .Icon {
-      color: var(--color-white) !important;
-    }
   }
 `;
 
 const DaySelectContainer = styled.div`
   width: 320px;
   padding: 12px 13px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.16);
-  border-radius: 6px;
 
   .dayItem {
     display: inline-block;
@@ -109,7 +60,7 @@ const DaySelectContainer = styled.div`
     border: 1px solid transparent;
     cursor: pointer;
 
-    :hover {
+    &:hover {
       border: 1px solid var(--color-primary);
     }
 
@@ -144,7 +95,7 @@ const WeekContainer = styled.div`
       border-bottom-right-radius: 4px;
       border-right-width: 1px;
     }
-    :hover {
+    &:hover {
       border-color: var(--color-primary);
     }
     &.active {
@@ -170,7 +121,7 @@ const NoExpandSelect = styled.div`
     color: var(--color-text-tertiary);
   }
 
-  :hover,
+  &:hover,
   &.active {
     border-color: var(--color-primary);
   }
@@ -182,11 +133,6 @@ const LimitWriteFrequencyWrap = styled.div`
   }
   .limitWriteCount {
     max-width: 200px;
-    .text {
-      right: 10px;
-      top: 0px;
-      line-height: 36px;
-    }
   }
 `;
 
@@ -195,7 +141,7 @@ const timePeriodList = [
   { type: TIME_TYPE.DAY, text: _l('日') },
   { type: TIME_TYPE.HOUR, text: _l('时%02069') },
 ];
-const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+
 const getDisabledTime = (from, itemData) => {
   let disabledHours = () => [];
   let disabledMinutes = () => [];
@@ -237,7 +183,6 @@ export default function DataCollectionSettings(props) {
     titleFolded,
   } = data;
   const [daySelectPopupVisible, setDaySelectPopupVisible] = useState(false);
-  const locale = locales[md.global.Account.lang] || localeEn;
 
   const onRangeInputChange = (value, type, from) => {
     if (parseInt(value) || parseInt(value) === 0 || value === '') {
@@ -296,10 +241,8 @@ export default function DataCollectionSettings(props) {
       <div className="flexRow mBottom10" key={index}>
         <TimePeriodType>{text}</TimePeriodType>
         <CustomPeriodDropdown
-          border
-          isAppendToBody
           value={currentPeriodType}
-          data={TIME_PERIOD_OPTIONS[type]}
+          options={TIME_PERIOD_OPTIONS[type]}
           onChange={value => {
             const newLimitWriteTime = _.cloneDeep(limitWriteTime);
             newLimitWriteTime[`${type}Setting`][`${type}Type`] = value;
@@ -320,53 +263,29 @@ export default function DataCollectionSettings(props) {
           }}
         />
         {currentPeriodType === TIME_PERIOD_TYPE.SPECIFY_MONTH && type === TIME_TYPE.MONTH && (
-          <Dropdown
-            border
-            isAppendToBody
-            selectClose={false}
+          <Select
+            mode="multiple"
             className="monthDropdown"
             placeholder={_l('选择月份')}
-            renderTitle={() =>
-              _.isEmpty(selectedMonths) ? (
-                <span className="textDisabled">{_l('选择月份')}</span>
-              ) : (
-                <span>{selectedMonths.sort((a, b) => a - b).join(', ')}</span>
-              )
-            }
-            data={MONTHS.map((item, index) => {
-              return {
-                text: (
-                  <MonthDropdownItem key={index}>
-                    <span>{item.text}</span>
-                    {_.includes(selectedMonths, item.value) && <Icon icon="done" />}
-                  </MonthDropdownItem>
-                ),
-                value: item.value,
-              };
-            })}
-            value={selectedMonths.length}
-            onChange={value => {
-              const isSelected = _.includes(selectedMonths, value);
+            maxTagCount={0}
+            maxTagPlaceholder={() => [...selectedMonths].sort((a, b) => a - b).join(', ')}
+            options={MONTHS}
+            value={selectedMonths}
+            onChange={values => {
               const newLimitWriteTime = _.cloneDeep(limitWriteTime);
-              newLimitWriteTime.monthSetting.defineMonth = isSelected
-                ? _.remove(selectedMonths, m => m !== value)
-                : [...selectedMonths, value];
+              newLimitWriteTime.monthSetting.defineMonth = values;
               setState({ limitWriteTime: newLimitWriteTime });
             }}
           />
         )}
         {currentPeriodType === TIME_PERIOD_TYPE.SPECIFY_DAY && type === TIME_TYPE.DAY && (
-          <Trigger
-            action={['click']}
-            popupClassName="moreOption"
-            popupVisible={daySelectPopupVisible}
-            onPopupVisibleChange={visible => setDaySelectPopupVisible(visible)}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 1],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            popup={
+          <Popover
+            noPadding
+            trigger="click"
+            open={daySelectPopupVisible}
+            onOpenChange={setDaySelectPopupVisible}
+            placement="bottomLeft"
+            content={
               <DaySelectContainer>
                 {Array.from(Array(31), (_, i) => i + 1).map(item => {
                   const isSelected = _.includes(selectedDays, item);
@@ -396,7 +315,7 @@ export default function DataCollectionSettings(props) {
               )}
               <i className="icon-arrow-down-border"></i>
             </NoExpandSelect>
-          </Trigger>
+          </Popover>
         )}
         {currentPeriodType === TIME_PERIOD_TYPE.WEEKLY && type === TIME_TYPE.DAY && (
           <WeekContainer>
@@ -422,23 +341,19 @@ export default function DataCollectionSettings(props) {
         )}
         {_.includes([TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH, TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY], currentPeriodType) && (
           <div className="flexRow alignItemsCenter">
-            <RangeInputContainer>
-              <Input
-                value={timeRange[type].start || ''}
-                onChange={value => onRangeInputChange(value, type, 'start')}
-                onBlur={() => onRangeInputBlur(type)}
-              />
-              <div className="rangeSuffix">{type === TIME_TYPE.MONTH ? _l('月') : _l('日')}</div>
-            </RangeInputContainer>
+            <RangeInput
+              suffix={type === TIME_TYPE.MONTH ? _l('月') : _l('日')}
+              value={timeRange[type].start || ''}
+              onChange={event => onRangeInputChange(event.target.value, type, 'start')}
+              onBlur={() => onRangeInputBlur(type)}
+            />
             <Icon icon="minus textSecondary Font12 mLeft4 mRight4" />
-            <RangeInputContainer>
-              <Input
-                value={timeRange[type].end || ''}
-                onChange={value => onRangeInputChange(value, type, 'end')}
-                onBlur={() => onRangeInputBlur(type)}
-              />
-              <div className="rangeSuffix">{type === TIME_TYPE.MONTH ? _l('月') : _l('日')}</div>
-            </RangeInputContainer>
+            <RangeInput
+              suffix={type === TIME_TYPE.MONTH ? _l('月') : _l('日')}
+              value={timeRange[type].end || ''}
+              onChange={event => onRangeInputChange(event.target.value, type, 'end')}
+              onBlur={() => onRangeInputBlur(type)}
+            />
           </div>
         )}
         {type === TIME_TYPE.HOUR && currentPeriodType === TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR && (
@@ -447,22 +362,20 @@ export default function DataCollectionSettings(props) {
               return (
                 <div className={`flexRow alignItemsCenter ${index !== 0 ? 'mTop10' : ''}`} key={index}>
                   <CustomTimePicker
-                    locale={locale}
                     format="HH:mm"
                     showNow={false}
                     suffixIcon={null}
                     disabledTime={() => getDisabledTime('start', item)}
-                    value={item.start ? dayjs(item.start, 'HH:mm') : null}
+                    value={item.start || null}
                     onChange={(time, timeString) => onTimeChange(timeString, index, 'start')}
                   />
                   <Icon icon="minus textSecondary Font12 mLeft4 mRight4" />
                   <CustomTimePicker
-                    locale={locale}
                     format="HH:mm"
                     showNow={false}
                     suffixIcon={null}
                     disabledTime={() => getDisabledTime('end', item)}
-                    value={item.end ? dayjs(item.end, 'HH:mm') : null}
+                    value={item.end || null}
                     onChange={(time, timeString) => onTimeChange(timeString, index, 'end')}
                   />
                   <Icon
@@ -510,7 +423,6 @@ export default function DataCollectionSettings(props) {
               <div className="commonMargin flexRow alignItemsCenter">
                 <RangePicker
                   showTime={true}
-                  locale={locale}
                   value={
                     !linkSwitchTime.startTime || linkSwitchTime.startTime.substr(0, 4) === '0001'
                       ? null
@@ -526,18 +438,19 @@ export default function DataCollectionSettings(props) {
                   }}
                 />
                 <Checkbox
-                  className="mLeft32"
-                  size="small"
+                  className="mLeft32 nowrap"
                   checked={linkSwitchTime.isShowCountDown}
-                  text={_l('显示倒计时')}
-                  onClick={() =>
+                  onChange={() =>
                     setState({
                       linkSwitchTime: Object.assign({}, linkSwitchTime, {
                         isShowCountDown: !linkSwitchTime.isShowCountDown,
                       }),
                     })
                   }
-                />
+                  size="small"
+                >
+                  {_l('显示倒计时')}
+                </Checkbox>
               </div>
             )}
           </div>
@@ -581,7 +494,8 @@ export default function DataCollectionSettings(props) {
                 <Input
                   value={limitWriteCount.limitWriteCount || ''}
                   className="limitInput"
-                  onChange={value => {
+                  onChange={event => {
+                    const value = event.target.value;
                     (parseInt(value) || value === '') &&
                       setState({
                         limitWriteCount: Object.assign({}, limitWriteCount, {
@@ -610,33 +524,29 @@ export default function DataCollectionSettings(props) {
             />
             {!!_.get(limitWriteFrequencySetting, 'isEnable') && (
               <div className="commonMargin flexRow">
-                <Dropdown
-                  border
-                  isAppendToBody
-                  selectClose={true}
+                <Select
                   className="limitRangTypeDropdown"
-                  data={FFILLLIMIT_OPTIONS}
+                  options={FFILLLIMIT_OPTIONS}
                   value={_.get(limitWriteFrequencySetting, 'limitRangType')}
                   onChange={limitRangType => {
                     setState({ limitWriteFrequencySetting: { ...limitWriteFrequencySetting, limitRangType } });
                   }}
                 />
-                <div className="flex Relative mLeft10 limitWriteCount">
-                  <Input
-                    className={'w100 pRight30'}
-                    value={_.get(limitWriteFrequencySetting, 'limitWriteCount') || ''}
-                    onChange={value => {
-                      (parseInt(value) || value === '') &&
-                        setState({
-                          limitWriteFrequencySetting: {
-                            ...limitWriteFrequencySetting,
-                            limitWriteCount: value ? (parseInt(value) > 10000 ? 10000 : parseInt(value)) : '',
-                          },
-                        });
-                    }}
-                  />
-                  <span className="text Absolute">{_l('次')}</span>
-                </div>
+                <Input
+                  className="limitWriteCount mLeft10"
+                  suffix={_l('次')}
+                  value={_.get(limitWriteFrequencySetting, 'limitWriteCount') || ''}
+                  onChange={event => {
+                    const value = event.target.value;
+                    (parseInt(value) || value === '') &&
+                      setState({
+                        limitWriteFrequencySetting: {
+                          ...limitWriteFrequencySetting,
+                          limitWriteCount: value ? (parseInt(value) > 10000 ? 10000 : parseInt(value)) : '',
+                        },
+                      });
+                  }}
+                />
               </div>
             )}
           </LimitWriteFrequencyWrap>
@@ -660,10 +570,10 @@ export default function DataCollectionSettings(props) {
                   className="passwordInput"
                   placeholder={_l('请输入4-8位密码')}
                   value={limitPasswordWrite.limitPasswordWrite}
-                  onChange={value => {
+                  onChange={event => {
                     setState({
                       limitPasswordWrite: Object.assign({}, limitPasswordWrite, {
-                        limitPasswordWrite: value,
+                        limitPasswordWrite: event.target.value,
                       }),
                     });
                   }}

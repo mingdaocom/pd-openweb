@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Input } from 'ming-ui';
-import { getControlsSorts, sortControlByIds } from 'src/utils/control';
+import { Input } from 'ming-ui/antd-components';
+import { getControlsSorts, sortControlByIds } from 'src/utils/domain/control/sort';
 import ChangedIcon from './ChangeByWorksheet';
 import SortableColumn from './SortableColumn';
 import './ChangeColumn.less';
@@ -28,6 +28,7 @@ export default class ChangeColumn extends Component {
     disabled: PropTypes.bool, // 能否操作
     onReset: PropTypes.func, // 自定义重置处理函数
     hideReset: PropTypes.bool, // 是否隐藏重置按钮
+    columnTexts: PropTypes.shape({}), // 局部覆盖字段选择器文案，不传时保持默认文案
   };
   static defaultProps = {
     layout: 1,
@@ -212,6 +213,7 @@ export default class ChangeColumn extends Component {
       forbiddenScroll,
       disabled,
       onReset,
+      columnTexts = {},
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
     const filteredColumns = sortControlByIds(columns, controlsSorts).filter(
@@ -233,7 +235,7 @@ export default class ChangeColumn extends Component {
             });
           }}
         >
-          {_l('全显示')}
+          {columnTexts.selectAll || _l('全显示')}
         </button>
         <button
           onClick={() =>
@@ -243,7 +245,7 @@ export default class ChangeColumn extends Component {
           }
           className="hoverColorPrimary"
         >
-          {_l('全隐藏')}
+          {columnTexts.clearAll || _l('全隐藏')}
         </button>
         {isShowColumns && !hideReset && (
           <ChangedIcon
@@ -276,24 +278,18 @@ export default class ChangeColumn extends Component {
       <div className={cx('workSheetChangeColumn flexColumn', { advance, hideDrag: !!search || !dragable })}>
         {advance && (
           <div className="searchBar flexRow">
-            <i className="icon icon-search textDisabled"></i>
             <Input
+              allowClear
               value={search}
+              variant="borderless"
+              prefix={<i className="icon icon-search textDisabled Font18" />}
               placeholder={placeholder}
               autoFocus={true}
               className="flex"
-              onChange={value => {
-                this.setState({ search: value.trim() });
+              onChange={event => {
+                this.setState({ search: event.target.value.trim() });
               }}
             />
-            {search && (
-              <i
-                className="icon icon-close textTertiary Hand hoverColorPrimary"
-                onClick={() => {
-                  this.setState({ search: '' });
-                }}
-              ></i>
-            )}
             {layout === 2 && !search && quickOperate}
           </div>
         )}
@@ -314,6 +310,7 @@ export default class ChangeColumn extends Component {
             handleSortEnd={this.handleSortEnd}
             handleItemClick={this.handleItemClick}
             onClearSearch={this.handleClearSearch}
+            columnTexts={columnTexts}
           />
         </div>
         {layout === 1 && advance && !search && showOperate && quickOperate}

@@ -5,15 +5,15 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { formatNumberThousand, formatStrZero } from 'src/utils/control';
-import { getDatePickerConfigs } from 'src/utils/controlCommon';
+import { getDatePickerConfigs } from 'src/utils/domain/control/date';
+import { formatNumberThousand, formatStrZero } from 'src/utils/domain/control/number';
 
 const Tips = styled.div`
-  max-width: 230;
-  max-height: 200;
+  max-width: 230px;
+  max-height: 200px;
   overflow-y: auto;
   color: var(--color-white);
-  white-space: 'pre-wrap';
+  white-space: pre-wrap;
   .customSubtotalMessage {
     color: var(--color-background-primary) !important;
     &:hover {

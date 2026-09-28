@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import { TagTextarea } from 'ming-ui';
+import { transferValue } from 'src/utils/domain/control/value';
 import { DynamicInput, OtherField, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import { transferValue } from '../util';
 
 export default class ArrayInput extends Component {
   static propTypes = {
@@ -82,7 +82,7 @@ export default class ArrayInput extends Component {
   render() {
     const { defaultType } = this.props;
     return (
-      <DynamicValueInputWrap ref={con => (this.$textinput = con)} triggerStyle={true}>
+      <DynamicValueInputWrap ref={con => (this.$textinput = con)}>
         {defaultType ? (
           <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
         ) : (

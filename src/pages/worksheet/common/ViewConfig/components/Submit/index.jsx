@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Radio, ScrollView, UserHead } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Dropdown, Modal, Radio } from 'ming-ui/antd-components';
 import pluginAjax from 'src/api/plugin';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import PublishVersion from 'src/pages/plugin/pluginComponent/PublishVersion.jsx';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { checkPermission, FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 
 const Wrap = styled.div`
   height: 100%;
@@ -41,11 +40,11 @@ const WrapList = styled.div`
     padding: 10px 12px 10px 8px;
     border-bottom: 1px solid var(--color-border-secondary);
     transition: all 0.2s ease;
-    .ming.Radio {
+    .hap-radio-wrapper {
       margin-right: 0;
     }
     .action {
-      option: 0;
+      opacity: 0;
       // display: none;
       width: 0;
       transition: all 0.2s ease;
@@ -56,38 +55,12 @@ const WrapList = styled.div`
     &:hover {
       background: var(--color-background-secondary);
       .action {
-        option: 1;
+        opacity: 1;
         width: 16px;
         // display: inline-block;
         &::before {
           display: block;
         }
-      }
-    }
-  }
-`;
-const WrapPopup = styled.div`
-  padding: 6px 0;
-  width: 160px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.25);
-  & > div {
-    height: 36px;
-    font-weight: 400;
-    .icon {
-      color: var(--color-text-tertiary);
-    }
-    &.del {
-      color: var(--color-error);
-      .icon {
-        color: var(--color-error);
-      }
-    }
-    &:hover {
-      color: var(--color-white);
-      background: var(--color-primary);
-      .icon {
-        color: var(--color-white);
       }
     }
   }
@@ -108,72 +81,52 @@ const actionTypes = [
 
 function ActionCon(props) {
   const { onDel, setPublish, id, projectId, view } = props;
-  const [{ visible }, setState] = useSetState({
-    visible: false,
-  });
-  const projectInfo = md.global.Account.projects.find(o => o.projectId === projectId) || {};
   const hasPluginAuth =
-    projectInfo.allowPlugin ||
-    checkPermission(projectId, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
+    hasFeaturePermission(projectId, FEATURE_PERMISSION.PLUGIN) ||
+    checkPermission(projectId, PERMISSION_ENUM.MANAGE_PLUGINS);
+
+  const availableActionTypes = actionTypes.filter(o =>
+    _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId || hasPluginAuth
+      ? true
+      : o.key !== 'publish',
+  );
+
+  const onAction = ({ key, domEvent }) => {
+    domEvent.stopPropagation();
+
+    if (key === 'delete') {
+      Modal.confirm({
+        className: '',
+        okButtonProps: {
+          danger: true,
+        },
+        title: <span className="Font17 textError">{_l('删除当前版本')}</span>,
+        content: _l('彻底删除提交版本，不可恢复'),
+        onOk: () => {
+          onDel(id);
+        },
+        okText: _l('删除'),
+      });
+    } else {
+      setPublish();
+    }
+  };
 
   return (
-    <Trigger
-      action={['click']}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        setState({ visible });
+    <Dropdown
+      trigger={['click']}
+      menu={{
+        items: availableActionTypes.map(action => ({
+          key: action.key,
+          label: action.txt,
+          icon: <Icon icon={action.icon} />,
+          danger: action.key === 'delete',
+        })),
+        onClick: onAction,
       }}
-      popup={
-        <WrapPopup>
-          {actionTypes
-            .filter(o =>
-              _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId || hasPluginAuth
-                ? true
-                : o.key !== 'publish',
-            )
-            .map(a => {
-              return (
-                <div
-                  className={cx('Hand Font14 flexRow alignItemsCenter pLeft12', { del: a.key === 'delete' })}
-                  onClick={e => {
-                    setState({ visible: false });
-                    if (a.key === 'delete') {
-                      Dialog.confirm({
-                        className: '',
-                        buttonType: 'danger',
-                        title: <span className="Bold Font17">{_l('删除当前版本')}</span>,
-                        description: _l('彻底删除提交版本，不可恢复'),
-                        // removeCancelBtn: true,
-                        onOk: () => {
-                          onDel(id);
-                        },
-                        okText: _l('删除'),
-                      });
-                    } else {
-                      setPublish();
-                    }
-
-                    e.stopPropagation();
-                  }}
-                >
-                  <Icon icon={a.icon} className="mRight8" />
-                  {a.txt}
-                </div>
-              );
-            })}
-        </WrapPopup>
-      }
-      popupAlign={{
-        points: ['tl', 'bl'],
-        overflow: {
-          adjustX: true,
-          adjustY: true,
-        },
-      }}
-      getPopupContainer={() => document.body}
     >
       <Icon icon={'more_horiz'} className="hoverColorPrimary Hand action mLeft12 Font16" />
-    </Trigger>
+    </Dropdown>
   );
 }
 
@@ -328,7 +281,7 @@ export default function SubmitConfig(params) {
                     <Radio
                       className=""
                       checked={o.id === CommitId}
-                      onClick={() => {
+                      onChange={() => {
                         const { plugin_attachement_info } = _.get(view, 'advancedSetting');
 
                         if (o.id === CommitId) {
@@ -343,7 +296,10 @@ export default function SubmitConfig(params) {
                             }),
                           },
                           false,
-                          { pluginId: _.get(view, 'pluginInfo.id'), editAttrs: ['advancedSetting', 'pluginId'] },
+                          {
+                            pluginId: _.get(view, 'pluginInfo.id'),
+                            editAttrs: ['advancedSetting', 'pluginId'],
+                          },
                         );
                       }}
                     />

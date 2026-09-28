@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { Input } from 'ming-ui';
-import { formatNumberThousand } from 'src/utils/control';
+import { Input } from 'ming-ui/antd-components';
+import { formatNumberThousand } from 'src/utils/domain/control/number';
 
 const displayValue = value => {
   if (!value) return '';
@@ -46,7 +46,7 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
       className={className}
       placeholder={placeholder}
       value={value}
-      onChange={value => onChange(parseValue(value))}
+      onChange={event => onChange(parseValue(event.target.value))}
       onBlur={e => {
         setEditing(false);
         if (onBlur) {
@@ -59,7 +59,6 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
     />
   ) : (
     <Input
-      style={{ borderColor: 'var(--color-border-primary)' }}
       className={className}
       value={displayValue(value)}
       onFocus={() => setEditing(true)}

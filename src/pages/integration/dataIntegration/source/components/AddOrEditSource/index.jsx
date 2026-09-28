@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, Dialog, Icon } from 'ming-ui';
-import dataSourceApi from '../../../../api/datasource';
+import { Icon } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import 'src/pages/integration/svgIcon';
-import { navigateTo } from 'src/router/navigateTo';
-import { getCurrentProject } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getCurrentProject } from 'src/utils/services/project';
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
 import { DATABASE_TYPE, DETAIL_TYPE, ROLE_TYPE, SOURCE_DETAIL_TAB_LIST } from '../../../constant';
+import { isSuccessfulDatasourceUpdate } from '../../../requestResult';
+import dataSourceApi from '../../../services/datasource';
+import { getSensitiveRequestErrorMessages } from '../../../services/sensitiveRequest';
 import { getExtraParams } from '../../../utils';
 import TimingSettingList from '../TimingSettingList';
 import UsageDetail from '../UsageDetail';
@@ -74,15 +77,6 @@ const HeaderWrapper = styled.div`
     display: inline-flex;
     padding-right: 32px;
     width: 120px;
-
-    .saveButton {
-      height: 36px;
-      min-width: 88px;
-
-      &.disabled {
-        background: var(--color-primary-light) !important;
-      }
-    }
   }
 `;
 
@@ -109,32 +103,45 @@ const ContentWrapper = styled.div`
   }
 `;
 
-let postParams;
-
 export default function AddOrEditSource(props) {
+  const requestPending = useRef(null);
+  const pendingParams = useRef(null);
   const { source, onRefresh, isCreateDialog, onClose } = props;
   const { sourceId, type } = (props.match || {}).params || {};
   const currentProject = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
   const [currentTab, setCurrentTab] = useState(type || DETAIL_TYPE.SETTING);
   const [dataSource, setDataSource] = useState(isCreateDialog ? source : {});
   const [saveDisabled, setSaveDisabled] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [noExistSource, setNoExistSource] = useState(false);
+  const projectId = currentProject.projectId;
+
+  useEffect(
+    () => () => {
+      requestPending.current?.abort();
+      requestPending.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
+    let active = true;
+    let redirectTimer;
+
     if (!isCreateDialog) {
       // 获取数据源详情信息
       dataSourceApi
         .getDatasource({
-          projectId: currentProject.projectId,
+          projectId,
           datasourceId: sourceId,
         })
         .then(res => {
-          if (res) {
+          if (active && res) {
             if (res.errorMsgList) {
               setNoExistSource(true);
               alert(_l('数据源不存在'), 2);
-              setTimeout(() => navigateTo('/integration/source'), 5000);
+              redirectTimer = setTimeout(() => navigateTo('/integration/source'), 5000);
             } else {
               const detail = {
                 ...res,
@@ -150,13 +157,19 @@ export default function AddOrEditSource(props) {
           }
         });
     }
-  }, []);
+
+    return () => {
+      active = false;
+      clearTimeout(redirectTimer);
+    };
+  }, [isCreateDialog, projectId, sourceId]);
 
   const onSave = async () => {
+    if (requestPending.current) return;
     const { formData } = dataSource;
     const roleTypeArr = JSON.parse(formData.roleType);
 
-    postParams = {
+    const postParams = {
       projectId: currentProject.projectId,
       name: formData.name,
       hosts: [`${formData.address}:${formData.post}`],
@@ -172,12 +185,37 @@ export default function AddOrEditSource(props) {
       enableSsh: formData.enableSsh,
       sshConfigId: formData.sshConfigId,
     };
+
     if (!isCreateDialog) {
+      pendingParams.current = postParams;
       setDialogVisible(true);
     } else {
-      await dataSourceApi.addDatasource(postParams).then(res => res && onClose());
-      alert(_l('数据源创建成功'));
-      onRefresh();
+      const controller = new AbortController();
+      requestPending.current = controller;
+      setSaving(true);
+      try {
+        const res = await dataSourceApi.addDatasource(postParams, { abortController: controller });
+        if (controller.signal.aborted) return;
+
+        if (!isSuccessfulDatasourceUpdate(res)) {
+          alert(_l('数据源创建失败'), 2);
+          return;
+        }
+
+        alert(_l('数据源创建成功'));
+        onClose();
+        onRefresh();
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          const messages = getSensitiveRequestErrorMessages(error, _l('数据源创建失败'));
+          if (messages.length) alert(messages[0], 2);
+        }
+      } finally {
+        if (requestPending.current === controller) {
+          requestPending.current = null;
+          setSaving(false);
+        }
+      }
     }
   };
 
@@ -214,43 +252,65 @@ export default function AddOrEditSource(props) {
         )}
         <div className="headerRight">
           {currentTab === DETAIL_TYPE.SETTING && (
-            <Button
-              type="primary"
-              size="small"
-              className={cx('saveButton', { disabled: saveDisabled })}
-              disabled={saveDisabled}
-              onClick={onSave}
-            >
+            <Button type="primary" disabled={saveDisabled} loading={saving} onClick={onSave}>
               {_l('保存')}
             </Button>
           )}
           {dialogVisible && (
-            <Dialog
+            <Modal
               title={_l('修改数据源')}
-              visible={dialogVisible}
-              description={
-                <div>
-                  <span>{_l('修改后，相关的同步任务可能会终止')}</span>
-                  <a
-                    className="mLeft10"
-                    onClick={() => {
-                      setCurrentTab(DETAIL_TYPE.USE_DETAIL);
-                      setDialogVisible(false);
-                    }}
-                  >
-                    {_l('查看使用详情')}
-                  </a>
-                </div>
-              }
+              open={dialogVisible}
+              mask={{ closable: true }}
+              keyboard
               okText={_l('修改')}
+              confirmLoading={saving}
               onOk={async () => {
-                const params = { ...postParams, id: sourceId };
-                await dataSourceApi.updateDatasource(params).then(res => res && navigateTo('/integration/source'));
-                alert(_l('数据源修改成功'));
-                setDialogVisible(false);
+                if (requestPending.current) return;
+
+                const params = { ...pendingParams.current, id: sourceId };
+                const controller = new AbortController();
+                requestPending.current = controller;
+                setSaving(true);
+                try {
+                  const res = await dataSourceApi.updateDatasource(params, { abortController: controller });
+                  if (controller.signal.aborted) return;
+
+                  if (!isSuccessfulDatasourceUpdate(res)) {
+                    alert(_l('数据源修改失败'), 2);
+                    return;
+                  }
+
+                  alert(_l('数据源修改成功'));
+                  setDialogVisible(false);
+                  navigateTo('/integration/source');
+                } catch (error) {
+                  if (!controller.signal.aborted) {
+                    const messages = getSensitiveRequestErrorMessages(error, _l('数据源修改失败'));
+                    if (messages.length) alert(messages[0], 2);
+                  }
+                } finally {
+                  if (requestPending.current === controller) {
+                    requestPending.current = null;
+                    setSaving(false);
+                  }
+                }
               }}
-              onCancel={() => setDialogVisible(false)}
-            />
+              onCancel={() => !requestPending.current && setDialogVisible(false)}
+            >
+              <div className="textSecondary">
+                <span>{_l('修改后，相关的同步任务可能会终止')}</span>
+                <a
+                  className="mLeft10"
+                  onClick={() => {
+                    if (requestPending.current) return;
+                    setCurrentTab(DETAIL_TYPE.USE_DETAIL);
+                    setDialogVisible(false);
+                  }}
+                >
+                  {_l('查看使用详情')}
+                </a>
+              </div>
+            </Modal>
           )}
         </div>
       </HeaderWrapper>
@@ -261,6 +321,7 @@ export default function AddOrEditSource(props) {
             <ContentWrapper>
               <div className="configForm">
                 <ConfigForm
+                  key={sourceId || 'new'}
                   {...props}
                   currentProjectId={currentProject.projectId}
                   connectorConfigData={{ source: dataSource }}
@@ -269,6 +330,7 @@ export default function AddOrEditSource(props) {
                   isCreateConnector={false}
                   isEditSource={!isCreateDialog}
                   setSaveDisabled={setSaveDisabled}
+                  disabled={saving}
                 />
               </div>
               <div className="configGuide">

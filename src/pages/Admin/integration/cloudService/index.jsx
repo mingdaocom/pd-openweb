@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import _ from 'lodash';
 import apiKeyAjax from 'src/pages/Admin/api/cloudApi/apiKey';
 import { checkCertification } from 'src/components/checkCertification';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../config';
 import CreateKeyDialog from './CreateKeyDialog';
 import KeyListTable from './KeyListTable';

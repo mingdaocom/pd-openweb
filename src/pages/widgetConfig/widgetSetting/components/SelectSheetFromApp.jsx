@@ -4,7 +4,7 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
@@ -12,21 +12,6 @@ import worksheetAjax from 'src/api/worksheet';
 const SelectItem = styled.div`
   .title {
     margin: 24px 0 6px 0;
-  }
-  .ming.Dropdown,
-  .ming.Menu {
-    width: 100%;
-    &.disabled {
-      background-color: var(--color-background-secondary);
-      .Dropdown--input {
-        &:hover {
-          border-color: var(--color-border-tertiary);
-        }
-      }
-    }
-  }
-  .ming.Menu {
-    max-height: 160px;
   }
 `;
 
@@ -78,8 +63,8 @@ export default function SelectSheetFromApp(props) {
 
         return appList.map(({ appName, appId }) =>
           appId === currentAppId
-            ? { text: _l('%0  (本应用)', appName), value: appId }
-            : { text: appName, value: appId },
+            ? { label: _l('%0  (本应用)', appName), value: appId }
+            : { label: appName, value: appId },
         );
       };
 
@@ -94,8 +79,8 @@ export default function SelectSheetFromApp(props) {
     if (!appId) return;
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setData({
-        sheet: res.map(({ workSheetId: value, workSheetName: text }) =>
-          value === sourceId ? { text: _l('%0  (本表)', text), value } : { text, value },
+        sheet: res.map(({ workSheetId: value, workSheetName: label }) =>
+          value === sourceId ? { label: _l('%0  (本表)', label), value } : { label, value },
         ),
       });
     });
@@ -110,7 +95,7 @@ export default function SelectSheetFromApp(props) {
       const view = views.map(({ viewType, name, viewId }) => ({
         viewType,
         value: viewId,
-        text: name,
+        label: name,
       }));
       setData({ view });
       if (!viewId && !_.isEmpty(view)) {
@@ -124,14 +109,15 @@ export default function SelectSheetFromApp(props) {
   return config.map(({ text, key, disabled, filter = item => item }, index) => (
     <SelectItem key={key}>
       <div className={cx('title Bold', { mTop0: index === 0 && fromCustomEvent })}>{text}</div>
-      <Dropdown
+      <Select
+        className="w100"
         value={ids[idContrast[key]] || undefined}
-        border
-        openSearch
-        isAppendToBody
+        showPopupSearch
+        optionFilterProp="label"
+        listHeight={160}
         placeholder={_l('请选择')}
         disabled={disabled}
-        data={_.filter(data[key], filter)}
+        options={_.filter(data[key], filter)}
         onChange={value => {
           if (key === 'app') {
             setIds({ appId: value, sheetId: '', viewId: '' });
@@ -144,7 +130,7 @@ export default function SelectSheetFromApp(props) {
             [idContrast[key]]: value,
           });
           if (key === 'sheet') {
-            const { text: sheetName } = data.sheet.find(item => item.value === value) || {};
+            const { label: sheetName } = data.sheet.find(item => item.value === value) || {};
             onChange({
               ..._.pick(props, ['appId', 'sheetId', 'viewId']),
               [idContrast[key]]: value,

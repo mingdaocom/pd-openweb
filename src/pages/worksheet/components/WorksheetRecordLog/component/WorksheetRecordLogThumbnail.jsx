@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { Popover } from 'ming-ui/antd-components';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
 import '../WorksheetRecordLogValue.less';
 
@@ -86,20 +88,14 @@ function WorksheetRecordLogThumbnail(props) {
     }
 
     return list.map(item => (
-      <Trigger
-        action={['hover']}
-        getPopupContainer={() => document.body}
-        destroyPopupOnHide
+      <Popover
+        key={`WorksheetRecordLogThumbnailItem-type-${type === 14 ? item.fileID : item.key}`}
+        trigger="hover"
+        destroyOnHidden
         mouseEnterDelay={0.4}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 4],
-          overflow: {
-            adjustY: true,
-            adjustX: true,
-          },
-        }}
-        popup={
+        placement="bottomLeft"
+        noPadding
+        content={
           <PicturePreview
             url={(type === 14 ? item.previewUrl : item.server).replace(
               /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
@@ -111,10 +107,7 @@ function WorksheetRecordLogThumbnail(props) {
           />
         }
       >
-        <span
-          key={`WorksheetRecordLogThumbnailItem-type-${type === 14 ? item.fileID : item.key}`}
-          className={`WorksheetRecordLogThumbnailItem ${bgColor}`}
-        >
+        <span className={`WorksheetRecordLogThumbnailItem ${bgColor}`}>
           {type === 42 || RegExpValidator.fileIsPicture(item.ext) ? (
             <span className="itemImgCon">
               <img
@@ -136,7 +129,7 @@ function WorksheetRecordLogThumbnail(props) {
           <span className="filename overflow_ellipsis">{type === 14 ? item.originalFilename : _l('签名')}</span>
           {type === 14 ? item.ext : '.jpg'}
         </span>
-      </Trigger>
+      </Popover>
     ));
   };
 

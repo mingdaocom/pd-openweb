@@ -3,19 +3,20 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { LoadDiv, UserHead } from 'ming-ui';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
-import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import EmptyIndexContent from 'src/pages/Admin/pay/components/EmptyIndexContent';
-import { InvoiceConfirmDialog } from 'src/pages/invoice/InvoiceConfirm';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
+import { useInvoiceConfirmDialog } from 'src/pages/invoice/InvoiceConfirm';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { hasPermission } from 'src/utils/services/security/permission';
 import { TAX_STATUS_TEXT } from '../config';
 import CreateTaxNumber from './CreateTaxNumber';
-import { TaxSettingDialog } from './TaxSetting';
+import { useTaxSettingDialog } from './TaxSetting';
 
 const ExplainWrap = styled.div`
   background: var(--color-primary-transparent);
@@ -161,7 +162,12 @@ const TaxNumber = forwardRef((props, ref) => {
                   <span
                     className="Hand colorPrimary Hover_51 mLeft24"
                     onClick={() => {
-                      InvoiceConfirmDialog({ isLandPage: false, isTest: true, taxNo: record.taxNo, projectId });
+                      props.openInvoiceConfirmDialog({
+                        isLandPage: false,
+                        isTest: true,
+                        taxNo: record.taxNo,
+                        projectId,
+                      });
                     }}
                   >
                     {_l('开票测试')}
@@ -173,7 +179,7 @@ const TaxNumber = forwardRef((props, ref) => {
             {hasPermission(myPermissions, PERMISSION_ENUM.TAX_SETTING) && (
               <span
                 className="Hand colorPrimary Hover_51 mLeft24"
-                onClick={() => TaxSettingDialog({ taxInfo: record, projectId, onSaveSuccess: getTaxList })}
+                onClick={() => props.openTaxSettingDialog({ taxInfo: record, projectId, onSaveSuccess: getTaxList })}
               >
                 {_l('设置')}
               </span>
@@ -221,4 +227,7 @@ const TaxNumber = forwardRef((props, ref) => {
   );
 });
 
-export default TaxNumber;
+export default withOpeners(TaxNumber, {
+  openInvoiceConfirmDialog: useInvoiceConfirmDialog,
+  openTaxSettingDialog: useTaxSettingDialog,
+});

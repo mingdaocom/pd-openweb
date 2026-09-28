@@ -1,7 +1,8 @@
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { InputNumber, Select, Slider } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { Button, InputNumber, Select, Slider } from 'ming-ui/antd-components';
+import { useAutoFocus } from 'src/utils/platform/react/interaction';
 import {
   DEFAULT_MIN_RELEVANCE,
   DEFAULT_RRF_K,
@@ -12,7 +13,6 @@ import {
   SELECT_SEARCH_MODES,
   TOP_K_RANGE,
 } from '../../../../../../core/config';
-import { useAutoFocus } from '../../../../../../core/hooks';
 import './index.less';
 
 const SideBar = props => {
@@ -107,10 +107,9 @@ const SideBar = props => {
           }))
         }
       />
-      <div className="searchBtn" onClick={handleSearch}>
-        <Icon icon="search" />
+      <Button className="mBottom16" type="primary" block icon={<Icon icon="search" />} onClick={handleSearch}>
         {_l('检索')}
-      </div>
+      </Button>
 
       {/* 检索范围 */}
       <div className="filterTitle">{_l('检索范围')}</div>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { supportTabKeyDown } from '../core/utils';
 
 // rememberText 该文本控制是否能作为tab标记开始控件
@@ -339,12 +339,12 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
           e.target.closest('.relationControlBox') ||
           e.target.closest('.MDMap') ||
           e.target.closest('.UploadFilesTriggerPanel') ||
-          e.target.closest('.ant-picker-dropdown') ||
-          e.target.classList.contains('ant-picker') ||
-          e.target.classList.contains('ant-picker-year-btn') ||
-          e.target.classList.contains('ant-picker-month-btn') ||
-          e.target.classList.contains('ant-picker-decade-btn') ||
-          e.target.classList.contains('ant-picker-cell-inner') ||
+          e.target.closest('.hap-picker-dropdown') ||
+          e.target.classList.contains('hap-picker') ||
+          e.target.classList.contains('hap-picker-year-btn') ||
+          e.target.classList.contains('hap-picker-month-btn') ||
+          e.target.classList.contains('hap-picker-decade-btn') ||
+          e.target.classList.contains('hap-picker-cell-inner') ||
           (activeData.type === 14 && document.querySelector('.folderSelectDialog')) ||
           e.target.closest('.CityPickerPanelTrigger'))
       ) {

@@ -1,10 +1,10 @@
 ﻿import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import CheckBox from 'ming-ui/components/Checkbox';
+import { Checkbox } from 'ming-ui/antd-components';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import { htmlDecodeReg } from 'src/utils/common';
+import { htmlDecodeReg } from 'src/utils/core/string';
 
 export default class CalendarCommentList extends Component {
   constructor(props) {
@@ -53,15 +53,15 @@ export default class CalendarCommentList extends Component {
 
     return (
       <div className="pBottom10">
-        <CheckBox
+        <Checkbox
           className="mBottom8 pTop5 mTop5"
           checked={isOnlyMe}
-          onClick={checked => {
-            this.handleFocusClick.bind(this)(checked);
+          onChange={event => {
+            this.handleFocusClick.bind(this)(!event.target.checked);
           }}
         >
           <span className="textTertiary">{_l('只显示与我相关')}</span>
-        </CheckBox>
+        </Checkbox>
         <CommentList
           sourceId={id}
           sourceType={CommentList.TYPES.CALENDAR}

@@ -5,7 +5,8 @@ import { Icon } from 'ming-ui';
 const IconDimensionWrapper = styled.div`
   position: fixed;
   right: 28px;
-  bottom: 90px;
+  bottom: calc(var(--mobile-record-action-bottom, 20px) + 70px);
+  margin-bottom: max(0px, calc(env(safe-area-inset-bottom, 0px) - 20px));
   display: flex;
   justify-content: center;
   align-items: center;

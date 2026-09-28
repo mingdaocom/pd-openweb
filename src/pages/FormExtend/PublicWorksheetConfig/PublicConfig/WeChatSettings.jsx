@@ -1,22 +1,13 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dropdown, Icon, Radio } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Radio, Select } from 'ming-ui/antd-components';
 import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { AUTH_OPTIONS, COLLECT_WAY_OPTIONS, WECHAT_FIELD_KEY, WECHAT_MAPPING_SOURCE_FIELDS } from '../../enum';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { AUTH_OPTIONS, getCollectWayOptions, WECHAT_FIELD_KEY, WECHAT_MAPPING_SOURCE_FIELDS } from '../../enum';
 import AddControlDialog from '../components/AddControlDialog';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
-
-const AddControl = styled.div`
-  :hover {
-    color: var(--color-white) !important;
-  }
-  :hover .icon {
-    color: var(--color-white) !important;
-  }
-`;
 
 export default function WeChatSettings(props) {
   const {
@@ -41,7 +32,7 @@ export default function WeChatSettings(props) {
   } = data;
   const [addControl, setAddControl] = useState({ visible: false });
 
-  const getDropdownOptions = (key, hasClear) => {
+  const getDropdownOptions = key => {
     const needFilterIds = Object.values(weChatSetting.fieldMaps || {})
       .concat([extendSourceId, ipControlId, browserControlId, deviceControlId, systemControlId])
       .concat(boundControlIds);
@@ -54,7 +45,7 @@ export default function WeChatSettings(props) {
       )
       .map(item => {
         return {
-          text: (
+          label: (
             <div>
               <Icon icon={getIconByType(item.type, false)} />
               <span className="mLeft20">{item.controlName}</span>
@@ -64,36 +55,25 @@ export default function WeChatSettings(props) {
         };
       });
 
-    return (
-      hasClear
-        ? [
-            {
-              style: { color: 'var(--color-text-secondary)' },
-              text: (
-                <div>
-                  <Icon icon="trash" />
-                  <span className="mLeft20">{_l('清除')}</span>
-                </div>
-              ),
-              value: 'clear',
+    return controls.concat(
+      key !== WECHAT_FIELD_KEY.HEAD_IMG_URL
+        ? {
+            style: {
+              borderTop: '1px solid var(--color-border-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              height: '36px',
             },
-          ]
-        : []
-    )
-      .concat(controls)
-      .concat(
-        key !== WECHAT_FIELD_KEY.HEAD_IMG_URL
-          ? {
-              style: { borderTop: '1px solid var(--color-border-primary)', paddingTop: '4px', height: '36px' },
-              text: (
-                <AddControl className="hand colorPrimary" onClick={() => setAddControl({ visible: true, key })}>
-                  <i className="icon icon-plus mRight5 colorPrimary"></i>
-                  {_l('新建文本字段')}
-                </AddControl>
-              ),
-            }
-          : [],
-      );
+            label: (
+              <div className="flexRow alignItemsCenter hand colorPrimary">
+                <i className="icon icon-plus mRight5 colorPrimary"></i>
+                {_l('新建文本字段')}
+              </div>
+            ),
+            value: 'add',
+          }
+        : [],
+    );
   };
 
   return (
@@ -115,7 +95,7 @@ export default function WeChatSettings(props) {
                   setState({
                     weChatSetting: {
                       isCollectWxInfo: !checked,
-                      collectChannel: 2,
+                      collectChannel: window.platformENV.isHap ? 1 : 2,
                       isRequireAuth: false,
                       fieldMaps: {},
                       onlyWxCollect: weChatSetting.onlyWxCollect,
@@ -129,13 +109,12 @@ export default function WeChatSettings(props) {
               <React.Fragment>
                 <div className="commonMargin">
                   <p className="pTop8 mBottom16">{_l('收集渠道')}</p>
-                  {COLLECT_WAY_OPTIONS.map((item, i) => (
+                  {getCollectWayOptions().map(item => (
                     <Radio
-                      key={i}
-                      {...item}
-                      disableTitle
+                      key={item.value}
+                      value={item.value}
                       checked={item.value === weChatSetting.collectChannel}
-                      onClick={() =>
+                      onChange={() =>
                         setState({
                           weChatSetting: Object.assign({}, weChatSetting, {
                             collectChannel: item.value,
@@ -143,7 +122,9 @@ export default function WeChatSettings(props) {
                           }),
                         })
                       }
-                    />
+                    >
+                      {item.text}
+                    </Radio>
                   ))}
                   {weChatSetting.collectChannel === 2 && (
                     <WeChatServiceAccount
@@ -159,17 +140,20 @@ export default function WeChatSettings(props) {
                   <p className="mTop24 mBottom16">{_l('获取填写信息')}</p>
                   {AUTH_OPTIONS.map((item, i) => (
                     <Radio
-                      key={i}
-                      {...item}
-                      disableTitle
+                      key={String(item.value)}
+                      value={item.value}
                       disabled={weChatSetting.collectChannel === 2 && !weChatBind.isBind && i === 1}
                       checked={item.value === weChatSetting.isRequireAuth}
-                      onClick={() =>
+                      onChange={() =>
                         setState({
-                          weChatSetting: Object.assign({}, weChatSetting, { isRequireAuth: item.value }),
+                          weChatSetting: Object.assign({}, weChatSetting, {
+                            isRequireAuth: item.value,
+                          }),
                         })
                       }
-                    />
+                    >
+                      {item.text}
+                    </Radio>
                   ))}
                   <div className="mappingSection">
                     {WECHAT_MAPPING_SOURCE_FIELDS.filter(
@@ -187,20 +171,24 @@ export default function WeChatSettings(props) {
                           </div>
 
                           <Icon icon="arrow_forward" className="Font16 colorPrimary mLeft16 mRight16" />
-                          <Dropdown
-                            border
-                            isAppendToBody
+                          <Select
+                            allowClear={Boolean(destId)}
                             className="flex minWidth0"
                             value={destId}
-                            data={getDropdownOptions(sourceField.key, !!destId)}
+                            options={getDropdownOptions(sourceField.key)}
                             onChange={value => {
+                              if (value === 'add') {
+                                setAddControl({ visible: true, key: sourceField.key });
+                                return;
+                              }
+
                               const newMappingSet = _.cloneDeep(weChatSetting.fieldMaps);
-                              newMappingSet[sourceField.key] = value === 'clear' ? '' : value;
+                              newMappingSet[sourceField.key] = value || '';
                               setState({
                                 weChatSetting: Object.assign({}, weChatSetting, { fieldMaps: newMappingSet }),
                               });
                             }}
-                            renderTitle={() => {
+                            labelRender={() => {
                               return currentData ? (
                                 <Fragment>
                                   <Icon icon={getIconByType(currentData.type, false)} className="textTertiary Font14" />

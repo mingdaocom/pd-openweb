@@ -2,22 +2,18 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, ScrollView, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView, SearchInput, SvgIcon } from 'ming-ui';
+import { Button, Popover, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import { VerticalMiddle } from 'worksheet/components/Basics';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import AddAppItem from './AddAppItem';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import AppList from './AppList';
 import HomeSetting from './HomeSetting';
 import NoProjectsStatus from './NoProjectsStatus';
-import SearchInput from './SearchInput';
 
 const ClickAwayable = ClickAway;
 const Con = styled.div`
@@ -107,8 +103,8 @@ const GroupTab = styled.div`
   margin-bottom: 8px;
   &.active,
   &:hover {
-    color: ${({ themeColor }) => themeColor};
-    background-color: ${({ activeColor }) => activeColor};
+    color: ${({ $themeColor }) => $themeColor};
+    background-color: ${({ $activeColor }) => $activeColor};
   }
 `;
 
@@ -119,9 +115,6 @@ const GroupTabClickPopup = styled.div`
   width: 200px;
   height: 46px;
   padding: 0 16px;
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow: var(--shadow-lg);
   &:hover {
     color: var(--color-primary);
     i {
@@ -160,26 +153,8 @@ const NoSearchResultTip = styled.div`
   margin-top: -12px;
 `;
 
-const AddAppItemBtn = styled(AddAppItem)`
-  width: auto !important;
-  height: auto !important;
-  margin: 0 0 0 10px !important;
-  padding: 0 !important;
-  .newAppBtn {
-    font-size: 13px;
-    display: inline-block;
-    color: var(--color-white);
-    line-height: 36px;
-    font-weight: 700;
-    border-radius: 36px;
-    height: 36px;
-    padding: 0 18px 0 16px;
-    cursor: pointer;
-    background: ${({ themeColor }) => themeColor};
-    &:hover {
-      background: ${({ themeColor }) => getRgbaByColor(themeColor, '0.8')};
-    }
-  }
+const AddAppItemBtn = styled(Button)`
+  margin-left: 10px;
 `;
 
 const GroupTabList = styled.div`
@@ -217,8 +192,8 @@ const GroupTabList = styled.div`
       &.isActive {
         .liContent {
           .itemText {
-            color: ${({ themeColor }) => themeColor};
-            border-color: ${({ themeColor }) => themeColor};
+            color: ${({ $themeColor }) => $themeColor};
+            border-color: ${({ $themeColor }) => $themeColor};
             font-weight: bold;
           }
         }
@@ -279,14 +254,14 @@ const GroupTabList = styled.div`
       border-bottom: 2px solid transparent;
       color: var(--color-text-secondary);
       &.isActive {
-        color: ${({ themeColor }) => themeColor};
-        border-color: ${({ themeColor }) => themeColor};
+        color: ${({ $themeColor }) => $themeColor};
+        border-color: ${({ $themeColor }) => $themeColor};
       }
     }
     &:hover {
       span,
       i {
-        color: ${({ themeColor }) => `${themeColor} !important`};
+        color: ${({ $themeColor }) => `${$themeColor} !important`};
       }
     }
   }
@@ -294,10 +269,7 @@ const GroupTabList = styled.div`
 
 const MorePopupContainer = styled.div`
   width: 220px;
-  background: var(--color-background-card);
-  border-radius: 3px;
   padding: 6px 0;
-  box-shadow: var(--shadow-lg);
   .groupItem {
     display: flex;
     align-items: center;
@@ -310,8 +282,8 @@ const MorePopupContainer = styled.div`
       }
     }
     &.isActive {
-      background: ${({ activeColor }) => activeColor};
-      color: ${({ themeColor }) => themeColor};
+      background: ${({ $activeColor }) => $activeColor};
+      color: ${({ $themeColor }) => $themeColor};
     }
 
     .listStarIcon {
@@ -467,16 +439,14 @@ function MarkedGroupTab(props) {
           <React.Fragment>
             <GroupTabs>
               {markedGroup.map((group, i) => (
-                <Trigger
+                <Popover
+                  noPadding
                   key={i}
                   getPopupContainer={() => document.body}
-                  popupVisible={popupVisible[group.id]}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    offset: [0, 8],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
-                  popup={
+                  trigger={[]}
+                  open={popupVisible[group.id]}
+                  placement="bottomLeft"
+                  content={
                     <GroupTabClickPopup
                       className="groupTabClickPopup"
                       onClick={() => {
@@ -498,8 +468,8 @@ function MarkedGroupTab(props) {
                     onClickAwayExceptions={['.groupTabClickPopup']}
                   >
                     <GroupTab
-                      themeColor={dashboardColor.themeColor}
-                      activeColor={dashboardColor.activeColor}
+                      $themeColor={dashboardColor.themeColor}
+                      $activeColor={dashboardColor.activeColor}
                       key={i}
                       className={cx('ellipsis', { active: safeActiveGroupId === group.id })}
                       onClick={() => {
@@ -517,7 +487,7 @@ function MarkedGroupTab(props) {
                       {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
                     </GroupTab>
                   </ClickAwayable>
-                </Trigger>
+                </Popover>
               ))}
             </GroupTabs>
             {activeGroup && (
@@ -586,14 +556,7 @@ export default function AppGrid(props) {
   const moreTabRef = useRef();
 
   const noProjects = !md.global.Account.projects.length;
-  const allowCreate =
-    !noProjects &&
-    !isExternal &&
-    (!_.get(
-      _.find(md.global.Account.projects, item => item.projectId === projectId),
-      'cannotCreateApp',
-    ) ||
-      hasPermission(myPermissions, PERMISSION_ENUM.CREATE_APP));
+  const allowCreate = !noProjects && !isExternal && hasFeaturePermission(projectId, FEATURE_PERMISSION.CREATE_APP);
   const markedGroup = (props.markedGroup || []).map(g => ({
     ...g,
     apps: (g.appIds || []).map(aId => _.find([...myApps, ...markedApps], { id: aId })).filter(_.identity),
@@ -674,7 +637,7 @@ export default function AppGrid(props) {
     const groupList = [{ id: 'all', name: _l('全部') }].concat(projectGroups);
     return (
       !!projectGroups.length && (
-        <GroupTabList themeColor={dashboardColor.themeColor}>
+        <GroupTabList $themeColor={dashboardColor.themeColor}>
           <ul ref={groupListRef}>
             {groupList.map((group, index) => {
               return (
@@ -719,18 +682,15 @@ export default function AppGrid(props) {
             })}
           </ul>
           {hasMore && (
-            <Trigger
-              action={['click']}
+            <Popover
+              noPadding
+              trigger="click"
               getPopupContainer={() => document.body}
-              popupVisible={morePopupVisible}
-              onPopupVisibleChange={visible => setMorePopupVisible(visible)}
-              popupAlign={{
-                points: ['tr', 'br'],
-                offset: [0, 10],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              popup={
-                <MorePopupContainer activeColor={dashboardColor.activeColor} themeColor={dashboardColor.themeColor}>
+              open={morePopupVisible}
+              onOpenChange={setMorePopupVisible}
+              placement="bottomRight"
+              content={
+                <MorePopupContainer $activeColor={dashboardColor.activeColor} $themeColor={dashboardColor.themeColor}>
                   {moreGroups.map((group, i) => {
                     const isActive = group.id === currentGroupTab;
                     return (
@@ -782,7 +742,7 @@ export default function AppGrid(props) {
                   <Icon icon="arrow-down-border" className="mLeft10 textTertiary pBottom2" />
                 </div>
               </div>
-            </Trigger>
+            </Popover>
           )}
         </GroupTabList>
       )
@@ -972,9 +932,8 @@ export default function AppGrid(props) {
         )}
         {!isDashboard && <div className="flex" />}
         {allowCreate && (
-          <AddAppItemBtn
+          <AddAppItem
             myPermissions={myPermissions}
-            themeColor={dashboardColor.themeColor}
             projectId={projectId}
             createAppFromEmpty={(...args) => {
               actions.createAppFromEmpty(...args, id => {
@@ -982,11 +941,15 @@ export default function AppGrid(props) {
               });
             }}
           >
-            <span className="newAppBtn">
-              <i className="Icon icon icon-plus Font13 mRight5 textWhite" />
+            <AddAppItemBtn
+              color={dashboardColor.themeColor}
+              variant="solid"
+              shape="round"
+              icon={<Icon icon="plus" className="Font13" />}
+            >
               {_l('新建应用')}
-            </span>
-          </AddAppItemBtn>
+            </AddAppItemBtn>
+          </AddAppItem>
         )}
       </SearchInputCon>
       {loading ? (

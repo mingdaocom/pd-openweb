@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -7,9 +8,12 @@ import { Icon } from 'ming-ui';
 import CustomFields from 'src/components/Form';
 import { checkValueAvailable } from 'src/components/Form/core/formUtils';
 import { getAvailableFilters } from 'src/components/Form/core/formUtils/ruleUtils';
-import MobileCardCellControls from 'src/components/MobileCardCellControls/MobileCardCellControls';
-import SummaryCom from 'src/components/MobileCardCellControls/SummaryCom';
-import { controlState, getTitleTextFromControls, isRelateRecordTableControl } from 'src/utils/control';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { controlState } from 'src/utils/domain/control/state';
+import { getRecordCardStyle } from 'src/utils/domain/control/style';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
+import MobileCardCellControls from '../MobileCardCellControls/MobileCardCellControls';
+import SummaryCom from '../MobileCardCellControls/SummaryCom';
 
 function getFieldsAfterRules(displayFields, formData, rules, rowId) {
   if (!rules || !rules.length) return displayFields;
@@ -27,20 +31,49 @@ function getFieldsAfterRules(displayFields, formData, rules, rowId) {
 
 const FlattenContent = styled.div`
   .flatCardItem {
+    position: relative;
     border-radius: 8px;
     background: var(--color-background-secondary);
     margin-bottom: 12px;
     overflow: hidden;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
+    ${({ $cardBackgroundColor }) => $cardBackgroundColor && `background-color: ${$cardBackgroundColor};`}
+    ${({ $cardBorderColor }) => $cardBorderColor && `border: 1px solid ${$cardBorderColor};`}
     &.noBoxShadow {
       box-shadow: none !important;
     }
     &.allowOverflow {
       overflow: visible;
     }
+    &.hasCardDelete {
+      overflow: visible;
+
+      .rowHeader {
+        padding-right: 64px;
+      }
+    }
     .childTableCellValue {
       font-weight: 500;
     }
+    .cardSummaryRow .childTableCellValue {
+      font-weight: 400;
+    }
+  }
+  .rowHeader.batchSelecting {
+    position: relative;
+    padding-right: 56px !important;
+  }
+  .batchSelectArea {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
   .rowHeader {
     min-height: 48px;
@@ -59,8 +92,24 @@ const FlattenContent = styled.div`
     .delete {
       color: var(--color-error);
     }
+    .cardDelete {
+      position: absolute;
+      top: -9px;
+      right: -9px;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      font-size: 26px;
+      color: var(--color-text-tertiary);
+    }
     .edit {
       color: var(--color-primary);
+    }
+    &.alwaysExpand {
+      cursor: default;
     }
   }
   .cardTitleRow {
@@ -72,6 +121,8 @@ const FlattenContent = styled.div`
   .cardTitleText {
     min-width: 0;
     color: var(--color-text-primary);
+    ${({ $recordTitleStyle }) => $recordTitleStyle}
+    ${({ $recordTitleSize }) => $recordTitleSize && `font-size: ${$recordTitleSize} !important;`}
   }
   .cardSummaryRow {
     width: 100%;
@@ -81,8 +132,33 @@ const FlattenContent = styled.div`
   }
   .cardSummaryRow .summaryControlsCon {
     min-width: 0;
-    overflow: hidden;
-    flex-wrap: wrap;
+    display: block;
+    line-height: 20px;
+    overflow: hidden !important;
+  }
+  .cardSummaryRow .childTableSummaryCell .childTableCellValue,
+  .cardSummaryRow .splitLine,
+  .cardSummaryRow .childTableSummaryCell .cellOption {
+    line-height: 20px !important;
+  }
+  .cardSummaryRow .childTableSummaryCell:has(.cellOptionsParent),
+  .cardSummaryRow .childTableSummaryCell .cellOptions {
+    vertical-align: middle;
+    .cellOption {
+      padding: 1px 8px;
+    }
+  }
+  .cardSummaryRow .childTableSummaryCell .cellUser,
+  .cardSummaryRow .childTableSummaryCell .cellDepartment {
+    margin: 0 !important;
+  }
+  .cardSummaryRow .splitLine {
+    vertical-align: middle;
+  }
+  .cardSummaryRow .childTableSummaryCell .customFormNull {
+    display: inline-block;
+    margin: 0;
+    vertical-align: middle;
   }
   .mobileChildTableFlatForm {
     &.customMobileFormContainer {
@@ -111,15 +187,19 @@ const FlattenContent = styled.div`
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
-  /* 卡片内标题字段字号单独处理 */
-  .childTableTitleField {
-    .childTableCellName {
-      font-size: 13px !important;
+  ${({ $inheritCardStyle }) =>
+    $inheritCardStyle &&
+    `
+    .expandedCardContent {
+      .childTableCellName {
+        line-height: 1.4;
+        margin-bottom: 6px;
+      }
+      .childTableCellValue {
+        line-height: 1.4;
+      }
     }
-    .childTableCellValue {
-      font-size: 15px !important;
-    }
-  }
+  `}
 `;
 
 const ExpandAllCon = styled.span`
@@ -153,15 +233,26 @@ export default function ChildTableFlatComp(props) {
     from,
     isDraft,
     showExpand,
+    hideExpandAll,
+    alwaysExpand,
+    openRecordOnClick,
+    showCardDelete,
+    defaultMaxLength = 10,
+    filterControlsByPermission = true,
     widgetStyle,
     control,
+    inheritCardStyle = false,
+    isBatchOperate = false,
+    selectedRowIds = [],
+    onSelectRow = () => {},
+    onOpen = () => {},
     getMasterFormData = () => [],
     onSave = () => {},
     submitChildTableCheckData = () => {},
     updateIsAddByLine = () => {},
   } = props;
   const { columnnum, showtitleid } = control.advancedSetting;
-  const defaultMaxLength = 10;
+  const recordCardStyle = inheritCardStyle ? getRecordCardStyle(control) : {};
   const [maxShowLength, setMaxShowLength] = useState(defaultMaxLength);
   const [expandRowIndex, setExpandRowIndex] = useState();
   const [random, setRandom] = useState(Date.now());
@@ -179,6 +270,7 @@ export default function ChildTableFlatComp(props) {
   const showAll = () => {
     return (
       !showExpand &&
+      !alwaysExpand &&
       !isEdit &&
       rows.length > defaultMaxLength && (
         <div
@@ -224,18 +316,15 @@ export default function ChildTableFlatComp(props) {
   };
 
   const showFields = controls
-    .filter(c => _.find(props.showControls || [], scid => scid === c.controlId) && controlState(c).visible)
+    .filter(
+      c =>
+        _.find(props.showControls || [], scid => scid === c.controlId) &&
+        (!filterControlsByPermission || controlState(c).visible),
+    )
     .map(formatMobileCardControl); // 配置可显示字段
-  const titleControl = showtitleid && _.find(controls, { controlId: showtitleid });
-  const fieldsWithTitle = titleControl
-    ? [
-        formatMobileCardControl({
-          ...titleControl,
-          controlName: _l('标题'),
-          className: 'childTableTitleField',
-        }),
-      ].concat(showFields.filter(c => c.controlId !== titleControl.controlId))
-    : showFields;
+  const expandedFields = isEdit ? showFields : showFields.filter(c => c.controlId !== showtitleid);
+  const hasExpandedFields = expandedFields.length > 0;
+  const canOpenRecordDirectly = control.type === 34 || openRecordOnClick;
 
   // 平铺展开收起
   const handleExpandFlat = (isExpand, index, rowid) => {
@@ -297,8 +386,14 @@ export default function ChildTableFlatComp(props) {
     !isEdit && _.isEmpty(rows) && <div className="textTertiary mTop15 bold">{_l('暂无记录')}</div>;
 
   return (
-    <FlattenContent>
-      {!isEdit && showRows.length ? (
+    <FlattenContent
+      $cardBackgroundColor={_.get(recordCardStyle, 'cardStyle.backgroundColor')}
+      $cardBorderColor={_.get(recordCardStyle, 'cardStyle.borderColor')}
+      $recordTitleStyle={_.get(recordCardStyle, 'recordTitleStyle.valueStyle')}
+      $recordTitleSize={_.get(recordCardStyle, 'recordTitleStyle.size')}
+      $inheritCardStyle={inheritCardStyle}
+    >
+      {hasExpandedFields && !alwaysExpand && !hideExpandAll && !isEdit && showRows.length ? (
         <ExpandAllCon
           className="expandAll bold"
           style={{ top: showExpand ? 53 : 8 }}
@@ -313,7 +408,8 @@ export default function ChildTableFlatComp(props) {
       ) : null}
       {showRows.map((item, index) => {
         const { rowid } = item;
-        const isExpand = expandIds.includes(rowid);
+        const isExpand = hasExpandedFields && (alwaysExpand || expandIds.includes(rowid));
+        const selected = selectedRowIds.includes(rowid);
         const ignoreLock = /^(temp|default|empty)/.test(rowid);
         const title =
           getTitleTextFromControls(
@@ -326,39 +422,80 @@ export default function ChildTableFlatComp(props) {
           <div
             className={cx('flatCardItem', {
               'noBoxShadow allowOverflow': isEdit && !disabled && isExpand,
+              hasCardDelete: showCardDelete && !disabled && (allowcancel || /^temp/.test(rowid)),
             })}
             key={rowid}
             ref={el => (rowRefs.current[index] = el)}
             style={{ scrollMarginTop: '10px' }}
+            onClick={() => {
+              if (!hasExpandedFields) {
+                if (canOpenRecordDirectly) {
+                  onOpen(index);
+                }
+
+                return;
+              }
+
+              if (!alwaysExpand && !isExpand) {
+                handleExpandFlat(isExpand, index, rowid);
+              }
+            }}
           >
             <div
               className={cx('rowHeader flexColumn pRight6', {
                 errorRow: _.some(controls, v => cellErrors[rowid + '-' + v.controlId]),
                 bgSecondary: isEdit && !disabled,
+                alwaysExpand: alwaysExpand && hasExpandedFields,
+                batchSelecting: isBatchOperate,
               })}
-              onClick={() => handleExpandFlat(isExpand, index, rowid)}
+              onClick={event => {
+                event.stopPropagation();
+                if (!hasExpandedFields) {
+                  if (canOpenRecordDirectly) {
+                    onOpen(index);
+                  }
+
+                  return;
+                }
+
+                if (!alwaysExpand) {
+                  handleExpandFlat(isExpand, index, rowid);
+                }
+              }}
             >
               <div className="cardTitleRow">
-                <i
-                  className={`icon ${
-                    isExpand ? 'icon-arrow-up-border' : 'icon-arrow-down-border'
-                  } LineHeight22 mRight10 Font15`}
-                />
+                {hasExpandedFields && !alwaysExpand && (
+                  <i
+                    className={`icon ${
+                      isExpand ? 'icon-arrow-up-border' : 'icon-arrow-down-border'
+                    } LineHeight22 mRight10 Font15`}
+                    onClick={event => {
+                      event.stopPropagation();
+                      handleExpandFlat(isExpand, index, rowid);
+                    }}
+                  />
+                )}
                 <div className="cardTitleText flex bold Font17 ellipsis">
                   {showNumber ? index + 1 + '.' : ''}
                   {title}
                 </div>
-                {!disabled && isEdit && (
+                {!disabled && (isEdit || showCardDelete) && (
                   <Fragment>
                     {(allowcancel || /^temp/.test(rowid)) && (
-                      <div className="delete pTop3" onClick={() => onDelete(rowid)}>
-                        <i className="icon icon-trash Red Font18" />
+                      <div
+                        className={cx('delete Hand', { cardDelete: showCardDelete })}
+                        onClick={event => {
+                          event.stopPropagation();
+                          onDelete(rowid);
+                        }}
+                      >
+                        <i className={cx('icon', showCardDelete ? 'icon-cancel' : 'icon-trash Red Font18')} />
                       </div>
                     )}
                   </Fragment>
                 )}
               </div>
-              {!isExpand && (
+              {hasExpandedFields && !isExpand && (
                 <SummaryCom
                   className="cardSummaryRow"
                   controls={showFields}
@@ -371,28 +508,52 @@ export default function ChildTableFlatComp(props) {
                   appId={appId}
                 />
               )}
+              {isBatchOperate && (
+                <Checkbox
+                  className="batchSelectArea"
+                  style={{ '--icon-size': '18px', '--font-size': '14px', '--gap': '6px' }}
+                  onClick={event => {
+                    event.stopPropagation();
+                  }}
+                  onChange={checked => onSelectRow(rowid, checked)}
+                  checked={selected}
+                />
+              )}
             </div>
             {isExpand &&
               (!isEdit ? (
-                <MobileCardCellControls
-                  isMobileTable
-                  className="pTop0"
-                  colNuber={columnnum === '2' ? 2 : 1}
-                  controls={getFieldsAfterRules(
-                    fieldsWithTitle,
-                    showFields.map(c => ({ ...c, value: item[c.controlId] })),
-                    rules,
-                    rowid,
-                  )}
-                  row={item}
-                  sheetSwitchPermit={sheetSwitchPermit}
-                  worksheetId={worksheetId}
-                  projectId={projectId}
-                  appId={appId}
-                  from={from}
-                  masterData={masterData}
-                  rowFormData={() => control.relationControls.map(c => ({ ...c, value: item[c.controlId] }))}
-                />
+                <div
+                  onClick={event => {
+                    event.stopPropagation();
+                    if (canOpenRecordDirectly) {
+                      onOpen(index);
+                    }
+                  }}
+                >
+                  <MobileCardCellControls
+                    isMobileTable
+                    showMultipleValue
+                    className="pTop0 expandedCardContent"
+                    colNuber={columnnum === '2' ? 2 : 1}
+                    controls={getFieldsAfterRules(
+                      expandedFields,
+                      showFields.map(c => ({ ...c, value: item[c.controlId] })),
+                      rules,
+                      rowid,
+                    )}
+                    inheritCardStyle={inheritCardStyle}
+                    controlTitleStyle={{ ...recordCardStyle.controlTitleStyle, direction: '2' }}
+                    controlValueStyle={recordCardStyle.controlValueStyle}
+                    row={item}
+                    sheetSwitchPermit={sheetSwitchPermit}
+                    worksheetId={worksheetId}
+                    projectId={projectId}
+                    appId={appId}
+                    from={from}
+                    masterData={masterData}
+                    rowFormData={() => control.relationControls.map(c => ({ ...c, value: item[c.controlId] }))}
+                  />
+                </div>
               ) : (
                 <div
                   className="h100"
@@ -409,7 +570,7 @@ export default function ChildTableFlatComp(props) {
                     isDraft={isDraft}
                     ref={el => (customWidgetRefs.current[index] = el)}
                     recordId={rowid}
-                    data={showFields.map(c => ({
+                    data={expandedFields.map(c => ({
                       ...c,
                       value: item[c.controlId],
                       ignoreDisabled: c.type === 36 && controlPermission.editable,
@@ -417,13 +578,7 @@ export default function ChildTableFlatComp(props) {
                       controlPermissions: isRelateRecordTableControl(c) ? '000' : c.controlPermissions,
                       isSubList: true,
                     }))}
-                    widgetStyle={
-                      widgetStyle
-                        ? widgetStyle
-                        : isEdit && isExpand
-                          ? {}
-                          : { titlelayout_app: '2', titlewidth_app: '80' }
-                    }
+                    widgetStyle={{ ...widgetStyle, titlelayout_app: '1' }}
                     disabled={!(isEdit && isExpand) || (!/^temp/.test(rowid) && !allowedit)}
                     disabledChildTableCheck={!(isEdit && isExpand) || (!/^temp/.test(rowid) && !allowedit)}
                     appId={appId}
@@ -470,4 +625,14 @@ ChildTableFlatComp.propTypes = {
   masterData: PropTypes.object,
   getMasterFormData: PropTypes.func,
   h5abstractids: PropTypes.array,
+  hideExpandAll: PropTypes.bool,
+  alwaysExpand: PropTypes.bool,
+  openRecordOnClick: PropTypes.bool,
+  showCardDelete: PropTypes.bool,
+  isBatchOperate: PropTypes.bool,
+  selectedRowIds: PropTypes.arrayOf(PropTypes.string),
+  onSelectRow: PropTypes.func,
+  defaultMaxLength: PropTypes.number,
+  filterControlsByPermission: PropTypes.bool,
+  onOpen: PropTypes.func,
 };

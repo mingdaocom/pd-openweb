@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { get, includes, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { formatNumberThousand, toFixed } from 'src/utils/control';
-import { getSummaryResult } from 'src/utils/record';
+import { formatNumberThousand, toFixed } from 'src/utils/domain/control/number';
+import { getSummaryResult } from 'src/utils/domain/worksheet/record';
 
 const Con = styled.div`
   display: flex;

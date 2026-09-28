@@ -1,7 +1,7 @@
 import React from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import { getTranslateInfo } from 'src/utils/app';
+import { Input } from 'ming-ui/antd-components';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
 

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import { LoadDiv } from 'ming-ui';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { getRequest } from 'src/utils/platform/browser/device';
 import { HintText, LoginDialog, LoginTitle, ReturnButton, Wrap } from './style';
 
 const request = getRequest();

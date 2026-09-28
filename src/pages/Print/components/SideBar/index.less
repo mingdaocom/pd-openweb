@@ -46,18 +46,6 @@
         width: 100%;
         margin-top: 12px;
       }
-      .Menu {
-        width: 100%;
-      }
-      .Dropdown--input {
-        display: flex;
-        .value {
-          flex: 1;
-        }
-        .Icon {
-          line-height: 20px;
-        }
-      }
     }
     .conBox {
       padding: 20px;
@@ -113,9 +101,8 @@
       p {
         margin: 0;
       }
-      input {
+      input.hap-input {
         margin-top: 10px;
-        width: 200px;
         height: 36px;
         line-height: 36px;
         background: var(--color-background-primary) 0% 0% no-repeat padding-box;
@@ -142,12 +129,9 @@
           border: 1px solid var(--color-primary);
         }
       }
-      .ming.Checkbox {
-        vertical-align: middle;
-      }
       .moreList {
         position: absolute;
-        top: -2px;
+        top: 12px;
         right: 0;
         width: 20px;
         height: 20px;
@@ -157,9 +141,9 @@
           background: var(--color-background-secondary);
         }
       }
-      .fileRadio.ming.Radio {
+      .fileRadio.ant-radio-wrapper {
         margin-right: 8px !important;
-        .Radio-box {
+        .ant-radio-inner {
           margin-right: 6px;
         }
       }
@@ -168,14 +152,7 @@
       border-top: 1px solid var(--color-border-primary);
       margin: 24px 0;
     }
-    .ming.Checkbox.clearselected .Checkbox-box {
-      background-color: var(--color-primary) !important;
-      border: 1px solid var(--color-primary) !important;
-    }
     .approvalItem {
-      .ming.Checkbox {
-        max-width: none !important;
-      }
       .expand:hover {
         background: var(--color-background-secondary);
         color: var(--color-primary) !important;

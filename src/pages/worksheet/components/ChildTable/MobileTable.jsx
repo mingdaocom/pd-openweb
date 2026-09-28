@@ -8,8 +8,8 @@ import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
 import CustomFields from 'src/components/Form';
 import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
-import { getAdvanceSetting } from 'src/utils/control';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {

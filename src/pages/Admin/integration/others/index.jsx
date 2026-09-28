@@ -1,20 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Dropdown, Icon, LoadDiv, Switch, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Checkbox, Input, Radio, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
-import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { hasPermission } from 'src/utils/services/security/permission';
 import SettingIconAndName from '../../components/SettingIconAndName';
 import Config from '../../config';
 import { accountTxtInfo, formListBottom, formListTop, loginSetting } from './form.config.js';
 import ViewKeyDialog from './ViewKey';
 import './index.less';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const headerTitle = {
   index: _l('其他'),
@@ -26,12 +28,13 @@ const DATA_INFO = [
     key: 'effective',
     label: _l('LDAP登录'),
     showSetting: true,
-    description:
-      window.platformENV.isOverseas || window.platformENV.isLocal
+    get description() {
+      return window.platformENV.isOverseas || window.platformENV.isLocal
         ? _l('启用后，成员可在组织专属登录页使用 LDAP 登录。系统将通过邮箱进行身份匹配，请确保成员账号已绑定对应邮箱')
         : _l(
             '在付费版下，您可以通过组织的二级域名登录页面，通过集成LDAP账号登录，实现统一身份认证管理 （确保员工的账号已与邮箱绑定，系统通过邮箱进行映射）',
-          ),
+          );
+    },
     featureId: VersionProductType.LDAPIntergration,
     showCustomName: true,
     iconClassName: 'icon-lock',
@@ -47,10 +50,11 @@ const DATA_INFO = [
   {
     key: 'enabledMDLogin',
     label: _l('平台帐号登录'),
-    description:
-      window.platformENV.isOverseas || window.platformENV.isLocal
+    get description() {
+      return window.platformENV.isOverseas || window.platformENV.isLocal
         ? _l('在组织专属登录页，当开启了SSO、LDAP时，可关闭平台账号登录入口')
-        : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO时，可以关闭本系统账号登录'),
+        : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO时，可以关闭本系统账号登录');
+    },
   },
   {
     key: 'orgKey',
@@ -110,6 +114,7 @@ export default class OtherTool extends Component {
       noMatchCreate: false, // 无匹配用户时新建
       initLdapData: {},
     };
+    this.requestPending = false;
   }
 
   componentDidMount() {
@@ -277,13 +282,14 @@ export default class OtherTool extends Component {
         placeholder={_l('请选择用户目录类型')}
         onChange={this.handleUpdateItemSelect.bind(this)}
         onFocus={() => this.clearError(key)}
-      >
-        <Select.Option value="1">Microsoft Active Directory</Select.Option>
-        <Select.Option value="2">Novell eDirectory Server</Select.Option>
-        <Select.Option value="3">OpenLDAP</Select.Option>
-        <Select.Option value="4">Generic Directory Server</Select.Option>
-        <Select.Option value="5">Sun Directory Server Premium Edition</Select.Option>
-      </Select>
+        options={[
+          { value: '1', label: 'Microsoft Active Directory' },
+          { value: '2', label: 'Novell eDirectory Server' },
+          { value: '3', label: 'OpenLDAP' },
+          { value: '4', label: 'Generic Directory Server' },
+          { value: '5', label: 'Sun Directory Server Premium Edition' },
+        ]}
+      />
     );
   };
 
@@ -341,12 +347,10 @@ export default class OtherTool extends Component {
         return this.selectTypeComp(key);
       case 'dropDown':
         return (
-          <Dropdown
-            border
+          <Select
             style={{ width: '40%' }}
-            menuClass="w100"
-            isAppendBody
-            data={accountTxtInfo}
+            options={accountTxtInfo}
+            fieldNames={SELECT_FIELD_NAMES}
             value={this.state[key]}
             onChange={value => this.setState({ [key]: value })}
           />
@@ -374,25 +378,28 @@ export default class OtherTool extends Component {
         );
       case 'tab':
         return (
-          <div className="searchRange flexRow">
+          <Radio.Group
+            block
+            style={{ width: '40%' }}
+            value={searchRange}
+            onChange={event => {
+              const value = event.target.value;
+
+              this.setState({
+                searchRange: value,
+                errorInfo: { ...errorInfo, dnGroup: value === 0 ? false : errorInfo.dnGroup },
+              });
+            }}
+          >
             {[
               { key: 0, tab: 'BaseDN' },
               { key: 1, tab: _l('DN/组名') },
             ].map(it => (
-              <div
-                key={it.key}
-                className={cx('flex', { active: searchRange === it.key })}
-                onClick={() => {
-                  this.setState({
-                    searchRange: it.key,
-                    errorInfo: { ...errorInfo, dnGroup: it.key === 0 ? false : errorInfo.dnGroup },
-                  });
-                }}
-              >
+              <Radio.Button key={it.key} value={it.key}>
                 {it.tab}
-              </div>
+              </Radio.Button>
             ))}
-          </div>
+          </Radio.Group>
         );
       case 'group':
         return (
@@ -481,14 +488,16 @@ export default class OtherTool extends Component {
                   {showCheckbox ? (
                     <Checkbox
                       checked={this.state[checkedField]}
-                      text={label}
-                      onClick={checked =>
-                        this.setState({
+                      onChange={event => {
+                        const checked = !event.target.checked;
+                        return this.setState({
                           [checkedField]: !checked,
                           [key]: checked ? initSyncInfo[key] : this.state[key],
-                        })
-                      }
-                    />
+                        });
+                      }}
+                    >
+                      {label}
+                    </Checkbox>
                   ) : (
                     <Fragment>
                       <span className={cx('TxtMiddle Red', errorMsg ? '' : 'hidden')}>*</span>
@@ -501,11 +510,12 @@ export default class OtherTool extends Component {
                     {this.renderCompType(key, compType, showCheckbox ? !this.state[checkedField] : false, placeholder)}
                     {desc === 'enableSSL' ? (
                       <Checkbox
-                        text={_l('使用安全链接')}
                         className="mLeft16"
                         checked={this.state[desc]}
-                        onClick={this.handleUpdateItemCheck}
-                      />
+                        onChange={event => this.handleUpdateItemCheck(!event.target.checked, undefined, event)}
+                      >
+                        {_l('使用安全链接')}
+                      </Checkbox>
                     ) : (
                       <span className="formItemDesc">{desc}</span>
                     )}
@@ -543,10 +553,15 @@ export default class OtherTool extends Component {
         {this.renderFormCommon(formListBottom.slice(0, 1))}
         <div style={{ marginLeft: 150 }}>
           <Checkbox
-            text={_l('当无法通过以上字段匹配到系统账号时，新建一个账号')}
             checked={createIfNotExists}
-            onClick={checked => this.setState({ createIfNotExists: !checked })}
-          />
+            onChange={event =>
+              this.setState({
+                createIfNotExists: event.target.checked,
+              })
+            }
+          >
+            {_l('当无法通过以上字段匹配到系统账号时，新建一个账号')}
+          </Checkbox>
         </div>
         <div className="formModuleTitle mBottom15">{_l('同步信息')}</div>
         <div className="textTertiary mBottom15">{_l('勾选后，在用户使用LDAP登录时，将同步以下账号信息')}</div>
@@ -714,6 +729,8 @@ export default class OtherTool extends Component {
 
   // 保存自定义名称
   saveCustomName = (key, { icon, success = () => {} } = {}) => {
+    if (this.requestPending) return;
+
     const currentName = this.state[`${key}CustomName`];
 
     if (!currentName) {
@@ -728,7 +745,8 @@ export default class OtherTool extends Component {
     const ajax = key === 'sso' ? projectSettingController.setSsoName : projectSettingController.updateLdapName;
     const params = key === 'sso' ? { ssoName: currentName } : { ldapName: currentName, ldapIcon: icon || '' };
 
-    ajax({ projectId: Config.projectId, ...params })
+    this.requestPending = true;
+    return ajax({ projectId: Config.projectId, ...params })
       .then(res => {
         if (res) {
           alert(_l('修改成功'));
@@ -738,9 +756,12 @@ export default class OtherTool extends Component {
           alert(_l('修改失败'), 2);
         }
       })
-      .catch(() => {
-        alert(_l('修改失败'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('修改失败'), 2);
         this.setState({ [`${key}CustomName`]: this.state[`${key}DefaultCustomName`] });
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
   };
 
@@ -769,7 +790,8 @@ export default class OtherTool extends Component {
                   {key !== 'orgKey' && (
                     <Switch
                       checked={this.state[key]}
-                      onClick={() => {
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
                         if (featureType === '2') {
                           buriedUpgradeVersionDialog(Config.projectId, featureId);
                           return;
@@ -789,21 +811,16 @@ export default class OtherTool extends Component {
                   )}
                   {key === 'orgKey' && (
                     <div>
-                      <button
-                        type="button"
-                        className="ming Button Button--link colorPrimary pLeft0 adminHoverColor Block"
-                        onClick={this.checkHasKey}
-                      >
+                      <Button color="primary" variant="link" onClick={this.checkHasKey}>
                         {_l('查看密钥')}
-                      </button>
+                      </Button>
                     </div>
                   )}
                   {showSetting && (
-                    <button
-                      type="button"
-                      className={cx('ming Button Button--link mLeft24 colorPrimary mTop2 TxtTop adminHoverColor', {
-                        hidden: !this.state[key],
-                      })}
+                    <Button
+                      color="primary"
+                      variant="link"
+                      className={cx('mLeft24 mTop2', { hidden: !this.state[key] })}
                       onClick={() => {
                         if (featureType === '2') {
                           buriedUpgradeVersionDialog(Config.projectId, featureId);
@@ -825,7 +842,7 @@ export default class OtherTool extends Component {
                       }}
                     >
                       {_l('设置')}
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <div className="toolItemDescribe">
@@ -842,7 +859,7 @@ export default class OtherTool extends Component {
                       <div className="customNameWrap mTop8">
                         <span className="textTertiary">{_l('自定义显示登录文案：')}</span>
                         {this.state[`set${key}Name`] ? (
-                          <input
+                          <Input
                             ref={node => (this.customNameInput = node)}
                             value={this.state[`${key}CustomName`]}
                             className="customNameInput"
@@ -965,7 +982,10 @@ export default class OtherTool extends Component {
             onClick={() => {
               this.setState({ saveSSO: true });
               if (!_.trim(this.state.ssoWebUrl)) return;
-              projectSettingController
+              if (this.requestPending) return;
+
+              this.requestPending = true;
+              return projectSettingController
                 .setSsoUrl({
                   projectId: Config.projectId,
                   ssoWebUrl: _.trim(this.state.ssoWebUrl),
@@ -977,6 +997,9 @@ export default class OtherTool extends Component {
                   } else {
                     alert(_l('保存失败'), 2);
                   }
+                })
+                .finally(() => {
+                  this.requestPending = false;
                 });
             }}
           >

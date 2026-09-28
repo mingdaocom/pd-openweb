@@ -6,6 +6,8 @@
   APP_INFO_OPTIMIZATION: 5,
   CUSTOM_BOT: 8,
   CREATE_APP_ASSIGNMENT: 9,
+  // 帮助中心（智能客服）：钉住 help-agent 的单会话帮助对话
+  MINGDAO_HELP_CHAT: 10,
 };
 
 export const MINGO_TASK_STATUS = {

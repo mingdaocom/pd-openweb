@@ -2,20 +2,18 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, MenuItem, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SortableList } from 'ming-ui';
+import { Checkbox, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { extractBetweenDollars, getDefaultOperationDatas } from 'src/pages/AppSettings/components/Aggregation/util.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import NumInput from 'src/pages/worksheet/common/ViewConfig/components/NumInput.jsx';
-import { getTranslateInfo } from 'src/utils/app';
-import { handleAdvancedSettingChange } from 'src/utils/control';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { DEFAULT_COLORS } from '../config';
 import { formatAggConfig, getAllSourceList, getRuleAlias, getSourceIndex, isDelStatus } from '../util';
 import CalculationDialog from './CalculationDialog';
-import { WrapS } from './style';
 
 const WrapItem = styled.div`
   height: 36px;
@@ -51,15 +49,20 @@ const ActWrap = styled.div`
     &:hover {
       background: var(--color-background-hover);
     }
-    .ant-input {
-      height: 28px;
-    }
-    .numberControlBox .iconWrap {
-      height: 14px;
-    }
-    .numberControlBox .iconWrap i {
-      vertical-align: top;
-      line-height: 14px;
+  }
+`;
+const AggregationMenuWrap = styled.div`
+  overflow: hidden;
+  min-width: 180px;
+  background: var(--color-background-card);
+  border-radius: 4px;
+  box-shadow: var(--shadow-lg);
+  .aggregationFormatItem {
+    height: 36px;
+    padding: 0 12px;
+    cursor: pointer;
+    &:hover {
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -82,11 +85,11 @@ function FormatWrap(props) {
   };
 
   return (
-    <Trigger
-      action={['hover']}
-      popupAlign={{ points: ['tl', 'tr'], offset: [0, -5], overflow: { adjustX: true, adjustY: true } }}
-      popupVisible={show}
-      onPopupVisibleChange={show => {
+    <Dropdown
+      trigger={['hover']}
+      placement="bottomRight"
+      open={show}
+      onOpenChange={show => {
         if (!show && !_.isEqual(props.items, items)) {
           onUpdate(items, false);
         }
@@ -95,14 +98,15 @@ function FormatWrap(props) {
           show,
         });
       }}
-      popup={
+      menu={{ items: [] }}
+      popupRender={() => (
         <ActWrap className="">
           {/* 显示千分位（默认勾选）、按百分比显示、小数位数（默认2位，最大8位） */}
           <div className="labelWrap H36">
             <Checkbox
-              size="small"
               checked={_.get(items[num], 'controlSetting.advancedSetting.thousandth') !== '1'}
-              onClick={checked => {
+              onChange={event => {
+                const checked = !event.target.checked;
                 setState({
                   items: items.map((it, i) => {
                     if (i === num) {
@@ -118,14 +122,16 @@ function FormatWrap(props) {
                   }),
                 });
               }}
-              text={_l('显示千分位')}
-            />
+              size="small"
+            >
+              {_l('显示千分位')}
+            </Checkbox>
           </div>
           <div className="labelWrap H36">
             <Checkbox
-              size="small"
               checked={_.get(items[num], 'controlSetting.advancedSetting.numshow') === '1'}
-              onClick={checked => {
+              onChange={event => {
+                const checked = !event.target.checked;
                 setState({
                   items: items.map((it, i) => {
                     if (i === num) {
@@ -143,15 +149,16 @@ function FormatWrap(props) {
                   }),
                 });
               }}
-              text={_l('按百分比显示')}
-            />
+              size="small"
+            >
+              {_l('按百分比显示')}
+            </Checkbox>
           </div>
           <div className="labelWrap">
             <div className="H36">
               <Checkbox
-                size="small"
                 checked={!!dot}
-                onClick={() => {
+                onChange={() => {
                   onChangeItems({
                     ...handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
                       dot: dot ? '' : '2',
@@ -159,8 +166,10 @@ function FormatWrap(props) {
                     dot: Number(dot ? '0' : '2'),
                   });
                 }}
-                text={_l('小数位数')}
-              />
+                size="small"
+              >
+                {_l('小数位数')}
+              </Checkbox>
             </div>
             {!!dot && (
               <div className="flex mLeft20 showCount flexRow alignItemsCenter">
@@ -188,16 +197,16 @@ function FormatWrap(props) {
           {items[num].dot && (
             <div className="labelWrap">
               <Checkbox
-                size="small"
                 className="mTop8"
                 checked={_.get(items[num], 'controlSetting.advancedSetting.dotformat') === '1'}
-                onClick={checked => {
+                onChange={event => {
                   onChangeItems(
                     handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
-                      dotformat: checked ? '0' : '1',
+                      dotformat: !event.target.checked ? '0' : '1',
                     }),
                   );
                 }}
+                size="small"
               >
                 <span style={{ marginRight: '4px' }}>{_l('省略末尾的 0')}</span>
                 <Tooltip
@@ -211,13 +220,13 @@ function FormatWrap(props) {
             </div>
           )}
         </ActWrap>
-      }
+      )}
     >
-      <MenuItem className="flexRow alignItemsCenter">
-        <span className="text flex Font14">{_l('数据格式')}</span>
+      <div className="aggregationFormatItem flexRow alignItemsCenter">
+        <span className="flex Font14">{_l('数据格式')}</span>
         <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
-      </MenuItem>
-    </Trigger>
+      </div>
+    </Dropdown>
   );
 }
 
@@ -251,6 +260,54 @@ export default function AggregationCon(props) {
     isDelete && updateErr();
 
     const getInfo = (props.sourceTables || []).find(o => (item.oid || '').indexOf(o.workSheetId) >= 0) || {};
+    const aggregationMenuItems = [
+      {
+        key: 'rename',
+        label: _l('重命名'),
+        onClick: () => {
+          setState({
+            showChangeName: true,
+            popupVisible: false,
+          });
+        },
+      },
+      !item.isRowsCount && {
+        key: 'aggregationType',
+        label: _l('聚合方式'),
+        children: getDefaultOperationDatas(_.get(item, 'controlSetting')).map(operation => ({
+          key: `aggregationType-${operation.value}`,
+          label: operation.text,
+          className: cx({ colorPrimary: operation.value === item.aggFuncType }),
+          onClick: () => {
+            if (operation.value === item.aggFuncType) {
+              return;
+            }
+
+            const hasSameAggregation = !!list.find(
+              aggregationItem => aggregationItem.oid === item.oid && aggregationItem.aggFuncType === operation.value,
+            );
+
+            if (hasSameAggregation) {
+              alert(_l('不能重复添加相同计算方式的相同字段'), 3);
+              return;
+            }
+
+            onUpdate(
+              items.map((aggregationItem, index) => {
+                return index === num
+                  ? formatAggConfig({
+                      ...aggregationItem,
+                      aggFuncType: operation.value,
+                      alias: getRuleAlias(`${aggregationItem.name}-${operation.text}`, flowData),
+                    })
+                  : aggregationItem;
+              }),
+            );
+            setState({ popupVisible: false });
+          },
+        })),
+      },
+    ].filter(Boolean);
 
     return (
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
@@ -309,97 +366,19 @@ export default function AggregationCon(props) {
             </Tooltip>
           )}
           {!item.isCalculateField ? (
-            <Trigger
-              action={['click']}
-              popupVisible={popupVisible}
-              onPopupVisibleChange={popupVisible => {
-                setState({ popupVisible });
-              }}
+            <Dropdown
+              open={popupVisible}
+              onOpenChange={popupVisible => setState({ popupVisible })}
+              trigger={['click']}
+              placement="bottomLeft"
               getPopupContainer={() => document.body}
-              popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-              popup={
-                <WrapS className={cx('Relative', { rowsCountItem: item.isRowsCount })}>
-                  <MenuItem
-                    className="settingSheet"
-                    onClick={() => {
-                      setState({
-                        showChangeName: true,
-                        popupVisible: false,
-                      });
-                    }}
-                  >
-                    <span className="text Font14">{_l('重命名')}</span>
-                  </MenuItem>
-                  {!item.isRowsCount && (
-                    <React.Fragment>
-                      <Trigger
-                        action={['hover']}
-                        popupAlign={{
-                          points: ['tl', 'tr'],
-                          offset: [0, -5],
-                          overflow: { adjustX: true, adjustY: true },
-                        }}
-                        popup={
-                          <WrapS className="Relative">
-                            {/* 数值类字段配置：求和（默认）、最大值、最小值、平均值 ｜ 非数值字段配置：计数、去重计数 */}
-                            {getDefaultOperationDatas(_.get(item, 'controlSetting')).map(o => {
-                              return (
-                                <MenuItem
-                                  className={cx('settingSheet flexRow Font14', {
-                                    colorPrimary: o.value === item.aggFuncType,
-                                  })}
-                                  onClick={() => {
-                                    if (o.value === item.aggFuncType) {
-                                      return;
-                                    }
-
-                                    const hs = !!list.find(it => it.oid === item.oid && it.aggFuncType === o.value);
-
-                                    if (hs) {
-                                      alert(_l('不能重复添加相同计算方式的相同字段'), 3);
-                                      return;
-                                    }
-
-                                    onUpdate(
-                                      items.map((it, i) => {
-                                        return i === num
-                                          ? formatAggConfig({
-                                              ...it,
-                                              aggFuncType: o.value,
-                                              alias: getRuleAlias(`${it.name}-${o.text}`, flowData),
-                                            })
-                                          : it;
-                                      }),
-                                    );
-                                    setState({
-                                      popupVisible: false,
-                                    });
-                                  }}
-                                >
-                                  {o.text}
-                                </MenuItem>
-                              );
-                            })}
-                          </WrapS>
-                        }
-                      >
-                        <MenuItem
-                          className="flexRow alignItemsCenter"
-                          onClick={() => {
-                            setState({
-                              popupVisible: true,
-                            });
-                          }}
-                        >
-                          <span className="text flex Font14">{_l('聚合方式')}</span>
-                          <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
-                        </MenuItem>
-                      </Trigger>
-                      <FormatWrap {...props} num={num} />
-                    </React.Fragment>
-                  )}
-                </WrapS>
-              }
+              menu={{ items: aggregationMenuItems, style: { boxShadow: 'none' } }}
+              popupRender={menu => (
+                <AggregationMenuWrap>
+                  {menu}
+                  {!item.isRowsCount && <FormatWrap {...props} num={num} />}
+                </AggregationMenuWrap>
+              )}
             >
               <Icon
                 icon="arrow-down-border"
@@ -410,7 +389,7 @@ export default function AggregationCon(props) {
                   })
                 }
               />
-            </Trigger>
+            </Dropdown>
           ) : (
             <Tooltip title={_l('编辑')}>
               <Icon

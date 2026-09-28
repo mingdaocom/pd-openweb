@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import AppAjax from 'src/api/appManagement';
 
 const CopyDialogWrap = styled.div`
@@ -20,44 +19,52 @@ export default function CopyRoleDialog(props) {
   const { copyData, setCopyData, updataRoleData, appId, editType } = props;
   const { name, roleId } = copyData || {};
   const [roleName, setRoleName] = useState(name + _l('-复制'));
+  const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef(null);
+  const requestPending = useRef(false);
   useEffect(() => {
     if (inputRef && inputRef.current) {
       $(inputRef.current).select().focus();
     }
   }, []);
   return (
-    <Dialog
+    <Modal
       title={_l('复制角色“%0”', name)}
-      className={cx('')}
-      headerClass=""
-      bodyClass=""
       onCancel={() => {
         setCopyData(null);
       }}
       onOk={() => {
+        if (requestPending.current) return;
+
         if (!roleName.trim()) {
           return alert(_l('请输入角色名称！'), 3);
         }
 
-        AppAjax.copyRole({
+        requestPending.current = true;
+        setSubmitting(true);
+        return AppAjax.copyRole({
           appId,
           roleId,
           roleName: roleName.trim(),
           copyPortalRole: editType === 1 ? true : false,
-        }).then(res => {
-          if (res.resultCode === 1) {
-            updataRoleData(res.roleId);
-          } else if (res.resultCode === 2) {
-            alert(_l('角色名称重复，请重新命名'), 3);
-          } else {
-            alert(_l('复制失败'), 2);
-          }
-        });
-        setCopyData(null);
+        })
+          .then(res => {
+            if (res.resultCode === 1) {
+              updataRoleData(res.roleId);
+              setCopyData(null);
+            } else if (res.resultCode === 2) {
+              alert(_l('角色名称重复，请重新命名'), 3);
+            } else {
+              alert(_l('复制失败'), 2);
+            }
+          })
+          .finally(() => {
+            requestPending.current = false;
+            setSubmitting(false);
+          });
       }}
-      visible={!!copyData}
-      updateTrigger="fasle"
+      confirmLoading={submitting}
+      open={!!copyData}
     >
       <CopyDialogWrap>
         <p className="textSecondary">{_l('将复制目标角色的权限设置和描述。角色下的成员不会被复制')}</p>
@@ -73,6 +80,6 @@ export default function CopyRoleDialog(props) {
           />
         </div>
       </CopyDialogWrap>
-    </Dialog>
+    </Modal>
   );
 }

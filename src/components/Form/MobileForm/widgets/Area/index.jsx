@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { CityPicker, Icon } from 'ming-ui';
-import { getAreaHintText } from 'src/utils/controlCommon';
+import { getAreaHintText } from 'src/utils/domain/control/style';
 
 const Area = props => {
   const { disabled, value, advancedSetting = {}, recordId, controlId, formDisabled, enumDefault2, projectId } = props;

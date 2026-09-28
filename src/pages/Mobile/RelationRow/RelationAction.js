@@ -3,15 +3,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Button } from 'antd-mobile';
 import _ from 'lodash';
-import { Icon, MobileConfirmPopup } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { MobileConfirmPopup } from 'ming-ui/antd-mobile-components';
 import sheetAjax from 'src/api/worksheet';
 import DocumentTitle from 'mobile/components/DocumentTitle';
 import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { controlState } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
+import { controlState } from 'src/utils/domain/control/state';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import * as actions from './redux/actions';
 
 class RelationAction extends Component {
@@ -84,8 +86,8 @@ class RelationAction extends Component {
 
           this.setState({ showConfirmPopup: false });
         })
-        .catch(() => {
-          alert(_l('取消关联失败！'), 2);
+        .catch(_requestError2 => {
+          alertIfNotUnauthorized(_requestError2, _l('取消关联失败！'), 2);
           this.setState({ showConfirmPopup: false });
         });
     }
@@ -128,8 +130,8 @@ class RelationAction extends Component {
           alert(_l('添加记录失败！'), 2);
         }
       })
-      .catch(() => {
-        alert(_l('添加记录失败！'), 2);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('添加记录失败！'), 2);
       });
   }
   pushRelationRows(items) {
@@ -415,7 +417,12 @@ class RelationAction extends Component {
       control.enumDefault2 !== 1 &&
       control.enumDefault2 !== 11 &&
       !window.isPublicWorksheet;
+    const { layercontrolid, originShowType, showtype } = control.advancedSetting || {};
+    const isTreeTable =
+      control.enumDefault === 2 && _.includes([2, 5, 6], parseInt(originShowType || showtype, 10)) && !!layercontrolid;
 
+    if (_.get(permissionInfo, 'activeRelateSheetControl.controlId') !== controlId) return null;
+    if (isTreeTable) return null;
     if (!hasEdit) return null;
     if (control.type === 51 && !allowNewRecord) return null;
 

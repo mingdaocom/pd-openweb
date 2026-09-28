@@ -3,18 +3,20 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { EditInfo } from 'src/pages/widgetConfig/styled/index.js';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet/index.jsx';
-import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const EMPTY_OBJECT = {};
 
 const Wrap = styled.div`
   .icon-rename_input {
@@ -24,61 +26,8 @@ const Wrap = styled.div`
       color: var(--color-primary);
     }
   }
-  .Dropdown {
-    width: 100%;
-    display: flex;
-    line-height: 36px;
-    height: 36px;
-    opacity: 1;
-    background: var(--color-background-primary);
-    border-radius: 4px;
-    margin: 8px 0;
-    box-sizing: border-box;
-    .actionIcon {
-      width: 13px;
-    }
-    & > div {
-      flex: 1;
-    }
-    .Dropdown--input {
-      padding: 0 12px 0 12px !important;
-      width: 100%;
-      display: flex;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
-      height: 36px;
-      &.active {
-        border: 1px solid var(--color-primary);
-      }
-      .value,
-      .Dropdown--placeholder {
-        flex: 1;
-        max-width: 100% !important;
-      }
-      .Icon {
-        line-height: 34px;
-      }
-      .List {
-        width: 100%;
-        top: 104% !important;
-      }
-    }
-  }
   .navInputWrap {
     min-height: 36px !important;
-  }
-  .RelateRecordDropdown-selected,
-  .ant-select {
-    min-height: 36px !important;
-    line-height: 34px !important;
-    .normalSelectedItem {
-      line-height: 34px !important;
-    }
-  }
-  .RelateRecordDropdown-selected .clearIcon,
-  .RelateRecordDropdown-selected .dropIcon {
-    font-size: 14px;
-    margin: 11px 12px 0;
   }
   .customAntDropdownTitle,
   .customAntDropdownTitleWithBG {
@@ -88,32 +37,7 @@ const Wrap = styled.div`
       line-height: 26px !important;
     }
   }
-  .ant-select:hover {
-    border-color: var(--color-border-primary) !important;
-  }
-  .ant-select-arrow {
-    color: var(--color-text-tertiary) !important;
-  }
-  .RelateRecordDropdown-selected:not(.active) {
-    border-color: var(--color-border-primary) !important;
-  }
 `;
-const SwitchStyle = styled.div`
-  .switchText {
-    margin-right: 6px;
-    line-height: 24px;
-  }
-  .icon {
-    vertical-align: middle;
-    &-ic_toggle_on {
-      color: #00c345;
-    }
-    &-ic_toggle_off {
-      color: var(--color-text-disabled);
-    }
-  }
-`;
-
 let pendingFilterVisible = false;
 
 export default function NavShow(props) {
@@ -121,8 +45,9 @@ export default function NavShow(props) {
     params,
     onChange,
     value = '0',
-    filterInfo = {},
-    advancedSetting = {},
+    filterInfo = EMPTY_OBJECT,
+    advancedSetting = EMPTY_OBJECT,
+    navfilters: navfiltersValue,
     canShowNull,
     canShowAll,
     canShowAllNavLayer,
@@ -144,7 +69,7 @@ export default function NavShow(props) {
   });
 
   useEffect(() => {
-    () => {
+    return () => {
       pendingFilterVisible = false;
     };
   }, []);
@@ -154,20 +79,20 @@ export default function NavShow(props) {
       setState({ filterVisible: true });
       pendingFilterVisible = false;
     }
-  }, [value, loading]);
+  }, [value, loading, setState]);
 
   useEffect(() => {
-    let navfilters = [];
+    let parsedNavfilters = [];
 
     try {
-      navfilters = safeParse(props.navfilters, 'array');
+      parsedNavfilters = safeParse(navfiltersValue, 'array');
     } catch (error) {
       console.log(error);
-      navfilters = [];
+      parsedNavfilters = [];
     }
 
     setState({
-      filters: navfilters,
+      filters: parsedNavfilters,
     });
     const { columns = [], navGroupId, relateControls } = filterInfo;
 
@@ -181,7 +106,7 @@ export default function NavShow(props) {
         showSysWorkflow: false,
       });
     }
-  }, [props]);
+  }, [navfiltersValue, filterInfo, setState]);
 
   useEffect(() => {
     if (value === '3') {
@@ -194,8 +119,8 @@ export default function NavShow(props) {
       if (relateControls) {
         setState({ relateControls });
       } else {
-        const relationWorksheetId = _.get(props, 'filterInfo.globalSheetInfo.worksheetId');
-        const appId = _.get(props, 'filterInfo.globalSheetInfo.appId');
+        const relationWorksheetId = _.get(filterInfo, 'globalSheetInfo.worksheetId');
+        const appId = _.get(filterInfo, 'globalSheetInfo.appId');
         sheetAjax
           .getWorksheetInfo({
             worksheetId: data.dataSource,
@@ -212,7 +137,7 @@ export default function NavShow(props) {
           });
       }
     }
-  }, [value, filterInfo, data]);
+  }, [value, filterInfo, data, setState]);
 
   const onFormatChange = newValue => {
     const { navfilters } = newValue;
@@ -272,15 +197,17 @@ export default function NavShow(props) {
   return (
     <Wrap>
       {params.txt && <div className="title mTop30 textPrimary Bold">{params.txt}</div>}
-      <Dropdown
-        data={
+      <Select
+        options={
           filterInfo.navGroupId === 'wfstatus' && !showSysWorkflow
             ? params.types.filter(o => o.value === '0')
             : params.types
         }
+        fieldNames={SELECT_FIELD_NAMES}
         value={filterInfo.navGroupId === 'wfstatus' && !showSysWorkflow ? '0' : value || '0'}
-        className="flex settingContent mBottom0"
+        className="w100 settingContent mBottom0 mTop12"
         onChange={handleDropdownChange}
+        styles={{ popup: { root: { minWidth: 160 } } }}
       />
       {(value === '2' || (filters.length > 0 && value === '3' && !loading)) && <div className="mTop12"></div>}
       {value === '2' && (
@@ -368,20 +295,21 @@ export default function NavShow(props) {
       allitemname, //全部的重命名
       shownullitem, //是否显示为空
       nullitemname, //为空的重命名 */}
+      {(canShowAll || canShowAllNavLayer || canShowNull) && <div className="mTop8" />}
       {canShowAll && (
         <div className="flexRow alignItemsCenter">
-          <SwitchStyle className="flex">
-            <Icon
-              icon={advancedSetting.showallitem !== '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font28 Hand"
-              onClick={() => {
+          <div className="flex flexRow alignItemsCenter viewConfigSwitchRow">
+            <Switch
+              size="mini"
+              checked={advancedSetting.showallitem !== '1'}
+              onChange={() => {
                 onFormatChange({
                   showallitem: advancedSetting.showallitem === '1' ? '' : '1',
                 });
               }}
             />
-            <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“全部”项')}</div>
-          </SwitchStyle>
+            <div className="InlineBlock Normal mLeft12">{_l('显示“全部”项')}</div>
+          </div>
           <Tooltip title={_l('重命名')}>
             <i
               className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
@@ -394,34 +322,34 @@ export default function NavShow(props) {
       )}
       {canShowAllNavLayer && (
         <div className="flexRow alignItemsCenter">
-          <SwitchStyle className="flex">
-            <Icon
-              icon={advancedSetting.navlayer === '999' ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font28 Hand"
-              onClick={() => {
+          <div className="flex flexRow alignItemsCenter viewConfigSwitchRow">
+            <Switch
+              size="mini"
+              checked={advancedSetting.navlayer === '999'}
+              onChange={() => {
                 onFormatChange({
                   navlayer: advancedSetting.navlayer === '999' ? '' : '999',
                 });
               }}
             />
-            <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示所有下级部门')}</div>
-          </SwitchStyle>
+            <div className="InlineBlock Normal mLeft12">{_l('显示所有下级部门')}</div>
+          </div>
         </div>
       )}
       {canShowNull && (
         <div className="flexRow alignItemsCenter">
-          <SwitchStyle className="flex">
-            <Icon
-              icon={advancedSetting.shownullitem === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font28 Hand"
-              onClick={() => {
+          <div className="flex flexRow alignItemsCenter viewConfigSwitchRow">
+            <Switch
+              size="mini"
+              checked={advancedSetting.shownullitem === '1'}
+              onChange={() => {
                 onFormatChange({
                   shownullitem: advancedSetting.shownullitem === '1' ? '' : '1',
                 });
               }}
             />
-            <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“空”项')}</div>
-          </SwitchStyle>
+            <div className="InlineBlock Normal mLeft12">{_l('显示“空”项')}</div>
+          </div>
           <Tooltip title={_l('重命名')}>
             <i
               className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"

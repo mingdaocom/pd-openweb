@@ -1,22 +1,25 @@
+# UploadFiles
 
-# UploadFiles 
+#### 预览回归验证
 
-| Option | Type | Description | Default |
-| ----- | ----- | ----- | ----- |
-| arrowLeft | number | arrow 的 left 值 | 0 |
-| dropPasteElement | string | 文件退拽上传的区域和黏贴的区域 | '' |
-| isUpload | boolean | 是否需要上传按钮 | true |
-| minWidth | munber | 文件的最小宽度 | 140 |
-| maxWidth | munber | 文件的最大宽度 | 200 |
-| isInitCall | boolean | 回调函数是否在组件初始化後调用(主要用于编辑模式) | false |
-| attachmentData | array | 展示状态下的文件| [] |
-| onDeleteAttachmentData | function | 文件列表的删除回调 | (res) => {} |
-| isDeleteFile | boolean | 展示状态下的文件是否需要删除 (仅任务模块使用) | false |
-| temporaryData | array | 上传到七牛的临时数据，等待保存| [] |
-| onTemporaryDataUpdate | function | `temporaryData` 数据更新时的回调 | (res) => {} |
-| kcAttachmentData | array | 知识上的文件数据 | [] |
-| onKcAttachmentDataUpdate | function | `kcAttachmentData` 数据更新时的回调 | (res) => {} |
-| onUploadComplete | function | 上传状态的回调, boolean: true 上传完成  false: 上传中 | (boolean) => {} | 
+手动执行 `node src/components/UploadFiles/temporaryPreview.test.js`（尚未接入 CI）。测试调用真实组件的预览与分享方法，覆盖聊天原图链接、聊天工具栏及图片预览层分享到日程、HEIC/HEIF 缩略图与签名 URL 保留、分享文档的原文件地址、图片预览、链接、历史附件及空列表/上传中/重命名分支。维护位置为同目录 `temporaryPreview.test.js`。
+
+| Option                   | Type     | Description                                          | Default         |
+| ------------------------ | -------- | ---------------------------------------------------- | --------------- |
+| arrowLeft                | number   | arrow 的 left 值                                     | 0               |
+| dropPasteElement         | string   | 文件退拽上传的区域和黏贴的区域                       | ''              |
+| isUpload                 | boolean  | 是否需要上传按钮                                     | true            |
+| minWidth                 | munber   | 文件的最小宽度                                       | 140             |
+| maxWidth                 | munber   | 文件的最大宽度                                       | 200             |
+| isInitCall               | boolean  | 回调函数是否在组件初始化後调用(主要用于编辑模式)     | false           |
+| attachmentData           | array    | 展示状态下的文件                                     | []              |
+| onDeleteAttachmentData   | function | 文件列表的删除回调                                   | (res) => {}     |
+| isDeleteFile             | boolean  | 展示状态下的文件是否需要删除 (仅任务模块使用)        | false           |
+| temporaryData            | array    | 上传到七牛的临时数据，等待保存                       | []              |
+| onTemporaryDataUpdate    | function | `temporaryData` 数据更新时的回调                     | (res) => {}     |
+| kcAttachmentData         | array    | 知识上的文件数据                                     | []              |
+| onKcAttachmentDataUpdate | function | `kcAttachmentData` 数据更新时的回调                  | (res) => {}     |
+| onUploadComplete         | function | 上传状态的回调, boolean: true 上传完成 false: 上传中 | (boolean) => {} |
 
 #### Ps:
 
@@ -27,9 +30,11 @@
 #### 下载权限说明：
 
 1: 知识文件：
+
 - allowDown === 'ok' -> 可以下载
 
 2: 普通附件：
+
 - 自己上传的文件 -> 可以下载
 - 图片类型 -> 可以下载
 - allowDown === 'ok' -> 可以下载
@@ -55,8 +60,5 @@
 #### 呈现使用实例
 
 ```jsx
-  <UploadFiles
-      column={number}
-      isUpload={false}
-      attachmentData={[]} />
+<UploadFiles column={number} isUpload={false} attachmentData={[]} />
 ```

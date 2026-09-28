@@ -2,10 +2,11 @@ import React, { Fragment, useState } from 'react';
 import { ActionSheet, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import moment from 'moment';
-import { Button, Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import 'src/pages/Mobile/index.less';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { INVOICE_STATUS, STATUS_INFO_APPLY, STATUS_INFO_CONFIRM } from '../constant';
 import './index.less';
 
@@ -66,13 +67,20 @@ export default function InvoiceStatus(props) {
             <div className="bold textPrimary Font17 pTop10">{_l('取消申请')}</div>
             <div className="pTop10 textSecondary">{_l('确定取消申请该发票吗？')}</div>
             <div className="invoiceStatusFooterBtns mTop24">
-              <Button radius className="cancelBtn flex" onClick={() => actionHandler.close()}>
+              <Button
+                color="default"
+                variant="filled"
+                shape="round"
+                className="flex"
+                onClick={() => actionHandler.close()}
+              >
                 {_l('取消')}
               </Button>
               <Button
-                radius
+                shape="round"
                 className="flex"
-                type="danger"
+                color="danger"
+                variant="solid"
                 onClick={() => {
                   actionHandler.close();
                   onCancelInvoice();
@@ -85,10 +93,12 @@ export default function InvoiceStatus(props) {
         ),
       });
     } else {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('取消申请'),
-        description: _l('确定取消申请该发票吗？'),
-        buttonType: 'danger',
+        content: _l('确定取消申请该发票吗？'),
+        okButtonProps: {
+          danger: true,
+        },
         onOk: onCancelInvoice,
       });
     }
@@ -182,7 +192,7 @@ export default function InvoiceStatus(props) {
     )
       return isLandPage ? null : (
         <div className="invoiceStatusFooterBtns">
-          <Button type="primary" radius={radius} onClick={onCancel}>
+          <Button type="primary" shape={radius ? 'round' : undefined} onClick={onCancel}>
             {_l('关闭')}
           </Button>
         </div>
@@ -192,9 +202,9 @@ export default function InvoiceStatus(props) {
       <div className="invoiceStatusFooterBtns">
         {(!isLandPage || status === INVOICE_STATUS.UN_INVOICED) && (
           <Button
-            type="link"
-            className={cx({ cancelBtn: status === INVOICE_STATUS.UN_INVOICED })}
-            radius={radius}
+            color="primary"
+            variant="link"
+            shape={radius ? 'round' : undefined}
             onClick={status === INVOICE_STATUS.UN_INVOICED ? onCancelApply : onCancel}
           >
             {status === INVOICE_STATUS.UN_INVOICED ? _l('取消申请') : _l('取消')}
@@ -202,7 +212,7 @@ export default function InvoiceStatus(props) {
         )}
 
         {statusInfo.okText && (
-          <Button type="primary" radius={radius} onClick={onOk} disabled={syncing}>
+          <Button type="primary" shape={radius ? 'round' : undefined} loading={syncing} onClick={onOk}>
             {statusInfo.okText}
           </Button>
         )}
@@ -240,17 +250,21 @@ export default function InvoiceStatus(props) {
   }
 
   return !isMobile ? (
-    <Dialog
+    <Modal
       className="invoiceStatusDialog"
-      visible
+      open
+      mask={{ closable: true }}
+      keyboard
       width={800}
       title={<span className={cx({ Red: status === INVOICE_STATUS.FAILED })}>{statusInfo.title}</span>}
-      description={status === INVOICE_STATUS.UN_INVOICED && invoiceRemark && invoiceRemark}
       onCancel={onCancel}
       footer={renderFooterBtns()}
     >
+      {status === INVOICE_STATUS.UN_INVOICED && invoiceRemark && (
+        <div className="textTertiary mBottom16">{invoiceRemark}</div>
+      )}
       {renderContent()}
-    </Dialog>
+    </Modal>
   ) : (
     <Popup position="bottom" className="mobileModal topRadius" visible onMaskClick={onCancel}>
       <div className="flexRow header LineHeight24 pBottom0">

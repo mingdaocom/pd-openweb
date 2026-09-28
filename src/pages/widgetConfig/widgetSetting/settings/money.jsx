@@ -1,76 +1,24 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dropdown } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
+import { Segmented, Select } from 'ming-ui/antd-components';
 import fixedDataAjax from 'src/api/fixedData';
 import worksheetAjax from 'src/api/worksheet';
-import { AnimationWrap, DropdownContentWrap, DropdownPlaceholder, SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { SettingItem } from '../../styled';
 import PointerConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
 
-const DISPLAY_OPTIONS = [
-  { text: _l('货币符号'), value: '1' },
-  { text: _l('货币代码'), value: '2' },
-  { text: _l('自定义'), value: '0' },
+const getDisplayOptions = () => [
+  { label: _l('货币符号'), value: '1' },
+  { label: _l('货币代码'), value: '2' },
+  { label: _l('自定义'), value: '0' },
 ];
-
-const SelectCountryDropdown = ({ data = [], lang, setData, setVisible }) => {
-  const [value, setValue] = useState('');
-  const filteredData = value
-    ? data.filter(
-        item =>
-          _.includes(_.get(item, ['currencyName', lang]), value) ||
-          _.includes(item.currencyCode, value.toLocaleUpperCase()) ||
-          _.includes(item.symbol, value),
-      )
-    : data;
-  return (
-    <DropdownContentWrap>
-      <div className="searchWrap" onClick={e => e.stopPropagation()}>
-        <i className="icon-search Font16 textSecondary"></i>
-        <input
-          autoFocus
-          value={value}
-          placeholder={_l('搜索')}
-          onChange={e => {
-            setValue(e.target.value);
-          }}
-        />
-      </div>
-      {filteredData.length > 0 ? (
-        <div className="countryContent">
-          {filteredData.map(item => {
-            return (
-              <div
-                key={item.currencyCode}
-                className="item justityBetween"
-                onClick={() => {
-                  setData(item);
-                  setVisible(false);
-                }}
-              >
-                {item.currencyCode}-{item.symbol}
-                <span className="countryName overflow_ellipsis InlineBlock" style={{ maxWidth: '50%' }}>
-                  {item.currencyName[lang]}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="emptyText">{_l(value ? '暂无搜索结果' : _l('暂无可选项'))}</div>
-      )}
-    </DropdownContentWrap>
-  );
-};
 
 export default function Money(props) {
   const { data = {}, onChange, globalSheetInfo = {} } = props;
   const { currency, showformat = '0', suffix, prefix } = getAdvanceSetting(data);
   const { currencycode } = safeParse(currency || '{}');
   const [currencyList, setList] = useState([]);
-  const [visible, setVisible] = useState(false);
   const currentCurrency = _.find(currencyList, c => c.currencyCode === currencycode);
   const lang = getCurrentLangCode();
 
@@ -108,16 +56,6 @@ export default function Money(props) {
     }
   }, [data.controlId]);
 
-  const renderPlaceholder = () => {
-    if (!currentCurrency) return <div className="placeholder">{_l('请选择')}</div>;
-    return (
-      <div className="text overflow_ellipsis">
-        {`${currentCurrency.currencyCode}-${currentCurrency.symbol}`}
-        <span className="mLeft10">{currentCurrency.currencyName[lang]}</span>
-      </div>
-    );
-  };
-
   const isRepeat = () => {
     const currentFix = suffix || prefix;
     return _.find(currencyList, c => c.symbol === currentFix || c.currencyCode === currentFix);
@@ -127,82 +65,77 @@ export default function Money(props) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('金额类型')}</div>
-        <Dropdown
-          trigger={['click']}
-          visible={visible}
-          onVisibleChange={value => setVisible(value)}
-          destroyPopupOnHide={true}
-          overlay={
-            <SelectCountryDropdown
-              setVisible={setVisible}
-              data={currencyList}
-              lang={lang}
-              setData={info => {
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    currency: JSON.stringify({
-                      currencycode: info.currencyCode,
-                      symbol: info.symbol,
-                    }),
-                    currencynames: JSON.stringify({
-                      0: _.get(info, 'currencyName.3') || '',
-                      1: _.get(info, 'currencyNamePlural.1') || '',
-                      2: _.get(info, 'currencyName.1') || '',
-                      3: _.get(info, 'subCurrencyCodePlural.1') || '',
-                      4: _.get(info, 'subCurrencyCode.1') || '',
-                    }),
-                    ...(_.includes(['1', '2'], showformat) ? { suffix: '', prefix: '' } : {}),
-                  }),
-                );
-              }}
-            />
+        <Select
+          className="w100"
+          showPopupSearch
+          value={currentCurrency ? currencycode : undefined}
+          placeholder={_l('请选择')}
+          allowClear
+          options={currencyList.map(item => ({
+            ...item,
+            value: item.currencyCode,
+            label: `${item.currencyCode}-${item.symbol} ${item.currencyName[lang]}`,
+          }))}
+          filterOption={(value, option) =>
+            _.includes(_.get(option, ['currencyName', lang]), value) ||
+            _.includes(option.currencyCode, value.toLocaleUpperCase()) ||
+            _.includes(option.symbol, value)
           }
-        >
-          <DropdownPlaceholder cancelAble={!!currentCurrency}>
-            {renderPlaceholder()}
-            <i
-              className="icon-cancel textTertiary Font14 clearIcon"
-              onClick={e => {
-                e.stopPropagation();
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    currency: '',
-                    currencynames: '',
-                    ...(showformat !== '0' ? { showformat: '0', suffix: _l('元'), prefix: '' } : {}),
-                  }),
-                );
-              }}
-            />
-            <i className="icon-arrow-down-border Font14 textTertiary arrowIcon"></i>
-          </DropdownPlaceholder>
-        </Dropdown>
+          optionRender={({ data: item }) => (
+            <div className="flexRow alignItemsCenter justifyContentBetween">
+              <span>
+                {item.currencyCode}-{item.symbol}
+              </span>
+              <span className="countryName overflow_ellipsis mLeft10">{item.currencyName[lang]}</span>
+            </div>
+          )}
+          onChange={(value, info) => {
+            if (!value) {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  currency: '',
+                  currencynames: '',
+                  ...(showformat !== '0' ? { showformat: '0', suffix: _l('元'), prefix: '' } : {}),
+                }),
+              );
+              return;
+            }
+
+            onChange(
+              handleAdvancedSettingChange(data, {
+                currency: JSON.stringify({
+                  currencycode: info.currencyCode,
+                  symbol: info.symbol,
+                }),
+                currencynames: JSON.stringify({
+                  0: _.get(info, 'currencyName.3') || '',
+                  1: _.get(info, 'currencyNamePlural.1') || '',
+                  2: _.get(info, 'currencyName.1') || '',
+                  3: _.get(info, 'subCurrencyCodePlural.1') || '',
+                  4: _.get(info, 'subCurrencyCode.1') || '',
+                }),
+                ...(_.includes(['1', '2'], showformat) ? { suffix: '', prefix: '' } : {}),
+              }),
+            );
+          }}
+        />
       </SettingItem>
       <PointerConfig {...props} />
       <SettingItem>
         <div className="settingItemTitle">{_l('显示方式')}</div>
-        <AnimationWrap>
-          {DISPLAY_OPTIONS.map(({ text, value }) => {
-            const isActive = showformat === value;
-            return (
-              <div
-                className={cx('animaItem breakText', { active: isActive })}
-                onClick={() => {
-                  if (isActive) return;
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      showformat: value,
-                      ...(_.includes(['1', '2'], value)
-                        ? { suffix: '', prefix: '' }
-                        : { suffix: _l('元'), prefix: '' }),
-                    }),
-                  );
-                }}
-              >
-                {text}
-              </div>
+        <Segmented
+          block
+          value={showformat}
+          options={getDisplayOptions()}
+          onChange={value => {
+            onChange(
+              handleAdvancedSettingChange(data, {
+                showformat: value,
+                ...(_.includes(['1', '2'], value) ? { suffix: '', prefix: '' } : { suffix: _l('元'), prefix: '' }),
+              }),
             );
-          })}
-        </AnimationWrap>
+          }}
+        />
       </SettingItem>
       {showformat === '0' && (
         <SettingItem>

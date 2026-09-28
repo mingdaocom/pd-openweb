@@ -20,14 +20,6 @@ export const Wrap = styled.div`
     box-shadow: var(--shadow-md);
     right: 0;
     z-index: 12;
-    .ant-radio-checked::after {
-      position: absolute;
-      top: initial;
-      left: 0;
-      width: 16px;
-      height: 16px;
-      bottom: 0;
-    }
     .topHeader {
       height: 56px;
       min-height: 56px;
@@ -42,7 +34,7 @@ export const Wrap = styled.div`
         flex: 1;
       }
       .icon-close {
-        color: var(--color-text-tertiary) !important
+        color: var(--color-text-tertiary) !important;
         &:hover {
           color: var(--color-primary);
         }
@@ -53,12 +45,12 @@ export const Wrap = styled.div`
       padding: 0 24px;
       .title {
         padding-top: 24px;
-        margin-top: 0!important;
+        margin-top: 0 !important;
         font-weight: bold;
         font-size: 13px;
         font-size: 13px;
       }
-      .ant-radio-input {
+      .hap-radio-input {
         display: none !important;
       }
       .active {
@@ -81,28 +73,28 @@ export const Wrap = styled.div`
         }
         &.timeRange {
           padding: 0 0 0 12px;
-          .act{
+          .act {
             width: 18px;
             height: 18px;
             margin-right: 5px;
           }
           .clearTimeRange,
-          .changeTimeRange{
+          .changeTimeRange {
             position: absolute;
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            display:block;
-            &.clearTimeRange{
-              display:none;
+            display: block;
+            &.clearTimeRange {
+              display: none;
             }
           }
-          &:hover{
-            .clearTimeRange{
-              display:block;
+          &:hover {
+            .clearTimeRange {
+              display: block;
             }
-            .changeTimeRange{
-              display:none;
+            .changeTimeRange {
+              display: none;
             }
           }
         }
@@ -114,56 +106,14 @@ export const Wrap = styled.div`
           text-overflow: ellipsis;
         }
       }
-      .Dropdown {
+      .hap-select {
         width: 100%;
-        display: flex;
-        line-height: 36px;
-        height: 36px;
-        opacity: 1;
-        background: var(--color-background-primary);
-        border-radius: 4px;
         margin-top: 8px;
-        box-sizing: border-box;
-        & > div {
-          flex: 1;
-        }
-        .Dropdown--input {
-          padding: 0 8px 0 12px;
-          width: 100%;
-          display: flex;
-          border: 1px solid var(--color-border-primary);
-          border-radius: 4px;
-          height: 36px;
-          &.active {
-            border: 1px solid var(--color-primary);
-          }
-          .value,
-          .Dropdown--placeholder {
-            flex: 1;
-            max-width: 100%;
-          }
-          .Icon {
-            line-height: 36px;
-            font-size: 18px;
-          }
-          .icon-arrow-down-border{
-            font-size: 14px;
-          }
-          .List {
-            width: 100%;
-            top: 104% !important;
-          }
-        }
       }
-      .ming.Menu {
-        width: 100%;
-        top: 104% !important;
-      }
-      .ant-radio-group {
+      .hap-radio-group {
         display: block;
-        .ant-radio-wrapper {
+        .hap-radio-wrapper {
           width: 50%;
-          display: inline-block;
           margin: 0;
           vertical-align: top;
         }
@@ -179,19 +129,7 @@ export const Wrap = styled.div`
           padding: 8px 15px;
         }
       }
-      .Dropdown--hr {
-        height: 1px;
-        margin-top: 6px;
-        margin-bottom: 6px;
-        background: var(--color-border-primary);
-        &:last-child {
-          display: none;
-        }
-      }
     }
-  }
-  .RelateRecordDropdown-selected {
-    height: auto;
   }
   input[type='number'] {
     &::-webkit-outer-spin-button,
@@ -199,9 +137,6 @@ export const Wrap = styled.div`
       margin: 0;
       -webkit-appearance: none !important;
     }
-  }
-  .ming.Input{
-    font-size: 13px;
   }
   .disabledBtn {
     cursor: not-allowed;

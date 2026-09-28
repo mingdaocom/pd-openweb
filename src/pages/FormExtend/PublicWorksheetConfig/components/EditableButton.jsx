@@ -2,23 +2,10 @@ import React from 'react';
 import { TinyColor } from '@ctrl/tinycolor';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Input } from 'ming-ui';
+import { Button, Input } from 'ming-ui/antd-components';
 
 const SubmitButton = styled(Button)`
   max-width: 756px;
-  .submitContent {
-    height: 40px;
-    border-radius: 3px;
-    padding: 0 32px;
-    overflow: hidden;
-    white-space: nowrap;
-    i {
-      line-height: 40px;
-    }
-    &:hover {
-      background: rgba(0, 0, 0, 0.1);
-    }
-  }
 `;
 
 export default class EditableButton extends React.Component {
@@ -38,11 +25,20 @@ export default class EditableButton extends React.Component {
   render() {
     const { name, onChange, themeBgColor } = this.props;
     const { isEditing } = this.state;
+    const buttonStyle = themeBgColor
+      ? {
+          '--public-form-submit-color': themeBgColor,
+          color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
+        }
+      : undefined;
+
     return (
       <div>
         {isEditing ? (
           <Input
-            manualRef={con => (this.con = con)}
+            ref={con => {
+              this.con = con;
+            }}
             defaultValue={name}
             onBlur={e => {
               if (e.target.value.trim() === '') {
@@ -58,11 +54,11 @@ export default class EditableButton extends React.Component {
           />
         ) : (
           <SubmitButton
-            style={{
-              background: themeBgColor,
-              padding: 0,
-              color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
-            }}
+            color={themeBgColor ? 'var(--public-form-submit-color)' : 'primary'}
+            variant="solid"
+            icon={<i className="icon icon-hr_edit" />}
+            iconPlacement="end"
+            style={buttonStyle}
             onClick={() => {
               this.setState({ isEditing: true }, () => {
                 setTimeout(() => {
@@ -73,10 +69,7 @@ export default class EditableButton extends React.Component {
               });
             }}
           >
-            <div className="submitContent">
-              <span className="text ellipsis InlineBlock">{name}</span>
-              <i className="icon icon-hr_edit"></i>
-            </div>
+            <span className="text ellipsis InlineBlock">{name}</span>
           </SubmitButton>
         )}
       </div>

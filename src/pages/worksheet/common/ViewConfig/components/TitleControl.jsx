@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
-import { useSetState } from 'react-use';
-import cx from 'classnames';
+import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import ConcatenateSetting from 'src/pages/widgetConfig/widgetSetting/settings/concatenate.jsx';
-import { getWrappedViewTitleControlId } from 'src/pages/worksheet/views/util';
+import { canSetAsTitle, getIconByType } from 'src/utils/domain/control/metadata';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { getWrappedViewTitleControlId } from 'src/utils/services/worksheet/view';
 
 const Wrap = styled.div`
   .fieldsWrap .fieldList li {
@@ -29,33 +28,38 @@ const Wrap = styled.div`
   }
 `;
 
+function resolveTitleControl({ viewtitle, cancelAble, worksheetControls }) {
+  if (!viewtitle && cancelAble) return {};
+  // 兼容 $单个字段ID$：高亮按归一后的真实字段 ID 匹配；保存仍走 handleChange 写回原值。
+  const controlId = getWrappedViewTitleControlId(viewtitle);
+  return worksheetControls.find(o => (controlId ? o.controlId === controlId : o.attribute === 1)) || {};
+}
+
 function TitleDrop(props) {
   const { advancedSetting, worksheetControls, handleChange, controls, cancelAble } = props;
   const { viewtitle } = advancedSetting;
-
-  const resolveTitleControl = () => {
-    if (!viewtitle && cancelAble) return {};
-    // 兼容 $单个字段ID$：高亮按归一后的真实字段 ID 匹配；保存仍走 handleChange 写回原值。
-    const controlId = getWrappedViewTitleControlId(viewtitle);
-    return worksheetControls.find(o => (controlId ? o.controlId === controlId : o.attribute === 1)) || {};
-  };
-
-  const [{ titleControl }, setState] = useSetState({
-    titleControl: resolveTitleControl(),
-  });
-
-  useEffect(() => {
-    setState({ titleControl: resolveTitleControl() });
-  }, [advancedSetting, worksheetControls, cancelAble]);
+  const titleControl = resolveTitleControl({ viewtitle, cancelAble, worksheetControls });
+  const selectOptions = controls.map(item => ({
+    value: item.value,
+    label: (
+      <div className="flexRow alignItemsCenter">
+        <Icon icon={item.iconName} className="Font16 textTertiary" />
+        <span className="mLeft10 Font14">{item.text}</span>
+      </div>
+    ),
+  }));
+  const titleControlValue = selectOptions.some(item => item.value === titleControl.controlId)
+    ? titleControl.controlId
+    : undefined;
 
   return (
-    <Dropdown
-      className={cx('dropAbstract', { placeholder: !titleControl })}
-      data={controls}
-      value={!titleControl.controlId ? undefined : titleControl.controlId}
-      border
-      cancelAble={cancelAble}
-      maxHeight={260}
+    <Select
+      className="w100"
+      options={selectOptions}
+      labelRender={({ value }) => controls.find(item => item.value === value)?.text}
+      value={titleControlValue}
+      allowClear={cancelAble}
+      listHeight={260}
       style={{ width: '100%' }}
       onChange={value => {
         if (value === titleControl.controlId) {

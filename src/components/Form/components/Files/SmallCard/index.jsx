@@ -1,9 +1,8 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem, Progress } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Progress } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import ResetNamePopup from '../ResetNamePopup';
 import { handleDownload, handleShare, loadImage } from '../utils';
 import './index.less';
@@ -13,7 +12,7 @@ const SmallCard = props => {
     props;
   const { allowShare, allowDownload, onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } =
     props;
-  const { isKc, browse, fileClassName, fileSize, isMore, isDownload, isUrlPreview } = props;
+  const { isKc, browse, fileClassName, fileSize, isMore, isDownload, isUrlPreview, isDeleted } = props;
   const previewUrl = isUrlPreview
     ? data.previewUrl
     : data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`);
@@ -45,109 +44,90 @@ const SmallCard = props => {
     current && setFileSizeVisible(_.get(current, 'clientHeight') < 20);
   }, [data.originalFilename]);
 
-  const renderDropdownOverlay = (
-    <Menu style={{ width: 150 }} className="Relative">
-      {allowNewPage && (
-        <MenuItem
-          key="newPage"
-          icon={<Icon icon="launch" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            onOpenControlAttachmentInNewTab(data.fileID);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('新页面打开')}
-        </MenuItem>
-      )}
-      {allowNewPage && (
-        <MenuItem
-          key="newPage"
-          icon={<Icon icon="rectangle_2" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('浮窗打开')}
-        </MenuItem>
-      )}
-      {wpsEditUrl && allowNewPage && <div className="hr-line" />}
-      {wpsEditUrl && (
-        <MenuItem
-          key="onLineEdit"
-          icon={<Icon icon="edit" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            window.open(wpsEditUrl);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('在线编辑')}
-        </MenuItem>
-      )}
-      {allowDownload && !showDownloadOfDeleteBtn && (
-        <MenuItem
-          key="download"
-          icon={<Icon icon="download" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            handleDownload(data, isDownload, {
-              controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
-              rowId: recordId,
-              parentWorksheetId: _.get(masterData, 'worksheetId'),
-              parentRowId: _.get(masterData, 'recordId'),
-            });
-          }}
-        >
-          {_l('下载')}
-        </MenuItem>
-      )}
-      {canDeleteMDFile && !showDownloadOfDeleteBtn && (
-        <MenuItem
-          key="delete"
-          icon={<Icon icon="trash" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            setDeleteConfirmVisible(true);
-          }}
-        >
-          {_l('删除')}
-        </MenuItem>
-      )}
-      {(allowReset || allowShare) && <div className="hr-line" />}
-      {allowReset && (
-        <MenuItem
-          key="rename_input"
-          icon={<Icon icon="rename_input" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            setIsEdit(true);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('重命名')}
-        </MenuItem>
-      )}
-      {allowShare && (
-        <MenuItem
-          key="share"
-          icon={<Icon icon="share" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            handleShare(data, isDownload);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('分享')}
-        </MenuItem>
-      )}
-    </Menu>
-  );
+  const dropdownItems = [
+    allowNewPage && {
+      key: 'newPage',
+      icon: <Icon icon="launch" className="Font17" />,
+      label: _l('新页面打开'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onOpenControlAttachmentInNewTab(data.fileID);
+        setDropdownVisible(false);
+      },
+    },
+    allowNewPage && {
+      key: 'newWindow',
+      icon: <Icon icon="rectangle_2" className="Font17" />,
+      label: _l('浮窗打开'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
+        setDropdownVisible(false);
+      },
+    },
+    wpsEditUrl && allowNewPage && { type: 'divider' },
+    wpsEditUrl && {
+      key: 'onLineEdit',
+      icon: <Icon icon="edit" className="Font17" />,
+      label: _l('在线编辑'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        window.open(wpsEditUrl);
+        setDropdownVisible(false);
+      },
+    },
+    allowDownload &&
+      !showDownloadOfDeleteBtn && {
+        key: 'download',
+        icon: <Icon icon="download" className="Font17" />,
+        label: _l('下载'),
+        onClick: ({ domEvent }) => {
+          domEvent.stopPropagation();
+          handleDownload(data, isDownload, {
+            controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
+            rowId: recordId,
+            parentWorksheetId: _.get(masterData, 'worksheetId'),
+            parentRowId: _.get(masterData, 'recordId'),
+          });
+        },
+      },
+    canDeleteMDFile &&
+      !showDownloadOfDeleteBtn && {
+        key: 'delete',
+        icon: <Icon icon="trash" className="Font17" />,
+        label: _l('删除'),
+        onClick: ({ domEvent }) => {
+          domEvent.stopPropagation();
+          setDeleteConfirmVisible(true);
+        },
+      },
+    (allowReset || allowShare) && { type: 'divider' },
+    allowReset && {
+      key: 'rename_input',
+      icon: <Icon icon="rename_input" className="Font17" />,
+      label: _l('重命名'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        setIsEdit(true);
+        setDropdownVisible(false);
+      },
+    },
+    allowShare && {
+      key: 'share',
+      icon: <Icon icon="share" className="Font17" />,
+      label: _l('分享'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        handleShare(data, isDownload);
+        setDropdownVisible(false);
+      },
+    },
+  ].filter(Boolean);
 
   const handlePreview = e => {
     e.stopPropagation();
+    if (isDeleted) return;
+
     browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
   };
 
@@ -239,26 +219,24 @@ const SmallCard = props => {
                 </Fragment>
               )}
               {isMore && (
-                <Trigger
-                  action={['click']}
-                  popup={renderDropdownOverlay}
-                  popupVisible={dropdownVisible}
-                  onPopupVisibleChange={dropdownVisible => {
+                <Dropdown
+                  trigger={['click']}
+                  placement="bottomRight"
+                  open={dropdownVisible}
+                  onOpenChange={dropdownVisible => {
                     dropdownVisible && !wpsEditUrl && props.onTriggerMore(data);
                     setDropdownVisible(dropdownVisible);
                   }}
-                  popupAlign={{
-                    points: ['tr', 'br'],
-                    offset: [5, 5],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
+                  menu={{ items: dropdownItems, style: { width: 150 } }}
                 >
-                  <Tooltip title={_l('更多')} placement="bottom">
-                    <div className="btnWrap pointer">
-                      <Icon className="textTertiary Font17" icon="more_horiz" />
-                    </div>
-                  </Tooltip>
-                </Trigger>
+                  <div>
+                    <Tooltip title={_l('更多')} placement="bottom">
+                      <div className="btnWrap pointer">
+                        <Icon className="textTertiary Font17" icon="more_horiz" />
+                      </div>
+                    </Tooltip>
+                  </div>
+                </Dropdown>
               )}
               <ResetNamePopup
                 originalFileName={data.originalFilename}
@@ -308,34 +286,28 @@ const NotSaveSmallCard = props => {
     isKc ? onKCPreview(data) : onPreview(data);
   };
 
-  const renderDropdownOverlay = (
-    <Menu style={{ width: 150 }} className="Relative">
-      {!isKc && (
-        <MenuItem
-          key="rename_input"
-          icon={<Icon icon="rename_input" className="Font17 pRight5" />}
-          onClick={e => {
-            e.stopPropagation();
-            setIsEdit(true);
-            setDropdownVisible(false);
-          }}
-        >
-          {_l('重命名')}
-        </MenuItem>
-      )}
-      <MenuItem
-        key="delete"
-        icon={<Icon icon="trash" className="Font17 pRight5" />}
-        onClick={e => {
-          e.stopPropagation();
-          handleDelete();
-          setDropdownVisible(false);
-        }}
-      >
-        {_l('删除')}
-      </MenuItem>
-    </Menu>
-  );
+  const dropdownItems = [
+    !isKc && {
+      key: 'rename_input',
+      icon: <Icon icon="rename_input" className="Font17" />,
+      label: _l('重命名'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        setIsEdit(true);
+        setDropdownVisible(false);
+      },
+    },
+    {
+      key: 'delete',
+      icon: <Icon icon="trash" className="Font17" />,
+      label: _l('删除'),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        handleDelete();
+        setDropdownVisible(false);
+      },
+    },
+  ].filter(Boolean);
 
   return (
     <div
@@ -384,23 +356,19 @@ const NotSaveSmallCard = props => {
         <div className="operateBtns flexRow alignItemsCenter" style={{ marginRight: Math.abs(diffWidth) }}>
           {!showResetOfDeleteBtn ? (
             <Fragment>
-              <Trigger
-                action={['click']}
-                popup={renderDropdownOverlay}
-                popupVisible={dropdownVisible}
-                onPopupVisibleChange={setDropdownVisible}
-                popupAlign={{
-                  points: ['tr', 'br'],
-                  offset: [5, 5],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                open={dropdownVisible}
+                onOpenChange={setDropdownVisible}
+                menu={{ items: dropdownItems, style: { width: 150 } }}
               >
                 <Tooltip title={_l('更多')} placement="bottom">
                   <div className="btnWrap pointer">
                     <Icon className="textTertiary Font17" icon="more_horiz" />
                   </div>
                 </Tooltip>
-              </Trigger>
+              </Dropdown>
               {!isKc && (
                 <ResetNamePopup
                   originalFileName={data.originalFileName}

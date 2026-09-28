@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
-import { Icon, SortableList, Switch } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
+import { Input, Select, Switch } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 
 const getWorksheetList = (sections = [], viewHideNavi, isAuthorityApp) => {
@@ -46,7 +46,7 @@ export default function MobileCustomNav(props) {
     ? []
     : _.filter(appItemList, v => v.workSheetName.toLowerCase().indexOf(_.trim(searchValue).toLowerCase()) > -1);
 
-  const getApp = () => {
+  useEffect(() => {
     homeAppApi
       .getApp({
         appId: app.id,
@@ -58,11 +58,7 @@ export default function MobileCustomNav(props) {
           appNavItemIds: res.appNavItemIds || [],
         });
       });
-  };
-
-  useEffect(() => {
-    getApp();
-  }, []);
+  }, [app.id, app.viewHideNavi, setData]);
 
   const renderAppItem = options => {
     const { item, DragHandle } = options;
@@ -75,13 +71,17 @@ export default function MobileCustomNav(props) {
           disabled={disabled}
           size="small"
           checked={checked}
-          onClick={checked => {
-            const selectIds = checked
+          onClick={(checked, event) => {
+            event.stopPropagation();
+            const selectIds = !checked
               ? _.filter(appNavItemIds, v => v !== item.workSheetId)
               : appNavItemIds.concat(item.workSheetId);
-
-            setData({ appNavItemIds: selectIds });
-            onChangeApp({ appNavItemIds: selectIds });
+            setData({
+              appNavItemIds: selectIds,
+            });
+            onChangeApp({
+              appNavItemIds: selectIds,
+            });
           }}
         />
         {DragHandle ? (
@@ -89,7 +89,7 @@ export default function MobileCustomNav(props) {
             <DragHandle>
               <div className="Hand ellipsis textPrimary flexRow">
                 <span className="flex ellipsis"> {item.workSheetName}</span>
-                <i className="icon textTertiary Font16 Right hoverColorPrimary dragHandle icon-drag"></i>
+                <Icon icon="drag" className="textTertiary Font16 Right hoverColorPrimary dragHandle" />
               </div>
             </DragHandle>
           </div>
@@ -117,19 +117,23 @@ export default function MobileCustomNav(props) {
           value: workSheetId,
           label: workSheetName,
         }))}
-        showArrow={true}
-        removeIcon={null}
+        removeIcon={false}
         value={selectedAppNavList.map(item => item.workSheetId)}
         showSearch={false}
-        suffixIcon={<i className="icon icon-arrow-down-border textTertiary" />}
-        dropdownRender={() => {
+        suffixIcon={<Icon icon="arrow-down-border" className="textTertiary" />}
+        popupRender={() => {
           const unselectList = appItemList.filter(it => !_.includes(appNavItemIds, it.workSheetId));
 
           return (
             <div className="mobileAppItemsWrap flexColumn">
               <div className="searchWrap valignWrapper pBottom10">
-                <Icon icon="search" className="mLeft12 textSecondary Font20" />
-                <input className="flex pLeft10 pRight10" placeholder={_l('搜索')} onChange={handleSearch} />
+                <Input
+                  className="flex"
+                  variant="borderless"
+                  prefix={<Icon icon="search" className="textSecondary Font20" />}
+                  placeholder={_l('搜索')}
+                  onChange={handleSearch}
+                />
               </div>
               <div className="line mTop0 mBottom10"></div>
               <div className="listWrap flex">
@@ -145,6 +149,7 @@ export default function MobileCustomNav(props) {
                       <Fragment>
                         <div>
                           <SortableList
+                            renderBody
                             useDragHandle
                             items={selectedAppNavList}
                             itemKey="workSheetId"

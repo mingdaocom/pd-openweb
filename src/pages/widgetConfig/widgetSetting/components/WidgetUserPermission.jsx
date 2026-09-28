@@ -1,13 +1,12 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 import { SheetViewWrap } from '../../styled';
 
 const TYPE_OPTIONS = [
   {
-    text: (
+    label: (
       <span>
         {_l('成员')}
         <span className="subText textTertiary">（{_l('可查看记录')}）</span>
@@ -16,7 +15,7 @@ const TYPE_OPTIONS = [
     value: 1,
   },
   {
-    text: (
+    label: (
       <span>
         {_l('拥有者')}
         <span className="subText textTertiary">（{_l('可编辑、删除记录')}）</span>
@@ -25,7 +24,7 @@ const TYPE_OPTIONS = [
     value: 2,
   },
   {
-    text: (
+    label: (
       <span>
         {_l('无')}
         <span className="subText textTertiary">（{_l('仅存储数据')}）</span>
@@ -38,19 +37,19 @@ const TYPE_OPTIONS = [
 const DISPLAY_OPTIONS = [
   {
     value: 0,
-    text: _l('仅当前部门成员'),
+    label: _l('仅当前部门成员'),
   },
   {
     value: 1,
-    text: _l('当前部门及所有下级部门成员'),
+    label: _l('当前部门及所有下级部门成员'),
   },
   {
     value: 3,
-    text: _l('当前部门负责人'),
+    label: _l('当前部门负责人'),
   },
   {
     value: 4,
-    text: _l('当前部门及所有上级部门负责人'),
+    label: _l('当前部门及所有上级部门负责人'),
   },
 ];
 
@@ -72,15 +71,9 @@ export default function WidgetUserPermission({ data, onChange }) {
           </Tooltip>
         )}
       </div>
-      <Dropdown
-        border
-        data={TYPE_OPTIONS}
-        renderTitle={({ value }) => {
-          return _.get(
-            _.find(TYPE_OPTIONS, t => t.value === value),
-            'text',
-          );
-        }}
+      <Select
+        className="w100"
+        options={TYPE_OPTIONS}
         value={userPermission}
         onChange={value =>
           onChange({
@@ -92,12 +85,11 @@ export default function WidgetUserPermission({ data, onChange }) {
       {_.includes([1, 2], userPermission) && _.includes([27], type) && (
         <SheetViewWrap>
           <div className="viewCon">{_l('范围')}</div>
-          <Dropdown
-            border
+          <Select
             className="flex"
+            variant="borderless"
             value={enumDefault2}
-            data={DISPLAY_OPTIONS}
-            showItemTitle={true}
+            options={DISPLAY_OPTIONS}
             onChange={value => onChange({ enumDefault2: value })}
           />
         </SheetViewWrap>

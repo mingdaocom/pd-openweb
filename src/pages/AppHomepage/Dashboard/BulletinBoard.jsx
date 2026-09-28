@@ -1,9 +1,9 @@
 import React from 'react';
-import { Carousel } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/utils/common';
+import { Carousel } from 'ming-ui/antd-components';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { coverUrls } from './utils';
 
 const CarouselWrapper = styled(Carousel)`
@@ -15,6 +15,9 @@ const CarouselWrapper = styled(Carousel)`
     li {
       width: 10px;
       height: 10px;
+      &::after {
+        display: none;
+      }
       button {
         width: 100%;
         height: 100%;
@@ -51,11 +54,11 @@ const CarouselWrapper = styled(Carousel)`
     bottom: 0;
     width: 100%;
     max-height: 100%;
-    padding: ${({ isMobile }) => (isMobile ? '10px 70px 10px 16px' : '24px 160px 16px 16px')};
+    padding: ${({ $isMobile }) => ($isMobile ? '10px 70px 10px 16px' : '24px 160px 16px 16px')};
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(9, 5, 5, 0.03) 16%, rgba(0, 0, 0, 0.28) 100%);
     .titleText {
       color: var(--color-white);
-      font-size: ${({ isMobile }) => (isMobile ? '15px' : '17px')};
+      font-size: ${({ $isMobile }) => ($isMobile ? '15px' : '17px')};
       font-weight: bold;
       text-shadow: var(--shadow-sm);
     }
@@ -87,7 +90,7 @@ export default function BulletinBoard(props) {
   }
 
   return (
-    <CarouselWrapper autoplay={true} isMobile={isMobile}>
+    <CarouselWrapper autoplay={true} $isMobile={isMobile}>
       {bulletinBoards
         .concat(!bulletinBoards.length ? [{ url: `${md.global.FileStoreConfig.pictureHost}/${coverUrls[0]}` }] : [])
         .map((item, i) => {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Modal } from 'antd';
-import { Button } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
 import AccountCon from './AccountCon';
@@ -41,18 +40,17 @@ export default function (props) {
   return (
     <Modal
       title={type === 'phone' ? _l('绑定手机号') : _l('绑定邮箱')}
-      visible={true}
+      open={true}
       centered={true}
       onCancel={() => {}} // 禁用所有默认关闭方式
       closable={false} // 隐藏关闭按钮
-      maskClosable={false} // 禁用遮罩层点击关闭
+      mask={{ closable: false }} // 禁用遮罩层点击关闭
       keyboard={false} // 禁用ESC关闭
-      footer={[
-        <Button type={'primary'} disabled={!isValidNumber || !code} onClick={handleSubmit}>
-          {_l('绑定')}
-        </Button>,
-      ]}
-      bodyClass="telDialogCon"
+      cancelButtonProps={{ style: { display: 'none' } }}
+      okText={_l('绑定')}
+      okDisabled={!isValidNumber || !code}
+      onOk={handleSubmit}
+      classNames={{ body: 'telDialogCon' }}
       width={560}
     >
       <AccountCon

@@ -2,17 +2,14 @@
 import postAjax from 'src/api/post';
 import 'src/components/autoTextarea/autoTextarea';
 import MentionsInput from 'src/components/MentionsInput';
-import LinkView from '../../linkView/linkView';
 import VoteUpdater from '../../voteUpdater/voteUpdater';
 
 let langUploadFiles = _l('上传附件') + '...';
-let langShareLink = _l('分享网站') + '...';
 let langVoteQuestion = _l('请输入投票问题') + '...';
 
 const MyUpdater = {
   options: {
     thumbImgs: '',
-    linkViewData: null, // 链接预览数据
     updaterInputAreaFocus: false,
     attachmentData: [], // 上传的文件，不包括知识中心的文件
     kcAttachmentData: [],
@@ -27,153 +24,37 @@ const MyUpdater = {
 
     this.BindEvent();
   },
+  SetPosting: function (isPosting) {
+    if (typeof this.options.onPostingChange === 'function') {
+      this.options.onPostingChange(isPosting);
+    }
+  },
   formatNumber: function (src, pos) {
     return Math.round(src * Math.pow(10, pos)) / Math.pow(10, pos);
   },
+  ChangeUpdaterType: function (postType) {
+    const $textareaUpdater = $('#textarea_Updater');
+    const postTypePlaceholder = postType === '9' ? langUploadFiles : langVoteQuestion;
+    const currentMessage = $textareaUpdater.val().trim();
+    const placeholderMessages = [
+      '',
+      _l('知会工作是一种美德') + '...',
+      langUploadFiles,
+      langVoteQuestion,
+      _l('分享文件') + '...',
+    ];
+
+    $('#hidden_UpdaterType').val(postType);
+    if (placeholderMessages.includes(currentMessage)) {
+      $textareaUpdater.val(postTypePlaceholder).addClass('textTertiary');
+    }
+
+    if (postType === '7') {
+      VoteUpdater.init($('#Vote_updater'));
+    }
+  },
   // 绑定事件
   BindEvent: function () {
-    // 用于动态更新框 Updater切换Type
-    $('.myUpdateItem_Content a[targetDiv]')
-      .off()
-      .on('click', function () {
-        let targetDivID = $(this).attr('targetDiv');
-
-        // $('#Div_JoinKnowledge').hide();
-        // 附件
-        if (targetDivID == '#Attachment_updater') {
-          if (MyUpdater.options.attachmentData.length == 0 && $('#Attachment_updater').is(':visible')) {
-            MyUpdater.ResetUpdaterDiv();
-            return;
-          } else if ($('#Attachment_updater').is(':visible')) {
-            return;
-          }
-        }
-
-        // 链接
-        if (targetDivID == '#Link_updater') {
-          if (
-            ($('#text_LinkUrl').val().trim() == 'http://' || $('#text_LinkUrl').val().trim() == '') &&
-            $('#Link_updater').is(':visible')
-          ) {
-            MyUpdater.ResetUpdaterDiv();
-            return;
-          } else if ($('#Link_updater').is(':visible')) {
-            return;
-          }
-        }
-
-        // 投票
-        if (
-          targetDivID == '#Vote_updater' &&
-          $('.voteOptions li').eq(0).find('input').val() == _l('请输入投票项') &&
-          $('.voteOptions li').eq(1).find('input').val() == _l('请输入投票项') &&
-          $('#Vote_updater').is(':visible')
-        ) {
-          MyUpdater.ResetUpdaterDiv();
-          return;
-        } else if (targetDivID == '#Vote_updater' && $('#Vote_updater').is(':visible')) {
-          return;
-        }
-
-        MyUpdater.ResetUpdaterDiv();
-        MyUpdater.options.clearFilesData();
-
-        if (targetDivID == '#Attachment_updater') {
-          $('#hidden_UpdaterType').val('9');
-          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
-          if (
-            $('#textarea_Updater') &&
-            ($('#textarea_Updater').val().trim() == '' ||
-              $('#textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
-          ) {
-            $('#textarea_Updater').val(langUploadFiles).addClass('textTertiary');
-          }
-        } else if (targetDivID == '#Link_updater') {
-          $('#hidden_UpdaterType').val('1');
-          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
-          if (
-            $('#textarea_Updater') &&
-            ($('#textarea_Updater').val().trim() == '' ||
-              $('#textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
-          ) {
-            $('#textarea_Updater').val(langShareLink).addClass('textTertiary');
-          }
-
-          $('#Link_updater .visualDocTextBox').show();
-          $('#text_LinkUrl').on('keydown', function (e) {
-            let key = window.event ? e.keyCode : e.which;
-
-            if (key == 13) {
-              $(this).parent().next().find("input[type='button']").click();
-              return false;
-            }
-          });
-        } else if (targetDivID == '#Vote_updater') {
-          $('#voteLastHour').val(new Date().getHours());
-          $('#hidden_UpdaterType').val('7');
-          $(this).removeClass('textPlaceholder').addClass('colorPrimary');
-          $('#Vote_updaterOperator').show();
-          if (
-            $('#textarea_Updater') &&
-            ($('#textarea_Updater').val().trim() == '' ||
-              $('#textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
-          ) {
-            $('#textarea_Updater').val(langVoteQuestion).addClass('textTertiary');
-          }
-
-          VoteUpdater.init($('#Vote_updater'));
-        } else {
-          $('#hidden_UpdaterType').val('0');
-          $('#hidden_FilePath').val('');
-          $('#hidden_FileName').val('');
-          $('#hidden_FileExt').val('');
-          if ($('#textarea_Updater')) {
-            if (!$('#textarea_Updater').val().trim()) {
-              $('#textarea_Updater').val(_l('知会工作是一种美德') + '...');
-              $('#textarea_Updater').addClass('textTertiary');
-            }
-          }
-        }
-
-        if (!$(targetDivID).is(':visible')) {
-          $(targetDivID).show(0, function () {
-            // MyUpdater.options.uploadObj.getPluploadObj().refresh();
-          });
-          // 处理Edge 上传按钮大小没有撑开
-          if (targetDivID === '#Attachment_updater' && window.isEdge) {
-            $(targetDivID)
-              .find('.moxie-shim.moxie-shim-html5')
-              .css({
-                width: $('#uploadMoreAttachment').width(),
-                height: $('#uploadMoreAttachment').height(),
-              });
-          }
-        }
-
-        $('#updateCloseContainer').show();
-      });
-    // 右上角关闭
-    $('#updateCloseContainer span.update_close')
-      .off()
-      .on('click', function () {
-        MyUpdater.ResetUpdaterDiv();
-        if (!$('#textarea_Updater').val().trim()) {
-          $('#textarea_Updater')
-            .val(_l('知会工作是一种美德') + '...')
-            .addClass('TextArea textTertiary');
-        }
-      });
-
-    $('#Link_updater .linkTextBox').on({
-      blur: function () {
-        if (!$(this).val().trim()) {
-          $(this).val('http://').addClass('textPlaceholder');
-        }
-      },
-      focus: function () {
-        $(this).removeClass('textPlaceholder');
-      },
-    });
     let $textareaUpdater = $('#textarea_Updater');
     let textareaUpdaterEl = $textareaUpdater.get(0);
 
@@ -197,7 +78,6 @@ const MyUpdater = {
         if (
           msg == _l('知会工作是一种美德') + '...' ||
           msg == langUploadFiles ||
-          msg == langShareLink ||
           msg == langVoteQuestion ||
           msg == _l('分享文件') + '...'
         ) {
@@ -249,7 +129,7 @@ const MyUpdater = {
         let text;
         MyUpdater.options.updaterInputAreaFocus = !(
           !$(event.target).closest(
-            '.myUpdateItem,.myUpdateType,.mentionsAutocompleteList,.faceDiv,.plupload,.focusUpdaterCon',
+            '.myUpdateItem,.myUpdateType,.mentionsAutocompleteList,.faceDiv,.plupload,.focusUpdaterCon,.hap-popover',
           ).length &&
           /* 非引导点击*/
           !$(event.target).hasClass('guideTry') &&
@@ -257,12 +137,9 @@ const MyUpdater = {
           ((text = $('#textarea_Updater').val().trim()) == '' ||
             text == _l('知会工作是一种美德') + '...' ||
             text == langUploadFiles ||
-            text == langShareLink ||
             text == langVoteQuestion ||
             text == _l('分享文件') + '...') &&
-          !$('#Attachment_updater').is(':visible') &&
-          !$('#Link_updater').is(':visible') &&
-          !$('#Vote_updater').is(':visible') &&
+          $('#hidden_UpdaterType').val() === '0' &&
           !$('#Storage_updater').is(':visible')
         );
         if (!MyUpdater.options.updaterInputAreaFocus) {
@@ -283,13 +160,7 @@ const MyUpdater = {
     if ($('#textarea_Updater')) {
       let msg = $('#textarea_Updater').val().trim();
 
-      if (
-        msg == '' ||
-        msg == langUploadFiles ||
-        msg == langShareLink ||
-        msg == langVoteQuestion ||
-        msg == _l('分享文件') + '...'
-      ) {
+      if (msg == '' || msg == langUploadFiles || msg == langVoteQuestion || msg == _l('分享文件') + '...') {
         $('#textarea_Updater').blur();
         $('#textarea_Updater')
           .val(_l('知会工作是一种美德') + '...')
@@ -298,111 +169,27 @@ const MyUpdater = {
     }
 
     $('#hidden_UpdaterType').val('0');
-    $("div.myUpdateItem_Content a[targetdiv='#Attachment_updater']")
-      .removeClass('colorPrimary')
-      .addClass('textPlaceholder');
-    $('div.myUpdateItem_Content a[targetdiv]').removeClass('colorPrimary').addClass('textPlaceholder');
-    $('#Attachment_updater,#Link_updater,#Vote_updater,#Storage_updater').hide();
 
-    $('#Attachment_updater')
-      .find('.kcAttachmentList')
-      .html('')
-      // .end()
-      // .find('.updaterAttachmentSplitter').hide()
-      // .end()
-      // .find('.addAttachmentToKc').hide()
-      .end()
-      .find('#addAttachmentToKcToggle')
-      .prop('checked', false)
-      .end()
-      .find('#addAttachmentToKcLink')
-      .data('type', null)
-      .data('node', null)
-      .html('<span>' + _l('本地文件存入知识中心') + '</span>');
+    if (typeof MyUpdater.options.resetActiveTab === 'function') {
+      MyUpdater.options.resetActiveTab();
+    }
 
-    $('#button_Share').attr('disabled', false).removeClass('Disabled');
-    // 链接
-    let $mdLinkUpdater = $('#Link_updater');
-    $mdLinkUpdater.find('.updaterLinkView').empty();
-    $mdLinkUpdater.find('.linkTextBox').val('http://').addClass('textPlaceholder');
-    $mdLinkUpdater.find('.linkBtn').val(_l('预览')).attr('disabled', false).removeClass('Disabled');
-    MyUpdater.options.linkViewData = null;
+    $('#Storage_updater').hide();
 
     MyUpdater.options.attachmentData = [];
     MyUpdater.options.kcAttachmentData = [];
-
-    $('#check_Join2').prop('checked', true);
-    $('#check_Join3').prop('checked', true);
-    // OnlyView 2012-5-29 John Add
-    $('#check_OnlyView').prop('checked', false);
-    if ($('#Vote_updater .voteOptions input').length > 0) {
-      $("#Vote_updater .voteOptions input[type = 'text']").addClass('textPlaceholder').val(_l('请输入投票项'));
-      $('#Vote_updater .UploadSuccess').html('');
-      $('#Vote_updater div[pluploadid]').show();
-      $('#Vote_updater .voteOptions li:gt(1)').remove();
+    if (typeof MyUpdater.options.clearFilesData === 'function') {
+      MyUpdater.options.clearFilesData();
     }
 
-    if ($('#voteAvailableNumber').length > 0) {
-      $('#voteAvailableNumber').get(0).selectedIndex = 0;
-    }
+    VoteUpdater.reset($('#Vote_updater'));
 
-    if ($('#voteAnonymous').length > 0) {
-      $('#voteAnonymous').removeAttr('checked');
-    }
-
-    if ($('#voteVisble').length > 0) {
-      $('#voteVisble').attr('checked', 'checked');
-    }
-
-    if ($('#Vote_updater .voteOptions li').length > 0) {
-      let oplength = $('#Vote_updater .voteOptions li').lenght;
-
-      if (oplength > 0) {
-        for (let i = 0; i < oplength; i++) {
-          if (i > 1) {
-            $('#Vote_updater .voteOptions li').eq(i).remove();
-          }
-        }
-      }
-    }
-
-    // 关闭按钮
-    $('#updateCloseContainer').hide();
     $('#currentUploadSize').html('0M');
     if (MyUpdater.options.uploadObj) {
       MyUpdater.options.uploadObj.clearAttachment();
     }
   },
-  // 预览分享链接
-  ViewLink: function (obj) {
-    let linkUrl = $('#text_LinkUrl').val().trim();
-
-    if (!linkUrl || linkUrl == 'http://') {
-      alert(_l('请输入链接'), 3);
-      return false;
-    }
-
-    let $el = $(obj);
-    $el.val(_l('提取中...')).attr('disabled', true).addClass('Disabled');
-
-    let $btnShare = $('#button_Share');
-    $btnShare.attr('disabled', true).addClass('Disabled');
-
-    LinkView($('#Link_updater .updaterLinkView'), {
-      viewUrl: linkUrl,
-      callback: function (data) {
-        if (data.errorCode != '1') {
-          alert(_l('链接提取失败'), 2);
-          data = null;
-        }
-
-        MyUpdater.options.linkViewData = data;
-        $el.val(_l('预览')).attr('disabled', false).removeClass('Disabled');
-        $btnShare.attr('disabled', false).removeClass('Disabled');
-      },
-    });
-  },
-  PostUpdater: function (result, obj, successCallback) {
+  PostUpdater: function (result, successCallback) {
     document.querySelector('#textarea_Updater').val(data => {
       let postMsg = data;
 
@@ -411,7 +198,6 @@ const MyUpdater = {
         !postMsg.trim() ||
         postMsg == _l('知会工作是一种美德') + '...' ||
         postMsg == langUploadFiles ||
-        postMsg == langShareLink ||
         postMsg == langVoteQuestion
       ) {
         alert(_l('内容不能为空'), 3);
@@ -422,12 +208,6 @@ const MyUpdater = {
       }
 
       let postType = $('#hidden_UpdaterType').val();
-
-      // 验证链接是否有效
-      if (postType == '1' && !MyUpdater.options.linkViewData) {
-        alert(_l('请输入链接'), 3);
-        return false;
-      }
 
       // 验证是否有附件
       if (postType == '9' && MyUpdater != 'undefined') {
@@ -471,37 +251,8 @@ const MyUpdater = {
       if (postType == '9') {
         rData.attachments = JSON.stringify(result.attachmentData);
         rData.knowledgeAttach = JSON.stringify(result.kcAttachmentData);
-        if ($('#addAttachmentToKcToggle').prop('checked')) {
-          let addToKcRootId, addToKcParentId;
-          let addToKcType = $('#addAttachmentToKcLink').data('type');
-          let addToKcNode = $('#addAttachmentToKcLink').data('node');
-
-          if (addToKcType == 2 /* ROOT*/) {
-            addToKcRootId = addToKcParentId = addToKcNode.id;
-          } else if (addToKcType == 3 /* NODE*/) {
-            addToKcRootId = addToKcNode.rootId;
-            addToKcParentId = addToKcNode.id;
-          } else {
-            /* MY*/
-            addToKcRootId = addToKcParentId = null;
-          }
-
+        if (result.addAttachmentToKc) {
           rData.addToKc = true;
-          if (addToKcRootId) {
-            rData.addToKcRootId = addToKcRootId;
-          }
-
-          if (addToKcParentId) {
-            rData.addToKcParentId = addToKcParentId;
-          }
-        }
-      } else if (postType == '1') {
-        if (MyUpdater.options.linkViewData) {
-          let linkViewData = MyUpdater.options.linkViewData;
-          rData.linkUrl = linkViewData.url;
-          rData.linkTitle = linkViewData.title;
-          rData.linkDesc = linkViewData.desc;
-          rData.linkThumb = linkViewData.img.replace(/^\/image\.axd\?picture=/, '');
         }
       }
 
@@ -518,11 +269,11 @@ const MyUpdater = {
         }
       }
 
-      $(obj).attr('disabled', 'disabled').addClass('Disabled');
+      MyUpdater.SetPosting(true);
 
       let checkValidPromises = [];
 
-      if (postType == '9' && result.attachmentData.length && $('#addAttachmentToKcToggle').prop('checked')) {
+      if (postType == '9' && result.attachmentData.length && result.addAttachmentToKc) {
         let addToKcSize = result.attachmentData
           .map(function (file) {
             return file.fileSize;
@@ -574,12 +325,12 @@ const MyUpdater = {
               }
             })
             .finally(function () {
-              $(obj).removeAttr('disabled').removeClass('Disabled');
+              MyUpdater.SetPosting(false);
               MyUpdater.addPost = false;
             });
         },
         function () {
-          $(obj).removeAttr('disabled').removeClass('Disabled');
+          MyUpdater.SetPosting(false);
         },
       );
     });

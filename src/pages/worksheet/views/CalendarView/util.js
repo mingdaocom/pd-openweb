@@ -1,23 +1,10 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
-import { controlState } from 'src/utils/control';
-import { getAdvanceSetting } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
-import { isTimeStyle } from 'src/utils/control';
-import { dateAppZoneToServerZone, dateConvertToServerZone } from 'src/utils/project';
-import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
-import { DEFAULT_BORDER_COLOR_DARK, DEFAULT_BORDER_COLOR_LIGHT, DEFAULT_COLOR, DEFAULT_TEXT_COLOR } from './constants';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { dateAppZoneToServerZone, dateConvertToServerZone } from 'src/utils/platform/runtime/timeZone';
 
-export const getHoverColor = color => {
-  return OPTION_COLORS_LIST_HOVER[OPTION_COLORS_LIST.indexOf(color.toUpperCase())];
-};
-
+/** 检测字符串中是否包含 Emoji 字符。 */
 export const isEmojiCharacter = substring => {
   for (let i = 0; i < substring.length; i++) {
     const hs = substring.charCodeAt(i);
@@ -27,308 +14,38 @@ export const isEmojiCharacter = substring => {
         const ls = substring.charCodeAt(i + 1);
         const uc = (hs - 0xd800) * 0x400 + (ls - 0xdc00) + 0x10000;
 
-        if (0x1d000 <= uc && uc <= 0x1f77f) {
-          return true;
-        }
+        if (0x1d000 <= uc && uc <= 0x1f77f) return true;
       }
     } else if (substring.length > 1) {
-      const ls = substring.charCodeAt(i + 1);
-
-      if (ls == 0x20e3) {
-        return true;
-      }
-    } else {
-      if (0x2100 <= hs && hs <= 0x27ff) {
-        return true;
-      } else if (0x2b05 <= hs && hs <= 0x2b07) {
-        return true;
-      } else if (0x2934 <= hs && hs <= 0x2935) {
-        return true;
-      } else if (0x3297 <= hs && hs <= 0x3299) {
-        return true;
-      } else if (
-        hs == 0xa9 ||
-        hs == 0xae ||
-        hs == 0x303d ||
-        hs == 0x3030 ||
-        hs == 0x2b55 ||
-        hs == 0x2b1c ||
-        hs == 0x2b1b ||
-        hs == 0x2b50
-      ) {
-        return true;
-      }
+      if (substring.charCodeAt(i + 1) === 0x20e3) return true;
+    } else if (
+      (0x2100 <= hs && hs <= 0x27ff) ||
+      (0x2b05 <= hs && hs <= 0x2b07) ||
+      (0x2934 <= hs && hs <= 0x2935) ||
+      (0x3297 <= hs && hs <= 0x3299) ||
+      [0xa9, 0xae, 0x303d, 0x3030, 0x2b55, 0x2b1c, 0x2b1b, 0x2b50].includes(hs)
+    ) {
+      return true;
     }
   }
 
   return false;
 };
 
-// 提取公共的 renderCellText 调用逻辑
-const renderTimeValue = (controlData, value, currentView) => {
-  if (!value) return '';
-  return renderCellText(
-    {
-      ...controlData,
-      value,
-      advancedSetting: { ...controlData.advancedSetting, showtimezone: '0' },
-    },
-    { appId: currentView.appId },
-  );
-};
-
-const getCalendarTimeAdvancedSetting = controlData => {
-  const advancedSetting = { ...controlData.advancedSetting, showformat: '0' };
-
-  if (!isTimeStyle(controlData)) {
-    return advancedSetting;
-  }
-
-  return {
-    ...advancedSetting,
-    hour12: '0',
-    ...(String(advancedSetting.showtype) === '2' ? { showtype: '1' } : {}),
-  };
-};
-
-const getAllDay = (data, o, currentView = {}) => {
-  if (!data[o.begin]) {
-    return false;
-  }
-
-  // 日期类型（非日期时间）统一按全天事件处理
-  if (!isTimeStyle(o.startData)) {
-    return true;
-  }
-
-  if (!data[o.end]) {
-    return false;
-  }
-
-  const beginValue = renderTimeValue(o.startData, data[o.begin], currentView);
-  const endValue = renderTimeValue(o.endData, data[o.end], currentView);
-  return beginValue && endValue && getIsOverOneDay(beginValue, endValue) && moment(beginValue).isBefore(endValue);
-};
-
-const getStart = (data, o, currentView = {}) => {
-  const startData = {
-    ...o.startData,
-    advancedSetting: getCalendarTimeAdvancedSetting(o.startData),
-  };
-  return renderTimeValue(startData, data[o.begin], currentView);
-};
-
-const getEnd = (data, o, currentView = {}) => {
-  if (!data[o.end] || moment(data[o.begin]).isAfter(data[o.end])) {
-    return '';
-  }
-
-  const endData = {
-    ...o.endData,
-    advancedSetting: getCalendarTimeAdvancedSetting(o.endData),
-  };
-  const endValue = renderTimeValue(endData, data[o.end], currentView);
-  return moment(!getAllDay(data, o, currentView) ? endValue : moment(endValue).add(1, 'day')).format(o.endFormat);
-};
-
-const getIsOverOneDay = (beginValue, endValue) => {
-  const beginDate = moment(beginValue).format('YYYYMMDD');
-  const endDate = moment(endValue).format('YYYYMMDD');
-  return endDate - beginDate >= 1 || moment(endValue).diff(moment(beginValue), 'minutes') >= 1439;
-};
-
-const getTitleControls = worksheetControls => {
-  return worksheetControls.find(item => item.attribute === 1);
-};
-
-const getStringColor = (calendarData, data, currentView) => {
-  const { colorOptions = [] } = calendarData;
-  const { colorid = '' } = getAdvanceSetting(currentView);
-  if (!colorid) return DEFAULT_COLOR;
-  const coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
-  if (!coloridData) return DEFAULT_COLOR;
-
-  const key = coloridData.startsWith('other') ? 'other' : coloridData;
-  const option = colorOptions.find(it => it.key === key);
-  return option?.color || DEFAULT_COLOR;
-};
-
-// 提取获取颜色的公共逻辑
-const getColorData = (calendarData, data, currentView, worksheetControls) => {
-  const stringColor = getStringColor(calendarData, data, currentView);
-  const recordColorConfig = getRecordColorConfig(currentView);
-  let recordColor =
-    recordColorConfig &&
-    getRecordColor({
-      controlId: recordColorConfig.controlId,
-      colorItems: recordColorConfig.colorItems,
-      controls: worksheetControls,
-      row: data,
-    });
-
-  if (recordColor) {
-    recordColor = { ...recordColorConfig, ...recordColor };
-  }
-
-  return { stringColor, recordColor };
-};
-
-const splitCalendarEventColors = recordColor => {
-  return {
-    backgroundColor: recordColor?.lightColor || DEFAULT_COLOR,
-    borderColor: window.themeMode === 'dark' ? DEFAULT_BORDER_COLOR_DARK : DEFAULT_BORDER_COLOR_LIGHT,
-    textColor: DEFAULT_TEXT_COLOR,
-  };
-};
-
-// type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
-//格式events数据//根据多组时间拆分出多条数据
-export const setDataFormat = pram => {
-  const { worksheetControls = [], currentView = {}, calendarData = {}, byRowId, ...data } = pram;
-
-  if (byRowId) {
-    return setDataFormatByRowId(pram);
-  }
-
-  const { calendarInfo = [] } = calendarData;
-  const { stringColor, recordColor } = getColorData(calendarData, data, currentView, worksheetControls);
-  const palette = splitCalendarEventColors(recordColor);
-  return calendarInfo
-    .filter(o => data[o.begin])
-    .map(o => {
-      const editable = controlState(o.startData).editable;
-      const start = getStart(data, o, currentView);
-      const end = getEnd(data, o, currentView);
-      const allDay = getAllDay(data, o, currentView);
-      const timeItem = { info: o, start, end, editable, allDay: !!allDay, row: data };
-      return {
-        ...o,
-        info: o,
-        keyIds: `${data.rowid}-${o.begin}`,
-        extendedProps: {
-          ...data,
-          editable,
-          recordColor,
-          stringColor,
-          ...palette,
-        },
-        title: renderTitleTxt(worksheetControls, currentView, data),
-        start,
-        end,
-        allDay: !!allDay,
-        editable,
-        timeList: [timeItem],
-        row: data,
-      };
-    });
-};
-
-const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
-  const titleControls = getTitleControls(worksheetControls);
-  const viewtitle = _.get(currentView, 'advancedSetting.viewtitle');
-
-  if (!viewtitle && !titleControls) {
-    return _l('未命名');
-  }
-
-  return (
-    (viewtitle
-      ? renderTitleByViewtitle(dataInfo, worksheetControls, currentView, true)
-      : renderCellText(
-          {
-            ...titleControls,
-            value: dataInfo[titleControls.controlId],
-          },
-          { appId: currentView.appId },
-        )) || _l('未命名')
-  );
-};
-
-//格式events数据//未排期 以及全部 一条数据卡片显示多个时间信息
-export const setDataFormatByRowId = pram => {
-  const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
-  const { calendarInfo = [] } = calendarData;
-  const { stringColor, recordColor } = getColorData(calendarData, data, currentView, worksheetControls);
-  const colortype = getAdvanceSetting(currentView).colortype || RECORD_COLOR_SHOW_TYPE.BG;
-  const palette = splitCalendarEventColors(stringColor, colortype, recordColor);
-
-  const timeList = calendarInfo.map(o => ({
-    info: o,
-    start: getStart(data, o, currentView),
-    end: getEnd(data, o, currentView),
-    allDay: !!getAllDay(data, o, currentView),
-    editable: controlState(o.startData).editable,
-    row: data,
-  }));
-
-  return [
-    {
-      extendedProps: {
-        ...data,
-        stringColor,
-        recordColor,
-        ...palette,
-      },
-      title: renderTitleTxt(worksheetControls, currentView, data),
-      timeList,
-    },
-  ];
-};
-
-export const getCalendarViewType = (strType, data) => {
-  if (!['1', '2'].includes(strType)) return 'dayGridMonth';
-  const isTime = isTimeStyle(data);
-  return strType === '1' ? (isTime ? 'timeGridWeek' : 'dayGridWeek') : isTime ? 'timeGridDay' : 'dayGridDay';
-};
-
-export const getTimeControls = controls => {
-  return controls.filter(
-    item =>
-      item.controlId !== 'utime' &&
-      (_.includes([15, 16], item.type) ||
-        (item.type === 30 && //支持他表字段 仅存储(9,10,11)
-          [15, 16].includes(item.sourceControlType) &&
-          (item.strDefault || '').split('')[0] !== '1') ||
-        (item.type === 38 && item.enumDefault === 2)),
-  );
-};
-
+/** 读取日历需要展示的外部数据记录。 */
 export const getShowExternalData = () => {
   const showExternalData = safeParse(window.localStorage.getItem('CalendarShowExternal'), 'array');
   return _.isArray(showExternalData) ? showExternalData : [];
 };
 
-export const getCalendartypeData = () => {
-  const viewType = window.localStorage.getItem('CalendarViewType');
-
-  //老数据兼容
-  if (['timeGridWeek', 'timeGridDay', 'dayGridMonth', 'dayGridWeek', 'dayGridDay'].includes(viewType)) {
-    return {};
-  }
-
-  return safeParse(viewType) || {};
-};
-
-export const isIllegal = item => {
-  return ['5', '4'].includes(_.get(item, ['advancedSetting', 'showtype']));
-};
-
-export const isIllegalFormat = (calendarInfo = []) => {
-  return calendarInfo.some(o => [o.endData, o.startData].some(item => isIllegal(item)));
-};
-
-export const setSysWorkflowTimeControlFormat = (controls = [], sheetSwitchPermit = [], key = 'controlId') => {
-  const isPermitted = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
-  return controls.filter(o => isPermitted || !SYS_CONTROLS_WORKFLOW.includes(o[key]));
-};
-
+/** 从工作表状态中获取当前视图并补充应用标识。 */
 export const getCurrentView = props => {
   const { views = [], base = {} } = props;
-  const { viewId } = base;
-  const currentView = views.find(o => o.viewId === viewId) || {};
+  const currentView = views.find(o => o.viewId === base.viewId) || {};
   return { ...currentView, appId: base.appId };
 };
 
+/** 在周或日时间网格中绘制当前时间线。 */
 export const renderLine = (random, view) => {
   $(`.boxCalendar_${random} .fc-timegrid-body .linBox`).remove();
   if (!$('.fc-day-today').length) return;
@@ -362,7 +79,7 @@ export const renderLine = (random, view) => {
   `);
 };
 
-//格式化时间用于保存
+/** 按控件时区设置转换待保存的时间值。 */
 export const formatTimeForSave = (value, data = {}, appId) => {
   if (data.type === 16) {
     return data?.advancedSetting?.timezonetype === '1'
@@ -373,11 +90,13 @@ export const formatTimeForSave = (value, data = {}, appId) => {
   return value;
 };
 
+/** 将日历事件结束时间转换为记录保存值。 */
 export const changeEndStr = (end, allDay, calendarview) => {
   const { endFormat } = calendarview.calendarData || {};
   return allDay ? `${moment(end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59` : moment(end).format(endFormat);
 };
 
+/** 获取指定日期范围内的日历记录。 */
 export const getRows = (start, end, calendarview) => {
   const { calendarFormatData = [] } = calendarview;
   return calendarFormatData
@@ -391,7 +110,7 @@ export const getRows = (start, end, calendarview) => {
     .map(o => o.extendedProps);
 };
 
-//兼容自定义页面拖动事件定位问题
+/** 修正自定义页面中日历拖拽元素的定位。 */
 export const resetFcEventDraggingPoint = () => {
   if (document.querySelector('.CustomPageContentWrap')) {
     setTimeout(() => {
@@ -411,6 +130,7 @@ export const resetFcEventDraggingPoint = () => {
   }
 };
 
+/** 根据鼠标位置显示或隐藏日历新建提示。 */
 export const setShowTip = (event, flag, canNew) => {
   const myTips = document.getElementById('mytips');
   if (!myTips || document.querySelector('.customPageContent')) return;
@@ -443,6 +163,7 @@ export const setShowTip = (event, flag, canNew) => {
   });
 };
 
+/** 判断当前视图是否允许新建记录。 */
 export const getCanCreateRecord = props => {
   const { worksheetInfo = {}, allowAddNewRecord = true, sheetSwitchPermit } = props;
   return isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd && allowAddNewRecord;

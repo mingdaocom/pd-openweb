@@ -2,13 +2,14 @@
 import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import report from './api/report';
 import reportSort from './api/reportSort';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import Card from './Card';
 import './index.less';
 
@@ -19,26 +20,25 @@ let globalStatisticsContainer = null;
 let globalStatisticsResize = null;
 
 const exceptions = [
-  '.mui-dialog-container',
+  '.hap-modal-wrap',
   '.GlobalStatisticsPanel',
-  '.dropdownTrigger',
   '.openStatisticsBtn',
   '.selectUserBox',
   '.PositionContainer-active',
   '.addFilterPopup',
   '#dialogBoxSelectUser_container',
   '#dialogSelectDept_container',
-  '.ant-tooltip',
-  '.ant-cascader-menus',
-  '.ant-tree-select-dropdown',
+  '.hap-tooltip',
+  '.hap-cascader-menus',
+  '.hap-tree-select-dropdown',
   '.CityPickerPanelTrigger',
-  '.ant-modal-mask',
-  '.ant-modal-wrap',
-  '.ant-select-dropdown',
-  '.ant-dropdown',
-  '.ant-dropdown-menu',
-  '.ant-picker-dropdown',
-  '.rc-trigger-popup',
+  '.hap-modal-mask',
+  '.hap-modal-wrap',
+  '.hap-select-dropdown',
+  '.hap-dropdown',
+  '.hap-dropdown-menu',
+  '.hap-picker-dropdown',
+  '.hap-popover',
   '#attachemntsPreviewContainer',
   '#quickSelectDept',
   '.selectRoleDialog',
@@ -86,7 +86,7 @@ const renderGlobalStatisticsPanel = node => {
     globalStatisticsRoot = createRoot(globalStatisticsContainer);
   }
 
-  globalStatisticsRoot.render(node);
+  globalStatisticsRoot.render(<AntdConfigProvider>{node}</AntdConfigProvider>);
 };
 
 export default class Statistics extends Component {

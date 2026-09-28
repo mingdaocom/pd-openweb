@@ -2,10 +2,11 @@ import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification';
 import { ENTERPRISE_FIELD_LABEL, SOURCE_TYPE } from '../../constant';
-import EditContactInfo from './EditContactInfo';
+import { useEditContactInfo } from './EditContactInfo';
 
 const Wrapper = styled.div`
   background: var(--color-background-primary);
@@ -86,6 +87,7 @@ export default function CertificationDetail(props) {
   const { certSource, projectId } = _.get(props, 'match.params') || props;
   const [loading, setLoading] = useState(true);
   const [certInfo, setCertInfo] = useState({});
+  const { open: openEditContactInfo, holder: editContactInfoHolder } = useEditContactInfo();
   const { authType, personalInfo = {}, enterpriseInfo = {}, createTime, operatorAccount } = certInfo || {};
 
   useEffect(() => {
@@ -108,10 +110,14 @@ export default function CertificationDetail(props) {
   };
 
   const onRemoveCert = () => {
-    Dialog.confirm({
+    Modal.confirm({
       width: 500,
-      title: <div className="Red">{_l('您确定要移除当前%0认证吗？', authType === 2 ? _l('企业') : _l('个人'))}</div>,
-      description:
+      title: (
+        <div className="Red textError">
+          {_l('您确定要移除当前%0认证吗？', authType === 2 ? _l('企业') : _l('个人'))}
+        </div>
+      ),
+      content:
         authType === 2 ? (
           <div>
             <div>{_l('移除后将产生以下影响：')}</div>
@@ -122,18 +128,25 @@ export default function CertificationDetail(props) {
           _l('移除后，组织绑定此认证的关系将被解绑，同时需要认证的功能之后将不能使用')
         ),
       okText: _l('移除'),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
         VerifyPasswordConfirm.confirm({
           onOk: () => {
-            certificationApi.removeCertification({ projectId, relationId }).then(res => {
-              if (res) {
-                alert(_l('移除成功'));
-                onRemoveSuccess();
-              } else {
-                alert(_l('移除失败'), 2);
-              }
-            });
+            certificationApi
+              .removeCertification({
+                projectId,
+                relationId,
+              })
+              .then(res => {
+                if (res) {
+                  alert(_l('移除成功'));
+                  onRemoveSuccess();
+                } else {
+                  alert(_l('移除失败'), 2);
+                }
+              });
           },
         });
       },
@@ -146,6 +159,7 @@ export default function CertificationDetail(props) {
 
   return (
     <Wrapper>
+      {editContactInfoHolder}
       <div className="Font20 bold mBottom25 pLeft24 pRight24">{authType === 2 ? _l('企业认证') : _l('个人认证')}</div>
 
       <div className="detailContent">
@@ -226,7 +240,7 @@ export default function CertificationDetail(props) {
                     icon="edit"
                     className="Font16 pointer mLeft16"
                     onClick={() => {
-                      EditContactInfo({
+                      openEditContactInfo({
                         projectId,
                         relationId,
                         contactInfo: _.pick(enterpriseInfo, ['contactName', 'contactIdNumber', 'contactMobile']),

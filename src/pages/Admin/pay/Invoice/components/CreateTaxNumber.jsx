@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Dialog, Input, LoadDiv, QiniuUpload, Support } from 'ming-ui';
+import { LoadDiv, QiniuUpload, Support } from 'ming-ui';
+import { Button, Input, Modal, Select } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import accountApi from 'src/api/account';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
@@ -12,10 +12,11 @@ import orderApi from 'src/api/order';
 import paymentApi from 'src/api/payment';
 import userApi from 'src/api/user';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
-import { Step, StepsWrap } from 'src/pages/Admin/pay/components/StepsWrap';
+import { StepsWrap } from 'src/pages/Admin/pay/components/StepsWrap';
 import UploadFile from 'src/pages/worksheet/components/DialogImportExcelCreate/DialogUpload/UploadFile';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/utils/enum';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { STEPS } from '../config';
 
 const DivideLine = styled.div`
@@ -121,7 +122,7 @@ export default function CreateTaxNumber(props) {
   );
 
   //第一步
-  const [loading, setLoading] = useState(!window.platformENV.isOverseas && !window.platformENV.isLocal);
+  const [loading, setLoading] = useState(window.platformENV.isHap);
   const [certList, setCertList] = useState([]);
   const [codeSending, setCodeSending] = useState(false);
   const [sendCodeText, setSendCodeText] = useState(_l('获取验证码'));
@@ -135,6 +136,8 @@ export default function CreateTaxNumber(props) {
   const [uploading, setUploading] = useState(false);
   const [productUpdating, setProductUpdating] = useState(false);
   const inputRef = useRef(null);
+  const requestPending = useRef(false);
+  const productUploadPending = useRef(false);
 
   const {
     certId,
@@ -254,7 +257,7 @@ export default function CreateTaxNumber(props) {
   };
 
   const onValidate = () => {
-    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
+    if (window.platformENV.isHap) {
       if (!taxNo) {
         alert(_l('开票主体不能为空'), 3);
         return;
@@ -321,12 +324,16 @@ export default function CreateTaxNumber(props) {
       merchantInvoiceApi.checkTaxInfo({ projectId, taxNo }).then(res => {
         !res
           ? setTrialDialogVisible(true)
-          : Dialog.confirm({
+          : Modal.confirm({
               title: _l('当前税号已在其他组织开通'),
-              description: _l('当前企业税号已在其他组织开通电子开票服务；每个税号仅能开通一次，当前组织不可重复开通。'),
+              content: _l('当前企业税号已在其他组织开通电子开票服务；每个税号仅能开通一次，当前组织不可重复开通。'),
               okText: _l('知道了'),
-              removeCancelBtn: true,
-            });
+              cancelButtonProps: {
+                style: {
+                  display: 'none',
+                },
+              },
+            }).destroy;
       });
     }
   };
@@ -364,13 +371,15 @@ export default function CreateTaxNumber(props) {
   };
 
   const onPrivateCreateTax = (isEdit = false) => {
+    if (requestPending.current) return;
     if (!onValidate()) return;
 
     const cleanedData = _.mapValues({ companyName, taxNo, account, password, appKey, appSecret, salt }, value =>
       _.isString(value) ? value.trim() : value,
     );
 
-    merchantInvoiceApi
+    requestPending.current = true;
+    return merchantInvoiceApi
       .createTaxInfo({
         projectId,
         ..._.pick(cleanedData, ['companyName', 'taxNo']),
@@ -394,21 +403,29 @@ export default function CreateTaxNumber(props) {
             alert(_l('修改失败'), 2);
           }
         }
+      })
+      .finally(() => {
+        requestPending.current = false;
       });
   };
 
-  const onUploaded = fileUrl => {
+  const onUploaded = (fileUrl, uploader) => {
+    if (productUploadPending.current) return;
+    productUploadPending.current = true;
     setProductUpdating(true);
-    console.log('fileUrl', fileUrl);
-
-    merchantInvoiceApi
+    return merchantInvoiceApi
       .uploadProductExcel({ projectId, taxNo, url: fileUrl })
       .then(res => {
         setProductList(res.products);
-        setProductUpdating(false);
       })
-      .catch(() => {
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('导入失败'), 2);
+      })
+      .finally(() => {
+        productUploadPending.current = false;
         setProductUpdating(false);
+        setUploading(false);
+        uploader?.disableBrowse(false);
       });
   };
 
@@ -430,30 +447,27 @@ export default function CreateTaxNumber(props) {
 
   return (
     <div className="flexRow flex">
-      <StepsWrap direction="vertical" current={step} onChange={current => setStep(current)}>
-        {STEPS.map((item, index) => {
-          return (
-            <Step
-              key={index}
-              title={item.title}
-              disabled={
-                step === 0 && !taxId
-                  ? index > 0
-                  : window.platformENV.isOverseas || window.platformENV.isLocal
-                    ? false
-                    : index === 0
-              }
-              status={step === index ? 'process' : index < step ? 'finish' : ''}
-            />
-          );
-        })}
-      </StepsWrap>
+      <StepsWrap
+        direction="vertical"
+        current={step}
+        onChange={current => setStep(current)}
+        items={STEPS.map((item, index) => ({
+          title: item.title,
+          disabled:
+            step === 0 && !taxId
+              ? index > 0
+              : window.platformENV.isOverseas || window.platformENV.isLocal
+                ? false
+                : index === 0,
+          status: step === index ? 'process' : index < step ? 'finish' : '',
+        }))}
+      />
       <DivideLine />
 
       <StepContentWrap className="flex">
         <Description>
           {step === 0 &&
-            (!window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+            (window.platformENV.isHap ? (
               <Fragment>
                 <div>
                   {_l('1、完成组织的企业认证或已有支付商户号即可创建开票税号。每个开票税号开通后，享有 7 天免费试用')}
@@ -500,7 +514,7 @@ export default function CreateTaxNumber(props) {
           {step === 1 && (
             <div>
               <span>{_l('请您先在百望完成企业信息与登录验证等配置，否则无法开票。')}</span>
-              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+              {window.platformENV.isHap && (
                 <Support
                   className="mBottom2"
                   type={3}
@@ -547,7 +561,7 @@ export default function CreateTaxNumber(props) {
                   placeholder={_l('请输入开票主体')}
                   disabled={!!taxId}
                   value={companyName}
-                  onChange={value => setData({ companyName: value })}
+                  onChange={e => setData({ companyName: e.target.value })}
                 />
               ) : _.isEmpty(certList) ? (
                 <div className="certLink" onClick={() => navigateTo(`/admin/certinfo/${projectId}`)}>
@@ -555,7 +569,7 @@ export default function CreateTaxNumber(props) {
                 </div>
               ) : (
                 <Select
-                  className="w100 mdAntSelect"
+                  className="w100"
                   options={certList}
                   value={certId}
                   onChange={(value, option) => {
@@ -581,7 +595,7 @@ export default function CreateTaxNumber(props) {
                   placeholder={_l('请输入企业税号')}
                   disabled={!!taxId}
                   value={taxNo}
-                  onChange={value => setData({ taxNo: value })}
+                  onChange={e => setData({ taxNo: e.target.value })}
                 />
               ) : (
                 <div className="taxNoInput">{taxNo}</div>
@@ -623,7 +637,7 @@ export default function CreateTaxNumber(props) {
                       className="w100"
                       placeholder={_l('请输入百望账号')}
                       value={account}
-                      onChange={value => setData({ account: value })}
+                      onChange={e => setData({ account: e.target.value })}
                     />
                     <div className="formLabelText">
                       {_l('百望密码')}
@@ -634,7 +648,7 @@ export default function CreateTaxNumber(props) {
                         className="w100"
                         placeholder={_l('请输入百望密码')}
                         value={password}
-                        onChange={value => setData({ password: value })}
+                        onChange={e => setData({ password: e.target.value })}
                       />
                     </div>
                     <div className="formLabelText">
@@ -645,7 +659,7 @@ export default function CreateTaxNumber(props) {
                       className="w100"
                       placeholder={_l('请输入AppKey')}
                       value={appKey}
-                      onChange={value => setData({ appKey: value })}
+                      onChange={e => setData({ appKey: e.target.value })}
                     />
                     <div className="formLabelText">
                       {_l('AppSecret')}
@@ -655,7 +669,7 @@ export default function CreateTaxNumber(props) {
                       className="w100"
                       placeholder={_l('请输入AppSecret')}
                       value={appSecret}
-                      onChange={value => setData({ appSecret: value })}
+                      onChange={e => setData({ appSecret: e.target.value })}
                     />
                     <div className="formLabelText">
                       {_l('用户盐值')}
@@ -665,7 +679,7 @@ export default function CreateTaxNumber(props) {
                       className="w100"
                       placeholder={_l('请输入用户盐值')}
                       value={salt}
-                      onChange={value => setData({ salt: value })}
+                      onChange={e => setData({ salt: e.target.value })}
                     />
                   </Fragment>
                 )
@@ -680,9 +694,10 @@ export default function CreateTaxNumber(props) {
                       className="flex"
                       placeholder={_l('请输入邮箱')}
                       value={email}
-                      onChange={value => setData({ email: value })}
+                      onChange={e => setData({ email: e.target.value })}
                     />
                     <Button
+                      type="primary"
                       className="mLeft12"
                       disabled={
                         !email || sendCodeText !== _l('获取验证码') || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -700,11 +715,11 @@ export default function CreateTaxNumber(props) {
                   </div>
                   <div className="w100">
                     <Input
-                      manualRef={inputRef}
+                      ref={inputRef}
                       className="Width200"
                       placeholder={_l('请输入邮箱验证码')}
                       value={emailCode}
-                      onChange={value => setData({ emailCode: value })}
+                      onChange={e => setData({ emailCode: e.target.value })}
                     />
                   </div>
                 </Fragment>
@@ -712,6 +727,7 @@ export default function CreateTaxNumber(props) {
 
               {!taxId ? (
                 <Button
+                  type="primary"
                   className="mTop32 mBottom24"
                   onClick={
                     window.platformENV.isOverseas || window.platformENV.isLocal
@@ -724,24 +740,30 @@ export default function CreateTaxNumber(props) {
               ) : null}
 
               {trialDialogVisible && (
-                <Dialog
-                  visible
+                <Modal
+                  open
+                  mask={{ closable: true }}
+                  keyboard
                   title={_l('开通7天试用')}
-                  description={_l(
-                    '为当前开票税号开启 7 天免费试用，期间可正常开票；到期自动停用，购买后可继续使用。每个税号仅一次试用。',
-                  )}
                   okText={createLoading ? _l('开通中...') : _l('确认开通')}
-                  okDisabled={createLoading}
+                  confirmLoading={createLoading}
                   onOk={onApplyTax}
                   onCancel={() => setTrialDialogVisible(false)}
-                />
+                >
+                  <div className="textSecondary">
+                    {_l(
+                      '为当前开票税号开启 7 天免费试用，期间可正常开票；到期自动停用，购买后可继续使用。每个税号仅一次试用。',
+                    )}
+                  </div>
+                </Modal>
               )}
 
               {pwdDialogVisible && (
-                <Dialog
-                  visible
+                <Modal
+                  open
+                  mask={{ closable: true }}
+                  keyboard
                   title={_l('百望账号信息')}
-                  description={_l('修改前请确保已在百望完成了重置密码')}
                   okText={_l('保存')}
                   onOk={() => onPrivateCreateTax(true)}
                   onCancel={() => {
@@ -749,6 +771,7 @@ export default function CreateTaxNumber(props) {
                     setData({ account: '', password: '', appKey: '', appSecret: '', salt: '' });
                   }}
                 >
+                  <div className="textSecondary mBottom16">{_l('修改前请确保已在百望完成了重置密码')}</div>
                   {privateFields.map(item => (
                     <Fragment>
                       <div className="textSecondary bold mTop4 mBottom6">
@@ -758,11 +781,11 @@ export default function CreateTaxNumber(props) {
                       <Input
                         className="w100 mBottom10"
                         value={data[item.key]}
-                        onChange={value => setData({ [item.key]: value })}
+                        onChange={e => setData({ [item.key]: e.target.value })}
                       />
                     </Fragment>
                   ))}
-                </Dialog>
+                </Modal>
               )}
             </Fragment>
           ))}
@@ -791,7 +814,7 @@ export default function CreateTaxNumber(props) {
               <span className="bold">{_l('2.开票配置：')}</span>
               <span>{_l('开启并确认开票登录验证（验证码/人脸认证）以保障自动开票')}</span>
             </div>
-            <Button className="mTop36" onClick={() => setStep(step + 1)}>
+            <Button type="primary" className="mTop36" onClick={() => setStep(step + 1)}>
               {_l('下一步')}
             </Button>
           </Fragment>
@@ -812,19 +835,22 @@ export default function CreateTaxNumber(props) {
                   }}
                   bucket={3}
                   onUploaded={(up, file) => {
-                    onUploaded(file.url);
-                    setUploading(false);
-                    up.disableBrowse(false);
+                    return onUploaded(file.url, up);
                   }}
                   onAdd={up => {
+                    if (productUploadPending.current) return;
                     setUploading(true);
                     up.disableBrowse();
                   }}
                   onError={(up, err, errTip) => {
                     alert(errTip, 2);
+                    setUploading(false);
+                    up.disableBrowse(false);
                   }}
                 >
-                  <Button disabled={uploading}>{uploading ? _l('更新中...') : _l('更新')}</Button>
+                  <Button type="primary" disabled={uploading}>
+                    {uploading ? _l('更新中...') : _l('更新')}
+                  </Button>
                 </QiniuUpload>
               )}
             </div>

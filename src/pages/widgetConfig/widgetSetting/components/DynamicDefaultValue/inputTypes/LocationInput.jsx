@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import MDMap from 'ming-ui/components/amap/MDMap';
-import { getMapConfig } from 'src/utils/control';
+import { getMapConfig } from 'src/utils/platform/runtime/config';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 

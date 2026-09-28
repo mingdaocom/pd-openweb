@@ -1,21 +1,18 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { isRelateMoreList } from 'src/components/Form/core/formUtils/helper';
-import { getValueStyle } from 'src/utils/control';
+import { Button, Drawer, Popover, Tooltip } from 'ming-ui/antd-components';
+import { isRelateMoreList } from 'src/components/Form/core/formUtils/ruleUtils';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { getValueStyle } from 'src/utils/domain/control/style';
 import DrawerFooter from '../DrawerFooter';
 import { checkRuleEnableLimit, filterData, hasRuleChanged, TAB_TYPES } from './config';
 import EditBox from './EditBox';
 import * as actions from './redux/actions/columnRules';
-import * as columnRules from './redux/actions/columnRules';
 import '../../index.less';
 
 const StyleDivWrap = styled.div`
@@ -26,7 +23,7 @@ const StyleDivWrap = styled.div`
   height: 32px;
   line-height: 32px;
   width: 32px;
-  ${props => props.styleOptions && `font-size: ${props.fontSize};${props.styleOptions.valueStyle}`}
+  ${props => props.$styleOptions && `font-size: ${props.$fontSize};${props.$styleOptions.valueStyle}`}
 `;
 
 const AddRule = styled.div`
@@ -110,7 +107,7 @@ export const StyleDiv = props => {
   const styleOptions = getValueStyle(data);
   const fontSize = data.advancedSetting.valuesize ? '14px' : '12px';
   return (
-    <StyleDivWrap styleOptions={styleOptions} fontSize={fontSize}>
+    <StyleDivWrap $styleOptions={styleOptions} $fontSize={fontSize}>
       {data.value}
     </StyleDivWrap>
   );
@@ -268,40 +265,41 @@ class WidgetConfigRuleItem extends React.Component {
               <Icon icon="copy" className="Font16 Hand" onClick={() => copyControlRules(ruleData)} />
             </span>
           </Tooltip>
-          <Trigger
-            popupVisible={showDeleteBox === ruleId}
-            onPopupVisibleChange={showDeleteBox => {
-              this.setState({ showDeleteBox: showDeleteBox ? ruleId : null });
-            }}
-            action={['click']}
-            mouseEnterDelay={0.1}
-            popupAlign={{ points: ['tl', 'tr'], offset: [-30, 25], overflow: { adjustX: 1, adjustY: 2 } }}
-            popup={
-              <div className="DropdownDeleteRuleTrigger">
-                <div className="title">{_l('确定要删除此规则？')}</div>
-                <div className="deleteGroupBtns">
-                  <div className="textTertiary Hand" onClick={() => this.setState({ showDeleteBox: null })}>
-                    {_l('取消')}
-                  </div>
-                  <div
-                    className="deleteBtn"
-                    onClick={() => {
-                      deleteControlRules(ruleData);
-                      this.setState({ showDeleteBox: null });
-                    }}
-                  >
-                    {_l('删除')}
+          <Tooltip placement="bottom" title={_l('删除')}>
+            <Popover
+              noPadding
+              open={showDeleteBox === ruleId}
+              onOpenChange={showDeleteBox => {
+                this.setState({ showDeleteBox: showDeleteBox ? ruleId : null });
+              }}
+              trigger="click"
+              mouseEnterDelay={0.1}
+              placement="rightTop"
+              align={{ offset: [-30, 25] }}
+              content={
+                <div className="DropdownDeleteRuleTrigger">
+                  <div className="title">{_l('确定要删除此规则？')}</div>
+                  <div className="deleteGroupBtns">
+                    <Button onClick={() => this.setState({ showDeleteBox: null })}>{_l('取消')}</Button>
+                    <Button
+                      danger
+                      type="primary"
+                      onClick={() => {
+                        deleteControlRules(ruleData);
+                        this.setState({ showDeleteBox: null });
+                      }}
+                    >
+                      {_l('删除')}
+                    </Button>
                   </div>
                 </div>
-              </div>
-            }
-          >
-            <Tooltip placement="bottom" title={_l('删除')}>
+              }
+            >
               <span className="iconBox">
                 <Icon icon="trash" className="Font16 Hand" />
               </span>
-            </Tooltip>
-          </Trigger>
+            </Popover>
+          </Tooltip>
         </div>
       </div>
     );
@@ -334,12 +332,12 @@ class WidgetConfigRuleItem extends React.Component {
         </RuleStyleWrapper>
         {selectRules.ruleId && (
           <Drawer
-            className="widgetColumnRulesDrawer"
-            width={640}
+            rootClassName="Absolute widgetColumnRulesDrawer"
+            size={640}
             title={isAdd ? _l('新建样式规则') : _l('编辑样式规则')}
             placement="right"
             onClose={() => clearColumnRules()}
-            visible={true}
+            open={true}
             getContainer={() => document.querySelector('.customWidgetContainer') || document.body}
             closeIcon={<i className="icon-close Font20" />}
             footer={
@@ -365,6 +363,6 @@ const mapStateToProps = state => ({
   columnRulesListData: state.formSet.columnRulesListData,
   activeTab: state.formSet.activeTab,
 });
-const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(WidgetConfigRuleItem);

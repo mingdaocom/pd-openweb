@@ -1,19 +1,45 @@
 import React, { Fragment, lazy, Suspense, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Icon, Input, LoadDiv, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, SortableList } from 'ming-ui';
+import { Button, Input, Popover, Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
 import MoreOption from 'src/pages/FormSet/components/MoreOption';
 import TrashDialog from 'src/pages/FormSet/components/Trash';
-import { renderViewScopeText } from 'src/pages/FormSet/util';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
 import CreateAIActionDialog from './CreateAIActionDialog';
 
 const LoadableEditAIActionDrawer = lazy(() => import('./EditAIActionDrawer'));
+const RANGE_POPOVER_AUTO_ADJUST_OVERFLOW = { adjustX: true, adjustY: true, shiftY: true };
+
+/** 根据按钮的列表视图和详情视图范围生成可读的使用范围文案。 */
+const renderViewScopeText = ({ item = {}, views = [] }) => {
+  if (item.isAllView) {
+    return _l('所有记录');
+  }
+
+  let listViews = safeParse(_.get(item, 'advancedSetting.listviews'), 'array');
+  const canBatchViewIds = views
+    .filter(
+      view => view.viewType === 0 || (view.viewType === 2 && _.get(view, 'advancedSetting.hierarchyViewType') === '3'),
+    )
+    .map(view => view.viewId);
+  listViews = listViews.filter(viewId => canBatchViewIds.includes(viewId));
+  const detailViews = safeParse(_.get(item, 'advancedSetting.detailviews'), 'array');
+  const noBatch = (item.writeObject === 2 || item.writeType === 2) && item.clickType === 3;
+  const viewIds = _.uniq(!noBatch ? [...detailViews, ...listViews] : detailViews);
+
+  if (viewIds.length > 0) {
+    return viewIds
+      .map(viewId => (views.find(view => view.viewId === viewId) || {}).name)
+      .filter(Boolean)
+      .join(',');
+  }
+
+  return _l('未分配视图');
+};
 
 const Con = styled.div`
   width: 100%;
@@ -74,7 +100,7 @@ const Con = styled.div`
     }
   }
   // 兼容 配置AI Agent显示
-  .ant-drawer .ant-drawer-content-wrapper {
+  .hap-drawer .hap-drawer-content-wrapper {
     padding-top: 50px !important;
   }
 `;
@@ -229,10 +255,15 @@ export default function AIAction(props) {
       <Fragment>
         <div className="flexRow alignItemsCenter">
           <div className="textPrimary Font17 Bold mBottom10 flex">{_l('AI 动作')}</div>
-          <div className="trash mRight20 Hand" onClick={() => setState({ showTrash: true })}>
-            <Icon icon="knowledge-recycle" className="Font18 textTertiary TxtMiddle" />
-            <div className="InlineBlock Hand mLeft5 textSecondary TxtMiddle">{_l('回收站')}</div>
-          </div>
+          <Button
+            className="mRight20"
+            color="default"
+            variant="text"
+            icon={<Icon icon="knowledge-recycle" />}
+            onClick={() => setState({ showTrash: true })}
+          >
+            {_l('回收站')}
+          </Button>
         </div>
         <div className="noDataIcon">
           <Icon icon="auto_awesome" />
@@ -242,9 +273,13 @@ export default function AIAction(props) {
         </div>
         <div className="TxtCenter Font15">{_l('添加后将显示在记录详情页，支持一键触发')}</div>
         <div className="divCenter mTop20">
-          <Button radius onClick={() => setState({ createAIActionDialogVisible: true })}>
-            <Icon icon="plus" className="mRight3 TxtMiddle" />
-            <span className="TxtMiddle">{_l('添加')}</span>
+          <Button
+            type="primary"
+            shape="round"
+            icon={<Icon icon="plus" />}
+            onClick={() => setState({ createAIActionDialogVisible: true })}
+          >
+            {_l('添加')}
           </Button>
         </div>
       </Fragment>
@@ -272,13 +307,22 @@ export default function AIAction(props) {
                 {_l('为记录提供上下文感知的智能操作，支持内容生成与工具调用。添加后将显示在记录详情页，供用户一键触发')}
               </div>
             </div>
-            <div className="trash mRight20 Hand" onClick={() => setState({ showTrash: true })}>
-              <Icon icon="knowledge-recycle" className="Font18 textTertiary TxtMiddle" />
-              <div className="InlineBlock Hand mLeft5 textSecondary TxtMiddle">{_l('回收站')}</div>
-            </div>
-            <Button radius onClick={() => setState({ createAIActionDialogVisible: true })}>
-              <Icon icon="plus" className="mRight3 TxtMiddle" />
-              <span className="TxtMiddle">{_l('添加')}</span>
+            <Button
+              className="mRight20"
+              color="default"
+              variant="text"
+              icon={<Icon icon="knowledge-recycle" />}
+              onClick={() => setState({ showTrash: true })}
+            >
+              {_l('回收站')}
+            </Button>
+            <Button
+              type="primary"
+              shape="round"
+              icon={<Icon icon="plus" />}
+              onClick={() => setState({ createAIActionDialogVisible: true })}
+            >
+              {_l('添加')}
             </Button>
           </div>
           <div className="flex minHeight0 overflowHidden flexColumn">
@@ -313,10 +357,10 @@ export default function AIAction(props) {
                                 () => setState({ isRename: false, currentActionItem: {} }),
                               );
                             }}
-                            onChange={value => {
+                            onChange={event => {
                               setState({
                                 list: list.map(listItem =>
-                                  listItem.btnId === item.btnId ? { ...listItem, name: value } : listItem,
+                                  listItem.btnId === item.btnId ? { ...listItem, name: event.target.value } : listItem,
                                 ),
                               });
                             }}
@@ -331,18 +375,17 @@ export default function AIAction(props) {
                         <span className="viewText textPrimary">{renderViewScopeText({ item, views })}</span>
                       </div>
                       <div className="action">
-                        <Trigger
-                          popupVisible={showDropOption && currentActionItem.btnId === item.btnId}
-                          action={['click']}
-                          popupAlign={{
-                            offset: [0, 10],
-                            points: ['tl', 'bl'],
-                            overflow: { adjustX: true, adjustY: true },
-                          }}
-                          onPopupVisibleChange={visible =>
+                        <Popover
+                          open={showDropOption && currentActionItem.btnId === item.btnId}
+                          onOpenChange={visible =>
                             setState({ showDropOption: visible, currentActionItem: visible ? item : {} })
                           }
-                          popup={
+                          trigger="click"
+                          placement="bottomLeft"
+                          destroyOnHidden
+                          autoAdjustOverflow={RANGE_POPOVER_AUTO_ADJUST_OVERFLOW}
+                          noPadding
+                          content={
                             <BtnRangeDrop
                               data={item}
                               views={views}
@@ -352,47 +395,34 @@ export default function AIAction(props) {
                             />
                           }
                         >
-                          <span
-                            className="Hand Bold activeCon"
-                            onClick={() => setState({ showDropOption: true, currentActionItem: item })}
-                          >
-                            {_l('使用范围')}
-                          </span>
-                        </Trigger>
+                          <span className="Hand Bold activeCon">{_l('使用范围')}</span>
+                        </Popover>
                         <span
                           className="Hand mLeft30 Bold activeCon"
                           onClick={() => setState({ editAIActionDrawerVisible: true, currentActionItem: item })}
                         >
                           {_l('编辑')}
                         </span>
-                        <Trigger
-                          action={['click']}
-                          popupAlign={{
-                            points: ['tl', 'bl'],
-                            overflow: { adjustX: true, adjustY: true },
-                          }}
-                          getPopupContainer={() => document.body}
-                          onPopupVisibleChange={showMoreOption => setState({ showMoreOption })}
-                          popupVisible={showMoreOption && currentActionItem.btnId === item.btnId}
-                          popup={
-                            <MoreOption
-                              showCopy={false}
-                              delTxt={_l('删除')}
-                              description={_l('动作将被删除，请确认执行此操作')}
-                              showMoreOption={showMoreOption}
-                              onClickAwayExceptions={[]}
-                              onClickAway={() => setState({ showMoreOption: false })}
-                              setFn={data => setState(data)}
-                              deleteFn={handleDelete}
-                            />
+                        <MoreOption
+                          placement="bottomLeft"
+                          onOpenChange={open =>
+                            setState({ showMoreOption: open, currentActionItem: open ? item : currentActionItem })
                           }
+                          open={showMoreOption && currentActionItem.btnId === item.btnId}
+                          delTxt={_l('删除')}
+                          description={_l('动作将被删除，请确认执行此操作')}
+                          setFn={data => setState(data)}
+                          deleteFn={handleDelete}
                         >
-                          <Icon
-                            icon="more_horiz"
-                            className="moreActive Hand Font18 textTertiary hoverColorPrimary mLeft30"
-                            onClick={() => setState({ showMoreOption: true, currentActionItem: item })}
+                          <Button
+                            className="mLeft30"
+                            color="default"
+                            variant="text"
+                            size="small"
+                            icon={<Icon icon="more_horiz" />}
+                            onClick={event => event.stopPropagation()}
                           />
-                        </Trigger>
+                        </MoreOption>
                       </div>
                     </div>
                   );

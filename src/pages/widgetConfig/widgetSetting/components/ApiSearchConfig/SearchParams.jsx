@@ -2,8 +2,8 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { ROW_ID_CONTROL } from 'src/utils/domain/control/widget';
 import DynamicDefaultValue from '../DynamicDefaultValue';
 
 const ControlWrap = styled.div`
@@ -27,7 +27,7 @@ const ControlWrap = styled.div`
       margin-left: 3px;
     }
     .fieldList li {
-      ${props => (props.fromOperationFlow ? 'max-width: 100%;' : '')}
+      ${props => (props.$fromOperationFlow ? 'max-width: 100%;' : '')}
     }
   }
 `;
@@ -98,7 +98,7 @@ export default function SearchParams(props) {
   };
 
   return (
-    <ControlWrap fromOperationFlow={fromOperationFlow}>
+    <ControlWrap $fromOperationFlow={fromOperationFlow}>
       {requestControls.map(item => {
         const hasValue = _.get(
           _.find(requestmap, i => i.id === item.controlId),

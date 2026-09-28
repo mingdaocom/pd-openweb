@@ -12,15 +12,32 @@
 .attachmentFilesWrap {
   &.imageFilesWrap,
   &.smallFilesWrap {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    gap: 6px;
+  }
+  &.imageFilesWrap {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  &.smallFilesWrap {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  &.imageFilesWrap:not(.mobile):not(.smallSize) .attachmentImageCard,
+  &.smallFilesWrap:not(.mobile):not(.smallSize) .attachmentSmallCard {
+    margin: 0;
   }
   &.imageFilesWrap.smallSize,
   &.smallFilesWrap.smallSize {
+    display: flex;
+    gap: 0;
     flex-wrap: inherit;
     justify-content: inherit;
     flex-direction: column;
+  }
+  &.smallFilesWrap.mobile {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0;
   }
   &.listFilesWrap {
     display: flex;
@@ -28,11 +45,6 @@
   }
   .textEllipsis {
     .textEllipsis();
-  }
-  .fileEmpty {
-    height: 0;
-    margin-bottom: 0 !important;
-    margin-top: 0 !important;
   }
   .deleteBtn {
     color: var(--color-white);

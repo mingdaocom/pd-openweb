@@ -1,5 +1,5 @@
 import React from 'react';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export default function PriceTip(props) {
   const { text } = props;

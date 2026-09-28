@@ -2,13 +2,11 @@ import React, { memo, useContext, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import MobileSheetContext from 'mobile/RecordList/MobileSheetContext';
+import { useGeneratePdf } from 'worksheet/common/PrintQrBarCode/GeneratingPdf';
+import { filterButtonBySheetSwitchPermit } from 'src/pages/worksheet/common/filterButtonBySheetSwitchPermit';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { getTitleTextFromControls } from 'src/utils/control';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperatesButtons,
-  getSheetOperatesButtonsStyle,
-} from 'src/utils/worksheet';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { getSheetOperatesButtons, getSheetOperatesButtonsStyle } from 'src/utils/domain/worksheet/helpers';
 import CustomButtons from '../CustomButtons';
 import MoreButtonPopup from '../MoreButtonPopup';
 import { filterPrintButton, getRowDetail, getVisibleButtons, setAttrToButtons } from './util';
@@ -17,11 +15,11 @@ const OperateButtonsWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: ${props => (props.showType === 'icon' ? '0 0 10px' : '0 12px 10px')};
-  ${({ coverCid, coverPosition, coverFillType }) =>
-    coverCid && (coverPosition === '1' || coverPosition === '0') && coverFillType === 0 && `padding-top: 10px};`}
-  ${props => props.colorType !== '0' && 'padding-top: 10px;'}
-  ${props => props.showType === 'standard' && 'gap: 5px;'}
+  padding: ${props => (props.$showType === 'icon' ? '0 0 10px' : '0 12px 10px')};
+  ${({ $coverCid, $coverPosition, $coverFillType }) =>
+    $coverCid && ($coverPosition === '1' || $coverPosition === '0') && $coverFillType === 0 && `padding-top: 10px;`}
+  ${props => props.$colorType !== '0' && 'padding-top: 10px;'}
+  ${props => props.$showType === 'standard' && 'gap: 5px;'}
 `;
 
 const OperateButtons = props => {
@@ -43,6 +41,7 @@ const OperateButtons = props => {
   const { coverFillType, coverPosition } = getCoverStyle(view);
   const isGroupView = viewType === 1 || advancedSetting.groupsetting;
   const [btnDisable, setBtnDisable] = useState({});
+  const { open: openGeneratePdf, holder: generatePdfHolder } = useGeneratePdf();
 
   if (_.isEmpty(context)) return null;
 
@@ -85,6 +84,7 @@ const OperateButtons = props => {
     onDeleteSuccess,
     disableCustomButton,
     appDetail,
+    openGeneratePdf,
   });
   buttons = buttons.filter(button => button.type !== 'group_ref' || !_.isEmpty(button.buttons));
   const showMore = visibleNum < buttons.length;
@@ -113,13 +113,13 @@ const OperateButtons = props => {
 
   return (
     <OperateButtonsWrapper
-      showType={style}
-      viewType={view.viewType}
-      coverCid={coverCid}
-      coverPosition={coverPosition}
-      coverFillType={coverFillType}
-      colorType={advancedSetting.colortype}
+      $showType={style}
+      $coverCid={coverCid}
+      $coverPosition={coverPosition}
+      $coverFillType={coverFillType}
+      $colorType={advancedSetting.colortype}
     >
+      {generatePdfHolder}
       <CustomButtons
         isInCard
         showMore={showMore}

@@ -1,97 +1,3 @@
-.customPageButtonWrap,
-.customPageViewWrap,
-.customPageFilterWrap,
-.customPageCarouselWrap {
-  z-index: 999;
-}
-
-.selectOptionWrapper {
-  padding: 7px 12px;
-  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    font-weight: unset;
-    color: var(--color-white);
-  }
-}
-
-.selectTitleOptionWrapper {
-  padding: 7px 12px;
-}
-
-.editWidgetDialogWrap {
-  &.ant-modal {
-    width: auto;
-    box-sizing: border-box;
-    height: 100%;
-    padding: 32px 32px 0;
-    margin: 0;
-  }
-  .ant-modal-body {
-    padding: 0;
-    height: 100%;
-    .mdEditor {
-      padding: 6px 0 60px 0;
-      box-sizing: border-box;
-      height: 100%;
-      .editorContent {
-        max-height: 100%;
-        height: 100%;
-      }
-    }
-  }
-  .ant-modal-content {
-    height: 100%;
-    overflow: hidden;
-  }
-  .ant-modal-close {
-    display: none;
-  }
-  .icon-close:hover {
-    color: var(--color-primary) !important;
-  }
-  button.save {
-    font-weight: bold;
-    width: 72px !important;
-    border-color: var(--color-primary);
-    background-color: var(--color-primary);
-    &:hover {
-      background-color: var(--color-primary-light);
-      border-color: var(--color-primary-light);
-    }
-  }
-  .customPageSelect {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-      .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
-    .ant-select-selector {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-select-arrow {
-      width: auto;
-      height: auto;
-      top: 40%;
-    }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
-    .ant-select-selection-placeholder {
-      opacity: 1;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-    }
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
-      color: inherit;
-    }
-  }
-  .ant-switch {
-    background: var(--color-background-disabled) !important;
-    &.ant-switch-checked {
-      background: var(--color-primary) !important;
-    }
-  }
-}
-
 .customPageWrap,
 .customPageContent {
   .react-grid-item.react-grid-placeholder {
@@ -136,7 +42,7 @@
   }
 }
 
-.mui-dialog-dialog .confirmInput::placeholder {
+.hap-modal .confirmInput::placeholder {
   color: var(--color-border-primary);
 }
 

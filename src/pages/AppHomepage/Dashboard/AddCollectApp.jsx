@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, FunctionWrap, Icon, SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import homeAppAjax from 'src/api/homeApp';
-import { getFilterApps } from '../AppCenter/utils';
+import { getFilterApps } from 'src/utils/services/appCenter';
 import { getAppOrItemColor } from './utils';
 
 const ContentWrapper = styled.div`
@@ -82,13 +84,6 @@ const Item = styled.div`
       color: var(--color-primary);
     }
   }
-  .ming.Checkbox {
-    min-width: 18px;
-    .Checkbox-box {
-      margin: 0 !important;
-    }
-  }
-
   .appIcon {
     width: 24px;
     height: 24px;
@@ -247,8 +242,10 @@ function AddCollectApp(props) {
   };
 
   return (
-    <Dialog
-      visible={true}
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       type="fixed"
       width={480}
       title={_l('添加')}
@@ -285,8 +282,10 @@ function AddCollectApp(props) {
 
         {renderAppList()}
       </ContentWrapper>
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(AddCollectApp, { ...props });
+export function useAddCollectApp() {
+  return useFunctionWrapComponent(AddCollectApp);
+}

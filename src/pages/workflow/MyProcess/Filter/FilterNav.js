@@ -1,50 +1,26 @@
-import React, { Component } from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
+import React, { Fragment } from 'react';
+import { Segmented } from 'ming-ui/antd-components';
 
-export default class FilterNav extends Component {
-  constructor(props) {
-    super(props);
-    let currentIndex = 0;
+export default function FilterNav({ data, checked, doneTypeCount, onChange }) {
+  const currentItem = data.find(item => item.value.type === checked?.type) || data[0];
 
-    props.data.forEach((item, index) => {
-      if (item.value.type === (props.checked || {}).type) {
-        currentIndex = index;
-      }
-    });
-
-    this.state = {
-      currentIndex,
-    };
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (!_.isEqual(this.props.data, prevProps.data)) {
-        this.state = {
-          currentIndex: 0,
-        };
-      }
-    }
-  }
-  render() {
-    const { data } = this.props;
-    const { currentIndex } = this.state;
-    return (
-      <div className="filterNav flexRow valignWrapper">
-        {data.map((item, index) => (
-          <div
-            key={index}
-            className={cx('item', { active: currentIndex === index })}
-            onClick={() => {
-              this.setState({ currentIndex: index });
-              this.props.onChange(item.value);
-            }}
-          >
-            {item.name}
-          </div>
-        ))}
-      </div>
-    );
-  }
+  return (
+    <Segmented
+      className="bgDisabled mRight20"
+      value={currentItem?.value.type}
+      options={data.map(item => ({
+        label: (
+          <Fragment>
+            <span>{item.name}</span>
+            {!!doneTypeCount[item.value.type] && <span className="mLeft2">{doneTypeCount[item.value.type] || ''}</span>}
+          </Fragment>
+        ),
+        value: item.value.type,
+      }))}
+      onChange={type => {
+        const item = data.find(item => item.value.type === type);
+        item && onChange(item.value);
+      }}
+    />
+  );
 }

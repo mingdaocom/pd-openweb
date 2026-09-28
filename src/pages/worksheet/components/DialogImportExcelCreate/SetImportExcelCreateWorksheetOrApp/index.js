@@ -1,17 +1,20 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Select } from 'antd';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget.js';
-import { canSetAsTitle } from 'src/pages/widgetConfig/util';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Checkbox, Dropdown, Modal, Popover, Select, Tooltip } from 'ming-ui/antd-components';
+import { canSetAsTitle } from 'src/utils/domain/control/metadata';
+import { DEFAULT_CONFIG } from 'src/utils/domain/control/widget';
 import { FILEDS_TYPE_INFO } from '../util';
 import ExcelControlSetting from './ExcelControlSetting';
 import WorksheetItem from './WorksheetItem';
 import './index.less';
+
+const SELECT_CELL_CHECKBOX_STYLES = {
+  root: { flex: 1, minWidth: 0 },
+  label: { display: 'flex', flex: 1, minWidth: 0, paddingInlineEnd: 0 },
+};
 
 const ImportLoadingWrap = styled.div`
   position: absolute;
@@ -41,7 +44,6 @@ const getWorksheetList = (list = []) => {
   );
 };
 
-const { Option } = Select;
 let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrApp extends Component {
   constructor(props) {
     super(props);
@@ -64,19 +66,24 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
         <div className="selectCellsItem">
           <Checkbox
             checked={selectCells.length}
-            clearselected={selectCells.length && selectCells.length !== cells.length}
-            onClick={() => {
+            indeterminate={selectCells.length && selectCells.length !== cells.length}
+            styles={SELECT_CELL_CHECKBOX_STYLES}
+            onChange={() => {
               if (selectCells.length !== cells.length) {
                 this.props.updateCurrentSheetInfo({
                   ...currentSheetInfo,
                   selectCells: cells.map(it => it.columnNumber),
                 });
               } else {
-                this.props.updateCurrentSheetInfo({ ...currentSheetInfo, selectCells: [titleCellNumber] });
+                this.props.updateCurrentSheetInfo({
+                  ...currentSheetInfo,
+                  selectCells: [titleCellNumber],
+                });
               }
             }}
-          />
-          <span className="ellipsis flex">{_l('全选')}</span>
+          >
+            <span className="ellipsis flex">{_l('全选')}</span>
+          </Checkbox>
         </div>
         <div className="spaceLine"></div>
         {cells.map(item => {
@@ -90,8 +97,9 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
               <Checkbox
                 disabled={isTitle}
                 checked={_.includes(selectCells, item.columnNumber)}
-                onClick={checked => {
-                  if (!checked) {
+                styles={SELECT_CELL_CHECKBOX_STYLES}
+                onChange={event => {
+                  if (event.target.checked) {
                     this.props.updateCurrentSheetInfo({
                       ...currentSheetInfo,
                       selectCells: selectCells.concat(item.columnNumber),
@@ -103,17 +111,16 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                     });
                   }
                 }}
-              />
-              <div className="flexRow flex">
+              >
                 <span className="ellipsis flex">{item.value}</span>
-                {isTitle && (
+              </Checkbox>
+              {isTitle && (
+                <Tooltip title={_l('标题字段无法取消')}>
                   <span>
-                    <Tooltip title={_l('标题字段无法取消')}>
-                      <Icon icon="info_outline" className="textDisabled Hand Font15" />
-                    </Tooltip>
+                    <Icon icon="info_outline" className="textDisabled Hand Font15" />
                   </span>
-                )}
-              </div>
+                </Tooltip>
+              )}
             </div>
           );
         })}
@@ -152,86 +159,21 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
         _.find(Object.values(matchControl), v => v.row === it.columnNumber),
         'attribute',
       ) === 1;
-    return (
-      <Menu>
-        <MenuItem
-          icon={<Icon icon="edit" />}
-          onClick={() => {
-            let temp = {
-              ...currentSheetInfo,
-              rows: currentSheetInfo.rows.map((v, i) => {
-                if (i === 0) {
-                  return {
-                    ...v,
-                    cells: v.cells.map(m => {
-                      if (m.columnNumber === it.columnNumber) {
-                        return { ...m, cellActVisible: false, editFieldVisible: true };
-                      }
-
-                      return m;
-                    }),
-                  };
-                }
-
-                return v;
-              }),
-            };
-            this.props.updateCurrentSheetInfo(temp);
-          }}
-        >
-          <span>{_l('编辑字段')}</span>
-        </MenuItem>
-        {showSetTitle && (
-          <MenuItem
-            icon={<Icon icon="ic_title" />}
-            onClick={() => {
-              const temp = currentSheetInfo.matchControl
-                ? Object.values(currentSheetInfo.matchControl).map((v, i) => {
-                    if (i === it.columnNumber) {
-                      return { ...v, attribute: 1 };
-                    }
-
-                    return { ...v, attribute: 0 };
-                  })
-                : [];
-              const tempRows = currentSheetInfo.rows.map((v, i) => {
-                if (i === 0) {
-                  return {
-                    ...v,
-                    cells: v.cells.map(m => {
-                      if (m.columnNumber === it.columnNumber) {
-                        return { ...m, cellActVisible: false };
-                      }
-
-                      return m;
-                    }),
-                  };
-                }
-
-                return v;
-              });
-              this.props.updateCurrentSheetInfo({
-                ...currentSheetInfo,
-                matchControl: Object.assign({}, temp),
-                rows: tempRows,
-              });
-            }}
-          >
-            <span>{_l('设为标题')}</span>
-          </MenuItem>
-        )}
-        <MenuItem
-          disabled={isTitle}
-          icon={<Icon icon="file_upload_off" />}
-          onClick={() => {
-            if (isTitle) return;
-            const tempRows = currentSheetInfo.rows.map((v, i) => {
+    return [
+      {
+        key: 'editField',
+        icon: <Icon icon="edit" className="textTertiary Font16" />,
+        label: <span>{_l('编辑字段')}</span>,
+        onClick: () => {
+          let temp = {
+            ...currentSheetInfo,
+            rows: currentSheetInfo.rows.map((v, i) => {
               if (i === 0) {
                 return {
                   ...v,
                   cells: v.cells.map(m => {
                     if (m.columnNumber === it.columnNumber) {
-                      return { ...m, cellActVisible: false };
+                      return { ...m, cellActVisible: false, editFieldVisible: true };
                     }
 
                     return m;
@@ -240,15 +182,53 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
               }
 
               return v;
-            });
-            const data = {
-              ...currentSheetInfo,
-              selectCells: selectCells.filter(v => v !== it.columnNumber),
-              rows: tempRows,
-            };
-            this.props.updateCurrentSheetInfo(data);
-          }}
-        >
+            }),
+          };
+          this.props.updateCurrentSheetInfo(temp);
+        },
+      },
+      showSetTitle && {
+        key: 'setTitle',
+        icon: <Icon icon="ic_title" className="textTertiary Font16" />,
+        label: <span>{_l('设为标题')}</span>,
+        onClick: () => {
+          const temp = currentSheetInfo.matchControl
+            ? Object.values(currentSheetInfo.matchControl).map((v, i) => {
+                if (i === it.columnNumber) {
+                  return { ...v, attribute: 1 };
+                }
+
+                return { ...v, attribute: 0 };
+              })
+            : [];
+          const tempRows = currentSheetInfo.rows.map((v, i) => {
+            if (i === 0) {
+              return {
+                ...v,
+                cells: v.cells.map(m => {
+                  if (m.columnNumber === it.columnNumber) {
+                    return { ...m, cellActVisible: false };
+                  }
+
+                  return m;
+                }),
+              };
+            }
+
+            return v;
+          });
+          this.props.updateCurrentSheetInfo({
+            ...currentSheetInfo,
+            matchControl: Object.assign({}, temp),
+            rows: tempRows,
+          });
+        },
+      },
+      {
+        key: 'skipImport',
+        disabled: isTitle,
+        icon: <Icon icon="file_upload_off" className="textTertiary Font16" />,
+        label: (
           <div className="flexRow">
             <div className="flex">{_l('不导入此列')}</div>
             <span>
@@ -259,9 +239,34 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
               )}
             </span>
           </div>
-        </MenuItem>
-      </Menu>
-    );
+        ),
+        onClick: () => {
+          if (isTitle) return;
+          const tempRows = currentSheetInfo.rows.map((v, i) => {
+            if (i === 0) {
+              return {
+                ...v,
+                cells: v.cells.map(m => {
+                  if (m.columnNumber === it.columnNumber) {
+                    return { ...m, cellActVisible: false };
+                  }
+
+                  return m;
+                }),
+              };
+            }
+
+            return v;
+          });
+          const data = {
+            ...currentSheetInfo,
+            selectCells: selectCells.filter(v => v !== it.columnNumber),
+            rows: tempRows,
+          };
+          this.props.updateCurrentSheetInfo(data);
+        },
+      },
+    ].filter(Boolean);
   };
   renderHeader = rowItem => {
     const { currentSheetInfo = {}, worksheetList = [], createType, projectId, appId } = this.props;
@@ -284,29 +289,15 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                 <span className="flexRow alignItemsCenter">
                   {control.attribute === 1 && <Icon icon="ic_title " className="colorPrimary mRight5 Font16" />}
                   <Icon icon={cellIcon} className="textTertiary Font16" />
-                  <Trigger
-                    popupClassName="excelControlSettingWrap"
-                    popupVisible={it.editFieldVisible}
-                    onPopupVisibleChange={editFieldVisible => {
+                  <Popover
+                    open={it.editFieldVisible}
+                    onOpenChange={editFieldVisible => {
                       this.updateTriggerVisible(it, 'editFieldVisible', editFieldVisible);
                     }}
-                    popupPlacement="bottom"
-                    popupAlign={{
-                      offset: [-26, 0],
-                      overflow: { adjustX: true, adjustY: true },
-                    }}
-                    builtinPlacements={{
-                      bottom: {
-                        points: ['tl', 'bl'],
-                      },
-                      top: {
-                        points: ['bl', 'tl'],
-                      },
-                    }}
-                    action={['click']}
-                    zIndex={1000}
-                    destroyPopupOnHide={true}
-                    popup={() => (
+                    align={{ offset: [-26, 0] }}
+                    placement="bottomLeft"
+                    trigger="click"
+                    content={
                       <ExcelControlSetting
                         data={{ ...control }}
                         createType={createType}
@@ -347,31 +338,24 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                         }}
                         worksheetList={worksheetList}
                       />
-                    )}
+                    }
                   >
                     <span className="flex ellipsis InlineBlock bold Hand" title={it.value}>
                       {it.value}
                     </span>
-                  </Trigger>
-                  <Trigger
-                    popupVisible={it.cellActVisible}
-                    onPopupVisibleChange={cellActVisible => {
+                  </Popover>
+                  <Dropdown
+                    open={it.cellActVisible}
+                    onOpenChange={(cellActVisible, { source } = {}) => {
+                      if (!cellActVisible && source === 'menu') return;
                       this.updateTriggerVisible(it, 'cellActVisible', cellActVisible);
                     }}
-                    popupPlacement="bottom"
-                    popupAlign={{
-                      offset: [-130, 10],
-                    }}
-                    builtinPlacements={{
-                      bottom: {
-                        points: ['tc', 'bc'],
-                      },
-                    }}
-                    action={['click']}
-                    popup={() => this.renderSetCell(it)}
+                    placement="bottom"
+                    trigger={['click']}
+                    menu={{ items: this.renderSetCell(it) }}
                   >
                     <Icon icon="arrow-down" className="textTertiary Font12 Hand hoverColorPrimary" />
-                  </Trigger>
+                  </Dropdown>
                 </span>
               </td>
             );
@@ -411,14 +395,22 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
             <LoadDiv />
           </ImportLoadingWrap>
         )}
-        <Dialog
-          dialogClasses="setImportDataContainer"
+        <Modal
+          rootClassName="setImportDataContainer"
           width={1000}
           title={<span className="Bold">{_l('设置导入数据')}</span>}
-          visible={visible}
+          open={visible}
+          mask={{ closable: true }}
+          keyboard
+          styles={{
+            container: { height: 595, padding: 0, position: 'relative' },
+            header: { padding: '20px 24px 0 20px' },
+            footer: { padding: '0px 24px 20px 20px' },
+            body: { overflowX: 'hidden' },
+          }}
           onCancel={this.props.onCancel}
-          footer={
-            <div className="flexRow footerContent">
+          footerLeftElement={
+            <Fragment>
               <div className="textTertiary">
                 {_.isEmpty(selectedImportSheetIds)
                   ? ''
@@ -428,26 +420,19 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                       currentSheetInfo.total - 1 >= 10 ? 10 : currentSheetInfo.total - 1,
                     )}
               </div>
-              <div className="footer">
-                <Support
-                  type={2}
-                  text={_l('帮助')}
-                  href="https://help.mingdao.com/worksheet/import-excel-create"
-                  className="textDisabled mRight30"
-                />
-                <Button type="link" className="mRight15 cancelBtn" onClick={this.props.onCancel}>
-                  {_l('取消')}
-                </Button>
-                <Button
-                  type="primary"
-                  disabled={_.isEmpty(selectedImportSheetIds)}
-                  onClick={() => this.props.handleNext()}
-                >
-                  {createType === 'worksheet' ? _l('开始导入') : _l('下一步')}
-                </Button>
-              </div>
-            </div>
+              <div className="flex" />
+              <Support
+                type={2}
+                text={_l('帮助')}
+                href="https://help.mingdao.com/worksheet/import-excel-create"
+                className="textDisabled mRight30"
+              />
+            </Fragment>
           }
+          cancelText={_l('取消')}
+          okText={createType === 'worksheet' ? _l('开始导入') : _l('下一步')}
+          okDisabled={_.isEmpty(selectedImportSheetIds)}
+          onOk={() => this.props.handleNext()}
         >
           {importLoading && (
             <ImportLoadingWrap className="laodingWrap flexRow justifyContentCenter alignItemsCenter">
@@ -484,15 +469,11 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                       onChange={val => {
                         this.props.updateCurrentSheetInfo({ ...currentSheetInfo, rowNum: val });
                       }}
-                    >
-                      {rows.length
-                        ? rows
-                            .slice(0, 11)
-                            .map(v =>
-                              v.rowNumber === 0 ? '' : <Option value={v.rowNumber}>{_l('第%0行', v.rowNumber)}</Option>,
-                            )
-                        : ''}
-                    </Select>
+                      options={rows
+                        .slice(0, 11)
+                        .filter(v => v.rowNumber !== 0)
+                        .map(v => ({ value: v.rowNumber, label: _l('第%0行', v.rowNumber) }))}
+                    />
                     <Tooltip
                       title={_l(
                         '只有表头下方的数据才会被导入;表头字段不得为空，否则将导致空值字段之后的字段无法被导入。',
@@ -502,19 +483,7 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                     </Tooltip>
                   </div>
                   <div className="exportCol Hand">
-                    <Trigger
-                      popupPlacement="bottom"
-                      popupAlign={{
-                        offset: [0, 0],
-                      }}
-                      builtinPlacements={{
-                        bottom: {
-                          points: ['tr', 'br'],
-                        },
-                      }}
-                      action={['click']}
-                      popup={this.renderCells}
-                    >
+                    <Popover placement="bottomRight" trigger="click" noPadding content={this.renderCells()}>
                       <span>
                         <Icon icon="tune_new" className="textSecondary mRight5" />
                         <span>
@@ -524,7 +493,7 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
                         </span>
                         <Icon icon="arrow-down-border" className="mLeft5 textTertiary" />
                       </span>
-                    </Trigger>
+                    </Popover>
                   </div>
                 </div>
                 <div className="tableWrap flex" ref={node => (this.tableWrap = node)}>
@@ -562,7 +531,7 @@ let SetImportExcelCreateWorksheetOrApp = class SetImportExcelCreateWorksheetOrAp
               </Fragment>
             )}
           </div>
-        </Dialog>
+        </Modal>
       </Fragment>
     );
   }

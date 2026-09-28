@@ -1,15 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Dropdown, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import application from 'src/api/application';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import { handleMask } from 'src/pages/Admin/util';
-import { getToken } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getToken } from 'src/utils/services/request/authenticated';
 
 const UploadContent = styled.div`
   align-items: flex-end;
@@ -50,18 +49,6 @@ const ThirdPartyAppWrapper = styled.div`
   }
 `;
 
-const ApplicationTriggerWrapper = styled.div`
-  background-color: var(--color-background-primary);
-  .item {
-    width: 130px;
-    padding: 10px 24px;
-    &:hover {
-      color: var(--color-white);
-      background-color: var(--color-primary);
-    }
-  }
-`;
-
 class Moreop extends Component {
   constructor(props) {
     super(props);
@@ -71,42 +58,37 @@ class Moreop extends Component {
   }
   render() {
     return (
-      <Trigger
-        action={['click']}
-        popupVisible={this.state.menuVisible}
-        onPopupVisibleChange={visible => {
+      <Dropdown
+        trigger={['click']}
+        open={this.state.menuVisible}
+        onOpenChange={visible => {
           this.setState({ menuVisible: visible });
         }}
-        popup={
-          <ApplicationTriggerWrapper className="pTop10 pBottom10 z-depth-2">
-            <div
-              className="item pointer"
-              onClick={() => {
+        menu={{
+          items: [
+            {
+              key: 'edit',
+              label: _l('编辑'),
+              onClick: () => {
                 this.setState({ menuVisible: false });
                 this.props.onEdit();
-              }}
-            >
-              {_l('编辑')}
-            </div>
-            <div
-              className="item pointer"
-              onClick={() => {
+              },
+            },
+            {
+              key: 'delete',
+              label: _l('删除'),
+              danger: true,
+              onClick: () => {
                 this.setState({ menuVisible: false });
                 this.props.onDelete();
-              }}
-            >
-              {_l('删除')}
-            </div>
-          </ApplicationTriggerWrapper>
-        }
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+              },
+            },
+          ],
+          style: { minWidth: 130 },
         }}
       >
         <Icon className="pointer Font17 textSecondary" icon="moreop" />
-      </Trigger>
+      </Dropdown>
     );
   }
 }
@@ -208,7 +190,7 @@ class Upload extends Component {
           ) : (
             <Fragment>
               <Icon icon="add" className="Font22 textTertiary" />
-              <div className="ant-upload-text textTertiary mTop10">{_l('上传')}</div>
+              <div className="hap-upload-text textTertiary mTop10">{_l('上传')}</div>
             </Fragment>
           )}
         </div>
@@ -481,8 +463,8 @@ export default class SelfBuiltThirdPartyApp extends Component {
     const { projectId } = this.props;
     const { applicationList } = this.state;
 
-    Dialog.confirm({
-      title: _l('确认删除 %0 ?', item.appName),
+    Modal.confirm({
+      title: <span className="textError">{_l('确认删除 %0 ?', item.appName)}</span>,
       onOk: () => {
         return application
           .removeApplication({
@@ -518,21 +500,14 @@ export default class SelfBuiltThirdPartyApp extends Component {
     const { dialogVisible, appName, about, appUrl, callbackUrl, currentAppItem, requestLoading, avatarUrl } =
       this.state;
     return (
-      <Dialog
-        overlayClosable={!requestLoading}
+      <Modal
+        mask={{ closable: !requestLoading }}
+        keyboard
         title={<span className="bold">{currentAppItem ? _l('编辑应用') : _l('新建应用')}</span>}
-        visible={dialogVisible}
+        open={dialogVisible}
         onCancel={this.handleHideDialog}
-        footer={
-          <Fragment>
-            <Button onClick={this.handleHideDialog} type="link">
-              {_l('取消')}
-            </Button>
-            <Button onClick={this.handleCreateApp} loading={requestLoading}>
-              {_l('确定')}
-            </Button>
-          </Fragment>
-        }
+        onOk={this.handleCreateApp}
+        confirmLoading={requestLoading}
       >
         {currentAppItem && (
           <Fragment>
@@ -563,8 +538,8 @@ export default class SelfBuiltThirdPartyApp extends Component {
           <Input
             className="w100"
             value={appName}
-            onChange={value => {
-              this.setState({ appName: value });
+            onChange={e => {
+              this.setState({ appName: e.target.value });
             }}
           />
         </div>
@@ -573,8 +548,8 @@ export default class SelfBuiltThirdPartyApp extends Component {
           <Input
             className="w100"
             value={about}
-            onChange={value => {
-              this.setState({ about: value });
+            onChange={e => {
+              this.setState({ about: e.target.value });
             }}
           />
         </div>
@@ -583,8 +558,8 @@ export default class SelfBuiltThirdPartyApp extends Component {
           <Input
             className="w100"
             value={appUrl}
-            onChange={value => {
-              this.setState({ appUrl: value });
+            onChange={e => {
+              this.setState({ appUrl: e.target.value });
             }}
           />
         </div>
@@ -593,12 +568,12 @@ export default class SelfBuiltThirdPartyApp extends Component {
           <Input
             className="w100"
             value={callbackUrl}
-            onChange={value => {
-              this.setState({ callbackUrl: value });
+            onChange={e => {
+              this.setState({ callbackUrl: e.target.value });
             }}
           />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 

@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
-import { Menu, MenuItem } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import { NODE_TYPE } from '../../enum';
 import BranchDialog from './BranchDialog';
 
@@ -8,7 +8,6 @@ export default class CreateNode extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showOptions: false,
       branchDialogModel: 0,
     };
   }
@@ -55,30 +54,20 @@ export default class CreateNode extends Component {
       );
     }
 
-    return (
-      <Fragment>
-        <i
-          className="icon-custom_add_circle"
-          onClick={() => {
-            if (isApproval) {
-              this.setState({ showOptions: true });
-            } else {
-              !isCopy && selectAddNodeId(item.id);
-            }
-          }}
-        >
-          {text && <span className="Font14 mLeft10">{text}</span>}
-        </i>
-      </Fragment>
+    const trigger = (
+      <i className="icon-custom_add_circle" onClick={() => !isApproval && !isCopy && selectAddNodeId(item.id)}>
+        {text && <span className="Font14 mLeft10">{text}</span>}
+      </i>
     );
+
+    return isApproval ? this.renderMoreOptions(trigger) : trigger;
   }
 
   /**
    * 渲染更多操作
    */
-  renderMoreOptions() {
+  renderMoreOptions(trigger) {
     const { removeCopyBtn } = this.props;
-    const { showOptions } = this.state;
     const LIST = [
       { type: 4, name: _l('审批'), iconColor: '#A00416', iconName: 'icon-workflow_ea' },
       { type: 3, name: _l('填写%03025'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
@@ -87,27 +76,21 @@ export default class CreateNode extends Component {
       { type: 26, name: _l('更多动作'), iconColor: '#ffa340', iconName: 'icon-workflow' },
       { type: -1, name: _l('复制'), iconColor: '#BDBDBD', iconName: 'icon-copy' },
     ];
-
-    if (!showOptions) return null;
-
-    if (removeCopyBtn) {
-      _.remove(LIST, o => o.type === -1);
-    }
+    const list = removeCopyBtn ? LIST.filter(item => item.type !== -1) : LIST;
+    const items = list.flatMap(item => [
+      ...(item.type === -1 ? [{ key: 'divider', type: 'divider' }] : []),
+      {
+        key: item.type,
+        icon: <i className={`Font16 ${item.iconName}`} style={{ color: item.iconColor }} />,
+        label: <span className="Font14 textPrimary">{item.name}</span>,
+        onClick: () => this.moreOptionsAction(item),
+      },
+    ]);
 
     return (
-      <Menu className="mTop10" onClickAway={() => this.setState({ showOptions: false })}>
-        {LIST.map((o, i) => (
-          <Fragment key={i}>
-            {o.type === -1 && (
-              <div className="mTop5 mBottom5" style={{ background: 'var(--color-border-secondary)', height: 1 }} />
-            )}
-            <MenuItem className="flexRow" key={i} onClick={() => this.moreOptionsAction(o)}>
-              <i className={`Font16 ${o.iconName}`} style={{ color: o.iconColor }} />
-              <span className="Font14 mLeft10 textPrimary">{o.name}</span>
-            </MenuItem>
-          </Fragment>
-        ))}
-      </Menu>
+      <Dropdown trigger={['click']} placement="bottom" menu={{ items }}>
+        {trigger}
+      </Dropdown>
     );
   }
 
@@ -138,8 +121,6 @@ export default class CreateNode extends Component {
       selectAddNodeId(item.id);
       selectCopy(processId);
     }
-
-    this.setState({ showOptions: false });
   }
 
   /**
@@ -181,7 +162,6 @@ export default class CreateNode extends Component {
     return (
       <div className={`workflowLineBtn ${className}`}>
         {this.renderContent()}
-        {this.renderMoreOptions()}
 
         {!!branchDialogModel && (
           <BranchDialog

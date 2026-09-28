@@ -1,18 +1,24 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, UserHead } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { Icon, SearchInput, UserHead } from 'ming-ui';
+import { Button, Space } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { getColor, getIcon, getTxtColor } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import Table from 'src/pages/Role/component/Table';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 
 const pageSize = 1000;
+const SearchInputCon = styled(SearchInput)`
+  width: 244px;
+`;
+
+const ACTION_BUTTON_STYLE = { height: 32 };
+
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -33,13 +39,6 @@ const WrapBar = styled.div`
     color: var(--color-white);
     padding: 0 12px;
     display: inline-block;
-  }
-  .search .roleSearch {
-    width: 244px;
-    height: 37px;
-    background: var(--color-background-primary);
-    border-radius: 3px;
-    border: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -192,26 +191,38 @@ function Others(props) {
                 changeUserRole([data.id]);
               }
             }}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [-180, 0],
-            }}
+            placement="bottomRight"
           />
         );
       },
     },
   ];
 
-  const handleSearch = keyWords => {
-    setState({ keyWords });
-    SetAppRolePagingModel({
-      ...appRolePagingModel,
-      pageIndex: 1,
-      keywords: keyWords,
-    });
+  const handleSearch = useCallback(
+    (keyWords, pagingModel) => {
+      SetAppRolePagingModel({
+        ...pagingModel,
+        pageIndex: 1,
+        keywords: keyWords,
+      });
+    },
+    [SetAppRolePagingModel],
+  );
+  const debouncedSearch = useMemo(() => _.debounce(handleSearch, 500), [handleSearch]);
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  const onSearch = keywords => {
+    setState({ keyWords: keywords });
+
+    if (keywords) {
+      debouncedSearch(keywords, appRolePagingModel);
+    } else {
+      debouncedSearch.cancel();
+      handleSearch('', appRolePagingModel);
+    }
   };
 
-  const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
   const displayUserList =
     pageIndex <= 1 && loading
       ? []
@@ -229,34 +240,33 @@ function Others(props) {
           <span className="textTertiary mLeft10">{titleCountTxt}</span>
         </div>
         {selectedIds.length > 0 && (
-          <div>
-            <span
-              className={cx('toOthers InlineBlock Hand mLeft10')}
+          <Space size={10}>
+            <Button
+              color="primary"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
               onClick={() => {
                 changeUserRole(selectedIds, selectedAll);
               }}
             >
               {_l('修改角色')}
-            </span>
-            <span
-              className={cx('del InlineBlock Hand mLeft10')}
+            </Button>
+            <Button
+              color="danger"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
               onClick={() => {
                 delUserRole(selectedIds, selectedAll);
               }}
             >
               {_l('移出')}
-            </span>
-          </div>
+            </Button>
+          </Space>
         )}
         {selectedIds.length <= 0 && (
           <WrapBar>
             <div className="search InlineBlock">
-              <SearchInput
-                className="roleSearch"
-                placeholder={props.placeholder || _l('搜索')}
-                value={keyWords}
-                onChange={onSearch}
-              />
+              <SearchInputCon placeholder={props.placeholder || _l('搜索')} value={keyWords} onChange={onSearch} />
             </div>
           </WrapBar>
         )}

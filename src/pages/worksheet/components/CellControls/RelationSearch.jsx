@@ -1,14 +1,14 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
-import { RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
-import { openRelationSearchDialog } from 'src/components/Form/DesktopForm/widgets/RelationSearch';
+import { useRelateRecordTableDialog } from 'worksheet/components/RelateRecordTableDialog';
+import { useRelationSearchDialog } from 'src/components/Form/DesktopForm/widgets/RelationSearch';
+import { RELATION_SEARCH_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 
 const Con = styled.div`
   .relationSearchTag {
     display: inline-block;
-    background-color: rgba(0, 100, 240, 0.08);
+    background-color: var(--color-primary-transparent);
     border-radius: 3px;
     height: 21px;
     line-height: 21px;
@@ -40,8 +40,13 @@ export default function RelationSearch(props) {
     style,
     onClick,
   } = props;
+  const { open: openRelateRelateRecordTable, holder: relateRecordTableDialogHolder } = useRelateRecordTableDialog();
+  const { open: openRelationSearchDialog, holder: relationSearchDialogHolder } = useRelationSearchDialog();
+
   return (
     <Con className={className} style={style} onClick={onClick}>
+      {relateRecordTableDialogHolder}
+      {relationSearchDialogHolder}
       <div
         className="relationSearchTag"
         onClick={e => {

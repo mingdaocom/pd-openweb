@@ -1,34 +1,40 @@
 import React, { Component } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
-import { Dialog, Icon, Input, RadioGroup } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Modal, Radio, Select } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectJob } from 'ming-ui/functions';
+import { RoleSelectPopover } from 'ming-ui/functions/quickSelectRole';
 import userAjax from 'src/api/user';
 import workSiteAjax from 'src/api/workSite';
-import { encrypt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import { encrypt } from 'src/utils/services/security/encryption';
 import DepartmentAction from './DepartmentAction';
 import './index.less';
 
-const { Option } = Select;
 const options = [
   { text: _l('部门'), value: 1 },
   { text: _l('职位'), value: 2 },
+  { text: _l('角色'), value: 5 },
   { text: _l('工作地点'), value: 3 },
   {
     text: _l('密码'),
     value: 4,
-    className: !window.platformENV.isPlatform ? 'show' : 'hide',
+    get className() {
+      return !window.platformENV.isPlatform ? 'show' : 'hide';
+    },
   },
 ];
 
 export default class DialogBatchEdit extends Component {
+  requestPending = false;
+
   constructor(props) {
     super(props);
     this.state = {
       filedValue: 1,
       departmentInfos: [],
       jobInfos: [],
+      orgRoles: [],
       workSiteInfo: [],
       isShowAct: false,
       idAct: '',
@@ -39,7 +45,7 @@ export default class DialogBatchEdit extends Component {
   changeRadio = val => {
     if (val === this.state.filedValue) return;
 
-    this.setState({ filedValue: val, departmentInfos: [], jobInfos: [], workSiteId: '' }, () => {
+    this.setState({ filedValue: val, departmentInfos: [], jobInfos: [], orgRoles: [], workSiteId: '' }, () => {
       if (this.state.filedValue === 3) {
         this.getWorkSites();
       }
@@ -76,6 +82,17 @@ export default class DialogBatchEdit extends Component {
       },
     });
   };
+
+  handleRoleSelect = (data, isCancel = false) => {
+    if (!data.length) return;
+
+    const roles = data.map(l => ({ id: l.organizeId, name: l.organizeName }));
+    this.setState({
+      orgRoles: isCancel
+        ? this.state.orgRoles.filter(l => l.id !== data[0].organizeId)
+        : _.uniqBy(this.state.orgRoles.concat(roles), 'id'),
+    });
+  };
   getWorkSites = () => {
     const { projectId } = this.props;
     workSiteAjax
@@ -90,6 +107,26 @@ export default class DialogBatchEdit extends Component {
       });
   };
 
+  updateRoleForUsers = () => {
+    const { projectId, selectedAccountIds } = this.props;
+    const { orgRoles = [] } = this.state;
+
+    return userAjax
+      .updateOrgRoleForUsers({
+        projectId,
+        accountIds: selectedAccountIds,
+        orgRoleIds: orgRoles.map(item => item.id),
+      })
+      .then(res => {
+        if (res) {
+          this.props.loadData(1);
+          alert(_l('修改成功'));
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+      });
+  };
+
   // 批量重置密码
   resetPassword = () => {
     const { selectedAccountIds = [], projectId, emptyUserSet } = this.props;
@@ -99,12 +136,12 @@ export default class DialogBatchEdit extends Component {
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
-    } else if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
+    } else if (!isPasswordValid(password, passwordRegex)) {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
 
-    userAjax
+    return userAjax
       .batchResetPassword({
         projectId,
         accountIds: selectedAccountIds,
@@ -123,12 +160,15 @@ export default class DialogBatchEdit extends Component {
   };
 
   submit = () => {
+    if (this.requestPending) return;
+
     const { projectId, selectedAccountIds } = this.props;
     let { departmentInfos = [], jobInfos = [], workSiteId = '', filedValue } = this.state;
 
+    let request;
     if (filedValue === 1) {
       let departmentIds = departmentInfos.map(item => item.departmentId);
-      userAjax
+      request = userAjax
         .updateDepartmentForUsers({
           projectId,
           accountIds: selectedAccountIds,
@@ -144,7 +184,7 @@ export default class DialogBatchEdit extends Component {
         });
     } else if (filedValue === 2) {
       let jobIds = jobInfos.map(item => item.jobId);
-      userAjax.updateJobForUsers({ projectId, accountIds: selectedAccountIds, jobIds }).then(res => {
+      request = userAjax.updateJobForUsers({ projectId, accountIds: selectedAccountIds, jobIds }).then(res => {
         if (res) {
           this.props.loadData(1);
           alert(_l('修改成功'));
@@ -153,7 +193,7 @@ export default class DialogBatchEdit extends Component {
         }
       });
     } else if (filedValue === 3) {
-      userAjax.updateWorkSiteForUsers({ projectId, accountIds: selectedAccountIds, workSiteId }).then(res => {
+      request = userAjax.updateWorkSiteForUsers({ projectId, accountIds: selectedAccountIds, workSiteId }).then(res => {
         if (res) {
           this.props.loadData(1);
           alert(_l('修改成功'));
@@ -161,12 +201,19 @@ export default class DialogBatchEdit extends Component {
           alert(_l('修改失败'), 2);
         }
       });
+    } else if (filedValue === 5) {
+      request = this.updateRoleForUsers();
     } else if (filedValue === 4) {
-      this.resetPassword();
+      request = this.resetPassword();
     }
 
+    if (!request) return;
+    this.requestPending = true;
     this.props.removeUserFromSet(selectedAccountIds);
     this.props.onCancel();
+    return request.finally(() => {
+      this.requestPending = false;
+    });
   };
   resetPassword = () => {
     const { selectedAccountIds = [], projectId, emptyUserSet } = this.props;
@@ -199,12 +246,13 @@ export default class DialogBatchEdit extends Component {
       });
   };
   render() {
-    const { visible, selectedAccountIds = [] } = this.props;
+    const { projectId, visible, selectedAccountIds = [] } = this.props;
     const { passwordRegexTip } = _.get(md, ['global', 'SysSettings']) || {};
     let {
       filedValue,
       departmentInfos = [],
       jobInfos = [],
+      orgRoles = [],
       isShowAct,
       idAct,
       workSiteInfo = [],
@@ -212,20 +260,24 @@ export default class DialogBatchEdit extends Component {
       password,
     } = this.state;
     return (
-      <Dialog
+      <Modal
         className="dialogBatchEdit dialogSetEdit"
         title={_l('编辑%0个用户信息', selectedAccountIds.length)}
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         okText={_l('确认')}
         cancelText={_l('取消')}
         onCancel={this.props.onCancel}
         onOk={this.submit}
       >
-        <div className="textSecondary Bold ">{_l('选择编辑字段')}</div>
-        <RadioGroup
-          data={options.filter(it => (!window.platformENV.isPlatform ? true : it.value !== 4))}
-          onChange={this.changeRadio}
-          checkedValue={filedValue}
+        <div className="textSecondary Bold mBottom10">{_l('选择编辑字段')}</div>
+        <Radio.Group
+          options={(options.filter(it => (!window.platformENV.isPlatform ? true : it.value !== 4)) || []).map(
+            ({ text, ...option }) => ({ ...option, label: text }),
+          )}
+          onChange={event => this.changeRadio(event.target.value)}
+          value={filedValue}
         />
         <div className="textSecondary Bold mTop20 mBottom12">{_l('设为')}</div>
         {filedValue === 1 &&
@@ -322,6 +374,24 @@ export default class DialogBatchEdit extends Component {
               </span>
             );
           })}
+        {filedValue === 5 &&
+          _.map(orgRoles, item => {
+            return (
+              <span className="itemSpan roleTag mAll5" key={item.id}>
+                <Icon icon="person_new" className="textTertiary Font18 mRight8 TxtMiddle" />
+                {item.name}
+                <Icon
+                  icon="clear"
+                  className="mLeft8 Hand"
+                  onClick={() => {
+                    this.setState({
+                      orgRoles: this.state.orgRoles.filter(it => it.id !== item.id),
+                    });
+                  }}
+                />
+              </span>
+            );
+          })}
         {(filedValue === 1 || filedValue === 2) && (
           <Icon
             icon="task_add-02"
@@ -337,6 +407,16 @@ export default class DialogBatchEdit extends Component {
             }}
           />
         )}
+        {filedValue === 5 && (
+          <RoleSelectPopover
+            projectId={projectId}
+            unique={false}
+            value={orgRoles.map(item => ({ organizeId: item.id, organizeName: item.name }))}
+            onSave={this.handleRoleSelect}
+          >
+            <Icon icon="task_add-02" className="Font26 Hand textTertiary mAll5 TxtMiddle" />
+          </RoleSelectPopover>
+        )}
         {filedValue === 3 && (
           <Select
             className="w100"
@@ -345,11 +425,8 @@ export default class DialogBatchEdit extends Component {
             onChange={value => {
               this.setState({ workSiteId: value });
             }}
-          >
-            {workSiteInfo.map(item => (
-              <Option value={item.workSiteId}>{item.workSiteName}</Option>
-            ))}
-          </Select>
+            options={workSiteInfo.map(item => ({ value: item.workSiteId, label: item.workSiteName }))}
+          />
         )}
 
         {filedValue === 4 && (window.platformENV.isOverseas || window.platformENV.isLocal) && (
@@ -359,12 +436,12 @@ export default class DialogBatchEdit extends Component {
             value={password}
             autoComplete="new-password"
             placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-            onChange={value => {
-              this.setState({ password: value });
+            onChange={e => {
+              this.setState({ password: e.target.value });
             }}
           />
         )}
-      </Dialog>
+      </Modal>
     );
   }
 }

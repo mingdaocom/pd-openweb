@@ -1,0 +1,3 @@
+const REVIEW_PAGE_SIZE = 20;
+
+export { REVIEW_PAGE_SIZE };

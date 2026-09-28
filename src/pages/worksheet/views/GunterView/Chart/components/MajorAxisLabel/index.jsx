@@ -1,6 +1,4 @@
-import React, { Component, createRef, Fragment } from 'react';
-import { connect } from 'react-redux';
-import _ from 'lodash';
+import React from 'react';
 import styled from 'styled-components';
 import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
 
@@ -10,121 +8,31 @@ const AxisLabel = styled.div`
   white-space: nowrap;
   background: var(--color-background-primary);
 `;
-const YearLabel = styled.div`
-  position: absolute;
-  left: 0;
-  font-size: 14px;
-  font-weight: 500;
-`;
-const paddingLeft = 15;
 const isGunterExport = location.href.includes('gunterExport');
-let MajorAxisLabel = class MajorAxisLabel extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isyear: false,
-      reset: true,
-    };
-    this.$axisRef = createRef(null);
-    this.$yearRef = createRef(null);
-    this.yearLabelWidth = 0;
+
+function getLabelName(item, periodType) {
+  const [, m] = item.time.split('-');
+
+  if (m === '01' || ![PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) || isGunterExport) {
+    return item.time;
   }
 
-  componentDidMount() {
-    const { chartScroll } = this.props;
+  return m;
+}
 
-    if (!isGunterExport) {
-      chartScroll.on('scroll', this.onScroll);
-      this.setState({
-        reset: true,
-      });
-    }
+function MajorAxisLabel(props) {
+  const { item, periodType, hiddenTime } = props;
+  const hidden = !isGunterExport && item.time === hiddenTime;
 
-    this.yearLabelWidth = (_.get(this.$yearRef, 'current.offsetWidth') || 52) - paddingLeft;
-  }
+  return (
+    <AxisLabel
+      style={{
+        width: item.width,
+      }}
+    >
+      {hidden ? null : getLabelName(item, periodType)}
+    </AxisLabel>
+  );
+}
 
-  componentWillUnmount() {
-    const { chartScroll } = this.props;
-    chartScroll.off('scroll', this.onScroll);
-  }
-
-  onScroll = () => {
-    const { item, periodType, chartScroll } = this.props;
-    const [, m] = item.time.split('-');
-    const yearVisible = [PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) && !isGunterExport;
-    const scrollLeft = Math.abs(chartScroll.x - paddingLeft) + (yearVisible ? this.yearLabelWidth : 0);
-    const currentEl = this.$axisRef.current;
-    const { offsetLeft, offsetWidth } = currentEl;
-
-    if (scrollLeft >= offsetLeft && scrollLeft <= offsetLeft + offsetWidth) {
-      this.setState({
-        reset: true,
-        isyear: false,
-      });
-      const value = scrollLeft - offsetLeft;
-      currentEl.style.textIndent = `${value}px`;
-    } else if (this.state.reset) {
-      this.setState({
-        isyear: m === '01',
-      });
-      currentEl.style.textIndent = null;
-      this.setState({
-        reset: false,
-      });
-    } else {
-      this.setState({
-        isyear: m === '01',
-      });
-    }
-  };
-
-  renderYearLabel() {
-    const { item, chartScroll } = this.props;
-    const [y] = item.time.split('-');
-
-    if (this.state.reset) {
-      const left = Math.abs(chartScroll.x);
-      return (
-        <YearLabel
-          ref={this.$yearRef}
-          style={{
-            paddingLeft,
-            transform: `translateX(${left}px)`,
-          }}
-        >{`${y}-`}</YearLabel>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  renderName() {
-    const { item, periodType } = this.props;
-    const [, m] = item.time.split('-');
-
-    if (this.state.isyear || ![PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) || isGunterExport) {
-      return item.time;
-    }
-
-    return m;
-  }
-
-  render() {
-    const { item, periodType } = this.props;
-    return (
-      <Fragment>
-        {[PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) && !isGunterExport && this.renderYearLabel()}
-        <AxisLabel
-          ref={this.$axisRef}
-          style={{
-            width: item.width,
-          }}
-        >
-          {this.renderName()}
-        </AxisLabel>
-      </Fragment>
-    );
-  }
-};
-MajorAxisLabel = connect(state => ({ ..._.pick(state.sheet.gunterView, ['chartScroll']) }))(MajorAxisLabel);
 export default MajorAxisLabel;

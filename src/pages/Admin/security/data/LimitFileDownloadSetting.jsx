@@ -2,19 +2,21 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dropdown, Icon, RadioGroup, Textarea, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, UserHead } from 'ming-ui';
+import { Button, Dropdown, Input, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import dataLimitAjax from 'src/api/dataLimit';
-import MoreActionDia from '../account/contactsHidden/modules/moreActionDia';
 import { LIMIT_FILE_DOWNLOAD_USE_TYPE_ENUM } from './enum';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const IP_TEXTAREA_STYLE = { minHeight: 80, maxHeight: 200 };
+const MORE_ACTION_MENU_STYLE = { minWidth: 180 };
 
 const Wrap = styled.div`
   box-sizing: border-box;
   margin: 16px 0 0;
   border: 1px solid var(--color-border-primary);
   padding: 24px 8px;
-  position: relative;
 
   .userItem {
     position: relative;
@@ -75,28 +77,6 @@ const Wrap = styled.div`
       }
     }
   }
-
-  .moreActionDia {
-    position: absolute;
-    top: 20px;
-    left: 0;
-    z-index: 1;
-    line-height: 30px;
-    text-align: left;
-    width: 180px;
-    background: var(--color-background-primary);
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
-    border-radius: 3px;
-    padding: 10px 0;
-    box-sizing: border-box;
-
-    li {
-      padding: 0 24px;
-      &:hover {
-        background: var(--color-border-secondary);
-      }
-    }
-  }
 `;
 
 const Content = styled.div`
@@ -104,9 +84,6 @@ const Content = styled.div`
   overflow-y: auto;
   .conditionDropdown {
     width: 112px;
-    .ming.Menu {
-      width: 100% !important;
-    }
   }
   .ipTextarea {
     width: 60% !important;
@@ -114,15 +91,12 @@ const Content = styled.div`
   }
   .deviceDropdown {
     width: 336px;
-    .ming.Menu {
-      width: 100% !important;
-    }
   }
   .accessTypeRadioGroup {
-    .Radio-box {
+    .ant-radio-inner {
       margin-right: 8px !important ;
     }
-    .Radio {
+    .ant-radio-wrapper {
       margin-right: 26px !important;
     }
   }
@@ -133,12 +107,6 @@ const Footer = styled.div`
   padding: 15px 0;
   background-color: var(--color-background-primary);
 
-  .enableBtn {
-    background: var(--color-success);
-    &:hover {
-      background: var(--color-success-hover);
-    }
-  }
   .updateBtn {
     margin-right: 20px;
     &.disabled {
@@ -150,20 +118,14 @@ const Footer = styled.div`
       }
     }
   }
-  .closeBtn {
-    border-color: var(--color-error);
-    color: var(--color-error);
-    &:hover {
-      background: var(--color-error);
-    }
-  }
 `;
 
 export default class LimitFileDownloadSetting extends Component {
+  requestPending = false;
+
   constructor(props) {
     super(props);
     this.state = {
-      showMoreActionSelf: false,
       attachmentSettingInfo: props.attachmentSettingInfo || {},
       initialAttachmentSettingInfo: props.attachmentSettingInfo || {},
       ipContent: _.get(props, 'attachmentSettingInfo.ipList', []).join(','),
@@ -211,6 +173,12 @@ export default class LimitFileDownloadSetting extends Component {
     });
   };
 
+  getMoreActionItems = () => [
+    { key: 'user', label: _l('添加成员'), onClick: this.addUser },
+    { key: 'department', label: _l('添加部门'), onClick: this.addDept },
+    { key: 'orgRole', label: _l('组织角色'), onClick: this.addOrgRoles },
+  ];
+
   addDataFn = (data, type) => {
     const { attachmentSettingInfo } = this.state;
     const { whiteList = [] } = attachmentSettingInfo;
@@ -231,6 +199,8 @@ export default class LimitFileDownloadSetting extends Component {
   };
 
   handleSave = isClose => {
+    if (this.requestPending) return;
+
     const { projectId } = this.props;
     const { attachmentSettingInfo, initialAttachmentSettingInfo, ipContent } = this.state;
     const { whiteList = [], limitType, useType, modelType, ipList } = attachmentSettingInfo;
@@ -274,22 +244,27 @@ export default class LimitFileDownloadSetting extends Component {
             : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList })];
     }
 
-    Promise.all(requestArr).then(resArr => {
-      if (resArr.every(v => v === true)) {
-        alert(_l('操作成功'));
-        const newAttachmentSettingInfo = { ...attachmentSettingInfo, ipList, status: isClose ? 0 : 1 };
-        this.setState({
-          attachmentSettingInfo: newAttachmentSettingInfo,
-          initialAttachmentSettingInfo: newAttachmentSettingInfo,
-        });
-        this.props.updateSettingData(newAttachmentSettingInfo);
-      }
-    });
+    this.requestPending = true;
+    return Promise.all(requestArr)
+      .then(resArr => {
+        if (resArr.every(v => v === true)) {
+          alert(_l('操作成功'));
+          const newAttachmentSettingInfo = { ...attachmentSettingInfo, ipList, status: isClose ? 0 : 1 };
+          this.setState({
+            attachmentSettingInfo: newAttachmentSettingInfo,
+            initialAttachmentSettingInfo: newAttachmentSettingInfo,
+          });
+          this.props.updateSettingData(newAttachmentSettingInfo);
+        }
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
 
   renderContent = () => {
     const { projectId } = this.props;
-    const { attachmentSettingInfo, showMoreActionSelf } = this.state;
+    const { attachmentSettingInfo } = this.state;
     const { whiteList = [] } = attachmentSettingInfo;
 
     return (
@@ -329,20 +304,16 @@ export default class LimitFileDownloadSetting extends Component {
             );
           })}
         </div>
-        <span
-          className="colorPrimary Font13 Hand mLeft15 Relative"
-          onClick={() => this.setState({ showMoreActionSelf: true })}
+        <Dropdown
+          trigger={['click']}
+          placement="bottomLeft"
+          menu={{ items: this.getMoreActionItems(), style: MORE_ACTION_MENU_STYLE }}
         >
-          <Icon className="Font16 mRight5" icon="add" />
-          {_l('添加')}
-          <MoreActionDia
-            onClickAway={() => this.setState({ showMoreActionSelf: false })}
-            showMoreAction={showMoreActionSelf}
-            addUser={this.addUser}
-            addDept={this.addDept}
-            addOrgRoles={this.addOrgRoles}
-          />
-        </span>
+          <span className="colorPrimary Font13 Hand mLeft15">
+            <Icon className="Font16 mRight5" icon="add" />
+            {_l('添加')}
+          </span>
+        </Dropdown>
       </Wrap>
     );
   };
@@ -365,31 +336,31 @@ export default class LimitFileDownloadSetting extends Component {
           <Content>
             <div className="Font15 bold mBottom12">{_l('限制下载的访问条件')}</div>
             <div className="textSecondary mBottom20">{_l('符合条件的访问将无法下载附件')}</div>
-            <RadioGroup
+            <Radio.Group
               size="middle"
               className="accessTypeRadioGroup"
-              checkedValue={modelType}
-              data={[
+              value={modelType}
+              options={[
                 { text: 'IP', value: 1 },
                 { text: _l('设备类型'), value: 0 },
-              ]}
-              onChange={value =>
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
                 this.setState({
                   attachmentSettingInfo: {
                     ipContent: '',
                     ipList: [],
                     limitType: 0,
                     ...attachmentSettingInfo,
-                    modelType: value,
+                    modelType: event.target.value,
                   },
                 })
               }
-            ></RadioGroup>
+            ></Radio.Group>
             <div>
-              <Dropdown
+              <Select
                 className="conditionDropdown mTop16 mBottom16"
-                data={LIMIT_FILE_DOWNLOAD_USE_TYPE_ENUM}
-                border
+                options={LIMIT_FILE_DOWNLOAD_USE_TYPE_ENUM}
+                fieldNames={SELECT_FIELD_NAMES}
                 value={useType}
                 onChange={value =>
                   this.setState({ attachmentSettingInfo: { ...attachmentSettingInfo, useType: value } })
@@ -413,13 +384,14 @@ export default class LimitFileDownloadSetting extends Component {
                     <Icon icon="info_outline" className=" mLeft5 pointer Font16 textTertiary TxtMiddle" />
                   </Tooltip>
                 </div>
-                <Textarea
+                <Input.TextArea
+                  autoSize
                   className="ipTextarea mBottom24"
                   placeholder={_l('输入多个地址时，请使用英文逗号“,”分割')}
+                  style={IP_TEXTAREA_STYLE}
                   value={ipContent}
-                  minHeight={80}
-                  maxHeight={200}
-                  onChange={value => {
+                  onChange={event => {
+                    const value = event.target.value;
                     const temp = value.trim().split(',');
 
                     if (temp.length > 50) {
@@ -435,14 +407,13 @@ export default class LimitFileDownloadSetting extends Component {
                 />
               </Fragment>
             ) : (
-              <Dropdown
+              <Select
                 className="deviceDropdown mBottom30"
-                data={[
-                  { text: _l('所有设备'), value: 0 },
-                  { text: _l('PC端'), value: 2 },
-                  { text: _l('移动端'), value: 1 },
+                options={[
+                  { label: _l('所有设备'), value: 0 },
+                  { label: _l('PC端'), value: 2 },
+                  { label: _l('移动端'), value: 1 },
                 ]}
-                border
                 value={limitType}
                 onChange={value =>
                   this.setState({ attachmentSettingInfo: { ...attachmentSettingInfo, limitType: value } })
@@ -459,12 +430,12 @@ export default class LimitFileDownloadSetting extends Component {
                 <Button type="primary" className={cx('updateBtn', { disabled })} onClick={() => this.handleSave(false)}>
                   {_l('更新设置')}
                 </Button>
-                <Button type="ghost" className="closeBtn" onClick={() => this.handleSave(true)}>
+                <Button color="primary" variant="outlined" onClick={() => this.handleSave(true)}>
                   {_l('关闭此功能')}
                 </Button>
               </Fragment>
             ) : (
-              <Button type="primary" className="enableBtn" onClick={() => this.handleSave(false)}>
+              <Button color="var(--color-success)" variant="solid" onClick={() => this.handleSave(false)}>
                 {_l('启用')}
               </Button>
             )}

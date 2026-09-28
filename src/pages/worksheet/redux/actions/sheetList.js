@@ -11,12 +11,12 @@ import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGrou
 import { updateAppGroup } from 'src/pages/PageHeader/redux/action';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import store from 'src/redux/configureStore';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
-import { moveSheetCache } from 'src/utils/worksheet';
-import { getSheetListFirstId } from 'src/utils/worksheet';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { canEditApp } from 'src/utils/domain/permission/app';
+import { getSheetListFirstId } from 'src/utils/domain/worksheet/helpers';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { moveSheetCache } from 'src/utils/platform/storage/worksheet';
 
 export const formatLeftSectionDetail = data => {
   return data.workSheetInfo.map(s => {

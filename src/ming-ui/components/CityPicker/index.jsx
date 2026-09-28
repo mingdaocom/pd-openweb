@@ -2,24 +2,18 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import fixedDataController from 'src/api/fixedData';
-import { COMMON_DEFAULT_COUNTRY } from 'src/pages/widgetConfig/config/setting';
-import { browserIsMobile } from 'src/utils/common';
+import { COMMON_DEFAULT_COUNTRY } from 'src/utils/domain/control/setting';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import MobileCityPicker from './MobileCityPciker';
-import 'rc-trigger/assets/index.css';
 import '../less/CityPicker.less';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
 const CascaderSelectWrap = styled.div`
-  background: var(--color-background-card);
-  border-radius: 3px;
-  box-shadow: var(--shadow-xl);
-  padding: 6px 0;
-  z-index: 11;
   height: 211px;
   width: fit-content;
   .CascaderSelectWrap-List {
@@ -52,13 +46,6 @@ const CascaderSearchSelectWrap = styled.ul`
   width: 420px;
   height: 211px;
   overflow-y: scroll;
-  padding: 6px 0;
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  z-index: 11;
   li {
     min-height: 32px;
     cursor: pointer;
@@ -87,6 +74,7 @@ const activeItemScrollView = () => {
     }
   }, 500);
 };
+
 const activeItemsScrollView = () => {
   setTimeout(() => {
     const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
@@ -117,6 +105,7 @@ export default function CityPicker(props) {
     disabled,
     popupClassName = '',
     popupAlign,
+    placement = 'bottomLeft',
     popupVisible = false,
     hasContentContainer = true,
     manual = false,
@@ -457,7 +446,13 @@ export default function CityPicker(props) {
     );
   };
 
-  const renderContent = () => {
+  const handleTriggerClick = () => {
+    if (disabled || (manual && !visible)) return;
+
+    onChangeVisible(true);
+  };
+
+  const renderContent = ({ desktop = false } = {}) => {
     let content = children ? (
       children
     ) : (
@@ -473,7 +468,15 @@ export default function CityPicker(props) {
 
     if (hasContentContainer) {
       return (
-        <span className={cx('CityPicker-input-container', { editable: visible })} ref={triggerRef}>
+        <span
+          className={cx(
+            'CityPicker-input-container',
+            { editable: visible, 'CityPicker-wrapper': desktop },
+            desktop && className,
+          )}
+          ref={triggerRef}
+          onClick={desktop ? handleTriggerClick : undefined}
+        >
           {content}
         </span>
       );
@@ -503,41 +506,41 @@ export default function CityPicker(props) {
     );
   }
 
-  return (
-    <span
-      className={cx('ming CityPicker-wrapper', className)}
-      onClick={() => {
-        if (disabled || (manual && !visible)) return;
+  const desktopPicker = (
+    <Popover
+      align={popupAlign}
+      classNames={{ root: cx('CityPickerPanelTrigger', popupClassName) }}
+      content={renderPopup()}
+      destroyOnHidden={destroyPopupOnHide}
+      getPopupContainer={() => popupParentNode}
+      open={disabled ? false : visible}
+      placement={placement}
+      styles={{
+        container: {
+          padding: '6px 0',
+        },
+      }}
+      trigger="click"
+      onOpenChange={open => {
+        if (disabled || (manual && open)) return;
 
-        onChangeVisible(true);
+        onChangeVisible(open);
+        if (!open) {
+          handleClose(select);
+        }
       }}
     >
-      <Trigger
-        action={['click']}
-        popupVisible={disabled ? false : visible}
-        destroyPopupOnHide={destroyPopupOnHide}
-        onPopupVisibleChange={visible => {
-          if (disabled || (manual && visible)) return;
+      {renderContent({ desktop: hasContentContainer })}
+    </Popover>
+  );
 
-          onChangeVisible(visible);
-          if (!visible) {
-            handleClose(select);
-          }
-        }}
-        popupClassName={cx('CityPickerPanelTrigger', popupClassName)}
-        popupAlign={
-          popupAlign
-            ? popupAlign
-            : {
-                points: ['tl', 'bl'],
-                overflow: { adjustX: true, adjustY: true },
-              }
-        }
-        getPopupContainer={() => popupParentNode}
-        popup={renderPopup()}
-      >
-        {renderContent()}
-      </Trigger>
+  if (hasContentContainer) {
+    return desktopPicker;
+  }
+
+  return (
+    <span className={cx('CityPicker-wrapper', className)} onClick={handleTriggerClick}>
+      {desktopPicker}
     </span>
   );
 }
@@ -584,6 +587,7 @@ CityPicker.propTypes = {
   popupParentNode: PropTypes.any,
   destroyPopupOnHide: PropTypes.bool,
   popupAlign: PropTypes.object,
+  placement: PropTypes.string,
   popupVisible: PropTypes.bool,
   /**
    * 回调函数，返回选择的城市数据 { id, name }

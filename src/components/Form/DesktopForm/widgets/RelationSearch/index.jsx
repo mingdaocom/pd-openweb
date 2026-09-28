@@ -3,32 +3,34 @@ import { useMeasure } from 'react-use';
 import cx from 'classnames';
 import _, { identity } from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, Modal } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { LoadDiv } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import sheetAjax from 'src/api/worksheet';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
 import { FlexCenter } from 'worksheet/components/Basics';
 import RecordCoverCard from 'worksheet/components/RelateRecordCards/RecordCoverCard';
 import { getCardColNum, LoadingButton } from 'worksheet/components/RelateRecordCards/RelateRecordCards';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
-import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
-import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { useWidgetEvent } from 'src/components/Form/core/useFormEventManager';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
-import { addBehaviorLog } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getTitleTextFromRelateControl } from 'src/utils/domain/control/display';
+import { controlState } from 'src/utils/domain/control/state';
+import { getValueStyle } from 'src/utils/domain/control/style';
+import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { getCoverUrl } from 'src/utils/domain/worksheet/view';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
 const PAGE_SIZE = 50;
 
 const CARD_MIN_WIDTH = 360;
 const CARDS_GAP = 16;
+const ADD_RECORD_BUTTON_STYLE = { maxWidth: 150 };
 
 const CardsCon = styled.div`
-  ${({ width }) => (width > 700 ? 'display: grid;' : '')}
+  ${({ $width }) => ($width > 700 ? 'display: grid;' : '')}
   grid-gap: ${CARDS_GAP}px;
   grid-template-columns: repeat(auto-fit, minmax(${CARD_MIN_WIDTH}px, 1fr));
   &.mobileCardsCom {
@@ -52,7 +54,7 @@ const RecordText = styled.div`
   .text {
     display: inline-block;
     max-width: 202px;
-    ${({ inlineStyle }) => inlineStyle}
+    ${({ $inlineStyle }) => $inlineStyle}
   }
   &.isSingle {
     .text {
@@ -63,7 +65,7 @@ const RecordText = styled.div`
 
 const Splitter = styled.span`
   margin-right: 6px;
-  ${({ inlineStyle }) => inlineStyle}
+  ${({ $inlineStyle }) => $inlineStyle}
 `;
 
 const RecordTextAdd = styled(FlexCenter)`
@@ -89,26 +91,6 @@ const EmptyTag = styled.span`
     background: var(--color-border-secondary);
     border-radius: 3px;
 }`;
-
-function getCoverUrl(coverId, record, controls) {
-  const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
-
-  if (!coverControl) {
-    return;
-  }
-
-  try {
-    const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
-    const { previewUrl = '' } = coverFile;
-    return previewUrl.indexOf('imageView2') > -1
-      ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-      : `${previewUrl}&imageView2/1/w/200/h/140`;
-  } catch (err) {
-    console.log(err);
-  }
-
-  return;
-}
 
 function Cards(props) {
   const {
@@ -144,15 +126,18 @@ function Cards(props) {
     <Fragment>
       {allowNewRecord && (
         <div className="mBottom10">
-          <Button onClick={onAdd}>
-            <div className="content">
-              <i className={`icon icon-plus mRight5 Font16`}></i>
-              {entityName || _l('记录')}
-            </div>
+          <Button
+            color="default"
+            variant="textBordered"
+            style={ADD_RECORD_BUTTON_STYLE}
+            icon={<i className="icon icon-plus Font16" />}
+            onClick={onAdd}
+          >
+            <span className="overflow_ellipsis WordBreak">{entityName || _l('记录')}</span>
           </Button>
         </div>
       )}
-      <CardsCon width={width}>
+      <CardsCon $width={width}>
         {!loading &&
           !!records.length &&
           (showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)).map((record, i) => (
@@ -232,7 +217,7 @@ function Texts(props) {
         const text = getTitleTextFromRelateControl(control, record);
         return (
           <RecordText
-            inlineStyle={valueStyle.valueStyle}
+            $inlineStyle={valueStyle.valueStyle}
             style={style}
             key={i}
             className={cx({ 'colorPrimary Hand': allowOpenRecord, isSingle: records.length === 1 })}
@@ -247,7 +232,7 @@ function Texts(props) {
             <div className="text ellipsis" title={text}>
               {text}
             </div>
-            {i < records.length - 1 && <Splitter inlineStyle={valueStyle.valueStyle}>,</Splitter>}
+            {i < records.length - 1 && <Splitter $inlineStyle={valueStyle.valueStyle}>,</Splitter>}
           </RecordText>
         );
       })}
@@ -277,6 +262,8 @@ function RelationSearch(props) {
     enumDefault2,
     appId,
   } = props;
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
 
   const control = { ...props };
   const controlPermission = controlState(control, from);
@@ -360,6 +347,19 @@ function RelationSearch(props) {
       workId,
     };
     sheetAjax.getRowRelationRows(args).then(res => {
+      if (res.resultCode === 7) {
+        // 无权限响应不含工作表结构，保留已加载的 controls，避免动态筛选变化触发循环查询。
+        setWorksheetAllowAdd(false);
+        setState(oldState => ({
+          ...oldState,
+          loading: false,
+          isLoadingMore: false,
+          records: [],
+          showLoadMore: false,
+        }));
+        return;
+      }
+
       setWorksheetAllowAdd(_.get(res, 'worksheet.allowAdd'));
       if (_.get(res, 'worksheet.template.controls')) {
         res.worksheet.template.controls = replaceControlsTranslateInfo(
@@ -394,19 +394,19 @@ function RelationSearch(props) {
     [control.formData, state],
   );
   const handleAddRecord = useCallback(() => {
-    addRecord({
+    openAddRecord({
       isDraft: control.from === RECORD_INFO_FROM.DRAFT,
       worksheetId: control.dataSource,
       directAdd: true,
       showFillNext: true,
       onAdd: record => {
         if (record) {
-          setState({ ...state, records: [record, ...records] });
+          setState(oldState => ({ ...oldState, records: [record, ...(oldState.records || [])] }));
         }
       },
     });
-  });
-  const handleOpenRecord = useCallback(needOpenRecordId => {
+  }, [control.dataSource, control.from, openAddRecord]);
+  const handleOpenRecord = needOpenRecordId => {
     addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
 
     openRecordInfo({
@@ -415,7 +415,7 @@ function RelationSearch(props) {
       recordId: needOpenRecordId,
       viewId: advancedSetting.openview || control.viewId,
     });
-  });
+  };
 
   useEffect(() => {
     loadRecords();
@@ -444,11 +444,19 @@ function RelationSearch(props) {
   });
 
   if ((control.type === 51 && control.enumDefault === 1 && control.showControls.length === 0) || !records.length) {
-    return <EmptyTag />;
+    return (
+      <Fragment>
+        {addRecordHolder}
+        {recordInfoHolder}
+        <EmptyTag />
+      </Fragment>
+    );
   }
 
   return (
     <Con ref={ref}>
+      {addRecordHolder}
+      {recordInfoHolder}
       {loading && (
         <div
           style={
@@ -518,28 +526,7 @@ const DialogCon = styled.div`
   flex-direction: column;
 `;
 
-const Header = styled.div`
-  height: 57px;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  .main {
-    font-size: 17px;
-    color: var(--color-text-primary);
-    font-weight: bold;
-  }
-  .split {
-    font-size: 16px;
-    margin: 0 8px;
-    color: var(--color-text-tertiary);
-  }
-  .sec {
-    font-size: 14px;
-    color: var(--color-text-tertiary);
-  }
-`;
 const Content = styled.div`
-  padding: 0 24px 36px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -557,18 +544,15 @@ export function RelationSearchDialog(props) {
   const { from, flag, projectId, recordId, worksheetId, viewId, isCharge, control, onClose } = props;
   return (
     <Modal
-      visible
+      open
       type="fixed"
       verticalAlign="bottom"
       width={1300}
-      closeSize={57}
       onCancel={onClose}
-      bodyStyle={{ padding: 0, position: 'relative' }}
+      title={control.controlName}
+      styles={{ body: { padding: 0, position: 'relative' } }}
     >
       <DialogCon>
-        <Header>
-          <div className="main">{control.controlName}</div>
-        </Header>
         <Content>
           <RelationSearch
             isDialog
@@ -589,7 +573,9 @@ export function RelationSearchDialog(props) {
   );
 }
 
-export const openRelationSearchDialog = props => functionWrap(RelationSearchDialog, props);
+export function useRelationSearchDialog() {
+  return useFunctionWrapComponent(RelationSearchDialog);
+}
 
 export default function (props) {
   const { isCharge, appId, worksheetId, recordId, disabled, formData, formItemId, updateWorksheetControls } = props;

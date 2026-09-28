@@ -2,21 +2,20 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { SettingItem } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import { OtherField, SelectOtherField } from '../../DynamicDefaultValue/components';
-import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
 
 const DEPARTMENT_RANGE = [
-  { value: '0', text: _l('全组织') },
-  { value: '1', text: _l('仅指定部门') },
-  { value: '2', text: _l('指定部门和所有下级部门') },
-  { value: '3', text: _l('仅指定部门的所有下级部门') },
+  { value: '0', label: _l('全组织') },
+  { value: '1', label: _l('仅指定部门') },
+  { value: '2', label: _l('指定部门和所有下级部门') },
+  { value: '3', label: _l('仅指定部门的所有下级部门') },
 ];
 
 export default function DepartmentConfig(props) {
@@ -84,7 +83,7 @@ export default function DepartmentConfig(props) {
   const getUserDisplay = item => {
     const departmentName = _.get(safeParse(item.staticValue || '{}'), 'departmentName');
     return (
-      <FieldInfo hideIcon={true}>
+      <FieldInfo $hideIcon={true}>
         <div className="name">{departmentName || _l('已删除')}</div>
         <div
           className="remove"
@@ -108,12 +107,10 @@ export default function DepartmentConfig(props) {
         </Tooltip>
       </div>
 
-      <Dropdown
-        border
+      <Select
         className="w100"
-        data={DEPARTMENT_RANGE}
+        options={DEPARTMENT_RANGE}
         value={departrangetype}
-        showItemTitle={true}
         onChange={value => {
           onChange(handleAdvancedSettingChange(data, { departrangetype: value }));
         }}

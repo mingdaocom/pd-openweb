@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 import * as LucideIconComp from 'lucide-react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ParentBridge } from 'src/utils/iframeCommunicate';
+import { ParentBridge } from './rpcBridge';
 
 const Con = styled.div`
   width: 100%;

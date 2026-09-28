@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './mdLeftNavSearch.css';
+import { Input } from 'ming-ui/antd-components';
+
+const SEARCH_INPUT_STYLE = { display: 'flex', width: 220, margin: '6px auto' };
 
 class MDLeftNavSearch extends React.Component {
   static propTypes = {
@@ -8,39 +10,35 @@ class MDLeftNavSearch extends React.Component {
     defaultValue: PropTypes.string,
     onSearch: PropTypes.func,
     onChange: PropTypes.func,
+    onClear: PropTypes.func,
   };
 
-  handleKeyUp = evt => {
-    if (evt.which === 13 && this.props.onSearch) {
-      this.props.onSearch(evt.target.value);
+  handleKeyUp = (evt, onSearch) => {
+    if (evt.which === 13 && onSearch) {
+      onSearch(evt.target.value);
     }
   };
 
-  handleFocus = () => {
-    $(this.root).addClass('borderColorPrimary').removeClass('borderSecondary');
-  };
-
-  handleBlur = () => {
-    $(this.root).removeClass('borderColorPrimary').addClass('borderSecondary');
+  handleClear = (onClear, onSearch) => {
+    onClear?.();
+    onSearch?.('');
   };
 
   render() {
-    const { value, ...props } = this.props;
+    const { onClear, onSearch, value, ...props } = this.props;
 
     return (
-      <div className="mdLeftNavSearch borderSecondary" ref={root => (this.root = root)}>
-        <span className="icon-search btnSearch textSecondary" title={_l('搜索')} />
-        <input
-          {...props}
-          value={value || ''}
-          onKeyUp={this.handleKeyUp}
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
-          type="text"
-          className="searchBox textPrimary"
-          placeholder={_l('搜索')}
-        />
-      </div>
+      <Input
+        {...props}
+        allowClear
+        variant="underlined"
+        value={value || ''}
+        prefix={<i className="icon-search textSecondary" title={_l('搜索')} />}
+        onClear={() => this.handleClear(onClear, onSearch)}
+        onKeyUp={evt => this.handleKeyUp(evt, onSearch)}
+        style={SEARCH_INPUT_STYLE}
+        placeholder={_l('搜索')}
+      />
     );
   }
 }

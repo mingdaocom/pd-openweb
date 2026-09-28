@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import kcService from '../../api/service';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { NODE_SORT_TYPE, NODE_STATUS, PICK_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import { getDefaultSortType, getParentId, getRootByPath, getRootId, IdItem, validateFileName } from '../../utils';
 import {
@@ -424,8 +425,8 @@ export function addNewFolder(folderName, cb = () => {}) {
           });
           cb(null);
         })
-        .catch(() => {
-          alert(_l('操作失败，请稍后重试'), 2);
+        .catch(_requestError2 => {
+          alertIfNotUnauthorized(_requestError2, _l('操作失败，请稍后重试'), 2);
         });
     } else {
       cb({
@@ -531,7 +532,7 @@ export function starNode(item) {
         item.isStared = isStared;
         dispatch(updateNodeItem(item));
       })
-      .catch(() => alert(_l('操作失败，请稍后重试')), 3);
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('操作失败，请稍后重试')), 3);
   };
 }
 

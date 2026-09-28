@@ -14,22 +14,52 @@ export const TABS = [
 ];
 
 // 支付渠道
+export const PAY_CHANNEL_TYPE = {
+  AGGREGATE: 0,
+  ALIPAY: 1,
+  WECHAT: 2,
+  LAKALA: 3,
+};
+
+const LAKALA_WITHDRAW_DISABLED_TIME = new Date('2026-09-01T00:00:00+08:00').getTime();
+
+// 2026 年 9 月 1 日起，拉卡拉商户不再提供提现入口
+export const isMerchantWithdrawVisible = (merchantPaymentChannel, currentTime = Date.now()) =>
+  merchantPaymentChannel === PAY_CHANNEL_TYPE.LAKALA && currentTime < LAKALA_WITHDRAW_DISABLED_TIME;
+
 export const PAY_CHANNEL = [
   {
-    value: 0,
-    label: _l('聚合支付'),
-    desc: _l('由鲸先企付提供，提交资料需要1-3个工作日完成申请；支持微信和支付宝聚合支付，费率固定为0.25%'),
+    value: PAY_CHANNEL_TYPE.LAKALA,
+    label: _l('拉卡拉'),
+    desc: _l('由拉卡拉提供，暂时需要联系顾问线下申请商户入网；支持微信和支付宝聚合支付，费率固定为0.3%'),
+    icon: 'lakala',
+    iconColor: '#00B9F1',
+    iconBgColor: 'var(--color-white)',
+    isHide: window.platformENV.isOverseas || window.platformENV.isLocal,
+    tip: _l('请联系您的专属顾问协助完成商户入网'),
   },
-  { value: 2, label: _l('微信支付'), desc: _l('使用微信商户号开通；费率参考微信支付官方规则'), icon: 'wechat_pay' },
   {
-    value: 1,
+    value: PAY_CHANNEL_TYPE.WECHAT,
+    label: _l('微信支付'),
+    desc: _l('使用微信商户号开通；费率参考微信支付官方规则'),
+    icon: 'wechat_pay',
+    iconBgColor: 'var(--color-success)',
+  },
+  {
+    value: PAY_CHANNEL_TYPE.ALIPAY,
     label: _l('支付宝支付'),
     desc: _l('使用支付宝商户号开通；费率参考支付宝支付官方规则；退款时服务费不退回'),
     icon: 'order-alipay',
+    iconBgColor: 'var(--color-primary)',
   },
 ];
 
-export const PAY_CHANNEL_TXT = { 0: _l('聚合支付'), 1: _l('支付宝'), 2: _l('微信') };
+export const PAY_CHANNEL_TXT = {
+  [PAY_CHANNEL_TYPE.AGGREGATE]: _l('聚合支付'),
+  [PAY_CHANNEL_TYPE.ALIPAY]: _l('支付宝'),
+  [PAY_CHANNEL_TYPE.WECHAT]: _l('微信'),
+  [PAY_CHANNEL_TYPE.LAKALA]: _l('拉卡拉'),
+};
 
 export const STEPS = [
   {

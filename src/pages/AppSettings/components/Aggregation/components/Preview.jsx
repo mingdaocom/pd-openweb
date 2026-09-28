@@ -3,14 +3,14 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import Pagination from 'worksheet/components/Pagination';
 import { TextAbsoluteCenter, WrapPreview } from 'src/pages/AppSettings/components/Aggregation/components/style.jsx';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import { DEFAULT_COLORS } from '../config';
 import { getAllSourceList, getNodeInfo, getSourceIndex, isHasChange } from '../util';
 import emptyImg from './img/empty.png';
@@ -507,6 +507,13 @@ function Preview(props) {
     ['PREPARE', 'RUNNING'].includes(syncTaskStatus) ||
     ((noPublishAndHasPreview || syncTaskStatus === 'FINISHED') && previewRunning);
   const showChange = hasChange && worksheetId;
+  const previewActionColor = ['ERROR', 'UN_PUBLIC'].includes(syncTaskStatus)
+    ? 'danger'
+    : hsFinished
+      ? 'var(--color-success)'
+      : !['RUNNING', 'FINISHED', 'PREPARE'].includes(syncTaskStatus) || showChange
+        ? 'var(--color-warning)'
+        : 'default';
 
   const renderTips = () => {
     return (
@@ -565,20 +572,18 @@ function Preview(props) {
             </React.Fragment>
           )}
         </div>
-        <div
-          className={cx('btn Hand mLeft10 Bold', {
-            finishedBtn: hsFinished,
-            refreshBtn: !['RUNNING', 'FINISHED', 'PREPARE'].includes(syncTaskStatus) || showChange,
-            errBtn: ['ERROR', 'UN_PUBLIC'].includes(syncTaskStatus),
-          })}
+        <Button
+          className="mLeft10"
+          color={previewActionColor}
+          variant="outlined"
+          loading={props.updateLoading}
           onClick={() => {
-            if (props.updateLoading) return;
             !['PREPARE', 'RUNNING'].includes(syncTaskStatus) && onPreview(flowData);
             onChangeStatus(['PREPARE', 'RUNNING'].includes(syncTaskStatus) ? 'STOP' : 'PREPARE');
           }}
         >
           {isRunning ? _l('停止') : _l('重新预览')}
-        </div>
+        </Button>
       </div>
     );
   };
@@ -670,10 +675,11 @@ function Preview(props) {
                         return (
                           <div className="previewBtnCon flexRow alignItemsCenter">
                             <Button
-                              type="ghost"
-                              className={cx('previewBtn', {
-                                disable,
-                              })}
+                              color="primary"
+                              variant="outlined"
+                              className="previewBtn"
+                              disabled={disable}
+                              loading={props.updateLoading}
                               onClick={() => {
                                 if (disable || props.updateLoading) return;
                                 onPreview(flowData);

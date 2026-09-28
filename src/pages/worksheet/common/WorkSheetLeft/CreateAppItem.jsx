@@ -1,8 +1,7 @@
 import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import chatbotIcon from './assets/chatbot.png';
 import customPageIcon from './assets/dashboard.png';
 import worksheetIcon from './assets/worksheet.png';
@@ -62,71 +61,59 @@ export default function CreateAppItem(props) {
     setCreateMenuVisible(false);
   };
 
+  const createMenuItems = CREATE_ITEM_LIST.filter(item => {
+    if (item.createType === 'chatbot') {
+      return workflowAgentFeatureType === '1' && !md.global.SysSettings.hideAIBasicFun;
+    }
+
+    return true;
+  }).reduce((items, item) => {
+    if (item.createType === 'group') {
+      items.push({ key: 'createDivider', type: 'divider', className: 'mTop4 mBottom4' });
+    }
+
+    items.push({
+      key: item.createType,
+      icon: iconMaps[item.createType] ? (
+        <img className="createIcon" style={{ width: 20 }} src={iconMaps[item.createType]} />
+      ) : (
+        <Icon
+          icon={item.icon}
+          className={cx('Font18 textTertiary', {
+            Visibility: ['worksheet', 'importExcel'].includes(item.createType),
+          })}
+        />
+      ),
+      label: (
+        <Fragment>
+          <span className={item.className}>{item.text}</span>
+          {item.createType === 'chatbot' && (
+            <Icon icon="auto_awesome" className="Font15 mLeft5" style={{ color: 'var(--color-mingo-light)' }} />
+          )}
+        </Fragment>
+      ),
+      onClick: () => {
+        handleSwitchCreateType(item.createType);
+      },
+    });
+
+    return items;
+  }, []);
+
   return (
     <Fragment>
       {isCharge && (
-        <Trigger
-          forceRender={true}
-          popupVisible={createMenuVisible}
-          onPopupVisibleChange={setCreateMenuVisible}
-          action={['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [10, 0],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
+        <Dropdown
+          trigger={['click']}
+          open={createMenuVisible}
+          onOpenChange={setCreateMenuVisible}
+          placement="bottomLeft"
+          align={{ offset: [0, 0] }}
+          classNames={{ root: 'createNewMenu' }}
+          menu={{
+            items: createMenuItems,
+            style: { minWidth: 240 },
           }}
-          popup={
-            <div className="createNewMenu">
-              <Menu className="createNewOperate">
-                {CREATE_ITEM_LIST.filter(item => {
-                  if (item.createType === 'chatbot') {
-                    return workflowAgentFeatureType === '1' && !md.global.SysSettings.hideAIBasicFun;
-                  }
-
-                  return true;
-                }).map((item, index) => (
-                  <Fragment key={index}>
-                    {item.createType === 'group' && <div className="spaceLine mTop4 mBottom4"></div>}
-                    {/* {item.createType === 'worksheet' && (
-                      <div className="flexRow alignItemsCenter pLeft16 pTop7 pBottom3">
-                        <img className="createIcon" src={worksheetIcon} />
-                        <span class="mLeft5 bold Font14">{_l('工作表')}</span>
-                      </div>
-                    )} */}
-                    <MenuItem
-                      data-event={item.createType}
-                      key={item.createType}
-                      onClick={() => {
-                        handleSwitchCreateType(item.createType);
-                      }}
-                    >
-                      {iconMaps[item.createType] ? (
-                        <img className="createIcon" src={iconMaps[item.createType]} />
-                      ) : (
-                        <Icon
-                          icon={item.icon}
-                          className={cx('Font18', {
-                            Visibility: ['worksheet', 'importExcel'].includes(item.createType),
-                          })}
-                        />
-                      )}
-                      <span className={item.className}>{item.text}</span>
-                      {item.createType === 'chatbot' && (
-                        <Icon
-                          icon="auto_awesome"
-                          className="Font15 mLeft5"
-                          style={{ color: 'var(--color-mingo-light)' }}
-                        />
-                      )}
-                    </MenuItem>
-                  </Fragment>
-                ))}
-              </Menu>
-            </div>
-          }
         >
           <div
             id="createCustomItem"
@@ -137,7 +124,7 @@ export default function CreateAppItem(props) {
             </Tooltip>
             <span className="Font14 text">{_l('新建')}</span>
           </div>
-        </Trigger>
+        </Dropdown>
       )}
       {!!createType && (
         <CreateNew

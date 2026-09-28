@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { Menu } from 'ming-ui';
 
 export const Wrap = styled.div`
   .setCon {
@@ -57,29 +56,6 @@ export const WrapSelectCon = styled.div`
     height: 12px;
   }
 `;
-export const WrapSource = styled.div`
-  .selectWorksheetCommon .dropdownWrapper .aroundList {
-    z-index: 10000;
-    .selectWorksheetCommonContent {
-      input {
-        &::placeholder {
-          color: var(--color-text-disabled);
-        }
-        margin-left: -8px;
-      }
-      .icon-search {
-        font-size: 18px !important;
-        left: 16px;
-        top: 16px;
-      }
-    }
-  }
-  &.isTopChild {
-    .selectWorksheetCommon .dropdownWrapper .aroundList {
-      top: 48px;
-    }
-  }
-`;
 export const WrapWorksheet = styled.div`
   .flexRowCon {
     display: flex !important;
@@ -95,18 +71,6 @@ export const WrapWorksheet = styled.div`
     background: initial;
     border-radius: initial;
     box-shadow: initial;
-  }
-  .Dropdown--border,
-  .Dropdown--border {
-    span {
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      word-wrap: break-word !important;
-      word-break: break-word !important;
-      flex: 1 !important;
-    }
-    border: none !important;
   }
   .filterConByWorksheet {
     background: var(--color-background-primary);
@@ -135,15 +99,6 @@ export const Header = styled.div`
   box-shadow: var(--shadow-md);
   z-index: 10000;
   .pageName {
-    .iconWrap {
-      padding-right: 24px;
-      .back {
-        color: var(--color-text-secondary);
-        &:hover {
-          color: var(--color-primary);
-        }
-      }
-    }
     display: flex;
     align-items: center;
     font-size: 17px;
@@ -160,37 +115,6 @@ export const Header = styled.div`
       border: none;
       font-size: 17px;
       border-bottom: 2px solid var(--color-primary);
-    }
-  }
-  .reset {
-    box-sizing: border-box;
-    padding: 0 22px;
-    line-height: 34px;
-    color: var(--color-white);
-    cursor: not-allowed;
-    border-radius: 3px;
-    text-align: center;
-    font-weight: 600;
-    border: 1px solid var(--color-text-tertiary);
-    &.Hand {
-      cursor: pointer;
-      &:hover {
-        border: 1px solid var(--color-primary);
-      }
-    }
-  }
-  .publishBtn {
-    box-sizing: border-box;
-    padding: 0 32px;
-    line-height: 36px;
-    color: var(--color-white);
-    cursor: pointer;
-    border-radius: 3px;
-    text-align: center;
-    font-weight: 600;
-    background: var(--color-primary);
-    &:hover {
-      background: var(--color-primary);
     }
   }
   .disable,
@@ -261,30 +185,6 @@ export const WrapPreview = styled.div`
       }
       background: var(--color-warning-bg);
     }
-    .btn {
-      padding: 0 16px;
-      height: 32px;
-      line-height: 32px;
-      background: var(--color-background-primary);
-      border-radius: 3px;
-      border: 1px solid var(--color-text-disabled);
-      &:hover {
-        color: var(--color-primary);
-        border: 1px solid var(--color-primary);
-      }
-      &.refreshBtn:hover {
-        color: var(--color-warning);
-        border: 1px solid var(--color-warning);
-      }
-      &.finishedBtn:hover {
-        color: var(--color-success);
-        border: 1px solid var(--color-success);
-      }
-      &.errBtn:hover {
-        color: var(--color-error);
-        border: 1px solid var(--color-error);
-      }
-    }
   }
   .searchInputComp.default .icon-search {
     font-size: 20px;
@@ -301,21 +201,10 @@ export const WrapPreview = styled.div`
     }
   }
   .previewBtn {
-    padding: 0 24px;
-    line-height: 36px;
-    min-width: 0;
     position: absolute;
-    height: 36px;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    &.disable {
-      color: var(--color-text-disabled);
-      border: 1px solid var(--color-text-disabled);
-      &:hover {
-        background: var(--color-background-primary);
-      }
-    }
   }
   .tableCon {
     width: 100%;
@@ -324,8 +213,6 @@ export const WrapPreview = styled.div`
   }
   .icon-task-later {
     margin-top: 2px;
-  }
-  .previewBtnCon {
   }
 `;
 
@@ -348,38 +235,5 @@ export const TextAbsoluteCenter = styled.div`
     text-align: center;
     line-height: 130px;
     font-size: 80px;
-  }
-`;
-
-export const WrapS = styled(Menu)`
-  // &.rowsCountItem {
-  //   height: 40px;
-  // }
-  // height: 120px;
-  .ming.MenuItem .Item-content:not(.disabled):hover {
-    .icon {
-      color: var(--color-text-tertiary) !important;
-    }
-    .Red {
-      color: var(--color-error) !important;
-    }
-  }
-  .ming.Item.colorPrimary .Item-content:not(.disabled):hover {
-    color: var(--color-primary) !important;
-  }
-  .Red.ming.MenuItem .Item-content:not(.disabled):hover {
-    color: var(--color-error) !important;
-  }
-  .ming.Item .Item-content {
-    padding: 0 8px 0 16px;
-    & > span {
-      display: flex;
-      .Icon {
-        position: initial;
-      }
-    }
-  }
-  .textSecondary {
-    color: var(--color-text-secondary);
   }
 `;

@@ -1,57 +1,10 @@
-.ChartDialogContainer {
-  .mui-dialog-fixed {
-    padding-bottom: 0 !important;
-  }
-  .ChartDialog {
-    height: 100% !important;
-    max-height: 100% !important;
-  }
-}
-
 .ChartDialog {
-  .mui-dialog-header {
-    display: flex;
-    align-items: center;
-    height: 50px;
-    box-sizing: border-box;
-    padding: 0 24px !important;
-    border-radius: 0 !important;
-    box-shadow: var(--shadow-md);
-    position: relative;
-    z-index: 9;
-
+  .hap-modal-header {
     &:hover .hideDesc {
       display: block;
     }
     .hideDesc {
       display: none;
-    }
-  }
-  .mui-dialog-default-title {
-    width: 100%;
-  }
-  .mui-dialog-body {
-    height: 710px;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden !important;
-    padding: 0 !important;
-  }
-  .mui-dialog-footer {
-    display: none;
-  }
-  .buttonSave {
-    font-weight: bold;
-    width: 72px !important;
-    border-color: var(--color-primary);
-    background-color: var(--color-primary);
-    &:hover,
-    &:focus {
-      background: var(--color-primary-light);
-      border-color: var(--color-primary-light);
-    }
-    .MdLoader-path {
-      stroke: var(--color-white);
     }
   }
 
@@ -234,47 +187,26 @@
 .ChartDialogSetting {
   .chartTabs {
     overflow: inherit;
-    .ant-tabs-nav-list {
+    .hap-tabs-nav-list {
       width: 100%;
     }
-    .ant-tabs-nav {
+    .hap-tabs-nav {
       margin: 0;
       &::before {
         border-color: var(--color-border-primary);
       }
     }
-    .ant-tabs-tab {
+    .hap-tabs-tab {
       flex: 1;
       align-items: center;
       justify-content: center;
       margin: 0;
     }
-    .ant-tabs-nav-operations {
+    .hap-tabs-nav-operations {
       display: none;
     }
-    .ant-tabs-nav .ant-tabs-ink-bar-animated {
+    .hap-tabs-nav .hap-tabs-ink-bar-animated {
       height: 3px;
-    }
-  }
-  .chartTypeSelect {
-    font-size: 13px;
-    border-radius: 3px;
-    padding: 3px;
-    background-color: var(--color-background-disabled);
-    > div {
-      height: 25px;
-      line-height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 0;
-    }
-    .active {
-      color: var(--color-primary) !important;
-      border-radius: 3px;
-      padding: 3px 0;
-      font-weight: bold;
-      background-color: var(--color-background-card);
     }
   }
   .chartTypeImageSelect {
@@ -342,8 +274,6 @@
       }
     }
   }
-  .chartSelect();
-  .chartInput();
   .colorWrap();
 }
 
@@ -360,56 +290,46 @@
 
 .chartModal {
   padding: 0;
-  .ant-modal-content {
+  .hap-modal-content {
     border-radius: 3px;
     overflow: hidden;
   }
-  .ant-modal-title {
+  .hap-modal-title {
     font-size: 17px;
   }
-  .ant-modal-close-x {
+  .hap-modal-close-x {
     line-height: 66px;
     .icon-close:hover {
       color: var(--color-primary) !important;
     }
   }
-  .ant-modal-header {
-    padding: 24px;
+  .hap-modal-header {
     border-bottom: none;
   }
-  .ant-modal-footer {
+  .hap-modal-footer {
     border-top: none;
   }
-  .ant-modal-body {
+  .hap-modal-body {
     padding-top: 0;
     padding-bottom: 0;
   }
-  .chartSelect();
-  .chartInput();
   .colorWrap();
-  .ant-select-selector,
-  .ant-select-selection-item,
-  .ant-input,
-  .ant-picker {
-    height: 36px !important;
-    line-height: 34px !important;
-  }
-  .ant-modal-close {
+  .hap-modal-close {
     cursor: inherit;
   }
-  .ant-modal-header .icon-close,
+  .hap-modal-header .icon-close,
   .hoverHighlight {
     &:hover {
       color: var(--color-primary) !important;
     }
   }
-  .ant-btn-link {
+  .hap-btn-link {
     color: var(--color-text-tertiary);
     &:hover {
       color: var(--color-primary-light);
     }
   }
-  .ant-btn-primary {
+  .hap-btn-primary {
     height: 36px;
     padding: 0 32px;
     background: var(--color-primary);
@@ -419,7 +339,7 @@
       border-color: var(--color-primary-dark);
     }
   }
-  .ant-checkbox-input {
+  .hap-checkbox-input {
     position: absolute;
   }
   .hoverThemeColor {
@@ -429,148 +349,10 @@
   }
 }
 
-.selectOptionWrapper {
-  padding: 7px 12px 7px 20px;
-  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    font-weight: unset;
-    color: var(--color-white);
-  }
-}
-
 .ghostSelectOptionWrapper {
-  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  &.hap-select-item-option-selected:not(.hap-select-item-option-disabled) {
     font-weight: normal;
     background-color: var(--color-background-secondary);
-  }
-}
-
-.chartSelect() {
-  .chartSelect {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
-      .ant-select-selector {
-      border-color: var(--color-primary) !important;
-    }
-    .ant-select-selector {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-select-selector,
-    .ant-select-selection-item {
-      height: 32px;
-      line-height: 30px;
-    }
-    .ant-select-arrow {
-      width: auto;
-      height: auto;
-      top: 40%;
-    }
-    .ant-select-selection-placeholder {
-      line-height: 36px;
-    }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
-    .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
-      opacity: 1;
-      font-size: 13px;
-    }
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
-      color: inherit;
-    }
-    /*    &.ant-select-multiple .ant-select-selection-overflow {
-      height: 25px !important;
-      line-height: 25px !important;
-    }*/
-    &.ant-select-multiple .ant-select-selector {
-      height: auto;
-      line-height: auto;
-      .ant-select-selection-overflow-item {
-        line-height: 28px;
-      }
-      .ant-tag-close-icon:hover svg {
-        fill: #2296f3;
-      }
-    }
-  }
-}
-
-.chartInput () {
-  .chartInput {
-    &.ant-input-affix-wrapper {
-      padding: 0 0 0 11px;
-      .ant-input {
-        height: 30px;
-      }
-    }
-    &.ant-input-affix-wrapper:hover,
-    &:hover {
-      border-color: var(--color-primary) !important;
-    }
-    &.ant-input-affix-wrapper,
-    &.ant-input-affix-wrapper-focused,
-    & {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-input-suffix {
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 0 4px 4px 0;
-      border-left: 1px solid var(--color-border-primary);
-      background-color: var(--color-background-primary);
-    }
-    .icon-expand_less,
-    .icon-expand_more {
-      line-height: 10px;
-    }
-    &.ant-picker-range .ant-picker-input > input {
-      font-size: 13px;
-    }
-    &[readonly] {
-      caret-color: transparent;
-    }
-  }
-  .chartColorInput {
-    &:hover,
-    &:focus {
-      color: var(--color-primary);
-      border-color: var(--color-border-primary) !important;
-    }
-  }
-  .columnCountInput {
-    .disabled {
-      color: var(--color-border-primary);
-    }
-    .ant-input-suffix {
-      width: 38px !important;
-    }
-  }
-  .addonBeforeWrapper {
-    position: relative;
-    .ant-select {
-      position: absolute;
-      z-index: 1;
-      border-right: 1px solid var(--color-border-primary);
-    }
-    .ant-select-disabled .ant-select-selector {
-      background-color: transparent !important;
-    }
-    .ant-select-selector {
-      width: 70px !important;
-      border: none !important;
-      background-color: transparent !important;
-      height: 28px !important;
-      padding: 0;
-      margin-left: 5px;
-      text-align: center;
-      &:hover {
-        border-color: var(--color-border-primary);
-      }
-    }
-    .ant-select-arrow {
-      right: 4px;
-    }
   }
 }
 
@@ -594,12 +376,7 @@
   }
 }
 
-.ant-tooltip-inner {
+.hap-tooltip-inner {
   min-height: auto;
   line-height: initial;
-}
-
-.sortableScopeRuleWrap {
-  .chartInput();
-  .chartSelect();
 }

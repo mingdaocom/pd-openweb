@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
+import { getTabTypeBySelectUser } from 'src/utils/domain/control/controlSelection';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 
@@ -50,7 +51,8 @@ export default class DateInput extends Component {
       staticValue: JSON.stringify(_.pick(item, ['accountId', 'fullname', 'avatar'])),
     }));
   };
-  selectUser = event => {
+
+  getUserSelectContext = () => {
     const { data, dynamicValue, globalSheetInfo = {}, from } = this.props;
     const tabType = getTabTypeBySelectUser(data);
     const unique = data.enumDefault === 0;
@@ -62,7 +64,19 @@ export default class DateInput extends Component {
       )
       .map(i => JSON.parse(i.staticValue || '{}').accountId);
 
-    const getUsers = usersId => {
+    return { data, dynamicValue, from, globalSheetInfo, selectedAccountIds, tabType, unique };
+  };
+
+  handleSelectUser = users => {
+    const { dynamicValue, unique } = this.getUserSelectContext();
+    const usersId = this.formatUsersId(users);
+
+    if (unique) {
+      this.props.onDynamicValueChange(usersId);
+      return;
+    }
+
+    const getUsers = () => {
       // 人员去重
       const getId = item => _.get(item, ['staticValue', 'accountId']);
       const existUser = dynamicValue
@@ -73,48 +87,11 @@ export default class DateInput extends Component {
       }, dynamicValue);
     };
 
-    if (tabType === 2 || from === DYNAMIC_FROM_MODE.FAST_FILTER) {
-      let param = {};
+    this.props.onDynamicValueChange(getUsers());
+  };
 
-      if (from === DYNAMIC_FROM_MODE.FAST_FILTER && _.get(data, 'advancedSetting.shownullitem') === '1') {
-        param.staticAccounts = [
-          {
-            avatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
-            fullname: _.get(data, 'advancedSetting.nullitemname') || _l('为空'),
-            accountId: 'isEmpty',
-          },
-        ];
-      }
-
-      quickSelectUser(event.target, {
-        ...param,
-        showMoreInvite: false,
-        isTask: false,
-        tabType,
-        appId: globalSheetInfo.appId,
-        selectedAccountIds,
-        minHeight: 400,
-        offset: {
-          top: 16,
-          left: 0,
-        },
-        zIndex: 10001,
-        SelectUserSettings: {
-          unique,
-          projectId: globalSheetInfo.projectId,
-          selectedAccountIds,
-          callback: users => {
-            const usersId = this.formatUsersId(users);
-            this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
-          },
-        },
-        selectCb: users => {
-          const usersId = this.formatUsersId(users);
-          this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
-        },
-      });
-      return;
-    }
+  openUserDialog = () => {
+    const { globalSheetInfo, selectedAccountIds, unique } = this.getUserSelectContext();
 
     dialogSelectUser({
       showMoreInvite: false,
@@ -123,10 +100,7 @@ export default class DateInput extends Component {
         unique,
         projectId: globalSheetInfo.projectId,
         selectedAccountIds,
-        callback: users => {
-          const usersId = this.formatUsersId(users);
-          this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
-        },
+        callback: this.handleSelectUser,
       },
     });
   };
@@ -136,17 +110,52 @@ export default class DateInput extends Component {
   };
   render() {
     const { defaultType } = this.props;
+    const { data, from, globalSheetInfo, selectedAccountIds, tabType, unique } = this.getUserSelectContext();
+    const usePopover = tabType === 2 || from === DYNAMIC_FROM_MODE.FAST_FILTER;
+    const staticAccounts =
+      from === DYNAMIC_FROM_MODE.FAST_FILTER && _.get(data, 'advancedSetting.shownullitem') === '1'
+        ? [
+            {
+              avatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+              fullname: _.get(data, 'advancedSetting.nullitemname') || _l('为空'),
+              accountId: 'isEmpty',
+            },
+          ]
+        : [];
+    const userField = (
+      <OtherFieldList
+        {...this.props}
+        totalWidth={usePopover}
+        removeItem={this.removeItem}
+        onClick={usePopover ? undefined : this.openUserDialog}
+      />
+    );
+
     return (
       <DynamicValueInputWrap>
         {defaultType ? (
           <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
+        ) : usePopover ? (
+          <UserSelectPopover
+            staticAccounts={staticAccounts}
+            showMoreInvite={false}
+            tabType={tabType}
+            appId={globalSheetInfo.appId}
+            selectedAccountIds={selectedAccountIds}
+            minHeight={400}
+            offset={{ top: 16, left: 0 }}
+            SelectUserSettings={{
+              unique,
+              projectId: globalSheetInfo.projectId,
+              selectedAccountIds,
+              callback: this.handleSelectUser,
+            }}
+            onSelect={this.handleSelectUser}
+          >
+            <div style={{ width: 'calc(100% - 36px)' }}>{userField}</div>
+          </UserSelectPopover>
         ) : (
-          <OtherFieldList
-            ref={con => (this.userscon = con)}
-            {...this.props}
-            removeItem={this.removeItem}
-            onClick={this.selectUser}
-          />
+          userField
         )}
         <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
       </DynamicValueInputWrap>

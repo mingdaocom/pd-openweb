@@ -1,12 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 export default class ItemCon extends React.Component {
   render() {
@@ -92,23 +92,15 @@ export default class ItemCon extends React.Component {
           <div className="optionNs Relative">
             <DropOption
               dataList={optList}
-              showHeader={() => {
-                if (!data.isMyRole || sysRoleType.includes(data.roleType)) {
-                  return null;
-                }
-
-                return (
-                  <div className="textSecondary Font12" style={{ padding: '6px 16px' }}>
-                    {_l('我所在的角色')}
-                  </div>
-                );
-              }}
+              title={data.isMyRole && !sysRoleType.includes(data.roleType) ? _l('我所在的角色') : undefined}
               onAction={it => {
                 if (it.value === 0) {
-                  Dialog.confirm({
-                    title: <span className="Red">{_l('你确认离开此角色吗？')}</span>,
-                    buttonType: 'danger',
-                    description: _l('离开所有角色后你将不能访问此应用'),
+                  Modal.confirm({
+                    title: <span className="textError">{_l('你确认离开此角色吗？')}</span>,
+                    okButtonProps: {
+                      danger: true,
+                    },
+                    content: _l('离开所有角色后你将不能访问此应用'),
                     onOk: () => {
                       this.props.exitRole(data.roleId);
                     },

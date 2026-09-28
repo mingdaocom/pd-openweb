@@ -4,21 +4,22 @@ import JsonView from '@mingdaocom/json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Avatar, Dialog, Icon, LoadDiv, ScrollView, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Avatar, Icon, LoadDiv, ScrollView, Support, Textarea } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import ajaxRequest from 'src/api/worksheet';
 import integrationAjax from 'src/pages/integration/api/syncTask';
 import processAjax from 'src/pages/workflow/api/process';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { getTranslateInfo, setFavicon, shareGetAppLangDetail } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getTranslateInfo, setFavicon, shareGetAppLangDetail } from 'src/utils/services/app';
 import FiltersGenerate from './components/FiltersGenerate';
 import Header from './components/Header';
 import Mcp from './components/Mcp';
@@ -46,13 +47,14 @@ import {
   WORKSHEETINFO_SUCCESS_DATA,
 } from './core/applicationConfig';
 import { MENU_LIST_MAP, SIDEBAR_LIST_MAP, TAB_TYPE } from './core/enum';
-import { convertControl } from './core/utils';
+import { convertControl, isDeveloperPermission } from './core/utils';
 import './index.less';
 
-const FIELD_TYPE = FIELD_TYPE_LIST.concat([
-  { text: _l('对象'), value: 10000006, en: 'object' },
-  { text: _l('文本'), value: 1, en: 'string' },
-]);
+const getFieldType = () =>
+  FIELD_TYPE_LIST.concat([
+    { text: _l('对象'), value: 10000006, en: 'object' },
+    { text: _l('文本'), value: 1, en: 'string' },
+  ]);
 const isMobile = browserIsMobile();
 
 class WorksheetApi extends Component {
@@ -122,8 +124,13 @@ class WorksheetApi extends Component {
     );
   }
 
+  get isDeveloperMode() {
+    return isDeveloperPermission(_.get(this.state, 'dataApp.permissionType'));
+  }
+
   getAppInfo() {
     const { isSharePage, shareData = {} } = this.props;
+    const appId = this.getId();
 
     this.setState({
       loading: true,
@@ -133,42 +140,41 @@ class WorksheetApi extends Component {
       ? [
           // 获取应用下所有工作表信息
           homeApp.getWorksheetsByAppId({
-            appId: this.getId(),
+            appId,
             type: 0,
           }),
-          homeApp.getApiInfo({ appId: this.getId() }),
+          homeApp.getApiInfo({ appId }),
 
           // 获取选项集参数接口
           ajaxRequest.addOrUpdateOptionSetApiInfo(),
           ajaxRequest.optionSetListApiInfo(),
-          processAjax.getProcessListApi({ relationId: this.getId() }),
+          processAjax.getProcessListApi({ relationId: appId }),
         ]
       : [
           // 获取应用下所有工作表信息
           homeApp.getWorksheetsByAppId({
-            appId: this.getId(),
+            appId,
             type: 0,
           }),
-          homeApp.getApiInfo({ appId: this.getId() }),
+          homeApp.getApiInfo({ appId }),
           // 获取选项集参数接口
           ajaxRequest.addOrUpdateOptionSetApiInfo(),
           ajaxRequest.optionSetListApiInfo(),
-          processAjax.getProcessListApi({ relationId: this.getId() }),
+          processAjax.getProcessListApi({ relationId: appId }),
           // 获取应用详细信息
           homeApp.getApp(
             {
-              appId: this.getId(),
+              appId,
               getLang: true,
             },
             {
               silent: true,
             },
           ),
-          appManagementAjax.getAuthorizes({ appId: this.getId() }),
         ];
 
     Promise.all(promiseList).then(async res => {
-      let resArr = isSharePage ? res.concat([undefined, undefined]) : res;
+      let resArr = isSharePage ? res.concat([undefined]) : res;
       const [
         worksheetList = [],
         appInfo = {},
@@ -176,8 +182,8 @@ class WorksheetApi extends Component {
         getOptionsParams = [],
         processList = [],
         dataApp = {},
-        authorizes = [],
       ] = resArr;
+      let authorizes = [];
 
       if (isSharePage) {
         dataApp.iconUrl = shareData.appIcon;
@@ -186,26 +192,28 @@ class WorksheetApi extends Component {
         dataApp.name = shareData.appName;
         dataApp.projectId = shareData.projectId;
         dataApp.navColor = shareData.appNavColor;
+      } else if (!isDeveloperPermission(dataApp.permissionType)) {
+        authorizes = await appManagementAjax.getAuthorizes({ appId });
       }
 
-      const { langInfo, id: appId, projectId } = dataApp;
+      const { langInfo, id: dataAppId, projectId } = dataApp;
 
-      if (isSharePage && appId && projectId) {
-        await shareGetAppLangDetail({ appId, projectId });
-      } else if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+      if (isSharePage && dataAppId && projectId) {
+        await shareGetAppLangDetail({ appId: dataAppId, projectId });
+      } else if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${dataAppId}`]) {
         const lang = await appManagementAjax.getAppLangDetail({
           projectId,
-          appId,
+          appId: dataAppId,
           appLangId: langInfo.appLangId,
         });
-        window[`langData-${appId}`] = lang.items;
-        window[`langVersion-${appId}`] = langInfo.version;
+        window[`langData-${dataAppId}`] = lang.items;
+        window[`langVersion-${dataAppId}`] = langInfo.version;
       }
 
-      dataApp.name = getTranslateInfo(appId, null, appId).name || dataApp.name;
+      dataApp.name = getTranslateInfo(dataAppId, null, dataAppId).name || dataApp.name;
 
       worksheetList.forEach(item => {
-        item.workSheetName = getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName;
+        item.workSheetName = getTranslateInfo(dataAppId, null, item.workSheetId).name || item.workSheetName;
       });
 
       setFavicon(dataApp.iconUrl, dataApp.iconColor);
@@ -239,6 +247,10 @@ class WorksheetApi extends Component {
             getOptionsParams,
             pbcList: processList.filter(l => l.startAppType !== 7),
             webhookList: processList.filter(l => l.startAppType === 7),
+            selectId:
+              !isSharePage && isDeveloperPermission(dataApp.permissionType) && !this.hideMcp
+                ? 'mcpServer'
+                : this.state.selectId,
           },
           () => {
             document.title = dataApp.name + ' - ' + _l('API说明');
@@ -254,6 +266,8 @@ class WorksheetApi extends Component {
   }
 
   getAuthorizes = () => {
+    if (this.isDeveloperMode) return;
+
     appManagementAjax.getAuthorizes({ appId: this.getId() }).then(authorizes => {
       this.setState({ authorizes });
     });
@@ -945,7 +959,7 @@ class WorksheetApi extends Component {
                 {o.alias || o.controlName}
               </div>
               <div className="mLeft30 w18">{o.required ? _l('是') : _l('否')}</div>
-              <div className="mLeft30 w14">{FIELD_TYPE.find(obj => obj.value === o.type).text}</div>
+              <div className="mLeft30 w14">{getFieldType().find(obj => obj.value === o.type).text}</div>
               <div className="mLeft30 w36">{o.desc}</div>
             </div>
             {renderInputs(workflowInfo.inputs.filter(item => item.dataSource === o.controlId))}
@@ -1394,6 +1408,7 @@ class WorksheetApi extends Component {
    */
   renderAuthorizationManagement = () => {
     const { authorizes = [], addSecretKey, visibleAppKeys, visibleSigns, tabIndex } = this.state;
+    const lang = window.getCurrentLang();
 
     const renderIconRow = (visibleState, text) => {
       const visible = this.state[visibleState].includes(text);
@@ -1428,6 +1443,14 @@ class WorksheetApi extends Component {
       <Fragment>
         <div className="worksheetApiContent1">
           <div className="Font22 bold">{_l('授权管理')}</div>
+          <div className="mTop24">
+            {_l('查看更多')}
+            <Support
+              type={3}
+              text={_l('企业授权接口')}
+              href={`${md.global.Config.OpenApiDocUrl}/organization/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}`}
+            />
+          </div>
           {authorizes.length > 0 && (
             <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
               <div className="w14">{_l('名称')}</div>
@@ -1521,7 +1544,7 @@ class WorksheetApi extends Component {
             showMoreOption: showMoreOption,
           });
         }}
-        onClickAwayExceptions={['.mui-dialog-container', '.tencent-captcha__transform']}
+        onClickAwayExceptions={['.hap-modal-wrap', '.tencent-captcha__transform']}
         onClickAway={() => this.setState({ showMoreOption: false })}
       />
     );
@@ -1556,10 +1579,12 @@ class WorksheetApi extends Component {
         {tabIndex === TAB_TYPE.API_V2 && <div className="worksheetApiContent2" />}
 
         {whiteListDialog && (
-          <Dialog
+          <Modal
             className="addSheetFieldDialog"
             title={_l('IP 白名单')}
-            visible={true}
+            open
+            mask={{ closable: true }}
+            keyboard
             width={480}
             onOk={() => {
               const whiteList = _.uniq(
@@ -1606,7 +1631,7 @@ class WorksheetApi extends Component {
                 this.whiteList = whiteList;
               }}
             />
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );
@@ -1916,7 +1941,7 @@ class WorksheetApi extends Component {
 
     switch (nexTabIndex) {
       case TAB_TYPE.APPLICATION:
-        targetId = 'authorizationInstr';
+        targetId = this.isDeveloperMode && !this.hideMcp ? 'mcpServer' : 'authorizationInstr';
         break;
       case TAB_TYPE.API_V2:
         targetId = 'summary';
@@ -1927,7 +1952,11 @@ class WorksheetApi extends Component {
 
     // 获取目标tab下菜单的位置
     const targetPosition = JSON.parse(sessionStorage.getItem(`ApiTabIndex-${nexTabIndex}`)) || {};
-    const targetSelectId = this.hideMcp && targetPosition.selectId === 'mcpServer' ? targetId : targetPosition.selectId;
+    const disabledSelectIds = [
+      this.hideMcp ? 'mcpServer' : '',
+      this.isDeveloperMode ? 'authorizationInstr' : '',
+    ].filter(Boolean);
+    const targetSelectId = disabledSelectIds.includes(targetPosition.selectId) ? targetId : targetPosition.selectId;
     this.setState(
       {
         tabIndex: nexTabIndex,
@@ -1956,6 +1985,7 @@ class WorksheetApi extends Component {
     const appId = this.getId();
     const sidebarList = (SIDEBAR_LIST_MAP[tabIndex] || []).filter(item => {
       if (this.hideMcp && item.key === 'mcpServer') return false;
+      if (this.isDeveloperMode && item.key === 'authorizationInstr') return false;
       if (this.hideDataPipeline && item.key === 'dataPipeline') return false;
       return true;
     });
@@ -2030,10 +2060,18 @@ class WorksheetApi extends Component {
                   {tabIndex === TAB_TYPE.APPLICATION && (
                     <Fragment>
                       {/* 授权管理 */}
-                      <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
-                        {this.renderAuthorizationManagement()}
-                      </div>
-                      {!this.hideMcp && <Mcp authorizes={authorizes} appInfo={appInfo} />}
+                      {!this.isDeveloperMode && (
+                        <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
+                          {this.renderAuthorizationManagement()}
+                        </div>
+                      )}
+                      {!this.hideMcp && (
+                        <Mcp
+                          authorizes={authorizes}
+                          appName={dataApp.name}
+                          canManageAuthorize={!this.isDeveloperMode}
+                        />
+                      )}
                       {/* IP白名单 */}
                       <div className="flexRow worksheetApiLi" id="whiteList-content">
                         {this.renderWhiteList()}
@@ -2208,4 +2246,8 @@ const Entry = () => {
 
 const root = createRoot(document.getElementById('app'));
 
-root.render(<Entry />);
+root.render(
+  <AntdThemeProvider>
+    <Entry />
+  </AntdThemeProvider>,
+);

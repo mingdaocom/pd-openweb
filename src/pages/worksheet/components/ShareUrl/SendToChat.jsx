@@ -2,13 +2,12 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import cx from 'classnames';
 import { debounce } from 'lodash';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Button, Popover, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import chatAjax from 'src/api/chat';
-import { Bold600, BorderBox, commonShadow, Textarea, Tip9e, Tipbd } from 'worksheet/components/Basics';
+import { Bold600, BorderBox, Textarea, Tip9e, Tipbd } from 'worksheet/components/Basics';
 
 const Con = styled.div``;
 
@@ -19,7 +18,7 @@ const SelectedUser = styled(BorderBox)`
   align-items: center;
   padding: 0 10px;
   cursor: pointer;
-  ${({ active }) => (active ? 'border-color: var(--color-primary);' : '')}
+  ${({ $active }) => ($active ? 'border-color: var(--color-primary);' : '')}
   > .con {
     flex: 1;
     overflow: hidden;
@@ -37,9 +36,6 @@ const Description = styled(Textarea)`
 
 const ChatList = styled.div`
   width: 280px;
-  background: var(--color-background-primary);
-  border-radius: 3px;
-  ${commonShadow}
   .header {
     display: flex;
     padding: 12px 16px;
@@ -205,28 +201,22 @@ export default function SendToChat(props) {
   return (
     <Con>
       <Bold600 className="mTop20">{_l('发送到')}</Bold600>
-      <Trigger
-        action={['click']}
-        popupVisible={listActive}
-        popup={chatListComp}
-        getPopupContainer={() => document.body}
-        onPopupVisibleChange={visible => {
+      <Popover
+        trigger="click"
+        open={listActive}
+        content={chatListComp}
+        placement="bottomLeft"
+        noPadding
+        onOpenChange={visible => {
           if (visible && !list.length) {
             loadChat();
           }
 
           setListActive(visible);
         }}
-        destroyPopupOnHide
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 0],
-          overflow: {
-            adjustY: true,
-          },
-        }}
+        destroyOnHidden
       >
-        <SelectedUser active={listActive}>
+        <SelectedUser $active={listActive}>
           <div className="con">
             {listActive && (
               <input
@@ -290,7 +280,7 @@ export default function SendToChat(props) {
           </div>
           <i className="arrow icon icon-arrow-down-border"></i>
         </SelectedUser>
-      </Trigger>
+      </Popover>
       <Description
         ref={descriptionRef}
         className="shareDescription"
@@ -298,7 +288,7 @@ export default function SendToChat(props) {
         value={description}
         onChange={e => setDescription(e.target.value)}
       />
-      <Button className="mTop6" disabled={!selectedUser} onClick={handleSend}>
+      <Button type="primary" className="mTop6" disabled={!selectedUser} onClick={handleSend}>
         {_l('发送')}
       </Button>
     </Con>

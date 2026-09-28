@@ -1,17 +1,16 @@
 import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, UpgradeIcon } from 'ming-ui';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Drawer, Dropdown, Modal } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import UpgradeProcess from 'src/pages/AppSettings/components/ImportUpgrade/components/UpgradeProcess';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { importAppMode, optionData } from '../constant';
 import AppLog from './AppLog';
-import { decryptFunc } from './Dectypt';
+import { useDecrypt } from './Dectypt';
 import SelectApp from './SelectApp';
 
 export default function BatchImportApp(props) {
@@ -19,22 +18,14 @@ export default function BatchImportApp(props) {
   const [data, setData] = useSetState({
     moreVisible: false,
     exportAppVisible: false,
-    importAppPopupVisible: false,
     importAppVisible: false,
     drawerVisible: false,
     appTrashVisible: false,
     upgradeModel:
       window.platformENV.isLocal && !window.platformENV.isOverseas && !window.platformENV.isPlatform ? 1 : 0, // 仅私有部署支持迁移模式,
   });
-  const {
-    moreVisible,
-    exportAppVisible,
-    importAppPopupVisible,
-    importAppVisible,
-    upgradeModel,
-    drawerVisible,
-    appTrashVisible,
-  } = data;
+  const { moreVisible, exportAppVisible, importAppVisible, upgradeModel, drawerVisible, appTrashVisible } = data;
+  const { open: openDecrypt, holder: decryptHolder } = useDecrypt();
 
   const handleClick = ({ action, featureId, featureType }) => {
     if (featureType === '2') {
@@ -59,107 +50,90 @@ export default function BatchImportApp(props) {
         setData({ appTrashVisible: true });
         break;
       case 'openDecryptUpload':
-        decryptFunc({ projectId });
+        openDecrypt({ projectId });
         break;
       default:
         break;
     }
   };
 
+  const isSupportMigrateMode =
+    window.platformENV.isPlatform && window.platformENV.isHap
+      ? getFeatureStatus(projectId, VersionProductType.appAccessPolicy) === '1'
+      : window.platformENV.isLocal && !window.platformENV.isOverseas && !window.platformENV.isPlatform;
+
+  const moreMenuItems = optionData
+    .map(item => {
+      const featureType = getFeatureStatus(projectId, item.featureId);
+
+      if (_.includes(['handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) && !featureType) {
+        return null;
+      }
+
+      const menuItem = {
+        key: item.action,
+        icon: <Icon icon={item.icon} className="textTertiary" />,
+        label: (
+          <Fragment>
+            {item.label}
+            {item.featureId && featureType === '2' && <UpgradeIcon />}
+          </Fragment>
+        ),
+      };
+
+      if (item.action === 'handleUpdateAll' && featureType !== '2' && isSupportMigrateMode) {
+        return {
+          ...menuItem,
+          children: importAppMode.map(v => ({
+            key: v.value,
+            label: (
+              <Fragment>
+                <div className="Font14 bold">{v.label}</div>
+                <div className="desc">{v.description}</div>
+              </Fragment>
+            ),
+            style: { minWidth: 438 },
+            onClick: () => {
+              setData({
+                moreVisible: false,
+                importAppVisible: true,
+                upgradeModel: v.value,
+              });
+            },
+          })),
+        };
+      }
+
+      return {
+        ...menuItem,
+        onClick: () => handleClick({ ...item, featureType }),
+      };
+    })
+    .filter(Boolean);
+
   return (
     <Fragment>
-      <Trigger
-        popupVisible={moreVisible}
-        onPopupVisibleChange={visible => setData({ moreVisible: visible })}
-        action={['click']}
-        popup={() => {
-          return (
-            <ul className="optionPanelTrigger moreOptionPanelTrigger">
-              {optionData.map(item => {
-                const featureType = getFeatureStatus(projectId, item.featureId);
-
-                // 私有部署支持迁移模式、公有云使用应用访问策略指标（用于测试）
-                const isSupportMigrateMode =
-                  window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
-                    ? getFeatureStatus(projectId, VersionProductType.appAccessPolicy) === '1'
-                    : window.platformENV.isLocal && !window.platformENV.isOverseas && !window.platformENV.isPlatform;
-
-                if (_.includes(['handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) && !featureType) {
-                  return;
-                }
-
-                if (item.action === 'handleUpdateAll' && featureType !== '2' && isSupportMigrateMode) {
-                  // 仅私有部署支持迁移模式
-                  return (
-                    <Trigger
-                      action={['hover']}
-                      popupVisible={importAppPopupVisible}
-                      onPopupVisibleChange={visible => setData({ importAppPopupVisible: visible })}
-                      popupAlign={{
-                        overflow: { adjustX: true, adjustY: true },
-                        points: ['cr', 'cl'],
-                        offset: [-438, -36],
-                      }}
-                      popup={() => {
-                        return (
-                          <ul className="optionPanelTrigger importAppTrigger">
-                            {importAppMode.map(v => {
-                              return (
-                                <li
-                                  key={v.value}
-                                  onClick={() => {
-                                    setData({
-                                      moreVisible: false,
-                                      importAppVisible: true,
-                                      importAppPopupVisible: false,
-                                      upgradeModel: v.value,
-                                    });
-                                  }}
-                                >
-                                  <div className="Font14 bold">{v.label}</div>
-                                  <div className="desc">{v.description}</div>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        );
-                      }}
-                    >
-                      <li key={item.action}>
-                        <Icon icon={item.icon} className="mRight12 textTertiary" />
-                        {item.label}
-                        {item.featureId && featureType === '2' && <UpgradeIcon />}
-                      </li>
-                    </Trigger>
-                  );
-                }
-
-                return (
-                  <li key={item.action} onClick={() => handleClick({ ...item, featureType })}>
-                    <Icon icon={item.icon} className="mRight12 textTertiary" />
-                    {item.label}
-                    {item.featureId && featureType === '2' && <UpgradeIcon />}
-                  </li>
-                );
-              })}
-            </ul>
-          );
-        }}
-        popupAlign={{
-          offset: [-125, 5],
-          points: ['tr', 'tl'],
+      {decryptHolder}
+      <Dropdown
+        open={moreVisible}
+        onOpenChange={visible => setData({ moreVisible: visible })}
+        trigger={['click']}
+        menu={{
+          items: moreMenuItems,
+          style: { minWidth: 160 },
         }}
       >
         <span className="textTertiary Font18 icon-more_horiz Hand mLeft25 hoverColorPrimary"></span>
-      </Trigger>
+      </Dropdown>
 
       {/* 导出应用 */}
       {exportAppVisible && (
-        <Dialog
-          visible={exportAppVisible}
+        <Modal
+          open={exportAppVisible}
           width={720}
           className="importTotalAppDialog"
-          overlayClosable={false}
+          mask={{ closable: false }}
+          keyboard
           onCancel={() => setData({ exportAppVisible: false })}
           title={
             <div className="flexRow mBottom4">
@@ -175,7 +149,7 @@ export default function BatchImportApp(props) {
             }}
             closeDialog={() => setData({ exportAppVisible: false })}
           />
-        </Dialog>
+        </Modal>
       )}
 
       {/* 导入应用 */}
@@ -190,8 +164,8 @@ export default function BatchImportApp(props) {
 
       {/* 日志 */}
       <Drawer
-        className="appLogDrawerContainer"
-        width={480}
+        rootClassName="appLogDrawerContainer"
+        size={480}
         title={
           <div className="flexRow">
             <span className="flex">{_l('日志')}</span>
@@ -204,8 +178,8 @@ export default function BatchImportApp(props) {
         }
         placement="right"
         onClose={() => setData({ drawerVisible: false })}
-        visible={drawerVisible}
-        maskClosable={false}
+        open={drawerVisible}
+        mask={{ closable: false }}
         closable={false}
       >
         <AppLog visible={drawerVisible} />

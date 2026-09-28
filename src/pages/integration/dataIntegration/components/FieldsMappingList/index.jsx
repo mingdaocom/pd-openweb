@@ -1,13 +1,12 @@
 import React, { useRef } from 'react';
 import { useState } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Input, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, Support } from 'ming-ui';
+import { Checkbox, Input, Select, Tooltip } from 'ming-ui/antd-components';
 import { ALL_OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
-import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
+import { canSetAsTitle, getIconByType } from 'src/utils/domain/control/metadata';
 import {
   DATABASE_TYPE,
   isPostgresqlDestinationType,
@@ -81,13 +80,6 @@ const Wrapper = styled.div`
         }
       }
     }
-
-    .customDisabled {
-      .Checkbox-box {
-        background: #90caf9 !important;
-        border-color: #90caf9 !important;
-      }
-    }
   }
   .itemWrapper {
     position: relative;
@@ -112,19 +104,12 @@ const Wrapper = styled.div`
       }
     }
   }
-  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-radius: 3px;
-    /* border: 1px solid var(--color-border-tertiary) !important; */
-  }
   .systemFieldsHeader {
     display: flex;
     align-items: center;
     padding: 24px 8px 8px 8px;
     border-bottom: 1px solid var(--color-border-secondary);
 
-    .Checkbox {
-      width: 36px;
-    }
     .content {
       width: fit-content;
       display: flex;
@@ -148,11 +133,6 @@ const Wrapper = styled.div`
 const SelectWrapper = styled.div`
   display: flex;
   align-items: center;
-  .isNoMatchOption {
-    .ant-select-selector .ant-select-selection-item {
-      color: #f00;
-    }
-  }
 `;
 
 export default function FieldMappingList(props) {
@@ -236,7 +216,6 @@ export default function FieldMappingList(props) {
           className="flex"
           value={destField.name || ''}
           disabled={isDisabled}
-          valueFilter={isPgDestDb ? lowercaseIfString : undefined}
           onBlur={event => {
             const hasRepeatName =
               fieldsMapping.filter(item => _.get(item, 'destField.name') === event.target.value).length > 1;
@@ -261,7 +240,8 @@ export default function FieldMappingList(props) {
               });
             }
           }}
-          onChange={value =>
+          onChange={event => {
+            const value = isPgDestDb ? lowercaseIfString(event.target.value) : event.target.value;
             updateFieldsMapping(
               {
                 ...data,
@@ -271,8 +251,8 @@ export default function FieldMappingList(props) {
                 },
               },
               true,
-            )
-          }
+            );
+          }}
         />
         <div className="numberTips">
           {!sourceData.isDbType && !destData.isDbType && destField.mdType === 6 && (
@@ -325,17 +305,26 @@ export default function FieldMappingList(props) {
 
     return (
       <Checkbox
-        size="small"
         //是主键，并且勾选状态样式
         className={cx({ customDisabled: sourceField.isPk && !!destField[key] })}
         checked={!!destField[key]}
         disabled={sourceField.isPk || (key !== 'isNotNull' && (sourceField.disabled || isNotSupport))}
-        onClick={() => {
+        onChange={() => {
           updateFieldsMapping({
-            sourceField: key === 'isCheck' ? { ...sourceField, isCheck: !sourceField.isCheck } : sourceField,
-            destField: { ...destField, [key]: !destField[key] },
+            sourceField:
+              key === 'isCheck'
+                ? {
+                    ...sourceField,
+                    isCheck: !sourceField.isCheck,
+                  }
+                : sourceField,
+            destField: {
+              ...destField,
+              [key]: !destField[key],
+            },
           });
         }}
+        size="small"
       />
     );
   };
@@ -797,7 +786,9 @@ export default function FieldMappingList(props) {
     const columns = [
       {
         dataIndex: 'checkColumn',
-        renderTitle: () => <Checkbox size="small" checked={isCheckAll()} onClick={checked => onCheckAll(checked)} />,
+        renderTitle: () => (
+          <Checkbox checked={isCheckAll()} onChange={event => onCheckAll(!event.target.checked)} size="small" />
+        ),
         render: data => renderCheckbox(data, 'isCheck'),
       },
       ...leftColumns.filter(item => sourceData.dsType !== DATABASE_TYPE.KAFKA || item.dataIndex !== 'isNotNull'),
@@ -842,7 +833,11 @@ export default function FieldMappingList(props) {
         {isSystemFields && !sourceData.isDbType && destData.isDbType && (
           <div className="systemFieldsHeader">
             {isCreate && (
-              <Checkbox size="small" checked={isCheckAll(true)} onClick={checked => onCheckAll(checked, true)} />
+              <Checkbox
+                checked={isCheckAll(true)}
+                onChange={event => onCheckAll(!event.target.checked, true)}
+                size="small"
+              />
             )}
             <div className="content" onClick={() => setSystemFieldsExpand(!systemFieldsExpand)}>
               <span>{_l('系统字段')}</span>

@@ -1,18 +1,15 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { Icon, LoadDiv, ScrollView, UserBaseProfile } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 import { addFriendConfirm as addFriendConfirmFun } from 'ming-ui/functions';
 import { checkCertification } from 'src/components/checkCertification';
-import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
 import UserMoreProfile from 'src/components/UserInfoComponents/UserMoreProfile.jsx';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import API, { removeFriend } from '../api';
 import { config } from '../config';
 import AddFriend from './AddFriend';
-import { pathCompletion } from 'src/utils/common';
 
 const defaultState = {
   data: null,
@@ -87,9 +84,9 @@ export default class UserDetail extends React.Component {
 
   deleteFriendConfirm() {
     const { accountId } = this.props;
-    Dialog.confirm({
-      title: _l('确认删除当前好友？'),
-      description: _l('删除后您将不显示在对方的好友列表里'),
+    Modal.confirm({
+      title: <span className="textError">{_l('确认删除当前好友？')}</span>,
+      content: _l('删除后您将不显示在对方的好友列表里'),
       onOk: () => {
         removeFriend(accountId).then(() => {
           alert(_l('删除成功'), 1);
@@ -120,27 +117,29 @@ export default class UserDetail extends React.Component {
     } else {
       return (
         <div className="Right Relative pTop8">
-          <Trigger
-            action={['click']}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [-180, 4],
-              overflow: { adjustX: true, adjustY: true },
+          <Dropdown
+            align={{ offset: [0, 4] }}
+            menu={{
+              items: [
+                {
+                  key: 'deleteFriend',
+                  danger: true,
+                  icon: <Icon icon="hr_delete" className="Font16 textSecondary" />,
+                  label: _l('删除好友'),
+                  onClick: this.deleteFriendConfirm,
+                },
+              ],
+              style: { width: 180 },
             }}
-            popup={
-              <Menu con={'.contacts-detail-wrapper'}>
-                <MenuItem icon={<Icon icon="hr_delete" className="TxtMiddle" />} onClick={this.deleteFriendConfirm}>
-                  <span className="TxtMiddle">{_l('删除好友')}</span>
-                </MenuItem>
-              </Menu>
-            }
+            placement="bottomRight"
+            trigger={['click']}
           >
             <span className="textSecondary Hand hoverColorPrimary">
               <i className="Font14 icon-check_circle TxtMiddle" />
               <span className="mLeft5 TxtMiddle Font12">{_l('我的好友')}</span>
               <i className="Font14 mLeft5 icon-moreop TxtMiddle" />
             </span>
-          </Trigger>
+          </Dropdown>
         </div>
       );
     }
@@ -188,7 +187,11 @@ export default class UserDetail extends React.Component {
             <Icon icon="chat" className="mRight5 Font18 TxtMiddle" />
             {_l('发消息')}
           </a>
-          <a href={pathCompletion('/user_' + accountId)} className="detail-btn textSecondary mLeft10 NoUnderline" target="_blank">
+          <a
+            href={pathCompletion('/user_' + accountId)}
+            className="detail-btn textSecondary mLeft10 NoUnderline"
+            target="_blank"
+          >
             <Icon icon="dynamic-empty" className="mRight10 Font17 TxtMiddle" />
             {_l('TA的动态')}
           </a>

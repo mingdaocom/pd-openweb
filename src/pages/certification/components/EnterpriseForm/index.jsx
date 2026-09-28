@@ -1,13 +1,8 @@
 import React, { useEffect } from 'react';
-import { DatePicker, Form } from 'antd';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dropdown, Input } from 'ming-ui';
+import { DatePicker, Form, Input, Select } from 'ming-ui/antd-components';
 import marketplacePaymentApi from 'src/api/marketplacePayment';
 import { ENTERPRISE_FIELD_LABEL, ENTERPRISE_TYPE_OPTIONS } from '../../constant';
 import UploadCertificate from './UploadCertificate';
@@ -21,7 +16,7 @@ const CommonRangePicker = styled(RangePicker)`
   border-color: var(--color-border-tertiary);
   box-shadow: none !important;
   &:hover,
-  &.ant-picker-focused {
+  &.hap-picker-focused {
     border-color: var(--color-primary);
   }
 `;
@@ -37,36 +32,22 @@ const FormWrapper = styled(Form)`
     border-bottom: 1px solid var(--color-border-tertiary);
     margin-bottom: 16px;
   }
-  .ant-form-item {
+  .hap-form-item {
     margin-bottom: 0;
-    .ant-form-item-required {
+    .hap-form-item-required {
       font-size: 13px !important;
       color: var(--color-text-secondary) !important;
       font-weight: bold;
     }
-    .ant-form-item-explain-error {
+    .hap-form-item-explain-error {
       margin-top: 4px;
       font-size: 12px;
     }
 
     &:not(&.isLast) {
-      border-bottom: 1px solid --color-background-disabled;
+      border-bottom: 1px solid var(--color-background-disabled);
       padding-bottom: 16px;
       margin-bottom: 16px;
-    }
-  }
-  input {
-    width: 100%;
-    border-color: var(--color-border-primary);
-    font-size: 13px;
-    &:hover {
-      border-color: var(--color-border-tertiary);
-    }
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-    &::placeholder {
-      color: var(--color-text-disabled);
     }
   }
   .mTop56 {
@@ -92,7 +73,6 @@ const initialValues = {
   contactMobile: '',
 };
 
-const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
 const formatValidDate = (period = '', splitKey = '-', format = 'YYYY-MM-DD') => {
   const dateArr = period.split(splitKey);
   const startDate = moment(dateArr[0], format).isValid() ? moment(dateArr[0], format) : '';
@@ -108,8 +88,6 @@ const formatValidDate = (period = '', splitKey = '-', format = 'YYYY-MM-DD') => 
 export default function EnterpriseForm(props) {
   const { form, formData, setFormData, type = 'cert' } = props;
   const { enterpriseType, businessLicense } = formData;
-
-  const locale = locales[md.global.Account.lang] || localeEn;
 
   const isSign = type === 'sign';
 
@@ -160,7 +138,7 @@ export default function EnterpriseForm(props) {
         rules={[{ required: true, message: _l('请选择企业类型') }]}
         className="isLast"
       >
-        <Dropdown border className="w100" data={ENTERPRISE_TYPE_OPTIONS} />
+        <Select className="w100" options={ENTERPRISE_TYPE_OPTIONS} />
       </Form.Item>
 
       {enterpriseType !== 1 && (
@@ -227,7 +205,7 @@ export default function EnterpriseForm(props) {
               ]}
               className="isLast"
             >
-              <CommonRangePicker locale={locale} />
+              <CommonRangePicker />
             </Form.Item>
           )}
         </React.Fragment>

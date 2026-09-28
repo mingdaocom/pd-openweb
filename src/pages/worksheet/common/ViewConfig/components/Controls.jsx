@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
 
 // 字段
 export default class Controls extends React.Component {
@@ -76,7 +76,7 @@ export default class Controls extends React.Component {
     return (
       <div className="commonConfigItem">
         <div className="textSecondary mTop8 mBottom4">{_l('设置此视图下的表单中需要对用户隐藏的字段')}</div>
-        <div className="ming Dropdown pointer w100 mBottom10 hideColumns">
+        <div className="pointer w100 mBottom10 hideColumns">
           <SortColumns
             layout={2}
             noShowCount={true}

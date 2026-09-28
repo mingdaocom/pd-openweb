@@ -1,23 +1,22 @@
 import React from 'react';
-import { Button } from 'antd';
 import cx from 'classnames';
 import _, { get, isEmpty } from 'lodash';
 import { bool, element, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Tooltip } from 'ming-ui/antd-components';
 import SheetHeader from 'worksheet/common/Sheet/SheetHeader';
 import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import SearchRecord from 'worksheet/views/components/SearchRecord';
-import { isPublicLink } from 'src/components/Form/core/utils';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { browserIsMobile } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
-import { getGroupControlId } from 'src/utils/worksheet';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
 
 const Con = styled.div`
   display: flex;
@@ -52,10 +51,6 @@ const Con = styled.div`
     .draftEntry {
       display: none;
     }
-  }
-  button.addRecord {
-    border-color: var(--app-primary-color);
-    background: var(--app-primary-color);
   }
 `;
 
@@ -238,7 +233,8 @@ export default function Header(props) {
       )}
       {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && isAddRecord && allowAdd && !fromEmbed && (
         <Button
-          type="primary"
+          style={{ '--hap-control-height': '32px' }}
+          color="var(--app-primary-color)"
           shape="round"
           className="mLeft15 addRecord"
           icon={<Icon icon="plus" className="mRight2" />}

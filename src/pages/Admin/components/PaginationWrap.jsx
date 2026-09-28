@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import { Pagination } from 'antd';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Pagination } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
   display: flex;
   justify-content: center;
   min-height: 0;
-  .ant-pagination {
+  .hap-pagination {
     padding: 12px;
-    .ant-pagination-options {
+    .hap-pagination-options {
       display: none;
     }
-    .ant-pagination-item {
+    .hap-pagination-item {
       height: unset;
       line-height: unset;
       margin-right: 10px;
@@ -34,7 +34,7 @@ const Wrap = styled.div`
         color: var(--color-text-title);
       }
     }
-    .ant-pagination-item-active {
+    .hap-pagination-item-active {
       border: 1px solid transparent;
       color: var(--color-text-title);
       a {
@@ -47,8 +47,8 @@ const Wrap = styled.div`
         }
       }
     }
-    .ant-pagination-prev,
-    .ant-pagination-next {
+    .hap-pagination-prev,
+    .hap-pagination-next {
       a {
         color: var(--color-text-title);
         &:hover {

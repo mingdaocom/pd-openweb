@@ -1,20 +1,44 @@
 import React from 'react';
-import cx from 'classnames';
 import { Parser } from 'hot-formula-parser';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, TagTextarea } from 'ming-ui';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { TagTextarea } from 'ming-ui';
+import { Checkbox, Dropdown } from 'ming-ui/antd-components';
+import { genControlTag } from 'src/pages/widgetConfig/internal/editorData';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getFormulaControls } from 'src/utils/domain/control/controlSelection';
+import { getControlTextValue, getControlValue } from 'src/utils/domain/control/controlValue';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
 import { SettingItem } from '../../../styled';
-import { genControlTag, getControlTextValue, getControlValue, getFormulaControls } from '../../../util/data';
-import ColumnListDropdown from '../ColumnListDropdown';
 import PointerConfig from '../PointerConfig';
 import PreSuffix from '../PreSuffix';
 import { FORMULA } from './enum';
-import FnList from './FnList';
 
 const CAL_LIST = ['+', '-', '*', '/', '(', ')'];
+const MENU_STYLE = { maxHeight: 300, overflowX: 'hidden', overflowY: 'auto' };
+const DROPDOWN_ALIGN = { offset: [0, 0] };
+const DROPDOWN_TRIGGER_STYLE = {
+  position: 'absolute',
+  width: '100%',
+  left: 0,
+  bottom: 0,
+  height: 0,
+  pointerEvents: 'none',
+};
+
+const filterColumnItem = (inputValue, item) =>
+  (item.title || '').toLocaleLowerCase().includes(inputValue.trim().toLocaleLowerCase());
+
+const getFunctionKeys = fnmatch => {
+  const keys = _.keys(FORMULA).slice(1);
+  keys.splice(6, 0, 'divider');
+  const filteredKeys = keys.filter(key => key === 'divider' || key.includes(fnmatch));
+
+  if (_.head(filteredKeys) === 'divider') filteredKeys.shift();
+  if (_.last(filteredKeys) === 'divider') filteredKeys.pop();
+
+  return filteredKeys;
+};
 
 const CalItem = styled.div`
   display: flex;
@@ -80,10 +104,6 @@ export default class Formula extends React.Component {
   getFormulaFromDataSource(calType, dataSource) {
     return dataSource;
   }
-
-  hideSelectColumn = () => {
-    this.setState({ selectColumnVisible: false });
-  };
 
   getFormulaByType(type) {
     const key = _.findKey(FORMULA, obj => obj.type === type);
@@ -261,23 +281,41 @@ export default class Formula extends React.Component {
     const { nullzero, numshow } = getAdvanceSetting(data);
     let formulaValue = this.getFormulaFromDataSource(calType, dataSource);
     const filterAllControls = filterOnlyShowField(allControls);
-    const fnListEle = (
-      <FnList
-        fnmatch={showInSideFormulaSelect ? fnmatch : ''}
-        className={cx('fomulaFnList', {
-          isInSide: showInSideFormulaSelect,
-          isOutSide: shoOutSideFormulaSelect,
-        })}
-        onFnClick={this.handleFnClick}
-        onClickAwayExceptions={[document.querySelector('.addFormula')]}
-        onClickAway={() => {
-          this.setState({
-            showInSideFormulaSelect: false,
-            shoOutSideFormulaSelect: false,
-          });
-        }}
-      />
-    );
+    const formulaControlItems = getFormulaControls(filterAllControls, data).map(control => ({
+      key: control.controlId,
+      title: control.controlName,
+      label: _.isEmpty(worksheetData) ? (
+        control.controlName
+      ) : (
+        <div className="flexRow alignItemsCenter">
+          <span>{control.controlName}</span>
+          <span className="mLeft10 textTertiary">
+            {getControlTextValue(control.controlId, allControls, worksheetData, true)}
+          </span>
+        </div>
+      ),
+      onClick: () => {
+        this.tagtextarea.insertColumnTag(control.controlId);
+      },
+    }));
+    const functionKeys = getFunctionKeys(showInSideFormulaSelect ? fnmatch : '');
+    const functionMenuItems = functionKeys.length
+      ? functionKeys.map(key =>
+          key === 'divider'
+            ? { key: 'function-divider', type: 'divider' }
+            : {
+                key,
+                label: (
+                  <span>
+                    <span>{key}</span>
+                    <span className="mLeft6 textSecondary">{FORMULA[key].fnName}</span>
+                  </span>
+                ),
+                onClick: () => this.handleFnClick(key),
+              },
+        )
+      : [{ key: 'empty', disabled: true, label: _l('没有找到符合的公式') }];
+    const functionDropdownOpen = showInSideFormulaSelect || shoOutSideFormulaSelect;
     return (
       <div className={className}>
         <SettingItem>
@@ -330,47 +368,63 @@ export default class Formula extends React.Component {
                   this.setState({ selectColumnVisible: true });
                 }}
               />
-              {showInSideFormulaSelect && fnListEle}
-              <ColumnListDropdown
-                showSearch
-                visible={selectColumnVisible}
-                onClickAway={this.hideSelectColumn}
-                onClickAwayExceptions={[this.formulaBox]}
-                list={getFormulaControls(filterAllControls, data).map(data => ({
-                  value: data.controlId,
-                  filterValue: data.controlName,
-                  element: _.isEmpty(worksheetData) ? (
-                    <span>{data.controlName}</span>
-                  ) : (
-                    <div>
-                      <span className="controlName">{data.controlName}</span>
-                      <span className="controlTextValue">
-                        {getControlTextValue(data.controlId, allControls, worksheetData, true)}
-                      </span>
-                    </div>
-                  ),
-                  onClick: id => {
-                    this.tagtextarea.insertColumnTag(id);
-                  },
-                }))}
-              />
+              <Dropdown
+                trigger={['click']}
+                open={functionDropdownOpen}
+                placement="bottomLeft"
+                align={DROPDOWN_ALIGN}
+                autoAdjustOverflow={false}
+                getPopupContainer={() => this.formulaBox}
+                menu={{ items: functionMenuItems, style: MENU_STYLE }}
+                onOpenChange={open => {
+                  if (open) return;
+                  this.setState({
+                    showInSideFormulaSelect: false,
+                    shoOutSideFormulaSelect: false,
+                  });
+                }}
+              >
+                <span style={DROPDOWN_TRIGGER_STYLE} />
+              </Dropdown>
+              <Dropdown
+                trigger={['click']}
+                open={selectColumnVisible}
+                showPopupSearch
+                popupSearchAutoFocus={false}
+                filterOption={filterColumnItem}
+                notFoundContent={
+                  formulaControlItems.length ? _l('无数据') : _l('没有可用字段控件，请先在字段配置区进行配置')
+                }
+                placement="bottomLeft"
+                align={DROPDOWN_ALIGN}
+                autoAdjustOverflow={false}
+                getPopupContainer={() => this.formulaBox}
+                menu={{ items: formulaControlItems, style: MENU_STYLE }}
+                onOpenChange={(open, { source } = {}) => {
+                  if (source === 'menu') return;
+                  this.setState({ selectColumnVisible: open });
+                }}
+              >
+                <span style={DROPDOWN_TRIGGER_STYLE} />
+              </Dropdown>
             </div>
           </div>
         </SettingItem>
         {data.type === 31 && (
           <Checkbox
             className="mTop12"
-            size={fromAggregation ? 'default' : 'small'}
             checked={nullzero === '1'}
-            text={_l('参与计算的字段值为空时，视为 0')}
-            onClick={checked => {
+            onChange={event => {
               onChange(
                 handleAdvancedSettingChange(data, {
-                  nullzero: checked ? '0' : '1',
+                  nullzero: !event.target.checked ? '0' : '1',
                 }),
               );
             }}
-          />
+            size={fromAggregation ? 'default' : 'small'}
+          >
+            {_l('参与计算的字段值为空时，视为 0')}
+          </Checkbox>
         )}
         <PointerConfig
           data={data}

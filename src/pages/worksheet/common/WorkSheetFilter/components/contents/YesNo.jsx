@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { includes } from 'lodash';
 import PropTypes from 'prop-types';
-import { RadioGroup } from 'ming-ui';
-import { getSwitchItemNames } from 'src/utils/control';
-import { FILTER_CONDITION_TYPE } from '../../enum';
+import { Radio } from 'ming-ui/antd-components';
+import { getSwitchItemNames } from 'src/utils/domain/control/options';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 export default class YesNo extends Component {
   static propTypes = {
@@ -62,12 +62,17 @@ export default class YesNo extends Component {
     const data = this.getRadioGroupData(control.type);
     return (
       <div className="worksheetFilterYesNoCondition">
-        <RadioGroup
+        <Radio.Group
           disabled={disabled}
-          data={data}
-          checkedValue={this.getCheckedByFilterType(type)}
-          onChange={radiovalue => {
-            onChange({ type: this.getFilterTypeByCheckedValue(radiovalue), value: 1 });
+          options={(data || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={this.getCheckedByFilterType(type)}
+          onChange={event => {
+            const radiovalue = event.target.value;
+
+            onChange({
+              type: this.getFilterTypeByCheckedValue(radiovalue),
+              value: 1,
+            });
           }}
           size="small"
         />

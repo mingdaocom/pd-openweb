@@ -3,10 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import flowNode from '../../../api/flowNode';
-import { pathCompletion } from 'src/utils/common';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { dialogSelectIntegrationApi } from 'src/components/dialogSelectIntegrationApi';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import { DetailFooter, DetailHeader, FindResult, ProcessParameters, SelectAuthAccount } from '../components';
 
 export default class Api extends Component {

@@ -1,15 +1,15 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Menu } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
 import VerifyDel from 'src/pages/worksheet/views/components/VerifyDel';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import { filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 import Abstract from './Abstract';
 import CardDisplay from './CardDisplay';
 import CoverSetting from './CoverSettingCon';
@@ -25,29 +25,14 @@ const EmptyHint = styled.div`
   font-size: 13px;
 `;
 
-const Wrap = styled.div`
-  width: 440px;
-  .ant-menu-item {
-    clear: both;
-    color: rgba(0, 0, 0, 0.85);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 36px !important;
-    height: 36px !important;
-    margin: 0;
-    transition: all 0.3s;
-    margin: 0 !important;
-  }
-  .ant-menu-item:hover {
-    background-color: var(--color-background-hover);
-    color: rgba(0, 0, 0, 0.85) !important;
-  }
+const RelateItemLabel = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const HierarchyViewSettingWrap = styled.div(
-  ({ hsList }) => `
-  margin-top: ${!hsList ? 0 : -20}px;
+  ({ $hsList }) => `
+  margin-top: ${!$hsList ? 0 : -20}px;
   margin-bottom: 12px;
 
   li {
@@ -252,7 +237,14 @@ export default function HierarchyViewSetting(props) {
 
   const addViewControl = item => {
     worksheetAjax.getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
-      const controls = data.template.controls;
+      const controls = data?.template?.controls;
+
+      // 关联表已删除或无访问权限时可能不返回模板，避免继续写入残缺的层级配置
+      if (!Array.isArray(controls)) {
+        alert(_l('关联工作表已删除或无权限'), 3);
+        return;
+      }
+
       const coverControls = filterAndFormatterControls({
         controls: controls.filter(l => isVisible(l)).filter(c => !!c.controlName),
         ////扫码|附件可作为封面
@@ -305,35 +297,50 @@ export default function HierarchyViewSetting(props) {
     }
   };
 
-  const renderRelate = () => {
-    if (controlLoading) return <LoadDiv />;
-    return availableControls.length > 0 ? (
-      <Menu style={{ maxHeight: 300, overflowY: 'auto' }}>
-        {availableControls.map(item => {
+  const getRelateMenuItems = () => {
+    if (controlLoading) {
+      return [
+        {
+          key: 'loading',
+          disabled: true,
+          className: 'relateMenuStatusItem',
+          label: <LoadDiv />,
+        },
+      ];
+    }
+
+    return availableControls.length > 0
+      ? availableControls.map(item => {
           const { controlId, controlName } = item;
-          return (
-            <Menu.Item
-              key={controlId}
-              onClick={() => {
-                addViewControl(item);
-                setSetting({ popupVisible: false });
-              }}
-            >
-              <i className="icon-link2 textTertiary Font15"></i>
-              <span style={{ marginLeft: '6px' }} className="controlName Bold">
-                {controlName}
-              </span>
-            </Menu.Item>
-          );
-        })}
-      </Menu>
-    ) : (
-      <EmptyHint>{_l('没有可选择的关联字段')}</EmptyHint>
-    );
+
+          return {
+            key: controlId,
+            label: (
+              <RelateItemLabel>
+                <i className="icon-link2 textTertiary Font15"></i>
+                <span style={{ marginLeft: '6px' }} className="controlName Bold">
+                  {controlName}
+                </span>
+              </RelateItemLabel>
+            ),
+            onClick: () => {
+              addViewControl(item);
+              setSetting({ popupVisible: false });
+            },
+          };
+        })
+      : [
+          {
+            key: 'empty',
+            disabled: true,
+            className: 'relateMenuStatusItem',
+            label: <EmptyHint>{_l('没有可选择的关联字段')}</EmptyHint>,
+          },
+        ];
   };
 
   return (
-    <HierarchyViewSettingWrap hsList={viewControls.length > 0}>
+    <HierarchyViewSettingWrap $hsList={viewControls.length > 0}>
       {viewControls.map((item, index) => {
         const visible = activeIndex === index;
         return item.worksheetId === currentSheetInfo.worksheetId ? (
@@ -461,12 +468,21 @@ export default function HierarchyViewSetting(props) {
             >
               <div className="info">
                 <i className="icon-link2 textTertiary Font18"></i>
-                <div className="controlName overflow_ellipsis Font14 Bold">
-                  {item.controlName || item.worksheetName}
-                </div>
-                <div className="sheetInfo textTertiary overflow_ellipsis">
-                  {_l('( 工作表: %0 )', item.worksheetName)}
-                </div>
+                {/* worksheetName 缺失表示关联工作表不可用，沙盒环境下提供生产工作表入口 */}
+                {item.worksheetName ? (
+                  <React.Fragment>
+                    <div className="controlName overflow_ellipsis Font14 Bold">
+                      {item.controlName || item.worksheetName}
+                    </div>
+                    <div className="sheetInfo textTertiary overflow_ellipsis">
+                      {_l('( 工作表: %0 )', item.worksheetName)}
+                    </div>
+                  </React.Fragment>
+                ) : (
+                  <div className="controlName Font14">
+                    <DeletedSourceMessage worksheetId={item.worksheetId} />
+                  </div>
+                )}
               </div>
               <div className="handle">
                 {!forCarSet && (
@@ -524,24 +540,20 @@ export default function HierarchyViewSetting(props) {
         );
       })}
       {!forCarSet && (
-        <Trigger
-          action={['click']}
+        <Dropdown
+          trigger={['click']}
           getPopupContainer={() => document.body}
-          popupClassName="addHierarchyRelate"
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 4],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          popupVisible={popupVisible}
-          onPopupVisibleChange={popupVisible => setSetting({ popupVisible })}
-          popup={<Wrap className="Relative ant-dropdown-menu">{renderRelate()}</Wrap>}
+          classNames={{ root: 'addHierarchyRelate' }}
+          placement="bottomLeft"
+          open={popupVisible}
+          onOpenChange={popupVisible => setSetting({ popupVisible })}
+          menu={{ items: getRelateMenuItems() }}
         >
           <div className={cx('addRelate')} onClick={getAvailableControls}>
             <i className="icon-add Font20"></i>
             <span className="InlineBlock TxtTop">{_l('下一级关联')}</span>
           </div>
-        </Trigger>
+        </Dropdown>
       )}
     </HierarchyViewSettingWrap>
   );

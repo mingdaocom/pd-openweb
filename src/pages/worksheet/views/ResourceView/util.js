@@ -1,10 +1,17 @@
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import moment from 'moment';
-import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
-import { isTimeStyle, renderText as renderCellText } from 'src/utils/control';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/utils/domain/control/config';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { renderTitleByViewtitle } from 'src/utils/services/worksheet/view';
 import { lineBottomHeight, lineHeight, minHeightObj, timeWidth, timeWidthHalf, types } from './config';
+
+/** 根据选项颜色获取对应的悬停颜色。 */
+export const getHoverColor = color => {
+  return OPTION_COLORS_LIST_HOVER[OPTION_COLORS_LIST.indexOf(color.toUpperCase())];
+};
 
 //获取年的时间数组
 export const getTimesByYear = dateData => {

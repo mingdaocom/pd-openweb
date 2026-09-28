@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
-import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
-import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
-import { htmlEncodeReg } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getDaterange } from 'src/utils/domain/worksheet/fastFilter';
+import { DATE_TYPE } from 'src/utils/domain/worksheet/fastFilterConfig';
 import { DynamicInputStyle } from '../styled';
 
 const ICON_TYPES = [
@@ -25,18 +25,7 @@ export default function DynamicInput({
   linkParams,
 }) {
   const current = _.find(ICON_TYPES, item => item.key === defaultType) || {};
-  const name = `<span>：${htmlEncodeReg(_.get(queryConfig, 'sourceName'))}</span>`;
-  const [sourceName, setSourceName] = useState(name);
-
-  useEffect(() => {
-    setSourceName(name);
-    if (defaultType === 'dynamicsrc') {
-      if (!(_.get(queryConfig, 'templates[0].controls') || []).length) {
-        const com = `：<span class="Red">${_l('已删除')}</span>`;
-        setSourceName(com);
-      }
-    }
-  }, [data.controlId, dynamicData]);
+  const isDeletedQuery = defaultType === 'dynamicsrc' && !(_.get(queryConfig, 'templates[0].controls') || []).length;
 
   const handleDelete = e => {
     e.stopPropagation();
@@ -87,8 +76,14 @@ export default function DynamicInput({
       <div className={`text ${dynamicData && dynamicData.status === -1 ? 'error' : ''}`}>
         {current.icon && <i className={`${current.icon} Font16 mRight10 textSecondary`} />}
         <span className="Bold flex overflow_ellipsis">
-          {current.text}
-          {defaultType === 'dynamicsrc' && <span dangerouslySetInnerHTML={{ __html: sourceName }}></span>}
+          {isDeletedQuery ? (
+            <DeletedSourceMessage worksheetId={queryConfig.sourceId} />
+          ) : (
+            <Fragment>
+              {current.text}
+              {defaultType === 'dynamicsrc' && <span>：{queryConfig.sourceName}</span>}
+            </Fragment>
+          )}
         </span>
       </div>
       <div className="options">

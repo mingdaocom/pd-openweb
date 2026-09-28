@@ -1,25 +1,24 @@
 import { Popup } from 'antd-mobile';
 import styled from 'styled-components';
-import { MenuItem } from 'ming-ui';
 
 export const WrapHeader = styled.div`
-  .ant-drawer-mask {
+  .hap-drawer-mask {
     background: rgba(0, 0, 0, 0.1);
   }
-  .ant-drawer-right .ant-drawer-content-wrapper {
+  .hap-drawer-right .hap-drawer-content-wrapper {
     height: calc(100% - 50px);
     top: 51px;
     position: absolute;
     right: 0;
   }
   &.leftNaviStyle {
-    .ant-drawer-right .ant-drawer-content-wrapper {
+    .hap-drawer-right .hap-drawer-content-wrapper {
       height: 100%;
       top: 0;
     }
   }
   &.isMobile {
-    .ant-drawer-right .ant-drawer-content-wrapper {
+    .hap-drawer-right .hap-drawer-content-wrapper {
       height: 100%;
       top: 0;
       min-width: 100% !important;
@@ -250,10 +249,6 @@ export const Wrap = styled.div`
   .langSettingDropdown {
     width: auto;
     min-width: 100px;
-    .Dropdown--input .value,
-    .Dropdown--border .value {
-      color: var(--color-text-primary);
-    }
   }
   .themeSwitcher {
     background: var(--color-background-tertiary);
@@ -293,16 +288,6 @@ export const ModalWrap = styled(Popup)`
     }
     .RedMenuItem {
       color: var(--color-error) !important;
-    }
-  }
-`;
-export const RedMenuItemWrap = styled(MenuItem)`
-  &.RedMenuItem {
-    .Item-content {
-      color: var(--color-error) !important;
-      .Icon {
-        color: var(--color-error) !important;
-      }
     }
   }
 `;

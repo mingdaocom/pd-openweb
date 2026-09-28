@@ -1,6 +1,7 @@
 import React, { Fragment, memo } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { KNOWLEDGE_STATUS, STATUS_FROM } from '../../core/config';
 
 const iconRotate = keyframes`
@@ -16,7 +17,7 @@ const StatusWrapper = styled.div`
   display: flex;
   gap: 20px;
   min-width: 0;
-  ${props => props.from === STATUS_FROM.COLLECTION && 'color: var(--color-text-secondary);'}
+  ${props => props.$from === STATUS_FROM.COLLECTION && 'color: var(--color-text-secondary);'}
   .statusItemBox {
     display: flex;
     align-items: center;
@@ -66,18 +67,6 @@ const StatusWrapper = styled.div`
       }
     }
   }
-  .statusBtn {
-    font-weight: 700;
-    color: var(--color-primary);
-    cursor: pointer;
-    white-space: nowrap;
-    &:hover {
-      color: var(--color-primary-light);
-    }
-    &:active {
-      color: var(--color-primary-dark);
-    }
-  }
 `;
 
 const BasicStatus = props => {
@@ -112,7 +101,9 @@ const BasicStatus = props => {
               <Icon icon="Finish" />
               {_l('分块计算完成')}
             </div>
-            <div className="statusBtn">{_l('前往完成向量化')}</div>
+            <Button color="primary" variant="link" size="small">
+              {_l('前往完成向量化')}
+            </Button>
           </Fragment>
         );
 
@@ -221,14 +212,16 @@ const BasicStatus = props => {
               <Icon icon="info" />
               {_l('未启用')}
             </div>
-            <div className="statusBtn">{_l('查看')}</div>
+            <Button color="primary" variant="link" size="small">
+              {_l('查看')}
+            </Button>
           </Fragment>
         );
     }
   };
 
   return (
-    <StatusWrapper from={from}>
+    <StatusWrapper $from={from}>
       {from === STATUS_FROM.KNOWLEDGE ? renderContent() : renderCollectionContent()}
       {modelStatus && renderModelContent()}
     </StatusWrapper>

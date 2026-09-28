@@ -1,11 +1,17 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
+import linkifyit from 'linkify-it';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { getToken } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getToken } from 'src/utils/services/request/authenticated';
 
 let vditorPromise;
+const linkify = linkifyit().set({ fuzzyIP: true });
+const READONLY_LINK_ATTRIBUTE = 'data-md-readonly-link';
+const READONLY_LINK_SKIP_SELECTOR =
+  'a, code, [data-type="a"], [data-type="code"], [data-type="code-block"], .vditor-ir__marker, .vditor-ir__preview';
+const ALLOWED_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
 function loadVditor() {
   if (!vditorPromise) {
@@ -15,6 +21,97 @@ function loadVditor() {
   }
 
   return vditorPromise;
+}
+
+function isAllowedLinkUrl(url) {
+  try {
+    return ALLOWED_LINK_PROTOCOLS.has(new URL(url, window.location.origin).protocol);
+  } catch {
+    return false;
+  }
+}
+
+function linkifyReadonlyIR(vditor) {
+  const root = vditor?.vditor?.ir?.element;
+  if (!root || root.querySelector(`[${READONLY_LINK_ATTRIBUTE}]`)) return;
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const matchedTextNodes = [];
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.nodeValue || node.parentElement?.closest(READONLY_LINK_SKIP_SELECTOR)) continue;
+
+    const matches = linkify.match(node.nodeValue)?.filter(match => isAllowedLinkUrl(match.url));
+    if (matches?.length) matchedTextNodes.push({ node, matches });
+  }
+
+  matchedTextNodes.forEach(({ node, matches }) => {
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+
+    matches.forEach(match => {
+      if (match.index > lastIndex) {
+        fragment.appendChild(document.createTextNode(node.nodeValue.slice(lastIndex, match.index)));
+      }
+
+      const link = document.createElement('a');
+      link.className = 'vditor-ir__link';
+      link.contentEditable = 'false';
+      link.href = match.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute(READONLY_LINK_ATTRIBUTE, 'true');
+      link.textContent = match.text;
+      link.addEventListener('mousedown', event => {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      link.addEventListener('click', event => event.stopPropagation());
+      fragment.appendChild(link);
+      lastIndex = match.lastIndex;
+    });
+
+    if (lastIndex < node.nodeValue.length) {
+      fragment.appendChild(document.createTextNode(node.nodeValue.slice(lastIndex)));
+    }
+
+    node.replaceWith(fragment);
+  });
+}
+
+function focusEditorAtPoint(vditor, clientX, clientY) {
+  const editor = vditor?.vditor;
+  const editorElement = editor?.[editor.currentMode]?.element;
+  if (!editorElement) return;
+
+  editorElement.focus({ preventScroll: true });
+
+  let range;
+
+  if (document.caretPositionFromPoint) {
+    const position = document.caretPositionFromPoint(clientX, clientY);
+
+    if (position && editorElement.contains(position.offsetNode)) {
+      range = document.createRange();
+      range.setStart(position.offsetNode, position.offset);
+    }
+  } else if (document.caretRangeFromPoint) {
+    const caretRange = document.caretRangeFromPoint(clientX, clientY);
+
+    if (caretRange && editorElement.contains(caretRange.startContainer)) {
+      range = caretRange;
+    }
+  }
+
+  if (!range) return;
+
+  range.collapse(true);
+  const selection = window.getSelection();
+  if (!selection) return;
+
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 const TOOLBAR = [
@@ -53,8 +150,8 @@ const TOOLBAR = [
 ];
 
 const Wrap = styled.div`
-  height: ${props => (props.isFullScreen ? '100%' : 'auto')};
-  ${props => (props.maxHeight && !props.isFullScreen ? `max-height: ${props.maxHeight}px` : '')};
+  height: ${props => (props.$isFullScreen ? '100%' : 'auto')};
+  ${props => (props.$maxHeight && !props.$isFullScreen ? `max-height: ${props.$maxHeight}px` : '')};
   .vditor {
     max-height: inherit;
   }
@@ -73,7 +170,7 @@ const Wrap = styled.div`
     border: 1px solid var(--color-border-primary) !important;
   }
   .vditor-reset {
-    ${props => (props.isFullScreen ? 'padding: 10px !important;' : '')}
+    ${props => (props.$isFullScreen ? 'padding: 10px !important;' : '')}
     font-size: 13px;
     color: var(--color-text-primary);
     font-family:
@@ -138,11 +235,6 @@ const Wrap = styled.div`
   }
   .vditor-ir pre.vditor-reset[contenteditable='false'] {
     opacity: 1 !important;
-    pointer-events: none;
-    .vditor-ir__link,
-    table {
-      pointer-events: auto;
-    }
   }
 
   .vditor-toolbar--hide {
@@ -158,6 +250,7 @@ function MdMarkdown(props) {
     placeholder = '',
     data = '',
     disabled = false,
+    analysisLink = false,
     isFullScreen = false,
     projectId,
     appId,
@@ -170,10 +263,56 @@ function MdMarkdown(props) {
     handleBlur,
   } = props;
   const [isFocus, setFocus] = useState(false);
+  const isFocusRef = useRef(false);
   const vditorRef = useRef(null);
   const vditorInstance = useRef(null);
   const destroyedRef = useRef(false);
   const latestDataRef = useRef(data);
+
+  const syncReadonlyLinks = useCallback(() => {
+    const vditor = vditorInstance.current;
+    const root = vditor?.vditor?.ir?.element;
+    if (!root) return;
+
+    if (analysisLink && !isFocusRef.current && !isFullScreen && mode === 'ir') {
+      linkifyReadonlyIR(vditor);
+    } else if (root.querySelector(`[${READONLY_LINK_ATTRIBUTE}]`)) {
+      vditor.setValue(latestDataRef.current);
+    }
+  }, [analysisLink, isFullScreen, mode]);
+
+  // 只读态保留滚动和链接交互，仅阻止 Vditor 展开 Markdown 源码标记
+  const handleReadonlyClick = useCallback(event => {
+    if (event.target.closest('a, [data-type="a"], .vditor-ir__link')) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
+
+  const handleReadonlyMouseDown = useCallback(
+    event => {
+      const vditor = vditorInstance.current;
+      const root = vditor?.vditor?.ir?.element;
+
+      if (
+        !analysisLink ||
+        isFullScreen ||
+        mode !== 'ir' ||
+        !root?.querySelector(`[${READONLY_LINK_ATTRIBUTE}]`) ||
+        event.target.closest(`[${READONLY_LINK_ATTRIBUTE}], [data-type="a"]`)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const { clientX, clientY } = event;
+      vditor.setValue(latestDataRef.current);
+      requestAnimationFrame(() => focusEditorAtPoint(vditor, clientX, clientY));
+    },
+    [analysisLink, isFullScreen, mode],
+  );
 
   useEffect(() => {
     latestDataRef.current = data;
@@ -196,23 +335,32 @@ function MdMarkdown(props) {
       } else {
         vditorInstance.current.enable();
       }
+
+      syncReadonlyLinks();
     }
-  }, [disabled]);
+  }, [disabled, syncReadonlyLinks]);
 
   useEffect(() => {
-    if (!isFocus && vditorInstance.current && vditorInstance.current.getValue() !== data) {
+    if (!isFocusRef.current && vditorInstance.current && vditorInstance.current.getValue() !== data) {
       vditorInstance.current.setValue(data);
     }
 
+    if (vditorInstance.current) syncReadonlyLinks();
+
     // 初始化还没加载完就赋值处理
-    if (!isFocus && data && !vditorInstance.current) {
+    if (!isFocusRef.current && data && !vditorInstance.current) {
       setTimeout(() => {
-        if (vditorInstance.current) {
+        if (!isFocusRef.current && vditorInstance.current) {
           vditorInstance.current.setValue(data);
+          syncReadonlyLinks();
         }
       }, 100);
     }
-  }, [data]);
+  }, [data, syncReadonlyLinks]);
+
+  useEffect(() => {
+    syncReadonlyLinks();
+  }, [isFocus, syncReadonlyLinks]);
 
   const customUpload = files => {
     return new Promise((resolve, reject) => {
@@ -321,20 +469,27 @@ function MdMarkdown(props) {
           vditorInstance.current = vditor;
           registerRef(vditor);
 
+          if (isFullScreen) {
+            vditorRef.current?.closest('[role="dialog"]')?.focus({ preventScroll: true });
+          }
+
           if (vditorInstance.current) {
             if (disabled) vditorInstance.current.disabled();
+            syncReadonlyLinks();
           }
         },
         input(val) {
           handleChange(val);
         },
         focus(val) {
+          isFocusRef.current = true;
           setFocus(true);
           if (_.isFunction(handleFocus)) {
             handleFocus(val);
           }
         },
         blur(val) {
+          isFocusRef.current = false;
           setFocus(false);
           if (_.isFunction(handleBlur)) {
             handleBlur(val);
@@ -345,7 +500,12 @@ function MdMarkdown(props) {
   };
 
   return (
-    <Wrap isFullScreen={isFullScreen} maxHeight={maxHeight} isFocus={isFocus}>
+    <Wrap
+      $isFullScreen={isFullScreen}
+      $maxHeight={maxHeight}
+      onClickCapture={disabled ? handleReadonlyClick : undefined}
+      onMouseDownCapture={disabled ? undefined : handleReadonlyMouseDown}
+    >
       <div ref={vditorRef} />
     </Wrap>
   );
@@ -359,6 +519,7 @@ MdMarkdown.propTypes = {
   placeholder: PropTypes.string,
   data: PropTypes.string,
   disabled: PropTypes.bool,
+  analysisLink: PropTypes.bool,
   hideToolbar: PropTypes.bool,
   /**
    * 编辑模式：所见即所得（wysiwyg）、即时渲染（ir）、分屏预览（sv）

@@ -1,42 +1,14 @@
 import React from 'react';
-import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Icon } from 'ming-ui';
+import { Checkbox, Radio, Tooltip } from 'ming-ui/antd-components';
 
-const RangeBox = styled.div`
-  z-index: 100;
+const RangeContent = styled.div`
   width: 320px;
-  border-radius: 3px;
-  background: var(--color-background-card) 0% 0% no-repeat padding-box;
-  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
   line-height: 1;
   font-size: 14px;
   font-weight: bold;
-  transition: all 0.3s;
-  animation-name: fadeInUp;
-  animation-duration: 0.3s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: 1;
-  animation-direction: normal;
-  animation-fill-mode: forwards;
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      box-shadow: 0px 0px 0px #fff;
-      -webkit-transform: translate3d(-30px, 0, 0);
-      transform: translate3d(-30px, 0, 0);
-    }
-
-    to {
-      opacity: 1;
-      box-shadow: 0px 12px 24px #0000003d;
-      -webkit-transform: translate3d(0, 0, 0);
-      transform: translate3d(0, 0, 0);
-    }
-  }
   .con {
     padding: 24px;
     max-height: 350px;
@@ -47,9 +19,23 @@ const RangeBox = styled.div`
       margin-bottom: 20px;
       font-size: 14px;
     }
-    .Radio-text {
+    .hap-radio-label,
+    .viewRangeCheckbox {
+      color: var(--color-text-primary);
+    }
+    .hap-radio-label {
       font-weight: initial;
-      color: var(--color-text-title);
+    }
+    .rangeRadioLabel,
+    .viewRangeCheckbox {
+      align-items: center;
+    }
+    .rangeRadioLabel {
+      display: inline-flex;
+    }
+    .viewRangeCheckbox {
+      display: flex;
+      width: fit-content;
     }
   }
   .conLine {
@@ -70,161 +56,94 @@ const HeaderRange = styled.div`
     color: var(--color-primary) !important;
   }
 `;
-let Range = class Range extends React.Component {
-  el = null;
-  containerRef = null;
 
-  componentDidMount() {
-    this.updatePosition();
-    this.containerRef = document.querySelector('.switchBoxCon');
-    window.addEventListener('resize', this.handleResize);
-  }
+export default function Range(props) {
+  const { data = {}, diaRang, text = {}, views = [] } = props;
+  const { viewIds = [] } = data;
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.top !== this.props.top) {
-      this.updatePosition();
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
-  }
-
-  handleResize = () => {
-    this.updatePosition();
-  };
-  updatePosition = () => {
-    setTimeout(() => {
-      if (!this.el || !this.containerRef) return;
-      const el = this.el;
-      const { offsetWidth: w, offsetHeight: h } = el;
-      const ul = document.querySelector('.switchBoxCon ul')?.getBoundingClientRect();
-      const chat = document.querySelector('#chat')?.getBoundingClientRect();
-      const conWidth = window.innerWidth - chat.width;
-      Object.assign(el.style, {
-        transition: 'all 0.3s',
-        left: ul && ul.width + w + ul.left <= conWidth ? `${Math.max(10, ul.width)}px` : 'initial',
-        right: ul && ul.width + w + ul.left > conWidth ? '-40px' : 'initial',
-        top: `${this.props.top - (h + this.props.top > this.containerRef.offsetHeight ? h - 48 : 0)}px`,
-      });
-    }, 0);
-  };
-
-  render() {
-    const { data = {}, diaRang } = this.props;
-    const { viewIds = [] } = data;
-    return (
-      <RangeBox
-        className="rangeBox Absolute"
-        ref={el => {
-          this.el = el;
-        }}
-      >
-        <HeaderRange className="headerRange Font14 textPrimary">
-          {_l('使用范围')}
-          <Icon
-            icon="close"
-            className="Font18 textTertiary Hand"
-            onClick={() => {
-              this.props.closeFn();
-            }}
-          />
-        </HeaderRange>
-        <div className="con">
-          <h5>{_l('用户')}</h5>
-          <Radio
-            text={_l('所有用户')}
-            checked={this.props.roleType !== 100}
-            onClick={() => {
-              this.props.change(0);
-            }}
-          />
-          <p className="mLeft25 mTop10 mBottom16" />
-          <Radio
-            title={_l('仅系统角色')}
-            text={
-              <span className="TxtMiddle">
-                {_l('仅系统角色')}
-                <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
-                  <Icon icon="info_outline" className="textTertiary Font16 TxtTop mLeft5" />
-                </Tooltip>
-              </span>
-            }
-            checked={this.props.roleType === 100}
-            onClick={() => {
-              this.props.change(100);
-            }}
-          />
-        </div>
-        {this.props.hasViewRange && (
-          <React.Fragment>
-            <div className="conLine"></div>
-            <div className="con">
-              <h5>{_l('视图')}</h5>
-              <Radio
-                text={this.props.text.allview || _l('所有视图')}
-                checked={viewIds.length <= 0 && diaRang}
-                onClick={() => {
-                  this.props.changeViewRange({
-                    viewIds: [],
-                    diaRang: true,
-                  });
-                }}
-              />
-              <p className="mLeft25 mTop10 mBottom16"></p>
-              <Radio
-                text={this.props.text.assignview || _l('应用于指定的视图')}
-                checked={viewIds.length > 0 || !diaRang}
-                onClick={() => {
-                  this.props.changeViewRange({
-                    viewIds: [],
-                    diaRang: false,
-                  });
-                }}
-              />
-              <p className="mLeft25 mTop10 mBottom16"></p>
-              {!diaRang &&
-                this.props.views
-                  .filter(l => l.viewId !== l.worksheetId)
-                  .map(it => {
-                    return (
-                      <Checkbox
-                        key={it.viewId}
-                        className="mTop15 mLeft25 Normal"
-                        text={it.name}
-                        checked={viewIds.includes(it.viewId)}
-                        onClick={checked => {
-                          this.props.changeViewRange({
-                            viewIds: checked ? _.pull(viewIds, it.viewId) : (viewIds || []).concat(it.viewId),
-                            diaRang: false,
-                          });
-                        }}
-                      />
-                    );
-                  })}
-            </div>
-          </React.Fragment>
-        )}
-        {this.props.otherSet && (
-          <React.Fragment>
-            <div className="conLine"></div>
-            <div className="con">
-              <h5>{_l('其他')}</h5>
-              <Checkbox
-                text={<span className="Font14 Normal">{_l('显示流转图')}</span>}
-                checked={data.displayFlowChart !== 1}
-                onClick={() => {
-                  this.props.changeOtherSet({
-                    displayFlowChart: data.displayFlowChart !== 1 ? 1 : 0,
-                  });
-                }}
-              />
-            </div>
-          </React.Fragment>
-        )}
-      </RangeBox>
-    );
-  }
-};
-Range = ClickAway.wrap(Range);
-export default Range;
+  return (
+    <RangeContent>
+      <HeaderRange className="headerRange Font14 textPrimary">
+        {_l('使用范围')}
+        <Icon icon="close" className="Font18 textTertiary Hand" onClick={props.closeFn} />
+      </HeaderRange>
+      <div className="con">
+        <h5>{_l('用户')}</h5>
+        <Radio checked={props.roleType !== 100} onChange={() => props.change(0)} title={_l('所有用户')}>
+          {_l('所有用户')}
+        </Radio>
+        <p className="mLeft25 mTop10 mBottom16" />
+        <Radio title={_l('仅系统角色')} checked={props.roleType === 100} onChange={() => props.change(100)}>
+          <span className="rangeRadioLabel">
+            {_l('仅系统角色')}
+            <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
+              <Icon icon="info_outline" className="textTertiary Font16 mLeft5" />
+            </Tooltip>
+          </span>
+        </Radio>
+      </div>
+      {props.hasViewRange && (
+        <React.Fragment>
+          <div className="conLine"></div>
+          <div className="con">
+            <h5>{_l('视图')}</h5>
+            <Radio
+              checked={viewIds.length <= 0 && diaRang}
+              onChange={() => props.changeViewRange({ viewIds: [], diaRang: true })}
+              title={text.allview || _l('所有视图')}
+            >
+              {text.allview || _l('所有视图')}
+            </Radio>
+            <p className="mLeft25 mTop10 mBottom16"></p>
+            <Radio
+              checked={viewIds.length > 0 || !diaRang}
+              onChange={() => props.changeViewRange({ viewIds: [], diaRang: false })}
+              title={text.assignview || _l('应用于指定的视图')}
+            >
+              {text.assignview || _l('应用于指定的视图')}
+            </Radio>
+            <p className="mLeft25 mTop10 mBottom16"></p>
+            {!diaRang &&
+              views
+                .filter(l => l.viewId !== l.worksheetId)
+                .map(it => (
+                  <Checkbox
+                    key={it.viewId}
+                    className="viewRangeCheckbox mTop15 mLeft25 Normal"
+                    checked={viewIds.includes(it.viewId)}
+                    onChange={event =>
+                      props.changeViewRange({
+                        viewIds: event.target.checked
+                          ? viewIds.concat(it.viewId)
+                          : viewIds.filter(viewId => viewId !== it.viewId),
+                        diaRang: false,
+                      })
+                    }
+                  >
+                    {it.name}
+                  </Checkbox>
+                ))}
+          </div>
+        </React.Fragment>
+      )}
+      {props.otherSet && (
+        <React.Fragment>
+          <div className="conLine"></div>
+          <div className="con">
+            <h5>{_l('其他')}</h5>
+            <Checkbox
+              checked={data.displayFlowChart !== 1}
+              onChange={() =>
+                props.changeOtherSet({
+                  displayFlowChart: data.displayFlowChart !== 1 ? 1 : 0,
+                })
+              }
+            >
+              <span className="Font14 Normal">{_l('显示流转图')}</span>
+            </Checkbox>
+          </div>
+        </React.Fragment>
+      )}
+    </RangeContent>
+  );
+}

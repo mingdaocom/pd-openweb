@@ -1,18 +1,23 @@
 import React from 'react';
-import { Dialog, RichText } from 'ming-ui';
-import './editAgreementOrPrivacy.less';
+import { RichText } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+
+const AGREEMENT_MODAL_STYLES = {
+  body: { margin: '0 -24px' },
+};
 
 export default function EditAgreementOrPrivacy(props) {
   const { onChange, setShow } = props;
 
   return (
-    <Dialog
+    <Modal
       title={props.type === 0 ? _l('用户协议') : _l('隐私政策')}
-      bodyClass="EditAgreementOrPrivacy"
+      styles={AGREEMENT_MODAL_STYLES}
       width={800}
+      mask={{ closable: true }}
+      keyboard
       onCancel={setShow}
-      footer={''}
-      visible={props.show}
+      open={props.show}
     >
       <RichText
         minHeight={600}
@@ -21,6 +26,6 @@ export default function EditAgreementOrPrivacy(props) {
         data={props.data || ''}
         onActualSave={value => onChange(value)}
       />
-    </Dialog>
+    </Modal>
   );
 }

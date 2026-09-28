@@ -2,15 +2,17 @@ import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Dialog, Radio, SortableList, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { SortableList } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Tooltip } from 'ming-ui/antd-components';
+
+const OPINION_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 5 };
 
 const SortableItemBox = styled.div`
   padding: 1px 0;
-  .Radio-text {
+  .ant-radio-label {
     display: none;
   }
-  .Radio-box {
+  .ant-radio-inner {
     margin-right: 0 !important;
   }
   .icon-trash {
@@ -59,18 +61,16 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
             <i className="icon-drag Font16 textSecondary hoverColorPrimary" style={{ cursor: 'move' }} />
           </Tooltip>
         </DragHandle>
-        <Textarea
-          className="flex mLeft10 Font13"
-          style={{ paddingTop: 7, paddingBottom: 7 }}
-          minHeight={0}
-          maxHeight={120}
+        <Input.TextArea
+          autoSize={OPINION_TEXTAREA_AUTO_SIZE}
+          className="flex mLeft10"
           defaultValue={item.value}
-          onChange={value =>
+          onChange={event =>
             setData(
               Object.assign({}, data, {
                 [sourceKey]: items.map((o, i) => {
                   if (i === index) {
-                    o.value = value;
+                    o.value = event.target.value;
                   }
 
                   return o;
@@ -85,7 +85,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
             <Radio
               className="mRight0"
               checked={item.selected}
-              onClick={() =>
+              onChange={() =>
                 setData(
                   Object.assign({}, data, {
                     [sourceKey]: items.map((o, i) => {
@@ -114,15 +114,17 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       width={640}
       className="workflowDialogBox workflowSettings"
-      style={{ overflow: 'initial' }}
-      overlayClosable={false}
-      type="scroll"
-      title={title}
-      description={description}
+      mask={{ closable: false }}
+      title={
+        <Fragment>
+          <div>{title}</div>
+          {description && <div className="Font13 Normal textSecondary mTop8">{description}</div>}
+        </Fragment>
+      }
       okDisabled={checkOKDisabled()}
       onOk={() => {
         const newOpinions = {};
@@ -147,9 +149,10 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
         <Checkbox
           className="InlineFlex"
           checked={inputType === 1}
-          text={_l('用户自由输入')}
-          onClick={checked => setType(!checked ? 1 : 2)}
-        />
+          onChange={event => setType(event.target.checked ? 1 : 2)}
+        >
+          {_l('用户自由输入')}
+        </Checkbox>
       </div>
 
       {keys.map((item, index) => {
@@ -158,6 +161,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
             <div className="mTop25 bold">{item.text}</div>
             {data[item.key] && !!data[item.key].length && (
               <SortableList
+                renderBody
                 useDragHandle
                 items={data[item.key].map(o => ({ ...o, uniqId: o.uniqId || uuidv4() }))}
                 itemKey="uniqId"
@@ -183,6 +187,6 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
           </Fragment>
         );
       })}
-    </Dialog>
+    </Modal>
   );
 };

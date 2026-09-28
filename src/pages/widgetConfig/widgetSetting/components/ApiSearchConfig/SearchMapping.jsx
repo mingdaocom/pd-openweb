@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import DropdownWrapper from '../../../components/Dropdown';
+import { Select } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { SetConfig, SettingItem } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import DialogMapping from './DaialogMapping';
 
 const SELECT_OPTIONS = [
@@ -34,10 +34,9 @@ const MappingWrap = styled.div`
     margin-top: 1px;
     left: -6px;
   }
-  .ant-dropdown-trigger {
-    margin-top: 9px;
-  }
 `;
+
+const renderSelectedCount = omittedValues => _l('选择%0项', omittedValues.length);
 
 // 是普通数组
 const isNormalArray = (controls = [], value) => {
@@ -56,7 +55,6 @@ export default function SearchMapping(props) {
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
   const isDropdown = data.type === 50;
 
-  const [visible, setVisible] = useState(false);
   const [mapVisible, setMapVisible] = useState(false);
 
   const getMapData = type => {
@@ -78,10 +76,9 @@ export default function SearchMapping(props) {
     }
 
     return {
-      dropData: filterData.map(({ controlId: value, controlName: text }) => ({
+      dropData: filterData.map(({ controlId: value, controlName: label }) => ({
         value,
-        text,
-        ...(type === 3 ? { icon: 'done', style: { justifyContent: 'space-between' } } : {}),
+        label,
       })),
       dropValue,
     };
@@ -107,12 +104,7 @@ export default function SearchMapping(props) {
       return;
     }
 
-    if (item.type === 3) {
-      const filterValue = _.includes(itemdesc, value) ? itemdesc.filter(i => i !== value) : itemdesc.concat(value);
-      value = JSON.stringify(filterValue);
-    }
-
-    onChange(handleAdvancedSettingChange(data, { [item.key]: value }));
+    onChange(handleAdvancedSettingChange(data, { [item.key]: item.type === 3 ? JSON.stringify(value) : value }));
   };
 
   return (
@@ -123,31 +115,22 @@ export default function SearchMapping(props) {
           {SELECT_OPTIONS.map((item, index) => {
             const { dropData = [], dropValue = '' } = getMapData(item.type);
             const id = `${item.key}_${index}`;
+            const isMultiple = item.type === 3;
             return index === 0 || (itemsource && !isNormalArray(responseControls, itemsource)) ? (
-              <MappingWrap id={id}>
+              <MappingWrap id={id} key={id}>
                 <div className="controlLabel ellipsis">
                   {item.required && <span className="requireIcon">*</span>}
                   {item.label}
                 </div>
-                <DropdownWrapper
-                  data={dropData}
-                  value={dropValue}
+                <Select
+                  className="w100 mTop8"
+                  options={dropData}
+                  mode={isMultiple ? 'multiple' : undefined}
+                  value={isMultiple ? dropValue : dropValue || undefined}
                   placeholder={item.placeholder}
                   getPopupContainer={() => document.getElementById(id)}
-                  {...(item.type === 3
-                    ? {
-                        isCheckMode: true,
-                        visible: visible,
-                        onVisibleChange: val => setVisible(val),
-                        renderDisplay: () => {
-                          return itemdesc.length ? (
-                            _l('选择%0项', itemdesc.length)
-                          ) : (
-                            <div className="placeholder">{item.placeholder}</div>
-                          );
-                        },
-                      }
-                    : {})}
+                  maxTagCount={isMultiple ? 0 : undefined}
+                  maxTagPlaceholder={isMultiple ? renderSelectedCount : undefined}
                   onChange={value => handleChange(value, item)}
                 />
               </MappingWrap>
@@ -158,7 +141,7 @@ export default function SearchMapping(props) {
 
       <SettingItem>
         <div className="settingItemTitle">{_l('将返回数据写入表单字段')}</div>
-        <SetConfig hasSet={responsemap.length} onClick={() => setMapVisible(true)}>
+        <SetConfig $hasSet={responsemap.length} onClick={() => setMapVisible(true)}>
           {responsemap.length ? (
             <span>
               <i className="icon-check_circle"></i>

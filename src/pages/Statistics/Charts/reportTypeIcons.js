@@ -1,4 +1,4 @@
-import { reportTypes } from './reportTypes';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 export const REPORT_TYPE_ICONS = {
   [reportTypes.BarChart]: 'stats_bar_chart',

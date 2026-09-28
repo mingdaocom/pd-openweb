@@ -28,11 +28,6 @@ const CardTop = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
-
-  /* Checkbox 内部已有 margin-right: 8px，gap 7px → 总间距 15px 对齐设计稿 */
-  .Checkbox-box {
-    margin-right: 0;
-  }
 `;
 
 const RoleName = styled.div`

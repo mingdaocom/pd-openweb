@@ -1,24 +1,10 @@
-import React, { useRef, useState } from 'react';
-import cx from 'classnames';
+import React, { Fragment, useCallback, useRef, useState } from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dialog, FunctionWrap, Input, VerifyPasswordConfirm } from 'ming-ui';
+import { VerifyPasswordConfirm } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import paymentAjax from 'src/api/payment';
-
-const InputWrap = styled.div`
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 3px;
-  &.focusWrap {
-    border: 1px solid var(--color-primary);
-  }
-  .ming.Input {
-    border: none;
-    &::placeholder {
-      color: var(--color-text-disabled);
-    }
-  }
-`;
 
 function WithdrawReimburseDialog(props) {
   const {
@@ -33,6 +19,7 @@ function WithdrawReimburseDialog(props) {
     viewId,
     refundSourceType,
     cancelPasswordVerify,
+    confirmModal,
     orderInfo = {},
     onCancel = () => {},
     updateList = () => {},
@@ -78,10 +65,12 @@ function WithdrawReimburseDialog(props) {
         ? onRefund()
         : merchantInvoiceApi.isTipsForRefund({ orderId, refundAmount: +amount }).then(res => {
             if (res) {
-              Dialog.confirm({
+              confirmModal.confirm({
                 title: _l('确认继续退款？'),
-                description: _l('当前订单正在申请开票，全额退款后，系统会将开票状态改为已取消'),
-                buttonType: 'danger',
+                content: _l('当前订单正在申请开票，全额退款后，系统会将开票状态改为已取消'),
+                okButtonProps: {
+                  danger: true,
+                },
                 okText: _l('继续退款'),
                 onOk: onRefund,
               });
@@ -103,11 +92,13 @@ function WithdrawReimburseDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={560}
-      visible
+      open
+      mask={{ closable: true }}
+      keyboard
       title={title}
-      buttonType={buttonType}
+      okButtonProps={{ danger: buttonType === 'danger' }}
       okText={okText}
       onCancel={onCancel}
       onOk={() => {
@@ -147,51 +138,65 @@ function WithdrawReimburseDialog(props) {
       }}
     >
       <div className="Font14 textSecondary mBottom10">{label}</div>
-      <InputWrap className={cx('flexRow alignItemsCenter pRight16', { focusWrap: isFocus })}>
-        <Input
-          ref={inputRef}
-          className="flex"
-          value={!isFocus && (amount || amount === 0) ? _l('%0元', amount) : amount}
-          placeholder={
-            isFocus
-              ? undefined
-              : type === 'reimburse'
-                ? _l('最多可退款%0元', max)
-                : _l('最多可提现%0元', max > 0 ? max : 0)
+      <Input
+        ref={inputRef}
+        className="w100"
+        value={!isFocus && (amount || amount === 0) ? _l('%0元', amount) : amount}
+        placeholder={
+          isFocus
+            ? undefined
+            : type === 'reimburse'
+              ? _l('最多可退款%0元', max)
+              : _l('最多可提现%0元', max > 0 ? max : 0)
+        }
+        suffix={
+          <div className="Hand colorPrimary Hover_51" onClick={() => setAmount(max > 0 ? max : 0)}>
+            {type === 'reimburse' ? _l('全部退款') : _l('全部提现')}
+          </div>
+        }
+        onChange={e => {
+          let val = e.target.value
+            .replace(/[^-\d.]/g, '')
+            .replace(/^\./g, '')
+            .replace(/^-/, '$#$')
+            .replace(/-/g, '')
+            .replace('$#$', '-')
+            .replace(/^-\./, '-')
+            .replace('.', '$#$')
+            .replace(/\./g, '')
+            .replace('$#$', '.');
+
+          if (val === '.') {
+            val = '';
           }
-          onChange={value => {
-            let val = value
-              .replace(/[^-\d.]/g, '')
-              .replace(/^\./g, '')
-              .replace(/^-/, '$#$')
-              .replace(/-/g, '')
-              .replace('$#$', '-')
-              .replace(/^-\./, '-')
-              .replace('.', '$#$')
-              .replace(/\./g, '')
-              .replace('$#$', '.');
 
-            if (val === '.') {
-              val = '';
-            }
-
-            setAmount(val);
-          }}
-          onBlur={e => {
-            setIsFocus(false);
-            if (e.target.value) {
-              setAmount(parseFloat(e.target.value).toFixed(3).slice(0, -1));
-            }
-          }}
-          onFocus={() => setIsFocus(true)}
-        />
-        <div className="Hand colorPrimary Hover_51" onClick={() => setAmount(max > 0 ? max : 0)}>
-          {type === 'reimburse' ? _l('全部退款') : _l('全部提现')}
-        </div>
-      </InputWrap>
+          setAmount(val);
+        }}
+        onBlur={e => {
+          setIsFocus(false);
+          if (e.target.value) {
+            setAmount(parseFloat(e.target.value).toFixed(3).slice(0, -1));
+          }
+        }}
+        onFocus={() => setIsFocus(true)}
+      />
       {desc ? desc : ''}
-    </Dialog>
+    </Modal>
   );
 }
 
-export default props => FunctionWrap(WithdrawReimburseDialog, props);
+export function useWithdrawReimburseDialog() {
+  const { open, holder } = useFunctionWrapComponent(WithdrawReimburseDialog);
+  const [modal, modalContextHolder] = Modal.useModal();
+  const openDialog = useCallback(options => open({ ...options, confirmModal: modal }), [modal, open]);
+
+  return {
+    open: openDialog,
+    holder: (
+      <Fragment>
+        {holder}
+        {modalContextHolder}
+      </Fragment>
+    ),
+  };
+}

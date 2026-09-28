@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import { LANGUAGE_BCP47 } from '../../../enum';
 import PromptSound from '../PromptSound';
@@ -32,10 +32,10 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
 
   return (
     <Fragment>
-      <div className="Font13 bold mTop25">
+      <div className="Font13 bold mTop25 flexRow alignItemsCenter">
         {_l('提示音')}
         <Tooltip title={_l('在 APP 运行期间方可进行语音播报，而 H5 则不具备此功能')}>
-          <Icon className="Font16 textTertiary mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+          <Icon className="Font16 textTertiary mLeft5" icon="info" />
         </Tooltip>
       </div>
 
@@ -100,12 +100,10 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
       </MessageBox>
 
       {visible && (
-        <Dialog
+        <Modal
           className="workflowDialogBox workflowSettings"
-          style={{ overflow: 'initial' }}
-          overlayClosable={false}
-          type="scroll"
-          visible
+          mask={{ closable: false }}
+          open
           title={_l('提示音')}
           onCancel={() => setVisible(false)}
           width={580}
@@ -131,7 +129,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
               setFunc({ cb: callback });
             }}
           />
-        </Dialog>
+        </Modal>
       )}
     </Fragment>
   );

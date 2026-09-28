@@ -2,35 +2,34 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo
 import cx from 'classnames';
 import { find, flatten, get, includes, isEmpty, isFunction, isObject, last, uniq } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import { Popover } from 'ming-ui/antd-components';
 import agentApi from 'src/api/agent';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
 import worksheetAjax from 'src/api/worksheet';
-import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { useGlobalStore } from 'src/common/GlobalStore';
+import { useGlobalStore } from 'src/common/providers/GlobalStore';
 import { formatControlToServer } from 'src/components/Form/core/utils';
-import {
-  SYSTEM_CONTROL,
-  WIDGETS_TO_API_TYPE_ENUM,
-  WORKFLOW_SYSTEM_CONTROL,
-} from 'src/pages/widgetConfig/config/widget';
 import IconBtn from 'src/pages/worksheet/common/recordInfo/RecordForm/IconBtn';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { emitter } from 'src/utils/common';
-import { controlState, formatAiGenControlValue } from 'src/utils/control';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
-import { parseStreamingJsonlData } from 'src/utils/sse';
+import { formatAiGenControlValue } from 'src/utils/domain/control/ai';
+import { controlState } from 'src/utils/domain/control/state';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { SHEET_VIEW_HIDDEN_TYPES } from 'src/utils/domain/worksheet/constants';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { parseStreamingJsonlData } from 'src/utils/platform/network/sse';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { buildFormFieldsControls } from 'src/utils/services/ai/formFields';
 import mingoTemplateFiles from '../../../../../staticfiles/choroplethData/mingo/MingoTemplateFiles.json';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { getUploadFileTooltip } from '../../ChatBot/enum';
-import { buildFormFieldsControls, cancelStream, resolveStreamError } from '../../ChatBot/utils';
+import { cancelStream, resolveStreamError } from '../../ChatBot/utils';
 import CreateWorksheetDataMask from './CreateWorksheetDataMask';
 import Recommend from './Recommend';
 import { ConfigPanel } from './Recommend';
@@ -67,14 +66,7 @@ const ConfigIconWrap = styled.div`
 
 const ConfigPanelWrap = styled.div`
   padding: 12px 16px;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: var(--shadow-sm);
   width: 200px;
-  .ming.Checkbox {
-    display: flex;
-    justify-content: space-between;
-  }
 `;
 
 const MingoContentWrap = styled.div`
@@ -379,7 +371,6 @@ function MingoContent(props, ref) {
     } catch {
       // Ignore invalid local cache and fall back to default config.
     }
-
     return { includeSamplePeople: true, includeSampleAttachments: true };
   });
   useEffect(() => {
@@ -395,6 +386,7 @@ function MingoContent(props, ref) {
     currentMessage: '',
     currentJSONLStr: '',
     JSONLIsPiping: false,
+    formattedRows: [],
     sessionId: genBotSessionId(),
   });
   const {
@@ -438,6 +430,8 @@ function MingoContent(props, ref) {
           forceReroute: false,
           ...agentParams,
           sessionId: cache.current.sessionId,
+          // appId 为该 agent 的必传参数（缺失服务端直接拒绝），同时决定扣费流水归属哪个应用
+          appId: appId || worksheetInfo?.appId,
           message: agentParams.message || _l('开始'),
           context: {
             userLanguage: window.getCurrentLang() || 'zh-Hans',
@@ -466,6 +460,7 @@ function MingoContent(props, ref) {
 
       if (messageContent && cache.current.currentMessage.includes(jsonlBlockFence) && !cache.current.JSONLIsPiping) {
         cache.current.JSONLIsPiping = true;
+        cache.current.formattedRows = [];
         cache.current.currentJSONLStr = cache.current.currentMessage.slice(
           cache.current.currentMessage.indexOf(jsonlBlockFence) + jsonlBlockFence.length,
         );
@@ -476,23 +471,41 @@ function MingoContent(props, ref) {
       let parsedData;
 
       if (cache.current.JSONLIsPiping) {
+        // 每来一个 chunk 都会把累积的整段 JSONL 整体重解析一遍。已流完的行内容不再变化，但重新格式化
+        // 会给附件重新生成临时 fileID、给行重新生成 rowid，附件单元格据此判定「这是另一张图」，
+        // 已经加载失败、切到托底图标的图片会被当作新图反复重新请求（图标闪烁、请求刷屏）。
+        // 按行序号缓存格式化结果，内容没变就复用同一个对象，保持 rowid / fileID 稳定。
+        const prevFormattedRows = cache.current.formattedRows || [];
+        const nextFormattedRows = [];
+
         parsedData = parseStreamingJsonlData(
           cache.current.currentJSONLStr,
           !cache.current.currentMessage.includes('\n```'),
         )
           .filter(item => !isEmpty(item))
-          .map(row => {
+          .map((row, index) => {
+            const fingerprint = JSON.stringify(row);
+            const prevFormattedRow = prevFormattedRows[index];
+
+            if (prevFormattedRow && prevFormattedRow.fingerprint === fingerprint) {
+              nextFormattedRows[index] = prevFormattedRow;
+              return prevFormattedRow.row;
+            }
+
             const newRow = {
-              rowid: row.rowid || `temp-${uuidv4()}`,
+              // 仍在流入的那一行内容会一直变，沿用上一轮的 rowid，避免行身份跟着跳
+              rowid: row.rowid || get(prevFormattedRow, 'row.rowid') || `temp-${uuidv4()}`,
             };
             Object.keys(row).forEach(key => {
               const control = find(visibleControls, { controlId: key });
               if (!control) return;
               newRow[key] = formatAiGenControlValue(control, row[key]);
             });
+            nextFormattedRows[index] = { fingerprint, row: newRow };
             return newRow;
           });
-        // console.log('parsedData', parsedData);
+
+        cache.current.formattedRows = nextFormattedRows;
         setPreviewTempData(parsedData);
       }
 
@@ -518,6 +531,7 @@ function MingoContent(props, ref) {
       cache.current.currentMessage = '';
       cache.current.JSONLIsPiping = false;
       cache.current.currentJSONLStr = '';
+      cache.current.formattedRows = [];
       setCreatedDataMap(prev => {
         localStorage.setItem(
           storageKey,
@@ -571,6 +585,7 @@ function MingoContent(props, ref) {
     cache.current.currentMessage = '';
     cache.current.currentJSONLStr = '';
     cache.current.JSONLIsPiping = false;
+    cache.current.formattedRows = [];
     if (messageId) {
       setCreatedDataMap(prev => ({
         ...prev,
@@ -680,16 +695,14 @@ function MingoContent(props, ref) {
           }}
           onSend={handleSend}
         />
+
         {!!messages.length && (
           <ConfigIconWrap>
-            <Trigger
-              action={['hover']}
-              popupAlign={{
-                points: ['br', 'tr'],
-                offset: [0, -6],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              popup={
+            <Popover
+              noPadding
+              trigger="hover"
+              placement="topRight"
+              content={
                 <ConfigPanelWrap>
                   <ConfigPanel
                     checkboxTextPosition="left"
@@ -703,9 +716,7 @@ function MingoContent(props, ref) {
                   />
                 </ConfigPanelWrap>
               }
-              popupClassName="mingoCreateWorksheetDataBotConfigTrigger"
-              destroyPopupOnHide
-              zIndex={1050}
+              destroyOnHidden
             >
               <IconBtn
                 as="span"
@@ -713,7 +724,7 @@ function MingoContent(props, ref) {
               >
                 <i className="icon icon-tune" />
               </IconBtn>
-            </Trigger>
+            </Popover>
           </ConfigIconWrap>
         )}
       </MessageListWrap>
@@ -767,7 +778,7 @@ function MingoContent(props, ref) {
 
             if (find(visibleControls, c => c.type === 34)) {
               const queue = new PromiseQueue(3); // 并发数3
-              queue
+              return queue
                 .addAll(
                   dataForPreview.map(row => {
                     return () =>
@@ -801,7 +812,7 @@ function MingoContent(props, ref) {
                   onClose();
                 });
             } else {
-              worksheetAjax
+              return worksheetAjax
                 .addWSRowsBatch({
                   worksheetId,
                   receiveRows: dataForPreview.map(row =>

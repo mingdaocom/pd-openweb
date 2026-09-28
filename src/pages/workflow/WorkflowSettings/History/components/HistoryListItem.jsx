@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import instanceVersion from '../../../api/instanceVersion';
 import process from '../../../api/process';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from '../config';
 import HistoryStatus from './HistoryStatus';
 
@@ -43,10 +43,18 @@ export default ({
         {status === 2 || cause === 7777 || isDelete ? null : (
           <Checkbox
             checked={!!batchIds.find(o => o.id === id)}
-            onClick={(checked, value, e) => {
-              e.stopPropagation();
+            onClick={event => event.stopPropagation()}
+            onChange={event => {
+              event.stopPropagation();
               onUpdateBatchIds(
-                !checked ? batchIds.concat({ id, status, cause, instanceType }) : batchIds.filter(o => o.id !== id),
+                event.target.checked
+                  ? batchIds.concat({
+                      id,
+                      status,
+                      cause,
+                      instanceType,
+                    })
+                  : batchIds.filter(o => o.id !== id),
               );
             }}
           />

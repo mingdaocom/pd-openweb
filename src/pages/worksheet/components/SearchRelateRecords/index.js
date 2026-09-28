@@ -1,7 +1,16 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import React, { lazy, Suspense } from 'react';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 
-export function searchRecordInDialog(props) {
-  import('./SearchRelateRecords').then(({ default: SearchRelateRecords }) => {
-    functionWrap(SearchRelateRecords, props);
-  });
+const LoadableSearchRelateRecords = lazy(() => import('./SearchRelateRecords'));
+
+function SearchRelateRecordsLoader(props) {
+  return (
+    <Suspense fallback={null}>
+      <LoadableSearchRelateRecords {...props} />
+    </Suspense>
+  );
+}
+
+export function useSearchRecordInDialog() {
+  return useFunctionWrapComponent(SearchRelateRecordsLoader);
 }

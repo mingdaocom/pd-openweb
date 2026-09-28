@@ -1,113 +1,114 @@
-import React, { Fragment, useCallback, useMemo, useRef } from 'react';
-import { useSetState } from 'react-use';
-import { Select } from 'antd';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
+import { Select } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 
 const PAGE_SIZE = 50;
 
-export default function SearchApp({ projectId, className, mode, onChange = () => {} }) {
-  const [state, setState] = useSetState({
-    appList: [],
-    pageIndex: 1,
-    keyword: '',
-    isMoreApp: true,
-    loadingApp: false,
-    appId: undefined,
-  });
-  const { appList, pageIndex, keyword, isMoreApp, loadingApp, appId } = state;
-  const appPromiseRef = useRef(null);
-  let extra = {};
+export default function SearchApp(props) {
+  const {
+    projectId,
+    className,
+    mode,
+    value,
+    placeholder = _l('全部应用'),
+    onChange = () => {},
+    ...selectProps
+  } = props;
+  const [listState, setListState] = useState({ appList: [], loading: false });
+  const requestRef = useRef(null);
+  const queryRef = useRef({ pageIndex: 1, keyword: '', hasMore: true });
+  const { appList, loading } = listState;
 
   const getAppList = useCallback(
     (params = {}) => {
-      if (appPromiseRef.current && appPromiseRef.current.abort) {
-        appPromiseRef.current.abort();
-      }
+      const query = queryRef.current;
+      const pageIndex = params.pageIndex ?? query.pageIndex;
+      const keyword = params.keyword ?? query.keyword;
 
-      const nextPage = params.pageIndex || pageIndex;
+      if (pageIndex > 1 && (requestRef.current || !query.hasMore)) return;
 
-      nextPage === 1 && setState({ loadingApp: true });
+      requestRef.current?.abort?.();
+      query.pageIndex = pageIndex;
+      query.keyword = keyword;
+      setListState(previous => ({
+        appList: pageIndex === 1 ? [] : previous.appList,
+        loading: true,
+      }));
 
-      appPromiseRef.current = appManagementAjax.getAppsByProject({
+      const request = appManagementAjax.getAppsByProject({
         projectId,
         status: '',
         order: 3,
-        pageIndex: nextPage,
+        pageIndex,
         pageSize: PAGE_SIZE,
-        keyword: params.keyword || keyword,
+        keyword,
       });
+      requestRef.current = request;
 
-      appPromiseRef.current
+      request
         .then(({ apps = [] }) => {
-          const newList = (apps || []).map(item => ({ label: item.appName, value: item.appId }));
+          if (requestRef.current !== request) return;
 
-          setState({
-            loadingApp: false,
-            appList: nextPage === 1 ? newList : [...appList, ...newList],
-            pageIndex: nextPage + 1,
-            isMoreApp: newList.length >= PAGE_SIZE,
-          });
+          requestRef.current = null;
+          const nextList = apps.map(item => ({ label: item.appName, value: item.appId }));
+          query.pageIndex = pageIndex + 1;
+          query.hasMore = nextList.length >= PAGE_SIZE;
+          setListState(previous => ({
+            appList: pageIndex === 1 ? nextList : [...previous.appList, ...nextList],
+            loading: false,
+          }));
         })
         .catch(() => {
-          setState({ loadingApp: false });
+          if (requestRef.current !== request) return;
+
+          requestRef.current = null;
+          setListState(previous => ({ ...previous, loading: false }));
         });
     },
     [projectId],
   );
 
   const debouncedSearch = useMemo(
-    () =>
-      _.debounce(value => {
-        setState({ keyword: value });
-        getAppList({ pageIndex: 1, keyword: value });
-      }, 500),
+    () => _.debounce((keyword, loadApps) => loadApps({ pageIndex: 1, keyword }), 500),
     [],
   );
 
-  const handleScroll = useCallback(
-    e => {
-      const { scrollTop, scrollHeight, offsetHeight } = e.target;
-
-      if (scrollTop + offsetHeight >= scrollHeight - 5 && isMoreApp && !loadingApp) {
-        getAppList();
-      }
+  useEffect(
+    () => () => {
+      debouncedSearch.cancel();
+      requestRef.current?.abort?.();
+      requestRef.current = null;
     },
-    [getAppList],
+    [debouncedSearch],
   );
 
-  if (mode === 'multiple') {
-    extra = {
-      mode: 'multiple',
-      maxTagCount: 'responsive',
-    };
-  }
-
   return (
-    <Fragment>
-      <Select
-        className={`mdAntSelect ${className}`}
-        placeholder={_l('全部应用')}
-        showSearch
-        allowClear
-        showArrow={false}
-        value={appId}
-        options={appList}
-        {...extra}
-        filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
-        notFoundContent={<span className="textSecondary">{_l('无搜索结果')}</span>}
-        onFocus={() => !appList.length && getAppList()}
-        onChange={value => {
-          setState({ appId: value });
-          onChange(value);
-        }}
-        onSearch={debouncedSearch}
-        onPopupScroll={handleScroll}
-        onClear={() => {
-          setState({ keyword: '', pageIndex: 1 });
-          getAppList({ keyword: '', pageIndex: 1 });
-        }}
-      />
-    </Fragment>
+    <Select
+      {...selectProps}
+      className={className}
+      placeholder={placeholder}
+      showSearch
+      allowClear
+      mode={mode}
+      maxTagCount={mode === 'multiple' ? 'responsive' : undefined}
+      value={value}
+      options={appList}
+      filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
+      notFoundContent={<span className="textSecondary">{loading ? _l('加载中...') : _l('无搜索结果')}</span>}
+      onFocus={() => {
+        debouncedSearch.cancel();
+        if (queryRef.current.keyword || (!appList.length && !loading)) {
+          getAppList({ pageIndex: 1, keyword: '' });
+        }
+      }}
+      onChange={onChange}
+      onSearch={keyword => debouncedSearch(keyword, getAppList)}
+      onPopupScroll={({ target }) => {
+        const { scrollTop, scrollHeight, offsetHeight } = target;
+
+        if (scrollTop + offsetHeight >= scrollHeight - 5) getAppList();
+      }}
+    />
   );
 }

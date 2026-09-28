@@ -1,7 +1,8 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
-import { FunctionWrap, PopupWrapper } from 'ming-ui';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 
 const CopyPrintLinkPopupWrap = styled(PopupWrapper)`
   .copyPrintLinkPopupCon {
@@ -61,6 +62,6 @@ export default function CopyPrintLinkPopup(props) {
   );
 }
 
-export const openPrintPageInBrowser = () => {
-  FunctionWrap(CopyPrintLinkPopup);
-};
+export function usePrintPageInBrowser() {
+  return useFunctionWrapComponent(CopyPrintLinkPopup);
+}

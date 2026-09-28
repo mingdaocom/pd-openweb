@@ -2,37 +2,11 @@ import _, { get, isEmpty, isNull, isUndefined } from 'lodash';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/Form/core/config';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { checkRequired, checkRuleLocked, checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
-import { browserIsMobile } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
-import { filterEmptyChildTableRows } from 'src/utils/record';
-import { checkRulesErrorOfRow } from 'src/utils/rule';
-
-function getControlCompareValue(c, value) {
-  if (c.type === 26) {
-    return safeParse(value, 'array')
-      .map(u => u.accountId)
-      .sort()
-      .join('');
-  } else if (c.type === 29) {
-    return safeParse(value, 'array')
-      .map(u => u.sid)
-      .sort()
-      .join('');
-  } else if (c.type === 27) {
-    return safeParse(value, 'array')
-      .map(u => u.departmentId)
-      .sort()
-      .join('');
-  } else if (c.type === 48) {
-    return safeParse(value, 'array')
-      .map(u => u.organizeId)
-      .sort()
-      .join('');
-  } else {
-    return value;
-  }
-}
+import { checkRulesErrorOfRow } from 'src/components/Form/core/formUtils/checkRulesError';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
+import { controlState } from 'src/utils/domain/control/state';
+import { checkCellIsEmpty, getControlCompareValue } from 'src/utils/domain/control/value';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 /**
  * 记录数据格式化为 关联表控件数据格式
@@ -189,6 +163,43 @@ function mergeRequiredState(controls = [], control = {}) {
         }
       : item;
   });
+}
+
+/**
+ * 静态计算被编辑字段 changedIds 会联动影响到的下游字段（含传递依赖闭包）。
+ * 判定条件对齐 DataFormat.updateDataSource 中 effectControls 的过滤逻辑：
+ * 他表字段(30)/公式(31)/汇总(37) 的 dataSource、日期公式(38) 的 sourceControlId、
+ * 动态默认值 defsource、默认值函数 defaultfunc 表达式引用了变更字段，即视为受影响。
+ * 用于子表批量编辑分流：返回空表示这批字段无任何联动，可走轻量浅合并；非空才需逐行 DataFormat 重算。
+ */
+export function getEffectedControlIds(controls = [], changedIds = []) {
+  const isEffectedBy = (item, ids) => {
+    const dataSource = item.dataSource || '';
+    const sourceControlId = item.type === 38 ? item.sourceControlId || '' : '';
+    const defsource = get(item, 'advancedSetting.defsource') || '';
+    const defaultfuncExp = get(safeParse(get(item, 'advancedSetting.defaultfunc') || '{}'), 'expression') || '';
+    return ids.some(
+      id =>
+        dataSource.includes(id) ||
+        (sourceControlId && sourceControlId.includes(id)) ||
+        (defsource && defsource.includes(id)) ||
+        (defaultfuncExp && defaultfuncExp.includes(id)),
+    );
+  };
+  const effected = new Set();
+  let frontier = (changedIds || []).filter(Boolean);
+  while (frontier.length) {
+    const next = [];
+    (controls || []).forEach(item => {
+      if (!item.controlId || effected.has(item.controlId)) return;
+      if (isEffectedBy(item, frontier)) {
+        effected.add(item.controlId);
+        next.push(item.controlId);
+      }
+    });
+    frontier = next;
+  }
+  return [...effected];
 }
 
 export function getSubListErrorOfStore(store, currentControl) {

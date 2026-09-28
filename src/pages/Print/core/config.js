@@ -1,4 +1,4 @@
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 
 export const fromType = {
   PRINT: 'print', // 打印
@@ -139,11 +139,11 @@ export const PRINT_TYPE_STYLE = {
 export const APPROVAL_POSITION_OPTION = [
   {
     value: 0,
-    text: _l('在明细内显示'),
+    label: _l('在明细内显示'),
   },
   {
     value: 1,
-    text: _l('在明细表下方显示'),
+    label: _l('在明细表下方显示'),
   },
 ];
 
@@ -205,7 +205,7 @@ export const PAPER_SIZE_OPTIONS = [
   { value: 'B5', width: 176, height: 250 },
 ].map(item => ({
   ...item,
-  text: `${item.value} ( ${item.width} x ${item.height} mm )`,
+  label: `${item.value} ( ${item.width} x ${item.height} mm )`,
 }));
 
 export const PAPER_DIRECTION_OPTIONS = [

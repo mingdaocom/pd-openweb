@@ -1,13 +1,12 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SearchInput } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../../api/datasource';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { formatDate } from '../../../../config';
 import { DATABASE_TYPE, FROM_TYPE_TAB_LIST, ROLE_TYPE, ROLE_TYPE_TAB_LIST, SORT_TYPE } from '../../../constant';
 import OptionColumn from './OptionColumn';
@@ -17,7 +16,6 @@ const FilterContent = styled.div`
   .searchInput {
     width: 360px;
     min-width: 360px;
-    height: 36px;
   }
   .filterIcon {
     display: flex;
@@ -307,12 +305,24 @@ export default function SourceList(props) {
     });
   };
 
-  const onSearch = useCallback(
-    _.debounce(value => {
-      setFetchState({ loading: true, pageNo: 0, keyWords: value });
-    }, 500),
-    [],
+  const debouncedSearch = useMemo(
+    () =>
+      _.debounce(value => {
+        setFetchState({ loading: true, pageNo: 0, keyWords: value });
+      }, 500),
+    [setFetchState],
   );
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  const onSearch = value => {
+    if (value) {
+      debouncedSearch(value);
+    } else {
+      debouncedSearch.cancel();
+      setFetchState({ loading: true, pageNo: 0, keyWords: '' });
+    }
+  };
 
   useEffect(onFetch, [
     fetchState.loading,
@@ -499,12 +509,7 @@ export default function SourceList(props) {
     <Fragment>
       <FilterContent>
         <div className="flexRow">
-          <SearchInput
-            className="searchInput"
-            placeholder={_l('搜索数据源名称 / 地址 / 创建人')}
-            value={fetchState.keyWords}
-            onChange={onSearch}
-          />
+          <SearchInput className="searchInput" placeholder={_l('搜索数据源名称 / 地址 / 创建人')} onChange={onSearch} />
           <div className="relative">
             <Icon
               icon="filter"

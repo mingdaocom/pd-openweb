@@ -3,26 +3,19 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import agentApi from 'src/api/agent';
 import { openMingoCreateWorksheet } from 'src/components/Mingo/modules/CreateWorksheetBot';
+import { canUseMingoOtherAssistant } from 'src/components/Mingo/permission';
 import CreateAIDialog from 'src/pages/worksheet/components/CreateAIDialog';
-import { genBotSessionId } from 'src/utils/agentSession';
-import { generateAppOrWorksheetDescription } from 'src/utils/app';
+import { genBotSessionId } from 'src/utils/platform/session/agentSession';
+import { generateAppOrWorksheetDescription } from 'src/utils/services/app';
 import ExternalLink from './ExternalLink';
 
+const REMARK_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 10 };
+
 const CreateNewContent = styled.div`
-  input,
-  textarea {
-    &::placeholder {
-      color: var(--color-text-tertiary);
-    }
-  }
-  .ming.Textarea {
-    padding: 5px 12px;
-    line-height: 24px;
-  }
   .withdraw,
   .active {
     padding: 2px 5px;
@@ -39,9 +32,6 @@ const CreateNewContent = styled.div`
     }
   }
   .error {
-    .ming.Textarea {
-      border-color: var(--color-error) !important;
-    }
     .TxtRight {
       color: var(--color-error);
     }
@@ -49,7 +39,7 @@ const CreateNewContent = styled.div`
   .aiCreate,
   .importExcelCreate {
     border: 1px solid var(--color-border-tertiary);
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 10px;
     cursor: pointer;
     &:hover {
@@ -180,8 +170,8 @@ class CreateSheetOrPage extends Component {
       return;
     }
 
-    if (remark.length > remarkMaxLength) {
-      alert(_l('描述文字超出上限'), 2);
+    if (type === 'worksheet' && remark.length > remarkMaxLength) {
+      alert(_l('备注文字超出上限'), 2);
       return;
     }
 
@@ -194,7 +184,7 @@ class CreateSheetOrPage extends Component {
 
     onCreate(type, {
       name,
-      remark,
+      ...(type === 'worksheet' ? { remark } : {}),
       ...customPageArgs,
     });
   };
@@ -210,6 +200,9 @@ class CreateSheetOrPage extends Component {
           }
         : {},
     );
+  };
+  handleExternalLinkChange = data => {
+    this.setState({ customPageArgs: data.configuration.customPageType === '2' ? data : {} });
   };
   renderState() {
     const { value, loading, sourceAi, remark, lastRemark } = this.state;
@@ -258,14 +251,23 @@ class CreateSheetOrPage extends Component {
     const { headerText, text, placeholder } = createSheetOrCustomPageConfig[type];
     const isError = remark.length > remarkMaxLength;
     return (
-      <Dialog visible title={headerText} width={640} okText={_l('新建')} onOk={this.handleOk} onCancel={onCancel}>
+      <Modal
+        open
+        title={headerText}
+        width={640}
+        okText={_l('新建')}
+        mask={{ closable: true }}
+        keyboard
+        onOk={this.handleOk}
+        onCancel={onCancel}
+      >
         <CreateNewContent>
           {type === 'worksheet' && (
             <Fragment>
               {!hideHeader && (
                 <Fragment>
                   <div className="flexRow alignItemsCenter mTop4 mBottom24">
-                    {!md.global.SysSettings.hideAIBasicFun && (
+                    {canUseMingoOtherAssistant() && (
                       <div
                         className="flex aiCreate flexRow alignItemsCenter mRight10"
                         onClick={this.handleAiCreateSheet}
@@ -299,61 +301,54 @@ class CreateSheetOrPage extends Component {
                   autoFocus
                   className="w100"
                   value={value}
-                  onChange={value => this.setState({ value })}
+                  onChange={event => this.setState({ value: event.target.value })}
                   placeholder={placeholder}
                 />
               </div>
+            </Fragment>
+          )}
+          {type === 'customPage' && (
+            <Fragment>
+              <div>
+                <div className="mBottom10">{text}</div>
+                <Input
+                  autoFocus
+                  className="w100"
+                  value={value}
+                  onChange={event => this.setState({ value: event.target.value })}
+                  placeholder={placeholder}
+                />
+              </div>
+              <ExternalLink onChange={this.handleExternalLinkChange} />
+            </Fragment>
+          )}
+          {type === 'worksheet' && (
+            <Fragment>
               <div className="mBottom10 flexRow alignItemsCenter justifyContentBetween">
                 <div className="flexRow alignItemsCenter">
-                  <span>{_l('描述')}</span>
-                  <Tooltip
-                    title={_l(
-                      '用于定义工作表的用途和业务背景，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
-                    )}
-                  >
+                  <span>{_l('备注')}</span>
+                  <Tooltip title={_l('备注用途和业务背景，便于AI正确理解和使用。备注内容不会直接展示给普通用户。')}>
                     <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
                   </Tooltip>
                 </div>
                 {!md.global.SysSettings.hideAIBasicFun && this.renderState()}
               </div>
               <div className={cx('w100', { error: isError })}>
-                <Textarea
+                <Input.TextArea
+                  autoSize={REMARK_TEXTAREA_AUTO_SIZE}
                   className="w100"
-                  minHeight={36}
                   disabled={loading}
+                  status={isError ? 'error' : undefined}
                   placeholder={loading ? _l('AI 生成中...') : _l('例如：记录和管理订单信息的工作表')}
                   value={remark}
-                  onChange={remark => this.setState({ remark, lastRemark: remark })}
+                  onChange={event => this.setState({ remark: event.target.value, lastRemark: event.target.value })}
                 />
                 <div className="TxtRight">{isError ? `${remark.length} / ${remarkMaxLength}` : ''}</div>
               </div>
             </Fragment>
           )}
-          {type === 'customPage' && (
-            <Fragment>
-              <div className="flexRow alignItemsCenter">
-                <div style={{ width: 75 }}>{text}</div>
-                <Input
-                  autoFocus
-                  className="flex"
-                  value={value}
-                  onChange={value => this.setState({ value })}
-                  placeholder={placeholder}
-                />
-              </div>
-              <ExternalLink
-                onChange={data => {
-                  if (data.configuration.customPageType === '2') {
-                    this.setState({ customPageArgs: data });
-                  } else {
-                    this.setState({ customPageArgs: {} });
-                  }
-                }}
-              />
-            </Fragment>
-          )}
         </CreateNewContent>
-      </Dialog>
+      </Modal>
     );
   }
 }

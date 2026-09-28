@@ -3,10 +3,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import filterXSS from 'xss';
-import { checkCellIsEmpty, renderText as renderCellText } from 'src/utils/control';
-import { getDatePickerConfigs } from '../../../../util/setting';
+import { getDatePickerConfigs } from 'src/utils/domain/control/date';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { getControlType, getDateType, getTypeList } from 'src/utils/domain/control/dynamicValue';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
 import { DynamicTextWrap, FieldInfo, OptionControl, RelateControl } from '../styled';
-import { getControlType, getDateType, getTypeList } from '../util';
 import OtherField from './OtherField';
 
 const getValue = (item, type) => {

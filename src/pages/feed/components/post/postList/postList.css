@@ -3,9 +3,6 @@
   vertical-align: top;
   min-height: 400px;
 }
-.postList .searchFilterKeyword input::-ms-clear {
-  display: none;
-}
 .feedNoData {
   padding: 85px;
   font-size: 14px;

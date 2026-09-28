@@ -1,12 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { Divider, Input, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Icon } from 'ming-ui';
+import { Divider, Input, Modal, Select, Switch, Tooltip } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 import FilterControl from './FilterControl';
 import FilterListSort from './FilterListSort';
 import FilterObject from './FilterObject';
@@ -50,34 +49,11 @@ const Wrap = styled.div`
   }
 
   .fastFilterControlDropdown {
-    height: auto;
     min-height: 36px;
-    .itemT {
-      background: var(--color-background-secondary);
-      border-radius: 4px 4px 4px 4px;
-      padding: 3px 8px 3px 10px;
-      border: 1px solid var(--color-border-secondary);
-      margin-right: 5px;
-      i {
-        color: var(--color-text-tertiary);
-        &:hover {
-          color: var(--color-text-secondary);
-        }
-      }
-    }
   }
 
-  .ant-checkbox-input {
+  .hap-checkbox-input {
     position: absolute;
-  }
-  .ant-input {
-    font-size: 13px;
-    padding: 5px 11px;
-    border-radius: 3px !important;
-    &:focus,
-    &.ant-input-focused {
-      box-shadow: none;
-    }
   }
   .icon-trash:hover {
     color: var(--color-primary);
@@ -89,9 +65,16 @@ function Setting(props) {
   const { filters = [], setFilters, setActiveId } = props;
   const { filterInfo = {}, setFilterInfo } = props;
   const { advancedSetting = {} } = filterInfo;
-  const { pageId, components } = props;
+  const { pageId, components, widget, mode, activeContainerInfo = {} } = props;
   const [displayType, setDisplayType] = useState('setting');
-  const [dropDownVisible, setDropDownVisible] = useState(false);
+  const filterWidget =
+    mode === 'add' && activeContainerInfo.sectionId
+      ? {
+          ...widget,
+          sectionId: activeContainerInfo.sectionId,
+          tabId: activeContainerInfo.tabId,
+        }
+      : widget;
 
   const allControls = filters.map(data => {
     const { control, objectControls } = data;
@@ -130,13 +113,9 @@ function Setting(props) {
     });
 
     if (checked) {
-      Dialog.confirm({
-        title: null,
-        description: (
-          <span className="textPrimary Font17" style={{ lineHeight: '26px' }}>
-            {_l('将当前所选的筛选对象用于整个组件，其他筛选器的对象将会被重置。')}
-          </span>
-        ),
+      Modal.confirm({
+        title: _l('作为全局配置'),
+        content: _l('将当前所选的筛选对象用于整个组件，其他筛选器的对象将会被重置。'),
         onOk: () => {
           setFilters(newFilters);
         },
@@ -196,6 +175,19 @@ function Setting(props) {
     });
   };
 
+  const requiredControlIds = safeParse(requiredcids, 'array');
+  const requiredControlOptions = filters
+    .filter(item => item.dataType !== 36)
+    .map(item => ({
+      value: _.get(item.objectControls[0], 'controlId'),
+      type: item.dataType,
+      label: item.name || _l('未命名'),
+    }))
+    .filter(item => item.value);
+  const deletedControlOptions = requiredControlIds
+    .filter(id => !requiredControlOptions.some(option => option.value === id))
+    .map(value => ({ value, label: <span className="Red">{_l('已删除')}</span> }));
+
   return (
     <Wrap className="setting">
       <ul className="filterDisplayTab">
@@ -230,6 +222,7 @@ function Setting(props) {
             pageId={pageId}
             components={components}
             filter={filter}
+            filterWidget={filterWidget}
             setFilter={data => {
               if (!data.objectControls.length) {
                 data.dataType = 0;
@@ -281,16 +274,12 @@ function Setting(props) {
           {filterInfo.enableBtn && (
             <div className="mTop10">
               <div>{_l('查询时必填')}</div>
-              <Dropdown
-                selectClose={false}
+              <Select
+                mode="multiple"
                 placeholder={_l('请选择')}
                 className={cx('w100 mTop8 fastFilterControlDropdown')}
-                renderItem={item => {
-                  if (item.value === 'all') {
-                    return <div className={'itemText Hand forAll flexRow alignItemsCenter'}>{item.text}</div>;
-                  }
-
-                  const isCur = !!safeParse(requiredcids, 'array').includes(item.value);
+                optionRender={({ data: item }) => {
+                  const isCur = requiredControlIds.includes(item.value);
                   return (
                     <div
                       className={cx('itemText flexRow alignItemsCenter', {
@@ -298,68 +287,18 @@ function Setting(props) {
                       })}
                     >
                       <Icon icon={getIconByType(item.type)} className="Font18 Relative" />
-                      <span className="mLeft10 flex textPrimary ellipsis">{item.text}</span>
+                      <span className="mLeft10 flex textPrimary ellipsis">{item.label}</span>
                       {isCur && <Icon icon="done" className="Relative colorPrimary Font18" />}
                     </div>
                   );
                 }}
-                popupVisible={dropDownVisible}
-                onVisibleChange={visible => setDropDownVisible(visible)}
-                value={safeParse(requiredcids, 'array').length <= 0 ? undefined : safeParse(requiredcids, 'array')}
-                onChange={value => {
-                  let data = [];
-
-                  if (!value) {
-                    data = [];
-                  } else if (safeParse(requiredcids, 'array').includes(value)) {
-                    data = safeParse(requiredcids, 'array').filter(o => o !== value);
-                  } else {
-                    data = [...safeParse(requiredcids, 'array'), value];
-                  }
-
-                  handleChangeRequiredcids(JSON.stringify(data));
-                }}
-                renderTitle={() => {
-                  return (
-                    <div className="">
-                      {(safeParse(requiredcids, 'array') || []).map(it => {
-                        const info = filters.filter(control => {
-                          return _.get(control.objectControls[0], 'controlId') === it;
-                        })[0];
-                        const isDel = !info;
-                        return (
-                          <div className={cx('itemT InlineBlock', { Red: isDel })}>
-                            {!isDel ? info.name || _l('未命名') : _l('已删除')}
-                            <Icon
-                              icon={'close'}
-                              className="Hand mLeft3"
-                              onClick={e => {
-                                e.stopPropagation();
-                                let data = safeParse(requiredcids, 'array').filter(a => a !== it);
-                                handleChangeRequiredcids(JSON.stringify(data));
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                }}
-                border
-                menuClass="paramControlDropdownMenu paramControlDropdownMenuSet"
-                cancelAble
-                isAppendToBody
-                openSearch
-                data={filters
-                  .filter(item => item.dataType !== 36)
-                  .map(item => {
-                    return {
-                      value: _.get(item.objectControls[0], 'controlId'),
-                      type: item.dataType,
-                      text: item.name || _l('未命名'),
-                    };
-                  })
-                  .filter(item => item.value)}
+                value={requiredControlIds}
+                onChange={values => handleChangeRequiredcids(JSON.stringify(values))}
+                classNames={{ popup: { root: 'paramControlDropdownMenu paramControlDropdownMenuSet' } }}
+                allowClear
+                showPopupSearch
+                optionFilterProp="label"
+                options={[...deletedControlOptions, ...requiredControlOptions]}
               />
             </div>
           )}

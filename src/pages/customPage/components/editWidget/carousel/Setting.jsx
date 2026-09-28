@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Divider, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Radio } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Divider, InputNumber, Radio, Select } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import SelectCount from 'src/pages/customPage/components/editWidget/button/SelectCount';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
-import { getShowViews } from 'src/pages/worksheet/views/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { getShowViews } from 'src/utils/services/worksheet/view';
+import './index.less';
+
+const SELECT_ALLOW_CLEAR = { clearIcon: <Icon icon="cancel" className="textDisabled Font20" /> };
 
 const Wrap = styled.div`
   box-sizing: border-box;
@@ -23,44 +25,11 @@ const Wrap = styled.div`
   overflow: auto;
   position: relative;
 
-  .Dropdown--input {
-    background-color: var(--color-background-input);
-  }
-  .ant-checkbox-input {
+  .hap-checkbox-input {
     position: absolute;
-  }
-  .ming.Input::placeholder {
-    color: var(--color-text-disabled);
-  }
-  .customPageSelect {
-    .ant-select-selector {
-      height: 36px !important;
-    }
-    .ant-select-clear {
-      width: 20px;
-      height: 20px;
-      margin-top: -10px;
-    }
   }
   .fillSelect {
     flex: 2;
-  }
-  .selectCountWrapper {
-    width: 100px;
-    > div {
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
-    }
-    .countWrap {
-      width: 100%;
-      line-height: 32px;
-    }
-    .add {
-      padding-top: 7px;
-    }
-    .sub {
-      padding-bottom: 0px;
-    }
   }
 `;
 
@@ -69,7 +38,7 @@ const FillColor = styled.div`
   height: 18px;
   border-radius: 2px;
   box-shadow: var(--shadow-lg);
-  background-color: ${props => props.color};
+  background-color: ${props => props.$color};
 `;
 
 const fillType = [
@@ -142,7 +111,7 @@ function Setting(props) {
   const { worksheetId, viewId, image, count, title, subTitle, action, url, openMode } = componentConfig;
   const [dataSource, setDataSource] = useState({ views: [], controls: [] });
   const { views, controls } = dataSource;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(worksheetId));
 
   useEffect(() => {
     if (worksheetId) {
@@ -171,10 +140,8 @@ function Setting(props) {
 
           setLoading(false);
         });
-    } else {
-      setLoading(false);
     }
-  }, [worksheetId]);
+  }, [appId, worksheetId]);
 
   if (loading && !views.length) {
     return (
@@ -183,6 +150,47 @@ function Setting(props) {
       </Wrap>
     );
   }
+
+  const getControlOption = c => ({
+    value: c.controlId,
+    label: (
+      <div className="valignWrapper h100">
+        <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
+        <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
+      </div>
+    ),
+  });
+  const getNameOption = data => ({
+    value: data.value,
+    label: (
+      <div className="valignWrapper h100">
+        <span className="Font13 ellipsis">{data.name}</span>
+      </div>
+    ),
+  });
+  const viewOptions = views.map(view => ({
+    value: view.viewId,
+    label: (
+      <div className="valignWrapper h100">
+        <span className="Font13 ellipsis">{view.name}</span>
+      </div>
+    ),
+  }));
+  const imageOptions = controls.filter(c => [14, 47].includes(c.type)).map(getControlOption);
+  const textControlOptions = controls.filter(c => [2, 32].includes(c.type)).map(getControlOption);
+  const urlOptions = controls.filter(c => c.type === 2).map(getControlOption);
+  const fillOptions = fillType.map(getNameOption);
+  const actionOptions = actionType.map(getNameOption);
+  const openModeOptions = openModeType
+    .filter(data => (action === 2 ? [1, 2].includes(data.value) : true))
+    .map(data => ({
+      value: data.value,
+      label: (
+        <div className="valignWrapper h100">
+          <span className="mLeft5 Font13 ellipsis">{data.name}</span>
+        </div>
+      ),
+    }));
 
   return (
     <Wrap className="setting">
@@ -213,12 +221,13 @@ function Setting(props) {
         <div className="mBottom12">{_l('视图')}</div>
         <Select
           showSearch
-          className={cx('customPageSelect w100', { Red: viewId && !_.find(views, { viewId }) })}
+          className={cx('w100', { Red: viewId && !_.find(views, { viewId }) })}
           value={viewId ? (_.find(views, { viewId }) ? viewId : _l('视图已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择视图')}
           notFoundContent={<div className="valignWrapper textTertiary">{_l('请先选择工作表')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          options={viewOptions}
           filterOption={(searchValue, option) => {
             const { value } = option;
             const { name } = _.find(views, { viewId: value }) || {};
@@ -227,74 +236,61 @@ function Setting(props) {
           onChange={value => {
             setComponentConfig({ viewId: value });
           }}
-        >
-          {views.map(view => (
-            <Select.Option className="selectOptionWrapper" key={view.viewId} value={view.viewId}>
-              <div className="valignWrapper h100">
-                <span className="Font13 ellipsis">{view.name}</span>
-              </div>
-            </Select.Option>
-          ))}
-        </Select>
+        />
       </div>
       <div className="mBottom16">
         <div className="mBottom12">{_l('图片')}</div>
         <Select
-          className={cx('customPageSelect w100', { Red: image && !_.find(controls, { controlId: image }) })}
+          className={cx('w100', { Red: image && !_.find(controls, { controlId: image }) })}
           value={image ? (_.find(controls, { controlId: image }) ? image : _l('字段已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择字段')}
           notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          options={imageOptions}
           onChange={value => {
             setComponentConfig({ image: value });
           }}
-        >
-          {controls
-            .filter(c => [14, 47].includes(c.type))
-            .map(c => (
-              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
-                <div className="valignWrapper h100">
-                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
-                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-                </div>
-              </Select.Option>
-            ))}
-        </Select>
+        />
       </div>
       <div className="mBottom16">
         <div className="mBottom12">{_l('展示图片')}</div>
         <div className="mBottom8">
           <Radio
-            text={_l('全部')}
             checked={!config.displayMode || config.displayMode === 0}
-            onClick={() => {
-              setConfig({ displayMode: 0 });
+            onChange={() => {
+              setConfig({
+                displayMode: 0,
+              });
             }}
-          />
+            title={_l('全部')}
+          >
+            {_l('全部')}
+          </Radio>
         </div>
         <div>
           <Radio
-            text={_l('每条记录第一张')}
             checked={config.displayMode === 1}
-            onClick={() => {
-              setConfig({ displayMode: 1 });
+            onChange={() => {
+              setConfig({
+                displayMode: 1,
+              });
             }}
-          />
+            title={_l('每条记录第一张')}
+          >
+            {_l('每条记录第一张')}
+          </Radio>
         </div>
       </div>
       <div>
         <div className="mBottom10">{_l('最多显示图片数量')}</div>
-        <div className="selectCountWrapper">
-          <SelectCount
-            maxCount={20}
-            minCount={1}
-            count={count}
-            onChange={value => {
-              setComponentConfig({ count: value });
-            }}
-          />
-        </div>
+        <InputNumber
+          min={1}
+          max={20}
+          style={{ width: 100 }}
+          value={count}
+          onChange={value => value !== null && setComponentConfig({ count: value })}
+        />
       </div>
       <Divider className="mTop15 mBottom15" />
       <div className="Font14 bold mBottom15">{_l('轮播图设置')}</div>
@@ -304,44 +300,37 @@ function Setting(props) {
             <div className="flex">
               <div className="mBottom8">{_l('填充方式')}</div>
               <Select
-                className="customPageSelect w100 fillSelect"
+                className="w100 fillSelect"
                 value={config.fill}
                 suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+                options={fillOptions}
                 onChange={value => {
                   setConfig({ fill: value });
                 }}
-              >
-                {fillType.map(data => (
-                  <Select.Option className="selectOptionWrapper" key={data.value} value={data.value}>
-                    <div className="valignWrapper h100">
-                      <span className="Font13 ellipsis">{data.name}</span>
-                    </div>
-                  </Select.Option>
-                ))}
-              </Select>
+              />
             </div>
             {config.fill === 2 && (
               <div className="flex mLeft10">
                 <div className="mBottom8">{_l('背景色')}</div>
                 <Select
-                  className="customPageSelect w100"
+                  className="w100"
                   value={config.fillColor}
                   suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                   getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+                  options={fillColorType.map(data => ({
+                    value: data.value,
+                    label: (
+                      <div className="valignWrapper h100">
+                        <FillColor $color={data.value} />
+                        <span className="mLeft5 Font13 ellipsis">{data.name}</span>
+                      </div>
+                    ),
+                  }))}
                   onChange={value => {
                     setConfig({ fillColor: value });
                   }}
-                >
-                  {fillColorType.map(data => (
-                    <Select.Option className="selectOptionWrapper" key={data.value} value={data.value}>
-                      <div className="valignWrapper h100">
-                        <FillColor color={data.value} />
-                        <span className="mLeft5 Font13 ellipsis">{data.name}</span>
-                      </div>
-                    </Select.Option>
-                  ))}
-                </Select>
+                />
               </div>
             )}
           </div>
@@ -350,64 +339,43 @@ function Setting(props) {
       <div className="mBottom16">
         <div className="mBottom8">{_l('标题')}</div>
         <Select
-          className={cx('customPageSelect w100', { Red: title && !_.find(controls, { controlId: title }) })}
+          className={cx('w100', { Red: title && !_.find(controls, { controlId: title }) })}
           value={title ? (_.find(controls, { controlId: title }) ? title : _l('字段已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-          allowClear={true}
-          clearIcon={<Icon icon="cancel" className="textDisabled Font20" />}
+          allowClear={SELECT_ALLOW_CLEAR}
           placeholder={_l('请选择文本字段')}
           notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          options={textControlOptions}
           onChange={value => {
             setComponentConfig({ title: value });
           }}
-        >
-          {controls
-            .filter(c => [2, 32].includes(c.type))
-            .map(c => (
-              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
-                <div className="valignWrapper h100">
-                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
-                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-                </div>
-              </Select.Option>
-            ))}
-        </Select>
+        />
       </div>
       <div className="mBottom16">
         <div className="mBottom8">{_l('摘要')}</div>
         <Select
-          className={cx('customPageSelect w100', { Red: subTitle && !_.find(controls, { controlId: subTitle }) })}
+          className={cx('w100', { Red: subTitle && !_.find(controls, { controlId: subTitle }) })}
           value={subTitle ? (_.find(controls, { controlId: subTitle }) ? subTitle : _l('字段已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择文本字段')}
-          allowClear={true}
-          clearIcon={<Icon icon="cancel" className="textDisabled Font20" />}
+          allowClear={SELECT_ALLOW_CLEAR}
           notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          options={textControlOptions}
           onChange={value => {
             setComponentConfig({ subTitle: value });
           }}
-        >
-          {controls
-            .filter(c => [2, 32].includes(c.type))
-            .map(c => (
-              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
-                <div className="valignWrapper h100">
-                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
-                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-                </div>
-              </Select.Option>
-            ))}
-        </Select>
+        />
       </div>
       <div className="mBottom16">
         <div className="mBottom8">{_l('点击图片时')}</div>
         <Select
-          className="customPageSelect w100"
+          className="w100"
           value={action}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          options={actionOptions}
           onChange={value => {
             const data = { action: value };
 
@@ -417,62 +385,35 @@ function Setting(props) {
 
             setComponentConfig(data);
           }}
-        >
-          {actionType.map(c => (
-            <Select.Option className="selectOptionWrapper" key={c.value} value={c.value}>
-              <div className="valignWrapper h100">
-                <span className="Font13 ellipsis">{c.name}</span>
-              </div>
-            </Select.Option>
-          ))}
-        </Select>
+        />
       </div>
       {action === 2 && (
         <Select
-          className="customPageSelect w100 mBottom16"
+          className="w100 mBottom16"
           value={url}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择文本字段')}
           notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          options={urlOptions}
           onChange={value => {
             setComponentConfig({ url: value });
           }}
-        >
-          {controls
-            .filter(c => c.type === 2)
-            .map(c => (
-              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
-                <div className="valignWrapper h100">
-                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
-                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-                </div>
-              </Select.Option>
-            ))}
-        </Select>
+        />
       )}
       {action !== 3 && (
         <div className="mBottom16">
           <div className="mBottom8">{_l('打开方式')}</div>
           <Select
-            className="customPageSelect w100 mBottom16"
+            className="w100 mBottom16"
             value={openMode}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+            options={openModeOptions}
             onChange={value => {
               setComponentConfig({ openMode: value });
             }}
-          >
-            {openModeType
-              .filter(data => (action === 2 ? [1, 2].includes(data.value) : true))
-              .map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                  <div className="valignWrapper h100">
-                    <span className="mLeft5 Font13 ellipsis">{item.name}</span>
-                  </div>
-                </Select.Option>
-              ))}
-          </Select>
+          />
         </div>
       )}
     </Wrap>

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { Input } from 'ming-ui/antd-components';
 import { updateWidget } from 'src/pages/customPage/redux/action';
 
 const Wrap = styled.div`
@@ -26,7 +27,6 @@ const Wrap = styled.div`
   }
   input {
     width: 100%;
-    border: none;
   }
 `;
 
@@ -47,10 +47,11 @@ const Subsection = props => {
   }, [edit]);
 
   return (
-    <Wrap className={cx('flexRow alignItemsCenter h100 Font20', { editWrap: edit })} ref={elementRef}>
+    <Wrap className={cx('flexRow alignItemsCenter h100', { editWrap: edit })} ref={elementRef}>
       {edit ? (
-        <input
-          className="disableDrag childrenDisableDrag"
+        <Input
+          variant="borderless"
+          className="Font20 bold disableDrag childrenDisableDrag"
           value={name}
           placeholder={_l('分段名称')}
           onChange={event => {
@@ -71,7 +72,7 @@ const Subsection = props => {
           }}
         />
       ) : (
-        <span className="ellipsis bold">{name}</span>
+        <span className="ellipsis Font20 bold">{name}</span>
       )}
     </Wrap>
   );

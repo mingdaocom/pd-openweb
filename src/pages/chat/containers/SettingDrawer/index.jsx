@@ -7,7 +7,8 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import accountSettingApi from 'src/api/accountSetting';
 import * as actions from 'src/pages/chat/redux/actions';
-import common from 'src/pages/Personal/common';
+import common from 'src/utils/domain/account/settings';
+import AuthAccess from './AuthAccess';
 import Base from './Base';
 import Toolbar from './Toolbar';
 
@@ -18,6 +19,14 @@ const Wrap = styled.div`
   }
   .content {
     min-width: 0;
+  }
+  .settingHeader {
+    padding: 20px 20px 0;
+  }
+  .settingContent {
+    padding: 0 20px 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   .navItem {
     font-size: 14px;
@@ -49,7 +58,7 @@ const Wrap = styled.div`
   .widthMaxContent {
     width: max-content;
   }
-  .RadioGroup--vertical .Radio {
+  .hap-radio-group-vertical .hap-radio-wrapper {
     margin-bottom: 10px;
   }
 `;
@@ -62,6 +71,10 @@ const navs = [
   {
     value: 'toolbar',
     name: _l('右侧栏'),
+  },
+  {
+    value: 'auth',
+    name: _l('授权与访问'),
   },
 ];
 
@@ -85,7 +98,7 @@ const handleSureSettings = (settingNum, value, successCallback) => {
 };
 
 const Setting = props => {
-  const { defaultNavType, onClose, setToolbarConfig } = props;
+  const { defaultAuthTab, defaultNavType, onClose, setToolbarConfig } = props;
   const [navType, setNavType] = useState(defaultNavType || navs[0].value);
   const [accountSettings, setAccountSettings] = useState({});
   const [loading, setLoading] = useState(true);
@@ -134,6 +147,7 @@ const Setting = props => {
         <div className="textPrimary bold Font22 pAll20">{_l('设置')}</div>
         {navs.map(nav => (
           <div
+            key={nav.value}
             className={cx('navItem pointer', { active: nav.value === navType })}
             onClick={() => setNavType(nav.value)}
           >
@@ -141,20 +155,23 @@ const Setting = props => {
           </div>
         ))}
       </div>
-      <div className="content flexColumn flex pAll20">
-        <div className="flexRow alignItemsCenter justifyContentRight">
+      <div className="content flexColumn flex minHeight0 overflowHidden">
+        <div className="settingHeader flexRow alignItemsCenter justifyContentRight">
           <Icon className="Font22 pointer textSecondary" icon="close" onClick={onClose} />
         </div>
-        {loading ? (
-          <div className="flexRow alignItemsCenter justifyContent flex">
-            <LoadDiv />
-          </div>
-        ) : (
-          <Fragment>
-            {navType === 'base' && <Base {...props} {...otherProps} />}
-            {navType === 'toolbar' && <Toolbar {...props} {...otherProps} />}
-          </Fragment>
-        )}
+        <div className="settingContent flexColumn flex minHeight0">
+          {loading ? (
+            <div className="flexRow alignItemsCenter justifyContent flex">
+              <LoadDiv />
+            </div>
+          ) : (
+            <Fragment>
+              {navType === 'base' && <Base {...props} {...otherProps} />}
+              {navType === 'auth' && <AuthAccess defaultAuthTab={defaultAuthTab} />}
+              {navType === 'toolbar' && <Toolbar {...props} {...otherProps} />}
+            </Fragment>
+          )}
+        </div>
       </div>
     </Wrap>
   );

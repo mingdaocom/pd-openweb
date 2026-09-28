@@ -4,14 +4,14 @@ import { bindActionCreators } from 'redux';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import cx from 'classnames';
-import { get, max, throttle } from 'lodash';
+import { throttle } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { getEnumType, getLayout, getMaxLayoutHeight } from 'src/utils/domain/customPage/model';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
 import { COLUMN_HEIGHT } from '../../config';
 import * as actions from '../../redux/action';
-import { getEnumType, getLayout } from '../../util';
 import WidgetDisplay from './WidgetDisplay';
 import WidgetTools from './WidgetTools';
 import WidthProvider from './widthProvider';
@@ -139,7 +139,6 @@ export const LayoutContent = styled.div`
     margin-bottom: 8px;
     font-size: 16px;
     input {
-      border: none;
       height: 32px;
       line-height: 32px;
       background: transparent;
@@ -147,15 +146,8 @@ export const LayoutContent = styled.div`
       max-width: 100%;
       width: 100%;
       box-sizing: border-box;
-      transition: width border-bottom 0.2s;
+      transition: width 0.2s;
       padding-right: 16px;
-      font-size: 16px;
-      &::placeholder {
-        color: var(--color-text-disabled);
-      }
-      &:focus {
-        border-bottom: 2px solid var(--color-primary);
-      }
     }
   }
   .titleSign {
@@ -228,7 +220,8 @@ function WidgetContent(props) {
     const config = LAYOUT_CONFIG[layoutType];
     const $wrap = document.getElementById('componentsWrap');
     if (layoutType !== 'web' || !adjustScreen || !$wrap) return config;
-    const maxH = max(components.map(item => get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
+    const maxH = getMaxLayoutHeight(components);
+    if (!maxH) return config;
     return { ...config, rowHeight: ((isFullscreen ? window.screen.height : $wrap.offsetHeight) - 10) / maxH - 10 };
   };
 
@@ -247,7 +240,7 @@ function WidgetContent(props) {
         isResizable={editable}
         isFullscreen={isFullscreen}
         layoutType={layoutType}
-        draggableCancel=".disableDrag,.chartWrapper .drag,.mui-dialog-container"
+        draggableCancel=".disableDrag,.chartWrapper .drag,.hap-modal-wrap"
         onResizeStart={() => {
           document.body.classList.add('pageNoSelect');
         }}

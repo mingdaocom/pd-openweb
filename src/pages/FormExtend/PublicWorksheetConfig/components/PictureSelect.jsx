@@ -16,14 +16,14 @@ const Pic = styled.div`
   margin-right: 6px;
   background-size: cover !important;
   background-color: rgba(0, 0, 0, 0.4) !important;
-  :nth-child(6n) {
+  &:nth-child(6n) {
     margin-right: 0px;
   }
   .picMask,
   .icon {
     visibility: hidden;
   }
-  :hover {
+  &:hover {
     .picMask {
       visibility: visible;
     }
@@ -56,11 +56,11 @@ const PageCon = styled.div`
   padding: 3px 5px;
 `;
 const Page = styled.div(
-  ({ active }) => `
+  ({ $active }) => `
   width: 8px;
   height: 8px;
   border-radius: 6px;
-  background: ${active ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'};
+  background: ${$active ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'};
   vertical-align: middle;
 `,
 );
@@ -105,7 +105,7 @@ export default class extends React.Component {
                 this.setState({ pageIndex: i });
               }}
             >
-              <Page active={i === pageIndex} />
+              <Page $active={i === pageIndex} />
             </PageCon>
           ))}
         </Pages>

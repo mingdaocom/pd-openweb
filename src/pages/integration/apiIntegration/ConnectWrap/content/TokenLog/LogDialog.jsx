@@ -5,7 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 
 const TABLIST = ['请求参数', '返回值'];
@@ -84,10 +84,12 @@ export default function LogDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       className=""
-      width="740"
-      visible={true}
+      width={740}
+      open
+      mask={{ closable: true }}
+      keyboard
       title={props.title ? props.title : _l('查看 API 请求日志详情')}
       footer={null}
       onCancel={props.onCancel}
@@ -150,6 +152,6 @@ export default function LogDialog(props) {
           </React.Fragment>
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Dropdown, RadioGroup } from 'ming-ui';
-import { formatControlsToDropdown } from 'src/pages/widgetConfig/util/index.js';
+import { Radio, Select } from 'ming-ui/antd-components';
+import { formatControlsToDropdown } from 'src/utils/domain/control/filters';
 
 //可搜索的字段仅支持文本类型字段（文本、号码、邮箱、证件、自动编号、文本组合）
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const ConfigWrap = styled.div`
   .lineBox {
@@ -24,7 +25,7 @@ const ConfigWrap = styled.div`
     .title {
       width: 80px;
     }
-    .ming RadioGroup {
+    .hap-radio-group {
       line-height: 36px;
     }
   }
@@ -32,9 +33,6 @@ const ConfigWrap = styled.div`
     font-weight: 400;
     font-size: 13px;
     margin-top: 24px;
-  }
-  .ming.Dropdown {
-    background-color: transparent;
   }
 `;
 
@@ -49,23 +47,22 @@ export default function SearchConfig(props) {
     navsearchcontrol: data.navsearchcontrol,
   });
   useEffect(() => {
-    const { data } = props;
     setState({
       navsearchtype: data.navsearchtype || '0', //0或者空 模糊匹配 1：精确搜索
       navsearchcontrol: data.navsearchcontrol,
     });
-  }, [props]);
+  }, [data, setState]);
   return (
     <ConfigWrap>
       <div className="lineBox"></div>
       <div className="title pTop0">{_l('搜索设置')}</div>
       <div className="settingTitle">{_l('字段')}</div>
-      <Dropdown
-        border
-        isAppendToBody
+      <Select
         value={!navsearchcontrol ? undefined : navsearchcontrol}
-        data={searchableControls}
-        cancelAble
+        options={searchableControls}
+        className="w100 mTop8"
+        fieldNames={SELECT_FIELD_NAMES}
+        allowClear
         onChange={value => {
           if (value == navsearchcontrol) {
             return;
@@ -77,19 +74,23 @@ export default function SearchConfig(props) {
       {navsearchcontrol && (
         <div className="configItem">
           <div className="settingTitle">{_l('搜索方式')}</div>
-          <RadioGroup
-            checkedValue={navsearchtype}
+          <Radio.Group
+            value={navsearchtype}
             className="mTop8"
-            data={[
+            options={[
               { value: '1', text: _l('精确搜索') },
               { value: '0', text: _l('模糊搜索') },
-            ]}
-            onChange={value => {
+            ].map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
               if (value == navsearchtype) {
                 return;
               }
 
-              onChange({ navsearchtype: value });
+              onChange({
+                navsearchtype: value,
+              });
             }}
           />
         </div>

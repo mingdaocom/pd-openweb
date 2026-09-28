@@ -12,35 +12,35 @@ import moment from 'moment';
 import { Icon, LoadDiv } from 'ming-ui';
 import autoSize from 'ming-ui/components/AutoSize';
 import worksheetAjax from 'src/api/worksheet';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
-import { permitList } from 'src/pages/FormSet/config';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
-import { handleRecordClick } from 'src/utils/record';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isTimeStyle } from 'src/utils/domain/control/type';
+import { SYS_CONTROLS_WORKFLOW } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { getSheetOperateButtonIds, getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { getCalendartypeData, getTimeControls, isIllegalFormat } from 'src/utils/services/worksheet/calendar';
 import SelectField from '../components/SelectField';
 import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
-import { eventDidMount } from './CalendarEvent';
+import { eventDidMount, eventWillUnmount } from './CalendarEvent';
 import CalendarIds from './CalendarIds';
-import { CALENDAR_BUTTON_TEXT, CALENDAR_VIEW_FORMATS, TAB_LIST } from './constants';
+import { CALENDAR_BUTTON_TEXT, getCalendarViewFormats, TAB_LIST } from './constants';
 import External from './External';
 import { Wrap, WrapNum } from './styles';
-import { getCalendartypeData, getRows, getShowExternalData, isIllegalFormat } from './util';
 import {
   changeEndStr,
   formatTimeForSave,
   getCanCreateRecord,
   getCurrentView,
-  getTimeControls,
+  getRows,
+  getShowExternalData,
   renderLine,
   resetFcEventDraggingPoint,
   setShowTip,
@@ -377,6 +377,7 @@ class RecordCalendarBase extends Component {
     const { calendarInfo = [] } = calendarData;
     return (
       <CalendarIds
+        openAddRecord={this.props.openAddRecord}
         item={item}
         calendarInfo={calendarInfo}
         {..._.cloneDeep(this.state)}
@@ -425,6 +426,8 @@ class RecordCalendarBase extends Component {
       weekbegin,
       showall = '0',
     } = getAdvanceSetting(currentView);
+
+    const weekBegin = weekbegin ? Number(weekbegin) % 7 : 1;
 
     try {
       calendarcids = JSON.parse(calendarcids);
@@ -602,7 +605,7 @@ class RecordCalendarBase extends Component {
                 resetFcEventDraggingPoint();
               }}
               eventDragStop={() => this.setState({ isMove: false })}
-              views={CALENDAR_VIEW_FORMATS}
+              views={getCalendarViewFormats(weekBegin)}
               dayCellContent={item => {
                 return (
                   <React.Fragment>
@@ -674,7 +677,7 @@ class RecordCalendarBase extends Component {
                       })
               } // 隐藏周几
               editable={true}
-              firstDay={weekbegin ? Number(weekbegin) % 7 : 1} // 周一至周六为1～6，周日为0
+              firstDay={weekBegin} // 周一至周六为1～6，周日为0
               slotLabelFormat={{
                 hour: '2-digit',
                 minute: '2-digit',
@@ -715,6 +718,7 @@ class RecordCalendarBase extends Component {
                   () => this.props.buttonsCheckStatus,
                 )
               }
+              eventWillUnmount={eventWillUnmount}
               eventDrop={info => {
                 let endData = _.get(info, ['event', 'extendedProps', 'endData']) || {};
                 let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
@@ -947,9 +951,10 @@ const RecordCalendar = autoSize(RecordCalendarBase);
 
 // 包装组件，用于在日历视图中获取记录卡片按钮状态
 const RecordCalendarWrapper = props => {
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
   const { base = {}, views = [], calendarview = {}, sheetButtons, printList, sheetSwitchPermit } = props;
   const { viewId, worksheetId } = base;
-  const currentView = views.find(o => o.viewId === viewId) || {};
+  const currentView = useMemo(() => views.find(o => o.viewId === viewId) || {}, [views, viewId]);
   const { calendarFormatData = [] } = calendarview;
 
   // 获取所有记录 ID
@@ -971,7 +976,12 @@ const RecordCalendarWrapper = props => {
   // 获取按钮状态
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
 
-  return <RecordCalendar {...props} buttonsCheckStatus={buttonsCheckStatus} />;
+  return (
+    <React.Fragment>
+      {addRecordHolder}
+      <RecordCalendar {...props} openAddRecord={openAddRecord} buttonsCheckStatus={buttonsCheckStatus} />
+    </React.Fragment>
+  );
 };
 
 export default connect(

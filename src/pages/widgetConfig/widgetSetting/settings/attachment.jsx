@@ -1,21 +1,20 @@
 import React, { Fragment } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { AnimationWrap, DisplayMode, SettingItem } from '../../styled';
+import { Icon } from 'ming-ui';
+import { Checkbox, Input, Segmented, Select, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DisplayMode, SettingItem } from '../../styled';
 import { SectionItem } from '../components/SplitLineConfig/style';
 import WidgetVerify from '../components/WidgetVerify';
 
-const SORT_TYPE = [
-  { value: 1, text: _l('新的在前') },
-  { value: 2, text: _l('旧的在前') },
+const SORT_TYPE_OPTIONS = [
+  { value: 1, label: _l('新的在前') },
+  { value: 2, label: _l('旧的在前') },
   {
     value: 3,
-    subText: _l('自定义'),
-    text: (
+    label: _l('自定义'),
+    content: (
       <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
         <span>{_l('自定义')}</span>
         <Tooltip title={_l('附件默认旧文件在前，可拖拽调整顺序，但新上传文件仍会按默认规则排序')} placement="bottom">
@@ -26,9 +25,36 @@ const SORT_TYPE = [
   },
 ];
 
-const FILL_TYPE = [
-  { value: '0', text: _l('填满') },
-  { value: '1', text: _l('完整显示') },
+const renderSortTypeOption = ({ data: option }) => option.content || option.label;
+const DISABLED_FILE_TYPE_SELECT_STYLES = { content: { color: 'var(--color-text-primary)' } };
+const CUSTOM_FILE_EXTENSION_REGEXP = /^[0-9A-Z_]+$/i;
+
+export const parseCustomFileTypeInput = inputValue => {
+  const normalizedInput = inputValue.replace(/，/g, ',');
+
+  if (!normalizedInput) return [];
+
+  const extensions = normalizedInput.split(',').map(extension => extension.trim());
+  const lastIndex = extensions.length - 1;
+
+  if (
+    extensions.some(
+      (extension, index) =>
+        (!extension && index !== lastIndex) || (extension && !CUSTOM_FILE_EXTENSION_REGEXP.test(extension)),
+    )
+  ) {
+    return null;
+  }
+
+  return extensions;
+};
+
+export const normalizeCustomFileTypes = values =>
+  _.uniqBy(values.map(value => value.trim()).filter(Boolean), value => value.toLowerCase());
+
+const getFillTypeOptions = () => [
+  { value: '0', label: _l('填满') },
+  { value: '1', label: _l('完整显示') },
 ];
 
 const DISPLAY_TYPE = [
@@ -39,22 +65,26 @@ const DISPLAY_TYPE = [
 ];
 
 const FILE_TYPE = [
-  { value: '', text: _l('不限制') },
+  { value: '', label: _l('不限制') },
   {
     value: '1',
-    text: _l('图片'),
+    label: _l('图片'),
     desc: _l('支持上传JPG、JPEG、PNG、Gif、WebP、Tiff、bmp、HEIC、HEIF格式的文件（在附件中支持预览）'),
   },
-  { value: '2', text: _l('文档'), desc: _l('支持除图片、音频、视频以外的文件') },
+  { value: '2', label: _l('文档'), desc: _l('支持除图片、音频、视频以外的文件') },
   {
     value: '3',
-    text: _l('音频'),
+    label: _l('音频'),
     desc: _l('支持WAV、FLAC、APE、ALAC、WavPack、MP3、M4a、AAC、Ogg Vorbis、Opus、Au、MMF、AIF格式的文件'),
   },
-  { value: '4', text: _l('视频'), desc: _l('支持MP4、AVI、MOV、WMV、MKV、FLV、F4V、SWF、RMVB、MPG格式的文件') },
+  {
+    value: '4',
+    label: _l('视频'),
+    desc: _l('支持MP4、AVI、MOV、WMV、MKV、FLV、F4V、SWF、RMVB、MPG格式的文件'),
+  },
   {
     value: '0',
-    text: _l('自定义'),
+    label: _l('自定义'),
     desc: _l('请输入自定义的文件扩展名，多个请用英文逗号隔开，不区分大小写。如：xls,doc,pdf'),
   },
 ];
@@ -64,6 +94,7 @@ export default function Attachment(props) {
   const { enumDefault, advancedSetting = {} } = data;
   const { covertype = '0', showtype = '1' } = getAdvanceSetting(data);
   const { type = '', values = [] } = JSON.parse(advancedSetting.filetype || '{}');
+  const isFileTypeDisabled = type === '1' && showtype === '4';
   const desc = _.get(
     _.find(FILE_TYPE, i => i.value === type),
     'desc',
@@ -110,34 +141,37 @@ export default function Attachment(props) {
       {showtype === '1' && (
         <SectionItem>
           <div className="label Width100">{_l('填充方式')}</div>
-          <AnimationWrap className="flex">
-            {FILL_TYPE.map(item => (
-              <div
-                className={cx('animaItem', { active: covertype === item.value })}
-                onClick={() => {
-                  onChange(handleAdvancedSettingChange(data, { covertype: item.value }));
-                }}
-              >
-                {item.text}
-              </div>
-            ))}
-          </AnimationWrap>
+          <Segmented
+            block
+            className="flex"
+            value={covertype}
+            options={getFillTypeOptions()}
+            onChange={value => onChange(handleAdvancedSettingChange(data, { covertype: value }))}
+          />
         </SectionItem>
       )}
       <Checkbox
-        size="small"
         className="mTop16"
         checked={showfilename === '1'}
-        text={_l('在单元格中显示文件名')}
-        onClick={checked => onChange(handleAdvancedSettingChange(data, { showfilename: String(+!checked) }))}
-      />
+        onChange={event =>
+          onChange(
+            handleAdvancedSettingChange(data, {
+              showfilename: String(+event.target.checked),
+            }),
+          )
+        }
+        size="small"
+      >
+        {_l('在单元格中显示文件名')}
+      </Checkbox>
 
       <SettingItem>
         <div className="settingItemTitle">{_l('文件类型')}</div>
-        <Dropdown
-          border
-          data={FILE_TYPE}
-          disabled={type === '1' && showtype === '4'}
+        <Select
+          className="w100"
+          options={FILE_TYPE}
+          disabled={isFileTypeDisabled}
+          styles={isFileTypeDisabled ? DISABLED_FILE_TYPE_SELECT_STYLES : undefined}
           value={type}
           onChange={value => {
             onChange({
@@ -160,8 +194,26 @@ export default function Attachment(props) {
             style={{ marginTop: '12px' }}
             value={values.join(',')}
             onChange={e => {
-              const values = e.target.value ? e.target.value.replace(/，/g, ',').split(',') : [];
-              onChange(handleAdvancedSettingChange(data, { filetype: JSON.stringify({ type: '0', values }) }));
+              const nextValues = parseCustomFileTypeInput(e.target.value);
+
+              if (!nextValues) return;
+
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  filetype: JSON.stringify({ type: '0', values: nextValues }),
+                }),
+              );
+            }}
+            onBlur={() => {
+              const nextValues = normalizeCustomFileTypes(values);
+
+              if (_.isEqual(values, nextValues)) return;
+
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  filetype: JSON.stringify({ type: '0', values: nextValues }),
+                }),
+              );
             }}
           />
         )}
@@ -169,14 +221,10 @@ export default function Attachment(props) {
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('排序')}</div>
-        <Dropdown
-          border
-          showItemTitle={false}
-          data={SORT_TYPE}
-          renderTitle={selectData => {
-            const selectOption = _.find(SORT_TYPE, s => s.value === selectData.value) || {};
-            return selectOption.subText || selectOption.text;
-          }}
+        <Select
+          className="w100"
+          options={SORT_TYPE_OPTIONS}
+          optionRender={renderSortTypeOption}
           value={enumDefault || 3}
           onChange={value => onChange({ enumDefault: value })}
         />

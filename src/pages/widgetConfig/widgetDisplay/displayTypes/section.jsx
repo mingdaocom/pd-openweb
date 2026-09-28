@@ -1,8 +1,8 @@
 import React from 'react';
 import _, { isEmpty } from 'lodash';
 import styled from 'styled-components';
+import { putControlByOrder } from 'src/utils/domain/control/editorLayout';
 import { DRAG_ACCEPT } from '../../config/Drag';
-import { putControlByOrder } from '../../util';
 import BottomDragPointer from '../components/BottomDragPointer';
 import RowItem from '../rowItem';
 

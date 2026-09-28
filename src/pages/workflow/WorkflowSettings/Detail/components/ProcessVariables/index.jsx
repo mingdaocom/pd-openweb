@@ -2,9 +2,12 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { v4 as uuidv4, validate } from 'uuid';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Select } from 'ming-ui/antd-components';
 import { FIELD_TYPE_LIST } from '../../../enum';
 import './index.less';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const getDefaultParameters = () => {
   return {
@@ -98,22 +101,20 @@ export default props => {
 
         return (
           <div key={index} className={cx('flexRow mTop12 relative', { pLeft20: item.dataSource })}>
-            <Dropdown
+            <Select
               style={{ width: item.dataSource ? 100 : 120 }}
-              menuStyle={{ width: '100%' }}
-              data={FIELD_TYPE_LIST.filter(
+              options={FIELD_TYPE_LIST.filter(
                 o =>
                   _.includes([2, 6, 16, 10000007, 26, 27, 48], o.value) || (!item.dataSource && o.value === 10000008),
               )}
+              fieldNames={SELECT_FIELD_NAMES}
               value={item.type}
               disabled={!validate(item.controlId)}
-              border
               onChange={type => updateControls('type', type, item)}
             />
 
-            <input
-              type="text"
-              className="flex mLeft15 processConfigInput"
+            <Input
+              className="flex mLeft15"
               value={item.controlName}
               maxLength={64}
               onChange={e => updateControls('controlName', e.target.value, item)}
@@ -128,9 +129,8 @@ export default props => {
               }}
             />
 
-            <input
-              type="text"
-              className="flex mLeft15 processConfigInput"
+            <Input
+              className="flex mLeft15"
               value={item.desc}
               onChange={e => updateControls('desc', e.target.value, item)}
               onBlur={evt => updateControls('desc', evt.target.value.trim(), item)}

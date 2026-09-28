@@ -1,17 +1,20 @@
 import React, { useRef, useState } from 'react';
+import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import MobileCardCellControl from 'src/components/MobileCardCellControls/MobileCardCellControl';
-import { controlState, getControlStyles } from 'src/utils/control';
+import { MobileConfirmPopup } from 'ming-ui/antd-mobile-components';
+import { controlState } from 'src/utils/domain/control/state';
+import { getControlStyles } from 'src/utils/domain/control/style';
 import { updateRulesData } from '../../../core/formUtils/updateRulesData';
+import MobileCardCellControl from '../MobileCardCellControls/MobileCardCellControl';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
     display: grid !important;
-    grid-template-columns: ${({ columnTemplate }) => columnTemplate};
+    grid-template-columns: ${({ $columnTemplate }) => $columnTemplate};
     gap: 10px;
     align-items: center;
     margin-bottom: 0;
@@ -44,8 +47,14 @@ const MobileTableContent = styled.div`
   }
   .tableIndex {
     width: 24px !important;
-    .icon-trash {
+    .icon {
       margin-left: 0;
+    }
+  }
+  .batchSelectCheckbox {
+    --icon-size: 18px;
+    .adm-checkbox-icon {
+      border-radius: 2px;
     }
   }
   .mobileTableItem {
@@ -68,14 +77,14 @@ const MobileTableContent = styled.div`
   .listRow {
     width: 100%;
     min-height: 44px;
-    padding: 4px 12px;
+    padding: 8px 15px;
     border-bottom: 1px solid var(--color-border-secondary);
     background: var(--color-background-primary);
     cursor: pointer;
     gap: 10px;
     display: grid;
     align-items: center;
-    grid-template-columns: ${({ columnTemplate }) => columnTemplate};
+    grid-template-columns: ${({ $columnTemplate }) => $columnTemplate};
   }
   .listRow:last-child {
     border-bottom: none;
@@ -117,7 +126,7 @@ const MobileTableContent = styled.div`
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
-  ${({ controlStyles }) => controlStyles || ''}
+  ${({ $controlStyles }) => $controlStyles || ''}
 `;
 
 export default function MobileTable(props) {
@@ -140,15 +149,21 @@ export default function MobileTable(props) {
     useUserPermission,
     recordId,
     showExpand,
+    showHeader = true,
     appId,
     control,
     cellErrors = {},
+    isRelateRecordTable,
+    isBatchOperate,
+    onSelectRow = () => {},
+    selectedRowIds = [],
     onSave = () => {},
     submitChildTableCheckData = () => {},
   } = props;
 
   const defaultMaxLength = 10;
   const [maxShowLength, setMaxShowLength] = useState(defaultMaxLength);
+  const [removeRelationRowId, setRemoveRelationRowId] = useState();
   const timerRef = useRef(null);
 
   const showRows = isEdit || showExpand ? rows : rows.slice(0, maxShowLength);
@@ -175,7 +190,10 @@ export default function MobileTable(props) {
       showRows,
       row => /^temp/.test(row.rowid) || (allowcancel && (useUserPermission && !!recordId ? row.allowdelete : true)),
     ) > -1;
-  const columnTemplate = `${isEdit && !disabled && showHeaderDelete ? '22px ' : ''}${fieldColumnTemplate || 'minmax(0, 1fr)'} 18px`;
+  const showSelection = isRelateRecordTable && isBatchOperate;
+  const columnTemplate = `${showSelection || (isEdit && !disabled && showHeaderDelete) ? '22px ' : ''}${
+    fieldColumnTemplate || 'minmax(0, 1fr)'
+  } 18px`;
 
   const isShowAll = maxShowLength === rows.length;
 
@@ -202,12 +220,28 @@ export default function MobileTable(props) {
   const showEmpty = () =>
     !isEdit && _.isEmpty(rows) && <div className="textTertiary mTop15 bold">{_l('暂无记录')}</div>;
 
+  if (!showHeader) {
+    return isEdit ? null : (
+      <MobileTableContent $controlStyles={getControlStyles(showControls)} $columnTemplate={columnTemplate}>
+        <div className="textTertiary mTop15 bold">{_l('暂无记录')}</div>
+      </MobileTableContent>
+    );
+  }
+
+  if (!isEdit && _.isEmpty(rows)) {
+    return (
+      <MobileTableContent $controlStyles={getControlStyles(showControls)} $columnTemplate={columnTemplate}>
+        {showEmpty()}
+      </MobileTableContent>
+    );
+  }
+
   // 列表
   return (
-    <MobileTableContent controlStyles={getControlStyles(showControls)} columnTemplate={columnTemplate}>
+    <MobileTableContent $controlStyles={getControlStyles(showControls)} $columnTemplate={columnTemplate}>
       <div className={`listCard ${showRows.length ? '' : 'noBorderBottom'}`}>
         <div className="mobileTableHeader flexRow valignWrapper bold">
-          {!_.isEmpty(showRows) && isEdit && !disabled && showHeaderDelete && (
+          {!_.isEmpty(showRows) && (showSelection || (isEdit && !disabled && showHeaderDelete)) && (
             <div className="mobileTableItem tableIndex"></div>
           )}
           {showControls.map((c, cIndex) => (
@@ -224,17 +258,41 @@ export default function MobileTable(props) {
             return (
               <div
                 className={cx('listRow', {
-                  withDelete: isEdit && !disabled && allowDelete,
+                  withDelete: showSelection || (isEdit && !disabled && allowDelete),
                   errorRow: _.some(controls, v => cellErrors[row.rowid + '-' + v.controlId]),
                 })}
                 key={i}
               >
-                {isEdit && !disabled && allowDelete && (
+                {showSelection ? (
                   <div className="tableIndex">
-                    <div className="action" onClick={() => onDelete(row.rowid)}>
-                      <i className="icon icon-trash Font16 Red"></i>
-                    </div>
+                    <Checkbox
+                      className="batchSelectCheckbox"
+                      checked={selectedRowIds.includes(row.rowid)}
+                      onClick={event => event.stopPropagation()}
+                      onChange={selected => onSelectRow(row.rowid, selected)}
+                    />
                   </div>
+                ) : (
+                  isEdit &&
+                  !disabled &&
+                  allowDelete && (
+                    <div className="tableIndex">
+                      <div
+                        className="action"
+                        onClick={() => {
+                          if (isRelateRecordTable) {
+                            setRemoveRelationRowId(row.rowid);
+                          } else {
+                            onDelete(row.rowid);
+                          }
+                        }}
+                      >
+                        <i
+                          className={cx('icon Font16 Red', isRelateRecordTable ? 'icon-link_Dismiss' : 'icon-trash')}
+                        ></i>
+                      </div>
+                    </div>
+                  )
                 )}
                 {showControls.map((c, cIndex) => {
                   const tableFormData = updateRulesData({
@@ -243,8 +301,12 @@ export default function MobileTable(props) {
                     data: controls.map(v => ({ ...v, value: row[v.controlId] })),
                   });
 
-                  const currentCell = _.find(tableFormData, v => v.controlId === c.controlId);
-                  c = { ...c, fieldPermission: currentCell.fieldPermission };
+                  const currentCell = _.find(tableFormData, v => v.controlId === c.controlId) || {};
+                  c = {
+                    ...c,
+                    fieldPermission: currentCell.fieldPermission || c.fieldPermission || '111',
+                    controlPermissions: c.controlPermissions || '111',
+                  };
 
                   const visible =
                     c.fieldPermission[0] === '1' && c.fieldPermission[2] === '1' && c.controlPermissions[0] === '1';
@@ -318,6 +380,21 @@ export default function MobileTable(props) {
       </div>
       {showEmpty()}
       {showAll()}
+      {isRelateRecordTable && (
+        <MobileConfirmPopup
+          confirmText={_l('取消关联')}
+          confirmType="delete"
+          title={_l('你确定要取消关联吗？')}
+          visible={removeRelationRowId !== undefined}
+          onCancel={() => setRemoveRelationRowId(undefined)}
+          onConfirm={() => {
+            const rowId = removeRelationRowId;
+
+            setRemoveRelationRowId(undefined);
+            onDelete(rowId);
+          }}
+        />
+      )}
     </MobileTableContent>
   );
 }
@@ -327,4 +404,9 @@ MobileTable.propTypes = {
   controls: PropTypes.arrayOf(PropTypes.shape({})),
   rows: PropTypes.arrayOf(PropTypes.shape({})),
   isEdit: PropTypes.bool,
+  isRelateRecordTable: PropTypes.bool,
+  isBatchOperate: PropTypes.bool,
+  onSelectRow: PropTypes.func,
+  selectedRowIds: PropTypes.arrayOf(PropTypes.string),
+  showHeader: PropTypes.bool,
 };

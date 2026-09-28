@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Checkbox } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { Button, Checkbox, Input } from 'ming-ui/antd-components';
 import agentAjax from 'src/api/agent';
 import orderController from 'src/api/order';
-import { pathCompletion } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getCurrentProject } from 'src/utils/services/project';
 import Config from '../../../config';
 import './style.less';
 
@@ -221,9 +221,10 @@ let ValueAddService = class ValueAddService extends Component {
                     );
                   })}
                   <li className={cx(isInput ? 'selectProduct' : '')}>
-                    <input
+                    <Input
                       type="text"
                       className="txtCustomPrice"
+                      variant="borderless"
                       placeholder={_l('请输入信用点')}
                       value={inputValue}
                       onFocus={this.handleInputFocus.bind(this)}
@@ -251,9 +252,9 @@ let ValueAddService = class ValueAddService extends Component {
                   )}
                 </div>
                 <div className="pTop30">
-                  <button type="button" className="ming Button Button--primary nextBtn" onClick={() => this.setStep(2)}>
+                  <Button type="primary" shape="round" onClick={() => this.setStep(2)}>
                     {_l('下一步')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -262,13 +263,9 @@ let ValueAddService = class ValueAddService extends Component {
                   <span className="mRight8">{_l('总计')}</span>
                   <span>￥{currentPrice}</span>
                 </div>
-                <button
-                  type="button"
-                  className="ming Button Button--link colorPrimary pAll0 hoverColorPrimaryLight"
-                  onClick={() => this.setStep(1)}
-                >
+                <Button color="primary" variant="link" onClick={() => this.setStep(1)}>
                   {_l('修改')}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -300,14 +297,9 @@ let ValueAddService = class ValueAddService extends Component {
               )}
             </div>
             <div className="pTop40">
-              <button
-                type="button"
-                disabled={isPay}
-                className="ming Button Button--primary nextBtn"
-                onClick={() => this.handlePay()}
-              >
+              <Button type="primary" shape="round" loading={isPay} onClick={() => this.handlePay()}>
                 {_l('确认下单')}
-              </button>
+              </Button>
             </div>
             <div className="warpNeedHelp">
               <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>

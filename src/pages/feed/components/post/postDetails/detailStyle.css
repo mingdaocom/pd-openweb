@@ -16,10 +16,6 @@
   font-size: 13px;
 }
 
-#postDetail .postOperatorList li {
-  display: block;
-  float: none;
-}
 #postDetail .detailActionItem {
   position: absolute;
   top: 82px;

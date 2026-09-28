@@ -1,4 +1,4 @@
-import React, { Fragment, lazy, Suspense, useEffect, useRef } from 'react';
+import React, { Fragment, lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
@@ -9,7 +9,6 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
-import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap/defaultConfig';
 import {
   deleteLinkageFiltersGroup,
@@ -17,19 +16,21 @@ import {
   updateLoading,
   updatePageInfo,
 } from 'src/pages/customPage/redux/action';
-import { CUSTOM_PAGE_IFRAME_ALLOW, enumWidgetType, updateLayout } from 'src/pages/customPage/util';
+import { CUSTOM_PAGE_IFRAME_ALLOW, updateLayout } from 'src/pages/customPage/util';
 import WebLayout from 'src/pages/customPage/webLayout';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
 import { deleteSheet, updateSheetList, updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
-import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile, emitter } from 'src/utils/common';
-import { addBehaviorLog } from 'src/utils/project';
-import { findSheet } from 'src/utils/worksheet';
+import { transferValue } from 'src/utils/domain/control/value';
+import { enumWidgetType } from 'src/utils/domain/customPage/model';
+import { findSheet } from 'src/utils/domain/worksheet/helpers';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getEmbedValue } from 'src/utils/services/app/embed';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { insertPortal, syncThemeConfig } from '../util';
 import CustomPageHeader from './CustomPageHeader';
-import 'rc-trigger/assets/index.css';
 
 const CustomPageEditor = lazy(() => import('src/pages/customPage'));
 
@@ -44,7 +45,6 @@ const CustomPageContentWrap = styled.div`
     width: 100%;
     height: 44px;
     padding: 0 24px 0 10px;
-    border-radius: 3px 3px 0 0;
     background-color: var(--color-background-card);
     box-shadow: var(--shadow-md);
     z-index: 1;
@@ -130,6 +130,8 @@ function CustomPageContent(props) {
     visible,
     adjustScreen,
     config,
+    imageUrl,
+    previewUrl,
     updatePageInfo,
     updateLoading,
     apk,
@@ -144,6 +146,7 @@ function CustomPageContent(props) {
   const ref = useRef(document.body);
   const configRef = useRef(config);
   const pageRequestRef = useRef(null);
+  const previousPageIdRef = useRef(id);
   const [show, toggle] = useToggle(false);
 
   const showFullscreen = () => {
@@ -152,10 +155,10 @@ function CustomPageContent(props) {
     window.parent.postMessage({ type: 'showFullscreen' }, md.global.Config.MarketUrl);
   };
 
-  const closeFullscreen = () => {
+  const closeFullscreen = useCallback(() => {
     document.body.classList.remove('customPageFullscreen');
     toggle(false);
-  };
+  }, [toggle]);
 
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
   const isMobile = browserIsMobile();
@@ -167,6 +170,54 @@ function CustomPageContent(props) {
   useEffect(() => {
     configRef.current = config;
   }, [config]);
+
+  const getPage = useCallback(() => {
+    if (_.isFunction(_.get(pageRequestRef, 'current.abort'))) {
+      pageRequestRef.current.abort();
+    }
+
+    const request = customApi.getPage({
+      appId: pageId,
+    });
+
+    pageRequestRef.current = request;
+    request
+      .then(
+        ({ components, desc, remark, apk, adjustScreen, urlParams, name, config, imageUrl, previewUrl, version }) => {
+          if (pageRequestRef.current !== request) return;
+
+          const componentsData = isMobile
+            ? components.filter(item => item.mobile.visible)
+            : updateLayout(components, config);
+          addBehaviorLog('customPage', pageId, {}, true);
+          updatePageInfo({
+            components: componentsData,
+            desc,
+            remark,
+            adjustScreen,
+            urlParams,
+            pageId,
+            apk: apk || {},
+            imageUrl,
+            previewUrl,
+            config: syncThemeConfig(
+              config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
+            ),
+            pageName: name,
+            filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
+            version,
+          });
+          if (window.shareState.shareId && !adjustScreen && className && className.includes('hideHeader')) {
+            document.body.classList.add('bodyScroll');
+          }
+        },
+      )
+      .finally(() => {
+        if (pageRequestRef.current !== request) return;
+        pageRequestRef.current = null;
+        updateLoading(false);
+      });
+  }, [className, isMobile, pageId, updateLoading, updatePageInfo]);
 
   useEffect(() => {
     const handler = value => {
@@ -180,13 +231,16 @@ function CustomPageContent(props) {
     return () => {
       emitter.removeListener('CHANGE_THEME_MODE', handler);
     };
-  }, []);
+  }, [updatePageInfo]);
 
   useEffect(() => {
-    if (id && isFullscreen) {
+    const pageChanged = previousPageIdRef.current !== id;
+    previousPageIdRef.current = id;
+
+    if (pageChanged && id && isFullscreen) {
       closeFullscreen();
     }
-  }, [id]);
+  }, [closeFullscreen, id, isFullscreen]);
 
   useEffect(() => {
     if (urlTemplate) {
@@ -209,50 +263,7 @@ function CustomPageContent(props) {
 
       updateLoading(true);
     };
-  }, [pageId]);
-
-  const getPage = () => {
-    if (_.isFunction(_.get(pageRequestRef, 'current.abort'))) {
-      pageRequestRef.current.abort();
-    }
-
-    const request = customApi.getPage({
-      appId: pageId,
-    });
-
-    pageRequestRef.current = request;
-    request
-      .then(({ components, desc, apk, adjustScreen, urlParams, name, config, version }) => {
-        if (pageRequestRef.current !== request) return;
-
-        const componentsData = isMobile
-          ? components.filter(item => item.mobile.visible)
-          : updateLayout(components, config);
-        addBehaviorLog('customPage', pageId, {}, true);
-        updatePageInfo({
-          components: componentsData,
-          desc,
-          adjustScreen,
-          urlParams,
-          pageId,
-          apk: apk || {},
-          config: syncThemeConfig(
-            config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
-          ),
-          pageName: name,
-          filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
-          version,
-        });
-        if (window.shareState.shareId && !adjustScreen && className && className.includes('hideHeader')) {
-          document.body.classList.add('bodyScroll');
-        }
-      })
-      .finally(() => {
-        if (pageRequestRef.current !== request) return;
-        pageRequestRef.current = null;
-        updateLoading(false);
-      });
-  };
+  }, [getPage, pageId, updateLoading, updatePageInfo, urlTemplate]);
 
   const resetPage = () => {
     updatePageInfo({ loadFilterComponentCount: 0 });
@@ -302,6 +313,8 @@ function CustomPageContent(props) {
         layoutType={isMobile ? 'mobile' : 'web'}
         adjustScreen={adjustScreen}
         config={config}
+        imageUrl={imageUrl}
+        previewUrl={previewUrl}
         appPkg={appPkg}
         className={cx('customPageContent', { isFullscreen })}
         from="display"
@@ -346,12 +359,15 @@ export default connect(
       'loading',
       'visible',
       'desc',
+      'remark',
       'adjustScreen',
       'urlParams',
       'apk',
       'pageName',
       'flag',
       'config',
+      'imageUrl',
+      'previewUrl',
       'version',
       'linkageFiltersGroup',
     ]),

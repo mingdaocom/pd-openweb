@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Textarea from 'ming-ui/components/Textarea';
-import { getCaretPosition, setCaretPosition } from 'src/utils/common';
+import { getCaretPosition, setCaretPosition } from 'src/utils/platform/browser/dom';
 import * as utils from '../../utils/';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
@@ -12,22 +12,29 @@ export default class TextareaBox extends Component {
     this.state = {
       value: this.props.value,
       propValue: this.props.value,
+      isComposing: false,
     };
     this.lastHeight = 50;
     this.currentHeight = 50;
     this.isComposing = false;
     this.compositionEndTime = 0;
+    this.lastReportedValue = this.props.value;
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.value !== prevState.propValue) {
       return {
-        value: nextProps.value,
         propValue: nextProps.value,
+        ...(prevState.isComposing ? {} : { value: nextProps.value }),
       };
     }
 
     return null;
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.value !== this.props.value) {
+      this.lastReportedValue = this.props.value;
+    }
   }
   isInputComposing(event) {
     return (
@@ -39,10 +46,25 @@ export default class TextareaBox extends Component {
   }
   handleCompositionStart() {
     this.isComposing = true;
+    this.setState({ isComposing: true });
   }
-  handleCompositionEnd() {
+  handleCompositionEnd(event) {
+    const nextValue = event.currentTarget?.value ?? $(this.textareaWrapper).find('textarea').val();
     this.compositionEndTime = Date.now();
     this.isComposing = false;
+    this.setState(
+      {
+        value: nextValue,
+        isComposing: false,
+      },
+      () => this.reportChange(nextValue),
+    );
+  }
+  reportChange(value) {
+    if (value === this.lastReportedValue) return;
+
+    this.lastReportedValue = value;
+    this.props.onChange(value);
   }
   handleKeyDown(event) {
     if (event.which === 13) {
@@ -84,9 +106,11 @@ export default class TextareaBox extends Component {
   }
   handleBlur() {
     const { value } = this.state;
-    this.props.onBlur(value || $(this.textareaWrapper).find('textarea').val());
+    const textareaValue = $(this.textareaWrapper).find('textarea').val();
+    // 旧 WebKit（包括 macOS 客户端 WKWebView）可能在清空后的 state 同步前触发失焦，以 DOM 实际值为准。
+    this.props.onBlur(textareaValue === undefined ? value : textareaValue);
   }
-  handleChange(value) {
+  handleChange(value, event) {
     const { session } = this.props;
     const height = $(this.textareaWrapper).height();
     const nextValue = value === undefined ? $(this.textareaWrapper).find('textarea').val() : value;
@@ -97,7 +121,10 @@ export default class TextareaBox extends Component {
     }
 
     this.setState({ value: nextValue });
-    this.props.onChange(nextValue);
+
+    if (!this.isComposing && !event?.nativeEvent?.isComposing) {
+      this.reportChange(nextValue);
+    }
 
     if (!this.isComposing && Date.now() - this.compositionEndTime > 100) {
       this.compositionEndTime = 0;

@@ -5,7 +5,8 @@ import { Icon } from 'ming-ui';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import projectSettingAjax from 'src/api/projectSetting';
 import roleApi from 'src/api/role';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import PaginationWrap from '../../../components/PaginationWrap';
 import CreateEditRole from '../createEditRole';
 import RoleDetail from '../roleDetail';
@@ -70,7 +71,7 @@ class RoleList extends React.Component {
       })
       .catch(errors => {
         this.setState({ isLoading: false });
-        alert(errors.errorMessage || _l('获取列表失败'), 2);
+        alertIfNotUnauthorized(errors, errors.errorMessage || _l('获取列表失败'), 2);
       });
   }
 
@@ -120,6 +121,7 @@ class RoleList extends React.Component {
 
         {drawer.visible && !drawer.type && (
           <RoleDetail
+            key={drawer.role.roleId}
             projectId={projectId}
             role={drawer.role}
             onClose={() => {
@@ -164,9 +166,9 @@ class RoleList extends React.Component {
 
     return (
       <div className="roleAuthTable">
-        <div className="w100 verticalTop">
+        <div className="roleListHeader w100 verticalTop">
           <div className="roleItem roleListTitle">
-            <div className="roleName">{_l('角色名称')}</div>
+            <div className="roleName">{_l('权限组名称')}</div>
             <div className="roleMembers">{_l('成员')}</div>
             <div className="roleAuth">{_l('权限')}</div>
             <div className="roleOperation">{_l('操作')}</div>
@@ -188,7 +190,7 @@ class RoleList extends React.Component {
                         className="colorPrimary mTop16 InlineBlock Hand"
                         onClick={() => this.setState({ showApplyRole: !showApplyRole })}
                       >
-                        {_l('申请角色权限')}
+                        {_l('申请权限组')}
                         <Icon className="mLeft6 Font16" icon={showApplyRole ? 'arrow-up' : 'arrow-down'} />
                       </div>
                       {showApplyRole && this.renderList(true)}

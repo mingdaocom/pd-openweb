@@ -5,7 +5,7 @@ import autoSize from 'ming-ui/components/AutoSize';
 import CellControl from 'worksheet/components/CellControls';
 
 const Wrap = styled.div(
-  ({ width }) => `
+  ({ $width }) => `
   .tableCon {
     border-top: 1px solid var(--color-background-disabled);
     overflow: auto;
@@ -13,7 +13,7 @@ const Wrap = styled.div(
     .itemCon {
       flex-grow: 0;
       flex-shrink: 0;
-      min-width: ${width > 200 ? width : 200}px;
+      min-width: ${$width > 200 ? $width : 200}px;
       border: 1px solid rgba(0, 0, 0, 0.09) !important;
       border-left: none !important;
       border-top: none !important;
@@ -66,7 +66,7 @@ function Table(props) {
   // const width = (props.width - 10 - 70) / props.controls.length;
   const width = (props.width - 20) / props.controls.length;
   return (
-    <Wrap className="h100 flex flexColumn alignItemsCenter" width={width}>
+    <Wrap className="h100 flex flexColumn alignItemsCenter" $width={width}>
       <div className="tableCon flex">
         {props.controls.length > 0 && (
           <div className="tableHeader flexRow">

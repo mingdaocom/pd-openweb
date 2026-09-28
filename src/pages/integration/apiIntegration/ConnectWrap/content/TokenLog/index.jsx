@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { ConfigProvider, Table } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv } from 'ming-ui';
-import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
+import { Icon, LoadDiv } from 'ming-ui';
+import { ConfigProvider, DatePicker, Select } from 'ming-ui/antd-components';
 import oauth2Ajax from 'src/pages/workflow/api/oauth2';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import { TableWrap } from 'src/pages/integration/apiIntegration/style';
 import LogDialog from './LogDialog.jsx';
+
+const isCompleteDateRange = range =>
+  Array.isArray(range) && range.length === 2 && range.every(date => moment.isMoment(date) && date.isValid());
 
 const Wrap = styled.div`
   width: 800px;
@@ -43,7 +46,7 @@ const Wrap = styled.div`
       margin: 80px auto 0;
     }
   }
-  .ant-table {
+  .hap-table {
     tr {
       display: flex;
     }
@@ -127,18 +130,7 @@ const Wrap = styled.div`
   }
   .filterTimeRange {
     width: 300px;
-    height: 36px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     min-width: 170px;
-    padding: 5px 8px;
-    border: 1px solid var(--color-border-primary);
-    border-radius: 3px;
-    &:hover {
-      border: 1px solid var(--color-primary);
-    }
   }
   .dropSearchType,
   .statusDropdown {
@@ -329,14 +321,6 @@ export default function Log(props) {
     }
   };
 
-  const formatTime = time => time.map(item => item && moment(item).format('YYYY-MM-DD HH:mm:ss'));
-
-  const renderTimePlaceholder = () => {
-    const [startTime, endTime] = formatTime(time);
-    if (!startTime && !endTime) return <span className="placeholder">{_l('筛选时间范围')}</span>;
-    return `${startTime} ~ ${endTime}`;
-  };
-
   return (
     <Wrap className="flexColumn">
       <div className="flexRow mTop20 pRight24">
@@ -348,7 +332,7 @@ export default function Log(props) {
       </div>
       <div className="flex logListCon pRight24">
         <div className="flexRow mTop12">
-          <Dropdown
+          <Select
             value={status}
             className="dropSearchType mLeft10"
             onChange={value => {
@@ -360,37 +344,35 @@ export default function Log(props) {
                 });
               }
             }}
-            border
-            isAppendToBody
-            data={[
+            options={[
               {
-                text: _l('全部'),
+                label: _l('全部'),
                 value: '',
               },
               {
-                text: _l('完成'),
+                label: _l('完成'),
                 value: '1',
               },
               {
-                text: _l('未完成'),
+                label: _l('未完成'),
                 value: '0',
               },
             ]}
           />
-          <DateRangePicker
-            mode="datetime"
-            timeMode="minute"
-            placeholder={_l('筛选时间范围')}
-            min={moment().add(-6, 'M')}
-            selectedValue={time}
-            children={
-              <div className="filterTimeRange mLeft10">
-                <div className="timeContent">{renderTimePlaceholder()}</div>
-                <Icon icon="bellSchedule" className="textTertiary Font18" />
-              </div>
-            }
-            onOk={time => setState({ time, pageIndex: 1, isAll: false })}
-            onClear={() => setState({ time: ['', ''], pageIndex: 1, isAll: false })}
+          <DatePicker.RangePicker
+            allowClear
+            className="filterTimeRange mLeft10"
+            disabledDate={current => current && current.isBefore(moment().subtract(6, 'months'), 'day')}
+            format="YYYY-MM-DD HH:mm:ss"
+            inputReadOnly
+            needConfirm
+            placeholder={[_l('开始时间'), _l('结束时间')]}
+            showNow={false}
+            showTime={{ format: 'HH:mm' }}
+            value={isCompleteDateRange(time) ? time : null}
+            onChange={range => {
+              setState({ time: isCompleteDateRange(range) ? range : ['', ''], pageIndex: 1, isAll: false });
+            }}
           />
         </div>
         {renderCon()}

@@ -1,5 +1,5 @@
 import { dialogSelectUser } from 'ming-ui/functions';
-import { existAccountHint } from 'src/utils/inviteCommon';
+import { existAccountHint } from 'src/utils/services/inviteCommon';
 import * as ajax from './ajax';
 import Constant from './constant';
 

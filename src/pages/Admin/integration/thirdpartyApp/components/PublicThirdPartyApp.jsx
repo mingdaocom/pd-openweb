@@ -2,8 +2,8 @@ import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } fr
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, LoadDiv, Switch, VerifyPasswordConfirm } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Modal, Switch, Tooltip } from 'ming-ui/antd-components';
 import openAuthorAjax from 'src/api/openAuthor';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import Search from 'src/pages/workflow/components/Search';
@@ -166,15 +166,21 @@ const PublicThirdPartyApp = forwardRef((props, ref) => {
             <div>
               <Switch
                 checked={status}
-                onClick={() => {
-                  Dialog.confirm({
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  Modal.confirm({
                     title: !status ? _l('启用 %0 集成应用', name) : _l('停用 %0 集成应用', name),
-                    description: !status
+                    content: !status
                       ? _l('启用后，该集成将可以正常访问数据，请确认操作。')
                       : _l('停用后，该集成将无法继续访问任何数据，请确认操作。'),
                     onOk: () =>
                       editAppConfigs(
-                        { oAuthAppId: item.oAuthAppId, status: status ? 0 : 1, scopeType, appIds },
+                        {
+                          oAuthAppId: item.oAuthAppId,
+                          status: status ? 0 : 1,
+                          scopeType,
+                          appIds,
+                        },
                         success => {
                           if (success) {
                             alert(!status ? _l('已开启，允许用户授权使用') : _l('已停用，应用已无法操作用户数据'));
@@ -309,7 +315,7 @@ const PublicThirdPartyApp = forwardRef((props, ref) => {
         <div className="Font22 mTop20">{_l('平台级 OAuth 应用')}</div>
         <div className="mTop20">{_l('平台统一提供的集成应用，组织可配置使用范围，成员授权后以个人权限访问数据。')}</div>
         <div>
-          <Button className="mTop16" radius onClick={() => editSetting(true)}>
+          <Button type="primary" className="mTop16" shape="round" onClick={() => editSetting(true)}>
             {_l('立即开通')}
           </Button>
         </div>

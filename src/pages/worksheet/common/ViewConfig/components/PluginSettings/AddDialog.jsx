@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Textarea } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 
 const AddContent = styled.div`
   .textareaWrap {
@@ -9,21 +9,32 @@ const AddContent = styled.div`
   }
 `;
 
+const ADD_PLUGIN_MODAL_STYLES = {
+  body: { paddingBottom: 0 },
+};
+const TEXTAREA_STYLE = { maxHeight: 500, minHeight: 450 };
+
 export default function AddDialog(props) {
   const { onCancel, onOk } = props;
   const [value, setValue] = useState('');
   return (
-    <Dialog
-      bodyClass="pBottom0"
+    <Modal
+      styles={ADD_PLUGIN_MODAL_STYLES}
       width={720}
-      visible
+      open
       title={_l('输入JSON代码添加配置')}
       onOk={() => onOk(value)}
       onCancel={() => onCancel()}
     >
       <AddContent>
-        <Textarea name="textarea" style={{ maxHeight: '500px', minHeight: 450 }} value={value} onChange={setValue} />
+        <Input.TextArea
+          autoSize
+          name="textarea"
+          style={TEXTAREA_STYLE}
+          value={value}
+          onChange={event => setValue(event.target.value)}
+        />
       </AddContent>
-    </Dialog>
+    </Modal>
   );
 }

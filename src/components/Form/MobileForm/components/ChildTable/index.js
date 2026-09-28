@@ -30,10 +30,11 @@ const ChildTableComp = connect(state => ({
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    const { worksheetId, recordId, masterData } = props;
+    const { appId, worksheetId, recordId, masterData } = props;
     this.store =
       props.control.store ||
       generateStore(props.control, {
+        appId,
         initRowIsCreate: props.initRowIsCreate,
         relationWorksheetId: worksheetId,
         recordId,

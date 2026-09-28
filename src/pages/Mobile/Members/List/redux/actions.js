@@ -2,7 +2,7 @@ import { Dialog } from 'antd-mobile';
 import _ from 'lodash';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 export const getMembersList = appId => dispatch => {
   dispatch({ type: 'MOBILE_LIST_FETCH_START' });

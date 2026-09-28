@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Input, RadioGroup } from 'ming-ui';
+import { Input, Modal, Radio } from 'ming-ui/antd-components';
 import orderAjax from 'src/api/order';
 import projectAjax from 'src/api/project';
 import { applyInvoiceConfig, newInvoiceConfig } from './config';
@@ -52,13 +52,11 @@ const InvoiceContentWrap = styled.div`
   overflow: auto;
 `;
 
-const SaveInvoice = styled.div`
-  text-align: right;
-`;
-
 export default function InvoiceSetting(props) {
   const { projectId, orderId, onClose } = props;
   const [data, setData] = useSetState({});
+  const [submitting, setSubmitting] = useState(false);
+  const requestPending = useRef(false);
 
   useEffect(() => {
     projectAjax.getProjectFinance({ projectId }).then(data => {
@@ -76,6 +74,11 @@ export default function InvoiceSetting(props) {
       alert(_l('请输入%0', errInfo.text), 2);
       return;
     }
+
+    if (requestPending.current) return;
+
+    requestPending.current = true;
+    setSubmitting(true);
 
     const para =
       data.invoiceType === 2
@@ -103,24 +106,24 @@ export default function InvoiceSetting(props) {
         alert(_l('申请成功'));
       })
       .finally(() => {
+        requestPending.current = false;
+        setSubmitting(false);
         onClose();
       });
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={480}
       title={<div className="Font17">{_l('申请发票')}</div>}
-      style={{ maxHeight: '80%', overflow: 'auto', paddingBottom: 0 }}
       onCancel={onClose}
-      footer={
-        <SaveInvoice>
-          <Button style={{ borderRadius: '16px' }} onClick={saveSetting}>
-            {_l('保存')}
-          </Button>
-        </SaveInvoice>
-      }
+      onOk={saveSetting}
+      confirmLoading={submitting}
+      okText={_l('保存')}
+      cancelButtonProps={{ style: { display: 'none' } }}
     >
       <InvoiceContentWrap>
         <ApplyInvoiceWrap>
@@ -131,7 +134,7 @@ export default function InvoiceSetting(props) {
                 <div className="name">{text}</div>
                 <Input
                   value={data[key]}
-                  onChange={value => setData({ [key]: value })}
+                  onChange={e => setData({ [key]: e.target.value })}
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
@@ -146,14 +149,18 @@ export default function InvoiceSetting(props) {
             );
           })}
         </ApplyInvoiceWrap>
-        <RadioGroup
+        <Radio.Group
           style={{ marginTop: '16px' }}
-          data={[
+          options={[
             { value: 1, text: _l('普票') },
             { value: 2, text: _l('增票') },
-          ]}
-          checkedValue={data.invoiceType}
-          onChange={value => setData({ invoiceType: value })}
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={data.invoiceType}
+          onChange={event =>
+            setData({
+              invoiceType: event.target.value,
+            })
+          }
         />
 
         <ApplyInvoiceWrap className={cx('newInvoiceConfig', { expanded: data.invoiceType === 2 })}>
@@ -164,7 +171,7 @@ export default function InvoiceSetting(props) {
                 <div className="name">{text}</div>
                 <Input
                   value={data[key]}
-                  onChange={value => setData({ [key]: value })}
+                  onChange={e => setData({ [key]: e.target.value })}
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
@@ -180,6 +187,6 @@ export default function InvoiceSetting(props) {
           })}
         </ApplyInvoiceWrap>
       </InvoiceContentWrap>
-    </Dialog>
+    </Modal>
   );
 }

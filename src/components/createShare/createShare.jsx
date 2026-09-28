@@ -1,16 +1,55 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import { Dialog, FunctionWrap } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { FunctionWrap } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import { mdNotification } from 'ming-ui/functions';
-import { htmlEncodeReg } from 'src/utils/common';
+import calendarAjax from 'src/api/calendar';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './css/createShare.css';
 
-const handleCopy = () => {
-  copy($('.createShareCopy span').attr('data-clipboard-text'));
-  alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+const SHARE_BUTTON_STYLE = { marginRight: 24 };
+
+const getDefaultCalendarOpt = () => ({
+  title: _l('分享日程'),
+  openURL: '',
+  isAdmin: true,
+  keyStatus: true,
+  name: '',
+  startTime: '',
+  endTime: '',
+  address: '',
+  shareID: '',
+  recurTime: '',
+  token: '',
+  shareCallback: null,
+});
+
+const getShareData = setting => {
+  const shareUrl = `${setting.openURL}?calendartoken=${setting.token}`;
+  const url = `${md.global.Config.AjaxApiUrl}code/CreateQrCodeImage?url=${encodeURIComponent(shareUrl)}`;
+  const copyContent =
+    htmlEncodeReg(setting.name) +
+    '\n' +
+    _l('时间：') +
+    _l(
+      '%0 至 %1',
+      moment(setting.startTime).format('YYYY-MM-DD HH:mm'),
+      moment(setting.endTime).format('YYYY-MM-DD HH:mm'),
+    ) +
+    '\n' +
+    _l('地点：') +
+    htmlEncodeReg(setting.address) +
+    '\n\n' +
+    _l('加入日程') +
+    '\n' +
+    shareUrl +
+    '\n\n' +
+    _l('分享自日程');
+
+  return { url, copy: copyContent };
 };
 
 function CreateShare(props) {
@@ -19,58 +58,25 @@ function CreateShare(props) {
     isCalendar = false, // 为true时弹左下角框
     linkURL = '',
     content = '',
-    calendarOpt = {
-      title: _l('分享日程'),
-      openURL: '',
-      isAdmin: true,
-      keyStatus: true,
-      name: '',
-      startTime: '',
-      endTime: '',
-      address: '',
-      shareID: '',
-      recurTime: '',
-      token: '',
-      ajaxRequest: null,
-      shareCallback: null,
-    },
+    calendarOpt,
+    onClose = () => {},
   } = props;
 
-  const [visible, setVisible] = useState(false);
-  const [setting, setSetting] = useState(calendarOpt);
-  const [data, setData] = useState({ url: '', copy: '' });
+  const [setting, setSetting] = useState(() => calendarOpt || getDefaultCalendarOpt());
+  const [visible, setVisible] = useState(!isCreate);
+  const [data, setData] = useState(() => getShareData(calendarOpt || getDefaultCalendarOpt()));
+  const [isUpdating, setIsUpdating] = useState(false);
+  const requestPending = useRef(false);
 
   useEffect(() => {
-    if (isCreate) {
-      createDialog();
-    } else {
-      openDialog();
-    }
+    if (!isCreate) return;
 
-    updateData();
-  }, []);
-
-  const getURL = () => {
-    return setting.openURL + '?calendartoken=' + setting.token;
-  };
-
-  const updateData = () => {
-    const getUrl = getURL();
-    const url = md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + encodeURIComponent(getUrl);
-    const html = copyHtml(getUrl);
-    setData({
-      url,
-      copy: html,
-    });
-  };
-
-  const createDialog = () => {
     const btnList = [];
 
     if (isCalendar) {
       btnList.push({
         text: _l('邀请微信好友'),
-        onClick: () => openDialog(),
+        onClick: () => setVisible(true),
       });
     }
 
@@ -86,67 +92,60 @@ function CreateShare(props) {
       duration: 5,
       btnList,
     });
+  }, [content, isCalendar, isCreate, linkURL]);
+
+  const handleCopy = () => {
+    copy(data.copy);
+    alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
   };
 
-  const openDialog = () => setVisible(true);
+  const handleShareBtn = async () => {
+    if (requestPending.current) return;
 
-  const copyHtml = url => {
-    return (
-      htmlEncodeReg(setting.name) +
-      '\n' +
-      _l('时间：') +
-      _l(
-        '%0 至 %1',
-        moment(setting.startTime).format('YYYY-MM-DD HH:mm'),
-        moment(setting.endTime).format('YYYY-MM-DD HH:mm'),
-      ) +
-      '\n' +
-      _l('地点：') +
-      htmlEncodeReg(setting.address) +
-      '\n\n' +
-      _l('加入日程') +
-      '\n' +
-      url +
-      '\n\n' +
-      _l('分享自日程')
-    );
-  };
+    const currentSetting = setting;
+    const keyStatus = !currentSetting.keyStatus;
+    requestPending.current = true;
+    setIsUpdating(true);
 
-  const handleShareBtn = () => {
-    setting.ajaxRequest
-      .updateCalednarShare({
-        calendarID: setting.shareID,
-        recurTime: setting.recurTime,
-        keyStatus: !setting.keyStatus,
-      })
-      .then(function (resource) {
-        const keyStatus = !setting.keyStatus;
-        const token = keyStatus ? resource.data : setting.token;
-
-        if (resource.code === 1) {
-          setSetting({
-            ...setting,
-            keyStatus: keyStatus,
-            token: token,
-          });
-          keyStatus && updateData();
-          // 回调
-          if (typeof setting.shareCallback === 'function') {
-            setting.shareCallback(keyStatus, token);
-          }
-        }
+    try {
+      const resource = await calendarAjax.updateCalednarShare({
+        calendarID: currentSetting.shareID,
+        recurTime: currentSetting.recurTime,
+        keyStatus,
       });
+
+      if (resource.code !== 1) {
+        alert(_l('操作失败'), 2);
+        return;
+      }
+
+      const token = keyStatus ? resource.data : currentSetting.token;
+      const nextSetting = { ...currentSetting, keyStatus, token };
+      setSetting(nextSetting);
+      if (keyStatus) setData(getShareData(nextSetting));
+      if (typeof currentSetting.shareCallback === 'function') {
+        currentSetting.shareCallback(keyStatus, token);
+      }
+    } catch (error) {
+      console.error(error);
+      alertIfNotUnauthorized(error, _l('操作失败'), 2);
+    } finally {
+      requestPending.current = false;
+      setIsUpdating(false);
+    }
   };
 
   if (!visible) return null;
 
   return (
-    <Dialog
-      visible
-      dialogClasses="createShareDialog"
-      showFooter={false}
+    <Modal
+      open
+      rootClassName="createShareDialog"
+      footer={null}
+      mask={{ closable: false }}
+      keyboard
       title={setting.title}
-      handleClose={() => $('.createShareDialog').parent().remove()}
+      onCancel={onClose}
     >
       <div>
         {setting.keyStatus ? (
@@ -163,11 +162,16 @@ function CreateShare(props) {
             </div>
             {setting.isAdmin && (
               <div className="shareOperator">
-                <Tooltip title={_l('取消分享')}>
-                  <span className="shareBtn shareBtnClose colorPrimary" onClick={handleShareBtn}>
-                    {_l('取消分享')}
-                  </span>
-                </Tooltip>
+                <Button
+                  color="danger"
+                  variant="link"
+                  size="small"
+                  style={SHARE_BUTTON_STYLE}
+                  loading={isUpdating}
+                  onClick={handleShareBtn}
+                >
+                  {_l('取消分享')}
+                </Button>
               </div>
             )}
           </Fragment>
@@ -184,9 +188,16 @@ function CreateShare(props) {
                   {_l('所有收到此分享链接的人都可以申请加入日程')}
                 </div>
                 <div className="shareOperator">
-                  <span className="shareBtn cancelStyle" onClick={handleShareBtn}>
+                  <Button
+                    color="var(--color-success)"
+                    variant="link"
+                    size="small"
+                    style={SHARE_BUTTON_STYLE}
+                    loading={isUpdating}
+                    onClick={handleShareBtn}
+                  >
                     {_l('开启分享')}
-                  </span>
+                  </Button>
                 </div>
               </Fragment>
             ) : (
@@ -195,7 +206,7 @@ function CreateShare(props) {
           </Fragment>
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 }
 

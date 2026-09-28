@@ -172,7 +172,7 @@ class TaskCenter extends Component {
           }
 
           // 日历?
-          if ($target.closest('.PositionContainer-wrapper').length > 0) {
+          if ($target.closest('.hap-picker-dropdown').length > 0) {
             return;
           }
 

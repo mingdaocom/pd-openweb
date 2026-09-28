@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 
 class DoubleConfirmDialog extends React.Component {
   state = {
@@ -13,13 +13,12 @@ class DoubleConfirmDialog extends React.Component {
 
   render() {
     return (
-      <Dialog
+      <Modal
         title={_l('二次确认')}
         okText={_l('保存')}
         cancelText={_l('取消')}
         className="doubleConfirmDialog"
-        width="560px"
-        maxHeight="800px"
+        width={560}
         onCancel={() => {
           this.props.setValue({
             ...this.props,
@@ -38,7 +37,7 @@ class DoubleConfirmDialog extends React.Component {
             showDoubleConfirmDialog: false,
           });
         }}
-        visible={this.props.showDoubleConfirmDialog}
+        open={this.props.showDoubleConfirmDialog}
       >
         <p className="mTop10 mBottom10">{_l('提示文字')}</p>
         <textarea
@@ -54,7 +53,7 @@ class DoubleConfirmDialog extends React.Component {
           }}
         />
         <p className="mTop10 mBottom10">{_l('确认按钮文字')}</p>
-        <input
+        <Input
           value={this.state.doubleConfirm.sureName}
           onChange={event => {
             this.setState({
@@ -66,7 +65,7 @@ class DoubleConfirmDialog extends React.Component {
           }}
         />
         <p className="mTop10 mBottom10">{_l('取消按钮文字')}</p>
-        <input
+        <Input
           value={this.state.doubleConfirm.cancelName}
           onChange={event => {
             this.setState({
@@ -77,7 +76,7 @@ class DoubleConfirmDialog extends React.Component {
             });
           }}
         />
-      </Dialog>
+      </Modal>
     );
   }
 }

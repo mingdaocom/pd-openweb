@@ -23,23 +23,6 @@
     transition: border-color 0.218s;
     color: var(--color-text-tertiary);
     border-bottom: 3px solid transparent;
-    // override
-    .Dropdown {
-      .Dropdown--input {
-        padding: 0;
-        background: transparent;
-        & > span {
-          vertical-align: bottom;
-        }
-        & > i {
-          vertical-align: middle;
-        }
-      }
-      .Menu {
-        left: -50% !important;
-        text-align: left;
-      }
-    }
   }
   .inboxStar {
     padding-top: 7px;
@@ -84,10 +67,6 @@
 
 .InboxFilterWrapper {
   width: 400px;
-  border-radius: 3px;
-  padding: 17px 24px 6px 17px;
-  background-color: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
   .userItemWrapper {
     height: 30px;
   }
@@ -146,25 +125,27 @@
       background-color: var(--color-primary-transparent) !important;
     }
   }
-  .ant-picker {
+  .hap-picker {
     box-shadow: none;
     border: 1px solid var(--color-border-primary) !important;
     border-radius: 3px;
     margin-bottom: 7px;
-    &.ant-picker-focused {
+    &.hap-picker-focused {
       border-color: var(--color-primary) !important;
     }
-    .ant-picker-active-bar {
+    .hap-picker-active-bar {
       display: none;
     }
   }
 }
 
-.inboxFilterDropdown {
-  z-index: 1000;
-}
-
 .inboxBox {
+  .commentBox .txtComment {
+    display: block;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
   // message
   .messageItem {
     padding: 10px 15px 0;
@@ -298,7 +279,7 @@
     &::after {
       border-color: var(--color-border-secondary);
     }
-    .ant-divider-inner-text {
+    .hap-divider-inner-text {
       color: var(--color-text-tertiary);
     }
   }

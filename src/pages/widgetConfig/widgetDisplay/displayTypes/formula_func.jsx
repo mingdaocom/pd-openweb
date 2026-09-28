@@ -1,6 +1,6 @@
 import React from 'react';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { CommonDisplay } from '../../styled';
-import { getAdvanceSetting } from '../../util';
 
 export default function FormulaFunc({ data }) {
   const { hint } = data;

@@ -1,23 +1,69 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import _ from 'lodash';
 import styled, { css, keyframes } from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Spin } from 'ming-ui/antd-components';
 import loadG2Plot from 'src/pages/Statistics/Charts/loadG2Plot';
+import { formatFileTimestamp } from 'src/utils/core/date';
+import { downloadBlob } from 'src/utils/platform/browser/download';
+import { getCurrentProjectId } from '../../buildContext';
 import { colors, radii, shadows, spacing, transitions } from '../tokens';
+import {
+  buildCreateChartPayload,
+  canSaveChart,
+  fetchChartPageSavable,
+  fetchWorksheetName,
+  getChartAppId,
+  getChartWorksheetId,
+  saveChart,
+} from './chartSave';
+import { useChartSaveEnv } from './chartSaveContext';
 
-// 导出文件名时间戳后缀：yyMMddHHmmss（年月日时分秒，各 2 位）
-const pad2 = n => String(n).padStart(2, '0');
+// 「保存到自定义页面」直接复用工作表模块的跨应用选择弹窗（worksheetType=1 即自定义页面，
+// 内部已按 canEditApp 只列有搭建权限的应用）；点击保存才用到，故懒加载。
+const SelectOtherWorksheetDialog = lazy(
+  () => import('src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog'),
+);
 
-function fileStamp(d = new Date()) {
-  return `${pad2(d.getFullYear() % 100)}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+// 无搭建权限时「保存到自定义页面」的置灰样式：不走 antd 的 disabled——disabled 项点不动，
+// 就没法在点击时 toast 说明原因，故只做视觉禁用，拦截放在点击回调里
+const DISABLED_LABEL_STYLE = { color: colors.textDisabled, cursor: 'not-allowed' };
+
+// 无搭建权限时点「保存到自定义页面」的 toast 文案（语言包可能晚于本模块加载，故不在顶层固化 _l 结果）
+function noBuildPermissionTip() {
+  return _l('仅应用管理员允许保存');
 }
 
 // mingo_embed_data_chart 渲染器：把 app-query-agent / app-data-agent 输出的定量数据图 spec
 // （契约见 mingo-embed-data-chart-contract.md）用 @antv/g2plot 渲染成交互式图表。
 // 入参 { data, isStreaming }：data 为已解析的 spec 对象，CodeBlock 已保证 JSON 合法且非空。
-// 职责边界：agent 只给语义数据（type/title/unit/stack/data/value/target/compare/axes），配色/坐标/交互/主题由本组件 + g2plot 决定。
-// 支持 13 种 type：定量图（pie/column/bar/line/area/funnel/rose/radar/wordcloud/heatmap/dualAxes）走 g2plot；
+// 职责边界：agent 只给语义数据（type/title/unit/stack/percent/data/value/target/compare/axes），配色/坐标/交互/主题由本组件 + g2plot 决定。
+// 支持 15 种 type：定量图（pie/column/bar/line/area/funnel/rose/radar/wordcloud/heatmap/scatter/bullet/dualAxes）走 g2plot；
 // 单值类 statistic 自绘大数卡、gauge 走 g2plot Gauge（按 value/target 算占比）。
+
+// 图表分类色板：与 HAP 统计图表统一的 8 色（产品指定，见《Mingo 生成统计图支持保存》）。
+// 数据可视化的分类色不属于主题语义色（--color-success 等），主题变量里没有对应项，故按设计稿固定色值。
+const CHART_PALETTE = [
+  '#1677FF', // 1. 科技蓝（主色）
+  '#00B96B', // 2. 极光绿
+  '#FAAD14', // 3. 日暮黄
+  '#F5222D', // 4. 薄暮红
+  '#13C2C2', // 5. 明青蓝
+  '#722ED1', // 6. 酱紫
+  '#FA541C', // 7. 火山橙
+  '#78909C', // 8. 板岩蓝灰（其他/基线）
+];
+
+// data 中是否带系列（多系列图判断用）
+function hasSeriesData(spec) {
+  return Array.isArray(spec.data) && spec.data.some(d => d && d.series != null);
+}
+
+// 百分比堆叠下 y 轴/tooltip 的数值格式（g2plot isPercent 会把 value 归一到 0~1）
+function percentText(v) {
+  return `${(Number(v) * 100).toFixed(1)}%`;
+}
 
 // spec.type → { g2plot 类名, 该类型的字段映射 config 构造器 }（gauge/statistic 在 buildPlot 单独处理，不在此表）。
 // 公共约定：data[].category（分类）/ data[].value（纯数字）/ data[].series（系列，视类型可选）。
@@ -57,13 +103,27 @@ const PLOT_BUILDERS = {
     plot: 'Bar',
     config: withSeries(spec, { data: spec.data, xField: 'value', yField: 'category' }, 'isGroupStack'),
   }),
+  // 折线/面积统一走平滑曲线（产品约定：不再区分直线形态）
   line: spec => ({
     plot: 'Line',
-    config: withSeries(spec, { data: spec.data, xField: 'category', yField: 'value', smooth: false }, 'series'),
+    config: withSeries(spec, { data: spec.data, xField: 'category', yField: 'value', smooth: true }, 'series'),
   }),
   area: spec => ({
     plot: 'Area',
-    config: withSeries(spec, { data: spec.data, xField: 'category', yField: 'value' }, 'stack'),
+    config: withSeries(spec, { data: spec.data, xField: 'category', yField: 'value', smooth: true }, 'stack'),
+  }),
+  // 散点图（相关性分析）：category 作 x、value 作 y；有 series 时按系列着色（Scatter 用 colorField，不是 seriesField）
+  scatter: spec => ({
+    plot: 'Scatter',
+    config: {
+      data: spec.data,
+      xField: 'category',
+      yField: 'value',
+      shape: 'circle',
+      size: 4,
+      pointStyle: { fillOpacity: 0.85 },
+      ...(hasSeriesData(spec) ? { colorField: 'series' } : null),
+    },
   }),
   funnel: spec => ({
     plot: 'Funnel',
@@ -101,6 +161,8 @@ const PLOT_BUILDERS = {
   }),
   heatmap: spec => ({
     plot: 'Heatmap',
+    // 热力图按 value 连续着色，分类色板数组会被当成色带插值，故不套色板
+    palette: false,
     config: {
       data: spec.data,
       xField: 'category',
@@ -109,6 +171,34 @@ const PLOT_BUILDERS = {
       label: { style: { fill: colors.textInverse } },
     },
   }),
+  // 子弹图（实际 vs 目标）：契约的 { category, value, target } 映射成 g2plot Bullet 的
+  // { title, ranges, measures, target }；背景条上限取全局最大值上浮一档，让各条目共用同一标尺可比。
+  bullet: spec => {
+    const items = spec.data
+      .filter(d => d && Number.isFinite(Number(d.value)) && Number.isFinite(Number(d.target)))
+      .map(d => ({ title: d.category, value: Number(d.value), target: Number(d.target) }));
+
+    if (!items.length) return null;
+    const max = Math.max(...items.map(d => Math.max(d.value, d.target))) * 1.1;
+
+    return {
+      plot: 'Bullet',
+      // Bullet 的 color 是 { range, measure, target } 结构，吃不了分类色板数组，故自带配色
+      palette: false,
+      config: {
+        data: items.map(d => ({ title: d.title, ranges: [max], measures: [d.value], target: d.target })),
+        xField: 'title',
+        measureField: 'measures',
+        rangeField: 'ranges',
+        targetField: 'target',
+        // range 用色板末位的板岩蓝灰调透明度作背景槽（亮/暗主题下都不抢视觉）
+        color: { range: 'rgba(120, 144, 156, 0.15)', measure: CHART_PALETTE[0], target: CHART_PALETTE[3] },
+        xAxis: { line: null },
+        yAxis: false,
+        legend: false,
+      },
+    };
+  },
   // 双轴图：axes 恰好 2 项（axes[0]=主轴/左、axes[1]=副轴/右），按 series 把扁平 data 拆成两组；
   // 两组各用独立字段名（v0/v1），避免 DualAxes 两根 yField 同名冲突；geom 决定柱/线。
   dualAxes: spec => {
@@ -123,13 +213,21 @@ const PLOT_BUILDERS = {
     if (!left.length || !right.length) return null;
     const geom = g => (g === 'line' ? 'line' : 'column');
 
+    // 逐轴配色 + 折线走平滑（DualAxes 的配色/形态只认 geometryOptions，顶层 color 数组无效）
+    const geomOption = (axis, color) => {
+      const geometry = geom(axis.geom);
+
+      return { geometry, color, ...(geometry === 'line' ? { smooth: true } : null) };
+    };
+
     return {
       plot: 'DualAxes',
+      palette: false,
       config: {
         data: [left, right],
         xField: 'category',
         yField: ['v0', 'v1'],
-        geometryOptions: [{ geometry: geom(axes[0].geom) }, { geometry: geom(axes[1].geom) }],
+        geometryOptions: [geomOption(axes[0], CHART_PALETTE[0]), geomOption(axes[1], CHART_PALETTE[1])],
         // v0/v1 是内部字段，用 meta.alias 映射回可读的 series 名（图例/tooltip 展示）
         meta: { v0: { alias: axes[0].series }, v1: { alias: axes[1].series } },
       },
@@ -141,18 +239,23 @@ const PLOT_BUILDERS = {
 //   'isGroupStack'（柱/条）：有 series → seriesField + isStack(stack:true) / isGroup(默认分组)
 //   'stack'（面积）：有 series → seriesField + isStack(stack:true)
 //   'series'（折线/雷达）：有 series → seriesField
+// percent（百分比堆叠，柱/条/面积）：g2plot 要求与 isStack 同开，优先级高于 stack；
+// 归一后的 value 是 0~1 比例，故同时把 y 轴与 tooltip 换成百分比格式（单位 unit 此时无意义）。
 function withSeries(spec, base, mode) {
-  const hasSeries = Array.isArray(spec.data) && spec.data.some(d => d && d.series != null);
-
-  if (!hasSeries) return base;
+  if (!hasSeriesData(spec)) return base;
 
   const next = { ...base, seriesField: 'series' };
+  const stackable = mode === 'isGroupStack' || mode === 'stack';
 
-  if (mode === 'isGroupStack') {
-    if (spec.stack) next.isStack = true;
-    else next.isGroup = true;
-  } else if (mode === 'stack') {
-    if (spec.stack) next.isStack = true;
+  if (stackable && spec.percent) {
+    next.isStack = true;
+    next.isPercent = true;
+    next.yAxis = { label: { formatter: v => percentText(v) } };
+    next.tooltip = { formatter: d => ({ name: d.series || d.category, value: percentText(d.value) }) };
+  } else if (stackable && spec.stack) {
+    next.isStack = true;
+  } else if (mode === 'isGroupStack') {
+    next.isGroup = true;
   }
 
   return next;
@@ -206,15 +309,18 @@ function buildPlot(spec) {
       autoFit: true,
       appendPadding: [16, 24, 16, 24],
       animation: false,
+      // 与 HAP 统计图表统一的分类色板；连续着色 / 自带配色结构的类型（heatmap、bullet、dualAxes）标了 palette:false 跳过
+      ...(built.palette === false ? null : { color: CHART_PALETTE }),
       // 单位拼到 tooltip：data[].value 恒为数值字段，name 优先系列名再分类名。
-      // dualAxes 数据按 v0/v1 拆分、无统一 value 字段，走 g2plot 默认 tooltip，不套此 formatter。
-      ...(unit && spec.type !== 'dualAxes'
+      // dualAxes 数据按 v0/v1 拆分、bullet 用 measures/target，都没有统一的 value 字段，走 g2plot 默认 tooltip。
+      ...(unit && !_.includes(['dualAxes', 'bullet'], spec.type)
         ? {
             tooltip: {
               formatter: d => ({ name: d.series || d.category, value: `${d.value}${unit}` }),
             },
           }
         : null),
+      // built.config 放最后：percent 的百分比 tooltip / yAxis 需要盖掉上面的 unit formatter
       ...built.config,
     },
   };
@@ -276,9 +382,8 @@ const ToolBtn = styled.button`
     color: ${colors.text};
   }
 
-  svg {
-    width: 14px;
-    height: 14px;
+  .icon {
+    font-size: 16px;
   }
 `;
 
@@ -327,37 +432,6 @@ const FullscreenCanvas = styled.div`
   padding: 0 ${spacing.section} ${spacing.section};
 `;
 
-function IconFullscreen() {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5" />
-    </svg>
-  );
-}
-
-function IconDownload() {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M8 1v9M4.5 6.5 8 10l3.5-3.5M2 14h12" />
-    </svg>
-  );
-}
-
-function IconClose() {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M3 3l10 10M13 3 3 13" />
-    </svg>
-  );
-}
-
 // 导出 PNG：g2plot 默认 canvas renderer，直接抓容器里的 <canvas> 合成到铺底色的画布再 toBlob 下载，
 // 避免透明背景；底色取卡片实际背景（亮/暗主题自动适配），取不到时回退白色。
 function downloadChartPng(canvasContainer, bgSource, filename) {
@@ -375,16 +449,7 @@ function downloadChartPng(canvasContainer, bgSource, filename) {
   ctx.fillRect(0, 0, out.width, out.height);
   ctx.drawImage(canvas, 0, 0);
   out.toBlob(blob => {
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    downloadBlob(blob, filename);
   }, 'image/png');
 }
 
@@ -536,16 +601,39 @@ export function Chart({ data: spec, isStreaming }) {
   const timerRef = useRef(null);
   const fullscreenBoxRef = useRef(null);
   const fullscreenCanvasRef = useRef(null);
-  const [renderable, setRenderable] = useState(() => !!buildPlot(spec));
+  const mountedRef = useRef(true);
+  // 保存中的目标（'worksheet' | 'page'），ref 与 state 并存：菜单的受控开合要在事件里同步读到最新值
+  const savingRef = useRef('');
+  const worksheetNameLoadedRef = useRef(false);
+  // g2plot 配置在渲染期直接从 spec 派生（buildPlot 是纯函数），卡片态与全屏态共用同一份
+  const built = useMemo(() => buildPlot(spec), [spec]);
+  const renderable = !!built;
   const [fullscreen, setFullscreen] = useState(false);
+  // 保存菜单展开位置：'' | 'card' | 'fullscreen'（卡片与全屏各有一套工具栏，共用一份状态会同时展开）
+  const [openMenu, setOpenMenu] = useState('');
+  const [saving, setSaving] = useState('');
+  const [worksheetName, setWorksheetName] = useState('');
+  // 对图表所属应用是否有搭建权限：null 表示还没查（菜单首次展开时懒查，点击「保存到自定义页面」时消费）
+  const [pageEditable, setPageEditable] = useState(null);
+  const [pageDialogVisible, setPageDialogVisible] = useState(false);
+  // 选择弹窗要按组织列应用；context 没给就在打开弹窗时兜底取当前组织（读全局，不能放在渲染期）
+  const [dialogProjectId, setDialogProjectId] = useState('');
+  const { canSave: envCanSave, projectId } = useChartSaveEnv();
 
   const title = spec && typeof spec.title === 'string' ? spec.title.trim() : '';
+  // 保存入口：环境允许（登录态对话，非分享/嵌入只读）+ 流式结束 + spec 带可用的 _source
+  // （没有 _source 就拼不出 createChart 请求体，直接不给入口，避免点了必然失败）
+  const savable = envCanSave && !isStreaming && canSaveChart(spec);
 
   useEffect(() => {
-    const built = buildPlot(spec);
+    mountedRef.current = true;
 
-    setRenderable(!!built);
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
+  useEffect(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -604,7 +692,7 @@ export function Chart({ data: spec, isStreaming }) {
         timerRef.current = null;
       }
     };
-  }, [spec, isStreaming]);
+  }, [built, isStreaming]);
 
   // 卸载时销毁实例，释放 canvas / 事件
   useEffect(() => {
@@ -623,10 +711,7 @@ export function Chart({ data: spec, isStreaming }) {
 
   // 全屏：另起一个独立 g2plot 实例渲染到弹层容器（复用同一份 config），关闭时销毁
   useEffect(() => {
-    if (!fullscreen) return undefined;
-    const built = buildPlot(spec);
-
-    if (!built) return undefined;
+    if (!fullscreen || !built) return undefined;
 
     let cancelled = false;
     let instance = null;
@@ -657,7 +742,7 @@ export function Chart({ data: spec, isStreaming }) {
         }
       }
     };
-  }, [fullscreen, spec]);
+  }, [fullscreen, built]);
 
   // Esc 关闭全屏
   useEffect(() => {
@@ -670,33 +755,154 @@ export function Chart({ data: spec, isStreaming }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [fullscreen]);
 
+  // 保存菜单开合：保存中不允许收起（要在菜单里显示行内 loading）；
+  // 首次展开时懒查菜单要用的数据——工作表名（菜单文案）与所属应用的搭建权限（点「保存到自定义页面」时判断）
+  function handleMenuOpenChange(scope, open) {
+    if (!open && savingRef.current) return;
+    setOpenMenu(open ? scope : '');
+
+    if (!open || worksheetNameLoadedRef.current) return;
+    worksheetNameLoadedRef.current = true;
+    fetchWorksheetName(getChartWorksheetId(spec)).then(name => {
+      if (mountedRef.current) setWorksheetName(name);
+    });
+    fetchChartPageSavable(spec).then(editable => {
+      if (mountedRef.current) setPageEditable(editable);
+    });
+  }
+
+  // 保存图表。kind 仅用于标记 loading 位置；customPageId 存在即保存到自定义页面
+  async function runSave(kind, customPageId) {
+    const payload = buildCreateChartPayload(spec, { customPageId });
+
+    if (!payload) {
+      alert(_l('图表配置解析失败'), 3);
+      return false;
+    }
+
+    savingRef.current = kind;
+    setSaving(kind);
+
+    const res = await saveChart(payload);
+
+    savingRef.current = '';
+    if (!mountedRef.current) return res.ok;
+    setSaving('');
+
+    if (res.ok) {
+      alert(_l('保存成功'));
+      return true;
+    }
+
+    alert(_l('保存失败，%0', res.message), 2);
+    return false;
+  }
+
+  async function handleSaveMenuClick(key) {
+    if (savingRef.current) return;
+
+    if (key === 'page') {
+      // 无应用搭建权限（拥有者 / 管理员 / 开发者）不给保存，点击时 toast 说明原因。
+      // 菜单展开时已预取，pageEditable 还是 null 说明请求未回，兜底再取一次（命中缓存，通常无额外请求）
+      const editable = pageEditable === null ? await fetchChartPageSavable(spec) : pageEditable;
+
+      if (mountedRef.current) setPageEditable(editable);
+
+      if (!editable) {
+        setOpenMenu('');
+        alert(noBuildPermissionTip(), 3);
+        return;
+      }
+
+      setOpenMenu('');
+      setDialogProjectId(projectId || getCurrentProjectId());
+      // 选择弹窗层级低于全屏遮罩，先退出全屏再开
+      setFullscreen(false);
+      setPageDialogVisible(true);
+      return;
+    }
+
+    const ok = await runSave('worksheet');
+
+    if (ok && mountedRef.current) setOpenMenu('');
+  }
+
+  // 选择弹窗点确定即自行关闭（onOk 内部会调 onHide），保存进行中的反馈落在工具栏按钮上
+  function handleConfirmSaveToPage(_appId, customPageId) {
+    runSave('page', customPageId);
+  }
+
+  // 保存入口（卡片工具栏与全屏工具栏各渲染一份，scope 用于区分展开的是哪一处菜单）
+  function renderSaveEntry(scope) {
+    if (!savable) return null;
+
+    const items = [
+      {
+        key: 'worksheet',
+        disabled: !!saving,
+        icon: saving === 'worksheet' ? <Spin size="small" /> : null,
+        label: worksheetName ? _l('保存到工作表（%0）', worksheetName) : _l('保存到工作表'),
+      },
+      {
+        key: 'page',
+        disabled: !!saving,
+        label:
+          pageEditable === false ? (
+            <span style={DISABLED_LABEL_STYLE}>{_l('保存到自定义页面')}</span>
+          ) : (
+            _l('保存到自定义页面')
+          ),
+      },
+    ];
+
+    return (
+      <Dropdown
+        trigger={['click']}
+        placement="bottomRight"
+        open={openMenu === scope}
+        menu={{ items, onClick: ({ key }) => handleSaveMenuClick(key) }}
+        // 全屏遮罩 z-index 高于浮层默认层级，菜单挂到全屏容器内才不会被盖住
+        {...(scope === 'fullscreen' ? { getPopupContainer: () => fullscreenBoxRef.current || document.body } : null)}
+        onOpenChange={open => handleMenuOpenChange(scope, open)}
+      >
+        <ToolBtn type="button" title={_l('保存')}>
+          {saving ? <Spin size="small" /> : <Icon icon="save" />}
+        </ToolBtn>
+      </Dropdown>
+    );
+  }
+
   // spec 还不可渲染：流式期间（JSON 已合法但 spec 字段还没补全）先占位 loading；非流式则降级不渲染
   if (!renderable) return isStreaming ? <ChartSkeleton /> : null;
 
   // statistic：自绘单值卡，无 canvas，不提供下载/全屏（抓不到 canvas 也无意义）
   const isStatistic = spec.type === 'statistic';
   // 下载时现取时间戳，文件名形如 运营总览_250616143022.png
-  const makeFilename = () => `${title || 'chart'}_${fileStamp()}.png`;
+  const makeFilename = () => `${title || 'chart'}_${formatFileTimestamp()}.png`;
 
   return (
     <>
       <Wrap ref={wrapRef}>
         {title && <Title>{title}</Title>}
         {isStatistic ? (
-          <StatisticCard spec={spec} />
+          <>
+            <StatisticCard spec={spec} />
+            {savable && <Toolbar className="chart-toolbar">{renderSaveEntry('card')}</Toolbar>}
+          </>
         ) : (
           <>
             <Canvas ref={canvasRef} />
             <Toolbar className="chart-toolbar">
+              {renderSaveEntry('card')}
               <ToolBtn
                 type="button"
                 title={_l('下载 PNG')}
                 onClick={() => downloadChartPng(canvasRef.current, wrapRef.current, makeFilename())}
               >
-                <IconDownload />
+                <Icon icon="download" />
               </ToolBtn>
               <ToolBtn type="button" title={_l('全屏查看')} onClick={() => setFullscreen(true)}>
-                <IconFullscreen />
+                <Icon icon="fullscreen" />
               </ToolBtn>
             </Toolbar>
           </>
@@ -709,6 +915,7 @@ export function Chart({ data: spec, isStreaming }) {
               <FullscreenHeader>
                 <FullscreenTitle>{title}</FullscreenTitle>
                 <Toolbar className="chart-toolbar" style={{ position: 'static', opacity: 1 }}>
+                  {renderSaveEntry('fullscreen')}
                   <ToolBtn
                     type="button"
                     title={_l('下载 PNG')}
@@ -716,10 +923,10 @@ export function Chart({ data: spec, isStreaming }) {
                       downloadChartPng(fullscreenCanvasRef.current, fullscreenBoxRef.current, makeFilename())
                     }
                   >
-                    <IconDownload />
+                    <Icon icon="download" />
                   </ToolBtn>
                   <ToolBtn type="button" title={_l('关闭')} onClick={() => setFullscreen(false)}>
-                    <IconClose />
+                    <Icon icon="close" />
                   </ToolBtn>
                 </Toolbar>
               </FullscreenHeader>
@@ -728,6 +935,20 @@ export function Chart({ data: spec, isStreaming }) {
           </Overlay>,
           document.body,
         )}
+      {pageDialogVisible && (
+        <Suspense fallback={null}>
+          <SelectOtherWorksheetDialog
+            visible
+            worksheetType={1}
+            projectId={dialogProjectId}
+            title={_l('保存到自定义页面')}
+            selectedAppId={getChartAppId(spec)}
+            currentAppId={getChartAppId(spec)}
+            onOk={handleConfirmSaveToPage}
+            onHide={() => setPageDialogVisible(false)}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

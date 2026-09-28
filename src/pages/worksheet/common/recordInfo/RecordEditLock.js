@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, FunctionWrap, MobileConfirmPopup } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { MobileConfirmPopup } from 'ming-ui/antd-mobile-components';
 import worksheetAjax from 'src/api/worksheet';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const EDIT_LOCK_STATUS = {
   UNLOCK: 1, //未锁定
@@ -25,6 +26,7 @@ export default class RecordEditLock {
     updateLockedUser = () => {},
     onLockCallBack = () => {},
     onRefreshRecord = () => {},
+    openFunctionWrap,
   }) {
     this.worksheetId = worksheetId;
     this.recordId = recordId;
@@ -32,6 +34,7 @@ export default class RecordEditLock {
     this.updateLockedUser = updateLockedUser;
     this.onLockCallBack = onLockCallBack;
     this.onRefreshRecord = onRefreshRecord;
+    this.openFunctionWrap = openFunctionWrap;
 
     this.lockStatusInterval = null;
     this.toastTimer = null;
@@ -82,11 +85,11 @@ export default class RecordEditLock {
     }
 
     //disabled按钮
-    const continueBtn = document.querySelector('.editTimeoutConfirmClass [data-id="confirmBtn"]');
+    const continueBtn = document.querySelector('.editTimeoutConfirmClass .hap-modal-footer .hap-btn-primary');
 
     if (continueBtn) {
       continueBtn.disabled = true;
-      continueBtn.classList.add(browserIsMobile() ? 'adm-button-disabled' : 'Button--disabled');
+      continueBtn.classList.add(browserIsMobile() ? 'adm-button-disabled' : 'hap-btn-disabled');
     }
   };
 
@@ -150,18 +153,19 @@ export default class RecordEditLock {
       //启用了倒计时提醒
       const toastStartTime = timeOutMs - countDownMs;
       this.toastTimer = setTimeout(() => {
-        openCountdownDialog({
+        this.openFunctionWrap(CountDownDialog, {
           ...dialogProps,
+          openFunctionWrap: this.openFunctionWrap,
           onAbortCountdown: seconds => {
             this.lockTimer = setTimeout(() => {
-              openTimeoutDialog(dialogProps);
+              this.openFunctionWrap(TimeOutDialog, dialogProps);
             }, seconds * 1000);
           },
         });
       }, toastStartTime);
     } else {
       this.lockTimer = setTimeout(() => {
-        openTimeoutDialog(dialogProps);
+        this.openFunctionWrap(TimeOutDialog, dialogProps);
       }, timeOutMs);
     }
   }
@@ -188,8 +192,16 @@ export default class RecordEditLock {
 }
 
 const CountDownDialog = props => {
-  const { onClose, rowEditLock, onRefreshRecord, checkAndLock, clearThrottle, onAbortCountdown, updateTimeoutTime } =
-    props;
+  const {
+    onClose,
+    rowEditLock,
+    onRefreshRecord,
+    checkAndLock,
+    clearThrottle,
+    onAbortCountdown,
+    updateTimeoutTime,
+    openFunctionWrap,
+  } = props;
   const [remainingSeconds, setRemainingSeconds] = useState(parseInt(rowEditLock.countdown) * 60);
   const countdownRef = useRef(null);
 
@@ -200,7 +212,13 @@ const CountDownDialog = props => {
           clearInterval(countdownRef.current);
           countdownRef.current = null;
           onClose();
-          openTimeoutDialog({ rowEditLock, onRefreshRecord, checkAndLock, clearThrottle, updateTimeoutTime });
+          openFunctionWrap(TimeOutDialog, {
+            rowEditLock,
+            onRefreshRecord,
+            checkAndLock,
+            clearThrottle,
+            updateTimeoutTime,
+          });
           return 0;
         }
 
@@ -209,7 +227,7 @@ const CountDownDialog = props => {
     }, 1000);
 
     return () => clearInterval(countdownRef.current); // 组件卸载时清理定时器
-  }, []);
+  }, [checkAndLock, clearThrottle, onClose, onRefreshRecord, openFunctionWrap, rowEditLock, updateTimeoutTime]);
 
   const title = (
     <span>
@@ -220,13 +238,19 @@ const CountDownDialog = props => {
   );
 
   return !browserIsMobile() ? (
-    <Dialog
-      visible={true}
+    <Modal
+      open
+      mask={{ closable: false }}
+      keyboard={false}
       closable={false}
-      title={title}
-      description={_l('继续编辑字段可以延长超时时间')}
+      title={
+        <React.Fragment>
+          <div>{title}</div>
+          <div className="Font13 Normal textSecondary mTop8">{_l('继续编辑字段可以延长超时时间')}</div>
+        </React.Fragment>
+      }
       okText={_l('知道了')}
-      showCancel={false}
+      cancelButtonProps={{ style: { display: 'none' } }}
       onOk={() => {
         onAbortCountdown(remainingSeconds);
         onClose();
@@ -247,10 +271,6 @@ const CountDownDialog = props => {
   );
 };
 
-const openCountdownDialog = props => {
-  FunctionWrap(CountDownDialog, props);
-};
-
 const TimeOutDialog = props => {
   const { onClose, rowEditLock, onRefreshRecord, checkAndLock, clearThrottle, updateTimeoutTime } = props;
   const { expiredaction, expiretime } = rowEditLock;
@@ -260,7 +280,7 @@ const TimeOutDialog = props => {
     updateTimeoutTime(Date.now());
 
     return () => updateTimeoutTime(null);
-  }, []);
+  }, [clearThrottle, updateTimeoutTime]);
 
   const onOk = () => {
     if (expiredaction === '2') {
@@ -283,15 +303,21 @@ const TimeOutDialog = props => {
   );
 
   return !browserIsMobile() ? (
-    <Dialog
-      className="editTimeoutConfirmClass"
-      visible={true}
+    <Modal
+      rootClassName="editTimeoutConfirmClass"
+      open
+      mask={{ closable: false }}
+      keyboard={false}
       closable={false}
-      title={_l('编辑超时')}
-      description={description}
+      title={
+        <React.Fragment>
+          <div>{_l('编辑超时')}</div>
+          {description}
+        </React.Fragment>
+      }
       okText={expiredaction === '2' ? _l('获取最新记录') : _l('继续编辑')}
       onOk={onOk}
-      showCancel={expiredaction !== '2'}
+      cancelButtonProps={expiredaction === '2' ? { style: { display: 'none' } } : undefined}
       cancelText={_l('获取最新记录')}
       onCancel={() => {
         onClose();
@@ -314,8 +340,4 @@ const TimeOutDialog = props => {
       }}
     />
   );
-};
-
-const openTimeoutDialog = props => {
-  FunctionWrap(TimeOutDialog, props);
 };

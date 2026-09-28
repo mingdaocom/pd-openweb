@@ -5,7 +5,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const Wrap = styled.div`
   padding: 24px;

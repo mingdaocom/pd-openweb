@@ -1,619 +1,451 @@
-import React, { Component, Fragment } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import moment from 'moment';
 import ajaxRequest from 'src/api/calendar';
-import preall from 'src/common/preall';
-import { addToken, htmlEncodeReg, pathCompletion } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { addToken } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import './style.css';
 
-class CalendarShare extends Component {
-  constructor(props) {
-    super(props);
+const getUrlParam = name => new URLSearchParams(window.location.search).get(name);
 
-    this.settings = {
-      token: this.getUrlParam('calendartoken'),
-      imgUrl: '/staticfiles/images/calendar/sharelogo.png',
-      link: pathCompletion(location.pathname + '?calendartoken=' + this.getUrlParam('calendartoken')),
-    };
+const isPc = () => !/Android|iPhone|SymbianOS|Windows Phone|iPad|iPod/i.test(navigator.userAgent);
+
+const getFileType = extension => {
+  const ext = extension?.replace(/^\./, '').toLowerCase();
+  if (['png', 'jpg', 'jpeg', 'gif', 'bmp'].includes(ext)) return 'img';
+  if (['swf', 'flv', 'f4v'].includes(ext)) return 'flash';
+  if (['xls', 'xlsx'].includes(ext)) return 'excel';
+  if (['doc', 'docx', 'dot'].includes(ext)) return 'word';
+  if (['ppt', 'pptx', 'pps'].includes(ext)) return 'ppt';
+  return 'other';
+};
+
+const formatFileSize = (size, accuracy = 1) => {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  if (!size) return `0${units[0]}`;
+  const index = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
+  return `${Number((size / Math.pow(1024, index)).toFixed(accuracy))}${units[index]}`;
+};
+
+const getSafeUrl = url => {
+  if (!url) return '';
+  try {
+    const parsedUrl = new URL(url, window.location.origin);
+    return ['http:', 'https:'].includes(parsedUrl.protocol) ? parsedUrl.href : '';
+  } catch {
+    return '';
+  }
+};
+
+const formatRepeat = calendar => {
+  if (!calendar.isRecur || calendar.isChildCalendar) return '';
+
+  const interval = Number(calendar.interval);
+  const start = moment(calendar.start);
+  let message = '';
+
+  if (calendar.frequency === 1) {
+    message = _l('每%0天', interval === 1 ? '' : interval);
+  } else if (calendar.frequency === 2) {
+    const weekdays = String(calendar.weekDay).split(',').map(Number).sort();
+    const weekdayText =
+      weekdays.length === 5 && weekdays[0] === 1 && weekdays[4] === 5
+        ? _l('工作日')
+        : `${_l('星期')}${weekdays.map(day => moment().day(day).format('dd')).join('、')}`;
+    message = `${_l('每%0周', interval === 1 ? '' : interval)} ${weekdayText}`;
+  } else if (calendar.frequency === 3) {
+    message = _l('每%0月 在%1日', interval === 1 ? '' : interval, start.date());
+  } else if (calendar.frequency === 4) {
+    message = _l('每%0年 在%1月%2日', interval === 1 ? '' : interval, start.month() + 1, start.date());
   }
 
-  requesting = false;
+  if (calendar.recurType === 1) message += _l('，共 %0 次', calendar.recurCount);
+  if (calendar.recurType === 2) message += _l('，截至到 %0', calendar.untilDate);
+  return message;
+};
 
-  componentDidMount() {
-    this.init();
-  }
+function CalendarShare() {
+  const token = useMemo(() => getUrlParam('calendartoken'), []);
+  const thirdIdRef = useRef(getUrlParam('id') || '');
+  const requestPendingRef = useRef(false);
+  const [status, setStatus] = useState('loading');
+  const [calendarData, setCalendarData] = useState(null);
+  const [thirdUsers, setThirdUsers] = useState([]);
+  const [isTimeout, setIsTimeout] = useState(false);
+  const [joined, setJoined] = useState(false);
+  const [openType, setOpenType] = useState(0);
+  const [pendingAction, setPendingAction] = useState('');
+  const [showBrowserPrompt, setShowBrowserPrompt] = useState(false);
 
-  init() {
-    // 是微信打开
-    if (window.isWeiXin) {
-      // 获取授权id
-      this.settings.thirdID = this.getUrlParam('id');
-      // 获取jsapi_ticket
-      this.settings.jsapi_ticket = this.getUrlParam('t');
-      if (!this.settings.thirdID) {
-        location.href =
-          'http://weixin.mingdao.com/oauth/add?redirect_uri=' + encodeURIComponent(location.href) + '&type=1';
-      } else {
-        this.getWxConfig();
-        $('#joinFooter').removeClass('hide');
-      }
-    } else if (this.isPc()) {
-      // 是pc打开
-      this.getShareDetail(0);
-      $('#pcFooter').removeClass('hide');
-    } else {
-      // 获取授权id
-      this.settings.thirdID = this.getUrlParam('id');
-      // 手机浏览器打开
-      this.getShareDetail(-1);
-      $('#mFooter').removeClass('hide');
-    }
-  }
+  const link = useMemo(
+    () => pathCompletion(`${window.location.pathname}?calendartoken=${encodeURIComponent(token || '')}`),
+    [token],
+  );
 
-  /**
-   * [获取详情]
-   * @param  type 0：pc打开 | 1：微信打开 | -1：移动设备打开
-   */
-  getShareDetail(type) {
-    ajaxRequest
-      .getCalendarShareDetail({ token: this.settings.token, thirdID: this.settings.thirdID || '' })
-      .then(source => {
-        if (source.code === 1) {
-          var data = source.data;
+  const configureWechatShare = useCallback(
+    calendar => {
+      if (!window.wx) return;
+      const shareConfig = {
+        title: calendar.calendarName,
+        link,
+        imgUrl: '/staticfiles/images/calendar/sharelogo.png',
+        success: () => alert(_l('分享成功！')),
+      };
+      window.wx.onMenuShareTimeline(shareConfig);
+      window.wx.onMenuShareAppMessage({
+        ...shareConfig,
+        desc: `${_l('时间：')}${moment(calendar.start).format('YYYY-MM-DD HH:mm')} ~ ${moment(calendar.end).format(
+          'YYYY-MM-DD HH:mm',
+        )}\n${_l('地点：')}${calendar.address || _l('无')}`,
+      });
+    },
+    [link],
+  );
 
-          // 过滤发起人
-          data.calendar.members.forEach(function (member, key) {
-            if (member.accountID === data.calendar.createUser) {
-              data.calendar.members.splice(key, 1);
+  const getShareDetail = useCallback(
+    type => {
+      return ajaxRequest
+        .getCalendarShareDetail({ token, thirdID: thirdIdRef.current })
+        .then(source => {
+          if (source.code !== 1) {
+            if (source.msg === 'NOTEXISTS') {
+              window.location.href =
+                'http://weixin.mingdao.com/oauth/add?redirect_uri=' + encodeURIComponent(link) + '&type=1';
               return;
             }
-          });
 
-          this.settings.calendarID = data.calendar.id;
-          this.settings.data = data.calendar;
-          // 过期
-          if (data.TimeOut) {
-            $('#calendarMain header').addClass('overdue').append('（已过期）');
-            $('#calendarMain footer').remove();
+            setStatus('missing');
+            return;
           }
 
-          $('#title').html(htmlEncodeReg(data.calendar.calendarName));
-          document.title = data.calendar.calendarName;
-          $('#dateTime').html(
-            '开始时间：' +
-              moment(data.calendar.start).format('YYYY-MM-DD HH:mm') +
-              '<br>结束时间：' +
-              moment(data.calendar.end).format('YYYY-MM-DD HH:mm'),
-          );
-          /* 是重复日程并且不是特殊的子日程*/
-          if (data.calendar.isRecur && !data.calendar.isChildCalendar) {
-            var messages = '';
-            var frequency = data.calendar.frequency;
-            var interval = data.calendar.interval;
-            var recurCount = data.calendar.recurCount;
-            var untilDate = data.calendar.untilDate;
-            var weekDay = data.calendar.weekDay;
-            var recurType = data.calendar.recurType;
-            var start = moment(data.calendar.start).format('YYYY-MM-DD');
-            var weekDayArray = ['日', '一', '二', '三', '四', '五', '六'];
+          const data = source.data || {};
+          const calendar = {
+            ...data.calendar,
+            members: (data.calendar.members || []).filter(member => member.accountID !== data.calendar.createUser),
+          };
+          const nextThirdUsers = data.thirdUser || [];
+          const isJoined = nextThirdUsers.some(user => user.thirdID === thirdIdRef.current);
 
-            // 每天
-            if (frequency == 1) {
-              messages += '每' + (interval == 1 ? '' : interval) + '天';
-            } else if (frequency == 2) {
-              // 每周
-              messages += '每' + (interval == 1 ? '' : interval) + '周 ';
+          setOpenType(type);
+          setCalendarData(calendar);
+          setThirdUsers(nextThirdUsers);
+          setIsTimeout(!!data.TimeOut);
+          setJoined(isJoined);
+          setStatus('ready');
+          document.title = calendar.calendarName;
+          if (type === 1) configureWechatShare(calendar);
+        })
+        .catch(error => {
+          console.error(error);
+          setStatus('missing');
+        });
+    },
+    [configureWechatShare, link, token],
+  );
 
-              weekDay = weekDay.split(',').sort();
-              if (weekDay.length === 5 && weekDay[0] == 1 && weekDay[4] == 5) {
-                messages += '工作日';
-              } else {
-                weekDay.forEach((item, index) => {
-                  if (index === 0) {
-                    messages += '星期';
-                  } else {
-                    messages += '、';
-                  }
+  useEffect(() => {
+    if (window.isWeiXin) {
+      if (!thirdIdRef.current) {
+        window.location.href =
+          'http://weixin.mingdao.com/oauth/add?redirect_uri=' + encodeURIComponent(window.location.href) + '&type=1';
+        return;
+      }
 
-                  messages += weekDayArray[weekDay[index]];
-                });
-              }
-            } else if (frequency == 3) {
-              // 每月
-              messages +=
-                '每' +
-                (interval == 1 ? '' : interval) +
-                '月 在第 ' +
-                start.split('-')[1] +
-                '月' +
-                start.split('-')[2] +
-                '日';
-            } else if (frequency == 4) {
-              // 每年
-              messages +=
-                '每' +
-                (interval == 1 ? '' : interval) +
-                '年 在 ' +
-                start.split('-')[1] +
-                '月' +
-                start.split('-')[2] +
-                '日';
-            }
-
-            if (recurType == 1) {
-              messages += '，共 ' + recurCount + ' 次';
-            } else if (recurType == 2) {
-              messages += '，截至到 ' + untilDate;
-            }
-
-            $('#dateTime').append('<br>重复：' + messages);
-          }
-
-          $('#addressDesc').html(data.calendar.address ? htmlEncodeReg(data.calendar.address) : '未填写地址');
-          $('#createUserName').html(htmlEncodeReg(data.calendar.createUserName));
-
-          var memberList = '';
-          var folderList = '';
-          var imagesList = '';
-
-          data.calendar.members.forEach(item => {
-            if (item.UserID !== data.calendar.createUser) {
-              if (item.memberName) {
-                memberList += htmlEncodeReg(item.memberName) + '，';
-              } else if (item.Mobile) {
-                memberList += htmlEncodeReg(item.Mobile) + '，';
-              } else {
-                memberList += htmlEncodeReg(item.Email) + '，';
-              }
-            }
-          });
-
-          if (data.thirdUser) {
-            data.thirdUser.forEach(item => {
-              memberList += '<span data-thirdid="' + item.thirdID + '">' + htmlEncodeReg(item.nickName) + '</span>，';
+      const jsapiTicket = getUrlParam('t');
+      ajaxRequest
+        .getShareConfig({ url: encodeURIComponent(window.location.href), jsapi_ticket: jsapiTicket })
+        .then(source => {
+          if (source.code === 1 && window.wx) {
+            window.wx.config({
+              debug: false,
+              appId: 'wx26fcef87aadb6001',
+              timestamp: source.data.timestamp,
+              nonceStr: source.data.nonceStr,
+              signature: source.data.signature,
+              jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'],
             });
+            window.wx.ready(() => getShareDetail(1));
+            window.wx.error(res => alert(res.errMsg));
+          } else {
+            getShareDetail(1);
           }
+        })
+        .catch(() => getShareDetail(1));
+    } else {
+      getShareDetail(isPc() ? 0 : -1);
+    }
+  }, [getShareDetail]);
 
-          $('#memberList').html(memberList.replace(/，$/g, ''));
-          $('#descContent').html(htmlEncodeReg(data.calendar.description));
-
-          data.calendar.attachments.forEach(item => {
-            var ext = this.returnExt(item.ext.split('.')[1]);
-            if (ext === 'img') {
-              imagesList +=
-                '<div class="imagesList boxSizing">' +
-                '<div class="imagesListItem boxSizing w100">' +
-                '<img src="' +
-                item.middlePath +
-                item.middleName +
-                '">' +
-                '</div>' +
-                '</div>';
-            } else {
-              folderList +=
-                '<div class="folderList boxSizing">' +
-                '<div class="folderListItem boxSizing Relative Font14 w100">' +
-                '<i class="folderListItemIcon"><span class="icon-' +
-                ext +
-                '"></span></i>';
-              if (item.downloadUrl) {
-                folderList +=
-                  '<a href="' + item.downloadUrl + '" class="itemDownload"><i class="icons icon-download"></i></a>';
-              }
-
-              folderList +=
-                '<div class="itemName w100 ellipsis">' +
-                item.originalFilename +
-                '.' +
-                item.ext +
-                '</div>' +
-                '<div class="itemSize w100 ellipsis">' +
-                this.filesize(item.filesize, 1) +
-                '</div>' +
-                '</div>' +
-                '</div>';
-            }
-          });
-
-          $('#folderList').prepend(folderList);
-          $('#imagesList').prepend(imagesList);
-
-          // 非微信
-          if (type !== 1) {
-            var src =
-              md.global.Config.AjaxApiUrl +
-              'code/CreateQrCodeImage?url=' +
-              encodeURIComponent(pathCompletion('/m/detail/calendar/?calendartoken=' + this.settings.token));
-            $('#mFooter .mQRCode,#pcFooter .pcFooterImg').html('<img src="' + addToken(src) + '" />');
-          }
-
-          // 是否在日程中
-          var isContain = false;
-          if (data.thirdUser) {
-            data.thirdUser.forEach(item => {
-              if (item.thirdID === this.settings.thirdID) {
-                isContain = true;
-              }
-            });
-          }
-
-          // 微信
-          if (type === 1 && !data.TimeOut) {
-            if (isContain) {
-              $('#calendarMain header').addClass('joinStyle').append('（已加入）');
-              $('#joinBox').addClass('hide');
-            } else {
-              $('#leaveBox').addClass('hide');
-            }
-          }
-
-          // 显示
-          $('#noCalendarMain,#loading').remove();
-          $('#calendarMain,#openHome').removeClass('hide');
-          // 绑定操作方法
-          this.bindEvents();
-        } else if (source.msg === 'NOTEXISTS') {
-          location.href =
-            'http://weixin.mingdao.com/oauth/add?redirect_uri=' + encodeURIComponent(this.settings.link) + '&type=1';
-        } else {
-          $('#calendarMain,#loading').remove();
-          $('#noCalendarMain,#openHome').removeClass('hide');
-        }
-      });
-  }
-
-  /**
-   * 获取微信分享需要的参数
-   */
-  getWxConfig() {
-    const _this = this;
-
+  const handleLeave = () => {
+    if (!window.confirm(_l('您确定要退出当前日程吗？')) || requestPendingRef.current) return;
+    requestPendingRef.current = true;
+    setPendingAction('leave');
     ajaxRequest
-      .getShareConfig({ url: encodeURIComponent(location.href), jsapi_ticket: _this.settings.jsapi_ticket })
+      .removeCalendarWeChatMember({
+        calendarID: calendarData.id,
+        thirdID: thirdIdRef.current,
+        recurTime: calendarData.recurTime || '',
+        isAllCalendar: !calendarData.isChildCalendar,
+        removeOwnWeChat: true,
+      })
       .then(source => {
-        if (source.code == 1) {
-          // 微信初始化参数
-          wx.config({
-            debug: false,
-            appId: 'wx26fcef87aadb6001',
-            timestamp: source.data.timestamp,
-            nonceStr: source.data.nonceStr,
-            signature: source.data.signature,
-            jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'],
-          });
-        }
-
-        wx.ready(function () {
-          _this.getShareDetail(1);
-        });
-
-        wx.error(function (res) {
-          alert(res.errMsg);
-        });
+        if (source.code !== 1) throw new Error(source.msg);
+        setJoined(false);
+        setThirdUsers(current => current.filter(user => user.thirdID !== thirdIdRef.current));
+        alert(_l('退出成功！'));
+      })
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('退出失败！')))
+      .finally(() => {
+        requestPendingRef.current = false;
+        setPendingAction('');
       });
-  }
+  };
 
-  bindEvents() {
-    const settings = this.settings;
-
-    // 退出日程
-    $('#leaveBtn')
-      .off()
-      .on('click', function () {
-        if (confirm(_l('您确定要退出当前日程吗？'))) {
-          ajaxRequest
-            .removeCalendarWeChatMember({
-              calendarID: settings.calendarID,
-              thirdID: settings.thirdID,
-              recurTime: settings.data.recurTime || '',
-              isAllCalendar: !settings.data.isChildCalendar,
-              removeOwnWeChat: true,
-            })
-            .then(source => {
-              if (source.code === 1) {
-                $('#leaveBox').addClass('hide');
-                $('#joinBox').removeClass('hide');
-                $('#calendarMain header').html('日程').removeClass('joinStyle');
-                $('#memberList span[data-thirdid=' + settings.thirdID + ']').remove();
-                $('#memberList').html(
-                  $('#memberList')
-                    .html()
-                    .replace(/，$|^，/g, ''),
-                );
-                alert(_l('退出成功！'));
-              } else {
-                alert(_l('退出失败！'));
-              }
-            });
-        }
+  const handleJoin = () => {
+    if (requestPendingRef.current) return;
+    requestPendingRef.current = true;
+    setPendingAction('join');
+    ajaxRequest
+      .insertCalendarWeChatMember({
+        calendarID: calendarData.id,
+        thirdID: thirdIdRef.current,
+        token,
+      })
+      .then(source => {
+        if (source.code !== 1) throw new Error(source.msg);
+        setJoined(true);
+        setThirdUsers(current => [
+          ...current.filter(user => user.thirdID !== thirdIdRef.current),
+          { thirdID: thirdIdRef.current, nickName: source.data },
+        ]);
+        alert(_l('加入成功！'));
+      })
+      .catch(error => alertIfNotUnauthorized(error, _l('加入失败！失败原因：%0', error.message || '')))
+      .finally(() => {
+        requestPendingRef.current = false;
+        setPendingAction('');
       });
+  };
 
-    // 加入日程
-    $('#joinBtn')
-      .off()
-      .on('click', function () {
-        if (this.requesting) return;
-
-        this.requesting = true;
-
-        ajaxRequest
-          .insertCalendarWeChatMember({
-            calendarID: settings.calendarID,
-            thirdID: settings.thirdID,
-            token: settings.token,
-          })
-          .then(source => {
-            this.requesting = false;
-
-            if (source.code === 1) {
-              $('#joinBox').addClass('hide');
-              $('#leaveBox').removeClass('hide');
-              $('#calendarMain header').html('日程（已加入）').addClass('joinStyle');
-              $('#memberList')
-                .append('，<span data-thirdid="' + settings.thirdID + '">' + htmlEncodeReg(source.data) + '</span>')
-                .html(
-                  $('#memberList')
-                    .html()
-                    .replace(/，$|^，/g, ''),
-                );
-              alert(_l('加入成功！'));
-            } else {
-              alert(_l('加入失败！失败原因：%0', source.msg));
-            }
-          });
-      });
-
-    // 添加到我的本地日程
-    $('#addCalendar')
-      .off()
-      .on('click', function (event) {
-        event.preventDefault();
-        if (navigator.userAgent.search(/weibo|mqqbrowser|mingdao/i) >= 0) {
-          var $addPrompt = $(
-            '<div class="promptDiv"><img src="/staticfiles/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
-          );
-          $('body').append($addPrompt);
-          $addPrompt.on('click', function () {
-            $(this).remove();
-          });
-          return false;
-        }
-
-        window.location.href = addToken(
-          `${md.global.Config.AjaxApiUrl}download/exportSharedCalendar?token=${settings.token}&thirdId=${settings.thirdID}`,
-        );
-      });
-
-    // 微信加入日程按钮提示浏览器打开
-    $('#wAddCalendar')
-      .off()
-      .on('click', function (event) {
-        event.preventDefault();
-        var $addPrompt = $(
-          '<div class="promptDiv"><img src="/staticfiles/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
-        );
-        $('body').append($addPrompt);
-        $addPrompt.on('click', function () {
-          $(this).remove();
-        });
-      });
-
-    // 打开首页
-    $('#openHome')
-      .off()
-      .on('click', function () {
-        window.open('/');
-      });
-
-    // 分享到朋友圈
-    wx.onMenuShareTimeline({
-      title: settings.data.calendarName,
-      link: settings.link,
-      imgUrl: settings.imgUrl,
-      success: function () {
-        alert(_l('分享成功！'));
-      },
-    });
-
-    // 分享给朋友
-    var desc = '时间：' + moment(settings.data.start).format('YYYY-MM-DD HH:mm');
-    ' ~ ' + moment(settings.data.end).format('YYYY-MM-DD HH:mm');
-    '/地点：' + settings.data.address + '\n';
-
-    wx.onMenuShareAppMessage({
-      title: settings.data.calendarName,
-      desc: desc,
-      link: settings.link,
-      imgUrl: settings.imgUrl,
-      success: function () {
-        alert(_l('分享成功！'));
-      },
-    });
-  }
-
-  /**
-   * 是否pc浏览
-   */
-  isPc() {
-    var userAgentInfo = navigator.userAgent;
-    var Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
-    var flag = true;
-    for (var v = 0; v < Agents.length; v++) {
-      if (userAgentInfo.indexOf(Agents[v]) > 0) {
-        flag = false;
-        break;
-      }
+  const downloadCalendar = event => {
+    event.preventDefault();
+    if (/weibo|mqqbrowser|mingdao/i.test(navigator.userAgent)) {
+      setShowBrowserPrompt(true);
+      return;
     }
 
-    return flag;
-  }
+    window.location.href = addToken(
+      `${md.global.Config.AjaxApiUrl}download/exportSharedCalendar?token=${token}&thirdId=${thirdIdRef.current}`,
+    );
+  };
 
-  isIOS() {
-    var userAgentInfo = navigator.userAgent;
-    var Agents = ['iPhone', 'iPad', 'iPod'];
-    var flag = false;
-    for (var v = 0; v < Agents.length; v++) {
-      if (userAgentInfo.indexOf(Agents[v]) > 0) {
-        flag = true;
-        break;
-      }
-    }
-
-    return flag;
-  }
-
-  /**
-   * 获取url参数
-   */
-  getUrlParam(name) {
-    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
-    var r = window.location.href.slice(window.location.href.search(/\?/) + 1).match(reg);
-    if (r != null) return unescape(r[2]);
-    return null;
-  }
-
-  /**
-   * 文件类型
-   */
-  returnExt(ext) {
-    switch (ext && ext.toLowerCase()) {
-      case 'png':
-      case 'jpg':
-      case 'jpeg':
-      case 'gif':
-      case 'bmp':
-        return 'img';
-      case 'swf':
-      case 'flv':
-      case 'f4v':
-        return 'flash';
-      case 'xls':
-      case 'xlsx':
-        return 'excel';
-      case 'doc':
-      case 'docx':
-      case 'dot':
-        return 'word';
-      case 'ppt':
-      case 'pptx':
-      case 'pps':
-        return 'ppt';
-      default:
-        return 'other';
-    }
-  }
-
-  /**
-   * 返回大小
-   */
-  filesize(size, accuracy) {
-    var units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    if (!size) {
-      return '0' + units[0];
-    }
-
-    var i = Math.floor(Math.log(size) / Math.log(1024));
-    return (size / Math.pow(1024, i)).toFixed(accuracy) * 1 + units[i];
-  }
-
-  render() {
+  if (status === 'loading') {
     return (
-      <Fragment>
-        <div className="w100" id="loading">
-          <div className="clipLoader"></div>
-        </div>
-        <div className="main w100 hide" id="calendarMain">
-          <header className="boxSizing Font16 p18 w100">{_l('日程')}</header>
-          <div className="content">
-            <div className="title boxSizing Font20 p18 w100" id="title"></div>
-            <div className="date boxSizing Relative Font16 pLeft55 p18 w100">
-              <i className="icons icon-date"></i>
-              {_l('时间')}
-            </div>
-            <div className="dateTime boxSizing Font14 pLeft55 p18 w100" id="dateTime"></div>
-            <div className="address boxSizing Relative Font16 pLeft55 p18 w100">
-              <i className="icons icon-address"></i>
-              {_l('地点')}
-            </div>
-            <div className="addressDesc boxSizing Font14 pLeft55 p18 w100" id="addressDesc"></div>
-            <div className="members boxSizing Relative Font16 pLeft55 p18 w100">
-              <i className="icons icon-members"></i>
-              {_l('人员')}
-            </div>
-            <div className="member boxSizing Font14 pLeft55 p18 w100">
-              <div className="w100">
-                <span id="createUserName"></span>
-                {_l('(发起人)')}
-              </div>
-              <div className="memberList w100" id="memberList"></div>
-            </div>
-            <div className="desc boxSizing Relative Font16 pLeft55 p18 w100" id="desc">
-              <i className="icons icon-desc"></i>
-              {_l('描述')}
-            </div>
-            <div className="descContent boxSizing Font14 pLeft55 p18 w100">
-              <div className="w100" id="descContent"></div>
-              <div className="w100 folder" id="folderList">
-                <div className="Clear"></div>
-              </div>
-              <div className="w100 images" id="imagesList">
-                <div className="Clear"></div>
-              </div>
-            </div>
-          </div>
-          <footer className="boxSizing Font16 p18 w100">
-            <div className="w100 hide" id="joinFooter">
-              <div className="w100" id="joinBox">
-                <div className="footerTitle w100">{_l('您是否确认参加本次日程？')}</div>
-                <a className="join" id="joinBtn">
-                  {_l('确认参加')}
-                </a>
-              </div>
-              <div className="w100" id="leaveBox">
-                <div className="w100 leaveBoxTitle">
-                  <span className="icons"></span>
-                  {_l('您已加入本次日程')}
-                </div>
-                <a href="" className="wAddCalendar" id="wAddCalendar">
-                  {_l('添加到手机日历')}
-                </a>
-                <a className="join leave" id="leaveBtn">
-                  {_l('退出日程')}
-                </a>
-              </div>
-            </div>
-            <div className="w100 hide" id="pcFooter">
-              <div className="pcFooterImg"></div>
-              <div className="pcFooterTitle w100 Font17">
-                <i></i>
-                {_l('微信扫描二维码，加入本次日程')}
-              </div>
-            </div>
-            <div className="w100 hide" id="mFooter">
-              <a className="addCalendar" id="addCalendar">
-                {_l('添加到手机日历')}
-              </a>
-              <div className="Font18 w100 save">{_l('保存二维码图片，加入日程')}</div>
-              <div className="mQRCode"></div>
-              <div className="Font14 mDesc">
-                {_l('1.保存此日程的二维码图片到手机')}
-                <br />
-                <span>{_l('2.使用微信扫一扫中的从相册扫描二维码功能，加入本次日程')}</span>
-              </div>
-            </div>
-          </footer>
-        </div>
+      <div className="w100" id="loading">
+        <div className="clipLoader" />
+      </div>
+    );
+  }
 
-        <div className="main w100 hide" id="noCalendarMain">
+  if (status === 'missing') {
+    return (
+      <>
+        <div className="main w100" id="noCalendarMain">
           <header className="boxSizing Font16 p18 w100">{_l('日程')}</header>
           <div className="content">
-            <div className="icons icon-noCalendar w100"></div>
+            <div className="icons icon-noCalendar w100" />
             <div className="Font18 w100 noCalendarTitle boxSizing">{_l('此日程不存在或分享内容已经被取消')}</div>
           </div>
         </div>
-      </Fragment>
+      </>
     );
   }
+
+  const repeatText = formatRepeat(calendarData);
+  const attachments = calendarData.attachments || [];
+  const imageAttachments = attachments.filter(
+    item => getFileType(item.ext || item.originalFilename?.split('.').pop()) === 'img',
+  );
+  const fileAttachments = attachments.filter(
+    item => getFileType(item.ext || item.originalFilename?.split('.').pop()) !== 'img',
+  );
+  const qrCodeUrl = addToken(
+    `${md.global.Config.AjaxApiUrl}code/CreateQrCodeImage?url=${encodeURIComponent(
+      pathCompletion(`/m/detail/calendar/?calendartoken=${token}`),
+    )}`,
+  );
+  const headerText = isTimeout ? _l('日程（已过期）') : joined ? _l('日程（已加入）') : _l('日程');
+
+  return (
+    <>
+      <div className="main w100" id="calendarMain">
+        <header className={`boxSizing Font16 p18 w100 ${isTimeout ? 'overdue' : ''} ${joined ? 'joinStyle' : ''}`}>
+          {headerText}
+        </header>
+        <div className="content">
+          <div className="title boxSizing Font20 p18 w100">{calendarData.calendarName}</div>
+          <div className="date boxSizing Relative Font16 pLeft55 p18 w100">
+            <i className="icons icon-date" />
+            {_l('时间')}
+          </div>
+          <div className="dateTime boxSizing Font14 pLeft55 p18 w100">
+            {_l('开始时间：%0', moment(calendarData.start).format('YYYY-MM-DD HH:mm'))}
+            <br />
+            {_l('结束时间：%0', moment(calendarData.end).format('YYYY-MM-DD HH:mm'))}
+            {repeatText && (
+              <>
+                <br />
+                {_l('重复：%0', repeatText)}
+              </>
+            )}
+          </div>
+          <div className="address boxSizing Relative Font16 pLeft55 p18 w100">
+            <i className="icons icon-address" />
+            {_l('地点')}
+          </div>
+          <div className="addressDesc boxSizing Font14 pLeft55 p18 w100">
+            {calendarData.address || _l('未填写地址')}
+          </div>
+          <div className="members boxSizing Relative Font16 pLeft55 p18 w100">
+            <i className="icons icon-members" />
+            {_l('人员')}
+          </div>
+          <div className="member boxSizing Font14 pLeft55 p18 w100">
+            <div className="w100">
+              {calendarData.createUserName} {_l('(发起人)')}
+            </div>
+            <div className="memberList w100">
+              {[
+                ...calendarData.members.map(member => member.memberName || member.Mobile || member.Email),
+                ...thirdUsers.map(user => user.nickName),
+              ]
+                .filter(Boolean)
+                .join('，')}
+            </div>
+          </div>
+          <div className="desc boxSizing Relative Font16 pLeft55 p18 w100">
+            <i className="icons icon-desc" />
+            {_l('描述')}
+          </div>
+          <div className="descContent boxSizing Font14 pLeft55 p18 w100">
+            <div className="w100 shareCalendarDescription">{calendarData.description}</div>
+            <div className="w100 folder">
+              {fileAttachments.map(item => {
+                const type = getFileType(item.ext || item.originalFilename?.split('.').pop());
+                const downloadUrl = getSafeUrl(item.downloadUrl);
+                return (
+                  <div
+                    className="folderList boxSizing"
+                    key={item.fileID || `${item.originalFilename}-${item.filesize}`}
+                  >
+                    <div className="folderListItem boxSizing Relative Font14 w100">
+                      <i className="folderListItemIcon">
+                        <span className={`icon-${type}`} />
+                      </i>
+                      {downloadUrl && (
+                        <a href={downloadUrl} className="itemDownload" target="_blank" rel="noopener noreferrer">
+                          <i className="icons icon-download" />
+                        </a>
+                      )}
+                      <div className="itemName w100 ellipsis">{`${item.originalFilename}.${String(item.ext || '').replace(/^\./, '')}`}</div>
+                      <div className="itemSize w100 ellipsis">{formatFileSize(item.filesize)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="Clear" />
+            </div>
+            <div className="w100 images">
+              {imageAttachments.map(item => {
+                const imageUrl = getSafeUrl(`${item.middlePath || ''}${item.middleName || ''}`);
+                return imageUrl ? (
+                  <div
+                    className="imagesList boxSizing"
+                    key={item.fileID || `${item.originalFilename}-${item.filesize}`}
+                  >
+                    <div className="imagesListItem boxSizing w100">
+                      <img src={imageUrl} alt={item.originalFilename || ''} />
+                    </div>
+                  </div>
+                ) : null;
+              })}
+              <div className="Clear" />
+            </div>
+          </div>
+        </div>
+
+        {!isTimeout && (
+          <footer className="boxSizing Font16 p18 w100">
+            {openType === 1 && (
+              <div className="w100">
+                {!joined ? (
+                  <div className="w100">
+                    <div className="footerTitle w100">{_l('您是否确认参加本次日程？')}</div>
+                    <button type="button" className="join" disabled={!!pendingAction} onClick={handleJoin}>
+                      {pendingAction === 'join' ? _l('正在加入...') : _l('确认参加')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w100">
+                    <div className="w100 leaveBoxTitle">
+                      <span className="icons" />
+                      {_l('您已加入本次日程')}
+                    </div>
+                    <button
+                      type="button"
+                      className="wAddCalendar"
+                      disabled={!!pendingAction}
+                      onClick={() => setShowBrowserPrompt(true)}
+                    >
+                      {_l('添加到手机日历')}
+                    </button>
+                    <button type="button" className="join leave" disabled={!!pendingAction} onClick={handleLeave}>
+                      {pendingAction === 'leave' ? _l('正在退出...') : _l('退出日程')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {openType === 0 && (
+              <div className="w100" id="pcFooter">
+                <div className="pcFooterImg">
+                  <img src={qrCodeUrl} alt={_l('日程二维码')} />
+                </div>
+                <div className="pcFooterTitle w100 Font17">
+                  <i />
+                  {_l('微信扫描二维码，加入本次日程')}
+                </div>
+              </div>
+            )}
+            {openType === -1 && (
+              <div className="w100" id="mFooter">
+                <button type="button" className="addCalendar" onClick={downloadCalendar}>
+                  {_l('添加到手机日历')}
+                </button>
+                <div className="Font18 w100 save">{_l('保存二维码图片，加入日程')}</div>
+                <div className="mQRCode">
+                  <img src={qrCodeUrl} alt={_l('日程二维码')} />
+                </div>
+                <div className="Font14 mDesc">
+                  {_l('1.保存此日程的二维码图片到手机')}
+                  <br />
+                  <span>{_l('2.使用微信扫一扫中的从相册扫描二维码功能，加入本次日程')}</span>
+                </div>
+              </div>
+            )}
+          </footer>
+        )}
+      </div>
+
+      {showBrowserPrompt && (
+        <button type="button" className="promptDiv" onClick={() => setShowBrowserPrompt(false)}>
+          <img src="/staticfiles/images/calendar/prompt.png" alt={_l('提示浏览器打开')} />
+        </button>
+      )}
+    </>
+  );
 }
 
 const WrappedComp = preall(CalendarShare, { allowNotLogin: true });

@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { EditInfo } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import SliderScaleConfig from '../components/SliderScaleConfig';
 
 export default function NumberConfig(props) {
@@ -27,25 +27,37 @@ export default function NumberConfig(props) {
       <Fragment>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={showinput === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { showinput: checked ? '0' : '1' }))}
-            text={_l('显示输入框')}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  showinput: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('显示输入框')}
+          </Checkbox>
         </div>
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={itemnames}
-            onClick={checked => {
-              if (checked) {
-                onChange(handleAdvancedSettingChange(data, { itemnames: '' }));
+            onChange={event => {
+              if (!event.target.checked) {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    itemnames: '',
+                  }),
+                );
               } else {
                 setNameVisible(true);
               }
             }}
-            text={_l('显示刻度')}
-          />
+            size="small"
+          >
+            {_l('显示刻度')}
+          </Checkbox>
         </div>
         {itemnames && (
           <EditInfo style={{ marginTop: '8px' }} onClick={() => setNameVisible(true)}>
@@ -65,19 +77,21 @@ export default function NumberConfig(props) {
         </div> */}
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={numshow === '1'}
-            onClick={checked =>
-              onChange(
+            onChange={event => {
+              const checked = !event.target.checked;
+              return onChange(
                 handleAdvancedSettingChange(data, {
                   suffix: checked ? '' : '%',
                   prefix: '',
                   numshow: checked ? '0' : '1',
                 }),
-              )
-            }
-            text={_l('按百分比显示')}
-          />
+              );
+            }}
+            size="small"
+          >
+            {_l('按百分比显示')}
+          </Checkbox>
         </div>
         {nameVisible && (
           <SliderScaleConfig
@@ -100,28 +114,37 @@ export default function NumberConfig(props) {
     <Fragment>
       <div className="labelWrap">
         <Checkbox
-          size="small"
           checked={thousandth !== '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { thousandth: checked ? '1' : '0' }))}
-          text={_l('显示千分位')}
-        />
+          onChange={event =>
+            onChange(
+              handleAdvancedSettingChange(data, {
+                thousandth: !event.target.checked ? '1' : '0',
+              }),
+            )
+          }
+          size="small"
+        >
+          {_l('显示千分位')}
+        </Checkbox>
       </div>
       {isNumShow && (
         <div className="labelWrap">
           <Checkbox
-            size="small"
             checked={numshow === '1'}
-            onClick={checked =>
-              onChange(
+            onChange={event => {
+              const checked = !event.target.checked;
+              return onChange(
                 handleAdvancedSettingChange(data, {
                   suffix: checked ? '' : '%',
                   prefix: '',
                   numshow: checked ? '0' : '1',
                 }),
-              )
-            }
-            text={_l('按百分比显示')}
-          />
+              );
+            }}
+            size="small"
+          >
+            {_l('按百分比显示')}
+          </Checkbox>
         </div>
       )}
     </Fragment>

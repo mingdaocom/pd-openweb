@@ -5,12 +5,13 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
-import { browserIsMobile } from 'src/utils/common';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 import { canSubmitByLimitFrequency } from './utils';
 
@@ -46,9 +47,9 @@ const DividerLine = styled.div`
   height: 15px;
 `;
 const MyWriteButton = styled.div(
-  ({ themeBgColor, isMobile }) => `
-    width: ${isMobile ? '100%' : 'fit-content'};
-    background: ${getRgbaByColor(themeBgColor, 0.05)};
+  ({ $themeBgColor, $isMobile }) => `
+    width: ${$isMobile ? '100%' : 'fit-content'};
+    background: ${getRgbaByColor($themeBgColor, 0.05)};
     height: 32px;
     padding: 0 12px;
     margin-bottom: 20px;
@@ -60,8 +61,8 @@ const MyWriteButton = styled.div(
       font-weight: 600;
       font-size: 14px;
     }
-    :hover {
-      background: ${getRgbaByColor(themeBgColor, 0.1)};
+    &:hover {
+      background: ${getRgbaByColor($themeBgColor, 0.1)};
     }
 `,
 );
@@ -183,12 +184,14 @@ export default function FilledRecord(props) {
           confirmText: <span className="Red">{_l('删除')}</span>,
           onConfirm: () => onDeleteRow(rowId),
         })
-      : Dialog.confirm({
-          title: _l('删除记录'),
-          buttonType: 'danger',
-          description: _l('删除后将不可恢复，确认删除吗？'),
+      : Modal.confirm({
+          title: <span className="textError">{_l('删除记录')}</span>,
+          okButtonProps: {
+            danger: true,
+          },
+          content: _l('删除后将不可恢复，确认删除吗？'),
           onOk: () => onDeleteRow(rowId),
-        });
+        }).destroy;
   };
 
   const onUpdateRecord = (rowId, updateObj) => {
@@ -357,8 +360,8 @@ export default function FilledRecord(props) {
     <React.Fragment>
       {isFillPage && !!filledRecord.count && (
         <MyWriteButton
-          isMobile={isMobile}
-          themeBgColor={themeBgColor}
+          $isMobile={isMobile}
+          $themeBgColor={themeBgColor}
           onClick={() => {
             setListDialogVisible(true);
             setFetchState({
@@ -414,17 +417,22 @@ export default function FilledRecord(props) {
           {renderRecordList()}
         </ModalWrapper>
       ) : (
-        <Dialog
-          visible={listDialogVisible}
+        <Modal
+          open={listDialogVisible}
+          mask={{ closable: true }}
+          keyboard
           type="fixed"
           className="filledRecordDialog"
-          title={_l('已填记录')}
+          title={<span className="Bold">{_l('已填记录')}</span>}
           width={1100}
-          showFooter={false}
+          footer={null}
+          styles={{
+            body: { background: 'var(--color-background-secondary)' },
+          }}
           onCancel={() => setListDialogVisible(false)}
         >
           {renderRecordList()}
-        </Dialog>
+        </Modal>
       )}
 
       {recordDetail.visible && (

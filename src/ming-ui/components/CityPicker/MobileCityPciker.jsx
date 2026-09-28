@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, LoadDiv, MobileSearch, PopupWrapper, Radio } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
+import { PopupWrapper } from 'ming-ui/antd-mobile-components';
 import '../less/MobileCityPicker.less';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
@@ -169,28 +171,30 @@ export default class MobileCityPicker extends Component {
                             })
                           }
                         >
-                          <div
-                            style={{
-                              color:
-                                select.length && select[select.length - 1].id === item.id
-                                  ? 'var(--color-primary)'
-                                  : 'var(--color-text-title)',
-                            }}
-                          >
-                            {showConfirmBtn && <Radio checked={(last || {}).id === item.id} />}
-                          </div>
                           <div className="popupListItemContentBox">
-                            <div
-                              className="popupListItemContent"
-                              style={{
-                                color:
-                                  select.length && select[select.length - 1].id === item.id
-                                    ? 'var(--color-primary)'
-                                    : 'var(--color-text-title)',
-                              }}
-                            >
-                              {!_.isArray(data[0]) ? item.path : item.name}
-                            </div>
+                            {showConfirmBtn ? (
+                              <Radio
+                                checked={(last || {}).id === item.id}
+                                style={{
+                                  color:
+                                    (last || {}).id === item.id ? 'var(--color-primary)' : 'var(--color-text-title)',
+                                }}
+                              >
+                                {!_.isArray(data[0]) ? item.path : item.name}
+                              </Radio>
+                            ) : (
+                              <div
+                                className="popupListItemContent"
+                                style={{
+                                  color:
+                                    select.length && select[select.length - 1].id === item.id
+                                      ? 'var(--color-primary)'
+                                      : 'var(--color-text-title)',
+                                }}
+                              >
+                                {!_.isArray(data[0]) ? item.path : item.name}
+                              </div>
+                            )}
                             {!item.last &&
                               level > indexLevel &&
                               _.isArray(data[0]) &&

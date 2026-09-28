@@ -1,10 +1,10 @@
 import React, { Component, createRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import SVG from 'svg.js';
-import { Icon, Menu, MenuItem, UpgradeIcon } from 'ming-ui';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Dropdown, Popover } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { Circle } from 'worksheet/styled';
@@ -13,8 +13,8 @@ import ChangeName from 'src/pages/integration/components/ChangeName';
 import Avator from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Avator';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { ACTION_LIST, NODE_TYPE_LIST, tBottom, tH, tLine, tW } from './config';
 
 const ClickAwayable = ClickAway;
@@ -117,26 +117,6 @@ const MoreOperate = styled.span`
   &:hover {
     background-color: var(--color-background-secondary);
     color: var(--color-primary);
-  }
-`;
-const MenuWrap = styled(Menu)`
-  position: relative !important;
-  overflow: auto;
-  padding: 6px 0 !important;
-  width: 200px !important;
-`;
-const MenuItemWrap = styled(MenuItem)`
-  .Item-content {
-    padding-left: 47px !important;
-  }
-`;
-
-const RedMenuItemWrap = styled(MenuItemWrap)`
-  .Item-content {
-    color: var(--color-error) !important;
-    .Icon {
-      color: var(--color-error) !important;
-    }
   }
 `;
 const DelNode = styled.div`
@@ -249,7 +229,7 @@ class TaskNode extends Component {
         <ul>
           {ACTION_LIST.map(o => {
             return (
-              <React.Fragment>
+              <React.Fragment key={o.type}>
                 <li
                   className={'flexRow alignItemsCenter Hand'}
                   onClick={() => {
@@ -326,7 +306,7 @@ class TaskNode extends Component {
         onClick={e => e.stopPropagation()}
       >
         <DelNode>
-          <div class="trangle"></div>
+          <div className="trangle"></div>
           <span className="Red Font14">{_l('同时删除分支下所有节点')}</span>
           <div className="TxtRight">
             <span
@@ -357,7 +337,7 @@ class TaskNode extends Component {
   };
 
   render() {
-    const { scale, nodeData = {}, currentId, onChangeCurrentNode, onUpdate, flowData, currentProjectId } = this.props;
+    const { nodeData = {}, currentId, onChangeCurrentNode, onUpdate, flowData, currentProjectId } = this.props;
     const { visible, popupVisible, showChangeName, showDel } = this.state;
     let yN = 0;
     let svgH = 0;
@@ -377,7 +357,6 @@ class TaskNode extends Component {
     return (
       <Wrap
         className="flexRow alignItemsCenter"
-        scale={scale}
         id={nodeData.nodeId}
         style={{ left: nodeData.x * (tW + tLine), top: nodeData.y * (tH + tBottom) }}
         ref={this.$itemWrap}
@@ -406,44 +385,38 @@ class TaskNode extends Component {
           </div>
 
           {!['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && (
-            <Trigger
-              action={['click']}
-              popupClassName="moOption"
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
               getPopupContainer={() => document.body}
-              popupVisible={popupVisible}
-              onPopupVisibleChange={popupVisible => {
+              open={popupVisible}
+              onOpenChange={popupVisible => {
                 this.setState({ popupVisible });
               }}
-              popupAlign={{
-                points: ['tr', 'br'],
-                offset: [0, 10],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              popup={
-                <MenuWrap>
-                  <MenuItemWrap
-                    icon={<Icon icon="edit" className="Font17 mLeft5" />}
-                    onClick={e => {
+              menu={{
+                style: { width: 200 },
+                items: [
+                  {
+                    key: 'rename',
+                    icon: <Icon icon="edit" className="Font17" />,
+                    label: _l('重命名'),
+                    onClick: ({ domEvent }) => {
                       this.setState({ popupVisible: false, showChangeName: true });
-                      e.stopPropagation();
-                    }}
-                  >
-                    {_l('重命名')}
-                  </MenuItemWrap>
-                  {/* 除了目的地和源，都可删除 */}
-                  {!['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && (
-                    <RedMenuItemWrap
-                      icon={<Icon icon="trash" className="Font17 mLeft5" />}
-                      onClick={e => {
-                        this.setState({ popupVisible: false, showDel: true });
-                        e.stopPropagation();
-                      }}
-                    >
-                      {_l('删除')}
-                    </RedMenuItemWrap>
-                  )}
-                </MenuWrap>
-              }
+                      domEvent.stopPropagation();
+                    },
+                  },
+                  !['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && {
+                    key: 'delete',
+                    danger: true,
+                    icon: <Icon icon="trash" className="Font17" />,
+                    label: _l('删除'),
+                    onClick: ({ domEvent }) => {
+                      this.setState({ popupVisible: false, showDel: true });
+                      domEvent.stopPropagation();
+                    },
+                  },
+                ].filter(Boolean),
+              }}
             >
               <MoreOperate
                 className="moreOperate mTop3"
@@ -454,30 +427,26 @@ class TaskNode extends Component {
               >
                 <i className="icon icon-more_horiz"></i>
               </MoreOperate>
-            </Trigger>
+            </Dropdown>
           )}
         </div>
         {/*目的地后不能添加操作 */}
         {nodeData.nodeType !== 'DEST_TABLE' && !!featureType && (
-          <Trigger
-            popupVisible={visible}
-            action={['click']}
-            popup={this.renderPopup()}
+          <Popover
+            noPadding
+            open={visible}
+            trigger="click"
+            content={this.renderPopup()}
             getPopupContainer={() => document.body}
-            onPopupVisibleChange={visible => {
+            onOpenChange={visible => {
               this.setState({ visible });
             }}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 10],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            zIndex={1000}
+            placement="bottomLeft"
           >
             <AddNode size={24} className="addNode">
               <i className="icon icon-add" />
             </AddNode>
-          </Trigger>
+          </Popover>
         )}
         {nodeData.pathIds.length > 0 && (
           <div

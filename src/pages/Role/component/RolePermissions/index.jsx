@@ -7,12 +7,6 @@ import RoleInfoCon from './RoleInfoCon';
 
 const Wrap = styled.div`
   height: 100%;
-  .roleSearch {
-    background: var(--color-background-primary);
-    border-radius: 0;
-    width: 100%;
-    padding-left: 0px;
-  }
   .rg {
     .Font100 {
       font-size: 100px;

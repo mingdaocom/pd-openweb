@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
-import { Popover } from 'antd';
 import cx from 'classnames';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Popover, Segmented, Tooltip } from 'ming-ui/antd-components';
 import { TabsSettingPopover } from './styled.js';
 
 let isEdit = false;
@@ -26,28 +25,29 @@ export default props => {
     <Fragment>
       {!editRichText && (
         <Tooltip title={_l('编辑')} placement="bottom">
-          <li
-            className={cx('edit', { highlight })}
+          <div
+            className={cx('toolItem edit', { highlight })}
             key="edit"
             onClick={() => {
               props.handleToolClick(type, { editRichText: true });
             }}
           >
             <i className={`icon-edit Font18`}></i>
-          </li>
+          </div>
         </Tooltip>
       )}
       <Popover
-        zIndex={1000}
         placement="bottomLeft"
-        overlayClassName="tabsSettingPopover"
-        arrowPointAtCenter={true}
+        classNames={{ root: 'tabsSettingPopover' }}
+        arrow={{ pointAtCenter: true }}
         mouseLeaveDelay={0.3}
-        overlayInnerStyle={{
-          padding: 24,
+        styles={{
+          body: {
+            padding: 24,
+          },
         }}
-        visible={popoverVisible}
-        onVisibleChange={visible => {
+        open={popoverVisible}
+        onOpenChange={visible => {
           if (isEdit) return;
           setPopoverVisible(visible);
         }}
@@ -76,28 +76,24 @@ export default props => {
             */}
             <div className="flexRow valignWrapper">
               <div className="bold mRight10">{_l('显示方式')}</div>
-              <div className="typeSelect flex flexRow valignWrapper">
-                <div
-                  className={cx('centerAlign flex pointer textSecondary', { active: showType === 1 })}
-                  onClick={() => handleChangeConfig({ showType: 1 })}
-                >
-                  {_l('透明')}
-                </div>
-                <div
-                  className={cx('centerAlign flex pointer textSecondary', { active: showType === 2 })}
-                  onClick={() => handleChangeConfig({ showType: 2 })}
-                >
-                  {_l('卡片')}
-                </div>
-              </div>
+              <Segmented
+                block
+                className="flex"
+                options={[
+                  { label: _l('透明'), value: 1 },
+                  { label: _l('卡片'), value: 2 },
+                ]}
+                value={showType}
+                onChange={value => handleChangeConfig({ showType: value })}
+              />
             </div>
           </TabsSettingPopover>
         }
         getPopupContainer={() => document.body}
       >
-        <li className={cx(type, { highlight })} key={type}>
+        <div className={cx('toolItem', type, { highlight })} key={type}>
           <i className={`icon-${icon} Font18`}></i>
-        </li>
+        </div>
       </Popover>
     </Fragment>
   );

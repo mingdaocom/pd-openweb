@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import { LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID } from '../../enum';
 import { checkConditionsIsNull } from '../../utils';
 import {
@@ -203,10 +204,16 @@ export default class LoopProcess extends Component {
         {END_LIST.map(item => (
           <div className="mTop10" key={item.value}>
             <Radio
-              text={item.text}
               checked={data.executeType === item.value}
-              onClick={() => this.updateSource({ executeType: item.value })}
-            />
+              onChange={() =>
+                this.updateSource({
+                  executeType: item.value,
+                })
+              }
+              title={item.text}
+            >
+              {item.text}
+            </Radio>
           </div>
         ))}
       </Fragment>

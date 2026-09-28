@@ -29,7 +29,16 @@ export default function createPermissionCheckWrapper(Comp) {
           if (able) {
             setLoading(false);
           } else {
-            setError(_l('抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！'));
+            if (window.platformENV.isOverseas || window.platformENV.isLocal) {
+              setError(_l('抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！'));
+            } else {
+              setError(
+                _l(
+                  '抱歉，操作过于频繁或者创建的组织已经达到上限，请升级至付费版本即可创建更多组织，如有疑问请咨询客服！',
+                ),
+              );
+            }
+
             setLoading(false);
           }
         })

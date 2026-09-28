@@ -1,17 +1,23 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import { ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import DatePicker from 'ming-ui/components/DatePicker';
-import Dropdown from 'ming-ui/components/Dropdown';
+import { DatePicker, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import * as ajax from '../../utils/ajax';
-import config from '../../utils/config';
 import { FileItem, splitFiles } from './index';
 
 const { RangePicker } = DatePicker;
+
+const RANGE_PICKER_STYLES = {
+  root: {
+    pointerEvents: 'none',
+    opacity: 0,
+    position: 'absolute',
+    bottom: 0,
+    insetInlineStart: 0,
+  },
+};
 
 const fileTypeData = [
   {
@@ -63,6 +69,7 @@ export default class FilesPanel extends Component {
       start: '',
       end: '',
       visible: false,
+      datePickerVisible: false,
       selectedIndex: -1,
     };
     this.fromUserData = [
@@ -152,6 +159,7 @@ export default class FilesPanel extends Component {
   handleChange(visible) {
     this.setState({
       visible,
+      ...(!visible ? { datePickerVisible: false } : {}),
     });
   }
   handleDateChange(date, index) {
@@ -187,74 +195,113 @@ export default class FilesPanel extends Component {
     );
     this.handleChange(false);
   }
-  renderToolbar() {
-    const { selectedIndex } = this.state;
-    const rangePickerProps = {
-      offset: {
-        left: -542,
-        top: -197,
-      },
-      allowClear: false,
-      max: moment(),
-      popupParentNode: () => document.querySelector('.ChatPanel-FilesPanel-filterDate'),
-      onOk: selectValue => {
-        this.handleDateChange(selectValue, 4);
-      },
-    };
+  renderDropdown(data, value, onChange) {
+    const selectedItem = data.find(item => item.value === value) || data[0];
+
     return (
-      <div className="ChatPanel-addToolbar-menu ChatPanel-FilesPanel-filterDate">
-        {filterDate.map((item, index) => (
-          <div
-            className={cx('item', { bgColorPrimary: index === selectedIndex })}
-            onClick={this.handleDateChange.bind(this, item.date, index)}
-            key={index}
-          >
-            {item.text}
-          </div>
-        ))}
-        <RangePicker {...rangePickerProps}>
-          <div className={cx('item', { bgColorPrimary: selectedIndex === 4 })}>{_l('自定义时间')}</div>
-        </RangePicker>
-        <div className="item" onClick={this.handleClearDate.bind(this)}>
-          {_l('清除')}
+      <Dropdown
+        trigger={['click']}
+        placement="bottomLeft"
+        menu={{
+          selectable: true,
+          selectedKeys: [String(value)],
+          style: { minWidth: 160 },
+          items: data.map(item => ({
+            key: String(item.value),
+            label: item.text,
+            onClick: () => onChange(item.value),
+          })),
+        }}
+      >
+        <div className="filterDropdownTrigger">
+          <span className="ellipsis">{selectedItem.text}</span>
+          <i className="icon-arrow-down-border textTertiary" />
         </div>
-      </div>
+      </Dropdown>
     );
   }
+  renderDateMenuItems() {
+    const { start, end, datePickerVisible } = this.state;
+    const dateValue = start && end ? [moment(start), moment(end)] : null;
+
+    return [
+      ...filterDate.map((item, index) => ({
+        key: String(index),
+        label: item.text,
+        onClick: this.handleDateChange.bind(this, item.date, index),
+      })),
+      {
+        key: 'custom',
+        label: (
+          <div
+            onClick={event => {
+              event.stopPropagation();
+              this.setState({ datePickerVisible: true });
+            }}
+          >
+            <span>{_l('自定义日期')}</span>
+            <div onClick={event => event.stopPropagation()}>
+              <RangePicker
+                disabledDate={current => current && current.isAfter(moment(), 'day')}
+                getPopupContainer={triggerNode => triggerNode.closest('.chatFilesDateDropdown') || document.body}
+                open={datePickerVisible}
+                placement="bottomRight"
+                styles={RANGE_PICKER_STYLES}
+                value={dateValue}
+                onOpenChange={open => {
+                  if (!open) {
+                    this.setState({ datePickerVisible: false });
+                  }
+                }}
+                onChange={selectValue => {
+                  if (selectValue && selectValue[0] && selectValue[1]) {
+                    this.handleDateChange(selectValue, filterDate.length);
+                  } else {
+                    this.handleClearDate();
+                  }
+                }}
+              />
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: 'clear',
+        danger: true,
+        label: _l('清除'),
+        onClick: this.handleClearDate.bind(this),
+      },
+    ];
+  }
   renderFilterDate() {
-    const { visible, start, end } = this.state;
+    const { visible, start, end, selectedIndex } = this.state;
     const startDate = moment(start);
     const endDate = moment(end);
+
     return (
       <div className="filter-data">
         {start && end ? (
-          <Tooltip
-            title={
-              <span>
-                {startDate.format('YYYY-MM-DD')} ~ {endDate.format('YYYY-MM-DD')}
-              </span>
-            }
-          >
+          <Tooltip title={`${startDate.format('YYYY-MM-DD')} ~ ${endDate.format('YYYY-MM-DD')}`}>
             <span>
               {startDate.format('MM-DD')}~{endDate.format('MM-DD')}
             </span>
           </Tooltip>
         ) : undefined}
-        <Trigger
-          popupVisible={visible}
-          onPopupVisibleChange={this.handleChange.bind(this)}
-          popupClassName="ChatPanel-Trigger"
-          action={['click']}
-          popupPlacement="bottom"
-          popup={this.renderToolbar()}
-          popupAlign={{
-            offset: [0, 10],
-            points: config.builtinPlacements.bottomRight.points,
+        <Dropdown
+          classNames={{ root: 'chatFilesDateDropdown' }}
+          menu={{
+            items: this.renderDateMenuItems(),
+            selectable: true,
+            style: { width: 250 },
+            selectedKeys: selectedIndex >= 0 && selectedIndex < filterDate.length ? [String(selectedIndex)] : [],
           }}
-          builtinPlacements={config.builtinPlacements}
+          open={visible}
+          placement="bottomRight"
+          trigger={['click']}
+          onOpenChange={this.handleChange.bind(this)}
         >
           <i className="icon-bellSchedule" />
-        </Trigger>
+        </Dropdown>
       </div>
     );
   }
@@ -266,25 +313,20 @@ export default class FilesPanel extends Component {
           <span className="title">{_l('文件')}</span>
         </div>
         <div className="filter">
-          <Dropdown
-            className="dropdown"
-            value={fileType}
-            data={fileTypeData}
-            onChange={this.handleFileTypeChange.bind(this)}
-          />
-          <Dropdown
-            className="dropdown"
-            value={fromUser}
-            data={this.fromUserData}
-            onChange={this.handleFromUserChange.bind(this)}
-          />
+          {this.renderDropdown(fileTypeData, fileType, this.handleFileTypeChange.bind(this))}
+          {this.renderDropdown(this.fromUserData, fromUser, this.handleFromUserChange.bind(this))}
           {this.renderFilterDate()}
         </div>
         <div className="content">
           <ScrollView onScrollEnd={this.handleScrollEnd.bind(this)}>
             <div className={cx('flex', { 'ChatPanel-Image-list': fileType === 2 })}>
               {files.map((item, index) => (
-                <FileItem item={item} key={item.fileId || index} fileType={fileType} />
+                <FileItem
+                  item={item}
+                  key={item.fileId || index}
+                  fileType={fileType}
+                  onGotoMessage={this.props.onGotoMessage}
+                />
               ))}
               <LoadDiv className={cx({ Hidden: !loading })} size="small" />
               {!loading && !files.length ? (

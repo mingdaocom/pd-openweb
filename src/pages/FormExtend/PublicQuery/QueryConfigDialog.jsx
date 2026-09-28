@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
+import { Checkbox, Input, Modal, Select } from 'ming-ui/antd-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { WIDGETS_TO_API_TYPE_ENUM, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { getShowViews } from 'src/pages/worksheet/views/util';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 
 const Item = styled.div`
   margin-bottom: 20px;
-  .Dropdown {
+  .queryConfigControlsDropdown {
     width: 260px;
-    .Menu {
-      width: 100%;
-    }
-  }
-  .MenuBox .Menu {
-    width: auto;
   }
 `;
 
@@ -34,40 +28,6 @@ const Desp = styled.div`
   color: var(--color-text-tertiary);
 `;
 
-const TagCon = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  li {
-    align-items: center;
-    box-sizing: border-box;
-    margin: 3px 6px 3px 0;
-    border-radius: 3px;
-    height: 24px;
-    padding: 6px 5px 6px 10px;
-    background-color: var(--color-background-secondary);
-    border: 1px solid var(--color-border-primary);
-    &.error {
-      background-color: var(--color-error-bg);
-      border-color: var(--color-error-bg);
-      color: var(--color-error);
-    }
-    .tag {
-      margin-right: 5px;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-    }
-    .delTag {
-      color: rgba(0, 0, 0, 0.3);
-      &:hover {
-        color: rgba(0, 0, 0, 0.5);
-      }
-    }
-  }
-`;
-
 const AVAILABLE_TYPES = [
   WIDGETS_TO_API_TYPE_ENUM.TEXT,
   WIDGETS_TO_API_TYPE_ENUM.NUMBER,
@@ -81,12 +41,23 @@ export default function QueryConfigDialog(props) {
   const [tempQueryInfo, setTempQueryInfo] = useState({});
   const { queryInfo = {}, onClose, onSuccess } = props;
   const { title, queryControlIds = [], viewId, worksheet, exported } = { ...queryInfo, ...tempQueryInfo };
+  const queryControlOptions = worksheet.template.controls
+    .filter(
+      control =>
+        !WORKFLOW_SYSTEM_CONTROL.some(item => item.controlId === control.controlId) &&
+        _.includes(AVAILABLE_TYPES, control.type),
+    )
+    .map(control => ({ label: control.controlName, value: control.controlId }));
+  const deletedControlOptions = queryControlIds
+    .filter(id => !queryControlOptions.some(option => option.value === id))
+    .map(value => ({ label: <span className="Red">{_l('字段已删除')}</span>, value }));
   return (
-    <Dialog
+    <Modal
       title={_l('设置查询链接')}
       style={{ width: '560px' }}
-      overlayClosable={false}
-      visible
+      mask={{ closable: false }}
+      open
+      keyboard
       okDisabled={_.isEmpty(queryControlIds) || !viewId}
       onOk={() => {
         const params = {
@@ -111,13 +82,12 @@ export default function QueryConfigDialog(props) {
           {_l('查询视图')} <span className="required">*</span>
         </Title>
         <Desp>{_l('对所选视图下数据进行查询')}</Desp>
-        <Dropdown
+        <Select
           value={viewId}
-          data={getShowViews(worksheet.views || []).map(view => ({
-            text: view.name,
+          options={getShowViews(worksheet.views || []).map(view => ({
+            label: view.name,
             value: view.viewId,
           }))}
-          border
           placeholder={_l('请选择视图')}
           onChange={value => setTempQueryInfo({ ...tempQueryInfo, viewId: value })}
         />
@@ -131,61 +101,21 @@ export default function QueryConfigDialog(props) {
             '选择作为查询条件的字段。如设置多个条件，则所有条件都为必填。只支持文本类型字段进行查询，如：学号、身份证号、手机号、订单编号',
           )}
         </Desp>
-        <Dropdown
+        <Select
+          mode="multiple"
           className="queryConfigControlsDropdown w100"
-          selectClose={false}
-          data={worksheet.template.controls
-            .filter(
-              c =>
-                !_.find(
-                  queryControlIds.concat(WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId)),
-                  cid => cid === c.controlId,
-                ) && _.includes(AVAILABLE_TYPES, c.type),
-            )
-            .map(control => {
-              return {
-                text: <span>{control.controlName}</span>,
-                searchText: control.controlName,
-                value: control.controlId,
-              };
-            })}
-          value={queryControlIds.length || undefined}
-          border
-          isAppendToBody
+          options={[...deletedControlOptions, ...queryControlOptions]}
+          value={queryControlIds}
           placeholder={_l('请选择查询条件字段')}
-          maxHeight={280}
-          onChange={value => {
+          listHeight={280}
+          showPopupSearch
+          optionFilterProp="label"
+          onChange={values => {
             setTempQueryInfo({
               ...tempQueryInfo,
-              queryControlIds: _.uniqBy(queryControlIds.concat(value)),
+              queryControlIds: values,
             });
           }}
-          renderTitle={() =>
-            !!queryControlIds.length && (
-              <TagCon>
-                {queryControlIds.map(id => {
-                  const control = _.find(worksheet.template.controls, item => item.controlId === id);
-                  return (
-                    <li key={id} className={cx('tagItem flexRow', { error: !control })}>
-                      <span className="tag">{control ? control.controlName : _l('字段已删除')}</span>
-                      <span
-                        className="delTag"
-                        onClick={e => {
-                          e.stopPropagation();
-                          setTempQueryInfo({
-                            ...tempQueryInfo,
-                            queryControlIds: queryControlIds.filter(cid => cid !== id),
-                          });
-                        }}
-                      >
-                        <Icon icon="close" className="pointer" />
-                      </span>
-                    </li>
-                  );
-                })}
-              </TagCon>
-            )
-          }
         />
       </Item>
       <Item>
@@ -194,19 +124,25 @@ export default function QueryConfigDialog(props) {
         <Input
           className="w100"
           value={title}
-          onChange={value => setTempQueryInfo({ ...tempQueryInfo, title: value })}
+          onChange={event => setTempQueryInfo({ ...tempQueryInfo, title: event.target.value })}
         />
       </Item>
       <Item>
         <Title>{_l('设置')}</Title>
         <Desp></Desp>
         <Checkbox
-          text={_l('允许导出数据')}
           checked={exported}
-          onClick={() => setTempQueryInfo({ ...tempQueryInfo, exported: !exported })}
-        />
+          onChange={() =>
+            setTempQueryInfo({
+              ...tempQueryInfo,
+              exported: !exported,
+            })
+          }
+        >
+          {_l('允许导出数据')}
+        </Checkbox>
       </Item>
-    </Dialog>
+    </Modal>
   );
 }
 

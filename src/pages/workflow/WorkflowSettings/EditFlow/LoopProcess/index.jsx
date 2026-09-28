@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID } from '../../enum';
 import { CreateNode, NodeOperate } from '../components';
 

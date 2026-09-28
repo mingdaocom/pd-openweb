@@ -1,17 +1,16 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import bg from 'staticfiles/images/connectorBg.png';
 import styled from 'styled-components';
-import { Button, Icon, ScrollView, Support } from 'ming-ui';
+import { Icon, ScrollView, Support } from 'ming-ui';
+import { Button, Select } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
 import dataConnectorApi from '../../api/dataConnector';
 import dataSourceApi from '../../api/datasource';
 import syncTaskApi from '../../api/syncTask';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import { ROLE_TYPE } from '../constant';
 import { AddConnector } from './components';
 import './style.less';
@@ -89,38 +88,10 @@ const FormCard = styled.div`
     width: 100%;
     margin-right: 16px;
     margin-top: 6px;
-
-    .ant-select-selector {
-      min-height: 48px;
-      padding: 8px 11px !important;
-      border: 2px solid var(--color-border-secondary) !important;
-      border-radius: 8px !important;
-      box-shadow: none !important;
-
-      .ant-select-selection-search {
-        top: 8px !important;
-      }
-    }
-
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: var(--color-primary) !important;
-      }
-    }
   }
   .nextButton {
-    width: 180px;
-    height: 48px;
     margin-top: 26px;
     margin-left: 16px;
-    min-width: 180px;
-    max-width: 180px;
-    background: var(--color-primary);
-    border-radius: 8px !important;
-
-    &.disabled {
-      background: var(--color-primary-light) !important;
-    }
   }
 `;
 
@@ -316,7 +287,7 @@ function Connector(props) {
 
             <Button
               type="primary"
-              className={cx('nextButton', { disabled: !connectorConfigData.source || !connectorConfigData.dest })}
+              className="nextButton"
               disabled={!connectorConfigData.source || !connectorConfigData.dest}
               onClick={onClickNext}
             >

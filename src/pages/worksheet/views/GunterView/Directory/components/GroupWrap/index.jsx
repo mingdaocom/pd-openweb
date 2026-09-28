@@ -4,12 +4,40 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import { isChartScrollLocked, setChartScrollLock, setGroupingScrollLock } from 'worksheet/views/GunterView/scrollState';
+import {
+  getGunterScrollerHeight,
+  getGunterVisibleRange,
+  getVisibleGunterGroups,
+  isSameGunterVisibleRange,
+} from 'worksheet/views/GunterView/virtual';
 import GroupItem from '../GroupItem';
 
+const isGunterExport = location.href.includes('gunterExport');
+const defaultTitleWidth = 200;
+const defaultFieldWidth = 180;
+const operateWidth = 32;
+const dayCountWidth = 80;
+const getColumnWidth = (widthConfig, index, defaultWidth) => Number(widthConfig[index]) || defaultWidth;
+const getDirectoryContentWidth = (widthConfig = {}, viewConfig = {}) => {
+  const displayControls = viewConfig.displayControls || [];
+  const startIndex = displayControls.length + 1;
+  const endIndex = displayControls.length + 2;
+  const displayControlsWidth = displayControls.reduce((total, control, index) => {
+    return total + getColumnWidth(widthConfig, index + 1, defaultFieldWidth);
+  }, 0);
+  return (
+    operateWidth +
+    getColumnWidth(widthConfig, 0, defaultTitleWidth) +
+    displayControlsWidth +
+    getColumnWidth(widthConfig, startIndex, defaultFieldWidth) +
+    getColumnWidth(widthConfig, endIndex, defaultFieldWidth) +
+    dayCountWidth
+  );
+};
 const GroupingTotalWrapper = styled.div`
   height: 100%;
   pointer-events: none;
@@ -27,9 +55,9 @@ let GroupWrap = class GroupWrap extends Component {
     this.$groupingWrapperRef = createRef(null);
     this.state = {
       groupingScrollX: 0,
+      visibleRange: getGunterVisibleRange(null, props.grouping),
     };
   }
-
   componentDidMount() {
     const scroll = new IScroll(this.$groupingWrapperRef.current, {
       scrollX: true,
@@ -55,48 +83,66 @@ let GroupWrap = class GroupWrap extends Component {
       setChartScrollLock(true);
     });
     this.props.updateGroupingScroll(scroll);
+    this.updateScrollState(scroll);
   }
-
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.loading !== prevProps.loading || !_.isEqual(this.props.widthConfig, prevProps.widthConfig)) {
         setTimeout(() => {
-          this.props.groupingScroll.refresh();
+          this.props.groupingScroll && this.props.groupingScroll.refresh();
           this.handleUpdateWidth(this.props);
+          this.updateScrollState();
         }, 100);
+      }
+      if (this.props.grouping !== prevProps.grouping) {
+        setTimeout(() => {
+          this.props.groupingScroll && this.props.groupingScroll.refresh();
+          this.updateScrollState();
+        }, 0);
       }
     }
   }
-
   componentWillUnmount() {
     const { groupingScroll } = this.props;
-
     if (groupingScroll) {
       groupingScroll.off('scroll', this.linkageScroll);
       groupingScroll.destroy();
       this.props.updateGroupingScroll(null);
     }
   }
-
   linkageScroll = () => {
+    const { chartScroll, groupingScroll } = this.props;
+    if (!groupingScroll) {
+      return;
+    }
+    this.updateScrollState(groupingScroll);
     if (isChartScrollLocked()) {
       return;
     }
-
-    const { groupingScroll, chartScroll } = this.props;
-    this.setState({
-      groupingScrollX: Math.abs(groupingScroll.x),
-    });
     this.handleUpdateX(groupingScroll.x);
     chartScroll.scrollTo(chartScroll.x, groupingScroll.y);
-
     chartScroll._execEvent('scroll');
+  };
+  updateScrollState = scroll => {
+    const { grouping, groupingScroll } = this.props;
+    const currentScroll = scroll || groupingScroll;
+    const visibleRange = getGunterVisibleRange(currentScroll, grouping);
+    const groupingScrollX = Math.abs((currentScroll && currentScroll.x) || 0);
+    const state = {};
+    if (this.state.groupingScrollX !== groupingScrollX) {
+      state.groupingScrollX = groupingScrollX;
+    }
+    if (!isSameGunterVisibleRange(this.state.visibleRange, visibleRange)) {
+      state.visibleRange = visibleRange;
+    }
+    if (!_.isEmpty(state)) {
+      this.setState(state);
+    }
   };
   handleUpdateWidth = props => {
     const { base, groupingScroll } = props || this.props;
     const controlHeader = document.querySelector(`.gunterView-${base.viewId} .groupingControlHeader`);
-
-    if (controlHeader) {
+    if (controlHeader && groupingScroll) {
       this.handleUpdateX(groupingScroll.x);
       controlHeader.style.width = `${groupingScroll.scrollerWidth}px`;
       controlHeader.classList.remove('hide');
@@ -105,12 +151,10 @@ let GroupWrap = class GroupWrap extends Component {
   handleUpdateX = x => {
     const { base } = this.props;
     const controlHeader = document.querySelector(`.gunterView-${base.viewId} .groupingControlHeader`);
-
     if (controlHeader) {
       controlHeader.style.transform = `translateX(${x}px)`;
     }
   };
-
   renderGroupingTotal() {
     const { grouping } = this.props;
     return (
@@ -130,45 +174,74 @@ let GroupWrap = class GroupWrap extends Component {
       </GroupingTotalWrapper>
     );
   }
-
   renderLoading() {
     return (
       <div className="Relative">
         <Skeleton
+          className="pAll20 pBottom0"
           style={{
             flex: 1,
           }}
-          direction="column"
-          widths={['30%', '40%', '90%', '60%']}
           active
-          itemStyle={{
-            marginBottom: '10px',
+          paragraph={{
+            rows: 4,
+            width: ['30%', '40%', '90%', '60%'],
           }}
         />
         <Skeleton
+          className="pAll20"
           style={{
             flex: 1,
           }}
-          direction="column"
-          widths={['30%', '40%', '90%', '60%']}
           active
-          itemStyle={{
-            marginBottom: '10px',
+          paragraph={{
+            rows: 4,
+            width: ['30%', '40%', '90%', '60%'],
           }}
         />
       </div>
     );
   }
-
   renderContent() {
-    const { groupingScrollX } = this.state;
-    const { width, grouping, widthConfig } = this.props;
+    const { groupingScrollX, visibleRange } = this.state;
+    const { width, grouping, widthConfig, withoutArrangementVisible, viewConfig } = this.props;
+    if (isGunterExport) {
+      return (
+        <div>
+          {grouping.map(item => (
+            <GroupItem
+              key={item.key}
+              group={item}
+              width={width + groupingScrollX}
+              widthConfig={widthConfig}
+              onUpdateHeaderWidth={this.handleUpdateWidth}
+            />
+          ))}
+        </div>
+      );
+    }
+    const visibleGroups = getVisibleGunterGroups(grouping, visibleRange, withoutArrangementVisible);
+    const scrollerHeight = getGunterScrollerHeight(
+      grouping,
+      this.$groupingWrapperRef.current ? this.$groupingWrapperRef.current.clientHeight : 0,
+    );
+    const scrollerWidth = Math.max(width, getDirectoryContentWidth(widthConfig, viewConfig));
     return (
-      <div>
-        {grouping.map(item => (
+      <div
+        className="gunterVirtualRows"
+        style={{
+          height: scrollerHeight,
+          width: scrollerWidth,
+        }}
+      >
+        {visibleGroups.map(item => (
           <GroupItem
-            key={item.key}
-            group={item}
+            key={item.group.key}
+            group={item.group}
+            groupRowVisible={item.groupVisible}
+            visibleRows={item.rows}
+            visibleRange={visibleRange}
+            virtual
             width={width + groupingScrollX}
             widthConfig={widthConfig}
             onUpdateHeaderWidth={this.handleUpdateWidth}
@@ -177,7 +250,6 @@ let GroupWrap = class GroupWrap extends Component {
       </div>
     );
   }
-
   render() {
     const { loading } = this.props;
     return (
@@ -196,7 +268,16 @@ let GroupWrap = class GroupWrap extends Component {
   }
 };
 GroupWrap = connect(
-  state => ({ ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'groupingScroll', 'chartScroll']) }),
+  state => ({
+    ..._.pick(state.sheet.gunterView, [
+      'loading',
+      'grouping',
+      'groupingScroll',
+      'chartScroll',
+      'withoutArrangementVisible',
+      'viewConfig',
+    ]),
+  }),
   dispatch => bindActionCreators(actions, dispatch),
 )(GroupWrap);
 export default GroupWrap;

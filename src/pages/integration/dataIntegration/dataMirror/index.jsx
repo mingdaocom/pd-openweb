@@ -3,8 +3,8 @@ import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, Support } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import CreateDialog from './components/CreateDialog.jsx';
 import MirrorList from './components/MirrorList.jsx';
 
@@ -23,7 +23,6 @@ const Wrap = styled.div`
     .searchInput {
       width: 360px;
       min-width: 360px;
-      height: 36px;
     }
     .filterIcon {
       display: flex;

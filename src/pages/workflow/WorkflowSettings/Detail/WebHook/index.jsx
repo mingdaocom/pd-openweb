@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { checkJSON, formatTestParameters } from '../../utils';
 import {
@@ -18,6 +18,8 @@ import {
   SpecificFieldsValue,
   TestParameter,
 } from '../components';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const GenerateJSONBox = styled.textarea`
   padding: 12px;
@@ -292,7 +294,7 @@ export default class WebHook extends Component {
         {this.renderHeaders()}
         {!_.includes([1, 4, 5], data.method) && this.renderBody()}
 
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+        {window.platformENV.isHap && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('可信 IP 地址')}</div>
             <div className="mTop10 textSecondary">
@@ -376,27 +378,41 @@ export default class WebHook extends Component {
                 key={i}
               >
                 <Radio
-                  text={item.text}
                   checked={data.contentType === item.value || (data.contentType === 3 && item.value === 2)}
-                  onClick={() =>
+                  onChange={() =>
                     this.updateSource({
                       contentType: item.value,
                       body: '',
                       formControls: [
                         Object.assign(
-                          { name: item.value === 5 ? 'file' : '', value: '' },
-                          item.value === 4 ? { type: 2 } : item.value === 5 ? { type: 14 } : {},
+                          {
+                            name: item.value === 5 ? 'file' : '',
+                            value: '',
+                          },
+                          item.value === 4
+                            ? {
+                                type: 2,
+                              }
+                            : item.value === 5
+                              ? {
+                                  type: 14,
+                                }
+                              : {},
                         ),
                       ],
                     })
                   }
-                />
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
                 {item.value === 2 && _.includes([2, 3], data.contentType) && (
-                  <Dropdown
+                  <Select
                     style={{ marginLeft: -15 }}
-                    data={[
-                      { text: 'Text', value: 3 },
-                      { text: 'JSON', value: 2 },
+                    variant="borderless"
+                    options={[
+                      { label: 'Text', value: 3 },
+                      { label: 'JSON', value: 2 },
                     ]}
                     value={data.contentType}
                     onChange={value => this.updateSource({ contentType: value })}
@@ -465,32 +481,42 @@ export default class WebHook extends Component {
           <div className="flex">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')} </div>
           <Checkbox
             className="flexRow"
-            text={_l('使用网络代理')}
             checked={data.settings.useProxy}
-            onClick={checked =>
-              this.updateSource({ settings: Object.assign({}, data.settings, { useProxy: !checked }) })
+            onChange={event =>
+              this.updateSource({
+                settings: Object.assign({}, data.settings, {
+                  useProxy: event.target.checked,
+                }),
+              })
             }
-          />
+          >
+            {_l('使用网络代理')}
+          </Checkbox>
           <Tooltip title={_l('需要管理员在「组织管理-安全-数据」中配置')}>
             <Icon icon="info_outline" className="textSecondary mTop3 mLeft10 mRight20" />
           </Tooltip>
           <Checkbox
             className="flexRow"
-            text={_l('开启SSL证书验证')}
             checked={data.settings.openSSL}
-            onClick={checked =>
-              this.updateSource({ settings: Object.assign({}, data.settings, { openSSL: !checked }) })
+            onChange={event =>
+              this.updateSource({
+                settings: Object.assign({}, data.settings, {
+                  openSSL: event.target.checked,
+                }),
+              })
             }
-          />
+          >
+            {_l('开启SSL证书验证')}
+          </Checkbox>
         </div>
 
         <div className="flexRow">
-          <Dropdown
+          <Select
             className="flowDropdown mTop10 mRight10"
             style={{ width: 120 }}
-            data={METHODS_TYPE.filter(o => !o.disabled)}
+            options={METHODS_TYPE.filter(o => !o.disabled)}
+            fieldNames={SELECT_FIELD_NAMES}
             value={data.method === 4 ? 14 : data.method}
-            border
             onChange={method => this.updateSource({ method, body: _.includes([1, 5], method) ? '' : data.body })}
           />
           <div className="flex" style={{ minWidth: 0 }}>
@@ -689,13 +715,18 @@ export default class WebHook extends Component {
 
               <Checkbox
                 style={{ marginLeft: 80 }}
-                text={_l('超时自动重试（最多重试2次）')}
                 disabled={data.settings.timeout > 30}
                 checked={data.settings.maxRetries > 0}
-                onClick={checked =>
-                  this.updateSource({ settings: Object.assign({}, data.settings, { maxRetries: checked ? 0 : 2 }) })
+                onChange={event =>
+                  this.updateSource({
+                    settings: Object.assign({}, data.settings, {
+                      maxRetries: !event.target.checked ? 0 : 2,
+                    }),
+                  })
                 }
-              />
+              >
+                {_l('超时自动重试（最多重试2次）')}
+              </Checkbox>
             </div>
           </Fragment>
         )}
@@ -703,18 +734,22 @@ export default class WebHook extends Component {
         <div className="Font13 bold mTop20">{_l('响应结果设置')}</div>
         <div className="mTop10">
           <Checkbox
-            text={_l('自定义成功/失败状态码（不勾选时，所有状态都视为成功）')}
             checked={!data.disabledCode}
-            onClick={() => this.updateSource({ disabledCode: !data.disabledCode })}
-          />
+            onChange={() =>
+              this.updateSource({
+                disabledCode: !data.disabledCode,
+              })
+            }
+          >
+            {_l('自定义成功/失败状态码（不勾选时，所有状态都视为成功）')}
+          </Checkbox>
         </div>
         {!data.disabledCode && (
           <Fragment>
             <div className="Font13 mTop15">{_l('请求成功的 HTTP 状态码')}</div>
             <div className="flexRow mTop10">
-              <input
-                type="text"
-                className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+              <Input
+                className="flex"
                 placeholder={_l('示例：200,201（多个状态码用英文逗号隔开）')}
                 value={data.successCode}
                 onChange={e => this.updateSource({ successCode: e.target.value.replace(/[^0-9,]/g, '') })}
@@ -725,18 +760,15 @@ export default class WebHook extends Component {
             {errorMsgArray.map((item, i) => {
               return (
                 <div className="flexRow mTop10 alignItemsCenter" key={i}>
-                  <input
-                    type="text"
+                  <Input
                     style={{ width: 100 }}
-                    className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
                     placeholder={_l('示例：500')}
                     value={item.key}
                     onChange={e => this.updateErrorMsg('key', e.target.value.replace(/[^0-9]/g, ''), i)}
                   />
 
-                  <input
-                    type="text"
-                    className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft10"
+                  <Input
+                    className="flex mLeft10"
                     placeholder={_l('请输入错误消息')}
                     value={item.value}
                     onChange={e => this.updateErrorMsg('value', e.target.value, i)}
@@ -762,9 +794,8 @@ export default class WebHook extends Component {
 
             <div className="Font13 mTop15">{_l('返回其他 HTTP 状态码时的默认错误消息')}</div>
             <div className="flexRow mTop10">
-              <input
-                type="text"
-                className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+              <Input
+                className="flex"
                 placeholder={_l('请输入错误消息')}
                 value={data.errorMsg}
                 onChange={e => this.updateSource({ errorMsg: e.target.value })}
@@ -803,17 +834,21 @@ export default class WebHook extends Component {
   generateFromJSON = () => {
     const { data } = this.state;
 
-    Dialog.confirm({
+    Modal.confirm({
       width: 640,
       title: _l('从 JSON 导入响应示例'),
-      description: <GenerateJSONBox id="generateJSON">{data.json}</GenerateJSONBox>,
+      content: <GenerateJSONBox id="generateJSON">{data.json}</GenerateJSONBox>,
       onOk: () => {
         return new Promise((resolve, reject) => {
           const json = document.getElementById('generateJSON').value.trim();
 
           if (!json.trim() || checkJSON(json)) {
-            this.updateSource({ json });
-            this.send(data.testMap, { json });
+            this.updateSource({
+              json,
+            });
+            this.send(data.testMap, {
+              json,
+            });
             resolve();
           } else {
             alert(_l('JSON格式有错误'), 2);
@@ -840,9 +875,8 @@ export default class WebHook extends Component {
         </div>
 
         <div className="flexRow mTop10">
-          <input
-            type="text"
-            className="flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+          <Input
+            className="flex"
             placeholder={_l('推送地址')}
             value={data.sendContent}
             onChange={e => this.updateSource({ sendContent: e.target.value.trim() })}

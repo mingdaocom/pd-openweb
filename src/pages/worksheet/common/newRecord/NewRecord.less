@@ -1,10 +1,4 @@
 .workSheetNewRecord {
-  background-color: var(--color-background-primary);
-  border-radius: 3px;
-  .ant-modal-body,
-  .ant-modal-footer {
-    background-color: var(--color-background-primary) !important;
-  }
   .customFieldsCon {
     position: relative;
   }
@@ -32,20 +26,6 @@
       margin-right: 5px;
     }
   }
-  .mui-dialog-header {
-    padding: 10px !important;
-  }
-  .mui-dialog-body {
-    padding-left: 32px !important;
-    padding-right: 32px !important;
-  }
-  .mui-dialog-body > .mui-formcontainer {
-    margin-top: 32px;
-  }
-  .ant-modal-footer {
-    padding-left: 32px;
-    padding-right: 32px;
-  }
   .footerBox {
     .loadingMask {
       position: absolute;
@@ -61,53 +41,9 @@
         margin-top: -22px;
       }
     }
-    .saveAndContinueBtn {
-      color: var(--color-text-title);
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-text-disabled);
-      line-height: 34px;
-      &:hover {
-        color: var(--color-primary);
-        border-color: var(--color-primary);
-      }
-    }
-    // .saveDraftBtn {
-    //   &:hover {
-    //     color: var(--color-primary);
-    //   }
-    // }
-
     .continue {
       line-height: 36px;
       margin-right: 24px;
-    }
-  }
-}
-
-.newRecordLink .publishSwitch {
-  width: 35px;
-  height: 18px;
-  .dot {
-    width: 14px;
-    height: 14px;
-  }
-  &.Switch--on {
-    background-color: var(--color-success);
-    .dot {
-      left: 18px;
-    }
-  }
-}
-
-.promptCancelAddRecord {
-  .saveAndContinueBtn {
-    color: var(--color-text-title);
-    background: var(--color-background-primary) !important;
-    border: 1px solid var(--color-text-disabled);
-    line-height: 34px;
-    &:hover {
-      color: var(--color-primary);
-      border-color: var(--color-primary);
     }
   }
 }

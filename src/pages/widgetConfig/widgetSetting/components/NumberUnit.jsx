@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input } from 'antd';
+import { Input } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 
 export default function NumberUnit({ data, onChange }) {

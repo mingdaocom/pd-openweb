@@ -1,7 +1,8 @@
 import React, { lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
-import { componentCountLimit, getEnumType } from '../../util';
+import { getEnumType } from 'src/utils/domain/customPage/model';
+import { componentCountLimit } from '../../util';
 
 const TYPE_TO_COMPONENTS = {
   embedUrl: lazy(() => import('./EmbedUrl')),

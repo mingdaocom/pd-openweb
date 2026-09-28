@@ -2,7 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import RoleTem from 'src/pages/Role/component/RolePermissions';
@@ -72,10 +73,12 @@ class Con extends React.Component {
 
   delDialog = data => {
     const { roleList = [] } = this.state;
-    return Dialog.confirm({
-      title: <span className="Red">{_l('你确认删除此角色吗？')}</span>,
-      buttonType: 'danger',
-      description: '',
+    return Modal.confirm({
+      title: <span className="Red textError">{_l('你确认删除此角色吗？')}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: '',
       onOk: () => {
         externalPortalAjax
           .removeExRole({
@@ -90,14 +93,17 @@ class Con extends React.Component {
                 roleId: (list[0] || {}).roleId,
               });
               this.props.setPortalRoleList(list);
-              this.props.setQuickTag({ roleId: 'all', tab: 'roleSet' });
+              this.props.setQuickTag({
+                roleId: 'all',
+                tab: 'roleSet',
+              });
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败，请稍后重试'), 2);
             }
           });
       },
-    });
+    }).destroy;
   };
   // 复制外部门户角色到内部
   copyRoleToInternal = ({ roleId, roleName }) => {

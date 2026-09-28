@@ -1,0 +1,235 @@
+.reportRelationEnterprise {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  background: var(--color-background-primary);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  .reportHeader {
+    display: flex;
+    height: 60px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 0 10px 0 24px;
+    .headerOption {
+      display: flex;
+      .headerOptionItem {
+        height: 60px;
+        line-height: 60px;
+        font-size: 15px;
+        color: var(--color-text-title);
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        padding: 0 8px;
+        margin-right: 44px;
+        &.active {
+          border-bottom-color: var(--color-primary);
+          font-weight: bold;
+          color: var(--color-primary);
+        }
+      }
+    }
+    .reportTitle {
+      padding-left: 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+    .reportHeaderRight {
+      display: flex;
+      align-items: center;
+    }
+    .reportAdminEntry {
+      margin-right: 16px;
+    }
+    .reportCloseIcon {
+      width: 34px;
+      height: 34px;
+      font-size: 18px;
+      line-height: 34px;
+      text-align: center;
+      border-radius: 4px;
+      &:hover {
+        background: var(--color-background-hover);
+        color: var(--color-text-primary);
+      }
+    }
+    .Hidden {
+      display: none !important;
+    }
+  }
+  .reportContent {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    .enterpriseRelationBoard {
+      height: 100%;
+      min-height: 420px;
+    }
+    .rootBoard {
+      min-height: 420px;
+      .card {
+        position: relative;
+        min-height: 420px;
+        padding: 0 !important;
+      }
+      .wrapper {
+        top: 0;
+        left: 0;
+        bottom: 0;
+      }
+      .noData {
+        padding-top: 120px;
+      }
+    }
+    .card {
+      box-shadow: none;
+      &.mLeft16 {
+        margin-left: 0 !important;
+      }
+      &.mRight16 {
+        margin-right: 0 !important;
+      }
+    }
+  }
+}
+
+.layoutWrapper {
+  width: 850px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: row;
+  padding: 26px 32px 32px;
+  box-sizing: initial;
+  .listTitle {
+    margin-bottom: 18px;
+    font-size: 16px;
+    width: 240px;
+    text-align: center;
+  }
+  > div {
+    flex: 1 0 0;
+    &:last-child {
+      flex: none;
+      width: 240px;
+    }
+  }
+  .parents {
+    .node {
+      &:after {
+        content: '';
+        width: 68px;
+        border-top: 1px solid var(--color-text-disabled);
+        position: absolute;
+        right: -69px;
+        top: 41px;
+      }
+    }
+  }
+  .children {
+    .node {
+      margin-bottom: 24px;
+      &:before {
+        content: '';
+        width: 34px;
+        border-top: 1px solid var(--color-text-disabled);
+        position: absolute;
+        left: -34px;
+        top: 40px;
+      }
+      &:first-child:before {
+        left: -69px;
+        width: 68px;
+      }
+      &:not(:first-child):after {
+        content: '';
+        height: 105px;
+        border-left: 1px solid var(--color-text-disabled);
+        position: absolute;
+        left: -34px;
+        top: -64px;
+      }
+    }
+    .loadMore {
+      padding: 8px 0;
+      margin-top: 20px;
+      color: var(--color-primary);
+      &:hover {
+        background: var(--color-background-secondary);
+        color: var(--color-link-hover);
+      }
+    }
+  }
+  .parents.hasAuth,
+  .children {
+    .node:hover {
+      .delBtn {
+        display: inline;
+      }
+    }
+  }
+  .node {
+    position: relative;
+    border: 1px solid var(--color-text-disabled);
+    width: 238px;
+    height: 80px;
+    border-radius: 3px;
+    box-shadow: 0 0 5px -1px rgba(100, 100, 100, 0.5);
+  }
+
+  .userItem {
+    display: flex;
+    flex-direction: row;
+    padding: 10px 0;
+    height: 60px;
+    box-sizing: initial;
+    .avatar {
+      margin-left: 10px;
+      flex: 0 0 48px;
+      height: 48px;
+      border-radius: 50%;
+      align-self: center;
+    }
+    .info {
+      flex: 1 0 0%;
+      margin-left: 10px;
+      padding-right: 10px;
+      display: flex;
+      flex-direction: column;
+      .name,
+      .department,
+      .job {
+        flex: 1 0 0%;
+        max-width: 155px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: var(--color-text-tertiary);
+        font-size: 12px;
+      }
+      .name {
+        font-size: 15px;
+        color: var(--color-text-title);
+        margin-bottom: 5px;
+      }
+    }
+    .subordinateCount {
+      position: absolute;
+      right: 10px;
+      top: 8px;
+    }
+    .delBtn {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      cursor: pointer;
+    }
+  }
+}
+.node.disabled .userItem {
+  opacity: 0.5;
+}

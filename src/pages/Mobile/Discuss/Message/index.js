@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 
 const newWhiteList = Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] });
 

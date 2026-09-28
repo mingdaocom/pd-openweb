@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 import ControlContent from './ControlContent';
 
 export default function Control(props) {
@@ -71,7 +72,8 @@ export default function Control(props) {
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
-          <input
+          <Input
+            variant="borderless"
             placeholder={_l('字段')}
             className="flex"
             value={searchValue}

@@ -2,12 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
-import { Menu, MenuItem } from 'ming-ui';
-import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import { emitter } from 'src/utils/common';
-import { controlBatchCanEdit } from 'src/utils/control';
-import { fieldCanSort, getSortData } from 'src/utils/control';
+import { fieldCanSort, getSortData } from 'src/utils/domain/control/sort';
+import { controlBatchCanEdit } from 'src/utils/domain/control/state';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
+import { emitter } from 'src/utils/platform/browser/dom';
 
 const maxAllowFrozenColumnIndex = 10;
 
@@ -73,99 +72,94 @@ export default function ColumnHead(props) {
       updateSheetColumnWidths={updateSheetColumnWidths}
       getPopupContainer={getPopupContainer}
       isDraft={isDraft}
-      renderPopup={({ closeMenu }) => (
-        <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
-          {canSort &&
-            getSortData(itemType, control).map(item => (
-              <MenuItem
-                key={item.value}
-                onClick={() => {
+      renderPopup={({ closeMenu }) => ({
+        style: { width: 180 },
+        items: [
+          ...(canSort
+            ? getSortData(itemType, control).map(item => ({
+                key: `sort-${item.value}`,
+                icon: (
+                  <i className={cx('icon', item.value === 1 ? 'icon-descending-order2' : 'icon-ascending-order2')} />
+                ),
+                label: item.text,
+                onClick: () => {
                   changeSort(item.value === 2);
                   closeMenu();
-                }}
-              >
-                <i className={cx('icon', item.value === 1 ? 'icon-descending-order2' : 'icon-ascending-order2')}></i>
-                {item.text}
-              </MenuItem>
-            ))}
-          {maskData && (
-            <MenuItem onClick={onShowFullValue}>
-              <i className="icon icon-eye_off"></i>
-              {_l('解码')}
-            </MenuItem>
-          )}
-          {canFilter &&
+                },
+              }))
+            : []),
+          maskData && {
+            key: 'decode',
+            icon: <i className="icon icon-eye_off" />,
+            label: _l('解码'),
+            onClick: onShowFullValue,
+          },
+          canFilter &&
             !iseditting &&
             !isCustomButtonFillRecord &&
             !isNewRecord &&
             !selectedRowIds.length &&
             !get(window, 'shareState.shareId') &&
-            !isRelationRecord && (
-              <MenuItem
-                onClick={() => {
-                  emitter.emit(tableId, control);
-                  closeMenu();
-                }}
-              >
-                <i className="icon icon-worksheet_filter"></i>
-                {_l('筛选')}
-              </MenuItem>
-            )}
-          <MenuItem
-            onClick={() => {
+            !isRelationRecord && {
+              key: 'filter',
+              icon: <i className="icon icon-worksheet_filter" />,
+              label: _l('筛选'),
+              onClick: () => {
+                emitter.emit(tableId, control);
+                closeMenu();
+              },
+            },
+          {
+            key: 'hide',
+            icon: <i className="icon icon-visibility_off" />,
+            label: _l('隐藏'),
+            onClick: () => {
               hideColumn(control.controlId);
               closeMenu();
-            }}
-          >
-            <i className="icon icon-visibility_off"></i>
-            {_l('隐藏')}
-          </MenuItem>
-          {!!sheetHiddenColumnIds.length && (
-            <MenuItem
-              onClick={() => {
-                clearHiddenColumn();
-                closeMenu();
-              }}
-            >
-              <i className="icon icon-eye"></i>
-              {_l('显示所有列')}
-            </MenuItem>
-          )}
-          {columnIndex <= maxAllowFrozenColumnIndex && fixedColumnCount !== columnIndex + 1 && (
-            <MenuItem
-              onClick={() => {
+            },
+          },
+          !!sheetHiddenColumnIds.length && {
+            key: 'showAll',
+            icon: <i className="icon icon-eye" />,
+            label: _l('显示所有列'),
+            onClick: () => {
+              clearHiddenColumn();
+              closeMenu();
+            },
+          },
+          columnIndex <= maxAllowFrozenColumnIndex &&
+            fixedColumnCount !== columnIndex + 1 && {
+              key: 'freeze',
+              icon: <i className="icon icon-lock" />,
+              label: _l('冻结'),
+              onClick: () => {
                 frozen(columnIndex);
                 closeMenu();
-              }}
-            >
-              <i className="icon icon-lock"></i>
-              {_l('冻结')}
-            </MenuItem>
-          )}
-          {fixedColumnCount > 1 && columnIndex < fixedColumnCount && (
-            <MenuItem
-              onClick={() => {
+              },
+            },
+          fixedColumnCount > 1 &&
+            columnIndex < fixedColumnCount && {
+              key: 'unfreeze',
+              icon: <i className="icon icon-task-new-no-locked" />,
+              label: _l('解冻所有列'),
+              onClick: () => {
                 frozen(0);
                 closeMenu();
-              }}
-            >
-              <i className="icon icon-task-new-no-locked"></i>
-              {_l('解冻所有列')}
-            </MenuItem>
-          )}
-          {canEdit && selectedRowIds.length && !get(window, 'shareState.shareId') && (
-            <MenuItem
-              onClick={() => {
+              },
+            },
+          canEdit &&
+            !!selectedRowIds.length &&
+            !get(window, 'shareState.shareId') && {
+              key: 'batchEdit',
+              icon: <i className="icon icon-hr_edit" />,
+              label: _l('编辑选中记录'),
+              onClick: () => {
                 handleBatchUpdateRecords(control);
                 closeMenu();
-              }}
-            >
-              <i className="icon icon-hr_edit"></i>
-              {_l('编辑选中记录')}
-            </MenuItem>
-          )}
-        </Menu>
-      )}
+              },
+            },
+        ].filter(Boolean),
+      })}
     />
   );
 }

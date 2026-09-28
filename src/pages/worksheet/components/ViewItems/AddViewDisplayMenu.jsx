@@ -1,13 +1,12 @@
 import React, { Component, lazy, Suspense } from 'react';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import pluginAjax from 'src/api/plugin';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
-import { pathCompletion } from 'src/utils/common';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { checkPermission, FEATURE_PERMISSION, hasFeaturePermission } from 'src/utils/services/security/permission';
 import bg from './img/customview.png';
 import Board from './lottie/board.json';
 import Calendar from './lottie/calendar.json';
@@ -20,12 +19,7 @@ import Structure from './lottie/structure.json';
 import Sheet from './lottie/table.json';
 
 const Wrap = styled.div`
-  background-color: var(--color-background-primary);
-  border-radius: 3px 3px 3px 3px;
   overflow: hidden;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
   .title {
     padding: 0 12px 12px;
   }
@@ -146,10 +140,6 @@ const Wrap = styled.div`
 `;
 const GuildWrap = styled.div`
   width: 280px;
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-lg);
-  border-radius: 3px 3px 3px 3px;
-  left: 100%;
   justify-content: space-between;
   padding: 20px 20px 16px 20px;
   box-sizing: border-box;
@@ -314,91 +304,82 @@ export default class AddViewDisplayMenu extends Component {
     const { onClick, canAddCustomView, projectId, ...rest } = this.props;
     const { myPlugins = [], orgPlugins = [], loading, retract } = this.state;
     const hasPluginAuth =
-      _.get(
-        _.find(md.global.Account.projects, item => item.projectId === projectId),
-        'allowPlugin',
-      ) || checkPermission(projectId, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
+      hasFeaturePermission(projectId, FEATURE_PERMISSION.PLUGIN) ||
+      checkPermission(projectId, PERMISSION_ENUM.MANAGE_PLUGINS);
     return (
       <Wrap className="flexRow">
         <div className="typeMenuWrap" {...rest}>
           <div className="title Bold Font15">{_l('默认视图')}</div>
-          {VIEW_TYPE_ICON.filter(
-            o => o.id !== 'customize' && (!md.global.SysSettings.enableMap ? o.id !== 'map' : true),
-          ).map(({ icon, text, id, color, isNew }) => (
-            <Trigger
-              popup={
-                <GuildWrap className="guildWrap">
-                  <div className="left">
-                    <div className="guildTitle Font14 Bold">{GuildText[id].title}</div>
-                    <div className="guildDesc mTop8 textSecondary LineHeight20 Font13">{GuildText[id].desc}</div>
-                  </div>
-                  <div className="rightCon">
-                    <Suspense fallback={null}>
-                      <LoadableLottie
-                        options={{
-                          autoplay: true,
-                          loop: false,
-                          animationData: GuildText[id].img,
-                          rendererSettings: {
-                            preserveAspectRatio: 'xMidYMid slice',
-                          },
-                        }}
-                        eventListeners={LOTTIE_EVENT_LISTENERS}
-                      />
-                    </Suspense>
-                  </div>
-                </GuildWrap>
-              }
-              popupTransitionName="Tooltip-move-top"
-              destroyPopupOnHide
-              action={['hover']}
-              mouseEnterDelay={0.3}
-              popupAlign={{
-                points: ['tl', 'tr'],
-                offset: [5, 0],
-                overflow: {
-                  adjustX: true,
-                  adjustY: true,
-                },
-              }}
-            >
-              <div
+          {VIEW_TYPE_ICON.filter(o => o.id !== 'customize' && (md.global.SysSettings.enableMap || o.id !== 'map')).map(
+            ({ icon, text, id, color, isNew }) => (
+              <Popover
                 key={id}
-                className="viewTypeItem flexRow Hand"
-                onClick={() =>
-                  onClick({
-                    id,
-                  })
+                content={
+                  <GuildWrap className="guildWrap">
+                    <div className="left">
+                      <div className="guildTitle Font14 Bold">{GuildText[id].title}</div>
+                      <div className="guildDesc mTop8 textSecondary LineHeight20 Font13">{GuildText[id].desc}</div>
+                    </div>
+                    <div className="rightCon">
+                      <Suspense fallback={null}>
+                        <LoadableLottie
+                          options={{
+                            autoplay: true,
+                            loop: false,
+                            animationData: GuildText[id].img,
+                            rendererSettings: {
+                              preserveAspectRatio: 'xMidYMid slice',
+                            },
+                          }}
+                          eventListeners={LOTTIE_EVENT_LISTENERS}
+                        />
+                      </Suspense>
+                    </div>
+                  </GuildWrap>
                 }
-                onMouseEnter={() =>
-                  this.setState({
-                    guild: id,
-                  })
-                }
-                onMouseLeave={() =>
-                  this.setState({
-                    guild: '',
-                  })
-                }
+                destroyOnHidden
+                trigger="hover"
+                mouseEnterDelay={0.3}
+                placement="rightTop"
+                noPadding
               >
-                <div className="valignWrapper flex">
-                  <Icon
-                    style={{
-                      color,
-                      fontSize: '20px',
-                    }}
-                    icon={icon}
-                  />
-                  <span className="viewName mLeft12 Bold Font14">{text}</span>
-                </div>
-                {isNew && (
-                  <div className="newIcon">
-                    <Icon icon="new" className="colorPrimary Font20" />
+                <div
+                  className="viewTypeItem flexRow Hand"
+                  onClick={() =>
+                    onClick({
+                      id,
+                    })
+                  }
+                  onMouseEnter={() =>
+                    this.setState({
+                      guild: id,
+                    })
+                  }
+                  onMouseLeave={() =>
+                    this.setState({
+                      guild: '',
+                    })
+                  }
+                >
+                  <div className="valignWrapper flex">
+                    <Icon
+                      style={{
+                        color,
+                        fontSize: '20px',
+                      }}
+                      icon={icon}
+                    />
+                    <span className="viewName mLeft12 Bold Font14">{text}</span>
                   </div>
-                )}
-              </div>
-            </Trigger>
-          ))}
+                  {isNew && (
+                    <div className="newIcon">
+                      <Icon icon="new" className="colorPrimary Font20" />
+                    </div>
+                  )}
+                </div>
+              </Popover>
+            ),
+          )}
         </div>
         {canAddCustomView && !md.global.SysSettings.hidePlugin && (
           <div className="customView flex flexColumn">

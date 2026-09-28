@@ -1,18 +1,26 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown } from 'antd';
 import cx from 'classnames';
 import { isEqual } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import fixedDataController from 'src/api/fixedData';
-import { DropdownPlaceholder, SettingItem } from '../../../../styled';
-import { getAdvanceSetting } from '../../../../util';
-import { handleAdvancedSettingChange } from '../../../../util/setting';
-import SelectDialog, { SelectCountryDropdown } from './SelectDialog';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { SettingItem } from '../../../../styled';
+import SelectDialog, { getCountryOptions, renderCountryOption } from './SelectDialog';
 import allData, { COMMON_DEFAULT_COUNTRY } from './telData';
+
+const COUNTRY_OPTIONS = getCountryOptions(allData);
+const SELECT_STYLES = {
+  root: { width: '100%', height: 36 },
+  popup: { root: { width: 300 } },
+};
+
+const renderCountryLabel = ({ value }) => {
+  const country = allData.find(item => item.iso2 === value) || {};
+  return country.name ? `+${country.dialCode} ${country.name}` : '';
+};
 
 const TelConfigWrap = styled.div`
   .allowSelectDisplay,
@@ -35,11 +43,14 @@ const TelConfigWrap = styled.div`
 export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
   const { enumDefault = 0 } = data;
 
-  const [{ allowSelectVisible, commonUseVisible, defaultCountryVisible }, setVisible] = useSetState({
-    allowSelectVisible: false,
-    commonUseVisible: false,
-    defaultCountryVisible: false,
-  });
+  const [{ allowSelectVisible, commonUseVisible, defaultCountryVisible, countrySearchValue }, setVisible] = useSetState(
+    {
+      allowSelectVisible: false,
+      commonUseVisible: false,
+      defaultCountryVisible: false,
+      countrySearchValue: '',
+    },
+  );
 
   const allowData = getAdvanceSetting(data, 'allowcountries') || [];
   const commonData = getAdvanceSetting(data, 'commcountries') || [];
@@ -105,41 +116,39 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('默认区号')}</div>
-        <Dropdown
-          trigger={['click']}
-          visible={defaultCountryVisible}
-          onVisibleChange={visible => setVisible({ defaultCountryVisible: visible })}
-          overlay={
-            <SelectCountryDropdown
-              style={{ width: '300px' }}
-              unique
-              selectableData={allData}
-              setData={item => {
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    defaultarea: JSON.stringify(item),
-                  }),
-                );
-                setVisible({ defaultCountryVisible: false });
-              }}
-            />
-          }
-        >
-          <DropdownPlaceholder>
-            <div className={cx('text', { textDisabled: !defaultCountry.name })}>
-              {defaultCountry.name ? `+${defaultCountry.dialCode} ${defaultCountry.name}` : _l('请选择')}
-            </div>
-            <i className="icon-arrow-down-border Font14 textTertiary"></i>
-          </DropdownPlaceholder>
-        </Dropdown>
+        <Select
+          value={defaultCountry.iso2 || undefined}
+          options={COUNTRY_OPTIONS}
+          placeholder={_l('请选择')}
+          showPopupSearch
+          optionFilterProp="searchText"
+          styles={SELECT_STYLES}
+          popupMatchSelectWidth={false}
+          optionRender={renderCountryOption}
+          labelRender={renderCountryLabel}
+          notFoundContent={_l(countrySearchValue ? '暂无搜索结果' : '暂无可选项')}
+          open={defaultCountryVisible}
+          onOpenChange={visible => setVisible({ defaultCountryVisible: visible })}
+          onSearch={value => setVisible({ countrySearchValue: value })}
+          onChange={(_, option) => {
+            onChange(
+              handleAdvancedSettingChange(data, {
+                defaultarea: JSON.stringify(option.country),
+              }),
+            );
+            setVisible({ defaultCountryVisible: false });
+          }}
+        />
       </SettingItem>
       <div className="labelWrap mTop16">
         <Checkbox
-          size="small"
           checked={enumDefault === 0}
-          onClick={checked => {
-            onChange({ enumDefault: checked ? 1 : 0 });
+          onChange={event => {
+            onChange({
+              enumDefault: !event.target.checked ? 1 : 0,
+            });
           }}
+          size="small"
         >
           <span>{_l('启用 国家/地区 选择')}</span>
         </Checkbox>

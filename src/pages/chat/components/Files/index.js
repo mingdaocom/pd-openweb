@@ -3,9 +3,9 @@ import cx from 'classnames';
 import moment from 'moment';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
@@ -60,7 +60,7 @@ export class FileItem extends Component {
     super(props);
   }
   handlePreview(item, event) {
-    if (event.target.tagName === 'A') return;
+    event.stopPropagation();
     const res = [
       {
         fileid: item.fileId,
@@ -79,24 +79,31 @@ export class FileItem extends Component {
       {},
     );
   }
+  handleGotoMessage(item) {
+    if (!item.messageId || !this.props.onGotoMessage) return;
+
+    this.props.onGotoMessage(item.messageId);
+  }
   renderFile() {
     const { item } = this.props;
     const { previewUrl, type, createAccount } = item;
     const isPicture = type === Constant.MSGTYPE_PIC;
     return (
-      <div className="ChatPanel-File-item" onClick={this.handlePreview.bind(this, item)}>
-        <div className={cx('thumbnail', { withBorder: isPicture })}>
+      <div className="ChatPanel-File-item" onClick={this.handleGotoMessage.bind(this, item)}>
+        <div className={cx('thumbnail', { withBorder: isPicture })} onClick={this.handlePreview.bind(this, item)}>
           {isPicture ? <img src={previewUrl} /> : <i className={item.iconClass} />}
         </div>
         <div className="info">
-          <div className="name colorPrimary" title={item.name}>
+          <div className="name colorPrimary" title={item.name} onClick={this.handlePreview.bind(this, item)}>
             {item.name}
           </div>
-          <div className="time" title={item.$date}>
-            {item.$date}
-          </div>
-          <div className="creator" title={createAccount.fullname}>
-            {createAccount.fullname}
+          <div className="flexRow alignItemsCenter">
+            <div className="time" title={item.$date}>
+              {item.$date}
+            </div>
+            <div className="creator" title={createAccount.fullname}>
+              {createAccount.fullname}
+            </div>
           </div>
         </div>
         {/* <a href={$downUrl} className="download icon-download colorPrimary" target="_blank" title={_l('下载')} /> */}
@@ -180,7 +187,7 @@ export default class Files extends Component {
         </div>
         <div className="ChatPanel-Files-body">
           {files.map((item, index) => (
-            <FileItem item={item} key={item.fileId || index} />
+            <FileItem item={item} key={item.fileId || index} onGotoMessage={this.props.onGotoMessage} />
           ))}
           {loading ? <LoadDiv size="small" /> : undefined}
           {!loading && !files.length ? (

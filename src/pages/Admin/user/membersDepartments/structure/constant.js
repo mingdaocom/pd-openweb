@@ -1,5 +1,6 @@
 ﻿import _ from 'lodash';
-import RegExpValidator from 'src/utils/expression';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 
 export const PAGE_SIZE = 50;
 
@@ -71,7 +72,7 @@ export const checkForm = {
     const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
     return !password.trim()
       ? _l('密码不能为空')
-      : !RegExpValidator.isPasswordValid(password)
+      : !isPasswordValid(password)
         ? passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字')
         : '';
   },

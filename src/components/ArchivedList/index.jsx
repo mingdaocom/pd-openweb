@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instance';
@@ -23,12 +22,14 @@ const FROM_TYPE = {
   worksheet: 2,
   log: 3,
 };
+const EMPTY_ARCHIVED_ITEM = {};
+const EMPTY_PARAMS = {};
 
 export default ({
   type,
-  archivedItem = {},
+  archivedItem = EMPTY_ARCHIVED_ITEM,
   showSelectItem = true,
-  params = {},
+  params = EMPTY_PARAMS,
   iconClassName,
   onChange = () => {},
   customRender,
@@ -44,49 +45,44 @@ export default ({
   };
 
   const renderTrigger = () => {
+    const menuItems = list.map((item, index) => ({
+      key: `${index}`,
+      disabled: item.id === selectItem.id,
+      label: <div className="pTop8 pBottom8 Font14">{item.text}</div>,
+      style: { lineHeight: 'normal', height: 36 },
+    }));
+
     return (
-      <Trigger
-        popupVisible={showList}
-        onPopupVisibleChange={visible => setShowList(visible)}
-        action={['click']}
-        popup={() => {
-          return (
-            <Menu style={{ left: 'initial', right: 0, width: 200 }}>
-              {list.map((item, index) => (
-                <MenuItem
-                  key={index}
-                  disabled={item.id === selectItem.id}
-                  onClick={() => onSelect(item)}
-                  style={{ lineHeight: 'normal', height: 36 }}
-                >
-                  <div className="pTop8 pBottom8 Font14">{item.text}</div>
-                </MenuItem>
-              ))}
-            </Menu>
-          );
-        }}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        open={showList}
+        onOpenChange={setShowList}
+        trigger={['click']}
+        placement="bottomRight"
+        align={{ offset: [0, 10] }}
+        menu={{
+          items: menuItems,
+          style: { width: 200 },
+          onClick: ({ key }) => onSelect(list[Number(key)]),
         }}
       >
-        {customRender ? (
-          customRender()
-        ) : (
-          <Tooltip title={_l('查看已归档数据')}>
-            <Icon
-              icon="drafts_approval"
-              className={cx(
-                `Font20 pointer ${iconClassName}`,
-                _.isEmpty(selectItem)
-                  ? `${iconClassName ? iconClassName : 'textSecondary'} hoverColorPrimary`
-                  : 'colorPrimary hoverColorPrimaryDark ',
-              )}
-            />
-          </Tooltip>
-        )}
-      </Trigger>
+        <span className="InlineBlock">
+          {customRender ? (
+            customRender()
+          ) : (
+            <Tooltip title={_l('查看已归档数据')}>
+              <Icon
+                icon="drafts_approval"
+                className={cx(
+                  `Font20 pointer ${iconClassName}`,
+                  _.isEmpty(selectItem)
+                    ? `${iconClassName ? iconClassName : 'textSecondary'} hoverColorPrimary`
+                    : 'colorPrimary hoverColorPrimaryDark ',
+                )}
+              />
+            </Tooltip>
+          )}
+        </span>
+      </Dropdown>
     );
   };
 
@@ -118,7 +114,7 @@ export default ({
         setList(list.reverse());
       });
     }
-  }, []);
+  }, [params, type]);
 
   if (!_.isEmpty(selectItem) && showSelectItem) {
     return (

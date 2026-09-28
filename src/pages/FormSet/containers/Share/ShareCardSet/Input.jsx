@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Input } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
 
 const Wrap = styled.div`
@@ -16,13 +16,16 @@ const Wrap = styled.div`
 `;
 
 function InputForShare(props) {
-  const { canUseControl, controls, defaultValue, onChangeValue, worksheetInfo, placeholder } = props;
+  const { canUseControl, className, controls, defaultValue, onChangeValue, worksheetInfo, placeholder, ...inputProps } =
+    props;
 
   const renderInput = () => {
     return (
       <Input
-        className="flex"
-        {...props}
+        {...inputProps}
+        className={className}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
         onClick={e => e.stopPropagation()}
         onBlur={e => {
           e.stopPropagation();

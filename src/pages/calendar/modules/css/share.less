@@ -1,20 +1,13 @@
 ﻿.AppCalendar {
-  #calendarLoading {
-    position: fixed;
-    top: 50px;
-    left: 250px;
-    right: 0;
-    bottom: 0;
-    z-index: 999;
-    text-align: center;
-    display: none;
-  }
-
-  #calendarLoading img {
-    display: inline-block;
-    vertical-align: top;
-    margin-top: 1px;
-    margin-right: 5px;
+  .calendarLoading {
+    display: flex;
+    z-index: 2;
+    grid-area: 1 / 1;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 0;
+    background: color-mix(in srgb, var(--color-background-primary) 72%, transparent);
   }
 
   .leftNavHairGlass {
@@ -48,12 +41,7 @@
     box-shadow: var(--shadow-md);
   }
 
-  .calendarMenu .calendarMenuTop {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--color-border-secondary);
-  }
-
-  .calendarMenu li {
+  .calendarTypeList li {
     width: 100%;
     padding: 0 18px;
     height: 40px;
@@ -62,34 +50,11 @@
     cursor: pointer;
   }
 
-  .calendarMenu li i {
+  .calendarTypeList li i {
     display: inline-block;
     vertical-align: top;
-    font-size: 15px;
-    width: 25px;
-  }
-
-  .calendarMenu li i.icon-calendar-confirmed {
-    margin-top: 12px;
-  }
-
-  .calendarMenu li i.icon-calendar-synchro {
-    font-size: 12px;
-    margin-top: 13px;
-  }
-
-  .calendarMenu .calendarNumber {
-    border-radius: 18px;
-    background: var(--color-error);
-    color: var(--color-white);
-    height: 18px;
-    line-height: 18px;
-    display: inline-block;
-    padding: 0 6px 0 5px;
-    position: absolute;
-    top: 11px;
-    right: 18px;
-    display: none;
+    font-size: 16px;
+    width: 16px;
   }
 
   .calendarMenu .calendarType {
@@ -122,30 +87,35 @@
   }
 
   .calendarMenu .selectOther {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: rgba(255, 255, 255, 0.87);
     width: 100%;
-    padding: 16px 18px 0;
+    padding: 0 18px;
     height: 48px;
-    text-align: center;
     border-top: 1px solid var(--color-border-secondary);
     box-sizing: border-box;
   }
 
-  .calendarMenu .iconSelectOther {
-    font-size: 16px;
-    margin-right: 12px;
+  .calendarMenu .selectOther > button {
+    width: 100%;
+    height: 100%;
   }
 
-  #hideOneself {
+  .calendarMenu .iconSelectOther {
+    font-size: 16px;
+  }
+
+  .hideOneself {
     color: rgba(255, 255, 255, 0.87);
     line-height: 20px;
     padding: 20px 0 10px 0;
-    display: none;
     position: relative;
     border-top: 1px solid var(--color-border-secondary);
   }
 
-  #hideOneself .cbComplete {
+  .hideOneself .cbComplete {
     vertical-align: top;
     font-size: 14px;
     display: inline-block;
@@ -153,13 +123,12 @@
     cursor: pointer;
   }
 
-  #tb_OtherUserCalendar {
-    display: none;
+  .tbOtherUserCalendar {
     margin-top: 5px;
     padding-bottom: 10px;
   }
 
-  #allOtherUserDel {
+  .allOtherUserDel {
     color: var(--color-primary-light);
     cursor: pointer;
     position: absolute;
@@ -167,22 +136,28 @@
     right: 18px;
   }
 
-  #allOtherUserDel:hover {
+  .allOtherUserDel:hover {
     text-decoration: underline;
   }
 
   .calendarMain {
     overflow: hidden;
     position: absolute;
+    display: grid;
     top: 0;
     left: 250px;
     right: 0;
     bottom: 0;
   }
 
-  #calendarList,
-  #invitedCalendars {
-    display: none;
+  .calendarMain > .reactCalendarRoot,
+  .calendarMain > .invitedMain {
+    grid-area: 1 / 1;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .invitedCalendars {
     margin: 13px 20px 0 20px;
     background: var(--color-background-primary);
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
@@ -191,11 +166,7 @@
     border-radius: 3px;
   }
 
-  #calendarList .calendarList {
-    overflow-y: auto;
-  }
-
-  #invitedCalendars {
+  .invitedCalendars {
     margin-top: 0;
     padding: 0 30px 30px;
     display: block;
@@ -203,21 +174,20 @@
     background-color: var(--color-background-primary);
   }
 
-  #invitedMain {
-    display: none;
+  .invitedMain {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
   }
 
-  #invitedMain .exitInvited {
-    display: block;
-    color: var(--color-white);
-    width: 110px;
-    height: 30px;
-    line-height: 30px;
-    cursor: pointer;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    text-align: center;
+  .invitedMain .invitedCalendars {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .invitedMain .exitInvited {
+    align-self: flex-start;
     margin: 18px 0 18px 20px;
   }
 
@@ -805,67 +775,8 @@
     border-collapse: collapse;
   }
 
-  .inviteCalendarType {
-    position: relative;
-    top: auto;
-    right: auto;
-    padding-left: 10px;
-    display: inline-block;
-    margin-right: 13px;
-    width: 41px;
-    height: 24px;
-    line-height: 24px;
-    border: 1px solid var(--color-border-secondary);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    font-size: 14px;
-  }
-
   .calendarDetailMianTitle .Hidden {
     display: none;
-  }
-
-  .inviteCalendarType .inviteCalendarTypeName {
-    width: 56px;
-    height: 24px;
-    line-height: 24px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-  }
-
-  .inviteCalendarTypeList {
-    border: 1px solid var(--color-border-secondary);
-    position: absolute;
-    top: 25px;
-    z-index: 100;
-    left: -1px;
-    padding: 5px 0;
-    background: var(--color-background-primary);
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    display: none;
-  }
-
-  .inviteCalendarTypeList li {
-    padding: 0 10px;
-    padding-left: 20px;
-    width: 85px;
-    height: 24px;
-    line-height: 24px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .inviteCalendarTypeList li:hover {
-    background: var(--color-border-secondary);
   }
 
   .calendarDetailMianTitle .icon-arrow-down-border {
@@ -967,83 +878,13 @@
     display: inline-block;
   }
 
-  #txtrefuseReason {
-    resize: none;
-    padding-left: 5px;
-    border-radius: 3px;
-  }
-
-  /*mdTopNotice 小黄条*/
-  html.mdTopNotice #calendar .fc-month-view > table > thead {
-    top: 147px;
-  }
-
-  html.mdTopTheme #calendar .fc-month-view > table > thead {
-    top: 199px;
-  }
-
-  html.mdTopNotice.mdTopTheme #calendar .fc-month-view > table > thead {
-    top: 229px;
-  }
-
   .attInfo .attDetails .viewDetails {
     display: none;
   }
 
-  /*    拒绝弹层    */
-  #refuserBox {
-    width: 470px;
-    margin-top: 5px;
-  }
-
-  #refuserstd {
-    font-size: 12px;
-    padding-left: 20px;
-  }
-
-  #radtimeClash,
-  #radNotPart,
-  #radNotReason,
-  #radOther {
-    margin-right: 9px;
-    vertical-align: top;
-    display: inline-block;
-    margin-top: 5px;
-  }
-
-  #refuserstd .radtimeClashLbl,
-  #refuserstd .radNotPartLbl,
-  #refuserstd .radNotReasonLbl,
-  #refuserstd .radOtherLbl {
-    font-size: 14px;
-    margin-right: 15px;
-  }
-
-  #txtrefuseReason {
-    width: 396px;
-    height: 70px;
-    margin-top: 14px;
-    font-size: 16px;
-    color: var(--color-text-primary);
-    display: none;
-    border: 1px solid rgb(169, 169, 169);
-  }
-
-  #refuserBox .refuseOpTd {
-    text-align: center;
-    height: 62px;
-    vertical-align: middle;
-  }
-
-  #refuserBox .txtrefuseBox {
-    padding-left: 40px;
-  }
-
-  #refuserCalendar {
-    padding: 5px 29px;
-    color: var(--color-white);
-    background: var(--color-link-hover);
-    cursor: pointer;
+  .calendarRefuseReason {
+    min-height: 132px;
+    padding-top: 4px;
   }
 }
 

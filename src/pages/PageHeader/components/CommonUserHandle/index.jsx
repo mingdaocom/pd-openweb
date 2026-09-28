@@ -1,20 +1,25 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, MdLink } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import privateGuideApi from 'src/api/privateGuide';
 import { VerticalMiddle } from 'worksheet/components/Basics';
+import addFriends from 'src/components/addFriends';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import { getAppFeaturesVisible } from 'src/utils/common';
-import AddMenu from '../AddMenu';
+import createCalendar from 'src/components/createCalendar/load';
+import createTask from 'src/components/createTask/load';
+import createFeed from 'src/pages/feed/components/createFeed/load';
+import createGroup from 'src/pages/Group/createGroup/load';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { canEditApp, canEditData } from 'src/utils/domain/permission/app';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
 import LanguageList from '../LanguageList';
 import MyProcessEntry from '../MyProcessEntry';
 import ConnectAiEntry from './ConnectAiEntry';
@@ -38,24 +43,63 @@ const AdminEntry = styled(VerticalMiddle)`
     background: rgba(0, 0, 0, 0.05);
   }
 `;
-const EntryWrap = styled.div`
-  height: 32px;
-  line-height: 32px;
-  border-radius: 20px 20px 20px 20px;
-  padding: 0 10px;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  &:hover {
-    background: var(--dashboard-search-hover-bg);
-  }
-`;
+
+function getAddMenuItems() {
+  const feedVisible = !md.global.SysSettings.forbidSuites.includes('1');
+  const taskVisible = !md.global.SysSettings.forbidSuites.includes('2');
+  const calendarVisible = !md.global.SysSettings.forbidSuites.includes('3');
+  const knowledgeVisible = !md.global.SysSettings.forbidSuites.includes('4');
+  const suiteItems = [
+    feedVisible && {
+      key: 'create-feed',
+      icon: <i className="icon icon-edit Font18" />,
+      label: _l('创建动态'),
+      onClick: () => createFeed(),
+    },
+    taskVisible && {
+      key: 'create-task',
+      icon: <i className="icon icon-task-responsible Font18" />,
+      label: _l('创建任务'),
+      onClick: () => createTask(),
+    },
+    calendarVisible && {
+      key: 'create-calendar',
+      icon: <i className="icon icon-bellSchedule Font18" />,
+      label: _l('创建日程'),
+      onClick: () => createCalendar(),
+    },
+    knowledgeVisible && {
+      key: 'upload-file',
+      icon: <i className="icon icon-cloud_upload Font18" />,
+      label: _l('上传文件'),
+      onClick: () => window.open(pathCompletion('/apps/kcupload')),
+    },
+  ].filter(Boolean);
+
+  return [
+    ...suiteItems,
+    !!suiteItems.length && { key: 'suite-divider', type: 'divider' },
+    {
+      key: 'invite-member',
+      icon: <i className="icon icon-invite Font18" />,
+      label: _l('邀请'),
+      onClick: () => addFriends({ selectProject: true }),
+    },
+    {
+      key: 'create-group',
+      icon: <i className="icon icon-group Font18" />,
+      label: _l('群组'),
+      onClick: () => createGroup({}),
+    },
+  ].filter(Boolean);
+}
+
 let CommonUserHandle = class CommonUserHandle extends Component {
   static propTypes = {
     type: string,
     currentProject: PropTypes.shape({}),
   };
   state = {
-    addMenuVisible: false,
     newVersion: null,
     isLicense: true,
   };
@@ -69,12 +113,6 @@ let CommonUserHandle = class CommonUserHandle extends Component {
         });
       });
     }
-  }
-
-  handleAddMenuVisible(visible) {
-    this.setState({
-      addMenuVisible: visible,
-    });
   }
 
   render() {
@@ -102,27 +140,11 @@ let CommonUserHandle = class CommonUserHandle extends Component {
         {['native', 'integration'].includes(type) && (
           <Fragment>
             {type === 'native' && (
-              <Popover
-                visible={this.state.addMenuVisible}
-                content={
-                  <AddMenu
-                    onClose={() => {
-                      this.setState({
-                        addMenuVisible: false,
-                      });
-                    }}
-                  />
-                }
-                trigger="click"
-                mouseEnterDelay={0.2}
-                overlayClassName="addOperationPopover"
-                placement="bottom"
-                onVisibleChange={this.handleAddMenuVisible.bind(this)}
-              >
+              <Dropdown trigger={['click']} placement="bottom" menu={{ items: getAddMenuItems() }}>
                 <div className="addOperationIconWrap mLeft20 mRight15 pointer">
-                  <Icon icon="add_circle Font30" />
+                  <Icon icon="add_circle" className="Font26" />
                 </div>
-              </Popover>
+              </Dropdown>
             )}
             <MyProcessEntry type={type} />
           </Fragment>
@@ -133,12 +155,19 @@ let CommonUserHandle = class CommonUserHandle extends Component {
             {type === 'dashboard' && md.global.SysSettings.enableAIConnector !== false && (
               <ConnectAiEntry projectId={currentProject?.projectId} />
             )}
-            {type === 'dashboard' && hasProjectAdminAuth && (
+            {type === 'dashboard' && hasProjectAdminAuth && !isSandboxEnvironment() && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
-                <EntryWrap>
-                  <i className="icon icon-business Font20 TxtMiddle"></i>
-                  <span className="mLeft5 TxtMiddle">{_l('组织管理')}</span>
-                </EntryWrap>
+                <Button
+                  style={{
+                    '--hap-btn-bg-color-hover': 'var(--dashboard-search-hover-bg)',
+                  }}
+                  color="default"
+                  variant="text"
+                  shape="round"
+                  icon={<Icon icon="business" className="Font20" />}
+                >
+                  {_l('组织管理')}
+                </Button>
               </MdLink>
             )}
             {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
@@ -247,18 +276,18 @@ let LeftCommonUserHandle = class LeftCommonUserHandle extends Component {
             {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
               <Fragment>
                 {!window.isPublicApp && canEditApp(permissionType, isLock) && (
-                  <Tooltip title={_l('工作流')} placement="bottom">
-                    <MdLink to={`/app/${id}/workflow`}>
+                  <MdLink to={`/app/${id}/workflow`}>
+                    <Tooltip title={_l('工作流')} placement="bottom">
                       <Icon icon="workflow" className="Font20 headerColorSwitch" />
-                    </MdLink>
-                  </Tooltip>
+                    </Tooltip>
+                  </MdLink>
                 )}
                 {roleEntryVisible && (
-                  <Tooltip title={_l('用户')} placement="bottom">
-                    <MdLink to={`/app/${id}/role`}>
+                  <MdLink to={`/app/${id}/role`}>
+                    <Tooltip title={_l('用户')} placement="bottom">
                       <Icon icon="group" className="Font20 headerColorSwitch" />
-                    </MdLink>
-                  </Tooltip>
+                    </Tooltip>
+                  </MdLink>
                 )}
               </Fragment>
             )}

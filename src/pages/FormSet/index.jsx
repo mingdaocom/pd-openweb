@@ -6,9 +6,9 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import sheetAjax from 'src/api/worksheet';
 import ErrorState from 'src/components/errorPage/errorState';
 import Header from 'src/components/worksheetConfigHeader';
-import { navigateToApp } from 'src/pages/widgetConfig/util/data';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { navigateToApp } from 'src/pages/widgetConfig/navigation';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { MODULE_TYPE_TO_NAME } from './config';
 import AIAction from './containers/AIAction';
 import Alias from './containers/Alias';
@@ -59,7 +59,7 @@ export default function FormSet(props) {
         //清理缓存时间
         window.clearLocalDataTime({
           requestData: { worksheetId },
-          clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+          clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
         });
 
         //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者 6:开发者+运营者

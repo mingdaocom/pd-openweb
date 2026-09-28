@@ -1,17 +1,19 @@
 import React from 'react';
-import { Switch } from 'antd';
-import { Modal } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Input, Textarea } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button, Input, Modal, Switch } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import workWeiXinAjax from 'src/api/workWeiXin';
-import { navigateTo } from 'src/router/navigateTo';
-import { pathCompletion } from 'src/utils/common';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import wechatPng from '../../img/wechat_work.png';
 import AppSettingHeader from '../AppSettingHeader';
 import AppLinkParamsSettings from './AppLinkParamsSettings';
+
+const FIX_REMARK_TEXTAREA_AUTO_SIZE = { minRows: 4 };
 
 const Wrap = styled.div`
   h3,
@@ -68,28 +70,23 @@ const WrapCon = styled.div`
       }
     }
   }
-  .ant-switch {
+  .hap-switch {
     transform: scale(0.8);
   }
 `;
-const TextareaWrapper = styled(Textarea)`
-  &::placeholder {
-    color: var(--color-text-disabled);
-  }
-`;
 const MDSwitch = styled(Switch)`
-  &.ant-switch {
+  &.hap-switch {
     width: 48px;
     height: 24px;
     line-height: 24px;
   }
-  &.ant-switch-checked {
+  &.hap-switch-checked {
     background-color: var(--color-task);
-    .ant-switch-handle {
+    .hap-switch-handle {
       left: calc(100% - 20px - 2px);
     }
   }
-  .ant-switch-handle {
+  .hap-switch-handle {
     width: 20px;
     height: 20px;
   }
@@ -105,8 +102,11 @@ class EditPublishSetDialog extends React.Component {
       integratedWechat: false,
       data: {},
       fixed: false,
+      publishing: {},
     };
     this.saveRef = null;
+    this.requestPending = false;
+    this.publishRequestPending = new Set();
   }
 
   componentDidMount() {
@@ -117,7 +117,7 @@ class EditPublishSetDialog extends React.Component {
   getWXProjectSettingInfo() {
     const { projectId, appId } = this.props;
 
-    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
+    if (window.platformENV.isHap) {
       workWeiXinAjax.getWXProjectSettingInfo({ projectId, appId }).then(res => {
         if (res && res.status === 1) {
           // 已集成的提交申请弹层
@@ -138,8 +138,11 @@ class EditPublishSetDialog extends React.Component {
     this.setState({ noIntegratedWechat: false });
   };
   submitApply = () => {
+    if (this.requestPending) return;
+
     const { projectId, appId, appName } = this.props;
-    workWeiXinAjax
+    this.requestPending = true;
+    const request = workWeiXinAjax
       .applyWorkWXAlternativeApp({
         projectId,
         appId,
@@ -151,8 +154,12 @@ class EditPublishSetDialog extends React.Component {
         } else {
           alert(_l('提交申请失败'), 2);
         }
+      })
+      .finally(() => {
+        this.requestPending = false;
       });
     this.setState({ integratedWechat: false });
+    return request;
   };
   renderEnterpriseWechatModal = () => {
     let { integratedWechat, noIntegratedWechat } = this.state;
@@ -163,7 +170,7 @@ class EditPublishSetDialog extends React.Component {
       return (
         <Modal
           wrapClassName="addwechatModal"
-          visible={integratedWechat}
+          open={integratedWechat}
           width={608}
           onCancel={() => this.setState({ integratedWechat: false })}
           footer={null}
@@ -175,9 +182,9 @@ class EditPublishSetDialog extends React.Component {
               <sapn className=" colorGray mRight18">{_l('应用')}</sapn>
               <span>{appName}</span>
             </div>
-            <div className="submitBtn" onClick={this.submitApply}>
+            <Button type="primary" shape="round" className="mTop40" onClick={this.submitApply}>
               {_l('提交申请')}
-            </div>
+            </Button>
             <div className="connectInfo mTop16">
               {_l('提交后，顾问会电话联系您完成应用集成,也可主动联系顾问 联系电话：400-665-6655')}
             </div>
@@ -190,7 +197,7 @@ class EditPublishSetDialog extends React.Component {
         <Modal
           wrapClassName="addwechatModal"
           width={608}
-          visible={noIntegratedWechat}
+          open={noIntegratedWechat}
           onCancel={() => this.setState({ noIntegratedWechat: false })}
           footer={null}
         >
@@ -198,9 +205,9 @@ class EditPublishSetDialog extends React.Component {
             <img className="wechatPng" src={wechatPng} />
             <div className="Font24 Blod mTop50">{_l('请先配置企业微信集成')}</div>
             <div className="mTop30 colorGray Font14">{_l('配置完成后，方可将此应用添加到企业微信工作台')}</div>
-            <div className="settingBtn" onClick={this.toSetEnterpirse}>
+            <Button type="primary" shape="round" className="mTop80" onClick={this.toSetEnterpirse}>
               {_l('前往设置')}
-            </div>
+            </Button>
           </div>
         </Modal>
       );
@@ -210,8 +217,13 @@ class EditPublishSetDialog extends React.Component {
   publishSettings = obj => {
     const { data, projectId, appId, onChangeData } = this.props;
     const { pcDisplay, webMobileDisplay, appDisplay } = data;
-    onChangeData(obj);
-    homeAppAjax
+    const key = Object.keys(obj)[0];
+
+    if (this.publishRequestPending.has(key)) return;
+
+    this.publishRequestPending.add(key);
+    this.setState(({ publishing }) => ({ publishing: { ...publishing, [key]: true } }));
+    return homeAppAjax
       .publishSettings({
         appId,
         projectId,
@@ -226,6 +238,11 @@ class EditPublishSetDialog extends React.Component {
         } else {
           alert(_l('修改失败，请稍后再试'), 3);
         }
+      })
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('修改失败，请稍后再试'), 3))
+      .finally(() => {
+        this.publishRequestPending.delete(key);
+        this.setState(({ publishing }) => ({ publishing: { ...publishing, [key]: false } }));
       });
   };
 
@@ -277,6 +294,8 @@ class EditPublishSetDialog extends React.Component {
               {[1, 2, 3].map(o => {
                 let cur = false;
                 let s = ['pcCon', 'webCon', 'appCon'][o - 1];
+                const key = ['pcDisplay', 'webMobileDisplay', 'appDisplay'][o - 1];
+                const { publishing } = this.state;
 
                 if (o === 1) {
                   cur = pcDisplay;
@@ -312,7 +331,7 @@ class EditPublishSetDialog extends React.Component {
                     }}
                   >
                     <div className={cx(`imgCon Hand publishSettingsImgCon ${s}`)}></div>
-                    <Switch size="small" checked={!cur} />
+                    <Switch size="small" checked={!cur} loading={publishing[key]} />
                     <span className="mLeft6 TxtMiddle Hand">
                       {o === 1 ? _l('PC端') : o === 2 ? _l('Web移动端') : _l('App')}
                     </span>
@@ -361,7 +380,7 @@ class EditPublishSetDialog extends React.Component {
           <Input
             className="w100 mTop12"
             value={ssoAddress}
-            onChange={value => this.setState({ ssoAddress: value })}
+            onChange={event => this.setState({ ssoAddress: event.target.value })}
             onBlur={() => this.editSSOAddress(this.state.ssoAddress)}
           />
           <h6 className="Font15 Bold borTopLine">{_l('应用维护')}</h6>
@@ -376,17 +395,16 @@ class EditPublishSetDialog extends React.Component {
             {fixed && (
               <React.Fragment>
                 <div className="Font13 mBottom5 mTop24">{_l('维护公告')}</div>
-                <TextareaWrapper
-                  ref={ele => (this.appFixTextarea = ele)}
-                  id="appFixTextarea"
+                <Input.TextArea
+                  autoSize={FIX_REMARK_TEXTAREA_AUTO_SIZE}
                   value={fixRemark}
                   className="Font13"
                   placeholder={_l('简短说明维护原因，预计恢复时间...')}
-                  onChange={value => {
-                    this.setState({ fixRemark: value });
+                  onChange={event => {
+                    this.setState({ fixRemark: event.target.value });
                   }}
                 />
-                <Button className="mTop20" onClick={() => this.fixedApp(true, true)}>
+                <Button type="primary" className="mTop20" onClick={() => this.fixedApp(true, true)}>
                   {_l('保存')}
                 </Button>
               </React.Fragment>

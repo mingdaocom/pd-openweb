@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Select, Tooltip } from 'ming-ui/antd-components';
+import DateTimeDataRange from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/DateTimeDataRange';
 import {
   DATE_FILTER_TYPE,
   DATE_GRANULARITY_TYPE,
@@ -18,9 +18,8 @@ import {
   RELA_FILTER_TYPE,
   SHOW_RELATE_TYPE,
   TEXT_FILTER_TYPE,
-} from 'worksheet/common/ViewConfig/components/fastFilter/util';
-import DateTimeDataRange from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/DateTimeDataRange';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+} from 'src/utils/domain/worksheet/fastFilter';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 const RadioWrap = styled.div`
   border-radius: 3px;
@@ -109,26 +108,22 @@ export default function FilterSetting(props) {
         <div className="textPrimary Font13 mBottom8 Font13">{data.txt}</div>
         {data.key === 'filterType' ? (
           <Select
-            className="customPageSelect mBottom12 w100"
+            className="mBottom12 w100"
             value={value || data.default}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-            onChange={value => {
-              handleChange(value);
-            }}
-          >
-            {types.map(item => (
-              <Select.Option
-                className="selectOptionWrapper"
-                disabled={firstControlData.encryId ? item.value !== FILTER_CONDITION_TYPE.EQ : false}
-                key={item.value}
-                value={item.value}
-              >
+            options={types.map(item => ({
+              disabled: firstControlData.encryId ? item.value !== FILTER_CONDITION_TYPE.EQ : false,
+              value: item.value,
+              label: (
                 <div className="valignWrapper h100 w100">
                   <span className="mLeft5 Font13 ellipsis">{item.text}</span>
                 </div>
-              </Select.Option>
-            ))}
-          </Select>
+              ),
+            }))}
+            onChange={value => {
+              handleChange(value);
+            }}
+          />
         ) : (
           <RadioWrap className="valignWrapper mBottom12">
             {types.map(item => (

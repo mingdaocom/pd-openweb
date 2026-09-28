@@ -282,6 +282,7 @@ export default {
    * @param {array} args.entityIds 筛选的实体ids
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 每页数量
+   * @param {integer} args.sortType 排序类型：0 为 ObjectId 降序，1 为 ObjectId 升序，2 为额度降序，3 为额度升序。
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -317,10 +318,10 @@ export default {
     return mdyAPI('DataLimit', 'GetLimitRowTotal', args, options);
   },
   /**
-   * 重置应用使用用量
+   * 重置应用使用用量(批量)
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
-   * @param {string} args.appId 应用idid
+   * @param {array} args.appIds 应用ids
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

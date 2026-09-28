@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { Icon } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getDefaultViewSet } from 'src/pages/worksheet/constants/common';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
-import HiddenMenu from './HiddenMenu';
-import ViewDisplayMenu from './viewDisplayMenu';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
+import { getFeatureStatus } from 'src/utils/services/project';
 
-function SettingMenu(props) {
+const HIDDEN_MENU = [
+  {
+    text: _l('全隐藏%05011'),
+    textShow: _l('全显示%05008'),
+    key: ['hide', 'show'],
+  },
+  {
+    text: _l('仅在PC端隐藏%05010'),
+    textShow: _l('仅在PC端显示%05007'),
+    key: ['hpc&sapp', 'spc&happ'],
+  },
+  {
+    text: _l('仅在移动端隐藏%05009'),
+    textShow: _l('仅在移动端显示%05006'),
+    key: ['spc&happ', 'hpc&sapp'],
+  },
+];
+
+function getSettingMenuItems(props) {
   const {
     isCharge,
     item,
@@ -35,9 +50,6 @@ function SettingMenu(props) {
     onExportAttachment,
     changeViewDisplayType,
   } = props;
-  const [changeHiddenTypeVisible, setChangeHiddenTypeVisible] = useState(false);
-  const [exportVisible, setExportVisible] = useState(false);
-  const [changeViewDisplayTypeVisible, setChangeViewDisplayTypeVisible] = useState(false);
 
   const isDelCustomize = () => {
     const isCustomize = ['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]);
@@ -72,10 +84,8 @@ function SettingMenu(props) {
 
     if (it.exportType === 1) {
       onExport(item);
-      setExportVisible(false);
       handleClose();
     } else {
-      setExportVisible(false);
       handleClose();
       const allowDownload = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, item.viewId);
       const featureType = window.isPublicApp ? '' : getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
@@ -153,7 +163,6 @@ function SettingMenu(props) {
       }
     }
 
-    setChangeViewDisplayTypeVisible(false);
     handleClose();
   };
 
@@ -162,188 +171,201 @@ function SettingMenu(props) {
     handleClose();
   };
 
-  return (
-    <Menu className="viewItemMoreOperate" style={{ width: 220 }}>
-      {editName && isCharge && (
-        <MenuItem data-event="rename" icon={<Icon icon="workflow_write" className="Font18" />} onClick={clickEditName}>
-          <span className="text">{_l('重命名%05004')}</span>
-        </MenuItem>
-      )}
-      {!isDelCustomize() && (
-        <React.Fragment>
-          {!isLock && isCharge && (
-            <React.Fragment>
-              <MenuItem
-                data-event="config"
-                icon={<Icon icon="settings" className="Font18" />}
-                onClick={() => {
-                  onOpenView(item);
-                  handleClose();
-                }}
-              >
-                <span className="text">{_l('配置视图%05024')}</span>
-              </MenuItem>
-              <MenuItem data-event="copyConfigFrom" icon={''} onClick={() => handleCopyConfig(1)}>
-                <span className="text">{_l('从其他视图复制')}</span>
-              </MenuItem>
-              <MenuItem data-event="copyConfigTo" onClick={() => handleCopyConfig(2)}>
-                <span className="text">{_l('应用到其他视图')}</span>
-              </MenuItem>
-            </React.Fragment>
-          )}
-          {isCharge && <hr className="splitLine" />}
-          {changeViewType && !isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
-            <Trigger
-              popupVisible={changeViewDisplayTypeVisible}
-              onPopupVisibleChange={visible => setChangeViewDisplayTypeVisible(visible)}
-              popupClassName="DropdownPanelTrigger"
-              action={['hover']}
-              popupPlacement="bottom"
-              popupAlign={{ points: ['tl', 'tr'], offset: [0, -6], overflow: { adjustX: true, adjustY: true } }}
-              popup={
-                <ViewDisplayMenu
-                  style={{
-                    borderRadius: '3px',
-                  }}
-                  viewType={VIEW_DISPLAY_TYPE[item.viewType]}
-                  onClick={handleChangeViewType}
-                />
-              }
-            >
-              <MenuItem
-                data-event="changeType"
-                className="changeViewDisplayTypeMenuWrap"
-                icon={<Icon icon="swap_horiz" className="Font18" />}
-              >
-                <span className="text">{_l('更改视图类型%05023')}</span>
-                <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
-              </MenuItem>
-            </Trigger>
-          )}
-          {!isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
-            <MenuItem
-              data-event="copy"
-              icon={<Icon icon="content-copy" className="Font18" />}
-              onClick={() => {
-                onCopyView(item);
-                handleClose();
-                onCopy && onCopy();
-              }}
-            >
-              <span className="text">{_l('复制%05003')}</span>
-            </MenuItem>
-          )}
-          {/* 分享视图权限 目前只有表视图才能分享*/}
-          {canShare() && (
-            <MenuItem
-              data-event="share"
-              icon={<Icon icon="share" className="Font18" />}
-              onClick={() => {
-                if (window.isPublicApp) {
-                  alert(_l('预览模式下，不能操作'), 3);
-                  return;
-                }
+  const getViewDisplayMenuItems = () =>
+    VIEW_TYPE_ICON.filter(o => o.id !== 'customize' && (md.global.SysSettings.enableMap || o.id !== 'map')).map(
+      ({ icon, text, id, color, isNew }) => ({
+        key: id,
+        onClick: () => handleChangeViewType(id),
+        icon: <Icon style={{ color }} className="Font18" icon={icon} />,
+        label: text,
+        className: VIEW_DISPLAY_TYPE[item.viewType] === id && 'bgColorPrimaryTransparent',
+        extra: (
+          <div className="flexRow alignItemsCenter">
+            {VIEW_DISPLAY_TYPE[item.viewType] === id && <Icon icon="done" className="colorPrimary Font20" />}
+            {isNew && (
+              <div className="newIcon">
+                <Icon icon="new" className="colorPrimary Font20" />
+              </div>
+            )}
+          </div>
+        ),
+      }),
+    );
 
-                onShare(item);
-                handleClose();
-              }}
-            >
-              <span className="text">{_l('分享%05021')}</span>
-            </MenuItem>
-          )}
-          {/* 导出视图下记录权限 */}
-          {canExport() && (
-            <Trigger
-              popupVisible={exportVisible}
-              onPopupVisibleChange={visible => setExportVisible(visible)}
-              popupClassName="exportTrigger"
-              action={['hover', 'click']}
-              popupPlacement="right"
-              builtinPlacements={{
-                right: { points: ['cl', 'cr'] },
-              }}
-              popup={
-                <Menu style={{ width: 200 }} className="viewItemMoreOperate_subMenu">
-                  {[
-                    {
-                      name: _l('导出记录') + '（Excel，CSV）',
-                      icon: 'new_excel',
-                      exportType: 1,
-                      key: 'exportRecord',
-                    },
-                    {
-                      name: _l('导出附件'),
-                      icon: 'attachment',
-                      exportType: 2,
-                      key: 'exportAttachment',
-                    },
-                  ].map(it => {
-                    if (it.exportType === 2 && _.isEmpty(getAttachmentControls())) return;
-                    return (
-                      <MenuItem
-                        key={it.key}
-                        data-event={it.key}
-                        icon={<Icon icon={it.icon} />}
-                        onClick={() => handleExport(it)}
-                      >
-                        <span>{it.name}</span>
-                      </MenuItem>
-                    );
-                  })}
-                </Menu>
-              }
-              popupAlign={{ offset: [0, -20] }}
-            >
-              <MenuItem data-event="export" icon={<Icon icon="worksheet_export" className="Font18" />}>
-                <span className="text">{_l('导出%05020')}</span>
-                <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
-              </MenuItem>
-            </Trigger>
-          )}
-        </React.Fragment>
-      )}
+  const getHiddenMenuItems = () => {
+    const showhide = _.get(item, 'advancedSetting.showhide') || 'show';
+    const type = showhide === 'hide' ? 1 : 0;
 
-      {isCharge && (
-        <MenuItem
-          data-event="hide"
-          icon={
+    return HIDDEN_MENU.map((hiddenItem, index) => {
+      const hiddenValue = hiddenItem.key[type];
+      const isCurrent = showhide === hiddenValue;
+
+      return {
+        key: `hiddenMenu${index}`,
+        onClick: () => onChangeHidden(isCurrent ? '' : hiddenValue),
+        label: hiddenItem[showhide !== 'hide' ? 'text' : 'textShow'],
+        className: isCurrent && 'bgColorPrimaryTransparent',
+        extra: isCurrent && <Icon icon="done" className="colorPrimary Font20" />,
+      };
+    });
+  };
+
+  const getExportMenuItems = () =>
+    [
+      {
+        name: _l('导出记录') + '（Excel，CSV）',
+        icon: 'new_excel',
+        exportType: 1,
+        key: 'exportRecord',
+      },
+      {
+        name: _l('导出附件'),
+        icon: 'attachment',
+        exportType: 2,
+        key: 'exportAttachment',
+      },
+    ]
+      .filter(it => it.exportType !== 2 || !_.isEmpty(getAttachmentControls()))
+      .map(it => ({
+        key: it.key,
+        icon: <Icon icon={it.icon} className="textTertiary Font18" />,
+        label: it.name,
+        onClick: () => handleExport(it),
+      }));
+
+  const getMenuItems = () => {
+    const items = [];
+
+    if (editName && isCharge) {
+      items.push({
+        key: 'rename',
+        icon: <Icon icon="workflow_write" className="Font18 textTertiary" />,
+        onClick: clickEditName,
+        label: <span className="text">{_l('重命名%05004')}</span>,
+      });
+    }
+
+    if (!isDelCustomize()) {
+      if (!isLock && isCharge) {
+        items.push(
+          {
+            key: 'config',
+            icon: <Icon icon="settings" className="Font18 textTertiary" />,
+            onClick: () => {
+              onOpenView(item);
+              handleClose();
+            },
+            label: <span className="text">{_l('配置视图%05024')}</span>,
+          },
+          {
+            key: 'copyConfigFrom',
+            onClick: () => handleCopyConfig(1),
+            style: { paddingLeft: 36 },
+            label: <span className="text">{_l('从其他视图复制')}</span>,
+          },
+          {
+            key: 'copyConfigTo',
+            onClick: () => handleCopyConfig(2),
+            style: { paddingLeft: 36 },
+            label: <span className="text">{_l('应用到其他视图')}</span>,
+          },
+        );
+      }
+
+      if (isCharge) {
+        items.push({
+          key: 'splitLine',
+          type: 'divider',
+          className: 'splitLine',
+        });
+      }
+
+      if (changeViewType && !isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType])) {
+        items.push({
+          key: 'changeType',
+          popupStyle: { minWidth: 200 },
+          icon: <Icon icon="swap_horiz" className="Font18 textTertiary" />,
+          label: <span className="text">{_l('更改视图类型%05023')}</span>,
+          children: getViewDisplayMenuItems(),
+        });
+      }
+
+      if (!isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType])) {
+        items.push({
+          key: 'copy',
+          icon: <Icon icon="content-copy" className="Font18 textTertiary" />,
+          onClick: () => {
+            onCopyView(item);
+            handleClose();
+            onCopy && onCopy();
+          },
+          label: <span className="text">{_l('复制%05003')}</span>,
+        });
+      }
+
+      if (canShare()) {
+        items.push({
+          key: 'share',
+          icon: <Icon icon="share" className="Font18 textTertiary" />,
+          onClick: () => {
+            if (window.isPublicApp) {
+              alert(_l('预览模式下，不能操作'), 3);
+              return;
+            }
+
+            onShare(item);
+            handleClose();
+          },
+          label: <span className="text">{_l('分享%05021')}</span>,
+        });
+      }
+
+      if (canExport()) {
+        items.push({
+          key: 'export',
+          popupStyle: { minWidth: 200 },
+          icon: <Icon icon="worksheet_export" className="Font18 textTertiary" />,
+          label: <span className="text">{_l('导出%05020')}</span>,
+          children: getExportMenuItems(),
+        });
+      }
+    }
+
+    if (isCharge) {
+      items.push(
+        {
+          key: 'hide',
+          popupStyle: { minWidth: 200 },
+          icon: (
             <Icon
               icon={_.get(item, 'advancedSetting.showhide') !== 'hide' ? 'visibility_off' : 'visibility'}
-              className="Font18"
+              className="Font18 textTertiary"
             />
-          }
-          className="hiddenTypeMenuWrap"
-          onMouseEnter={() => setChangeHiddenTypeVisible(true)}
-          onMouseLeave={() => setChangeHiddenTypeVisible(false)}
-        >
-          <span className="text">
-            {_.get(item, 'advancedSetting.showhide') !== 'hide' ? _l('从导航栏中隐藏%05001') : _l('取消隐藏%05002')}
-          </span>
-          <Icon icon="arrow-right-tip Font14" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
-          {changeHiddenTypeVisible && (
-            <HiddenMenu
-              showhide={_.get(item, 'advancedSetting.showhide') || 'show'}
-              onClick={onChangeHidden}
-              style={{ top: '-6px', left: '100%' }}
-            />
-          )}
-        </MenuItem>
-      )}
-      {isCharge && (
-        <MenuItem
-          data-event="delete"
-          icon={<Icon icon="hr_delete" className="Font18" />}
-          className="delete"
-          onClick={() => {
+          ),
+          label: (
+            <span className="text">
+              {_.get(item, 'advancedSetting.showhide') !== 'hide' ? _l('从导航栏中隐藏%05001') : _l('取消隐藏%05002')}
+            </span>
+          ),
+          children: getHiddenMenuItems(),
+        },
+        {
+          key: 'delete',
+          icon: <Icon icon="hr_delete" className="Font18" />,
+          danger: true,
+          onClick: () => {
             onRemoveView(item);
             handleClose();
-          }}
-        >
-          <span className="text">{_l('删除%05000')}</span>
-        </MenuItem>
-      )}
-    </Menu>
-  );
+          },
+          label: <span className="text">{_l('删除%05000')}</span>,
+        },
+      );
+    }
+
+    return items;
+  };
+
+  return getMenuItems();
 }
 
-export default SettingMenu;
+export default getSettingMenuItems;

@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { Radio } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import DoubleConfirmDialog from './DoubleConfirmDialog';
 
 const FilterTextCon = styled.div`

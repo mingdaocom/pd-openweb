@@ -3,19 +3,43 @@ import { flushSync } from 'react-dom';
 import cx from 'classnames';
 import _, { get, includes, isEqual } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Linkify, Textarea } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { accMul, browserIsMobile, emitter, isKeyBoardInputChar } from 'src/utils/common';
-import { formatNumberFromInput, formatStrZero, renderText, toFixed } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
+import { accMul } from 'src/utils/core/arithmetic';
+import { renderText } from 'src/utils/domain/control/display';
+import { formatNumberFromInput, formatStrZero, toFixed } from 'src/utils/domain/control/number';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { emitter, isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
+import { addBehaviorLog } from 'src/utils/services/project';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips, { CellErrorTipTrigger } from './comps/CellErrorTip';
-import { FROM } from './enum';
 
 const ClickAwayable = ClickAway;
+const TEXT_EDITOR_POPOVER_MOTION = { motionName: '' };
+const TEXT_EDITOR_POPOVER_PLACEMENTS = {
+  bottomLeft: {
+    points: ['tl', 'tl'],
+    overflow: {
+      adjustY: true,
+    },
+  },
+};
+const TEXT_EDITOR_POPOVER_ANCHOR_STYLE = {
+  position: 'absolute',
+  inset: 0,
+  pointerEvents: 'none',
+};
+const TEXT_EDITOR_POPOVER_STYLES = {
+  container: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+};
+
 const InputCon = styled.div`
   box-sizing: border-box;
   padding: 0 6px;
@@ -381,50 +405,48 @@ export default class Text extends React.Component {
     }
 
     switch (e.key) {
-      default:
-        (() => {
-          let value = e.key;
+      default: {
+        let value = e.key;
 
-          if (isKeyBoardInputChar(e.key)) {
-            this.tempKey.push(e.key);
-          }
+        if (isKeyBoardInputChar(e.key)) {
+          this.tempKey.push(e.key);
+        }
 
-          if (!e.isInputValue && (!value || !isKeyBoardInputChar(e.key))) {
-            return;
-          }
+        if (!e.isInputValue && (!value || !isKeyBoardInputChar(e.key))) {
+          break;
+        }
 
-          if (cell.type === 6 || cell.type === 8) {
-            value = formatNumberFromInput(e.key, false);
-          }
+        if (cell.type === 6 || cell.type === 8) {
+          value = formatNumberFromInput(e.key, false);
+        }
 
-          updateEditingStatus(true, () => {
-            setTimeout(() => {
-              if (e.keyCode === 229) {
-                this.handleChange('');
-                return;
+        updateEditingStatus(true, () => {
+          setTimeout(() => {
+            if (e.keyCode === 229) {
+              this.handleChange('');
+              return;
+            }
+
+            const inputDom = this.input.current;
+
+            if (inputDom) {
+              inputDom.value = e.isInputValue ? value : this.tempKey.join('');
+              this.handleChange(e.isInputValue ? value : this.tempKey.join(''));
+              if (window.cellLastKey === 'Enter') {
+                this.handleKeydown({
+                  keyCode: 13,
+                  stopPropagation: () => {},
+                  preventDefault: () => {},
+                });
+                window.cellLastKey = undefined;
               }
-
-              const inputDom = this.input.current;
-
-              if (inputDom) {
-                inputDom.value = e.isInputValue ? value : this.tempKey.join('');
-                this.handleChange(e.isInputValue ? value : this.tempKey.join(''));
-                if (window.cellLastKey === 'Enter') {
-                  this.handleKeydown({
-                    keyCode: 13,
-                    stopPropagation: () => {},
-                    preventDefault: () => {},
-                  });
-                  window.cellLastKey = undefined;
-                }
-              }
-            }, 10);
-            e.stopPropagation();
-            e.preventDefault();
-          });
-        })();
-
+            }
+          }, 10);
+          e.stopPropagation();
+          e.preventDefault();
+        });
         break;
+      }
     }
   };
 
@@ -625,115 +647,115 @@ export default class Text extends React.Component {
         )}
       </ClickAwayable>
     );
+    const editorPopupContainer =
+      this.isMultipleLine || includes(className, 'lastFixedColumn')
+        ? getPopupContainer(popupContainer, rows, this.isMultipleLine)
+        : popupContainer;
+
     const editTrigger = (
-      <Trigger
-        action={['click']}
-        popup={editcontent}
-        getPopupContainer={
-          this.isMultipleLine || includes(className, 'lastFixedColumn')
-            ? getPopupContainer(popupContainer, rows, this.isMultipleLine)
-            : popupContainer
-        }
-        popupClassName="filterTrigger"
-        popupVisible={isediting}
-        destroyPopupOnHide={!window.isSafari} // 不是 Safari
-        popupAlign={{
-          points: ['tl', 'tl'],
-          overflow: {
-            adjustY: true,
-          },
-        }}
+      <EditableCellCon
+        hideOutline
+        onClick={onClick}
+        className={cx(className, 'workSheetTextCell', {
+          canedit: editable && canedit,
+          masked: this.masked && !isCard,
+          empty: value === '' || value === null || value === undefined,
+          maskHoverTheme: this.masked && isCard && !forceShowFullValue,
+          focusInput: cell.type === 2 && editable && canedit,
+        })}
+        style={style}
+        iconName="hr_edit"
+        isediting={isediting}
+        editable={editable}
+        onIconClick={this.handleEdit}
       >
-        <EditableCellCon
-          hideOutline
-          onClick={onClick}
-          className={cx(className, 'workSheetTextCell', {
-            canedit: editable && canedit,
-            masked: this.masked && !isCard,
-            empty: value === '' || value === null || value === undefined,
-            maskHoverTheme: this.masked && isCard && !forceShowFullValue,
-            focusInput: cell.type === 2 && editable && canedit,
-          })}
-          style={style}
-          iconName="hr_edit"
-          isediting={isediting}
-          editable={editable}
-          onIconClick={this.handleEdit}
+        <Popover
+          builtinPlacements={TEXT_EDITOR_POPOVER_PLACEMENTS}
+          content={editcontent}
+          destroyOnHidden={!window.isSafari}
+          getPopupContainer={editorPopupContainer}
+          motion={TEXT_EDITOR_POPOVER_MOTION}
+          open={isediting}
+          placement="bottomLeft"
+          noPadding
+          styles={TEXT_EDITOR_POPOVER_STYLES}
+          trigger={[]}
         >
-          {!isediting &&
-            (!!value || value == 0) &&
-            (() => {
-              if ((cell.advancedSetting || {}).analysislink === '1') {
-                return (
-                  <span
-                    className={
-                      rowHeight > 34 && (cell.type === 32 || (cell.type === 2 && cell.enumDefault === 1))
-                        ? cx('worksheetCellPureString nowrap', {
-                            linelimit: needLineLimit,
-                            ellipsis: isMobile,
-                          })
-                        : cx({
-                            ellipsis: isCard,
-                            'w100 InlineBlock': isCard && !this.masked,
-                            abstractContent: isCard && isMobile,
-                          })
-                    }
-                    title={text}
-                    onClick={this.handleUnMask}
-                  >
-                    <Linkify
-                      properties={{
-                        target: '_blank',
-                        onClick: e => {
-                          e.stopPropagation();
-                        },
-                      }}
-                    >
-                      {text}
-                    </Linkify>
-                  </span>
-                );
-              } else if (cell.type === 5 && !isMobile) {
-                return (
-                  <a
-                    href={`mailto:${value}`}
-                    title={text}
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.handleUnMask(e);
+          <div className="w100 h100" style={TEXT_EDITOR_POPOVER_ANCHOR_STYLE} />
+        </Popover>
+        {!isediting &&
+          (!!value || value == 0) &&
+          (() => {
+            if ((cell.advancedSetting || {}).analysislink === '1') {
+              return (
+                <span
+                  className={
+                    rowHeight > 34 && (cell.type === 32 || (cell.type === 2 && cell.enumDefault === 1))
+                      ? cx('worksheetCellPureString nowrap', {
+                          linelimit: needLineLimit,
+                          ellipsis: isMobile,
+                        })
+                      : cx({
+                          ellipsis: isCard,
+                          'w100 InlineBlock': isCard && !this.masked,
+                          abstractContent: isCard && isMobile,
+                        })
+                  }
+                  title={text}
+                  onClick={this.handleUnMask}
+                >
+                  <Linkify
+                    properties={{
+                      target: '_blank',
+                      onClick: e => {
+                        e.stopPropagation();
+                      },
                     }}
                   >
                     {text}
-                  </a>
-                );
-              } else {
-                return (
-                  <span
-                    className={cx({
-                      linelimit: needLineLimit,
-                      ellipsis: isMobile,
-                      'worksheetCellPureString nowrap': cell.type === 2 && cell.enumDefault === 1,
-                    })}
-                    title={text}
-                    onClick={this.handleUnMask}
-                  >
-                    {text}
-                  </span>
-                );
-              }
-            })()}
-          {tableType === 'classic' && !text && !isediting && cell.hint && (
-            <span className="guideText textDisabled hide">{cell.hint}</span>
-          )}
-          {isCard && this.masked && !forceShowFullValue && (
-            <i
-              className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
-              style={{ verticalAlign: 'text-top' }}
-              onClick={this.handleUnMask}
-            ></i>
-          )}
-        </EditableCellCon>
-      </Trigger>
+                  </Linkify>
+                </span>
+              );
+            } else if (cell.type === 5 && !isMobile) {
+              return (
+                <a
+                  href={`mailto:${value}`}
+                  title={text}
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.handleUnMask(e);
+                  }}
+                >
+                  {text}
+                </a>
+              );
+            } else {
+              return (
+                <span
+                  className={cx({
+                    linelimit: needLineLimit,
+                    ellipsis: isMobile,
+                    'worksheetCellPureString nowrap': cell.type === 2 && cell.enumDefault === 1,
+                  })}
+                  title={text}
+                  onClick={this.handleUnMask}
+                >
+                  {text}
+                </span>
+              );
+            }
+          })()}
+        {tableType === 'classic' && !text && !isediting && cell.hint && (
+          <span className="guideText textDisabled hide">{cell.hint}</span>
+        )}
+        {isCard && this.masked && !forceShowFullValue && (
+          <i
+            className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
+            style={{ verticalAlign: 'text-top' }}
+            onClick={this.handleUnMask}
+          ></i>
+        )}
+      </EditableCellCon>
     );
 
     if (!showErrorTipAsPopup) {

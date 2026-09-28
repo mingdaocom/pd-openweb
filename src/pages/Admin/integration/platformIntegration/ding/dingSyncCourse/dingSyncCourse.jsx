@@ -4,12 +4,13 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas';
 import moment from 'moment';
-import { compareProps } from 'pages/PageHeader/util.js';
-import { Button, Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Button, Input } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import Ajax from 'src/api/workWeiXin';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
-import { navigateTo } from '../../../../../../router/navigateTo';
+import { compareProps } from 'src/utils/domain/app/model';
+import { navigateTo } from '../../../../../../router/navigation/navigateTo';
 import { getIntegrationHomeUrl } from '../../utils';
 import CreateLinkDialog from './CreateLinkDialog';
 import imgPng1 from './img/1.png';
@@ -263,7 +264,7 @@ export default class DingSyncCourse extends React.Component {
         </p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('可信域名：')}</span>
-          <input type="text" className="inputBox" readOnly value={this.state.domainName} />
+          <Input type="text" className="inputBox" radius variant="filled" readOnly value={this.state.domainName} />
           <span className="copyBtn" onClick={() => this.bindClipboard(this.state.domainName)}>
             {_l('复制')}
           </span>
@@ -309,7 +310,9 @@ export default class DingSyncCourse extends React.Component {
         <p className="Font14 textSecondary mTop24 LineHeight22">
           {this.state.addApp
             ? _l('填入应用名称（建议与应用名称保持一致）、应用描述、应用图标')
-            : _l('填入应用名称、应用描述、应用图标')}
+            : window.platformENV.isHap
+              ? _l('填入应用名称（建议为“明道云”）、应用描述、应用图标')
+              : _l('填入应用名称、应用描述、应用图标')}
           <br />
           {_l('应用Logo建议：')}
           <span
@@ -336,7 +339,7 @@ export default class DingSyncCourse extends React.Component {
         </p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('PC端首页地址：')}</span>
-          <input type="text" className="inputBox" readOnly value={homeUrl} />
+          <Input type="text" className="inputBox" radius variant="filled" readOnly value={homeUrl} />
           <span className="copyBtn" onClick={() => this.bindClipboard(homeUrl)}>
             {_l('复制')}
           </span>
@@ -365,7 +368,7 @@ export default class DingSyncCourse extends React.Component {
             <img src={imgPng4_3} alt={_l('完善接口信息')} />
 
             <p className="Font14 textSecondary mTop24 LineHeight22">
-              {!window.platformENV.isOverseas && !window.platformENV.isLocal
+              {window.platformENV.isHap
                 ? _l('首页可以找到CorpId，填入明道云对应输入框内')
                 : _l('首页可以找到CorpId，填入对应输入框内')}
             </p>
@@ -409,7 +412,7 @@ export default class DingSyncCourse extends React.Component {
           <span className="inputTitle" style={{ width: 190 }}>
             {_l('重定向 URL（授权回调域名）')}
           </span>
-          <input type="text" className="inputBox" readOnly value={scanSafeDomain} />
+          <Input type="text" className="inputBox" radius variant="filled" readOnly value={scanSafeDomain} />
           <span
             className="copyBtn"
             onClick={() => {
@@ -474,7 +477,7 @@ export default class DingSyncCourse extends React.Component {
       );
     }
 
-    if (this.state.isWX && !window.platformENV.isOverseas && !window.platformENV.isLocal) {
+    if (this.state.isWX && window.platformENV.isHap) {
       return (
         <div className="wechartWork card TxtCenter">
           <img className="mTop80" src={wechat_workPng} alt={_l('企业微信')} width="56" />

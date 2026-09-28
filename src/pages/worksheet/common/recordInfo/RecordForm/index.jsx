@@ -5,25 +5,25 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, ScrollView, Skeleton } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { Skeleton, Tooltip } from 'ming-ui/antd-components';
 import DragMask from 'worksheet/common/DragMask';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import ViewContext from 'worksheet/views/ViewContext';
 import CustomFields from 'src/components/Form';
 import SectionTableNav from 'src/components/Form/components/SectionTableNav';
 import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
-import { getControlsByTab, isPublicLink } from 'src/components/Form/core/utils';
-import RecordPay from 'src/components/RecordPay';
-import { browserIsMobile } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
+import { getControlsByTab } from 'src/components/Form/core/utils';
+import { controlState } from 'src/utils/domain/control/state';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
+import RecordPay from '../RecordPay';
 import Abnormal from './Abnormal';
 import FormCover from './FormCover';
 import FormHeader from './FormHeader';
 import FormSection, { getDefaultIsUnfold } from './FormSection';
 
 export const RecordFormContext = React.createContext();
-
 const ShadowCon = styled.div`
   width: 100%;
   position: absolute;
@@ -31,16 +31,13 @@ const ShadowCon = styled.div`
   top: -6px;
   overflow: hidden;
 `;
-
 const HIDDEN_CONTROL_IDS = ['rowid'];
 const NOT_LOGIN_HIDDEN_TYPES = [26, 27, 21, 48];
-
 const Shadow = styled.div`
   margin-top: 6px;
   height: 6px;
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.16);
 `;
-
 const FixedCon = styled.div`
   z-index: -1;
   padding: 0px 24px;
@@ -49,11 +46,9 @@ const FixedCon = styled.div`
   width: 100%;
   background: var(--color-background-primary);
 `;
-
 const Bottom = styled.div`
   height: 48px;
 `;
-
 const StickyBar = styled.div`
   cursor: pointer;
   position: sticky;
@@ -71,7 +66,7 @@ const StickyBar = styled.div`
   line-height: 32px;
   display: flex;
   background-color: var(--color-background-primary);
-  cursor: pinter;
+  cursor: pointer;
   .title {
     color: var(--color-text-secondary);
   }
@@ -88,7 +83,6 @@ const StickyBar = styled.div`
     transform: translateY(0px);
   }
 `;
-
 const LockWrap = styled.div`
   padding: 0px 32px 16px 32px;
   .lockContent {
@@ -99,7 +93,7 @@ const LockWrap = styled.div`
       font-size: 16px;
       color: #56799d;
       &:hover {
-        ${props => (props.isAdmin ? 'cursor: pointer;color:#1677ff;' : '')}
+        ${props => (props.$isAdmin ? 'cursor: pointer;color:#1677ff;' : '')}
       }
       i {
         margin: 0 12px;
@@ -107,19 +101,14 @@ const LockWrap = styled.div`
     }
   }
 `;
-
 const Div = styled.div``;
-
 function getTopHeight() {
   let height = Number(localStorage.getItem('recordinfoSplitHeight'));
-
   if (height > window.innerHeight - 140) {
     height = window.innerHeight - 140;
   }
-
   return height;
 }
-
 function mergeTabData(tabData = [], eventData = [], dealFrom) {
   const filterFn = (data = []) => {
     // 标签页下无可见字段，隐藏标签页
@@ -129,19 +118,19 @@ function mergeTabData(tabData = [], eventData = [], dealFrom) {
           const childWidgets = eventData.filter(i => i.sectionId === tab.controlId);
           return !_.every(childWidgets, c => !(controlState(c, dealFrom).visible && !c.hidden));
         }
-
         return true;
       })
       .filter(t => controlState(t, dealFrom).visible && !t.hidden);
   };
-
   const tabControls = tabData.map(t => {
     const cur = _.find(eventData, e => e.controlId === t.controlId);
-    return { ...t, fieldPermission: _.get(cur, 'fieldPermission') };
+    return {
+      ...t,
+      fieldPermission: _.get(cur, 'fieldPermission'),
+    };
   });
   return filterFn(tabControls);
 }
-
 function RecordForm(props) {
   const {
     formWidth,
@@ -195,11 +184,9 @@ function RecordForm(props) {
   const runtimeData =
     runtimeFormData.recordId === recordId && runtimeFormData.formFlag === formFlag ? runtimeFormData.data : undefined;
   const runtimeControlMap = {};
-
   (runtimeData || []).forEach(item => {
     runtimeControlMap[item.controlId] = item;
   });
-
   formdata.forEach(item => {
     item.defaultState = {
       required: item.required,
@@ -225,14 +212,26 @@ function RecordForm(props) {
   })
     .map(control => {
       const runtimeControl = runtimeControlMap[control.controlId];
-
-      return runtimeControl && runtimeControl.store ? { ...control, store: runtimeControl.store } : control;
+      return runtimeControl && runtimeControl.store
+        ? {
+            ...control,
+            store: runtimeControl.store,
+          }
+        : control;
     })
     .filter(control => controlState(control, dealFrom).visible)
     .map(c =>
-      Object.assign((!ignoreLock && isLock) || isRecordLock ? { ...c, disabled: true } : c, {
-        isDraft: from === RECORD_INFO_FROM.DRAFT,
-      }),
+      Object.assign(
+        (!ignoreLock && isLock) || isRecordLock
+          ? {
+              ...c,
+              disabled: true,
+            }
+          : c,
+        {
+          isDraft: from === RECORD_INFO_FROM.DRAFT,
+        },
+      ),
     )
     .filter(c => !c.hidden);
   const { commonData = [], tabData = [] } = getControlsByTab(getRulesData, widgetStyle, dealFrom);
@@ -247,7 +246,6 @@ function RecordForm(props) {
   const isFixedLeft = _.get(widgetStyle, 'tabposition') === '3';
   const isFixedRight = _.get(widgetStyle, 'tabposition') === '4';
   const isFixed = _.includes(['2', '3', '4'], _.get(recordinfo, 'advancedSetting.tabposition'));
-
   const scrollRef = useRef();
   const customwidget = useRef();
   const recordForm = useRef();
@@ -268,18 +266,14 @@ function RecordForm(props) {
       ? _.find(tabControls, t => t.controlId === sectionTabId)
       : '';
   };
-
   const handleSectionClick = controlId => {
     const tempId = controlId || defaultTabId;
-
     if (isFixedLeft || isFixedRight) {
       if (tempId === _.get(customwidget, 'current.state.activeTabControlId') || !tabControls.length) return;
       customwidget && customwidget.current && customwidget.current.setActiveTabControlId(tempId);
       sectionTab && sectionTab.current && sectionTab.current.setActiveId(tempId);
       setTabHeaderControl(getActiveTabControl(tempId));
-
       const stickyBar = recordForm.current && recordForm.current.querySelector('.topCon .stickyBar');
-
       if (stickyBar) {
         stickyBar.id = tempId === 'detail' ? '' : 'stickyBarActive';
       }
@@ -288,7 +282,6 @@ function RecordForm(props) {
       scrollToTable();
     }
   };
-
   const [tabHeaderControl, setTabHeaderControl] = useState(getActiveTabControl());
   const systemControlData = [
     {
@@ -312,98 +305,78 @@ function RecordForm(props) {
     setNavVisible();
     setSectionFixed(false);
   });
-
   function setSplit(value) {
     if (value) {
       safeLocalStorageSetItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
     } else {
       localStorage.removeItem('recordinfoSplitHeight');
     }
-
     setIsSplit(value);
     if (recordForm.current && !topHeight) {
       setTopHeight(formHeight * 0.5);
     }
   }
-
   function setNavVisible() {
     if (!tabControls.length || type !== 'edit' || !recordForm.current || !nav.current) {
       return;
     }
-
     const scrollConElement = recordForm.current.querySelector('.recordInfoFormScroll');
     const formElement = recordForm.current.querySelector('.recordInfoFormContent .customFieldsContainer');
     const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
-
     if (!scrollConElement || !formElement || !scrollContentElement) {
       return;
     }
-
     const visible =
       scrollContentElement.scrollTop + scrollConElement.clientHeight <
       formElement.clientHeight + formElement.offsetTop + 58 + 26 + 1;
     nav.current.style.zIndex = visible ? 3 : -1;
   }
-
   function setStickyBarVisible({ isSplit } = {}) {
     if (!recordForm.current) return;
-
     const scrollContentElement = recordForm.current.querySelector(isSplit ? '.topCon' : '.recordInfoFormScroll > div');
     const stickyBar = recordForm.current.querySelector('.topCon .stickyBar');
     const recordTitle = recordForm.current.querySelector('.topCon .recordTitle');
-
     if (!scrollContentElement || !stickyBar) return;
-
     const visible = scrollContentElement.scrollTop > (recordTitle || {}).offsetTop + (recordTitle || {}).offsetHeight;
     stickyBar.id = visible || tabHeaderControl ? 'stickyBarActive' : '';
   }
-
   const Con = type === 'edit' && !isSplit ? ScrollView : React.Fragment;
   const TopCon = isSplit ? ScrollView : Div;
-
   function scrollToTable() {
     // 标签页设置在顶部时，切换标签页不滚动（避免内容跳动）
     if (_.get(widgetStyle, 'tabposition') === '2') return;
-
     const $recordInfoFormScroll = $(recordForm.current).find('.recordInfoFormScroll');
     const $relateRecordBlockCon = $(recordForm.current).find('.relateRecordBlockCon');
-
     if (isFixed && scrollRef.current) {
-      scrollRef.current.scrollTo({ top: 0 });
+      scrollRef.current.scrollTo({
+        top: 0,
+      });
       return;
     }
-
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: $relateRecordBlockCon[0].offsetTop - $recordInfoFormScroll.height() + 112 + 34 * 11,
       });
     }
   }
-
   function setSectionFixed(isScroll = true) {
     if (isSplit || isFixedLeft || isFixedRight) return;
     if (!recordForm.current) return;
-
     const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
     const sectionTabBarElement = recordForm.current.querySelector('.relateRecordBlock #widgetSectionTabBar');
     const headerElement = recordForm.current.querySelector('.recordInfoFormHeader');
-
     if (scrollContentElement && sectionTabBarElement) {
       const isHideHeader = _.get(view, 'advancedSetting.showtitle') === '0';
       let stickyH = isHideHeader ? 22 : 30;
-
       if (payConfig.isShowPay) {
         stickyH = 56;
       }
-
       if (!headerElement.clientHeight) {
         stickyH = 0;
       }
-
       const isFixed = scrollContentElement.scrollTop + stickyH >= sectionTabBarElement.offsetTop;
       // 记录详情切换因为支付导致的固定问题
       const preFixed = !isScroll && sectionTabBarElement && sectionTabBarElement.style.position === 'sticky';
-
       if (isFixed || preFixed) {
         $(sectionTabBarElement).css({
           position: 'sticky',
@@ -414,9 +387,7 @@ function RecordForm(props) {
       }
     }
   }
-
   const isMobile = browserIsMobile();
-
   const renderFormSection = () => {
     if (abnormal || formdata.length === 0) return null;
     return (
@@ -430,13 +401,12 @@ function RecordForm(props) {
       />
     );
   };
-
   const renderRecordLock = () => {
     const { ruleItems = [] } = _.find(recordinfo.rules, r => r.type === 2) || {};
     const message = _.get(ruleItems, '0.message');
     const isAdmin = recordinfo.roleType === 2 && !isPublicLink();
     return (
-      <LockWrap isAdmin={isAdmin}>
+      <LockWrap $isAdmin={isAdmin}>
         <div className="lockContent">
           <Tooltip
             title={_l('锁定%0不允许编辑和删除。管理员可在应用内解锁。', recordinfo.entityName)}
@@ -451,46 +421,73 @@ function RecordForm(props) {
       </LockWrap>
     );
   };
-
   if (loading) {
     return (
       <div className="contentBox flex flexColumn">
-        <div style={{ padding: 10 }}>
+        <div
+          style={{
+            padding: 10,
+          }}
+        >
           <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['30%', '40%', '90%', '60%']}
+            className="pAll20 pBottom0"
+            style={{
+              flex: 1,
+            }}
             active
-            itemStyle={{ marginBottom: '10px' }}
+            paragraph={{
+              rows: 4,
+              width: ['30%', '40%', '90%', '60%'],
+            }}
           />
           <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['40%', '55%', '100%', '80%']}
+            className="pAll20 pBottom0"
+            style={{
+              flex: 1,
+            }}
             active
-            itemStyle={{ marginBottom: '10px' }}
+            paragraph={{
+              rows: 4,
+              width: ['40%', '55%', '100%', '80%'],
+            }}
           />
           <Skeleton
-            style={{ flex: 2 }}
-            direction="column"
-            widths={['45%', '100%', '100%', '100%']}
+            className="pAll20"
+            style={{
+              flex: 2,
+            }}
             active
-            itemStyle={{ marginBottom: '10px' }}
+            paragraph={{
+              rows: 4,
+              width: ['45%', '100%', '100%', '100%'],
+            }}
           />
         </div>
       </div>
     );
   }
-
   return (
-    <RecordFormContext.Provider value={{ width, recordbase, iseditting, isMingoCreate }}>
+    <RecordFormContext.Provider
+      value={{
+        width,
+        recordbase,
+        iseditting,
+        isMingoCreate,
+      }}
+    >
       {isFixedLeft && renderFormSection()}
       <div className="recordInfoForm flex flexColumn" ref={recordForm}>
         {(from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND || from === RECORD_INFO_FROM.WORKFLOW) && recordTitle && (
           <DocumentTitle title={_l('记录-%0', recordTitle)} />
         )}
         {!abnormal && !!formdata.length && (
-          <div className={cx(isSplit ? 'flexColumn' : 'flex', { overflowHidden: !!recordId, isSplit })} ref={sizeRef}>
+          <div
+            className={cx(isSplit ? 'flexColumn' : 'flex', {
+              overflowHidden: !!recordId,
+              isSplit,
+            })}
+            ref={sizeRef}
+          >
             {dragVisible && (
               <DragMask
                 value={topHeight}
@@ -509,7 +506,11 @@ function RecordForm(props) {
                 ? {
                     className: 'recordInfoFormScroll Relative flex',
                     ref: scrollRef,
-                    options: { overflow: { x: 'hidden' } },
+                    options: {
+                      overflow: {
+                        x: 'hidden',
+                      },
+                    },
                     onScroll: () => {
                       setNavVisible();
                       setStickyBarVisible();
@@ -520,11 +521,19 @@ function RecordForm(props) {
             >
               <TopCon
                 className="topCon"
-                style={isSplit ? { height: topHeight || 300 } : {}}
+                style={
+                  isSplit
+                    ? {
+                        height: topHeight || 300,
+                      }
+                    : {}
+                }
                 onScroll={
                   isSplit
                     ? () => {
-                        setStickyBarVisible({ isSplit: true });
+                        setStickyBarVisible({
+                          isSplit: true,
+                        });
                       }
                     : () => {}
                 }
@@ -596,7 +605,11 @@ function RecordForm(props) {
                     </div>
                   </div>
                 )}
-                <div className={cx('recordInfoFormContent', { noAuth: !allowEdit })}>
+                <div
+                  className={cx('recordInfoFormContent', {
+                    noAuth: !allowEdit,
+                  })}
+                >
                   <CustomFields
                     isEditing={iseditting}
                     ignoreLock={ignoreLock}
@@ -609,7 +622,11 @@ function RecordForm(props) {
                     formDidMountFlag={formDidMountFlag}
                     widgetStyle={widgetStyle}
                     filledByAiMap={filledByAiMap}
-                    controlProps={{ ...controlProps, updateWorksheetControls, updateRelateRecordTableCount }}
+                    controlProps={{
+                      ...controlProps,
+                      updateWorksheetControls,
+                      updateRelateRecordTableCount,
+                    }}
                     data={formdata.filter(
                       c =>
                         !_.includes(HIDDEN_CONTROL_IDS, c.controlId) &&
@@ -638,10 +655,16 @@ function RecordForm(props) {
                     entityName={recordinfo.entityName}
                     isCharge={get(viewContext, 'isCharge') || recordbase.isCharge}
                     onFormDataReady={dataFormat => {
-                      setRuntimeFormData({ recordId, formFlag, data: dataFormat.getDataSource() });
+                      setRuntimeFormData({
+                        recordId,
+                        formFlag,
+                        data: dataFormat.getDataSource(),
+                      });
                       setNavVisible();
                       if (!recordId) {
-                        onChange(dataFormat.getDataSource(), [], { noSaveTemp: true });
+                        onChange(dataFormat.getDataSource(), [], {
+                          noSaveTemp: true,
+                        });
                       }
 
                       onFormDataReady(dataFormat);
@@ -677,7 +700,12 @@ function RecordForm(props) {
               </TopCon>
               {type === 'edit' && !isSplit && <Bottom />}
             </Con>
-            <div id="newCustomTabSectionWrap" className={cx('relateRecordBlockCon', { flex: isSplit })}></div>
+            <div
+              id="newCustomTabSectionWrap"
+              className={cx('relateRecordBlockCon', {
+                flex: isSplit,
+              })}
+            ></div>
             {!isSplit && type === 'edit' && !!tabControls.length && !isFixedLeft && !isFixedRight && (
               <FixedCon ref={nav}>
                 <ShadowCon>
@@ -712,7 +740,6 @@ function RecordForm(props) {
     </RecordFormContext.Provider>
   );
 }
-
 RecordForm.propTypes = {
   type: PropTypes.string,
   loading: PropTypes.bool,
@@ -740,35 +767,45 @@ RecordForm.propTypes = {
   registerCell: PropTypes.func,
   updateWorksheetControls: PropTypes.func,
 };
-
 export default function RecordFormCon(props) {
   const { loading, widgetStyle = {} } = props;
   const isFixedLeft = _.get(widgetStyle, 'tabposition') === '3';
   const isUnfold = getDefaultIsUnfold(undefined, widgetStyle);
-
   if (loading) {
     const skeleton = (
       <Fragment>
         <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['30%', '40%', '90%', '60%']}
+          className="pAll20 pBottom0"
+          style={{
+            flex: 1,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['30%', '40%', '90%', '60%'],
+          }}
         />
         <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['40%', '55%', '100%', '80%']}
+          className="pAll20 pBottom0"
+          style={{
+            flex: 1,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['40%', '55%', '100%', '80%'],
+          }}
         />
         <Skeleton
-          style={{ flex: 2 }}
-          direction="column"
-          widths={['45%', '100%', '100%', '100%']}
+          className="pAll20"
+          style={{
+            flex: 2,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['45%', '100%', '100%', '100%'],
+          }}
         />
       </Fragment>
     );
@@ -787,15 +824,19 @@ export default function RecordFormCon(props) {
           </div>
         )}
         <div className="recordInfoForm flex flexColumn">
-          <div style={{ padding: 10 }}>{skeleton}</div>
+          <div
+            style={{
+              padding: 10,
+            }}
+          >
+            {skeleton}
+          </div>
         </div>
       </Fragment>
     );
   }
-
   return <RecordForm {...props} />;
 }
-
 RecordFormCon.propTypes = {
   loading: PropTypes.bool,
   formWidth: PropTypes.number,

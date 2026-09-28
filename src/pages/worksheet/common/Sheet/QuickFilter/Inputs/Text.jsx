@@ -1,100 +1,12 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import cx from 'classnames';
 import _, { isUndefined } from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
-import styled from 'styled-components';
-import { Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { Button, Input, Space, Tooltip } from 'ming-ui/antd-components';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import PasteDialog from '../PasteDialog';
-
-const Out = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
-const Con = styled.div`
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 32px;
-  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
-  border-radius: 4px 0 0 4px;
-  &:hover {
-    border-color: var(--color-primary) !important;
-    .icon-cancel {
-      display: inline-block;
-    }
-  }
-`;
-
-const InputCon = styled.div`
-  flex: 1;
-  .Input {
-    width: 100%;
-    font-size: 13px !important;
-    height: 30px !important;
-    border: none !important;
-    box-sizing: border-box !important;
-    line-height: inherit;
-    background-color: transparent !important;
-    &::placeholder {
-      color: var(--color-text-disabled);
-    }
-  }
-`;
-
-const MultipleValue = styled.div`
-  font-size: 13px;
-  padding: 0 12px;
-`;
-
-const ClearIcon = styled.i`
-  display: none;
-  font-size: 16px;
-  color: var(--color-text-tertiary);
-  margin-right: 8px;
-  cursor: pointer;
-  &:hover {
-    color: var(--color-text-secondary);
-  }
-`;
-
-const AdvancePasteIcon = styled.span`
-  cursor: pointer;
-  border: 1px solid var(--border-color);
-  border-left: none;
-  border-radius: 0 4px 4px 0;
-  font-size: 20px;
-  color: var(--color-text-tertiary);
-  line-height: 30px;
-  padding: 0 6px;
-  > span {
-    line-height: 1em;
-  }
-`;
-
-const IconBtn = styled.span`
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 3px;
-  color: var(--color-text-tertiary);
-  font-size: 18px;
-  font-weight: bold;
-  &.active {
-    color: var(--color-primary);
-  }
-  &:hover {
-    background-color: var(--color-background-hover);
-  }
-`;
 
 function getPlaceHolder(filterType, limit) {
   if (filterType === FILTER_CONDITION_TYPE.EQ) {
@@ -126,6 +38,14 @@ export default function Text(props) {
   const [pasteDialogVisible, setPasteDialogVisible] = useState();
   const [isExact, setIsExact] = useState(false);
   const [isCaseSensitive, setIsCaseSensitive] = useState(false);
+  const [prevViewId, setPrevViewId] = useState(viewId);
+
+  if (prevViewId !== viewId) {
+    setPrevViewId(viewId);
+    setIsExact(false);
+    setIsCaseSensitive(false);
+  }
+
   const limit = advancedSetting.limit && Number(advancedSetting.limit);
   const needCheckLength =
     _.includes([FILTER_CONDITION_TYPE.START, FILTER_CONDITION_TYPE.END], filterType) &&
@@ -146,6 +66,12 @@ export default function Text(props) {
     );
   };
 
+  const handleClear = () => {
+    setIsMultiple(false);
+    setValueForMultiple('');
+    onChange({ values: [] });
+  };
+
   useUpdateEffect(() => {
     if (!values.length) {
       setIsMultiple(false);
@@ -153,113 +79,112 @@ export default function Text(props) {
       setTempValue('');
     }
   }, [values]);
-  useEffect(() => {
-    setIsExact(false);
-    setIsCaseSensitive(false);
-  }, [viewId]);
   return (
-    <Out>
-      <Con className="outlineCon" active={isFocusing}>
-        <InputCon>
-          {!isMultiple ? (
-            <Input
-              placeholder={getPlaceHolder(filterType, advancedSetting.limit)}
-              value={needCheckLength && tempValue ? tempValue : values.join(' ')}
-              onKeyDown={e => e.keyCode === 13 && onEnterDown()}
-              onFocus={() => setIsFocusing(true)}
-              onBlur={() => setIsFocusing(false)}
-              onChange={newValue => {
-                setIsMultiple(false);
-                if (needCheckLength) {
-                  setTempValue(newValue);
-                  if (newValue.length < limit && newValue.length > 0) {
-                    if (values.join('') !== '') {
-                      newValue = '';
-                    } else {
-                      return;
-                    }
-                  }
-                }
+    <>
+      <Space.Compact block>
+        <Input
+          className="flex"
+          allowClear
+          placeholder={getPlaceHolder(filterType, advancedSetting.limit)}
+          value={
+            isMultiple ? _l('%0 个关键词', values.length) : needCheckLength && tempValue ? tempValue : values.join(' ')
+          }
+          suffix={
+            showTextAdvanced && (isFocusing || isExact || isCaseSensitive || isMultiple) ? (
+              <>
+                <Tooltip title={_l('精确匹配')}>
+                  <i
+                    className={cx('icon icon-quote-left Font18 pointer hoverColorPrimary', {
+                      colorPrimary: isExact,
+                      textTertiary: !isExact,
+                    })}
+                    onMouseDown={() => {
+                      setIsExact(!isExact);
+                      handleChange({ values, newIsExact: !isExact });
+                    }}
+                  />
+                </Tooltip>
+                {!_.includes([FILTER_CONDITION_TYPE.EQ, FILTER_CONDITION_TYPE.NE], filterType) && (
+                  <Tooltip title={_l('区分大小写')}>
+                    <i
+                      className={cx('icon icon-case Font18 pointer hoverColorPrimary', {
+                        colorPrimary: isCaseSensitive,
+                        textTertiary: !isCaseSensitive,
+                      })}
+                      onMouseDown={() => {
+                        setIsCaseSensitive(!isCaseSensitive);
+                        handleChange({ values, newIsCaseSensitive: !isCaseSensitive });
+                      }}
+                    />
+                  </Tooltip>
+                )}
+              </>
+            ) : null
+          }
+          onKeyDown={e => !isMultiple && e.keyCode === 13 && onEnterDown()}
+          onClick={() => isMultiple && setPasteDialogVisible(true)}
+          onFocus={() => setIsFocusing(true)}
+          onBlur={() => setIsFocusing(false)}
+          onClear={handleClear}
+          onChange={event => {
+            let newValue = event.target.value;
 
-                if (
-                  _.includes(
-                    [
-                      WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
-                      WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机号码
-                    ],
-                    control.type,
-                  )
-                ) {
-                  handleChange({ values: [newValue.replace(/ /g, '')] });
-                } else if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
-                  handleChange({ values: newValue.split(' ') });
+            if (event.type === 'click') {
+              return;
+            }
+
+            if (isMultiple) {
+              return;
+            }
+
+            setIsMultiple(false);
+            if (needCheckLength) {
+              setTempValue(newValue);
+              if (newValue.length < limit && newValue.length > 0) {
+                if (values.join('') !== '') {
+                  newValue = '';
                 } else {
-                  handleChange({
-                    values: [newValue],
-                  });
+                  return;
                 }
-              }}
-              onPaste={e => {
-                const pasteValue = (e.clipboardData || window.clipboardData).getData('text');
+              }
+            }
 
-                if (pasteValue && /\n/.test(pasteValue)) {
-                  setValueForMultiple(pasteValue);
-                  setPasteDialogVisible(true);
-                  e.preventDefault();
-                }
-              }}
-            />
-          ) : (
-            <MultipleValue onClick={() => setPasteDialogVisible(true)}>
-              {_l('%0 个关键词', values.length)}
-            </MultipleValue>
-          )}
-        </InputCon>
-        {showTextAdvanced && (isFocusing || isExact || isCaseSensitive || isMultiple) && (
-          <Fragment>
-            <Tooltip title={_l('精确匹配')}>
-              <IconBtn
-                className={cx({ active: isExact })}
-                onMouseDown={() => {
-                  setIsExact(!isExact);
-                  handleChange({ values, newIsExact: !isExact });
-                }}
-              >
-                <i className="icon icon-quote-left"></i>
-              </IconBtn>
-            </Tooltip>
-            <Tooltip title={_l('区分大小写')}>
-              <IconBtn
-                className={cx('mRight2', { active: isCaseSensitive })}
-                onMouseDown={() => {
-                  setIsCaseSensitive(!isCaseSensitive);
-                  handleChange({ values, newIsCaseSensitive: !isCaseSensitive });
-                }}
-              >
-                <i className="icon icon-case"></i>
-              </IconBtn>
-            </Tooltip>
-          </Fragment>
-        )}
-        {values && !!values.length && (
-          <ClearIcon
-            className="icon-cancel"
-            onClick={() => {
-              setIsMultiple(false);
-              setValueForMultiple('');
-              onChange({ values: [] });
-            }}
-          />
-        )}
-      </Con>
-      <AdvancePasteIcon onClick={() => setPasteDialogVisible(true)}>
+            if (
+              _.includes(
+                [
+                  WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
+                  WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机号码
+                ],
+                control.type,
+              )
+            ) {
+              handleChange({ values: [newValue.replace(/ /g, '')] });
+            } else if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
+              handleChange({ values: newValue.split(' ') });
+            } else {
+              handleChange({
+                values: [newValue],
+              });
+            }
+          }}
+          onPaste={e => {
+            const pasteValue = (e.clipboardData || window.clipboardData).getData('text');
+
+            if (pasteValue && /\n/.test(pasteValue)) {
+              setValueForMultiple(pasteValue);
+              setPasteDialogVisible(true);
+              e.preventDefault();
+            }
+          }}
+        />
         <Tooltip title={_l('添加多个搜索关键词')}>
-          <i
-            className={cx('icon icon-lookup hoverColorPrimary', { colorPrimary: isMultiple })}
+          <Button
+            icon={<i className={cx('icon icon-lookup Font20', { colorPrimary: isMultiple })} />}
+            aria-label={_l('添加多个搜索关键词')}
             onClick={() => setPasteDialogVisible(true)}
           />
         </Tooltip>
-      </AdvancePasteIcon>
+      </Space.Compact>
       {pasteDialogVisible && (
         <PasteDialog
           keywords={valueForMultiple}
@@ -275,7 +200,7 @@ export default function Text(props) {
           }}
         />
       )}
-    </Out>
+    </>
   );
 }
 

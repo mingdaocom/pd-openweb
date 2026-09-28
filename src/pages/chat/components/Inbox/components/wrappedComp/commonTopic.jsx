@@ -1,6 +1,6 @@
 import React from 'react';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
-import { SOURCE_TYPE } from '../../constants';
+import { SOURCE_TYPE } from 'src/components/comment/config';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import { buildSourceLink, formatInboxItem } from '../../util';
 import BaseMessageComponent from '../baseComponent/messageContent';
 

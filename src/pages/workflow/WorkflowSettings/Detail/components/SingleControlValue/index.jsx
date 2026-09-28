@@ -1,31 +1,30 @@
 import React, { Component, Fragment } from 'react';
-import { TimePicker } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import {
-  Checkbox,
-  CityPicker,
-  Dropdown,
-  Icon,
-  Input,
-  MultipleDropdown,
-  QiniuUpload,
-  Radio,
-  Switch,
-  TagTextarea,
-} from 'ming-ui';
-import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { CityPicker, Icon, QiniuUpload, TagTextarea } from 'ming-ui';
+import { Checkbox, DatePicker, Input, Radio, Select, Switch, TimePicker } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
 import { FORMAT_TEXT, NODE_TYPE } from '../../../enum';
+import PreviewAttachmentsContext from '../../../PreviewAttachmentsContext';
 import { getIcons, handleExecReturnValue, handleGlobalVariableName } from '../../../utils';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
 
+const DATE_TIME_PICKER_CONFIG = {
+  1: { format: 'HH:mm' },
+  2: { format: 'HH' },
+  6: { format: 'HH:mm:ss' },
+};
+const DATE_RANGE_TIME_PICKER_CONFIG = { format: 'HH:mm' };
+const DATE_PICKER_MODE = { 3: 'date', 4: 'month', 5: 'year' };
+
 export default class SingleControlValue extends Component {
+  static contextType = PreviewAttachmentsContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -397,15 +396,17 @@ export default class SingleControlValue extends Component {
    * 预览附件
    */
   previewAttachments(file) {
+    const openPreviewAttachments = this.context || previewAttachments;
+
     if (file.serverName) {
-      previewAttachments(
+      openPreviewAttachments(
         transformQiniuUrl(file.url, {
           ext: RegExpValidator.getExtOfFileName(file.fileExt),
           name: file.originalFileName,
         }),
       );
     } else {
-      previewAttachments({
+      openPreviewAttachments({
         attachments: [Object.assign({}, file, { path: file.privateDownloadUrl })],
         callFrom: 'player',
       });
@@ -434,7 +435,7 @@ export default class SingleControlValue extends Component {
   }, 500);
 
   render() {
-    const { controls, item, i, hideOtherField, selectNodeType, moreNodesMenuStyle, hideUserMoreObject } = this.props;
+    const { controls, item, i, hideOtherField, selectNodeType, hideUserMoreObject } = this.props;
     const { isUploading, search, keywords } = this.state;
     const formulaMap = _.cloneDeep(this.props.formulaMap);
     let list = [];
@@ -463,9 +464,8 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <input
-              type="text"
-              className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+            <Input
+              className={cx('flex', {
                 clearBorderRadius: !hideOtherField,
               })}
               placeholder={_l('请输入...')}
@@ -530,9 +530,8 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <input
-              type="text"
-              className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+            <Input
+              className={cx('flex', {
                 clearBorderRadius: !hideOtherField,
               })}
               placeholder={item.type === 3 ? _l('填写手机号') : _l('填写座机号')}
@@ -574,13 +573,9 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <input
-              type="text"
-              className={cx(
-                'flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10',
-                { clearBorderRadius: !hideOtherField },
-                { errorBorder: isError },
-              )}
+            <Input
+              className={cx('flex', { clearBorderRadius: !hideOtherField })}
+              status={isError ? 'error' : undefined}
               placeholder={placeholder}
               defaultValue={item.fieldValue || ''}
               onBlur={evt => this.updateSingleControlValue({ fieldValue: evt.target.value.trim() }, i)}
@@ -598,9 +593,8 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <input
-              type="text"
-              className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+            <Input
+              className={cx('flex', {
                 clearBorderRadius: !hideOtherField,
               })}
               placeholder={item.type === 6 ? _l('填写数字') : _l('填写金额')}
@@ -630,9 +624,18 @@ export default class SingleControlValue extends Component {
                 key={o.key}
                 className="mRight60 mBottom5"
                 checked={o.key === item.fieldValue}
-                text={o.value}
-                onClick={() => this.updateSingleControlValue({ fieldValue: o.key }, i)}
-              />
+                onChange={() =>
+                  this.updateSingleControlValue(
+                    {
+                      fieldValue: o.key,
+                    },
+                    i,
+                  )
+                }
+                title={o.value}
+              >
+                {o.value}
+              </Radio>
             ))}
           </div>
         );
@@ -647,7 +650,15 @@ export default class SingleControlValue extends Component {
                 className="mRight10"
                 checked={item.fieldValue === '1'}
                 size="small"
-                onClick={() => this.updateSingleControlValue({ fieldValue: item.fieldValue === '1' ? '0' : '1' }, i)}
+                onClick={(checked, event) => {
+                  event.stopPropagation();
+                  return this.updateSingleControlValue(
+                    {
+                      fieldValue: item.fieldValue === '1' ? '0' : '1',
+                    },
+                    i,
+                  );
+                }}
               />
               {currentControl.hint}
             </div>
@@ -658,11 +669,11 @@ export default class SingleControlValue extends Component {
         return (
           <div className="mTop8 flexRow">
             <Checkbox
-              className="InlineBlock"
-              text={currentControl.hint}
               checked={item.fieldValue === '1'}
-              onClick={() => this.updateSingleControlValue({ fieldValue: item.fieldValue === '1' ? '0' : '1' }, i)}
-            />
+              onChange={event => this.updateSingleControlValue({ fieldValue: event.target.checked ? '1' : '0' }, i)}
+            >
+              {currentControl.hint}
+            </Checkbox>
           </div>
         );
       }
@@ -678,24 +689,18 @@ export default class SingleControlValue extends Component {
         .filter(o => !o.isDeleted)
         .map(o => {
           return {
-            text: o.value,
+            label: o.value,
             value: o.key,
           };
         });
-
-      if (item.fieldValue) {
-        list.unshift({
-          text: _l('清除选择'),
-          value: '',
-        });
-      }
 
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <Dropdown
+            <Select
+              allowClear
               className={cx(
                 'flowDropdown flex',
                 {
@@ -703,12 +708,11 @@ export default class SingleControlValue extends Component {
                 },
                 { clearBorderRadius: !disabledOtherFields && !hideOtherField },
               )}
-              data={list}
+              options={list}
               value={item.fieldValue || undefined}
-              border
-              isAppendToBody
-              openSearch
-              renderTitle={() =>
+              showSearch
+              optionFilterProp="label"
+              labelRender={() =>
                 item.fieldValue && (
                   <Fragment>
                     {selectItem.value}
@@ -716,7 +720,7 @@ export default class SingleControlValue extends Component {
                   </Fragment>
                 )
               }
-              onChange={fieldValue => this.updateSingleControlValue({ fieldValue }, i)}
+              onChange={fieldValue => this.updateSingleControlValue({ fieldValue: fieldValue || '' }, i)}
             />
           )}
           {!disabledOtherFields && this.renderOtherFields(item, i)}
@@ -726,13 +730,9 @@ export default class SingleControlValue extends Component {
 
     // 多选项
     if (item.type === 10) {
-      const label = [];
+      const selectedValues = item.fieldValue ? item.fieldValue.split(',') : [];
 
       list = ((_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || []).map(o => {
-        if (_.includes(item.fieldValue.split(','), o.key)) {
-          label.push(o.value);
-        }
-
         return {
           label: o.value,
           value: o.key,
@@ -744,21 +744,22 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <MultipleDropdown
+            <Select
               className={cx(
-                'flowDropdown flex',
+                'flowDropdown flowDropdownMoreSelect flex',
                 { clearBorderRadius: !hideOtherField },
-                { actionCustomBoxError: item.fieldValue && item.fieldValue.split(',').length !== label.length },
-                { flowDropdownNull: !item.fieldValue },
+                {
+                  actionCustomBoxError:
+                    item.fieldValue && selectedValues.some(value => !_.find(list, option => option.value === value)),
+                },
               )}
-              value={item.fieldValue.split(',')}
+              mode="multiple"
+              value={selectedValues}
               options={list}
-              multipleSelect
-              label={label.length ? label.join('、') : item.placeholder}
-              multipleLevel={false}
-              multipleHideDropdownNav
-              filter
-              onChange={(e, ids) => this.updateSingleControlValue({ fieldValue: ids.join(',') }, i)}
+              placeholder={item.placeholder}
+              showSearch
+              optionFilterProp="label"
+              onChange={values => this.updateSingleControlValue({ fieldValue: values.join(',') }, i)}
             />
           )}
           {this.renderOtherFields(item, i)}
@@ -870,8 +871,7 @@ export default class SingleControlValue extends Component {
           _.find(controls, obj => obj.controlId === item.fieldId),
           'advancedSetting.showtype',
         ) || 1;
-      const mode = { 3: 'date', 4: 'month', 5: 'year' };
-      const timeMode = { 1: 'minute', 2: 'hour', 6: 'second' };
+      const formatText = FORMAT_TEXT[showType] || FORMAT_TEXT[item.type === 16 ? 1 : 3];
 
       return (
         <div className="mTop8 flexRow relative">
@@ -883,20 +883,23 @@ export default class SingleControlValue extends Component {
                 clearBorderRadius: !hideOtherField,
               })}
             >
-              <DateTime
-                selectedValue={item.fieldValue ? moment(item.fieldValue) : null}
-                timePicker={item.type === 16}
-                mode={mode[showType]}
-                timeMode={timeMode[showType]}
+              <DatePicker
                 allowClear={false}
-                onOk={e => this.updateSingleControlValue({ fieldValue: e.format(FORMAT_TEXT[showType]) }, i)}
-              >
-                {item.fieldValue ? (
-                  moment(item.fieldValue).format(FORMAT_TEXT[showType])
-                ) : (
-                  <span className="textDisabled">{_l('请选择日期')}</span>
-                )}
-              </DateTime>
+                className="workflowDatePicker"
+                format={formatText}
+                inputReadOnly
+                needConfirm
+                picker={DATE_PICKER_MODE[showType] || 'date'}
+                placeholder={_l('请选择日期')}
+                showNow={false}
+                showTime={item.type === 16 ? DATE_TIME_PICKER_CONFIG[showType] || DATE_TIME_PICKER_CONFIG[1] : false}
+                suffixIcon={null}
+                value={item.fieldValue ? moment(item.fieldValue) : null}
+                variant="borderless"
+                onChange={value =>
+                  this.updateSingleControlValue({ fieldValue: value ? value.format(formatText) : '' }, i)
+                }
+              />
               {item.fieldValue && (
                 <Icon
                   icon="cancel"
@@ -923,25 +926,28 @@ export default class SingleControlValue extends Component {
             this.renderSelectFieldsValue(item, i)
           ) : (
             <div className={cx('actionControlBox flex borderColorPrimary', { clearBorderRadius: !hideOtherField })}>
-              <DateTimeRange
-                selectedValue={rangeValue.length ? [moment(rangeValue[0]), moment(rangeValue[1])] : null}
-                timePicker={item.type === 18}
-                timeMode="minute"
-                placeholder=""
-                onOk={e =>
+              <DatePicker.RangePicker
+                allowClear
+                className="workflowDatePicker"
+                format={formatText}
+                inputReadOnly
+                needConfirm
+                placeholder={[_l('请选择日期'), _l('请选择日期')]}
+                separator="~"
+                showNow={false}
+                showTime={item.type === 18 ? DATE_RANGE_TIME_PICKER_CONFIG : false}
+                suffixIcon={null}
+                value={rangeValue.length === 2 ? [moment(rangeValue[0]), moment(rangeValue[1])] : null}
+                variant="borderless"
+                onChange={value =>
                   this.updateSingleControlValue(
-                    { fieldValue: `${e[0].format(formatText)},${e[1].format(formatText)}` },
+                    {
+                      fieldValue: value ? `${value[0].format(formatText)},${value[1].format(formatText)}` : '',
+                    },
                     i,
                   )
                 }
-                onClear={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
-              >
-                {rangeValue.length ? (
-                  `${moment(rangeValue[0]).format(formatText)} ~ ${moment(rangeValue[1]).format(formatText)}`
-                ) : (
-                  <span className="textDisabled">{_l('请选择日期')}</span>
-                )}
-              </DateTimeRange>
+              />
             </div>
           )}
           {this.renderOtherFields(item, i)}
@@ -988,7 +994,8 @@ export default class SingleControlValue extends Component {
                   className="CityPicker-input-textCon w100"
                   placeholder={_l('选择地区')}
                   value={search !== undefined ? search : cityText}
-                  onChange={value => {
+                  onChange={event => {
+                    const value = event.target.value;
                     this.setState({ search: value });
                     this.onFetchData(value);
                   }}
@@ -1033,33 +1040,34 @@ export default class SingleControlValue extends Component {
         },
       };
       const relationControls = (_.find(controls, o => o.controlId === item.fieldId) || {}).flowNodeAppDtos || [];
-      const relationControlsList = [
-        relationControls.map(o => {
-          return {
-            text: this.renderRelationField(o),
-            value: o.nodeId,
-          };
-        }),
-      ];
-
-      if (item.nodeId) {
-        relationControlsList[0].unshift({
-          text: _l('清除选择'),
-          value: '',
-        });
-      }
+      const relationControlsList = relationControls.map(o => {
+        return {
+          label: this.renderRelationField(o),
+          value: o.nodeId,
+        };
+      });
+      const selectedItems = item.fieldValueId ? [] : JSON.parse(item.fieldValue || '[]');
 
       return (
         <div className="mTop8 flexRow relative">
-          {item.fieldValueId || (item.nodeId && JSON.parse(item.fieldValue || '[]').length) ? (
+          {item.fieldValueId || (item.nodeId && selectedItems.length) ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
             <Fragment>
               {!item.nodeId && (
-                <div
-                  className={cx('actionControlBox flex borderColorPrimary actionControlUsers', {
+                <Select
+                  className={cx('flowDropdown flowDropdownMoreSelect flex', {
                     clearBorderRadius: !hideOtherField,
                   })}
+                  mode="multiple"
+                  open={false}
+                  showSearch={false}
+                  options={selectedItems.map(value => ({
+                    label: value[TYPES[item.type].name],
+                    value: value[TYPES[item.type].id],
+                  }))}
+                  value={selectedItems.map(value => value[TYPES[item.type].id])}
+                  placeholder={TYPES[item.type].placeholder}
                   onClick={evt => {
                     if (item.type === 26) {
                       this.selectUser(evt, item, i, unique);
@@ -1069,49 +1077,25 @@ export default class SingleControlValue extends Component {
                       this.selectRole(item, i, unique);
                     }
                   }}
-                >
-                  <ul className="pLeft6 tagWrap">
-                    {!JSON.parse(item.fieldValue || '[]').length && (
-                      <span className="textDisabled LineHeight34 mLeft4">{TYPES[item.type].placeholder}</span>
-                    )}
-                    {JSON.parse(item.fieldValue || '[]').map((list, index) => {
-                      return (
-                        <li key={index} className="tagItem flexRow">
-                          <span className="tag bold" title={list[TYPES[item.type].name]}>
-                            {list[TYPES[item.type].name]}
-                          </span>
-                          <span
-                            className="delTag"
-                            onClick={e => {
-                              e.stopPropagation();
-                              this.deleteTags(list[TYPES[item.type].id], i);
-                            }}
-                          >
-                            <Icon icon="close" className="pointer" />
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
+                  onDeselect={id => this.deleteTags(id, i)}
+                />
               )}
 
-              {!JSON.parse(item.fieldValue || '[]').length && !hideOtherField && !hideUserMoreObject && (
-                <Dropdown
+              {!selectedItems.length && !hideOtherField && !hideUserMoreObject && (
+                <Select
+                  allowClear
                   key={this.updateComponentsKeyMaps[item.fieldId] || ''}
                   className={item.nodeId ? 'flowDropdown flex clearBorderRadius' : 'flowDropdownOnlyIcon'}
-                  menuStyle={moreNodesMenuStyle}
-                  data={relationControlsList}
+                  variant={item.nodeId ? 'outlined' : 'borderless'}
+                  options={relationControlsList}
                   value={item.nodeId || undefined}
-                  border={!!item.nodeId}
-                  isAppendToBody
                   placeholder={_l('选择多条节点对象')}
-                  renderTitle={() =>
+                  labelRender={() =>
                     this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
                   }
                   onChange={nodeId => {
                     this.updateComponentsKeyMaps[item.fieldId] = +new Date();
-                    this.updateSingleControlValue({ nodeId }, i);
+                    this.updateSingleControlValue({ nodeId: nodeId || '' }, i);
                   }}
                 />
               )}
@@ -1128,30 +1112,22 @@ export default class SingleControlValue extends Component {
 
       list = options.map(o => {
         return {
-          text: o.value,
+          label: o.value,
           value: o.key,
         };
       });
-
-      if (item.fieldValue) {
-        list.unshift({
-          text: _l('清除选择'),
-          value: '',
-        });
-      }
 
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <Dropdown
+            <Select
+              allowClear
               className={cx('flowDropdown flex', { clearBorderRadius: !hideOtherField })}
-              data={list}
+              options={list}
               value={item.fieldValue || undefined}
-              border
-              isAppendToBody
-              onChange={fieldValue => this.updateSingleControlValue({ fieldValue }, i)}
+              onChange={fieldValue => this.updateSingleControlValue({ fieldValue: fieldValue || '' }, i)}
             />
           )}
           {this.renderOtherFields(item, i)}
@@ -1162,45 +1138,35 @@ export default class SingleControlValue extends Component {
     // 关联 || 对象数组
     if (item.type === 29 || item.type === 10000008) {
       const relationControls = (_.find(controls, o => o.controlId === item.fieldId) || {}).flowNodeAppDtos || [];
-      const relationControlsList = [
-        relationControls.map(o => {
-          return {
-            text: this.renderRelationField(o),
-            value: o.nodeId,
-          };
-        }),
-      ];
+      const relationControlsList = relationControls.map(o => {
+        return {
+          label: this.renderRelationField(o),
+          value: o.nodeId,
+        };
+      });
 
-      if (item.nodeId) {
-        relationControlsList[0].unshift({
-          text: _l('清除选择'),
-          value: '',
-        });
-      }
-
-      const hasSource = !!relationControlsList.filter(o => o.length).length;
+      const hasSource = !!relationControlsList.length;
 
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <Dropdown
+            <Select
+              allowClear={{ clearIcon: <i className="icon-delete" /> }}
               className={cx(
                 'flowDropdown flex',
                 { clearBorderRadius: !hideOtherField },
                 { flowDropdownHideArrow: !hasSource },
               )}
-              data={relationControlsList}
+              options={relationControlsList}
               value={item.nodeId || undefined}
-              disabled={!hasSource}
-              border
-              isAppendToBody
+              disabled={!hasSource && !item.nodeId}
               placeholder={hasSource ? _l('选择节点对象') : ''}
-              renderTitle={() =>
+              labelRender={() =>
                 this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
               }
-              onChange={nodeId => this.updateSingleControlValue({ nodeId }, i)}
+              onChange={nodeId => this.updateSingleControlValue({ nodeId: nodeId || '' }, i)}
             />
           )}
           {this.renderOtherFields(item, i)}
@@ -1221,7 +1187,7 @@ export default class SingleControlValue extends Component {
               <TimePicker
                 className="triggerConditionTime"
                 showNow={false}
-                bordered={false}
+                variant="borderless"
                 suffixIcon={null}
                 clearIcon={<Icon icon="cancel" className="Font16 textSecondary hoverColorPrimary" />}
                 inputReadOnly

@@ -17,7 +17,7 @@
   padding: 0 9px;
   border-radius: 40px;
   color: var(--color-text-primary);
-  background-color: rgba(0, 100, 240, 0.08);
+  background-color: var(--color-primary-transparent);
 }
 
 .cellOptions {
@@ -61,41 +61,65 @@
   }
 }
 
-.cellOptionsDropdown {
-  .MenuItem {
-    height: 36px;
-    line-height: 36px;
-
-    .Item-content:not(.disabled):hover {
-      background: var(--color-background-disabled) !important;
-      color: var(--color-text-primary) !important;
-    }
-  }
-}
-
 .cellControlOptionsRadio,
 .cellControlOptionsCheckbox {
+  /* 换行间距用 row-gap 而不是子项 margin-bottom：
+     margin 会被外层的 align-items: center 计入，单行时把内容顶偏 */
   .RadioGroupCon {
     display: flex;
     flex-wrap: wrap;
-    .Radio {
-      margin-bottom: 6px;
+    row-gap: 6px;
+    .ant-radio-wrapper {
+      margin-bottom: 0;
     }
   }
   .CheckboxGroup {
     display: flex;
     flex-wrap: wrap;
+    row-gap: 6px;
     > .flexColumn.w100 {
       display: none;
     }
-    .Checkbox {
-      margin-right: 20px;
-      margin-bottom: 6px;
+    .formCheckboxOption {
+      margin-right: 20px !important;
+      margin-bottom: 0 !important;
     }
   }
   .otherInputBox,
   .cellControlOptionsCheckbox {
     display: none;
+  }
+  /* 表单里给勾选框留了 3px 顶部间距，用于和多行选项文字的首行对齐（见 DesktopForm/widgets/Checkbox
+     的 styles.icon）。单元格里选项恒为单行标签，这 3px 会让勾选框比标签低 1.5px，这里去掉。
+     该值是内联样式，只能用 !important 覆盖 */
+  .hap-checkbox {
+    margin-top: 0 !important;
+  }
+}
+
+/* 平铺的单选/多选控件在单元格里直接复用了表单的控件盒子，需要两处矫正：
+   1. 平铺形态比默认的选项标签高，沿用 .control-10 / .control-11 的 6.5px 上下内边距会整体下坠。
+      带勾选框的多选比只有选项标签的单选更高，因此前者收到 4.5px、后者 6px，
+      在紧凑行高里都正好居中，行高变大时顶部留白也不会偏多；
+   2. 盒子自带白底会盖住单元格的斑马纹 / hover / 只读底色，还原为透明由 .cell 决定。
+      这条的选择器带 .editableCellCon 是为了压过 DesktopForm/style.less 里同样 !important 的
+      .customFieldsContainer .customFormItemControl .customFormControlBox.formBoxNoBorder */
+.cell.editableCellCon.control-10:has(.cellControlOptionsCheckbox) {
+  padding-top: 4.5px !important;
+  padding-bottom: 4.5px !important;
+}
+
+.cell.editableCellCon.control-11:has(.cellControlOptionsRadio) {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.cell.editableCellCon {
+  .customFormControlBox.formBoxNoBorder.cellControlOptionsRadio,
+  .customFormControlBox.formBoxNoBorder.cellControlOptionsCheckbox {
+    background: transparent !important;
+    border-color: transparent !important;
+    padding: 0 !important;
   }
 }
 
@@ -272,7 +296,7 @@
     margin-bottom: 4px;
     margin-right: 10px;
     padding: 0px 8px 0 6px;
-    background-color: rgba(0, 100, 240, 0.08);
+    background-color: var(--color-primary-transparent);
     border-radius: 4px;
     line-height: 21px;
     box-sizing: border-box;
@@ -298,11 +322,69 @@
 // 关联记录
 .cellRelateRecord.cell {
   padding: 0 !important;
+  .editIcon {
+    z-index: 10;
+    cursor: pointer;
+  }
+}
+.cellRelateRecord.editableCellCon.canedit:not(.isediting):not(.focusShowEditIcon):hover {
+  padding-right: 10px !important;
+}
+
+// 多选关联记录的 Select 宽度取自单元格（见 RelateRecord.jsx），这里兜底防止它超出单元格
+.hap-select.sheetview.hap-select-multiple {
+  max-width: 100%;
+}
+
+// 非编辑态只展示一行：Ant Design 默认换行（flex-wrap: wrap）会把标题过长的标签单独占满一行，
+// 再把宽度 4px 的搜索输入项挤到第二行，单元格被撑高并裁切，标签看起来错位。
+// 同时标签必须禁止收缩：列宽不足时 flex 会按内容宽度比例压缩每个标签，
+// 短标题被压得只剩背景色块，只有最长的那个还看得到文字。
+// 标签按内容宽度依次排列，放不下的部分由单元格自身裁掉；
+// Select 宽度固定为单元格宽度，百分比基准确定，单个超长标签仍走 Ant Design 默认的 max-width 省略。
+.cellRelateRecord:not(.isediting) .hap-select.sheetview.hap-select-multiple .hap-select-content {
+  flex-wrap: nowrap;
+
+  .hap-select-content-item:not(.hap-select-content-item-suffix) {
+    flex: none;
+  }
+}
+
+.cellRelateRecord.singleLine.cell {
+  .hap-select.sheetview {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .hap-select-open {
+    background-color: var(--color-background-primary);
+  }
+  // 单行行高下标签直接渲染在 Select 内容区里，自身没有宽度上限，
+  // 标题过长时整块胶囊会被内容区裁断（父级的 text-overflow 对溢出的 inline-block 不生效）。
+  // 这里限制在单元格宽度内并由标签自己省略。
+  .normalSelectedItem {
+    color: var(--color-text-primary) !important;
+    display: inline-block;
+    max-width: 100%;
+    background-color: var(--color-primary-transparent);
+    border-radius: 3px;
+    height: 21px;
+    line-height: 21px;
+    padding: 0 6px;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .clickable:hover {
+    color: var(--color-primary) !important;
+    background-color: rgba(33, 150, 243, 0.16);
+  }
 }
 
 .cellRelateRecordMultiple {
   display: inline-block;
-  background-color: rgba(0, 100, 240, 0.08);
+  background-color: var(--color-primary-transparent);
   border-radius: 3px;
   height: 21px;
   line-height: 21px;
@@ -332,34 +414,30 @@
   vertical-align: middle;
   .mobileFormSwitchDisabled {
     opacity: 0.4;
-    &.ming.Switch--off {
-      background-color: var(--color-text-placeholder) !important;
-    }
-    &.ming.Switch--on {
-      background: var(--color-task) !important;
-    }
   }
-  .ming.Checkbox {
-    .Checkbox-box {
-      margin-top: 0px !important;
-      border: 1px solid var(--color-text-disabled);
-      margin-right: 0px;
-    }
-    &.checked {
-      .Checkbox-box {
-        border: 1px solid transparent;
+}
+
+.cellControlCascaderPopup {
+  width: 100%;
+  height: 100%;
+  .custom-cascader {
+    height: 100%;
+    .hap-select {
+      height: 100% !important;
+      .hap-select-selector {
+        height: 100% !important;
+      }
+      &.hap-select-focused:not(.hap-select-disabled) .hap-select-selector {
+        border: none !important;
       }
     }
   }
 }
 
-.cellControlCascaderPopup {
-  .custom-cascader .cascader-input.focused:not(.disabled) {
-    border: none !important;
-  }
-}
-
 .cellControlCascader.cell {
+  &.isediting {
+    padding: 0 !important;
+  }
   .customCascaderInput {
     width: 100%;
     height: 100%;
@@ -367,24 +445,6 @@
     border: none;
     &:focus {
       box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
-    }
-  }
-  .ant-select-selector {
-    border: none !important;
-    box-shadow: none !important;
-    font-size: 13px !important;
-    box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
-    height: 33px !important;
-    .ant-select-selection-search-input {
-      padding-left: 0px !important;
-    }
-    .ant-select-selection-item {
-      line-height: 34px !important;
-    }
-  }
-  .customCascader {
-    .ant-cascader-input {
-      border: none !important;
     }
   }
   &.isediting {
@@ -437,8 +497,15 @@
   }
 }
 
+.control-41 {
+  // 富文本：<br> 和段落边界在解析阶段已转成 \n，非紧凑行高按原样展示
+  .worksheetCellPureString.keepLineBreak {
+    white-space: break-spaces;
+  }
+}
+
 .control-operates {
-  padding: 3px 10px !important;
+  padding: 3px 8px !important;
 }
 
 .cell.singleLine {
@@ -588,6 +655,8 @@
 
 .cellControlMobilePhoneEdit {
   font-size: 13px;
+  // 编辑浮层不带单元格的 focus 类（避免焦点蓝边盖掉校验失败的红边），层级在这里补齐
+  z-index: 2;
 
   .phoneNumberEditWrapper {
     width: 100%;
@@ -599,74 +668,47 @@
   }
 }
 
-.cellControlErrorTip {
-  position: absolute;
-  white-space: nowrap;
-  top: -26px;
-  padding: 0 8px;
-  height: 26px;
-  line-height: 26px;
-  font-size: 12px;
-  color: var(--color-white);
-  background-color: var(--color-error);
-}
-
 .cellControlOptionsPopup {
   position: relative;
   * {
     transition: none !important;
     animation-duration: 0s !important;
   }
-  .ant-select {
-    .ant-select-clear {
-      z-index: 2 !important;
-      opacity: 1 !important;
+  .hap-select {
+    // 记录详情控件高度36, 快速筛选/行内编辑32, 所以这里要减小高度
+    .hap-select-selection-item.customAntDropdownTitleWithBG,
+    .hap-select-selection-item.customAntDropdownTitle {
+      --hap-select-multi-item-height: 21px;
+      padding: 0 8px !important;
+    }
+    .singleSelectLabel {
+      line-height: 21px;
     }
   }
-  .ant-select-selector {
-    z-index: 2;
-    border: none !important;
-    box-shadow: none !important;
-    font-size: 13px !important;
-    box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
-    padding: 0 6px !important;
-    min-height: 34px !important;
-    .ant-select-selection-search {
-      left: 6px !important;
-    }
-    .customAntDropdownTitleWithBG {
-      padding: 0 6px !important;
-    }
-  }
-  .ant-select-selection-item {
+  .hap-select-selection-item {
     padding: 0 !important;
     background: transparent;
     border: none;
-    .ant-select-selection-item-remove {
+    .hap-select-selection-item-remove {
       position: absolute;
       right: 0px;
     }
   }
   &.bottom {
-    .ant-select {
+    .hap-select {
       position: absolute;
       bottom: 0px;
     }
   }
   &.isMutiple {
-    .ant-select-selector {
-      padding: 3px 6px 0px !important;
-      align-items: normal;
-    }
-
-    .ant-select-selection-search-input {
+    .hap-select-selection-search-input {
       margin-top: -4px;
     }
 
-    .ant-select-selection-item-content > span {
+    .hap-select-selection-item-content > span {
       padding-right: 24px !important;
     }
-    .ant-select-selection-item-remove {
+    .hap-select-selection-item-remove {
       right: 14px;
       svg {
         color: rgba(255, 255, 255, 0.7);
@@ -676,15 +718,6 @@
           color: rgba(255, 255, 255, 1);
         }
       }
-    }
-  }
-  &.error {
-    .ant-select-selector {
-      border-radius: 0px !important;
-      box-shadow: inset 0 0 0 2px var(--color-error) !important;
-    }
-    &.ignoreErrorMessage .ant-select-selector {
-      box-shadow: inset 0 0 0 2px var(--color-warning) !important;
     }
   }
   &:hover {
@@ -702,20 +735,20 @@
   padding: 2px !important;
   padding-right: 2px !important;
   .cellControlDatePickerCon {
-    .ant-picker {
+    .hap-picker {
       height: auto;
       padding: 5px 4px;
       border: none;
       box-shadow: none;
       background: transparent;
-      .ant-picker-suffix {
+      .hap-picker-suffix {
         display: none;
       }
-      .ant-picker-input {
+      .hap-picker-input {
         background: var(--color-background-primary);
         height: auto !important;
       }
-      .ant-picker-input input {
+      .hap-picker-input input {
         font-size: 13px;
       }
     }
@@ -728,6 +761,14 @@
 
 .cellControlEdittingStatus {
   box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
+}
+
+// 关联记录下拉进入编辑态后，单元格重渲染会覆盖掉 focus 类，focus 态的蓝框随之消失；
+// 而 Select 自身的背景又会盖住 .cell 上用 inset 阴影画的边框，这里改用 outline（绘制在子元素之上）
+// 补回与 focus 态一致的激活边框
+.cell.cellRelateRecordDropdown.isediting {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: -2px;
 }
 
 .cellControlErrorStatus {

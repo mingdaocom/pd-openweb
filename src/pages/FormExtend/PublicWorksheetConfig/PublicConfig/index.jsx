@@ -1,14 +1,24 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Drawer } from 'antd';
-import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Dropdown, Radio, Tabs } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import {
+  Button,
+  Checkbox,
+  Drawer,
+  Input,
+  Modal,
+  Radio,
+  Segmented,
+  Select,
+  Tabs,
+  Tooltip,
+} from 'ming-ui/antd-components';
 import { H1, H3, Hr, Tip75, Tipbd, TipBlock } from 'worksheet/components/Basics';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import {
@@ -30,21 +40,9 @@ import ReceiptSettings from './ReceiptSettings';
 import SectionTitle from './SectionTitle';
 import WeChatEnhance from './WeChatEnhance';
 
-const NewDropdown = styled(Dropdown)`
+const NewDropdown = styled(Select)`
   width: 250px;
-  .ming.Menu.List {
-    width: 250px;
-  }
 `;
-const AddControl = styled.div`
-  :hover {
-    color: var(--color-white) !important;
-  }
-  :hover .icon {
-    color: var(--color-white) !important;
-  }
-`;
-
 const DEFAULT_TEXT = {
   ipControlId: _l('IP地址'),
   browserControlId: _l('浏览器'),
@@ -52,6 +50,7 @@ const DEFAULT_TEXT = {
   systemControlId: _l('系统'),
   extendSourceId: _l('扩展值'),
 };
+
 class PublicConfig extends React.Component {
   static propTypes = {
     originalControls: PropTypes.arrayOf(PropTypes.shape({})),
@@ -107,7 +106,7 @@ class PublicConfig extends React.Component {
         'abilityExpand',
         'extendDatas',
       ]),
-      smsSignature: settings.smsSignature || '',
+      smsSignature: settings.smsSignature || (window.platformENV.isHap ? _l('明道云') : ''),
       timeRange: this.getTimeRange(settings),
       settingChanged: false,
       limitWriteFrequencySetting:
@@ -165,7 +164,7 @@ class PublicConfig extends React.Component {
         'weChatSetting',
         'abilityExpand',
       ]),
-      smsSignature: settings.smsSignature || '',
+      smsSignature: settings.smsSignature || (window.platformENV.isHap ? _l('明道云') : ''),
       timeRange: this.getTimeRange(settings),
     });
   };
@@ -196,6 +195,8 @@ class PublicConfig extends React.Component {
       limitWriteCount,
       limitWriteFrequencySetting,
       limitPasswordWrite,
+      smsVerification,
+      smsVerificationFiled,
       cacheFieldData,
       weChatSetting,
       abilityExpand,
@@ -291,6 +292,11 @@ class PublicConfig extends React.Component {
       }
     }
 
+    if (smsVerification && !smsVerificationFiled) {
+      alert(_l('请选择手机号字段'), 3);
+      return false;
+    }
+
     //缓存设置校验
     if (cacheFieldData.isEnable) {
       const cacheFieldArr = cacheFieldData.cacheField || [];
@@ -355,9 +361,16 @@ class PublicConfig extends React.Component {
 
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
 
-    if (afterSubmit.action === 2 && !afterSubmit.content) {
-      alert(_l('请填写跳转链接'), 3);
-      return false;
+    if (afterSubmit.action === 2) {
+      const afterSubmitContent = safeParse(afterSubmit.content) || {};
+      const isEmptyLink = afterSubmitContent.isControl
+        ? !_.get(afterSubmitContent, 'value.controlId')
+        : !_.trim(afterSubmitContent.value || '');
+
+      if (!afterSubmit.content || isEmptyLink) {
+        alert(_l('请填写跳转链接'), 3);
+        return false;
+      }
     }
 
     return true;
@@ -517,27 +530,30 @@ class PublicConfig extends React.Component {
       .concat(wxMapControlIds)
       .concat(worksheetSettings.boundControlIds);
 
-    return [{ style: { color: 'var(--color-text-secondary)' }, text: <span>{_l('清除')}</span>, value: 'clear' }]
-      .concat(
-        originalControls
-          .filter(
-            control =>
-              control.type === 2 &&
-              (!_.find(needFilterIds, id => control.controlId === id) || control.controlId === this.state[key]),
-          )
-          .map(control => ({
-            text: <span>{control.controlName}</span>,
-            value: control.controlId,
-          })),
+    return originalControls
+      .filter(
+        control =>
+          control.type === 2 &&
+          (!_.find(needFilterIds, id => control.controlId === id) || control.controlId === this.state[key]),
       )
+      .map(control => ({
+        label: <span>{control.controlName}</span>,
+        value: control.controlId,
+      }))
       .concat({
-        style: { borderTop: '1px solid var(--color-border-primary)', paddingTop: '4px', height: '36px' },
-        text: (
-          <AddControl className="hand colorPrimary" onClick={() => this.handleShowControl(key)}>
+        style: {
+          borderTop: '1px solid var(--color-border-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          height: '36px',
+        },
+        label: (
+          <div className="flexRow alignItemsCenter hand colorPrimary">
             <i className="icon icon-plus mRight5 colorPrimary"></i>
             {_l('新建文本字段')}
-          </AddControl>
+          </div>
         ),
+        value: 'add',
       });
   }
 
@@ -574,11 +590,11 @@ class PublicConfig extends React.Component {
 
     return (
       <Drawer
-        width={640}
-        className="publicConfigSettingDrawer"
+        size={640}
+        rootClassName="publicConfigSettingDrawer"
         title={_l('发布设置')}
         placement="right"
-        visible
+        open
         push={false}
         closeIcon={<i className="icon-close Font18" />}
         onClose={() => {
@@ -589,13 +605,14 @@ class PublicConfig extends React.Component {
       >
         <Tabs
           className="headerTab"
-          tabs={PUBLISH_CONFIG_TABS}
-          active={activeTab}
-          tabStyle={{ lineHeight: '34px' }}
-          onChange={tab => {
+          centered
+          activeKey={String(activeTab)}
+          items={PUBLISH_CONFIG_TABS.map(tab => ({ key: String(tab.value), label: tab.text }))}
+          onChange={key => {
+            const nextTab = _.find(PUBLISH_CONFIG_TABS, tab => String(tab.value) === key) || {};
             [1, 2].includes(activeTab) && settingChanged
-              ? this.setState({ confirmDialog: { visible: true, tabValue: tab.value } })
-              : this.setState({ activeTab: tab.value });
+              ? this.setState({ confirmDialog: { visible: true, tabValue: nextTab.value } })
+              : this.setState({ activeTab: nextTab.value });
           }}
         />
         <div className="settingContent">
@@ -615,11 +632,21 @@ class PublicConfig extends React.Component {
                   {FILL_OBJECT_OPTIONS.map((item, i) => (
                     <Radio
                       key={i}
-                      {...item}
-                      disableTitle
+                      value={item.value}
                       checked={item.value === writeScope}
-                      onClick={() => this.handleLinkSettingChange({ writeScope: item.value })}
-                    />
+                      onChange={() =>
+                        this.handleLinkSettingChange({
+                          writeScope: item.value,
+                        })
+                      }
+                    >
+                      <span className="InlineFlex alignItemsCenter">
+                        {item.text}
+                        <Tooltip placement="bottom" title={item.tip}>
+                          <i className="icon icon-help Font16 textTertiary mLeft5"></i>
+                        </Tooltip>
+                      </span>
+                    </Radio>
                   ))}
                 </div>
               )}
@@ -716,12 +743,15 @@ class PublicConfig extends React.Component {
               </Tip75>
               <H3>{_l('选择记录扩展值的文本字段')}</H3>
               <NewDropdown
-                isAppendToBody
-                border
+                allowClear={Boolean(extendSourceId)}
                 value={extendSourceId}
-                renderTitle={selected => (selected ? selected.text : <Tipbd>{_l('请选择...')}</Tipbd>)}
-                data={this.getDropdownControls('extendSourceId')}
-                onChange={value => this.handleChange('extendSourceId', value === 'clear' ? '' : value)}
+                labelRender={({ label }) => label || <Tipbd>{_l('请选择...')}</Tipbd>}
+                options={this.getDropdownControls('extendSourceId')}
+                onChange={value =>
+                  value === 'add'
+                    ? this.handleShowControl('extendSourceId')
+                    : this.handleChange('extendSourceId', value || '')
+                }
               />
               <H3>{_l('生成地址')}</H3>
               <Tip75 className="mBottom10">
@@ -729,14 +759,15 @@ class PublicConfig extends React.Component {
                   '可以在下方输入生成带扩展值的链接。或自己拼接扩展值，拼接方法https://......?source=微博。https://...为公开表单链接，微博为设置的扩展值',
                 )}
               </Tip75>
-              <input
-                className="ming Input"
+              <Input
                 id="publicConfig_extendInput"
-                ref={input => (this.keyinput = input)}
+                ref={input => {
+                  this.keyinput = input?.input;
+                }}
                 placeholder={_l('输入参数')}
                 style={{ width: 250, verticalAlign: 'middle' }}
               />
-              <Button className="mLeft10" onClick={this.handleGenUrl}>
+              <Button type="primary" className="mLeft10" onClick={this.handleGenUrl}>
                 {_l('生成地址')}
               </Button>
               <div className="mTop16"></div>
@@ -762,14 +793,13 @@ class PublicConfig extends React.Component {
                 <React.Fragment>
                   <div className="mBottom8">{item.name}</div>
                   <NewDropdown
-                    isAppendToBody
+                    allowClear={Boolean(this.state[item.key])}
                     className="mBottom10"
-                    border
                     value={this.state[item.key]}
-                    renderTitle={selected => (selected ? selected.text : <Tipbd>{_l('请选择...')}</Tipbd>)}
-                    data={this.getDropdownControls(item.key)}
+                    labelRender={({ label }) => label || <Tipbd>{_l('请选择...')}</Tipbd>}
+                    options={this.getDropdownControls(item.key)}
                     onChange={value => {
-                      this.handleChange(item.key, value === 'clear' ? '' : value);
+                      value === 'add' ? this.handleShowControl(item.key) : this.handleChange(item.key, value || '');
                     }}
                   />
                 </React.Fragment>
@@ -779,11 +809,12 @@ class PublicConfig extends React.Component {
           {activeTab === 4 && (
             <React.Fragment>
               <H3>{_l('嵌入链接')}</H3>
-              <TipBlock color="var(--color-text-secondary)" className="Font14">
+              <TipBlock color="var(--color-text-secondary)" className="Font14 breakAll">
                 {this.getIframeUrl()}
               </TipBlock>
               <div className="mTop16">
                 <Button
+                  type="primary"
                   onClick={() => {
                     copy(this.getIframeUrl());
                     alert(_l('复制成功'));
@@ -800,7 +831,7 @@ class PublicConfig extends React.Component {
                     key={index}
                     className="pRight24"
                     checked={displayContent.includes(item.value)}
-                    onClick={() => {
+                    onChange={() => {
                       const checked = displayContent.includes(item.value);
                       this.setState({
                         displayContent: checked
@@ -808,23 +839,18 @@ class PublicConfig extends React.Component {
                           : [...displayContent, item.value],
                       });
                     }}
-                    text={item.text}
-                  />
+                  >
+                    {item.text}
+                  </Checkbox>
                 ))}
               </div>
               <div className="flexRow alignItemsCenter mTop20">
                 <div className="mRight24">{_l('按钮位置')}</div>
-                <div className="btnPositionSwitch">
-                  {BUTTON_POSITION_OPTIONS.map((item, index) => (
-                    <div
-                      key={index}
-                      className={cx('positionItem', { isActive: buttonPosition === item.value })}
-                      onClick={() => this.setState({ buttonPosition: item.value })}
-                    >
-                      {item.text}
-                    </div>
-                  ))}
-                </div>
+                <Segmented
+                  options={BUTTON_POSITION_OPTIONS}
+                  value={buttonPosition}
+                  onChange={value => this.setState({ buttonPosition: value })}
+                />
               </div>
             </React.Fragment>
           )}
@@ -846,7 +872,7 @@ class PublicConfig extends React.Component {
               >
                 {_l('保存设置')}
               </Button>
-              <Button type="link" onClick={onClose}>
+              <Button color="primary" variant="link" onClick={onClose}>
                 {_l('取消')}
               </Button>
             </div>
@@ -864,26 +890,34 @@ class PublicConfig extends React.Component {
         )}
 
         {confirmDialog.visible && (
-          <Dialog
-            visible
+          <Modal
+            open
+            mask={{ closable: true }}
+            keyboard
             title={activeTab === 1 ? _l('是否保存链接设置的更改？') : _l('是否保存微信增强的更改？')}
-            description={_l('当前有尚未保存的更改，你在离开页面前是否需要保存这些更改？')}
             cancelText={_l('否')}
             okText={_l('是%25028')}
-            handleClose={() => this.setState({ confirmDialog: { visible: false }, settingChanged: false })}
-            onCancel={isOkBtn => {
-              if (!isOkBtn) {
-                this.resetInitState();
-                if (confirmDialog.isOnClose) {
+            closeIcon={
+              <Icon
+                icon="close"
+                className="textTertiary Font22"
+                onClick={event => {
+                  event.stopPropagation();
                   this.setState({ confirmDialog: { visible: false }, settingChanged: false });
-                  onClose();
-                } else {
-                  this.setState({
-                    activeTab: confirmDialog.tabValue,
-                    confirmDialog: { visible: false },
-                    settingChanged: false,
-                  });
-                }
+                }}
+              />
+            }
+            onCancel={() => {
+              this.resetInitState();
+              if (confirmDialog.isOnClose) {
+                this.setState({ confirmDialog: { visible: false }, settingChanged: false });
+                onClose();
+              } else {
+                this.setState({
+                  activeTab: confirmDialog.tabValue,
+                  confirmDialog: { visible: false },
+                  settingChanged: false,
+                });
               }
             }}
             onOk={() => {
@@ -905,7 +939,9 @@ class PublicConfig extends React.Component {
                 this.setState({ confirmDialog: { visible: false }, settingChanged: false });
               }
             }}
-          />
+          >
+            <div className="textSecondary">{_l('当前有尚未保存的更改，你在离开页面前是否需要保存这些更改？')}</div>
+          </Modal>
         )}
       </Drawer>
     );

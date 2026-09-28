@@ -1,12 +1,15 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Modal, Popover } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
-import { getShowViews } from 'src/pages/worksheet/views/util';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 import { typeForCon } from '../../core/config';
 import './index.less';
+
+const RANGE_POPOVER_AUTO_ADJUST_OVERFLOW = { adjustX: true, adjustY: true, shiftY: true };
 
 export default class SaveDia extends React.Component {
   constructor(props) {
@@ -48,7 +51,7 @@ export default class SaveDia extends React.Component {
   render() {
     const { printData, showList, views } = this.state;
     return (
-      <Dialog
+      <Modal
         title={_l('保存模板')}
         okText={_l('确定')}
         cancelText={_l('取消')}
@@ -64,7 +67,10 @@ export default class SaveDia extends React.Component {
           this.props.setValue(this.state.printData);
           this.props.onCancel();
         }}
-        visible={this.props.showSaveDia}
+        open={this.props.showSaveDia}
+        mask={{ closable: true }}
+        keyboard
+        styles={{ body: { overflow: 'initial' } }}
       >
         <div className="list">
           <span className="title">{_l('模板名称')}</span>
@@ -88,71 +94,17 @@ export default class SaveDia extends React.Component {
         </div>
         <div className="list mTop16">
           <span className="title">{_l('使用范围')}</span>
-          <div className="viewBox">
-            {printData.range === 1 && (
-              <span
-                onClick={() => {
-                  this.setState({
-                    showList: !showList,
-                  });
-                }}
-              >
-                {_l('所有记录')}
-              </span>
-            )}
-            {printData.range !== 1 && printData.views.length <= 0 && (
-              <span
-                className="textDisabled"
-                onClick={() => {
-                  this.setState({
-                    showList: !showList,
-                  });
-                }}
-              >
-                {_l('请选择视图')}
-              </span>
-            )}
-            {printData.range === 3 && (
-              <div
-                onClick={() => {
-                  this.setState({
-                    showList: !showList,
-                  });
-                }}
-                className="itemList"
-              >
-                {printData.views.map(it => {
-                  return (
-                    <div class="item">
-                      {it.name}
-                      <a
-                        href="javascript:void(0)"
-                        class="remove"
-                        tabIndex="-1"
-                        title={_l('删除')}
-                        onClick={e => {
-                          this.setState({
-                            printData: {
-                              ...printData,
-                              views: printData.views.filter(o => o.viewId !== it.viewId),
-                            },
-                          });
-                          e.stopPropagation();
-                        }}
-                      >
-                        ×
-                      </a>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            {showList && (
+          <Popover
+            open={showList}
+            onOpenChange={visible => this.setState({ showList: visible })}
+            trigger="click"
+            placement="bottomLeft"
+            autoAdjustOverflow={RANGE_POPOVER_AUTO_ADJUST_OVERFLOW}
+            noPadding
+            content={
               <RangeDrop
                 printData={printData}
                 views={views}
-                onClickAwayExceptions={[]}
-                onClickAway={() => this.setState({ showList: false })}
                 onClose={() => this.setState({ showList: false })}
                 setData={data => {
                   this.setState({
@@ -161,19 +113,46 @@ export default class SaveDia extends React.Component {
                   });
                 }}
               />
-            )}
-            <Icon
-              icon={'expand_more'}
-              className="mRight15 Font16 moreList"
-              onClick={() => {
-                this.setState({
-                  showList: !showList,
-                });
-              }}
-            />
-          </div>
+            }
+          >
+            <div className="viewBox">
+              {printData.range === 1 && <span>{_l('所有记录')}</span>}
+              {printData.range !== 1 && printData.views.length <= 0 && (
+                <span className="textDisabled">{_l('请选择视图')}</span>
+              )}
+              {printData.range === 3 && (
+                <div className="itemList">
+                  {printData.views.map(it => {
+                    return (
+                      <div className="item" key={it.viewId}>
+                        {it.name}
+                        <a
+                          href="javascript:void(0)"
+                          className="remove"
+                          tabIndex="-1"
+                          title={_l('删除')}
+                          onClick={e => {
+                            this.setState({
+                              printData: {
+                                ...printData,
+                                views: printData.views.filter(o => o.viewId !== it.viewId),
+                              },
+                            });
+                            e.stopPropagation();
+                          }}
+                        >
+                          ×
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <Icon icon="expand_more" className="mRight15 Font16 moreList" />
+            </div>
+          </Popover>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

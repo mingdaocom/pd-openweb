@@ -3,30 +3,54 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
-import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
-import { controlState } from 'src/utils/control';
-import { canSetWidgetStyle, getTitleStyle, isSheetDisplay } from 'src/utils/controlCommon';
+import { TITLE_SIZE_OPTIONS } from 'src/utils/domain/control/setting';
+import { controlState } from 'src/utils/domain/control/state';
+import { getTitleStyle, isSheetDisplay } from 'src/utils/domain/control/style';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
+import { isSameRenderValue } from '../../core/renderDataUtils';
 import { renderCount } from '../../core/utils';
 import { ControlLabel } from '../style';
+
+const getCurrentErrorItem = ({ currentErrorItem, errorItems = [], uniqueErrorItems = [], item = {} }) =>
+  currentErrorItem ||
+  _.find(errorItems, obj => obj.controlId === item.controlId) ||
+  _.find(uniqueErrorItems, obj => obj.controlId === item.controlId) ||
+  {};
+
+const getLoading = ({ loading, loadingItems = {}, item = {} }) =>
+  _.isUndefined(loading) ? loadingItems[item.controlId] : loading;
+
+const arePropsEqual = (prevProps, nextProps) => {
+  const prevError = getCurrentErrorItem(prevProps);
+  const nextError = getCurrentErrorItem(nextProps);
+  const keys = ['from', 'recordId', 'disabled'];
+
+  return (
+    keys.every(key => Object.is(prevProps[key], nextProps[key])) &&
+    isSameRenderValue(prevProps.item, nextProps.item) &&
+    isSameRenderValue(prevProps.widgetStyle, nextProps.widgetStyle) &&
+    Object.is(getLoading(prevProps), getLoading(nextProps)) &&
+    isSameRenderValue(prevError, nextError)
+  );
+};
 
 function FormLabel({
   from,
   recordId,
   item,
-  errorItems,
-  uniqueErrorItems,
-  loadingItems,
+  currentErrorItem: currentErrorItemProp,
+  errorItems = [],
+  uniqueErrorItems = [],
+  loading,
+  loadingItems = {},
   widgetStyle = {},
-  disabled,
   updateErrorState = () => {},
 }) {
   const {
     hinttype = '0',
-    valuesize = '0',
     titlesize = item.type === 34 ? '1' : '0',
     titlestyle = '0000',
     titlecolor = 'var(--color-text-primary)',
@@ -46,10 +70,13 @@ function FormLabel({
   const showDesc = hintShowAsIcon && item.desc && !_.includes([22, 10010], item.type);
   const showOtherIcon = item.type === 45 && allowlink === '1' && item.enumDefault === 1;
 
-  const currentErrorItem =
-    _.find(errorItems, obj => obj.controlId === item.controlId) ||
-    _.find(uniqueErrorItems, obj => obj.controlId === item.controlId) ||
-    {};
+  const currentErrorItem = getCurrentErrorItem({
+    currentErrorItem: currentErrorItemProp,
+    errorItems,
+    uniqueErrorItems,
+    item,
+  });
+  const isLoading = getLoading({ loading, loadingItems, item });
   const errorText = currentErrorItem.errorText || '';
   const isRuleError = currentErrorItem.errorType === FORM_ERROR_TYPE.RULE_ERROR;
   // 强制必填、业务规则报错等只读时依然呈现错误提示
@@ -90,18 +117,18 @@ function FormLabel({
           isRelateRecordTable,
           isRelationSearchTable,
         })}
-        disabled={disabled}
-        item={item}
-        showTitle={showTitle}
-        {..._.omit(widgetStyle, 'title')}
-        titleSize={titleSize}
-        titlesize={titlesize}
-        titleStyle={titleStyle}
-        titleColor={titlecolor}
-        valuesize={canSetWidgetStyle(item) ? valuesize : '0'}
-        hasContent={showDesc || showOtherIcon || showTitle}
+        $item={item}
+        $showTitle={showTitle}
+        $displayRow={widgetStyle.displayRow}
+        $titlewidth_pc={widgetStyle.titlewidth_pc}
+        $align_pc={widgetStyle.align_pc}
+        $titleSize={titleSize}
+        $titlesize={titlesize}
+        $titleStyle={titleStyle}
+        $titleColor={titlecolor}
+        $hasContent={showDesc || showOtherIcon || showTitle}
       >
-        {loadingItems[item.controlId] ? (
+        {isLoading ? (
           <div className="requiredBtnBox">
             <i className="icon-loading_button customFormItemLoading textTertiary" />
           </div>
@@ -152,4 +179,4 @@ function FormLabel({
   );
 }
 
-export default memo(FormLabel);
+export default memo(FormLabel, arePropsEqual);

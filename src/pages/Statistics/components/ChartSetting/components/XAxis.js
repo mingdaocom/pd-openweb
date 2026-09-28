@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
+import { Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { isAreaControl, isOptionControl, isTimeControl } from 'statistics/common/controlUtils';
 import {
   areaParticleSizeDropdownData,
@@ -22,6 +20,7 @@ import {
   timeParticleSizeDropdownData,
 } from 'statistics/common/timeUtils';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import RenameModal from './RenameModal';
 import WithoutFidldItem from './WithoutFidldItem';
 
@@ -39,7 +38,6 @@ const emptyTypes = [
     name: _l('显示为 --'),
   },
 ];
-
 const numberChartEmptyTypes = [
   {
     value: 0,
@@ -222,7 +220,7 @@ export default class XAxis extends Component {
       </Fragment>
     );
   }
-  renderOverlay(axis) {
+  getMenuItems(axis) {
     const { disableParticleSizeTypes } = this.props;
     const { xaxes, reportType } = this.props.currentReport;
     const isOption = isOptionControl(xaxes.controlType);
@@ -241,202 +239,156 @@ export default class XAxis extends Component {
       xaxes.emptyType = 2;
     }
 
-    return (
-      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
-        <Menu.Item
-          onClick={() => {
-            this.setState({ dialogVisible: true });
-          }}
-        >
-          {_l('重命名')}
-        </Menu.Item>
-        {isTime && (
-          <Fragment>
-            <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
-              <Menu.ItemGroup title={_l('时间')}>
-                {timeDataList.map(item => (
-                  <Menu.Item
-                    className="valignWrapper"
-                    disabled={
-                      item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)
-                    }
-                    style={{
-                      width: 200,
-                      color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
-                    }}
-                    key={item.value}
-                    onClick={() => {
-                      this.handleUpdateTimeParticleSizeType(item.value);
-                    }}
-                  >
-                    <div className="flex">{item.text}</div>
-                    <div className="textSecondary Font12">{item.getTime(xaxes.showFormat)}</div>
-                  </Menu.Item>
-                ))}
-              </Menu.ItemGroup>
-              {!!timeGatherParticleList.length && (
-                <Fragment>
-                  <Menu.Divider />
-                  <Menu.ItemGroup title={_l('集合')}>
-                    {timeGatherParticleList.map(item => (
-                      <Menu.Item
-                        className="valignWrapper"
-                        disabled={
-                          item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)
-                        }
-                        style={{
-                          width: 200,
-                          color:
-                            item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
-                        }}
-                        key={item.value}
-                        onClick={() => {
-                          this.handleUpdateTimeParticleSizeType(item.value);
-                        }}
-                      >
-                        <div className="flex">{item.text}</div>
-                        <div className="textSecondary Font12">{item.getTime()}</div>
-                      </Menu.Item>
-                    ))}
-                  </Menu.ItemGroup>
-                </Fragment>
-              )}
-            </Menu.SubMenu>
-            {_.find(timeDataParticle, { value: xaxes.particleSizeType }) && (
-              <Menu.SubMenu popupClassName="chartMenu" title={_l('日期格式')} popupOffset={[0, -15]}>
-                {formatTimeFormats(xaxes.particleSizeType).map(item => (
-                  <Menu.Item
-                    className="valignWrapper"
-                    style={{
-                      width: 200,
-                      color: item.value === xaxes.showFormat ? 'var(--color-primary) !important' : null,
-                    }}
-                    key={item.value}
-                    onClick={() => {
-                      this.handleChangeXaxes({ showFormat: item.value });
-                    }}
-                  >
-                    <div className="flex">{item.getTime()}</div>
-                  </Menu.Item>
-                ))}
-                <Menu.Item
-                  className="valignWrapper"
-                  style={{
-                    width: 200,
-                    color: !_.find(timeFormats, { value: xaxes.showFormat }) ? 'var(--color-primary) !important' : null,
-                  }}
-                  key="customShowFormat"
-                  onClick={() => {
-                    this.setState({ showFormatDialogVisible: true });
-                  }}
-                >
-                  <div className="flex">{_l('自定义')}</div>
-                </Menu.Item>
-              </Menu.SubMenu>
-            )}
-          </Fragment>
-        )}
-        {isArea && (
-          <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
-            {areaParticleSizeDropdownData.map(item => (
-              <Menu.Item
-                disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
-                style={{
-                  width: 120,
-                  color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
-                }}
-                key={item.value}
-                onClick={() => {
-                  this.handleUpdateTimeParticleSizeType(item.value);
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
-          </Menu.SubMenu>
-        )}
-        {xaxes.controlType === 35 && (
-          <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
-            {cascadeParticleSizeDropdownData.map(item => (
-              <Menu.Item
-                disabled={item.value === xaxes.particleSizeType}
-                style={{
-                  width: 120,
-                  color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
-                }}
-                key={item.value}
-                onClick={() => {
-                  this.handleUpdateTimeParticleSizeType(item.value);
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
-          </Menu.SubMenu>
-        )}
-        {getIsEmptyType(reportType, { isTime, isOption }) && (
-          <Menu.SubMenu
-            popupClassName="chartMenu"
-            title={
-              <div className="flexRow valignWrapper w100">
-                <div className="flex">{_l('无记录的项目')}</div>
-                <div className="Font12 textSecondary emptyTypeName">{xaxes.emptyType ? _l('显示') : _l('隐藏')}</div>
+    const getParticleItem = (item, getTime) => ({
+      key: item.value,
+      className: 'valignWrapper',
+      disabled: item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value),
+      style: {
+        color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary)' : null,
+      },
+      label: item.text,
+      extra: getTime && <div className="textSecondary Font12">{getTime(item)}</div>,
+      onClick: () => {
+        this.handleUpdateTimeParticleSizeType(item.value);
+      },
+    });
+
+    return [
+      {
+        key: 'rename',
+        label: _l('重命名'),
+        onClick: () => {
+          this.setState({ dialogVisible: true });
+        },
+      },
+      isTime && {
+        key: 'particleSizeType',
+        label: _l('归组'),
+        popupOffset: [0, -15],
+        popupStyle: { minWidth: 200 },
+        children: [
+          {
+            key: 'time',
+            type: 'group',
+            label: _l('时间'),
+            children: timeDataList.map(item => getParticleItem(item, data => data.getTime(xaxes.showFormat))),
+          },
+          !!timeGatherParticleList.length && {
+            key: 'timeGatherDivider',
+            type: 'divider',
+          },
+          !!timeGatherParticleList.length && {
+            key: 'timeGather',
+            type: 'group',
+            label: _l('集合'),
+            children: timeGatherParticleList.map(item => getParticleItem(item, data => data.getTime())),
+          },
+        ].filter(Boolean),
+      },
+      isTime &&
+        _.find(timeDataParticle, { value: xaxes.particleSizeType }) && {
+          key: 'showFormat',
+          label: _l('日期格式'),
+          popupOffset: [0, -15],
+          popupStyle: { minWidth: 200 },
+          children: [
+            ...formatTimeFormats(xaxes.particleSizeType).map(item => ({
+              key: item.value,
+              className: 'valignWrapper',
+              style: {
+                color: item.value === xaxes.showFormat ? 'var(--color-primary)' : null,
+              },
+              label: <div className="flex">{item.getTime()}</div>,
+              onClick: () => {
+                this.handleChangeXaxes({ showFormat: item.value });
+              },
+            })),
+            {
+              key: 'customShowFormat',
+              className: 'valignWrapper',
+              style: {
+                color: !_.find(timeFormats, { value: xaxes.showFormat }) ? 'var(--color-primary)' : null,
+              },
+              label: <div className="flex">{_l('自定义')}</div>,
+              onClick: () => {
+                this.setState({ showFormatDialogVisible: true });
+              },
+            },
+          ],
+        },
+      isArea && {
+        key: 'areaParticleSizeType',
+        label: _l('归组'),
+        popupOffset: [0, -15],
+        popupStyle: { minWidth: 120 },
+        children: areaParticleSizeDropdownData.map(item => getParticleItem(item)),
+      },
+      xaxes.controlType === 35 && {
+        key: 'cascadeParticleSizeType',
+        label: _l('归组'),
+        popupOffset: [0, -15],
+        popupStyle: { minWidth: 120 },
+        children: cascadeParticleSizeDropdownData.map(item => ({
+          key: item.value,
+          disabled: item.value === xaxes.particleSizeType,
+          style: {
+            color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary)' : null,
+          },
+          label: item.text,
+          onClick: () => {
+            this.handleUpdateTimeParticleSizeType(item.value);
+          },
+        })),
+      },
+      getIsEmptyType(reportType, { isTime, isOption }) && {
+        key: 'emptyType',
+        label: (
+          <div className="flexRow valignWrapper w100">
+            <div className="flex">{_l('无记录的项目')}</div>
+            <div className="Font12 textSecondary emptyTypeName">{xaxes.emptyType ? _l('显示') : _l('隐藏')}</div>
+          </div>
+        ),
+        popupOffset: [0, -15],
+        children: getEmptyTypes(reportType).map(item => ({
+          key: item.value,
+          style: { color: item.value === xaxes.emptyType ? 'var(--color-primary)' : null },
+          label: item.name,
+          onClick: () => {
+            this.handleChangeXaxes({ emptyType: item.value });
+          },
+        })),
+      },
+      !isTime &&
+        xaxes.controlType !== 40 && {
+          key: 'xaxisEmpty',
+          label: _l('统计空值'),
+          extra: xaxes.xaxisEmpty && <Icon icon="done" className="Font17 colorPrimary" />,
+          onClick: () => {
+            this.handleChangeXaxes({ xaxisEmpty: !xaxes.xaxisEmpty });
+          },
+        },
+      reportType === reportTypes.TopChart &&
+        xaxes.controlType === 26 && {
+          key: 'displayMode',
+          label: (
+            <div className="flexRow valignWrapper w100">
+              <div className="flex">{_l('显示方式')}</div>
+              <div className="Font12 textSecondary emptyTypeName">
+                {_.get(_.find(displayModes, { value: xaxes.displayMode }), 'text')}
               </div>
-            }
-            popupOffset={[0, -15]}
-          >
-            {getEmptyTypes(reportType).map(item => (
-              <Menu.Item
-                key={item.value}
-                style={{ color: item.value === xaxes.emptyType ? 'var(--color-primary) !important' : null }}
-                onClick={() => {
-                  this.handleChangeXaxes({ emptyType: item.value });
-                }}
-              >
-                {item.name}
-              </Menu.Item>
-            ))}
-          </Menu.SubMenu>
-        )}
-        {!isTime && xaxes.controlType !== 40 && (
-          <Menu.Item
-            className="flexRow valignWrapper"
-            onClick={() => {
-              this.handleChangeXaxes({ xaxisEmpty: !xaxes.xaxisEmpty });
-            }}
-          >
-            <div className="flex">{_l('统计空值')}</div>
-            {xaxes.xaxisEmpty && <Icon icon="done" className="Font17" />}
-          </Menu.Item>
-        )}
-        {reportType === reportTypes.TopChart && xaxes.controlType === 26 && (
-          <Menu.SubMenu
-            popupClassName="chartMenu"
-            title={
-              <div className="flexRow valignWrapper w100">
-                <div className="flex">{_l('显示方式')}</div>
-                <div className="Font12 textSecondary emptyTypeName">
-                  {_.get(_.find(displayModes, { value: xaxes.displayMode }), 'text')}
-                </div>
-              </div>
-            }
-            popupOffset={[0, -15]}
-          >
-            {displayModes.map(item => (
-              <Menu.Item
-                style={{ color: item.value === xaxes.displayMode ? 'var(--color-primary) !important' : null }}
-                key={item.value}
-                onClick={() => {
-                  this.handleChangeXaxes({ displayMode: item.value });
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
-          </Menu.SubMenu>
-        )}
-      </Menu>
-    );
+            </div>
+          ),
+          popupOffset: [0, -15],
+          children: displayModes.map(item => ({
+            key: item.value,
+            style: { color: item.value === xaxes.displayMode ? 'var(--color-primary)' : null },
+            label: item.text,
+            onClick: () => {
+              this.handleChangeXaxes({ displayMode: item.value });
+            },
+          })),
+        },
+    ].filter(Boolean);
   }
   renderAxis() {
     const { allControls, axisControls, currentReport } = this.props;
@@ -463,7 +415,15 @@ export default class XAxis extends Component {
             <span className="Red flex ellipsis">{_l('字段已删除')}</span>
           </Tooltip>
         )}
-        <Dropdown overlay={this.renderOverlay(axis || {})} trigger={['click']} placement="bottomRight">
+        <Dropdown
+          menu={{
+            style: { minWidth: 200 },
+            subMenuOpenDelay: 0.2,
+            items: this.getMenuItems(axis || {}),
+          }}
+          trigger={['click']}
+          placement="bottomRight"
+        >
           <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon className="textTertiary Font18 pointer mLeft10" icon="close" onClick={this.props.removeXaxes} />

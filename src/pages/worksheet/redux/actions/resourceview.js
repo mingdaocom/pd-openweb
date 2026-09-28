@@ -2,8 +2,6 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import moment from 'moment';
 import sheetAjax from 'src/api/worksheet';
-import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
-import { getHoverColor } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { fillRecordTimeBlockColor, sortGrouping } from 'src/pages/worksheet/views/GunterView/util.js';
 import {
   kanbanSize,
@@ -16,13 +14,16 @@ import {
   calculateTop,
   formatRecordPoint,
   formatRecordTime,
+  getHoverColor,
   getViewTimesList,
 } from 'src/pages/worksheet/views/ResourceView/util.js';
-import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
-import { isLightColor } from 'src/utils/control';
-import { formatQuickFilter } from 'src/utils/filter';
-import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { sortDataByCustomItems } from 'src/utils/domain/worksheet/groupSort';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
 export const initData = () => {
   return dispatch => {

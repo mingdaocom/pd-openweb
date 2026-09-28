@@ -112,22 +112,13 @@ const getModuleRules = () => {
     },
   ];
 
-  if (!ENV.isProduction) {
-    rules.push({
-      test: /\.js$/,
-      enforce: 'pre',
-      exclude: /node_modules/,
-      use: ['source-map-loader'],
-    });
-  }
-
   return rules;
 };
 
 // Entry points configuration
 const ENTRIES = {
-  cookies: ['src/common/cookies'],
-  globals: ['src/common/global'],
+  cookies: ['src/common/runtime/cookies'],
+  globals: ['src/common/entries/global'],
   vendors: ['src/library/jquery/global', 'src/library/plupload/plupload.full.min'],
   css: ['src/common/mdcss/basic.css', 'src/common/mdcss/iconfont/mdfont.css', 'src/common/mdcss/animate.css'],
 };
@@ -437,7 +428,13 @@ module.exports = function (alonePath = '') {
       runtimeChunk: 'single',
       splitChunks: getSplitChunksConfig(alonePath),
     },
-    devtool: alonePath ? undefined : ENV.isProduction ? 'source-map' : 'eval',
+    devtool: alonePath
+      ? undefined
+      : ENV.isProduction
+        ? ENV.shouldUploadSentrySourcemap
+          ? 'hidden-source-map'
+          : false
+        : 'eval',
     externals: { jquery: 'jQuery' },
     infrastructureLogging: getInfrastructureLoggingConfig(),
   };

@@ -55,7 +55,7 @@ const custom = {
   /**
    * 保存自定义页面配置说明和强转适应屏幕
    * @param {Object} args 请求参数
-   * @param {更新自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),config:参数，仅供前端使用(object),desc:页面说明(string),urlParams:链接参数(array),}*updatePageRequest
+   * @param {更新自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),config:参数，仅供前端使用(object),desc:页面说明(string),remark:备注(string),urlParams:链接参数(array),}*updatePageRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Checkbox } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Input } from 'ming-ui';
+import { Checkbox, Input, Select } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { enumWidgetType } from 'src/pages/customPage/util';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
-import { getShowViews } from 'src/pages/worksheet/views/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { enumWidgetType } from 'src/utils/domain/customPage/model';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 
 const Wrap = styled.div`
   box-sizing: border-box;
@@ -20,14 +19,8 @@ const Wrap = styled.div`
   background-color: var(--color-background-secondary);
   overflow: auto;
 
-  .Dropdown--input {
-    background-color: var(--color-background-input);
-  }
-  .ant-checkbox-input {
+  .hap-checkbox-input {
     position: absolute;
-  }
-  .ming.Input::placeholder {
-    color: var(--color-text-disabled);
   }
 `;
 
@@ -76,7 +69,7 @@ function Setting(props) {
           const { views = [] } = res;
           setDataSource({
             views: getShowViews(views).map(({ viewId, name, viewType, advancedSetting }) => ({
-              text: getTranslateInfo(appId, null, viewId).name || name,
+              label: getTranslateInfo(appId, null, viewId).name || name,
               value: viewId,
               viewType: String(viewType),
               advancedSetting,
@@ -84,7 +77,7 @@ function Setting(props) {
           });
         });
     }
-  }, [value]);
+  }, [appId, value]);
 
   const view = _.find(views, { value: viewId });
 
@@ -97,8 +90,8 @@ function Setting(props) {
           value={name}
           className="w100 Font13"
           placeholder={_l('输入组件名称')}
-          onChange={value => {
-            changeConfig({ name: value });
+          onChange={e => {
+            changeConfig({ name: e.target.value });
           }}
         />
       </div>
@@ -125,10 +118,10 @@ function Setting(props) {
         </div>
         <div className="mBottom12">
           <div className="mBottom12">{_l('视图')}</div>
-          <Dropdown
+          <Select
             disabled={!value}
             value={viewId || undefined}
-            data={views.map(v => ({ ...v, disabled: viewIds.includes(v.value) }))}
+            options={views.map(v => ({ ...v, disabled: viewIds.includes(v.value) }))}
             onChange={value => {
               const view = _.find(views, { value });
               setLoading(true);
@@ -136,15 +129,13 @@ function Setting(props) {
                 viewId: value,
                 config: {
                   ...config,
-                  _viewName: view.text,
+                  _viewName: view?.label,
                 },
               });
               setTimeout(() => setLoading(false));
             }}
-            style={{ width: '100%', background: 'var(--color-background-primary)' }}
-            menuStyle={{ width: '100%' }}
+            style={{ width: '100%' }}
             placeholder={_l('选择视图')}
-            border
           />
         </div>
       </div>
@@ -155,8 +146,8 @@ function Setting(props) {
             className="w100 Font13"
             value={maxCount}
             placeholder={_l('输入最大展示（为空表示不限制）')}
-            onChange={data => {
-              const value = parseInt(data);
+            onChange={e => {
+              const value = parseInt(e.target.value);
               const maxCount = isNaN(value) ? '' : value;
               changeConfig({ maxCount: maxCount >= 100 ? 100 : maxCount });
             }}

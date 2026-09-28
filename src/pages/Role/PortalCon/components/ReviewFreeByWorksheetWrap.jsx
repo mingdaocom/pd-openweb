@@ -1,20 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useSetState } from 'react-use';
-import cx from 'classnames';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { LoadDiv, Menu, MenuItem } from 'ming-ui';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { LoadDiv } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
-import {
-  SearchWorksheetWrap,
-  WorksheetListWrap,
-} from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled';
+import { SearchWorksheetWrap } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled';
 import SelectWorksheet from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SelectWorksheet';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 
 const renderSearchCom = () => {
   return (
@@ -25,176 +20,152 @@ const renderSearchCom = () => {
   );
 };
 
+const SELECT_OTHER_WORKSHEET = '__select_other_worksheet__';
+const DELETED_WORKSHEET = '__deleted_worksheet__';
+
 export default function ReviewFreeByWorksheetWrap(props) {
   const { appId, projectId, onChange, query, canChooseOtherApp } = props;
-  const [showMenu, setShowMenu] = useState(false);
-  const [visible, setvisible] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [sheetList, setSheetList] = useState([]);
-  const [sheetId, setSheetId] = useState('');
-  const [controls, setControls] = useState([]);
-  const [allControls, setAllControls] = useState([]);
-  const [sheetName, setSheetName] = useState('');
-  const [appName, setAppName] = useState('');
-  const [items, setItems] = useState([]);
-  const [originSheetList, setOriginSheetList] = useState([]);
-  const [clear, setClear] = useState(false);
+  const [pendingSheet, setPendingSheet] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [{ getNameLoading, isSheetDelete }, setState] = useSetState({
-    getNameLoading: true,
-    isSheetDelete: false,
-  });
+  const requestIdRef = useRef(0);
+  const loadedWorksheetKeyRef = useRef('');
+  const {
+    sourceId = '',
+    sourceName = '',
+    templates = {},
+    items: queryItems = [],
+    appName: sourceAppName = '',
+  } = query || {};
+  const { controls = [] } = templates;
+  const sheetId = pendingSheet?.sheetId || sourceId;
+  const sheetName = pendingSheet?.sheetName ?? sourceName;
+  const appName = pendingSheet?.appName ?? sourceAppName;
+  const items = pendingSheet ? [] : queryItems;
+
   useEffect(() => {
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
-      res.forEach(sheet => {
-        sheet.workSheetName = getTranslateInfo(appId, null, sheet.workSheetId).name || sheet.workSheetName;
-      });
-      setSheetList(res);
-      setOriginSheetList(res);
+      setSheetList(
+        res.map(sheet => ({
+          ...sheet,
+          workSheetName: getTranslateInfo(appId, null, sheet.workSheetId).name || sheet.workSheetName,
+        })),
+      );
       setLoading(false);
     });
-  }, []);
+  }, [appId]);
+
+  const loadWorksheet = useCallback(
+    ({ workSheetId, workSheetName, appName: nextAppName = '', clearConditions = false, showPending = true }) => {
+      if (!workSheetId) return;
+
+      const requestId = ++requestIdRef.current;
+      loadedWorksheetKeyRef.current = `${appId}:${workSheetId}`;
+      if (showPending) {
+        setPendingSheet({ sheetId: workSheetId, sheetName: workSheetName, appName: nextAppName });
+      }
+
+      return worksheetAjax
+        .getWorksheetInfo({ worksheetId: workSheetId, getTemplate: true, appId })
+        .then(res => {
+          if (requestId !== requestIdRef.current) return;
+
+          const nextTemplate = {
+            ...res.template,
+            controls: replaceControlsTranslateInfo(appId, workSheetId, res.template.controls),
+          };
+          const worksheetData = {
+            sourceId: workSheetId,
+            sourceName: res.name,
+            templates: nextTemplate,
+            appName: nextAppName,
+          };
+
+          onChange({
+            ...query,
+            ...(clearConditions ? { ...worksheetData, configs: [], items: [] } : worksheetData),
+          });
+        })
+        .catch(_requestError => {
+          if (requestId === requestIdRef.current) {
+            alertIfNotUnauthorized(_requestError, _l('获取工作表信息失败'), 2);
+          }
+        })
+        .finally(() => {
+          if (requestId === requestIdRef.current) {
+            setPendingSheet(null);
+          }
+        });
+    },
+    [appId, onChange, query],
+  );
 
   useEffect(() => {
-    const { sourceId = '', sourceName = '', templates = {}, items = [], appName } = query || {};
-    setSheetId(sourceId);
-    setSheetName(sourceName);
-    const { controls = [] } = templates;
-    setAllControls(controls);
-    setState({ getNameLoading: false, isSheetDelete: !sourceId });
-    setControls(
-      controls, //.filter(item => typeList.includes(item.type + ''))
-    );
-    setItems(items);
-    setAppName(appName);
-  }, [query]);
+    const worksheetKey = `${appId}:${sourceId}`;
+    if (!sourceId || loadedWorksheetKeyRef.current === worksheetKey) return;
 
-  useEffect(() => {
-    setControlsFn({
-      workSheetId: sheetId,
-      workSheetName: sheetName,
+    loadWorksheet({
+      workSheetId: sourceId,
+      workSheetName: sourceName,
+      appName: sourceAppName,
+      showPending: false,
     });
-  }, [sheetId]);
-
-  const handleSearch = _.throttle(value => {
-    setSheetList(value ? originSheetList.filter(i => (i.workSheetName || '').indexOf(value) > -1) : originSheetList);
-  }, 300);
-
-  const setControlsFn = data => {
-    if (!data.workSheetId) return;
-    worksheetAjax.getWorksheetInfo({ worksheetId: data.workSheetId, getTemplate: true, appId }).then(res => {
-      res.template.controls = replaceControlsTranslateInfo(appId, data.workSheetId, res.template.controls);
-      let da = { sourceId: data.workSheetId, sourceName: res.name, templates: res.template, appName };
-      da = clear ? { ...da, configs: [], items: [] } : da;
-      onChange({
-        ...query,
-        ...da,
-      });
-      setClear(false);
-    });
-  };
+  }, [appId, loadWorksheet, sourceAppName, sourceId, sourceName]);
 
   if (loading) {
     return <LoadDiv className="mTop10" />;
   }
+
+  const isSheetDelete = !sheetId && !!sheetName;
+  const worksheetOptions = sheetList
+    .map(item => ({
+      value: item.workSheetId,
+      label: item.workSheetName,
+    }))
+    .concat(
+      canChooseOtherApp
+        ? [{ value: SELECT_OTHER_WORKSHEET, label: _l('其他应用下的工作表'), className: 'colorPrimary' }]
+        : [],
+    );
 
   return (
     <React.Fragment>
       <SearchWorksheetWrap>
         <SettingItem className="mTop8">
           <div className="settingItemTitle">{_l('工作表')}</div>
-          <Trigger
-            action={['click']}
-            popupVisible={showMenu}
-            onPopupVisibleChange={showMenu => {
-              setShowMenu(showMenu);
+          <Select
+            className="w100"
+            value={sheetId || (sheetName ? DELETED_WORKSHEET : undefined)}
+            placeholder={_l('选择工作表')}
+            showSearch
+            optionFilterProp="label"
+            listHeight={300}
+            options={worksheetOptions}
+            notFoundContent={<span className="textTertiary">{_l('暂无搜索结果')}</span>}
+            labelRender={({ label }) =>
+              isSheetDelete ? (
+                <span className="Red">{_l('工作表已删除')}</span>
+              ) : (
+                <span className="textPrimary">
+                  {sheetName || label}
+                  {appName && <span>（{appName}）</span>}
+                </span>
+              )
+            }
+            onChange={(value, option) => {
+              if (value === SELECT_OTHER_WORKSHEET) {
+                setVisible(true);
+                return;
+              }
+
+              loadWorksheet({
+                workSheetId: value,
+                workSheetName: option.label,
+                clearConditions: true,
+              });
             }}
-            popupStyle={{ width: 530 }}
-            popup={() => {
-              return (
-                <WorksheetListWrap>
-                  <Menu
-                    fixedHeader={
-                      <div
-                        className="flexRow"
-                        style={{
-                          padding: '0 16px 0 14px',
-                          height: 36,
-                          alignItems: 'center',
-                          borderBottom: '1px solid var(--color-border-tertiary)',
-                          marginBottom: 5,
-                        }}
-                      >
-                        <i className="icon-search textSecondary Font14" />
-                        <input
-                          type="text"
-                          autoFocus
-                          className="mLeft5 flex Border0 placeholderColor w100"
-                          placeholder={_l('搜索')}
-                          onChange={evt => handleSearch(evt.target.value.trim())}
-                        />
-                      </div>
-                    }
-                  >
-                    {sheetList.length > 0 ? (
-                      sheetList.map(item => {
-                        return (
-                          <MenuItem
-                            onClick={() => {
-                              setClear(true);
-                              setSheetId(item.workSheetId);
-                              setSheetName(item.workSheetName);
-                              setItems([]);
-                              setShowMenu(false);
-                              setAppName('');
-                            }}
-                          >
-                            {item.workSheetName}
-                          </MenuItem>
-                        );
-                      })
-                    ) : (
-                      <MenuItem className="textTertiary">{_l('暂无搜索结果')}</MenuItem>
-                    )}
-                  </Menu>
-                  {canChooseOtherApp && (
-                    <div
-                      className="otherWorksheet pLeft16 Hand hoverColorPrimary"
-                      onClick={() => {
-                        setShowMenu(false);
-                        setvisible(true);
-                      }}
-                    >
-                      {_l('其他应用下的工作表')}
-                    </div>
-                  )}
-                </WorksheetListWrap>
-              );
-            }}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 3],
-              overflow: {
-                adjustX: true,
-                adjustY: true,
-              },
-            }}
-          >
-            <div className={cx('settingWorksheetInput')}>
-              <div className="overflow_ellipsis">
-                {sheetName ? (
-                  <span className={cx(isSheetDelete ? 'Red' : 'textPrimary')}>
-                    {getNameLoading ? '...' : isSheetDelete ? _l('工作表已删除') : sheetName}
-                    {appName && <span>（{appName}）</span>}
-                  </span>
-                ) : (
-                  <span className="textDisabled">{_l('选择工作表')}</span>
-                )}
-              </div>
-              <div className="edit">
-                <i className="icon-arrow-down-border"></i>
-              </div>
-            </div>
-          </Trigger>
+          />
         </SettingItem>
         <SettingItem>
           <div className="settingItemTitle">{_l('查询满足以下条件的记录')}</div>
@@ -210,7 +181,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
               conditions={items}
               from="portal"
               conditionItemForDynamicStyle
-              globalSheetControls={allControls}
+              globalSheetControls={controls}
               onConditionsChange={conditions => {
                 const newConditions = conditions.map(item => {
                   return item.isDynamicsource ? { ...item, values: [], value: '' } : item;
@@ -245,13 +216,13 @@ export default function ReviewFreeByWorksheetWrap(props) {
           sheetId={sheetId}
           globalSheetInfo={{ projectId, appId }}
           onClose={() => {
-            setvisible(false);
+            setVisible(false);
           }}
           onOk={data => {
-            setSheetId(data.sheetId);
-            setAppName(data.appName);
-            setControlsFn({
+            loadWorksheet({
               workSheetId: data.sheetId,
+              workSheetName: _l('加载中...'),
+              appName: data.appName,
             });
           }}
         />

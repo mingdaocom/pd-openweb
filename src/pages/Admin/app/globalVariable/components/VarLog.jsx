@@ -1,41 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
+import { Drawer } from 'ming-ui/antd-components';
+import { UserSelectPopover } from 'ming-ui/functions/quickSelectUser';
 import variableApi from 'src/api/variable';
 import DatePickSelect from 'worksheet/components/DatePickerSelect';
 import { completeAdminLogLinks } from 'src/pages/Admin/logs/utils';
 
-const LogDrawer = styled(Drawer)`
+const LogDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
   color: var(--color-text-title);
-  .ant-drawer-mask {
+  .hap-drawer-mask {
     background-color: transparent;
   }
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: -3px 3px 6px 1px rgba(0, 0, 0, 0.13);
   }
-  .ant-drawer-header {
-    border-bottom: 0;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-title {
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .ant-drawer-close {
-        padding: 0;
-        margin-top: -24px;
-        margin-right: -12px;
-      }
-    }
-  }
-  .ant-drawer-body {
+  .hap-drawer-body {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -131,7 +121,6 @@ const LogItem = styled.div`
 
 export default function VarLog(props) {
   const { onClose, variableId, projectId = '' } = props;
-  const selectUserRef = useRef();
   const [{ selectUser, selectDate }, setFilter] = useSetState({
     selectUser: undefined,
     selectDate: {
@@ -142,7 +131,7 @@ export default function VarLog(props) {
   const [fetchState, setFetchState] = useSetState({ loading: true, pageIndex: 1, noMore: false });
   const [logList, setLogList] = useState([]);
 
-  const onFetch = () => {
+  const onFetch = useCallback(() => {
     const operator = ((selectUser || [])[0] || {}).accountId;
     const startDateTime = ((selectDate.range || {}).value || {})[0];
     const endDateTime = ((selectDate.range || {}).value || {})[1];
@@ -160,12 +149,14 @@ export default function VarLog(props) {
         operator,
       })
       .then(({ logs }) => {
-        setLogList(fetchState.pageIndex > 1 ? logList.concat(logs) : logs);
+        setLogList(currentList => (fetchState.pageIndex > 1 ? currentList.concat(logs) : logs));
         setFetchState({ loading: false, noMore: logs.length < 50 });
       });
-  };
+  }, [fetchState.pageIndex, selectDate.range, selectUser, setFetchState, variableId]);
 
-  useEffect(onFetch, [fetchState.pageIndex, selectUser, selectDate]);
+  useEffect(() => {
+    onFetch();
+  }, [onFetch]);
 
   const onScrollEnd = () => {
     if (!fetchState.noMore) {
@@ -178,39 +169,9 @@ export default function VarLog(props) {
     setFilter({ selectUser: value });
   };
 
-  const pickUser = () => {
-    const filterIds = ['user-sub', 'user-undefined'];
-    quickSelectUser(selectUserRef.current, {
-      fromAdmin: true,
-      hidePortalCurrentUser: true,
-      selectRangeOptions: false,
-      includeSystemField: true,
-      prefixOnlySystemField: true,
-      rect: selectUserRef.current.getBoundingClientRect(),
-      tabType: 1,
-      showMoreInvite: false,
-      isTask: false,
-      filterAccountIds: filterIds,
-      selectedAccountIds: (selectUser || []).map(item => item.accountId),
-      offset: {
-        top: 2,
-      },
-      zIndex: 10001,
-      SelectUserSettings: {
-        unique: true,
-        projectId,
-        filterAccountIds: filterIds,
-        filterResigned: false,
-        selectedAccountIds: (selectUser || []).map(item => item.accountId),
-        callback: selectUserCallback,
-      },
-      selectCb: selectUserCallback,
-    });
-  };
-
   return (
     <LogDrawer
-      visible
+      open
       width={470}
       placement="right"
       title={_l('日志')}
@@ -218,23 +179,46 @@ export default function VarLog(props) {
       onClose={onClose}
     >
       <div className="filterWrapper">
-        <span className={cx({ selectLight: selectUser }, 'selectUser')} onClick={pickUser} ref={selectUserRef}>
-          <Icon icon="task_custom_personnel" />
-          <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
-          <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
-          {selectUser && (
-            <Icon
-              onClick={e => {
-                e.stopPropagation();
-                setFilter({ selectUser: undefined });
-              }}
-              icon="cancel"
-            />
-          )}
-        </span>
-        <Trigger
-          popupVisible={selectDate.visible}
-          onPopupVisibleChange={visible =>
+        <UserSelectPopover
+          fromAdmin
+          hidePortalCurrentUser
+          selectRangeOptions={false}
+          includeSystemField
+          prefixOnlySystemField
+          tabType={1}
+          showMoreInvite={false}
+          filterAccountIds={['user-sub', 'user-undefined']}
+          selectedAccountIds={(selectUser || []).map(item => item.accountId)}
+          offset={{ top: 2, left: 0 }}
+          SelectUserSettings={{
+            unique: true,
+            projectId,
+            filterAccountIds: ['user-sub', 'user-undefined'],
+            filterResigned: false,
+            selectedAccountIds: (selectUser || []).map(item => item.accountId),
+            callback: selectUserCallback,
+          }}
+          onSelect={selectUserCallback}
+        >
+          <span className={cx({ selectLight: selectUser }, 'selectUser')}>
+            <Icon icon="task_custom_personnel" />
+            <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
+            <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
+            {selectUser && (
+              <Icon
+                onClick={e => {
+                  e.stopPropagation();
+                  setFilter({ selectUser: undefined });
+                }}
+                icon="cancel"
+              />
+            )}
+          </span>
+        </UserSelectPopover>
+        <DatePickSelect
+          open={selectDate.visible}
+          selectedValue={selectDate.range?.value}
+          onOpenChange={visible =>
             setFilter({
               selectDate: {
                 ...selectDate,
@@ -242,27 +226,21 @@ export default function VarLog(props) {
               },
             })
           }
-          action={['click']}
-          popupAlign={{ points: ['tr', 'br'] }}
-          popup={
-            <DatePickSelect
-              onChange={data => {
-                if (!data.value) {
-                  return;
-                }
+          onChange={data => {
+            if (!data.value) {
+              return;
+            }
 
-                setFilter({
-                  selectDate: {
-                    visible: false,
-                    range: {
-                      ...data,
-                      value: [data.value[0], data.value[1]],
-                    },
-                  },
-                });
-              }}
-            />
-          }
+            setFilter({
+              selectDate: {
+                visible: false,
+                range: {
+                  ...data,
+                  value: [data.value[0], data.value[1]],
+                },
+              },
+            });
+          }}
         >
           <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
             <Icon icon="event" />
@@ -283,7 +261,7 @@ export default function VarLog(props) {
               />
             )}
           </span>
-        </Trigger>
+        </DatePickSelect>
       </div>
       {fetchState.loading && fetchState.pageIndex === 1 ? (
         <LoadDiv className="mTop10" />

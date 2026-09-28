@@ -1,13 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dropdown, Radio, SortableList } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { DepartmentFullName, SortableList } from 'ming-ui';
+import { Dropdown as AntdDropdown, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import userAjax from 'src/api/user';
-import DepartmentFullName from 'src/components/UserInfoComponents/DepartmentFullName.jsx';
-import { getFieldsData, maskValue } from '../../utils';
+import { getFieldsData, maskValue } from 'src/utils/domain/account/profile';
 
 export default class UserBaseInfoSetting extends Component {
   constructor(props) {
@@ -101,7 +98,7 @@ export default class UserBaseInfoSetting extends Component {
     this.setState({ cardSettingData: copyData });
   };
 
-  renderAddFields = isCard => {
+  getAddFieldItems = isCard => {
     const typeFields = isCard ? 'cardSettingData' : 'baseSettingData';
     const selectIds = this.state[typeFields].map(v => v.id);
     const fields = getFieldsData(isCard);
@@ -116,28 +113,16 @@ export default class UserBaseInfoSetting extends Component {
     });
 
     if (_.isEmpty(selectFields)) {
-      return (
-        <div className="addFieldsWrap textTertiary flexRow alignItemsCenter justifyContentCenter">
-          {_l('没有可添加字段')}
-        </div>
-      );
+      return [{ key: 'empty', label: _l('没有可添加字段'), disabled: true }];
     }
 
-    return (
-      <div className="addFieldsWrap">
-        {selectFields.map(item => (
-          <div
-            className="addFieldsItem"
-            key={item.id}
-            onClick={() => {
-              this.setState({ [typeFields]: this.state[typeFields].concat(item) });
-            }}
-          >
-            {item.text}
-          </div>
-        ))}
-      </div>
-    );
+    return selectFields.map(item => ({
+      key: item.id,
+      label: item.text,
+      onClick: () => {
+        this.setState({ [typeFields]: this.state[typeFields].concat(item) });
+      },
+    }));
   };
 
   renderSortableItem = ({ item, isCard }) => {
@@ -165,15 +150,19 @@ export default class UserBaseInfoSetting extends Component {
               disabled={editStatus === 0}
               className="mRight50"
               checked={item.typeId === 51}
-              text={_l('仅显示成员所在部门')}
-              onClick={() => this.changeCardDepartmentTYpeId(51)}
-            />
+              onChange={() => this.changeCardDepartmentTYpeId(51)}
+              title={_l('仅显示成员所在部门')}
+            >
+              {_l('仅显示成员所在部门')}
+            </Radio>
             <Radio
               disabled={editStatus === 0}
               checked={item.typeId === 52}
-              text={_l('显示部门路径')}
-              onClick={() => this.changeCardDepartmentTYpeId(52)}
-            />
+              onChange={() => this.changeCardDepartmentTYpeId(52)}
+              title={_l('显示部门路径')}
+            >
+              {_l('显示部门路径')}
+            </Radio>
           </div>
         </div>
       );
@@ -233,22 +222,20 @@ export default class UserBaseInfoSetting extends Component {
     }
 
     return (
-      <Trigger
-        popupVisible={this.state[typeFields]}
-        onPopupVisibleChange={visible => this.setState({ [typeFields]: visible })}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 0],
-          overflow: { adjustX: true, adjustY: true },
+      <AntdDropdown
+        open={this.state[typeFields]}
+        onOpenChange={visible => this.setState({ [typeFields]: visible })}
+        trigger={['click']}
+        menu={{
+          items: this.getAddFieldItems(isCard),
+          style: { minWidth: 240, maxHeight: 256, overflowY: 'auto' },
         }}
-        popup={() => this.renderAddFields(isCard)}
       >
         <div className="addFields colorPrimary mTop12 InlineBlock Hand">
           <i className="icon icon-plus mRight5" />
           <span>{_l('添加字段')}</span>
         </div>
-      </Trigger>
+      </AntdDropdown>
     );
   };
 
@@ -354,15 +341,13 @@ export default class UserBaseInfoSetting extends Component {
           <div className="settingWrap">
             <div className="flexRow alignItemsCenter mBottom12">
               <span className="mRight12">{_l('姓名下显示字段')}</span>
-              <Dropdown
+              <Select
+                allowClear={editStatus}
                 style={{ width: 240 }}
-                menuClass="w100"
-                border
-                cancelAble={editStatus}
                 placeholder={_l('未设置')}
                 disabled={!editStatus}
                 value={displayFieldForName}
-                data={fields.map(v => ({ text: v.text, value: v.typeId }))}
+                options={fields.map(v => ({ label: v.text, value: v.typeId }))}
                 onChange={value => this.setState({ displayFieldForName: value })}
               />
             </div>

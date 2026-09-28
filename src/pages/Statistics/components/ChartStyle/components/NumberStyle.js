@@ -1,10 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Collapse, Input, Select, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ColorPicker, Icon, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Input, InputNumber, Segmented, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 import { replaceColor } from 'statistics/Charts/NumberChart';
 import { defaultNumberChartStyle, normTypes, sizeTypes } from '../../../enum';
@@ -12,14 +11,8 @@ import BgPicker from './BgPicker';
 import RuleColor from './Color/RuleColor';
 
 const Wrap = styled.div`
-  .chartTypeSelect {
-    & > div,
-    .active {
-      padding: 3px 8px !important;
-    }
-    .active .shape {
-      background-color: var(--color-primary);
-    }
+  .shape.active {
+    background-color: var(--color-primary);
   }
   .lable {
     width: 100px;
@@ -120,58 +113,28 @@ const CardLayout = props => {
     <Wrap className="mBottom16">
       <div className="flexRow valignWrapper mBottom12">
         <div style={lableStyle}>{_l('水平对齐方式')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {alignTypes.map(item => (
-            <div
-              key={item.value}
-              className={cx('flex centerAlign pointer textSecondary', {
-                active: item.value === (numberChartStyle.textAlign || 'center'),
-              })}
-              onClick={() => {
-                onChangeNumberStyle({ textAlign: item.value });
-              }}
-            >
-              <Icon className="Font20" icon={item.icon} />
-            </div>
-          ))}
-        </div>
+        <Segmented
+          className="bgDisabled"
+          value={numberChartStyle.textAlign || 'center'}
+          options={alignTypes.map(item => ({
+            value: item.value,
+            label: <Icon className="Font20" icon={item.icon} />,
+          }))}
+          onChange={value => {
+            onChangeNumberStyle({ textAlign: value });
+          }}
+        />
       </div>
       {(xaxes.controlId || yaxisList.length > 1) && (
         <div className="flexRow valignWrapper mBottom12">
           <div style={lableStyle}>{_l('每行显示个数')}</div>
-          <Input
-            className="chartInput columnCountInput"
+          <InputNumber
+            min={1}
+            max={maxColumnCount}
+            precision={0}
             style={{ width: 78 }}
             value={numberChartStyle.columnCount}
-            onChange={event => {
-              changeColumnCount(event.target.value);
-            }}
-            suffix={
-              <div className="flexColumn">
-                <Icon
-                  icon="expand_less"
-                  className={cx(
-                    'Font20 pointer mBottom2',
-                    numberChartStyle.columnCount === maxColumnCount ? 'disabled' : 'textTertiary',
-                  )}
-                  onClick={() => {
-                    let value = Number(numberChartStyle.columnCount);
-                    changeColumnCount(value + 1);
-                  }}
-                />
-                <Icon
-                  icon="expand_more"
-                  className={cx(
-                    'Font20 pointer mBottom2',
-                    numberChartStyle.columnCount === 1 ? 'disabled' : 'textTertiary',
-                  )}
-                  onClick={() => {
-                    let value = Number(numberChartStyle.columnCount);
-                    changeColumnCount(value - 1);
-                  }}
-                />
-              </div>
-            }
+            onChange={changeColumnCount}
           />
         </div>
       )}
@@ -185,7 +148,11 @@ const CardLayout = props => {
           >
             {_l('允许容器内滚动')}
           </Checkbox>
-          <Tooltip title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')} placement="bottom" arrowPointAtCenter>
+          <Tooltip
+            title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')}
+            placement="bottom"
+            arrow={{ pointAtCenter: true }}
+          >
             <Icon className="textTertiary Font18 pointer" icon="info" />
           </Tooltip>
         </div>
@@ -196,11 +163,17 @@ const CardLayout = props => {
           <BgPicker
             themeColor={themeColor}
             config={numberChartStyle}
-            onChange={data => {
-              onChangeNumberStyle(data);
+            onChange={onChangeNumberStyle}
+            previewUrl={displaySetup.previewUrl || displaySetup.imageUrl}
+            onChangeImage={(imageData, styleData) => {
+              handleChangeDisplaySetup(imageData);
+              if (styleData) {
+                onChangeNumberStyle(styleData);
+              }
             }}
-            displaySetup={displaySetup}
-            handleChangeDisplaySetup={handleChangeDisplaySetup}
+            onClear={() => {
+              onChangeNumberStyle({ bgStyleValue: '', bgColor: '#fff' });
+            }}
           ></BgPicker>
         </div>
       )}
@@ -258,22 +231,23 @@ const IconSetting = props => {
       </div>
       <div className="flexRow valignWrapper mBottom12">
         <div style={{ width: 60 }}>{_l('形状')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {iconTypes.map(item => (
-            <div
-              key={item.value}
-              style={{ width: 41 }}
-              className={cx('flex centerAlign pointer textSecondary', {
-                active: (numberChartStyle.shape || 'square') === item.value,
-              })}
-              onClick={() => {
-                onChangeNumberStyle({ shape: item.value });
-              }}
-            >
-              <div className={cx('shape', item.value)} />
-            </div>
-          ))}
-        </div>
+        <Segmented
+          className="bgDisabled"
+          value={numberChartStyle.shape || 'square'}
+          options={iconTypes.map(item => ({
+            value: item.value,
+            label: (
+              <div
+                className={cx('shape', item.value, {
+                  active: (numberChartStyle.shape || 'square') === item.value,
+                })}
+              />
+            ),
+          }))}
+          onChange={value => {
+            onChangeNumberStyle({ shape: value });
+          }}
+        />
       </div>
     </Wrap>
   );
@@ -297,22 +271,27 @@ const StatisticsValue = props => {
     <Wrap className="mBottom16">
       <div className="mBottom12">{_l('文字')}</div>
       <div className="mBottom16">
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {sizeTypes.map(item => (
-            <div
-              key={item.value}
-              title={item.name}
-              className={cx('flex centerAlign pointer textSecondary', {
-                active: (numberChartStyle.fontSize || 28) === item.value,
-              })}
-              onClick={() => {
-                onChangeNumberStyle({ fontSize: item.value });
-              }}
-            >
-              <span className="ellipsis">{item.name}</span>
-            </div>
-          ))}
-        </div>
+        <Segmented
+          block
+          className="bgDisabled"
+          styles={{
+            label: {
+              '--hap-control-padding-horizontal': '10px',
+            },
+          }}
+          value={numberChartStyle.fontSize || 28}
+          options={sizeTypes.map(item => ({
+            value: item.value,
+            label: (
+              <span className="ellipsis" title={item.name}>
+                {item.name}
+              </span>
+            ),
+          }))}
+          onChange={value => {
+            onChangeNumberStyle({ fontSize: value });
+          }}
+        />
       </div>
       {!xaxes.controlId && yaxisList.length === 1 && numberChartStyle.bgStyleValue && (
         <div className="flexRow valignWrapper mBottom12">
@@ -404,7 +383,7 @@ export const ContrastValue = props => {
     if (value) {
       value = parseInt(value);
       value = isNaN(value) ? 0 : value;
-      value = value > 9 ? 9 : value;
+      value = _.clamp(value, 0, 9);
     } else {
       value = 0;
     }
@@ -453,72 +432,56 @@ export const ContrastValue = props => {
       </div>
       <div className="mBottom12">
         <div className="mBottom8">{_l('颜色')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {colorTypes.map(item => (
-            <div
-              key={item.value}
-              title={item.name}
-              className={cx('flex centerAlign pointer textSecondary', {
-                active: (numberChartStyle.contrastColor || 0) === item.value,
-              })}
-              onClick={() => {
-                onChangeNumberStyle({
-                  contrastColor: item.value,
-                });
-              }}
-            >
-              <span className="ellipsis">{item.name}</span>
-            </div>
-          ))}
-        </div>
+        <Segmented
+          block
+          className="bgDisabled"
+          value={numberChartStyle.contrastColor || 0}
+          options={colorTypes.map(item => ({
+            value: item.value,
+            label: (
+              <span className="ellipsis" title={item.name}>
+                {item.name}
+              </span>
+            ),
+          }))}
+          onChange={value => {
+            onChangeNumberStyle({
+              contrastColor: value,
+            });
+          }}
+        />
       </div>
       <div className="mBottom12">
         <div className="mBottom8">{_l('保留小数')}</div>
-        <Input
-          className="chartInput"
+        <InputNumber
+          className="w100"
+          min={0}
+          max={9}
+          precision={0}
           value={numberChartStyle.contrastValueDot}
-          onChange={event => {
-            handleChangeContrastValueDot(event.target.value);
+          onChange={value => {
+            handleChangeContrastValueDot(value);
           }}
-          suffix={
-            <div className="flexColumn">
-              <Icon
-                icon="expand_less"
-                className="textTertiary Font20 pointer mBottom2"
-                onClick={() => {
-                  let value = Number(numberChartStyle.contrastValueDot);
-                  handleChangeContrastValueDot(value + 1);
-                }}
-              />
-              <Icon
-                icon="expand_more"
-                className="textTertiary Font20 pointer mTop2"
-                onClick={() => {
-                  let value = Number(numberChartStyle.contrastValueDot);
-                  handleChangeContrastValueDot(value ? value - 1 : 0);
-                }}
-              />
-            </div>
-          }
         />
       </div>
       <div className="mBottom12">
         <div className="mBottom8">{_l('文字')}</div>
         <Input
-          className="chartInput mBottom12"
-          value={numberChartStyle.lastContrastText}
+          className="mBottom12"
+          defaultValue={numberChartStyle.lastContrastText}
           placeholder={_l('环比')}
-          onChange={event => {
+          onPressEnter={event => event.currentTarget.blur()}
+          onBlur={event => {
             onChangeNumberStyle({
               lastContrastText: event.target.value,
             });
           }}
         />
         <Input
-          className="chartInput"
-          value={numberChartStyle.contrastText}
+          defaultValue={numberChartStyle.contrastText}
           placeholder={_l('同比')}
-          onChange={event => {
+          onPressEnter={event => event.currentTarget.blur()}
+          onBlur={event => {
             onChangeNumberStyle({
               contrastText: event.target.value,
             });
@@ -538,78 +501,80 @@ export function numberSummaryPanelGenerator(props) {
     return null;
   }
 
-  return (
-    <Collapse.Panel
-      key="numberChartCount"
-      header={_l('总计')}
-      className={cx({ collapsible: !switchChecked })}
-      extra={
-        <Switch
-          size="small"
-          checked={switchChecked}
-          onClick={(checked, event) => {
-            event.stopPropagation();
-          }}
-          onChange={checked => {
-            onChangeDisplayValue('showTotal', checked, true);
-          }}
-        />
-      }
-    >
-      <div className="mBottom16">
-        <div className="mBottom8">{_l('汇总方式')}</div>
-        <Select
-          className="chartSelect w100"
-          value={summary.type}
-          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
-          onChange={value => {
-            const item = _.find(normTypes, { value });
-            const isDefault = normTypes.map(item => item.text).includes(summary.name);
-            changeCurrentReport(
-              {
-                summary: {
-                  ...summary,
-                  type: item.value,
-                  name: isDefault ? item.text : summary.name,
+  return {
+    key: 'numberChartCount',
+    label: _l('总计'),
+    className: cx({ collapsible: !switchChecked }),
+    extra: (
+      <Switch
+        size="small"
+        checked={switchChecked}
+        onClick={(checked, event) => {
+          event.stopPropagation();
+        }}
+        onChange={checked => {
+          onChangeDisplayValue('showTotal', checked, true);
+        }}
+      />
+    ),
+    children: (
+      <Fragment>
+        <div className="mBottom16">
+          <div className="mBottom8">{_l('汇总方式')}</div>
+          <Select
+            className="w100"
+            value={summary.type}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            options={normTypes
+              .filter(n => ![5, 6].includes(n.value))
+              .map(item => ({
+                value: item.value,
+                label: item.alias || item.text,
+              }))}
+            onChange={value => {
+              const item = _.find(normTypes, { value });
+              const isDefault = normTypes.map(item => item.text).includes(summary.name);
+              changeCurrentReport(
+                {
+                  summary: {
+                    ...summary,
+                    type: item.value,
+                    name: isDefault ? item.text : summary.name,
+                  },
                 },
-              },
-              true,
-            );
-          }}
-        >
-          {normTypes
-            .filter(n => ![5, 6].includes(n.value))
-            .map(item => (
-              <Select.Option className="selectOptionWrapper" value={item.value}>
-                {item.alias || item.text}
-              </Select.Option>
-            ))}
-        </Select>
-      </div>
-      <div className="mBottom16">
-        <div className="mBottom8">{_l('提示')}</div>
-        <Input
-          value={summary.name}
-          className="chartInput w100"
-          onChange={event => {
-            changeCurrentReport(
-              {
-                summary: {
-                  ...summary,
-                  name: event.target.value.slice(0, 20),
+                true,
+              );
+            }}
+          />
+        </div>
+        <div className="mBottom16">
+          <div className="mBottom8">{_l('提示')}</div>
+          <Input
+            key={`${summary.controlId}-${summary.type}`}
+            defaultValue={summary.name}
+            maxLength={20}
+            className="w100"
+            onPressEnter={event => event.currentTarget.blur()}
+            onBlur={event => {
+              changeCurrentReport(
+                {
+                  summary: {
+                    ...summary,
+                    name: event.target.value,
+                  },
                 },
-              },
-              false,
-            );
-          }}
-        />
-      </div>
-    </Collapse.Panel>
-  );
+                false,
+              );
+            }}
+          />
+        </div>
+      </Fragment>
+    ),
+  };
 }
 
 export default function numberStylePanelGenerator(props) {
-  const { currentReport, onChangeStyle, ...collapseProps } = props;
+  const { currentReport, onChangeStyle } = props;
   const { style, xaxes, yaxisList } = currentReport;
   const { numberChartStyle = defaultNumberChartStyle } = style;
 
@@ -622,38 +587,41 @@ export default function numberStylePanelGenerator(props) {
     });
   };
 
-  return (
-    <Fragment>
-      <Collapse.Panel key="cardLayout" header={_l('卡片样式')} {...collapseProps}>
-        <CardLayout {...props} numberChartStyle={numberChartStyle} onChangeNumberStyle={onChangeNumberStyle} />
-      </Collapse.Panel>
-      {!xaxes.controlId && yaxisList.length === 1 && (
-        <Collapse.Panel
-          key="iconSetting"
-          header={_l('图标')}
-          className={cx({ collapsible: !numberChartStyle.iconVisible })}
-          {...collapseProps}
-          extra={
-            <Switch
-              size="small"
-              checked={numberChartStyle.iconVisible}
-              onClick={(checked, event) => {
-                event.stopPropagation();
-              }}
-              onChange={checked => {
-                onChangeNumberStyle({
-                  iconVisible: checked,
-                });
-              }}
-            />
-          }
-        >
+  return [
+    {
+      key: 'cardLayout',
+      label: _l('卡片样式'),
+      children: <CardLayout {...props} numberChartStyle={numberChartStyle} onChangeNumberStyle={onChangeNumberStyle} />,
+    },
+    !xaxes.controlId &&
+      yaxisList.length === 1 && {
+        key: 'iconSetting',
+        label: _l('图标'),
+        className: cx({ collapsible: !numberChartStyle.iconVisible }),
+        extra: (
+          <Switch
+            size="small"
+            checked={numberChartStyle.iconVisible}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              onChangeNumberStyle({
+                iconVisible: checked,
+              });
+            }}
+          />
+        ),
+        children: (
           <IconSetting {...props} numberChartStyle={numberChartStyle} onChangeNumberStyle={onChangeNumberStyle} />
-        </Collapse.Panel>
-      )}
-      <Collapse.Panel key="statisticsValue" header={_l('统计值')} {...collapseProps}>
+        ),
+      },
+    {
+      key: 'statisticsValue',
+      label: _l('统计值'),
+      children: (
         <StatisticsValue {...props} numberChartStyle={numberChartStyle} onChangeNumberStyle={onChangeNumberStyle} />
-      </Collapse.Panel>
-    </Fragment>
-  );
+      ),
+    },
+  ].filter(Boolean);
 }

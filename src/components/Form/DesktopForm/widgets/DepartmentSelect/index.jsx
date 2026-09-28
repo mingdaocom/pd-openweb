@@ -1,109 +1,125 @@
-import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { Popover } from 'antd';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { SortableList } from 'ming-ui';
-import { quickSelectDept } from 'ming-ui/functions';
+import { Button, Popover } from 'ming-ui/antd-components';
+import { DeptSelectPopover } from 'ming-ui/functions/quickSelectDept';
+import { formatDepartmentDisplayValue } from 'src/utils/domain/control/department';
+import { dealUserRange } from 'src/utils/domain/control/selectionRange';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
-import { dealRenderValue, dealUserRange } from '../../../core/utils';
 import QuickOperate from '../UserSelect/QuickOperate';
 import DepartmentTooltip from './DepartmentTooltip';
+
+const DEPT_SELECT_ALIGN = { overflow: { adjustX: true, adjustY: true, shiftX: true, shiftY: true } };
 
 const DepartmentSelect = props => {
   const { disabled, value, projectId, enumDefault, onChange, advancedSetting = {}, formData, formItemId } = props;
 
   const [showId, setShowId] = useState('');
-
-  const pickRef = useRef(null);
-  const destoryRef = useRef(null);
+  const [deptSelectVisible, setDeptSelectVisible] = useState(false);
+  const [replaceItem, setReplaceItem] = useState();
+  const [deptRange, setDeptRange] = useState({});
   const currentValueRef = useRef(safeParse(value || '[]'));
+  const deptSelectRef = useRef(null);
+  const containerRef = useRef(null);
 
-  const currentValue = useMemo(() => {
-    const result = safeParse(value || '[]');
-    currentValueRef.current = result;
-    return result;
-  }, [value]);
+  const currentValue = useMemo(() => safeParse(value || '[]'), [value]);
+
+  useEffect(() => {
+    currentValueRef.current = currentValue;
+  }, [currentValue]);
+
+  useEffect(() => {
+    if (!deptSelectVisible || disabled) return;
+
+    const alignPopover = () => deptSelectRef.current?.forceAlign();
+    // SortableList 异步同步内部列表，监听实际 DOM 更新，避免按旧按钮位置对齐。
+    const observer = new MutationObserver(alignPopover);
+    observer.observe(containerRef.current, { childList: true, subtree: true, characterData: true });
+    alignPopover();
+
+    return () => observer.disconnect();
+  }, [deptSelectVisible, disabled]);
+
+  const onSave = useCallback(
+    (data, isCancel = false, currentReplaceItem) => {
+      const valueArr = currentValueRef.current;
+      const lastIds = _.sortedUniq(valueArr.map(l => l.departmentId));
+      const newIds = _.sortedUniq(data.map(l => l.departmentId));
+
+      if ((data.length === 0 || _.isEqual(lastIds, newIds)) && !isCancel) return;
+
+      const newData =
+        enumDefault === 0
+          ? data
+          : isCancel
+            ? valueArr.filter(l => l.departmentId !== data[0].departmentId)
+            : _.uniqBy(
+                currentReplaceItem
+                  ? valueArr.map(v => (v.departmentId === currentReplaceItem.departmentId ? data[0] : v))
+                  : valueArr.concat(data),
+                'departmentId',
+              );
+
+      onChange(JSON.stringify(newData));
+    },
+    [enumDefault, onChange],
+  );
+
+  const pickDepartment = useCallback(
+    currentReplaceItem => {
+      if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+        alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+        return;
+      }
+
+      setReplaceItem(currentReplaceItem);
+      setDeptRange(dealUserRange(props, formData));
+      setDeptSelectVisible(true);
+    },
+    [formData, projectId, props],
+  );
+
+  const handleDeptOpenChange = useCallback(
+    visible => {
+      if (visible && !_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+        alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+        return false;
+      }
+
+      if (visible) {
+        setDeptRange(dealUserRange(props, formData));
+      }
+
+      setDeptSelectVisible(visible);
+    },
+    [formData, projectId, props],
+  );
 
   useWidgetEvent(
     formItemId,
-    useCallback(data => {
-      const { triggerType } = data;
+    useCallback(
+      data => {
+        const { triggerType } = data;
 
-      switch (triggerType) {
-        case 'Enter':
-          if (destoryRef.current) return;
-          pickDepartment();
-          break;
-        case 'trigger_tab_enter':
-        case 'trigger_tab_leave':
-          if (destoryRef.current) {
-            destoryRef.current();
-            destoryRef.current = null;
-          }
+        switch (triggerType) {
+          case 'Enter':
+            if (deptSelectVisible) return;
+            pickDepartment();
+            break;
+          case 'trigger_tab_enter':
+          case 'trigger_tab_leave':
+            setDeptSelectVisible(false);
 
-          break;
-        default:
-          break;
-      }
-    }, []),
-  );
-
-  /**
-   * 选择部门
-   */
-  const pickDepartment = replaceItem => {
-    if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
-      alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
-      return;
-    }
-
-    const deptRange = dealUserRange(props, formData);
-    const unique = enumDefault === 0 || !!replaceItem;
-
-    const { destory } = quickSelectDept(pickRef.current, {
-      projectId,
-      isIncludeRoot: false,
-      unique,
-      showCreateBtn: false,
-      allPath: advancedSetting.allpath === '1',
-      departrangetype: advancedSetting.departrangetype,
-      appointedDepartmentIds: _.get(deptRange, 'appointedDepartmentIds') || [],
-      appointedUserIds: _.get(deptRange, 'appointedAccountIds') || [],
-      selectedDepartment: currentValueRef.current,
-      selectFn: (departs, isCancel) => {
-        onSave(departs, isCancel, replaceItem);
-        if (unique && destoryRef.current) {
-          destoryRef.current();
-          destoryRef.current = null;
+            break;
+          default:
+            break;
         }
       },
-    });
-
-    destoryRef.current = destory;
-  };
-
-  const onSave = (data, isCancel = false, replaceItem) => {
-    const valueArr = currentValueRef.current;
-    const lastIds = _.sortedUniq(valueArr.map(l => l.departmentId));
-    const newIds = _.sortedUniq(data.map(l => l.departmentId));
-
-    if ((data.length === 0 || _.isEqual(lastIds, newIds)) && !isCancel) return;
-
-    const newData =
-      enumDefault === 0
-        ? data
-        : isCancel
-          ? valueArr.filter(l => l.departmentId !== data[0].departmentId)
-          : _.uniqBy(
-              replaceItem
-                ? valueArr.map(v => (v.departmentId === replaceItem.departmentId ? data[0] : v))
-                : valueArr.concat(data),
-              'departmentId',
-            );
-
-    onChange(JSON.stringify(newData));
-  };
+      [deptSelectVisible, pickDepartment],
+    ),
+  );
 
   /**
    * 删除部门
@@ -125,12 +141,13 @@ const DepartmentSelect = props => {
 
     return (
       <Popover
+        arrow={true}
         title={null}
         placement="bottomLeft"
-        overlayClassName="quickConfigPopover"
+        classNames={{ root: 'quickConfigPopover' }}
         trigger={['click', 'contextMenu']}
-        visible={showMenu}
-        onVisibleChange={visible => {
+        open={showMenu}
+        onOpenChange={visible => {
           if (disablePopover) return;
           setShowId(visible ? item.departmentId : '');
         }}
@@ -196,10 +213,10 @@ const DepartmentSelect = props => {
     handleSort(items);
   };
 
-  const renderValue = dealRenderValue(value, advancedSetting);
+  const renderValue = formatDepartmentDisplayValue(value, advancedSetting);
 
   return (
-    <div className="customFormControlBox customFormControlUser">
+    <div ref={containerRef} className="customFormControlBox customFormControlUser">
       <SortableList
         items={renderValue.map(l => ({ ...l, canDrag: !!l.departmentId }))}
         canDrag={!disabled && enumDefault !== 0}
@@ -212,13 +229,34 @@ const DepartmentSelect = props => {
       />
 
       {!disabled && (
-        <div
-          className="TxtCenter textSecondary hoverBorderColorPrimary hoverColorPrimary pointer addBtn"
-          onClick={() => pickDepartment()}
-          ref={pickRef}
+        <DeptSelectPopover
+          ref={deptSelectRef}
+          placement="rightTop"
+          align={DEPT_SELECT_ALIGN}
+          open={deptSelectVisible}
+          onOpenChange={handleDeptOpenChange}
+          projectId={projectId}
+          isIncludeRoot={false}
+          unique={enumDefault === 0 || !!replaceItem}
+          showCreateBtn={false}
+          allPath={advancedSetting.allpath === '1'}
+          departrangetype={advancedSetting.departrangetype}
+          appointedDepartmentIds={_.get(deptRange, 'appointedDepartmentIds') || []}
+          appointedUserIds={_.get(deptRange, 'appointedAccountIds') || []}
+          selectedDepartment={currentValue}
+          selectFn={(departs, isCancel) => onSave(departs, isCancel, replaceItem)}
         >
-          <i className={enumDefault === 0 && renderValue.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
-        </div>
+          <Button
+            aria-label={_l('选择部门')}
+            className="controlAddButton"
+            shape="circle"
+            size="small"
+            icon={
+              <i className={enumDefault === 0 && renderValue.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
+            }
+            onClick={() => setReplaceItem(undefined)}
+          />
+        </DeptSelectPopover>
       )}
     </div>
   );

@@ -1,9 +1,6 @@
 import _ from 'lodash';
-import { formatNumberThousand, toFixed } from 'src/utils/control';
-import { getProjectColor } from 'src/utils/project';
-import { reportTypes } from './reportTypes';
-
-export { reportTypes };
+import { formatNumberThousand, toFixed } from 'src/utils/domain/control/number';
+import { getProjectChartColors } from 'src/utils/services/project';
 
 /**
  * 图表颜色集合 (旧的颜色配置)
@@ -192,20 +189,10 @@ export const colorGroup = {
 };
 
 /**
- * 获取组织管理主题色
- */
-export const getPorjectChartColors = projectId => {
-  const { chartColor } = getProjectColor(projectId);
-  const systemColorList = (chartColor.system || []).filter(item => item.enable !== false && !_.isEmpty(item.colors));
-  const customColorList = (chartColor.custom || []).filter(item => item.enable !== false && !_.isEmpty(item.colors));
-  return systemColorList.concat(customColorList);
-};
-
-/**
  * 获取图表颜色
  */
 export const getChartColors = (style, themeColor, projectId) => {
-  const chartColors = getPorjectChartColors(projectId);
+  const chartColors = getProjectChartColors(projectId);
   const { colorType, colorGroupIndex, colorGroupId, customColors, personColor = {} } = style ? style : {};
 
   if ([0, 1].includes(colorType)) {
@@ -253,10 +240,11 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
   return auxiliaryLines.map(item => {
     const control = _.find(yaxisList, { controlId: item.controlId });
     const controlId = control ? item.controlId : null;
-    const dot = control ? control.ydot || control.dot : 2;
+    const configuredDot = control?.ydot === '' ? control.dot : (control?.ydot ?? control?.dot);
+    const dot = control ? Number(configuredDot ?? 0) : 2;
 
     const getValue = () => {
-      const formatValue = value => (value < 1 && value > 0 && dot == 0 ? value : Number(toFixed(value, dot)));
+      const formatValue = value => (value < 1 && value > 0 && dot === 0 ? value : Number(toFixed(value, dot)));
 
       if (item.type === 'constantLine') {
         return item.value;
@@ -965,4 +953,124 @@ export const getEmptyChartData = reportData => {
   }
 
   return data;
+};
+
+export const getYAxisScale = (data, yField, options = {}) => {
+  const { tickCount = 5, paddingRatio = 0.1, preventNegativeWhenAllPositive = true, min, max } = options;
+
+  const values = data.map(item => Number(item[yField])).filter(value => Number.isFinite(value));
+
+  if (!values.length) {
+    return {};
+  }
+
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+
+  let yMin;
+  let yMax;
+
+  // 所有值相同的兜底
+  if (minValue === maxValue) {
+    const gap = Math.max(Math.abs(minValue) * paddingRatio, 1);
+
+    yMin = minValue - gap;
+    yMax = maxValue + gap;
+  } else {
+    const range = maxValue - minValue;
+    const padding = range * paddingRatio;
+
+    yMin = minValue - padding;
+    yMax = maxValue + padding;
+  }
+
+  // 如果当前数据全部为正数，Y 轴不显示负数
+  if (preventNegativeWhenAllPositive && minValue >= 0) {
+    yMin = Math.max(0, yMin);
+  }
+
+  const hasMin = Number.isFinite(min);
+  const hasMax = Number.isFinite(max);
+
+  if (hasMin) {
+    yMin = min;
+  }
+
+  if (hasMax) {
+    yMax = max;
+  }
+
+  const scale = {
+    min: yMin,
+    max: yMax,
+    tickCount,
+    ticks: undefined,
+  };
+
+  // 用户配置边界时，保留边界刻度；跨 0 时也保留 0 刻度。
+  if (hasMin || hasMax) {
+    scale.ticks = getYAxisTicks(yMin, yMax, tickCount, {
+      minTick: hasMin ? min : undefined,
+      maxTick: hasMax ? max : undefined,
+    });
+  }
+
+  return scale;
+};
+
+const normalizeTickValue = value => Number(Number(value).toPrecision(12));
+
+const getNiceTickStep = (min, max, tickCount) => {
+  const range = Math.abs(max - min);
+
+  if (!Number.isFinite(range) || range === 0) {
+    return 1;
+  }
+
+  const roughStep = range / Math.max(tickCount - 1, 1);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const residual = roughStep / magnitude;
+  let niceResidual;
+
+  if (residual >= 7.5) {
+    niceResidual = 10;
+  } else if (residual >= 3.5) {
+    niceResidual = 5;
+  } else if (residual >= 2.25) {
+    niceResidual = 2.5;
+  } else if (residual >= 1.5) {
+    niceResidual = 2;
+  } else {
+    niceResidual = 1;
+  }
+
+  return niceResidual * magnitude;
+};
+
+const getYAxisTicks = (min, max, tickCount, { minTick, maxTick } = {}) => {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+    return undefined;
+  }
+
+  const ticks = [];
+  const step = getNiceTickStep(min, max, tickCount);
+
+  const addTick = value => {
+    if (Number.isFinite(value) && value >= min && value <= max) {
+      ticks.push(normalizeTickValue(value));
+    }
+  };
+
+  addTick(minTick);
+  addTick(maxTick);
+
+  if (min <= 0 && max >= 0) {
+    addTick(0);
+  }
+
+  for (let tick = Math.ceil(min / step) * step; tick <= max; tick += step) {
+    addTick(tick);
+  }
+
+  return _.uniq(ticks).sort((a, b) => a - b);
 };

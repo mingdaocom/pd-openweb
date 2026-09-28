@@ -8,11 +8,12 @@
   &:hover {
     background-color: var(--color-background-hover);
   }
-  .Dropdown--input {
+  .dialogSelectDropdownTrigger {
     display: flex;
     align-items: center;
     vertical-align: top;
     padding: 5px 5px 5px 8px !important;
+    cursor: pointer;
     .value {
       color: var(--color-text-primary);
       font-size: 17px;
@@ -22,43 +23,8 @@
       white-space: wrap !important;
     }
   }
-  .ming.Menu.List {
-    width: 300px;
-    .ming.MenuItem .Item-content:not(.disabled):hover {
-      background-color: var(--color-background-hover) !important;
-    }
-    .ming.MenuItem.selectMenuItem .Item-content:not(.disabled) {
-      background: var(--color-primary-transparent);
-      color: var(--color-primary);
-      &:hover {
-        background: var(--color-primary-transparent) !important;
-        color: var(--color-primary) !important;
-      }
-    }
-  }
-
-  .ming.Dropdown.disabled {
-    background-color: transparent !important;
-    .Dropdown--input {
-      background-color: transparent !important;
-      .value {
-        max-width: 100% !important;
-      }
-      .icon-arrow-down-border {
-        display: none !important;
-      }
-    }
-  }
 }
 
 .dialogSelectUserContainer {
   display: flex;
-  .GSelect-User,
-  .GSelect-treeItem,
-  .GSelect-usersContent {
-    .ming.Checkbox.Checkbox--disabled.checked .Checkbox-box {
-      background-color: var(--color-text-disabled) !important;
-      border-color: var(--color-text-disabled) !important;
-    }
-  }
 }

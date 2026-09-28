@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { navigateTo } from 'src/router/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import TaskGantt from '../taskGantt/containers/taskGantt/taskGantt';
 import './subordinate.less';
 
@@ -8,7 +8,12 @@ export default class Subordinate extends Component {
    * 加入企业网络
    */
   joinNetwork() {
-    navigateTo('/personal?type=enterprise');
+    if (typeof window.openOrganizationDrawer === 'function') {
+      window.openOrganizationDrawer();
+      return;
+    }
+
+    location.href = pathCompletion('/dashboard');
   }
 
   render() {

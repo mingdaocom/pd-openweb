@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Input, Tooltip } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
 import { SettingItem } from '../../styled';
-import { isSheetDisplay } from '../../util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 export default function WidgetName(props) {
   const { title = _l('字段名称'), data = {}, onChange, isRecycle } = props;
@@ -34,11 +32,18 @@ export default function WidgetName(props) {
           <Tooltip title={_l('勾选后，在表单中隐藏字段名称')}>
             <div className="flexCenter Normal">
               <Checkbox
-                size="small"
                 checked={hidetitle === 1}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { hidetitle: String(+!checked) }))}
-                text={_l('隐藏')}
-              />
+                onChange={event =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      hidetitle: String(+event.target.checked),
+                    }),
+                  )
+                }
+                size="small"
+              >
+                {_l('隐藏')}
+              </Checkbox>
             </div>
           </Tooltip>
         )}

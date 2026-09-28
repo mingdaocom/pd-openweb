@@ -2,9 +2,12 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dropdown, Icon, RadioGroup } from 'ming-ui';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { DatePicker, Input, Radio, Select } from 'ming-ui/antd-components';
 import { DATE_TYPE } from '../../enum';
+
+const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
+const DATE_TIME_PICKER_CONFIG = { format: 'HH:mm' };
+const DATE_PICKER_SUFFIX_ICON = <i className="icon-task_custom_today Font16 textSecondary" />;
 
 export default class LoopContent extends Component {
   constructor(props) {
@@ -73,15 +76,15 @@ export default class LoopContent extends Component {
   renderFrequencyContent() {
     const { data, updateSource } = this.props;
     const list = [
-      { text: _l('小时'), value: DATE_TYPE.HOUR },
-      { text: _l('天'), value: DATE_TYPE.DAY },
-      { text: _l('周'), value: DATE_TYPE.WEEK },
-      { text: _l('月'), value: DATE_TYPE.MONTH },
-      { text: _l('年'), value: DATE_TYPE.YEAR },
+      { label: _l('小时'), value: DATE_TYPE.HOUR },
+      { label: _l('天'), value: DATE_TYPE.DAY },
+      { label: _l('周'), value: DATE_TYPE.WEEK },
+      { label: _l('月'), value: DATE_TYPE.MONTH },
+      { label: _l('年'), value: DATE_TYPE.YEAR },
     ];
 
     if (window.platformENV.isOverseas || window.platformENV.isLocal) {
-      list.unshift({ text: _l('分钟'), value: DATE_TYPE.MINUTE });
+      list.unshift({ label: _l('分钟'), value: DATE_TYPE.MINUTE });
     }
 
     return (
@@ -89,21 +92,19 @@ export default class LoopContent extends Component {
         <div className="Font13 mTop20 textSecondary">{_l('频率')}</div>
         <div className="mTop10 flexRow alignItemsCenter">
           {_l('每')}
-          <input
-            type="text"
-            className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15"
+          <Input
+            className="mLeft15"
             style={{ width: 48, height: 36, textAlign: 'right', minWidth: 48, boxSizing: 'border-box' }}
             defaultValue={data.interval}
             onKeyUp={evt => this.checkNumberControl(evt)}
             onPaste={evt => this.checkNumberControl(evt)}
             onBlur={evt => this.checkNumberControl(evt, true)}
           />
-          <Dropdown
+          <Select
             className="flowDropdown mLeft15"
             style={{ width: 90 }}
-            data={list}
+            options={list}
             value={data.frequency}
-            border
             onChange={value => updateSource({ frequency: value }, this.switchFrequency)}
           />
           {data.frequency === DATE_TYPE.MONTH && (
@@ -300,20 +301,19 @@ export default class LoopContent extends Component {
   renderMinute() {
     const { data } = this.props;
     const list = [
-      { text: _l('每分钟都触发'), value: 1 },
-      { text: _l('按范围触发'), value: 2 },
-      { text: _l('按指定分钟触发'), value: 3 },
-      { text: _l('按一定增量触发'), value: 4 },
+      { label: _l('每分钟都触发'), value: 1 },
+      { label: _l('按范围触发'), value: 2 },
+      { label: _l('按指定分钟触发'), value: 3 },
+      { label: _l('按一定增量触发'), value: 4 },
     ];
 
     return (
       <Fragment>
         <div className="Font13 mTop20">{_l('分钟')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={list}
+          options={list}
           value={data.config.minute.type}
-          border
           onChange={type => this.updateConfigValue({ minute: { type, values: [] } })}
         />
 
@@ -330,20 +330,19 @@ export default class LoopContent extends Component {
   renderHour() {
     const { data } = this.props;
     const list = [
-      { text: _l('每小时都触发'), value: 1 },
-      { text: _l('按范围触发'), value: 2 },
-      { text: _l('按指定小时触发'), value: 3 },
-      { text: _l('按一定增量触发'), value: 4 },
+      { label: _l('每小时都触发'), value: 1 },
+      { label: _l('按范围触发'), value: 2 },
+      { label: _l('按指定小时触发'), value: 3 },
+      { label: _l('按一定增量触发'), value: 4 },
     ];
 
     return (
       <Fragment>
         <div className="Font13 mTop20">{_l('小时')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={list}
+          options={list}
           value={data.config.hour.type}
-          border
           onChange={type => this.updateConfigValue({ hour: { type, values: [] } })}
         />
 
@@ -361,11 +360,11 @@ export default class LoopContent extends Component {
     const { data } = this.props;
     const isDay = data.config.day.type !== 0;
     const list = [
-      { text: _l('每天都触发'), value: 1 },
-      { text: _l('按范围触发'), value: 2 },
-      { text: _l('按指定天触发'), value: 3 },
-      { text: _l('按一定增量触发'), value: 4 },
-      { text: _l('每月的最后一天触发'), value: 5 },
+      { label: _l('每天都触发'), value: 1 },
+      { label: _l('按范围触发'), value: 2 },
+      { label: _l('按指定天触发'), value: 3 },
+      { label: _l('按一定增量触发'), value: 4 },
+      { label: _l('每月的最后一天触发'), value: 5 },
     ];
     const days = [
       { text: moment.localeData()._weekdaysMin[0], value: '1' },
@@ -380,18 +379,33 @@ export default class LoopContent extends Component {
     return (
       <Fragment>
         <div className="Font13 mTop20">{_l('天/星期')}</div>
-        <RadioGroup
+        <Radio.Group
           className="mTop5 Font12"
-          data={[
-            { text: _l('天'), value: 1, checked: isDay },
-            { text: _l('星期'), value: 2, checked: !isDay },
-          ]}
-          onChange={value => {
+          value={isDay ? 1 : 2}
+          options={[
+            { text: _l('天'), value: 1 },
+            { text: _l('星期'), value: 2 },
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event => {
+            const value = event.target.value;
+
             if (value === 1) {
-              this.updateConfigValue({ day: { type: 1, values: [] }, week: { type: 0, values: [] } });
+              this.updateConfigValue({
+                day: {
+                  type: 1,
+                  values: [],
+                },
+                week: {
+                  type: 0,
+                  values: [],
+                },
+              });
             } else {
               this.updateConfigValue({
-                day: { type: 0, values: [] },
+                day: {
+                  type: 0,
+                  values: [],
+                },
                 week: {
                   type: 3,
                   values: [(moment(data.executeTime).day() + 1).toString()],
@@ -402,11 +416,10 @@ export default class LoopContent extends Component {
         />
 
         {isDay ? (
-          <Dropdown
+          <Select
             className="flowDropdown mTop10"
-            data={list}
+            options={list}
             value={data.config.day.type}
-            border
             onChange={type => this.updateConfigValue({ day: { type, values: [] } })}
           />
         ) : (
@@ -438,18 +451,17 @@ export default class LoopContent extends Component {
   renderMonth() {
     const { data } = this.props;
     const list = [
-      { text: _l('每月都触发'), value: 1 },
-      { text: _l('按指定月份触发'), value: 3 },
+      { label: _l('每月都触发'), value: 1 },
+      { label: _l('按指定月份触发'), value: 3 },
     ];
 
     return (
       <Fragment>
         <div className="Font13 mTop20">{_l('月')}</div>
-        <Dropdown
+        <Select
           className="flowDropdown mTop10"
-          data={list}
+          options={list}
           value={data.config.month.type}
-          border
           onChange={type => this.updateConfigValue({ month: { type, values: [] } })}
         />
         {this.renderFixedContent('month')}
@@ -493,9 +505,8 @@ export default class LoopContent extends Component {
 
     return (
       <div className="mTop10 flexRow alignItemsCenter">
-        <input
-          type="text"
-          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        <Input
+          className="flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           placeholder={_l('输入范围')}
           defaultValue={start}
@@ -504,9 +515,8 @@ export default class LoopContent extends Component {
           onBlur={evt => this.checkRangeNumber(evt, key, KEYS_ENUM[key].min, KEYS_ENUM[key].max, false)}
         />
         <span className="mLeft10 mRight10">~</span>
-        <input
-          type="text"
-          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        <Input
+          className="flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           placeholder={_l('输入范围')}
           defaultValue={end}
@@ -586,48 +596,30 @@ export default class LoopContent extends Component {
 
     if (data.config[key].type !== 3) return null;
 
-    const selectedValues = new Set(values);
-
     for (let i = KEYS_ENUM[key].min; i <= KEYS_ENUM[key].max; i++) {
       const value = i.toString();
 
       list.push({
-        text: value.padStart(2, '0'),
+        label: value.padStart(2, '0'),
         value,
-        disabled: selectedValues.has(value),
       });
     }
 
     return (
-      <Dropdown
-        className={cx('flowDropdown mTop10 flowDropdownMoreSelect', { flowDropdownDate: key === 'day' })}
-        selectClose={false}
-        data={list}
-        value={values.length || undefined}
-        border
+      <Select
+        className="flowDropdown mTop10 flowDropdownMoreSelect"
+        mode="multiple"
+        options={list}
+        value={values}
         placeholder={_l('请选择')}
-        onChange={value => this.updateFixedConfig(key, value)}
-        renderTitle={() =>
-          !!values.length && (
-            <ul className="tagWrap">
-              {values.map(value => {
-                return (
-                  <li key={value} className="tagItem flexRow">
-                    <span className="tag">{value}</span>
-                    <span
-                      className="delTag"
-                      onClick={e => {
-                        e.stopPropagation();
-                        this.updateFixedConfig(key, value);
-                      }}
-                    >
-                      <Icon icon="close" className="pointer" />
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )
+        labelRender={({ value }) => value}
+        onChange={values =>
+          this.updateConfigValue({
+            [key]: {
+              type: 3,
+              values,
+            },
+          })
         }
       />
     );
@@ -688,9 +680,8 @@ export default class LoopContent extends Component {
     return (
       <div className="mTop10 flexRow alignItemsCenter">
         {_l('从')}
-        <input
-          type="text"
-          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft15 flex"
+        <Input
+          className="flex mLeft15"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           defaultValue={start}
           onKeyUp={evt => this.checkIncrementStartNumber(evt)}
@@ -698,9 +689,8 @@ export default class LoopContent extends Component {
           onBlur={evt => this.checkIncrementStartNumber(evt, key, KEYS_ENUM[key].min, KEYS_ENUM[key].max)}
         />
         <span className="mLeft10 mRight10">{KEYS_ENUM[key].text1}</span>
-        <input
-          type="text"
-          className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        <Input
+          className="flex"
           style={{ height: 36, textAlign: 'right', boxSizing: 'border-box' }}
           defaultValue={end}
           onKeyUp={evt => this.checkIncrementNumber(evt)}
@@ -775,13 +765,13 @@ export default class LoopContent extends Component {
     const { data, updateSource } = this.props;
     const { isOldCustom } = this.state;
     const list = [
-      { text: _l('每小时'), value: DATE_TYPE.HOUR },
-      { text: _l('每天'), value: DATE_TYPE.DAY },
-      { text: _l('工作日(星期一至星期五)'), value: DATE_TYPE.WORK },
-      { text: `${_l('每周')}(${moment(data.executeTime).format('dddd')})`, value: DATE_TYPE.WEEK },
-      { text: `${_l('每月')}(${moment(data.executeTime).format('Do')})`, value: DATE_TYPE.MONTH },
-      { text: `${_l('每年')}(${moment(data.executeTime).format('MMMDo')})`, value: DATE_TYPE.YEAR },
-      { text: _l('自定义'), value: DATE_TYPE.CUSTOM },
+      { label: _l('每小时'), value: DATE_TYPE.HOUR },
+      { label: _l('每天'), value: DATE_TYPE.DAY },
+      { label: _l('工作日(星期一至星期五)'), value: DATE_TYPE.WORK },
+      { label: `${_l('每周')}(${moment(data.executeTime).format('dddd')})`, value: DATE_TYPE.WEEK },
+      { label: `${_l('每月')}(${moment(data.executeTime).format('Do')})`, value: DATE_TYPE.MONTH },
+      { label: `${_l('每年')}(${moment(data.executeTime).format('MMMDo')})`, value: DATE_TYPE.YEAR },
+      { label: _l('自定义'), value: DATE_TYPE.CUSTOM },
     ];
 
     return (
@@ -796,15 +786,23 @@ export default class LoopContent extends Component {
           <div className="Font13">{_l('本节点中配置的所有时间数值均基于 %0 执行。', this.getTimeZoneText())}</div>
           <div className="Font13 bold mTop20">{_l('开始执行时间')}</div>
           <div className="actionControlBox borderColorPrimary mTop10 Relative">
-            <DateTime
-              selectedValue={data.executeTime ? moment(data.executeTime) : ''}
-              timePicker
+            <DatePicker
               allowClear={false}
-              timeMode="minute"
-              onOk={e =>
-                updateSource({ executeTime: e.format('YYYY-MM-DD HH:mm') }, () => {
+              className="workflowDatePicker"
+              format={DATE_TIME_FORMAT}
+              inputReadOnly
+              needConfirm
+              placeholder={_l('请选择')}
+              showNow={false}
+              showTime={DATE_TIME_PICKER_CONFIG}
+              suffixIcon={DATE_PICKER_SUFFIX_ICON}
+              value={data.executeTime ? moment(data.executeTime) : null}
+              variant="borderless"
+              onChange={value =>
+                value &&
+                updateSource({ executeTime: value.format(DATE_TIME_FORMAT) }, () => {
                   if (data.frequency === DATE_TYPE.WEEK && data.weekDays.length === 1) {
-                    updateSource({ weekDays: [e.days()] });
+                    updateSource({ weekDays: [value.days()] });
                   }
 
                   if (
@@ -813,39 +811,39 @@ export default class LoopContent extends Component {
                     !window.platformENV.isOverseas &&
                     !window.platformENV.isLocal
                   ) {
-                    this.updateConfigValue({ minute: { type: 3, values: [e.format('m')] } });
+                    this.updateConfigValue({ minute: { type: 3, values: [value.format('m')] } });
                   }
                 })
               }
-            >
-              {data.executeTime ? moment(data.executeTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
-            </DateTime>
-            <i className="icon-task_custom_today Absolute Font16 textSecondary" style={{ right: 10, top: 10 }} />
+            />
           </div>
 
           <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
           <div className="Font13 textSecondary mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
           <div className="actionControlBox borderColorPrimary mTop10 Relative">
-            <DateTime
-              selectedValue={data.executeEndTime ? moment(data.executeEndTime) : ''}
-              timePicker
-              timeMode="minute"
-              onOk={e => updateSource({ executeEndTime: e.format('YYYY-MM-DD HH:mm') })}
-              onClear={() => updateSource({ executeEndTime: '' })}
-            >
-              {data.executeEndTime ? moment(data.executeEndTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
-            </DateTime>
-            <i className="icon-task_custom_today Absolute Font16 textSecondary" style={{ right: 10, top: 10 }} />
+            <DatePicker
+              allowClear
+              className="workflowDatePicker"
+              format={DATE_TIME_FORMAT}
+              inputReadOnly
+              needConfirm
+              placeholder={_l('请选择')}
+              showNow={false}
+              showTime={DATE_TIME_PICKER_CONFIG}
+              suffixIcon={DATE_PICKER_SUFFIX_ICON}
+              value={data.executeEndTime ? moment(data.executeEndTime) : null}
+              variant="borderless"
+              onChange={value => updateSource({ executeEndTime: value ? value.format(DATE_TIME_FORMAT) : '' })}
+            />
           </div>
 
           {data.executeTime && (
             <Fragment>
               <div className="Font13 bold mTop20">{_l('循环')}</div>
-              <Dropdown
+              <Select
                 className="flowDropdown mTop10"
-                data={list}
+                options={list}
                 value={data.repeatType}
-                border
                 onChange={value => updateSource({ repeatType: value }, this.disposeDateRule)}
               />
             </Fragment>

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Checkbox, Dialog, RadioGroup } from 'ming-ui';
+import { Checkbox, Modal, Radio } from 'ming-ui/antd-components';
 import { SettingItem } from '../../../../../styled';
 import { CustomActionWrap } from '../../style';
 import SelectFields from '../SelectFields';
@@ -35,14 +35,15 @@ export default function SetReadOnly(props) {
   }, []);
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={!isAll && _.isEmpty(actionItems)}
       title={_l('设置只读/可编辑')}
       onCancel={() => setState({ visible: false })}
       className="SearchWorksheetDialog"
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, actionType, actionItems, isAll });
         setState({ visible: false });
@@ -51,11 +52,18 @@ export default function SetReadOnly(props) {
       <CustomActionWrap>
         <SettingItem className="mTop0">
           <div className="settingItemTitle">{_l('设置为')}</div>
-          <RadioGroup
+          <Radio.Group
             size="middle"
-            checkedValue={actionType}
-            data={DISPLAY_OPTIONS}
-            onChange={value => setState({ actionType: value, isAll: value === '3' ? false : isAll })}
+            value={actionType}
+            options={(DISPLAY_OPTIONS || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
+              return setState({
+                actionType: value,
+                isAll: value === '3' ? false : isAll,
+              });
+            }}
           />
         </SettingItem>
 
@@ -68,14 +76,21 @@ export default function SetReadOnly(props) {
         />
         {actionType === '4' && (
           <Checkbox
-            size="small"
             className="mTop8"
             checked={isAll}
-            onClick={checked => setState({ isAll: !checked, actionItems: checked ? actionItems : [] })}
-            text={_l('所有字段')}
-          />
+            onChange={event => {
+              const checked = !event.target.checked;
+              return setState({
+                isAll: !checked,
+                actionItems: checked ? actionItems : [],
+              });
+            }}
+            size="small"
+          >
+            {_l('所有字段')}
+          </Checkbox>
         )}
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
 
@@ -157,6 +157,7 @@ export default class WorkSheetComment extends React.Component {
       workId,
       disableScroll,
       addCallback,
+      reloadDiscussionCount,
       projectId,
       forReacordDiscussion,
       status,
@@ -200,6 +201,7 @@ export default class WorkSheetComment extends React.Component {
         this.setState(payload, () => this.getAtData());
       },
       addCallback,
+      reloadDiscussionCount,
       forReacordDiscussion,
       status,
       entityType,
@@ -257,7 +259,6 @@ export default class WorkSheetComment extends React.Component {
               const { updatePageIndex } = this.commentList;
               updatePageIndex();
             }}
-            preserveScrollTop
           >
             {renderWorkSheetCommentList()}
           </ScrollView>

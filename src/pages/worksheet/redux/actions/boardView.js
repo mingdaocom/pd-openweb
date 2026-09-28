@@ -4,19 +4,19 @@ import _ from 'lodash';
 import { uniqBy } from 'lodash/array';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { validate } from 'src/utils/domain/worksheet/filterQuick';
+import { sortDataByCustomItems } from 'src/utils/domain/worksheet/groupSort';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { wrapAjax } from 'src/utils/services/request/requestControl';
 import {
   formatFilterValues,
   formatFilterValuesToServer,
   handleConditionsDefault,
-  validate,
-} from 'worksheet/common/Sheet/QuickFilter/utils';
-import { getTranslateInfo } from 'src/utils/app';
-import { getFilledRequestParams } from 'src/utils/common';
-import { formatQuickFilter } from 'src/utils/filter';
-import { getBoardItemKey, getCurrentView } from '../util';
+} from 'src/utils/services/worksheet/quickFilter';
+import { getBoardItemKey, getCurrentView, getParaIds } from '../util';
 import { updateNavGroup } from './navFilter.js';
-import { getParaIds, sortDataByCustomItems } from './util';
-import { wrapAjax } from './util';
 
 let boardPromiseObj;
 let boardPromiseViewIds = [];

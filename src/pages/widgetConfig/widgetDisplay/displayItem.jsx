@@ -4,21 +4,29 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import _, { find, flatten, get, head, includes, last, pick, some } from 'lodash';
 import styled from 'styled-components';
-import { SUPPORT_RELATE_SEARCH } from '../config';
-import { DRAG_ACCEPT, DRAG_DISTANCE, DRAG_ITEMS, DRAG_MODE, WHOLE_SIZE } from '../config/Drag';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import {
+  batchCopyWidgets,
+  batchShiftWidgets,
+  deleteSection,
+  handleAddWidgets,
+} from 'src/pages/widgetConfig/internal/editorData';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { notInsetSectionTab } from 'src/utils/domain/control/capabilities';
+import { SUPPORT_RELATE_SEARCH } from 'src/utils/domain/control/config';
 import {
   genWidgetRowAndCol,
   getDefaultSizeByData,
+  isFullLineControl,
   isTabSheetList,
-  notInsetSectionTab,
   putControlByOrder,
   resetWidgets,
-} from '../util';
-import { createTemplateDialog } from '../util/createTemplate';
-import { batchCopyWidgets, batchShiftWidgets, deleteSection, handleAddWidgets } from '../util/data';
+} from 'src/utils/domain/control/editorLayout';
+import { changeWidgetSize, getPathById, WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { getVerifyInfo } from 'src/utils/domain/control/validation';
+import { DRAG_ACCEPT, DRAG_DISTANCE, DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
+import { useCreateTemplateDialog } from '../util/createTemplate';
 import { batchRemoveItems, insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
-import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
-import { changeWidgetSize, getPathById, isFullLineControl } from '../util/widgets';
 import WidgetOperation from './components/WidgetOperation';
 import WidgetDisplay from './widgetDisplay';
 
@@ -27,13 +35,13 @@ const DisplayItemWrap = styled.div`
   position: relative;
   box-sizing: border-box;
   list-style: none;
-  ${props => (props.isTab ? '' : 'padding: 8px 12px;')}
+  ${props => (props.$isTab ? '' : 'padding: 8px 12px;')}
   min-height: 48px;
   cursor: grab;
   transition: box-shadow 0.25s ease-in-out;
   transform: translate3d(0, 0, 0);
-  margin-top: ${props => (props.row && !props.isTab ? '2px' : '')};
-  margin-left: ${props => (props.col ? '4px' : '')};
+  margin-top: ${props => (props.$row && !props.$isTab ? '2px' : '')};
+  margin-left: ${props => (props.$col ? '4px' : '')};
   &.isInvalid {
     background-color: rgba(253, 154, 39, 0.12);
   }
@@ -63,10 +71,10 @@ const DisplayItemWrap = styled.div`
   }
   .drag-top,
   .drag-view_top {
-    top: ${props => (props.isTab ? '-8px' : '-2px')};
+    top: ${props => (props.$isTab ? '-8px' : '-2px')};
   }
   .drag-bottom {
-    bottom: ${props => (props.isTab ? '-8px' : '-2px')};
+    bottom: ${props => (props.$isTab ? '-8px' : '-2px')};
   }
   .horizonDragDir {
     position: absolute;
@@ -87,7 +95,7 @@ const DisplayItemWrap = styled.div`
   }
 `;
 
-export default function DisplayItem(props) {
+function DisplayItem(props) {
   const {
     widgets = [],
     activeWidget = {},
@@ -426,7 +434,7 @@ export default function DisplayItem(props) {
     }
 
     if (mode === 'template') {
-      createTemplateDialog({ ...props, templateControls: [data] });
+      props.openCreateTemplateDialog({ ...props, templateControls: [data] });
       return;
     }
 
@@ -514,9 +522,9 @@ export default function DisplayItem(props) {
       ref={$ref}
       id={`widget-${controlId}`}
       style={{ width }}
-      row={row}
-      col={col}
-      isTab={isTab}
+      $row={row}
+      $col={col}
+      $isTab={isTab}
       className={cx({
         isActive,
         isDragging: isDragging || isBatchDrag,
@@ -561,3 +569,7 @@ export default function DisplayItem(props) {
     </DisplayItemWrap>
   );
 }
+
+export default withOpeners(DisplayItem, {
+  openCreateTemplateDialog: useCreateTemplateDialog,
+});

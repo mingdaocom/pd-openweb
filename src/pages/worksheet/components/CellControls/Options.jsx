@@ -2,21 +2,38 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
 import _, { isEmpty } from 'lodash';
-import PropTypes, { bool, func, shape, string } from 'prop-types';
-import Trigger from 'rc-trigger';
+import PropTypes, { bool, func, string } from 'prop-types';
 import styled from 'styled-components';
 import { Textarea } from 'ming-ui';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { Popover } from 'ming-ui/antd-components';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
 import Dropdown from 'src/components/Form/DesktopForm/widgets/Dropdown';
 import Radio from 'src/components/Form/DesktopForm/widgets/Radio';
-import { isKeyBoardInputChar } from 'src/utils/common';
-import { isLightColor } from 'src/utils/control';
-import { getSelectedOptions } from 'src/utils/control';
+import { getSelectedOptions } from 'src/utils/domain/control/optionSelection';
+import { isLightColor } from 'src/utils/domain/control/style';
+import { WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
-import { FROM } from './enum';
+
+const POPOVER_STYLES = {
+  container: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+};
+const TEXT_EDITOR_POPOVER_MOTION = { motionName: '' };
+const OTHER_OPTION_POPOVER_ALIGN = {
+  offset: [0, 5],
+};
+const OTHER_OPTION_POPOVER_ANCHOR_STYLE = {
+  position: 'absolute',
+  inset: 0,
+  pointerEvents: 'none',
+};
+const getBodyPopupContainer = () => document.body;
 
 const OtherOptionCon = styled.div`
   background: var(--color-background-primary);
@@ -106,10 +123,11 @@ OtherOptionTextInput.propTypes = {
 };
 
 function OtherOption(props) {
-  const { style, otherRequired, otherValue = '', getPopupContainer, selected = {}, onSave = () => {} } = props;
+  const { otherRequired, otherValue = '', onSave = () => {} } = props;
   const [value, setValue] = useState(otherValue);
   const [error, setError] = useState();
   const conRef = useRef();
+  const clickAwayEnabledRef = useRef(false);
 
   function handleSave() {
     if (otherRequired && !value.trim()) {
@@ -121,49 +139,42 @@ function OtherOption(props) {
     onSave(value ? 'other:' + value.trim() : 'other');
   }
 
-  useClickAway(conRef, handleSave);
-  return (
-    <Trigger
-      zIndex={1000}
-      getPopupContainer={getPopupContainer}
-      popupVisible
-      popup={
-        <div ref={conRef}>
-          <OtherOptionTextInput
-            className={cx({ error })}
-            value={value}
-            onChange={v => {
-              if (v) {
-                setError(false);
-              }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      clickAwayEnabledRef.current = true;
+    }, 0);
 
-              setValue(v.slice(0, 200));
-            }}
-            onSave={onSave}
-            handleSave={handleSave}
-          />
-        </div>
-      }
-      destroyPopupOnHide
-      popupAlign={{
-        points: ['tl', 'bl'],
-        overflow: { adjustY: true, adjustX: true },
-      }}
-    >
-      <OtherOptionCon className="cellControlEdittingStatus" style={style}>
-        {selected.value}
-        <span className="icon icon-arrow-down-border"></span>
-      </OtherOptionCon>
-    </Trigger>
+    return () => clearTimeout(timer);
+  }, []);
+
+  useClickAway(conRef, () => {
+    if (clickAwayEnabledRef.current) {
+      handleSave();
+    }
+  });
+  return (
+    <div ref={conRef}>
+      <OtherOptionTextInput
+        className={cx({ error })}
+        value={value}
+        onChange={v => {
+          if (v) {
+            setError(false);
+          }
+
+          setValue(v.slice(0, 200));
+        }}
+        onSave={onSave}
+        handleSave={handleSave}
+      />
+    </div>
   );
 }
 
 OtherOption.propTypes = {
-  style: shape({}),
   otherRequired: bool,
   otherValue: string,
   onSave: func,
-  getPopupContainer: func,
 };
 
 function getOptionStyle(option, cell) {
@@ -246,7 +257,7 @@ export default class Options extends React.Component {
     const isOther =
       (typeof value === 'string' && value.startsWith('other')) || (value && value[0] && value[0].startsWith('other'));
     const isMultiple = cell.type === 10;
-    this.isChanging = true;
+    this.isChanging = !isMultiple;
     if (!forceUpdate) {
       if (value === '0' || value === 0) {
         value = '';
@@ -347,6 +358,15 @@ export default class Options extends React.Component {
     }
   };
 
+  handleDropdownMouseDownCapture = event => {
+    // Ant Design 6 在 click 阶段执行清空；提前拦截 clear 的 mousedown，避免 Select
+    // 先关闭下拉并结束单元格编辑态，导致按钮在 click 触发前被卸载。
+    if (event.target.closest?.('.hap-select-clear')) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
   getShowValue(option, { defaultEmpty = false } = {}) {
     const { value } = this.state;
 
@@ -402,19 +422,23 @@ export default class Options extends React.Component {
     const showErrorAsPopup =
       (this.isSubList || this.isRelateRecord) && (rowIndex === 0 || _.includes(className, 'lastRow'));
     let editcontent;
+    let otherOptionContent;
 
     if (!isMultiple && isOther && !error) {
-      editcontent = (
+      otherOptionContent = (
         <OtherOption
-          style={style}
           otherRequired={_.get(cell, 'advancedSetting.otherrequired') === '1'}
           otherValue={this.getShowValue(selectedOptions[0], { defaultEmpty: true })}
-          selected={selectedOptions[0]}
-          getPopupContainer={getPopupContainer}
           onSave={newValue => {
             this.handleChange(newValue, newValue === '' ? { noUpdateCell: true } : { needUpdateCell: true });
           }}
         />
+      );
+      editcontent = (
+        <OtherOptionCon className="cellControlEdittingStatus" style={style}>
+          {selectedOptions[0].value}
+          <span className="icon icon-arrow-down-border"></span>
+        </OtherOptionCon>
       );
     } else {
       editcontent = (
@@ -439,6 +463,7 @@ export default class Options extends React.Component {
               dropdownClassName="scrollInTable"
               value={value}
               selectProps={{
+                onMouseDownCapture: this.handleDropdownMouseDownCapture,
                 open: true,
                 autoFocus: true,
                 defaultOpen: true,
@@ -452,15 +477,39 @@ export default class Options extends React.Component {
                     }, 100);
                   }
                 },
-                onDropdownVisibleChange: visible => {
+                onOpenChange: visible => {
                   if (!visible && !this.isChanging) {
                     this.handleExit();
                   }
 
                   this.isChanging = false;
                 },
+                styles: {
+                  root: {
+                    borderWidth: '2px',
+                    borderRadius: 0,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    paddingRight: 0,
+                    zIndex: 1,
+                  },
+                  clear: {
+                    right: '3px',
+                  },
+                  content: {
+                    marginRight: 0,
+                  },
+                  suffix: {
+                    display: 'none',
+                  },
+                  popup: {
+                    listItem: {
+                      borderRadius: 0,
+                      padding: '5px 12px',
+                    },
+                  },
+                },
               }}
-              optionStyle={{ padding: '5px 6px' }}
               onChange={value => this.handleChange(value, { forceUpdate: true })}
             />
           ) : (
@@ -471,13 +520,17 @@ export default class Options extends React.Component {
               dropdownClassName="scrollInTable"
               value={value}
               selectProps={{
+                onMouseDownCapture: this.handleDropdownMouseDownCapture,
                 open: true,
                 noPushAdd_: true,
                 autoFocus: true,
                 defaultOpen: true,
                 getPopupContainer,
-                onDropdownVisibleChange: visible => {
-                  if ((!error || this.isSubList) && !visible && !this.isChanging) {
+                onOpenChange: visible => {
+                  const isChangingToOther =
+                    _.get(getSelectedOptions(cell.options, this.state.value, cell), '[0].key') === 'other';
+
+                  if ((!error || this.isSubList) && !visible && !this.isChanging && !isChangingToOther) {
                     this.handleExit();
                   }
 
@@ -496,8 +549,32 @@ export default class Options extends React.Component {
                   value = _.isArray(value) ? _.get(_.last(value), 'value') : _.get(value, 'value');
                   this.handleChange(value);
                 },
+                styles: {
+                  root: {
+                    borderWidth: '2px',
+                    borderRadius: 0,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    paddingRight: 0,
+                    zIndex: 1,
+                  },
+                  clear: {
+                    right: '3px',
+                  },
+                  content: {
+                    marginRight: 0,
+                  },
+                  suffix: {
+                    display: 'none',
+                  },
+                  popup: {
+                    listItem: {
+                      borderRadius: 0,
+                      padding: '5px 12px',
+                    },
+                  },
+                },
               }}
-              optionStyle={{ padding: '5px 6px' }}
             />
           )}
           {error && !showErrorAsPopup && (
@@ -554,11 +631,13 @@ export default class Options extends React.Component {
                   return <div key={index}>{this.getShowValue(option)}</div>;
                 }
 
+                const optionStyle = getOptionStyle(option, cell);
+
                 return (
                   <span
-                    className="cellOption ellipsis"
+                    className={cx('cellOption ellipsis', { colored: !!optionStyle.backgroundColor })}
                     key={index}
-                    style={Object.assign({}, { ...getOptionStyle(option, cell) })}
+                    style={optionStyle}
                   >
                     {this.getShowValue(option)}
                   </span>
@@ -601,30 +680,49 @@ export default class Options extends React.Component {
           onIconClick={() => updateEditingStatus(true)}
         >
           {content}
-        </EditableCellCon>
-        {showErrorAsPopup && isediting && (
-          <Trigger
-            getPopupContainer={getPopupContainer}
-            popupVisible={!!error}
-            zIndex={1050}
-            popup={
-              <CellErrorTips
-                color={this.ignoreErrorMessage ? 'var(--color-warning)' : undefined}
-                error={error}
-                pos={rowIndex === 0 ? 'bottom' : 'top'}
-              />
-            }
-            destroyPopupOnHide
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, rowIndex === 0 ? 0 : -1 * style.height],
-              overflow: { adjustX: true },
-            }}
+          <Popover
+            align={OTHER_OPTION_POPOVER_ALIGN}
+            content={otherOptionContent}
+            destroyOnHidden
+            getPopupContainer={getBodyPopupContainer}
+            motion={TEXT_EDITOR_POPOVER_MOTION}
+            open={isediting && !!otherOptionContent}
+            placement="bottomLeft"
+            noPadding
+            styles={POPOVER_STYLES}
+            trigger={[]}
           >
-            {editcontent}
-          </Trigger>
-        )}
-        {!showErrorAsPopup && isediting && editcontent}
+            <div aria-hidden style={OTHER_OPTION_POPOVER_ANCHOR_STYLE} />
+          </Popover>
+        </EditableCellCon>
+        {isediting &&
+          (showErrorAsPopup && !otherOptionContent ? (
+            <Popover
+              align={{
+                offset: [0, rowIndex === 0 ? 0 : -1 * style.height],
+                overflow: { adjustX: true },
+              }}
+              content={
+                <CellErrorTips
+                  color={this.ignoreErrorMessage ? 'var(--color-warning)' : undefined}
+                  error={error}
+                  pos={rowIndex === 0 ? 'bottom' : 'top'}
+                />
+              }
+              destroyOnHidden
+              getPopupContainer={getPopupContainer}
+              motion={TEXT_EDITOR_POPOVER_MOTION}
+              open={!!error}
+              placement="bottomLeft"
+              noPadding
+              styles={POPOVER_STYLES}
+              trigger={[]}
+            >
+              {editcontent}
+            </Popover>
+          ) : (
+            editcontent
+          ))}
       </React.Fragment>
     );
   }

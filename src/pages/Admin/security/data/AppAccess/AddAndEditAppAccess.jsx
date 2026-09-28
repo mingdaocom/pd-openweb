@@ -1,39 +1,29 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Input, RadioGroup, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Drawer, Input, Radio, Switch, Tooltip } from 'ming-ui/antd-components';
 import dataLimitAjax from 'src/api/dataLimit';
 import { ADVANCED_SETTING_ENUM, POLICY_ACTION_ENUM } from '../enum';
 import { arrayToObject } from '../utils';
 import AccessConditions from './AccessConditions';
 import AppListLimit from './AppListLimit';
 
-const DrawerWrap = styled(Drawer)`
-  .ant-drawer-content-wrapper {
+const DrawerWrap = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-content-wrapper {
     box-shadow: -7px 0px 6px 1px rgba(0, 0, 0, 0.08);
   }
-  .ant-drawer-header {
-    border-bottom: 0;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-title {
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .ant-drawer-close {
-        padding: 0;
-        margin-top: -24px;
-        margin-right: -12px;
-      }
-    }
-  }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding-top: 0;
   }
-  .ant-drawer-footer {
+  .hap-drawer-footer {
     border: none;
   }
 `;
@@ -42,15 +32,14 @@ const ContentWrap = styled.div`
   .w100 {
     width: 100%;
   }
-  .accessPass,
-  .ming.Menu {
+  .accessPass {
     width: 112px;
   }
   .accessTypeRadioGroup {
-    .Radio-box {
+    .ant-radio-inner {
       margin-right: 8px !important ;
     }
-    .Radio {
+    .ant-radio-wrapper {
       margin-right: 26px !important;
     }
   }
@@ -203,17 +192,16 @@ export default function AddAndEditAppAccess(props) {
     <DrawerWrap
       placement="right"
       title={isEdit ? _l('编辑应用访问策略') : _l('新建应用访问策略')}
-      visible={visible}
+      open={visible}
       onClose={onClose}
       width={640}
-      destroyOnClose={true}
       closeIcon={<i className="icon-close Font18" />}
       footer={
         <Fragment>
           <Button type="primary" className="mRight15" disabled={saveLoading} onClick={onSubmit}>
             {saveLoading ? (isEdit ? _l('保存中...') : _l('新建中...')) : isEdit ? _l('保存') : _l('新建')}
           </Button>
-          <Button type="link" onClick={onClose}>
+          <Button color="primary" variant="link" onClick={onClose}>
             {_l('取消')}
           </Button>
         </Fragment>
@@ -225,16 +213,20 @@ export default function AddAndEditAppAccess(props) {
           className="w100 mBottom30"
           placeholder={_l('名称')}
           value={policyName}
-          onChange={value => setState({ policyName: value })}
+          onChange={e => setState({ policyName: e.target.value })}
         />
         <AccessConditions updateData={data => setState(data)} actionRecord={actionRecord} />
         <div className="bold mBottom16">{_l('动作')}</div>
-        <RadioGroup
+        <Radio.Group
           className="accessTypeRadioGroup"
           size="middle"
-          checkedValue={limitAction}
-          data={POLICY_ACTION_ENUM}
-          onChange={value => setState({ limitAction: value })}
+          value={limitAction}
+          options={(POLICY_ACTION_ENUM || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          onChange={event =>
+            setState({
+              limitAction: event.target.value,
+            })
+          }
         />
 
         <div className="mBottom20 mTop30">
@@ -258,7 +250,12 @@ export default function AddAndEditAppAccess(props) {
                 <Switch
                   size="small"
                   checked={item.value === 'isAllowPublicAccess' ? isAllowPublicAccess : isAllowCrossApp}
-                  onClick={value => setState({ [item.value]: !value })}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return setState({
+                      [item.value]: !!checked,
+                    });
+                  }}
                 />
 
                 <span className="bold mLeft5">{item.text}</span>

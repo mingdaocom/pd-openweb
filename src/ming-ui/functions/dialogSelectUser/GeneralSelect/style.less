@@ -79,68 +79,10 @@
         }
       }
     }
-    &-searchIcon {
-      font-size: 16px;
-      display: inline-block;
-      color: var(--color-text-tertiary);
-      float: left;
-      margin-right: 7px;
-      line-height: normal;
-      margin-top: 9px;
-      height: 100%;
-      position: absolute;
-      height: 33px;
-      cursor: pointer;
-    }
     &-searchArea {
       display: flex;
-      position: relative;
+      align-items: center;
       height: 40px;
-      .searchIcon {
-        position: absolute;
-        left: 18px;
-        top: 13px;
-        font-size: 16px;
-        color: var(--color-text-secondary);
-      }
-      input {
-        flex: 1;
-        border: 1px solid var(--color-background-secondary);
-        padding: 0 18px 0 42px;
-        box-sizing: border-box;
-        background: var(--color-background-tertiary);
-        border-radius: 20px;
-        margin-top: 2px;
-        &:hover {
-          border-color: var(--color-background-disabled);
-          background: var(--color-background-disabled);
-        }
-        &:focus {
-          background: var(--color-background-primary);
-          border-color: var(--color-background-primary);
-          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-        }
-      }
-      &--deleteIcon {
-        position: absolute;
-        width: 34px;
-        height: 34px;
-        text-align: center;
-        line-height: 36px;
-        right: 2px;
-        top: 4px;
-        background-color: transparent;
-        border-radius: 50%;
-        cursor: pointer;
-        span {
-          font-size: 16px;
-          color: var(--color-text-tertiary);
-          border-radius: 50%;
-        }
-        &:hover {
-          background-color: var(--color-background-hover);
-        }
-      }
     }
   }
   .GSelect-navTitle {
@@ -238,28 +180,6 @@
       padding-top: 10px;
       display: flex;
       justify-content: flex-end;
-      .closeBtn {
-        line-height: 36px;
-        min-height: 36px;
-        padding: 0 32px;
-        min-width: 92px;
-        font-size: 14px;
-        color: var(--color-text-tertiary);
-        cursor: pointer;
-        &:hover {
-          background-color: var(--color-background-hover);
-        }
-      }
-    }
-  }
-  .GSelect-Dropdown {
-    position: relative;
-    .GSelect-Dropdown--input {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
   }
   .GSelect-departmentContent {

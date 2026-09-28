@@ -1,35 +1,26 @@
 import React, { useState } from 'react';
-import { Button, ConfigProvider, Form, Input } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Button, Form, Input } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 
 const VerificationPassWrap = styled.div`
-  .ant-form {
+  .hap-form {
     width: 240px;
   }
-  .ant-input,
-  .ant-btn {
-    height: 36px;
-    border-radius: 4px;
-  }
-  .ant-input:focus,
-  .ant-input-focused {
-    box-shadow: none;
-  }
-  .ant-btn-primary[disabled],
-  .ant-btn-primary[disabled]:hover,
-  .ant-btn-primary[disabled]:focus,
-  .ant-btn-primary[disabled]:active {
+  .hap-btn-primary[disabled],
+  .hap-btn-primary[disabled]:hover,
+  .hap-btn-primary[disabled]:focus,
+  .hap-btn-primary[disabled]:active {
     background-color: var(--color-background-secondary);
     border: none;
   }
-  .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input,
-  .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input:hover {
+  .hap-input-status-error:not(.hap-input-disabled):not(.hap-input-borderless).hap-input,
+  .hap-input-status-error:not(.hap-input-disabled):not(.hap-input-borderless).hap-input:hover {
     border-color: var(--color-error);
   }
-  .ant-form-item-explain-error {
+  .hap-form-item-explain-error {
     color: var(--color-error);
     font-size: 12px;
   }
@@ -64,81 +55,79 @@ export const VerificationPass = props => {
   const passwordField = _.find(fromFields, { name: ['sharePassword'] });
 
   return (
-    <ConfigProvider autoInsertSpaceInButton={false}>
-      <VerificationPassWrap className="w100 h100 flexColumn justifyContentCenter bgPrimary">
-        <div className="flexColumn alignItemsCenter" style={{ marginTop: -120 }}>
-          <div className="flexRow alignItemsCenter mBottom18">
-            <div className="Font13 mRight5">{_l('请输入密码访问')}</div>
-            <div className="Font12">{_l('(密码区分大小写)')}</div>
-          </div>
-          <Form
-            form={form}
-            name="shareform"
-            validateTrigger="submit"
-            onFinish={() => {
-              setLoading(false);
-            }}
-            onFinishFailed={() => {
-              setLoading(false);
-            }}
-            onFieldsChange={changedFields => {
-              setFromFields(changedFields);
-            }}
-            autoComplete="off"
-          >
-            <input type="password" hidden autoComplete="new-password" />
-            <Form.Item
-              name="sharePassword"
-              rules={[
-                {
-                  required: true,
-                  message: _l('请输入密码访问'),
-                },
-                () => ({
-                  validator: (_, value) => {
-                    return new Promise(async (resolve, reject) => {
-                      const callback = data => {
-                        if (data.ret === 0) {
-                          setLoading(true);
-                          const captchaResult = {
-                            randStr: data.randstr,
-                            ticket: data.ticket,
-                            captchaType: md.global.getCaptchaType(),
-                          };
-                          resolve(validatorPassPromise(value, captchaResult));
-                        } else {
-                          reject(_l('图形验证失败'));
-                        }
-                      };
-
-                      new captcha(callback);
-                    });
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                className="Font13"
-                autoComplete="off"
-                placeholder={_l('请输入密码')}
-                visibilityToggle={false}
-                size="large"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button
-                className="w100 bold"
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                disabled={passwordField ? passwordField.value.length < 4 || passwordField.value.length > 8 : true}
-              >
-                {_l('确定')}
-              </Button>
-            </Form.Item>
-          </Form>
+    <VerificationPassWrap className="w100 h100 flexColumn justifyContentCenter bgPrimary">
+      <div className="flexColumn alignItemsCenter" style={{ marginTop: -120 }}>
+        <div className="flexRow alignItemsCenter mBottom18">
+          <div className="Font13 mRight5">{_l('请输入密码访问')}</div>
+          <div className="Font12">{_l('(密码区分大小写)')}</div>
         </div>
-      </VerificationPassWrap>
-    </ConfigProvider>
+        <Form
+          form={form}
+          name="shareform"
+          validateTrigger="submit"
+          onFinish={() => {
+            setLoading(false);
+          }}
+          onFinishFailed={() => {
+            setLoading(false);
+          }}
+          onFieldsChange={changedFields => {
+            setFromFields(changedFields);
+          }}
+          autoComplete="off"
+        >
+          <input type="password" hidden autoComplete="new-password" />
+          <Form.Item
+            name="sharePassword"
+            rules={[
+              {
+                required: true,
+                message: _l('请输入密码访问'),
+              },
+              () => ({
+                validator: (_, value) => {
+                  return new Promise(async (resolve, reject) => {
+                    const callback = data => {
+                      if (data.ret === 0) {
+                        setLoading(true);
+                        const captchaResult = {
+                          randStr: data.randstr,
+                          ticket: data.ticket,
+                          captchaType: md.global.getCaptchaType(),
+                        };
+                        resolve(validatorPassPromise(value, captchaResult));
+                      } else {
+                        reject(_l('图形验证失败'));
+                      }
+                    };
+
+                    new captcha(callback);
+                  });
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              className="Font13"
+              autoComplete="off"
+              placeholder={_l('请输入密码')}
+              visibilityToggle={false}
+              size="large"
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              className="w100 bold"
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              disabled={passwordField ? passwordField.value.length < 4 || passwordField.value.length > 8 : true}
+            >
+              {_l('确定')}
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    </VerificationPassWrap>
   );
 };

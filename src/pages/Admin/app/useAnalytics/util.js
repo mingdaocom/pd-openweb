@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { formatFileSize } from 'src/utils/common';
+import { formatFileSize } from 'src/utils/core/file';
 
 const subTypeNames = {
   1: _l('成员'),
@@ -10,20 +10,11 @@ const subTypeNames = {
   6: _l('其他'),
 };
 
-export const selectDateList = [
-  { dayRange: 5, value: 1, label: _l('昨天') },
-  { dayRange: 0, value: 6, label: _l('最近7天') },
-  { dayRange: 1, value: 7, label: _l('最近30天') },
-  { dayRange: 2, value: 9, label: _l('最近90天') },
-  { dayRange: 3, value: 8, label: _l('最近半年') },
-  { dayRange: 4, value: 10, label: _l('最近1年') },
-];
+const DATE_VALUE_TO_DAY_RANGE = { 1: 5, 6: 0, 7: 1, 9: 2, 8: 3, 10: 4 };
 
-export const dateDimension = [
-  { value: '1d', label: _l('天') },
-  { value: '1w', label: _l('周') },
-  { value: '1M', label: _l('月') },
-];
+export const USE_ANALYTICS_HIDDEN_DATE_VALUES = [0, 2, 3, 4, 5];
+
+export const getDayRangeByDateValue = value => DATE_VALUE_TO_DAY_RANGE[value];
 
 export const formatter = v => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const units = ['B', 'KB', 'MB', 'GB', 'TB'];

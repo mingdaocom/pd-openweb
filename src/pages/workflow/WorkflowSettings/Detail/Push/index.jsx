@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Radio, Select } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import homeApp from 'src/api/homeApp';
 import { ACTION_ID, APP_TYPE, PUSH_LIST, PUSH_TYPE, RELATION_TYPE } from '../../enum';
@@ -17,6 +18,8 @@ import {
   SpecificFieldsValue,
 } from '../components';
 import OpenActionContent from './OpenActionContent';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 const MsgTypeBtn = styled.div`
   display: inline-flex;
@@ -311,7 +314,9 @@ export default class Push extends Component {
           {noticeList.map((item, i) => {
             return (
               <li key={i} onClick={() => this.updateSource({ pushType: item.value })}>
-                <Radio className="Font16" text={item.text} />
+                <Radio className="Font16" title={item.text}>
+                  {item.text}
+                </Radio>
                 <div className="textSecondary Font13 mLeft30 mTop5">{item.desc}</div>
               </li>
             );
@@ -327,7 +332,9 @@ export default class Push extends Component {
                 className="pTop4 pBottom4"
                 onClick={() => this.updateSource({ pushType: item.value, openMode: 2 })}
               >
-                <Radio className="Font16" text={item.text} />
+                <Radio className="Font16" title={item.text}>
+                  {item.text}
+                </Radio>
               </li>
             );
           })}
@@ -404,9 +411,8 @@ export default class Push extends Component {
 
                   <div>{_l('名称')}</div>
                   <div className="mTop10 flexRow">
-                    <input
-                      type="text"
-                      className="borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                    <Input
+                      className="flex"
                       value={button.name}
                       onChange={evt => this.updateButtonSource({ name: evt.target.value }, index)}
                       onBlur={evt => this.updateButtonSource({ name: evt.target.value.trim() || _l('按钮') }, index)}
@@ -471,16 +477,22 @@ export default class Push extends Component {
           <Fragment>
             <div className="mTop15">
               <Checkbox
-                text={_l('创建草稿记录')}
                 checked={data.actionId === ACTION_ID.CREATE_RECORD}
-                onClick={checked => {
-                  if (!checked) {
-                    this.getNodeDetail(this.props, { appId: data.appId, actionId: ACTION_ID.CREATE_RECORD });
+                onChange={event => {
+                  if (event.target.checked) {
+                    this.getNodeDetail(this.props, {
+                      appId: data.appId,
+                      actionId: ACTION_ID.CREATE_RECORD,
+                    });
                   } else {
-                    this.updateSource({ actionId: '' });
+                    this.updateSource({
+                      actionId: '',
+                    });
                   }
                 }}
-              />
+              >
+                {_l('创建草稿记录')}
+              </Checkbox>
             </div>
 
             {data.actionId === ACTION_ID.CREATE_RECORD &&
@@ -534,12 +546,18 @@ export default class Push extends Component {
                 key={index}
                 className="mRight60"
                 checked={item.value === isCustomAccount}
-                text={item.text}
-                onClick={() => {
-                  this.setState({ isCustomAccount: item.value });
-                  this.updateSource({ accounts: [] });
+                onChange={() => {
+                  this.setState({
+                    isCustomAccount: item.value,
+                  });
+                  this.updateSource({
+                    accounts: [],
+                  });
                 }}
-              />
+                title={item.text}
+              >
+                {item.text}
+              </Radio>
             );
           })}
         </div>
@@ -594,11 +612,11 @@ export default class Push extends Component {
     });
 
     return (
-      <Dropdown
+      <Select
         className="flowDropdown mTop10"
-        data={pushList}
+        options={pushList}
+        fieldNames={SELECT_FIELD_NAMES}
         value={pushType}
-        border
         onChange={pushType => {
           const obj = {
             pushType,
@@ -698,17 +716,25 @@ export default class Push extends Component {
               return (
                 <Radio
                   key={item.value}
-                  className={cx({ mLeft50: item.value === 2 })}
+                  className={cx({
+                    mLeft50: item.value === 2,
+                  })}
                   checked={(data.duration > 0 && item.value === 1) || (data.duration === 0 && item.value === 2)}
-                  text={item.text}
-                  onClick={() => {
+                  onChange={() => {
                     if (item.value === 2) {
-                      this.updateSource({ duration: 0 });
+                      this.updateSource({
+                        duration: 0,
+                      });
                     } else if (item.value === 1 && data.duration === 0) {
-                      this.updateSource({ duration: 5 });
+                      this.updateSource({
+                        duration: 5,
+                      });
                     }
                   }}
-                />
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
               );
             })}
           </div>

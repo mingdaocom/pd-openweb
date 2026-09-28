@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Dropdown, Input, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView, TagTextarea } from 'ming-ui';
+import { Dropdown, Input } from 'ming-ui/antd-components';
 import workflowTranslatorApi from 'src/pages/workflow/api/translator';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
 
@@ -60,29 +60,23 @@ const NodeTagTextarea = props => {
           onAddClick={() => setFormulaMapVisible(true)}
         />
         <Dropdown
-          visible={formulaMapVisible}
-          onVisibleChange={visible => setFormulaMapVisible(visible)}
+          open={formulaMapVisible}
+          onOpenChange={setFormulaMapVisible}
           placement="bottomRight"
-          overlay={
-            <Menu style={{ width: 180, padding: '8px 0' }}>
-              {formulaMapList.map(data => (
-                <Menu.Item
-                  key={data.id}
-                  style={{ padding: '7px 12px' }}
-                  onClick={() => {
-                    if (tagTextareaRef.current) {
-                      tagTextareaRef.current.insertColumnTag(data.id);
-                      setFormulaMapVisible(false);
-                    }
-                  }}
-                >
-                  <div className="flexRow alignItemsCenter">
-                    <div>{data.name}</div>
-                  </div>
-                </Menu.Item>
-              ))}
-            </Menu>
-          }
+          menu={{
+            style: { minWidth: 180, padding: '8px 0' },
+            items: formulaMapList.map(data => ({
+              key: data.id,
+              style: { padding: '7px 12px' },
+              label: data.name,
+              onClick: () => {
+                if (tagTextareaRef.current) {
+                  tagTextareaRef.current.insertColumnTag(data.id);
+                  setFormulaMapVisible(false);
+                }
+              },
+            })),
+          }}
         >
           <div />
         </Dropdown>
@@ -334,7 +328,8 @@ export default function WorkflowNode(props) {
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
           <Icon className="textTertiary Font20 mRight5" icon="search" />
-          <input
+          <Input
+            variant="borderless"
             placeholder={_l('节点名称')}
             className="flex"
             value={searchValue}

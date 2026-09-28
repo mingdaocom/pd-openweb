@@ -2,21 +2,22 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { includes } from 'lodash';
 import _ from 'lodash';
-import { NEED_SPECIAL_DISPLAY_CONTROLS } from '../config';
-import { TITLE_SIZE_OPTIONS } from '../config/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { supportDisplayRow } from 'src/utils/domain/control/capabilities';
+import { NEED_SPECIAL_DISPLAY_CONTROLS } from 'src/utils/domain/control/config';
+import { fixedBottomWidgets } from 'src/utils/domain/control/editorLayout';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { TITLE_SIZE_OPTIONS } from 'src/utils/domain/control/setting';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { getTitleStyle } from 'src/utils/domain/control/style';
+import { getVerifyInfo } from 'src/utils/domain/control/validation';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import { CommonDisplay, TitleContentWrap } from '../styled';
-import {
-  enumWidgetType,
-  fixedBottomWidgets,
-  getAdvanceSetting,
-  getIconByType,
-  isSheetDisplay,
-  supportDisplayRow,
-} from '../util';
-import { getTitleStyle, getVerifyInfo } from '../util/setting';
 import WidgetStatus from './components/WidgetStatus';
 import { TabHeaderItem } from './displayTabs/tabHeader';
 import displayTypes from './displayTypes';
+
+const HIDE_UNIT_CONTROL_TYPES = [15, 16, 37, 46];
 
 export default function WidgetDisplay(props) {
   const {
@@ -100,7 +101,7 @@ export default function WidgetDisplay(props) {
   // 分割线单独走展示
   if (type === 22) {
     return (
-      <TitleContentWrap readOnly={readOnly}>
+      <TitleContentWrap $readOnly={readOnly}>
         <Component {...props} splitWidgets={commonWidgets} />
       </TitleContentWrap>
     );
@@ -109,7 +110,7 @@ export default function WidgetDisplay(props) {
   // 标签页，标签页表格单独展示
   if (fixedBottomWidgets(data)) {
     return (
-      <TitleContentWrap titleStyle={titleStyle} titleColor={titlecolor}>
+      <TitleContentWrap $titleStyle={titleStyle} $titleColor={titlecolor}>
         <div className="tabHeaderTileWrap">
           <TabHeaderItem {...props} />
         </div>
@@ -120,13 +121,13 @@ export default function WidgetDisplay(props) {
 
   return (
     <TitleContentWrap
-      displayRow={displayRow}
-      titleWidth={titlewidth_pc}
-      textAlign={align_pc}
-      titleStyle={titleStyle}
-      titleSize={titleSize}
-      titleColor={titlecolor}
-      readOnly={readOnly}
+      $displayRow={displayRow}
+      $titleWidth={titlewidth_pc}
+      $textAlign={align_pc}
+      $titleStyle={titleStyle}
+      $titleSize={titleSize}
+      $titleColor={titlecolor}
+      $readOnly={readOnly}
     >
       <div className={cx('nameAndStatus', { minHeight18: !isSpecialControl && hidetitle === '1' })}>
         {required && !(_.includes([51], data.type) || isSheetDisplay(data)) && (
@@ -145,10 +146,10 @@ export default function WidgetDisplay(props) {
           <CommonDisplay>
             {prefix && <div className="unit prefix">{prefix}</div>}
             {hint && <div className="hint overflow_ellipsis">{type === 45 ? _l('编辑状态下不支持查看') : hint}</div>}
-            {/* 汇总、时间不需要显示单位 */}
-            {!includes([37, 46], type) && !includes([37, 46], sourceControlType) && (suffix || unit) && (
-              <div className="unit">{suffix || unit}</div>
-            )}
+            {/* 日期、日期时间、汇总、时间不需要显示后缀和单位 */}
+            {!includes(HIDE_UNIT_CONTROL_TYPES, type) &&
+              !includes(HIDE_UNIT_CONTROL_TYPES, sourceControlType) &&
+              (suffix || unit) && <div className="unit">{suffix || unit}</div>}
           </CommonDisplay>
         )}
         {isInvalid && <div className="verifyInfo">{verifyText}</div>}

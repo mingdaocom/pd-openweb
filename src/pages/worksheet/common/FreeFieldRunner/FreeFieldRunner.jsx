@@ -3,8 +3,8 @@ import { find, get, isFunction, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { MessageHandler } from 'src/utils/iframeCommunicate';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { MessageHandler } from '../FreeFieldSandbox/rpcBridge';
 import { getRowsRelation } from './functions';
 
 const Con = styled.div`

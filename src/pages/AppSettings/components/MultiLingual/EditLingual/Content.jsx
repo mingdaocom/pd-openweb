@@ -11,8 +11,10 @@ import CustomPageCard from './customPage/CustomPageCard';
 import CustomPageChart from './customPage/CustomPageChart';
 import CustomPageFilter from './customPage/CustomPageFilter';
 import CustomPageRichText from './customPage/CustomPageRichText';
+import CustomPageSubsection from './customPage/CustomPageSubsection';
 import CustomPageTabs from './customPage/CustomPageTabs';
 import CustomPageView from './customPage/CustomPageView';
+import ExternalPortal from './ExternalPortal';
 import ExternalPortalRole from './ExternalPortalRole';
 import Gourup from './Gourup';
 import Sheet from './Sheet';
@@ -52,6 +54,8 @@ const Components = {
   pageView: CustomPageView,
   // 自定义页面、富文本
   pageRichText: CustomPageRichText,
+  // 自定义页面、分段
+  pageSubsection: CustomPageSubsection,
   // 自定义页面、标签页
   pageTabs: CustomPageTabs,
   // 自定义页面、卡片
@@ -64,6 +68,8 @@ const Components = {
   appRole: AppRole,
   // 外部门户、角色
   externalPortalRole: ExternalPortalRole,
+  // 外部门户
+  externalPortal: ExternalPortal,
 };
 
 export default function Content(props) {

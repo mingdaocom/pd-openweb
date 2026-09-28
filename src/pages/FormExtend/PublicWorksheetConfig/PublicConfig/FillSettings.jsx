@@ -2,7 +2,8 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon, Input, PriceTip, RichText } from 'ming-ui';
+import { Icon, PriceTip, RichText } from 'ming-ui';
+import { Input, Modal, Select } from 'ming-ui/antd-components';
 import SmsSignSet from 'src/components/SmsSignSet';
 import CommonFieldDropdown from './CommonFieldDropdown';
 import CommonSwitch from './CommonSwitch';
@@ -23,25 +24,22 @@ const PreFillWrap = styled.div`
   }
 `;
 
-const FillDialogWrap = styled(Dialog)`
-  .mui-dialog-header {
-    padding: 24px 24px 28px !important;
-  }
-  .fillInput {
-    border-color: var(--color-border-primary) !important;
-    &:hover {
-      border-color: var(--color-border-tertiary) !important;
-    }
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-  }
-`;
+const FillModalWrap = Modal;
+const SMS_FIELD_SELECT_STYLE = { width: 240 };
 
 const ALERT_TEXT = {
   title: _l('请填写标题'),
   content: _l('请填写详细内容'),
   buttonName: _l('请填写按钮名称'),
+};
+
+export const getPreFillDescConfig = (preFillDesc, preFillDescData) => {
+  const value = { ...preFillDesc, ...preFillDescData, enable: preFillDesc.enable };
+
+  return {
+    value,
+    unFillKey: ['title', 'content', 'buttonName'].find(key => !value[key]),
+  };
 };
 
 export default function FillSettings(props) {
@@ -68,7 +66,7 @@ export default function FillSettings(props) {
   const getMobileControls = () => {
     return originalControls
       .filter(i => i.type === 3)
-      .map(({ controlName: text, controlId: value }) => ({ value, text }));
+      .map(({ controlName: label, controlId: value }) => ({ value, label }));
   };
 
   const isMobileControlDelete = () => {
@@ -78,13 +76,7 @@ export default function FillSettings(props) {
   };
 
   const changePreFillDesc = () => {
-    const value = _.assign(
-      { title: undefined, content: undefined, buttonName: undefined },
-      preFillDesc,
-      preFillDescData,
-    );
-
-    const unFillKey = _.findKey(value, l => !l);
+    const { value, unFillKey } = getPreFillDescConfig(preFillDesc, preFillDescData);
 
     if (unFillKey) {
       alert(ALERT_TEXT[unFillKey], 3);
@@ -104,18 +96,20 @@ export default function FillSettings(props) {
 
   const renderPreFillDialog = () => {
     return (
-      <FillDialogWrap
+      <FillModalWrap
         title={_l('设置填写说明')}
-        visible={preFillDescVisible}
+        open={preFillDescVisible}
+        mask={{ closable: true }}
+        keyboard
         width={1000}
         onOk={changePreFillDesc}
         onCancel={handleCancel}
       >
         <div className="textPrimary Font13 mBottom8 Bold">{_l('标题')}</div>
         <Input
-          className="w100 mBottom24 fillInput"
+          className="w100 mBottom24"
           value={preFillDescData.title}
-          onChange={value => setPreFillDescData({ ...preFillDescData, title: value })}
+          onChange={event => setPreFillDescData({ ...preFillDescData, title: event.target.value })}
         />
         <div className="textPrimary Font13 mBottom8 Bold">{_l('详细内容')}</div>
         <RichText
@@ -132,11 +126,11 @@ export default function FillSettings(props) {
           <span className="Font12 textTertiary">{_l('（用户在点击按钮后开始填写）')}</span>
         </div>
         <Input
-          className="w100 mBottom24 fillInput"
+          className="w100 mBottom24"
           value={preFillDescData.buttonName}
-          onChange={value => setPreFillDescData({ ...preFillDescData, buttonName: value })}
+          onChange={event => setPreFillDescData({ ...preFillDescData, buttonName: event.target.value })}
         />
-      </FillDialogWrap>
+      </FillModalWrap>
     );
   };
 
@@ -203,18 +197,16 @@ export default function FillSettings(props) {
             </div>
             {smsVerification && (
               <div className="codeContent">
-                <Dropdown
-                  border
-                  isAppendToBody
+                <Select
                   className={cx({ deleteCode: isMobileControlDelete() })}
-                  value={smsVerificationFiled}
-                  data={getMobileControls()}
+                  style={SMS_FIELD_SELECT_STYLE}
+                  value={smsVerificationFiled || undefined}
+                  placeholder={_l('请选择')}
+                  options={getMobileControls()}
                   onChange={value => setState({ smsVerificationFiled: value })}
-                  {...(isMobileControlDelete()
-                    ? {
-                        renderError: () => <span className="Red">{(isMobileControlDelete() || {}).controlName}</span>,
-                      }
-                    : {})}
+                  labelRender={({ label }) =>
+                    isMobileControlDelete() ? <span className="Red">{isMobileControlDelete().controlName}</span> : label
+                  }
                 />
                 <span className="mLeft20 textTertiary nowrap">{_l('短信签名：')}</span>
                 <SmsSignSet

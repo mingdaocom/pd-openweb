@@ -4,39 +4,15 @@ const DEFAULT_UPLOAD_HOST = 'https://upload.qiniup.com';
 const DEFAULT_LANG = 'zh-Hans';
 const LANG_PATH_MAP = {
   en: 'en',
+  id: 'id',
+  vn: 'vn',
   'zh-Hans': 'zh_Hans',
   'zh-Hant': 'zh_Hant',
+  'zh-TW': 'zh_Hant',
+  'zh-HK': 'zh_Hant',
   ja: 'ja',
   th: 'th',
   ms: 'ms',
-};
-const LANG_ALIAS_MAP = {
-  zh: 'zh-Hans',
-  'zh-cn': 'zh-Hans',
-  zh_cn: 'zh-Hans',
-  'zh-sg': 'zh-Hans',
-  zh_sg: 'zh-Hans',
-  'zh-hans': 'zh-Hans',
-  zh_hans: 'zh-Hans',
-  'zh-tw': 'zh-Hant',
-  zh_tw: 'zh-Hant',
-  'zh-hk': 'zh-Hant',
-  zh_hk: 'zh-Hant',
-  'zh-mo': 'zh-Hant',
-  zh_mo: 'zh-Hant',
-  'zh-hant': 'zh-Hant',
-  zh_hant: 'zh-Hant',
-  'en-us': 'en',
-  en_us: 'en',
-  'en-gb': 'en',
-  en_gb: 'en',
-  jp: 'ja',
-  'ja-jp': 'ja',
-  ja_jp: 'ja',
-  'th-th': 'th',
-  th_th: 'th',
-  'ms-my': 'ms',
-  ms_my: 'ms',
 };
 const localePromises = {};
 let previousTranslate;
@@ -58,58 +34,6 @@ function joinUrl(base, path) {
 
   if (!normalizedBase) return '/' + normalizedPath;
   return normalizedBase + '/' + normalizedPath;
-}
-
-function getCookieValue(name) {
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`));
-
-  try {
-    return match ? decodeURIComponent(match[2]) : '';
-  } catch (err) {
-    console.error(err);
-    return match ? match[2] : '';
-  }
-}
-
-function normalizeLang(lang) {
-  const value = String(lang || '').trim();
-  const normalizedValue = LANG_ALIAS_MAP[value] || LANG_ALIAS_MAP[value.toLowerCase()] || value;
-
-  return LANG_PATH_MAP[normalizedValue] ? normalizedValue : DEFAULT_LANG;
-}
-
-function getBrowserLang() {
-  return normalizeLang((navigator.languages && navigator.languages[0]) || navigator.language);
-}
-
-function getEntryLang(options = {}) {
-  return normalizeLang(
-    options.lang ||
-      options.language ||
-      new URL(location.href).searchParams.get('sys_lang') ||
-      getCookieValue('i18n_langtag') ||
-      document.documentElement.getAttribute('lang') ||
-      getBrowserLang(),
-  );
-}
-
-function getLocaleScriptUrl(lang, options = {}) {
-  const localePath = LANG_PATH_MAP[lang] || LANG_PATH_MAP[DEFAULT_LANG];
-
-  if (options.localeUrl) {
-    return String(options.localeUrl)
-      .replace(/\{lang\}/g, localePath)
-      .replace(/\{langKey\}/g, lang);
-  }
-
-  const cacheKey = Math.floor(new Date().getHours() / 6);
-  const query = `${new Date().toISOString().slice(0, 10).replace(/-/g, '_')}_${cacheKey}`;
-
-  if (/mingdao\.com|share\.mingdao\.net|theportal\.cn/.test(location.href)) {
-    return `https://alifile.mingdaocloud.com/lang/HAP/${localePath}/mdTranslation.js?${query}`;
-  }
-
-  return `${joinUrl(options.webUrl || location.origin, `/staticfiles/lang/${localePath}/mdTranslation.js`)}?${query}`;
 }
 
 function installEntryTranslator() {
@@ -142,19 +66,21 @@ function installEntryTranslator() {
   window._l = translator;
 }
 
-function loadLocaleScript(lang, options = {}) {
-  const currentLang = normalizeLang(lang);
-
-  if (currentLang === DEFAULT_LANG) {
+function loadLocaleScript(lang) {
+  if (lang === DEFAULT_LANG) {
     window.__mingoEntryTranslations = {};
     return Promise.resolve();
   }
 
-  if (localePromises[currentLang]) return localePromises[currentLang];
+  if (localePromises[lang]) return localePromises[lang];
 
-  localePromises[currentLang] = new Promise(resolve => {
-    const src = getLocaleScriptUrl(currentLang, options);
-    const existing = document.querySelector(`script[data-mingo-entry-locale="${currentLang}"]`);
+  const localePath = LANG_PATH_MAP[lang];
+  const cacheKey = Math.floor(new Date().getHours() / 6);
+  const query = `${new Date().toISOString().slice(0, 10).replace(/-/g, '_')}_${cacheKey}`;
+
+  localePromises[lang] = new Promise(resolve => {
+    const src = `https://alifile.mingdaocloud.com/lang/HAP/${localePath}/mdTranslation.js?${query}`;
+    const existing = document.querySelector(`script[data-mingo-entry-locale="${lang}"]`);
     const hostTranslations = window.translations;
 
     const restoreHostTranslations = () => {
@@ -192,7 +118,7 @@ function loadLocaleScript(lang, options = {}) {
 
     script.src = src;
     script.async = true;
-    script.dataset.mingoEntryLocale = currentLang;
+    script.dataset.mingoEntryLocale = lang;
     script.addEventListener(
       'load',
       () => {
@@ -214,7 +140,7 @@ function loadLocaleScript(lang, options = {}) {
     document.head.appendChild(script);
   });
 
-  return localePromises[currentLang];
+  return localePromises[lang];
 }
 
 function readJson(response) {
@@ -431,7 +357,7 @@ function setupRuntime(options = {}) {
   const webUrl = trimSlash(options.webUrl || window.location.origin);
   const apiServer = ensureTrailingSlash(options.apiServer || joinUrl(webUrl, '/api'));
   const agentUrl = trimSlash(options.agentUrl || webUrl);
-  const lang = getEntryLang(options);
+  const lang = document.documentElement.getAttribute('lang');
 
   if (options.agentUrl) explicitAgentUrl = agentUrl;
   window.__api_server__ = {
@@ -554,7 +480,7 @@ function mount(container, options = {}) {
   const root = createRoot(container);
   let destroyed = false;
 
-  loadLocaleScript(lang, options)
+  loadLocaleScript(lang)
     .then(() => import('./EntryWidget'))
     .then(module => {
       if (destroyed) return;

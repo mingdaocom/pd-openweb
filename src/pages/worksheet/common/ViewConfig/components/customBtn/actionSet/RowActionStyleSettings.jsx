@@ -1,10 +1,9 @@
 import React from 'react';
-import { Popover } from 'antd';
-import cx from 'classnames';
-import { Checkbox, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox, Popover, Segmented } from 'ming-ui/antd-components';
 import NumInput from 'src/pages/worksheet/common/ViewConfig/components/NumInput.jsx';
 import { BTN_TYPE, maxNum } from '../config';
-import { AnimationWrap, WrapCount, WrapPopover } from './ActionSetStyled';
+import { WrapCount, WrapPopover } from './ActionSetStyled';
 
 export default function RowActionStyleSettings({ acstyle, onChangeAcStyle }) {
   const { style = 1 } = acstyle || {};
@@ -16,27 +15,24 @@ export default function RowActionStyleSettings({ acstyle, onChangeAcStyle }) {
         {acstyle.style !== 3 && (
           <Checkbox
             className="hideBtn InlineFlex"
-            text={_l('显示图标')}
             checked={(acstyle || {}).icon !== 0}
-            onClick={() => {
-              onChangeAcStyle({ icon: (acstyle || {}).icon !== 0 ? 0 : 1 });
-            }}
-          />
-        )}
-      </p>
-      <AnimationWrap className="mTop10">
-        {BTN_TYPE.map(item => (
-          <div
-            key={item.value}
-            className={cx('animaItem overflow_ellipsis', { active: style === item.value })}
-            onClick={() => {
-              onChangeAcStyle({ style: item.value });
+            onChange={() => {
+              onChangeAcStyle({
+                icon: (acstyle || {}).icon !== 0 ? 0 : 1,
+              });
             }}
           >
-            {item.txt}
-          </div>
-        ))}
-      </AnimationWrap>
+            {_l('显示图标')}
+          </Checkbox>
+        )}
+      </p>
+      <Segmented
+        block
+        className="mTop10"
+        value={style}
+        options={BTN_TYPE.map(item => ({ value: item.value, label: item.txt }))}
+        onChange={value => onChangeAcStyle({ style: value })}
+      />
       <WrapCount className="flexRow alignItemsCenter mTop25">
         <span>{_l('显示按钮数量')}</span>
         <div className="mLeft12 showCount flexRow alignItemsCenter">
@@ -75,6 +71,7 @@ export default function RowActionStyleSettings({ acstyle, onChangeAcStyle }) {
             />
           </div>
           <Popover
+            arrow={true}
             content={
               <WrapPopover className="Font13">
                 <div>

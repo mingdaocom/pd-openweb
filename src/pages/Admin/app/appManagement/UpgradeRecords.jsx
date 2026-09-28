@@ -2,19 +2,20 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, UserHead, UserName } from 'ming-ui';
+import { UserHead, UserName } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchApp from 'src/pages/Admin/components/SearchApp';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import AppDisplay from './modules/AppDisplay';
 
 const STATUS = [
-  { text: _l('全部状态'), value: '' },
-  { text: _l('进行中'), value: 1 },
-  { text: _l('完成'), value: 0 },
-  { text: _l('失败'), value: 2 },
+  { label: _l('全部状态'), value: '' },
+  { label: _l('进行中'), value: 1 },
+  { label: _l('完成'), value: 0 },
+  { label: _l('失败'), value: 2 },
 ];
 const PAGE_SIZE = 50;
 
@@ -87,7 +88,7 @@ export default function UpgradeRecords({ projectId, type }) {
         dataIndex: 'status',
         ellipsis: true,
         render: status => {
-          return <span>{_.find(STATUS, { value: status })?.text}</span>;
+          return <span>{_.find(STATUS, { value: status })?.label}</span>;
         },
       },
       {
@@ -143,22 +144,22 @@ export default function UpgradeRecords({ projectId, type }) {
           <SearchApp
             className="w180"
             projectId={projectId}
+            value={appId}
             onChange={value => setState({ appId: value, pageIndex: 1 })}
           />
           <SelectUser
-            className="mdAntSelect w180 mLeft15"
+            className="w180 mLeft15"
             placeholder={_l('搜索操作者')}
             projectId={projectId}
             userInfo={userInfo}
             isAdmin
             changeData={data => setState({ userInfo: data, pageIndex: 1 })}
           />
-          <Dropdown
+          <Select
             className="w180 mLeft15"
             placeholder={_l('全部状态')}
-            data={STATUS}
+            options={STATUS}
             value={status}
-            border
             onChange={value => setState({ status: value, pageIndex: 1 })}
           />
         </SearchWrap>

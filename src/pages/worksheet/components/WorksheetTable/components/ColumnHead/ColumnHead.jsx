@@ -4,14 +4,11 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _, { get, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, Input, Menu, MenuItem } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import getTableColumnWidth from 'worksheet/components/BaseColumnHead/getTableColumnWidth';
-import { CONTROL_EDITABLE_WHITELIST, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
 import {
   clearHiddenColumn,
   frozenColumn,
@@ -20,15 +17,19 @@ import {
   sortByControl,
   updateColumnStyles,
 } from 'worksheet/redux/actions/sheetview';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { showTypeData } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
 import { COVER_DISPLAY_FILL } from 'src/pages/worksheet/common/ViewConfig/config.js';
-import { emitter } from 'src/utils/common';
-import { saveLRUWorksheetConfig } from 'src/utils/common';
-import { controlState } from 'src/utils/control';
-import { checkIsTextControl, controlIsNumber, fieldCanSort, getSortData } from 'src/utils/control';
-import { WIDGETS_TO_API_TYPE_ENUM } from '../../../../../widgetConfig/config/widget';
+import { isOtherShowFeild } from 'src/utils/domain/control/filters';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { fieldCanSort, getSortData } from 'src/utils/domain/control/sort';
+import { controlState } from 'src/utils/domain/control/state';
+import { checkIsTextControl, controlIsNumber } from 'src/utils/domain/control/type';
+import { SYS } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { CONTROL_EDITABLE_WHITELIST, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'src/utils/domain/worksheet/constants';
+import { CONTROL_FILTER_WHITELIST } from 'src/utils/domain/worksheet/filterConstants';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { saveLRUWorksheetConfig } from 'src/utils/platform/storage/local';
 import './ColumnHead.less';
 
 function getShowTypeData(control) {
@@ -77,8 +78,6 @@ class ColumnHead extends Component {
     const sortControl = _.find(sortControls, sort => sort.controlId === control.controlId);
     return sortControl && sortControl.isAsc;
   }
-
-  conRef = React.createRef();
 
   getType(control) {
     const { type, sourceControlType } = control;
@@ -266,330 +265,220 @@ class ColumnHead extends Component {
         columnStyle={columnStyle}
         changeSort={this.changeSort}
         updateSheetColumnWidths={this.updateColumnWidth}
-        renderPopup={({ closeMenu }) => (
-          <Menu
-            className="worksheetColumnHeadMenu"
-            style={{ width: 180 }}
-            specialFilter={target => target === this.head}
-            onClickAway={closeMenu}
-            setRef={this.conRef}
-          >
-            {canSort &&
-              !isShowOtherField &&
-              getSortData(itemType, control).map(item => (
-                <MenuItem
-                  key={item.value}
-                  onClick={() => {
-                    this.changeSort(item.value === 2);
+        renderPopup={({ closeMenu }) => {
+          const updateCustomWidth = value => {
+            let newWidth = Number(value);
+
+            if (isNaN(newWidth)) {
+              return;
+            }
+
+            newWidth = Math.min(600, Math.max(60, newWidth));
+            this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
+            closeMenu();
+          };
+
+          const alignOptions = allowSetAlign
+            ? [
+                { name: _l('左对齐'), value: 0 },
+                { name: _l('居中'), value: 1 },
+                { name: _l('右对齐'), value: 2 },
+              ]
+            : [
+                { name: _l('左对齐'), value: 0 },
+                { name: _l('居中'), value: 1 },
+              ];
+
+          const styleItems = getShowTypeData(control)?.map(({ value, text }) => ({
+            key: `showtype-${value}`,
+            label: text,
+            extra: showtype === value ? <Icon icon="done" className="colorPrimary" /> : undefined,
+            className: cx({ colorPrimary: showtype === value }),
+            onClick: () => {
+              this.updateColumnStyle({ controlId: control.controlId, key: 'showtype', value });
+              closeMenu();
+            },
+          }));
+
+          if (control.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT && showtype !== 6) {
+            styleItems.push({
+              key: 'coverFillType',
+              label: _l('图片填充方式'),
+              children: COVER_DISPLAY_FILL.map(({ text, value }) => ({
+                key: `coverFillType-${value}`,
+                label: text,
+                extra: coverFillType === value ? <Icon icon="done" className="colorPrimary" /> : undefined,
+                className: cx({ colorPrimary: coverFillType === value }),
+                onClick: () => {
+                  this.updateColumnStyle({
+                    controlId: control.controlId,
+                    key: 'coverFillType',
+                    value,
+                  });
+                  closeMenu();
+                },
+              })),
+            });
+          }
+
+          return {
+            style: { width: 180 },
+            items: [
+              ...(canSort && !isShowOtherField
+                ? getSortData(itemType, control).map(item => ({
+                    key: `sort-${item.value}`,
+                    icon: (
+                      <i
+                        className={cx('icon', item.value === 1 ? 'icon-descending-order2' : 'icon-ascending-order2')}
+                      />
+                    ),
+
+                    label: item.text,
+                    onClick: () => {
+                      this.changeSort(item.value === 2);
+                      closeMenu();
+                    },
+                  }))
+                : []),
+              canEdit &&
+                rowIsSelected && {
+                  key: 'batchEdit',
+                  icon: <i className="icon icon-hr_edit" />,
+                  label: _l('编辑选中记录'),
+                  onClick: () => {
+                    if (window.isPublicApp) {
+                      alert(_l('预览模式下，不能操作'), 3);
+                      return;
+                    }
+
+                    const selectedLength = allWorksheetIsSelected
+                      ? count - sheetSelectedRows.length
+                      : sheetSelectedRows.length;
+
+                    if (selectedLength > 1000) {
+                      Modal.confirm({
+                        title: (
+                          <span style={{ lineHeight: '1.5em' }}>
+                            {_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？')}
+                          </span>
+                        ),
+
+                        onOk: () => onBatchEdit(control),
+                      });
+                    } else {
+                      onBatchEdit(control);
+                    }
+
                     closeMenu();
-                  }}
-                >
-                  <i className={cx('icon', item.value === 1 ? 'icon-descending-order2' : 'icon-ascending-order2')}></i>
-                  {item.text}
-                </MenuItem>
-              ))}
-            {canEdit && rowIsSelected && (
-              <MenuItem
-                onClick={() => {
+                  },
+                },
+              canFilter &&
+                !rowIsSelected &&
+                !isShowOtherField &&
+                !hideColumnFilter && {
+                  key: 'filter',
+                  icon: <i className="icon icon-worksheet_filter" />,
+                  label: _l('筛选'),
+                  onClick: () => {
+                    emitter.emit(
+                      'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type + (isSingleView ? viewId : ''),
+                      control,
+                    );
+                    closeMenu();
+                  },
+                },
+              maskData && {
+                key: 'decode',
+                icon: <i className="icon icon-eye_off" />,
+                label: _l('解码'),
+                onClick: onShowFullValue,
+              },
+              {
+                key: 'hide',
+                icon: <i className="icon icon-visibility_off" />,
+                label: _l('隐藏'),
+                onClick: () => {
                   if (window.isPublicApp) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
 
-                  const selectedLength = allWorksheetIsSelected
-                    ? count - sheetSelectedRows.length
-                    : sheetSelectedRows.length;
-
-                  if (selectedLength > 1000) {
-                    Dialog.confirm({
-                      title: (
-                        <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
-                          {_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？')}
-                        </span>
-                      ),
-                      onOk: () => onBatchEdit(control),
-                    });
-                  } else {
-                    onBatchEdit(control);
-                  }
-
+                  finalHideColumn(control.controlId);
                   closeMenu();
-                }}
-              >
-                <i className="icon icon-hr_edit"></i>
-                {_l('编辑选中记录')}
-              </MenuItem>
-            )}
-            {canFilter && !rowIsSelected && !isShowOtherField && !hideColumnFilter && (
-              <MenuItem
-                onClick={() => {
-                  emitter.emit(
-                    'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type + (isSingleView ? viewId : ''),
-                    control,
-                  );
-                  closeMenu();
-                }}
-              >
-                <i className="icon icon-worksheet_filter"></i>
-                {_l('筛选')}
-              </MenuItem>
-            )}
-            {maskData && (
-              <MenuItem onClick={onShowFullValue}>
-                <i className="icon icon-eye_off"></i>
-                {_l('解码')}
-              </MenuItem>
-            )}
-            <MenuItem
-              onClick={() => {
-                if (window.isPublicApp) {
-                  alert(_l('预览模式下，不能操作'), 3);
-                  return;
-                }
-
-                finalHideColumn(control.controlId);
-                closeMenu();
-              }}
-            >
-              <i className="icon icon-visibility_off"></i>
-              {_l('隐藏')}
-            </MenuItem>
-            {!!finalSheetHiddenColumns?.length && (
-              <MenuItem
-                onClick={() => {
+                },
+              },
+              !!finalSheetHiddenColumns?.length && {
+                key: 'showAll',
+                icon: <i className="icon icon-eye" />,
+                label: _l('显示所有列'),
+                onClick: () => {
                   finalClearHiddenColumn();
                   closeMenu();
-                }}
-              >
-                <i className="icon icon-eye"></i>
-                {_l('显示所有列')}
-              </MenuItem>
-            )}
-            {columnIndex < 11 && !control.hideFrozen && fixedColumnCount !== columnIndex + 1 && (
-              <MenuItem
-                onClick={() => {
-                  if (window.isPublicApp) {
-                    alert(_l('预览模式下，不能操作'), 3);
-                    return;
-                  }
+                },
+              },
+              columnIndex < 11 &&
+                !control.hideFrozen &&
+                fixedColumnCount !== columnIndex + 1 && {
+                  key: 'freeze',
+                  icon: <i className="icon icon-lock" />,
+                  label: _l('冻结'),
+                  onClick: () => {
+                    if (window.isPublicApp) {
+                      alert(_l('预览模式下，不能操作'), 3);
+                      return;
+                    }
 
-                  this.frozen(columnIndex);
-                  closeMenu();
-                }}
-              >
-                <i className="icon icon-lock"></i>
-                {_l('冻结')}
-              </MenuItem>
-            )}
-            {columnIndex === fixedColumnCount - 1 && !control.hideFrozen && (
-              <MenuItem
-                onClick={() => {
-                  this.frozen(0);
-                  closeMenu();
-                }}
-              >
-                <i className="icon icon-task-new-no-locked"></i>
-                {_l('解冻')}
-              </MenuItem>
-            )}
-            {(isCharge || checkIsTextControl(control.type)) && <hr />}
-            {isCharge && (
-              <Trigger
-                getPopupContainer={() => this.conRef.current}
-                popupClassName="Relative"
-                action={['hover']}
-                popupPlacement="bottom"
-                popupAlign={{
-                  points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
-                  offset: [0, -6],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                popup={
-                  <Menu className="columnHeadChangeAlign">
-                    {(allowSetAlign
-                      ? [
-                          {
-                            name: _l('左对齐'),
-                            value: 0,
-                          },
-                          {
-                            name: _l('居中'),
-                            value: 1,
-                          },
-                          {
-                            name: _l('右对齐'),
-                            value: 2,
-                          },
-                        ]
-                      : [
-                          {
-                            name: _l('左对齐'),
-                            value: 0,
-                          },
-                          {
-                            name: _l('居中'),
-                            value: 1,
-                          },
-                        ]
-                    ).map(({ value, name }, index) => (
-                      <MenuItem
-                        key={index}
-                        className={cx({ active: direction === value })}
-                        onClick={() => {
-                          this.updateColumnStyle({ controlId: control.controlId, key: 'direction', value });
-                          closeMenu();
-                        }}
-                      >
-                        <div className="flexRow">
-                          {name}
-                          {!allowSetAlign && value === 1 && <span className="sec">{_l('(仅字段名称)')}</span>}
-                          <div className="flex"></div>
-                          {direction === value && <Icon icon="done" className="mRight12 Relative" />}
-                        </div>
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                }
-              >
-                <MenuItem
-                  onClick={() => {
+                    this.frozen(columnIndex);
                     closeMenu();
-                  }}
-                >
-                  <i className="icon icon-format_align_left"></i>
-                  {_l('对齐')}
-                  <i
-                    className="icon icon-arrow-right-tip Right"
-                    style={{
-                      fontSize: 12,
-                      marginTop: 12,
-                      marginRight: -8,
-                    }}
-                  ></i>
-                </MenuItem>
-              </Trigger>
-            )}
-            {isCharge &&
-              [
-                WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
-                WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
-                WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
-                WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT,
-              ].includes(control.type) && (
-                <Trigger
-                  getPopupContainer={() => this.conRef.current}
-                  popupClassName="Relative"
-                  action={['hover']}
-                  popupPlacement="bottom"
-                  popupAlign={{
-                    points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
-                    offset: [0, -6],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
-                  popup={
-                    <Menu className="columnHeadChangeAlign Relative">
-                      {getShowTypeData(control).map(({ value, text }, index) => (
-                        <MenuItem
-                          key={index}
-                          className={cx({ active: showtype === value })}
-                          onClick={() => {
-                            this.updateColumnStyle({ controlId: control.controlId, key: 'showtype', value });
-                            closeMenu();
-                          }}
-                        >
-                          <div className="flexRow">
-                            <div className="flex">{text}</div>
-                            {showtype === value && <Icon icon="done" className="mRight12 Relative" />}
-                          </div>
-                        </MenuItem>
-                      ))}
-                      {control.type === 14 && showtype !== 6 && (
-                        <Trigger
-                          getPopupContainer={() => this.conRef.current}
-                          popupClassName="Relative"
-                          action={['hover']}
-                          popupPlacement="bottom"
-                          popupAlign={{
-                            points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
-                            offset: [0, -6],
-                            overflow: { adjustX: true, adjustY: true },
-                          }}
-                          popup={
-                            <Menu className="columnHeadChangeAlign" style={{ width: 220 }}>
-                              {COVER_DISPLAY_FILL.map(({ text, value }, index) => (
-                                <MenuItem
-                                  key={index}
-                                  className={cx({ active: coverFillType === value })}
-                                  onClick={() => {
-                                    this.updateColumnStyle({
-                                      controlId: control.controlId,
-                                      key: 'coverFillType',
-                                      value,
-                                    });
-                                    closeMenu();
-                                  }}
-                                >
-                                  <div className="flexRow">
-                                    <div className="flex">{text}</div>
-                                    {coverFillType === value && <Icon icon="done" className="mRight12 Relative" />}
-                                  </div>
-                                </MenuItem>
-                              ))}
-                            </Menu>
-                          }
-                        >
-                          <MenuItem
-                            onClick={() => {
-                              closeMenu();
-                            }}
-                          >
-                            {_l('图片填充方式')}
-                            <i
-                              className="icon icon-arrow-right-tip Right"
-                              style={{
-                                fontSize: 12,
-                                marginTop: 12,
-                                marginRight: -8,
-                              }}
-                            ></i>
-                          </MenuItem>
-                        </Trigger>
-                      )}
-                    </Menu>
-                  }
-                >
-                  <MenuItem
-                    onClick={() => {
-                      closeMenu();
-                    }}
-                  >
-                    <i className="icon icon-task-color"></i>
-                    {_l('样式')}
-                    <i
-                      className="icon icon-arrow-right-tip Right"
-                      style={{
-                        fontSize: 12,
-                        marginTop: 12,
-                        marginRight: -8,
-                      }}
-                    ></i>
-                  </MenuItem>
-                </Trigger>
-              )}
-            <Trigger
-              getPopupContainer={() => this.conRef.current}
-              action={['hover']}
-              popupPlacement="bottom"
-              popupAlign={{
-                points: ['tl', 'tr'],
-                offset: [0, -6],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              destroyPopupOnHide={true}
-              popup={
-                <div className="changeColumnWidthPanel">
-                  <MenuItem
-                    onClick={() => {
+                  },
+                },
+              columnIndex === fixedColumnCount - 1 &&
+                !control.hideFrozen && {
+                  key: 'unfreeze',
+                  icon: <i className="icon icon-task-new-no-locked" />,
+                  label: _l('解冻'),
+                  onClick: () => {
+                    this.frozen(0);
+                    closeMenu();
+                  },
+                },
+              (isCharge || checkIsTextControl(control.type)) && { type: 'divider' },
+              isCharge && {
+                key: 'align',
+                icon: <i className="icon icon-format_align_left" />,
+                label: _l('对齐'),
+                children: alignOptions.map(({ value, name }) => ({
+                  key: `align-${value}`,
+                  label: !allowSetAlign && value === 1 ? `${name}${_l('(仅字段名称)')}` : name,
+                  extra: direction === value ? <Icon icon="done" className="colorPrimary" /> : undefined,
+                  className: cx({ colorPrimary: direction === value }),
+                  onClick: () => {
+                    this.updateColumnStyle({ controlId: control.controlId, key: 'direction', value });
+                    closeMenu();
+                  },
+                })),
+              },
+              isCharge &&
+                [
+                  WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
+                  WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
+                  WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
+                  WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT,
+                ].includes(control.type) && {
+                  key: 'style',
+                  icon: <i className="icon icon-task-color" />,
+                  label: _l('样式'),
+                  children: styleItems,
+                },
+              {
+                key: 'columnWidth',
+                icon: <i className="icon icon-sheets_rtl" />,
+                label: _l('列宽'),
+                children: [
+                  {
+                    key: 'fitCurrent',
+                    label: _l('适合内容（当前列）'),
+                    onClick: () => {
                       const width = getTableColumnWidth(
                         document.querySelector('.sheetViewTable'),
                         rows,
@@ -599,108 +488,62 @@ class ColumnHead extends Component {
                       );
                       this.updateColumnWidth({ controlId: control.controlId, value: width });
                       closeMenu();
-                    }}
-                  >
-                    {_l('适合内容（当前列）')}
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
+                    },
+                  },
+                  {
+                    key: 'fitAll',
+                    label: _l('适合内容（所有列）'),
+                    onClick: () => {
                       const changes = {};
-                      columns.forEach(o => {
-                        const width = getTableColumnWidth(
+                      columns.forEach(column => {
+                        changes[column.controlId] = getTableColumnWidth(
                           document.querySelector('.sheetViewTable'),
                           rows,
-                          o,
+                          column,
                           columnStyle,
                           worksheetId,
                         );
-                        changes[o.controlId] = width;
                       });
                       this.handleColumnWidthLRUSave(undefined, undefined, changes);
                       updateSheetColumnWidths({ changes });
-                      setTimeout(() => {
-                        scrollToLeftStart();
-                      }, 100);
+                      setTimeout(scrollToLeftStart, 100);
                       closeMenu();
-                    }}
-                  >
-                    {_l('适合内容（所有列）')}
-                  </MenuItem>
-                  <div className="customInputWrap">
-                    <div className="customInputTitle">{_l('指定列宽')}</div>
-                    <Input
-                      className="w100"
-                      defaultValue={style.width}
-                      onBlur={e => {
-                        let newWidth = Number(e.target.value);
-
-                        if (isNaN(newWidth)) {
-                          return;
-                        }
-
-                        if (newWidth < 60) {
-                          newWidth = 60;
-                        }
-
-                        if (newWidth > 600) {
-                          newWidth = 600;
-                        }
-
-                        this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
-                        closeMenu();
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          let newWidth = Number(e.target.value);
-
-                          if (isNaN(newWidth)) {
-                            return;
-                          }
-
-                          if (newWidth < 60) {
-                            newWidth = 60;
-                          }
-
-                          if (newWidth > 600) {
-                            newWidth = 600;
-                          }
-
-                          this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
-                          closeMenu();
-                        }
-                      }}
-                    />
-                    <div className="px">px</div>
-                  </div>
-                </div>
-              }
-            >
-              <MenuItem>
-                <i className="icon icon-sheets_rtl"></i>
-                {_l('列宽')}
-                <i
-                  className="icon icon-arrow-right-tip Right"
-                  style={{
-                    fontSize: 12,
-                    marginTop: 12,
-                    marginRight: -8,
-                  }}
-                ></i>
-              </MenuItem>
-            </Trigger>
-            {isCharge && (
-              <MenuItem
-                onClick={() => {
+                    },
+                  },
+                  {
+                    key: 'customWidth',
+                    label: (
+                      <div onClick={event => event.stopPropagation()}>
+                        <div className="mBottom6">{_l('指定列宽')}</div>
+                        <Input
+                          className="w100"
+                          defaultValue={style.width}
+                          suffix={<span className="textTertiary">px</span>}
+                          onBlur={event => updateCustomWidth(event.target.value)}
+                          onKeyDown={event => {
+                            event.stopPropagation();
+                            if (event.key === 'Enter') {
+                              updateCustomWidth(event.target.value);
+                            }
+                          }}
+                        />
+                      </div>
+                    ),
+                  },
+                ],
+              },
+              isCharge && {
+                key: 'batchSet',
+                icon: <i className="icon icon-align_setting" />,
+                label: _l('批量设置'),
+                onClick: () => {
                   onBatchSetColumns();
                   closeMenu();
-                }}
-              >
-                <i className="icon icon-align_setting"></i>
-                {_l('批量设置')}
-              </MenuItem>
-            )}
-          </Menu>
-        )}
+                },
+              },
+            ].filter(Boolean),
+          };
+        }}
       />
     );
   }

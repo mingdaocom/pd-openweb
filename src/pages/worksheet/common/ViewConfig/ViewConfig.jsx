@@ -1,324 +1,86 @@
-import React, { Component } from 'react';
-import cx from 'classnames';
-import _, { get } from 'lodash';
-import { Icon, ScrollView } from 'ming-ui';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import pluginAjax from 'src/api/plugin.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { filterHidedControls } from 'src/utils/control';
-import { getGroupControlId } from 'src/utils/worksheet';
-import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
-import CardAppearance from './CardAppearance';
-import {
-  ActionSet,
-  BatchSet,
-  CalendarSet,
-  CardSet,
-  Controls,
-  DebugConfig,
-  DetailSet,
-  EnvParams,
-  FastFilter,
-  GroupSet,
-  GunterSet,
-  HierarchyViewSetting,
-  MapSetting,
-  MobileSet,
-  NavGroup,
-  ParameterSet,
-  PluginSettings,
-  RecordColor,
-  RefreshTime,
-  ResourceSet,
-  Show,
-  SideNav,
-  Sort,
-  StructureSet,
-  SubmitConfig,
-  TableSet,
-  TitleControl,
-  UrlParams,
-  ViewFilter,
-} from './components';
-import { baseSetList, viewTypeConfig } from './config';
+import { SideNav } from './components';
+import { formatColumnsListForControlsWithoutHide, getDefaultViewSetting, getViewSettingOnViewChange } from './helpers';
+import ViewConfigContent from './ViewConfigContent';
 
-class ViewConfigCon extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      view: props.view,
-      viewSetting: baseSetList[VIEW_DISPLAY_TYPE[_.get(props, 'view.viewType') || 0]][0],
-      showBatch: false,
-    };
-  }
+function ViewConfigCon(props) {
+  const {
+    appId,
+    refreshFn,
+    rowId,
+    setViewConfigTab,
+    updateCurrentView,
+    updateCurrentViewState,
+    view = {},
+    viewConfigTab,
+    viewId,
+    worksheetId,
+  } = props;
+  // 按旧 class 组件行为，按钮列表只在配置面板首次挂载时刷新一次。
+  const initialRefresh = useRef({ appId, refreshFn, rowId, worksheetId });
+  const prevViewId = useRef(viewId);
+  const [viewSetting, setViewSetting] = useState(() => getDefaultViewSetting(view));
+  const [showBatch, setShowBatch] = useState(false);
+  const showBatchSet = useCallback(() => setShowBatch(true), []);
+  const hideBatchSet = useCallback(() => setShowBatch(false), []);
 
-  componentDidMount() {
-    this.fetchBtnByAll();
-  }
+  useEffect(() => {
+    const {
+      appId: initialAppId,
+      refreshFn: initialRefreshFn,
+      rowId: initialRowId,
+      worksheetId: initialWorksheetId,
+    } = initialRefresh.current;
 
-  componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (this.props.viewId !== prevProps.viewId) {
-        const { view = {}, viewConfigTab, setViewConfigTab } = this.props;
-        const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+    initialRefreshFn(initialWorksheetId, initialAppId, '', initialRowId);
+  }, []);
 
-        if (viewConfigTab) {
-          setViewConfigTab('');
-        }
-
-        this.setState({
-          viewSetting: viewConfigTab
-            ? viewConfigTab
-            : VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView
-              ? 'PluginSettings'
-              : 'Setting',
-        });
-      }
-
-      if (!_.isEqual(this.props.view.moreSort, prevProps.view.moreSort)) {
-        this.setState({
-          view: this.props.view,
-        });
-      }
-    }
-  }
-
-  fetchBtnByAll = () => {
-    const { worksheetId, appId, rowId } = this.props;
-    this.props.refreshFn(worksheetId, appId, '', rowId);
-  };
-
-  //字段的columns 排除系统字段 (拥有者除外,且拥有者排在第一个)
-  formatColumnsListForControlsWithoutHide = columns => {
-    let data = columns.filter(column => !ALL_SYS.includes(column.controlId));
-    data = columns.filter(o => o.controlId === 'ownerid').concat(data.filter(o => o.controlId !== 'ownerid'));
-    return data;
-  };
-
-  renderCardSet = () => {
-    const { columns, view } = this.props;
-    const filteredColumns = filterHidedControls(columns, view.controls, false)
-      .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
-      .sort((a, b) => {
-        if (a.row === b.row) {
-          return a.col - b.col;
-        } else {
-          return a.row - b.row;
-        }
-      });
-    // 画廊视图封面需要嵌入字段，其他配置过滤
-    const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
-    const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
-    const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
-
-    if (isRelateMultiSheetHierarchyView) {
-      return (
-        <HierarchyViewSetting {...this.props} filteredColumns={filteredColumns} coverColumns={coverColumns} forCarSet />
-      );
+  useLayoutEffect(() => {
+    if (prevViewId.current === viewId) {
+      return;
     }
 
-    return (
-      <CardSet
-        {..._.pick(this.props, [
-          'appId',
-          'view',
-          'columns',
-          'worksheetControls',
-          'updateCurrentView',
-          'currentSheetInfo',
-          'searchRows',
-          'updateViewShowcount',
-        ])}
-        worksheetControls={filteredColumns}
-        coverColumns={coverColumns}
-      />
-    );
-  };
-
-  renderViewSetting() {
-    const { columns, view } = this.props;
-    const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
-
-    if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && !isDevCustomView) {
-      return <ParameterSet {...this.props} onChangeView={this.onChangeCustomView} />;
+    if (viewConfigTab) {
+      setViewConfigTab('');
     }
 
-    const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
-    const filteredColumns = filterHidedControls(columns, view.controls, false)
-      .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
-      .sort((a, b) => {
-        if (a.row === b.row) {
-          return a.col - b.col;
-        } else {
-          return a.row - b.row;
-        }
-      });
-    // 画廊视图封面需要嵌入字段，其他配置过滤
-    const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
-    /* 多表关联层级视图 */
-    const param = {
-      ...this.props,
-      updateCurrentView: view => {
-        this.props.updateCurrentView(
-          Object.assign(view, {
-            filters: formatValuesOfOriginConditions(view.filters),
-          }),
-        );
-      },
-    };
+    setViewSetting(getViewSettingOnViewChange(view, viewConfigTab));
+    prevViewId.current = viewId;
+  }, [setViewConfigTab, view, viewConfigTab, viewId]);
 
-    const renderCom = () => {
-      switch (viewTypeText) {
-        case 'board':
-        case 'structure':
-          const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
+  const editPlugin = useCallback(
+    data => {
+      const { pluginInfo = {}, viewId: currentViewId } = view;
+      const { id, source = 0 } = pluginInfo;
 
-          if (!isRelateMultiSheetHierarchyView) {
-            return (
-              <div className="cardAppearanceWrap">
-                <CardAppearance
-                  {..._.pick(this.props, [
-                    'appId',
-                    'projectId',
-                    'worksheetId',
-                    'view',
-                    'columns',
-                    'worksheetControls',
-                    'updateCurrentView',
-                    'currentSheetInfo',
-                    'searchRows',
-                    'updateViewShowcount',
-                  ])}
-                  worksheetControls={filteredColumns}
-                />
-              </div>
-            );
-          } else {
-            return (
-              <StructureSet
-                {..._.pick(this.props, [
-                  'appId',
-                  'projectId',
-                  'worksheetId',
-                  'view',
-                  'columns',
-                  'worksheetControls',
-                  'updateCurrentView',
-                  'currentSheetInfo',
-                  'searchRows',
-                  'updateViewShowcount',
-                ])}
-              />
-            );
-          }
-
-        case 'gallery':
-          return this.renderCardSet();
-        case 'detail':
-          return <DetailSet {...param} />;
-        case 'calendar':
-          return <CalendarSet {...param} />;
-        case 'gunter':
-          return <GunterSet {...param} />;
-        case 'resource':
-          return <ResourceSet {...param} />;
-        case 'sheet':
-          return <TableSet {..._.pick(this.props, ['appId', 'view', 'updateCurrentView'])} />;
-        case 'map':
-          return (
-            <MapSetting
-              {..._.pick(this.props, [
-                'appId',
-                'view',
-                'columns',
-                'worksheetControls',
-                'updateCurrentView',
-                'currentSheetInfo',
-                'searchRows',
-                'updateViewShowcount',
-              ])}
-              worksheetControls={filteredColumns}
-              coverColumns={coverColumns}
-              updateCurrentView={view => {
-                this.props.updateCurrentView(
-                  Object.assign(view, {
-                    filters: formatValuesOfOriginConditions(view.filters),
-                  }),
-                );
-              }}
-            />
-          );
-      }
-    };
-
-    const renderTitleSet = () => {
-      const { updateCurrentView } = this.props;
-
-      switch (viewTypeText) {
-        case 'resource':
-        case 'gunter':
-        case 'calendar':
-          return (
-            <TitleControl
-              {...this.props}
-              title={viewTypeText === 'gunter' ? _l('标签名称') : null}
-              isCard={false}
-              className="mTop32"
-              advancedSetting={_.get(view, 'advancedSetting')}
-              handleChange={value => {
-                updateCurrentView({
-                  ...view,
-                  advancedSetting: { viewtitle: value },
-                  editAttrs: ['advancedSetting'],
-                  editAdKeys: ['viewtitle'],
-                });
-              }}
-            />
-          );
-        default:
-          return null;
-      }
-    };
-
-    return (
-      <div className="viewConfigWrap">
-        {renderCom()}
-        {renderTitleSet()}
-        <RefreshTime {...this.props} />
-      </div>
-    );
-  }
-
-  editPlugin = data => {
-    const { updateCurrentViewState, view, appId } = this.props;
-    const { pluginInfo = {}, viewId } = view;
-    const { id, source = 0 } = pluginInfo;
-    pluginAjax
-      .edit({
-        id, //插件id
-        source,
-        viewId,
-        appId,
-        ...data,
-      })
-      .then(res => {
-        updateCurrentViewState({
-          pluginInfo: res,
+      pluginAjax
+        .edit({
+          id, // 插件id
+          source,
+          viewId: currentViewId,
+          appId,
+          ...data,
+        })
+        .then(res => {
+          updateCurrentViewState({
+            pluginInfo: res,
+          });
         });
-      });
-  };
+    },
+    [appId, updateCurrentViewState, view],
+  );
 
-  onChangeCustomView = (data, isPlugin, others) => {
-    const { updateCurrentView, view, appId } = this.props;
+  const onChangeCustomView = useCallback(
+    (data, isPlugin, others) => {
+      if (isPlugin) {
+        editPlugin(data);
+        return;
+      }
 
-    if (isPlugin) {
-      this.editPlugin(data);
-    } else {
       updateCurrentView({
         ...view,
         appId,
@@ -326,185 +88,30 @@ class ViewConfigCon extends Component {
         ...others,
         advancedSetting: formatAdvancedSettingByNavfilters(view, _.omit({ ...data }, 'navfilters')),
       });
-    }
-  };
+    },
+    [appId, editPlugin, updateCurrentView, view],
+  );
 
-  renderSetting = () => {
-    const { viewSetting } = this.state;
-    const {
-      onShowCreateCustomBtn,
-      worksheetId,
-      appId,
-      projectId,
-      columns,
-      view = {},
-      refreshFn,
-      btnList,
-      viewId,
-      sheetSwitchPermit,
-      worksheetControls,
-    } = this.props;
-
-    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
-
-    switch (viewSetting) {
-      case 'ActionSet': // 自定义动作
-        return (
-          <ActionSet
-            worksheetControls={worksheetControls}
-            isSheetView={VIEW_DISPLAY_TYPE[view.viewType] === 'sheet'}
-            onShowCreateCustomBtn={onShowCreateCustomBtn}
-            worksheetId={worksheetId}
-            appId={appId}
-            projectId={projectId}
-            viewId={viewId}
-            refreshFn={refreshFn}
-            btnList={btnList}
-            updateCurrentView={this.props.updateCurrentView}
-            view={view}
-          />
-        );
-      case 'Filter': // 筛选
-        return <ViewFilter {...this.props} />;
-      case 'Sort': // 排序
-        return <Sort {...this.props} />;
-      case 'Controls': // 字段
-        return <Controls {...this.props} formatColumnsListForControls={this.formatColumnsListForControlsWithoutHide} />;
-      case 'MobileSet': // 移动端设置
-        return (
-          <MobileSet
-            {...this.props}
-            worksheetControls={
-              isShowWorkflowSys
-                ? this.props.worksheetControls
-                : this.props.worksheetControls.filter(c => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, c.controlId))
-            }
-            isShowWorkflowSys={isShowWorkflowSys}
-            coverColumns={filterHidedControls(columns, view.controls, false).filter(
-              c => !!c.controlName && !_.includes([45], c.type), //移动端暂不支持嵌入字段作为封面
-            )}
-          />
-        );
-      case 'FastFilter': // 快速筛选
-        return <FastFilter {...this.props} />;
-      case 'NavGroup': // 分组筛选
-        return <NavGroup {...this.props} />;
-      case 'RecordColor': // 颜色
-        return <RecordColor {...this.props} />;
-      case 'Show': // 显示列
-        return <Show {...this.props} />;
-      case 'urlParams':
-        return <UrlParams {...this.props} />;
-      case 'PluginSettings':
-        return (
-          <PluginSettings
-            {...this.props}
-            onUpdateTab={value => {
-              this.setState({ viewSetting: value });
-            }}
-            onChangeView={this.onChangeCustomView}
-          />
-        );
-      case 'ParameterSet':
-        return <ParameterSet {...this.props} onChangeView={this.onChangeCustomView} />;
-      case 'Submit':
-        return <SubmitConfig {...this.props} onChangeView={this.onChangeCustomView} />;
-      case 'CardSet':
-        return <div className="mTop24">{this.renderCardSet()}</div>;
-      case 'TableSet':
-        return (
-          <div className="mTop24">
-            <TableSet {..._.pick(this.props, ['appId', 'view', 'updateCurrentView'])} />
-          </div>
-        );
-      case 'GroupSet':
-        const groupControlId = getGroupControlId(view);
-        const groupControl = _.find(columns, { controlId: groupControlId });
-
-        return (
-          <GroupSet
-            {...this.props}
-            forBoard={VIEW_DISPLAY_TYPE[view.viewType] === 'board'}
-            hideSort={VIEW_DISPLAY_TYPE[view.viewType] === 'board' && ![9, 10, 11, 28].includes(groupControl?.type)}
-          />
-        );
-      case 'EnvParams':
-        return <EnvParams {...this.props} />;
-      default:
-        const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
-
-        if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView) {
-          return <DebugConfig {...this.props} onChangeView={this.onChangeCustomView} />;
-        }
-
-        return this.renderViewSetting(); // 基础设置
-    }
-  };
-
-  render() {
-    const { viewSetting, showBatch } = this.state;
-    const data = viewTypeConfig.find(item => item.type === viewSetting) || {};
-
-    const conRender = () => {
-      const { view } = this.props;
-      const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
-      return (
-        <div className={cx('viewContentCon', { H100: ['Submit', 'Filter'].includes(data.type) })}>
-          {![
-            'MobileSet',
-            'FastFilter',
-            'NavGroup',
-            'RecordColor',
-            'ActionSet',
-            'Submit',
-            'Filter',
-            'GroupSet',
-          ].includes(data.type) && (
-            <div className="viewSetTitle flexRow">
-              <div className="flex">
-                {data.type === 'Setting'
-                  ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType])?.txt
-                  : data.name}
-                {isDevCustomView && ['ParameterSet'].includes(viewSetting) && (
-                  <div className="textSecondary Font13 mTop4 Normal">{_l('插件发布后将作为使用者的视图配置')}</div>
-                )}
-              </div>
-              {(view.viewType === 0 ||
-                (view.viewType === 2 && get(view, 'advancedSetting.hierarchyViewType') === '3')) &&
-                viewSetting === 'Show' && (
-                  <span className="Hand Font14 batchSetBtn" onClick={() => this.setState({ showBatch: true })}>
-                    <Icon icon="format_paint" />
-                    <span className="mLeft5 Normal">{_l('编辑列样式')}</span>
-                  </span>
-                )}
-              {showBatch && (
-                <BatchSet {...this.props} onClose={() => this.setState({ showBatch: false })} visible={showBatch} />
-              )}
-            </div>
-          )}
-          {this.renderSetting()}
-        </div>
-      );
-    };
-
-    return (
-      <div className="viewSetBox">
-        <SideNav
-          {...this.props}
-          viewSetting={viewSetting}
-          formatColumnsListForControlsWithoutHide={this.formatColumnsListForControlsWithoutHide}
-          onChangeType={viewSetting => {
-            this.setState({ viewSetting });
-          }}
-        />
-        {!['PluginSettings'].includes(viewSetting) ? (
-          <ScrollView className="viewContent flex">{conRender()}</ScrollView>
-        ) : (
-          <div className="viewContent flex contentCon flexColumn">{conRender()}</div>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className="viewSetBox">
+      <SideNav
+        {...props}
+        viewSetting={viewSetting}
+        formatColumnsListForControlsWithoutHide={formatColumnsListForControlsWithoutHide}
+        onChangeType={setViewSetting}
+      />
+      <ViewConfigContent
+        formatColumnsListForControlsWithoutHide={formatColumnsListForControlsWithoutHide}
+        onChangeCustomView={onChangeCustomView}
+        onChangeViewSetting={setViewSetting}
+        onHideBatch={hideBatchSet}
+        onShowBatch={showBatchSet}
+        showBatch={showBatch}
+        viewProps={props}
+        viewSetting={viewSetting}
+      />
+    </div>
+  );
 }
 
 export default ErrorBoundary.wrap(ViewConfigCon);

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import invoiceEmpty from '../images/invoiceEmpty.png';
 import merchantEmpty from '../images/merchantEmpty.png';
 
@@ -25,11 +26,6 @@ const DescWrap = styled.div`
       vertical-align: -2px;
     }
   }
-`;
-
-const ActivePayment = styled(Button)`
-  height: 48px;
-  border-radius: 24px !important;
 `;
 
 const CONFIG_DATA = {
@@ -83,9 +79,9 @@ export default function EmptyIndexContent(props) {
         })}
       </DescWrap>
       {!hideBtn && (
-        <ActivePayment type="primary" className="activatePayment Font15 mBottom20" onClick={onBtnClick}>
+        <Button type="primary" size="large" shape="round" className="Font15 mBottom20" onClick={onBtnClick}>
           {_l('立即申请')}
-        </ActivePayment>
+        </Button>
       )}
     </div>
   );

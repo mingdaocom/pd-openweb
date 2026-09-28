@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import Icon from 'ming-ui/components/Icon';
-import RegExpValidator from 'src/utils/expression';
+import { sanitizeHtml } from 'src/utils/core/sanitizeHtml';
+import { isPasswordValid } from 'src/utils/domain/security/verification';
 
 // 'inputPassword',//密码
 export default function (props) {
@@ -25,7 +26,7 @@ export default function (props) {
       let data = _.filter(warnList, it => !('inputPassword' === it.tipDom));
 
       //设置密码时，提示密码规则 符合验证则不再提示
-      if (!RegExpValidator.isPasswordValid(txt) && keys.includes('setPassword')) {
+      if (!isPasswordValid(txt) && keys.includes('setPassword')) {
         data = data.concat({
           tipDom: 'inputPassword',
           noErr: true,
@@ -74,7 +75,7 @@ export default function (props) {
         {warn && (
           <div
             className={cx('warnTips', { noIcon: !!warn.noErr })}
-            dangerouslySetInnerHTML={{ __html: warn.warnTxt }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(warn.warnTxt) }}
           ></div>
         )}
       </div>

@@ -1,23 +1,23 @@
 import React from 'react';
-import { Button, Input } from 'antd';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Button, Input, Space } from 'ming-ui/antd-components';
 import { dialogSelectIcon } from 'ming-ui/functions';
 
 const ButtonWrap = styled.div`
-  .ant-btn,
-  .ant-btn:hover,
-  .ant-btn:focus {
+  .hap-btn,
+  .hap-btn:hover,
+  .hap-btn:focus {
     width: 80px;
-    background: ${props => props.color};
-    border-color: ${props => props.color};
+    background: ${props => props.$color};
+    border-color: ${props => props.$color};
   }
-  .ant-btn:hover {
+  .hap-btn:hover {
     .arrowWrap {
       opacity: 1;
     }
   }
-  .ant-btn {
+  .hap-btn {
     text-shadow: none;
     box-shadow: none;
     height: 36px;
@@ -79,7 +79,7 @@ export default function BtnName(props) {
   return (
     <div className="settingItem">
       <div className="settingTitle">{_l('按钮名称')}</div>
-      <Input.Group compact>
+      <Space.Compact block>
         <Input
           value={name}
           style={{ width: 'calc(100% - 80px)' }}
@@ -88,7 +88,7 @@ export default function BtnName(props) {
             setBtnSetting({ ...btnSetting, name });
           }}
         />
-        <ButtonWrap color={color}>
+        <ButtonWrap $color={color}>
           <Button type="primary" onClick={onEditIcon}>
             <SvgIcon url={iconUrl} fill="#fff" size={22} />
             <div className="arrowWrap valignWrapper">
@@ -96,7 +96,7 @@ export default function BtnName(props) {
             </div>
           </Button>
         </ButtonWrap>
-      </Input.Group>
+      </Space.Compact>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+const fs = require('fs');
 const webpack = require('webpack');
 const path = require('path');
 const { EsbuildPlugin } = require('esbuild-loader');
@@ -8,6 +9,7 @@ const { getWebpackCacheDirectory, getWebpackCacheName } = require('./webpackCach
 const config = webpackConfig();
 const ROOT_PATH = path.join(__dirname, '..');
 const MDHOME_MINGO_ENTRY_WIDGET_PATH = path.resolve(ROOT_PATH, '../MDHome/public/mingo-entry-widget');
+const NOCOLY_MINGO_ENTRY_WIDGET_PATH = path.resolve(ROOT_PATH, '../nocoly/public/mingo-entry-widget');
 
 module.exports = {
   resolve: config.resolve,
@@ -18,6 +20,14 @@ module.exports = {
     new MomentLocalesPlugin({
       localesToKeep: ['es-us', 'zh-cn', 'zh-tw', 'ja', 'th', 'ms'],
     }),
+    {
+      apply(compiler) {
+        compiler.hooks.afterEmit.tap('SyncMingoEntryWidget', () => {
+          fs.rmSync(NOCOLY_MINGO_ENTRY_WIDGET_PATH, { recursive: true, force: true });
+          fs.cpSync(MDHOME_MINGO_ENTRY_WIDGET_PATH, NOCOLY_MINGO_ENTRY_WIDGET_PATH, { recursive: true });
+        });
+      },
+    },
   ],
   entry: path.join(__dirname, '../src/pages/embed/mingoEntry/widgetEntry.js'),
   module: {

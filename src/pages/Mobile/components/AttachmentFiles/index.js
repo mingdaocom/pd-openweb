@@ -4,15 +4,13 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Icon, Progress, QiniuUpload } from 'ming-ui';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import {
-  checkAccountUploadLimit,
-  checkFileAvailable,
-  formatResponseData,
-  getFilesSize,
-} from 'src/components/UploadFiles/utils';
-import { generateRandomPassword } from 'src/utils/common';
-import { getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { checkFileAvailable } from 'src/components/UploadFiles/utils';
+import { getFilesSize } from 'src/utils/core/file';
+import { generateRandomPassword } from 'src/utils/core/string';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
+import { checkAccountUploadLimit } from 'src/utils/services/file/upload';
 import { processImageFile } from './imageProcessor';
 import './index.less';
 
@@ -376,10 +374,6 @@ export default class AttachmentList extends Component {
   static defaultProps = {
     width: 120,
   };
-  constructor(props) {
-    super(props);
-    this.style = { width: props.width };
-  }
   handleRemove(item, event) {
     event.stopPropagation();
     const { fileID } = item;
@@ -427,7 +421,6 @@ export default class AttachmentList extends Component {
       <div
         key={item.fileID}
         className="fileWrapper flexRow"
-        style={this.style}
         onClick={e => {
           this.previewAttachment(index);
           e.stopPropagation();
@@ -446,7 +439,6 @@ export default class AttachmentList extends Component {
       <div
         key={item.fileID}
         className="fileWrapper flexColumn"
-        style={this.style}
         onClick={e => {
           this.previewAttachment(index);
           e.stopPropagation();
@@ -468,7 +460,7 @@ export default class AttachmentList extends Component {
     const { progress, base } = item;
     const { diameter } = this.props;
     return (
-      <div key={item.id} className="fileWrapper flexColumn" style={this.style}>
+      <div key={item.id} className="fileWrapper flexColumn">
         <div className="filePanel flexRow alignItemsCenter justifyContentCenter">
           <Progress.Circle
             key="text"
@@ -489,10 +481,11 @@ export default class AttachmentList extends Component {
     );
   }
   render() {
-    const { attachments } = this.props;
-    const emptys = Array.from({ length: 6 });
+    const { attachments, width } = this.props;
+    const fileWidth = typeof width === 'number' ? `${width}px` : width;
+
     return (
-      <div className="attachmentFiles flexRow">
+      <div className="attachmentFiles" style={{ '--attachment-file-width': fileWidth }}>
         {attachments.map((item, index) =>
           'progress' in item
             ? this.renderProgress(item)
@@ -500,9 +493,6 @@ export default class AttachmentList extends Component {
               ? this.renderImage(item, index)
               : this.renderFile(item, index),
         )}
-        {emptys.map((item, index) => (
-          <div key={index} className="fileWrapper fileEmpty"></div>
-        ))}
       </div>
     );
   }

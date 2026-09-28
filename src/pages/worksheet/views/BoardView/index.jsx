@@ -6,11 +6,11 @@ import { DndProvider } from 'react-dnd-latest';
 import _ from 'lodash';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as boardActions from 'src/pages/worksheet/redux/actions/boardView';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { getViewSelectFields, hasSecondGroupControl } from 'src/utils/services/worksheet/board';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import CommonBoard from './CommonBoard';
 import GroupBoard from './GroupBoard';
-import { getViewSelectFields, hasSecondGroupControl } from './util';
 
 const BoardView = props => {
   const {

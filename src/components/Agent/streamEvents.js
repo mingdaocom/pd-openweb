@@ -3,8 +3,9 @@
 // - ensureCompletedText：completed 兜底，若整轮没有 text part 用 completed 文本补一段
 // - forwardFileEvent：把 artifact-file-* 事件转成 bus 的 file:* 事件，AppBuilder 消化
 import { parse as parsePartial } from 'partial-json';
-import { readField, stringValue, summarizeUnknown } from './agentService';
+import { summarizeUnknown } from './agentService';
 import { BUILD_STEPS } from './buildSteps';
+import { readField, stringValue } from './valueUtils';
 import { carveWorkParts } from './workParts';
 
 const TOOL_EVENTS = ['tool-call', 'tool-result', 'subagent-tool-call', 'subagent-tool-result'];
@@ -534,6 +535,28 @@ export function markBuildProgressAborted(message) {
 
   if (idx < 0 || parts[idx].aborted) return message;
   return { ...message, parts: parts.map((p, i) => (i === idx ? { ...p, aborted: true } : p)) };
+}
+
+// 附件解析状态行：doc / image 各维护一条 extract part（同一轮里两者可并存）。
+// *-extract-start 建行（running），*-extract-completed 落完成态并留在消息里，
+// 让用户能看到「解析完成」而不是只闪过一句「正在解析中」。
+export function upsertExtractPart(message, target, patch) {
+  const parts = message.parts || [];
+  const idx = parts.findIndex(p => p.kind === 'extract' && p.target === target);
+
+  if (idx < 0) {
+    return { ...message, parts: [...parts, { kind: 'extract', target, ts: Date.now(), ...patch }] };
+  }
+
+  return { ...message, parts: parts.map((p, i) => (i === idx ? { ...p, ...patch } : p)) };
+}
+
+// 解析行是过程提示而非产出：正文 / 思考一开始（或本轮出错、被用户停止）就整行撤走，不在对话里留痕。
+export function removeExtractParts(message) {
+  const parts = message.parts || [];
+
+  if (!parts.some(p => p.kind === 'extract')) return message;
+  return { ...message, parts: parts.filter(p => p.kind !== 'extract') };
 }
 
 // build agent 的 completed 顶层直接铺 appName；plan agent 在 artifact.name 下。

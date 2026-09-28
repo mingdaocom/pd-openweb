@@ -3,6 +3,22 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import ChildTable from '../../components/ChildTable';
 
+const formatMasterFormData = formData =>
+  formData
+    .map(c =>
+      _.pick(c, [
+        'controlId',
+        'type',
+        'value',
+        'options',
+        'attribute',
+        'enumDefault',
+        'sourceControl',
+        'sourceControlType',
+      ]),
+    )
+    .filter(c => !!c.value);
+
 export default function SubList(props) {
   const {
     recordId,
@@ -18,23 +34,14 @@ export default function SubList(props) {
     sheetSwitchPermit,
     flag,
     isDraft,
+    getCurrentFormData,
     onChange = () => {},
   } = props;
   const control = { ...props };
-  const masterFormData = formData
-    .map(c =>
-      _.pick(c, [
-        'controlId',
-        'type',
-        'value',
-        'options',
-        'attribute',
-        'enumDefault',
-        'sourceControl',
-        'sourceControlType',
-      ]),
-    )
-    .filter(c => !!c.value);
+  // 点击批量添加时再取一次主表数据，确保关联默认值和动态筛选使用已经完成回填的字段值。
+  const getMasterFormData = () =>
+    formatMasterFormData(_.isFunction(getCurrentFormData) ? getCurrentFormData() : formData);
+  const masterFormData = getMasterFormData();
 
   const debounceChange = _.debounce(onChange, 500);
 
@@ -135,6 +142,7 @@ export default function SubList(props) {
           appId,
           formData: masterFormData,
         }}
+        getMasterFormData={getMasterFormData}
         onChange={handleChange}
         mobileIsEdit={!disabled && !formDisabled}
       />
@@ -147,6 +155,7 @@ SubList.propTypes = {
   formDisabled: PropTypes.bool,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({}), PropTypes.arrayOf(PropTypes.shape({}))]),
   worksheetId: PropTypes.string,
+  getCurrentFormData: PropTypes.func,
   recordId: PropTypes.string,
   dataSource: PropTypes.string,
   formData: PropTypes.arrayOf(PropTypes.shape({})),

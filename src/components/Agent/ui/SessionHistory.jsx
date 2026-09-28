@@ -1,20 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, LoadDiv, Menu, MenuItem, Skeleton } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Modal, Skeleton } from 'ming-ui/antd-components';
 import ScrollView from 'ming-ui/components/ScrollView';
-import { deleteAgentSession, fetchAgentSessions, renameAgentSession } from '../agentService';
+import useAutoLoadUntilScrollable from 'ming-ui/hooks/useAutoLoadUntilScrollable';
+import { fetchAgentSessionPage } from '../agentService';
 import { AGENT_DIALOG_CLOSE_CLASS, AgentDialogCloseStyle } from './dialogCloseStyle';
+import SessionRow from './SessionRow';
 
 const PAGE_SIZE = 30;
-
 const Body = styled.div`
   display: flex;
   flex-direction: column;
   height: 400px;
-  .searchBox {
+  /* 类名避开通用的 .searchBox：后台等页面有同名全局样式，会穿透 styled 作用域造成冲突 */
+  .sessionSearchBox {
     flex-shrink: 0;
     margin-bottom: 12px;
     height: 36px;
@@ -103,6 +104,8 @@ const Body = styled.div`
 
 export default function SessionHistory({
   currentSessionId,
+  agentName = '',
+  enableShare = true,
   onSelect = () => {},
   onDeleted = () => {},
   onClose = () => {},
@@ -112,11 +115,10 @@ export default function SessionHistory({
   const [hasMore, setHasMore] = useState(false);
   const [sessions, setSessions] = useState([]);
   const [keyword, setKeyword] = useState('');
-  const [menuOpenId, setMenuOpenId] = useState('');
   const pageRef = useRef(1);
+  const scrollViewRef = useRef(null);
   const seqRef = useRef(0); // 每次关键词检索自增，用于丢弃过期的“加载更多”响应
   const loadingMoreRef = useRef(false); // 同步防抖，避免触底事件重复触发
-  const renameInputRef = useRef(null); // 重命名弹层里 Input 的非受控引用
   const searchInputRef = useRef(null); // 搜索框引用：弹窗打开即聚焦
 
   // 弹窗打开即聚焦搜索框（Dialog 挂载/动画后再 focus 更稳）
@@ -131,15 +133,15 @@ export default function SessionHistory({
     const seq = ++seqRef.current;
     pageRef.current = 1;
     loadingMoreRef.current = false;
-    setIsLoadingMore(false);
-    setIsLoading(true);
     const timer = setTimeout(
       () => {
-        fetchAgentSessions({ page: 1, size: PAGE_SIZE, keyword: value })
-          .then(list => {
+        setIsLoadingMore(false);
+        setIsLoading(true);
+        fetchAgentSessionPage({ page: 1, size: PAGE_SIZE, keyword: value, agentName })
+          .then(({ items, hasMore: nextHasMore }) => {
             if (seq !== seqRef.current) return;
-            setSessions(list);
-            setHasMore(list.length >= PAGE_SIZE);
+            setSessions(items);
+            setHasMore(nextHasMore);
           })
           .catch(err => console.error('[agent] fetch sessions failed', err))
           .finally(() => {
@@ -150,7 +152,7 @@ export default function SessionHistory({
       value ? 300 : 0,
     );
     return () => clearTimeout(timer);
-  }, [keyword]);
+  }, [keyword, agentName]);
 
   const handleLoadMore = () => {
     if (isLoading || loadingMoreRef.current || !hasMore) return;
@@ -158,15 +160,15 @@ export default function SessionHistory({
     const nextPage = pageRef.current + 1;
     loadingMoreRef.current = true;
     setIsLoadingMore(true);
-    fetchAgentSessions({ page: nextPage, size: PAGE_SIZE, keyword: keyword.trim() })
-      .then(list => {
+    fetchAgentSessionPage({ page: nextPage, size: PAGE_SIZE, keyword: keyword.trim(), agentName })
+      .then(({ items, hasMore: nextHasMore }) => {
         if (seq !== seqRef.current) return;
         pageRef.current = nextPage;
         setSessions(prev => {
           const existed = new Set(prev.map(item => item.sessionId));
-          return prev.concat(list.filter(item => !existed.has(item.sessionId)));
+          return prev.concat(items.filter(item => !existed.has(item.sessionId)));
         });
-        setHasMore(list.length >= PAGE_SIZE);
+        setHasMore(nextHasMore);
       })
       .catch(err => console.error('[agent] load more sessions failed', err))
       .finally(() => {
@@ -176,43 +178,39 @@ export default function SessionHistory({
       });
   };
 
-  const doRename = (item, title) => {
-    renameAgentSession(item.sessionId, title)
-      .then(newTitle => {
-        setSessions(prev => prev.map(s => (s.sessionId === item.sessionId ? { ...s, title: newTitle } : s)));
-        alert(_l('重命名成功'));
-      })
-      .catch(err => {
-        console.error('[agent] rename session failed', err);
-        alert(_l('重命名失败'), 2);
-      });
+  // 同左栏：一页数据经 session-bot- 过滤后可能撑不满弹窗列表，没有滚动条就再也触发不了翻页
+  useAutoLoadUntilScrollable({
+    scrollViewRef,
+    hasMore,
+    loading: isLoading,
+    loadingMore: isLoadingMore,
+    contentKey: sessions.length,
+    onLoadMore: handleLoadMore,
+  });
+
+  const handleRenamed = (sessionId, newTitle) => {
+    setSessions(prev => prev.map(s => (s.sessionId === sessionId ? { ...s, title: newTitle } : s)));
   };
 
-  const doDelete = item => {
-    deleteAgentSession(item.sessionId)
-      .then(() => {
-        setSessions(prev => prev.filter(s => s.sessionId !== item.sessionId));
-        alert(_l('删除成功'));
-        onDeleted(item.sessionId);
-      })
-      .catch(err => {
-        console.error('[agent] delete session failed', err);
-        alert(_l('删除失败'), 2);
-      });
+  const handleDeleted = sessionId => {
+    setSessions(prev => prev.filter(s => s.sessionId !== sessionId));
+    onDeleted(sessionId);
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       width={640}
       title={_l('历史对话')}
-      showFooter={false}
-      className={AGENT_DIALOG_CLOSE_CLASS}
+      footer={null}
+      rootClassName={AGENT_DIALOG_CLOSE_CLASS}
       onCancel={onClose}
     >
       <AgentDialogCloseStyle />
       <Body>
-        <div className="searchBox t-flex t-items-center">
+        <div className="sessionSearchBox t-flex t-items-center">
           <i className="icon-search" />
           <input
             ref={searchInputRef}
@@ -222,110 +220,47 @@ export default function SessionHistory({
           />
           {!!keyword && <i className="icon-cancel" onClick={() => setKeyword('')} />}
         </div>
-        <ScrollView className="sessionList" onScrollEnd={handleLoadMore}>
+        <ScrollView ref={scrollViewRef} className="sessionList" onScrollEnd={handleLoadMore}>
           {isLoading ? (
-            <Skeleton active widths={[100, '100%', '100%', '50%']} />
+            <Skeleton
+              className="pAll20"
+              active
+              paragraph={{
+                rows: 4,
+                width: [100, '100%', '100%', '50%'],
+              }}
+            />
           ) : !sessions.length ? (
             <div className="emptyStatus">{keyword ? _l('未找到相关对话') : _l('暂无历史对话')}</div>
           ) : (
             <React.Fragment>
               {sessions.map(item => (
-                <div
+                <SessionRow
                   key={item.sessionId}
-                  className={cx('sessionItem t-flex t-items-center t-space-between', {
-                    active: currentSessionId && item.sessionId === currentSessionId,
-                    menuActive: menuOpenId === item.sessionId,
-                  })}
-                  onClick={() => onSelect(item)}
-                >
-                  <div className="name ellipsis t-flex-1">{item.title}</div>
-                  {!!item.updateTime && <div className="updateTime">{window.createTimeSpan(item.updateTime, 5)}</div>}
-                  <Trigger
-                    popupVisible={menuOpenId === item.sessionId}
-                    onPopupVisibleChange={visible => setMenuOpenId(visible ? item.sessionId : '')}
-                    action={['click']}
-                    // rc-trigger 默认未给弹层加 position:absolute（项目未引入其内置样式），
-                    // dom-align 会回退成 position:relative 导致菜单贴到容器左缘，这里显式指定
-                    popupStyle={{ position: 'absolute', zIndex: 1051 }}
-                    popupAlign={{ points: ['tl', 'bl'], offset: [0, 6], overflow: { adjustX: true, adjustY: true } }}
-                    popup={
-                      <Menu className="Relative">
-                        <MenuItem
-                          icon={<Icon icon="rename_input" className="Font18 mLeft5" />}
-                          onClick={e => {
-                            // Trigger 弹层经 portal 渲染，事件会沿 React 树冒泡到行的 onSelect，需阻断
-                            if (e && e.stopPropagation) e.stopPropagation();
-                            setMenuOpenId('');
-                            Dialog.confirm({
-                              title: _l('重命名对话'),
-                              width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
-                              description: (
-                                <Input
-                                  autoFocus
-                                  placeholder={_l('请输入对话名称')}
-                                  className="w100 textPrimary"
-                                  defaultValue={item.title}
-                                  manualRef={ref => (renameInputRef.current = ref)}
-                                />
-                              ),
-                              onOk: () => {
-                                const val = renameInputRef.current && renameInputRef.current.value.trim();
-
-                                if (val) {
-                                  doRename(item, val);
-                                } else {
-                                  alert(_l('请输入对话名称'), 3);
-                                  renameInputRef.current && renameInputRef.current.focus();
-                                  return false;
-                                }
-                              },
-                            });
-                          }}
-                        >
-                          <span className="mLeft10">{_l('重命名')}</span>
-                        </MenuItem>
-                        <MenuItem
-                          icon={<Icon icon="trash" className="Font18 mLeft5" style={{ color: 'var(--color-error)' }} />}
-                          onClick={e => {
-                            if (e && e.stopPropagation) e.stopPropagation();
-                            setMenuOpenId('');
-                            Dialog.confirm({
-                              title: (
-                                <span style={{ color: 'var(--color-error)', fontWeight: 'bold' }}>
-                                  {_l('确定删除该对话')}
-                                </span>
-                              ),
-                              width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
-                              description: _l('删除后，聊天记录将不可恢复'),
-                              buttonType: 'danger',
-                              onOk: () => doDelete(item),
-                            });
-                          }}
-                        >
-                          <span className="mLeft10" style={{ color: 'var(--color-error)' }}>
-                            {_l('删除')}
-                          </span>
-                        </MenuItem>
-                      </Menu>
-                    }
-                  >
-                    <span className="operateIcon" onClick={e => e.stopPropagation()}>
-                      <i className="icon icon-more_horiz Font18 textTertiary Hand" />
-                    </span>
-                  </Trigger>
-                </div>
+                  item={item}
+                  showUpdateTime
+                  enableShare={enableShare}
+                  active={currentSessionId && item.sessionId === currentSessionId}
+                  onSelect={onSelect}
+                  onRenamed={handleRenamed}
+                  onDeleted={handleDeleted}
+                />
               ))}
               {isLoadingMore && <LoadDiv className="mTop6 mBottom6" size={20} />}
             </React.Fragment>
           )}
         </ScrollView>
       </Body>
-    </Dialog>
+    </Modal>
   );
 }
 
 SessionHistory.propTypes = {
   currentSessionId: PropTypes.string,
+  // 仅展示该 agent 名下的会话（如帮助中心 help-agent）；空则不过滤
+  agentName: PropTypes.string,
+  // 会话行是否提供「分享」：智能客服不支持会话分享
+  enableShare: PropTypes.bool,
   onSelect: PropTypes.func,
   onDeleted: PropTypes.func,
   onClose: PropTypes.func,

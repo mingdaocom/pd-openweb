@@ -36,7 +36,7 @@ export default class CalendarAddress extends Component {
             />
             {address && canLook ? (
               <a
-                href={`http://api.map.baidu.com/geocoder?address=${address}&output=html&referer=`}
+                href={`http://api.map.baidu.com/geocoder?address=${address}&output=html`}
                 target="_blank"
                 className="pLeft15 pRight15"
               >

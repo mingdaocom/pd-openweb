@@ -312,6 +312,9 @@ function iterTitle(stepId, iter) {
     if (stepId === 'step-build-worksheets' || stepId === 'step-build-relations')
       return _l('工作表 %0', (iter && iter.index + 1) || '');
     if (stepId === 'step-build-views') return _l('视图 %0', (iter && iter.index + 1) || '');
+    // 业务规则按表迭代（item 即 plan worksheet 对象，正常走上层 item.name），无 item 时按表序号兜底
+    if (stepId === 'step-build-views-and-rules:build-business-rules')
+      return _l('工作表 %0', (iter && iter.index + 1) || '');
     if (stepId === 'step-build-workflows:system-workflows') return _l('工作流 %0', (iter && iter.index + 1) || '');
     if (stepId === 'step-build-workflows:custom-action-workflows')
       return _l('自定义动作 %0', (iter && iter.index + 1) || '');
@@ -340,6 +343,13 @@ function iterMeta(stepId, iter) {
     if (views > 0) parts.push(_l('视图 %0 个', views));
     if (actions > 0) parts.push(_l('动作 %0 个', actions));
     return parts.join('，');
+  }
+
+  // 业务规则：sub-agent 输出 { completed, rulesCreated }；能取到成功数就平铺展示，取不到不显示
+  if (stepId === 'step-build-views-and-rules:build-business-rules') {
+    const n = iter && iter.result && iter.result.rulesCreated;
+
+    return typeof n === 'number' && n > 0 ? _l('规则 %0 条', n) : '';
   }
 
   return '';
@@ -446,9 +456,9 @@ function namedListOf(step, key) {
 const showMain = s => !!s && (s.status === 'running' || s.status === 'completed');
 const isRunning = s => !!s && s.status === 'running';
 
-// 固定 8 行步骤（对齐设计稿）；未到达的步骤显示「准备中」。
+// 固定步骤行（对齐设计稿）；未到达的步骤显示「准备中」。
 // 1) 创建应用 / 2) 创建分组（均来自 step-create-app）/ 3) 创建工作表 / 4) 创建视图与自定义动作
-// 5) 创建角色 / 6) 创建自定义页面 / 7) 创建工作流 / 8) 创建自定义动作工作流
+// 5) 创建业务规则（与 4 并行）/ 6) 创建角色 / 7) 创建自定义页面 / 8) 创建工作流 / 9) 创建自定义动作工作流
 export default function BuildProgress({ steps = {}, appName, startedAt, finishedAt, aborted, onOpenPreview }) {
   const createApp = steps['step-create-app'] || { status: 'pending' };
   const caResult = createApp.result || {};
@@ -513,7 +523,12 @@ export default function BuildProgress({ steps = {}, appName, startedAt, finished
   const chatCur = branchToCur(chatbots, 'chatbotContext');
   const hasChatbots = chatCur.iterations && chatCur.iterations.length > 0;
 
-  const views = steps['step-build-views'];
+  // V5.x：视图步并入并行容器 step-build-views-and-rules（与业务规则分支并发），事件 stepId 变为复合形式；
+  // 旧顶层 id 兜底，兼容调整前发起的历史会话回放。LoopStep 的 stepId prop 只是 iterTitle/iterMeta 的展示
+  // 分派 key，继续传旧 id 即可两头命中。
+  const views = steps['step-build-views-and-rules:step-build-views'] || steps['step-build-views'];
+  // 业务规则：并行容器第二分支，逐表把 plan 的 businessRulesNotes 建成交互/校验/锁定规则。
+  const bizRules = steps['step-build-views-and-rules:build-business-rules'];
   // V5.x：角色构建从独立 step-build-roles 移入并行步 step-config-and-design 的 build-roles 分支，stepId 变为复合形式。
   const roles = steps['step-config-and-design:build-roles'];
   const sysWf = steps['step-build-workflows:system-workflows'];
@@ -570,6 +585,13 @@ export default function BuildProgress({ steps = {}, appName, startedAt, finished
           />
           {showMain(wsCur) && <LoopStep stepId="step-build-worksheets" title={_l('创建工作表')} cur={wsCur} />}
           {showMain(views) && <LoopStep stepId="step-build-views" title={_l('创建视图与自定义动作')} cur={views} />}
+          {showMain(bizRules) && (
+            <LoopStep
+              stepId="step-build-views-and-rules:build-business-rules"
+              title={_l('创建业务规则')}
+              cur={bizRules}
+            />
+          )}
           {showMain(roles) && (
             <LoopStep stepId="step-config-and-design:build-roles" title={_l('创建角色')} cur={roles} />
           )}

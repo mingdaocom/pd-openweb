@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import autoSize from 'ming-ui/components/AutoSize';
-import { getToken } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getToken } from 'src/utils/services/request/authenticated';
 import { preventWidgetResizeRedrawRecursion } from './richTextUtils';
 import './less/RichText.less';
 
@@ -161,7 +161,7 @@ const getEditorPlugins = editorModule =>
   ].filter(Boolean);
 
 const Wrapper = styled.div(
-  ({ minHeight, maxWidth, maxHeight, dropdownPanelPosition = {}, width }) => `
+  ({ $minHeight, $maxWidth, $maxHeight, $dropdownPanelPosition = {}, $width }) => `
   --ck-color-button-default-hover-background: rgba(0, 0, 0, 0.1);
   --ck-color-button-on-background: rgba(0, 0, 0, 0.1);
   --ck-color-button-on-hover-background: rgba(0, 0, 0, 0.1);
@@ -191,7 +191,7 @@ const Wrapper = styled.div(
       }
     }
     &.ck-toolbar-dropdown>.ck-dropdown__panel{
-      max-width: ${maxWidth || width}px ;
+      max-width: ${$maxWidth || $width}px ;
     }
     .ck-toolbar__items {
       height: 100% !important;
@@ -217,15 +217,15 @@ const Wrapper = styled.div(
       }
       .ck-dropdown__panel.ck-dropdown__panel_ne,
       .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se{
-        // left: ${dropdownPanelPosition.left ? dropdownPanelPosition.left : 'initial'} ;
-        // right:  ${dropdownPanelPosition.right ? dropdownPanelPosition.right : '0'};
+        // left: ${$dropdownPanelPosition.left ? $dropdownPanelPosition.left : 'initial'} ;
+        // right:  ${$dropdownPanelPosition.right ? $dropdownPanelPosition.right : '0'};
         max-height: 300px ;
         overflow-y: auto;
       }
     }
     .ck-content {
-      min-height: ${minHeight || 90}px !important;
-      max-height: ${maxHeight ? `${maxHeight}px` : 'initial'} ;
+      min-height: ${$minHeight || 90}px !important;
+      max-height: ${$maxHeight ? `${$maxHeight}px` : 'initial'} ;
       border: 1px solid var(--color-background-secondary) !important;
       font-size: 13px !important;
       background: var(--color-background-secondary) !important;
@@ -295,7 +295,7 @@ const Wrapper = styled.div(
     }
   }
   &.editorNull{
-    min-height: ${minHeight || 90}px ;
+    min-height: ${$minHeight || 90}px ;
     background: var(--color-background-primary);
     border-radius: 2px;
     padding: 10px;
@@ -439,6 +439,54 @@ const lang = () => {
   return CKEDITOR_LANGUAGE_MAP[currentLang] || 'en';
 };
 
+const EMPTY_BODY_COLLECTION_CLEANUP = () => {};
+
+export function mountBodyCollectionInDialog({ bodyCollectionContainer, editorRoot }) {
+  if (!bodyCollectionContainer?.parentNode || !editorRoot?.closest) {
+    return EMPTY_BODY_COLLECTION_CLEANUP;
+  }
+
+  const dialog = editorRoot.closest('[role="dialog"][aria-modal="true"]');
+
+  if (!dialog) {
+    return EMPTY_BODY_COLLECTION_CLEANUP;
+  }
+
+  const originalParent = bodyCollectionContainer.parentNode;
+  const ownerDocument = dialog.ownerDocument || document;
+  const ownerWindow = ownerDocument.defaultView || window;
+  const host = ownerDocument.createElement('div');
+  let cleaned = false;
+
+  const syncBodyCollectionOffset = () => {
+    host.style.setProperty('--md-rich-text-body-collection-offset-x', `${-(ownerWindow.scrollX || 0)}px`);
+    host.style.setProperty('--md-rich-text-body-collection-offset-y', `${-(ownerWindow.scrollY || 0)}px`);
+  };
+
+  host.className = 'mdRichTextBodyCollectionHost';
+  syncBodyCollectionOffset();
+  ownerWindow.addEventListener('scroll', syncBodyCollectionOffset, { passive: true });
+  dialog.appendChild(host);
+  host.appendChild(bodyCollectionContainer);
+
+  return () => {
+    if (cleaned) return;
+
+    cleaned = true;
+    ownerWindow.removeEventListener('scroll', syncBodyCollectionOffset);
+
+    if (bodyCollectionContainer.parentNode === host) {
+      if (originalParent.isConnected) {
+        originalParent.appendChild(bodyCollectionContainer);
+      } else {
+        bodyCollectionContainer.remove();
+      }
+    }
+
+    host.remove();
+  };
+}
+
 const RichText = forwardRef((props, ref) => {
   const {
     bucket,
@@ -473,6 +521,7 @@ const RichText = forwardRef((props, ref) => {
   const CKEditor = ckeditor && ckeditor.CKEditor;
   const editorDiv = useRef();
   let editorDom = useRef();
+  const bodyCollectionCleanupRef = useRef(EMPTY_BODY_COLLECTION_CLEANUP);
   const lastSavedContentRef = useRef(data ?? '');
 
   // 标准化 HTML 内容用于比对：移除 img src 中的 ?e= 及之后的内容
@@ -536,6 +585,14 @@ const RichText = forwardRef((props, ref) => {
   useEffect(() => {
     lastSavedContentRef.current = data ?? '';
   }, [data]);
+
+  useEffect(
+    () => () => {
+      bodyCollectionCleanupRef.current();
+      bodyCollectionCleanupRef.current = EMPTY_BODY_COLLECTION_CLEANUP;
+    },
+    [],
+  );
 
   let content;
 
@@ -718,6 +775,14 @@ const RichText = forwardRef((props, ref) => {
         data={data}
         ref={editorDom}
         onReady={editor => {
+          bodyCollectionCleanupRef.current();
+          // CKEditor 将气泡面板统一挂到 body，Antd 6 的 Modal/Drawer 焦点锁会将其识别为弹层外节点。
+          // 仅在对话框内把当前编辑器的外置 UI 移入焦点边界，普通页面仍保留 CKEditor 默认挂载方式。
+          bodyCollectionCleanupRef.current = mountBodyCollectionInDialog({
+            bodyCollectionContainer: editor.ui?.view?.body?.bodyCollectionContainer,
+            editorRoot: editor.ui?.getEditableElement?.() || editorDiv.current,
+          });
+
           function isWordContent(html = '') {
             // 通过检查特定的 Word 样式或标记来判断
             return html.toLowerCase().startsWith('<html xmlns:o="urn:schemas-microsoft-com:office:office"');
@@ -800,10 +865,10 @@ const RichText = forwardRef((props, ref) => {
         Hand: !!onClickNull,
         remarkControl: isRemark,
       })}
-      minHeight={minHeight}
-      maxWidth={maxWidth}
-      maxHeight={maxHeight}
-      dropdownPanelPosition={dropdownPanelPosition}
+      $minHeight={minHeight}
+      $maxWidth={maxWidth}
+      $maxHeight={maxHeight}
+      $dropdownPanelPosition={dropdownPanelPosition}
       ref={editorDiv}
       onClick={() => {
         if (disabled && _.isFunction(onClickNull)) {
@@ -816,7 +881,7 @@ const RichText = forwardRef((props, ref) => {
           }
         }
       }}
-      width={width}
+      $width={width}
     >
       {content}
     </Wrapper>

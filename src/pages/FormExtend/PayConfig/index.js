@@ -1,25 +1,28 @@
 import React, { Component, Fragment } from 'react';
-import { Select, Tag } from 'antd';
 import cx from 'classnames';
 import _, { isArray } from 'lodash';
-import { Button, Dialog, Dropdown, LoadDiv, Support, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, Support } from 'ming-ui';
+import { Button, Input, Modal, Select, Switch, Tag, Tooltip } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment';
 import worksheetAjax from 'src/api/worksheet';
 import worksheetSettingAjax from 'src/api/worksheetSetting';
+import { PAY_CHANNEL_TXT, PAY_CHANNEL_TYPE } from 'src/pages/Admin/pay/config';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/utils/domain/worksheet/view';
 import MapField from '../common/MapField';
 import { checkIsDeleted } from '../utils';
 import FilterViewRange from './FilterViewRange';
 import '../common/payAndInvoice.less';
 import './index.less';
 
-const PAYMENT_CHANNEL = { 0: _l('聚合支付'), 2: _l('微信支付'), 1: _l('支付宝支付') };
+const DEFAULT_REFUND_TIME = 7;
+
+const isValidRefundTime = value => /^\d+$/.test(String(value)) && Number(value) > 0;
+const normalizeRefundTime = value => (isValidRefundTime(value) ? Number(value) : DEFAULT_REFUND_TIME);
 
 const filterDeleteFields = (fieldMaps, controls) => {
   fieldMaps = !_.isEmpty(fieldMaps)
@@ -89,7 +92,7 @@ const getMapControls = (controls, fieldMapIds, field) => {
         !_.includes(fieldMapIds, v.controlId)
       );
     })
-    .map(c => ({ text: c.controlName, value: c.controlId }));
+    .map(c => ({ label: c.controlName, value: c.controlId }));
 };
 
 const getControlType = (payAmountControlId, controls) =>
@@ -113,6 +116,7 @@ export default class PayConfig extends Component {
       expireTime: 10,
       loading: true,
       isRefundAllowed: false, //是否启用退款
+      refundTime: DEFAULT_REFUND_TIME,
       isPaySuccessAddRecord: false, // 立即支付
       isAtOncePayment: false, // 支付成功后提交表单
       isAllowedAddOption: false, //
@@ -158,7 +162,7 @@ export default class PayConfig extends Component {
       const { internalUser = {}, externalUser = {} } = worksheetPaymentSetting;
       const controls = _.get(worksheetInfo, 'template.controls') || [];
       const list = merchantList
-        .filter(v => v.status === 3)
+        .filter(v => v.status === 3 && v.merchantPaymentChannel !== PAY_CHANNEL_TYPE.AGGREGATE)
         .map(({ shortName, merchantNo, subscribeMerchant, planExpiredTime, merchantPaymentChannel }) => ({
           text: shortName || merchantNo,
           label: shortName || merchantNo,
@@ -167,6 +171,7 @@ export default class PayConfig extends Component {
           disabled: window.platformENV.isOverseas || window.platformENV.isLocal ? false : !planExpiredTime,
           merchantPaymentChannel,
         }));
+      const mchId = getFilterDeletedMchId(settings.mchId ? settings.mchId.split(',') : [], list);
       const initSettings = {
         ..._.pick(settings, [
           'projectId',
@@ -183,7 +188,8 @@ export default class PayConfig extends Component {
           'isAtOncePayment',
           'isAllowedAddOption',
         ]),
-        mchId: settings.mchId ? settings.mchId.split(',') : [],
+        mchId,
+        refundTime: normalizeRefundTime(settings.refundTime),
         fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
         internalUser: {
           isEnable: _.isUndefined(internalUser.isEnable) ? true : internalUser.isEnable,
@@ -243,11 +249,16 @@ export default class PayConfig extends Component {
     const { mchId } = this.state;
 
     if ((_.isArray(mchId) && mchId.length) || (!isArray(mchId) && !mchId)) {
-      Dialog.confirm({
+      Modal.confirm({
         title: _l('你确认变更收款商户？'),
-        description: _l('变更后已有的待支付订单统一变更为已取消'),
+        content: _l('变更后已有的待支付订单统一变更为已取消'),
         onOk: () => {
-          this.setState({ isChangeMerchant: true }, this.onSave);
+          this.setState(
+            {
+              isChangeMerchant: true,
+            },
+            this.onSave,
+          );
         },
       });
     }
@@ -268,6 +279,7 @@ export default class PayConfig extends Component {
       controls,
       merchantList = [],
       isRefundAllowed,
+      refundTime,
       isPaySuccessAddRecord,
       isAtOncePayment,
       orderVisibleViewIds = [],
@@ -315,6 +327,13 @@ export default class PayConfig extends Component {
       return;
     }
 
+    if (isRefundAllowed && !isValidRefundTime(refundTime)) {
+      alert(_l('退款时效必须大于0'), 3);
+      return;
+    }
+
+    const currentRefundTime = normalizeRefundTime(refundTime);
+
     worksheetSettingAjax
       .savPaymentSetting({
         projectId,
@@ -329,6 +348,7 @@ export default class PayConfig extends Component {
         expireTime,
         enableOrderVisible,
         isRefundAllowed,
+        refundTime: currentRefundTime,
         isPaySuccessAddRecord,
         isAtOncePayment,
         isAllowedAddOption,
@@ -352,6 +372,7 @@ export default class PayConfig extends Component {
           this.setState({
             isChangeMerchant: false,
             initExpireTime: expireTime,
+            refundTime: currentRefundTime,
             initSettings: {
               ...initSettings,
               mchId,
@@ -362,6 +383,7 @@ export default class PayConfig extends Component {
               expireTime,
               enableOrderVisible,
               isRefundAllowed,
+              refundTime: currentRefundTime,
               isPaySuccessAddRecord,
               isAtOncePayment,
               orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
@@ -392,6 +414,7 @@ export default class PayConfig extends Component {
       internalUser,
       externalUser,
       isRefundAllowed,
+      refundTime,
       isPaySuccessAddRecord,
       isAtOncePayment,
       orderVisibleViewIds = [],
@@ -417,6 +440,7 @@ export default class PayConfig extends Component {
             internalUser,
             externalUser,
             isRefundAllowed,
+            refundTime: normalizeRefundTime(refundTime),
             isPaySuccessAddRecord,
             isAtOncePayment,
             isAllowedAddOption,
@@ -453,7 +477,15 @@ export default class PayConfig extends Component {
                         className="mTop2 mRight8"
                         checked={isEnable}
                         disabled={true}
-                        onClick={checked => this.setState({ [key]: { ...this.state[key], isEnable: !checked } })}
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
+                          return this.setState({
+                            [key]: {
+                              ...this.state[key],
+                              isEnable: !!checked,
+                            },
+                          });
+                        }}
                       />
                     </span>
                   </Tooltip>
@@ -462,7 +494,15 @@ export default class PayConfig extends Component {
                     size="small"
                     className="mTop2 mRight8"
                     checked={isEnable}
-                    onClick={checked => this.setState({ [key]: { ...this.state[key], isEnable: !checked } })}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return this.setState({
+                        [key]: {
+                          ...this.state[key],
+                          isEnable: !!checked,
+                        },
+                      });
+                    }}
                   />
                 )}
 
@@ -506,6 +546,8 @@ export default class PayConfig extends Component {
                             controls.map(control => redefineComplexControl(control)),
                             filter,
                           )}
+                          filters={filter}
+                          controls={controls}
                           loading={false}
                           editFn={() => this.setState({ showFilterDialog: true, filterType: key })}
                         />
@@ -565,6 +607,7 @@ export default class PayConfig extends Component {
       enableOrderVisible,
       initExpireTime,
       isRefundAllowed,
+      refundTime,
       isPaySuccessAddRecord,
       isAtOncePayment,
       controls = [],
@@ -633,7 +676,10 @@ export default class PayConfig extends Component {
                                 size="small"
                                 checked={scenes[item.key]}
                                 disabled={true}
-                                onClick={checked => this.changeScenes(checked, item.key)}
+                                onClick={(checked, event) => {
+                                  event.stopPropagation();
+                                  return this.changeScenes(!checked, item.key);
+                                }}
                               />
                             </span>
                           </Tooltip>
@@ -642,7 +688,10 @@ export default class PayConfig extends Component {
                         <Switch
                           size="small"
                           checked={scenes[item.key]}
-                          onClick={checked => this.changeScenes(checked, item.key)}
+                          onClick={(checked, event) => {
+                            event.stopPropagation();
+                            return this.changeScenes(!checked, item.key);
+                          }}
                         />
                       )}
                     </div>
@@ -662,14 +711,52 @@ export default class PayConfig extends Component {
                 ) : (
                   <Select
                     className="w100 merchantList"
-                    dropdownClassName="merchantDropDown"
+                    classNames={{ popup: { root: 'merchantDropDown' } }}
                     mode={isMultipleMerchant ? 'multiple' : undefined}
-                    showArrow={true}
                     value={mchId}
                     optionLabelProp="label"
                     optionFilterProp="label"
                     suffixIcon={<i className="icon icon-arrow-down-border textTertiary" />}
                     onChange={value => this.setState({ mchId: _.isArray(value) ? value : [value] })}
+                    options={merchantList.map(item => {
+                      const disabled =
+                        item.disabled ||
+                        (_.some(
+                          selectedMerchants,
+                          v => v.merchantPaymentChannel === item.merchantPaymentChannel && v.value !== item.value,
+                        ) &&
+                          isMultipleMerchant);
+
+                      return {
+                        value: item.value,
+                        label: item.label,
+                        disabled,
+                        item,
+                      };
+                    })}
+                    optionRender={({ data }) => {
+                      const { item, disabled } = data;
+
+                      return (
+                        <div className="valignWrapper">
+                          <span className="flex overflow_ellipsis">
+                            {item.text}
+                            <span className={cx('mLeft10', { textTertiary: !disabled, textDisabled: disabled })}>
+                              {PAY_CHANNEL_TXT[item.merchantPaymentChannel]}
+                            </span>
+                          </span>
+
+                          {!item.subscribeMerchant && window.platformENV.isHap && (
+                            <span
+                              className="Hand colorPrimary option"
+                              onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
+                            >
+                              {_l('开通收款')}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }}
                     tagRender={props => {
                       const { value, onClose, disabled } = props;
                       const name = _.find(merchantList, item => item.value === value) ? props.label : undefined;
@@ -692,52 +779,17 @@ export default class PayConfig extends Component {
                         </Tag>
                       );
                     }}
-                  >
-                    {merchantList.map(item => {
-                      const disabled =
-                        item.disabled ||
-                        (_.some(
-                          selectedMerchants,
-                          v => v.merchantPaymentChannel === item.merchantPaymentChannel && v.value !== item.value,
-                        ) &&
-                          isMultipleMerchant);
-                      return (
-                        <Select.Option key={item.value} value={item.value} label={item.label} disabled={disabled}>
-                          <div className="valignWrapper">
-                            <span className="flex overflow_ellipsis">
-                              {item.text}
-                              <span className={cx('mLeft10', { textTertiary: !disabled, textDisabled: disabled })}>
-                                {PAYMENT_CHANNEL[item.merchantPaymentChannel]}
-                              </span>
-                            </span>
-
-                            {!item.subscribeMerchant &&
-                              !window.platformENV.isOverseas &&
-                              !window.platformENV.isLocal && (
-                                <span
-                                  className="Hand colorPrimary option"
-                                  onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
-                                >
-                                  {_l('开通收款')}
-                                </span>
-                              )}
-                          </div>
-                        </Select.Option>
-                      );
-                    })}
-                  </Select>
+                  />
                 )}
                 <div className="subTitle required">{_l('支付内容')}</div>
                 <div className="textTertiary mBottom16">{_l('订单/支付页面显示的商品/产品简要描述')}</div>
-                <Dropdown
+                <Select
                   className={cx('w100', {
                     emptyDropdown: checkIsDeleted(payContentControlId, controls),
                   })}
-                  menuClass="w100"
-                  border
                   placeholder={_l('选择文本字段')}
                   value={payContentControlId}
-                  data={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'content')}
+                  options={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'content')}
                   onChange={value => this.setState({ payContentControlId: value })}
                 />
                 <div className="subTitle required">{_l('支付金额')}</div>
@@ -746,15 +798,13 @@ export default class PayConfig extends Component {
                     '支持字段：金额（仅支持人民币）、数值、公式、汇总；限制在2位小数（超过只取前两位数值），可支付的金额范围：0.01~10000',
                   )}
                 </div>
-                <Dropdown
+                <Select
                   className={cx('w100', {
                     emptyDropdown: checkIsDeleted(payAmountControlId, controls),
                   })}
-                  menuClass="w100"
-                  border
                   placeholder={_l('选择金额、数值、公式、汇总字段')}
                   value={payAmountControlId}
-                  data={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'amount')}
+                  options={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'amount')}
                   onChange={value =>
                     this.setState({
                       payAmountControlId: value,
@@ -769,12 +819,13 @@ export default class PayConfig extends Component {
                     className="mRight12"
                     size="small"
                     checked={expireTime}
-                    onClick={checked =>
-                      this.setState({
-                        expireTime: checked ? 0 : initExpireTime || 15,
-                        isPaySuccessAddRecord: checked ? false : isPaySuccessAddRecord,
-                      })
-                    }
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return this.setState({
+                        expireTime: !checked ? 0 : initExpireTime || 15,
+                        isPaySuccessAddRecord: !checked ? false : isPaySuccessAddRecord,
+                      });
+                    }}
                   />
                   {_l('设置交易有效期')}
                 </div>
@@ -783,7 +834,7 @@ export default class PayConfig extends Component {
                 </div>
                 {expireTime ? (
                   <Select
-                    className="w100 mdAntSelect"
+                    className="w100"
                     showSearch
                     placeholder={_l('选择或填写时间')}
                     value={expireTime}
@@ -798,7 +849,7 @@ export default class PayConfig extends Component {
                       val = val && Number(val) > 30 ? '30' : val;
                       this.setState({ expireTime: val ? Number(val) : expireTime, searchValue: val });
                     }}
-                    onDropdownVisibleChange={open => this.setState({ dropdownVisible: open })}
+                    onOpenChange={open => this.setState({ dropdownVisible: open })}
                   />
                 ) : (
                   ''
@@ -811,7 +862,12 @@ export default class PayConfig extends Component {
                       className="mRight8"
                       size="small"
                       checked={isAtOncePayment}
-                      onClick={checked => this.setState({ isAtOncePayment: !checked })}
+                      onClick={(checked, event) => {
+                        event.stopPropagation();
+                        return this.setState({
+                          isAtOncePayment: !!checked,
+                        });
+                      }}
                     />
                     <span className="bold Font14">{_l('立即支付')}</span>
                   </div>
@@ -831,7 +887,12 @@ export default class PayConfig extends Component {
                           !expireTime
                         }
                         checked={isPaySuccessAddRecord}
-                        onClick={checked => this.setState({ isPaySuccessAddRecord: !checked })}
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
+                          return this.setState({
+                            isPaySuccessAddRecord: !!checked,
+                          });
+                        }}
                       />
                       <span className="bold Font14">{_l('支付成功后提交表单')}</span>
                     </div>
@@ -850,13 +911,29 @@ export default class PayConfig extends Component {
                         className="mRight8"
                         size="small"
                         checked={isRefundAllowed}
-                        onClick={checked => this.setState({ isRefundAllowed: !checked })}
+                        onClick={(checked, event) => {
+                          event.stopPropagation();
+                          return this.setState({
+                            isRefundAllowed: !!checked,
+                            refundTime: normalizeRefundTime(refundTime),
+                          });
+                        }}
                       />
                       <span className="bold Font14">{_l('允许退款')}</span>
                     </div>
-                    <div className="textTertiary mTop10 mBottom30">
-                      {_l('开通后完成交易7天内的订单支持申请退款，目前仅付款人可申请退款')}
+                    <div className={cx('textTertiary mTop10', { mBottom30: !isRefundAllowed })}>
+                      {_l('开启后，付款人可在订单支付成功后的退款时效内申请退款，默认 7 天')}
                     </div>
+                    {isRefundAllowed && (
+                      <div className="flexRow alignItemsCenter mTop10 mBottom30">
+                        <Input
+                          className="Width400"
+                          value={refundTime}
+                          onChange={event => this.setState({ refundTime: event.target.value.replace(/\D/g, '') })}
+                        />
+                        <span className="mLeft10">{_l('天')}</span>
+                      </div>
+                    )}
                   </Fragment>
                 )}
                 <div className="flexRow alignItemsCenter mBottom10">
@@ -864,7 +941,12 @@ export default class PayConfig extends Component {
                     className="mRight8"
                     size="small"
                     checked={enableOrderVisible}
-                    onClick={checked => this.setState({ enableOrderVisible: !checked })}
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
+                      return this.setState({
+                        enableOrderVisible: !!checked,
+                      });
+                    }}
                   />
                   <span className="bold Font14">{_l('在记录详情侧边栏显示支付订单信息')}</span>
                 </div>
@@ -882,10 +964,11 @@ export default class PayConfig extends Component {
                     className="mRight8"
                     size="small"
                     checked={isAllowedAddOption}
-                    onClick={checked => {
+                    onClick={(checked, event) => {
+                      event.stopPropagation();
                       this.setState({
-                        isAllowedAddOption: !checked,
-                        fieldMaps: checked ? filterDeleteFields(fieldMaps, controls) : initSettings.fieldMaps,
+                        isAllowedAddOption: !!checked,
+                        fieldMaps: !checked ? filterDeleteFields(fieldMaps, controls) : initSettings.fieldMaps,
                       });
                     }}
                   />

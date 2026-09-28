@@ -1,14 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'ming-ui/antd-components';
-import Checkbox from 'ming-ui/components/Checkbox';
+import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 
 function CalendarPrivate(props) {
   const { isPrivate, createUser, changePrivacy } = props;
   const isCreateUser = createUser === md.global.Account.accountId;
   return (
     <div className="textTertiary calendarPrivate">
-      <Checkbox className="Font12 InlineBlock" disabled={!isCreateUser} checked={isPrivate} onClick={changePrivacy}>
+      <Checkbox
+        className="Font12"
+        disabled={!isCreateUser}
+        checked={isPrivate}
+        onChange={event => changePrivacy(!event.target.checked, undefined, event)}
+      >
         {isCreateUser ? (
           <span>{_l('私密日程 (仅成员可见)')}</span>
         ) : (

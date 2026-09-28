@@ -1,25 +1,22 @@
 import React, { Component } from 'react';
-import { Checkbox } from 'antd';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
-import { addToken } from 'src/utils/common';
-import 'rc-trigger/assets/index.css';
+import { addToken } from 'src/utils/platform/browser/download';
 
 const Wrap = styled.div`
   color: var(--color-text-title);
   font-size: 13px;
   display: flex;
   flex-direction: column;
-  .ant-checkbox-group {
+  .hap-checkbox-group {
     display: flex;
     flex-direction: column;
-    .ant-checkbox-group-item {
+    .hap-checkbox-group-item {
       margin-top: 8px;
     }
-    .ant-checkbox {
+    .hap-checkbox {
       input {
         display: none;
       }
@@ -68,7 +65,6 @@ export default class ExportDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      datePickerVisible: false,
       startDate: moment(new Date()).format('YYYY-MM-DD'),
       endDate: moment(new Date()).format('YYYY-MM-DD'),
       typeList: [],
@@ -99,19 +95,20 @@ export default class ExportDialog extends Component {
   }
 
   render() {
-    const { datePickerVisible, startDate, endDate, typeList } = this.state;
+    const { startDate, endDate, typeList } = this.state;
     let outPutList = '';
     typeList.forEach(item => {
       outPutList += item + '|';
     });
     return (
-      <Dialog
-        visible={this.props.visible}
+      <Modal
+        open={this.props.visible}
         title={<span className="Bold">{_l('导出数据')}</span>}
         cancelText={_l('取消')}
         okText={_l('导出')}
-        width="480"
-        overlayClosable={false}
+        width={480}
+        mask={{ closable: false }}
+        keyboard
         onCancel={() => {
           this.props.handleChangeVisible('exportVisible', false);
         }}
@@ -122,37 +119,28 @@ export default class ExportDialog extends Component {
           <Checkbox.Group options={plainOptions} onChange={e => this.onChange(e)} />
           <div className="exportLine"></div>
           <div className="bold">{_l('导出的时间范围')}</div>
-          <Trigger
-            popupVisible={datePickerVisible}
-            onPopupVisibleChange={visible => this.setState({ datePickerVisible: visible })}
-            action={['click']}
-            popupAlign={{ points: ['tl', 'bl'] }}
-            popup={
-              <DatePickerFilter
-                updateData={data => {
-                  this.setState({
-                    datePickerVisible: false,
-                    startDate: data.startDate,
-                    endDate: data.endDate,
-                  });
-                }}
-              />
-            }
+          <DatePickerFilter
+            updateData={data => {
+              this.setState({
+                startDate: data.startDate,
+                endDate: data.endDate,
+              });
+            }}
           >
             <div className="exportData mBottom8">{startDate && endDate ? _l('%0 至 %1', startDate, endDate) : ''}</div>
-          </Trigger>
+          </DatePickerFilter>
           <form
             id="outPutFormBox"
             method="get"
             action={addToken(`${md.global.Config.AjaxApiUrl}download/exportProjectEntityToExcel`)}
           >
-            <input type="hidden" name="list" value={outPutList} />
-            <input type="hidden" name="startDate" value={startDate} />
-            <input type="hidden" name="endDate" value={endDate} />
-            <input type="hidden" name="projectId" value={this.props.projectId} />
+            <Input type="hidden" name="list" value={outPutList} />
+            <Input type="hidden" name="startDate" value={startDate} />
+            <Input type="hidden" name="endDate" value={endDate} />
+            <Input type="hidden" name="projectId" value={this.props.projectId} />
           </form>
         </Wrap>
-      </Dialog>
+      </Modal>
     );
   }
 }

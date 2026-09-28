@@ -1,10 +1,8 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, InputNumber, Segmented } from 'ming-ui/antd-components';
 import BtnListSort from './BtnListSort';
-import SelectCount from './SelectCount';
 
 const BTN_TYPE = [
   {
@@ -74,59 +72,21 @@ const BTN_DIRECTION = [
     tip: _l('左右'),
   },
 ];
+
+const getSegmentedOptions = options => options.map(({ value, text }) => ({ label: text, value }));
+const getIconSegmentedOptions = options =>
+  options.map(({ icon, value, tip }) => ({ icon: <i className={`icon-${icon} Font20`} />, tooltip: tip, value }));
+
 const SettingWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  .addBtn {
-    width: 120px;
-    box-sizing: border-box;
-    height: 32px;
-    line-height: 32px;
-    padding: 0 20px 0 16px;
-    border-radius: 18px;
-    background-color: var(--color-background-card);
-    font-weight: bold;
-    color: var(--color-primary);
-    &:hover {
-      background-color: var(--color-background-card);
-      color: var(--color-primary-dark);
-    }
-  }
   .btnGroupSettingWrap {
     display: flex;
     align-items: center;
     .itemTitle {
       margin: 0 10px 0 24px;
       font-size: 13px;
-    }
-    .btnStyle,
-    .btnWidth {
-      display: flex;
-      border-radius: 3px;
-      padding: 3px;
-      background-color: var(--color-background-disabled);
-      li {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-        padding: 0 10px;
-        width: max-content;
-        height: 30px;
-        line-height: 30px;
-        color: var(--color-text-tertiary);
-        font-size: 20px;
-        cursor: pointer;
-        &:last-child {
-          border: none;
-        }
-        &.active {
-          color: var(--color-primary);
-          border-radius: 3px;
-          background-color: var(--color-background-card);
-        }
-      }
     }
   }
 `;
@@ -138,74 +98,63 @@ export default function BtnGroupSetting(props) {
     <SettingWrap>
       <div className="btnGroupSettingWrap">
         <div className="itemTitle overflow_ellipsis mLeft0">{_l('样式')}</div>
-        <ul className="btnStyle mRight20">
-          {BTN_TYPE.map(({ value, text }) => (
-            <li
-              className={cx({ active: value === btnType })}
-              key={value}
-              onClick={() => {
-                setSetting({ config: { ...config, btnType: value } });
-              }}
-            >
-              <div className="Font14 bold">{text}</div>
-            </li>
-          ))}
-        </ul>
-        <ul className="btnStyle">
-          {(btnType === 1 ? BTN_STYLE : BTN_STYLE2).map(({ icon, value, tip }) => (
-            <Tooltip title={tip}>
-              <li className={cx({ active: value === style })} key={value} onClick={() => setSetting({ style: value })}>
-                <i className={`icon-${icon}`}></i>
-              </li>
-            </Tooltip>
-          ))}
-        </ul>
+        <Segmented
+          className="bgDisabled mRight20"
+          options={getSegmentedOptions(BTN_TYPE)}
+          value={btnType}
+          onChange={value => setSetting({ config: { ...config, btnType: value } })}
+        />
+        <Segmented
+          className="bgDisabled"
+          options={getIconSegmentedOptions(btnType === 1 ? BTN_STYLE : BTN_STYLE2)}
+          value={style}
+          onChange={value => setSetting({ style: value })}
+        />
         {btnType === 1 ? (
           <Fragment>
             <div className="itemTitle overflow_ellipsis">{_l('宽度')}</div>
-            <ul className="btnWidth">
-              {BTN_WIDTH.map(({ icon, value, tip }) => (
-                <Tooltip title={tip}>
-                  <li
-                    className={cx({ active: value === width })}
-                    key={value}
-                    onClick={() => setSetting({ width: value })}
-                  >
-                    <i className={`icon-${icon}`}></i>
-                  </li>
-                </Tooltip>
-              ))}
-            </ul>
+            <Segmented
+              className="bgDisabled"
+              options={getIconSegmentedOptions(BTN_WIDTH)}
+              value={width}
+              onChange={value => setSetting({ width: value })}
+            />
           </Fragment>
         ) : (
           <Fragment>
             <div className="itemTitle overflow_ellipsis">{_l('方向')}</div>
-            <ul className="btnWidth">
-              {BTN_DIRECTION.map(({ icon, value, tip }) => (
-                <Tooltip title={tip}>
-                  <li
-                    className={cx({ active: value === direction })}
-                    key={value}
-                    onClick={() => {
-                      setSetting({
-                        config: { ...config, direction: value },
-                        mobileCount: value === 1 ? 4 : 2,
-                      });
-                    }}
-                  >
-                    <i className={`icon-${icon}`}></i>
-                  </li>
-                </Tooltip>
-              ))}
-            </ul>
+            <Segmented
+              className="bgDisabled"
+              options={getIconSegmentedOptions(BTN_DIRECTION)}
+              value={direction}
+              onChange={value =>
+                setSetting({
+                  config: { ...config, direction: value },
+                  mobileCount: value === 1 ? 4 : 2,
+                })
+              }
+            />
           </Fragment>
         )}
         <div className="itemTitle overflow_ellipsis">{_l('每行')}</div>
-        <SelectCount maxCount={8} minCount={1} count={count} onChange={value => setSetting({ count: value })} />
+        <InputNumber
+          className="mRight10"
+          style={{ width: 60 }}
+          min={1}
+          max={8}
+          value={count}
+          onChange={value => value !== null && setSetting({ count: value })}
+        />
         <div>{_l('个')}</div>
         <BtnListSort {...props} onSortEnd={list => setSetting({ buttonList: list })} />
       </div>
-      <Button icon="add" className="addBtn overflow_ellipsis" onClick={addBtn}>
+      <Button
+        classNames={{ content: 'colorPrimary' }}
+        styles={{ root: { border: 'none', boxShadow: 'var(--shadow-sm)' } }}
+        shape="round"
+        icon={<Icon icon="add" className="colorPrimary" />}
+        onClick={addBtn}
+      >
         {_l('添加按钮')}
       </Button>
     </SettingWrap>

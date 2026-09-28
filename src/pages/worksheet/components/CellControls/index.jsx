@@ -1,20 +1,18 @@
 import React from 'react';
+import copy from 'copy-to-clipboard';
 import _, { get, includes, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
-import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { onValidator } from 'src/components/Form/core/formUtils';
 import 'src/components/Form/DesktopForm/style.less';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { accDiv } from 'src/utils/common';
-import {
-  checkIsTextControl,
-  getControlStateAndCheckSectionControl,
-  getCopyControlText,
-  handleCopyControlText,
-} from 'src/utils/control';
+import { accDiv } from 'src/utils/core/arithmetic';
+import { getControlStateAndCheckSectionControl } from 'src/utils/domain/control/state';
+import { checkIsTextControl } from 'src/utils/domain/control/type';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'src/utils/domain/worksheet/constants';
+import { WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
 import SheetContext from '../../common/Sheet/SheetContext';
 import Area from './Area';
 import Attachments from './Attachments';
@@ -23,6 +21,7 @@ import Cascader from './Cascader';
 import CellWithPopupOperate from './CellWithPopupOperate';
 import Date from './Date';
 import Department from './Department';
+import getCopyControlText from './getCopyControlText';
 import Level from './Level';
 import Location from './Location';
 import MobilePhone from './MobilePhone';
@@ -50,6 +49,13 @@ export function isSameTypeForPaste(type1, type2) {
   }
 }
 
+/** 记录工作表复制上下文并将控件文本写入剪贴板。 */
+function handleCopyControlText(control, tableId) {
+  const content = getCopyControlText(control);
+  window.tempCopyForSheetView = JSON.stringify({ type: 'text', value: content, controlType: control.type, tableId });
+  copy(content);
+}
+
 export function handlePasteUpdateCell(cell, pasteData, update = () => {}) {
   // WIDGETS_TO_API_TYPE_ENUM
   if (
@@ -73,6 +79,7 @@ export function handlePasteUpdateCell(cell, pasteData, update = () => {}) {
         WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
         WIDGETS_TO_API_TYPE_ENUM.LOCATION,
       ],
+
       cell.type,
     )
   ) {
@@ -84,6 +91,7 @@ export function handlePasteUpdateCell(cell, pasteData, update = () => {}) {
         WIDGETS_TO_API_TYPE_ENUM.AREA_CITY,
         WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY,
       ],
+
       cell.type,
     )
   ) {
@@ -145,6 +153,8 @@ export default class CellControl extends React.Component {
     super(props);
     this.state = {
       isediting: false,
+      // 更新失败的次数，作为控件按原值复位的信号
+      updateFailedFlag: 0,
     };
     this.id = Math.random().toString().slice(2);
   }
@@ -470,6 +480,9 @@ export default class CellControl extends React.Component {
         break;
       case ' ':
         if (!isediting) {
+          // 单元格聚焦时空格是「打开记录详情」快捷键，需要阻止浏览器默认的空格翻页，
+          // 否则在 body 可滚动的页面（如公开查询页）会连带把页面滚下去
+          e.preventDefault();
           onClick({ isSpace: true });
         }
 
@@ -495,6 +508,14 @@ export default class CellControl extends React.Component {
 
         break;
       default:
+        // 只读单元格不该因为敲入字符进入编辑态（同一 switch 的 Backspace、Enter 分支也以 editable 把关）。
+        // 关联记录等控件的 default 分支会直接 updateEditingStatus(true) 并把按键塞进搜索框，
+        // 编辑态渲染的是空的输入区，看起来就像已选值被清空了。
+        // 这里只拦单个可输入字符：Escape、方向键等仍要转发，否则已打开浮层的只读单元格退不出来。
+        if (!this.editable && key.length === 1 && isKeyBoardInputChar(key)) {
+          break;
+        }
+
         if (_.isFunction(_.get(this, 'cell.current.handleTableKeyDown'))) {
           this.cell.current.handleTableKeyDown(e, cache);
         }
@@ -523,6 +544,13 @@ export default class CellControl extends React.Component {
         cell: Object.assign({}, cell, newCell),
         row,
         ...options,
+        onError: (...args) => {
+          // 更新失败时行数据不会变化，靠 updateFailedFlag 通知控件丢弃本地未保存的编辑状态
+          this.setState(({ updateFailedFlag = 0 }) => ({ updateFailedFlag: updateFailedFlag + 1 }));
+          if (_.isFunction(options.onError)) {
+            options.onError(...args);
+          }
+        },
       },
     );
     this.setState({
@@ -678,7 +706,7 @@ export default class CellControl extends React.Component {
       return;
     }
 
-    if (this.clicktimer || clickEnterEditing) {
+    if (this.clicktimer || (clickEnterEditing && tableType !== 'classic')) {
       // double click
       clearTimeout(this.clicktimer);
       this.clicktimer = null;
@@ -743,7 +771,7 @@ export default class CellControl extends React.Component {
     // style.transform = `translate3d(${style.left}px, ${style.top}px, 0)`;
     // style.left = 0;
     // style.top = 0;
-    const { isediting, ignoreErrorMessage } = this.state;
+    const { isediting, ignoreErrorMessage, updateFailedFlag } = this.state;
     const error = this.error;
     const singleLine = rowHeight === ROW_HEIGHT[0];
     let className = this.props.className + ' cell-id-' + this.id;
@@ -873,6 +901,7 @@ export default class CellControl extends React.Component {
       isediting,
       error,
       ignoreErrorMessage,
+      updateFailedFlag,
       sheetSwitchPermit,
       viewId,
       appId,

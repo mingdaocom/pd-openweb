@@ -2,10 +2,10 @@ import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { renderText as renderCellText } from 'src/utils/control';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import { fromType, typeForCon } from '../../core/config';
 
 const getPrintClientId = params => _.get(params, 'clientId') || window.clientId || sessionStorage.getItem('clientId');

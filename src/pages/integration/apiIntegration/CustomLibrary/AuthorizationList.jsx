@@ -1,36 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Drawer } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 
-const AuthListDrawer = styled(Drawer)`
+const AuthListDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
   color: var(--color-text-title);
-  .ant-drawer-mask {
+  .hap-drawer-mask {
     background-color: transparent;
   }
-  .ant-drawer-content-wrapper {
+  .hap-drawer-content-wrapper {
     box-shadow: 0px 3px 24px 1px rgba(0, 0, 0, 0.16);
   }
-  .ant-drawer-header {
-    border-bottom: 0;
+  .hap-drawer-header {
     padding: 24px;
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-      .ant-drawer-title {
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .ant-drawer-close {
-        padding: 0;
-        margin-right: 0;
-        margin-top: -20px;
-      }
-    }
   }
-  .ant-drawer-body {
+  .hap-drawer-body {
     padding: 0px;
     display: flex;
     flex-direction: column;
@@ -98,6 +91,7 @@ export default function AuthorizationList(props) {
   const { hasManageAuth, companyId, onClose, onApproveSuccess } = props;
   const [fetchState, setFetchState] = useSetState({ loading: true, pageIndex: 1, noMore: false });
   const [authorizationList, setAuthorizationList] = useState([]);
+  const requestPending = useRef(new Set());
   const statusObj = {
     0: { color: 'reject', text: _l('已拒绝') },
     1: { color: 'reviewing', text: _l('待审核') },
@@ -133,16 +127,24 @@ export default function AuthorizationList(props) {
   };
 
   const onUpdateStatus = (id, status) => {
-    packageVersionAjax.updateAuthorizeStatus({ id, status }, { isIntegration: true }).then(res => {
-      if (res) {
-        alert(status === 3 ? _l('同意使用') : _l('拒绝使用'));
-        const newList = authorizationList.map(item => {
-          return item.id === id ? { ...item, status } : item;
-        });
-        setAuthorizationList(newList);
-        onApproveSuccess();
-      }
-    });
+    if (requestPending.current.has(id)) return;
+
+    requestPending.current.add(id);
+    return packageVersionAjax
+      .updateAuthorizeStatus({ id, status }, { isIntegration: true })
+      .then(res => {
+        if (res) {
+          alert(status === 3 ? _l('同意使用') : _l('拒绝使用'));
+          const newList = authorizationList.map(item => {
+            return item.id === id ? { ...item, status } : item;
+          });
+          setAuthorizationList(newList);
+          onApproveSuccess();
+        }
+      })
+      .finally(() => {
+        requestPending.current.delete(id);
+      });
   };
 
   const onScrollEnd = () => {
@@ -209,7 +211,7 @@ export default function AuthorizationList(props) {
 
   return (
     <AuthListDrawer
-      visible
+      open
       title={_l('API 申请使用审核')}
       width={840}
       placement="right"

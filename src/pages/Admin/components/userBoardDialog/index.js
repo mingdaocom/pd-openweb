@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, Dialog, UserHead, VerifyPasswordConfirm } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import { Checkbox, Modal } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import userController from 'src/api/user';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import { downloadFile } from '../../util';
 import './index.less';
 
@@ -71,10 +72,12 @@ class UserBoardDialog extends Component {
     const isChecked = selected.length === userList.length;
 
     return (
-      <Dialog
+      <Modal
         width={700}
         className="userBoardDialog"
-        visible
+        open
+        mask={{ closable: true }}
+        keyboard
         title={_l('批量导出')}
         okText={_l('确认导出')}
         cancelText={_l('重新选择')}
@@ -90,8 +93,10 @@ class UserBoardDialog extends Component {
                   <th className="checkBox">
                     <Checkbox
                       checked={isChecked}
-                      onClick={checked => {
-                        this.setState({ selected: checked ? [] : userList.map(it => it.accountId) });
+                      onChange={event => {
+                        this.setState({
+                          selected: !event.target.checked ? [] : userList.map(it => it.accountId),
+                        });
                       }}
                     />
                   </th>
@@ -111,9 +116,11 @@ class UserBoardDialog extends Component {
                       <td className="checkBox">
                         <Checkbox
                           checked={checked}
-                          onClick={checked => {
+                          onChange={event => {
                             this.setState({
-                              selected: checked ? selected.filter(it => it !== accountId) : selected.concat(accountId),
+                              selected: !event.target.checked
+                                ? selected.filter(it => it !== accountId)
+                                : selected.concat(accountId),
                             });
                           }}
                         />
@@ -195,9 +202,11 @@ class UserBoardDialog extends Component {
             </table>
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export const dialogUserBoard = props => functionWrap(UserBoardDialog, props);
+export function useUserBoardDialog() {
+  return useFunctionWrapComponent(UserBoardDialog);
+}

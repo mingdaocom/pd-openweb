@@ -1,4 +1,4 @@
-import { pathCompletion } from 'src/utils/common';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 export const completeAdminLogLinks = html => {
   if (!html) return html;

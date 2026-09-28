@@ -7,19 +7,19 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { isOptionControl } from 'statistics/common/controlUtils';
 import DragMask from 'worksheet/common/DragMask';
-import { browserIsMobile } from 'src/utils/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import charts from '../Charts';
-import { reportTypes } from '../Charts/common';
 import { WithoutData } from '../components/ChartStatus';
 import { Abnormal, Loading } from '../components/ChartStatus';
 import * as actions from '../redux/actions.js';
 
 const isMobile = browserIsMobile();
 const VerticalDrag = styled.div(
-  ({ value }) => `
+  ({ $value }) => `
   position: absolute;
   z-index: 2;
-  top: ${value}px;
+  top: ${$value}px;
   width: 100%;
   height: 2px;
   cursor: ns-resize;
@@ -30,10 +30,10 @@ const VerticalDrag = styled.div(
 `,
 );
 const HorizontalDrag = styled.div(
-  ({ value }) => `
+  ({ $value }) => `
   position: absolute;
   z-index: 2;
-  left: ${value}px;
+  left: ${$value}px;
   width: 2px;
   height: 100%;
   cursor: ew-resize;
@@ -342,7 +342,7 @@ let Chart = class Chart extends Component {
             </Suspense>
             {direction === 'vertical' && (
               <VerticalDrag
-                value={dragValue}
+                $value={dragValue}
                 onMouseDown={() =>
                   this.setState({
                     dragMaskVisible: true,
@@ -352,7 +352,7 @@ let Chart = class Chart extends Component {
             )}
             {direction === 'horizontal' && (
               <HorizontalDrag
-                value={dragValue}
+                $value={dragValue}
                 onMouseDown={() =>
                   this.setState({
                     dragMaskVisible: true,

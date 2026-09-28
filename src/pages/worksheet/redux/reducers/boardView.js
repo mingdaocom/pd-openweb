@@ -2,7 +2,7 @@ import update from 'immutability-helper';
 import { get, head } from 'lodash';
 import _ from 'lodash';
 import findIndex from 'lodash/findIndex';
-import { WIDGET_VALUE_ID } from 'src/components/Form/core/config';
+import { WIDGET_VALUE_ID } from 'src/utils/domain/control/value';
 
 export const getIndex = (state, data) => {
   const { key, rowId } = data;

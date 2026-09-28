@@ -419,31 +419,7 @@
       color: var(--color-text-disabled);
       height: 44px;
       display: flex;
-      padding: 12px;
-      input {
-        flex: 1;
-        border: none;
-        background: var(--color-background-secondary);
-        padding: 0 7px;
-        color: var(--color-text-title);
-        &::-webkit-input-placeholder,
-        &::-moz-placeholder,
-        &:-ms-input-placeholder {
-          color: var(--color-text-disabled);
-        }
-        &::-webkit-input-placeholder {
-          color: var(--color-text-disabled);
-        }
-        &:-moz-placeholder {
-          color: var(--color-text-disabled);
-        }
-        &::-moz-placeholder {
-          color: var(--color-text-disabled);
-        }
-        &:-ms-input-placeholder {
-          color: var(--color-text-disabled);
-        }
-      }
+      padding: 6px 12px;
     }
     .tab {
       ul {
@@ -608,10 +584,7 @@
 
 .calendarPopoverWrap {
   width: 300px;
-  .ant-popover-inner-content {
-    padding: 0;
-  }
-  .ant-popover-arrow,
+  .hap-popover-arrow,
   .recordOperateWrap {
     display: none;
   }

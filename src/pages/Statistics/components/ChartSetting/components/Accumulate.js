@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Checkbox, ConfigProvider, Modal, Radio, Space } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Checkbox, Modal, Radio, Space } from 'ming-ui/antd-components';
 import { isOptionControl } from 'statistics/common/controlUtils';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
 
@@ -69,27 +69,6 @@ export default class Accumulate extends Component {
     );
     this.setState({ showControlVisible: false });
   };
-  renderFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.setState({
-                showControlVisible: false,
-              });
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={this.handleSaveShowOptionIds}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   render() {
     const { allControls, currentReport } = this.props;
     const { showControlVisible, showOptionIds } = this.state;
@@ -124,7 +103,7 @@ export default class Accumulate extends Component {
         {displaySetup.isAccumulate && isOptionControl(xaxes.controlType) && (
           <div className="mBottom16 mLeft20">
             <Radio.Group onChange={this.handleChange} value={displaySetup.showOptionIds.length ? 2 : 1}>
-              <Space direction="vertical" className="mTop10">
+              <Space orientation="vertical" className="mTop10">
                 <Radio value={1} className="Font13">
                   {_l('全部')}
                 </Radio>
@@ -153,11 +132,10 @@ export default class Accumulate extends Component {
           title={_l('自定义显示项')}
           width={580}
           className="chartModal"
-          visible={showControlVisible}
+          open={showControlVisible}
           centered={true}
-          destroyOnClose={true}
           closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
-          footer={this.renderFooter()}
+          onOk={this.handleSaveShowOptionIds}
           onCancel={() => {
             this.setState({
               showControlVisible: false,

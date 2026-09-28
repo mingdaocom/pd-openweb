@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import api from 'api/application';
 import _ from 'lodash';
 import { func } from 'prop-types';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import ThirdAppGroup from './ThirdAppGroup';
 import './index.less';
 
@@ -63,20 +63,33 @@ export default class ThirdPartyApp extends Component {
   render() {
     const { onCancel } = this.props;
     const { isLoading } = this.state;
+    const isMingdaoSaas = window.platformENV.isHap;
+
     return (
-      <Dialog
-        visible
+      <Modal
+        open
+        width={720}
         className="thirdAppDialog"
         title={
           <div className="thirdAppDialogHeader">
             <div className="dialogTitle">{_l('第三方应用')}</div>
+            {isMingdaoSaas && (
+              <Tooltip title={_l('明道云应用市场')}>
+                <div>
+                  <Icon
+                    className="Font16"
+                    icon="task-new-detail"
+                    onClick={() => window.open('https://app.mingdao.com/')}
+                  />
+                </div>
+              </Tooltip>
+            )}
           </div>
         }
-        footer={null}
         onCancel={onCancel}
       >
         {isLoading ? <LoadDiv className="mTop10" /> : <div className="thirdAppWrap">{this.renderApps()}</div>}
-      </Dialog>
+      </Modal>
     );
   }
 }

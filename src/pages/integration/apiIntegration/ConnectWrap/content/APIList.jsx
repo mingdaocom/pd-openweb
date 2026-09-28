@@ -1,20 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import loadScript from 'load-script';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, SortableList } from 'ming-ui';
+import { Icon, LoadDiv, SearchInput, SortableList } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process.js';
-import { checkPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import APISetting from 'src/pages/integration/apiIntegration/APIWrap';
 import APICard from 'src/pages/integration/components/APICard';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
+import { checkPermission } from 'src/utils/services/security/permission';
 
 const Wrap = styled.div`
   .noData {
@@ -26,16 +26,6 @@ const Wrap = styled.div`
       border-radius: 50%;
       margin: 120px auto 0;
       color: var(--color-text-tertiary);
-    }
-  }
-  .addApi {
-    padding: 8px 24px;
-    background: var(--color-primary);
-    border-radius: 21px;
-    color: var(--color-white);
-    display: inline-block;
-    &:hover {
-      background: var(--color-link-hover);
     }
   }
   .apiCon {
@@ -60,8 +50,9 @@ const Wrap = styled.div`
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
+  const { companyId, id, updateList } = props;
   let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v7.js' + '?' + moment().format('YYYYMMDD');
-  const featureType = getFeatureStatus(props.companyId, VersionProductType.apiIntergration);
+  const featureType = getFeatureStatus(companyId, VersionProductType.apiIntergration);
   const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
     useSetState({
       list: props.apiList || [],
@@ -75,30 +66,45 @@ function APIList(props) {
       change: 0,
       listSearch: props.apiList || [],
     });
+  const [apiSettingKey, setApiSettingKey] = useState(0);
+  const publishRequestPendingRef = useRef(false);
+  const keywordsRef = useRef(keywords);
+  const updateListRef = useRef(updateList);
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     setState({ loading: true });
     packageVersionAjax
       .getApiList(
         {
-          companyId: props.companyId,
+          companyId,
           // types: [1, 2],
           pageIndex,
           pageSize: 10000, //PageSize,
-          keyword: keywords,
-          relationId: props.id,
+          keyword: keywordsRef.current,
+          relationId: id,
         },
         { isIntegration: true },
       )
-      .then(res => {
-        setState({ loading: false, list: res });
-        props.updateList(res); //更新tab上的计数
-      });
-  };
+      .then(
+        res => {
+          setState({ loading: false, list: res });
+          updateListRef.current(res); //更新tab上的计数
+        },
+        () => setState({ loading: false }),
+      );
+  }, [companyId, id, pageIndex, setState]);
+
+  useEffect(() => {
+    keywordsRef.current = keywords;
+  }, [keywords]);
+
+  useEffect(() => {
+    updateListRef.current = updateList;
+  }, [updateList]);
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, change]);
+  }, [change, fetchData]);
   const showInstallDialog = () => {
     if (window.MDAPIInstallDialog) {
       showInstall();
@@ -134,59 +140,77 @@ function APIList(props) {
    * 切换流程的启用状态
    */
   const switchEnabled = item => {
-    if (publishing) {
-      return;
-    }
+    if (publishRequestPendingRef.current || publishing) return Promise.resolve();
 
+    publishRequestPendingRef.current = true;
     setState({ publishing: true });
-    processAjax.publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true }).then(publishData => {
-      const { isPublish } = publishData;
+    return processAjax
+      .publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true })
+      .then(
+        publishData => {
+          const { isPublish } = publishData;
 
-      if (isPublish) {
-        let listN = list.map(o => {
-          if (o.id !== item.id) {
-            return o;
+          if (isPublish) {
+            let listN = list.map(o => {
+              if (o.id !== item.id) {
+                return o;
+              } else {
+                let data = {};
+
+                if (!item.enabled) {
+                  data = {
+                    publishStatus: 2,
+                  };
+                }
+
+                return { ...o, enabled: !item.enabled, ...data };
+              }
+            });
+            setState({
+              list: listN,
+              listSearch: listN,
+            });
+            props.updateList(listN);
           } else {
-            let data = {};
-
-            if (!item.enabled) {
-              data = {
-                publishStatus: 2,
-              };
-            }
-
-            return { ...o, enabled: !item.enabled, ...data };
+            alert(_l('更新失败'), 2);
           }
-        });
-        setState({
-          publishing: false,
-          list: listN,
-          listSearch: listN,
-        });
-        props.updateList(listN);
-      } else {
-        setState({
-          publishing: false,
-        });
-        alert(_l('更新失败'), 2);
-      }
-    });
+        },
+        () => undefined,
+      )
+      .finally(() => {
+        publishRequestPendingRef.current = false;
+        setState({ publishing: false });
+      });
   };
 
   /**
    * 复制工作流
    */
   const onCopyProcess = item => {
-    Dialog.confirm({
+    Modal.confirm({
       title: _l('复制“%0”', item.name),
       // description: _l('将复制目标工作流的所有节点和配置'),
       okText: _l('复制'),
       onOk: () => {
-        processAjax.copyProcess({ processId: item.id, name: _l('-复制') }, { isIntegration: true }).then(res => {
-          if (res) {
-            setState({ keywords: '', pageIndex: 1, change: change + 1 });
-          }
-        });
+        processAjax
+          .copyProcess(
+            {
+              processId: item.id,
+              name: _l('-复制'),
+            },
+            {
+              isIntegration: true,
+            },
+          )
+          .then(res => {
+            if (res) {
+              setState({
+                keywords: '',
+                pageIndex: 1,
+                change: change + 1,
+              });
+            }
+          });
       },
     });
   };
@@ -202,14 +226,14 @@ function APIList(props) {
       },
       { isIntegration: true },
     );
-    Dialog.confirm({
+    const modal = Modal.confirm({
       title: (
-        <span className="Red">
+        <span className="Red textError">
           {cite.length > 0 ? <Icon type="warning" className="mRight8" /> : ''}
           {_l('删除“%0”', item.name)}
         </span>
       ),
-      description: (
+      content: (
         <div>
           {cite.length > 0 ? (
             <React.Fragment>
@@ -217,8 +241,13 @@ function APIList(props) {
               <span
                 className="colorPrimary Font14 mLeft3 Hand"
                 onClick={() => {
-                  setState({ show: true, listId: item.id, showType: 1 });
-                  $('.Dialog-footer-btns .Button--link').click();
+                  modal.destroy();
+                  setApiSettingKey(key => key + 1);
+                  setState({
+                    show: true,
+                    listId: item.id,
+                    showType: 1,
+                  });
                 }}
               >
                 {_l('查看引用')}
@@ -230,18 +259,29 @@ function APIList(props) {
           )}
         </div>
       ),
-      buttonType: 'danger',
+      okButtonProps: {
+        danger: true,
+      },
       onOk: () => {
-        packageVersionAjax.deleteApi({ id: item.id }, { isIntegration: true }).then(res => {
-          if (res) {
-            setState({
-              list: list.filter(o => o.id !== item.id),
-              show: false,
-              listSearch: list.filter(o => o.id !== item.id),
-            });
-            props.updateList(list.filter(o => o.id !== item.id));
-          }
-        });
+        packageVersionAjax
+          .deleteApi(
+            {
+              id: item.id,
+            },
+            {
+              isIntegration: true,
+            },
+          )
+          .then(res => {
+            if (res) {
+              setState({
+                list: list.filter(o => o.id !== item.id),
+                show: false,
+                listSearch: list.filter(o => o.id !== item.id),
+              });
+              props.updateList(list.filter(o => o.id !== item.id));
+            }
+          });
       },
     });
   };
@@ -260,8 +300,11 @@ function APIList(props) {
               : _l('暂无 API 可用，请先创建新的第三方 API')}
         </p>
         {!keywords && !(!props.isConnectOwner && props.connectData.hasAuth) && props.type !== 2 && (
-          <span
-            className="addApi Bold Hand mTop24"
+          <Button
+            className="mTop24"
+            color="primary"
+            shape="round"
+            variant="solid"
             onClick={() => {
               if (props.type === 2) {
                 //安装的连接，添加=>继续安装
@@ -274,7 +317,7 @@ function APIList(props) {
             }}
           >
             {_l('创建 API')}
-          </span>
+          </Button>
         )}
       </div>
     );
@@ -316,6 +359,7 @@ function APIList(props) {
                   placeholder={_l('搜索 API')}
                   value={keywords}
                   className="search"
+                  variant="outlined"
                   onChange={v => {
                     setState({
                       keywords: v,
@@ -325,8 +369,10 @@ function APIList(props) {
                 />
               </div>
               {!(!props.isConnectOwner && props.connectData.hasAuth) && props.type !== 2 && (
-                <span
-                  className="addApi Bold Hand"
+                <Button
+                  color="primary"
+                  shape="round"
+                  variant="solid"
                   onClick={() => {
                     if (props.type === 2) {
                       //安装的连接，添加=>继续安装
@@ -339,7 +385,7 @@ function APIList(props) {
                   }}
                 >
                   {_l('添加 API')}
-                </span>
+                </Button>
               )}
             </div>
           )}
@@ -384,6 +430,7 @@ function APIList(props) {
       }
       {show && (
         <APISetting
+          key={apiSettingKey}
           {...props}
           connectInfo={{
             ...props.connectData,
@@ -393,7 +440,7 @@ function APIList(props) {
           data={listId ? list.find(o => o.id === listId) : {}}
           listId={listId}
           tab={showType}
-          onClickAwayExceptions={['.dropdownTrigger', '.selectIconWrap', '.mui-dialog-dialog', '.Menu']}
+          onClickAwayExceptions={['.selectIconWrap', '.hap-modal']}
           onClickAway={() => setState({ show: false })}
           onCancel={() => setState({ show: false })}
           onDel={() => {

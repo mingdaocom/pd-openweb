@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import { diffChars } from 'diff';
 import _ from 'lodash';
-import { Dialog, RichText } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
+import { RichText } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
 import '../WorksheetRecordLogValue.less';
 
@@ -165,7 +166,7 @@ function WorksheetRecordLogDiffText(props) {
         </div>
       )}
       {type === 'rich_text' && (
-        <Dialog
+        <Modal
           title={
             <div className="richTextHeader">
               <div className="leftCon">
@@ -176,9 +177,25 @@ function WorksheetRecordLogDiffText(props) {
               </div>
             </div>
           }
-          style={{ width: '90%', height: '90%', minHeight: '90%' }}
-          className="richTextDiffDialog"
-          visible={dialog}
+          width="90%"
+          rootClassName="richTextDiffDialog"
+          styles={{
+            header: {
+              margin: 0,
+            },
+            container: {
+              height: '90%',
+              minHeight: '90%',
+              minWidth: 900,
+              maxWidth: 'calc(100vw - 32px)',
+              padding: 0,
+            },
+            body: { display: 'flex' },
+          }}
+          open={dialog}
+          mask={{ closable: true }}
+          keyboard
+          footer={null}
           onCancel={closeDialog}
         >
           <div className="richTextContent flexRow flex">
@@ -189,7 +206,7 @@ function WorksheetRecordLogDiffText(props) {
               {newValue ? <RichText data={newValue} className="richText" disabled={true} /> : null}
             </div>
           </div>
-        </Dialog>
+        </Modal>
       )}
     </React.Fragment>
   );

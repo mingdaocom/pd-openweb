@@ -8,23 +8,22 @@ import styled, { keyframes } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { useRecordInfo } from 'worksheet/common/recordInfo';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
-import { getIconByType, toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { browserIsMobile } from 'src/utils/common';
-import { getMapConfig } from 'src/utils/control';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getSheetOperateButtonIds, getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { getMapConfig } from 'src/utils/platform/runtime/config';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
+import { filterAndFormatterControls, isDisabledCreate } from 'src/utils/services/worksheet/view';
 import { updateWorksheetControls } from '../../redux/actions';
 import SelectField from '../components/SelectField';
-import { filterAndFormatterControls, isDisabledCreate } from '../util';
 import Map from './amap/Map';
 import PinMarker from './components/PinMarker';
 import ToolBar from './components/ToolBar';
@@ -64,7 +63,7 @@ const NewRecordBtn = styled.div`
   cursor: pointer;
   white-space: nowrap;
   background-color: var(--app-primary-color, var(--color-primary));
-  ${({ clickLnglat }) => !clickLnglat && 'display: none;'}
+  ${({ $clickLnglat }) => !$clickLnglat && 'display: none;'}
   .icon {
     font-size: 13px;
     margin-right: 5px;
@@ -112,10 +111,11 @@ function MapView(props) {
     saveView,
     worksheetInfo,
     groupId,
-    appPkg,
     sheetButtons,
     printList,
   } = props;
+  const { open: openNewRecordDialog, holder: addRecordHolder } = useAddRecord();
+  const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
   const viewControl = view.viewControl;
   const coverCid = view.coverCid;
   const viewAdvancedSettingData = _.get(view, 'advancedSetting');
@@ -398,7 +398,7 @@ function MapView(props) {
   };
 
   const openAddRecord = address => {
-    addRecord({
+    openNewRecordDialog({
       worksheetId: worksheetInfo.worksheetId,
       defaultFormData:
         clickLnglat && view.viewControl
@@ -496,6 +496,7 @@ function MapView(props) {
       },
       getData: () => initMapViewData(view),
       buttonsCheckStatus: buttonsCheckStatus,
+      openRecordInfo,
     };
 
     const eventProps = {
@@ -505,6 +506,7 @@ function MapView(props) {
 
     return (
       <Con
+        className="mapViewCanvas"
         key={view.viewId}
         onTouchStartCapture={() => {
           if (!isMobile) return;
@@ -550,6 +552,8 @@ function MapView(props) {
 
   return (
     <div className="mapViewWrap" ref={conRef} style={{ height: '100%' }}>
+      {addRecordHolder}
+      {recordInfoHolder}
       {refreshMap ? <LoadDiv /> : renderContent()}
       {recordInfoRowId && isMobile && (
         <RecordInfoModal
@@ -573,8 +577,7 @@ function MapView(props) {
           <NewRecordBtn
             ref={newRecordBtnRef}
             className="addMapRecord"
-            appPkg={appPkg}
-            clickLnglat={clickLnglat}
+            $clickLnglat={clickLnglat}
             onClick={addNewRecord}
           >
             <span className="Icon icon icon-plus Font13 mRight5 textWhite" />

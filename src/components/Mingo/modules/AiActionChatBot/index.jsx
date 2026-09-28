@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useMeasure } from 'react-use';
 import cx from 'classnames';
-import { chain, find, findLast, findLastIndex, flatten, get, identity, isArray, isEmpty, omit } from 'lodash';
+import { find, findLast, findLastIndex, get, identity, isEmpty, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import DragCore from 'worksheet/common/DragCore';
@@ -11,19 +11,21 @@ import chatbotAjax from 'src/pages/workflow/apiV2/chatbot';
 import chatbotSSEApi from 'src/pages/workflow/apiV2/chatbotsse';
 import { getToolName } from 'src/pages/workflow/WorkflowSettings/utils';
 import useChat from 'src/pages/worksheet/hooks/useChat';
-import { SpeechSynthesizer } from 'src/utils/audio';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { AI_FEATURE_TYPE } from 'src/utils/enum';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { AI_FEATURE_TYPE } from 'src/utils/domain/shared/aiFeatures';
+import { SpeechSynthesizer } from 'src/utils/platform/browser/audio';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import { resolveStreamError } from '../../ChatBot/utils';
 import MobileShareOperate from '../MobileShareOperate';
+import { contentIsEmpty, formatMessage, formatMessages, sortMessagesByCtimeAsc } from '../shared/messageUtils';
+import { renderToolCalls } from '../shared/ToolCalls';
+import { filterToolCalls } from '../shared/toolCallUtils';
 import ShareOperate from '../ShareOperate';
 import { MODE } from './enum';
 import Guide from './Guide';
 import Header from './Header';
-import { filterToolCalls, renderToolCalls } from './ToolCalls';
 import TriggerButtons from './TriggerButtons';
 
 const MINGO_MIN_WIDTH = 360;
@@ -151,106 +153,7 @@ const ToolCallsCon = styled.div`
   }
 `;
 
-function contentIsEmpty(content) {
-  if (content === '') return true;
-  if (isArray(content)) {
-    return (
-      content.filter(item => {
-        if (item.type === 'text' && item.text === '') return;
-        if (item.type === 'tool_calls' && filterToolCalls(item.toolCalls).length === 0) return;
-        return true;
-      }).length === 0
-    );
-  }
-
-  return false;
-}
-
-function getContentOfMessage(message) {
-  let content = isArray(message.content)
-    ? message.content
-    : [
-        {
-          type: 'text',
-          text: message.content,
-        },
-      ];
-  const toolMap = message.tool_map || {};
-  const filteredToolCalls = filterToolCalls(message.tool_calls || []);
-
-  if (!isEmpty(filteredToolCalls)) {
-    content = [
-      ...content,
-      {
-        type: 'tool_calls',
-        toolCalls: filteredToolCalls.map(toolCall => ({ function: toolCall, toolName: toolMap[toolCall.id] })),
-      },
-    ];
-  }
-
-  return content;
-}
-
-export function formatMessage(message) {
-  if (!['user', 'assistant'].includes(message.role)) {
-    return;
-  }
-
-  const result = {};
-  result.id = get(message, 'metadata.id');
-  result.instanceId = message.instanceId;
-  result.workId = message.workId;
-  result.role = message.role === 'user' ? 'user' : 'assistant';
-  result.content = message.role === 'user' ? message.content : getContentOfMessage(message);
-  result.media = message.media;
-  result.hasSubmit = message.hasSubmit;
-  result.modelMessageId = get(message, 'metadata.id');
-  if (isEmpty(result.content) && isEmpty(result.media)) {
-    return;
-  }
-
-  return result;
-}
-
-export function formatMessages(messages) {
-  let result = [];
-  let latestMessageId;
-  messages.forEach(message => {
-    if (message.role === 'user') {
-      message.workId = message.id;
-      latestMessageId = undefined;
-    } else if (!latestMessageId) {
-      latestMessageId = message.id;
-      if (message.workId === null) {
-        message.workId = latestMessageId;
-      }
-    } else {
-      if (message.workId === null) {
-        message.workId = latestMessageId;
-      }
-    }
-  });
-  chain(messages.map(message => ({ ...message, workId: message.workId || message.id })))
-    .groupBy('workId')
-    .map(items => items)
-    .value()
-    .forEach(messages => {
-      if (messages.length === 1) {
-        result.push(formatMessage(messages[0]));
-      } else {
-        const content = [];
-        messages = messages.filter(message => message.role === 'assistant');
-        messages.forEach(message => {
-          content.push(getContentOfMessage(message));
-        });
-        result.push({
-          ...formatMessage(messages[0]),
-          content: flatten(content),
-        });
-      }
-    });
-  return result;
-}
+export { formatMessage, formatMessages };
 
 function getLoadingText(name = '') {
   const toolName = getToolName(name);
@@ -342,6 +245,15 @@ function MingoContent(props, ref) {
     const recordTitle = props.recordTitle || getTitleTextFromControls(worksheetInfo?.template?.controls, recordData);
     return recordTitle ? `${worksheetInfo?.name}: ${recordTitle}` : '';
   }, [worksheetInfo.controls, recordData, props.recordTitle]);
+  // 服务端在流式过程中首次下发 conversationId 时同步到 state 与 cache，两者必须成对写入：
+  // cache 用于判断当前会话是否已建立，state 用于「重新生成」等后续接口传参。
+  const syncConversationId = useCallback(newConversationId => {
+    if (cache.current.conversationId || !newConversationId) return;
+
+    setConversationId(newConversationId);
+    cache.current.conversationId = newConversationId;
+    cache.current.needSetGenerateConversation = newConversationId;
+  }, []);
   const {
     messages,
     sendMessage,
@@ -396,11 +308,7 @@ function MingoContent(props, ref) {
         speechSynthesizer.current.speakStream(messageContent);
       }
 
-      if (!cache.current.conversationId && messageData.conversationId) {
-        setConversationId(messageData.conversationId);
-        cache.current.conversationId = messageData.conversationId;
-        cache.current.needSetGenerateConversation = messageData.conversationId;
-      }
+      syncConversationId(messageData.conversationId);
 
       if (messageData.step === 'TOOL') {
         setLoadingStatus({ statusText: getLoadingText(messageData.name), type: 'TOOL' });
@@ -417,6 +325,13 @@ function MingoContent(props, ref) {
       setLoadingStatus();
       console.log('onMessageDone', messages);
       localStorage.setItem(`aiActionLatestButton-${get(md, 'global.Account.accountId')}-${recordId}`, activeButtonId);
+    },
+    // 后端通过独立的 reasoning / thinking 事件下发推理与工具进度，这类事件在 useChat 中会被提前 return，
+    // 不会进入 onMessagePipe。若一轮回复只走到推理阶段就中止或报错，conversationId 将始终拿不到，
+    // 后续「重新生成」调 resetConversation 会漏传 conversationId，这里补上同步。
+    onEvent: event => {
+      if (!['reasoning', 'thinking'].includes(event.event)) return;
+      syncConversationId(get(safeParse(event.data), 'conversationId'));
     },
     onError: (error, eventData) => {
       setError(resolveStreamError(error, eventData));
@@ -622,6 +537,9 @@ function MingoContent(props, ref) {
 
     if (!isTest) {
       handleClear();
+      // 切换 AI 动作按钮即切换会话，cache 中的会话 id 必须立即失效，
+      // 否则流式下发的新会话 id 会因 cache 已有值而无法同步回 state
+      cache.current.conversationId = undefined;
     }
 
     if (!isTest) {
@@ -644,16 +562,17 @@ function MingoContent(props, ref) {
             messages = res;
           }
 
-          const formattedMessages = formatMessages(
-            messages.sort((a, b) => new Date(a.ctime) - new Date(b.ctime)),
-          ).filter(identity);
+          const formattedMessages = formatMessages(sortMessagesByCtimeAsc(messages)).filter(identity);
           setMessages(formattedMessages);
           if (chatbotId) {
             setChatbotId(chatbotId);
           }
 
+          // 接口没返回会话 id 说明当前按钮还没有会话，必须把上一个按钮的会话 id 一并清掉，
+          // 否则后续 resetConversation 等接口会带上另一个会话的 id
+          setConversationId(conversationId || undefined);
           if (conversationId) {
-            setConversationId(conversationId);
+            cache.current.conversationId = conversationId;
           }
 
           setIsLoadingMessages(false);
@@ -912,6 +831,9 @@ function MingoContent(props, ref) {
           onSend={handleSend}
           chatbotId={chatbotId}
           handleRegenerate={async ({ messageId }) => {
+            // 缺少会话 / 消息 id 时无法定位要重置到的位置，直接返回，避免漏传参数请求接口
+            if (!conversationId || !messageId) return;
+
             const { prevUserMessageId } = await chatbotAjax.resetConversation({
               chatbotId,
               conversationId,

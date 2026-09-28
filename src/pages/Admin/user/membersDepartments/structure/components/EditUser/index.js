@@ -1,16 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { Drawer } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, LoadDiv } from 'ming-ui';
-import { createIntlTelInput } from 'ming-ui/components/PhoneNumberInput/util';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Drawer } from 'ming-ui/antd-components';
+import { getDefaultCountry } from 'ming-ui/components/PhoneNumberInput/util';
 import fixedDataAjax from 'src/api/fixedData.js';
 import userController from 'src/api/user';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 import UserCountLimitLink from 'src/pages/Admin/user/membersDepartments/UserCountLimitLink';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { checkForm, getMobilePhoneNumber } from '../../constant';
 import BaseFormInfo from '../BaseFormInfo';
+import ControlledPhoneInput from '../ControlledPhoneInput';
+import { createControlledPhoneAdapter, getControlledPhoneValue } from '../ControlledPhoneInput/utils';
 import DrawerFooterOption from '../DrawerFooterOption';
 import TextInput from '../TextInput';
 import './index.less';
@@ -18,13 +20,15 @@ import './index.less';
 export default class EditUser extends Component {
   constructor(props) {
     super(props);
+    const { dialCode } = getControlledPhoneValue('', getDefaultCountry());
+
     this.state = {
       departmentIds: [],
       errors: {},
       baseInfo: {},
       agreeLoading: false,
+      mobilePhoneDialCode: dialCode,
     };
-    this.iti = null;
   }
   componentDidMount() {
     const { typeCursor, editCurrentUser = {} } = this.props;
@@ -40,11 +44,16 @@ export default class EditUser extends Component {
 
     if (typeCursor !== 0) {
       const { fullname, mobilePhone, email, status = '' } = editCurrentUser;
+      const phone = getControlledPhoneValue(mobilePhone, getDefaultCountry());
+
       this.setState({
         userName: fullname,
         mobile: mobilePhone,
         email,
+        mobilePhone: phone.value,
+        mobilePhoneDialCode: phone.dialCode,
         status,
+        isUploading: false,
       });
     }
   }
@@ -52,48 +61,21 @@ export default class EditUser extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.typeCursor !== 0 && !_.isEqual(prevProps.editCurrentUser, this.props.editCurrentUser)) {
-        const { fullname, mobilePhone, email, jobNumber, contactPhone } = this.props;
+        const { fullname, mobilePhone, email, jobNumber, contactPhone } = this.props.editCurrentUser || {};
+        const phone = getControlledPhoneValue(mobilePhone, getDefaultCountry());
+
         this.setState({
           userName: fullname,
           mobile: mobilePhone,
           email,
           jobNumber,
           contactPhone,
-          mobilePhone,
+          mobilePhone: phone.value,
+          mobilePhoneDialCode: phone.dialCode,
         });
       }
     }
-
-    if (this.iti?.element !== this.mobilePhone) {
-      this.itiFn();
-    }
   }
-  componentWillUnmount() {
-    this.iti?.element.removeEventListener('countrychange', this.changeCountry);
-    this.iti?.destroy();
-  }
-  itiFn = () => {
-    this.iti?.element.removeEventListener('countrychange', this.changeCountry);
-    this.iti?.destroy();
-    this.iti = null;
-
-    if (this.mobilePhone) {
-      // 用完整号码恢复区号，避免表单重新挂载后回到默认区号。
-      this.mobilePhone.value = this.state.mobilePhone || '';
-      this.iti = createIntlTelInput(this.mobilePhone, {
-        customPlaceholder: '',
-        separateDialCode: true,
-        showSelectedDialCode: true,
-        showDialCodeInput: true,
-      });
-      this.mobilePhone.value = this.fromatMobilePhoe(this.state.mobilePhone) || '';
-      this.mobilePhone.addEventListener('countrychange', this.changeCountry);
-    }
-  };
-  changeCountry = () => {
-    // 输入框只保留号码本体，使用新选区号生成完整号码。
-    this.setState({ mobilePhone: this.iti.getNumber() });
-  };
   getUserData = () => {
     const { accountId, projectId, typeCursor, editCurrentUser } = this.props;
     this.setState({ isUploading: true });
@@ -104,13 +86,16 @@ export default class EditUser extends Component {
       })
       .then(data => {
         let { user = {}, jobs = [], workSites = [] } = data;
+        const phone = getControlledPhoneValue(user.mobilePhone || editCurrentUser.mobilePhone, getDefaultCountry());
+
         this.setState({
           isUploading: false,
           userName: user.fullname || '',
           companyName: user.companyName || '',
           mobile: user.mobilePhone,
           email: user.email,
-          mobilePhone: user.mobilePhone || editCurrentUser.mobilePhone,
+          mobilePhone: phone.value,
+          mobilePhoneDialCode: phone.dialCode,
           isSuperAdmin: user.isAdmin,
           baseInfo: {
             jobNumber: user.jobNumber || '',
@@ -129,20 +114,15 @@ export default class EditUser extends Component {
   };
   changeFormInfo = (e, field) => {
     this.setState({
-      [field]: field === 'mobilePhone' ? this.iti.getNumber(e.target.value.replace(/ +/g, '')) : e.target.value,
+      [field]: field === 'mobilePhone' ? e.target.value.replace(/ +/g, '') : e.target.value,
       isClickSubmit: false,
     });
   };
-  fromatMobilePhoe = mobilePhone => {
-    let value = mobilePhone;
-
-    if (this.iti) {
-      const countryData = this.iti.getSelectedCountryData();
-      const dialCode = `+${countryData.dialCode}`;
-      value = (value || '').replace(dialCode, '');
-    }
-
-    return value;
+  getMobilePhoneAdapter = () => {
+    return createControlledPhoneAdapter({
+      dialCode: this.state.mobilePhoneDialCode,
+      value: this.state.mobilePhone,
+    });
   };
   clearError = field => {
     const { errors = {} } = this.state;
@@ -200,8 +180,8 @@ export default class EditUser extends Component {
 
         this.setState({ agreeLoading: false });
       })
-      .catch(() => {
-        alert(_l('操作失败'), 2);
+      .catch(_requestError2 => {
+        alertIfNotUnauthorized(_requestError2, _l('操作失败'), 2);
         this.setState({ agreeLoading: false });
       });
   };
@@ -251,16 +231,17 @@ export default class EditUser extends Component {
 
             this.setState({ isUploading: false });
           },
-          () => {
-            alert(_l('保存失败'), 2);
+          _requestError => {
+            alertIfNotUnauthorized(_requestError, _l('保存失败'), 2);
           },
         );
     } else {
       const { userName, email, mobilePhone, companyName } = this.state;
+      const mobilePhoneAdapter = this.getMobilePhoneAdapter();
       const errors = {
         ...this.state.errors,
         userName: !!checkForm['userName'](userName),
-        mobilePhone: mobilePhone && !!checkForm['mobilePhone'](mobilePhone, this.iti),
+        mobilePhone: mobilePhone && !!checkForm['mobilePhone'](mobilePhone, mobilePhoneAdapter),
         email: email && !!checkForm['email'](email),
       };
       this.setState({ errors });
@@ -280,9 +261,7 @@ export default class EditUser extends Component {
         fullname: userName,
         jobIds,
         jobNumber,
-        // 先剥离区号再交给 getMobilePhoneNumber，避免 this.state.mobilePhone 自带 +区号 时
-        // 首位 0 的判断失败、走到 iti.getNumber() 把首位 0 吞掉
-        mobilePhone: getMobilePhoneNumber(this.iti, this.fromatMobilePhoe(this.state.mobilePhone)),
+        mobilePhone: getMobilePhoneNumber(mobilePhoneAdapter, this.state.mobilePhone),
         projectId,
         workSiteId,
         contactPhone,
@@ -297,7 +276,7 @@ export default class EditUser extends Component {
       this.setState({ isUploading: true });
       // 私有部署不检查companyName
       Promise.all(
-        !window.platformENV.isOverseas && !window.platformENV.isLocal
+        window.platformENV.isHap
           ? [
               fixedDataAjax.checkSensitive({ content: companyName }),
               fixedDataAjax.checkSensitive({ content: jobNumber }),
@@ -329,7 +308,8 @@ export default class EditUser extends Component {
   };
   renderBaseUserInfo = () => {
     const { typeCursor, projectId } = this.props;
-    const { userName, mobile, email, mobilePhone, errors = {}, status, isSuperAdmin } = this.state;
+    const { userName, mobile, email, mobilePhone, mobilePhoneDialCode, errors = {}, status, isSuperAdmin } = this.state;
+    const mobilePhoneAdapter = this.getMobilePhoneAdapter();
 
     const currentProject = getCurrentProject(projectId);
 
@@ -360,20 +340,27 @@ export default class EditUser extends Component {
           ) : (
             <div className="formGroup">
               <div className="formLabel">{_l('手机号')}</div>
-              <Input
-                className={cx('formControl input', {
-                  error: errors['mobilePhone'] && !!checkForm['mobilePhone'](mobilePhone, this.iti),
-                })}
-                value={this.fromatMobilePhoe(mobilePhone)}
-                manualRef={ele => (this.mobilePhone = ele)}
-                onInput={e => this.changeFormInfo(e, 'mobilePhone')}
+              <ControlledPhoneInput
+                className="formControl input"
+                status={
+                  errors['mobilePhone'] && checkForm['mobilePhone'](mobilePhone, mobilePhoneAdapter)
+                    ? 'error'
+                    : undefined
+                }
+                value={mobilePhone || ''}
+                dialCode={mobilePhoneDialCode}
+                onChange={({ value, dialCode }) => {
+                  this.setState({ mobilePhone: value, mobilePhoneDialCode: dialCode, isClickSubmit: false });
+                }}
                 placeholder={_l('请输入')}
                 onFocus={() => {
                   this.clearError('mobilePhone');
                 }}
               />
-              {errors['mobilePhone'] && !!checkForm['mobilePhone'](mobilePhone, this.iti) && (
-                <div className="Block Red LineHeight25 Hidden">{checkForm['mobilePhone'](mobilePhone, this.iti)}</div>
+              {errors['mobilePhone'] && !!checkForm['mobilePhone'](mobilePhone, mobilePhoneAdapter) && (
+                <div className="Block Red LineHeight25 Hidden">
+                  {checkForm['mobilePhone'](mobilePhone, mobilePhoneAdapter)}
+                </div>
               )}
             </div>
           )}
@@ -430,11 +417,11 @@ export default class EditUser extends Component {
 
     return (
       <Drawer
-        width={580}
+        size={580}
         placement="right"
         onClose={onClose}
-        visible={openChangeUserInfoDrawer}
-        maskClosable={false}
+        open={openChangeUserInfoDrawer}
+        mask={{ closable: false }}
         closable={false}
       >
         <div className="addEditUserInfoWrap" key="addEditUserInfo">

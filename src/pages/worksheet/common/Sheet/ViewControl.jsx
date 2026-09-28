@@ -7,11 +7,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Slider } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { copyViewConfig } from 'worksheet/common/CopyViewConfig';
+import { useCopyViewConfig } from 'worksheet/common/CopyViewConfig';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
-import exportSheet from 'worksheet/common/ExportSheet';
+import { useExportSheet } from 'worksheet/common/ExportSheet';
 import ViewConfig from 'worksheet/common/ViewConfig';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import Pagination from 'worksheet/components/Pagination';
 import ViewItems from 'worksheet/components/ViewItems';
 import {
@@ -33,19 +32,20 @@ import {
 } from 'worksheet/redux/actions';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
 import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
-import { canEditData } from 'worksheet/redux/actions/util';
 import SearchRecord from 'worksheet/views/components/SearchRecord';
-import { getSearchData } from 'worksheet/views/util';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { exportAttachment } from 'src/pages/worksheet/common/ExportAttachment';
+import { useExportAttachment } from 'src/pages/worksheet/common/ExportAttachment';
 import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/Edit';
-import { openShareDialog } from 'src/pages/worksheet/components/Share';
-import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { renderText as renderCellText } from 'src/utils/control';
-import { filterHidedControls } from 'src/utils/control';
-import { getGroupControlId } from 'src/utils/worksheet';
+import { useShareDialog } from 'src/pages/worksheet/components/Share';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { filterHidedControls } from 'src/utils/domain/control/sort';
+import { canEditData } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getGroupControlId } from 'src/utils/domain/worksheet/helpers';
+import { getSearchData } from 'src/utils/services/worksheet/view';
 
 const Con = styled.div`
   display: flex;
@@ -60,6 +60,18 @@ const Con = styled.div`
     padding-left: 16px;
     font-size: 14px;
     color: var(--color-text-secondary);
+  }
+  .viewControlIconButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    &:hover {
+      background: var(--color-background-hover) !important;
+    }
   }
 `;
 
@@ -123,6 +135,10 @@ function ViewControl(props) {
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
+  const { open: copyViewConfig, holder: copyViewConfigHolder } = useCopyViewConfig();
+  const { open: exportSheet, holder: exportSheetHolder } = useExportSheet();
+  const { open: exportAttachment, holder: exportAttachmentHolder } = useExportAttachment();
+  const { open: openShareDialog, holder: shareDialogHolder } = useShareDialog();
   const newSheetSwitchPermit =
     viewId !== worksheetId ? sheetSwitchPermit : sheetSwitchPermit.map(l => ({ ...l, state: true }));
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, newSheetSwitchPermit);
@@ -214,11 +230,15 @@ function ViewControl(props) {
   }, []);
 
   if (type == 'exportSheetButton') {
-    return null;
+    return exportSheetHolder;
   }
 
   return (
     <Con>
+      {copyViewConfigHolder}
+      {exportSheetHolder}
+      {exportAttachmentHolder}
+      {shareDialogHolder}
       <ViewItems
         worksheetInfo={worksheetInfo}
         sheetSwitchPermit={newSheetSwitchPermit}
@@ -327,13 +347,19 @@ function ViewControl(props) {
             }}
           >
             <Tooltip placement="bottom" title={_l('查找')}>
-              <i className={cx('icon icon-search textTertiary Font18 pointer hoverColorPrimary mTop2 mRight15')} />
+              <i
+                className={cx(
+                  'icon icon-search viewControlIconButton textTertiary Font18 pointer hoverColorPrimary mRight8',
+                )}
+              />
             </Tooltip>
           </SearchRecord>
         )}
       <Tooltip placement="bottom" title={_l('刷新视图')}>
         <i
-          className={cx('icon icon-task-later refresh textTertiary Font18 pointer hoverColorPrimary mTop2')}
+          className={cx(
+            'icon icon-task-later refresh viewControlIconButton textTertiary Font18 pointer hoverColorPrimary',
+          )}
           onClick={() => {
             if (cache.current.isRefreshing) {
               alert(_l('刷新过于频繁，请稍后再试'), 3);
@@ -411,46 +437,43 @@ function ViewControl(props) {
           updateViewShowcount={updateViewShowcount}
           updateWorksheetInfo={updateWorksheetInfo}
           onClickAwayExceptions={[
-            '.ant-dropdown',
-            '.ant-dropdown-menu',
-            '.ant-select-dropdown',
+            '.hap-dropdown',
+            '.hap-dropdown-menu',
+            '.hap-select-dropdown',
             '.ChooseWidgetDialogWrap',
             '.dropConOption',
-            '.dropdownTrigger',
             '.worksheetFilterColumnOptionList',
             '.selectUserBox',
             '#dialogBoxSelectUser_container',
-            '.PositionContainer-wrapper',
             '.deleteCustomBtnDialog',
-            '.mui-dialog-container',
+            '.hap-modal-wrap',
             '.createCustomBtnCon',
             '.showBtnFilterDialog',
             '.doubleConfirmDialog',
             '.appointDialog',
             '.chooseWidgetDialog',
-            '.rc-trigger-popup',
             '.fullScreenCurtain',
             '.errerDialogForAppoint',
-            '.mobileDepartmentPickerDialog',
+            '.departmentPickerModal',
             '.selectUserFromAppDialog',
             '.addHierarchyRelate',
             '.hideControlsWrap',
-            '.ant-cascader-menus',
-            '.ant-picker-dropdown',
-            '.ant-tree-select-dropdown',
+            '.hap-cascader-menus',
+            '.hap-picker-dropdown',
+            '.hap-tree-select-dropdown',
             '#chat',
             '.boxEditFastFilter',
             '.boxEditFastFilterCover',
-            '.ant-picker-dropdown',
+            '.hap-picker-dropdown',
             '.quickAddControlDialog',
-            '.ant-modal-root',
-            '.ant-tooltip',
+            '.hap-modal-root',
+            '.hap-tooltip',
             '.CodeMirror-hints',
             '.selectRoleDialog',
             '#quickSelectDept',
-            '.ant-drawer-mask',
+            '.hap-drawer-mask',
             '.attachmentsPreview',
-            '.ant-popover',
+            '.hap-popover',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -537,16 +560,16 @@ function ViewControl(props) {
           onClickAwayExceptions={[
             '.addControlDrop',
             '.scrollViewContainer',
-            '.mui-dialog-container',
-            '.ant-select-dropdown',
-            '.rc-trigger-popup',
+            '.hap-modal-wrap',
+            '.hap-dropdown',
+            '.hap-select-dropdown',
             '.selectUserBox',
-            '.ant-picker-dropdown',
+            '.hap-picker-dropdown',
             '.TimePicker',
             '.attachmentsPreview',
             '#quickSelectDept',
-            '.ant-modal',
-            '.ant-popover',
+            '.hap-modal',
+            '.hap-popover',
           ]}
           showFastFilter={showFastFilter}
           onClickAway={() => {

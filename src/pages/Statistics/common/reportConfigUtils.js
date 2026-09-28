@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { isLightColor } from 'src/pages/customPage/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { reportTypes } from '../Charts/reportTypes';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { isLightThemeColor as isLightColor } from 'src/utils/domain/project/colors';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 import { defaultNumberChartStyle, defaultPivotTableStyle, normTypes } from '../enum';
 import { isAreaControl, isNumberControl, isTimeControl } from './controlUtils';
 import { defaultDropdownScopeData } from './timeUtils';

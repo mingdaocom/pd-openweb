@@ -1,20 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import filterXss from 'xss';
-import { Button, Dialog, Icon, Input } from 'ming-ui';
+import { Icon, PersonalStatus } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
+import PersonalStatusIcon from 'ming-ui/components/PersonalStatus/PersonalStatusIcon';
 import personalStyleApi from 'src/api/personalStyle';
-import Emotion from 'src/components/emotion/emotion';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import Emotion from 'src/components/emotion';
+import { EMOTION_GROUP_IDS } from 'src/components/emotion/data';
 import { dateOptions, defaultStatusInfo } from './config';
 import CustomDatePicker from './CustomDatePicker';
-import PersonalStatus from './PersonalStatus';
 
-const DialogWrap = styled(Dialog)`
-  background-color: var(--color-background-card) !important;
-  box-shadow: var(--shadow-lg) !important;
+const ModalWrap = styled(Modal)`
   .listWrap {
     overflow: hidden;
   }
@@ -81,12 +79,6 @@ const DialogWrap = styled(Dialog)`
   .formWrap {
     border-bottom: 1px solid var(--color-border-primary);
   }
-
-  .formItemInput {
-    .Input.error {
-      border-color: var(--color-error);
-    }
-  }
 `;
 
 export default function MyStatus() {
@@ -97,32 +89,10 @@ export default function MyStatus() {
   const [currentIndex, setCurrentIndex] = useState();
   const currentStatus = statusList[currentIndex] || {};
   const { statusOptions } = data;
-  const emotionRefs = useRef([]);
 
-  const initEmotion = () => {
-    emotionRefs.current.forEach((ref, refIndex) => {
-      if (ref) {
-        new Emotion(ref, {
-          defaultTab: 2,
-          divEditor: false,
-          historySize: 30,
-          autoHide: true,
-          mdBear: false,
-          showAru: false,
-          history: false,
-          hideClassic: true,
-          placement: 'left bottom',
-          onSelect: (name, value, emotionText) => {
-            setCurrentIndex(refIndex);
-            setStatusList(prevList => {
-              const copyList = _.cloneDeep(prevList);
-              copyList[refIndex].icon = emotionText || name;
-              return copyList;
-            });
-          },
-        });
-      }
-    });
+  const openStatusDialog = () => {
+    setStatusList(data.statusOptions || []);
+    setVisible(true);
   };
 
   // 获取状态
@@ -160,27 +130,23 @@ export default function MyStatus() {
     };
     setCurrentIndex(statusList.length);
     setStatusList(copyList.concat(status));
-    setTimeout(() => {
-      initEmotion();
-    }, 0);
   };
 
   // 删除状态
   const deleteStatus = (e, statusId) => {
     e.stopPropagation();
-    Dialog.confirm({
-      title: _l('确认删除此状态？'),
-      description: _l('状态删除后，无法恢复'),
-      removeCancelBtn: true,
-      buttonType: 'danger',
+    Modal.confirm({
+      title: <span className="textError">{_l('确认删除此状态？')}</span>,
+      content: _l('状态删除后，无法恢复'),
+      okText: _l('确认'),
+      cancelText: _l('取消'),
+      okButtonProps: { danger: true },
       onOk: () => {
-        const copyList = _.cloneDeep(statusList);
-
         if (statusId === 'new_id') {
           alert(_l('删除成功'));
-          setStatusList(copyList.filter(item => item.statusId !== statusId));
+          setStatusList(prevList => prevList.filter(item => item.statusId !== statusId));
         } else {
-          personalStyleApi.deletePersonalStatus({ statusId }).then(res => {
+          return personalStyleApi.deletePersonalStatus({ statusId }).then(res => {
             if (res) {
               alert(_l('删除成功'));
               getStatus();
@@ -243,12 +209,6 @@ export default function MyStatus() {
     getStatus();
   }, []);
 
-  useEffect(() => {
-    if (!visible) return;
-    initEmotion();
-    setStatusList(data.statusOptions || []);
-  }, [visible]);
-
   if (loading) {
     return null;
   }
@@ -262,46 +222,57 @@ export default function MyStatus() {
           accountId={md.global.Account.accountId}
           showCancel={true}
           onStatusOption={data.onStatusOption}
-          onClick={() => setVisible(true)}
+          onClick={openStatusDialog}
           onCancel={() => {
             setCurrentIndex();
             setData({ ...data, onStatusOption: null });
           }}
         />
       ) : (
-        <div className="accountStatus flexRow alignItemsCenter" onClick={() => setVisible(true)}>
+        <div className="accountStatus flexRow alignItemsCenter" onClick={openStatusDialog}>
           <Icon icon="add_reaction" className="Font16 textTertiary" />
           <div className="Font14 textSecondary mLeft10">{_l('添加您的个人状态')}</div>
         </div>
       )}
-      <DialogWrap
-        visible={visible}
+      <ModalWrap
+        open={visible}
         width={492}
         title={_l('我的状态')}
         onCancel={() => {
           setVisible(false);
           setCurrentIndex();
         }}
+        onOk={saveStatus}
+        okText={_l('确认')}
         okDisabled={_.isEmpty(currentStatus)}
-        footer={
-          <div className="flexRow alignItemsCenter">
-            {_.every(statusList, v => v.statusId !== 'new_id') && (
-              <div className="flexRow alignItemsCenter textTertiary Font14 Hand" onClick={addStatus}>
-                <Icon icon="plus" className="mRight5" />
-                <div className="Font14 textSecondary">{_l('添加状态')}</div>
-              </div>
-            )}
-            <div className="flex"></div>
-            <Button type="primary" disabled={_.isEmpty(currentStatus)} onClick={saveStatus}>
-              {_l('确认')}
-            </Button>
-          </div>
+        footerLeftElement={
+          _.every(statusList, v => v.statusId !== 'new_id') ? (
+            <div className="flexRow alignItemsCenter textTertiary Font14 Hand" onClick={addStatus}>
+              <Icon icon="plus" className="mRight5" />
+              <div className="Font14 textSecondary">{_l('添加状态')}</div>
+            </div>
+          ) : null
         }
       >
         <div className="mBottom10">{_l('设置您的个人状态，让所有协作的同事及时知晓')}</div>
         <div className="listWrap">
           {statusList.map((item, index) => {
             const isDefaultStatus = index < 4;
+            const statusIcon = (
+              <div
+                className={cx('emojiWrap flexRow alignItemsCenter Relative', {
+                  transparentBg: defaultStatusInfo[item.statusId],
+                })}
+                onClick={event => !isDefaultStatus && event.stopPropagation()}
+              >
+                <PersonalStatusIcon className="singeText paddingLeft27" icon={item.icon} />
+                {!isDefaultStatus && (
+                  <div className="Absolute editIcon">
+                    <Icon icon="edit" className="textDisabled Font14" />
+                  </div>
+                )}
+              </div>
+            );
 
             return (
               <div key={item.statusId}>
@@ -311,25 +282,26 @@ export default function MyStatus() {
                   })}
                   onClick={() => setCurrentIndex(index)}
                 >
-                  <div
-                    className={cx('emojiWrap flexRow alignItemsCenter Relative', {
-                      transparentBg: defaultStatusInfo[item.statusId],
-                    })}
-                    ref={el => (!isDefaultStatus ? (emotionRefs.current[index] = el) : null)}
-                    onClick={e => !isDefaultStatus && e.stopPropagation()}
-                  >
-                    <span
-                      className="singeText paddingLeft27"
-                      dangerouslySetInnerHTML={{
-                        __html: filterXss(createLinksForMessage({ message: item.icon }), {}),
+                  {isDefaultStatus ? (
+                    statusIcon
+                  ) : (
+                    <Emotion
+                      defaultGroup={EMOTION_GROUP_IDS.PEOPLE}
+                      hideClassic
+                      history={false}
+                      placement="bottomLeft"
+                      onSelect={({ text }) => {
+                        setCurrentIndex(index);
+                        setStatusList(prevList =>
+                          prevList.map((status, statusIndex) =>
+                            statusIndex === index ? { ...status, icon: text } : status,
+                          ),
+                        );
                       }}
-                    ></span>
-                    {!isDefaultStatus && (
-                      <div className="Absolute editIcon">
-                        <Icon icon="edit" className="textDisabled Font14" />
-                      </div>
-                    )}
-                  </div>
+                    >
+                      {statusIcon}
+                    </Emotion>
+                  )}
                   <div className="flex minWidth0">
                     <div className="statusItemName Font14 textPrimary mBottom3">{item.remark}</div>
                     <div className="statusItemDate textSecondary">
@@ -367,11 +339,14 @@ export default function MyStatus() {
                       <div className="formItemLabel mBottom8">{_l('备注')}</div>
                       <div className="formItemInput">
                         <Input
-                          className={`w100 ${currentStatus.statusId === item.statusId && !currentStatus.remark ? 'error' : ''}`}
-                          value={item.remark}
-                          onChange={val => {
+                          className="w100"
+                          status={
+                            currentStatus.statusId === item.statusId && !currentStatus.remark ? 'error' : undefined
+                          }
+                          value={item.remark || ''}
+                          onChange={event => {
                             const copyList = _.cloneDeep(statusList);
-                            copyList[index] = { ...copyList[index], remark: val };
+                            copyList[index] = { ...copyList[index], remark: event.target.value };
                             setStatusList(copyList);
                           }}
                         />
@@ -383,7 +358,7 @@ export default function MyStatus() {
             );
           })}
         </div>
-      </DialogWrap>
+      </ModalWrap>
     </Fragment>
   );
 }

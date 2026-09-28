@@ -1,7 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dialog, LoadDiv, UserHead } from 'ming-ui';
+import { LoadDiv, UserHead } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import RoleController from 'src/api/role';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import PaginationWrap from '../../../components/PaginationWrap';
 import './style.less';
 
@@ -91,12 +93,12 @@ export default class ApplyForRole extends React.Component {
                             throw new Error();
                           }
                         })
-                        .catch(function () {
-                          alert(_l('操作失败'), 2);
+                        .catch(function (_requestError) {
+                          alertIfNotUnauthorized(_requestError, _l('操作失败'), 2);
                         });
                     }}
                   >
-                    {_l('授予角色')}
+                    {_l('授予权限')}
                   </span>
                   <span
                     className="Hand Red mLeft24"
@@ -114,8 +116,8 @@ export default class ApplyForRole extends React.Component {
                             throw new Error();
                           }
                         })
-                        .catch(function () {
-                          alert(_l('操作失败'), 2);
+                        .catch(function (_requestError2) {
+                          alertIfNotUnauthorized(_requestError2, _l('操作失败'), 2);
                         });
                     }}
                   >
@@ -140,22 +142,18 @@ export default class ApplyForRole extends React.Component {
   }
 
   render() {
-    const { visible, onOk, onClose } = this.props;
+    const { visible, onClose } = this.props;
     const { isLoading, list, totalCount, pageSize } = this.state;
-    const dialogProps = {
-      className: 'applyRoleDialog',
-      width: 850,
-      height: 668,
-      title: _l('申请角色请求'),
-      visible,
-      onCancel: onClose,
-      onOk: onOk,
-      anim: false,
-      footer: null,
-    };
-
     return (
-      <Dialog {...dialogProps}>
+      <Modal
+        className="applyRoleDialog"
+        width={850}
+        title={_l('权限申请')}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
+        onCancel={onClose}
+      >
         {isLoading ? (
           <LoadDiv />
         ) : (
@@ -168,7 +166,7 @@ export default class ApplyForRole extends React.Component {
                     <th className="userName">{_l('姓名')}</th>
                     <th className="userDepartment">{_l('部门')}</th>
                     <th className="userProfession">{_l('职位')}</th>
-                    <th className="userApplyRole">{_l('申请角色')}</th>
+                    <th className="userApplyRole">{_l('申请权限组')}</th>
                     <th className="userOperation">{_l('操作')}</th>
                   </tr>
                 </thead>
@@ -186,7 +184,7 @@ export default class ApplyForRole extends React.Component {
             </div>
           </React.Fragment>
         )}
-      </Dialog>
+      </Modal>
     );
   }
 }

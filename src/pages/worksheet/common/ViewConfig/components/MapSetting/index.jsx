@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Radio } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Radio, Segmented, Select, Switch, Tooltip } from 'ming-ui/antd-components';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import { FlexCenter } from 'worksheet/styled';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
-import { getMapConfig, toFixed } from 'src/utils/control';
-import { SwitchStyle } from '../style';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { toFixed } from 'src/utils/domain/control/number';
+import { getMapConfig } from 'src/utils/platform/runtime/config';
+import { filterAndFormatterControls } from 'src/utils/services/worksheet/view';
 
 const VIEW_CENTER_TYPE = [
   { text: _l('所有位置'), value: 1 },
@@ -21,7 +19,6 @@ const CENTER_POSITION_TYPE = [
   { text: _l('固定位置'), value: 1 },
   { text: _l('当前位置'), value: 2 },
 ];
-
 const MapSettingWrap = styled.div`
   .splitLine {
     border-bottom: 1px solid var(--color-border-secondary);
@@ -30,10 +27,6 @@ const MapSettingWrap = styled.div`
   }
   .allColorSelectFields {
     font-weight: 500;
-    border-radius: 4px;
-    .Item-content {
-      padding-left: 32px !important;
-    }
   }
 `;
 
@@ -66,7 +59,7 @@ const RadioBox = styled.div`
     display: flex;
     align-items: center;
     flex: 1;
-    .ming.Radio {
+    .hap-radio-wrapper {
       margin-right: 5px;
     }
   }
@@ -85,7 +78,7 @@ const DefaultLocationWrap = styled.div`
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  ${({ showPlaceholder }) => showPlaceholder && 'color: var(--color-text-placeholder);'}
+  ${({ $showPlaceholder }) => $showPlaceholder && 'color: var(--color-text-placeholder);'}
   .icon {
     position: absolute;
     right: 12px;
@@ -128,7 +121,7 @@ export default function MapSetting(props) {
       controls: columns,
       filter: l => l.type === 40 || (l.type === 30 && l.sourceControlType === 40),
       formatter: ({ controlName, controlId, type }) => ({
-        text: controlName,
+        label: controlName,
         value: controlId,
         icon: getIconByType(type, false),
       }),
@@ -145,21 +138,41 @@ export default function MapSetting(props) {
     });
   };
 
+  const viewSelectFields = getViewSelectFields();
+  const tagColorFields = filterAndFormatterControls({
+    controls: columns,
+    filter: l => _.includes([9, 11], l.type),
+    formatter: ({ controlName, controlId, type }) => ({
+      label: controlName,
+      value: controlId,
+      icon: getIconByType(type, false),
+    }),
+  });
+
   return (
     <MapSettingWrap className="mapSettingBox">
       <div className="title bold mBottom10">{_l('位置字段')}</div>
       <div className="settingContent">
-        <Dropdown
-          data={getViewSelectFields()}
+        <Select
+          options={viewSelectFields}
           value={viewControl}
           className="dropdownSelectFields"
-          hoverTheme
-          renderTitle={obj => {
-            const { icon, text } = obj || {};
+          optionRender={option => {
+            const { icon, label } = option.data || {};
+            return (
+              <DisplayControlOption>
+                <Icon icon={icon} />
+                <span>{label}</span>
+              </DisplayControlOption>
+            );
+          }}
+          labelRender={({ value }) => {
+            const obj = viewSelectFields.find(item => item.value === value);
+            const { icon, label } = obj || {};
             return (
               <SelectValue>
                 <Icon icon={icon} />
-                <span>{text}</span>
+                <span>{label}</span>
               </SelectValue>
             );
           }}
@@ -175,7 +188,6 @@ export default function MapSetting(props) {
               editAttrs: ['viewControl'],
             });
           }}
-          border
           style={{ width: '100%' }}
           placeholder={_l('请选择')}
         />
@@ -184,11 +196,11 @@ export default function MapSetting(props) {
         <div className="title bold mBottom8">{_l('位置标签')}</div>
         <div className="textSecondary mTop8">{_l('在地图上显示位置名称（使用记录标题）')}</div>
         <div className="configSwitch mTop10">
-          <SwitchStyle className="flexRow alignItemsCenter">
-            <Icon
-              icon={advancedSetting.showtitle !== '0' ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font28 Hand"
-              onClick={() => {
+          <div className="flexRow alignItemsCenter viewConfigSwitchRow">
+            <Switch
+              size="mini"
+              checked={advancedSetting.showtitle !== '0'}
+              onChange={() => {
                 updateCurrentView({
                   ...view,
                   appId,
@@ -198,53 +210,53 @@ export default function MapSetting(props) {
                 });
               }}
             />
-            <div className="switchText InlineBlock Normal mLeft10 TxtMiddle">{_l('显示')}</div>
-          </SwitchStyle>
+            <div className="InlineBlock Normal mLeft12 TxtMiddle">{_l('显示')}</div>
+          </div>
         </div>
         <div className="title bold mBottom8 mTop24">{_l('标签颜色')}</div>
-        <AnimationWrap className="tagColorWrap">
-          {[_l('浅色'), _l('深色'), _l('动态颜色')].map((item, i) => {
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', { active: Number(advancedSetting.tagType || 0) === i })}
-                onClick={() => updateViewTagType(i)}
-              >
-                {item}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Segmented
+          block
+          value={Number(advancedSetting.tagType || 0)}
+          options={[
+            { label: _l('浅色'), value: 0 },
+            { label: _l('深色'), value: 1 },
+            { label: _l('动态颜色'), value: 2 },
+          ]}
+          onChange={updateViewTagType}
+        />
         {Number(advancedSetting.tagType || 0) === 2 && (
           <React.Fragment>
             <div className="title Bold mTop24">
               {_l('动态颜色')}
               {tagColorControl && tagColorControl.enumDefault2 !== 1 && (
-                <Tooltip className="mLeft6" title={_l('当前选择的字段未启用颜色')}>
-                  <i className="icon icon-error1 Font16" style={{ color: 'var(--color-warning)' }}></i>
+                <Tooltip title={_l('当前选择的字段未启用颜色')}>
+                  <i className="icon icon-error1 Font16 mLeft6" style={{ color: 'var(--color-warning)' }}></i>
                 </Tooltip>
               )}
             </div>
             <div className="mTop6 mBottom10 Font12 textSecondary">
               {_l('选择一个单选字段，标签将按照此字段中的选项颜色来显示')}
             </div>
-            <Dropdown
-              data={filterAndFormatterControls({
-                controls: columns,
-                filter: l => _.includes([9, 11], l.type),
-                formatter: ({ controlName, controlId, type }) => ({
-                  text: controlName,
-                  value: controlId,
-                  icon: getIconByType(type, false),
-                }),
-              })}
+            <Select
+              options={tagColorFields}
               value={advancedSetting.tagcolorid}
               className="allColorSelectFields"
-              renderTitle={obj => {
-                const { icon, text } = obj || {};
+              optionRender={option => {
+                const { icon, label } = option.data || {};
+                return (
+                  <DisplayControlOption>
+                    <Icon icon={icon} />
+                    <span>{label}</span>
+                  </DisplayControlOption>
+                );
+              }}
+              labelRender={({ value }) => {
+                const obj = tagColorFields.find(item => item.value === value);
+                const { icon, label } = obj || {};
                 return (
                   <SelectValue>
                     <Icon icon={icon} />
-                    <span>{text}</span>
+                    <span>{label}</span>
                   </SelectValue>
                 );
               }}
@@ -257,27 +269,18 @@ export default function MapSetting(props) {
                   editAdKeys: ['tagcolorid'],
                 });
               }}
-              border
               style={{ width: '100%' }}
               placeholder={_l('请选择')}
             />
           </React.Fragment>
         )}
         <div className="title bold mBottom8 mTop24">{_l('默认视图显示')}</div>
-        <AnimationWrap className="tagColorWrap">
-          {VIEW_CENTER_TYPE.map(({ value, text }) => {
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', {
-                  active: Number(mapLocation.type || 1) === value,
-                })}
-                onClick={() => updateViewLocation('type', value)}
-              >
-                {text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Segmented
+          block
+          value={Number(mapLocation.type || 1)}
+          options={VIEW_CENTER_TYPE.map(({ value, text }) => ({ value, label: text }))}
+          onChange={value => updateViewLocation('type', value)}
+        />
         {Number(mapLocation.type) === 2 && (
           <div className="mTop16">
             <RadioBox>
@@ -287,10 +290,12 @@ export default function MapSetting(props) {
                   <div className="radioItem">
                     <Radio
                       disabled={isDisabled}
-                      text={text}
                       checked={Number(mapLocation.location || 1) === value}
-                      onClick={() => updateViewLocation('location', value)}
-                    />
+                      onChange={() => updateViewLocation('location', value)}
+                      title={text}
+                    >
+                      {text}
+                    </Radio>
                     {isDisabled && (
                       <Tooltip title={_l('当前位置需要站点使用 HTTPS 才能生效；否则将使用默认城市。')}>
                         <Icon icon="help" className="textTertiary mLeft5 Font14" />
@@ -301,7 +306,7 @@ export default function MapSetting(props) {
               })}
             </RadioBox>
             {(Number(mapLocation.location) || 1) === 1 && (
-              <DefaultLocationWrap showPlaceholder={!mapLocation.value} onClick={() => setMdMapVisible(true)}>
+              <DefaultLocationWrap $showPlaceholder={!mapLocation.value} onClick={() => setMdMapVisible(true)}>
                 {mapLocation.value
                   ? mapLocationValue.address ||
                     `${_l('经度')}${toFixed(mapLocationValue.x, 6)}, ${_l('纬度')}${toFixed(mapLocationValue.y, 6)}`

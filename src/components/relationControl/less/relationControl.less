@@ -10,33 +10,6 @@
     background: var(--color-background-secondary);
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
-    .relationControlType {
-      margin-top: 15px;
-      li {
-        height: 48px;
-        line-height: 48px;
-        font-size: 14px;
-        cursor: pointer;
-        &:hover:not(.active) {
-          background: var(--color-background-secondary);
-        }
-        &.active {
-          background: var(--color-background-secondary);
-        }
-        i {
-          width: 16px;
-          display: inline-block;
-          color: var(--color-text-secondary);
-          vertical-align: top;
-          margin: 16px 8px 0 20px;
-          font-size: 16px;
-          &.icon-task_custom_today {
-            font-size: 17px;
-            margin-top: 15px;
-          }
-        }
-      }
-    }
   }
   .relationControlClose {
     position: absolute;
@@ -80,69 +53,16 @@
   .relationControlList {
     overflow-x: hidden;
     overflow-y: auto;
-    li {
-      height: 42px;
-      line-height: 42px;
-      padding: 0 24px;
-      box-sizing: border-box;
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--color-text-primary);
-      &:hover:not(.bgColorPrimary) {
-        background: var(--color-background-secondary);
-      }
-      &:not(.bgColorPrimary) {
-        color: var(--color-text-primary);
-        i {
-          color: var(--color-text-tertiary);
-        }
-      }
-      .relationControlItem {
-        position: absolute;
-        top: 0;
-        left: 24px;
-        right: 24px;
-        bottom: 0;
-        align-items: center;
-      }
-      i {
-        font-size: 16px;
-        &.relationControlIcon {
-          min-width: 18px;
-          width: 18px;
-          height: 20px;
-        }
-      }
-      .overflow_ellipsis {
-        margin-left: 10px;
-      }
-      .userAvarar {
-        margin-left: 20px;
-        img {
-          display: inline-block;
-          vertical-align: top;
-        }
-      }
-    }
-  }
-  .listMore {
-    font-size: 13px;
-    margin-left: 24px;
-    cursor: pointer;
-    display: inline-block;
-    height: 42px;
-    line-height: 42px;
-    &:not(:hover) {
-      color: var(--color-text-tertiary) !important;
+    .relationControlIcon {
+      min-width: 16px;
+      width: 16px;
+      height: 16px;
     }
   }
   .listDate {
     font-size: 15px;
     margin-left: 24px;
     padding: 15px 0 10px;
-    .listDateGray {
-      color: var(--color-text-tertiary);
-    }
   }
   .relationControNull {
     margin-top: 106px;

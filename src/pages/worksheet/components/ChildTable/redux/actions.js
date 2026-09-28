@@ -4,8 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
 import { getTreeExpandSize, handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
-import { postWithToken } from 'src/utils/common';
-import { filterEmptyChildTableRows } from 'src/utils/record';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
+import { postWithToken } from 'src/utils/services/request/authenticated';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const PAGE_SIZE = 200;
 
@@ -33,6 +34,7 @@ export function updateTreeNodeExpansion(
                 value: row.rowid,
               },
             ],
+
             instanceId,
             workId,
           })
@@ -219,6 +221,19 @@ export const addRow = (row, insertRowId) => (dispatch, getState) => {
   dispatch(updatePagination({ count: _.get(getState(), 'pagination.count') + 1 }));
 };
 
+// 拖拽排序：把 fromRowId 移动到 toRowId 之前/之后（position: 'before' | 'after'）。
+// 仅改动本地 rows 顺序，由子表现有保存流程按新顺序提交（"先存本地"）。
+export const moveRow =
+  ({ fromRowId, toRowId, position = 'before', silent = false }) =>
+  dispatch => {
+    if (!fromRowId || !toRowId || fromRowId === toRowId) {
+      return;
+    }
+    // silent：查看已存记录时直接走接口持久化，不向大表单上报、不标脏（不触发记录变更）
+    dispatch({ type: 'MOVE_ROW', fromRowId, toRowId, position, silent });
+    dispatch(updateTreeTableViewData());
+  };
+
 export const deleteRow = rowid => (dispatch, getState) => {
   const { cellErrors = {} } = getState();
   dispatch({ type: 'UPDATE_CELL_ERRORS', value: _.omitBy(cellErrors, (value, key) => key.startsWith(`${rowid}-`)) });
@@ -321,6 +336,8 @@ export const loadRows = ({
   return (dispatch, getState) => {
     const { base = {}, filterControls = [] } = getState();
     const { instanceId, workId, control } = base;
+    // 记录请求发起时是否已发生过清空赋值（CLEAR_AND_SET_ROWS 会置 base.reset），用于识别"行请求在途期间被赋值"的竞态
+    const resetBeforeLoad = !!base.reset;
 
     const args = {
       worksheetId,
@@ -338,6 +355,11 @@ export const loadRows = ({
     batchLoadRows(args)
       .then(batchRes => {
         const { res, rows } = batchRes;
+        const stateBeforeLoad = getState();
+        const setDuringLoad = !resetBeforeLoad && !!get(stateBeforeLoad, 'base.reset');
+        const isDeleteAllBeforeLoad = !!get(stateBeforeLoad, 'changes.isDeleteAll');
+        let finalRows = rows;
+
         dispatch(updatePagination({ count: res.count }));
         // 仅未筛选加载时落"真实总数"(此时 res.count 即全量总数)；筛选态加载不覆盖，保留已知总数。
         if (_.isEmpty(filterControls)) {
@@ -346,14 +368,42 @@ export const loadRows = ({
 
         dispatch({ type: 'LOAD_ROWS', rows });
         dispatch({ type: 'UPDATE_DATA_LOADING', value: false });
-        dispatch(initRows(rows));
+
+        if (setDuringLoad) {
+          // 行请求在途期间子表已被清空赋值（工作表查询 / API 查询等；自定义事件、业务规则设置字段值会等行加载完成再执行）：
+          // 只记录原始行（LOAD_ROWS 已写入 originRows），不再用服务端原始行覆盖本地赋值结果；
+          // 否则保存时会把原始行当新行整表重提，造成原记录被删除重建、隐藏字段丢失。
+          // 赋值发生时原始行尚未加载，删除名单是空的，这里重放一次清空赋值，让大表单按真实原始行重算删除名单。
+          const currentRows = filterEmptyChildTableRows(stateBeforeLoad.rows);
+          const loadedRowIds = rows.map(row => row.rowid);
+          const lastAction = stateBeforeLoad.lastAction || {};
+
+          dispatch({
+            type: 'CLEAR_AND_SET_ROWS',
+            // 保留了已加载行的是事件赋值（查询赋值生成的都是新行），按事件语义计算删除名单
+            isSetValueFromEvent: currentRows.some(row => includes(loadedRowIds, row.rowid)),
+            isSetValueFromRule: lastAction.type === 'CLEAR_AND_SET_ROWS' ? !!lastAction.isSetValueFromRule : false,
+            rows: currentRows,
+            deleted: loadedRowIds.filter(rowid => !_.some(currentRows, row => row.rowid === rowid)),
+          });
+
+          // LOAD_ROWS 会清空 changes，赋值结果为空时的"清空全部"标记需要补回
+          if (isDeleteAllBeforeLoad) {
+            dispatch({ type: 'DELETE_ALL' });
+          }
+
+          finalRows = currentRows;
+        } else {
+          dispatch(initRows(rows));
+        }
+
         if (isTreeTableView) {
           const expandSize = getTreeExpandSize(base.control);
           const { treeMap, maxLevel } = treeDataUpdater(
             {},
             {
-              rootRows: rows.filter(r => typeof r.pid !== 'undefined' && !r.pid),
-              rows: rows,
+              rootRows: finalRows.filter(r => typeof r.pid !== 'undefined' && !r.pid),
+              rows: finalRows,
               levelLimit: 5,
               expandSize,
             },
@@ -469,7 +519,7 @@ export const exportSheet = ({
       saveAs(resData, fileName || resData.name || 'file');
     } catch (err) {
       onDownload(err);
-      alert(_l('导出失败！请稍候重试'), 2);
+      alertIfNotUnauthorized(err, _l('导出失败！请稍候重试'), 2);
     }
   };
 };

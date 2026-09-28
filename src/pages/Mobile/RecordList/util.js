@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { SYS } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { isIllegal } from 'src/utils/services/worksheet/calendar';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 
 const { sheet, board, calendar, gallery, structure, gunter, detail, resource, map } = VIEW_DISPLAY_TYPE;
 

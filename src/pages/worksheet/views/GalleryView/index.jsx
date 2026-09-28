@@ -3,13 +3,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import autoSize from 'ming-ui/components/AutoSize';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import * as actions from 'worksheet/redux/actions/galleryview';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+import { getSheetOperateButtonIds, getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
 import RecordGalleryInner from './components/RecordGalleryInner';
 import './index.less';
 

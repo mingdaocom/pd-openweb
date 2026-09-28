@@ -1,10 +1,27 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { DatePicker, Input } from 'ming-ui/antd-components';
 import { handleGlobalVariableName } from '../../../utils';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
+
+const DATE_FORMAT = 'YYYY-MM-DD';
+const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
+const DATE_TIME_PICKER_CONFIG = { format: 'HH:mm' };
+
+const isBeforeMinDate = (current, minDate) => current && minDate && current.isBefore(moment(minDate), 'day');
+
+const getDisabledTime = (current, minDate) => {
+  const min = moment(minDate);
+
+  if (!current || !min.isValid() || !current.isSame(min, 'day')) return {};
+
+  return {
+    disabledHours: () => Array.from({ length: min.hour() }, (_, hour) => hour),
+    disabledMinutes: hour => (hour === min.hour() ? Array.from({ length: min.minute() }, (_, minute) => minute) : []),
+  };
+};
 
 export default class SpecificFieldsValue extends Component {
   constructor(props) {
@@ -100,22 +117,26 @@ export default class SpecificFieldsValue extends Component {
 
   renderDate() {
     const { data, updateSource, timePicker, minDate } = this.props;
+    const format = timePicker ? DATE_TIME_FORMAT : DATE_FORMAT;
 
     return (
       <div className="actionControlBox flex borderColorPrimary clearBorderRadius">
-        <DateTime
-          selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
-          timePicker={!!timePicker}
+        <DatePicker
           allowClear={false}
-          min={minDate}
-          onOk={e => updateSource({ fieldValue: e.format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD') })}
-        >
-          {data.fieldValue ? (
-            moment(data.fieldValue).format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD')
-          ) : (
-            <span className="textDisabled">{_l('请选择日期')}</span>
-          )}
-        </DateTime>
+          className="workflowDatePicker"
+          disabledDate={current => isBeforeMinDate(current, minDate)}
+          disabledTime={current => getDisabledTime(current, minDate)}
+          format={format}
+          inputReadOnly
+          needConfirm
+          placeholder={_l('请选择日期')}
+          showNow={false}
+          showTime={timePicker ? DATE_TIME_PICKER_CONFIG : false}
+          suffixIcon={null}
+          value={data.fieldValue ? moment(data.fieldValue) : null}
+          variant="borderless"
+          onChange={value => value && updateSource({ fieldValue: value.format(format) })}
+        />
       </div>
     );
   }
@@ -131,9 +152,8 @@ export default class SpecificFieldsValue extends Component {
     };
 
     return (
-      <input
-        type="text"
-        className={cx('flex borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+      <Input
+        className={cx('flex', {
           clearBorderRadius: hasOtherField,
         })}
         placeholder={PLACEHOLDER[type]}

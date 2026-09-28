@@ -1,6 +1,6 @@
 import React, { Component, createRef } from 'react';
 import cx from 'classnames';
-import { compareProps } from '../../../PageHeader/util';
+import { compareProps } from 'src/utils/domain/app/model';
 import './index.less';
 
 /**

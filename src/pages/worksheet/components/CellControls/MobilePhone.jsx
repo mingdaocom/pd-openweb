@@ -2,17 +2,16 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import ClickAway from 'ming-ui/components/ClickAway';
 import PhoneNumberInput from 'ming-ui/components/PhoneNumberInput';
-import { emitter } from 'src/utils/common';
-import { isKeyBoardInputChar } from 'src/utils/common';
-import { formatNumberFromInput } from 'src/utils/control';
-import { renderText } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
+import { renderText } from 'src/utils/domain/control/display';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { FROM } from 'src/utils/domain/worksheet/relation';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { isKeyBoardInputChar } from 'src/utils/platform/browser/dom';
+import { addBehaviorLog } from 'src/utils/services/project';
 import EditableCellCon from '../EditableCellCon';
-import CellErrorTips, { CellErrorTipTrigger } from './comps/CellErrorTip';
-import { FROM } from './enum';
+import { CellErrorTipTrigger } from './comps/CellErrorTip';
 
 const ClickAwayable = ClickAway;
 export default class MobilePhone extends React.Component {
@@ -175,22 +174,20 @@ export default class MobilePhone extends React.Component {
     }
 
     switch (e.key) {
-      default:
-        (() => {
-          const value = cell.type === 6 || cell.type === 8 ? formatNumberFromInput(e.key, false) : e.key;
+      default: {
+        const value = cell.type === 6 || cell.type === 8 ? formatNumberFromInput(e.key, false) : e.key;
 
-          if (!value || !isKeyBoardInputChar(e.key)) {
-            return;
-          }
+        if (!value || !isKeyBoardInputChar(e.key)) {
+          break;
+        }
 
-          updateEditingStatus(true, () => {
-            this.handleChange(value);
-            e.stopPropagation();
-            e.preventDefault();
-          });
-        })();
-
+        updateEditingStatus(true, () => {
+          this.handleChange(value);
+          e.stopPropagation();
+          e.preventDefault();
+        });
         break;
+      }
     }
   };
 
@@ -246,29 +243,32 @@ export default class MobilePhone extends React.Component {
       isediting,
       onClick,
       ignoreErrorMessage,
-      isSubList,
     } = this.props;
     const { value, tempValue, forceShowFullValue } = this.state;
-    // 编辑浮层挂在表格内时，子表第一行的提示朝下展示会落在底部统计行上，需要改挂到表格根容器
-    const editPopupInTable = !window.isSafari && cell.enumDefault !== 0;
-    const showErrorTipAsPopup = isSubList && rowIndex === 0 && editPopupInTable;
+    // 编辑浮层已统一改为在表格内渲染，而它自身是 overflow: hidden 的，
+    // 提示不论朝上（首行以外）还是朝下（首行）都会溢出被裁剪，因此一律挂到表格根容器展示
+    const errorTipPos = rowIndex === 0 ? 'bottom' : 'top';
     const errorText = error ? (typeof error === 'string' ? error : _l('不是有效的电话号码')) : '';
     const isCard = from === FROM.CARD;
     const editValue = isediting ? tempValue : value;
-    const editProps = {
-      value: editValue,
-      style: {
-        width: style.width,
-        height: style.height,
-        padding: '2px 3px 3px 2px',
-        boxSizing: 'border-box',
-      },
-      onClick: e => e.stopPropagation(),
-    };
+    // 编辑浮层复用了单元格 className，其中的 focus 会命中表格 .cell.focus 的焦点蓝边规则，
+    // 该规则优先级高于 .cellControlErrorStatus，会让校验失败时边框仍是蓝色；
+    // 这里去掉 focus，浮层层级改由 .cellControlMobilePhoneEdit 的 z-index 保证
+    const editClassName = _.without(_.split(className, ' '), 'focus').join(' ');
     const editcontent = (
       <ClickAwayable
-        {...editProps}
-        onClickAwayExceptions={[this.editIcon && this.editIcon.current, '.mdPhoneDialCodePanel']}
+        className={cx(editClassName, 'cellControlMobilePhoneEdit scrollInTable', {
+          cellControlEdittingStatus: tableType !== 'classic',
+          cellControlErrorStatus: error,
+          ignoreErrorMessage,
+        })}
+        style={{
+          ...style,
+          padding: '2px 3px 3px 2px',
+          boxSizing: 'border-box',
+        }}
+        onClick={e => e.stopPropagation()}
+        onClickAwayExceptions={['.mdPhoneDialCodePanel']}
         onClickAway={() => {
           setTimeout(() => {
             this.handleBlur();
@@ -279,86 +279,62 @@ export default class MobilePhone extends React.Component {
           control={{ ...cell, value: editValue, disabled: !editable }}
           isFocused={isediting}
           isCell={true}
+          getPopupContainer={
+            window.isSafari ? undefined : cell.enumDefault === 0 ? () => document.body : popupContainer
+          }
           inputClassName="stopPropagation"
           className="phoneNumberEditWrapper"
           onChange={this.handleChange}
           onBlur={this.handleBlur}
           onKeyDown={this.handleKeydown}
         />
-        {error && !showErrorTipAsPopup && (
-          <CellErrorTips
-            color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
-            error={errorText}
-            pos={rowIndex === 0 ? 'bottom' : 'top'}
-          />
-        )}
       </ClickAwayable>
     );
-    const editTrigger = (
-      <Trigger
-        destroyPopupOnHide={!window.isSafari} // 不是 Safari
-        action={['click']}
-        popup={editcontent}
-        getPopupContainer={window.isSafari ? undefined : cell.enumDefault === 0 ? () => document.body : popupContainer}
-        popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable', {
-          cellControlEdittingStatus: tableType !== 'classic',
-          cellControlErrorStatus: error,
-          ignoreErrorMessage,
+    const editableCell = (
+      <EditableCellCon
+        hideOutline
+        onClick={onClick}
+        className={cx(className, {
+          canedit: editable,
+          masked: this.masked && !isCard,
+          maskHoverTheme: this.masked && isCard && !forceShowFullValue,
         })}
-        popupVisible={isediting}
-        popupAlign={{
-          points: ['tl', 'tl'],
-          offset: [0, 0],
-          overflow: {
-            adjustY: true,
-          },
-        }}
+        style={style}
+        iconName="hr_edit"
+        isediting={isediting}
+        onIconClick={this.handleEdit}
       >
-        <EditableCellCon
-          hideOutline
-          onClick={onClick}
-          className={cx(className, {
-            canedit: editable,
-            masked: this.masked && !isCard,
-            maskHoverTheme: this.masked && isCard && !forceShowFullValue,
-          })}
-          style={style}
-          iconName="hr_edit"
-          isediting={isediting}
-          onIconClick={this.handleEdit}
-        >
-          {!isediting && !!value && (
-            <span className={cx('ellipsis', { linelimit: needLineLimit })} onClick={this.handleUnMask}>
-              {renderText({ ...cell, value }, { noMask: forceShowFullValue })}
-            </span>
-          )}
-          {isCard && this.masked && !forceShowFullValue && (
-            <i
-              className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
-              style={{ verticalAlign: 'text-top' }}
-              onClick={this.handleUnMask}
-            ></i>
-          )}
-          {tableType === 'classic' && !isediting && !value && cell.hint && (
-            <span className="guideText textDisabled hide">{cell.hint}</span>
-          )}
-        </EditableCellCon>
-      </Trigger>
+        {!isediting && !!value && (
+          <span className={cx('ellipsis', { linelimit: needLineLimit })} onClick={this.handleUnMask}>
+            {renderText({ ...cell, value }, { noMask: forceShowFullValue })}
+          </span>
+        )}
+        {isCard && this.masked && !forceShowFullValue && (
+          <i
+            className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
+            style={{ verticalAlign: 'text-top' }}
+            onClick={this.handleUnMask}
+          ></i>
+        )}
+        {tableType === 'classic' && !isediting && !value && cell.hint && (
+          <span className="guideText textDisabled hide">{cell.hint}</span>
+        )}
+      </EditableCellCon>
     );
 
-    if (!showErrorTipAsPopup) {
-      return editTrigger;
-    }
-
     return (
-      <CellErrorTipTrigger
-        visible={isediting}
-        error={errorText}
-        color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
-        popupContainer={popupContainer}
-      >
-        {editTrigger}
-      </CellErrorTipTrigger>
+      <React.Fragment>
+        <CellErrorTipTrigger
+          visible={isediting}
+          error={errorText}
+          color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
+          pos={errorTipPos}
+          popupContainer={popupContainer}
+        >
+          {editableCell}
+        </CellErrorTipTrigger>
+        {isediting && editcontent}
+      </React.Fragment>
     );
   }
 }

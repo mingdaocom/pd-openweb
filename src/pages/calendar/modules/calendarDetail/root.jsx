@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import loadCreateTask from 'src/components/createTask/load';
-import { addToken, pathCompletion } from 'src/utils/common';
+import { addToken } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Comm from '../comm/comm';
 import * as Common from './common';
 import { FREQUENCY, MEMBER_STATUS, RECURTYPE } from './constant';
@@ -84,8 +85,7 @@ export default class CalendarDetail extends Component {
     const {
       data: { calendar, keyStatus, token, thirdUser },
     } = this.props;
-    this.omitKeys = ['keyStatus', 'token', 'isShowUpdateBar'];
-    this.EVENT_KEY = +new Date();
+    this.omitKeys = ['keyStatus', 'token', 'isShowUpdateBar', 'isSaving', 'isResponding', 'isRefuseDialogOpen'];
     // store calendar data
     this.state = {
       ...calendar,
@@ -101,58 +101,38 @@ export default class CalendarDetail extends Component {
       // private state
       isShowUpdateBar: false,
       isRecurChange: false,
+      isSaving: false,
+      isResponding: false,
+      isRefuseDialogOpen: false,
     };
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
+    if (prevProps.data !== this.props.data) {
       const {
         data: { calendar, keyStatus, token, thirdUser },
       } = this.props;
-      this.setState({ ...calendar, keyStatus, token, thirdUser });
-    }
-  }
-
-  changeDialogHeight() {
-    if (!Config.isDetailPage) {
-      $(this.calendarDetail).css({
-        height: $(window).height() - 64,
+      this.setState({
+        ...calendar,
+        originStartTime: calendar.start,
+        originEndTime: calendar.end,
+        originRecur: calendar.isRecur,
+        keyStatus,
+        token,
+        thirdUser,
       });
-    }
-
-    if (Config.dialogCenter) {
-      Config.dialogCenter();
     }
   }
 
   scrollToListTop() {
-    if (this.scrollView && this.commentList) {
-      var scrollViewContainer = $('.scrollViewContainer');
-      var scrollInfo = this.scrollView.getScrollInfo();
+    if (this.scrollView && this.commentList && this.commentsContainer) {
+      const scrollInfo = this.scrollView.getScrollInfo();
       const { scrollTop, clientHeight } = scrollInfo;
-      var $commentList = scrollViewContainer.find('.calendarComments');
-      const commentListOffsetTop = $commentList.get(0).offsetTop;
+      const commentListOffsetTop = this.commentsContainer.offsetTop;
 
       if (scrollTop > commentListOffsetTop || scrollTop + clientHeight < commentListOffsetTop) {
         this.scrollView.scrollTo({ top: commentListOffsetTop });
       }
-    }
-  }
-
-  componentDidMount() {
-    this.changeDialogHeight();
-
-    if (Config.isDetailPage) {
-      this.throttled = _.throttle(this.changeDialogHeight.bind(this), 100);
-
-      $(window).on('resize.' + this.EVENT_KEY, this.throttled);
-    }
-  }
-
-  componentWillUnmount() {
-    if (Config.isDetailPage) {
-      $(window).off('resize.' + this.EVENT_KEY);
-      this.throttled && this.throttled.cancel();
     }
   }
 
@@ -233,32 +213,39 @@ export default class CalendarDetail extends Component {
     const type = showConfirm ? 'confirm' : showRefuse ? 'refused' : 'update';
 
     const save = () => {
+      if (this.state.isSaving) return;
+      this.setState({ isSaving: true });
+
       Common.editCalendar(_.omit(this.state, this.omitKeys), true, {
         originStartTime: this.state.originStartTime,
         originEndTime: this.state.originEndTime,
-      }).then(({ isAllCalendar, oldStartTime, oldEndTime, reInvite }) => {
-        this.setState({
-          isShowUpdateBar: false,
-          isRecurChange: false,
-          isChildCalendar: !isAllCalendar,
-          originStartTime: oldStartTime,
-          originEndTime: oldEndTime,
-          oldStartTime,
-          oldEndTime,
-          originRecur: this.state.isRecur,
-        });
-        // 重新邀请 members status 重置
-        if (reInvite) {
+      })
+        .then(result => {
+          if (!result) return;
+          const { isAllCalendar, oldStartTime, oldEndTime, reInvite } = result;
+
           this.setState({
-            members: _.each(this.state.members, member => {
-              if (member.accountID !== md.global.Account.accountId) {
-                member.remark = '';
-                member.status = MEMBER_STATUS.UNCONFIRMED;
-              }
-            }),
+            isShowUpdateBar: false,
+            isRecurChange: false,
+            isChildCalendar: !isAllCalendar,
+            originStartTime: oldStartTime,
+            originEndTime: oldEndTime,
+            oldStartTime,
+            oldEndTime,
+            originRecur: this.state.isRecur,
+            ...(reInvite
+              ? {
+                  members: this.state.members.map(member =>
+                    member.accountID === md.global.Account.accountId
+                      ? member
+                      : { ...member, remark: '', status: MEMBER_STATUS.UNCONFIRMED },
+                  ),
+                }
+              : {}),
           });
-        }
-      });
+        })
+        .catch(error => console.error(error))
+        .finally(() => this.setState({ isSaving: false }));
     };
 
     const cancel = () => {
@@ -270,13 +257,24 @@ export default class CalendarDetail extends Component {
     };
 
     const confirm = () => {
+      if (this.state.isResponding) return;
       const { id, recurTime, catID } = this.state;
-      Comm.inviteCalendar.confirm(id, recurTime, catID);
+      this.setState({ isResponding: true });
+      Promise.resolve(
+        Comm.inviteCalendar.confirm(id, recurTime, catID, {
+          onSuccess: () => this.props.reFetchData(false),
+        }),
+      ).finally(() => this.setState({ isResponding: false }));
     };
 
     const refuse = () => {
-      const { id, recurTime, catID } = this.state;
-      Comm.inviteCalendar.refuse(id, recurTime, catID);
+      if (this.state.isRefuseDialogOpen) return;
+      const { id, recurTime } = this.state;
+      this.setState({ isRefuseDialogOpen: true });
+      Comm.inviteCalendar.refuse(id, recurTime, {
+        onSuccess: () => this.props.reFetchData(false),
+        onClose: () => this.setState({ isRefuseDialogOpen: false }),
+      });
     };
 
     const actionProps = {
@@ -287,6 +285,9 @@ export default class CalendarDetail extends Component {
       cancel,
       confirm,
       refuse,
+      isSaving: this.state.isSaving,
+      isResponding: this.state.isResponding,
+      isRefuseDialogOpen: this.state.isRefuseDialogOpen,
     };
     return isShowBar ? <CalendarAction {...actionProps} key={'action-bar'} /> : null;
   }
@@ -468,9 +469,8 @@ export default class CalendarDetail extends Component {
       const { members, id, recurTime, isChildCalendar, originRecur } = this.state;
       const argsProps = { id, recurTime, isChildCalendar, originRecur };
       Common.removeMember(accountId, argsProps).then(({ isAllCalendar }) => {
-        _.remove(members, m => m.accountID === accountId);
         this.setState({
-          members,
+          members: members.filter(member => member.accountID !== accountId),
           isChildCalendar: !isAllCalendar,
         });
         if (_.isFunction(Config.saveCallback)) {
@@ -483,9 +483,8 @@ export default class CalendarDetail extends Component {
       const { thirdUser, id, recurTime, isChildCalendar, originRecur } = this.state;
       const argsProps = { id, recurTime, isChildCalendar, originRecur };
       Common.removeWxMember(thirdID, argsProps).then(({ isAllCalendar }) => {
-        _.remove(thirdUser, m => m.thirdID === thirdID);
         this.setState({
-          thirdUser,
+          thirdUser: thirdUser.filter(member => member.thirdID !== thirdID),
           isChildCalendar: !isAllCalendar,
         });
         if (_.isFunction(Config.saveCallback)) {
@@ -498,17 +497,10 @@ export default class CalendarDetail extends Component {
       const { members, id, recurTime, isChildCalendar, originRecur } = this.state;
       const argsProps = { id, recurTime, isChildCalendar, originRecur };
       Common.reInvite(accountId, argsProps).then(({ isAllCalendar }) => {
-        _.some(members, function (member) {
-          if (member.accountID === accountId) {
-            member.status = MEMBER_STATUS.UNCONFIRMED;
-            member.remark = '';
-            return true;
-          }
-
-          return false;
-        });
         this.setState({
-          members,
+          members: members.map(member =>
+            member.accountID === accountId ? { ...member, status: MEMBER_STATUS.UNCONFIRMED, remark: '' } : member,
+          ),
           isChildCalendar: !isAllCalendar,
         });
         if (_.isFunction(Config.saveCallback)) {
@@ -558,7 +550,11 @@ export default class CalendarDetail extends Component {
         this.setState(payload);
       },
     };
-    return <CalendarComments {...props} />;
+    return (
+      <div ref={element => (this.commentsContainer = element)}>
+        <CalendarComments {...props} />
+      </div>
+    );
   }
 
   renderCommenter() {
@@ -577,6 +573,7 @@ export default class CalendarDetail extends Component {
     return (
       <div
         className={cx('calendarDetail', { noPadding: !this.state.canLook })}
+        style={{ height: Config.isDetailPage ? '100%' : 'calc(100vh - 64px)' }}
         ref={el => {
           this.calendarDetail = el;
         }}
@@ -586,7 +583,6 @@ export default class CalendarDetail extends Component {
           <ScrollView
             className="Absolute"
             onScrollEnd={this.handleScroll.bind(this)}
-            preserveScrollTop={true}
             ref={el => {
               this.scrollView = el;
             }}

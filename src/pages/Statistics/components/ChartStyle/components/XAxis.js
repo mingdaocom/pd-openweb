@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Input } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { reportTypes } from 'statistics/Charts/common';
-import { formatNumberFromInput } from 'src/utils/control';
+import { Checkbox, Input, Tooltip } from 'ming-ui/antd-components';
+import { formatNumberFromInput } from 'src/utils/domain/control/number';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 export default class XAxis extends Component {
   constructor(props) {
@@ -85,7 +84,6 @@ export default class XAxis extends Component {
             <div className="mBottom16 minWrapper">
               <div className="mBottom8">{_l('最小值')}</div>
               <Input
-                className="chartInput"
                 placeholder={_l('自动')}
                 defaultValue={xdisplay.minValue}
                 onBlur={event => {
@@ -101,7 +99,6 @@ export default class XAxis extends Component {
             <div className="mBottom16 maxWrapper">
               <div className="mBottom8">{_l('最大值')}</div>
               <Input
-                className="chartInput"
                 placeholder={_l('自动')}
                 defaultValue={xdisplay.maxValue}
                 onBlur={event => {

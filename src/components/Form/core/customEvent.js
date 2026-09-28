@@ -1,10 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import fileAjax from 'src/api/file';
 import sheetAjax from 'src/api/worksheet';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import {
   ACTION_VALUE_ENUM,
@@ -13,9 +12,12 @@ import {
   SPLICE_TYPE_ENUM,
   VOICE_FILE_LIST,
 } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
-import { getDefaultCount } from 'src/utils/control';
-import { isSheetDisplay } from 'src/utils/controlCommon';
+import { isSheetDisplay } from 'src/utils/domain/control/style';
+import { getDefaultCount } from 'src/utils/domain/control/type';
+import { getRelateRecordRowIds } from 'src/utils/domain/control/value';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { FORM_ERROR_TYPE } from './config.js';
 import {
   calcDefaultValueFunction,
@@ -24,7 +26,7 @@ import {
   getCurrentValue,
   getDynamicValue,
 } from './formUtils';
-import { replaceStr } from './formUtils/helper';
+import { replaceStr } from './formUtils/ruleUtils';
 import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from './searchUtils';
 import { formatControlToServer } from './utils';
 
@@ -187,6 +189,21 @@ const getSubListData = async props => {
   return listResult.resultCode === 1 ? listResult.data : [];
 };
 
+/**
+ * 关联记录被整体清空时，服务端后续查询可选记录仍会按源记录剔除「已关联的记录」，
+ * 而清空动作不像手动删除那样把 rowid 带在值里，因此清空前先把原关联的 rowid 留在控件上，
+ * 作为可选列表的放行名单（_system_excluderowids），否则这些记录在选择列表里反而找不到。
+ */
+const keepRelateRecordShowRowIds = control => {
+  if (!control || control.type !== 29) return;
+
+  const keepRowIds = getRelateRecordRowIds(control.value);
+
+  if (keepRowIds.length) {
+    control.keepShowRowIds = _.uniq((control.keepShowRowIds || []).concat(keepRowIds));
+  }
+};
+
 const getRelateSearchResult = (control, searchResult, isMix) => {
   let newValue = [];
 
@@ -221,6 +238,8 @@ const getRelateSearchResult = (control, searchResult, isMix) => {
   }
 
   if (_.isEmpty(newValue) && _.includes([29], control.type)) {
+    keepRelateRecordShowRowIds(control);
+
     if (browserIsMobile()) return JSON.stringify(newValue);
     return 'deleteRowIds: all';
   } else {
@@ -612,6 +631,7 @@ export const handleSetValueActions = async (actionItems, props) => {
                 const records = safeParse(value || '[]');
 
                 if (_.isEmpty(records)) {
+                  keepRelateRecordShowRowIds(control);
                   value = 'deleteRowIds: all';
                 } else {
                   value = JSON.stringify(
@@ -807,12 +827,12 @@ const triggerCustomActions = async props => {
 
         if (advancedSetting.opentype === '2') {
           if (/^https?:\/\/.+$/.test(linkInfo)) {
-            Dialog.confirm({
+            Modal.confirm({
               width: 640,
               title: null,
-              noFooter: true,
+              footer: null,
               closable: true,
-              children: (
+              content: (
                 <iframe
                   width={640}
                   height={600}

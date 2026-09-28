@@ -5,10 +5,11 @@ import _ from 'lodash';
 import nzh from 'nzh';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, LoadDiv, MobileSearch, Radio } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { sortPathsBySearchKeyword } from 'src/components/Form/MobileForm/tools/utils';
-import { renderText as renderCellText } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { sortPathsBySearchKeyword } from 'src/utils/domain/control/searchPath';
 
 const CascaderCon = styled.div`
   position: relative;
@@ -384,10 +385,19 @@ export default class Cascader extends Component {
                 <div className="flexRow">
                   <Radio
                     className="flex cascaderRadio flexRow textPrimary"
-                    text={item.label}
                     checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
-                    onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
-                  />
+                    onChange={() =>
+                      this.setState({
+                        selectItem: {
+                          id: item.value,
+                          label: item.label,
+                        },
+                      })
+                    }
+                    title={item.label}
+                  >
+                    {item.label}
+                  </Radio>
                   {!item.isLeaf && (
                     <Fragment>
                       <div
@@ -431,10 +441,19 @@ export default class Cascader extends Component {
             <div className="flexRow">
               <Radio
                 className="flex cascaderRadio flexRow textPrimary"
-                text={item.label}
                 checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
-                onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
-              />
+                onChange={() =>
+                  this.setState({
+                    selectItem: {
+                      id: item.value,
+                      label: item.label,
+                    },
+                  })
+                }
+                title={item.label}
+              >
+                {item.label}
+              </Radio>
               {!item.isLeaf && (
                 <Fragment>
                   <div style={{ borderRight: '1px solid var(--color-border-secondary)', height: 18, marginTop: 4 }} />

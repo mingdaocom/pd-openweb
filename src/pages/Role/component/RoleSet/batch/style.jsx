@@ -7,18 +7,8 @@ export const Wrap = styled.div`
     min-height: 80%;
     width: 200px;
     overflow: hidden;
-    .ant-list {
-      overflow: auto;
-      padding-bottom: 8px;
-    }
-    .ant-list-item {
-      padding: 8px 0 0;
-      border-bottom: none;
-      width: 100%;
-      overflow-x: hidden;
-    }
-    .ant-checkbox-wrapper > span:not(.ant-checkbox) {
-      .ant-checkbox {
+    .hap-checkbox-wrapper > span:not(.hap-checkbox) {
+      .hap-checkbox {
         width: 38px;
       }
       overflow: hidden;
@@ -38,15 +28,15 @@ export const Wrap = styled.div`
       align-items: center;
       margin-right: 8px;
       vertical-align: middle;
-      & > .ant-checkbox-wrapper {
+      & > .hap-checkbox-wrapper {
         display: inline-flex !important;
         align-items: center !important;
         line-height: 1 !important;
       }
-      & .ant-checkbox {
+      & .hap-checkbox {
         top: 0 !important;
       }
-      & .ant-checkbox + span {
+      & .hap-checkbox + span {
         line-height: 1.2;
         display: inline-flex;
         align-items: center;
@@ -65,9 +55,6 @@ export const Wrap = styled.div`
       }
     }
   }
-  .footer {
-    border-top: 1px solid var(--color-border-secondary);
-  }
   .radioCon {
     display: flex;
     &:before {
@@ -83,23 +70,23 @@ export const Wrap = styled.div`
     }
   }
   .conRadioGroupForBtn {
-    .ant-radio-group {
+    .hap-radio-group {
       border-radius: 4px;
       overflow: hidden;
-      .ant-radio-button-wrapper {
+      .hap-radio-button-wrapper {
         background: var(--color-background-secondary) !important;
         border: 2px solid var(--color-background-secondary) !important;
         transition: none;
         padding: 0 25px;
       }
-      .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+      .hap-radio-button-wrapper-checked:not(.hap-radio-button-wrapper-disabled) {
         background: var(--color-background-primary) !important;
         color: var(--color-text-primary) !important;
       }
-      .ant-radio-button-wrapper:not(:first-child)::before {
+      .hap-radio-button-wrapper:not(:first-child)::before {
         display: none !important;
       }
-      .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within {
+      .hap-radio-button-wrapper-checked:not(.hap-radio-button-wrapper-disabled):focus-within {
         box-shadow: none;
       }
     }

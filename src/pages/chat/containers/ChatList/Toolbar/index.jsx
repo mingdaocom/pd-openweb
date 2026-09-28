@@ -8,7 +8,8 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
-import { getAppFeaturesVisible } from 'src/utils/common';
+import { isSandboxEnvironment } from 'src/utils/domain/app/sandbox';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
 import errorIcon from '../../SessionList/resource/errorIcon.png';
 import Avatar from '../Avatar';
 import RenderAddressBook from './RenderAddressBook';
@@ -84,6 +85,7 @@ const Toolbar = props => {
   }, 0);
   const { sessionListVisible } = toolbarConfig;
   const { isOpenMingoAI, isOpenSearch, isShowToolName, isOpenMessageList } = toolbarConfig;
+  const sandboxEnvironment = isSandboxEnvironment();
 
   const handleOpenSessionList = () => {
     if (sessionListVisible) {
@@ -93,6 +95,7 @@ const Toolbar = props => {
       localStorage.removeItem('toolBarOpenType');
     } else {
       setToolbarConfig({
+        organizationDrawerVisible: false,
         mingoVisible: false,
         sessionListVisible: true,
         favoriteVisible: false,
@@ -128,7 +131,7 @@ const Toolbar = props => {
           {isShowToolName && <div className="Font12 textSecondary">{_l('消息')}</div>}
           {!!count && !isOpenMessageList && <div className="unread">{count > 99 ? 99 : count}</div>}
         </div>
-        {ss && isOpenSearch && (
+        {!sandboxEnvironment && ss && isOpenSearch && (
           <div
             className="search flexColumn alignItemsCenter justifyContentCenter pointer mBottom8"
             onClick={handleOpenGlobalSearch}

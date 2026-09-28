@@ -1,10 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Input } from 'antd';
 import { parseInt } from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Dropdown, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Input, Modal, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import AutoIcon from '../../../components/Icon';
 import { SettingItem } from '../../../styled';
 
@@ -50,14 +48,6 @@ const NumberConfigWrap = styled.div`
     color: var(--color-primary);
     cursor: pointer;
   }
-  .footerBtn {
-    text-align: right;
-    margin-top: 32px;
-  }
-  .ming.Checkbox {
-    display: flex;
-    align-items: center;
-  }
 `;
 
 const NUMBER_TYPE = [
@@ -67,23 +57,23 @@ const NUMBER_TYPE = [
 const RESET_TYPE = [
   {
     value: 0,
-    text: _l('不重置'),
+    label: _l('不重置'),
   },
   {
     value: 1,
-    text: _l('每天重置'),
+    label: _l('每天重置'),
   },
   {
     value: 2,
-    text: _l('每周重置'),
+    label: _l('每周重置'),
   },
   {
     value: 3,
-    text: _l('每月重置'),
+    label: _l('每月重置'),
   },
   {
     value: 4,
-    text: _l('每年重置'),
+    label: _l('每年重置'),
   },
 ];
 const TYPE_TO_TEXT = {
@@ -110,25 +100,36 @@ export default function AutoNumberConfig(props) {
   const type = data.length ? 'assign' : 'nature';
 
   return (
-    <Dialog
-      style={{ width: '560px' }}
-      visible
-      title={_l('编号设置')}
-      footer={null}
+    <Modal
+      width={560}
+      open
+      mask={{ closable: true }}
+      keyboard
+      title={
+        <Fragment>
+          <div>{_l('编号设置')}</div>
+          <div className="Font13 Normal textSecondary mTop8">
+            {_l('修改周期重置规则后，当前编号将立即重置，并从下一条记录开始重新计数。')}
+          </div>
+        </Fragment>
+      }
       onCancel={onClose}
-      description={_l('修改周期重置规则后，当前编号将立即重置，并从下一条记录开始重新计数。')}
+      onOk={() => {
+        onOk(!data.start ? { ...data, start: '1' } : data);
+        onClose();
+      }}
     >
       <NumberConfigWrap>
         <SettingItem className="settingItem">
           <div className="title">{_l('编号方式%04017')}</div>
           <div className="content">
-            <RadioGroup
+            <Radio.Group
               size="middle"
-              checkedValue={type}
-              data={NUMBER_TYPE}
-              onChange={value =>
+              value={type}
+              options={(NUMBER_TYPE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+              onChange={event =>
                 setData({
-                  length: value === 'nature' ? 0 : data.length || 4,
+                  length: event.target.value === 'nature' ? 0 : data.length || 4,
                   start: data.start || 1,
                   repeatType: data.repeatType || 0,
                 })
@@ -169,11 +170,13 @@ export default function AutoNumberConfig(props) {
                 )}
               >
                 <Checkbox
-                  size="small"
                   checked={data.format === 'auto'}
-                  onClick={value => {
-                    setData({ format: value ? '' : 'auto' });
+                  onChange={event => {
+                    setData({
+                      format: !event.target.checked ? '' : 'auto',
+                    });
                   }}
+                  size="small"
                 >
                   <Fragment>
                     <span>{_l('编号超出位数后继续递增')}</span>
@@ -221,12 +224,13 @@ export default function AutoNumberConfig(props) {
 
         <div className="hint">
           <Checkbox
-            size="small"
             checked={resetAutoId}
-            onClick={value => {
+            onChange={event => {
+              const value = !event.target.checked;
               setReset(!value);
               window.auto_id_reset[controlId] = !value;
             }}
+            size="small"
           >
             <Fragment>
               <span>{_l('下一条记录以修改后的开始值编号')}</span>
@@ -244,36 +248,16 @@ export default function AutoNumberConfig(props) {
         <SettingItem className="settingItem">
           <div className="title">{_l('周期重置')}</div>
           <div className="content">
-            <Dropdown
-              isAppendToBody
-              border
+            <Select
+              className="w100"
               value={data.repeatType}
-              data={RESET_TYPE}
+              options={RESET_TYPE}
               onChange={value => setData({ repeatType: value })}
             />
           </div>
         </SettingItem>
         <div className="hint">{TYPE_TO_TEXT[data.repeatType]}</div>
-        <div className="footerBtn">
-          <Button type="link" onClick={onClose}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              if (!data.start) {
-                onOk({ ...data, start: '1' });
-              } else {
-                onOk(data);
-              }
-
-              onClose();
-            }}
-          >
-            {_l('确定')}
-          </Button>
-        </div>
       </NumberConfigWrap>
-    </Dialog>
+    </Modal>
   );
 }

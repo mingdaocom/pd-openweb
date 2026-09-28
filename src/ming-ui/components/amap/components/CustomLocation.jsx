@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Input } from 'antd';
 import _ from 'lodash';
-import { Button } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
-import { toFixed } from 'src/utils/control';
+import { Button, Input } from 'ming-ui/antd-components';
+import { toFixed } from 'src/utils/domain/control/number';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const DISPLAY_OPTIONS = [
   { title: _l('纬度'), key: 'lat' },
@@ -120,7 +119,8 @@ export default class CustomLocation extends Component {
           })}
           {!isMobile && (
             <Button
-              fullWidth={true}
+              type="primary"
+              block
               disabled={!(lng && lat)}
               onClick={() => {
                 this.props.onAddressChange({ ...customLocation, lng: toFixed(lng, 6), lat: toFixed(lat, 6) });
@@ -133,9 +133,9 @@ export default class CustomLocation extends Component {
         {isMobile && (
           <Button
             className="mTop7 mLeft15 mRight15"
-            style={{ width: 'unset!important' }}
-            radius
-            fullWidth={true}
+            type="primary"
+            shape="round"
+            block
             disabled={!(lng && lat)}
             onClick={() => {
               this.props.onAddressChange({ ...customLocation, lng: toFixed(lng, 6), lat: toFixed(lat, 6) });

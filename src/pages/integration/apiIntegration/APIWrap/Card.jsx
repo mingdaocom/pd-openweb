@@ -3,16 +3,16 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, Support } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Button, Checkbox, Tooltip } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { renderValue } from 'src/pages/integration/apiIntegration/util';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import { JSONAnalysis } from 'src/pages/workflow/WorkflowSettings/Detail/components';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import { CardTopWrap, WrapBtn } from '../style';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
@@ -21,11 +21,7 @@ const Wrap = styled.div`
   p {
     margin: 0;
   }
-  .btn {
-    margin-right: 0px;
-  }
   background: var(--color-background-primary);
-  // border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
   max-width: 800px;
   .Green_right {
@@ -370,16 +366,20 @@ export default function Card(props) {
                   <div className="flex">{props.title}</div>
                   <div className="flexRow alignItemsCenter">
                     <Checkbox
-                      className="checkBox InlineBlock textSecondary"
-                      text={_l('使用网络代理')}
+                      className="checkBox textSecondary"
                       checked={node.settings.useProxy}
-                      onClick={() => {
+                      onChange={() => {
                         update({
                           ...node,
-                          settings: { ...node.settings, useProxy: !node.settings.useProxy },
+                          settings: {
+                            ...node.settings,
+                            useProxy: !node.settings.useProxy,
+                          },
                         });
                       }}
-                    />
+                    >
+                      {_l('使用网络代理')}
+                    </Checkbox>
                     <Tooltip placement="topLeft" title={_l('安装的API，允许在卡片上修改是否使用网络代理')}>
                       <Icon icon="info_outline" className="textSecondary Font16 mLeft10 mTop4" />
                     </Tooltip>
@@ -398,8 +398,11 @@ export default function Card(props) {
           </div>
           {/* 安装的连接 api 不支持编辑，只读显示 */}
           {props.canEdit && (
-            <div
-              className="btn Hand"
+            <Button
+              color="primary"
+              shape="round"
+              size="small"
+              variant="outlined"
               onClick={() =>
                 setState({
                   showEdit: true,
@@ -407,7 +410,7 @@ export default function Card(props) {
               }
             >
               {renderBtn()}
-            </div>
+            </Button>
           )}
         </CardTopWrap>
         {renderCon()}

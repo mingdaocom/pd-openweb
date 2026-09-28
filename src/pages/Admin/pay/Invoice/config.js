@@ -1,4 +1,4 @@
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
 
 export const TABS = [
   { key: 'list', label: _l('开票记录'), permissionKeys: PERMISSION_ENUM.INVOICE },

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, SvgIcon } from 'ming-ui';
-import { checkIsAppAdmin } from 'ming-ui/functions';
-import { navigateTo } from 'src/router/navigateTo';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
+import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 
 const AppDisplayWrap = styled.div`
   .iconWrap {
@@ -19,10 +19,7 @@ const AppDisplayWrap = styled.div`
   }
 `;
 
-const MenuWrap = styled(Menu)`
-  width: 200px !important;
-  max-height: 200px !important;
-  overflow: auto !important;
+const AppMenuLabel = styled.div`
   .iconWrap {
     width: 24px;
     height: 24px;
@@ -88,37 +85,31 @@ export default function AppDisplay(props) {
         </span>
 
         {isMultiple && (
-          <Trigger
-            action={['hover']}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [-190, 2],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            popupVisible={popupVisible}
-            onPopupVisibleChange={visible => setPopupVisible(visible)}
+          <Dropdown
+            trigger={['hover']}
+            open={popupVisible}
+            onOpenChange={setPopupVisible}
             getPopupContainer={() => document.body}
-            popup={() => {
-              return (
-                <MenuWrap className="Relative">
-                  {apps.map(item => (
-                    <MenuItem key={item.appId} onClick={() => handleClick(item)}>
-                      <div className="flexRow alignItemsCenter">
-                        <div className="iconWrap" style={{ backgroundColor: item.iconColor }}>
-                          <SvgIcon url={item.icon} fill="#fff" size={16} />
-                        </div>
-                        <span className="flex ellipsis">{item.appName}</span>
-                      </div>
-                    </MenuItem>
-                  ))}
-                </MenuWrap>
-              );
+            menu={{
+              items: apps.map(item => ({
+                key: item.appId,
+                label: (
+                  <AppMenuLabel className="flexRow alignItemsCenter">
+                    <div className="iconWrap" style={{ backgroundColor: item.iconColor }}>
+                      <SvgIcon url={item.icon} fill="#fff" size={16} />
+                    </div>
+                    <span className="flex ellipsis">{item.appName}</span>
+                  </AppMenuLabel>
+                ),
+                onClick: () => handleClick(item),
+              })),
+              style: { width: 200, maxHeight: 200, overflow: 'auto' },
             }}
           >
             <span className="moreIcon hoverColorPrimary Font16 Hand mLeft3">
               <Icon icon="arrow-down-border" />
             </span>
-          </Trigger>
+          </Dropdown>
         )}
       </div>
     </AppDisplayWrap>

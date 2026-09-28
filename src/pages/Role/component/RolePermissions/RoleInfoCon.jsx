@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Button } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { sysRoleList, sysRoleType } from 'src/pages/Role/config.js';
 import { WrapTableCon } from 'src/pages/Role/style';
@@ -7,37 +8,29 @@ import { WrapFooter } from 'src/pages/Role/style.jsx';
 import RoleSet from '../RoleSet';
 
 const WrapSys = styled.div`
-   {
-    padding: 25px 48px 30px;
-    max-width: 1250px;
-    .nameInput {
-      width: 300px;
-      line-height: 36px;
-      background: var(--color-background-secondary);
-      border-radius: 3px 3px 3px 3px;
-      padding: 0 13px;
-      font-weight: 400;
-    }
-    .desC {
-      line-height: 36px;
-      background: var(--color-background-secondary);
-      border-radius: 3px 3px 3px 3px;
-      padding: 0 13px;
-      font-weight: 400;
-    }
-    .desRole {
-      line-height: 25px;
-      background: var(--color-yellow-black);
-      border-radius: 3px 3px 3px 3px;
-      padding: 6px 13px;
-      font-weight: 400;
-    }
-    .toUser {
-      color: var(--color-text-title);
-      &:hover {
-        color: var(--color-primary);
-      }
-    }
+  padding: 25px 48px 30px;
+  max-width: 1250px;
+  .nameInput {
+    width: 300px;
+    line-height: 36px;
+    background: var(--color-background-secondary);
+    border-radius: 3px 3px 3px 3px;
+    padding: 0 13px;
+    font-weight: 400;
+  }
+  .desC {
+    line-height: 36px;
+    background: var(--color-background-secondary);
+    border-radius: 3px 3px 3px 3px;
+    padding: 0 13px;
+    font-weight: 400;
+  }
+  .desRole {
+    line-height: 25px;
+    background: var(--color-yellow-black);
+    border-radius: 3px 3px 3px 3px;
+    padding: 6px 13px;
+    font-weight: 400;
   }
 `;
 export default class Con extends React.Component {
@@ -79,14 +72,13 @@ export default class Con extends React.Component {
             </div>
             {canEditUser && (
               <WrapFooter className={'footer flexRow alignItemsCenter'}>
-                <div
-                  className="toUser Hand Bold"
+                <Button
                   onClick={() => {
                     setQuickTag({ roleId: roleId || roleList[0].roleId, tab: 'user' });
                   }}
                 >
                   {_l('管理用户')}
-                </div>
+                </Button>
               </WrapFooter>
             )}
           </WrapSys>

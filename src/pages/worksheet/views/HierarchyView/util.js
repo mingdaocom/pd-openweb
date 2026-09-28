@@ -1,14 +1,14 @@
 import _ from 'lodash';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
+import { getTitleControlForCard } from 'src/utils/services/worksheet/view';
 import {
   filterAndFormatterControls,
   getMultiRelateViewConfig,
   getRecordAttachments,
   RELATION_SHEET_TYPE,
   RENDER_RECORD_NECESSARY_ATTR,
-} from '../util';
+} from 'src/utils/services/worksheet/view';
 
 // 获取svg的相关位置数据
 export const getPosition = ($parent, $cur, scale = 1, isStraightLine = false) => {

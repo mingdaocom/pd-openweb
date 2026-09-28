@@ -2,28 +2,24 @@ import React from 'react';
 import { Button, Dialog, Popup, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Textarea } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getAppLangDetail } from 'src/utils/app';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getAppLangDetail } from 'src/utils/services/app';
 import Back from '../Back';
 import noRoleImg from './img/lock.png';
 import noAppImg from './img/noApp.png';
 import noAppListImg from './img/noList.png';
 
+const APPLY_REMARK_TEXTAREA_AUTO_SIZE = { minRows: 5 };
+
 const ApplyJoinAppPopup = styled(Popup)`
   .adm-popup-body {
     border-radius: 8px 8px 0 0;
     padding: 16px 15px 7px;
-    .ming.Textarea {
-      border: 1px solid var(--color-border-secondary);
-      &::-webkit-input-placeholder {
-        color: var(--color-text-disabled);
-      }
-    }
   }
 `;
 
@@ -78,10 +74,10 @@ export class AppPermissionsInfo extends React.Component {
         onClose={() => this.setState({ applyJoinAppVisible: false, remark: '' })}
       >
         <div className="bold mBottom10">{_l('申请加入应用')}</div>
-        <Textarea
-          height={120}
+        <Input.TextArea
+          autoSize={APPLY_REMARK_TEXTAREA_AUTO_SIZE}
           value={remark}
-          onChange={value => this.setState({ remark: value })}
+          onChange={event => this.setState({ remark: event.target.value })}
           placeholder={_l('填写申请说明')}
         />
         <div className="flexRow mTop16">

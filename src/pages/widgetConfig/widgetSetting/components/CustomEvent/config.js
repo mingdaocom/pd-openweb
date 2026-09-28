@@ -1,8 +1,8 @@
 import React from 'react';
 import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, InfoCircleFilled } from '@ant-design/icons';
 import _ from 'lodash';
-import { isUnTextWidget } from 'src/components/Form/core/utils';
-import { isCustomWidget } from '../../../util';
+import { isUnTextWidget } from 'src/utils/domain/control/capabilities';
+import { isCustomWidget } from 'src/utils/domain/control/metadata';
 
 // 事件
 export const ADD_EVENT_ENUM = {

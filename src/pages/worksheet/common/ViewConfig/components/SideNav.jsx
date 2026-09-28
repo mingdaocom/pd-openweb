@@ -3,10 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { SYS_CONTROLS_WORKFLOW } from 'src/utils/domain/control/widget';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/utils/domain/worksheet/constants';
 import { baseSetList, manageViewFilter, viewTypeConfig, viewTypeCustomList, viewTypeGroup } from '../config';
 
 const RecordColorSign = styled.div`

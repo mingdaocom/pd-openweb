@@ -3,7 +3,7 @@ import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/platform/browser/device';
 import Date from './Date';
 import OperationType from './OperationType';
 import SelectAllAppProcess from './SelectAllAppProcess';
@@ -142,7 +142,7 @@ export default props => {
           {!['mySponsor', 'completeMySponsor'].includes(tab) && renderAccount()}
           {!isProcessed && renderSelectProject()}
           {!isProcessed && renderSelectAppProcess()}
-          {isProcessed && renderDate()}
+          {renderDate()}
           {['completeDispose'].includes(tab) && renderOperationType()}
           {['completeMySponsor'].includes(tab) && renderStatus()}
           {isProcessed && renderSelectAllAppProcess()}

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Dialog, LoadDiv, SvgIcon } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { LoadDiv, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import transferAjax from 'src/pages/workflow/api/transfer';
@@ -52,6 +52,24 @@ const getCount = data => {
   return count || '';
 };
 
+const CHECKBOX_LABEL_STYLES = {
+  label: {
+    flex: 1,
+    minWidth: 0,
+    paddingInlineEnd: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+};
+
+const ITEM_CHECKBOX_LABEL_STYLES = {
+  label: {
+    ...CHECKBOX_LABEL_STYLES.label,
+    paddingInlineStart: 16,
+  },
+};
+
 const AppItem = props => {
   const {
     key,
@@ -84,8 +102,12 @@ const AppItem = props => {
       onClick={onClick}
       className={cx('checkItem flexRow alignItemsCenter Hand', { [className]: className })}
     >
-      <Checkbox clearselected={clearSelected} checked={checked} onClick={handleChecked} />
-      <div className="appIconWrap" style={{ backgroundColor: iconColor }}>
+      <Checkbox
+        indeterminate={clearSelected}
+        checked={checked}
+        onChange={event => handleChecked(!event.target.checked, undefined, event)}
+      />
+      <div className="appIconWrap mLeft10" style={{ backgroundColor: iconColor }}>
         <SvgIcon url={iconUrl} fill="#fff" size={16} addClassName="mTop2" />
       </div>
       <Tooltip title={!nameTips ? '' : appName} placement="topLeft" mouseEnterDelay={0.5}>
@@ -391,9 +413,9 @@ export default class WorkHandoverDialog extends Component {
   openRemoveAppMember = () => {
     const { selectAppMemberData } = this.state;
 
-    Dialog.confirm({
-      title: _l('确认移除'),
-      children: _l('已选 %0 项，成员将会从所选应用中移除', selectAppMemberData.length),
+    Modal.confirm({
+      title: <span className="textError">{_l('确认移除')}</span>,
+      content: _l('已选 %0 项，成员将会从所选应用中移除', selectAppMemberData.length),
       onOk: this.replaceAppMember,
     });
   };
@@ -451,19 +473,36 @@ export default class WorkHandoverDialog extends Component {
 
     const checkedAll = dataList.every(item => _.get(checkedInfo, `[${item.id}].checkedAll`));
     const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+    const showFooter = !loading && (!_.isEmpty(todoList) || !_.isEmpty(workflowList) || !_.isEmpty(appsMemberData));
+    const handoverDisabled =
+      _.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo) && _.isEmpty(selectAppMemberData);
 
     return (
-      <Dialog
+      <Modal
         className="workHandoverDialog"
         width={1000}
-        maxHeight={windowHeight - 64}
+        style={{ maxHeight: windowHeight - 64 }}
         title={_l('交接工作：%0', fullname)}
-        visible={visible}
+        open={visible}
+        mask={{ closable: true }}
+        keyboard
         onCancel={onCancel}
-        showCancel={false}
+        onOk={this.transfer}
         okText={_l('交接给')}
-        showFooter={false}
-        footer={null}
+        okDisabled={handoverDisabled}
+        footer={showFooter ? undefined : null}
+        footerLeftElement={
+          showFooter && activeTab === 3 ? (
+            <Button
+              color="primary"
+              variant="link"
+              disabled={_.isEmpty(selectAppMemberData)}
+              onClick={this.openRemoveAppMember}
+            >
+              {_l('移除')}
+            </Button>
+          ) : null
+        }
       >
         <div className="flexColumn overflowHidden" style={{ height: `${windowHeight - 180}px` }}>
           <div className="tabBox flexRow">
@@ -515,8 +554,14 @@ export default class WorkHandoverDialog extends Component {
               <div className="apps">
                 <div className="textTertiary pLeft12 mBottom10">{_l('选择应用')}</div>
                 <div className="checkItem checkAll flexRow alignItemsCenter">
-                  <Checkbox checked={checkedAll} onClick={this.checkedAllApps} />
-                  <span className="flex ellipsis">{_l('全选')}</span>
+                  <Checkbox
+                    className="flex"
+                    checked={checkedAll}
+                    styles={CHECKBOX_LABEL_STYLES}
+                    onChange={event => this.checkedAllApps(!event.target.checked, undefined, event)}
+                  >
+                    {_l('全选')}
+                  </Checkbox>
                 </div>
                 {dataList.map(item => {
                   const { id, apk = {} } = item;
@@ -550,16 +595,24 @@ export default class WorkHandoverDialog extends Component {
                       return (
                         <div className="checkItem flexRow alignItemsCenter" key={id}>
                           <Checkbox
+                            className="flex"
                             checked={
                               checkedInfo[currentAppId] && _.includes(checkedInfo[currentAppId].ids || {}, id)
                                 ? true
                                 : false
                             }
-                            onClick={checked =>
-                              this.checkedAppItem({ checked, appId: apkId, itemId: id, checkType: 'item' })
+                            styles={ITEM_CHECKBOX_LABEL_STYLES}
+                            onChange={event =>
+                              this.checkedAppItem({
+                                checked: !event.target.checked,
+                                appId: apkId,
+                                itemId: id,
+                                checkType: 'item',
+                              })
                             }
-                          />
-                          <span className="flex ellipsis mLeft8"> {type == 1 ? detail.title : detail.name}</span>
+                          >
+                            {type == 1 ? detail.title : detail.name}
+                          </Checkbox>
                         </div>
                       );
                     })}
@@ -570,30 +623,8 @@ export default class WorkHandoverDialog extends Component {
               {this.renderAppMember()}
             </div>
           )}
-          {!loading && (!_.isEmpty(todoList) || !_.isEmpty(workflowList) || !_.isEmpty(appsMemberData)) && (
-            <div className="footer">
-              {activeTab === 3 && (
-                <Button
-                  className="mRight20 removeAppMember"
-                  type="link"
-                  disabled={_.isEmpty(selectAppMemberData)}
-                  onClick={this.openRemoveAppMember}
-                >
-                  {_l('移除')}
-                </Button>
-              )}
-              <Button
-                disabled={
-                  _.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo) && _.isEmpty(selectAppMemberData)
-                }
-                onClick={this.transfer}
-              >
-                {_l('交接给')}
-              </Button>
-            </div>
-          )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import copy from 'copy-to-clipboard';
-import { Dialog, Menu, MenuItem } from 'ming-ui';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import projectSettingAjax from 'src/api/projectSetting';
 import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
 import { CLEAR_CACHE_PROCESS_TYPE } from 'src/pages/Admin/enum';
@@ -14,7 +14,7 @@ import {
   loadUsers,
 } from '../../actions/entities';
 import { getParentsId } from '../../modules/util';
-import { createEditDeptDialog } from '../CreateEditDeptDialog';
+import { useCreateEditDeptDialog } from '../CreateEditDeptDialog';
 import './departmentTree.less';
 
 const handleDialogCallback = (dispatch, payload) => {
@@ -39,22 +39,10 @@ const handleDialogCallback = (dispatch, payload) => {
 };
 
 let DiaActionTree = class DiaActionTree extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount() {
-    $('.departmentTreeBox').addClass('actinNow');
-  }
-
-  componentWillUnmount() {
-    $('.departmentTreeBox').removeClass('actinNow');
-  }
-
   handleClick = () => {
     const { departmentId, projectId, dispatch } = this.props;
     this.props.closeAction();
-    createEditDeptDialog({
+    this.props.openCreateEditDeptDialog({
       type: 'create',
       projectId,
       departmentId,
@@ -73,7 +61,7 @@ let DiaActionTree = class DiaActionTree extends React.Component {
   openSettingDialog = () => {
     const { departmentId, projectId, pageIndex, expandedKeys, dispatch, newDepartments } = this.props;
     this.props.closeAction();
-    createEditDeptDialog({
+    this.props.openCreateEditDeptDialog({
       type: 'edit',
       projectId,
       departmentId,
@@ -90,8 +78,7 @@ let DiaActionTree = class DiaActionTree extends React.Component {
     });
   };
 
-  clearDepartmentCache = e => {
-    e.stopPropagation();
+  clearDepartmentCache = () => {
     const { departmentId, projectId } = this.props;
     this.props.closeAction();
     projectSettingAjax
@@ -116,12 +103,14 @@ let DiaActionTree = class DiaActionTree extends React.Component {
       return;
     }
 
-    Dialog.confirm({
+    Modal.confirm({
       className: 'disabledDepartmentDialog',
       okText: _l('删除'),
-      title: _l('删除“%0”', department.departmentName),
-      buttonType: 'danger',
-      description: <div className="Red">{_l('删除后将无法恢复，请谨慎操作')}</div>,
+      title: <span className="textError">{_l('删除“%0”', department.departmentName)}</span>,
+      okButtonProps: {
+        danger: true,
+      },
+      content: <div className="Red">{_l('删除后将无法恢复，请谨慎操作')}</div>,
       onOk: () => {
         dispatch(deleteDepartment(department.departmentId));
       },
@@ -130,11 +119,11 @@ let DiaActionTree = class DiaActionTree extends React.Component {
 
   handleDisableDepartmentConfirm = department => {
     this.props.closeAction();
-    Dialog.confirm({
+    Modal.confirm({
       className: 'disabledDepartmentDialog',
       okText: _l('停用'),
       title: _l('停用“%0”', department.departmentName),
-      description: (
+      content: (
         <div>
           <div>{_l('停用后，当前停用的部门将对用户隐藏，部门下的成员不会移除。')}</div>
           <div className="mBottom10">
@@ -169,61 +158,59 @@ let DiaActionTree = class DiaActionTree extends React.Component {
   };
 
   render() {
-    const { item, hasDepartmentAuth, departmentId } = this.props;
+    const { children, item, hasDepartmentAuth, departmentId, open, onOpenChange } = this.props;
 
-    if (!hasDepartmentAuth) {
-      return (
-        <Menu>
-          <MenuItem
-            onClick={() => {
-              copy(departmentId);
-              alert(_l('复制成功'));
-            }}
-          >
-            {_l('复制 ID')}
-          </MenuItem>
-          <MenuItem onClick={this.clearDepartmentCache}>{_l('刷新部门成员信息')}</MenuItem>
-        </Menu>
-      );
-    }
+    const copyId = () => {
+      copy(departmentId);
+      alert(_l('复制成功'));
+    };
+
+    const commonItems = [
+      { key: 'copyId', label: _l('复制 ID'), onClick: copyId },
+      { key: 'refresh', label: _l('刷新部门成员信息'), onClick: this.clearDepartmentCache },
+    ];
+    const items = hasDepartmentAuth
+      ? [
+          ...(!item.disabled
+            ? [
+                { key: 'add', label: _l('添加子部门'), onClick: this.handleClick },
+                { key: 'edit', label: _l('编辑'), onClick: this.openSettingDialog },
+              ]
+            : []),
+          ...commonItems,
+          {
+            key: 'toggleStatus',
+            label: item.disabled ? _l('恢复使用') : _l('停用'),
+            onClick: () =>
+              !item.disabled ? this.handleDisableDepartmentConfirm(item) : this.handleDisableDepartment(item),
+          },
+          {
+            key: 'delete',
+            danger: true,
+            label: _l('删除'),
+            onClick: () => this.deleteCurrentDepartment(item),
+          },
+        ]
+      : commonItems;
 
     return (
-      <Menu className="Static">
-        {item.disabled ? null : (
-          <Fragment>
-            <MenuItem onClick={this.handleClick}>{_l('添加子部门')}</MenuItem>
-            <MenuItem onClick={this.openSettingDialog}>{_l('编辑')}</MenuItem>
-          </Fragment>
-        )}
-        <MenuItem
-          onClick={() => {
-            copy(departmentId);
-            alert(_l('复制成功'));
-          }}
-        >
-          {_l('复制 ID')}
-        </MenuItem>
-        <MenuItem onClick={this.clearDepartmentCache}>{_l('刷新部门成员信息')}</MenuItem>
-        <MenuItem
-          onClick={() =>
-            !item.disabled ? this.handleDisableDepartmentConfirm(item) : this.handleDisableDepartment(item)
-          }
-        >
-          {item.disabled ? _l('恢复使用') : _l('停用')}
-        </MenuItem>
-        <MenuItem
-          onClick={() => this.deleteCurrentDepartment(item)}
-          style={{
-            color: 'var(--color-error)',
-          }}
-        >
-          {_l('删除')}
-        </MenuItem>
-      </Menu>
+      <Dropdown
+        trigger={['click']}
+        open={open}
+        onOpenChange={onOpenChange}
+        menu={{
+          items,
+          onClick: ({ domEvent }) => {
+            domEvent.stopPropagation();
+            this.props.closeAction();
+          },
+        }}
+      >
+        {children}
+      </Dropdown>
     );
   }
 };
-DiaActionTree = ClickAway.wrap(DiaActionTree);
 
 const mapStateToProps = state => {
   const {
@@ -245,4 +232,6 @@ const mapStateToProps = state => {
 };
 
 const connectedDiaActionTree = connect(mapStateToProps)(DiaActionTree);
-export default connectedDiaActionTree;
+export default withOpeners(connectedDiaActionTree, {
+  openCreateEditDeptDialog: useCreateEditDeptDialog,
+});

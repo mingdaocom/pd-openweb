@@ -1,8 +1,9 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import DeletedSourceMessage from 'src/components/AppSandbox/environment/DeletedSourceMessage';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/navigation';
 import { RelateDetail } from '../../styled';
-import { toEditWidgetPage } from '../../util';
 
 export default function RelateDetailInfo(props) {
   const { data, globalSheetInfo = {}, sheetInfo = {}, fromPortal } = props;
@@ -17,7 +18,10 @@ export default function RelateDetailInfo(props) {
       </div>
       <i className={cx('Font16 textTertiary mRight6', !sourceControlId ? 'icon-right' : 'icon-sync1')} />
       <span
-        className={cx('colorPrimary Bold flexWidth', { pointer: !fromPortal })}
+        className={cx('colorPrimary Bold flexWidth', {
+          pointer: !fromPortal,
+          deletedSourceMessage: sheetInfo.resultCode === 4,
+        })}
         title={sheetInfo.name}
         onClick={() => {
           if (fromPortal) return;
@@ -30,7 +34,7 @@ export default function RelateDetailInfo(props) {
           props.relateToNewPage(toPage);
         }}
       >
-        {sheetInfo.resultCode === 4 ? <span className="Red">{_l('已删除')}</span> : sheetInfo.name}
+        {sheetInfo.resultCode === 4 ? <DeletedSourceMessage worksheetId={dataSource} /> : sheetInfo.name}
       </span>
       {!_.isEmpty(sheetInfo) && appId !== sheetInfo.appId && sheetInfo.resultCode !== 4 && (
         <span className="mLeft6 flexWidth" title={sheetInfo.appName}>

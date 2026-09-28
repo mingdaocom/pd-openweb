@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
-import { Dialog, Input } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import './index.less';
 
 export default class VerifyDel extends Component {
@@ -46,19 +45,20 @@ export default class VerifyDel extends Component {
     const currentName = (mode ? delObj.name : name) || '';
     const isCanDel = value.trim() === currentName.trim();
     return (
-      <Dialog
-        style={{ width: '560px' }}
-        visible
+      <Modal
+        width={560}
+        open
+        mask={{ closable: true }}
+        keyboard
         className="verifyDelDialog"
-        title={null}
-        footer={null}
+        title={<span className="textError">{_l('删除应用 “%0”', currentName)}</span>}
+        okText={cancelText}
+        okButtonProps={{ danger: true }}
+        okDisabled={!isCanDel}
+        onOk={() => onOk(mode ? delObj : '')}
         onCancel={onCancel}
       >
         <div className="verifyContent">
-          <div className="title">
-            <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
-            {_l('删除应用 “%0”', currentName)}
-          </div>
           <div className="hint">
             <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
               {_l('注意：应用下所有配置与数据(包括聚合表)将被删除，删除后可在工作台首页回收站恢复。')}
@@ -67,23 +67,11 @@ export default class VerifyDel extends Component {
           </div>
           <div className="inputVerify">
             <p>{_l('请输入应用名称，表示您确认删除此应用')}</p>
-            <Input value={value} onChange={value => this.setState({ value })} />
+            <Input value={value} onChange={event => this.setState({ value: event.target.value })} />
           </div>
           {/* <Checkbox text={_l('我确认执行此操作')} className="verifyCheckbox" checked={isDelChecked} onClick={() => this.toggleChecked()} /> */}
-          <div className="btnBox">
-            <button className="btnCancel" onClick={onCancel}>
-              {_l('取消')}
-            </button>
-            <button
-              onClick={() => onOk(mode ? delObj : '')}
-              disabled={!isCanDel}
-              className={cx('btnOk', { btnDel: isCanDel })}
-            >
-              {cancelText}
-            </button>
-          </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

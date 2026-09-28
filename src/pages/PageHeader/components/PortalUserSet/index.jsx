@@ -9,8 +9,9 @@ import { getAppId } from 'src/pages/AuthService/portalAccount/util.js';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
 import 'src/pages/PageHeader/AppPkgHeader/index.less';
 import LanguageList from 'src/pages/PageHeader/components/LanguageList';
-import { browserIsMobile, pathCompletion } from 'src/utils/common';
-import { removePssId } from 'src/utils/pssId';
+import { removePssId } from 'src/utils/platform/auth/pssId';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import PortalMessage from './PortalMessage';
 import PortalUserInfoDrawer from './PortalUserInfoDrawer';
 import { WrapHeader } from './style';
@@ -103,7 +104,7 @@ export default class PortalUserSet extends Component {
         // 清除不走缓存
         window.clearLocalDataTime({
           requestData: { worksheetId: worksheetId },
-          clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+          clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetById'],
         });
         removePssId();
         //删除自动登录的key

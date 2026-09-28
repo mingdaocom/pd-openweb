@@ -1,9 +1,11 @@
 import React from 'react';
-import cx from 'classnames';
 import _, { omit } from 'lodash';
 import PropTypes from 'prop-types';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { FILTER_CONDITION_TYPE } from '../../enum';
+import { Select } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
+import { useSelectRecords } from 'src/components/SelectRecords';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 function safeParse(str) {
   try {
@@ -14,10 +16,11 @@ function safeParse(str) {
   }
 }
 
-export default class RelateRecord extends React.Component {
+class RelateRecord extends React.Component {
   static propTypes = {
     disabled: PropTypes.bool,
     onChange: PropTypes.func,
+    openSelectRecords: PropTypes.func,
     control: PropTypes.shape({}),
     fullValues: PropTypes.arrayOf(PropTypes.string),
   };
@@ -73,53 +76,55 @@ export default class RelateRecord extends React.Component {
     const { records } = this.state;
     return (
       <div className="worksheetFilterRelateRecordCondition">
-        <div
-          className={cx('recordsCon', { disabled })}
-          onClick={() => {
-            import('src/components/SelectRecords').then(({ selectRecords }) => {
-              selectRecords({
-                control: {
-                  ...control,
-                  advancedSetting: omit(control.advancedSetting, 'filters'),
-                },
-                getType: 32,
-                allowNewRecord: false,
-                multiple: !this.selectSingle,
-                coverCid: control.coverCid,
-                filterRowIds: records.map(r => r.id),
-                showControls: control.showControls,
-                appId: control.appId,
-                viewId: control.viewId,
-                worksheetId: control.dataSource,
-                controlId: control.controlId,
-                parentWorksheetId: worksheetId,
-                visible: true,
-                onOk: this.addRecord,
-              });
-            });
-          }}
-        >
-          {records.length ? (
-            records.map((record, index) => (
-              <div className="recordItem" key={index}>
-                <i className="icon icon-link-worksheet"></i>
-                <span className="recordname WordBreak">{record.name}</span>
-                <span
-                  className="remove"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.removeRecord(record);
-                  }}
-                >
-                  <i className="icon icon-delete"></i>
-                </span>
-              </div>
-            ))
-          ) : (
-            <span className="placeholder">{_l('请选择')}</span>
-          )}
-        </div>
+        <Select
+          className="w100"
+          mode="multiple"
+          open={false}
+          showSearch={false}
+          disabled={disabled}
+          placeholder={_l('请选择')}
+          options={records.map(record => ({
+            label: (
+              <span className="flexRow alignItemsCenter">
+                <i className="icon icon-link-worksheet Font14 mRight4" />
+                <span>{record.name}</span>
+              </span>
+            ),
+            value: record.id,
+          }))}
+          value={records.map(record => record.id)}
+          onDeselect={id => this.removeRecord({ id })}
+          onClick={
+            disabled
+              ? undefined
+              : () => {
+                  this.props.openSelectRecords({
+                    control: {
+                      ...control,
+                      advancedSetting: omit(control.advancedSetting, 'filters'),
+                    },
+                    getType: 32,
+                    allowNewRecord: false,
+                    multiple: !this.selectSingle,
+                    coverCid: control.coverCid,
+                    filterRowIds: records.map(r => r.id),
+                    showControls: control.showControls,
+                    appId: control.appId,
+                    viewId: control.viewId,
+                    worksheetId: control.dataSource,
+                    controlId: control.controlId,
+                    parentWorksheetId: worksheetId,
+                    visible: true,
+                    onOk: this.addRecord,
+                  });
+                }
+          }
+        />
       </div>
     );
   }
 }
+
+export default withOpeners(RelateRecord, {
+  openSelectRecords: useSelectRecords,
+});

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { controlState } from 'src/utils/control';
-import { formatRecordToRelateRecord } from 'src/utils/record';
-import { getRelateRecordCountFromValue } from 'src/utils/record';
-import { RELATE_RECORD_SHOW_TYPE } from '../../../core/enum';
+import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { formatRecordToRelateRecord } from 'src/utils/domain/worksheet/record';
+import { getRelateRecordCountFromValue } from 'src/utils/domain/worksheet/record';
 import RelateRecordCards from '../../components/RelateRecordCards';
 
 export default class Widgets extends Component {
@@ -137,8 +137,23 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { appId, flag, from, recordId, enumDefault, advancedSetting, formDisabled, instanceId, workId, projectId } =
-      this.props;
+    const {
+      appId,
+      flag,
+      from,
+      recordId,
+      enumDefault,
+      advancedSetting,
+      formDisabled,
+      instanceId,
+      workId,
+      projectId,
+      relationActionRows,
+      relationActionCount,
+      relationActionControlId,
+      relationActionParams,
+      updateRelationActionParams,
+    } = this.props;
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = advancedSetting; // 1 卡片 2 列表 3 下拉
     showtype = parseInt(showtype, 10);
     const controlPermission = controlState({ ...this.props }, from);
@@ -161,6 +176,11 @@ export default class Widgets extends Component {
             ? records.filter((_, index) => !index)
             : records
         }
+        relationActionRows={relationActionRows}
+        relationActionCount={relationActionCount}
+        relationActionControlId={relationActionControlId}
+        relationActionParams={relationActionParams}
+        updateActionParams={updateRelationActionParams}
         multiple={enumDefault === 2}
         showCoverAndControls={advancedSetting.ddset === '1'}
         onChange={this.handleChange}

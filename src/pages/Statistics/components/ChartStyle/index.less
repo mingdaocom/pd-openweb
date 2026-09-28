@@ -1,29 +1,31 @@
 .chartStyle,
 .chartAdvanced {
-  .ant-checkbox-input,
-  .ant-radio-input {
+  .hap-checkbox-input,
+  .hap-radio-input {
     position: absolute;
   }
   .chartCollapse {
-    .ant-collapse-header {
+    .hap-collapse-header {
       font-size: 13px;
       font-weight: bold;
       color: var(--color-text-primary) !important;
-      padding: 16px 10px;
+      padding: 16px 0px;
     }
-    .ant-collapse-item {
+    .hap-collapse-expand-icon {
+      --hap-margin-sm: 0;
+    }
+    .hap-collapse-item {
       border-bottom: 1px solid var(--color-border-primary);
-      .ant-collapse-content-box {
-        padding: 0 0 0 34px !important;
+      .hap-collapse-body {
+        padding: 0 0 0 24px !important;
       }
-      .ant-collapse-content-box,
-      .ant-checkbox-wrapper,
-      .ant-select .ant-select-selection-item,
-      .ant-input {
+      .hap-checkbox-wrapper,
+      .hap-select .hap-select-selection-item,
+      .hap-input {
         font-size: 13px !important;
       }
     }
-    .ant-collapse-arrow {
+    .hap-collapse-arrow {
       transition: transform 0.24s;
       position: static !important;
       line-height: initial !important;
@@ -36,14 +38,14 @@
         transform: rotate(-180deg) !important;
       }
     }
-    .collapsible .ant-collapse-content-box {
+    .collapsible .hap-collapse-body {
       filter: opacity(0.5);
       pointer-events: none;
     }
     .hideArrowIcon .icon-arrow-down-border {
       visibility: hidden;
     }
-    .yAxisCollapsible .ant-collapse-content-box {
+    .yAxisCollapsible .hap-collapse-body {
       > * {
         filter: opacity(0.5);
         pointer-events: none;
@@ -54,7 +56,7 @@
         pointer-events: auto;
       }
     }
-    .pivotTableFieldColorPanel .ant-collapse-content-box {
+    .pivotTableFieldColorPanel .hap-collapse-body {
       padding-right: 0;
     }
   }

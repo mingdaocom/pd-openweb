@@ -1,8 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { bool, func, number, string } from 'prop-types';
-import { Dialog, VerifyPasswordInput } from 'ming-ui';
+import { bool, func, node, number, string } from 'prop-types';
+import styled from 'styled-components';
+import { VerifyPasswordInput } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import verifyPassword from 'src/components/verifyPassword';
+import verifyPassword from 'ming-ui/functions/verifyPassword';
+import { getVerifyValueError } from 'src/utils/domain/security/verification';
+
+const noop = () => {};
+
+const Description = styled.div`
+  margin-bottom: 16px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  word-break: break-word;
+`;
 
 export default function VerifyPasswordConfirm(props) {
   const {
@@ -11,30 +24,54 @@ export default function VerifyPasswordConfirm(props) {
     title,
     description,
     isRequired,
+    showVerifyType = false,
     allowNoVerify = false,
     closeImageValidation,
-    onOk = () => {},
-    onCancel,
+    projectId,
+    checkNeedAuth,
+    customActionName,
+    ignoreAlert,
+    okText = _l('确定'),
+    cancelText = _l('取消'),
+    onOk = noop,
+    onCancel = noop,
   } = props;
-  const [password, setPassword] = useState('');
-  const [isNoneVerification, setIsNoneVerification] = useState(false);
+  const [verifyInfo, setVerifyInfo] = useState({});
+  const [focusReady, setFocusReady] = useState(false);
 
   const handleConfirm = useCallback(() => {
-    if (isRequired && (!password || !password.trim())) {
-      alert(_l('请输入密码'), 3);
+    const error = showVerifyType || isRequired ? getVerifyValueError(verifyInfo) : '';
+
+    if (error) {
+      alert(error, 3);
       return;
     }
 
     verifyPassword({
-      password,
-      isNoneVerification,
+      projectId,
+      ...verifyInfo,
+      showVerifyType,
       closeImageValidation,
+      checkNeedAuth,
+      customActionName,
+      ignoreAlert,
       success: () => {
         onCancel();
-        onOk(password);
+        onOk(verifyInfo.password);
       },
     });
-  }, [isRequired, password, isNoneVerification, closeImageValidation]);
+  }, [
+    showVerifyType,
+    isRequired,
+    projectId,
+    verifyInfo,
+    closeImageValidation,
+    checkNeedAuth,
+    customActionName,
+    ignoreAlert,
+    onCancel,
+    onOk,
+  ]);
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -48,40 +85,60 @@ export default function VerifyPasswordConfirm(props) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isRequired, password, isNoneVerification, closeImageValidation]);
+  }, [handleConfirm]);
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       className="verifyPasswordConfirm"
       width={width}
-      overlayClosable={false}
+      mask={{ closable: false }}
       title={title || _l('安全验证')}
-      description={description}
-      onOk={handleConfirm}
       onCancel={onCancel}
-      confirm={confirmType}
+      afterOpenChange={setFocusReady}
+      footer={
+        <div>
+          <Button color="primary" variant="link" onClick={onCancel}>
+            {cancelText}
+          </Button>
+          <Button
+            {...(confirmType === 'danger' ? { color: 'danger', variant: 'solid' } : { type: 'primary' })}
+            onClick={handleConfirm}
+            data-id="confirmBtn"
+          >
+            {okText}
+          </Button>
+        </div>
+      }
     >
+      {description && <Description>{description}</Description>}
       <VerifyPasswordInput
         showSubTitle={false}
-        autoFocus={true}
+        autoFocus={focusReady}
         isRequired={isRequired}
+        showVerifyType={showVerifyType}
         allowNoVerify={allowNoVerify}
-        onChange={({ password, isNoneVerification }) => {
-          setPassword(password);
-          setIsNoneVerification(isNoneVerification);
-        }}
+        onChange={setVerifyInfo}
       />
-    </Dialog>
+    </Modal>
   );
 }
 
 VerifyPasswordConfirm.propTypes = {
   width: number,
-  title: string,
-  description: string,
+  title: node,
+  description: node,
   isRequired: bool,
+  showVerifyType: bool,
+  allowNoVerify: bool,
   closeImageValidation: bool,
+  projectId: string,
+  checkNeedAuth: bool,
+  customActionName: string,
+  ignoreAlert: bool,
+  confirmType: string,
+  okText: node,
+  cancelText: node,
   onOk: func,
   onCancel: func,
 };

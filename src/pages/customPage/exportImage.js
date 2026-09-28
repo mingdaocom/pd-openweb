@@ -1,6 +1,6 @@
 import domtoimage from 'dom-to-image';
 import _ from 'lodash';
-import { reportTypes } from 'statistics/Charts/reportTypes';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
 
 const blobToImg = blob => {
   return new Promise(resolve => {

@@ -1,5 +1,5 @@
 import { get, pick } from 'lodash';
-import { convertControlTypeToAiRecommendControlType } from 'src/utils/control';
+import { convertControlTypeToAiRecommendControlType } from 'src/utils/domain/control/ai';
 
 export const title = _l('生成示例数据');
 

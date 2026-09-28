@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { getFilledRequestParams } from 'src/utils/common';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 
 // 更新分组筛选
 export const updateNavGroup = () => {

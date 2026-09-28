@@ -1,37 +1,36 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SearchInput, UserHead } from 'ming-ui';
+import { Dropdown as AntdDropdown, Button, Checkbox, Modal, Space, Tooltip } from 'ming-ui/antd-components';
 import AppManagement from 'src/api/appManagement.js';
 import departmentController from 'src/api/department';
 import { downloadFile } from 'src/pages/Admin/util';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { getColor, getIcon, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import Table from 'src/pages/Role/component/Table';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getTranslateInfo } from 'src/utils/app';
-import { dateConvertToUserZone, getCurrentProject } from 'src/utils/project';
+import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getCurrentProject } from 'src/utils/services/project';
+
+const SearchInputCon = styled(SearchInput)`
+  width: 244px;
+`;
+
+const ACTION_BUTTON_STYLE = { height: 32 };
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
   &.conExternal {
     padding: 20px 0;
-  }
-  .toRole {
-    color: var(--color-text-title);
-    &:hover {
-      color: var(--color-primary);
-    }
   }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
     width: calc(calc(calc(100% - 70px - 38px) / 100) * 15);
@@ -43,10 +42,6 @@ const Wrap = styled.div`
     width: calc(calc(calc(100% - 70px - 38px) / 100) * 35);
   }
 
-  .ming.Dropdown .Dropdown--input,
-  .dropdownTrigger .Dropdown--input {
-    padding: 0 !important;
-  }
   .isCurmemberType {
     color: var(--color-primary);
   }
@@ -62,88 +57,32 @@ const Wrap = styled.div`
       font-weight: 400;
     }
   }
-  .topActDrop .Dropdown--input {
-    display: flex;
-    align-items: center;
-    & > span.value {
-      display: inline-block;
-      flex: 1;
-    }
-    .icon {
-      display: block;
-    }
-  }
 `;
-const WrapBar = styled.div`
-  .toRole {
-    border-radius: 3px 3px 3px 3px;
-    padding: 0 12px;
-    border: 1px solid var(--color-border-primary);
-    line-height: 34px;
-    display: inline-block;
-    &:hover {
-      border: 1px solid var(--color-primary);
-      color: var(--color-primary);
-    }
-  }
-  .addUser {
-    line-height: 36px;
-    background: var(--color-primary);
-    border-radius: 3px;
-    color: var(--color-white);
-    padding: 0 12px;
-    display: inline-block;
-    &:hover {
-      background: var(--color-link-hover);
-    }
-  }
-  .search .roleSearch {
-    width: 244px;
-    height: 37px;
-    background: var(--color-background-primary);
-    border-radius: 3px;
-    border: 1px solid var(--color-border-secondary);
-  }
-  .exportAppRolesBtn {
-    height: 37px;
-    padding: 0 16px;
-    box-sizing: border-box;
-    border-radius: 3px;
-    border: 1px solid var(--color-border-secondary);
-    background: var(--color-background-primary);
-    color: var(--color-text-primary);
-    font-size: 14px;
-    line-height: 35px;
-    vertical-align: top;
-  }
-  .exportAppRolesBtn:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-`;
+const WrapBar = styled.div``;
 
 const userChooseList = [
   {
     value: 0,
-    text: _l('所有类型'),
+    label: _l('所有类型'),
   },
   {
     value: 10,
-    text: _l('人员'),
+    label: _l('人员'),
   },
   {
     value: 20,
-    text: _l('部门'),
+    label: _l('部门'),
   },
   {
     value: 30,
-    text: _l('组织角色'),
+    label: _l('组织角色'),
   },
   {
     value: 40,
-    text: _l('职位'),
+    label: _l('职位'),
   },
 ];
+const ALL_MEMBER_TYPE_KEY = 'all';
 
 const getNumTxt = user => {
   let l = [];
@@ -205,15 +144,6 @@ const getTranslatedRoleNames = (roleName = [], roleInfos = [], appId) => {
 
     return role ? getTranslateInfo(appId, null, role.roleId).name || role.name : name;
   });
-};
-
-const builtinPlacements = {
-  topLeft: {
-    points: ['bl', 'tl'],
-  },
-  bottomLeft: {
-    points: ['tl', 'bl'],
-  },
 };
 
 function User(props) {
@@ -402,15 +332,20 @@ function User(props) {
       sorter: true, // roleId !== 'all',
       renderHeader: () => {
         return (
-          <React.Fragment>
-            <Dropdown
-              isAppendToBody
-              data={userChooseList}
-              value={memberType}
-              renderValue={_l('类型')}
-              menuClass="Width120"
-              className={cx('flex InlineBlock topActDrop', { isCurmemberType: memberType > 0 })}
-              onChange={newValue => {
+          <AntdDropdown
+            trigger={['click']}
+            placement="bottomLeft"
+            getPopupContainer={() => document.body}
+            menu={{
+              selectable: false,
+              style: { minWidth: 120 },
+              items: userChooseList.map(({ value, label }) => ({
+                key: value === 0 ? ALL_MEMBER_TYPE_KEY : String(value),
+                label,
+              })),
+              onClick: ({ key }) => {
+                const newValue = key === ALL_MEMBER_TYPE_KEY ? 0 : Number(key);
+
                 setState({ memberType: newValue });
                 SetAppRolePagingModel({
                   ...appRolePagingModel,
@@ -418,9 +353,18 @@ function User(props) {
                   searchMemberType: newValue,
                 });
                 getUserList({ appId }, true);
-              }}
-            />
-          </React.Fragment>
+              },
+            }}
+          >
+            <span
+              className={cx('memberTypeFilter Hand InlineFlex alignItemsCenter', {
+                isCurmemberType: memberType > 0,
+              })}
+            >
+              {_l('类型')}
+              <Icon type="arrow-down" className="Font12 mLeft4" />
+            </span>
+          </AntdDropdown>
         );
       },
 
@@ -541,18 +485,26 @@ function User(props) {
                     });
                   } else {
                     // 设为负责人
-                    return Dialog.confirm({
+                    return Modal.confirm({
                       className: '',
-                      title: <span className="Bold Font17">{_l('确认设置为角色负责人？')}</span>,
-                      description: (
+                      title: <span className="Font17">{_l('确认设置为角色负责人？')}</span>,
+                      content: (
                         <div className="textSecondary Font15 mBottom6 WordBreak">
                           {_l('角色负责人可添加、移出当前角色下的成员')}
                         </div>
                       ),
                       onOk: () => {
-                        changeIsRoleManager({ memberCategory, appId, roleId, memberId: data.id }, true);
+                        changeIsRoleManager(
+                          {
+                            memberCategory,
+                            appId,
+                            roleId,
+                            memberId: data.id,
+                          },
+                          true,
+                        );
                       },
-                    });
+                    }).destroy;
                   }
 
                   break;
@@ -571,10 +523,7 @@ function User(props) {
                   break;
               }
             }}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [-180, 0],
-            }}
+            placement="bottomRight"
           />
         );
       },
@@ -602,81 +551,72 @@ function User(props) {
     });
   };
 
-  const renderPopup = () => {
-    return (
-      <Menu style={{ position: 'static' }}>
-        {_.map(
-          roleLimitInfo.limitState ? [_l('人员')] : [_l('人员'), _l('部门'), _l('组织角色'), _l('职位')],
-          (o, i) => {
-            return (
-              <MenuItem
-                key={i}
-                onClick={() => {
-                  switch (i) {
-                    case 0:
-                      props.addUserToRole(userList.filter(o => o.memberType === 5).map(user => user.id));
-                      break;
-                    case 1:
-                      props.addDepartmentToRole();
-                      break;
-                    case 2:
-                      props.addOrgRole();
-                      break;
-                    case 3:
-                      props.addJobToRole();
-                      break;
-                  }
-
-                  setState({
-                    popupVisible: false,
-                    selectedAll: false,
-                  });
-                }}
-              >
-                {o}
-              </MenuItem>
-            );
-          },
-        )}
-      </Menu>
-    );
-  };
-
-  const triggerProps = {
-    popupClassName: 'Normal',
-    action: ['click'],
-    popup: renderPopup(),
-    builtinPlacements,
-    popupPlacement: 'bottomLeft',
-    popupVisible: popupVisible,
-    onPopupVisibleChange: visible => {
+  const dropdownProps = {
+    trigger: ['click'],
+    placement: 'bottomLeft',
+    open: popupVisible,
+    onOpenChange: visible => {
       setState({
         popupVisible: visible,
       });
     },
-    popupAlign: {
-      offset: [0, 5],
-      overflow: {
-        adjustX: 1,
-        adjustY: 1,
-      },
+    menu: {
+      items: (roleLimitInfo.limitState ? [_l('人员')] : [_l('人员'), _l('部门'), _l('组织角色'), _l('职位')]).map(
+        (label, index) => ({
+          key: index,
+          label,
+          onClick: () => {
+            switch (index) {
+              case 0:
+                props.addUserToRole(userList.filter(o => o.memberType === 5).map(user => user.id));
+                break;
+              case 1:
+                props.addDepartmentToRole();
+                break;
+              case 2:
+                props.addOrgRole();
+                break;
+              case 3:
+                props.addJobToRole();
+                break;
+            }
+
+            setState({
+              popupVisible: false,
+              selectedAll: false,
+            });
+          },
+        }),
+      ),
     },
-    getPopupContainer: () => {
-      return document.body;
-    },
+    getPopupContainer: () => document.body,
   };
 
-  const handleSearch = keyWords => {
-    setState({ keyWords });
-    SetAppRolePagingModel({
-      ...appRolePagingModel,
-      pageIndex: 1,
-      keywords: keyWords,
-    });
-    getUserList({ appId }, true);
-  };
+  const handleSearch = useCallback(
+    (keyWords, pagingModel) => {
+      SetAppRolePagingModel({
+        ...pagingModel,
+        pageIndex: 1,
+        keywords: keyWords,
+      });
+      getUserList({ appId }, true);
+    },
+    [SetAppRolePagingModel, appId, getUserList],
+  );
+  const debouncedSearch = useMemo(() => _.debounce(handleSearch, 500), [handleSearch]);
 
-  const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  const onSearch = keywords => {
+    setState({ keyWords: keywords });
+
+    if (keywords) {
+      debouncedSearch(keywords, appRolePagingModel);
+    } else {
+      debouncedSearch.cancel();
+      handleSearch('', appRolePagingModel);
+    }
+  };
 
   const canExportAppRoleList = roleId === 'all' && !isExternal && isAdmin; //仅管理员/超管可以导出全部角色
   const titleCountTxt = countTxt || (!loading ? getTotalCountTxt(total, memberType) : '');
@@ -713,26 +653,30 @@ function User(props) {
           </span>
         </div>
         {selectedIds.length > 0 && (
-          <div>
+          <Space size={10}>
             {canEdit && !isExternal && (
-              <span
-                className={cx('toOthers InlineBlock Hand mLeft10')}
+              <Button
+                color="primary"
+                variant="filled"
+                style={ACTION_BUTTON_STYLE}
                 onClick={() => {
                   changeUserRole(selectedIds, selectedAll);
                 }}
               >
                 {roleId === 'all' ? _l('修改角色') : _l('移到其他角色')}
-              </span>
+              </Button>
             )}
-            <span
-              className={cx('del InlineBlock Hand mLeft10')}
+            <Button
+              color="danger"
+              variant="filled"
+              style={ACTION_BUTTON_STYLE}
               onClick={() => {
                 delUserRole(selectedIds, selectedAll);
               }}
             >
               {_l('移出')}
-            </span>
-          </div>
+            </Button>
+          </Space>
         )}
         {selectedIds.length <= 0 && (
           <WrapBar>
@@ -747,50 +691,41 @@ function User(props) {
                 <span className="InlineBlock mRight20 LineHeight36 TxtTop">
                   <Checkbox
                     className=""
-                    size="small"
                     checked={props.notify}
-                    onClick={() => {
+                    onChange={() => {
                       props.updateAppRoleNotify();
                     }}
-                    text={_l('发送通知')}
-                  />
+                    size="small"
+                  >
+                    {_l('发送通知')}
+                  </Checkbox>
                 </span>
               </Tooltip>
             )}
             <div className="search InlineBlock">
-              <SearchInput
-                className="roleSearch"
-                placeholder={props.placeholder || _l('搜索')}
-                value={keyWords}
-                onChange={onSearch}
-              />
+              <SearchInputCon placeholder={props.placeholder || _l('搜索')} value={keyWords} onChange={onSearch} />
             </div>
             {canExportAppRoleList && (
-              <button
-                type="button"
-                className="exportAppRolesBtn Hand mLeft12 TxtTop Bold"
-                onClick={handleExportAppRoles}
-              >
+              <Button className="mLeft12" onClick={handleExportAppRoles}>
                 {_l('导出')}
-              </button>
+              </Button>
             )}
             {roleId !== 'all' && canEditApp && !isExternal && (
-              <div
-                className="toRole Hand mLeft20 TxtTop Bold"
+              <Button
+                className="mLeft20"
                 onClick={() => {
                   setQuickTag({ roleId: roleId, tab: 'roleSet' });
                 }}
               >
                 {sysRoleType.includes(roleData.roleType) ? _l('查看角色') : _l('编辑角色')}
-              </div>
+              </Button>
             )}
             {(roleId !== 'all' || isExternal) && canEdit && (
-              <Trigger {...triggerProps}>
-                <div className="addUser Hand mLeft20 TxtTop Bold">
-                  <Icon type="add" />
+              <AntdDropdown {...dropdownProps}>
+                <Button type="primary" className="mLeft20" icon={<Icon type="add" />}>
                   {_l('添加用户')}
-                </div>
-              </Trigger>
+                </Button>
+              </AntdDropdown>
             )}
           </WrapBar>
         )}

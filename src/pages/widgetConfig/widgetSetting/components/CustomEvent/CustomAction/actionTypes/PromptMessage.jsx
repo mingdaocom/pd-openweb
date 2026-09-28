@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import { SettingItem } from '../../../../../styled';
-import { getAdvanceSetting } from '../../../../../util/setting';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { ALERT_TYPE_OPTIONS } from '../../config';
 import { CustomActionWrap } from '../../style';
@@ -27,14 +27,15 @@ export default function PromptMessage(props) {
   const isDisabled = _.isEmpty(safeParse(message));
 
   return (
-    <Dialog
+    <Modal
       width={480}
-      visible={visible}
+      open={visible}
+      keyboard
       okDisabled={isDisabled}
       className="SearchWorksheetDialog"
       title={_l('提示消息')}
       onCancel={() => setState({ visible: false })}
-      overlayClosable={false}
+      mask={{ closable: false }}
       onOk={() => {
         handleOk({ ...actionData, advancedSetting, message });
         setState({ visible: false });
@@ -81,6 +82,6 @@ export default function PromptMessage(props) {
           />
         </SettingItem>
       </CustomActionWrap>
-    </Dialog>
+    </Modal>
   );
 }

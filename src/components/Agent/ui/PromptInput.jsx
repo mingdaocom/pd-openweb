@@ -14,7 +14,7 @@ import { get } from 'lodash';
 import styled from 'styled-components';
 import { BgIconButton, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 import MentionInput from './MentionInput';
 
 const Recorder = lazy(() => import('src/components/Mingo/ChatBot/components/Recorder'));
@@ -112,6 +112,7 @@ function PromptInput(
     loading = false,
     submitting = false,
     canSendWhenEmpty = false,
+    submitOnEnter = true,
     useAppThemeColor = false,
     autoFocus = false,
     enableVoice = true,
@@ -122,9 +123,17 @@ function PromptInput(
     attachmentTooltip,
     mentionButtonIcon = 'alternate_email',
     mentionButtonText,
+    sendButtonIcon = 'send',
+    getStateClassName,
+    showMentionButton = true,
+    recordingButtonMode = 'send',
+    showAttachmentWhileRecording = false,
+    discardWhitespaceOnlyRecordingBase = false,
+    onActionFeedback,
     // @应用 相关：projectId 决定 @ 浮层数据源；enableMention 控制 @ 按钮和手输 @ 浮层
     projectId,
     enableMention = true,
+    onSelectApp,
   },
   ref,
 ) {
@@ -164,11 +173,24 @@ function PromptInput(
     setInputValue: v => editorRef.current && editorRef.current.setText(v),
     // 聚焦并插入 '@' 呼出应用浮层（供外部「@ 应用开始提问」入口调用）
     insertAt: () => editorRef.current && editorRef.current.insertAt(),
+    insertApp: app => editorRef.current && editorRef.current.insertApp(app),
     getValue: () => (editorRef.current ? editorRef.current.getValue() : { text: '', mentions: [] }),
   }));
 
   const hasRecordingText = isRecording && !!recordingText.trim();
   const sendDisabled = disabled || (!(text || '').trim() && !hasRecordingText && !canSendWhenEmpty) || isLoading;
+  const stopRecordingOnly = recordingButtonMode === 'stop';
+  const stateClassName = getStateClassName
+    ? getStateClassName({
+        focused,
+        text,
+        isRecording,
+        isLoading,
+        canSendWhenEmpty,
+        hasAttachments: !!attachments,
+        sendDisabled,
+      })
+    : undefined;
 
   const focusEditor = useCallback(() => {
     if (editorRef.current) editorRef.current.focus();
@@ -205,7 +227,7 @@ function PromptInput(
     if (disabled) return;
     recordingRef.current = true;
     recordingTextRef.current = '';
-    recordingBaseRef.current = text; // 录音前已有文本作为拼接基底
+    recordingBaseRef.current = discardWhitespaceOnlyRecordingBase && !(text || '').trim() ? '' : text;
     setRecordingText('');
     setIsRecording(true);
   }
@@ -231,7 +253,13 @@ function PromptInput(
   }
 
   return (
-    <Wrap className={cx(className, 'textAreaCon t-flex t-flex-col', { focused, disabled, useAppThemeColor })}>
+    <Wrap
+      className={cx(className, stateClassName, 'textAreaCon t-flex t-flex-col', {
+        focused,
+        disabled,
+        useAppThemeColor,
+      })}
+    >
       {focused && sendHeader && cloneElement(sendHeader, { onFocus: requestEditorFocus })}
       {attachments}
       <MentionInput
@@ -240,25 +268,42 @@ function PromptInput(
         inputId={inputId}
         projectId={projectId}
         enableMention={enableMention}
+        onSelectApp={onSelectApp}
         placeholder={placeholder}
         disabled={disabled || isRecording}
         autoFocus={autoFocus}
         onChange={handleEditorChange}
         onSubmit={({ text: t }) => handleSubmit(t)}
+        submitOnEnter={submitOnEnter}
         onFocusChange={setFocused}
       />
-      <Footer>
+      <Footer className="promptInputFooter">
         <div className={cx('footerStart', { recording: isRecording })}>
           {isRecording ? (
-            <Suspense fallback={null}>
-              <Recorder
-                ref={recorderRef}
-                getAuthConfig={getVoiceAuthConfig}
-                onRecognize={handleRecognize}
-                onStop={handleRecorderStop}
-                onUnavailable={() => setVoiceAvailable(false)}
-              />
-            </Suspense>
+            <>
+              {showAttachmentWhileRecording &&
+                (attachmentSlot
+                  ? attachmentSlot
+                  : onAttachmentClick && (
+                      <BgIconButton
+                        disabled={disabled}
+                        style={{ borderRadius: '8px', padding: '6px' }}
+                        icon="attachment"
+                        tooltip={attachmentTooltip || _l('添加附件')}
+                        popupPlacement="top"
+                        onClick={onAttachmentClick}
+                      />
+                    ))}
+              <Suspense fallback={null}>
+                <Recorder
+                  ref={recorderRef}
+                  getAuthConfig={getVoiceAuthConfig}
+                  onRecognize={handleRecognize}
+                  onStop={handleRecorderStop}
+                  onUnavailable={() => setVoiceAvailable(false)}
+                />
+              </Suspense>
+            </>
           ) : (
             <>
               {attachmentSlot
@@ -273,7 +318,7 @@ function PromptInput(
                       onClick={onAttachmentClick}
                     />
                   )}
-              {enableMention && (
+              {enableMention && showMentionButton && (
                 <BgIconButton
                   className="promptMentionButton"
                   disabled={disabled}
@@ -293,7 +338,7 @@ function PromptInput(
             </>
           )}
         </div>
-        <div>
+        <div className="promptInputActions">
           {!isRecording && rightButtons}
           {!isRecording && footerEnd}
           {voiceEnabled && !isRecording && !isLoading && (
@@ -304,7 +349,10 @@ function PromptInput(
               icon="microphone"
               tooltip={_l('语音输入')}
               popupPlacement="top"
-              onClick={beginRecord}
+              onClick={() => {
+                beginRecord();
+                onActionFeedback?.();
+              }}
             />
           )}
           {isLoading ? (
@@ -322,7 +370,7 @@ function PromptInput(
           ) : (
             <BgIconButton
               className={cx('sendButton', 'promptSendButton')}
-              disabled={sendDisabled}
+              disabled={sendDisabled && !(isRecording && stopRecordingOnly)}
               style={{
                 backgroundColor: useAppThemeColor
                   ? 'var(--app-primary-color, var(--color-mingo))'
@@ -331,17 +379,26 @@ function PromptInput(
                 padding: '6px',
               }}
               iconStyle={{ color: 'white' }}
-              icon="send"
-              tooltip={_l('发送(↵)')}
+              icon={sendButtonIcon}
+              tooltip={isRecording && stopRecordingOnly ? _l('停止') : _l('发送(↵)')}
               popupPlacement="top"
               onClick={() => {
-                if (sendDisabled) return;
                 if (isRecording) {
-                  recorderRef.current?.stop({ sendAfterStop: true });
+                  if (sendDisabled && !stopRecordingOnly) return;
+
+                  const stopOptions = { sendAfterStop: !stopRecordingOnly };
+                  recorderRef.current?.stop(stopOptions);
+                  // 移动端 Mingo 的暂停操作不需要等待语音 SDK 完成回调；录音器可能仍在加载凭证或连接，
+                  // 此时底层 stop 尚不可用，也应立即恢复输入状态。
+                  if (stopRecordingOnly) handleRecorderStop(stopOptions);
+                  onActionFeedback?.();
                   return;
                 }
 
+                if (sendDisabled) return;
+
                 handleSubmit();
+                onActionFeedback?.();
               }}
             />
           )}

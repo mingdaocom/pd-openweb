@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Slider } from 'ming-ui';
-import { getAdvanceSetting } from '../../tools/utils';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import Numeric from './Numeric';
 
 const Number = props => {

@@ -1,9 +1,11 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Popover, Select } from 'ming-ui/antd-components';
 import ChangeColumn from 'worksheet/common/ChangeColumn';
-import DropdownWrapper from 'worksheet/components/DropdownWrapper';
 import './index.less';
+
+const SELECT_OPTIONS = [{ value: 'sortColumns' }];
 
 export default class SortColumns extends React.Component {
   static propTypes = {
@@ -25,6 +27,7 @@ export default class SortColumns extends React.Component {
     onChange: PropTypes.func.isRequired,
     showTabs: PropTypes.bool,
     disabled: PropTypes.bool, // 能否点击弹出操作项
+    columnTexts: PropTypes.shape({}), // 单个场景覆盖字段列表文案，默认保持显示列原文案
   };
 
   static defaultProps = {
@@ -38,6 +41,26 @@ export default class SortColumns extends React.Component {
     controlsSorts: [],
     columns: [],
     onChange: () => {},
+  };
+
+  state = {
+    open: false,
+    popupWidth: undefined,
+  };
+
+  triggerRef = React.createRef();
+
+  handleOpenChange = open => {
+    if (this.props.disableDropdown) return;
+
+    this.setState({
+      open,
+      popupWidth: open ? this.triggerRef.current?.offsetWidth : this.state.popupWidth,
+    });
+  };
+
+  hidePopup = () => {
+    this.setState({ open: false });
   };
 
   render() {
@@ -64,52 +87,72 @@ export default class SortColumns extends React.Component {
       showOperate = true,
       forbiddenScroll = false,
       disableDropdown = false,
+      columnTexts,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
 
     if (layout === 1) {
+      const popupContent = this.props.downElement || (
+        <ChangeColumn
+          forbiddenScroll={forbiddenScroll}
+          placeholder={placeholder}
+          noShowCount={noShowCount}
+          noempty={noempty}
+          dragable={dragable}
+          advance={advance}
+          min1msg={min1msg}
+          maxSelectedNum={maxSelectedNum}
+          selected={showControls}
+          columns={columns}
+          controlsSorts={controlsSorts}
+          onChange={({ selected, newControlSorts }) => {
+            onChange({
+              newShowControls: _.uniqBy(ghostControlIds.concat(selected)),
+              newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
+            });
+          }}
+          isShowColumns={isShowColumns}
+          sortAutoChange={sortAutoChange}
+          showTabs={showTabs}
+          showOperate={showOperate}
+          columnTexts={columnTexts}
+          hideReset
+          disabled={disabled}
+        />
+      );
+
       return (
-        <DropdownWrapper
-          className="sortColumnWrap"
-          disabled={disableDropdown}
-          downElement={
-            this.props.downElement || (
-              <ChangeColumn
-                forbiddenScroll={forbiddenScroll}
-                placeholder={placeholder}
-                noShowCount={noShowCount}
-                noempty={noempty}
-                dragable={dragable}
-                advance={advance}
-                min1msg={min1msg}
-                maxSelectedNum={maxSelectedNum}
-                selected={showControls}
-                columns={columns}
-                controlsSorts={controlsSorts}
-                onChange={({ selected, newControlSorts }) => {
-                  onChange({
-                    newShowControls: _.uniqBy(ghostControlIds.concat(selected)),
-                    newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
-                  });
-                }}
-                isShowColumns={isShowColumns}
-                sortAutoChange={sortAutoChange}
-                showTabs={showTabs}
-                showOperate={showOperate}
-                hideReset
-                disabled={disabled}
+        <div className="sortColumnWrap">
+          <Popover
+            trigger={disableDropdown ? [] : 'click'}
+            content={React.cloneElement(popupContent, { hide: this.hidePopup })}
+            open={!disableDropdown && this.state.open}
+            onOpenChange={this.handleOpenChange}
+            placement="bottomLeft"
+            noPadding
+            styles={{ container: { width: this.state.popupWidth } }}
+          >
+            <div ref={this.triggerRef} aria-disabled={disableDropdown} className="sortColumnTrigger targetEle">
+              <Select
+                className="w100"
+                disabled={disableDropdown}
+                value="sortColumns"
+                options={SELECT_OPTIONS}
+                open={false}
+                showSearch={false}
+                labelRender={() =>
+                  children ||
+                  (displayControls.length < 1 && empty ? (
+                    empty
+                  ) : (
+                    <span>{_l('显示 %0 个', displayControls.length)}</span>
+                  ))
+                }
               />
-            )
-          }
-        >
-          {children || (
-            <div className="Dropdown--input Dropdown--border Hand">
-              {displayControls.length < 1 && empty ? empty : <span>{_l('显示 %0 个', displayControls.length)}</span>}
-              <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
             </div>
-          )}
-        </DropdownWrapper>
+          </Popover>
+        </div>
       );
     } else if (layout === 2) {
       return (
@@ -136,6 +179,7 @@ export default class SortColumns extends React.Component {
             isShowColumns={isShowColumns}
             sortAutoChange={sortAutoChange}
             showTabs={showTabs}
+            columnTexts={columnTexts}
             disabled={disabled}
           />
         </div>

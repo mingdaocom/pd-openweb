@@ -1,8 +1,8 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import { compareProps } from 'pages/PageHeader/util.js';
 import { LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
 import wxPng1 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/1.png';
 import wxPng2 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/2.png';
@@ -12,7 +12,8 @@ import wxPng5 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyn
 import wxPng6 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/6.png';
 import wxPng7 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/7.png';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
-import { pathCompletion } from 'src/utils/common';
+import { compareProps } from 'src/utils/domain/app/model';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { getIntegrationHomeUrl } from '../../utils';
 import workwxPng1 from './img/1.png';
 import workwxPng2 from './img/2.png';
@@ -91,7 +92,7 @@ export default class WorkwxSyncCourse extends React.Component {
         <p className="Font14 textSecondary mTop24 LineHeight22">{_l('填写“授权回调域”')}</p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('回调域名：')}</span>
-          <input type="text" className="inputBox" readOnly value={scanUrl} />
+          <Input type="text" className="inputBox" radius variant="filled" readOnly value={scanUrl} />
           <span
             className="copyBtn"
             onClick={() => {
@@ -151,7 +152,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={wxPng2} alt={_l('选择“自建-创建应用”进入新建应用页面')} />
           <h3 className="Font18 textPrimary mTop40">{_l('3. 填写应用信息')}</h3>
           <p className="Font14 textSecondary mTop24 LineHeight22">
-            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            {window.platformENV.isPlatform && window.platformENV.isHap
               ? _l('填入应用名称（建议名称为：明道云）、应用简介')
               : _l('填入应用名称')}
             <br />
@@ -174,7 +175,7 @@ export default class WorkwxSyncCourse extends React.Component {
           </p>
           <div className="inputList mTop20">
             <span className="inputTitle">{_l('可信域名：')}</span>
-            <input type="text" className="inputBox" readOnly value={domainName} />
+            <Input type="text" className="inputBox" radius variant="filled" readOnly value={domainName} />
             <span
               className="copyBtn"
               onClick={() => {

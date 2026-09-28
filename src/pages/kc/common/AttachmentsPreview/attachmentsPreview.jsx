@@ -5,21 +5,24 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Button from 'ming-ui/components/Button';
+import { Button } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { addToken, browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { addToken } from 'src/utils/platform/browser/download';
 import ExtIcon from '../../components/ExtIcon';
 import { defaultWpsPreview, isWpsPreview } from '../../utils';
 import * as Actions from './actions/action';
-import AttachmentInfo from './attachmentInfo';
 import AttachmentsLoading from './attachmentsLoading';
 import CodeViewer from './codeViewer/codeViewer';
 import { CODE_PREVIEW_EXTENSIONS, LOADED_STATUS, PREVIEW_TYPE } from './constant/enum';
-import * as previewUtil from './constant/util';
+import { urlAddParams } from './constant/util';
 import ImageViewer from './imageViewer/imageViewer';
 import PreviewHeader from './previewHeader/previewHeader';
 import ThumbnailGuide from './thumbnailGuide';
+import * as previewUtil from './utils/previewAttachmentHelper';
 import VideoPlayer from './VideoPlayer';
 import './attachmentsPreview.less';
 
@@ -35,13 +38,12 @@ class AttachmentsPreview extends React.Component {
     index: PropTypes.number,
     loading: PropTypes.bool,
     error: PropTypes.any,
-    showAttInfo: PropTypes.bool,
     fullscreen: PropTypes.bool,
+    zIndex: PropTypes.number,
   };
 
   state = {
     style: { opacity: 0 },
-    attInfoFolded: true,
     showThumbnail: false,
     showHtmlSource: false,
   };
@@ -177,17 +179,7 @@ class AttachmentsPreview extends React.Component {
       return <LoadDiv />;
     }
 
-    const {
-      isShare,
-      attachments,
-      index,
-      showAttInfo,
-      hideFunctions,
-      extra,
-      error,
-      options = {},
-      previewService,
-    } = this.props;
+    const { isShare, attachments, index, hideFunctions, extra, error, options = {}, previewService } = this.props;
     const currentAttachment = attachments[index];
     const { ext, name, previewAttachmentType } = currentAttachment;
     let { previewType } = currentAttachment;
@@ -231,13 +223,12 @@ class AttachmentsPreview extends React.Component {
     }
 
     const isFullScreen = this.props.fullscreen; // 全屏
-    const cauUseWpsPreview =
-      !window.platformENV.isOverseas && !window.platformENV.isLocal && (isWpsPreview(ext) || defaultWpsPreview(ext));
+    const cauUseWpsPreview = window.platformENV.isHap && (isWpsPreview(ext) || defaultWpsPreview(ext));
 
     return (
       <div
         className={cx('attachmentsPreview flexColumn', options.theme, { fullscreen: isFullScreen })}
-        style={this.state.style}
+        style={{ ...this.state.style, zIndex: this.props.zIndex }}
         onWheel={this.onWheel}
       >
         {isShare && <DocumentTitle title={name + '.' + ext} />}
@@ -257,11 +248,7 @@ class AttachmentsPreview extends React.Component {
         />
         <div
           className="previewPanel"
-          style={
-            !this.state.attInfoFolded && showAttInfo
-              ? { right: 328, top: isFullScreen ? 0 : browserIsMobile() && cauUseWpsPreview ? 108 : 54 }
-              : { top: isFullScreen ? 0 : browserIsMobile() && cauUseWpsPreview ? 108 : 54 }
-          }
+          style={{ top: isFullScreen ? 0 : browserIsMobile() && cauUseWpsPreview ? 108 : 54 }}
         >
           <div
             className="previewContainer"
@@ -333,7 +320,7 @@ class AttachmentsPreview extends React.Component {
                       </p>
                       {canDownload && showDownload && (
                         <Button
-                          className="downloadBtn"
+                          type="primary"
                           onClick={() => {
                             window.open(previewUtil.getDownloadUrl(currentAttachment, this.props.extra));
                           }}
@@ -355,7 +342,7 @@ class AttachmentsPreview extends React.Component {
                         }}
                         canDownload={showDownload && canDownload}
                         src={
-                          ext === 'HEIC'
+                          ['heic', 'heif'].includes(ext.toLowerCase()) || /[?&]token=/.test(viewUrl)
                             ? viewUrl
                             : viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
                         }
@@ -372,8 +359,13 @@ class AttachmentsPreview extends React.Component {
                   }
 
                   case PREVIEW_TYPE.IFRAME:
-                    {
-                      /*if ((ext || '').toLocaleLowerCase() === 'pdf' && !window.isDingTalk && previewService !== 'wps') {
+                    if (
+                      (ext || '').toLocaleLowerCase() === 'pdf' &&
+                      !window.isDingTalk &&
+                      previewService !== 'wps' &&
+                      !window.platformENV.isOverseas &&
+                      !window.platformENV.isLocal
+                    ) {
                       return (
                         <iframe
                           key={this.getIframeKey({ mode: 'pdf', attachment: currentAttachment, index, ext })}
@@ -384,11 +376,9 @@ class AttachmentsPreview extends React.Component {
                         />
                       );
                     }
-                    */
-                    }
 
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {
-                      viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
+                      viewUrl = urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
 
                     if (
@@ -461,7 +451,7 @@ class AttachmentsPreview extends React.Component {
                           {currentAttachment.sourceNode.originLinkUrl}
                         </a>
                         <Button
-                          className="downloadBtn boderRadAll_3 bgColorPrimary"
+                          type="primary"
                           rel="noopener noreferrer"
                           target="_blank"
                           onClick={() => {
@@ -500,7 +490,7 @@ class AttachmentsPreview extends React.Component {
                           if (previewType === PREVIEW_TYPE.NEW_PAGE && viewUrl) {
                             return (
                               <Button
-                                className="downloadBtn"
+                                type="primary"
                                 onClick={() => {
                                   window.open(viewUrl);
                                 }}
@@ -511,7 +501,7 @@ class AttachmentsPreview extends React.Component {
                           } else if (canDownload && showDownload) {
                             return (
                               <Button
-                                className="downloadBtn"
+                                type="primary"
                                 onClick={() => {
                                   window.open(previewUtil.getDownloadUrl(currentAttachment, this.props.extra));
                                 }}
@@ -545,16 +535,6 @@ class AttachmentsPreview extends React.Component {
             <ThumbnailGuide toggleThumbnail={this.toggleThumbnail} />
           )}
         </div>
-        {showAttInfo && (
-          <AttachmentInfo
-            toggleInfo={flag => {
-              this.setState({
-                attInfoFolded: !flag,
-              });
-            }}
-            visible={!this.state.attInfoFolded}
-          />
-        )}
       </div>
     );
   }
@@ -568,7 +548,6 @@ function mapStateToProps(state) {
     loading: state.loading,
     index: state.index,
     error: state.error,
-    showAttInfo: state.showAttInfo,
     previewService: state.previewService,
   };
 }

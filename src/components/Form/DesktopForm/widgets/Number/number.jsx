@@ -3,20 +3,88 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { InputNumber } from 'ming-ui/antd-components';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { accAdd, accDiv, accMul, accSub } from 'src/utils/common';
-import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
+import { accDiv, accMul } from 'src/utils/core/arithmetic';
+import { dealMaskValue } from 'src/utils/domain/control/mask';
+import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/domain/control/number';
 
 const NumWrap = styled.span`
-  ${props => (props.isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
+  ${props => (props.$isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
   position: relative;
   .maskIcon {
     right: 0px !important;
   }
 `;
 
-const inputAttribute = { inputmode: 'decimal' };
+const NumberInput = styled(InputNumber)`
+  &.customFormControlBox {
+    flex: 1;
+    width: 100%;
+    height: 36px;
+    padding: 0 0 0 12px !important;
+    border: 1px solid
+      ${props => (props.$isFormDetail ? 'var(--color-background-secondary)' : 'var(--color-border-primary)')} !important;
+    background: ${props =>
+      props.$isFormDetail ? 'var(--color-background-secondary)' : 'var(--color-background-input)'};
+    box-shadow: none;
+  }
+
+  .hap-input-number-input {
+    padding: 0;
+  }
+
+  .maskIcon {
+    position: static;
+    transform: none;
+  }
+
+  &.customFormControlBox:focus-within,
+  &.customFormControlBox:focus-within:hover {
+    border-color: var(--color-primary) !important;
+    background: ${props =>
+      props.$isFormDetail ? 'var(--color-background-primary)' : 'var(--color-background-input)'} !important;
+    box-shadow: none;
+  }
+`;
+
+const INPUT_NUMBER_BASE_STYLES = {
+  suffix: {
+    maxWidth: 80,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+};
+const DISABLED_ACTIONS_STYLE = { color: 'var(--color-text-disabled)', pointerEvents: 'none' };
+
+const getInputValueStyle = (value, advancedSetting) => {
+  if (!value && value !== 0) return { paddingInline: 0 };
+
+  const { valuecolor = 'var(--color-text-primary)', valuestyle = '0000' } = advancedSetting;
+  const [isBold, isItalic, isUnderline, isLineThrough] = valuestyle.split('');
+  const textDecorations = [Number(isUnderline) && 'underline', Number(isLineThrough) && 'line-through'].filter(Boolean);
+
+  return {
+    paddingInline: 0,
+    color: valuecolor,
+    fontWeight: Number(isBold) ? 'bold' : undefined,
+    fontStyle: Number(isItalic) ? 'italic' : undefined,
+    textDecoration: textDecorations.length ? textDecorations.join(' ') : undefined,
+  };
+};
+
+const sanitizeNumberValue = value =>
+  `${value ?? ''}`
+    .replace(/[^-\d.]/g, '')
+    .replace(/^\.$/g, '')
+    .replace(/^-/, '$#$')
+    .replace(/-/g, '')
+    .replace('$#$', '-')
+    .replace(/^-\./, '-')
+    .replace('.', '$#$')
+    .replace(/\./g, '')
+    .replace('$#$', '.');
 
 const NumberComp = props => {
   const {
@@ -36,20 +104,22 @@ const NumberComp = props => {
     handleMaskClick = () => {},
     showMaskValue = false,
     isMaskReadonly = false,
+    isFormDetail = false,
     formItemId,
     registerCell,
   } = props;
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [inputDraft, setInputDraft] = useState('');
   const [originValue, setOriginValue] = useState('');
 
   const numberRef = useRef(null);
+  const pendingStepValueRef = useRef(null);
 
   useEffect(() => {
     if (_.isFunction(registerCell)) {
       registerCell({
         handleFocus: () => {
-          setIsEditing(true);
           numberRef.current && numberRef.current.focus();
         },
         handleBlur: () => {
@@ -57,36 +127,26 @@ const NumberComp = props => {
         },
       });
     }
-  }, []);
+  }, [registerCell]);
 
-  const onFocus = e => {
-    setOriginValue(e.target.value.trim());
+  const onFocus = () => {
+    setOriginValue(`${inputValue || ''}`.trim());
+    setInputDraft(pendingStepValueRef.current ?? `${inputValue || ''}`);
+    pendingStepValueRef.current = null;
+    setIsFocused(true);
     if (_.isFunction(triggerCustomEvent)) {
       triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
     }
   };
 
-  const handleChange = (event, tempValue) => {
-    let value =
-      tempValue ||
-      event.target.value
-        .replace(/[^-\d.]/g, '')
-        .replace(/^\.$/g, '')
-        .replace(/^-/, '$#$')
-        .replace(/-/g, '')
-        .replace('$#$', '-')
-        .replace(/^-\./, '-')
-        .replace('.', '$#$')
-        .replace(/\./g, '')
-        .replace('$#$', '.');
+  const handleChange = inputValue => {
+    let value = sanitizeNumberValue(inputValue);
 
     if (value === '.') {
       value = '';
     }
 
-    if (numberRef.current) {
-      numberRef.current.value = value;
-    }
+    setInputDraft(value);
 
     if (advancedSetting.numshow === '1' && !isNaN(parseFloat(value))) {
       value = accDiv(parseFloat(value), 100);
@@ -97,7 +157,7 @@ const NumberComp = props => {
 
   const handleBlur = () => {
     let currentValue = value;
-    setIsEditing(false);
+    setIsFocused(false);
 
     if (currentValue === '-') {
       currentValue = '';
@@ -122,43 +182,6 @@ const NumberComp = props => {
     return val;
   };
 
-  const handleControl = action => {
-    const { numinterval = '1' } = advancedSetting;
-
-    if (!numinterval || disabled) return null;
-
-    let currentValue = value;
-
-    if (advancedSetting.numshow === '1' && !isNaN(parseFloat(currentValue))) {
-      currentValue = accMul(currentValue, 100);
-    }
-
-    if (action === 'add') {
-      currentValue = accAdd(parseFloat(currentValue || 0), parseFloat(numinterval));
-    } else {
-      currentValue = accSub(parseFloat(currentValue || 0), parseFloat(numinterval));
-    }
-
-    handleChange({}, `${currentValue}`);
-  };
-
-  const renderNumberControl = () => {
-    if (advancedSetting.showtype !== '3' || disabled) return null;
-
-    return (
-      <div className={cx('numberControlBox', { disabled: !advancedSetting.numinterval })}>
-        {['add', 'subtract'].map(item => {
-          return (
-            <div key={item} className="iconWrap" onClick={() => handleControl(item)}>
-              <i className={cx(item === 'add' ? 'icon-arrow-up' : 'icon-arrow-down')} />
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  let displayValue = value;
   const { thousandth, numshow, showtype, showformat, currency } = advancedSetting;
   let { prefix, suffix = unit } = advancedSetting;
 
@@ -169,15 +192,33 @@ const NumberComp = props => {
   }
 
   const isStepNumber = showtype === '3';
+  const inputValue = numshow === '1' && value ? accMul(value, 100) : value;
+  const numberInputValue = isFocused ? inputDraft : inputValue;
+  const hasValue = value !== '' && value !== null && value !== undefined;
+  const showPercentNextToValue = numshow === '1' && hasValue && !isFocused;
+  const inputSuffix = showPercentNextToValue ? '' : suffix;
+  const maskContent = !isFocused && renderMaskContent();
+  const inputValueStyle = isFocused ? { paddingInline: 0 } : getInputValueStyle(value, advancedSetting);
+  const affixValueStyle = _.omit(inputValueStyle, 'paddingInline');
+  const inputNumberStyles = {
+    ...INPUT_NUMBER_BASE_STYLES,
+    input: inputValueStyle,
+    prefix: affixValueStyle,
+    suffix: {
+      ...INPUT_NUMBER_BASE_STYLES.suffix,
+      ...affixValueStyle,
+      ...(inputSuffix && !isStepNumber ? { paddingInlineEnd: 12 } : {}),
+    },
+    ...(isStepNumber
+      ? {
+          suffix: { ...INPUT_NUMBER_BASE_STYLES.suffix, ...affixValueStyle, marginInlineEnd: 40 },
+          ...(!advancedSetting.numinterval ? { actions: DISABLED_ACTIONS_STYLE } : {}),
+        }
+      : {}),
+  };
 
-  if (numshow === '1' && displayValue) {
-    displayValue = accMul(displayValue, 100);
-  }
-
-  displayValue = getAutoValue(displayValue);
-
-  if (!isEditing) {
-    displayValue = displayValue || displayValue === 0 ? getAutoValue(toFixed(displayValue, dot)) : '';
+  const formatDisplayValue = currentValue => {
+    let displayValue = currentValue || currentValue === 0 ? getAutoValue(toFixed(currentValue, dot)) : '';
 
     // 数值、金额字段掩码时，不显示千分位
     if (showMaskValue && displayValue) {
@@ -191,16 +232,17 @@ const NumberComp = props => {
       }
     }
 
+    return displayValue;
+  };
+
+  if (disabled) {
+    const displayValue = formatDisplayValue(inputValue);
+
     return (
       <div className="flexCenter flexRow">
         <div
-          className={cx('customFormControlBox LineHeight36 flexRow flex classtabfocus', { controlDisabled: disabled })}
+          className="customFormControlBox LineHeight36 flexRow flex classtabfocus controlDisabled"
           data-instance-id={formItemId}
-          onClick={() => {
-            if (!disabled) {
-              setIsEditing(true);
-            }
-          }}
         >
           {!displayValue && prefix && (
             <div className="ellipsis Font13 mRight15" style={{ maxWidth: 80 }}>
@@ -209,7 +251,7 @@ const NumberComp = props => {
           )}
 
           <NumWrap
-            isMaskReadonly={isMaskReadonly}
+            $isMaskReadonly={isMaskReadonly}
             className={cx('ellipsis', {
               maskHoverTheme: isMaskReadonly,
               textDisabled: !displayValue,
@@ -228,55 +270,63 @@ const NumberComp = props => {
             </div>
           )}
         </div>
-        {renderNumberControl()}
       </div>
     );
   }
 
   return (
-    <div className="flexCenter flexRow">
-      <input
-        type="text"
-        {...inputAttribute}
-        className="customFormControlBox textPrimary flex"
-        style={{ paddingRight: suffix ? 32 : 12, paddingTop: 2 }}
-        ref={numberRef}
-        autoFocus
-        placeholder={hint}
-        disabled={disabled}
-        defaultValue={displayValue}
-        maxLength={16}
-        onFocus={onFocus}
-        onBlur={handleBlur}
-        onChange={handleChange}
-        onKeyDown={e => {
-          // 阻止默认的tab行为
-          if (e.key === 'Tab') {
-            e.preventDefault();
-            return;
-          }
+    <NumberInput
+      $isFormDetail={isFormDetail}
+      className={cx('customFormControlBox flexCenter flexRow classtabfocus', { controlDisabled: disabled })}
+      data-instance-id={formItemId}
+      onClick={() => !disabled && numberRef.current?.focus()}
+      styles={inputNumberStyles}
+      ref={numberRef}
+      value={numberInputValue}
+      placeholder={hint}
+      disabled={disabled}
+      stringMode
+      inputMode="decimal"
+      maxLength={16}
+      prefix={!isFocused && prefix ? prefix : undefined}
+      suffix={
+        inputSuffix || maskContent ? (
+          <span className="flexCenter">
+            {inputSuffix}
+            {maskContent}
+          </span>
+        ) : undefined
+      }
+      controls={isStepNumber}
+      keyboard={isStepNumber && !!advancedSetting.numinterval}
+      step={advancedSetting.numinterval || 0}
+      parser={sanitizeNumberValue}
+      formatter={(currentValue, { userTyping, input }) => {
+        if (userTyping) return sanitizeNumberValue(input);
+        if (isFocused) return `${currentValue ?? ''}`;
 
-          if (isStepNumber && _.includes([38, 40], e.keyCode)) {
-            e.preventDefault();
-            handleControl(e.keyCode === 38 ? 'add' : 'subtract');
-          }
-        }}
-      />
-      {suffix && (
-        <div
-          className="ellipsis textTertiary Font13"
-          style={{
-            maxWidth: 80,
-            position: 'absolute',
-            top: 10,
-            right: isStepNumber ? 36 + 13 : 13,
-          }}
-        >
-          {suffix}
-        </div>
-      )}
-      {renderNumberControl()}
-    </div>
+        const displayValue = formatDisplayValue(currentValue);
+        return showPercentNextToValue && displayValue && suffix ? `${displayValue}${suffix}` : displayValue;
+      }}
+      onChangeCapture={event => {
+        event.currentTarget.value = sanitizeNumberValue(event.currentTarget.value);
+      }}
+      changeOnBlur={false}
+      onFocus={onFocus}
+      onBlur={handleBlur}
+      onInput={handleChange}
+      onStep={nextValue => {
+        const nextInputValue = `${nextValue}`;
+        if (!isFocused) pendingStepValueRef.current = nextInputValue;
+        handleChange(nextInputValue);
+      }}
+      onKeyDown={e => {
+        // 阻止默认的tab行为
+        if (e.key === 'Tab') {
+          e.preventDefault();
+        }
+      }}
+    />
   );
 };
 
@@ -293,11 +343,36 @@ NumberComp.propTypes = {
   advancedSetting: PropTypes.object,
   otherSheetControlType: PropTypes.number,
   triggerCustomEvent: PropTypes.func,
+  showMaskValue: PropTypes.bool,
+  isMaskReadonly: PropTypes.bool,
+  isFormDetail: PropTypes.bool,
 };
 
 export default memo(NumberComp, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'showMaskValue', 'isMaskReadonly']),
-    _.pick(nextProps, ['value', 'disabled', 'showMaskValue', 'isMaskReadonly']),
+    _.pick(prevProps, [
+      'value',
+      'disabled',
+      'showMaskValue',
+      'isMaskReadonly',
+      'isFormDetail',
+      'advancedSetting',
+      'type',
+      'unit',
+      'enumDefault',
+      'otherSheetControlType',
+    ]),
+    _.pick(nextProps, [
+      'value',
+      'disabled',
+      'showMaskValue',
+      'isMaskReadonly',
+      'isFormDetail',
+      'advancedSetting',
+      'type',
+      'unit',
+      'enumDefault',
+      'otherSheetControlType',
+    ]),
   );
 });

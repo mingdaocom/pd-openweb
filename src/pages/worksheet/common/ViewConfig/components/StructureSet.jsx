@@ -1,10 +1,7 @@
 import React, { Fragment, useState } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown as MingDropdown, RadioGroup } from 'ming-ui';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
+import { Radio, Segmented, Select } from 'ming-ui/antd-components';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/index.jsx';
 import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
@@ -13,11 +10,17 @@ import {
   HIERARCHY_MIX_LEVEL,
   TREE_LINE_TYPE,
 } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
-import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { filterHidedControls, handleAdvancedSettingChange } from 'src/utils/control';
+import { VIEW_CONFIG_EXCLUDED_CONTROL_TYPES } from 'src/pages/worksheet/common/ViewConfig/config';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { filterHidedControls } from 'src/utils/domain/control/sort';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
 import HierarchyViewSetting from './hierarchyViewSetting';
 import StructureType from './StructureType';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
+const DEFAULT_LAYER_OPTIONS = ['1', '2', '3', '4', '5'];
 
 const Wrap = styled.div`
   .topShowCon {
@@ -35,16 +38,16 @@ const Wrap = styled.div`
   }
 `;
 
-const HierarchyViewConnectLineConfigWrap = styled(RadioGroup)`
-  .ming.Radio:first-child {
+const HierarchyViewConnectLineConfigWrap = styled(Radio.Group)`
+  .hap-radio-wrapper:first-child {
     margin-right: 60px;
   }
 `;
 
 const TOP_SHOW_OPTIONS = [
-  { text: _l('全部顶层'), value: '0' },
-  { text: _l('满足条件的项'), value: '3' },
-  { text: _l('指定项'), value: '2' },
+  { label: _l('全部顶层'), value: '0' },
+  { label: _l('满足条件的项'), value: '3' },
+  { label: _l('指定项'), value: '2' },
 ];
 
 export default function StructureSet(props) {
@@ -151,7 +154,7 @@ export default function StructureSet(props) {
   };
 
   const filteredColumns = filterHidedControls(columns, view.controls, false)
-    .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
+    .filter(c => !!c.controlName && !_.includes(VIEW_CONFIG_EXCLUDED_CONTROL_TYPES, c.type))
     .sort((a, b) => {
       if (a.row === b.row) {
         return a.col - b.col;
@@ -176,9 +179,11 @@ export default function StructureSet(props) {
           <span className="Font13 bold mRight60">{_l('连接线样式')}</span>
           <HierarchyViewConnectLineConfigWrap
             size="middle"
-            checkedValue={_.get(view, 'advancedSetting.hierarchyViewConnectLine') || '0'}
-            data={CONNECT_LINE_TYPE}
-            onChange={value => {
+            value={_.get(view, 'advancedSetting.hierarchyViewConnectLine') || '0'}
+            options={CONNECT_LINE_TYPE.map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
               if ((_.get(view, 'advancedSetting.hierarchyViewConnectLine') || '0') === value) {
                 return;
               }
@@ -199,12 +204,11 @@ export default function StructureSet(props) {
       {(_.get(view, 'advancedSetting.hierarchyViewType') || '0') === '2' && (
         <Fragment>
           <div className="title title Font13 bold mBottom8">{_l('竖向层级数')}</div>
-          <MingDropdown
-            className=""
-            data={HIERARCHY_MIX_LEVEL}
+          <Select
+            options={HIERARCHY_MIX_LEVEL}
+            fieldNames={SELECT_FIELD_NAMES}
             value={_.get(view, 'advancedSetting.minHierarchyLevel') || (isRelateMultiSheetHierarchyView ? '2' : '0')}
             style={{ width: '100%' }}
-            border
             onChange={value => {
               if (
                 (_.get(view, 'advancedSetting.minHierarchyLevel') || (isRelateMultiSheetHierarchyView ? '2' : '0')) ===
@@ -231,11 +235,10 @@ export default function StructureSet(props) {
         <React.Fragment>
           <div className="title Font13 mTop24 bold">{_l('开始层级')}</div>
           <div className="settingContent">
-            <MingDropdown
-              border
+            <Select
               className="topShowCon"
               value={_.get(view, 'advancedSetting.topshow') || '0'}
-              data={TOP_SHOW_OPTIONS}
+              options={TOP_SHOW_OPTIONS}
               onChange={value => {
                 // 满足条件的项
                 if (value === '3') {
@@ -294,9 +297,11 @@ export default function StructureSet(props) {
           <span className="Font13 bold mRight60">{_l('树样式')}</span>
           <HierarchyViewConnectLineConfigWrap
             size="middle"
-            checkedValue={_.get(view, 'advancedSetting.treestyle') || '1'}
-            data={TREE_LINE_TYPE}
-            onChange={value => {
+            value={_.get(view, 'advancedSetting.treestyle') || '1'}
+            options={TREE_LINE_TYPE.map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
               if ((_.get(view, 'advancedSetting.treestyle') || '1') === value) {
                 return;
               }
@@ -316,47 +321,28 @@ export default function StructureSet(props) {
       )}
       <React.Fragment>
         <div className="commonConfigItem Font13 mTop24 bold mTop4">{_l('默认展开层级')}</div>
-        <AnimationWrap className="mTop8">
-          {[
-            { text: 1, value: '1' },
-            { text: 2, value: '2' },
-            { text: 3, value: '3' },
-            { text: 4, value: '4' },
-            { text: 5, value: '5' },
-            // { text: _l('全部'), value: 'all' },
-          ].map(item => {
-            const defaultlayer = _.get(props, 'view.advancedSetting.defaultlayer') || '1';
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', {
-                  active: defaultlayer === item.value,
-                })}
-                onClick={() => {
-                  const { value } = item;
-
-                  if (defaultlayer !== value) {
-                    const { viewId } = view;
-                    const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
-                    const defaultlayertime = new Date().getTime();
-                    safeLocalStorageSetItem(
-                      `hierarchyConfig-${viewId}`,
-                      JSON.stringify({ ...config, level: Number(value), levelUpdateTime: defaultlayertime }),
-                    );
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      advancedSetting: { defaultlayer: value, defaultlayertime },
-                      editAdKeys: ['defaultlayer', 'defaultlayertime'],
-                      editAttrs: ['advancedSetting'],
-                    });
-                  }
-                }}
-              >
-                {item.text}
-              </div>
+        <Segmented
+          block
+          className="mTop8"
+          value={_.get(props, 'view.advancedSetting.defaultlayer') || '1'}
+          options={DEFAULT_LAYER_OPTIONS}
+          onChange={value => {
+            const { viewId } = view;
+            const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
+            const defaultlayertime = new Date().getTime();
+            safeLocalStorageSetItem(
+              `hierarchyConfig-${viewId}`,
+              JSON.stringify({ ...config, level: Number(value), levelUpdateTime: defaultlayertime }),
             );
-          })}
-        </AnimationWrap>
+            updateCurrentView({
+              ...view,
+              appId,
+              advancedSetting: { defaultlayer: value, defaultlayertime },
+              editAdKeys: ['defaultlayer', 'defaultlayertime'],
+              editAttrs: ['advancedSetting'],
+            });
+          }}
+        />
       </React.Fragment>
     </Wrap>
   );

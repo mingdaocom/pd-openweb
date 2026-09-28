@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon } from 'ming-ui';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getClassNameByExt } from 'src/utils/common';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
 import { FROM } from '../../../../core/config';
 import './style.less';
 
@@ -30,6 +31,7 @@ const relationDelArr = [
 
 const RelationList = props => {
   const { data, from, disabled, onDelete } = props;
+  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
 
   const handleLinkClick = (item, e) => {
     const { type } = item;
@@ -55,7 +57,7 @@ const RelationList = props => {
 
       const attachmentId = _.last((_.get(item, 'link') || '').split('/')) || '';
 
-      previewAttachments({
+      openPreviewAttachments({
         index: 0,
         attachments: [{ previewAttachmentType: 'KC_ID', refId: attachmentId }],
         showThumbnail: true,

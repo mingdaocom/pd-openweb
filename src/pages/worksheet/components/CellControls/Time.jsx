@@ -2,15 +2,31 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
+import { Popover } from 'ming-ui/antd-components';
 import ClickAway from 'ming-ui/components/ClickAway';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import TimePicker from 'src/components/Form/DesktopForm/widgets/Time';
-import { renderText } from 'src/utils/control';
+import { renderText } from 'src/utils/domain/control/display';
+import { WORKSHEETTABLE_FROM_MODULE } from 'src/utils/domain/worksheet/constants';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
 
 const ClickAwayable = ClickAway;
+const ERROR_POPOVER_STYLES = {
+  container: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+};
+const FIRST_ROW_ERROR_ALIGN = { offset: [0, -3] };
+const ERROR_ALIGN = { offset: [0, 0] };
+// 表格主体是 react-window 的 Grid（overflow: hidden + 固定高宽），面板挂进去会被裁剪且没有翻转空间，
+// 与日期单元格保持一致挂到 body
+const getBodyPopupContainer = () => document.body;
+// rc-picker 内置的浮层位置只有翻转（adjustX/adjustY），而翻转仅在「翻到另一侧可见面积更大」时生效，
+// 上下都放不下（如屏幕高度不足）时面板会被截断。补上 shiftY 让它贴着可视区边缘完整显示。
+// 只覆盖 overflow，points 和 offset 仍取 rc-picker 内置位置
+const PICKER_POPUP_ALIGN = { overflow: { adjustX: 1, adjustY: 1, shiftY: true } };
+
 export default class Date extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -109,50 +125,51 @@ export default class Date extends React.Component {
 
     return (
       <React.Fragment>
-        <Trigger
-          getPopupContainer={cellPopupContainer}
-          popupVisible={isediting && !!error}
-          popup={
-            <CellErrorTips
-              color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
-              error={error}
-              pos={rowIndex === 0 ? 'bottom' : 'top'}
-            />
-          }
-          destroyPopupOnHide
-          zIndex="1051"
-          popupAlign={{
-            points: rowIndex === 0 ? ['tl', 'bl'] : ['bl', 'tl'],
-            offset: rowIndex === 0 ? [0, -3] : [0, 0],
-          }}
+        <EditableCellCon
+          onClick={onClick}
+          className={cx(className, { canedit: editable })}
+          hideOutline
+          style={style}
+          iconRef={this.editIcon}
+          iconName="access_time"
+          iconClassName="dateEditIcon"
+          isediting={isediting}
+          onIconClick={() => updateEditingStatus(true)}
         >
-          <EditableCellCon
-            onClick={onClick}
-            className={cx(className, { canedit: editable })}
-            hideOutline
-            style={style}
-            iconRef={this.editIcon}
-            iconName="access_time"
-            iconClassName="dateEditIcon"
-            isediting={isediting}
-            onIconClick={() => updateEditingStatus(true)}
+          <Popover
+            align={rowIndex === 0 ? FIRST_ROW_ERROR_ALIGN : ERROR_ALIGN}
+            content={
+              <CellErrorTips
+                color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
+                error={error}
+                pos={rowIndex === 0 ? 'bottom' : 'top'}
+              />
+            }
+            getPopupContainer={cellPopupContainer}
+            open={isediting && !!error}
+            placement={rowIndex === 0 ? 'bottomLeft' : 'topLeft'}
+            noPadding
+            styles={ERROR_POPOVER_STYLES}
+            trigger={[]}
           >
-            {!!value && (
+            {value ? (
               <div
                 className={cx('worksheetCellPureString userSelectNone ellipsis', { linelimit: needLineLimit })}
                 title={renderText({ ...cell, value })}
               >
                 {renderText({ ...cell, value })}
               </div>
+            ) : (
+              <div className="w100 h100" />
             )}
-            {isediting && error && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
-          </EditableCellCon>
-        </Trigger>
+          </Popover>
+          {isediting && error && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
+        </EditableCellCon>
         {isediting && (
           <ClickAwayable
             onClickAwayExceptions={[
               this.editIcon && this.editIcon.current,
-              '.ant-picker-dropdown',
+              '.hap-picker-dropdown',
               '.cellControlDatePicker',
             ]}
             onClickAway={() => updateEditingStatus(false)}
@@ -163,11 +180,14 @@ export default class Date extends React.Component {
                   {...cell}
                   formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
                   value={value}
+                  dropdownClassName="scrollInTable"
                   onChange={this.handleChange}
                   compProps={{
                     autoFocus: true,
                     open: isediting,
-                    getPopupContainer: cellPopupContainer,
+                    isCell: true,
+                    getPopupContainer: getBodyPopupContainer,
+                    popupAlign: PICKER_POPUP_ALIGN,
                   }}
                 />
               </div>

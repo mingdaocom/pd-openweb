@@ -1,12 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 
-const PayDialogWrap = styled(Dialog)`
-  .mui-dialog-header {
-    padding: 0;
-  }
+const PayDialogWrap = styled(Modal)`
   .confirmBtn {
     padding: 3px 10px;
     border: 0;
@@ -27,7 +24,7 @@ const PayDialogWrap = styled(Dialog)`
 function PayDialog(props) {
   const { url, onCancel = () => {} } = props;
   return (
-    <PayDialogWrap title="" visible onCancel={onCancel} showFooter={false}>
+    <PayDialogWrap open mask={{ closable: true }} keyboard footer={null} onCancel={onCancel}>
       <div className="BorderBottom borderTertiary LineHeight40 TxtCenter Font16">{_l('付款是否成功？')}</div>
       <div className="mTop20 Font16 textPrimary mBottom10">{_l('付款是否成功？')}</div>
       <div className="LineHeight30">{_l('我们将在收到款项后的15分钟内为您完成操作')}</div>

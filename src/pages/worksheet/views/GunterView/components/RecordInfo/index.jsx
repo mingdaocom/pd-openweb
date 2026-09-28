@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const isMobile = browserIsMobile();
 let RecordInfo = class RecordInfo extends Component {

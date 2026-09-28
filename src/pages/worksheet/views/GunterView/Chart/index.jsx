@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Skeleton } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Skeleton } from 'ming-ui/antd-components';
+import { filterButtonBySheetSwitchPermit } from 'worksheet/common/filterButtonBySheetSwitchPermit';
 import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
@@ -12,11 +14,8 @@ import {
   setChartScrollLock,
   setGroupingScrollLock,
 } from 'worksheet/views/GunterView/scrollState';
-import {
-  filterButtonBySheetSwitchPermit,
-  getSheetOperateButtonIds,
-  getSheetOperatesButtons,
-} from 'src/utils/worksheet';
+import { getGunterVisibleRange, isSameGunterVisibleRange } from 'worksheet/views/GunterView/virtual';
+import { getSheetOperateButtonIds, getSheetOperatesButtons } from 'src/utils/domain/worksheet/helpers';
 import Header from './components/Header';
 import SpeedCreateTime from './components/SpeedCreateTime';
 import TimeBlock from './components/TimeBlock';
@@ -26,14 +25,15 @@ import ToolBar from './components/ToolBar';
 import './index.less';
 
 const isGunterExport = location.href.includes('gunterExport');
-
 class GunterChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: false,
+      visibleRange: getGunterVisibleRange(null, props.gunterView.grouping),
     };
     this.$ref = createRef(null);
+    this.debounceUpdateVisibleRange = _.debounce(() => this.updateVisibleRange(), 100);
   }
   componentDidMount() {
     const { isMobile } = this.props;
@@ -50,7 +50,6 @@ class GunterChart extends Component {
       interactiveScrollbars: true,
       probeType: 2,
     });
-
     if (!isGunterExport) {
       setChartScrollLock(true);
       scroll.on('scroll', this.handleScroll);
@@ -64,14 +63,13 @@ class GunterChart extends Component {
         setGroupingScrollLock(true);
       });
     }
-
     if (window.isWindows) {
       window.addEventListener('wheel', this.handleWheel);
     }
-
     this.props.updateChartScroll(scroll);
+    this.updateVisibleRange(scroll);
+    window.addEventListener('resize', this.debounceUpdateVisibleRange);
   }
-
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
       if (this.props.gunterView.zoom !== prevProps.gunterView.zoom) {
@@ -82,15 +80,12 @@ class GunterChart extends Component {
         const diff = oldWidth - newWidth;
         chartScroll.refresh();
         chartScroll.scrollTo(chartScroll.x + diff / 2, chartScroll.y);
-
         chartScroll._execEvent('scroll');
-
         setTimeout(() => {
           chartScroll._execEvent('scroll');
         }, 0);
         return;
       }
-
       if (
         this.props.gunterView.periodType !== prevProps.gunterView.periodType ||
         this.props.gunterView.loading !== prevProps.gunterView.loading ||
@@ -101,28 +96,22 @@ class GunterChart extends Component {
           const { chartScroll } = this.props.gunterView;
           chartScroll.refresh();
           chartScroll.scrollTo(isGunterExport ? 0 : chartScroll.maxScrollX / 2, chartScroll.y);
-
           chartScroll._execEvent('scroll');
         }, 0);
         this.headerEl = null;
         this.timeDotWrapperEl = null;
       }
-
       if (this.props.gunterView.groupingVisible !== prevProps.gunterView.groupingVisible) {
         const { chartScroll, groupingScroll } = this.props.gunterView;
         chartScroll.refresh();
-
         chartScroll._execEvent('scroll');
-
         if (this.props.gunterView.groupingVisible) {
           setTimeout(() => {
             const controlHeader = document.querySelector(
               `.gunterView-${this.props.base.viewId} .groupingControlHeader`,
             );
             groupingScroll.refresh();
-
             groupingScroll._execEvent('scroll');
-
             if (controlHeader) {
               controlHeader.style.width = `${groupingScroll.scrollerWidth}px`;
               controlHeader.classList.remove('hide');
@@ -130,21 +119,38 @@ class GunterChart extends Component {
           }, 0);
         }
       }
+      if (
+        this.props.gunterView.grouping !== prevProps.gunterView.grouping ||
+        this.props.gunterView.loading !== prevProps.gunterView.loading
+      ) {
+        setTimeout(() => {
+          this.updateVisibleRange();
+        }, 0);
+      }
     }
   }
   componentWillUnmount() {
     const { chartScroll } = this.props.gunterView;
-
     if (chartScroll) {
       chartScroll.off('scroll', this.handleScroll);
       chartScroll.off('scroll', this.linkageScroll);
       chartScroll.destroy && chartScroll.destroy();
     }
-
     if (window.isWindows) {
       window.removeEventListener('wheel', this.handleWheel);
     }
+    window.removeEventListener('resize', this.debounceUpdateVisibleRange);
+    this.debounceUpdateVisibleRange.cancel && this.debounceUpdateVisibleRange.cancel();
   }
+  updateVisibleRange = scroll => {
+    const { gunterView } = this.props;
+    const visibleRange = getGunterVisibleRange(scroll || gunterView.chartScroll, gunterView.grouping);
+    if (!isSameGunterVisibleRange(this.state.visibleRange, visibleRange)) {
+      this.setState({
+        visibleRange,
+      });
+    }
+  };
   setScrollValue = value => {
     const { chartScroll } = this.props.gunterView;
     chartScroll.scrollTo(chartScroll.x + value, chartScroll.y);
@@ -157,11 +163,10 @@ class GunterChart extends Component {
     const movePeriodCount = periodCount / 2;
     const scrollLeft = Math.abs(chartScroll.x);
     const boundary = (10 / 100) * screen.width;
-
     if (!chartScroll.enabled || !periodList.length) {
       return;
     }
-
+    this.updateVisibleRange(chartScroll);
     if (boundary >= scrollLeft && loading) {
       this.props.loadLeftPeriodList();
       this.setState(
@@ -179,7 +184,6 @@ class GunterChart extends Component {
       );
       return;
     }
-
     if (scrollLeft >= chartScroll.scrollerWidth - chartScroll.wrapperWidth - boundary && loading) {
       this.props.loadRightPeriodList();
       this.setState(
@@ -197,33 +201,26 @@ class GunterChart extends Component {
       );
       return;
     }
-
     if (!loading) {
       this.setState({
         loading: true,
       });
     }
-
     const { viewId } = this.props.base;
-
     if (!this.headerEl) {
       this.headerEl = document.querySelector(`.gunterView-${viewId} .gunterChartHeader .headerScroll`);
     }
-
     if (!this.timeDotWrapperEl) {
       this.timeDotWrapperEl = document.querySelector(`.gunterView-${viewId} .gunterChart .timeDotWrapper`);
     }
-
     this.headerEl && (this.headerEl.style.transform = `translateX(${chartScroll.x}px)`);
     this.timeDotWrapperEl && (this.timeDotWrapperEl.style.transform = `translateY(${chartScroll.y}px)`);
   };
   linkageScroll = () => {
     const { groupingScroll, chartScroll } = this.props.gunterView;
-
     if (isGroupingScrollLocked()) {
       return;
     }
-
     if (groupingScroll) {
       groupingScroll.scrollTo(groupingScroll.x, chartScroll.y);
       groupingScroll._execEvent('scroll');
@@ -234,7 +231,6 @@ class GunterChart extends Component {
   };
   handleWheel = e => {
     const { chartScroll } = this.props.gunterView;
-
     if (e.shiftKey) {
       if (e.deltaY >= 0) {
         chartScroll.scrollTo(chartScroll.x - 30, chartScroll.y);
@@ -246,10 +242,11 @@ class GunterChart extends Component {
   renderContent() {
     const { gunterView, buttonsCheckStatus } = this.props;
     const { withoutArrangementVisible } = gunterView;
+    const { visibleRange } = this.state;
     return (
       <div className="Relative">
         <TimeCanvas />
-        <TimeBlock buttonsCheckStatus={buttonsCheckStatus} />
+        <TimeBlock buttonsCheckStatus={buttonsCheckStatus} visibleRange={isGunterExport ? undefined : visibleRange} />
         {withoutArrangementVisible && <SpeedCreateTime />}
       </div>
     );
@@ -258,25 +255,37 @@ class GunterChart extends Component {
     return (
       <div className="Relative w100">
         <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['30%', '40%', '90%', '60%']}
+          className="pAll20 pBottom0"
+          style={{
+            flex: 1,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['30%', '40%', '90%', '60%'],
+          }}
         />
         <Skeleton
-          style={{ flex: 1 }}
-          direction="column"
-          widths={['40%', '55%', '100%', '80%']}
+          className="pAll20 pBottom0"
+          style={{
+            flex: 1,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['40%', '55%', '100%', '80%'],
+          }}
         />
         <Skeleton
-          style={{ flex: 2 }}
-          direction="column"
-          widths={['45%', '100%', '100%', '100%']}
+          className="pAll20"
+          style={{
+            flex: 2,
+          }}
           active
-          itemStyle={{ marginBottom: '10px' }}
+          paragraph={{
+            rows: 4,
+            width: ['45%', '100%', '100%', '100%'],
+          }}
         />
       </div>
     );
@@ -289,7 +298,13 @@ class GunterChart extends Component {
         <Header />
         <div className="flex Relative overflowHidden">
           <div className="gunterChartWrapper" ref={this.$ref}>
-            <div className={cx('gunterChartScroller', { w100: loading })}>{!loading && this.renderContent()}</div>
+            <div
+              className={cx('gunterChartScroller', {
+                w100: loading,
+              })}
+            >
+              {!loading && this.renderContent()}
+            </div>
           </div>
           {loading && this.renderLoading()}
           {!loading && (
@@ -300,7 +315,9 @@ class GunterChart extends Component {
           )}
           {!isMobile && (
             <div
-              className={cx('gunterDivider valignWrapper pointer', { hideGrouping: !groupingVisible })}
+              className={cx('gunterDivider valignWrapper pointer', {
+                hideGrouping: !groupingVisible,
+              })}
               onClick={this.handleUpdateGroupingVisible}
               onMouseOver={() => {
                 if (!groupingVisible) return;
@@ -321,14 +338,12 @@ class GunterChart extends Component {
     );
   }
 }
-
 function GunterChartContainer(props) {
   const { gunterView, base, worksheetInfo, views, sheetButtons, printList, sheetSwitchPermit, ...rest } = props;
   const { viewId } = base;
   const { worksheetId } = worksheetInfo;
-  const currentView = views.find(o => o.viewId === viewId) || {};
-  const grouping = gunterView.grouping || [];
-
+  const currentView = useMemo(() => views.find(o => o.viewId === viewId) || {}, [views, viewId]);
+  const grouping = useMemo(() => gunterView.grouping || [], [gunterView.grouping]);
   const allRecordIds = useMemo(() => {
     const ids = [];
     grouping.forEach(group => {
@@ -340,20 +355,18 @@ function GunterChartContainer(props) {
     });
     return _.uniq(ids);
   }, [grouping]);
-
   const operateButtons = useMemo(() => {
-    let buttons = getSheetOperatesButtons(currentView, { buttons: sheetButtons, printList });
+    let buttons = getSheetOperatesButtons(currentView, {
+      buttons: sheetButtons,
+      printList,
+    });
     buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId);
     return buttons;
   }, [currentView, sheetButtons, printList, sheetSwitchPermit, viewId]);
-
   const btnIds = useMemo(() => getSheetOperateButtonIds(operateButtons), [operateButtons]);
-
   const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
-
   return <GunterChart {...rest} gunterView={gunterView} base={base} buttonsCheckStatus={buttonsCheckStatus} />;
 }
-
 export default connect(
   state => ({
     gunterView: state.sheet.gunterView,

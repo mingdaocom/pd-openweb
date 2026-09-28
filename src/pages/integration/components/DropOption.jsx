@@ -1,134 +1,83 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Menu, MenuItem } from 'ming-ui';
-
-const MenuWrap = styled(Menu)`
-  position: relative !important;
-  padding: 6px 0 !important;
-  width: 200px !important;
-  .ming.MenuItem .Item-content {
-    overflow: initial;
-    position: relative;
-  }
-  .ming.MenuItem {
-    z-index: 1;
-  }
-  .GroupTypeMenuWrap {
-    position: absolute;
-    left: 100%;
-    width: 160px;
-    bottom: 0;
-    background: var(--color-background-primary);
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.25) !important;
-    opacity: 1;
-    border-radius: 3px;
-    padding: 6px 0;
-    border-right: none;
-    li {
-      height: 36px;
-      line-height: 36px;
-      padding: 0 16px;
-      &:hover {
-        background: var(--color-background-secondary);
-        color: var(--color-primary);
-      }
-    }
-  }
-  .bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 0;
-  }
-  .textSecondary {
-    color: var(--color-text-secondary);
-  }
-`;
+import { Dropdown } from 'ming-ui/antd-components';
 
 export default function DropOption(props) {
   const { forGroup } = props;
   const [{ popupVisible }, setState] = useSetState({
     popupVisible: props.popupVisible,
   });
+  const getItem = ({ text, value, disabled, getTime = () => {} }) => ({
+    key: value,
+    disabled,
+    label: (
+      <div className="flexRow">
+        <span className="viewName flex">{text}</span>
+        {forGroup && <span className="textSecondary">{getTime()}</span>}
+      </div>
+    ),
+    onClick: () => {
+      if (value !== props.value) {
+        props.handleChangeType(value);
+      }
+
+      setState({ popupVisible: false });
+    },
+  });
+  const menuItems = [];
+
+  if (forGroup) {
+    const firstCollectionIndex = props.list.findIndex(item => ['TIME', 'CUR_MINUTE'].includes(item.value));
+    const splitIndex = firstCollectionIndex === -1 ? props.list.length - 1 : firstCollectionIndex;
+    menuItems.push({
+      key: 'time',
+      type: 'group',
+      label: _l('时间'),
+      children: props.list.slice(0, splitIndex + 1).map(getItem),
+    });
+    menuItems.push({
+      key: 'collection',
+      type: 'group',
+      label: _l('集合'),
+      children: props.list.slice(splitIndex + 1).map(getItem),
+    });
+  } else {
+    menuItems.push(...props.list.map(getItem));
+  }
+
+  menuItems.push(
+    { key: 'renameDivider', type: 'divider' },
+    {
+      key: 'rename',
+      label: _l('重命名'),
+      onClick: ({ domEvent }) => {
+        props.handleOpenChangeName();
+        setState({ popupVisible: false });
+        domEvent.stopPropagation();
+      },
+    },
+  );
+
   return (
-    <Trigger
-      action={['click']}
-      popupClassName="moOption"
+    <Dropdown
+      trigger={['click']}
+      placement={forGroup ? 'topRight' : 'bottomRight'}
       getPopupContainer={() => document.body}
-      popupVisible={popupVisible}
-      zIndex={1000}
-      onPopupVisibleChange={popupVisible => {
-        if (!props.value && !popupVisible) {
+      open={popupVisible}
+      onOpenChange={(popupVisible, { source }) => {
+        if (!props.value && !popupVisible && source !== 'menu') {
           return alert(_l('请选择类型'), 3);
         }
 
         setState({ popupVisible });
       }}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: forGroup ? [0, -100] : [0, 10],
-        overflow: { adjustX: true, adjustY: true },
+      menu={{
+        items: menuItems,
+        selectedKeys: [props.value],
+        style: { width: 200 },
       }}
-      popup={
-        <MenuWrap>
-          {!props.value && (
-            <div
-              className="bg"
-              onClick={() => {
-                return alert(_l('请选择类型'), 3);
-              }}
-            ></div>
-          )}
-          {props.list.map(({ text, value, disabled, getTime = () => {} }, i) => (
-            <React.Fragment>
-              {forGroup && i === 0 && <div className="textSecondary mLeft12 LineHeight36">{_l('时间')}</div>}
-              <MenuItem
-                key={value}
-                className={cx({ cur: value === props.value })}
-                onClick={() => {
-                  if (value !== props.value) {
-                    props.handleChangeType(value);
-                  }
-
-                  setState({ popupVisible: false });
-                }}
-                disabled={disabled}
-              >
-                <div className="flexRow">
-                  <span className="viewName flex">{text}</span>
-                  {forGroup && <span className="textSecondary">{getTime()}</span>}
-                </div>
-              </MenuItem>
-              {forGroup && ['TIME', 'CUR_MINUTE'].includes(value) && (
-                <React.Fragment>
-                  <div
-                    className="mTop3 mBottom3"
-                    style={{ borderBottom: '1px solid var(--color-border-secondary)' }}
-                  ></div>
-                  <div className="textSecondary mLeft12 LineHeight36">{_l('集合')}</div>
-                </React.Fragment>
-              )}
-            </React.Fragment>
-          ))}
-          <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid var(--color-border-secondary)' }}></div>
-          <MenuItem
-            onClick={e => {
-              props.handleOpenChangeName();
-              setState({ popupVisible: false });
-              e.stopPropagation();
-            }}
-          >
-            {_l('重命名')}
-          </MenuItem>
-        </MenuWrap>
-      }
     >
       <i className="icon icon-expand_more InlineBlock Hand Font16 mLeft10"></i>
-    </Trigger>
+    </Dropdown>
   );
 }

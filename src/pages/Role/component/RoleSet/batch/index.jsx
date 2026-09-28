@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import { Checkbox, List, Modal, Radio } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, Radio as MDRadio, SvgIcon, Switch } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Button, Checkbox, Listy, Modal, Radio, Switch, Tooltip } from 'ming-ui/antd-components';
 import delPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/del.png';
 import editPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/edit.png';
 import lookPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/look.png';
@@ -26,6 +25,13 @@ const optionsList = [
   { label: _l('修改'), value: 'modify' },
   { label: _l('清空'), value: 'clear' },
 ];
+
+const WORKSHEET_LIST_STYLES = {
+  root: { overflow: 'auto', paddingBottom: 8 },
+  item: { padding: '8px 0 0', borderBottom: 'none', width: '100%', overflowX: 'hidden' },
+};
+
+const renderWorksheetItem = item => <span className="flexRow w100"> {item.label}</span>;
 
 export default function (props) {
   const { onClose, show, sheets, isForPortal, onOk } = props;
@@ -83,9 +89,9 @@ export default function (props) {
         >
           {_l('全选')}
         </Checkbox>
-        <List
+        <Listy
           className="flex w100"
-          dataSource={sheets.map(o => {
+          items={sheets.map(o => {
             return {
               key: o.sheetId,
               label: (
@@ -112,11 +118,10 @@ export default function (props) {
               ),
             };
           })}
-          renderItem={item => (
-            <List.Item>
-              <span className="flexRow w100"> {item.label}</span>
-            </List.Item>
-          )}
+          rowKey="key"
+          styles={WORKSHEET_LIST_STYLES}
+          virtual={false}
+          itemRender={renderWorksheetItem}
         />
       </div>
     );
@@ -201,9 +206,13 @@ export default function (props) {
             size="small"
             className="InlineBlock "
             checked={sheet[`${type}Level`] === 30}
-            onClick={() => {
+            onClick={(checked, event) => {
+              event.stopPropagation();
               setState({
-                sheet: { ...sheet, [`${type}Level`]: sheet[`${type}Level`] === 30 ? 20 : 30 },
+                sheet: {
+                  ...sheet,
+                  [`${type}Level`]: sheet[`${type}Level`] === 30 ? 20 : 30,
+                },
               });
             }}
           />
@@ -241,11 +250,10 @@ export default function (props) {
           <div className="conRadioGroup">
             <div className="flexRow alignItemsCenter">
               {(type === 'read' ? dataPermissionOptions : operationPermissionOptions).map(option => (
-                <MDRadio
+                <Radio
                   className="InlineFlex cascaderRadio textPrimary"
-                  text={option.label}
                   checked={option.value === value}
-                  onClick={() => {
+                  onChange={() => {
                     if (option.value === value) {
                       setState({
                         sheet: {
@@ -263,7 +271,10 @@ export default function (props) {
                       },
                     });
                   }}
-                />
+                  title={option.label}
+                >
+                  {option.label}
+                </Radio>
               ))}
             </div>
             {[20, 30].includes(sheet[`${type}Level`]) && !isForPortal && otherSet(type)}
@@ -297,7 +308,6 @@ export default function (props) {
         <div className="radioCon">
           <div className="conRadioGroup conRadioGroupForBtn">
             <Radio.Group
-              block
               buttonStyle="solid"
               optionType="button"
               value={key || 'modify'}
@@ -314,7 +324,7 @@ export default function (props) {
               }}
             >
               {optionsList.map(option => (
-                <Radio.Button key={option.value} block value={option.value} optionType="button">
+                <Radio.Button key={option.value} value={option.value} optionType="button">
                   {option.label}
                 </Radio.Button>
               ))}
@@ -326,15 +336,82 @@ export default function (props) {
     );
   };
 
+  const handleOk = () => {
+    const hasSetSheet = hasSet(sheetActionLists, worksheet);
+    const hasSetRecord = hasSet(recordActionLists, record);
+
+    if (
+      !hasSetSheet &&
+      !hasSetRecord &&
+      (sheet.lookLevel === 0 || !sheet.lookLevel) &&
+      (sheet.editLevel === 0 || !sheet.editLevel) &&
+      (sheet.removeLevel === 0 || !sheet.removeLevel)
+    ) {
+      alert(_l('请设置修改的权限项'), 3);
+      return;
+    }
+
+    if (checkedWorksheets.length <= 0) {
+      alert(_l('请选择工作表'), 3);
+      return;
+    }
+
+    let info = sheet;
+
+    if (sheet.lookLevel === 0 || !sheet.lookLevel) {
+      info = _.omit(info, ['lookLevel']);
+    }
+
+    if (sheet.editLevel === 0 || !sheet.editLevel) {
+      info = _.omit(info, ['editLevel']);
+    }
+
+    if (sheet.removeLevel === 0 || !sheet.removeLevel) {
+      info = _.omit(info, ['removeLevel']);
+    }
+
+    if (!hasSetSheet) {
+      info = _.omit(
+        info,
+        sheetActionLists.map(o => o.key),
+      );
+    }
+
+    if (!hasSetRecord) {
+      info = _.omit(
+        info,
+        recordActionLists.map(o => o.key),
+      );
+    }
+
+    const newData = sheets
+      .filter(o => checkedWorksheets.includes(o.sheetId))
+      .map(o => {
+        return { ...o, ...info };
+      });
+    onOk(newData);
+    alert(_l('批量修改成功，保存后生效'));
+  };
+
   return (
     <Modal
       className="roleBatchSetDialog"
-      visible={show}
-      onCancel={onClose}
+      open={show}
       title={_l('批量设置数据操作权限')}
       footer={null}
-      width={1000}
-      bodyStyle={{ overflow: 'hidden', height: '720px', padding: 0 }} // 设置弹层主体高度
+      width={1000} // 设置弹层主体高度
+      styles={{
+        header: {
+          marginBottom: 0,
+          padding: '16px 24px',
+          borderBottom: '1px solid var(--color-border-secondary)',
+        },
+        body: { overflow: 'hidden', padding: 0 },
+        container: { height: 720, maxHeight: 'calc(100vh - 64px)', padding: 0 },
+      }}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onClose}
     >
       <Wrap className="flexRow h100">
         <div className="sideNav flexColumn h100">{worksheets()}</div>
@@ -349,67 +426,11 @@ export default function (props) {
             {renderPermissionSection('worksheet')}
             {renderPermissionSection('record')}
           </div>
-          <div className="footer pAll10 flexRow justifyContentRight pRight20">
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => {
-                const hasSetSheet = hasSet(sheetActionLists, worksheet);
-                const hasSetRecord = hasSet(recordActionLists, record);
-
-                if (
-                  !hasSetSheet &&
-                  !hasSetRecord &&
-                  (sheet.lookLevel === 0 || !sheet.lookLevel) &&
-                  (sheet.editLevel === 0 || !sheet.editLevel) &&
-                  (sheet.removeLevel === 0 || !sheet.removeLevel)
-                ) {
-                  alert(_l('请设置修改的权限项'), 3);
-                  return;
-                }
-
-                if (checkedWorksheets.length <= 0) {
-                  alert(_l('请选择工作表'), 3);
-                  return;
-                }
-
-                let info = sheet;
-
-                if (sheet.lookLevel === 0 || !sheet.lookLevel) {
-                  info = _.omit(info, ['lookLevel']);
-                }
-
-                if (sheet.editLevel === 0 || !sheet.editLevel) {
-                  info = _.omit(info, ['editLevel']);
-                }
-
-                if (sheet.removeLevel === 0 || !sheet.removeLevel) {
-                  info = _.omit(info, ['removeLevel']);
-                }
-
-                if (!hasSetSheet) {
-                  info = _.omit(
-                    info,
-                    sheetActionLists.map(o => o.key),
-                  );
-                }
-
-                if (!hasSetRecord) {
-                  info = _.omit(
-                    info,
-                    recordActionLists.map(o => o.key),
-                  );
-                }
-
-                const newData = sheets
-                  .filter(o => checkedWorksheets.includes(o.sheetId))
-                  .map(o => {
-                    return { ...o, ...info };
-                  });
-                onOk(newData);
-                alert(_l('批量修改成功，保存后生效'));
-              }}
-            >
+          <div
+            className="footer pAll10 flexRow justifyContentRight pRight20"
+            style={{ borderTop: '1px solid var(--color-border-secondary)' }}
+          >
+            <Button key="submit" type="primary" onClick={handleOk}>
               {_l('修改')}
             </Button>
           </div>

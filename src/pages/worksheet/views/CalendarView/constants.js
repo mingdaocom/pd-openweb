@@ -1,3 +1,16 @@
+import moment from 'moment';
+import { getWeekNumber } from 'src/utils/core/date';
+
+const formatWeekTitle = ({ start, end }, weekBegin) => {
+  const firstDay = moment([start.year, start.month, start.day]);
+  const lastDay = end ? moment([end.year, end.month, end.day]) : firstDay;
+  const sameYear = firstDay.isSame(lastDay, 'year');
+  const sameMonth = firstDay.isSame(lastDay, 'month');
+  const endFormat = sameMonth ? 'DD' : sameYear ? 'MM/DD' : 'YYYY/MM/DD';
+
+  return `${firstDay.format('YYYY/MM/DD')} - ${lastDay.format(endFormat)} ${_l('第%0周', getWeekNumber(firstDay.format('YYYY-MM-DD'), weekBegin))}`;
+};
+
 export const TAB_LIST = [
   { key: 'eventAll', txt: _l('全部') },
   { key: 'eventScheduled', txt: _l('已排期') },
@@ -11,17 +24,11 @@ export const CALENDAR_BUTTON_TEXT = {
   day: _l('天'),
 };
 
-export const CALENDAR_VIEW_FORMATS = {
+const CALENDAR_VIEW_FORMATS = {
   dayGridMonth: {
     titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
   },
-  timeGridWeek: {
-    titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-  },
   timeGridDay: {
-    titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-  },
-  dayGridWeek: {
     titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
   },
   dayGridDay: {
@@ -29,10 +36,16 @@ export const CALENDAR_VIEW_FORMATS = {
   },
 };
 
-export const DEFAULT_COLOR = 'var(--color-primary-transparent)';
-export const DEFAULT_BORDER_COLOR_DARK = 'rgba(255, 255, 255, 0.12)';
-export const DEFAULT_BORDER_COLOR_LIGHT = 'rgba(0, 0, 0, 0.12)';
-export const DEFAULT_TEXT_COLOR = 'var(--color-text-primary)';
+const calendarViewFormatsByWeekBegin = Array.from({ length: 7 }, (_, weekBegin) => {
+  const titleFormat = dateInfo => formatWeekTitle(dateInfo, weekBegin);
+  return {
+    ...CALENDAR_VIEW_FORMATS,
+    timeGridWeek: { titleFormat },
+    dayGridWeek: { titleFormat },
+  };
+});
+
+export const getCalendarViewFormats = (weekBegin = 1) => calendarViewFormatsByWeekBegin[weekBegin];
 
 export const EVENT_TAB_KEY_BY_INDEX = {
   0: 'eventAll', //全部

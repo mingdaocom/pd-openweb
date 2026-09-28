@@ -4,8 +4,8 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   position: relative;
-  width: ${props => props.width};
-  height: ${props => props.height}px;
+  width: ${props => props.$width};
+  height: ${props => props.$height}px;
 `;
 
 const BackgroundLayer = styled.div`
@@ -14,7 +14,7 @@ const BackgroundLayer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: ${props => props.bgPattern};
+  background-image: ${props => props.$bgPattern};
   background-repeat: repeat-x;
   background-position: left center;
 `;
@@ -25,10 +25,10 @@ const ForegroundLayer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: ${props => props.fillPattern};
+  background-image: ${props => props.$fillPattern};
   background-repeat: repeat-x;
   background-position: left center;
-  width: ${props => Math.max(0, Math.min(100, props.progress))}%;
+  width: ${props => Math.max(0, Math.min(100, props.$progress))}%;
   transition: all 0.3s ease-out;
 `;
 
@@ -58,12 +58,12 @@ export default function VolumeBar({
   const fillPattern = createSVGPattern(fillColor);
 
   return (
-    <Container width={width} height={height} className={className}>
+    <Container $width={width} $height={height} className={className}>
       {/* 背景层 */}
-      <BackgroundLayer bgPattern={bgPattern} />
+      <BackgroundLayer $bgPattern={bgPattern} />
 
       {/* 前景层 */}
-      <ForegroundLayer fillPattern={fillPattern} progress={progress} />
+      <ForegroundLayer $fillPattern={fillPattern} $progress={progress} />
     </Container>
   );
 }

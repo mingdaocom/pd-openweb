@@ -3,9 +3,9 @@ import { bool, node, number, shape } from 'prop-types';
 import styled from 'styled-components';
 
 const Con = styled.div`
-  ${({ animateOffset = 63, duration }) => `
-  transform: translateY(-${animateOffset}px);
-  transition: transform ${duration}ms ease;
+  ${({ $animateOffset = 63, $duration }) => `
+  transform: translateY(-${$animateOffset}px);
+  transition: transform ${$duration}ms ease;
   &.active {
     transform: translateY(0px);
   }`}
@@ -28,7 +28,7 @@ export default function DropMotion(props) {
     );
   }, [props.visible]);
   return (
-    <Con className={visible ? 'active' : ''} style={style} animateOffset={animateOffset} duration={duration}>
+    <Con className={visible ? 'active' : ''} style={style} $animateOffset={animateOffset} $duration={duration}>
       {childrenVisible && children}
     </Con>
   );

@@ -1,66 +1,22 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
-import { arrayOf, func, shape, string } from 'prop-types';
-import styled from 'styled-components';
-import { CityPicker, Input } from 'ming-ui';
-import { BaseSelectedItem } from './Styles';
-
-const Con = styled.div`
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-  line-height: 32px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
-  .clearIcon {
-    display: none;
-  }
-  &:hover {
-    .clearIcon {
-      display: inline-block;
-    }
-  }
-  ${({ isEmpty }) => (!isEmpty ? '&:hover { .downIcon { display: none;} }' : '')}
-`;
-
-const AreasCon = styled.div`
-  cursor: pointer;
-  flex: 1;
-  overflow: hidden;
-  font-size: 13px;
-  min-height: 32px;
-  padding: 0 0 0 10px;
-`;
-
-const Icon = styled.i`
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  margin-right: 8px;
-`;
-
-const InputWrap = styled(Input)`
-  font-size: 13px;
-  color: var(--color-text-title) !important;
-  height: 32px !important;
-  &::-webkit-input-placeholder {
-    color: var(--color-text-disabled);
-  }
-`;
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import { CityPicker } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 
 export default function Areas(props) {
   const { values = [], control = {}, isMultiple, onChange = () => {}, projectId } = props;
-  const [active, setActive] = useState();
   const [search, setSearch] = useState(undefined);
   const [keywords, setKeywords] = useState('');
   const [defaultValue, setDefaultValue] = useState(null);
   const tempArea = useRef();
   const { enumDefault2, advancedSetting: { chooserange = 'CN', commcountries } = {} } = control;
 
-  const onFetchData = _.debounce(value => {
-    setKeywords(value);
-  }, 500);
+  const onFetchData = useMemo(() => _.debounce(value => setKeywords(value), 500), []);
+  const options = values.map(value => ({ label: value.name, value: value.id }));
+  const selectedValue = isMultiple ? values.map(value => value.id) : values[0]?.id;
+
+  useEffect(() => () => onFetchData.cancel(), [onFetchData]);
 
   const clearSearch = () => {
     if (!search) return;
@@ -70,6 +26,7 @@ export default function Areas(props) {
 
   return (
     <CityPicker
+      className="w100 InlineBlock"
       search={keywords}
       destroyPopupOnHide
       defaultValue={defaultValue}
@@ -90,7 +47,6 @@ export default function Areas(props) {
         clearSearch();
       }}
       handleClose={() => {
-        setActive(false);
         setDefaultValue(null);
         if (tempArea.current) {
           onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
@@ -99,58 +55,45 @@ export default function Areas(props) {
         clearSearch();
       }}
     >
-      <Con isEmpty={!values.length} active={active}>
-        <AreasCon
-          onClick={() => {
-            setActive(true);
-          }}
-        >
-          {isMultiple &&
-            values.map((v, i) => (
-              <BaseSelectedItem key={i}>
-                <span className="name ellipsis">{v.name}</span>
-                <i
-                  className="icon icon-delete textTertiary Font10 Hand"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onChange({ values: values.filter(d => d.id !== v.id) });
-                  }}
-                />
-              </BaseSelectedItem>
-            ))}
-          <InputWrap
-            className="CityPicker-input-textCon"
-            placeholder={isMultiple && values.length ? '' : _l('请选择')}
-            value={isMultiple ? search || '' : search !== undefined ? search : (values[0] || { name: '' }).name}
-            onChange={value => {
-              setSearch(value);
-              onFetchData(value);
-            }}
-          />
-        </AreasCon>
-        <Icon className="icon icon-arrow-down-border downIcon" />
-        {!!values.length && (
-          <Icon
-            className="icon icon-cancel clearIcon"
-            onClick={e => {
-              e.stopPropagation();
-              onChange({ values: [] });
-              tempArea.current = undefined;
-              setDefaultValue('');
-              if (search) {
-                setSearch('');
-                setKeywords('');
-              }
-            }}
-          />
-        )}
-      </Con>
+      <Select
+        className="w100"
+        mode={isMultiple ? 'multiple' : undefined}
+        open={false}
+        showSearch
+        autoClearSearchValue={false}
+        filterOption={false}
+        allowClear
+        options={options}
+        value={selectedValue}
+        searchValue={search || ''}
+        onSearch={value => {
+          setSearch(value);
+          onFetchData(value);
+        }}
+        onClear={() => {
+          onChange({ values: [] });
+          tempArea.current = undefined;
+          setDefaultValue('');
+          if (search) {
+            setSearch('');
+            setKeywords('');
+          }
+        }}
+        onDeselect={id => onChange({ values: values.filter(value => value.id !== id) })}
+      />
     </CityPicker>
   );
 }
 
 Areas.propTypes = {
   control: shape({}),
-  values: arrayOf(string),
+  isMultiple: bool,
+  projectId: string,
+  values: arrayOf(
+    shape({
+      id: string,
+      name: string,
+    }),
+  ),
   onChange: func,
 };

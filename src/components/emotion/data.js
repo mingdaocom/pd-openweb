@@ -1,8 +1,5 @@
-import _ from 'lodash';
-
 // 默认表情
-// 默认表情
-let defaultData = [
+const defaultData = [
   [{ 'zh-Hans': '呵呵', en: 'Smile' }, 'wx_thumb.gif'],
   [{ 'zh-Hans': '哈哈', en: 'Grin' }, 'hanx_thumb.gif'],
   [{ 'zh-Hans': '泪', en: 'Sob' }, 'lei_thumb.gif'],
@@ -50,8 +47,9 @@ let defaultData = [
   [{ 'zh-Hans': '威武', en: 'Awesome' }, 'vw_thumb.gif'],
   [{ 'zh-Hans': 'I LOVE MY TEAM', en: 'I LOVE MY TEAM' }, 'team.gif'],
 ];
+
 // 熊
-let bearData = [
+const bearData = [
   [{ 'zh-Hans': 'x 嗨', en: 'x Hello' }, '01.png'],
   [{ 'zh-Hans': 'x 哈哈', en: 'x Haha' }, '02.png'],
   [{ 'zh-Hans': 'x 害羞', en: 'x Shy' }, '03.png'],
@@ -78,7 +76,7 @@ let bearData = [
   [{ 'zh-Hans': 'x I LOVE MY TEAM', en: 'x I LOVE MY TEAM' }, '24.png'],
 ];
 // emoji 表情
-let emojiData = {};
+const emojiData = {};
 
 emojiData[0] = {
   name: 'Smileys & People',
@@ -562,7 +560,7 @@ emojiData[3] = {
   ],
 };
 
-let AruData = [
+const AruData = [
   [null, '01.png'],
   [null, '02.png'],
   [null, '03.png'],
@@ -655,114 +653,158 @@ let AruData = [
   [null, '90.png'],
 ];
 
-const emotionData = [
-  {
-    tab: {
-      name: _l('历史'),
-      className: 'tabItem-images-history',
-      imageName: 'history',
-    },
-    content: [],
-  },
-  {
-    tab: {
-      name: _l('经典表情'), // 图标的hover
-      size: 24, // 设置显示尺寸
-      className: 'tabItem-images-default', // tab图标
-      imageName: 'default',
-      path: 'default/', // 图标路径
-      showRetina: true, // 是否显示retina图片
-    },
-    content: [],
-    itemClassName: 'emotion-default',
-  },
-  {
-    tab: {
-      name: _l('人物'),
-      className: 'tabItem-images-smileys',
-      showRetina: true,
-      size: 24,
-      imageName: 'smileys',
-      type: 'emoji',
-    },
+export const EMOTION_GROUP_IDS = {
+  HISTORY: 'history',
+  CLASSIC: 'classic',
+  PEOPLE: 'people',
+  NATURE: 'nature',
+  FOOD: 'food',
+  OBJECTS: 'objects',
+  BEAR: 'bear',
+  ARU: 'aru',
+};
 
-    content: emojiData[0].content,
-  },
+export const EMOTION_IMAGE_BASE = '/staticfiles/images/emotion/';
+
+const getCurrentLanguage = () =>
+  typeof window !== 'undefined' && typeof window.getCurrentLang === 'function' && window.getCurrentLang() === 'zh-Hans'
+    ? 'zh-Hans'
+    : 'en';
+
+const getLocalizedKey = key => (key && typeof key === 'object' ? key[getCurrentLanguage()] : key);
+
+const createImageItems = (groupId, items) =>
+  items.map(([originalKey, img]) => ({
+    id: `${groupId}:${img}`,
+    groupId,
+    code: getLocalizedKey(originalKey),
+    originalKey,
+    img,
+  }));
+
+const createEmojiItems = (groupId, items) =>
+  items.map(code => ({
+    id: `${groupId}:${code}`,
+    groupId,
+    code,
+    originalKey: code,
+  }));
+
+const createParseItems = items => items.map(([originalKey, img]) => ({ originalKey, img }));
+
+export const emotionParseGroups = [
   {
-    tab: {
-      name: _l('动物和大自然'),
-      className: 'tabItem-images-animals',
-      size: 24,
-      imageName: 'animals',
-      type: 'emoji',
-    },
-    content: emojiData[1].content,
-  },
-  {
-    tab: {
-      name: _l('食物和饮料'),
-      className: 'tabItem-images-foods',
-      imageName: 'foods',
-      size: 24,
-      type: 'emoji',
-    },
-    content: emojiData[2].content,
-  },
-  {
-    tab: {
-      name: _l('物体'),
-      className: 'tabItem-images-objects',
-      imageName: 'objects',
-      size: 24,
-      type: 'emoji',
-    },
-    content: emojiData[3].content,
-  },
-  {
-    tab: {
-      name: _l('笨笨熊'),
-      className: 'icon-bear',
-      imageName: 'bear',
-      path: 'bear/',
-      showRetina: false,
-      size: '',
-    },
-    content: [],
+    id: EMOTION_GROUP_IDS.CLASSIC,
+    path: 'default/',
+    showRetina: true,
+    size: 24,
     itemClassName: 'emotion-default',
+    content: createParseItems(defaultData),
   },
   {
-    tab: {
-      name: 'Aru',
-      className: 'tabItem-images-aru',
-      imageName: 'aru',
-      path: 'aru/',
-    },
-    content: [],
+    id: EMOTION_GROUP_IDS.BEAR,
+    path: 'bear/',
     itemClassName: 'emotion-default',
+    content: createParseItems(bearData),
+  },
+  {
+    id: EMOTION_GROUP_IDS.ARU,
+    path: 'aru/',
+    itemClassName: 'emotion-default',
+    content: createParseItems(AruData),
   },
 ];
 
-// 表情转换
-// ===========================================================
-(function (emotions) {
-  for (let i = 0; i < emotions.length; i++) {
-    for (let j = 0; j < emotions[i].length; j++) {
-      let common = emotions[i][j];
-      emotions[i][j] = {
-        key: _.isObject(common[0]) ? common[0][window.getCurrentLang() === 'zh-Hans' ? 'zh-Hans' : 'en'] : common[0],
-        img: common[1],
-        originalKey: common[0],
-      };
-    }
-  }
+/**
+ * 在实际渲染或解析时生成数据，避免模块加载阶段固化语言。
+ */
+export function getEmotionGroups() {
+  return [
+    {
+      id: EMOTION_GROUP_IDS.HISTORY,
+      label: _l('历史'),
+      imageName: 'history',
+      type: 'history',
+      content: [],
+    },
+    {
+      id: EMOTION_GROUP_IDS.CLASSIC,
+      label: _l('经典表情'),
+      imageName: 'default',
+      type: 'classic',
+      path: 'default/',
+      showRetina: true,
+      size: 24,
+      itemClassName: 'emotion-default',
+      content: createImageItems(EMOTION_GROUP_IDS.CLASSIC, defaultData),
+    },
+    {
+      id: EMOTION_GROUP_IDS.PEOPLE,
+      label: _l('人物'),
+      imageName: 'smileys',
+      type: 'emoji',
+      size: 24,
+      content: createEmojiItems(EMOTION_GROUP_IDS.PEOPLE, emojiData[0].content),
+    },
+    {
+      id: EMOTION_GROUP_IDS.NATURE,
+      label: _l('动物和大自然'),
+      imageName: 'animals',
+      type: 'emoji',
+      size: 24,
+      content: createEmojiItems(EMOTION_GROUP_IDS.NATURE, emojiData[1].content),
+    },
+    {
+      id: EMOTION_GROUP_IDS.FOOD,
+      label: _l('食物和饮料'),
+      imageName: 'foods',
+      type: 'emoji',
+      size: 24,
+      content: createEmojiItems(EMOTION_GROUP_IDS.FOOD, emojiData[2].content),
+    },
+    {
+      id: EMOTION_GROUP_IDS.OBJECTS,
+      label: _l('物体'),
+      imageName: 'objects',
+      type: 'emoji',
+      size: 24,
+      content: createEmojiItems(EMOTION_GROUP_IDS.OBJECTS, emojiData[3].content),
+    },
+    {
+      id: EMOTION_GROUP_IDS.BEAR,
+      label: _l('笨笨熊'),
+      imageName: 'bear',
+      type: 'sticker',
+      path: 'bear/',
+      itemClassName: 'emotion-default',
+      content: createImageItems(EMOTION_GROUP_IDS.BEAR, bearData),
+    },
+    {
+      id: EMOTION_GROUP_IDS.ARU,
+      label: 'Aru',
+      imageName: 'aru',
+      type: 'sticker',
+      path: 'aru/',
+      itemClassName: 'emotion-default',
+      content: createImageItems(EMOTION_GROUP_IDS.ARU, AruData),
+    },
+  ];
+}
 
-  defaultData = emotions[0];
-  bearData = emotions[1];
-  AruData = emotions[2];
-})([defaultData, bearData, AruData]);
+export function getEmotionAliases(item) {
+  if (!item || !item.originalKey) return [];
 
-emotionData[1].content = defaultData;
-emotionData[6].content = bearData;
-emotionData[7].content = AruData;
+  return typeof item.originalKey === 'object'
+    ? [...new Set(Object.values(item.originalKey).filter(Boolean))]
+    : [item.originalKey];
+}
 
-export default emotionData;
+export function getEmotionImageSrc(group, item, { animated = false } = {}) {
+  if (!group || !item || !item.img) return '';
+
+  const useRetina =
+    group.showRetina && typeof window !== 'undefined' && window.devicePixelRatio && window.devicePixelRatio > 1;
+  const imageName = animated && group.id === EMOTION_GROUP_IDS.BEAR ? item.img.replace(/\.png$/i, '.gif') : item.img;
+
+  return `${EMOTION_IMAGE_BASE}${group.path}${useRetina ? 'retina/' : ''}${imageName}`;
+}

@@ -47,7 +47,7 @@ const ChartListWrapper = styled.div`
 const LoadableChart = lazy(() => import('src/pages/Statistics/Card'));
 
 export default function CollectionCharts(props) {
-  const { projectId, reportAutoRefreshTimer, flag, currentTheme } = props;
+  const { projectId, reportAutoRefreshTimer, flag, currentTheme, onDataCountChange } = props;
   const [chartList, setChartList] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -62,9 +62,10 @@ export default function CollectionCharts(props) {
         if (res) {
           setChartList(res);
           setLoading(false);
+          onDataCountChange && onDataCountChange('chart', res.length);
         }
       });
-  }, [projectId, flag]);
+  }, [projectId, flag, onDataCountChange]);
 
   const onSort = newItems => {
     setChartList(newItems);
@@ -101,6 +102,7 @@ export default function CollectionCharts(props) {
             onCancelFavorite={() => {
               const newChartList = chartList.filter(chart => chart.favoriteId !== item.favoriteId);
               setChartList(newChartList);
+              onDataCountChange && onDataCountChange('chart', newChartList.length);
             }}
           />
         </Suspense>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Dialog } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { INTEGRATION_INFO } from '../../config';
 import SyncDialog from '../SyncDialog';
@@ -90,11 +90,13 @@ export default class IntegrationSync extends Component {
   renderOverLimitDialog = () => {
     const { dialogOverLimit, overLimitLength } = this.state;
     return (
-      <Dialog
+      <Modal
         width="500px"
         title={_l('同步失败')}
-        visible={dialogOverLimit}
-        showCancel={false}
+        open={dialogOverLimit}
+        mask={{ closable: true }}
+        keyboard
+        cancelButtonProps={{ style: { display: 'none' } }}
         onCancel={() => {
           this.setState({ dialogOverLimit: false });
         }}
@@ -103,7 +105,7 @@ export default class IntegrationSync extends Component {
         }}
       >
         <div>{_l('超出 %0 个企业微信用户需要被同步，请先增购组织用户', overLimitLength)}</div>
-      </Dialog>
+      </Modal>
     );
   };
 
@@ -126,7 +128,7 @@ export default class IntegrationSync extends Component {
         <h3 className="stepTitle Font16 textPrimary">{_l('%0数据同步', step)}</h3>
         <div className="mTop16 syncBox">
           <span className="Font14 syncTxt textSecondary">
-            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            {window.platformENV.isPlatform && window.platformENV.isHap
               ? _l('从%0通讯录同步到明道云。', text)
               : _l('从%0通讯录同步到该系统。', text)}
 
@@ -145,7 +147,7 @@ export default class IntegrationSync extends Component {
           <Button
             type="primary"
             disabled={loading}
-            className={cx('syncBtn', { isNO: syncDisabled || showSyncDiaLog })}
+            className={cx({ isNO: syncDisabled || showSyncDiaLog })}
             onClick={() => {
               if (featureType === '2') {
                 buriedUpgradeVersionDialog(projectId, featureId);

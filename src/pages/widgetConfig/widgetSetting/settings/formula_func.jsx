@@ -1,17 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { get } from 'lodash';
 import _ from 'lodash';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Select, Tooltip } from 'ming-ui/antd-components';
 import { DynamicInputStyle } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled.js';
-import { OUTPUT_FORMULA_FUNC, TIME_DISPLAY_TYPE } from '../../config/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { OUTPUT_FORMULA_FUNC, TIME_DISPLAY_TYPE } from 'src/utils/domain/control/setting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import SwitchType from '../components/formula/SwitchType';
 import FunctionEditorDialog from '../components/FunctionEditorDialog';
 import PointConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
 import Date from './date';
+
+const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function FormulaFunc(props) {
   const { data, allControls, onChange } = props;
@@ -35,6 +36,9 @@ export default function FormulaFunc(props) {
     if (i.type === 38 && i.enumDefault === 3) return false;
     return true;
   });
+
+  // 子表字段不支持选择，存量表达式仍按 funcControls 正常展示和校验
+  const selectableFuncControls = funcControls.filter(i => i.type !== 34);
 
   useEffect(() => {
     if (window[`${controlId}-handleOpenEditor`]) {
@@ -60,10 +64,10 @@ export default function FormulaFunc(props) {
       return <Date {...props} />;
     } else if (enumDefault2 === 46) {
       return (
-        <Dropdown
+        <Select
           className="mTop20 w100"
-          border
-          data={TIME_DISPLAY_TYPE}
+          options={TIME_DISPLAY_TYPE}
+          fieldNames={SELECT_FIELD_NAMES}
           value={data.unit}
           onChange={value => onChange({ unit: value })}
         />
@@ -110,20 +114,28 @@ export default function FormulaFunc(props) {
       {enumDefault2 === 6 && (
         <div className="labelWrap mTop12">
           <Checkbox
-            size="small"
-            text={_l('参与计算的字段值为空时，视为0')}
             checked={nullzero === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { nullzero: checked ? '0' : '1' }))}
-          />
+            onChange={event =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  nullzero: !event.target.checked ? '0' : '1',
+                }),
+              )
+            }
+            size="small"
+          >
+            {_l('参与计算的字段值为空时，视为0')}
+          </Checkbox>
         </div>
       )}
       <SettingItem>
         <div className="settingItemTitle">{_l('输出格式')}</div>
-        <Dropdown
-          border
+        <Select
+          className="w100"
           disabled={saveDisabled}
           value={enumDefault2}
-          data={filterData}
+          options={filterData}
+          fieldNames={SELECT_FIELD_NAMES}
           onChange={value => {
             if (value === enumDefault2) return;
             let newAdvancedSetting = { nullzero: '0' };
@@ -159,6 +171,7 @@ export default function FormulaFunc(props) {
           value={funcObj}
           title={controlName}
           controls={funcControls}
+          selectableControls={selectableFuncControls}
           onClose={() => setVisible(false)}
           onSave={value => onChange({ dataSource: JSON.stringify(value) })}
         />

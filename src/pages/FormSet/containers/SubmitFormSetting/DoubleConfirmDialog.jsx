@@ -2,7 +2,7 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import { defaultDoubleConfirm } from './config';
 
 const Wrap = styled.div`
@@ -47,7 +47,7 @@ export default function DoubleConfirmationDialog(props) {
     doubleConfirm: _.isEmpty(props.doubleConfirm) ? defaultDoubleConfirm : props.doubleConfirm,
   });
   return (
-    <Dialog
+    <Modal
       title={_l('确认层设置')}
       okText={_l('保存')}
       cancelText={_l('取消')}
@@ -63,12 +63,14 @@ export default function DoubleConfirmationDialog(props) {
           confirmContent: confirmContent.trim(),
         });
       }}
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
     >
       <Wrap>
         <h5 className="Bold Font14">{_l('提示信息')}</h5>
-        <p className="Bold mTop30">{_l('标题')}</p>
-        <input
+        <p className="Bold mTop20">{_l('标题')}</p>
+        <Input
           className="mTop10"
           value={_.get(doubleConfirm, 'confirmMsg')}
           onChange={event => {
@@ -81,7 +83,7 @@ export default function DoubleConfirmationDialog(props) {
           }}
         />
         <p className="mTop24 bold">{_l('详细内容')}</p>
-        <input
+        <Input
           className="mTop10"
           value={doubleConfirm.confirmContent}
           onChange={event => {
@@ -96,7 +98,7 @@ export default function DoubleConfirmationDialog(props) {
         <h5 className="Bold Font14 borderTop ">{_l('按钮文案')}</h5>
         <div className="flexRow btnTxt alignItemsCenter mTop10">
           <span className="bold400">{_l('确认按钮')}</span>
-          <input
+          <Input
             value={_.get(doubleConfirm, 'sureName')}
             onChange={event => {
               setState({
@@ -110,7 +112,7 @@ export default function DoubleConfirmationDialog(props) {
         </div>
         <div className="flexRow btnTxt alignItemsCenter mTop10">
           <span className="bold400">{_l('取消按钮')}</span>
-          <input
+          <Input
             value={_.get(doubleConfirm, 'cancelName')}
             onChange={event => {
               setState({
@@ -123,6 +125,6 @@ export default function DoubleConfirmationDialog(props) {
           />
         </div>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

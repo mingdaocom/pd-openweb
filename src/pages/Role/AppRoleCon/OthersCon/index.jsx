@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { LoadDiv, Support } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 import ExplainImg from '../../img/userExtendInfo.png';
 import EditUserExtendInfo from './EditUserExtendInfo.jsx';
 import img1 from './img/img1.png';
@@ -71,18 +72,6 @@ const ExplainCon = styled.div`
     color: var(--color-text-secondary);
     margin: 23px auto;
     text-align: left;
-  }
-  .explain-button {
-    padding: 15px 22px;
-    background: var(--color-primary);
-    border: none;
-    color: var(--color-white);
-    font-size: 14px;
-    border-radius: 3px;
-    font-weight: 600;
-  }
-  .explain-button:hover {
-    background: var(--color-link-hover);
   }
 `;
 
@@ -195,15 +184,14 @@ function OthersCon(props) {
           <br />- {_l('可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单')}
         </div>
         <div className="mTop30 center">
-          <button
-            className="explain-button"
-            type="button"
+          <Button
+            type="primary"
             onClick={() => {
               setStep(1);
             }}
           >
             {_l('建立用户扩展信息表')}
-          </button>
+          </Button>
         </div>
         <div className="center mTop30">
           <Support type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />

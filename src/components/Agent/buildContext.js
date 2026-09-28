@@ -1,4 +1,4 @@
-import { getPathWithoutSubPath } from 'src/utils/common';
+import { getPathWithoutSubPath } from 'src/utils/platform/navigation/path';
 
 // Plan 产出物 → 下游 agent 入参派生。对齐 assets/agents/prod/build-app/build-app-agent.yaml inputs。
 // required: projectId / appName / groupNames / worksheets

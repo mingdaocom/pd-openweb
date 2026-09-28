@@ -34,6 +34,12 @@ export function carveWorkParts(parts, finishedAt) {
       continue;
     }
 
+    // 附件解析状态行：描述的是本轮输入的处理结果，折进「已工作」里反而被藏起来，保持同级
+    if (p.kind === 'extract') {
+      leadingWork.push(p);
+      continue;
+    }
+
     if (p.kind === 'text') {
       const text = i === lastIdx ? before : p.text;
 

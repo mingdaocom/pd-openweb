@@ -1,7 +1,7 @@
 ﻿import _ from 'lodash';
 import tagController from 'src/api/tag';
 import ajaxRequest from 'src/api/taskCenter';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 import {
   updateTaskErrorDialog,
   updateTimeError,
@@ -261,25 +261,34 @@ export const getTaskDetail =
     const { taskConfig } = getState().task;
     const listSort = taskConfig.listSort || 10;
 
-    ajaxRequest.getTaskDetail({ taskID: taskId, sort: listSort, isDecode: true }).then(result => {
-      dispatch({
-        type: 'GET_TASK_DETAIL',
-        taskId,
-        data: _.cloneDeep(result),
-      });
+    return ajaxRequest.getTaskDetail({ taskID: taskId, sort: listSort, isDecode: true }).then(
+      result => {
+        dispatch({
+          type: 'GET_TASK_DETAIL',
+          taskId,
+          data: _.cloneDeep(result),
+        });
 
-      addPostSuccessCount();
-      if (result.status && result.data.taskID && result.data.auth !== config.auth.None) {
-        getCheckListsWithItemsInTask(taskId, addPostSuccessCount)(dispatch);
-        if (result.data.hasControls) {
-          getTaskControls(taskId, addPostSuccessCount)(dispatch);
-        } else {
-          addPostSuccessCount();
+        addPostSuccessCount();
+        if (result.status && result.data.taskID && result.data.auth !== config.auth.None) {
+          getCheckListsWithItemsInTask(taskId, addPostSuccessCount)(dispatch);
+          if (result.data.hasControls) {
+            getTaskControls(taskId, addPostSuccessCount)(dispatch);
+          } else {
+            addPostSuccessCount();
+          }
         }
-      }
 
-      callback();
-    });
+        callback();
+      },
+      error => {
+        dispatch({
+          type: 'GET_TASK_DETAIL',
+          taskId,
+          data: _.cloneDeep(_.get(error, 'errorData.data') || { status: false }),
+        });
+      },
+    );
   };
 
 // 修改任务提醒
@@ -594,6 +603,7 @@ export const updateTaskCharge =
         callback();
 
         const taskDetail = _.cloneDeep(getState().task.taskDetails[taskId]);
+        const fullname = user.fullname || user.fullName;
 
         if (!taskDetail) {
           return;
@@ -605,7 +615,7 @@ export const updateTaskCharge =
             if (item.taskID === subTaskId) {
               item.charge.accountID = user.accountId;
               item.charge.avatar = user.avatar;
-              item.charge.fullName = user.fullname;
+              item.charge.fullName = fullname;
             }
           });
         } else {
@@ -614,7 +624,7 @@ export const updateTaskCharge =
           // 新负责人
           taskDetail.data.charge.accountID = user.accountId;
           taskDetail.data.charge.avatar = user.avatar;
-          taskDetail.data.charge.fullName = user.fullname;
+          taskDetail.data.charge.fullName = fullname;
 
           // 老负责人加入到成员中
           if (oldCharge.accountID && oldCharge.accountID !== 'user-undefined') {
@@ -1186,7 +1196,7 @@ export const discussionsAddMembers = (taskId, data) => (dispatch, getState) => {
 export const addTaskTag =
   (taskId, tagId, tagName, callback = () => {}) =>
   (dispatch, getState) => {
-    tagController
+    return tagController
       .addTaskTag2({
         taskIds: [taskId],
         tagName,
@@ -1216,7 +1226,7 @@ export const addTaskTag =
 export const removeTasksTag =
   (taskId, tagId, callback = () => {}) =>
   (dispatch, getState) => {
-    tagController
+    return tagController
       .removeTasksTag({
         sourceIds: [taskId],
         tagId,

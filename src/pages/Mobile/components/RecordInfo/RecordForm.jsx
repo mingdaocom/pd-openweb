@@ -4,19 +4,21 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, PullToRefreshWrapper } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { PullToRefreshWrapper } from 'ming-ui/antd-mobile-components';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import DocumentTitle from 'mobile/components/DocumentTitle';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CustomFields from 'src/components/Form';
-import RecordPay from 'src/components/RecordPay';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
+import RecordPay from 'src/pages/worksheet/common/recordInfo/RecordPay';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
-import { controlState, getTitleTextFromControls } from 'src/utils/control';
+import { getTitleTextFromControls } from 'src/utils/domain/control/display';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
 import RecordOwner from './components/RecordOwner';
 
 const LockWrap = styled.div`
@@ -347,6 +349,8 @@ let RecordForm = class RecordForm extends Component {
     const {
       customwidget,
       random,
+      resetTabToFirstFlag,
+      relationActionData,
       isEditRecord,
       recordInfo,
       recordBase,
@@ -416,6 +420,8 @@ let RecordForm = class RecordForm extends Component {
           tabControlProp={{
             otherTabs: approveInfo,
             changeMobileTab,
+            relationActionData,
+            resetTabToFirstFlag,
           }}
           mobileApprovalRecordInfo={{
             instanceId: recordBase.instanceId,

@@ -5,7 +5,7 @@ import GroupController from 'src/api/group';
 import CommonAjaxInvitation from 'src/api/invitation';
 import PostController from 'src/api/post';
 import UserController from 'src/api/user';
-import { getPssId } from 'src/utils/pssId';
+import { getPssId } from 'src/utils/platform/auth/pssId';
 import chatConfig from './config';
 import Constant from './constant';
 

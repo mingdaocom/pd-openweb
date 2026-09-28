@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
+import { Icon } from 'ming-ui';
+import { Select } from 'ming-ui/antd-components';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
 import SortCustom from './customSet';
 import SortInput from './SortInput';
 
@@ -69,21 +70,19 @@ export default function (props) {
               canClear
             />
           ) : (
-            <Dropdown
-              border
-              cancelAble
-              isAppendToBody
+            <Select
+              allowClear
               className={cx('flex mTop0', { mRight10: canCustom })}
               value={
                 !_.get(view, `advancedSetting.${navsortsKey}`) ? '0' : _.get(view, `advancedSetting.${navsortsKey}`)
               }
-              data={[
+              options={[
                 {
-                  text: _l('升序'),
+                  label: _l('升序'),
                   value: '0',
                 },
                 {
-                  text: _l('降序'),
+                  label: _l('降序'),
                   value: '1',
                 },
               ]}

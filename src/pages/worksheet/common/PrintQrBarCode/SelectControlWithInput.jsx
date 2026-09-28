@@ -5,8 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import ControlSelect from 'worksheet/components/ControlSelect';
 
@@ -43,11 +42,6 @@ const Content = styled(VerticalMiddle)`
   padding: 0 8px;
   border: 1px solid var(--color-border-primary);
   border-radius: 3px 0 0 3px;
-  input {
-    width: 100%;
-    border: none;
-    padding: 0px;
-  }
   i.setName {
     cursor: pointer;
     font-size: 20px;
@@ -120,7 +114,14 @@ function StaticInput(props) {
     }
   }, [isEditing]);
   return isEditing ? (
-    <input ref={inputRef} value={value} type="text" onChange={e => onChange(e.target.value)} onBlur={onBlur} />
+    <Input
+      ref={inputRef}
+      className="w100"
+      variant="borderless"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      onBlur={onBlur}
+    />
   ) : (
     <div className="staticValue ellipsis">{value}</div>
   );
@@ -138,8 +139,10 @@ function EditShowName(props) {
   const { name, onCancel, onChange } = props;
   const [value, setValue] = useState(name);
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       title={_l('重命名')}
       onCancel={onCancel}
       onOk={() => {
@@ -148,9 +151,9 @@ function EditShowName(props) {
       }}
     >
       <EditShowNameCon>
-        <Input className="w100" value={value} onChange={setValue} />
+        <Input className="w100" value={value} onChange={event => setValue(event.target.value)} />
       </EditShowNameCon>
-    </Dialog>
+    </Modal>
   );
 }
 

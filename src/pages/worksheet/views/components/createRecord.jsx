@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Input } from 'antd';
-import 'antd/es/input/style/css';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import SVG from 'svg.js';
-import { Button } from 'ming-ui';
+import { Button, Input, Popover } from 'ming-ui/antd-components';
 import { getPosition } from '../HierarchyView/util';
-import 'rc-trigger/assets/index.css';
+
+const POPOVER_TRIGGER = [];
 
 const CreateRecordWrap = styled.div`
   width: 280px;
@@ -114,18 +112,19 @@ export default function CreateRecord(props) {
         id={uniqId ? `svg-${pathId.join('-')}-${uniqId}` : `svg-${pathId.join('-')}`}
         className={isStraightLine || advancedSetting.hierarchyViewConnectLine === '1' ? 'svgStraightWrap' : 'svgWrap'}
       />
-      <Trigger
-        popupAlign={{ points: ['tl', 'bl'], offset: [0, 4] }}
-        popupVisible={lines.length > 1}
-        popup={
+      <Popover
+        trigger={POPOVER_TRIGGER}
+        placement="bottomLeft"
+        open={lines.length > 1}
+        content={
           <div className="createMultiRecord">
             <div className="hint Font15">
               {_l('检测到您输入了 %0 行内容,可以为您创建 %0 条记录。您也可以只创建一条记录', lines.length)}
             </div>
-            <Button fullWidth type="link" onMouseDown={() => handleClick('multi')}>
+            <Button color="primary" variant="link" className="w100" onMouseDown={() => handleClick('multi')}>
               {_l('创建%0条记录', lines.length)}
             </Button>
-            <Button fullWidth type="link" onMouseDown={handleClick}>
+            <Button color="primary" variant="link" className="w100" onMouseDown={handleClick}>
               {_l('只创建一条记录')}
             </Button>
           </div>
@@ -169,7 +168,7 @@ export default function CreateRecord(props) {
             <i className="icon-worksheet_enlarge"></i>
           </div>
         </CreateRecordWrap>
-      </Trigger>
+      </Popover>
     </div>
   );
 }

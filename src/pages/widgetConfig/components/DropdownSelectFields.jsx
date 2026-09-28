@@ -1,6 +1,6 @@
 import React from 'react';
-import { Dropdown } from 'antd';
-import { isEmptyValue } from 'src/utils/control';
+import { Dropdown } from 'ming-ui/antd-components';
+import { isEmptyValue } from 'src/utils/domain/control/number';
 import { DropdownPlaceholder } from '../styled';
 import OtherField from '../widgetSetting/components/DynamicDefaultValue/components/OtherField';
 import SelectFields from '../widgetSetting/components/DynamicDefaultValue/components/SelectFields';
@@ -21,7 +21,8 @@ export default function DropdownSelectFields(props) {
     <Dropdown
       trigger={['click']}
       placement={window.innerHeight < 700 ? 'top' : 'bottom'}
-      overlay={<SelectFields from={13} {...props} onClick={obj => onChange(obj)} />}
+      menu={{ items: [] }}
+      popupRender={() => <SelectFields $dropdownPopup from={13} {...props} onClick={obj => onChange(obj)} />}
     >
       <DropdownPlaceholder>
         {renderPlaceholder()}

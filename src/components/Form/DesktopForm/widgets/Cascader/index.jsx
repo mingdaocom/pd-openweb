@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TreeSelect } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
-import Cascader from 'ming-ui/antd-components/Cascader';
+import { Cascader } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { renderText as renderCellText } from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
+import { TreeSelect } from 'src/ming-ui/antd-components/AsyncAntd';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const { SHOW_ALL } = TreeSelect;
@@ -47,6 +47,7 @@ export default function CascaderWidget(props) {
     enumDefault,
     appId,
     notLimitCount = false,
+    getPopupContainer,
   } = props;
 
   const [popupVisible, setPopupVisible] = useState(false);
@@ -393,7 +394,7 @@ export default function CascaderWidget(props) {
    * 获取树形滚动元素
    */
   const getTreeSelectEl = () => {
-    return $(`.treeSelect_${controlId} .ant-select-tree-list`)[0];
+    return $(`.treeSelect_${controlId} .hap-select-tree-list`)[0];
   };
 
   // 初始化
@@ -492,8 +493,9 @@ export default function CascaderWidget(props) {
     return (
       <TreeSelect
         className="w100 customAntSelect customTreeSelect"
-        dropdownClassName={cx('customTreeSelectDropdown', popupClassName, `treeSelect_${controlId}`)}
+        classNames={{ popup: { root: cx('customTreeSelectDropdown', popupClassName, `treeSelect_${controlId}`) } }}
         dropdownPopupAlign={treePopupAlign}
+        getPopupContainer={getPopupContainer}
         ref={treeSelectCompRef}
         disabled={disabled}
         {...(isShowMultiple
@@ -548,7 +550,7 @@ export default function CascaderWidget(props) {
           setKeywords(value);
           setTreeExpandedKeys([]);
         }}
-        onDropdownVisibleChange={visible => {
+        onOpenChange={visible => {
           setPopupVisible(visible);
           onPopupVisibleChange(visible);
         }}
@@ -569,8 +571,10 @@ export default function CascaderWidget(props) {
         : { changeOnSelect: !+anylevel })}
       searchValue={keywords}
       className="w100 customCascader"
+      popupClassName={popupClassName}
       popupAlign={popupAlign}
       popupPlacement={popupPlacement}
+      getPopupContainer={getPopupContainer}
       disabled={disabled}
       placeholder={_.isEmpty(widgetValue) ? hint || _l('请选择') : ''}
       value={widgetValue.map(i => ({ value: i.sid, label: i.name || _l('未命名') }))}
@@ -600,7 +604,7 @@ export default function CascaderWidget(props) {
         setKeywords(value);
       }}
       open={popupVisible}
-      onDropdownVisibleChange={visible => {
+      onOpenChange={visible => {
         setPopupVisible(visible);
         onPopupVisibleChange(visible);
       }}
@@ -615,6 +619,7 @@ CascaderWidget.propTypes = {
   popupClassName: PropTypes.string,
   popupPlacement: PropTypes.string,
   popupAlign: PropTypes.shape({}),
+  getPopupContainer: PropTypes.func,
   treePopupAlign: PropTypes.shape({}),
   controlId: PropTypes.string,
   value: PropTypes.string,

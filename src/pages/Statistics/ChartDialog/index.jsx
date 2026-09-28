@@ -2,20 +2,19 @@ import React, { Component, Fragment, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
-import { Button, ConfigProvider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import ErrorBoundary from 'ming-ui/components/ErrorBoundary';
 import reportConfig from '../api/reportConfig';
 import projectController from 'src/api/project';
 import worksheetApi from 'src/api/worksheet';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import store from 'src/redux/configureStore';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { formatValuesOfOriginConditions } from 'src/utils/domain/worksheet/filterValue';
 import MoreOverlay from '../Card/MoreOverlay';
-import { reportTypes } from '../Charts/common';
 import { getNewReport } from '../common/reportConfigUtils';
 import { Loading } from '../components/ChartStatus';
 import * as actions from '../redux/actions.js';
@@ -27,6 +26,21 @@ import './index.less';
 
 const LoadableEditorPanel = lazy(() => import('./EditorPanel'));
 const LoadableFilterScope = lazy(() => import('../components/FilterScope'));
+const CHART_DIALOG_STYLES = {
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    height: 50,
+    padding: '0 24px',
+    margin: 0,
+    boxShadow: 'var(--shadow-sm)',
+    zIndex: 9,
+  },
+  title: { width: '100%' },
+  body: { display: 'flex', flexDirection: 'row', overflow: 'hidden', padding: 0, position: 'relative' },
+  container: { padding: 0 },
+};
+
 let ChartDialog = class ChartDialog extends Component {
   static propTypes = {
     appId: PropTypes.string,
@@ -285,11 +299,16 @@ let ChartDialog = class ChartDialog extends Component {
         <Header {...this.props} />
         <div className="flexRow valignWrapper settingWrapper">
           {settingVisible && (
-            <ConfigProvider autoInsertSpaceInButton={false}>
-              <Button className="buttonSave" block shape="round" type="primary" onClick={this.handleVerifySave}>
-                {saveLoading ? <LoadDiv size="small" /> : _l('保存')}
-              </Button>
-            </ConfigProvider>
+            <Button
+              className="bold"
+              block
+              shape="round"
+              type="primary"
+              onClick={this.handleVerifySave}
+              loading={saveLoading}
+            >
+              {_l('保存')}
+            </Button>
           )}
           {!settingVisible && report.id && (sourceType === 1 ? isCharge : permissions) && (
             <Tooltip title={_l('设置')} placement="bottom">
@@ -510,19 +529,23 @@ let ChartDialog = class ChartDialog extends Component {
       );
     }
 
-    const dialogProps = {
-      dialogClasses: 'ChartDialogContainer',
-      className: cx('ChartDialog', className),
-      okText: _l('确认'),
-      width: document.body.clientWidth - 64,
-      type: 'fixed',
-      visible: true,
-      overlayClosable: false,
-      onCancel: this.handleCancel,
-      closable: false,
-      title: this.renderHeader(),
-    };
-    return <Dialog {...dialogProps}>{content}</Dialog>;
+    return (
+      <Modal
+        wrapClassName="ChartDialogContainer"
+        className={cx('ChartDialog', className)}
+        width={document.body.clientWidth - 64}
+        verticalAlign="bottom"
+        type="fixed"
+        open
+        mask={{ closable: false }}
+        closable={false}
+        styles={CHART_DIALOG_STYLES}
+        title={this.renderHeader()}
+        onCancel={this.handleCancel}
+      >
+        {content}
+      </Modal>
+    );
   }
 };
 ChartDialog = connect(

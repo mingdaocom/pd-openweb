@@ -1,7 +1,7 @@
 export const SCOPES = {
   200000: _l('用户'),
-  200100: _l('获取用户所在组织列表'),
-  200200: _l('获取用户信息'),
+  200100: _l('获取当前用户所在组织列表'),
+  200200: _l('获取当前用户信息'),
 
   10000: _l('应用管理'),
   10500: _l('获取应用列表'),
@@ -36,12 +36,26 @@ export const SCOPES = {
 
   140000: _l('视图'),
   140100: _l('创建视图'),
+  140200: _l('获取视图列表'),
+  140300: _l('获取视图详情'),
+  140400: _l('更新视图'),
+  140500: _l('删除视图'),
+  140600: _l('视图排序'),
 
   130000: _l('统计图'),
   130100: _l('新建统计图'),
+  130200: _l('获取工作表图表列表'),
+  130300: _l('获取单个图表详情'),
+  130400: _l('更新图表'),
+  130500: _l('删除图表'),
+  130600: _l('图表排序'),
 
   120000: _l('自定义页面'),
   120100: _l('编辑自定义页面'),
+  120200: _l('获取自定义页面列表'),
+  120300: _l('更新自定义页面配置'),
+  120400: _l('获取自定义页面组件详情'),
+  120500: _l('删除自定义页面'),
 
   70000: _l('工作流'),
   70200: _l('获取触发流程列表'),
@@ -56,6 +70,9 @@ export const SCOPES = {
   71200: _l('发布工作流'),
   70900: _l('删除工作流节点'),
   71000: _l('删除工作流'),
+  71300: _l('更新流程配置'),
+  71400: _l('放弃流程草稿'),
+  71500: _l('关闭流程'),
 
   150000: _l('流程待办'),
   150100: _l('获取用户流程待办列表'),
@@ -68,13 +85,24 @@ export const SCOPES = {
 
   90000: _l('对话机器人'),
   90100: _l('创建对话机器人'),
+  90200: _l('获取对话机器人列表'),
+  90300: _l('获取对话机器人详情'),
+  90400: _l('更新对话机器人'),
+  90500: _l('删除对话机器人'),
 
   110000: _l('自定义动作'),
-  // 110100: _l('获取自定义动作列表'),
+  110100: _l('获取自定义动作列表'),
   // 110200: _l('获取自定义动作详情'),
   110300: _l('批量创建自定义动作'),
-  // 110400: _l('更新自定义动作'),
-  // 110500: _l('删除自定义动作'),
+  110400: _l('更新自定义动作'),
+  110500: _l('删除自定义动作'),
+
+  160000: _l('业务规则'),
+  160100: _l('新建业务规则'),
+  160200: _l('获取业务规则列表'),
+  160300: _l('获取业务规则详情'),
+  160400: _l('更新业务规则'),
+  160500: _l('删除业务规则'),
 
   60000: _l('角色'),
   60100: _l('删除角色'),
@@ -449,6 +477,24 @@ export const SCOPE_LIST = [
         checked: true,
         children: [],
       },
+      {
+        code: 71300,
+        key: 'workflow:edit_config',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 71400,
+        key: 'workflow:discard_draft',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 71500,
+        key: 'workflow:close',
+        checked: true,
+        children: [],
+      },
     ],
   },
 
@@ -531,6 +577,30 @@ export const SCOPE_LIST = [
         checked: true,
         children: [],
       },
+      {
+        code: 90200,
+        key: 'chatbot:list',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 90300,
+        key: 'chatbot:get',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 90400,
+        key: 'chatbot:edit',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 90500,
+        key: 'chatbot:delete',
+        checked: true,
+        children: [],
+      },
     ],
   },
   {
@@ -538,12 +608,12 @@ export const SCOPE_LIST = [
     key: '',
     checked: true,
     children: [
-      // {
-      //   code: 110100,
-      //   key: 'custom_action:list',
-      //   checked: true,
-      //   children: [],
-      // },
+      {
+        code: 110100,
+        key: 'custom_action:list',
+        checked: true,
+        children: [],
+      },
       // {
       //   code: 110200,
       //   key: 'custom_action:get',
@@ -556,18 +626,55 @@ export const SCOPE_LIST = [
         checked: true,
         children: [],
       },
-      // {
-      //   code: 110400,
-      //   key: 'custom_action:edit',
-      //   checked: true,
-      //   children: [],
-      // },
-      // {
-      //   code: 110500,
-      //   key: 'custom_action:delete',
-      //   checked: true,
-      //   children: [],
-      // },
+      {
+        code: 110400,
+        key: 'custom_action:edit',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 110500,
+        key: 'custom_action:delete',
+        checked: true,
+        children: [],
+      },
+    ],
+  },
+  {
+    code: 160000,
+    key: '',
+    checked: true,
+    children: [
+      {
+        code: 160100,
+        key: 'business_rule:create',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 160200,
+        key: 'business_rule:list',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 160300,
+        key: 'business_rule:get',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 160400,
+        key: 'business_rule:edit',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 160500,
+        key: 'business_rule:delete',
+        checked: true,
+        children: [],
+      },
     ],
   },
   {
@@ -578,6 +685,36 @@ export const SCOPE_LIST = [
       {
         code: 140100,
         key: 'view:create',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 140200,
+        key: 'view:list',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 140300,
+        key: 'view:get',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 140400,
+        key: 'view:edit',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 140500,
+        key: 'view:delete',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 140600,
+        key: 'view:sort',
         checked: true,
         children: [],
       },
@@ -594,6 +731,36 @@ export const SCOPE_LIST = [
         checked: true,
         children: [],
       },
+      {
+        code: 130200,
+        key: 'chart:list',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 130300,
+        key: 'chart:get',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 130400,
+        key: 'chart:edit',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 130500,
+        key: 'chart:delete',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 130600,
+        key: 'chart:sort',
+        checked: true,
+        children: [],
+      },
     ],
   },
   {
@@ -604,6 +771,30 @@ export const SCOPE_LIST = [
       {
         code: 120100,
         key: 'custom_page:edit',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 120300,
+        key: 'custom_page:edit_config',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 120200,
+        key: 'custom_page:list',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 120400,
+        key: 'custom_page:get_structure',
+        checked: true,
+        children: [],
+      },
+      {
+        code: 120500,
+        key: 'custom_page:delete',
         checked: true,
         children: [],
       },

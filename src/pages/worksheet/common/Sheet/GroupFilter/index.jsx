@@ -8,10 +8,10 @@ import fixedDataController from 'src/api/fixedData';
 import sheetAjax from 'src/api/worksheet';
 import { updateGroupFilter } from 'worksheet/redux/actions';
 import { getNavGroupCount } from 'worksheet/redux/actions/navFilter';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { emitter } from 'src/utils/common';
-import { getFilledRequestParams } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import { AREA, PARTICULARLY_CITY, TYPES } from './constants.js';
 import NavGroupCon from './NavGroup';
 import NavSearch from './NavSearch.jsx';
@@ -476,7 +476,7 @@ function GroupFilter(props) {
   return (
     <Con
       className={cx('groupFilterWrap h100 flexColumn', { groupFilterWrapForSingle: isSingle })}
-      width={width}
+      $width={width}
       style={{ borderRight: !isOpenGroup ? '1px solid var(--color-border-secondary)' : '0' }}
     >
       <NavSearch

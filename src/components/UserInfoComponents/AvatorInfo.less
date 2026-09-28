@@ -1,0 +1,44 @@
+.baseInfoEditContent {
+  .formControl {
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 3px;
+    border: 1px solid var(--color-border-tertiary);
+    padding: 6px 12px;
+    display: inline-block;
+    &.date {
+      box-sizing: border-box;
+      width: 100%;
+      border-radius: 3px;
+      border: 1px solid var(--color-border-tertiary);
+      padding: 6px 12px;
+      display: inline-block;
+    }
+    &.error {
+      border-color: #f00 !important;
+    }
+    &.disabled {
+      cursor: default;
+      background-color: light-dark(rgba(239, 239, 239, 0.3));
+    }
+  }
+  .errorBox {
+    height: 24px;
+  }
+  .wsRadioGroup {
+    label + label {
+      margin-left: 100px;
+    }
+  }
+}
+
+.uploadAvatorDialog,
+.baseInfoEditContent {
+  .reviewBox {
+    margin-left: 36px !important;
+  }
+  .flexEnd {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

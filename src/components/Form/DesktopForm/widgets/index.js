@@ -1,7 +1,6 @@
+import { lazy } from 'react';
 import Area from './Area';
-import Attachment from './Attachment';
 import BarCode from './BarCode';
-import Cascader from './Cascader';
 import Check from './Check';
 import Checkbox from './Checkbox';
 import DateWidgets from './Date';
@@ -10,31 +9,34 @@ import DateRange from './DateRange';
 import DepartmentSelect from './DepartmentSelect';
 import Dropdown from './Dropdown';
 import Email from './Email';
-import Embed from './Embed';
 import FormulaFunc from './FormulaFunc';
 import ID from './ID';
-import Location from './Location';
 import MobilePhone from './MobilePhone';
 import NumberWidgets from './Number';
-import OCR from './OCR';
 import OrgRole from './OrgRole';
 import Radio from './Radio';
 import RangeWidgets from './Range';
 import Readonly from './Readonly';
-import RelateRecord from './RelateRecord';
 import Relation from './Relation';
-import RelationSearch from './RelationSearch';
-import RichText from './RichText';
-import Search from './Search';
 import Section from './Section';
-import Signature from './Signature';
 import SplitLine from './SplitLine';
-import SubList from './SubList';
 import Subtotal from './Subtotal';
 import TelPhone from './TelPhone';
 import Textarea from './Textarea';
 import Time from './Time';
 import UserSelect from './UserSelect';
+
+const Attachment = lazy(() => import('./Attachment'));
+const Cascader = lazy(() => import('./Cascader'));
+const Embed = lazy(() => import('./Embed'));
+const Location = lazy(() => import('./Location'));
+const OCR = lazy(() => import('./OCR'));
+const RelateRecord = lazy(() => import('./RelateRecord'));
+const RelationSearch = lazy(() => import('./RelationSearch'));
+const RichText = lazy(() => import('./RichText'));
+const Search = lazy(() => import('./Search'));
+const Signature = lazy(() => import('./Signature'));
+const SubList = lazy(() => import('./SubList'));
 
 export default {
   RADIO: Radio,

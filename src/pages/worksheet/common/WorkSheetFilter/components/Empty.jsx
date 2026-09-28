@@ -26,15 +26,7 @@ const Con = styled.div`
 export default function Empty(props) {
   const { isNew, maxHeight, controls, onAdd = () => {} } = props;
   return isNew ? (
-    <SelectControls
-      maxHeight={maxHeight}
-      style={{
-        boxShadow: 'none',
-      }}
-      className="inEmpty"
-      controls={controls}
-      onAdd={onAdd}
-    />
+    <SelectControls maxHeight={maxHeight} className="inEmpty" controls={controls} onAdd={onAdd} />
   ) : (
     <Con>
       <img src={emptyPng} />

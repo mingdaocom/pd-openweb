@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
-import { Dialog, LoadDiv, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { emitter } from 'src/utils/common';
+import { LoadDiv, TagTextarea } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
+import { emitter } from 'src/utils/platform/browser/dom';
 import { getDefaultMjml, getMjmlPreviewHtml, getMjmlPreviewTheme } from './mjmlUtils';
 
 const DialogContent = styled.div`
@@ -215,15 +215,15 @@ export default function MJMLEditorDialog({
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       type="fixed"
       width={1280}
       title={title || _l('MJML 编辑')}
       okText={readOnly ? undefined : saving ? _l('转换中...') : _l('确定')}
       onOk={readOnly ? undefined : handleOk}
       footer={readOnly ? null : undefined}
-      bodyStyle={{ paddingBottom: 0 }}
+      styles={{ body: { paddingBottom: 0 } }}
       onCancel={onCancel}
     >
       <DialogContent style={readOnly ? { height: '100%' } : undefined}>
@@ -294,6 +294,6 @@ export default function MJMLEditorDialog({
           )}
         </div>
       </DialogContent>
-    </Dialog>
+    </Modal>
   );
 }

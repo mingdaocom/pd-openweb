@@ -1,9 +1,5 @@
 .flowChartModal {
-  .ant-modal-header {
-    border-bottom: 1px solid var(--color-border-secondary) !important;
-    padding: 15px 24px !important;
-  }
-  .ant-modal-body,
+  .hap-modal-body,
   .am-modal-body {
     background-color: var(--color-background-secondary);
     display: flex;
@@ -38,8 +34,42 @@
   .workflowEditRelease {
     height: 100%;
   }
+  .workflowBox.workflowBoxPending > .workflowItem {
+    .workflowName,
+    .workflowContent {
+      opacity: 0.4 !important;
+    }
+    .workflowAvatar {
+      box-shadow: none;
+    }
+  }
   .workflowBranch {
     overflow: hidden;
+
+    // 直接绘制首尾分支内侧的横线，避免缩放时遮盖层在裁剪边缘透出细线。
+    > .flexColumn:has(> .clearLeftBorder),
+    > .flexColumn:has(> .clearRightBorder) {
+      border-color: transparent;
+      background-image:
+        linear-gradient(var(--color-border-tertiary), var(--color-border-tertiary)),
+        linear-gradient(var(--color-border-tertiary), var(--color-border-tertiary));
+      background-size: calc(~'(100% + 1px) / 2') 1px;
+      background-repeat: no-repeat;
+      background-origin: border-box;
+      background-position:
+        right top,
+        right bottom;
+
+      > .clearLeftBorder,
+      > .clearRightBorder {
+        display: none;
+      }
+    }
+    > .flexColumn:has(> .clearRightBorder) {
+      background-position:
+        left top,
+        left bottom;
+    }
 
     &:not(.workflowBoxPending) {
       > .flexColumn.executed {

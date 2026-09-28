@@ -21,7 +21,7 @@ const Bar = styled.div`
   border-radius: 2px;
   transform-origin: center center;
 
-  animation: ${bounce} ${({ speed }) => speed}ms ease-in-out infinite;
+  animation: ${bounce} ${({ $speed }) => $speed}ms ease-in-out infinite;
 `;
 
 const delays = [-200, -100, 0, -100, -200];
@@ -30,7 +30,7 @@ const VoiceMeterCSS = ({ speed = 900 }) => {
   return (
     <Wrapper>
       {delays.map((delay, i) => (
-        <Bar key={i} speed={speed} style={{ animationDelay: `${delay}ms` }} />
+        <Bar key={i} $speed={speed} style={{ animationDelay: `${delay}ms` }} />
       ))}
     </Wrapper>
   );

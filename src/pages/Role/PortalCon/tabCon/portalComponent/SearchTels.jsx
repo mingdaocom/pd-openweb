@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import * as actions from '../../redux/actions';
 
 const Wrap = styled.div`
@@ -26,11 +26,10 @@ function SearchTelsDialog(props) {
   };
 
   return (
-    <Dialog
-      className=""
-      width="480"
-      visible={show}
-      title={<span className="Font17 Bold">{_l('批量搜索手机号')}</span>}
+    <Modal
+      width={480}
+      open={show}
+      title={_l('批量搜索手机号')}
       okText={_l('确定')}
       onCancel={() => {
         setShow(false);
@@ -44,7 +43,7 @@ function SearchTelsDialog(props) {
         <p className="textTertiary pAll0 mBottom10">{_l('通过手机号批量搜索用户，每个手机号占一行')}</p>
         <textarea onChange={e => onChange(e.target.value)} value={tels} />
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }
 

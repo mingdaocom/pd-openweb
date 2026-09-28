@@ -1,43 +1,21 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Dropdown, Icon, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, SearchInput, UserHead } from 'ming-ui';
+import { Dropdown as AntdDropdown, Button, Select, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import IsAppAdmin from '../../../components/IsAppAdmin';
 import ConfirmMoveDialog from '../component/ConfirmMoveDialog';
 import MoveDataBaseDialog from '../component/MoveDataBaseDialog';
 import './ManageDataBase.less';
 
-const ActionOpWrap = styled.ul`
-  background: var(--color-background-card);
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px 3px 3px 3px;
-  width: 160px;
-  font-size: 13px;
-  color: var(--color-text-title);
-  padding: 4px 0;
-  li {
-    line-height: 36px;
-    padding: 0 24px;
-    cursor: pointer;
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-    }
-  }
-`;
-
 const APP_STATUS_OPTIONS = [
-  { text: _l('全部状态'), value: '' },
-  { text: _l('开启'), value: 1 },
-  { text: _l('关闭'), value: 0 },
+  { label: _l('全部状态'), value: '' },
+  { label: _l('开启'), value: 1 },
+  { label: _l('关闭'), value: 0 },
 ];
 
 function ManageDataBase(props) {
@@ -134,23 +112,25 @@ function ManageDataBase(props) {
       width: 50,
       render: (value, record) => {
         return (
-          <Trigger
-            popupVisible={actionOp === value}
-            onPopupVisibleChange={visible => setActionOp(visible ? value : undefined)}
-            action={['click']}
-            popupAlign={{ points: ['tr', 'bc'], offset: [15, 0], overflow: { adjustX: true, adjustY: true } }}
-            popup={
-              <ActionOpWrap>
-                <li
-                  onClick={value => {
+          <AntdDropdown
+            open={actionOp === value}
+            onOpenChange={visible => setActionOp(visible ? value : undefined)}
+            trigger={['click']}
+            menu={{
+              items: [
+                {
+                  key: 'move',
+                  label: _l('迁移到'),
+                  onClick: () => {
                     setActionOp(undefined);
                     setDataBaseDialog({ visible: true, appId: value, appInfo: record });
-                  }}
-                >
-                  {_l('迁移到')}
-                </li>
-                <li
-                  onClick={() => {
+                  },
+                },
+                {
+                  key: 'remove',
+                  label: _l('移出'),
+                  danger: true,
+                  onClick: () => {
                     setActionOp(undefined);
                     setConfirmDialog({
                       visible: true,
@@ -158,51 +138,59 @@ function ManageDataBase(props) {
                       appInfo: _.pick(record, ['appId', 'appName']),
                       dataBaseInfo: { id, name: baseInfo.name },
                     });
-                  }}
-                >
-                  {_l('移出')}
-                </li>
-              </ActionOpWrap>
-            }
+                  },
+                },
+              ],
+              style: { minWidth: 160 },
+            }}
           >
             <Icon icon="moreop" className="Font18 textTertiary hoverColorPrimaryLight Hand" />
-          </Trigger>
+          </AntdDropdown>
         );
       },
     },
   ];
 
+  const getApp = useCallback(
+    (param = {}) => {
+      setLoading(true);
+      return appManagement
+        .getAppsForProject({
+          projectId,
+          status: appStatus,
+          pageIndex,
+          pageSize: 50,
+          keyword: (keywords || '').trim(),
+          containsLink: true,
+          dbInstanceId: id,
+          filterDBType: 2,
+          ...param,
+        })
+        .then(({ apps, total }) => {
+          setLoading(false);
+          setData({ apps, total });
+        });
+    },
+    [appStatus, id, keywords, pageIndex, projectId],
+  );
+
   useEffect(() => {
-    getApp();
-  }, [pageIndex, appStatus]);
+    const timer = setTimeout(getApp, 0);
+    return () => clearTimeout(timer);
+  }, [getApp]);
 
-  const getApp = param => {
-    setLoading(true);
-    appManagement
-      .getAppsForProject({
-        projectId,
-        status: appStatus,
-        pageIndex,
-        pageSize: 50,
-        keyword: (keywords || '').trim(),
-        containsLink: true,
-        dbInstanceId: id,
-        filterDBType: 2,
-        ...param,
-      })
-      .then(({ apps, total }) => {
-        setLoading(false);
-        setData({ apps: apps, total: total });
-      });
+  const debouncedSearch = useMemo(() => _.debounce(setKeywords, 500), []);
+
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+  const onSearch = value => {
+    if (value) {
+      debouncedSearch(value);
+    } else {
+      debouncedSearch.cancel();
+      setKeywords('');
+    }
   };
-
-  const handleSearch = (param = {}) => {
-    const { keyWords = keywords } = param;
-    setKeywords(keyWords);
-    getApp({ keyword: (keyWords || '').trim() });
-  };
-
-  const onSearch = _.debounce(keywords => handleSearch({ keyWords: keywords }), 500);
 
   const handleChangeStatus = value => setAppStatus(value);
 
@@ -229,22 +217,20 @@ function ManageDataBase(props) {
   const renderFilters = () => {
     return (
       <div className="listActionCon flexRow alignItemsCenter">
-        <Dropdown
+        <Select
           className="statusSelectWrap"
-          data={APP_STATUS_OPTIONS}
+          options={APP_STATUS_OPTIONS}
           value={appStatus}
-          border
           onChange={handleChangeStatus}
         />
         <div className="search InlineBlock mLeft16">
-          <SearchInput className="roleSearch" placeholder={_l('应用名称')} value={keywords} onChange={onSearch} />
+          <SearchInput className="roleSearch" placeholder={_l('应用名称')} onChange={onSearch} />
         </div>
         <span className="flex"></span>
         {!!baseInfo.status && (
-          <div className="addAppBtn Hand mLeft20 TxtTop Bold" onClick={onAdd}>
-            <Icon type="add" />
+          <Button type="primary" className="mLeft20" icon={<Icon icon="add" />} onClick={onAdd}>
             {_l('应用')}
-          </div>
+          </Button>
         )}
       </div>
     );

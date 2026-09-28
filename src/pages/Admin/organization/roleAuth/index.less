@@ -1,17 +1,10 @@
 .roleListAction {
-  .addRoleBtn {
-    padding: 0 20px !important;
-  }
   .applyRecordCount {
     color: var(--color-error);
     padding: 1px 8px;
     border-radius: 20px;
     background-color: var(--color-error-bg);
     margin-left: 8px;
-  }
-  .ming.Checkbox {
-    display: flex !important;
-    align-items: center;
   }
 }
 
@@ -26,4 +19,22 @@
 
 .orgManagementContent.roleAuth {
   padding-top: 16px !important;
+  display: flex;
+  flex-direction: column;
+
+  .defaultFeatureCard {
+    flex-shrink: 0;
+    min-height: 72px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+  }
+
+  > .roleAuthTable {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
 }

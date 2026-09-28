@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { formatQuickFilter } from 'src/utils/filter';
+import { Icon } from 'ming-ui';
+import { Checkbox, Modal, Select } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
 
 const hyphenList = [
   { value: 0, label: _l('空格') + '( )', optionLabel: ' ' },
@@ -24,17 +24,11 @@ const Container = styled.div`
   .nameMethodWrap {
     align-items: center;
     height: 32px;
-    .Checkbox {
-      width: unset !important;
-      margin-bottom: 0px;
-    }
     .width6 {
       width: 6px;
     }
   }
 `;
-
-const { Option } = Select;
 
 class ExportAttachment extends Component {
   constructor(props) {
@@ -122,9 +116,10 @@ class ExportAttachment extends Component {
     const visibleAttachmentControls = attachmentControls.filter(item => this.checkControlVisible(item));
 
     return (
-      <Dialog
-        visible
-        anim={false}
+      <Modal
+        open
+        mask={{ closable: true }}
+        keyboard
         title={_l('批量导出附件')}
         width={530}
         okText={_l('导出')}
@@ -140,8 +135,19 @@ class ExportAttachment extends Component {
             return (
               <Checkbox
                 key={item.controlId}
+                checked={_.includes(selectControlIds, item.controlId)}
+                onChange={event => {
+                  let copyIds = [...selectControlIds];
+                  copyIds = !event.target.checked
+                    ? copyIds.filter(v => v !== item.controlId)
+                    : copyIds.concat(item.controlId);
+                  this.setState({
+                    selectControlIds: copyIds,
+                  });
+                }}
                 size="small"
-                text={
+              >
+                {
                   <Fragment>
                     {item.controlName || ''}
                     {isCharge && !this.checkControlVisible(item) && (
@@ -149,13 +155,7 @@ class ExportAttachment extends Component {
                     )}
                   </Fragment>
                 }
-                checked={_.includes(selectControlIds, item.controlId)}
-                onClick={checked => {
-                  let copyIds = [...selectControlIds];
-                  copyIds = checked ? copyIds.filter(v => v !== item.controlId) : copyIds.concat(item.controlId);
-                  this.setState({ selectControlIds: copyIds });
-                }}
-              ></Checkbox>
+              </Checkbox>
             );
           })}
           <div className="bold mTop20">{_l('命名方式')}</div>
@@ -164,10 +164,10 @@ class ExportAttachment extends Component {
               return (
                 <Fragment key={it.value}>
                   <Checkbox
-                    size="small"
-                    text={it.name}
                     checked={_.includes(nameMethodValues, it.value)}
-                    onClick={checked => {
+                    onChange={event => {
+                      const checked = !event.target.checked;
+
                       if (nameMethodValues.length <= 1 && checked) {
                         return alert(_l('至少选择一种命名方式'), 3);
                       }
@@ -176,10 +176,15 @@ class ExportAttachment extends Component {
                       copyNameMethodValues = checked
                         ? copyNameMethodValues.filter(v => v !== it.value)
                         : copyNameMethodValues.concat(it.value);
-                      this.setState({ nameMethodValues: copyNameMethodValues });
+                      this.setState({
+                        nameMethodValues: copyNameMethodValues,
+                      });
                     }}
-                  ></Checkbox>
-                  {index < nameMethodList.length - 1 && <span className="mLeft16 mRight16 width6">{hyphen}</span>}
+                    size="small"
+                  >
+                    {it.name}
+                  </Checkbox>
+                  {index < nameMethodList.length - 1 && <span className="mLeft14 mRight14 width6">{hyphen}</span>}
                 </Fragment>
               );
             })}
@@ -189,20 +194,14 @@ class ExportAttachment extends Component {
                 <span className="mLeft40 mRight7">{_l('连接符')}</span>
                 <Select
                   style={{ width: 65 }}
-                  dropdownMatchSelectWidth={false}
-                  dropdownStyle={{ width: 120 }}
+                  popupMatchSelectWidth={false}
                   optionLabelProp="optionLabel"
                   value={hyphenValue}
                   onChange={(value, option) => {
                     this.setState({ hyphen: option.optionLabel, hyphenValue: value });
                   }}
-                >
-                  {hyphenList.map(v => (
-                    <Option value={v.value} optionLabel={v.optionLabel}>
-                      {v.label}
-                    </Option>
-                  ))}
-                </Select>
+                  options={hyphenList}
+                />
               </Fragment>
             )}
           </div>
@@ -221,18 +220,25 @@ class ExportAttachment extends Component {
           )}
           <div className="bold mBottom10 mTop30">{_l('选项')}</div>
           <Checkbox
-            size="small"
-            text={_l('为每行记录生成一个文件夹')}
             checked={generateFolder}
-            onClick={checked => this.setState({ generateFolder: !checked })}
-          />
+            onChange={event =>
+              this.setState({
+                generateFolder: event.target.checked,
+              })
+            }
+            size="small"
+          >
+            {_l('为每行记录生成一个文件夹')}
+          </Checkbox>
           <div className="textTertiary Font13">
             {_l('文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。')}
           </div>
         </Container>
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-export const exportAttachment = props => functionWrap(ExportAttachment, props);
+export function useExportAttachment() {
+  return useFunctionWrapComponent(ExportAttachment);
+}

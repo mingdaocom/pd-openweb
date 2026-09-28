@@ -1,15 +1,16 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import xss from 'xss';
 import { whiteList } from 'xss/lib/default';
 import { UserCard } from 'ming-ui';
-import 'src/components/emotion/emotion';
+import createRoot from 'src/common/theme/createRootWithAntdConfig';
+import { SOURCE_TYPE } from 'src/components/comment/config';
 import UploadFile from 'src/components/UploadFiles';
 import { formatMsgDate } from 'src/pages/chat/utils';
-import { cutStringWithHtml, pathCompletion } from 'src/utils/common';
-import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
-import { SOURCE_TYPE } from '../../constants';
+import { cutStringWithHtml } from 'src/utils/core/string';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { addBehaviorLog } from 'src/utils/services/project';
 import Avatar from './avatar';
 import CommentArea from './commentArea';
 import ReplyTo from './replyTo';
@@ -249,6 +250,7 @@ export default class BaseMessageComponent extends React.Component {
               <span className="textTertiary mLeft5">{_l('申请任务查看和回复权限')}</span>
             </div>
           );
+
         case SOURCE_TYPE.FOLDER:
           return (
             <div>
@@ -258,6 +260,7 @@ export default class BaseMessageComponent extends React.Component {
               <span className="textTertiary mLeft5">{_l('申请项目查看和回复权限')}</span>
             </div>
           );
+
         default:
           return <div className="textTertiary">{_l('没有回复权限')}</div>;
       }

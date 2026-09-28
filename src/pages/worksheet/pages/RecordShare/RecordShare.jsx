@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import PublicAppLangDropdown from 'src/components/PublicAppLangDropdown';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const isMobile = browserIsMobile();
 const Con = styled.div`

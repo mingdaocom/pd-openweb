@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useState } from 'react';
 import { get } from 'lodash';
 import { Icon } from 'ming-ui';
-import { compatibleMDJS } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/services/project';
 import composite from '../../assets/composite.png';
 import paste from '../../assets/paste.png';
 import photo from '../../assets/photo.png';
@@ -25,7 +25,7 @@ const creationTypesList = [
 const MingoCreation = forwardRef((props, ref) => {
   const { voiceInputRef, compositeInputRef, onPhotoRecognition = () => {} } = props;
 
-  const { error, onAbort, onGenerateRecord } = useVoice();
+  const { onAbort, onGenerateRecord } = useVoice();
 
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -120,7 +120,6 @@ const MingoCreation = forwardRef((props, ref) => {
             .filter(
               ({ type }) =>
                 (type === COMPOSITE_INPUT_TYPE.VOICE &&
-                  !error &&
                   !!get(md, 'global.Account.accountId') &&
                   md.global.SysSettings.enableVoiceToText) ||
                 type !== COMPOSITE_INPUT_TYPE.VOICE,

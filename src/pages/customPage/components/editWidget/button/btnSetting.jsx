@@ -1,18 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useSetState } from 'react-use';
-import { Checkbox, Divider, Radio, Space } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Checkbox, Divider, Input, Radio, Segmented, Select, Space, Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
-import { getShowViews } from 'src/pages/worksheet/views/util';
-import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { getShowViews } from 'src/utils/services/worksheet/view';
 import LinkPara from '../LinkPara';
 import BtnName from './BtnName';
 import BtnStyles from './BtnStyles';
@@ -21,7 +19,6 @@ import ClickConfirm from './ClickConfirm';
 import DefaultValue from './DefaultValue';
 import FilterData from './FilterData';
 import SelectProcess from './SelectProcess';
-import './index.less';
 
 const BtnSettingWrap = styled.div`
   display: flex;
@@ -51,14 +48,14 @@ const BtnSettingWrap = styled.div`
     padding: 5px 0;
     border: 1px solid var(--color-border-secondary);
     background-color: var(--color-background-card);
-    .ant-radio-group,
-    .ant-space {
+    .hap-radio-group,
+    .hap-space {
       width: 100%;
     }
-    .ant-space {
+    .hap-space {
       gap: 0 !important;
     }
-    .ant-space-item {
+    .hap-space-item {
       padding: 7px 10px;
       margin-bottom: 0 !important;
       &:hover {
@@ -90,32 +87,9 @@ const BtnSettingWrap = styled.div`
     &:first-child {
       margin-top: 0;
     }
-    .Dropdown--input {
-      background-color: var(--color-background-input);
-    }
     .settingTitle {
       font-weight: bold;
       margin-bottom: 8px;
-    }
-    .typeSelect {
-      font-size: 13px;
-      border-radius: 3px;
-      padding: 3px;
-      background-color: var(--color-background-tertiary);
-      > div {
-        height: 25px;
-        line-height: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .active {
-        color: var(--color-primary) !important;
-        border-radius: 3px;
-        padding: 3px 0;
-        font-weight: bold;
-        background-color: var(--color-background-primary);
-      }
     }
     .colorsWrap {
       display: flex;
@@ -167,16 +141,9 @@ const BtnSettingWrap = styled.div`
         }
       }
     }
-    .ant-checkbox-input,
-    .ant-radio-input {
+    .hap-checkbox-input,
+    .hap-radio-input {
       position: absolute;
-    }
-    .ant-input {
-      font-size: 13px;
-      box-shadow: none;
-      padding: 7px 11px;
-      border-radius: 3px 0 0 3px !important;
-      background: var(--color-background-input);
     }
   }
   .customPageBtnSelectIcon {
@@ -186,47 +153,50 @@ const BtnSettingWrap = styled.div`
   }
 `;
 
-const Tab = [
+const getTabs = () => [
   { text: _l('设置按钮'), type: 'setting' },
   { text: _l('卡片说明'), type: 'explain' },
 ];
-const CLICK_ACTION = [
+
+const getClickActions = () => [
   {
-    text: _l('创建记录'),
+    label: _l('创建记录'),
     value: 1,
     svgIcon: 'plus',
   },
   {
-    text: _l('打开视图'),
+    label: _l('打开视图'),
     value: 2,
     svgIcon: '1_worksheet',
   },
   {
-    text: _l('打开自定义页面'),
+    label: _l('打开自定义页面'),
     value: 3,
     svgIcon: 'hr_workbench',
   },
   {
-    text: _l('打开链接'),
+    label: _l('打开链接'),
     value: 4,
     svgIcon: '16_5_globe_earth',
   },
   {
-    text: _l('扫码'),
+    label: _l('扫码'),
     value: 5,
     svgIcon: 'qr_code_19',
   },
   {
-    text: _l('调用封装业务流程'),
+    label: _l('调用封装业务流程'),
     value: 6,
     svgIcon: 'custom_actions',
   },
 ];
 
-const OPEN_MODE = [
+const getOpenModes = () => [
   { value: 1, text: _l('当前页面') },
   { value: 2, text: _l('新页面') },
 ];
+
+const getSegmentedOptions = options => options.map(({ value, text }) => ({ label: text, value }));
 
 const ScanDefaultConfig = {
   qrCodeIsOpen: true,
@@ -237,12 +207,12 @@ const ScanDefaultConfig = {
   isFilter: false,
 };
 
-const ProcessDefaultConfig = {
+const getProcessDefaultConfig = () => ({
   clickType: 1,
   confirmMsg: _l('你确认执行此操作吗？'),
   cancelName: _l('取消'),
   sureName: _l('确认'),
-};
+});
 
 let sheetRequest = null;
 
@@ -266,6 +236,9 @@ function BtnSetting(props) {
   const [paras, setParas] = useState(btnSettingParam || []);
   const [sheetLoading, setSheetLoading] = useState(true);
   const projectId = appPkg.projectId || appPkg.id;
+  const tabs = getTabs();
+  const clickActions = getClickActions();
+  const openModes = getOpenModes();
 
   const [dataSource, setDataSource] = useSetState({ worksheets: [], views: [], pages: [], controls: [], inputs: [] });
 
@@ -316,7 +289,7 @@ function BtnSetting(props) {
         const controls = replaceControlsTranslateInfo(appId, value, template.controls);
         setDataSource({
           views: getShowViews(views).map(({ viewId, name, viewType }) => ({
-            text: getTranslateInfo(appId, null, viewId).name || name,
+            label: getTranslateInfo(appId, null, viewId).name || name,
             value: viewId,
             type: viewType,
           })),
@@ -417,30 +390,24 @@ function BtnSetting(props) {
           </div>
           <div className="settingItem">
             <div className="settingTitle">{_l('视图')}</div>
-            <Dropdown
+            <Select
               disabled={!value}
               value={viewId || undefined}
-              data={views}
+              options={views}
               onChange={value => setBtnSetting({ ...btnSetting, viewId: value })}
               style={{ width: '100%', background: 'var(--color-background-primary)' }}
-              menuStyle={{ width: '100%' }}
               placeholder={_l('选择视图')}
-              border
             />
           </div>
           <div className="settingItem">
             <div className="settingTitle">{_l('打开方式')}</div>
-            <div className="typeSelect flexRow valignWrapper">
-              {OPEN_MODE.map(({ value, text }) => (
-                <div
-                  key={value}
-                  className={cx('flex centerAlign pointer textSecondary', { active: value === openMode })}
-                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
-                >
-                  {text}
-                </div>
-              ))}
-            </div>
+            <Segmented
+              block
+              className="bgDisabled"
+              options={getSegmentedOptions(openModes)}
+              value={openMode}
+              onChange={value => setBtnSetting({ ...btnSetting, openMode: value })}
+            />
           </div>
         </Fragment>
       );
@@ -464,17 +431,13 @@ function BtnSetting(props) {
           </div>
           <div className="settingItem">
             <div className="settingTitle">{_l('打开方式')}</div>
-            <div className="typeSelect flexRow valignWrapper">
-              {OPEN_MODE.map(({ value, text }) => (
-                <div
-                  key={value}
-                  className={cx('flex centerAlign pointer textSecondary', { active: value === openMode })}
-                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
-                >
-                  {text}
-                </div>
-              ))}
-            </div>
+            <Segmented
+              block
+              className="bgDisabled"
+              options={getSegmentedOptions(openModes)}
+              value={openMode}
+              onChange={value => setBtnSetting({ ...btnSetting, openMode: value })}
+            />
           </div>
         </Fragment>
       );
@@ -487,10 +450,10 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('链接')}</div>
             <Input
-              className="Font13 bgInput"
+              className="Font13"
               style={{ width: '100%' }}
               value={value}
-              onChange={value => setBtnSetting({ ...btnSetting, value })}
+              onChange={e => setBtnSetting({ ...btnSetting, value: e.target.value })}
               placeholder={_l('请输入链接地址')}
             />
             {value && (
@@ -505,17 +468,13 @@ function BtnSetting(props) {
           </div>
           <div className="settingItem">
             <div className="settingTitle">{_l('打开方式')}</div>
-            <div className="typeSelect flexRow valignWrapper">
-              {OPEN_MODE.concat([{ value: 3, text: _l('弹窗') }]).map(({ value, text }) => (
-                <div
-                  key={value}
-                  className={cx('flex centerAlign pointer textSecondary', { active: value === openMode })}
-                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
-                >
-                  {text}
-                </div>
-              ))}
-            </div>
+            <Segmented
+              block
+              className="bgDisabled"
+              options={getSegmentedOptions(openModes.concat([{ value: 3, text: _l('弹窗') }]))}
+              value={openMode}
+              onChange={value => setBtnSetting({ ...btnSetting, openMode: value })}
+            />
           </div>
         </Fragment>
       );
@@ -531,14 +490,14 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('引导文字')}</div>
             <Input
-              className="w100 Font13 bgInput"
+              className="w100 Font13"
               value={placeholder}
-              onChange={value => {
+              onChange={e => {
                 setBtnSetting({
                   ...btnSetting,
                   config: {
                     ...config,
-                    placeholder: value,
+                    placeholder: e.target.value,
                   },
                 });
               }}
@@ -604,15 +563,15 @@ function BtnSetting(props) {
             <Fragment>
               <div className="settingItem">
                 <div className="settingTitle">{_l('记录链接')}</div>
-                <Dropdown
+                <Select
                   value={recordLink}
-                  data={[
+                  options={[
                     {
-                      text: _l('打开记录'),
+                      label: _l('打开记录'),
                       value: 1,
                     },
                     {
-                      text: _l('无'),
+                      label: _l('无'),
                       value: 0,
                     },
                   ]}
@@ -625,22 +584,20 @@ function BtnSetting(props) {
                       },
                     });
                   }}
-                  menuStyle={{ width: '100%' }}
                   style={{ width: '100%', background: 'var(--color-background-primary)' }}
-                  border
                 />
               </div>
               <div className="settingItem">
                 <div className="settingTitle">{_l('其他链接')}</div>
-                <Dropdown
+                <Select
                   value={otherLink}
-                  data={[
+                  options={[
                     {
-                      text: _l('打开链接'),
+                      label: _l('打开链接'),
                       value: 1,
                     },
                     {
-                      text: _l('无'),
+                      label: _l('无'),
                       value: 0,
                     },
                   ]}
@@ -653,28 +610,26 @@ function BtnSetting(props) {
                       },
                     });
                   }}
-                  menuStyle={{ width: '100%' }}
                   style={{ width: '100%', background: 'var(--color-background-primary)' }}
-                  border
                 />
               </div>
             </Fragment>
           )}
           <div className="settingItem">
             <div className="settingTitle">{_l('文本')}</div>
-            <Dropdown
+            <Select
               value={text}
-              data={[
+              options={[
                 {
-                  text: _l('搜索并打开记录'),
+                  label: _l('搜索并打开记录'),
                   value: 1,
                 },
                 {
-                  text: _l('调用封装业务流程'),
+                  label: _l('调用封装业务流程'),
                   value: 2,
                 },
                 {
-                  text: _l('无'),
+                  label: _l('无'),
                   value: 0,
                 },
               ]}
@@ -688,9 +643,7 @@ function BtnSetting(props) {
                   },
                 });
               }}
-              menuStyle={{ width: '100%' }}
               style={{ width: '100%', background: 'var(--color-background-primary)' }}
-              border
             />
           </div>
           {text === 1 && (
@@ -723,10 +676,10 @@ function BtnSetting(props) {
               </div>
               <div className="settingItem">
                 <div className="settingTitle Normal">{_l('视图')}</div>
-                <Dropdown
+                <Select
                   disabled={!value}
                   value={viewId || undefined}
-                  data={views.map(item => {
+                  options={views.map(item => {
                     return {
                       ...item,
                       disabled: item.type !== 0,
@@ -734,9 +687,7 @@ function BtnSetting(props) {
                   })}
                   onChange={value => setBtnSetting({ ...btnSetting, viewId: value })}
                   style={{ width: '100%', background: 'var(--color-background-primary)' }}
-                  menuStyle={{ width: '100%' }}
                   placeholder={_l('选择视图')}
-                  border
                 />
               </div>
               {!_.isEmpty(controls) && (
@@ -756,13 +707,13 @@ function BtnSetting(props) {
                   </div>
                   <div className="settingItem">
                     <div className="settingTitle Normal">{_l('搜索字段')}</div>
-                    <Dropdown
+                    <Select
                       value={searchId || undefined}
-                      data={controls
+                      options={controls
                         .filter(c => ![52].includes(c.type))
                         .map(item => {
                           return {
-                            text: item.controlName,
+                            label: item.controlName,
                             value: item.controlId,
                           };
                         })}
@@ -770,9 +721,7 @@ function BtnSetting(props) {
                         setBtnSetting({ ...btnSetting, searchId: value });
                       }}
                       style={{ width: '100%', background: 'var(--color-background-primary)' }}
-                      menuStyle={{ width: '100%' }}
                       placeholder={_l('选择搜索字段')}
-                      border
                     />
                   </div>
                 </Fragment>
@@ -830,7 +779,7 @@ function BtnSetting(props) {
     } else if (value === 6) {
       data.config = {
         ...data.config,
-        ...ProcessDefaultConfig,
+        ...getProcessDefaultConfig(),
         inputs: [],
       };
     } else {
@@ -841,7 +790,7 @@ function BtnSetting(props) {
     }
 
     if (_.get(data, ['config', 'isNewBtn'])) {
-      const { svgIcon } = _.find(CLICK_ACTION, { value });
+      const { svgIcon } = _.find(clickActions, { value });
       const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon}.svg`;
       delete data.config.isNewBtn;
       data.config = {
@@ -857,7 +806,7 @@ function BtnSetting(props) {
   return (
     <BtnSettingWrap>
       <ul className="btnDisplayTab">
-        {Tab.map(({ text, type }) => (
+        {tabs.map(({ text, type }) => (
           <li key={type} className={cx({ active: displayType === type })} onClick={() => setDisplayType(type)}>
             {text}
           </li>
@@ -890,17 +839,15 @@ function BtnSetting(props) {
             <div className="settingItem">
               <div className="settingTitle">{_l('操作')}</div>
               {action ? (
-                <Dropdown
+                <Select
                   value={action}
-                  data={CLICK_ACTION}
+                  options={clickActions}
                   onChange={value => {
                     if (value === action) return;
                     changeAction(value);
                   }}
-                  menuStyle={{ width: '100%' }}
                   style={{ width: '100%' }}
                   placeholder={_l('选择执行操作')}
-                  border
                 />
               ) : (
                 <div className="selectActionBox">
@@ -910,10 +857,10 @@ function BtnSetting(props) {
                     }}
                     value={action}
                   >
-                    <Space direction="vertical">
-                      {CLICK_ACTION.map(item => (
+                    <Space orientation="vertical">
+                      {clickActions.map(item => (
                         <Radio key={item.value} value={item.value}>
-                          {item.text}
+                          {item.label}
                         </Radio>
                       ))}
                     </Space>

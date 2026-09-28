@@ -7,6 +7,10 @@
   font-size: 16px;
   padding: 0 20px;
 
+  &.mobileTabContentContainer {
+    padding: 0 12px;
+  }
+
   &.pBottom60 {
     padding-bottom: 60px !important;
   }
@@ -284,34 +288,47 @@
     gap: 10px;
     min-height: initial;
 
-    .Radio,
-    .Checkbox {
+    .hap-radio-wrapper {
       display: flex;
       align-items: center;
       min-width: 0;
+      font-size: inherit;
       white-space: initial;
 
-      &--disabled {
+      &-disabled {
         color: var(--color-text-primary) !important;
+        opacity: 1 !important;
 
-        .Radio-box,
-        .Checkbox-box {
+        .hap-radio {
           display: none;
         }
-      }
 
-      &-box {
-        flex-shrink: 0;
-        margin-top: initial !important;
-        margin-right: 10px !important;
-        vertical-align: initial !important;
+        > span:last-child {
+          padding-inline-start: 0 !important;
+          color: var(--color-text-primary) !important;
+        }
       }
+    }
 
-      &-text {
-        font-size: inherit !important;
-        vertical-align: initial !important;
-        display: flex;
-        align-items: center;
+    .hap-checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      font-size: inherit;
+      white-space: initial;
+
+      &-disabled {
+        color: var(--color-text-primary) !important;
+        opacity: 1 !important;
+
+        .hap-checkbox {
+          display: none;
+        }
+
+        > span:last-child {
+          padding-inline-start: 0 !important;
+          color: var(--color-text-primary) !important;
+        }
       }
     }
   }
@@ -440,7 +457,7 @@
 .customFormErrorMessage {
   position: absolute;
   bottom: 100%;
-  transform: translateY(-5px);
+  transform: translateY(2px);
   z-index: 11;
   left: 0;
   color: var(--color-white);
@@ -475,12 +492,6 @@
 
 // 多选弹窗
 .mobileCheckboxDialog {
-  .Checkbox-text {
-    font-size: 15px !important;
-    span {
-      text-decoration: none !important;
-    }
-  }
   .radioText {
     text-decoration: none !important;
   }

@@ -1,13 +1,13 @@
-﻿import React, { Component, Fragment } from 'react';
+﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import createTask from 'src/components/createTask/load';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { htmlEncodeReg, pathCompletion } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/core/string';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import CopyFolder from '../../components/copyFolder/copyFolder';
 import ExportFolder from '../../components/exportFolder/exportFolder';
 import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
@@ -27,14 +27,14 @@ import { errorMessage, setStateToStorage } from '../../utils/utils';
 import Filter from './filter';
 import './taskToolbar.less';
 
-const ClickAwayable = ClickAway;
+const FOLDER_OPERATOR_DROPDOWN_STYLES = { root: { minWidth: 180 } };
+
 class TaskToolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
       folderName: '',
       showEdit: false,
-      showOperator: false,
       showSetFolder: false,
       showCopyFolder: false,
       showExportFolder: false,
@@ -102,11 +102,49 @@ class TaskToolbar extends Component {
     }
   };
 
+  handleFolderOperatorClick = ({ key }) => {
+    const { folderId } = this.props.taskConfig;
+    const { projectID } = this.props.folderSettings;
+
+    switch (key) {
+      case 'rename':
+        this.setState({ showEdit: true });
+        break;
+      case 'settings':
+        this.setState({ showSetFolder: true });
+        break;
+      case 'copy':
+        expireDialogAsync(projectID).then(() => this.setState({ showCopyFolder: true }));
+        break;
+      case 'share':
+        this.setState({ showShareDialog: true });
+        break;
+      case 'open':
+        this.openNewPage();
+        break;
+      case 'template':
+        this.saveTemplate();
+        break;
+      case 'export':
+        this.setState({ showExportFolder: true });
+        break;
+      case 'archive':
+        this.updateFolderArchived();
+        break;
+      case 'delete':
+        deleteFolder(folderId, this.props.hideNavigation);
+        break;
+      case 'exit':
+        exitFolder(folderId, this.props.hideNavigation);
+        break;
+    }
+  };
+
   /**
    * render 右侧操作项按钮
    */
   renderRightOperatorBtn() {
-    const { showSetFolder, showCopyFolder, showExportFolder, showOperator, showFilter, showShareDialog } = this.state;
+    const { showSetFolder, showCopyFolder, showExportFolder, showFilter, showShareDialog } = this.state;
     const {
       folderId,
       viewType,
@@ -122,6 +160,58 @@ class TaskToolbar extends Component {
 
     const isCharge = auth === config.auth.FolderCharger;
     const isAdmin = auth === config.auth.FolderAdmin;
+    const folderOperatorItems = [];
+
+    if (isCharge || isAdmin) {
+      folderOperatorItems.push(
+        { key: 'rename', icon: <i className="icon-hr_edit" />, label: _l('重命名') },
+        { key: 'settings', icon: <i className="icon-settings" />, label: _l('项目配置') },
+        { type: 'divider' },
+        { key: 'copy', icon: <i className="icon-task-new-copy" />, label: _l('复制项目') },
+      );
+    }
+
+    folderOperatorItems.push(
+      { key: 'share', icon: <i className="icon-link2" />, label: _l('获取链接与二维码') },
+      { key: 'open', icon: <i className="icon-task-new-detail Font12" />, label: _l('新页面打开') },
+      {
+        key: 'template',
+        icon: <i className="icon-task_set_administrator" />,
+        label: (
+          <span>
+            {_l('保存到我的模板')}
+            <Tooltip title={_l('项目及看板名称、自定义任务内容被保存为模板的信息')} placement="bottomLeft">
+              <i className="icon-info mLeft5" />
+            </Tooltip>
+          </span>
+        ),
+      },
+    );
+
+    if (isCharge || isAdmin) {
+      folderOperatorItems.push({
+        key: 'export',
+        icon: <i className="icon-new_excel" />,
+        label: _l('导出任务列表到Excel'),
+      });
+    }
+
+    if (isCharge || isAdmin || isMember) {
+      folderOperatorItems.push({ type: 'divider' });
+    }
+
+    if (isCharge) {
+      folderOperatorItems.push(
+        {
+          key: 'archive',
+          icon: <i className="icon-task-pigeonhole" />,
+          label: isArchived ? _l('取消归档项目') : _l('归档项目'),
+        },
+        { key: 'delete', danger: true, icon: <i className="icon-trash" />, label: _l('删除项目') },
+      );
+    } else if (isMember) {
+      folderOperatorItems.push({ key: 'exit', icon: <i className="icon-groupExit" />, label: _l('退出项目') });
+    }
 
     let filterCount = 0;
 
@@ -158,10 +248,17 @@ class TaskToolbar extends Component {
 
     return (
       <div className="flex">
-        <div className="createNewTaskBtn bgColorPrimary Right hoverBgColorPrimaryDark" onClick={this.createTask}>
-          <i className="icon-plus" />
+        <Button
+          style={{ '--hap-control-height': '32px' }}
+          className="createNewTaskBtn Right"
+          color="primary"
+          variant="solid"
+          shape="round"
+          icon={<i className="icon-plus" />}
+          onClick={this.createTask}
+        >
           {_l('新任务')}
-        </div>
+        </Button>
         {!folderId ||
         (folderId && (viewType === config.folderViewType.treeView || viewType === config.folderViewType.stageView)) ? (
           <div className="Right">
@@ -185,119 +282,20 @@ class TaskToolbar extends Component {
         ) : undefined}
         {folderId && folderId !== 1 ? (
           <Tooltip title={_l('设置')}>
-            <div className="Right mRight20">
-              <i
-                className="icon-settings folderSettingsBtn"
-                onClick={() => this.setState({ showOperator: !this.state.showOperator })}
-              />
-            </div>
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              styles={FOLDER_OPERATOR_DROPDOWN_STYLES}
+              menu={{ items: folderOperatorItems, onClick: this.handleFolderOperatorClick }}
+            >
+              <div className="Right mRight20">
+                <i className="icon-settings folderSettingsBtn" />
+              </div>
+            </Dropdown>
           </Tooltip>
         ) : undefined}
 
         {showFilter && <Filter taskFilterLeave={this.taskFilterLeave} showReset={filterCount > 0} />}
-
-        {showOperator ? (
-          <ClickAwayable
-            component="ul"
-            className={cx('folderOperatorList boxShadow5 boderRadAll_3')}
-            onClickAway={() => this.setState({ showOperator: false })}
-          >
-            {isCharge || isAdmin ? (
-              <Fragment>
-                <li className="bgColorPrimary" onClick={() => this.setState({ showEdit: true, showOperator: false })}>
-                  <i className="icon-hr_edit" />
-                  {_l('重命名')}
-                </li>
-                <li
-                  className="bgColorPrimary"
-                  onClick={() => this.setState({ showSetFolder: true, showOperator: false })}
-                >
-                  <i className="icon-settings" />
-                  {_l('项目配置')}
-                </li>
-                <li className="dividerLine" />
-                <li
-                  className="bgColorPrimary"
-                  onClick={() => {
-                    expireDialogAsync(projectID).then(() => {
-                      this.setState({ showCopyFolder: true, showOperator: false });
-                    });
-                  }}
-                >
-                  <i className="icon-task-new-copy" />
-                  {_l('复制项目')}
-                </li>
-              </Fragment>
-            ) : undefined}
-
-            <li
-              className="bgColorPrimary"
-              onClick={() => this.setState({ showShareDialog: true, showOperator: false })}
-            >
-              <i className="icon-link2" />
-              {_l('获取链接与二维码')}
-            </li>
-
-            <li className="bgColorPrimary" onClick={this.openNewPage}>
-              <i className="icon-task-new-detail Font12" />
-              {_l('新页面打开')}
-            </li>
-
-            <li className="bgColorPrimary" onClick={this.saveTemplate}>
-              <i className="icon-task_set_administrator" />
-              {_l('保存到我的模板')}
-              <Tooltip title={_l('项目及看板名称、自定义任务内容被保存为模板的信息')} placement="bottomLeft">
-                <span className="mLeft5">
-                  <i className="icon-info" />
-                </span>
-              </Tooltip>
-            </li>
-
-            {isCharge || isAdmin ? (
-              <li
-                className="bgColorPrimary"
-                onClick={() => this.setState({ showExportFolder: true, showOperator: false })}
-              >
-                <i className="icon-new_excel" />
-                {_l('导出任务列表到Excel')}
-              </li>
-            ) : undefined}
-
-            {isCharge || isAdmin || isMember ? <li className="dividerLine" /> : undefined}
-
-            {isCharge ? (
-              <Fragment>
-                <li className="bgColorPrimary" onClick={this.updateFolderArchived}>
-                  <i className="icon-task-pigeonhole" />
-                  {isArchived ? _l('取消归档项目') : _l('归档项目')}
-                </li>
-                <li
-                  className="bgColorPrimary delColor"
-                  onClick={() => {
-                    this.setState({ showOperator: false });
-                    deleteFolder(folderId, this.props.hideNavigation);
-                  }}
-                >
-                  <i className="icon-trash" />
-                  {_l('删除项目')}
-                </li>
-              </Fragment>
-            ) : undefined}
-
-            {!isCharge && isMember ? (
-              <li
-                className="bgColorPrimary"
-                onClick={() => {
-                  this.setState({ showOperator: false });
-                  exitFolder(folderId, this.props.hideNavigation);
-                }}
-              >
-                <i className="icon-groupExit" />
-                {_l('退出项目')}
-              </li>
-            ) : undefined}
-          </ClickAwayable>
-        ) : undefined}
 
         {showSetFolder && <SetFolder folderId={folderId} onClose={() => this.setState({ showSetFolder: false })} />}
         {showCopyFolder && (
@@ -359,7 +357,6 @@ class TaskToolbar extends Component {
   openNewPage = () => {
     const { folderID } = this.props.folderSettings;
 
-    this.setState({ showOperator: false });
     window.open(pathCompletion(`/apps/task/folder_${folderID}`));
   };
 
@@ -368,7 +365,6 @@ class TaskToolbar extends Component {
    */
   saveTemplate = () => {
     const { folderId } = this.props.taskConfig;
-    this.setState({ showOperator: false });
 
     ajaxRequest.saveAsMyFolderTemplate({ folderId }).then(source => {
       if (source.status) {
@@ -385,7 +381,6 @@ class TaskToolbar extends Component {
   updateFolderArchived = () => {
     const { projectID, folderID, isArchived } = this.props.folderSettings;
 
-    this.setState({ showOperator: false });
     updateFolderArchived(projectID, folderID, !isArchived);
 
     this.props.dispatch(updateFolderArchivedState(!isArchived));

@@ -1,16 +1,15 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import dataSourceApi from 'src/pages/integration/api/datasource';
 import dataMirrorAjax from 'src/pages/integration/api/dw.js';
-import { emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/platform/browser/dom';
 import EditDest from './EditDest';
 import Tables from './Tables';
 
@@ -20,13 +19,7 @@ export const isValidName = name => {
 
 const Wrap = styled.div`
   .selectItem {
-    .ant-select-selector {
-      min-height: 36px;
-      input {
-        min-height: 32px;
-      }
-    }
-    .ant-select-selection-placeholder {
+    .hap-select-selection-placeholder {
       line-height: 34px !important;
     }
   }
@@ -292,11 +285,12 @@ export default function CreateDialog(props) {
   };
 
   return (
-    <Dialog
-      dialogClasses={className}
+    <Modal
+      rootClassName={className}
       className={cx('')}
-      visible={visible}
-      anim={false}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       title={_l('创建镜像')}
       width={680}
       onCancel={() => {
@@ -310,8 +304,8 @@ export default function CreateDialog(props) {
       }}
       okText={step === 1 ? _l('创建并同步') : _l('下一步')}
       cancelText={step === 1 ? _l('上一步') : _l('取消')}
+      confirmLoading={isCreating}
       okDisabled={
-        isCreating ||
         !(
           (step === 1 &&
             doubleWriteTables.filter(o => o.isErr || !o.tableName.trim()).length <= 0 &&
@@ -361,6 +355,6 @@ export default function CreateDialog(props) {
           renderCreate()
         )}
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }

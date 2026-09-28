@@ -20,7 +20,23 @@
       color: var(--color-text-tertiary);
       .toolbarBox {
         display: flex;
+        align-items: center;
         gap: 6px;
+        .calendarQuickFilter {
+          // 覆盖 QuickFilterSearch 自带的 pTop10 / pBottom10 等 important 原子类。
+          padding: 0 !important;
+          height: 30px;
+          box-sizing: border-box;
+          background: transparent;
+          > div:first-child:not(.filterStepListWrapper) {
+            margin-left: 0;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 5px;
+            background-color: var(--color-background-secondary);
+          }
+        }
         .toolbarItem {
           display: flex;
           align-items: center;

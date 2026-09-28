@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Col, Row } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Col, Row } from 'ming-ui/antd-components';
 import { formatrChartValue, getChartColors, getStyleColor } from './common';
 import loadG2Plot from './loadG2Plot';
 
@@ -20,6 +20,8 @@ const getControlMinAndMax = map => {
 
   return data;
 };
+
+const getDecimalPlaces = value => (_.isNil(value) || value === '' ? 2 : Number(value));
 
 class ProgressChart extends Component {
   constructor(props) {
@@ -122,7 +124,7 @@ class ProgressChart extends Component {
 
       if (showValueType.includes('2')) {
         const { ydot } = yaxisList[0];
-        values.push(`${(percentValue * 100).toFixed(ydot ? Number(ydot) : 2)}%`);
+        values.push(`${(percentValue * 100).toFixed(getDecimalPlaces(ydot))}%`);
       }
 
       if (showValueType.includes('3')) {
@@ -209,7 +211,7 @@ class ProgressChart extends Component {
         percent: percentValue,
         outline: {
           border: 1,
-          distance: 0,
+          distance: 4,
           style: {
             stroke: color || '#f1f1f1',
           },
@@ -282,7 +284,7 @@ class ProgressChart extends Component {
           <div
             className="Font20 ellipsis mLeft12 bold textPrimary"
             style={{ lineHeight: '18px' }}
-          >{`${((data.value / (data.targetValue || 1)) * 100).toFixed(ydot ? Number(ydot) : 2)}%`}</div>
+          >{`${((data.value / (data.targetValue || 1)) * 100).toFixed(getDecimalPlaces(ydot))}%`}</div>
         </div>
         <div className="Font13 textPrimary">
           {displaySetup.showNumber &&

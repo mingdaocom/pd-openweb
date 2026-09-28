@@ -1,38 +1,24 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, number, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, LoadDiv, Menu, MenuItem, Radio, ScrollView, TagTextarea } from 'ming-ui';
+import { LoadDiv, ScrollView, TagTextarea } from 'ming-ui';
+import { Checkbox, Dropdown, Input, Modal, Radio } from 'ming-ui/antd-components';
 import flowNodeAjax from '../../api/flowNode';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import './index.less';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { checkPermission } from 'src/utils/services/security/permission';
 
-const EditDialogBox = styled(Dialog)`
+const EditDialogContent = styled.div`
   .codeSnippetEditLabel {
     width: 180px;
-  }
-  input {
-    border: 1px solid var(--color-border-primary);
-    padding: 9px 12px;
-    height: 36px;
-    line-height: 18px;
-    border-radius: 3px;
-    &:focus {
-      border-color: var(--color-primary);
-    }
   }
   .mRight90 {
     margin-right: 90px !important;
   }
 `;
 
-const DialogBox = styled(Dialog)`
-  .mui-dialog-body {
-    padding-bottom: 0 !important;
-  }
+const DialogContent = styled.div`
   .codeSnippetHeader {
     border-bottom: 1px solid var(--color-border-primary);
     li {
@@ -54,27 +40,7 @@ const DialogBox = styled(Dialog)`
       }
     }
     .codeSnippetSearch {
-      position: relative;
-      .icon-search {
-        position: absolute;
-        top: 8px;
-        left: 10px;
-      }
-      .icon-cancel {
-        position: absolute;
-        top: 8px;
-        right: 10px;
-        cursor: pointer;
-      }
-      input {
-        width: 220px;
-        height: 32px;
-        line-height: 18px;
-        background: var(--color-background-secondary);
-        border-radius: 16px;
-        padding: 7px 32px 7px 32px;
-        border: none;
-      }
+      width: 220px;
     }
   }
   .codeSnippetLeft {
@@ -145,8 +111,6 @@ const DialogBox = styled(Dialog)`
           display: flex;
         }
       }
-      .Menu.ming {
-      }
     }
   }
   .codeSnippetRight {
@@ -154,8 +118,6 @@ const DialogBox = styled(Dialog)`
     .tagInputareaIuput {
       border: none !important;
     }
-  }
-  .codeSnippetFooter {
   }
   .codeSnippetNull {
     width: 120px;
@@ -203,12 +165,11 @@ export const CodeSnippetEdit = ({
   };
 
   return (
-    <EditDialogBox
-      visible
-      overlayClosable={false}
+    <Modal
+      open
+      mask={{ closable: false }}
       width={640}
       title={id ? _l('编辑代码片段') : _l('保存代码片段')}
-      handleClose={onClose}
       onOk={() => {
         if (!name.trim()) {
           alert(_l('代码片段名称不能为空'), 2);
@@ -219,35 +180,39 @@ export const CodeSnippetEdit = ({
       }}
       onCancel={onClose}
     >
-      <div className="flexRow alignItemsCenter">
-        <div className="codeSnippetEditLabel">{_l('代码片段名称')}</div>
-        <input type="text" className="flex" value={name} onChange={e => setName(e.target.value)} />
-      </div>
-      <div className="flexRow alignItemsCenter mTop30">
-        <div className="codeSnippetEditLabel">{_l('保存到')}</div>
-        <div className="flex flexRow minHeight0">
-          {[
-            { text: _l('个人'), value: md.global.Account.accountId },
-            {
-              text: _l('组织'),
-              value: projectId,
-              disabled: !hasAppResourceAuth,
-            },
-          ].map(item => {
-            return (
-              <Radio
-                key={item.value}
-                disabled={item.disabled}
-                className="mRight90"
-                checked={position === item.value}
-                text={item.text}
-                onClick={() => setPosition(item.value)}
-              />
-            );
-          })}
+      <EditDialogContent>
+        <div className="flexRow alignItemsCenter">
+          <div className="codeSnippetEditLabel">{_l('代码片段名称')}</div>
+          <Input className="flex" value={name} onChange={e => setName(e.target.value)} />
         </div>
-      </div>
-    </EditDialogBox>
+        <div className="flexRow alignItemsCenter mTop30">
+          <div className="codeSnippetEditLabel">{_l('保存到')}</div>
+          <div className="flex flexRow minHeight0">
+            {[
+              { text: _l('个人'), value: md.global.Account.accountId },
+              {
+                text: _l('组织'),
+                value: projectId,
+                disabled: !hasAppResourceAuth,
+              },
+            ].map(item => {
+              return (
+                <Radio
+                  key={item.value}
+                  disabled={item.disabled}
+                  className="mRight90"
+                  checked={position === item.value}
+                  onChange={() => setPosition(item.value)}
+                  title={item.text}
+                >
+                  {item.text}
+                </Radio>
+              );
+            })}
+          </div>
+        </div>
+      </EditDialogContent>
+    </Modal>
   );
 };
 
@@ -274,8 +239,9 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
   const [data, setData] = useState([]);
   const [selectId, setSelectId] = useState('');
   const [editCodeId, setEditCodeId] = useState('');
-  const inputName = useRef(null);
   const tagtextarea = useRef(null);
+  const requestIdRef = useRef(0);
+  const loadingRequestRef = useRef(false);
   const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
   if (window.platformENV.isOverseas || window.platformENV.isLocal) {
@@ -290,16 +256,21 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
     [],
   );
 
+  useEffect(() => () => updateKeywords.cancel(), [updateKeywords]);
+
   const deleteCode = ({ id, name }) => {
-    Dialog.confirm({
-      className: 'deleteCodeSnippet',
-      title: _l('您确定要删除片段“%0”吗？', name),
-      description: _l('删除后将无法恢复'),
+    Modal.confirm({
+      title: <span className="textError">{_l('您确定要删除片段“%0”吗？', name)}</span>,
+      content: _l('删除后将无法恢复'),
       okText: _l('删除'),
+      okButtonProps: { danger: true },
       onOk: () => {
         flowNodeAjax
           .updateCodeTemplate(
-            { id, deleted: true },
+            {
+              id,
+              deleted: true,
+            },
             {
               isWorkflow: true,
             },
@@ -320,59 +291,88 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
     setSelectId(newData.length ? newData[0].id : '');
   };
 
-  const getCodeTemplateList = pageIndex => {
-    setLoading(true);
+  const getCodeTemplateList = useCallback(
+    (nextPageIndex, { force = false } = {}) => {
+      if (loadingRequestRef.current && !force) return Promise.resolve();
+      const requestId = ++requestIdRef.current;
+      loadingRequestRef.current = true;
+      setLoading(true);
 
-    flowNodeAjax
-      .getCodeTemplateList(
-        {
-          keyword: keywords,
-          pageIndex,
-          pageSize: 50,
-          source: tabIndex === 1 ? '' : tabIndex === 2 ? projectId : md.global.Account.accountId,
-          type: langType,
-        },
-        {
-          isWorkflow: true,
-        },
-      )
-      .then(res => {
-        setPageIndex(pageIndex);
-        setHasMore(res.length === 50);
-        setLoading(false);
-        setData(pageIndex === 1 ? res : data.concat(res));
-        pageIndex === 1 && !!res.length && setSelectId(res[0].id);
-      });
-  };
+      return flowNodeAjax
+        .getCodeTemplateList(
+          {
+            keyword: keywords,
+            pageIndex: nextPageIndex,
+            pageSize: 50,
+            source: tabIndex === 1 ? '' : tabIndex === 2 ? projectId : md.global.Account.accountId,
+            type: langType,
+          },
+          {
+            isWorkflow: true,
+          },
+        )
+        .then(res => {
+          if (requestId !== requestIdRef.current) return;
+          setPageIndex(nextPageIndex);
+          setHasMore(res.length === 50);
+          setData(currentData => (nextPageIndex === 1 ? res : currentData.concat(res)));
+          if (nextPageIndex === 1) setSelectId(res[0]?.id || '');
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (requestId !== requestIdRef.current) return;
+          loadingRequestRef.current = false;
+          setLoading(false);
+        });
+    },
+    [keywords, langType, projectId, tabIndex],
+  );
 
   const onScroll = () => {
     if (hasMore && !loading) {
-      getCodeTemplateList(pageIndex + 1);
+      return getCodeTemplateList(pageIndex + 1);
     }
   };
 
   useEffect(() => {
-    setSelectId('');
-    getCodeTemplateList(1);
-  }, [tabIndex, keywords, langType]);
+    getCodeTemplateList(1, { force: true });
+  }, [getCodeTemplateList]);
 
   useEffect(() => {
     if (tagtextarea.current) {
       tagtextarea.current.setValue(selectId ? (_.find(data, o => o.id === selectId) || {}).code : '');
     }
-  }, [selectId]);
+  }, [data, selectId]);
 
   return (
-    <DialogBox
-      visible
-      overlayClosable={false}
+    <Modal
+      open
+      mask={{ closable: false }}
       type="fixed"
       width={1000}
       title={TITLE[type]}
-      handleClose={onClose}
-      showFooter={false}
+      styles={{ body: { paddingBottom: 0 } }}
+      onCancel={onClose}
+      onOk={() => {
+        const selectItem = _.find(data, o => o.id === selectId) || {};
+
+        onSave({
+          actionId: langType,
+          clearParams,
+          inputData: selectItem.inputData,
+          code: selectItem.code,
+        });
+      }}
+      okButtonProps={{ disabled: !selectId }}
+      footerLeftElement={
+        type !== 0 && !!data.length ? (
+          <Checkbox checked={clearParams} onChange={event => setParams(event.target.checked)}>
+            {_l('使用时清空现有input参数与代码块')}
+          </Checkbox>
+        ) : null
+      }
     >
-      <div className="flexColumn h100">
+      <DialogContent className="flexColumn h100">
         <div className="flexRow codeSnippetHeader alignItemsCenter">
           <ul className="flexRow">
             {TYPES.map((item, index) => {
@@ -391,27 +391,18 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
             })}
           </ul>
           <div className="flex" />
-          <div className="codeSnippetSearch">
-            <i className="icon-search Font16 textSecondary"></i>
-            <input
-              type="text"
-              placeholder={_l('搜索')}
-              ref={inputName}
-              onChange={e => updateKeywords(e.target.value)}
-            />
-            {keywords && (
-              <i
-                className="icon-cancel Font16 textSecondary hoverColorPrimary"
-                onClick={() => {
-                  setKeywords('');
-                  inputName.current.value = '';
-                }}
-              />
-            )}
-          </div>
+          <Input
+            allowClear
+            className="codeSnippetSearch"
+            radius
+            variant="filled"
+            placeholder={_l('搜索')}
+            prefix={<i className="icon-search Font16 textSecondary" />}
+            onChange={e => updateKeywords(e.target.value)}
+          />
         </div>
-        <div className="flex flexRow">
-          <div className="codeSnippetLeft flexColumn">
+        <div className="flex flexRow minHeight0">
+          <div className="codeSnippetLeft flexColumn minHeight0">
             {type === 0 && (
               <div className="codeSnippetLangType flexRow alignItemsCenter mBottom16">
                 {[
@@ -445,38 +436,34 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
                     >
                       <div className="ellipsis flex">{item.name}</div>
                       {(tabIndex === 3 || (tabIndex === 2 && hasAppResourceAuth)) && (
-                        <Trigger
-                          popupVisible={popupVisibleId === item.id}
-                          onPopupVisibleChange={visible => {
-                            setPopupVisibleId(visible ? item.id : '');
+                        <Dropdown
+                          open={popupVisibleId === item.id}
+                          onOpenChange={open => {
+                            setPopupVisibleId(open ? item.id : '');
                           }}
-                          action={['click']}
-                          popup={() => {
-                            return (
-                              <Menu>
-                                <MenuItem
-                                  onClick={() => {
-                                    setPopupVisibleId('');
-                                    setEditCodeId(item.id);
-                                  }}
-                                >
-                                  {_l('编辑')}
-                                </MenuItem>
-                                <MenuItem
-                                  onClick={() => {
-                                    setPopupVisibleId('');
-                                    deleteCode(item);
-                                  }}
-                                >
-                                  {_l('删除')}
-                                </MenuItem>
-                              </Menu>
-                            );
-                          }}
-                          popupAlign={{
-                            points: ['tl', 'bl'],
-                            offset: [1, 1],
-                            overflow: { adjustX: true, adjustY: true },
+                          trigger={['click']}
+                          placement="bottomLeft"
+                          menu={{
+                            onClick: ({ domEvent }) => domEvent.stopPropagation(),
+                            style: { minWidth: 180 },
+                            items: [
+                              {
+                                key: 'edit',
+                                label: _l('编辑'),
+                                onClick: () => {
+                                  setPopupVisibleId('');
+                                  setEditCodeId(item.id);
+                                },
+                              },
+                              {
+                                key: 'delete',
+                                label: _l('删除'),
+                                onClick: () => {
+                                  setPopupVisibleId('');
+                                  deleteCode(item);
+                                },
+                              },
+                            ],
                           }}
                         >
                           <div
@@ -486,7 +473,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
                           >
                             <i className="icon-moreop Font16" />
                           </div>
-                        </Trigger>
+                        </Dropdown>
                       )}
                     </li>
                   );
@@ -495,7 +482,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
               {loading && <LoadDiv className="mTop10" />}
             </ScrollView>
           </div>
-          <div className="codeSnippetRight flex flexColumn">
+          <div className="codeSnippetRight flex flexColumn minHeight0">
             {!data.length ? (
               <div className="flex flexColumn alignItemsCenter justifyContentCenter">
                 <div className="codeSnippetNull flexRow alignItemsCenter justifyContentCenter">
@@ -525,41 +512,9 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
                 />
               </ScrollView>
             )}
-
-            <div className="codeSnippetFooter mTop20 flexRow alignItemsCenter">
-              {type !== 0 && !!data.length && (
-                <Checkbox
-                  className="InlineBlock"
-                  text={_l('使用时清空现有input参数与代码块')}
-                  checked={clearParams}
-                  onClick={checked => setParams(!checked)}
-                />
-              )}
-              <div className="flex" />
-              <Button type="link" onClick={onClose}>
-                {_l('取消')}
-              </Button>
-              <Button
-                className="mLeft15"
-                type="primary"
-                disabled={!selectId}
-                onClick={() => {
-                  const selectItem = _.find(data, o => o.id === selectId) || {};
-
-                  onSave({
-                    actionId: langType,
-                    clearParams,
-                    inputData: selectItem.inputData,
-                    code: selectItem.code,
-                  });
-                }}
-              >
-                {_l('确认')}
-              </Button>
-            </div>
           </div>
         </div>
-      </div>
+      </DialogContent>
 
       {!!editCodeId && (
         <CodeSnippetEdit
@@ -591,7 +546,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
           onClose={() => setEditCodeId('')}
         />
       )}
-    </DialogBox>
+    </Modal>
   );
 };
 

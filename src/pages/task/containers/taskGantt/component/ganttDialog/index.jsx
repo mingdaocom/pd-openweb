@@ -4,12 +4,13 @@ import html2canvas from 'html2canvas';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import Dialog from 'ming-ui/components/Dialog';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import { Modal } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import taskReq from 'src/api/taskCenter';
 import ErrorState from 'src/components/errorPage/errorState';
-import { downloadFile, getToken } from 'src/utils/common';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { getToken } from 'src/utils/services/request/authenticated';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import TaskDetail from '../../../taskDetail/taskDetail';
 import config from './config';
 import GanttContent from './GanttContent';
@@ -17,6 +18,11 @@ import GanttHeader from './GanttHeader';
 import GanttSideBar from './GanttSideBar';
 import { durDays, momentTime } from './time';
 import './index.less';
+
+const GANTT_MODAL_STYLES = {
+  container: { padding: 0, overflow: 'hidden' },
+  body: { padding: 0 },
+};
 
 export default class GanttDialog extends Component {
   static propTypes = {
@@ -214,7 +220,7 @@ export default class GanttDialog extends Component {
           })
           .catch(error => {
             console.log(error);
-            alert(_l('保存失败!'), 2);
+            alertIfNotUnauthorized(error, _l('保存失败!'), 2);
           });
       }
     });
@@ -406,7 +412,16 @@ export default class GanttDialog extends Component {
     }
 
     return (
-      <DialogBase dialogClasses="flatFishGanttDialog" visible onCancel={this.handleClose}>
+      <Modal
+        rootClassName="flatFishGanttDialog"
+        open
+        fullScreen
+        title={null}
+        footer={null}
+        closable={false}
+        mask={{ closable: false }}
+        styles={GANTT_MODAL_STYLES}
+      >
         <div className="flatFishGanttWrap flexColumn">
           <GanttHeader {...{ type, name, data, switchDisplayType, refresh, exportData, closeLayer, scrollToToday }} />
           {loading ? (
@@ -443,21 +458,23 @@ export default class GanttDialog extends Component {
             />
           )}
           {showExportDialog && (
-            <Dialog
-              visible
+            <Modal
+              open
+              mask={{ closable: true }}
+              keyboard
               title={_l('导出图片')}
               okText={_l('下载')}
-              className={buildImgSuccess ? '' : 'saveImgBtnDisabled'}
+              okDisabled={!buildImgSuccess}
               onCancel={() => this.setState({ showExportDialog: false })}
               onOk={this.onOk}
             >
               <span className="textTertiary">
                 {buildImgSuccess ? _l('已生成图片') : _l('正在整理要导出的数据，请稍候...')}
               </span>
-            </Dialog>
+            </Modal>
           )}
         </div>
-      </DialogBase>
+      </Modal>
     );
   }
 }

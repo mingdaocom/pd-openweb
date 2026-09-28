@@ -17,49 +17,6 @@ export const Wrap = styled.div`
         color: var(--color-text-secondary);
       }
     }
-    .Dropdown {
-      width: 100%;
-      display: flex;
-      line-height: 36px;
-      height: 36px;
-      opacity: 1;
-      background: var(--color-background-primary);
-      border-radius: 4px;
-      margin: 8px 0;
-      box-sizing: border-box;
-      &.mTop0 {
-        margin: 0 8px 0 0;
-      }
-      .actionIcon {
-        width: 13px;
-      }
-      & > div {
-        flex: 1;
-      }
-      .Dropdown--input {
-        padding: 0 12px 0 12px;
-        width: 100%;
-        display: flex;
-        border: 1px solid var(--color-border-primary);
-        border-radius: 4px;
-        height: 36px;
-        &.active {
-          border: 1px solid var(--color-primary);
-        }
-        .value,
-        .Dropdown--placeholder {
-          flex: 1;
-          max-width: 100%;
-        }
-        .Icon {
-          line-height: 34px;
-        }
-        .List {
-          width: 100%;
-          top: 104% !important;
-        }
-      }
-    }
     .inputBox {
       width: 100%;
       display: flex;
@@ -83,9 +40,6 @@ export const Wrap = styled.div`
     }
     .checkBox {
       vertical-align: middle;
-    }
-    .ming.Checkbox.Checkbox--disabled {
-      color: var(--color-text-title);
     }
     .iconWrap {
       display: inline-block;
@@ -135,26 +89,7 @@ export const Wrap = styled.div`
         display: block !important;
         padding: 0 0 !important;
       }
-      span.addIcon {
-        position: relative;
-        background: var(--color-primary);
-        border-radius: 3px;
-        color: var(--color-white);
-        display: inline-block;
-        padding: 12px 32px;
-        cursor: pointer;
-        font-weight: bold;
-        .icon {
-          font-size: 20px;
-        }
-        &:hover {
-          background: var(--color-link-hover);
-        }
-      }
     }
-  }
-  .RelateRecordDropdown-selected {
-    height: auto;
   }
 `;
 

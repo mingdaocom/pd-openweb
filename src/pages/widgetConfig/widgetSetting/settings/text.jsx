@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import img from 'staticfiles/images/markdown.png';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Popover } from 'ming-ui/antd-components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
 import { DisplayMode, SettingItem } from '../../styled';
 import '../../styled/style.less';
 
@@ -69,8 +69,9 @@ export default function Text(props) {
           {DISPLAY_OPTIONS.map(item => {
             return (
               <Popover
+                arrow={true}
                 color="black"
-                overlayClassName="textMarkdownTipsContainer"
+                classNames={{ root: 'textMarkdownTipsContainer' }}
                 content={item.value === 3 ? <MarkdownTips /> : ''}
                 placement="bottomRight"
               >

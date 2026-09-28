@@ -7,8 +7,11 @@ import shareajax from 'src/api/share';
 import weixinAjax from 'src/api/weixin';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
-import { downloadFile, formatFileSize, getClassNameByExt, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize } from 'src/utils/core/file';
+import { getClassNameByExt } from 'src/utils/domain/file/classification';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import mobileShareHtml from './tpl/mobileShare.htm';
 import './css/mobileShare.less';
 

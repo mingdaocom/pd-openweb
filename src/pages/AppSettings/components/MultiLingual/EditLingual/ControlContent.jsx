@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
-import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from 'src/pages/widgetConfig/config/index';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getTranslateInfo } from 'src/utils/app';
+import { Icon } from 'ming-ui';
+import { Button, Input, Modal } from 'ming-ui/antd-components';
+import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from 'src/utils/domain/control/config';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getTranslateInfo } from 'src/utils/services/app';
 import { LANG_DATA_TYPE } from '../config';
 import { filterHtmlTag } from '../util';
 import EditDescription from './EditDescription';
@@ -22,7 +22,7 @@ export default function ControlContent(props) {
   const comparisonLangInfo = getTranslateInfo(app.id, selectNode.workSheetId, control.controlId, comparisonLangData);
   const { type, dataSource, advancedSetting: { showtype = '0', checktype, itemnames } = {} } = control;
   const options = (_.get(control, 'options') || []).filter(n => !n.isDeleted);
-  const itemNames = itemnames && JSON.parse(itemnames);
+  const itemNames = itemnames && safeParse(itemnames);
   const [optionsEditDialogVisible, setOptionsEditDialogVisible] = useState('');
 
   const handleSave = info => {
@@ -102,8 +102,10 @@ export default function ControlContent(props) {
               {_l('选项集')}: {_.get(_.find(collections, { collectionId: dataSource }), 'name')}
             </div>
             <div className="flex">
-              <span
-                className="colorPrimary pointer"
+              <Button
+                color="primary"
+                variant="link"
+                size="small"
                 onClick={() => {
                   setExpandedKeys(['optionsEntrance']);
                   onSelectedKeys([dataSource], {
@@ -121,7 +123,7 @@ export default function ControlContent(props) {
                 }}
               >
                 {_l('前往编辑')}
-              </span>
+              </Button>
             </div>
           </div>
         ) : (
@@ -142,9 +144,14 @@ export default function ControlContent(props) {
               )}
               {dataSource && !_.find(collections, { collectionId: dataSource }) ? null : (
                 <div className="flex">
-                  <span className="colorPrimary pointer" onClick={() => setOptionsEditDialogVisible(control.controlId)}>
+                  <Button
+                    color="primary"
+                    variant="link"
+                    size="small"
+                    onClick={() => setOptionsEditDialogVisible(control.controlId)}
+                  >
                     {_l('编辑译文')}
-                  </span>
+                  </Button>
                 </div>
               )}
             </div>
@@ -243,17 +250,17 @@ export default function ControlContent(props) {
         </div>
       )}
       {optionsEditDialogVisible && optionsEditDialogVisible === control.controlId && [9, 10, 11].includes(type) && (
-        <Dialog
-          visible={true}
+        <Modal
+          open
           className="editLingualDialog"
           width={860}
           title={
-            <div className="flexRow alignItemsCenter mBottom10">
+            <div className="flexRow alignItemsCenter">
               <Icon icon={getIconByType(type)} className="Font20 textTertiary mRight10" />
               <span>{translateInfo.name || control.controlName}</span>
             </div>
           }
-          showFooter={false}
+          keyboard
           onCancel={() => setOptionsEditDialogVisible('')}
         >
           {options
@@ -269,7 +276,7 @@ export default function ControlContent(props) {
                 />
               </div>
             ))}
-        </Dialog>
+        </Modal>
       )}
     </div>
   );

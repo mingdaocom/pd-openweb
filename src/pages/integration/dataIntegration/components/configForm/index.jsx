@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Icon, Input, LoadDiv, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import dataSourceApi from '../../../api/datasource';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Input, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import CustomFields from 'src/components/Form';
 import { CREATE_TYPE, CREATE_TYPE_RADIO_LIST, DATABASE_TYPE, sourceNamePattern, TEST_STATUS } from '../../constant';
+import dataSourceApi from '../../services/datasource';
+import { getSensitiveRequestErrorMessages } from '../../services/sensitiveRequest';
 import { getExtraParams } from '../../utils';
 import ExistSourceModal from '../ExistSourceModal';
 import SourceSelectModal from '../SourceSelectModal';
@@ -20,11 +20,6 @@ const Wrapper = styled.div`
   .selectItem {
     width: 100%;
     font-size: 13px;
-    .ant-select-selector {
-      height: 36px !important;
-      padding: 2px 11px !important;
-      border-radius: 3px !important;
-    }
   }
 `;
 
@@ -94,26 +89,9 @@ const SourceSelectFormWrapper = styled.div`
   .sourceNameInput {
     width: 50%;
     padding-right: 12px;
-
-    .Input {
-      background: var(--color-background-secondary);
-      border: 1px solid var(--color-background-secondary) !important;
-      border-radius: 4px;
-      padding: 8px 12px 6px;
-      font-size: 13px;
-
-      :hover {
-        border-color: var(--color-background-disabled) !important;
-        background: var(--color-background-disabled);
-      }
-      :focus {
-        border-color: var(--color-primary) !important;
-        background: var(--color-background-primary);
-      }
-    }
   }
 
-  .Radio {
+  .ant-radio-wrapper {
     margin-right: 80px !important;
   }
 `;
@@ -121,8 +99,11 @@ const SourceSelectFormWrapper = styled.div`
 export default function ConfigForm(props) {
   const { connectorConfigData, setConnectorConfigData, roleType, isCreateConnector, setSaveDisabled, isEditSource } =
     props;
-  const [flag, setFlag] = useState(+new Date());
-  const [allFieldDisabled, setAllFieldDisabled] = useState(false);
+  const config = connectorConfigData[roleType];
+  const { formData: currentFormData, createType, type: sourceType } = config;
+  const currentProjectId = props.currentProjectId;
+  const allFieldDisabled = props.disabled || createType === CREATE_TYPE.SELECT_EXIST;
+  const flag = useMemo(() => ({ formData: currentFormData, createType }), [currentFormData, createType]);
   const [appOptionList, setAppOptionList] = useState({ fetching: true, list: [] });
   const [selectModalVisible, setSelectModalVisible] = useState(false);
   const [existSourceModalVisible, setExistSourceModalVisible] = useState(false);
@@ -132,6 +113,25 @@ export default function ConfigForm(props) {
   const [sshEnable, setSshEnable] = useState(false);
   const fieldRef = useRef(null);
   const connectorConfigDataRef = useRef(connectorConfigData);
+  const testRequest = useRef(null);
+  const resetTimer = useRef(null);
+
+  useEffect(
+    () => () => {
+      testRequest.current?.abort();
+      testRequest.current = null;
+      clearTimeout(resetTimer.current);
+    },
+    [],
+  );
+
+  const cancelTest = () => {
+    testRequest.current?.abort();
+    testRequest.current = null;
+    clearTimeout(resetTimer.current);
+    setTestStatus(TEST_STATUS.DEFAULT);
+    setErrorInfo([]);
+  };
 
   // 获取白名单
   useEffect(() => {
@@ -141,9 +141,11 @@ export default function ConfigForm(props) {
 
   // 获取应用列表
   useEffect(() => {
-    if (connectorConfigData[roleType].type === DATABASE_TYPE.APPLICATION_WORKSHEET) {
-      appManagementApi.getAppForManager({ projectId: props.currentProjectId, type: 0 }).then(res => {
-        if (res) {
+    let active = true;
+
+    if (sourceType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+      appManagementApi.getAppForManager({ projectId: currentProjectId, type: 0 }).then(res => {
+        if (active && res) {
           const optionList = res.map(item => {
             return { label: item.appName, value: item.appId };
           });
@@ -151,20 +153,20 @@ export default function ConfigForm(props) {
         }
       });
     }
-  }, [connectorConfigData[roleType].type]);
+
+    return () => {
+      active = false;
+    };
+  }, [sourceType, currentProjectId]);
 
   useEffect(() => {
     connectorConfigDataRef.current = connectorConfigData;
   }, [connectorConfigData]);
 
-  useEffect(() => {
-    setAllFieldDisabled(connectorConfigData[roleType].createType === CREATE_TYPE.SELECT_EXIST);
-    setFlag(+new Date());
-  }, [connectorConfigData[roleType].formData, connectorConfigData[roleType].createType]);
-
   const isApplicationSheet = connectorConfigData[roleType].type === DATABASE_TYPE.APPLICATION_WORKSHEET;
 
-  const onTestConnect = () => {
+  const onTestConnect = async () => {
+    if (props.disabled || testRequest.current) return;
     const { data, error } = fieldRef.current.getSubmitData();
     const formData = {};
 
@@ -195,15 +197,18 @@ export default function ConfigForm(props) {
       sshConfigId: connectorConfigData[roleType].formData.sshConfigId,
     };
 
+    const controller = new AbortController();
+    testRequest.current = controller;
+    clearTimeout(resetTimer.current);
     setTestStatus(TEST_STATUS.TESTING);
+    setSaveDisabled(true);
+    setErrorInfo([]);
 
-    dataSourceApi.test(params).then(result => {
+    try {
+      const result = await dataSourceApi.test(params, { abortController: controller });
+      if (controller.signal.aborted) return;
       setTestStatus(result.isSucceeded ? TEST_STATUS.SUCCESS : TEST_STATUS.FAILED);
-      setErrorInfo(result.isSucceeded ? [] : result.errorMsgList);
-
-      setTimeout(() => {
-        setTestStatus(TEST_STATUS.DEFAULT);
-      }, 2000);
+      setErrorInfo(result.isSucceeded ? [] : result.errorMsgList || [_l('测试连接失败')]);
 
       if (result.isSucceeded) {
         setSaveDisabled(false);
@@ -219,10 +224,20 @@ export default function ConfigForm(props) {
           }),
         });
       }
-    });
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      setTestStatus(TEST_STATUS.FAILED);
+      setErrorInfo(getSensitiveRequestErrorMessages(error, _l('测试连接失败')));
+    } finally {
+      if (testRequest.current === controller) {
+        testRequest.current = null;
+        resetTimer.current = setTimeout(() => setTestStatus(TEST_STATUS.DEFAULT), 2000);
+      }
+    }
   };
 
   const onCreateTypeChange = createType => {
+    cancelTest();
     if (createType === CREATE_TYPE.NEW) {
       setConnectorConfigData({
         [roleType]: Object.assign({}, connectorConfigData[roleType], {
@@ -233,61 +248,66 @@ export default function ConfigForm(props) {
         }),
       });
       setSaveDisabled(true);
-      setAllFieldDisabled(false);
     } else {
       setExistSourceModalVisible(true);
     }
   };
 
-  const renderSourceSelectForm = () => {
-    return (
-      <SourceSelectFormWrapper>
-        <div className="Font13 textSecondary bold mBottom16 relative">
-          <div className="requiredStar">*</div>
-          {_l('数据源')}
-        </div>
-        <RadioGroup
-          className="mBottom24"
-          data={CREATE_TYPE_RADIO_LIST}
-          checkedValue={connectorConfigData[roleType].createType || CREATE_TYPE.NEW}
-          onChange={createType => onCreateTypeChange(createType)}
-        />
-        {connectorConfigData[roleType].createType !== CREATE_TYPE.SELECT_EXIST ? (
-          <div className="sourceNameInput">
-            <Input
-              className="mBottom24 w100"
-              value={connectorConfigData[roleType].sourceName}
-              onBlur={event =>
-                setConnectorConfigData({
-                  [roleType]: Object.assign({}, connectorConfigData[roleType], {
-                    sourceName: event.target.value.replace(sourceNamePattern, ''),
-                  }),
-                })
-              }
-              onChange={sourceName =>
-                setConnectorConfigData({
-                  [roleType]: Object.assign({}, connectorConfigData[roleType], { sourceName }),
-                })
-              }
-            />
-          </div>
-        ) : (
-          <Select
-            className="selectItem mBottom24"
-            showSearch={true}
-            open={false}
+  const sourceSelectForm = (
+    <SourceSelectFormWrapper>
+      <div className="Font13 textSecondary bold mBottom16 relative">
+        <div className="requiredStar">*</div>
+        {_l('数据源')}
+      </div>
+      <Radio.Group
+        disabled={props.disabled}
+        className="mBottom24"
+        options={(CREATE_TYPE_RADIO_LIST || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+        value={connectorConfigData[roleType].createType || CREATE_TYPE.NEW}
+        onChange={event => onCreateTypeChange(event.target.value)}
+      />
+      {connectorConfigData[roleType].createType !== CREATE_TYPE.SELECT_EXIST ? (
+        <div className="sourceNameInput">
+          <Input
+            disabled={props.disabled}
+            className="mBottom24 w100"
+            radius
+            variant="filled"
             value={connectorConfigData[roleType].sourceName}
-            options={[]}
-            onFocus={() => setExistSourceModalVisible(true)}
+            onBlur={event =>
+              setConnectorConfigData({
+                [roleType]: Object.assign({}, connectorConfigData[roleType], {
+                  sourceName: event.target.value.replace(sourceNamePattern, ''),
+                }),
+              })
+            }
+            onChange={event => {
+              cancelTest();
+              setConnectorConfigData({
+                [roleType]: Object.assign({}, connectorConfigData[roleType], {
+                  sourceName: event.target.value,
+                }),
+              });
+            }}
           />
-        )}
-      </SourceSelectFormWrapper>
-    );
-  };
+        </div>
+      ) : (
+        <Select
+          disabled={props.disabled}
+          className="selectItem mBottom24"
+          showSearch={true}
+          open={false}
+          value={connectorConfigData[roleType].sourceName}
+          options={[]}
+          onFocus={() => setExistSourceModalVisible(true)}
+        />
+      )}
+    </SourceSelectFormWrapper>
+  );
 
   return (
     <Wrapper>
-      <SelectCard onClick={() => setSelectModalVisible(true)}>
+      <SelectCard onClick={() => !props.disabled && setSelectModalVisible(true)}>
         <svg className="icon svg-icon" aria-hidden="true">
           <use xlinkHref={`#icon${connectorConfigData[roleType].className}`} />
         </svg>
@@ -306,6 +326,8 @@ export default function ConfigForm(props) {
         <SourceSelectModal
           projectId={props.currentProjectId}
           onChange={value => {
+            if (props.disabled) return;
+            cancelTest();
             setConnectorConfigData({
               [roleType]: Object.assign({}, value, { createType: CREATE_TYPE.NEW, sourceName: '', formData: {} }),
             });
@@ -318,7 +340,7 @@ export default function ConfigForm(props) {
         />
       )}
 
-      {isCreateConnector && !isApplicationSheet && renderSourceSelectForm()}
+      {isCreateConnector && !isApplicationSheet && sourceSelectForm}
 
       {existSourceModalVisible && (
         <ExistSourceModal
@@ -326,9 +348,10 @@ export default function ConfigForm(props) {
           connectorConfigData={connectorConfigData}
           roleType={roleType}
           setConnectorConfigData={obj => {
+            if (props.disabled) return;
+            cancelTest();
             setConnectorConfigData(obj);
             setSaveDisabled(false);
-            setAllFieldDisabled(true);
           }}
           onClose={() => setExistSourceModalVisible(false)}
         />
@@ -339,6 +362,7 @@ export default function ConfigForm(props) {
           <FormItem>
             <div className="mBottom8">{_l('应用')}</div>
             <Select
+              disabled={props.disabled}
               className="selectItem"
               labelInValue={true}
               allowClear={true}
@@ -372,6 +396,7 @@ export default function ConfigForm(props) {
           <CustomFields
             ref={fieldRef}
             flag={flag}
+            disabled={allFieldDisabled}
             from={3}
             disableRules={true}
             recordId={uuidv4()}
@@ -383,6 +408,8 @@ export default function ConfigForm(props) {
               allFieldDisabled,
             )}
             onChange={(data, changed) => {
+              if (props.disabled) return;
+              cancelTest();
               const formData = {};
               data.forEach(element => {
                 formData[element.controlId] = element.value;
@@ -409,6 +436,7 @@ export default function ConfigForm(props) {
               projectId={props.currentProjectId}
               data={connectorConfigData[roleType].formData}
               onChange={obj => {
+                cancelTest();
                 setConnectorConfigData({
                   [roleType]: Object.assign({}, connectorConfigData[roleType], {
                     formData: { ...connectorConfigData[roleType].formData, ...obj },
@@ -416,7 +444,7 @@ export default function ConfigForm(props) {
                 });
               }}
               setSubmitDisabled={setSaveDisabled}
-              disabled={isCreateConnector && connectorConfigData[roleType].createType === CREATE_TYPE.SELECT_EXIST}
+              disabled={props.disabled || (isCreateConnector && createType === CREATE_TYPE.SELECT_EXIST)}
             />
           )}
         </React.Fragment>
@@ -425,7 +453,7 @@ export default function ConfigForm(props) {
       {((!isApplicationSheet && connectorConfigData[roleType].createType !== CREATE_TYPE.SELECT_EXIST) ||
         !isCreateConnector) && (
         <FormFooter>
-          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+          {window.platformENV.isHap && (
             <div className="mTop24">
               <p className="textPrimary Font13">{_l('请将以下IP加入数据库服务器的访问白名单')}</p>
               <div className="info">{whitelistIp.join(', ')}</div>

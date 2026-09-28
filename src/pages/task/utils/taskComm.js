@@ -3,10 +3,11 @@ import { renderToString } from 'react-dom/server';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, DeleteReconfirm, Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Checkbox, DeleteReconfirm, Modal } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import Store from 'src/redux/configureStore';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import singleFolder from '../containers/taskNavigation/tpl/singleFolder.html';
 import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.html';
 import { addTask } from '../redux/actions';
@@ -171,20 +172,25 @@ export const checkTaskSubTask = (taskId, callback) => {
 
   taskStatusDialog(status, () => {
     if ($li.find('.icon-task-card').length > 0) {
-      Dialog.confirm({
+      let isChecked = false;
+
+      Modal.confirm({
         title: status ? _l('标记该任务为已完成') : _l('标记该任务为未完成'),
         closable: false,
-        dialogClasses: 'enterStatus',
-        children: (
+        wrapClassName: 'enterStatus',
+        content: (
           <Checkbox
             className="textTertiary"
             defaultChecked={false}
-            text={status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
-          />
+            onChange={event => {
+              isChecked = event.target.checked;
+            }}
+          >
+            {status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
+          </Checkbox>
         ),
         onOk: () => {
-          const isCk = $('.enterStatus .Checkbox').is('.checked');
-          callback($li, status, isCk);
+          callback($li, status, isChecked);
         },
       });
     } else {
@@ -1036,7 +1042,7 @@ export const updateFolderTop = (folderId, isTop, callback) => {
             $('.topFolderList .folderList').prepend($newLi).show();
           } else {
             const topList =
-              '<div class="topFolderList borderTertiary"><div class="popTops textSecondary">' +
+              '<div class="topFolderList borderSecondary"><div class="popTops textSecondary">' +
               _l('置顶项目') +
               '</div><ul class="folderList"></ul></div>';
             $('.navContent').prepend(topList);
@@ -1112,7 +1118,7 @@ export const deleteFolder = (folderId, hideNavigation) => {
 
 // 退出项目
 export const exitFolder = (folderId, hideNavigation) => {
-  Dialog.confirm({
+  Modal.confirm({
     title: _l('确定退出该项目？'),
     closable: false,
     onOk: () => {
@@ -1213,10 +1219,10 @@ export const updateFolderArchived = (projectId, folderId, pigeonhole, callback) 
 
 // 申请加入项目
 export const joinProjectPrompt = folderId => {
-  Dialog.confirm({
+  Modal.confirm({
     title: _l('申请加入项目1'),
-    dialogClasses: 'joinFolder',
-    children: (
+    wrapClassName: 'joinFolder',
+    content: (
       <div className="folderInfo">
         <textarea
           className="borderColorPrimary w100"

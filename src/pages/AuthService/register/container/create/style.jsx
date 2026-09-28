@@ -16,31 +16,9 @@ export const Wrap = styled.div`
       }
 
       .controlDropdown {
-        height: 48px !important;
+        --hap-select-height: 48px;
+        height: auto !important;
         min-height: 48px !important;
-      }
-
-      .Dropdown--border,
-      .dropdownTrigger .Dropdown--border {
-        height: 48px !important;
-        min-height: 48px !important;
-      }
-
-      .Dropdown--input {
-        height: 48px !important;
-        min-height: 48px !important;
-        padding: 0 5px !important;
-
-        .Dropdown--placeholder,
-        .icon-arrow-down-border,
-        .value {
-          line-height: 48px !important;
-        }
-
-        .value {
-          display: flex !important;
-          align-items: center;
-        }
       }
     }
 
@@ -50,34 +28,18 @@ export const Wrap = styled.div`
         top: -1px;
         transform: translateY(-50%);
       }
-      input[type='text']:not(.iti__search-input),
-      input[type='password'],
-      .Dropdown--input,
-      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-        .Dropdown--placeholder {
-          opacity: 1;
-        }
-      }
     }
     .mesDiv:not(.hasValue) {
       .title {
         top: 50% !important;
         transform: translateY(-50%);
       }
-      input:not(.iti__search-input) .icon-arrow-down-border,
-      .Dropdown--input .icon-arrow-down-border {
-        position: absolute;
-        right: 12px;
-        top: 0;
+      .hap-select-placeholder {
+        opacity: 0;
+        transition: opacity 0.3s;
       }
-      input[type='text']:not(.iti__search-input),
-      input[type='password'],
-      .Dropdown--input,
-      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-        .Dropdown--placeholder {
-          opacity: 0;
-          transition: all 0.3s;
-        }
+      input[type='text']:not(.hap-select-input),
+      input[type='password'] {
         &.active {
           border: 1px solid var(--color-primary) !important;
           box-shadow: var(--shadow-sm);
@@ -85,9 +47,6 @@ export const Wrap = styled.div`
             color: var(--color-primary) !important;
             top: -1px;
             transform: translateY(-50%);
-          }
-          .Dropdown--placeholder {
-            opacity: 1;
           }
         }
       }
@@ -103,6 +62,15 @@ export const Wrap = styled.div`
           transform: translateY(-50%);
         }
       }
+    }
+
+    .mesDiv.errorDiv .controlDropdown {
+      border-color: var(--color-error) !important;
+    }
+
+    .mesDiv.errorDivCu .controlDropdown {
+      border-color: var(--color-primary) !important;
+      box-shadow: var(--shadow-sm);
     }
   }
 `;
@@ -157,37 +125,6 @@ export const WrapConDp = styled.div`
     span.itemSpan {
       color: var(--color-text-title) !important;
       font-size: 14px;
-    }
-    .ming.Item .Item-content:not(.disabled):hover {
-      span.itemSpan {
-        color: var(--color-text-inverse) !important;
-        font-size: 14px;
-      }
-    }
-    .Dropdown--border,
-    .dropdownTrigger .Dropdown--border {
-      height: auto !important;
-    }
-    .Dropdown--input {
-      height: auto !important;
-      min-height: 48px;
-      padding: 4px !important;
-      .Dropdown--placeholder {
-        line-height: 40px !important;
-      }
-      .icon-arrow-down-border {
-        line-height: 40px !important;
-      }
-      .value {
-        line-height: 40px !important;
-        display: flex !important;
-        & > div {
-          flex: 1 !important;
-          display: flex !important;
-          flex-flow: row wrap !important;
-          gap: 5px;
-        }
-      }
     }
   }
 `;

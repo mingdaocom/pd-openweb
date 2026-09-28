@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { func, number, shape } from 'prop-types';
-import { MdAntDatePicker, MdAntDateRangePicker } from 'ming-ui';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { getDatePickerConfigs } from '../../../../util/setting';
+import { DatePicker, DateRangePicker } from 'ming-ui/antd-components';
+import { getDatePickerConfigs } from 'src/utils/domain/control/date';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 
@@ -105,7 +105,7 @@ export default class DateInput extends Component {
       const [minValue, maxValue] = defValue.split('-');
       return (
         <WrapMaxOrMin className="flexRow alignItemsCenter">
-          <MdAntDateRangePicker
+          <DateRangePicker
             className="timeMaxOrMinCon"
             key={defValue}
             value={minValue && maxValue ? [moment(minValue, formatMode), moment(maxValue, formatMode)] : []}
@@ -119,7 +119,7 @@ export default class DateInput extends Component {
     }
 
     return (
-      <MdAntDatePicker
+      <DatePicker
         value={defValue ? moment(defValue) : ''}
         className="datePicker"
         format={dateProps.formatMode}

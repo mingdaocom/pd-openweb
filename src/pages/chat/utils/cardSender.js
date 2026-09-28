@@ -1,12 +1,13 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import moment from 'moment';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import createCalendar from 'src/components/createCalendar/load';
 import createTask from 'src/components/createTask/load';
 import RelationControl from 'src/components/relationControl/relationControl';
 import createFeed from 'src/pages/feed/components/createFeed/load';
-import { pathCompletion } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Constant from './constant';
 
 const _initPost = function (acceptor, options, callback) {
@@ -114,7 +115,11 @@ export const selectTask = () => {
 
     const root = createRoot(document.createElement('div'));
 
-    root.render(<RelationControl types={[1]} onSubmit={onSubmit} />);
+    root.render(
+      <AntdConfigProvider>
+        <RelationControl types={[1]} onSubmit={onSubmit} />
+      </AntdConfigProvider>,
+    );
   });
 };
 
@@ -187,7 +192,11 @@ export const selectSchedule = () => {
 
     const root = createRoot(document.createElement('div'));
 
-    root.render(<RelationControl types={[3]} onSubmit={onSubmit} />);
+    root.render(
+      <AntdConfigProvider>
+        <RelationControl types={[3]} onSubmit={onSubmit} />
+      </AntdConfigProvider>,
+    );
   });
 };
 

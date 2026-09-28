@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
-import { pathCompletion } from 'src/utils/common';
-import { compatibleMDJS } from 'src/utils/project';
+import { formatResponseData } from 'src/utils/platform/file/attachment';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { compatibleMDJS } from 'src/utils/services/project';
 import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
 
 const OCR = props => {

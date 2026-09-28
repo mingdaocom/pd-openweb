@@ -215,15 +215,6 @@ export const SYSTEM_ENUM = [
   'wfdtime',
 ];
 
-// 各控件取值id
-export const WIDGET_VALUE_ID = {
-  26: 'accountId',
-  27: 'departmentId',
-  29: 'sid',
-  35: 'sid',
-  48: 'organizeId',
-};
-
 // 掩码配置相关属性
 export const MASK_ADVANCEDSETTING = [
   'datamask',

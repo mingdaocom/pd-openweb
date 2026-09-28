@@ -272,6 +272,9 @@
 .fileIcon-worksheet {
   background: url('newfileIcons/ic_file_worksheet.png') no-repeat;
 }
+.fileIcon-appLink {
+  background: url('newfileIcons/app_link.png') no-repeat;
+}
 
 .fileIcon-folder,
 .fileIcon-folderShared,
@@ -319,7 +322,8 @@
 .fileIcon-xd,
 .fileIcon-code,
 .fileIcon-md,
-.fileIcon-worksheet {
+.fileIcon-worksheet,
+.fileIcon-appLink {
   display: inline-block;
   -webkit-background-size: cover !important;
   background-size: cover !important;

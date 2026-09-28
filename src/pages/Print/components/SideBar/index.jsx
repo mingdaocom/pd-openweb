@@ -1,9 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon } from 'ming-ui';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { controlState } from 'src/utils/control';
+import { Icon } from 'ming-ui';
+import { Checkbox, Select } from 'ming-ui/antd-components';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { controlState } from 'src/utils/domain/control/state';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import {
   APPROVAL_POSITION_OPTION,
   DEFAULT_FONT_SIZE,
@@ -143,15 +144,16 @@ class SideNav extends React.Component {
     }
 
     return (
-      <div className="controlOption mBottom32">
+      <div className="controlOption mBottom32 flexColumn">
         {workflow.map(item => (
           <Checkbox
             checked={item.checked}
             key={item.flowNode.id}
             className="mTop12"
-            onClick={() => this.toggleWorkflowCheckItem(item.flowNode.id)}
-            text={item.flowNode.name}
-          />
+            onChange={() => this.toggleWorkflowCheckItem(item.flowNode.id)}
+          >
+            {item.flowNode.name}
+          </Checkbox>
         ))}
       </div>
     );
@@ -176,9 +178,10 @@ class SideNav extends React.Component {
                 <Checkbox
                   checked={item.checked}
                   className="approvalItem1ConCheck"
-                  onClick={() => this.toggleApprovalCheckItem(index)}
-                  text={item.name}
-                />
+                  onChange={() => this.toggleApprovalCheckItem(index)}
+                >
+                  {item.name}
+                </Checkbox>
                 {/* {item.child && item.child.length > 1 && (
                   <Icon
                     icon={isOpen ? 'expand_less' : 'expand_more'}
@@ -514,11 +517,10 @@ class SideNav extends React.Component {
                 {['approve', 'workflow'].includes(plateItem.key) && (
                   <React.Fragment>
                     <p className="mTop24 mBottom10">{_l('审批签名位置')}</p>
-                    <Dropdown
+                    <Select
                       className="w100"
-                      border
                       value={approvePosition}
-                      data={APPROVAL_POSITION_OPTION}
+                      options={APPROVAL_POSITION_OPTION}
                       onChange={value =>
                         handChange({
                           approvePosition: value,

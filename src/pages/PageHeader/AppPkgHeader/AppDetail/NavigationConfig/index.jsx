@@ -1,15 +1,13 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Tabs } from 'antd';
 import cx from 'classnames';
-import { Icon, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import AppNavStyle from '../AppNavStyle';
+import { Icon } from 'ming-ui';
+import { Checkbox, Radio, Tabs, Tooltip } from 'ming-ui/antd-components';
+import AppNavStyle from 'ming-ui/functions/dialogSelectIcon/AppNavStyle';
 import MobileCustomNav from './MobileCustomNav';
 import Navigation from './Navigation';
 import './index.less';
 
 export default function NavigationConfig(props) {
-  const { onClose } = props;
   const { app, onChangeApp } = props;
   const [gridDisplayMode, setGridDisplayMode] = useState(app.gridDisplayMode || 0);
   const [appNaviDisplayType, setAppNaviDisplayType] = useState(app.appNaviDisplayType || 0);
@@ -67,9 +65,9 @@ export default function NavigationConfig(props) {
           {app.currentPcNaviStyle === 3 && (
             <div className="flexRow alignItemsCenter mBottom15">
               <div style={{ width: 100 }}>{_l('展开方式')}</div>
-              <RadioGroup
+              <Radio.Group
                 size="middle"
-                data={[
+                options={[
                   {
                     text: _l('常规'),
                     value: 0,
@@ -78,13 +76,17 @@ export default function NavigationConfig(props) {
                     text: _l('手风琴'),
                     value: 1,
                   },
-                ]}
-                checkedValue={expandType}
-                onChange={value => {
+                ].map(({ text, ...option }) => ({ ...option, label: text }))}
+                value={expandType}
+                onChange={event => {
+                  const value = event.target.value;
+
                   setExpandType(value);
-                  onChangeApp({ expandType: value });
+                  onChangeApp({
+                    expandType: value,
+                  });
                 }}
-              ></RadioGroup>
+              ></Radio.Group>
             </div>
           )}
           <div className="flexRow alignItemsCenter mBottom15">
@@ -176,7 +178,7 @@ export default function NavigationConfig(props) {
                     title={_l(
                       '在树形列表中，隐藏第 1 级分组标题，直接显示分组内应用项。通常用于首个分组中的应用项作为应用首页的场景',
                     )}
-                    arrowPointAtCenter={true}
+                    arrow={{ pointAtCenter: true }}
                     placement="bottom"
                   >
                     <Icon className="Font16 textTertiary pointer" icon="info_outline" />
@@ -198,7 +200,7 @@ export default function NavigationConfig(props) {
           </Checkbox>
           <Tooltip
             title={_l('勾选时，管理员可以在应用中查看隐藏的应用项。取消勾选时，对管理员也同时隐藏')}
-            arrowPointAtCenter={true}
+            arrow={{ pointAtCenter: true }}
             placement="topRight"
           >
             <Icon className="Font16 textTertiary pointer" icon="info_outline" />
@@ -217,10 +219,10 @@ export default function NavigationConfig(props) {
         {app.appNaviStyle === 1 && (
           <Fragment>
             <div className="bold mTop30 mBottom14 Font13">{_l('显示模式')}</div>
-            <RadioGroup
+            <Radio.Group
               size="middle"
               className="mBottom30 mobileNavRadio"
-              data={[
+              options={[
                 {
                   text: _l('九宫格'),
                   value: 0,
@@ -229,20 +231,24 @@ export default function NavigationConfig(props) {
                   text: _l('十六宫格'),
                   value: 1,
                 },
-              ]}
-              checkedValue={gridDisplayMode}
-              onChange={value => {
+              ].map(({ text, ...option }) => ({ ...option, label: text }))}
+              value={gridDisplayMode}
+              onChange={event => {
+                const value = event.target.value;
+
                 setGridDisplayMode(value);
-                onChangeApp({ gridDisplayMode: value });
+                onChangeApp({
+                  gridDisplayMode: value,
+                });
               }}
-            ></RadioGroup>
+            ></Radio.Group>
           </Fragment>
         )}
         <div className={cx('bold mBottom12 Font13', { mTop20: app.appNaviStyle === 0 })}>{_l('分组展开方式')}</div>
-        <RadioGroup
+        <Radio.Group
           size="middle"
           className="mBottom20 mobileNavRadio"
-          data={[
+          options={[
             {
               text: _l('默认全展开'),
               value: 0,
@@ -255,32 +261,43 @@ export default function NavigationConfig(props) {
               text: _l('每次展开单个一级分组（其他自动收起）'),
               value: 2,
             },
-          ]}
-          checkedValue={appNaviDisplayType}
-          onChange={value => {
+          ].map(({ text, ...option }) => ({ ...option, label: text }))}
+          value={appNaviDisplayType}
+          onChange={event => {
+            const value = event.target.value;
+
             setAppNaviDisplayType(value);
-            onChangeApp({ appNaviDisplayType: value });
+            onChangeApp({
+              appNaviDisplayType: value,
+            });
           }}
-        ></RadioGroup>
+        ></Radio.Group>
       </div>
     );
   };
 
   return (
     <div className="navigationConfig">
-      <div className="flexRow alignItemsCenter title">
-        <div className="flex Font17 bold">{_l('导航设置')}</div>
-        <Icon icon="close" className="Font20 textTertiary pointer" onClick={onClose} />
-      </div>
-      <Tabs defaultActiveKey="pc">
-        <Tabs.TabPane tab={_l('PC端')} key="pc">
-          {renderPcConfig()}
-        </Tabs.TabPane>
-        <Tabs.TabPane tab={_l('移动端')} key="mobile">
-          {renderNavStyleConfig('appNaviStyle')}
-          {app.appNaviStyle !== 2 ? renderDisplayWay() : <MobileCustomNav app={app} onChangeApp={onChangeApp} />}
-        </Tabs.TabPane>
-      </Tabs>
+      <Tabs
+        defaultActiveKey="pc"
+        items={[
+          {
+            key: 'pc',
+            label: _l('PC端'),
+            children: renderPcConfig(),
+          },
+          {
+            key: 'mobile',
+            label: _l('移动端'),
+            children: (
+              <React.Fragment>
+                {renderNavStyleConfig('appNaviStyle')}
+                {app.appNaviStyle !== 2 ? renderDisplayWay() : <MobileCustomNav app={app} onChangeApp={onChangeApp} />}
+              </React.Fragment>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

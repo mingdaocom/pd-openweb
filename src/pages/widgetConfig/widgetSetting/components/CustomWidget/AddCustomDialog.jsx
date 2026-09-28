@@ -3,34 +3,50 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
-import { Dialog, Radio } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { Modal, Radio } from 'ming-ui/antd-components';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DEFAULT_DATA } from 'src/utils/domain/control/widget';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
 import { SettingItem } from '../../../styled';
 import CustomSaveConfig from './CustomSaveConfig';
 
-const DISPLAY_OPTIONS = [
+const getDisplayOptions = () => [
   {
-    text: _l('存储字段值'),
-    desc: _l('存储数据后字段可以参与搜索、筛选与导出'),
+    text: (
+      <>
+        <span className="textPrimary Font14">{_l('存储字段值')}</span>
+        <span className="textSecondary InlineBlock w100">{_l('存储数据后字段可以参与搜索、筛选与导出')}</span>
+      </>
+    ),
     value: '1',
   },
   {
-    text: _l('仅引用其他字段值'),
-    desc: _l('以自定义样式呈现本表单其他字段的值'),
+    text: (
+      <>
+        <span className="textPrimary Font14">{_l('仅引用其他字段值')}</span>
+        <span className="textSecondary InlineBlock w100">{_l('以自定义样式呈现本表单其他字段的值')}</span>
+      </>
+    ),
     value: '2',
   },
 ];
 
 const AddCustomWrap = styled.div`
-  .ming.Radio {
+  .hap-radio-group {
+    gap: 0;
+  }
+  .hap-radio-wrapper {
+    flex: none;
+    align-items: flex-start;
     margin-right: 0;
-    display: inline-block;
     width: 100%;
     &:last-child {
       margin-top: 10px;
+    }
+    .hap-radio {
+      align-self: flex-start;
+      margin-top: 5px;
     }
   }
   .titleIcon {
@@ -83,10 +99,12 @@ export default function AddCustomDialog(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       width={640}
       title={null}
-      visible={visible}
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       okDisabled={okDisabled}
       className="SearchWorksheetDialog"
       onCancel={onCancel}
@@ -101,34 +119,29 @@ export default function AddCustomDialog(props) {
 
         <SettingItem>
           <div className="settingItemTitle">{_l('字段是否存储数据？')}</div>
-          {DISPLAY_OPTIONS.map(({ value, text, desc }) => {
-            return (
-              <Radio
-                size="middle"
-                checked={customType === value}
-                text={text}
-                onClick={() => {
-                  if (value === customType) return;
-                  if (value === '1') {
-                    setState({ customType: value, saveType: 2 });
-                  } else {
-                    setState({ customType: value, saveType: '' });
-                  }
-                }}
-              >
-                <div className="textSecondary pLeft28">{desc}</div>
-              </Radio>
-            );
-          })}
+          <Radio.Group
+            size="middle"
+            vertical={true}
+            value={customType}
+            options={getDisplayOptions().map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => {
+              const value = event.target.value;
+
+              setState({
+                customType: value,
+                saveType: value === '1' ? 2 : '',
+              });
+            }}
+          />
         </SettingItem>
         {customType === '1' && (
           <CustomSaveConfig {...props} saveType={saveType} setState={info => setState({ ...info })} />
         )}
       </AddCustomWrap>
-    </Dialog>
+    </Modal>
   );
 }
 
-export function addCustomDialog(props) {
-  functionWrap(AddCustomDialog, props);
+export function useAddCustomDialog() {
+  return useFunctionWrapComponent(AddCustomDialog);
 }

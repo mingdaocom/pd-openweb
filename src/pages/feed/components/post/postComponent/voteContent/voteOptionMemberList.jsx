@@ -1,31 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { UserHead } from 'ming-ui';
+import { Card, Flex } from 'ming-ui/antd-components';
+
+const MEMBER_LIST_STYLE = {
+  marginTop: 8,
+  background: 'var(--color-background-tertiary)',
+  borderColor: 'var(--color-border-secondary)',
+};
+const MEMBER_LIST_STYLES = { body: { padding: 8 } };
 
 /**
  * 某条投票项的投票用户列表
  */
-function VoteOptionMemberList(props) {
+function VoteOptionMemberList({ members }) {
   return (
-    <div className="mTop5 clearfix voteOptionMemberList">
-      <div className="arrowUpOuter" style={{ float: 'right', marginRight: '50px', marginTop: '-10px' }}>
-        <div className="arrowUpInner" />
-      </div>
-      <div className="clearfix updaterDialog_Main pAll5" style={{ border: '1px solid var(--color-border-primary)' }}>
-        {props.members.map(user => (
-          <div className="left pAll2" key={user.accountId}>
-            <UserHead title={user.name} user={{ accountId: user.accountId, userHead: user.avatarSmall }} size={24} />
-          </div>
+    <Card size="small" style={MEMBER_LIST_STYLE} styles={MEMBER_LIST_STYLES}>
+      <Flex gap={4} wrap>
+        {members.map(user => (
+          <UserHead
+            key={user.accountId}
+            title={user.name}
+            user={{ accountId: user.accountId, userHead: user.avatarSmall }}
+            size={24}
+          />
         ))}
-      </div>
-    </div>
+      </Flex>
+    </Card>
   );
 }
 
 VoteOptionMemberList.propTypes = {
   members: PropTypes.arrayOf(
     PropTypes.shape({
-      uid: PropTypes.string,
+      accountId: PropTypes.string,
       name: PropTypes.string,
       avatarSmall: PropTypes.string,
     }),

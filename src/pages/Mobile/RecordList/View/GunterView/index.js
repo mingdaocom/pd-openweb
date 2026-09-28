@@ -2,10 +2,10 @@ import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import { isGunterGroupMultiSelectControl } from 'src/pages/worksheet/views/GunterView/util.js';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { SYS } from 'src/utils/domain/control/widget';
+import { isIllegal } from 'src/utils/services/worksheet/calendar';
 import ViewErrorPage from '../components/ViewErrorPage';
 
 const LoadableGunterView = lazy(() => import('src/pages/worksheet/views/GunterView'));

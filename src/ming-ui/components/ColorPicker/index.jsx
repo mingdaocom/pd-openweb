@@ -1,19 +1,31 @@
 import React, { cloneElement, Component } from 'react';
 import { HexAlphaColorPicker, HexColorInput, RgbaColorPicker } from 'react-colorful';
 import { generate } from '@ant-design/colors';
-import { InputNumber } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
-import { getColorValue } from 'src/utils/controlCommon';
+import { InputNumber, Popover, Select } from 'ming-ui/antd-components';
+import { getColorValue } from 'src/utils/platform/theme/color';
 import '../less/ColorPicker.less';
 
 const TYPES = ['HEX', 'RGB'];
 const THEME_COLOR_VALUE = ['DARK_COLOR', 'LIGHT_COLOR'];
+const COLOR_PICKER_POPOVER_STYLES = {
+  min: {
+    container: {
+      width: 258,
+      padding: 12,
+    },
+  },
+  max: {
+    container: {
+      width: 492,
+      padding: 12,
+    },
+  },
+};
 const DEFAULT_COLORS_ROW_1 = [
   '#000000ff',
   '#151515ff',
@@ -81,8 +93,30 @@ const TYPE_COMP = {
   RGB: RgbaColorPicker,
 };
 
+const isColorVariable = color => typeof color === 'string' && color.includes('var(');
+
+const getResolvedColor = color => new TinyColor(getColorValue(color)).toHex8String();
+
+const getRecentColorValue = color => {
+  if (isColorVariable(color)) return color;
+
+  const normalizedColor = new TinyColor(color).toHex8String();
+  const colorVariable = DEFAULT_DYNAMIC_COLORS_ROW_1.find(colorItem => {
+    const match = colorItem.match(/var\((--[^)]+)\)/);
+    const variableValue = match
+      ? getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim()
+      : colorItem;
+
+    return variableValue && new TinyColor(variableValue).toHex8String() === normalizedColor;
+  });
+
+  return colorVariable || color;
+};
+
+const normalizeRecentColors = colors => colors.map(getRecentColorValue);
+
 const COLOR_BOX = styled.span(
-  ({ background }) => `
+  ({ $background }) => `
     min-width: 32px;
     height: 32px;
     border-radius: 6px;
@@ -97,14 +131,18 @@ const COLOR_BOX = styled.span(
       width: 100%;
       height: 100%;
       border-radius: 6px;
-      background: ${background};
+      background: ${$background};
     }
     `,
 );
 
 const isSameColor = (propsColor, stateColor) => {
+  if (isColorVariable(propsColor) && isColorVariable(stateColor)) {
+    return propsColor === stateColor;
+  }
+
   propsColor = getColorValue(propsColor);
-  return new TinyColor(propsColor).toHex8String() === new TinyColor(stateColor).toHex8String();
+  return getResolvedColor(propsColor) === getResolvedColor(stateColor);
 };
 
 const isColorString = value => {
@@ -144,14 +182,16 @@ class ColorPicker extends Component {
   constructor(props) {
     super(props);
     const { value, visible } = props;
+    const initialValue = this.initValue(value);
 
     this.state = {
-      ...this.initValue(value),
+      ...initialValue,
+      selectedColorValue: value,
       visible,
       themeExpand: true,
       defaultExpand: true,
       recentExpand: true,
-      recentColors: JSON.parse(localStorage.getItem('recentColorsMing') || '[]'),
+      recentColors: normalizeRecentColors(JSON.parse(localStorage.getItem('recentColorsMing') || '[]')),
     };
   }
 
@@ -161,26 +201,37 @@ class ColorPicker extends Component {
       const { color } = this.state;
 
       if (!isSameColor(value, color) && isColorString(value)) {
-        this.setState(this.initValue(value));
+        this.setState({ ...this.initValue(value), selectedColorValue: value });
+      } else if (this.state.selectedColorValue !== value) {
+        this.setState({ selectedColorValue: value });
       }
     }
   }
 
   setRecentColorsLocal = color => {
-    const { recentColors } = this.state;
+    const storedRecentColors = JSON.parse(localStorage.getItem('recentColorsMing') || '[]');
+    const existingIndex = storedRecentColors.findIndex(item => isSameColor(item, color));
 
-    if (recentColors.find(l => isSameColor(l, color))) return;
+    if (existingIndex > -1) {
+      if (!isColorVariable(color) || isColorVariable(storedRecentColors[existingIndex])) return;
+
+      const newRecentColors = [...storedRecentColors];
+      newRecentColors[existingIndex] = color;
+      this.setState({ recentColors: normalizeRecentColors(newRecentColors) });
+      safeLocalStorageSetItem('recentColorsMing', JSON.stringify(newRecentColors));
+      return;
+    }
 
     let newRecentColors = [];
 
-    if (recentColors.length === 5) {
-      newRecentColors = _.slice(recentColors, 1, 5).concat(color);
+    if (storedRecentColors.length === 5) {
+      newRecentColors = _.slice(storedRecentColors, 1, 5).concat(color);
     } else {
-      newRecentColors = recentColors.concat(color);
+      newRecentColors = storedRecentColors.concat(color);
     }
 
-    this.setState({ recentColors: newRecentColors });
-    localStorage.setItem('recentColorsMing', JSON.stringify(newRecentColors));
+    this.setState({ recentColors: normalizeRecentColors(newRecentColors) });
+    safeLocalStorageSetItem('recentColorsMing', JSON.stringify(newRecentColors));
   };
 
   initValue = value => {
@@ -199,7 +250,7 @@ class ColorPicker extends Component {
   setColor = (value, themeValue) => {
     const stringColor = value.color.toHex8String();
 
-    this.setState({ ...value });
+    this.setState({ ...value, selectedColorValue: isColorVariable(themeValue) ? themeValue : stringColor });
     this.props.onChange(themeValue || stringColor);
   };
 
@@ -207,6 +258,7 @@ class ColorPicker extends Component {
     this.setState(
       {
         color: new TinyColor(getColorValue(value)),
+        selectedColorValue: value,
       },
       () => {
         this.props.onChange(value);
@@ -233,7 +285,7 @@ class ColorPicker extends Component {
   };
 
   renderSysColors = (expand, list, isTheme = false) => {
-    const { color } = this.state;
+    const { selectedColorValue } = this.state;
     return (
       <div className={cx('commonColors', { hide: !expand })}>
         {list.map((colorItem, index) => (
@@ -250,7 +302,9 @@ class ColorPicker extends Component {
             }}
           >
             <i
-              className={cx('icon-done selectedIcon', { hide: !isSameColor(colorItem, color) })}
+              className={cx('icon-done selectedIcon', {
+                hide: !isSameColor(colorItem, selectedColorValue),
+              })}
               style={{ color: this.getSelectedIconColor(colorItem) }}
             ></i>
           </div>
@@ -261,8 +315,9 @@ class ColorPicker extends Component {
 
   onClose = () => {
     const { handleClose } = this.props;
-    const stringColor = this.state.color.toHex8String();
-    this.setRecentColorsLocal(stringColor);
+    const { color, selectedColorValue } = this.state;
+    const stringColor = color.toHex8String();
+    this.setRecentColorsLocal(selectedColorValue || stringColor);
     handleClose(stringColor);
   };
 
@@ -288,10 +343,9 @@ class ColorPicker extends Component {
       : CURRENT_COLORS_ROW_1.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_3);
 
     const Comp = TYPE_COMP[type];
-    const triggerClass = sysColor ? 'ColorPickerPanelTriggerMax' : 'ColorPickerPanelTriggerMin';
 
     const popup = (
-      <div className="colorPickerCon">
+      <div className="ColorPickerPanelContent colorPickerCon">
         {sysColor && (
           <div className="commonColorPickerWrap">
             {themeColor && (
@@ -324,14 +378,21 @@ class ColorPicker extends Component {
         <div className="colorPickerWrap" onClick={e => e.stopPropagation()}>
           <Comp color={type === 'HEX' ? color.toHex8String() : color.toRgb()} onChange={this.handleChangeColor} />
           <div className="inputOptionWrap">
-            <Dropdown
+            <Select
               className="selectType"
+              variant="borderless"
               value={type}
-              isAppendToBody={true}
-              menuStyle={{
-                width: 180,
+              styles={{
+                root: {
+                  padding: 0,
+                },
+                popup: {
+                  root: {
+                    width: 180,
+                  },
+                },
               }}
-              data={TYPES.map(l => ({ text: l, value: l }))}
+              options={TYPES.map(label => ({ label, value: label }))}
               onChange={value => {
                 if (value === type) return;
 
@@ -403,20 +464,20 @@ class ColorPicker extends Component {
     );
 
     if (notTrigger) {
-      return <div className="ColorPickerPanelTrigger">{popup}</div>;
+      return <div>{popup}</div>;
     }
 
     return (
       <span className={cx('ColorPickerPanel ming ColorPicker-wrapper', className)} onClick={e => e.stopPropagation()}>
-        <Trigger
-          zIndex={1056}
-          action={disabled ? [] : ['click']}
-          popupVisible={visible}
-          onPopupVisibleChange={visible => {
+        <Popover
+          trigger={disabled ? [] : 'click'}
+          open={visible}
+          onOpenChange={visible => {
             this.setState({ visible });
             if (visible) {
               const { recentColors } = this.state;
-              let recent = JSON.parse(localStorage.getItem('recentColorsMing') || '[]');
+              const storedRecentColors = JSON.parse(localStorage.getItem('recentColorsMing') || '[]');
+              const recent = normalizeRecentColors(storedRecentColors);
               !_.isEqual(recentColors, recent) &&
                 this.setState({
                   recentColors: recent,
@@ -425,28 +486,29 @@ class ColorPicker extends Component {
               this.onClose();
             }
           }}
-          destroyPopupOnHide
-          popupClassName={cx('ColorPickerPanelTrigger', triggerClass)}
-          popupAlign={{
+          destroyOnHidden
+          placement="bottomLeft"
+          align={{
             points: ['tl', 'bl'],
             ...popupAlign,
             overflow: { adjustX: true, adjustY: true },
           }}
+          styles={COLOR_PICKER_POPOVER_STYLES[sysColor ? 'max' : 'min']}
           getPopupContainer={this.getPopupContainer}
-          popup={popup}
+          content={popup}
         >
-          <span className="ColorPicker-input-container" ref={trigger => (this.trigger = trigger)}>
+          <span className="ColorPicker-input-container">
             {cloneElement(
               children ? (
                 children
               ) : (
-                <COLOR_BOX background={this.getStringColor(color)}>
+                <COLOR_BOX $background={this.getStringColor(color)}>
                   <span className="color_box_content"></span>
                 </COLOR_BOX>
               ),
             )}
           </span>
-        </Trigger>
+        </Popover>
       </span>
     );
   }

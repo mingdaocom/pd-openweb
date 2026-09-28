@@ -2,23 +2,22 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useKey } from 'react-use';
-import { Popover } from 'antd';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, RichText } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Button, Dropdown, Popover, Tooltip } from 'ming-ui/antd-components';
 import Statistics from 'statistics';
 import BatchOperate from 'worksheet/common/BatchOperate';
 import Discussion from 'worksheet/common/Discussion';
 import SheetDesc from 'worksheet/common/SheetDesc';
+import { useImportAttachmentsDialog } from 'worksheet/common/WorksheetBody/ImportAttachments';
+import { useImportDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import RightInMotion from 'worksheet/components/Animations/RightInMotion';
 import SearchInput from 'worksheet/components/SearchInput';
 import selectIconDialog from 'worksheet/components/selectIconDialog';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import {
   addNewRecord,
   clearChartId,
@@ -29,18 +28,19 @@ import {
 } from 'worksheet/redux/actions';
 import { deleteSheet, updateSheetList, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
-import { isHaveCharge } from 'worksheet/redux/actions/util';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getAppSectionData, getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
-import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesVisible } from 'src/utils/common';
-import { needHideViewFilters } from 'src/utils/filter';
-import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
-import { findSheet } from 'src/utils/worksheet';
-import ImportMenu from './ImportMenu';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { permitList } from 'src/utils/domain/control/formEnum';
+import { canEditApp, canEditData, isHaveCharge } from 'src/utils/domain/permission/app';
+import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'src/utils/domain/worksheet/constants';
+import { needHideViewFilters } from 'src/utils/domain/worksheet/filter';
+import { getHighAuthSheetSwitchPermit } from 'src/utils/domain/worksheet/helpers';
+import { findSheet } from 'src/utils/domain/worksheet/helpers';
+import { getAppFeaturesVisible } from 'src/utils/platform/navigation/query';
+import { getTranslateInfo } from 'src/utils/services/app';
+import { getImportMenuItems } from './ImportMenu';
 import SheetMoreOperate from './SheetMoreOperate';
 
 const Con = styled.div`
@@ -63,7 +63,7 @@ const VerticalCenter = styled.div`
     margin-right: 8px;
     cursor: pointer;
     &:hover {
-      background: var(--color-background-secondary) !important;
+      background: var(--color-background-hover) !important;
       .icon {
         color: var(--color-primary) !important;
       }
@@ -81,14 +81,10 @@ const VerticalCenter = styled.div`
   }
   .actionIcon {
     color: var(--color-text-tertiary) !important;
-    border-radius: 5px;
-
-    &:hover {
-      background: var(--color-background-secondary) !important;
-      .icon {
-        color: var(--color-primary) !important;
-      }
-    }
+  }
+  .addRecordEntry {
+    --hap-control-height: 30px;
+    max-width: 600px;
   }
 `;
 
@@ -97,7 +93,6 @@ function SheetHeader(props) {
   const { type, appId, groupId, view, viewId, isCharge, views } = props;
   // functions
   const {
-    isDevAndOps,
     onlyBatchOperate,
     chartId,
     updateSheetList,
@@ -126,6 +121,7 @@ function SheetHeader(props) {
     clearSelect,
     changeToSelectCurrentPageFromSelectAll,
   } = props;
+  const isDevAndOps = props.isDevAndOps ?? (canEditApp(appPkg.permissionType) || canEditData(appPkg.permissionType));
   const { pageSize, sortControls } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
   const {
@@ -147,8 +143,10 @@ function SheetHeader(props) {
   const [importVisible, setImportVisible] = useState();
   const [descIsEditing, setDescIsEditing] = useState(false);
   const [inFull, setInFull] = useState(false);
-  const [resumeInfo, setResumeInfo] = useState({});
   const [importTooltipVisible, setImportTooltipVisible] = useState(false);
+  const { open: importDataFromExcel, holder: importDataFromExcelHolder } = useImportDataFromExcel();
+  const { open: importAttachmentsDialog, holder: importAttachmentsDialogHolder } = useImportAttachmentsDialog();
+  const resumeInfo = safeParse(resume || '{}');
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const sheet = findSheet(worksheetId, sheetList) || {};
   const lastSheetSwitchPermit =
@@ -161,6 +159,19 @@ function SheetHeader(props) {
   const showPublic = isOpenPermit(permitList.statisticsSwitch, lastSheetSwitchPermit);
   const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, lastSheetSwitchPermit);
   const canImportSwitch = isOpenPermit(permitList.importSwitch, lastSheetSwitchPermit) && !window.isPublicApp;
+  const importMenuItems = getImportMenuItems({
+    isCharge: isDevAndOps,
+    allowAdd,
+    controls,
+    projectId,
+    appId,
+    worksheetId,
+    worksheetName: name,
+    viewId,
+    onMenuClick: () => setImportVisible(false),
+    importDataFromExcel,
+    importAttachmentsDialog,
+  });
   const { rows, count, permission, rowsSummary, pageCountAbnormal } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
 
@@ -182,11 +193,6 @@ function SheetHeader(props) {
       updateSheetList: updateSheetList,
     });
   };
-
-  useEffect(() => {
-    const resumeInfo = resume ? JSON.parse(resume) : {};
-    setResumeInfo(resumeInfo);
-  }, [resume]);
 
   useEffect(() => {
     cache.current.canNewRecord = canNewRecord;
@@ -246,7 +252,7 @@ function SheetHeader(props) {
   useKey('Enter', e => {
     if (e.ctrlKey) {
       if (
-        !document.querySelector('.workSheetNewRecord,.ant-modal-root') &&
+        !document.querySelector('.workSheetNewRecord,.hap-modal-root') &&
         e.target.tagName.toLowerCase() === 'body' &&
         cache.current.canNewRecord
       ) {
@@ -261,6 +267,8 @@ function SheetHeader(props) {
   const { ln } = getAppFeaturesVisible();
   return (
     <Fragment>
+      {importDataFromExcelHolder}
+      {importAttachmentsDialogHolder}
       <Con className="sheetHeader">
         {batchOperateComp}
         <div className="headerLeft flex">
@@ -305,10 +313,10 @@ function SheetHeader(props) {
           </span>
           {desc && !resumeInfo.value ? (
             <Popover
-              arrowPointAtCenter={true}
+              arrow={{ pointAtCenter: true }}
               title={null}
               placement="bottomLeft"
-              overlayClassName="sheetDescPopoverOverlay"
+              classNames={{ root: 'sheetDescPopoverOverlay' }}
               content={
                 <div
                   className="popoverContent"
@@ -351,12 +359,12 @@ function SheetHeader(props) {
             onClose={() => {
               setSheetDescVisible(false);
             }}
-            onSave={(value, resume) => {
-              if (!value && resume) {
+            onSave={({ desc, resume, remark }) => {
+              if (!desc && resume) {
                 setSheetDescVisible(false);
               }
 
-              updateWorksheetInfo({ desc: value, resume });
+              updateWorksheetInfo({ desc, resume, remark });
             }}
           />
           <SheetMoreOperate
@@ -440,7 +448,6 @@ function SheetHeader(props) {
                         projectId={projectId}
                         worksheetId={worksheetId}
                         columns={controls}
-                        zIndex={1000}
                         filterResigned={false} // 筛选---人员层不显示离职栏
                         persistFilterToUrl={!isSingleView} // 仅主视图工具栏将选中的筛选器落 url
                         onChange={({ searchType, filterControls }) => {
@@ -482,40 +489,28 @@ function SheetHeader(props) {
               )}
             {/* 导入数据权限 */}
             {canImportSwitch && (
-              <Trigger
-                popupVisible={importVisible}
-                onPopupVisibleChange={visible => setImportVisible(visible)}
-                action={['click']}
-                popupAlign={{ points: ['tl', 'bl'], offset: [5, 5], overflow: { adjustX: true, adjustY: true } }}
-                popup={
-                  <ImportMenu
-                    className="Relative"
-                    isCharge={isDevAndOps}
-                    allowAdd={allowAdd}
-                    controls={controls}
-                    projectId={projectId}
-                    appId={appId}
-                    worksheetId={worksheetId}
-                    worksheetName={name}
-                    viewId={viewId}
-                    onMenuClick={() => setImportVisible(false)}
-                  />
-                }
+              <Dropdown
+                trigger={['click']}
+                open={importVisible}
+                onOpenChange={setImportVisible}
+                placement="bottomLeft"
+                align={{ offset: [5, 5], overflow: { adjustX: true, adjustY: true } }}
+                menu={{ items: importMenuItems, selectable: false, selectedKeys: [], style: { minWidth: 180 } }}
               >
-                <Tooltip
-                  placement="bottom"
-                  title={_l('导入')}
-                  visible={importTooltipVisible}
-                  onVisibleChange={visible => setImportTooltipVisible(visible)}
-                >
-                  <span className="actionWrap importEntry" onClick={() => setImportTooltipVisible(false)}>
+                <span className="actionWrap importEntry" onClick={() => setImportTooltipVisible(false)}>
+                  <Tooltip
+                    placement="bottom"
+                    title={_l('导入')}
+                    open={importTooltipVisible}
+                    onOpenChange={setImportTooltipVisible}
+                  >
                     <Icon className="Font18 textTertiary actionIcon" icon="worksheet_import" />
-                  </span>
-                </Tooltip>
-              </Trigger>
+                  </Tooltip>
+                </span>
+              </Dropdown>
             )}
             {/* 草稿箱入口 */}
-            {canNewRecord && (
+            {allowAdd && (
               <WorksheetDraft
                 className="actionWrap"
                 showFillNext={true}
@@ -526,20 +521,24 @@ function SheetHeader(props) {
                 isCharge={isCharge}
                 needCache={false}
                 addNewRecord={props.addNewRecord}
-                allowAdd={canNewRecord}
+                allowAdd={allowAdd}
                 setHighLightOfRows={setHighLightOfRows}
               />
             )}
             {/* 显示创建按钮 */}
             {canNewRecord && !worksheetInfo.isRequestingRelationControls && (
-              <span
-                style={{ backgroundColor: appPkg.iconColor || 'var(--color-primary)' }}
-                className="addRow mLeft8 overflow_ellipsis WordBreak addRecordEntry"
+              <Button
+                color={appPkg.iconColor || 'var(--color-primary)'}
+                variant="solid"
+                shape="round"
+                className="mLeft8 addRecordEntry"
+                icon={<Icon icon="plus" />}
                 onClick={() => openNewRecord({ allowShowMingoCreate: true })}
               >
-                <span className="Icon icon icon-plus Font13 mRight5 textWhite" />
-                <span className="textWhite bold">{advancedSetting.btnname || entityName || _l('记录')}</span>
-              </span>
+                <span className="overflow_ellipsis WordBreak bold">
+                  {advancedSetting.btnname || entityName || _l('记录')}
+                </span>
+              </Button>
             )}
           </VerticalCenter>
         )}

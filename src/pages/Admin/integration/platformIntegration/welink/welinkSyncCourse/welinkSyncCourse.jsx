@@ -1,9 +1,10 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
-import { compareProps } from 'pages/PageHeader/util.js';
 import { LoadDiv } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { compareProps } from 'src/utils/domain/app/model';
 import welinkPng1 from './img/1.png';
 import welinkPng2 from './img/2.png';
 import welinkPng3 from './img/3.png';
@@ -62,7 +63,7 @@ export default class WelinkSyncCourse extends React.Component {
         <img src={welinkPng3} />
         <h3 className="Font18 textPrimary mTop40">{_l('4. 在创建流程填写应用信息')}</h3>
         <p className="Font14 textSecondary mTop24 LineHeight22">
-          {_l('中文名')}
+          {window.platformENV.isHap ? _l('中文名，建议：明道云') : _l('中文名')}
           <br />
           {_l('应用Logo建议：')}
           <a
@@ -82,7 +83,7 @@ export default class WelinkSyncCourse extends React.Component {
         </p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('应用主页：')}</span>
-          <input type="text" className="inputBox" readOnly value={homeUrl} />
+          <Input type="text" className="inputBox" radius variant="filled" readOnly value={homeUrl} />
           <span
             className="copyBtn"
             onClick={() => {
@@ -95,7 +96,9 @@ export default class WelinkSyncCourse extends React.Component {
         </div>
         <img src={welinkPng5} />
         <p className="Font14 textSecondary mTop24 LineHeight22">
-          {_l('2.点击”设置接口权限”，开通集成需要用到的接口权限')}
+          {window.platformENV.isHap
+            ? _l('2.点击”设置接口权限”，开通明道云集成需要用到的接口权限')
+            : _l('2.点击”设置接口权限”，开通集成需要用到的接口权限')}
         </p>
         <p className="Font14 textSecondary LineHeight22">{_l('需要开通的授权如图所示')}</p>
         <img src={welinkPng6} />

@@ -1,19 +1,17 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { forwardRef, Fragment, useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { arrayOf, bool, func, number, string } from 'prop-types';
+import { any, arrayOf, bool, func, number, object, string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Popover } from 'ming-ui/antd-components';
 import organizeAjax from 'src/api/organize';
+import { createControllableOpenHandler, getMergedTriggerEventHandlers } from 'src/utils/platform/react/interaction';
 
 const RoleSelectWrap = styled.div`
   overflow: hidden;
   width: 360px;
-  background-color: var(--color-background-card);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
   .searchRoleWrap {
     padding: 0 16px;
     line-height: 40px;
@@ -85,12 +83,14 @@ const RoleSelectWrap = styled.div`
   }
 `;
 
+const DEFAULT_APPOINTED_ORGANIZE_IDS = [];
+
 export function RoleSelect(props) {
   const {
     projectId = '',
     unique = false,
     minHeight = 358,
-    appointedOrganizeIds = [],
+    appointedOrganizeIds = DEFAULT_APPOINTED_ORGANIZE_IDS,
     value = [],
     immediate = true,
     showCurrentOrgRole,
@@ -99,6 +99,8 @@ export function RoleSelect(props) {
   } = props;
   const inputRef = useRef();
   const conRef = useRef();
+  const requestRef = useRef();
+  const searchRequestRef = useRef();
   const [keywords, setKeywords] = useState(undefined);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(1);
@@ -106,9 +108,14 @@ export function RoleSelect(props) {
   const [treeData, setTreeData] = useState([]);
   const [expendTreeNodeKey, setExpendTreeNodeKey] = useState([]);
   const [searchList, setSearchList] = useState([]);
-  const [selectData, setSelectData] = useState(value);
-
-  let promise = null;
+  const [internalSelectData, setSelectData] = useState(value);
+  const selectData = immediate && _.has(props, 'value') ? value : internalSelectData;
+  const dataRef = useRef({
+    keywords,
+    pageIndex,
+    searchList,
+    treeData,
+  });
   const isShowRole =
     !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
 
@@ -116,6 +123,89 @@ export function RoleSelect(props) {
     onSave(selectData);
     onClose(true);
   });
+
+  useEffect(() => {
+    dataRef.current = {
+      keywords,
+      pageIndex,
+      searchList,
+      treeData,
+    };
+  }, [keywords, pageIndex, searchList, treeData]);
+
+  const fetchData = React.useCallback(
+    (groups, orgRoleGroupId, index) => {
+      const currentData = dataRef.current;
+      let treeList = _.cloneDeep(groups || currentData.treeData);
+      const fetchPageIndex = index || currentData.pageIndex;
+      const currentKeywords = currentData.keywords;
+
+      let isShowRole =
+        !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
+
+      if (!isShowRole) {
+        setLoading(false);
+        return;
+      }
+
+      setIsMore(false);
+      if (requestRef.current) {
+        requestRef.current.abort();
+      }
+
+      requestRef.current = organizeAjax.getOrganizes({
+        keywords: _.trim(currentKeywords),
+        projectId,
+        pageIndex: fetchPageIndex,
+        pageSize: currentKeywords ? 50 : 500,
+        appointedOrganizeIds,
+        orgRoleGroupId,
+      });
+      requestRef.current
+        .then(result => {
+          setLoading(false);
+          if (currentKeywords) {
+            let list = fetchPageIndex === 1 ? result.list : currentData.searchList.concat(result.list);
+            setSearchList(list);
+            setIsMore(result.allCount > list.length);
+            return;
+          }
+
+          if (appointedOrganizeIds.length) {
+            result.list.forEach(l => {
+              let index = _.findIndex(treeList, o => o.orgRoleGroupId === l.orgRoleGroupId);
+              treeList[index].children.push(l);
+              !treeList[index].fetched && (treeList[index].fetched = true);
+            });
+            treeList = treeList.filter(l => l.fetched);
+            treeList[0] && setExpendTreeNodeKey([treeList[0].orgRoleGroupId]);
+          } else {
+            let index = _.findIndex(treeList, l => l.orgRoleGroupId === orgRoleGroupId);
+            let list =
+              fetchPageIndex === 1 ? result.list : _.unionBy(treeList[index].children, result.list, 'organizeId');
+            treeList[index].children = list;
+            treeList[index].fetched = true;
+            treeList[index].hasMore = result.allCount > list.length;
+            treeList[index].pageIndex = fetchPageIndex;
+          }
+
+          setTreeData(treeList);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    },
+    [appointedOrganizeIds, projectId],
+  );
+
+  useEffect(() => {
+    const searchRequest = _.debounce(fetchData, 200);
+    searchRequestRef.current = searchRequest;
+
+    return () => {
+      searchRequest.cancel();
+    };
+  }, [fetchData]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -144,79 +234,12 @@ export function RoleSelect(props) {
         !appointedOrganizeIds.length && setExpendTreeNodeKey([groups[0].orgRoleGroupId]);
         fetchData(groups, groups[0].orgRoleGroupId);
       });
-  }, []);
+  }, [appointedOrganizeIds.length, fetchData, projectId]);
 
   useEffect(() => {
     if (!keywords) return;
-    searchRequest();
+    searchRequestRef.current && searchRequestRef.current();
   }, [keywords]);
-
-  useEffect(() => {
-    if (pageIndex < 2) return;
-    fetchData();
-  }, [pageIndex]);
-
-  const fetchData = (groups, orgRoleGroupId, index) => {
-    let treeList = _.cloneDeep(groups || treeData);
-    const fetchPageIndex = index || pageIndex;
-
-    let isShowRole =
-      !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
-
-    if (!isShowRole) {
-      setLoading(false);
-      return;
-    }
-
-    setIsMore(false);
-    if (promise) {
-      promise.abort();
-    }
-
-    promise = organizeAjax.getOrganizes({
-      keywords: _.trim(keywords),
-      projectId,
-      pageIndex: fetchPageIndex,
-      pageSize: keywords ? 50 : 500,
-      appointedOrganizeIds,
-      orgRoleGroupId,
-    });
-    promise
-      .then(result => {
-        setLoading(false);
-        if (keywords) {
-          let list = fetchPageIndex === 1 ? result.list : searchList.concat(result.list);
-          setSearchList(list);
-          setIsMore(result.allCount > list.length);
-          return;
-        }
-
-        if (appointedOrganizeIds.length) {
-          result.list.forEach(l => {
-            let index = _.findIndex(treeList, o => o.orgRoleGroupId === l.orgRoleGroupId);
-            treeList[index].children.push(l);
-            !treeList[index].fetched && (treeList[index].fetched = true);
-          });
-          treeList = treeList.filter(l => l.fetched);
-          treeList[0] && setExpendTreeNodeKey([treeList[0].orgRoleGroupId]);
-        } else {
-          let index = _.findIndex(treeList, l => l.orgRoleGroupId === orgRoleGroupId);
-          let list =
-            fetchPageIndex === 1 ? result.list : _.unionBy(treeList[index].children, result.list, 'organizeId');
-          treeList[index].children = list;
-          treeList[index].fetched = true;
-          treeList[index].hasMore = result.allCount > list.length;
-          treeList[index].pageIndex = fetchPageIndex;
-        }
-
-        setTreeData(treeList);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
-  const searchRequest = _.debounce(fetchData, 200);
 
   const toggle = (item, checked) => {
     let selected = _.cloneDeep(selectData);
@@ -258,7 +281,9 @@ export function RoleSelect(props) {
   const onScrollEnd = () => {
     if (!keywords || loading || !isMore) return;
 
-    setPageIndex(pageIndex + 1);
+    const nextPageIndex = pageIndex + 1;
+    setPageIndex(nextPageIndex);
+    fetchData(undefined, undefined, nextPageIndex);
   };
 
   const checkedUserSelf = () => !!_.find(selectData, o => o.organizeId === 'user-role');
@@ -400,81 +425,100 @@ RoleSelect.propTypes = {
   onClose: func, //关闭
 };
 
-export default function quickSelectRole(target, props = {}) {
-  const panelWidth = 360;
-  const panelHeight = 41 + (props.minHeight || 358);
-  let targetLeft;
-  let targetTop;
-  let x = 0;
-  let y = 0;
-  let height = 0;
-  const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
-  const $con = document.createElement('div');
-
-  function setPosition() {
-    if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
-      const rect = target.getBoundingClientRect();
-      height = rect.height;
-      targetLeft = rect.x;
-      targetTop = rect.y;
-      x = targetLeft + (offset.left || 0);
-      y = targetTop + height + (offset.top || 0);
-      if (x + panelWidth > window.innerWidth) {
-        x = targetLeft - 10 - panelWidth;
-      }
-
-      if (y + panelHeight > window.innerHeight) {
-        y = targetTop - panelHeight - 4;
-        if (y < 0) {
-          y = 0;
-        }
-
-        if (targetTop < panelHeight) {
-          x = targetLeft - 10 - panelWidth;
-          if (x < panelWidth) {
-            x = targetLeft + 10 + 36;
-          }
-        }
-      }
-
-      $con.style.position = 'absolute';
-      $con.style.left = x + 'px';
-      $con.style.top = y + 'px';
-      $con.style.zIndex = zIndex;
-    }
-  }
-
-  setPosition();
-  document.body.appendChild($con);
-
-  const root = createRoot($con);
-
-  function destory() {
-    root.unmount();
-    if ($con && $con.parentNode === document.body && document.body.contains($con)) {
-      document.body.removeChild($con);
-    }
-  }
-
-  root.render(
-    <RoleSelect
-      {...props}
-      onClose={force => {
-        if (!force && props.isDynamic) {
-          setTimeout(setPosition, 100);
-          return;
-        }
-
-        if (_.isFunction(props.onClose)) {
-          props.onClose();
-        }
-
-        destory();
-      }}
-    />,
-  );
-
-  return {
-    destory,
+export const RoleSelectPopover = forwardRef(function RoleSelectPopover(props, ref) {
+  const {
+    align,
+    arrow = false,
+    children,
+    destroyOnHidden,
+    getPopupContainer,
+    onClose = () => {},
+    onOpenChange = () => {},
+    open,
+    placement = 'bottomLeft',
+    styles = {},
+    trigger = 'click',
+    zIndex,
+    onBlur,
+    onClick,
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
+    ...roleSelectProps
+  } = props;
+  const [visible, setVisible] = useState(false);
+  const isControlled = _.has(props, 'open');
+  const mergedVisible = isControlled ? open : visible;
+  const childTriggerEvents = {
+    onBlur,
+    onClick,
+    onContextMenu,
+    onFocus,
+    onMouseDown,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseMove,
+    onMouseUp,
   };
-}
+  const triggerNode = React.isValidElement(children)
+    ? React.cloneElement(children, getMergedTriggerEventHandlers(children.props, childTriggerEvents))
+    : children;
+
+  const handleOpenChange = createControllableOpenHandler({ isControlled, onOpenChange, setOpen: setVisible });
+
+  const handleClose = force => {
+    handleOpenChange(false);
+    onClose(force);
+  };
+
+  return (
+    <Popover
+      ref={ref}
+      align={align}
+      arrow={arrow}
+      destroyOnHidden={destroyOnHidden}
+      getPopupContainer={getPopupContainer}
+      open={!!mergedVisible}
+      onOpenChange={handleOpenChange}
+      placement={placement}
+      noPadding
+      styles={{
+        ..._.omit(styles, 'body'),
+        container: { ...styles.body, ...styles.container },
+      }}
+      trigger={trigger}
+      zIndex={zIndex}
+      content={<RoleSelect {...roleSelectProps} onClose={handleClose} />}
+    >
+      {triggerNode}
+    </Popover>
+  );
+});
+
+RoleSelectPopover.propTypes = {
+  align: object,
+  arrow: any,
+  children: any,
+  destroyOnHidden: bool,
+  getPopupContainer: func,
+  onBlur: func,
+  onClick: func,
+  onContextMenu: func,
+  onFocus: func,
+  onMouseDown: func,
+  onMouseEnter: func,
+  onMouseLeave: func,
+  onMouseMove: func,
+  onMouseUp: func,
+  onClose: func,
+  onOpenChange: func,
+  open: bool,
+  placement: string,
+  styles: object,
+  trigger: any,
+  zIndex: number,
+};

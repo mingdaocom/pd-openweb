@@ -1,18 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { ConfigProvider, Dropdown, Input, Select, Spin, Table } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Button, ConfigProvider, Dropdown, Input, Modal, Select, Spin, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
 import groupController from 'src/api/group';
+import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import createGroup from 'src/pages/Group/createGroup/load';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
 import Config from '../../config';
 import './index.less';
-import { pathCompletion } from 'src/utils/common';
 
 const { Search } = Input;
 
@@ -49,7 +48,11 @@ export default class GroupsList extends Component {
           return (
             <div className="nameBox">
               <img src={record.avatar} alt="avatar" />
-              <a className="overflow_ellipsis" href={pathCompletion(`/group/groupValidate?gID=${record.groupId}`)} target="_blank">
+              <a
+                className="overflow_ellipsis"
+                href={pathCompletion(`/group/groupValidate?gID=${record.groupId}`)}
+                target="_blank"
+              >
                 {text}
               </a>
             </div>
@@ -123,29 +126,13 @@ export default class GroupsList extends Component {
         dataIndex: 'option',
         width: 60,
         render: (text, record) => {
-          const menu = (
-            <div className="menuOption">
-              {record.isVerified ? (
-                <Fragment>
-                  <div onClick={() => this.handleEditDept(record)}>{_l('修改关联部门')}</div>
-                  <div onClick={() => this.hanldeDeleteDept(record)}>{_l('取消关联部门')}</div>
-                </Fragment>
-              ) : (
-                <div onClick={() => this.handleSetDept(record)}>{_l('设置关联部门')}</div>
-              )}
-              <div onClick={() => this.props.setLevel('member', record.name, record.groupId)}>{_l('成员管理')}</div>
-              <div
-                onClick={() =>
-                  record.status === 1 ? this.handleClose(record.groupId) : this.handleOpen(record.groupId)
-                }
-              >
-                {record.status === 1 ? _l('关闭群组') : _l('开启群组')}
-              </div>
-              <div onClick={() => this.handleDissolve(record.groupId)}>{_l('解散群组')}</div>
-            </div>
-          );
           return (
-            <Dropdown overlay={menu} trigger={['click']} placement="bottomRight" autoAdjustOverflow>
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              autoAdjustOverflow
+              menu={{ items: this.getOperateMenuItems(record) }}
+            >
               <span className="icon-moreop Font18 pointer textTertiary"></span>
             </Dropdown>
           );
@@ -153,6 +140,48 @@ export default class GroupsList extends Component {
       },
     ];
   }
+
+  getOperateMenuItems = record => {
+    const departmentItems = record.isVerified
+      ? [
+          {
+            key: 'editDept',
+            label: _l('修改关联部门'),
+            onClick: () => this.handleEditDept(record),
+          },
+          {
+            key: 'deleteDept',
+            label: _l('取消关联部门'),
+            onClick: () => this.hanldeDeleteDept(record),
+          },
+        ]
+      : [
+          {
+            key: 'setDept',
+            label: _l('设置关联部门'),
+            onClick: () => this.handleSetDept(record),
+          },
+        ];
+
+    return [
+      ...departmentItems,
+      {
+        key: 'members',
+        label: _l('成员管理'),
+        onClick: () => this.props.setLevel('member', record.name, record.groupId),
+      },
+      {
+        key: 'status',
+        label: record.status === 1 ? _l('关闭群组') : _l('开启群组'),
+        onClick: () => (record.status === 1 ? this.handleClose(record.groupId) : this.handleOpen(record.groupId)),
+      },
+      {
+        key: 'dissolve',
+        label: _l('解散群组'),
+        onClick: () => this.handleDissolve(record.groupId),
+      },
+    ];
+  };
 
   componentDidMount() {
     this.getGroupsList();
@@ -222,9 +251,9 @@ export default class GroupsList extends Component {
   }
 
   hanldeDeleteDept(record) {
-    Confirm({
+    Modal.confirm({
       title: _l('关联部门'),
-      description: _l('确认取消关联部门?'),
+      content: _l('确认取消关联部门?'),
       onOk: () => {
         this.updateDeptMappingGroup(record.groupId, false, record.mapDepartmentId);
       },
@@ -277,9 +306,9 @@ export default class GroupsList extends Component {
   };
 
   handleOpen(id) {
-    Confirm({
+    Modal.confirm({
       title: _l('开启群组'),
-      description: _l('确认开启所选择的群组?'),
+      content: _l('确认开启所选择的群组?'),
       onOk: () => {
         groupController
           .openGroup({
@@ -298,9 +327,9 @@ export default class GroupsList extends Component {
   }
 
   handleClose(id) {
-    Confirm({
+    Modal.confirm({
       title: _l('是否确认关闭群组？'),
-      description: (
+      content: (
         <div>
           {_l('关闭群组后，群组将不能被访问')}
           <br />
@@ -330,9 +359,10 @@ export default class GroupsList extends Component {
   }
 
   handleDissolve(id) {
-    Confirm({
-      title: _l('是否确认解散？'),
-      description: _l('群组解散后，将永久删除该群组。不可恢复'),
+    Modal.confirm({
+      title: <span className="textError">{_l('是否确认解散？')}</span>,
+      content: _l('群组解散后，将永久删除该群组。不可恢复'),
+      okButtonProps: { danger: true },
       onOk: () => {
         VerifyPasswordConfirm.confirm({
           isRequired: true,
@@ -427,12 +457,9 @@ export default class GroupsList extends Component {
                 </div>
               </Fragment>
             ) : (
-              <button
-                className="ming Button Button--primary Button--small itemCreate Bold"
-                onClick={this.handleCreate.bind(this)}
-              >
+              <Button type="primary" shape="round" onClick={this.handleCreate.bind(this)}>
                 {_l('新建群组')}
-              </button>
+              </Button>
             )}
           </div>
           <div className="groupItem">
@@ -443,19 +470,21 @@ export default class GroupsList extends Component {
               value={types}
               onChange={value => this.handleSelectChange(value, 'types')}
               placeholder={_l('全部类型')}
-            >
-              <Select.Option value={1}>{_l('官方群组')}</Select.Option>
-              <Select.Option value={0}>{_l('普通群组')}</Select.Option>
-            </Select>
+              options={[
+                { value: 1, label: _l('官方群组') },
+                { value: 0, label: _l('普通群组') },
+              ]}
+            />
             <Select
               allowClear
               value={status}
               onChange={value => this.handleSelectChange(value, 'status')}
               placeholder={_l('全部状态')}
-            >
-              <Select.Option value={1}>{_l('正常群组')}</Select.Option>
-              <Select.Option value={0}>{_l('已关闭群组')}</Select.Option>
-            </Select>
+              options={[
+                { value: 1, label: _l('正常群组') },
+                { value: 0, label: _l('已关闭群组') },
+              ]}
+            />
           </div>
         </div>
         <div className="tableList mdAntTable">

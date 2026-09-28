@@ -18,12 +18,13 @@
     transition: width 0.2s ease-out;
     background-color: var(--color-background-card);
     box-shadow: var(--shadow-lg);
+    border-radius: 8px;
     input {
       box-sizing: border-box;
       width: 100%;
       padding: 0 60px 0 40px;
       height: 54px;
-      border-radius: 3px;
+      border-radius: 8px;
       outline: none;
       border: none;
       box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.16);
@@ -34,8 +35,9 @@
     &.hasResult {
       width: 1000px;
       box-shadow: none;
+      border-radius: 8px 8px 0 0;
       input {
-        border-radius: 3px 3px 0 0;
+        border-radius: 8px 8px 0 0;
       }
     }
     & > .icon {
@@ -72,6 +74,8 @@
     &.easeWidth {
       opacity: 1;
       width: 1000px;
+      overflow: hidden;
+      border-radius: 0 0 8px 8px;
     }
   }
 }

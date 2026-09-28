@@ -1,45 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Checkbox, Select } from 'antd';
+import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-
-const { Option } = Select;
+import { Select } from 'ming-ui/antd-components';
 
 const StyledSelectContainer = styled.div`
-  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-radius: 3px;
-    border: 1px solid var(--color-border-secondary);
-    padding-right: 24px;
-  }
-
-  .ant-select-arrow {
+  .hap-select-arrow {
     right: 8px;
     color: rgba(0, 0, 0, 0.25);
   }
 `;
 
 const StyledDropdown = styled.div`
-  .ant-select-item {
+  .hap-select-item {
     margin: 0;
   }
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
-  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  .hap-select-item-option-selected:not(.hap-select-item-option-disabled),
+  .hap-select-item-option-active:not(.hap-select-item-option-disabled) {
     background-color: var(--color-background-primary);
-  }
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
-    display: none;
-  }
-  .ant-select-item-option-disabled {
-    opacity: 0.5;
-    .ant-checkbox-wrapper {
-      cursor: not-allowed;
-    }
   }
 `;
 
 const StyledTag = styled.span`
-  &.ant-select-selection-item {
+  &.hap-select-selection-item {
     background: var(--color-background-disabled);
     border-radius: 4px;
     margin-right: 4px;
@@ -47,19 +30,18 @@ const StyledTag = styled.span`
   }
 `;
 
-const CheckboxOption = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 3px 0;
-`;
-
-export default function CheckboxSelect(props) {
+export default function SelectExDrop(props) {
   const { disabled, controls, onChange, max = 3 } = props;
-  const [selectedValues, setSelectedValues] = useState(props.values);
+  const selectedValues = props.values;
+  const selectOptions = controls.map(o => {
+    const value = o[props.keyId || 'controlId'];
 
-  useEffect(() => {
-    setSelectedValues(props.values);
-  }, [props.values]);
+    return {
+      value,
+      label: o[props.name || 'controlName'],
+      disabled: selectedValues.length >= max && !selectedValues.includes(value),
+    };
+  });
 
   const handleChange = values => {
     onChange(values);
@@ -78,11 +60,11 @@ export default function CheckboxSelect(props) {
         onChange={handleChange}
         style={{ width: '100%' }}
         maxTagCount={max}
-        dropdownRender={menu => <StyledDropdown>{menu}</StyledDropdown>}
+        popupRender={menu => <StyledDropdown>{menu}</StyledDropdown>}
         tagRender={props => (
-          <StyledTag className="ant-select-selection-item alignItemsCenter">
+          <StyledTag className="hap-select-selection-item alignItemsCenter">
             <span
-              className={cx('ant-select-selection-item-content', { Red: !props.label || props.label === props.value })}
+              className={cx('hap-select-selection-item-content', { Red: !props.label || props.label === props.value })}
             >
               {props.label === props.value ? _l('已删除') : props.label}
             </span>
@@ -95,33 +77,9 @@ export default function CheckboxSelect(props) {
         )}
         notFoundContent={<span className="textTertiary">{props.noTxt || _l('暂无相关字段')}</span>}
         optionLabelProp="label"
-        dropdownStyle={{ padding: 0 }}
-        // 添加以下属性确保箭头显示
-        showArrow={true}
-        inputIcon={null}
-      >
-        {controls
-          .map(o => {
-            return { value: o[props.keyId || 'controlId'], label: o[props.name || 'controlName'] };
-          })
-          .map(option => (
-            <React.Fragment key={option.value}>
-              <Option
-                value={option.value}
-                label={option.label}
-                disabled={selectedValues.length >= max && !selectedValues.includes(option.value)}
-              >
-                <CheckboxOption>
-                  <Checkbox
-                    checked={selectedValues.includes(option.value)}
-                    disabled={selectedValues.length >= max && !selectedValues.includes(option.value)}
-                  />
-                  <span style={{ marginLeft: 8 }}>{option.label}</span>
-                </CheckboxOption>
-              </Option>
-            </React.Fragment>
-          ))}
-      </Select>
+        styles={{ popup: { root: { padding: 0 } } }}
+        options={selectOptions}
+      />
     </StyledSelectContainer>
   );
 }

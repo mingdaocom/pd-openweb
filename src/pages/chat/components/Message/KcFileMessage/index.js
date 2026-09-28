@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import kc from 'src/api/kc';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
 import FileMessage from '../FileMessage';
 import ImageMessage from '../ImageMessage';
 

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { FILTER_RELATION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { FILTER_RELATION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 
 export const tW = 220;
 export const tH = 58;
@@ -108,8 +108,8 @@ export const FILTER_RELATION_TYPE_DATA = [
   { text: _l('或'), value: FILTER_RELATION_TYPE.OR },
 ];
 export const TYPE_DATA = [
-  { text: _l('且'), value: 'AND' },
-  { text: _l('或'), value: 'OR' },
+  { label: _l('且'), value: 'AND' },
+  { label: _l('或'), value: 'OR' },
   // { text: _l('非'), value: 'NOT' },
 ];
 export const REL_OPERATOR_TYPE = {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button } from 'ming-ui';
+import { Button } from 'ming-ui/antd-components';
 import { telIsValidNumber } from 'ming-ui/components/PhoneNumberInput/util';
 import { captcha } from 'ming-ui/functions';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
@@ -137,7 +137,12 @@ export default class WidgetsVerifyCode extends Component {
             handleChange(value.replace(/[^\d]/g, ''));
           }}
         />
-        <Button disabled={isSubmit} type={isSubmit ? 'secondary' : 'primary'} onClick={this.handleVerify}>
+        <Button
+          {...(isSubmit ? { color: 'default', variant: 'filled' } : { type: 'primary' })}
+          loading={isSubmit && !count}
+          disabled={isSubmit && !!count}
+          onClick={this.handleVerify}
+        >
           {isSubmit ? (count ? _l('%0秒后重发', count) : _l('正在发送...')) : _l('获取验证码')}
         </Button>
       </div>

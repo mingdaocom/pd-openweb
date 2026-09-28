@@ -1,9 +1,10 @@
-import { enumWidgetType, genWidgetRowAndCol, getDefaultSizeByData } from '.';
 import update from 'immutability-helper';
 import { filter, flatten, head, includes, isEmpty } from 'lodash';
 import _ from 'lodash';
-import { DRAG_ITEMS, WHOLE_SIZE } from '../config/Drag';
-import { isFullLineControl } from './widgets';
+import { genWidgetRowAndCol, getDefaultSizeByData, isFullLineControl } from 'src/utils/domain/control/editorLayout';
+import { WHOLE_SIZE } from 'src/utils/domain/control/layout';
+import { enumWidgetType } from 'src/utils/domain/control/widgetTypes';
+import { DRAG_ITEMS } from '../config/Drag';
 
 const removeEmptyRow = widgets => {
   return filter(widgets, row => !isEmpty(row));

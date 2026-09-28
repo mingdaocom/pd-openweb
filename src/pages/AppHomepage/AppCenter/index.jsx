@@ -4,24 +4,26 @@ import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { LoadDiv, WaterMark } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { WaterMark } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
-import { getMyPermissions } from 'src/components/checkPermission';
 import AppLib from 'src/pages/AppHomepage/AppLib';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
-import { navigateTo } from 'src/router/navigateTo';
-import { emitter } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
-import Dashboard from '../Dashboard';
-import { getDashboardColor } from '../Dashboard/utils';
-import AppGroups from './AppGroups';
-import SideNav from './SideNav';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { emitter } from 'src/utils/platform/browser/dom';
 import {
   DASHBOARD_THEME_ASSET_URL_PREFIX,
   formatAdvancedThemes,
   getAdvancedThemeAssetUrls,
   getAdvancedThemeChannel,
-} from './utils';
+} from 'src/utils/services/appCenter';
+import { getCurrentProject } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { getMyPermissions } from 'src/utils/services/security/permission';
+import Dashboard from '../Dashboard';
+import { getDashboardColor } from '../Dashboard/utils';
+import AppGroups from './AppGroups';
+import SideNav from './SideNav';
 
 const Con = styled.div`
   display: flex;
@@ -163,8 +165,8 @@ function AppCenter(props) {
             cb && cb();
           }
         })
-        .catch(() => {
-          alert(_l('更新工作台配置失败！'), 2);
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, _l('更新工作台配置失败！'), 2);
           setPlatformSetting(oldValue);
         });
     }
@@ -237,7 +239,7 @@ function AppCenter(props) {
           backgroundImage: keyStr === 'dashboard' && currentThemeKey ? `url(${currentTheme.bgImg})` : 'unset', // backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
         }}
       >
-        {!(keyStr === 'lib' && !window.platformENV.isOverseas && !window.platformENV.isLocal) && (
+        {!(keyStr === 'lib' && window.platformENV.isHap) && (
           <SideNav
             active={keyStr}
             currentProject={currentProject}

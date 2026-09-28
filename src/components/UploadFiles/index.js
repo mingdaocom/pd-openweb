@@ -2,33 +2,26 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { QiniuUpload } from 'ming-ui';
+import { QiniuUpload, SortableList } from 'ming-ui';
 import { addLinkFile } from 'ming-ui/functions';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import { FROM } from 'src/components/Form/core/config';
+import GenScanUploadQr from 'src/components/GenScanUploadQr';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
-import { formatFileSize, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import { formatFileSize, getFilesSize } from 'src/utils/core/file';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { formatKcAttachmentData, formatResponseData, formatTemporaryData } from 'src/utils/platform/file/attachment';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { checkAccountUploadLimit } from 'src/utils/services/file/upload';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import FileComponent from './File';
-import openPcCamera from './PcUpload';
-import {
-  checkAccountUploadLimit,
-  checkFileAvailable,
-  findIndex,
-  findIsId,
-  formatKcAttachmentData,
-  formatResponseData,
-  formatTemporaryData,
-  getAttachmentTotalSize,
-  getFilesSize,
-  isValid,
-  openMdDialog,
-} from './utils';
+import { usePcCamera } from './PcUpload';
+import { checkFileAvailable, findIndex, findIsId, getAttachmentTotalSize, isValid, openMdDialog } from './utils';
 import './index.less';
 
 const errorCode = {
@@ -41,7 +34,7 @@ const errorCode = {
   50004: _l('系统错误'),
 };
 
-export default class UploadFiles extends Component {
+class UploadFiles extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
     /**
@@ -81,6 +74,10 @@ export default class UploadFiles extends Component {
      */
     isUpload: PropTypes.bool,
     /**
+     * 是否允许拖拽排序
+     */
+    allowSort: PropTypes.bool,
+    /**
      * 预览层是否显示展开详情
      */
     showAttInfo: PropTypes.bool,
@@ -96,6 +93,10 @@ export default class UploadFiles extends Component {
      * 文件列表的删除回调
      */
     onDeleteAttachmentData: PropTypes.func,
+    /**
+     * 更改 attachmentData 数据的回调函数
+     */
+    onAttachmentDataUpdate: PropTypes.func,
     /**
      * 展示状态下的文件是否需要删除 (仅任务模块使用)
      */
@@ -149,6 +150,7 @@ export default class UploadFiles extends Component {
      * 文件总大小上限（单位 MB），默认 4G
      */
     maxTotalSize: PropTypes.number,
+    openPreviewAttachments: PropTypes.func,
   };
   static defaultProps = {
     canAddLink: false,
@@ -157,10 +159,12 @@ export default class UploadFiles extends Component {
     maxWidth: 200,
     height: 118,
     isUpload: true,
+    allowSort: true,
     showAttInfo: true,
     isInitCall: false,
     attachmentData: [],
     onDeleteAttachmentData: () => {},
+    onAttachmentDataUpdate: () => {},
     isDeleteFile: false,
     isDeleteKcFile: true,
     kcAttachmentData: [],
@@ -172,16 +176,16 @@ export default class UploadFiles extends Component {
     onDropPasting: () => {},
     rowDisplay: false,
     removeDeleteFilesFn: false,
-    maxTotalSize: 1024 * 4,
   };
   constructor(props) {
     super(props);
-    const { attachmentData, temporaryData, kcAttachmentData, originCount } = this.props;
+    const { attachmentData, temporaryData, kcAttachmentData, originCount, maxTotalSize } = this.props;
+    const defaultMaxTotalSize = _.get(md, 'global.SysSettings.fileUploadLimitSize') || 1024 * 4;
     this.state = {
       attachmentData,
       temporaryData: formatTemporaryData(temporaryData),
       kcAttachmentData: formatKcAttachmentData(kcAttachmentData),
-      maxTotalSize: md.global.SysSettings.fileUploadLimitSize,
+      maxTotalSize: maxTotalSize || defaultMaxTotalSize,
       originCount: originCount || 0,
     };
     // 当前上传的文件
@@ -326,7 +330,7 @@ export default class UploadFiles extends Component {
       );
     });
   }
-  async openPcCameraDialog() {
+  openPcCameraDialog() {
     const cameraProps = {
       onOk: files => {
         if (files && files.length && this.qiniuUploadRef?.uploader) {
@@ -335,7 +339,7 @@ export default class UploadFiles extends Component {
       },
     };
 
-    openPcCamera(cameraProps);
+    this.props.openPcCamera(cameraProps);
   }
   removeUploadingFile = id => {
     if (this.currentFile) {
@@ -411,8 +415,8 @@ export default class UploadFiles extends Component {
         .then(() => {
           alert(_l('删除成功'));
         })
-        .catch(() => {
-          alert(_l('删除文件失败'), 3);
+        .catch(_requestError => {
+          alertIfNotUnauthorized(_requestError, _l('删除文件失败'), 3);
         });
     }
 
@@ -481,6 +485,12 @@ export default class UploadFiles extends Component {
       },
     );
   }
+  openPreviewAttachments = (...args) => {
+    // withOpeners 注入的 holder 位于当前上传 Popover 内，必须优先使用，确保预览层高于未关闭的上传面板。
+    const openPreviewAttachments = this.props.openPreviewAttachments || _.get(this.context, 'openPreviewAttachments');
+
+    openPreviewAttachments(...args);
+  };
   onMDPreview(id, index) {
     const currentFile = this.state.attachmentData[index];
 
@@ -514,7 +524,7 @@ export default class UploadFiles extends Component {
       hideFunctions.push('download', 'share', 'saveToKnowlege');
     }
 
-    previewAttachments(
+    this.openPreviewAttachments(
       {
         attachments,
         index: findIndex(attachments, currentFile.fileID),
@@ -571,7 +581,7 @@ export default class UploadFiles extends Component {
 
     if (mdIndex >= 0) {
       let hideFunctions = ['editFileName'];
-      previewAttachments(
+      this.openPreviewAttachments(
         {
           attachments: mdData.map(item => item.twice),
           index: mdIndex,
@@ -584,12 +594,16 @@ export default class UploadFiles extends Component {
       );
     } else if (quIndex >= 0) {
       let hideFunctions = ['editFileName', 'share', 'saveToKnowlege'];
-      previewAttachments(
+      this.openPreviewAttachments(
         {
           attachments: quData.map(item => {
             const result = {
               name: `${item.originalFileName || '未命名'}${item.fileExt}`,
-              path: item.previewUrl ? `${item.previewUrl}` : item.url ? item.url : `${item.serverName}${item.key}`,
+              // 文档的 previewUrl 是缩略图/OWA 地址，Office 预览接口需要原文件地址。
+              path:
+                RegExpValidator.fileIsPicture(item.fileExt) && item.previewUrl
+                  ? item.previewUrl
+                  : item.url || `${item.serverName}${item.key}`,
               previewAttachmentType: 'QINIU',
               size: item.fileSize,
               fileid: item.fileID,
@@ -614,7 +628,7 @@ export default class UploadFiles extends Component {
   onKcPreview(id) {
     const { kcAttachmentData } = this.state;
     let res = kcAttachmentData.filter(item => item.node);
-    previewAttachments(
+    this.openPreviewAttachments(
       {
         attachments: res.map(item => item.node),
         index: findIndex(res, id),
@@ -633,7 +647,7 @@ export default class UploadFiles extends Component {
 
     if (preview[0].updater) {
       // 知识中心
-      previewAttachments(
+      this.openPreviewAttachments(
         {
           attachments: preview,
           index: findIndex(attachments, id),
@@ -645,7 +659,7 @@ export default class UploadFiles extends Component {
       );
     } else {
       // 明道云
-      previewAttachments(
+      this.openPreviewAttachments(
         {
           attachments: preview,
           index: findIndex(attachments, id),
@@ -672,6 +686,111 @@ export default class UploadFiles extends Component {
       }
     }
   }
+  getSortedFileItems() {
+    const { attachmentData, temporaryData, kcAttachmentData } = this.state;
+    const fileGroups = [
+      ['attachmentData', attachmentData],
+      ['temporaryData', temporaryData],
+      ['kcAttachmentData', kcAttachmentData],
+    ];
+    const fileItems = [];
+
+    fileGroups.forEach(([type, files]) => {
+      files.forEach((data, typeIndex) => {
+        const fileId = data.fileID || data.id || data.refId || data.docVersionID;
+
+        fileItems.push({
+          data,
+          type,
+          typeIndex,
+          originalIndex: fileItems.length,
+          sortKey: `${type}-${fileId || typeIndex}`,
+        });
+      });
+    });
+
+    return _.sortBy(fileItems, item =>
+      _.isNumber(item.data.index) ? item.data.index : fileItems.length + item.originalIndex,
+    );
+  }
+  handleSortEnd = fileItems => {
+    const sortedFiles = {
+      attachmentData: [],
+      temporaryData: [],
+      kcAttachmentData: [],
+    };
+
+    fileItems.forEach(({ data, type }, index) => {
+      sortedFiles[type].push({ ...data, index });
+    });
+
+    this.setState(sortedFiles, () => {
+      this.props.onAttachmentDataUpdate(sortedFiles.attachmentData);
+      this.props.onTemporaryDataUpdate(sortedFiles.temporaryData);
+      this.props.onKcAttachmentDataUpdate(sortedFiles.kcAttachmentData);
+    });
+  };
+  renderFileItem = ({ item }) => {
+    const { data, type, typeIndex, sortKey } = item;
+    const { controlId, height, isUpload, maxWidth, minWidth } = this.props;
+    const style = { minWidth, maxWidth, height };
+    const hideDownload = this.props.hideDownload || false;
+    const openInNewTabProps = controlId
+      ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(data.fileID) }
+      : {};
+
+    if (type === 'attachmentData') {
+      return (
+        <FileComponent
+          isUpload={isUpload}
+          hideDownload={hideDownload}
+          style={style}
+          key={sortKey}
+          index={typeIndex}
+          data={data}
+          onDeleteMDFile={this.onDeleteMDFile.bind(this)}
+          onReplaceAttachment={this.onReplaceAttachment.bind(this)}
+          onPreview={this.onMDPreview.bind(this)}
+          isDeleteFile={this.props.isDeleteFile}
+          {...openInNewTabProps}
+        />
+      );
+    }
+
+    if (type === 'temporaryData') {
+      return (
+        <FileComponent
+          isUpload={isUpload}
+          hideDownload={hideDownload}
+          style={style}
+          key={sortKey}
+          index={typeIndex}
+          data={data}
+          resetFileName={this.resetFileName.bind(this)}
+          onDeleteFile={this.onDeleteFile.bind(this)}
+          removeUploadingFile={this.removeUploadingFile.bind(this)}
+          onPreview={this.onPreview.bind(this)}
+          {...openInNewTabProps}
+        />
+      );
+    }
+
+    return (
+      <FileComponent
+        isUpload={isUpload}
+        hideDownload={hideDownload}
+        style={style}
+        key={sortKey}
+        index={typeIndex}
+        data={data}
+        isDeleteKcFile={this.props.isDeleteKcFile}
+        onDeleteKcFile={this.onDeleteKcFile.bind(this)}
+        onPreview={this.onKcPreview.bind(this)}
+        onKcTwicePreview={this.onKcTwicePreview.bind(this)}
+        {...openInNewTabProps}
+      />
+    );
+  };
   renderQiniuUpload() {
     const _this = this;
     const { maxTotalSize } = this.state;
@@ -953,7 +1072,7 @@ export default class UploadFiles extends Component {
               this.nativeFile = nativeFile;
             }}
           >
-            <i className="icon icon-file_upload textSecondary Font19" />
+            <i className="icon icon-file_upload textTertiary Font19" />
             <span>{_l('本地')}</span>
           </div>
         </QiniuUpload>
@@ -970,27 +1089,23 @@ export default class UploadFiles extends Component {
       isUpload,
       arrowLeft,
       minWidth,
-      maxWidth,
-      height,
       allowUploadFileFromMobile,
       canAddLink,
       canAddKnowledge,
       callFrom,
       headerRightElement,
       canPcUpload = false,
+      allowSort,
     } = this.props;
-    let { temporaryData, kcAttachmentData, attachmentData } = this.state;
+    let { temporaryData, kcAttachmentData, attachmentData, maxTotalSize } = this.state;
     const allowappupload = (advancedSetting.allowappupload || '1') === '1';
     const allowcamera = advancedSetting.allowcamera === '1';
-    let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
+    let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData, maxTotalSize);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
-    let emptys = Array.from({ length: 15 });
-    let style = {
-      minWidth: minWidth,
-      maxWidth: maxWidth,
-      height,
-    };
-    let { hideDownload = false } = this.props;
+    const fileItems = this.getSortedFileItems();
+    const sortable = isUpload && allowSort;
+    const canDrag = sortable && length > 1 && !this._uploading && temporaryData.every(item => !('progress' in item));
+
     return (
       <div
         className={cx('UploadFiles-wrapper', this.props.className)}
@@ -1012,19 +1127,19 @@ export default class UploadFiles extends Component {
                 !_.get(window, 'shareState.isPublicFormPreview') &&
                 !_.get(window, 'shareState.isPublicWorkflowRecord') && (
                   <div className="flexRow valignWrapper" onClick={this.onOpenFolderSelectDialog.bind(this)}>
-                    <i className="icon icon-folder textSecondary Font18" />
+                    <i className="icon icon-folder textTertiary Font18" />
                     <span>{_l('知识')}</span>
                   </div>
                 )}
               {canAddLink && (
                 <div className="flexRow valignWrapper" onClick={this.openLinkDialog.bind(this)}>
-                  <i className="icon icon-link2 textSecondary Font19" />
+                  <i className="icon icon-link2 textTertiary Font19" />
                   <span>{_l('链接文件')}</span>
                 </div>
               )}
               {allowcamera && canPcUpload && (
                 <div className="flexRow valignWrapper" onClick={this.openPcCameraDialog.bind(this)}>
-                  <i className="icon icon-switch_camera textSecondary Font19" />
+                  <i className="icon icon-switch_camera textTertiary Font19" />
                   <span>{_l('摄像头')}</span>
                 </div>
               )}
@@ -1057,7 +1172,7 @@ export default class UploadFiles extends Component {
                   }}
                 >
                   <div className="flexRow valignWrapper">
-                    <i className="icon icon-zendeskHelp-qrcode textSecondary Font19" />
+                    <i className="icon icon-zendeskHelp-qrcode textTertiary Font19" />
                     <span>{_l('扫码上传')}</span>
                   </div>
                 </GenScanUploadQr>
@@ -1074,7 +1189,7 @@ export default class UploadFiles extends Component {
                   />
                 </div>
                 <div className="UploadFiles-info">
-                  {totalSize}/{md.global.SysSettings.fileUploadLimitSize}M(
+                  {totalSize}/{formatFileSize(maxTotalSize * 1024 * 1024)}(
                   {canAddLink ? _l('至多本地,知识,链接各100个') : _l('至多本地,知识文件各100个')})
                 </div>
               </div>
@@ -1086,64 +1201,28 @@ export default class UploadFiles extends Component {
             this.filesWrapper = filesWrapper;
           }}
           className={cx('UploadFiles-filesWrapper', { rowDisplay: this.props.rowDisplay })}
-          style={{ display: length ? '' : 'none' }}
+          style={{ '--upload-file-min-width': `${minWidth}px`, display: length ? '' : 'none' }}
         >
-          {attachmentData.map((item, index) => (
-            <FileComponent
-              isUpload={isUpload}
-              hideDownload={hideDownload}
-              style={style}
-              key={item.fileID || Date.now()}
-              index={index}
-              data={item}
-              onDeleteMDFile={this.onDeleteMDFile.bind(this)}
-              onReplaceAttachment={this.onReplaceAttachment.bind(this)}
-              onPreview={this.onMDPreview.bind(this)}
-              isDeleteFile={this.props.isDeleteFile}
-              {...(controlId
-                ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(item.fileID) }
-                : {})}
+          {sortable ? (
+            <SortableList
+              dragPreviewImage
+              canDrag={canDrag}
+              itemClassName="UploadFiles-sortableItem"
+              itemKey="sortKey"
+              items={fileItems}
+              renderItem={this.renderFileItem}
+              onSortEnd={this.handleSortEnd}
             />
-          ))}
-          {temporaryData.map((item, index) => (
-            <FileComponent
-              isUpload={isUpload}
-              hideDownload={hideDownload}
-              style={style}
-              key={index}
-              index={index}
-              data={item}
-              resetFileName={this.resetFileName.bind(this)}
-              onDeleteFile={this.onDeleteFile.bind(this)}
-              removeUploadingFile={this.removeUploadingFile.bind(this)}
-              onPreview={this.onPreview.bind(this)}
-              {...(controlId
-                ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(item.fileID) }
-                : {})}
-            />
-          ))}
-          {kcAttachmentData.map((item, index) => (
-            <FileComponent
-              isUpload={isUpload}
-              hideDownload={hideDownload}
-              style={style}
-              key={index}
-              index={index}
-              data={item}
-              isDeleteKcFile={this.props.isDeleteKcFile}
-              onDeleteKcFile={this.onDeleteKcFile.bind(this)}
-              onPreview={this.onKcPreview.bind(this)}
-              onKcTwicePreview={this.onKcTwicePreview.bind(this)}
-              {...(controlId
-                ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(item.fileID) }
-                : {})}
-            />
-          ))}
-          {emptys.map((item, index) => (
-            <div style={style} key={index} className="UploadFiles-file-wrapper UploadFiles-fileEmpty" />
-          ))}
+          ) : (
+            fileItems.map(item => this.renderFileItem({ item }))
+          )}
         </div>
       </div>
     );
   }
 }
+
+export default withOpeners(UploadFiles, {
+  openPcCamera: usePcCamera,
+  openPreviewAttachments: usePreviewAttachments,
+});

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import addFriends from 'src/components/addFriends';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { pathCompletion } from 'src/utils/common';
-import { QUICK_ENTRY_CONFIG } from '../config';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { hasPermission } from 'src/utils/services/security/permission';
+import { getQuickEntryConfig } from '../config';
 import InstallDialog from './InstallDialog';
 
 // 租住管理首页-快捷入口
@@ -45,7 +45,7 @@ export default function QuickEntrance(props) {
       <div className="title bold">{_l('快捷入口')}</div>
       <div className="content">
         <ul>
-          {QUICK_ENTRY_CONFIG.map(({ icon, color, title, explain, action }) => {
+          {getQuickEntryConfig().map(({ icon, color, title, explain, action }) => {
             if (
               (window.platformENV.isLocal || window.platformENV.isOverseas) &&
               ['installDesktop', 'installApp'].includes(action)

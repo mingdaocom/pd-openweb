@@ -1,4 +1,4 @@
-﻿import _, {
+import _, {
   assign,
   find,
   findKey,
@@ -6,7 +6,6 @@
   get,
   identity,
   includes,
-  isArray,
   isEmpty,
   mapValues,
   pick,
@@ -19,24 +18,26 @@ import { getRowDetail } from 'worksheet/api';
 import { treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper/index.js';
 import { getRuleErrorInfo } from 'src/components/Form/core/formUtils';
-import {
-  SYSTEM_CONTROL_WITH_UAID,
-  WIDGETS_TO_API_TYPE_ENUM,
-  WORKFLOW_SYSTEM_CONTROL,
-} from 'src/pages/widgetConfig/config/widget';
-import { getFilledRequestParams } from 'src/utils/common';
-import { clearLRUWorksheetConfig, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'src/utils/common';
-import { formatQuickFilter } from 'src/utils/filter';
-import { handleRecordError } from 'src/utils/record';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
+import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
+import { sortDataByGroupItems } from 'src/utils/domain/worksheet/groupSort';
 import {
   getFiltersForGroupedView,
   getGroupControlId,
   getListStyle,
   getSheetColumnWidthsMap,
-} from 'src/utils/worksheet';
+} from 'src/utils/domain/worksheet/helpers';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import {
+  clearLRUWorksheetConfig,
+  getLRUWorksheetConfig,
+  saveLRUWorksheetConfig,
+} from 'src/utils/platform/storage/local';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
+import { handleRecordError } from 'src/utils/services/worksheet/record';
 import { updateNavGroup } from './navFilter.js';
-import { sortDataByGroupItems } from './util.js';
 
 const DEFAULT_PAGESIZE = 50;
 const DEFAULT_GROUP_PAGESIZE = 20;
@@ -269,7 +270,8 @@ export const fetchRows = ({
       },
     });
     dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: true });
-    dispatch(getWorksheetSheetViewSummary());
+    // 此时 rows 还是上一次的结果，分组统计延后到行数据回来后按最新分组触发
+    dispatch(getWorksheetSheetViewSummary({ skipGrouped: true }));
     const fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args, filters.requestParams), {
       abortController,
     });
@@ -314,6 +316,7 @@ export const fetchRows = ({
             type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
             count: sum(rows.filter(r => r.rowid === 'groupTitle').map(r => r.count)),
           });
+          dispatch(triggerGroupedSummary());
         }
 
         dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: false });
@@ -543,6 +546,15 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, o
       return;
     }
 
+    // 单元格更新失败时接口没有写入，行数据里的值也不会变化，
+    // 关联记录等在编辑面板内累积本地状态的控件收不到 props 变化，会一直显示未保存成功的数据，
+    // 这里显式通知调用方按原值复位。
+    const handleUpdateFailed = () => {
+      if (_.isFunction(options.onError)) {
+        options.onError();
+      }
+    };
+
     worksheetAjax
       .updateWorksheetRow({
         appId,
@@ -588,18 +600,23 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, o
           }
 
           handleRecordError(res.resultCode, options.cell);
+          handleUpdateFailed();
         } else if (res.resultCode === 32) {
           const errorResult = getRuleErrorInfo(rules, res.badData);
 
           if (_.get(errorResult, '0.errorInfo.0')) {
             alert(_l('编辑失败，%0', _.get(errorResult, '0.errorInfo.0.errorMessage')), 2);
           }
+
+          handleUpdateFailed();
         } else {
           handleRecordError(res.resultCode);
+          handleUpdateFailed();
         }
       })
-      .catch(() => {
-        alert(_l('编辑失败！'), 3);
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('编辑失败！'), 3);
+        handleUpdateFailed();
       });
   };
 }
@@ -632,6 +649,7 @@ export function insertToGroupedRow(newRow) {
       { ...newRow, groupKey: newRow.group.key, group: newRow.group },
       ...rows.slice(lastRowIndexOfGroup + 1),
     ];
+
     newRows = newRows.map(row => {
       if (row.rowid === 'groupTitle' && row.key === newRow?.group?.key) {
         row = {
@@ -672,6 +690,7 @@ export function updateRows(rowIds, value) {
         { ...pick(oldRow, ['allowedit', 'allowdelete']), ...value, groupKey: value.group.key, group: value.group },
         ...rows.slice(lastRowIndexOfGroup + 1),
       ];
+
       newRows = newRows.map(row => {
         if (row.rowid === 'groupTitle') {
           let count = row.count;
@@ -961,7 +980,7 @@ export function saveSheetLayout({ isApplyAll, closePopup = () => {} }) {
       .saveWorksheetView(updates)
       .then(() => {})
       .catch(err => {
-        alert(_l('保存表格外观失败！'), 3);
+        alertIfNotUnauthorized(err, _l('保存表格外观失败！'), 3);
         console.log(err);
       });
     if (isApplyAll) {
@@ -1257,32 +1276,35 @@ export function saveColumnStylesToLocal(changes) {
   };
 }
 
-function triggerGroupedSummary() {
+// 按当前视图实际渲染出的分组逐个取统计值：
+// 本地缓存里的 groupRows 是上一次手动改统计方式时留下的，分组字段或分组数据变化后 key 会对不上，
+// 统计值会落到不存在的分组上，界面上对应分组只能显示 '-'
+function triggerGroupedSummary({ reset = false } = {}) {
   return (dispatch, getState) => {
-    const { base } = getState().sheet;
-    const { viewId } = base;
-    const groupedSavedData = safeParse(getLRUWorksheetConfig('GROUPED_WORKSHEET_VIEW_SUMMARY_TYPES', viewId));
+    const { sheetview = {} } = getState().sheet;
+    const groupRows = get(sheetview, 'sheetViewData.rows', []).filter(
+      r => r.rowid === 'groupTitle' && get(r, 'control.controlId'),
+    );
 
-    if (isArray(get(groupedSavedData, 'groupRows'))) {
-      get(groupedSavedData, 'groupRows').forEach(r => {
-        dispatch(
-          getWorksheetSheetViewSummary({
-            groupArgs: {
-              groupKey: r.key,
-              filters: getFiltersForGroupedView({ type: r.controlType, controlId: r.controlId }, r.key),
-            },
-          }),
-        );
-      });
-    }
+    groupRows.forEach(r => {
+      dispatch(
+        getWorksheetSheetViewSummary({
+          reset,
+          groupArgs: {
+            groupKey: r.key,
+            filters: getFiltersForGroupedView(r.control, r.key),
+          },
+        }),
+      );
+    });
   };
 }
 
-export function getWorksheetSheetViewSummary({ reset = false, groupArgs = {} } = {}) {
+export function getWorksheetSheetViewSummary({ reset = false, skipGrouped = false, groupArgs = {} } = {}) {
   return (dispatch, getState) => {
     const { base, sheetview, filters, quickFilter, navGroupFilters, views = [] } = getState().sheet;
     const { appId, viewId, worksheetId, chartId } = base;
-    const { rowsSummary } = sheetview.sheetViewData;
+    const { rowsSummary, groupRowsSummary = {} } = sheetview.sheetViewData;
     const configData = mapValues(sheetview.sheetViewConfig.columnStyles, 'report');
     let savedData = {};
 
@@ -1301,7 +1323,8 @@ export function getWorksheetSheetViewSummary({ reset = false, groupArgs = {} } =
       {},
       savedData,
       !isEmpty(pickBy(configData, identity)) && reset ? configData : pickBy(configData, identity),
-      reset || groupArgs.groupKey ? {} : rowsSummary.types,
+      // 当前生效的统计方式要盖过列上配置的，否则手动切换后请求仍按列配置取值，界面看着像切了没生效
+      reset ? {} : groupArgs.groupKey ? groupRowsSummary.types : rowsSummary.types,
     );
 
     if (reset) {
@@ -1314,8 +1337,8 @@ export function getWorksheetSheetViewSummary({ reset = false, groupArgs = {} } =
     }));
     const view = find(views, { viewId });
 
-    if (!groupArgs.groupKey && !!getGroupControlId(view)) {
-      dispatch(triggerGroupedSummary());
+    if (!groupArgs.groupKey && !skipGrouped && !!getGroupControlId(view)) {
+      dispatch(triggerGroupedSummary({ reset }));
     }
 
     if (!columnRpts.length) {
@@ -1355,7 +1378,8 @@ export function getWorksheetSheetViewSummary({ reset = false, groupArgs = {} } =
       .then(data => {
         dispatch({
           type: 'WORKSHEET_SHEETVIEW_FETCH_REPORT_SUCCESS',
-          types: groupArgs.groupKey ? savedData : types,
+          // 统计方式要和实际请求用的 types 一致，否则列上配了统计但本地没缓存过时，值取到了也不会显示
+          types,
           values:
             data && data.length ? [{}, ...data].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })) : {},
           groupKey: groupArgs.groupKey,

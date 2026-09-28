@@ -1,8 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
-import preall from 'src/common/preall';
-import { addSubPathOfRoute } from 'src/utils/common';
+import preall from 'src/common/entries/preall';
+import { addSubPathOfRoute } from 'src/utils/platform/navigation/path';
 import AgentLand from './AgentLand';
 
 const root = createRoot(document.getElementById('app'));

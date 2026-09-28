@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
 import { SCOPES } from './enum';
 
 const Wrap = styled.div`
@@ -15,6 +16,14 @@ const Wrap = styled.div`
     align-items: center;
     height: 50px;
     line-height: 50px;
+  }
+
+  .scopeCategoryItem {
+    padding-left: 25px;
+  }
+
+  .scopeChildItem {
+    padding-left: 75px;
   }
 
   .permissionLabel {
@@ -37,9 +46,11 @@ const Wrap = styled.div`
   }
 `;
 
+export const DEFAULT_DISABLED_SCOPE_CODES = [200000, 200100, 200200];
+
 const getScopeCodes = scope => ((scope.children || []).length ? scope.children.map(item => item.code) : [scope.code]);
 
-const normalizeScopeCodes = (scopes, codes) => {
+export const normalizeScopeCodes = (scopes, codes) => {
   const input = new Set(codes);
   const result = new Set();
 
@@ -60,11 +71,48 @@ const normalizeScopeCodes = (scopes, codes) => {
   return Array.from(result);
 };
 
+const getSelectableScopeCodes = (scopes, disabledCodes) =>
+  (scopes || []).flatMap(getScopeCodes).filter(code => !disabledCodes.includes(code));
+
+export const getSelectAllState = (scopes, codes) => {
+  const selectedCodes = new Set(codes);
+  const scopeCodes = (scopes || []).flatMap(getScopeCodes);
+  const checkedCount = scopeCodes.filter(code => selectedCodes.has(code)).length;
+
+  return {
+    checked: !!scopeCodes.length && checkedCount === scopeCodes.length,
+    indeterminate: checkedCount > 0 && checkedCount < scopeCodes.length,
+  };
+};
+
+export const toggleAllScopeCodes = (scopes, codes, disabledCodes = DEFAULT_DISABLED_SCOPE_CODES) => {
+  const { checked } = getSelectAllState(scopes, codes);
+  const selectableCodes = getSelectableScopeCodes(scopes, disabledCodes);
+  const nextCodes = checked
+    ? codes.filter(code => !selectableCodes.includes(code))
+    : codes.concat(selectableCodes.filter(code => !codes.includes(code)));
+
+  return normalizeScopeCodes(scopes, nextCodes);
+};
+
 export default function ApiScopeList(props) {
-  const { scopes = [], codes = [], showCheckbox = false, checkboxDisabled = false, onChange, className } = props;
+  const {
+    scopes = [],
+    codes = [],
+    showCheckbox = false,
+    showSelectAll = false,
+    selectAllLabel,
+    checkboxDisabled = false,
+    disabledCodes = DEFAULT_DISABLED_SCOPE_CODES,
+    onChange,
+    className,
+  } = props;
   const [expandedScopes, setExpandedScopes] = useState([]);
+  const [selectAllExpanded, setSelectAllExpanded] = useState(true);
   const selectedCodes = showCheckbox ? codes : [];
   const filterCodes = showCheckbox ? [] : codes;
+  const shouldShowSelectAll = showCheckbox && showSelectAll;
+  const selectAllState = getSelectAllState(scopes, selectedCodes);
 
   const toggleCategory = categoryId =>
     setExpandedScopes(prev =>
@@ -90,18 +138,19 @@ export default function ApiScopeList(props) {
       selectedCodes.includes(code) ? selectedCodes.filter(item => item !== code) : selectedCodes.concat(code),
     );
 
-  const renderLabel = ({ code, checked, indeterminate, onClick }) =>
+  const renderLabel = ({ code, label, checked, indeterminate, onClick }) =>
     showCheckbox ? (
       <Checkbox
         className="permissionCheckbox"
-        text={SCOPES[code]}
         checked={checked}
         indeterminate={indeterminate}
-        disabled={checkboxDisabled || [200000, 200100, 200200].includes(code)}
-        onClick={() => !checkboxDisabled && onClick()}
-      />
+        disabled={checkboxDisabled || disabledCodes.includes(code)}
+        onChange={() => !checkboxDisabled && !disabledCodes.includes(code) && onClick()}
+      >
+        {label || SCOPES[code]}
+      </Checkbox>
     ) : (
-      <span className="permissionLabel">{SCOPES[code]}</span>
+      <span className="permissionLabel">{label || SCOPES[code]}</span>
     );
 
   const renderScope = scope => {
@@ -118,7 +167,7 @@ export default function ApiScopeList(props) {
 
     return (
       <div key={scope.code}>
-        <div className="permissionItem">
+        <div className={cx('permissionItem', shouldShowSelectAll && 'scopeCategoryItem')}>
           <Icon
             icon={isExpanded ? 'arrow-down' : 'arrow-right-tip'}
             className="expandIcon"
@@ -129,7 +178,13 @@ export default function ApiScopeList(props) {
         {isExpanded && (
           <div>
             {visibleChildren.map(child => (
-              <div key={child.code} className={cx('permissionItem', showCheckbox ? 'pLeft50' : 'pLeft25')}>
+              <div
+                key={child.code}
+                className={cx(
+                  'permissionItem',
+                  shouldShowSelectAll ? 'scopeChildItem' : showCheckbox ? 'pLeft50' : 'pLeft25',
+                )}
+              >
                 {renderLabel({
                   code: child.code,
                   checked: selectedCodes.includes(child.code),
@@ -151,5 +206,23 @@ export default function ApiScopeList(props) {
     );
   }
 
-  return <Wrap className={className || ''}>{scopes.map(renderScope)}</Wrap>;
+  return (
+    <Wrap className={className || ''}>
+      {shouldShowSelectAll && (
+        <div className="permissionItem">
+          <Icon
+            icon={selectAllExpanded ? 'arrow-down' : 'arrow-right-tip'}
+            className="expandIcon"
+            onClick={() => setSelectAllExpanded(value => !value)}
+          />
+          {renderLabel({
+            label: selectAllLabel,
+            ...selectAllState,
+            onClick: () => updateSelectedCodes(toggleAllScopeCodes(scopes, selectedCodes, disabledCodes)),
+          })}
+        </div>
+      )}
+      {(!shouldShowSelectAll || selectAllExpanded) && scopes.map(renderScope)}
+    </Wrap>
+  );
 }

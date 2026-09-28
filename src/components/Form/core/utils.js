@@ -1,13 +1,15 @@
-import loadScript from 'load-script';
-import _, { find, get, isEmpty } from 'lodash';
-import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
-import { browserIsMobile, getStringBytes, pathCompletion } from 'src/utils/common';
-import { checkCellIsEmpty, controlState } from 'src/utils/control';
-import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFromValue } from 'src/utils/record';
-import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
+import _, { get, isEmpty } from 'lodash';
+import { filterEmptyChildTableRows } from 'src/utils/core/childTable';
+import { supportDisplayRow } from 'src/utils/domain/control/capabilities';
+import { isOldSheetList, isTabSheetList } from 'src/utils/domain/control/editorLayout';
+import { controlState } from 'src/utils/domain/control/state';
+import { checkCellIsEmpty, WIDGET_VALUE_ID } from 'src/utils/domain/control/value';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { getRelateRecordCountFromValue } from 'src/utils/domain/worksheet/record';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
+import { isPublicLink } from 'src/utils/platform/runtime/shareState';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from './config';
 
 export function validate(id = '') {
   return !/^(temp|default|public-temp|deleterowids)/.test(id.toLowerCase());
@@ -179,6 +181,26 @@ function formatRowToServer(row, controls = [], { isDraft, isSubList } = {}) {
 }
 
 /**
+ * 格式化子表中的已有行（非 temp-/default- 行）
+ * 正常编辑都会带 updatedControlIds，只提交改动列；没有 updatedControlIds 的已有行属于异常状态
+ * （如保存后行被重新加载、表单又收到一次行更新），此时若按整行提交，会把接口不返回值的隐藏关联（含关联主记录的父关联）、
+ * 拥有者、附件等字段写空，导致子记录被移除，因此不提交。
+ */
+function formatExistingSubListRow(row, controls = []) {
+  if (!row.updatedControlIds) {
+    return undefined;
+  }
+
+  return {
+    rowid: row.rowid,
+    editType: 0,
+    newOldControl: formatRowToServer({ ..._.pick(row, row.updatedControlIds), rowid: row.rowid }, controls, {
+      isSubList: true,
+    }),
+  };
+}
+
+/**
  * 将控件数据格式化成后端需要的数据
  * @param  {} control 控件
  */
@@ -207,7 +229,7 @@ export function formatControlToServer(
     return result;
   }
 
-  let parsedValue, childTableControls, isFromDefault, state, rows;
+  let parsedValue, childTableControls, isFromDefault, state, rows, subListOrderChanged;
   const isRelateRecordDropdown =
     control.type === 29 &&
     String(_.get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
@@ -286,6 +308,7 @@ export function formatControlToServer(
             String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE),
             String(RELATE_RECORD_SHOW_TYPE.TABLE),
           ],
+
           control.advancedSetting.showtype,
         ) &&
         control.store
@@ -384,6 +407,14 @@ export function formatControlToServer(
 
       break;
     case 34: // 子表
+      // 拖拽排序：与关联记录(type29)一致，走 editType 31 + sid 顺序数组的轻量排序，
+      // 后端按 rowid 重排、不重建行；不进入下面读 store 的整表提交逻辑。
+      if (control.editType === 31) {
+        result.editType = 31;
+        result.value = _.isString(control.value) ? control.value : JSON.stringify(control.value || []);
+        break;
+      }
+
       if (isFromMingoData) {
         result.value = JSON.stringify(
           safeParse(control.value, 'array').map(row =>
@@ -394,6 +425,9 @@ export function formatControlToServer(
       }
 
       state = control.store && control.store.getState();
+      // 插入行/拖拽排序改变过顺序：保存时需与 value 平级附带完整记录排序 controlItems。
+      // 下面的差量分支会 dispatch RESET_CHANGES 清掉该标记，故此处先捕获。
+      subListOrderChanged = !!get(state, 'changes.orderChanged');
       childTableControls = get(state, 'base.controls') || [];
       if (_.isEmpty(childTableControls)) {
         console.log('childTableControls is empty');
@@ -489,16 +523,7 @@ export function formatControlToServer(
                     newOldControl: formatRowToServer({ ...row, rowid }, childTableControls, { isSubList: true }),
                   };
                 } else {
-                  if (row && row.updatedControlIds) {
-                    row = _.pick(row, row.updatedControlIds);
-                    delete row.updatedControlIds;
-                  }
-
-                  return {
-                    rowid,
-                    editType: 0,
-                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls, { isSubList: true }),
-                  };
+                  return formatExistingSubListRow(row, childTableControls);
                 }
               })
               .filter(_.identity),
@@ -533,71 +558,18 @@ export function formatControlToServer(
         }
       }
 
+      // 子表做过插入行/拖拽排序时，与 value 平级附带完整记录排序，供后端按序落库
+      if (subListOrderChanged && control.store) {
+        result.controlItems = filterEmptyChildTableRows(control.store.getState().rows).map(row => ({
+          key: row.rowid,
+        }));
+      }
+
       break;
   }
 
   return result;
 }
-
-export function getTitleControlId(control = {}) {
-  let newTitleControlId;
-
-  if (control.type === 29) {
-    newTitleControlId = control.advancedSetting.showtitleid;
-  } else if (control.type === 51 && control.enumDefault !== 1) {
-    newTitleControlId = control.advancedSetting.showtitleid;
-  } else if (control.type === 51 && control.enumDefault === 1 && control.showControls[0]) {
-    newTitleControlId = control.showControls[0];
-  }
-
-  const attributeTitle = find(control.relationControls, { attribute: 1 });
-  const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
-  return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
-}
-
-export function getTitleControlIdFromRelateControl(control = {}) {
-  let newTitleControlId = get(control, 'advancedSetting.showtitleid');
-  const attributeTitle = find(control.relationControls, { attribute: 1 });
-  const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
-  return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
-}
-
-const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
-  if (recordId) {
-    let baseUrl = `/app/${appId}/${worksheetId}`;
-
-    if (viewId) {
-      baseUrl += `/${viewId}`;
-    }
-
-    baseUrl += `/row/${recordId}`;
-    return pathCompletion(baseUrl);
-  } else {
-    return getNewRecordPageUrl({ appId, worksheetId, viewId });
-  }
-};
-
-export const getBarCodeValue = ({ data, control, codeInfo }) => {
-  const { enumDefault, enumDefault2, dataSource } = control;
-  if ((enumDefault === 1 || (enumDefault === 2 && enumDefault2 === 3)) && !dataSource) return '';
-  if (dataSource === 'rowid') return codeInfo.recordId;
-  if (enumDefault === 2) {
-    // 记录内部访问链接
-    if (enumDefault2 === 1) {
-      return getCodeUrl(codeInfo);
-    }
-  }
-
-  const selectControl = _.find(data, i => i.controlId === dataSource);
-  if (!(selectControl || {}).value) return '';
-  if (enumDefault === 1) {
-    const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!/^*()+[\]{}|.\s]/g, '');
-    return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
-  }
-
-  const value = String(selectControl.value);
-  return getStringBytes(value) <= 500 ? value : getStrBytesLength(value, 500);
-};
 
 // 是否需要校验短信验证码
 export const checkMobileVerify = (data, smsVerificationFiled) => {
@@ -609,25 +581,6 @@ export const checkMobileVerify = (data, smsVerificationFiled) => {
   if (!controlState(selectControl, FROM.PUBLIC_ADD).visible) return false;
   if (!selectControl.value) return false;
   return true;
-};
-
-// 选项其他类型处理
-export const getCheckAndOther = value => {
-  let checkIds = [];
-  let otherValue = '';
-
-  if (/^\[.*\]$/.test(value)) {
-    safeParse(value, 'array').forEach(item => {
-      if ((item || '').toString().indexOf('other:') > -1) {
-        otherValue = _.replace(item, 'other:', '');
-        checkIds.push('other');
-      } else {
-        checkIds.push(item);
-      }
-    });
-  }
-
-  return { checkIds, otherValue };
 };
 
 // 渲染计数
@@ -705,107 +658,6 @@ export const halfSwitchSize = (item, from) => {
   return half ? 6 : 12;
 };
 
-// 人员控件选择范围处理
-export const dealUserRange = (control = {}, data = [], masterData = {}) => {
-  if (!JSON.parse(_.get(control, 'advancedSetting.chooserange') || '[]').length) return false;
-
-  let ranges = {};
-
-  function getArrKey(item) {
-    let curKey = '';
-    const range_types = {
-      appointedAccountIds: [1, 26], // 用户
-      appointedDepartmentIds: [2, 27], // 部门
-      appointedOrganizeIds: [3, 48], // 组织
-    };
-    Object.keys(range_types).forEach(k => {
-      if (_.includes(range_types[k], item.type)) {
-        curKey = k;
-      }
-    });
-    return curKey;
-  }
-
-  JSON.parse(_.get(control, 'advancedSetting.chooserange') || '[]').map(item => {
-    if (item.type === 4) {
-      if (item.rcid && item.rcid !== masterData.worksheetId) {
-        const parentControl = _.find(data, i => i.controlId === item.rcid) || {};
-        const control = safeParse(parentControl.value || '[]', 'array')[0];
-        const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
-        const curItem = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
-        const sourceVal = sourcevalue && safeParse(sourcevalue);
-
-        if (curItem && _.isArray(sourceVal)) {
-          const currentItem = {
-            ...curItem,
-            type: curItem.type === 30 ? curItem.sourceControlType : curItem.type,
-          };
-          const arrKey = getArrKey(currentItem);
-          ranges[arrKey] = _.uniq(
-            (ranges[arrKey] || []).concat(sourceVal.map(s => s[WIDGET_VALUE_ID[currentItem.type]])),
-          );
-        }
-      } else {
-        const cidItem =
-          _.find(data || [], d => d.controlId === item.cid) ||
-          _.find(masterData.formData || [], d => d.controlId === item.cid);
-
-        if (cidItem) {
-          const currentItem = { ...cidItem, type: cidItem.type === 30 ? cidItem.sourceControlType : cidItem.type };
-          const arrKey = getArrKey(currentItem);
-          ranges[arrKey] = _.uniq(
-            (ranges[arrKey] || []).concat(
-              JSON.parse(currentItem.value || '[]').map(i => i[WIDGET_VALUE_ID[currentItem.type]]),
-            ),
-          );
-        }
-      }
-    } else {
-      const arrKey = getArrKey(item);
-      const userInfo = safeParse(item.staticValue || '{}');
-      const chooseId = item.type === 1 ? 26 : item.type === 2 ? 27 : 48;
-      const chooseValue = _.get(userInfo, [WIDGET_VALUE_ID[chooseId]]);
-
-      if (chooseValue) {
-        ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(chooseValue));
-      }
-    }
-  });
-  return ranges;
-};
-
-// 加载第三方集成 SDK
-export function loadSDK() {
-  const isIOS = window.isIphone || window.isIPad || window.navigator.userAgent.toLowerCase().includes('ipod');
-  const isDesktopMac = window.isMacOs && !isIOS;
-  const isWx =
-    window.isWeiXin &&
-    !isDesktopMac &&
-    !window.platformENV.isOverseas &&
-    !window.platformENV.isLocal &&
-    !window.isWxWork;
-
-  if (window.isDingTalk && !window.dd) {
-    loadScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
-  }
-
-  if (window.isWeLink && !window.HWH5) {
-    loadScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
-  }
-
-  if (isWx && !window.wx) {
-    loadScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
-  }
-
-  if (window.isWxWork && !window.wx) {
-    loadScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
-  }
-
-  if (window.isFeiShu && !window.h5sdk) {
-    loadScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
-  }
-}
-
 export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSection = false, otherTabs = []) => {
   // 基础控件
   let commonData = [];
@@ -845,8 +697,10 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
     }
 
     if (item.type === 52) {
-      item.child = sortList(sectionControlsMap[item.controlId] || []);
-      tabData.push(item);
+      tabData.push({
+        ...item,
+        child: sortList(sectionControlsMap[item.controlId] || []),
+      });
     } else if (isTabSheetList(item)) {
       tabData.push(item);
     } else if (isOldSheetList(item)) {
@@ -871,6 +725,7 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
         advancedSetting: { icon: widgetStyle.tabicon },
       },
     ];
+
     const allCommonHide = _.every(commonData, c => !(controlState(c, from).visible && !c.hidden));
     tabData = allCommonHide
       ? isMobile && !_.isEmpty(otherTabs)
@@ -917,40 +772,6 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
   return { commonData, tabData };
 };
 
-// 部门控件渲染数据处理，后期可能有组织角色
-export const dealRenderValue = (value, advancedSetting = {}) => {
-  const { showdelete, allpath } = advancedSetting;
-  const tempValue = _.isArray(value) ? value : safeParse(value || '[]');
-  let deleteCount = 0;
-  const result = [];
-
-  tempValue.map(item => {
-    if (item.isDelete) {
-      deleteCount += 1;
-    } else {
-      const pathValue = (
-        allpath === '1' ? (item.departmentPath || []).sort((a, b) => b.depth - a.depth).map(i => i.departmentName) : []
-      ).concat([item.departmentName]);
-
-      result.push({
-        ...item,
-        departmentName: pathValue.join('  /  '),
-      });
-    }
-  });
-
-  if (showdelete === '1' && !!deleteCount) {
-    result.push({
-      departmentId: '',
-      departmentName: _l('已删除'),
-      isDelete: true,
-      deleteCount,
-    });
-  }
-
-  return result;
-};
-
 // 标题是否横向布局、隐藏按横向排列
 export const getWidgetDisplayRow = ({ item = {}, data = [], widgetStyle = {} }) => {
   const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
@@ -968,6 +789,89 @@ export const getWidgetDisplayRow = ({ item = {}, data = [], widgetStyle = {} }) 
   return {};
 };
 
+export const getWidgetLayoutInfo = ({ data = [], widgetStyle = {} }) => {
+  const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
+  const rowControlCountMap = {};
+  const rowWidgetsMap = {};
+  let richTextControlCount = 0;
+
+  data.forEach(item => {
+    rowControlCountMap[item.row] = (rowControlCountMap[item.row] || 0) + 1;
+    rowWidgetsMap[item.row] = rowWidgetsMap[item.row] || [];
+    rowWidgetsMap[item.row].push(item);
+    if (item.type === 41) richTextControlCount += 1;
+  });
+
+  if ((browserIsMobile() ? titlelayout_app : titlelayout_pc) === '2') {
+    const displayRowMap = data.reduce((map, item) => {
+      if (supportDisplayRow(item)) {
+        map[item.controlId] = { displayRow: true };
+      }
+
+      return map;
+    }, {});
+
+    return { displayRowMap, richTextControlCount, rowControlCountMap };
+  }
+
+  const displayRowMap = data.reduce((map, item) => {
+    const rowWidgets = rowWidgetsMap[item.row] || [];
+
+    if (rowWidgets.every(row => _.get(row, 'advancedSetting.hidetitle') === '1' && supportDisplayRow(row))) {
+      map[item.controlId] = { displayRow: true, titlewidth_pc: '0' };
+    }
+
+    return map;
+  }, {});
+
+  return { displayRowMap, richTextControlCount, rowControlCountMap };
+};
+
+export const getWidgetDisplayRowMap = options => getWidgetLayoutInfo(options).displayRowMap;
+
+const WIDGET_LAYOUT_CACHE_LIMIT = 20;
+
+export const getCachedWidgetLayoutInfo = (cache, { data = [], widgetStyle = {} }) => {
+  const cacheKey = data.map(item => item.controlId).join('|');
+  const titleLayout = browserIsMobile() ? widgetStyle.titlelayout_app || '1' : widgetStyle.titlelayout_pc || '1';
+  const signature = `${titleLayout}:${data
+    .map(item =>
+      [
+        item.controlId,
+        item.row,
+        item.type,
+        _.get(item, 'advancedSetting.hidetitle') || '',
+        _.get(item, 'advancedSetting.showtype') || '',
+      ].join(':'),
+    )
+    .join('|')}`;
+  const cachedLayout = cache[cacheKey];
+
+  if (cachedLayout && cachedLayout.signature === signature) {
+    return cachedLayout.layoutInfo;
+  }
+
+  const layoutInfo = getWidgetLayoutInfo({ data, widgetStyle });
+
+  if (!cachedLayout && Object.keys(cache).length >= WIDGET_LAYOUT_CACHE_LIMIT) {
+    delete cache[Object.keys(cache)[0]];
+  }
+
+  cache[cacheKey] = { layoutInfo, signature };
+
+  return layoutInfo;
+};
+
+export const getErrorItemsMap = (errorItems = [], uniqueErrorItems = []) => {
+  return [].concat(errorItems || [], uniqueErrorItems || []).reduce((map, item) => {
+    if (item && item.controlId && !map[item.controlId]) {
+      map[item.controlId] = item;
+    }
+
+    return map;
+  }, {});
+};
+
 export const getArrBySpliceType = (filters = []) => {
   let num = 0;
   return Object.values(
@@ -979,50 +883,6 @@ export const getArrBySpliceType = (filters = []) => {
 
       return res;
     }, {}),
-  );
-};
-
-// 不允许重复传参格式处理
-export const formatControlValue = (value, type) => {
-  if (_.includes([26, 27, 29, 48], type)) {
-    return safeParse(value.startsWith('deleteRowIds') ? '[]' : value || '[]')
-      .map(ac => ac[WIDGET_VALUE_ID[type]])
-      .join('');
-  }
-
-  return value;
-};
-
-//非文本类控件
-export const isUnTextWidget = (data = {}) => {
-  //200自定义控件
-  const UN_TEXT_TYPE = [9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 40, 42, 45, 46, 47, 48, 50, 200];
-  if (isCustomWidget(data)) return true;
-  if (_.includes(UN_TEXT_TYPE, data.type)) return true;
-  if (data.type === 6 && _.includes(['2', '3'], _.get(data, 'advancedSetting.showtype'))) return true;
-  if (data.type === 2 && browserIsMobile() && (data.strDefault || '10').split('')[1] === '1') return true;
-  return false;
-};
-
-export const isPublicLink = () => {
-  const {
-    isPublicForm,
-    isPublicView,
-    isPublicPage,
-    isPublicRecord,
-    isPublicQuery,
-    isPublicFormPreview,
-    isPublicWorkflowRecord,
-  } = _.get(window, 'shareState') || {};
-  return (
-    _.get(window, 'isPublicWorksheet') ||
-    isPublicForm ||
-    isPublicView ||
-    isPublicPage ||
-    isPublicRecord ||
-    isPublicQuery ||
-    isPublicFormPreview ||
-    isPublicWorkflowRecord
   );
 };
 
@@ -1139,6 +999,7 @@ export const supportTabKeyDown = (data, from, disabledChildTableCheck, supportMa
             String(RELATE_RECORD_SHOW_TYPE.TABLE),
             String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE),
           ],
+
           showtype,
         )) ||
       // 子表
@@ -1153,19 +1014,8 @@ export const supportTabKeyDown = (data, from, disabledChildTableCheck, supportMa
             String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST),
             String(RELATION_SEARCH_SHOW_TYPE.TAB_LIST),
           ],
+
           showtype,
         )))
   );
-};
-
-// 获取人员字段值
-export const getUserValue = value => {
-  if (!value) return [];
-  if (_.isArray(value)) return value.filter(Boolean);
-  if (value && typeof value === 'string') {
-    const dealValue = safeParse(value, 'array');
-    return _.isArray(dealValue) ? dealValue.filter(Boolean) : [dealValue].filter(Boolean);
-  } else {
-    return [];
-  }
 };

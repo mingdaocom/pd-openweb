@@ -1,15 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import { Icon } from 'ming-ui';
+import { Button, Checkbox, Drawer, Input, Modal, Select, Tooltip } from 'ming-ui/antd-components';
 import ExternalPortalApi from 'src/api/externalPortal.js';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
-import { getTranslateInfo } from 'src/utils/app';
+import { getTranslateInfo } from 'src/utils/services/app';
 
 const Wrap = styled.div`
   overflow: hidden;
@@ -21,12 +20,6 @@ const Wrap = styled.div`
       font-size: 17px;
       font-weight: 500;
     }
-  }
-  .setBtn {
-    padding: 5px 20px;
-    background: var(--color-primary);
-    border-radius: 3px 3px 3px 3px;
-    color: var(--color-white) !important;
   }
   .customUrlCon {
     padding: 0 24px 0;
@@ -86,46 +79,14 @@ const Wrap = styled.div`
 `;
 
 const WrapDetail = styled.div`
-  .nameInput {
-    height: 36px;
-    line-height: 36px;
-    border-radius: 3px;
-    border: 1px solid var(--color-border-primary);
-    padding: 0 12px;
-    &:focus {
-      border: 1px solid var(--color-primary);
-    }
-  }
   .setCheckbox {
     width: 130px;
   }
 `;
 
-const CustomUrlSet = styled.div`
-  border-radius: 3px;
-  height: 36px;
-  line-height: 36px;
-  background-color: var(--color-background-disabled);
-  color: var(--color-text-title);
-  font-size: 14px;
-  padding: 0 10px;
-  cursor: pointer;
-  padding: 0;
-  width: 36px;
-  color: var(--color-text-secondary);
-  font-size: 18px;
-  text-align: center;
-  margin-left: 6px;
-  background: var(--color-background-primary);
-  border: 1px solid var(--color-border-primary);
-  &:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-`;
-
 function Setting(props) {
   const { show, closeSet, appId } = props;
+  const requestPending = useRef(false);
   const [{ customLink, editData, list, roleList }, setState] = useSetState({
     customLink: '',
     editData: null,
@@ -157,31 +118,36 @@ function Setting(props) {
   };
 
   const onSave = addressExt => {
-    ExternalPortalApi.editCustomAddressExt({
+    if (requestPending.current) return;
+
+    requestPending.current = true;
+    return ExternalPortalApi.editCustomAddressExt({
       appId,
       addressExt,
-    }).then(res => {
-      if (res.resultEnum === 1) {
-        props.onChange(res.addressExt);
-        alert(_l('保存成功'));
-      } else {
-        alert(_l('保存失败，请稍后再试'), 3);
-      }
-    });
+    })
+      .then(res => {
+        if (res.resultEnum === 1) {
+          props.onChange(res.addressExt);
+          alert(_l('保存成功'));
+        } else {
+          alert(_l('保存失败，请稍后再试'), 3);
+        }
+      })
+      .finally(() => {
+        requestPending.current = false;
+      });
   };
 
   return (
     <Drawer
-      width={640}
+      size={640}
       onClose={() => closeSet()}
-      zIndex={999}
-      mask={true}
-      className=""
+      mask={{ enabled: true, closable: true }}
+      rootClassName=""
       placement="right"
-      visible={show}
-      maskClosable={true}
+      open={show}
       closable={false}
-      bodyStyle={{ padding: 0 }}
+      styles={{ body: { padding: 0 } }}
     >
       {show ? (
         <Wrap className={'flexColumn h100 Relative'}>
@@ -199,14 +165,16 @@ function Setting(props) {
             {_l('外部门户通过配置注册方式、登录方式、角色可生成多个链接，实现外部用户个性化登录。')}
           </div>
           <div className="pLeft24 pRight24">
-            <span
-              className="setBtn Hand hoverBgColorPrimaryDark mTop20 InlineBlock"
+            <Button
+              type="primary"
+              style={{ height: 30, paddingInline: 20 }}
+              className="mTop20"
               onClick={() => {
                 initUrl();
               }}
             >
               {_l('生成地址')}
-            </span>
+            </Button>
           </div>
           <div className="flex customUrlCon mTop18">
             {list.map((o, i) => {
@@ -218,13 +186,15 @@ function Setting(props) {
                       type="trash"
                       className="Hand Font18 delete"
                       onClick={() => {
-                        Dialog.confirm({
-                          buttonType: 'danger',
-                          title: <div className="Red"> {_l('你确认删除？')} </div>,
-                          description: _l('删除后，用户不能通过该地址访问'),
+                        Modal.confirm({
+                          okButtonProps: {
+                            danger: true,
+                          },
+                          title: <div className="Red textError"> {_l('你确认删除？')} </div>,
+                          content: _l('删除后，用户不能通过该地址访问'),
                           onOk: () => {
                             const newList = list.filter(a => a.ext !== o.ext);
-                            onSave(newList);
+                            return onSave(newList);
                           },
                         });
                       }}
@@ -238,16 +208,15 @@ function Setting(props) {
                     copyTip={_l('复制')}
                   />
                   <Tooltip placement="bottom" title={_l('设置')}>
-                    <CustomUrlSet
-                      className="customUrlSet mLeft6"
+                    <Button
+                      className="mLeft6 textSecondary hoverColorPrimary"
+                      icon={<Icon type="settings" className="Font18" />}
                       onClick={() => {
                         setState({
                           editData: _.cloneDeep(o),
                         });
                       }}
-                    >
-                      <Icon type="settings" className="Hand" />
-                    </CustomUrlSet>
+                    />
                   </Tooltip>
                 </div>
               );
@@ -256,12 +225,12 @@ function Setting(props) {
         </Wrap>
       ) : null}
       {!!editData && (
-        <Dialog
+        <Modal
           width={640}
-          visible={!!editData}
+          open={!!editData}
           title={_l('链接设置')}
-          key={Math.random().toString()}
-          description={_l('此处配置的注册登录方式需遵循基础设置的配置范围，如超出范围则链接无效')}
+          mask={{ closable: true }}
+          keyboard
           onCancel={() => {
             setState({
               editData: null,
@@ -309,7 +278,10 @@ function Setting(props) {
             });
           }}
         >
-          <WrapDetail className={''}>
+          <div className="textSecondary mBottom20">
+            {_l('此处配置的注册登录方式需遵循基础设置的配置范围，如超出范围则链接无效')}
+          </div>
+          <WrapDetail>
             <h6 className="Font13 textPrimary Bold mBottom0">{_l('名称')}</h6>
             <Input
               type="text"
@@ -323,50 +295,61 @@ function Setting(props) {
               }}
             />
             <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('注册方式')}</h6>
-            <div className="">
+            <div>
               {REJISTER_WAY.map(o => {
                 return (
                   <Checkbox
-                    className="mTop16 InlineBlock mRight60 setCheckbox"
-                    text={o.txt}
+                    key={o.key}
+                    className="mTop16 mRight60 setCheckbox"
                     checked={editData.registerMode[o.key]}
-                    onClick={() => {
-                      editData.registerMode[o.key] = !editData.registerMode[o.key];
+                    onChange={() => {
                       setState({
-                        editData: editData,
+                        editData: {
+                          ...editData,
+                          registerMode: {
+                            ...editData.registerMode,
+                            [o.key]: !editData.registerMode[o.key],
+                          },
+                        },
                       });
                     }}
-                  />
+                  >
+                    {o.txt}
+                  </Checkbox>
                 );
               })}
             </div>
             <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('登录方式')}</h6>
-            <div className="">
+            <div>
               {LOGIN_WAY.map(o => {
                 if (o.key === 'weChat' && md.global.SysSettings.hideWeixin) return;
-
                 return (
                   <Checkbox
-                    className="mTop16 InlineBlock mRight60 setCheckbox"
-                    text={o.txt}
+                    key={o.key}
+                    className="mTop16 mRight60 setCheckbox"
                     checked={editData.loginMode[o.key]}
-                    onClick={() => {
-                      editData.loginMode[o.key] = !editData.loginMode[o.key];
+                    onChange={() => {
                       setState({
-                        editData: editData,
+                        editData: {
+                          ...editData,
+                          loginMode: {
+                            ...editData.loginMode,
+                            [o.key]: !editData.loginMode[o.key],
+                          },
+                        },
                       });
                     }}
-                  />
+                  >
+                    {o.txt}
+                  </Checkbox>
                 );
               })}
             </div>
             <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('默认角色')}</h6>
-            <Dropdown
-              data={roleList.map(o => {
-                return { text: getTranslateInfo(appId, null, o.roleId).name || o.name, value: o.roleId };
+            <Select
+              options={roleList.map(o => {
+                return { label: getTranslateInfo(appId, null, o.roleId).name || o.name, value: o.roleId };
               })}
-              border
-              isAppendToBody
               className="mTop6 w100"
               value={editData.roleId}
               onChange={value => {
@@ -374,12 +357,16 @@ function Setting(props) {
                   editData: { ...editData, roleId: value },
                 });
               }}
-              {...(!roleList.find(o => o.roleId === editData.roleId)
-                ? { renderError: () => <span className="Red">{_l('该角色已删除')}</span> }
-                : {})}
+              labelRender={({ label }) =>
+                roleList.find(o => o.roleId === editData.roleId) ? (
+                  label
+                ) : (
+                  <span className="Red">{_l('该角色已删除')}</span>
+                )
+              }
             />
           </WrapDetail>
-        </Dialog>
+        </Modal>
       )}
     </Drawer>
   );

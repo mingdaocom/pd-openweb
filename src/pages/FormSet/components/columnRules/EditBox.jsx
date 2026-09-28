@@ -1,21 +1,19 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Checkbox, Icon, RadioGroup, ScrollView } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { Icon, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Input, Popover, Radio, Select, Tooltip } from 'ming-ui/antd-components';
 import { HAS_DYNAMIC_TYPE } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { WidgetItem } from 'src/pages/widgetConfig/widgetSetting/components/StyleContent/StyleContentItems';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import SelectControls from 'src/pages/worksheet/common/WorkSheetFilter/components/SelectControls';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/control';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { DYNAMIC_FROM_MODE } from 'src/utils/domain/control/dynamicValueConfig';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 import ActionDropDown from './actionDropdown/ActionDropDown';
 import {
   ACTION_DISPLAY,
@@ -28,7 +26,6 @@ import {
   TAB_TYPES,
 } from './config';
 import * as actions from './redux/actions/columnRules';
-import * as columnRules from './redux/actions/columnRules';
 
 class EditBox extends React.Component {
   constructor(props) {
@@ -81,7 +78,7 @@ class EditBox extends React.Component {
     }
 
     return (
-      <div className="conditionContainer">
+      <div className={cx('conditionContainer', { mTop0: activeTab === TAB_TYPES.LOCK_RULE })}>
         <div className="Font14 Bold">
           {activeTab === TAB_TYPES.LOCK_RULE ? _l('当变更为以下条件时，锁定') : _l('当满足以下条件时')}
         </div>
@@ -145,21 +142,13 @@ class EditBox extends React.Component {
         i => _.includes(HAS_DYNAMIC_TYPE, i.type) && !_.find(controls, a => a.controlId === i.controlId),
       );
       return (
-        <Trigger
-          action={['click']}
-          popupVisible={fieldVisibleId === `${actionIndex}`}
-          onPopupVisibleChange={visible => {
+        <Popover
+          trigger="click"
+          open={fieldVisibleId === `${actionIndex}`}
+          onOpenChange={visible => {
             this.setState({ fieldVisibleId: visible ? `${actionIndex}` : '' });
           }}
-          popupAlign={{
-            points: ['tr', 'br'],
-            offset: [0, 12],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
-          }}
-          popup={
+          content={
             <SelectControls
               controls={selectControls}
               onAdd={control => {
@@ -176,12 +165,20 @@ class EditBox extends React.Component {
             />
           }
           getPopupContainer={() => this.addField}
+          placement="bottomRight"
+          noPadding
         >
-          <div className="addField" ref={con => (this.addField = con)}>
-            <Icon icon="plus" className="mRight8" />
+          <Button
+            className="addField"
+            color="default"
+            variant="text"
+            size="small"
+            icon={<Icon icon="plus" />}
+            ref={con => (this.addField = con)}
+          >
             {_l('字段')}
-          </div>
-        </Trigger>
+          </Button>
+        </Popover>
       );
     };
 
@@ -309,7 +306,7 @@ class EditBox extends React.Component {
             <div className="actionItemCon">
               <Select
                 className={cx('ruleListSelect', { flexItem: _.includes([7], actionItem.type) })}
-                dropdownClassName="ruleListSelectDropdown"
+                classNames={{ popup: { root: 'ruleListSelectDropdown' } }}
                 value={getActionLabelByType(actionItem.type)}
                 options={listData}
                 disabled={_.includes([9], actionItem.type)}
@@ -366,17 +363,17 @@ class EditBox extends React.Component {
             </div>
           );
         })}
-        <Trigger
-          popupVisible={visible}
-          onPopupVisibleChange={visible => {
+        <Popover
+          noPadding
+          open={visible}
+          onOpenChange={visible => {
             this.setState({ visible });
           }}
-          popupClassName="addConditionTrigger"
-          action={['click']}
+          trigger="click"
           mouseEnterDelay={0.1}
-          popupAlign={{ points: ['tl', 'bl'], offset: [0, 4] }}
-          popup={() => (
-            <Fragment>
+          placement="bottomLeft"
+          content={() => (
+            <div className="addConditionMenu">
               {listData.map(i => (
                 <div
                   onClick={() =>
@@ -391,15 +388,20 @@ class EditBox extends React.Component {
                   )}
                 </div>
               ))}
-            </Fragment>
+            </div>
           )}
           getPopupContainer={() => this.addAction}
         >
-          <div className="addCondition" ref={con => (this.addAction = con)}>
-            <Icon icon="plus" className="mRight8" />
+          <Button
+            className="addCondition"
+            color="primary"
+            variant="text"
+            icon={<Icon icon="plus" />}
+            ref={con => (this.addAction = con)}
+          >
             {_l('添加动作')}
-          </div>
-        </Trigger>
+          </Button>
+        </Popover>
       </div>
     );
   };
@@ -426,7 +428,7 @@ class EditBox extends React.Component {
           {_l('提示内容')}
           <span className="Red">*</span>
         </div>
-        <input
+        <Input
           className={cx('ruleNameInput', { errorBorder: isError && !message })}
           value={this.state.message}
           placeholder={_l('请输入提示内容')}
@@ -453,18 +455,23 @@ class EditBox extends React.Component {
         </div>
         <div className="mTop24">
           <div className="Font14 Bold mBottom12">{_l('提示错误后')}</div>
-          <RadioGroup
+          <Radio.Group
             size="middle"
             vertical={true}
-            checkedValue={checkType === 3 ? 3 : 0}
-            data={SUBMIT_DISPLAY}
-            onChange={value => updateSelectRule('checkType', value)}
+            value={checkType === 3 ? 3 : 0}
+            options={(SUBMIT_DISPLAY || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+            onChange={event => updateSelectRule('checkType', event.target.value)}
           />
         </div>
-        <div className="mTop24">
+        <div className="mTop24 flexColumn">
           <div className="Font14 Bold mBottom12">{_l('其他')}</div>
           <Checkbox
-            text={
+            checked={hintType === 0}
+            onChange={event => {
+              updateSelectRule('hintType', !event.target.checked ? 1 : 0);
+            }}
+          >
+            {
               <span>
                 {_l('在字段输入时实时提示')}
                 <Tooltip
@@ -477,16 +484,17 @@ class EditBox extends React.Component {
                 </Tooltip>
               </span>
             }
-            checked={hintType === 0}
-            onClick={checked => {
-              updateSelectRule('hintType', checked ? 1 : 0);
-            }}
-          />
+          </Checkbox>
 
           {checkType !== 3 && (
             <Checkbox
               className="mTop12"
-              text={
+              checked={checkType === 1}
+              onChange={event => {
+                updateSelectRule('checkType', !event.target.checked ? 0 : 1);
+              }}
+            >
+              {
                 <span>
                   {_l('保存数据到服务器时再次校验')}
                   <Tooltip
@@ -509,11 +517,7 @@ class EditBox extends React.Component {
                   </Tooltip>
                 </span>
               }
-              checked={checkType === 1}
-              onClick={checked => {
-                updateSelectRule('checkType', checked ? 0 : 1);
-              }}
-            />
+            </Checkbox>
           )}
         </div>
       </div>
@@ -528,7 +532,7 @@ class EditBox extends React.Component {
     return (
       <div className="conditionContainer mTop0">
         <div className="Font14 Bold mBottom16">{_l('锁定说明')}</div>
-        <input
+        <Input
           className="ruleNameInput"
           defaultValue={_.get(ruleItems, '0.message')}
           placeholder={_l('请输入提示文案')}
@@ -640,7 +644,7 @@ class EditBox extends React.Component {
           {selectRules.type !== TAB_TYPES.LOCK_RULE && (
             <Fragment>
               <div className="Font14 Bold">{_l('规则名称')}</div>
-              <input
+              <Input
                 className="mTop12 ruleNameInput"
                 value={this.state.name}
                 onChange={e => this.setState({ name: e.target.value })}
@@ -673,6 +677,6 @@ const mapStateToProps = state => ({
   sheetSwitchPermit: state.formSet.worksheetInfo.switches,
   activeTab: state.formSet.activeTab,
 });
-const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditBox);

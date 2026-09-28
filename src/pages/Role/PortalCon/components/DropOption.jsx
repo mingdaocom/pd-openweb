@@ -1,85 +1,49 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-
-const MenuWrap = styled(Menu)`
-  width: auto !important;
-`;
-const MenuItemWrap = styled(MenuItem)``;
-const RedMenuItemWrap = styled(MenuItemWrap)`
-  .Item-content {
-    color: var(--color-error) !important;
-    .Icon {
-      color: var(--color-error) !important;
-    }
-  }
-`;
+import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 
 export default function DropOption(props) {
-  const { key, dataList = [] } = props;
+  const { dataList = [], onAction, placement = 'bottomLeft', title } = props;
   const [optionShow, setOptionShow] = useState(false);
 
   if (dataList.length <= 0) {
     return null;
   }
 
-  return (
-    <Trigger
-      popupVisible={optionShow}
-      action={['click']}
-      onPopupVisibleChange={optionShow => {
-        setOptionShow(optionShow);
-      }}
-      key={key}
-      popup={
-        <MenuWrap className="Relative">
-          {props.showHeader && props.showHeader()}
-          {props.dataList.map(o => {
-            if (o.type === 'err') {
-              return (
-                <RedMenuItemWrap
-                  onClick={e => {
-                    e.stopPropagation();
-                    props.onAction(o);
-                    setOptionShow(false);
-                  }}
-                >
-                  {o.text}
-                </RedMenuItemWrap>
-              );
-            }
+  const menuItems = dataList.flatMap((option, index) => {
+    const optionKey = option.value ?? index;
+    const actionItem = {
+      key: optionKey,
+      danger: option.type === 'err',
+      label: option.text,
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onAction(option);
+        setOptionShow(false);
+      },
+    };
 
-            return (
-              <React.Fragment>
-                {o.showLine && (
-                  <div
-                    style={{ width: '100%', margin: '6px 0', borderTop: '1px solid var(--color-border-secondary)' }}
-                  />
-                )}
-                <MenuItemWrap
-                  onClick={e => {
-                    e.stopPropagation();
-                    props.onAction(o);
-                    setOptionShow(false);
-                  }}
-                >
-                  {o.text}
-                </MenuItemWrap>
-              </React.Fragment>
-            );
-          })}
-        </MenuWrap>
-      }
-      getPopupContainer={() => document.body}
-      popupClassName="optionTrigger"
-      popupAlign={{
-        points: ['tl', 'bl'],
-        overflow: {
-          adjustX: true,
-          adjustY: true,
+    return option.showLine ? [{ key: `divider-${optionKey}`, type: 'divider' }, actionItem] : [actionItem];
+  });
+  const items = title
+    ? [
+        {
+          key: 'dropdown-title',
+          type: 'group',
+          label: title,
+          children: menuItems,
         },
-      }}
+      ]
+    : menuItems;
+
+  return (
+    <Dropdown
+      open={optionShow}
+      trigger={['click']}
+      onOpenChange={setOptionShow}
+      menu={{ items }}
+      getPopupContainer={() => document.body}
+      placement={placement}
     >
       <Icon
         className="TxtMiddle Hand moreop Font20"
@@ -88,6 +52,6 @@ export default function DropOption(props) {
           e.stopPropagation();
         }}
       />
-    </Trigger>
+    </Dropdown>
   );
 }

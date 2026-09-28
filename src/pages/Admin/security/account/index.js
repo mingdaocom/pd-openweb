@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { VersionProductType } from 'src/utils/enum';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import DialogSettingInviteRules from '../../user/membersDepartments/structure/components/dialogSettingInviteRules';

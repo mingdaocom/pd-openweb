@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
@@ -7,8 +7,8 @@ import { LoadDiv } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process.js';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { PERMISSION_ENUM } from 'src/utils/domain/security/permission';
+import { checkPermission } from 'src/utils/services/security/permission';
 import Cite from './Cite';
 import Footer from './Footer';
 import Header from './Header';
@@ -30,6 +30,7 @@ function APISetting(props) {
     isConnectOwner: false,
     hasManageAuth: props.hasManageAuth,
   });
+  const publishRequestPendingRef = useRef(false);
 
   useEffect(() => {
     const keyDownListener = e => {
@@ -178,33 +179,41 @@ function APISetting(props) {
    * 开启关闭
    */
   const switchStatus = (enabled, cb) => {
+    if (publishRequestPendingRef.current) return Promise.resolve();
+
+    publishRequestPendingRef.current = true;
     setState({
       pending: true,
     });
-    processAjax.publish({ isPublish: enabled, processId: data.id }, { isIntegration: true }).then(publishData => {
-      const { isPublish } = publishData;
+    return processAjax
+      .publish({ isPublish: enabled, processId: data.id }, { isIntegration: true })
+      .then(
+        publishData => {
+          const { isPublish } = publishData;
 
-      if (isPublish) {
-        let newData = {
-          ...data,
-          enabled: enabled, //publish: enabled
-          publishStatus: cb && enabled ? 2 : 1,
-          lastModifiedDate: moment().format('YYYY-MM-DD HH:mm:ss'),
-        };
-        setState({
-          data: newData,
-          pending: false,
-        });
-        props.onChange && props.onChange(newData);
-        cb && cb();
-        // alert(_l('更新成功'));
-      } else {
-        setState({
-          pending: false,
-        });
-        alert(_l('发布失败，请完善API信息'), 2);
-      }
-    });
+          if (isPublish) {
+            let newData = {
+              ...data,
+              enabled: enabled, //publish: enabled
+              publishStatus: cb && enabled ? 2 : 1,
+              lastModifiedDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+            };
+            setState({
+              data: newData,
+            });
+            props.onChange && props.onChange(newData);
+            cb && cb();
+            // alert(_l('更新成功'));
+          } else {
+            alert(_l('发布失败，请完善API信息'), 2);
+          }
+        },
+        () => undefined,
+      )
+      .finally(() => {
+        publishRequestPendingRef.current = false;
+        setState({ pending: false });
+      });
   };
 
   const renderCon = () => {

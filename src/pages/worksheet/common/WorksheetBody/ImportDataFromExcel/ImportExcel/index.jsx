@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import Immutable from 'immutable';
 import _ from 'lodash';
-import { Button, Dialog, Support } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import createUploader from 'src/library/plupload/createUploader';
 import { UPLOAD_ERROR, UPLOAD_STATUS } from 'src/pages/kc/constant/enum';
 import * as utils from 'src/pages/kc/utils';
@@ -21,12 +22,34 @@ export default class ImportExcel extends React.Component {
   }
 
   componentDidMount() {
+    this.initUploader();
+  }
+
+  setUploadExcelRef = node => {
+    this.uploadExcel = node;
+    if (node) {
+      this.initUploader();
+    }
+  };
+
+  setSelectFileTriggerRef = node => {
+    this.selectFileTrigger = node;
+    if (node) {
+      this.initUploader();
+    }
+  };
+
+  initUploader = () => {
+    if (this.uploader || !this.selectFileTrigger || !this.uploadExcel) {
+      return;
+    }
+
     const comp = this;
     this.uploader = createUploader({
       runtimes: 'html5',
       max_file_count: 1,
-      browse_button: 'selectFileTrigger',
-      drop_element: 'uploadExcel',
+      browse_button: this.selectFileTrigger,
+      drop_element: this.uploadExcel,
       max_file_size: '10mb',
       bucket: 3,
       chunk_size: '10mb',
@@ -107,6 +130,13 @@ export default class ImportExcel extends React.Component {
         },
       },
     });
+  };
+
+  componentWillUnmount() {
+    if (this.uploader) {
+      this.uploader.destroy();
+      this.uploader = null;
+    }
   }
 
   cancelUpload = id => {
@@ -177,31 +207,34 @@ export default class ImportExcel extends React.Component {
   render() {
     const { hideUploadExcel } = this.props;
     const { fileList } = this.state;
-    const { worksheetExcelImportDataLimitCount } = md.global.SysSettings;
+    const worksheetExcelImportDataLimitCount = md.global.SysSettings.worksheetExcelImportDataLimitCount || 20000;
 
     return (
-      <Dialog
-        className="workSheetUploadExcel"
-        visible={true}
-        title={_l('数据导入 - 上传Excel（1/3）')}
-        description={
-          <div>
-            {_l(
-              '支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配',
-              worksheetExcelImportDataLimitCount,
-            )}
-            <Support type={3} href="https://help.mingdao.com/worksheet/import-excel-data" text={_l('使用帮助')} />
-          </div>
+      <Modal
+        rootClassName="workSheetUploadExcel"
+        open
+        mask={{ closable: false }}
+        keyboard
+        title={
+          <React.Fragment>
+            <div>{_l('数据导入 - 上传Excel（1/3）')}</div>
+            <div className="Font13 Normal textSecondary mTop8">
+              {_l(
+                '支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配',
+                worksheetExcelImportDataLimitCount,
+              )}
+              <Support type={3} href="https://help.mingdao.com/worksheet/import-excel-data" text={_l('使用帮助')} />
+            </div>
+          </React.Fragment>
         }
-        overlayClosable={false}
-        width="960"
-        anim={false}
+        width={960}
+        styles={{ container: { height: 560 } }}
         footer={null}
-        onCancel={hideUploadExcel}
+        onCancel={() => hideUploadExcel()}
       >
         <div className="flexColumn h100">
           <div
-            id="uploadExcel"
+            ref={this.setUploadExcelRef}
             className="uploadExcel flexColumn flex"
             onDragOver={() => this.setState({ dragOver: true })}
             onDragLeave={() => this.setState({ dragOver: false })}
@@ -220,15 +253,9 @@ export default class ImportExcel extends React.Component {
                 </div>
               </div>
               <div className={cx('chooseBtnContainer', fileList.size > 0 && 'Hidden')}>
-                <div
-                  className="chooseBtn hoverBgColorPrimaryDark bgColorPrimary"
-                  onClick={() => {
-                    $('#selectFileTrigger').click();
-                  }}
-                >
+                <Button ref={this.setSelectFileTriggerRef} wide type="primary" size="large">
                   {_l('选择文件')}
-                </div>
-                <input type="file" className="hide" id="selectFileTrigger" />
+                </Button>
               </div>
             </div>
             {!!fileList.size && (
@@ -279,6 +306,7 @@ export default class ImportExcel extends React.Component {
           {fileList.size > 0 && (
             <div className="buttons">
               <Button
+                type="primary"
                 loading={
                   this.state.loading ||
                   fileList.filter(
@@ -293,7 +321,7 @@ export default class ImportExcel extends React.Component {
             </div>
           )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

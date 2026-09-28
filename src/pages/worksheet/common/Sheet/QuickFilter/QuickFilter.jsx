@@ -2,21 +2,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
+import { ConfigProvider } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/components/AutoSize';
-import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util';
+import { FASTFILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/fastFilter';
 import Conditions from './Conditions';
+
+const QUICK_FILTER_THEME = {
+  token: {
+    controlHeight: 32,
+  },
+};
 
 const Con = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
-  .conditionItem .content {
-    &:hover {
-      .timeZoneTag {
-        display: none;
-      }
-    }
-  }
 `;
 
 const Empty = styled.div`
@@ -33,7 +33,6 @@ function isFullLine(filter) {
 function QuickFilter(props) {
   const {
     mode,
-    isDark,
     showTextAdvanced,
     defaultTriggerUpdate = false,
     base = {},
@@ -131,52 +130,53 @@ function QuickFilter(props) {
   }, [_.get(view, 'advancedSetting.clicksearch')]);
   if (!filters.length) {
     return (
-      <Con isConfigMode={isConfigMode} className="quickFilterWrap">
+      <Con className="quickFilterWrap">
         <Empty>{emptyText || _l('暂未添加快速筛选')}</Empty>
       </Con>
     );
   }
 
   return (
-    <Con isConfigMode={isConfigMode} className="quickFilterWrap">
-      <Conditions
-        viewRowsLoading={viewRowsLoading}
-        from={from}
-        defaultTriggerUpdate={defaultTriggerUpdate}
-        showTextAdvanced={showTextAdvanced}
-        isDark={isDark}
-        worksheetId={worksheetId}
-        isFilterComp={from === 'filterComp'}
-        isConfigMode={isConfigMode}
-        activeFilterId={activeFilterId}
-        projectId={projectId}
-        appId={appId}
-        operateIsNewLine={operateIsNewLine}
-        firstIsFullLine={firstIsFullLine}
-        view={view}
-        controls={controls.filter(c => {
-          let tempType = c.type;
+    <ConfigProvider theme={QUICK_FILTER_THEME}>
+      <Con className="quickFilterWrap">
+        <Conditions
+          viewRowsLoading={viewRowsLoading}
+          from={from}
+          defaultTriggerUpdate={defaultTriggerUpdate}
+          showTextAdvanced={showTextAdvanced}
+          worksheetId={worksheetId}
+          isFilterComp={from === 'filterComp'}
+          isConfigMode={isConfigMode}
+          activeFilterId={activeFilterId}
+          projectId={projectId}
+          appId={appId}
+          operateIsNewLine={operateIsNewLine}
+          firstIsFullLine={firstIsFullLine}
+          view={view}
+          controls={controls.filter(c => {
+            let tempType = c.type;
 
-          if (c.type === 30) {
-            tempType = c.sourceControlType;
-          } else if (c.type === 53) {
-            tempType = c.enumDefault2;
-          }
+            if (c.type === 30) {
+              tempType = c.sourceControlType;
+            } else if (c.type === 53) {
+              tempType = c.enumDefault2;
+            }
 
-          return _.includes(FASTFILTER_CONDITION_TYPE, tempType);
-        })}
-        hideStartIndex={visibleFilters.length}
-        filters={filters}
-        navGroupFilters={navGroupFilters}
-        colNum={colNum}
-        fullShow={isConfigMode || _fullShow}
-        showExpand={showExpand}
-        setFullShow={setFullShow}
-        updateQuickFilter={updateQuickFilter}
-        resetQuickFilter={resetQuickFilter}
-        onFilterClick={onFilterClick}
-      />
-    </Con>
+            return _.includes(FASTFILTER_CONDITION_TYPE, tempType);
+          })}
+          hideStartIndex={visibleFilters.length}
+          filters={filters}
+          navGroupFilters={navGroupFilters}
+          colNum={colNum}
+          fullShow={isConfigMode || _fullShow}
+          showExpand={showExpand}
+          setFullShow={setFullShow}
+          updateQuickFilter={updateQuickFilter}
+          resetQuickFilter={resetQuickFilter}
+          onFilterClick={onFilterClick}
+        />
+      </Con>
+    </ConfigProvider>
   );
 }
 

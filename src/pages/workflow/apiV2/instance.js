@@ -43,7 +43,7 @@ const instance = {
    * null
    * @param {Object} options 配置参数
    */
-  revoke: function(args, options) {
+  revoke_1: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/revoke';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'instancerevoke', args, $.extend({}, base, options));

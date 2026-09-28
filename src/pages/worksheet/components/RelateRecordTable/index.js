@@ -5,17 +5,18 @@ import { get, includes, isEqual, isFunction } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 import { updateFilter, updateTableConfigByControl } from './redux/action';
 import { initialChanges } from './redux/reducer';
 import generateStore from './redux/store';
 import RelateRecordTable from './RelateRecordTable';
+import { getRelateRecordTableAllowEdit } from './utils';
 
 const Con = styled.div`
   position: relative;
   line-height: 1.5;
-  ${({ useHeight }) => useHeight && 'height: 100%;'}
-  ${({ isSplit }) => isSplit && 'flex: 1; overflow: hidden; display: flex; flex-direction: column;'}
+  ${({ $useHeight }) => $useHeight && 'height: 100%;'}
+  ${({ $isSplit }) => $isSplit && 'flex: 1; overflow: hidden; display: flex; flex-direction: column;'}
 `;
 
 export default function RelateRecordTableIndex(props) {
@@ -35,7 +36,10 @@ export default function RelateRecordTableIndex(props) {
     isDraft,
   } = props;
   const { recordbase = {} } = useContext(RecordFormContext) || {};
-  const { instanceId, workId } = recordbase;
+  // 行内单元格弹出的关联表格，展示的是关联表某一行自己的关联字段，与外层表单所在的审批实例无关。
+  // 这里的 RecordFormContext 仍是外层记录详情的，直接继承会把审批 instanceId/workId 带进弹层取数，
+  // 让本该按用户权限加载的记录走了流程授权口径
+  const { instanceId, workId } = openFrom === 'cell' ? {} : recordbase;
   const [filters, setFilters] = useState(false);
   const cache = useRef({
     changes: { addedRecordIds: [], deletedRecordIds: [] },
@@ -126,21 +130,23 @@ export default function RelateRecordTableIndex(props) {
       store.dispatch(updateFilter());
     }
   }, [filters]);
+  // 必须和 store 初始化共用 getRelateRecordTableAllowEdit：直接写 props 原值会覆盖掉
+  // 初始化时算好的结果，让公开工作流只读、控件 disabled 这些限制在挂载后立刻失效。
   useEffect(() => {
     if (typeof allowEdit !== 'undefined') {
       store.dispatch({
         type: 'UPDATE_BASE',
-        value: { allowEdit },
+        value: { allowEdit: getRelateRecordTableAllowEdit(allowEdit, control) },
       });
       store.dispatch(updateTableConfigByControl());
     }
-  }, [allowEdit]);
+  }, [allowEdit, control.disabled]);
   useEffect(() => {
     store.init();
   }, [store.version]);
   return (
     <Provider store={store}>
-      <Con useHeight={props.useHeight} isSplit={props.isSplit} className={cx({ flexColumn: props.useHeight })}>
+      <Con $useHeight={props.useHeight} $isSplit={props.isSplit} className={cx({ flexColumn: props.useHeight })}>
         <RelateRecordTable {...props} />
       </Con>
     </Provider>

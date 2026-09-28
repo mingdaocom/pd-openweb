@@ -3,10 +3,12 @@ import { useSetState } from 'react-use';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, MobilePersonalInfo } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { MobilePersonalInfo } from 'ming-ui/antd-mobile-components';
 import { selectUser } from 'src/pages/Mobile/components/SelectUser';
 import { updateRecordOwner } from 'src/pages/worksheet/common/recordInfo/crtl.js';
-import { compatibleMDJS } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/services/project';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 
 const OwnerOptionPopup = styled(Popup)`
   .ownerOptionBody {
@@ -97,7 +99,7 @@ const RecordOwner = props => {
       }
 
       console.log(err);
-      alert(_l('修改失败'), 2);
+      alertIfNotUnauthorized(err, _l('修改失败'), 2);
     }
   };
 

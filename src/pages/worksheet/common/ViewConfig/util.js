@@ -1,8 +1,9 @@
 import update from 'immutability-helper';
 import _ from 'lodash';
-import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getSortData } from 'src/utils/control';
+import { handleCondition } from 'src/utils/domain/control/conditions';
+import { filterOnlyShowField } from 'src/utils/domain/control/filters';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { getSortData } from 'src/utils/domain/control/sort';
 
 export const updateViewAdvancedSetting = (view, obj) => {
   const { navfilters } = obj;
@@ -116,6 +117,7 @@ export const getSortTypes = (controlId, columns) => {
   return getSortData(control.type, control);
 };
 
+// 按表单布局位置排序控件；该方法会原地排序，调用前如需保留原数组顺序请先传入新数组。
 export const sortControls = columns => {
   return columns.sort((a, b) => {
     if (a.row === b.row) {

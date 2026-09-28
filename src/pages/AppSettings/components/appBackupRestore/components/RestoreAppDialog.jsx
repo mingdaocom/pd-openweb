@@ -4,10 +4,11 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { VerifyPasswordConfirm } from 'ming-ui';
+import { Button, Checkbox, Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 
 const RestoreContentWrap = styled.div`
   p {
@@ -57,9 +58,14 @@ export const RestoreContent = props => {
               <Checkbox
                 disabled={item.type === 'appItem' || (fileType === 1 && item.type === 'data')}
                 checked={item.type === 'appItem' ? appItemChecked : dataChecked}
-                text={item.txt}
-                onClick={checked => setData({ [`${item.type}Checked`]: !checked })}
-              />
+                onChange={event =>
+                  setData({
+                    [`${item.type}Checked`]: event.target.checked,
+                  })
+                }
+              >
+                {item.txt}
+              </Checkbox>
             </div>
             <div className="Font12 textTertiary pLeft24">
               {item.type === 'appItem' && appItemTotal
@@ -88,22 +94,25 @@ export const RestoreContent = props => {
       )}
       <div className="mTop24 mBottom10">
         <Checkbox
-          text={_l('还原前备份当前版本') + (dataChecked ? _l('(同时备份数据)') : '')}
           checked={backupCurrentVersion}
-          onClick={checked => {
+          onChange={event => {
             if (validLimit !== -1 && currentValid >= validLimit) {
               alert(_l('备份文件已达上限，升级旗舰版可以无限备份'), 3);
               return;
             }
 
-            setData({ backupCurrentVersion: !checked });
+            setData({
+              backupCurrentVersion: event.target.checked,
+            });
           }}
-        />
+        >
+          {_l('还原前备份当前版本') + (dataChecked ? _l('(同时备份数据)') : '')}
+        </Checkbox>
       </div>
       <div className="flexRow alignItemsCenter">
         <div className="flex"></div>
         <div className="TxtRight">
-          <Button type="link" onClick={onCancel}>
+          <Button color="primary" variant="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button type="primary" onClick={() => handleRestore({ backupCurrentVersion, containData: dataChecked })}>
@@ -152,13 +161,14 @@ function RestoreAppDialog(props) {
 
   return (
     <Fragment>
-      <Dialog
-        visible={visible}
+      <Modal
+        open={visible}
+        width={570}
         title={_l('还原备份 "%0"', actCurrentFileInfo.backupFileName)}
         className="restoreAppDialog"
-        overlayClosable={false}
+        mask={{ closable: false }}
+        keyboard
         onCancel={changeRestoreAppVisible}
-        footer={null}
       >
         <RestoreContent
           validLimit={validLimit}
@@ -167,7 +177,7 @@ function RestoreAppDialog(props) {
           handleRestore={data => onOk(data)}
           onCancel={changeRestoreAppVisible}
         />
-      </Dialog>
+      </Modal>
     </Fragment>
   );
 }

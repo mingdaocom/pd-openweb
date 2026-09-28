@@ -1,29 +1,22 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import { UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import ClickAway from 'ming-ui/components/ClickAway';
+import { Button, Dropdown, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import createTask from 'src/components/createTask/load';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import { updateStateConfig } from '../../../../redux/actions';
 import config from '../../config/config';
 import { addFollowMembers, removeFollowMembers, updateUserStatus } from '../../redux/actions';
 import './subordinateMembers.less';
 
-const ClickAwayable = ClickAway;
-class SubordinateMembers extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showNetwork: false,
-    };
-  }
+const NETWORK_MENU_STYLE = { minWidth: 200, maxHeight: 160, overflowY: 'auto' };
+const ADD_SUBORDINATE_BUTTON_STYLE = { width: 120 };
 
+class SubordinateMembers extends Component {
   componentDidMount() {
     // 竖着滚动对应右侧竖着滚动
     $(this.ganttMembersList).on({
@@ -43,7 +36,6 @@ class SubordinateMembers extends Component {
    * @param  {string} projectId
    */
   switchNetwork(projectId) {
-    this.setState({ showNetwork: false });
     this.props.getSetting(projectId);
   }
 
@@ -193,25 +185,35 @@ class SubordinateMembers extends Component {
     });
   }
 
-  /**
-   * 更多操作内容
-   * @param {object} account
-   */
-  renderPopup(account) {
-    return (
-      <ul className="ganttSubordinateMembersOp boxShadow5 boderRadAll_3">
-        <li className="colorPrimary bgColorPrimary" onClick={() => this.lookOtherTasks(account)}>
-          <i className="icon-abstract" />
-          {_l('更多任务')}
-        </li>
-        {account.type === 4 ? (
-          <li className="colorPrimary bgColorPrimary" onClick={() => this.removeMembers(account.accountId)}>
-            <i className="icon-trash" />
-            {_l('移除')}
-          </li>
-        ) : undefined}
-      </ul>
-    );
+  getOperationMenu(account) {
+    const items = [
+      {
+        key: 'moreTasks',
+        icon: <i className="icon-abstract" />,
+        label: _l('更多任务'),
+      },
+    ];
+
+    if (account.type === 4) {
+      items.push({
+        key: 'remove',
+        icon: <i className="icon-trash" />,
+        label: _l('移除'),
+      });
+    }
+
+    return {
+      items,
+      onClick: ({ key, domEvent }) => {
+        domEvent.stopPropagation();
+
+        if (key === 'moreTasks') {
+          this.lookOtherTasks(account);
+        } else if (key === 'remove') {
+          this.removeMembers(account.accountId);
+        }
+      },
+    };
   }
 
   /**
@@ -253,42 +255,31 @@ class SubordinateMembers extends Component {
 
   render() {
     const { accountTasksKV } = this.props;
-    const builtinPlacements = {
-      bottomLeft: {
-        points: ['tl', 'bl'],
-      },
-    };
+    const networkItems = md.global.Account.projects.map(project => ({
+      key: project.projectId,
+      icon: <i className="icon-business" />,
+      label: project.companyName,
+    }));
 
     return (
       <div className="ganttMembers subordinateMembers">
         <div className="flexColumn">
           <div className="ganttNetwork relative">
-            <div
-              className="ganttNetworkName colorPrimary overflow_ellipsis"
-              onClick={() => this.setState({ showNetwork: !this.state.showNetwork })}
+            <Dropdown
+              trigger={['click']}
+              placement="bottomLeft"
+              menu={{
+                items: networkItems,
+                selectable: true,
+                selectedKeys: [config.projectId],
+                style: NETWORK_MENU_STYLE,
+                onClick: ({ key }) => this.switchNetwork(key),
+              }}
             >
-              {this.getNetWorkName()} <i className="icon-arrow-down-border" />
-            </div>
-            {this.state.showNetwork ? (
-              <ClickAwayable
-                component="ul"
-                className={cx('boxShadow5 boderRadAll_3', { Hidden: !this.state.showNetwork })}
-                onClickAway={() => this.setState({ showNetwork: false })}
-              >
-                {md.global.Account.projects.map((project, i) => {
-                  return (
-                    <li
-                      key={i}
-                      className="overflow_ellipsis colorPrimary bgColorPrimary"
-                      onClick={() => this.switchNetwork(project.projectId)}
-                    >
-                      <i className="icon-business" />
-                      {project.companyName}
-                    </li>
-                  );
-                })}
-              </ClickAwayable>
-            ) : undefined}
+              <div className="ganttNetworkName colorPrimary overflow_ellipsis">
+                {this.getNetWorkName()} <i className="icon-arrow-down-border" />
+              </div>
+            </Dropdown>
           </div>
 
           <ul
@@ -304,12 +295,15 @@ class SubordinateMembers extends Component {
                 <div className="mTop5 ganttTextAlignLeft">
                   {_l('可前往 组织管理-员工汇报关系中设置，或关注与您协作的同事，查看相关任务进展。')}
                 </div>
-                <div
-                  className="ganttSubordinateAddMember colorPrimary borderColorPrimary mTop25"
+                <Button
+                  className="mTop25"
+                  color="primary"
+                  variant="outlined"
+                  style={ADD_SUBORDINATE_BUTTON_STYLE}
                   onClick={() => this.addSubordinate()}
                 >
                   {_l('添加下属')}
-                </div>
+                </Button>
               </div>
             ) : undefined}
 
@@ -346,17 +340,11 @@ class SubordinateMembers extends Component {
                   </Tooltip>
 
                   {item.account.type === 3 || item.account.type === 4 ? (
-                    <Trigger
-                      action={['click']}
-                      prefixCls="ganttSubordinateBox"
-                      popup={this.renderPopup(item.account)}
-                      builtinPlacements={builtinPlacements}
-                      popupPlacement="bottomLeft"
-                    >
+                    <Dropdown trigger={['click']} placement="bottomLeft" menu={this.getOperationMenu(item.account)}>
                       <span className="ganttMembersOperation" onClick={evt => evt.stopPropagation()}>
                         <i className="icon-moreop colorPrimary Font16" />
                       </span>
-                    </Trigger>
+                    </Dropdown>
                   ) : undefined}
                 </li>
               );

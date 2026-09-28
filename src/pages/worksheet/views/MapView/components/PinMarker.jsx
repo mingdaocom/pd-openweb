@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -6,14 +6,14 @@ import { arrayOf, func, number, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { getCardTitleFieldForView } from 'src/pages/worksheet/views/util.js';
-import { pathCompletion } from 'src/utils/common';
-import { renderText as renderCellText, sortControlByIds } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project';
-import { handleRecordClick } from 'src/utils/record';
-import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
+import { renderText as renderCellText } from 'src/utils/domain/control/display';
+import { sortControlByIds } from 'src/utils/domain/control/sort';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/domain/worksheet/record';
+import { handleRecordClick } from 'src/utils/domain/worksheet/recordNavigation';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { addBehaviorLog } from 'src/utils/services/project';
+import { getCardTitleFieldForView } from 'src/utils/services/worksheet/view';
 import EditableCard from '../../components/EditableCard';
 import Marker from '../amap/Maker';
 
@@ -75,6 +75,14 @@ const wrapStyles = `
     height: 10px;
     width: calc(100% + 40px);
   }
+  &::after {
+    content: ' ';
+    position: absolute;
+    left: 0;
+    top: 100%;
+    height: 10px;
+    width: 100%;
+  }
   &:hover {
     .pinDetail {
       display: inline-flex;
@@ -116,6 +124,73 @@ const PinCardCon = styled.div`
     display: none;
   }
 `;
+
+function getMapCardLayout(anchor, bounds, contentHeight) {
+  const padding = 8;
+  const top = Math.max(bounds.top, 0) + padding;
+  const bottom = Math.min(bounds.bottom, window.innerHeight) - padding;
+  const left = Math.max(bounds.left, 0) + padding;
+  const right = Math.min(bounds.right, window.innerWidth) - padding;
+  const above = Math.max(0, anchor.top - padding - top);
+  const below = Math.max(0, bottom - anchor.bottom - padding);
+  const openAbove = contentHeight <= above || above >= below;
+  const maxHeight = Math.min(480, openAbove ? above : below);
+  const height = Math.min(contentHeight, maxHeight);
+  const width = Math.max(0, Math.min(300, right - left));
+
+  return {
+    width,
+    maxHeight,
+    left: Math.max(left, Math.min(anchor.left - 135, right - width)) - anchor.left,
+    top: openAbove ? -padding - height : anchor.height + padding,
+  };
+}
+
+function MapCard({ active, isMobile, children, ...props }) {
+  const cardRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const card = cardRef.current;
+    if (!active || isMobile || !card) return;
+    const container = card.closest('.mapViewCanvas');
+    if (!container) return;
+    let frame;
+
+    // 两种地图都可能在拖动、缩放时直接移动标记 DOM，展开期间同步可用空间。
+    const updateLayout = () => {
+      const layout = getMapCardLayout(
+        card.parentElement.getBoundingClientRect(),
+        container.getBoundingClientRect(),
+        card.scrollHeight,
+      );
+      Object.entries(layout).forEach(([key, value]) => {
+        const nextValue = `${value}px`;
+        if (card.style[key] !== nextValue) card.style[key] = nextValue;
+      });
+
+      frame = requestAnimationFrame(updateLayout);
+    };
+
+    updateLayout();
+
+    return () => cancelAnimationFrame(frame);
+  }, [active, isMobile]);
+
+  return (
+    <PinCardCon
+      {...props}
+      ref={cardRef}
+      style={{
+        visibility: active ? 'visible' : 'hidden',
+        ...(!isMobile && { bottom: 'auto', overflowY: 'auto', overscrollBehavior: 'contain' }),
+      }}
+      onWheel={isMobile ? undefined : e => e.stopPropagation()}
+      onMouseDown={isMobile ? undefined : e => e.stopPropagation()}
+    >
+      {children}
+    </PinCardCon>
+  );
+}
 
 function getTagColor(tagType, colorControl, record = {}) {
   if (tagType === '1') {
@@ -176,6 +251,7 @@ export default function MarkerCard(props) {
     getData,
     updateNavGroup,
     buttonsCheckStatus,
+    openRecordInfo,
   } = props;
   const { position, cover, record } = marker;
   const { titleId, tagType, tagcolorid, showtitle } = mapViewConfig;
@@ -284,8 +360,8 @@ export default function MarkerCard(props) {
         </div>
         <div
           className="content"
-          onMouseOver={() => setActive(true)}
-          onMouseOut={() => setActive(false)}
+          onMouseEnter={() => setActive(true)}
+          onMouseLeave={() => setActive(false)}
           onClick={() => {
             if (isMobile) return;
             handleRecordClick(view, marker.record, () => {
@@ -306,12 +382,11 @@ export default function MarkerCard(props) {
               {title}
             </span>
           )}
-          <PinCardCon
+          <MapCard
+            active={active}
+            isMobile={isMobile}
             id={`mapViewCard-${record.rowid}`}
             className={cx('mapViewCard', { active: active })}
-            style={{
-              visibility: active ? 'visible' : 'hidden',
-            }}
             onMouseLeave={() => document.body.dispatchEvent(new Event('mousedown'))}
             onTouchStartCapture={e => {
               e.stopPropagation();
@@ -348,6 +423,7 @@ export default function MarkerCard(props) {
                 <EditableCard
                   type="board"
                   showNull={true}
+                  worksheetInfo={worksheetInfo}
                   data={{
                     allAttachments: safeParse(marker.cover, 'array'),
                     allowDelete: record.allowdelete,
@@ -381,7 +457,7 @@ export default function MarkerCard(props) {
                 />
               </SheetContext.Provider>
             )}
-          </PinCardCon>
+          </MapCard>
         </div>
       </div>
     </Con>
@@ -394,4 +470,5 @@ MarkerCard.propTypes = {
   marker: shape({}),
   controls: arrayOf(shape({})),
   onClick: func,
+  openRecordInfo: func.isRequired,
 };

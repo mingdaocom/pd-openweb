@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import { pathCompletion } from 'src/utils/common';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 const Wrapper = styled.div`
   .optionIcon {
@@ -22,28 +22,6 @@ const Wrapper = styled.div`
   }
 `;
 
-const OptionMenu = styled.div`
-  position: relative !important;
-  width: 220px !important;
-  padding: 6px 0 !important;
-  box-shadow: var(--shadow-sm);
-  border-radius: 3px;
-  background: var(--color-background-card);
-`;
-
-const MenuItem = styled.div`
-  padding: 0 20px;
-  line-height: 36px;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--color-background-hover);
-  }
-`;
-
-const RedMenuItem = styled(MenuItem)`
-  color: var(--color-error);
-`;
-
 export default function OptionColumn(props) {
   const { id, onDel } = props;
   const [visible, setVisible] = useState(false);
@@ -51,54 +29,48 @@ export default function OptionColumn(props) {
 
   return (
     <Wrapper>
-      <Trigger
-        action={['click']}
-        popupClassName="moreOption"
-        getPopupContainer={() => document.body}
-        popupVisible={visible}
-        onPopupVisibleChange={visible => setVisible(visible)}
-        popupAlign={{
-          points: ['tr', 'bl'],
-          offset: [25, 5],
-          overflow: { adjustX: true, adjustY: true },
+      <Dropdown
+        trigger={['click']}
+        open={visible}
+        onOpenChange={setVisible}
+        placement="bottomRight"
+        menu={{
+          style: { width: 220 },
+          items: [
+            {
+              key: 'preview',
+              label: _l('预览数据'),
+              onClick: () => window.open(pathCompletion(`/dataMirrorPreview/${id}`)),
+            },
+            {
+              key: 'delete',
+              danger: true,
+              label: _l('删除'),
+              onClick: () => setDialogVisible(true),
+            },
+          ],
         }}
-        popup={
-          <OptionMenu>
-            <MenuItem
-              onClick={() => {
-                window.open(pathCompletion(`/dataMirrorPreview/${id}`));
-              }}
-            >
-              {_l('预览数据')}
-            </MenuItem>
-            <RedMenuItem
-              onClick={() => {
-                setVisible(false);
-                setDialogVisible(true);
-              }}
-            >
-              {_l('删除')}
-            </RedMenuItem>
-          </OptionMenu>
-        }
       >
         <div className="optionIcon">
           <Icon icon="more_horiz" className="Font18 pointer" />
         </div>
-      </Trigger>
+      </Dropdown>
 
       {dialogVisible && (
-        <Dialog
+        <Modal
           title={_l('删除')}
-          buttonType="danger"
-          visible={dialogVisible}
-          description={<div>{_l('不会删除目的地数据库表。')}</div>}
+          open={dialogVisible}
+          mask={{ closable: true }}
+          keyboard
+          okButtonProps={{ danger: true }}
           okText={_l('删除')}
           onOk={() => {
             onDel(() => setDialogVisible(false));
           }}
           onCancel={() => setDialogVisible(false)}
-        />
+        >
+          <div className="textSecondary">{_l('不会删除目的地数据库表。')}</div>
+        </Modal>
       )}
     </Wrapper>
   );

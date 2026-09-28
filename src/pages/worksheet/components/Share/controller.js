@@ -2,8 +2,9 @@ import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
-import { pathCompletion } from 'src/utils/common';
-import { getNewRecordPageUrl, getRecordLandUrl } from 'src/utils/record';
+import { getNewRecordPageUrl } from 'src/utils/domain/worksheet/record';
+import { pathCompletion, toMainSiteUrl } from 'src/utils/platform/navigation/path';
+import { getRecordLandUrl } from 'src/utils/services/worksheet/record';
 
 /**
  * 记录详情 recordInfo [ok]
@@ -20,7 +21,13 @@ const SHARE_SOURCE_TYPE = {
   chatbot: 71,
   aiAction: 72,
   mingoHelp: 73,
+  // New Mingo 会话分享：复用应用实体分享（MingoHistory=73），sourceId 为 agent 侧返回的 shareId
+  mingoHistory: 73,
 };
+
+// 分享可见范围（主站 appentityshare.scope）：0 = 全部（获得链接的所有人），1 = 本网络（仅组织内成员登录后可访问）。
+// 支持范围选择的分享（见 Share 的 supportProjectScope）在开启 / 切换时把它连同 shareProjectId 一起提交。
+export const SHARE_SCOPE = { PUBLIC: 0, PROJECT: 1 };
 
 export async function getUrl(args) {
   const { from } = args;
@@ -60,6 +67,12 @@ export async function getPublicShare(args) {
     return;
   }
 
+  // 锚点不固定的分享（如 Mingo 会话勾选若干条消息的选择性分享）每次都是新的一条，
+  // 没有「这个来源分享过没」可查，调用方置 disableShareQuery 直接按未分享处理
+  if (args.disableShareQuery) {
+    return {};
+  }
+
   switch (from) {
     case 'recordInfo':
       res = await worksheetAjax.getWorksheetShareUrl({
@@ -91,12 +104,15 @@ export async function getPublicShare(args) {
     case 'chatbot':
     case 'aiAction':
     case 'mingoHelp':
+    case 'mingoHistory':
       res = await appManagementAjax.getEntityShare({
         appId: args.appId,
         sourceId: args.sourceId,
         sourceType: SHARE_SOURCE_TYPE[from],
       });
-      res.shareLink = res.url;
+      // 组织内分享靠主站登录态 + 组织成员身份过闸，而后端下发的链接在独立的分享域名上（那里没有登录态），
+      // 这里只把域名换成主站的，路径保持原样
+      res.shareLink = res.scope === SHARE_SCOPE.PROJECT ? toMainSiteUrl(res.url) : res.url;
       break;
   }
 
@@ -110,6 +126,19 @@ export async function getPublicShare(args) {
 export async function updatePublicShareStatus(args) {
   const { from, isPublic, onUpdate, validTime, password, pageTitle } = args;
   let res;
+
+  // 有的分享（如 Mingo 会话）要先在业务侧创建分享实体，再把它返回的 id 当 SourceId 登记进主站换链接，
+  // 两步顺序不能反。调用方通过 params.createShareSource 提供第一步，这里只负责在开启时调用它。
+  // 已开启的分享改标题 / 有效期 / 密码时锚点不变，调用方置 reuseShareSource 沿用当前 sourceId；
+  // 否则每改一次都会新建一条分享实体（选择性分享的 shareId 是随机串，链接会随之变化，配置也落到了新实体上）。
+  const sourceId =
+    isPublic && !args.reuseShareSource && _.isFunction(args.createShareSource)
+      ? await args.createShareSource({ scope: args.scope, projectId: args.projectId })
+      : args.sourceId;
+  // 支持可见范围的分享额外提交 scope + shareProjectId（仅本网络范围需要目标组织）
+  const scopeArgs = _.isUndefined(args.scope)
+    ? {}
+    : { scope: args.scope, shareProjectId: args.scope === SHARE_SCOPE.PROJECT ? args.projectId : undefined };
 
   switch (from) {
     case 'recordInfo':
@@ -155,17 +184,25 @@ export async function updatePublicShareStatus(args) {
     case 'chatbot':
     case 'aiAction':
     case 'mingoHelp':
+    case 'mingoHistory':
       res = await appManagementAjax.editEntityShareStatus({
         appId: args.appId,
-        sourceId: args.sourceId,
+        sourceId,
         sourceType: SHARE_SOURCE_TYPE[from],
         status: isPublic ? 1 : 0,
         validTime,
         password,
         pageTitle,
+        ...scopeArgs,
       });
       if (isPublic) {
-        res.shareLink = res.appEntityShare.url;
+        const url = res.appEntityShare.url;
+
+        // 与 getPublicShare 同一口径：本次提交的就是组织内分享时，链接改挂主站域名
+        res.shareLink = args.scope === SHARE_SCOPE.PROJECT ? toMainSiteUrl(url) : url;
+        // 本次登记用的锚点：业务侧生成来源 id 时它与 params.sourceId 不同，回传给调用方，
+        // 后续改标题 / 有效期 / 密码复用它
+        res.shareSourceId = sourceId;
       }
 
       break;

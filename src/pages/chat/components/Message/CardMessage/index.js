@@ -3,14 +3,15 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import filterXss from 'xss';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui/antd-components';
 import ChatController from 'src/api/chat';
 import postAjax from 'src/api/post';
+import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
-import { htmlDecodeReg } from 'src/utils/common';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { sanitizePostMessageHtml } from 'src/utils/core/sanitizeHtml';
+import { htmlDecodeReg } from 'src/utils/core/string';
 import * as utils from '../../../utils/';
 import './index.less';
 
@@ -106,7 +107,9 @@ export default class CardMessage extends Component {
   handleOpenCardMessage(card) {
     const { md, url } = card;
 
-    if (md == '' || md == 'url' || md == 'kcfolder' || md === 'worksheet') {
+    // 移动端发来的链接卡片不带 md 字段，空 md 一律按链接卡片处理（原来用 == '' 判断，undefined 落不进来，
+    // 会走到下面按 md 分发的弹层逻辑而没有任何匹配分支，表现为点击卡片没反应）
+    if (!md || md === 'url' || md === 'kcfolder' || md === 'worksheet') {
       window.open(url);
     } else {
       this.showCardMessageDialog(card);
@@ -118,9 +121,8 @@ export default class CardMessage extends Component {
     switch (md) {
       case 'post':
       case 'vote':
-        const removeFn = () => {
-          $('.chatFeedDialog').parent().remove();
-        };
+        let modal;
+        const removeFn = () => modal?.destroy();
 
         postAjax
           .getPostDetail({
@@ -160,12 +162,17 @@ export default class CardMessage extends Component {
               postItem = Object.assign({}, postItem, properties);
             }
 
-            Dialog.confirm({
+            modal = Modal.confirm({
               width: 800,
-              dialogClasses: 'chatFeedDialog',
+              wrapClassName: 'chatFeedDialog',
               title: _l('动态详情'),
-              noFooter: true,
-              children: <PostDetails onRemove={removeFn} postItem={postItem} />,
+              footer: null,
+              styles: {
+                body: {
+                  borderTop: '1px solid var(--color-border-primary)',
+                },
+              },
+              content: <PostDetails onRemove={removeFn} postItem={postItem} />,
             });
           });
         break;
@@ -248,7 +255,7 @@ export default class CardMessage extends Component {
       <div
         style={vertical}
         className="Message-cardItem Message-cardItem-post"
-        dangerouslySetInnerHTML={{ __html: cardDetails.message }}
+        dangerouslySetInnerHTML={{ __html: sanitizePostMessageHtml(cardDetails.message) }}
       ></div>
     );
   }
@@ -309,7 +316,8 @@ export default class CardMessage extends Component {
 
     if (md === 'task' || md === 'calendar' || md === 'worksheet') {
       name = `${disposeName.name}: ${card.title}`;
-    } else if (md === 'url' || md === '') {
+    } else if (md === 'url' || !md) {
+      // 空 md 与 url 卡片同样呈现「[链接] 标题」，与消息文本 msg.con 的格式保持一致
       name = `[${disposeName.name}] ${card.title}`;
     } else if (md === 'worksheetrow') {
       name = entityName ? `${entityName}: ${card.title}` : card.title;

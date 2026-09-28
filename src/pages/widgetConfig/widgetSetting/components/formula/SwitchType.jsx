@@ -1,22 +1,22 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import { CALC_TYPE, OUTPUT_FORMULA_FUNC } from 'src/pages/widgetConfig/config/setting';
-import { AnimationWrap, SettingItem } from '../../../styled';
-import { handleAdvancedSettingChange } from '../../../util/setting';
+import { Segmented } from 'ming-ui/antd-components';
+import { handleAdvancedSettingChange } from 'src/utils/domain/control/advancedSetting';
+import { CALC_TYPE, OUTPUT_FORMULA_FUNC } from 'src/utils/domain/control/setting';
+import { SettingItem } from '../../../styled';
 
-const FORMULA_TYPES = [
+const getFormulaTypeOptions = () => [
   {
     value: 31,
-    text: _l('数值'),
+    label: _l('数值'),
   },
   {
     value: 38,
-    text: _l('日期'),
+    label: _l('日期'),
   },
   {
     value: 53,
-    text: _l('函数'),
+    label: _l('函数'),
   },
 ];
 
@@ -104,23 +104,12 @@ export default function SwitchType({ data, fromAggregation, onChange }) {
       ) : (
         <Fragment>
           <div className="settingItemTitle">{_l('计算方式')}</div>
-          <AnimationWrap>
-            {FORMULA_TYPES.map(({ text, value }) => {
-              if (fromAggregation && value === 38) return;
-              const isActive = data.type === value;
-              return (
-                <div
-                  className={cx('animaItem overflow_ellipsis', { active: isActive })}
-                  onClick={() => {
-                    if (isActive) return;
-                    handleChange(value);
-                  }}
-                >
-                  {text}
-                </div>
-              );
-            })}
-          </AnimationWrap>
+          <Segmented
+            block
+            value={data.type}
+            options={getFormulaTypeOptions().filter(({ value }) => !fromAggregation || value !== 38)}
+            onChange={handleChange}
+          />
         </Fragment>
       )}
     </SettingItem>

@@ -1,4 +1,4 @@
-import { notification } from 'antd';
+import { notification } from 'ming-ui/antd-components';
 import displayMarketNotice from './displayMarketNotice';
 import displaySysNotice from './displaySysNotice';
 
@@ -10,7 +10,7 @@ export default function marketNotice() {
       // 多页面通知同步关闭
       if (data.type === 99) {
         const { noticeId } = data;
-        notification.close(noticeId);
+        notification.destroy(noticeId);
         // 如果存在通知弹窗 则通过引用关闭
         const modalRef = window[`marketModal-${noticeId}`];
 

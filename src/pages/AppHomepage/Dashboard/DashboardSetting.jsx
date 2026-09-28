@@ -1,41 +1,32 @@
 import React, { useState } from 'react';
-import { Drawer, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, QiniuUpload, Radio, Slider, SortableList, Switch } from 'ming-ui';
+import { Icon, QiniuUpload, Slider, SortableList } from 'ming-ui';
+import { Button, Drawer, Input, Modal, Radio, Switch } from 'ming-ui/antd-components';
 import projectSettingApi from 'src/api/projectSetting';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getRgbaByColor } from 'src/utils/controlCommon';
+import { getRgbaByColor } from 'src/utils/platform/theme/color';
 import BulletinSetting from './BulletinSetting';
-import { themeColors } from './utils';
+import { DASHBOARD_MODULES, normalizeSortModuleIds, themeColors } from './utils';
 
-const SettingDrawer = styled(Drawer)`
-  .ant-drawer-header {
-    border-bottom: none;
+const SettingDrawer = styled(({ className, rootClassName, width, height, size, ...props }) => (
+  <Drawer
+    rootClassName={[className, rootClassName].filter(Boolean).join(' ') || undefined}
+    size={size ?? width ?? height}
+    {...props}
+  />
+))`
+  .hap-drawer-header {
     padding: 24px;
   }
-  .ant-drawer-header-title {
-    flex-direction: row-reverse;
-    .ant-drawer-title {
+  .hap-drawer-header-title {
+    .hap-drawer-title {
       font-size: 18px !important;
-      font-weight: bold !important;
-    }
-    .ant-drawer-close {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 44px;
-      height: 44px;
-      border-radius: 3px;
-      color: var(--color-text-secondary);
-      &:hover {
-        background: var(--color-background-hover);
-      }
     }
   }
-  .ant-drawer-content-wrapper {
-    .ant-drawer-body {
+  .hap-drawer-content-wrapper {
+    .hap-drawer-body {
       padding: 0 24px 24px;
     }
   }
@@ -69,7 +60,7 @@ const SettingItem = styled.div`
   .settingRadioGroup {
     display: flex;
     margin-top: 16px;
-    .ming.Radio {
+    .hap-radio-wrapper {
       width: 200px;
     }
   }
@@ -151,14 +142,14 @@ const SettingItem = styled.div`
 `;
 
 const SloganInput = styled(Input)`
-  &.ant-input-affix-wrapper {
+  &.hap-input-affix-wrapper {
     transition: none !important;
     padding: 6px 12px !important;
     &:hover {
       border-color: var(--color-primary-focus) !important;
     }
   }
-  &.ant-input-affix-wrapper-focused {
+  &.hap-input-affix-wrapper-focused {
     box-shadow: none !important;
     border-color: var(--color-primary-focus) !important;
   }
@@ -223,12 +214,7 @@ const todoRadios = [
   { value: 0, text: _l('计数') },
   { value: 1, text: _l('列表') },
 ];
-const modules = [
-  { value: 0, text: _l('应用收藏') },
-  { value: 1, text: _l('最近使用') },
-  { value: 2, text: _l('记录收藏') },
-  { value: 3, text: _l('图表收藏') },
-];
+
 const renderItem = ({ item }) => {
   return (
     <SortItem>
@@ -258,9 +244,7 @@ export default function DashboardSetting(props) {
   const [bulletinSetVisible, setBulletinSetVisible] = useState(false);
   const [enableSlider, setEnableSlider] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
-  const [sortModuleIds, setSortModuleIds] = useState(
-    sortItems && sortItems.length ? sortItems.map(item => item.moduleType) : [0, 1, 2, 3],
-  );
+  const [sortModuleIds, setSortModuleIds] = useState(normalizeSortModuleIds(sortItems));
 
   const currentColor = _.isEmpty(currentTheme)
     ? !color || !_.includes(themeColors, color)
@@ -279,12 +263,12 @@ export default function DashboardSetting(props) {
   return (
     <React.Fragment>
       <SettingDrawer
-        visible
-        maskStyle={{ backgroundColor: 'transparent' }}
+        open
+        styles={{ mask: { backgroundColor: 'transparent' } }}
         width={480}
         title={_l('自定义工作台')}
         placement="right"
-        afterVisibleChange={visible => setEnableSlider(visible)}
+        afterOpenChange={visible => setEnableSlider(visible)}
         closeIcon={<i className="icon-close Font24" />}
         onClose={onClose}
       >
@@ -297,7 +281,12 @@ export default function DashboardSetting(props) {
                 <Switch
                   size="small"
                   checked={logoSwitch}
-                  onClick={() => updatePlatformSetting({ logoSwitch: !logoSwitch })}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return updatePlatformSetting({
+                      logoSwitch: !logoSwitch,
+                    });
+                  }}
                 />
               </div>
               <div className="mTop8">
@@ -400,10 +389,15 @@ export default function DashboardSetting(props) {
                 <Switch
                   size="small"
                   checked={boardSwitch}
-                  onClick={() => updatePlatformSetting({ boardSwitch: !boardSwitch })}
+                  onClick={(checked, event) => {
+                    event.stopPropagation();
+                    return updatePlatformSetting({
+                      boardSwitch: !boardSwitch,
+                    });
+                  }}
                 />
               </div>
-              <Button type="ghost" className="mTop16" onClick={() => setBulletinSetVisible(true)}>
+              <Button color="primary" variant="outlined" className="mTop16" onClick={() => setBulletinSetVisible(true)}>
                 {_l('设置')}
               </Button>
             </SettingItem>
@@ -451,7 +445,7 @@ export default function DashboardSetting(props) {
 
         <div className="flexRow alignItemsCenter">
           <div className="sectionTitle flex">{_l('个人设置')}</div>
-          <Button type="ghost" onClick={() => setSortVisible(true)}>
+          <Button color="primary" variant="outlined" onClick={() => setSortVisible(true)}>
             {_l('排序')}
           </Button>
         </div>
@@ -460,14 +454,20 @@ export default function DashboardSetting(props) {
             <div className="titleText">{_l('流程待办')}</div>
           </div>
           <div className="settingRadioGroup">
-            {todoRadios.map((item, i) => (
+            {todoRadios.map(item => (
               <Radio
-                key={i}
-                {...item}
+                key={item.value}
+                value={item.value}
                 size="small"
                 checked={todoDisplay === item.value}
-                onClick={() => updateHomeSetting({ todoDisplay: item.value })}
-              />
+                onChange={() =>
+                  updateHomeSetting({
+                    todoDisplay: item.value,
+                  })
+                }
+              >
+                {item.text}
+              </Radio>
             ))}
           </div>
         </SettingItem>
@@ -476,14 +476,23 @@ export default function DashboardSetting(props) {
             <div className="titleText">{_l('应用收藏')}</div>
           </div>
           <div className="settingRadioGroup">
-            {collectRadios.map((item, i) => (
+            {collectRadios.map(item => (
               <Radio
-                key={i}
-                {...item}
+                key={item.value}
+                value={item.value}
                 size="small"
                 checked={markedAppDisplay === item.value}
-                onClick={() => updateHomeSetting({ markedAppDisplay: item.value }, 'markedAppDisplay')}
-              />
+                onChange={() =>
+                  updateHomeSetting(
+                    {
+                      markedAppDisplay: item.value,
+                    },
+                    'markedAppDisplay',
+                  )
+                }
+              >
+                {item.text}
+              </Radio>
             ))}
           </div>
         </SettingItem>
@@ -494,14 +503,28 @@ export default function DashboardSetting(props) {
             <Switch
               size="small"
               checked={displayCommonApp}
-              onClick={() => updateHomeSetting({ displayCommonApp: !displayCommonApp })}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return updateHomeSetting({
+                  displayCommonApp: !displayCommonApp,
+                });
+              }}
             />
           </div>
         </SettingItem>
         <SettingItem>
           <div className="settingHeader">
             <div className="titleText">{_l('记录收藏')}</div>
-            <Switch size="small" checked={rowCollect} onClick={() => updateHomeSetting({ rowCollect: !rowCollect })} />
+            <Switch
+              size="small"
+              checked={rowCollect}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return updateHomeSetting({
+                  rowCollect: !rowCollect,
+                });
+              }}
+            />
           </div>
         </SettingItem>
         <SettingItem>
@@ -510,14 +533,28 @@ export default function DashboardSetting(props) {
             <Switch
               size="small"
               checked={displayChart}
-              onClick={() => updateHomeSetting({ displayChart: !displayChart })}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return updateHomeSetting({
+                  displayChart: !displayChart,
+                });
+              }}
             />
           </div>
         </SettingItem>
         <SettingItem>
           <div className="settingHeader">
             <div className="titleText">{_l('应用')}</div>
-            <Switch size="small" checked={displayApp} onClick={() => updateHomeSetting({ displayApp: !displayApp })} />
+            <Switch
+              size="small"
+              checked={displayApp}
+              onClick={(checked, event) => {
+                event.stopPropagation();
+                return updateHomeSetting({
+                  displayApp: !displayApp,
+                });
+              }}
+            />
           </div>
         </SettingItem>
       </SettingDrawer>
@@ -531,8 +568,10 @@ export default function DashboardSetting(props) {
       )}
 
       {sortVisible && (
-        <Dialog
-          visible
+        <Modal
+          open
+          mask={{ closable: true }}
+          keyboard
           width={480}
           title={_l('排序')}
           onCancel={() => setSortVisible(false)}
@@ -544,7 +583,8 @@ export default function DashboardSetting(props) {
         >
           <div className="flexColumn mTop16">
             <SortableList
-              items={sortModuleIds.map(id => modules.filter(m => m.value === id)[0])}
+              renderBody
+              items={sortModuleIds.map(id => _.find(DASHBOARD_MODULES, { value: id })).filter(Boolean)}
               itemKey="value"
               renderItem={renderItem}
               itemClassName="mBottom16"
@@ -554,7 +594,7 @@ export default function DashboardSetting(props) {
               }}
             />
           </div>
-        </Dialog>
+        </Modal>
       )}
     </React.Fragment>
   );

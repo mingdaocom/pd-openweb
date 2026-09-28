@@ -5,8 +5,10 @@ import { addLinkFile } from 'ming-ui/functions';
 import kcService from '../api/service';
 import createShare from 'src/components/createShare/createShare';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { downloadFile, pathCompletion } from 'src/utils/common';
-import RegExpValidator from 'src/utils/expression';
+import RegExpValidator from 'src/utils/domain/validation/expression';
+import { downloadFile } from 'src/utils/platform/browser/download';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import {
   EXECUTE_ERROR_MESSAGE,
   EXECUTE_RESULT,
@@ -164,8 +166,8 @@ export function handleAddLinkFile(args) {
 
           reloadList();
         })
-        .catch(() => {
-          alert(execTypeName + _l('失败'), 3);
+        .catch(_requestError4 => {
+          alertIfNotUnauthorized(_requestError4, execTypeName + _l('失败'), 3);
         });
     },
     location,
@@ -354,7 +356,9 @@ export function handleRemoveNode(args) {
         '</span><div class="Font14 mTop10">' +
         _l('文件的引用和分享链接也将失效，确认删除？') +
         '</div></span>';
-  confirm('', confirmMessage, false, '', '', confirmTitle).then(() => {
+  confirm('', confirmMessage, false, '', '', confirmTitle, undefined, {
+    okButtonProps: { danger: true },
+  }).then(() => {
     let message = '';
     const ids = selectedItems.map(item => item.id).toArray();
     let ajax;
@@ -410,7 +414,7 @@ export function handleRemoveNode(args) {
         /* 清空选中*/
         clearSelect();
       })
-      .catch(() => alert(_l('操作失败，请稍后重试')), 3);
+      .catch(_requestError => alertIfNotUnauthorized(_requestError, _l('操作失败，请稍后重试')), 3);
   });
 }
 
@@ -589,7 +593,7 @@ export function handleMoveOrCopy(options) {
       /* 清空选中*/
       clearSelect();
     })
-    .catch(() => alert(_l('操作失败，请稍后重试'), 3));
+    .catch(_requestError2 => alertIfNotUnauthorized(_requestError2, _l('操作失败，请稍后重试'), 3));
 }
 
 /* 批量操作提示*/
@@ -693,6 +697,6 @@ export function handleRestoreNode(args) {
         /* 清空选中*/
         clearSelect();
       })
-      .catch(() => alert(_l('操作失败，请稍后重试'), 3));
+      .catch(_requestError3 => alertIfNotUnauthorized(_requestError3, _l('操作失败，请稍后重试'), 3));
   });
 }

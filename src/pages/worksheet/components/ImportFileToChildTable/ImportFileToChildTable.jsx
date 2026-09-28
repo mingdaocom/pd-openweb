@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import { func, number, string } from 'prop-types';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
-import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES } from 'worksheet/constants/enum';
+import { Modal } from 'ming-ui/antd-components';
+import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES } from 'src/utils/domain/worksheet/constants';
 import ImportData from './ImportData';
 import PreviewData from './PreviewData';
 
@@ -25,16 +25,19 @@ export default function ImportFileToChildTable(props) {
   const dialogHeight = window.innerHeight - 32 > 600 ? 600 : window.innerHeight - 32;
   return (
     <Modal
-      visible
+      open
       verticalAlign="bottom"
       width={1000}
-      closeSize={50}
       onCancel={onClose}
-      bodyStyle={{
-        padding: 0,
-        position: 'relative',
-        height: dialogHeight,
-        flex: 'none',
+      styles={{
+        container: {
+          padding: 0,
+        },
+        body: {
+          position: 'relative',
+          height: dialogHeight,
+          flex: 'none',
+        },
       }}
     >
       <Con>

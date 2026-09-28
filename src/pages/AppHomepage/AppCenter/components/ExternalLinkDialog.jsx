@@ -2,13 +2,11 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, Input, TagTextarea } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import Dialog from 'ming-ui/components/Dialog';
-import { SYSTEM_LIST, USER_LIST } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config';
-import { getThemeColors } from 'src/utils/project';
+import { Icon, TagTextarea } from 'ming-ui';
+import { Checkbox, Input, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
+import { SYSTEM_LIST, USER_LIST } from 'src/utils/domain/control/dynamicValueConfig';
+import { getThemeColors } from 'src/utils/services/project';
 import { LINK_PARA_FIELDS, PUBLISH_CONFIG_OPTIONS } from '../constant';
 
 const Wrapper = styled.div`
@@ -43,9 +41,6 @@ const Wrapper = styled.div`
         color: #f00;
         font-weight: bold;
       }
-    }
-    .ming.Input {
-      font-size: 13px;
     }
   }
 `;
@@ -102,13 +97,7 @@ const LinkIcon = styled.div`
 const PopupWrapper = styled.div`
   width: 320px;
   padding: 6px 0;
-  background: var(--color-background-primary);
   overflow: auto;
-  border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--color-border-secondary);
   font-size: 14px;
   div {
     line-height: 36px;
@@ -195,8 +184,10 @@ export default function ExternalLinkDialog(props) {
   };
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
+      mask={{ closable: true }}
+      keyboard
       title={isEdit ? _l('设置外部链接') : _l('添加外部链接')}
       okText={_l('保存')}
       width={640}
@@ -211,11 +202,11 @@ export default function ExternalLinkDialog(props) {
           </div>
           <div className="cell w100">
             <Input
-              manualRef={inputRef}
+              ref={inputRef}
               className="w100"
               placeholder={_l('请输入')}
               value={appInfo.name}
-              onChange={name => setAppInfo({ name })}
+              onChange={event => setAppInfo({ name: event.target.value })}
             />
           </div>
         </div>
@@ -239,43 +230,40 @@ export default function ExternalLinkDialog(props) {
                 ref={tagTextAreaRef}
                 onChange={(err, value) => setAppInfo({ urlTemplate: value.trim() })}
               />
-              <Trigger
-                action={['click']}
-                popupVisible={popupVisible}
-                onPopupVisibleChange={visible => setPopupVisible(visible)}
-                popupAlign={{
-                  points: ['tr', 'br'],
-                  offset: [0, 5],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                popup={
-                  <PopupWrapper>
-                    {LINK_PARA_FIELDS.map(({ type, title, fields }, index) => {
-                      return (
-                        <Fragment key={type}>
-                          <div className="title">{title}</div>
-                          {fields.map(({ text, value }) => (
-                            <div
-                              key={value}
-                              className="itemText"
-                              onClick={() => tagTextAreaRef && tagTextAreaRef.current.insertColumnTag(value)}
-                            >
-                              {text}
-                            </div>
-                          ))}
-                          {index === 0 && <div className="divider" />}
-                        </Fragment>
-                      );
-                    })}
-                  </PopupWrapper>
-                }
-              >
-                <Tooltip title={_l('使用动态参数')} placement="bottom">
+              <Tooltip title={_l('使用动态参数')} placement="bottom">
+                <Popover
+                  noPadding
+                  trigger="click"
+                  open={popupVisible}
+                  onOpenChange={setPopupVisible}
+                  placement="bottomRight"
+                  content={
+                    <PopupWrapper>
+                      {LINK_PARA_FIELDS.map(({ type, title, fields }, index) => {
+                        return (
+                          <Fragment key={type}>
+                            <div className="title">{title}</div>
+                            {fields.map(({ text, value }) => (
+                              <div
+                                key={value}
+                                className="itemText"
+                                onClick={() => tagTextAreaRef && tagTextAreaRef.current.insertColumnTag(value)}
+                              >
+                                {text}
+                              </div>
+                            ))}
+                            {index === 0 && <div className="divider" />}
+                          </Fragment>
+                        );
+                      })}
+                    </PopupWrapper>
+                  }
+                >
                   <LinkIcon>
                     <Icon icon="workflow_other" />
                   </LinkIcon>
-                </Tooltip>
-              </Trigger>
+                </Popover>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -288,15 +276,20 @@ export default function ExternalLinkDialog(props) {
                   key={index}
                   className="pRight24"
                   checked={!appInfo[item.key]}
-                  onClick={() => setAppInfo({ [item.key]: !appInfo[item.key] })}
-                  text={item.text}
-                />
+                  onChange={() =>
+                    setAppInfo({
+                      [item.key]: !appInfo[item.key],
+                    })
+                  }
+                >
+                  {item.text}
+                </Checkbox>
               ))}
             </div>
             <div className="textTertiary  mTop8">{_l('设置用户在哪些设备环境下可见此应用，管理员在PC端始终可见')}</div>
           </div>
         </div>
       </Wrapper>
-    </Dialog>
+    </Modal>
   );
 }

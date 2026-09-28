@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { getStringBytes } from 'src/utils/common';
+import { Popover } from 'ming-ui/antd-components';
+import { getStrBytesLength } from 'src/utils/core/string';
+import { getStringBytes } from 'src/utils/core/string';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { setSysWorkflowTimeControlFormat } from 'src/utils/services/worksheet/calendar';
 import AddControlDiaLog from './AddControlDiaLog';
 import SelectStartOrEnd from './SelectStartOrEnd';
 
@@ -75,10 +75,7 @@ const Wrap = styled.div`
   max-height: 300px;
   overflow-y: auto;
   width: 200px;
-  background: var(--color-background-primary);
   padding: 6px 0;
-  box-shadow: var(--shadow-lg);
-  border-radius: 2px;
   div {
     height: 36px;
     padding: 0 16px;
@@ -275,13 +272,15 @@ export default function SelectStartOrEndGroups(props) {
       })}
       {/* 最多只能添加10组 */}
       {calendarcids.length < 10 && (
-        <Trigger
-          action={['click']}
-          popupVisible={visible}
-          onPopupVisibleChange={visible => {
+        <Popover
+          trigger="click"
+          placement="bottomLeft"
+          noPadding
+          open={visible}
+          onOpenChange={visible => {
             setVisible(visible);
           }}
-          popup={
+          content={
             <Wrap>
               {timeControls
                 .filter(o => !calendarIds.includes(o.controlId))
@@ -318,20 +317,12 @@ export default function SelectStartOrEndGroups(props) {
               </div>
             </Wrap>
           }
-          getPopupContainer={() => document.body}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
-          }}
         >
           <span className="addCalendarcids Hand textSecondary pBottom5 mTop24 InlineBlock bold">
             <i className="icon icon-add Font16 mRight5"></i>
             {_l('添加一组日期字段')}
           </span>
-        </Trigger>
+        </Popover>
       )}
 
       {visibleAddControlDiaLog && (

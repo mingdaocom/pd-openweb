@@ -1,17 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Divider, Dropdown, Menu } from 'antd';
 import _ from 'lodash';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Dropdown, Modal } from 'ming-ui/antd-components';
 import reportConfig from '../api/reportConfig';
 import favoriteApi from 'src/api/favorite';
 import sheetApi from 'src/api/worksheet';
 import reportApi from 'statistics/api/report';
 import Share from 'src/pages/worksheet/components/Share';
-import { getFilledRequestParams, pathCompletion } from 'src/utils/common';
-import { reportTypes } from '../Charts/common';
+import { reportTypes } from 'src/utils/domain/statistics/reportTypes';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import PageMove from '../components/PageMove';
 
-const confirm = Dialog.confirm;
+const renderMenuIcon = (icon, props = {}) => <Icon className="Font18" icon={icon} {...props} />;
 
 export default class MoreOverlay extends Component {
   constructor(props) {
@@ -61,15 +63,16 @@ export default class MoreOverlay extends Component {
       })
       .then(() => {})
       .catch(error => {
-        alert(error, 2);
+        alertIfNotUnauthorized(error, error, 2);
       });
   };
   handleDelete = () => {
     const { report, filter, appId } = this.props;
     const { id, name } = report;
     this.handleUpdateDropdownVisible(false);
-    confirm({
-      title: <span className="Red">{_l('您确定要删除表“%0” ?', name)}</span>,
+    Modal.confirm({
+      title: <span className="Red textError">{_l('您确定要删除表“%0” ?', name)}</span>,
+      okButtonProps: { danger: true },
       onOk: () => {
         reportConfig
           .deleteReport({
@@ -174,19 +177,68 @@ export default class MoreOverlay extends Component {
           placement: containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight',
         });
       }
-    }
 
-    if (dropdownVisible) {
       card.classList.add('active');
     } else {
       card.classList.remove('active');
     }
   };
-  renderOverlay() {
+  handleMenuClick = ({ key }) => {
+    const { themeColor, report, onSheetView, onOpenSetting } = this.props;
+
+    switch (key) {
+      case 'setting':
+        onOpenSetting();
+        this.handleUpdateDropdownVisible(false);
+        break;
+      case 'collect':
+        this.handleChangeFavorite(!this.state.favorite);
+        this.handleUpdateDropdownVisible(false);
+        break;
+      case 'sheetDisplay':
+        onSheetView();
+        this.handleUpdateDropdownVisible(false);
+        break;
+      case 'share':
+        this.setState({ shareVisible: true });
+        this.handleUpdateDropdownVisible(false);
+        break;
+      case 'exportOriginal':
+        this.handleExportExcel(0);
+        break;
+      case 'exportUnit':
+        this.handleExportExcel(1);
+        break;
+      case 'print': {
+        const { filters = [], filtersGroup = [] } = this.props.exportData;
+        const printFilter = [filters, filtersGroup].filter(n => !_.isEmpty(n));
+
+        this.handleUpdateDropdownVisible(false);
+        sessionStorage.setItem(`printFilter-${report.id}`, JSON.stringify(printFilter));
+        window.open(pathCompletion(`/printPivotTable/${report.id}/${encodeURIComponent(themeColor || '')}`));
+        break;
+      }
+
+      case 'publicTransform':
+        this.handleUpdateOwnerId();
+        break;
+      case 'curStatistic':
+        this.handleCopy();
+        break;
+      case 'customPage':
+        this.setState({ showPageMove: true });
+        this.handleUpdateDropdownVisible(false);
+        break;
+      case 'delete':
+        this.handleDelete();
+        break;
+      default:
+        break;
+    }
+  };
+  getMenuItems() {
     const {
-      themeColor,
       reportType,
-      report,
       sourceType,
       ownerId,
       reportStatus,
@@ -209,178 +261,102 @@ export default class MoreOverlay extends Component {
       !window.shareState.id &&
       !md.global.Account.isPortal &&
       sourceType !== 2;
-    return (
-      <Menu className="chartMenu chartOperate" expandIcon={<Icon icon="arrow-right-tip" />} style={{ width: 180 }}>
-        {onOpenSetting && (
-          <Menu.Item
-            data-event="setting"
-            className="pLeft10"
-            onClick={() => {
-              onOpenSetting();
-              this.handleUpdateDropdownVisible(false);
-            }}
-          >
-            <div className="flexRow valignWrapper">
-              <Icon className="textTertiary Font18 mLeft5 mRight5" icon="settings" />
-              <span>{_l('设置')}</span>
-            </div>
-          </Menu.Item>
-        )}
-        {isFavorite && (
-          <Menu.Item
-            data-event="collect"
-            className="pLeft10"
-            onClick={() => {
-              this.handleChangeFavorite(!favorite);
-              this.handleUpdateDropdownVisible(false);
-            }}
-          >
-            <div className="flexRow valignWrapper">
-              <Icon
-                className="Font18 mLeft5 mRight5"
-                icon={favorite ? 'task-star' : 'star-hollow'}
-                style={{ color: favorite ? 'var(--color-yellow)' : 'var(--color-text-tertiary)' }}
-              />
-              <span>{favorite ? _l('取消收藏') : _l('收藏')}</span>
-            </div>
-          </Menu.Item>
-        )}
-        {onSheetView && reportStatus > 0 && (
-          <Menu.Item
-            data-event="sheetDisplay"
-            className="pLeft10"
-            onClick={() => {
-              onSheetView();
-              this.handleUpdateDropdownVisible(false);
-            }}
-          >
-            <div className="flexRow valignWrapper">
-              <Icon className="textTertiary Font18 mLeft5 mRight5" icon="table" />
-              <span>{_l('以表格显示')}</span>
-            </div>
-          </Menu.Item>
-        )}
-        {!md.global.Account.isPortal &&
-          !(isEmbedPage || isEmbedChart) &&
-          reportStatus > 0 &&
-          sourceType !== 3 &&
-          chartShare && (
-            <Menu.Item
-              data-event="share"
-              className="pLeft10"
-              onClick={() => {
-                this.setState({ shareVisible: true });
-                this.handleUpdateDropdownVisible(false);
-              }}
-            >
-              <div className="flexRow valignWrapper">
-                <Icon className="textTertiary Font18 mLeft5 mRight5" icon="share" />
-                <span>{_l('分享')}</span>
-              </div>
-            </Menu.Item>
-          )}
-        {!window.isPublicApp &&
-          reportStatus > 0 &&
-          chartExportExcel &&
-          _.get(reportData, 'xaxes.controlType') !== 40 && (
-            <Menu.SubMenu
-              data-event="export"
-              popupClassName="chartMenu chartSubOperate_export"
-              title={_l('导出Excel%06002')}
-              icon={<Icon className="textTertiary Font18 mLeft5 mRight5" icon="worksheet_export" />}
-              popupOffset={[0, 0]}
-            >
-              <Menu.Item
-                data-event="exportOriginal"
-                style={{ width: 180 }}
-                className="pLeft20"
-                onClick={() => {
-                  this.handleExportExcel(0);
-                }}
-              >
-                <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
-              </Menu.Item>
-              <Menu.Item
-                data-event="exportUnit"
-                style={{ width: 180 }}
-                className="pLeft20"
-                onClick={() => {
-                  this.handleExportExcel(1);
-                }}
-              >
-                <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
-              </Menu.Item>
-            </Menu.SubMenu>
-          )}
-        {[reportTypes.PivotTable].includes(reportType) && !md.global.Account.isPortal && (
-          <Menu.Item
-            data-event="print"
-            className="pLeft10"
-            onClick={() => {
-              const { filters = [], filtersGroup = [] } = this.props.exportData;
-              const printFilter = [filters, filtersGroup].filter(n => !_.isEmpty(n));
-              this.handleUpdateDropdownVisible(false);
-              sessionStorage.setItem(`printFilter-${report.id}`, JSON.stringify(printFilter));
-              window.open(pathCompletion(`/printPivotTable/${report.id}/${encodeURIComponent(themeColor || '')}`));
-            }}
-          >
-            <div className="flexRow valignWrapper">
-              <Icon className="textTertiary Font18 mLeft5 mRight5" icon="print" />
-              <span>{_l('打印')}</span>
-            </div>
-          </Menu.Item>
-        )}
-        {isMove && (
-          <Fragment>
-            <Divider className="mTop5 mBottom5" />
-            <Menu.Item data-event="publicTransform" className="pLeft10" onClick={this.handleUpdateOwnerId}>
-              <div className="flexRow valignWrapper">
-                <Icon
-                  className="textTertiary Font18 mLeft5 mRight5"
-                  icon={ownerId ? 'worksheet_public' : 'minus-square'}
-                />
-                <span>{ownerId ? _l('转为公共图表') : _l('从公共中移出')}</span>
-              </div>
-            </Menu.Item>
-            <Menu.SubMenu
-              data-event="copy"
-              popupClassName="chartMenu chartSubOperate_copy"
-              title={_l('复制到')}
-              icon={<Icon className="textTertiary Font18 mLeft5 mRight5" icon="content-copy" />}
-              popupOffset={[0, 0]}
-            >
-              <Menu.Item data-event="curStatistic" style={{ width: 180 }} className="pLeft20" onClick={this.handleCopy}>
-                <div className="flexRow valignWrapper">{_l('当前统计')}</div>
-              </Menu.Item>
-              {permissionType !== 2 && (
-                <Menu.Item
-                  data-event="customPage"
-                  style={{ width: 180 }}
-                  className="pLeft20"
-                  onClick={() => {
-                    this.setState({ showPageMove: true });
-                    this.handleUpdateDropdownVisible(false);
-                  }}
-                >
-                  <div className="flexRow valignWrapper">{_l('自定义页面')}</div>
-                </Menu.Item>
-              )}
-            </Menu.SubMenu>
-          </Fragment>
-        )}
-        {onRemove && (
-          <Fragment>
-            <Divider className="mTop5 mBottom5" />
-            <Menu.Item data-event="delete" className="pLeft10" onClick={this.handleDelete}>
-              <div className="flexRow valignWrapper">
-                <Icon className="textTertiary Font18 mLeft5 mRight5" icon="trash" />
-                <span>{_l('删除')}</span>
-              </div>
-            </Menu.Item>
-          </Fragment>
-        )}
-      </Menu>
-    );
+
+    return [
+      onOpenSetting && {
+        key: 'setting',
+        icon: renderMenuIcon('settings'),
+        label: _l('设置'),
+      },
+      isFavorite && {
+        key: 'collect',
+        icon: renderMenuIcon(favorite ? 'task-star' : 'star-hollow', {
+          style: { color: favorite ? 'var(--color-yellow)' : undefined },
+        }),
+        label: favorite ? _l('取消收藏') : _l('收藏'),
+      },
+      onSheetView &&
+        reportStatus > 0 && {
+          key: 'sheetDisplay',
+          icon: renderMenuIcon('table'),
+          label: _l('以表格显示'),
+        },
+      !md.global.Account.isPortal &&
+        !(isEmbedPage || isEmbedChart) &&
+        reportStatus > 0 &&
+        sourceType !== 3 &&
+        chartShare && {
+          key: 'share',
+          icon: renderMenuIcon('share'),
+          label: _l('分享'),
+        },
+      !window.isPublicApp &&
+        reportStatus > 0 &&
+        chartExportExcel &&
+        _.get(reportData, 'xaxes.controlType') !== 40 && {
+          key: 'export',
+          popupClassName: 'chartSubOperate_export',
+          popupOffset: [0, 0],
+          icon: renderMenuIcon('worksheet_export'),
+          label: _l('导出Excel%06002'),
+          popupStyle: { minWidth: 180 },
+          children: [
+            {
+              key: 'exportOriginal',
+              label: _l('按照原值导出%06000'),
+            },
+            {
+              key: 'exportUnit',
+              label: _l('按显示单位导出%06001'),
+            },
+          ],
+        },
+      [reportTypes.PivotTable].includes(reportType) &&
+        !md.global.Account.isPortal && {
+          key: 'print',
+          icon: renderMenuIcon('print'),
+          label: _l('打印'),
+        },
+      isMove && {
+        key: 'moveDivider',
+        type: 'divider',
+        className: 'mTop5 mBottom5',
+      },
+      isMove && {
+        key: 'publicTransform',
+        icon: renderMenuIcon(ownerId ? 'worksheet_public' : 'minus-square'),
+        label: ownerId ? _l('转为公共图表') : _l('从公共中移出'),
+      },
+      isMove && {
+        key: 'copy',
+        popupClassName: 'chartSubOperate_copy',
+        popupOffset: [0, 0],
+        icon: renderMenuIcon('content-copy'),
+        label: _l('复制到'),
+        popupStyle: { minWidth: 180 },
+        children: [
+          {
+            key: 'curStatistic',
+            label: _l('当前统计'),
+          },
+          permissionType !== 2 && {
+            key: 'customPage',
+            label: _l('自定义页面'),
+          },
+        ].filter(Boolean),
+      },
+      onRemove && {
+        key: 'removeDivider',
+        type: 'divider',
+        className: 'mTop5 mBottom5',
+      },
+      onRemove && {
+        key: 'delete',
+        icon: renderMenuIcon('trash'),
+        label: _l('删除'),
+        danger: true,
+      },
+    ].filter(Boolean);
   }
   render() {
     const { shareVisible, showPageMove, dropdownVisible, placement } = this.state;
@@ -417,9 +393,13 @@ export default class MoreOverlay extends Component {
           <Dropdown
             trigger={['click']}
             placement={placement}
-            visible={dropdownVisible}
-            onVisibleChange={this.handleUpdateDropdownVisible}
-            overlay={this.renderOverlay()}
+            open={dropdownVisible}
+            onOpenChange={this.handleUpdateDropdownVisible}
+            menu={{
+              items: this.getMenuItems(),
+              onClick: this.handleMenuClick,
+              style: { minWidth: 180 },
+            }}
           >
             <span className={className}>
               <Icon className="chartCardMoreIcon" icon="more_horiz" />

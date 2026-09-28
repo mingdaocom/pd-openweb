@@ -2,10 +2,16 @@ import React, { Fragment, memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, MobileCheckbox } from 'ming-ui';
-import { getCheckAndOther } from '../../../core/utils';
+import { Icon } from 'ming-ui';
+import { Checkbox } from 'ming-ui/antd-components';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
+import MobileCheckbox from '../../components/MobileCheckbox';
 import { CustomOptionCapsule } from '../../style';
 import OtherInput from './OtherInput';
+
+const TILE_CHECKBOX_STYLES = {
+  label: { paddingInlineStart: 10, paddingInlineEnd: 0 },
+};
 
 // 下拉样式
 const CheckboxWrap = styled.div`
@@ -19,14 +25,14 @@ const CheckboxWrap = styled.div`
   .dropDownContentBox {
     display: flex;
     flex-wrap: wrap;
-    ${props => (props.enumDefault2 === 1 ? 'gap: 10px;' : '')}
+    ${props => (props.$enumDefault2 === 1 ? 'gap: 10px;' : '')}
     flex: 1;
     min-width: 0;
   }
 `;
 
 const TileWrap = styled.div`
-  ${props => (props.notGap ? 'gap: initial !important;' : '')}
+  ${props => (props.$notGap ? 'gap: initial !important;' : '')}
 `;
 
 const CheckboxWidget = props => {
@@ -40,7 +46,7 @@ const CheckboxWidget = props => {
 
     if (enumDefault2 === 1) {
       return (
-        <CustomOptionCapsule tagColor={item.color} inPopup={inPopup}>
+        <CustomOptionCapsule $tagColor={item.color} $inPopup={inPopup}>
           {content}
         </CustomOptionCapsule>
       );
@@ -105,23 +111,21 @@ const CheckboxWidget = props => {
           <Checkbox
             key="select-all"
             title={_l('全选')}
-            text={<span>{_l('全选')}</span>}
             value="select-all"
-            clearselected={clearselected}
+            indeterminate={clearselected}
             checked={isChecked}
-            onClick={() => {
+            styles={TILE_CHECKBOX_STYLES}
+            onChange={() => {
               handleSelectAll(displayOptions, isChecked);
             }}
-          />
+          >
+            {<span>{_l('全选')}</span>}
+          </Checkbox>
         </div>
       );
     }
 
-    return (
-      <Select.Option value="select-all" key="select-all">
-        <span className="ellipsis colorPrimary">{_l('全选')}</span>
-      </Select.Option>
-    );
+    return <span className="ellipsis colorPrimary">{_l('全选')}</span>;
   };
 
   // 平铺
@@ -145,11 +149,13 @@ const CheckboxWidget = props => {
                 key={item.key}
                 disabled={disabled}
                 title={item.value}
-                text={renderListItem(item, disabled && direction !== '1' && index !== displayOptions.length - 1)}
                 value={item.key}
                 checked={_.includes(checkIds, item.key)}
-                onClick={onChange}
-              />
+                styles={TILE_CHECKBOX_STYLES}
+                onChange={event => onChange(!event.target.checked, item.key, event)}
+              >
+                {renderListItem(item, disabled && direction !== '1' && index !== displayOptions.length - 1)}
+              </Checkbox>
               {item.key === 'other' && !disabled && <OtherInput {...props} />}
             </div>
           );
@@ -198,7 +204,7 @@ const CheckboxWidget = props => {
             chooseothertype={chooseothertype}
           >
             <CheckboxWrap
-              enumDefault2={enumDefault2}
+              $enumDefault2={enumDefault2}
               className={cx('customFormControlBox bgInput controlMinHeight', {
                 controlEditReadonly: !formDisabled && checkIds.length && disabled,
                 controlDisabled: formDisabled,
@@ -218,7 +224,7 @@ const CheckboxWidget = props => {
         </Fragment>
       ) : (
         <TileWrap
-          notGap={disabled && direction !== '1' && enumDefault2 === 0}
+          $notGap={disabled && direction !== '1' && enumDefault2 === 0}
           className={cx('customFormControlBox customFormControlNoBorder CheckboxGroupCon', {
             verticalArrangement: direction === '1',
           })}

@@ -3,9 +3,12 @@ import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Button, Dialog, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
+import { Button, Modal } from 'ming-ui/antd-components';
 import Ajax from 'src/api/project';
-import { getRequest, pathCompletion } from 'src/utils/common';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Config from '../../../config';
 import WeChatServiceAccountList from './WeChatServiceAccountList';
 import './index.less';
@@ -90,6 +93,11 @@ export default class WeiXin extends Component {
 
     if (clickKey === 'view') {
       const root = createRoot(document.createElement('div'));
+
+      const handleClose = () => {
+        setTimeout(() => root.unmount(), 0);
+      };
+
       const options = {
         title: (
           <span>
@@ -99,41 +107,43 @@ export default class WeiXin extends Component {
             </span>
           </span>
         ),
-        footer: null,
-        visible: true,
-        width: '480',
+        open: true,
+        width: 480,
         className: 'weixinFuncInfoDialog',
-        overlayClosable: false,
-        onCancel: () => {
-          root.unmount();
-          $('.weixinFuncInfoDialog').parents('.mui-dialog-container').parents('div').remove();
-        },
+        keyboard: true,
+        onCancel: handleClose,
       };
 
       root.render(
-        <Dialog {...options}>
-          <ul>
-            {AUTH_OPTIONS.map(item => {
-              return (
-                <li className={cx('mTop10 textPrimary', { Hidden: !_.includes(data.funcInfo || [], item.value) })}>
-                  {item.text}
-                </li>
-              );
-            })}
-          </ul>
-        </Dialog>,
+        <AntdConfigProvider>
+          <Modal {...options}>
+            <ul>
+              {AUTH_OPTIONS.map(item => {
+                return (
+                  <li className={cx('mTop10 textPrimary', { Hidden: !_.includes(data.funcInfo || [], item.value) })}>
+                    {item.text}
+                  </li>
+                );
+              })}
+            </ul>
+          </Modal>
+        </AntdConfigProvider>,
       );
     } else if (clickKey === 'unbind') {
-      Dialog.confirm({
-        title: <span className="Font17 Bold">{_l('取消绑定')}</span>,
-        description: _l(
-          '取消绑定后，本组织内与服务号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。',
-        ),
+      Modal.confirm({
+        title: <span className="Font17">{_l('取消绑定')}</span>,
+        content: _l('取消绑定后，本组织内与服务号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。'),
         onOk: () => {
-          Ajax.cancelBindingWeiXin({ appId: data.appId, projectId: Config.projectId }).then(result => {
+          Ajax.cancelBindingWeiXin({
+            appId: data.appId,
+            projectId: Config.projectId,
+          }).then(result => {
             if (result) {
               alert(_l('成功取消绑定'));
-              this.setState({ weiXinInfo: weiXinInfo.filter(item => item.appId !== data.appId), currentAppId: '' });
+              this.setState({
+                weiXinInfo: weiXinInfo.filter(item => item.appId !== data.appId),
+                currentAppId: '',
+              });
             } else {
               alert(_l('操作失败，请稍候重试！'), 2);
             }
@@ -144,9 +154,9 @@ export default class WeiXin extends Component {
   }
 
   handleReset = () => {
-    Dialog.confirm({
-      title: <span className="Font17 Bold">{_l('重新授权')}</span>,
-      description: (
+    Modal.confirm({
+      title: <span className="Font17">{_l('重新授权')}</span>,
+      content: (
         <span>
           <span>{_l('1. 重新授权时不可换绑其他微信服务号，否则重新授权将失败；')}</span>
           <span className="Block">
@@ -155,7 +165,9 @@ export default class WeiXin extends Component {
         </span>
       ),
       onOk: () => {
-        Ajax.bindingWeiXin({ projectId: Config.projectId }).then(res => {
+        Ajax.bindingWeiXin({
+          projectId: Config.projectId,
+        }).then(res => {
           location.href = res;
         });
       },
@@ -249,15 +261,13 @@ export default class WeiXin extends Component {
             />
             {_l('微信服务号')}
           </span>
-          <Button type="primary" disabled={authLoading} onClick={this.props.handleBindWeiXin}>
-            {authLoading ? (
-              _l('授权中...')
-            ) : (
-              <span>
-                <i className="icon-add mRight4" />
-                {_l('绑定服务号')}
-              </span>
-            )}
+          <Button
+            type="primary"
+            icon={<i className="icon-add" />}
+            loading={authLoading}
+            onClick={this.props.handleBindWeiXin}
+          >
+            {authLoading ? _l('授权中...') : _l('绑定服务号')}
           </Button>
         </div>
         <div className="orgManagementContent">

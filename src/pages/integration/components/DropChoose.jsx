@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { Input, Popover } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const WrapChoose = styled.div`
   width: 260px;
@@ -19,9 +19,6 @@ const WrapChoose = styled.div`
     line-height: 35px;
     overflow: hidden;
     padding: 0 15px;
-    input {
-      border: none;
-    }
   }
   ul {
     overflow: auto;
@@ -59,16 +56,17 @@ export default function DropChoose(props) {
     });
   }, [keywords]);
   return (
-    <Trigger
-      popupVisible={visible}
-      action={['click']}
-      popup={() => {
+    <Popover
+      noPadding
+      open={visible}
+      trigger="click"
+      content={() => {
         return (
           <WrapChoose className="WrapChoose flexColumn">
             <div className="search flexRow alignItemsCenter">
               <i className="icon icon-search textTertiary Hand Font16 mRight5"></i>
-              <input
-                type="text"
+              <Input
+                variant="borderless"
                 className="flex"
                 placeholder={_l('搜索')}
                 value={keywords}
@@ -120,18 +118,15 @@ export default function DropChoose(props) {
         );
       }}
       getPopupContainer={() => document.body}
-      onPopupVisibleChange={visible => {
+      onOpenChange={visible => {
         setState({ visible, keywords: '' });
       }}
-      popupAlign={{
-        points: ['cl', 'cr'],
-        overflow: { adjustX: true, adjustY: true },
-      }}
+      placement="right"
     >
       <i
         className="icon icon-task_add-02 mTop12 Hand Font24 TxtBottom InlineBlock"
         style={{ color: 'var(--color-border-primary)' }}
       ></i>
-    </Trigger>
+    </Popover>
   );
 }

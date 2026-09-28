@@ -1,36 +1,5 @@
-import _, { difference, find, get, intersection, isUndefined, pickBy, sortBy } from 'lodash';
-import { parseAdvancedSetting } from 'src/utils/control';
-
-function getSortedValue(list) {
-  return _.map(list, function (num) {
-    return _.padStart(num, 10, '0');
-  });
-}
-
-export function getSheetViewRows(sheetViewData = {}, treeTableViewData = {}) {
-  const { rows } = sheetViewData;
-  const { treeMap } = treeTableViewData;
-  const foldedList = Object.keys(treeMap).filter(key => treeMap[key].folded);
-
-  return Object.keys(treeMap).length
-    ? sortBy(Object.keys(treeMap), key => getSortedValue(get(treeMap, key + '.levelList') || []))
-        .map(key => {
-          const row = find(rows, { rowid: get(treeMap, key + '.rowid') });
-          return row && { ...row, key };
-        })
-        .filter(row => {
-          if (!row) {
-            return false;
-          }
-
-          if (_.intersection(get(treeMap, `${row.key}.parentKeys`), foldedList).length) {
-            return false;
-          }
-
-          return true;
-        })
-    : rows;
-}
+import _, { difference, find, get, intersection, isUndefined, pickBy } from 'lodash';
+import { parseAdvancedSetting } from 'src/utils/domain/control/advancedSetting';
 
 export function getTreeExpandCellWidth(index, rowsLength) {
   rowsLength = rowsLength || 1;

@@ -1,4 +1,7 @@
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import ImportFileToChildTable from './ImportFileToChildTable';
 
-export const importFileToChildTable = props => functionWrap(ImportFileToChildTable, props);
+export default ImportFileToChildTable;
+export function useImportFileToChildTable() {
+  return useFunctionWrapComponent(ImportFileToChildTable);
+}

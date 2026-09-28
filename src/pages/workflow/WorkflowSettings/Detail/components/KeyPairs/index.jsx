@@ -1,12 +1,14 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Menu, MenuItem, Textarea } from 'ming-ui';
+import { Checkbox, Dropdown, Input, Select } from 'ming-ui/antd-components';
 import { getIcons, handleGlobalVariableName } from '../../../utils';
 import CustomTextarea from '../CustomTextarea';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
+
+const VALUE_TEXTAREA_AUTO_SIZE = { minRows: 1, maxRows: 10 };
 
 const NodeListIcon = styled.div`
   width: 34px;
@@ -27,15 +29,6 @@ const SelectNodeBox = styled.div`
   left: 12px;
   right: 70px;
   top: 11px;
-`;
-
-const TextareaBox = styled(Textarea)`
-  padding-top: 7px !important;
-  padding-bottom: 7px !important;
-  vertical-align: top;
-  &:not(:hover):not(:focus) {
-    border-color: var(--color-border-primary) !important;
-  }
 `;
 
 export default ({
@@ -64,7 +57,6 @@ export default ({
 }) => {
   const [fieldsVisible, setFieldsVisible] = useState('');
   const [selectIndex, setIndex] = useState(-1);
-  const menuBtn = useRef(null);
 
   const updateKeyValues = ({ key, value, i, nodeId = '' }) => {
     let items = _.cloneDeep(source);
@@ -155,48 +147,60 @@ export default ({
       setIndex(-1);
     };
 
-    if (i !== selectIndex) return null;
+    const items = [
+      ...(selected
+        ? [
+            {
+              key: 'clear',
+              label: _l('清除选择'),
+              onClick: () => {
+                updateKeyValues({ key: 'value', value: '', i });
+                onHideMenu();
+              },
+            },
+          ]
+        : []),
+      ...flowNodeList.map(item => ({
+        key: item.nodeId,
+        disabled: !item.appId || !item.appName,
+        label: (
+          <div className="flexRow alignItemsCenter">
+            <span className={cx('Font16 textSecondary', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+            <span className={cx('Font13 mLeft5 ellipsis flex', { textSecondary: !item.appId })}>{item.nodeName}</span>
+            {isPlugin ? null : item.appId && item.appName ? (
+              <Fragment>
+                <span className="Font13 mLeft5 bold">{item.appTypeName}</span>
+                <span className="Font13 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
+              </Fragment>
+            ) : (
+              <span className="Font13 mLeft5 textSecondary">
+                <i className="icon-info_outline Font14 mRight5" />
+                {_l('设置此节点后才能选择')}
+              </span>
+            )}
+          </div>
+        ),
+        onClick: () => {
+          if (item.appId && item.appName) {
+            updateKeyValues({ key: 'value', value: '', i, nodeId: item.nodeId });
+            onHideMenu();
+          }
+        },
+      })),
+    ];
 
     return (
-      <Menu className="nodeListMenu" onClickAwayExceptions={[menuBtn.current]} onClickAway={onHideMenu}>
-        {selected && (
-          <MenuItem
-            onClick={() => {
-              updateKeyValues({ key: 'value', value: '', i });
-              onHideMenu();
-            }}
-          >
-            {_l('清除选择')}
-          </MenuItem>
-        )}
-        {flowNodeList.map(item => (
-          <MenuItem
-            key={item.nodeId}
-            onClick={() => {
-              if (item.appId && item.appName) {
-                updateKeyValues({ key: 'value', value: '', i, nodeId: item.nodeId });
-                onHideMenu();
-              }
-            }}
-          >
-            <div className="flexRow alignItemsCenter">
-              <span className={cx('Font16 textSecondary', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
-              <span className={cx('Font14 mLeft5 ellipsis flex', { textSecondary: !item.appId })}>{item.nodeName}</span>
-              {isPlugin ? null : item.appId && item.appName ? (
-                <Fragment>
-                  <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
-                  <span className="Font14 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
-                </Fragment>
-              ) : (
-                <span className="Font14 mLeft5 textSecondary">
-                  <i className="icon-info_outline Font14 mRight5" />
-                  {_l('设置此节点后才能选择')}
-                </span>
-              )}
-            </div>
-          </MenuItem>
-        ))}
-      </Menu>
+      <Dropdown
+        trigger={['click']}
+        placement="bottomRight"
+        open={i === selectIndex}
+        onOpenChange={open => setIndex(open ? i : -1)}
+        menu={{ items }}
+      >
+        <NodeListIcon>
+          <i className="icon-arrow-down-border Font16 hoverColorPrimary pointer textDisabled" />
+        </NodeListIcon>
+      </Dropdown>
     );
   };
 
@@ -225,9 +229,8 @@ export default ({
         return (
           <div className="flexRow" key={i}>
             {!onlyFile && (
-              <input
-                type="text"
-                className="mTop10 borderColorPrimary actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+              <Input
+                className="mTop10 mRight10"
                 style={{ width: 140 }}
                 placeholder={keyPlaceholder}
                 value={item.name}
@@ -236,29 +239,27 @@ export default ({
             )}
 
             {showType && (
-              <Dropdown
+              <Select
                 className="flowDropdown mTop10 mRight10"
                 style={{ width: 100 }}
-                data={[
-                  { text: _l('文本'), value: 2 },
-                  { text: _l('附件'), value: 14 },
+                options={[
+                  { label: _l('文本'), value: 2 },
+                  { label: _l('附件'), value: 14 },
                 ]}
                 value={item.type || 2}
-                border
                 onChange={type => updateKeyValues({ key: 'type', value: type, i })}
               />
             )}
 
             <div className={cx('flex mRight8 relative', { hasNodeList: flowNodeList.length })} style={{ minWidth: 0 }}>
               {pairsOnlyText ? (
-                <TextareaBox
-                  className="mTop10 borderColorPrimary Font13"
-                  maxHeight={250}
-                  minHeight={0}
+                <Input.TextArea
+                  autoSize={VALUE_TEXTAREA_AUTO_SIZE}
+                  className="mTop10"
                   placeholder={pairsPlaceholder}
                   value={item.value}
-                  onChange={value => {
-                    updateKeyValues({ key: pairsName, value, i });
+                  onChange={event => {
+                    updateKeyValues({ key: pairsName, value: event.target.value, i });
                   }}
                 />
               ) : item.type === 14 ? (
@@ -284,13 +285,7 @@ export default ({
                 />
               )}
 
-              {!!flowNodeList.length && (
-                <NodeListIcon ref={menuBtn} onClick={() => setIndex(i)}>
-                  <i className="icon-arrow-down-border Font16 hoverColorPrimary pointer textDisabled" />
-                </NodeListIcon>
-              )}
-
-              {renderNodeList(!!item.nodeId, i)}
+              {!!flowNodeList.length && renderNodeList(!!item.nodeId, i)}
               {renderNodeListTag(item)}
             </div>
             {!onlyFile && (
@@ -321,10 +316,15 @@ export default ({
           {showIgnoreEmpty && (
             <Checkbox
               className="mLeft20"
-              text={_l('忽略空值')}
               checked={ignoreValueEmpty === 1}
-              onClick={checked => updateSource({ ignoreValueEmpty: checked ? 0 : 1 })}
-            />
+              onChange={event =>
+                updateSource({
+                  ignoreValueEmpty: !event.target.checked ? 0 : 1,
+                })
+              }
+            >
+              {_l('忽略空值')}
+            </Checkbox>
           )}
         </div>
       )}

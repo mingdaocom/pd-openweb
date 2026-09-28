@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import { Dialog, Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Button, Input, Modal } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType } from 'src/utils/domain/control/metadata';
+import { ALL_SYS } from 'src/utils/domain/control/widget';
 
 export default function SubTable(props) {
   const { app, comparisonLangId, comparisonLangData, worksheetId, control, translateData, translateInfo } = props;
@@ -65,7 +66,8 @@ export default function SubTable(props) {
         <div className="nav flexColumn">
           <div className="searchWrap flexRow alignItemsCenter mBottom10">
             <Icon className="textTertiary Font20 mRight5" icon="search" />
-            <input
+            <Input
+              variant="borderless"
               placeholder={_l('字段')}
               className="flex"
               value={searchValue}
@@ -118,26 +120,26 @@ export default function SubTable(props) {
           {!!withoutLenght && `，${_l('%0个没有译文', withoutLenght)}`}
         </div>
         <div className="flex">
-          <span className="colorPrimary pointer" onClick={() => setDialogVisible(true)}>
+          <Button color="primary" variant="link" size="small" onClick={() => setDialogVisible(true)}>
             {_l('编辑译文')}
-          </span>
+          </Button>
         </div>
         {dialogVisible && (
-          <Dialog
-            visible={true}
+          <Modal
+            open
             className="editLingualDialog"
             width={860}
             title={
-              <div className="flexRow alignItemsCenter mBottom10">
+              <div className="flexRow alignItemsCenter">
                 <Icon icon={getIconByType(control.type)} className="Font20 textTertiary mRight10" />
                 <span>{translateInfo.name || control.controlName}</span>
               </div>
             }
-            showFooter={false}
+            keyboard
             onCancel={() => setDialogVisible(false)}
           >
             {renderSubTableDialog()}
-          </Dialog>
+          </Modal>
         )}
       </Fragment>
     );
@@ -153,8 +155,10 @@ export default function SubTable(props) {
         </div>
         <div className="flex">
           {appId === sheetInfo.appId && (
-            <span
-              className="colorPrimary pointer"
+            <Button
+              color="primary"
+              variant="link"
+              size="small"
               onClick={() => {
                 props.setExpandedKeys(['appItemEntrance', sheetInfo.groupId]);
                 props.onSelectedKeys([sheetInfo.worksheetId], {
@@ -168,7 +172,7 @@ export default function SubTable(props) {
               }}
             >
               {_l('前往编辑')}
-            </span>
+            </Button>
           )}
         </div>
       </Fragment>

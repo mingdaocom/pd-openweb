@@ -3,29 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as ajax from '../../utils/ajax';
 import './index.less';
 
-const SearchWrap = styled.div`
-  input {
-    border: none;
-    border-radius: 17px;
-    background: var(--color-background-secondary);
-    border: 1px solid var(--color-background-secondary);
-    padding: 4px 5px 4px 35px;
-    width: 100%;
-    &:focus {
-      border-color: var(--color-primary);
-      background: var(--color-background-primary);
-    }
-  }
-  .icon-cancel {
-    right: 5px;
-  }
-`;
+const SEARCH_INPUT_STYLE = { height: 32 };
 
 const flatten = res => {
   const result = [];
@@ -285,30 +269,33 @@ class SearchMember extends Component {
     const { value } = this.state;
     return (
       <Fragment>
-        <SearchWrap className="searchWrap flexRow alignItemsCenter flex mRight10 Relative">
-          <Icon icon="search" className="textSecondary Font20 mLeft10 Absolute" />
-          <input
-            ref={this.inputRef}
-            type="text"
-            className="Font13"
-            placeholder={_l('搜索用户 / 群组')}
-            value={value}
-            onChange={event => {
-              const value = event.target.value;
-              this.setState({ value }, () => {
-                this.handleChange(value);
-              });
-            }}
-            onKeyDown={this.handleKeyDown}
-          />
-          {value.trim() && (
-            <Icon
-              icon="cancel"
-              className="textSecondary Font20 pointer Absolute"
-              onClick={() => this.setState({ value: '' })}
-            />
-          )}
-        </SearchWrap>
+        <Input
+          ref={this.inputRef}
+          radius
+          variant="filled"
+          style={SEARCH_INPUT_STYLE}
+          className="searchWrap flex mRight10"
+          placeholder={_l('搜索用户 / 群组')}
+          value={value}
+          prefix={<Icon icon="search" className="textSecondary Font20" />}
+          suffix={
+            value.trim() ? (
+              <Icon
+                icon="cancel"
+                className="textSecondary Font20 pointer"
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => this.setState({ value: '' })}
+              />
+            ) : null
+          }
+          onChange={event => {
+            const value = event.target.value;
+            this.setState({ value }, () => {
+              this.handleChange(value);
+            });
+          }}
+          onKeyDown={this.handleKeyDown}
+        />
         {value.trim() && this.renderContent()}
       </Fragment>
     );

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { UserHead } from 'ming-ui';
 import CustomScore from 'src/ming-ui/components/CustomScore';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 
 const Con = styled.div`
   display: flex;
@@ -117,6 +117,7 @@ function ControlContent(props) {
               accountId: account.accountId,
             }}
           />
+
           <div className="controlText ellipsis mLeft5 bold"> {account.fullname} </div>
         </div>
       )
@@ -184,6 +185,7 @@ export default function GroupByControl(props) {
         canFold={canFold}
         groupEmptyName={groupEmptyName}
       />
+
       <div className="count">{count}</div>
       <div className="flex"></div>
     </Con>

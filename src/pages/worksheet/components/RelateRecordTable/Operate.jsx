@@ -1,4 +1,4 @@
-﻿import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -6,20 +6,19 @@ import _, { find, get, isEmpty, isUndefined } from 'lodash';
 import moment from 'moment';
 import { bool, func, shape, string } from 'prop-types';
 import { arrayOf } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Input } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { Input, Modal, Popover, Tooltip } from 'ming-ui/antd-components';
+import { useBatchEditRecord } from 'worksheet/common/BatchEditRecord';
+import { useAddRecord } from 'worksheet/common/newRecord/addRecord';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import ExportSheetButton from 'worksheet/components/ExportSheetButton';
 import Pagination from 'worksheet/components/Pagination';
-import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { selectRecords } from 'src/components/SelectRecords';
+import { useRelateRecordTableDialog } from 'worksheet/components/RelateRecordTableDialog';
+import { useSelectRecords } from 'src/components/SelectRecords';
 import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
-import { getTranslateInfo } from 'src/utils/app';
-import { emitter } from 'src/utils/common';
+import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { getTranslateInfo } from 'src/utils/services/app';
 import * as actions from './redux/action';
 import { initialChanges } from './redux/reducer';
 import RelateRecordBtn from './RelateRecordBtn';
@@ -112,25 +111,8 @@ const IconBtn = styled.span`
 const SearchInputCon = styled.div`
   width: 360px;
   height: 44px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.24);
-  border-radius: 4px;
   display: flex;
   align-items: center;
-  padding-right: 10px;
-  input {
-    border: none !important;
-    flex: 1;
-  }
-  .clearIcon {
-    cursor: pointer;
-    font-size: 20px;
-    margin-left: 10px;
-    color: var(--color-text-tertiary);
-    &:hover {
-      color: var(--color-text-secondary);
-    }
-  }
 `;
 
 function getCount({ control, count, direction, searchMaxCount } = {}) {
@@ -172,17 +154,28 @@ export function SearchInput(props) {
   }, [props.control.controlId]);
 
   return (
-    <Fragment>
-      <Trigger
-        action={['click']}
-        onPopupVisibleChange={setVisible}
-        popup={
+    <Tooltip title={_l('搜索')} placement="top">
+      <Popover
+        open={visible}
+        onOpenChange={setVisible}
+        trigger="click"
+        placement="bottomLeft"
+        noPadding
+        content={
           <SearchInputCon className={className}>
             <Input
-              manualRef={inputRef}
+              allowClear={Boolean(props.keywords)}
+              ref={inputRef}
+              className="flex"
+              variant="borderless"
               placeholder={_l('搜索"%0"', entityName || _l('记录'))}
               value={keywords}
-              onChange={setKeywords}
+              onChange={event => setKeywords(event.target.value)}
+              onClear={() => {
+                setKeywords('');
+                onSearch('');
+                setVisible(false);
+              }}
               onBlur={() => {
                 if (!props.keywords && !keywords && visible) {
                   setVisible(false);
@@ -194,37 +187,16 @@ export function SearchInput(props) {
                 }
               }}
             />
-            {props.keywords && (
-              <i
-                className="icon icon-close clearIcon"
-                onClick={e => {
-                  e.stopPropagation();
-                  setKeywords('');
-                  onSearch('');
-                  setVisible(false);
-                }}
-              ></i>
-            )}
           </SearchInputCon>
         }
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 8],
-          overflow: {
-            adjustX: 1,
-            adjustY: 1,
-          },
-        }}
       >
-        <Tooltip title={_l('搜索')} placement="top">
-          <span className="Relative" style={{ height: 24, marginRight: 5 }}>
-            <IconBtn className={cx('searchIcon Hand hoverColorPrimary', { active: props.keywords })}>
-              <i className="icon icon-search"></i>
-            </IconBtn>
-          </span>
-        </Tooltip>
-      </Trigger>
-    </Fragment>
+        <span className="Relative" style={{ height: 24, marginRight: 5 }}>
+          <IconBtn className={cx('searchIcon Hand hoverColorPrimary', { active: props.keywords })}>
+            <i className="icon icon-search"></i>
+          </IconBtn>
+        </span>
+      </Popover>
+    </Tooltip>
   );
 }
 
@@ -236,12 +208,15 @@ SearchInput.propTypes = {
 };
 
 function Operate(props) {
+  const { open: openAddRecord, holder: addRecordHolder } = useAddRecord();
+  const { open: openSelectRecords, holder: selectRecordsHolder } = useSelectRecords();
+  const { open: openRelateRelateRecordTable, holder: relateRecordTableDialogHolder } = useRelateRecordTableDialog();
+  const { open: openBatchEditRecord, holder: batchEditRecordHolder } = useBatchEditRecord();
   const {
     mode,
     view,
     cache,
     tableId,
-    smallMode,
     style,
     className,
     base = {},
@@ -323,9 +298,9 @@ function Operate(props) {
   } = control.advancedSetting;
   const handleBatchUpdateRecords = useCallback(
     ({ activeControl } = {}) => {
-      batchUpdateRecords({ selectedRowIds, records, activeControl });
+      batchUpdateRecords({ selectedRowIds, records, activeControl, openBatchEditRecord });
     },
-    [selectedRowIds],
+    [batchUpdateRecords, openBatchEditRecord, records, selectedRowIds],
   );
   const entityName =
     getTranslateInfo(appId, null, control.dataSource).recordName ||
@@ -348,7 +323,11 @@ function Operate(props) {
     );
   }, [count]);
   return (
-    <Con className={className} style={style} smallMode={smallMode} ref={workSheetFilterContainerRef}>
+    <Con className={className} style={style} ref={workSheetFilterContainerRef}>
+      {addRecordHolder}
+      {selectRecordsHolder}
+      {relateRecordTableDialogHolder}
+      {batchEditRecordHolder}
       {(addVisible || selectVisible || allowBatchEdit) && (
         <RelateRecordBtn
           formItemId={formItemId}
@@ -388,7 +367,7 @@ function Operate(props) {
           updateRowsWithChanges={updateRowsWithChanges}
           refresh={refresh}
           onNew={() => {
-            addRecord({
+            openAddRecord({
               allowShowMingoCreate: !isMingoCreate,
               worksheetId: control.dataSource,
               masterRecord: base.saveSync
@@ -422,7 +401,7 @@ function Operate(props) {
             });
           }}
           onSelect={() => {
-            selectRecords({
+            openSelectRecords({
               canSelectAll: true,
               multiple: true,
               control: { ...control, recordId: recordId },
@@ -477,16 +456,21 @@ function Operate(props) {
                 }
 
                 if (allowRemoveRelation) {
-                  Dialog.confirm({
-                    onlyClose: true,
+                  Modal.confirm({
                     title: (
-                      <span className="Bold" style={{ color: 'var(--color-error)' }}>
+                      <span
+                        style={{
+                          color: 'var(--color-error)',
+                        }}
+                        className="textError"
+                      >
                         {_l('注意：此操作将删除原始记录')}
                       </span>
                     ),
-                    description: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
-                    buttonType: 'danger',
-                    cancelType: 'ghostgray',
+                    content: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
+                    okButtonProps: {
+                      danger: true,
+                    },
                     okText: _l('删除记录'),
                     cancelText: _l('仅取消关联关系'),
                     onOk: () => {
@@ -497,9 +481,11 @@ function Operate(props) {
                     onCancel: () => handleRemoveRelation(selectedRowIds),
                   });
                 } else {
-                  Dialog.confirm({
-                    title: _l('是否删除此条记录'),
-                    buttonType: 'danger',
+                  Modal.confirm({
+                    title: <span className="textError">{_l('是否删除此条记录')}</span>,
+                    okButtonProps: {
+                      danger: true,
+                    },
                     onOk: () => {
                       deleteOriginalRecords({
                         recordIds: allowDeleteRowIds,
@@ -568,7 +554,6 @@ function Operate(props) {
                 isCharge={isCharge}
                 // appPkg={appPkg}
                 getPopupContainer={() => document.body}
-                zIndex={1000}
                 sheetSwitchPermit={sheetSwitchPermit}
                 appId={relateWorksheetInfo.appId}
                 viewId={control.viewId}

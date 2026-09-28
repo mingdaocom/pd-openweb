@@ -2,9 +2,13 @@
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Button, Flex, Space } from 'ming-ui/antd-components';
 import postAjax from 'src/api/post';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import { getPostDetail } from '../../../../redux/postActions';
 import VoteItem from './voteItem';
+
+const VOTE_BUTTONS_STYLE = { marginTop: 14 };
 
 /**
  * 投票项列表
@@ -21,9 +25,25 @@ class VoteList extends React.Component {
       _.filter(this.props.voteItem.Options, o => _.some(o.member, m => m.aid === md.global.Account.accountId)),
       'optionIndex',
     ),
+    isVoting: false,
   };
 
+  isVoting = false;
+  isMounted = false;
+
+  componentDidMount() {
+    this.isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this.isMounted = false;
+  }
+
   handleVote = () => {
+    if (this.isVoting) {
+      return;
+    }
+
     const { dispatch } = this.props;
     const optionIndex = this.state.checkedOptions.join(',');
 
@@ -31,7 +51,10 @@ class VoteList extends React.Component {
       return alert(_l('请选择投票项'), 3);
     }
 
-    postAjax
+    this.isVoting = true;
+    this.setState({ isVoting: true });
+
+    return postAjax
       .votePost({
         optionIndex,
         postId: this.props.voteItem.postID,
@@ -43,11 +66,20 @@ class VoteList extends React.Component {
         } else {
           alert(_l('投票失败'), 2);
         }
+      })
+      .catch(_requestError => {
+        alertIfNotUnauthorized(_requestError, _l('投票失败'), 2);
+      })
+      .finally(() => {
+        this.isVoting = false;
+        if (this.isMounted) {
+          this.setState({ isVoting: false });
+        }
       });
   };
 
   handleOptionChange = (optionIndex, evt) => {
-    let checkedOptions = this.state.checkedOptions;
+    let checkedOptions = [...this.state.checkedOptions];
 
     if (evt.target.checked) {
       if (this.props.voteItem.AvailableNumber > 1) {
@@ -55,8 +87,7 @@ class VoteList extends React.Component {
         if (this.props.voteItem.AvailableNumber <= checkedOptions.length) {
           alert(_l('最多可以选择%0项', this.props.voteItem.AvailableNumber));
         } else {
-          checkedOptions.push(optionIndex);
-          checkedOptions = _.uniqBy(checkedOptions);
+          checkedOptions = _.uniq([...checkedOptions, optionIndex]);
         }
       } else {
         // 单选
@@ -74,13 +105,12 @@ class VoteList extends React.Component {
     const voteItem = this.props.voteItem;
     return (
       <div>
-        <ul>
+        <Flex vertical gap={12}>
           {_.chain(voteItem.Options)
             .orderBy([voteItem.isPostVote ? 'count' : undefined, 'optionIndex'], [false, true])
-            .map((o, i) => (
+            .map(o => (
               <VoteItem
-                key={i}
-                voteID={voteItem.VoteID}
+                key={o.optionIndex}
                 optionType={voteItem.AvailableNumber > 1 ? 'checkbox' : 'radio'}
                 checked={this.state.checkedOptions.indexOf(o.optionIndex) >= 0}
                 changeSelect={this.handleOptionChange}
@@ -88,22 +118,22 @@ class VoteList extends React.Component {
               />
             ))
             .value()}
-        </ul>
-        <div className="mTop15">
-          <a onClick={this.handleVote} className="btnBootstrap btnBootstrap-primary btnBootstrap-small mRight10">
-            {_l('投票') /* 投票*/}
-          </a>
+        </Flex>
+        <Space size={8} wrap style={VOTE_BUTTONS_STYLE}>
+          <Button type="primary" size="small" loading={this.state.isVoting} onClick={this.handleVote}>
+            {_l('投票')}
+          </Button>
           {voteItem.isPostVote ? (
-            <a onClick={this.props.handleShowResult} className="btnBootstrap btnBootstrap-small mRight10">
-              {_l('取消更改') /* 取消更改*/}
-            </a>
+            <Button size="small" onClick={this.props.handleShowResult}>
+              {_l('取消更改')}
+            </Button>
           ) : undefined}
           {voteItem.isAuthor && !voteItem.isPostVote ? (
-            <a onClick={this.props.handleShowResult} className="btnBootstrap btnBootstrap-small mRight10">
-              {_l('查看结果') /* 查看结果*/}
-            </a>
+            <Button size="small" onClick={this.props.handleShowResult}>
+              {_l('查看结果')}
+            </Button>
           ) : undefined}
-        </div>
+        </Space>
       </div>
     );
   }

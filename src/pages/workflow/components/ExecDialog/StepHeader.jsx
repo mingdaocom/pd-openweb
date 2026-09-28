@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/platform/browser/device';
 
 const FlowChart = lazy(() => import('../FlowChart'));
 const MobileFlowChart = lazy(() => import('../FlowChart').then(module => ({ default: module.MobileFlowChart })));

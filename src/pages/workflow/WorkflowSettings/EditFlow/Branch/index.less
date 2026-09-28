@@ -101,24 +101,79 @@
         }
       }
     }
-    .workflowBranchBtn {
-      font-size: 34px;
+    .workflowGatewayNode {
       position: absolute;
       top: 0;
       left: 50%;
       z-index: 3;
-      width: 34px;
-      cursor: pointer;
-      margin-left: -17px;
-      color: var(--color-white);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
-      .icon-clear_bold,
-      .icon-all_run2 {
-        color: var(--color-primary);
+      padding: 0px 30px;
+      transform: translateX(-50%);
+      &:hover {
+        .workflowGatewayAction {
+          display: flex;
+        }
+      }
+      .workflowGatewayCard {
+        min-width: 160px;
+        max-width: 261px;
+        transform: translateY(-4px) !important;
+      }
+      .workflowGatewayIcon {
+        width: 26px;
+        min-width: 26px;
+        height: 26px;
+        margin-left: 2px;
+        border-radius: 8px;
+        background: var(--color-background-tertiary);
+        transform: rotate(45deg);
+        i {
+          color: var(--color-primary);
+          transform: rotate(-45deg) translateY(-2px);
+        }
+      }
+      .workflowGatewayAction {
         position: absolute;
-        left: 9px;
-        top: 9px;
-        text-shadow: none;
+        top: 4px;
+        z-index: 1;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--color-background-primary);
+        box-shadow: var(--shadow-lg);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+      }
+      .workflowGatewayAdd {
+        right: 0;
+      }
+      .workflowGatewayFold {
+        left: 0;
+      }
+    }
+    .workflowGatewayCollapsed {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      z-index: 3;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      color: var(--color-white);
+      background: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%) rotate(45deg);
+      box-shadow: var(--shadow-sm);
+      &:hover {
+        background: var(--color-link-hover);
+      }
+      > span {
+        transform: rotate(-45deg);
       }
     }
     .workflowBranchSpecial {
@@ -143,31 +198,20 @@
       padding-top: 32px !important;
     }
   }
-  .workflowBranchNumber {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-white);
-  }
 }
 
 .workflowBranchTips {
   white-space: nowrap;
   height: 34px;
   width: 98px;
-  .ant-tooltip-inner {
+  .hap-tooltip-container {
     background-color: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
     display: flex;
     justify-content: center;
   }
-  .ant-tooltip-arrow {
+  .hap-tooltip-arrow {
     display: none !important;
   }
   .workflowBranchBtnSmall {
@@ -180,6 +224,7 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    line-height: 1;
     i {
       font-size: 16px;
     }

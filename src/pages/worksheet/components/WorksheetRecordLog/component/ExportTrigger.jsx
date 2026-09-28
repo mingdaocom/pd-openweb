@@ -1,48 +1,24 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Dropdown } from 'ming-ui/antd-components';
 import DownloadAjax from 'src/api/download';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
+import { getFeatureStatus } from 'src/utils/services/project';
 
-const EXPORT_OPTIONS = [
+const EXPORT_MENU_ITEMS = [
   {
     label: 'Excel',
-    value: '1',
-    icon: 'new_excel',
+    key: '1',
+    icon: <Icon icon="new_excel" className="Font18" />,
   },
   {
     label: 'PDF',
-    value: '2',
-    icon: 'pdf',
+    key: '2',
+    icon: <Icon icon="pdf" className="Font18" />,
   },
 ];
-
-const Wrap = styled.div`
-  width: 220px;
-  padding: 4px 0;
-  background: var(--color-background-primary);
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  .exportItem {
-    padding: 0 20px;
-    line-height: 44px;
-    .Icon {
-      color: var(--color-text-secondary);
-    }
-    &:hover {
-      background: var(--color-primary);
-      color: var(--color-white);
-      .Icon {
-        color: var(--color-white);
-      }
-    }
-  }
-`;
 
 export default function ExportTrigger(props) {
   const { worksheetId, rowId, filters = {}, projectId } = props;
@@ -50,7 +26,7 @@ export default function ExportTrigger(props) {
   const featureStatus = getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
 
   const onExport = type => {
-    setVisible(!visible);
+    setVisible(false);
     DownloadAjax.exportWorksheetOperationLogs({
       worksheetId,
       rowId,
@@ -73,25 +49,16 @@ export default function ExportTrigger(props) {
   };
 
   return (
-    <Trigger
-      popupVisible={visible}
-      onPopupVisibleChange={changeVisible}
-      action={['click']}
-      popupAlign={{ points: ['tr', 'br'], offset: [0, 5] }}
-      popup={
-        <Wrap>
-          {EXPORT_OPTIONS.map(l => (
-            <div
-              className="exportItem Hand valignWrapper"
-              key={`recordLogExport-${l.label}`}
-              onClick={() => onExport(l.value)}
-            >
-              <Icon icon={l.icon} className="Font18 mRight8" />
-              {l.label}
-            </div>
-          ))}
-        </Wrap>
-      }
+    <Dropdown
+      open={visible}
+      onOpenChange={changeVisible}
+      trigger={['click']}
+      placement="bottomRight"
+      menu={{
+        items: EXPORT_MENU_ITEMS,
+        style: { width: 220 },
+        onClick: ({ key }) => onExport(key),
+      }}
     >
       <span className="selectDate">
         <Icon icon="download" />
@@ -99,6 +66,6 @@ export default function ExportTrigger(props) {
           <Icon icon="auto_awesome" className="mLeft8" style={{ color: 'var(--color-warning)' }} />
         )}
       </span>
-    </Trigger>
+    </Dropdown>
   );
 }

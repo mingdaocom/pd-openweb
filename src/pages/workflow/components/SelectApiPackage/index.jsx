@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { navigateTo } from 'router/navigateTo';
-import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { navigateTo } from 'router/navigation/navigateTo';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Input, Modal } from 'ming-ui/antd-components';
 import packageVersion from '../../api/packageVersion';
 import './index.less';
 
@@ -96,14 +97,24 @@ export default ({
   if (!visible) return null;
 
   return (
-    <Dialog className="selectApiPackageDialog" title={title} visible width={720} showFooter={false} onCancel={onClose}>
+    <Modal
+      className="selectApiPackageDialog"
+      title={title}
+      open
+      width={720}
+      mask={{ closable: true }}
+      keyboard
+      onCancel={onClose}
+    >
       <div className="flexColumn h100">
         {data !== null && (!!data.length || !!keywords) && (
-          <div className="flexRow relative mBottom15 relative alignItemsCenter">
-            <input
-              type="text"
+          <div className="flexRow relative mBottom15 alignItemsCenter">
+            <Input
+              radius
               placeholder={_l('搜索 API 连接')}
               className="selectApiPackageInput"
+              variant="filled"
+              prefix={<Icon icon="search" className="Font16 textSecondary" />}
               onChange={e => onChange(e.target.value.trim())}
             />
             <div className="flex" />
@@ -115,7 +126,6 @@ export default ({
                 + {_l('添加新连接')}
               </span>
             )}
-            <i className="icon-search selectApiPackageSearch textSecondary" />
           </div>
         )}
 
@@ -144,6 +154,6 @@ export default ({
           )}
         </div>
       </div>
-    </Dialog>
+    </Modal>
   );
 };

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Dialog, Icon, SortableList, UserHead } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
+import React, { useEffect, useRef, useState } from 'react';
+import { Icon, SortableList, UserHead } from 'ming-ui';
+import { Modal, Tooltip } from 'ming-ui/antd-components';
 import departmentAjax from 'src/api/department';
 import { List, Wrap } from './style';
 
@@ -8,6 +8,7 @@ function SortTopUp(props) {
   const { visible, departmentName, departmentId, projectId, onOk, onCancel } = props;
 
   const [sortList, setSortList] = useState([]);
+  const requestPending = useRef(false);
 
   useEffect(() => {
     if (!departmentId) return;
@@ -32,7 +33,10 @@ function SortTopUp(props) {
   };
 
   const onSave = () => {
-    departmentAjax
+    if (requestPending.current) return;
+
+    requestPending.current = true;
+    return departmentAjax
       .resetTopDisplayOrders({
         projectId,
         departmentId,
@@ -47,6 +51,9 @@ function SortTopUp(props) {
         }
 
         alert(_l('设置失败'), 2);
+      })
+      .finally(() => {
+        requestPending.current = false;
       });
   };
 
@@ -67,8 +74,10 @@ function SortTopUp(props) {
   };
 
   return (
-    <Dialog
-      visible={visible}
+    <Modal
+      open={visible}
+      mask={{ closable: true }}
+      keyboard
       type="fixed"
       title={_l('“%0” 的置顶成员排序', departmentName)}
       okText={_l('保存')}
@@ -82,6 +91,7 @@ function SortTopUp(props) {
         <div className="textPrimary Font14 mBottom16">{sortList.length}/50</div>
         <List className="flex">
           <SortableList
+            renderBody
             useDragHandle
             items={sortList}
             renderItem={renderItem}
@@ -90,7 +100,7 @@ function SortTopUp(props) {
           />
         </List>
       </Wrap>
-    </Dialog>
+    </Modal>
   );
 }
 

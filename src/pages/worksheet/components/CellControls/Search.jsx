@@ -14,9 +14,9 @@ const Con = styled(EditableCellCon)`
     height: 32px;
     line-height: 32px;
   }
-  .ant-select {
+  .hap-select {
     font-size: 13px;
-    .ant-select-arrow {
+    .hap-select-arrow {
       height: 30px !important;
       border: none;
       right: 2px !important;
@@ -27,34 +27,8 @@ const Con = styled(EditableCellCon)`
       }
     }
   }
-  .ant-select .ant-select-selector,
-  .ant-select .ant-select-selector:not(.ant-select-open):not(.ant-select-disabled) {
-    height: 32px !important;
-    min-height: auto !important;
-    padding: 0 6px !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    .ant-select-selection-placeholder,
-    input {
-      font-size: 13px;
-    }
-    .ant-select-selection-search {
-      left: 6px !important;
-    }
-    .ant-select-selection-search,
-    .ant-select-selection-search-input,
-    .ant-select-selection-placeholder {
-      height: 32px !important;
-    }
-    &:hover {
-      background: transparent !important;
-      background-color: transparent !important;
-    }
-  }
-  ${({ isediting }) =>
-    isediting
+  ${({ $isediting }) =>
+    $isediting
       ? `
       &.cell.isediting {
         padding: 0px !important;
@@ -63,7 +37,7 @@ const Con = styled(EditableCellCon)`
   `
       : ''}
   &.hideArrow {
-    .ant-select-arrow {
+    .hap-select-arrow {
       display: none !important;
     }
   }
@@ -92,7 +66,7 @@ export default function CellSearch(props) {
         canedit: editable,
         hideArrow: cell.enumDefault === 2 && _.get(cell, 'advancedSetting.clicksearch') === '1',
       })}
-      isediting={isediting}
+      $isediting={isediting}
       style={style}
       onClick={onClick}
       iconName={'arrow-down-border'}
@@ -109,7 +83,7 @@ export default function CellSearch(props) {
               ..._.pick(props, ['projectId', 'recordId', 'appId', 'worksheetId', 'viewId']),
             }}
             formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
-            defaultSelectProps={{ open: true, dropdownMatchSelectWidth: 420 }}
+            defaultSelectProps={{ open: true, popupMatchSelectWidth: 420 }}
             onChange={(value, id) => {
               if (id) {
                 // 重写子表数据更新逻辑

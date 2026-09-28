@@ -4,13 +4,13 @@ import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
-import preall from 'src/common/preall';
+import globalEvents from 'src/common/entries/globalEvents';
+import preall from 'src/common/entries/preall';
+import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
-import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import globalEvents from 'src/router/globalEvents';
-import { shareGetAppLangDetail } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { SYS, SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
+import { shareGetAppLangDetail } from 'src/utils/services/app';
+import { replaceControlsTranslateInfo } from 'src/utils/services/translation/app';
 import WorksheetShareHeader from './header';
 import './index.less';
 
@@ -401,4 +401,8 @@ class WorksheetSahre extends React.Component {
 }
 
 const root = createRoot(document.getElementById('app'));
-root.render(<WorksheetSahre />);
+root.render(
+  <AntdThemeProvider>
+    <WorksheetSahre />
+  </AntdThemeProvider>,
+);

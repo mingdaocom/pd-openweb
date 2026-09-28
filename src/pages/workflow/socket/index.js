@@ -3,12 +3,39 @@ import _ from 'lodash';
 import { mdNotification } from 'ming-ui/functions';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { emitter } from 'src/utils/common';
-import { equalToLocalPushUniqueId, pathCompletion } from 'src/utils/common';
+import { openGlobalAddRecord } from 'worksheet/common/newRecord/addRecord';
+import { openGlobalRecordInfo } from 'worksheet/common/recordInfo';
+import { emitter } from 'src/utils/platform/browser/dom';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { equalToLocalPushUniqueId } from 'src/utils/platform/storage/local';
 import { PUSH_TYPE } from '../WorkflowSettings/enum';
 import { playPromptSound } from './promptSound';
+
+export const getCenteredPopupOptions = (windowSize = {}, targetWindow = window) => {
+  const popupWidth = Number(windowSize.width) || 800;
+  const popupHeight = Number(windowSize.height) || 600;
+  const screenX = Number.isFinite(targetWindow.screenX) ? targetWindow.screenX : targetWindow.screenLeft || 0;
+  const screenY = Number.isFinite(targetWindow.screenY) ? targetWindow.screenY : targetWindow.screenTop || 0;
+  const currentScreen = targetWindow.screen || {};
+  const hasScreenBounds = [
+    currentScreen.availLeft,
+    currentScreen.availTop,
+    currentScreen.availWidth,
+    currentScreen.availHeight,
+  ].every(Number.isFinite);
+  const containerLeft = hasScreenBounds ? currentScreen.availLeft : screenX;
+  const containerTop = hasScreenBounds ? currentScreen.availTop : screenY;
+  const containerWidth = hasScreenBounds
+    ? currentScreen.availWidth
+    : targetWindow.outerWidth || targetWindow.innerWidth || popupWidth;
+  const containerHeight = hasScreenBounds
+    ? currentScreen.availHeight
+    : targetWindow.outerHeight || targetWindow.innerHeight || popupHeight;
+  const left = Math.round(containerLeft + (containerWidth - popupWidth) / 2);
+  const top = Math.round(containerTop + (containerHeight - popupHeight) / 2);
+
+  return `width=${popupWidth},height=${popupHeight},toolbar=no,menubar=no,location=no,status=no,top=${top},left=${left}`;
+};
 
 const getWorksheetInfo = worksheetId => {
   return new Promise(resolve => {
@@ -99,7 +126,7 @@ export default () => {
 
         if (rowId) {
           getWorksheetInfo(worksheetId).then(data => {
-            openRecordInfo({
+            openGlobalRecordInfo({
               worksheetId: worksheetId,
               recordId: rowId,
               from: 21,
@@ -112,7 +139,7 @@ export default () => {
             });
           });
         } else {
-          addRecord({
+          openGlobalAddRecord({
             worksheetId: worksheetId,
             onAdd: data => {
               alert(data ? _l('添加成功') : _l('添加失败'));
@@ -138,7 +165,7 @@ export default () => {
                   closeWhenNotViewData: true,
                 });
               } else {
-                openRecordInfo({
+                openGlobalRecordInfo({
                   appId: appId,
                   worksheetId: worksheetId,
                   recordId: rowId,
@@ -170,11 +197,7 @@ export default () => {
         } else if (openMode === 2) {
           window.open(content);
         } else {
-          const iTop = (window.screen.availHeight - 660) / 2; // 获得窗口的垂直位置;
-          const iLeft = (window.screen.availWidth - 800) / 2; // 获得窗口的水平位置;
-          const options = `width=${data.windowSize?.width || 800},height=${data.windowSize?.height || 600},toolbar=no,menubar=no,location=no,status=no,top=${iTop},left=${iLeft}`;
-
-          window.open(content, '_blank', options);
+          window.open(content, '_blank', getCenteredPopupOptions(data.windowSize));
         }
       }
 

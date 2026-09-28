@@ -5,17 +5,21 @@ import styled from 'styled-components';
 import xss from 'xss';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
 import TaskCenterController from 'src/api/taskCenter';
 import processAjax from 'src/pages/workflow/api/process';
-import Emotion from 'src/components/emotion/emotion';
+import AntdConfigProvider from 'src/common/providers/theme/AntdConfigProvider';
+import parseEmotion from 'src/components/emotion/parseEmotion';
 import { formatMsgDate } from 'src/pages/chat/utils';
-import logDialog from 'src/pages/workflow/WorkflowSettings/History/components/logDialog';
+import { useWorkflowLogDialog } from 'src/pages/workflow/WorkflowSettings/History/components/logDialog';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
-import { navigateTo } from 'src/router/navigateTo';
-import { getRequest, pathCompletion } from 'src/utils/common';
-import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
+import { navigateTo } from 'src/router/navigation/navigateTo';
+import { getRequest } from 'src/utils/platform/browser/device';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
+import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
+import { addBehaviorLog } from 'src/utils/services/project';
 import { MSG_DONE_TEXT, MSGTYPES } from '../../constants';
-import { formatInboxItem, linkifySanitizedHtml } from '../../util';
+import { formatInboxItem, isOrganizationDrawerLink, linkifySanitizedHtml } from '../../util';
 import Avatar from '../baseComponent/avatar';
 import Star from '../baseComponent/star';
 
@@ -54,7 +58,7 @@ const removeWebUrlPrefix = href => {
  * @returns
  */
 
-export default class SystemMessage extends PureComponent {
+class SystemMessage extends PureComponent {
   state = {
     showAddressBook: false,
     processInfo: null,
@@ -66,8 +70,21 @@ export default class SystemMessage extends PureComponent {
     if (this.msg) {
       $(this.msg).on('click', 'a', function (evt) {
         const $this = $(this);
-        const href = removeWebUrlPrefix($(evt.target).attr('href'));
+        const rawHref = $this.attr('href');
+        const href = removeWebUrlPrefix(rawHref);
         const hrefWithoutQuery = href.split('?')[0];
+        const isModifiedClick = evt.metaKey || evt.ctrlKey || evt.shiftKey || evt.altKey || evt.button > 0;
+
+        if (
+          !isModifiedClick &&
+          isOrganizationDrawerLink(rawHref) &&
+          typeof window.openOrganizationDrawer === 'function'
+        ) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.openOrganizationDrawer();
+          return;
+        }
 
         if ($(evt.target).attr('t') === 'taskCmd') {
           var opValue = $this.attr('opvalue');
@@ -117,19 +134,21 @@ export default class SystemMessage extends PureComponent {
           const div = document.createElement('div');
           const root = createRoot(div);
           root.render(
-            <Suspense fallback={null}>
-              <LoadableExecDialog
-                id={ids[0]}
-                workId={ids[1]}
-                onLoad={() => {
-                  const refreshBtn = document.querySelector('.ChatPanel-active .inboxHeader .refreshBtn');
-                  refreshBtn && refreshBtn.click();
-                }}
-                onClose={() => {
-                  root.unmount();
-                }}
-              />
-            </Suspense>,
+            <AntdConfigProvider>
+              <Suspense fallback={null}>
+                <LoadableExecDialog
+                  id={ids[0]}
+                  workId={ids[1]}
+                  onLoad={() => {
+                    const refreshBtn = document.querySelector('.ChatPanel-active .inboxHeader .refreshBtn');
+                    refreshBtn && refreshBtn.click();
+                  }}
+                  onClose={() => {
+                    root.unmount();
+                  }}
+                />
+              </Suspense>
+            </AntdConfigProvider>,
           );
           return;
         }
@@ -211,7 +230,7 @@ export default class SystemMessage extends PureComponent {
 
           evt.preventDefault();
           evt.stopPropagation();
-          logDialog({
+          that.props.openWorkflowLogDialog({
             processId,
             nodeId,
             instanceId,
@@ -252,7 +271,6 @@ export default class SystemMessage extends PureComponent {
     const { Message = {}, createTime, inboxType, app = null, processId = null, status, readTime } = this.props;
     const { showAddressBook, processInfo } = this.state;
     const { typeName, isFavorite, inboxId } = formatInboxItem(this.props);
-    const parse = Emotion.parse;
     const starProps = {
       isFavorite,
       inboxId,
@@ -289,7 +307,7 @@ export default class SystemMessage extends PureComponent {
         inboxType,
       ) && !!status;
     const value = xss(content.replace(/[\r\n]/g, '<br />'), xssOptions);
-    const linkifyValue = parse(linkifySanitizedHtml(value, xssOptions));
+    const linkifyValue = parseEmotion(linkifySanitizedHtml(value, xssOptions));
 
     const renderIcon = () => {
       if (hasApp && app.status === 1) {
@@ -431,3 +449,7 @@ export default class SystemMessage extends PureComponent {
     );
   }
 }
+
+export default withOpeners(SystemMessage, {
+  openWorkflowLogDialog: useWorkflowLogDialog,
+});

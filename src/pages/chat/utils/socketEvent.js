@@ -1,7 +1,7 @@
 import sessionNewMsgAudio from 'src/pages/chat/lib/mp3player/sessionNewMsgAudio.html';
 import systemNewMsgAudio from 'src/pages/chat/lib/mp3player/systemNewMsgAudio.html';
-import { navigateToLogin } from 'src/router/navigateTo';
-import { getPssId } from 'src/utils/pssId';
+import { navigateToLogin } from 'src/router/navigation/navigateTo';
+import { getPssId } from 'src/utils/platform/auth/pssId';
 import * as actions from '../redux/actions';
 import { removeFlashTitle } from './index';
 

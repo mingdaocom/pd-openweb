@@ -2,11 +2,11 @@ import React from 'react';
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
+import { getIconByType } from 'src/utils/domain/control/metadata';
 
 const Con = styled.div(
-  ({ disabled }) => `
+  ({ $disabled }) => `
     display: flex;
     border-radius: 3px;
     height: 36px;
@@ -14,9 +14,9 @@ const Con = styled.div(
     padding: 0 6px 0 10px;
     border: 1px solid var(--color-border-primary);
     min-width: 100px;
-    cursor: ${disabled ? 'pointer' : ''};
+    cursor: ${$disabled ? 'pointer' : ''};
     overflow: hidden;
-    ${disabled ? 'background-color: var(--color-background-secondary)' : ''}
+    ${$disabled ? 'background-color: var(--color-background-secondary)' : ''}
     .flex {
       flex: 1;
       overflow: hidden;
@@ -82,7 +82,7 @@ export default function ControlSelect(props) {
       classNamePopup="addControlDrop"
     >
       {children || (
-        <Con disabled={disabled} className="controlSelect" style={style}>
+        <Con $disabled={disabled} className="controlSelect" style={style}>
           <div className="flex">
             {!control && <span className="placeholder">{_l('请选择')}</span>}
             {control && <ControlIconItem control={control} />}

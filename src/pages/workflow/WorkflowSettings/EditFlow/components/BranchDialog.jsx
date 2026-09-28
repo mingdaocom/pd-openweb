@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { Dialog, Radio } from 'ming-ui';
+import { Modal, Radio } from 'ming-ui/antd-components';
 import { ACTION_ID, NODE_TYPE } from '../../enum';
 
 export default ({
@@ -47,8 +47,8 @@ export default ({
   // 结果分支
   if (isSpecialBranch) {
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         width={560}
         title={
           typeId === NODE_TYPE.APPROVAL
@@ -65,7 +65,9 @@ export default ({
             : () => setIsSpecialBranch(false)
         }
       >
-        <Radio className="Font15" text={_l('添加普通分支')} checked={isOrdinary} onClick={() => setIsOrdinary(true)} />
+        <Radio className="Font15" checked={isOrdinary} onChange={() => setIsOrdinary(true)} title={_l('添加普通分支')}>
+          {_l('添加普通分支')}
+        </Radio>
         <div className="textSecondary Font13 pLeft30 mTop5 mBottom15">
           {typeId === NODE_TYPE.APPROVAL
             ? _l('只对“通过”审批的数据进行分支处理')
@@ -73,10 +75,12 @@ export default ({
         </div>
         <Radio
           className="Font15"
-          text={typeId === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
           checked={!isOrdinary}
-          onClick={() => setIsOrdinary(false)}
-        />
+          onChange={() => setIsOrdinary(false)}
+          title={typeId === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
+        >
+          {typeId === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
+        </Radio>
         <div className="textSecondary Font13 pLeft30 mTop5">
           {typeId === NODE_TYPE.APPROVAL
             ? _l('分支固定为“通过”和“否决”。如果你同时需要对“否决”审批的数据进行处理时选择此分支')
@@ -84,13 +88,13 @@ export default ({
                 '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
               )}
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 
   return (
-    <Dialog
-      visible
+    <Modal
+      open
       width={560}
       title={_l('分支下方的节点整体放置在')}
       onCancel={onClose}
@@ -101,12 +105,14 @@ export default ({
     >
       {MOVE_TYPE().map(o => (
         <div key={o.value} className="mBottom15">
-          <Radio className="Font15" text={o.text} checked={moveType === o.value} onClick={() => setMoveType(o.value)} />
+          <Radio className="Font15" checked={moveType === o.value} onChange={() => setMoveType(o.value)} title={o.text}>
+            {o.text}
+          </Radio>
         </div>
       ))}
       <div className="textSecondary Font13 pLeft30" style={{ marginTop: -10 }}>
         {_l('等待分支汇集后再执行下方节点')}
       </div>
-    </Dialog>
+    </Modal>
   );
 };

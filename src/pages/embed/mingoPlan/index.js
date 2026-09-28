@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
-import preall from 'src/common/preall';
+import preall from 'src/common/entries/preall';
 import PlanPage from './PlanPage';
 
 // /public/mingo/plan：官网新标签页的匿名「生成 plan」页。免登录。

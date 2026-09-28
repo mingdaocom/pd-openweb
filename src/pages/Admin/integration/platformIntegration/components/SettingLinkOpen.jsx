@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { Radio } from 'ming-ui';
+import { Radio } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
 
 const messageLinkTypes = [
@@ -30,12 +30,14 @@ function SettingLinkOpen(props) {
       {messageLinkTypes.map(item => {
         return (
           <Radio
-            className="Block mTop20"
+            className="mTop20"
             disabled={disabled}
             checked={value === item.key}
-            text={item.label}
-            onClick={() => handleChange(item.key)}
-          />
+            onChange={() => handleChange(item.key)}
+            title={item.label}
+          >
+            {item.label}
+          </Radio>
         );
       })}
     </div>

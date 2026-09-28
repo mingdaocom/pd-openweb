@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { array, bool, func, string } from 'prop-types';
-import { Checkbox, Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Input, Modal } from 'ming-ui/antd-components';
 import process from '../../api/process';
 import './index.less';
 
@@ -104,13 +105,14 @@ export default class SelectWorkflow extends Component {
         <div className="bold ellipsis">{relationId === item.apkId ? _l('当前应用') : item.apkName}</div>
         {item.processList.map((obj, index) => {
           return (
-            <Checkbox
-              key={index}
-              className="mTop15 flexRow"
-              checked={!!_.find(selectItems, o => o.id === obj.id)}
-              text={obj.name}
-              onClick={checked => this.onSelect(item.apkName, obj, !checked)}
-            />
+            <div className="mTop15 flexRow" key={index}>
+              <Checkbox
+                checked={!!_.find(selectItems, o => o.id === obj.id)}
+                onChange={event => this.onSelect(item.apkName, obj, event.target.checked)}
+              >
+                {obj.name}
+              </Checkbox>
+            </div>
           );
         })}
         {!isLast && <div className="selectWorkflowLine" />}
@@ -140,8 +142,8 @@ export default class SelectWorkflow extends Component {
     if (!visible) return null;
 
     return (
-      <Dialog
-        visible
+      <Modal
+        open
         width={540}
         className="selectWorkflowDialog"
         title={_l('选择工作流')}
@@ -152,14 +154,14 @@ export default class SelectWorkflow extends Component {
         onCancel={onClose}
       >
         <div className="flexColumn h100">
-          <div className="flexRow relative">
-            <input
-              type="text"
+          <div className="flexRow">
+            <Input
               placeholder={_l('搜索工作流名称')}
               className="selectWorkflowInput"
+              variant="underlined"
+              prefix={<Icon icon="search" className="textSecondary Font16" />}
               onChange={e => this.setState({ keywords: e.target.value })}
             />
-            <Icon icon="search" className="selectWorkflowSearch textSecondary Font16" />
           </div>
           <div className="flex mTop15 minHeight0">
             {data === null ? (
@@ -173,7 +175,7 @@ export default class SelectWorkflow extends Component {
             )}
           </div>
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

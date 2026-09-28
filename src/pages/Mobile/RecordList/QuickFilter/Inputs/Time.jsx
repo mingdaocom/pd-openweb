@@ -3,14 +3,13 @@ import _ from 'lodash';
 import moment from 'moment';
 import { func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Input, TimeZoneTag } from 'ming-ui';
+import { TimeZoneTag } from 'ming-ui';
+import { Input } from 'ming-ui/antd-components';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 
-const InputCon = styled(Input)`
+const InputCon = styled(Input).attrs({ variant: 'filled' })`
   width: 100%;
   border-radius: 18px !important;
-  border: none !important;
-  background-color: var(--color-background-secondary) !important;
 `;
 
 const dealDate = date => {

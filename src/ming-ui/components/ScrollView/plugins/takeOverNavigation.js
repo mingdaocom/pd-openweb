@@ -1,4 +1,4 @@
-﻿import { compatibleMDJS } from 'src/utils/project';
+﻿import { compatibleMDJS } from 'src/utils/services/project';
 
 export default {
   name: 'takeOverNavigation',

@@ -19,145 +19,47 @@
     position: relative;
   }
 
-  .editColorModel .editColorModel {
-    width: 30px;
-    position: relative;
-  }
-
-  .editColorModel .editColor {
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
-    vertical-align: top;
-    margin: 3px 6px 0 0;
-  }
-
-  .calendarEdit .editColorModel .editColor {
-    margin-top: 2px;
-  }
-
-  .calendarEdit .editColorModel ul .selectIcon {
-    position: absolute;
-    top: 2px;
-    left: 5px;
-  }
-
-  .editColorModel .calendarColorRed {
-    background: var(--color-error);
-  }
-
-  .editColorModel .calendarColorViolet {
-    background: #9c27b0;
-  }
-
-  .editColorModel .calendarColorBrown {
-    background: #795548;
-  }
-
-  .editColorModel .calendarColorOrange {
-    background: var(--color-warning);
-  }
-
-  .editColorModel .calendarColorBlue {
-    background: var(--color-primary);
-  }
-
-  .editColorModel .calendarColorGreen {
-    background: var(--color-success);
-  }
-
-  .editColorModel .calendarColorYellow {
-    background: var(--color-yellow);
-  }
-
-  .editColorModel .calendarColorHide {
-    display: none;
-  }
-
-  .editColorModel .icon-arrow-down-border {
-    vertical-align: top;
-    display: inline-block;
-    font-size: 12px;
-    margin-top: 4px;
-  }
-
-  /*---------------------------synchronous html---------------------------*/
+  /*---------------------------synchronous---------------------------*/
   .synchronousMain {
     width: 600px;
     text-align: left;
     word-wrap: break-word;
   }
 
-  .synchronousMain .synchronousMainFontSize20 {
-    font-size: 20px;
-  }
-
   .synchronousMain .synchronousMainDescription {
     font-size: 12px;
-    padding-top: 18px;
+    margin-top: 18px;
   }
 
-  .synchronousMain .synchronousMainStyle {
-    vertical-align: bottom;
-    padding: 20px 0;
+  .synchronousMain .synchronousActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0 20px;
   }
 
-  .synchronousMain .synchronousBtn1 {
-    position: relative;
-    width: 61px;
-    margin: 0 16px 0 3px;
-    float: left;
-  }
-
-  .synchronousMain .synchronousMargin {
-    position: relative;
-    float: left;
-    display: inline-block;
-    margin-top: 3px;
-  }
-
-  .clipboardswf {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  .synchronousMain .synchronousBorder {
-    border-top: 1px var(--color-border-tertiary) solid;
-  }
-
-  .synchronousMain .synchronousPStyle1 {
-    color: var(--color-text-tertiary);
+  .synchronousMain .synchronousDescription {
+    border-top: 1px solid var(--color-border-tertiary);
     line-height: 22px;
+    padding-top: 16px;
   }
 
-  .synchronousMain #iCalAbout {
-    width: 596px;
-    border: 1px var(--color-border-tertiary) solid;
-  }
-
-  .synchronousMain .synchronousSelect {
-    width: 135px;
-    height: 28px;
-    vertical-align: middle;
-    padding-left: 15px;
-  }
-
-  .synchronousMain .synchronousLineHeight24 {
+  .synchronousMain .synchronousSteps {
+    min-height: 84px;
     line-height: 24px;
   }
 
-  /*---------------------------ClassificationCalendar html------------------------------------*/
+  /*---------------------------ClassificationCalendar------------------------------------*/
   .classificationCalendarList ul {
     margin-top: 5px;
   }
 
   .classificationCalendarList li {
-    margin-top: 10px;
-    margin-left: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 34px;
+    margin: 10px 0 0 22px;
   }
 
   .classificationCalendarList li:first-child {
@@ -165,51 +67,31 @@
   }
 
   .classificationCalendarList .classificationListColumn {
-    float: left;
+    flex: none;
     color: var(--color-text-tertiary);
-    height: 32px;
-    line-height: 32px;
     font-size: 14px;
   }
 
   .classificationCalendarList .classificationListColumnOperation {
-    float: left;
-    color: var(--color-text-primary);
-    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 410px;
-    position: relative;
+    color: var(--color-text-primary);
   }
 
-  .classificationCalendarList .classificationListColumnOperation .classificationListName {
-    height: 22px;
-    font-size: 14px;
-    line-height: 20px;
-    padding: 5px 60px 5px 8px;
-    width: 343px;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 2px;
-    box-sizing: initial;
+  .classificationCalendarList .classificationListName {
+    flex: 1;
   }
 
-  .classificationCalendarList .classificationListColumnOperation .classificationListName:not(:hover):not(:focus) {
-    border: 1px solid var(--color-border-primary) !important;
+  .classificationCalendarList .classificationListColor {
+    width: 96px;
   }
 
-  .classificationCalendarList .classificationListColumnOperation .classificationListDropdown {
-    position: absolute;
-    top: 1px;
-    right: 0;
-    cursor: pointer;
-    border-left: 1px solid var(--color-border-tertiary);
-    padding: 7px 10px 5px 10px;
-  }
-
-  .classificationListDropdown .icon-arrow-down {
-    font-size: 16px;
-    color: var(--color-text-tertiary);
-    vertical-align: top;
-    display: inline-block;
+  .calendarColorOption {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .colorBlockRed,
@@ -225,20 +107,6 @@
     -webkit-border-radius: 50%;
     border-radius: 50%;
     display: inline-block;
-  }
-
-  .classificationListDropdown .iconDown {
-    width: 12px;
-    height: 1px;
-    display: inline-block;
-    position: relative;
-    color: var(--color-text-tertiary);
-  }
-
-  .classificationListDropdown .iconDown:before {
-    position: absolute;
-    bottom: 1px;
-    left: 3px;
   }
 
   .colorBlockRed {
@@ -270,30 +138,15 @@
   }
 
   .classificationCalendarList .classificationListDel {
-    margin-left: 12px;
-    height: 34px;
-    line-height: 34px;
-    display: inline-block;
-    color: var(--color-text-placeholder);
-    font-size: 18px;
+    flex: none;
   }
 
   .classificationCalendarList .classificationListDel:hover {
-    color: var(--color-text-tertiary);
     text-decoration: none;
   }
 
   .classificationCalendarListAdd {
-    margin-left: 69px;
-    display: inline-block;
-    margin-top: 12px;
-    font-size: 14px;
-  }
-
-  .classificationCalendarListAdd .iconAdd {
-    margin-top: -2px;
-    display: inline-block;
-    vertical-align: middle;
+    margin: 12px 0 0 57px;
   }
 
   .calendarTypeList > ul {
@@ -361,6 +214,18 @@
     margin-right: 8px;
   }
 
+  .calendarTypeList .iconTickStyle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .calendarTypeList .calendarTypeLoading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+  }
+
   #workCalendar,
   #privateCalendar,
   #taskCalendar {
@@ -374,6 +239,7 @@
 
   #filterTaskType {
     cursor: pointer;
+    display: inline-block;
   }
 
   #filterTaskType .icon-arrow-down-border {
@@ -384,69 +250,30 @@
     margin-top: 14px;
   }
 
-  .filterTaskTypeList {
-    z-index: 1;
-    border: 1px solid var(--color-border-secondary);
-    position: absolute;
-    top: 35px;
-    left: 14px;
-    padding: 5px 0 10px;
-    background: var(--color-background-card);
-    box-shadow: var(--shadow-lg);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    display: none;
-  }
-
-  .calendarMenu .filterTaskTypeList li {
-    margin-top: 5px;
-    cursor: pointer;
-    padding: 0;
-    color: var(--color-text-title);
-    font-size: 12px;
-    height: 20px;
-    line-height: 20px;
-    padding-right: 10px;
-  }
-
-  .calendarMenu .filterTaskTypeList li:hover {
-    color: var(--color-primary-focus);
-  }
-
-  .filterTaskTypeList li .filterTaskTypeListIcon {
-    display: inline-block;
-    vertical-align: top;
-    margin: 4px 10px 0 10px;
-    width: 9px;
-    font-size: 14px;
-  }
-
-  /*---------------------------addOtherUser html---------------------------*/
-  #tb_OtherUserCalendar .addOtherUser {
+  /*---------------------------addOtherUser---------------------------*/
+  .tbOtherUserCalendar .addOtherUser {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     height: 40px;
-    line-height: 40px;
-    position: relative;
     width: 100%;
     padding: 0 18px;
     color: rgba(255, 255, 255, 0.87);
   }
 
   .addOtherUser .addOtherUserHeadImg {
+    display: block;
+    flex: none;
     width: 24px;
     height: 24px;
-    margin-right: 10px;
-    display: inline-block;
-    vertical-align: top;
-    margin-top: 8px;
   }
 
-  .addOtherUser span {
-    width: 150px;
+  .addOtherUser > span.textSecondary {
     overflow: hidden;
+    flex: 1;
+    min-width: 0;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: inline-block;
   }
 
   .addOtherUser .avatarBox {
@@ -454,55 +281,16 @@
   }
 
   .addOtherUser .addOtherUserDelImg {
-    width: auto;
-    vertical-align: top;
-    margin: 3px 0 0 0;
-    display: inline-block;
-    cursor: pointer;
-    position: absolute;
-    top: 12px;
-    right: 18px;
+    flex: none;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0;
     font-size: 14px;
   }
 
   .addOtherUser .addOtherUserDelImg:hover {
     color: var(--color-white);
-  }
-
-  #others {
-    cursor: pointer;
-  }
-
-  /*---------------------------colorBlock html------------------------------------*/
-  .colorBlockMain {
-    position: absolute;
-    left: -2px;
-    top: 32px;
-    display: none;
-    border: 1px solid var(--color-text-disabled);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    position: absolute;
-    background: var(--color-background-primary);
-    padding: 3px 0;
-    z-index: 10000;
-  }
-
-  .colorBlockList {
-    height: 20px;
-    width: 100%;
-    box-sizing: border-box;
-    line-height: 20px;
-    cursor: pointer;
-    padding: 3px 8px 3px 8px;
-  }
-
-  .colorBlockList span {
-    vertical-align: top;
-    margin: 1px 3px 0 0;
-  }
-
-  .colorBlockList:hover {
-    background: var(--color-text-placeholder);
   }
 
   /*  单个受邀日程  */
@@ -575,24 +363,6 @@
     top: 10px;
   }
 
-  .inviteSinlge .enterInvite {
-    background: var(--color-success);
-    color: var(--color-white);
-  }
-
-  .inviteSinlge .enterInvite:hover {
-    background: var(--color-success-hover);
-  }
-
-  .inviteSinlge .refuseInvite {
-    background: #607d8b;
-    color: var(--color-white);
-  }
-
-  .inviteSinlge .refuseInvite:hover {
-    background: #455a64;
-  }
-
   .inviteSinlge .rightLabel {
     font-size: 14px;
     color: var(--color-text-title);
@@ -625,85 +395,36 @@
     padding-top: 6px;
   }
 
-  .calendarInvite .inviteCalendarType {
+  .inviteCategoryOption {
     display: flex;
-    position: relative;
-    top: auto;
-    right: auto;
-    vertical-align: top;
-    margin-top: -2px;
-    padding-left: 10px;
-    margin-right: 13px;
-    width: 41px;
-    height: 24px;
-    line-height: 24px;
-    border: 1px solid var(--color-border-secondary);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+    align-items: center;
+    gap: 8px;
   }
 
-  .calendarInvite .inviteCalendarType .editColor {
-    margin-top: 4px;
+  .inviteCategoryOption .selectIcon {
+    width: 12px;
   }
 
-  .calendarInvite .inviteCalendarType .selectIcon {
-    position: absolute;
-    top: 4px;
-    left: 4px;
+  .inviteCategoryOption .inviteCategoryColor {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    flex: none;
   }
 
-  .calendarInvite .inviteCalendarType .icon-arrow-down-border {
-    margin: 6px 4px 0 0;
-    font-size: 10px;
+  .inviteDescription {
+    white-space: pre-wrap;
   }
 
-  .calendarInvite .inviteCalendarType .inviteCalendarTypeName {
-    width: 56px;
-    height: 24px;
-    line-height: 24px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-  }
-
-  .calendarInvite .inviteCalendarTypeList {
-    border: 1px solid var(--color-border-secondary);
-    position: absolute;
-    top: 25px;
-    z-index: 100;
-    left: -1px;
-    padding: 5px 0;
-    background: var(--color-background-primary);
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    display: none;
-  }
-
-  .calendarInvite .inviteCalendarType .inviteCalendarTypeList li {
-    padding: 0 10px;
-    padding-left: 20px;
-    width: 85px;
-    height: 24px;
-    line-height: 24px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  .calendarInvite .inviteCalendarTypeList li:hover {
-    background: var(--color-border-secondary);
-  }
-
-  .calendarInvite .noData {
+  .invitedCalendars.calendarInvite > .noData {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     text-align: center;
     color: var(--color-text-placeholder);
     font-size: 18px;
-    padding-top: 50px;
+    padding: 0;
     border-bottom: 0;
     width: 100%;
   }
@@ -814,10 +535,6 @@
     background: var(--color-link-hover);
     cursor: pointer;
   }
-}
-
-.classificationCalendarEdit > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
-  overflow: visible !important;
 }
 
 .calendarInteraction.dialogBox .noHeader {

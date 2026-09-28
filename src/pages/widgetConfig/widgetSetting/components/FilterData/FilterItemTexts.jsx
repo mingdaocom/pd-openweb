@@ -1,11 +1,23 @@
 ﻿import React from 'react';
 import _, { isEmpty } from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getAdvanceSetting } from '../../../util/setting';
+import { getAdvanceSetting } from 'src/utils/domain/control/advancedSetting';
+import { redefineComplexControl } from 'src/utils/domain/control/normalization';
 import './FilterDialog.less';
 import './FilterText.less';
+
+export const hasDeletedCondition = (filters, controls = []) =>
+  Array.isArray(filters) &&
+  filters.some(condition => {
+    if (condition.isGroup) {
+      return hasDeletedCondition(condition.groupFilters, controls);
+    }
+
+    return !_.find(controls, { controlId: condition.controlId });
+  });
 
 const FilterTextWrap = styled.div`
   width: 100%;
@@ -88,6 +100,11 @@ const FilterTextWrap = styled.div`
     padding-top: 5px;
   }
 
+  .deletedConditionIcon {
+    padding-top: 7px;
+    margin-right: 10px;
+  }
+
   .editWorkflow {
     width: auto;
     color: var(--color-primary);
@@ -157,6 +174,7 @@ export default class FilterItemTexts extends React.Component {
     }
 
     filterItemTexts = filterItemTexts.filter(o => (o.isGroup ? (o.groupFilters || []).length > 0 : true));
+    const showDeletedConditionIcon = !loading && hasDeletedCondition(filters, controls);
     return (
       <FilterTextWrap
         className={className}
@@ -220,6 +238,13 @@ export default class FilterItemTexts extends React.Component {
           >
             <i className="icon-cancel textTertiary Font16 hoverColorPrimary TxtMiddle"></i>
           </div>
+        )}
+        {showDeletedConditionIcon && (
+          <Tooltip placement="bottom" title={_l('筛选条件出错')}>
+            <span className="deletedConditionIcon">
+              <Icon className="Font18 Red" icon="error1" />
+            </span>
+          </Tooltip>
         )}
         <div className="editFilter">
           <i className="icon-edit"></i>

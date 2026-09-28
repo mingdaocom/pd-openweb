@@ -2,10 +2,11 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
-import { Checkbox, Icon, QiniuUpload, ScrollView, SvgIcon } from 'ming-ui';
+import { Icon, QiniuUpload, ScrollView, SvgIcon } from 'ming-ui';
+import { Button, Checkbox } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { navigateTo } from 'src/router/navigateTo';
+import { navigateTo } from 'src/router/navigation/navigateTo';
 import './index.less';
 
 export default class CustomIcon extends Component {
@@ -18,6 +19,7 @@ export default class CustomIcon extends Component {
 
   cacheData = [];
   uploadLoadingKey = undefined;
+  requestPending = false;
 
   componentDidMount() {
     this.getList();
@@ -77,13 +79,21 @@ export default class CustomIcon extends Component {
    * 删除
    */
   delete = () => {
+    if (this.requestPending) return;
+
     const { projectId } = this.props;
     const { selected } = this.state;
 
-    ajaxRequest.deleteCustomIcon({ projectId, fileNames: selected }).then(() => {
-      this.setState({ selected: [] });
-      this.getList();
-    });
+    this.requestPending = true;
+    return ajaxRequest
+      .deleteCustomIcon({ projectId, fileNames: selected })
+      .then(() => {
+        this.setState({ selected: [] });
+        this.getList();
+      })
+      .finally(() => {
+        this.requestPending = false;
+      });
   };
 
   startLoading = () => {
@@ -115,11 +125,17 @@ export default class CustomIcon extends Component {
           </div>
           <div className="flexRow alignItemsCenter">
             <Checkbox
-              className="InlineBlock mRight15"
-              text={_l('上传图标保留颜色')}
+              className="mRight15"
               checked={preserveColor}
-              onClick={() => this.setState({ preserveColor: !preserveColor, cacheKey: +new Date() })}
-            />
+              onChange={() =>
+                this.setState({
+                  preserveColor: !preserveColor,
+                  cacheKey: +new Date(),
+                })
+              }
+            >
+              {_l('上传图标保留颜色')}
+            </Checkbox>
             <QiniuUpload
               key={cacheKey}
               options={{
@@ -162,13 +178,9 @@ export default class CustomIcon extends Component {
                 alert(errTip, 2);
               }}
             >
-              <div
-                className="bgColorPrimary hoverBgColorPrimaryDark pointer textWhite appManagementUploadBtn"
-                id="customIconBtn"
-              >
-                <Icon icon="add" className="Font18 mRight2" />
+              <Button type="primary" shape="round" icon={<Icon icon="add" />} id="customIconBtn">
                 {_l('上传图标')}
-              </div>
+              </Button>
             </QiniuUpload>
           </div>
         </div>
